@@ -229,8 +229,8 @@ per_mode! {
     /// requested() calls, the commitment, the publication and body hashes).
     witness_w3_exact_selected, |mode| {
         let file = match mode {
-            PreviewSolverMode::SparseInteractive => include_str!("../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json"),
-            _ => include_str!("../../../fixtures/product_preview/source_blocks/n05-dense_scrutiny.request.json"),
+            PreviewSolverMode::SparseInteractive => include_str!("../../../fixtures/product_preview/w1_controls/n05-sparse_interactive.request.json"),
+            _ => include_str!("../../../fixtures/product_preview/w1_controls/n05-dense_scrutiny.request.json"),
         };
         let raw: Value = serde_json::from_str(file).unwrap();
         let ran = witness(&format!("W3 {mode:?}"), WITNESS_STACK, move || permitted_work(raw, mode, |_| {}));

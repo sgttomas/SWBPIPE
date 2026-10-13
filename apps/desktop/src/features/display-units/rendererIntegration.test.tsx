@@ -12,6 +12,7 @@ import { buildDiagnosticInterpretation, buildResultInterpretation } from "../res
 import type { DesignKnowledge, MechanicsResult, PreviewComparison, PreviewModel } from "../../types";
 import type { DisplayQuantityRequest, DisplayQuantityResult } from "../../services/displayQuantityService";
 import { runRuleChecks, type RuleCheckRunResult } from "../../services/ruleCheckService";
+import { currentCarrierHeader } from "../../test-support/currentCarrierHeader";
 
 vi.mock("../../services/ruleCheckService", async (importOriginal) => ({
   ...await importOriginal<typeof import("../../services/ruleCheckService")>(),
@@ -19,7 +20,7 @@ vi.mock("../../services/ruleCheckService", async (importOriginal) => ({
 }));
 
 const sourceResult: MechanicsResult = {
-  schema_version: "0.1.0", document_kind: "test", run_id: "run:display", model_ref: "model:display",
+  ...currentCarrierHeader(), run_id: "run:display", model_ref: "model:display",
   status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" },
   summary: { max_displacement: { value: 0.0254, unit: "m", location_ref: "node:1", result_ref: "disp" } },
   results: [
@@ -111,23 +112,18 @@ describe("shared display preference in result renderers", () => {
     expect(JSON.stringify(result)).toBe(before);
   });
 
-  it("converts comparison absolute temperatures and interval deltas separately, with honest stale-source fallback", async () => {
+  it("shows a comparison delta whose current table declares no dimension unconverted, with an honest fallback", async () => {
+    // b7-plan E2: the retired 0.1.0 carrier's declared row dimension no longer reaches
+    // the comparison; no current semantic table declares a temperature quantity, so
+    // these deltas stay in their entered units.
     const compared = comparison();
     const before = JSON.stringify(compared);
     const convert = converter();
     const view = (result: MechanicsResult) => <DisplayUnitsProvider initialPreference="US" converter={convert}><DisplayUnitSelector /><ComparisonPanel comparison={compared} result={result} onSelectResult={() => {}} /></DisplayUnitsProvider>;
-    const rendered = render(view(sourceResult));
-    await waitFor(() => expect(screen.getByTestId("comparison-delta-temperature:right")).toHaveTextContent("18 degF"));
-    expect(screen.getByTestId("comparison-reference-temperature:right")).toHaveTextContent("32 degF");
-    expect(screen.getByTestId("comparison-target-temperature:right")).toHaveTextContent("50 degF");
-    expect(convert.mock.calls.flatMap(call=>call[0])).toEqual(expect.arrayContaining([expect.objectContaining({value:10, dimension_id:"temperature_interval", to_unit:"degF"}), expect.objectContaining({value:10, dimension_id:"temperature", to_unit:"degF"})]));
-    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "SI" } });
-    await waitFor(() => expect(screen.getByTestId("comparison-reference-temperature:right")).toHaveTextContent("273.15 K"));
-    expect(screen.getByTestId("comparison-delta-temperature:right")).toHaveTextContent("10 K");
-    const stale = structuredClone(sourceResult);
-    stale.results.find(row=>row.id === "temperature:right")!.value = 20;
-    rendered.rerender(view(stale));
-    expect(screen.getByTestId("comparison-delta-temperature:right")).toHaveTextContent("no SI catalog target for unknown");
+    render(view(sourceResult));
+    await waitFor(() => expect(screen.getByTestId("comparison-delta-temperature:right")).toHaveTextContent("no US catalog target for unknown"));
+    expect(screen.getByTestId("comparison-delta-temperature:right")).toHaveTextContent("10 degC");
+    expect(convert.mock.calls.flatMap(call=>call[0]).some(item=>item.dimension_id === "temperature" || item.dimension_id === "temperature_interval")).toBe(false);
     expect(JSON.stringify(compared)).toBe(before);
   });
 

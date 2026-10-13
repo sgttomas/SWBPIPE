@@ -70,7 +70,7 @@ export function useResultsSessionState() {
     && currentRecord.solver_version?.solver_version === currentSolver?.solver_version
     && currentRecord.solver_version?.build_ref.ref === currentSolver?.solver_build_ref
     && numericallyEligible
-    && (!["physics_source", "source_blocks"].includes(sourceContract(result)) || (!!inputManifest && sourceRecoveryModeMatches(result, inputManifest.manifest.model_basis.model_payload, currentSolver!.solver_mode)))
+    && (sourceContract(result) !== "physics_source" || (!!inputManifest && sourceRecoveryModeMatches(result, inputManifest.manifest.model_basis.model_payload, currentSolver!.solver_mode)))
     && hasNativeMechanicsInvocation(result, inputManifest?.manifest.model_basis.model_payload, currentSolver?.solver_mode) ? result : null;
   // Worst-of rule-check aggregate from the GUI run panel, lifted so it can be
   // recorded in the app-held analysis-run envelope (TP-C4-APPAGG-001).

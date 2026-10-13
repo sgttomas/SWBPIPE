@@ -323,7 +323,7 @@ def test_shared_carrier_cases_python():
     assert len(cases["cases"]) == 17
     # The raw fixtures' guard cases are refused only through their edit.
     raw = [fid for fid, spec in cases["fixtures"].items() if spec["shape"] == "raw"]
-    assert raw == ["preview_physics_1_invented_sparse", "source_blocks_n05_sparse"]
+    assert raw == ["preview_physics_1_invented_sparse"]
     for fid in raw:
         assert dispatch(docs[fid]["source"]) == "ok" and c.numerical_use_standing(docs[fid]["source"], []) == "needs_recompute", fid
 
@@ -352,13 +352,8 @@ def expected_binding(source, expected):
         return want
     rule, code = expected.split(":", 1)
     code = None if code == "none" else code
-    if rule == "every_row":
-        return [code] * len(rows)
-    assert rule == "source_blocks_summary"
-    headline = ((source.get("summary") or {}).get("max_open_formula_stress") or {}).get("result_ref")
-    want = [code if row["kind"] == "open_formula_stress_summary" or row["id"] == headline else None for row in rows]
-    assert code in want and None in want
-    return want
+    assert rule == "every_row"
+    return [code] * len(rows)
 
 
 def test_declared_differences_python():

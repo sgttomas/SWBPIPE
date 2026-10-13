@@ -224,12 +224,13 @@ fn the_cli_reads_the_input_bytes_as_given_and_refuses_unusable_input_with_exit_2
 #[test]
 fn base_readers_read_through_the_cli_as_reader_verdict() {
     use open_pipe_stress_result_export::reader_verdict as rv;
+    // B4/D1 (b): the composite physics-source-1 statement is the source route here.
     let blocks: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json"
+        "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
     ))
     .unwrap();
     let request: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json"
+        "../../../../fixtures/product_preview/physics_source/n05.request.json"
     ))
     .unwrap();
     let invocation = json!({"request": request, "solver_mode": "sparse_interactive"});
@@ -253,7 +254,7 @@ fn base_readers_read_through_the_cli_as_reader_verdict() {
             rv::dispatch(&blocks, Some(&request["model"]), Some(&invocation))),
         ("dispatch", json!({"source": lr, "model": lr_model}), rv::dispatch(&lr, Some(&lr_model), None)),
         ("dispatch", json!({"source": {"carrier_evidence": {}}}), rv::dispatch(&json!({"carrier_evidence": {}}), None, None)),
-        ("source-blocks", json!({"source": blocks, "invocation": invocation}), rv::validate("source-blocks", &blocks, None, Some(&invocation))),
+        ("physics-source", json!({"source": blocks, "invocation": invocation}), rv::validate("physics-source", &blocks, None, Some(&invocation))),
         ("load-reference", json!({"source": lr, "model": fewer}), rv::validate("load-reference", &lr, Some(&fewer), None)),
         ("load-reference-transport", json!({"source": lr}), rv::transport("load-reference", &lr)),
         ("physics", json!({"source": physics}), rv::validate("physics", &physics, None, None)),

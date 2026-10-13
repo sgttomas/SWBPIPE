@@ -23,7 +23,8 @@ import pytest
 
 from core.analysis_runs import compatibility as product, rust_reader
 from tests import base_reader_corpus as corpus
-from tests.verifiers import load_reference_source as lrs, reader_verdict as rv, source_blocks
+from tests.verifiers import load_reference_source as lrs, reader_verdict as rv
+from tests.verifiers.source_blocks import domain_hash
 
 # The declared class: both readers refuse, with a different code or detail. Each reader keeps its own words
 # for the same refusal: the Python readers name a generic code with a detail (for example
@@ -58,8 +59,7 @@ STANDING_CODES = {"LEGACY_ABSOLUTE_ROUNDING_INTEGRITY_NOT_ASSESSED", rv.SOURCE_N
                   rv.RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, "PRECISION_1_HISTORICAL_SEMANTICS", "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
                   "NUMERICAL_EVIDENCE_ID_AMBIGUOUS", "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE", "NUMERICAL_CASE_COVERAGE_INCOMPLETE",
                   "NUMERICAL_CASE_EVIDENCE_INCOMPLETE", "NUMERICAL_AGGREGATE_CONTRADICTION", "MECHANICS_NOT_SOLVED",
-                  "SOURCE_BLOCKS_CASE_UNQUALIFIED", "SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY", "SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED",
-                  "SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS"}
+                  "SOURCE_BLOCKS_CASE_UNQUALIFIED", "SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY", "SOURCE_BLOCKS_ENVELOPE_UNQUALIFIED"}
 
 
 def _route_of(source):
@@ -74,7 +74,7 @@ def _projection(source):
 
 
 def inputs():
-    return corpus.corpus_inputs(_route_of, source_blocks.domain_hash, _projection)
+    return corpus.corpus_inputs(_route_of, domain_hash, _projection)
 
 
 def _strict_json(text):
@@ -95,7 +95,7 @@ def _strict_json(text):
 
 def test_the_corpus_is_the_committed_corpus():
     built, committed = inputs(), corpus.committed()
-    assert [item.id for item in built] == list(committed) and len(built) == 559
+    assert [item.id for item in built] == list(committed) and len(built) == 545
     for item in built:
         entry = committed[item.id]
         if item.source is None:
@@ -162,7 +162,7 @@ def test_the_verifier_gives_every_committed_outcome_but_the_declared_class():
     assert standing_differences == DECLARED_STANDING
 
 
-@pytest.mark.parametrize("group", ["results/", "physics_source/", "load_reference", "source_blocks/", "tamper/", "lr/", "lrs/", "lr-", "ledger/"])
+@pytest.mark.parametrize("group", ["results/", "physics_source/", "load_reference", "tamper/", "lr/", "lrs/", "lr-", "ledger/"])
 def test_product_reads_each_statement_as_the_rust_reader(group):
     """Product `_source_contract` (header dispatch, then the route's reader, through the runner) gives the
     committed native reading of every corpus statement: the header refusal or the route reader's outcome
@@ -216,8 +216,9 @@ def _cases():
     contradiction["numerical_quality"]["status"] = "sensitive"
     unsolved = deepcopy(source)
     unsolved["status"]["mechanics"] = "MODEL_INCOMPLETE"
-    blocks = corpus.read("fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json")
-    blocks_request = corpus.read("fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json")
+    # B4/D1 (b): the composite physics-source-1 statement is the source route here.
+    blocks = corpus.read("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json")
+    blocks_request = corpus.read("fixtures/product_preview/physics_source/n05.request.json")
     combinations = deepcopy(blocks_request)
     combinations["model"]["combinations"] = [{"id": "combination:invented", "terms": []}]
     return [

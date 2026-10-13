@@ -1,6 +1,8 @@
 //! S11-G T23 (S11G_GUARD revision 2.2 erratum E-1; ROOT's D22-1 condition and
-//! the manager's reader-test ruling): the result_export source-blocks reader
-//! accepts the zero-work formation decline entry.
+//! the manager's reader-test ruling), after B4/D1 (b): the preview route no
+//! longer selects source blocks, so this construction publishes no source-block
+//! receipt (its former zero-work decline entry went with source-blocks-1); the
+//! S11-G formation-noise guard's disclosure is unchanged.
 //!
 //! The captured envelope is produced live from S11-G's T19 construction (no
 //! committed fixture): N05's sensitive torsion cantilever with two cases on
@@ -18,7 +20,6 @@
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, PreviewSolverMode,
 };
-use open_pipe_stress_result_export::source_blocks;
 use serde_json::{json, Value};
 
 const INVENTED: &str = "invented_t3_s11g_test_input_not_library_data";
@@ -59,7 +60,7 @@ fn request() -> Value {
 }
 
 #[test]
-fn t23_source_blocks_reader_accepts_the_zero_work_formation_decline() {
+fn t23_the_preview_route_publishes_no_source_block_receipt() {
     for mode in [
         PreviewSolverMode::SparseInteractive,
         PreviewSolverMode::DenseScrutiny,
@@ -85,47 +86,7 @@ fn t23_source_blocks_reader_accepts_the_zero_work_formation_decline() {
             integrity.message
         );
         let raw = serde_json::to_value(&envelope).unwrap();
-        // Precondition (paths differ): case B's entry is the zero-work decline,
-        // and case A is qualified, so the reader sees a real receipt with it.
-        let cases = raw["source_block_recovery"]["body"]["cases"]
-            .as_array()
-            .expect("a receipt");
-        let entry = |id: &str| {
-            cases
-                .iter()
-                .find(|c| c["basis_ref"]["ref_id"] == json!(id))
-                .unwrap()
-        };
-        assert_eq!(entry("case")["outcome"], json!("qualified"), "{mode:?}");
-        let b = entry("case-b");
-        assert_eq!(b["outcome"], json!("unsupported"), "{mode:?}: {b}");
-        assert_eq!(
-            b["failure"]["stage"],
-            json!("source_validation"),
-            "{mode:?}"
-        );
-        assert_eq!(
-            b["failure"]["code"],
-            json!("unsupported_family"),
-            "{mode:?}"
-        );
-        assert_eq!(
-            b["ordinary_attempt"]["outcome"],
-            json!("sensitive"),
-            "{mode:?}"
-        );
-        assert_eq!(b["work"]["limit"], json!(0), "{mode:?}");
-        assert_eq!(b["work"]["charged"], json!(0), "{mode:?}");
-        assert_eq!(
-            b["work"]["rejected_reservation"],
-            json!({"kind": "finite", "amount": 0}),
-            "{mode:?}"
-        );
-        // The reader accepts the receipt, with and without the actual invocation.
-        let invocation = json!({"request": request, "solver_mode": mode.as_str()});
-        source_blocks::validate(&raw, Some(&invocation))
-            .unwrap_or_else(|e| panic!("{mode:?}: reader refused with the invocation: {e}"));
-        source_blocks::validate(&raw, None)
-            .unwrap_or_else(|e| panic!("{mode:?}: reader refused without the invocation: {e}"));
+        assert!(raw.get("source_block_recovery").is_none(), "{mode:?}");
+        assert_eq!(raw["producer"]["semantic_contract_id"], json!("openpipestress.result_semantics/0.3.0/preview-physics-1"), "{mode:?}");
     }
 }

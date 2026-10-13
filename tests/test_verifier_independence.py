@@ -319,13 +319,12 @@ def test_the_verifiers_units_reproduce_the_producers_converted_materials_and_sec
 @pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
 def test_the_base_verifiers_read_raw_statements_without_any_process(no_processes, mode):
     """R2: the base verifiers' hashing (receipt, publication and invocation digests) and unit conversion
-    run in process: source-blocks-1 and physics-source-1 statements bound to their producer's invocation,
+    run in process: physics-source-1 statements bound to their producer's invocation,
     and a joined load-reference-source-1 statement, are admitted with no process spawned."""
     from tests.verifiers import compatibility
     from tests.verifiers.load_reference_source import validate_load_reference_source_evidence
     from tests.verifiers.physics_source import validate_physics_source
-    from tests.verifiers.source_blocks import validate_source_blocks
-    for folder, name, request, validate in (("source_blocks", "n05", f"n05-{mode}", validate_source_blocks),
+    for folder, name, request, validate in (("physics_source", "n05", "n05", validate_physics_source),
                                             ("physics_source", "mixed_units", "mixed_units", validate_physics_source)):
         base = ROOT / "fixtures/product_preview" / folder
         source = json.loads((base / f"{name}-{mode}.raw.json").read_text(encoding="utf-8"))

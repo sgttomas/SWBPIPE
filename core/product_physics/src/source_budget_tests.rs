@@ -25,49 +25,18 @@ fn run(value: serde_json::Value, mode: PreviewSolverMode, per_case_limit: usize,
     (result, budget)
 }
 
+/// B4/D1 (b): the pressure-free preview route selects no source blocks. A captured
+/// multicase preview invocation at the full budget attempts no retained-source recovery,
+/// charges nothing, publishes no receipt and discloses no source-recovery outcome; its
+/// cases are W1's. (The exact route's composite budgets are tested with physics-source-1.)
 #[test]
-fn real_multicase_run_debits_one_invocation_and_keeps_actual_maximum() {
+fn preview_route_attempts_no_source_recovery() {
     for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
-        let input = request();
-        let (result, budget) = run(input.clone(), mode, SOURCE_BLOCKS_WORK_LIMIT, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
+        let (result, budget) = run(request(), mode, PHYSICS_SOURCE_WORK_LIMIT, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
-        let receipt = result.source_block_recovery.as_ref().expect("actual receipt");
-        assert_eq!(receipt["body"]["status"], "qualified");
-        let cases = receipt["body"]["cases"].as_array().unwrap();
-        assert_eq!(cases.len(), 2);
-        assert_eq!(budget.attempts, 2);
-        assert_eq!(budget.failed_charged, 0);
-        assert_eq!(cases.iter().map(|c| c["work"]["charged"].as_u64().unwrap() as usize).sum::<usize>() + budget.publication_charged, budget.charged);
-        assert!(budget.charged <= SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
-        assert_eq!(receipt["body"]["invocation_work"]["charged"], budget.charged);
-        assert_eq!(receipt["body"]["invocation_work"]["publication_charged"], budget.publication_charged);
-        assert!(cases.iter().all(|c| c["work"]["limit"] == SOURCE_BLOCKS_WORK_LIMIT));
-        let maximum = result.summary.max_open_formula_stress.as_ref().unwrap();
-        let row = result.results.iter().find(|row| row.id == maximum.result_ref).unwrap();
-        assert_eq!(row.basis_ref.as_ref().unwrap().ref_id, "case:signed-companion");
-        assert_eq!(row.value.to_bits(), maximum.value.to_bits());
-        if let Ok(folder) = std::env::var("OPS_SOURCE_BLOCK_FIXTURE_DIR") {
-            let folder = std::path::Path::new(&folder);
-            std::fs::create_dir_all(folder).unwrap();
-            let name = format!("multicase-{}", mode.as_str());
-            std::fs::write(folder.join(format!("{name}.request.json")), serde_json::to_vec_pretty(&input).unwrap()).unwrap();
-            std::fs::write(folder.join(format!("{name}.raw.json")), serde_json::to_vec_pretty(&result).unwrap()).unwrap();
-        }
-        eprintln!("MULTICASE_SOURCE_WORK {}", serde_json::json!({"mode":mode.as_str(),"cases":2,"charged":budget.charged,"failed_charged":budget.failed_charged,"per_case_limit":budget.per_case_limit,"invocation_limit":budget.invocation_limit}));
+        assert_eq!(result.producer.semantic_contract_id, preview_physics::ID, "{mode:?}");
+        assert!(result.source_block_recovery.is_none(), "{mode:?}");
+        assert!(!result.diagnostics.iter().any(|d| d.code.starts_with("SOURCE_BLOCK_RECOVERY")), "{mode:?}");
+        assert_eq!((budget.attempts, budget.charged, budget.failed_charged, budget.publication_charged), (0, 0, 0, 0), "{mode:?}");
     }
-}
-
-#[test]
-fn smaller_case_and_invocation_caps_deny_without_refunding_work() {
-    let (case_denied, first) = run(request(), PreviewSolverMode::DenseScrutiny, 100_000, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
-    assert_eq!(case_denied.status.mechanics, "MECHANICS_SOLVED");
-    assert!(case_denied.source_block_recovery.is_none());
-    assert!(first.failed_charged > 0 && first.failed_charged == first.charged);
-    assert_eq!(first.attempts, 2);
-    assert!(case_denied.diagnostics.iter().filter(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE").count() == 2);
-    let (run_denied, second) = run(request(), PreviewSolverMode::DenseScrutiny, SOURCE_BLOCKS_WORK_LIMIT, 5_500_000);
-    assert!(second.attempts == 2 && second.failed_charged > 0 && second.charged > second.failed_charged);
-    assert!(second.charged <= 5_500_000);
-    assert!(run_denied.source_block_recovery.as_ref().is_none_or(|r| r["body"]["status"] != "qualified"));
-    assert!(run_denied.diagnostics.iter().any(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE" || d.code == "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED"));
 }

@@ -187,7 +187,7 @@ const ALLOW_VALUES_COPY: &[(&str, &str, &str)] = &[
 /// function binds from an expression mentioning `values()`, `force` or `rhs`.
 /// (file, function, binding, disposition).
 const ALLOW_FORCE_MUTATION: &[(&str, &str, &str, &str)] = &[
-    ("PP/lib.rs", "run_linear_static_preview_observed", "load_case_solves", "per-case result records, not a force vector"),
+    ("PP/lib.rs", "run_linear_static_preview_observed_inner", "load_case_solves", "per-case result records, not a force vector"),
     ("PP/lib.rs", "legacy_observation_force", "observation", "observation lane (limit 2): T1's DEC050/053 observation force, K_fc g_c folded on purpose"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", "global_forces", "E8/E9: the row loop writes each row's one exact sum"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", "local_forces", "the chord rotation of the recovered end forces (a formed transform, section 2.2)"),
@@ -700,7 +700,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "observation_lane_profile", 1, "integer: the observation lane's profile entry count (F1b, the lane's resource guard)"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", 1, "formed transform: the chord rotation after the E8/E9 exact sums"),
     ("PP/lib.rs", "reserve_publication", 2, "integer: budget charge"),
-    ("PP/lib.rs", "run_linear_static_preview_observed", 2, "integer per-case counts (2); F1b: the spring diagonals moved into the kernel's sparse assembly (`assemble_basis_stiffness`)"),
+    ("PP/lib.rs", "run_linear_static_preview_observed_inner", 2, "integer per-case counts (2); F1b: the spring diagonals moved into the kernel's sparse assembly (`assemble_basis_stiffness`)"),
     ("PP/lib.rs", "solve_load_case_observed", 2, "integer: source-budget attempts and component modifier count"),
     ("PP/lib.rs", "straight_local_uniform_loads", 1, "declared formation: one load's local transform (section 2.5 PP:7479)"),
     ("PP/lib.rs", "straight_summary_extrema", 1, "declared: the stress bound's same-sign pattern sums (section 2.2)"),
@@ -719,6 +719,9 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/pressure_runtime.rs", "traverse_region", 1, "geometry: chord projection (section 2.5)"),
     // ---- PP/retained_product.rs (B1 SQ, RR "RV109 passes SP in RV-P round 2; …", ruling 3: E-12)
     ("PP/retained_product.rs", "check_support_maps", 1, "integer: one support's spring-map count"),
+    // B4/D1 (b): the scan attributes this fold (and `load_case_solves` to the `_inner`
+    // function that holds it) since the legacy-source records left the scanned files.
+    ("PP/retained_product.rs", "pending_error_bytes", 1, "integer: the parked association errors' byte capacity"),
     // B2-P's combination Call (lane P), met by B1 SQ's table at J0a's merge.
     ("PP/retained_product.rs", "combination_call", 1, "integer: the next attempt ordinal"),
     ("PP/retained_product.rs", "selected_attempts", 1, "integer: the selected attempts' bit set (T-12's detail)"),

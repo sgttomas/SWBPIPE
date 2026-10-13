@@ -136,7 +136,7 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     // known job. Method-specific source-block validation composes here when its
     // separately reviewed join is selected; none is inferred from these bytes.
     const sourceRoute = sourceContract(source);
-    if (sourceRoute === "source_blocks" || sourceRoute === "physics_source" || sourceRoute === "pressure_source"
+    if (sourceRoute === "physics_source" || sourceRoute === "pressure_source"
       || source.producer?.semantic_contract_id === PRESSURE_SOURCE_CONTRACT_ID) {
       // G3 (b7-plan R2): the caller's model is the one dispatched to native; a
       // normalization between them registers nothing.

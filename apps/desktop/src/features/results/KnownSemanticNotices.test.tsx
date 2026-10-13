@@ -3,15 +3,14 @@ import { describe, expect, it } from "vitest";
 import inventedSparse from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
 import inventedModel from "../../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json";
 import precisionSparse from "../../../../../fixtures/results/precision_connected_ui_mechanics_sparse.json";
-import multicase from "../../../../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json";
-import sourceBlocksN05 from "../../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json";
+import physicsSourceN05 from "../../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json";
 import { ResultsPanel } from "./ResultsPanel";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { ComparisonPanel } from "../comparison/ComparisonPanel";
 import { LocalFeaHandoffPanel } from "../local-fea-handoff/LocalFeaHandoffPanel";
 import { ResultExportPanel } from "../result-export/ResultExportPanel";
 import { StressNeutralExportPanel } from "../stress-neutral/StressNeutralExportPanel";
-import { COMBINATION_GATE_REASONS, N_HEADLINE, N_HEADLINE_WITHHELD, N_INTENSIFIED, N_P1, N_REPORT, N_SB } from "./knownSemanticLimitations";
+import { COMBINATION_GATE_REASONS, N_HEADLINE, N_HEADLINE_WITHHELD, N_INTENSIFIED, N_P1, N_REPORT } from "./knownSemanticLimitations";
 import { reportPackageUnavailableReason } from "../report/reportPackageRequest";
 import { formatComponentStressModifierSummary } from "../report/ReportPanel";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -46,29 +45,28 @@ describe("text-only T0R UI (DESIGN §7)", () => {
     render(<ResultsPanel result={clone(precisionSparse)} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
     expect(screen.getByTestId("results-notice-precision-1").textContent).toBe(N_P1);
   });
-  // The ResultsPanel placement of the notice component is covered by the tests
-  // above; rendering the full row table of a source-blocks-1 result costs several
-  // seconds per render in jsdom, so N-SB is asserted on the component itself.
-  it("Results notices: N-SB on all-selected source-blocks-1", () => {
-    render(<KnownSemanticNotices result={clone(sourceBlocksN05)} testIdPrefix="results" />);
-    expect(screen.getByTestId("results-notice-source-blocks-summary").textContent).toBe(N_SB);
+  // B4/D1 (b): N-SB and N-SB-MIXED went with source-blocks-1; a composite shows neither.
+  it("Results notices: no source-blocks notice on a composite", () => {
+    render(<KnownSemanticNotices result={clone(physicsSourceN05)} testIdPrefix="results" />);
+    expect(screen.queryByTestId("results-notice-source-blocks-summary")).toBeNull();
+    expect(screen.queryByTestId("results-notice-source-blocks-mixed")).toBeNull();
   });
   it("Comparison shows the gate reason where combination rows would appear", () => {
     render(<ComparisonPanel comparison={null} result={clone(inventedSparse)} onSelectResult={() => {}} />);
     expect(screen.getByTestId("comparison-notice-combination-gate:combination:C-OPER-ALT").textContent).toContain(COMBINATION_GATE_REASONS.NONLINEAR_COMBINATION_REQUIRES_SOLVE);
     expect(screen.getByTestId("comparison-notice-headline-label").textContent).toContain(N_HEADLINE);
   });
-  it("Local FEA handoff and the export panels show the headline label; N-SB appears in the export UI only", () => {
+  it("Local FEA handoff and the export panels show the headline label", () => {
     render(<LocalFeaHandoffPanel model={model} result={clone(inventedSparse)} analysisRun={null} />);
     expect(screen.getByTestId("local-fea-handoff-notice-headline-label").textContent).toContain(N_HEADLINE);
-    render(<ResultExportPanel model={model} result={clone(multicase)} analysisRun={null} />);
-    expect(screen.getByTestId("result-export-notice-source-blocks-summary").textContent).toBe(N_SB);
-    render(<StressNeutralExportPanel model={model} result={clone(multicase)} analysisRun={null} />);
-    expect(screen.getByTestId("stress-neutral-notice-source-blocks-summary").textContent).toBe(N_SB);
+    render(<ResultExportPanel model={model} result={clone(inventedSparse)} analysisRun={null} />);
+    expect(screen.getByTestId("result-export-notice-headline-label").textContent).toContain(N_HEADLINE);
+    render(<StressNeutralExportPanel model={model} result={clone(inventedSparse)} analysisRun={null} />);
+    expect(screen.getByTestId("stress-neutral-notice-headline-label").textContent).toContain(N_HEADLINE);
   });
   it("report package is unavailable for every fresh identity (N-REPORT) and for precision-1 (N-P1)", () => {
     expect(reportPackageUnavailableReason(clone(inventedSparse))).toBe(`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: ${N_REPORT}`);
-    expect(reportPackageUnavailableReason(clone(multicase))).toContain(N_REPORT);
+    expect(reportPackageUnavailableReason(clone(physicsSourceN05))).toContain(N_REPORT);
     expect(reportPackageUnavailableReason(clone(precisionSparse))).toBe(`REPORT-PACKAGE-PRECISION-1-HISTORICAL: ${N_P1}`);
   });
   it("report packet SIF section never presents SIF×k rows as stress", () => {

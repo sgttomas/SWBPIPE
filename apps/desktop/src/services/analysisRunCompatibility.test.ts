@@ -6,7 +6,6 @@ import { checkedJsonText, canonicalSha256HexCheckedV1 } from "./hashService";
 import { PRECISION_CONTRACT_ID } from "../features/results/numericalResultQuality";
 import { PRECISION_CONTRACT_SHA256 } from "../test-support/contractBindings";
 import { sourceContract } from "../features/results/resultReader";
-import sourceBlocks from "../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json";
 import physicsSource from "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json";
 import { retiredMechanicsResult } from "../test-support/retiredMechanicsResult";
 
@@ -201,7 +200,6 @@ it("binds a combination successor's Combination basis references (T6S, B2-C §10
 });
 
 describe.each([
-  ["source-blocks", sourceBlocks, "SOURCE_RECOVERY_RECEIPT_HASH"],
   ["physics-source", physicsSource, "PHYSICS_SOURCE_RECEIPT_HASH"],
 ] as const)("%s portable source consistency", (_route, fixture, receiptError) => {
   it("takes Rust's commitment verdict while preserving the surface's refusal codes", async () => {

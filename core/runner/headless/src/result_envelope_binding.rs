@@ -592,7 +592,7 @@ mod tests {
      // Preserved source-owned range counterexample: use its actual input, never
      // the earlier erroneously qualified raw packet as a new invocation.
      let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-       .join("../../../fixtures/product_preview/source_blocks/rejected_stress_range")
+       .join("../../../fixtures/product_preview/w1_controls/rejected_stress_range")
        .join(format!("{}.request.json", mode.as_str()));
      let input = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
      let output = crate::run_preview_model_value_with_mode(request(), input, mode).unwrap();
@@ -626,10 +626,12 @@ mod tests {
    let model=unpressurized_binding_model(serde_json::from_str(PREVIEW_MODEL_FIXTURE).unwrap());let typed:LinearStaticPreviewRequest=serde_json::from_value(serde_json::json!({"model":model,"materials":[]})).unwrap();let output=run_preview_in_memory(request(),typed);assert_eq!(output.runner_result.job.state,JobStateKind::Completed);assert!(output.runner_result.diagnostics.is_empty());assert!(output.result_envelope_document.is_none());assert_eq!(output.canonical_export_unavailability.as_deref(),Some("EXACT_SOLVED_MODEL_EVIDENCE_UNAVAILABLE"));
  }
 
- fn source_input(stem: &str, mode: open_pipe_stress_product_physics::PreviewSolverMode) -> Value {
+ /// B4/D1 (b): source blocks remain only on the exact route's composites; these
+ /// bindings read physics-source-1's committed requests (one per stem, both modes).
+ fn source_input(stem: &str, _mode: open_pipe_stress_product_physics::PreviewSolverMode) -> Value {
    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-     .join("../../../fixtures/product_preview/source_blocks/ui")
-     .join(format!("{stem}-{}.request.json", mode.as_str()));
+     .join("../../../fixtures/product_preview/physics_source")
+     .join(format!("{stem}.request.json"));
    serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap()
  }
 
@@ -637,13 +639,13 @@ mod tests {
  fn actual_source_blocks_bind_exact_invocation_and_canonical_source_both_modes() {
    use open_pipe_stress_product_physics::PreviewSolverMode;
    use export::derivative::{digest, validate_document};
-   for stem in ["n05", "n06", "multicase"] {
+   for stem in ["n05", "n06", "mixed"] {
      for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
        let input = source_input(stem, mode);
        let output = crate::run_preview_model_value_with_mode(request(), input.clone(), mode).unwrap();
        let mechanics = output.mechanics_envelope.as_ref().unwrap();
        let raw = serde_json::to_value(mechanics).unwrap();
-       assert_eq!(mechanics.producer.semantic_contract_id, export::source_blocks::CONTRACT_ID);
+       assert_eq!(mechanics.producer.semantic_contract_id, export::semantic_contract::PHYSICS_SOURCE_ID);
        assert_eq!(mechanics.status.mechanics, "MECHANICS_SOLVED");
        assert_ne!(mechanics.numerical_quality.status, open_pipe_stress_product_physics::NumericalQualityStatus::ChecksPassed,
          "source method must retain the ordinary method's non-passing observation");
@@ -675,7 +677,7 @@ mod tests {
        let reloaded: Value = serde_json::from_slice(&serde_json::to_vec(&raw).unwrap()).unwrap();
        assert_eq!(reloaded, raw);
        validate_document(doc, &reloaded).unwrap();
-       assert_eq!(export::source_blocks::validate(&reloaded, None), Ok(false));
+       assert_eq!(export::physics_source::validate(&reloaded, None), Ok(false));
        // Reparsed public receipt bytes are not the library's opaque proof.
        let mut reparsed = mechanics.clone();
        reparsed.source_block_recovery = Some(reloaded["source_block_recovery"].clone());
@@ -709,7 +711,7 @@ mod tests {
    let output = crate::run_preview_model_value_with_mode(request(), input.clone(), PreviewSolverMode::SparseInteractive).unwrap();
    let mechanics = output.mechanics_envelope.as_ref().unwrap();
    let raw = serde_json::to_value(mechanics).unwrap();
-   assert_eq!(mechanics.producer.semantic_contract_id, export::source_blocks::CONTRACT_ID);
+   assert_eq!(mechanics.producer.semantic_contract_id, export::semantic_contract::PHYSICS_SOURCE_ID);
    let proof = output.qualified_preview_evidence.as_ref().unwrap();
    assert_eq!(proof.actual_invocation["request"], input);
    assert_eq!(proof.solve_payload, input);

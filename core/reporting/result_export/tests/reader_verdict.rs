@@ -398,36 +398,15 @@ fn invocation(request: Value, mode: &str) -> Value {
 }
 
 #[test]
-fn g1_genuine_source_blocks_validate_with_their_invocation() {
-    for name in ["n05", "n06", "multicase"] {
-        for dir in ["", "ui/"] {
-            for mode in ["dense_scrutiny", "sparse_interactive"] {
-                let path = format!("fixtures/product_preview/source_blocks/{dir}{name}-{mode}");
-                let raw = read(&format!("{path}.raw.json"));
-                let request = read(&format!("{path}.request.json"));
-                let inv = invocation(request.clone(), mode);
-                assert_eq!(route(&raw), "source_blocks");
-                assert_eq!(
-                    rv::validate("source-blocks", &raw, None, Some(&inv)),
-                    json!({"ok": true, "eligible": true, "findings": []}),
-                    "{path}"
-                );
-                let s = rv::standing(&raw, Some(&request["model"]), Some(&inv));
-                assert_eq!((s["eligible"].as_bool(), findings(&s)), (Some(true), vec![]), "{path}");
-                // G4: without the registered invocation, no standing.
-                assert_eq!(findings(&rv::standing(&raw, Some(&request["model"]), None)), [rv::SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED]);
-            }
-        }
-    }
-    for mode in ["dense_scrutiny", "sparse_interactive"] {
-        let path = format!("fixtures/product_preview/source_blocks/rejected_stress_range/{mode}");
-        let raw = read(&format!("{path}.raw.json"));
-        let request = read(&format!("{path}.request.json"));
-        let inv = invocation(request.clone(), mode);
-        assert_eq!(raw["source_block_recovery"]["body"]["status"], "qualified");
-        assert_eq!(rv::validate("source-blocks", &raw, None, Some(&inv))["error"]["code"], "SOURCE_BLOCKS_STRESS_OUTPUT_RANGE"); // TS: SOURCE_BLOCKS_STRESS_MPA_RANGE
-        assert_eq!(rv::standing(&raw, Some(&request["model"]), Some(&inv))["eligible"], false);
-    }
+fn a_stored_source_blocks_1_statement_reads_unsupported_by_name() {
+    // B4/D1 (b): the non-composite identity is retired; its header refuses by name.
+    let mut stored = read("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json");
+    stored["producer"]["semantic_contract_id"] = json!(sc::RETIRED_SOURCE_BLOCKS_ID);
+    let d = rv::dispatch(&stored, None, None);
+    assert_eq!((d["route"].as_str(), d["error"]["code"].as_str()), (Some(rv::UNSUPPORTED), Some(sc::SOURCE_BLOCKS_1_RETIRED)));
+    assert_eq!(rv::validate("source-blocks", &stored, None, None)["error"]["code"], "READER_UNKNOWN");
+    assert_eq!(rv::transport("source-blocks", &stored)["error"]["code"], "READER_UNKNOWN");
+    assert_eq!(rv::binding("source_blocks"), Value::Null);
 }
 
 #[test]
@@ -473,12 +452,9 @@ fn g5_source_receipt_presence_on_other_headers_is_unsupported() {
         assert_eq!(route(&s), rv::UNSUPPORTED);
     }
     let mut unknown = ordinary.clone();
-    unknown["producer"]["semantic_contract_id"] = json!(format!("{}/future", open_pipe_stress_result_export::source_blocks::CONTRACT_ID));
+    unknown["producer"]["semantic_contract_id"] = json!(format!("{}/future", sc::RETIRED_SOURCE_BLOCKS_ID));
     assert_eq!(route(&unknown), rv::UNSUPPORTED);
     // A source route's receipt shape is the header's (G5): an extra receipt key.
-    let mut blocks = read("fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json");
-    blocks["source_block_recovery"]["body"]["cases"][0]["work"]["extra"] = json!("not in schema");
-    assert_eq!(route(&blocks), rv::UNSUPPORTED);
     let mut composite = read("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json");
     composite["source_block_recovery"]["extra"] = json!(1);
     assert_eq!(route(&composite), rv::UNSUPPORTED);
@@ -518,7 +494,6 @@ fn binding_hashes_are_the_table_files() {
     let files = [
         ("precision", "semantic_contract_v0_3_precision_1.json"),
         ("physics", "semantic_contract_v0_3_physics_1.json"),
-        ("source_blocks", "semantic_contract_v0_3_source_blocks_1.json"),
         ("physics_source", "semantic_contract_v0_3_physics_source_1.json"),
         ("preview_physics", "semantic_contract_v0_3_preview_physics_1.json"),
         ("load_reference", "semantic_contract_v0_3_load_reference_1.json"),
@@ -559,31 +534,9 @@ fn error_json_splits_code_and_detail() {
 }
 
 #[test]
-fn source_blocks_transport_reads_only_the_receipt_shape_and_hash() {
-    let raw = read("fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json");
-    let mut header = json!({"source_block_recovery": raw["source_block_recovery"]});
-    assert_eq!(rv::transport("source-blocks", &header), json!({"ok": true}));
-    // A transport has no raw publication or invocation to check.
-    header["source_block_recovery"]["body"]["publication_sha256"] = json!("0".repeat(64));
-    header["source_block_recovery"]["receipt_sha256"] = json!(
-        open_pipe_stress_result_export::source_blocks::domain_hash(
-            "source_blocks_receipt_v1", &header["source_block_recovery"]["body"]
-        ).unwrap()
-    );
-    assert_eq!(rv::transport("source-blocks", &header), json!({"ok": true}));
-    header["source_block_recovery"]["receipt_sha256"] = json!("0".repeat(64));
-    assert_eq!(rv::transport("source-blocks", &header)["error"]["code"], "SOURCE_BLOCKS_RECEIPT_HASH");
-    header["source_block_recovery"]["extra"] = json!(1);
-    assert_eq!(rv::transport("source-blocks", &header)["error"]["code"], "SOURCE_BLOCKS_RECEIPT_SHAPE");
-}
-
-#[test]
 fn source_recovery_preserves_the_portable_commitment_check_depth() {
     use open_pipe_stress_result_export::source_blocks::domain_hash;
-    for (folder, receipt_error) in [
-        ("source_blocks", "SOURCE_BLOCKS_RECEIPT_HASH"),
-        ("physics_source", "PHYSICS_SOURCE_RECEIPT_HASH"),
-    ] {
+    for (folder, receipt_error) in [("physics_source", "PHYSICS_SOURCE_RECEIPT_HASH")] {
         let raw = read(&format!("fixtures/product_preview/{folder}/n05-sparse_interactive.raw.json"));
         assert_eq!(rv::validate("source-recovery", &raw, None, None), json!({"ok": true}));
         let mut bad = raw.clone();
@@ -601,8 +554,7 @@ fn source_recovery_preserves_the_portable_commitment_check_depth() {
         changed["source_block_recovery"]["body"]["publication_sha256"] = json!(domain_hash("source_blocks_publication_v1", &publication).unwrap());
         changed["source_block_recovery"]["receipt_sha256"] = json!(domain_hash("source_blocks_receipt_v1", &changed["source_block_recovery"]["body"]).unwrap());
         assert_eq!(rv::validate("source-recovery", &changed, None, None), json!({"ok": true}));
-        let reader = if folder == "source_blocks" { "source-blocks" } else { "physics-source" };
-        assert_eq!(rv::validate(reader, &changed, None, None)["ok"], false);
+        assert_eq!(rv::validate("physics-source", &changed, None, None)["ok"], false);
     }
     assert_eq!(rv::validate("source-recovery", &precision_source(), None, None)["error"]["code"], "SOURCE_RECOVERY_METADATA_CONTRADICTION");
 }

@@ -55,10 +55,10 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
   const classes=await retainedRowClassesFromReader(source);
   if(route==='physics')readerValidate('physics',source,model);
   if(route==='preview_physics')readerValidate('preview-physics',source,model);
-  if(route==='source_blocks'||route==='physics_source')await validateRetainedRecoverySource(source);
+  if(route==='physics_source')await validateRetainedRecoverySource(source);
   const doc=structuredClone(base);doc.schema_version=version;const e=doc.result_envelope;
   e.producer=structuredClone(source.producer);e.numerical_quality=structuredClone(source.numerical_quality);e.formulation_basis=structuredClone(source.formulation_basis);e.semantic_contract_ref=ref('semantic_contract',sourceSemanticBinding(source).id);
-  if(route==='source_blocks'||route==='physics_source')e.source_block_recovery=structuredClone(source.source_block_recovery);
+  if(route==='physics_source')e.source_block_recovery=structuredClone(source.source_block_recovery);
   else if(Object.hasOwn(e,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
   if(route==='physics'||route==='physics_source'||route==='preview_physics'||isRetainedRoute(route))e.contract_evidence=structuredClone(source.contract_evidence);
   else if(Object.hasOwn(e,'contract_evidence'))throw new Error('SOURCE_PHYSICAL_METADATA_MISMATCH');
@@ -125,7 +125,7 @@ export async function validateResultDocument(doc:JsonObject,source:MechanicsResu
   else if(Object.hasOwn(doc.result_envelope,'retained_precision'))throw new Error(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
   if(resultSchemaVersion(doc)!==RESULT_EXPORT_VERSION)throw new Error("DERIVATIVE_VERSION_MISMATCH");
   for(const key of ['producer','numerical_quality','formulation_basis'] as const)requireEqual(doc.result_envelope[key],source[key],'SOURCE_NUMERICAL_METADATA_MISMATCH');requireEqual(doc.result_envelope.semantic_contract_ref,ref('semantic_contract',sourceSemanticBinding(source).id),'SEMANTIC_CONTRACT_MISMATCH');
-  if(route==='source_blocks'||route==='physics_source'){await validateRetainedRecoverySource(source);requireEqual(doc.result_envelope.source_block_recovery,source.source_block_recovery,'SOURCE_RECOVERY_METADATA_MISMATCH');}else if(Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
+  if(route==='physics_source'){await validateRetainedRecoverySource(source);requireEqual(doc.result_envelope.source_block_recovery,source.source_block_recovery,'SOURCE_RECOVERY_METADATA_MISMATCH');}else if(Object.hasOwn(doc.result_envelope,'source_block_recovery'))throw new Error('SOURCE_RECOVERY_METADATA_CONTRADICTION');
   if(route==='physics'||route==='physics_source'||route==='preview_physics'||isRetainedRoute(route)){if(route==='physics')readerValidate('physics',source);if(route==='preview_physics')readerValidate('preview-physics',source);requireEqual(doc.result_envelope.contract_evidence,source.contract_evidence,'SOURCE_PHYSICAL_METADATA_MISMATCH');}
   else if(Object.hasOwn(doc.result_envelope,'contract_evidence'))throw new Error('SOURCE_PHYSICAL_METADATA_MISMATCH');
   const e=doc.result_envelope,accounts=e.row_accounting,annotations=e.source_annotations,witnesses=e.unit_preservation_witnesses;
@@ -205,7 +205,7 @@ export async function buildCurrentResultExport({model,result,analysisRun,inputMa
   const run=analysisRun.analysis_run;
   requireEqual(run.reproducibility.semantic_contract,sourceSemanticBinding(result),'CURRENT_SEMANTIC_CONTRACT_MISMATCH');
   const solver=inputManifest.manifest.solver_basis;
-  if((sourceContract(result)==='physics_source'||sourceContract(result)==='source_blocks')&&!sourceRecoveryModeMatches(result,model,solver.solver_mode))throw new Error('CURRENT_SOURCE_INVOCATION_MODE_MISMATCH');
+  if(sourceContract(result)==='physics_source'&&!sourceRecoveryModeMatches(result,model,solver.solver_mode))throw new Error('CURRENT_SOURCE_INVOCATION_MODE_MISMATCH');
   if(solver.solver_name!==result.producer!.component_name||solver.solver_version!==result.producer!.component_version)throw new Error('CURRENT_PRODUCER_BINDING_MISMATCH');
   requireEqual(run.solver_version,{solver_name:solver.solver_name,solver_version:solver.solver_version,build_ref:{object_type:'ExternalReference',ref:solver.solver_build_ref}},'CURRENT_SOLVER_BINDING_MISMATCH');
   const expectedState=`state:${result.model_ref}:preview`;

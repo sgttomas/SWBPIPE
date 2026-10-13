@@ -6395,45 +6395,6 @@
           ],
           "additionalProperties": false
         },
-        "legacy_source": {
-          "type": "object",
-          "properties": {
-            "disposition": {
-              "enum": [
-                "not_eligible",
-                "not_required",
-                "declined_without_attempt",
-                "unavailable"
-              ]
-            },
-            "diagnostic_ref": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "$ref": "#/$defs/Text"
-                }
-              ]
-            },
-            "work_ref": {
-              "oneOf": [
-                {
-                  "type": "null"
-                },
-                {
-                  "$ref": "#/$defs/U"
-                }
-              ]
-            }
-          },
-          "required": [
-            "disposition",
-            "diagnostic_ref",
-            "work_ref"
-          ],
-          "additionalProperties": false
-        },
         "diagnostic_refs": {
           "type": "array",
           "items": {
@@ -6449,7 +6410,6 @@
         "initial",
         "w2",
         "formation",
-        "legacy_source",
         "diagnostic_refs"
       ],
       "additionalProperties": false
@@ -7371,57 +7331,6 @@
             "$ref": "#/$defs/OperandPreparation"
           },
           "minItems": 1
-        },
-        "legacy_source_work": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "case_index": {
-                "$ref": "#/$defs/U"
-              },
-              "stage": {
-                "$ref": "#/$defs/Text"
-              },
-              "helper_stage": {
-                "enum": [
-                  "source_closure",
-                  "preparation",
-                  "solve",
-                  "plan",
-                  "evaluation",
-                  "projection",
-                  "retention",
-                  "replay"
-                ]
-              },
-              "charged": {
-                "$ref": "#/$defs/U"
-              },
-              "rejected": {
-                "$ref": "#/$defs/U"
-              },
-              "limit": {
-                "$ref": "#/$defs/U"
-              },
-              "settlement": {
-                "enum": [
-                  "booked",
-                  "pending"
-                ]
-              }
-            },
-            "required": [
-              "case_index",
-              "stage",
-              "helper_stage",
-              "charged",
-              "rejected",
-              "limit",
-              "settlement"
-            ],
-            "additionalProperties": false
-          }
         }
       },
       "required": [

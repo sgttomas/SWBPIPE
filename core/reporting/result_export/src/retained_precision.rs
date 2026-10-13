@@ -5714,7 +5714,6 @@ fn g5_ordinary(source: &Value) -> VResult {
     let b = &source["retained_precision"]["body"];
     let fail = |ok| need(ok, "G5", "ATTEMPT_MISMATCH");
     let ds = list(&source["diagnostics"]);
-    let mut work_refs = BTreeSet::new();
     for (i, c) in list(&b["cases"]).iter().enumerate() {
         let o = &b["ordinary_attempts"][i];
         let cid = &c["basis_ref"]["ref_id"];
@@ -5771,7 +5770,6 @@ fn g5_ordinary(source: &Value) -> VResult {
             &o["w2"]["report_diagnostic_ref"],
             &o["formation"]["load_row_finding"]["diagnostic_ref"],
             &o["formation"]["d5_diagnostic_ref"],
-            &o["legacy_source"]["diagnostic_ref"],
         ] {
             if !path.is_null() {
                 diag(path)?;
@@ -5816,16 +5814,6 @@ fn g5_ordinary(source: &Value) -> VResult {
                         .is_some_and(|n| n != 0.0),
                 )?;
             }
-        }
-        if !o["legacy_source"]["work_ref"].is_null() {
-            let wi = u(&o["legacy_source"]["work_ref"]);
-            let w = at(
-                &b["legacy_source_work"],
-                &o["legacy_source"]["work_ref"],
-                "G5",
-                "ATTEMPT_MISMATCH",
-            )?;
-            fail(work_refs.insert(wi) && u(&w["case_index"]) == i as u64)?;
         }
         // O5 (C2:115-119; S06:51): a source_decline is an unavailable case with
         // no source or Run, owned by this case and its material basis.
@@ -5918,7 +5906,6 @@ fn g5_ordinary(source: &Value) -> VResult {
             )?;
         }
     }
-    fail(work_refs.len() == list(&b["legacy_source_work"]).len())?;
     // B2-C §10.1 G5 ordinary class: the disposition rule (decision 5, C-1) and
     // D6a's diagnostic rule for each combination entry. D6b stays case-only
     // (REVISION_01 §4.5).

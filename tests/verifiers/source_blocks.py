@@ -1,4 +1,7 @@
-"""Closed source-blocks-1 statement/binding validation, never arithmetic proof.
+"""Shared source-block receipt statement/binding validation for the composite identities, never arithmetic proof.
+
+B4/D1 (b) retired the non-composite source-blocks-1 identity; physics-source-1 and
+pressure-source-1 call `_validate_source_blocks` with their contract context.
 
 Test verifier (b7-plan R2): the product reader is Rust's (`core/reporting/result_export/src/source_blocks.rs`), which
 product Python reaches only through `openpipestress-runner read`. Tests only: no module outside `tests/` imports
@@ -9,8 +12,6 @@ JSON and the caller's existing authentic source/model/input/build binding.
 """
 from __future__ import annotations
 from collections.abc import Mapping
-from pathlib import Path
-import json
 import math
 import re
 import struct
@@ -18,13 +19,6 @@ import sys
 from typing import Any
 from .canonical_json import canonical_sha256 as canonical_sha256_checked_v1
 
-CONTRACT_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1"
-CONTRACT_SHA256 = "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f"
-ROOT = Path(__file__).resolve().parents[2]
-CONTRACT_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_source_blocks_1.json"
-SCHEMA_PATH = ROOT / "schemas/source_block_recovery.schema.json"
-SCHEMA = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
-TABLE = json.loads(CONTRACT_PATH.read_text(encoding="utf-8"))
 # Fixed recipe arithmetic bound, additional to the affine input bound.
 NORM_ARITHMETIC_BOUND = 64.0 * sys.float_info.epsilon
 NORM_INPUT_RELATIVE_LIMIT = (1.0e-9 - NORM_ARITHMETIC_BOUND) / (1.0 + NORM_ARITHMETIC_BOUND)
@@ -41,7 +35,6 @@ STRESS_LOCATIONS = ("end_i", "quarter_1", "midspan", "quarter_3", "end_j")
 EXACT = "retained_source_blocks_exact_v1"
 MODES = {"dense_scrutiny": "ordinary_dense_structural_v1", "sparse_interactive": "ordinary_sparse_structural_v1"}
 COMPONENTS = ("Fx", "Fy", "Fz", "Mx", "My", "Mz")
-SUPPORT_SIGN = "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node"
 
 
 def _require(condition: Any, code: str) -> None:
@@ -49,7 +42,7 @@ def _require(condition: Any, code: str) -> None:
         raise ValueError("SOURCE_BLOCKS_" + code)
 
 
-def _shape(value: Any, schema: Mapping[str, Any], root: Mapping[str, Any] = SCHEMA, *, resources: Mapping[str, Mapping[str, Any]] | None = None) -> bool:
+def _shape(value: Any, schema: Mapping[str, Any], root: Mapping[str, Any], *, resources: Mapping[str, Mapping[str, Any]] | None = None) -> bool:
     """Only the closed, checked-in receipt schema vocabulary is interpreted."""
     if "$ref" in schema:
         reference = schema["$ref"]
@@ -99,17 +92,13 @@ def domain_hash(domain: str, payload: Any) -> str:
     return canonical_sha256_checked_v1({"domain": domain, "payload": payload})
 
 
-def validate_receipt_shape(receipt: Any) -> None:
-    _require(_shape(receipt, SCHEMA), "RECEIPT_SHAPE")
-
-
 def _unique(items: list[Any], code: str) -> None:
     _require(len(set(items)) == len(items), code)
 
 
-def _signature(row: Mapping[str, Any], context: Any = None) -> Mapping[str, Any] | None:
+def _signature(row: Mapping[str, Any], context: Any) -> Mapping[str, Any] | None:
     md = row.get("metadata") or {}
-    found = [s for s in (TABLE if context is None else context.TABLE)["rows"] if s["kind"] == row.get("kind") and s["unit"] == row.get("unit") and (s["component"] is None or s["component"] == md.get("component")) and ("source_basis" not in s or s["source_basis"] == md.get("basis"))]
+    found = [s for s in context.TABLE["rows"] if s["kind"] == row.get("kind") and s["unit"] == row.get("unit") and (s["component"] is None or s["component"] == md.get("component")) and ("source_basis" not in s or s["source_basis"] == md.get("basis"))]
     return found[0] if len(found) == 1 else None
 
 
@@ -149,7 +138,7 @@ def _source_plan(plan: Mapping[str, Any], projections: list[Any], model: Mapping
         _require(n == len(model["nodes"]) * 6 and plan["member_ids"] == [p["id"] for p in model["pipe_segments"]] and plan["support_ids"] == [s["id"] for s in model["supports"]], "CURRENT_MODEL_SOURCE_COVERAGE")
 
 
-def _projection(projection: Mapping[str, Any], row: Mapping[str, Any], context: Any = None) -> None:
+def _projection(projection: Mapping[str, Any], row: Mapping[str, Any], context: Any) -> None:
     value, (lo, hi) = projection["value"], projection["interval"]
     _require(projection["value_bits"] == _bits(value) == _bits(row["value"]) and projection["unit"] == row["unit"], "PROJECTION_VALUE_BINDING")
     _require(lo <= value <= hi and (value == 0 or lo * (1 if value > 0 else -1) > 0 and hi * (1 if value > 0 else -1) > 0), "PROJECTION_INTERVAL")
@@ -174,7 +163,7 @@ def _projection(projection: Mapping[str, Any], row: Mapping[str, Any], context: 
     _require(valid[quantity] and _signature(row, context) is not None, "PROJECTION_TYPED_QUANTITY")
 
 
-def _derived(recipe: str, row: Mapping[str, Any], inputs: list[Mapping[str, Any]], context: Any = None) -> None:
+def _derived(recipe: str, row: Mapping[str, Any], inputs: list[Mapping[str, Any]], context: Any) -> None:
     kind = row["kind"]
     signature = _signature(row, context)
     _require(signature is not None, "DERIVED_SIGNATURE")
@@ -265,18 +254,18 @@ def _stress_summary_observation(row: Mapping[str, Any], inputs: list[Mapping[str
     _require(value >= 0.0 and _normal_or_exact_zero(value, not any_normal), "SUMMARY_OUTPUT_RANGE")
 
 
-def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mapping[str, Any] | None = None, *, context: Any = None) -> bool:
+def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mapping[str, Any] | None, *, context: Any) -> bool:
     """Return numerical eligibility; raise ValueError for malformed statements.
 
     A structurally consistent receipt with no independent invocation is always
     unqualified. Hashes bind records; they do not reconstruct private ratios.
     """
-    _require(type(source) is dict and set(source) == ({"schema_version", "producer", "numerical_quality", "formulation_basis", "document_kind", "run_id", "model_ref", "status", "summary", "results", "diagnostics", "professional_boundary", "accepted_model_state_mutated", "source_block_recovery"} | ({"contract_evidence"} if context is not None else set())), "RAW_FIELDS")
-    _require(source["schema_version"] == "0.2.0" and source["producer"] == {"component_name":"open_pipe_stress_product_physics", "component_version":"0.2.0", "semantic_contract_id":CONTRACT_ID if context is None else context.CONTRACT_ID}, "PRODUCER")
+    _require(type(source) is dict and set(source) == ({"schema_version", "producer", "numerical_quality", "formulation_basis", "document_kind", "run_id", "model_ref", "status", "summary", "results", "diagnostics", "professional_boundary", "accepted_model_state_mutated", "source_block_recovery"} | {"contract_evidence"}), "RAW_FIELDS")
+    _require(source["schema_version"] == "0.2.0" and source["producer"] == {"component_name":"open_pipe_stress_product_physics", "component_version":"0.2.0", "semantic_contract_id":context.CONTRACT_ID}, "PRODUCER")
     formulation = source["formulation_basis"]
-    _require(type(formulation) is dict and set(formulation) == {"profile_id","limitations"} and formulation["profile_id"] == ("product_preview_mechanics_v1" if context is None else context.PROFILE) and type(formulation["limitations"]) is list and bool(formulation["limitations"]) and all(type(v) is str and v for v in formulation["limitations"]), "FORMULATION")
+    _require(type(formulation) is dict and set(formulation) == {"profile_id","limitations"} and formulation["profile_id"] == context.PROFILE and type(formulation["limitations"]) is list and bool(formulation["limitations"]) and all(type(v) is str and v for v in formulation["limitations"]), "FORMULATION")
     receipt = source["source_block_recovery"]
-    (validate_receipt_shape if context is None else context.validate_receipt_shape)(receipt)
+    context.validate_receipt_shape(receipt)
     body = receipt["body"]
     _require(receipt["receipt_sha256"] == domain_hash("source_blocks_receipt_v1", body), "RECEIPT_HASH")
     publication = {key:value for key,value in source.items() if key != "source_block_recovery"}
@@ -321,7 +310,7 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
         work = case["work"]; rejected = work["rejected_reservation"]
         invocation_charged += work["charged"] + work["reserved_unobserved_failure"]
         _require(invocation_charged <= 64_000_000, "INVOCATION_WORK_LIMIT")
-        _require(work["charged"] + work["reserved_unobserved_failure"] <= work["limit"] <= (4_000_000 if context is None else 8_000_000) and ((rejected["kind"] == "overflow" and rejected["amount"] is None) or (rejected["kind"] == "finite" and rejected["amount"] is not None)), "WORK_LEDGER")
+        _require(work["charged"] + work["reserved_unobserved_failure"] <= work["limit"] <= 8_000_000 and ((rejected["kind"] == "overflow" and rejected["amount"] is None) or (rejected["kind"] == "finite" and rejected["amount"] is not None)), "WORK_LEDGER")
         success = case["outcome"] == "qualified"; method = case["selected_method"]
         if success:
             qualified += 1
@@ -343,7 +332,7 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
         _unique([p["functional_id"] for p in case["projections"]], "FUNCTIONAL_IDS")
         _unique([p["result_id"] for p in case["projections"]], "PROJECTION_RESULTS")
         treatment = {r["result_id"]:r for r in case["rows"]}; _unique([r["result_id"] for r in case["rows"]], "ROW_IDS")
-        if any(row["recipe_id"] in {"straight_open_stress_v1", "reviewed_stress_summary_v1"} | ({"retained_source_straight_stress_v1"} if context is not None else set()) for row in case["rows"]):
+        if any(row["recipe_id"] in {"straight_open_stress_v1", "reviewed_stress_summary_v1", "retained_source_straight_stress_v1"} for row in case["rows"]):
             _require(bool(case["projections"]) and max(p["relative_error_bound"] for p in case["projections"]) <= STRESS_INPUT_RELATIVE_LIMIT, "STRESS_TOTAL_RELATIVE_BOUND")
         expected = {i for i,r in raw.items() if r.get("basis_ref") == basis}
         _require(set(treatment) == expected and not covered & expected, "CASE_ROW_COVERAGE"); covered |= expected
@@ -359,7 +348,7 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
                 _projection(projection, row, context); used_projections.add(projection["projection_id"])
             elif token == "checked_derived":
                 _require(method == EXACT and success and treatment_row["projection_id"] is None and treatment_row["recipe_id"] is not None, "DERIVED_ROW")
-                if context is not None and context.is_composite_recipe(treatment_row["recipe_id"]):
+                if context.is_composite_recipe(treatment_row["recipe_id"]):
                     context.validate_derived(source, case, treatment_row, row, [raw[i] for i in inputs])
                 else:
                     _derived(treatment_row["recipe_id"], row, [raw[i] for i in inputs], context)
@@ -368,8 +357,8 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
                     relative = max(projections[treatment[i]["projection_id"]]["relative_error_bound"] for i in inputs)
                     _require(relative <= NORM_INPUT_RELATIVE_LIMIT, "NORM_TOTAL_RELATIVE_BOUND")
                 _require(all(treatment[i]["treatment"] in {"qualified_projection","checked_derived"} for i in inputs), "UNQUALIFIED_DERIVED_INPUT")
-            elif token == ("ordinary_checked" if context is None else "ordinary_physics_checked"):
-                _require(success and method != EXACT and treatment_row["projection_id"] is None and treatment_row["recipe_id"] is None and signature is not None and (context is not None or row["kind"] != "support_reaction_component_v2"), "ORDINARY_ROW")
+            elif token == "ordinary_physics_checked":
+                _require(success and method != EXACT and treatment_row["projection_id"] is None and treatment_row["recipe_id"] is None and signature is not None, "ORDINARY_ROW")
             else:
                 _require(treatment_row["projection_id"] is None and treatment_row["recipe_id"] is None, "INSPECTION_ROW")
                 if signature is None or signature["category"] == "physical_quantity": usable = False
@@ -382,7 +371,7 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
         if success and method == EXACT:
             _supports(case, raw, projections, model, context)
             _required_affine_rows(case, raw, model, context)
-            if context is not None: context.validate_source_case(source, case, actual_invocation)
+            context.validate_source_case(source, case, actual_invocation)
         elif case["supports"]:
             _require(False, "UNSELECTED_SUPPORT_CERTIFICATE")
     invocation_work = body["invocation_work"]
@@ -400,7 +389,7 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
     return actual_invocation is not None and aggregate == "qualified" and usable and source["status"].get("mechanics") == "MECHANICS_SOLVED"
 
 
-def _supports(case: Mapping[str, Any], raw: dict[str, Any], projections: dict[str, Any], model: Mapping[str, Any] | None, context: Any = None) -> None:
+def _supports(case: Mapping[str, Any], raw: dict[str, Any], projections: dict[str, Any], model: Mapping[str, Any] | None, context: Any) -> None:
     records = case["supports"]; plan = case["source"]
     _require([s["support_id"] for s in records] == plan["support_ids"], "SUPPORT_COVERAGE")
     ideals: set[int] = set(); spring_sources: set[tuple[str,int]] = set()
@@ -416,7 +405,7 @@ def _supports(case: Mapping[str, Any], raw: dict[str, Any], projections: dict[st
             slot = COMPONENTS.index(component["component"]); row = raw.get(component["result_id"]); projection = projection_by_result.get(component["result_id"])
             _require(row is not None and projection is not None and projection["functional_id"] == component["functional_id"] and projection["quantity"] == "support_action_component", "SUPPORT_PROJECTION")
             md = row.get("metadata") or {}
-            _require(row["kind"] == "support_reaction_component_v2" and row["entity_ref"] == support["support_id"] and row["basis_ref"] == case["basis_ref"] and row["unit"] == ("N" if slot < 3 else "N*m") and md == {"component":component["component"],"coordinate_system":"global","location":"node","basis":"recovered_from_assembled_support_law","sign_convention":SUPPORT_SIGN if context is None else context.SUPPORT_SIGN}, "SUPPORT_ROW_SEMANTICS")
+            _require(row["kind"] == "support_reaction_component_v2" and row["entity_ref"] == support["support_id"] and row["basis_ref"] == case["basis_ref"] and row["unit"] == ("N" if slot < 3 else "N*m") and md == {"component":component["component"],"coordinate_system":"global","location":"node","basis":"recovered_from_assembled_support_law","sign_convention":context.SUPPORT_SIGN}, "SUPPORT_ROW_SEMANTICS")
             terms = component["action_terms"]; _require(bool(terms), "SUPPORT_ACTION_TERMS")
             if actual is not None:
                 authored = actual[support["support_id"]]
@@ -441,7 +430,7 @@ def _supports(case: Mapping[str, Any], raw: dict[str, Any], projections: dict[st
     _require({c["result_id"] for s in records for c in s["components"]} == {p["result_id"] for p in projections.values() if p["quantity"] == "support_action_component"}, "SUPPORT_RESULT_BIJECTION")
 
 
-def _required_affine_rows(case: Mapping[str, Any], raw: dict[str, Any], model: Mapping[str, Any] | None, context: Any = None) -> None:
+def _required_affine_rows(case: Mapping[str, Any], raw: dict[str, Any], model: Mapping[str, Any] | None, context: Any) -> None:
     """The claimed complete source family must publish all primary affine rows."""
     projected = [raw[p["result_id"]] for p in case["projections"]]
     case_rows = [raw[r["result_id"]] for r in case["rows"]]
@@ -453,9 +442,9 @@ def _required_affine_rows(case: Mapping[str, Any], raw: dict[str, Any], model: M
         for location in ("end_i","end_j","quarter_1","midspan","quarter_3"):
             for kind in ("element_local_axial_normal_stress","element_local_bending_normal_stress_y","element_local_bending_normal_stress_z","element_local_torsional_shear_stress"):
                 _require(sum(r["entity_ref"] == member and r["kind"] == kind and (r.get("metadata") or {}).get("location") == location for r in case_rows) == 1, "MEMBER_STRESS_COVERAGE")
-        _require(sum(r["entity_ref"] == member and r["kind"] == ("open_formula_stress_summary" if context is None else "pipe_elastic_normal_stress_maximum_v2") for r in case_rows) == 1, "MEMBER_SUMMARY_COVERAGE")
+        _require(sum(r["entity_ref"] == member and r["kind"] == "pipe_elastic_normal_stress_maximum_v2" for r in case_rows) == 1, "MEMBER_SUMMARY_COVERAGE")
     for support in case["source"]["support_ids"]:
-        _require(sum(r["entity_ref"] == support and r["kind"] == ("reaction_resultant" if context is None else "support_reaction_force_magnitude_v2") for r in case_rows) == 1, "SUPPORT_MAGNITUDE_COVERAGE")
+        _require(sum(r["entity_ref"] == support and r["kind"] == "support_reaction_force_magnitude_v2" for r in case_rows) == 1, "SUPPORT_MAGNITUDE_COVERAGE")
     if model is not None:
         for node in model["nodes"]:
             _require(sum(r["entity_ref"] == node["id"] and r["kind"] == "displacement_magnitude" for r in case_rows) == 1, "NODAL_MAGNITUDE_COVERAGE")
@@ -463,37 +452,11 @@ def _required_affine_rows(case: Mapping[str, Any], raw: dict[str, Any], model: M
                 _require(sum(r["entity_ref"] == node["id"] and r["kind"] == kind for r in projected) == 1, "NODAL_PRIMARY_COVERAGE")
 
 
-def ordinary_case_legacy_semantics(source: Mapping[str, Any]) -> bool:
-    """Whether a non-composite source-blocks-1 receipt selected an ordinary case.
-
-    Such a case keeps the retired precision-1 row semantics (norm-only
-    reactions, absolute-sum stress summary), so the envelope is not Current
-    until T3 (standing reason SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS).
-    Derived from the retained receipt only; the composite physics-source-1
-    identity carries ordinary cases under physics-1 semantics and never uses it.
-    """
-    producer = source.get("producer") if isinstance(source, Mapping) else None
-    if not isinstance(producer, Mapping) or producer.get("semantic_contract_id") != CONTRACT_ID:
-        return False
-    receipt = source.get("source_block_recovery")
-    cases = receipt.get("body", {}).get("cases") if isinstance(receipt, Mapping) and isinstance(receipt.get("body"), Mapping) else None
-    if not isinstance(cases, list):
-        return False
-    return any(isinstance(case, Mapping) and case.get("outcome") == "qualified" and case.get("selected_method") != EXACT for case in cases)
-
-
-def validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mapping[str, Any] | None = None) -> bool:
-    try:
-        return _validate_source_blocks(source, actual_invocation)
-    except (KeyError, TypeError, IndexError, AttributeError, OverflowError) as error:
-        raise ValueError("SOURCE_BLOCKS_MALFORMED_VALUE") from error
-
-
-def _summary(source: Mapping[str, Any], raw: dict[str, Any], model: Mapping[str, Any] | None, context: Any = None) -> None:
+def _summary(source: Mapping[str, Any], raw: dict[str, Any], model: Mapping[str, Any] | None, context: Any) -> None:
     summary = source["summary"]
     if model is not None:
         _require(all(summary.get(key) == len(model[field]) for key,field in [("node_count","nodes"),("segment_count","pipe_segments"),("support_count","supports"),("load_case_count","load_cases")]), "SUMMARY_MODEL_COUNTS")
-    for field,kind in [("max_displacement","displacement_magnitude"),("max_open_formula_stress","open_formula_stress_summary" if context is None else "pipe_elastic_normal_stress_maximum_v2")]:
+    for field,kind in [("max_displacement","displacement_magnitude"),("max_open_formula_stress","pipe_elastic_normal_stress_maximum_v2")]:
         headline = summary.get(field)
         candidates = [r for r in raw.values() if r["kind"] == kind]
         if candidates:

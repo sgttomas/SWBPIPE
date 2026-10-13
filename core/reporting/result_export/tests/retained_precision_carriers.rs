@@ -685,7 +685,6 @@ fn u6a_each_class_maps_to_its_refusal_and_disclosure() {
 }
 
 const PREVIEW_SPARSE: &str = include_str!("../../../../fixtures/results/preview_physics_invented_sparse.json");
-const BLOCKS_N05: &str = include_str!("../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json");
 const CASES: &str = include_str!("../../../../fixtures/results/retained_precision_carrier_cases.json");
 /// RR "RV88 on U6a, U6c, U6b (and U6d)": the only ruled differences between the
 /// languages' carriers (and F5's shared semantics); any other is a defect. RR
@@ -714,7 +713,6 @@ fn shared_fixtures(cases: &Value) -> Vec<(String, Value, Value)> {
                 "fixtures/results/retained_precision_milestone_successor_sparse_interactive.json" => SPARSE,
                 "fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json" => DENSE,
                 "fixtures/results/preview_physics_invented_sparse.json" => PREVIEW_SPARSE,
-                "fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json" => BLOCKS_N05,
                 p => panic!("{p}"),
             };
             assert_eq!(format!("{:x}", Sha256::digest(text.as_bytes())), f["sha256"].as_str().unwrap());
@@ -847,12 +845,6 @@ fn expected_binding(source: &Value, expected: &str) -> Vec<Option<String>> {
     let code = (code != "none").then(|| code.to_string());
     match rule {
         "every_row" => vec![code; rows.len()],
-        "source_blocks_summary" => {
-            let headline = &source["summary"]["max_open_formula_stress"]["result_ref"];
-            let want: Vec<Option<String>> = rows.iter().map(|row| (row["kind"] == "open_formula_stress_summary" || (headline.is_string() && row["id"] == *headline)).then(|| code.clone()).flatten()).collect();
-            assert!(want.contains(&None) && want.contains(&code));
-            want
-        }
         other => panic!("{other}"),
     }
 }

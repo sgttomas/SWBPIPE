@@ -149,7 +149,7 @@ pub(crate) const REVIEWED_INPUTS_VARIABLE: &str = "OPS_RETAINED_REVIEWED_INPUTS"
 /// lock, then the reader's statics in G4's ORIGINS.json order, followed by B7's
 /// source-qualified nonresident binding table.
 #[allow(dead_code)]
-pub(crate) const REVIEWED_INPUT_COUNT: usize = 17;
+pub(crate) const REVIEWED_INPUT_COUNT: usize = 15;
 #[allow(dead_code)]
 pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     "Cargo.lock",
@@ -163,8 +163,7 @@ pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     "../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json",
     "../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json",
     "../../fixtures/results/semantic_contract_v0_3_physics_source_1.json",
-    "../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json",
-    "../../schemas/source_block_recovery.schema.json",
+    // B4/D1 (b) removed the retired source-blocks-1 table and its receipt schema.
     // B2/B3 J1 (I93 REVISION_01 §1.4; B3-D decision B3D-18: appended, so existing
     // positions keep their meaning): the combination and exact formation definitions
     // and the physics-retained-1 table.

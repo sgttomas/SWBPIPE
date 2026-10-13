@@ -199,14 +199,10 @@ fn route_reader(route: &str) -> Option<&'static str> {
         "preview_physics" => "preview-physics",
         "physics" => "physics",
         "physics_source" => "physics-source",
-        "source_blocks" => "source-blocks",
         "load_reference" => "load-reference",
         "load_reference_source" => "load-reference-source",
         _ => return None,
     })
-}
-fn has_transport(reader: &str) -> bool {
-    reader != "source-blocks"
 }
 /// The transported statement: the members a carrier keeps (the corpus's
 /// transport cases' projection).
@@ -239,7 +235,7 @@ fn base(inputs: &mut Vec<Input>, id: String, source: Value, model: Option<Value>
         model,
         invocation,
         readers: reader.into_iter().collect(),
-        transports: reader.filter(|r| has_transport(r)).into_iter().collect(),
+        transports: reader.into_iter().collect(),
         rows: true,
     });
 }
@@ -292,24 +288,7 @@ fn build_corpus() -> Vec<Input> {
             }
         }
     }
-    for dir in ["", "ui/"] {
-        for name in ["n05", "n06", "multicase"] {
-            for mode in modes {
-                let path = format!("fixtures/product_preview/source_blocks/{dir}{name}-{mode}");
-                let request = read(&format!("{path}.request.json"));
-                let invocation = json!({"request": request, "solver_mode": mode});
-                base(&mut inputs, format!("source_blocks/{dir}{name}-{mode}"), read(&format!("{path}.raw.json")),
-                    Some(request["model"].clone()), Some(invocation));
-            }
-        }
-    }
-    for mode in modes {
-        let path = format!("fixtures/product_preview/source_blocks/rejected_stress_range/{mode}");
-        let request = read(&format!("{path}.request.json"));
-        let invocation = json!({"request": request, "solver_mode": mode});
-        base(&mut inputs, format!("source_blocks/rejected_stress_range/{mode}"), read(&format!("{path}.raw.json")),
-            Some(request["model"].clone()), Some(invocation));
-    }
+    // B4/D1 (b): the preview route's retired source-blocks-1 statements left the corpus.
     let fallback = model_at("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json");
     for mode in modes {
         let path = format!("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-{mode}.raw.json");
@@ -512,12 +491,12 @@ fn base_reader_outcomes_are_the_committed_corpus_outcomes() {
     let by_id: BTreeMap<String, Value> = entries.iter().map(|e| (e["id"].as_str().unwrap().to_string(), e.clone())).collect();
     check_expectations(&by_id);
     // Every unmutated statement passes its route's reader with its own model and
-    // invocation, but the known-bad source-blocks publications.
+    // invocation.
     for input in inputs.iter().filter(|i| i.rows) {
         let entry = &by_id[&input.id];
         assert_eq!(entry["dispatch"]["ok"], true, "{}", input.id);
         for (reader, outcome) in entry["validate"].as_object().into_iter().flatten() {
-            assert_eq!(outcome["ok"] == true, !input.id.contains("rejected_stress_range"), "{} {reader}: {outcome}", input.id);
+            assert_eq!(outcome["ok"], true, "{} {reader}: {outcome}", input.id);
         }
     }
     let document = json!({

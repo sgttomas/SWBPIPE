@@ -3351,11 +3351,6 @@ fn d6_d7_ordinary_and_diagnostic_relations() {
         ]),
         gate("G5", ATTEMPT)
     );
-    // D6d: a legacy work_ref that does not resolve is a reference check (ATTEMPT).
-    assert_eq!(
-        probe(&shared, ORD, vec![set(rb(json!(["ordinary_attempts", 0, "legacy_source", "work_ref"])), json!(0))]),
-        gate("G5", ATTEMPT)
-    );
     // D7: a RETAINED_PRECISION_SELECTED diagnostic naming no requested case.
     let diagnostics = base_source(&shared, ORD)["diagnostics"].clone();
     let i = diagnostics
@@ -7617,11 +7612,10 @@ const R1_SUCCESSORS: [(&str, &str); 12] = [
     ("w_c2_successor_sparse_interactive", include_str!("../../../../fixtures/results/retained_precision_w_c2_successor_sparse_interactive.json")),
 ];
 /// The carrier cases' fixtures, by their `path`.
-const R1_CARRIER_FIXTURES: [(&str, &str); 4] = [
+const R1_CARRIER_FIXTURES: [(&str, &str); 3] = [
     ("fixtures/results/retained_precision_milestone_successor_sparse_interactive.json", R1_SUCCESSORS[9].1),
     ("fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json", R1_SUCCESSORS[8].1),
     ("fixtures/results/preview_physics_invented_sparse.json", include_str!("../../../../fixtures/results/preview_physics_invented_sparse.json")),
-    ("fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json")),
 ];
 const R1_OUTCOMES_PATH: &str = "fixtures/results/retained_precision_reader_outcomes.json";
 

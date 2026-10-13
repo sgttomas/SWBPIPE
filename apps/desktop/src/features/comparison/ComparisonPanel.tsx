@@ -160,7 +160,7 @@ function comparisonDimension(delta: ComparisonDelta, result: MechanicsResult | n
   if (left && (left.unit !== delta.unit || left.value !== delta.left_value || (left.dimension && left.dimension !== right.dimension))) return "unknown";
   if (!result || !labels) return "unknown";
   const contract = sourceContract(result);
-  if (!["precision", "source_blocks", "physics", "physics_source", "preview_physics"].includes(contract)) return "unknown";
+  if (!["precision", "physics", "physics_source", "preview_physics"].includes(contract)) return "unknown";
   const rightDimension = labels.dimension(right);
   const leftDimension = left ? labels.dimension(left) : null;
   if (!left || !rightDimension || leftDimension !== rightDimension) return "unknown";

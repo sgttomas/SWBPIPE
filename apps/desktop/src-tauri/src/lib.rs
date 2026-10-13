@@ -3076,8 +3076,8 @@ fn qualify_rule_mechanics_with_context(model: &Value, envelope: &Value, invocati
         }
         refs.push(json!({"ref_type":"load_case", "ref_id":id}));
     }
-    // T0R: only a fresh identity is rule-eligible; precision-1 and mixed
-    // ordinary source-blocks-1 stay readable but need a new solve.
+    // T0R: only a fresh identity is rule-eligible; precision-1 stays readable
+    // but needs a new solve.
     // A2 item 10: validate first, so a tampered source is unsupported.
     let standing = open_pipe_stress_result_export::semantic_contract::numerical_use_standing_with_context(envelope, &refs, invocation);
     let contract = envelope.pointer("/producer/semantic_contract_id").and_then(Value::as_str).unwrap_or_default();
@@ -5373,15 +5373,13 @@ mod tests {
 
     #[test]
     fn source_blocks_native_actual_invocation_store_and_rule_context() {
-        let mut request: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.request.json")).unwrap();
-        // This control tests unchanged current-document custody. Author the
-        // current legacy schema before the actual invocation; 0.1 migration is
-        // exercised separately and legitimately changes the model hash.
-        request["model"]["schema_version"] = json!(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION);
+        // B4/D1 (b): source blocks remain only on the exact route's composites, so this
+        // control reads physics-source-1's committed (current-schema) request.
+        let request: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/physics_source/n05.request.json")).unwrap();
         let model = &request["model"];
         for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
             let solved = solve_preview_mechanics_value_with_mode(model.clone(), mode).unwrap();
-            assert_eq!(solved["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/source-blocks-1");
+            assert_eq!(solved["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/physics-source-1");
             assert_eq!(solved["source_block_recovery"]["body"]["status"], "qualified");
             let invocation = json!({"request":request,"solver_mode":mode.as_str()});
             qualify_rule_mechanics_with_context(model, &solved, Some(&invocation)).unwrap();
@@ -7130,8 +7128,8 @@ mod tests {
     #[test]
     fn solves_hand_the_desktop_the_producers_exact_bytes() {
         const PINS: [(&str, usize, &str); 2] = [
-            ("sparse_interactive", 68985, "abfc82f25247cd9963f20ea054d62c234e0c6e4fb41012d31ba9f9f64c2dace1"),
-            ("dense_scrutiny", 70103, "44cb3dada6e0682d4da769dbbfd3814cac54433d796e771b9aefe5ab8024d51a"),
+            ("sparse_interactive", 68531, "d623c9e7783903fe5783d24527f1b1662b289b75c03d67635418425ff83e31eb"),
+            ("dense_scrutiny", 69649, "767c50a8d903b10b8d0ae416c60526dcb5310546e8f89c21a340a3f19f7f7d99"),
         ];
         let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview");
         let model: Value = serde_json::from_str(include_str!(
@@ -8650,35 +8648,6 @@ mod tests {
         )
         .expect("rule checks run");
         assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
-    }
-
-    #[test]
-    fn run_rule_checks_core_refuses_all_selected_source_blocks_summary_with_reason() {
-        // T0R rule_binding_refusal: the abs-sum summary (and the headline's row)
-        // of a non-composite source-blocks-1 envelope is refused on both binding
-        // paths and reported incomplete with the reason; a force row still binds.
-        let mut envelope = demo_solved_envelope(50.0);
-        envelope["producer"] = json!({"semantic_contract_id":"openpipestress.result_semantics/0.3.0/source-blocks-1"});
-        envelope["results"][0]["kind"] = json!("open_formula_stress_summary");
-        envelope["results"].as_array_mut().unwrap().push(json!({"id":"result:force:demo","kind":"element_local_axial_force","value":50.0,"unit":"demo_unit","entity_ref":"pipe:demo"}));
-        envelope["summary"] = json!({"max_open_formula_stress":{"result_ref":"result:stress:demo"}});
-        let reason = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE";
-        for (pack, selectors) in [
-            (pack_with_solver_result_ref("result:stress:demo"), None),
-            (example_rule_pack_document(), Some(demo_solver_selectors())),
-        ] {
-            let outcome = run_rule_checks_core(pack, None, Some(envelope.clone()), selectors, Some(demo_supplied_values()), None)
-                .expect("rule checks run");
-            assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
-            assert!(outcome["checks"][0]["completeness_findings"].as_array().unwrap().iter().any(|f| f["code"] == json!(reason)));
-        }
-        let mut refused = Vec::new();
-        assert!(resolve_solver_result_bindings(Some(&demo_solver_selectors()), &envelope, &mut refused).unwrap().is_empty());
-        assert_eq!(refused.len(), 1);
-        assert_eq!(refused[0].reason, reason);
-        let outcome = run_rule_checks_core(pack_with_solver_result_ref("result:force:demo"), None, Some(envelope), None, Some(demo_supplied_values()), None)
-            .expect("rule checks run");
-        assert_eq!(outcome["aggregate_status"], json!("USER_RULE_CHECKED"));
     }
 
     #[test]

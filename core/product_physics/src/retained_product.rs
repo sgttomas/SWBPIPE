@@ -497,7 +497,6 @@ pub(super) struct OrdinarySeed {
     /// R-b' (`amend_integrity_report`) demoted the published verdict after the
     /// report: no wire member carries that finding, so the serializer declines.
     pub recovery_demoted: bool,
-    pub legacy: Option<LegacySeed>,
 }
 /// C2 §5 `initial`, before any W2 consumption of the attempt.
 #[derive(Debug, Clone)]
@@ -532,35 +531,12 @@ pub(super) struct FindingSeed {
     pub fired: Vec<String>,
     pub diagnostic_ref: Option<String>,
 }
-/// G-l with D39 (ROOT, 2026-10-04): the legacy source route's actual branch.
-#[derive(Debug, Clone)]
-pub(super) enum LegacySeed {
-    /// `!source_eligible`.
-    NotEligible,
-    /// `source_eligible && !needs_source_recovery`.
-    NotRequired,
-    /// A formation-guard or range-formation decline (no attempt; WorkReport 0/0/0).
-    DeclinedWithoutAttempt { work: LegacyWork, diagnostic_ref: String },
-    /// An actual `solve_ordinary` attempt that did not select.
-    Unavailable { work: LegacyWork, diagnostic_ref: String },
-    /// `Ok(recovery)`: exact-block selected; coexistence bypass (D-15), no successor.
-    ExactSelected,
-}
-/// The typed `RecoveryFailure` stage and its actual `WorkReport`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) struct LegacyWork {
-    pub stage: &'static str,
-    pub helper_stage: open_pipe_stress_frame_kernel::structural::exact_boundary::functionals::AttemptStage,
-    pub charged: usize,
-    pub rejected: usize,
-    pub limit: usize,
-}
 impl ProductCapture {
     fn ordinary_seed(&mut self, case: &str) -> &mut OrdinarySeed {
         if self.ordinary.last().is_none_or(|seed| seed.case != case) {
             self.ordinary.push(OrdinarySeed {
                 case: case.to_owned(), initial: None, w2: W2Seed::NotTriggered, load_row_finding: None,
-                d5_diagnostic_ref: None, recovery_demoted: false, legacy: None,
+                d5_diagnostic_ref: None, recovery_demoted: false,
             });
         }
         let last = self.ordinary.len() - 1;
@@ -582,29 +558,6 @@ impl ProductCapture {
     pub(super) fn ordinary_failure_diagnostic(&mut self, case: &str, diagnostic_ref: &str) {
         if let Some(InitialSeed::StructuralFailure { diagnostic_ref: slot, .. }) = &mut self.ordinary_seed(case).initial {
             *slot = Some(diagnostic_ref.to_owned());
-        }
-    }
-    /// G-l: the typed `RecoveryFailure` at the attempt's `Err` arm (D39).
-    pub(super) fn ordinary_legacy_failure(&mut self, case: &str, attempted: bool,
-        failure: &source_recovery::RecoveryFailure, diagnostic_ref: &str) {
-        let work = LegacyWork { stage: failure.stage, helper_stage: failure.helper_stage, charged: failure.work.charged,
-            rejected: failure.work.rejected, limit: failure.work.limit };
-        let diagnostic_ref = diagnostic_ref.to_owned();
-        self.ordinary_seed(case).legacy = Some(if attempted {
-            LegacySeed::Unavailable { work, diagnostic_ref }
-        } else {
-            LegacySeed::DeclinedWithoutAttempt { work, diagnostic_ref }
-        });
-    }
-    /// G-l: the branches without a `RecoveryFailure` (D39 rows 1, 2 and 5).
-    pub(super) fn ordinary_legacy_route(&mut self, case: &str, source_eligible: bool, needs_source_recovery: bool, exact_selected: bool) {
-        let seed = self.ordinary_seed(case);
-        if !source_eligible {
-            seed.legacy = Some(LegacySeed::NotEligible);
-        } else if !needs_source_recovery {
-            seed.legacy = Some(LegacySeed::NotRequired);
-        } else if exact_selected {
-            seed.legacy = Some(LegacySeed::ExactSelected);
         }
     }
     /// G-b: W2 published at b != 0 (its report reference is set at the report).

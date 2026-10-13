@@ -1,4 +1,6 @@
-//! B4/D1: maintained preview-source controls through the actual W1 private driver.
+//! B4/D1: the maintained preview controls of the W1 source census through the actual W1
+//! private driver. Since B4/D1 (b) the preview route selects no source blocks; the census's
+//! baseline is the recorded selection (`FORMERLY_SELECTED`) and it is kept as W1's coverage check.
 //! Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 use super::*;
 use open_pipe_stress_result_export::{retained_precision as reader, semantic_contract as sc};
@@ -293,7 +295,7 @@ fn source_budget_request() -> serde_json::Value {
 
 fn controls() -> Vec<Control> {
     let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../fixtures/product_preview/source_blocks");
+        .join("../../fixtures/product_preview/w1_controls");
     let mut cases = Vec::new();
     for folder in ["", "ui/"] {
         for name in ["n05", "n06", "multicase"] {
@@ -301,7 +303,7 @@ fn controls() -> Vec<Control> {
                 let file = format!("{folder}{name}-{}.request.json", mode.as_str());
                 cases.push(Control {
                     name: format!("committed/{file}"),
-                    recipe: "fixtures/product_preview/source_blocks/*.request.json",
+                    recipe: "fixtures/product_preview/w1_controls/*.request.json",
                     raw: serde_json::from_slice(&std::fs::read(base.join(&file)).unwrap()).unwrap(),
                     modes: vec![mode],
                 });
@@ -462,233 +464,114 @@ fn controls() -> Vec<Control> {
     cases
 }
 
+/// The B4/D1 census's recorded baseline (run on the B7a head 2f741183b0, before the
+/// retirement): every (control, mode) trial whose legacy source-block route selected cases,
+/// those cases' basis ids, and the trial's recorded numerical-use standing. 54 trials and 62
+/// cases; the census's other 14 trials selected nothing or were refused.
+const FORMERLY_SELECTED: [(&str, &str, &[&str], &str); 54] = [
+    ("committed/n05-sparse_interactive.request.json", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("committed/n05-dense_scrutiny.request.json", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("committed/n06-sparse_interactive.request.json", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("committed/n06-dense_scrutiny.request.json", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("committed/multicase-sparse_interactive.request.json", "sparse_interactive", &["case", "case:signed-companion"], "numerically_eligible"),
+    ("committed/multicase-dense_scrutiny.request.json", "dense_scrutiny", &["case", "case:signed-companion"], "numerically_eligible"),
+    ("committed/ui/n05-sparse_interactive.request.json", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("committed/ui/n05-dense_scrutiny.request.json", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("committed/ui/n06-sparse_interactive.request.json", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("committed/ui/n06-dense_scrutiny.request.json", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("committed/ui/multicase-sparse_interactive.request.json", "sparse_interactive", &["case", "case:signed-companion"], "numerically_eligible"),
+    ("committed/ui/multicase-dense_scrutiny.request.json", "dense_scrutiny", &["case", "case:signed-companion"], "numerically_eligible"),
+    ("sign_rotation/N05/1/false", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("sign_rotation/N05/1/false", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("sign_rotation/N05/1/true", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("sign_rotation/N05/1/true", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("sign_rotation/N05/-1/false", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("sign_rotation/N05/-1/false", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("sign_rotation/N05/-1/true", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("sign_rotation/N05/-1/true", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("sign_rotation/N06/1/false", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("sign_rotation/N06/1/false", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("sign_rotation/N06/1/true", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("sign_rotation/N06/1/true", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("sign_rotation/N06/-1/false", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("sign_rotation/N06/-1/false", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("sign_rotation/N06/-1/true", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("sign_rotation/N06/-1/true", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("tiny_range/1e-150", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("tiny_range/1e-150", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("F4/cancelling", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("F4/cancelling", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("F4/net", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("F4/net", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("F6/partial", "sparse_interactive", &["case"], "needs_recompute"),
+    ("F6/partial", "dense_scrutiny", &["case"], "needs_recompute"),
+    ("source_budget/multicase", "sparse_interactive", &["case", "case:signed-companion"], "numerically_eligible"),
+    ("source_budget/multicase", "dense_scrutiny", &["case", "case:signed-companion"], "numerically_eligible"),
+    ("N05/two_case", "sparse_interactive", &["case", "case-2"], "numerically_eligible"),
+    ("N05/two_case", "dense_scrutiny", &["case", "case-2"], "numerically_eligible"),
+    ("F1b/mixed", "sparse_interactive", &["case:A"], "needs_recompute"),
+    ("F1b/mixed", "dense_scrutiny", &["case:A"], "needs_recompute"),
+    ("CX-F", "sparse_interactive", &["case"], "numerically_eligible"),
+    ("CX-F", "dense_scrutiny", &["case"], "numerically_eligible"),
+    ("T18", "sparse_interactive", &["case"], "needs_recompute"),
+    ("T18", "dense_scrutiny", &["case"], "needs_recompute"),
+    ("T19/pre-K-D5", "sparse_interactive", &["case"], "needs_recompute"),
+    ("T19/pre-K-D5", "dense_scrutiny", &["case"], "needs_recompute"),
+    ("T19", "sparse_interactive", &["case"], "needs_recompute"),
+    ("T19", "dense_scrutiny", &["case"], "needs_recompute"),
+    ("T20/refused", "sparse_interactive", &["case"], "needs_recompute"),
+    ("T20/refused", "dense_scrutiny", &["case"], "needs_recompute"),
+    ("T20/control", "sparse_interactive", &["case"], "needs_recompute"),
+    ("T20/control", "dense_scrutiny", &["case"], "needs_recompute"),
+];
+
+/// B4/D1 (b) coverage, kept from the census: each formerly selected case publishes a selected W1
+/// retained case through the actual private driver, the full Rust reader admits the successor
+/// with the invocation, and the trial's standing is the recorded one or better. The ordinary run
+/// beside it selects no source blocks and discloses no source-recovery outcome.
 #[test]
-fn b4_w1_source_census() {
-    let (mut trials, mut refused, mut unselected, mut selected_cases, mut covered, mut losses) =
-        (0usize, 0usize, 0usize, 0usize, 0usize, Vec::new());
-    let mut loss_causes = std::collections::BTreeMap::<String, usize>::new();
-    for c in controls() {
-        for mode in c.modes {
-            trials += 1;
-            let label = format!("{} {}", c.name, mode.as_str());
-            let baseline = match run_linear_static_preview_value_with_mode(c.raw.clone(), mode) {
-                Ok(envelope) => serde_json::to_value(envelope).unwrap(),
-                Err(error) => {
-                    refused += 1;
-                    eprintln!(
-                        "B4_W1_CENSUS {}",
-                        json!({"control":c.name,"recipe":c.recipe,"mode":mode.as_str(),"baseline_refusal":error})
-                    );
-                    continue;
-                }
-            };
-            let selected: Vec<Value> = baseline["source_block_recovery"]["body"]["cases"]
-                .as_array()
-                .map(Vec::as_slice)
-                .unwrap_or(&[])
-                .iter()
-                .filter(|case| case["selected_method"] == "retained_source_blocks_exact_v1")
-                .map(|case| case["basis_ref"].clone())
-                .collect();
-            if selected.is_empty() {
-                unselected += 1;
-                eprintln!(
-                    "B4_W1_CENSUS {}",
-                    json!({"control":c.name,"recipe":c.recipe,"mode":mode.as_str(),"baseline_selected":[],"baseline_status":baseline["status"]["mechanics"]})
-                );
-                continue;
-            }
-            selected_cases += selected.len();
-            let invocation = json!({"request":c.raw,"solver_mode":mode.as_str()});
-            let (request, capture) =
-                source_receipt::CapturedInvocation::parse(c.raw.clone(), mode).unwrap();
-            let refs: Vec<Value> = request
-                .model
-                .load_cases
-                .iter()
-                .map(|case| json!({"ref_type":"load_case","ref_id":case.id}))
-                .collect();
-            let baseline_standing =
-                sc::numerical_use_standing_with_context(&baseline, &refs, Some(&invocation));
-            let baseline_check = match baseline["producer"]["semantic_contract_id"].as_str() {
-                Some(open_pipe_stress_result_export::source_blocks::CONTRACT_ID) => {
-                    open_pipe_stress_result_export::source_blocks::validate(
-                        &baseline,
-                        Some(&invocation),
-                    )
-                }
-                Some(sc::PHYSICS_SOURCE_ID) => {
-                    open_pipe_stress_result_export::physics_source::validate(
-                        &baseline,
-                        Some(&invocation),
-                    )
-                }
-                _ => sc::for_source(&baseline).map(|_| false),
-            };
-            let domain =
-                retained_memory::assess(&capture, &request, retained_memory::Entry::Direct)
-                    .law()
-                    .domain;
-            let mut observer = rp::ProductCapture::prepared_probe_on(rp::W1Route::Preview);
-            // The actual legacy attempt is denied before observer capture, without editing returned bytes.
-            let mut budget = SourceRecoveryBudget {
-                per_case_limit: 0,
-                ..Default::default()
-            };
-            let mut ordinary = run_linear_static_preview_observed(
-                request,
-                mode,
-                Some(&capture),
-                &mut budget,
-                Some(&mut observer),
-            );
-            assert!(
-                ordinary.source_block_recovery.is_none(),
-                "{label}: legacy selection was not suppressed"
-            );
-            ordinary.diagnostics.shrink_to_fit();
-            let (_, successor) = retained_w1(observer, ordinary, &capture);
-            // Each lost case's cause class: the D1 domain (W1 never starts on the Direct entry),
-            // a packaged table-pin refusal at precommit G0 (held until ruling (6)'s move; none
-            // since), or the W1 stage. The census asserts that no case is lost.
-            let cause = if domain.is_some() {
-                "d1_domain".to_string()
-            } else {
-                match &successor {
-                    Err(W1Fallback::Precommit { gate: "G0", code }) if code == "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED" => "g0_table_pin".to_string(),
-                    Err(other) => format!("w1_{other:?}"),
-                    Ok(_) => "reader_or_standing".to_string(),
-                }
-            };
-            let losses_before = losses.len();
-            let mut details = Vec::new();
-            let (outcome, w1_standing) = match successor {
-                Err(error) => (json!({"fallback":format!("{error:?}")}), "unsupported"),
-                Ok(successor) => {
-                    let source = successor.value();
-                    let validation = reader::validate(source, Some(&invocation));
-                    let standing =
-                        sc::numerical_use_standing_with_context(source, &refs, Some(&invocation));
-                    for basis in &selected {
-                        let case = source["retained_precision"]["body"]["cases"]
-                            .as_array()
-                            .unwrap()
-                            .iter()
-                            .find(|case| case["basis_ref"] == *basis);
-                        let classes = validation
-                            .as_ref()
-                            .ok()
-                            .map(|v| {
-                                v.classifications
-                                    .iter()
-                                    .filter(|row| row.basis_ref == *basis)
-                                    .collect::<Vec<_>>()
-                            })
-                            .unwrap_or_default();
-                        let baseline_case = baseline["source_block_recovery"]["body"]["cases"]
-                            .as_array()
-                            .unwrap()
-                            .iter()
-                            .find(|case| case["basis_ref"] == *basis)
-                            .unwrap();
-                        let baseline_qualified = baseline_case["rows"]
-                            .as_array()
-                            .unwrap()
-                            .iter()
-                            .filter(|row| {
-                                matches!(
-                                    row["treatment"].as_str(),
-                                    Some("qualified_projection" | "checked_derived")
-                                )
-                            })
-                            .collect::<Vec<_>>();
-                        let mut treatment_classes = [0usize; 6];
-                        let mut baseline_withheld = Vec::new();
-                        for treatment in &baseline_qualified {
-                            let class = classes.iter().find(|row| {
-                                row.result_id == treatment["result_id"].as_str().unwrap()
-                            });
-                            let index = match class.map(|row| &row.class) {
-                                Some(reader::AccuracyClass::RelativeVerified) => 0,
-                                Some(reader::AccuracyClass::AbsoluteVerified { .. }) => 1,
-                                Some(reader::AccuracyClass::InputDerived) => 2,
-                                Some(reader::AccuracyClass::NonQuantity) => 3,
-                                Some(reader::AccuracyClass::NotCovered) => 4,
-                                None => 5,
-                            };
-                            treatment_classes[index] += 1;
-                            // This records the reader's existing binding classes, without reclassifying them.
-                            if index == 1 || index >= 4 {
-                                baseline_withheld.push(json!({"result_id":treatment["result_id"],"w1_class":class.map(|row|format!("{:?}",row.class))}));
-                            }
-                        }
-                        let summary = validation
-                            .as_ref()
-                            .ok()
-                            .map(|v| sc::classification_summary_from(v, source, &refs))
-                            .unwrap_or_default();
-                        let binding_summary = summary
-                            .iter()
-                            .find(|entry| entry["case_id"] == basis["ref_id"]);
-                        let mut counts = [0usize; 5];
-                        for row in &classes {
-                            counts[match row.class {
-                                reader::AccuracyClass::RelativeVerified => 0,
-                                reader::AccuracyClass::AbsoluteVerified { .. } => 1,
-                                reader::AccuracyClass::InputDerived => 2,
-                                reader::AccuracyClass::NonQuantity => 3,
-                                reader::AccuracyClass::NotCovered => 4,
-                            }] += 1;
-                        }
-                        let retains = case.is_some_and(|case| case["status"] == "selected")
-                            && validation.is_ok()
-                            && domain.is_none()
-                            && !(baseline_standing == "numerically_eligible"
-                                && standing != "numerically_eligible");
-                        if retains {
-                            covered += 1;
-                        } else {
-                            losses.push(format!("{label} {}", basis["ref_id"]));
-                        }
-                        details.push(json!({"basis_ref":basis,"w1_case_status":case.map(|case|case["status"].clone()),"classes":{"relative_verified":counts[0],"absolute_verified":counts[1],"input_derived":counts[2],"non_quantity":counts[3],"not_covered":counts[4]},"retained_same_or_better_standing":retains,
-                            "binding_summary":binding_summary,"baseline_qualified_rows":baseline_qualified.len(),
-                            "baseline_qualified_w1_classes":{"relative_verified":treatment_classes[0],"absolute_verified":treatment_classes[1],"input_derived":treatment_classes[2],"non_quantity":treatment_classes[3],"not_covered":treatment_classes[4],"absent":treatment_classes[5]},
-                            "baseline_qualified_withheld":baseline_withheld}));
-                    }
-                    (
-                        match validation {
-                            Ok(v) => {
-                                json!({"reader_pass":true,"invocation_bound":v.invocation_bound,"numerical_eligible":v.numerical_eligible})
-                            }
-                            Err(error) => json!({"reader_pass":false,"error":format!("{error:?}")}),
-                        },
-                        standing,
-                    )
-                }
-            };
-            if details.is_empty() {
-                for basis in &selected {
-                    losses.push(format!("{label} {}", basis["ref_id"]));
-                    details
-                        .push(json!({"basis_ref":basis,"retained_same_or_better_standing":false}));
-                }
-            }
-            *loss_causes.entry(cause.clone()).or_insert(0usize) += losses.len() - losses_before;
-            eprintln!(
-                "B4_W1_CENSUS {}",
-                json!({"control":c.name,"recipe":c.recipe,"mode":mode.as_str(),"request_sha256":sha(serde_json::to_string(&c.raw).unwrap().as_bytes()),"baseline_identity":baseline["producer"]["semantic_contract_id"],"baseline_reader":format!("{baseline_check:?}"),"baseline_standing":baseline_standing,"domain_refusal":domain.map(|d|format!("{d:?}")),"w1":outcome,"w1_standing":w1_standing,"loss_cause":cause,"cases":details})
-            );
+fn b4_w1_covers_every_formerly_selected_source_block_case() {
+    let controls = controls();
+    let (mut trials, mut cases) = (0usize, 0usize);
+    for (name, mode_name, bases, recorded) in FORMERLY_SELECTED {
+        let c = controls.iter().find(|c| c.name == name).unwrap_or_else(|| panic!("control {name}"));
+        let mode = MODES.into_iter().find(|m| m.as_str() == mode_name).unwrap();
+        assert!(c.modes.contains(&mode), "{name} {mode_name}");
+        trials += 1;
+        let label = format!("{name} {mode_name}");
+        let invocation = json!({"request":c.raw,"solver_mode":mode_name});
+        let (request, capture) = source_receipt::CapturedInvocation::parse(c.raw.clone(), mode).unwrap();
+        let refs: Vec<Value> = request.model.load_cases.iter()
+            .map(|case| json!({"ref_type":"load_case","ref_id":case.id})).collect();
+        assert!(retained_memory::assess(&capture, &request, retained_memory::Entry::Direct).law().domain.is_none(), "{label}: D1 domain");
+        let mut observer = rp::ProductCapture::prepared_probe_on(rp::W1Route::Preview);
+        let mut budget = SourceRecoveryBudget::default();
+        let mut ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut budget, Some(&mut observer));
+        assert!(ordinary.source_block_recovery.is_none(), "{label}: no source blocks");
+        assert!(!ordinary.diagnostics.iter().any(|d| d.code.starts_with("SOURCE_BLOCK_RECOVERY")), "{label}");
+        assert_eq!(budget.attempts, 0, "{label}: no source attempt");
+        ordinary.diagnostics.shrink_to_fit();
+        let (_, successor) = retained_w1(observer, ordinary, &capture);
+        let successor = successor.unwrap_or_else(|f| panic!("{label}: W1 fell back: {f:?}"));
+        let source = successor.value();
+        let validation = reader::validate(source, Some(&invocation)).unwrap_or_else(|e| panic!("{label}: reader: {e:?}"));
+        assert!(validation.invocation_bound, "{label}");
+        for basis in bases {
+            cases += 1;
+            let case = source["retained_precision"]["body"]["cases"].as_array().unwrap().iter()
+                .find(|case| case["basis_ref"]["ref_id"] == json!(basis))
+                .unwrap_or_else(|| panic!("{label} {basis}: no receipt case"));
+            assert_eq!(case["status"], json!("selected"), "{label} {basis}");
         }
+        let standing = sc::numerical_use_standing_with_context(source, &refs, Some(&invocation));
+        match recorded {
+            "numerically_eligible" => assert_eq!(standing, "numerically_eligible", "{label}"),
+            "needs_recompute" => assert!(matches!(standing, "needs_recompute" | "numerically_eligible"), "{label}: {standing}"),
+            other => panic!("{label}: recorded standing {other}"),
+        }
+        eprintln!("B4_W1_COVERAGE {}", json!({"control":name,"mode":mode_name,"cases":bases,"recorded":recorded,"w1_standing":standing}));
     }
-    eprintln!(
-        "B4_W1_CENSUS_SUMMARY {}",
-        json!({"trials":trials,"baseline_refused":refused,"baseline_unselected":unselected,"baseline_selected_cases":selected_cases,"covered_same_or_better":covered,"loss_causes":loss_causes,"losses":losses})
-    );
-    assert!(
-        losses.is_empty(),
-        "B4/D1 census found {} capability losses; see per-control evidence",
-        losses.len()
-    );
+    assert_eq!((trials, cases), (54, 62));
 }
 
 /// The committed failed-ordinary successor fixture, the producer's published bytes, read by the
@@ -858,7 +741,7 @@ fn b4_w2_failed_translation_is_closed_over_the_named_refusal() {
     let seed = |failure: ForceScalingFailure| rp::OrdinarySeed { case: "case".into(),
         initial: Some(rp::InitialSeed::StructuralFailure { error: StructuralError::Range("division overflow or underflow"), diagnostic_ref: None }),
         w2: rp::W2Seed::Failed { trigger: range.clone(), failure, diagnostic_ref: "diagnostic:numerical-integrity:case".into() },
-        load_row_finding: None, d5_diagnostic_ref: None, recovery_demoted: false, legacy: None };
+        load_row_finding: None, d5_diagnostic_ref: None, recovery_demoted: false };
     for (reason, wire_reason, inner) in [
         (ForceScaleReason::ScaledEvaluation, json!({"tag":"scaled_evaluation"}), Some(range.clone())),
         (ForceScaleReason::SubnormalAtFormation, json!({"tag":"subnormal_at_formation"}), None),
@@ -895,10 +778,7 @@ fn b4_w1_n06_cxf_capture_errors() {
                     .law()
                     .domain;
             let mut observer = rp::ProductCapture::prepared_probe_on(rp::W1Route::Preview);
-            let mut budget = SourceRecoveryBudget {
-                per_case_limit: 0,
-                ..Default::default()
-            };
+            let mut budget = SourceRecoveryBudget::default();
             let mut ordinary = run_linear_static_preview_observed(
                 request,
                 mode,
@@ -944,7 +824,7 @@ fn b4_w1_census_loss_causes() {
                 continue;
             };
             let mut observer = rp::ProductCapture::prepared_probe_on(rp::W1Route::Preview);
-            let mut budget = SourceRecoveryBudget { per_case_limit: 0, ..Default::default() };
+            let mut budget = SourceRecoveryBudget::default();
             let mut ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut budget, Some(&mut observer));
             ordinary.diagnostics.shrink_to_fit();
             let Some(cases) = w1_case_ids(&capture) else {
@@ -999,10 +879,7 @@ fn early_observed(
     let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
     let route = w1_route(&request.model).unwrap_or(rp::W1Route::Preview);
     let mut observer = rp::ProductCapture::prepared_probe_on(route);
-    let mut budget = SourceRecoveryBudget {
-        per_case_limit: 0,
-        ..Default::default()
-    };
+    let mut budget = SourceRecoveryBudget::default();
     let ordinary = run_linear_static_preview_observed(
         request,
         mode,
@@ -1081,7 +958,7 @@ fn b4_early_failed_inputs_are_ready_with_genuine_terminal_and_no_rescue() {
 #[test]
 fn b4_early_normal_and_partial_controls_keep_ordinary_bytes_and_custody() {
     let single: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json"
+        "../../../fixtures/product_preview/w1_controls/n05-sparse_interactive.request.json"
     ))
     .unwrap();
     let partial = controls()
@@ -1134,7 +1011,7 @@ fn b4_early_normal_and_partial_controls_keep_ordinary_bytes_and_custody() {
 #[test]
 fn b4_early_invalid_unrun_missing_and_repeated_capture_refuse() {
     let raw: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json"
+        "../../../fixtures/product_preview/w1_controls/n05-sparse_interactive.request.json"
     ))
     .unwrap();
     for mode in MODES {
@@ -1201,7 +1078,7 @@ fn b4_early_failed_terminal_keeps_dn_exclusions() {
 #[test]
 fn b4_early_captured_binding_refuses_changed_raw_context_and_normalizes_units() {
     let raw: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json"
+        "../../../fixtures/product_preview/w1_controls/n05-sparse_interactive.request.json"
     ))
     .unwrap();
     for mode in MODES {
@@ -1225,10 +1102,7 @@ fn b4_early_captured_binding_refuses_changed_raw_context_and_normalizes_units() 
                 }
             }
             let mut observer = rp::ProductCapture::prepared_probe_on(rp::W1Route::Preview);
-            let mut budget = SourceRecoveryBudget {
-                per_case_limit: 0,
-                ..Default::default()
-            };
+            let mut budget = SourceRecoveryBudget::default();
             let ordinary = run_linear_static_preview_observed(
                 request,
                 mode,
@@ -1255,7 +1129,11 @@ fn b4_early_captured_binding_refuses_changed_raw_context_and_normalizes_units() 
             "maintained exact-route unit control: {:?}",
             observer.error
         );
-        assert!(observer.error.is_none());
+        // B4/D1 (b): under the one source budget (physics-source-1's 8,000,000) the composite
+        // selects n05_units, so the run settles by T-3 (c)'s coexistence before W1 starts; the
+        // selected publication carries no solver-mode observation, which the observer records.
+        assert!(ordinary.source_block_recovery.is_some(), "{mode:?}: composite selected");
+        assert!(observer.error.is_some(), "{mode:?}: the selected run is not W1's");
     }
 }
 

@@ -49,11 +49,10 @@ const D5_EXCLUDED: [&str; 5] = [
     "/contract_evidence/exact_cases/#/profile_version",
 ];
 /// Every source-recovery identity: none may be published by a frozen RF case.
-const SOURCE_IDENTITIES: [&str; 4] = [
+const SOURCE_IDENTITIES: [&str; 3] = [
     "openpipestress.result_semantics/0.3.0/pressure-source-1",
     "openpipestress.result_semantics/0.3.0/physics-source-1",
     "openpipestress.result_semantics/0.3.0/load-reference-source-1",
-    "openpipestress.result_semantics/0.3.0/source-blocks-1",
 ];
 
 fn sha(bytes: &[u8]) -> String {

@@ -510,7 +510,6 @@ fn precision_1_is_readable_but_never_fresh() {
     fresh.sort_unstable();
     let mut expected = vec![
         s::PREVIEW_PHYSICS_ID,
-        open_pipe_stress_result_export::source_blocks::CONTRACT_ID,
         s::PHYSICS_ID,
         s::PHYSICS_SOURCE_ID,
         s::PRESSURE_SOURCE_ID,
@@ -523,9 +522,8 @@ fn precision_1_is_readable_but_never_fresh() {
         fresh, expected,
         "T1 and U6a extend the set only with their activated identities"
     );
-    assert!(s::is_fresh_identity(
-        "openpipestress.result_semantics/0.3.0/source-blocks-1"
-    ));
+    // B4/D1 (b): the retired source-blocks-1 identity is not fresh.
+    assert!(!s::is_fresh_identity(s::RETIRED_SOURCE_BLOCKS_ID));
     // Relabelling a fresh envelope as precision-1 does not make it Current.
     // A2 item 10: a relabelled envelope fails validation first, so it is unsupported.
     let mut relabelled = invented();

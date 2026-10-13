@@ -78,7 +78,7 @@ import {
   registerRetainedPrecision, retainedPrecisionInvocation, retainedPrecisionRegistration, retainedPrecisionStanding, retainedPrecisionStandingText, retainedRowClasses, retainedStandingFrom,
 } from "./retainedPrecisionStanding";
 import {
-  FRESH_SEMANTIC_CONTRACT_IDS, N_HEADLINE, N_RP_ABSOLUTE, N_RP_NOT_COVERED, N_RP_UNVALIDATED, N_SB, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED,
+  FRESH_SEMANTIC_CONTRACT_IDS, N_HEADLINE, N_RP_ABSOLUTE, N_RP_NOT_COVERED, N_RP_UNVALIDATED, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED,
   classBindingRefusal, isFreshSemanticResult, knownSemanticNotices, resultRowLabel, retainedAbsoluteNotice, ruleBindingRefusal, standingReason, upwardBoundText,
 } from "./knownSemanticLimitations";
 import previewPhysicsSemanticContract from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json";
@@ -223,11 +223,11 @@ describe("the inputs and the pinned identity", () => {
   it("uses PP's byte-identical successors and the shared 20-case file (format v4)", () => {
     expect(caseFile.format).toBe("I66-U6-CARRIER-CASES-v4");
     expect(caseFile.cases).toHaveLength(17);
-    expect(Object.keys(caseFile.fixtures).sort()).toStrictEqual(["milestone_dense_scrutiny", "milestone_sparse_interactive", "preview_physics_1_invented_sparse", "source_blocks_n05_sparse"]);
+    expect(Object.keys(caseFile.fixtures).sort()).toStrictEqual(["milestone_dense_scrutiny", "milestone_sparse_interactive", "preview_physics_1_invented_sparse"]);
     for (const mode of MODES) expect(milestone(mode).source.producer!.semantic_contract_id).toBe(RETAINED_PRECISION_ID);
   });
   it("the raw fixtures' guard cases are refused only through their edit (as Rust asserts)", () => {
-    for (const [id, route] of [["preview_physics_1_invented_sparse", "preview_physics"], ["source_blocks_n05_sparse", "source_blocks"]] as const) {
+    for (const [id, route] of [["preview_physics_1_invented_sparse", "preview_physics"]] as const) {
       const { source, invocation } = sharedFixture(id);
       expect(invocation).toBeNull();
       expect(sourceContract(source)).toBe(route);
@@ -571,7 +571,6 @@ describe.each(MODES)("%s: the rule-check gate and binding refusals", (mode) => {
     const findings = ruleBindingPrecheck(received, plan, [{ input_id: "relative", result_id: relative.id }]);
     const label = retainedAbsoluteNotice(classes.get(headline)!.bound_bits!, "Pa");
     expect(findings).toStrictEqual([{ input_id: "headline", result_id: headline, reason: RULE_QUANTITY_BELOW_VERIFIED_FLOOR, notice: label }]);
-    expect(label).not.toBe(N_SB);
     const copy = structuredClone(received);
     expect(ruleBindingRefusal(copy, relative)).toBe(RULE_QUANTITY_NOT_COVERED);
     expect(ruleBindingPrecheck(copy, plan, [{ input_id: "relative", result_id: relative.id }]).map(f => [f.reason, f.notice])).toStrictEqual([[RULE_QUANTITY_NOT_COVERED, N_RP_UNVALIDATED], [RULE_QUANTITY_NOT_COVERED, N_RP_UNVALIDATED]]);
@@ -667,7 +666,6 @@ const expectedSummary = (classes: readonly RowClassification[], source: Json, cu
   return { case_id: c.basis_ref.ref_id, relative_verified: n("relative_verified"), absolute_verified: n("absolute_verified"), interval_bindable: 0, not_covered: n("not_covered"), input_derived: n("input_derived"), non_quantity: n("non_quantity"),
     withheld: current ? n("absolute_verified") + n("not_covered") : n("relative_verified") + n("absolute_verified") + n("not_covered") + n("input_derived") };
 });
-const SUMMARY_KIND = "open_formula_stress_summary";
 const declaredForms = (caseFile.declared_differences as Json[]).flatMap(e => (e.forms as Json[]).flatMap(form => (form.fixtures as string[]).map(f => [`${e.id} / ${form.label}`, f, form] as [string, string, Json])));
 describe("the declared differences, with TypeScript's expectations", () => {
   it("are exactly the five ruled entries, each with a ruling, forms and one expectation per language, in closed field sets", () => {
@@ -743,9 +741,6 @@ describe("the declared differences, with TypeScript's expectations", () => {
       if (rule === "by_validated_class") {
         const classes = new Map((await validateRetainedPrecision(received)).classifications.map(c => [c.result_id, c.class]));
         expect(got).toStrictEqual(rows.map(row => classBindingRefusal(classes.get(row.id))));
-      } else if (rule === "source_blocks_summary") {
-        const headline = received.summary.max_open_formula_stress?.result_ref;
-        expect(got).toStrictEqual(rows.map(row => row.kind === SUMMARY_KIND || row.id === headline ? code : null));
       } else {
         expect(rule).toBe("every_row");
         expect(got).toStrictEqual(rows.map(() => code === "none" ? null : code));
@@ -823,10 +818,12 @@ describe.each(MODES)("%s: the carrier transport route runs the reader's transpor
 });
 describe("the carrier transport route on other identities is the header route", () => {
   it("resolves each existing route, and refuses an unsupported or downgraded header with its standing code", async () => {
-    const legacy = retiredMechanicsResult(), preview = sharedFixture("preview_physics_1_invented_sparse").source, blocks = sharedFixture("source_blocks_n05_sparse").source;
+    const legacy = retiredMechanicsResult(), preview = sharedFixture("preview_physics_1_invented_sparse").source;
     expect(readerDispatch(structuredClone(legacy))).toMatchObject({ route: "unsupported", error: { code: "MECHANICS_RESULT_VERSION_RETIRED" } });
     expect(readerDispatch(structuredClone(preview)).route).toBe("preview_physics");
-    expect(readerDispatch(structuredClone(blocks)).route).toBe("source_blocks");
+    // B4/D1 (b): a stored source-blocks-1 statement is refused by name.
+    const blocks = { ...structuredClone(preview), producer: { ...preview.producer!, semantic_contract_id: "openpipestress.result_semantics/0.3.0/source-blocks-1" } } as MechanicsResult;
+    expect(readerDispatch(blocks)).toMatchObject({ route: "unsupported", error: { code: "SOURCE_BLOCKS_1_RETIRED" } });
     expect(readerDispatch({ ...structuredClone(preview), retained_precision: null } as MechanicsResult)).toMatchObject({ route: "unsupported", error: { code: RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } });
     expect(readerDispatch({ ...structuredClone(preview), carrier_evidence: {} } as MechanicsResult)).toMatchObject({ route: "unsupported", error: { code: "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED" } });
   });

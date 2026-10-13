@@ -35,7 +35,8 @@ PHYSICS_SHA = "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
 PHYSICS_PROFILE = "exact_straight_pressure_v2"
 LR_EVIDENCE_REF = {"$ref": "load_reference_state.schema.json#/$defs/LoadReferenceContractEvidence"}
 PHYSICS_RAW = PROJECT / "fixtures/results/physics_connected_mechanics_sparse.json"
-SOURCE_BLOCKS_RAW = PROJECT / "fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.raw.json"
+# B4/D1 (b): the foreign receipt is a composite's (the only source-block receipt remaining).
+SOURCE_BLOCKS_RAW = PROJECT / "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
 
 # Authored keys the wire (CP2_WIRE.md) and the typed DTO make optional.
 OPTIONAL_AUTHORED = {"label", "operating_temperature", "analysis_basis_override", "mass_state_ref",
@@ -604,7 +605,6 @@ def test_carrier_branches_are_appended_after_the_existing_methods():
     results = schema("results.v0.3.schema.yaml")["$defs"]["ResultEnvelope"]
     ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"] for branch in results["oneOf"]]
     assert ids == ["openpipestress.result_semantics/0.3.0/precision-1", PHYSICS_ID,
-                   "openpipestress.result_semantics/0.3.0/source-blocks-1",
                    "openpipestress.result_semantics/0.3.0/physics-source-1",
                    # b7-plan's pressure-source join carries pressure-source-1 after physics-source-1.
                    PRESSURE_SOURCE_ID,
@@ -714,7 +714,7 @@ def results_invalid(document):
 
 def receipt():
     received = strict_json(SOURCE_BLOCKS_RAW)["source_block_recovery"]
-    validate_instance(schema("source_block_recovery.schema.json"), received, instance_label="actual receipt")
+    validate_instance(schema("physics_source_recovery.schema.json"), received, instance_label="actual receipt")
     return received
 
 

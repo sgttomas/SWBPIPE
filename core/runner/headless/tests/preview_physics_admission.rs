@@ -6,7 +6,7 @@ use open_pipe_stress_headless_runner::{
     RunnerOperation, RunnerRequest, TbdDecisions,
 };
 use open_pipe_stress_product_physics::PreviewSolverMode;
-use open_pipe_stress_result_export::{derivative, semantic_contract, source_blocks};
+use open_pipe_stress_result_export::{derivative, semantic_contract};
 use serde_json::{json, Value};
 use std::path::Path;
 
@@ -123,89 +123,36 @@ fn fresh_non_exact_solve_is_preview_physics_admitted_and_exportable() {
     }
 }
 
+/// B4/D1 (b): the former preview-route source-block requests (alone, and beside an
+/// element-load companion case) publish preview-physics-1 with no source-block receipt;
+/// a stored source-blocks-1 statement is refused by name.
 #[test]
-fn selected_plus_failed_source_blocks_stays_not_eligible() {
-    // Received source-block request plus one element-load case the source gate
-    // cannot select: the actual producer records it as failed (receipt partial).
-    for stem in ["multicase", "n05"] {
-        for mode in MODES {
-            let mut input = read(&format!(
-                "fixtures/product_preview/source_blocks/ui/{stem}-{}.request.json",
-                mode.as_str()
-            ));
-            let pipe = input["model"]["pipe_segments"][0]["id"].clone();
-            input["model"]["load_cases"].as_array_mut().unwrap().push(json!({"id":"case:t0r-failed-companion","kind":"primitive_user_load","label":"element-load companion","provenance":"invented_t0r_selected_failed_control","primitive_loads":[{"category":"distributed_force","dimension":"force_per_length","direction":"global_z","id":"load:t0r-failed-companion","magnitude":{"unit":"N/m","value":-10.0},"provenance":"invented_t0r_selected_failed_control","target":{"type":"element","pipe":pipe}}]}));
-            let output =
-                run_preview_model_value_with_mode(request(&input["model"]), input.clone(), mode)
-                    .unwrap();
-            let raw = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
-            assert_eq!(
-                raw["producer"]["semantic_contract_id"],
-                source_blocks::CONTRACT_ID,
-                "{stem}/{mode:?}"
-            );
-            let body = &raw["source_block_recovery"]["body"];
-            assert_eq!(body["status"], "partial", "{stem}/{mode:?}");
-            assert!(body["cases"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .any(|c| c["outcome"] != "qualified"));
-            assert_eq!(semantic_contract::standing_reason(&raw), None);
-            let invocation = json!({"request":input,"solver_mode":mode.as_str()});
-            assert_eq!(
-                semantic_contract::numerical_use_standing_with_context(
-                    &raw,
-                    &bases(&input["model"]),
-                    Some(&invocation)
-                ),
-                "needs_recompute",
-                "{stem}/{mode:?}"
-            );
-            assert!(output.result_envelope_document.is_none(), "{stem}/{mode:?}");
-        }
-    }
-}
-
-#[test]
-fn all_selected_source_blocks_keeps_its_standing() {
+fn former_source_block_requests_publish_preview_physics_without_a_receipt() {
     for stem in ["n05", "n06", "multicase"] {
-        for mode in MODES {
-            let input = read(&format!(
-                "fixtures/product_preview/source_blocks/ui/{stem}-{}.request.json",
-                mode.as_str()
-            ));
-            let output =
-                run_preview_model_value_with_mode(request(&input["model"]), input.clone(), mode)
-                    .unwrap();
-            let raw = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
-            assert_eq!(
-                raw["producer"]["semantic_contract_id"],
-                source_blocks::CONTRACT_ID
-            );
-            assert_eq!(semantic_contract::standing_reason(&raw), None);
-            let invocation = json!({"request":input,"solver_mode":mode.as_str()});
-            assert_eq!(
-                semantic_contract::numerical_use_standing_with_context(
-                    &raw,
-                    &bases(&input["model"]),
-                    Some(&invocation)
-                ),
-                "numerically_eligible",
-                "{stem}/{mode:?}"
-            );
-            // Its abs-sum summary cannot be bound by a rule (checked at every binding site).
-            let headline = raw["summary"]["max_open_formula_stress"]["result_ref"].clone();
-            let summary_row = raw["results"]
-                .as_array()
-                .unwrap()
-                .iter()
-                .find(|r| r["id"] == headline)
-                .unwrap();
-            assert_eq!(
-                semantic_contract::rule_binding_refusal(&raw, summary_row),
-                Some(semantic_contract::RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE)
-            );
+        for companion in [false, true] {
+            for mode in MODES {
+                let mut input = read(&format!(
+                    "fixtures/product_preview/w1_controls/ui/{stem}-{}.request.json",
+                    mode.as_str()
+                ));
+                if companion {
+                    let pipe = input["model"]["pipe_segments"][0]["id"].clone();
+                    input["model"]["load_cases"].as_array_mut().unwrap().push(json!({"id":"case:t0r-failed-companion","kind":"primitive_user_load","label":"element-load companion","provenance":"invented_t0r_selected_failed_control","primitive_loads":[{"category":"distributed_force","dimension":"force_per_length","direction":"global_z","id":"load:t0r-failed-companion","magnitude":{"unit":"N/m","value":-10.0},"provenance":"invented_t0r_selected_failed_control","target":{"type":"element","pipe":pipe}}]}));
+                }
+                let output =
+                    run_preview_model_value_with_mode(request(&input["model"]), input.clone(), mode)
+                        .unwrap();
+                let raw = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
+                let label = format!("{stem}/{companion}/{mode:?}");
+                assert_eq!(raw["producer"]["semantic_contract_id"], semantic_contract::PREVIEW_PHYSICS_ID, "{label}");
+                assert!(raw.get("source_block_recovery").is_none(), "{label}");
+                assert_eq!(semantic_contract::standing_reason(&raw), None, "{label}");
+                let mut stored = raw.clone();
+                stored["producer"]["semantic_contract_id"] = json!(semantic_contract::RETIRED_SOURCE_BLOCKS_ID);
+                assert!(semantic_contract::for_source(&stored)
+                    .unwrap_err()
+                    .starts_with(semantic_contract::SOURCE_BLOCKS_1_RETIRED), "{label}");
+            }
         }
     }
 }

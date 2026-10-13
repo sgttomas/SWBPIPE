@@ -1217,11 +1217,6 @@ def _g5_ordinary(body, cases, diags, quality, gates=None):
             fail(w2["diagnostic_ref"] is not None and resolves(w2["diagnostic_ref"]))
         finding = o["formation"]["load_row_finding"]
         fail(resolves(o["formation"]["d5_diagnostic_ref"]) and (finding is None or resolves(finding["diagnostic_ref"])))
-        fail(resolves(o["legacy_source"]["diagnostic_ref"]))
-        if o["legacy_source"]["work_ref"] is not None:
-            # D6d (C2:166): a reference check, so ATTEMPT.
-            w = _at(body.get("legacy_source_work") or [], o["legacy_source"]["work_ref"], code="ATTEMPT_MISMATCH")
-            fail(w["case_index"] == i)
         decline = c.get("source_decline")
         if decline is not None:
             owner = decline["input_owner"]

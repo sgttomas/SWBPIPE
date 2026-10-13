@@ -1077,9 +1077,9 @@ mod tests {
             PreviewSolverMode::SparseInteractive,
             PreviewSolverMode::DenseScrutiny,
         ] {
+            // B4/D1 (b): source blocks remain only on the exact route's composites.
             let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../../fixtures/product_preview/source_blocks/ui")
-                .join(format!("n05-{}.request.json", mode.as_str()));
+                .join("../../../fixtures/product_preview/physics_source/n05.request.json");
             let payload: Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
             let raw = json!({"request":request(RunnerOperation::Solve),"solve":{"preview_model":payload},"rule_check_aggregate":"USER_RULE_CHECKED"}).to_string();
             let args = parse_args([
@@ -1092,7 +1092,7 @@ mod tests {
             assert_eq!(code, 0, "{output:#?}");
             let source = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
             let invocation = json!({"request":payload,"solver_mode":mode.as_str()});
-            assert!(open_pipe_stress_result_export::source_blocks::validate(
+            assert!(open_pipe_stress_result_export::physics_source::validate(
                 &source,
                 Some(&invocation)
             )

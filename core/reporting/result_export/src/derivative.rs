@@ -184,8 +184,7 @@ pub fn derive_document(
         if matches!(
             source["producer"]["semantic_contract_id"].as_str(),
             Some(
-                crate::source_blocks::CONTRACT_ID
-                    | crate::semantic_contract::PHYSICS_SOURCE_ID
+                crate::semantic_contract::PHYSICS_SOURCE_ID
                     | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
             )
         ) {
@@ -414,8 +413,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     if matches!(
         source["producer"]["semantic_contract_id"].as_str(),
         Some(
-            crate::source_blocks::CONTRACT_ID
-                | crate::semantic_contract::PHYSICS_SOURCE_ID
+            crate::semantic_contract::PHYSICS_SOURCE_ID
                 | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
         )
     ) {

@@ -594,9 +594,6 @@ def test_ordinary_pass_d6():
                    {"trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "x"}}}):
         bad = deepcopy(body); bad["ordinary_attempts"][0]["w2"].update(change)
         _raises(lambda: rp._g5_ordinary(bad, bad["cases"], diags, q), "G5", "ATTEMPT_MISMATCH")
-    for work_ref, rows in ((0, []), (0, [{"case_index": 1}])):
-        bad = deepcopy(body); bad["ordinary_attempts"][0]["legacy_source"]["work_ref"] = work_ref; bad["legacy_source_work"] = rows
-        _raises(lambda: rp._g5_ordinary(bad, bad["cases"], diags, q), "G5", "ATTEMPT_MISMATCH")
 
 
 def test_b7a_formation_failure_names_its_own_basis():

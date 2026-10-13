@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 PREFIX = 'projects/chirality-piping/'
-BASE = ['tests/security', 'tests/test_constraint_validation.py', 'tests/test_source_blocks_validation.py']
+BASE = ['tests/security', 'tests/test_constraint_validation.py', 'tests/test_source_block_schema_contract.py']
 FAMILIES = {
     'schema': ['tests/test_*schema.py', 'tests/test_*schemas.py'],
     'qualification': ['tests/test_qualification*.py'],

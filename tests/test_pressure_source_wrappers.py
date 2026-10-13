@@ -101,7 +101,7 @@ def test_pressure_raw_and_transport_table_binding_is_reviewed_without_parsing_ro
         raise AssertionError("A header/reader selection must not parse a row table")
 
     monkeypatch.setattr(c, "_semantic_rows", row_read_forbidden)
-    expected = (CONTRACT_ID, CONTRACT_SHA256, c._CONTRACT_PATH.with_name("semantic_contract_v0_3_pressure_source_1.json"))
+    expected = (CONTRACT_ID, CONTRACT_SHA256, c._PRESSURE_SOURCE_CONTRACT_PATH)
     assert c._source_contract(source) == expected
     assert c._source_contract(source, check_receipt=False) == expected
     assert calls[1] == ("pressure-source", {"source": source})

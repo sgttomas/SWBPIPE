@@ -5,7 +5,6 @@ import { validateLoadReferenceSourceEvidence } from "../features/results/resultS
 import precisionTable from "../../../../fixtures/results/semantic_contract_v0_3_precision_1.json";
 import physicsTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_1.json";
 import physicsSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_source_1.json";
-import sourceBlocksTable from "../../../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json";
 import previewPhysicsTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json";
 import loadReferenceTable from "../../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json";
 import loadReferenceSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json";
@@ -35,7 +34,6 @@ type RecordTable = { rows: Array<{ signature_id: string; kind: string; unit: str
 const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
   [precisionTable.semantic_contract_id]: precisionTable, [physicsTable.semantic_contract_id]: physicsTable,
   [physicsSourceTable.semantic_contract_id]: physicsSourceTable, [PRESSURE_SOURCE_CONTRACT_ID]: physicsSourceTable,
-  [sourceBlocksTable.semantic_contract_id]: sourceBlocksTable,
   [previewPhysicsTable.semantic_contract_id]: previewPhysicsTable, [loadReferenceTable.semantic_contract_id]: loadReferenceTable,
   [loadReferenceSourceTable.semantic_contract_id]: loadReferenceSourceTable, [previewPhysicsRetainedTable.semantic_contract_id]: previewPhysicsRetainedTable,
   [physicsRetainedTable.semantic_contract_id]: physicsRetainedTable,
@@ -120,7 +118,7 @@ export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
   return buildAnalysisRecord(result, inputManifest, sourceContract(result) as V03Route, ruleCheckStatus, loadBasisRefs);
 }
-type V03Route = "precision" | "physics" | "source_blocks" | "physics_source" | "pressure_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "retained_physics";
+type V03Route = "precision" | "physics" | "physics_source" | "pressure_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "retained_physics";
 /** T1: the load/reference-state readers run before a record is built or
  * validated, as Python `_source_contract` runs them (raw evidence). */
 async function validateLoadReferenceRoute(source: MechanicsResult): Promise<void> {
@@ -134,7 +132,7 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
   if (sourceContract(result) === "preview_physics") readerValidate("preview-physics", result);
   // U6d: a successor is recorded only after the accepted reader passes (G0-G7, no invocation).
   if (isRetainedRoute(route)) await validateRetainedPrecision(result);
-  if (route === "source_blocks" || route === "physics_source" || route === "pressure_source") await validateRetainedRecoverySource(result);
+  if (route === "physics_source" || route === "pressure_source") await validateRetainedRecoverySource(result);
   validateSourceRuleStatus(result); expectedLoadBasis(result, loadBasisRefs);
   if (inputManifest.manifest.model_basis.model_ref !== result.model_ref) throw new Error("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH");
   const semanticBinding = sourceSemanticBinding(result);
@@ -185,7 +183,7 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
   // namespace), load-reference-source-1 and pressure-source-1 like physics-source-1
   // (both retained). The pressure binding shares the existing physics-source rows.
   if (route === "physics_source" || route === "pressure_source" || route === "load_reference_source") record.analysis_run.contract_evidence = structuredClone(result.contract_evidence);
-  if (route === "source_blocks" || route === "physics_source" || route === "pressure_source" || route === "load_reference_source") record.analysis_run.source_block_recovery = structuredClone(result.source_block_recovery);
+  if (route === "physics_source" || route === "pressure_source" || route === "load_reference_source") record.analysis_run.source_block_recovery = structuredClone(result.source_block_recovery);
   // U6d (C1:162; D2 4.9.6): the complete receipt is copied whole, never recomputed or repaired.
   if (isRetainedRoute(route)) record.analysis_run.retained_precision = structuredClone(result.retained_precision);
   record.analysis_run.hashes.unshift({ algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: runRef, payload_scope: "analysis_run_record", value: await canonicalSha256HexCheckedV1(analysisRecordProjection(record)) });
@@ -217,7 +215,7 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   await validateLoadReferenceRoute(source);
   validateSourceRuleStatus(source);
   const run = record.analysis_run;
-  if (["source_blocks", "physics_source", "pressure_source"].includes(sourceContract(source))) {
+  if (["physics_source", "pressure_source"].includes(sourceContract(source))) {
     await validateRetainedRecoverySource(source);
     if (!same(run.source_block_recovery, source.source_block_recovery)) throw new Error("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH");
   } else if (sourceContract(source) === "load_reference_source") {
@@ -261,7 +259,7 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
 /** Portable statement checks only; private native/method standing stays separate. */
 export async function validateRetainedRecoverySource(source: MechanicsResult): Promise<void> {
   const route = sourceContract(source);
-  if (route !== "source_blocks" && route !== "physics_source" && route !== "pressure_source") throw new Error("SOURCE_RECOVERY_METADATA_CONTRADICTION");
+  if (route !== "physics_source" && route !== "pressure_source") throw new Error("SOURCE_RECOVERY_METADATA_CONTRADICTION");
   try { readerValidate("source-recovery", source); }
   catch (error) {
     // The record/export surfaces keep their refusal vocabulary over Rust's verdict.

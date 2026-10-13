@@ -10,9 +10,9 @@ import {
   ruleBindingPrecheck,
   RULE_CHECK_BACKEND_DIAGNOSTIC
 } from "./ruleCheckService";
-import multicase from "../../../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json";
+import physicsSourceMixed from "../../../../fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json";
 import previewInvented from "../../../../fixtures/results/preview_physics_invented_sparse.json";
-import { N_RULE_RETIRED, N_SB, N_P1 } from "../features/results/knownSemanticLimitations";
+import { N_RULE_RETIRED, N_P1 } from "../features/results/knownSemanticLimitations";
 import type { MechanicsResult } from "../types";
 import type { RulePackDocument } from "./rulePackService";
 
@@ -291,14 +291,11 @@ describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display on
       { input_id: "manual", name: "Manual", source_kind: "solver_result" }
     ]
   });
-  it("shows N-SB for a binding to the all-selected source-blocks-1 summary; a force row still binds", () => {
-    const source = structuredClone(multicase) as unknown as MechanicsResult;
-    const summary = source.results.find((r) => r.kind === "open_formula_stress_summary")!;
+  it("refuses no binding to a composite's rows (B4/D1 (b): the source-blocks-1 summary refusal is gone)", () => {
+    const source = structuredClone(physicsSourceMixed) as unknown as MechanicsResult;
+    const maximum = source.results.find((r) => r.kind === "pipe_elastic_normal_stress_maximum_v2")!;
     const force = source.results.find((r) => r.kind === "element_local_axial_force")!;
-    const findings = ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(summary.id)), [{ input_id: "manual", result_id: force.id }]);
-    expect(findings).toEqual([{ input_id: "authored", result_id: summary.id, reason: "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE", notice: N_SB }]);
-    const headline = source.summary.max_open_formula_stress!.result_ref;
-    expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack()), [{ input_id: "manual", result_id: headline }])[0].reason).toBe("RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE");
+    expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(maximum.id)), [{ input_id: "manual", result_id: force.id }])).toEqual([]);
   });
   it("shows N-RULE-RETIRED for a preview-physics-1 binding to a retired id; the new rows bind", () => {
     const source = structuredClone(previewInvented) as unknown as MechanicsResult;

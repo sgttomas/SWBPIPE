@@ -11,7 +11,6 @@ use super::retained_product as rp;
 use super::retained_receipt as rr;
 use super::*;
 use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
-use open_pipe_stress_frame_kernel::structural::exact_boundary::functionals::AttemptStage;
 use open_pipe_stress_frame_kernel::structural::retained_api as k;
 use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
@@ -71,7 +70,9 @@ pub(super) const INVOCATION_LIMIT: u64 = 60_000_000_000;
 pub(super) const SELECTED_CODE: &str = "RETAINED_PRECISION_SELECTED";
 pub(super) const SELECTED_MESSAGE: &str = "Retained-precision recovery (contribution_preserving_multiprecision_v1) is selected for this load case. Its published rows carry recovery_method; the retained_precision receipt binds their certified classes, the native attempts and work, and the ordinary-attempt evidence.";
 const MAX_SAFE: u64 = (1 << 53) - 1;
-const LEGACY_CODE: &str = "SOURCE_BLOCK_RECOVERY_UNAVAILABLE";
+/// The ordinary run's retained-source (composite) unavailability disclosure. Since B4/D1 (b)
+/// only route E's composites attempt the method, so only a route-E case can carry one.
+const SOURCE_UNAVAILABLE_CODE: &str = "SOURCE_BLOCK_RECOVERY_UNAVAILABLE";
 
 /// The typed cause of an abandoned projection (C2 `receipt_failure`). Never
 /// serialized: a failure means U3 publishes the ordinary envelope.
@@ -123,7 +124,7 @@ fn fail(check: ReceiptCheck, field_path: &'static str) -> ReceiptFailure {
 
 /// RV82-N7, the precedence: `Enc` keeps every failure it records and returns the
 /// first of them at `finish`. A structural early return (`?` on a Scope,
-/// Association or Untranslated refusal from a later step, such as `legacy_source`,
+/// Association or Untranslated refusal from a later step, such as
 /// `selected_case_envelope` or `material_basis`) takes precedence over failures the
 /// encoder recorded before it. Either way the cause is typed and maps onto
 /// C1:68's vocabulary; no successor is emitted.
@@ -260,18 +261,6 @@ fn comp(c: k::Component) -> &'static str {
 }
 fn dof(d: k::Dof) -> Value {
     json!({"node":d.node,"component":comp(d.component)})
-}
-fn helper_stage(stage: AttemptStage) -> &'static str {
-    match stage {
-        AttemptStage::SourceClosure => "source_closure",
-        AttemptStage::Preparation => "preparation",
-        AttemptStage::Solve => "solve",
-        AttemptStage::Plan => "plan",
-        AttemptStage::Evaluation => "evaluation",
-        AttemptStage::Projection => "projection",
-        AttemptStage::Retention => "retention",
-        AttemptStage::Replay => "replay",
-    }
 }
 /// The 19 native stage slots, emitted only when the `StageWork` itself is
 /// exact: `checked_total` joins its status latch (`set` stores saturated slots).
@@ -793,9 +782,10 @@ fn successor_identity(env: &mut Value, route: rp::W1Route) {
     env["producer"]["semantic_contract_id"] = json!(wire.semantic_id);
     env["formulation_basis"]["profile_id"] = json!(wire.profile_id);
 }
-/// One selected case's part of G-a with T1 (a): its rows' method token, its omitted legacy
-/// disclosure and its selected-case diagnostic (appended).
-fn selected_case_envelope(env: &mut Value, case_id: &str, omit: Option<&str>) -> Result<String, ReceiptFailure> {
+/// One selected case's part of G-a with T1 (a): its rows' method token, its omitted
+/// retained-source unavailability disclosure (a route-E composite attempt's, at most one; B4/D1
+/// (b) removed its `legacy_source` record) and its selected-case diagnostic (appended).
+fn selected_case_envelope(env: &mut Value, case_id: &str) -> Result<String, ReceiptFailure> {
     let assoc = |p| fail(ReceiptCheck::Association, p);
     for row in env["results"].as_array_mut().ok_or(assoc("results"))? {
         if row["basis_ref"]["ref_id"] == json!(case_id) {
@@ -804,17 +794,13 @@ fn selected_case_envelope(env: &mut Value, case_id: &str, omit: Option<&str>) ->
     }
     let diags = env["diagnostics"].as_array_mut().ok_or(assoc("diagnostics"))?;
     let names = |d: &Value| d["affected_refs"].as_array().is_some_and(|a| a.iter().any(|r| r == case_id));
-    if let Some(id) = omit {
-        let found: Vec<usize> = diags.iter().enumerate().filter(|(_, d)| d["id"] == json!(id)).map(|(i, _)| i).collect();
-        let &[i] = found.as_slice() else { return Err(assoc("diagnostics[-legacy]")) };
-        if diags[i]["code"] != json!(LEGACY_CODE) || !names(&diags[i]) {
-            return Err(assoc("diagnostics[-legacy]"));
-        }
-        diags.remove(i);
-    }
-    // G4: no legacy-unavailable disclosure may still name a selected case.
-    if diags.iter().any(|d| d["code"] == json!(LEGACY_CODE) && names(d)) {
-        return Err(assoc("diagnostics[legacy]"));
+    let found: Vec<usize> = diags.iter().enumerate()
+        .filter(|(_, d)| d["code"] == json!(SOURCE_UNAVAILABLE_CODE) && names(d)).map(|(i, _)| i).collect();
+    match found.as_slice() {
+        [] => {}
+        // G4: no retained-source unavailability disclosure may still name a selected case.
+        &[i] => { diags.remove(i); }
+        _ => return Err(assoc("diagnostics[-source_unavailable]")),
     }
     let id = format!("diagnostic:retained-precision:{case_id}:selected");
     if diags.iter().any(|d| d["id"] == json!(id)) {
@@ -823,47 +809,6 @@ fn selected_case_envelope(env: &mut Value, case_id: &str, omit: Option<&str>) ->
     diags.push(json!({"id":id,"code":SELECTED_CODE,"severity":"info","message":SELECTED_MESSAGE,
         "source":"core/product_physics","affected_refs":[case_id]}));
     Ok(id)
-}
-
-/// D39 with T1 (a): the legacy disposition; on the selected case a captured
-/// disclosure is omitted and its actual WorkReport goes to legacy_source_work.
-/// On an unselected (unavailable) case the disclosure is kept and referenced
-/// (C2:160 "the original diagnostic_ref preserves original source failure disclosure").
-fn legacy_source(e: &Enc, seed: Option<&rp::LegacySeed>, case_index: usize, work: &mut Vec<Value>, selected: bool)
-    -> Result<(Value, Option<String>), ReceiptFailure> {
-    let disclosed = |d: &String| if selected { (Value::Null, Some(d.clone())) } else { (json!(d), None) };
-    let entry = |w: &rp::LegacyWork| {
-        // D-4 §3 item 4: `charged` and `limit` are guarded exact; `rejected` is
-        // projected only within the safe range (beyond it only saturation reaches).
-        let beyond = |amount: usize| u64::try_from(amount).map_or(true, |a| a > MAX_SAFE);
-        for (amount, path) in [(w.charged, "legacy_source_work[].charged"), (w.limit, "legacy_source_work[].limit")] {
-            if beyond(amount) {
-                e.fail(ReceiptCheck::WorkCounterRange, path);
-            }
-        }
-        if beyond(w.rejected) {
-            e.fail(ReceiptCheck::SaturationNotExcluded, "legacy_source_work[].rejected");
-        }
-        json!({"case_index":case_index,"stage":w.stage,"helper_stage":helper_stage(w.helper_stage),
-            "charged":w.charged,"rejected":w.rejected,"limit":w.limit,"settlement":"booked"})
-    };
-    Ok(match seed {
-        Some(rp::LegacySeed::NotEligible) => (json!({"disposition":"not_eligible","diagnostic_ref":null,"work_ref":null}), None),
-        Some(rp::LegacySeed::NotRequired) => (json!({"disposition":"not_required","diagnostic_ref":null,"work_ref":null}), None),
-        Some(rp::LegacySeed::DeclinedWithoutAttempt { work: w, diagnostic_ref }) => {
-            work.push(entry(w));
-            let (reference, omit) = disclosed(diagnostic_ref);
-            (json!({"disposition":"declined_without_attempt","diagnostic_ref":reference,"work_ref":work.len()-1}), omit)
-        }
-        Some(rp::LegacySeed::Unavailable { work: w, diagnostic_ref }) => {
-            work.push(entry(w));
-            let (reference, omit) = disclosed(diagnostic_ref);
-            (json!({"disposition":"unavailable","diagnostic_ref":reference,"work_ref":work.len()-1}), omit)
-        }
-        // Coexistence (D-15): exact-block selected, so W1 is not attempted.
-        Some(rp::LegacySeed::ExactSelected) => return Err(fail(ReceiptCheck::Scope, "ordinary_attempts[].legacy_source")),
-        None => { e.untranslated("ordinary_attempts[].legacy_source"); (Value::Null, None) }
-    })
 }
 
 /// G-b (C2 §5): `initial`, `w2` and `formation` from the typed seed.
@@ -1611,7 +1556,7 @@ fn invocation_arrays_mapped(e: &Enc, inv: &k::RecordedInvocation, run: &k::RunOr
 }
 /// One requested case's ordinary attempt entry, with its D6a references already collected.
 #[allow(clippy::too_many_arguments)]
-fn ordinary_entry(e: &Enc, env: &Value, case_id: &str, case_index: usize, mode: PreviewSolverMode, seed: &rp::OrdinarySeed, legacy: Value,
+fn ordinary_entry(e: &Enc, env: &Value, case_id: &str, case_index: usize, mode: PreviewSolverMode, seed: &rp::OrdinarySeed,
     diagnostic_refs: Vec<Value>) -> Result<(Value, usize), ReceiptFailure> {
     let assoc = |p| fail(ReceiptCheck::Association, p);
     let quality_index = env["numerical_quality"]["cases"].as_array().and_then(|q| {
@@ -1624,7 +1569,7 @@ fn ordinary_entry(e: &Enc, env: &Value, case_id: &str, case_index: usize, mode: 
         return Err(assoc("ordinary_attempts[].initial.outcome"));
     }
     Ok((json!({"case_index":case_index,"case_id":case_id,"material_basis_ref":e.basis_ref(case_index),"requested_mode":mode.as_str(),
-        "initial":initial,"w2":w2,"formation":formation,"legacy_source":legacy,"diagnostic_refs":diagnostic_refs}), quality_index))
+        "initial":initial,"w2":w2,"formation":formation,"diagnostic_refs":diagnostic_refs}), quality_index))
 }
 fn case_diagnostic_refs_into(env: &Value, case_ids: &[&str], refs: &mut [Vec<Value>]) -> Result<(), ReceiptFailure> {
     for d in env["diagnostics"].as_array().ok_or(fail(ReceiptCheck::Association, "diagnostics"))? {
@@ -1646,14 +1591,14 @@ fn case_diagnostic_refs_into(env: &Value, case_ids: &[&str], refs: &mut [Vec<Val
 #[allow(clippy::too_many_arguments)]
 fn finish_with(e: Enc, mut env: Value, invocation: &source_receipt::CapturedInvocation, charged: u64, execution_order: Value, cases: Vec<Value>,
     sources: Vec<Value>, material: Vec<Value>, (calls, groups, builds): (Vec<Value>, Vec<Value>, Vec<Value>), ordinary: Vec<Value>, attempts: Vec<Value>,
-    legacy_source_work: Vec<Value>, combinations: Vec<Value>, operand_preparations: Vec<Value>) -> Result<Value, ReceiptFailure> {
+    combinations: Vec<Value>, operand_preparations: Vec<Value>) -> Result<Value, ReceiptFailure> {
     let mut body = json!({"receipt_version":1,"policy":POLICY,"projection_policy":PROJECTION_POLICY,"work_policy":WORK_POLICY,
         "facade_policy":FACADE_POLICY,"canonicalization":CANONICALIZATION,
         "invocation":{"algorithm":"sha256","profile":CANONICALIZATION,"scope":"actual_request_and_solver_mode","domain":"source_blocks_invocation_v1","value":invocation.borrowed_digest()},
         "publication_sha256":"",
         "work":{"case_limit":CASE_LIMIT,"invocation_limit":INVOCATION_LIMIT,"charged":charged,"execution_order":execution_order},
         "cases":cases,"combinations":combinations,"sources":sources,"material_bases":material,"calls":calls,"groups":groups,"builds":builds,
-        "ordinary_attempts":ordinary,"product_attempts":attempts,"legacy_source_work":legacy_source_work});
+        "ordinary_attempts":ordinary,"product_attempts":attempts});
     if !operand_preparations.is_empty() {
         body["operand_preparations"] = json!(operand_preparations);
     }
@@ -1680,8 +1625,8 @@ fn bind_preparation(source: &mut Value, attempt: &Value, attempt_ref: usize, rou
 pub(super) const UNAVAILABLE_CODE: &str = "RETAINED_PRECISION_UNAVAILABLE";
 pub(super) const UNAVAILABLE_MESSAGE: &str = "Retained-precision recovery is unavailable for this load case. Its published rows keep their ordinary values, standing and diagnostics; the retained_precision receipt records the actual attempt and its typed cause.";
 
-/// One unavailable case's part of G-a: its unavailable-case diagnostic (appended); its
-/// legacy disclosure is kept.
+/// One unavailable case's part of G-a: its unavailable-case diagnostic (appended); a
+/// retained-source unavailability disclosure is kept.
 fn unavailable_case_envelope(env: &mut Value, case_id: &str) -> Result<String, ReceiptFailure> {
     let assoc = |p| fail(ReceiptCheck::Association, p);
     let diags = env["diagnostics"].as_array_mut().ok_or(assoc("diagnostics"))?;
@@ -1708,7 +1653,7 @@ fn unavailable_case_envelope(env: &mut Value, case_id: &str) -> Result<String, R
 /// - each attempt's adapter snapshot as its trace recorded it, at its terminal stage.
 ///
 /// The envelope (G-a; T1 (a)): the identity once; each selected case's method token, omitted
-/// legacy disclosure and selected diagnostic, in request order; then each unavailable case's
+/// retained-source unavailability disclosure and selected diagnostic, in request order; then each unavailable case's
 /// diagnostic, in request order. Any refusal abandons the successor (decision 5).
 pub(super) fn serialize_cases(cases: &mut rp::PreparedCases, staged: &MechanicsEnvelope, invocation: &source_receipt::CapturedInvocation)
     -> Result<Value, ReceiptFailure> {
@@ -1794,20 +1739,13 @@ fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt
         return Err(scope("cases[].run"));
     }
     let owners = OwnerMap { requests: &requests, prepared: &prepared_owners, combinations: &called };
-    // D39: each case's legacy disposition, in request order (a selected case's disclosure is
-    // omitted and its work recorded).
-    let mut legacy_source_work = Vec::new();
-    let mut legacy = Vec::with_capacity(count);
-    for (index, seed) in pc.ordinary.iter().enumerate() {
-        legacy.push(legacy_source(&e, seed.legacy.as_ref(), index, &mut legacy_source_work, status[index] == CaseStatus::Selected)?);
-    }
     // The successor envelope (G-a; T1 (a)).
     let mut env = serde_json::to_value(staged).map_err(|_| fail(ReceiptCheck::Encoding, "envelope"))?;
     successor_identity(&mut env, pc.route());
     let mut diagnostic_ids: Vec<Option<String>> = vec![None; count];
-    for (index, (_, omit)) in legacy.iter().enumerate() {
+    for index in 0..count {
         if status[index] == CaseStatus::Selected {
-            diagnostic_ids[index] = Some(selected_case_envelope(&mut env, case_ids[index], omit.as_deref())?);
+            diagnostic_ids[index] = Some(selected_case_envelope(&mut env, case_ids[index])?);
         }
     }
     for index in 0..count {
@@ -1830,8 +1768,8 @@ fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt
     case_diagnostic_refs_into(&env, &case_ids, &mut diagnostic_refs)?;
     let mut ordinary = Vec::with_capacity(count);
     let mut quality = Vec::with_capacity(count);
-    for (index, ((seed, (legacy_v, _)), refs)) in pc.ordinary.iter().zip(legacy).zip(diagnostic_refs).enumerate() {
-        let (entry, quality_index) = ordinary_entry(&e, &env, case_ids[index], index, mode, seed, legacy_v, refs)?;
+    for (index, (seed, refs)) in pc.ordinary.iter().zip(diagnostic_refs).enumerate() {
+        let (entry, quality_index) = ordinary_entry(&e, &env, case_ids[index], index, mode, seed, refs)?;
         // DESIGN_v2 T-4: a requested case outside A is `not_required` by its published verdict.
         if status[index] == CaseStatus::NotRequired && env["numerical_quality"]["cases"][quality_index]["solve_quality"] != "checks_passed" {
             return Err(assoc("cases[].status"));
@@ -1924,7 +1862,7 @@ fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt
     let execution_order = inv.runs().iter().map(|run| owners.owner(&run.owner)).collect::<Option<Vec<_>>>().ok_or(assoc("work.execution_order"))?;
     let material = material_basis(&e, pc, raw, count)?;
     finish_with(e, env, invocation, charged, json!(execution_order), cases_v, sources, material, (calls, groups, builds), ordinary,
-        product_attempts, legacy_source_work, combinations_v, operand_preparations)
+        product_attempts, combinations_v, operand_preparations)
 }
 
 /// B2-P (B2-C §2.7): a retained combination's diagnostic, after the case diagnostics: `selected`
@@ -2269,16 +2207,6 @@ pub(super) fn test_ordinary_members(seed: &rp::OrdinarySeed) -> ((Value, Value, 
     let members = ordinary_members(&e, seed, 0);
     (members, e.failures.into_inner())
 }
-/// Test access to the D39 mapping with its first-failure encoder.
-#[cfg(test)]
-pub(super) fn test_legacy_source(seed: Option<&rp::LegacySeed>, case_index: usize, work: &mut Vec<Value>)
-    -> Result<(Value, Option<String>), ReceiptFailure> {
-    let e = Enc::default();
-    let mapped = legacy_source(&e, seed, case_index, work, true)?;
-    e.finish()?;
-    Ok(mapped)
-}
-
 /// Test access to the checked record view and its failure paths.
 #[cfg(test)]
 pub(super) fn test_record_work(r: &k::AttemptRecord) -> (Vec<u64>, Vec<ReceiptFailure>) {
@@ -2554,9 +2482,9 @@ pub(super) fn test_kernel_terminal(outcome: &k::ExecutionOutcome) -> (usize, Val
 }
 /// Test access to the structural checks RV82-N1 names.
 #[cfg(test)]
-pub(super) fn test_successor_envelope(env: &mut Value, case_id: &str, omit: Option<&str>) -> Result<String, ReceiptFailure> {
+pub(super) fn test_successor_envelope(env: &mut Value, case_id: &str) -> Result<String, ReceiptFailure> {
     successor_identity(env, rp::W1Route::Preview);
-    selected_case_envelope(env, case_id, omit)
+    selected_case_envelope(env, case_id)
 }
 #[cfg(test)]
 pub(super) fn test_after_conserved(before: u64, increment: u64, after: u64) -> (bool, Vec<ReceiptFailure>) {
@@ -2578,6 +2506,6 @@ pub(super) fn test_ordinary_value(env: &Value, case_id: &str, seed: &rp::Ordinar
     let mut refs = [Vec::new()];
     case_diagnostic_refs_into(env, &[case_id], &mut refs)?;
     let [refs] = refs;
-    let (v, _) = ordinary_entry(&e, env, case_id, 0, PreviewSolverMode::SparseInteractive, seed, Value::Null, refs)?;
+    let (v, _) = ordinary_entry(&e, env, case_id, 0, PreviewSolverMode::SparseInteractive, seed, refs)?;
     Ok(v)
 }

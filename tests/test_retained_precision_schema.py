@@ -300,9 +300,9 @@ def test_analysis_run_successor_branch_requires_the_receipt_and_only_it(mode):
         "no_receipt": lambda r: r["analysis_run"].pop("retained_precision"),
         "receipt_policy_v1": lambda r: r["analysis_run"]["retained_precision"]["body"].__setitem__("policy", "M03-INTEGRITY-MP-v1"),
         "receipt_unknown_member": lambda r: r["analysis_run"]["retained_precision"].__setitem__("unknown", 1),
-        # Shape-valid foreign members (a source-blocks receipt, physics-source
+        # Shape-valid foreign members (a physics-source receipt, physics-source
         # evidence): only the successor branch's own exclusions refuse them.
-        "source_block_recovery": lambda r: r["analysis_run"].__setitem__("source_block_recovery", foreign("source_blocks/n05-sparse_interactive.raw.json", "source_block_recovery")),
+        "source_block_recovery": lambda r: r["analysis_run"].__setitem__("source_block_recovery", foreign("physics_source/n05-sparse_interactive.raw.json", "source_block_recovery")),
         "contract_evidence": lambda r: r["analysis_run"].__setitem__("contract_evidence", foreign("physics_source/n05-sparse_interactive.raw.json", "contract_evidence")),
         "preview_sha": lambda r: r["analysis_run"]["reproducibility"]["semantic_contract"].__setitem__("sha256", PREVIEW_SHA),
         "row_identity_mixed": lambda r: r["analysis_run"]["result_refs"][0]["semantic_contract"].update(id=PREVIEW, sha256=PREVIEW_SHA),
@@ -470,7 +470,7 @@ def test_exact_successor_analysis_run_branch():
         "no_receipt": lambda r: r["analysis_run"].pop("retained_precision"),
         "preview_successor_sha": lambda r: r["analysis_run"]["reproducibility"]["semantic_contract"].__setitem__("sha256", SUCC_SHA),
         "contract_evidence": lambda r: r["analysis_run"].__setitem__("contract_evidence", foreign("physics_source/n05-sparse_interactive.raw.json", "contract_evidence")),
-        "source_block_recovery": lambda r: r["analysis_run"].__setitem__("source_block_recovery", foreign("source_blocks/n05-sparse_interactive.raw.json", "source_block_recovery")),
+        "source_block_recovery": lambda r: r["analysis_run"].__setitem__("source_block_recovery", foreign("physics_source/n05-sparse_interactive.raw.json", "source_block_recovery")),
         "row_identity_mixed": lambda r: r["analysis_run"]["result_refs"][0]["semantic_contract"].update(id=SUCC, sha256=SUCC_SHA),
     }
     for name, edit in refused.items():

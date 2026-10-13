@@ -52,13 +52,6 @@ pub(super) fn finite_norm(values: [f64; 3]) -> Result<f64, ReceiptError> {
     }
     Ok(value)
 }
-#[cfg(test)]
-pub(super) fn expected_primary(
-    input: &source_recovery::Input<'_>,
-    selected: &SelectedSourceRecovery,
-) -> Result<BTreeMap<usize, ResultItem>, ReceiptError> {
-    expected_primary_for(input, selected, false)
-}
 pub(super) fn expected_primary_for(
     input: &source_recovery::Input<'_>,
     selected: &SelectedSourceRecovery,
@@ -327,14 +320,6 @@ pub(super) struct Derived {
     pub(super) recipe: &'static str,
     pub(super) inputs: Vec<String>,
 }
-#[cfg(test)]
-pub(super) fn derived(
-    input: &source_recovery::Input<'_>,
-    selected: &SelectedSourceRecovery,
-    primary: &BTreeMap<usize, ResultItem>,
-) -> Result<Vec<Derived>, ReceiptError> {
-    derived_for(input, selected, primary, false)
-}
 pub(super) fn derived_for(
     input: &source_recovery::Input<'_>,
     selected: &SelectedSourceRecovery,
@@ -557,14 +542,6 @@ pub(super) fn derived_for(
     }
     Ok(out)
 }
-pub(super) fn bind(
-    input: &source_recovery::Input<'_>,
-    selected: &SelectedSourceRecovery,
-    rows: &[ResultItem],
-    bindings: &[FunctionalRowBinding],
-) -> Result<Ledger, ReceiptError> {
-    bind_for(input, selected, rows, bindings, false, vec![])
-}
 pub(super) fn bind_for(
     input: &source_recovery::Input<'_>,
     selected: &SelectedSourceRecovery,
@@ -732,38 +709,3 @@ pub(super) fn observation(row: &ResultItem) -> bool {
     }
 }
 
-pub(super) fn validate_summary(envelope: &MechanicsEnvelope) -> Result<(), ReceiptError> {
-    for (headline, kind) in [
-        (&envelope.summary.max_displacement, "displacement_magnitude"),
-        (
-            &envelope.summary.max_open_formula_stress,
-            "open_formula_stress_summary",
-        ),
-    ] {
-        if let Some(h) = headline {
-            let row = envelope
-                .results
-                .iter()
-                .find(|r| r.id == h.result_ref)
-                .ok_or_else(|| bad("summary missing row"))?;
-            if row.kind != kind
-                || row.entity_ref != h.location_ref
-                || row.unit != h.unit
-                || !same(row.value, h.value)
-            {
-                return Err(bad("summary binding"));
-            }
-            // Existing headline is first requested case's maximum.
-            if envelope
-                .results
-                .iter()
-                .any(|r| r.kind == kind && r.basis_ref == row.basis_ref && r.value > h.value)
-            {
-                return Err(bad("summary is not actual maximum"));
-            }
-        } else if envelope.results.iter().any(|r| r.kind == kind) {
-            return Err(bad("required summary missing"));
-        }
-    }
-    Ok(())
-}

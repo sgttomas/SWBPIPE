@@ -18,10 +18,11 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 6) re-pinned both
 /// modes: the milestone case stays Sensitive (K-D5's estimate), and against main
 /// the bytes differ only by the two linear limitation sentences, the current
-/// maximum declaration literals and the fallback maximum's enclosure.
+/// maximum declaration literals and the fallback maximum's enclosure. B4/D1 (b)
+/// re-pinned both: the envelope loses only its source-recovery disclosure.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 68985, "abfc82f25247cd9963f20ea054d62c234e0c6e4fb41012d31ba9f9f64c2dace1"),
-    ("dense_scrutiny", 70103, "44cb3dada6e0682d4da769dbbfd3814cac54433d796e771b9aefe5ab8024d51a"),
+    ("sparse_interactive", 68531, "d623c9e7783903fe5783d24527f1b1662b289b75c03d67635418425ff83e31eb"),
+    ("dense_scrutiny", 69649, "767c50a8d903b10b8d0ae416c60526dcb5310546e8f89c21a340a3f19f7f7d99"),
 ];
 /// Fields of the request's model entries that receive a `label` equal to their `id`.
 const LABELLED: [&str; 4] = ["materials", "nodes", "pipe_segments", "supports"];

@@ -357,6 +357,9 @@ pub const MECHANICS_RESULT_VERSION: &str = "0.2.0";
 /// name (re-solve the model), never read.
 pub const RETIRED_MECHANICS_RESULT_VERSION: &str = "0.1.0";
 pub const MECHANICS_RESULT_VERSION_RETIRED: &str = "MECHANICS_RESULT_VERSION_RETIRED";
+/// B4/D1 (b): the retired non-composite source-block identity, refused by name.
+pub const RETIRED_SOURCE_BLOCKS_ID: &str = "openpipestress.result_semantics/0.3.0/source-blocks-1";
+pub const SOURCE_BLOCKS_1_RETIRED: &str = "SOURCE_BLOCKS_1_RETIRED";
 /// The one result-export version (b7-plan E2). Exports carry the source's
 /// producer header as copied members; their other versions are retired.
 pub const RESULT_EXPORT_VERSION: &str = "0.3.0";
@@ -391,21 +394,25 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
                 ],
             ) || p["component_name"] != "open_pipe_stress_product_physics"
                 || p["component_version"] != "0.2.0"
-                || !matches!(
-                    p["semantic_contract_id"].as_str(),
-                    Some(
-                        PRECISION_ID
-                            | PHYSICS_ID
-                            | PRESSURE_ID
-                            | PRESSURE_SOURCE_ID
-                            | PHYSICS_SOURCE_ID
-                            | LOAD_REFERENCE_ID
-                            | LOAD_REFERENCE_SOURCE_ID
-                            | PREVIEW_PHYSICS_ID
-                            | crate::source_blocks::CONTRACT_ID
-                    )
-                )
             {
+                return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
+            }
+            if p["semantic_contract_id"] == RETIRED_SOURCE_BLOCKS_ID {
+                return Err(format!("{SOURCE_BLOCKS_1_RETIRED}: source-blocks-1 results are no longer read; re-run the analysis"));
+            }
+            if !matches!(
+                p["semantic_contract_id"].as_str(),
+                Some(
+                    PRECISION_ID
+                        | PHYSICS_ID
+                        | PRESSURE_ID
+                        | PRESSURE_SOURCE_ID
+                        | PHYSICS_SOURCE_ID
+                        | LOAD_REFERENCE_ID
+                        | LOAD_REFERENCE_SOURCE_ID
+                        | PREVIEW_PHYSICS_ID
+                )
+            ) {
                 return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
             }
             // The load-reference methods own no carrier namespace (same code
@@ -416,8 +423,7 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
             {
                 return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
             }
-            if p["semantic_contract_id"] != crate::source_blocks::CONTRACT_ID
-                && p["semantic_contract_id"] != PHYSICS_SOURCE_ID
+            if p["semantic_contract_id"] != PHYSICS_SOURCE_ID
                 && p["semantic_contract_id"] != PRESSURE_SOURCE_ID
                 && p["semantic_contract_id"] != LOAD_REFERENCE_SOURCE_ID
                 && source.get("source_block_recovery").is_some()
@@ -523,7 +529,6 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
                 Some(PHYSICS_SOURCE_ID | PRESSURE_SOURCE_ID) => physics_source_contract(),
                 Some(LOAD_REFERENCE_ID) => load_reference_contract(),
                 Some(LOAD_REFERENCE_SOURCE_ID) => load_reference_source_contract(),
-                Some(crate::source_blocks::CONTRACT_ID) => source_blocks_contract(),
                 Some(PRECISION_ID) => precision_contract(),
                 Some(PREVIEW_PHYSICS_ID) => preview_physics_contract(),
                 _ => return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into()),
@@ -560,11 +565,6 @@ pub fn for_source(source: &Value) -> Result<(&'static Value, &'static str), Stri
         Some(LOAD_REFERENCE_ID) => validate_load_reference_evidence(source)?,
         Some(LOAD_REFERENCE_SOURCE_ID) => {
             validate_load_reference_source_evidence(source)?;
-        }
-        Some(crate::source_blocks::CONTRACT_ID) => {
-            // Shape/publication validation does not supply an actual invocation
-            // or recreate the producer's private arithmetic receipt.
-            crate::source_blocks::validate(source, None)?;
         }
         _ => {
             if source
@@ -607,7 +607,6 @@ pub use crate::preview_physics_evidence::validate_preview_physics_evidence;
 /// every language, never a route predicate. T1 added its identities on activation.
 pub const FRESH_IDENTITIES: &[&str] = &[
     PREVIEW_PHYSICS_ID,
-    crate::source_blocks::CONTRACT_ID,
     PHYSICS_ID,
     PHYSICS_SOURCE_ID,
     PRESSURE_SOURCE_ID,
@@ -622,35 +621,21 @@ pub fn is_fresh_identity(semantic_contract_id: &str) -> bool {
     FRESH_IDENTITIES.contains(&semantic_contract_id)
 }
 pub const PRECISION_1_HISTORICAL_SEMANTICS: &str = "PRECISION_1_HISTORICAL_SEMANTICS";
-pub const SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS: &str =
-    "SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS";
-pub const RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE: &str = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE";
 /// Why a readable source is not Current. Derived from the received bytes only.
 pub fn standing_reason(source: &Value) -> Option<&'static str> {
     match source["producer"]["semantic_contract_id"].as_str() {
         Some(PRECISION_ID) => Some(PRECISION_1_HISTORICAL_SEMANTICS),
-        Some(crate::source_blocks::CONTRACT_ID)
-            if crate::source_blocks::has_ordinary_qualified_case(source) =>
-        {
-            Some(SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS)
-        }
         _ => None,
     }
 }
-/// Rule binding refusal (DESIGN 5.7 SF-B). The abs-sum summary of a
-/// non-composite source-blocks-1 envelope may not be bound, directly or via
-/// its headline reference. Every binding site calls this helper.
+/// Rule binding refusal (DESIGN 5.7 SF-B): a successor row by its validated
+/// class. Every binding site calls this helper. (B4/D1 (b) retired the
+/// non-composite source-blocks-1 summary refusal with that identity.)
 pub fn rule_binding_refusal(envelope: &Value, row: &Value) -> Option<&'static str> {
     if is_retained(envelope) {
         return retained_binding_refusal(envelope, row);
     }
-    if envelope["producer"]["semantic_contract_id"] != crate::source_blocks::CONTRACT_ID {
-        return None;
-    }
-    let headline = &envelope["summary"]["max_open_formula_stress"]["result_ref"];
-    (row["kind"] == "open_formula_stress_summary"
-        || (headline.is_string() && row["id"] == *headline))
-        .then_some(RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE)
+    None
 }
 /// D2 4.9.9 before S-I: a successor row binds only when its validated class
 /// allows it. A headline binds the row its `result_ref` names, so it is
@@ -846,8 +831,7 @@ pub fn numerical_use_standing_with_context(
     let Ok((_, version)) = for_source(source) else {
         return "unsupported";
     };
-    // T0R (A2 item 10): validate first; then historical precision-1 and mixed
-    // ordinary source-blocks-1 are never Current.
+    // T0R (A2 item 10): validate first; then historical precision-1 is never Current.
     if standing_reason(source).is_some() {
         return "needs_recompute";
     }
@@ -863,7 +847,7 @@ pub fn numerical_use_standing_with_context(
     }
     if matches!(
         source["producer"]["semantic_contract_id"].as_str(),
-        Some(crate::source_blocks::CONTRACT_ID | PHYSICS_SOURCE_ID | PRESSURE_SOURCE_ID)
+        Some(PHYSICS_SOURCE_ID | PRESSURE_SOURCE_ID)
     ) {
         let expected = source["source_block_recovery"]["body"]["cases"]
             .as_array()
@@ -876,10 +860,8 @@ pub fn numerical_use_standing_with_context(
         }
         let standing = if source["producer"]["semantic_contract_id"] == PRESSURE_SOURCE_ID {
             crate::physics_source::validate_in(source, actual_invocation, crate::physics_source::SourceContract::PressureV3)
-        } else if source["producer"]["semantic_contract_id"] == PHYSICS_SOURCE_ID {
-            crate::physics_source::validate(source, actual_invocation)
         } else {
-            crate::source_blocks::validate(source, actual_invocation)
+            crate::physics_source::validate(source, actual_invocation)
         };
         return match standing {
             Ok(true) => "numerically_eligible",
@@ -951,13 +933,3 @@ fn nonempty_string(value: &Value) -> bool {
     value.as_str().is_some_and(|text| !text.is_empty())
 }
 
-/// Additive signatures preserve p1 bytes and meanings under a distinct identity.
-pub fn source_blocks_contract() -> &'static Value {
-    static CONTRACT: OnceLock<Value> = OnceLock::new();
-    CONTRACT.get_or_init(|| {
-        serde_json::from_str(include_str!(
-            "../../../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json"
-        ))
-        .expect("pinned source-block semantic contract")
-    })
-}

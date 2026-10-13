@@ -53,7 +53,7 @@ vi.mock("./wasmEngine/loadWasmEngine", async importOriginal => {
 });
 
 import { readerDispatch, readerSourceText, readerTransport, readerValidate, rememberReceivedText } from "../features/results/resultReader";
-import { PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID } from "../features/results/numericalResultQuality";
+import { PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID } from "../features/results/numericalResultQuality";
 import {
   LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE, SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED,
   numericalResultStanding, registerSourceRecovery, retainedSourceRecoveryInvocation, sourceRecoveryModeMatches,
@@ -74,9 +74,8 @@ afterEach(() => {
   delete (window as Json).__TAURI_INTERNALS__;
 });
 
-const SOURCE_ROUTES = ["source_blocks", "physics_source", "pressure_source"] as const;
+const SOURCE_ROUTES = ["physics_source", "pressure_source"] as const;
 const SOURCE_BINDINGS = {
-  source_blocks: { id: SOURCE_BLOCKS_CONTRACT_ID, sha256: "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f", policy: "SOURCE-BLOCKS-1", profile: "product_preview_mechanics_v1" },
   physics_source: { id: PHYSICS_SOURCE_CONTRACT_ID, sha256: "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1", policy: "PHYSICS-SOURCE-1", profile: "exact_straight_pressure_v2" },
   pressure_source: { id: PRESSURE_SOURCE_CONTRACT_ID, sha256: PRESSURE_SOURCE_CONTRACT_SHA256, policy: "PRESSURE-SOURCE-1", profile: "exact_pressure_v3" },
 };
