@@ -84,7 +84,7 @@ variants are JSON-pointer patches applied to `J3-1`'s request.
 | J3-3 | JR J3 row 3: free closed chain, axial datum at A | 1/250 |
 | J3-3S | row 3 with the closure at D separately supported | (32 − 5π)/8000 |
 | J3-5U, J3-5UA | row 5's stiffness k + k_rod = 2.02e7 N/m, untied, free and anchored | 1/25250; see oracle |
-| J3-R | unpressurized joint beside a region that does not touch it | −π/(12000 + 550000π) |
+| J3-R | unpressurized joint beside a region (over pipe X) that does not touch it; the joint's only load is pipe X's net Lamé elongation (1 − 2ν)·Pi/kp through the anchored chain, not a cap share (the oracle's frozen description says "the remote cap's share") | −π/(12000 + 550000π) |
 | J3-RP | J3-R with a constant-effective-area joint outside every region (Pe = 0) | as J3-R |
 
 JR's ideal-tie rows (2 and 4) and row 5's split between bellows and rod are
@@ -103,11 +103,16 @@ pressure RHS in both representations and globally.
 `j4_and_ledger_mutants` gives the wrong values of four producer-level ledger
 mutants on J3-1 and J3-3 (double count, faces exchanged, face caps from the
 outside diameter, the effective-area summands dropped) and which observables
-each one moves. `lateral_offset_demonstration` shows why an offset pressurized
+each one moves. Faces exchanged (`sign_flip`) reverses both summands at each
+attachment, that is the whole pair −/+p(Ae − Ai); reversing the
+effective-area summand alone is a different mutant, not listed here. In the
+free chain (J3-3) the double count leaves Nw, S_pipe and the reactions
+unchanged and moves q, u_C, u_D, g_x, the connector's endpoint rows and `s_x`. `lateral_offset_demonstration` shows why an offset pressurized
 joint is refused: with equal lateral offsets of 0.01 m, Bᵀg_p carries end
 moments of 8 N·m that a nodal pair cannot represent.
 
-`refusals` gives 17 patches of J3-1 with the exact blocking-code set each must
+`refusals` gives 17 patches of J3-1 (RV-01 to RV-15 with RV-05a–c and
+RV-06b; there is no RV-10) with the exact blocking-code set each must
 produce, `MODEL_INCOMPLETE` and no results: the missing region-chain edge, a
 terminal at a joint face, the replaced span listed, an unpressurized joint
 listed, the effective area absent, zero or without source, lateral and axial
@@ -115,7 +120,11 @@ offsets, a straight–joint kink, unequal bore, faces in two regions at differen
 pressures, rods before U5b, an unknown pressure model, a basis mismatch, a
 thermal load on the replaced span and an unknown connector reference. The code
 sets assume the Design's precedence: a region with a joint finding is neither
-traversed nor assembled.
+traversed nor assembled, and a listed connector refused by its own model
+finding carries only that code. Some refusals have no patch here (a
+duplicate `member_connector_ids` entry, a connector listed by two regions, a
+negative, nonfinite or wrongly dimensioned area, a face pipe that is not a
+straight member); the Design names them as unit tests.
 
 ## Criterion
 
@@ -123,6 +132,17 @@ An entry passes when |obs − exp| ≤ 1e-9·max(|exp|, F), F being its family's
 floor: 1 N for forces, 1 N·m for moments, 1e-5 m for lengths and 1e-5 rad for
 rotations (absolute 1e-9 N, 1e-9 N·m, 1e-14 m and 1e-14 rad on exact zeros).
 Run in both solver modes. Blocking-code sets are compared exactly.
+
+Floor family by key:
+
+| Key or row | Family |
+|---|---|
+| keys ending `_n`; `connector_generalized_force_v1`, `connector_endpoint_force_v1:*`, `connector_pressure_force_v1`, `connector_effective_axial_force_v1`; `pressure_rhs` entries | force (1 N) |
+| keys ending `_nm`; `connector_generalized_moment_v1`, `connector_endpoint_moment_v1:*` | moment (1 N·m) |
+| keys ending `_m` (q, elongations, axial and global displacements, separations); `connector_generalized_translation_v1` | length (1e-5 m) |
+| keys ending `_rad`; `connector_generalized_rotation_v1` | rotation (1e-5 rad) |
+| areas (keys ending `_m2`, and evidence areas such as `effective_area_m2` and `face_bore_area_m2`) | no floor: relative 1e-9 only, since every area is positive |
+| unitless direction components (`axis_global`, the fixture's rotation) | floor 1, the magnitude of a unit vector |
 
 ## Reproduce and change
 
@@ -133,10 +153,14 @@ python3 -I generators/u5a_reference.py --write  # rewrite them (intentional chan
 
 The requests are model 0.3.0 documents with the U5a fields
 (`member_connector_ids` on regions and the `constant_effective_area_reference_v1`
-pressure model). When B7b re-authors 0.3.0/0.4.0 fixtures to model 0.5.0, the
-builder in the generator changes to emit 0.5.0 with every member's
-`section.corrosion_allowance` = 0 m and `shear_model` = `euler_bernoulli`
-(HELP_HUMAN's H1). The oracle values do not change; only the request hashes do.
+pressure model). Under HELP_HUMAN's 2026-10-12 DEC-033 ruling those two items
+are defined only in model 0.5.0, so the 18 requests that carry them (all but
+J3-R) are not valid documents of any version as frozen. Before a product test
+consumes them, the builder in the generator changes to emit model 0.5.0 (B7b's
+contract-present form) with every member's `section.corrosion_allowance` =
+0 m and `shear_model` = `euler_bernoulli` (HELP_HUMAN's H1). The oracle
+values do not change; only the request bytes and hashes do, and the refusal
+patches' paths are re-checked.
 Any other change to a value needs a substantive reason recorded in the Design.
 
 These references are independent derivations; before code relies on them, a

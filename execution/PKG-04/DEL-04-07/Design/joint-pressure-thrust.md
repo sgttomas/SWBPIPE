@@ -2,6 +2,41 @@
 
 This governs T4-U5a, which admits pressure on an untied expansion joint authored as an objective connector (T4-U3). It runs in batch 5 with the nonlinear K-D5 unit and T4-U4a. T4-U5b (batch 7, with T4-U4b) adds elastic tie rods. This design is not an implementation claim; the code is another agent's work.
 
+## Status (2026-10-13, controlled pause)
+
+The owner has called a controlled pause on T4-U5a: no further implementation. This section carries the unit's continuity; the sections below remain its design.
+
+**Designed.** The admitted configuration, the region-chain edge and the classifier's precedence (§1); representation B's two summands (§2); the K-D5 closure (§3); recovery and the two new row families (§4); schema, readers and authoring, with the field specification of the two model items (§5); refusals (§6); the blast radius (§7); evidence and mutants (§8); and what T4-U5b adds (§9). The rulings it applies are recorded at `e0b83676af` (O1–O4, H1, H4, H5; SCA-012 lifts PRD non-goal 19 for tie rods).
+
+**Frozen and independently verified.** The references in `validation/references/t4_u5a/` (frozen at `1bd57e429e`: 19 SHA-bound requests, their oracle and 17 refusal variants) were refuted by a separate TASK that did not write them and shares no code with their generator. Its method: the force method on the axial free bodies, with its own derivation, plus an independent nodal stiffness solve with its own equivalent pressure loads, both at 70 digits. Result: every expected value CONFIRMED (2127 checks, worst 3.8e-30 relative); representations A and B identical; the sign conventions confirmed; the four ledger mutants all killed, the smallest separation about 1e6 tolerances.
+
+**Not started.** No U5a product code exists.
+
+**DEC-033 (HELP_HUMAN ruling, 2026-10-12).** The T4-U3 precedent does not extend to new content in 0.3.0/0.4.0. DEC-033's owner ruling of 2026-06-12 ("Additive bumps too") applies: any change to what a document can contain, including a new optional member or a new kind value, bumps the minor version. Consequences, applied in the body below:
+- Both U5a document items, the connector pressure-model kind `constant_effective_area_reference_v1` and the region field `member_connector_ids`, are defined only in model 0.5.0 (T3's B7). Their field specification is in §5.
+- The 0.3.0/0.4.0 shape does not change. On those versions both items stay refused exactly as today.
+- U5a's engine may land in batch 5 with the items absent from 0.3.0/0.4.0, or stay unactivated until the B7 batch. 0.5.0's contract-present form arrives with B7b, so in practice the engine becomes reachable from documents when B7b lands. If batch 5 lands first, the engine lands unactivated.
+- T4-U3 did change what a 0.3.0/0.4.0 document can contain (§5, "T4-U3 and the 0.3.0/0.4.0 shape"). That is a historical inconsistency, which B7b's retirement of 0.3.0/0.4.0 resolves. It is not a precedent and is not to be repeated.
+
+**The requests must be re-expressed in 0.5.0.** 18 of the 19 requests (all but J3-R) carry the 0.5.0-only items inside a model 0.3.0 document, so as frozen they are not valid documents of any version. Before a product test consumes them, the generator's builder re-expresses all 19 in model 0.5.0's contract-present form, with H1's `section.corrosion_allowance` = 0 m and `shear_model` = `euler_bernoulli`, through an intended `--write`. Only the request bytes and each case's `request_sha256` change. The oracle values and the refusal code sets stay as they are, and the refusal patches' paths are re-checked against the new documents. The verify mode and an independent value check then run again. J3-R is a valid 0.3.0 document today and moves with the set.
+
+**Minor findings of the refutation and where they are handled.** None blocks.
+- Fixed in this Design: §8's J4 wording (what the free-chain double count moves and does not move); the refusal ids (17 variants, RV-01 to RV-15 with RV-05a–c and RV-06b; there is no RV-10); J3-R's description (its only load is pipe X's net Lamé elongation); the envelope field of the pressure RHS; the definition of the faces-exchanged (`sign_flip`) mutant; and the precedence sentence (a listed connector refused by a model finding carries only that code).
+- Fixed in the references' README, as text only: a key-to-floor-family map, including areas and unitless fields, and the same id, J3-R, `sign_flip` and 0.5.0 notes. No request, oracle value or generator byte changed; only the README line of `SHA256SUMS` is regenerated.
+- Named as required unit tests in §8, because the oracle has no patch for them and adding patches would change the oracle: a duplicate `member_connector_ids` entry; a connector listed by two regions; a negative, nonfinite or wrongly dimensioned area; a face pipe that is not a straight member, beside the realized-arc case already named.
+
+**Remaining work when the pause lifts.**
+1. T3 defines the two items in 0.5.0 from §5's field specification, with H1's fields (B7b's contract-present form).
+2. The requests are re-expressed in 0.5.0 (above).
+3. Implementation per §§1–6, landing unactivated if batch 5 precedes B7b.
+4. The §8 evidence. Checks 1–3 need 0.5.0 documents, so they run once B7b's form exists.
+5. Open question 2 (VP-STATIC) and the scope question in §1 on the blanket-refusal lift.
+
+**Dependencies.**
+- T3, DEL-05-02 B7: B7b defines 0.5.0's contract-present form, refuses 0.3.0/0.4.0 and re-authors their fixtures. B7a's pressure-free 0.5.0 does not carry these items.
+- DEL-04-01 (FK): `LoadFormula::JointEffectiveArea` and its family row (§3).
+- Batch 5 re-registers once (H7). T4-U3's connector is the base; T4-U5b (batch 7) follows.
+
 ## The rulings that govern it
 
 - **H-2** ([pressure-contract.md](pressure-contract.md)): "retain the pre-cancelled ledger and add member-owned bend `K_b·u_free(ε_p) − c_b` and joint `p(Ae−Ai)` terms. One implementation owns the assembly. T4-U5 must independently compare representation (A), including JR's tie-force double-count control."
@@ -10,12 +45,13 @@ This governs T4-U5a, which admits pressure on an untied expansion joint authored
 - **O1** (owner, 2026-10-12): "Lift for tie rods only" ([SCA-012](../../../_ScopeChange/SCA-012_2026-10-12_TIE_RODS/DECISION.md)). Elastic rods are T4-U5b's; hinges and gimbals stay non-goals.
 - **H7**: one re-registration per batch head. U5a's priced text changes are carried in batch 5's.
 - **D7**: `prepare_sources` already declines connectors by name; a pressurized joint takes the same decline.
+- **DEC-033** (HELP_HUMAN, 2026-10-12, applying the owner's 2026-06-12 ruling "Additive bumps too"): U5a's document items are defined only in model 0.5.0. The 0.3.0/0.4.0 shape does not change (Status).
 
 The physics is JR's (`CORRECTNESS_DESIGN/JOINT_REFERENCE/CONTRACT.md` §§2, 4 and 6, and its independent refutation §§2–3, archived at `11718e61a2^`). The references re-derive it (below).
 
 ## 1. What is admitted
 
-**The pressure model.** On a `3.0.0/exact_pressure_v3` document, `objective_connector.pressure_model` admits a second kind besides `unpressurized`:
+**The pressure model.** On a model 0.5.0 document whose `pressure_contract` is `3.0.0/exact_pressure_v3` (B7b's contract-present form; DEC-033), `objective_connector.pressure_model` admits a second kind besides `unpressurized`. 0.3.0/0.4.0 documents keep `unpressurized` only. §5 gives the field specification.
 
 ```
 { "kind": "constant_effective_area_reference_v1",
@@ -26,7 +62,7 @@ The physics is JR's (`CORRECTNESS_DESIGN/JOINT_REFERENCE/CONTRACT.md` §§2, 4 a
 
 The pressure basis is the region's basis, not JR's proposed `internal_increment_zero_external_v1` name, so that one vocabulary names one quantity. Ae is the authored manufacturer or user effective area, a first-order pressure-volume derivative of the joint. It has no default and is never derived from the bore or a mean bellows diameter. The pressure model is model-scoped; the pressure magnitude is always the region's.
 
-**The region-chain edge** (JR's `JointPressureParticipation`, in its simplest explicit form). A pressure region gains an optional `member_connector_ids` list. Absent or empty means the region has no joint edges, so every existing region is unchanged. A listed connector is an edge of the region's chain between its end nodes. It is never added to `member_pipe_ids`, and its welded faces are never terminals or closures.
+**The region-chain edge** (JR's `JointPressureParticipation`, in its simplest explicit form). A pressure region of a 0.5.0 document has an optional `member_connector_ids` list; 0.3.0/0.4.0 regions do not gain it (DEC-033). Absent or empty means the region has no joint edges, so every existing region is unchanged. A listed connector is an edge of the region's chain between its end nodes. It is never added to `member_pipe_ids`, and its welded faces are never terminals or closures.
 
 **The admitted configuration.** A listed connector is admitted when all of these hold; otherwise the case is refused by name (section 6):
 1. its pressure model is `constant_effective_area_reference_v1`, with a valid area and source;
@@ -37,11 +73,11 @@ The pressure basis is the region's basis, not JR's proposed `internal_increment_
 6. the region's equal-bore check spans both face pipes. Equal pressure follows because one region is the single pressure authority;
 7. the region does not list the connector's replaced span, and no other region lists the connector.
 
-A constant-effective-area connector in a case where no region lists it carries no pressure (p = 0 at the joint). An unpressurized connector that no region touches is admitted beside pressurized regions: the blanket refusal of any case with pressure regions is lifted.
+A constant-effective-area connector in a case where no region lists it carries no pressure (p = 0 at the joint). An unpressurized connector that no region touches is admitted beside pressurized regions: the blanket refusal of any case with pressure regions is lifted. This lift uses no new document item, so it does not change the 0.3.0/0.4.0 shape (J3-R is a valid 0.3.0 document). Open for the T4 manager: whether batch 5 lifts it on 0.3.0/0.4.0 as well, or only on the 0.5.0 path.
 
 **Touching.** A region touches a connector when one of its members is incident to, or one of its terminals is at, a connector end node. A region that touches a connector without listing it is refused, so pressure membership and closure are never inferred.
 
-**Precedence.** The joint classifier decides every region–connector finding before region traversal. A region with a joint finding is neither traversed nor assembled, so its refusal carries exactly the joint code. Bore and collinearity findings arise in traversal, under their existing names.
+**Precedence.** The joint classifier decides every region–connector finding before region traversal. A region with a joint finding is neither traversed nor assembled, so its refusal carries exactly the joint code. Bore and collinearity findings arise in traversal, under their existing names. A connector's own model findings (`model_findings`) come first. A listed connector refused by a model finding (for example `JOINT_PRESSURE_AREA_MISSING` or `JOINT_HARDWARE_LAW_UNSUPPORTED`) carries only that code. It is not also classified against the region, so it does not also take `JOINT_PRESSURE_INTERFACE_UNRESOLVED` (RV-05a–c, RV-11).
 
 **Traversal.** The chain graph's edges are the member pipes and the listed connectors. A listed connector's replaced span is not an external pipe for the internal-branch rule; it is not built (S21). Junction and tangency rules for realized arcs are unchanged, and a joint is never adjacent to an arc (condition 3).
 
@@ -93,21 +129,89 @@ The source-group evidence lists the new kinds. A `joint_effective_area` term car
 
 ## 5. Schema, readers and authoring
 
-- **Model input.** `PressureRegionInput` gains `member_connector_ids` (it is `deny_unknown_fields`). The desktop's `PressureRegionInput` type gains it too. For 0.5.0, the field and the pressure-model kind go to T3 with H1's corrosion-allowance and shear-model fields (open question 1).
+- **Model input (DEC-033).** The two items are defined only in model 0.5.0's contract-present form. T3's B7 defines that form (B7b), with H1's corrosion-allowance and shear-model fields, from the field specification below. On 0.3.0/0.4.0 nothing changes. `PressureRegionInput` is `deny_unknown_fields`, so `member_connector_ids` remains an unknown member there and the request is refused as today. The connector's `constant_effective_area_reference_v1` kind keeps today's model finding there. `PressureRegionInput` and the desktop's `PressureRegionInput` type gain the field for 0.5.0 documents only. Because B7b also refuses 0.3.0/0.4.0 by name, U5a needs no version-keyed branch once B7b has landed. Before then, the engine lands unactivated.
 - **`schemas/results_pressure_1.v0.3.schema.json`.**
   - `PressureConnectorRecord.pressure_model` changes from const `unpressurized` to an enum of the two kinds, with the three new properties required for the constant kind and forbidden for `unpressurized`. `hardware` stays const `untied` (T4-U5b widens it).
   - `PressureRegion` gains the two joint approximation branches, each requiring `member_connector_ids` and `joint_edges`; the existing branches forbid both.
   - The group-term and group shapes gain the `connector_id` and `effective_area_bits` forms. The pressure-1 metadata vocabulary gains components `pe_x` and `s_x`.
 - **The Rust reader** (`core/reporting/result_export/src/connector_evidence.rs`, the pressure route). `RECORD_LAW` accepts the constant kind with its fields, and the row table gains the two families. Each `joint_edges` entry is bound to its connector record and rows: `pe_x` equals p·Ae from the evidence; `s_x` equals `gt_x − pe_x` under the reader's binding rule; the attachment pair is ∓(pAe − pAi) along the record's Q·x. The reader refuses by name a pressurized record without evidence, evidence without a pressurized record, an unpressurized record carrying pressure fields, and any inconsistent pair or row.
 - **The Python verifier** (`tests/verifiers/pressure_1.py`, test-only, sharing no code) mirrors these checks.
-- **Authoring.** The applier's connector creation and edit accept the pressure model. Its region operations accept `member_connector_ids` and refuse by the rules of section 1. The desktop's objective-connector form, offered on v3 documents, gains the pressure model, and its region editor lists connectors. JR J-B allows backend-only explicit data to land first; the unit is complete only when the live path authors it.
+- **Authoring.** On 0.5.0 documents only, the applier's connector creation and edit accept the constant-effective-area pressure model, and its region operations accept `member_connector_ids` and refuse by the rules of section 1. On 0.3.0/0.4.0 the applier writes neither item (DEC-033). The desktop's objective-connector form, offered on v3 documents, gains the pressure model, and its region editor lists connectors, both on 0.5.0. JR J-B allows backend-only explicit data to land first; the unit is complete only when the live path authors it.
+
+### Field specification (model 0.5.0)
+
+Every refusal below gives `MODEL_INCOMPLETE` and no results. RV ids name the `t4_u5a` refusal variants; "unit test" marks a refusal that §8 check 2 requires and that has no oracle patch.
+
+**1. Pressure-model kind `constant_effective_area_reference_v1`**
+
+- **Name.** `pressure_model` of kind `constant_effective_area_reference_v1`, with members `kind`, `effective_area`, `pressure_basis` and `source_reference`.
+- **Location.** A model 0.5.0 document whose `pressure_contract` is `3.0.0/exact_pressure_v3`, at `components[].objective_connector.pressure_model`, with `objective_connector.version` "1.0.0".
+- **Type.** A closed object (no other members):
+  - `kind`: string, the constant `"constant_effective_area_reference_v1"`;
+  - `effective_area`: Quantity, `{ "value": number, "unit": string }`;
+  - `pressure_basis`: string, the constant `"internal_differential_zero_external_v1"`;
+  - `source_reference`: string.
+- **Units.** `effective_area` has the dimension of area (`"m^2"` in the references). The other members are unitless.
+- **Value constraints.**
+  - `effective_area.value` is finite and > 0, and its unit is an area.
+  - `source_reference` is non-empty.
+  - `pressure_basis` equals the `pressure_basis` of the region that lists the connector.
+  - The connector's `hardware` is `untied`. T4-U5b widens this.
+- **Required when.** Every member is required when the kind is this one. The kind is required for a connector listed in a region's `member_connector_ids`. Otherwise it is optional: a constant-effective-area connector that no region lists is admitted and carries no pressure (p = 0 at the joint, Pe = 0; J3-RP).
+- **Named refusals.**
+  - *Absent or invalid area or source.* `effective_area` absent, zero, negative, nonfinite or not an area, or `source_reference` absent or empty → `JOINT_PRESSURE_AREA_MISSING` (RV-05a absent, RV-05b zero, RV-05c no source; negative, nonfinite and wrong dimension are unit tests).
+  - *Basis.* `pressure_basis` absent or different from the region's → `JOINT_PRESSURE_INTERFACE_UNRESOLVED` (RV-13).
+  - *Other kinds.* Any kind other than `unpressurized` and this one → `JOINT_PRESSURE_INTERFACE_UNRESOLVED`, with the text "pressure model {kind} is not supported; only unpressurized and constant_effective_area_reference_v1 are" (RV-12).
+  - *Present without the conditions.* Hardware other than `untied` → `JOINT_HARDWARE_LAW_UNSUPPORTED` (RV-11). A listed connector whose configuration fails §1 takes §6's codes. An offset joint is RV-06 or RV-06b.
+  - *Precedence.* These are model findings, so a listed connector refused by one carries only that code (§1).
+  - *On 0.3.0/0.4.0 (not defined there).* Today's model finding stays: `JOINT_PRESSURE_INTERFACE_UNRESOLVED`, "objective connector {id}: only the unpressurized pressure model is supported until T4-U5" (`joint.rs` `model_findings`). The document shape is unchanged.
+  - *Until U5a lands.* If 0.5.0 defines the item before U5a's engine is active, the same model finding refuses it. It is never ignored and never solved as unpressurized.
+- **Meaning.** Ae is the authored manufacturer or user effective area of the joint, a first-order pressure-volume derivative. It has no default and is never derived from the bore or a bellows diameter. With the region's p it gives Pe = p·Ae, the joint's dead generalized pressure force in the reference geometry, conjugate to qt_x. Pe is assembled as p(Ae − Ai) at the attachments (§2) and published as `pe_x` and `s_x` (§4). The pressure model is model-scoped; the pressure magnitude and basis are always the region's.
+
+**2. Region field `member_connector_ids`**
+
+- **Name.** `member_connector_ids`.
+- **Location.** A model 0.5.0 document with the exact contract present, at `load_cases[].pressure_regions[].member_connector_ids`.
+- **Type.** An array of strings, each a component `id`.
+- **Units.** None.
+- **Value constraints.**
+  - Each entry is the `id` of a component in `components` that carries an `objective_connector`.
+  - Entries are unique within the list.
+  - Within one load case, at most one region lists a given connector.
+  - Absent and `[]` mean the same: the region has no joint edges.
+  - A listed connector satisfies §1's conditions 1–7.
+- **Required when.** Optional. A region that touches a connector must list it. A region touches a connector when one of its members is incident to, or one of its terminals is at, a connector end node.
+- **Named refusals** (`JOINT_PRESSURE_INTERFACE_UNRESOLVED` unless stated):
+  - the region touches a connector without listing it (RV-01);
+  - an entry that is not an objective connector of the model (RV-15);
+  - a duplicate entry (unit test);
+  - a connector listed by two regions (unit test);
+  - the joint's faces in two regions, so at different pressures (H6; RV-09);
+  - an unpressurized connector listed (RV-04);
+  - a region terminal at a joint face (RV-02);
+  - the replaced span listed in `member_pipe_ids` (RV-03);
+  - a nonzero attachment offset (RV-06 lateral, RV-06b axial);
+  - a face pipe that is not a straight member of the same region, such as a realized arc, another connector or a non-member (unit tests);
+  - in traversal, under their existing names: unequal bore → `PRESSURE_REGION_BORE_MISMATCH` (RV-08), and a straight–joint kink → `PRESSURE_REGION_NONCOLLINEAR` (RV-07);
+  - *on 0.3.0/0.4.0 (not defined there):* the member is unknown to `PressureRegionInput` (`deny_unknown_fields`), and the request is refused as today, unchanged;
+  - *until U5a lands:* if 0.5.0 defines the field before U5a's engine is active, a non-empty list is refused with `JOINT_PRESSURE_INTERFACE_UNRESOLVED` on the region and the listed connectors. It is never ignored. An absent or empty list leaves the region as it is today.
+- **Meaning.** The region's joint edges, JR's `JointPressureParticipation` in explicit form. A listed connector is an edge of the region's chain between its end nodes. It is never a member pipe, its welded faces are never terminals or closures, and the region's p and basis apply to it. Pressure membership and closure are never inferred from geometry.
+
+### T4-U3 and the 0.3.0/0.4.0 shape (historical record)
+
+Compared across T4-U3's merge to main (PR #1234, merge `71624868cb`, against its first parent):
+- `schemas/model.schema.yaml` did not change. It was last changed by `c394365ca7` (2026-08-03), and it has one shape for every version and no `objective_connector`.
+- The desktop's `model_document_migration.rs` did not change either.
+- The optional member `components[].objective_connector` was already readable on 0.3.0/0.4.0 before T4-U3. Since `22452ecd14` (2026-09-25) it was an opaque value (`PreviewComponent.objective_connector`), always refused by name: `OBJECTIVE_CONNECTOR_NOT_IMPLEMENTED` on 0.3.0/0.4.0, `OBJECTIVE_CONNECTOR_VERSION_UNSUPPORTED` for a version other than 1.0.0, and `PREVIEW_CONTRACT_VERSION_MISMATCH` on other model versions.
+
+T4-U3 added no member key. It did define and admit the content of `objective_connector` 1.0.0 (frames, attachments, work matrix, `replaces_span`, `hardware` and `pressure_model`) on 0.3.0/0.4.0 v3 documents. Its operation applier also began writing that member into 0.3.0/0.4.0 documents (`d5b53a15eb`). None of this bumped a version. Under DEC-033 ("Additive bumps too") that is a change to what a 0.3.0/0.4.0 document can contain. It is recorded here as a historical inconsistency. B7b resolves it by refusing 0.3.0/0.4.0 by name and re-authoring their fixtures in 0.5.0. HELP_HUMAN ruled on 2026-10-12 that it is not a precedent for new content, and it is not to be repeated.
 
 ## 6. Refusals lifted and kept
 
 | Today | After U5a |
 |---|---|
-| `JOINT_PRESSURE_INTERFACE_UNRESOLVED` for every case with pressure regions (`joint.rs` `classify_connectors`) | Lifted. The code now names a specific joint–region finding: the connector not listed by a region that touches it, a terminal at a joint face, the replaced span listed, an unpressurized connector listed, a face pipe that is not a straight member of the same region, faces in two regions (unequal pressure, H6), a duplicate or unknown entry in `member_connector_ids`, a nonzero attachment offset, a pressure basis other than the region's, an unknown pressure-model kind |
-| The pressure model other than `unpressurized` → `JOINT_PRESSURE_INTERFACE_UNRESOLVED` (`joint.rs` `model_findings`) | Lifted for `constant_effective_area_reference_v1`. An absent, nonpositive, nonfinite or wrongly dimensioned area, or a missing `source_reference`, is `JOINT_PRESSURE_AREA_MISSING`. Other kinds stay refused, with the text "pressure model {kind} is not supported; only unpressurized and constant_effective_area_reference_v1 are" |
+| `JOINT_PRESSURE_INTERFACE_UNRESOLVED` for every case with pressure regions (`joint.rs` `classify_connectors`) | Lifted (on 0.3.0/0.4.0 only for an untouched unpressurized connector, if the manager so chooses; §1). The code now names a specific joint–region finding: the connector not listed by a region that touches it, a terminal at a joint face, the replaced span listed, an unpressurized connector listed, a face pipe that is not a straight member of the same region, faces in two regions (unequal pressure, H6), a duplicate or unknown entry in `member_connector_ids`, a nonzero attachment offset, a pressure basis other than the region's, an unknown pressure-model kind |
+| The pressure model other than `unpressurized` → `JOINT_PRESSURE_INTERFACE_UNRESOLVED` (`joint.rs` `model_findings`) | Lifted for `constant_effective_area_reference_v1` on 0.5.0 only; on 0.3.0/0.4.0 kept, code and text unchanged (DEC-033). An absent, nonpositive, nonfinite or wrongly dimensioned area, or a missing `source_reference`, is `JOINT_PRESSURE_AREA_MISSING`. Other kinds stay refused, with the text "pressure model {kind} is not supported; only unpressurized and constant_effective_area_reference_v1 are" |
 | Hardware other than `untied` → `JOINT_HARDWARE_LAW_UNSUPPORTED` | Kept; T4-U5b lifts it for explicit elastic rods only |
 | Unequal bore → `PRESSURE_REGION_BORE_MISMATCH`; a straight–joint kink → `PRESSURE_REGION_NONCOLLINEAR` | Kept, by name (H6); they now span the joint |
 | S20 `JOINT_REPLACED_SPAN_LOAD_UNOWNED`, the K-D5 source-closure rule, legacy and annotation refusals, `OBJECTIVE_CONNECTOR_*`, `JOINT_STIFFNESS_BASIS_UNSUPPORTED` | Kept |
@@ -120,14 +224,14 @@ The source-group evidence lists the new kinds. A `joint_effective_area` term car
 | Every v3 envelope with a connector: its limitation list | `CONNECTOR_LIMITATION` text (priced TEXT, O-10; batch 5's one re-registration, H7) |
 | `fixtures/results/pressure_v3_connector_reader_corpus.json` | the limitation text, and new entries with a pressurized joint (generator test only) |
 | `fixtures/results/pressure_v3_arc_reader_corpus.json` | the limitation text (its connector case); the generator's doc comment in `pressure_arc_readers.rs` |
-| `t4_i12/u3_reference_cases.json`, `joint_case_with_pressure_region` (`expected_round_02`, dated "until T4-U5 (J3/J4)") | Its region on P-100 no longer touches C-150, so the case is admitted. The frozen file is not edited: the implementing change records the supersession in `t4_i12/README.md` (a C-d note). HR's `a_pressurized_case_with_a_joint_is_refused_without_export_in_both_modes` (`core/runner/headless/tests/objective_connector.rs`) becomes an admission check (no joint code, results and export present). The numbers are pinned by `t4_u5a` J3-R/J3-RP, and the refusals by `t4_u5a` RV-01 to RV-15 |
+| `t4_i12/u3_reference_cases.json`, `joint_case_with_pressure_region` (`expected_round_02`, dated "until T4-U5 (J3/J4)") | Its region on P-100 no longer touches C-150, so the case is admitted. The frozen file is not edited: the implementing change records the supersession in `t4_i12/README.md` (a C-d note). HR's `a_pressurized_case_with_a_joint_is_refused_without_export_in_both_modes` (`core/runner/headless/tests/objective_connector.rs`) becomes an admission check (no joint code, results and export present). The numbers are pinned by `t4_u5a` J3-R/J3-RP, and the refusals by `t4_u5a`'s 17 refusal variants (RV-01 to RV-15 with RV-05a–c and RV-06b; there is no RV-10). The case is admitted on its own 0.3.0/0.4.0 document only if the blanket lift applies there (§1); otherwise its supersession waits for B7b's re-authoring in 0.5.0 |
 | `core/product_physics/tests/connector_pp_paths.rs` "pressure model" variant | still refused under the same code, with the new text |
 | `execution/PKG-03/DEL-03-06/Design/joint-replacement.md`, "as implemented" | "admitted only on unpressurized v3 documents" is restated |
 | Unchanged | v2 and SP-1 twins; straight-only and arc regions' evidence; unpressurized connectors' rows and records; the straight corpus; PP's Cargo.lock and priced layouts (`MemberRecord`, `RecoveryRecord`, Preview inputs); LIMITATIONS of preview-physics |
 
 ## 8. Evidence and mutants
 
-The references are [`validation/references/t4_u5a/`](../../../../validation/references/t4_u5a/README.md): 19 SHA-bound requests and their oracle, derived exactly over Q(π) by a generator that imports no product code. Mill tolerance and corrosion allowance are zero and every non-axial response is zero, so the values are basis- and shear-neutral. Before code relies on them, a second TASK that did not write them refutes them (plan 01 §5).
+The references are [`validation/references/t4_u5a/`](../../../../validation/references/t4_u5a/README.md): 19 SHA-bound requests and their oracle, derived exactly over Q(π) by a generator that imports no product code. Mill tolerance and corrosion allowance are zero and every non-axial response is zero, so the values are basis- and shear-neutral. A second TASK that did not write them has refuted them and confirmed every value (Status). The requests are frozen as model 0.3.0 documents and are re-expressed in 0.5.0 before any product test consumes them (Status; DEC-033).
 
 They cover:
 - JR J3's untied rows 1 and 3;
@@ -135,15 +239,22 @@ They cover:
 - ν = 0, the stiff and soft limits, a skew rotation with translation, connector and pipe reversals;
 - Ae = Ai anchored and free, p = 0, a remotely supported closure;
 - row 5's stiffness untied (the q that U5b's explicit rod must reproduce);
-- an unpressurized joint beside a remote region, with and without the constant model.
+- an unpressurized joint beside a remote region, with and without the constant model (J3-R, J3-RP). The joint carries no pressure there. Its only load is pipe X's net Lamé elongation, (1 − 2ν)·Pi/kp, carried through the anchored chain. The oracle's frozen description, "the joint carries the remote cap's share", is imprecise on this point; the values are right.
 
 **H-2's condition.**
-- *Representation (A).* For every case the generator assembles JR's representation (A) independently: per-member full cap and Poisson pairs, the joint's Bᵀg_p from JR's B, and remote-closure cancellations. It asserts (A) equals (B) exactly and solves to the same state. The product, which implements (B), is compared with (A)'s published pressure RHS (`assembly_evidence.assembled_pressure_rhs_global`) and with (A)'s solved state.
-- *J4 in its untied form.* The double count reproduces JR's J4 values (anchored, q = (h + Pe)/(k + kp/2); free, q = (Pe + Pi)/k). In the free chain it leaves the reactions and Nw unchanged; only the joint's elastic force (Pe + Pi instead of Pe) and the interface identity S_pipe = S_joint expose it. The tests must inspect those, not global balance.
+- *Representation (A).* For every case the generator assembles JR's representation (A) independently: per-member full cap and Poisson pairs, the joint's Bᵀg_p from JR's B, and remote-closure cancellations. It asserts (A) equals (B) exactly and solves to the same state. The product, which implements (B), is compared with (A)'s pressure RHS. The product's field is the envelope's `contract_evidence.exact_cases[].pressure_rhs_assembly` (its `assembled_pressure_rhs_global`). The product is also compared with (A)'s solved state.
+- *J4 in its untied form.* The double count reproduces JR's J4 values (anchored, q = (h + Pe)/(k + kp/2); free, q = (Pe + Pi)/k).
+  - In the free chain (J3-3) it leaves Nw, S_pipe and the support reactions unchanged.
+  - It moves q, the displacements u_C and u_D, the joint's elastic force g_x (Pe + Pi instead of Pe), the connector's endpoint rows and `s_x`, and so breaks the interface identity S_pipe = S_joint.
+  - Kill tests on J3-3 must inspect those moved quantities, not global balance.
 
 **Required checks** (both solver modes, criterion as in the reference README):
 1. **PP system:** every `t4_u5a` case through PP's public entry: the connector rows (eight elastic and two new), member Nw and S, node displacements and rotations, support-on-model reactions, the region's `joint_edges` and the pressure RHS against (A). The interface identity is checked on published rows (Nw − Pi of each face pipe against `s_x`).
-2. **Refusals:** RV-01 to RV-15 with their exact code sets, `MODEL_INCOMPLETE` and no results; a unit test for a joint beside a realized arc.
+2. **Refusals:** the 17 refusal variants (RV-01 to RV-15 with RV-05a–c and RV-06b; there is no RV-10) with their exact code sets, `MODEL_INCOMPLETE` and no results. Unit tests, which have no oracle patch, with their codes from §5's field specification:
+   - a joint beside a realized arc, and any other face pipe that is not a straight member of the region;
+   - a duplicate `member_connector_ids` entry;
+   - a connector listed by two regions;
+   - a negative, a nonfinite and a wrongly dimensioned effective area.
 3. **HR:** a representative subset through the headless runner in both modes, with export, including J3-1R and J3-3.
 4. **K-D5 closure** (ordinary and W2, both modes; a named load-closure detail on each mutant, and the unmutated system Passed with the member bound):
    - drop-one-of-many of a `joint_face_cap` at an attachment where the face pipe's Poisson summand shares its group;
@@ -154,7 +265,7 @@ They cover:
    - FK's family test against an exact or 256-bit reference.
 5. **Producer mutants**, each shown killed by the reference tests: applied to the producer, run, reverted, and recorded in the PR; no committed `#[cfg(test)]` seam, per R-2's spirit. The mutants:
    - the double count (face caps dropped);
-   - faces exchanged (the sign at i/j);
+   - faces exchanged (the oracle's `sign_flip`): both summands at each attachment take the other end's sign, so the whole pair −/+p(Ae − Ai) is reversed. Reversing only the `joint_effective_area` summand is a different mutant, which the oracle does not list; it is far from the correct values (J3-1 q ≈ −2.2e-5 m, J3-3 g_x = −800 N);
    - face caps formed from the outside diameter (Ae measured against the wrong bore);
    - effective area dropped;
    - the region-chain edge missing (the connector not traversed: it must refuse, not drop the thrust);
@@ -178,7 +289,7 @@ They cover:
 
 ## Open questions
 
-1. **The model field and DEC-033.** `member_connector_ids` and the new pressure-model kind change what a 0.3.0/0.4.0 document can contain. DEC-033 would bump the minor version for that; the 2026-10-10 owner decision makes 0.5.0 the only current format from B7. T4-U3 added `objective_connector` to v3 documents without a bump, under H-1's "grows family by family". This design follows that precedent for batch 5 and sends the two additions to T3 for 0.5.0, with H1's fields. Whether the precedent covers a region field is for HELP_HUMAN to confirm.
+1. **The model field and DEC-033: closed.** HELP_HUMAN ruled on 2026-10-12 that the T4-U3 precedent does not extend to new content in 0.3.0/0.4.0. Both items are defined only in model 0.5.0 (Status; §5).
 2. **The qualification package.** The `t4_u5a` cases are consumed by PP and HR tests. Adding them to VP-STATIC's `exact_pressure` package would need its own admission review; that is the manager's choice.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
