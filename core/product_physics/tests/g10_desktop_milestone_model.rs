@@ -22,10 +22,11 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// re-pinned them for the summary (the curved macro-element count's name, the
 /// deleted retired thrust count) and the reworded pressure/imposed-displacement
 /// limitation sentence; B4/D1 (b) re-pinned both: the envelope loses only its
-/// source-recovery disclosure.
+/// source-recovery disclosure; E14 re-pinned dense, which no longer publishes the
+/// retired parity observation row.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 0, "RECOMPUTE-B7A-INTEGRATION"),
-    ("dense_scrutiny", 0, "RECOMPUTE-B7A-INTEGRATION"),
+    ("sparse_interactive", 68176, "96e0be764e83fcc7cc1f921bee7b9e0d4acbf498ae5344b29671fde184029402"),
+    ("dense_scrutiny", 68197, "7bc823a9a0e1e083be86770c139017d7f3eef4c9f922ee3abbb348313b13ba69"),
 ];
 /// Fields of the request's model entries that receive a `label` equal to their `id`.
 const LABELLED: [&str; 4] = ["materials", "nodes", "pipe_segments", "supports"];

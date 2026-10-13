@@ -29,10 +29,11 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// deleted retired thrust count) and the reworded pressure/imposed-displacement
 /// limitation sentence; B4/D1 (b) re-pinned both modes: the preview route
 /// attempts no source blocks, so the envelope loses only its
-/// `diagnostic:source-recovery:case` disclosure.
+/// `diagnostic:source-recovery:case` disclosure; E14 re-pinned dense, which no
+/// longer publishes the retired parity observation row.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 0, "RECOMPUTE-B7A-INTEGRATION"),
-    ("dense_scrutiny", 0, "RECOMPUTE-B7A-INTEGRATION"),
+    ("sparse_interactive", 68176, "96e0be764e83fcc7cc1f921bee7b9e0d4acbf498ae5344b29671fde184029402"),
+    ("dense_scrutiny", 68197, "7bc823a9a0e1e083be86770c139017d7f3eef4c9f922ee3abbb348313b13ba69"),
 ];
 /// The serializer's committed milestone output: sha256 of the pretty-printed
 /// successor envelope, and its receipt_sha256 (byte-stable, both modes).
