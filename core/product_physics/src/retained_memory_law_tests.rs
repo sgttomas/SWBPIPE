@@ -303,11 +303,11 @@ fn sha256_matches_the_sha2_dependency() {
 #[test]
 fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     use sha2::{Digest, Sha256};
-    // The 17 current inputs at the K-D5 member-bound source basis, in the
-    // unchanged REVIEWED_INPUTS order; all digests remain checked against
+    // The 18 current inputs: the original 17 reader/lock inputs followed by
+    // batch 5's pressure result contract definition. All digests check the
     // actual bytes. The retained preview table (position 4) is the one bound
     // to the current inherited preview-physics-1 table (c915605a11).
-    const REVIEWED: [&str; 17] = [
+    const REVIEWED: [&str; 18] = [
         "4f494db6d8a6eca87e7a16d8561197f20b1951a033bd3a6c424acfff5613475b",
         "28c1560596444de7dd5228d5d0c81c3801ee7d1c0ceb66cbb471c856d5bd1123",
         "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e",
@@ -325,9 +325,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "3cebce55d1b31e0031628d7542a33a8debdfa37d2d258cb27dfbdfd1fc28db22",
         "71f63d3916fa37ad0021ffb6ad993760a274166fe7ef275d7435c6856ed5642e",
         "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d",
+        "774dad290e17ece0292b7a6021c59c8067e13aa4267c6bdbb25bb3fb17da75c5",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
-    let files: [&[u8]; 17] = [
+    let files: [&[u8]; 18] = [
         include_bytes!("../Cargo.lock"),
         include_bytes!("../../../schemas/physics_source_recovery.schema.json"),
         include_bytes!("../../../schemas/retained_precision_mp_v2.schema.json"),
@@ -345,12 +346,13 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_bytes!("../../../fixtures/results/retained_precision_prepared_combination_v1.json"),
         include_bytes!("../../../fixtures/results/retained_precision_prepared_exact_v1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"),
+        include_bytes!("../../../schemas/results_pressure_1.v0.3.schema.json"),
     ];
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets the reviewed inputs");
     assert_eq!(option_env!("OPS_RETAINED_REVIEWED_INPUTS"), Some(compiled));
     let mut tokens = compiled.split(';');
     assert_eq!(tokens.next(), Some("v1"));
-    for (i, token) in tokens.by_ref().take(17).enumerate() {
+    for (i, token) in tokens.by_ref().take(files.len()).enumerate() {
         let (path, hex) = token.split_once('=').unwrap();
         assert_eq!(path, build_identity::REVIEWED_INPUTS[i]);
         assert_eq!(hex, format!("{:x}", Sha256::digest(files[i])), "{path}: build.rs's digest");
@@ -367,7 +369,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_str!("../../reporting/result_export/src/source_blocks.rs"),
     ]
     .concat();
-    for path in &build_identity::REVIEWED_INPUTS[1..] {
+    for path in &build_identity::REVIEWED_INPUTS[1..17] {
         let name = path.rsplit('/').next().unwrap();
         assert!(reader.contains(&format!("{name}\"")), "{name} is an include_str! input of the reader");
     }
@@ -1219,14 +1221,14 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// The record priced at e0ec460bf3 (nonlinear K-D5 on T4 batch 4, merged with
-/// main's memory pool; DEL-05-02 retained-pricing-rules.md section G):
+/// The record priced at source 15d75d7e14 (pressure-only U4a stage 1 and
+/// dormant U5a; DEL-05-02 retained-pricing-rules.md section H):
 /// requested plus moving bytes without R, for the qualified build above. Each phase keeps its actual
 /// positive layout, source and TEXT charges; W3 (publication with the staged
 /// copy) is the maximum in both modes.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_207_291_463, 5_530_723_425, 10_206_071_081, 9_982_013_150, 6_139_851_699, 10_004_455_054, 5_904_836_649],
-    [5_266_422_807, 5_589_854_769, 10_265_202_425, 10_041_144_494, 6_198_983_043, 10_063_586_398, 5_963_967_993],
+    [5_229_391_176, 5_552_823_138, 10_228_170_794, 10_004_112_863, 6_161_951_412, 10_026_554_767, 5_926_936_362],
+    [5_288_522_520, 5_611_954_482, 10_287_302_138, 10_063_244_207, 6_221_082_756, 10_085_686_111, 5_986_067_706],
 ];
 
 #[test]
@@ -1284,6 +1286,36 @@ fn maximum_takes_every_phase() {
 }
 
 #[test]
+fn profile_batch5_carriers_bind_actual_layouts_and_all_case_owners() {
+    use profile::{ATOM_BINDINGS, ATOM_NAMES, ATOM_VALUES, Binding, FORMS};
+    use std::mem::size_of;
+    use open_pipe_stress_frame_kernel::structural::LoadFormula;
+    let actual = [
+        ("s(ExactPressureCaseOption)", size_of::<Option<crate::pressure_runtime::ExactPressureCase>>()),
+        ("s(PressureRegionInput)", size_of::<crate::PressureRegionInput>()),
+        ("s(LoadFormula)", size_of::<LoadFormula>()),
+        ("s(PreparedCaseResult)", size_of::<Result<crate::LoadCaseSolve, open_pipe_stress_frame_kernel::FrameKernelError>>()),
+        ("s(BTreeMapHeader)", size_of::<std::collections::BTreeMap<usize, f64>>()),
+    ];
+    for (name, size) in actual {
+        let index = ATOM_NAMES.iter().position(|entry| *entry == name).expect("positive owned carrier");
+        assert_eq!(ATOM_BINDINGS[index], Binding::InBuild, "{name} is the actual build's type");
+        assert_eq!(ATOM_VALUES[index], size as u64, "{name} retains its complete owner layout");
+        assert!(size > 0);
+        for form in [profile::F_O_BASE_SPARSE, profile::F_O_BASE_DENSE] {
+            let coefficient = FORMS[form].terms.iter().find(|(atom, _)| *atom == index).expect("carrier cannot disappear from an ordinary case").1;
+            assert!(coefficient >= caps::LOAD_CASES as u64, "{name} retains every overlapping case owner");
+        }
+    }
+    let index = ATOM_NAMES.iter().position(|entry| *entry == "s(PreparedCaseWorkspace)").unwrap();
+    assert_eq!(ATOM_BINDINGS[index], Binding::SourceUpper);
+    assert!(ATOM_VALUES[index] > 0);
+    for (name, layout) in READER_LAYOUT_NAMES.iter().zip(READER_LAYOUTS) {
+        println!("I65_G5_READER_LAYOUT {name} size={} align={}", layout.size, layout.align);
+    }
+}
+
+#[test]
 fn profile_laws_hold_in_this_build() {
     use profile::btree_node_upper;
     use std::mem::{align_of, size_of};
@@ -1319,7 +1351,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
-    assert_eq!((count(profile::Binding::SourceUpper), count(profile::Binding::Text), count(profile::Binding::Estimate)), (22, 6, 0));
+    assert_eq!((count(profile::Binding::SourceUpper), count(profile::Binding::Text), count(profile::Binding::Estimate)), (23, 6, 0));
     assert_eq!(profile::ESTIMATES, 0, "G6 closed every Estimate");
     assert_eq!(cap_priced_maximum(PreviewSolverMode::SparseInteractive), Ok(profile::SPARSE.unwrap().0), "priced in-build");
     assert_eq!(cap_priced_maximum(PreviewSolverMode::DenseScrutiny), Ok(profile::DENSE.unwrap().0), "priced in-build");
@@ -1447,17 +1479,17 @@ fn gate_sums_saturate_and_the_longest_string_reads_every_diagnostic_field() {
 #[test]
 fn an_unreadable_reviewed_input_never_binds() {
     let layouts = READER_LAYOUTS;
-    let read = build_identity::encode_reviewed_inputs(&[Some([7; 32]); 17]);
+    let read = build_identity::encode_reviewed_inputs(&[Some([7; 32]); 18]);
     assert!(!read.contains("unavailable"));
     assert!(bindings_hold(true, Some(&read), &read, &layouts, &layouts), "every input read: the record binds");
-    for i in 0..17 {
-        let mut digests = [Some([7u8; 32]); 17];
+    for i in 0..18 {
+        let mut digests = [Some([7u8; 32]); 18];
         digests[i] = None;
         let unread = build_identity::encode_reviewed_inputs(&digests);
         assert!(unread.contains("=unavailable"));
         assert!(!bindings_hold(true, Some(&unread), &unread, &layouts, &layouts), "input {i} unreadable");
     }
-    let none = build_identity::encode_reviewed_inputs(&[None; 17]);
+    let none = build_identity::encode_reviewed_inputs(&[None; 18]);
     assert!(!bindings_hold(true, Some(&none), &none, &layouts, &layouts), "no input read");
     assert_eq!(identity_match(Some(build_identity::IDENTITY_UNAVAILABLE), [build_identity::IDENTITY_UNAVAILABLE].into_iter()),
         Err(ProfileStatus::Stale), "the identity's own unavailable value is Stale");

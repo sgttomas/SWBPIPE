@@ -38,9 +38,9 @@ EDGE_ZERO = EDGE_ZERO + [
      "returns Ok(+0.0) (exact_rounded_sum over no value: the accumulator's exact zero) and the per-DOF `Err(_) => problem` never runs; every "
      "assembled load is +0.0, so max_rhs = 0, no value is nonzero, maximum_ratio stays 0, screen = 0 and the cancellation problem() never runs"),
     # the mirror (I95 section 2.4): legacy-only branches cannot run with is_exact true
-    ("lib.rs:4133:solve_load_case_observed", "source_receipt.rs:634:exact",
+    (rs_any("solve_prepared_load_case", "solve_load_case_observed", f="core/product_physics/src/lib.rs"), "source_receipt.rs:634:exact",
      "a selected exact case takes FinalizedSourceBlockCase::composite_exact (lib.rs:5714-5717); `exact` is the !is_exact arm (lib.rs:5718-5719)"),
-    ("lib.rs:4133:solve_load_case_observed", "source_receipt.rs:717:ordinary",
+    (rs_any("solve_prepared_load_case", "solve_load_case_observed", f="core/product_physics/src/lib.rs"), "source_receipt.rs:717:ordinary",
      "an unselected exact case takes ordinary_physics (lib.rs:5726-5729); `ordinary` is the !is_exact arm (lib.rs:5730-5731)"),
     ("lib.rs:2354:run_linear_static_preview_observed", "source_receipt.rs:836:finalize",
      "`composite` = source_selected && is_exact, so a selected exact invocation takes finalize_composite (lib.rs:2872-2875)"),
@@ -64,7 +64,7 @@ FN_ZERO = [
 EDGE_PER_CALL = EDGE_PER_CALL + [
     ("pressure_runtime.rs:356:check_suffixes", "pressure_runtime.rs:89:problem", "max(n, m, g, cases)",
      "route E (I95): check_suffixes is called on the pipe, node, support and load-case id lists (pressure_runtime.rs:183-202) and reports at most one collision per id"),
-    ("pressure_runtime.rs:426:build_pressure_case_with_members", "pressure_runtime.rs:89:problem", "mats",
+    (rs_any("assemble_pressure_case", "build_pressure_case_with_members", f="core/product_physics/src/pressure_runtime.rs"), "pressure_runtime.rs:89:problem", "mats",
      "D1.5-exact credit (I95 C-1), re-read at c3cf970ad3 (pressure_runtime.rs:426-785): of its direct problem() sites only EXACT_PRESSURE_MATERIAL_AMBIGUOUS "
      "can fire, once per selected material (the materials loop); pressure_regions is Some, so EXACT_PRESSURE_REGIONS_REQUIRED never fires; the region loop "
      "is empty, so none of its sites runs; cap_terms and eigen_terms are empty for every DOF, so both exact_sums return Ok(+0.0) and the per-DOF `_ => "
