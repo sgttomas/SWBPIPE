@@ -7,11 +7,12 @@ code by itself. The frozen independent references are in
 [`validation/references/t4_u4a/`](../../../../validation/references/t4_u4a/README.md).
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
-## Status (2026-10-13, controlled pause)
+## Status (2026-10-13, resumed implementation)
 
-The owner has called a controlled pause on T4-U4a: no further
-implementation. This section carries the unit's continuity; the sections
-below remain its design.
+The owner resumed T4-U4a from the controlled pause. Stage 1 is implemented
+and checked; the separate stage-2 preview flip is being prepared for B7a's
+H-4 wave. Registration remains stale until the owning batch's review and
+re-registration; these checks do not establish acceptance.
 
 **Designed.** Sections 1–10: the tangent-frame, node-on-element convention
 for arc end rows (§2), the closed-form chord-to-tangent rotation and its
@@ -36,21 +37,32 @@ tolerances (M6, `full_angle_instead_of_half`, is the smallest, 4.0e8 on
 `U4A-PR1-Z-ANCH-NEGP`); M7 is not value-discriminable, as §10 declares; M12
 is caught by the absent axial row.
 
-**Not started.** No U4a product code exists. Neither stage of §5 is
-implemented. In particular, the stage-2 preview-physics-1 commit that T3's
-B7a H-4 C4–C6 wave is to carry does not exist; §8 gives only its sentence,
-table and schema delta.
+**Stage 1 implemented.** FK forms the tangent end operator and equivalent
+loads in ball arithmetic at p before evaluating the row; PP publishes the
+tangent end rows with §4's signs on pressure-1. Preview keeps the reviewed
+chord convention. Binary64 section recovery uses the transpose of the same
+end-j frame as the published rows. The 79 T4-I7 cases pass in both modes and
+document versions. The 20 U4a cases pass in both modes and both entries;
+all 48 preview envelope serializations equal the independently sealed
+pre-U4a baseline bytes. FK's 31 certified recovery tests pass, including
+end/cut equilibrium, norm preservation with the scalar norm's own bound,
+and actual coefficient enclosure against independent 512-bit circle
+geometry on all nine arcs marked as binary64-inexact. PP tests recompute
+the four end groups from the actual tangent row certificates.
 
-**Open condition: stage 1 alone is not admissible** (T4 manager, 2026-10-13).
+**Stage-1 binary64 condition met by the intended forced-demotion hook.**
 No pressure-1 case runs the binary64 route: pressure-1 refuses nonlinear
 supports, so all eight PR1 cases are certified, and in stage 1 the gap case
 (preview-physics-1) stays byte-identical. M8 and M9 therefore have no value
 control on pressure-1 in stage 1. Stage 1 may land alone only once a
 pressure-1 control on the binary64 route exists: a pressure-1 case that
 publishes binary64 recovery, or a forced-demotion test hook on the pressure-1
-route. Such a case is an intended change of the references, made by their
-author and refuted independently. Otherwise stages 1 and 2 land together, and
-the gap case controls the shared binary64 rotation.
+route. The test-only hook removes `member_bound` before any certified
+publication. All eight unchanged PR1 requests run through both modes and
+entries, assert no certified recovery records and the named binary64
+diagnostic, and check tangent end rows and unchanged cuts, stresses,
+pressure, displacements and supports against the frozen oracle. No oracle
+values or request bytes changed.
 
 **Minor findings of the refutation and where they are handled.** None blocks.
 - Fixed in the references' README (text only; no request, oracle value or
@@ -68,15 +80,22 @@ the gap case controls the shared binary64 rotation.
   directly across a tangent node).
 - Left for the next intended rewrite of the reference set, because it would
   change generator bytes: the unused `Fraction` import in `u4a_engine.py`.
+- The two T0R 45-digit axis blocks assume decimal R = 0.2, whereas the
+  certificate uses the authored binary64 R. Independent direct-circle
+  evaluation confirms their difference (up to 5.56e-17 near zero and
+  1.39e-32 near one). Those frozen bytes stay. The FK control uses exact
+  binary64 operands in its independent 512-bit circle construction and
+  separately derived 100-digit axis pins for those two cases; the other
+  seven marked arcs retain the frozen 45-digit pins. This changes no bound
+  or product comparison criterion.
 
-**Remaining work when the pause lifts.**
-1. The pressure-1 binary64-route control above, or the decision to land both
-   stages together.
-2. Stage 1 per §§3–6, and the stage-2 commit for B7a's H-4 C4–C6 (§§5, 8).
-3. The §10 evidence: the PP U4a reference test, the T4-I7 switch, the FK
-   enclosure and record checks, the K-D5 M3 re-measurement with declared
-   status moves, the VP-STATIC package regeneration and its independent
-   re-review, and independent scrutiny of the implementation.
+**Remaining work.**
+1. The stage-2 commit for B7a's H-4 C4–C6 (§§5, 8).
+2. K-D5 M3 re-measurement on RV30, W1 and the realistic set with declared
+   status moves, targeted mutant runs, the VP-STATIC package's independent
+   mapping re-review, and independent scrutiny of the implementation.
+   The package is regenerated with tangent selectors and pending review
+   statuses; its historical RV28 admission does not cover this mapping.
 4. When B7 retires model versions, re-express the requests in model 0.5.0:
    B7a refuses the preview-physics-1 cases' 0.2.0 documents and B7b the
    pressure-1 cases' 0.4.0 documents. Only the request bytes and
