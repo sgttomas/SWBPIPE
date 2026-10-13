@@ -61,8 +61,9 @@ import {
 import { OUTPUT_SURFACES, PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaceOutputRefusal } from "../features/results/outputPolicy";
 import {
   hasNativeMechanicsInvocation, receivedResultBytes, runPreviewMechanics,
-  startPreviewMechanicsJob, pollPreviewMechanicsJob,
+  startPreviewMechanicsJob, pollPreviewMechanicsJob, takePreviewMechanicsJobResult,
 } from "./previewService";
+import { createSolveJobTransport, resultArrayBuffer } from "../test/nativeMechanicsReplay";
 import { analysisRecordProjection, buildAnalysisRunV03, validateAnalysisRunV03, verifyAnalysisRunRecord } from "./analysisRunCompatibility";
 import { canonicalSha256HexCheckedV1 } from "./hashService";
 
@@ -109,12 +110,16 @@ function scenario(version: "0.3.0" | "0.4.0", route: typeof SOURCE_ROUTES[number
   };
   seam.plans.set(source.run_id, plan);
   (window as Json).__TAURI_INTERNALS__ = {};
-  seam.invoke.mockImplementation(async (command: string, args: Json) => {
-    expect(command).toBe("run_preview_mechanics_with_solver_mode");
-    expect(args).toEqual({ model, solverMode: MODE });
+  // The job IPC: a raw-bytes start of exactly this model and mode, a poll without
+  // the result, then the take of these bytes.
+  const sent = structuredClone(model);
+  const transport = createSolveJobTransport(request => {
+    expect(request.model).toEqual(sent);
+    expect(request.mode).toBe(MODE);
     return bytes;
-  });
-  return { model, source, bytes, plan };
+  }, { jobIdPrefix: `invented:pressure-bridge:job:${seam.nextId}` });
+  seam.invoke.mockImplementation(transport.invoke);
+  return { model, source, bytes, plan, transport };
 }
 
 describe("pressure-source thin desktop bridge", () => {
@@ -197,10 +202,12 @@ describe("pressure-source thin desktop bridge", () => {
   });
 
   it("keeps a completion inspectable without registration when the live caller changes in transit", async () => {
-    const { model, bytes } = scenario("0.3.0"), original = structuredClone(model);
+    const { model, bytes, transport } = scenario("0.3.0"), original = structuredClone(model);
     let release!: () => void;
     const gate = new Promise<void>(resolve => { release = resolve; });
-    seam.invoke.mockImplementation(async () => { await gate; return bytes; });
+    seam.invoke.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      await gate; return transport.invoke(command, args, options);
+    });
     const pending = runPreviewMechanics(model, MODE);
     model.nodes[0].position.x += 0.25; release();
     const returned = await pending;
@@ -210,23 +217,22 @@ describe("pressure-source thin desktop bridge", () => {
     expect(seam.reads.some(read => read.kind === "validate")).toBe(false);
   });
 
-  it("registers a first known job completion and refuses custody for its terminal replay", async () => {
+  it("registers a first known job completion and refuses custody for a replayed take of the same job", async () => {
     const { model, bytes } = scenario("0.3.0");
-    const jobId = "invented:pressure-bridge:job";
-    seam.invoke.mockImplementation(async (command: string) => {
-      if (command === "start_preview_mechanics_job_with_solver_mode") return { job_id: jobId, backend_cancellation_token: "token", state: "queued", cancellation_scope: "test_only" };
-      if (command === "poll_preview_mechanics_job") return { job_id: jobId, state: "completed", cancellation_requested: false,
-        cancellation_status: "not_requested", cancellation_scope: "test_only", result: bytes, error_message: null };
-      throw new Error(`unexpected bridge command ${command}`);
-    });
     const start = await startPreviewMechanicsJob(model, MODE);
     if (start.mode !== "backend_job") throw new Error("expected the test native job");
-    const first = await pollPreviewMechanicsJob(start.job_id);
-    expect(hasNativeMechanicsInvocation(first.result, model, MODE)).toBe(true);
-    expect(numericalResultStanding(first.result!, model).eligible).toBe(true);
-    const duplicate = await pollPreviewMechanicsJob(start.job_id);
-    expect(hasNativeMechanicsInvocation(duplicate.result, model, MODE)).toBe(false);
-    expect(retainedSourceRecoveryInvocation(duplicate.result!, model)).toBeNull();
+    expect((await pollPreviewMechanicsJob(start.job_id)).state).toBe("completed");
+    const first = await takePreviewMechanicsJobResult(start.job_id);
+    expect(hasNativeMechanicsInvocation(first, model, MODE)).toBe(true);
+    expect(numericalResultStanding(first, model).eligible).toBe(true);
+    // The same bytes handed over again for the job: its capture was claimed by the first take.
+    seam.invoke.mockImplementation(async (command: string) => {
+      expect(command).toBe("take_preview_mechanics_job_result");
+      return resultArrayBuffer(bytes);
+    });
+    const duplicate = await takePreviewMechanicsJobResult(start.job_id);
+    expect(hasNativeMechanicsInvocation(duplicate, model, MODE)).toBe(false);
+    expect(retainedSourceRecoveryInvocation(duplicate, model)).toBeNull();
   });
 });
 
@@ -320,14 +326,11 @@ describe("source registration follows final native capture", () => {
   });
 
   it.each(SOURCE_ROUTES)("%s remains unqualified during the final hash and after a late job identity refusal", async route => {
-    const { model, bytes } = scenario("0.3.0", route);
-    const jobId = `invented:source-capture:${route}:late-identity`;
+    const { model, bytes, transport } = scenario("0.3.0", route);
     let polls = 0;
-    seam.invoke.mockImplementation(async (command: string) => {
-      if (command === "start_preview_mechanics_job_with_solver_mode") return { job_id: jobId, backend_cancellation_token: "token", state: "queued", cancellation_scope: "test_only" };
-      if (command === "poll_preview_mechanics_job") return { job_id: ++polls === 1 ? jobId : "invented:wrong-job", state: "completed", cancellation_requested: false,
-        cancellation_status: "not_requested", cancellation_scope: "test_only", result: polls === 1 ? bytes : null, error_message: null };
-      throw new Error(`unexpected capture command ${command}`);
+    seam.invoke.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      const answer = await transport.invoke(command, args, options);
+      return command === "poll_preview_mechanics_job" && ++polls > 1 ? { ...answer, job_id: "invented:wrong-job" } : answer;
     });
     let release!: () => void, entered!: () => void, received!: MechanicsResult;
     const hashing = new Promise<void>(resolve => { entered = resolve; });
@@ -337,15 +340,16 @@ describe("source registration follows final native capture", () => {
     });
     const start = await startPreviewMechanicsJob(model, MODE);
     if (start.mode !== "backend_job") throw new Error("expected the test native job");
-    const pending = pollPreviewMechanicsJob(start.job_id);
+    expect((await pollPreviewMechanicsJob(start.job_id)).state).toBe("completed");
+    const pending = takePreviewMechanicsJobResult(start.job_id);
     await hashing;
     expectNoSourceCustody(received, model);
-    // A second, refused response invalidates the same capture while the first
+    // A second, refused response invalidates the same capture while the taken
     // completion is still awaiting its final hash.
     await expect(pollPreviewMechanicsJob(start.job_id)).rejects.toThrow("SOLVE-JOB-IDENTITY-MISMATCH");
     release();
     const completed = await pending;
-    expect(completed.result).toBe(received);
+    expect(completed).toBe(received);
     expect(receivedResultBytes(received)).toBe(bytes);
     expectNoSourceCustody(received, model);
   });
