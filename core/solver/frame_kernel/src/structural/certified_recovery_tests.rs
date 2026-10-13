@@ -359,7 +359,20 @@ fn arc_recovery_uses_the_intended_matrix_and_equilibrium_sections() {
     u[7] = 0.125;
     u[11] = 0.0625;
     let recovered =
-        certify_arc_recovery(&arc, &span, &CertifiedMemberLoads::default(), &u, &b).unwrap();
+        certify_arc_recovery(&arc, &span, &CertifiedMemberLoads::default(), &u, &b, ArcEndFrame::Chord).unwrap();
+    let tangent = certify_arc_recovery(&arc, &span, &CertifiedMemberLoads::default(), &u, &b, ArcEndFrame::Tangent).unwrap();
+    for (end, section, sign) in [(0,0,-1.0),(1,4,1.0)] {
+        for r in 0..6 {
+            let row=tangent.ends[6*end+r];let cut=tangent.sections[section][r];
+            assert!((row.published-sign*cut.published).abs()<=add_up(row.bound(),cut.bound()),"end {end} component {r}");
+        }
+        for block in 0..2 {
+            let range=6*end+3*block..6*end+3*block+3;
+            let tq=certified_magnitude(&tangent.ends[range.clone()]).unwrap();
+            let cq=certified_magnitude(&recovered.ends[range]).unwrap();
+            assert!((tq.published-cq.published).abs()<=add_up(tq.bound(),cq.bound()));
+        }
+    }
     let mut a = WideArith::new(128).unwrap();
     let k = curved_matrix(&mut a, &arc).unwrap();
     let (axes, _) = chord_axes(
@@ -435,6 +448,66 @@ fn arc_recovery_uses_the_intended_matrix_and_equilibrium_sections() {
         let q = certified_group(&station[..3]).unwrap();
         assert!((q.q - tipnorm).abs() <= q.bound + 8.0 * f64::EPSILON * tipnorm);
     }
+}
+
+#[test]
+fn u4a_actual_end_axis_balls_enclose_all_inexact_frozen_axes() {
+    // The frozen45digit decimals are split independently into four binary64
+    // pieces. Their residual is below1e-60; sum_ball includes its own p128
+    // projection radius. Checking the actual end operator's axes kills M7.
+    const PINS:&str=include_str!("u4a_axis_pins.txt");
+    let lines=PINS.lines().filter(|line| !line.starts_with('#')).collect::<Vec<_>>();
+    let hex=|word:&str|f64::from_bits(u64::from_str_radix(word,16).unwrap());
+    let mut count=0;
+    for chunk in lines.chunks_exact(20) {
+        assert!(chunk[0].starts_with("case "));
+        let args=chunk[1].strip_prefix("args ").unwrap().split_whitespace().map(hex).collect::<Vec<_>>();
+        let arc=CurvedFormation {node_i:0,node_j:1,coordinates_i:args[..3].try_into().unwrap(),coordinates_j:args[3..6].try_into().unwrap(),radius:args[6],y_reference:args[7..10].try_into().unwrap(),elastic_modulus:8.0,shear_modulus:4.0,area:2.0,second_moment:3.0,torsion_constant:6.0,in_plane_flexibility_factor:1.0,out_of_plane_flexibility_factor:1.0};
+        let mut b=Balls::new().unwrap();let axes=arc_end_axes(&mut b,&arc).unwrap();let mut separated=false;
+        // Independent512bit circle construction from exact authored binary64
+        // operands, with no Ball or arc_end_axes coefficient in the reference.
+        let direct=u4a_direct_circle_axes_512(&args);
+        for (i,line) in chunk[2..].iter().enumerate() {
+            let mut exact=ExactAccumulator::new();
+            let pieces=line.strip_prefix("axis ").unwrap().split_whitespace().map(hex).collect::<Vec<_>>();
+            for &piece in &pieces[..4] {exact.add(piece).unwrap();}
+            let expected=sum_ball(&exact,pieces[4]).unwrap();let actual=axes[i/9][(i%9)/3][i%3];
+            let difference=b.sub(actual,expected).unwrap();
+            let distance=abs_up(&difference.m).unwrap();
+            assert!(add_up(distance,expected.r)<=actual.r,"{} axis{i}: distance{distance:e}, reference radius{:e}, actual radius{:e}",chunk[0],expected.r,actual.r);
+            // A radius-zero binary64 coefficient cannot enclose the same
+            //45digit axis, even though product values cannot discriminate it.
+            let rounded=Wide2::from_f64(midpoint_publication(expected.m).unwrap()).unwrap();
+            let mismatch=b.sub(Ball::exact(rounded),expected).unwrap();
+            separated|=abs_up(&mismatch.m).unwrap()>expected.r;
+            use super::super::retained::wide::multi::WideContext;
+            let mut c=WideContext::<8>::new(512).unwrap();
+            let delta=c.sub(&actual.m.widen::<8>(),&direct[i/9][(i%9)/3][i%3]).unwrap();
+            let error=delta.to_binary64().value().unwrap().abs();
+            let upper=if error==0.0 {0.0} else {add_up(error.next_up(),1e-120)};
+            assert!(upper<=actual.r,"{} direct512 axis{i}: error{upper:e} radius{:e}",chunk[0],actual.r);
+        }
+        assert!(separated,"each marked arc discriminates radius-zero binary64 axes");count+=1;
+    }
+    assert_eq!(count,9);
+}
+
+fn u4a_direct_circle_axes_512(args:&[f64]) -> [[[super::super::retained::wide::Wide<8>;3];3];2] {
+    use super::super::retained::wide::{Wide,multi::WideContext};
+    type W=Wide<8>;
+    fn dot(c:&mut WideContext<8>,a:[W;3],b:[W;3])->W {let mut s=W::ZERO;for k in 0..3 {let p=c.mul(&a[k],&b[k]).unwrap();s=c.add(&s,&p).unwrap();}s}
+    fn norm(c:&mut WideContext<8>,a:[W;3])->[W;3] {let sq=dot(c,a,a);let l=c.sqrt(&sq).unwrap();a.map(|x|c.div(&x,&l).unwrap())}
+    fn cross(c:&mut WideContext<8>,a:[W;3],b:[W;3])->[W;3] {std::array::from_fn(|k| {let i=(k+1)%3;let j=(k+2)%3;let p=c.mul(&a[i],&b[j]).unwrap();let q=c.mul(&a[j],&b[i]).unwrap();c.sub(&p,&q).unwrap()})}
+    let mut c=WideContext::<8>::new(512).unwrap();
+    let a=args.iter().map(|&x|Wide2::from_f64(x).unwrap().widen::<8>()).collect::<Vec<_>>();
+    let xi:[W;3]=a[..3].try_into().unwrap();let xj:[W;3]=a[3..6].try_into().unwrap();let yr:[W;3]=a[7..10].try_into().unwrap();
+    let d=std::array::from_fn(|k|c.sub(&xj[k],&xi[k]).unwrap());let l2=dot(&mut c,d,d);let ex=norm(&mut c,d);let proj=dot(&mut c,yr,ex);
+    let bow=std::array::from_fn(|k| {let p=c.mul(&proj,&ex[k]).unwrap();c.sub(&yr[k],&p).unwrap()});let bow=norm(&mut c,bow);
+    let r2=c.mul(&a[6],&a[6]).unwrap();let quarter=l2.mul_pow2(-2).unwrap();let inside=c.sub(&r2,&quarter).unwrap();let offset=c.sqrt(&inside).unwrap();
+    let centre:[W;3]=std::array::from_fn(|k| {let s=c.add(&xi[k],&xj[k]).unwrap().mul_pow2(-1).unwrap();let p=c.mul(&offset,&bow[k]).unwrap();c.sub(&s,&p).unwrap()});
+    let radial:[ [W;3];2]=[xi,xj].map(|end|std::array::from_fn(|k| {let v=c.sub(&end[k],&centre[k]).unwrap();c.div(&v,&a[6]).unwrap()}));
+    let normal=cross(&mut c,radial[0],radial[1]);let normal=norm(&mut c,normal);
+    radial.map(|r|[cross(&mut c,normal,r),r.map(|x|x.neg()),normal])
 }
 #[test]
 fn pressure_wall_has_its_own_single_rounding_and_bound() {
@@ -753,7 +826,7 @@ mod independent_loaded_arc {
         let mut bound = bound(12);
         bound.w[8] = 2.0_f64.powi(-37);
         bound.w2[8] = 2.0_f64.powi(-62);
-        let result = certify_arc_recovery(&arc, &span, &loads, &u, &bound).unwrap();
+        let result = certify_arc_recovery(&arc, &span, &loads, &u, &bound, ArcEndFrame::Chord).unwrap();
         let mut wide = WideArith::new(128).unwrap();
         let matrix = curved_matrix(&mut wide, &arc).unwrap();
         let (axes, _) = chord_axes(

@@ -581,7 +581,7 @@ fn p7_source_pin_ties_the_call_site_to_the_tested_predicate() {
     let lib = product_text(include_str!("../lib.rs"));
     let guard = product_text(include_str!("../formation_guard.rs"));
     let solve = body(&lib, "solve_load_case_observed");
-    assert!(solve.contains("certified_publication::member(pipe, macro_bend, &force, &displacements, bound)"));
+    assert!(solve.contains("certified_publication::member(pipe, macro_bend, &force, &displacements, bound, arc_end_frame)"));
     let site = &solve[solve.find("let scales = formation_guard::member_scales(&recovery_records, &formation_bodies);").expect("the decision site")..];
     for call in [
         "if let Some(finding) = formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id)",

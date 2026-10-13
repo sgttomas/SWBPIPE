@@ -7,7 +7,7 @@ use super::arc_certificate::{
     abs_up, add_up, arc_geometry, div_up, finite, mul_up, ArcCertificateFailure, Ball, Balls,
 };
 use super::formation_check::{
-    chord_axes, connector_matrix, curved_matrix, frame_matrix, load_reformation, CurvedFormation,
+    ball_chord_axes, chord_axes, connector_matrix, curved_matrix, frame_matrix, load_reformation, CurvedFormation,
     FormationSource, LoadFormula, LoadPrimitive, MemberBoundInputs,
 };
 use super::retained::wide::multi::Binary64Outcome;
@@ -551,6 +551,62 @@ pub struct CertifiedMemberRecovery {
     pub sections: [[CertifiedRow; 6]; 5],
 }
 pub const CERTIFIED_SECTION_FRACTIONS: [f64; 5] = [0.0, 0.25, 0.5, 0.75, 1.0];
+/// Transitional staging: preview keeps its reviewed chord convention until
+/// B7a changes the values and their semantic statement together.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ArcEndFrame { Chord, Tangent }
+
+/// End axes formed at p from exact binary64 authored operands. These are the
+/// same half-angle operands used by PressureDirection::Tangent; no rounded
+/// binary64 tangent is lifted as an exact coefficient.
+fn arc_end_axes(b: &mut Balls, arc: &CurvedFormation) -> Result<[[[Ball; 3]; 3]; 2], RecoveryFailure> {
+    let (axes, l) = ball_chord_axes(b, arc.coordinates_i, arc.coordinates_j, arc.y_reference)?;
+    let r = b.lift(arc.radius)?;
+    let diameter = b.pow2(r, 1)?;
+    let s = b.div(l, diameter, "arc end tangent")?;
+    let ss = b.mul(s, s)?;
+    let c2 = b.sub(Ball::ONE, ss)?;
+    let c = b.sqrt(c2, "arc end tangent")?;
+    let mut out = [[[Ball::ZERO; 3]; 3]; 2];
+    for end in 0..2 {
+        for k in 0..3 {
+            let cx = b.mul(c, axes[0][k])?;
+            let sy = b.mul(s, axes[1][k])?;
+            let sx = b.mul(s, axes[0][k])?;
+            let cy = b.mul(c, axes[1][k])?;
+            out[end][0][k] = if end == 0 { b.add(cx, sy)? } else { b.sub(cx, sy)? };
+            out[end][1][k] = if end == 0 { b.sub(sx, cy)? } else { b.sub(sx.neg(), cy)? };
+            out[end][2][k] = axes[2][k].neg();
+        }
+    }
+    Ok(out)
+}
+
+fn tangent_end_operator_and_loads(
+    matrix: &[[Wide2; 12]; 12], loads: &CertifiedMemberLoads,
+    axes: &[[[Ball; 3]; 3]; 2],
+) -> Result<(Operator, [Ball; 12], [f64; 12]), RecoveryFailure> {
+    let mut b = Balls::new()?;
+    let mut operator = [[Ball::ZERO; 12]; 12];
+    let mut equivalent = [Ball::ZERO; 12];
+    let mut scale = [0.0; 12];
+    for block in 0..4 {
+        for axis in 0..3 {
+            let row = 3 * block + axis;
+            for k in 0..3 {
+                let coefficient = axes[block / 2][axis][k];
+                for col in 0..12 {
+                    let term = b.mul(coefficient, Ball::exact(matrix[3 * block + k][col]))?;
+                    operator[row][col] = b.add(operator[row][col], term)?;
+                }
+                let term = b.mul(coefficient, loads.equivalent[3 * block + k])?;
+                equivalent[row] = b.add(equivalent[row], term)?;
+                scale[row] = add_up(scale[row], mul_up(ball_magnitude(coefficient)?, loads.equivalent_scale[3 * block + k]));
+            }
+        }
+    }
+    Ok((operator, equivalent, scale))
+}
 type Operator = [[Ball; 12]; 12];
 fn local_operator(
     matrix: &[[Wide2; 12]; 12],
@@ -984,6 +1040,7 @@ pub fn certify_arc_recovery(
     loads: &CertifiedMemberLoads,
     u: &[f64],
     bound: &MemberBoundInputs,
+    end_frame: ArcEndFrame,
 ) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
     let mut a = WideArith::new(128)?;
     let matrix = curved_matrix(&mut a, arc)?;
@@ -993,8 +1050,18 @@ pub fn certify_arc_recovery(
         span.node_j.coordinates,
         span.y_reference,
     )?;
-    let operator = local_operator(&matrix, &chord_axes)?;
-    let (equivalent, es) = local_loads(loads, &chord_axes)?;
+    let (operator, equivalent, es) = match end_frame {
+        ArcEndFrame::Chord => {
+            let operator = local_operator(&matrix, &chord_axes)?;
+            let (equivalent, es) = local_loads(loads, &chord_axes)?;
+            (operator, equivalent, es)
+        }
+        ArcEndFrame::Tangent => {
+            let mut b = Balls::new()?;
+            let axes = arc_end_axes(&mut b, arc)?;
+            tangent_end_operator_and_loads(&matrix, loads, &axes)?
+        }
+    };
     let map = element_dof_map(arc.node_i, arc.node_j);
     let ends = evaluate_ends(&operator, &map, &equivalent, &es, u, bound)?;
     let mut b = Balls::new()?;
