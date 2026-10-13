@@ -1914,15 +1914,7 @@ fn n6_product_residual_rows_use_the_exact_numerator() {
             &values,
         )
         .unwrap();
-        let observation = legacy_observation_force(
-            &force,
-            &sparse,
-            &boundary.restrained_dofs,
-            &prescribed,
-            true,
-        );
         for mode in MODES {
-            let mut preliminary = Vec::new();
             let solve = solve_preview_reduced_system(
                 mode,
                 &sparse,
@@ -1930,10 +1922,7 @@ fn n6_product_residual_rows_use_the_exact_numerator() {
                 &built,
                 &boundary.springs,
                 &force,
-                &observation,
                 &prescribed,
-                &model.load_cases[0],
-                &mut preliminary,
             )
             .unwrap();
             let mut u = vec![0.0; force.len()];

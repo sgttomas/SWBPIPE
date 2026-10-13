@@ -78,9 +78,6 @@ pub(super) struct SolverObservations {
     pub case: String,
     pub mode: PreviewSolverMode,
     pub mode_row: ObservationValue,
-    /// Independent producing-prefix fact, never inferred from the owned snapshot.
-    pub parity_produced: bool,
-    pub parity: Option<ObservationValue>,
 }
 /// B3b-P (B3-D P-1): the invocation's W1 route, decided once (`lib.rs` `w1_route`, in
 /// `permitted_run` and the private driver) from the admitted model's namespace branch: the
@@ -145,8 +142,8 @@ pub(super) struct ProductCapture {
     pub invocation_digest: Option<String>,
     pub observation_calls: usize,
     pub observations: Option<SolverObservations>,
-    /// Successfully allocated case/mode-basis/parity-basis capacities, even on later failure.
-    pub observation_capacity_bytes: [usize; 3],
+    /// Successfully allocated case/mode-basis capacities, even on later failure.
+    pub observation_capacity_bytes: [usize; 2],
     #[cfg(test)]
     pub observation_storage_failure: Option<usize>,
     pub normalized_calls: usize,
@@ -1162,11 +1159,10 @@ impl ProductCapture {
         row: &ResultItem,
         case: &str,
         mode: PreviewSolverMode,
-        parity: bool,
         final_row: bool,
         captured: Option<&ObservationValue>,
     ) -> Result<(), CaptureError> {
-        self.observation_fields_of(row, case, mode, parity, final_row, false, captured)
+        self.observation_fields_of(row, case, mode, final_row, false, captured)
     }
     /// `observation_fields`, where `qualified` marks the final row of a requested case after the
     /// first (B1 SP): the envelope qualifies its id with its case (`qualified_load_case_result_id`).
@@ -1176,22 +1172,16 @@ impl ProductCapture {
         row: &ResultItem,
         case: &str,
         mode: PreviewSolverMode,
-        parity: bool,
         final_row: bool,
         qualified: bool,
         captured: Option<&ObservationValue>,
     ) -> Result<(), CaptureError> {
         self.capture_entry(AdapterEvent::ValidationEntry)?;
         let m = row.metadata.as_ref().ok_or("observation metadata")?;
-        let (id, kind, unit, entity, component, location, sign) = if parity {
-            ("result:sparse-live:dense-parity-relative-delta", "sparse_live_path_dense_parity_relative_delta",
-             "unitless", "solver:sparse_direct", "sparse_live_path", "load_case",
-             "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted")
-        } else {
+        let (id, kind, unit, entity, component, location, sign) =
             ("result:solver-mode:linear-solve-basis", "linear_solver_mode_basis", "mode_code",
              "solver:linear_static_preview", "linear_solver_mode", case,
-             "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure")
-        };
+             "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure");
         let qualified_id = if qualified {
             // The envelope's existing case qualification of a row id (lib.rs).
             self.capture_entry(AdapterEvent::LibraryBoundary)?;
@@ -1213,12 +1203,7 @@ impl ProductCapture {
         let sign_matches = self.adapter.same(&m.sign_convention, sign);
         self.adapter.require()?;
         if !sign_matches {
-            return Err(if parity {
-                "observation parity sign"
-            } else {
-                "ordinary sparse mode sign"
-            }
-            .into());
+            return Err("ordinary sparse mode sign".into());
         }
         if final_row {
             let basis = row.basis_ref.as_ref().ok_or("observation final basis")?;
@@ -1231,19 +1216,12 @@ impl ProductCapture {
         } else if row.basis_ref.is_some() {
             return Err("observation producer basis".into());
         }
-        if parity {
-            if mode != PreviewSolverMode::DenseScrutiny || !row.value.is_finite() || row.value < 0.0
-            {
-                return Err("observation parity mode/value".into());
-            }
-        } else {
-            let expected = match mode {
-                PreviewSolverMode::SparseInteractive => 1.0f64,
-                PreviewSolverMode::DenseScrutiny => 2.0f64,
-            };
-            if row.value.to_bits() != expected.to_bits() {
-                return Err("observation mode value/fallback".into());
-            }
+        let expected = match mode {
+            PreviewSolverMode::SparseInteractive => 1.0f64,
+            PreviewSolverMode::DenseScrutiny => 2.0f64,
+        };
+        if row.value.to_bits() != expected.to_bits() {
+            return Err("observation mode value/fallback".into());
         }
         if let Some(captured) = captured {
             let same = self.adapter.same(&m.basis, &captured.basis);
@@ -1288,13 +1266,9 @@ impl ProductCapture {
                 return Err("observation invocation/case/mode".into());
             }
             let mut mode_row = None;
-            let mut parity_row = None;
             for row in produced_rows {
                 self.capture_entry(AdapterEvent::SourceVisit)?;
                 let is_mode = self.adapter.same(&row.kind, "linear_solver_mode_basis");
-                let is_parity = self
-                    .adapter
-                    .same(&row.kind, "sparse_live_path_dense_parity_relative_delta");
                 self.adapter.require()?;
                 if is_mode {
                     if mode_row.is_some() {
@@ -1303,39 +1277,19 @@ impl ProductCapture {
                     self.capture_entry(AdapterEvent::MapWrite)?;
                     mode_row = Some(row);
                 }
-                if is_parity {
-                    if parity_row.is_some() {
-                        return Err("duplicate produced parity".into());
-                    }
-                    self.capture_entry(AdapterEvent::MapWrite)?;
-                    parity_row = Some(row);
-                }
             }
             let mode_row = mode_row.ok_or("missing produced mode")?;
-            self.observation_fields(mode_row, &case.id, mode, false, false, None)?;
-            if let Some(row) = parity_row {
-                self.observation_fields(row, &case.id, mode, true, false, None)?;
-            }
-            let parity_produced = parity_row.is_some();
+            self.observation_fields(mode_row, &case.id, mode, false, None)?;
             let captured_case = self.observation_copy(&case.id, 0)?;
             let captured_mode = ObservationValue {
                 value_bits: mode_row.value.to_bits(),
                 basis: self.observation_copy(&mode_row.metadata.as_ref().unwrap().basis, 1)?,
-            };
-            let parity = match parity_row {
-                Some(row) => Some(ObservationValue {
-                    value_bits: row.value.to_bits(),
-                    basis: self.observation_copy(&row.metadata.as_ref().unwrap().basis, 2)?,
-                }),
-                None => None,
             };
             self.capture_entry(AdapterEvent::MapWrite)?;
             self.observations = Some(SolverObservations {
                 case: captured_case,
                 mode,
                 mode_row: captured_mode,
-                parity_produced,
-                parity,
             });
             Ok(())
         })();
@@ -1368,18 +1322,13 @@ impl ProductCapture {
             || self.observation_calls != 1
             || self.invocation_mode != Some(captured.mode)
             || !same
-            || captured.parity_produced != captured.parity.is_some()
         {
             return Err("observation completion/presence custody".into());
         }
         let mut mode_count = 0usize;
-        let mut parity_count = 0usize;
         for row in rows {
             self.capture_entry(AdapterEvent::RowVisit)?;
             let is_mode = self.adapter.same(&row.kind, "linear_solver_mode_basis");
-            let is_parity = self
-                .adapter
-                .same(&row.kind, "sparse_live_path_dense_parity_relative_delta");
             self.adapter.require()?;
             if is_mode {
                 mode_count = mode_count
@@ -1389,29 +1338,13 @@ impl ProductCapture {
                     row,
                     &captured.case,
                     captured.mode,
-                    false,
                     true,
                     qualified,
                     Some(&captured.mode_row),
                 )?;
             }
-            if is_parity {
-                parity_count = parity_count
-                    .checked_add(1)
-                    .ok_or(CaptureError::CountRange("final parity"))?;
-                let snapshot = captured.parity.as_ref().ok_or("unexpected final parity")?;
-                self.observation_fields_of(
-                    row,
-                    &captured.case,
-                    captured.mode,
-                    true,
-                    true,
-                    qualified,
-                    Some(snapshot),
-                )?;
-            }
         }
-        if mode_count != 1 || parity_count != usize::from(captured.parity_produced) {
+        if mode_count != 1 {
             return Err("observation final presence".into());
         }
         Ok(())
@@ -1426,10 +1359,9 @@ impl ProductCapture {
     }
     /// B1 SP (DESIGN_v2 T-6; decision 19): every requested case's observations bound to the
     /// envelope in one pass over its rows, not one pass per case. Each case keeps
-    /// `bind_observations`' checks: its completion and custody; exactly one final mode row
-    /// and the parity rows its producing prefix made; each equal to its captured value and
-    /// text. A mode or parity row is bound to the case whose captured id its basis names; a
-    /// row that names no requested case is refused.
+    /// `bind_observations`' checks: its completion and custody; exactly one final mode row,
+    /// equal to its captured value and text. A mode row is bound to the case whose captured
+    /// id its basis names; a row that names no requested case is refused.
     pub(super) fn bind_observations_by_case(&self, envelope: &MechanicsEnvelope) -> Result<(), CaptureError> {
         self.adapter.require()?;
         let cases = self.cases_seen();
@@ -1447,25 +1379,21 @@ impl ProductCapture {
                 || observation_calls != 1
                 || self.invocation_mode != Some(captured.mode)
                 || !same
-                || captured.parity_produced != captured.parity.is_some()
             {
                 return Err("observation completion/presence custody".into());
             }
         }
-        // Per case: [final mode rows, final parity rows].
-        let mut counts = self.adapter.reserve::<[usize; 2]>(cases)?;
+        // Per case: final mode rows.
+        let mut counts = self.adapter.reserve::<usize>(cases)?;
         for _ in 0..cases {
             self.capture_entry(AdapterEvent::MapWrite)?;
-            counts.push([0, 0]);
+            counts.push(0);
         }
         for row in &envelope.results {
             self.capture_entry(AdapterEvent::RowVisit)?;
             let is_mode = self.adapter.same(&row.kind, "linear_solver_mode_basis");
-            let is_parity = self
-                .adapter
-                .same(&row.kind, "sparse_live_path_dense_parity_relative_delta");
             self.adapter.require()?;
-            if !is_mode && !is_parity {
+            if !is_mode {
                 continue;
             }
             let basis = row.basis_ref.as_ref().ok_or("observation final basis")?;
@@ -1480,20 +1408,13 @@ impl ProductCapture {
                 }
             }
             let (index, captured) = owner.ok_or("observation final case")?;
-            let slot = usize::from(is_parity);
-            counts[index][slot] = counts[index][slot]
+            counts[index] = counts[index]
                 .checked_add(1)
                 .ok_or(CaptureError::CountRange("final observations"))?;
-            let snapshot = if is_parity {
-                captured.parity.as_ref().ok_or("unexpected final parity")?
-            } else {
-                &captured.mode_row
-            };
-            self.observation_fields_of(row, &captured.case, captured.mode, is_parity, true, index > 0, Some(snapshot))?;
+            self.observation_fields_of(row, &captured.case, captured.mode, true, index > 0, Some(&captured.mode_row))?;
         }
-        for index in 0..cases {
-            let captured = self.case_observation_state(index).1.ok_or("missing observation completion")?;
-            if counts[index] != [1, usize::from(captured.parity_produced)] {
+        for count in counts.iter() {
+            if *count != 1 {
                 return Err("observation final presence".into());
             }
         }
@@ -2423,7 +2344,7 @@ impl ProductCapture {
     }
     /// The rows of `view` bound to `owner`'s quantities: the case's (`combination` None) or,
     /// B2-P, a mechanics combination's own block (`Some(its id)`: basis `combination` naming it,
-    /// combination metadata and ids, no mode, parity or record row; B2-C §2.4 (iii) 4).
+    /// combination metadata and ids, no mode or record row; B2-C §2.4 (iii) 4).
     fn bind_rows_subject<'a>(&self,view:ProductCaseView<'a>,owner:&k::RetainedSolve,combination:Option<&str>)
         -> Result<Vec<k::ProductFinalRow<'a>>,CaptureError> {
         self.adapter.require()?;
@@ -2459,7 +2380,7 @@ impl ProductCapture {
             if !same_case {
                 return Err("case binding".into());
             }
-            if combination.is_some() && matches!(r.kind.as_str(),"linear_solver_mode_basis"|"sparse_live_path_dense_parity_relative_delta"|"modulus_basis_record"|REQUESTED_MODE_KIND) {
+            if combination.is_some() && matches!(r.kind.as_str(),"linear_solver_mode_basis"|"modulus_basis_record"|REQUESTED_MODE_KIND) {
                 return Err("combination record row".into());
             }
             let node = self
@@ -2481,8 +2402,6 @@ impl ProductCapture {
                     return Err("mode unit".into());
                 }
                 (k::ProductRecipe::NonQuantity, 0, k::ProductUnit::Record)
-            } else if r.kind == "sparse_live_path_dense_parity_relative_delta" {
-                (k::ProductRecipe::DenseParityObservation, 0, k::ProductUnit::Record)
             } else if r.kind == "modulus_basis_record" {
                 if modulus_basis || !self.basis_expected {
                     return Err("modulus record coverage".into());
@@ -3130,12 +3049,6 @@ fn validate_final_metadata(
                 return Err("ordinary sparse mode sign".into());
             }
             "result:solver-mode:linear-solve-basis".to_string()
-        }
-        k::ProductRecipe::DenseParityObservation => {
-            let m=m.ok_or("parity metadata")?;
-            meta("sparse_live_path","reduced_system","load_case",&m.basis,
-                "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted")?;
-            "result:sparse-live:dense-parity-relative-delta".to_string()
         }
         k::ProductRecipe::Native(k::QuantityId::DisplacementMagnitude(_)) => {
             if m.is_some() {
@@ -4304,7 +4217,6 @@ impl ProductCapture {
             let (_,observations,id,case_calls,observation_calls)=self.case_observation_state(index);
             let seed=only_one(self.ordinary.iter().filter(|seed|seed.case==id));
             let produced=observations.is_some_and(|observed|observed.case==id
-                && observed.parity_produced==observed.parity.is_some()
                 && self.invocation_calls==1 && self.invocation_mode==Some(observed.mode)
                 && case_calls==1 && observation_calls==1)
                 && seed.is_some_and(|seed|seed.initial.is_some());
@@ -4453,7 +4365,7 @@ impl ProductCapture {
     }
     /// B4/D1 ruling (4): a failed ordinary case's rows carry exactly one requested-mode basis,
     /// bound to the captured invocation mode, the case and its retained owner (case index 0:
-    /// one requested case), and no ordinary mode or parity observation.
+    /// one requested case), and no ordinary mode observation.
     fn bind_requested_mode(&self,rows:&[ResultItem],qualified:bool)->Result<(),CaptureError> {
         self.adapter.require()?;
         if self.error.is_some() {
@@ -4469,8 +4381,7 @@ impl ProductCapture {
         let mut found=0usize;
         for row in rows {
             self.capture_entry(AdapterEvent::RowVisit)?;
-            let observed=self.adapter.same(&row.kind,"linear_solver_mode_basis")
-                || self.adapter.same(&row.kind,"sparse_live_path_dense_parity_relative_delta");
+            let observed=self.adapter.same(&row.kind,"linear_solver_mode_basis");
             let requested=self.adapter.same(&row.kind,REQUESTED_MODE_KIND);
             self.adapter.require()?;
             if observed {
@@ -4580,18 +4491,11 @@ impl ProductCapture {
         let observed=self.observations.as_ref().ok_or("missing successful solver observations")?;
         if self.invocation_calls!=1 || self.normalized_calls!=1 || self.observation_calls!=1
             || self.invocation_mode!=Some(observed.mode) || self.case_calls!=1
-            || observed.parity_produced!=observed.parity.is_some()
-            || (observed.mode==PreviewSolverMode::SparseInteractive && observed.parity_produced)
             || observed.mode_row.value_bits!=observed.mode.mode_code().to_bits() {
             return Err("prepared observation ownership/presence".into());
         }
         if !self.checked_same(&observed.case,case)? || !self.checked_same(&self.case_id,case)? {
             return Err("prepared observation case".into());
-        }
-        if let Some(parity)=&observed.parity {
-            self.capture_entry(AdapterEvent::ValidationEntry)?;
-            let v=f64::from_bits(parity.value_bits);
-            if !v.is_finite() || v<0.0 {return Err("prepared observation parity value".into());}
         }
         Ok(())
     }
@@ -5507,7 +5411,7 @@ impl PreparedCandidateRefusal {
 impl ProductCapture {
     fn bind_observations_view(&self,view:ProductCaseView<'_>)->Result<(),CaptureError> {
         // B4/D1: a genuinely failed ordinary case has no observation to bind; its requested-mode
-        // basis binds the captured mode instead (never an ordinary mode or parity row).
+        // basis binds the captured mode instead (never an ordinary mode row).
         if self.terminal==OrdinaryTerminal::FailedAttempt {
             self.bind_requested_mode(view.case_rows(),view.scope.qualified)?;
         } else {
@@ -5515,7 +5419,7 @@ impl ProductCapture {
         }
         for r in view.rows() {
             self.capture_entry(AdapterEvent::RowVisit)?;
-            if matches!(r.kind.as_str(),"linear_solver_mode_basis"|"sparse_live_path_dense_parity_relative_delta"|"modulus_basis_record"|REQUESTED_MODE_KIND)
+            if matches!(r.kind.as_str(),"linear_solver_mode_basis"|"modulus_basis_record"|REQUESTED_MODE_KIND)
                 && r.value.to_bits()!=r.original.value.to_bits() {return Err("overlay ancillary bits".into());}
         }
         Ok(())
@@ -5534,7 +5438,6 @@ impl ProductCapture {
             let spec=match r.recipe {
                 k::ProductRecipe::NonQuantity=>k::ProductRowSpec::mode(r.id,r.case_id,r.body,
                     if r.value.to_bits()==1f64.to_bits(){1}else if r.value.to_bits()==2f64.to_bits(){2}else{0}),
-                k::ProductRecipe::DenseParityObservation=>k::ProductRowSpec::parity(r.id,r.case_id,r.body,r.value.to_bits()),
                 k::ProductRecipe::ModulusBasisRecord=>Ok(k::ProductRowSpec::material_record(r.id,r.case_id,r.body)),
                 _=>k::ProductRowSpec::mechanical(r.id,r.case_id,r.unit,r.body,r.recipe),
             }.map_err(CaptureError::PreparedProof)?;

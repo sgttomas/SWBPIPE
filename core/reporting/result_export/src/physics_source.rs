@@ -1,6 +1,7 @@
 //! Explicit composite validation of untouched physical and retained-source records.
 //! Hash/recipe consistency is not custody; numerical use needs captured invocation.
 use crate::source_blocks::{domain_hash, shape_in, shape_in_resources};
+use open_pipe_stress_correct_norm::norm3;
 use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
 use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
@@ -315,23 +316,14 @@ fn absolute([lo, hi]: [f64; 2]) -> [f64; 2] {
         [0.0, (-lo).max(hi)]
     }
 }
+/// E15: the receipt's declared norm is one correctly rounded `norm3` (a
+/// two-component bending norm is `norm3(y, z, 0)`, the same as `norm2`).
 fn norm(values: &[f64]) -> Result<f64, String> {
-    let scale = values.iter().map(|v| v.abs()).fold(0.0_f64, f64::max);
-    if scale == 0.0 {
-        return Ok(0.0);
+    match *values {
+        [y, z] => finite(norm3(y, z, 0.0)),
+        [x, y, z] => finite(norm3(x, y, z)),
+        _ => Err("PHYSICS_SOURCE_NORM_ARITY".into()),
     }
-    let squares = values
-        .iter()
-        .map(|v| {
-            let r = v / scale;
-            r * r
-        })
-        .collect::<Vec<_>>();
-    let mut total = squares[0] + squares[1];
-    if squares.len() == 3 {
-        total += squares[2];
-    }
-    finite(scale * total.sqrt())
 }
 fn norm_bound(values: [f64; 3], upper: bool) -> Result<f64, String> {
     let scale = values.into_iter().fold(0.0_f64, f64::max);
@@ -1300,6 +1292,20 @@ mod review_repair_tests {
         case["section_stress_checks"][index]["parameters"]["torsion_constant_m4"] = json!(1e-160);
         row["value"] = json!(action * 1e-40 / 1e-160 / 1e6);
         (source, case, row)
+    }
+    /// E15: the composite support and endpoint norms are the correctly rounded
+    /// value; the former max-scaled recipe's last bit is no longer reproduced.
+    #[test]
+    fn e15_composite_norms_are_correctly_rounded() {
+        assert_eq!(norm(&[3.0, 4.0, 0.0]).unwrap().to_bits(), 5.0_f64.to_bits());
+        assert_eq!(
+            norm(&[-1.327, -8.603, -8.186]).unwrap().to_bits(),
+            0x4027_e5fc_308f_80ed
+        );
+        assert_eq!(norm(&[7.944, 6.99]).unwrap().to_bits(), 0x4025_29b4_c153_125e);
+        assert_eq!(norm(&[0.0, -0.0]).unwrap().to_bits(), 0);
+        assert!(norm(&[f64::MAX, f64::MAX]).is_err());
+        assert!(norm(&[1.0]).is_err());
     }
     #[test]
     fn torsion_rejects_subnormal_intermediate_while_preserving_zero_and_normal() {

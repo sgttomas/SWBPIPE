@@ -1,74 +1,5 @@
 use super::*;
 #[test]
-fn dense_parity_coverage_is_typed_nonnegative_and_keeps_zero_bits() {
-    for value in [0.0, -0.0, 1e-9] {
-        let row = ProductFinalRow {
-            id: "parity",
-            case_id: "case",
-            value: &value,
-            unit: ProductUnit::Record,
-            body: 0,
-            recipe: ProductRecipe::DenseParityObservation,
-        };
-        let rows = [];
-        let mut spent = ProductCertificateSpent::new(&rows);
-        let mut seen = false;
-        mark_dense_parity(&mut spent, &row, &mut seen).unwrap();
-        assert!(seen);
-        assert_eq!(
-            mark_dense_parity(&mut spent, &row, &mut seen)
-                .unwrap_err()
-                .category(),
-            "association"
-        );
-    }
-    for (value, unit, body) in [
-        (-1.0, ProductUnit::Record, 0),
-        (f64::INFINITY, ProductUnit::Record, 0),
-        (0.0, ProductUnit::Newton, 0),
-        (0.0, ProductUnit::Record, 1),
-    ] {
-        let row = ProductFinalRow {
-            id: "parity",
-            case_id: "case",
-            value: &value,
-            unit,
-            body,
-            recipe: ProductRecipe::DenseParityObservation,
-        };
-        let rows = [];
-        let mut spent = ProductCertificateSpent::new(&rows);
-        let mut seen = false;
-        assert_eq!(
-            mark_dense_parity(&mut spent, &row, &mut seen)
-                .unwrap_err()
-                .category(),
-            "association"
-        );
-        assert!(!seen);
-    }
-    let value = 0.0;
-    let row = ProductFinalRow {
-        id: "parity",
-        case_id: "case",
-        value: &value,
-        unit: ProductUnit::Record,
-        body: 0,
-        recipe: ProductRecipe::DenseParityObservation,
-    };
-    let rows = [];
-    let mut spent = ProductCertificateSpent::new(&rows);
-    spent.visits = WorkTotal::exact_count(u64::MAX);
-    let mut seen = false;
-    assert_eq!(
-        mark_dense_parity(&mut spent, &row, &mut seen)
-            .unwrap_err()
-            .category(),
-        "work_accounting"
-    );
-    assert!(!seen);
-}
-#[test]
 fn support_empty_law_uses_unchanged_mechanical_gate_and_work() {
     let value = -0.0;
     let rows = [ProductFinalRow {
@@ -325,11 +256,9 @@ fn i51_prepared_reserve_and_value_prefixes_are_checked() {
     let mut visits=WorkTotal::exact_count(u64::MAX);
     assert_eq!(values_visit(&mut visits).unwrap_err().category(),"work_accounting");
     assert_eq!(values_visit(&mut visits).unwrap_err().category(),"work_accounting");
-    let specs=[ProductRowSpec::mode("mode","case",0,1).unwrap(),ProductRowSpec::parity("parity","case",0,(-0.0f64).to_bits()).unwrap()];
+    let specs=[ProductRowSpec::mode("mode","case",0,1).unwrap()];
     assert_eq!(specs[0].observed,Some(1f64.to_bits()));
-    assert_eq!(specs[1].observed,Some((-0.0f64).to_bits()));
     assert!(ProductRowSpec::mechanical("mode","case",ProductUnit::Record,0,ProductRecipe::NonQuantity).is_err());
-    assert!(ProductRowSpec::parity("parity","case",0,f64::NAN.to_bits()).is_err());
 }
 
 fn i51_support_specs(order:&[usize])->Vec<ProductRowSpec<'static>> {
@@ -1420,11 +1349,10 @@ fn b2k_c05_the_combination_coverage_rule() {
     assert_eq!(begin(&rows), None);
     assert_eq!(begin(&b3k_rows(owner, true, false)), Some("combination row family"), "a maximum");
     assert_eq!(begin(&b3k_rows(owner, false, true)), Some("combination row family"), "a mode record");
-    for recipe in [ProductRecipe::DenseParityObservation, ProductRecipe::ModulusBasisRecord] {
+    for recipe in [ProductRecipe::ModulusBasisRecord] {
         let mut extra = rows.clone();
         extra.push(("record".into(), ProductUnit::Record, 0, recipe));
         let specs: Vec<_> = extra.iter().map(|(id, unit, body, r)| match r {
-            ProductRecipe::DenseParityObservation => ProductRowSpec::parity(id, "C1", *body, 0).unwrap(),
             ProductRecipe::ModulusBasisRecord => ProductRowSpec::material_record(id, "C1", *body),
             _ => ProductRowSpec::mechanical(id, "C1", *unit, *body, *r).unwrap() }).collect();
         let e = s.invocation.begin_prepared_product(run, owner, &facts, &specs).into_ready().err().unwrap();

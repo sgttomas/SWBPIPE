@@ -8,12 +8,12 @@ pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/preview-phy
 pub const PROFILE: &str = "product_preview_retained_w1a_v2";
 pub const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub const DEFINITION_HASH: &str =
-    "7ae382e12b48fed6ede863c6865871bb6bb22b995f3855201cd48c6fdefd19a1";
+    "c4aebcef3ae3863f9576fb3a7e323e77a91687938f6605a83a2fdc958febb15f";
 pub const METHOD: &str = "contribution_preserving_multiprecision_v1";
 /// B2-C §3 and §8 (REVISION_02): DEF-C's id and H(`retained_precision_formation_v1`, DEF-C).
 pub const COMBINATION_DEFINITION_ID: &str = "RP-PREPARED-COMBINATION-DUAL-v1";
 pub const COMBINATION_DEFINITION_HASH: &str =
-    "f17921fd45625b4684f640ea6a9dfe8d032eeb431feef4fe357b045e5d42025d";
+    "34ce87e7ad6da457d81a5cbf25a077fb5d08f2960c5fd815e1163646de02d24a";
 /// B3b (B3-D §6 with REVISION_01): the exact successor `<physics-retained>`,
 /// read on its own route (`EXACT`), whose base is physics-1.
 pub const EXACT_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-retained-1";
@@ -21,7 +21,7 @@ pub const EXACT_PROFILE: &str = "exact_straight_retained_w1a_v2";
 pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 /// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2).
 pub const EXACT_DEFINITION_HASH: &str =
-    "82f54aedab3055376d2703f4ef87e077f5f5bc105a88b1701aa856df29b42cdc";
+    "306af5fd3abf1e358a7f2eb7a5fa7d8b597c5cb25d4f3d30925acd17cc8c2525";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 /// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): the requested-mode
 /// basis row of a case whose ordinary attempt genuinely failed. It replaces
@@ -3432,7 +3432,6 @@ fn row_kind(r: &Value) -> &'static str {
     match k {
         "linear_solver_mode_basis"
         | REQUESTED_MODE_KIND
-        | "sparse_live_path_dense_parity_relative_delta"
         | "modulus_basis_record"
         | "combination_modulus_basis_record" => "non_quantity",
         "pipe_lame_hoop_stress_v2"
@@ -4754,18 +4753,8 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
         }
         // P1: exactly one mode row, valued with the mode code (1 sparse, 2 dense).
         fail(modes.len() == 1 && modes[0]["value"].as_f64() == Some(code))?;
-        let parity = rows
-            .iter()
-            .filter(|r| r["kind"] == "sparse_live_path_dense_parity_relative_delta")
-            .count();
-        // P2: at most one parity row. P3: none in sparse_interactive. P4: none
-        // when W2 published (b != 0; OQ5). A dense b = 0 case may lack it (a
-        // failed observation lane); that deletion is the disclosed limit.
-        fail(
-            parity <= 1
-                && (parity == 0 || mode == "dense_scrutiny")
-                && (parity == 0 || o["w2"]["kind"] != "published"),
-        )?;
+        // E14: the DEC-050/053 parity observation is retired; no table carries its
+        // kind, so a row of it has no signature and is refused before G8.
     }
     fail(list(&b["material_bases"]).len() == expected_selectors.len())?;
     for (mi, mb) in list(&b["material_bases"]).iter().enumerate() {
@@ -5597,10 +5586,7 @@ fn g5_requested_mode(source: &Value) -> VResult {
         let observed = rows
             .iter()
             .filter(|r| {
-                matches!(
-                    text(&r["kind"]),
-                    "linear_solver_mode_basis" | "sparse_live_path_dense_parity_relative_delta"
-                )
+                text(&r["kind"]) == "linear_solver_mode_basis"
             })
             .count();
         let failed = failed_ordinary(o);
@@ -6922,13 +6908,14 @@ mod b4_failed_ordinary_tests {
                 s["results"][at]["id"] = json!("result:solver-mode:linear-solve-basis");
                 s["results"][at]["kind"] = json!("linear_solver_mode_basis");
             }), mm, "{mode}: fabricated observation");
-            // A fabricated parity observation.
-            assert_eq!(mutate(&|s| {
+            // E14: a row of the retired parity kind has no signature and is refused.
+            let parity = mutate(&|s| {
                 let mut row = s["results"][at].clone();
                 row["id"] = json!("result:sparse-live:dense-parity-relative-delta");
                 row["kind"] = json!("sparse_live_path_dense_parity_relative_delta");
                 s["results"].as_array_mut().unwrap().push(row);
-            }), mm, "{mode}: fabricated parity");
+            });
+            assert_ne!(parity.0, "accepted", "{mode}: retired parity kind {parity:?}");
             // A mode code other than the captured mode.
             assert_eq!(mutate(&|s| {
                 let other = if s["results"][at]["value"] == json!(1.0) { 2.0 } else { 1.0 };

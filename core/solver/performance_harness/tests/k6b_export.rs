@@ -97,7 +97,7 @@ fn a_source_built_outside_fk_is_solved_and_read_through_the_public_path() {
         other => panic!("the invented cantilever is not selected: {other:?}"),
     };
     assert!(PRECISIONS.contains(&solve.selected_precision()));
-    assert!(meter.charged() > 0 && !meter.exhausted());
+    assert!(meter.checked_charged().exact().unwrap() > 0 && !meter.exhausted());
 
     // A published row: the tip deflection, against the exact Euler–Bernoulli
     // value P·L³/(3EI) = -1/600 m (a sanity check at 1e-9 relative, not the
@@ -131,8 +131,8 @@ fn a_source_built_outside_fk_is_solved_and_read_through_the_public_path() {
     let storage: StorageCounts = first.storage;
     assert_eq!(storage.limbs_per_entry, 4);
     assert!(storage.pattern_entries > 0 && storage.profile_entries > 0);
-    assert!(first.work.limb_multiply_equivalents() > 0);
-    assert!(first.k4_work.limb_multiply_equivalents() > 0);
+    assert!(first.work.checked_lme().exact().unwrap() > 0);
+    assert!(first.k4_work.checked_lme().exact().unwrap() > 0);
 }
 
 #[test]

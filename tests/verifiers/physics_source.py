@@ -20,6 +20,7 @@ from typing import Any
 from collections.abc import Mapping
 from . import physics_evidence as physical
 from . import source_blocks as blocks
+from .preview_physics_evidence import correctly_rounded_norm
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
@@ -247,13 +248,10 @@ def _norm_bound(values: list[float], upper: bool) -> float:
     return scale if root == 1 else _out(scale * root, upper)
 
 
-def _scaled_norm(values: list[float]) -> float:
-    scale = max(abs(v) for v in values)
-    if scale == 0: return 0.0
-    squares = [(v / scale) * (v / scale) for v in values]
-    total = squares[0] + squares[1]
-    if len(squares) == 3: total += squares[2]
-    return _finite(scale * math.sqrt(total))
+def _norm(values: list[float]) -> float:
+    # E15: one correctly rounded norm (independent exact-integer oracle).
+    _require(len(values) in (2, 3) and all(math.isfinite(v) for v in values), "NORM_ARITY")
+    return _finite(correctly_rounded_norm(values))
 
 
 def _bounds(value: float, lo: float, hi: float) -> tuple[float, float]:
@@ -268,7 +266,7 @@ def _bounds(value: float, lo: float, hi: float) -> tuple[float, float]:
 
 def _endpoint(area: float, z: float, actions: list[dict[str, Any]]) -> tuple[float, list[float]]:
     values = [abs(float(a["value"])) for a in actions]
-    value = _finite(_finite(values[0] / area) + _scaled_norm([_finite(values[1] / z), _finite(values[2] / z)]))
+    value = _finite(_finite(values[0] / area) + _norm([_finite(values[1] / z), _finite(values[2] / z)]))
     intervals = [_abs_interval(a["interval"]) for a in actions]
     bounds = []
     for side, upper in enumerate((False, True)):
@@ -362,7 +360,7 @@ def validate_derived(source: Mapping[str, Any], case: Mapping[str, Any], treatme
         _require(check["functional_ids"][index] == f'source-functional:{len(cid.encode())}:{cid}:{check["functional_indices"][index]}', "NORM_FUNCTIONAL_INDEX")
     intervals = [_abs_interval(p) for p in check["intervals"]]
     lo, hi = [_norm_bound([p[i] for p in intervals], bool(i)) for i in (0, 1)]
-    value = _scaled_norm(check["values"])
+    value = _norm(check["values"])
     absolute, relative = _bounds(value, lo, hi)
     _require(_same(row["value"], value) and _same(check["value"], value) and all(_same(a,b) for a,b in zip(check["interval"], [lo,hi])) and _same(check["absolute_error_bound"],absolute) and _same(check["relative_error_bound"],relative) and check["relative_limit"] == 1e-9, "NORM_RECIPE")
 

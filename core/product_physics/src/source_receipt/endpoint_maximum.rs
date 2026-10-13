@@ -221,7 +221,8 @@ fn endpoint(
     let axial = finite(n / area)?;
     let by = finite(my / z)?;
     let bz = finite(mz / z)?;
-    let value = finite(axial + scaled_norm(by, bz)?)?;
+    // E15: the bending norm is one correctly rounded norm2 (no platform hypot).
+    let value = finite(axial + finite(open_pipe_stress_correct_norm::norm2(by, bz))?)?;
     let [n, my, mz] = actions.map(ProjectionBounds::absolute);
     let mut bounds = [0.0; 2];
     for (side, upper) in [false, true].into_iter().enumerate() {
@@ -290,18 +291,8 @@ fn add(x: f64, y: f64, upper: bool) -> Result<f64, MaximumError> {
     directed(x + y, upper)
 }
 
-fn scaled_norm(y: f64, z: f64) -> Result<f64, MaximumError> {
-    let m = y.max(z);
-    if m == 0.0 {
-        return Ok(0.0);
-    }
-    let a = y / m;
-    let b = z / m;
-    finite(m * ((a * a) + (b * b)).sqrt())
-}
-
 // Norm is monotone in nonnegative components. Bound the exact corner norm with
-// the same fixed max-scaled arithmetic order, rounding every operation outward.
+// a fixed max-scaled arithmetic order, rounding every operation outward.
 // Subnormal ratios/squares are enclosed with next_up, never dropped as exact 0.
 fn norm_bound(y: f64, z: f64, upper: bool) -> Result<f64, MaximumError> {
     if y == 0.0 {

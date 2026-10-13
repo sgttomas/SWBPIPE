@@ -349,7 +349,6 @@ fn u1_receipt_check_wire_vocabulary() {
         (C::WorkCounter(k::WorkFault::Both), "work_counter_inconsistent"),
         (C::WorkCounterRange, "work_counter_range"),
         (C::WorkCounterInconsistent, "work_counter_inconsistent"),
-        (C::SaturationNotExcluded, "saturation_not_excluded"),
         (C::Association, "association"),
         (C::Scope, "association"),
         (C::Untranslated, "encoding"),
@@ -382,7 +381,7 @@ fn u1_constants_bound_to_in_tree_fixtures() {
     let definition: Value = serde_json::from_str(DEFINITION).unwrap();
     let table: Value = serde_json::from_str(TABLE).unwrap();
     assert_eq!(wire::domain_hash("retained_precision_formation_v1", &definition).as_deref(), Some(wire::DEFINITION_SHA256));
-    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::DEFINITION_ID,"sha256":wire::DEFINITION_SHA256},{"id":"RP-PREPARED-COMBINATION-DUAL-v1","sha256":"f17921fd45625b4684f640ea6a9dfe8d032eeb431feef4fe357b045e5d42025d"}]));
+    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::DEFINITION_ID,"sha256":wire::DEFINITION_SHA256},{"id":"RP-PREPARED-COMBINATION-DUAL-v1","sha256":"34ce87e7ad6da457d81a5cbf25a077fb5d08f2960c5fd815e1163646de02d24a"}]));
     assert_eq!(table["semantic_contract_id"], json!(wire::RETAINED_SEMANTIC_ID));
     assert_eq!(table["formulation_profile_id"], json!(wire::RETAINED_PROFILE_ID));
     assert_eq!(table["receipt_policy"], json!(wire::POLICY));

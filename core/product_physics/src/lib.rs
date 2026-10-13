@@ -38,7 +38,8 @@ mod source_budget_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame};
-// I109: magnitudes formerly formed with libm `hypot` are correctly rounded norms; `source_receipt::scaled_norm` and `displacement_magnitude` stay deterministic IEEE, not correctly rounded.
+// I109 and E15: every published Euclidean magnitude is a correctly rounded norm (no libm `hypot`); a
+// displacement magnitude is `norm3` of its published mm components on every route.
 use open_pipe_stress_correct_norm::{norm2, norm3};
 use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
 use open_pipe_stress_frame_kernel::load_ledger::{
@@ -51,9 +52,12 @@ use open_pipe_stress_frame_kernel::structural::{
     RangeTrigger, RecordOutcome, RecordRepresentability, Representability, SolveQuality,
     SparseAssemblyOptions, SparseStiffness, StiffnessBlock, StructuralError, StructuralReport,
 };
+#[cfg(test)]
+use open_pipe_stress_frame_kernel::{
+    reduce_assembled_system, reduce_assembled_system_with_prescribed_displacements, solve_dense,
+};
 use open_pipe_stress_frame_kernel::{
     assemble_global_stiffness_with_connectors, element_dof_map, force_scaled_spring_action,
-    reduce_assembled_system, reduce_assembled_system_with_prescribed_displacements, solve_dense,
     ForceScale, FrameElement, FrameKernelError, FrameNode, Matrix12,
     DOF_PER_NODE, ELEMENT_DOF, RX, RY, RZ, UX, UY, UZ,
 };
@@ -90,7 +94,6 @@ use open_pipe_stress_primitive_loads::{
 use open_pipe_stress_solver_diagnostics::{
     DiagnosticSeverity as SolverDiagnosticSeverity, SolverDiagnostic, SolverDiagnosticCode,
 };
-use open_pipe_stress_sparse_direct::{solve_symmetric_system_from_entries, SymmetricMatrixEntry};
 use open_pipe_stress_straight_pipe::{
     LocalLoadDirection, PipeEnd, PipeEndResultants, SpannedGlobalUniformLoad,
     SpannedUniformLocalLoad, StraightPipeElement, StraightPipeError, StraightPipeSectionProperties,
@@ -892,7 +895,7 @@ impl SourceRecoveryBudget {
     fn reserve_publication(&mut self, amount: usize) -> Result<(), open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport> {
         if amount > self.invocation_limit.saturating_sub(self.charged) {
             self.rejected = self.rejected.saturating_add(amount);
-            return Err(open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport { charged: self.charged, rejected: amount, limit: self.invocation_limit });
+            return Err(open_pipe_stress_frame_kernel::structural::exact_boundary::WorkReport::new(self.charged, amount, self.invocation_limit));
         }
         self.charged += amount;
         self.publication_charged += amount;
@@ -1627,15 +1630,6 @@ fn force_scaling_attempt(
             PreviewSolverMode::DenseScrutiny => "dense_structural_integrity_primary",
             PreviewSolverMode::SparseInteractive => "sparse_structural_integrity_primary",
         },
-        // ROOT OQ5: the DEC-050/053 observation lanes do not run at b != 0.
-        sparse_entry_count: None,
-        original_profile_entry_count: None,
-        ordered_profile_entry_count: None,
-        original_max_half_bandwidth: None,
-        ordered_max_half_bandwidth: None,
-        nonpositive_pivot_count: None,
-        pivot_condition_ratio_estimate: None,
-        sparse_residual: None,
         dense_fallback_message: None,
     };
     Ok((solve, publication))
@@ -3191,12 +3185,12 @@ const RECEIPT_ENCODING_REASON: &str = " Reason: receipt_encoding; detail: ";
 const RECEIPT_ENCODING_DETAIL_MAX: usize = 25;
 
 /// C1:68's receipt-encoding detail for a serializer refusal, from the accepted
-/// `ReceiptCheck::wire()` token: only the details C1:68 names (the three work-counter
-/// tokens, and `publication_hash_range` "similarly"). An association or untranslated
+/// `ReceiptCheck::wire()` token: only the details C1:68 names (the work-counter
+/// tokens, and `publication_hash_range` "similarly"; D6 removed `saturation_not_excluded`). An association or untranslated
 /// refusal is not a receipt-encoding fallback and states no reason.
 fn receipt_encoding_detail(check: retained_wire::ReceiptCheck) -> Option<&'static str> {
     match check.wire() {
-        token @ ("work_counter_range" | "work_counter_inconsistent" | "saturation_not_excluded" | "publication_hash_range") => Some(token),
+        token @ ("work_counter_range" | "work_counter_inconsistent" | "publication_hash_range") => Some(token),
         _ => None,
     }
 }
@@ -3922,106 +3916,6 @@ fn dense_scrutiny_refusal_diagnostic(refusal: &DenseScrutinyRefusal) -> Diagnost
     )
 }
 
-/// F1b (ROOT's ruling on the gate's heap-cap finding, 2026-09-28): the legacy
-/// DEC-050/053 observation lane (`solve_symmetric_system_from_entries`) builds
-/// the reduced system's identity-order profile (`SymmetricProfileMatrix::
-/// from_entries`) only to count it. Its `values` vector of f64 grows by
-/// `resize`, so during its last amortized growth the old and the new capacity
-/// are alive together: at most 3 times the final length, 24 bytes per profile
-/// entry. The RCM-ordered profile, its factor and the lane's O(n) and O(nnz)
-/// vectors are not counted. A stated formula, not a measurement.
-const SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY: u128 = 24;
-
-/// The lane's identity-order profile as `SymmetricProfileMatrix::from_entries`
-/// forms it from the same entries: each row's first stored column is the
-/// smallest column of a nonzero entry in its lower triangle (a zero entry is
-/// skipped, as the lane skips it). Returns (profile entries, maximum
-/// half-bandwidth). O(nnz), with one first-column index per reduced DOF and
-/// no profile storage.
-fn observation_lane_profile(system: &ReducedSparseEntrySystem) -> (u128, usize) {
-    let mut first_columns: Vec<usize> = (0..system.dimension).collect();
-    for entry in &system.entries {
-        if entry.value == 0.0 || entry.row >= system.dimension || entry.col >= system.dimension {
-            continue;
-        }
-        let (hi, lo) = if entry.row >= entry.col {
-            (entry.row, entry.col)
-        } else {
-            (entry.col, entry.row)
-        };
-        if lo < first_columns[hi] {
-            first_columns[hi] = lo;
-        }
-    }
-    let entries = first_columns
-        .iter()
-        .enumerate()
-        .map(|(row, &first)| (row - first + 1) as u128)
-        .sum();
-    let bandwidth = first_columns
-        .iter()
-        .enumerate()
-        .map(|(row, &first)| row - first)
-        .max()
-        .unwrap_or(0);
-    (entries, bandwidth)
-}
-
-/// The observation lane guard's refusal: the estimate's inputs and value.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct ObservationLaneRefusal {
-    profile_entries: u128,
-    max_half_bandwidth: usize,
-    estimated_bytes: u128,
-    ceiling_bytes: u128,
-}
-
-/// F1b (ROOT, 2026-09-28): the lane runs only when its estimated bytes are
-/// within the provisional ceiling, the dense-scrutiny guard's named constant
-/// (`dense_scrutiny_ceiling_bytes`, which a unit test may lower).
-fn observation_lane_guard(
-    system: &ReducedSparseEntrySystem,
-    ceiling_bytes: u128,
-) -> Result<(), ObservationLaneRefusal> {
-    let (profile_entries, max_half_bandwidth) = observation_lane_profile(system);
-    let estimated_bytes =
-        SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY.saturating_mul(profile_entries);
-    if estimated_bytes > ceiling_bytes {
-        Err(ObservationLaneRefusal {
-            profile_entries,
-            max_half_bandwidth,
-            estimated_bytes,
-            ceiling_bytes,
-        })
-    } else {
-        Ok(())
-    }
-}
-
-fn observation_lane_refusal_diagnostic(
-    load_case_id: &str,
-    refusal: &ObservationLaneRefusal,
-) -> Diagnostic {
-    diag(
-        &format!(
-            "diagnostic:sparse-observation:{}:resource-guard",
-            stable_suffix(load_case_id)
-        ),
-        "SPARSE_OBSERVATION_LANE_NOT_RUN",
-        "info",
-        format!(
-            "legacy DEC-050/053 observation lane not run for load case {load_case_id}: its identity-order profile of {} entries (maximum half-bandwidth {}) needs an estimated {} bytes ({} bytes x {} profile entries), above the provisional ceiling {} bytes; the mode row's profile, pivot and residual observation fields are published as not_observed. The estimate is a stated formula, not a measurement; the lane never selects a solution, and the structural solve and its publication are unchanged",
-            refusal.profile_entries,
-            refusal.max_half_bandwidth,
-            refusal.estimated_bytes,
-            SPARSE_OBSERVATION_BYTES_PER_PROFILE_ENTRY,
-            refusal.profile_entries,
-            refusal.ceiling_bytes,
-        ),
-        vec![load_case_id.to_string(), "DEC-053".to_string()],
-    )
-}
-
 /// Assemble one resolved case's global stiffness, with the same element,
 /// curved and spring contributions as the default basis assembly. F1b: the
 /// ordinary route uses `assemble_basis_stiffness`; this dense form remains for
@@ -4388,42 +4282,6 @@ fn finish_case_ledger(
         })
 }
 
-/// Allow-listed observation lane (S11 section 4.3 limit 2): the legacy
-/// DEC050/053 observation rebuilds a reduced system from a global vector; it
-/// must observe K_ff u_f = f_f - K_fc g_c, never f_f. It reads the ledger's
-/// values and folds in binary64 on purpose; it never reaches a solve seam.
-/// F1b: `stiffness.get` is the stored value or +0.0, the dense entry bit for
-/// bit, so the observation is unchanged.
-fn legacy_observation_force(
-    force: &AssembledForce,
-    stiffness: &SparseStiffness,
-    restrained_dofs: &[usize],
-    prescribed: &[(usize, f64)],
-    coupled: bool,
-) -> Vec<f64> {
-    let mut observation = force.values().to_vec();
-    if coupled {
-        for (row, value) in observation.iter_mut().enumerate() {
-            if restrained_dofs.contains(&row) {
-                continue;
-            }
-            for &(column, displacement) in prescribed {
-                *value -= stiffness.get(row, column) * displacement;
-            }
-        }
-    }
-    observation
-}
-
-/// Allow-listed observation lane (S11 section 4.3 limits 1 and 2): the
-/// protected DEC050/053 comparison retains the legacy unscaled LU reference on
-/// the reduced system. It never selects a published solution.
-fn legacy_dense_observation(
-    reduced: &open_pipe_stress_frame_kernel::ReducedAssembledSystem,
-) -> Result<Vec<f64>, FrameKernelError> {
-    solve_dense(&reduced.stiffness, reduced.force.values())
-}
-
 /// E12 (S11 section 4.4): each restrained reaction is one exact sum of the
 /// formed `K * u` term and minus every ledger term of that DOF, rounded once.
 /// F1b (§4.8): from sparse rows, `SparseStiffness::reactions`, bit-identical
@@ -4689,19 +4547,6 @@ fn solve_load_case_observed(
             &deferred_free_dofs
         }
     };
-    let observation_force = formed
-        .map(|formed| {
-            legacy_observation_force(
-                &force,
-                formed,
-                restrained_dofs,
-                &prescribed,
-                load_state.is_some(),
-            )
-        })
-        .unwrap_or_default();
-    // Preliminary linear evidence belongs only to an actual successful solve.
-    let mut preliminary_diagnostics = Vec::new();
     let attempted_linear = match stiffness {
         BasisStiffness::Formed(formed) => solve_preview_reduced_system(
             solver_mode,
@@ -4712,10 +4557,7 @@ fn solve_load_case_observed(
             built,
             spring_entries,
             &force,
-            &observation_force,
             &prescribed,
-            load_case,
-            &mut preliminary_diagnostics,
         )
         .map_err(OrdinaryFailure::Structural),
         // F1b (ROOT Q2): a deferred basis's ordinary attempt is its formation
@@ -4849,10 +4691,7 @@ fn solve_load_case_observed(
     let mut ordinary_error = None;
     let mut w2_publication = None;
     let linear_solve = match attempted_linear {
-        Ok(solve) => {
-            diagnostics.extend(preliminary_diagnostics);
-            Some(solve)
-        }
+        Ok(solve) => Some(solve),
         Err(OrdinaryFailure::Structural(error)) if selected_source.is_some() => {
             // Preserve the rejected ordinary attempt as evidence. It is not the
             // selected solve and is not relabelled as a successful factorization.
@@ -5002,46 +4841,6 @@ fn solve_load_case_observed(
         if selected_source.is_none() {
             append_linear_solver_mode_evidence(&mut results, &load_case.id, solver_mode, linear_solve);
         }
-        // F1b (ROOT OQ5): no DEC-050/053 observation runs at b != 0; both
-        // lanes observe the unscaled binary64 system that left the range.
-        if let (PreviewSolverMode::DenseScrutiny, Some(formed), None) =
-            (solver_mode, formed, &w2_publication)
-        {
-            // Protected DEC050/053 comparison retains the legacy unscaled LU
-            // reference. This observation never selects a published solution.
-            // F1b: its dense reduced system is formed from the dense view of
-            // the same values only here, after the attempt, in dense scrutiny
-            // behind the resource guard. The reduction repeats the sparse
-            // one's checks on the same values, so it succeeds when that did.
-            let dense_view = formed.to_dense();
-            let dense_reduced = if load_state.is_some() {
-                reduce_assembled_system_with_prescribed_displacements(
-                    &dense_view,
-                    &force,
-                    restrained_dofs,
-                    &prescribed_values,
-                )
-            } else {
-                reduce_assembled_system(&dense_view, &force, restrained_dofs)
-            };
-            drop(dense_view);
-            if let Ok(legacy_dense) = dense_reduced
-                .as_ref()
-                .map_err(|_| ())
-                .and_then(|reduced| legacy_dense_observation(reduced).map_err(|_| ()))
-            {
-                append_sparse_live_path_evidence(
-                    &mut results,
-                    diagnostics,
-                    &load_case.id,
-                    built,
-                    spring_entries,
-                    &observation_force,
-                    restrained_dofs,
-                    &legacy_dense,
-                );
-            }
-        }
     }
     if let Some(observer) = product.as_deref_mut() {
         observer.solver_observations(load_case, solver_mode, &results);
@@ -5180,8 +4979,8 @@ fn solve_load_case_observed(
         let node_index = node_index(&model, &node.id).unwrap();
         let magnitude_mm = selected_source.as_ref().map(|recovery| {
             let values = &recovery.published_nodal_components()[node_index * DOF_PER_NODE..];
-            source_receipt::scaled_norm([values[0], values[1], values[2]])
-        }).unwrap_or_else(|| displacement_magnitude(&displacements, node_index) * 1000.0);
+            norm3(values[0], values[1], values[2])
+        }).unwrap_or_else(|| displacement_magnitude_mm(&displacements, node_index));
         let result_id = format!("result:disp:{}", stable_suffix(&node.id));
         if max_displacement
             .as_ref()
@@ -5335,8 +5134,6 @@ fn solve_load_case_observed(
             let force_vector = [vector[0], vector[1], vector[2]];
             let magnitude = if let Some(rows) = &certified_support {
                 open_pipe_stress_frame_kernel::structural::certified_magnitude(&rows[..3]).map_err(|_| FrameKernelError::NonFiniteInput { name:"certified support magnitude", value:f64::NAN })?.published
-            } else if selected_source.is_some() {
-                source_receipt::scaled_norm(force_vector)
             } else {
                 norm3(force_vector[0], force_vector[1], force_vector[2])
             };
@@ -6624,21 +6421,12 @@ struct PreviewLinearSolve {
     member_bound: Option<MemberBoundInputs>,
     solution: Vec<f64>,
     solution_basis: &'static str,
-    sparse_entry_count: Option<usize>,
-    original_profile_entry_count: Option<usize>,
-    ordered_profile_entry_count: Option<usize>,
-    original_max_half_bandwidth: Option<usize>,
-    ordered_max_half_bandwidth: Option<usize>,
-    nonpositive_pivot_count: Option<usize>,
-    pivot_condition_ratio_estimate: Option<f64>,
-    sparse_residual: Option<f64>,
     dense_fallback_message: Option<String>,
 }
 
 /// `prescribed` lists every restrained DOF with its actual boundary value
 /// (explicit zero unless a resolved case prescribes motion). The structural
-/// solve applies K_fc g_c itself against the original `global_force`; the legacy
-/// observation lane consumes `observation_force`, which already carries it.
+/// solve applies K_fc g_c itself against the original `global_force`.
 fn solve_preview_reduced_system(
     solver_mode: PreviewSolverMode,
     stiffness: &SparseStiffness,
@@ -6646,10 +6434,7 @@ fn solve_preview_reduced_system(
     built: &BuiltModel,
     spring_entries: &[SpringEntry],
     global_force: &AssembledForce,
-    observation_force: &[f64],
     prescribed: &[(usize, f64)],
-    load_case: &PreviewLoadCase,
-    diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<PreviewLinearSolve, StructuralError> {
     let restrained_dofs = prescribed.iter().map(|&(dof, _)| dof).collect::<Vec<_>>();
     let restrained_dofs = restrained_dofs.as_slice();
@@ -6702,35 +6487,6 @@ fn solve_preview_reduced_system(
         &curved_sources,
         built.nonlinear_supports.is_empty(),
     )?;
-    // Legacy raw DEC050/053 observations retain their own unscaled algorithm.
-    // They neither select the solution nor rescue a rejected structural gate.
-    let direct = assemble_reduced_sparse_entry_system(
-        built.nodes.len(),
-        &built.frame_elements,
-        &built.connectors,
-        &built.curved_bend_elements,
-        spring_entries,
-        observation_force,
-        restrained_dofs,
-    )
-    .ok();
-    // F1b (ROOT, 2026-09-28): the lane runs only within the provisional
-    // ceiling; otherwise its fields are published as not_observed, with the
-    // named reason (the gate's CONT n10000 heap-cap finding).
-    let lane_refusal = direct
-        .as_ref()
-        .and_then(|d| observation_lane_guard(d, dense_scrutiny_ceiling_bytes()).err());
-    if let Some(refusal) = &lane_refusal {
-        diagnostics.push(observation_lane_refusal_diagnostic(&load_case.id, refusal));
-    }
-    let legacy = direct
-        .as_ref()
-        .filter(|_| lane_refusal.is_none())
-        .and_then(|d| solve_symmetric_system_from_entries(d.dimension, &d.entries, &d.force).ok());
-    let residual = direct
-        .as_ref()
-        .zip(legacy.as_ref())
-        .map(|(d, l)| max_abs_entry_residual(d.dimension, &d.entries, &l.solution, &d.force));
     Ok(PreviewLinearSolve {
         solution: free.iter().map(|&i| checked.displacements[i]).collect(),
         structural_report: checked.report,
@@ -6741,18 +6497,6 @@ fn solve_preview_reduced_system(
             PreviewSolverMode::DenseScrutiny => "dense_structural_integrity_primary",
             PreviewSolverMode::SparseInteractive => "sparse_structural_integrity_primary",
         },
-        sparse_entry_count: direct.as_ref().map(|d| d.entries.len()),
-        original_profile_entry_count: legacy.as_ref().map(|l| l.original_profile_entry_count),
-        ordered_profile_entry_count: legacy.as_ref().map(|l| l.ordered_profile_entry_count),
-        original_max_half_bandwidth: legacy.as_ref().map(|l| l.original_max_half_bandwidth),
-        ordered_max_half_bandwidth: legacy.as_ref().map(|l| l.ordered_max_half_bandwidth),
-        nonpositive_pivot_count: legacy
-            .as_ref()
-            .map(|l| l.factorization.nonpositive_pivot_count),
-        pivot_condition_ratio_estimate: legacy
-            .as_ref()
-            .and_then(|l| l.factorization.pivot_condition_ratio_estimate),
-        sparse_residual: residual,
         dense_fallback_message: None,
     })
 }
@@ -6765,17 +6509,9 @@ fn append_linear_solver_mode_evidence(
 ) {
     let fallback = linear_solve.dense_fallback_message.is_some();
     let basis = format!(
-        "DEC-053 sparse_default_promotion; solver_mode={}; solution_basis={}; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count={}; original_profile_entries={}; ordered_profile_entries={}; original_half_bandwidth={}; ordered_half_bandwidth={}; nonpositive_pivots={}; pivot_condition_ratio_proxy={}; max_abs_sparse_residual={}; dense_fallback={}; dense_fallback_message={}",
+        "DEC-053 sparse_default_promotion; solver_mode={}; solution_basis={}; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback={}; dense_fallback_message={}",
         solver_mode.as_str(),
         linear_solve.solution_basis,
-        optional_usize(linear_solve.sparse_entry_count),
-        optional_usize(linear_solve.original_profile_entry_count),
-        optional_usize(linear_solve.ordered_profile_entry_count),
-        optional_usize(linear_solve.original_max_half_bandwidth),
-        optional_usize(linear_solve.ordered_max_half_bandwidth),
-        optional_usize(linear_solve.nonpositive_pivot_count),
-        optional_f64(linear_solve.pivot_condition_ratio_estimate),
-        optional_f64(linear_solve.sparse_residual),
         fallback,
         linear_solve
             .dense_fallback_message
@@ -6803,260 +6539,6 @@ fn append_linear_solver_mode_evidence(
     });
 }
 
-fn optional_usize(value: Option<usize>) -> String {
-    value
-        .map(|value| value.to_string())
-        .unwrap_or_else(|| "not_observed".to_string())
-}
-
-fn optional_f64(value: Option<f64>) -> String {
-    value
-        .filter(|value| value.is_finite())
-        .map(|value| value.to_string())
-        .unwrap_or_else(|| "not_observed".to_string())
-}
-
-fn append_sparse_live_path_evidence(
-    results: &mut Vec<ResultItem>,
-    diagnostics: &mut Vec<Diagnostic>,
-    load_case_id: &str,
-    built: &BuiltModel,
-    spring_entries: &[SpringEntry],
-    force: &[f64],
-    restrained_dofs: &[usize],
-    dense_solution: &[f64],
-) {
-    let direct_system = match assemble_reduced_sparse_entry_system(
-        built.nodes.len(),
-        &built.frame_elements,
-        &built.connectors,
-        &built.curved_bend_elements,
-        spring_entries,
-        force,
-        restrained_dofs,
-    ) {
-        Ok(system) => system,
-        Err(error) => {
-            diagnostics.push(diag(
-                &format!("diagnostic:sparse-live:{}:unavailable", stable_suffix(load_case_id)),
-                "SPARSE_LIVE_PATH_EVIDENCE_UNAVAILABLE",
-                "warning",
-                format!(
-                    "DEC-050 direct profile sparse evidence lane could not assemble load case {load_case_id}; dense solve remains the default product path and parity oracle: {error}"
-                ),
-                vec![load_case_id.to_string(), "DEC-050".to_string()],
-            ));
-            return;
-        }
-    };
-    if direct_system.dimension != dense_solution.len() {
-        diagnostics.push(diag(
-            &format!("diagnostic:sparse-live:{}:unavailable", stable_suffix(load_case_id)),
-            "SPARSE_LIVE_PATH_EVIDENCE_UNAVAILABLE",
-            "warning",
-            format!(
-                "DEC-050 direct profile sparse evidence lane dimension {} did not match dense solution length {}; dense solve remains the default product path and parity oracle",
-                direct_system.dimension,
-                dense_solution.len()
-            ),
-            vec![load_case_id.to_string(), "DEC-050".to_string()],
-        ));
-        return;
-    }
-
-    let sparse = match solve_symmetric_system_from_entries(
-        direct_system.dimension,
-        &direct_system.entries,
-        &direct_system.force,
-    ) {
-        Ok(sparse) => sparse,
-        Err(error) => {
-            diagnostics.push(diag(
-                &format!("diagnostic:sparse-live:{}:unavailable", stable_suffix(load_case_id)),
-                "SPARSE_LIVE_PATH_EVIDENCE_UNAVAILABLE",
-                "warning",
-                format!(
-                    "DEC-050 direct profile sparse evidence lane could not observe load case {load_case_id}; dense solve remains the default product path and parity oracle: {error}"
-                ),
-                vec![load_case_id.to_string(), "DEC-050".to_string()],
-            ));
-            return;
-        }
-    };
-    let max_abs_dense_sparse_solution_delta = max_abs_delta(dense_solution, &sparse.solution);
-    let dense_scale = max_abs_value(dense_solution);
-    let relative_dense_sparse_solution_delta = if dense_scale > 0.0 {
-        max_abs_dense_sparse_solution_delta / dense_scale
-    } else {
-        max_abs_dense_sparse_solution_delta
-    };
-    let sparse_residual = max_abs_entry_residual(
-        direct_system.dimension,
-        &direct_system.entries,
-        &sparse.solution,
-        &direct_system.force,
-    );
-
-    if [
-        max_abs_dense_sparse_solution_delta,
-        relative_dense_sparse_solution_delta,
-        sparse_residual,
-    ]
-    .iter()
-    .any(|value| !value.is_finite())
-    {
-        diagnostics.push(diag(
-            "diagnostic:sparse-live:nonfinite",
-            "SPARSE_LIVE_PATH_EVIDENCE_UNAVAILABLE",
-            "warning",
-            "nonfinite computed sparse scrutiny evidence",
-            vec![load_case_id.to_string()],
-        ));
-        return;
-    }
-    results.push(ResultItem {
-        id: "result:sparse-live:dense-parity-relative-delta".to_string(),
-        kind: "sparse_live_path_dense_parity_relative_delta".to_string(),
-        value: relative_dense_sparse_solution_delta,
-        unit: "unitless".to_string(),
-        entity_ref: "solver:sparse_direct".to_string(),
-        basis_ref: None,
-        source_result_refs: Vec::new(),
-        metadata: Some(ResultMetadata {
-            component: "sparse_live_path".to_string(),
-            coordinate_system: "reduced_system".to_string(),
-            location: "load_case".to_string(),
-            basis: format!(
-                "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs={}; sparse_entry_count={}; original_profile_entries={}; ordered_profile_entries={}; original_half_bandwidth={}; ordered_half_bandwidth={}; max_abs_dense_sparse_delta={}; max_abs_sparse_residual={}; nonpositive_pivots={}; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
-                sparse.solution.len(),
-                direct_system.entries.len(),
-                sparse.original_profile_entry_count,
-                sparse.ordered_profile_entry_count,
-                sparse.original_max_half_bandwidth,
-                sparse.ordered_max_half_bandwidth,
-                max_abs_dense_sparse_solution_delta,
-                sparse_residual,
-                sparse.factorization.nonpositive_pivot_count
-            ),
-            sign_convention:
-                "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
-                    .to_string(),
-        }),
-    });
-}
-
-#[derive(Debug, Clone)]
-struct ReducedSparseEntrySystem {
-    dimension: usize,
-    entries: Vec<SymmetricMatrixEntry>,
-    force: Vec<f64>,
-}
-
-fn assemble_reduced_sparse_entry_system(
-    node_count: usize,
-    frame_elements: &[FrameElement],
-    connectors: &[open_pipe_stress_frame_kernel::connector::ObjectiveConnector],
-    curved_bend_elements: &[CurvedBendMacroBuild],
-    spring_entries: &[SpringEntry],
-    force: &[f64],
-    restrained_dofs: &[usize],
-) -> Result<ReducedSparseEntrySystem, FrameKernelError> {
-    let total_dofs = node_count * DOF_PER_NODE;
-    if force.len() != total_dofs {
-        return Err(FrameKernelError::InvalidVectorLength {
-            expected: total_dofs,
-            actual: force.len(),
-        });
-    }
-    for &value in force {
-        if !value.is_finite() {
-            return Err(FrameKernelError::NonFiniteInput {
-                name: "force entry",
-                value,
-            });
-        }
-    }
-
-    let mut constrained = vec![false; total_dofs];
-    for &dof in restrained_dofs {
-        if dof >= total_dofs {
-            return Err(FrameKernelError::RestrainedDofOutOfRange { dof, total_dofs });
-        }
-        if constrained[dof] {
-            return Err(FrameKernelError::RepeatedRestrainedDof { dof });
-        }
-        constrained[dof] = true;
-    }
-
-    let mut global_to_reduced = vec![None; total_dofs];
-    let mut reduced_force = Vec::new();
-    for global_dof in 0..total_dofs {
-        if constrained[global_dof] {
-            continue;
-        }
-        global_to_reduced[global_dof] = Some(reduced_force.len());
-        reduced_force.push(force[global_dof]);
-    }
-
-    let mut entries = Vec::new();
-    for element in frame_elements {
-        validate_element_nodes(element.node_i.index, element.node_j.index, node_count)?;
-        let element_stiffness = element.global_stiffness()?;
-        append_reduced_element_entries(
-            &mut entries,
-            &global_to_reduced,
-            element.node_i.index,
-            element.node_j.index,
-            &element_stiffness,
-        )?;
-    }
-    // T4-U3 (S3): each connector's Ke after the frames (observation only).
-    for connector in connectors {
-        let (node_i, node_j) = (connector.node_i().index, connector.node_j().index);
-        validate_element_nodes(node_i, node_j, node_count)?;
-        let element_stiffness = connector.global_stiffness()?;
-        append_reduced_element_entries(
-            &mut entries,
-            &global_to_reduced,
-            node_i,
-            node_j,
-            &element_stiffness,
-        )?;
-    }
-    for element in curved_bend_elements {
-        validate_element_nodes(element.node_i, element.node_j, node_count)?;
-        append_reduced_element_entries(
-            &mut entries,
-            &global_to_reduced,
-            element.node_i,
-            element.node_j,
-            &element.global_stiffness,
-        )?;
-    }
-    for spring in spring_entries {
-        if spring.node_dof.node_index >= node_count {
-            return Err(FrameKernelError::InvalidNodeIndex {
-                node_index: spring.node_dof.node_index,
-                node_count,
-            });
-        }
-        let global_dof = spring.node_dof.global_index();
-        if let Some(reduced_dof) = global_to_reduced[global_dof] {
-            entries.push(SymmetricMatrixEntry {
-                row: reduced_dof,
-                col: reduced_dof,
-                value: spring.stiffness.value,
-            });
-        }
-    }
-
-    Ok(ReducedSparseEntrySystem {
-        dimension: reduced_force.len(),
-        entries,
-        force: reduced_force,
-    })
-}
-
 // Dense-path assembly of the curved-bend macro-element stiffness beside the
 // frame elements and connectors (the replaced chord element is excluded in
 // `build_model`, so the arc contribution is never double-counted).
@@ -7072,93 +6554,6 @@ fn add_curved_bend_stiffness_contributions(
             }
         }
     }
-}
-
-fn validate_element_nodes(
-    node_i: usize,
-    node_j: usize,
-    node_count: usize,
-) -> Result<(), FrameKernelError> {
-    if node_i >= node_count {
-        return Err(FrameKernelError::InvalidNodeIndex {
-            node_index: node_i,
-            node_count,
-        });
-    }
-    if node_j >= node_count {
-        return Err(FrameKernelError::InvalidNodeIndex {
-            node_index: node_j,
-            node_count,
-        });
-    }
-    Ok(())
-}
-
-fn append_reduced_element_entries(
-    entries: &mut Vec<SymmetricMatrixEntry>,
-    global_to_reduced: &[Option<usize>],
-    node_i: usize,
-    node_j: usize,
-    element_stiffness: &Matrix12,
-) -> Result<(), FrameKernelError> {
-    let dof_map = element_dof_map(node_i, node_j);
-    for local_row in 0..ELEMENT_DOF {
-        let global_row = dof_map[local_row];
-        let Some(reduced_row) = global_to_reduced[global_row] else {
-            continue;
-        };
-        for local_col in 0..=local_row {
-            let global_col = dof_map[local_col];
-            let Some(reduced_col) = global_to_reduced[global_col] else {
-                continue;
-            };
-            let value = element_stiffness[local_row][local_col];
-            if !value.is_finite() {
-                return Err(FrameKernelError::NonFiniteInput {
-                    name: "matrix entry",
-                    value,
-                });
-            }
-            if value == 0.0 {
-                continue;
-            }
-            let (row, col) = if reduced_row >= reduced_col {
-                (reduced_row, reduced_col)
-            } else {
-                (reduced_col, reduced_row)
-            };
-            entries.push(SymmetricMatrixEntry { row, col, value });
-        }
-    }
-    Ok(())
-}
-
-fn finite_observation_max(left: f64, right: f64) -> f64 {
-    if left.is_finite() && right.is_finite() {
-        left.max(right)
-    } else {
-        f64::NAN
-    }
-}
-
-fn max_abs_entry_residual(
-    dimension: usize,
-    entries: &[SymmetricMatrixEntry],
-    solution: &[f64],
-    force: &[f64],
-) -> f64 {
-    let mut internal = vec![0.0; dimension];
-    for entry in entries {
-        internal[entry.row] += entry.value * solution[entry.col];
-        if entry.row != entry.col {
-            internal[entry.col] += entry.value * solution[entry.row];
-        }
-    }
-    internal
-        .iter()
-        .zip(force.iter())
-        .map(|(internal, applied)| (internal - applied).abs())
-        .fold(0.0, finite_observation_max)
 }
 
 fn append_nonlinear_scalar_result(
@@ -12999,6 +12394,13 @@ fn append_constant_effort_support_results(
     }
 }
 
+fn optional_f64(value: Option<f64>) -> String {
+    value
+        .filter(|value| value.is_finite())
+        .map(|value| value.to_string())
+        .unwrap_or_else(|| "not_observed".to_string())
+}
+
 // Machine-consumed basis strings use the same finite round-trip decimal contract.
 fn scalar_string(value: f64) -> String {
     optional_f64(Some(value))
@@ -13597,12 +12999,16 @@ fn solver_blocked(
     blocked_envelope(model, diagnostics)
 }
 
-fn displacement_magnitude(displacements: &[f64], node_index: usize) -> f64 {
+/// E15: the correctly rounded norm of the node's published mm components
+/// (`append_node_displacement_component_results`' `value * 1000.0`), the same
+/// recipe as the selected-source and combination magnitudes.
+fn displacement_magnitude_mm(displacements: &[f64], node_index: usize) -> f64 {
     let base = node_index * DOF_PER_NODE;
-    (displacements[base + UX].powi(2)
-        + displacements[base + UY].powi(2)
-        + displacements[base + UZ].powi(2))
-    .sqrt()
+    norm3(
+        displacements[base + UX] * 1000.0,
+        displacements[base + UY] * 1000.0,
+        displacements[base + UZ] * 1000.0,
+    )
 }
 
 fn support_restraint_summary(restrained_dofs: &[usize]) -> (String, String) {
@@ -13669,21 +13075,6 @@ fn join_dofs(values: &[&str]) -> String {
     } else {
         values.join(",")
     }
-}
-
-fn max_abs_delta(left: &[f64], right: &[f64]) -> f64 {
-    left.iter()
-        .zip(right.iter())
-        .map(|(left, right)| (left - right).abs())
-        .fold(0.0, finite_observation_max)
-}
-
-fn max_abs_value(values: &[f64]) -> f64 {
-    values
-        .iter()
-        .copied()
-        .map(f64::abs)
-        .fold(0.0, finite_observation_max)
 }
 
 fn node_index(model: &PreviewModel, id: &str) -> Option<usize> {
@@ -15180,7 +14571,7 @@ mod tests {
             | "tests::combination_stress_summary_rows_are_skipped_with_diagnostics"
             | "tests::constant_effort_coexists_with_nonlinear_supports_and_nonlinear_field_precedence"
             | "tests::curved_bend_macro_element_emits_arc_interior_station_results"
-            | "tests::dense_scrutiny_mode_keeps_sparse_parity_row"
+            | "tests::dense_scrutiny_mode_publishes_no_parity_row"
             | "tests::f3_canonical_spring_retains_elastic_stiffness"
             | "tests::f3_explicit_six_dof_guide_keeps_family_and_reports_invalid_rotations"
             | "tests::f3_missing_and_null_family_preserve_existing_inference_and_payloads"
@@ -16612,29 +16003,25 @@ mod tests {
         assert!(metadata
             .basis
             .contains("solution_basis=sparse_structural_integrity_primary"));
-        assert!(metadata
-            .basis
-            .contains("profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053"));
-        assert!(metadata
-            .basis
-            .contains("default_sparse_promotion=interactive_default"));
-        assert!(metadata.basis.contains("dense_scrutiny_available=true"));
+        // E14: the basis carries no legacy DEC-050/053 observation fields.
+        assert_eq!(
+            metadata.basis,
+            "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none"
+        );
     }
 
     #[test]
-    fn dense_scrutiny_mode_keeps_sparse_parity_row() {
+    fn dense_scrutiny_mode_publishes_no_parity_row() {
+        // E14: the DEC-050/053 unscaled-LU observation lane is retired; dense
+        // scrutiny publishes its mode row and no parity observation.
         let result = run_linear_static_preview_with_mode(
             mechanical_fixture_for_test(
                 request(),
-                "tests::dense_scrutiny_mode_keeps_sparse_parity_row",
+                "tests::dense_scrutiny_mode_publishes_no_parity_row",
             ),
             PreviewSolverMode::DenseScrutiny,
         );
-        let sparse_evidence = result
-            .results
-            .iter()
-            .find(|item| item.id == "result:sparse-live:dense-parity-relative-delta")
-            .expect("dense scrutiny sparse parity row is present");
+        assert!(result.results.iter().all(|item| item.kind != "sparse_live_path_dense_parity_relative_delta"));
         let mode_evidence = result
             .results
             .iter()
@@ -16648,18 +16035,12 @@ mod tests {
             .unwrap()
             .basis
             .contains("solver_mode=dense_scrutiny"));
-        assert_eq!(
-            sparse_evidence.kind,
-            "sparse_live_path_dense_parity_relative_delta"
-        );
-        assert!(sparse_evidence.value <= 1.0e-9);
-        let metadata = sparse_evidence.metadata.as_ref().unwrap();
-        assert_eq!(metadata.component, "sparse_live_path");
-        assert!(metadata
+        assert!(!mode_evidence
+            .metadata
+            .as_ref()
+            .unwrap()
             .basis
-            .contains("DEC-053 dense_scrutiny_sparse_parity"));
-        assert!(metadata.basis.contains("solver_mode=dense_scrutiny"));
-        assert!(metadata.basis.contains("sparse_interactive_default=true"));
+            .contains("legacy_unscaled_DEC050_DEC053"));
     }
 
     fn two_node_nonlinear_preview_request(
@@ -22928,12 +22309,6 @@ mod tests {
 
         assert_eq!(sparse.status.mechanics, "MECHANICS_SOLVED");
         assert_eq!(dense.status.mechanics, "MECHANICS_SOLVED");
-        let parity = dense
-            .results
-            .iter()
-            .find(|item| item.id == "result:sparse-live:dense-parity-relative-delta")
-            .expect("dense scrutiny keeps the sparse parity row with a curved bend assembled");
-        assert!(parity.value <= 1.0e-9);
         for row in [
             "result:disp:node-N-110:uy",
             "result:disp:node-N-110:uz",

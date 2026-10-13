@@ -79,3 +79,113 @@ fn text_that_is_not_json_is_an_input_error() {
     invalid(reader_transport_json("physics", "nul").unwrap_err(), "source");
     invalid(reader_row_semantics_json("{", None).unwrap_err(), "row");
 }
+
+/// E17 through the wasm engine's entry point, run natively: the governed G7
+/// magnitude controls on an invented support-only preview statement (the same
+/// shape as the desktop's `previewMagnitudeGuard.test.ts`), direct and combined.
+/// Representation controls only: no solve, native witness or producer claim.
+#[test]
+fn e17_magnitude_controls_through_the_reader_binding() {
+    let table: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json"
+    ))
+    .unwrap();
+    let controls: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/results/preview_magnitude_controls.json"
+    ))
+    .unwrap();
+    let (force, moment) = ("support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2");
+    let (cid, support) = ("invented:e17:case", "invented:e17:support");
+    let identity = [cid, support].map(|p| format!("{}:{p}", p.len())).join(":");
+    let basis = json!({"ref_type": "load_case", "ref_id": cid});
+    let sign = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate";
+    let statement = || {
+        let components = ["Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"];
+        let results: Vec<Value> = components.iter().enumerate().map(|(i, c)| json!({
+            "id": format!("result:support-action:{identity}:{c}"), "entity_ref": support, "basis_ref": basis, "value": 0.0,
+            "kind": if i < 6 { "support_reaction_component_v2" } else if i == 6 { force } else { moment },
+            "unit": if i < 3 || i == 6 { "N" } else { "N*m" },
+            "metadata": {"component": c, "coordinate_system": "global", "location": "node",
+                "basis": "recovered_from_assembled_support_law", "sign_convention": sign}})).collect();
+        json!({"schema_version": "0.2.0", "document_kind": "openpipestress.product_preview.mechanics_result",
+            "run_id": "invented:e17:run", "model_ref": "invented:e17:model",
+            "producer": {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0",
+                "semantic_contract_id": table["semantic_contract_id"]},
+            "formulation_basis": {"profile_id": table["formulation_profile_id"], "limitations": table["supported_profile_limitations"]},
+            "numerical_quality": {"value_representation": "finite_binary64", "publication_quantization": "none",
+                "integrity_policy": "M03-INTEGRITY-v1", "status": "checks_passed",
+                "cases": [{"basis_ref": basis, "structural_status": "passive_model_basis", "solve_quality": "checks_passed",
+                    "model_matrix_fidelity": "represented_equations_retained", "accuracy_evidence": "not_claimed", "evidence_refs": []}]},
+            "status": {"mechanics": "MECHANICS_SOLVED", "rule_check": "RULE_INPUTS_INCOMPLETE", "professional_acceptance": "NOT_PROVIDED"},
+            "results": results,
+            "summary": {"node_count": 1, "segment_count": 0, "support_count": 1, "load_case_count": 1,
+                "component_stress_modifier_count": 0, "max_displacement": null, "max_open_formula_stress": null},
+            "diagnostics": [],
+            "contract_evidence": {"preview_cases": [{"load_case_id": cid, "pipe_stress_extrema": [],
+                "stress_maximum_coverage": {"complete": true, "unavailable_pipe_ids": [], "outside_domain_pipe_ids": []},
+                "support_attribution": {"attributed_support_ids": [support], "withheld": []}, "intensified_measures": []}],
+                "combination_gates": []},
+            "professional_boundary": {"human_review_required": true}, "accepted_model_state_mutated": false})
+    };
+    let read = |s: &Value| outcome(reader_validate_json("preview-physics", &s.to_string(), None, None).unwrap());
+    assert_eq!(read(&statement()), json!({"ok": true}), "the untouched statement reaches G7 and passes");
+    let bits = |v: &Value| f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap());
+    let mut checked = 0;
+    for control in controls["controls"].as_array().unwrap() {
+        let values: Vec<f64> = (0..3).map(|i| bits(&control["component_bits"][i])).collect();
+        let magnitude = bits(&control["magnitude_bits"]);
+        let admitted = control["admitted"].as_bool().unwrap();
+        for (target, names) in [(force, ["Fx", "Fy", "Fz"]), (moment, ["Mx", "My", "Mz"])] {
+            // Direct: the support's own rows.
+            let mut s = statement();
+            for row in s["results"].as_array_mut().unwrap() {
+                if let Some(axis) = names.iter().position(|n| row["metadata"]["component"] == *n) {
+                    row["value"] = json!(values[axis]);
+                }
+                if row["kind"] == target {
+                    row["value"] = json!(magnitude);
+                }
+            }
+            let got = read(&s);
+            assert_eq!(got["ok"].as_bool(), Some(admitted), "{} direct {target}: {got}", control["id"]);
+            if !admitted {
+                assert!(got.to_string().contains("SOURCE_PREVIEW_PHYSICS_SUPPORT_MAGNITUDE"), "{} {target}: {got}", control["id"]);
+            }
+            checked += 1;
+        }
+        for target in [force, moment, "displacement_magnitude"] {
+            // Combined: an explicit combination's components and magnitude.
+            let mut s = statement();
+            let combination = "invented:e17:combination";
+            s["contract_evidence"]["combination_gates"] = json!([{"combination_id": combination, "withheld": false, "reason": null}]);
+            let (entity, cbasis) = ("invented:e17:combined", json!({"ref_type": "combination", "ref_id": combination}));
+            let unit = if target == force { "N" } else if target == moment { "N*m" } else { "mm" };
+            let names = if target == force { ["Fx", "Fy", "Fz"] } else if target == moment { ["Mx", "My", "Mz"] }
+                else { ["nodal_displacement_x", "nodal_displacement_y", "nodal_displacement_z"] };
+            let meta = |c: &str| json!({"component": c, "coordinate_system": "global", "location": "node",
+                "basis": "explicit_user_linear_combination",
+                "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"});
+            let rows = s["results"].as_array_mut().unwrap();
+            for (axis, c) in names.iter().enumerate() {
+                let kind = if target == "displacement_magnitude" {
+                    ["global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z"][axis]
+                } else { "support_reaction_component_v2" };
+                rows.push(json!({"id": format!("result:e17:{target}:{c}"), "entity_ref": entity, "basis_ref": cbasis,
+                    "value": values[axis], "kind": kind, "unit": unit, "metadata": meta(c), "source_result_refs": []}));
+            }
+            let mut row = json!({"id": format!("result:e17:{target}:magnitude"), "kind": target, "entity_ref": entity,
+                "basis_ref": cbasis, "value": magnitude, "unit": unit, "source_result_refs": []});
+            if target != "displacement_magnitude" {
+                row["metadata"] = meta(if target == force { "force_magnitude" } else { "moment_magnitude" });
+            }
+            rows.push(row);
+            let got = read(&s);
+            assert_eq!(got["ok"].as_bool(), Some(admitted), "{} combined {target}: {got}", control["id"]);
+            if !admitted {
+                assert!(got.to_string().contains("SOURCE_PREVIEW_PHYSICS_COMBINATION_MAGNITUDE"), "{} {target}: {got}", control["id"]);
+            }
+            checked += 1;
+        }
+    }
+    assert_eq!(checked, 7 * 5);
+}

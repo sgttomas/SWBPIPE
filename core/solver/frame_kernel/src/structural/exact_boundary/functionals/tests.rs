@@ -61,7 +61,7 @@ fn expected(r: &Ratio, numerator: f64, denominator: f64) {
     let mut w = Work {
         limits: Limits::default(),
         used: 0,
-        rejected: 0,
+        rejected: WorkTotal::zero(),
     };
     let n = w.scalar(numerator).unwrap();
     let d = w.scalar(denominator).unwrap();
@@ -552,7 +552,7 @@ fn denied_reservations_long_ids_range_failures_and_retries_keep_the_ledger() {
         FunctionalPlan::new(&c, &[long], &mut b).result.unwrap_err(),
         Error::Budget
     );
-    assert!(b.report().charged >= before.charged && b.report().rejected > before.rejected);
+    assert!(b.report().charged >= before.charged && b.report().rejected.exact().unwrap() > before.rejected.exact().unwrap());
     let remaining = b.remaining();
     b.charge(AttemptStage::SourceClosure, remaining).unwrap();
     let charged = b.report().charged;
@@ -565,7 +565,7 @@ fn denied_reservations_long_ids_range_failures_and_retries_keep_the_ledger() {
         );
         assert_eq!(b.report().charged, charged);
     }
-    assert!(b.report().rejected > before.rejected);
+    assert!(b.report().rejected.exact().unwrap() > before.rejected.exact().unwrap());
 
     let mut tiny = AttemptBudget::new(Limits {
         operations: 1,
@@ -583,6 +583,6 @@ fn denied_reservations_long_ids_range_failures_and_retries_keep_the_ledger() {
         Context::prepare_with_budget(&system, "source", ForceBasis::DeclaredVector, &mut tiny);
     assert_eq!(failure.result.unwrap_err(), Error::Budget);
     assert_eq!(failure.work.charged, 0);
-    assert!(failure.work.rejected > 0);
+    assert!(failure.work.rejected.exact().unwrap() > 0);
     assert_eq!(tiny.stage(), AttemptStage::Preparation);
 }

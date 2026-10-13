@@ -598,8 +598,10 @@ fn f1b_w2_phys_r4_without_pressure_is_published_at_b_536() {
                 .and_then(|r| r.metadata.as_ref())
                 .map(|m| m.basis.clone())
                 .unwrap();
+            // E14: no observation-lane fields remain in the basis.
             assert!(
-                basis.contains("sparse_entry_count=not_observed; original_profile_entries=not_observed; ordered_profile_entries=not_observed; original_half_bandwidth=not_observed; ordered_half_bandwidth=not_observed; nonpositive_pivots=not_observed; pivot_condition_ratio_proxy=not_observed; max_abs_sparse_residual=not_observed; dense_fallback=false; dense_fallback_message=none"),
+                basis.ends_with("dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none")
+                    && !basis.contains("not_observed"),
                 "{ctx}: {basis}"
             );
         }

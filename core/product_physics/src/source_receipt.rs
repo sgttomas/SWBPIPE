@@ -40,16 +40,6 @@ fn bits(value: f64) -> String {
 fn same(a: f64, b: f64) -> bool {
     a.to_bits() == b.to_bits()
 }
-/// Fixed arithmetic for the registered scaled norm recipes. The finalizer
-/// separately refuses nonfinite inputs and nonzero subnormal outputs.
-pub(super) fn scaled_norm(values: [f64; 3]) -> f64 {
-    let m = values.iter().map(|v| v.abs()).fold(0.0_f64, f64::max);
-    if m == 0.0 {
-        return 0.0;
-    }
-    let [a, b, c] = values.map(|v| v / m);
-    m * ((a * a + b * b) + c * c).sqrt()
-}
 fn serialized<T: Serialize>(v: &T) -> Result<Value, ReceiptError> {
     serde_json::to_value(v).map_err(|e| bad(e.to_string()))
 }
@@ -767,8 +757,17 @@ fn work_wire(work: exact::WorkReport) -> Result<Value, ReceiptError> {
     if work.charged > work.limit || (work.limit as u64) > MAX {
         return Err(bad("invalid work accounting"));
     }
+    // D6: `rejected` is the kernel's checked total. An exact amount within the
+    // JSON-safe range is finite; an overflowed total (or one beyond that range)
+    // is disclosed as overflow, never as a saturated number; an inconsistent
+    // total refuses the receipt.
+    let rejected = match work.rejected.exact() {
+        Ok(amount) if amount <= MAX => json!({"kind":"finite","amount":amount}),
+        Ok(_) | Err(open_pipe_stress_frame_kernel::structural::retained_api::WorkFault::Overflow) => json!({"kind":"overflow","amount":null}),
+        Err(_) => return Err(bad("inconsistent rejected reservation work")),
+    };
     Ok(
-        json!({"limit":work.limit,"charged":work.charged,"reserved_unobserved_failure":0,"rejected_reservation":if work.rejected == usize::MAX || (work.rejected as u64)>MAX{json!({"kind":"overflow","amount":null})}else{json!({"kind":"finite","amount":work.rejected})}}),
+        json!({"limit":work.limit,"charged":work.charged,"reserved_unobserved_failure":0,"rejected_reservation":rejected}),
     )
 }
 
@@ -822,11 +821,7 @@ impl FinalizedSourceBlockReceipt {
         {
             return Err(ReceiptError(
                 "case budget exceeds selected receipt policy".into(),
-                Some(exact::WorkReport {
-                    charged: invocation_budget.charged,
-                    rejected: 0,
-                    limit: invocation_budget.invocation_limit,
-                }),
+                Some(exact::WorkReport::new(invocation_budget.charged, 0, invocation_budget.invocation_limit)),
             ));
         }
         let size = envelope.diagnostics.iter().fold(0usize, |n, d| {

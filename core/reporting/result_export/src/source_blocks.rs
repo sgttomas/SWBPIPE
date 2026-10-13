@@ -5,13 +5,15 @@
 //! and a digest is never treated as arithmetic proof.
 use crate::semantic_contract::signature_in;
 use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
+use open_pipe_stress_correct_norm::norm3;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
 
 // The fixed 64ε recipe envelope is separate from affine input uncertainty.
-// It covers divides, squares, ordered additions, sqrt, multiplication and tiny
-// normalized underflows with a unit largest component and normal final output.
+// It is an arithmetic-error reserve, not a comparison tolerance: the norm
+// recipe (E15: one correctly rounded norm3, at most half an ulp) and its
+// normal final output lie well inside it.
 const NORM_ARITHMETIC_BOUND: f64 = 64.0 * f64::EPSILON;
 const NORM_INPUT_RELATIVE_LIMIT: f64 =
     (1.0e-9 - NORM_ARITHMETIC_BOUND) / (1.0 + NORM_ARITHMETIC_BOUND);
@@ -501,36 +503,19 @@ fn derived_in(
         recipe.as_str(),
         Some("translation_norm_scaled_v1" | "support_force_norm_scaled_v1")
     ) {
-        // Match the declared producer recipe in XYZ/FxFyFz order. Scaling
-        // keeps the largest normalized component at one, so underflow of a
-        // smaller normalized square cannot erase the norm's leading scale.
+        // E15: the declared recipe is one correctly rounded norm3 of the
+        // published XYZ/FxFyFz components. A nonzero result must be finite
+        // and normal; the claimed value is bound to it bit for bit.
         let mut values = [0.0; 3];
         for (index, input) in inputs.iter().enumerate() {
             values[index] = number(&input["value"])?;
         }
-        let scale = values.iter().fold(0.0_f64, |m, value| m.max(value.abs()));
-        let expected = if scale == 0.0 {
-            0.0
-        } else {
-            let normalized = values.map(|value| value / scale);
-            let squares = normalized.map(|value| value * value);
-            let first_two = squares[0] + squares[1];
-            let squared = first_two + squares[2];
-            let root = squared.sqrt();
-            let value = scale * root;
-            require!(
-                normalized
-                    .iter()
-                    .chain(squares.iter())
-                    .all(|v| v.is_finite())
-                    && first_two.is_finite()
-                    && squared.is_finite()
-                    && root.is_finite()
-                    && value.is_normal(),
-                "DERIVED_NORM_RANGE"
-            );
-            value
-        };
+        let expected = norm3(values[0], values[1], values[2]);
+        require!(
+            values.iter().all(|v| v.is_finite())
+                && (expected == 0.0 || expected.is_normal()),
+            "DERIVED_NORM_RANGE"
+        );
         require!(
             number(&row["value"])?.to_bits() == expected.to_bits(),
             "DERIVED_NORM_VALUE"
@@ -1578,8 +1563,48 @@ mod norm_tests {
         )
     }
 
+    /// E15: the receipt recipe binds the exact correctly rounded value. Over the
+    /// published (3,4,0) components the recipe gives exactly 5, so the
+    /// independently single-rounded 5 + 1 ulp that G7 admits is refused here;
+    /// the former max-scaled recipe's value is refused where the two differ.
     #[test]
-    fn scaled_norm_accepts_small_normal_values_and_harmless_normalized_underflow() {
+    fn e15_receipt_norm_recipe_binds_the_correctly_rounded_value() {
+        let controls: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/results/preview_magnitude_controls.json"
+        ))
+        .unwrap();
+        let control = &controls["controls"][0];
+        assert_eq!(control["id"], "independent_single_rounding_one_ulp");
+        let bits = |v: &Value| f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap());
+        let components = [0, 1, 2].map(|i| bits(&control["component_bits"][i]));
+        assert_eq!(components, [3.0, 4.0, 0.0]);
+        let one_ulp = bits(&control["magnitude_bits"]);
+        assert_eq!(one_ulp.to_bits(), 5.0_f64.to_bits() + 1);
+        let scaled = |v: [f64; 3]| {
+            let m = v.iter().fold(0.0_f64, |m, x| m.max(x.abs()));
+            let [a, b, c] = v.map(|x| x / m);
+            m * ((a * a + b * b) + c * c).sqrt()
+        };
+        let differing = [-1.327, -8.603, -8.186];
+        let correct = f64::from_bits(0x4027_e5fc_308f_80ed);
+        assert_eq!(norm3(differing[0], differing[1], differing[2]).to_bits(), correct.to_bits());
+        assert_eq!(scaled(differing).to_bits(), correct.to_bits() - 1);
+        for support in [false, true] {
+            assert_eq!(check(components, 5.0, support), Ok(()));
+            assert_eq!(
+                check(components, one_ulp, support),
+                Err("SOURCE_BLOCKS_DERIVED_NORM_VALUE".into())
+            );
+            assert_eq!(check(differing, correct, support), Ok(()));
+            assert_eq!(
+                check(differing, scaled(differing), support),
+                Err("SOURCE_BLOCKS_DERIVED_NORM_VALUE".into())
+            );
+        }
+    }
+
+    #[test]
+    fn norm_recipe_accepts_small_normal_values_and_tiny_components() {
         for support in [false, true] {
             assert_eq!(check([3.0, 4.0, 0.0], 5.0, support), Ok(()));
             let small = 2.0_f64.powi(-600);
@@ -1593,7 +1618,7 @@ mod norm_tests {
     }
 
     #[test]
-    fn scaled_norm_rejects_subnormal_output_overflow_and_one_ulp_value_changes() {
+    fn norm_recipe_rejects_subnormal_output_overflow_and_one_ulp_value_changes() {
         for support in [false, true] {
             assert_eq!(
                 check([f64::from_bits(1), 0.0, 0.0], f64::from_bits(1), support),

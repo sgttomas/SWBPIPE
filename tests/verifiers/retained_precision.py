@@ -31,11 +31,11 @@ ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PROFILE = "product_preview_retained_w1a_v2"
 DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
-DEFINITION_HASH = "7ae382e12b48fed6ede863c6865871bb6bb22b995f3855201cd48c6fdefd19a1"
+DEFINITION_HASH = "c4aebcef3ae3863f9576fb3a7e323e77a91687938f6605a83a2fdc958febb15f"
 TABLE_HASH = "976ee83e7b73dfd37461f8ab5deaa8db96b0bc986e5a93f230b4008a38904158"
 # B2-C (CONTRACT §8 row 4, REVISION_02 §0): DEF-C's id and H, the preview table's second formation definition.
 COMBINATION_DEFINITION_ID = "RP-PREPARED-COMBINATION-DUAL-v1"
-COMBINATION_DEFINITION_HASH = "f17921fd45625b4684f640ea6a9dfe8d032eeb431feef4fe357b045e5d42025d"
+COMBINATION_DEFINITION_HASH = "34ce87e7ad6da457d81a5cbf25a077fb5d08f2960c5fd815e1163646de02d24a"
 PREVIEW_DEFINITIONS = [{"id": DEFINITION_ID, "sha256": DEFINITION_HASH}, {"id": COMBINATION_DEFINITION_ID, "sha256": COMBINATION_DEFINITION_HASH}]
 RETAINED_DISPOSITIONS = ("retained_selected", "retained_unavailable")
 METHOD = "contribution_preserving_multiprecision_v1"
@@ -45,7 +45,7 @@ METHOD = "contribution_preserving_multiprecision_v1"
 EXACT_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
-EXACT_DEFINITION_HASH = "82f54aedab3055376d2703f4ef87e077f5f5bc105a88b1701aa856df29b42cdc"
+EXACT_DEFINITION_HASH = "306af5fd3abf1e358a7f2eb7a5fa7d8b597c5cb25d4f3d30925acd17cc8c2525"
 EXACT_TABLE_HASH = "da642db8b12784a2ac54bfd6eecf4609db6f52e34ce2c5127ba2de4b60b2367e"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 FACADE_POLICY = "RP-FACADE-SI-v2"
@@ -1072,7 +1072,7 @@ def _g5_requested_mode(body, rows_by_case, diags, quality, status=None):
         cid = case["basis_ref"]["ref_id"]
         rows = rows_by_case.get(cid, [])
         requested = [r for r in rows if r["kind"] == REQUESTED_MODE_KIND]
-        observed = [r for r in rows if r["kind"] in ("linear_solver_mode_basis", "sparse_live_path_dense_parity_relative_delta")]
+        observed = [r for r in rows if r["kind"] == "linear_solver_mode_basis"]
         failed = _failed_ordinary(attempt)
         if not requested:
             fail(not (failed and case["status"] == "selected"))
@@ -1394,10 +1394,10 @@ REQUESTED_MODE_KIND = "retained_precision_requested_mode_basis"
 REQUESTED_MODE_ID = "result:retained-precision:requested-mode-basis"
 REQUESTED_MODE_SIGN = ("mode_code 1=sparse_interactive, 2=dense_scrutiny; the captured requested solver mode after a failed "
                        "ordinary attempt, not an ordinary solve observation")
-NONQUANTITY_KINDS = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "sparse_live_path_dense_parity_relative_delta", "modulus_basis_record", "combination_modulus_basis_record"}
+NONQUANTITY_KINDS = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "modulus_basis_record", "combination_modulus_basis_record"}
 # C3:178-181: hull projection covers quantity rows except observed ancillary rows, support norms and maxima.
 HULL_EXCLUDED = NONQUANTITY_KINDS | {"support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2", "pipe_elastic_normal_stress_maximum_v2"}
-NONQUANTITY = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "sparse_live_path_dense_parity_relative_delta", "modulus_basis_record", "combination_modulus_basis_record"}
+NONQUANTITY = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "modulus_basis_record", "combination_modulus_basis_record"}
 INPUT_KINDS = {"pipe_lame_hoop_stress_v2", "pipe_lame_radial_stress_v2", "pipe_section_pressure_hoop_stress", "pipe_section_pressure_longitudinal_stress", "constant_effort_support_applied_load", "component_user_stress_multiplier_review", "constant_effort_user_input_review", "spring_hanger_user_input_review"}
 FORCE = {"element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2", "reaction_resultant", "support_reaction_force_magnitude_v2"}
 MOMENT = {"element_local_torsional_moment", "element_local_bending_moment_y", "element_local_bending_moment_z", "support_reaction_moment_magnitude_v2"}
@@ -1922,11 +1922,8 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
             continue
         # 3. P1: exactly one mode row, valued with the mode code (1 sparse, 2 dense).
         need(len(modes) == 1 and type(modes[0]["value"]) in (int, float) and modes[0]["value"] == mode_code)
-        parity = sum(1 for r in case_rows if r["kind"] == "sparse_live_path_dense_parity_relative_delta")
-        # 4. P2: at most one parity row. P3: none in sparse_interactive. P4: none when W2 published
-        # (b != 0; OQ5). A dense b = 0 case may lack it (a failed observation lane); that deletion
-        # is the disclosed limit.
-        need(parity <= 1 and (parity == 0 or mode == "dense_scrutiny") and (parity == 0 or o["w2"]["kind"] != "published"))
+        # E14: the DEC-050/053 parity observation is retired; no table carries its kind, so a row
+        # of it has no signature and is refused before G8.
     # One material basis per distinct selector, in first-seen order, each listing exactly the cases
     # that use it (I91 repair 01, finding c), as Rust's `g8` and TS's `invocationBinding` require.
     need(len(body["material_bases"]) == len(selectors))

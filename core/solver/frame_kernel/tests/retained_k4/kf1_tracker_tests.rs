@@ -764,7 +764,7 @@ fn same_attempts(name: &str, x: &[AttemptRecord], y: &[AttemptRecord]) -> Vec<Mo
             condition: d(a.shared_stages.condition, b.shared_stages.condition),
         };
         assert_eq!(
-            b.work.limb_multiply_equivalents() - a.work.limb_multiply_equivalents(),
+            b.work.checked_lme().exact().unwrap() - a.work.checked_lme().exact().unwrap(),
             cost * n,
             "{name}"
         );
@@ -987,7 +987,7 @@ fn kf1_golden_stop_rule_work_where_collapses_occur() {
             else {
                 panic!("{name}")
             };
-            let components = replay_certificate_components(&s, meter.charged());
+            let components = replay_certificate_components(&s, meter.checked_charged().exact().unwrap());
             let historical: Vec<Row> = s
                 .evidence()
                 .attempts

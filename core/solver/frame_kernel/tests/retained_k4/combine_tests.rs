@@ -348,7 +348,7 @@ fn a_combination_reuses_its_operands_cached_factor_stops_and_builds() {
         })
         .collect();
     assert!(operands.iter().all(|s| s.selected_precision() == 256));
-    let before = meter.charged();
+    let before = meter.checked_charged().exact().unwrap();
     let combination = match RetainedCombination::solve(
         &[(1.0, operands[0]), (1.0, operands[1])],
         unlimited(),
@@ -366,9 +366,9 @@ fn a_combination_reuses_its_operands_cached_factor_stops_and_builds() {
     assert!(attempts.iter().all(|a| a.shared_work > 0));
     let own: u64 = attempts
         .iter()
-        .map(|a| a.work.limb_multiply_equivalents() + a.k4_work.limb_multiply_equivalents())
+        .map(|a| a.work.checked_lme().exact().unwrap() + a.k4_work.checked_lme().exact().unwrap())
         .sum();
-    assert_eq!(meter.charged() - before, own);
+    assert_eq!(meter.checked_charged().exact().unwrap() - before, own);
     assert_eq!(combination.selected_precision(), 256);
     assert_eq!(attempts.last().unwrap().role, AttemptRole::Verification);
 }
@@ -690,7 +690,7 @@ fn b2k_k04_unrecorded_all_prepared_is_no_selected_operand_after_the_native_check
     let recorded = RetainedCombination::solve_sources_recorded(&[(1.0, CombinationOperand::Prepared(&pa))], unlimited(), &mut meter);
     assert!(matches!(recorded, RecordedCombination::PreSourceRefusal { outcome: CombinationOutcome::Unresolved {
         reason: CombinationReason::NoSelectedOperand, .. }, invocation_before, invocation_after } if invocation_before == invocation_after));
-    assert_eq!(meter.charged(), 0);
+    assert_eq!(meter.checked_charged().exact().unwrap(), 0);
 }
 fn parts_of(s: &PrimitiveSource) -> SourceParts {
     SourceParts { nodes: s.nodes().to_vec(), members: s.members().to_vec(), springs: s.springs().to_vec(),

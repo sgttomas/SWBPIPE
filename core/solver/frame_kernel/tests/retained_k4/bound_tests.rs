@@ -558,7 +558,7 @@ fn kf3_a_budget_stop_inside_the_uc_passes_is_a_stop_not_a_refusal() {
     )
     .unwrap();
     let before =
-        super::super::adaptive::lme(&ctx).exact().unwrap() + sum.work().limb_multiply_equivalents();
+        super::super::adaptive::lme(&ctx).exact().unwrap() + sum.work().checked_lme().exact().unwrap();
     let guard = StageGuard::with_case_room(before + 2_000);
     let got = uc_bounds(
         &mut ctx,
@@ -703,7 +703,7 @@ fn kf3_a_stop_after_an_s_refusal_keeps_it_in_the_evidence() {
             &mut s_refused,
         );
         let used = super::super::adaptive::lme(&ctx).exact().unwrap()
-            + sum.work().limb_multiply_equivalents();
+            + sum.work().checked_lme().exact().unwrap();
         (got, s_refused, used)
     };
     // Unlimited: the results carry both refusals; `s_refused` is the caller's.

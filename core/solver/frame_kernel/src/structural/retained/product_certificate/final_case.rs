@@ -118,8 +118,6 @@ pub enum ProductRecipe {
     NonQuantity,
     /// Selected-material presence record; PP owns its exact source/text binding.
     ModulusBasisRecord,
-    /// Existing dense/sparse observation, with independent ancillary coverage.
-    DenseParityObservation,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProductUnit {
@@ -1035,17 +1033,6 @@ pub(crate) fn certify<'a>(
     }
     spent
 }
-fn mark_dense_parity(
-    spent: &mut ProductCertificateSpent<'_>, row: &ProductFinalRow<'_>, seen: &mut bool,
-) -> Result<(), ProductFailure> {
-    spent.visit()?;
-    if *seen || row.unit != ProductUnit::Record || row.body != 0
-        || !row.value.is_finite() || *row.value < 0.0 {
-        return Err(bad("dense parity coverage/value"));
-    }
-    *seen = true;
-    Ok(())
-}
 fn run_case(
     invocation: &RecordedInvocation,
     run: usize,
@@ -1124,7 +1111,7 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
     -> Result<Vec<[f64;4]>,ProductFailure> {
     let source=owner.source();
     // B2-K (KD §5.2, R-7): a mechanics combination owner publishes no circular
-    // maximum, intensified row, mode, parity or modulus record. Its coverage is
+    // maximum, intensified row, mode or modulus record. Its coverage is
     // every native row and derivative slots 0-19 of each member (slot 20 stays
     // empty); no mode record is required. Every other rule is the case's.
     let combination=!owner.prep.factors.is_empty();
@@ -1143,7 +1130,6 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
         derivative_coverage.resize(derivative_count, false);
         let mut nonquantity = false;
         let mut modulus_basis = false;
-        let mut dense_parity = false;
         if spent.verdicts.capacity()<spent.rows.len() {
             spent.visit()?;
             // Release the previous allocation before reserving; normal prepared
@@ -1176,7 +1162,7 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
             if r.case_id != spent.rows[0].case_id {
                 return Err(bad("case association"));
             }
-            if combination && matches!(r.recipe, ProductRecipe::NonQuantity | ProductRecipe::DenseParityObservation
+            if combination && matches!(r.recipe, ProductRecipe::NonQuantity
                 | ProductRecipe::ModulusBasisRecord | ProductRecipe::CircularMaximum { .. }) {
                 return Err(bad("combination row family"));
             }
@@ -1186,9 +1172,6 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
                         return Err(bad("nonquantity coverage"));
                     }
                     nonquantity = true;
-                }
-                ProductRecipe::DenseParityObservation => {
-                    mark_dense_parity(spent, r, &mut dense_parity)?;
                 }
                 ProductRecipe::ModulusBasisRecord => {
                     if modulus_basis || r.unit != ProductUnit::Record {
@@ -1332,7 +1315,7 @@ fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts],
             let recipe_id = r.recipe;
             if matches!(
                 recipe_id,
-                ProductRecipe::NonQuantity | ProductRecipe::ModulusBasisRecord | ProductRecipe::DenseParityObservation
+                ProductRecipe::NonQuantity | ProductRecipe::ModulusBasisRecord
             ) {
                 spent.verdicts.push(ProductRowVerdict {
                     row: i,
@@ -1578,7 +1561,7 @@ impl<'a> ProductRowSpec<'a> {
     pub fn mechanical(id:&'a str,case_id:&'a str,unit:ProductUnit,body:u32,recipe:ProductRecipe)
         -> Result<Self,ProductFailure> {
         if id.is_empty() || case_id.is_empty() || unit==ProductUnit::Record
-            || matches!(recipe,ProductRecipe::NonQuantity|ProductRecipe::ModulusBasisRecord|ProductRecipe::DenseParityObservation) {
+            || matches!(recipe,ProductRecipe::NonQuantity|ProductRecipe::ModulusBasisRecord) {
             return Err(bad("mechanical descriptor"));
         }
         Ok(Self{id,case_id,unit,body,recipe,observed:None})
@@ -1586,10 +1569,6 @@ impl<'a> ProductRowSpec<'a> {
     pub fn mode(id:&'a str,case_id:&'a str,body:u32,code:u8)->Result<Self,ProductFailure> {
         if !matches!(code,1|2) {return Err(bad("mode code"));}
         Ok(Self{id,case_id,body,unit:ProductUnit::Record,recipe:ProductRecipe::NonQuantity,observed:Some(f64::from(code).to_bits())})
-    }
-    pub fn parity(id:&'a str,case_id:&'a str,body:u32,bits:u64)->Result<Self,ProductFailure> {
-        let x=f64::from_bits(bits);if !x.is_finite() || x<0.0 {return Err(bad("parity bits"));}
-        Ok(Self{id,case_id,body,unit:ProductUnit::Record,recipe:ProductRecipe::DenseParityObservation,observed:Some(bits)})
     }
     pub fn material_record(id:&'a str,case_id:&'a str,body:u32)->Self {
         Self{id,case_id,body,unit:ProductUnit::Record,recipe:ProductRecipe::ModulusBasisRecord,observed:Some(1f64.to_bits())}

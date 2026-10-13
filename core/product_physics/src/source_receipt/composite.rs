@@ -263,7 +263,8 @@ fn norm(values: [f64; 3], intervals: [[f64; 2]; 3]) -> Result<Norm, ReceiptError
     });
     let lo = norm_corner(abs.map(|p| p[0]), false)?;
     let hi = norm_corner(abs.map(|p| p[1]), true)?;
-    let value = scaled_norm(values);
+    // E15: the representative is one correctly rounded norm3 of the checked values.
+    let value = norm3(values[0], values[1], values[2]);
     if !value.is_finite() || value < lo || value > hi {
         return Err(bad("support norm representative range"));
     }
@@ -983,11 +984,7 @@ impl FinalizedSourceBlockCase {
                 .collect(),
             supports: json!([]),
             failure: None,
-            work: work_wire(exact::WorkReport {
-                charged: 0,
-                rejected: 0,
-                limit: 0,
-            })?,
+            work: work_wire(exact::WorkReport::new(0, 0, 0))?,
             actual_rows: serialized(&actual)?,
             qualified: true,
             exact: false,
@@ -1186,5 +1183,5 @@ pub(super) fn take_trace() -> Vec<Value> {
 }
 #[cfg(test)]
 fn trace(stage: &str, selected: &SelectedSourceRecovery) {
-    WORK_TRACE.with(|trace|if let Some(values)=&mut *trace.borrow_mut(){values.push(json!({"stage":stage,"charged":selected.summary().work.charged,"rejected":selected.summary().work.rejected}));});
+    WORK_TRACE.with(|trace|if let Some(values)=&mut *trace.borrow_mut(){values.push(json!({"stage":stage,"charged":selected.summary().work.charged,"rejected":selected.summary().work.rejected.exact().ok()}));});
 }

@@ -140,9 +140,11 @@ pub fn stage_sum(w: &StageWork) -> u64 {
 /// "own + K4 sum"), which hold its solve, its verification pass and its stop
 /// rule.
 pub fn own_total(a: &AttemptRecord) -> u64 {
-    a.work
-        .limb_multiply_equivalents()
-        .saturating_add(a.k4_work.limb_multiply_equivalents())
+    // The harness's observation convention (as `stage_total`): an unavailable
+    // checked total reads as u64::MAX here; the product never reads this.
+    (a.work.checked_lme() + a.k4_work.checked_lme())
+        .exact()
+        .unwrap_or(u64::MAX)
 }
 
 /// The work an attempt charged to the invocation: its own work, plus the

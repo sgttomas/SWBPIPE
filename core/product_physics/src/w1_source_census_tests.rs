@@ -632,7 +632,7 @@ fn b4_failed_ordinary_cxf_publishes_an_eligible_successor() {
         let requested: Vec<&Value> = rows.iter().filter(|r| r["kind"] == json!(rp::REQUESTED_MODE_KIND)).collect();
         assert_eq!(requested.len(), 1, "{label}: ruling (4)");
         assert!(!rows.iter().any(|r| matches!(r["kind"].as_str(),
-            Some("linear_solver_mode_basis" | "sparse_live_path_dense_parity_relative_delta"))), "{label}: no ordinary observation");
+            Some("linear_solver_mode_basis"))), "{label}: no ordinary observation");
         assert_eq!(requested[0]["value"], json!(mode.mode_code()), "{label}");
         assert_eq!(requested[0]["metadata"]["basis"], json!(rp::requested_mode_basis(mode, 0)), "{label}");
         // Ruling (2): the ordinary tokens kept; the evidence refs add the basis row and the certificate.

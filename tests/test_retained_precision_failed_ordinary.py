@@ -120,7 +120,6 @@ def test_requested_mode_mutations_refuse_by_name(index):
 
     for label, mutate in (
         ("coexistence", append_observation("linear_solver_mode_basis", "result:solver-mode:linear-solve-basis")),
-        ("fabricated parity", append_observation("sparse_live_path_dense_parity_relative_delta", "result:sparse-live:dense-parity-relative-delta")),
         ("fabricated observation", replace_with_mode_row),
         ("other mode", other_mode),
         ("owner", basis_text("owner_ref=case:0", "owner_ref=case:1")),
@@ -131,6 +130,9 @@ def test_requested_mode_mutations_refuse_by_name(index):
         ("successful ordinary", successful_ordinary),
     ):
         assert _mutated(base, invocation, mutate) == MISMATCH, label
+    # E14: a row of the retired DEC-050/053 parity kind has no signature and is refused.
+    parity = append_observation("sparse_live_path_dense_parity_relative_delta", "result:sparse-live:dense-parity-relative-delta")
+    assert _mutated(base, invocation, parity)[0] != "accepted"
     assert _mutated(base, invocation, quality("solve_quality", "checks_passed"))[0] == "G5"
     other = deepcopy(invocation)
     other["solver_mode"] = "dense_scrutiny" if invocation["solver_mode"] == "sparse_interactive" else "sparse_interactive"

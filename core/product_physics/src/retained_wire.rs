@@ -32,7 +32,7 @@ pub(super) const CANONICALIZATION: &str = "openpipestress_jcs_ijson_v1";
 /// definition fixture and to the semantic table's entry by tests.
 pub(super) const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub(super) const DEFINITION_SHA256: &str =
-    "7ae382e12b48fed6ede863c6865871bb6bb22b995f3855201cd48c6fdefd19a1";
+    "c4aebcef3ae3863f9576fb3a7e323e77a91687938f6605a83a2fdc958febb15f";
 /// B3b-P (B3-D P-9): the exact successor's identity and profile (reserved 2026-10-03;
 /// `semantic_contract_v0_3_physics_retained_1.json`), and its formation definition DEF-E with
 /// its H("retained_precision_formation_v1", definition) (B3-D REVISION_01 §1.2). Bound to the
@@ -41,7 +41,7 @@ pub(super) const EXACT_SEMANTIC_ID: &str = "openpipestress.result_semantics/0.3.
 pub(super) const EXACT_PROFILE_ID: &str = "exact_straight_retained_w1a_v2";
 pub(super) const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 pub(super) const EXACT_DEFINITION_SHA256: &str =
-    "82f54aedab3055376d2703f4ef87e077f5f5bc105a88b1701aa856df29b42cdc";
+    "306af5fd3abf1e358a7f2eb7a5fa7d8b597c5cb25d4f3d30925acd17cc8c2525";
 /// B3b-P (B3-D P-9; REVISION_01 §2, S-1): the route descriptor the serializer takes its
 /// route-specific members from, never a module constant: the successor's identity and profile,
 /// every product attempt's `definition_id`, the preparation payload's `definition_sha256` (C3
@@ -86,8 +86,6 @@ pub(super) enum ReceiptCheck {
     /// An exact amount above 2^53-1.
     WorkCounterRange,
     WorkCounterInconsistent,
-    /// A legacy `rejected` beyond the safe range: only `saturating_add` reaches it.
-    SaturationNotExcluded,
     Association,
     /// Outside the serializer's scope (G-j; coexistence; D9b).
     Scope,
@@ -105,7 +103,6 @@ impl ReceiptCheck {
             Self::WorkCounter(k::WorkFault::Inconsistent | k::WorkFault::Both) => "work_counter_inconsistent",
             Self::WorkCounterRange => "work_counter_range",
             Self::WorkCounterInconsistent => "work_counter_inconsistent",
-            Self::SaturationNotExcluded => "saturation_not_excluded",
             // A candidate outside the invocation it was given is not associated with it.
             Self::Association | Self::Scope => "association",
             // A payload without a closed translation cannot be encoded.
@@ -1242,7 +1239,7 @@ fn selection(e: &Enc, owner: &k::RetainedSolve, capture: &rp::ProductCapture,
             Some(k::RowClass::AbsoluteVerified { bound_bits }) => absolute.push(json!({"result_id":row,"bound":e.ubits(bound_bits,P)})),
             Some(k::RowClass::RelativeVerified | k::RowClass::InputDerived) => {}
             Some(k::RowClass::Unpublishable) => return Err(fail(ReceiptCheck::Untranslated, "cases[].selection.unpublishable")),
-            None if matches!(recipe, k::ProductRecipe::NonQuantity | k::ProductRecipe::ModulusBasisRecord | k::ProductRecipe::DenseParityObservation) => {}
+            None if matches!(recipe, k::ProductRecipe::NonQuantity | k::ProductRecipe::ModulusBasisRecord) => {}
             None => not_covered.push(json!(row)),
         }
     }

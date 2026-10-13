@@ -926,3 +926,29 @@ fn nonempty_string(value: &Value) -> bool {
     value.as_str().is_some_and(|text| !text.is_empty())
 }
 
+#[cfg(test)]
+mod e14_tests {
+    use super::*;
+    use serde_json::json;
+
+    /// E14: the DEC-050/053 parity observation is retired; no current table
+    /// carries its kind, so a row of it has no signature in any table.
+    #[test]
+    fn e14_no_table_carries_the_retired_parity_kind() {
+        let row = json!({"kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless",
+            "entity_ref":"solver:sparse_direct","value":0.0,
+            "metadata":{"component":"sparse_live_path","coordinate_system":"reduced_system","location":"load_case",
+                "basis":"retired","sign_convention":"retired"}});
+        let tables = [preview_physics_retained_contract(), physics_retained_contract(),
+            physics_contract(), pressure_rows_contract(), load_reference_contract(), load_reference_source_contract(),
+            preview_physics_contract(), physics_source_contract()];
+        for table in tables {
+            assert!(table["rows"].as_array().unwrap().iter().all(|r| r["kind"] != row["kind"]), "{}", table["semantic_contract_id"]);
+            assert_eq!(signature_in(table, &row).ok().flatten(), None, "{}", table["semantic_contract_id"]);
+        }
+        let pressure_source: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
+        )).unwrap();
+        assert!(pressure_source["rows"].as_array().unwrap().iter().all(|r| r["kind"] != row["kind"]));
+    }
+}

@@ -227,16 +227,16 @@ fn metered_bound_matches_pinned_pure_formula_at_branches() {
 fn clone_counter_delta_never_bills_inherited_work() {
     let mut source = ExactWideSum::new();
     source.add_binary64(1.0, false).unwrap();
-    let inherited = source.work().limb_multiply_equivalents();
+    let inherited = source.work().checked_lme().exact().unwrap();
     let mut clone = CloneWork::new(&source);
     let (sign, sign_work) = clone.signum();
     assert_eq!(sign.unwrap(), 1);
-    assert_eq!(sign_work.limb_multiply_equivalents(), 2);
+    assert_eq!(sign_work.checked_lme().exact().unwrap(), 2);
     let mut ctx = WideContext::<16>::new(1024).unwrap();
     let (rounded, round_work) = clone.round(&mut ctx);
     assert_eq!(rounded.unwrap(), Wide::<16>::ONE);
-    assert_eq!(round_work.limb_multiply_equivalents(), 6);
-    assert_eq!(source.work().limb_multiply_equivalents(), inherited);
+    assert_eq!(round_work.checked_lme().exact().unwrap(), 6);
+    assert_eq!(source.work().checked_lme().exact().unwrap(), inherited);
 }
 
 #[test]
@@ -378,13 +378,13 @@ fn c17_cannot_publish_the_false_p128_interval() {
         "verification reused, never solved twice"
     );
     if let CaseOutcome::Selected(s) = out {
-        let components = replay_certificate_components(&s, invocation.charged());
+        let components = replay_certificate_components(&s, invocation.checked_charged().exact().unwrap());
         let a = &s.evidence.attempts;
         // Dynamic budget only places a stop at the first certificate stage.
         // This is integration/closure, not an independent absolute price oracle.
         let before_certificate = a[..2]
             .iter()
-            .map(|r| r.stages.total() + r.shared_stages.total())
+            .map(|r| r.stages.checked_total().exact().unwrap() + r.shared_stages.checked_total().exact().unwrap())
             .sum::<u64>()
             - components[0].total
             - a[1].stop_rule_work;
@@ -413,16 +413,16 @@ fn c17_cannot_publish_the_false_p128_interval() {
         )));
         super::kf3_tests::assert_stage_identity("C17 stopped certificate", &stopped);
         assert_eq!(
-            stopped_meter.charged(),
+            stopped_meter.checked_charged().exact().unwrap(),
             stopped
                 .iter()
-                .map(|r| r.stages.total() + r.shared_stages.total())
+                .map(|r| r.stages.checked_total().exact().unwrap() + r.shared_stages.checked_total().exact().unwrap())
                 .sum::<u64>()
         );
-        let partial_context = stopped[0].work.limb_multiply_equivalents()
-            - (a[0].work.limb_multiply_equivalents() - components[0].context);
-        let partial_sums = stopped[0].k4_work.limb_multiply_equivalents()
-            - (a[0].k4_work.limb_multiply_equivalents() - components[0].sums);
+        let partial_context = stopped[0].work.checked_lme().exact().unwrap()
+            - (a[0].work.checked_lme().exact().unwrap() - components[0].context);
+        let partial_sums = stopped[0].k4_work.checked_lme().exact().unwrap()
+            - (a[0].k4_work.checked_lme().exact().unwrap() - components[0].sums);
         assert_eq!(
             stopped[0].stop_rule_work,
             components[0].r7 + partial_context + partial_sums
@@ -1181,10 +1181,10 @@ fn independent_fixed_extra_source_rows_never_escape_their_bare_claim() {
         let attempts = outcome_attempts(&out);
         super::kf3_tests::assert_stage_identity("fixed extra source", attempts);
         assert_eq!(
-            invocation.charged(),
+            invocation.checked_charged().exact().unwrap(),
             attempts
                 .iter()
-                .map(|a| a.stages.total() + a.shared_stages.total())
+                .map(|a| a.stages.checked_total().exact().unwrap() + a.shared_stages.checked_total().exact().unwrap())
                 .sum::<u64>()
         );
         if id == 2 {
@@ -1425,12 +1425,12 @@ pub(super) fn replay_certificate_components(
     super::kf3_tests::assert_stage_identity("publication component replay", attempts);
     let case_total: u64 = attempts
         .iter()
-        .map(|a| a.stages.total() + a.shared_stages.total())
+        .map(|a| a.stages.checked_total().exact().unwrap() + a.shared_stages.checked_total().exact().unwrap())
         .sum();
     let invocation_total: u64 = attempts
         .iter()
         .map(|a| {
-            a.stages.total()
+            a.stages.checked_total().exact().unwrap()
                 + if a.shared_built_here {
                     a.shared_work
                 } else {
@@ -1490,7 +1490,7 @@ pub(super) fn replay_certificate_components(
             );
             assert_eq!(
                 r7.total.exact().unwrap(),
-                r7.work.limb_multiply_equivalents() + r7.sum_work.limb_multiply_equivalents()
+                r7.work.checked_lme().exact().unwrap() + r7.sum_work.checked_lme().exact().unwrap()
             );
             let mut out = CertificateComponents {
                 r7: r7.total.exact().unwrap(),
@@ -1505,8 +1505,8 @@ pub(super) fn replay_certificate_components(
                     r7.floor.as_deref(),
                     StageGuard::unlimited(),
                 );
-                out.context = certificate.work.limb_multiply_equivalents();
-                out.sums = certificate.sums.limb_multiply_equivalents();
+                out.context = certificate.work.checked_lme().exact().unwrap();
+                out.sums = certificate.sums.checked_lme().exact().unwrap();
                 out.total = certificate.total.exact().unwrap();
                 assert_eq!(out.total, out.context + out.sums);
                 match certificate.result.unwrap() {

@@ -4,6 +4,7 @@
 //! or a replacement for it. All free connected components must have order <= 2.
 //! Private owned source and private response construction prevent caller-supplied
 //! reports from serving as proofs. Projection is explicitly distinct from proof.
+use super::retained::work::WorkTotal;
 use super::{Expansion, StiffnessContribution, StructuralError, StructuralSystem};
 
 pub mod functionals;
@@ -74,13 +75,14 @@ impl Default for Limits {
 struct Work {
     limits: Limits,
     used: usize,
-    rejected: usize,
+    /// D6: refused reservations, one checked total (no saturation).
+    rejected: WorkTotal,
 }
 impl Work {
     fn charge(&mut self, n: usize) -> Result<(), Error> {
         let next = self.used.checked_add(n);
         if next.is_none() || next.is_some_and(|x| x > self.limits.operations) {
-            self.rejected = self.rejected.saturating_add(n);
+            self.rejected = self.rejected.add(WorkTotal::exact_count(n as u64));
             return Err(Error::Budget);
         }
         self.used = next.unwrap();
@@ -281,7 +283,7 @@ impl Context {
         let mut w = Work {
             limits,
             used: 0,
-            rejected: 0,
+            rejected: WorkTotal::zero(),
         };
         Self::new_charged(system, identity, force_basis, limits, &mut w)
     }
@@ -520,7 +522,7 @@ impl Context {
         let mut w = Work {
             limits: self.limits,
             used: self.preparation_operations,
-            rejected: 0,
+            rejected: WorkTotal::zero(),
         };
         self.solve_charged(&mut w)
     }
@@ -613,13 +615,24 @@ pub struct Response<'a> {
 }
 /// Per-call conservative algorithmic work reservations, not hardware operation
 /// counts. Charges include bounded scalar checks, loops and exact arithmetic.
-/// `rejected` is an attempted budget reservation that was NOT executed. A range
+/// `rejected` is the checked total of attempted budget reservations that were
+/// NOT executed (D6: unavailable on overflow, never saturated). A range
 /// failure retains its accepted precharge, even if arithmetic stopped early.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct WorkReport {
     pub charged: usize,
-    pub rejected: usize,
+    pub rejected: WorkTotal,
     pub limit: usize,
+}
+impl WorkReport {
+    /// A report whose refused reservations are the exact count `rejected`.
+    pub fn new(charged: usize, rejected: usize, limit: usize) -> Self {
+        Self {
+            charged,
+            rejected: WorkTotal::exact_count(rejected as u64),
+            limit,
+        }
+    }
 }
 #[derive(Debug)]
 pub struct Attempt<T> {
@@ -637,7 +650,7 @@ fn metered<T>(
             ..limits
         },
         used: 0,
-        rejected: 0,
+        rejected: WorkTotal::zero(),
     };
     let result = f(&mut w);
     Attempt {
@@ -931,12 +944,6 @@ impl<'a> Response<'a> {
             let sn = w.sum(&Expansion::default(), &r.numerator, sense as f64)?;
             Ok(sign(&w.sum(&sn, &gd, -1.0)?))
         })
-    }
-    /// Compatibility wrapper; callers requiring total work must retain the
-    /// corresponding `*_with_work` attempt, including failed calls.
-    pub fn gap_sign(&self, dof: usize, sense: i8, gap: f64) -> Result<Sign, Error> {
-        self.gap_sign_with_work(dof, sense, gap, self.context.limits.operations)
-            .result
     }
     pub fn signed_reaction_with_work(
         &self,
@@ -1753,7 +1760,7 @@ mod tests {
             replay.work.charged - 1,
         );
         assert!(matches!(denied.result, Err(Error::Budget)));
-        assert!(denied.work.rejected > 0);
+        assert!(denied.work.rejected.exact().unwrap() > 0);
     }
     #[test]
     fn retained_mutations_and_different_consistent_source_reject_original_binding() {
@@ -2050,7 +2057,7 @@ mod tests {
         assert_eq!(a.work.limit, c.limits.operations);
         let b = r.gap_sign_with_work(1, 1, 0.125, a.work.charged - 1);
         assert_eq!(b.result, Err(Error::Budget));
-        assert!(b.work.rejected > 0);
+        assert!(b.work.rejected.exact().unwrap() > 0);
         let invalid = r.gap_sign_with_work(999, 1, 0.125, usize::MAX);
         assert!(invalid.result.is_err());
         assert!(invalid.work.charged > 0);
@@ -2066,11 +2073,11 @@ mod tests {
         let zero_budget = r.project_displacement(1, 1e-9, 0);
         assert!(matches!(zero_budget.result, Err(Error::Budget)));
         assert_eq!(zero_budget.work.charged, 0);
-        assert!(zero_budget.work.rejected > 0);
+        assert!(zero_budget.work.rejected.exact().unwrap() > 0);
         let small_budget = r.project_displacement(1, 1e-9, 40);
         assert!(matches!(small_budget.result, Err(Error::Budget)));
         assert!(small_budget.work.charged > 0);
-        assert!(small_budget.work.rejected > 0);
+        assert!(small_budget.work.rejected.exact().unwrap() > 0);
         assert_eq!(r.operations(), base); // explicitly not a lifetime-total accessor
     }
     #[test]
@@ -2199,7 +2206,7 @@ mod tests {
             );
             for j in 1..3 {
                 assert_eq!(
-                    r.gap_sign(j, sense as i8, [0.125, 0.25][j - 1]).unwrap(),
+                    r.gap_sign_with_work(j, sense as i8, [0.125, 0.25][j - 1], usize::MAX).result.unwrap(),
                     Sign::Zero
                 );
                 assert_eq!(r.reaction(j).unwrap().sign(), Sign::Zero);
@@ -2509,8 +2516,8 @@ mod tests {
         )
         .unwrap();
         assert_eq!(
-            a.solve().unwrap().gap_sign(0, 1, 0.125).unwrap(),
-            b.solve().unwrap().gap_sign(0, 1, 0.125).unwrap()
+            a.solve().unwrap().gap_sign_with_work(0, 1, 0.125, usize::MAX).result.unwrap(),
+            b.solve().unwrap().gap_sign_with_work(0, 1, 0.125, usize::MAX).result.unwrap()
         );
     }
     #[test]
@@ -2561,8 +2568,8 @@ mod tests {
             ];
             let c = make(&k, &[12.5 * scale, 0.0], &[1, 0], &[]).unwrap();
             let r = c.solve().unwrap();
-            assert_eq!(r.gap_sign(1, 1, 0.125).unwrap(), Sign::Zero);
-            assert_eq!(r.gap_sign(0, 1, 0.25).unwrap(), Sign::Zero);
+            assert_eq!(r.gap_sign_with_work(1, 1, 0.125, usize::MAX).result.unwrap(), Sign::Zero);
+            assert_eq!(r.gap_sign_with_work(0, 1, 0.25, usize::MAX).result.unwrap(), Sign::Zero);
         }
     }
     // Frozen independent Python Fraction oracle, STRICT_GAP_DESIGN/REFERENCE_PROOF.json.
@@ -2759,7 +2766,7 @@ mod tests {
                             next[j] = if state[j] {
                                 r.signed_reaction(j + 1, sense as i8).unwrap() != Sign::Positive
                             } else {
-                                r.gap_sign(j + 1, sense as i8, gaps[j]).unwrap() != Sign::Negative
+                                r.gap_sign_with_work(j + 1, sense as i8, gaps[j], usize::MAX).result.unwrap() != Sign::Negative
                             };
                         }
                         if next == state {

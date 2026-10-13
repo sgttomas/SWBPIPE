@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 69,
-  "source_kind_count": 52,
+  "source_signature_count": 68,
+  "source_kind_count": 51,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -579,20 +579,6 @@
       "governing_ratio_eligible": false
     },
     {
-      "signature_id": "supported-source-037",
-      "kind": "sparse_live_path_dense_parity_relative_delta",
-      "unit": "unitless",
-      "component": "sparse_live_path",
-      "source_physical_semantic_dimension": "dimensionless",
-      "derivative_target_dimension": "ratio",
-      "category": "diagnostic_relative_ratio",
-      "family": null,
-      "canonical_disposition": "disclosed",
-      "legacy_declared_dimension": null,
-      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
-    },
-    {
       "signature_id": "supported-source-043",
       "kind": "spring_hanger_user_input_review",
       "unit": "N/m",
@@ -1133,7 +1119,7 @@
   "product_formation_definitions": [
     {
       "id": "RP-PREPARED-EXACT-DUAL-v1",
-      "sha256": "82f54aedab3055376d2703f4ef87e077f5f5bc105a88b1701aa856df29b42cdc"
+      "sha256": "306af5fd3abf1e358a7f2eb7a5fa7d8b597c5cb25d4f3d30925acd17cc8c2525"
     }
   ],
   "accuracy_classification": {

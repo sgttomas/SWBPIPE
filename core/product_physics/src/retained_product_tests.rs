@@ -151,7 +151,7 @@ fn i50_dump(e: &MechanicsEnvelope, o: &ProductCapture, mode: PreviewSolverMode) 
         "verdicts":verdicts,"error":format!("{:?}",o.error),"numeric_failure":format!("{:?}",o.numeric_failure),"numeric_pass":o.numeric_pass,
         "g5a":format!("{:?}",o.g5a_error),"observable":format!("{:?}",o.observable_error),"full_case":o.full_case_passed(),
         "hooks":[o.normalized_calls,o.case_calls,o.final_calls],"observation_calls":o.observation_calls,"invocation_calls":o.invocation_calls,
-        "observations":o.observations.as_ref().map(|v|serde_json::json!({"case":v.case,"mode":v.mode.as_str(),"mode_bits":format!("{:016x}",v.mode_row.value_bits),"mode_basis":v.mode_row.basis,"parity_produced":v.parity_produced,"parity":v.parity.as_ref().map(|p|serde_json::json!({"bits":format!("{:016x}",p.value_bits),"basis":p.basis}))})),"observation_capacity_bytes":o.observation_capacity_bytes,"adapter":format!("{:?}",o.adapter),"work":o.work,
+        "observations":o.observations.as_ref().map(|v|serde_json::json!({"case":v.case,"mode":v.mode.as_str(),"mode_bits":format!("{:016x}",v.mode_row.value_bits),"mode_basis":v.mode_row.basis})),"observation_capacity_bytes":o.observation_capacity_bytes,"adapter":format!("{:?}",o.adapter),"work":o.work,
         "g5a_work":format!("{:?}",o.g5a_work),"operational":format!("{:?}",o.operational),"support_capacity_bytes":o.support_capacity_bytes,"spring_map":format!("{:?}",o.spring_map)})
     );
 }
@@ -176,21 +176,11 @@ fn i50_actual_named_case_both_modes_complete_private_verdict() {
             e.numerical_quality.cases[0].solve_quality,
             NumericalQualityStatus::Sensitive
         );
-        assert_eq!(
-            e.results.len(),
-            if mode == PreviewSolverMode::SparseInteractive {
-                98
-            } else {
-                99
-            }
-        );
+        // E14: no parity row in either mode.
+        assert_eq!(e.results.len(), 98);
         assert_eq!((o.normalized_calls, o.case_calls, o.final_calls), (1, 1, 1));
         assert_eq!((o.invocation_calls, o.observation_calls), (1, 1));
         assert_eq!(o.invocation_mode, Some(mode));
-        assert_eq!(
-            o.observations.as_ref().unwrap().parity_produced,
-            mode == PreviewSolverMode::DenseScrutiny
-        );
         assert!(!o.request_materials);
         complete &=
             o.error.is_none() && o.numeric_failure.is_none() && o.verdicts.len() == e.results.len();
@@ -666,10 +656,7 @@ fn i50_observation_custody_presence_fields_and_failure_prefixes() {
         .results
         .iter()
         .filter(|r| {
-            matches!(
-                r.kind.as_str(),
-                "linear_solver_mode_basis" | "sparse_live_path_dense_parity_relative_delta"
-            )
+            r.kind == "linear_solver_mode_basis"
         })
         .cloned()
         .map(|mut r| {
@@ -677,7 +664,8 @@ fn i50_observation_custody_presence_fields_and_failure_prefixes() {
             r
         })
         .collect();
-    assert_eq!(prefix.len(), 2);
+    // E14: the mode row is the only ordinary observation.
+    assert_eq!(prefix.len(), 1);
     // Fresh synthetic seam owners and copies of actual immutable producing
     // fields isolate custody failures; these are not new runtime witnesses.
     let fresh = || {
@@ -696,7 +684,6 @@ fn i50_observation_custody_presence_fields_and_failure_prefixes() {
     for name in [
         "missing mode",
         "duplicate mode",
-        "duplicate parity",
         "wrong mode",
         "fallback",
         "foreign case",
@@ -711,7 +698,6 @@ fn i50_observation_custody_presence_fields_and_failure_prefixes() {
                 rows.remove(0);
             }
             "duplicate mode" => rows.push(rows[0].clone()),
-            "duplicate parity" => rows.push(rows[1].clone()),
             "wrong mode" => rows[0].value = 1.0,
             "fallback" => rows[0].value = 3.0,
             "foreign case" => other.id = "foreign".into(),
@@ -726,14 +712,11 @@ fn i50_observation_custody_presence_fields_and_failure_prefixes() {
     for name in [
         "missing hook",
         "duplicate hook",
-        "missing snapshot and row",
-        "missing snapshot",
         "wrong capture mode",
         "wrong invocation mode",
         "wrong case",
         "wrong count",
         "extra final",
-        "missing final",
         "missing final mode",
     ] {
         let mut o = captured();
@@ -746,11 +729,6 @@ fn i50_observation_custody_presence_fields_and_failure_prefixes() {
             "duplicate hook" => {
                 o.solver_observations(case, PreviewSolverMode::DenseScrutiny, &prefix)
             }
-            "missing snapshot and row" => {
-                o.observations.as_mut().unwrap().parity = None;
-                final_e.results.remove(1);
-            }
-            "missing snapshot" => o.observations.as_mut().unwrap().parity = None,
             "wrong capture mode" => {
                 o.observations.as_mut().unwrap().mode = PreviewSolverMode::SparseInteractive
             }
@@ -759,10 +737,7 @@ fn i50_observation_custody_presence_fields_and_failure_prefixes() {
             }
             "wrong case" => o.observations.as_mut().unwrap().case = "foreign".into(),
             "wrong count" => o.observation_calls = 2,
-            "extra final" => final_e.results.push(final_e.results[1].clone()),
-            "missing final" => {
-                final_e.results.remove(1);
-            }
+            "extra final" => final_e.results.push(final_e.results[0].clone()),
             "missing final mode" => {
                 final_e.results.remove(0);
             }
@@ -770,7 +745,7 @@ fn i50_observation_custody_presence_fields_and_failure_prefixes() {
         }
         assert!(o.bind_observations(&final_e).is_err(), "{name}");
     }
-    for index in [0, 1] {
+    for index in [0] {
         for field in [
             "id",
             "kind",
@@ -823,42 +798,6 @@ fn i50_observation_custody_presence_fields_and_failure_prefixes() {
             assert!(o.bind_observations(&changed).is_err(), "{index}: {field}");
         }
     }
-    // Explicit terminal absence represents either reviewed no-row branch. This
-    // is a synthetic boundary control, not evidence of a naturally absent run.
-    let mut absent = fresh();
-    absent.solver_observations(case, PreviewSolverMode::DenseScrutiny, &prefix[..1]);
-    assert!(!absent.observations.as_ref().unwrap().parity_produced);
-    let mut absent_final = e.clone();
-    absent_final.results.remove(1);
-    absent.bind_observations(&absent_final).unwrap();
-    assert!(absent.bind_observations(&e).is_err());
-    for zero in [0.0f64, -0.0f64] {
-        let mut o = fresh();
-        let mut rows = prefix.clone();
-        rows[1].value = zero;
-        o.solver_observations(case, PreviewSolverMode::DenseScrutiny, &rows);
-        assert!(o.error.is_none());
-        let mut final_e = e.clone();
-        final_e.results[1].value = zero;
-        o.bind_observations(&final_e).unwrap();
-        assert!(o.observations.as_ref().unwrap().parity_produced);
-        assert_eq!(
-            o.observations
-                .as_ref()
-                .unwrap()
-                .parity
-                .as_ref()
-                .unwrap()
-                .value_bits,
-            zero.to_bits()
-        );
-    }
-    let mut sparse = fresh();
-    sparse.invocation_mode = Some(PreviewSolverMode::SparseInteractive);
-    let mut rows = prefix.clone();
-    rows[0].value = 1.0;
-    sparse.solver_observations(case, PreviewSolverMode::SparseInteractive, &rows);
-    assert!(format!("{:?}", sparse.error).contains("parity mode/value"));
     for event in [
         E::SourceVisit,
         E::MapWrite,
@@ -899,45 +838,35 @@ fn i50_observation_custody_presence_fields_and_failure_prefixes() {
         Some(CaptureError::CountRange("observation calls"))
     ));
     let mut storage = fresh();
-    storage.observation_storage_failure = Some(2);
+    storage.observation_storage_failure = Some(1);
     storage.solver_observations(case, PreviewSolverMode::DenseScrutiny, &prefix);
     assert!(matches!(storage.error, Some(CaptureError::Storage(_))));
     assert!(storage.observations.is_none());
     assert!(
         storage.observation_capacity_bytes[0] > 0
-            && storage.observation_capacity_bytes[1] > 0
-            && storage.observation_capacity_bytes[2] == 0
+            && storage.observation_capacity_bytes[1] == 0
     );
     let saved = storage.adapter.counts.get();
     storage.solver_observations(case, PreviewSolverMode::DenseScrutiny, &prefix);
     assert_eq!(saved, storage.adapter.counts.get());
-    println!("I50_OBSERVATION_SYNTHETIC absence_and_signed_zero_pass storage_prefix={saved:?}");
+    println!("I50_OBSERVATION_SYNTHETIC storage_prefix={saved:?}");
     // Independent typed FK maximum coverage, bypassing final-id validation only
     // for isolated synthetic descriptors; mode remains mandatory.
     let (invocation, case) = actual.native_pair().unwrap();
     let k::ExecutionOutcome::Selected(owner) = &case.outcome else {
         panic!()
     };
-    for name in [
-        "duplicate",
-        "unit",
-        "missing mode",
-        "parity substitutes mode",
-        "negative",
-        "negative zero",
-    ] {
+    for name in ["duplicate", "unit", "missing mode"] {
         let mut rows = actual.bind_rows(&e, owner).unwrap();
         let p = rows
             .iter()
-            .position(|r| r.recipe == k::ProductRecipe::DenseParityObservation)
+            .position(|r| r.recipe == k::ProductRecipe::NonQuantity)
             .unwrap();
-        let negative = -1.0;
-        let negative_zero = -0.0;
         match name {
             "duplicate" => {
                 let r = &rows[p];
                 let copy = k::ProductFinalRow {
-                    id: "distinct-parity",
+                    id: "distinct-mode",
                     case_id: r.case_id,
                     value: r.value,
                     unit: r.unit,
@@ -948,32 +877,12 @@ fn i50_observation_custody_presence_fields_and_failure_prefixes() {
             }
             "unit" => rows[p].unit = k::ProductUnit::Newton,
             "missing mode" => {
-                let i = rows
-                    .iter()
-                    .position(|r| r.recipe == k::ProductRecipe::NonQuantity)
-                    .unwrap();
-                rows.remove(i);
-            }
-            "parity substitutes mode" => {
-                let i = rows
-                    .iter()
-                    .position(|r| r.recipe == k::ProductRecipe::NonQuantity)
-                    .unwrap();
-                rows[i].recipe = k::ProductRecipe::DenseParityObservation;
                 rows.remove(p);
             }
-            "negative" => rows[p].value = &negative,
-            "negative zero" => rows[p].value = &negative_zero,
             _ => unreachable!(),
         }
         let spent = invocation.certify_product_case(case.run, owner, &actual.facts, &rows);
-        if name == "negative zero" {
-            assert!(spent.failure().is_none());
-            assert_eq!(spent.verdicts()[p].class, None);
-            assert_eq!(spent.verdicts()[p].normalized_bits, (-0.0f64).to_bits());
-        } else {
-            assert_eq!(spent.failure().unwrap().category(), "association");
-        }
+        assert_eq!(spent.failure().unwrap().category(), "association", "{name}");
     }
 }
 
@@ -2511,7 +2420,7 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
     // Only construct ordinary inputs and exercise capture. No public preview,
     // full model solve, native invocation, factor or certificate is called.
     for name in ["valid","missing early","missing observations","foreign case","wrong invocation mode",
-        "wrong observation mode","wrong observation owner","wrong parity presence","wrong mode bits",
+        "wrong observation mode","wrong observation owner","wrong mode bits",
         "multiple cases","combination","selected","duplicate","inner capture failure",
         "key accounting","identity accounting","marker accounting","inner accounting","missing late",
         "final identity","final status","final source selected","final value","final metadata","prepared reserve fault"] {
@@ -2542,7 +2451,6 @@ fn i51_c0_isolated_late_hook_custody_and_prefixes() {
             "wrong invocation mode"=>o.invocation_mode=Some(PreviewSolverMode::DenseScrutiny),
             "wrong observation mode"=>o.observations.as_mut().unwrap().mode=PreviewSolverMode::DenseScrutiny,
             "wrong observation owner"=>o.observations.as_mut().unwrap().case="foreign".into(),
-            "wrong parity presence"=>o.observations.as_mut().unwrap().parity_produced=true,
             "wrong mode bits"=>o.observations.as_mut().unwrap().mode_row.value_bits=2f64.to_bits(),
             "multiple cases"=>request.model.load_cases.push(request.model.load_cases[0].clone()),
             // B2-P (T-2′): the hooks refuse a combination D1.4 does not admit (here h = 4; one
@@ -2734,7 +2642,6 @@ fn i51_frozen_owner_values_and_numeric_refusal_controls() {
         let base=prepared.capture().bind_rows(&ordinary,owner).unwrap();
         let specs:Vec<_>=base.iter().map(|r|match r.recipe {
             k::ProductRecipe::NonQuantity=>k::ProductRowSpec::mode(r.id,r.case_id,r.body,1).unwrap(),
-            k::ProductRecipe::DenseParityObservation=>k::ProductRowSpec::parity(r.id,r.case_id,r.body,r.value.to_bits()).unwrap(),
             k::ProductRecipe::ModulusBasisRecord=>k::ProductRowSpec::material_record(r.id,r.case_id,r.body),
             _=>k::ProductRowSpec::mechanical(r.id,r.case_id,r.unit,r.body,r.recipe).unwrap(),}).collect();
         let draft=invocation.begin_prepared_product(case.run,owner,&prepared.capture().facts,&specs).into_ready().unwrap();
@@ -3147,7 +3054,6 @@ fn i61_fk_certificate_failure(variant:usize)->(retained_product::PreparedCase,k:
         let base=prepared.capture().bind_rows(&ordinary,owner).unwrap();
         let specs:Vec<_>=base.iter().map(|r|match r.recipe {
             k::ProductRecipe::NonQuantity=>k::ProductRowSpec::mode(r.id,r.case_id,r.body,1).unwrap(),
-            k::ProductRecipe::DenseParityObservation=>k::ProductRowSpec::parity(r.id,r.case_id,r.body,r.value.to_bits()).unwrap(),
             k::ProductRecipe::ModulusBasisRecord=>k::ProductRowSpec::material_record(r.id,r.case_id,r.body),
             _=>k::ProductRowSpec::mechanical(r.id,r.case_id,r.unit,r.body,r.recipe).unwrap(),}).collect();
         let draft=invocation.begin_prepared_product(case.run,owner,&prepared.capture().facts,&specs).into_ready().unwrap();

@@ -42,8 +42,10 @@ fn unit(u: FunctionalUnit) -> Result<&'static str, ReceiptError> {
         _ => return Err(bad("unsupported projection unit")),
     })
 }
+/// E15: the registered translation/support norm recipes are one correctly
+/// rounded `norm3` of the published components; the range refusals are unchanged.
 pub(super) fn finite_norm(values: [f64; 3]) -> Result<f64, ReceiptError> {
-    let value = scaled_norm(values);
+    let value = norm3(values[0], values[1], values[2]);
     if values.iter().any(|x| !x.is_finite())
         || !value.is_finite()
         || (values.iter().any(|x| *x != 0.0) && !value.is_normal())
@@ -691,13 +693,6 @@ pub(super) fn observation(row: &ResultItem) -> bool {
                 && m.component == "linear_solver_mode"
                 && m.coordinate_system == "reduced_system"
                 && matches!(row.value, 1.0 | 2.0 | 3.0)
-        }
-        "sparse_live_path_dense_parity_relative_delta" => {
-            row.unit == "unitless"
-                && row.entity_ref == "solver:sparse_direct"
-                && m.component == "sparse_live_path"
-                && m.coordinate_system == "reduced_system"
-                && row.value >= 0.0
         }
         "modulus_basis_record" | "combination_modulus_basis_record" => {
             row.unit == "record"

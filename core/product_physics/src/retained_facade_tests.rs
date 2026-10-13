@@ -155,7 +155,7 @@ fn u3_each_stage_fault_falls_back_to_the_ordinary_bytes() {
     check(&envelope, &noticed(None), "serializer association");
     // Serializer receipt-encoding refusals carry C1:68's reason and detail token.
     for (fault, detail) in [(C::WorkCounterRange, Some("work_counter_range")), (C::WorkCounterInconsistent, Some("work_counter_inconsistent")),
-        (C::SaturationNotExcluded, Some("saturation_not_excluded")), (C::PublicationHashRange, Some("publication_hash_range")),
+        (C::PublicationHashRange, Some("publication_hash_range")),
         (C::WorkCounter(k::WorkFault::Overflow), Some("work_counter_range")), (C::WorkCounter(k::WorkFault::Both), Some("work_counter_inconsistent")),
         (C::Encoding, None), (C::Untranslated, None), (C::Scope, None)] {
         let (capture, observer, ordinary) = observed(mode, &raw);
@@ -219,13 +219,13 @@ fn u3_each_stage_fault_falls_back_to_the_ordinary_bytes() {
 fn u3_r2_notice_bytes_are_pinned() {
     assert_eq!(RETAINED_UNAVAILABLE_NOTICE, "Retained-precision recovery is unavailable for this load case. Its published rows keep their ordinary values, standing and diagnostics.");
     assert!(!RETAINED_UNAVAILABLE_NOTICE.contains("receipt"), "no receipt reference");
-    let longest = ["work_counter_range", "work_counter_inconsistent", "saturation_not_excluded", "publication_hash_range"].map(str::len).into_iter().max();
+    let longest = ["work_counter_range", "work_counter_inconsistent", "publication_hash_range"].map(str::len).into_iter().max();
     assert_eq!(longest, Some(25), "the reserved message capacity covers every detail token");
     // RV85 T1: the constant the reservation uses is the longest detail
     // `receipt_encoding_detail` can return, over every typed check.
     use super::retained_wire::ReceiptCheck as C;
     let every = [C::Encoding, C::PublicationHashRange, C::WorkCounter(k::WorkFault::Overflow), C::WorkCounter(k::WorkFault::Inconsistent),
-        C::WorkCounter(k::WorkFault::Both), C::WorkCounterRange, C::WorkCounterInconsistent, C::SaturationNotExcluded, C::Association, C::Scope, C::Untranslated];
+        C::WorkCounter(k::WorkFault::Both), C::WorkCounterRange, C::WorkCounterInconsistent, C::Association, C::Scope, C::Untranslated];
     assert_eq!(every.iter().filter_map(|c| receipt_encoding_detail(*c)).map(str::len).max(), Some(RECEIPT_ENCODING_DETAIL_MAX));
     assert_eq!(RETAINED_UNAVAILABLE_NOTICE.len() + RECEIPT_ENCODING_REASON.len() + RECEIPT_ENCODING_DETAIL_MAX + 1, 196, "the reserved message bytes");
 }
@@ -1831,7 +1831,7 @@ fn b1_sp_w_c2_transaction_faults_and_abandonment() {
     assert_eq!(run(&|_| ()).0, (W1Fallback::Native, 0), "a T-8 call failure");
     hooks::break_next_staging();
     assert_eq!(run(&|_| ()).0, (W1Fallback::Staging(rp::StagingFault("pipe_stress_extrema[]")), 0b01), "staging");
-    for check in [C::WorkCounterRange, C::WorkCounterInconsistent, C::SaturationNotExcluded, C::PublicationHashRange, C::Encoding, C::Untranslated, C::Scope, C::Association] {
+    for check in [C::WorkCounterRange, C::WorkCounterInconsistent, C::PublicationHashRange, C::Encoding, C::Untranslated, C::Scope, C::Association] {
         hooks::fail_next_serializer(check);
         assert_eq!(run(&|_| ()).0, (W1Fallback::Serializer(ReceiptFailure { check, field_path: "cases[].run.invocation_after" }), 0b01), "serializer {check:?}");
     }
@@ -3873,7 +3873,7 @@ fn b2p_constants_bound_to_in_tree_fixtures() {
     let table: Value = serde_json::from_str(include_str!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json")).unwrap();
     let h = wire::domain_hash("retained_precision_formation_v1", &definition).unwrap();
     assert_eq!(definition["id"], json!(wire::COMBINATION_DEFINITION_ID));
-    assert_eq!(h, "f17921fd45625b4684f640ea6a9dfe8d032eeb431feef4fe357b045e5d42025d");
+    assert_eq!(h, "34ce87e7ad6da457d81a5cbf25a077fb5d08f2960c5fd815e1163646de02d24a");
     assert!(table["product_formation_definitions"].as_array().unwrap().contains(&json!({"id": wire::COMBINATION_DEFINITION_ID, "sha256": h})));
 }
 

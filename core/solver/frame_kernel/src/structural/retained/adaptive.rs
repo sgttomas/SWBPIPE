@@ -99,9 +99,6 @@ impl InvocationMeter {
             charged: WorkTotal::zero(),
         }
     }
-    pub fn charged(&self) -> u64 {
-        self.charged.legacy_saturated()
-    }
     pub fn limit(&self) -> u64 {
         self.limit
     }
@@ -1233,10 +1230,6 @@ impl StageWork {
             t.add(WorkTotal::exact_count(n))
         })
     }
-    #[cfg(test)]
-    pub(crate) fn total(&self) -> u64 {
-        self.checked_total().legacy_saturated()
-    }
     fn slot(&mut self, stage: Stage) -> &mut u64 {
         match stage {
             Stage::Formation => &mut self.formation,
@@ -1261,9 +1254,9 @@ impl StageWork {
         }
     }
     pub(crate) fn set(&mut self, stage: Stage, work: WorkTotal) -> Result<(), WorkFault> {
-        self.status = self.status.join(work.status());
-        *self.slot(stage) = work.legacy_saturated();
-        self.status = self.status.join(self.checked_total().status());
+        let mut status = self.status;
+        work.record_into(self.slot(stage), &mut status);
+        self.status = status.join(self.checked_total().status());
         self.checked_total().exact().map(|_| ())
     }
     pub(crate) fn add_to(&mut self, stage: Stage, work: WorkTotal) -> Result<(), WorkFault> {
@@ -4122,7 +4115,7 @@ fn solve_precision(
                 );
             }
             record.latch(shared_total);
-            record.shared_work = shared_total.legacy_saturated();
+            shared_total.record_into(&mut record.shared_work, &mut record.work_status);
             record.shared_built_here = built;
             record.shared_stages = shared_stages;
             // The shared work counts in full against this case; against the
@@ -4153,8 +4146,7 @@ fn solve_precision(
                         base: WorkTotal::zero(),
                         case_room: case_room - shared_total,
                         invocation_room: invocation_spent
-                            .room(invocation_room.legacy_saturated())
-                            .join_status(invocation_room.status()),
+                            .room_in(invocation_room),
                     };
                     let spent = solve_case_at::<$L, $R>(&shared, prep, group, own_guard);
                     record.work = spent.work;
@@ -4323,7 +4315,7 @@ fn verify_precision(
                 );
             }
             record.latch(vs_total);
-            record.verification_shared_work = vs_total.legacy_saturated();
+            vs_total.record_into(&mut record.verification_shared_work, &mut record.work_status);
             record.verification_shared_built_here = built;
             let stage_merge = record.shared_stages.add(&vs_stages);
             let invocation_spent = if built { vs_total } else { vs_total.mul(0) };
@@ -4344,15 +4336,14 @@ fn verify_precision(
                 base: WorkTotal::zero(),
                 case_room: case_room - vs_total,
                 invocation_room: invocation_spent
-                    .room(invocation_room.legacy_saturated())
-                    .join_status(invocation_room.status()),
+                    .room_in(invocation_room),
             };
             let spent = verify_state::<$L, $R, $W>(&shared, &vs, prep, group, $solved, own_guard);
             record.work.merge(&spent.work);
             record.k4_work.merge(&spent.sum_work);
             let stage_merge = record.stages.add(&spent.stages);
             record.latch(spent.total);
-            record.verification_work = spent.total.legacy_saturated();
+            spent.total.record_into(&mut record.verification_work, &mut record.work_status);
             record.bound_refusals.extend(spent.refusals.iter().copied());
             budget.charge(spent.total, spent.total, meter);
             let result = budget.retain(spent.result, record, meter)?;
@@ -4674,7 +4665,7 @@ fn run_schedule_inner(
             record.latch(decision.total);
             let stop_work = record.checked_stop_rule_work().add(decision.total);
             record.latch(stop_work);
-            record.stop_rule_work = stop_work.legacy_saturated();
+            stop_work.record_into(&mut record.stop_rule_work, &mut record.work_status);
             let _ = record.stages.add_to(Stage::StopRule, decision.total);
             record.work.merge(&decision.work);
             record.k4_work.merge(&decision.sum_work);
@@ -4709,7 +4700,7 @@ fn run_schedule_inner(
                 record.latch(certificate.total);
                 let stop_work = record.checked_stop_rule_work().add(certificate.total);
                 record.latch(stop_work);
-                record.stop_rule_work = stop_work.legacy_saturated();
+                stop_work.record_into(&mut record.stop_rule_work, &mut record.work_status);
                 let _ = record.stages.add_to(Stage::StopRule, certificate.total);
                 record.work.merge(&certificate.work);
                 record.k4_work.merge(&certificate.sums);

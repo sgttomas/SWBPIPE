@@ -3439,8 +3439,8 @@
               "items": {
                 "$ref": "#/$defs/U"
               },
-              "minItems": 3,
-              "maxItems": 3
+              "minItems": 2,
+              "maxItems": 2
             },
             "support_capacity_bytes": {
               "type": "array",
@@ -6489,7 +6489,6 @@
                 "publication_hash_range",
                 "work_counter_range",
                 "work_counter_inconsistent",
-                "saturation_not_excluded",
                 "association"
               ]
             },
@@ -8409,8 +8408,8 @@
               "items": {
                 "$ref": "#/$defs/U"
               },
-              "minItems": 3,
-              "maxItems": 3
+              "minItems": 2,
+              "maxItems": 2
             },
             "support_capacity_bytes": {
               "type": "array",
@@ -8639,8 +8638,8 @@
               "items": {
                 "$ref": "#/$defs/U"
               },
-              "minItems": 3,
-              "maxItems": 3
+              "minItems": 2,
+              "maxItems": 2
             },
             "support_capacity_bytes": {
               "type": "array",

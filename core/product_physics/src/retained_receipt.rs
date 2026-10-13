@@ -31,7 +31,7 @@ impl TraceCosts {
 #[derive(Debug)]
 pub(super) struct PrivateAdapterSnapshot {
     pub counts:[u64;10],pub fault:Option<p::AdapterFault>,pub prepared_capacity_bytes:[usize;16],
-    pub observation_capacity_bytes:[usize;3],pub support_capacity_bytes:[usize;7],
+    pub observation_capacity_bytes:[usize;2],pub support_capacity_bytes:[usize;7],
 }
 #[derive(Default)]
 pub(super) struct PreparedTrace {
