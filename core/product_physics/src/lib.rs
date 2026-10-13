@@ -5123,7 +5123,7 @@ fn solve_load_case_observed(
         spring_entries,
         load_row_finding.is_none(),
     ) {
-        Some((solve, standing)) => (Some(solve), Some(standing)),
+        Some((solve, nonlinear)) => (Some(solve), Some(nonlinear)),
         None => (None, None),
     };
     if !built.nonlinear_supports.is_empty() {
