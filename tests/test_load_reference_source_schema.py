@@ -62,7 +62,7 @@ PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
 # then T1's appended identities. Positions are derived from this pinned order.
 # T3's F2a preview successor follows T1's branches (C1:162; reader fan-in and U6c).
 SUCCESSOR_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-SUCCESSOR_SHA = "95e6ecc1169834184b66f2462d72183b2a639a003468a974a96f1730f6eb6a2c"
+SUCCESSOR_SHA = "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53"
 SUCCESSOR_PROFILE = "product_preview_retained_w1a_v2"
 # B3b's exact successor follows the preview successor (B3-D §7).
 EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
@@ -359,7 +359,12 @@ def test_joined_branches_are_appended_with_pinned_identities():
     assert branch["required"] == ["contract_evidence", "source_block_recovery", "source_annotations"]
     for key in ("export_profile", "manifest"):
         assert branch["properties"][key] == package["oneOf"][PS_BRANCH]["properties"][key]
-    assert schema(RUN_ROOT)["oneOf"][2]["allOf"][1] == {"$ref": RUN}
+    assert schema(RUN_ROOT)["allOf"] == [
+        {"type": "object", "required": ["schema_version"],
+         "properties": {"schema_version": {"const": "0.3.0"}}},
+        {"$ref": RUN},
+    ]
+    assert "oneOf" not in schema(RUN_ROOT)
 
 
 def _rebased(node, target):

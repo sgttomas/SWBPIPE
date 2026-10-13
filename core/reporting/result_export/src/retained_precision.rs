@@ -579,7 +579,7 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json");
-const TABLE_HASH: &str = "95e6ecc1169834184b66f2462d72183b2a639a003468a974a96f1730f6eb6a2c";
+const TABLE_HASH: &str = "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53";
 /// The exact successor's table (XTABLE) and its inherited physics-1 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"

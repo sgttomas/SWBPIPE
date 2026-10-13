@@ -12,6 +12,22 @@ const ENDS: [(&str, &str); 6] = [
     ("M_y", "element_local_bending_moment_y"), ("M_z", "element_local_bending_moment_z"),
 ];
 fn n(v: &Value) -> f64 { v.as_str().map(|v| v.parse().unwrap()).or_else(|| v.as_f64()).unwrap() }
+fn reference_inputs() -> (Value, Value) {
+    let requests: Value = serde_json::from_str(REQUESTS).unwrap();
+    let oracle: Value = serde_json::from_str(ORACLE).unwrap();
+    assert_eq!(format!("{:x}", Sha256::digest(REQUESTS.as_bytes())), oracle["requests_sha256"].as_str().unwrap());
+    (requests, oracle)
+}
+/// Re-author only the copied preview invocation's version for B7a's current
+/// public route. The SHA-bound frozen request and every physical input stay fixed.
+fn current_request(requests: &Value, id: &str) -> Value {
+    let mut document = requests["cases"][id].clone();
+    if document["model"]["schema_version"] == serde_json::json!("0.2.0") {
+        assert!(document["model"].get("pressure_contract").is_none());
+        document["model"]["schema_version"] = serde_json::json!(crate::MODEL_SCHEMA_VERSION);
+    }
+    document
+}
 fn row<'a>(out: &'a MechanicsEnvelope, kind: &str, entity: &str, location: &str, component: &str) -> &'a ResultItem {
     let found = out.results.iter().filter(|r| r.kind == kind && r.entity_ref == entity &&
         r.metadata.as_ref().is_some_and(|m| (location.is_empty() || m.location == location) && (component.is_empty() || m.component == component))).collect::<Vec<_>>();
@@ -111,13 +127,12 @@ fn check(out: &MechanicsEnvelope, case: &Value, label: &str) {
 }
 #[test]
 fn u4a_frozen_references_both_entries_and_modes() {
-    let requests:Value=serde_json::from_str(REQUESTS).unwrap();let oracle:Value=serde_json::from_str(ORACLE).unwrap();
+    let (requests, oracle) = reference_inputs();
     let baseline=std::env::var("U4A_PREVIEW_BASELINE").ok().map(|path|serde_json::from_str::<Value>(&std::fs::read_to_string(path).unwrap()).unwrap());
-    assert_eq!(format!("{:x}",Sha256::digest(REQUESTS.as_bytes())),oracle["requests_sha256"].as_str().unwrap());
     for (id,case) in oracle["cases"].as_object().unwrap() {
         for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
             for captured in [true,false] {
-                let document=requests["cases"][id].clone();
+                let document=current_request(&requests,id);
                 tests::KD5_RECOVERY_PROBE.with(|p|*p.borrow_mut()=Some(Vec::new()));
                 let out=if captured {run_linear_static_preview_value_with_mode(document,mode).unwrap()} else {run_linear_static_preview_with_mode(serde_json::from_value(document).unwrap(),mode)};
                 let records=tests::KD5_RECOVERY_PROBE.with(|p|p.borrow_mut().take().unwrap());
@@ -153,13 +168,13 @@ fn u4a_frozen_references_both_entries_and_modes() {
 }
 #[test]
 fn u4a_pressure_binary64_demotion_checks_both_recovery_and_unchanged_cuts() {
-    let requests:Value=serde_json::from_str(REQUESTS).unwrap();let oracle:Value=serde_json::from_str(ORACLE).unwrap();
+    let (requests, oracle) = reference_inputs();
     for (id,case) in oracle["cases"].as_object().unwrap().iter().filter(|(_,c)| c["route"]=="pressure-1") {
         for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
             for captured in [true,false] {
                 tests::KD5_RECOVERY_PROBE.with(|p|*p.borrow_mut()=Some(Vec::new()));
                 U4A_FORCE_BINARY64.with(|flag|flag.set(true));
-                let document=requests["cases"][id].clone();
+                let document=current_request(&requests,id);
                 let out=if captured {run_linear_static_preview_value_with_mode(document,mode).unwrap()} else {run_linear_static_preview_with_mode(serde_json::from_value(document).unwrap(),mode)};
                 U4A_FORCE_BINARY64.with(|flag|flag.set(false));
                 let records=tests::KD5_RECOVERY_PROBE.with(|p|p.borrow_mut().take().unwrap());

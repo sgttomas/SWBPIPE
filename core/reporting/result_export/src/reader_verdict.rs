@@ -60,11 +60,11 @@ const BINDINGS: [(&str, &str, &str); 9] = [
     ("physics", sc::PHYSICS_ID, "a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1"),
     ("physics_source", sc::PHYSICS_SOURCE_ID, "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53"),
     ("pressure_source", sc::PRESSURE_SOURCE_ID, sc::PRESSURE_SOURCE_TABLE_SHA256),
-    ("preview_physics", sc::PREVIEW_PHYSICS_ID, "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"),
+    ("preview_physics", sc::PREVIEW_PHYSICS_ID, "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"),
     ("load_reference", sc::LOAD_REFERENCE_ID, "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09"),
     ("load_reference_source", sc::LOAD_REFERENCE_SOURCE_ID, "28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924"),
     ("pressure", sc::PRESSURE_ID, "07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742"),
-    ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, "95e6ecc1169834184b66f2462d72183b2a639a003468a974a96f1730f6eb6a2c"),
+    ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53"),
     ("retained_physics", sc::PHYSICS_RETAINED_ID, "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886"),
 ];
 
