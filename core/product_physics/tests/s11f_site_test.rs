@@ -727,7 +727,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("PP/lib.rs", "debit", 2, "integer: budget charge"),
     ("PP/lib.rs", "recover_curved_bend_local_forces", 1, "formed transform: the end tangent rotation after the E8/E9 exact sums"),
     ("PP/lib.rs", "reserve_publication", 2, "integer: budget charge"),
-    ("PP/lib.rs", "run_linear_static_preview_observed_inner", 2, "integer per-case counts (2); F1b: the spring diagonals moved into the kernel's sparse assembly (`assemble_basis_stiffness`)"),
+    ("PP/lib.rs", "run_linear_static_preview_observed_inner", 1, "integer per-case component-stress-modifier count; H-4 C1–C3 deleted the retired, always-zero pressure-thrust count; F1b: the spring diagonals moved into the kernel's sparse assembly (`assemble_basis_stiffness`)"),
     ("PP/lib.rs", "solve_load_case_observed", 2, "integer: source-budget attempts and component modifier count"),
     ("PP/lib.rs", "straight_local_uniform_loads", 1, "declared formation: one load's local transform (section 2.5 PP:7479)"),
     ("PP/lib.rs", "straight_summary_extrema", 1, "declared: the stress bound's same-sign pattern sums (section 2.2)"),
