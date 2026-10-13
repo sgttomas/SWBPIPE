@@ -1,7 +1,7 @@
 import { describe, expect, it, afterEach, vi } from "vitest";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, solveBytes } from "../../test/nativeMechanicsReplay";
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
 import { buildAnalysisRunPreview, buildPreviewComparison, runPreviewMechanics } from "../../services/previewService";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1 } from "../../services/hashService";
@@ -34,10 +34,7 @@ const loadDemoModel = async () => structuredClone(demoModel) as PreviewModel;
 async function legacySession(solverBuildRef = "open_pipe_stress_product_physics@0.1.0") {
   const model = await loadDemoModel();
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-  invokeMock.mockImplementation(async (command: string) => {
-    if (command !== "run_preview_mechanics_with_solver_mode") throw new Error(`LEGACY_REPLAY_COMMAND_UNSUPPORTED: ${command}`);
-    return solveBytes(historicalResult);
-  });
+  invokeMock.mockImplementation(createSolveJobTransport(() => solveBytes(historicalResult)).invoke);
   const result = await runPreviewMechanics(model) as MechanicsResult;
   const inputManifest = await buildCurrentSessionInputManifest({
     model,

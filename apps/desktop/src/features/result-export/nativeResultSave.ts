@@ -1,4 +1,5 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "../../services/nativeIngress";
+import { describeResourceRefusal, ResourceUnavailableError } from "../../services/memoryPool";
 import { isTauriRuntime } from "../../services/nativeMenu";
 import type { LocalFirstRouteEvidence } from "../redaction-controls/redactionExportControls";
 
@@ -46,6 +47,10 @@ function failure(code: string, stage: string, cleanup: NativeResultSaveError["cl
   return { code, stage, cleanup, message: "Local result save did not complete.", partial_file_name: null };
 }
 function normalizeError(error: unknown, request: NativeResultSaveRequest): NativeResultSaveError {
+  // A native memory-pool refusal comes before the command runs: nothing was written.
+  if (error instanceof ResourceUnavailableError) {
+    return { ...failure("RESOURCE_UNAVAILABLE", "request", "not_needed"), message: `Refused by the native memory pool: ${describeResourceRefusal(error.refusal)}` };
+  }
   let value = error;
   if (typeof value === "string") {
     try { value = JSON.parse(value); } catch { return failure("IPC_REJECTED", "invoke", "unknown"); }
@@ -97,7 +102,7 @@ export async function saveNativeResultJson(request: NativeResultSaveRequest): Pr
   if (!isTauriRuntime()) throw failure("NATIVE_RUNTIME_REQUIRED", "invoke", "not_needed");
   if (!admitted(request)) throw failure("REQUEST_EVIDENCE_DENIED", "request", "not_needed");
   let value: unknown;
-  try { value = await invoke<unknown>("save_local_result_json", { request }); }
+  try { value = await invokeWithIngress<unknown>("save_local_result_json", { request }); }
   catch (error) { throw normalizeError(error, request); }
   if (!receipt(value, request)) throw failure("INVALID_SAVE_RECEIPT", "worker", "unknown");
   return value;

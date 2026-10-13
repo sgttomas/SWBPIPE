@@ -274,7 +274,7 @@ export type RunPresence = {
   solveJobState: SolveJobEvent["state"];
 };
 
-export type RailCaption = "Failed" | "Historical" | "Needs recompute";
+export type RailCaption = "Failed" | "Refused" | "Historical" | "Needs recompute";
 
 export type RailStageState = {
   stage: ShellStage;
@@ -288,7 +288,7 @@ export type RailStageState = {
 };
 
 function runEnded(state: SolveJobEvent["state"]): boolean {
-  return state === "failed" || state === "cancelled";
+  return state === "failed" || state === "cancelled" || state === "refused";
 }
 
 export function railStageState(stage: ShellStage, run: RunPresence): RailStageState {
@@ -304,6 +304,8 @@ export function railStageState(stage: ShellStage, run: RunPresence): RailStageSt
     else if (run.historicalRunShown) caption = "Historical";
     else if (run.needsRecompute) caption = "Needs recompute";
     else if (!run.hasResult && run.solveJobState === "failed") caption = "Failed";
+    // A native memory refusal is its own outcome, not a solver failure.
+    else if (!run.hasResult && run.solveJobState === "refused") caption = "Refused";
   } else if (stage === "review") {
     // Only a Current solved run enables Review; a Historical run enables nothing.
     enabled = run.hasCurrentSolvedResult && !run.historicalRunShown;

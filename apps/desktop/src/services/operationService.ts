@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "./nativeIngress";
 import {
   loadWasmEngine,
   WASM_ENGINE_BUILD_COMMAND,
@@ -60,7 +60,7 @@ export async function validateModelOperation(
   modelHash: ModelHashEvidence | null
 ): Promise<OperationOutcome> {
   if (tauriAvailable()) {
-    return invoke<OperationOutcome>("validate_model_operation", {
+    return invokeWithIngress<OperationOutcome>("validate_model_operation", {
       model,
       intent,
       claimedModelHash: modelHash ?? null
@@ -75,7 +75,7 @@ export async function applyModelOperation(
   modelHash: ModelHashEvidence | null
 ): Promise<OperationOutcome> {
   if (tauriAvailable()) {
-    return invoke<OperationOutcome>("apply_model_operation", {
+    return invokeWithIngress<OperationOutcome>("apply_model_operation", {
       model,
       intent,
       claimedModelHash: modelHash ?? null

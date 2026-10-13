@@ -4,6 +4,7 @@ import { hasCurrentSourceContract, readerValidate, rememberReceivedText, sourceC
 import { registerSourceRecovery, sameModelData, validateLoadReferenceSourceEvidence } from '../features/results/resultStanding';
 import { registerRetainedPrecision } from '../features/results/retainedPrecisionStanding';
 import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "./nativeIngress";
 import type {
   AgentProposal,
   AnalysisRunEnvelope,
@@ -13,7 +14,9 @@ import type {
   ObjectRef,
   PreviewModel,
   PreviewComparison,
+  ResourceRefusal,
   SelectedReviewTarget,
+  SolveResourceGrant,
 } from "../types";
 import {
   verifyCurrentSessionInputManifest,
@@ -21,6 +24,8 @@ import {
 } from "./inputManifestService";
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "./analysisRunCompatibility";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
+import { nativeInvokeError, parseResourceRefusal, parseSolveResourceGrant, ResourceUnavailableError } from "./memoryPool";
+export { configureMemoryPool, describeResourceRefusal, getMemoryPoolStatus, ResourceUnavailableError } from "./memoryPool";
 
 async function invokeOrFixture<T>(
   command: string,
@@ -45,22 +50,46 @@ export async function loadDesignKnowledge(): Promise<DesignKnowledge> {
   return invokeOrFixture("load_design_knowledge", loadKnowledgeFixture);
 }
 
+/** One solve through the native job path: start, wait for the terminal state,
+ * take the producer's exact bytes and register them as `takePreviewMechanicsJobResult`
+ * does. The returned result is in the app's custody: the caller releases it with
+ * `disposeDeliveredMechanicsResult` once it drops the result. A refused job
+ * rejects with the typed `ResourceUnavailableError`. */
 export async function runPreviewMechanics(
   model?: PreviewModel | null,
   solverMode: PreviewSolverMode = "sparse_interactive",
+  options: { onStatus?: (status: BackendSolveJobStatus) => void } = {},
 ): Promise<MechanicsResult> {
-  assertPreviewSolverMode(solverMode);
-  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
-    throw await browserSolveUnavailable(model);
+  const receipt = await startPreviewMechanicsJob(model, solverMode);
+  if (receipt.mode !== "backend_job") throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: a reference-only receipt is not a solve.");
+  // From here the started job's result is either taken (and then in the
+  // caller's custody) or released natively: a step that fails abandons it.
+  let terminal: BackendSolveJobStatus;
+  try {
+    terminal = await awaitPreviewMechanicsJob(receipt.job_id, options.onStatus);
+  } catch (error) {
+    void abandonPreviewMechanicsJob(receipt.job_id, receipt.backend_cancellation_token);
+    throw error;
   }
-  const capture = captureNativeInvocation(model, solverMode);
-  const result = receiveResultBytes(await invoke<string>(
-    "run_preview_mechanics_with_solver_mode",
-    model ? { model: capture?.invocation.request.model ?? model, solverMode } : { solverMode },
-  ));
-  await validateCapturedSource(result, capture);
-  return result; // Preserve received producer data; legacy projection is explicit.
+  if (terminal.state !== "completed") throw terminalJobError(terminal);
+  try {
+    return await takePreviewMechanicsJobResult(receipt.job_id);
+  } catch (error) {
+    // A refused or failed take is not retried: release the job's result unread.
+    void discardPreviewMechanicsJobResult(receipt.job_id);
+    throw error;
+  }
+}
 
+/** The error a non-completed terminal job state stands for. */
+export function terminalJobError(status: BackendSolveJobStatus): Error {
+  if (status.state === "refused") {
+    return status.resource_refusal
+      ? new ResourceUnavailableError(status.resource_refusal, null)
+      : new Error(`RESOURCE_UNAVAILABLE: backend solve job ${status.job_id} was refused without a readable reason.`);
+  }
+  if (status.state === "cancelled") return new Error(`SOLVE_JOB_CANCELLED: backend solve job ${status.job_id} stopped (${status.cancellation_status}); no result was published.`);
+  return new Error(status.error_message ?? `backend solve job ${status.job_id} ended as ${status.state} without a result`);
 }
 
 export type PreviewSolverMode = "sparse_interactive" | "dense_scrutiny";
@@ -83,8 +112,8 @@ type NativeSourceRegistration = { capture: CapturedNativeInvocation; sourceFinge
 const nativeSourceInvocations = new WeakMap<MechanicsResult, NativeSourceRegistration>();
 const receivedBytes = new WeakMap<MechanicsResult, { bytes: string; fingerprint: string }>();
 
-/** b7-plan R1, "Exact bytes to the desktop": the native solve commands and jobs hand
- * over the producer's exact serialized bytes, never a re-encoded value. The result is
+/** b7-plan R1, "Exact bytes to the desktop": the native solve job hands over the
+ * producer's exact serialized bytes, never a re-encoded value. The result is
  * read from them once, and they are kept beside it. */
 function receiveResultBytes(bytes: unknown): MechanicsResult {
   if (typeof bytes !== "string") throw new Error("PREVIEW-SOLVE-RESULT-BYTES-REQUIRED: the native solve hands over the producer's serialized bytes");
@@ -203,17 +232,29 @@ export type SolveJobStartReceipt =
       backend_cancellation_token: string;
       state: string;
       cancellation_scope: string;
+      /** The grant the native ledger made for this job; null when not reported. */
+      resource: SolveResourceGrant | null;
     }
   | { mode: "browser_fixture_no_backend_job" };
 
+export type BackendSolveJobState = "queued" | "running" | "completed" | "cancelled" | "failed" | "refused";
+
+/** A job's status. The poll never carries the result: a completed job's bytes
+ * are taken separately (`takePreviewMechanicsJobResult`). */
 export type BackendSolveJobStatus = {
   job_id: string;
-  state: "queued" | "running" | "completed" | "cancelled" | "failed";
+  state: BackendSolveJobState;
+  /** Why a queued job is waiting, as the native ledger reports it. */
+  queue_reason: ResourceRefusal | null;
   cancellation_requested: boolean;
   cancellation_status: string;
   cancellation_scope: string;
-  result: MechanicsResult | null;
+  result_available: boolean;
+  result_bytes: number | null;
   error_message: string | null;
+  /** The typed refusal of a `refused` job. */
+  resource_refusal: ResourceRefusal | null;
+  resource: SolveResourceGrant | null;
 };
 
 export type BackendSolveJobCancellationReceipt = {
@@ -225,6 +266,12 @@ export type BackendSolveJobCancellationReceipt = {
   cancellation_success_claimed: boolean;
 };
 
+/** The solver-mode header of the raw-bytes start command. */
+export const SOLVER_MODE_HEADER = "x-swbpipe-solver-mode";
+const BACKEND_JOB_STATES: readonly BackendSolveJobState[] = ["queued", "running", "completed", "cancelled", "failed", "refused"];
+const TERMINAL_JOB_STATES: readonly BackendSolveJobState[] = ["completed", "cancelled", "failed", "refused"];
+export const SOLVE_JOB_POLL_INTERVAL_MS = 50;
+
 export async function startPreviewMechanicsJob(
   model?: PreviewModel | null,
   solverMode: PreviewSolverMode = "sparse_interactive",
@@ -233,40 +280,233 @@ export async function startPreviewMechanicsJob(
   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
     throw await browserSolveUnavailable(model);
   }
+  if (!model) throw new Error("PREVIEW-SOLVE-MODEL-REQUIRED: a solve carries the session's model document.");
+  // The session's startup release of earlier webview custody completes before any start.
+  if (sessionCustodyReset) await sessionCustodyReset;
   const capture = captureNativeInvocation(model, solverMode);
-  const receipt = await invoke<
-      Omit<Extract<SolveJobStartReceipt, { mode: "backend_job" }>, "mode">
-    >("start_preview_mechanics_job_with_solver_mode", model ? { model: capture?.invocation.request.model ?? model, solverMode } : { solverMode });
-  if (capture && typeof receipt.job_id === "string" && receipt.job_id) jobInvocations.set(receipt.job_id, capture);
-  return { mode: "backend_job", ...receipt };
+  // The request body is the UTF-8 JSON text of exactly the captured model; the
+  // solver mode travels as a header. Budget policy is never part of the model.
+  // An uncaptured (unchecked) model is still sent as its JSON text and registers nothing.
+  const text = capture ? checkedJsonText(capture.invocation.request.model) : JSON.stringify(model);
+  let receipt: Record<string, unknown>;
+  try {
+    receipt = await invoke<Record<string, unknown>>(
+      "start_preview_mechanics_job",
+      new TextEncoder().encode(text),
+      { headers: { [SOLVER_MODE_HEADER]: solverMode } },
+    );
+  } catch (error) {
+    throw nativeInvokeError(error);
+  }
+  if (typeof receipt?.job_id !== "string" || !receipt.job_id) throw new Error("SOLVE-JOB-RECEIPT-INVALID: the native start receipt names no job.");
+  if (capture) jobInvocations.set(receipt.job_id, capture);
+  return {
+    mode: "backend_job",
+    job_id: receipt.job_id,
+    backend_cancellation_token: String(receipt.backend_cancellation_token ?? ""),
+    state: String(receipt.state ?? "queued"),
+    cancellation_scope: String(receipt.cancellation_scope ?? ""),
+    resource: parseSolveResourceGrant(receipt.resource),
+  };
 }
-
-/** The job status as the native side reports it: a completed job's result is the producer's bytes. */
-type NativeSolveJobStatus = Omit<BackendSolveJobStatus, "result"> & { result: string | null };
 
 export async function pollPreviewMechanicsJob(
   jobId: string,
 ): Promise<BackendSolveJobStatus> {
-  const native = await invoke<NativeSolveJobStatus>("poll_preview_mechanics_job", { jobId });
-  const status: BackendSolveJobStatus = { ...native, result: native.result == null ? null : receiveResultBytes(native.result) };
+  let native: Record<string, unknown>;
+  try { native = await invoke<Record<string, unknown>>("poll_preview_mechanics_job", { jobId }); }
+  catch (error) { throw nativeInvokeError(error); }
   const capture = jobInvocations.get(jobId) ?? null;
-  if (status.job_id !== jobId) {
+  if (native?.job_id !== jobId) {
     if (capture) capture.invalidated = true;
     jobInvocations.delete(jobId);
     throw new Error("SOLVE-JOB-IDENTITY-MISMATCH");
   }
-  if (["completed", "cancelled", "failed"].includes(status.state)) {
-    if (capture && !capture.terminalClaimed) {
-      capture.terminalClaimed = true;
-      try {
-        if (status.state === "completed" && status.result) await validateCapturedSource(status.result, capture);
-        else capture.invalidated = true;
-      } finally {
-        if (jobInvocations.get(jobId) === capture) jobInvocations.delete(jobId);
-      }
-    }
+  if (!BACKEND_JOB_STATES.includes(native.state as BackendSolveJobState)) throw new Error(`SOLVE-JOB-STATE-UNSUPPORTED: ${String(native.state)}`);
+  const status: BackendSolveJobStatus = {
+    job_id: jobId,
+    state: native.state as BackendSolveJobState,
+    queue_reason: parseResourceRefusal(native.queue_reason),
+    cancellation_requested: native.cancellation_requested === true,
+    cancellation_status: String(native.cancellation_status ?? ""),
+    cancellation_scope: String(native.cancellation_scope ?? ""),
+    result_available: native.result_available === true,
+    result_bytes: typeof native.result_bytes === "number" ? native.result_bytes : null,
+    error_message: typeof native.error_message === "string" ? native.error_message : null,
+    resource_refusal: parseResourceRefusal(native.resource_refusal),
+    resource: parseSolveResourceGrant(native.resource),
+  };
+  // A job that ends without a result retires its capture; a completed job's
+  // capture waits for the take, which registers the bytes it delivers.
+  if (status.state !== "completed" && TERMINAL_JOB_STATES.includes(status.state) && capture && !capture.terminalClaimed) {
+    capture.terminalClaimed = true;
+    capture.invalidated = true;
+    if (jobInvocations.get(jobId) === capture) jobInvocations.delete(jobId);
   }
   return status;
+}
+
+/** Polls until the job reaches a terminal state; `onStatus` sees every status read. */
+export async function awaitPreviewMechanicsJob(
+  jobId: string,
+  onStatus?: (status: BackendSolveJobStatus) => void,
+): Promise<BackendSolveJobStatus> {
+  let status = await pollPreviewMechanicsJob(jobId);
+  onStatus?.(status);
+  while (!TERMINAL_JOB_STATES.includes(status.state)) {
+    await new Promise((resolve) => setTimeout(resolve, SOLVE_JOB_POLL_INTERVAL_MS));
+    status = await pollPreviewMechanicsJob(jobId);
+    onStatus?.(status);
+  }
+  return status;
+}
+
+/** The delivered results the app holds, by result, with their native job. */
+const deliveredResults = new WeakMap<MechanicsResult, { jobId: string; disposed: boolean }>();
+
+function decodeResultBytes(raw: unknown): string {
+  let bytes: Uint8Array;
+  if (Object.prototype.toString.call(raw) === "[object ArrayBuffer]") bytes = new Uint8Array(raw as ArrayBuffer);
+  else if (ArrayBuffer.isView(raw)) bytes = new Uint8Array(raw.buffer, raw.byteOffset, raw.byteLength);
+  else throw new Error("PREVIEW-SOLVE-RESULT-BYTES-REQUIRED: the native solve hands over the producer's serialized bytes");
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(bytes); }
+  catch { throw new Error("PREVIEW-SOLVE-RESULT-UTF8-INVALID: the native result bytes are not UTF-8"); }
+}
+
+/** Takes a completed job's result: the producer's exact bytes, read once and
+ * registered against the captured invocation as a completed job always was. The
+ * result is then in the app's custody until `disposeDeliveredMechanicsResult`.
+ * A refused take (for example `custody_full`) leaves the result with the native
+ * host, and the job's capture stays available for a later take. */
+export async function takePreviewMechanicsJobResult(jobId: string): Promise<MechanicsResult> {
+  let raw: unknown;
+  try { raw = await invoke<unknown>("take_preview_mechanics_job_result", { jobId }); }
+  catch (error) { throw nativeInvokeError(error); }
+  const capture = jobInvocations.get(jobId) ?? null;
+  let result: MechanicsResult;
+  try {
+    result = receiveResultBytes(decodeResultBytes(raw));
+  } catch (error) {
+    // The app received bytes it cannot read: retire the capture and release custody.
+    if (capture) { capture.terminalClaimed = true; capture.invalidated = true; }
+    if (jobInvocations.get(jobId) === capture) jobInvocations.delete(jobId);
+    await disposePreviewMechanicsResult(jobId);
+    throw error;
+  }
+  deliveredResults.set(result, { jobId, disposed: false });
+  if (capture && !capture.terminalClaimed) {
+    capture.terminalClaimed = true;
+    try {
+      await validateCapturedSource(result, capture);
+    } finally {
+      if (jobInvocations.get(jobId) === capture) jobInvocations.delete(jobId);
+    }
+  }
+  return result;
+}
+
+/** Jobs whose result or custody the native host reported released: a job's
+ * result is released at most once, so a later discard of the same job (for
+ * example after its take already released an unreadable delivery) sends nothing. */
+const releasedJobs = new Set<string>();
+
+/** Releases a delivered result from the native custody ledger. Best effort: a
+ * failure is reported as false and never thrown. */
+export async function disposePreviewMechanicsResult(jobId: string): Promise<boolean> {
+  if (releasedJobs.has(jobId)) return false;
+  try {
+    const receipt = await invoke<{ released?: unknown } | null>("dispose_preview_mechanics_result", { jobId });
+    if (receipt?.released === true) releasedJobs.add(jobId);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Releases the delivered result the app is dropping (replaced, cleared or used
+ * up). Results that were not delivered by a native job, or were already
+ * released, are ignored. */
+export function disposeDeliveredMechanicsResult(result: MechanicsResult | null | undefined): Promise<boolean> {
+  const delivered = result ? deliveredResults.get(result) : undefined;
+  if (!delivered || delivered.disposed) return Promise.resolve(false);
+  delivered.disposed = true;
+  return disposePreviewMechanicsResult(delivered.jobId);
+}
+
+/** Query only: the native job a held result was delivered by, while it is held. */
+export function deliveredMechanicsResultJob(result: MechanicsResult | null | undefined): string | null {
+  const delivered = result ? deliveredResults.get(result) : undefined;
+  return delivered && !delivered.disposed ? delivered.jobId : null;
+}
+
+/** A completed job whose result the app will not take (its run was superseded,
+ * or its take was refused and the session does not retry): retire its capture
+ * and release the retained result natively, without copying it to the app. */
+export async function discardPreviewMechanicsJobResult(jobId: string): Promise<boolean> {
+  retireJobCapture(jobId);
+  return disposePreviewMechanicsResult(jobId);
+}
+
+function retireJobCapture(jobId: string): void {
+  const capture = jobInvocations.get(jobId);
+  if (capture) { capture.terminalClaimed = true; capture.invalidated = true; jobInvocations.delete(jobId); }
+}
+
+/** A started job whose terminal state the app did not establish (a poll
+ * failed, its identity did not match, or its run was superseded before it was
+ * awaited) and whose result the app will not take: request its
+ * cancellation, so the native host drops a result it has not yet published,
+ * then release whatever it already retains. Best effort; never throws. A
+ * result neither step reaches stays with the native host until the next
+ * session start releases it (`beginSessionResultCustodyReset`). */
+export async function abandonPreviewMechanicsJob(jobId: string, cancellationToken: string): Promise<boolean> {
+  retireJobCapture(jobId);
+  try { await invoke("cancel_preview_mechanics_job", { jobId, cancellationToken }); } catch { /* best effort */ }
+  return disposePreviewMechanicsResult(jobId);
+}
+
+/** What `dispose_all_preview_mechanics_results` reported releasing. */
+export type NativeCustodyReset = { released_results: number; released_bytes: number; abandoned_jobs: number };
+
+/** Releases every result the native host retains or counts as held by this
+ * webview, untaken or delivered, and abandons every queued or running job (they
+ * end cancelled without publishing; their owners release when the worker
+ * finishes). Only meaningful when no result is held: a
+ * fresh webview holds none, so the session calls it once at start. Best
+ * effort: null when unavailable or unreadable; never throws. */
+export async function disposeAllPreviewMechanicsResults(): Promise<NativeCustodyReset | null> {
+  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return null;
+  try {
+    const reported = await invoke<Record<string, unknown>>("dispose_all_preview_mechanics_results");
+    const results = reported?.released_results, bytes = reported?.released_bytes, abandoned = reported?.abandoned_jobs;
+    return Number.isSafeInteger(results) && Number.isSafeInteger(bytes) && Number.isSafeInteger(abandoned)
+      ? { released_results: results as number, released_bytes: bytes as number, abandoned_jobs: abandoned as number }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+let sessionCustodyReset: Promise<NativeCustodyReset | null> | null = null;
+
+/** Once per webview session, before any solve starts: a new webview (first
+ * launch or reload) holds no delivered result, so whatever the native host
+ * still retains or counts as webview custody belongs to a page that is gone
+ * and would otherwise fill the retention and custody limits for good. Starts
+ * the release at most once (Tauri runtime only) and returns the same promise;
+ * `startPreviewMechanicsJob` waits for it. It never rejects, so a failed
+ * release never blocks startup or a solve. */
+export function beginSessionResultCustodyReset(): Promise<NativeCustodyReset | null> {
+  if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return Promise.resolve(null);
+  sessionCustodyReset ??= disposeAllPreviewMechanicsResults();
+  return sessionCustodyReset;
+}
+
+/** Test support only: forget the session's startup release and the jobs
+ * already released (mocked transports reuse job ids across tests). */
+export function resetSessionResultCustodyForTests(): void {
+  sessionCustodyReset = null;
+  releasedJobs.clear();
 }
 
 export async function cancelPreviewMechanicsJob(
@@ -642,7 +882,7 @@ export async function loadSampleProposal(
   if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
     try {
       return (
-        await invoke<{ proposal: AgentProposal }>("sample_agent_proposal", {
+        await invokeWithIngress<{ proposal: AgentProposal }>("sample_agent_proposal", {
           mechanicsResult,
           selectedTarget,
         })

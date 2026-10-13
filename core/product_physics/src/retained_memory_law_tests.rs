@@ -11,6 +11,8 @@ const MILESTONE: &str = include_str!("../../../fixtures/product_preview/rf_skew_
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 /// The owner-selected current product budget: 12 GiB.
 const M: u64 = 12_884_901_888;
+/// The caller limit the tests pass: the registered profile's qualified M.
+pub(super) const RETAINED_LIMIT: RetainedByteLimit = RetainedByteLimit::new(M);
 /// The 0.9 M margin rule's limit, ⌊0.9 M⌋ (`profile_laws_hold_in_this_build` pins its value).
 const MARGIN: u64 = 9 * M / 10;
 /// B2-A: the combination facts of a request with no combination.
@@ -31,13 +33,13 @@ fn d1_1_refusal() -> Option<AdmissionRefusal> {
 /// The actual G-A over a raw request: parse once, as the dispatch does, then admit.
 fn admitted(raw: Value) -> RetainedAdmissionReport {
     let (request, capture) = CapturedInvocation::parse(raw, PreviewSolverMode::SparseInteractive).unwrap();
-    assess(&capture, &request, Entry::Direct)
+    assess(&capture, &request, Entry::Direct, RETAINED_LIMIT)
 }
 /// G-A over a typed request changed after the parse (capacity rows).
 fn admitted_typed(raw: Value, change: impl FnOnce(&mut LinearStaticPreviewRequest)) -> RetainedAdmissionReport {
     let (mut request, capture) = CapturedInvocation::parse(raw, PreviewSolverMode::SparseInteractive).unwrap();
     change(&mut request);
-    assess(&capture, &request, Entry::Direct)
+    assess(&capture, &request, Entry::Direct, RETAINED_LIMIT)
 }
 fn domain(raw: Value) -> Option<AdmissionRefusal> {
     admitted(raw).law().domain
@@ -643,7 +645,7 @@ fn admit_grants_a_permit_for_the_milestone_in_the_registered_build() {
     let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
     for mode in MODES {
         let (request, capture) = CapturedInvocation::parse(milestone(), mode).unwrap();
-        let admitted = admit(&capture, &request, Entry::Direct);
+        let admitted = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT);
         if !registered {
             let report = admitted.err().expect("an unregistered build is refused");
             assert_eq!(report.law().refusal, Some(AdmissionRefusal::Profile(ProfileStatus::Stale)));
@@ -661,13 +663,13 @@ fn admit_grants_a_permit_for_the_milestone_in_the_registered_build() {
         let raw = milestone();
         let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
         let id = String::from("g6");
-        let headless = admit(&capture, &request, Entry::Headless(RetainedHeadlessContext::from_borrowed_roots(&raw, &invocation, &id)));
+        let headless = admit(&capture, &request, Entry::Headless(RetainedHeadlessContext::from_borrowed_roots(&raw, &invocation, &id)), RETAINED_LIMIT);
         assert_eq!(headless.err().unwrap().law().refusal, Some(AdmissionRefusal::Caller(RetainedCaller::Headless)));
         // An out-of-domain request (B1, PLAN_v2 §2.3 and RV107 SF-2: C + 1 load cases) is
         // refused at its D1 clause, D1.4. (G6: the blocked examples and the failed attempt
         // are in `registered_g_c_declines_only_unattempted_solves`.)
         let (request, capture) = CapturedInvocation::parse(milestone_cases(caps::LOAD_CASES + 1), mode).unwrap();
-        assert_eq!(admit(&capture, &request, Entry::Direct).err().unwrap().law().refusal,
+        assert_eq!(admit(&capture, &request, Entry::Direct, RETAINED_LIMIT).err().unwrap().law().refusal,
             family(D1Clause::Invocation, FamilyFact::LoadCases), "C + 1 cases");
     }
 }
@@ -731,14 +733,14 @@ fn milestone_and_cap_maximal_inputs_are_inside_d1() {
     for raw in [milestone(), cap_maximal()] {
         for mode in MODES {
             let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
-            let report = assess(&capture, &request, Entry::Direct);
+            let report = assess(&capture, &request, Entry::Direct, RETAINED_LIMIT);
             assert_eq!(report.law().domain, None, "inside D1");
             assert_eq!(report.law().refusal, d1_1_refusal(), "D1.1: the qualified build admits; any other is Stale");
             assert_eq!(report.profile, build_profile());
             assert_eq!(report.law().raw_text.control_bytes, 0);
             let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
             let id = String::from("g5");
-            let headless = assess(&capture, &request, Entry::Headless(RetainedHeadlessContext::from_borrowed_roots(&raw, &invocation, &id)));
+            let headless = assess(&capture, &request, Entry::Headless(RetainedHeadlessContext::from_borrowed_roots(&raw, &invocation, &id)), RETAINED_LIMIT);
             assert_eq!(headless.law().refusal, Some(AdmissionRefusal::Caller(RetainedCaller::Headless)), "D1.0 first: Headless is refused");
             assert_eq!(headless.law().refusal.unwrap().precondition().as_str(), "caller");
         }
@@ -1088,7 +1090,7 @@ fn unknown_stale_overflow_and_partial_refusals_keep_every_fact() {
     ] {
         for mode in MODES {
             let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
-            let output = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
+            let output = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode, RETAINED_LIMIT).unwrap();
             assert_eq!(serde_json::to_vec(output.envelope()).unwrap(), plain, "ordinary bytes");
             let report = output.admission().unwrap();
             assert_eq!(report.law().domain, expected);
@@ -1167,15 +1169,15 @@ fn admission_bound_adds_r_before_comparing_with_m() {
     let source = include_str!("retained_memory.rs");
     let admit_src = &source[source.find("pub(super) fn admit(").unwrap()..];
     let admit_src = &admit_src[..admit_src.find("\n}\n").unwrap()];
-    assert_eq!(admit_src.matches("admission_bound(cap_priced_maximum(mode), REGISTERED_PROFILES[index].threshold_bytes)").count(), 1);
+    assert_eq!(admit_src.matches("limited_bound(cap_priced_maximum(mode), limit, REGISTERED_PROFILES[index].threshold_bytes)").count(), 1);
     assert_eq!(admit_src.matches("required = bound_required(&bound);").count(), 1);
     assert_eq!(admit_src.matches("report.law.required = required;").count(), 1);
-    assert!(!admit_src.contains("bound_admits("), "admit prices its bound only through admission_bound");
+    assert!(!admit_src.contains("bound_admits(") && !admit_src.contains("admission_bound("), "admit prices its bound only through limited_bound");
     // In a build that refuses before the bound, nothing is recorded.
     if build_status().is_err() {
         for mode in MODES {
             let (request, capture) = CapturedInvocation::parse(milestone(), mode).unwrap();
-            assert_eq!(assess(&capture, &request, Entry::Direct).law().required, None, "{mode:?}");
+            assert_eq!(assess(&capture, &request, Entry::Direct, RETAINED_LIMIT).law().required, None, "{mode:?}");
         }
     }
 }
@@ -1617,7 +1619,7 @@ fn restraint_capacity_total_is_the_sum_over_supports() {
     let facts = nested_typed_census(&request);
     assert!(facts.max_restraint_capacity <= caps::RESTRAINTS, "every single capacity is within the cap");
     assert!(facts.restraint_capacity > caps::RESTRAINTS, "the total is above it: {}", facts.restraint_capacity);
-    assert_eq!(assess(&capture, &request, Entry::Direct).law().domain,
+    assert_eq!(assess(&capture, &request, Entry::Direct, RETAINED_LIMIT).law().domain,
         Some(AdmissionRefusal::Cap { fact: CapFact::RestraintCapacityTotal, observed: facts.restraint_capacity, cap: caps::RESTRAINTS }));
 }
 
@@ -1798,7 +1800,7 @@ fn g_c_declines_w1_when_the_ordinary_solve_was_not_attempted() {
         for (label, raw) in examples {
             for mode in MODES {
                 let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
-                assert_eq!(assess(&capture, &request, Entry::Direct).law().domain, None, "{label}: inside D1");
+                assert_eq!(assess(&capture, &request, Entry::Direct, RETAINED_LIMIT).law().domain, None, "{label}: inside D1");
                 let mut observer = crate::retained_product::ProductCapture::prepared_probe();
                 let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
                 assert_eq!(ordinary_solve_attempted(&observer, 1), attempted, "{label} {mode:?}");
@@ -1845,7 +1847,7 @@ fn registered_g_c_declines_only_unattempted_solves() {
     for mode in MODES {
         for (label, raw) in not_attempted_examples() {
             let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
-            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
+            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw, mode, RETAINED_LIMIT).unwrap();
             assert_eq!(direct.admission().unwrap().law().refusal, None, "{label}: admitted");
             match direct.retained() {
                 Some(Err(crate::W1Fallback::CompleteGate(refusal))) => assert_eq!(refusal.fact, PhaseFact::OrdinarySolveNotAttempted, "{label} {mode:?}"),
@@ -1854,10 +1856,10 @@ fn registered_g_c_declines_only_unattempted_solves() {
             assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain, "{label} {mode:?}: the value route's bytes exactly, no notice");
             assert!(direct.successor().is_none());
         }
-        let milestone = crate::run_linear_static_preview_value_with_retained_direct(milestone(), mode).unwrap();
+        let milestone = crate::run_linear_static_preview_value_with_retained_direct(milestone(), mode, RETAINED_LIMIT).unwrap();
         assert!(milestone.successor().is_some(), "{mode:?}: the milestone publishes");
         for (label, raw) in attempted_examples().into_iter().skip(1) {
-            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
+            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw, mode, RETAINED_LIMIT).unwrap();
             match direct.retained() {
                 Some(Err(crate::W1Fallback::CompleteGate(refusal))) => panic!("{label} {mode:?}: G-C declined a solve that ran ({refusal:?})"),
                 Some(_) => {}
@@ -1880,7 +1882,7 @@ fn b1_sa_d1_4_admits_one_to_c_load_cases() {
         let expected = if (1..=caps::LOAD_CASES).contains(&c) { None } else { family(D1Clause::Invocation, FamilyFact::LoadCases) };
         for mode in MODES {
             let (request, capture) = CapturedInvocation::parse(milestone_cases(c), mode).unwrap();
-            let admitted = admit(&capture, &request, Entry::Direct);
+            let admitted = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT);
             let report = match &admitted {
                 Ok((_, report)) | Err(report) => *report,
             };
@@ -1928,7 +1930,7 @@ fn b2_a_runner_oracle_literal_is_case_equivalents_plus_one() {
     let expected = Some(AdmissionRefusal::Cap { fact: CapFact::CaseEquivalents, observed: RUNNER_LITERAL, cap: caps::CASE_EQUIVALENTS });
     for mode in MODES {
         let (request, capture) = CapturedInvocation::parse(runner_oracle(), mode).unwrap();
-        let report = admit(&capture, &request, Entry::Direct).err().expect("C_eq + 1 is refused in every build");
+        let report = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT).err().expect("C_eq + 1 is refused in every build");
         assert_eq!(report.typed.load_cases.length + report.typed.combinations.length, RUNNER_LITERAL);
         assert_eq!(report.law().domain, expected, "{mode:?}");
         assert_eq!(report.law().refusal, d1_1_refusal().or(expected), "{mode:?}");
@@ -2003,7 +2005,7 @@ fn b1_sa_g_b_reads_each_case_and_the_running_total() {
     if COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity) {
         for mode in MODES {
             let (request, capture) = CapturedInvocation::parse(milestone(), mode).unwrap();
-            let (permit, _report) = admit(&capture, &request, Entry::Direct).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
+            let (permit, _report) = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
             let mut observer = crate::retained_product::ProductCapture::permitted_probe(permit);
             let _ = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
             assert!(observer.late_refusal().is_none(), "{mode:?}: G-B admitted the milestone");
@@ -2088,7 +2090,7 @@ fn b1_sa_t3_e_counts_the_requested_cases() {
     for (label, raw, left) in &blocked {
         for mode in MODES {
             let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
-            assert_eq!(assess(&capture, &request, Entry::Direct).law().domain, None, "{label}: inside D1");
+            assert_eq!(assess(&capture, &request, Entry::Direct, RETAINED_LIMIT).law().domain, None, "{label}: inside D1");
             let mut observer = ProductCapture::prepared_probe();
             let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
             assert_eq!(ordinary.status.mechanics, "MODEL_INCOMPLETE", "{label} {mode:?}: a blocked envelope");
@@ -2118,7 +2120,7 @@ fn b1_sa_t3_e_counts_the_requested_cases() {
     for (label, raw, _) in blocked {
         for mode in MODES {
             let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
-            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
+            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode, RETAINED_LIMIT).unwrap();
             assert_eq!(direct.admission().unwrap().law().refusal, None, "{label} {mode:?}: admitted");
             match direct.retained() {
                 Some(Err(crate::W1Fallback::CompleteGate(r))) => assert_eq!((r.gate, r.fact, r.observed, r.cap),
@@ -2231,7 +2233,7 @@ fn b3a_dropped_d1_3_refuses_the_legacy_pressure_contract_on_0_3_0() {
         for mode in MODES {
             let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
             assert_eq!(namespace_branch(&request.model), Err(F::PressureContract));
-            let admitted = admit(&capture, &request, Entry::Direct);
+            let admitted = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT);
             let report = match &admitted {
                 Ok((_, report)) | Err(report) => *report,
             };
@@ -2302,7 +2304,7 @@ fn b3a_dropped_direct_entry_refuses_m3l() {
         outside["model"]["pressure_contract"]["version"] = json!("1.0.1");
         for (label, raw) in [("version 1.0.1", outside), ("m3l", legacy3(milestone()))] {
             let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
-            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap();
+            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw, mode, RETAINED_LIMIT).unwrap();
             assert_eq!(direct.admission().unwrap().law().domain, family(D1Clause::Namespace, FamilyFact::PressureContract), "{label} {mode:?}");
             assert!(direct.admission().unwrap().law().refusal.is_some(), "{label} {mode:?}: refused");
             assert!(direct.retained().is_none() && direct.successor().is_none(), "{label} {mode:?}: no permit, no W1");
@@ -2342,7 +2344,7 @@ fn b2_a_d1_admits_case_equivalents_up_to_three() {
             };
             for mode in MODES {
                 let (request, capture) = CapturedInvocation::parse(with_combinations(milestone_cases(c), z), mode).unwrap();
-                let admitted = admit(&capture, &request, Entry::Direct);
+                let admitted = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT);
                 let report = match &admitted {
                     Ok((_, report)) | Err(report) => *report,
                 };
@@ -2484,7 +2486,7 @@ fn b2_a_g_c_bounds_are_per_case_equivalent() {
     assert_eq!(p.late[4..6], [caps::LOADS as u64, caps::TOTAL_LOADS as u64], "G-B unchanged");
     for mode in MODES {
         let (request, capture) = CapturedInvocation::parse(with_combinations(solvable_cap_maximal_cases(1), 2), mode).unwrap();
-        assert_eq!(assess(&capture, &request, Entry::Direct).law().domain, None, "{mode:?}: c = 1, z = 2 is inside D1");
+        assert_eq!(assess(&capture, &request, Entry::Direct, RETAINED_LIMIT).law().domain, None, "{mode:?}: c = 1, z = 2 is inside D1");
         let mut observer = crate::retained_product::ProductCapture::prepared_probe();
         let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::SourceRecoveryBudget::default(), Some(&mut observer));
         assert_eq!(ordinary.status.mechanics, "MECHANICS_SOLVED", "{mode:?}");
@@ -2517,7 +2519,7 @@ fn b2_a_admitted_combinations_run_w1_and_publish_the_validated_successor() {
     for (label, raw) in [("c = 1, z = 2", with_combinations(milestone(), 2)), ("c = 2, z = 1 (range)", mixed)] {
         for mode in MODES {
             let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
-            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
+            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode, RETAINED_LIMIT).unwrap();
             let report = direct.admission().unwrap();
             assert_eq!(report.law().domain, None, "{label} {mode:?}: inside D1");
             let published = serde_json::to_vec(direct.envelope()).unwrap();
@@ -2580,7 +2582,7 @@ fn b3b_d1_admits_the_exact_route_with_empty_regions() {
         for mode in MODES {
             let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
             assert_eq!(namespace_branch(&request.model), Ok(NamespaceBranch::Exact), "{label}");
-            let admitted = admit(&capture, &request, Entry::Direct);
+            let admitted = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT);
             let report = match &admitted {
                 Ok((_, report)) | Err(report) => *report,
             };
@@ -2638,7 +2640,7 @@ fn b3b_direct_entry_coexistence_keeps_the_exact_bytes_and_m3x_publishes_the_succ
     for (label, raw) in [("m3x", exact3(milestone())), ("n05", read(N05)), ("n06", read(N06))] {
         for mode in MODES {
             let plain = serde_json::to_vec(&crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
-            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
+            let direct = crate::run_linear_static_preview_value_with_retained_direct(raw.clone(), mode, RETAINED_LIMIT).unwrap();
             let report = direct.admission().unwrap();
             assert_eq!(report.law().domain, None, "{label} {mode:?}");
             let published = serde_json::to_vec(direct.envelope()).unwrap();
@@ -2745,4 +2747,88 @@ fn b1_sq_late_capture_form_is_c_times_one_case() {
     }
     println!("I104_SQ_G_B_BOUND T11={} late_capture={} one_case={} g_b_bound={}", profile_bytes(F_T11), profile_bytes(F_T11_LATE_CAPTURE), one_case,
         phase_caps().late[LATE_FACTS - 1]);
+}
+
+// ---- The caller's limit L (memory-budget-decision.md) -------------------------
+
+/// L above the registered profile's qualified M refuses `Unqualified`, before pricing and
+/// never clamped; the actual admission then mints no permit in any build.
+#[test]
+fn a_limit_above_the_qualified_m_is_refused_never_clamped() {
+    let r = RESERVED_STACK_BYTES as u64;
+    assert_eq!(RetainedByteLimit::new(M + 1).bytes(), M + 1);
+    for limit in [M + 1, 2 * M, u64::MAX] {
+        let unqualified = Err(BoundRefusal::Unqualified { limit, qualified: M });
+        assert_eq!(limited_bound(Ok(M - r), RetainedByteLimit::new(limit), M), unqualified, "even a request that fits M");
+        assert_eq!(limited_bound(Err(BoundRefusal::Unpriced), RetainedByteLimit::new(limit), M), unqualified);
+        assert_eq!(bound_required(&unqualified), None, "nothing computed above M");
+        assert_eq!(AdmissionRefusal::Bound(BoundRefusal::Unqualified { limit, qualified: M }).precondition().as_str(), "resource_admission");
+        let law = law_order(RetainedCaller::Direct, Ok(0), Ok(()), |index| {
+            limited_bound(cap_priced_maximum(MODES[0]), RetainedByteLimit::new(limit), REGISTERED_PROFILES[index].threshold_bytes)
+        });
+        assert_eq!(law, Err(AdmissionRefusal::Bound(BoundRefusal::Unqualified { limit, qualified: M })));
+    }
+    for mode in MODES {
+        let (request, capture) = CapturedInvocation::parse(milestone(), mode).unwrap();
+        let report = admit(&capture, &request, Entry::Direct, RetainedByteLimit::new(M + 1)).err().expect("no permit above M");
+        let expected = d1_1_refusal().or(Some(AdmissionRefusal::Bound(BoundRefusal::Unqualified { limit: M + 1, qualified: M })));
+        assert_eq!(report.law().refusal, expected, "{mode:?}");
+        assert_eq!((report.law().registered, report.law().required), (None, None), "{mode:?}");
+    }
+}
+
+/// S-1 at L: a limit one byte below `E_mov,max(mode) + R` refuses `Exceeds` with threshold L;
+/// a limit exactly equal to it admits.
+#[test]
+fn a_limit_is_the_threshold_and_admits_exactly_at_required() {
+    let r = RESERVED_STACK_BYTES as u64;
+    for mode in MODES {
+        let required = cap_priced_maximum(mode).unwrap() + r;
+        let below = RetainedByteLimit::new(required - 1);
+        assert_eq!(limited_bound(cap_priced_maximum(mode), below, M), Err(BoundRefusal::Exceeds { required, threshold: required - 1 }), "{mode:?}");
+        assert_eq!(limited_bound(cap_priced_maximum(mode), RetainedByteLimit::new(required), M), Ok(required), "{mode:?}: at L");
+        assert_eq!(limited_bound(cap_priced_maximum(mode), RETAINED_LIMIT, M), Ok(required), "{mode:?}: at M");
+        assert_eq!(limited_bound(cap_priced_maximum(mode), RetainedByteLimit::new(0), M), Err(BoundRefusal::Exceeds { required, threshold: 0 }));
+        let (request, capture) = CapturedInvocation::parse(milestone(), mode).unwrap();
+        let low = admit(&capture, &request, Entry::Direct, below).err().expect("no permit below required");
+        let exact = admit(&capture, &request, Entry::Direct, RetainedByteLimit::new(required));
+        match d1_1_refusal() {
+            Some(refusal) => {
+                assert_eq!(low.law().refusal, Some(refusal), "{mode:?}: D1.1 first");
+                assert_eq!(exact.err().expect("an unregistered build is refused").law().refusal, Some(refusal));
+            }
+            None => {
+                assert_eq!(low.law().refusal, Some(AdmissionRefusal::Bound(BoundRefusal::Exceeds { required, threshold: required - 1 })), "{mode:?}");
+                assert_eq!(low.law().required, Some(required));
+                let (_permit, report) = exact.unwrap_or_else(|r| panic!("{mode:?}: refused at L = required: {:?}", r.law().refusal));
+                assert_eq!(report.law().required, Some(required));
+            }
+        }
+    }
+}
+
+/// The public facts: the matched profile's identity and qualified M in the registered build,
+/// its D-6 status otherwise; the required bytes are the mode's maximum plus R or an error.
+#[test]
+fn retained_profile_states_the_qualified_facts() {
+    let r = RESERVED_STACK_BYTES as u64;
+    match (build_status(), retained_profile()) {
+        (Ok(index), Ok(facts)) => {
+            assert_eq!(facts.identity(), REGISTERED_PROFILES[index].identity);
+            assert_eq!(facts.qualified_limit(), RETAINED_LIMIT);
+            for mode in MODES {
+                assert_eq!(facts.required_bytes(mode), Ok(cap_priced_maximum(mode).unwrap() + r), "{mode:?}");
+            }
+        }
+        (Err(status), Err(facts_status)) => assert_eq!(facts_status, status),
+        (status, facts) => panic!("retained_profile disagrees with build_status: {status:?} {facts:?}"),
+    }
+    for mode in MODES {
+        let maximum = cap_priced_maximum(mode);
+        assert_eq!(qualified_required(maximum), Ok(maximum.unwrap() + r), "{mode:?}");
+    }
+    assert_eq!(qualified_required(Err(BoundRefusal::Unpriced)), Err(RetainedPricingError::Unpriced));
+    assert_eq!(qualified_required(Err(BoundRefusal::Overflow)), Err(RetainedPricingError::Overflow));
+    assert_eq!(qualified_required(Ok(u64::MAX - r + 1)), Err(RetainedPricingError::Overflow));
+    assert_eq!(qualified_required(Ok(u64::MAX - r)), Ok(u64::MAX));
 }

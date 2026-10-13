@@ -5,7 +5,7 @@ import refusedPreviewModel from "../../../fixtures/product_preview/invented_prev
 import refusedPreviewSparse from "../../../fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json";
 import { PREVIEW_PHYSICS_CONTRACT_ID } from "./features/results/numericalResultQuality";
 import { PREVIEW_PHYSICS_CONTRACT_SHA256 } from "./test-support/contractBindings";
-import { createNativeMechanicsReplay, nativeMechanicsReplayPair, solveBytes } from "./test/nativeMechanicsReplay";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_RESOURCE_GRANT, resultArrayBuffer, solveBytes } from "./test/nativeMechanicsReplay";
 import { N_REPORT } from "./features/results/knownSemanticLimitations";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
@@ -14,6 +14,7 @@ import { changeFormControl, expectFormControlValue, compactOptionRecords } from 
 import type { ViewportViewCommand } from "./features/viewport/viewportSelection";
 import {
   act,
+  cleanup,
   fireEvent,
   render,
   screen,
@@ -23,7 +24,7 @@ import {
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 import {
   App,
@@ -93,6 +94,9 @@ function expectStatusChip(testId: string, token: string, face: string) {
 }
 
 afterEach(() => {
+  // Unmount before the mocks reset: the session releases its delivered native
+  // result on unmount, and that call belongs to the test that delivered it.
+  cleanup();
   vi.restoreAllMocks();
   invokeMock.mockReset();
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
@@ -228,11 +232,11 @@ async function installPrecisionReplay() {
   // T0R: the fresh ordinary route is preview-physics-1; precision-1 is never Current.
   const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
   const mechanics = createNativeMechanicsReplay({ profile: "preview" });
-  const invoke = (command: string, args?: unknown) => {
+  const invoke = (command: string, args?: unknown, options?: unknown) => {
     if (command === "get_local_storage_capability") return Promise.resolve(storage);
     if (command === "load_design_knowledge") return Promise.resolve(knowledge);
     if (command === "sync_native_shell_state") return Promise.resolve(null);
-    if (["load_preview_model", "run_preview_mechanics_with_solver_mode", "start_preview_mechanics_job_with_solver_mode", "poll_preview_mechanics_job", "cancel_preview_mechanics_job"].includes(command)) return mechanics.invoke(command, args);
+    if (["load_preview_model", "start_preview_mechanics_job", "poll_preview_mechanics_job", "take_preview_mechanics_job_result", "dispose_preview_mechanics_result", "cancel_preview_mechanics_job"].includes(command)) return mechanics.invoke(command, args, options);
     return Promise.reject(new Error(`NATIVE_APP_REPLAY_COMMAND_UNSUPPORTED: ${command}`));
   };
   const replay = { invoke, notice: mechanics.notice };
@@ -578,8 +582,10 @@ describe("SWBPIPE desktop preview", () => {
       backend_job_seam: "tauri_backend_job",
       backend_job_id: "job:test-completed",
       backend_cancellation_token: "token:test",
+      backend_cancellation_scope: "worker_process_terminated",
       events: [],
       error_message: null,
+      resource: initialSolveJob().resource,
     };
     const proof: SolveProofEvidence = {
       state: "completed",
@@ -699,7 +705,7 @@ describe("SWBPIPE desktop preview", () => {
     const start = deferred<unknown>();
     const terminal = deferred<unknown>();
     invokeMock.mockImplementation((command: string) => {
-      if (command === "start_preview_mechanics_job_with_solver_mode") return start.promise;
+      if (command === "start_preview_mechanics_job") return start.promise;
       if (command === "poll_preview_mechanics_job") return terminal.promise;
       if (command === "open_local_project") return Promise.resolve(openedEnvelope);
       throw new Error(`Unexpected native command ${command}`);
@@ -711,8 +717,9 @@ describe("SWBPIPE desktop preview", () => {
     act(() => nativeMenuCommand("analyze.run"));
     await waitFor(() =>
       expect(invokeMock).toHaveBeenCalledWith(
-        "start_preview_mechanics_job_with_solver_mode",
+        "start_preview_mechanics_job",
         expect.any(Object),
+        { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } },
       ),
     );
     await act(async () => {
@@ -739,8 +746,12 @@ describe("SWBPIPE desktop preview", () => {
         cancellation_requested: false,
         cancellation_status: "not_requested",
         cancellation_scope: "invented_test_checkpoint",
-        result: solveBytes(oldResult),
+        queue_reason: null,
+        result_available: true,
+        result_bytes: solveBytes(oldResult).length,
         error_message: null,
+        resource_refusal: null,
+        resource: null,
       });
       await Promise.resolve();
     });
@@ -765,7 +776,7 @@ describe("SWBPIPE desktop preview", () => {
       const start = deferred<unknown>();
       const terminal = deferred<unknown>();
       invokeMock.mockImplementation((command: string) => {
-        if (command === "start_preview_mechanics_job_with_solver_mode") return start.promise;
+        if (command === "start_preview_mechanics_job") return start.promise;
         if (command === "poll_preview_mechanics_job") return terminal.promise;
         if (command === "open_local_project") return Promise.resolve(openedEnvelope);
         throw new Error(`Unexpected native command ${command}`);
@@ -777,8 +788,9 @@ describe("SWBPIPE desktop preview", () => {
       act(() => nativeMenuCommand("analyze.run"));
       await waitFor(() =>
         expect(invokeMock).toHaveBeenCalledWith(
-          "start_preview_mechanics_job_with_solver_mode",
+          "start_preview_mechanics_job",
           expect.any(Object),
+          { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } },
         ),
       );
       await act(async () => {
@@ -825,7 +837,7 @@ describe("SWBPIPE desktop preview", () => {
   it("persists native immediate-cancel intent until the backend start receipt exists", async () => {
     const start = deferred<unknown>();
     invokeMock.mockImplementation((command: string) => {
-      if (command === "start_preview_mechanics_job_with_solver_mode") return start.promise;
+      if (command === "start_preview_mechanics_job") return start.promise;
       if (command === "cancel_preview_mechanics_job") {
         return Promise.resolve({
           job_id: "backend-solve-job-immediate-cancel",
@@ -856,8 +868,9 @@ describe("SWBPIPE desktop preview", () => {
     act(() => nativeMenuCommand("analyze.run"));
     await waitFor(() =>
       expect(invokeMock).toHaveBeenCalledWith(
-        "start_preview_mechanics_job_with_solver_mode",
+        "start_preview_mechanics_job",
         expect.any(Object),
+        { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } },
       ),
     );
     act(() => nativeMenuCommand("analyze.cancel"));
@@ -902,7 +915,7 @@ describe("SWBPIPE desktop preview", () => {
     const openedEnvelope = inventedOpenEnvelope(originalModel);
     const start = deferred<unknown>();
     invokeMock.mockImplementation((command: string) => {
-      if (command === "start_preview_mechanics_job_with_solver_mode") return start.promise;
+      if (command === "start_preview_mechanics_job") return start.promise;
       if (command === "open_local_project") return Promise.resolve(openedEnvelope);
       if (command === "cancel_preview_mechanics_job") {
         return Promise.resolve({
@@ -923,8 +936,9 @@ describe("SWBPIPE desktop preview", () => {
     act(() => nativeMenuCommand("analyze.run"));
     await waitFor(() =>
       expect(invokeMock).toHaveBeenCalledWith(
-        "start_preview_mechanics_job_with_solver_mode",
+        "start_preview_mechanics_job",
         expect.any(Object),
+        { headers: { "x-swbpipe-solver-mode": "sparse_interactive" } },
       ),
     );
     act(() => nativeMenuCommand("analyze.cancel"));
@@ -10734,13 +10748,13 @@ describe("SWBPIPE desktop preview", () => {
     // Native runtime renders a save button. Inspect the real screened request
     // sent to the mocked save seam, not a nonexistent browser download href.
     const saveRequests: NativeResultSaveRequest[] = [];
-    invokeMock.mockImplementation((command: string, args?: unknown) => {
+    invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
       if (command === "save_local_result_json") {
         const request = (args as { request: NativeResultSaveRequest }).request;
         saveRequests.push(structuredClone(request));
         return Promise.resolve({ outcome: "saved", file_name: request.file_name, byte_count: new TextEncoder().encode(decodeURIComponent(request.href.split(",", 2)[1])).length, replaced_existing: false, durability: "not_guaranteed", path_containment: "best_effort_non_adversarial" });
       }
-      return pair.replay.invoke(command, args);
+      return pair.replay.invoke(command, args, options);
     });
     fireEvent.click(within(exportPanel).getByTestId("result-export-link-local-private-intent"));
     const saveButton = within(exportPanel).getByTestId("result-export-link");
@@ -12931,6 +12945,25 @@ describe("existing toolkit v2", () => {
     expect(reviewControl("undo-session-model-edit")).toBeDisabled();
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");
   });
+  it("surfaces a native memory-pool refusal of an apply instead of a silent no-op", async () => {
+    render(<App />); await screen.findByTestId("desktop-preview-shell");
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
+    fireEvent.change(reviewEditor("node:N-100-x"), { target: { value: "1.25" } });
+    fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
+    invokeMock.mockImplementation((command: string) => command === "apply_model_operation"
+      ? Promise.reject({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 3 * 2 ** 30, available_bytes: 2 ** 30 }, pool: null })
+      : Promise.reject(new Error(`Unexpected command ${command}`)));
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() => expect(screen.getByTestId("operation-apply-message")).toHaveTextContent(
+      "Operation apply failed to run: Refused by the native memory pool: Not enough free memory on this Mac right now: needs 3 GiB, 1 GiB available."
+    ));
+    expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");
+    expect(reviewControl("undo-session-model-edit")).toBeDisabled();
+    // The intent stays queued for a later attempt.
+    expect(screen.getByTestId("apply-intent-editor-intent-1")).toBeInTheDocument();
+  });
   it("limits section type choices to pipe", async () => {
     const geometry = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 1000, 400));
     const width = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(1000);
@@ -14255,7 +14288,7 @@ describe("workflow current and historical result boundaries", () => {
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"));
 
-    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }, options?: unknown) => {
       if (command === "get_unit_catalog") return Promise.reject(new Error("Invented catalog unavailable"));
       if (command === "run_rule_checks") return delayedRuleRun.promise;
       if (command === "open_local_project") return Promise.resolve(replacement);
@@ -14263,7 +14296,7 @@ describe("workflow current and historical result boundaries", () => {
         serializedReportRequest = args?.request ?? null;
         return Promise.resolve(reportPackageSaveReceipt("fresh-replacement-rule-basis"));
       }
-      return replay.invoke(command, args);
+      return replay.invoke(command, args, options);
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     const solve = openWorkspaceSection("solve");
@@ -14363,10 +14396,10 @@ describe("workflow current and historical result boundaries", () => {
       const report = openWorkspaceSection("report");
       await waitFor(() => expect(within(report).getByTestId("report-package-private-intent")).toBeInTheDocument());
       fireEvent.click(within(report).getByTestId("report-package-private-intent"));
-      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>, options?: unknown) => {
         if (command === "open_local_project") return Promise.resolve(replacement);
         if (command === "save_report_package") return Promise.reject(new Error("Obsolete save must not start"));
-        return replay.invoke(command, args);
+        return replay.invoke(command, args, options);
       });
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
       act(() => nativeMenuCommand("file.save-report-package"));
@@ -14416,13 +14449,13 @@ describe("workflow current and historical result boundaries", () => {
       const staleSave = deferred<unknown>();
       const currentSave = deferred<unknown>();
       let saveCalls = 0;
-      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>, options?: unknown) => {
         if (command === "open_local_project") return Promise.resolve(replacement);
         if (command === "save_report_package") {
           saveCalls += 1;
           return saveCalls === 1 ? staleSave.promise : currentSave.promise;
         }
-        return replay.invoke(command, args);
+        return replay.invoke(command, args, options);
       });
 
       render(<App />);
@@ -14533,8 +14566,10 @@ describe("workflow current and historical result boundaries", () => {
       if (command === "load_design_knowledge") return Promise.resolve(knowledge);
       if (command === "sync_native_shell_state") return Promise.resolve(null);
       if (command === "load_preview_model") return Promise.resolve(structuredClone(model));
-      if (command === "start_preview_mechanics_job_with_solver_mode") return Promise.resolve({ job_id: "workflow-outcome", backend_cancellation_token: "workflow-outcome-token", state: "queued", cancellation_scope: "synthetic" });
-      if (command === "poll_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "synthetic", result: solveBytes(output), error_message: null });
+      if (command === "start_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", backend_cancellation_token: "workflow-outcome-token", state: "queued", cancellation_scope: "synthetic", resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } });
+      if (command === "poll_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", state: "completed", queue_reason: null, cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "synthetic", result_available: true, result_bytes: solveBytes(output).length, error_message: null, resource_refusal: null, resource: { ...REPLAY_RESOURCE_GRANT, ingress_reserved_bytes: 4096 } });
+      if (command === "take_preview_mechanics_job_result") return Promise.resolve(resultArrayBuffer(solveBytes(output)));
+      if (command === "dispose_preview_mechanics_result") return Promise.resolve(null);
       return Promise.reject(new Error(`Unexpected command ${command}`));
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -14806,10 +14841,10 @@ describe("historical lifecycle history transitions", () => {
 
       const reportSection = openWorkspaceSection("report");
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+      invokeMock.mockImplementation((command: string, args?: Record<string, unknown>, options?: unknown) => {
         if (command === "open_local_project") return Promise.resolve(replacement);
         if (command === "render_calculation_report") return reportRender.promise;
-        return replay.invoke(command, args);
+        return replay.invoke(command, args, options);
       });
       fireEvent.click(within(reportSection).getByTestId("rendered-report-render"));
       await waitFor(() =>
@@ -14999,10 +15034,10 @@ describe("historical lifecycle history transitions", () => {
     opened.analysis_run = await buildAnalysisRunV03(historical, historicalManifest, undefined, modelLoadBasisRefs(model));
     const refreshed = await withCurrentPersistenceHashes(opened);
     const pendingSave = deferred<LocalProjectEnvelope>();
-    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>) => {
+    invokeMock.mockImplementation((command: string, args?: Record<string, unknown>, options?: unknown) => {
       if (command === "open_local_project") return Promise.resolve(opened);
       if (command === "save_local_project") return pendingSave.promise;
-      return replay.invoke(command, args);
+      return replay.invoke(command, args, options);
     });
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
@@ -15156,7 +15191,7 @@ describe("historical lifecycle history transitions", () => {
     openWorkspaceSection("solve");
     fireEvent.click(await runMechanicsButton());
     await waitFor(() => expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved"), { timeout: 10000 });
-    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }) => {
+    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }, options?: unknown) => {
       if (command === "save_local_project") {
         const model = args.request.model as PreviewModel;
         return Promise.resolve({
@@ -15165,7 +15200,7 @@ describe("historical lifecycle history transitions", () => {
           summary: { ...inventedOpenEnvelope(model).summary, project_id: model.project.id, project_name: model.project.name, message: "Saved unchanged Current model." },
         });
       }
-      return replay.invoke(command, args);
+      return replay.invoke(command, args, options);
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     act(() => nativeMenuCommand("file.save-local"));

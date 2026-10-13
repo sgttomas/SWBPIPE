@@ -239,7 +239,7 @@ fn u3_no_permit_entries_are_the_ordinary_route() {
     for mode in MODES {
         let raw = beyond_load_cases(&raw(), false);
         let plain = plain(mode, &raw);
-        let direct = run_linear_static_preview_value_with_retained_direct(raw.clone(), mode).unwrap();
+        let direct = run_linear_static_preview_value_with_retained_direct(raw.clone(), mode, RETAINED_LIMIT).unwrap();
         assert_eq!(serde_json::to_vec(direct.envelope()).unwrap(), plain);
         assert!(direct.retained().is_none());
         assert!(direct.admission().is_some(), "G-A's census still runs");
@@ -575,7 +575,7 @@ fn registered() -> bool {
 /// One actual Direct invocation, counted: its output and the runs and G-C consultations.
 fn direct(raw: &Value, mode: PreviewSolverMode) -> (RetainedPreviewOutput, Counts) {
     let raw = raw.clone();
-    let (output, counts) = hooks::counted(move || run_linear_static_preview_value_with_retained_direct(raw, mode).unwrap());
+    let (output, counts) = hooks::counted(move || run_linear_static_preview_value_with_retained_direct(raw, mode, RETAINED_LIMIT).unwrap());
     let profile = output.admission().expect("G-A ran").profile;
     assert_eq!(profile, if registered() { ProfileStatus::Registered } else { ProfileStatus::Stale }, "the build's status");
     (output, counts)
@@ -587,6 +587,8 @@ fn published(output: RetainedPreviewOutput) -> Vec<u8> {
         RetainedPublication::Ordinary(envelope) => serde_json::to_vec(&envelope).unwrap(),
     }
 }
+/// The owner-adopted per-invocation default, 12 GiB: the registered profile's qualified M.
+const RETAINED_LIMIT: RetainedByteLimit = RetainedByteLimit::new(12_884_901_888);
 const ONE_RUN: Counts = Counts { runs: 1, complete_gates: 0 };
 const ONE_RUN_THROUGH_G_C: Counts = Counts { runs: 1, complete_gates: 1 };
 fn notices(bytes: &[u8]) -> usize {
@@ -709,7 +711,7 @@ fn u3g2_direct_entry_no_w1_refusals_keep_exact_bytes() {
         let invocation = json!({"request": milestone.clone(), "solver_mode": mode.as_str()});
         let request_id = String::from("i61-u3g2");
         let headless = hooks::counted(|| run_linear_static_preview_value_with_retained_headless(milestone.clone(), mode,
-            RetainedHeadlessContext::from_borrowed_roots(&milestone, &invocation, &request_id)).unwrap());
+            RetainedHeadlessContext::from_borrowed_roots(&milestone, &invocation, &request_id), RETAINED_LIMIT).unwrap());
         assert_eq!(headless.0.admission().unwrap().law().refusal.and_then(|r| r.clause()), Some(D1Clause::Caller));
         assert!(headless.0.retained().is_none());
         assert_eq!(headless.1, ONE_RUN);
@@ -827,7 +829,7 @@ fn u3g2_no_permit_path_runs_once_without_a_copy() {
     let dispatch = section("fn run_linear_static_preview_value_dispatch(", "fn source_finalization_failed(");
     assert!(!dispatch.contains(".clone()") && !dispatch.contains("to_owned()") && !dispatch.contains("to_vec()"), "no copy on the dispatch");
     assert_eq!(dispatch.matches("run_linear_static_preview_captured(").count(), 1, "one ordinary run call");
-    assert!(dispatch.contains("retained_memory::admit(&capture, &request, entry)"), "G-A borrows the parse's halves");
+    assert!(dispatch.contains("retained_memory::admit(&capture, &request, entry, limit)"), "G-A borrows the parse's halves");
 }
 
 /// D-U6-5: U6's two carrier fixtures are byte-identical copies of PP's pinned successors.
@@ -2151,7 +2153,7 @@ fn b1_sp_seam_overflow_is_a_typed_g_b_refusal() {
     for mode in MODES {
         let plain = plain(mode, &raw);
         let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
-        let (permit, _report) = admit(&capture, &request, Entry::Direct).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
+        let (permit, _report) = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
         let mut observer = rp::ProductCapture::permitted_probe(permit);
         observer.late_loads_total = usize::MAX;
         let ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
@@ -2181,7 +2183,7 @@ fn b1_sp_first_g_b_refusal_stands_and_stops_later_late_hooks() {
     for mode in MODES {
         let plain = plain(mode, &raw);
         let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
-        let (permit, _report) = admit(&capture, &request, Entry::Direct).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
+        let (permit, _report) = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
         let mut observer = rp::ProductCapture::permitted_probe(permit);
         hooks::fail_next_late_gate();
         let ordinary = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
@@ -2723,7 +2725,7 @@ fn b3b_direct_entry_runs_the_exact_route() {
         let plain = plain(mode, &raw);
         let (_, _, private) = exact_w1(&raw, mode);
         let direct_raw = raw.clone();
-        let (output, counts, captured) = hooks::counted_with_successor(move || run_linear_static_preview_value_with_retained_direct(direct_raw, mode).unwrap());
+        let (output, counts, captured) = hooks::counted_with_successor(move || run_linear_static_preview_value_with_retained_direct(direct_raw, mode, RETAINED_LIMIT).unwrap());
         if !registered() {
             assert!(output.retained().is_none() && captured.is_none(), "{mode:?}: no permit, no W1");
             assert_eq!(counts, ONE_RUN, "{mode:?}");
@@ -2865,7 +2867,7 @@ fn b3b_mixed_exact_base_selects_case_beside_not_required() {
         println!("B3B_MIX_PIN {name} {} {}", successor["retained_precision"]["receipt_sha256"].as_str().unwrap(), sha(&bytes));
         assert_eq!((successor["retained_precision"]["receipt_sha256"].as_str(), sha(&bytes).as_str()), (Some(receipt_sha), bytes_sha), "{name}: the pinned mixed successor");
         let direct_raw = raw.clone();
-        let (output, counts, direct_captured) = hooks::counted_with_successor(move || run_linear_static_preview_value_with_retained_direct(direct_raw, mode).unwrap());
+        let (output, counts, direct_captured) = hooks::counted_with_successor(move || run_linear_static_preview_value_with_retained_direct(direct_raw, mode, RETAINED_LIMIT).unwrap());
         if registered() {
             assert_eq!(counts, ONE_RUN_THROUGH_G_C, "{name}");
             assert_eq!(direct_captured.as_ref(), Some(&successor), "{name}: the Direct entry's successor");
@@ -4076,7 +4078,7 @@ fn b2p_direct(witnesses: Vec<(&'static str, Value)>) {
             let (capture, observer, ordinary) = observed(mode, &raw);
             let (_, _, private) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
             let direct_raw = raw.clone();
-            let (output, counts, captured) = hooks::counted_with_successor(move || run_linear_static_preview_value_with_retained_direct(direct_raw, mode).unwrap());
+            let (output, counts, captured) = hooks::counted_with_successor(move || run_linear_static_preview_value_with_retained_direct(direct_raw, mode, RETAINED_LIMIT).unwrap());
             if !registered() {
                 assert!(output.retained().is_none() && captured.is_none(), "{label}: no permit, no W1");
                 assert_eq!(published(output), plain, "{label}");

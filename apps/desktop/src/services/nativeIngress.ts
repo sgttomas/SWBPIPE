@@ -1,0 +1,57 @@
+// Raw-body ingress for the model-sized native commands (DEL-04-07
+// memory-budget decision). Tauri would parse a JSON invoke body into native
+// values before a command runs; these commands instead receive the UTF-8 JSON
+// bytes of their argument object, so the native host can reserve memory for
+// the request before it parses it. The argument object, its camelCase keys and
+// its JSON text are exactly what Tauri itself sent (JSON.stringify semantics:
+// undefined members are left out and -0 is written as 0). Responses are
+// unchanged.
+import { invoke } from "@tauri-apps/api/core";
+import { describeResourceRefusal, nativeInvokeError, ResourceUnavailableError } from "./memoryPool";
+
+/** The header that marks a raw-body invocation and names its body format. */
+export const NATIVE_INGRESS_HEADER = "x-swbpipe-ingress";
+export const NATIVE_INGRESS_FORMAT = "args-json-v1";
+
+/** The commands the native host takes as a raw body. */
+export const NATIVE_INGRESS_COMMANDS = [
+  "render_calculation_report",
+  "sample_agent_proposal",
+  "validate_model_operation",
+  "apply_model_operation",
+  "generate_self_weight_operation_plan",
+  "validate_model_operation_batch",
+  "apply_model_operation_batch",
+  "convert_display_quantities",
+  "create_local_project",
+  "save_local_project",
+  "validate_rule_pack",
+  "run_rule_checks",
+  "compute_rule_pack_document_checksum",
+  "save_local_rule_pack",
+  "validate_library_import",
+  "save_local_library",
+  "save_report_package",
+  "save_local_result_json"
+] as const;
+export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];
+
+/** Invokes a raw-body command with the UTF-8 JSON of `args`. A typed native
+ * rejection becomes a `ResourceUnavailableError` (or an `INVALID_REQUEST`
+ * error); a plain string rejection is the command's own failure and passes
+ * through unchanged, as does any other rejection. */
+export async function invokeWithIngress<T>(command: NativeIngressCommand, args: Record<string, unknown>): Promise<T> {
+  const body = new TextEncoder().encode(JSON.stringify(args));
+  try {
+    return await invoke<T>(command, body, { headers: { [NATIVE_INGRESS_HEADER]: NATIVE_INGRESS_FORMAT } });
+  } catch (error) {
+    throw nativeInvokeError(error);
+  }
+}
+
+/** The text a feature shows for a failed native request: a resource refusal
+ * reads as the plain-language refusal sentence, anything else as before. */
+export function nativeFailureText(error: unknown): string {
+  if (error instanceof ResourceUnavailableError) return `Refused by the native memory pool: ${describeResourceRefusal(error.refusal)}`;
+  return String(error);
+}

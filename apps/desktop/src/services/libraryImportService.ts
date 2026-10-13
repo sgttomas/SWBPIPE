@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "./nativeIngress";
 
 // Library-import provenance seam (Phase C3, TP-C3-IMPORTCMD-001). Validation of
 // an already-parsed material/section/component import payload routes through the
@@ -71,7 +72,7 @@ export async function validateLibraryImport(
   intendedVisibility: IntendedVisibility
 ): Promise<LibraryImportValidationRoute> {
   if (!isTauriRuntime()) return libraryImportUnavailable();
-  const validation = await invoke<LibraryImportValidation>("validate_library_import", {
+  const validation = await invokeWithIngress<LibraryImportValidation>("validate_library_import", {
     payload,
     libraryKind,
     intendedVisibility
@@ -174,7 +175,7 @@ export async function saveLocalLibrary(
   document: Record<string, unknown>
 ): Promise<LibrarySaveRoute> {
   if (!isTauriRuntime()) return libraryImportUnavailable();
-  const result = await invoke<LocalLibrarySaveResult>("save_local_library", {
+  const result = await invokeWithIngress<LocalLibrarySaveResult>("save_local_library", {
     projectId,
     libraryKind,
     document

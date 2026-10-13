@@ -229,6 +229,12 @@ describe("the rail's states (§2.3, §2.6)", () => {
     expect(row("review", FAILED)).toEqual({ enabled: false, reason: "No solved run", caption: null, tooltip: "No solved run" });
   });
 
+  it("after a run the native memory pool refused: Results captioned Refused, Review No solved run", () => {
+    const refused: RunPresence = { ...NO_RUN, solveJobState: "refused" };
+    expect(row("results", refused)).toEqual({ enabled: true, reason: null, caption: "Refused", tooltip: "Refused · Results" });
+    expect(row("review", refused)).toEqual({ enabled: false, reason: "No solved run", caption: null, tooltip: "No solved run" });
+  });
+
   it("after a stopped run, or a run that completed without solving: Results enabled, Review No solved run", () => {
     expect(row("results", STOPPED)).toMatchObject({ enabled: true, caption: null });
     expect(row("review", STOPPED)).toMatchObject({ enabled: false, reason: "No solved run" });

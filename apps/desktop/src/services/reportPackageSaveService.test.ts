@@ -3,7 +3,7 @@ import type { ControlledRouteExport } from "../features/redaction-controls/redac
 import { saveReportPackage } from "./reportPackageSaveService";
 
 const invokeMock = vi.hoisted(() => vi.fn());
-vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 
 function controlledRequest(): ControlledRouteExport {
   return {

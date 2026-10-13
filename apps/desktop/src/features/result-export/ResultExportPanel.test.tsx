@@ -6,6 +6,7 @@ import {buildAnalysisRunPreview,loadBundledMechanicsReference,runPreviewMechanic
 import {buildCurrentResultExport,resultDigest} from './resultExportAdapter';
 import {ResultExportPanel} from './ResultExportPanel';
 import {createNativeMechanicsReplay,nativeMechanicsReplayPair} from '../../test/nativeMechanicsReplay';
+import {ingressArgs} from '../../test/nativeIngress';
 vi.mock('@tauri-apps/api/core',()=>({invoke:vi.fn()}));
 afterEach(()=>{delete (window as any).__TAURI_INTERNALS__;vi.mocked(invoke).mockReset();});
 
@@ -42,7 +43,7 @@ it('native save sends exact serialized bytes and suppresses a stale edit complet
  await screen.findByTestId('result-export-link');fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));
  const button=screen.getByTestId('result-export-link');expect(button.tagName).toBe('BUTTON');expect(button).not.toHaveAttribute('href');expect(button).not.toHaveAttribute('download');
  let finish!:(value:unknown)=>void;vi.mocked(invoke).mockImplementation((()=>new Promise<unknown>(resolve=>{finish=resolve;})) as typeof invoke);fireEvent.click(button);
- expect(invoke).toHaveBeenCalledTimes(1);const request=(vi.mocked(invoke).mock.calls[0][1] as any).request;
+ expect(invoke).toHaveBeenCalledTimes(1);const request=ingressArgs(vi.mocked(invoke).mock.calls[0]).request as any;
  expect(request.href).toBe(originalHref);expect(request.file_name).toMatch(/^openpipestress-preview-results-.*\.json$/);expect(request.screening.exact_payload_match).toBe(true);
  const doc=JSON.parse(decodeURIComponent(request.href.slice(request.href.indexOf(',')+1)));expect(doc.schema_version).toBe('0.3.0');expect(doc.result_envelope.model_ref.ref_id).toBe(props.model.project.id);expect(doc.result_envelope.run_ref.ref_id).toBe(props.result.run_id);expect(doc.result_envelope.row_accounting.map((row:any)=>row.source_result_id)).toEqual(props.result.results.map(row=>row.id));
  const payload=structuredClone(doc);delete payload.result_envelope.reproducibility.derivative_hash;expect(doc.result_envelope.reproducibility.derivative_hash.value).toBe(await resultDigest(payload));
@@ -51,7 +52,7 @@ it('native save sends exact serialized bytes and suppresses a stale edit complet
 });
 it('Historical or absent Current manifest cannot expose native save or publish an earlier completion',async()=>{
  const props=await currentProps();const view=render(<ResultExportPanel {...props}/>);await screen.findByTestId('result-export-link');fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));
- let finish!:(value:unknown)=>void;vi.mocked(invoke).mockImplementation((()=>new Promise<unknown>(resolve=>{finish=resolve;})) as typeof invoke);fireEvent.click(screen.getByTestId('result-export-link'));const request=(vi.mocked(invoke).mock.calls[0][1] as any).request;
+ let finish!:(value:unknown)=>void;vi.mocked(invoke).mockImplementation((()=>new Promise<unknown>(resolve=>{finish=resolve;})) as typeof invoke);fireEvent.click(screen.getByTestId('result-export-link'));const request=ingressArgs(vi.mocked(invoke).mock.calls[0]).request as any;
  view.rerender(<ResultExportPanel {...props} inputManifest={null}/>);expect(screen.queryByTestId('result-export-link')).toBeNull();await act(async()=>{finish({outcome:'saved',file_name:request.file_name,byte_count:123,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('CURRENT_INPUT_MANIFEST_UNAVAILABLE'));expect(screen.queryByRole('button',{name:'Local result JSON'})).toBeNull();expect(screen.queryByTestId('result-export-link-native-save-status')).toBeNull();
 });
 it('a bundled record stays unavailable even with a correctly bound reference analysis',async()=>{

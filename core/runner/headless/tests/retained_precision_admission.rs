@@ -6,9 +6,12 @@ use open_pipe_stress_headless_runner::{
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode as run_value_with_mode,
     run_linear_static_preview_value_with_retained_direct, MissingAdmissionTerm,
-    PreviewSolverMode, ProfileStatus, RetainedCaller,
+    PreviewSolverMode, ProfileStatus, RetainedByteLimit, RetainedCaller,
 };
 use serde_json::Value;
+
+/// The owner-adopted per-invocation default, 12 GiB: the registered profile's qualified M.
+const RETAINED_LIMIT: RetainedByteLimit = RetainedByteLimit::new(12_884_901_888);
 
 fn request(model: &Value) -> RunnerRequest {
     RunnerRequest {
@@ -107,7 +110,7 @@ fn explicit_headless_refusal_preserves_output_and_completion_fields_both_modes()
         refused["model"]["combinations"] = serde_json::json!([{"id": "combination:c-eq",
             "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}]);
         let plain = run_value_with_mode(refused.clone(), mode).unwrap();
-        let direct = run_linear_static_preview_value_with_retained_direct(refused, mode).unwrap();
+        let direct = run_linear_static_preview_value_with_retained_direct(refused, mode, RETAINED_LIMIT).unwrap();
         assert_eq!(
             serde_json::to_vec(direct.envelope()).unwrap(),
             serde_json::to_vec(&plain).unwrap(),

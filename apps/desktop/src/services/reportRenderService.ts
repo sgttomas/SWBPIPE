@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invokeWithIngress } from "./nativeIngress";
 
 // DEC-021 (A7): the hash-bound report renderer is a Rust crate reached
 // through the desktop (Tauri) command seam. The browser preview exposes no
@@ -67,7 +67,7 @@ export async function renderCalculationReport(input: unknown): Promise<RenderRep
         "fallback renderer exists."
     };
   }
-  const outcome = await invoke<RenderedReportOutcome>("render_calculation_report", { input: input.payload });
+  const outcome = await invokeWithIngress<RenderedReportOutcome>("render_calculation_report", { input: input.payload });
   return { route: "tauri_renderer", outcome };
 }
 
