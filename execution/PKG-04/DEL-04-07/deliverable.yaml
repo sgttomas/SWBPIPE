@@ -300,6 +300,24 @@ needs:
     enclosure, linear in w and applied to each term of w''s exact split, with its radius carried. A failed
     R-1 precondition makes the formation check unavailable.'
   gating: true
+- from: DEL-04-01
+  when: T4-U4a arc frames and signs implementation
+  condition: 'DEL-04-07 publishes the end rows of a realized arc in the tangent frame at each end, node-on-element
+    (Design/arc-frames-and-signs.md). DEL-04-01 supplies them from certify_arc_recovery as certified rows
+    of K_int,arc: the end operator and equivalent loads are formed with the end-tangent axes at p in ball
+    arithmetic (s = L/(2R), c = sqrt(1 - s^2); t_i = c x_c + s y_c, y_i = s x_c - c y_c, t_j = c x_c - s y_c,
+    y_j = -s x_c - c y_c, z = -z_c; formed as PressureDirection::Tangent forms its tangent), never from binary64
+    end tangents and never by rotating rounded rows, with the cut rows unchanged; the end frame is a parameter
+    until the preview-physics-1 stage lands. The same law serves the nonlinear certified route. CB supplies
+    its binary64 arc frame at each end for the binary64 recovery.'
+  gating: true
+- from: DEL-05-02
+  when: T4-U4a preview-physics-1 stage
+  condition: 'The preview-physics-1 stage of T4-U4a (arc end rows in the tangent frame; arc_chord_frame
+    retired) lands only with T3''s B7a H-4 wave (C4-C6), which re-registers the LIMITATIONS[3] sentence,
+    the semantic-table and results.v0.3 enum delta and the re-pinned fixtures given in DEL-04-07 Design/arc-frames-and-signs.md
+    section 8. Until then preview-physics-1 arc end rows stay in the chord frame with their label.'
+  gating: true
 code_paths:
 - core/product_physics/src/lib.rs
 - core/solver/nonlinear_integration/

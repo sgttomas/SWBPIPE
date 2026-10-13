@@ -213,6 +213,7 @@ The groups are every published member row, for straight members, realized arcs a
 
 - end rows, endpoint section cuts and the three interior stations;
 - per location, four groups: |N|, hypot(V_y, V_z), |T| and hypot(M_y, M_z).
+- On realized arcs, T4-U4a publishes the end rows in the tangent frame at each end, formed at p through the same certificate; the four end groups are formed from those rows and the law is unchanged ([DEL-04-07 Design, arc-frames-and-signs.md](../../DEL-04-07/Design/arc-frames-and-signs.md) §3).
 
 **Pipe-wall rows** form their own groups. The wall axial force is N_w = N_eff + p·A_i, formed at p from m_N and the input product p·A_i, and rounded once. Its group per location has q from the published wall value and B_w = ‖v_w − m_w‖ + r_w + R_N, where R_N is the effective axial row's remainder. The endpoint action rows (`pipe_wall_endpoint_action_v2`) follow the same rule. The membrane stress N_w/A_w is scaled at p and judged through N_w.
 
