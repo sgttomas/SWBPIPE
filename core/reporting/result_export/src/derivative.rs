@@ -115,12 +115,17 @@ pub fn checksum(v: &Value, scope: &str, payload_ref: Value) -> Result<Value, Str
         json!({"algorithm":"sha256","canonicalization":CANONICALIZATION,"payload_scope":scope,"payload_ref":payload_ref,"value":digest(v)?}),
     )
 }
-pub fn legacy_checksum(v: &Value, payload_ref: Value) -> Result<Value, String> {
-    Ok(
-        json!({"algorithm":"sha256","canonicalization":CANONICALIZATION,"payload_ref":payload_ref,"value":digest(v)?}),
-    )
-}
 
+/// b7-plan E2: a dimension-absent received carrier declares no row dimension;
+/// with the legacy-enriched carrier retired, a declaring carrier is refused.
+fn refuse_declared_dimensions(scope: &str, rows: &[Value]) -> Result<(), String> {
+    if scope == "received_current_dimension_absent_carrier"
+        && rows.iter().any(|row| row.get("dimension").is_some())
+    {
+        return Err("CARRIER_DIMENSION_PRESENT".into());
+    }
+    Ok(())
+}
 /// `base` carries qualified run/provenance/boundary facts, not numeric mappings.
 /// `origin` is supplied only after the caller's source binding has succeeded.
 pub fn derive_document(
@@ -158,7 +163,7 @@ pub fn derive_document(
     let mechanics_set = e["result_sets"][0].clone();
     e["result_sets"] = json!([mechanics_set]);
     e["schema_version"] = json!(version);
-    if version == "0.3.0" {
+    {
         for key in ["producer", "numerical_quality", "formulation_basis"] {
             e[key] = source[key].clone();
         }
@@ -179,8 +184,7 @@ pub fn derive_document(
         if matches!(
             source["producer"]["semantic_contract_id"].as_str(),
             Some(
-                crate::source_blocks::CONTRACT_ID
-                    | crate::semantic_contract::PHYSICS_SOURCE_ID
+                crate::semantic_contract::PHYSICS_SOURCE_ID
                     | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
             )
         ) {
@@ -223,6 +227,7 @@ pub fn derive_document(
     if !authentic && !origin["original_producer_checksum"].is_null() {
         return Err("UNAVAILABLE_PRODUCER_HASH".into());
     }
+    refuse_declared_dimensions(scope, rows)?;
     for (index, row) in rows.iter().enumerate() {
         let id = row["id"]
             .as_str()
@@ -270,7 +275,6 @@ pub fn derive_document(
         let observed = json!({"present":row.get("dimension").is_some(),"value":row.get("dimension").cloned().unwrap_or(Value::Null)});
         let path = format!("/results/{index}");
         let row_scope = match scope {
-            "received_current_legacy_enriched_carrier" => "received_current_legacy_enriched_row",
             "received_current_dimension_absent_carrier" => "received_current_dimension_absent_row",
             _ => "raw_source_row",
         };
@@ -355,15 +359,14 @@ pub fn derive_document(
     e["unit_preservation_witnesses"] = json!(witnesses);
     e["unit_witness_policy"] =
         json!("preserve_received_value_and_unit_with_independent_semantic_dimension");
-    e["reproducibility"]["model_hash"] = legacy_checksum(
+    e["reproducibility"]["model_hash"] = checksum(
         model,
+        "model_payload",
         reference("model_payload", source["model_ref"].as_str().unwrap()),
     )?;
+    // The authentic producer's carrier, exactly as the origin binds it.
     e["reproducibility"]["raw_source_hashes"] = if authentic {
-        json!([legacy_checksum(
-            source,
-            origin["original_producer_checksum"]["payload_ref"].clone()
-        )?])
+        json!([origin["original_producer_checksum"].clone()])
     } else {
         json!([])
     };
@@ -410,8 +413,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     if matches!(
         source["producer"]["semantic_contract_id"].as_str(),
         Some(
-            crate::source_blocks::CONTRACT_ID
-                | crate::semantic_contract::PHYSICS_SOURCE_ID
+            crate::semantic_contract::PHYSICS_SOURCE_ID
                 | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
         )
     ) {
@@ -433,7 +435,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     } else if doc["result_envelope"].get("retained_precision").is_some() {
         return Err(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN.into());
     }
-    if version == "0.3.0" {
+    {
         for key in ["producer", "numerical_quality", "formulation_basis"] {
             if !crate::json_value_eq(&doc["result_envelope"][key], &source[key]) {
                 return Err("SOURCE_METADATA_BINDING_MISMATCH".into());
@@ -454,19 +456,6 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
         {
             return Err("SEMANTIC_CONTRACT_BINDING_MISMATCH".into());
         }
-    }
-    if version == "0.2.0"
-        && [
-            "producer",
-            "numerical_quality",
-            "formulation_basis",
-            "semantic_contract_ref",
-            "contract_evidence",
-        ]
-        .iter()
-        .any(|key| doc["result_envelope"].get(key).is_some())
-    {
-        return Err("LEGACY_DERIVATIVE_METADATA_CONTRADICTION".into());
     }
     if doc["schema_version"] != version || doc["result_envelope"]["schema_version"] != version {
         return Err("DERIVATIVE_VERSION_MISMATCH".into());
@@ -517,7 +506,6 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
         .as_str()
         .ok_or("ORIGIN_SCOPE_MISSING")?;
     let row_scope = match carrier_scope {
-        "received_current_legacy_enriched_carrier" => "received_current_legacy_enriched_row",
         "received_current_dimension_absent_carrier" => "received_current_dimension_absent_row",
         "attested_headless_producer_carrier" => "raw_source_row",
         _ => return Err("ORIGIN_SCOPE_INVALID".into()),
@@ -527,6 +515,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     {
         return Err("SOURCE_CARRIER_HASH_MISMATCH".into());
     }
+    refuse_declared_dimensions(carrier_scope, rows)?;
     if authentic {
         if origin["original_producer_checksum"] != origin["received_carrier_checksum"] {
             return Err("ORIGINAL_PRODUCER_BINDING_MISMATCH".into());

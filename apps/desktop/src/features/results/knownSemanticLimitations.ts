@@ -1,7 +1,7 @@
 /** Frozen T0R notices, gate reasons and standing reasons (S1_INTERFACE §10).
  * Text only. N-A: these strings are UI labels and reasons; they are never
  * written into an exported results or stress-neutral document or its manifest. */
-import { PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
+import { PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
 import { currentSemanticContract, sourceContract } from "./resultReader";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
@@ -13,7 +13,6 @@ import type { MechanicsResult } from "../../types";
  * standing, which comes only from the accepted reader's registered validation. */
 export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
   PREVIEW_PHYSICS_CONTRACT_ID,
-  SOURCE_BLOCKS_CONTRACT_ID,
   PHYSICS_CONTRACT_ID,
   PHYSICS_SOURCE_CONTRACT_ID,
   LOAD_REFERENCE_CONTRACT_ID,
@@ -23,8 +22,6 @@ export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
 
 export const N_HEADLINE = "maximum elastic normal stress; nominal; no component intensification; not a code stress";
 export const N_HEADLINE_WITHHELD = "Stress headline withheld: a stress maximum is not available for every member in every load case (arc members have no maximum on this route).";
-export const N_SB = "Summary stress in this retained-source result is the sum of absolute axial and bending components, not the circular-section maximum. The admitted loads are nodal only, so it is conservative and at most √2 (about 1.414) times the maximum. Rule checks cannot bind to it.";
-export const N_SB_MIXED = "This retained-source result contains an ordinary load case whose rows keep the retired precision-1 semantics (norm-only reactions and an absolute-sum stress summary). It is not Current, rule- or export-eligible.";
 export const N_REPORT = "The report package is unavailable for fresh results.";
 export const N_INTENSIFIED = "equal-factor intensified bending stress i·hypot(My,Mz)/Z; user SIF; member Z; not a code stress; never combined";
 
@@ -34,8 +31,6 @@ export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object
   COMBINATION_MODULUS_BASIS_MIXED: "Combination withheld: its load cases were solved on different modulus bases.",
 });
 
-export const SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS = "SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS";
-export const RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE";
 export const REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE = "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE";
 
 export const PREVIEW_INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1";
@@ -90,28 +85,10 @@ export function isFreshSemanticResult(source: MechanicsResult | null | undefined
   return !!binding && FRESH_SEMANTIC_CONTRACT_IDS.includes(binding.id);
 }
 
-/** Which notice and reason label a source-blocks-1 statement shows: a qualified case
- * whose selected method is not the retained exact method carries rows with the retired
- * precision-1 semantics (T0R, S1 §10; Rust `source_blocks::has_ordinary_qualified_case`).
- * Text selection only, for any statement of this identity, registered or not; the
- * standing that follows from it is Rust's (`resultStanding.ts`, with the registered
- * invocation). It goes with B4/D1 (b). */
-function sourceBlocksOrdinaryCaseLegacy(source: MechanicsResult): boolean {
-  if (source.producer?.semantic_contract_id !== SOURCE_BLOCKS_CONTRACT_ID) return false;
-  const cases = (source.source_block_recovery as { body?: { cases?: unknown } } | undefined)?.body?.cases;
-  return Array.isArray(cases) && cases.some((c: { outcome?: unknown; selected_method?: unknown } | null) => c?.outcome === "qualified" && c.selected_method !== "retained_source_blocks_exact_v1");
-}
-
-function isNonCompositeSourceBlocks(source: MechanicsResult): boolean {
-  try { return sourceContract(source) === "source_blocks"; } catch { return false; }
-}
-
-/** Reader-derived standing reason (not a producer field); null when none applies. */
-export function standingReason(source: MechanicsResult | null | undefined): string | null {
-  if (!source) return null;
-  let route: ReturnType<typeof sourceContract>;
-  try { route = sourceContract(source); } catch { return null; }
-  if (route === "source_blocks" && sourceBlocksOrdinaryCaseLegacy(source)) return SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS;
+/** Reader-derived standing reason (not a producer field); null when none applies.
+ * B1 and B4/D1 (b) refuse precision-1 and source-blocks-1 by name, so no readable
+ * route has one (as Rust `semantic_contract::standing_reason`). */
+export function standingReason(_source: MechanicsResult | null | undefined): string | null {
   return null;
 }
 
@@ -125,9 +102,6 @@ export function ruleBindingRefusal(source: MechanicsResult, row: Pick<MechanicsR
     const classes = retainedRowClasses(source);
     return classes ? classBindingRefusal(classes.get(row.id)?.class) : RULE_QUANTITY_NOT_COVERED;
   }
-  if (!isNonCompositeSourceBlocks(source) || source.producer?.semantic_contract_id !== SOURCE_BLOCKS_CONTRACT_ID) return null;
-  if (row.kind === "open_formula_stress_summary") return RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE;
-  if (row.id === source.summary.max_open_formula_stress?.result_ref) return RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE;
   return null;
 }
 
@@ -140,11 +114,6 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined)
   let route: ReturnType<typeof sourceContract>;
   try { route = sourceContract(source); } catch { return []; }
   const notices: KnownSemanticNotice[] = [];
-  if (route === "source_blocks") {
-    notices.push(sourceBlocksOrdinaryCaseLegacy(source)
-      ? { id: "source-blocks-mixed", text: N_SB_MIXED }
-      : { id: "source-blocks-summary", text: N_SB });
-  }
   // U6d: the successor reuses the preview notices (its rows and evidence are preview-physics-1's).
   if (route === "preview_physics" || route === "retained_preview_physics") {
     const solved = source.status.mechanics === "MECHANICS_SOLVED";

@@ -7,9 +7,8 @@ import { PREVIEW_PHYSICS_CONTRACT_ID } from "../features/results/numericalResult
 import { PREVIEW_PHYSICS_CONTRACT_SHA256 } from "../test-support/contractBindings";
 import { minimalPreviewStatement, syncPreviewCases } from "../test-support/retiredPrecision";
 import { sourceContract } from "../features/results/resultReader";
-import sourceBlocks from "../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json";
 import physicsSource from "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json";
-import historicalResult from "../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
+import { retiredMechanicsResult } from "../test-support/retiredMechanicsResult";
 
 const result: MechanicsResult = {
   schema_version: "0.2.0", document_kind: "MechanicsResult", run_id: "run:test", model_ref: "model:test",
@@ -29,7 +28,7 @@ describe("analysis record versions", () => {
   });
 
   it("never records a historical result, in any version", async () => {
-    const historical = structuredClone(historicalResult) as unknown as MechanicsResult;
+    const historical = retiredMechanicsResult();
     const before = JSON.stringify(historical);
     await expect(buildAnalysisRunV03(historical, { ...manifest, manifest: { ...manifest.manifest, model_basis: { model_ref: historical.model_ref } } })).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
     expect(JSON.stringify(historical)).toBe(before);
@@ -208,7 +207,6 @@ it("binds a combination successor's Combination basis references (T6S, B2-C §10
 });
 
 describe.each([
-  ["source-blocks", sourceBlocks, "SOURCE_RECOVERY_RECEIPT_HASH"],
   ["physics-source", physicsSource, "PHYSICS_SOURCE_RECEIPT_HASH"],
 ] as const)("%s portable source consistency", (_route, fixture, receiptError) => {
   it("takes Rust's commitment verdict while preserving the surface's refusal codes", async () => {

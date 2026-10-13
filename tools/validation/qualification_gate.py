@@ -3,8 +3,9 @@
 
 Records observed assertion outcomes, never app Current, independent reference
 approval, physical validation, professional acceptance or release qualification.
-Closed dispatch covers legacy sparse raw0.1 and the selected two-case ordinary
-physics-1 raw0.2 profile. No source/composite or future-profile fallback occurs.
+Closed dispatch covers the current sparse preview-physics-1 raw0.2 carrier and the
+selected two-case ordinary physics-1 raw0.2 profile (b7-plan E2 retired the raw0.1
+carrier and its v0_2 table). No source/composite or future-profile fallback occurs.
 """
 from __future__ import annotations
 import argparse
@@ -30,14 +31,15 @@ except ImportError:
     from qualification_process import capture, sha256_bytes, file_sha256
     import qualification_physics as physics
 
-TRANSPORT = 'main_sparse_cli_1.0_raw0.1'
+TRANSPORT = 'preview_physics_1_cli_1.0_raw0.2'
+PREVIEW_PHYSICS_ID = 'openpipestress.result_semantics/0.3.0/preview-physics-1'
 MANIFEST_FORMAT = 'openpipestress.qualification_selection/1'
 REFERENCE_FORMAT = 'openpipestress.qualification_reference_values/1'
 MAX_INPUT_BYTES = 8 * 1024 * 1024
 MAX_CASES = 256
 MAX_ASSERTIONS = 65536
-SEMANTICS = PROJECT / 'fixtures/results/semantic_contract_v0_2.json'
-SEMANTICS_SHA256 = '4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da'
+SEMANTICS = PROJECT / 'fixtures/results/semantic_contract_v0_3_preview_physics_1.json'
+SEMANTICS_SHA256 = 'ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c'
 CLASSIFIER = PROJECT / 'core/comparison/analysis_run/engine.py'
 CLASSIFIER_SHA256 = '14aada4049fde08c6f68a99a844f84e73b16fd8b6e4bb2a91cb7e4c8f63b7f2c'
 META = ('component', 'coordinate_system', 'location', 'basis', 'sign_convention')
@@ -291,10 +293,13 @@ def unwrap(raw: bytes, request: dict, mode: str, *, transport: str = TRANSPORT) 
     mechanics = payload.get('mechanics_envelope')
     require(type(mechanics) is dict and mechanics.get('document_kind') == 'openpipestress.product_preview.mechanics_result', 'unsupported raw mechanics document')
     if transport == TRANSPORT:
-        require(mechanics.get('schema_version') == '0.1.0', 'unsupported raw mechanics version')
-        require(not any(key in mechanics for key in ('producer', 'numerical_quality', 'formulation_basis',
-                    'contract_evidence', 'source_block_recovery', 'carrier_evidence')),
-                'newer method identity/evidence is not legacy raw0.1')
+        require(mechanics.get('schema_version') == '0.2.0', 'unsupported raw mechanics version')
+        require(mechanics.get('producer') == {'component_name': 'open_pipe_stress_product_physics', 'component_version': '0.2.0',
+                                              'semantic_contract_id': PREVIEW_PHYSICS_ID}, 'raw producer is not preview-physics-1')
+        require(all(type(mechanics.get(key)) is dict for key in ('numerical_quality', 'formulation_basis', 'contract_evidence')),
+                'preview-physics-1 header members missing')
+        require(not any(key in mechanics for key in ('source_block_recovery', 'carrier_evidence', 'retained_precision')),
+                'other method identity/evidence is not preview-physics-1 raw0.2')
     elif transport == physics.TRANSPORT:
         physics.ordinary_header_and_standing(mechanics, request, mode)
     else:
@@ -536,7 +541,7 @@ def run_selection(manifest_path: Path, executable: Path, source_root: Path, outp
             'process_supervisor_sha256': sha256_bytes(Path(__file__).with_name('qualification_process.py').read_bytes()),
             'python': sys.version, 'platform': platform.platform(),
             'source_artifact_association': 'selected checkout and executable identities; not independent build-source attestation',
-            'producer_precision': 'ordinary physics-1 raw0.2 finite binary64 without publication quantization' if physical_binding else 'legacy raw0.1 six-decimal publication; not unmerged precise producer'}
+            'producer_precision': 'ordinary physics-1 raw0.2 finite binary64 without publication quantization' if physical_binding else 'preview-physics-1 raw0.2 finite binary64 without publication quantization'}
         if physical_binding:
             ledger['execution_basis']['physics_binding_sha256'] = physical_binding['binding_sha256']
             ledger['execution_basis']['physics_validator_source_root'] = str(physical_binding['source_root'])

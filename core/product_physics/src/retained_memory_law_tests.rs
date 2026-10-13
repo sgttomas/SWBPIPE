@@ -331,7 +331,10 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
         (include_str!("../../reporting/result_export/src/semantic_contract.rs"), None),
         (include_str!("../../reporting/result_export/src/source_blocks.rs"), Some(AuditedTestRegion {
             first_item: "#[cfg(test)]\nmod norm_tests {",
-            complete_suffix_sha256: "2fd78506b4a4b8a9634d8663d2f96576a91ccf7a92daa0c5d12ee13f181810f8",
+            // B4/D1 (b) re-pin: the test region's calls moved from the retired
+            // non-composite wrappers (`derived`, `summary(.., false)`) to the shared
+            // functions; it gained no include and no production.
+            complete_suffix_sha256: "e2dcf91d72b8ed98abd199411f503aaf2f1caad4ea5aaef3834e3773f8b83aa5",
             production_resume: None,
         })),
         (include_str!("../../reporting/result_export/src/reader_verdict.rs"), None),
@@ -381,27 +384,27 @@ fn actual_reader_include(reader: &str, input: &str) -> bool {
 /// The full registration law and the focused pre-registration check share this
 /// guard. Only the exact appended binding path is exempt from resident includes.
 fn assert_reviewed_reader_input_bindings() {
-    const ORIGINAL: [&str; 16] = [
+    const ORIGINAL: [&str; 13] = [
         "Cargo.lock",
         "../../schemas/physics_source_recovery.schema.json",
         "../../schemas/retained_precision_mp_v2.schema.json",
         "../../fixtures/results/retained_precision_prepared_ordinary_v1.json",
         "../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
-        "../../fixtures/results/semantic_contract_v0_2.json",
         "../../fixtures/results/semantic_contract_v0_3_physics_1.json",
         "../../fixtures/results/semantic_contract_v0_3_load_reference_1.json",
         "../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json",
         "../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json",
         "../../fixtures/results/semantic_contract_v0_3_physics_source_1.json",
-        "../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json",
-        "../../schemas/source_block_recovery.schema.json",
         "../../fixtures/results/retained_precision_prepared_combination_v1.json",
         "../../fixtures/results/retained_precision_prepared_exact_v1.json",
         "../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
     ];
-    assert_eq!(&build_identity::REVIEWED_INPUTS[..16], &ORIGINAL);
-    assert_eq!(build_identity::REVIEWED_INPUTS.len(), 17);
-    assert_eq!(build_identity::REVIEWED_INPUTS[16], PRESSURE_SOURCE_BINDING_INPUT);
+    // B7a E2: the retired v0_2 table left; B1: the precision-1 table left;
+    // B4/D1 (b): the source-blocks-1 table and its receipt schema left; every
+    // other input keeps its order.
+    assert_eq!(&build_identity::REVIEWED_INPUTS[..13], &ORIGINAL);
+    assert_eq!(build_identity::REVIEWED_INPUTS.len(), 14);
+    assert_eq!(build_identity::REVIEWED_INPUTS[13], PRESSURE_SOURCE_BINDING_INPUT);
     let audited = audited_reader_sources();
     let sources: Vec<_> = audited[..4].iter().map(|(source, region)|
         audited_reader_production(source, *region).expect("reader test region changed: re-audit before exclusion")
@@ -417,7 +420,7 @@ fn assert_reviewed_reader_input_bindings() {
             assert!(actual_reader_include(&reader, path), "{path} is a production reader include");
         } else {
             exemptions += 1;
-            assert_eq!(index, 16);
+            assert_eq!(index, build_identity::REVIEWED_INPUT_COUNT - 1);
             assert!(!actual_reader_include(&reader, path), "the binding is nonresident");
         }
     }
@@ -440,7 +443,7 @@ fn assert_reviewed_reader_input_bindings() {
     let verdict = audited_reader_production(audited[4].0, audited[4].1).expect("verdict has no test region");
     assert!(!actual_reader_include(&verdict, PRESSURE_SOURCE_BINDING_INPUT));
     let findings = verdict.split("pub fn source_findings(").nth(1).unwrap().split("pub fn ").next().unwrap();
-    assert!(findings.contains("if composite { sc::physics_source_contract() }"));
+    assert!(findings.contains("let table = sc::physics_source_contract();"));
 }
 
 #[test]
@@ -524,32 +527,34 @@ fn pressure_source_reviewed_input_is_the_only_nonresident_binding() {
     assert_eq!(sc::verify_pressure_source_table(&edited).unwrap_err(), "SOURCE_PRESSURE_SOURCE_TABLE_HASH");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
-    assert_eq!(tokens.len(), 18);
+    assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
     assert_eq!(tokens[0], "v1");
-    assert_eq!(tokens[17], format!("{PRESSURE_SOURCE_BINDING_INPUT}={}",sc::PRESSURE_SOURCE_TABLE_SHA256));
-    let digests = [Some([7; 32]); 17];
+    assert_eq!(tokens[build_identity::REVIEWED_INPUT_COUNT], format!("{PRESSURE_SOURCE_BINDING_INPUT}={}",sc::PRESSURE_SOURCE_TABLE_SHA256));
+    let digests = [Some([7; 32]); build_identity::REVIEWED_INPUT_COUNT];
     let read = build_identity::encode_reviewed_inputs(&digests);
     let (prefix, last) = read.rsplit_once(';').unwrap();
     assert_eq!(last.len()+1, 134);
-    let mut unavailable = digests; unavailable[16] = None;
+    let mut unavailable = digests; unavailable[build_identity::REVIEWED_INPUT_COUNT - 1] = None;
     let unavailable = build_identity::encode_reviewed_inputs(&unavailable);
     assert_eq!(unavailable.len()-prefix.len(), 81);
     assert_eq!(unavailable.rsplit_once(';').unwrap().0, prefix);
-    // Removing the current last (seventeenth) token cannot bind a current registration.
+    // Removing the current last token cannot bind a current registration.
     assert!(!bindings_hold(true, Some(&read), prefix, &READER_LAYOUTS, &READER_LAYOUTS));
-    println!("pressure_source_binding_inputs=17,available_append=134,unavailable_append=81");
+    println!("pressure_source_binding_inputs={},available_append=134,unavailable_append=81", build_identity::REVIEWED_INPUT_COUNT);
 }
 
 #[test]
 fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     use sha2::{Digest, Sha256};
-    // The 16 inputs at the K-D5 member-bound source basis (B1 removed the
-    // precision-1 table; the other digests are unchanged until D3's
-    // re-registration), then B7's appended seventeenth (the nonresident
-    // pressure-source binding); all digests remain checked against actual bytes.
+    // The inputs at the K-D5 member-bound source basis, in the unchanged
+    // REVIEWED_INPUTS order (B7a E2 removed the retired v0_2 table, B1 the
+    // precision-1 table, B4/D1 (b) the source-blocks-1 table and receipt schema;
+    // the other digests, moved by B7a, are D3's to re-record), then B7's
+    // appended nonresident pressure-source binding; all digests remain checked
+    // against actual bytes.
     // The retained preview table (position 4) is the one bound to the current
     // inherited preview-physics-1 table (c915605a11).
-    const REVIEWED: [&str; 17] = [
+    const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         // The lock with the join's correct_norm crate, and the merged receipt
         // schema (B7's J6 contract-neutral definitions with K-D5's enclosure
         // constants); both are the actual bytes on the merged head.
@@ -558,14 +563,11 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "abf3225ca431342dd785072a1baad7715b7e8c19afd15b5777feebf06d48669e",
         "3e0779a45a74cf0bb3a4ed08ed3a6b44347aea8a3c33b59e9dd92130426ee296",
         "7cff3e9fe0c29a5b34d1762662e71ad58f00bb2993e9a3f1893323c0d64161e0",
-        "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
         "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
         "44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d",
         "d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337",
         "ac522c1ee0c771ae1e3dc72facfe3e75a8f0b01009075c997658eae50e9bb60c",
         "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1",
-        "5f299065f15a157bbedf9467a598994ae684c4ecb3f851bbcb291981ec550a9f",
-        "544e196d2f7bef27276acc160aa19ab738a4f7949e846d2e8871328d2208129c",
         "3cebce55d1b31e0031628d7542a33a8debdfa37d2d258cb27dfbdfd1fc28db22",
         "71f63d3916fa37ad0021ffb6ad993760a274166fe7ef275d7435c6856ed5642e",
         "c4987e874889645ac315b5f55f58690082ad5e7745527f20e3e316efa3e70a3d",
@@ -573,20 +575,17 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "3039f7ca7d36a82f9d34baea648159d7a780ec9623879ce5aa3c890b10b19a61",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
-    let files: [&[u8]; 17] = [
+    let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [
         include_bytes!("../Cargo.lock"),
         include_bytes!("../../../schemas/physics_source_recovery.schema.json"),
         include_bytes!("../../../schemas/retained_precision_mp_v2.schema.json"),
         include_bytes!("../../../fixtures/results/retained_precision_prepared_ordinary_v1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"),
-        include_bytes!("../../../fixtures/results/semantic_contract_v0_2.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_source_1.json"),
-        include_bytes!("../../../fixtures/results/semantic_contract_v0_3_source_blocks_1.json"),
-        include_bytes!("../../../schemas/source_block_recovery.schema.json"),
         include_bytes!("../../../fixtures/results/retained_precision_prepared_combination_v1.json"),
         include_bytes!("../../../fixtures/results/retained_precision_prepared_exact_v1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"),
@@ -596,7 +595,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     assert_eq!(option_env!("OPS_RETAINED_REVIEWED_INPUTS"), Some(compiled));
     let mut tokens = compiled.split(';');
     assert_eq!(tokens.next(), Some("v1"));
-    for (i, token) in tokens.by_ref().take(17).enumerate() {
+    for (i, token) in tokens.by_ref().take(build_identity::REVIEWED_INPUT_COUNT).enumerate() {
         let (path, hex) = token.split_once('=').unwrap();
         assert_eq!(path, build_identity::REVIEWED_INPUTS[i]);
         assert_eq!(hex, format!("{:x}", Sha256::digest(files[i])), "{path}: build.rs's digest");
@@ -1709,17 +1708,17 @@ fn gate_sums_saturate_and_the_longest_string_reads_every_diagnostic_field() {
 #[test]
 fn an_unreadable_reviewed_input_never_binds() {
     let layouts = READER_LAYOUTS;
-    let read = build_identity::encode_reviewed_inputs(&[Some([7; 32]); 17]);
+    let read = build_identity::encode_reviewed_inputs(&[Some([7; 32]); build_identity::REVIEWED_INPUT_COUNT]);
     assert!(!read.contains("unavailable"));
     assert!(bindings_hold(true, Some(&read), &read, &layouts, &layouts), "every input read: the record binds");
-    for i in 0..17 {
-        let mut digests = [Some([7u8; 32]); 17];
+    for i in 0..build_identity::REVIEWED_INPUT_COUNT {
+        let mut digests = [Some([7u8; 32]); build_identity::REVIEWED_INPUT_COUNT];
         digests[i] = None;
         let unread = build_identity::encode_reviewed_inputs(&digests);
         assert!(unread.contains("=unavailable"));
         assert!(!bindings_hold(true, Some(&unread), &unread, &layouts, &layouts), "input {i} unreadable");
     }
-    let none = build_identity::encode_reviewed_inputs(&[None; 17]);
+    let none = build_identity::encode_reviewed_inputs(&[None; build_identity::REVIEWED_INPUT_COUNT]);
     assert!(!bindings_hold(true, Some(&none), &none, &layouts, &layouts), "no input read");
     assert_eq!(identity_match(Some(build_identity::IDENTITY_UNAVAILABLE), [build_identity::IDENTITY_UNAVAILABLE].into_iter()),
         Err(ProfileStatus::Stale), "the identity's own unavailable value is Stale");
@@ -1757,9 +1756,9 @@ pub(super) fn attempted_examples() -> Vec<(&'static str, Value)> {
         ("failed attempt", failed),
         (DEFERRED_FORMATION, k2a_partial_underflow()),
         ("rejected_stress_range sparse", serde_json::from_str(include_str!(
-            "../../../fixtures/product_preview/source_blocks/rejected_stress_range/sparse_interactive.request.json")).unwrap()),
+            "../../../fixtures/product_preview/w1_controls/rejected_stress_range/sparse_interactive.request.json")).unwrap()),
         ("rejected_stress_range dense", serde_json::from_str(include_str!(
-            "../../../fixtures/product_preview/source_blocks/rejected_stress_range/dense_scrutiny.request.json")).unwrap()),
+            "../../../fixtures/product_preview/w1_controls/rejected_stress_range/dense_scrutiny.request.json")).unwrap()),
     ]
 }
 /// The attempted example whose seed is F1b's deferred formation (`FormationFailure`).

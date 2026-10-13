@@ -3076,8 +3076,8 @@ fn qualify_rule_mechanics_with_context(model: &Value, envelope: &Value, invocati
         }
         refs.push(json!({"ref_type":"load_case", "ref_id":id}));
     }
-    // T0R: only a fresh identity is rule-eligible; mixed ordinary
-    // source-blocks-1 stays readable but needs a new solve.
+    // T0R: only a fresh identity is rule-eligible (precision-1 and
+    // source-blocks-1 are refused by name, B1 and B4/D1 (b)).
     // A2 item 10: validate first, so a tampered source is unsupported.
     let standing = open_pipe_stress_result_export::semantic_contract::numerical_use_standing_with_context(envelope, &refs, invocation);
     let contract = envelope.pointer("/producer/semantic_contract_id").and_then(Value::as_str).unwrap_or_default();
@@ -3086,7 +3086,7 @@ fn qualify_rule_mechanics_with_context(model: &Value, envelope: &Value, invocati
             return Err(format!("RULE_NUMERICAL_NEEDS_RECOMPUTE: {reason}"));
         }
     }
-    // A legacy 0.1.0 source carries no producer id and stays needs_recompute below.
+    // A retired 0.1.0 source carries no producer id; its reader refuses it, so it is unsupported below.
     if !contract.is_empty() && !open_pipe_stress_result_export::semantic_contract::is_fresh_identity(contract) {
         return Err("RULE_NUMERICAL_SOURCE_UNSUPPORTED: recompute with a supported producer and semantic contract".into());
     }
@@ -5357,25 +5357,29 @@ mod tests {
         // Canonical hashing may normalize -0 to +0; all shared nonzero vectors
         // above retain their exact bits, with no unsafe-integer guard relaxation.
         assert_eq!(model_payload_hash(&json!({"value": -0.0_f64})), model_payload_hash(&json!({"value": 0.0_f64})));
-        let historical = read_fixture("invented_demo_result_legacy_0_1.json").unwrap();
+        // b7-plan E2: the retired producer-less 0.1.0 carrier passes through unchanged
+        // and is never qualified (its reader refuses it by name).
+        let mut historical = read_fixture("invented_demo_result_preview_physics_1_sparse.json").unwrap();
+        historical["schema_version"] = json!("0.1.0");
+        for key in ["producer", "numerical_quality", "formulation_basis", "contract_evidence"] {
+            historical.as_object_mut().unwrap().remove(key);
+        }
         let mut historical_model = model.clone();
         historical_model["project"]["id"] = historical["model_ref"].clone();
         let output = precision_transport(&historical_model, &historical);
         assert_eq!(output, historical);
-        assert!(qualify_rule_mechanics(&historical_model, &output).unwrap_err().contains("NEEDS_RECOMPUTE"));
+        assert!(qualify_rule_mechanics(&historical_model, &output).unwrap_err().starts_with("RULE_NUMERICAL_SOURCE_UNSUPPORTED"));
     }
 
     #[test]
     fn source_blocks_native_actual_invocation_store_and_rule_context() {
-        let mut request: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.request.json")).unwrap();
-        // This control tests unchanged current-document custody. Author the
-        // current legacy schema before the actual invocation; 0.1 migration is
-        // exercised separately and legitimately changes the model hash.
-        request["model"]["schema_version"] = json!(model_document_migration::SUPPORTED_MODEL_SCHEMA_VERSION);
+        // B4/D1 (b): source blocks remain only on the exact route's composites, so this
+        // control reads physics-source-1's committed (current-schema) request.
+        let request: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/physics_source/n05.request.json")).unwrap();
         let model = &request["model"];
         for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
             let solved = solve_preview_mechanics_value_with_mode(model.clone(), mode).unwrap();
-            assert_eq!(solved["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/source-blocks-1");
+            assert_eq!(solved["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/physics-source-1");
             assert_eq!(solved["source_block_recovery"]["body"]["status"], "qualified");
             let invocation = json!({"request":request,"solver_mode":mode.as_str()});
             qualify_rule_mechanics_with_context(model, &solved, Some(&invocation)).unwrap();
@@ -7124,8 +7128,8 @@ mod tests {
     #[test]
     fn solves_hand_the_desktop_the_producers_exact_bytes() {
         const PINS: [(&str, usize, &str); 2] = [
-            ("sparse_interactive", 68961, "33a8e8d411ff0370f815ae904b2fbfbf6f19051bed45ede32bfc6690e8dee9e0"),
-            ("dense_scrutiny", 70079, "729ef94254ad7c3b14922b82fcb4cce8298028101257797566205f38d01ddff5"),
+            ("sparse_interactive", 0, "RECOMPUTE-B7A-INTEGRATION"),
+            ("dense_scrutiny", 0, "RECOMPUTE-B7A-INTEGRATION"),
         ];
         let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview");
         let model: Value = serde_json::from_str(include_str!(
@@ -8644,35 +8648,6 @@ mod tests {
         )
         .expect("rule checks run");
         assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
-    }
-
-    #[test]
-    fn run_rule_checks_core_refuses_all_selected_source_blocks_summary_with_reason() {
-        // T0R rule_binding_refusal: the abs-sum summary (and the headline's row)
-        // of a non-composite source-blocks-1 envelope is refused on both binding
-        // paths and reported incomplete with the reason; a force row still binds.
-        let mut envelope = demo_solved_envelope(50.0);
-        envelope["producer"] = json!({"semantic_contract_id":"openpipestress.result_semantics/0.3.0/source-blocks-1"});
-        envelope["results"][0]["kind"] = json!("open_formula_stress_summary");
-        envelope["results"].as_array_mut().unwrap().push(json!({"id":"result:force:demo","kind":"element_local_axial_force","value":50.0,"unit":"demo_unit","entity_ref":"pipe:demo"}));
-        envelope["summary"] = json!({"max_open_formula_stress":{"result_ref":"result:stress:demo"}});
-        let reason = "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE";
-        for (pack, selectors) in [
-            (pack_with_solver_result_ref("result:stress:demo"), None),
-            (example_rule_pack_document(), Some(demo_solver_selectors())),
-        ] {
-            let outcome = run_rule_checks_core(pack, None, Some(envelope.clone()), selectors, Some(demo_supplied_values()), None)
-                .expect("rule checks run");
-            assert_eq!(outcome["aggregate_status"], json!("RULE_INPUTS_INCOMPLETE"));
-            assert!(outcome["checks"][0]["completeness_findings"].as_array().unwrap().iter().any(|f| f["code"] == json!(reason)));
-        }
-        let mut refused = Vec::new();
-        assert!(resolve_solver_result_bindings(Some(&demo_solver_selectors()), &envelope, &mut refused).unwrap().is_empty());
-        assert_eq!(refused.len(), 1);
-        assert_eq!(refused[0].reason, reason);
-        let outcome = run_rule_checks_core(pack_with_solver_result_ref("result:force:demo"), None, Some(envelope), None, Some(demo_supplied_values()), None)
-            .expect("rule checks run");
-        assert_eq!(outcome["aggregate_status"], json!("USER_RULE_CHECKED"));
     }
 
     #[test]

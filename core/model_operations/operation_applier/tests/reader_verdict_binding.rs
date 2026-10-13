@@ -7,8 +7,9 @@ use open_pipe_stress_operation_applier::{
 use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
 use serde_json::{json, Value};
 
-const SOURCE: &str = include_str!("../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json");
-const REQUEST: &str = include_str!("../../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json");
+// B4/D1 (b): the composite physics-source-1 statement is the source route here.
+const SOURCE: &str = include_str!("../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json");
+const REQUEST: &str = include_str!("../../../../fixtures/product_preview/physics_source/n05.request.json");
 const LOAD_REFERENCE: &str = include_str!("../../../../fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json");
 const LOAD_REFERENCE_REQUEST: &str = include_str!("../../../../fixtures/product_preview/load_reference/connected.request.json");
 
@@ -24,24 +25,25 @@ fn the_entry_points_return_the_verdicts() {
     let (model_text, invocation_text) = (request["model"].to_string(), invocation.to_string());
     let bound = outcome(reader_dispatch_json(SOURCE, Some(&model_text), Some(&invocation_text)).unwrap());
     assert_eq!(bound, rv::dispatch(&source, Some(&request["model"]), Some(&invocation)));
-    assert_eq!((bound["route"].as_str(), bound["standing"]["eligible"].as_bool()), (Some("source_blocks"), Some(true)));
+    assert_eq!((bound["route"].as_str(), bound["standing"]["eligible"].as_bool()), (Some("physics_source"), Some(true)));
     // An absent model or invocation, or the text `null`, reads as absent.
     let unbound = outcome(reader_dispatch_json(SOURCE, None, None).unwrap());
     assert_eq!(unbound, rv::dispatch(&source, None, None));
     assert_eq!(outcome(reader_dispatch_json(SOURCE, Some("null"), Some("null")).unwrap()), unbound);
     assert_eq!(unbound["standing"]["findings"], json!([rv::SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED]));
-    let validated = outcome(reader_validate_json("source-blocks", SOURCE, None, Some(&invocation_text)).unwrap());
+    let validated = outcome(reader_validate_json("physics-source", SOURCE, None, Some(&invocation_text)).unwrap());
     assert_eq!(validated, json!({"ok": true, "eligible": true, "findings": []}));
     assert_eq!(outcome(reader_validate_json("source-recovery", SOURCE, None, None).unwrap()), json!({"ok": true}));
-    let header = json!({"source_block_recovery": source["source_block_recovery"]});
-    assert_eq!(outcome(reader_transport_json("source-blocks", &header.to_string()).unwrap()), json!({"ok": true}));
-    let mut bad = header;
+    assert_eq!(outcome(reader_transport_json("physics-source", SOURCE).unwrap()), json!({"ok": true}));
+    let mut bad = source.clone();
     bad["source_block_recovery"]["receipt_sha256"] = json!("0".repeat(64));
     assert_eq!(
-        outcome(reader_transport_json("source-blocks", &bad.to_string()).unwrap()),
-        rv::transport("source-blocks", &bad)
+        outcome(reader_transport_json("physics-source", &bad.to_string()).unwrap()),
+        rv::transport("physics-source", &bad)
     );
-    assert_eq!(outcome(reader_transport_json("source-blocks", &bad.to_string()).unwrap())["error"]["code"], "SOURCE_BLOCKS_RECEIPT_HASH");
+    assert_eq!(outcome(reader_transport_json("physics-source", &bad.to_string()).unwrap())["ok"], false);
+    // The retired source-blocks readers have no entry.
+    assert_eq!(outcome(reader_transport_json("source-blocks", SOURCE).unwrap())["error"]["code"], "READER_UNKNOWN");
     // The model reaches the load-reference reader (G2).
     let lr_model: Value = serde_json::from_str(LOAD_REFERENCE_REQUEST).unwrap();
     let mut fewer = lr_model["model"].clone();

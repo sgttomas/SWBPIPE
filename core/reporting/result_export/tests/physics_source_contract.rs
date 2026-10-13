@@ -127,13 +127,13 @@ fn maximum_signature_requires_explicit_basis_without_claiming_current() {
 #[test]
 fn old_entrypoints_and_composite_remain_separate() {
     let (source, invocation) = actual("n05", "sparse_interactive");
-    assert!(source_blocks::validate(&source, Some(&invocation)).is_err());
+    assert!(physics_source::validate(&source, Some(&invocation)).is_ok());
     assert!(semantic_contract::validate_physics_evidence(&source).is_err());
-    for path in [
-        "fixtures/results/physics_connected_mechanics_sparse.json",
-        "fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json",
-    ] {
-        assert!(physics_source::validate(&read(path), None).is_err());
+    // B4/D1 (b): a source-blocks-1 statement is retired; the composite reader refuses it.
+    let mut retired = source.clone();
+    retired["producer"]["semantic_contract_id"] = json!(semantic_contract::RETIRED_SOURCE_BLOCKS_ID);
+    for statement in [read("fixtures/results/physics_connected_mechanics_sparse.json"), retired] {
+        assert!(physics_source::validate(&statement, None).is_err());
     }
 }
 #[test]

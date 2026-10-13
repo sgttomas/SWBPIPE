@@ -815,13 +815,16 @@ fn t10_routing_predicates() {
         sentence: String::new(),
         fired: vec!["x".into()],
     };
+    // B4/D1 (b): only an exact (composite) model selects source blocks.
     for captured in [false, true] {
-        for nonlinear in [false, true] {
-            for combinations in [false, true] {
-                assert_eq!(
-                    source_eligible(captured, nonlinear, combinations),
-                    captured && !nonlinear && !combinations
-                );
+        for exact in [false, true] {
+            for nonlinear in [false, true] {
+                for combinations in [false, true] {
+                    assert_eq!(
+                        source_eligible(captured, exact, nonlinear, combinations),
+                        captured && exact && !nonlinear && !combinations
+                    );
+                }
             }
         }
     }
@@ -922,31 +925,11 @@ fn rf_captured_refused(id: &str) -> bool {
         == json!(true)
 }
 
-/// Revision 2.2 (with erratum E-1): on the captured entry, one
-/// `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` (info) from the zero-work formation
-/// decline and no other retained-source diagnostic; on the typed entry none.
-fn assert_source_block_codes(envelope: &MechanicsEnvelope, entry: Entry, label: &str) {
-    let found: Vec<&Diagnostic> = envelope
-        .diagnostics
-        .iter()
-        .filter(|d| d.code.starts_with("SOURCE_BLOCK_") || d.code.starts_with("SOURCE_RECOVERY"))
-        .collect();
-    match entry {
-        Entry::Typed => assert!(found.is_empty(), "{label}: {found:?}"),
-        Entry::Captured => {
-            assert_eq!(found.len(), 1, "{label}: {found:?}");
-            assert_eq!(
-                found[0].code, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
-                "{label}"
-            );
-            assert_eq!(found[0].severity, "info", "{label}");
-            assert!(
-                found[0].message.contains("formation guard"),
-                "{label}: {}",
-                found[0].message
-            );
-        }
-    }
+/// B4/D1 (b): the preview route attempts no retained-source recovery, so
+/// neither entry publishes a retained-source diagnostic (revision 2.2's
+/// captured-entry formation decline went with it).
+fn assert_source_block_codes(envelope: &MechanicsEnvelope, _entry: Entry, label: &str) {
+    assert_no_source_blocks(envelope, label);
     let integrity: Vec<_> = codes(envelope)
         .into_iter()
         .filter(|c| c.starts_with("NUMERICAL_INTEGRITY_"))
@@ -958,30 +941,22 @@ fn assert_source_block_codes(envelope: &MechanicsEnvelope, entry: Entry, label: 
     );
 }
 
-/// A case demoted at the solve (`assert_demoted_at_the_solve`) is a
-/// Sensitive report, which the captured entry's retained-source method
-/// attempts (S11-G revision 2.2 G-2, unchanged): one
-/// `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` (info), the method's own decline of a
-/// non-nodal producer, and no selection; on the typed entry none.
-fn assert_source_block_codes_at_the_solve(envelope: &MechanicsEnvelope, entry: Entry, label: &str) {
+/// B4/D1 (b): no receipt and no retained-source diagnostic.
+fn assert_no_source_blocks(envelope: &MechanicsEnvelope, label: &str) {
     let found: Vec<&Diagnostic> = envelope
         .diagnostics
         .iter()
         .filter(|d| d.code.starts_with("SOURCE_BLOCK_") || d.code.starts_with("SOURCE_RECOVERY"))
         .collect();
-    match entry {
-        Entry::Typed => assert!(found.is_empty(), "{label}: {found:?}"),
-        Entry::Captured => {
-            assert_eq!(found.len(), 1, "{label}: {found:?}");
-            assert_eq!(found[0].code, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE", "{label}");
-            assert_eq!(found[0].severity, "info", "{label}");
-            assert!(
-                found[0].message.contains("non-nodal load producer present"),
-                "{label}: {}",
-                found[0].message
-            );
-        }
-    }
+    assert!(found.is_empty(), "{label}: {found:?}");
+    assert!(envelope.source_block_recovery.is_none(), "{label}");
+}
+
+/// A case demoted at the solve (`assert_demoted_at_the_solve`) is a
+/// Sensitive report. B4/D1 (b): the preview route attempts no retained-source
+/// recovery, so neither entry publishes a retained-source diagnostic.
+fn assert_source_block_codes_at_the_solve(envelope: &MechanicsEnvelope, entry: Entry, label: &str) {
+    assert_source_block_codes(envelope, entry, label);
 }
 
 /// T1: UDL-W1e8 (captured and typed, both modes). Precondition: the ordinary
@@ -992,10 +967,9 @@ fn assert_source_block_codes_at_the_solve(envelope: &MechanicsEnvelope, entry: E
 /// kd5-member-relative-bound.md §§1, 4.2) the same defect is caught at the
 /// solve: D5C-1 on the closed residual demotes S1:RZ (trigger about 96, twice
 /// the guard's 48), so the report is Sensitive and the load-row guard is a
-/// no-op. On the captured entry the Sensitive case is attempted by the
-/// retained-source method, which declines the UDL producer. HELP_HUMAN,
-/// 2026-10-12 (W1 routing, agreed on T3's behalf): the solve demotion and
-/// that `SOURCE_BLOCK_RECOVERY_UNAVAILABLE` (info) are expected outcomes.
+/// no-op. HELP_HUMAN, 2026-10-12 (W1 routing, agreed on T3's behalf): the
+/// solve demotion is the expected outcome; B4/D1 (b) retired the captured
+/// entry's retained-source attempt, so no retained-source diagnostic follows.
 #[test]
 fn t1_udl_w1e8_is_demoted_on_both_entries_and_modes() {
     let request = rf_request("RF-CANCEL-UDL-W1e8");
@@ -2578,23 +2552,6 @@ fn t16_formation_rows_are_published_non_passed_on_both_entries() {
 
 // ============================================ revision 2.2 routing (T18-T22)
 
-fn receipt_case<'a>(envelope: &'a MechanicsEnvelope, case: &str) -> &'a Value {
-    envelope.source_block_recovery.as_ref().expect("a receipt")["body"]["cases"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|c| c["basis_ref"]["ref_id"] == json!(case))
-        .unwrap_or_else(|| panic!("receipt case {case}"))
-}
-
-fn diagnostics_of<'a>(envelope: &'a MechanicsEnvelope, case: &str) -> Vec<&'a Diagnostic> {
-    envelope
-        .diagnostics
-        .iter()
-        .filter(|d| d.affected_refs.iter().any(|r| r == case))
-        .collect()
-}
-
 /// Adds an invented temperature point (E, G in Pa) to the request's first
 /// material and selects it for the named load case (a per-case modulus
 /// basis: its own stiffness and verdict in the same invocation).
@@ -2619,15 +2576,12 @@ fn with_basis(mut request: Value, case: &str, point: &str, e: f64, g: f64) -> Va
 }
 
 /// T18 (path 2, revision 2.2). I5's path-2 model on the captured entry, both
-/// modes: case A (N05's cancelling torques) is source-selected; case B is
-/// already Sensitive (N05's condition) and its load-row guard fires.
-/// Precondition: case B's guard fires and its report is Sensitive (2.1's gate
-/// refused this invocation, M19). Pin: an envelope with a receipt, case A
-/// qualified, case B unsupported with ordinary outcome `sensitive`; no
-/// blocking diagnostic; case B keeps today's integrity record (the no-op
-/// rule, no S11-G sentence) and main's real refused attempt (its failure is
-/// retained scope's, not the formation decline). Byte equality of case B with
-/// the unguarded base is run evidence (the fixture-diff harness).
+/// modes: case A carries N05's cancelling torques; case B is already Sensitive
+/// (N05's condition) and its load-row guard fires. Precondition: case B's guard
+/// fires and its report is Sensitive (2.1's gate refused this invocation, M19).
+/// Pin: the invocation is not refused; case B keeps today's integrity record (the
+/// no-op rule, no S11-G sentence). B4/D1 (b): the preview route selects no source
+/// blocks, so no receipt or retained-source diagnostic is published.
 #[test]
 fn t18_path2_invocation_is_not_refused() {
     let request = n05_request(vec![n05_torques(), n05_tip_noise("case-b")]);
@@ -2645,32 +2599,8 @@ fn t18_path2_invocation_is_not_refused() {
         );
         assert_eq!(b.code, "NUMERICAL_INTEGRITY_SENSITIVE", "{label}");
         assert!(!b.message.contains("S11-G"), "{label}");
-        assert_eq!(
-            receipt_case(&envelope, "case")["outcome"],
-            json!("qualified"),
-            "{label}"
-        );
-        let entry = receipt_case(&envelope, "case-b");
-        assert_eq!(entry["outcome"], json!("unsupported"), "{label}: {entry}");
-        assert_eq!(
-            entry["ordinary_attempt"]["outcome"],
-            json!("sensitive"),
-            "{label}"
-        );
-        let unavailable: Vec<_> = diagnostics_of(&envelope, "case-b")
-            .into_iter()
-            .filter(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE")
-            .collect();
-        assert_eq!(unavailable.len(), 1, "{label}");
-        assert!(
-            unavailable[0].message.contains("non-nodal"),
-            "{label}: {}",
-            unavailable[0].message
-        );
-        assert!(
-            !unavailable[0].message.contains("formation guard"),
-            "{label}"
-        );
+        // B4/D1 (b): the preview route publishes no receipt and no retained-source diagnostic.
+        assert_source_block_codes(&envelope, Entry::Captured, &label);
     }
 }
 
@@ -2702,16 +2632,13 @@ pub(crate) fn t19_request() -> Value {
     )
 }
 
-/// T19 (path 1, load-row variant; revision 2.2 with erratum E-1). Case A is
-/// source-selected; case B is Passed in its report and its load-row guard
+/// T19 (path 1, load-row variant; revision 2.2 with erratum E-1). Case A carries
+/// N05's cancelling torques; case B is Passed in its report and its load-row guard
 /// fires (`t19_request`). With G = 0.4 Pa K-D5's closure judges case B's
 /// tip formation defect at the solve (DEL-04-01 kd5-member-relative-bound.md
 /// §§1, 4.2), so the construction adds the soft twist, whose rotation scale
 /// keeps the report Passed while the guard still fires on tip:RZ. Pin: no refusal; case B `SENSITIVE` by the
-/// load-row guard; its receipt entry is `unsupported` with ordinary outcome
-/// `sensitive`, stage `source_validation`, code `unsupported_family` and zero
-/// work (erratum E-1: the ordinary route never attempts a Passed case); case A
-/// qualified.
+/// load-row guard. B4/D1 (b): no receipt and no retained-source diagnostic.
 #[test]
 fn t19_path1_load_row_variant_is_not_refused() {
     let request = t19_request();
@@ -2731,75 +2658,16 @@ fn t19_path1_load_row_variant_is_not_refused() {
     for mode in MODES {
         let label = format!("T19 {mode:?}");
         assert_demoted_at_the_solve(&solved(Entry::Typed, &control, mode), "case-b", "tip:RZ", &label);
-        // HELP_HUMAN, 2026-10-12 (W1 routing, agreed on T3's behalf; DEL-04-01
-        // kd5-member-relative-bound.md "The rulings" and §4.2): on the
-        // captured entry the control, demoted at the solve, attempts
-        // retained-source recovery and charges its source validation. That
-        // charged work is an expected outcome of the closed residual.
+        // B4/D1 (b): on the captured entry the control, demoted at the solve,
+        // attempts no retained-source recovery (the preview route selects none).
         let captured = solved(Entry::Captured, &control, mode);
         assert_demoted_at_the_solve(&captured, "case-b", "tip:RZ", &format!("{label} control captured"));
-        // Unlike the guard-fired Passed case below (zero work), the Sensitive
-        // control is attempted: it charges 36,480 work units in both modes
-        // before source validation declines its family (`unsupported_family`).
-        let control_entry = receipt_case(&captured, "case-b");
-        assert_eq!(control_entry["outcome"], json!("unsupported"), "{label}: {control_entry}");
-        assert_eq!(
-            control_entry["ordinary_attempt"]["outcome"],
-            json!("sensitive"),
-            "{label}: {control_entry}"
-        );
-        assert_eq!(control_entry["failure"]["stage"], json!("source_validation"), "{label}");
-        assert_eq!(control_entry["failure"]["code"], json!("unsupported_family"), "{label}");
-        assert_eq!(
-            control_entry["work"]["charged"],
-            json!(36480),
-            "{label}: the control charges its source validation"
-        );
+        assert_source_block_codes(&captured, Entry::Captured, &format!("{label} control captured"));
         let envelope = solved(Entry::Captured, &request, mode);
         assert_ordinary_passed(&envelope, "case-b", &label);
-        assert!(
-            envelope
-                .diagnostics
-                .iter()
-                .any(|d| d.code == "SOURCE_BLOCK_RECOVERY_SELECTED"
-                    && d.affected_refs == vec!["case".to_string()]),
-            "{label}: precondition, case A is selected: {:?}",
-            diagnostics_of(&envelope, "case")
-                .iter()
-                .map(|d| format!("{}: {}", d.code, d.message))
-                .collect::<Vec<_>>()
-        );
         assert_demoted(&envelope, "case-b", LOAD_ROW, &label);
         assert!(integrity(&envelope, "case-b").message.contains("tip:RZ"), "{label}");
-        assert_eq!(
-            receipt_case(&envelope, "case")["outcome"],
-            json!("qualified"),
-            "{label}"
-        );
-        let entry = receipt_case(&envelope, "case-b");
-        assert_eq!(entry["outcome"], json!("unsupported"), "{label}: {entry}");
-        assert_eq!(
-            entry["ordinary_attempt"]["outcome"],
-            json!("sensitive"),
-            "{label}"
-        );
-        assert_eq!(
-            entry["failure"]["stage"],
-            json!("source_validation"),
-            "{label}"
-        );
-        assert_eq!(
-            entry["failure"]["code"],
-            json!("unsupported_family"),
-            "{label}"
-        );
-        assert_eq!(entry["work"]["limit"], json!(0), "{label}");
-        assert_eq!(entry["work"]["charged"], json!(0), "{label}");
-        assert_eq!(
-            entry["work"]["rejected_reservation"]["amount"],
-            json!(0),
-            "{label}"
-        );
+        assert_source_block_codes(&envelope, Entry::Captured, &label);
     }
 }
 
@@ -2824,8 +2692,10 @@ fn c1_request(force: f64, moment: f64) -> Value {
     )
 }
 
-/// T20 (ruling 3, which stands; ROOT's ruling on RV4's finding):
-/// CHARACTERIZATION OF A KNOWN RESIDUAL, NOT DESIRED BEHAVIOUR. The residual
+/// T20 (ruling 3; ROOT's ruling on RV4's finding). B4/D1 (b) CLOSED this
+/// residual on the pre-0.4 route: with no preview-route source blocks there is
+/// no receipt to finalize, so the invocation below publishes (demoted case B).
+/// The history follows: CHARACTERIZATION OF A KNOWN RESIDUAL, NOT DESIRED BEHAVIOUR. The residual
 /// is path 1's R-b' variant: a case whose report is Passed and which R-b'
 /// demotes after routing, beside a source-selected case. Its `ordinary`
 /// receipt entry then fails the wire binding, and receipt finalization
@@ -2910,24 +2780,13 @@ fn t20_characterization_rb_prime_residual_c1() {
         let single = solved(Entry::Captured, &alone, mode);
         assert_ordinary_passed(&single, "case-b", &label);
         assert_eq!(integrity(&single, "case-b").code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{label}");
-        // C1's two-case captured invocation now publishes: the residual is
-        // not reached here.
+        // C1's two-case captured invocation publishes (B4/D1 (b): without a receipt).
         let both = solved(Entry::Captured, &request, mode);
-        assert_eq!(receipt_case(&both, "case")["outcome"], json!("qualified"), "{label}");
-        assert_eq!(receipt_case(&both, "case-b")["outcome"], json!("qualified"), "{label}");
+        assert!(both.source_block_recovery.is_none(), "{label}");
         assert_eq!(integrity(&both, "case-b").code, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{label}");
-        // Control: m = 0.5 (R-b' silent) publishes with a receipt.
+        // Control: m = 0.5 (R-b' silent) publishes.
         let control = solved(Entry::Captured, &c1_request(force, 0.5), mode);
-        assert_eq!(
-            receipt_case(&control, "case")["outcome"],
-            json!("qualified"),
-            "{label}"
-        );
-        assert_eq!(
-            receipt_case(&control, "case-b")["outcome"],
-            json!("qualified"),
-            "{label}"
-        );
+        assert!(control.source_block_recovery.is_none(), "{label}");
         assert_not_demoted_by_s11g(&control, "case-b", &label);
         assert_eq!(
             integrity(&control, "case-b").code,
@@ -2944,19 +2803,18 @@ fn t20_characterization_rb_prime_residual_c1() {
         let single = solved(Entry::Captured, &residual_request(vec![residual_case_b(1e-8)]), mode);
         assert_ordinary_passed(&single, "case-b", &label);
         assert_demoted(&single, "case-b", RECOVERY, &label);
-        match run(Entry::Captured, &residual, mode) {
-            Err(error) => assert_eq!(error, "SOURCE_BLOCKS_FINALIZATION_FAILED", "{label}"),
-            Ok(_) => {
-                panic!("{label}: the residual is expected to refuse (update T20 when it closes)")
-            }
-        }
+        // B4/D1 (b) closes the residual: the pre-0.4 captured invocation selects no
+        // source blocks, so no receipt is finalized and the invocation publishes.
+        let closed = run(Entry::Captured, &residual, mode)
+            .unwrap_or_else(|error| panic!("{label}: the residual is closed: {error}"));
+        assert!(closed.source_block_recovery.is_none(), "{label}");
+        assert_demoted(&closed, "case-b", RECOVERY, &label);
         let control = solved(
             Entry::Captured,
             &residual_request(vec![n05_torques(), residual_case_b(0.3)]),
             mode,
         );
-        assert_eq!(receipt_case(&control, "case")["outcome"], json!("qualified"), "{label}");
-        assert_eq!(receipt_case(&control, "case-b")["outcome"], json!("qualified"), "{label}");
+        assert!(control.source_block_recovery.is_none(), "{label}");
         assert_eq!(
             integrity(&control, "case-b").code,
             "NUMERICAL_INTEGRITY_CHECKS_PASSED",
@@ -3140,7 +2998,7 @@ fn curved_thermal_records_name_the_pushed_products() {
 #[test]
 fn e1_ordinary_err_guard_fired_case_keeps_mains_attempt() {
     let mut request: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/product_preview/source_blocks/ui/n06-sparse_interactive.request.json"
+        "../../../fixtures/product_preview/w1_controls/ui/n06-sparse_interactive.request.json"
     ))
     .unwrap();
     let w = 1e8_f64;
@@ -3166,21 +3024,8 @@ fn e1_ordinary_err_guard_fired_case_keeps_mains_attempt() {
         );
         let envelope =
             run(Entry::Captured, &request, mode).unwrap_or_else(|e| panic!("{label}: {e}"));
-        // Pin: main's real attempt, retained scope's refusal, charged.
-        let unavailable: Vec<_> = diagnostics_of(&envelope, "case-b")
-            .into_iter()
-            .filter(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE")
-            .collect();
-        assert_eq!(unavailable.len(), 1, "{label}");
-        let message = &unavailable[0].message;
-        assert!(
-            message.contains("non-nodal") && !message.contains("formation guard"),
-            "{label}: main's real attempt, not the zero-work decline: {message}"
-        );
-        assert!(
-            !message.contains("charged: 0,"),
-            "{label}: main's real attempt is charged: {message}"
-        );
+        // B4/D1 (b): the preview route makes no retained-source attempt.
+        assert_no_source_blocks(&envelope, &label);
         // Pin: main's blocking integrity failure, not an S11-G record.
         let failure = envelope
             .diagnostics

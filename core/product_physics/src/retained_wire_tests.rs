@@ -7,7 +7,6 @@ use super::retained_product as rp;
 use super::retained_tests_hooks as hooks;
 use super::retained_wire as wire;
 use super::*;
-use open_pipe_stress_frame_kernel::structural::exact_boundary::functionals::AttemptStage;
 use open_pipe_stress_frame_kernel::structural::retained_api as k;
 use open_pipe_stress_result_export::retained_precision as reader;
 use serde_json::{json, Value};
@@ -28,10 +27,12 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// maximum declaration literals and the fallback maximum's enclosure. B7a's H-4
 /// re-pinned them for the summary (the curved macro-element count's name, the
 /// deleted retired thrust count) and the reworded pressure/imposed-displacement
-/// limitation sentence.
+/// limitation sentence; B4/D1 (b) re-pinned both modes: the preview route
+/// attempts no source blocks, so the envelope loses only its
+/// `diagnostic:source-recovery:case` disclosure.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 68961, "33a8e8d411ff0370f815ae904b2fbfbf6f19051bed45ede32bfc6690e8dee9e0"),
-    ("dense_scrutiny", 70079, "729ef94254ad7c3b14922b82fcb4cce8298028101257797566205f38d01ddff5"),
+    ("sparse_interactive", 0, "RECOMPUTE-B7A-INTEGRATION"),
+    ("dense_scrutiny", 0, "RECOMPUTE-B7A-INTEGRATION"),
 ];
 /// The serializer's committed milestone output: sha256 of the pretty-printed
 /// successor envelope, and its receipt_sha256 (byte-stable, both modes).
@@ -176,14 +177,6 @@ fn u1_typed_ordinary_capture_milestone() {
         assert!(record["message"].as_str().unwrap().contains("formation_check: reason="), "test oracle only: the D5 line is present");
         assert!(!seed.recovery_demoted);
         println!("I61_U1_SEED {} finding={:?}", mode.as_str(), seed.load_row_finding);
-        match &seed.legacy {
-            Some(rp::LegacySeed::Unavailable { work, diagnostic_ref }) => {
-                assert_eq!(diagnostic_ref, "diagnostic:source-recovery:case");
-                assert_eq!(*work, rp::LegacyWork { stage: "source closure", helper_stage: AttemptStage::SourceClosure,
-                    charged: 46628, rejected: 0, limit: 4_000_000 });
-            }
-            other => panic!("legacy unavailable expected: {other:?}"),
-        }
     }
 }
 
@@ -370,10 +363,9 @@ fn u1_receipt_check_wire_vocabulary() {
     }
 }
 
-/// D-4 §3 items 2 and 4: a trace Count is exact or abandons, and a legacy
-/// `rejected` beyond the safe range is `saturation_not_excluded`.
+/// D-4 §3 item 2: a trace Count is exact or abandons.
 #[test]
-fn u1_exact_or_abandon_counts_and_legacy_rejected() {
+fn u1_exact_or_abandon_counts() {
     let mut overflow = k::StageWork::default();
     overflow.formation = u64::MAX;
     overflow.assembly = 1;
@@ -382,69 +374,6 @@ fn u1_exact_or_abandon_counts_and_legacy_rejected() {
     assert_eq!(failures, vec![wire::ReceiptFailure { check: wire::ReceiptCheck::WorkCounter(k::WorkFault::Overflow), field_path: "Count.value" }]);
     let (count, failures) = wire::test_count(k::StageWork::default().checked_total());
     assert_eq!((count, failures.len()), (json!({"kind":"exact","value":0}), 0));
-    let saturated = rp::LegacyWork { stage: "solve", helper_stage: AttemptStage::Solve, charged: 7, rejected: usize::MAX, limit: 9 };
-    let mut work = Vec::new();
-    assert_eq!(wire::test_legacy_source(Some(&rp::LegacySeed::Unavailable { work: saturated, diagnostic_ref: "d".into() }), 0, &mut work),
-        Err(wire::ReceiptFailure { check: wire::ReceiptCheck::SaturationNotExcluded, field_path: "legacy_source_work[].rejected" }));
-    let ranged = rp::LegacyWork { charged: 1 << 53, rejected: 0, ..saturated };
-    assert_eq!(wire::test_legacy_source(Some(&rp::LegacySeed::Unavailable { work: ranged, diagnostic_ref: "d".into() }), 0, &mut Vec::new()).err().map(|f| f.check),
-        Some(wire::ReceiptCheck::WorkCounterRange));
-}
-
-/// D39 (ROOT, 2026-10-04) with T1 (a): each legacy route row's disposition.
-#[test]
-fn u1_d39_legacy_dispositions() {
-    let work = rp::LegacyWork { stage: "formation guard", helper_stage: AttemptStage::SourceClosure, charged: 0, rejected: 0, limit: 0 };
-    let attempted = rp::LegacyWork { stage: "solve", helper_stage: AttemptStage::Solve, charged: 7, rejected: 3, limit: 9 };
-    let rows: [(rp::LegacySeed, Value, Option<&str>, Option<Value>); 4] = [
-        (rp::LegacySeed::NotEligible, json!({"disposition":"not_eligible","diagnostic_ref":null,"work_ref":null}), None, None),
-        (rp::LegacySeed::NotRequired, json!({"disposition":"not_required","diagnostic_ref":null,"work_ref":null}), None, None),
-        (rp::LegacySeed::DeclinedWithoutAttempt { work, diagnostic_ref: "d:decline".into() },
-            json!({"disposition":"declined_without_attempt","diagnostic_ref":null,"work_ref":0}), Some("d:decline"),
-            Some(json!({"case_index":2,"stage":"formation guard","helper_stage":"source_closure","charged":0,"rejected":0,"limit":0,"settlement":"booked"}))),
-        (rp::LegacySeed::Unavailable { work: attempted, diagnostic_ref: "d:attempt".into() },
-            json!({"disposition":"unavailable","diagnostic_ref":null,"work_ref":0}), Some("d:attempt"),
-            Some(json!({"case_index":2,"stage":"solve","helper_stage":"solve","charged":7,"rejected":3,"limit":9,"settlement":"booked"}))),
-    ];
-    for (seed, expected, omitted, entry) in rows {
-        let mut work_list = Vec::new();
-        let (value, omit) = wire::test_legacy_source(Some(&seed), 2, &mut work_list).unwrap();
-        assert_eq!(value, expected, "{seed:?}");
-        assert_eq!(omit.as_deref(), omitted, "{seed:?}");
-        assert_eq!(work_list.first(), entry.as_ref(), "{seed:?}");
-    }
-    // Ok(recovery): exact-block selected, the coexistence bypass (D-15): no successor.
-    let mut work_list = Vec::new();
-    assert_eq!(wire::test_legacy_source(Some(&rp::LegacySeed::ExactSelected), 0, &mut work_list).err().map(|f| f.check),
-        Some(wire::ReceiptCheck::Scope));
-    // No captured route: refused typed, never guessed.
-    assert_eq!(wire::test_legacy_source(None, 0, &mut work_list).err().map(|f| f.check), Some(wire::ReceiptCheck::Untranslated));
-}
-
-/// D39 at the capture: the route recorders keep each branch distinct (G-l).
-#[test]
-fn u1_d39_route_capture() {
-    let failure = |attempted: bool| {
-        let mut capture = rp::ProductCapture::default();
-        let decline = source_recovery::formation_decline_without_attempt();
-        capture.ordinary_legacy_failure("c", attempted, &decline, "d:legacy");
-        // The route call after the attempt block never overwrites a failure.
-        capture.ordinary_legacy_route("c", true, true, false);
-        capture.ordinary[0].legacy.clone()
-    };
-    assert!(matches!(failure(false), Some(rp::LegacySeed::DeclinedWithoutAttempt { work, ref diagnostic_ref })
-        if work.stage == "formation guard" && (work.charged, work.rejected, work.limit) == (0, 0, 0) && diagnostic_ref == "d:legacy"));
-    assert!(matches!(failure(true), Some(rp::LegacySeed::Unavailable { .. })));
-    let route = |eligible: bool, needs: bool, exact: bool| {
-        let mut capture = rp::ProductCapture::default();
-        capture.ordinary_legacy_route("c", eligible, needs, exact);
-        capture.ordinary[0].legacy.clone()
-    };
-    assert!(matches!(route(false, true, false), Some(rp::LegacySeed::NotEligible)));
-    assert!(matches!(route(false, false, false), Some(rp::LegacySeed::NotEligible)));
-    assert!(matches!(route(true, false, false), Some(rp::LegacySeed::NotRequired)));
-    assert!(matches!(route(true, true, true), Some(rp::LegacySeed::ExactSelected)));
-    assert!(route(true, true, false).is_none(), "an attempted branch is recorded only by its failure");
 }
 
 /// The in-tree fixtures bind the serializer's constants (A4 closed by the fan-in).
@@ -474,9 +403,8 @@ fn u1_refusals_are_typed() {
     assert_eq!(wire::serialize_cases(&mut prepared, &staged, &two).err(), Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "invocation" }));
 }
 
-/// G-b and D39 on an actual load-row case (captured entry): the finding demotes a
-/// Passed report, so its sentence is disclosed in the integrity diagnostic, and the
-/// legacy route declines without an attempt. Capture leaves the ordinary bytes
+/// G-b on an actual load-row case (captured entry): the finding demotes a
+/// Passed report, so its sentence is disclosed in the integrity diagnostic. Capture leaves the ordinary bytes
 /// unchanged here too. S11-G T1's RF-CANCEL-UDL-W1e8 is now Sensitive at the solve
 /// under K-D5's closure (DEL-04-01 kd5-member-relative-bound.md §§1, 4.2), so the
 /// Passed load-row case is the same request with a soft branch
@@ -505,14 +433,7 @@ fn u1_load_row_case_capture() {
         assert_eq!(seed.d5_diagnostic_ref, None, "{mode:?}: no K-D5 line, so no d5 reference");
         let record = observed.diagnostics.iter().find(|d| d.id == integrity).unwrap();
         assert!(record.message.ends_with(&finding.sentence) || record.message.contains(&finding.sentence), "test oracle only");
-        match &seed.legacy {
-            Some(rp::LegacySeed::DeclinedWithoutAttempt { work, diagnostic_ref }) => {
-                assert_eq!(*work, rp::LegacyWork { stage: "formation guard", helper_stage: AttemptStage::SourceClosure, charged: 0, rejected: 0, limit: 0 });
-                assert_eq!(diagnostic_ref, &format!("diagnostic:source-recovery:{}", seed.case));
-            }
-            other => panic!("{mode:?}: D39 declined_without_attempt expected: {other:?}"),
-        }
-        println!("I61_U1_LOAD_ROW {} initial=report(sensitive) finding_ref={:?} d5={:?} legacy=declined_without_attempt", mode.as_str(), finding.diagnostic_ref, seed.d5_diagnostic_ref);
+        println!("I61_U1_LOAD_ROW {} initial=report(sensitive) finding_ref={:?} d5={:?}", mode.as_str(), finding.diagnostic_ref, seed.d5_diagnostic_ref);
     }
 }
 
@@ -545,7 +466,7 @@ fn body(successor: &Value) -> &Value {
 
 /// The C1-C3 unavailable representation of an actual preparation refusal (the closed annulus
 /// helper refuses a zero diameter: `fail_preparation_of_case`) beside a selected case: case-2
-/// has no CaseSource, Run or execution entry; its legacy disclosure is kept and referenced.
+/// has no CaseSource, Run or execution entry.
 #[test]
 fn u1g2_preparation_refusal_representation() {
     let mode = PreviewSolverMode::SparseInteractive;
@@ -564,12 +485,11 @@ fn u1g2_preparation_refusal_representation() {
     let attempt = &b["product_attempts"][1];
     assert_eq!((attempt["result"]["kind"].as_str(), attempt["result"]["error"]["kind"].as_str(), &attempt["run_ref"], &attempt["source_ref"]),
         (Some("unavailable"), Some("preparation"), &Value::Null, &Value::Null));
-    // Unselected: the legacy disclosure is kept and referenced (C2:160), no method token.
-    let Some(rp::LegacySeed::Unavailable { diagnostic_ref, .. }) = &prepared.capture.ordinary[1].legacy else { panic!("legacy unavailable expected") };
-    assert_eq!(diagnostic_ref, "diagnostic:source-recovery:case-2");
-    assert_eq!(b["ordinary_attempts"][1]["legacy_source"], json!({"disposition":"unavailable","diagnostic_ref":diagnostic_ref,"work_ref":1}));
+    // Unselected: no method token. B4/D1 (b): the preview route attempts no source
+    // blocks, so the attempt carries no legacy record and no source-recovery disclosure.
+    assert!(b["ordinary_attempts"][1].get("legacy_source").is_none() && b.get("legacy_source_work").is_none());
     let diagnostics = successor["diagnostics"].as_array().unwrap();
-    assert!(diagnostics.iter().any(|d| d["id"] == json!(diagnostic_ref) && d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"));
+    assert!(!diagnostics.iter().any(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"));
     let case_rows = || successor["results"].as_array().unwrap().iter().filter(|r| r["basis_ref"]["ref_id"] == "case-2");
     assert!(case_rows().count() > 0 && case_rows().all(|r| r.get("recovery_method").is_none()));
     let unavailable: Vec<&Value> = diagnostics.iter().filter(|d| d["code"] == wire::UNAVAILABLE_CODE).collect();
@@ -779,30 +699,27 @@ fn u1g2_run_and_body_charge_conservation_negatives() {
         Some(wire::ReceiptFailure { check: wire::ReceiptCheck::WorkCounterInconsistent, field_path: "work.charged" }), "R09");
 }
 
-/// RV82-N1 (R10, R14): T1 (a)'s guards on a doctored envelope: another legacy
-/// disclosure still naming the selected case (G4), and an omitted id whose
-/// diagnostic is not the legacy disclosure.
+/// RV82-N1 (R10) after B4/D1 (b): the preview route attempts no source blocks, so the
+/// actual envelope carries no source-unavailable disclosure; one naming the selected case
+/// (a route-E composite's) is omitted, and a second still naming it is refused (G4).
 #[test]
 fn u1g2_t1a_guard_negatives() {
     let (candidate, _, _) = milestone_candidate(PreviewSolverMode::SparseInteractive);
     let base = serde_json::to_value(candidate.envelope()).unwrap();
-    let legacy_id = "diagnostic:source-recovery:case";
+    assert!(!base["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"));
     let mut own = base.clone();
-    assert!(wire::test_successor_envelope(&mut own, "case", Some(legacy_id)).is_ok(), "precondition: the actual envelope");
-    // R10: a second legacy disclosure naming the selected case survives the omission.
+    assert!(wire::test_successor_envelope(&mut own, "case").is_ok(), "precondition: the actual envelope");
+    let disclosure = |id: &str| json!({"id": id, "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE", "severity": "info",
+        "message": "m", "source": "core/product_physics", "affected_refs": ["case"]});
+    let mut one = base.clone();
+    one["diagnostics"].as_array_mut().unwrap().push(disclosure("diagnostic:source-recovery:case"));
+    assert!(wire::test_successor_envelope(&mut one, "case").is_ok());
+    assert!(!one["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"), "omitted");
     let mut doubled = base.clone();
-    let mut copy = doubled["diagnostics"].as_array().unwrap().iter().find(|d| d["id"] == legacy_id).unwrap().clone();
-    copy["id"] = json!("diagnostic:source-recovery:case:second");
-    doubled["diagnostics"].as_array_mut().unwrap().push(copy);
-    assert_eq!(wire::test_successor_envelope(&mut doubled, "case", Some(legacy_id)).err(),
-        Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "diagnostics[legacy]" }), "R10");
-    // R14: the captured id resolves to a diagnostic naming the case with another code.
-    let mut recoded = base.clone();
-    for d in recoded["diagnostics"].as_array_mut().unwrap() {
-        if d["id"] == legacy_id { d["code"] = json!("NUMERICAL_INTEGRITY_SENSITIVE"); }
-    }
-    assert_eq!(wire::test_successor_envelope(&mut recoded, "case", Some(legacy_id)).err(),
-        Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "diagnostics[-legacy]" }), "R14");
+    doubled["diagnostics"].as_array_mut().unwrap().push(disclosure("diagnostic:source-recovery:case"));
+    doubled["diagnostics"].as_array_mut().unwrap().push(disclosure("diagnostic:source-recovery:case:second"));
+    assert_eq!(wire::test_successor_envelope(&mut doubled, "case").err(),
+        Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "diagnostics[-source_unavailable]" }), "R10");
 }
 
 /// RV82-N1 (R13): the report outcome must equal the unchanged assessed quality.
@@ -815,19 +732,6 @@ fn u1g2_initial_quality_crosscheck_negative() {
     env["numerical_quality"]["cases"][0]["solve_quality"] = json!("checks_passed");
     assert_eq!(wire::test_ordinary_value(&env, "case", seed).err(),
         Some(wire::ReceiptFailure { check: wire::ReceiptCheck::Association, field_path: "ordinary_attempts[].initial.outcome" }), "R13");
-}
-
-/// RV82-N1 (R22): 2^53-1 itself is a safe JSON integer; only beyond it refuses.
-#[test]
-fn u1g2_safe_range_boundary() {
-    let max_safe = (1usize << 53) - 1;
-    let at = rp::LegacyWork { stage: "solve", helper_stage: AttemptStage::Solve, charged: max_safe, rejected: max_safe, limit: max_safe };
-    let mut work = Vec::new();
-    assert!(wire::test_legacy_source(Some(&rp::LegacySeed::Unavailable { work: at, diagnostic_ref: "d".into() }), 0, &mut work).is_ok(), "R22: 2^53-1 is in range");
-    assert_eq!(work[0]["charged"], json!(max_safe as u64));
-    let beyond = rp::LegacyWork { charged: max_safe + 1, ..at };
-    assert_eq!(wire::test_legacy_source(Some(&rp::LegacySeed::Unavailable { work: beyond, diagnostic_ref: "d".into() }), 0, &mut Vec::new()).err().map(|f| f.check),
-        Some(wire::ReceiptCheck::WorkCounterRange));
 }
 
 /// B3b-P (B3-D P-9; REVISION_01 §1.2, S-1): the exact route's wire constants are bound to the

@@ -25,15 +25,14 @@ export function PhysicsSourceEvidencePanel({ result }: { result: MechanicsResult
   const physical = record(result.contract_evidence), receipt = record(result.source_block_recovery), body = record(receipt?.body);
   const cases = rows(body?.cases), exactCases = rows(physical?.exact_cases);
   const composite = result.producer?.semantic_contract_id === "openpipestress.result_semantics/0.3.0/physics-source-1";
-  const source = result.producer?.semantic_contract_id === "openpipestress.result_semantics/0.3.0/source-blocks-1";
-  if (!composite && !source) return null;
+  if (!composite) return null;
   const receiptIds = cases.map(c => text(record(c.basis_ref)?.ref_id));
   const physicalIds = exactCases.map(c => text(c.load_case_id));
-  const coverageMatches = !composite || (receiptIds.length === physicalIds.length && new Set(receiptIds).size === receiptIds.length && receiptIds.every(id => physicalIds.includes(id)));
+  const coverageMatches = (receiptIds.length === physicalIds.length && new Set(receiptIds).size === receiptIds.length && receiptIds.every(id => physicalIds.includes(id)));
   return <section aria-label="Recorded recovery evidence" data-testid="physics-source-evidence">
     <p>Physical profile: {text(result.formulation_basis?.profile_id)}. Ordinary numerical attempt: {text(result.numerical_quality?.status)}.</p>
     <p>Producer receipt: {text(body?.status)}. These recorded labels do not grant Current use; actual invocation and complete method evidence are checked separately.</p>
-    <p data-testid="physics-source-case-coverage">Recorded cases: {cases.length}{composite ? `; physical cases: ${exactCases.length}` : ""}. {composite ? (coverageMatches ? "Receipt and physical case identities agree." : "Case evidence is incomplete or inconsistent.") : "Source method evidence is recorded per case."}</p>
+    <p data-testid="physics-source-case-coverage">Recorded cases: {cases.length}; physical cases: {exactCases.length}. {coverageMatches ? "Receipt and physical case identities agree." : "Case evidence is incomplete or inconsistent."}</p>
     {cases.map((c, index) => {
       const id = text(record(c.basis_ref)?.ref_id), exact = exactCases.find(x => x.load_case_id === id);
       const ordinary = result.numerical_quality?.cases.find(x => x.basis_ref.ref_id === id);

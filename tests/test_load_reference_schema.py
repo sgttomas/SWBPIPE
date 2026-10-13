@@ -35,7 +35,8 @@ PHYSICS_SHA = "2fe3964501d6c83983a6216d2abaf490d654a1e7dac04c531127d37c839ca9fd"
 PHYSICS_PROFILE = "exact_straight_pressure_v2"
 LR_EVIDENCE_REF = {"$ref": "load_reference_state.schema.json#/$defs/LoadReferenceContractEvidence"}
 PHYSICS_RAW = PROJECT / "fixtures/results/physics_connected_mechanics_sparse.json"
-SOURCE_BLOCKS_RAW = PROJECT / "fixtures/product_preview/source_blocks/ui/n05-sparse_interactive.raw.json"
+# B4/D1 (b): the foreign receipt is a composite's (the only source-block receipt remaining).
+SOURCE_BLOCKS_RAW = PROJECT / "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
 
 # Authored keys the wire (CP2_WIRE.md) and the typed DTO make optional.
 OPTIONAL_AUTHORED = {"label", "operating_temperature", "analysis_basis_override", "mass_state_ref",
@@ -603,9 +604,8 @@ def test_carrier_branches_are_appended_after_the_existing_methods():
     included); positions are looked up by identity, the relative order is pinned."""
     results = schema("results.v0.3.schema.yaml")["$defs"]["ResultEnvelope"]
     ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"] for branch in results["oneOf"]]
-    # B1 removed precision-1's branch.
+    # B1 removed precision-1's branch; B4/D1 (b) source-blocks-1's.
     assert ids == [PHYSICS_ID,
-                   "openpipestress.result_semantics/0.3.0/source-blocks-1",
                    "openpipestress.result_semantics/0.3.0/physics-source-1",
                    # b7-plan's pressure-source join carries pressure-source-1 after physics-source-1.
                    PRESSURE_SOURCE_ID,
@@ -670,7 +670,7 @@ def _results_document(source, contract_id):
                        "review_status": "pending"},
         "reproducibility": {
             "model_hash": {"algorithm": "sha256", "canonicalization": "openpipestress_jcs_ijson_v1",
-                           "payload_ref": model_ref, "value": "0" * 64},
+                           "payload_scope": "model_payload", "payload_ref": model_ref, "value": "0" * 64},
             "run_hashes": [], "audit_manifest_ref": ref("audit_manifest", "audit:schema-test"),
             "deterministic_ordering": True, "raw_source_hashes": [],
             "derivative_hash": scoped("derivative_document_excludes_own_hash", "result_envelope", "result-envelope:schema-test"),
@@ -715,7 +715,7 @@ def results_invalid(document):
 
 def receipt():
     received = strict_json(SOURCE_BLOCKS_RAW)["source_block_recovery"]
-    validate_instance(schema("source_block_recovery.schema.json"), received, instance_label="actual receipt")
+    validate_instance(schema("physics_source_recovery.schema.json"), received, instance_label="actual receipt")
     return received
 
 

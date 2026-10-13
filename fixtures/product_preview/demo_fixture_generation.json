@@ -1173,40 +1173,5 @@
       ]
     }
   ],
-  "derived_outputs": [
-    {
-      "path": "fixtures/product_preview/invented_demo_result_legacy_0_1.json",
-      "sha256": "29fb7f684217da9cfcc2413fb49398406c778e3ca9c7b5a1ea5506d0fc9cd2bc",
-      "derived_from": {
-        "path": "fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json",
-        "sha256": "541fe51ee4eea85968c781225bb0d0c06a9e1605c740e67497feb03dd1878c51"
-      },
-      "schema_version": "0.1.0",
-      "removed_members": [
-        "producer",
-        "numerical_quality",
-        "formulation_basis",
-        "contract_evidence"
-      ],
-      "historical_kinds": {
-        "path": "fixtures/results/semantic_contract_v0_2.json",
-        "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
-      },
-      "removed_row_kinds": [
-        "component_equal_factor_intensified_bending_stress_v1",
-        "pipe_elastic_normal_stress_maximum_v2",
-        "support_reaction_component_v2",
-        "support_reaction_force_magnitude_v2",
-        "support_reaction_moment_magnitude_v2"
-      ],
-      "removed_row_count": 112,
-      "row_count": 513,
-      "nulled_summary_members": [
-        "component_stress_modifier_count",
-        "max_open_formula_stress"
-      ],
-      "derivation": "The derived_from file's exact bytes with the removed top-level members deleted, schema_version set to 0.1.0, the rows of the removed_row_kinds (kinds the historical_kinds file does not define) deleted, and each nulled_summary_members member set to null: a headline whose row was deleted, or a nonzero count of a removed kind's rows. No kept row, value, other summary member or diagnostic changed. A historical-format carrier for legacy-format readers' tests, not producer output."
-    }
-  ],
   "provenance": "Actual unchanged-input Rust executions; raw stdout retained as fixture bytes. No headers, quality or numeric values synthesized. Example transport data, not independent physics or source/build authentication."
 }

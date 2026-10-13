@@ -20,7 +20,7 @@ from checked_json_fixture_cache import checked_json_fixture_cache
 
 from core.analysis_runs.compatibility import (
     _source_contract, build_analysis_run_v0_3, PHYSICS_CONTRACT_ID,
-    SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
+    PHYSICS_SOURCE_CONTRACT_ID,
 )
 from core.handoff.stress_neutral import package as sn
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
@@ -30,14 +30,11 @@ from schema_validation import validate_instance
 
 PROJECT = Path(__file__).resolve().parents[1]
 SCHEMA = PROJECT / "schemas/stress_neutral_export.v0.3.schema.json"
+# B4/D1 (b): the preview route's source-blocks-1 captures left; the composites keep source blocks.
 ACTUAL_PATHS = [
     PROJECT / f"fixtures/results/{name}_{mode}.json"
     for name in ("physics_connected_mechanics", "physics_thermal_ui_mechanics")
     for mode in ("sparse", "dense")
-] + [
-    PROJECT / f"fixtures/product_preview/source_blocks/ui/{stem}-{mode}.raw.json"
-    for stem in ("n05", "n06", "multicase")
-    for mode in ("sparse_interactive", "dense_scrutiny")
 ]
 COMPOSITE_DIR = PROJECT / "fixtures/product_preview/physics_source"
 
@@ -72,7 +69,7 @@ def test_actual_physical_and_source_methods_roundtrip_all_nine_members(path, tmp
     raw, analysis, packet = captured(path)
     before = deepcopy(packet)
     identity, digest, table = _source_contract(raw)
-    assert identity in {PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID}
+    assert identity == PHYSICS_CONTRACT_ID
     assert packet["producer"] == raw["producer"]
     assert packet["semantic_contract"] == {"id": identity, "sha256": digest}
     assert packet["source_carrier_checksum"]["value"] == canonical_sha256_checked_v1(raw)
@@ -86,10 +83,8 @@ def test_actual_physical_and_source_methods_roundtrip_all_nine_members(path, tmp
         assert annotation["source_row_sha256"] == canonical_sha256_checked_v1(row)
         assert annotation["source_value_bits"] == struct.pack(">d", float(row["value"])).hex()
         assert annotation["source_row"].get("metadata") == row.get("metadata")
-    namespace = "contract_evidence" if identity == PHYSICS_CONTRACT_ID else "source_block_recovery"
-    assert packet[namespace] == raw[namespace]
-    assert ("source_block_recovery" in packet) == (identity == SOURCE_BLOCKS_CONTRACT_ID)
-    assert ("contract_evidence" in packet) == (identity == PHYSICS_CONTRACT_ID)
+    assert packet["contract_evidence"] == raw["contract_evidence"]
+    assert "source_block_recovery" not in packet
     validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label=path.stem)
     sn.validate_stress_neutral_export_package(packet)
     sn.validate_stress_neutral_export_package(packet, source_envelope=raw, analysis_record=analysis)
@@ -171,7 +166,7 @@ def test_coherently_rehashed_annotation_is_not_an_authenticity_claim():
         sn.validate_stress_neutral_export_package(packet, source_envelope=raw)
 
 
-@pytest.mark.parametrize("path", [ACTUAL_PATHS[0], ACTUAL_PATHS[4]], ids=["physics", "source_blocks"])
+@pytest.mark.parametrize("path", [ACTUAL_PATHS[0], COMPOSITE_DIR / "n05-sparse_interactive.raw.json"], ids=["physics", "physics_source"])
 def test_method_namespace_removal_substitution_and_relabel_are_rejected(path):
     raw, _, original = captured(path)
     field = "contract_evidence" if raw["producer"]["semantic_contract_id"] == PHYSICS_CONTRACT_ID else "source_block_recovery"
@@ -253,16 +248,17 @@ def test_value_bits_annotation_refuses_nonfinite_mismatch_and_noncanonical_zero(
 @pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
 def test_cr02_actual_mixed_signed_zeros_survive_materialize_reopen_and_bind_original(mode, tmp_path):
     # K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.1, 3.4): the composite `mixed` source's CHECKS_PASSED
-    # case now publishes its exactly-zero certified rows as +0 (its 31 received -0 rows are gone), so the
-    # actual producer source with both received zero signs is the source-block multicase capture.
-    path = PROJECT / f"fixtures/product_preview/source_blocks/ui/multicase-{mode}.raw.json"
+    # case now publishes its exactly-zero certified rows as +0 (its 31 received -0 rows are gone). B4/D1 (b)
+    # retired the source-block multicase capture; the actual producer source with both received zero signs is
+    # the preview route's output for the same request (PP `tests/source_block_recovery.rs`, OPS_W1_CONTROL_RAW_DIR).
+    path = PROJECT / f"fixtures/product_preview/w1_controls/ui/multicase-{mode}.raw.json"
     raw, analysis, packet = captured(path)
     before = deepcopy(raw)
     original_bits = {row["id"]: struct.pack(">d", float(row["value"])).hex() for row in raw["results"]}
     negative_ids = {identity for identity, bits in original_bits.items() if bits == "8000000000000000"}
     positive_ids = {identity for identity, bits in original_bits.items() if bits == "0000000000000000"}
     assert negative_ids and positive_ids, "Actual mixed source must exercise both received zero signs"
-    assert len(negative_ids) == 5, "the capture's received -0 population"
+    assert len(negative_ids) == 52, "the capture's received -0 population"
     sn.write_materialized_members(packet, tmp_path)
     reread = sn.read_materialized_members(tmp_path, source_envelope=raw, analysis_record=analysis)
     validate_instance(json.loads(SCHEMA.read_text()), reread, instance_label=f"CR02 {mode}")
@@ -300,7 +296,7 @@ def test_cr02_actual_mixed_signed_zeros_survive_materialize_reopen_and_bind_orig
         validate_instance(json.loads(SCHEMA.read_text()), malformed, instance_label="missing CR02 sidecar")
 
 
-UTF8_METHODS = [PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID]
+UTF8_METHODS = [PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID]
 
 
 def csv_transport_row(identity, value=1.25):

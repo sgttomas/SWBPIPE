@@ -144,18 +144,13 @@ class PhysicsIntegrationTests(unittest.TestCase):
             self.assertEqual(ledger['summary']['section_subchecks']['blocked'],18)
             self.assertNotEqual(ledger['outcome'],'all_required_assertions_matched')
 
-    def test_legacy_dispatch_refuses_all_newer_identity_or_evidence_presence(self):
+    def test_retired_raw01_packet_is_refused(self):
+        # b7-plan E2: the gate's generic transport has no raw0.1 dispatch; a header-free 0.1.0 packet is refused.
         observation=synthetic_case();value=wrapper(observation)
         raw=value['payload']['mechanics_envelope'];raw['schema_version']='0.1.0'
-        namespaces=('producer','numerical_quality','formulation_basis','contract_evidence','source_block_recovery','carrier_evidence')
-        for key in namespaces: raw.pop(key,None)
-        # Genuine header-free shape remains the legacy positive control.
-        gate.unwrap(json.dumps(value).encode(),observation['request'],'sparse_interactive')
-        for key in namespaces:
-            for present_value in (None,{},False):
-                modified=deepcopy(value);modified['payload']['mechanics_envelope'][key]=present_value
-                with self.assertRaisesRegex(ValueError,'not legacy raw0.1'):
-                    gate.unwrap(json.dumps(modified).encode(),observation['request'],'sparse_interactive')
+        for key in ('producer','numerical_quality','formulation_basis','contract_evidence','source_block_recovery','carrier_evidence'): raw.pop(key,None)
+        with self.assertRaisesRegex(gate.AdmissionError,'unsupported raw mechanics version'):
+            gate.unwrap(json.dumps(value).encode(),observation['request'],'sparse_interactive')
 
 
 class PhysicsProcessCompositionTests(unittest.TestCase):

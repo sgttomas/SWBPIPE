@@ -19,7 +19,7 @@ OUTCOMES = ROOT / "fixtures/results/base_reader_outcomes.json"
 MARKER = "__BASE_READER_TEXT_LITERAL__"
 MODES = ("sparse_interactive", "dense_scrutiny")
 ROUTE_READERS = {"preview_physics": "preview-physics", "physics": "physics", "physics_source": "physics-source",
-                 "source_blocks": "source-blocks", "load_reference": "load-reference", "load_reference_source": "load-reference-source"}
+                 "load_reference": "load-reference", "load_reference_source": "load-reference-source"}
 PARSE_REJECTED = "JSON_PARSE_REJECTED"
 
 
@@ -181,7 +181,7 @@ def corpus_inputs(route_of: Callable[[Any], str | None], domain_hash: Callable[[
     def base(id_: str, source: Any, model: Any, invocation: Any) -> None:
         reader = ROUTE_READERS.get(route_of(source) or "")
         inputs.append(Input(id_, source, None, model, invocation, (reader,) if reader else (),
-                            (reader,) if reader and reader != "source-blocks" else (), True))
+                            (reader,) if reader else (), True))
 
     results = [
         ("preview_physics_connected_sparse", "fixtures/model_operations/precision_connected_ui_model.json"),
@@ -199,7 +199,6 @@ def corpus_inputs(route_of: Callable[[Any], str | None], domain_hash: Callable[[
         ("../product_preview/invented_mechanics_result_preview_physics_1_dense", None),
         ("../product_preview/invented_demo_result_preview_physics_1_sparse", None),
         ("../product_preview/invented_demo_result_preview_physics_1_dense", None),
-        ("../product_preview/invented_demo_result_legacy_0_1", None),
     ]
     for name, model in results:
         base(f"results/{name.removeprefix('../')}", read(f"fixtures/results/{name}.json"), model_at(model) if model else None, None)
@@ -212,18 +211,7 @@ def corpus_inputs(route_of: Callable[[Any], str | None], domain_hash: Callable[[
                 source = read(f"fixtures/product_preview/{folder}/{name}-{mode}.raw.json")
                 invocation = {"request": request, "solver_mode": mode} if invoked else None
                 base(f"{folder}/{name}-{mode}", source, deepcopy(request["model"]), invocation)
-    for folder in ("", "ui/"):
-        for name in ("n05", "n06", "multicase"):
-            for mode in MODES:
-                path = f"fixtures/product_preview/source_blocks/{folder}{name}-{mode}"
-                request = read(f"{path}.request.json")
-                base(f"source_blocks/{folder}{name}-{mode}", read(f"{path}.raw.json"), deepcopy(request["model"]),
-                     {"request": request, "solver_mode": mode})
-    for mode in MODES:
-        path = f"fixtures/product_preview/source_blocks/rejected_stress_range/{mode}"
-        request = read(f"{path}.request.json")
-        base(f"source_blocks/rejected_stress_range/{mode}", read(f"{path}.raw.json"), deepcopy(request["model"]),
-             {"request": request, "solver_mode": mode})
+    # B4/D1 (b): the preview route's retired source-blocks-1 statements left the corpus.
     fallback = model_at("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json")
     for mode in MODES:
         base(f"load_reference_fallback_uz-{mode}", read(f"core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-{mode}.raw.json"),

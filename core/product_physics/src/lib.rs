@@ -843,8 +843,8 @@ pub struct MechanicsEnvelope {
 
 /// Prospective source semantics; historical raw 0.1 carriers retain their identity.
 pub const MECHANICS_SCHEMA_VERSION: &str = "0.2.0";
-// Initial source-method work-reservation policy; generic/strict-gap defaults are separate.
-const SOURCE_BLOCKS_WORK_LIMIT: usize = 4_000_000;
+// The composite source-method work-reservation policy (B4/D1 (b): only the exact
+// route's composites attempt it); generic/strict-gap defaults are separate.
 const PHYSICS_SOURCE_WORK_LIMIT: usize = 8_000_000;
 const SOURCE_BLOCKS_INVOCATION_WORK_LIMIT: usize = 64_000_000;
 #[derive(Debug)]
@@ -865,7 +865,7 @@ struct SourceRecoveryBudget {
     load_state_join_failure: Option<String>,
 }
 impl Default for SourceRecoveryBudget {
-    fn default() -> Self { Self { per_case_limit: SOURCE_BLOCKS_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None } }
+    fn default() -> Self { Self { per_case_limit: PHYSICS_SOURCE_WORK_LIMIT, invocation_limit: SOURCE_BLOCKS_INVOCATION_WORK_LIMIT, charged: 0, failed_charged: 0, publication_charged: 0, rejected: 0, attempts: 0, load_state_join_withheld: None, load_state_join_failure: None } }
 }
 impl SourceRecoveryBudget {
     /// The republication continues this same ledger (CP4 review N-2, ROOT's
@@ -907,8 +907,6 @@ impl SourceRecoveryBudget {
     }
 }
 
-pub const SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID: &str =
-    "openpipestress.result_semantics/0.3.0/source-blocks-1";
 pub const PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID: &str =
     "openpipestress.result_semantics/0.3.0/physics-source-1";
 pub const PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID: &str = exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID;
@@ -1191,10 +1189,13 @@ fn formation_check_evidence_line(model: &PreviewModel, check: &FormationCheck) -
 }
 
 /// The retained-source eligibility predicate (main's; S11-G revision 2.2
-/// G-1 removed 2.1's load-row gate, T10): the captured entry, without
-/// nonlinear supports or combinations.
-fn source_eligible(captured: bool, nonlinear: bool, combinations: bool) -> bool {
-    captured && !nonlinear && !combinations
+/// G-1 removed 2.1's load-row gate, T10): the captured entry of an exact-contract
+/// model, without nonlinear supports or combinations. B4/D1 (b): the pressure-free
+/// preview route selects no source blocks (W1 retains its cases); only the exact
+/// route's composites (physics-source-1, load-reference-source-1,
+/// pressure-source-1) attempt retained-source recovery.
+fn source_eligible(captured: bool, exact: bool, nonlinear: bool, combinations: bool) -> bool {
+    captured && exact && !nonlinear && !combinations
 }
 
 /// S11-G revision 2.2 G-3 (T21): a retained-source response of a case whose
@@ -2311,7 +2312,10 @@ pub(crate) enum W1Fallback {
     Domain,
     /// The reserved-stack thread could not be spawned (STACK_PLAN §1).
     StackReservation,
-    /// Exact-block selected on the ordinary route (coexistence, D-15).
+    /// An exact-route composite source response (physics-source-1, pressure-source-1) was
+    /// selected on the ordinary route: the composite is the publication and W1 does not start
+    /// (T-3 (c)). B4/D1 (b) retired the preview route's source blocks and with them W1's
+    /// coexistence rule (D-15) on route L, so this arbitration is route E's alone.
     Coexistence,
     /// G-B or G-C refused.
     LateGate(retained_memory::PhaseRefusal),
@@ -2329,7 +2333,7 @@ pub(crate) enum W1Fallback {
     /// T-4 (B0 DESIGN_v2 §1.2; decisions 1 and 21): no requested case is in A. Each is
     /// `not_required` by its published verdict, or excluded by DN §4.3, so W1 does not
     /// start: the exact ordinary bytes, no notice and no reservation. Distinct from
-    /// `LegacySeed::NotRequired` and from the receipt's `not_required` disposition.
+    /// the receipt's `not_required` disposition.
     NoTriggeredCase,
     /// R-2: the notice's space could not be reserved, so W1 did not start.
     NoticeReservation,
@@ -2416,13 +2420,9 @@ fn ordinary_dispatch(
     admission: Option<RetainedAdmissionReport>,
     retained: Option<Result<RetainedSuccessor, W1Fallback>>,
 ) -> Result<RetainedPreviewOutput, String> {
-    // The composite profile pays for retained-source and physical evidence.
-    // This closed resource policy does not change old source-blocks-1 or the
-    // exact helper defaults, and never changes the numerical criterion.
+    // The composite profile pays for retained-source and physical evidence; it
+    // never changes the numerical criterion.
     let mut budget = SourceRecoveryBudget::default();
-    if pressure_runtime::is_exact(&request.model) {
-        budget.per_case_limit = PHYSICS_SOURCE_WORK_LIMIT;
-    }
     #[cfg(test)]
     retained_memory::tests::ordinary_dispatch_entered();
     let result = run_linear_static_preview_captured(request, solver_mode, Some(capture), &mut budget);
@@ -2433,7 +2433,7 @@ fn ordinary_dispatch(
 }
 
 fn source_finalization_failed(envelope: &MechanicsEnvelope) -> bool {
-    matches!(envelope.producer.semantic_contract_id.as_str(), SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID | PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID | LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID | PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID)
+    matches!(envelope.producer.semantic_contract_id.as_str(), PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID | LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID | PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID)
         && envelope.source_block_recovery.is_none()
 }
 
@@ -2853,7 +2853,8 @@ fn run_linear_static_preview_observed_inner(
     let built = &basis_solve_states[0].2;
     let source_selected = load_case_solves.iter().any(|solve| solve.source_selected);
     let source_cases: Vec<_> = load_case_solves.iter_mut().filter_map(|solve| solve.source_case.take()).collect();
-    let preview = (!pressure_runtime::is_exact(&model) && !source_selected).then(|| {
+    // B4/D1 (b): a preview-route model selects no source blocks, so it always renders.
+    let preview = (!pressure_runtime::is_exact(&model)).then(|| {
         preview_physics::render(&model, built, &boundary.restrained_dofs, &mut load_case_solves, &mut diagnostics)
     });
     if preview.is_none() {
@@ -3024,17 +3025,12 @@ fn run_linear_static_preview_observed_inner(
         envelope.formulation_basis = preview_physics::formulation_basis();
         envelope.contract_evidence = Some(rendered.evidence(preview_gates));
     }
-    if source_selected {
-        envelope.producer.semantic_contract_id = if let Some(context) = composite_context {
-            if let Some(basis) = source_formulation { envelope.formulation_basis = basis; }
-            context.semantic_id()
-        } else { SOURCE_BLOCKS_SEMANTIC_CONTRACT_ID }.into();
+    // B4/D1 (b): only an exact-route composite is ever selected (`source_eligible`).
+    if let (true, Some(context)) = (source_selected, composite_context) {
+        if let Some(basis) = source_formulation { envelope.formulation_basis = basis; }
+        envelope.producer.semantic_contract_id = context.semantic_id().into();
         if let Some(capture) = capture {
-            let finalized = if composite {
-                source_receipt::FinalizedSourceBlockReceipt::finalize_composite(capture, &envelope, source_cases, source_budget)
-            } else {
-                source_receipt::FinalizedSourceBlockReceipt::finalize(capture, &envelope, source_cases, source_budget)
-            };
+            let finalized = source_receipt::FinalizedSourceBlockReceipt::finalize_composite(capture, &envelope, source_cases, source_budget);
             match finalized {
                 Ok(receipt) => envelope.source_block_recovery = Some(receipt.into_wire()),
                 Err(error) => {
@@ -3178,16 +3174,12 @@ fn w1_route(model: &PreviewModel) -> Option<retained_product::W1Route> {
 }
 
 /// B3b-P (B3-D P-2; RR "I99's B3-W verified; …", ruling 2): W1's exact-block budget is the
-/// ordinary route's (`ordinary_dispatch`): `PHYSICS_SOURCE_WORK_LIMIT` per case on the exact
-/// route, the default elsewhere. physics-source-1 then selects on the Direct entry exactly as on
-/// the ordinary route, so T-3 (c) publishes the exact ordinary bytes, and the receipt's
-/// `legacy_source_work[].limit` is that budget.
-fn w1_budget(route: retained_product::W1Route) -> SourceRecoveryBudget {
-    let mut budget = SourceRecoveryBudget::default();
-    if route == retained_product::W1Route::Exact {
-        budget.per_case_limit = PHYSICS_SOURCE_WORK_LIMIT;
-    }
-    budget
+/// ordinary route's (`ordinary_dispatch`): `PHYSICS_SOURCE_WORK_LIMIT` per case. physics-source-1
+/// then selects on the Direct entry exactly as on the ordinary route, so T-3 (c) publishes the
+/// exact ordinary bytes. Since B4/D1 (b) only the exact route attempts the method, so one
+/// budget serves both routes.
+fn w1_budget(_route: retained_product::W1Route) -> SourceRecoveryBudget {
+    SourceRecoveryBudget::default()
 }
 
 /// R-2 (ROOT, NUM efde9ca2d1, N1): the fixed product text of the base publication's
@@ -4745,6 +4737,7 @@ fn solve_load_case_observed(
     // closure refuses any eigen load, pair or motion it does not own.
     let source_eligible = source_eligible(
         capture.is_some(),
+        pressure_runtime::is_exact(model),
         !built.nonlinear_supports.is_empty(),
         !model.combinations.is_empty(),
     );
@@ -4774,8 +4767,6 @@ fn solve_load_case_observed(
         // route would not attempt (report Passed, no Err) is declined for its
         // load-row finding without running an attempt, so the invocation
         // ledger equals the unguarded one.
-        // I61 U1 (G-l; D39): whether an actual `solve_ordinary` attempt ran.
-        let mut legacy_attempted = false;
         let attempt = if !crate::needs_source_recovery(report_sensitive, attempt_err, None) {
             Err(source_recovery::formation_decline_without_attempt())
         } else if formed.is_none() {
@@ -4786,7 +4777,6 @@ fn solve_load_case_observed(
             Err(source_recovery::range_formation_decline_without_attempt())
         } else {
             source_budget.attempts += 1;
-            legacy_attempted = true;
             let case_limit = source_budget.case_limit();
             source_recovery::solve_ordinary(
                 recovery_input(),
@@ -4836,17 +4826,9 @@ fn solve_load_case_observed(
                     format!("The bounded retained-source method did not produce a selected response: {failure:?}{withheld}"),
                     vec![load_case.id.clone()],
                 ));
-                // I61 U1 (G-l; C2:160-162): the typed failure and its actual WorkReport.
-                if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
-                    observer.ordinary_legacy_failure(&load_case.id, legacy_attempted, &failure, &record.id);
-                }
                 source_failure = Some(failure);
             }
         }
-    }
-    // I61 U1 (G-l; D39): the route rows that carry no RecoveryFailure.
-    if let Some(observer) = product.as_deref_mut() {
-        observer.ordinary_legacy_route(&load_case.id, source_eligible, needs_source_recovery, selected_source.is_some());
     }
     if load_state.is_some() && selected_source.is_none() {
         let attempt = if !needs_source_recovery {
@@ -5654,14 +5636,10 @@ fn solve_load_case_observed(
         let endpoint_resultants = if let Some(member) = &certified_member {
             [member.sections[0].map(|row| row.published),member.sections[4].map(|row| row.published)]
         } else if let Some(member) = recovered_member {
-            if pressure_runtime::is_exact(model) {
-                // Composite stresses and endpoint maxima share the actual
-                // retained section-cut functionals, including endpoint zeros.
-                [member.sections[0], member.sections[4]]
-            } else {
-                // Retained source-blocks-1 keeps its original publication basis.
-                [std::array::from_fn(|i| -member.end_forces[i]), std::array::from_fn(|i| member.end_forces[6 + i])]
-            }
+            // Source blocks are selected only on the exact route (B4/D1 (b)):
+            // composite stresses and endpoint maxima share the actual retained
+            // section-cut functionals, including endpoint zeros.
+            [member.sections[0], member.sections[4]]
         } else if let Some(bend) = macro_bend {
             let evaluate = |fraction| {
                 curved_bend_section_resultants(
@@ -6189,30 +6167,25 @@ fn solve_load_case_observed(
     });
     // Retained-source custody/finalization re-derives each case through the
     // same pipeline that produced it: the resolver for 0.4.0, the case-wide
-    // material methods otherwise.
-    let source_case = if let Some(capture) = capture {
-        let qualified = qualify_source_case_rows(model, &load_case.id, &preview_physics::with_source_blocks_rows(&results, preview_record.as_ref()));
+    // material methods otherwise. B4/D1 (b): only an exact-contract case has a
+    // composite receipt case; the preview route selects no source blocks.
+    let source_case = if let (Some(capture), true) = (capture, pressure_runtime::is_exact(model)) {
+        let qualified = qualify_source_case_rows(model, &load_case.id, &results);
         let finalized = if let Some(selected) = selected_source.take() {
             match source_row_bindings(&selected, &qualified) {
                 Ok(bindings) => {
-                    if pressure_runtime::is_exact(model) {
-                        let mut physical = exact_case_evidence.clone().expect("exact physical evidence");
-                        physical["recovery_method"] = serde_json::json!("retained_source_blocks_exact_v1");
-                        source_receipt::FinalizedSourceBlockCase::composite_exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings, &physical, load_state_evidence.as_ref())
-                    } else {
-                        source_receipt::FinalizedSourceBlockCase::exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings)
-                    }
+                    let mut physical = exact_case_evidence.clone().expect("exact physical evidence");
+                    physical["recovery_method"] = serde_json::json!("retained_source_blocks_exact_v1");
+                    source_receipt::FinalizedSourceBlockCase::composite_exact(capture, recovery_input(), selected, ordinary_attempt, &qualified, &bindings, &physical, load_state_evidence.as_ref())
                 },
                 Err(message) => Err(source_receipt::ReceiptError(message, Some(selected.summary().work))),
             }
         } else if let Some(failure) = &source_failure {
             source_receipt::FinalizedSourceBlockCase::failed(capture, &load_case.id, ordinary_attempt, failure, &format!("diagnostic:source-recovery:{}", load_case.id), &qualified)
-        } else if pressure_runtime::is_exact(model) {
+        } else {
             let mut physical = exact_case_evidence.clone().expect("exact physical evidence");
             physical["recovery_method"] = serde_json::json!(if solver_mode == PreviewSolverMode::DenseScrutiny { "ordinary_dense_structural_v1" } else { "ordinary_sparse_structural_v1" });
             source_receipt::FinalizedSourceBlockCase::ordinary_physics(capture, &load_case.id, ordinary_attempt, &qualified, &physical, &pressure_evidence, load_state_evidence.as_ref())
-        } else {
-            source_receipt::FinalizedSourceBlockCase::ordinary(capture, &load_case.id, ordinary_attempt, &qualified)
         };
         match finalized {
             Ok(case) => {

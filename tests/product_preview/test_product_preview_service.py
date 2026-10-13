@@ -288,10 +288,10 @@ def test_report_packet_preview_materializes_read_only_audit_context():
     assert "result:force:pipe-P-120:midspan:axial" in packet["selected_result_refs"]
     assert "result:force:pipe-P-120:quarter-1:shear-y" in packet["selected_result_refs"]
     assert "result:force:pipe-P-120:shear-y" in packet["selected_result_refs"]
-    # The demo's combination is withheld, and its stress headline is not carried
-    # by the historical-format carrier (null): neither is selected.
+    # The demo's combination is withheld (no combination row); its stress
+    # headline row is carried by the current preview-physics-1 result.
     assert not any(ref.startswith("result:combination:") for ref in packet["selected_result_refs"])
-    assert not any(ref.startswith("result:elastic-maximum:") for ref in packet["selected_result_refs"])
+    assert any(ref.startswith("result:elastic-maximum:") for ref in packet["selected_result_refs"])
     assert "result:stress:pipe-P-120:end-j:torsional-shear" in packet["selected_result_refs"]
     assert "result:stress:pipe-P-120:quarter-1:torsional-shear" in packet["selected_result_refs"]
     assert packet["analysis_run_context"]["deliverable_id"] == "DEL-14-02"

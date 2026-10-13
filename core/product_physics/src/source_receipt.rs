@@ -17,7 +17,6 @@ pub(super) use composite::{composite_member_maximum, composite_support_norms};
 pub(super) const COMPOSITE_SEMANTIC_ID: &str =
     "openpipestress.result_semantics/0.3.0/physics-source-1";
 
-pub(super) const SEMANTIC_ID: &str = "openpipestress.result_semantics/0.3.0/source-blocks-1";
 pub(super) const LOAD_REFERENCE_SOURCE_SEMANTIC_ID: &str =
     case_state::LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID;
 const CRITERION: f64 = 1e-9;
@@ -63,22 +62,18 @@ struct LoadStateReplay {
     built: BuiltModel,
 }
 
-/// Closed receipt policies. Each names one semantic identity; none is chosen
-/// from a caller label.
+/// Closed receipt policies, one per exact-route composite (B4/D1 (b) retired the
+/// preview route's non-composite SOURCE-BLOCKS-1). Each names one semantic
+/// identity; none is chosen from a caller label.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ReceiptPolicy {
-    SourceBlocks,
     PhysicsSource,
     LoadReferenceSource,
     PressureSource,
 }
 impl ReceiptPolicy {
-    fn composite(self) -> bool {
-        self != Self::SourceBlocks
-    }
     fn semantic_id(self) -> &'static str {
         match self {
-            Self::SourceBlocks => SEMANTIC_ID,
             Self::PhysicsSource => COMPOSITE_SEMANTIC_ID,
             Self::LoadReferenceSource => LOAD_REFERENCE_SOURCE_SEMANTIC_ID,
             Self::PressureSource => exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID,
@@ -86,7 +81,6 @@ impl ReceiptPolicy {
     }
     fn name(self) -> &'static str {
         match self {
-            Self::SourceBlocks => "SOURCE-BLOCKS-1",
             Self::PhysicsSource => "PHYSICS-SOURCE-1",
             Self::LoadReferenceSource => "LOAD-REFERENCE-SOURCE-1",
             Self::PressureSource => "PRESSURE-SOURCE-1",
@@ -96,7 +90,7 @@ impl ReceiptPolicy {
         match self {
             Self::LoadReferenceSource => "load_reference_source_case_evidence_v1",
             Self::PressureSource => "pressure_source_case_evidence_v1",
-            _ => "physics_source_case_evidence_v1",
+            Self::PhysicsSource => "physics_source_case_evidence_v1",
         }
     }
 }
@@ -212,6 +206,7 @@ impl CapturedInvocation {
     }
     /// Reconstruct only the actual product normalization/material selection. Raw
     /// custody/hashing remains the preparse Value, never these typed objects.
+    #[cfg(test)]
     fn check_input(
         &self,
         input: &source_recovery::Input<'_>,
@@ -706,131 +701,6 @@ impl FinalizedSourceBlockCase {
         self.qualified
     }
 
-    pub(super) fn exact(
-        capture: &CapturedInvocation,
-        input: source_recovery::Input<'_>,
-        mut selected: SelectedSourceRecovery,
-        ordinary: OrdinaryAttempt,
-        rows: &[ResultItem],
-        bindings: &[FunctionalRowBinding],
-    ) -> Result<Self, ReceiptError> {
-        if ordinary.mode != capture.mode {
-            return Err(bad("requested mode mismatch"));
-        }
-        let checked_case = (|| {
-            selected
-                .charge_finalization(
-                    1024usize
-                        .saturating_add(rows.len().saturating_mul(32))
-                        .saturating_add(selected.retained().descriptors().len().saturating_mul(32)),
-                )
-                .map_err(|e| bad(format!("finalization reservation: {e:?}")))?;
-            let reservation = finalization_size(capture, &selected, rows);
-            selected
-                .charge_finalization(reservation)
-                .map_err(|e| bad(format!("finalization reservation: {e:?}")))?;
-            let material_basis_record = capture.check_input(&input, &mut selected)?;
-            selected
-                .check_binding_against(source_recovery::Input {
-                    model: input.model,
-                    built: input.built,
-                    stiffness: input.stiffness,
-                    force: input.force,
-                    free: input.free,
-                    prescribed: input.prescribed,
-                    spring_entries: input.spring_entries,
-                    load_case: input.load_case,
-                    load_application: input.load_application,
-                    thermal_loads: input.thermal_loads,
-                    load_state: input.load_state,
-                })
-                .map_err(|e| bad(format!("current source binding: {e:?}")))?;
-            let case_id = input.load_case.id.clone();
-            let ledger = rows::bind(&input, &selected, rows, bindings)?;
-            let source = source::commitment(
-                &input,
-                &selected,
-                bindings,
-                &capture.digest,
-                material_basis_record.as_deref(),
-                &ledger.rows,
-                rows,
-            )?;
-            let qualified = ledger.rows.iter().all(|r| {
-                r.treatment != "inspection_only"
-                    || rows
-                        .iter()
-                        .find(|v| v.id == r.result_id)
-                        .is_some_and(rows::observation)
-            });
-            Ok::<_, ReceiptError>((case_id, ledger, source, qualified, serialized(&rows)?))
-        })();
-        let (case_id, ledger, source, qualified, actual_rows) = checked_case.map_err(|mut e| {
-            e.1 = Some(selected.summary().work);
-            e
-        })?;
-        let work = work_wire(selected.summary().work)?;
-        Ok(Self {
-            invocation: capture.digest.clone(),
-            case_id,
-            ordinary,
-            source: Some(source),
-            projections: ledger.projections,
-            rows: ledger.rows,
-            supports: ledger.supports,
-            failure: None,
-            work,
-            actual_rows,
-            qualified,
-            exact: true,
-            physical_evidence: None,
-            derived_checks: vec![],
-            section_stress_checks: vec![],
-            _selected: Some(selected),
-        })
-    }
-    pub(super) fn ordinary(
-        capture: &CapturedInvocation,
-        case_id: &str,
-        ordinary: OrdinaryAttempt,
-        rows: &[ResultItem],
-    ) -> Result<Self, ReceiptError> {
-        if ordinary.mode != capture.mode || ordinary.outcome != "checks_passed" {
-            return Err(bad("ordinary selection not p1 checks-passed"));
-        }
-        validate_case_rows(case_id, rows)?;
-        Ok(Self {
-            invocation: capture.digest.clone(),
-            case_id: case_id.into(),
-            ordinary,
-            source: None,
-            projections: vec![],
-            rows: rows
-                .iter()
-                .map(|r| RowTreatment {
-                    result_id: r.id.clone(),
-                    treatment: "ordinary_checked",
-                    projection_id: None,
-                    recipe_id: None,
-                    input_result_ids: vec![],
-                })
-                .collect(),
-            supports: json!([]),
-            failure: None,
-            work: work_wire(exact::WorkReport {
-                charged: 0,
-                rejected: 0,
-                limit: 0,
-            })?,
-            actual_rows: serialized(&rows)?,
-            qualified: true,
-            exact: false,
-            physical_evidence: None,
-            derived_checks: vec![],
-            section_stress_checks: vec![],
-            _selected: None,
-        })
-    }
     pub(super) fn failed(
         capture: &CapturedInvocation,
         case_id: &str,
@@ -908,20 +778,6 @@ pub(super) struct FinalizedSourceBlockReceipt {
     receipt_sha256: String,
 }
 impl FinalizedSourceBlockReceipt {
-    pub(super) fn finalize(
-        capture: &CapturedInvocation,
-        envelope: &MechanicsEnvelope,
-        cases: Vec<FinalizedSourceBlockCase>,
-        invocation_budget: &mut SourceRecoveryBudget,
-    ) -> Result<Self, ReceiptError> {
-        Self::finalize_for(
-            capture,
-            envelope,
-            cases,
-            invocation_budget,
-            ReceiptPolicy::SourceBlocks,
-        )
-    }
     pub(super) fn finalize_composite(
         capture: &CapturedInvocation,
         envelope: &MechanicsEnvelope,
@@ -945,12 +801,6 @@ impl FinalizedSourceBlockReceipt {
         invocation_budget: &mut SourceRecoveryBudget,
         policy: ReceiptPolicy,
     ) -> Result<Self, ReceiptError> {
-        let composite = policy.composite();
-        if !composite && case_state::is_load_state(&capture.requested()?.model) {
-            return Err(bad(
-                "load/reference-state invocation requires its joined receipt policy",
-            ));
-        }
         if envelope.results.len() > MAX_ITEMS || envelope.diagnostics.len() > MAX_ITEMS {
             return Err(bad("publication inventory budget"));
         }
@@ -962,11 +812,7 @@ impl FinalizedSourceBlockReceipt {
             .map_err(|work| {
                 ReceiptError("invocation publication reservation".into(), Some(work))
             })?;
-        let policy_limit = if composite {
-            PHYSICS_SOURCE_WORK_LIMIT
-        } else {
-            SOURCE_BLOCKS_WORK_LIMIT
-        };
+        let policy_limit = PHYSICS_SOURCE_WORK_LIMIT;
         if invocation_budget.per_case_limit > policy_limit
             || cases.iter().any(|case| {
                 case.work["limit"]
@@ -983,12 +829,6 @@ impl FinalizedSourceBlockReceipt {
                 }),
             ));
         }
-        if !composite
-            && (envelope.contract_evidence.is_some()
-                || cases.iter().any(|case| case.physical_evidence.is_some()))
-        {
-            return Err(bad("physical evidence requires composite receipt policy"));
-        }
         let size = envelope.diagnostics.iter().fold(0usize, |n, d| {
             n.saturating_add(d.id.len())
                 .saturating_add(d.code.len())
@@ -1000,7 +840,7 @@ impl FinalizedSourceBlockReceipt {
             .map_err(|work| {
                 ReceiptError("invocation publication reservation".into(), Some(work))
             })?;
-        if composite {
+        {
             // Reserve normalization, source geometry/material comparison, complete
             // physical evidence serialization and recipe statement hashing before
             // performing them. This is the same invocation ledger, never cloned.
@@ -1126,7 +966,7 @@ impl FinalizedSourceBlockReceipt {
                 }
             }
             wire.push(json!({"basis_ref":{"ref_type":"load_case","ref_id":case.case_id},"outcome":if eligible{"qualified"}else if failure.as_ref().is_some_and(|f|matches!(f["code"].as_str(),Some("unsupported_family"|"unsupported_block"|"unsupported_source_closure"|"unsupported_derived_quantity"|"support_attribution_ambiguous"))){"unsupported"}else{"failed"},"requested_mode":capture.mode.as_str(),"selected_method":if eligible{Some(if case.exact{"retained_source_blocks_exact_v1"}else if capture.mode==PreviewSolverMode::DenseScrutiny{"ordinary_dense_structural_v1"}else{"ordinary_sparse_structural_v1"})}else{None},"ordinary_attempt":ordinary,"source":case.source,"projections":case.projections,"rows":case.rows,"supports":case.supports,"failure":failure,"work":case.work}));
-            if composite {
+            {
                 let row = wire.last_mut().expect("just appended case");
                 row["physical_evidence_sha256"] = json!(hash(
                     policy.case_evidence_domain(),
@@ -1147,9 +987,6 @@ impl FinalizedSourceBlockReceipt {
                     return Err(bad("unaccounted physical result"));
                 }
             }
-        }
-        if !composite {
-            rows::validate_summary(envelope)?;
         }
         let case_reserved = cases.iter().try_fold(0usize, |sum, case| {
             let charged = case.work["charged"]

@@ -1236,7 +1236,7 @@ pub fn validate_in(source: &Value, actual_invocation: Option<&Value>, contract: 
     if resolved { crate::load_reference_source::validate_pressure_source_evidence(source, true)?; }
     validate_transport_metadata_in(source, contract)?;
     crate::physics_evidence::validate_physics_evidence_in(source, true, contract.pressure())?;
-    let eligible = crate::source_blocks::validate_source_contract_in(source, actual_invocation, Some(contract))?;
+    let eligible = crate::source_blocks::validate_source_contract_in(source, actual_invocation, contract)?;
     if let Some(invocation) = actual_invocation.filter(|_| !resolved) {
         for exact in array(&source["contract_evidence"]["exact_cases"])? {
             let actual = array(&invocation["request"]["model"]["load_cases"])?

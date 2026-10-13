@@ -136,7 +136,7 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     // known job. Method-specific source-block validation composes here when its
     // separately reviewed join is selected; none is inferred from these bytes.
     const sourceRoute = sourceContract(source);
-    if (sourceRoute === "source_blocks" || sourceRoute === "physics_source" || sourceRoute === "pressure_source"
+    if (sourceRoute === "physics_source" || sourceRoute === "pressure_source"
       || source.producer?.semantic_contract_id === PRESSURE_SOURCE_CONTRACT_ID) {
       // G3 (b7-plan R2): the caller's model is the one dispatched to native; a
       // normalization between them registers nothing.
@@ -336,28 +336,6 @@ export async function buildAnalysisRunPreview(
   const effective = appliedRuleCheckStatus(result.status.rule_check, ruleCheckAggregate);
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
   return buildAnalysisRunV03(result, inputManifest, effective, modelLoadBasisRefs(inputManifest.manifest.model_basis.model_payload));
-}
-
-export function bindSourceResultDimensions(
-  result: MechanicsResult,
-): MechanicsResult {
-  // Precision carriers and unsupported historical headers retain exact received bytes.
-  if (sourceContract(result) !== "legacy") return result;
-  return {
-    ...result,
-    results: result.results.map((item) => {
-      const declared = declaredSourceResultDimension(item);
-      if (item.dimension && item.dimension !== declared) {
-        throw new Error(
-          `ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH: ${item.id} declares ${item.dimension}; exact kind semantics require ${declared}.`,
-        );
-      }
-      return {
-        ...item,
-        dimension: declared,
-      };
-    }),
-  };
 }
 
 export function declaredSourceResultDimension(

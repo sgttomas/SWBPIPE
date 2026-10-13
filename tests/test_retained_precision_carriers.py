@@ -320,10 +320,10 @@ def test_shared_carrier_cases_python():
         source, context, refs = apply_case(case, docs[case["fixture"]])
         assert c.numerical_use_standing(source, refs, context) == case["expected_standing"], case["id"]
         assert dispatch(source) == case["expected_dispatch"], case["id"]
-    assert len(cases["cases"]) == 20
+    assert len(cases["cases"]) == 17
     # The raw fixtures' guard cases are refused only through their edit.
     raw = [fid for fid, spec in cases["fixtures"].items() if spec["shape"] == "raw"]
-    assert raw == ["legacy_preview_0_1", "preview_physics_1_invented_sparse", "source_blocks_n05_sparse"]
+    assert raw == ["preview_physics_1_invented_sparse"]
     for fid in raw:
         assert dispatch(docs[fid]["source"]) == "ok" and c.numerical_use_standing(docs[fid]["source"], []) == "needs_recompute", fid
 
@@ -352,13 +352,8 @@ def expected_binding(source, expected):
         return want
     rule, code = expected.split(":", 1)
     code = None if code == "none" else code
-    if rule == "every_row":
-        return [code] * len(rows)
-    assert rule == "source_blocks_summary"
-    headline = ((source.get("summary") or {}).get("max_open_formula_stress") or {}).get("result_ref")
-    want = [code if row["kind"] == "open_formula_stress_summary" or row["id"] == headline else None for row in rows]
-    assert code in want and None in want
-    return want
+    assert rule == "every_row"
+    return [code] * len(rows)
 
 
 def test_declared_differences_python():
@@ -644,31 +639,27 @@ def test_stress_neutral_packager_still_refuses_the_successor(mode):
     raises("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", sn.validate_stress_neutral_export_package, packet)
 
 
-def test_legacy_sources_with_a_token_row_are_refused_on_every_python_path():
-    """RV88 U6b S-1: a legacy 0.1.0 source with the W1 token on one row (the last)
-    is refused by the raw dispatch, standing and the AnalysisRun builder, as Rust
-    and TS refuse it. Without the token it is still never recorded: analysis runs
-    keep one current version, and no current record contract reads the 0.1.0 result
-    format (b7-plan E1). The header-only transport dispatch reads no rows, as Rust's
-    for_source_metadata."""
-    legacy = json.loads((ROOT / "fixtures/product_preview/invented_demo_result_legacy_0_1.json").read_text())
-    assert legacy["schema_version"] == "0.1.0"
+def test_retired_sources_with_a_token_row_are_refused_on_every_python_path():
+    """RV88 U6b S-1 on the retired carrier (b7-plan E2): a producer-less 0.1.0 source
+    is refused by name (MECHANICS_RESULT_VERSION_RETIRED) by the raw and header-only
+    dispatch, standing and the AnalysisRun builder. With the W1 token on one row (the
+    last) the raw dispatch refuses it as a downgrade first, as Rust and TS do; a
+    receipt member, empty or null, is refused before the version branch."""
+    retired = json.loads((ROOT / "fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json").read_text())
+    retired["schema_version"] = "0.1.0"
+    for key in ("producer", "numerical_quality", "formulation_basis", "contract_evidence"):
+        del retired[key]
     manifest = {"input_manifest_ref": {"object_type": "InputManifest", "ref": "manifest:u6b"}, "input_manifest_hash": "1" * 64}
     for method, refused in ((c.RETAINED_METHOD, True), ("other_method", False)):
-        token = deepcopy(legacy)
+        token = deepcopy(retired)
         token["results"][-1]["recovery_method"] = method
-        if refused:
-            raises(c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, c._source_contract, token)
-            assert c.numerical_use_standing(token, []) == "unsupported"
-            raises(c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, lambda s: c.build_analysis_run(s, **manifest), token)
-        else:
-            assert c._source_contract(token)[0] == c.SEMANTIC_CONTRACT_ID
-            assert c.numerical_use_standing(token, []) == "needs_recompute"
-            raises("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH", lambda s: c.build_analysis_run(s, **manifest), token)
-        assert c._source_contract(token, check_receipt=False)[0] == c.SEMANTIC_CONTRACT_ID
-    # A legacy receipt member, empty or null, is refused before the version branch.
+        code = c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN if refused else "MECHANICS_RESULT_VERSION_RETIRED"
+        raises(code, c._source_contract, token)
+        assert c.numerical_use_standing(token, []) == "unsupported"
+        raises(code, lambda s: c.build_analysis_run(s, **manifest), token)
+        raises("MECHANICS_RESULT_VERSION_RETIRED", lambda s: c._source_contract(s, check_receipt=False), token)
     for receipt in ({}, None):
-        raises(c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, c._source_contract, dict(legacy, retained_precision=receipt))
+        raises(c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, c._source_contract, dict(retired, retained_precision=receipt))
 
 
 def test_private_seams_have_no_product_callers():

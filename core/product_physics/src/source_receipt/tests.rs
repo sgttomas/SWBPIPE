@@ -87,19 +87,19 @@ fn captured_invocation_keeps_unknown_absence_material_and_actual_mode() {
     unsafe_integer["unknown_preparse_marker"] = json!(9_007_199_254_740_992_u64);
     assert!(CapturedInvocation::parse(unsafe_integer, PreviewSolverMode::DenseScrutiny).is_err());
 }
+/// B4/D1 (b): the composite row binding (the only one) on the exact n05 control.
 #[test]
 fn selected_projection_mapping_rejects_value_unit_entity_missing_duplicate() {
-    let (request, _) = CapturedInvocation::parse(raw(), PreviewSolverMode::DenseScrutiny).unwrap();
-    let f = Fixture::new(request.model);
+    let f = exact_fixture(&exact_raw());
     let selected = source_recovery::solve(
         f.input(),
         exact::Limits {
-            operations: SOURCE_BLOCKS_WORK_LIMIT,
+            operations: PHYSICS_SOURCE_WORK_LIMIT,
             ..Default::default()
         },
     )
     .unwrap();
-    let expected = rows::expected_primary(&f.input(), &selected).unwrap();
+    let expected = rows::expected_primary_for(&f.input(), &selected, true).unwrap();
     let bindings: Vec<_> = expected
         .iter()
         .map(|(i, r)| FunctionalRowBinding {
@@ -109,12 +109,12 @@ fn selected_projection_mapping_rejects_value_unit_entity_missing_duplicate() {
         .collect();
     let mut actual: Vec<_> = expected.values().cloned().collect();
     actual.extend(
-        rows::derived(&f.input(), &selected, &expected)
+        rows::derived_for(&f.input(), &selected, &expected, true)
             .unwrap()
             .into_iter()
             .map(|d| d.row),
     );
-    assert!(rows::bind(&f.input(), &selected, &actual, &bindings).is_ok());
+    assert!(rows::bind_for(&f.input(), &selected, &actual, &bindings, true, vec![]).is_ok());
     for mutation in 0..4 {
         let mut bad_rows = actual.clone();
         match mutation {
@@ -125,34 +125,35 @@ fn selected_projection_mapping_rejects_value_unit_entity_missing_duplicate() {
                 bad_rows.remove(0);
             }
         }
-        assert!(rows::bind(&f.input(), &selected, &bad_rows, &bindings).is_err());
+        assert!(rows::bind_for(&f.input(), &selected, &bad_rows, &bindings, true, vec![]).is_err());
     }
     let mut duplicate = bindings.clone();
     duplicate[1].functional_index = duplicate[0].functional_index;
-    assert!(rows::bind(&f.input(), &selected, &actual, &duplicate).is_err());
+    assert!(rows::bind_for(&f.input(), &selected, &actual, &duplicate, true, vec![]).is_err());
 }
 #[test]
 fn actual_capture_replay_rejects_changed_material_or_load_source() {
-    let original = raw();
-    let (request, capture) =
+    let original = exact_raw();
+    let (_, capture) =
         CapturedInvocation::parse(original.clone(), PreviewSolverMode::DenseScrutiny).unwrap();
-    let f = Fixture::new(request.model);
+    let f = exact_fixture(&original);
     let mut selected = source_recovery::solve(
         f.input(),
         exact::Limits {
-            operations: SOURCE_BLOCKS_WORK_LIMIT,
+            operations: PHYSICS_SOURCE_WORK_LIMIT,
             ..Default::default()
         },
     )
     .unwrap();
     assert!(capture.check_input(&f.input(), &mut selected).is_ok());
     let mut changed = original;
-    changed["model"]["materials"][0]["shear_modulus"]["value"] = json!(81e9);
+    // The exact contract derives G from E and nu, so the replay is changed through E.
+    changed["model"]["materials"][0]["elastic_modulus"]["value"] = json!(201e9);
     let (_, other) = CapturedInvocation::parse(changed, PreviewSolverMode::DenseScrutiny).unwrap();
     let mut selected = source_recovery::solve(
         f.input(),
         exact::Limits {
-            operations: SOURCE_BLOCKS_WORK_LIMIT,
+            operations: PHYSICS_SOURCE_WORK_LIMIT,
             ..Default::default()
         },
     )
@@ -236,7 +237,7 @@ fn composite_captured_exact_empty_regions_replay_and_overrides() {
     let mut selected = source_recovery::solve(
         f.input(),
         exact::Limits {
-            operations: SOURCE_BLOCKS_WORK_LIMIT,
+            operations: PHYSICS_SOURCE_WORK_LIMIT,
             ..Default::default()
         },
     )
@@ -262,7 +263,7 @@ fn composite_captured_exact_empty_regions_replay_and_overrides() {
     let mut selected = source_recovery::solve(
         f.input(),
         exact::Limits {
-            operations: SOURCE_BLOCKS_WORK_LIMIT,
+            operations: PHYSICS_SOURCE_WORK_LIMIT,
             ..Default::default()
         },
     )
@@ -285,7 +286,7 @@ fn composite_adapter_refuses_missing_zero_and_nonzero_regions() {
         let error = source_recovery::solve(
             f.input(),
             exact::Limits {
-                operations: SOURCE_BLOCKS_WORK_LIMIT,
+                operations: PHYSICS_SOURCE_WORK_LIMIT,
                 ..Default::default()
             },
         )
@@ -303,7 +304,7 @@ fn composite_recipe_reserves_before_failures_and_geometry_changes() {
     let mut selected = source_recovery::solve(
         f.input(),
         exact::Limits {
-            operations: SOURCE_BLOCKS_WORK_LIMIT,
+            operations: PHYSICS_SOURCE_WORK_LIMIT,
             ..Default::default()
         },
     )
@@ -346,14 +347,14 @@ fn composite_fields_work_measurement() {
         let wire = serialized(&envelope).unwrap();
         eprintln!(
             "COMPOSITE_WORK_MEASUREMENT {}",
-            json!({"purpose":"private resource measurement; not public policy or qualification","mode":mode.as_str(),"private_per_case_limit":16_000_000,"public_per_case_limit":SOURCE_BLOCKS_WORK_LIMIT,"stage_trace":trace,"invocation_charged":budget.charged,"publication_charged":budget.publication_charged,"case_work":wire["source_block_recovery"]["body"]["cases"][0]["work"],"receipt_status":wire["source_block_recovery"]["body"]["status"],"diagnostics":wire["diagnostics"].as_array().unwrap().iter().filter(|d|d["severity"]=="blocking").collect::<Vec<_>>()})
+            json!({"purpose":"private resource measurement; not public policy or qualification","mode":mode.as_str(),"private_per_case_limit":16_000_000,"public_per_case_limit":PHYSICS_SOURCE_WORK_LIMIT,"stage_trace":trace,"invocation_charged":budget.charged,"publication_charged":budget.publication_charged,"case_work":wire["source_block_recovery"]["body"]["cases"][0]["work"],"receipt_status":wire["source_block_recovery"]["body"]["status"],"diagnostics":wire["diagnostics"].as_array().unwrap().iter().filter(|d|d["severity"]=="blocking").collect::<Vec<_>>()})
         );
         assert!(
             envelope.source_block_recovery.is_none(),
             "private oversized limit must not create a selected-policy receipt"
         );
         assert!(
-            trace.last().unwrap()["charged"].as_u64().unwrap() > SOURCE_BLOCKS_WORK_LIMIT as u64
+            trace.last().unwrap()["charged"].as_u64().unwrap() > PHYSICS_SOURCE_WORK_LIMIT as u64
         );
         assert!(envelope.diagnostics.iter().any(|d| d
             .message
@@ -383,12 +384,13 @@ fn composite_resource_policy_cannot_promote_old_method_or_refund_failure() {
         );
         (envelope, budget)
     }
-    assert_eq!(SOURCE_BLOCKS_WORK_LIMIT, 4_000_000);
     assert_eq!(PHYSICS_SOURCE_WORK_LIMIT, 8_000_000);
-    for (value, cap) in [
-        (raw(), PHYSICS_SOURCE_WORK_LIMIT),
-        (exact_raw(), PHYSICS_SOURCE_WORK_LIMIT + 1),
-    ] {
+    // B4/D1 (b): the preview route attempts no retained-source recovery at any cap.
+    let (preview, budget) = run(raw(), PHYSICS_SOURCE_WORK_LIMIT + 1, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
+    assert!(preview.source_block_recovery.is_none());
+    assert!(!preview.diagnostics.iter().any(|d| d.code.starts_with("SOURCE_BLOCK_RECOVERY")));
+    assert_eq!((budget.attempts, budget.charged, budget.publication_charged), (0, 0, 0));
+    for (value, cap) in [(exact_raw(), PHYSICS_SOURCE_WORK_LIMIT + 1)] {
         let (envelope, budget) = run(value, cap, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
         assert!(envelope.source_block_recovery.is_none());
         assert!(envelope.diagnostics.iter().any(|d| d

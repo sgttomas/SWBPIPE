@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/results.v0.3.schema.yaml",
   "title": "Precision-preserving derivative result export 0.3",
-  "description": "Source-bound physics-1, source-blocks-1 and physics-source-1 semantics; method-specific evidence retained without engineering qualification.",
+  "description": "Source-bound physics-1 and physics-source-1 semantics; method-specific evidence retained without engineering qualification.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -758,7 +758,7 @@
       ],
       "properties": {
         "model_hash": {
-          "$ref": "#/$defs/Checksum"
+          "$ref": "#/$defs/ScopedChecksum"
         },
         "run_hashes": {
           "type": "array",
@@ -775,7 +775,7 @@
         "raw_source_hashes": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Checksum"
+            "$ref": "#/$defs/ScopedChecksum"
           }
         },
         "derivative_hash": {
@@ -958,7 +958,6 @@
             "semantic_contract_id": {
               "enum": [
                 "openpipestress.result_semantics/0.3.0/physics-1",
-                "openpipestress.result_semantics/0.3.0/source-blocks-1",
                 "openpipestress.result_semantics/0.3.0/physics-source-1",
                 "openpipestress.result_semantics/0.3.0/pressure-source-1",
                 "openpipestress.result_semantics/0.3.0/preview-physics-1",
@@ -984,7 +983,6 @@
             "ref_id": {
               "enum": [
                 "openpipestress.result_semantics/0.3.0/physics-1",
-                "openpipestress.result_semantics/0.3.0/source-blocks-1",
                 "openpipestress.result_semantics/0.3.0/physics-source-1",
                 "openpipestress.result_semantics/0.3.0/pressure-source-1",
                 "openpipestress.result_semantics/0.3.0/preview-physics-1",
@@ -1140,9 +1138,6 @@
         "source_block_recovery": {
           "oneOf": [
             {
-              "$ref": "source_block_recovery.schema.json"
-            },
-            {
               "$ref": "physics_source_recovery.schema.json"
             },
             {
@@ -1200,74 +1195,6 @@
                   "source_block_recovery"
                 ]
               }
-            ]
-          },
-          "allOf": [
-            {
-              "not": {
-                "required": [
-                  "retained_precision"
-                ]
-              }
-            },
-            {
-              "properties": {
-                "row_disclosures": {
-                  "items": {
-                    "properties": {
-                      "reason_code": {
-                        "not": {
-                          "enum": [
-                            "retained_precision_absolute_verified",
-                            "retained_precision_not_covered"
-                          ]
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          ]
-        },
-        {
-          "required": [
-            "source_block_recovery"
-          ],
-          "properties": {
-            "producer": {
-              "properties": {
-                "semantic_contract_id": {
-                  "const": "openpipestress.result_semantics/0.3.0/source-blocks-1"
-                }
-              }
-            },
-            "semantic_contract_ref": {
-              "properties": {
-                "ref_id": {
-                  "const": "openpipestress.result_semantics/0.3.0/source-blocks-1"
-                }
-              }
-            },
-            "formulation_basis": {
-              "properties": {
-                "profile_id": {
-                  "const": "product_preview_mechanics_v1"
-                }
-              }
-            },
-            "source_block_recovery": {
-              "$ref": "source_block_recovery.schema.json"
-            },
-            "result_sets": {
-              "items": {
-                "$ref": "#/$defs/ResultSet"
-              }
-            }
-          },
-          "not": {
-            "required": [
-              "contract_evidence"
             ]
           },
           "allOf": [
@@ -1971,9 +1898,7 @@
             "derived_review_row",
             "derivative_document_excludes_own_hash",
             "received_current_dimension_absent_carrier",
-            "received_current_legacy_enriched_carrier",
             "received_current_dimension_absent_row",
-            "received_current_legacy_enriched_row",
             "attested_headless_producer_carrier",
             "request_payload",
             "derived_disclosure_row"
@@ -2424,7 +2349,6 @@
         "origin_class": {
           "enum": [
             "received_current_dimension_absent",
-            "received_current_qualified_legacy_enriched",
             "attested_headless_producer"
           ]
         },
@@ -3313,7 +3237,7 @@
     "PhysicsSourceMaximumMetadata": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Composite retained-source endpoint maximum metadata; unavailable under physics-1 or source-blocks-1.",
+      "description": "Composite retained-source endpoint maximum metadata; unavailable under physics-1.",
       "required": [
         "component",
         "coordinate_system",

@@ -21,10 +21,11 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// maximum declaration literals and the fallback maximum's enclosure. B7a's H-4
 /// re-pinned them for the summary (the curved macro-element count's name, the
 /// deleted retired thrust count) and the reworded pressure/imposed-displacement
-/// limitation sentence.
+/// limitation sentence; B4/D1 (b) re-pinned both: the envelope loses only its
+/// source-recovery disclosure.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 68961, "33a8e8d411ff0370f815ae904b2fbfbf6f19051bed45ede32bfc6690e8dee9e0"),
-    ("dense_scrutiny", 70079, "729ef94254ad7c3b14922b82fcb4cce8298028101257797566205f38d01ddff5"),
+    ("sparse_interactive", 0, "RECOMPUTE-B7A-INTEGRATION"),
+    ("dense_scrutiny", 0, "RECOMPUTE-B7A-INTEGRATION"),
 ];
 /// Fields of the request's model entries that receive a `label` equal to their `id`.
 const LABELLED: [&str; 4] = ["materials", "nodes", "pipe_segments", "supports"];

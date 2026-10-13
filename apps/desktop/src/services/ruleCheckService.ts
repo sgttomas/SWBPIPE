@@ -1,7 +1,7 @@
 import { isRetainedRoute } from "../features/results/numericalResultQuality";
 import { sourceContract } from "../features/results/resultReader";
 import { numericalResultStanding, retainedSourceRecoveryInvocation } from "../features/results/resultStanding";
-import { isFreshSemanticResult, ruleBindingRefusal, retainedRowClassLabel, N_RP_UNVALIDATED, N_SB, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED } from "../features/results/knownSemanticLimitations";
+import { isFreshSemanticResult, ruleBindingRefusal, retainedRowClassLabel, N_RP_UNVALIDATED } from "../features/results/knownSemanticLimitations";
 import { retainedPrecisionInvocation } from "../features/results/retainedPrecisionStanding";
 import { invoke } from "@tauri-apps/api/core";
 import type { MechanicsResult, PreviewModel } from "../types";
@@ -122,7 +122,7 @@ export async function runRuleChecks(args: {
   if (!hasNativeMechanicsInvocation(source, args.model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
   // T0R: only the static fresh-identity set is rule-eligible.
   if (!isFreshSemanticResult(source)) throw new Error("RULE_SOURCE_IDENTITY_NOT_FRESH: the result is not a fresh supported publication.");
-  if (["source_blocks", "physics_source"].includes(sourceContract(source)) && !numericalResultStanding(source, args.model).eligible) throw new Error("SOURCE_BLOCKS_RULE_INPUT_UNQUALIFIED");
+  if (sourceContract(source) === "physics_source" && !numericalResultStanding(source, args.model).eligible) throw new Error("SOURCE_BLOCKS_RULE_INPUT_UNQUALIFIED");
   // U6d: a preview successor requires eligible standing, as the receipt routes do;
   // standing comes only from its registered reader validation (never numerical_quality).
   if (isRetainedRoute(sourceContract(source))) {
@@ -130,7 +130,7 @@ export async function runRuleChecks(args: {
     if (!standing.eligible) throw new Error(`${standing.findings[0]}: the retained-precision result is not numerically eligible for rule checks.`);
   }
   const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, solvedEnvelope: source };
-  if (sourceContract(source) === "source_blocks" || sourceContract(source) === "physics_source") invokeArgs.sourceBlockInvocation = retainedSourceRecoveryInvocation(source, args.model);
+  if (sourceContract(source) === "physics_source") invokeArgs.sourceBlockInvocation = retainedSourceRecoveryInvocation(source, args.model);
   if (isRetainedRoute(sourceContract(source))) invokeArgs.sourceBlockInvocation = retainedPrecisionInvocation(source, args.model);
   if (args.model) invokeArgs.model = args.model;
   if (args.solverResultBindings && args.solverResultBindings.length > 0) {
@@ -333,9 +333,9 @@ export function ruleBindingPrecheck(
     const row = source.results.find((candidate) => candidate.id === binding.result_id);
     if (row) {
       const reason = ruleBindingRefusal(source, row);
-      // U6d: a successor refusal shows its class notice (D2 4.9.9), never N-SB.
-      // Without a validated class (unregistered or refused) the row has no class label.
-      const notice = reason === RULE_QUANTITY_BELOW_VERIFIED_FLOOR || reason === RULE_QUANTITY_NOT_COVERED ? retainedRowClassLabel(row, source) ?? N_RP_UNVALIDATED : N_SB;
+      // U6d: a successor refusal (the only kind since B4/D1 (b)) shows its class notice
+      // (D2 4.9.9). Without a validated class (unregistered or refused) the row has no class label.
+      const notice = retainedRowClassLabel(row, source) ?? N_RP_UNVALIDATED;
       if (reason) findings.push({ ...binding, reason, notice });
     }
   }

@@ -18,9 +18,7 @@ import type { MechanicsResult, PreviewModel } from "../../types";
 
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 const invokeMock = vi.mocked(invoke);
-import sourceBlocksMulticase from "../../../../../fixtures/product_preview/source_blocks/multicase-sparse_interactive.raw.json";
 import previewInvented from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
-import { N_SB } from "../results/knownSemanticLimitations";
 
 // A natively invoked, numerically eligible source as the rule service requires:
 // the captured preview-physics-1 producer pair
@@ -298,14 +296,8 @@ describe("RuleCheckRunPanel", () => {
     expect(browse.textContent).toContain("stress: 50 demo_unit");
   });
 
-  it("shows the T0R binding reasons before invoking: N-SB on a source-blocks summary, none on a retired (missing) id", () => {
+  it("shows no T0R binding reason before invoking on a retired (missing) id", () => {
     const pack = (resultId: string) => JSON.stringify({ metadata: { rule_pack_id: "p" }, required_inputs: [{ input_id: "actual", name: "Actual", source_kind: "solver_result", quantity_intent: { dimension: "stress", unit_ref: "MPa" }, solver_result_ref: { result_id: resultId } }] });
-    const blocks = structuredClone(sourceBlocksMulticase) as unknown as MechanicsResult;
-    const summary = blocks.results.find((row) => row.kind === "open_formula_stress_summary")!;
-    const first = render(<RuleCheckRunPanel model={modelStub} result={blocks} />);
-    fireEvent.change(screen.getByTestId("rule-check-pack-json"), { target: { value: pack(summary.id) } });
-    expect(screen.getByTestId("rule-check-binding-precheck").textContent).toContain(`actual -> ${summary.id}: RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE. ${N_SB}`);
-    first.unmount();
     render(<RuleCheckRunPanel model={modelStub} result={structuredClone(previewInvented) as unknown as MechanicsResult} />);
     fireEvent.change(screen.getByTestId("rule-check-pack-json"), { target: { value: pack("result:stress:pipe-P-120") } });
     expect(screen.queryByTestId("rule-check-binding-precheck")?.textContent ?? "").not.toContain("RULE_BINDS_RETIRED_RESULT");

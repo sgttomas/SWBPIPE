@@ -25,7 +25,7 @@ export const SOURCE_BLOCKS_REPORT_PACKAGE_UNAVAILABLE = "REPORT-PACKAGE-SOURCE-B
 export function reportPackageUnavailableReason(result: MechanicsResult | null | undefined): string | null {
   if (!result) return null;
   const route = sourceContract(result);
-  if (route === "source_blocks" || route === "physics_source") return `${SOURCE_BLOCKS_REPORT_PACKAGE_UNAVAILABLE} ${N_REPORT}`;
+  if (route === "physics_source") return `${SOURCE_BLOCKS_REPORT_PACKAGE_UNAVAILABLE} ${N_REPORT}`;
   if (route === "physics") return `REPORT-PACKAGE-PHYSICS-PROJECTION-UNAVAILABLE: this report transport does not preserve exact physical evidence; use canonical result export. ${N_REPORT}`;
   if (route === "preview_physics" || isFreshSemanticResult(result)) return `${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`;
   return null;

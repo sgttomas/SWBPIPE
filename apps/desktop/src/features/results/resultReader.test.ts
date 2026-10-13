@@ -48,15 +48,15 @@ describe("the result reader module", () => {
   });
 });
 
-it("carries source-blocks transport and portable source commitments through wasm", () => {
-  const source = JSON.parse(text("fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json")) as Json;
+it("carries the composite source transport and portable source commitments through wasm", () => {
+  // B4/D1 (b): source blocks remain only on the composites; source-blocks-1 has no reader.
+  const source = JSON.parse(text("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json")) as Json;
   expect(readerValidate("source-recovery", source)).toEqual({});
-  const header = { source_block_recovery: structuredClone(source.source_block_recovery) };
-  expect(() => readerTransport("source-blocks", header)).not.toThrow();
-  header.source_block_recovery.receipt_sha256 = "0".repeat(64);
-  expect(() => readerTransport("source-blocks", header)).toThrow("SOURCE_BLOCKS_RECEIPT_HASH");
-  header.source_block_recovery.extra = 1;
-  expect(() => readerTransport("source-blocks", header)).toThrow("SOURCE_BLOCKS_RECEIPT_SHAPE");
+  expect(() => readerTransport("physics-source", structuredClone(source))).not.toThrow();
+  const bad = structuredClone(source);
+  bad.source_block_recovery.receipt_sha256 = "0".repeat(64);
+  expect(() => readerTransport("physics-source", bad)).toThrow();
+  expect(() => readerTransport("source-blocks" as never, structuredClone(source))).toThrow("READER_UNKNOWN");
   source.run_id = "edited-publication";
   expect(() => readerValidate("source-recovery", source)).toThrow("SOURCE_BLOCKS_PUBLICATION_HASH");
 });

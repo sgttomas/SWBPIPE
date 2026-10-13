@@ -2,7 +2,7 @@ import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { validateRetainedRecoverySource } from "../../services/analysisRunCompatibility";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute, type SourceContract } from "../results/numericalResultQuality";
-import { currentSemanticContract, hasCurrentSourceContract, readerRowSemantics, readerTransport, ResultReaderError, sourceContract } from "../results/resultReader";
+import { currentSemanticContract, hasCurrentSourceContract, readerRowSemantics, readerTransport, sourceContract } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
 import { refuseSurfaceOutput, refuseSurfaceRoute, surfaceOutputRefusal } from "../results/outputPolicy";
 import { RETAINED_ABSOLUTE_VERIFIED, retainedClassDisclosure, retainedPrecisionSummaryLine, retainedRowClassesFromReader } from "../results/retainedPrecisionDisclosure";
@@ -410,7 +410,7 @@ function retainedLossCount(absolute: number, uncovered: number): string {
 
 export async function buildStressNeutralExportPacket(args: { model: PreviewModel; result: MechanicsResult; analysisRun: AnalysisRunEnvelope }) {
   const route = sourceContract(args.result);
-  if (route === "unsupported" || route === "legacy") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
+  if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
   // T1: not yet available on the desktop for load/reference-state results (T6).
   // T6S-3: this surface's policy entry; a retained-precision successor is admitted
   // only at numerically eligible standing with the live native capture.
@@ -419,7 +419,7 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
   const semantics = currentSemanticContract(args.result);
   const version = STRESS_NEUTRAL_EXPORT_VERSION;
   const profile = STRESS_NEUTRAL_EXPORT_PROFILE;
-  if (route === "source_blocks" || route === "physics_source") await validateRetainedRecoverySource(args.result);
+  if (route === "physics_source") await validateRetainedRecoverySource(args.result);
   // Pure packet projection; Current export stays gated by the panel's live binding,
   // which requires full eligibility.
   else if (numericalResultStanding(args.result, args.model).findings.length > 0) throw new Error("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
@@ -508,7 +508,7 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
       software_creates_professional_reliance_record: false
     },
   };
-  if (route === "source_blocks" || route === "physics_source") packet.source_block_recovery = structuredClone(args.result.source_block_recovery);
+  if (route === "physics_source") packet.source_block_recovery = structuredClone(args.result.source_block_recovery);
   if (route === "physics" || route === "physics_source" || route === "preview_physics" || retained) packet.contract_evidence = structuredClone(args.result.contract_evidence);
   // D2 4.9.7 and RR decision 5: the successor's receipt travels with the package, whole.
   if (retained) packet.retained_precision = structuredClone(args.result.retained_precision);
@@ -555,7 +555,7 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     if (analysisRun !== undefined) await validateAnalysisRunV03(analysisRun, source, expectedBasisRefs);
     const same = async (a: unknown, b: unknown) => a !== undefined && b !== undefined && await canonicalSha256HexCheckedV1(a) === await canonicalSha256HexCheckedV1(b);
     for (const key of ["producer", "numerical_quality", "formulation_basis"] as const) if (!await same(packet[key], source[key])) throw new Error("SN-PRECISION-SOURCE-METADATA-MISMATCH");
-    if (["source_blocks", "physics_source"].includes(sourceContract(source))) {
+    if (sourceContract(source) === "physics_source") {
       if (!await same(packet.source_block_recovery, source.source_block_recovery)) throw new Error("SN-SOURCE-RECOVERY-MISMATCH");
     } else if (Object.hasOwn(packet, "source_block_recovery")) throw new Error("SN-SOURCE-RECOVERY-CONTRADICTION");
     const sourceRetained = isRetainedRoute(sourceContract(source));
@@ -613,7 +613,7 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
   // package dispatches to its own route and a receipt on any other identity reads
   // unsupported (the downgrade guard).
   const header = { schema_version: "0.2.0", producer: packet.producer, numerical_quality: packet.numerical_quality, formulation_basis: packet.formulation_basis, ...(Object.hasOwn(packet,"source_block_recovery") ? {source_block_recovery:packet.source_block_recovery} : {}), ...(Object.hasOwn(packet,"contract_evidence") ? {contract_evidence:packet.contract_evidence} : {}), ...(Object.hasOwn(packet,"retained_precision") ? {retained_precision:packet.retained_precision} : {}) } as MechanicsResult;
-  if (sourceContract(header) === 'unsupported' || sourceContract(header) === 'legacy') throw new Error('SN-PRECISION-CONTRACT-MISMATCH');
+  if (sourceContract(header) === 'unsupported') throw new Error('SN-PRECISION-CONTRACT-MISMATCH');
   const semanticPath = semanticTablePath(header);
   if (packet.export_profile?.csv_encoding !== 'utf-8' || packet.export_profile?.csv_row_order !== 'unicode_scalar_value_result_id') throw new Error('SN-CSV-ENCODING-PROFILE-MISMATCH');
   await validateNeutralTransportEvidence(header);
@@ -852,16 +852,16 @@ import { ControlledExportLink } from "../redaction-controls/ControlledExportLink
 
 /** Every route has a deliberate entry (tsc-checked); null names no table here, and
  * such a route refuses (load/reference-state routes refuse earlier by the policy). */
-const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported" | "legacy">, string | null>> = Object.freeze({
+const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported">, string | null>> = Object.freeze({
   physics: "semantic_contract_v0_3_physics_1.json",
-  source_blocks: "semantic_contract_v0_3_source_blocks_1.json", physics_source: "semantic_contract_v0_3_physics_source_1.json",
+  physics_source: "semantic_contract_v0_3_physics_source_1.json",
   preview_physics: "semantic_contract_v0_3_preview_physics_1.json", retained_preview_physics: "semantic_contract_v0_3_preview_physics_retained_1.json",
   retained_physics: "semantic_contract_v0_3_physics_retained_1.json",
   load_reference: null, load_reference_source: null, pressure_source: null,
 });
 function semanticTablePath(source: MechanicsResult): string {
   const route = sourceContract(source);
-  if (route === "unsupported" || route === "legacy") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
+  if (route === "unsupported") throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
   refuseSurfaceRoute(source, "stress-neutral");
   const file = Object.hasOwn(SEMANTIC_TABLE_FILES, route) ? SEMANTIC_TABLE_FILES[route] : null;
   if (!file) throw new Error("SN-SOURCE-CONTRACT-UNSUPPORTED");
@@ -872,14 +872,6 @@ async function validateNeutralTransportEvidence(header: MechanicsResult): Promis
   if (route === "physics") readerTransport("physics", header);
   else if (route === "preview_physics") readerTransport("preview-physics", header);
   else if (route === "physics_source") readerTransport("physics-source", header);
-  else if (route === "source_blocks") {
-    try { readerTransport("source-blocks", header); }
-    catch (error) {
-      // Preserve this package surface's refusal vocabulary over Rust's verdict.
-      if (error instanceof ResultReaderError && error.code === "SOURCE_BLOCKS_RECEIPT_HASH") throw new Error("SN-SOURCE-RECEIPT-METADATA");
-      throw error;
-    }
-  }
   // T6S-5: the accepted reader's transport checks (G0-G2 and the base transport
   // metadata on its projection); a refusal carries the reader's code.
   else if (isRetainedRoute(route)) await validateRetainedPrecisionTransport(header);

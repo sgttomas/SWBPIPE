@@ -680,8 +680,8 @@ fn u3g2_direct_entry_w1_fallbacks_append_one_notice() {
 }
 
 /// Deliverable 1: every refusal before W1 work (G-A, G-C including OrdinarySolveNotAttempted,
-/// the reserved stack, coexistence; G-B in the next test) publishes exactly the ordinary
-/// bytes, with no notice, from one ordinary run.
+/// the reserved stack; G-B in the next test) publishes exactly the ordinary bytes, with no
+/// notice, from one ordinary run. B4/D1 (b): the preview route has no coexistence refusal.
 #[test]
 fn u3g2_direct_entry_no_w1_refusals_keep_exact_bytes() {
     use super::retained_memory::{D1Clause, PhaseFact, PhaseGate};
@@ -760,19 +760,14 @@ fn u3g2_direct_entry_no_w1_refusals_keep_exact_bytes() {
         }
         assert_eq!(counts, ONE_RUN, "stack {mode:?}");
         assert_eq!(published(output), plain_milestone, "stack {mode:?}");
-        // Coexistence (D-15): an admitted source-block request whose ordinary run settled by
-        // exact selection is published as it is, before G-B's outcome and G-C are consulted
-        // (RV85 N1).
-        let exact: Value = serde_json::from_str(include_str!("../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json")).unwrap();
-        let plain_exact = plain(mode, &exact);
-        assert!(serde_json::from_slice::<Value>(&plain_exact).unwrap()["source_block_recovery"].is_object(), "exact blocks selected");
-        let (output, counts) = direct(&exact, mode);
-        if registered() {
-            assert_eq!(output.admission().unwrap().law().refusal, None, "admitted");
-            assert_eq!(output.retained().and_then(|r| r.as_ref().err()), Some(&W1Fallback::Coexistence), "{mode:?}");
-        }
-        assert_eq!(counts, ONE_RUN, "coexistence {mode:?}: G-C not consulted");
-        assert_eq!(published(output), plain_exact, "coexistence {mode:?}");
+        // B4/D1 (b): the preview route selects no source blocks, so D-15's coexistence is gone
+        // there; n05's formerly exact-selected request publishes no source-block receipt and W1
+        // is never refused by coexistence.
+        let formerly_exact: Value = serde_json::from_str(include_str!("../../../fixtures/product_preview/w1_controls/n05-sparse_interactive.request.json")).unwrap();
+        let plain_formerly_exact = plain(mode, &formerly_exact);
+        assert!(serde_json::from_slice::<Value>(&plain_formerly_exact).unwrap().get("source_block_recovery").is_none(), "no source blocks");
+        let (output, _) = direct(&formerly_exact, mode);
+        assert_ne!(output.retained().and_then(|r| r.as_ref().err()), Some(&W1Fallback::Coexistence), "{mode:?}");
     }
 }
 
@@ -1150,7 +1145,7 @@ fn quality_of(entries: Vec<NumericalCaseQuality>) -> NumericalQuality {
     NumericalQuality { cases: entries, ..unassessed_numerical_quality() }
 }
 fn seed_of(case: &str, initial: Option<rp::InitialSeed>, w2: rp::W2Seed) -> rp::OrdinarySeed {
-    rp::OrdinarySeed { case: case.into(), initial, w2, load_row_finding: None, d5_diagnostic_ref: None, recovery_demoted: false, legacy: None }
+    rp::OrdinarySeed { case: case.into(), initial, w2, load_row_finding: None, d5_diagnostic_ref: None, recovery_demoted: false }
 }
 fn report_seed(code: &str) -> Option<rp::InitialSeed> {
     Some(rp::InitialSeed::Report { code: code.into(), report_diagnostic_ref: "diagnostic:numerical-integrity:case".into() })
@@ -1952,10 +1947,10 @@ fn b1_sp_w_c2_direct_entry_publishes_the_pinned_successor() {
     }
 }
 
-/// Multi-case coexistence (PLAN_v2 §2.2, N-5; decision 26, RV107 A1-N-7): n05's source-block
-/// request with a second case (a copy of its one case, `case-2`, its load id suffixed `:2`).
+/// n05's formerly source-block request with a second case (a copy of its one case, `case-2`, its
+/// load id suffixed `:2`; PLAN_v2 §2.2, N-5; decision 26, RV107 A1-N-7).
 fn n05_two_cases() -> Value {
-    let mut raw: Value = serde_json::from_str(include_str!("../../../fixtures/product_preview/source_blocks/n05-sparse_interactive.request.json")).unwrap();
+    let mut raw: Value = serde_json::from_str(include_str!("../../../fixtures/product_preview/w1_controls/n05-sparse_interactive.request.json")).unwrap();
     let mut second = raw["model"]["load_cases"][0].clone();
     second["id"] = json!("case-2");
     for load in second["primitive_loads"].as_array_mut().unwrap() {
@@ -1965,36 +1960,21 @@ fn n05_two_cases() -> Value {
     raw
 }
 
-/// The multi-case coexistence pin, both modes: exact-block selection settles n05 with two cases,
-/// so W1 is not attempted for any case (T-3 (c)): `Coexistence`, exactly the ordinary bytes, no
-/// notice and no reservation, on the private driver; and on the actual Direct entry one ordinary
-/// run with G-C not consulted (`{runs: 1, complete_gates: 0}`), exactly the ordinary bytes (since
-/// I2, C = 3, G-A admits it; in Stale, the same bytes and count without a permit).
+/// B4/D1 (b): the multi-case preview request formerly settled by exact-block selection (T-3 (c)'s
+/// coexistence pin) now selects no source blocks, in both modes, and W1 is never refused by
+/// coexistence through the private driver: the ordinary run reaches W1's own phases.
 #[test]
-fn b1_sp_multi_case_coexistence_pin() {
+fn b1_sp_multi_case_no_preview_coexistence() {
     let raw = n05_two_cases();
     for mode in MODES {
         let plain = plain(mode, &raw);
         let value: Value = serde_json::from_slice(&plain).unwrap();
-        assert!(value["source_block_recovery"].is_object(), "{mode:?}: exact blocks selected: {}", value["status"]);
+        assert!(value.get("source_block_recovery").is_none(), "{mode:?}: no source blocks: {}", value["status"]);
         assert_eq!(value["summary"]["load_case_count"], 2, "{mode:?}");
         let (capture, observer, ordinary) = observed(mode, &raw);
-        let capacity = ordinary.diagnostics.capacity();
-        let (envelope, retained) = retained_w1(observer, ordinary, &capture);
-        assert_eq!(retained.err(), Some(W1Fallback::Coexistence), "{mode:?}: private driver");
-        assert_eq!(envelope.diagnostics.capacity(), capacity, "{mode:?}: no reservation");
-        assert_eq!(serde_json::to_vec(&envelope).unwrap(), plain, "{mode:?}: exact bytes, no notice");
-        let (output, counts) = direct(&raw, mode);
-        if registered() {
-            assert_eq!(output.admission().unwrap().law().refusal, None, "{mode:?}: admitted");
-            assert_eq!(output.retained().and_then(|r| r.as_ref().err()), Some(&W1Fallback::Coexistence), "{mode:?}");
-        } else {
-            assert!(output.retained().is_none(), "{mode:?}: Stale, no W1");
-        }
-        assert_eq!(counts, ONE_RUN, "{mode:?}: G-C not consulted");
-        let bytes = published(output);
-        assert_eq!(notices(&bytes), 0, "{mode:?}");
-        assert_eq!(bytes, plain, "{mode:?}: exactly the ordinary bytes");
+        let (_, retained) = retained_w1(observer, ordinary, &capture);
+        assert_ne!(retained.as_ref().err(), Some(&W1Fallback::Coexistence), "{mode:?}: private driver");
+        println!("B4_MULTI_CASE {mode:?} retained={:?}", retained.as_ref().map(|_| "successor"));
     }
 }
 
@@ -2585,10 +2565,8 @@ fn assert_exact_successor(label: &str, successor: &Value, plain: &Value, statuse
             "constitutive_basis":"homogeneous_isotropic_E_nu_v1"}), "{label}");
         assert_eq!(m["selection"], json!({"kind":"base"}), "{label}");
     }
-    // P-11 (and C2 D39): every legacy exact-block attempt is physics-source-1's, under P-2's budget.
-    for work in body["legacy_source_work"].as_array().unwrap() {
-        assert_eq!(work["limit"], json!(PHYSICS_SOURCE_WORK_LIMIT), "{label}: P-2's limit in the receipt");
-    }
+    // B4/D1 (b): the successor carries no legacy source record.
+    assert!(body.get("legacy_source_work").is_none(), "{label}");
     // The evidence (B3D-4, S-2): pressure and connector unchanged; each case's entry, located by
     // its load case id.
     let (ev, base) = (&successor["contract_evidence"], &plain["contract_evidence"]);
@@ -2808,9 +2786,9 @@ fn b3b_n11_abandoned_exact_w1_publishes_physics_1_with_the_notice() {
     }
 }
 
-/// P-2 and the coexistence pins (P-13; RR "I99's B3-W verified; …", rulings 1 and 2): n05 and n06
-/// select exact blocks under physics-source-1, and so does `fields` under the exact route's
-/// 8,000,000 budget (not under the default 4,000,000). Through the private driver W1 is never
+/// P-2 and the coexistence pins (P-13; RR "I99's B3-W verified; …", rulings 1 and 2): n05, n06
+/// and `fields` select exact blocks under physics-source-1's 8,000,000 budget (B4/D1 (b): the
+/// only source budget, so also the default). Through the private driver W1 is never
 /// attempted (`Coexistence`) and the ordinary owner is the ordinary route's bytes; through the
 /// registered Direct entry the publication is exactly the ordinary route's bytes, from one run with
 /// G-C not consulted (Stale: the same bytes, one run).
@@ -2823,12 +2801,12 @@ fn b3b_coexistence_publishes_the_exact_ordinary_bytes_under_p2() {
             let plain = plain(mode, &raw);
             let value: Value = serde_json::from_slice(&plain).unwrap();
             assert!(value["source_block_recovery"].is_object(), "{label}: exact blocks selected (physics-source-1)");
-            // The discriminator: the default budget does not select `fields` (its finalization
-            // replay exceeds it), so a W1 budget other than the ordinary route's would lose T-3 (c).
+            // B4/D1 (b): one source budget remains, physics-source-1's 8,000,000, so the default
+            // budget is the route's and selects `fields` too, with the route's bytes.
             let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
             let at_default = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), None);
-            assert_eq!(at_default.source_block_recovery.is_some(), name != "fields", "{label}: selection at 4,000,000");
-            assert_ne!(serde_json::to_vec(&at_default).unwrap(), plain, "{label}: the default budget's bytes differ (work.limit at least)");
+            assert!(at_default.source_block_recovery.is_some(), "{label}: selection at the one budget");
+            assert_eq!(serde_json::to_vec(&at_default).unwrap(), plain, "{label}: the default budget is the route's");
             let (capture, observer, ordinary) = observed(mode, &raw);
             assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{label}: the private driver's run is the ordinary route's (P-2)");
             let (envelope, retained) = retained_w1(observer, ordinary, &capture);

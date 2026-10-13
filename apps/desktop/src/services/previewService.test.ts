@@ -1,4 +1,4 @@
-import historicalMechanicsFixture from "../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json";
+import { retiredMechanicsResult } from "../test-support/retiredMechanicsResult";
 // The bundled producer results as their bytes read (signed zeros kept), as previewService reads them (b7-plan R2).
 import sparseMechanicsFixtureText from "../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json?raw";
 import denseMechanicsFixtureText from "../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json?raw";
@@ -19,7 +19,6 @@ afterEach(() => {
 import type { MechanicsResult, PreviewModel } from "../types";
 import {
   appliedRuleCheckStatus,
-  bindSourceResultDimensions,
   buildAnalysisRunPreview,
   loadDesignKnowledge,
   loadPreviewModel,
@@ -115,7 +114,7 @@ describe("previewService explicit reference inspection and browser refusal", () 
   });
 
   it("preserves the historical-format carrier's nonlinear evidence without calling it a fresh solve", async () => {
-    const result = structuredClone(historicalMechanicsFixture) as MechanicsResult;
+    const result = retiredMechanicsResult();
 
     expect(
       result.results.find(
@@ -291,7 +290,7 @@ describe("previewService explicit reference inspection and browser refusal", () 
       mutate(changed);
       expect(() => validateBrowserMechanicsFixture(changed, "sparse_interactive", model)).toThrow("BROWSER_FIXTURE_SOLVER_MODE_BINDING_MISMATCH");
     }
-    expect(() => validateBrowserMechanicsFixture(structuredClone(historicalMechanicsFixture) as MechanicsResult, "sparse_interactive", model))
+    expect(() => validateBrowserMechanicsFixture(retiredMechanicsResult(), "sparse_interactive", model))
       .toThrow("BROWSER_FIXTURE_PRODUCER_CONTRACT_UNSUPPORTED");
   });
 
@@ -538,18 +537,11 @@ describe("native mechanics failure boundary", () => {
   });
 });
 
-it("does not enrich unsupported raw0.2 carriers while reading history", () => {
- const raw = {schema_version:"0.2.0",results:[{id:"tiny",kind:"global_nodal_rotation_x",value:-1e-12,unit:"rad",entity_ref:"n"}]} as MechanicsResult;
- expect(bindSourceResultDimensions(raw)).toBe(raw);
- expect(Object.hasOwn(raw.results[0], "dimension")).toBe(false);
- expect(raw.results[0].value).toBe(-1e-12);
-});
-
 async function referenceFixtureSource(): Promise<MechanicsResult> {
  return (await loadBundledMechanicsReference()).source;
 }
-it("analysis composition refuses legacy and unknown raw without a historical fallback",async()=>{
- const legacy=structuredClone(historicalMechanicsFixture) as MechanicsResult, before=JSON.stringify(legacy);
+it("analysis composition refuses the retired 0.1.0 carrier and unknown raw without a historical fallback",async()=>{
+ const legacy=retiredMechanicsResult(), before=JSON.stringify(legacy);
  await expect(buildAnalysisRunPreview(legacy,{inputManifest:await manifestFor(legacy)})).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
  const unknown={...legacy,schema_version:"0.2.0"};
  await expect(buildAnalysisRunPreview(unknown,{inputManifest:await manifestFor(unknown)})).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");

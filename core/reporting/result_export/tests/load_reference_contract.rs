@@ -548,7 +548,6 @@ fn header_only_dispatch_is_bound_to_one_profile_and_never_qualifies_raw_output()
     for id in [
         s::PHYSICS_ID,
         s::PHYSICS_SOURCE_ID,
-        "openpipestress.result_semantics/0.3.0/source-blocks-1",
     ] {
         let mut bad = physics.clone();
         bad["producer"]["semantic_contract_id"] = json!(id);

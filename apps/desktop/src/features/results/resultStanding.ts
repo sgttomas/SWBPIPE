@@ -4,8 +4,8 @@
  * G1: standing and its findings are Rust's (`reader_verdict::standing`); the desktop
  * displays them. G4: as R1's retained carrier (`retainedPrecisionStanding.ts`), the
  * desktop keeps the source routes' registrations: a completed validation of these exact
- * bytes with the native invocation previewService captured (source-blocks-1,
- * physics-source-1, pressure-source-1), or a completed reading of these exact bytes (load-reference-source-1).
+ * bytes with the native invocation previewService captured
+ * (physics-source-1, pressure-source-1), or a completed reading of these exact bytes (load-reference-source-1).
  * A registration reads nothing: it holds the invocation, and the standing of a
  * registered source is Rust's with that invocation. A copy, a header, a hash or a saved
  * record never registers, and any later byte change voids it. G3 (the caller's model is
@@ -39,10 +39,10 @@ function textOf(value: unknown): string | null {
 }
 
 /* -------------------------------------------------------------------------- *
- * G4: source-blocks-1, physics-source-1 and pressure-source-1
+ * G4: physics-source-1 and pressure-source-1
  * -------------------------------------------------------------------------- */
 type SourceRegistration = {
-  route: "source_blocks" | "physics_source" | "pressure_source";
+  route: "physics_source" | "pressure_source";
   sourceText: string;
   invocation: SourceRecoveryInvocation;
   callerModel?: PreviewModel;
@@ -62,11 +62,11 @@ const sourceRegistrations = new WeakMap<object, SourceRegistration>();
 export async function registerSourceRecovery(source: MechanicsResult, invocation: SourceRecoveryInvocation, callerModel?: PreviewModel, live?: (model: unknown) => boolean): Promise<ReaderValidation> {
   sourceRegistrations.delete(source);
   const route = readerDispatch(source).route;
-  if (route !== "source_blocks" && route !== "physics_source" && route !== "pressure_source") throw new ResultReaderError(route === "unsupported" ? "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED" : "SOURCE_BLOCKS_CONTRACT");
+  if (route !== "physics_source" && route !== "pressure_source") throw new ResultReaderError(route === "unsupported" ? "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED" : "SOURCE_BLOCKS_CONTRACT");
   const sourceText = readerSourceText(source);
   const captured = structuredClone(invocation);
   const callerSnapshot = callerModel ? structuredClone(callerModel) : undefined;
-  const validation = readerValidate(route === "pressure_source" ? "pressure-source" : route === "physics_source" ? "physics-source" : "source-blocks", source, undefined, captured);
+  const validation = readerValidate(route === "pressure_source" ? "pressure-source" : "physics-source", source, undefined, captured);
   sourceRegistrations.set(source, { route, sourceText, invocation: captured, callerModel, callerSnapshot, live });
   return validation;
 }
@@ -88,7 +88,7 @@ function registeredInvocation(source: MechanicsResult, model: Pick<PreviewModel,
  * argument; null unless the standing with it is eligible. */
 export function retainedSourceRecoveryInvocation(source: MechanicsResult, model: PreviewModel): SourceRecoveryInvocation | null {
   const route = readerDispatch(source).route;
-  if (route !== "source_blocks" && route !== "physics_source" && route !== "pressure_source") return null;
+  if (route !== "physics_source" && route !== "pressure_source") return null;
   const invocation = registeredInvocation(source, model, route);
   return invocation && readerDispatch(source, model, invocation).standing.eligible ? structuredClone(invocation) : null;
 }
@@ -137,7 +137,7 @@ function presented(standing: ReaderStanding): NumericalStanding {
  * registered reader validation with the live native capture. */
 export function numericalResultStanding(source: MechanicsResult, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null): NumericalStanding {
   const route = readerDispatch(source).route;
-  if (route === "source_blocks" || route === "physics_source" || route === "pressure_source") {
+  if (route === "physics_source" || route === "pressure_source") {
     return presented(readerDispatch(source, model, registeredInvocation(source, model, route) ?? undefined).standing);
   }
   if (route === "load_reference_source") return { contract: route, status: "needs_recompute", eligible: false, findings: loadReferenceSourceStanding(source).findings };

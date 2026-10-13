@@ -1305,13 +1305,11 @@ fn n05_with_tip_torques(torques: &[f64]) -> Value {
 }
 
 /// F4: an N05-class Sensitive case with (1e8, 0.3, -1e8) N*m at the tip (on
-/// N05's own torque DOF; a transverse tip force makes this model's pre-0.4
-/// replay exceed its work budget whatever the load, see RETURN.md) is
-/// selected by the retained-source route, and its answer equals the answer
-/// for the single exact net term, bit for bit (the retained exact solve and
-/// the ledger both see the same exact net).
+/// N05's own torque DOF). B4/D1 (b): the pre-0.4 (preview) route no longer
+/// selects source blocks, so neither this case nor its single exact net term
+/// is selected or carries a receipt; W1 retains such cases.
 #[test]
-fn f4_retained_source_selects_the_cancelling_case_and_matches_the_exact_net() {
+fn f4_preview_route_selects_no_source_blocks_for_the_cancelling_case() {
     let request = n05_with_tip_torques(&[1e8, 0.3, -1e8]);
     let (terms, force) = case_ledger(&request, 0);
     assert!(
@@ -1320,26 +1318,21 @@ fn f4_retained_source_selects_the_cancelling_case_and_matches_the_exact_net() {
     );
     let net = n05_with_tip_torques(&[0.3]);
     for mode in MODES {
-        let envelope = solved(Entry::Captured, &request, mode);
-        assert!(
-            codes(&envelope).contains("SOURCE_BLOCK_RECOVERY_SELECTED"),
-            "F4 {mode:?}: not selected: {:?}",
-            codes(&envelope)
-        );
-        let reference = solved(Entry::Captured, &net, mode);
-        assert!(codes(&reference).contains("SOURCE_BLOCK_RECOVERY_SELECTED"));
-        assert_eq!(
-            value_bits(&envelope, "case"),
-            value_bits(&reference, "case"),
-            "F4 {mode:?}"
-        );
+        for request in [&request, &net] {
+            let envelope = solved(Entry::Captured, request, mode);
+            assert!(
+                !codes(&envelope).iter().any(|c| c.starts_with("SOURCE_BLOCK")),
+                "F4 {mode:?}: {:?}",
+                codes(&envelope)
+            );
+            assert!(envelope.source_block_recovery.is_none(), "F4 {mode:?}");
+        }
     }
 }
 
-/// F6: a multi-case pre-0.4 exact-route invocation. Case A (the F4 loads) is
-/// selected; case B carries the cancelling loads and an element load, so it
-/// is outside retained scope. No `Err` (SOURCE_BLOCKS_FINALIZATION_FAILED),
-/// no blocked envelope, and case A's receipt finalizes.
+/// F6: a multi-case pre-0.4 invocation. Case A carries the F4 loads; case B the
+/// cancelling loads and an element load. No `Err`, no blocked envelope; B4/D1 (b):
+/// the preview route selects no source blocks, so no receipt is published.
 #[test]
 fn f6_multi_case_pre_0_4_invocation_never_errs_on_cancelling_loads() {
     let mut request = n05_with_tip_torques(&[1e8, 0.3, -1e8]);
@@ -1371,15 +1364,11 @@ fn f6_multi_case_pre_0_4_invocation_never_errs_on_cancelling_loads() {
             .map(|d| format!("{}: {}", d.code, d.message))
             .collect::<Vec<_>>();
         assert!(blocking.is_empty(), "F6 {mode:?}: blocked {blocking:?}");
-        assert!(
-            envelope.source_block_recovery.is_some(),
-            "F6 {mode:?}: no receipt"
-        );
-        assert!(envelope
+        assert!(envelope.source_block_recovery.is_none(), "F6 {mode:?}: no receipt");
+        assert!(!envelope
             .diagnostics
             .iter()
-            .any(|d| d.code == "SOURCE_BLOCK_RECOVERY_SELECTED"
-                && d.affected_refs.contains(&"case".to_string())));
+            .any(|d| d.code.starts_with("SOURCE_BLOCK")));
     }
 }
 

@@ -147,8 +147,6 @@ fn captured_context_does_not_infer_a_contract_from_a_publication_claim() {
     let (_, captured) =
         CapturedInvocation::parse(preview, PreviewSolverMode::DenseScrutiny).unwrap();
     assert!(captured.composite_context().is_err());
-    // The ordinary preview receipt remains its separate policy.
-    assert_eq!(ReceiptPolicy::SourceBlocks.semantic_id(), SEMANTIC_ID);
 }
 
 #[test]

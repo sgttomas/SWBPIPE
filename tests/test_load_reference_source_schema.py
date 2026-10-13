@@ -46,7 +46,6 @@ PSR = "physics_source_recovery.schema.json"
 LRSCHEMA = "load_reference_state.schema.json"
 
 PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
-SOURCE_BLOCKS_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1"
 PS_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
 PS_SHA = "9020cb1bb9a30416dbe2fcb4fa4b142b56d0e03f99575edeff82b6bfc7b3e352"
 PS_PROFILE = "exact_straight_pressure_v2"
@@ -74,7 +73,7 @@ EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 # stress-neutral package keeps the other nine branches.
 PRS_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRS_SHA = "f2238777c36ceddca5240f40526cf4fe99e84820d593fa5961c5910884fb7803"
-CARRIER_ORDER = [PHYSICS_ID, SOURCE_BLOCKS_ID, PS_ID, PRS_ID, PREVIEW_ID, LR_ID, LRS_ID, SUCCESSOR_ID, EXACT_ID]
+CARRIER_ORDER = [PHYSICS_ID, PS_ID, PRS_ID, PREVIEW_ID, LR_ID, LRS_ID, SUCCESSOR_ID, EXACT_ID]
 EXPORT_ORDER = [contract_id for contract_id in CARRIER_ORDER if contract_id != PRS_ID]
 BRANCH_OF = {contract_id: index for index, contract_id in enumerate(CARRIER_ORDER)}
 EXPORT_BRANCH_OF = {contract_id: index for index, contract_id in enumerate(EXPORT_ORDER)}
@@ -467,10 +466,10 @@ def _route_paths():
 
 
 @pytest.mark.parametrize("path", _route_paths(), ids=lambda path: f"{path.parent.name}/{path.stem}")
-def test_physics_1_physics_source_1_and_source_blocks_1_carriers_keep_their_branch(path):
+def test_physics_1_and_physics_source_1_carriers_keep_their_branch(path):
     raw, analysis, packet = captured(path)
     contract = raw["producer"]["semantic_contract_id"]
-    assert contract in {PHYSICS_ID, PS_ID, SOURCE_BLOCKS_ID}
+    assert contract in {PHYSICS_ID, PS_ID}
     carrier_valid(RESULTS, _results_document(raw, contract), contract, f"{path.stem} scaffold")
     carrier_valid(RUN, analysis, contract, f"{path.stem} run")
     carrier_valid(PACKAGE, packet, contract, f"{path.stem} packet")
@@ -554,7 +553,6 @@ def test_joined_receipt_policy_is_pinned(policy):
 def test_joined_and_physics_source_receipts_are_disjoint():
     receipt = _receipt()
     invalid(schema(PSR), receipt, "joined receipt as physics-source")
-    invalid(schema("source_block_recovery.schema.json"), receipt, "joined receipt as source-blocks")
     physical = strict_json(COMPOSITE / "mixed-sparse_interactive.raw.json")["source_block_recovery"]
     valid(schema(PSR), physical, "physics-source receipt")
     invalid(definition("LoadReferenceSourceRecovery"), physical, "physics-source receipt as joined")

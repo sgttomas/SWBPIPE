@@ -249,7 +249,6 @@
         "id": {
           "enum": [
             "openpipestress.result_semantics/0.3.0/physics-1",
-            "openpipestress.result_semantics/0.3.0/source-blocks-1",
             "openpipestress.result_semantics/0.3.0/physics-source-1",
             "openpipestress.result_semantics/0.3.0/pressure-source-1",
             "openpipestress.result_semantics/0.3.0/preview-physics-1",
@@ -287,16 +286,6 @@
             },
             "sha256": {
               "const": "2fe3964501d6c83983a6216d2abaf490d654a1e7dac04c531127d37c839ca9fd"
-            }
-          }
-        },
-        {
-          "properties": {
-            "id": {
-              "const": "openpipestress.result_semantics/0.3.0/source-blocks-1"
-            },
-            "sha256": {
-              "const": "76ee4a5ce5a28989e308310ff842e17d6a84e04abf5a2e0f991fad1b9a98143b"
             }
           }
         },
@@ -704,9 +693,6 @@
         "source_block_recovery": {
           "oneOf": [
             {
-              "$ref": "source_block_recovery.schema.json"
-            },
-            {
               "$ref": "physics_source_recovery.schema.json"
             },
             {
@@ -775,60 +761,6 @@
                   "source_block_recovery"
                 ]
               },
-              {
-                "required": [
-                  "contract_evidence"
-                ]
-              },
-              {
-                "required": [
-                  "retained_precision"
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "properties": {
-            "reproducibility": {
-              "properties": {
-                "semantic_contract": {
-                  "properties": {
-                    "id": {
-                      "const": "openpipestress.result_semantics/0.3.0/source-blocks-1"
-                    },
-                    "sha256": {
-                      "const": "76ee4a5ce5a28989e308310ff842e17d6a84e04abf5a2e0f991fad1b9a98143b"
-                    }
-                  }
-                }
-              }
-            },
-            "result_refs": {
-              "items": {
-                "properties": {
-                  "semantic_contract": {
-                    "properties": {
-                      "id": {
-                        "const": "openpipestress.result_semantics/0.3.0/source-blocks-1"
-                      },
-                      "sha256": {
-                        "const": "76ee4a5ce5a28989e308310ff842e17d6a84e04abf5a2e0f991fad1b9a98143b"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "source_block_recovery": {
-              "$ref": "source_block_recovery.schema.json"
-            }
-          },
-          "required": [
-            "source_block_recovery"
-          ],
-          "not": {
-            "anyOf": [
               {
                 "required": [
                   "contract_evidence"

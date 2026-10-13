@@ -503,7 +503,6 @@ fn a_stored_precision_1_result_is_refused_by_name() {
     fresh.sort_unstable();
     let mut expected = vec![
         s::PREVIEW_PHYSICS_ID,
-        open_pipe_stress_result_export::source_blocks::CONTRACT_ID,
         s::PHYSICS_ID,
         s::PHYSICS_SOURCE_ID,
         s::PRESSURE_SOURCE_ID,
@@ -516,9 +515,8 @@ fn a_stored_precision_1_result_is_refused_by_name() {
         fresh, expected,
         "T1 and U6a extend the set only with their activated identities"
     );
-    assert!(s::is_fresh_identity(
-        "openpipestress.result_semantics/0.3.0/source-blocks-1"
-    ));
+    // B4/D1 (b): the retired source-blocks-1 identity is not fresh.
+    assert!(!s::is_fresh_identity(s::RETIRED_SOURCE_BLOCKS_ID));
     // Relabelling a fresh envelope as precision-1 is refused by name.
     let mut relabelled = invented();
     relabelled["producer"]["semantic_contract_id"] = json!(s::RETIRED_PRECISION_ID);

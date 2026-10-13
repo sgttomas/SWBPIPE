@@ -132,9 +132,10 @@ it.each(["unknown method", "Sensitive", "broken physical case"])("keeps actual-s
 
 // The session always writes a manifest for the mode it actually requested, so a
 // mode-mismatched manifest is only reachable through these direct setters. It is
-// the control for the gate's physics-source and source-blocks mode clauses.
-const retainedSourceFixtures = import.meta.glob("../../../../../fixtures/product_preview/{physics_source,source_blocks/ui}/n05*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-it.each([["physics_source", "physics_source", "n05.request.json"], ["source_blocks", "source_blocks/ui", "n05-sparse_interactive.request.json"]] as const)("refuses a %s result whose manifest records the other solver mode", async (_family, folder, requestName) => {
+// the control for the gate's physics-source mode clause (B4/D1 (b): source blocks remain
+// only on the composites).
+const retainedSourceFixtures = import.meta.glob("../../../../../fixtures/product_preview/physics_source/n05*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+it.each([["physics_source", "physics_source", "n05.request.json"]] as const)("refuses a %s result whose manifest records the other solver mode", async (_family, folder, requestName) => {
  const prefix = `../../../../../fixtures/product_preview/${folder}/`;
  const mode = "sparse_interactive";
  const request = JSON.parse(retainedSourceFixtures[`${prefix}${requestName}`]);

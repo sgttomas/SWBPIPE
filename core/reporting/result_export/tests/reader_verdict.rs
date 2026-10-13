@@ -74,16 +74,18 @@ fn g1_ordinary_checks_require_complete_requested_cases_and_emitted_ids() {
 }
 
 #[test]
-fn g1_legacy_unassessed_unknown_and_sensitive_are_never_eligible() {
+fn g1_retired_unassessed_unknown_and_sensitive_are_never_eligible() {
     let model = ordinary_model();
     let mut legacy = ordinary_source();
     legacy["schema_version"] = json!("0.1.0");
     for k in ["producer", "numerical_quality", "formulation_basis", "contract_evidence"] {
         legacy.as_object_mut().unwrap().remove(k);
     }
-    assert_eq!(route(&legacy), "legacy");
+    // b7-plan E2: the retired producer-less carrier is refused by name.
+    assert_eq!(route(&legacy), rv::UNSUPPORTED);
+    assert_eq!(rv::dispatch(&legacy, None, None)["error"]["code"], sc::MECHANICS_RESULT_VERSION_RETIRED);
     let s = standing(&legacy, Some(&model));
-    assert_eq!((s["status"].as_str(), findings(&s)), (Some("needs_recompute"), vec!["LEGACY_ABSOLUTE_ROUNDING_INTEGRITY_NOT_ASSESSED"]));
+    assert_eq!((s["status"].as_str(), findings(&s)), (Some("needs_recompute"), vec![sc::MECHANICS_RESULT_VERSION_RETIRED]));
     for status in ["not_assessed", "unresolved", "failed"] {
         let mut c = ordinary_source();
         c["numerical_quality"]["status"] = json!(status);
@@ -112,7 +114,7 @@ fn g1_ambiguous_or_missing_emitted_ids() {
 }
 
 #[test]
-fn g5_present_falsy_precision_fields_on_legacy_are_unsupported() {
+fn g5_present_falsy_precision_fields_on_retired_are_unsupported() {
     let mut clean = ordinary_source();
     clean["schema_version"] = json!("0.1.0");
     for k in ["producer", "numerical_quality", "formulation_basis", "contract_evidence"] {
@@ -415,36 +417,15 @@ fn invocation(request: Value, mode: &str) -> Value {
 }
 
 #[test]
-fn g1_genuine_source_blocks_validate_with_their_invocation() {
-    for name in ["n05", "n06", "multicase"] {
-        for dir in ["", "ui/"] {
-            for mode in ["dense_scrutiny", "sparse_interactive"] {
-                let path = format!("fixtures/product_preview/source_blocks/{dir}{name}-{mode}");
-                let raw = read(&format!("{path}.raw.json"));
-                let request = read(&format!("{path}.request.json"));
-                let inv = invocation(request.clone(), mode);
-                assert_eq!(route(&raw), "source_blocks");
-                assert_eq!(
-                    rv::validate("source-blocks", &raw, None, Some(&inv)),
-                    json!({"ok": true, "eligible": true, "findings": []}),
-                    "{path}"
-                );
-                let s = rv::standing(&raw, Some(&request["model"]), Some(&inv));
-                assert_eq!((s["eligible"].as_bool(), findings(&s)), (Some(true), vec![]), "{path}");
-                // G4: without the registered invocation, no standing.
-                assert_eq!(findings(&rv::standing(&raw, Some(&request["model"]), None)), [rv::SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED]);
-            }
-        }
-    }
-    for mode in ["dense_scrutiny", "sparse_interactive"] {
-        let path = format!("fixtures/product_preview/source_blocks/rejected_stress_range/{mode}");
-        let raw = read(&format!("{path}.raw.json"));
-        let request = read(&format!("{path}.request.json"));
-        let inv = invocation(request.clone(), mode);
-        assert_eq!(raw["source_block_recovery"]["body"]["status"], "qualified");
-        assert_eq!(rv::validate("source-blocks", &raw, None, Some(&inv))["error"]["code"], "SOURCE_BLOCKS_STRESS_OUTPUT_RANGE"); // TS: SOURCE_BLOCKS_STRESS_MPA_RANGE
-        assert_eq!(rv::standing(&raw, Some(&request["model"]), Some(&inv))["eligible"], false);
-    }
+fn a_stored_source_blocks_1_statement_reads_unsupported_by_name() {
+    // B4/D1 (b): the non-composite identity is retired; its header refuses by name.
+    let mut stored = read("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json");
+    stored["producer"]["semantic_contract_id"] = json!(sc::RETIRED_SOURCE_BLOCKS_ID);
+    let d = rv::dispatch(&stored, None, None);
+    assert_eq!((d["route"].as_str(), d["error"]["code"].as_str()), (Some(rv::UNSUPPORTED), Some(sc::SOURCE_BLOCKS_1_RETIRED)));
+    assert_eq!(rv::validate("source-blocks", &stored, None, None)["error"]["code"], "READER_UNKNOWN");
+    assert_eq!(rv::transport("source-blocks", &stored)["error"]["code"], "READER_UNKNOWN");
+    assert_eq!(rv::binding("source_blocks"), Value::Null);
 }
 
 #[test]
@@ -490,12 +471,9 @@ fn g5_source_receipt_presence_on_other_headers_is_unsupported() {
         assert_eq!(route(&s), rv::UNSUPPORTED);
     }
     let mut unknown = ordinary.clone();
-    unknown["producer"]["semantic_contract_id"] = json!(format!("{}/future", open_pipe_stress_result_export::source_blocks::CONTRACT_ID));
+    unknown["producer"]["semantic_contract_id"] = json!(format!("{}/future", sc::RETIRED_SOURCE_BLOCKS_ID));
     assert_eq!(route(&unknown), rv::UNSUPPORTED);
     // A source route's receipt shape is the header's (G5): an extra receipt key.
-    let mut blocks = read("fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json");
-    blocks["source_block_recovery"]["body"]["cases"][0]["work"]["extra"] = json!("not in schema");
-    assert_eq!(route(&blocks), rv::UNSUPPORTED);
     let mut composite = read("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json");
     composite["source_block_recovery"]["extra"] = json!(1);
     assert_eq!(route(&composite), rv::UNSUPPORTED);
@@ -537,7 +515,6 @@ fn binding_hashes_are_the_table_files() {
     use sha2::{Digest, Sha256};
     let files = [
         ("physics", "semantic_contract_v0_3_physics_1.json"),
-        ("source_blocks", "semantic_contract_v0_3_source_blocks_1.json"),
         ("physics_source", "semantic_contract_v0_3_physics_source_1.json"),
         ("preview_physics", "semantic_contract_v0_3_preview_physics_1.json"),
         ("load_reference", "semantic_contract_v0_3_load_reference_1.json"),
@@ -565,9 +542,9 @@ fn row_semantics_follow_the_dispatched_table() {
     let mut bad = raw.clone();
     bad["carrier_evidence"] = json!({});
     assert_eq!(rv::row_semantics(row, Some(&bad))["error"]["code"], "SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
-    // Without a source, the legacy table.
-    let legacy = json!({"id": "r", "kind": "global_nodal_rotation_x", "value": 0.0, "unit": "rad", "entity_ref": "n"});
-    assert_eq!(rv::row_semantics(&legacy, None)["ok"], true);
+    // b7-plan E2: no source names no table (the retired v0_2 table is gone).
+    let row = json!({"id": "r", "kind": "global_nodal_rotation_x", "value": 0.0, "unit": "rad", "entity_ref": "n"});
+    assert_eq!(rv::row_semantics(&row, None)["error"]["code"], "SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
 }
 
 #[test]
@@ -578,31 +555,9 @@ fn error_json_splits_code_and_detail() {
 }
 
 #[test]
-fn source_blocks_transport_reads_only_the_receipt_shape_and_hash() {
-    let raw = read("fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json");
-    let mut header = json!({"source_block_recovery": raw["source_block_recovery"]});
-    assert_eq!(rv::transport("source-blocks", &header), json!({"ok": true}));
-    // A transport has no raw publication or invocation to check.
-    header["source_block_recovery"]["body"]["publication_sha256"] = json!("0".repeat(64));
-    header["source_block_recovery"]["receipt_sha256"] = json!(
-        open_pipe_stress_result_export::source_blocks::domain_hash(
-            "source_blocks_receipt_v1", &header["source_block_recovery"]["body"]
-        ).unwrap()
-    );
-    assert_eq!(rv::transport("source-blocks", &header), json!({"ok": true}));
-    header["source_block_recovery"]["receipt_sha256"] = json!("0".repeat(64));
-    assert_eq!(rv::transport("source-blocks", &header)["error"]["code"], "SOURCE_BLOCKS_RECEIPT_HASH");
-    header["source_block_recovery"]["extra"] = json!(1);
-    assert_eq!(rv::transport("source-blocks", &header)["error"]["code"], "SOURCE_BLOCKS_RECEIPT_SHAPE");
-}
-
-#[test]
 fn source_recovery_preserves_the_portable_commitment_check_depth() {
     use open_pipe_stress_result_export::source_blocks::domain_hash;
-    for (folder, receipt_error) in [
-        ("source_blocks", "SOURCE_BLOCKS_RECEIPT_HASH"),
-        ("physics_source", "PHYSICS_SOURCE_RECEIPT_HASH"),
-    ] {
+    for (folder, receipt_error) in [("physics_source", "PHYSICS_SOURCE_RECEIPT_HASH")] {
         let raw = read(&format!("fixtures/product_preview/{folder}/n05-sparse_interactive.raw.json"));
         assert_eq!(rv::validate("source-recovery", &raw, None, None), json!({"ok": true}));
         let mut bad = raw.clone();
@@ -620,8 +575,7 @@ fn source_recovery_preserves_the_portable_commitment_check_depth() {
         changed["source_block_recovery"]["body"]["publication_sha256"] = json!(domain_hash("source_blocks_publication_v1", &publication).unwrap());
         changed["source_block_recovery"]["receipt_sha256"] = json!(domain_hash("source_blocks_receipt_v1", &changed["source_block_recovery"]["body"]).unwrap());
         assert_eq!(rv::validate("source-recovery", &changed, None, None), json!({"ok": true}));
-        let reader = if folder == "source_blocks" { "source-blocks" } else { "physics-source" };
-        assert_eq!(rv::validate(reader, &changed, None, None)["ok"], false);
+        assert_eq!(rv::validate("physics-source", &changed, None, None)["ok"], false);
     }
     assert_eq!(rv::validate("source-recovery", &ordinary_source(), None, None)["error"]["code"], "SOURCE_RECOVERY_METADATA_CONTRADICTION");
 }

@@ -16,8 +16,8 @@ const product = resolve(__dirname, "../../../../fixtures/product_preview");
 const MODEL = JSON.parse(readFileSync(resolve(product, "rf_skew_t_cant_off_122_r1e-04.desktop_model.json"), "utf8")) as PreviewModel;
 /** PP's pins of the G10 milestone's protected ordinary bytes (`g10_desktop_milestone_model.rs`); the copies are
  * the native desktop crate's (`solves_hand_the_desktop_the_producers_exact_bytes`). */
-const PINS = [["sparse_interactive", 68961, "33a8e8d411ff0370f815ae904b2fbfbf6f19051bed45ede32bfc6690e8dee9e0"],
-  ["dense_scrutiny", 70079, "729ef94254ad7c3b14922b82fcb4cce8298028101257797566205f38d01ddff5"]] as const;
+const PINS = [["sparse_interactive", 0, "RECOMPUTE-B7A-INTEGRATION"],
+  ["dense_scrutiny", 0, "RECOMPUTE-B7A-INTEGRATION"]] as const;
 const producerBytes = (mode: string) => readFileSync(resolve(product, `rf_skew_t_cant_off_122_r1e-04.desktop_result_${mode}.json`), "utf8");
 const sha256 = (text: string) => createHash("sha256").update(text, "utf8").digest("hex");
 

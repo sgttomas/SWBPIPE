@@ -237,7 +237,7 @@ export type BaseReaderInput = {
 
 const ROUTE_READER: Record<string, string> = {
   preview_physics: "preview-physics", physics: "physics", physics_source: "physics-source",
-  source_blocks: "source-blocks", load_reference: "load-reference", load_reference_source: "load-reference-source",
+  load_reference: "load-reference", load_reference_source: "load-reference-source",
 };
 
 /** The corpus inputs, in the native outcomes' order. A base statement's reader
@@ -260,7 +260,7 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
       id, sourceJson, parsed: true,
       modelJson: model === undefined ? undefined : rawText(model),
       invocationJson: invocation === undefined ? undefined : rawText(invocation),
-      readers: reader ? [reader] : [], transports: reader && reader !== "source-blocks" ? [reader] : [],
+      readers: reader ? [reader] : [], transports: reader ? [reader] : [],
       rowsJson: Array.isArray(rows) ? rows.map(rawText) : [],
     });
   };
@@ -280,7 +280,6 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
     ["../product_preview/invented_mechanics_result_preview_physics_1_dense", null],
     ["../product_preview/invented_demo_result_preview_physics_1_sparse", null],
     ["../product_preview/invented_demo_result_preview_physics_1_dense", null],
-    ["../product_preview/invented_demo_result_legacy_0_1", null],
   ];
   for (const [name, model] of results) {
     base(`results/${name.replace(/^(\.\.\/)+/, "")}`, fileText(`fixtures/results/${name}.json`), model === null ? undefined : modelAt(model));
@@ -300,20 +299,7 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
       }
     }
   }
-  for (const dir of ["", "ui/"]) {
-    for (const name of ["n05", "n06", "multicase"]) {
-      for (const mode of modes) {
-        const path = `fixtures/product_preview/source_blocks/${dir}${name}-${mode}`;
-        const request = read(`${path}.request.json`);
-        base(`source_blocks/${dir}${name}-${mode}`, fileText(`${path}.raw.json`), index(request, "model"), invocationOf(request, mode));
-      }
-    }
-  }
-  for (const mode of modes) {
-    const path = `fixtures/product_preview/source_blocks/rejected_stress_range/${mode}`;
-    const request = read(`${path}.request.json`);
-    base(`source_blocks/rejected_stress_range/${mode}`, fileText(`${path}.raw.json`), index(request, "model"), invocationOf(request, mode));
-  }
+  // B4/D1 (b): the preview route's retired source-blocks-1 statements left the corpus.
   const fallback = modelAt("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json");
   for (const mode of modes) {
     base(`load_reference_fallback_uz-${mode}`, fileText(`core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-${mode}.raw.json`), fallback);

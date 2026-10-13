@@ -6,7 +6,7 @@ import json
 import pytest
 from tests.verifiers import physics_source as composite
 from tests.verifiers.physics_evidence import validate_physics_evidence, validate_transport_metadata as physics_transport
-from tests.verifiers.source_blocks import validate_source_blocks, domain_hash, _signature
+from tests.verifiers.source_blocks import domain_hash, _signature
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "fixtures/product_preview/physics_source"
@@ -51,8 +51,11 @@ def test_actual_producer_requires_original_full_invocation(name, mode):
 
 
 def test_inherited_table_identities_remain_pinned():
-    # B1 deleted precision-1's table; the composite's two inherited tables stay pinned.
-    expected={"source_blocks_1":"76ee4a5ce5a28989e308310ff842e17d6a84e04abf5a2e0f991fad1b9a98143b"}
+    # B1 deleted precision-1's table and B4/D1 (b) source-blocks-1's; the
+    # composite's inherited physics-1 table stays pinned.
+    for retired in ("precision_1", "source_blocks_1"):
+        assert not (ROOT/f"fixtures/results/semantic_contract_v0_3_{retired}.json").exists()
+    expected={}
     from core.analysis_runs.compatibility import PHYSICS_CONTRACT_SHA256
     expected["physics_1"]=PHYSICS_CONTRACT_SHA256
     for name,digest in expected.items():
@@ -75,10 +78,9 @@ def test_maximum_basis_is_a_signature_discriminator_only():
 
 def test_old_method_entrypoints_refuse_composite_and_cross_namespace_sources():
     source,invocation=actual()
-    with pytest.raises(ValueError):validate_source_blocks(source,invocation)
     with pytest.raises(ValueError):validate_physics_evidence(source)
-    for path in [ROOT/"fixtures/results/physics_connected_mechanics_sparse.json",ROOT/"fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json"]:
-        old=json.loads(path.read_text())
+    retired=deepcopy(source);retired["producer"]["semantic_contract_id"]="openpipestress.result_semantics/0.3.0/source-blocks-1"
+    for old in [json.loads((ROOT/"fixtures/results/physics_connected_mechanics_sparse.json").read_text()),retired]:
         with pytest.raises(ValueError):composite.validate_physics_source(old)
 
 

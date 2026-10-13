@@ -14,7 +14,7 @@ import pytest
 
 from core.analysis_runs.compatibility import (
     FRESH_CONTRACT_IDS, PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_SHA256,
-    PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, _source_contract,
+    PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, _source_contract,
     LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID,
     build_analysis_run, is_fresh_contract_id, numerical_use_standing, rule_binding_refusal,
     standing_reason, validate_analysis_run_v0_3, verify_analysis_run_record,
@@ -25,6 +25,8 @@ from tests.verifiers.preview_physics_evidence import (
 from schema_validation import schema_for_definition, validate_instance
 from preview_transport_source import RETIRED_PRECISION_CONTRACT_ID
 from tests.verifiers import compatibility as verifier
+
+RETIRED_SOURCE_BLOCKS_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1"
 
 PROJECT = Path(__file__).resolve().parents[1]
 SUPPORT_SIGN = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
@@ -162,7 +164,8 @@ def test_table_identity_and_registry():
     # T1 activation (DESIGN 10.3): T0R's four plus T1's two 0.4.0 exact-route identities.
     # U6b (D-U6-6): plus the F2a preview successor; membership is not standing.
     # b7-plan's pressure-source join: plus pressure-source-1.
-    assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
+    # B4/D1 (b): minus the retired source-blocks-1.
+    assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
                                   PRESSURE_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID}
     assert not is_fresh_contract_id(RETIRED_PRECISION_CONTRACT_ID) and is_fresh_contract_id(PREVIEW_PHYSICS_CONTRACT_ID)
 
@@ -448,7 +451,7 @@ def test_transport_metadata_checks_statement_without_rows():
             _source_contract(bad, check_receipt=False)
 
 
-@pytest.mark.parametrize("identity", [RETIRED_PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, SOURCE_BLOCKS_CONTRACT_ID, "openpipestress.result_semantics/0.3.0/preview-physics-2"])
+@pytest.mark.parametrize("identity", [RETIRED_PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, RETIRED_SOURCE_BLOCKS_ID, "openpipestress.result_semantics/0.3.0/preview-physics-2"])
 def test_preview_never_falls_back_to_another_contract(identity):
     source = envelope()
     source["producer"]["semantic_contract_id"] = identity
@@ -736,9 +739,9 @@ def test_a2_6_blocked_modifier_count_is_zero():
 
 
 def test_a2_10_standing_validates_before_a_standing_reason():
-    mixed, context = _mixed_source_blocks()
+    mixed, context = _composite_mixed()
     bases_ = [case["basis_ref"] for case in mixed["source_block_recovery"]["body"]["cases"]]
-    assert numerical_use_standing(mixed, bases_, context) == "needs_recompute"
+    assert numerical_use_standing(mixed, bases_, context) != "unsupported"
     mixed["source_block_recovery"]["receipt_sha256"] = "0" * 64
     assert numerical_use_standing(mixed, bases_, context) == "unsupported"
     assert standing_reason(mixed) is None
@@ -790,67 +793,21 @@ def test_shared_tamper_vector(variant):
         assert numerical_use_standing(source, bases(source)) == "unsupported"
 
 
-# ---- source-blocks-1 standing (non-composite only) and rule binding ----
+# ---- B4/D1 (b): source blocks remain only on the composites ----
 
-def _mixed_source_blocks():
-    from test_source_blocks_validation import control, seal
-    source, context = control()
-    body = source["source_block_recovery"]["body"]
-    first = body["cases"][0]
-    basis = {"ref_type": "load_case", "ref_id": "ordinary-case"}
-    second = deepcopy(first)
-    second.update(basis_ref=basis, selected_method="ordinary_dense_structural_v1", source=None, projections=[], supports=[])
-    second["ordinary_attempt"]["quality_case_index"] = 1
-    second["ordinary_attempt"]["structural_report_diagnostic_ref"] = "ordinary-report"
-    extra = []
-    second["rows"] = []
-    for original in source["results"]:
-        if original["kind"] == "support_reaction_component_v2":
-            continue
-        row = deepcopy(original); row["id"] = "ordinary:" + row["id"]; row["basis_ref"] = basis; extra.append(row)
-        second["rows"].append({"result_id": row["id"], "treatment": "ordinary_checked", "projection_id": None, "recipe_id": None, "input_result_ids": []})
-    source["results"].extend(extra)
-    source["diagnostics"].append({"id": "ordinary-report", "code": "NUMERICAL_INTEGRITY_CHECKS_PASSED", "severity": "info", "message": "Synthetic ordinary statement only."})
-    quality = deepcopy(source["numerical_quality"]["cases"][0]); quality.update(basis_ref=basis, evidence_refs=["ordinary-report"])
-    source["numerical_quality"]["cases"].append(quality)
-    body["cases"].append(second)
-    body["invocation_work"]["charged"] += second["work"]["charged"] + second["work"]["reserved_unobserved_failure"]
-    context["request"]["model"]["load_cases"].append({"id": "ordinary-case", "primitive_loads": []})
-    source["summary"]["load_case_count"] = 2
-    seal(source, context)
-    return source, context
+def _composite_mixed():
+    folder = PROJECT / "fixtures/product_preview/physics_source"
+    source = json.loads((folder / "mixed-sparse_interactive.raw.json").read_text(), parse_int=lambda t: -0.0 if t == "-0" else int(t))
+    request = json.loads((folder / "mixed.request.json").read_text(), parse_int=lambda t: -0.0 if t == "-0" else int(t))
+    return source, {"request": request, "solver_mode": "sparse_interactive"}
 
 
-def test_selected_plus_ordinary_source_blocks_is_not_current():
-    from tests.verifiers.source_blocks import validate_source_blocks
-    source, context = _mixed_source_blocks()
-    bases_ = [case["basis_ref"] for case in source["source_block_recovery"]["body"]["cases"]]
-    assert validate_source_blocks(source, context) is True  # statement itself is valid
-    assert numerical_use_standing(source, bases_, context) == "needs_recompute"
-    assert standing_reason(source) == "SOURCE_BLOCKS_ORDINARY_CASE_LEGACY_SEMANTICS"
-
-
-def test_all_selected_source_blocks_keeps_standing():
-    from test_source_blocks_validation import received_artifacts
-    for name, source, context in received_artifacts():
-        bases_ = [{"ref_type": "load_case", "ref_id": case["id"]} for case in context["request"]["model"]["load_cases"]]
-        assert standing_reason(source) is None, name
-        assert numerical_use_standing(source, bases_, context) == "numerically_eligible", name
-
-
-def test_partial_source_blocks_receipt_stays_not_eligible():
-    from test_source_blocks_validation import control, seal
-    source, context = control()
-    body = source["source_block_recovery"]["body"]
-    case = body["cases"][0]
-    case.update(outcome="failed", selected_method=None, source=None, projections=[], supports=[], failure={"stage": "exact_solve", "code": "budget", "diagnostic_ref": "synthetic-report", "block_order": None})
-    for row in case["rows"]:
-        row.update(treatment="inspection_only", projection_id=None, recipe_id=None, input_result_ids=[])
-    body["status"] = "unavailable"
-    seal(source, context)
-    bases_ = [c["basis_ref"] for c in body["cases"]]
-    assert standing_reason(source) is None
-    assert numerical_use_standing(source, bases_, context) != "numerically_eligible"
+def test_a_stored_source_blocks_1_statement_is_refused_by_name():
+    source, _ = _composite_mixed()
+    source["producer"]["semantic_contract_id"] = RETIRED_SOURCE_BLOCKS_ID
+    with pytest.raises(ValueError, match="SOURCE_BLOCKS_1_RETIRED"):
+        _source_contract(source)
+    assert numerical_use_standing(source, [case["basis_ref"] for case in source["source_block_recovery"]["body"]["cases"]]) == "unsupported"
 
 
 @pytest.mark.parametrize("stem", ["mixed", "mixed_units"])
@@ -866,19 +823,9 @@ def test_physics_source_with_ordinary_cases_stays_admitted(stem):
     assert numerical_use_standing(source, bases_, context) == expected
 
 
-def test_rule_binding_refuses_all_selected_source_blocks_summary_only():
-    source = json.loads((PROJECT / "fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json").read_text())
-    summary_row = next(row for row in source["results"] if row["kind"] == "open_formula_stress_summary")
-    headline = next(row for row in source["results"] if row["id"] == source["summary"]["max_open_formula_stress"]["result_ref"])
-    force = next(row for row in source["results"] if row["kind"] == "element_local_axial_force")
-    assert rule_binding_refusal(source, summary_row) == "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
-    assert rule_binding_refusal(source, headline) == "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
-    assert rule_binding_refusal(source, force) is None
+def test_rule_binding_refuses_no_composite_row():
     composite = json.loads((PROJECT / "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json").read_text())
     assert all(rule_binding_refusal(composite, row) is None for row in composite["results"])
-
-
-# ---- stress-neutral packaging (N-A: no new document or manifest field) ----
 
 def test_preview_stress_neutral_package_roundtrips_without_new_fields(tmp_path):
     from core.handoff.stress_neutral import package as sn
@@ -1030,8 +977,7 @@ def test_generated_unchanged_demo_output_is_recorded_truthfully(mode):
 @pytest.mark.parametrize("mode", ["sparse", "dense"])
 def test_generated_bundled_demo_output_is_recorded_truthfully(mode):
     """The recipe's default mode captures the valid demo model (no joint, no legacy
-    pressure): a solved preview-physics-1 result per mode, read as is, and its
-    historical-format carrier, derived from the sparse output as recorded."""
+    pressure): a solved preview-physics-1 result per mode, read as is."""
     source = actual(PROJECT / f"fixtures/product_preview/invented_demo_result_preview_physics_1_{mode}.json")
     record = json.loads((PROJECT / "fixtures/product_preview/demo_fixture_generation.json").read_text())
     output = next(item for item in record["outputs"] if item["path"].endswith(f"_{mode}.json"))
@@ -1041,24 +987,10 @@ def test_generated_bundled_demo_output_is_recorded_truthfully(mode):
     assert output["mechanics_status"] == source["status"]["mechanics"] == "MECHANICS_SOLVED"
     validate_preview_physics_evidence(source)
     assert verify_analysis_run_record(build(source)) == "match"
-    carrier = record["derived_outputs"][0]
-    carried = json.loads((PROJECT / carrier["path"]).read_text())
-    assert hashlib.sha256((PROJECT / carrier["path"]).read_bytes()).hexdigest() == carrier["sha256"]
-    assert carrier["derived_from"]["sha256"] == next(item["sha256"] for item in record["outputs"] if item["mode"] == "sparse_interactive")
-    sparse = json.loads((PROJECT / carrier["derived_from"]["path"]).read_text())
-    for key in carrier["removed_members"]:
-        del sparse[key]
-    sparse["schema_version"] = "0.1.0"
-    sparse["results"] = [row for row in sparse["results"] if row["kind"] not in carrier["removed_row_kinds"]]
-    # The summary members that describe removed rows are withheld (RV128 N-4).
-    assert carrier["nulled_summary_members"] == ["component_stress_modifier_count", "max_open_formula_stress"]
-    for key in carrier["nulled_summary_members"]:
-        sparse["summary"][key] = None
-    assert carried == sparse
+    # b7-plan E2: no historical-format carrier is derived.
+    assert "derived_outputs" not in record
     # The record is portable: no hash of cargo's checkout-dependent stderr (RV128 N-7).
     assert all("stderr_sha256" not in item for item in record["outputs"])
-    ids = {row["id"] for row in carried["results"]}
-    assert all(value["result_ref"] in ids for value in carried["summary"].values() if isinstance(value, dict) and "result_ref" in value)
 
 
 def test_shared_unicode_id_vector_is_admitted_and_byte_lengths_are_required():

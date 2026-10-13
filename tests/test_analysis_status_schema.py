@@ -14,7 +14,7 @@ from schema_validation import enum_at, load_schema  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "schemas" / "analysis_status.schema.yaml"
 ANALYSIS_BOUNDARY_SCHEMA_PATH = ROOT / "schemas" / "analysis_boundary.schema.yaml"
-RESULTS_SCHEMA_PATH = ROOT / "schemas" / "results.schema.yaml"
+RESULTS_SCHEMA_PATH = ROOT / "schemas" / "results.v0.3.schema.yaml"
 API_BOUNDARY_CONTRACT_PATH = ROOT / "api" / "api_boundary_contract.yaml"
 
 REQUIRED_VOCABULARY = {

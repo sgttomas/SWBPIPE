@@ -936,15 +936,12 @@ fn f1b_w2_subnormal_derived_section_value_is_refused_on_the_range_path() {
     }
 }
 
-/// The mixed captured invocation (Scope D): case A is P1's NP-A-N05, which
-/// exact-block selects; case B's basis leaves the range at formation (main
-/// blocks the whole invocation there), so exact-block declines B with zero
-/// work (OQ2) and W2 publishes it at b = 524. The invocation finalizes with a
-/// consistent, partial receipt: A qualified; B unsupported at source
-/// validation, its ordinary attempt following W2's published Sensitive verdict
-/// (OQ15). The typed entry publishes both cases and carries no receipt.
+/// The mixed captured invocation (Scope D): case A is P1's NP-A-N05; case B's
+/// basis leaves the range at formation (main blocks the whole invocation there)
+/// and W2 publishes it at b = 524. B4/D1 (b): the preview route selects no
+/// source blocks, so both entries publish both cases with no receipt.
 #[test]
-fn f1b_w2_mixed_captured_invocation_finalizes_with_a_consistent_receipt() {
+fn f1b_w2_mixed_captured_invocation_publishes_both_cases_without_a_receipt() {
     for mode in MODES {
         for (entry, envelope) in envelopes(&mixed_invocation(), mode, Entries::Both) {
             let ctx = format!("{entry} {mode:?}");
@@ -961,37 +958,9 @@ fn f1b_w2_mixed_captured_invocation_finalizes_with_a_consistent_receipt() {
             assert!(b
                 .message
                 .ends_with(" range_scaling: force_scale_exponent=524; basis=exact power-of-two"));
-            let receipt = envelope.source_block_recovery.as_ref();
-            if entry == "typed" {
-                assert!(receipt.is_none(), "{ctx}");
-                continue;
-            }
-            let body = &receipt.expect("captured receipt")["body"];
-            assert_eq!(body["status"], "partial", "{ctx}");
-            let cases = body["cases"].as_array().unwrap();
-            assert_eq!(cases.len(), 2);
-            assert_eq!(cases[0]["basis_ref"]["ref_id"], "case:A");
-            assert_eq!(cases[0]["outcome"], "qualified", "{ctx}");
-            assert_eq!(cases[0]["ordinary_attempt"]["outcome"], "sensitive");
-            assert_eq!(cases[1]["basis_ref"]["ref_id"], "case:B");
-            assert_eq!(cases[1]["outcome"], "unsupported", "{ctx}");
-            assert_eq!(cases[1]["failure"]["code"], "unsupported_family");
-            assert_eq!(cases[1]["failure"]["stage"], "source_validation");
-            assert_eq!(cases[1]["ordinary_attempt"]["outcome"], "sensitive");
-            assert!(envelope
-                .diagnostics
-                .iter()
-                .any(|d| d.id == "diagnostic:source-recovery:case:A:selected"
-                    && d.code == "SOURCE_BLOCK_RECOVERY_SELECTED"));
-            let decline: Vec<_> = envelope
-                .diagnostics
-                .iter()
-                .filter(|d| d.id == "diagnostic:source-recovery:case:B")
-                .collect();
-            assert_eq!(decline.len(), 1);
-            assert!(decline[0].message.contains(
-                "RecoveryFailure { stage: \"range formation\", helper_stage: SourceClosure, error: Unsupported(\"the ordinary stiffness was not formed (range at formation); no retained-source attempt\"), work: WorkReport { charged: 0, rejected: 0, limit: 0 } }"
-            ));
+            // B4/D1 (b): neither entry selects source blocks or carries a receipt.
+            assert!(envelope.source_block_recovery.is_none(), "{ctx}");
+            assert!(envelope.diagnostics.iter().all(|d| !d.code.starts_with("SOURCE_BLOCK")), "{ctx}");
         }
     }
 }
@@ -1001,9 +970,8 @@ fn f1b_w2_mixed_captured_invocation_finalizes_with_a_consistent_receipt() {
 /// axis-aligned 2 m cantilever; full-mantissa loads, whose exact products lose
 /// represented bits) exact-block's failure is main's, and W2 then refuses the
 /// case by name. (A2's wider claim, that exact-block never selects a
-/// range-triggered case, is refuted by RV17's CX-F and CX-G; the selected side
-/// is pinned by
-/// `f1b_w2_exact_block_selection_of_a_range_triggered_case_publishes_mains_bytes`.)
+/// range-triggered case, is refuted by RV17's CX-F and CX-G; B4/D1 (b)
+/// retired that selected side, see `f1b_w2_range_triggered_cx_f_is_refused_by_name_on_both_entries`.)
 #[test]
 fn f1b_w2_exact_block_does_not_select_the_searched_coexistence_candidates() {
     let cantilever = |load: f64| {
@@ -1036,17 +1004,12 @@ fn f1b_w2_exact_block_does_not_select_the_searched_coexistence_candidates() {
             "NUMERICAL_INTEGRITY_UNRESOLVED",
             &prefix,
         );
+        // B4/D1 (b): the preview route attempts no exact block, so no retained-source
+        // diagnostic accompanies W2's refusal.
         for mode in MODES {
             let envelope = run_linear_static_preview_value_with_mode(cantilever(load), mode).unwrap();
-            let unavailable: Vec<_> = envelope
-                .diagnostics
-                .iter()
-                .filter(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE")
-                .collect();
-            assert_eq!(unavailable.len(), 1, "{load} {mode:?}");
-            assert!(unavailable[0]
-                .message
-                .contains("error: Exact(Arithmetic(Range(\"exact radix loses represented bits\")))"));
+            assert!(envelope.diagnostics.iter().all(|d| !d.code.starts_with("SOURCE_BLOCK")), "{load} {mode:?}");
+            assert!(envelope.source_block_recovery.is_none(), "{load} {mode:?}");
         }
     }
 }
@@ -1188,92 +1151,26 @@ fn full_envelope_sha256(envelope: &MechanicsEnvelope) -> String {
     )
 }
 
-/// Coexistence with exact-block, the selected side (brief test D; RV17-1;
-/// ROOT's re-ruling of A2 (c)): exact-block does select range-triggered cases,
-/// and wherever it selects, F1b publishes main's bytes, because the selected
-/// arm of the outcome match precedes W2's arm.
-///
-/// - Captured entry (exact-block's route), both modes: `MECHANICS_SOLVED`, the
-///   selection's diagnostic, the receipt, the rejected ordinary attempt kept as
-///   an info record with its Range trigger, no `range_scaling` text, and the
-///   full-envelope sha256 equal to Mac main's (`e7d930d49`, recorded with the
-///   gate's full-envelope probe; RV17 recorded the same). Platform-independent:
-///   every magnitude here has one nonzero component (Annex F: hypot(x, +-0) =
-///   |x|), there is no thermal load, and exact-block's arithmetic is exact.
-///   Re-pinned for the pressure retirement (U3 T2): main's bytes with only the
-///   declared formulation-limitation string replaced and the two receipt
-///   digests recomputed by the product's digest rule (ROOT's mechanical check).
-/// - Typed entry (no capture, so exact-block is not eligible), both modes: W2
-///   refuses the case by name (`ScaledEvaluation`, no b under c2), where main
-///   refuses it with the ordinary Range text (the C1 kind).
-///
-/// A re-pin is due if a later slice legitimately changes this model's envelope.
-/// K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.4, 6 TEXT) re-pinned both
-/// modes: against main's envelope the only differences are the two linear
-/// limitation sentences and the source-recovery receipt's publication and
-/// receipt hashes, which bind those bytes. B7a's H-4 re-pinned both modes for the
-/// summary (the curved macro-element count's name, the deleted retired thrust
-/// count) and the same two receipt hashes.
+/// RV17's CX-F (brief test D; RV17-1), after B4/D1 (b): the preview route no longer
+/// selects exact blocks, so the formerly selected range-triggered case takes the
+/// typed entry's path on both entries and both modes: W2 refuses it by name
+/// (`ScaledEvaluation`, no b under c2). W1's failed-ordinary extension retains it
+/// (`retained_precision_failed_ordinary_cxf.json`).
 #[test]
-fn f1b_w2_exact_block_selection_of_a_range_triggered_case_publishes_mains_bytes() {
+fn f1b_w2_range_triggered_cx_f_is_refused_by_name_on_both_entries() {
     let request = coexistence_cx_f();
-    for (mode, main_sha256) in [
-        (
-            PreviewSolverMode::SparseInteractive,
-            "34bf67d3121a6cf37d548cf871dd916da425bd59b58e47634f351fa58d465767",
-        ),
-        (
-            PreviewSolverMode::DenseScrutiny,
-            "bfa30b77dc1a4214e08b449eb9a61fbb3831dcd735dbb8b03f262456d32e4a01",
-        ),
-    ] {
-        let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
-        assert_eq!(
-            envelope.status.mechanics, "MECHANICS_SOLVED",
-            "{mode:?}: {:?}",
-            envelope.diagnostics
-        );
-        let selected: Vec<_> = envelope
-            .diagnostics
-            .iter()
-            .filter(|d| d.id == "diagnostic:source-recovery:case:selected")
-            .collect();
-        assert_eq!(selected.len(), 1, "{mode:?}");
-        assert_eq!(selected[0].code, "SOURCE_BLOCK_RECOVERY_SELECTED");
-        assert!(
-            envelope.source_block_recovery.is_some(),
-            "{mode:?}: the receipt"
-        );
-        let record = integrity(&envelope, "case");
-        assert_eq!(record.code, "NUMERICAL_INTEGRITY_UNRESOLVED", "{mode:?}");
-        assert_eq!(record.severity, "info", "{mode:?}");
-        assert!(
-            record.message.starts_with(
-                "Rejected ordinary attempt; a separate retained-source response is selected. Load case case: structural integrity: Range(\"division overflow or underflow\"); global_dof_map="
-            ),
-            "{mode:?}: {}",
-            record.message
-        );
-        assert!(envelope
-            .diagnostics
-            .iter()
-            .all(|d| !d.message.contains("range_scaling")));
-        assert_eq!(full_envelope_sha256(&envelope), main_sha256, "{mode:?}");
-    }
-    let typed_request: LinearStaticPreviewRequest = serde_json::from_value(request).unwrap();
+    assert_w2_refusal(
+        &request,
+        Entries::Both,
+        &MODES,
+        "case",
+        "NUMERICAL_INTEGRITY_UNRESOLVED",
+        "range: scaled evaluation outside normal range; range_scaling: attempted; step1_trigger=Evaluation(Range(\"division overflow or underflow\"))",
+    );
     for mode in MODES {
-        let envelope = run_linear_static_preview_with_mode(typed_request.clone(), mode);
-        assert!(envelope.results.is_empty(), "{mode:?}");
-        let record = integrity(&envelope, "case");
-        assert_eq!(record.severity, "blocking", "{mode:?}");
-        assert_eq!(record.code, "NUMERICAL_INTEGRITY_UNRESOLVED", "{mode:?}");
-        assert!(
-            record.message.starts_with(
-                "Load case case: range: scaled evaluation outside normal range; range_scaling: attempted; step1_trigger=Evaluation(Range(\"division overflow or underflow\")); global_dof_map="
-            ),
-            "{mode:?}: {}",
-            record.message
-        );
+        let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
+        assert!(envelope.source_block_recovery.is_none(), "{mode:?}");
+        assert!(envelope.diagnostics.iter().all(|d| !d.code.starts_with("SOURCE_BLOCK")), "{mode:?}");
     }
 }
 

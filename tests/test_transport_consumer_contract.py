@@ -58,9 +58,9 @@ def test_history_never_becomes_current_from_source_or_input_authenticity():
     raw=source();assert numerical_use_standing(raw,[BASIS])=='needs_recompute'
     old=deepcopy(raw);old['schema_version']='0.1.0'
     for key in ['producer','numerical_quality','formulation_basis','contract_evidence']:del old[key]
-    assert numerical_use_standing(old,[BASIS])=='needs_recompute'
-    # A historical result is never recorded: analysis runs keep one current version (E1).
-    with pytest.raises(ValueError,match='^ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH$'):build(old)
+    # b7-plan E2: the retired 0.1.0 carrier is refused by name and never recorded.
+    assert numerical_use_standing(old,[BASIS])=='unsupported'
+    with pytest.raises(ValueError,match='^MECHANICS_RESULT_VERSION_RETIRED$'):build(old)
     quality=raw['numerical_quality'];quality['status']='checks_passed'
     assert numerical_use_standing(raw,[BASIS])=='needs_recompute'
     quality['cases']=[{'basis_ref':BASIS,'structural_status':'passive_model_basis','solve_quality':'checks_passed','model_matrix_fidelity':'represented_equations_retained','accuracy_evidence':'not_claimed','evidence_refs':['result:rotation']}]
@@ -81,12 +81,13 @@ def test_independent_same_unit_bit_vectors_reach_checked_hash_and_analysis():
     with pytest.raises(ValueError):build(source(float('inf')))
     with pytest.raises(ValueError):build(source(9007199254740992.0))
 
-def test_immutable_tables_and_historical_schema_bytes():
-    # B1 deleted the precision-1 table; the preview table is pinned at its bytes.
-    assert not (PROJECT/'fixtures/results/semantic_contract_v0_3_precision_1.json').exists()
+def test_retired_tables_are_gone_and_the_preview_table_is_pinned():
+    # B1 deleted the precision-1 table and E2 the v0_2 table; the preview table
+    # is pinned at its bytes.
+    for retired in ('semantic_contract_v0_3_precision_1.json', 'semantic_contract_v0_2.json'):
+        assert not (PROJECT/'fixtures/results'/retired).exists()
     table=PROJECT/'fixtures/results/semantic_contract_v0_3_preview_physics_1.json'
     assert hashlib.sha256(table.read_bytes()).hexdigest()==PREVIEW_PHYSICS_CONTRACT_SHA256
-    assert hashlib.sha256((PROJECT/'fixtures/results/semantic_contract_v0_2.json').read_bytes()).hexdigest()=='4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da'
 
 
 def test_actual_headless_source_to_analysis_and_derivative_hash_binding():

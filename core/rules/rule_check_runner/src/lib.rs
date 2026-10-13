@@ -2112,7 +2112,7 @@ mod tests {
             solver_results: vec![solver("actual", 50.0)],
             refused_solver_results: vec![RefusedSolverResult {
                 input_id: "actual".to_string(),
-                reason: "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE".to_string(),
+                reason: "RULE_QUANTITY_NOT_COVERED".to_string(),
             }],
             supplied_values,
             library_values: Vec::new(),
@@ -2123,14 +2123,14 @@ mod tests {
         assert_eq!(check.status, RuleCheckStatus::RuleInputsIncomplete);
         assert!(check.computed_value.is_none());
         assert!(check.completeness_findings.iter().any(|f| f.code
-            == "RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"
+            == "RULE_QUANTITY_NOT_COVERED"
             && f.severity == "blocking"
             && f.subject_id == "actual"));
         let bound = check.bound_inputs.iter().find(|b| b.input_id == "actual").unwrap();
         assert!(!bound.supplied);
-        assert_eq!(bound.note.as_deref(), Some("refused: RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"));
+        assert_eq!(bound.note.as_deref(), Some("refused: RULE_QUANTITY_NOT_COVERED"));
         let wire = serde_json::to_value(&result).unwrap();
-        assert!(wire.to_string().contains("RULE_SOURCE_BLOCKS_SUMMARY_NOT_RELIABLE"));
+        assert!(wire.to_string().contains("RULE_QUANTITY_NOT_COVERED"));
     }
 
     #[test]

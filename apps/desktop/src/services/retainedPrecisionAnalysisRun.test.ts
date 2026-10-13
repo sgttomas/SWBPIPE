@@ -18,7 +18,8 @@ import {
   ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, analysisRecordProjection, buildAnalysisRunV03,
   modelLoadBasisRefs, validateAnalysisRunV03, verifyAnalysisRunRecord,
 } from "./analysisRunCompatibility";
-import { bindSourceResultDimensions, buildAnalysisRunPreview, runPreviewMechanics, type PreviewSolverMode } from "./previewService";
+import { retiredMechanicsResult } from "../test-support/retiredMechanicsResult";
+import { buildAnalysisRunPreview, runPreviewMechanics, type PreviewSolverMode } from "./previewService";
 import { buildCurrentSessionInputManifest } from "./inputManifestService";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
 import { validateRetainedPrecision } from "../features/results/retainedPrecisionReader";
@@ -155,13 +156,12 @@ describe.each(MODES)("%s: the AnalysisRun copies the receipt and validates its e
     expect(received_result(checked)).toStrictEqual(received_result(plain));
     expect(checkedJsonText(checked.analysis_run.retained_precision)).toBe(checkedJsonText(plain.analysis_run.retained_precision));
     expect(checkedJsonText(received)).toBe(before);
-    // Legacy dimension binding is a no-op for the successor: the same object back.
-    expect(bindSourceResultDimensions(received)).toBe(received);
   });
 });
 
 describe("a historical source is never recorded, with or without a receipt (RV91 SF-1; E1)", () => {
-  const legacy = () => JSON.parse(readFileSync(resolve(root, "fixtures/product_preview/invented_demo_result_legacy_0_1.json"), "utf8")) as MechanicsResult;
+  // b7-plan E2: no retired carrier is committed; the retired form of the current demo output.
+  const legacy = () => retiredMechanicsResult();
   const legacyManifest = (source: MechanicsResult) => ({ manifest_ref: { object_type: "InputManifest", ref: "manifest:invented-legacy" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: source.model_ref }, solver_basis: { solver_name: "synthetic", solver_version: "1", solver_build_ref: "synthetic@1" } } });
   const shaped = (version: string) => { const source = legacy() as Json; source.schema_version = version; return source; };
   it.each(["0.1.0", "0.2.0"].flatMap(version => [

@@ -1,15 +1,14 @@
-//! Closed source-block statement/binding checks. No imported receipt constructs
-//! a live exact response, and a digest is never treated as arithmetic proof.
-use crate::semantic_contract::{signature_in, source_blocks_contract};
+//! Closed source-block statement/binding checks of the exact-route composites
+//! (physics-source-1, load-reference-source-1, pressure-source-1). B4/D1 (b)
+//! retired the preview route's non-composite source-blocks-1 identity, its table
+//! and its receipt schema. No imported receipt constructs a live exact response,
+//! and a digest is never treated as arithmetic proof.
+use crate::semantic_contract::signature_in;
 use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
-use std::sync::OnceLock;
 
-pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/source-blocks-1";
-pub const CONTRACT_SHA256: &str =
-    "76ee4a5ce5a28989e308310ff842e17d6a84e04abf5a2e0f991fad1b9a98143b";
 // The fixed 64ε recipe envelope is separate from affine input uncertainty.
 // It covers divides, squares, ordered additions, sqrt, multiplication and tiny
 // normalized underflows with a unit largest component and normal final output.
@@ -29,8 +28,6 @@ const STRESS_KINDS: [&str; 4] = [
 ];
 const EXACT: &str = "retained_source_blocks_exact_v1";
 const COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
-const SUPPORT_SIGN: &str =
-    "support_on_pipe_positive_global_force_right_hand_couple_at_attachment_node";
 macro_rules! require {
     ($condition:expr, $code:literal) => {
         if !$condition {
@@ -66,15 +63,6 @@ fn unique(items: &[Value]) -> bool {
         .iter()
         .enumerate()
         .all(|(i, v)| !items[..i].contains(v))
-}
-fn schema() -> &'static Value {
-    static SCHEMA: OnceLock<Value> = OnceLock::new();
-    SCHEMA.get_or_init(|| {
-        serde_json::from_str(include_str!(
-            "../../../../schemas/source_block_recovery.schema.json"
-        ))
-        .expect("closed receipt schema")
-    })
 }
 // JSON Schema compares numbers by value: producer 0.0 must satisfy const/enum 0.
 // serde_json::Number representation equality alone distinguishes integer and f64.
@@ -196,10 +184,6 @@ pub fn domain_hash(domain: &str, payload: &Value) -> Result<String, String> {
         canonical_json_checked_v1_text(&serde_json::to_string(&value).map_err(|e| e.to_string())?)?;
     Ok(format!("{:x}", Sha256::digest(checked.as_bytes())))
 }
-pub fn validate_receipt_shape(receipt: &Value) -> Result<(), String> {
-    require!(shape_in(receipt, schema(), schema()), "RECEIPT_SHAPE");
-    Ok(())
-}
 /// A receipt's canonical commitment; shared by raw and transported statements.
 fn validate_receipt_hash(receipt: &Value) -> Result<(), String> {
     require!(
@@ -207,13 +191,6 @@ fn validate_receipt_hash(receipt: &Value) -> Result<(), String> {
         "RECEIPT_HASH"
     );
     Ok(())
-}
-/// A transported source-blocks-1 receipt: shape and hash only. The raw
-/// publication and invocation are not transported, so neither is recomputed.
-pub fn validate_transport_metadata(source: &Value) -> Result<(), String> {
-    let receipt = &source["source_block_recovery"];
-    validate_receipt_shape(receipt)?;
-    validate_receipt_hash(receipt)
 }
 /// Bind the receipt to the raw publication. Callers validate the receipt first.
 pub fn validate_publication_hash(source: &Value) -> Result<(), String> {
@@ -229,15 +206,8 @@ pub fn validate_publication_hash(source: &Value) -> Result<(), String> {
     );
     Ok(())
 }
-fn signature(row: &Value, composite: bool) -> Result<Option<&'static Value>, String> {
-    let s = signature_in(
-        if composite {
-            crate::semantic_contract::physics_source_contract()
-        } else {
-            source_blocks_contract()
-        },
-        row,
-    )?;
+fn signature(row: &Value) -> Result<Option<&'static Value>, String> {
+    let s = signature_in(crate::semantic_contract::physics_source_contract(), row)?;
     Ok(s.filter(|s| s["component"].is_null() || s["component"] == row["metadata"]["component"]))
 }
 fn ordinary_method(mode: &Value) -> Option<&'static str> {
@@ -381,7 +351,7 @@ fn source_plan(p: &Value, projections: &[Value], model: Option<&Value>) -> Resul
     }
     Ok(())
 }
-fn projection(p: &Value, row: &Value, composite: bool) -> Result<(), String> {
+fn projection(p: &Value, row: &Value) -> Result<(), String> {
     let value = number(&p["value"])?;
     let lo = number(&p["interval"][0])?;
     let hi = number(&p["interval"][1])?;
@@ -465,22 +435,18 @@ fn projection(p: &Value, row: &Value, composite: bool) -> Result<(), String> {
         _ => false,
     };
     require!(
-        valid && signature(row, composite)?.is_some(),
+        valid && signature(row)?.is_some(),
         "PROJECTION_TYPED_QUANTITY"
     );
     Ok(())
-}
-fn derived(recipe: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
-    derived_in(recipe, row, inputs, false)
 }
 fn derived_in(
     recipe: &Value,
     row: &Value,
     inputs: &[&Value],
-    composite: bool,
 ) -> Result<(), String> {
     let kind = text(&row["kind"])?;
-    let s = signature(row, composite)?.ok_or("SOURCE_BLOCKS_DERIVED_SIGNATURE")?;
+    let s = signature(row)?.ok_or("SOURCE_BLOCKS_DERIVED_SIGNATURE")?;
     let kinds: Vec<_> = inputs.iter().filter_map(|r| r["kind"].as_str()).collect();
     match text(recipe)? {
         "translation_norm_scaled_v1" => require!(
@@ -691,38 +657,14 @@ fn stress_summary_observation(row: &Value, inputs: &[&Value]) -> Result<(), Stri
     Ok(())
 }
 
-/// T0R standing (non-composite only): a receipt case that qualified by an
-/// ordinary method keeps the retired precision-1 row semantics. Structural read
-/// of the received receipt; physics-source-1 never reaches this rule.
-pub fn has_ordinary_qualified_case(source: &Value) -> bool {
-    source["producer"]["semantic_contract_id"] == CONTRACT_ID
-        && source["source_block_recovery"]["body"]["cases"]
-            .as_array()
-            .is_some_and(|cases| {
-                cases.iter().any(|case| {
-                    case["outcome"] == "qualified" && case["selected_method"] != EXACT
-                })
-            })
-}
 /// `actual_invocation` is the independent original {request,solver_mode} Value.
 /// Without it, a supported consistent receipt returns false, never admission.
-pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<bool, String> {
-    validate_in(source, actual_invocation, false)
-}
 /// Explicit method context; never alters received bytes to fit another contract.
-pub(crate) fn validate_in(
-    source: &Value, actual_invocation: Option<&Value>, composite: bool,
-) -> Result<bool, String> {
-    validate_source_contract_in(source, actual_invocation, composite.then_some(crate::physics_source::SourceContract::PhysicsV2))
-}
 pub(crate) fn validate_source_contract_in(
-    source: &Value, actual_invocation: Option<&Value>, contract: Option<crate::physics_source::SourceContract>,
+    source: &Value, actual_invocation: Option<&Value>, contract: crate::physics_source::SourceContract,
 ) -> Result<bool, String> {
-    let composite = contract.is_some();
-    if let Some(contract) = contract {
-        if let Some(invocation) = actual_invocation { contract.check_invocation(invocation)?; }
-        contract.check_received(source)?;
-    }
+    if let Some(invocation) = actual_invocation { contract.check_invocation(invocation)?; }
+    contract.check_received(source)?;
     require!(
         keys(
             source,
@@ -740,27 +682,23 @@ pub(crate) fn validate_source_contract_in(
                 "diagnostics",
                 "professional_boundary",
                 "accepted_model_state_mutated",
-                "source_block_recovery"
+                "source_block_recovery",
+                "contract_evidence"
             ]
-            .iter()
-            .copied()
-            .chain(composite.then_some("contract_evidence"))
-            .collect::<Vec<_>>()
-            .as_slice()
         ),
         "RAW_FIELDS"
     );
     require!(
         source["schema_version"] == "0.2.0"
             && source["producer"]
-                == json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":contract.map_or(CONTRACT_ID, |c| c.identity())}),
+                == json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":contract.identity()}),
         "PRODUCER"
     );
     let formulation = &source["formulation_basis"];
     require!(
         keys(formulation, &["profile_id", "limitations"])
             && formulation["profile_id"]
-                == contract.map_or("product_preview_mechanics_v1", |c| c.profile())
+                == contract.profile()
             && formulation["limitations"]
                 .as_array()
                 .is_some_and(|a| !a.is_empty()
@@ -768,11 +706,7 @@ pub(crate) fn validate_source_contract_in(
         "FORMULATION"
     );
     let receipt = &source["source_block_recovery"];
-    if composite {
-        crate::physics_source::validate_receipt_shape_in(receipt, contract.unwrap())?;
-    } else {
-        validate_receipt_shape(receipt)?;
-    }
+    crate::physics_source::validate_receipt_shape_in(receipt, contract)?;
     let body = &receipt["body"];
     validate_receipt_hash(receipt)?;
     validate_publication_hash(source)?;
@@ -960,7 +894,7 @@ pub(crate) fn validate_source_contract_in(
             integer(&work["charged"])?
                 .saturating_add(integer(&work["reserved_unobserved_failure"])?)
                 <= integer(&work["limit"])?
-                && integer(&work["limit"])? <= if composite { 8_000_000 } else { 4_000_000 }
+                && integer(&work["limit"])? <= 8_000_000
                 && ((rejected["kind"] == "overflow" && rejected["amount"].is_null())
                     || (rejected["kind"] == "finite" && !rejected["amount"].is_null())),
             "WORK_LEDGER"
@@ -1057,7 +991,7 @@ pub(crate) fn validate_source_contract_in(
             matches!(
                 row["recipe_id"].as_str(),
                 Some("straight_open_stress_v1" | "reviewed_stress_summary_v1")
-            ) || (composite && row["recipe_id"] == "retained_source_straight_stress_v1")
+            ) || row["recipe_id"] == "retained_source_straight_stress_v1"
         }) {
             let relative = ps
                 .iter()
@@ -1090,7 +1024,7 @@ pub(crate) fn validate_source_contract_in(
         for treatment in rows {
             let id = text(&treatment["result_id"])?;
             let row = raw[id];
-            let s = signature(row, composite)?;
+            let s = signature(row)?;
             let inputs = array(&treatment["input_result_ids"])?;
             require!(
                 unique(inputs)
@@ -1112,7 +1046,7 @@ pub(crate) fn validate_source_contract_in(
                             && inputs.is_empty(),
                         "PROJECTION_ROW"
                     );
-                    projection(p, row, composite)?;
+                    projection(p, row)?;
                     used.insert(text(&p["projection_id"])?);
                 }
                 "checked_derived" => {
@@ -1128,9 +1062,7 @@ pub(crate) fn validate_source_contract_in(
                         String,
                     >>(
                     )?;
-                    if composite
-                        && crate::physics_source::is_composite_recipe(&treatment["recipe_id"])
-                    {
+                    if crate::physics_source::is_composite_recipe(&treatment["recipe_id"]) {
                         crate::physics_source::validate_derived(
                             source,
                             case,
@@ -1139,7 +1071,7 @@ pub(crate) fn validate_source_contract_in(
                             &input_rows,
                         )?;
                     } else {
-                        derived_in(&treatment["recipe_id"], row, &input_rows, composite)?;
+                        derived_in(&treatment["recipe_id"], row, &input_rows)?;
                     }
                     if matches!(
                         treatment["recipe_id"].as_str(),
@@ -1170,21 +1102,13 @@ pub(crate) fn validate_source_contract_in(
                         "UNQUALIFIED_DERIVED_INPUT"
                     );
                 }
-                token
-                    if token
-                        == if composite {
-                            "ordinary_physics_checked"
-                        } else {
-                            "ordinary_checked"
-                        } =>
-                {
+                "ordinary_physics_checked" => {
                     require!(
                         success
                             && method != Some(EXACT)
                             && treatment["projection_id"].is_null()
                             && treatment["recipe_id"].is_null()
-                            && s.is_some()
-                            && (composite || row["kind"] != "support_reaction_component_v2"),
+                            && s.is_some(),
                         "ORDINARY_ROW"
                     )
                 }
@@ -1222,11 +1146,9 @@ pub(crate) fn validate_source_contract_in(
             done.extend(ready);
         }
         if success && method == Some(EXACT) {
-            supports(case, &raw, ps, model, composite)?;
-            required_affine(case, &raw, ps, model, composite)?;
-            if composite {
-                crate::physics_source::validate_source_case_in(source, case, actual_invocation, contract.unwrap())?;
-            }
+            supports(case, &raw, ps, model)?;
+            required_affine(case, &raw, ps, model)?;
+            crate::physics_source::validate_source_case_in(source, case, actual_invocation, contract)?;
         } else {
             require!(
                 array(&case["supports"])?.is_empty(),
@@ -1250,7 +1172,7 @@ pub(crate) fn validate_source_contract_in(
         let row = *raw.get(id).ok_or("SOURCE_BLOCKS_OBSERVATION_REF")?;
         require!(
             row["basis_ref"].is_null()
-                && signature(row, composite)?.is_some_and(|s| s["category"] != "physical_quantity"),
+                && signature(row)?.is_some_and(|s| s["category"] != "physical_quantity"),
             "PHYSICAL_OBSERVATION_ESCAPE"
         );
     }
@@ -1273,7 +1195,7 @@ pub(crate) fn validate_source_contract_in(
         "unavailable"
     };
     require!(body["status"] == aggregate, "AGGREGATE_STATUS");
-    summary(source, &raw, model, composite)?;
+    summary(source, &raw, model)?;
     if model.is_some_and(|m| m["combinations"].as_array().is_some_and(|a| !a.is_empty())) {
         usable = false;
     }
@@ -1287,7 +1209,6 @@ fn supports(
     raw: &HashMap<&str, &Value>,
     ps: &[Value],
     model: Option<&Value>,
-    composite: bool,
 ) -> Result<(), String> {
     let records = array(&case["supports"])?;
     let plan = &case["source"];
@@ -1364,7 +1285,7 @@ fn supports(
                     && row["basis_ref"] == case["basis_ref"]
                     && row["unit"] == if slot < 3 { "N" } else { "N*m" }
                     && row["metadata"]
-                        == json!({"component":COMPONENTS[slot],"coordinate_system":"global","location":"node","basis":"recovered_from_assembled_support_law","sign_convention":if composite {crate::physics_source::SUPPORT_SIGN} else {SUPPORT_SIGN}}),
+                        == json!({"component":COMPONENTS[slot],"coordinate_system":"global","location":"node","basis":"recovered_from_assembled_support_law","sign_convention":crate::physics_source::SUPPORT_SIGN}),
                 "SUPPORT_ROW_SEMANTICS"
             );
             let terms = array(&component["action_terms"])?;
@@ -1455,7 +1376,6 @@ fn required_affine(
     raw: &HashMap<&str, &Value>,
     ps: &[Value],
     model: Option<&Value>,
-    composite: bool,
 ) -> Result<(), String> {
     let rows = ps
         .iter()
@@ -1520,11 +1440,7 @@ fn required_affine(
                 .iter()
                 .filter(|r| r["entity_ref"] == *member
                     && r["kind"]
-                        == if composite {
-                            "pipe_elastic_normal_stress_maximum_v2"
-                        } else {
-                            "open_formula_stress_summary"
-                        })
+                        == "pipe_elastic_normal_stress_maximum_v2")
                 .count()
                 == 1,
             "MEMBER_SUMMARY_COVERAGE"
@@ -1536,11 +1452,7 @@ fn required_affine(
                 .iter()
                 .filter(|r| r["entity_ref"] == *support
                     && r["kind"]
-                        == if composite {
-                            "support_reaction_force_magnitude_v2"
-                        } else {
-                            "reaction_resultant"
-                        })
+                        == "support_reaction_force_magnitude_v2")
                 .count()
                 == 1,
             "SUPPORT_MAGNITUDE_COVERAGE"
@@ -1583,7 +1495,6 @@ fn summary(
     source: &Value,
     raw: &HashMap<&str, &Value>,
     model: Option<&Value>,
-    composite: bool,
 ) -> Result<(), String> {
     let summary = &source["summary"];
     if let Some(model) = model {
@@ -1603,11 +1514,7 @@ fn summary(
         ("max_displacement", "displacement_magnitude"),
         (
             "max_open_formula_stress",
-            if composite {
-                "pipe_elastic_normal_stress_maximum_v2"
-            } else {
-                "open_formula_stress_summary"
-            },
+            "pipe_elastic_normal_stress_maximum_v2",
         ),
     ] {
         let headline = &summary[field];
@@ -1660,7 +1567,7 @@ mod norm_tests {
         })).collect();
         let row = json!({"kind":if support {"reaction_resultant"}else{"displacement_magnitude"},
             "unit":if support {"N"}else{"mm"},"entity_ref":"synthetic-norm-owner","value":value});
-        derived(
+        derived_in(
             &json!(if support {
                 "support_force_norm_scaled_v1"
             } else {
@@ -1728,7 +1635,7 @@ mod stress_range_tests {
         ][index];
         let action = json!({"kind":stress_action_kind(kind).unwrap(),"unit":if index==0{"N"}else{"N*m"},"entity_ref":"stress-owner","metadata":{"location":location},"value":action_value});
         let row = json!({"kind":kind,"unit":"MPa","entity_ref":"stress-owner","metadata":{"component":component,"location":location},"value":value});
-        derived(&json!("straight_open_stress_v1"), &row, &[&action])
+        derived_in(&json!("straight_open_stress_v1"), &row, &[&action])
     }
     fn summary(normal: f64, torsion: f64, value: f64) -> Result<(), String> {
         let mut inputs = Vec::new();
@@ -1737,7 +1644,7 @@ mod stress_range_tests {
                 inputs.push(json!({"kind":kind,"unit":"MPa","entity_ref":"stress-owner","metadata":{"location":location},"value":if index==3{torsion}else{normal}}));
             }
         }
-        derived(
+        derived_in(
             &json!("reviewed_stress_summary_v1"),
             &json!({"kind":"open_formula_stress_summary","unit":"MPa","entity_ref":"stress-owner","value":value}),
             &inputs.iter().collect::<Vec<_>>(),
@@ -1919,10 +1826,10 @@ mod rv95_n5_integer_tests {
         for key in ["node_count", "segment_count", "support_count", "load_case_count"] {
             let mut source = json!({"summary": {"node_count": 0, "segment_count": 0, "support_count": 0, "load_case_count": 0}});
             source["summary"][key] = json!(TWO_53);
-            assert_eq!(summary(&source, &HashMap::new(), Some(&model), false), Err(INTEGER.into()), "{key}");
+            assert_eq!(summary(&source, &HashMap::new(), Some(&model)), Err(INTEGER.into()), "{key}");
             source["summary"][key] = json!(TWO_53 - 1);
             assert_eq!(
-                summary(&source, &HashMap::new(), Some(&model), false),
+                summary(&source, &HashMap::new(), Some(&model)),
                 Err("SOURCE_BLOCKS_SUMMARY_MODEL_COUNTS".into()),
                 "{key}"
             );

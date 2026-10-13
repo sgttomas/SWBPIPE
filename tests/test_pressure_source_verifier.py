@@ -194,7 +194,7 @@ def test_pressure_joined_guard_traces_actual_rust_caller_context_and_keeps_v2_pr
     base = ROOT / "core/reporting/result_export/src"
     dispatch = _compact_rust(_rust_function(base / "reader_verdict.rs", "validate"))
     assert 'ifreader=="pressure-source"{crate::physics_source::SourceContract::PressureV3}' in dispatch
-    assert "source_validate_in(source,invocation,composite,contract)" in dispatch
+    assert "source_validate_in(source,invocation,contract)" in dispatch
     relay = _compact_rust(_rust_function(base / "reader_verdict.rs", "source_validate_in"))
     assert "crate::physics_source::validate_in(source,invocation,contract)" in relay
     raw = _compact_rust(_rust_function(base / "physics_source.rs", "validate_in"))

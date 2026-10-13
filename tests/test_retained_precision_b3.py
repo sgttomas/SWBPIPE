@@ -304,8 +304,6 @@ def m3x(mode):
             term["geometry"]["route"] = "exact"
     for attempt in body["product_attempts"]:
         attempt["definition_id"] = rp.EXACT_DEFINITION_ID
-    for work in body["legacy_source_work"]:
-        work["limit"] = 8_000_000  # P-2 (RR "I99's B3-W verified; …", ruling 2)
     return reseal(source, invocation, rp.EXACT_DEFINITION_HASH), invocation
 
 

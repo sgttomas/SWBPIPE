@@ -647,7 +647,6 @@ fn header_dispatch_binds_one_profile_and_existing_readers_refuse_joined_labels()
         s::PHYSICS_ID,
         s::PHYSICS_SOURCE_ID,
         s::LOAD_REFERENCE_ID,
-        "openpipestress.result_semantics/0.3.0/source-blocks-1",
     ] {
         let mut bad = raw.clone();
         bad["producer"]["semantic_contract_id"] = json!(id);

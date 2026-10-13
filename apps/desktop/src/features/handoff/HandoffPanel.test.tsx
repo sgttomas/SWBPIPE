@@ -1,8 +1,8 @@
 import {it,expect} from 'vitest';
 import modelJson from '../../../../../fixtures/product_preview/invented_demo_model.json';
-import resultJson from '../../../../../fixtures/product_preview/invented_demo_result_legacy_0_1.json';
+import resultJson from '../../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json';
 import {buildHandoffPackage} from './HandoffPanel';
-import {buildAnalysisRunPreview,bindSourceResultDimensions} from '../../services/previewService';
+import {buildAnalysisRunPreview} from '../../services/previewService';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import previewText from '../../../../../fixtures/results/preview_physics_connected_sparse.json?raw';
 import previewModelJson from '../../../../../fixtures/model_operations/precision_connected_ui_model.json';
@@ -21,9 +21,11 @@ it('a current preview-physics-1 result has no received declarations, so nothing 
  const packet=buildHandoffPackage({model,result,analysisRun,knowledge:null,comparison:null,editorIntents:[],proposal:null,selectedReviewTarget:null});
  expect(packet.unit_preservation_witnesses).toHaveLength(0);
 });
-it('refuses the legacy carrier as the handoff analysis basis without changing it',async()=>{
- const model=modelJson as PreviewModel,legacy=bindSourceResultDimensions(structuredClone(resultJson) as unknown as MechanicsResult),before=JSON.stringify(legacy);
- expect(sourceContract(legacy)).toBe('legacy');
- await expect(buildAnalysisRunPreview(legacy,{inputManifest:await manifestFor(model)})).rejects.toThrow('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');
- expect(JSON.stringify(legacy)).toBe(before);
+it('refuses the retired 0.1.0 carrier as the handoff analysis basis without changing it',async()=>{
+ const model=modelJson as PreviewModel,retired=structuredClone(resultJson) as unknown as MechanicsResult;
+ retired.schema_version='0.1.0';for(const key of ['producer','numerical_quality','formulation_basis','contract_evidence'])delete (retired as unknown as Record<string,unknown>)[key];
+ const before=JSON.stringify(retired);
+ expect(sourceContract(retired)).toBe('unsupported');
+ await expect(buildAnalysisRunPreview(retired,{inputManifest:await manifestFor(model)})).rejects.toThrow('SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED');
+ expect(JSON.stringify(retired)).toBe(before);
 });
