@@ -1036,3 +1036,32 @@ leaving 1,021,966,709 bytes below floor(0.9 M), the least of all fourteen
 phase/mode headrooms. The original 17 input hashes are unchanged; input 18
 is `774dad290e17ece0292b7a6021c59c8067e13aa4267c6bdbb25bb3fb17da75c5`.
 The actual reader size/alignment pairs remain 56/8, 64/8, 96/8 and 16/8.
+
+
+## B7a: carry of retired preview source rules
+
+B4/D1 (b) removes the non-composite preview source receipt and its support
+resultant, straight-stress input vector and stress-summary recipes. Before
+the ordinary line carry, lib/b7a_retired_carry.py transforms copies of two
+canonical base files only on exact full-file fingerprints of the current
+source_receipt/rows.rs and source_receipt.rs. It verifies the complete
+preimages and removes ID-audit keys 390/396/518/529, whose four owned
+allocation sites no longer exist, and only the deleted exact/finalize
+tokens from the ZW sensitivity CSV. finalize_composite and finalize_for
+remain. A partial retirement, changed source or changed preimage refuses
+the transformation. Missing source and original exact/finalize constructors
+send the untouched original rules to the same strict line carry; neither
+branch exempts a replaced current key. The full-file fingerprints hash
+raw bytes, including newline representation.
+
+Current positive nodal, functional-binding, projected/derived row-ID,
+missing-derived-row format and source functional-ID audits remain intact.
+No current owner, loop, call count, cap, numerical criterion, M or margin
+is narrowed. The D3 report records each retirement, both full-file source
+fingerprints, the adapter hash and input/output rule hashes. The canonical
+base files remain unchanged and every replay derives the same two copies.
+These full-file guards are part of the pricing tool's dependency: an edit
+to either guarded file, including a test-only suffix, requires this source
+binding to be re-audited before pricing is reused. The currently planned
+public corpus and D8 fixture paths are outside these two guarded files;
+any actual helper or test-suffix edit in either file requires re-audit.

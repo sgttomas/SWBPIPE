@@ -1,0 +1,78 @@
+"""B7a: exact, source-bound removal of retired preview rule sites before carry."""
+import hashlib
+import json
+import os
+import re
+
+SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': 'bd4a56be5e30f20d33633086916eaa62393fe5f1524ac8d6272bd1e500709395', 'core/product_physics/src/source_receipt.rs': 'dc36c7f8a75377ea61abb82322d572798388e632cc087c31b3bf3f642040af0d'}
+ROW_FILE = "core/product_physics/src/source_receipt/rows.rs"
+RETIRED_IDS = {
+    ROW_FILE + ":390": {"primary[&s.functional_indices[c]].id": {"bytes": 1024, "source": "RES"}},
+    ROW_FILE + ":396": {"stable_suffix(&s.support_id)": {"bytes": 128, "source": "IN128"}},
+    ROW_FILE + ":518": {"row.id": {"bytes": 1024, "source": "RES"}},
+    ROW_FILE + ":529": {"primary[&function].id": {"bytes": 1024, "source": "RES"}},
+}
+ZW_OLD = "source_receipt.rs:634:exact,source_receipt.rs:836:finalize,source_receipt.rs:850:finalize_composite,source_receipt.rs:864:finalize_for"
+ZW_NEW = "source_receipt.rs:850:finalize_composite,source_receipt.rs:864:finalize_for"
+REASONS = {
+    ":390": "B4/D1 retirement removes the non-composite support-resultant input-id clone.",
+    ":396": "B4/D1 retirement removes the non-composite support-resultant ID format.",
+    ":518": "B4/D1 retirement removes stress-summary stress_ids and its row-ID clone.",
+    ":529": "B4/D1 retirement removes the non-composite stress primary-ID vector; composite inputs remain empty.",
+}
+
+
+def prepare(snapshot, base, output):
+    """Preserve historical base files; adapt only this exact current-source retirement."""
+    source_bytes = {}
+    for file in SOURCE_FILES:
+        path = os.path.join(snapshot, file)
+        if not os.path.isfile(path):
+            return {}, None
+        with open(path, "rb") as stream:
+            source_bytes[file] = stream.read()
+    actual = {file: hashlib.sha256(raw).hexdigest() for file, raw in source_bytes.items()}
+    source = {file: raw.decode("utf-8") for file, raw in source_bytes.items()}
+    receipt = source["core/product_physics/src/source_receipt.rs"]
+    old_methods = [bool(re.search(r"^\s+pub\(super\) fn " + name + r"\(", receipt, re.M))
+                   for name in ("exact", "finalize")]
+    if all(old_methods):
+        return {}, None
+    if any(old_methods) or actual != SOURCE_FILES:
+        raise ValueError("B7a retirement source drift: re-review the full source files and surviving ownership")
+    for name in ("finalize_composite", "finalize_for"):
+        if len(re.findall(r"^\s+(?:pub\(super\) )?fn " + name + r"\(", receipt, re.M)) != 1:
+            raise ValueError("B7a retirement changed a live finalizer")
+    text = json.load(open(os.path.join(base, "text_args.g4.json"), encoding="utf-8"))
+    for key, expected in RETIRED_IDS.items():
+        if text["id_audit"].get(key) != expected:
+            raise ValueError("B7a retirement base ID-audit preimage changed")
+    with open(os.path.join(base, "sens.py"), "rb") as stream:
+        sens = stream.read().decode("utf-8")
+    old_line = 'ZW = "' + ZW_OLD + '"'
+    if sens.count(old_line) != 1:
+        raise ValueError("B7a retirement base ZW preimage changed")
+    removals = []
+    for key, expected in RETIRED_IDS.items():
+        text["id_audit"].pop(key)
+        removals.append({"file": "text_args.g4.json", "family": "id_audit", "key": key,
+                         "rule": expected, "why": REASONS[":" + key.rsplit(":", 1)[1]]})
+    sens = sens.replace(old_line, 'ZW = "' + ZW_NEW + '"', 1)
+    for key in ZW_OLD.split(",")[:2]:
+        removals.append({"file": "sens.py", "family": "ZW", "key": key,
+                         "why": "B4/D1 retirement deletes the preview SourceBlocks constructor; the two live composite finalizers retain their zero-sensitivity tokens."})
+    os.makedirs(output, exist_ok=True)
+    out_text = os.path.join(output, "text_args.g4.json")
+    out_sens = os.path.join(output, "sens.py")
+    with open(out_text, "w", encoding="utf-8") as stream:
+        json.dump(text, stream, indent=1)
+    with open(out_sens, "wb") as stream:
+        stream.write(sens.encode("utf-8"))
+    report = {"source_fingerprint_scope": "full files", "source_fingerprints": actual,
+              "adapter_sha256": hashlib.sha256(open(__file__, "rb").read()).hexdigest(),
+              "base_preimages": {name: hashlib.sha256(open(os.path.join(base, name), "rb").read()).hexdigest()
+                                for name in ("text_args.g4.json", "sens.py")},
+              "prepared_files": {name: hashlib.sha256(open(os.path.join(output, name), "rb").read()).hexdigest()
+                                 for name in ("text_args.g4.json", "sens.py")},
+              "retired": removals}
+    return {"text_args.g4.json": out_text, "sens.py": out_sens}, report

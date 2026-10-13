@@ -13,6 +13,7 @@ RP_OUT (default --out), RP_JOB_WRAPPER (a command each point runs under, e.g. a 
 like a shell word list). See README.md for inputs, outputs, exit codes and limits.
 """
 import argparse, difflib, json, os, re, shlex, shutil, subprocess, sys, tempfile
+from lib.b7a_retired_carry import prepare as prepare_b7a_retired_carry
 
 H = os.path.dirname(os.path.abspath(__file__))
 BASE, LIB, RULES, DATA = (os.path.join(H, d) for d in ("base", "lib", "rules", "data"))
@@ -23,7 +24,7 @@ RULE_FILES = ("callgraph_rules.g4.json", "loop_bounds.g4.json", "text_args.g4.js
 POINTS = (("L", 3, 0), ("L", 2, 1), ("L", 1, 2), ("E", 3, 0))
 GIT_ENV = dict(os.environ, GIT_OPTIONAL_LOCKS="0")
 MARKER = ".retained_pricing_out"            # written in an output directory this tool created or claimed while empty
-OWNED = ("snap", "map", "chain", "rcL", "rcE", "runs", "logs", "tree_merged.json", "summary.json", "o10_check_L.json", "o10_check_E.json")
+OWNED = ("snap", "prepared_rules", "map", "chain", "rcL", "rcE", "runs", "logs", "tree_merged.json", "summary.json", "o10_check_L.json", "o10_check_E.json")
 RESOLUTIONS = os.path.join(RULES, "linemap_resolutions.json")
 
 
@@ -186,8 +187,13 @@ def cmd_run(a):
     # 1. the snapshot
     W = snapshot(repo, rev, os.path.join(out, "snap"))
     # 2. the base chain's line-keyed rules, basis -> rev (stops on any key it cannot carry)
+    try:
+        prepared, retirement_report = prepare_b7a_retired_carry(W, BASE, os.path.join(out, "prepared_rules"))
+    except ValueError as error:
+        stop(4, str(error))
+    report["b7a_retired_carry"] = retirement_report
     m = os.path.join(out, "map")
-    r = py([os.path.join(LIB, "linemap_rules.py"), "--prune-deleted", repo, BASIS, rev, m] + [os.path.join(BASE, f) for f in RULE_FILES],
+    r = py([os.path.join(LIB, "linemap_rules.py"), "--prune-deleted", repo, BASIS, rev, m] + [prepared.get(f, os.path.join(BASE, f)) for f in RULE_FILES],
            env=chain_env(LINEMAP_CRATES=os.path.join(BASE, "crate_dirs.txt"), LINEMAP_ROWS=os.path.join(DATA, "basis_text_rows.json"),
                          LINEMAP_RESOLUTIONS=RESOLUTIONS),
            out=os.path.join(out, "logs", "linemap.json"))
