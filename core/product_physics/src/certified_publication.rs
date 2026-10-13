@@ -316,11 +316,36 @@ pub(super) fn support(
     force: &AssembledForce,
     u: &[f64],
     bound: &MemberBoundInputs,
+    nonlinear: Option<&HashMap<String, open_pipe_stress_nonlinear_integration::confirmation::ConfirmedRow>>,
 ) -> Result<[CertifiedRow; 6], RecoveryFailure> {
     use open_pipe_stress_frame_kernel::structural::{
         certify_spring_reaction, certify_support_reaction,
     };
     let mut rows = [CertifiedRow::ZERO; 6];
+    // DEL-04-01 kd5-nonlinear-active-set.md §3.1: a nonlinear support's slot
+    // is its confirmed row; the other five components stay exact +0.
+    if let Some(nonlinear_support) = built
+        .nonlinear_supports
+        .iter()
+        .find(|item| item.support_id == support.id)
+    {
+        let row = nonlinear
+            .and_then(|rows| rows.get(&support.id))
+            .ok_or(RecoveryFailure::Wide(
+                open_pipe_stress_frame_kernel::structural::retained_api::WideError::CountRange(
+                    "nonlinear support row",
+                ),
+            ))?;
+        let slot = dof_index(nonlinear_support.dof);
+        if slot >= 6 || row.global_dof % 6 != slot {
+            return Err(RecoveryFailure::Wide(
+                open_pipe_stress_frame_kernel::structural::retained_api::WideError::CountRange(
+                    "nonlinear support slot",
+                ),
+            ));
+        }
+        rows[slot] = row.row;
+    }
     if is_constant_effort_support(support) {
         if let Ok(application) = classify_constant_effort_consumption(model, support) {
             rows[dof_index(application.dof)] =

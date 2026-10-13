@@ -1,0 +1,391 @@
+//! K-D5 on the converged active set (DEL-04-01 kd5-nonlinear-active-set.md
+//! §6): the certificate on synthetic balls, the Stage-A ball, the closure
+//! mutants and the named preconditions.
+use super::*;
+use crate::{
+    solve_active_set_frame_with_mode_and_springs_assembled, ConvergenceControl,
+    ConvergencePolicyStatus, DerivedFrictionNormalReaction, FrictionNormalReaction,
+};
+use open_pipe_stress_frame_kernel::{FrameElement, FrameNode, FrameSection};
+use open_pipe_stress_nonlinear_supports::{GapDirection, SupportStateRecord};
+
+const MODES: [LinearSolveMode; 2] = [LinearSolveMode::SparseInteractive, LinearSolveMode::DenseScrutiny];
+
+fn ball(m: f64, r: f64) -> CertifiedRow {
+    CertifiedValue::with_radius(m, r).unwrap().into_row().unwrap()
+}
+
+// ------------------------------------------------ the §2.2 predicate
+
+#[test]
+fn unilateral_signs_need_the_whole_ball_strictly_on_their_side() {
+    let positive = |active, m, r| support_reason(&SupportEvidence::Unilateral { positive: true, active, ball: ball(m, r) });
+    let negative = |active, m, r| support_reason(&SupportEvidence::Unilateral { positive: false, active, ball: ball(m, r) });
+    assert_eq!(positive(true, 1.0, 0.5), None);
+    // Midpoint of the right sign, radius straddling 0: the loop's binary64
+    // value alone would pass (kills the midpoint-only and trial-value mutants).
+    assert_eq!(positive(true, 1.0, 2.0), Some("contact force sign not established"));
+    assert_eq!(positive(true, 1.0, 1.0), Some("contact force sign not established"));
+    // Exact zero (R3): kills `>=` in place of `>`.
+    assert_eq!(positive(true, 0.0, 0.0), Some("contact force sign not established"));
+    assert_eq!(positive(false, 0.0, 0.0), Some("separation not established"));
+    // The sign convention (kills a reversed reaction sign).
+    assert_eq!(positive(true, -1.0, 0.0), Some("contact force sign not established"));
+    assert_eq!(negative(true, -1.0, 0.5), None);
+    assert_eq!(negative(true, 1.0, 0.5), Some("contact force sign not established"));
+    assert_eq!(positive(false, 1e-3, 1e-4), None);
+    assert_eq!(negative(false, -1e-3, 1e-4), None);
+    assert_eq!(negative(false, 1e-3, 1e-4), Some("separation not established"));
+}
+
+#[test]
+fn stick_capacity_is_decided_exactly_with_both_radii() {
+    let explicit = |mu, n, m, r| {
+        support_reason(&SupportEvidence::ExplicitFriction {
+            coefficient: mu,
+            normal: n,
+            state: ActiveSetState::Sticking,
+            tangential: ball(m, r),
+            direction: 0.0,
+        })
+    };
+    assert_eq!(explicit(0.5, 100.0, 49.9, 0.05), None);
+    assert_eq!(explicit(0.5, 100.0, -49.9, 0.05), None);
+    assert_eq!(explicit(0.5, 100.0, 49.9, 0.2), Some("stick capacity not established"));
+    assert_eq!(explicit(0.5, 100.0, 50.0, 0.0), Some("stick capacity not established"));
+    // mu*N is inexact: 0.1*10 = 1 + 5.55e-17 exactly but fl(0.1*10) = 1, so
+    // |m_t| = 1 sticks only by the exact product (kills a rounded comparison).
+    assert_eq!(0.1_f64 * 10.0, 1.0);
+    assert_eq!(explicit(0.1, 10.0, 1.0, 0.0), None);
+    assert_eq!(explicit(0.0, 10.0, 0.0, 0.0), Some("stick capacity not established"));
+    let derived = |n: CertifiedRow, m, r| {
+        support_reason(&SupportEvidence::DerivedFriction {
+            coefficient: 0.5,
+            state: ActiveSetState::Sticking,
+            normal: n,
+            tangential: ball(m, r),
+            direction: 0.0,
+            beta: None,
+        })
+    };
+    // mu*(|m_n| - rho_n) = 49.5 against |m_t| + rho_t: 49.45 sticks; 49.55
+    // does not (kills dropping rho_t), nor does it with rho_n dropped (50).
+    assert_eq!(derived(ball(-100.0, 1.0), 49.4, 0.05), None);
+    assert_eq!(derived(ball(-100.0, 1.0), 49.4, 0.15), Some("stick capacity not established"));
+    assert_eq!(derived(ball(-100.0, 1.0), 49.6, 0.0), Some("stick capacity not established"));
+    // |R_n|, not the signed reaction (kills a signed N).
+    assert_eq!(derived(ball(100.0, 1.0), 49.4, 0.05), None);
+    assert_eq!(derived(ball(0.5, 1.0), 0.0, 0.0), Some("friction normal not established"));
+}
+
+#[test]
+fn sliding_needs_the_slip_sign_and_the_coupling_branch() {
+    let derived = |normal: CertifiedRow, beta, direction, m, r| {
+        support_reason(&SupportEvidence::DerivedFriction {
+            coefficient: 0.5,
+            state: ActiveSetState::Sliding,
+            normal,
+            tangential: ball(m, r),
+            direction,
+            beta,
+        })
+    };
+    assert_eq!(derived(ball(-100.0, 1.0), Some(-1.0), 1.0, 1e-3, 1e-4), None);
+    assert_eq!(derived(ball(-100.0, 1.0), Some(-1.0), -1.0, -1e-3, 1e-4), None);
+    // The slip sign is checked (kills an unchecked slip sign).
+    assert_eq!(derived(ball(-100.0, 1.0), Some(-1.0), 1.0, -1e-3, 1e-4), Some("slip direction not established"));
+    assert_eq!(derived(ball(-100.0, 1.0), Some(-1.0), 1.0, 1e-3, 2e-3), Some("slip direction not established"));
+    // beta is checked against the certified normal (kills an unchecked beta).
+    assert_eq!(derived(ball(-100.0, 1.0), Some(1.0), 1.0, 1e-3, 1e-4), Some("friction normal not established"));
+    assert_eq!(derived(ball(0.5, 1.0), Some(1.0), 1.0, 1e-3, 1e-4), Some("friction normal not established"));
+    let explicit = |n, direction, m, r| {
+        support_reason(&SupportEvidence::ExplicitFriction {
+            coefficient: 0.3,
+            normal: n,
+            state: ActiveSetState::Sliding,
+            tangential: ball(m, r),
+            direction,
+        })
+    };
+    assert_eq!(explicit(70.0, 1.0, 1e-3, 1e-4), None);
+    assert_eq!(explicit(70.0, 1.0, -1e-3, 1e-4), Some("slip direction not established"));
+    assert_eq!(explicit(0.0, 1.0, 1e-3, 1e-4), Some("friction normal not established"));
+    let inactive = |n| support_reason(&SupportEvidence::ExplicitFriction { coefficient: 0.3, normal: n, state: ActiveSetState::Inactive, tangential: ball(0.0, 0.0), direction: 0.0 });
+    assert_eq!(inactive(0.0), None);
+    assert_eq!(inactive(-5.0), None);
+    assert_eq!(inactive(5.0), Some("friction normal not established"));
+    let derived_inactive = support_reason(&SupportEvidence::DerivedFriction { coefficient: 0.5, state: ActiveSetState::Inactive, normal: ball(0.0, 0.0), tangential: ball(0.0, 0.0), direction: 0.0, beta: None });
+    assert_eq!(derived_inactive, Some("friction normal not established"));
+}
+
+#[test]
+fn at_most_six_supports_are_named_in_support_id_order() {
+    let failures = (0..8).map(|i| (format!("S{i}"), "separation not established")).collect::<Vec<_>>();
+    let reason = certificate_reason(&failures).unwrap();
+    assert!(reason.starts_with("support S0: separation not established; support S1"));
+    assert!(reason.contains("support S5: separation not established; 2 more"));
+    assert!(!reason.contains("S6"));
+    assert_eq!(certificate_reason(&[]), None);
+}
+
+/// Review M2: a support whose own ball cannot be formed fails under the name
+/// of its kind and state (§2.4 item 7), not under one name for every support.
+#[test]
+fn an_unformed_ball_is_named_by_support_kind_and_state() {
+    use NonlinearSupportBehavior as B;
+    let one_way = B::OneWay { active_when: ActivationSense::PositiveReaction };
+    let lift_off = B::LiftOff { contact_when: ActivationSense::NegativeReaction };
+    for unilateral in [&one_way, &lift_off] {
+        assert_eq!(ball_failure_reason(unilateral, ActiveSetState::Active), "contact force sign not established");
+        assert_eq!(ball_failure_reason(unilateral, ActiveSetState::Inactive), "separation not established");
+    }
+    assert_eq!(ball_failure_reason(&B::Friction, ActiveSetState::Sticking), "stick capacity not established");
+    assert_eq!(ball_failure_reason(&B::Friction, ActiveSetState::Sliding), "slip direction not established");
+    assert_eq!(ball_failure_reason(&B::Friction, ActiveSetState::Inactive), "friction normal not established");
+    let gap = B::Gap { closes_when: GapDirection::NegativeDisplacement };
+    assert_eq!(ball_failure_reason(&gap, ActiveSetState::Active), "gap clearance not established");
+}
+
+#[test]
+fn prescribed_rows_must_match_bit_for_bit() {
+    assert!(!prescribed_row_mismatch(&[0.0, 1.0], &[(0, 0.0)]));
+    assert!(prescribed_row_mismatch(&[-0.0, 1.0], &[(0, 0.0)]));
+    assert!(prescribed_row_mismatch(&[1e-300, 1.0], &[(0, 0.0)]));
+    assert!(prescribed_row_mismatch(&[0.0], &[(3, 0.0)]));
+}
+
+// ------------------------------------------------ the Stage-A ball (§1.4)
+
+/// The exact coupled force of a constructed case: φ = c·(N⁰ + g·(φ − φ⁰)).
+fn exact_coupled(c: f64, normal: f64, gain: f64, phi0: f64) -> f64 {
+    (c * normal - c * gain * phi0) / (1.0 - c * gain)
+}
+
+fn contains(b: &CoupledBall, x: f64, slack: f64) -> bool {
+    (b.midpoint - x).abs() <= b.radius + slack
+}
+
+#[test]
+fn coupled_ball_contains_the_coupled_force_far_from_the_loop_value() {
+    // c = -dir*mu*beta = 0.5; φ⁰ deliberately far from φ* (−503/9).
+    let b = coupled_ball(0.5, 1.0, -1.0, 3.0, &ball(-100.0, 0.0), &ball(0.2, 0.0)).unwrap();
+    let exact = -503.0 / 9.0;
+    assert!(contains(&b, exact, 1e-13), "{b:?}");
+    // Without (1 - c*g)^-1 the midpoint would be c*N⁰ = -50 (killed).
+    assert!(!contains(&b, -50.0, 0.0));
+    assert!(b.radius < 1e-12);
+    // The gain's and the normal's radii widen the ball (kills dropping them):
+    // the coupled force of every gain in [0.19, 0.21] and normal in [-101, -99].
+    let wide = coupled_ball(0.5, 1.0, -1.0, 3.0, &ball(-100.0, 1.0), &ball(0.2, 0.01)).unwrap();
+    for g in [0.19, 0.21] {
+        for n in [-101.0, -99.0] {
+            assert!(contains(&wide, exact_coupled(0.5, n, g, 3.0), 1e-12), "{wide:?} g={g} n={n}");
+        }
+    }
+    // 0 in M = 1 - c*g fails closed.
+    assert!(coupled_ball(0.5, 1.0, -1.0, 3.0, &ball(-100.0, 0.0), &ball(2.0, 0.5)).is_none());
+}
+
+// ------------------------------------------------ product-shaped models
+
+/// A 2 m cantilever along X: node 0 anchored, node 1 the tip; `base` adds tip
+/// restraints. Nodal loads are input terms of a ledger.
+fn cantilever(
+    supports: Vec<NonlinearSupport>,
+    states: Vec<SupportStateRecord>,
+    explicit: Vec<FrictionNormalReaction>,
+    derived: Vec<DerivedFrictionNormalReaction>,
+    base: &[usize],
+    loads: &[(usize, f64)],
+) -> (NonlinearFrameSolveInput, AssembledForce) {
+    let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+    let node_j = FrameNode::new(1, [2.0, 0.0, 0.0]).unwrap();
+    let section = FrameSection::new(2.0e11, 8.0e10, 3.5e-3, 1.15e-5, 1.15e-5, 2.3e-5).unwrap();
+    let element = FrameElement::new(node_i, node_j, section, [0.0, 0.0, 1.0]).unwrap();
+    let mut ledger = LoadLedger::new();
+    for &(dof, value) in loads {
+        ledger.push("nodal", dof, value);
+    }
+    let force = ledger.finish(12).unwrap();
+    let mut base_restrained = (0..6).collect::<Vec<_>>();
+    base_restrained.extend_from_slice(base);
+    (
+        NonlinearFrameSolveInput {
+            node_count: 2,
+            elements: vec![element],
+            connectors: Vec::new(),
+            curved_bend_elements: Vec::new(),
+            force: force.values().to_vec(),
+            base_restrained_dofs: base_restrained,
+            nonlinear_supports: supports,
+            initial_states: states,
+            friction_normal_reactions: explicit,
+            derived_friction_normal_reactions: derived,
+            convergence: ConvergenceControl::new("kd5-nonlinear-test", ConvergencePolicyStatus::Accepted, 0.0, 0.0, 12).unwrap(),
+        },
+        force,
+    )
+}
+
+fn derived_friction(id: &str, dof: FrameDof, source: FrameDof, mu: f64) -> (NonlinearSupport, SupportStateRecord, DerivedFrictionNormalReaction) {
+    (
+        NonlinearSupport::friction(id, 1, dof, mu).unwrap(),
+        SupportStateRecord::new(id, ActiveSetState::Sliding),
+        DerivedFrictionNormalReaction::from_support_reaction(id, 1, source, "source").unwrap(),
+    )
+}
+
+fn confirm(input: &NonlinearFrameSolveInput, force: &AssembledForce, mode: LinearSolveMode, applied: Option<&dyn Fn(&mut Vec<AppliedSlidingFrictionForce>)>) -> Confirmation {
+    let solve = solve_active_set_frame_with_mode_and_springs_assembled(input, force, mode, &[]).unwrap();
+    assert!(solve.converged, "{:?}", solve.diagnostics);
+    let mut forces = solve.iterations.last().unwrap().applied_sliding_friction_forces.clone();
+    if let Some(mutate) = applied {
+        mutate(&mut forces);
+    }
+    confirm_with_applied(input, &[], &solve, force, &[], mode, &forces).unwrap()
+}
+
+fn reason(c: Confirmation) -> String {
+    match c {
+        Confirmation::NotEstablished { reason } => reason,
+        Confirmation::Established(_) => panic!("expected a named reason"),
+    }
+}
+
+fn f1(px: f64) -> (NonlinearFrameSolveInput, AssembledForce) {
+    let (s, st, d) = derived_friction("NL-F", FrameDof::Ux, FrameDof::Uy, 0.5);
+    cantilever(vec![s], vec![st], Vec::new(), vec![d], &[7], &[(7, -100.0), (6, px)])
+}
+
+#[test]
+fn derived_sliding_and_sticking_are_established_in_both_modes() {
+    for mode in MODES {
+        for (px, sliding) in [(80.0, true), (-80.0, true), (30.0, false)] {
+            let (input, force) = f1(px);
+            let Confirmation::Established(state) = confirm(&input, &force, mode, None) else {
+                panic!("{px} {mode:?}")
+            };
+            let row = state.supports["NL-F"].row;
+            let normal = state.derived_normals["NL-F"].row;
+            assert_eq!(normal.published.abs(), 100.0);
+            if sliding {
+                // F = -sign(u)*mu*N, exactly here (g = 0).
+                assert_eq!(row.published, -px.signum() * 50.0);
+            } else {
+                assert_eq!(row.published, -px);
+            }
+        }
+    }
+}
+
+#[test]
+fn friction_closure_fails_on_a_missing_duplicate_extra_or_rebound_primitive() {
+    let explicit = || {
+        cantilever(
+            vec![NonlinearSupport::friction("NL-E", 1, FrameDof::Ux, 0.3).unwrap()],
+            vec![SupportStateRecord::new("NL-E", ActiveSetState::Sliding)],
+            vec![FrictionNormalReaction::new("NL-E", 70.0).unwrap()],
+            Vec::new(),
+            &[],
+            &[(6, 40.0)],
+        )
+    };
+    for mode in MODES {
+        let (input, force) = explicit();
+        let Confirmation::Established(state) = confirm(&input, &force, mode, None) else { panic!() };
+        // The exact product -0.3*70, rounded once (kills a fl(mu*N) re-formation:
+        // the bound would then miss |fl - exact|).
+        assert_eq!(state.supports["NL-E"].row.published, -(0.3_f64 * 70.0));
+        assert!(state.supports["NL-E"].row.bound() > 0.0);
+        type Mutation = fn(&mut Vec<AppliedSlidingFrictionForce>);
+        let cases: [(Mutation, &str); 4] = [
+            (|f| f.clear(), "missing, duplicate or extra summand"),
+            (|f| { let d = f[0].clone(); f.push(d) }, "missing, duplicate or extra summand"),
+            (|f| { let mut d = f[0].clone(); d.support_id = "NL-OTHER".into(); f.push(d) }, "extra or mismatched-term primitive"),
+            (|f| f[0].force = -f[0].force, "wrong operand binding"),
+        ];
+        for (mutation, expected) in cases {
+            let reason = reason(confirm(&input, &force, mode, Some(&mutation)));
+            assert!(reason.starts_with("formation check: stage B: load closure:") && reason.contains(expected), "{reason}");
+        }
+    }
+    // A derived term whose applied force is absent cannot form Stage A.
+    let (input, force) = f1(80.0);
+    let reason = reason(confirm(&input, &force, LinearSolveMode::DenseScrutiny, Some(&|f: &mut Vec<AppliedSlidingFrictionForce>| f.clear())));
+    assert_eq!(reason, "formation check: stage A: load closure: NL-F: missing applied force");
+}
+
+#[test]
+fn named_preconditions_fail_closed_before_the_attempt() {
+    // k > 1: two coupled derived-normal sliding supports.
+    let (a, sa, da) = derived_friction("NL-FX", FrameDof::Ux, FrameDof::Uy, 0.5);
+    let (b, sb, db) = derived_friction("NL-FZ", FrameDof::Uz, FrameDof::Uy, 0.5);
+    let (input, force) = cantilever(vec![a, b], vec![sa, sb], Vec::new(), vec![da, db], &[7], &[(7, -100.0), (6, 80.0), (8, 80.0)]);
+    assert_eq!(reason(confirm(&input, &force, LinearSolveMode::DenseScrutiny, None)), "coupled friction with 2 derived-normal sliding supports is not supported");
+    // A derived source that is not a base restraint (a free DOF).
+    let (s, st, d) = derived_friction("NL-F", FrameDof::Ux, FrameDof::Uz, 0.5);
+    let (input, force) = cantilever(vec![s], vec![st], Vec::new(), vec![d], &[], &[(8, -100.0), (6, 80.0)]);
+    let solve = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, LinearSolveMode::DenseScrutiny, &[]).unwrap();
+    assert!(solve.converged, "{:?}", solve.diagnostics);
+    let c = confirm_converged_state(&input, &[], &solve, &force, &[], LinearSolveMode::DenseScrutiny).unwrap();
+    let r = reason(c);
+    assert_eq!(r, "support NL-F: friction normal source is not a base restraint");
+    // A rotational friction support (refused at PP validation; NI is defensive).
+    let (input, force) = cantilever(
+        vec![NonlinearSupport::friction("NL-R", 1, FrameDof::Rx, 0.3).unwrap()],
+        vec![SupportStateRecord::new("NL-R", ActiveSetState::Sliding)],
+        vec![FrictionNormalReaction::new("NL-R", 70.0).unwrap()],
+        Vec::new(),
+        &[],
+        &[(9, 40.0)],
+    );
+    assert_eq!(reason(confirm(&input, &force, LinearSolveMode::DenseScrutiny, None)), "support NL-R: rotational friction has no confirmation");
+    // A one-way support on a base-restrained DOF.
+    let (input, force) = cantilever(
+        vec![NonlinearSupport::one_way("NL-U", 1, FrameDof::Uy, ActivationSense::PositiveReaction)],
+        vec![SupportStateRecord::new("NL-U", ActiveSetState::Inactive)],
+        Vec::new(),
+        Vec::new(),
+        &[7],
+        &[(8, -100.0)],
+    );
+    assert_eq!(reason(confirm(&input, &force, LinearSolveMode::DenseScrutiny, None)), "support NL-U: shares its DOF with another restraint");
+    // A gap-bearing case keeps its own branch (R1).
+    let (input, force) = cantilever(
+        vec![NonlinearSupport::gap("NL-G", 1, FrameDof::Uz, 1.0, GapDirection::NegativeDisplacement).unwrap()],
+        vec![SupportStateRecord::new("NL-G", ActiveSetState::Inactive)],
+        Vec::new(),
+        Vec::new(),
+        &[],
+        &[(8, -1.0)],
+    );
+    let solve = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, LinearSolveMode::DenseScrutiny, &[]).unwrap();
+    let r = reason(confirm_converged_state(&input, &[], &solve, &force, &[], LinearSolveMode::DenseScrutiny).unwrap());
+    assert_eq!(r, "confirmation attempt: gap supports keep their recovery-basis branch");
+}
+
+#[test]
+fn a_zero_coefficient_sliding_support_carries_no_term_and_is_established() {
+    for mode in MODES {
+        let (s, st, d) = derived_friction("NL-F", FrameDof::Ux, FrameDof::Uy, 0.0);
+        let (input, force) = cantilever(vec![s], vec![st], Vec::new(), vec![d], &[7], &[(7, -100.0), (6, 10.0)]);
+        let Confirmation::Established(state) = confirm(&input, &force, mode, None) else { panic!() };
+        assert_eq!(state.supports["NL-F"].row.published.to_bits(), 0.0_f64.to_bits());
+        assert!(!state.force.load_primitives().iter().any(|p| p.identity.family == SLIDING_FRICTION_FAMILY));
+    }
+}
+
+/// The K-D5 evaluations judge the loop's own displacement (§1.5): Stage A and
+/// Stage B take `solve.displacements`, never the gate's solution, and the
+/// influence system is the only unjudged evaluation.
+#[test]
+fn evaluations_take_the_loops_displacement_and_only_the_influence_is_unjudged() {
+    let code = include_str!("confirmation.rs");
+    let code = &code[..code.find("#[cfg(test)]").unwrap()];
+    assert_eq!(code.matches("let u = &solve.displacements;").count(), 1);
+    assert_eq!(code.matches("context.evaluate_at(&stage_b, u, true)").count(), 1);
+    assert_eq!(code.matches("context.evaluate_at(stage_a_force, u, true)").count(), 1);
+    assert_eq!(code.matches("context.evaluate_at(&unit, &zero, false)").count(), 1);
+    assert_eq!(code.matches("evaluate_at(").count(), 3);
+    assert!(!code.contains("gate.displacements"));
+}

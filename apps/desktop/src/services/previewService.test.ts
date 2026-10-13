@@ -184,7 +184,8 @@ describe("previewService explicit reference inspection and browser refusal", () 
       kind: "nonlinear_support_final_reaction",
       entity_ref: "support:NL-130-FRIC",
       unit: "N",
-      value: 0.5237328200600512,
+      // The certified coupled friction force (DEL-04-01 kd5-nonlinear-active-set.md §3.4, R4).
+      value: 0.5237328198735871,
     });
     const frictionNormal = result.results.find(
       (item) =>
@@ -194,7 +195,8 @@ describe("previewService explicit reference inspection and browser refusal", () 
     expect(frictionNormal).toMatchObject({
       kind: "nonlinear_support_friction_normal_reaction_derived",
       entity_ref: "support:NL-130-FRIC",
-      value: 52.373281987314456,
+      // The source restraint's certified reaction (DEL-04-01 kd5-nonlinear-active-set.md §3.1).
+      value: 52.373281987358716,
       unit: "N",
     });
     // The accepted same-iterate current-normal law, at the old fixture's 6-digit rounding.

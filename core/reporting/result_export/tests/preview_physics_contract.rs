@@ -58,8 +58,11 @@ fn derive(raw: &Value) -> Result<Value, String> {
     d::derive_document(base, &json!({"project":{"id":model}}), raw, origin, None)
 }
 
-const MAX_A: &str = "result:elastic-maximum:10:load:L-100:10:pipe:P-120";
-const MAX_B: &str = "result:elastic-maximum:10:load:L-200:10:pipe:P-120";
+// The governing maximum. On the certified basis of the now Passed invented
+// cases (DEL-04-01 kd5-nonlinear-active-set.md section 5) P-100's and P-120's
+// maxima are equal, and the identity tie-break publishes P-100's.
+const MAX_A: &str = "result:elastic-maximum:10:load:L-100:10:pipe:P-100";
+const MAX_B: &str = "result:elastic-maximum:10:load:L-200:10:pipe:P-100";
 const CE: &str = "support:CE-120";
 const COMB: &str = "combination:C-OPER-ALT";
 
@@ -112,21 +115,16 @@ fn actual_producer_envelopes_admit_bind_and_derive() {
         assert!(s::is_fresh_identity(
             raw["producer"]["semantic_contract_id"].as_str().unwrap()
         ));
-        // The invented model has nonlinear supports: K-D5 has no member bound on
-        // that route, so its converged cases are published Sensitive and are not
-        // numerically eligible (DEL-04-01 kd5-member-relative-bound.md §5). The
-        // envelope is still admitted, bound and derived.
-        if name.starts_with("preview_physics_invented") {
-            assert_eq!(raw["numerical_quality"]["status"], "sensitive", "{name}");
-            assert_eq!(s::numerical_use_standing(&raw, &bases(&raw)), "needs_recompute", "{name}");
-        } else {
-            assert_eq!(s::standing_reason(&raw), None);
-            assert_eq!(
-                s::numerical_use_standing(&raw, &bases(&raw)),
-                "numerically_eligible",
-                "{name}"
-            );
-        }
+        // The invented model has nonlinear supports; its converged states are
+        // confirmed (DEL-04-01 kd5-nonlinear-active-set.md section 5), so like
+        // the others it is Passed and numerically eligible.
+        assert_eq!(raw["numerical_quality"]["status"], "checks_passed", "{name}");
+        assert_eq!(s::standing_reason(&raw), None);
+        assert_eq!(
+            s::numerical_use_standing(&raw, &bases(&raw)),
+            "numerically_eligible",
+            "{name}"
+        );
         let doc = derive(&raw).unwrap_or_else(|e| panic!("{name}: {e}"));
         assert_eq!(
             doc["result_envelope"]["contract_evidence"],
@@ -205,10 +203,10 @@ fn retired_kinds_and_codes_are_refused() {
 fn headline_must_govern_with_identity_ties_and_complete_coverage() {
     // Not governing: a smaller maximum, bound consistently otherwise.
     let mut raw = invented();
-    let smaller = "result:elastic-maximum:10:load:L-100:10:pipe:P-100";
+    let smaller = "result:elastic-maximum:10:load:L-100:10:pipe:P-110";
     let value = row(&mut raw, smaller)["value"].clone();
     raw["summary"]["max_open_formula_stress"] =
-        json!({"value":value,"unit":"Pa","location_ref":"pipe:P-100","result_ref":smaller});
+        json!({"value":value,"unit":"Pa","location_ref":"pipe:P-110","result_ref":smaller});
     refused(&raw, "HEADLINE_BINDING");
 
     // Tie: equal values in both cases; the smaller load-case id wins.
@@ -539,8 +537,7 @@ fn precision_1_is_readable_but_never_fresh() {
 #[test]
 fn numerical_standing_progression_on_a_fresh_identity() {
     // The general-path checks formerly pinned on precision-1 (precision_contract.rs).
-    // A two-case CHECKS_PASSED envelope: the invented model's cases are Sensitive
-    // on the nonlinear-support route (DEL-04-01 kd5-member-relative-bound.md §5).
+    // A two-case CHECKS_PASSED envelope.
     let raw = fixture("preview_physics_unicode_ids_sparse.json");
     let b = bases(&raw);
     assert_eq!(s::numerical_use_standing(&raw, &b), "numerically_eligible");
