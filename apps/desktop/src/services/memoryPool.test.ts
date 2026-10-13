@@ -56,6 +56,8 @@ describe("worker refusals", () => {
     })).toBe("The solve needed more memory (5 GiB) than could be reserved while it ran: Not enough free memory on this Mac right now: needs 2 GiB, 512 MiB available.");
     expect(describeResourceRefusal({ kind: "worker_footprint_exceeded", grant_bytes: 3 * GiB, footprint_bytes: 12.25 * GiB }))
       .toBe("The solve's measured memory footprint (12.25 GiB) does not fit the per-invocation budget, so the solve was ended (its reservation was 3 GiB).");
+    expect(describeResourceRefusal({ kind: "budget_exceeds_pool", budget_bytes: 12 * GiB, pool_bytes: 8 * GiB }))
+      .toBe("The per-invocation budget of 12 GiB is larger than the 8 GiB pool.");
     expect(describeResourceRefusal({ kind: "worker_limit_reached", running: 1, limit: 1 }))
       .toBe("1 solve worker is already running (limit 1); this solve waits until one finishes.");
     expect(describeResourceRefusal({ kind: "worker_limit_reached", running: 10, limit: 10 }))

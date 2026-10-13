@@ -85,7 +85,15 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
   const budgetBytes = bytesFromGib(budgetInput);
   const recommended = status?.recommended_pool_bytes ?? null;
   const aboveRecommended = poolBytes !== null && recommended !== null && poolBytes > recommended;
-  const maxBudget = status?.max_invocation_budget_bytes ?? null;
+  // A budget may not exceed the pool being requested (and never the machine's
+  // capacity); the native side enforces the same rule.
+  const capacity = status?.capacity_bytes ?? null;
+  // An unedited pool field shows the current pool rounded; only an edit to it
+  // (by at least 0.01 GiB) is a requested pool.
+  const requestedPool = status && poolBytes !== null && Math.abs(poolBytes - status.pool_bytes) >= 0.01 * 1024 ** 3 ? poolBytes : null;
+  const maxBudget = requestedPool !== null
+    ? (capacity !== null ? Math.min(requestedPool, capacity) : requestedPool)
+    : (status?.max_invocation_budget_bytes ?? null);
   const budgetAboveMax = budgetBytes !== null && maxBudget !== null && budgetBytes > maxBudget;
   const canApply = !!status && poolBytes !== null && budgetBytes !== null && !budgetAboveMax && !submitting && (!aboveRecommended || acknowledged);
 

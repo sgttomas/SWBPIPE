@@ -393,7 +393,18 @@ impl MemoryPool {
         // not yet be resident, so the host's headroom must cover them as well
         // as the new request, less what running workers are measured (now) to
         // hold resident already.
-        let required = bytes.saturating_add(reserved.saturating_sub(state.resident_credit()));
+        let mut credit = state.resident_credit();
+        if class == AdmissionClass::Interactive {
+            // An interactive command (an edit or a save) also counts what is
+            // already written: a retained result's bytes are resident in this
+            // process, and a delivered result's webview copy (half its 2R
+            // custody lease) is resident in the webview. Adaptive admissions
+            // keep the stricter double counting.
+            credit = credit
+                .saturating_add(state.reserved[LeasePurpose::Result as usize])
+                .saturating_add(state.reserved[LeasePurpose::Custody as usize] / 2);
+        }
+        let required = bytes.saturating_add(reserved.saturating_sub(credit));
         if available < required {
             return Err(ResourceRefusal::HeadroomInsufficient { required_bytes: required, available_bytes: available });
         }
@@ -1142,6 +1153,24 @@ mod tests {
         assert!(pool.lock().workers.is_empty());
     }
 
+    /// Interactive headroom counts retained results and half of custody as written.
+    #[test]
+    fn interactive_admission_credits_written_results_and_custody() {
+        // 10 GiB headroom: a 6 GiB result and a 4 GiB custody lease are held.
+        let gib = GIB;
+        let host = ScriptedHost::with(Some(64 * GIB), Some(10 * GIB), PressureLevel::Normal);
+        let pool = pool(&host);
+        let _result = pool.acquire(6 * gib, LeasePurpose::Result).unwrap();
+        let _custody = pool.acquire(4 * gib, LeasePurpose::Custody).unwrap();
+        // Adaptive: 1 GiB more needs 1 + 10 GiB unrealized > 10 GiB available.
+        assert!(matches!(pool.acquire(gib, LeasePurpose::Ingress), Err(ResourceRefusal::HeadroomInsufficient { .. })));
+        // Interactive: the result (6) and half the custody (2) count as written: 1 + 2 <= 10.
+        let lease = pool.acquire_interactive(gib).unwrap();
+        drop(lease);
+        // Still bounded: 9 GiB more needs 9 + 2 > 10.
+        assert!(matches!(pool.acquire_interactive(9 * gib), Err(ResourceRefusal::HeadroomInsufficient { .. })));
+    }
+
     /// The interactive class: pressure does not gate it (warning, critical or
     /// unknown), while capacity, budget, pool and headroom (fresh, known and
     /// covering the outstanding unrealized reservations) do. Adaptive
@@ -1166,7 +1195,7 @@ mod tests {
         );
         // Outstanding reservations count against headroom (8 GiB): 7 + 2 > 8.
         host.set(|s| s.pressure = PressureLevel::Normal);
-        let held = pool.acquire(7 * GIB, LeasePurpose::Result).unwrap();
+        let held = pool.acquire(7 * GIB, LeasePurpose::Ingress).unwrap();
         host.set(|s| s.pressure = PressureLevel::Critical);
         assert_eq!(
             pool.acquire_interactive(2 * GIB).unwrap_err(),

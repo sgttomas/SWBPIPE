@@ -195,6 +195,28 @@ describe("the memory pool panel", () => {
     expect(line("memory-pool-budget")).toBe("20 GiB (default 12 GiB; any budget up to 48 GiB, the pool size, can be selected)");
   });
 
+  it("checks the budget against the pool being requested, so pool and budget can be raised together", async () => {
+    nativeRuntime();
+    invokeMock.mockImplementation(async (command: string) => {
+      if (command === "get_memory_pool_status") return poolStatus();
+      throw new Error(`unexpected ${command}`);
+    });
+    render(<MemoryPoolPanel active={false} />);
+    await screen.findByTestId("memory-pool-status");
+    const budget = screen.getByLabelText("Per-invocation budget (GiB)");
+    const apply = screen.getByTestId("memory-pool-apply");
+    fireEvent.change(screen.getByLabelText("Pool size (GiB)"), { target: { value: "56" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: /I acknowledge/ }));
+    fireEvent.change(budget, { target: { value: "52" } });
+    expect(screen.queryByTestId("memory-pool-budget-above-max")).toBeNull();
+    expect(budget).toHaveAttribute("max", "56");
+    expect(apply).toBeEnabled();
+    // Lowering the pool below the budget holds the budget back before any request.
+    fireEvent.change(screen.getByLabelText("Pool size (GiB)"), { target: { value: "16" } });
+    expect(screen.getByTestId("memory-pool-budget-above-max")).toBeInTheDocument();
+    expect(apply).toBeDisabled();
+  });
+
   it("limits the budget input to the largest budget rounded down", async () => {
     nativeRuntime();
     invokeMock.mockResolvedValue(poolStatus({ pool_bytes: 12 * GiB - 1, max_invocation_budget_bytes: 12 * GiB - 1 }));
@@ -204,8 +226,7 @@ describe("the memory pool panel", () => {
   });
 
   it.each([
-    [{ kind: "pool_above_capacity", pool_bytes: 80 * GiB, capacity_bytes: 64 * GiB }, "12", "80", "A pool of 80 GiB is larger than this Mac's physical memory (64 GiB)."],
-    [{ kind: "budget_exceeds_pool", budget_bytes: 12 * GiB, pool_bytes: 8 * GiB }, "12", "8", "The per-invocation budget of 12 GiB is larger than the 8 GiB pool."]
+    [{ kind: "pool_above_capacity", pool_bytes: 80 * GiB, capacity_bytes: 64 * GiB }, "12", "80", "A pool of 80 GiB is larger than this Mac's physical memory (64 GiB)."]
   ])("shows the native %s refusal in plain language", async (refusal, budget, pool, text) => {
     nativeRuntime();
     invokeMock.mockImplementation(async (command: string) => {
