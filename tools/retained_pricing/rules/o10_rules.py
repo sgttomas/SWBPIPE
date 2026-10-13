@@ -495,7 +495,7 @@ if fnkey("fallback_circular_maximum", _CP):
         # ActionScales); its min/max receivers are still the f64 scales.
         "formation_guard.rs": ["new", "decide_row", "row_scales", "member_scales",
             "action_scales" if fnkey("action_scales", PP_ + "formation_guard.rs") else "moment_scales", "stress_free_notice"],
-        "lib.rs": ["observation_lane_profile", "build_curved_bend_macro_elements", "straight_summary_extrema"],
+        "lib.rs": _labels_model["primitive_lib_minmax_callers"](_SNAP),
         "pressure_exact.rs": ["fused_mul_add"], "pressure_runtime.rs": ["finish_source_groups"],
         "retained_memory.rs": ["string", "material", "walk", "combination_census", "longest_string", "complete_observations"],
         "retained_product.rs": ["g5a"], "source_recovery.rs": ["solve"],

@@ -137,6 +137,22 @@ def inspect_directed_helpers(snapshot):
             raise ValueError(f"KD5O13: directed helper source changed: {name}; re-review the three-frame slot census")
     return True
 
+# B7a E14: this exact full-file source deletes the DEC-050/053 observation
+# lane and its sole guard caller. No successor replaces its Iterator<usize>::max.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = "d1a3675f3c59630b69bd35de5896f1877264eb484eb980466ca057de315396db"
+
+
+def primitive_lib_minmax_callers(snapshot):
+    with open(os.path.join(snapshot, "core/product_physics/src/lib.rs"), "rb") as stream:
+        raw = stream.read()
+    if hashlib.sha256(raw).hexdigest() != B7A_PRIMITIVE_LIB_SOURCE_PIN:
+        raise ValueError("KD5C4: B7a E14 full-file source changed; re-audit retired lane and current primitive owners")
+    source = raw.decode("utf-8")
+    if re.search(r"^\s*(?:pub(?:\([a-z]+\))?\s+)?(?:const\s+)?fn\s+observation_lane_profile\b", source, re.M):
+        raise ValueError("KD5C4: the retired observation lane definition returned")
+    return ["build_curved_bend_macro_elements", "straight_summary_extrema"]
+
+
 # KD5C5: only exact outside-caller candidates into the private non-escaping
 # FallbackError owner are removed; every other resolver candidate is retained.
 FALLBACK_METHOD_PINS = {

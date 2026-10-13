@@ -638,6 +638,16 @@ pricing run and in-build atom evaluation.
   (O-13's coupled ActionScales); the binding follows the name. Its min/max
   receivers are still the f64 scales (`entry.*.max(value)`,
   `force.max(moment / extent)`, `moment.max(extent * force)`).
+  B7a E14 removes observation_lane_profile and its sole caller
+  observation_lane_guard with the DEC-050/053 lane. The former helper's
+  only max receiver was its Iterator<usize> half-bandwidth, and it has no
+  current successor. A raw full-file lib.rs fingerprint plus explicit
+  absence of the retired definition binds this one inventory removal.
+  All 27 current caller bindings, their strict uniqueness refusals and
+  the real CP fallback_section_errors min/max remain. Any lib.rs byte
+  edit, including a test-only addition, requires re-audit of this source
+  binding before pricing is reused; this is not a generic missing-name
+  exemption.
 - **KD5C5 (private add/mul/divided target subtraction).** On b3a2c739's
   source, the heuristic graph adds private FallbackError methods to outside
   callers whose actual receivers are Scaled, Bytes, ExactAccumulator,
