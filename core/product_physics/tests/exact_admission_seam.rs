@@ -780,11 +780,13 @@ fn shared_pressure_v3_reader_corpus_is_current() {
     assert!(CORPUS == bytes, "the shared pressure-1 reader corpus is stale; regenerate it");
 }
 
-/// The pressure-1 table skeleton stays outside the reviewed inputs (T3 item;
-/// RV130), so no registered profile or build identity depends on it.
+/// The ordinary pressure-1 semantic table stays outside the reviewed inputs
+/// (RV130), so no registered profile or build identity depends on that table.
+/// The pressure-1 result schema is a separate reviewed input of batch 5.
 #[test]
 fn the_pressure_1_table_is_not_a_reviewed_input() {
     let identity = include_str!("../src/build_identity.rs");
-    assert!(identity.contains("semantic_contract_v0_3_physics_1.json"));
-    assert!(!identity.contains("pressure_1"));
+    assert!(identity.contains("\"../../fixtures/results/semantic_contract_v0_3_physics_1.json\""));
+    assert!(identity.contains("\"../../schemas/results_pressure_1.v0.3.schema.json\""));
+    assert!(!identity.contains("\"../../fixtures/results/semantic_contract_v0_3_pressure_1.json\""));
 }
