@@ -23,9 +23,12 @@ def test_exact_source_and_positive_case_coefficient():
     assert MODEL["SLOTS"]=={"&'static u8":16,"&'static [u8]":8,"usize":16,
         "u64":4,"f64":4,"u8":4,"bool":16,"i32":4}
 
-@pytest.mark.parametrize("mutation",["rename","extra_binding","changed_guard","duplicate_owner"])
+@pytest.mark.parametrize("mutation",["rename","extra_binding","changed_guard","duplicate_owner","crlf"])
 def test_changed_source_refuses(tmp_path,mutation):
-    source=(SOURCE/MODEL["FILE"]).read_text()
+    source=(SOURCE/MODEL["FILE"]).read_bytes().decode("utf-8")
+    if mutation=="crlf":
+        assert "\r\n" not in source
+        source=source.replace("\n","\r\n")
     if mutation=="rename":source=source.replace("fn composite_exact(","fn renamed_comparison(",1)
     if mutation=="extra_binding":
         start=source.index("fn composite_exact(")
@@ -35,7 +38,7 @@ def test_changed_source_refuses(tmp_path,mutation):
         source=source[:start]+source[start:].replace("FunctionalQuantity::MemberSection {","FunctionalQuantity::OtherSection {",1)
     if mutation=="duplicate_owner":source+='\nfn composite_exact() {}\n'
     assert source!=(SOURCE/MODEL["FILE"]).read_text()
-    file=tmp_path/MODEL["FILE"];file.parent.mkdir(parents=True);file.write_text(source)
+    file=tmp_path/MODEL["FILE"];file.parent.mkdir(parents=True);file.write_bytes(source.encode("utf-8"))
     with pytest.raises(ValueError):MODEL["inspect"](tmp_path)
 
 def test_actual_sourceupper_expression_and_all_stage_placement():

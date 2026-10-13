@@ -864,7 +864,12 @@ The composite_exact MemberSection check borrows the descriptor quantity and
 member/station/component fields, preserving ordered byte/bit/variant comparisons,
 convention/case checks and every error. Its exact old993146b2/new8f9f963b body
 pins include the enclosing loops, later JSON/projection work and non-escape
-boundary. The old body is identical at the basis, f78/2c5/e9cc, batch3ff5347,
+boundary. B7a's additional exact b2507ed6 body differs from reviewed8f9f963b
+only by removing the obsolete non-composite selector true arguments from
+rows::expected_primary_for and rows::bind_for (B4/D1 retirement). The borrowed comparison's bindings, branches, staging and lifetime stay
+unchanged. Retain its entire 640 B per-case and 1,920 B at CC=3 source-frame
+allowance together with every existing positive owner charge. The model hashes the UTF-8 body from raw bytes, so CRLF drift refuses.
+The old body is identical at the basis, f78/2c5/e9cc, batch3ff5347,
 U2 98dba, e929 and936; changed/renamed/duplicated bodies refuse.
 
 Charge a positive MemberComparisonWorkspace SourceUpper to every T25 case and
