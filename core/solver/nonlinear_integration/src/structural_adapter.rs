@@ -302,6 +302,87 @@ impl AssemblyEvidence {
         )
     }
 
+    /// Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.5; R2): the
+    /// nonlinear route's single formation-check entry, called once after the
+    /// loop has converged (never from an iteration). It prepares the
+    /// converged state's system with `gate_force` exactly as `solve_assembled`
+    /// does, factors it once by mode and completes the gate
+    /// (`finish_confirmation`). `evaluate` then receives the gate's
+    /// solution, which the caller discards apart from its standing, and a
+    /// context whose K-D5 evaluations, reaction balls and displacement balls
+    /// all reuse that one factor, its scale exponents, Hager estimate and
+    /// epsilon_E. Every system the context evaluates has this stiffness, free
+    /// map and contributions; only its ledger force (and so its load
+    /// primitives) differs.
+    #[allow(clippy::too_many_arguments)]
+    pub fn confirm_with_formation_check(
+        &self,
+        k: &[Vec<f64>],
+        gate_force: &AssembledForce,
+        free: &[usize],
+        prescribed: &[(usize, f64)],
+        mode: LinearSolveMode,
+        curved_sources: &[CurvedBendMacroElement],
+        evaluate: impl FnOnce(&StructuralSolution, &ConfirmationContext<'_>) -> crate::confirmation::Confirmation,
+    ) -> Result<crate::confirmation::Confirmation, StructuralError> {
+        unscaled_evidence(self.force_scale)?;
+        self.constrained_geometry(prescribed, curved_sources)?;
+        let symmetry_basis = self.symmetry_basis();
+        let symmetry = || SymmetryEvidence {
+            absolute_roundoff: &self.absolute_roundoff,
+            operation_counts: &self.operation_counts,
+            basis: &symmetry_basis,
+        };
+        let gate = StructuralSystem::assembled(
+            k,
+            gate_force,
+            free,
+            prescribed,
+            Some(&self.contributions),
+            Some(symmetry()),
+        );
+        let prepared = structural::prepare_assembled_structural(&gate)?;
+        let factor = match mode {
+            LinearSolveMode::DenseScrutiny => structural::factor_structural_cholesky(&prepared),
+            LinearSolveMode::SparseInteractive => {
+                open_pipe_stress_sparse_direct::structural::factor_structural_ldlt(&prepared)
+            }
+        };
+        let factor = match factor {
+            Ok(factor) => factor,
+            Err(error) => {
+                return Err(structural::negative_pair_witness(&prepared)?.unwrap_or(error))
+            }
+        };
+        let (solution, attempt) = structural::finish_confirmation(&factor)?;
+        let source_for = |force: &AssembledForce| {
+            let mut source = formation_source(&self.formation, curved_sources);
+            source.loads = force.load_primitives().to_vec();
+            source
+        };
+        let evaluate_at = |force: &AssembledForce, u: &[f64], judged: bool| {
+            let source = source_for(force);
+            let system = StructuralSystem::assembled(
+                k,
+                force,
+                free,
+                prescribed,
+                Some(&self.contributions),
+                Some(symmetry()),
+            )
+            .with_formation_source(&source);
+            attempt.evaluate_at(&system, u, judged)
+        };
+        let reaction = |force: &AssembledForce, dof: usize, u: &[f64], bound: &structural::MemberBoundInputs| {
+            structural::certify_support_reaction(&source_for(force), force, dof, u, bound)
+        };
+        let context = ConfirmationContext {
+            evaluate_at: &evaluate_at,
+            reaction: &reaction,
+        };
+        Ok(evaluate(&solution, &context))
+    }
+
     /// The formation source for this assembly, with each curved slot matched
     /// to its macro element (or named as not re-formable).
     fn formation_source(&self, curved_sources: &[CurvedBendMacroElement]) -> FormationSource {
@@ -490,6 +571,49 @@ impl AssemblyEvidence {
             )
         });
         force_scaled_outcome(solved, self.force_scale, f)
+    }
+}
+
+type FormationOutcome = Result<
+    (
+        Option<structural::FormationCheck>,
+        Option<structural::MemberBoundInputs>,
+    ),
+    StructuralError,
+>;
+type ReactionBall = Result<structural::CertifiedRow, structural::RecoveryFailure>;
+
+/// The confirmation attempt's evaluations (DEL-04-01
+/// kd5-nonlinear-active-set.md §1.5), every one on the attempt's single
+/// factor. It is built only inside `confirm_with_formation_check`.
+pub struct ConfirmationContext<'a> {
+    evaluate_at: &'a dyn Fn(&AssembledForce, &[f64], bool) -> FormationOutcome,
+    reaction: &'a dyn Fn(&AssembledForce, usize, &[f64], &structural::MemberBoundInputs) -> ReactionBall,
+}
+impl ConfirmationContext<'_> {
+    /// K-D5 (kd5 §2) on the system with this ledger force, at `u`; `judged`
+    /// applies D5C-1.
+    pub fn evaluate_at(&self, force: &AssembledForce, u: &[f64], judged: bool) -> FormationOutcome {
+        (self.evaluate_at)(force, u, judged)
+    }
+    /// `certify_support_reaction` at `dof` on the system with this force.
+    pub fn reaction(
+        &self,
+        force: &AssembledForce,
+        dof: usize,
+        u: &[f64],
+        bound: &structural::MemberBoundInputs,
+    ) -> ReactionBall {
+        (self.reaction)(force, dof, u, bound)
+    }
+    /// The displacement or rotation ball at `dof` (§2.1).
+    pub fn displacement(
+        &self,
+        dof: usize,
+        u: &[f64],
+        bound: &structural::MemberBoundInputs,
+    ) -> ReactionBall {
+        structural::certify_displacement(dof, u, bound)
     }
 }
 
