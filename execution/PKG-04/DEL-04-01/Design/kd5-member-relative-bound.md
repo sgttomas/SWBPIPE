@@ -21,7 +21,7 @@ The record extends K-D5 ([curved-numerical-integrity.md](curved-numerical-integr
 - **Published values change.** Member rows of a Passed case are certified recoveries, not binary64 recomputations from the published displacements (§3.4). Nonzero evaluation cases generally change last bits; zero-load and exact-result cases can retain identical member bytes. In 21.8 % of RV30 case-modes (23.0 % realistic) a row moves by more than its criterion: those are today's breaches, now repaired.
 - **All-zero bodies.** The criterion and its floor stay as ruled. A body whose true rows are all zero is Sensitive when a nonzero certified group passes both the existing S* ≥ 2^-988 guard and the relative floor q̂ ≥ 2^-34·S*. A resulting demotion carries the notice only when every group of the case meets §3.3 condition 3; a loaded group or body suppresses it. The notice is `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` (§3.3). Up to 82 committed case-modes of SP-1 set E are such bodies (§4.5).
 - **The closure is necessary.** Without it, (d) would publish Passed breaches on 2,215 RV30 and 76 realistic case-modes (§4.3). Main/K-D5 has no O-13 geometric short-bend rule to delete. Batch 4 removed that rule from the integrated U2/O-13 code after M3 on the final integrated producer verified this closed-recovery path (§4.3).
-- **Fail closed.** The nonlinear-support route, a Passed case without the member-bound inputs, and K-D5 without a ledger each fail closed with a named reason (§2.3, §5). On the nonlinear route, 8 committed case-modes move to Sensitive.
+- **Fail closed.** A Passed case without the member-bound inputs and K-D5 without a ledger each fail closed with a named reason (§2.3). The nonlinear-support route failed closed under this unit, which moved its 8 committed case-modes to Sensitive; [kd5-nonlinear-active-set.md](kd5-nonlinear-active-set.md) now confirms the converged state, and those 8 case-modes publish Passed (§5).
 
 ## The rulings and what they supersede
 
@@ -421,7 +421,7 @@ So the final U2/O-13 batch removes its short-bend rule only on the integrated, v
 ### 4.5 Committed requests (no exact reference; predicted)
 
 - **Integrity codes that move to Sensitive:**
-  - the nonlinear-route cases (§5);
+  - the nonlinear-route cases (§5), under this unit alone; they publish Passed again under the nonlinear unit;
   - all-zero bodies whose nonzero certified groups pass both the relative floor and the S* ≥ 2^-988 guard (§3.3); the notice is emitted only when every group in the case satisfies §3.3 condition 3. In SP-1 set E these are up to 82 committed case-modes: the free-length, coefficient-definition, constant-α, thermal-datum, released fit-state and free-tip prescribed-rotation qualification requests, in both modes and both request forms, plus the three mixed ordinary-pressure requests. O-13's `p8_a_stress_free_arc_stays_passed` is another. Revision 1's count of 16 undercounted these. The implementation counts them; a body whose certified rows all come out exactly zero stays Passed.
 - **Predicted to stay Passed** with repaired rows:
   - I7's `U2-L-FREE-P-K2-SKEW-X5E6` and `-X7P3E6`;
@@ -432,27 +432,21 @@ So the final U2/O-13 batch removes its short-bend rule only on the integrated, v
 
 ## 5. The nonlinear-support route
 
-**Fail closed.** The route has no K-D5: no `FormationCheckedSystem` is built when nonlinear supports exist (ROOT's ruling). With (d) the unified predicate has no B_g there. A converged nonlinear case whose report would be `CHECKS_PASSED` is published `NUMERICAL_INTEGRITY_SENSITIVE`, with the sentence:
+**Current state.** The nonlinear route is governed by [kd5-nonlinear-active-set.md](kd5-nonlinear-active-set.md) (K-D5 on the converged active set). After convergence and qualification, a non-gap case runs one formation-checked confirmation (its R2) and publishes `NUMERICAL_INTEGRITY_CHECKS_PASSED` with certified rows, or `NUMERICAL_INTEGRITY_SENSITIVE` with that design's §2.4 sentence and named reason. Gap-bearing cases keep their `RECOVERY_BASIS_UNQUALIFIED` branches (its R1). The "on this route" sentence below still covers any other route that would publish Passed without `member_bound` (§2.3).
+
+**As this unit shipped (superseded on the nonlinear route).** The route had no K-D5: no `FormationCheckedSystem` was built when nonlinear supports existed (ROOT's ruling, superseded by R2 for the single confirmation). With (d) the unified predicate had no B_g there. A converged nonlinear case whose report would be `CHECKS_PASSED` was published `NUMERICAL_INTEGRITY_SENSITIVE`, with the sentence, now retired:
 
 > "the member-relative formation check is not available on the nonlinear-support route; member rows are binary64 recoveries"
 
 The same rule, with "on this route", covers any other route that would publish Passed without `member_bound` (§2.3). Its rows stay today's binary64 rows. The `RECOVERY_BASIS_UNQUALIFIED` branches are unchanged.
 
-**Committed cases moving to Sensitive.** Two models with nonlinear supports publish Passed today: `fixtures/product_preview/invented_demo_model.json` and `core/product_physics/tests/fixtures/preview_physics_invented_model.json`. Each has two cases (`load:L-100`, `load:L-200`), in both modes: 8 case-modes. They appear in 5 committed outputs:
+**The committed nonlinear cases.** Two models with nonlinear supports, `fixtures/product_preview/invented_demo_model.json` and `core/product_physics/tests/fixtures/preview_physics_invented_model.json`, each have two cases (`load:L-100`, `load:L-200`), in both modes: 8 case-modes, 10 integrity diagnostics in 5 committed outputs:
 
 - `invented_demo_result_preview_physics_1_{sparse,dense}.json`;
 - `invented_demo_result_legacy_0_1.json`;
 - `fixtures/results/preview_physics_invented_{sparse,dense}.json`.
 
-That is 10 integrity diagnostics. The desktop demo's cases show Sensitive.
-
-**The next T4 unit: K-D5 on the converged active set.** At convergence the selected state solves a linear system: K plus the active supports' stiffness or constraint rows, with the closed and gapped supports fixed.
-
-- Build its `FormationCheckedSystem`, with active support springs as springs, active gaps as prescribed or eliminated rows, and friction as its linearized state.
-- Run K-D5 and (d) unchanged on it.
-- Add one condition: the active set is certified. Each inactive support's gap, and each active support's contact force, must have the right sign with margin above its own bound (a ball on the support reaction rows). Otherwise the case fails closed with a named reason.
-
-The cost and the W1 relation (the route is outside D1) belong to that unit.
+This unit moved them from Passed to Sensitive; the nonlinear unit moves them to Passed with certified rows (its §5, which declares their blast radius). The desktop demo's cases show Passed.
 
 ## 6. The declared blast radius, pins and pricing (SP-1, SP-4; T3's I1)
 
@@ -562,7 +556,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
 - The producers of §1's table push their `LoadPrimitive` beside each formed term. The exact-pressure factor groups push one primitive per summand.
 - The recovery loop publishes fl(m_g) for every member row (straight, arc and connector branches), the pipe-wall rows, the stresses scaled at p, and the reactions, when the public integrity standing before the unified member predicate is Passed, including no prior load-row or other demotion, and `member_bound` is present. It forms one `RecoveryRecord` per member and per support.
 - The governing maximum, its extrema and the stress summaries are formed from the repaired actions (§3.2).
-- No `CHECKS_PASSED` without `member_bound`; the nonlinear route fails closed (§5).
+- No `CHECKS_PASSED` without `member_bound`; the nonlinear route failed closed under this unit (§5, now governed by the nonlinear unit).
 - The notice `STRESS_FREE_WITHIN_NUMERICAL_PRECISION` (§3.3).
 - The O-13 short-bend rule on the U2 branch was removed during batch-4 integration after the closed-recovery path was verified (§4.3, M3). Main/K-D5 has no such rule. `bend_neighbour_ratios` stays for the refusal.
 - The linear `FormulationBasis` gains the limitation and scope sentences.
@@ -629,7 +623,7 @@ The run is `run <head>`, then `compare` against the registered tree, then `gener
   - a mutant that lets the notice change the code;
   - a mutant that ignores unjudged groups in condition 3;
   - the exact squared-norm equality boundary and the two-body resolved-load control, which kill a rounded-q comparison or a cancellation-scale-only notice.
-- **Fail closed:** the contraction limit and its 0/0 rule, the Neumann limit, the second solve, the closure, no ledger, no `member_bound`, and the nonlinear route each demote, with the named detail.
+- **Fail closed:** the contraction limit and its 0/0 rule, the Neumann limit, the second solve, the closure, no ledger and no `member_bound` each demote, with the named detail; the nonlinear route's demotion is now the nonlinear unit's §2.4 (§5).
 - **The no-op rule**, and the load-row and recovery sentences together.
 - **Source pins** tying the call sites to the tested predicate and to the stack-only re-formation (T06).
 - **Natural positives:**

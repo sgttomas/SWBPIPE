@@ -265,6 +265,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/exact_sum.rs", "project", 2, "integer: significand rounding and quantum carry"),
     ("FK/exact_sum.rs", "exact_rounded_sum", 0, "the one correctly rounded function"),
     ("FK/load_ledger.rs", "finish", 0, "ledger: one exact sum per DOF"),
+    ("FK/load_ledger.rs", "with_appended", 1, "integer: an appended load primitive's term index offset by the base ledger's term count (nonlinear K-D5, kd5-nonlinear-active-set.md section 1.6); the forces themselves are summed once by finish"),
     // ---- SA
     ("SA/structural_adapter.rs", "new", 4, "exempt: symmetry-roundoff provenance and integer counts"),
     ("SA/structural_adapter.rs", "element", 2, "exempt: symmetry-roundoff provenance and integer counts"),

@@ -1061,3 +1061,126 @@ fn source_control_resource_atoms_are_in_build_type_sizes() {
     );
     eprintln!("source_control_resource_atoms={sizes:?}");
 }
+
+// ---------------------------------------------------------------- nonlinear K-D5
+// DEL-04-01 kd5-nonlinear-active-set.md §1.3, §1.6, §2.1, §2.2.
+
+fn friction_primitive(formula: LoadFormula) -> LoadPrimitive {
+    LoadPrimitive {
+        term_index: 0,
+        identity: LoadSummandIdentity {
+            family: "nonlinear_sliding_friction".into(),
+            source: "NL".into(),
+            ordinal: 0,
+        },
+        local_row: 0,
+        formula,
+        force_scale_exponent: 0,
+    }
+}
+
+/// The explicit force is the exact product -dir*mu*|N| at p, not fl(mu*N):
+/// 0.3*70 is inexact in binary64, so the ball's midpoint differs from the
+/// binary64 product by its two-product error and the published row's bound
+/// is exactly that rounding gap (radius 0).
+#[test]
+fn explicit_sliding_friction_is_the_exact_product_of_its_inputs() {
+    let (mu, normal) = (0.3_f64, -70.0_f64);
+    let hi = mu * normal.abs();
+    let lo = mu.mul_add(normal.abs(), -hi);
+    assert_ne!(lo, 0.0, "the product is inexact in binary64");
+    for direction in [1.0, -1.0] {
+        let p = friction_primitive(LoadFormula::SlidingFrictionExplicit { global_dof: 6, coefficient: mu, normal, direction });
+        let (m, r) = load_reformation(&p).unwrap();
+        assert_eq!(r[0], 0.0);
+        // The midpoint equals -dir*(hi + lo) exactly (one exact sum).
+        let split = m[0].split_binary64().unwrap();
+        let mut difference = ExactAccumulator::new();
+        for &part in split.terms() {
+            difference.add(part).unwrap();
+        }
+        difference.add(direction * hi).unwrap();
+        difference.add(direction * lo).unwrap();
+        assert!(difference.is_zero());
+        let row = certify_load_primitive(&p).unwrap();
+        assert_eq!(row.published, -direction * hi);
+        assert_eq!(row.radius, 0.0);
+        assert_eq!(row.bound(), row.rounding_gap);
+        assert!(row.bound() > 0.0);
+    }
+    for (mu, normal, direction) in [(0.0, 70.0, 1.0), (0.3, f64::NAN, 1.0), (0.3, 70.0, 0.5)] {
+        let p = friction_primitive(LoadFormula::SlidingFrictionExplicit { global_dof: 6, coefficient: mu, normal, direction });
+        assert!(load_reformation(&p).is_err());
+    }
+}
+
+/// The coupled force re-forms as the Stage-A ball itself: its radius is a load
+/// enclosure radius (carried into psi by the residual and into B here).
+#[test]
+fn coupled_sliding_friction_re_forms_as_its_stage_a_ball() {
+    let p = friction_primitive(LoadFormula::SlidingFrictionCoupled {
+        global_dof: 6,
+        coefficient: 0.5,
+        direction: 1.0,
+        beta: -1.0,
+        source_dof: 7,
+        midpoint: -0.25,
+        radius: 2.0_f64.powi(-60),
+    });
+    let (m, r) = load_reformation(&p).unwrap();
+    assert_eq!(m[0].split_binary64().unwrap().terms(), &[-0.25]);
+    assert_eq!(r[0], 2.0_f64.powi(-60));
+    let row = certify_load_primitive(&p).unwrap();
+    assert_eq!(row.published, -0.25);
+    assert_eq!(row.bound(), 2.0_f64.powi(-60));
+    for (beta, radius) in [(0.0, 0.0), (1.0, -1.0), (1.0, f64::INFINITY)] {
+        let bad = friction_primitive(LoadFormula::SlidingFrictionCoupled { global_dof: 6, coefficient: 0.5, direction: 1.0, beta, source_dof: 7, midpoint: -0.25, radius });
+        assert!(load_reformation(&bad).is_err());
+    }
+}
+
+/// §2.1: the displacement ball u + w + w2 with the remainder 2^e*LambdaSigma,
+/// and an exact value at a prescribed DOF.
+#[test]
+fn displacement_ball_carries_both_corrections_and_the_remainder() {
+    let bound = MemberBoundInputs {
+        w: vec![0.0, 2.0_f64.powi(-40)],
+        w2: vec![0.0, 2.0_f64.powi(-100)],
+        exponents: vec![i32::MIN, 3],
+        lambda_sigma: 2.0_f64.powi(-80),
+    };
+    let u = [0.0, 1.0];
+    let fixed = certify_displacement(0, &u, &bound).unwrap();
+    assert_eq!((fixed.published, fixed.decision_radius()), (0.0, 0.0));
+    let free = certify_displacement(1, &u, &bound).unwrap();
+    assert_eq!(free.published, 1.0 + 2.0_f64.powi(-40));
+    // 8*2^-80, formed upward (a few units in the last place).
+    assert!(free.remainder >= 2.0_f64.powi(-77) && free.remainder <= 2.0_f64.powi(-77) * (1.0 + 2.0_f64.powi(-48)));
+    // The corrections are in the exact midpoint 1 + 2^-40 + 2^-100, whose
+    // radius 2^-77 decides against 1 + 2^-40 but not against 1.
+    assert!(free.lower_exceeds(1.0));
+    assert!(!free.lower_exceeds(1.0 + 2.0_f64.powi(-40)));
+    assert!(free.upper_below(1.0 + 2.0_f64.powi(-39)));
+    assert!(!free.upper_below(1.0 + 2.0_f64.powi(-40)));
+}
+
+/// §2.2: exact decisions, strict at the boundary and with both radii.
+#[test]
+fn certified_signs_and_stick_capacity_are_decided_exactly() {
+    let row = |m: f64, r: f64| CertifiedValue::with_radius(m, r).unwrap().into_row().unwrap();
+    assert_eq!(row(1.0, 0.5).established_sign(), Some(1.0));
+    assert_eq!(row(-1.0, 0.5).established_sign(), Some(-1.0));
+    assert_eq!(row(1.0, 1.0).established_sign(), None);
+    assert_eq!(row(0.0, 0.0).established_sign(), None);
+    // 0.1*10 = 1 + 2^-54*... exactly, so |m_t| = 1 is strictly below mu*N.
+    assert!(CertifiedRow::stick_capacity_exceeds_explicit(0.1, 10.0, &row(1.0, 0.0)));
+    assert!(!CertifiedRow::stick_capacity_exceeds_explicit(0.5, 10.0, &row(5.0, 0.0)));
+    assert!(CertifiedRow::stick_capacity_exceeds(&row(-100.0, 1.0), 0.5, &row(49.4, 0.05)));
+    assert!(!CertifiedRow::stick_capacity_exceeds(&row(-100.0, 1.0), 0.5, &row(49.4, 0.15)));
+    assert!(!CertifiedRow::stick_capacity_exceeds(&row(0.5, 1.0), 0.5, &row(0.0, 0.0)));
+    // The enclosure folds the remainder into the radius.
+    let mut with_remainder = row(2.0, 0.25);
+    with_remainder.remainder = 0.5;
+    let enclosure = with_remainder.enclosure().into_row().unwrap();
+    assert!(enclosure.radius >= 0.75 && enclosure.radius <= 0.75_f64.next_up());
+}

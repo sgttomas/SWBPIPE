@@ -6,6 +6,7 @@
 //! standards content, public support defaults, catalog values, or professional
 //! approval claims.
 
+pub mod confirmation;
 pub mod product_equilibrium;
 #[cfg(test)]
 mod s11k_tests;

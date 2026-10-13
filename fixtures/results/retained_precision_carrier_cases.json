@@ -15,12 +15,12 @@
     },
     "legacy_preview_0_1": {
       "path": "fixtures/product_preview/invented_demo_result_legacy_0_1.json",
-      "sha256": "9100dae6c400dc367456945d32761e2e79b8a0ca8573dab316087612fa99dc15",
+      "sha256": "1b49d1a7426873549425df9e429a50ebbfc1f2ba0613628fd4611634c1df86b6",
       "shape": "raw"
     },
     "preview_physics_1_invented_sparse": {
       "path": "fixtures/results/preview_physics_invented_sparse.json",
-      "sha256": "cdaa8bf9bff5d9347f28bb61d530c6773f4f6728d5e349ff145dd5c30143b50e",
+      "sha256": "080c63ead0be8a43a44f98b67e461084f695e91fe50715c5490cf739cad18417",
       "shape": "raw"
     },
     "source_blocks_n05_sparse": {

@@ -272,6 +272,16 @@ needs:
     the straight Poisson pairs, connector reference loads and their W2 forms), publishes certified rows only
     when MemberBoundInputs are present, and fails every other Passed route closed with a named reason.'
   gating: true
+- from: DEL-04-01
+  when: K-D5 on the converged active set (nonlinear K-D5) implementation
+  condition: 'DEL-04-07 confirms a converged non-gap nonlinear state once, after the loop (DEL-04-01 Design/kd5-nonlinear-active-set.md
+    sections 1 to 3). DEL-04-01 supplies the sliding-friction load primitives (SlidingFrictionExplicit, the
+    exact product; SlidingFrictionCoupled, the Stage-A ball) with their closure, AssembledForce::with_appended,
+    the confirmation attempt (finish_confirmation and ConfirmationAttempt::evaluate_at, K-D5 at a supplied
+    displacement on the attempt''s one factor), the displacement ball and the exact sign and stick decisions.
+    DEL-04-07 publishes the confirmed state''s certified rows, including the nonlinear support slots, and fails
+    every other nonlinear Passed case closed with the named section 2.4 reason.'
+  gating: true
 - from: DEL-05-01
   when: K-D5 member-relative bound (option (d)) implementation
   condition: 'K-D5 re-forms every formed load term at p = 128 from its binary64 primitives and uses no
