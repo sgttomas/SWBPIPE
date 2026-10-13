@@ -5246,7 +5246,8 @@ fn solve_load_case_observed(
         let finding = formation_guard::FormationFinding { guard: formation_guard::Guard::Recovery, sentence, fired: Vec::new() };
         formation_guard::amend_integrity_report(diagnostics, &integrity_diagnostic_id(&load_case.id), &finding);
     } else if confirmed.is_some() {
-        if let Some(record) = diagnostics.iter_mut().find(|d| d.id == integrity_diagnostic_id(&load_case.id)) {
+        let integrity_id = integrity_diagnostic_id(&load_case.id);
+        if let Some(record) = diagnostics.iter_mut().find(|d| d.id == integrity_id) {
             record.message = format!("{} {NONLINEAR_CONFIRMED_EVIDENCE_LINE}", record.message);
         }
     }
