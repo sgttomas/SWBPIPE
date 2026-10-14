@@ -327,6 +327,15 @@ fn deserialize_rejected_presence<'de, D: serde::Deserializer<'de>>(
     serde::de::IgnoredAny::deserialize(deserializer).map(|_| true)
 }
 
+/// Optional-as-a-whole typed value: only an absent key gets the default None.
+fn deserialize_present_value<'de, D, T>(deserializer: D) -> Result<Option<T>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    T::deserialize(deserializer).map(Some)
+}
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct Project {
     pub id: String,

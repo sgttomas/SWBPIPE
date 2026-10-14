@@ -55,6 +55,7 @@ pub struct PressureRegionInput {
     pub id: Option<String>,
     pub member_pipe_ids: Option<Vec<String>>,
     /// Optional current-format connector edges of the region chain.
+    #[serde(default, deserialize_with = "super::deserialize_present_value")]
     pub member_connector_ids: Option<Vec<String>>,
     pub pressure_basis: Option<String>,
     pub pressure: Option<Quantity>,

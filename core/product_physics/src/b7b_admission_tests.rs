@@ -287,3 +287,19 @@ fn b7b_early_raw_group_selector_keeps_request_material_authored_presence() {
         assert_decode_refused(request);
     }
 }
+
+#[test]
+fn b7b_member_connector_ids_absence_and_empty_array_are_the_only_empty_forms() {
+    let mut raw = request();
+    raw["model"]["pressure_contract"] = contract();
+    raw["model"]["load_cases"] = json!([{"id": "case:b7b", "primitive_loads": [], "pressure_regions": [{}]}]);
+    let parsed: LinearStaticPreviewRequest = serde_json::from_value(raw.clone()).unwrap();
+    assert!(parsed.model.load_cases[0].pressure_regions.as_ref().unwrap()[0].member_connector_ids.is_none());
+    raw["model"]["load_cases"][0]["pressure_regions"][0]["member_connector_ids"] = json!([]);
+    let parsed: LinearStaticPreviewRequest = serde_json::from_value(raw.clone()).unwrap();
+    assert_eq!(parsed.model.load_cases[0].pressure_regions.as_ref().unwrap()[0].member_connector_ids.as_deref(), Some(&[][..]));
+    for value in [Value::Null, json!(false), json!(1), json!("connector:x"), json!({}), json!([null]), json!([1])] {
+        raw["model"]["load_cases"][0]["pressure_regions"][0]["member_connector_ids"] = value;
+        assert_decode_refused(raw.clone());
+    }
+}
