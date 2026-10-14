@@ -27,7 +27,7 @@ def test_actual_complete_source_guard_and_native_types_have_positive_owners(monk
     proof = MODEL["inspect"](SOURCE)
     assert proof["formed_terms_per_input"] == 12
     assert proof["manifest_operand_words"] == 26
-    assert len(proof["full_raw_source_fingerprints"]) == 18
+    assert len(proof["full_raw_source_fingerprints"]) == 19
     # The source limits and three independently retained records determine
     # these lengths; they are not old ABI observations.
     assert MODEL["basis_lengths"](128) == (673, 2701, 2914)
@@ -42,6 +42,7 @@ def test_actual_complete_source_guard_and_native_types_have_positive_owners(monk
     "core/reporting/result_export/src/retained_precision.rs",
     "core/solver/straight_pipe/src/lib.rs",
     "core/solver/nonlinear_integration/src/structural_adapter.rs",
+    "core/solver/frame_kernel/src/lib.rs",
 ])
 def test_raw_owner_crlf_or_missing_source_refuses(tmp_path, file):
     snapshot = source_copy(tmp_path)
@@ -152,9 +153,45 @@ def test_exact_loop_owner_headers_use_the_existing_scanner():
     for header, _, owners in MODEL["TEXT_LOOPS"]:
         for owner in owners:
             file, function = owner.rsplit(":", 1)
-            candidates = [f for f in MODEL["SOURCE_FILES"] if f.endswith("/" + file)]
+            # O10 keys use src-relative basenames. Bind the two lib.rs
+            # owners to their exact source-qualified raw guards.
+            qualified = {
+                "lib.rs:add_uniform_element_loads": "core/product_physics/src/lib.rs",
+                "lib.rs:exact_scaled_intended": "core/solver/straight_pipe/src/lib.rs",
+            }.get(owner)
+            candidates = ([qualified] if qualified else
+                          [f for f in MODEL["SOURCE_FILES"] if f.endswith("/" + file)])
             assert len(candidates) == 1, owner
             source = (SOURCE / candidates[0]).read_bytes().decode()
             body, _ = kd5["_indented_function"](source, function)
             observed = {h for _, _, h in scanner["loop_spans"](scanner["blank_rust"](body))}
             assert header in observed, (owner, header, observed)
+
+def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
+    _, audits, _ = MODEL["text_decisions"](SOURCE, lambda key: key)
+    actual = dict(audits)
+    pp = "core/product_physics/src/"
+    sites = {
+        "lib.rs:10627": {"load_case_id"},
+        "lib.rs:10641": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:10648": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:10653": {"load.load_id"},
+        "lib.rs:10654": {"bend.pipe_id"},
+        "lib.rs:10655": {"bend.component_id"},
+        "lib.rs:10656": {"load_case_id"},
+        "lib.rs:10715": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:10722": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:10727": {"load.load_id"},
+        "lib.rs:10728": {"bend.pipe_id"},
+        "lib.rs:10729": {"bend.component_id"},
+        "lib.rs:10730": {"load_case_id"},
+        "lib.rs:10769": {"stable_suffix(&load.load_id)"},
+        "lib.rs:10776": {"load.load_id", "load_case_id"},
+        "certified_loads.rs:233": {"case_id"},
+        "certified_loads.rs:256": {"case_id"},
+    }
+    assert sum(map(len, sites.values())) == 22
+    for key, args in sites.items():
+        assert set(actual[pp + key]) == args
+        assert all(value == {"bytes": 128, "source": "IN128"}
+                   for value in actual[pp + key].values())

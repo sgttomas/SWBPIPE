@@ -1112,7 +1112,7 @@ This full-file source binding also requires re-audit for later test edits.
 
 The existing B4/D1 domain admits named-point material selectors and branch-L
 full-span uniform straight member inputs. The old nodal-only zero premise
-does not price that domain. The canonical b7a_domain_model binds eighteen full
+does not price that domain. The canonical b7a_domain_model binds nineteen full
 raw owner-source files plus the unique raw nongenerated admission prefix before D6 and late law_order,
 admit and sole-permit admission bodies. Actual census, capacities and
 cap enforcement are bound; generated registry bytes are excluded. Before
@@ -1170,3 +1170,22 @@ site classes and exact O10 owner lists close the14new headers/24arguments,
 without a zero or generic uncapped waiver. These source/model changes require actual four-point/native15-input
 D3; no diagnostic tree or historical profile qualifies them. Any actual
 guarded-file edit requires re-audit before reuse.
+
+The first full positive replay additionally reaches four uniform-load loop
+headers and twenty-two previously unclassified identifier operands. The two
+PP array/formation walks use the exact twelve-element DOF map; the SP
+constructor receives the single [global] input from the sole production
+formed-load caller, and its powers map sees the two literal span endpoints.
+The FK crate root is also bound by an exact full raw-file guard, including
+ELEMENT_DOF, DOF_PER_NODE and element_dof_map. The exact O10 headers retain
+only those source-qualified owners. The source
+guards also bind all authored case/load/member identifiers and stable_suffix
+(which only replaces ':' with '-', preserving byte length) to the enforced
+128-byte input bound at these exact sites. The call graph also reaches curved
+arms statically: the guarded retained domain refuses components before
+dispatch, so no new curved admission is implied. Their authored identifier
+operands receive the same conservative positive input bound; no branch or
+allocation is assigned a new zero. Generated-intensity prefix diagnostics
+likewise keep positive site-local case-ID classes, without admitting generated
+loads or weakening their retained-domain refusal. The historical base and
+every other positive rule remain unchanged.
