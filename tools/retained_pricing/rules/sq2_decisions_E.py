@@ -86,10 +86,12 @@ LOOP_ZERO_RESTATE = [
      "(filled only per region member) or pressure-thrust aggregates (expansion-joint components, D1.4); each header it matches is listed in zero_hits_E.json"),
 ]
 LOOPS_LAST = [(rx, b, "I95 B3-S (route E, newly reached): " + why) for rx, b, why in json.load(open(os.path.join(H, "i95_new_loops.json")))]
-SITE_FROM = [("physics_evidence.rs:%d" % ln, {"from": ["physics_evidence.rs:319:validate_physics_evidence"], "per": "1",
+SITE_FROM = list(globals().get("SITE_FROM", [])) + [("physics_evidence.rs:%d" % ln, {"from": ["physics_evidence.rs:319:validate_physics_evidence"], "per": "1",
     "why": "route E (I95, as G4's preview_physics_evidence.rs:90/:100): require()/text()/number()/array() (physics_evidence.rs:34-58) allocate only on "
            "failure and every failure returns through `?`; the one swallowing `.ok()` is inside the region loop (empty): <= 1 per validate_physics_evidence call"})
     for ln in (38, 48, 53, 57)]
+if len({key for key, _ in SITE_FROM}) != len(SITE_FROM):
+    raise ValueError("route E: duplicate/conflicting common and local SITE_FROM key")
 CENSUS = {"patcher": os.path.join(os.path.dirname(H), "lib", "census_patch.py"), "json": os.path.join(os.path.dirname(H), "data", "census_c3cf.json")}
 # ---- route E batch 2: B3b's exact loops (PP W1, RS reader, RE physics-1 base validator) and the identifier audit
 NEW.update({

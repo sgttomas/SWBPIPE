@@ -1321,3 +1321,14 @@ inventory. Symbolic coefficients and actual G5 InBuild bindings are unchanged:
 FormationRow and the tuple still require their own actual native observation
 before qualification. Missing or unknown atoms continue to stop evaluation;
 no fallback size, qualified stride, reserve, cap or fit claim is introduced.
+
+
+Route E retains the complete common SITE_FROM list before adding its four
+existing physics-evidence first-return entries, in their original order with
+unchanged caller/per/why values. Its former replacement assignment dropped
+the new common FK895 entry; the exact rule guard correctly stopped pricing.
+The consuming assignment now accumulates both lists and refuses duplicate or
+conflicting keys. Actual full E preparation must preserve every inherited
+rule and add the sole common FK895 clause at its resolved source key; L is
+unchanged. No downstream injection, marker relaxation, caller-count cut or
+qualified fit claim is used.

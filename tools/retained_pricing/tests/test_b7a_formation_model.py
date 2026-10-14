@@ -454,3 +454,44 @@ def test_shared_illustrative_missing_atom_still_refuses(missing):
     values.pop(missing, None)
     with pytest.raises(KeyError, match="no ASSUMED value"):
         g3["X"]({missing: 1}).ev(values)
+
+
+def route_e_site_from(common):
+    import ast
+    source = (PRICING / "rules/sq2_decisions_E.py").read_text()
+    body = ast.parse(source).body
+    indices = [i for i, node in enumerate(body) if isinstance(node, ast.Assign)
+               and any(isinstance(t, ast.Name) and t.id == "SITE_FROM" for t in node.targets)]
+    assert len(indices) == 1
+    index = indices[0]
+    assert isinstance(body[index + 1], ast.If)
+    namespace = {"SITE_FROM": deepcopy(common)}
+    program = ast.Module(body=body[index:index + 2], type_ignores=[])
+    exec(compile(program, "route E SITE_FROM source", "exec"), namespace)
+    return namespace["SITE_FROM"]
+
+
+def test_route_e_preserves_every_common_and_original_site_from_rule():
+    common = MODEL["first_return_rules"](SOURCE, lambda key: key)
+    before = deepcopy(common)
+    combined = route_e_site_from(common)
+    assert common == before
+    assert combined[:len(common)] == common
+    local = combined[len(common):]
+    assert [key for key, _ in local] == ["physics_evidence.rs:" + str(n) for n in (38, 48, 53, 57)]
+    assert all(rule["from"] == ["physics_evidence.rs:319:validate_physics_evidence"]
+               and rule["per"] == "1" for _, rule in local)
+    assert len({key for key, _ in combined}) == len(combined)
+    table, graph, inventory = first_return_fixture()
+    table["site_from"][MODEL["FIRST_RETURN_SITE"]] = dict(
+        combined[0][1], why="SQ2 G5: " + combined[0][1]["why"])
+    MODEL["first_return_state"](SOURCE, table, graph, inventory, [])
+
+
+@pytest.mark.parametrize("common", [
+    [("physics_evidence.rs:38", {"from": [], "per": "0"})],
+    [("same.rs:1", {"per": "1"}), ("same.rs:1", {"per": "2"})],
+])
+def test_route_e_conflicting_or_duplicate_site_from_refuses(common):
+    with pytest.raises(ValueError, match="duplicate/conflicting"):
+        route_e_site_from(common)
