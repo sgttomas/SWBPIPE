@@ -1372,3 +1372,27 @@ The five first-error owner/site/caller boundaries retain their line identities
 and content; their raw source warrant is re-anchored through the same lib pin.
 The generated unregistered carrier, native bindings and approved memory policy
 are unchanged. A measured combined canonical result remains required.
+
+
+Current producer spellings are bounded at their exact sites. The private
+pressure problem retains all calls and owned copies: message453, five refs
+with760 collection bytes,644 joined bytes and718 complete ID bytes. Its
+converted ref loop is qualified to this owner; the existing global four-ref
+rule and every other helper call remain. stable_suffix keeps its original
+128-byte allowance for all callers and adds the private problem's516-byte
+delta with both capacity units. Source-local unit message600 updates the
+authoritative audit and lexical rule together; its existing702-byte format
+is unchanged. Reader require keeps its89 call sites and both formatted detail
+temporaries, with40 detail bytes and15 prefix bytes. Mode/sign/arc clones
+retain all calls and positive46/167/47-byte literal storage.
+
+Formation range reasons come from the exact ten static ledger origins;
+the longest43-byte origin plus16-byte wrapper gives59. Individual reason,
+fired, joined and sentence maxima are unchanged. The same updated aggregate
+H reaches every independent finding, capture, JSON, ordinary body and staged
+copy. No formation site or owner is removed. Admitted copied envelope and
+receipt ref slots remain governed by the unchanged components-empty domain:
+the only five-ref calls require an arc, and the sole arc builder consumes
+those excluded components. Raw/shared/refused/headless five-ref conversions
+and spellings remain positive. No broader phase refinement or policy change
+is used. Actual combined canonical pricing and native evaluation are pending.

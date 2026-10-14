@@ -174,6 +174,8 @@ import b7a_formation_model as FK_RETURN_MODEL
 FK_RETURN_STATE = FK_RETURN_MODEL.first_return_state(proot, TA, cg, inv["rows"], LEX)
 import b7a_returning_errors as OWNED_RETURN_MODEL
 OWNED_RETURN_STATE = OWNED_RETURN_MODEL.state(proot, TA, cg, inv["rows"], LEX, os.environ.get("TB_EXTRA_ZERO", ""))
+import b7a_scoped_text_model as SCOPED_TEXT_MODEL
+SCOPED_TEXT_STATE = SCOPED_TEXT_MODEL.state(proot, TA, LB, cg, inv["rows"], LEX)
 
 # a `.join(` whose receiver is a work/bound status lattice value produces no String: drop it
 # before the ancestor set is formed, so its (non-text) callers' loops are not required
@@ -285,6 +287,9 @@ def short(k):
 LOOP_TOTAL = [(e["fn"], re.compile(e["loop"]), e["total"], re.compile(e["covers"]) if e.get("covers") else None)
               for e in LB.get("loop_total", [])]
 def loop_total(fk, stack):
+    scoped = SCOPED_TEXT_MODEL.owner_total(SCOPED_TEXT_STATE, fk, stack, M)
+    if scoped is not None:
+        return scoped
     for fs, rx, tot, cov in LOOP_TOTAL:
         if short(fk) == fs and any(rx.search(h) for h in stack):
             # loops the total already covers (matched, or enclosing ones named by `covers`) drop out
@@ -472,6 +477,9 @@ def evaluate_format(r):
     return size
 def message_size(r):
     """Bound on the moved/converted message of one diag(...) site."""
+    scoped = SCOPED_TEXT_MODEL.message(SCOPED_TEXT_STATE, r)
+    if scoped is not None:
+        return scoped
     m = " ".join(r.get("message_arg", "").split())
     if m.startswith("format!("):
         cands = [x for x in fmt_by_line.get(r["file"], []) if r["line"] <= x["line"] <= r["line"] + 40
@@ -493,6 +501,9 @@ big_refs = []
 def refs_bytes(f, line):
     """Bytes of the affected_refs Vec and its Strings for the diag( call at f:line: the
     fifth argument, parsed from the blanked source."""
+    scoped = SCOPED_TEXT_MODEL.refs(SCOPED_TEXT_STATE, f, line)
+    if scoped is not None:
+        return scoped
     if f not in _spancache:
         loops_at_line(f, line, None)
     bt, offs, _ = _spancache[f]
@@ -580,6 +591,7 @@ for r in inv["rows"]:
                              "class": first_rule_class(" ".join(ph["arg"].split())), "mult": mult, "fn": fk})
         if cands and (key in AGG or so is not None):
             size = max(size, evaluate_format(r))
+    SCOPED_TEXT_MODEL.witness(SCOPED_TEXT_STATE, f, line, r["kind"], mult, M)
     if r["kind"] == "diag" and mult:
         D += mult
         rb = refs_bytes(f, line)
@@ -682,6 +694,8 @@ for r in LEX:
     st = TA.get("site_total", {}).get(lkey)
     if st is not None and mult:
         req = ev(st["bytes"])
+    SCOPED_TEXT_MODEL.witness(SCOPED_TEXT_STATE, f, line, r["kind"], mult, M)
+    req += SCOPED_TEXT_MODEL.extra_requested(SCOPED_TEXT_STATE, f, line, r["kind"], M)
     total_req += req
     if mult:
         max_size = max(max_size, size)

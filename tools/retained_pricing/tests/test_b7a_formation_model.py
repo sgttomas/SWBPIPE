@@ -40,7 +40,7 @@ def test_actual_guard_and_source_aggregate_bounds_are_positive(monkeypatch):
     assert len(proof["full_raw_source_fingerprints"]) == 21
     assert len(proof["formation_raw_fingerprints"]) == 6
     bound = MODEL["lengths"](32, 128, 128)
-    assert bound == dict(N=192, q=1536, debug_total=1972608, fired_total=3664128,
+    assert bound == dict(N=192, q=1536, debug_total=1972608, fired_total=2149824,
                          reason=165057, fired=165659, joined=993964, sentence=994321)
     # Each source list has its own generation. Both may contain every term.
     assert 2 * bound["debug_total"] >= 2 * (1284 * bound["q"])
@@ -173,15 +173,40 @@ def test_closed_o10_preimages_refuse_arbitrary_missing_or_changed_rule(change):
 def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, route):
     inherited = rules(tmp_path)
     prepared, _ = MODEL["prepare"](SOURCE, inherited, tmp_path / "formed")
+    inherited.update(prepared)
+    prepared = inherited
+    # Carry the actual base rules before SQ2, as the canonical driver does.
+    # The source-local TEXT guards require current authoritative keys.
+    repo = SOURCE.parents[1]
+    target = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
+    rule_files = ("callgraph_rules.g4.json", "loop_bounds.g4.json",
+                  "text_args.g4.json", "sens.py", "premise_pins.json")
+    mapped_rules = tmp_path / "map"
+    environment = dict(os.environ,
+        LINEMAP_CRATES=str(PRICING / "base/crate_dirs.txt"),
+        LINEMAP_ROWS=str(PRICING / "data/basis_text_rows.json"),
+        LINEMAP_RESOLUTIONS=str(PRICING / "rules/linemap_resolutions.json"))
+    carried = subprocess.run([sys.executable, str(PRICING / "lib/linemap_rules.py"),
+        "--prune-deleted", str(repo), "2243be380b", target, str(mapped_rules)]
+        + [prepared.get(name, str(PRICING / "base" / name)) for name in rule_files],
+        env=environment, text=True, capture_output=True)
+    assert carried.returncode == 0, carried.stdout + carried.stderr
     chain = tmp_path / "chain"
     shutil.copytree(PRICING / "base", chain)
-    for name, path in prepared.items():
-        shutil.copyfile(path, chain / name)
-    environment = dict(os.environ, SQ2_SNAP=str(SOURCE))
-    # These are the actual decisions and SQ2 preparation implementation.
-    # No line-map exception is substituted by this local priority control.
-    for name in ("SQ2_TARGET", "SQ2_LM"):
-        environment.pop(name, None)
+    for name in rule_files:
+        shutil.copyfile(mapped_rules / name, chain / name)
+    environment.update(SQ2_SNAP=str(SOURCE), SQ2_TARGET=target, SQ2_REPO=str(repo),
+        SQ2_DEC_BASIS="2243be380b", SQ2_LM=str(mapped_rules / "g7_linemap.out.json"),
+        SQ2_RESOLUTIONS=str(PRICING / "rules/linemap_resolutions.json"))
+    mapper_api = runpy.run_path(str(PRICING / "lib/linemap_lib.py"))
+    mapper = mapper_api["Mapper"](str(repo), "2243be380b", target,
+        (PRICING / "base/crate_dirs.txt").read_text().split(),
+        mapper_api["load_rows"]([str(PRICING / "data/basis_text_rows.json")]),
+        mapper_api["load_resolutions"](str(PRICING / "rules/linemap_resolutions.json")))
+    def current(key):
+        result = mapper.map_key(key, "maintained priority control")
+        assert not mapper.unmapped, mapper.unmapped
+        return result
     decisions = PRICING / ("rules/sq2_decisions_L.py" if route == "L" else "rules/sq2_decisions_E.py")
     result = subprocess.run([sys.executable, str(PRICING / "lib/sq2_rules.py"),
                              str(chain), str(tmp_path / "actual"), str(decisions)],
@@ -217,14 +242,14 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
         assert key in text["site_total"]
     assert text["lex_site_size"]["formation_guard.rs:330"]["class"] == 993964
     assert text["lex_site_size"]["retained_product.rs:545"]["class"] == 994321
-    assert text["site_total"]["load_ledger.rs:133"]["bytes"] == "5*cases*(12*l)*2*128"
-    assert text["site_total"]["load_ledger.rs:408"]["bytes"] == "4*cases*(12*l)*2*128"
+    assert text["site_total"][current("load_ledger.rs:133")]["bytes"] == "5*cases*(12*l)*2*128"
+    assert text["site_total"][current("load_ledger.rs:408")]["bytes"] == "4*cases*(12*l)*2*128"
     # Two independent lists are an occurrence multiplier; the final2 is
     # still the old String-capacity allowance, not the same factor twice.
-    assert text["site_total"]["load_ledger.rs:670"]["bytes"] == "10*cases*(12*l)*2*128"
-    sf = text["site_from"]["structural.rs:1103"]
+    assert text["site_total"][current("load_ledger.rs:670")]["bytes"] == "10*cases*(12*l)*2*128"
+    sf = text["site_from"][current("structural.rs:1103")]
     assert sf["per"] == "24*l"
-    assert sf["from"] == MODEL["FIDELITY_PREIMAGES"]["source_clone"]["from"]
+    assert sf["from"] == [current(key) for key in MODEL["FIDELITY_PREIMAGES"]["source_clone"]["from"]]
     joined = next(row for row in text["join_rules"] if re.search(row["re"], "rows"))
     assert joined["re"] == "^rows$"
     assert "(12*l)*(2+10*128+2+2)" in joined["bytes"]
@@ -241,7 +266,7 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
     assert isinstance(if_sf, ast.If)
     counts = dict(N=192, l=128, cases=3)
     evaluate = lambda expression: int(eval(expression, {"__builtins__": {}, "max": max}, counts))
-    environment = dict(TA=text, lkey="structural.rs:1103", mult=10**9,
+    environment = dict(TA=text, lkey=current("structural.rs:1103"), mult=10**9,
                        M={"core/solver/frame_kernel/src/" + sf["from"][0]: 3,
                           "core/solver/frame_kernel/src/" + sf["from"][1]: 6},
                        short=lambda key:key.split("/src/")[-1], ev=evaluate)
@@ -257,9 +282,9 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
                        and isinstance(node.test.left, ast.Name) and node.test.left.id == "key"
                        and any(isinstance(t, ast.Name) and t.id == "AGG" for t in node.test.comparators))
     for key in MODEL["FIDELITY_PREIMAGES"]["aggregates"]:
-        environment.update(key=key, AGG=text["site_aggregate"], ev=evaluate)
+        environment.update(key=current(key), AGG=text["site_aggregate"], ev=evaluate)
         exec(compile(ast.Module(body=[size_choice], type_ignores=[]), "real aggregate branch", "exec"), environment)
-        assert environment["size"] == evaluate(text["site_aggregate"][key]["bytes"])
+        assert environment["size"] == evaluate(text["site_aggregate"][current(key)]["bytes"])
         assert environment["size"] >= 12 * 128 * (10 * 128 + 4)
     # SITE_TOTAL follows and supersedes ordinary mult*capacity. Extract the
     # actual format branch: each source-list occurrence keeps capacity2.
@@ -269,7 +294,7 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
     for key, wanted in (("load_ledger.rs:133", 5*3*1536*2*128),
                         ("load_ledger.rs:408", 4*3*1536*2*128),
                         ("load_ledger.rs:670", 5*3*2*1536*2*128)):
-        environment.update(key=key, TA=text, mult=10**9, req=10**12)
+        environment.update(key=current(key), TA=text, mult=10**9, req=10**12)
         exec(compile(ast.Module(body=[assign_st, if_st], type_ignores=[]), "real site_total branch", "exec"), environment)
         assert environment["req"] == wanted
 

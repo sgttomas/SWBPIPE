@@ -20,6 +20,7 @@ SOURCE_FILES = {
     "core/product_physics/src/source_recovery.rs": "60277c01e84528ed45f0c6ff5436f4c35aa1b8b0f9d61a8da72123190340f0d6",
     "core/solver/frame_kernel/src/structural/sparse.rs": "f0e774d2f105484fd43f393fd18ce459990aeb459222b5481ce70843b7acd0ff",
 }
+RANGE_CONTENT = 59
 REASON = 165057
 FIRED = 165659
 JOINED = 993964
@@ -84,7 +85,7 @@ def lengths(nodes, loads, ident):
     n = 6 * nodes
     q = 12 * loads
     debug_total = 2 * n + (10 * ident + 4) * q
-    fired_total = n * (600 + 2 + max(8208, 87, 321)) + debug_total
+    fired_total = n * (600 + 2 + max(RANGE_CONTENT, 87, 321)) + debug_total
     return dict(N=n, q=q, debug_total=debug_total, fired_total=fired_total,
                 reason=REASON, fired=FIRED, joined=JOINED, sentence=SENTENCE)
 
@@ -279,10 +280,10 @@ def prepare(snapshot, inherited, output):
     # is used only for requested capacities of these exact guarded sites.
     aggregate = "(2*N+(10*128+4)*(12*l))"
     totals = {
-        "formation_guard.rs:239": "2*cases*N*8208",
+        "formation_guard.rs:239": "2*cases*N*59",
         "formation_guard.rs:241": f"2*cases*(87*N+{aggregate})",
         "formation_guard.rs:251": f"2*cases*(321*N+{aggregate})",
-        "formation_guard.rs:322": f"2*cases*(N*(600+2+8208)+{aggregate})",
+        "formation_guard.rs:322": f"2*cases*(N*(600+2+321)+{aggregate})",
     }
     # Current line keys are resolved later in SQ2, not carried from the old
     # basis here; use the exact existing name-qualified decision seam below.
@@ -306,10 +307,10 @@ def site_totals(snapshot, resolved):
     return [(resolved(key), expression,
              "B7a exact formed guard owner: full independent generation; <=cases guards, N DOF rows, q<=12*l aggregate escaped source IDs")
             for key, expression in (
-                ("formation_guard.rs:239", "2*cases*N*8208"),
+                ("formation_guard.rs:239", "2*cases*N*59"),
                 ("formation_guard.rs:241", f"2*cases*(87*N+{g})"),
                 ("formation_guard.rs:251", f"2*cases*(321*N+{g})"),
-                ("formation_guard.rs:322", f"2*cases*(N*(600+2+8208)+{g})"),
+                ("formation_guard.rs:322", f"2*cases*(N*(600+2+321)+{g})"),
             )]
 
 

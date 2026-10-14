@@ -155,6 +155,10 @@ for rule in reversed(D.get("ARGS_FIRST", [])):
     rule = dict(rule); rule["why"] = "SQ2 G5: " + rule["why"]; TA["args"].insert(0, rule); LOG["other"].append(["args", rule])
 for key, value in D.get("LEX_SITE_SIZE", []):
     TA["lex_site_size"][key] = value; LOG["other"].append(["lex_site_size", key, value])
+if D.get("B7A_SCOPED_TEXT"):
+    _scoped = runpy.run_path(D["B7A_SCOPED_TEXT"]["model"])
+    TA, _scope_proof = _scoped["transform"](D["B7A_SCOPED_TEXT"]["snapshot"], LB, TA)
+    LOG["b7a_scoped_text"] = _scope_proof
 json.dump(TA, open(tap, "w"), indent=1)
 cgp = os.path.join(dst, "callgraph_rules.g4.json"); CG = json.load(open(cgp))
 for r in D.get("CG_RULES", []):

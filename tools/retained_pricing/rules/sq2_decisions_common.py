@@ -405,3 +405,7 @@ SITE_FROM = list(globals().get("SITE_FROM", [])) + _formed_model["first_return_r
 # Five additional immediate-return allocations, with full owned call counts.
 _owned_returns = __import__("runpy").run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "b7a_returning_errors.py"))
 SITE_FROM = list(SITE_FROM) + _owned_returns["rules"](_SNAP, Resolved)
+
+
+# Exact current producer spellings, applied after ordinary decision carry.
+B7A_SCOPED_TEXT = {"model": _os.path.join(_os.path.dirname(__file__), "..", "base", "b7a_scoped_text_model.py"), "snapshot": _SNAP}
