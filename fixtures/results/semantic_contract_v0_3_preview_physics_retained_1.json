@@ -1103,10 +1103,8 @@
     "component_version": "0.2.0"
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
-  "reserved_inactive_successors": [
-    "openpipestress.result_semantics/0.3.0/pressure-1"
-  ],
-  "inherited_semantic_contract_sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3",
+  "reserved_inactive_successors": [],
+  "inherited_semantic_contract_sha256": "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32",
   "source_basis_signature_policy": "where_declared_require_exact_metadata_basis_first_match_in_table_order",
   "formulation_profile_id": "product_preview_retained_w1a_v2",
   "contract_evidence_policy": "closed_preview_case_extrema_coverage_attribution_intensification_and_combination_gate_binding_v1",

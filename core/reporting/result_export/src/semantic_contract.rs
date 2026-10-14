@@ -46,19 +46,13 @@ pub fn signature_in(table: &'static Value, row: &Value) -> Result<Option<&'stati
     Ok(Some(units[0]))
 }
 /// The signature of `row` under the table `for_source` selected for `source`.
-/// Under pressure-1 a connector row's signature is held as code
-/// (`connector_evidence`), since pressure-1 resolves its other rows against
-/// physics-1's resident table and holds no table of its own (T4-RV14 F1).
-pub fn signature_for(source: &Value, table: &'static Value, row: &Value) -> Result<Option<Value>, String> {
-    if source["producer"]["semantic_contract_id"] == PRESSURE_ID {
-        if let Some(signature) = crate::connector_evidence::signature(row)? {
-            return Ok(Some(signature));
-        }
-    }
+/// Connector signatures, including the two scalar pressure rows, resolve
+/// through the same independently bound ordinary pressure table.
+pub fn signature_for(_source: &Value, table: &'static Value, row: &Value) -> Result<Option<Value>, String> {
     Ok(signature_in(table, row)?.cloned())
 }
 /// Canonical metadata under the vocabulary `for_source` selected for `source`
-/// (pressure-1: physics-1's plus the connector entries).
+/// Connector-specific location/basis rules remain independently checked.
 pub fn canonical_metadata_for(source: &Value, table: &Value, row: &Value) -> Option<Value> {
     if source["producer"]["semantic_contract_id"] == PRESSURE_ID
         && crate::connector_evidence::is_connector_kind(row["kind"].as_str().unwrap_or_default())
@@ -103,8 +97,9 @@ pub const PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
 pub const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
 pub const PRESSURE_PROFILE: &str = "exact_pressure_v3";
 pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID;
-/// Reviewed nonresident binding table; rows use physics_source_contract().
-pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf";
+/// Independent current resident source-family table, with no ordinary alias.
+pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435";
+pub const PRESSURE_TABLE_SHA256: &str = "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375";
 /// B1 (b7-plan): precision-1 is no longer read. A stored precision-1 result is
 /// refused by name (re-run the analysis); no table, route or notice remains.
 pub const RETIRED_PRECISION_ID: &str = "openpipestress.result_semantics/0.3.0/precision-1";
@@ -121,7 +116,7 @@ pub const LOAD_REFERENCE_SOURCE_PROFILE: &str = crate::load_reference_source::PR
 pub const LOAD_REFERENCE_SOURCE_TABLE_SHA256: &str = crate::load_reference_source::TABLE_SHA256;
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
 pub const PREVIEW_PHYSICS_SHA256: &str =
-    "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3";
+    "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32";
 /// U6a (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its raw and
 /// transport statements are checked only by the accepted reader
 /// (`crate::retained_precision`), never by this module's ordinary branches, and
@@ -129,7 +124,7 @@ pub const PREVIEW_PHYSICS_SHA256: &str =
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53";
+    "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// physics-1. Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact
@@ -137,7 +132,7 @@ pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
 pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_ID;
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886";
+    "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -260,18 +255,30 @@ pub fn physics_contract() -> &'static Value {
         .expect("pinned physics semantic contract")
     })
 }
-/// T4-U2a: `pressure-1`'s row table. Its skeleton
-/// (`fixtures/results/semantic_contract_v0_3_pressure_1.json`) keeps physics-1's
-/// rows unchanged under its own identity and profile, so this reader resolves
-/// pressure-1 rows against physics-1's resident table and holds no table of its
-/// own: no static is added to the reader's reach (T4-RV14 F1). The identity and
-/// profile are checked from the envelope header, never inferred from the table.
-/// T4-U3's objective connector rows, the skeleton's only rows beyond
-/// physics-1's, are checked against code constants ([`CONNECTOR_ROW_KINDS`]),
-/// not against a resident table. A unit that gives pressure-1 rows of its own
-/// through a table must first settle how that table is priced (T3 O-10).
+/// Current ordinary pressure rows have their own reviewed resident table.
+/// The independently cached source table below retains its source-only family.
+pub fn verify_pressure_table(bytes: &[u8]) -> Result<Value, String> {
+    use sha2::{Digest, Sha256};
+    if format!("{:x}", Sha256::digest(bytes)) != PRESSURE_TABLE_SHA256 {
+        return Err("SOURCE_PRESSURE_TABLE_HASH".into());
+    }
+    let table: Value = serde_json::from_slice(bytes)
+        .map_err(|_| "SOURCE_PRESSURE_TABLE_HASH".to_string())?;
+    if table["semantic_contract_id"] != PRESSURE_ID
+        || table["formulation_profile_id"] != PRESSURE_PROFILE
+        || table["source_signature_count"] != 88
+        || table["source_kind_count"] != 59 {
+        return Err("SOURCE_PRESSURE_TABLE_IDENTITY".into());
+    }
+    Ok(table)
+}
 pub fn pressure_rows_contract() -> &'static Value {
-    physics_contract()
+    static CONTRACT: OnceLock<Value> = OnceLock::new();
+    CONTRACT.get_or_init(|| {
+        verify_pressure_table(include_bytes!(
+            "../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json"
+        )).expect("pinned ordinary pressure semantic contract")
+    })
 }
 /// T4-U3 (S14): the objective connector row signatures of `pressure-1`:
 /// (kind, unit, components, locations).
@@ -329,9 +336,8 @@ pub fn preview_physics_contract() -> &'static Value {
         .expect("pinned preview-physics semantic contract")
     })
 }
-/// Verify supplied pressure-source binding bytes without caching another row
-/// table. Its digest is the reviewed file's pin, and its rows remain those of
-/// the one resident physics_source_contract().
+/// Verify the independent current source table. Its full reviewed-byte digest
+/// binds the unchanged 69 signatures, vocabulary, bases and hash vectors.
 pub fn verify_pressure_source_table(bytes: &[u8]) -> Result<Value, String> {
     use sha2::{Digest, Sha256};
     if format!("{:x}", Sha256::digest(bytes)) != PRESSURE_SOURCE_TABLE_SHA256 {
@@ -341,11 +347,54 @@ pub fn verify_pressure_source_table(bytes: &[u8]) -> Result<Value, String> {
     if table["semantic_contract_id"] != PRESSURE_SOURCE_ID
         || table["formulation_profile_id"] != PRESSURE_PROFILE
         || table["source_block_policy"] != crate::physics_source::SourceContract::PressureV3.policy()
-        || table["rows"] != physics_source_contract()["rows"]
-        || table["canonical_metadata_vocabulary"] != physics_source_contract()["canonical_metadata_vocabulary"] {
+        || table["source_signature_count"] != 69
+        || table["source_kind_count"] != 51 {
         return Err("SOURCE_PRESSURE_SOURCE_TABLE_IDENTITY".into());
     }
     Ok(table)
+}
+pub fn pressure_source_contract() -> &'static Value {
+    static CONTRACT: OnceLock<Value> = OnceLock::new();
+    CONTRACT.get_or_init(|| {
+        verify_pressure_source_table(include_bytes!(
+            "../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
+        )).expect("pinned current pressure-source semantic contract")
+    })
+}
+#[cfg(test)]
+mod b7b_current_table_tests {
+    use super::*;
+
+    #[test]
+    fn b7b_current_tables_are_independent_and_bind_their_own_bytes() {
+        let ordinary = pressure_rows_contract();
+        let source = pressure_source_contract();
+        assert_eq!(ordinary["rows"].as_array().unwrap().len(), 88);
+        assert_eq!(source["rows"].as_array().unwrap().len(), 69);
+        assert_eq!(source["source_kind_count"], 51);
+        assert!(ordinary.get("inherited_semantic_contract_sha256").is_none());
+        assert!(source.get("inherited_semantic_contracts").is_none());
+        let scalar: Vec<_> = ordinary["rows"].as_array().unwrap().iter()
+            .filter(|row| matches!(row["component"].as_str(), Some("pe_x" | "s_x"))).collect();
+        assert_eq!(scalar.len(), 2, "padding creates no duplicate scalar signatures");
+        for row in scalar {
+            let input = serde_json::json!({"kind": row["kind"], "unit": row["unit"],
+                "metadata": {"component": row["component"]}});
+            assert!(signature_in(ordinary, &input).unwrap().is_some());
+            assert!(signature_in(source, &input).unwrap().is_none(),
+                "ordinary joint signatures never widen the source table");
+        }
+        let mut ordinary_bytes = include_bytes!(
+            "../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json"
+        ).to_vec();
+        ordinary_bytes.push(b' ');
+        assert_eq!(verify_pressure_table(&ordinary_bytes).unwrap_err(), "SOURCE_PRESSURE_TABLE_HASH");
+        let mut source_bytes = include_bytes!(
+            "../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
+        ).to_vec();
+        source_bytes.push(b' ');
+        assert_eq!(verify_pressure_source_table(&source_bytes).unwrap_err(), "SOURCE_PRESSURE_SOURCE_TABLE_HASH");
+    }
 }
 pub fn physics_source_contract() -> &'static Value {
     static CONTRACT: OnceLock<Value> = OnceLock::new();
@@ -551,7 +600,8 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
             let table = match p["semantic_contract_id"].as_str() {
                 Some(PHYSICS_ID) => physics_contract(),
                 Some(PRESSURE_ID) => pressure_rows_contract(),
-                Some(PHYSICS_SOURCE_ID | PRESSURE_SOURCE_ID) => physics_source_contract(),
+                Some(PHYSICS_SOURCE_ID) => physics_source_contract(),
+                Some(PRESSURE_SOURCE_ID) => pressure_source_contract(),
                 Some(LOAD_REFERENCE_ID) => load_reference_contract(),
                 Some(LOAD_REFERENCE_SOURCE_ID) => load_reference_source_contract(),
                 Some(PREVIEW_PHYSICS_ID) => preview_physics_contract(),

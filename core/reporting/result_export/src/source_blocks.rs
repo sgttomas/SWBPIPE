@@ -202,7 +202,7 @@ pub fn validate_publication_hash(source: &Value) -> Result<(), String> {
     Ok(())
 }
 fn signature(row: &Value) -> Result<Option<&'static Value>, String> {
-    let s = signature_in(crate::semantic_contract::physics_source_contract(), row)?;
+    let s = signature_in(crate::semantic_contract::pressure_source_contract(), row)?;
     Ok(s.filter(|s| s["component"].is_null() || s["component"] == row["metadata"]["component"]))
 }
 fn ordinary_method(mode: &Value) -> Option<&'static str> {

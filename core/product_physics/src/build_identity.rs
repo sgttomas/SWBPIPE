@@ -151,7 +151,7 @@ pub(crate) const REVIEWED_INPUTS_VARIABLE: &str = "OPS_RETAINED_REVIEWED_INPUTS"
 /// lock, then the reader's statics in G4's ORIGINS.json order, followed by B7's
 /// source-qualified nonresident binding table, then the pressure result schema.
 #[allow(dead_code)]
-pub(crate) const REVIEWED_INPUT_COUNT: usize = 15;
+pub(crate) const REVIEWED_INPUT_COUNT: usize = 16;
 #[allow(dead_code)]
 pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     "Cargo.lock",
@@ -175,6 +175,9 @@ pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     "../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
     // U5a: nonresident definition of the pressure joint record, evidence and row shapes.
     "../../schemas/results_pressure_1.v0.3.schema.json",
+    // B7b: actual ordinary pressure residency; the four old obligations remain
+    // here until their owning loaders are deleted, then the final list is 12.
+    "../../fixtures/results/semantic_contract_v0_3_pressure_1.json",
 ];
 
 /// The reviewed-input text for the given digests (`None`: unreadable).

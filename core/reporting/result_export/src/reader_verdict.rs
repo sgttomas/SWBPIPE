@@ -306,7 +306,7 @@ pub fn transport(reader: &str, source: &Value) -> Value {
 /// unknown) kind; then an envelope that is not qualified or whose model has
 /// combinations; then an unsolved envelope. Each code once, first place kept.
 pub fn source_findings(source: &Value, invocation: &Value) -> Vec<&'static str> {
-    let table = sc::physics_source_contract();
+    let table = sc::pressure_source_contract();
     let rows: std::collections::HashMap<&str, &Value> = source["results"]
         .as_array()
         .map(Vec::as_slice)

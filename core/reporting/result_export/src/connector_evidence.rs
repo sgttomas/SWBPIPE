@@ -99,37 +99,6 @@ pub const VOCABULARY_COMPONENTS: [&str; 14] = [
 pub const VOCABULARY_COORDINATE_SYSTEMS: [&str; 1] = [LOCAL_FRAME];
 pub const VOCABULARY_LOCATIONS: [&str; 1] = [LOCAL];
 
-/// The pressure-1 signature of a connector row (the `connector_*` rows of
-/// the pressure-1 table, held as code): `None` for another kind; a unit or
-/// component outside the kind's is a contradiction, as `signature_in` says.
-pub(crate) fn signature(row: &Value) -> Result<Option<Value>, String> {
-    let kind = row["kind"].as_str().unwrap_or_default();
-    let Some((_, unit, components, _)) = KINDS.iter().find(|(k, ..)| *k == kind) else {
-        return Ok(None);
-    };
-    if row["unit"] != *unit {
-        return Err(format!("SOURCE_UNIT_CONTRADICTION: {kind}"));
-    }
-    let component = row["metadata"]["component"].as_str().unwrap_or_default();
-    if !components.contains(&component) {
-        return Err(format!("SOURCE_COMPONENT_CONTRADICTION: {kind}"));
-    }
-    let (dimension, family) = match kind {
-        "connector_generalized_translation_v1" => ("length", "displacement"),
-        "connector_generalized_rotation_v1" => ("angle", "rotation"),
-        "connector_generalized_force_v1" | "connector_endpoint_force_v1" | "connector_pressure_force_v1" | "connector_effective_axial_force_v1" => ("force", "force"),
-        _ => ("moment", "moment"),
-    };
-    Ok(Some(serde_json::json!({"kind": kind, "unit": unit, "component": component,
-        "source_physical_semantic_dimension": dimension, "derivative_target_dimension": dimension,
-        "category": "physical_quantity", "family": family, "canonical_disposition": "exported_quantity",
-        "legacy_declared_dimension": null, "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-        "governing_ratio_eligible": false})))
-}
-
-/// The canonical metadata of a connector row under pressure-1's vocabulary
-/// (physics-1's plus the connector entries above), or `None` when a value
-/// lies outside it.
 pub(crate) fn canonical_metadata(row: &Value) -> Option<Value> {
     let md = &row["metadata"];
     let kind = row["kind"].as_str()?;

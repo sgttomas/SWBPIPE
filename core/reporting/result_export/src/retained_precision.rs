@@ -21,7 +21,7 @@ pub const EXACT_PROFILE: &str = "exact_straight_retained_w1a_v2";
 pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 /// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2).
 pub const EXACT_DEFINITION_HASH: &str =
-    "306af5fd3abf1e358a7f2eb7a5fa7d8b597c5cb25d4f3d30925acd17cc8c2525";
+    "ff28bea4ca9613d689edd1428b07e869a0a3ac824012b49382307b6293819def";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 /// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): the requested-mode
 /// basis row of a case whose ordinary attempt genuinely failed. It replaces
@@ -422,8 +422,8 @@ const PREVIEW: Route = Route {
 const EXACT: Route = Route {
     exact: true,
     definition_hash: EXACT_DEFINITION_HASH,
-    base_id: "openpipestress.result_semantics/0.3.0/physics-1",
-    base_profile: "exact_straight_pressure_v2",
+    base_id: "openpipestress.result_semantics/0.3.0/pressure-1",
+    base_profile: "exact_pressure_v3",
     geometry: "exact",
 };
 fn route(source: &Value) -> &'static Route {
@@ -579,14 +579,14 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json");
-const TABLE_HASH: &str = "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53";
+const TABLE_HASH: &str = "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1";
 /// The exact successor's table (XTABLE) and its inherited physics-1 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 );
-const PHYSICS_TABLE_BYTES: &[u8] =
-    include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_physics_1.json");
-const EXACT_TABLE_HASH: &str = "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886";
+const PRESSURE_TABLE_BYTES: &[u8] =
+    include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json");
+const EXACT_TABLE_HASH: &str = "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
@@ -742,7 +742,7 @@ fn g0_exact(source: &Value) -> VResult {
     // 5. XTABLE's bytes and its inherited physics-1 hash.
     unsupported(
         sha256_hex(EXACT_TABLE_BYTES) == EXACT_TABLE_HASH
-            && t["inherited_semantic_contract_sha256"] == sha256_hex(PHYSICS_TABLE_BYTES),
+            && t["inherited_semantic_contract_sha256"] == sha256_hex(PRESSURE_TABLE_BYTES),
     )?;
     // 6. The table against the reader's constants.
     unsupported(table_binds_reader_constants(t))?;

@@ -82,7 +82,7 @@ pub(super) struct SolverObservations {
 /// B3b-P (B3-D P-1): the invocation's W1 route, decided once (`lib.rs` `w1_route`, in
 /// `permitted_run` and the private driver) from the admitted model's namespace branch: the
 /// preview successor over preview-physics-1, or the exact successor (`physics-retained-1`,
-/// DEF-E) over physics-1 (schema 0.3.0, `exact_straight_pressure_v2`, explicitly empty
+/// DEF-E) over pressure-1 (schema 0.5.0, `exact_pressure_v3`, explicitly empty
 /// pressure regions). The route-specific steps (capture, observables, maxima, overlay and
 /// the wire's identity) each call their own named function (I95's ruling 1).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -96,7 +96,7 @@ impl W1Route {
     pub(super) fn base_contract(self) -> &'static str {
         match self {
             Self::Preview => preview_physics::ID,
-            Self::Exact => PHYSICS_SEMANTIC_CONTRACT_ID,
+            Self::Exact => exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID,
         }
     }
     /// The base publication's `contract_evidence` member that holds one entry per case.
@@ -653,7 +653,7 @@ impl ProductCapture {
         // not `pressure_runtime::is_exact`, which since T4-U2a also covers the v3 successor.
         // A v3 model takes the refusal it took before that change.
         if (pressure_runtime::exact_contract(model)
-            == Some(pressure_runtime::ExactContract::StraightV2))
+            == Some(pressure_runtime::ExactContract::PressureV3))
             != (self.route == W1Route::Exact)
             || case_state::is_load_state(model)
             || !super::w1_model_combinations_admitted(model)
@@ -2595,7 +2595,7 @@ impl ProductCapture {
         };
         self.case_observables(view, extrema)
     }
-    /// B3b-P (B3-D P-6): the exact route's closed physics-1 evidence and the case's entry:
+    /// B3b-P (B3-D P-6), rebased by B7b D4: the exact route's closed pressure-1 evidence and the case's entry:
     /// `{pressure: [], connector: [], exact_cases}`; the entry's eight keys (no
     /// `recovery_method`), its case, `profile_mode`, the base common E/ν basis, complete
     /// `stress_maximum_coverage`, `pressure_rhs_assembly` with no groups and all-zero vectors,
@@ -2623,7 +2623,7 @@ impl ProductCapture {
         if !self.checked_same(case_id, &self.case_id)? {
             return Err("evidence case".into());
         }
-        if !self.checked_same(c["profile_mode"].as_str().ok_or("exact profile mode")?, "exact_straight_pressure_v2")?
+        if !self.checked_same(c["profile_mode"].as_str().ok_or("exact profile mode")?, "exact_pressure_v3")?
             || !self.checked_same(c["material_basis"].as_str().ok_or("exact material basis")?, "base_material_common_E_nu")? {
             return Err("exact profile/material basis".into());
         }
@@ -4895,7 +4895,7 @@ impl ProductCapture {
     /// - A prior capture error of any case, the first in request order, is the cause: the parked
     ///   cases' (0 to c − 2), then the last case's, in the capture's own fields (RV109 R3P-3).
     /// - The ordinary preconditions: one final hook, the route's base contract (preview-physics-1,
-    ///   or physics-1 on the exact route: B3b-P), `MECHANICS_SOLVED`,
+    ///   or pressure-1 on the exact route: B7b D4), `MECHANICS_SOLVED`,
     ///   no exact-block selection, and no native work yet.
     /// - One complete late capture per requested case.
     /// - Each case's observations bound to the envelope (`bind_observations`, per case), and,

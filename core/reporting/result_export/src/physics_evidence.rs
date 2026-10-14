@@ -696,7 +696,11 @@ pub(crate) fn validate_physics_evidence_in(
         let kind = text(&row["kind"])?;
         let signature = crate::semantic_contract::signature_in(
             if composite {
-                crate::semantic_contract::physics_source_contract()
+                if contract == PressureContract::PressureV3 {
+                    crate::semantic_contract::pressure_source_contract()
+                } else {
+                    crate::semantic_contract::physics_source_contract()
+                }
             } else {
                 contract.table()
             },

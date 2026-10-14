@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 86,
-  "source_kind_count": 57,
+  "source_signature_count": 88,
+  "source_kind_count": 59,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -64,7 +64,9 @@
         "gt_z",
         "gr_x",
         "gr_y",
-        "gr_z"
+        "gr_z",
+        "pe_x",
+        "s_x"
       ]
     },
     "coordinate_system": {
@@ -1320,6 +1322,34 @@
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
       "governing_ratio_eligible": false
+    },
+    {
+      "signature_id": "supported-source-095",
+      "kind": "connector_pressure_force_v1",
+      "unit": "N",
+      "component": "pe_x",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false
+    },
+    {
+      "signature_id": "supported-source-096",
+      "kind": "connector_effective_axial_force_v1",
+      "unit": "N",
+      "component": "s_x",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false
     }
   ],
   "hash_vectors": [
@@ -1370,14 +1400,13 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1",
   "formulation_profile_id": "exact_pressure_v3",
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_with_load_reference_state_binding_on_0_4_0_v1",
   "supported_profile_limitations": [
-    "Rows (T4-U2a skeleton, T4-U3, T4-U2): physics-1's row vocabulary, unchanged, plus the objective connector rows; the canonical metadata vocabulary is physics-1's plus the connector rows' components, frame (connector_axes_q), location (connector_local) and one stable basis. Realized-arc members publish physics-1's pressure kinds in their own sign conventions; pressure-1 kinds for later families are added by the units that admit them.",
-    "Admitted families under 3.0.0/exact_pressure_v3: straight circular members, realized curved bends (curved_bend_macro_element with the user's radius and flexibility factor) inside tangent-continuous pressure regions, linear restraints or springs, and unpressurized untied objective connectors replacing one straight span (T4-U3); every other family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED).",
+    "The independently resident ordinary pressure table contains the inherited physical row vocabulary and objective connector rows, including the two scalar pressure-force and effective-axial-force signatures pe_x and s_x. Its vocabulary and row bases are bound by its current reviewed hash; the independent source table retains its source-only family.",
+    "Admitted families under current model 0.5.0 and 3.0.0/exact_pressure_v3: straight circular members, realized curved bends inside tangent-continuous pressure regions, linear restraints or springs, and untied objective connectors replacing one straight span. A constant-effective-area joint is admitted only under its closed pressure model and explicit one-region participation; every other family is refused by name.",
     "Realized arcs (T4-U2): each owns the term K_b*u_free(eps_p) - c_b with eps_p = (1-2nu)pAi/(E As); N_w = N_el + pAi and S = N_el; end rows act along the arc end tangents; bend-adjacent direction changes up to alpha_tan = 1e-3 rad are carried by the remainder pAi(t_in - t_out); the straight Lame hoop and radial rows and the governing normal-stress maximum are withheld on arcs with the named reason. Input review rows (a bend's flexibility, a hanger's inputs) are model scoped and carry no load case.",
-    "Objective connector rows (connector_*_v1) are bound through their entity_ref to contract_evidence.connector records (one stable row basis; the replaced span is the record's) (topology and replaced span, frame, installed reference temperature and q_ref, work matrix scale and provenance); they are a declared coverage limit outside the straight-member recovery bound, and no joint temperature law, finite rotation, pressure thrust or tie is represented.",
+    "Objective connector rows bind through their entity_ref to the received connector record and stable row basis. An untied constant-effective-area joint carries pAe and effective axial force separately; its faces must be straight, coaxial, equal-bore members of one pressure region with zero attachment offsets. Connector rows remain outside the straight-member recovery bound; finite rotation, follower loads, temperature laws, ties and stability are not represented.",
     "Signed internal differential pressure; external-pressure stability and collapse are not assessed.",
     "Steady-flow momentum and transient loads, Bourdon opening, pressure stiffening of flexibility and stress intensification, and ovalization are not modelled.",
     "Direct load cases only; derived combinations and state differences are unsupported.",
