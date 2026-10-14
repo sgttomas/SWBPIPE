@@ -1,10 +1,11 @@
 {
  "model": {
-  "schema_version": "0.3.0",
+  "schema_version": "0.5.0",
   "document_kind": "openpipestress.product_preview.model",
   "pressure_contract": {
    "version": "3.0.0",
-   "mode": "exact_pressure_v3"
+   "mode": "exact_pressure_v3",
+   "shear_model": "euler_bernoulli"
   },
   "project": {
    "id": "project:invented-t4-u5a-j3-r",
@@ -82,6 +83,10 @@
      "wall_thickness": {
       "value": 0.005,
       "unit": "m"
+     },
+     "corrosion_allowance": {
+      "value": 0.0,
+      "unit": "m"
      }
     },
     "material": "material:invented-steel",
@@ -103,6 +108,10 @@
      },
      "wall_thickness": {
       "value": 0.005,
+      "unit": "m"
+     },
+     "corrosion_allowance": {
+      "value": 0.0,
       "unit": "m"
      }
     },
@@ -126,6 +135,10 @@
      "wall_thickness": {
       "value": 0.005,
       "unit": "m"
+     },
+     "corrosion_allowance": {
+      "value": 0.0,
+      "unit": "m"
      }
     },
     "material": "material:invented-steel",
@@ -147,6 +160,10 @@
      },
      "wall_thickness": {
       "value": 0.005,
+      "unit": "m"
+     },
+     "corrosion_allowance": {
+      "value": 0.0,
       "unit": "m"
      }
     },

@@ -11,7 +11,7 @@ runs no product code.
 | File | Role |
 |---|---|
 | `generators/u5a_reference.py` | the generator: fixture, exact derivation, requests and oracle |
-| `requests/<case>.request.json` | 19 complete product preview requests (model 0.3.0, `3.0.0/exact_pressure_v3`, with the U5a fields) |
+| `requests/<case>.request.json` | 19 complete product preview requests (model 0.5.0, `3.0.0/exact_pressure_v3`, explicit local CA 0 m and `pressure_contract.shear_model = euler_bernoulli`, with the U5a fields) |
 | `oracle.json` | expected values per case, the J4 and ledger mutants, the offset demonstration and 17 refusal variants |
 | `SHA256SUMS` | the hashes of every file above |
 
@@ -151,16 +151,21 @@ python3 -I generators/u5a_reference.py          # verify every file byte for byt
 python3 -I generators/u5a_reference.py --write  # rewrite them (intentional changes only)
 ```
 
-The requests are model 0.3.0 documents with the U5a fields
-(`member_connector_ids` on regions and the `constant_effective_area_reference_v1`
-pressure model). Under HELP_HUMAN's 2026-10-12 DEC-033 ruling those two items
-are defined only in model 0.5.0, so the 18 requests that carry them (all but
-J3-R) are not valid documents of any version as frozen. Before a product test
-consumes them, the builder in the generator changes to emit model 0.5.0 (B7b's
-contract-present form) with every member's `section.corrosion_allowance` =
-0 m and `shear_model` = `euler_bernoulli` (HELP_HUMAN's H1). The oracle
-values do not change; only the request bytes and hashes do, and the refusal
-patches' paths are re-checked.
+Under HELP_HUMAN's 2026-10-12 DEC-033 ruling, the U5a fields
+(`member_connector_ids` and `constant_effective_area_reference_v1`) exist only
+in model 0.5.0's contract-present form. B7b re-authors all 19 requests in that
+form, with explicit invented `section.corrosion_allowance` = 0 m at all 59
+inline sections and `pressure_contract.shear_model` = `euler_bernoulli`.
+The generator's numerical derivation is unchanged. Every oracle quantity,
+criterion and all 17 refusal patches, including RV-08's wall-thickness path,
+remain unchanged; only the request hashes move with their bytes. Explicit
+fixture zeros do not supply defaults for real user sections.
+
+**C-d reference supersession.** The new current-format controls supersede the
+old headless joint-with-pressure refusal and `t4_i12` pressure-limit reference
+for U5a's admitted scope (Design §7). Those frozen reference bytes remain
+historical; B7b verifies the current behavior against these 19 oracles and 17
+refusal variants in both solver modes. This paragraph claims no product pass.
 Any other change to a value needs a substantive reason recorded in the Design.
 
 These references are independent derivations; before code relies on them, a

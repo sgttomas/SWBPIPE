@@ -572,7 +572,8 @@ def request(cfg):
     nodes = [{"id": nid, "position": {"x": fl(pos[nid][0]), "y": fl(pos[nid][1]), "z": fl(pos[nid][2])},
               "provenance": PROVENANCE} for nid, _ in cfg["nodes"]]
     pipes = [{"id": pid, "from": a, "to": b,
-              "section": {"outside_diameter": quantity(OD, "m"), "wall_thickness": quantity(WALL, "m")},
+              "section": {"outside_diameter": quantity(OD, "m"), "wall_thickness": quantity(WALL, "m"),
+                          "corrosion_allowance": quantity(0, "m")},
               "material": "material:invented-steel",
               "y_reference": {"x": fl(yref[0]), "y": fl(yref[1]), "z": fl(yref[2])},
               "provenance": PROVENANCE} for pid, a, b in cfg["pipes"]]
@@ -649,9 +650,9 @@ def request(cfg):
                       "provenance": PROVENANCE})
         regions.append(entry)
     model = {
-        "schema_version": "0.3.0",
+        "schema_version": "0.5.0",
         "document_kind": "openpipestress.product_preview.model",
-        "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3"},
+        "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
         "project": {"id": "project:invented-t4-u5a-" + cfg["id"].lower(),
                     "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa",
                               "temperature": "degC"}},
