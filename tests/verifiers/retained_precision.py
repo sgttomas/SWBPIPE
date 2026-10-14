@@ -1772,7 +1772,7 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None):
 
 
 def _pressure_contract_is(model, expected):
-    """Exactly the JSON object `expected`: the two keys, each value that exact string (B3-D REVISION_01 §3)."""
+    """Exactly the current JSON object `expected`, with every required member."""
     value = model.get("pressure_contract")
     return type(value) is dict and value.keys() == expected.keys() and all(value[k] == expected[k] for k in expected)
 
@@ -1780,22 +1780,22 @@ def _pressure_contract_is(model, expected):
 def _preview_namespace(model):
     """G8's namespace on the preview successor, type-strict (B3-D REVISION_01 §3, N-4): branch L, a pressure-free
     document keyed on the contract's absence (b7-plan "Model format, pressure-free half"): the current model version
-    0.5.0 with `pressure_contract` absent or JSON null. Anything else is refused: a 0.5.0 model with any contract
+    0.5.0 with `pressure_contract` absent. Anything else is refused: a 0.5.0 model with any contract
     (`{}` and other falsy values included), the retired 0.1.0 and 0.2.0, and any 0.3.0 model, the retired
     {"version": "1.0.0", "mode": "legacy_pressure_v1"} included (B3a's branch L3 is dropped; the owner retired that
     contract product-wide)."""
     version = model.get("schema_version")
-    return type(version) is str and version == "0.5.0" and model.get("pressure_contract") is None
+    return type(version) is str and version == "0.5.0" and "pressure_contract" not in model
 
 
-EXACT_PRESSURE_CONTRACT = {"version": "2.0.0", "mode": "exact_straight_pressure_v2"}
+EXACT_PRESSURE_CONTRACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
 
 
 def _exact_namespace(model):
-    """G8's namespace on the exact branch (B3-D §4.2 D1.3 branch E; REVISION_01 §3, type-strict): schema 0.3.0 with
-    exactly {"version": "2.0.0", "mode": "exact_straight_pressure_v2"}. 0.4.0 and load states stay out."""
+    """G8's current exact namespace, with the closed v3 Euler–Bernoulli contract.
+    Load/reference states remain outside the retained domain."""
     version = model.get("schema_version")
-    return type(version) is str and version == "0.3.0" and _pressure_contract_is(model, EXACT_PRESSURE_CONTRACT)
+    return type(version) is str and version == "0.5.0" and _pressure_contract_is(model, EXACT_PRESSURE_CONTRACT)
 
 
 def _g8_exact_materials(body, source, invocation, case_bases):

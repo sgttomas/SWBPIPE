@@ -63,14 +63,14 @@ impl ExactContract {
 
     /// The contract named by an authored (version, mode) pair, on any document.
     pub(crate) fn from_declared(version: Option<&str>, mode: Option<&str>) -> Option<Self> {
-        [ExactContract::StraightV2, ExactContract::PressureV3]
+        [ExactContract::PressureV3]
             .into_iter()
             .find(|contract| version == Some(contract.version()) && mode == Some(contract.mode()))
     }
 
     /// The exact contract of a model: only 0.3.0 and 0.4.0 documents carry one.
     pub(crate) fn of(model: &PreviewModel) -> Option<Self> {
-        if !matches!(model.schema_version.as_str(), "0.3.0" | "0.4.0") {
+        if model.schema_version != crate::MODEL_SCHEMA_VERSION {
             return None;
         }
         model.pressure_contract.as_ref().and_then(|contract| {

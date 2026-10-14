@@ -46,6 +46,7 @@ const MITRE_UNSUPPORTED: &str = "PRESSURE_REGION_MITRE_UNSUPPORTED";
 pub struct PressureContractInput {
     pub version: Option<String>,
     pub mode: Option<String>,
+    pub shear_model: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -53,9 +54,7 @@ pub struct PressureContractInput {
 pub struct PressureRegionInput {
     pub id: Option<String>,
     pub member_pipe_ids: Option<Vec<String>>,
-    /// Internal U5a participation; B7b owns versioned document admission.
-    /// Until then, the public decoder refuses this key rather than ignoring it.
-    #[serde(skip)]
+    /// Optional current-format connector edges of the region chain.
     pub member_connector_ids: Option<Vec<String>>,
     pub pressure_basis: Option<String>,
     pub pressure: Option<Quantity>,
@@ -235,13 +234,23 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
     // T4-U3 (D-4): legacy joints are refused first, on every route and version.
     super::joint::refuse_legacy_joints(model, diagnostics);
     match model.schema_version.as_str() {
-        // The current version: an absent contract makes the document pressure-free
-        // (the preview route). Its contract-present form lands with B7b; until then
-        // an exact pressure model is authored as 0.3.0 or 0.4.0.
         crate::MODEL_SCHEMA_VERSION => {
-            if model.pressure_contract.is_some() {
-                problem(diagnostics, "PREVIEW_CONTRACT_VERSION_MISMATCH", &["pressure_contract"],
-                    "a pressure contract is not accepted on model document 0.5.0 yet: author an exact pressure model as model document 0.3.0 or 0.4.0 with 2.0.0/exact_straight_pressure_v2 or 3.0.0/exact_pressure_v3 (1.0.0/legacy_pressure_v1 is retired); old inputs are not reinterpreted");
+            if let Some(contract) = &model.pressure_contract {
+                if ExactContract::of(model).is_none() {
+                    problem(diagnostics, "PRESSURE_CONTRACT_UNSUPPORTED", &["pressure_contract"],
+                        "model document 0.5.0 accepts only 3.0.0/exact_pressure_v3; incomplete or unknown contracts never fall back");
+                } else {
+                    match contract.shear_model.as_deref() {
+                        None => problem(diagnostics, "EXACT_PRESSURE_SHEAR_MODEL_REQUIRED",
+                            &["pressure_contract", "shear_model"], "an exact pressure contract requires an explicit shear_model"),
+                        Some("euler_bernoulli") => {}
+                        Some("timoshenko_annulus_energy_v1") => problem(diagnostics,
+                            "EXACT_PRESSURE_SHEAR_MODEL_UNSUPPORTED", &["pressure_contract", "shear_model"],
+                            "only euler_bernoulli is admitted until the Timoshenko formulation lands"),
+                        Some(_) => problem(diagnostics, "PRESSURE_CONTRACT_UNSUPPORTED",
+                            &["pressure_contract", "shear_model"], "unknown shear_model; no fallback is used"),
+                    }
+                }
             }
         }
         version if crate::is_retired_model_schema_version(version) => problem(
@@ -250,36 +259,25 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             &["schema_version"],
             crate::retired_model_schema_message(version),
         ),
-        "0.4.0" => {
-            if ExactContract::of(model).is_none() {
-                problem(diagnostics, "PRESSURE_CONTRACT_UNSUPPORTED", &["pressure_contract"],
-                    "model document 0.4.0 requires the 2.0.0/exact_straight_pressure_v2 or 3.0.0/exact_pressure_v3 pressure contract; no legacy fallback is used");
-            }
-        }
-        "0.3.0" => match &model.pressure_contract {
-            None => problem(
-                diagnostics,
-                "PRESSURE_CONTRACT_REQUIRED",
-                &["pressure_contract"],
-                "model document 0.3.0 requires the explicit 2.0.0/exact_straight_pressure_v2 or 3.0.0/exact_pressure_v3 pressure contract version and mode",
-            ),
-            Some(contract) => {
-                let declared = (contract.version.as_deref(), contract.mode.as_deref());
-                if declared == (Some(RETIRED_VERSION), Some(RETIRED_MODE)) {
-                    problem(diagnostics, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"],
-                        "the 1.0.0/legacy_pressure_v1 pressure contract is retired; re-author the model to 2.0.0/exact_straight_pressure_v2 with explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials");
-                } else if ExactContract::from_declared(declared.0, declared.1).is_none() {
-                    problem(diagnostics, "PRESSURE_CONTRACT_UNSUPPORTED", &["pressure_contract"],
-                        "the supported pressure contracts are 2.0.0/exact_straight_pressure_v2 and 3.0.0/exact_pressure_v3; incomplete or unknown contracts never fall back");
-                }
-            }
-        },
         _ => problem(
             diagnostics,
             "PREVIEW_SCHEMA_VERSION_UNSUPPORTED",
             &["schema_version"],
-            "direct mechanics solves support exactly model versions 0.5.0, 0.3.0 and 0.4.0",
+            "direct mechanics solves support exactly model version 0.5.0",
         ),
+    }
+    if model.schema_version == crate::MODEL_SCHEMA_VERSION {
+        for pipe in &model.pipe_segments {
+            match (&model.pressure_contract, &pipe.section.corrosion_allowance) {
+                (Some(_), None) => problem(diagnostics,
+                    "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED", &[&pipe.id, "corrosion_allowance"],
+                    "an exact pressure member section requires an explicit corrosion_allowance; zero is an authored value, never a default"),
+                (None, Some(_)) => problem(diagnostics,
+                    "CORROSION_ALLOWANCE_WITHOUT_PRESSURE_CONTRACT", &[&pipe.id, "corrosion_allowance"],
+                    "corrosion_allowance requires an explicit pressure_contract"),
+                _ => {}
+            }
+        }
     }
 
     let v3 = exact_contract(model) == Some(ExactContract::PressureV3);

@@ -1803,6 +1803,7 @@ mod tests {
             contract.model.pressure_contract = Some(super::super::PressureContractInput {
                 version: Some(version.into()),
                 mode: Some(mode.into()),
+                shear_model: Some("euler_bernoulli".into()),
             });
             assert_eq!(
                 refuse(&contract),

@@ -4552,11 +4552,10 @@ fn exact_material(raw: &Value) -> VResult<(f64, f64, f64)> {
     fail(g.is_normal() && g > 0.0)?;
     Ok((e, g, nu))
 }
-/// D1.3 on the exact route (B3b): schema 0.3.0 with exactly
-/// `{"version":"2.0.0","mode":"exact_straight_pressure_v2"}`, type-strict.
+/// D1.3 on the exact route: the current document's three-member v3 contract.
 fn exact_namespace(model: &Value) -> bool {
-    model["schema_version"].as_str() == Some("0.3.0")
-        && pressure_contract_is(&model["pressure_contract"], "2.0.0", "exact_straight_pressure_v2")
+    model["schema_version"].as_str() == Some("0.5.0")
+        && pressure_contract_is(&model["pressure_contract"], "3.0.0", "exact_pressure_v3")
 }
 fn normalized_nodes(model: &Value) -> VResult<Vec<Value>> {
     let mut out = Vec::new();
@@ -4597,24 +4596,25 @@ fn dof_index(v: &Value) -> VResult<usize> {
         .position(|d| v == *d)
         .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))
 }
-/// A pressure contract exactly `{"version": version, "mode": mode}`: a JSON
-/// object with those two keys only, each valued with exactly that string.
+/// A current contract with exactly the identity and admitted shear members.
 fn pressure_contract_is(v: &Value, version: &str, mode: &str) -> bool {
     v.as_object().is_some_and(|o| {
-        o.len() == 2
+        o.len() == 3
             && o.get("version").and_then(Value::as_str) == Some(version)
             && o.get("mode").and_then(Value::as_str) == Some(mode)
+            && o.get("shear_model").and_then(Value::as_str) == Some("euler_bernoulli")
     })
 }
 /// D1.3 on the preview branch, type-strict (B3-D REVISION_01 §3, N-4): branch
 /// L, a pressure-free document, keyed on the contract's absence (b7-plan
 /// "Model format, pressure-free half"): the current model version 0.5.0 with
-/// `pressure_contract` absent or JSON null. Anything else (a 0.5.0 model with
+/// `pressure_contract` absent. Anything else (a 0.5.0 model with
 /// any contract, `{}` or `false` included; the retired 0.1.0 and 0.2.0; any
 /// 0.3.0 or 0.4.0 model) is outside the namespace. B3a's branch L3 is dropped
 /// (the owner retired that contract product-wide); B3D-10's tightenings stay.
 fn preview_namespace(model: &Value) -> bool {
-    model["schema_version"].as_str() == Some("0.5.0") && model["pressure_contract"].is_null()
+    model["schema_version"].as_str() == Some("0.5.0")
+        && model.as_object().is_some_and(|object| !object.contains_key("pressure_contract"))
 }
 fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
     let b = &source["retained_precision"]["body"];
@@ -6487,7 +6487,7 @@ mod b7a_preview_namespace_tests {
             m
         };
         assert!(preview_namespace(&model("0.5.0", None)));
-        assert!(preview_namespace(&model("0.5.0", Some(Value::Null))));
+        assert!(!preview_namespace(&model("0.5.0", Some(Value::Null))));
         for contract in [json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}), json!({}), json!(false)] {
             assert!(!preview_namespace(&model("0.5.0", Some(contract.clone()))), "0.5.0 with {contract}");
         }

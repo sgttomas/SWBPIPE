@@ -46,6 +46,8 @@ mod kd5_pressure_closure_tests;
 mod kd5_nonlinear_tests;
 #[cfg(test)]
 mod u4a_tests;
+#[cfg(test)]
+mod b7b_admission_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame, TANGENCY_TOLERANCE_RAD};
@@ -235,8 +237,11 @@ struct MaterialRecordWire<L> {
 /// `expansion_laws`, so the new key is never silently discarded.
 #[derive(Deserialize)]
 struct PreviewModelWire {
-    #[serde(default)]
+    #[serde(default, deserialize_with = "deserialize_present_object")]
     pressure_contract: Option<PressureContractInput>,
+    // Rejection-only presence: never an accepted alias of the contract field.
+    #[serde(default, deserialize_with = "deserialize_rejected_presence")]
+    shear_model: bool,
     schema_version: String,
     document_kind: String,
     project: Project,
@@ -261,6 +266,13 @@ struct PreviewModelWire {
 impl<'de> Deserialize<'de> for PreviewModel {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let wire = PreviewModelWire::deserialize(deserializer)?;
+        if wire.shear_model {
+            return Err(serde::de::Error::custom(if wire.pressure_contract.is_none() {
+                "SHEAR_MODEL_WITHOUT_PRESSURE_CONTRACT: shear_model is accepted only inside pressure_contract"
+            } else {
+                "unknown field `shear_model`: shear_model is accepted only inside pressure_contract"
+            }));
+        }
         let (materials, material_expansion_laws) = wire
             .materials
             .into_iter()
@@ -285,6 +297,34 @@ impl<'de> Deserialize<'de> for PreviewModel {
             request_material_expansion_laws: Vec::new(),
         })
     }
+}
+
+/// Absence uses the field's default. A present optional object must be a map;
+/// null and serde's positional struct form are never interpreted as absence.
+fn deserialize_present_object<'de, D, T>(deserializer: D) -> Result<Option<T>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: Deserialize<'de>,
+{
+    struct ObjectVisitor<T>(std::marker::PhantomData<T>);
+    impl<'de, T: Deserialize<'de>> serde::de::Visitor<'de> for ObjectVisitor<T> {
+        type Value = Option<T>;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("an authored object")
+        }
+
+        fn visit_map<A: serde::de::MapAccess<'de>>(self, map: A) -> Result<Self::Value, A::Error> {
+            T::deserialize(serde::de::value::MapAccessDeserializer::new(map)).map(Some)
+        }
+    }
+    deserializer.deserialize_map(ObjectVisitor(std::marker::PhantomData))
+}
+
+fn deserialize_rejected_presence<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<bool, D::Error> {
+    serde::de::IgnoredAny::deserialize(deserializer).map(|_| true)
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -351,6 +391,10 @@ pub struct PipeSectionInput {
     /// Absence means no reduction; absence is not a default value of zero.
     #[serde(default)]
     pub mill_tolerance: Option<Quantity>,
+    /// Explicit user-owned length. Exact pressure requires an authored value;
+    /// neither omission nor a present null supplies zero.
+    #[serde(default, deserialize_with = "deserialize_present_object")]
+    pub corrosion_allowance: Option<Quantity>,
     /// User-entered pipe material density for the model's own computed mass
     /// distribution. Optional; equivalent-static generation blocks when it
     /// needs mass and this is absent (absence is not a default of zero).
@@ -8141,6 +8185,9 @@ fn resolve_shared_sections(model: &mut PreviewModel, diagnostics: &mut Vec<Diagn
         if let Some(tolerance) = &mut resolved.mill_tolerance {
             normalize_quantity(tolerance, Dimension::Length, &id, refs.clone(), diagnostics);
         }
+        if let Some(allowance) = &mut resolved.corrosion_allowance {
+            normalize_quantity(allowance, Dimension::Length, &id, refs.clone(), diagnostics);
+        }
         if diagnostics.len() != before {
             continue;
         }
@@ -8364,6 +8411,15 @@ fn normalize_model_units(
                     stable_suffix(&pipe.id)
                 ),
                 vec![pipe.id.clone(), "mill_tolerance".to_string()],
+                diagnostics,
+            );
+        }
+        if let Some(allowance) = &mut pipe.section.corrosion_allowance {
+            normalize_quantity(
+                allowance,
+                Dimension::Length,
+                &format!("diagnostic:unit-conversion:pipe:{}:corrosion-allowance", stable_suffix(&pipe.id)),
+                vec![pipe.id.clone(), "corrosion_allowance".to_string()],
                 diagnostics,
             );
         }
@@ -10316,6 +10372,26 @@ fn derive_pipe_section(
             effective
         }
     };
+    if let Some(allowance) = &input.corrosion_allowance {
+        if !allowance.value.is_finite() || allowance.value < 0.0 || allowance.value >= thickness {
+            diagnostics.push(diag(
+                &format!("diagnostic:section:{}:corrosion-allowance", stable_suffix(pipe_id)),
+                "PIPE_DIMENSION_INVALID", "blocking",
+                "corrosion allowance must be a finite non-negative length that leaves a positive wall after mill tolerance",
+                vec![pipe_id.to_string(), "corrosion_allowance".to_string()],
+            ));
+            return None;
+        }
+        if allowance.value != 0.0 {
+            diagnostics.push(diag(
+                &format!("diagnostic:section:{}:corrosion-allowance", stable_suffix(pipe_id)),
+                "EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED", "blocking",
+                "nonzero corrosion allowance is not yet supported",
+                vec![pipe_id.to_string(), "corrosion_allowance".to_string()],
+            ));
+            return None;
+        }
+    }
     let id = od - 2.0 * thickness;
     let area = PI * (od.powi(2) - id.powi(2)) / 4.0;
     let internal_area = PI * id.powi(2) / 4.0;
@@ -18942,6 +19018,7 @@ mod tests {
                 value,
                 unit: "m".to_string(),
             }),
+            corrosion_allowance: None,
             material_density: None,
             contents_density: None,
             insulation_thickness: None,
@@ -19086,6 +19163,7 @@ mod tests {
                 unit: "m".to_string(),
             },
             mill_tolerance: None,
+            corrosion_allowance: None,
             material_density: Some(Quantity {
                 value: 7850.0,
                 unit: "kg/m^3".to_string(),
@@ -23153,6 +23231,7 @@ mod tests {
             model.pressure_contract = Some(PressureContractInput {
                 version: Some("2.0.0".to_string()),
                 mode: Some("exact_straight_pressure_v2".to_string()),
+                shear_model: Some("euler_bernoulli".to_string()),
             });
         };
         let complete = curved_bend_span_request().model;

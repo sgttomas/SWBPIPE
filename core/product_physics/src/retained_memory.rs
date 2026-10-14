@@ -1167,25 +1167,8 @@ pub(super) struct RegisteredProfile {
 /// dev/test build only. Decision 7 still holds: this is the production profile,
 /// registered by reviewed change, not a test permit; every other build identity is
 /// `Stale` and keeps the ordinary route.
-static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
-    // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
-    // debug_assertions=true, panic=unwind, no RUSTFLAGS.
-    // B7a local D3 candidate at source 3e89c23ea1017ac86d9576805fa8e0a7b4cb0ac4.
-    // Canonical 98-form union, actual 287 bindings/layouts and the ordered
-    // 15 current input digests below. The one registered entry supplies G0;
-    // its genuine profile, input, witness and resource checks still govern.
-    identity: "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0",
-    reviewed_inputs: "v1;Cargo.lock=e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11;../../schemas/physics_source_recovery.schema.json=3fad3156fac2f8e9fd21418bb8d79678b7e969a5d9a6dd6942f613ab0c5f1729;../../schemas/retained_precision_mp_v2.schema.json=f961a56bdd386d26f10ee279b0c5926c7436760c18eee0e3c3c158bd474b42c9;../../fixtures/results/retained_precision_prepared_ordinary_v1.json=9be78bef3b340330f06b99966bcc9fd2fdf652f2a54506fc270f6b16588761c6;../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json=36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53;../../fixtures/results/semantic_contract_v0_3_physics_1.json=a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1;../../fixtures/results/semantic_contract_v0_3_load_reference_1.json=e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09;../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json=28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924;../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json=f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3;../../fixtures/results/semantic_contract_v0_3_physics_source_1.json=0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53;../../fixtures/results/retained_precision_prepared_combination_v1.json=8d00e0622777fe01d8886a90371393ee5189c18800adb6d203e60c35f9e2485a;../../fixtures/results/retained_precision_prepared_exact_v1.json=0eeb9e49a5e1659ccfe2b12ce19af65d2819f0594832300513f34c066b84bc7e;../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json=9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886;../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf;../../schemas/results_pressure_1.v0.3.schema.json=774dad290e17ece0292b7a6021c59c8067e13aa4267c6bdbb25bb3fb17da75c5",
-    reader_layouts: [
-        TypeLayout { size: 56, align: 8 },
-        TypeLayout { size: 64, align: 8 },
-        TypeLayout { size: 96, align: 8 },
-        TypeLayout { size: 16, align: 8 },
-    ],
-    // Owner-selected current product budget: 12 GiB. The 0.9 margin and
-    // 5% TEXT reserve remain unchanged; W3 is the native maximum in both modes.
-    threshold_bytes: 12_884_901_888,
-}];
+// B7b is UNREGISTERED until its changed source and reviewed inputs pass D3.
+static REGISTERED_PROFILES: &[RegisteredProfile] = &[];
 
 /// D-6 identity matching (G2_AMENDMENTS §1): `Missing` with nothing registered;
 /// otherwise the index of the byte-equal registered identity, or `Stale` when the

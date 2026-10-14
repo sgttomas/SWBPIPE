@@ -3,9 +3,8 @@
 //! Model document 0.5.0 is the one current version. Its behaviour keys on what
 //! the document carries, never on the version string: a 0.5.0 document without
 //! a `pressure_contract` is pressure-free and solves on the preview route. The
-//! contract-present form of 0.5.0 lands with B7b; until then 0.3.0 and 0.4.0
-//! stay accepted for exact pressure models and a 0.5.0 document that declares a
-//! contract is refused by name. Model documents 0.1.0 and 0.2.0 are retired:
+//! contract-present form of 0.5.0 declares the exact pressure v3 contract.
+//! Model documents 0.1.0, 0.2.0, 0.3.0 and 0.4.0 are retired:
 //! they are refused by name with a re-author diagnostic, and nothing migrates.
 
 use crate::PreviewModel;
@@ -13,7 +12,7 @@ use crate::PreviewModel;
 /// The current model document version.
 pub const MODEL_SCHEMA_VERSION: &str = "0.5.0";
 /// Retired model document versions, refused by name (re-author, no migration).
-pub const RETIRED_MODEL_SCHEMA_VERSIONS: [&str; 2] = ["0.1.0", "0.2.0"];
+pub const RETIRED_MODEL_SCHEMA_VERSIONS: [&str; 4] = ["0.1.0", "0.2.0", "0.3.0", "0.4.0"];
 /// The diagnostic code of a retired model document version.
 pub const MODEL_SCHEMA_VERSION_RETIRED: &str = "MODEL_SCHEMA_VERSION_RETIRED";
 
@@ -41,16 +40,18 @@ mod tests {
     use super::*;
     use serde_json::json;
 
-    fn model(version: &str, contract: serde_json::Value) -> PreviewModel {
-        serde_json::from_value(json!({
+    fn model(version: &str, contract: Option<serde_json::Value>) -> PreviewModel {
+        let mut raw = json!({
             "schema_version": version,
             "document_kind": "openpipestress.product_preview.model",
             "project": {"id": "project:format"},
             "analysis_status": {"mechanics": "MODEL_INCOMPLETE", "rule_check": "RULE_INPUTS_INCOMPLETE", "professional_acceptance": "HUMAN_REVIEW_REQUIRED"},
-            "nodes": [], "pipe_segments": [], "supports": [],
-            "pressure_contract": contract
-        }))
-        .unwrap()
+            "nodes": [], "pipe_segments": [], "supports": []
+        });
+        if let Some(contract) = contract {
+            raw["pressure_contract"] = contract;
+        }
+        serde_json::from_value(raw).unwrap()
     }
 
     /// Pressure-freedom keys on the contract's absence on the current version. Keying it on
@@ -58,17 +59,17 @@ mod tests {
     /// retired versions fails here.
     #[test]
     fn pressure_free_keys_on_the_contracts_absence_not_the_version() {
-        assert!(is_pressure_free(&model(MODEL_SCHEMA_VERSION, json!(null))));
-        let exact = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
-        assert!(!is_pressure_free(&model(MODEL_SCHEMA_VERSION, exact.clone())));
+        assert!(is_pressure_free(&model(MODEL_SCHEMA_VERSION, None)));
+        let exact = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
+        assert!(!is_pressure_free(&model(MODEL_SCHEMA_VERSION, Some(exact.clone()))));
         for version in RETIRED_MODEL_SCHEMA_VERSIONS {
             assert!(is_retired_model_schema_version(version));
-            assert!(!is_pressure_free(&model(version, json!(null))), "{version} is retired");
+            assert!(!is_pressure_free(&model(version, None)), "{version} is retired");
         }
-        for version in ["0.3.0", "0.4.0", "0.5.1", "1.0.0"] {
+        for version in ["0.5.1", "1.0.0"] {
             assert!(!is_retired_model_schema_version(version), "{version}");
         }
-        assert!(!is_pressure_free(&model("0.3.0", exact)));
+        assert!(!is_pressure_free(&model("0.3.0", Some(exact))));
         let message = retired_model_schema_message("0.2.0");
         assert!(message.contains("0.2.0") && message.contains("re-author") && message.contains("0.5.0"), "{message}");
     }
