@@ -130,7 +130,9 @@ elif "fn arc_recovery_finding(" in _fg:
 # Keep the old recovery/range terms; the new sentence is not Error Display.
 import b7a_formation_model as _formed_model
 _formed_model.inspect(proot)
-_load_sentence = _formed_model.SENTENCE
+import b7a_phase_model as _phase_model
+_phase_context = _phase_model.consumer_context(proot, os.path.dirname(os.path.abspath(__file__)))
+_load_sentence = _formed_model.SENTENCE if _phase_context["route"] == "L" else 0
 message_int = (integrity_literal + STATIC + ident + report + dof_map
                + 1 + formation_check_line + 1 + range_line + 1 + S_len
                + 1 + _load_sentence)
@@ -138,7 +140,7 @@ message_int = (integrity_literal + STATIC + ident + report + dof_map
 # spelling has <=q=12*l occurrences because uniform inputs reach twelve DOFs.
 sources_all = c["l"] * (sdebug(ident) + 2) + 2 * c["N"]
 lf_row_fixed = 46 + 165 + 2 * U + 16 + 16 + 3 * F64D + U + B
-lf_sources_all = (12*c["l"]) * (sdebug(ident) + 2) + 2 * c["N"]
+lf_sources_all = ((12 if _phase_context["route"] == "L" else 1)*c["l"]) * (sdebug(ident) + 2) + 2 * c["N"]
 lf_join = c["N"] * (lf_row_fixed + 2) + lf_sources_all + 300
 joined = {
     "fired_join": J_len,

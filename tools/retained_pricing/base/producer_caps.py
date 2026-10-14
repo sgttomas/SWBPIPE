@@ -40,6 +40,10 @@ Q = 7 * n + 30 * m + sp + k + 2 * g
 P_final = 7 * n + 51 * m + 8 * g + 3
 Cs = sp; Ca = r
 ID, RID = 128, 1024
+if os.environ.get("RP_SNAPSHOT"):
+    import b7a_phase_model as _phase_model
+    _phase_context = _phase_model.consumer_context(os.environ["RP_SNAPSHOT"], H_)
+    _phase_success = _phase_model.successful_counts(_phase_context, _c.get("lc", _c["c"]) if which == "caps" else 1, CC, l)
 I_src = l * ID
 E_src = 38 + 24 * n + 84 * m + 17 * sp + 13 * k + 17 * l + I_src + 16 * t + 22 * g + 4 * Cs
 E_stf = 26 + 24 * n + 84 * m + 17 * sp + 5 * k
@@ -79,13 +83,17 @@ rows["T11.7 U1 grant 2 delta: invocation_digest clone"] = B(64)
 if os.environ.get("RP_SNAPSHOT"):
     import b7a_domain_model as _wide_model
     _wide_model.inspect(os.environ["RP_SNAPSHOT"])
-    _custody_req, _custody_mov = _wide_model.custody(CC, ID)
+    _phase_ordinary = _phase_model.ordinary_counts(_phase_context,
+        _c.get("lc", _c["c"]) if which == "caps" else 1, CC, l)
+    _custody_req, _custody_mov = _wide_model.custody(_phase_ordinary["named"], ID)
     # Retain the original T11.1 allocation in full. Summing this positive
     # exact-growth moving backing with requested storage is conservative.
     rows["T11.10 invocation named-basis custody and moving storage (B7a stage 1)"] = _custody_req + _custody_mov
     import b7a_formation_model as _formed_model
     _formed_model.inspect(os.environ["RP_SNAPSHOT"])
-    rows["T11.11 persistent FindingSeed full fired-list and sentence copies (B7a)"] = _formed_model.finding_capture(CC, n, l, ID)
+    _finding_cases = (_phase_success["finding_cases"] if _phase_context["branch"] == "success"
+                      else _phase_ordinary["finding_cases"])
+    rows["T11.11 persistent FindingSeed full fired-list and sentence copies (B7a)"] = _formed_model.finding_capture(_finding_cases, n, l, ID)
 # ------------------------------------------------------------------ T12 preparation (P1 section 5)
 maps = (V("NodeMapE", n) + V("MemberMapE", m) + V("SpringMapE", sp) + V("SupportMapE", g) + V("ConstraintMapE", r)
         + Cv("usize", Ca, r) + V("NodalMapE", l) + V("StationMapE", t) + V("SectionMapE", m)

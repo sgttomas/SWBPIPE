@@ -55,6 +55,9 @@ run([os.path.join(work, "t25_g4.py"), "caps", eps], f"t25_g4.caps.eps{eps}.out.j
 shutil.copy(os.path.join(work, f"t25_g4.caps.eps{eps}.out.json"), os.path.join(work, "t25_caps.caps.out.json"))
 run([os.path.join(work, "ordinary_caps.py"), "caps"], "ordinary_caps.caps.out.json", {"RP_SNAPSHOT": snap})
 run([os.path.join(work, "g4_caps.py"), "caps", eps, snap], f"g4_caps.caps.eps{eps}.out.json", {"PROFILE_TREE": os.path.join(work, "profile_tree.json")})
+import b7a_phase_model as _phase_model
+_success_work = _phase_model.run_success_branch(work, snap, edges, lexicon, eps, caps)
+_phase_model.merge_success_tree(work, _success_work, snap)
 g = json.load(open(os.path.join(work, f"g4_caps.caps.eps{eps}.out.json")))
 txt = json.load(open(os.path.join(work, "text_closure.caps.json")))["atoms"]
 summary = {"caps": json.loads(caps), "eps": int(eps), "text_complete": complete, "D": D, "D_converged": D_converged, "D_env": txt["D_env"],

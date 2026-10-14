@@ -1396,3 +1396,51 @@ the only five-ref calls require an arc, and the sole arc builder consumes
 those excluded components. Raw/shared/refused/headless five-ref conversions
 and spellings remain positive. No broader phase refinement or policy change
 is used. Actual combined canonical pricing and native evaluation are pending.
+
+
+The current stage-1 route and phase model separates actual authored cases
+(`lc`) from the unchanged typed storage ceiling (`C_eq`, caps key `c`). On
+admitted E, the components/element/named-basis refusals and empty pressure
+regions bind plain nodal force terms (`q<=l`), one base state and no formed
+primitive, manifest, expansion or load-row finding producer. Generic force,
+closure-record/Option, vector, wrapper/null, reader, raw census and unrelated
+ordinary owners stay positive. Refused or foreign ordinary calls do not use
+this admitted pricing warrant. The first measured variant deliberately keeps
+the effective TEXT force/source q bounds conservative at12*l where unchanged.
+
+A separate successful-publication context retains all actual ordinary calls
+and authored lc*l inputs. Same-request custody and stage-1 member preparation
+refusal prove at least one Frozen case is nodal, so formed/finding cases are
+at most max(lc-1,0). Every member case retains its full12*l force bound; no
+per-case or nested-loop q is averaged. Only six closed formed-only requested
+factories and the isolated finding children use this occurrence count.
+Each factory rounds every nonnegative integer atom coefficient upward before
+the existing C_eq multiplication. Moving/peak owners, common nodal work,
+generic ORDINARY and formation parent wrappers, named L states and all other
+storage/copy charges remain at their full bounds. The failed-manifest branch
+and simultaneous original/manifest/staged and PreparedCases holdings retain
+their existing conservative positive charges in this first variant.
+
+The four formation formats239/241/251/322 use only their guarded row/finding
+generations. Exact dual markers, source/admission bindings, qualified caller
+and loop stacks, format/lexical inventory and canonical total preimages guard
+them. Competing zero/from/size/aggregate/total aliases, erased or changed
+M(load_row_finding)=lc, and incorrect effective pre/post row counts refuse.
+The capacity factor2 is independent of loop iteration count. Individual
+reason/fired/join/sentence maxima and all full capture/JSON copies remain.
+
+The driver runs the canonical base/env/X/W consumers and downstream cost
+chain independently in the success context. Only W3/W4/W5 select its forms;
+W1/W2 and X1/X2 keep the full ordinary/fallback forms. Both native modes and
+all fourteen phase identities and report fields are preserved, as are the
+coefficientwise route union and shared native bindings/atom values. Full
+ordinary TAV_W/TAV_X forms and text atoms remain unchanged: the existing
+runtime law and actual evaluator therefore keep the full upward5% TEXT
+reserve. No illustrative ASSUMED value is replaced with a success scalar.
+
+Making member cases preparable or Frozen in W1 stage2 invalidates the
+successful case-count premise. The raw source guard then refuses reuse;
+actual repricing and re-registration are required. This model changes no
+budget, margin, reserve, admission, criterion or expectation. Actual complete
+canonical pricing and native all-phase evaluation remain required before
+qualification or a public corpus writer can proceed.

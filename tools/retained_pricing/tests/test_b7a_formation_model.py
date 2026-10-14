@@ -301,13 +301,21 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
 
 def test_retained_and_independent_value_copies_are_consumed_in_actual_models():
     producer = (PRICING / "base/producer_caps.py").read_text()
-    assert 'finding_capture(CC, n, l, ID)' in producer
+    assert 'finding_capture(_finding_cases, n, l, ID)' in producer
     g4 = (PRICING / "base/g4_caps.py").read_text()
     assert 'ORDINARY += FINDING_VALUE' in g4
     assert 'FINDING_VALUE_BUILD = FINDING_VALUE.tree() * 2' in g4
     assert 'form("FORMATION_VALUE_BUILD", FINDING_VALUE_BUILD)' in g4
     namespace = {}
     import ast
+    count_assignment = next(node for node in ast.walk(ast.parse(producer))
+        if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "_finding_cases" for t in node.targets))
+    for branch, ordinary, success, expected in [("ordinary",3,2,3), ("success",3,2,2),
+                                               ("ordinary",0,0,0), ("success",0,0,0)]:
+        actual = {"_phase_context":{"branch":branch}, "_phase_ordinary":{"finding_cases":ordinary},
+                  "_phase_success":{"finding_cases":success}}
+        exec(compile(ast.Module(body=[count_assignment],type_ignores=[]), "actual scoped FindingSeed count", "exec"), actual)
+        assert actual["_finding_cases"] == expected
     tree = ast.parse(g4)
     selected = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "phases_of"]
     assignment = next(n for n in tree.body if isinstance(n, ast.Assign)

@@ -23,3 +23,5 @@ NEW.update({
 EDGE_ZERO = EDGE_ZERO + [
     (rs("g8"), "physics_source.rs:897:actual_materials", "RS g8 calls it only inside `if route.exact` (retained_precision.rs:3925-3943): " + EX),
 ]
+
+B7A_STAGE1_ROUTE = "L"

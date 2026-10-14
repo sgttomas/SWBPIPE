@@ -40,6 +40,11 @@ P = 7 * n + 51 * m + 8 * g + 3                     # P_final
 Q = 7 * n + 30 * m + sp + k + 2 * g
 CC = CAPS.get("c", 1) if which == "caps" else 1   # I82: requested cases
 AA = CAPS.get("a", CC) if which == "caps" else 1  # I82: attempted cases (|A| <= c)
+import b7a_phase_model as _phase_model
+_phase_context = _phase_model.consumer_context(SNAP, H)
+_actual_cases = CAPS.get("lc", CC) if which == "caps" else 1
+_phase_success = _phase_model.successful_counts(_phase_context, _actual_cases, CC, l)
+_phase_ordinary = _phase_model.ordinary_counts(_phase_context, _actual_cases, CC, l)
 LL = min(CAPS.get("L", CC * l), CC * l) if which == "caps" else l
 PA = CC * P                                       # I82: rows of the c-case envelope
 ID, RID, KB, BITS, TOK, SHA = CAPS.get("ident", 128), 1024, 32, 16, 64, 64
@@ -172,7 +177,9 @@ ORDINARY = rec(1, obj=6, ent=20, strb=2 * TOK + ID + 4 * L_DIAGID) + VF(arr=DENV
 ORDINARY = ORDINARY.scale(CC)                        # I82: ordinary_attempts[], one per requested case
 import b7a_formation_model as _formed_model
 _formed_model.inspect(SNAP)
-FINDING_VALUE = VF(**_formed_model.finding_value_facts(CC, n, l, ID, L_DIAGID))
+_finding_cases = (_phase_success["finding_cases"] if _phase_context["branch"] == "success"
+                  else _phase_ordinary["finding_cases"])
+FINDING_VALUE = VF(**_formed_model.finding_value_facts(_finding_cases, n, l, ID, L_DIAGID))
 ORDINARY += FINDING_VALUE
 # ordinary_members owns finding and formation before ordinary_entry copies
 # formation into its entry. Keep both constructor originals independently.

@@ -138,3 +138,5 @@ ID_AUDIT = ID_AUDIT + [
     ("core/reporting/result_export/src/physics_source.rs:805", {"stage": ST}),
 ]
 # physics_source.rs checked_material_pair's `stage`: every caller passes a literal ("base", "lower_bracket", "upper_bracket", "selected", "boundary"; physics_source.rs:812-1280): STATIC
+
+B7A_STAGE1_ROUTE = "E"

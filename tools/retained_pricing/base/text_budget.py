@@ -176,6 +176,10 @@ import b7a_returning_errors as OWNED_RETURN_MODEL
 OWNED_RETURN_STATE = OWNED_RETURN_MODEL.state(proot, TA, cg, inv["rows"], LEX, os.environ.get("TB_EXTRA_ZERO", ""))
 import b7a_scoped_text_model as SCOPED_TEXT_MODEL
 SCOPED_TEXT_STATE = SCOPED_TEXT_MODEL.state(proot, TA, LB, cg, inv["rows"], LEX)
+import b7a_phase_model as PHASE_MODEL
+PHASE_STATE = PHASE_MODEL.state(proot, LB, TA, cg, inv["rows"], LEX,
+    os.environ.get("TB_EXTRA_ZERO", ""), os.environ.get("TB_FN_ZERO", ""))
+PHASE_CAPS = dict(_c) if which == "caps" else dict(c=1, lc=1, l=3, n=2, ident=46)
 
 # a `.join(` whose receiver is a work/bound status lattice value produces no String: drop it
 # before the ancestor set is formed, so its (non-text) callers' loops are not required
@@ -287,6 +291,9 @@ def short(k):
 LOOP_TOTAL = [(e["fn"], re.compile(e["loop"]), e["total"], re.compile(e["covers"]) if e.get("covers") else None)
               for e in LB.get("loop_total", [])]
 def loop_total(fk, stack):
+    phase_total = PHASE_MODEL.finding_loop_total(PHASE_STATE, fk, stack, PHASE_CAPS, M)
+    if phase_total is not None:
+        return phase_total
     scoped = SCOPED_TEXT_MODEL.owner_total(SCOPED_TEXT_STATE, fk, stack, M)
     if scoped is not None:
         return scoped
@@ -560,6 +567,7 @@ for r in inv["rows"]:
         C6_MODEL.positive_witness(C6_STATE, f, line, r["kind"], mult, M)
     FK_RETURN_MODEL.first_return_witness(FK_RETURN_STATE, f, line, r["kind"], mult, M)
     OWNED_RETURN_MODEL.witness(OWNED_RETURN_STATE, f, line, r["kind"], mult, M)
+    PHASE_MODEL.allocation_witness(PHASE_STATE, f, line, r["kind"], PHASE_CAPS, M, mult, fk, loops)
     sf = TA.get("site_from", {}).get(key)
     if sf is not None and mult:
         mult = sum(M[k] for k in M if short(k) in sf["from"]) * ev(sf["per"])
@@ -567,6 +575,7 @@ for r in inv["rows"]:
         C6_MODEL.rebound_witness(C6_STATE, f, line, r["kind"], mult, M)
     FK_RETURN_MODEL.first_return_witness(FK_RETURN_STATE, f, line, r["kind"], mult, M, rebound=True)
     OWNED_RETURN_MODEL.witness(OWNED_RETURN_STATE, f, line, r["kind"], mult, M, rebound=True)
+    PHASE_MODEL.allocation_witness(PHASE_STATE, f, line, r["kind"], PHASE_CAPS, M, mult, fk, loops)
     so = TA.get("site_size", {}).get(key)
     if key in AGG:
         size = ev(AGG[key]["bytes"])
@@ -607,6 +616,9 @@ for r in inv["rows"]:
     st = TA.get("site_total", {}).get(key)
     if st is not None and mult:
         req = ev(st["bytes"])
+    phase_req = PHASE_MODEL.finding_requested(PHASE_STATE, f, line, r["kind"], PHASE_CAPS, M, mult, fk, loops)
+    if phase_req is not None:
+        req = phase_req
     total_req += req
     if mult:
         max_size = max(max_size, tav_size)
