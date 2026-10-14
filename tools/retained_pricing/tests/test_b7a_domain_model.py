@@ -27,7 +27,7 @@ def test_actual_complete_source_guard_and_native_types_have_positive_owners(monk
     proof = MODEL["inspect"](SOURCE)
     assert proof["formed_terms_per_input"] == 12
     assert proof["manifest_operand_words"] == 26
-    assert len(proof["full_raw_source_fingerprints"]) == 19
+    assert len(proof["full_raw_source_fingerprints"]) == 21
     # The source limits and three independently retained records determine
     # these lengths; they are not old ABI observations.
     assert MODEL["basis_lengths"](128) == (673, 2701, 2914)
@@ -43,6 +43,8 @@ def test_actual_complete_source_guard_and_native_types_have_positive_owners(monk
     "core/solver/straight_pipe/src/lib.rs",
     "core/solver/nonlinear_integration/src/structural_adapter.rs",
     "core/solver/frame_kernel/src/lib.rs",
+    "core/reporting/result_export/src/semantic_contract.rs",
+    "core/reporting/result_export/src/physics_source.rs",
 ])
 def test_raw_owner_crlf_or_missing_source_refuses(tmp_path, file):
     snapshot = source_copy(tmp_path)
@@ -195,3 +197,37 @@ def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
         assert set(actual[pp + key]) == args
         assert all(value == {"bytes": 128, "source": "IN128"}
                    for value in actual[pp + key].values())
+
+def test_actual_reader_cached_allocations_include_all_live_owners_and_duplicates():
+    import json
+    from collections import Counter
+    kd5 = runpy.run_path(str(PRICING / "base/kd5_text_model.py"))
+    paths = MODEL["reader_static_files"](SOURCE, MODEL["STATIC_PREIMAGE"])
+    counts = Counter(paths)
+    assert len(paths) == 14 and len(counts) == 12
+    assert counts["fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"] == 2
+    assert counts["fixtures/results/semantic_contract_v0_3_physics_retained_1.json"] == 2
+    assert "fixtures/results/semantic_contract_v0_3_pressure_source_1.json" not in counts
+    assert "schemas/results_pressure_1.v0.3.schema.json" not in counts
+    for owner, path in MODEL["STATIC_OWNERS"]:
+        file, function = owner.rsplit(":", 1)
+        raw = (SOURCE / file).read_bytes().decode()
+        body, _ = kd5["_indented_function"](raw, function)
+        assert "OnceLock<Value>" in body and "get_or_init" in body
+        assert path in raw
+        assert isinstance(json.loads((SOURCE / path).read_bytes()), dict)
+
+
+@pytest.mark.parametrize("change", ["remove", "duplicate", "reorder", "nonresident"])
+def test_closed_reader_inventory_preimage_refuses_drift(change):
+    inventory = list(MODEL["STATIC_PREIMAGE"])
+    if change == "remove":
+        inventory.pop(0)
+    elif change == "duplicate":
+        inventory.append(inventory[0])
+    elif change == "reorder":
+        inventory[0], inventory[1] = inventory[1], inventory[0]
+    else:
+        inventory.append("fixtures/results/semantic_contract_v0_3_pressure_source_1.json")
+    with pytest.raises(ValueError, match="historical reader static inventory changed"):
+        MODEL["reader_static_files"](SOURCE, inventory)

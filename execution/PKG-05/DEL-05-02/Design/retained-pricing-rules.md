@@ -1112,7 +1112,7 @@ This full-file source binding also requires re-audit for later test edits.
 
 The existing B4/D1 domain admits named-point material selectors and branch-L
 full-span uniform straight member inputs. The old nodal-only zero premise
-does not price that domain. The canonical b7a_domain_model binds nineteen full
+does not price that domain. The canonical b7a_domain_model binds twenty-one full
 raw owner-source files plus the unique raw nongenerated admission prefix before D6 and late law_order,
 admit and sole-permit admission bodies. Actual census, capacities and
 cap enforcement are bound; generated registry bytes are excluded. Before
@@ -1189,3 +1189,23 @@ allocation is assigned a new zero. Generated-intensity prefix diagnostics
 likewise keep positive site-local case-ID classes, without admitting generated
 loads or weakening their retained-domain refusal. The historical base and
 every other positive rule remain unchanged.
+
+The static-tree inventory follows actual reader ownership. Three retired inputs
+(v0.2, source-blocks-1 and its schema) leave the historical twelve-file list;
+all nine surviving inputs keep their order and positive parsing costs. The
+combination and exact prepared definitions and physics-retained table enter
+positively. These are twelve distinct resident JSON inputs, independently
+confirmed by their production includes/loaders, not merely by registry names.
+Two retained tables each have two independent OnceLock<Value> owners: preview
+table()/preview_physics_retained_contract() and exact_table()/
+physics_retained_contract(). All fourteen allocations are priced; their equal
+input bytes do not imply shared parsed storage. Exact full raw guards cover
+the three loader files (retained_precision, semantic_contract, physics_source).
+The closed inventory requires its exact historical preimage and g4's unchanged
+static_tree() still refuses an absent input. The actual pressure-source table
+and results-pressure schema are reviewed nonresident inputs; neither becomes
+a cached tree here. Their production include absence and pressure-source
+verification/vocabulary obligations retain the existing closed guards.
+All surviving shape, owned-string, array-growth, hashing/validation, TEXT,
+moving and phase duties remain, and actual new static facts are recounted on
+each immutable canonical replay. No static cut selects a new budget policy.
