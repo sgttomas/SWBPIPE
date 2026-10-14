@@ -78,3 +78,111 @@ fn b7b_local_ca_authoring_rejects_null_wrong_dimension_and_exhausted_wall() {
     absent.as_object_mut().unwrap().remove("corrosion_allowance");
     assert!(rich_authoring::validate_pipe_section_inputs(&absent).is_ok(), "incomplete sections remain authorable");
 }
+
+fn editor_model() -> Value {
+    let mut model = model();
+    model["project"]["units"] = json!({"length": "m"});
+    model["nodes"] = json!([
+        {"id": "node:a", "label": "A", "position": {"x": 0.0, "y": 0.0, "z": 0.0}, "provenance": "invented"},
+        {"id": "node:b", "label": "B", "position": {"x": 4.0, "y": 0.0, "z": 0.0}, "provenance": "invented"}]);
+    model["pipe_segments"][0]["y_reference"] = json!({"x": 0.0, "y": 1.0, "z": 0.0});
+    model
+}
+
+fn intent(kind: &str, path: &str, before: String, after: String, unit: &str, dimension: &str) -> Value {
+    json!({"operation_id": "operation:b7b:transport", "operation_kind": "modify",
+        "operation_status": "proposed", "author_type": "user",
+        "target": {"object_type": "Element", "ref": "pipe:b7b"},
+        "change": {"change_id": "change:b7b:transport", "change_kind": kind,
+            "field_label": path, "field_path": path, "before": before, "after": after,
+            "unit": unit, "dimension": dimension, "source_note": "invented explicit user entry"},
+        "validation": {"schema_validation": "not_run", "constraint_validation": "not_run",
+            "unit_validation": "not_run", "diff_preview_status": "not_generated", "application_status": "not_applied"},
+        "rationale": "Invented transport regression",
+        "audit_boundary": {"mutation_route": "structured_operations_only", "direct_model_mutation_allowed": false,
+            "requires_user_acceptance": true, "mutates_accepted_model_state": false},
+        "professional_boundary": {"human_review_required": true, "software_makes_compliance_claim": false,
+            "software_makes_certification_claim": false, "software_makes_sealing_claim": false,
+            "software_makes_approval_claim": false, "software_makes_authentication_claim": false}})
+}
+
+fn claim(model: &Value) -> Value {
+    json!({"algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_scope": "model_payload",
+        "value": format!("sha256:{}", sha256_hex(&canonical_json(model)))})
+}
+
+#[test]
+fn b7b_common_unbound_scalar_ca_review_apply_enforces_the_wall_sum() {
+    let model = editor_model();
+    for (after, accepted) in [("0.007", true), ("0.008", false), ("0.009", false)] {
+        let operation = intent("set_field", "section.corrosion_allowance.value",
+            "0".into(), after.into(), "m", "length");
+        let hash = claim(&model);
+        let preview = validate_operation(&model, &operation, Some(&hash));
+        let applied = apply_operation(&model, &operation, Some(&hash));
+        assert!(preview.applied_model.is_none());
+        assert_eq!(applied.applied_model.is_some(), accepted, "{after}: {:?}", applied.diagnostics);
+        if accepted {
+            let updated = applied.applied_model.unwrap();
+            assert_eq!(updated["pipe_segments"][0]["section"]["corrosion_allowance"]["value"], 0.007);
+            assert_eq!(updated["pipe_segments"][0]["section"]["mill_tolerance"], model["pipe_segments"][0]["section"]["mill_tolerance"]);
+        } else {
+            assert!(preview.diagnostics.iter().any(|diagnostic| diagnostic.code == "OP-SECTION-BINDING-INVALID"));
+            assert!(applied.diagnostics.iter().any(|diagnostic| diagnostic.code == "OP-SECTION-BINDING-INVALID"));
+        }
+    }
+    for (value, unit) in [("-0.001", "m"), ("0", "Pa")] {
+        let operation = intent("set_field", "section.corrosion_allowance.value", "0".into(), value.into(), unit, "length");
+        let applied = apply_operation(&model, &operation, Some(&claim(&model)));
+        assert!(applied.applied_model.is_none());
+        assert!(!applied.diagnostics.iter().any(|diagnostic| diagnostic.code == "OP-SECTION-BINDING-INVALID"),
+            "existing scalar/unit refusal must precede the new wall-sum check");
+    }
+}
+
+fn geometry_intent(model: &Value, split: bool) -> Value {
+    let payload = if split {
+        json!({"pipe_ref": "pipe:b7b", "fraction": 0.25,
+            "new_node": {"id": "node:new", "label": "New", "provenance": "invented"},
+            "new_pipe": {"id": "pipe:new", "label": "New pipe", "provenance": "invented"}})
+    } else {
+        json!({"mode": "in_place", "pipe_refs": ["pipe:b7b"],
+            "transform": {"kind": "translate", "translation": {"x": 1.0, "y": 0.0, "z": 0.0, "unit": "m"}}})
+    };
+    let before = if split { canonical_json(&model["pipe_segments"][0]) }
+        else { canonical_json(&json!({"nodes": model["nodes"], "pipe_segments": model["pipe_segments"]})) };
+    intent(if split { "split_pipe_run" } else { "transform_pipe_run" }, "pipe_segments",
+        before, canonical_json(&payload), "none", "dimensionless")
+}
+
+#[test]
+fn b7b_common_split_transform_preserve_valid_or_absent_ca_and_refuse_invalid_ca() {
+    for split in [true, false] {
+        for allowance in [None, Some(json!({"value": 0.0, "unit": "m"}))] {
+            let mut model = editor_model();
+            if let Some(value) = &allowance { model["pipe_segments"][0]["section"]["corrosion_allowance"] = value.clone(); }
+            else { model["pipe_segments"][0]["section"].as_object_mut().unwrap().remove("corrosion_allowance"); }
+            let operation = geometry_intent(&model, split);
+            let hash = claim(&model);
+            let preview = validate_operation(&model, &operation, Some(&hash));
+            assert!(preview.applied_model.is_none());
+            let applied = apply_operation(&model, &operation, Some(&hash));
+            let updated = applied.applied_model.unwrap_or_else(|| panic!("{:?}", applied.diagnostics));
+            for pipe in updated["pipe_segments"].as_array().unwrap() {
+                assert_eq!(pipe["section"].get("corrosion_allowance"), allowance.as_ref());
+            }
+        }
+        for value in [Value::Null, json!({"value": -0.001, "unit": "m"}),
+            json!({"value": 0.0, "unit": "Pa"}), json!({"value": 0.009, "unit": "m"})] {
+            let mut model = editor_model();
+            model["pipe_segments"][0]["section"]["corrosion_allowance"] = value;
+            let operation = geometry_intent(&model, split);
+            let hash = claim(&model);
+            let preview = validate_operation(&model, &operation, Some(&hash));
+            let applied = apply_operation(&model, &operation, Some(&hash));
+            assert!(preview.applied_model.is_none());
+            assert!(applied.applied_model.is_none(), "{:?}", applied.diagnostics);
+            assert!(applied.diagnostics.iter().any(|diagnostic| diagnostic.severity == "blocking"));
+        }
+    }
+}

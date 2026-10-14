@@ -261,3 +261,29 @@ fn b7b_load_reference_group_is_optional_as_a_whole_and_keys_on_presence() {
         assert_eq!(diagnostics[0].code, "LOAD_STATE_CONTRACT_VERSION_MISMATCH");
     }
 }
+
+#[test]
+fn b7b_early_raw_group_selector_keeps_request_material_authored_presence() {
+    let baseline = current_joint_request();
+    for value in [Value::Null, json!([]), json!({})] {
+        let mut request = baseline.clone();
+        let mut material = request["model"]["materials"][0].clone();
+        material["expansion_laws"] = value;
+        request["materials"] = json!([material]);
+        let typed: LinearStaticPreviewRequest = serde_json::from_value(request.clone()).unwrap();
+        assert!(case_state::carries_fields(&typed.model));
+        let mut diagnostics = Vec::new();
+        case_state::resolve::validate_document(&typed.model, true, &mut diagnostics);
+        assert!(diagnostics.iter().any(|finding| finding.code == "LOAD_STATE_REQUEST_MATERIALS_UNSUPPORTED"));
+        request["model"]["load_cases"][0]["primitive_loads"] = json!([{
+            "id": "load:b7b:support-motion", "category": "imposed_displacement", "direction": "UX",
+            "dimension": "length", "magnitude": {"value": 0.0, "unit": "m"},
+            "target": {"type": "support", "support": "support:b7b"}
+        }]);
+        assert!(preview_physics::imposed_displacement_refusal(&request).is_none(),
+            "request-owned group presence reaches the shared parser before semantic validation");
+        // The closed target DTO still refuses this malformed support primitive;
+        // group selection never manufactures an accepted target variant.
+        assert_decode_refused(request);
+    }
+}

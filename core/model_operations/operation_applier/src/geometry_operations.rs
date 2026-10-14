@@ -162,6 +162,7 @@ fn record_shape(record: &Value, node: bool) -> Result<()> {
                 text(q, "unit")?;
             }
         }
+        super::section_bindings::validate_corrosion_allowance(&record["section"]).map_err(err)?;
         text(record, "material")?;
         text(record, "from")?;
         text(record, "to")?;

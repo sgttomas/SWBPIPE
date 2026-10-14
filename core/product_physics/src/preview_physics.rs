@@ -1009,7 +1009,10 @@ pub(crate) fn imposed_displacement_refusal(
     actual_request: &serde_json::Value,
 ) -> Option<Result<MechanicsEnvelope, String>> {
     let model = actual_request.get("model")?;
-    if crate::carries_load_reference_state(model) {
+    if crate::carries_load_reference_state(model)
+        || actual_request.get("materials").and_then(serde_json::Value::as_array)
+            .is_some_and(|materials| materials.iter().any(|material|
+                material.as_object().is_some_and(|record| record.contains_key("expansion_laws")))) {
         return None;
     }
     let mut offending = Vec::new();
