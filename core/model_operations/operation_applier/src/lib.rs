@@ -31,6 +31,8 @@ mod load_state_authoring;
 mod pressure_authoring;
 mod joint_pressure_authoring;
 mod section_bindings;
+#[cfg(test)]
+mod b7b_transport_tests;
 pub use atomic_batch::{apply_operation_batch, validate_operation_batch};
 pub use display_units::convert_display_quantities;
 
@@ -469,6 +471,13 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                     dimension: "length",
                 },
             },
+            FieldRule {
+                field_path: "section.corrosion_allowance.value",
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::NonNegative,
+                    dimension: "length",
+                },
+            },
         ],
         "Support" => &[
             FieldRule {
@@ -839,18 +848,20 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
     }
 }
 
-/// A document on the exact pressure route: model 0.3.0 or 0.4.0 declaring
-/// `2.0.0/exact_straight_pressure_v2` (existing documents, still solvable) or
-/// `3.0.0/exact_pressure_v3` (all new authoring).
+/// A current model document declaring the closed v3 pressure contract.
 pub(crate) fn is_exact_pressure_document(model: &Value) -> bool {
-    matches!(model.get("schema_version").and_then(Value::as_str), Some("0.3.0" | "0.4.0"))
-        && (is_pressure_v3_contract(model)
-            || model.get("pressure_contract")
-                == Some(&serde_json::json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"})))
+    model.get("schema_version").and_then(Value::as_str)
+        == Some(open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION)
+        && is_pressure_v3_contract(model)
 }
 /// The current pressure contract, `3.0.0/exact_pressure_v3`.
 pub(crate) fn is_pressure_v3_contract(model: &Value) -> bool {
-    model.get("pressure_contract") == Some(&serde_json::json!({"version": "3.0.0", "mode": "exact_pressure_v3"}))
+    model.get("pressure_contract").and_then(Value::as_object).is_some_and(|contract|
+        contract.len() == 3
+            && contract.get("version").and_then(Value::as_str) == Some("3.0.0")
+            && contract.get("mode").and_then(Value::as_str) == Some("exact_pressure_v3")
+            && matches!(contract.get("shear_model").and_then(Value::as_str),
+                Some("euler_bernoulli" | "timoshenko_annulus_energy_v1")))
 }
 
 fn collection_for(object_type: &str) -> Option<&'static str> {
@@ -2630,9 +2641,7 @@ fn resolve_expansion_joint_creation(
 ) -> Option<Value> {
     let schema = model.get("schema_version").and_then(Value::as_str).unwrap_or("");
     let contract = model.get("pressure_contract");
-    let v3 = matches!(schema, "0.3.0" | "0.4.0")
-        && contract.and_then(|c| c.get("version")).and_then(Value::as_str) == Some("3.0.0")
-        && contract.and_then(|c| c.get("mode")).and_then(Value::as_str) == Some("exact_pressure_v3");
+    let v3 = is_exact_pressure_document(model);
     let legacy = record.get("modifiers").is_some()
         || record
             .get("geometry")

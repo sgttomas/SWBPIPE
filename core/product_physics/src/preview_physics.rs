@@ -1009,7 +1009,7 @@ pub(crate) fn imposed_displacement_refusal(
     actual_request: &serde_json::Value,
 ) -> Option<Result<MechanicsEnvelope, String>> {
     let model = actual_request.get("model")?;
-    if model.get("schema_version").and_then(|v| v.as_str()) == Some("0.4.0") {
+    if crate::carries_load_reference_state(model) {
         return None;
     }
     let mut offending = Vec::new();

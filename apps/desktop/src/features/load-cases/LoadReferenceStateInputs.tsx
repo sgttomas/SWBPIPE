@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { PreviewModel } from "../../types";
 import { record, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import {
-  clone, isLoadStateModel, LOAD_STATE_CONTRACT, LoadStateFeedback, LoadStateNeeds040, member, NOT_PRESENT, NumberText,
+  clone, isLoadStateModel, LOAD_STATE_CONTRACT, LoadStateFeedback, LoadStateNeedsCurrent, member, NOT_PRESENT, NumberText,
   Quantity, replaceAt, rows, switchVariant, Text, toPayload, useLoadStateQueue, type LoadStateTarget
 } from "./loadStateAuthoring";
 
@@ -26,9 +26,9 @@ const PARTICIPATION = { active_model_device: [], inactive: [], locked_equivalent
 /** Model 0.4.0 reference configurations and the selected case's analysis
  * state. On any other model version only the one gating line is shown. */
 export function LoadReferenceStateInputs(props: RichFormProps & { loadCase: LoadCase | null }) {
-  if (!isLoadStateModel(props.model)) return <LoadStateNeeds040 testId="load-state-needs-040" />;
+  if (!isLoadStateModel(props.model)) return <LoadStateNeedsCurrent testId="load-state-needs-current" />;
   return <section aria-label="Load/reference state inputs" data-testid="load-state-inputs">
-    <h3>Load/reference state (model 0.4.0)</h3>
+    <h3>Load/reference state (current exact model)</h3>
     <p>Plain inputs for the resolved load/reference state. Every value and unit is entered explicitly; an empty field is an absent key. The operation engine checks each record before it is queued for Review/Apply.</p>
     <ReferenceConfigurationsEditor {...props} />
     {props.loadCase ? <AnalysisStateEditor key={props.loadCase.id} {...props} loadCase={props.loadCase} /> : <p>No load case is selected.</p>}

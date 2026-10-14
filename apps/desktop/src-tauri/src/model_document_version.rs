@@ -11,9 +11,8 @@
 //! - `newer_than_supported`: a version above 0.5.0;
 //! - `unsupported_schema`: a missing or non-semver version.
 //!
-//! B7a interim: the exact pressure model versions 0.3.0 and 0.4.0 stay
-//! `current` until B7b gives 0.5.0 its contract-present form and re-authors
-//! them. The stored bytes are never rewritten by an open or a save.
+//! The stored bytes are never rewritten by an open or a save. Contract and
+//! section completeness remain separate from this version-only persistence check.
 
 use open_pipe_stress_product_physics::{
     is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
@@ -21,9 +20,6 @@ use open_pipe_stress_product_physics::{
 };
 use serde::Serialize;
 use serde_json::Value;
-
-/// Exact pressure model versions accepted until B7b re-authors them to 0.5.0.
-pub const EXACT_PRESSURE_MODEL_SCHEMA_VERSIONS: [&str; 2] = ["0.3.0", "0.4.0"];
 
 /// The version statuses that refuse a document for editing.
 pub const REFUSED_MODEL_DOCUMENT_STATUSES: [&str; 3] =
@@ -78,14 +74,6 @@ pub fn evaluate_model_document(document: &Value) -> ModelDocumentVersionStatus {
             raw,
             raw,
             "Model document 0.5.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately.".to_string(),
-        );
-    }
-    if EXACT_PRESSURE_MODEL_SCHEMA_VERSIONS.contains(&raw) {
-        return status(
-            "current",
-            raw,
-            raw,
-            format!("Exact pressure model {raw} is accepted without migration until B7b; pressure-profile inputs and solve eligibility are validated separately."),
         );
     }
     let Some(version) = parse_semver(raw) else {
@@ -146,7 +134,7 @@ mod tests {
 
     #[test]
     fn retired_versions_are_refused_by_name_with_a_re_author_diagnostic() {
-        for version in ["0.1.0", "0.2.0"] {
+        for version in ["0.1.0", "0.2.0", "0.3.0", "0.4.0"] {
             let mut doc = document(version);
             // A carried contract or load/reference key changes nothing: the version refuses.
             doc["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
@@ -168,11 +156,13 @@ mod tests {
     }
 
     #[test]
-    fn exact_pressure_versions_stay_current_until_b7b() {
-        for version in EXACT_PRESSURE_MODEL_SCHEMA_VERSIONS {
-            let evaluated = evaluate_model_document(&document(version));
-            assert_eq!(evaluated.status, "current", "{version}");
-            assert_eq!(evaluated.target_schema_version, version);
+    fn incomplete_current_contract_bytes_remain_saveable_and_unchanged() {
+        for contract in [Value::Null, json!({}), json!({"version": "3.0.0", "mode": "exact_pressure_v3"})] {
+            let mut doc = document(MODEL_SCHEMA_VERSION);
+            doc["pressure_contract"] = contract;
+            let before = doc.clone();
+            assert_eq!(evaluate_model_document(&doc).status, "current");
+            assert_eq!(doc, before);
         }
     }
 

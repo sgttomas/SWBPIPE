@@ -35,6 +35,18 @@ pub(crate) fn is_pressure_free(model: &PreviewModel) -> bool {
     model.schema_version == MODEL_SCHEMA_VERSION && model.pressure_contract.is_none()
 }
 
+/// Authored raw group presence, including null. This transports the same group
+/// selector to authoring; it grants neither model validity nor numerical standing.
+pub fn carries_load_reference_state(model: &serde_json::Value) -> bool {
+    model.as_object().is_some_and(|object| object.contains_key("reference_configurations"))
+        || model.get("materials").and_then(serde_json::Value::as_array)
+            .is_some_and(|materials| materials.iter().any(|material|
+                material.as_object().is_some_and(|object| object.contains_key("expansion_laws"))))
+        || model.get("load_cases").and_then(serde_json::Value::as_array)
+            .is_some_and(|cases| cases.iter().any(|case|
+                case.as_object().is_some_and(|object| object.contains_key("analysis_state"))))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

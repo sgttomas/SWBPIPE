@@ -1,7 +1,7 @@
 import type { PreviewModel } from "../../types";
 
 /** The current pressure contract: all new pressure authoring writes it. */
-export const PRESSURE_V3 = Object.freeze({ version: "3.0.0", mode: "exact_pressure_v3" });
+export const PRESSURE_V3 = Object.freeze({ version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" as const });
 
 type ContractModel = Pick<PreviewModel, "schema_version" | "pressure_contract">;
 
@@ -10,16 +10,16 @@ export function isPressureV3(model: ContractModel): boolean {
   return model.pressure_contract?.version === PRESSURE_V3.version && model.pressure_contract.mode === PRESSURE_V3.mode;
 }
 
-/** A document on the exact pressure route (model 0.3.0 or 0.4.0): v3, or an
- * existing `2.0.0/exact_straight_pressure_v2` document, which stays solvable.
+/** A current document on the exact pressure route.
  * Materials there derive G from the selected E/nu pair. */
 export function isExactPressureContract(model: ContractModel): boolean {
-  if (model.schema_version !== "0.3.0" && model.schema_version !== "0.4.0") return false;
-  return isPressureV3(model) || (model.pressure_contract?.version === "2.0.0" && model.pressure_contract.mode === "exact_straight_pressure_v2");
+  if (model.schema_version !== "0.5.0" || !isPressureV3(model)) return false;
+  const contract = model.pressure_contract;
+  return !!contract && Object.keys(contract).length === 3
+    && (contract.shear_model === "euler_bernoulli" || contract.shear_model === "timoshenko_annulus_energy_v1");
 }
 
-/** The profile the pressure-profile operation writes: v3, keeping a 0.4.0
- * document's version and writing 0.3.0 for every other document. */
-export function pressureProfileTarget(model: ContractModel) {
-  return { schema_version: model.schema_version === "0.4.0" ? "0.4.0" : "0.3.0", pressure_contract: { ...PRESSURE_V3 } };
+/** The current profile; local user section inputs are never manufactured. */
+export function pressureProfileTarget(_model: ContractModel) {
+  return { schema_version: "0.5.0", pressure_contract: { ...PRESSURE_V3 } };
 }

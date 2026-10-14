@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { record, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import {
-  clone, isLoadStateModel, LoadStateFeedback, LoadStateNeeds040, member, NOT_PRESENT, Quantity, replaceAt, rows,
+  clone, isLoadStateModel, LoadStateFeedback, LoadStateNeedsCurrent, member, NOT_PRESENT, Quantity, replaceAt, rows,
   switchVariant, Text, toPayload, useLoadStateQueue, type LoadStateTarget
 } from "../load-cases/loadStateAuthoring";
 
@@ -23,7 +23,7 @@ const DATA = { constant: ["coefficient"], table: ["interpolation", "points"] } a
 /** Material 0.4.0 expansion laws (`Material.expansion_laws`): user-owned
  * definitions, never library values. Pre-0.4 models show the gating line. */
 export function ExpansionLawsEditor(props: RichFormProps & { material: Material }) {
-  if (!isLoadStateModel(props.model)) return <LoadStateNeeds040 testId="expansion-laws-needs-040" />;
+  if (!isLoadStateModel(props.model)) return <LoadStateNeedsCurrent testId="expansion-laws-needs-current" />;
   return <LawsForm key={props.material.id} {...props} />;
 }
 
@@ -37,7 +37,7 @@ function LawsForm(props: RichFormProps & { material: Material }) {
   const list = draft ?? [];
   const editAt = (index: number, next: DraftRecord) => setDraft(replaceAt(list, index, next));
   return <section aria-label="Material expansion laws" data-testid="expansion-laws-editor">
-    <h3>Expansion laws (model 0.4.0)</h3>
+    <h3>Expansion laws (current exact model)</h3>
     <p>{current === undefined ? "expansion_laws is absent for this material." : current === null ? "expansion_laws is an explicit null." : `${current.length} applied expansion laws.`} Enter each datum, value and unit explicitly; no law or coefficient is supplied by the application.</p>
     <fieldset disabled={state.busy}>
       {list.map((law, l) => {

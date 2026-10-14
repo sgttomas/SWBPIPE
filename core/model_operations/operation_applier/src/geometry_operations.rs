@@ -148,14 +148,15 @@ fn record_shape(record: &Value, node: bool) -> Result<()> {
             &["outside_diameter", "wall_thickness"],
             &[
                 "mill_tolerance",
+                "corrosion_allowance",
                 "material_density",
                 "contents_density",
                 "insulation_thickness",
                 "insulation_density",
             ],
         )?;
-        for (_, q) in record["section"].as_object().unwrap() {
-            if !q.is_null() {
+        for (key, q) in record["section"].as_object().unwrap() {
+            if key == "corrosion_allowance" || !q.is_null() {
                 fields(q, &["value", "unit"], &[])?;
                 number(&q["value"])?;
                 text(q, "unit")?;

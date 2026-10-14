@@ -23,7 +23,7 @@ pub use case_state::{
 };
 mod model_format;
 pub use model_format::{
-    is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
+    carries_load_reference_state, is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
     MODEL_SCHEMA_VERSION_RETIRED, RETIRED_MODEL_SCHEMA_VERSIONS,
 };
 mod pressure_sum;
@@ -210,7 +210,7 @@ pub struct PreviewModel {
     pub materials: Vec<MaterialInput>,
     pub load_cases: Vec<PreviewLoadCase>,
     pub combinations: Vec<PreviewCombination>,
-    /// Load/reference-state owner (model 0.4.0); presence elsewhere blocks.
+    /// Optional connected load/reference-state group on the current exact document.
     pub reference_configurations: Authored<Vec<ReferenceConfigurationInput>>,
     /// Material-owned `expansion_laws`, parallel to `materials` by index. The
     /// authored key lives on each material record; `MaterialInput` is unchanged.

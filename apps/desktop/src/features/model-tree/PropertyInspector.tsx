@@ -1663,6 +1663,16 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef): Editable
         "set_field",
         true
       ),
+      quantityField(
+        "Corrosion allowance (explicit zero or greater)",
+        "section.corrosion_allowance.value",
+        pipe.section.corrosion_allowance?.value ?? "TBD",
+        "Element",
+        "length",
+        pipe.section.corrosion_allowance?.unit ?? pipe.section.wall_thickness?.unit ?? model.project.units.length ?? "m",
+        "set_field",
+        true
+      ),
       ...([
         ["material_density", "Material density (positive)", "density"],
         ["contents_density", "Contents density (zero or greater)", "density"],

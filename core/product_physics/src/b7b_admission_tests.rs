@@ -235,3 +235,29 @@ fn b7b_ca_zero_preserves_every_derived_section_bit_and_invalid_sum_is_refused() 
         assert_eq!(diagnostics[0].code, "PIPE_DIMENSION_INVALID");
     }
 }
+
+#[test]
+fn b7b_load_reference_group_is_optional_as_a_whole_and_keys_on_presence() {
+    let mut absent = request();
+    absent["model"]["pressure_contract"] = contract();
+    let parsed: LinearStaticPreviewRequest = serde_json::from_value(absent.clone()).unwrap();
+    assert!(!case_state::is_load_state(&parsed.model));
+    let mut diagnostics = Vec::new();
+    case_state::resolve::validate_document(&parsed.model, false, &mut diagnostics);
+    assert!(diagnostics.is_empty());
+    for value in [Value::Null, json!([])] {
+        let mut partial = absent.clone();
+        partial["model"]["reference_configurations"] = value;
+        let parsed: LinearStaticPreviewRequest = serde_json::from_value(partial.clone()).unwrap();
+        assert!(case_state::is_load_state(&parsed.model));
+        assert!(carries_load_reference_state(&partial["model"]));
+        let mut diagnostics = Vec::new();
+        case_state::resolve::validate_document(&parsed.model, false, &mut diagnostics);
+        assert!(!diagnostics.is_empty(), "a partial group cannot be ignored");
+        partial["model"].as_object_mut().unwrap().remove("pressure_contract");
+        let parsed: LinearStaticPreviewRequest = serde_json::from_value(partial).unwrap();
+        let mut diagnostics = Vec::new();
+        case_state::resolve::validate_document(&parsed.model, false, &mut diagnostics);
+        assert_eq!(diagnostics[0].code, "LOAD_STATE_CONTRACT_VERSION_MISMATCH");
+    }
+}

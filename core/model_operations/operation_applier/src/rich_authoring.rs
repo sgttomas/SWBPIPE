@@ -90,6 +90,7 @@ pub(crate) fn validate_pipe_section_inputs(section: &Value) -> Result<bool> {
             "wall_thickness",
             "material_density",
             "mill_tolerance",
+            "corrosion_allowance",
             "contents_density",
             "insulation_thickness",
             "insulation_density",
@@ -100,11 +101,12 @@ pub(crate) fn validate_pipe_section_inputs(section: &Value) -> Result<bool> {
     for (key, dimension, positive) in [
         ("material_density", Dimension::Density, true),
         ("mill_tolerance", Dimension::Length, false),
+        ("corrosion_allowance", Dimension::Length, false),
         ("contents_density", Dimension::Density, false),
         ("insulation_thickness", Dimension::Length, false),
         ("insulation_density", Dimension::Density, false),
     ] {
-        if let Some(value) = record.get(key).filter(|v| !v.is_null()) {
+        if let Some(value) = record.get(key).filter(|v| key == "corrosion_allowance" || !v.is_null()) {
             let normalized = if positive {
                 quantity(value, dimension, true)
             } else {
@@ -114,6 +116,16 @@ pub(crate) fn validate_pipe_section_inputs(section: &Value) -> Result<bool> {
             if key == "mill_tolerance" && wall - normalized <= 0.0 {
                 return Err(err("Mill tolerance must leave a positive effective wall"));
             }
+        }
+    }
+    if let Some(allowance) = record.get("corrosion_allowance") {
+        let allowance = nonnegative(allowance, Dimension::Length)?;
+        let mill = match record.get("mill_tolerance").filter(|value| !value.is_null()) {
+            Some(value) => nonnegative(value, Dimension::Length)?,
+            None => 0.0,
+        };
+        if mill + allowance >= wall {
+            return Err(err("Mill tolerance plus corrosion allowance must leave a positive wall"));
         }
     }
     Ok(record
@@ -598,8 +610,7 @@ fn validate_temperature_points(
     // E/nu point basis (review B F9). Its thermal definitions live in the
     // load/reference state (expansion laws or explicit interval states), so a
     // point's `thermal_expansion_coefficient` is not an interpolation input.
-    let load_state =
-        model["schema_version"] == open_pipe_stress_product_physics::LOAD_STATE_MODEL_VERSION;
+    let load_state = open_pipe_stress_product_physics::carries_load_reference_state(model);
     let exact_profile = crate::is_exact_pressure_document(model);
     let modulus_pair_field = if exact_profile {
         "poisson_ratio"

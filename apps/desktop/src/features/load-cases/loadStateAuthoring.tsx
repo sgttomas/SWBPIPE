@@ -3,6 +3,7 @@ import { canonicalJsonString, computeModelHash } from "../../services/hashServic
 import { validateModelOperation } from "../../services/operationService";
 import type { EditorOperationIntent, OperationOutcomeDiagnostic, PreviewModel } from "../../types";
 import { makeRichIntent, record, setMember, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
+import { isExactPressureContract } from "../pressure-authoring/pressureContract";
 
 /* Plain input fields for the model 0.4.0 load/reference-state records
  * (`openpipestress.load_reference_state/1.0.0`). Every edit is one whole-record
@@ -13,18 +14,18 @@ import { makeRichIntent, record, setMember, type DraftRecord, type RichFormProps
  * queued for Review/Apply. Nothing here mutates the model, sets a default or
  * judges the record: an empty field is an absent key, and the engine decides. */
 
-export const LOAD_STATE_MODEL_VERSION = "0.4.0";
+export const LOAD_STATE_MODEL_VERSION = "0.5.0";
 export const LOAD_STATE_CONTRACT = "openpipestress.load_reference_state/1.0.0";
-export const LOAD_STATE_NEEDS_040 = "Load/reference state needs a 0.4.0 model.";
+export const LOAD_STATE_NEEDS_CURRENT = "Load/reference state needs the current model with an explicit exact pressure contract.";
 export const NOT_PRESENT = "not_present";
 
-export function isLoadStateModel(model: Pick<PreviewModel, "schema_version">): boolean {
-  return model.schema_version === LOAD_STATE_MODEL_VERSION;
+export function isLoadStateModel(model: Pick<PreviewModel, "schema_version" | "pressure_contract">): boolean {
+  return isExactPressureContract(model);
 }
 
 /** The one line shown instead of the fields on a pre-0.4 model (D3: no upgrade). */
-export function LoadStateNeeds040({ testId }: { testId: string }) {
-  return <p className="muted" data-testid={testId}>{LOAD_STATE_NEEDS_040}</p>;
+export function LoadStateNeedsCurrent({ testId }: { testId: string }) {
+  return <p className="muted" data-testid={testId}>{LOAD_STATE_NEEDS_CURRENT}</p>;
 }
 
 export const clone = <T,>(value: T): T => value === undefined ? value : JSON.parse(JSON.stringify(value)) as T;

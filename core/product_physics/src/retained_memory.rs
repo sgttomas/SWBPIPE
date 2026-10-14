@@ -374,6 +374,7 @@ impl TypedWalk {
         if let Some(contract) = &m.pressure_contract {
             self.optional(&contract.version)?;
             self.optional(&contract.mode)?;
+            self.optional(&contract.shear_model)?;
         }
         self.string(&m.document_kind)?;
         self.string(&m.project.id)?;
@@ -394,7 +395,7 @@ impl TypedWalk {
             let section = &pipe.section;
             self.quantity(&section.outside_diameter)?;
             self.quantity(&section.wall_thickness)?;
-            for q in [&section.mill_tolerance, &section.material_density, &section.contents_density, &section.insulation_thickness, &section.insulation_density] {
+            for q in [&section.mill_tolerance, &section.corrosion_allowance, &section.material_density, &section.contents_density, &section.insulation_thickness, &section.insulation_density] {
                 self.optional_quantity(q)?;
             }
         }
@@ -815,10 +816,11 @@ pub(super) enum NamespaceBranch {
     /// Its own D1.4 and D1.5 clauses apply (B3-D §4.2).
     Exact,
 }
-/// The pressure contract `{version, mode}` matched exactly (typed: `PressureContractInput`
-/// denies unknown fields, so these two members are the whole contract).
+/// Identity plus the currently admitted required shear selection. The typed
+/// closed object decoder preserves malformed/unknown/duplicate refusals.
 fn contract_is(contract: &crate::PressureContractInput, version: &str, mode: &str) -> bool {
     contract.version.as_deref() == Some(version) && contract.mode.as_deref() == Some(mode)
+        && contract.shear_model.as_deref() == Some("euler_bernoulli")
 }
 /// D1.3's branch of `m`, or the fact that refuses it (B3-D §4.1's refusal map).
 pub(super) fn namespace_branch(m: &crate::PreviewModel) -> Result<NamespaceBranch, FamilyFact> {
@@ -826,8 +828,8 @@ pub(super) fn namespace_branch(m: &crate::PreviewModel) -> Result<NamespaceBranc
         return Ok(NamespaceBranch::Preview);
     }
     match (m.schema_version.as_str(), &m.pressure_contract) {
-        ("0.3.0", Some(c)) if contract_is(c, "2.0.0", "exact_straight_pressure_v2") => Ok(NamespaceBranch::Exact),
-        (crate::MODEL_SCHEMA_VERSION | "0.3.0", _) => Err(FamilyFact::PressureContract),
+        (crate::MODEL_SCHEMA_VERSION, Some(c)) if contract_is(c, "3.0.0", "exact_pressure_v3") => Ok(NamespaceBranch::Exact),
+        (crate::MODEL_SCHEMA_VERSION, _) => Err(FamilyFact::PressureContract),
         _ => Err(FamilyFact::SchemaVersion),
     }
 }

@@ -404,7 +404,7 @@ pub(crate) fn corner_context(model: &Value, node: &str) -> Value {
 /// section and material and takes y_reference = u_in (the corner-side bow).
 pub(crate) fn insert_at_corner(model: &Value, intent: &Value) -> Result<GeometryEdit, GeometryError> {
     if model.get("document_kind").and_then(Value::as_str) != Some("openpipestress.product_preview.model")
-        || !matches!(model.get("schema_version").and_then(Value::as_str), Some("0.1.0" | "0.2.0" | "0.3.0" | "0.4.0"))
+        || model.get("schema_version").and_then(Value::as_str) != Some(open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION)
     {
         return Err(invalid("Insert bend at corner requires a recognized product_preview.model document"));
     }

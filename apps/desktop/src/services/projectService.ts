@@ -54,10 +54,7 @@ function hasTauriRuntime(): boolean {
 // nothing is migrated. Mirrors apps/desktop/src-tauri/src/model_document_version.rs.
 export const MODEL_SCHEMA_VERSION = "0.5.0";
 // Retired versions, refused by name with a re-author diagnostic.
-export const RETIRED_MODEL_SCHEMA_VERSIONS: ReadonlyArray<string> = ["0.1.0", "0.2.0"];
-// B7a interim: the exact pressure model versions stay current until B7b gives
-// 0.5.0 its contract-present form and re-authors them.
-export const EXACT_PRESSURE_MODEL_SCHEMA_VERSIONS: ReadonlyArray<string> = ["0.3.0", "0.4.0"];
+export const RETIRED_MODEL_SCHEMA_VERSIONS: ReadonlyArray<string> = ["0.1.0", "0.2.0", "0.3.0", "0.4.0"];
 
 function parseSemver(raw: string): [number, number, number] | null {
   const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(raw);
@@ -77,14 +74,6 @@ export function evaluateModelDocumentLocal(model: PreviewModel): ModelDocumentVe
       target_schema_version: raw,
       detail:
         "Model document 0.5.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately."
-    };
-  }
-  if (EXACT_PRESSURE_MODEL_SCHEMA_VERSIONS.includes(raw)) {
-    return {
-      status: "current",
-      source_schema_version: raw,
-      target_schema_version: raw,
-      detail: `Exact pressure model ${raw} is accepted without migration until B7b; pressure-profile inputs and solve eligibility are validated separately.`
     };
   }
   const version = parseSemver(raw);
@@ -443,16 +432,17 @@ export function buildBlankLocalModelDocument(createdAt: Date = new Date()): Prev
  * beside the unchanged blank path. It declares only the pressure contract that
  * model 0.4.0 requires, the current 3.0.0/exact_pressure_v3 (T4-U2); it carries no materials, sections, cases or
  * reference values, and no document is upgraded to produce it. */
-export const BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION = "0.4.0";
-export const BLANK_LOAD_STATE_PRESSURE_CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3" } as const;
+export const BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION = "0.5.0";
+export const BLANK_LOAD_STATE_PRESSURE_CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } as const;
 export function buildBlankLoadStateModelDocument(createdAt: Date = new Date()): PreviewModel {
   const { schema_version: blankVersion, ...blank } = buildBlankLocalModelDocument(createdAt);
   void blankVersion;
   return {
     schema_version: BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION,
     pressure_contract: { ...BLANK_LOAD_STATE_PRESSURE_CONTRACT },
+    reference_configurations: [],
     ...blank,
-    project: { ...blank.project, name: "Blank Local Model 0.4.0" }
+    project: { ...blank.project, name: "Blank Local Load/reference Model 0.5.0" }
   };
 }
 

@@ -11,12 +11,10 @@
   ],
   "properties": {
     "schema_version": {
-      "description": "Model document version (DEL-02-05 CLM-003; DEL-05-02 Design b7-plan.md, Current model format). 0.5.0 is the one current version: pressure_contract is optional, and its absence makes the document pressure-free; behaviour keys on what the document carries, never on this string. 0.1.0 and 0.2.0 are retired and refused by name with a re-author diagnostic; nothing is migrated. Until B7b gives 0.5.0 its contract-present form and re-authors them, 0.3.0 and 0.4.0 remain accepted for exact pressure models.",
+      "description": "Model document 0.5.0 is the one current version. A pressure_contract is optional; only actual key absence is pressure-free. Model documents 0.1.0, 0.2.0, 0.3.0 and 0.4.0 are retired and refused by name. Re-authoring is explicit; nothing is migrated.",
       "type": "string",
       "enum": [
-        "0.5.0",
-        "0.3.0",
-        "0.4.0"
+        "0.5.0"
       ]
     },
     "pressure_contract": {
@@ -934,21 +932,29 @@
       ]
     },
     "PressureContract": {
-      "description": "Optional on model document 0.5.0. Absent: the document is pressure-free, and pressure_regions and every pressure primitive are refused by name. The contract-present 0.5.0 form lands with B7b: it names the current exact contract and, on an exact-contract document, requires the corrosion-allowance (zero allowed) and shear-model fields (owner, 2026-10-12, O2/O3), whose field specification T4 supplies. Until then a 0.5.0 document that declares a contract is refused by name.",
+      "description": "Current exact pressure contract: a closed object with explicit version, mode and shear_model. Present null, scalars and arrays are invalid. Operative preview pipe sections require an explicit local corrosion_allowance; zero is authored, never defaulted. Only Euler–Bernoulli and zero allowance are admitted until U8/U6. Canonical Section.properties uses its separate code-neutral Quantity representation.",
       "type": "object",
       "additionalProperties": false,
       "required": [
         "version",
-        "mode"
+        "mode",
+        "shear_model"
       ],
       "properties": {
         "version": {
           "type": "string",
-          "minLength": 1
+          "const": "3.0.0"
         },
         "mode": {
           "type": "string",
-          "minLength": 1
+          "const": "exact_pressure_v3"
+        },
+        "shear_model": {
+          "type": "string",
+          "enum": [
+            "euler_bernoulli",
+            "timoshenko_annulus_energy_v1"
+          ]
         }
       }
     },
@@ -1825,6 +1831,26 @@
           "type": "object",
           "additionalProperties": {
             "$ref": "#/$defs/Quantity"
+          },
+          "description": "Code-neutral section properties. corrosion_allowance is a Quantity here; the operative preview input is local PipeSectionInput.corrosion_allowance. This representation creates no flattening adapter or shared OD/wall binding propagation.",
+          "properties": {
+            "corrosion_allowance": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/Quantity"
+                },
+                {
+                  "properties": {
+                    "dimension": {
+                      "const": "length"
+                    },
+                    "value": {
+                      "minimum": 0
+                    }
+                  }
+                }
+              ]
+            }
           }
         },
         "provenance": {

@@ -440,10 +440,11 @@ pub(crate) fn resolve(
             "Structured load/reference-state input requires unit none and dimension dimensionless",
         ));
     }
-    if model.get("schema_version").and_then(Value::as_str) != Some(LOAD_STATE_MODEL_VERSION) {
+    if model.get("schema_version").and_then(Value::as_str) != Some(LOAD_STATE_MODEL_VERSION)
+        || !crate::is_exact_pressure_document(model) {
         return Err(refuse(
             "OP-LOAD-STATE-SCHEMA-VERSION-INVALID",
-            format!("{path} can be authored only on a model whose schema_version is already {LOAD_STATE_MODEL_VERSION}; no operation changes the version"),
+            format!("{path} requires current model {LOAD_STATE_MODEL_VERSION} with an explicit exact pressure contract; no operation changes the version"),
         ));
     }
     let owner = match object_type {

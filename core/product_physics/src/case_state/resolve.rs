@@ -72,20 +72,11 @@ pub(crate) fn validate_document(
     // An explicit null is authored presence in every version: an older
     // document carrying a new key at all blocks, and a 0.4.0 document may not
     // author a null where it must either omit the key or supply a value.
-    let carries = model.reference_configurations.is_authored()
-        || model
-            .material_expansion_laws
-            .iter()
-            .any(Authored::is_authored)
-        || !model.request_material_expansion_laws.is_empty()
-        || model
-            .load_cases
-            .iter()
-            .any(|case| case.analysis_state.is_authored());
+    let carries = super::carries_fields(model);
     if !super::is_load_state(model) {
         if carries {
             block(diagnostics, "LOAD_STATE_CONTRACT_VERSION_MISMATCH", &["schema_version"],
-                "reference_configurations, material expansion_laws (model or request materials) and case analysis_state require model document 0.4.0; they are never ignored or reinterpreted in an older document, and an explicit null counts as carrying the key");
+                "reference_configurations, material expansion_laws (model or request materials) and case analysis_state require current model 0.5.0 with the exact pressure contract; the group is never ignored, and an explicit null counts as carrying the key");
         }
         return;
     }

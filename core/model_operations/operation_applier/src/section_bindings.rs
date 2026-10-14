@@ -81,6 +81,17 @@ fn geometry(section: &Value) -> BindingResult<()> {
             );
         }
     }
+    if section.get("corrosion_allowance").is_some() {
+        let allowance = length(section, "corrosion_allowance")?;
+        let mill = if section.get("mill_tolerance").is_some_and(|value| !value.is_null()) {
+            length(section, "mill_tolerance")?
+        } else {
+            0.0
+        };
+        if allowance < 0.0 || mill + allowance >= wall {
+            return Err("Corrosion allowance must be nonnegative and leave a positive wall after mill tolerance".into());
+        }
+    }
     Ok(())
 }
 

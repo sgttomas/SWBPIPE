@@ -90,6 +90,9 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
       ...(pipe.section.mill_tolerance
         ? ([["Mill tolerance", quantityDisplay(pipe.section.mill_tolerance, "length")]] as Array<[string, PropertyValue]>)
         : []),
+      ...(Object.hasOwn(pipe.section, "corrosion_allowance")
+        ? ([["Corrosion allowance", quantityDisplay(pipe.section.corrosion_allowance, "length")]] as Array<[string, PropertyValue]>)
+        : []),
       ["Material", pipe.material],
       ["Provenance", pipe.provenance]
     ];

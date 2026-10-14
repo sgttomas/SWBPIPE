@@ -262,30 +262,40 @@ pub(crate) fn resolve(
     let writes = match object_type {
         "Model" => {
             object(&after, PROFILE_KEYS)?;
-            // All new pressure authoring selects the current contract; a v2
-            // document is upgraded explicitly and never written as v2.
-            if after["pressure_contract"] != serde_json::json!({"version":"3.0.0","mode":"exact_pressure_v3"}) {
+            // Activation supplies the current identity and explicit admitted shear,
+            // while every real user section retains its own authored allowance.
+            if !crate::is_pressure_v3_contract(&after)
+                || after["pressure_contract"]["shear_model"] != "euler_bernoulli" {
                 return Err(RichError {
                     code: "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED",
-                    message: "New pressure authoring selects 3.0.0/exact_pressure_v3; 2.0.0/exact_straight_pressure_v2 documents stay readable and solvable but are never written".into(),
+                    message: "New pressure authoring requires the closed 3.0.0/exact_pressure_v3 contract with explicit euler_bernoulli shear_model".into(),
                 });
             }
-            // D3 / review B F1: a 0.4.0 model keeps its version (its
-            // load/reference-state records need it); every other document
-            // becomes 0.3.0. Only the contract changes on 0.4.0.
-            let version = model.get("schema_version").and_then(Value::as_str);
-            let load_state = version == Some(open_pipe_stress_product_physics::LOAD_STATE_MODEL_VERSION);
-            if (load_state && after["schema_version"] != "0.4.0") || (!load_state && after["schema_version"] != "0.3.0") {
+            if model["schema_version"] != open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION
+                || after["schema_version"] != open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION {
                 return Err(RichError {
                     code: "OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED",
-                    message: "pressure_profile keeps a 0.4.0 model's schema_version and writes 0.3.0 for every other document; no operation otherwise changes the version".into(),
+                    message: "pressure_profile is authored only on current model 0.5.0; re-author retired documents explicitly".into(),
                 });
             }
+            for pipe in model["pipe_segments"].as_array().ok_or_else(|| err("Missing pipe segments"))? {
+                if pipe["section"].get("corrosion_allowance").is_none() {
+                    return Err(RichError {
+                        code: "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED",
+                        message: format!("{} requires an explicitly entered section.corrosion_allowance before pressure activation; no zero is supplied", pipe["id"]),
+                    });
+                }
+                if quantity(&pipe["section"]["corrosion_allowance"], Dimension::Length)? < 0.0 {
+                    return Err(err("Corrosion allowance must be nonnegative"));
+                }
+            }
+            let mut candidate = model.clone();
+            candidate["pressure_contract"] = after["pressure_contract"].clone();
             for case in model["load_cases"]
                 .as_array()
                 .ok_or_else(|| err("Missing load cases"))?
             {
-                validate_regions(model, &case["pressure_regions"], true)?;
+                validate_regions(&candidate, &case["pressure_regions"], true)?;
                 if case["primitive_loads"]
                     .as_array()
                     .is_some_and(|loads| loads.iter().any(|l| l["category"] == "pressure"))

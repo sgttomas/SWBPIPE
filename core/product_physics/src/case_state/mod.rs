@@ -17,7 +17,7 @@ pub(crate) mod thermal;
 use crate::PreviewModel;
 
 /// Model document version selected for the connected load/reference-state route.
-pub const LOAD_STATE_MODEL_VERSION: &str = "0.4.0";
+pub const LOAD_STATE_MODEL_VERSION: &str = crate::MODEL_SCHEMA_VERSION;
 /// Closed `analysis_state.contract` identity.
 pub const LOAD_REFERENCE_STATE_CONTRACT: &str = "openpipestress.load_reference_state/1.0.0";
 /// Formulation profile identity published in `formulation_basis.profile_id`.
@@ -37,7 +37,16 @@ pub const LOAD_STATE_SOURCE_PROFILE_ID: &str = "resolved_straight_load_state_sou
 pub(crate) const SOURCE_RECOVERY_NOT_JOINED: &str = "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED";
 
 pub(crate) fn is_load_state(model: &PreviewModel) -> bool {
-    model.schema_version == LOAD_STATE_MODEL_VERSION
+    crate::exact_admission::ExactContract::of(model).is_some() && carries_fields(model)
+}
+
+/// The connected group is optional as a whole; any authored key (null included)
+/// selects its validation duties, independently of the document version.
+pub(crate) fn carries_fields(model: &PreviewModel) -> bool {
+    model.reference_configurations.is_authored()
+        || model.material_expansion_laws.iter().any(crate::Authored::is_authored)
+        || !model.request_material_expansion_laws.is_empty()
+        || model.load_cases.iter().any(|case| case.analysis_state.is_authored())
 }
 
 #[cfg(test)]

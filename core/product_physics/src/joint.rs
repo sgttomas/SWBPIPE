@@ -580,31 +580,15 @@ fn classify_pressure_participation(model: &PreviewModel, spec: &ConnectorSpec, d
     }
 }
 
-/// Authoring validates the new fields only on 0.5.0, without activating a
-/// solve profile. The strict public mechanics decoder continues to refuse
-/// member_connector_ids until B7b; this adapter constructs internal inputs.
+/// Current authoring uses the same canonical decoder as public mechanics.
 pub fn authoring_findings(value: &Value) -> Result<Vec<Diagnostic>, String> {
-    let mut input = value.clone();
-    let current = input["schema_version"] == "0.5.0";
-    let exact = input["pressure_contract"]["version"]=="3.0.0" && input["pressure_contract"]["mode"]=="exact_pressure_v3";
-    let new_model=input["components"].as_array().into_iter().flatten().any(|component|component["objective_connector"]["pressure_model"]["kind"]=="constant_effective_area_reference_v1");
-    if new_model && (!current || !exact) {return Err("JOINT_PRESSURE_INTERFACE_UNRESOLVED: constant_effective_area_reference_v1 requires model 0.5.0 with 3.0.0/exact_pressure_v3".into());}
-    let mut memberships = Vec::new();
-    for case in input["load_cases"].as_array_mut().ok_or("load_cases must be an array")? {
-        let mut regions = Vec::new();
-        for region in case["pressure_regions"].as_array_mut().into_iter().flatten() {
-            let membership = region.as_object_mut().ok_or("pressure region must be an object")?.remove("member_connector_ids");
-            if membership.is_some() && (!current || !exact) { return Err("JOINT_PRESSURE_INTERFACE_UNRESOLVED: member_connector_ids requires model 0.5.0 with 3.0.0/exact_pressure_v3".into()); }
-            regions.push(membership.map(serde_json::from_value::<Vec<String>>).transpose().map_err(|error|error.to_string())?);
-        }
-        memberships.push(regions);
-    }
-    let mut model: PreviewModel = serde_json::from_value(input).map_err(|error|error.to_string())?;
-    for (case,memberships) in model.load_cases.iter_mut().zip(memberships) {
-        for (region,membership) in case.pressure_regions.iter_mut().flatten().zip(memberships) { region.member_connector_ids=membership; }
+    let model: PreviewModel = serde_json::from_value(value.clone()).map_err(|error| error.to_string())?;
+    if model.schema_version != crate::MODEL_SCHEMA_VERSION
+        || super::exact_admission::ExactContract::of(&model).is_none() {
+        return Err("JOINT_PRESSURE_INTERFACE_UNRESOLVED: joint pressure authoring requires current model 0.5.0 with 3.0.0/exact_pressure_v3".into());
     }
     let mut diagnostics = Vec::new();
-    classify_connectors(&model,&mut diagnostics);
+    classify_connectors(&model, &mut diagnostics);
     Ok(diagnostics)
 }
 

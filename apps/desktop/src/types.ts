@@ -298,7 +298,7 @@ export type LoadReferenceContractEvidence = {
 };
 
 export type PreviewModel = {
-  pressure_contract?: { version: string; mode: string };
+  pressure_contract?: { version: string; mode: string; shear_model?: "euler_bernoulli" | "timoshenko_annulus_energy_v1" };
   schema_version: string;
   document_kind: string;
   data_boundary: Record<string, string>;
@@ -359,7 +359,8 @@ export type PreviewModel = {
     /** Per-span section quantities. Besides `outside_diameter` and
      * `wall_thickness`, the record carries optional user-entered slots from
      * the preview-engine input surface (`core/product_physics`
-     * `PipeSectionInput`), including `mill_tolerance` — the user-entered
+     * `PipeSectionInput`), including `corrosion_allowance` (required explicitly
+     * for an exact pressure solve, with no zero default) and `mill_tolerance` — the user-entered
      * absolute mill-tolerance thickness reduction (length). Absence means no
      * reduction; absence is not a default value of zero. */
     section: Record<string, { value: number; unit: string }>;
