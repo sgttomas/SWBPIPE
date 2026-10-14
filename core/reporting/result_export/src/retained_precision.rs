@@ -4555,6 +4555,7 @@ fn exact_material(raw: &Value) -> VResult<(f64, f64, f64)> {
 /// D1.3 on the exact route: the current document's three-member v3 contract.
 fn exact_namespace(model: &Value) -> bool {
     model["schema_version"].as_str() == Some("0.5.0")
+        && model.as_object().is_some_and(|object| !object.contains_key("shear_model"))
         && pressure_contract_is(&model["pressure_contract"], "3.0.0", "exact_pressure_v3")
 }
 fn normalized_nodes(model: &Value) -> VResult<Vec<Value>> {
@@ -4614,7 +4615,8 @@ fn pressure_contract_is(v: &Value, version: &str, mode: &str) -> bool {
 /// (the owner retired that contract product-wide); B3D-10's tightenings stay.
 fn preview_namespace(model: &Value) -> bool {
     model["schema_version"].as_str() == Some("0.5.0")
-        && model.as_object().is_some_and(|object| !object.contains_key("pressure_contract"))
+        && model.as_object().is_some_and(|object|
+            !object.contains_key("pressure_contract") && !object.contains_key("shear_model"))
 }
 fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
     let b = &source["retained_precision"]["body"];
@@ -6495,6 +6497,16 @@ mod b7a_preview_namespace_tests {
             assert!(!preview_namespace(&model(version, None)), "{version}");
         }
         assert!(!preview_namespace(&json!({"project": {"id": "p"}})), "a missing version");
+        let exact = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
+        assert!(exact_namespace(&model("0.5.0", Some(exact.clone()))));
+        for value in [Value::Null, json!("euler_bernoulli"), json!(false), json!(1), json!([]), json!({})] {
+            let mut preview = model("0.5.0", None);
+            preview["shear_model"] = value.clone();
+            assert!(!preview_namespace(&preview), "top-level shear {value}");
+            let mut pressure = model("0.5.0", Some(exact.clone()));
+            pressure["shear_model"] = value.clone();
+            assert!(!exact_namespace(&pressure), "top-level shear {value}");
+        }
     }
 }
 

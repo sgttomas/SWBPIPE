@@ -1785,7 +1785,7 @@ def _preview_namespace(model):
     {"version": "1.0.0", "mode": "legacy_pressure_v1"} included (B3a's branch L3 is dropped; the owner retired that
     contract product-wide)."""
     version = model.get("schema_version")
-    return type(version) is str and version == "0.5.0" and "pressure_contract" not in model
+    return type(version) is str and version == "0.5.0" and "pressure_contract" not in model and "shear_model" not in model
 
 
 EXACT_PRESSURE_CONTRACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
@@ -1795,7 +1795,7 @@ def _exact_namespace(model):
     """G8's current exact namespace, with the closed v3 Euler–Bernoulli contract.
     Load/reference states remain outside the retained domain."""
     version = model.get("schema_version")
-    return type(version) is str and version == "0.5.0" and _pressure_contract_is(model, EXACT_PRESSURE_CONTRACT)
+    return type(version) is str and version == "0.5.0" and "shear_model" not in model and _pressure_contract_is(model, EXACT_PRESSURE_CONTRACT)
 
 
 def _g8_exact_materials(body, source, invocation, case_bases):

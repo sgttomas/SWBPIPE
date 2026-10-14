@@ -976,9 +976,14 @@ def test_b7a_preview_namespace_keys_on_the_contracts_absence_not_the_version():
     def model(version, **extra):
         return {"schema_version": version, "project": {"id": "p"}, **extra}
     assert rp._preview_namespace(model("0.5.0"))
-    assert rp._preview_namespace(model("0.5.0", pressure_contract=None))
+    assert not rp._preview_namespace(model("0.5.0", pressure_contract=None))
     for contract in ({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}, {}, False):
         assert not rp._preview_namespace(model("0.5.0", pressure_contract=contract)), contract
     for version in ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.1"):
         assert not rp._preview_namespace(model(version)), version
     assert not rp._preview_namespace({"project": {"id": "p"}})
+    exact = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
+    assert rp._exact_namespace(model("0.5.0", pressure_contract=exact))
+    for value in [None, "euler_bernoulli", False, 1, [], {}]:
+        assert not rp._preview_namespace(model("0.5.0", shear_model=value))
+        assert not rp._exact_namespace(model("0.5.0", pressure_contract=exact, shear_model=value))
