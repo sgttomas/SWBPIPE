@@ -172,6 +172,12 @@ fn b7b_shear_required_and_known_unsupported_have_named_public_refusals() {
     let mut raw = current_joint_request();
     raw["model"]["pressure_contract"]["shear_model"] = json!("timoshenko_annulus_energy_v1");
     assert!(public_codes(raw).iter().any(|code| code == "EXACT_PRESSURE_SHEAR_MODEL_UNSUPPORTED"));
+    let mut raw = current_joint_request();
+    raw["model"]["pressure_contract"]["shear_model"] = Value::Null;
+    assert!(public_codes(raw).iter().any(|code| code == "EXACT_PRESSURE_SHEAR_MODEL_REQUIRED"));
+    let mut raw = current_joint_request();
+    raw["model"]["pressure_contract"]["shear_model"] = json!("unknown");
+    assert!(public_codes(raw).iter().any(|code| code == "PRESSURE_CONTRACT_UNSUPPORTED"));
 }
 
 #[test]
@@ -186,10 +192,46 @@ fn b7b_absent_contract_objective_connector_keeps_its_named_refusal() {
 
 #[test]
 fn b7b_changed_source_is_unregistered_and_cannot_issue_a_permit() {
-    assert!(retained_memory::retained_profile().is_err());
-    let raw = request();
-    let output = run_linear_static_preview_value_with_retained_direct(
-        raw, PreviewSolverMode::SparseInteractive, RetainedByteLimit::new(0),
-    ).unwrap();
-    assert!(matches!(output.into_publication(), RetainedPublication::Ordinary(_)));
+    assert!(matches!(retained_memory::retained_profile(), Err(ProfileStatus::Missing)));
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let raw = request();
+        let output = run_linear_static_preview_value_with_retained_direct(
+            raw.clone(), mode, RetainedByteLimit::new(0),
+        ).unwrap();
+        assert_eq!(output.admission().unwrap().profile, ProfileStatus::Missing);
+        assert!(output.retained().is_none());
+        assert!(matches!(output.into_publication(), RetainedPublication::Ordinary(_)));
+        let invocation = json!({"request": &raw, "solver_mode": mode.as_str()});
+        let request_id = "request:b7b".to_string();
+        let context = RetainedHeadlessContext::from_borrowed_roots(&raw, &invocation, &request_id);
+        let output = run_linear_static_preview_value_with_retained_headless(
+            raw.clone(), mode, context, RetainedByteLimit::new(0),
+        ).unwrap();
+        assert_eq!(output.admission().unwrap().profile, ProfileStatus::Missing);
+        assert!(output.retained().is_none());
+        assert!(matches!(output.into_publication(), RetainedPublication::Ordinary(_)));
+    }
+}
+
+#[test]
+fn b7b_ca_zero_preserves_every_derived_section_bit_and_invalid_sum_is_refused() {
+    let section = json!({"outside_diameter": {"value": 0.2, "unit": "m"},
+        "wall_thickness": {"value": 0.01, "unit": "m"}, "mill_tolerance": {"value": 0.002, "unit": "m"}});
+    let absent: PipeSectionInput = serde_json::from_value(section).unwrap();
+    let mut explicit = absent.clone();
+    explicit.corrosion_allowance = Some(Quantity { value: 0.0, unit: "m".into() });
+    let before = derive_pipe_section(&absent, "pipe:b7b", &mut Vec::new()).unwrap();
+    let after = derive_pipe_section(&explicit, "pipe:b7b", &mut Vec::new()).unwrap();
+    for (a, b) in [(before.area, after.area), (before.internal_area, after.internal_area),
+        (before.second_moment, after.second_moment), (before.torsion_constant, after.torsion_constant),
+        (before.section_modulus, after.section_modulus), (before.torsion_radius, after.torsion_radius),
+        (before.wall_thickness, after.wall_thickness)] {
+        assert_eq!(a.to_bits(), b.to_bits());
+    }
+    for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY, 0.009] {
+        explicit.corrosion_allowance.as_mut().unwrap().value = value;
+        let mut diagnostics = Vec::new();
+        assert!(derive_pipe_section(&explicit, "pipe:b7b", &mut diagnostics).is_none());
+        assert_eq!(diagnostics[0].code, "PIPE_DIMENSION_INVALID");
+    }
 }

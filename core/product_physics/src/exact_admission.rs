@@ -68,7 +68,7 @@ impl ExactContract {
             .find(|contract| version == Some(contract.version()) && mode == Some(contract.mode()))
     }
 
-    /// The exact contract of a model: only 0.3.0 and 0.4.0 documents carry one.
+    /// The exact contract of a current document with an explicit v3 identity.
     pub(crate) fn of(model: &PreviewModel) -> Option<Self> {
         if model.schema_version != crate::MODEL_SCHEMA_VERSION {
             return None;
