@@ -61,6 +61,8 @@ BIND = {
     "s((String,DerivedSection))": sz("(String, crate::DerivedSection)"), "s((String,ResultItem))": sz("(String, crate::ResultItem)"),
     "s(StationResultants)": sz("crate::StationResultants"), "s(MemberRecord)": sz("crate::preview_physics::MemberRecord"),
     "s(RecoveryGroup)": sz("crate::formation_guard::RecoveryGroup"),
+    "s(FormationRow)": sz("open_pipe_stress_frame_kernel::load_ledger::FormationRow"),
+    "s((usize,[f64;4]))": sz("(usize, [f64; 4])"),
     "s(MemberBoundInputs)": sz("open_pipe_stress_frame_kernel::structural::MemberBoundInputs"),
     "s(CertifiedMemberOption)": sz("Option<open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery>"),
     "s(CertifiedMemberRecovery)": sz("open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery"),

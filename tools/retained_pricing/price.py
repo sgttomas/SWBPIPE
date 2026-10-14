@@ -15,6 +15,7 @@ like a shell word list). See README.md for inputs, outputs, exit codes and limit
 import argparse, difflib, json, os, re, shlex, shutil, subprocess, sys, tempfile
 from lib.b7a_retired_carry import prepare as prepare_b7a_retired_carry
 from base.b7a_domain_model import prepare as prepare_b7a_domain
+from base.b7a_formation_model import prepare as prepare_b7a_formation
 
 H = os.path.dirname(os.path.abspath(__file__))
 BASE, LIB, RULES, DATA = (os.path.join(H, d) for d in ("base", "lib", "rules", "data"))
@@ -202,6 +203,12 @@ def cmd_run(a):
             stop(4, str(error))
         prepared.update(widened)
         report["b7a_positive_domain"] = domain_report
+        try:
+            formed, formation_report = prepare_b7a_formation(W, prepared, os.path.join(out, "prepared_rules", "formed"))
+        except ValueError as error:
+            stop(4, str(error))
+        prepared.update(formed)
+        report["b7a_formed_ownership"] = formation_report
     m = os.path.join(out, "map")
     r = py([os.path.join(LIB, "linemap_rules.py"), "--prune-deleted", repo, BASIS, rev, m] + [prepared.get(f, os.path.join(BASE, f)) for f in RULE_FILES],
            env=chain_env(LINEMAP_CRATES=os.path.join(BASE, "crate_dirs.txt"), LINEMAP_ROWS=os.path.join(DATA, "basis_text_rows.json"),

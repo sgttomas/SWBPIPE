@@ -435,6 +435,13 @@ if _wide:
     add("Independent combination modulus record map (B7a stage 1)", "AggregationSuffix", _map_req, _map_mov)
     add("Additional held failed-manifest envelope owners (B7a stage 1)", "OldCaseStaging", _wide_model.failed_envelope_copy(CC, ID))
 add("Preview tree final copy (envelope evidence)", "AggregationSuffix", PREVIEW)
+# Closed formed guard construction pays the native row headers, both source
+# lists, maps, fired backing/moving storage and six independently cloned items.
+if _wide:
+    import b7a_formation_model as _formed_model
+    _formed_model.inspect(_snapshot)
+    add("Load-row formation guard construction and independent source lists (B7a)",
+        "OrdinaryRecovery", _formed_model.finding_construction(CC, n, l, ID))
 # The Vec<Diagnostic> backing only: every diagnostic String (id, code, severity, source, message,
 # refs) was allocated by a text site and is already inside T08's TAV, so adding Text(diag_total)
 # here would count the same bytes twice.

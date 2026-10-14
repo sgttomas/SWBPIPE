@@ -126,12 +126,20 @@ if "fn member_group_fires(" in _fg:
 elif "fn arc_recovery_finding(" in _fg:
     S_len = 3 * (600 + ident + U + J_len + C_len) + 2
 
+# A load-row finding is independently appended to the integrity message.
+# Keep the old recovery/range terms; the new sentence is not Error Display.
+import b7a_formation_model as _formed_model
+_formed_model.inspect(proot)
+_load_sentence = _formed_model.SENTENCE
 message_int = (integrity_literal + STATIC + ident + report + dof_map
-               + 1 + formation_check_line + 1 + range_line + 1 + S_len)
-# load-row sources: sum over all rows <= l source ids (each nodal load contributes to one DOF)
+               + 1 + formation_check_line + 1 + range_line + 1 + S_len
+               + 1 + _load_sentence)
+# Per-row unique bare source IDs stay <=l; the aggregate all-row fidelity
+# spelling has <=q=12*l occurrences because uniform inputs reach twelve DOFs.
 sources_all = c["l"] * (sdebug(ident) + 2) + 2 * c["N"]
 lf_row_fixed = 46 + 165 + 2 * U + 16 + 16 + 3 * F64D + U + B
-lf_join = c["N"] * (lf_row_fixed + 2) + sources_all + 300
+lf_sources_all = (12*c["l"]) * (sdebug(ident) + 2) + 2 * c["N"]
+lf_join = c["N"] * (lf_row_fixed + 2) + lf_sources_all + 300
 joined = {
     "fired_join": J_len,
     "support_contribution_summary": c["g"] * (2 * ident + 6 * 2 + 5 + 3),
@@ -145,7 +153,8 @@ out = {
     "classes": {
         "struct_report_debug": report, "dof_map_debug": dof_map, "message_int": message_int,
         "recovery_summary_debug": summary, "sources_debug": sources_all,
-        "evidence_line": max(formation_check_line, range_line, S_len),
+        "evidence_line": max(formation_check_line, range_line, S_len, _load_sentence),
+        "formation_sentence": max(S_len, _load_sentence),
         "joined_list": max(joined.values()), "static": max(512, STATIC), "error_display": ERR, "error_debug": ERR,
     },
     "parts": {"pivot": pivot, "residual_row": resid, "contribution_rounding_fixed": cr_fixed,

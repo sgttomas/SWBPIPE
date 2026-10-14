@@ -391,3 +391,12 @@ _wide_loops, _wide_audits, _wide_lex = _wide_model["text_decisions"](_SNAP, Reso
 O10_LOOPS_LAST = list(globals().get("O10_LOOPS_LAST", [])) + _wide_loops
 ID_AUDIT = list(ID_AUDIT) + _wide_audits
 LEX_SITE_SIZE = list(LEX_SITE_SIZE) + _wide_lex
+
+# Closed current formed-load premise repair; existing strict carry/O10 remain.
+_formed_model = __import__("runpy").run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "b7a_formation_model.py"))
+O10_LOOPS_LAST = _formed_model["rebind_o10"](_SNAP, O10_LOOPS_LAST)
+_formed_totals, _formed_audits = _formed_model["decisions"](_SNAP, Resolved)
+LOOP_TOTAL = list(globals().get("LOOP_TOTAL", [])) + _formed_totals
+ID_AUDIT = list(ID_AUDIT) + _formed_audits
+SITE_TOTAL = list(globals().get("SITE_TOTAL", [])) + _formed_model["site_totals"](_SNAP, Resolved)
+LEX_SITE_SIZE = list(LEX_SITE_SIZE) + _formed_model["lex_sizes"](_SNAP, Resolved)

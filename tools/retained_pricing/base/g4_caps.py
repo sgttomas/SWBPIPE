@@ -170,6 +170,13 @@ ATTEMPT = rec(1, obj=8, ent=40, strb=4 * TOK + 10 * TOK, nums=20) + PREPARATION 
 ATTEMPT = ATTEMPT.scale(AA)                          # I82: product_attempts[], one per attempted case
 ORDINARY = rec(1, obj=6, ent=20, strb=2 * TOK + ID + 4 * L_DIAGID) + VF(arr=DENV, strb=DENV * L_DIAGID)  # diagnostic_refs
 ORDINARY = ORDINARY.scale(CC)                        # I82: ordinary_attempts[], one per requested case
+import b7a_formation_model as _formed_model
+_formed_model.inspect(SNAP)
+FINDING_VALUE = VF(**_formed_model.finding_value_facts(CC, n, l, ID, L_DIAGID))
+ORDINARY += FINDING_VALUE
+# ordinary_members owns finding and formation before ordinary_entry copies
+# formation into its entry. Keep both constructor originals independently.
+FINDING_VALUE_BUILD = FINDING_VALUE.tree() * 2
 CALLS = rec(1, slots=4 * AA, obj=3, ent=11, strb=2 * TOK, nums=6) + rec(1, slots=2 * AA, obj=2, ent=7, strb=SHA + TOK, nums=4)
 BUILDS_V = rec(BUILDS, slots=1, obj=4, ent=31, strb=3 * TOK + 19 * 0, nums=26) + REASON.scale(BUILDS)
 MATERIAL = rec(1, slots=2, obj=2, ent=4, strb=TOK) + rec(8, slots=1, obj=3, ent=7, strb=ID + 2 * BITS + 2 * TOK, nums=1)
@@ -406,6 +413,7 @@ for name_, x_ in (("STAGED", STAGED), ("SUCC", SUCC.tree()), ("INVOC", INVOC), (
                   ("NOTICE", NOTICE), ("NOTICE_moving", T18_RESERVE_MOV), ("T19", T19)):
     form(name_, x_)
 form("FAILED_MANIFEST_COPY", _FAILED_MANIFEST_COPY)
+form("FORMATION_VALUE_BUILD", FINDING_VALUE_BUILD)
 for name_, c_ in (("TAV_X", TAV_X), ("TAV_W", TAV_W), ("TXT_moving", TXT_MOV), ("HELPER_moving", HELPER_MOV), ("T07_moving", T07_MOV)):
     form(name_, B(c_))
 exprs = {
@@ -417,7 +425,7 @@ exprs = {
 # G5 part 2 (RV84 C-N3(a), (b); ruled): T19's spawn heap is allocated before the observed run and the reader's
 # process-lifetime statics are live after the first permitted invocation, so both count in every phase.
 # The additional held source clone is conservatively resident in every phase.
-EVERY = ["T11", "T19", "STATICS", "FAILED_MANIFEST_COPY"]
+EVERY = ["T11", "T19", "STATICS", "FAILED_MANIFEST_COPY", "FORMATION_VALUE_BUILD"]
 def phases_of(mode):
     ob = f"O_base_{mode}"
     w2 = [ob, "TAV_W", "T12_T15", "NOTICE"] + EVERY

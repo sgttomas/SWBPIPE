@@ -1209,3 +1209,74 @@ verification/vocabulary obligations retain the existing closed guards.
 All surviving shape, owned-string, array-growth, hashing/validation, TEXT,
 moving and phase duties remain, and actual new static facts are recounted on
 each immutable canonical replay. No static cut selects a new budget policy.
+
+
+### B7a formed-load traversal and finding ownership
+
+The earlier 717871 four-point run is algorithmically complete but does not
+establish source-complete pricing: two load-row String sites and the Element
+self-weight identity formatter still carried historical nodal-only zeros.
+The five KD5 source/ledger/manifest loop rows, seven force-term BASE loop rows plus the expansion-component premise,
+and three aggregate ledger-copy totals also retained 0 or the input count l.
+The tracked b7a_formation_model replays only their exact preimages before the
+ordinary strict carry; historical BASE files and generic refusal checks remain.
+
+Current D1 census/enforcement, the sole private prepared case body, Ledger.finish
+and the formation guard bind the replacement premises. One case has <=l authored
+inputs and <=q=12l force terms, including the twelve zero-component terms from
+each admitted full-span straight uniform input. Each term sits on one DOF;
+Ledger.finish constructs exactly built.nodes.len()*6 by_dof slots and rejects
+out-of-range terms. formation_rows returns <=N=6n rows. The existing
+function-qualified LOOP_TOTAL seam supplies cases*N only to load_row_finding's
+row loop, so unrelated published-row loops retain P. All five KD5 traversals
+remain positive: outer supplied and complete term walks are q. The two inner
+manifest and matching-primitive BODY traversals are1: attach_last creates one
+Summand for a new term and attach installs one entry/primitive for that index;
+plain nodal records have no formed manifest. D1 rejects all other formed
+constructors, and force_scaled/NI copies preserve indices/cardinalities.
+The outer predicates/count/matching scans still traverse q; foreign/preclosure
+refusal costs do not inherit the admitted-domain condition. Descriptor/row-offset loops retain
+their old stiffness and spring allowances plus q. Rule256 is split: old.loads()
+remains the authored l bound, while the force traversal is q. The scaled-intended
+child walk retains max(l,80), preserving l128 at the current cap while its source
+premise is the expansion constructor's 80-push ceiling. Genuine authored-input/nodal
+PrimitiveSource loops retain l. Full prepared L/E first-match and function-total
+controls establish that a later historical rule cannot shadow these premises.
+
+The two source lists independently deduplicate bare load IDs within each row;
+their aggregate entry counts are each <=q. Every admitted load ID is <=128
+bytes; member_source's separately charged 268-byte identity is unchanged.
+For either independent Debug generation, G=2N+(10*128+4)q includes every row's
+brackets and each ID's quotes, separator and existing 10-byte escape allowance.
+The three decide_row format recipes retain their separate positive capacities:
+2*cases*N*8208; 2*cases*(87N+G); 2*cases*(321N+G). No branch receives a zero.
+The returned reason selects one recipe, giving aggregate fired content
+H=N*(600+2+8208)+G; fired construction pays 2*cases*H independently.
+Individual maxima remain R165057, F165659, six-item join J993964, sentence
+S994321. Every full list keeps N String headers; first-six clones own their
+backing and copied payload independently. Native FormationRow and the actual
+(usize,[f64;4]) map key/value tuple are size_of bindings, not guessed strides.
+The six full raw owner files are added to the existing source/admission guard
+chain; source, CRLF, preimage and constructor/enforcement drift refuse pricing.
+
+ordinary_finding copies the full fired Vec and sentence into the persistent
+FindingSeed. ordinary_members creates independent finding and formation Values,
+and ordinary_entry copies formation again. The producer family, two constructor
+Value originals and final ORDINARY/BODY all pay these owners independently;
+all old observation, row, diagnostic, STAGED, failed-manifest and reserve
+allowances remain. The sentence's actual source class is propagated to the
+integrity message amendment, evidence/retained diagnostic envelope and L_PUB,
+preserving the old recovery/range terms. Existing escaping/hash/copy/moving laws
+and every phase remain. Naming only six items never reduces the retained list.
+
+The load-fidelity row_sources copy override is positively rebound from2*l to2*q, preserving both caller multiplicities, the128-byte String class and capacity2. Its two aggregate row format rules and the first matched ^rows$ join now price q source occurrences with10-byte Debug escaping; every fixed row/scalar/bracket term remains. The individual sources_debug class keeps its valid per-row l bound. Source-qualified structural/sparse/source-recovery guards and controls exercise actual text_budget site_from/site_total/aggregate precedence as well as full prepared L/E loop priority. No later cap can hide the positive owner.
+
+Self-weight's Element identity formatter executes before the continue and is
+positive. Its downstream 17 function and later site zeros retain their actual
+guarded warrant: nonobject provenance and the deterministic generated-ID refusal
+make recognized/looks_generated false before continue825. The old Node-only
+explanation is historical, not the current warrant. Current ordinary fallback
+for inputs refused by D1 is outside these conditional bounds. The registration
+remains UNREGISTERED until source-complete pricing, actual native/M12/.9/5% TEXT
+evaluation and genuine G0/witness/allocator/RSS checks pass; no diagnostic output
+confers qualification or permits a public W1 writer.

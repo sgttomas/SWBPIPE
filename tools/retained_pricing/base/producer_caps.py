@@ -83,6 +83,9 @@ if os.environ.get("RP_SNAPSHOT"):
     # Retain the original T11.1 allocation in full. Summing this positive
     # exact-growth moving backing with requested storage is conservative.
     rows["T11.10 invocation named-basis custody and moving storage (B7a stage 1)"] = _custody_req + _custody_mov
+    import b7a_formation_model as _formed_model
+    _formed_model.inspect(os.environ["RP_SNAPSHOT"])
+    rows["T11.11 persistent FindingSeed full fired-list and sentence copies (B7a)"] = _formed_model.finding_capture(CC, n, l, ID)
 # ------------------------------------------------------------------ T12 preparation (P1 section 5)
 maps = (V("NodeMapE", n) + V("MemberMapE", m) + V("SpringMapE", sp) + V("SupportMapE", g) + V("ConstraintMapE", r)
         + Cv("usize", Ca, r) + V("NodalMapE", l) + V("StationMapE", t) + V("SectionMapE", m)

@@ -1,0 +1,283 @@
+"""Closed B7a formed-load traversal and finding ownership premises.
+
+This model qualifies the admitted D1 paths, not ordinary fallback on refused
+inputs. Historical BASE files remain immutable; every replaced premise is
+checked before transforming the copied rules. Formats, copies and JSON owners
+remain independent, even where their source-list lengths share one bound.
+"""
+from copy import deepcopy
+import hashlib
+import json
+import os
+import re
+import runpy
+
+SOURCE_FILES = {
+    "core/product_physics/src/formation_guard.rs": "5c67a95ea2f1e8d6eab2eac3928fb65e1eb790bea32317b05ca4241637aa9c0c",
+    "core/product_physics/src/self_weight.rs": "6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261",
+    "core/product_physics/src/source_receipt/source.rs": "26d29ae48b461ceb5cf945edfbef905944c693e763f837bbee217df8fedf518d",
+    "core/solver/frame_kernel/src/structural.rs": "6b3acedd507096ee023932d530cda56fadc697b78ca065473cd53f8531def1e8",
+    "core/product_physics/src/source_recovery.rs": "60277c01e84528ed45f0c6ff5436f4c35aa1b8b0f9d61a8da72123190340f0d6",
+    "core/solver/frame_kernel/src/structural/sparse.rs": "f0e774d2f105484fd43f393fd18ce459990aeb459222b5481ce70843b7acd0ff",
+}
+REASON = 165057
+FIRED = 165659
+JOINED = 993964
+SENTENCE = 994321
+ZERO_PREIMAGES = {
+    "formation_guard.rs:315": "after load_row_finding's has_formation_records() early return (formation_guard.rs:303-305); D1.7 nodal-only loads carry no formation records",
+    "formation_guard.rs:320": "same early return",
+    "self_weight.rs:814": "D1.7: the deterministic-identity format! is only in the Element-target arm (self_weight.rs:811-821); every D1 load has a Node target",
+}
+COPY_PREIMAGES = {
+    "load_ledger.rs:133": "5*cases*l*2*128",
+    "load_ledger.rs:408": "4*cases*l*2*128",
+    "load_ledger.rs:670": "5*cases*l*2*128",
+}
+BASE_LOOP_PREIMAGES = (
+    (211, r"^iter:terms\.iter\(\)\.map$", "l", "G4 (R-1, newly reached): structural.rs:1098 row_sources: the force terms of one row <= l", "12*l"),
+    (225, r"^for t in &d\.terms$", "144*m+s+l", "G4 (R-1, newly reached on the repaired graph): terms of one descriptor <= contributions + springs + force terms", "144*m+s+12*l"),
+    (265, r"^for \(i, t\) in d\.terms\.iter\(\)\.enumerate\(\)$", "144*m+s+l", "terms of one descriptor <= contributions + springs + force terms", "144*m+s+12*l"),
+    (276, r"^for &index in indices$|^for \(index, term\) in self\.terms\.iter\(\)\.enumerate\(\)$|^iter:self \.terms \.iter\(\)\.map$", "l", "load ledger terms and per-DOF index lists <= l nodal terms", "12*l"),
+    (222, r'^iter:" ":forces\.iter\(\)\.map$', "l", "G4 (R-1, newly reached on the repaired graph): source.rs:376 commitment force_terms: <= l nodal force terms", "12*l"),
+    (226, r"^for product in &row\.offset$", "144*m+s+l", "G4 (R-1, newly reached on the repaired graph): source_recovery.rs:1412 append_scaled_products: offset products of one row <= the descriptor bound", "144*m+s+12*l"),
+    (219, r"^for &component in scaled_intended$", "l", "G4 (R-1, newly reached on the repaired graph): load_ledger.rs:595 add_defect: the scaled intended components of one DOF row <= its force terms <= l", "max(l,80)"),
+)
+SPLIT_LOOP_PREIMAGE = dict(re=r"old\.loads\(\)|^for f in forces$", bound="l", why="nodal loads/forces <= l")
+FIDELITY_PREIMAGES = {'source_clone': {'from': ['structural.rs:1041:audit_load_fidelity', 'structural/sparse.rs:1815:audit_sparse_load_fidelity'], 'per': '2*l', 'why': 'G4 (R-1, newly reached): row_sources clones one source id per force term of a row; over one audit call, every nodal force term sits on one DOF row, and each row calls at most unaudited_row and audit_load_row (structural.rs:1037-1180), so <= 2l clones per audit call'}, 'rows_join': {'re': '^rows$', 'bytes': 'N*(165+2*20+2*16+2*24+20+24+8+2)+l*(2+6*128+2+2)', 'why': 'lib.rs:1290: the load-fidelity row strings (lib.rs:1266/1270) over N rows with all sources once'}, 'aggregates': {'lib.rs:1273': {'absorbs': 'report \\.rows', 'bytes': 'N*(46+2*20+7+5+8)+l*(2+6*128+2+2)+2*N', 'why': "per call: the unaudited-row strings over all N rows; sum over rows of each row's sources Debug <= all l identified sources once (each nodal force term sits on one DOF row), so the sources part is l*(str Debug 6*128+2 plus separator) in total, not per row"}, 'lib.rs:1277': {'absorbs': 'report \\.rows', 'bytes': 'N*(165+2*20+2*16+2*24+20+24+8)+l*(2+6*128+2+2)+2*N', 'why': 'per call: as lib.rs:1266 for the audited-row template (two {:016x}, three {:?} f64, one usize); sources over all rows <= l'}}}
+COPY_OBJECTS = {'load_ledger.rs:133': {'bytes': '5*cases*l*2*128', 'why': "I104 SQ B1 (5*l*2*128 -> 5*cases*l*2*128): the case ledger and the T25 replay's are per requested case, the three prepare_sources folded ledgers per case (5 per case, c cases). Was: LoadLedger::push copies one load id per pushed term; per invocation at most 5 nodal ledgers exist (the case ledger, lib.rs:3221; the T25 replay's case ledger; three prepare_sources folded ledgers, source_recovery.rs:705), each with <= l terms; capacity <= 2x length"}, 'load_ledger.rs:408': {'bytes': '4*cases*l*2*128', 'why': "I104 SQ B1 (4*l*2*128 -> 4*cases*l*2*128): W2's two evaluations run per requested case. Was: force_scaled_term clones each term's source id: at most two W2 evaluations, each with one scaled force plus the reaction generation (I54 W2_RETURN), each <= l terms"}, 'load_ledger.rs:670': {'bytes': '5*cases*l*2*128', 'why': 'I104 SQ B1 (5*l*2*128 -> 5*cases*l*2*128): as LoadLedger::push: 5 ledgers per case. Was: push_unique copies one source id per pushed term: <= 5 ledgers x l terms per invocation (as LoadLedger::push)'}}
+O10_PREIMAGES = (
+    ("for p in &source.loads", "0", "KD5L3: D1/W1 excludes load-state; source_factor returns None unless is_load_state; nodal uses push input and no load primitive", ("structural/formation_check.rs:load_closure",)),
+    ("for (i, (term, record)) in terms.iter().zip(records).enumerate()", "l", "KD5L4: exactly one trusted closure record per nodal ledger term, <= l", ("structural/formation_check.rs:load_closure",)),
+    ("for (j, expected) in manifest.iter().enumerate()", "0", "KD5L5: every D1 nodal record is input (formed=false); no manifest is installed; loop only after formed guard", ("structural/formation_check.rs:load_closure",)),
+    ("for (i, term) in ledger.terms().iter().enumerate()", "l", "KD5L11: one input term per admitted nodal primitive, <= l", ("structural/formation_check.rs:evaluate",)),
+    ("for p in source.loads.iter().filter(|p| p.term_index == i)", "0", "KD5L12: supplied load primitive list is empty by KD5L3", ("structural/formation_check.rs:evaluate",)),
+)
+
+
+def inspect(snapshot):
+    # This binds all 21 existing owners and the full nongenerated admission
+    # census/enforcement plus law_order/admit/the genuine permit constructor.
+    domain = runpy.run_path(os.path.join(os.path.dirname(__file__), "b7a_domain_model.py"))
+    proof = domain["inspect"](snapshot)
+    fingerprints = {}
+    for file, expected in SOURCE_FILES.items():
+        with open(os.path.join(snapshot, file), "rb") as stream:
+            raw = stream.read()
+        fingerprints[file] = hashlib.sha256(raw).hexdigest()
+        if fingerprints[file] != expected:
+            raise ValueError("B7a formation owner source changed: " + file)
+    proof["formation_raw_fingerprints"] = fingerprints
+    proof["formation_model_sha256"] = hashlib.sha256(open(__file__, "rb").read()).hexdigest()
+    return proof
+
+
+def lengths(nodes, loads, ident):
+    """Each list generation pays its own escaped source bytes.
+
+    Ledger.finish fixes N=6*nodes rows. Each admitted input emits <=12 terms,
+    including zero terms. A term contributes once to each of formed/cannot
+    lists, and push_unique removes repeats only within that row. Thus either
+    list's total entries <=q=12*loads; one row has <=loads distinct bare load
+    IDs (<=ident), not member_source's separately priced 268-byte identity.
+    """
+    n = 6 * nodes
+    q = 12 * loads
+    debug_total = 2 * n + (10 * ident + 4) * q
+    fired_total = n * (600 + 2 + max(8208, 87, 321)) + debug_total
+    return dict(N=n, q=q, debug_total=debug_total, fired_total=fired_total,
+                reason=REASON, fired=FIRED, joined=JOINED, sentence=SENTENCE)
+
+
+def finding_capture(cases, nodes, loads, ident):
+    from g3lib import Xc, B
+    b = lengths(nodes, loads, ident)
+    # ordinary_finding copies the complete N-element Vec, every fired child,
+    # and sentence. It stays in ProductCapture.ordinary through publication.
+    return (Xc("String", b["N"]) + B(b["fired_total"] + SENTENCE)) * cases
+
+
+def finding_construction(cases, nodes, loads, ident):
+    from g3lib import V, Xc, HashReq, B, s, pushcap, ASSUMED
+    # Illustrative only. G5 binds both exact Rust types in the actual build.
+    ASSUMED.setdefault("s(FormationRow)", 3 * ASSUMED["s(ExactAccumulator)"] + 128)
+    ASSUMED.setdefault("s((usize,[f64;4]))", 40)
+    b = lengths(nodes, loads, ident)
+    n, q = b["N"], b["q"]
+    # FormationRow's native type pays its inline 3 ExactAccumulators and two
+    # Vec headers. Both distinct child lists independently hold <=q entries.
+    # Sum max(4,2h) across <=N lists for each family, with owned bare IDs.
+    rows = (V("FormationRow", n) * 2 + s("String") * (8 * n + 4 * q) * 2
+            + B(2 * q * ident))
+    maps = (HashReq("usize", n) + HashReq("(usize,[f64;4])", nodes)
+            + HashReq("(usize,f64)", n))
+    # TAV pays formatted reason/fired/join/sentence children. The cloned six
+    # items are not separate lexicon String sites, so pay their actual owner.
+    fired = (V("String", n) + s("String") * (pushcap(n) // 2)
+             + Xc("String", 6) + B(6 * FIRED))
+    # Keep all sequential requested/old table backing allowances positively.
+    return (rows + maps * 2 + fired) * cases
+
+
+def finding_value_facts(cases, nodes, loads, ident, diagnostic_ref):
+    b = lengths(nodes, loads, ident)
+    return dict(arr=cases * b["N"], obj=cases, ent=4 * cases,
+                strb=cases * (SENTENCE + b["fired_total"] + 8 + diagnostic_ref),
+                keyb=cases * 4 * 32, nums=0, depth=4)
+
+
+def rebind_o10(snapshot, rows):
+    inspect(snapshot)
+    result = deepcopy(rows)
+    for header, old_bound, old_why, owners in O10_PREIMAGES:
+        hits = [i for i, row in enumerate(result) if row[0] == header]
+        expected = (header, old_bound, "O-10 (T4): " + old_why, list(owners))
+        if len(hits) != 1 or result[hits[0]] != expected:
+            raise ValueError("B7a exact formed O10 preimage changed: " + header)
+        # attach_last creates one Summand on a NEW term; attach installs
+        # one manifest and one primitive at that term_index. Plain nodal
+        # records have no manifest. D1 rejects all other formed constructors;
+        # scaling and NI copies preserve indices/cardinality. The supplied
+        # outer walk and predicate scans still traverse q, not this body1.
+        body_one = header in ("for (j, expected) in manifest.iter().enumerate()",
+                              "for p in source.loads.iter().filter(|p| p.term_index == i)")
+        result[hits[0]] = (header, "1" if body_one else "12*l",
+                           "B7a source-bound formed traversal: q<=12*l; one manifest and matching primitive BODY per admitted uniform term; outer scans remain q",
+                           list(owners))
+    return result
+
+
+def decisions(snapshot, resolved):
+    inspect(snapshot)
+    # Existing function-qualified LOOP_TOTAL bounds the only load-row guard,
+    # leaving other owners of the common `for row in &rows` header at P.
+    # It also propagates the actual total into decide_row's call multiplicity.
+    loop_total = [(resolved("formation_guard.rs:304:load_row_finding"),
+                   r"^for row in \&rows$", "cases*N",
+                   "Ledger.finish(built.nodes.len()*6), private AssembledForce constructors and one guard call per requested case")]
+    pp = "core/product_physics/src/formation_guard.rs:"
+    audit = [(resolved(pp + "322"), {"reason": {"bytes": REASON, "source": "COMP"}}),
+             (resolved(pp + "327"), {
+                 'fired.len()': {"bytes": 20, "source": "NUM"},
+                 'fired.iter().take(NAMED).cloned().collect::<Vec<_>>().join(";")': {"bytes": JOINED, "source": "COMP"},
+                 'iffired.len()>NAMED{format!(";and{}more",fired.len()-NAMED)}else{String::new()}': {"bytes": 31, "source": "COMP"},
+             })]
+    # Keep the old generic suffix allowance (no length-class reduction).
+    # JOINED+SENTENCE must also be supplied as site-specific positive sizes.
+    return loop_total, audit
+
+
+def lex_sizes(snapshot, resolved):
+    inspect(snapshot)
+    return [(resolved("formation_guard.rs:330"),
+             {"class": JOINED, "why": "B7a load-row finding only: six independently cloned fired items plus five separators"}),
+            (resolved("retained_product.rs:545"),
+             {"class": SENTENCE, "why": "B7a full load-row finding sentence copied into persistent FindingSeed; fired children paid separately"})]
+
+
+def prepare(snapshot, inherited, output):
+    proof = inspect(snapshot)
+    raw = {name: open(inherited[name], "rb").read()
+           for name in ("loop_bounds.g4.json", "text_args.g4.json")}
+    loops = json.loads(raw["loop_bounds.g4.json"])
+    text = json.loads(raw["text_args.g4.json"])
+    alterations = []
+    for index, regex, bound, why, changed in BASE_LOOP_PREIMAGES:
+        expected = dict(re=regex, bound=bound, why=why)
+        if loops["loops"][index] != expected:
+            raise ValueError("B7a exact force-term loop preimage changed: " + str(index))
+        loops["loops"][index] = dict(expected, bound=changed,
+                                    why="B7a q<=12*l positive force-term upper; input-count owners retain l. Was: " + why)
+        alterations.append(dict(family="loops", index=index, before=expected,
+                                after=loops["loops"][index]))
+    if loops["loops"][256] != SPLIT_LOOP_PREIMAGE:
+        raise ValueError("B7a authored/formed split loop preimage changed")
+    split = [dict(re=r"old\.loads\(\)", bound="l", why="B7a: PrimitiveSource.loads is the authored nodal input vector; unchanged input-count bound"),
+             dict(re=r"^for f in forces$", bound="12*l", why="B7a: emitted AssembledForce terms have q<=12*l; source constructor is guarded")]
+    loops["loops"][256:257] = split
+    alterations.append(dict(family="loops", index=256, before=SPLIT_LOOP_PREIMAGE, after=split))
+    for key, expected in ZERO_PREIMAGES.items():
+        if text["site_zero"].get(key) != expected:
+            raise ValueError("B7a exact formation/self-weight zero changed: " + key)
+        del text["site_zero"][key]
+        alterations.append(dict(family="site_zero", key=key, before=expected))
+    # Preserve the 17 later self-weight function zeros. Their actual warrant
+    # is the guarded nonobject provenance + deterministic identity refusal,
+    # followed by continue825; Element identity formatting itself is positive.
+    old_why = None
+    for row in loops["fn_zero"]:
+        if row["fn"].startswith("self_weight.rs:"):
+            if old_why is None:
+                old_why = row["why"]
+            if row["why"] != old_why or "false for a Node target" not in old_why:
+                raise ValueError("B7a self-weight downstream zero preimage changed")
+            row["why"] = "B7a: guarded provenance forbids objects; self_weight_form refuses the generated Element identity; inspect_applied_self_weight continues at825 before this owner. Formatting that identity is positively priced. Was: " + old_why
+    if sum(row["fn"].startswith("self_weight.rs:") for row in loops["fn_zero"]) != 17:
+        raise ValueError("B7a self-weight downstream function inventory changed")
+    for key, expected in COPY_PREIMAGES.items():
+        entry = text["site_total"].get(key)
+        if entry != COPY_OBJECTS[key]:
+            raise ValueError("B7a exact ledger copy total changed: " + key)
+        multiplier = 10 if key.endswith(":670") else (5 if key.endswith(":133") else 4)
+        entry["bytes"] = f"{multiplier}*cases*(12*l)*2*128"
+        entry["why"] = "B7a q<=12*l: preserves historical ledger/evaluation count; push_unique pays both formed and cannot source-list generations independently. Was: " + entry["why"]
+        alterations.append(dict(family="site_total", key=key, before=expected, after=entry["bytes"]))
+    # The normal q loop is not enough: text_budget's site_from override is
+    # applied afterward. Keep both audited callers and their two-copy factor.
+    key = "structural.rs:1103"
+    if text["site_from"].get(key) != FIDELITY_PREIMAGES["source_clone"]:
+        raise ValueError("B7a fidelity source-clone override preimage changed")
+    prior = deepcopy(text["site_from"][key])
+    text["site_from"][key] = dict(prior, per="24*l",
+                                  why="B7a: both audited callers retain their complete2*q source-copy upper before row-local dedup; String128/capacity2 remain. Was: " + prior["why"])
+    alterations.append(dict(family="site_from", key=key, before=prior, after=text["site_from"][key]))
+    for key, expected in FIDELITY_PREIMAGES["aggregates"].items():
+        if text["site_aggregate"].get(key) != expected:
+            raise ValueError("B7a fidelity source aggregate preimage changed: " + key)
+        changed = dict(expected, bytes=expected["bytes"].replace("l*(2+6*128+2+2)", "(12*l)*(2+10*128+2+2)"),
+                       why="B7a: <=q source entries across all DOF rows, with independent10-byte Debug escape upper; every fixed scalar/row/bracket term stays. Was: " + expected["why"])
+        text["site_aggregate"][key] = changed
+        alterations.append(dict(family="site_aggregate", key=key, before=expected, after=changed))
+    expected = FIDELITY_PREIMAGES["rows_join"]
+    if text["join_rules"].count(expected) != 1:
+        raise ValueError("B7a fidelity rows join preimage changed")
+    changed = dict(expected, bytes=expected["bytes"].replace("l*(2+6*128+2+2)", "(12*l)*(2+10*128+2+2)") + "+2*N",
+                   why="B7a: complete row-string join with q aggregate source occurrences; fixed allowances and independent row brackets remain")
+    text["join_rules"][text["join_rules"].index(expected)] = changed
+    alterations.append(dict(family="join_rules", before=expected, after=changed))
+    # Maintain individual source/debug/string maxima. Aggregate source mass
+    # is used only for requested capacities of these exact guarded sites.
+    aggregate = "(2*N+(10*128+4)*(12*l))"
+    totals = {
+        "formation_guard.rs:239": "2*cases*N*8208",
+        "formation_guard.rs:241": f"2*cases*(87*N+{aggregate})",
+        "formation_guard.rs:251": f"2*cases*(321*N+{aggregate})",
+        "formation_guard.rs:322": f"2*cases*(N*(600+2+8208)+{aggregate})",
+    }
+    # Current line keys are resolved later in SQ2, not carried from the old
+    # basis here; use the exact existing name-qualified decision seam below.
+    proof.update(input_files={name: hashlib.sha256(data).hexdigest() for name, data in raw.items()},
+                 alterations=alterations, requested_site_totals=totals)
+    os.makedirs(output, exist_ok=True)
+    paths = {}
+    for name, data in (("loop_bounds.g4.json", loops), ("text_args.g4.json", text)):
+        path = os.path.join(output, name)
+        with open(path, "w", encoding="utf-8") as stream:
+            json.dump(data, stream, indent=1)
+        paths[name] = path
+    proof["prepared_files"] = {name: hashlib.sha256(open(path, "rb").read()).hexdigest()
+                               for name, path in paths.items()}
+    return paths, proof
+
+
+def site_totals(snapshot, resolved):
+    inspect(snapshot)
+    g = "(2*N+(10*128+4)*(12*l))"
+    return [(resolved(key), expression,
+             "B7a exact formed guard owner: full independent generation; <=cases guards, N DOF rows, q<=12*l aggregate escaped source IDs")
+            for key, expression in (
+                ("formation_guard.rs:239", "2*cases*N*8208"),
+                ("formation_guard.rs:241", f"2*cases*(87*N+{g})"),
+                ("formation_guard.rs:251", f"2*cases*(321*N+{g})"),
+                ("formation_guard.rs:322", f"2*cases*(N*(600+2+8208)+{g})"),
+            )]
