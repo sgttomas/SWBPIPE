@@ -1280,3 +1280,17 @@ for inputs refused by D1 is outside these conditional bounds. The registration
 remains UNREGISTERED until source-complete pricing, actual native/M12/.9/5% TEXT
 evaluation and genuine G0/witness/allocator/RSS checks pass; no diagnostic output
 confers qualification or permits a public W1 writer.
+
+
+The first replay of this correction at dd870 stops at the unchanged identifier
+audit gate on sixteen newly reached expressions. Their follow-up audits are
+site-specific: load-row dof_label is the guarded integrity_dof_label callback
+(node ID128 plus three bytes, or global_dof plus usize20), retaining the old600
+upper; guard case_id, self-weight case.id/pipe and every LoadLedger ForceTerm
+source are admitted bare IDs128. Self-weight byte-length displays retain
+usize20. Uniform assembly and plain nodal construction pass load.load_id to
+the ledger; force scaling clones it unchanged. The separately owned
+member_source268 identity is unchanged. Existing27 full raw source guards and
+admission/cap laws bind these constructors; foreign/preclosure and refusal
+costs do not inherit an admitted-domain alias. No generic fallback classifier,
+audit-gate relaxation or qualification claim is added.

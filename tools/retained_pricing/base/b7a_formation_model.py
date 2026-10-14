@@ -162,6 +162,28 @@ def decisions(snapshot, resolved):
                  'fired.iter().take(NAMED).cloned().collect::<Vec<_>>().join(";")': {"bytes": JOINED, "source": "COMP"},
                  'iffired.len()>NAMED{format!(";and{}more",fired.len()-NAMED)}else{String::new()}': {"bytes": 31, "source": "COMP"},
              })]
+    # Newly positive identifiers remain site-local: this callback is the
+    # guarded integrity_dof_label closure, <=128-byte node ID+3 or a
+    # 31-byte global_dof fallback. Keep the existing conservative600 class.
+    audit[0][1]["dof_label(row.dof)"] = {"bytes": 600, "source": "COMP"}
+    audit[1][1]["case_id"] = {"bytes": 128, "source": "IN128"}
+    audit.append((resolved("core/product_physics/src/self_weight.rs:814"), {
+        "case.id": {"bytes": 128, "source": "IN128"},
+        "pipe": {"bytes": 128, "source": "IN128"},
+        "case.id.len()": {"bytes": 20, "source": "NUM"},
+        "pipe.len()": {"bytes": 20, "source": "NUM"},
+    }))
+    fc = "core/solver/frame_kernel/src/structural/formation_check.rs:"
+    # ForceTerm.source is the bare admitted load_id, not the separately
+    # owned member_source identity in LoadPrimitive/manifest entries.
+    for line in (495, 501, 511, 561, 574, 581):
+        audit.append((resolved(fc + str(line)), {
+            "terms[p.term_index].source": {"bytes": 128, "source": "IN128"},
+        }))
+    for line in (613, 623, 629, 635, 895):
+        audit.append((resolved(fc + str(line)), {
+            "term.source": {"bytes": 128, "source": "IN128"},
+        }))
     # Keep the old generic suffix allowance (no length-class reduction).
     # JOINED+SENTENCE must also be supplied as site-specific positive sizes.
     return loop_total, audit

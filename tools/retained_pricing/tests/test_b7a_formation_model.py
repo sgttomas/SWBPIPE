@@ -300,3 +300,43 @@ def test_retained_and_independent_value_copies_are_consumed_in_actual_models():
     assert "frame_kernel" not in dependencies
     assert "pub mod load_ledger;" in (SOURCE / "core/solver/frame_kernel/src/lib.rs").read_text()
     assert "pub struct FormationRow {" in (SOURCE / "core/solver/frame_kernel/src/load_ledger.rs").read_text()
+
+
+
+def test_newly_reached_identifier_audits_bind_exact_production_expressions():
+    _, audits = MODEL["decisions"](SOURCE, lambda key:key)
+    table = dict(audits)
+    pp = "core/product_physics/src/"
+    assert table[pp+"formation_guard.rs:322"]["dof_label(row.dof)"] == {"bytes":600,"source":"COMP"}
+    assert table[pp+"formation_guard.rs:327"]["case_id"] == {"bytes":128,"source":"IN128"}
+    assert table[pp+"self_weight.rs:814"] == {
+        "case.id":{"bytes":128,"source":"IN128"},
+        "pipe":{"bytes":128,"source":"IN128"},
+        "case.id.len()":{"bytes":20,"source":"NUM"},
+        "pipe.len()":{"bytes":20,"source":"NUM"},
+    }
+    fc = "core/solver/frame_kernel/src/structural/formation_check.rs:"
+    for line in (495,501,511,561,574,581):
+        assert table[fc+str(line)] == {
+            "terms[p.term_index].source":{"bytes":128,"source":"IN128"}}
+    for line in (613,623,629,635,895):
+        assert table[fc+str(line)] == {
+            "term.source":{"bytes":128,"source":"IN128"}}
+    # These are literal producer/source edges under the existing raw guards,
+    # not a class for arbitrary Foreign FormationSource identities.
+    lib=(SOURCE/(pp+"lib.rs")).read_text()
+    assert '|dof| integrity_dof_label(model, dof),' in lib
+    assert '|node| format!("{}:{name}", node.id),' in lib
+    assert '|| format!("global_dof={dof}"),' in lib
+    assert 'ledger.push_formed(\n                        &load.load_id,' in lib
+    cl=(SOURCE/(pp+"certified_loads.rs")).read_text()
+    assert 'ledger.push(&load.load_id, load.global_dof, load.value);' in cl
+    ledger=(SOURCE/"core/solver/frame_kernel/src/load_ledger.rs").read_text()
+    assert 'source: source.into(),' in ledger
+    assert 'source: term.source.clone(),' in ledger
+    sw=(SOURCE/(pp+"self_weight.rs")).read_text()
+    assert 'LoadTargetInput::Element { pipe }' in sw
+    assert 'case.id.len(),' in sw and 'pipe.len(),' in sw
+    # Current model's every-source/class/cap refusal proof is retained.
+    proof=MODEL["inspect"](SOURCE)
+    assert len(proof["full_raw_source_fingerprints"])+len(proof["formation_raw_fingerprints"])==27
