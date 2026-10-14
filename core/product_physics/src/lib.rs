@@ -2007,9 +2007,9 @@ fn assessed_numerical_quality(
 ) -> NumericalQuality {
     let mut quality = unassessed_numerical_quality();
     for case in &model.load_cases {
-        let evidence = diagnostics
+        let evidence = { let wanted_id = integrity_diagnostic_id(&case.id); diagnostics
             .iter()
-            .find(|d| d.id == integrity_diagnostic_id(&case.id));
+            .find(|d| d.id == wanted_id) };
         let (structural_status, solve_quality, model_matrix_fidelity, accuracy_evidence) =
             match evidence.map(|d| d.code.as_str()) {
                 Some("NUMERICAL_INTEGRITY_CHECKS_PASSED") => (
@@ -5073,7 +5073,7 @@ fn solve_prepared_load_case(
     }
     // Publication eligibility is the public standing after all prior guards,
     // not the structural report that preceded the load-row demotion.
-    let pre_guard_passed = diagnostics.iter().find(|d| d.id == integrity_diagnostic_id(&load_case.id)).is_some_and(|d| d.code == "NUMERICAL_INTEGRITY_CHECKS_PASSED");
+    let pre_guard_passed = { let wanted_id = integrity_diagnostic_id(&load_case.id); diagnostics.iter().find(|d| d.id == wanted_id).is_some_and(|d| d.code == "NUMERICAL_INTEGRITY_CHECKS_PASSED") };
     let member_bound = linear_solve.as_ref().filter(|solve| pre_guard_passed && load_row_finding.is_none() && built.nonlinear_supports.is_empty() && solve.structural_report.quality == SolveQuality::Passed && selected_source.is_none()).and_then(|solve| solve.member_bound.as_ref());
     // DEL-04-01 kd5-nonlinear-active-set.md §3.1: a nonlinear case publishes
     // the certified rows of its confirmed converged state (Stage B).
@@ -6059,7 +6059,7 @@ fn solve_prepared_load_case(
             // Section 3.3 condition 2: the unified predicate itself demotes.
             if demoted && pre_guard_passed && member_bound.is_some() && load_row_finding.is_none() {
                 if let Some(notice) = formation_guard::stress_free_notice(&recovery_records, &load_case.id) {
-                    if let Some(index) = diagnostics.iter().position(|d| d.id == integrity_diagnostic_id(&load_case.id)) { diagnostics.insert(index+1,notice); }
+                    let index = { let wanted_id = integrity_diagnostic_id(&load_case.id); diagnostics.iter().position(|d| d.id == wanted_id) }; if let Some(index) = index { diagnostics.insert(index+1,notice); }
                 }
             }
         }
@@ -23252,6 +23252,25 @@ mod tests {
         assert!(metadata.sign_convention.contains("i=1.15"));
         assert!(!metadata.sign_convention.contains("1.08"));
     }
+    #[test]
+    fn integrity_id_hoists_preserve_duplicate_and_empty_quality_lookup() {
+        let input = precision_request(2.0, 1.0);
+        let case_id = &input.model.load_cases[0].id;
+        let wanted = integrity_diagnostic_id(case_id);
+        let passed = diag(&wanted, "NUMERICAL_INTEGRITY_CHECKS_PASSED", "info", "passed", vec![]);
+        let sensitive = diag(&wanted, "NUMERICAL_INTEGRITY_SENSITIVE", "info", "sensitive", vec![]);
+        let other = diag("diagnostic:other", "OTHER", "info", "other", vec![]);
+        for (diagnostics, expected) in [
+            (Vec::new(), NumericalQualityStatus::NotAssessed),
+            (vec![other.clone()], NumericalQualityStatus::NotAssessed),
+            (vec![passed.clone(), sensitive.clone()], NumericalQualityStatus::ChecksPassed),
+            (vec![sensitive.clone(), passed.clone()], NumericalQualityStatus::Sensitive),
+        ] {
+            let quality = assessed_numerical_quality(&input.model, &diagnostics);
+            assert_eq!(quality.cases[0].solve_quality, expected);
+        }
+    }
+
 }
 
 /// The result reader crate, for the desktop's wasm engine

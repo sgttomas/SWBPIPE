@@ -1357,3 +1357,18 @@ multiplicity and absent owner counts are required. The three lib sites keep
 positive witnesses there, and all five keep positive witnesses in base/X/W.
 Unknown/partial/extra exclusions, changed emitter code and arbitrary default
 zeros refuse. Every source/rule/caller/site inventory check still runs.
+
+
+Three ordinary diagnostic scans form their desired integrity ID once per
+scan, including an empty scan. The local String remains within that lookup;
+the notice lookup returns its first index after dropping the desired ID and
+before inserting the notice. The assessed quality and publication standing
+still use the first matching diagnostic, including duplicate IDs. No ID is
+shared across cases or whole solves. All diagnostic scans and resulting
+messages, row order and status are unchanged; canonical pricing must derive
+the new call multiplicity and retain each hoisted allocation. The actual
+full lib binding and sole prepared body bindings follow these source bytes.
+The five first-error owner/site/caller boundaries retain their line identities
+and content; their raw source warrant is re-anchored through the same lib pin.
+The generated unregistered carrier, native bindings and approved memory policy
+are unchanged. A measured combined canonical result remains required.

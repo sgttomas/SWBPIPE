@@ -13,7 +13,7 @@ HELPERS = runpy.run_path(os.path.join(os.path.dirname(__file__), "kd5_text_model
 PINS = {
     "core/product_physics/src/lib.rs": {
         "solve_load_case_observed": "5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061",
-        "solve_prepared_load_case": "87e62f4554b7ef5cb1a270f6a81b6235770c77121134bf1d2f4ffe7cb63777d6",
+        "solve_prepared_load_case": "ec460ec2eb0e06a2e35fba545ad93656d16099974250a664397d63b7f27edae0",
         "append_curved_bend_macro_element_results": "9ebc4f11d1a881b3310579118792190c4d4c9c81964a3a89eb04952f0312304c",
     },
     "core/product_physics/src/retained_memory.rs": {
