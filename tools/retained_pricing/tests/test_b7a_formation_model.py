@@ -248,7 +248,7 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
     # still the old String-capacity allowance, not the same factor twice.
     assert text["site_total"][current("load_ledger.rs:670")]["bytes"] == "10*cases*(12*l)*2*128"
     sf = text["site_from"][current("structural.rs:1103")]
-    assert sf["per"] == "24*l"
+    assert sf["per"] == "12*l"
     assert sf["from"] == [current(key) for key in MODEL["FIDELITY_PREIMAGES"]["source_clone"]["from"]]
     joined = next(row for row in text["join_rules"] if re.search(row["re"], "rows"))
     assert joined["re"] == "^rows$"
@@ -271,7 +271,7 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
                           "core/solver/frame_kernel/src/" + sf["from"][1]: 6},
                        short=lambda key:key.split("/src/")[-1], ev=evaluate)
     exec(compile(ast.Module(body=[assign_sf, if_sf], type_ignores=[]), "real site_from branch", "exec"), environment)
-    assert environment["mult"] == 9 * 24 * 128
+    assert environment["mult"] == 9 * 12 * 128
     fmt = next(node for node in ast_nodes if isinstance(node, ast.For)
                and isinstance(node.iter, ast.Subscript)
                and isinstance(node.iter.value, ast.Name) and node.iter.value.id == "inv"

@@ -1269,7 +1269,12 @@ integrity message amendment, evidence/retained diagnostic envelope and L_PUB,
 preserving the old recovery/range terms. Existing escaping/hash/copy/moving laws
 and every phase remain. Naming only six items never reduces the retained list.
 
-The load-fidelity row_sources copy override is positively rebound from2*l to2*q, preserving both caller multiplicities, the128-byte String class and capacity2. Its two aggregate row format rules and the first matched ^rows$ join now price q source occurrences with10-byte Debug escaping; every fixed row/scalar/bracket term remains. The individual sources_debug class keeps its valid per-row l bound. Source-qualified structural/sparse/source-recovery guards and controls exercise actual text_budget site_from/site_total/aggregate precedence as well as full prepared L/E loop priority. No later cap can hide the positive owner.
+The load-fidelity row_sources copy override is positively rebound from the
+historical2*l to q=12*l. Each full audit partitions every force term into one
+DOF list. Its successful LoadFidelityRow and terminal Range fallback are
+exclusive: the successful source clone occurs after the last fallible
+operation. Both complete audit caller multiplicities, the128-byte String
+class and capacity2 remain; there is no row-local deduplication credit. Its two aggregate row format rules and the first matched ^rows$ join now price q source occurrences with10-byte Debug escaping; every fixed row/scalar/bracket term remains. The individual sources_debug class keeps its valid per-row l bound. Source-qualified structural/sparse/source-recovery guards and controls exercise actual text_budget site_from/site_total/aggregate precedence as well as full prepared L/E loop priority. No later cap can hide the positive owner.
 
 Self-weight's Element identity formatter executes before the continue and is
 positive. Its downstream 17 function and later site zeros retain their actual
@@ -1464,3 +1469,31 @@ the ordinary T25 row alone cannot change that profile. Full TAV_X, both X
 phase names, all fourteen phase identities, native bindings, coefficientwise
 union and upward reserve remain. Actual complete pricing/evaluation is still
 required; this producer distinction supplies no fit or qualification claim.
+
+
+Metadata validation selects one complete expected-base-ID String from ten
+mutually exclusive recipe constructors, including the exclusive support
+combination/case alternatives. Their source-qualified content bounds are
+46,37,140,143,158,162,188,338,169,322 bytes. The largest complete base is338;
+the allocation volume uses one capacity2 generation per full validator call,
+without changing its physical visits or any numerical, row or scan work.
+The report preserves every potential site's standalone bound and names the
+nonnegative allocation group that replaces their mutually exclusive sum.
+
+The prematch owned stable_suffix, displacement/stress signs, postmatch
+combination wrapper, qualified-case helper and their owned suffixes remain
+independent positive generations. Errors, RefusedCase and receipt failures,
+public_error/capture_error detail copies, STAGED/failed and JSON owners also
+remain. Exact current source/cap/custody/helper/enum, full caller/stack and
+allocation inventories, authoritative audit preimages and competing override
+checks bind this local group; no global STATIC/RID/error/default changes.
+Envelope-only exclusion is restricted to the existing canonical emitter.
+All current native, phase, union, budget and reserve conditions remain.
+
+The metadata errors at2544/3005/3227 retain their full149/1049/1046-byte content
+and capacity2. Their Err propagates immediately through2567? out of the whole
+bind_rows_subject invocation; each site allocates at most once per full
+owner call. All freeze, serializer and combination callers remain, including
+later failures beside other Frozen cases. Association/detail/JSON/RefusedCase
+and receipt failures keep their independent owned generations and copies.
+This is a positive per-invocation bound, never a prepared-custody zero.

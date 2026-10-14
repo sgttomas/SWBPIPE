@@ -88,7 +88,8 @@ ENVELOPE_ZERO = ("core/product_physics/src/source_receipt,core/product_physics/s
                  "core/reporting/result_export")
 MODE_SOURCE = {
     "ENVZERO": {"c0916b98869910d07737f0917f43c3629bb7185c05fbfbb4ddc1ef953aab0df8"},
-    "env": {"504db9604b77de9dd1ec933852b3e9820d6f840611135d5b02370a70ed2ec066"},
+    "env": {"504db9604b77de9dd1ec933852b3e9820d6f840611135d5b02370a70ed2ec066",
+             "b175a455bb7e5e4c0cc5b8d1d3cb9a70baf116b98d71e7903d0c5e97235ac923"},
     "run": {"5cb207a921dd8a22509e5ee6381cfb43d7fedece747041acdd8394f4ce823c5d"},
     # Exact base emitter and its ordinary SQ2 _X cap transport. ENV behavior is identical.
     "tb": {"0de99a4ac9ca186b441654d8434053ca626474b769d11aa4a3b6f93180b78471",

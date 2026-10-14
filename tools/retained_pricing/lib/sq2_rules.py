@@ -159,6 +159,10 @@ if D.get("B7A_SCOPED_TEXT"):
     _scoped = runpy.run_path(D["B7A_SCOPED_TEXT"]["model"])
     TA, _scope_proof = _scoped["transform"](D["B7A_SCOPED_TEXT"]["snapshot"], LB, TA)
     LOG["b7a_scoped_text"] = _scope_proof
+if D.get("B7A_OWNER_CHOICES"):
+    _choices = runpy.run_path(os.path.join(dst, "b7a_owner_choices.py"))
+    TA, _choices_proof = _choices["transform"](os.environ["SQ2_SNAP"], TA)
+    LOG["b7a_owner_choices"] = _choices_proof
 if D.get("B7A_STAGE1_ROUTE"):
     _phase = runpy.run_path(os.path.join(dst, "b7a_phase_model.py"))
     LB, TA, _phase_proof = _phase["transform"](

@@ -180,6 +180,9 @@ import b7a_phase_model as PHASE_MODEL
 PHASE_STATE = PHASE_MODEL.state(proot, LB, TA, cg, inv["rows"], LEX,
     os.environ.get("TB_EXTRA_ZERO", ""), os.environ.get("TB_FN_ZERO", ""))
 PHASE_CAPS = dict(_c) if which == "caps" else dict(c=1, lc=1, l=3, n=2, ident=46)
+import b7a_owner_choices as OWNER_CHOICES
+OWNER_CHOICES_STATE = OWNER_CHOICES.state(proot, TA, LB, cg, inv["rows"], LEX,
+    os.environ.get("TB_EXTRA_ZERO", ""), os.environ.get("TB_FN_ZERO", ""))
 
 # a `.join(` whose receiver is a work/bound status lattice value produces no String: drop it
 # before the ancestor set is formed, so its (non-text) callers' loops are not required
@@ -568,6 +571,7 @@ for r in inv["rows"]:
     FK_RETURN_MODEL.first_return_witness(FK_RETURN_STATE, f, line, r["kind"], mult, M)
     OWNED_RETURN_MODEL.witness(OWNED_RETURN_STATE, f, line, r["kind"], mult, M)
     PHASE_MODEL.allocation_witness(PHASE_STATE, f, line, r["kind"], PHASE_CAPS, M, mult, fk, loops)
+    OWNER_CHOICES.error_witness(OWNER_CHOICES_STATE, f, line, r["kind"], mult, M, fk, loops)
     sf = TA.get("site_from", {}).get(key)
     if sf is not None and mult:
         mult = sum(M[k] for k in M if short(k) in sf["from"]) * ev(sf["per"])
@@ -576,6 +580,7 @@ for r in inv["rows"]:
     FK_RETURN_MODEL.first_return_witness(FK_RETURN_STATE, f, line, r["kind"], mult, M, rebound=True)
     OWNED_RETURN_MODEL.witness(OWNED_RETURN_STATE, f, line, r["kind"], mult, M, rebound=True)
     PHASE_MODEL.allocation_witness(PHASE_STATE, f, line, r["kind"], PHASE_CAPS, M, mult, fk, loops)
+    OWNER_CHOICES.error_witness(OWNER_CHOICES_STATE, f, line, r["kind"], mult, M, fk, loops, rebound=True)
     so = TA.get("site_size", {}).get(key)
     if key in AGG:
         size = ev(AGG[key]["bytes"])
@@ -649,6 +654,7 @@ for r in LEX:
     if C6_STATE is not None:
         C6_MODEL.positive_witness(C6_STATE, f, line, r["kind"], mult, M)
     OWNED_RETURN_MODEL.witness(OWNED_RETURN_STATE, f, line, r["kind"], mult, M)
+    OWNER_CHOICES.source_witness(OWNER_CHOICES_STATE, f, line, r["kind"], mult, M, COUNTS["l"], owner=fk, stack=loops)
     sf = TA.get("site_from", {}).get(lkey)
     if sf is not None and mult:
         # G4: every execution of this site lies inside a call of one of `from`, at most `per`
@@ -657,6 +663,7 @@ for r in LEX:
     if C6_STATE is not None:
         C6_MODEL.rebound_witness(C6_STATE, f, line, r["kind"], mult, M)
     OWNED_RETURN_MODEL.witness(OWNED_RETURN_STATE, f, line, r["kind"], mult, M, rebound=True)
+    OWNER_CHOICES.source_witness(OWNER_CHOICES_STATE, f, line, r["kind"], mult, M, COUNTS["l"], rebound=True, owner=fk, stack=loops)
     CUR[0] = f"{f}:{line}"
     CUR_FN[0] = fk
     priced = r["arg"] if r["kind"] == "push_str" else r["receiver"]
@@ -713,6 +720,15 @@ for r in LEX:
         max_size = max(max_size, size)
     rows.append({"file": f, "line": line, "kind": r["kind"], "fn": fk, "reached": bool(reached), "loops": loops,
                  "mult": mult, "bytes": size, "req": req, "receiver": r["receiver"][-120:]})
+# The complete match selects one base String. Keep each site's physical
+# multiplicity/prospective cost visible, but count the closed group once.
+# All independent auxiliary rows remain in total_req at their old charge.
+recipe_group = OWNER_CHOICES.recipe_group(OWNER_CHOICES_STATE, rows, M)
+total_req = total_req - recipe_group["standalone_requested_bytes"] + recipe_group["req"]
+for row in rows:
+    if OWNER_CHOICES.recipe_witness(OWNER_CHOICES_STATE, row, M):
+        row["allocation_group"] = recipe_group["name"]
+        row["counted_as_group"] = True
 # G6 repair (RV87 SF-3): every identifier-bearing expression at a positive-multiplicity site must
 # be in the audit table, whichever rule would price it; an identifier-class rule hit outside it
 # too (G6).
@@ -765,6 +781,7 @@ out = {"which": which, "roots": roots, "reachable_fns": len(reach), "complete": 
        "sites": len(rows), "sites_reached": sum(1 for x in rows if x["reached"]),
        "sites_with_positive_multiplicity": sum(1 for x in rows if x["mult"] > 0),
        "total_text_requested_bytes": total_req,
+       "allocation_groups": [recipe_group],
        "largest_single_site_bytes": max_size,
        "total_text_moving_bytes": total_req + max_size,
        "D_diagnostics": D, "retained_diagnostic_bytes": diag_bytes, "large_refs_sites": big_refs,

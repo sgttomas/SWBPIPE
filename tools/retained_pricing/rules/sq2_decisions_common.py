@@ -409,3 +409,6 @@ SITE_FROM = list(SITE_FROM) + _owned_returns["rules"](_SNAP, Resolved)
 
 # Exact current producer spellings, applied after ordinary decision carry.
 B7A_SCOPED_TEXT = {"model": _os.path.join(_os.path.dirname(__file__), "..", "base", "b7a_scoped_text_model.py"), "snapshot": _SNAP}
+
+# Exclusive current-owner allocation choices after strict carry.
+B7A_OWNER_CHOICES = True
