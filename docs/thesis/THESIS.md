@@ -574,7 +574,7 @@ argument supports and what remains to be learned.
 
 Product sources, implementation and Design accounts are examined at
 `a602024416ace9652f61bb2043889c307fd4e09d`. Tests were inspected rather than
-rerun; source links may reflect later development. Product requirements retain
+rerun. Product requirements retain
 their authority. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 - **R1:** [Root thesis][R1]: why the shared means of work remain revisable.
