@@ -554,7 +554,7 @@ def evaluate(cfg, mutant=None):
 
 
 # --------------------------------------------------------------------------
-# Requests (product preview documents, model 0.3.0 with the U5a fields).
+# Requests (product preview model 0.5.0 with U5a fields, explicit CA 0 m and EB shear).
 
 
 def fl(x):
