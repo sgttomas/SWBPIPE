@@ -95,6 +95,9 @@ pub(super) fn validate_corrosion_allowance(section: &Value) -> BindingResult<()>
         } else {
             0.0
         };
+        if mill < 0.0 || mill >= wall {
+            return Err("Mill tolerance must be nonnegative and leave a positive effective wall".into());
+        }
         if allowance < 0.0 || mill + allowance >= wall {
             return Err("Corrosion allowance must be nonnegative and leave a positive wall after mill tolerance".into());
         }

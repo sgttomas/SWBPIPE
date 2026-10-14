@@ -207,11 +207,16 @@ fn validate_regions(model: &Value, value: &Value, signed: bool) -> Result<()> {
             text(terminal, "provenance")?;
         }
     }
-    if model["schema_version"] == "0.5.0" {
+    if crate::is_exact_pressure_document(model) {
         let mut candidate = model.clone();
         candidate["load_cases"] = serde_json::json!([{"id":"authoring:joint-pressure-region","primitive_loads":[],"pressure_regions":value}]);
         let findings = open_pipe_stress_product_physics::validate_joint_pressure_authoring(&candidate).map_err(err)?;
         if !findings.is_empty() { return Err(err(findings.iter().map(|finding|format!("{}: {}",finding.code,finding.message)).collect::<Vec<_>>().join("; "))); }
+    } else if regions.iter().any(|region| region.get("member_connector_ids").is_some()) {
+        return Err(RichError {
+            code: "JOINT_PRESSURE_INTERFACE_UNRESOLVED",
+            message: "member_connector_ids requires the current exact pressure contract; ordinary region arrays can be authored explicitly before activation".into(),
+        });
     }
     Ok(())
 }

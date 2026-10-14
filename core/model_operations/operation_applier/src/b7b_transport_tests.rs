@@ -138,6 +138,12 @@ fn b7b_common_unbound_scalar_ca_review_apply_enforces_the_wall_sum() {
         assert!(!applied.diagnostics.iter().any(|diagnostic| diagnostic.code == "OP-SECTION-BINDING-INVALID"),
             "existing scalar/unit refusal must precede the new wall-sum check");
     }
+    let mut invalid_mill = model.clone();
+    invalid_mill["pipe_segments"][0]["section"]["mill_tolerance"] = json!({"value": -1.0, "unit": "m"});
+    let operation = intent("set_field", "section.corrosion_allowance.value", "0".into(), "0.1".into(), "m", "length");
+    let outcome = apply_operation(&invalid_mill, &operation, Some(&claim(&invalid_mill)));
+    assert!(outcome.applied_model.is_none());
+    assert!(outcome.diagnostics.iter().any(|diagnostic| diagnostic.code == "OP-SECTION-BINDING-INVALID"));
 }
 
 fn geometry_intent(model: &Value, split: bool) -> Value {
@@ -184,5 +190,49 @@ fn b7b_common_split_transform_preserve_valid_or_absent_ca_and_refuse_invalid_ca(
             assert!(applied.applied_model.is_none(), "{:?}", applied.diagnostics);
             assert!(applied.diagnostics.iter().any(|diagnostic| diagnostic.severity == "blocking"));
         }
+        let mut invalid_mill = editor_model();
+        invalid_mill["pipe_segments"][0]["section"]["mill_tolerance"] = json!({"value": -1.0, "unit": "m"});
+        invalid_mill["pipe_segments"][0]["section"]["corrosion_allowance"] = json!({"value": 0.1, "unit": "m"});
+        let operation = geometry_intent(&invalid_mill, split);
+        assert!(apply_operation(&invalid_mill, &operation, Some(&claim(&invalid_mill))).applied_model.is_none());
+        invalid_mill["pipe_segments"][0]["section"].as_object_mut().unwrap().remove("corrosion_allowance");
+        let operation = geometry_intent(&invalid_mill, split);
+        assert!(apply_operation(&invalid_mill, &operation, Some(&claim(&invalid_mill))).applied_model.is_some(),
+            "absent CA preserves unrelated incomplete authoring behavior");
     }
+}
+
+#[test]
+fn b7b_common_explicit_region_then_profile_sequence_has_no_preactivation_cycle() {
+    let mut current = editor_model();
+    current["load_cases"][0].as_object_mut().unwrap().remove("pressure_regions");
+    let sections = current["pipe_segments"].clone();
+    let mut region = intent("update_load", "pressure_regions", "not_present".into(), "[]".into(), "none", "dimensionless");
+    region["target"] = json!({"object_type": "Load", "ref": "case:b7b"});
+    let hash = claim(&current);
+    let reviewed = validate_operation(&current, &region, Some(&hash));
+    assert!(reviewed.applied_model.is_none());
+    let outcome = apply_operation(&current, &region, Some(&hash));
+    current = outcome.applied_model.unwrap_or_else(|| panic!("{:?}", outcome.diagnostics));
+    assert_eq!(current["load_cases"][0]["pressure_regions"], json!([]));
+    assert!(current.get("pressure_contract").is_none());
+    assert_eq!(current["pipe_segments"], sections);
+    let staged = open_pipe_stress_product_physics::run_linear_static_preview_value_with_mode(
+        json!({"model": &current}), open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive,
+    ).unwrap();
+    assert!(staged.diagnostics.iter().any(|finding| finding.code == "PREVIEW_CONTRACT_VERSION_MISMATCH"),
+        "explicit preactivation authoring does not admit pressure regions on the preview solve");
+    let after = json!({"schema_version": "0.5.0", "pressure_contract": {
+        "version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}});
+    let mut profile = intent("set_field", "pressure_profile",
+        canonical_json(&json!({"schema_version": "0.5.0"})), canonical_json(&after), "none", "dimensionless");
+    profile["target"] = json!({"object_type": "Model", "ref": "project:b7b"});
+    let hash = claim(&current);
+    let reviewed = validate_operation(&current, &profile, Some(&hash));
+    assert!(reviewed.applied_model.is_none());
+    let outcome = apply_operation(&current, &profile, Some(&hash));
+    let activated = outcome.applied_model.unwrap_or_else(|| panic!("{:?}", outcome.diagnostics));
+    assert_eq!(activated["pressure_contract"], after["pressure_contract"]);
+    assert_eq!(activated["load_cases"], current["load_cases"]);
+    assert_eq!(activated["pipe_segments"], sections);
 }
