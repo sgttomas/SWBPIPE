@@ -117,6 +117,7 @@ def test_exact_copied_rule_transform_retains_every_unrelated_owner(tmp_path):
     expected_text["join_rules"][expected_text["join_rules"].index(old_join)] = next(
         r for r in new_text["join_rules"] if r["re"] == "^rows$")
     expected_text["b7a_reformation_first_error"] = "FK895-v1"
+    expected_text["b7a_owned_first_errors"] = "v1"
     assert new_text == expected_text
     assert {name: Path(path).read_bytes() for name, path in inherited.items()} == before
     assert all(hashlib.sha256(Path(actual[name]).read_bytes()).hexdigest() == digest

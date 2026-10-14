@@ -172,6 +172,8 @@ elif TA.get("first_error_guard") or any("KD5C6:" in v.get("why", "") for v in TA
 # Full call counts, helper visits, loop costs and downstream copies remain.
 import b7a_formation_model as FK_RETURN_MODEL
 FK_RETURN_STATE = FK_RETURN_MODEL.first_return_state(proot, TA, cg, inv["rows"], LEX)
+import b7a_returning_errors as OWNED_RETURN_MODEL
+OWNED_RETURN_STATE = OWNED_RETURN_MODEL.state(proot, TA, cg, inv["rows"], LEX, os.environ.get("TB_EXTRA_ZERO", ""))
 
 # a `.join(` whose receiver is a work/bound status lattice value produces no String: drop it
 # before the ancestor set is formed, so its (non-text) callers' loops are not required
@@ -546,12 +548,14 @@ for r in inv["rows"]:
     if C6_STATE is not None:
         C6_MODEL.positive_witness(C6_STATE, f, line, r["kind"], mult, M)
     FK_RETURN_MODEL.first_return_witness(FK_RETURN_STATE, f, line, r["kind"], mult, M)
+    OWNED_RETURN_MODEL.witness(OWNED_RETURN_STATE, f, line, r["kind"], mult, M)
     sf = TA.get("site_from", {}).get(key)
     if sf is not None and mult:
         mult = sum(M[k] for k in M if short(k) in sf["from"]) * ev(sf["per"])
     if C6_STATE is not None:
         C6_MODEL.rebound_witness(C6_STATE, f, line, r["kind"], mult, M)
     FK_RETURN_MODEL.first_return_witness(FK_RETURN_STATE, f, line, r["kind"], mult, M, rebound=True)
+    OWNED_RETURN_MODEL.witness(OWNED_RETURN_STATE, f, line, r["kind"], mult, M, rebound=True)
     so = TA.get("site_size", {}).get(key)
     if key in AGG:
         size = ev(AGG[key]["bytes"])
@@ -620,6 +624,7 @@ for r in LEX:
         mult = 0
     if C6_STATE is not None:
         C6_MODEL.positive_witness(C6_STATE, f, line, r["kind"], mult, M)
+    OWNED_RETURN_MODEL.witness(OWNED_RETURN_STATE, f, line, r["kind"], mult, M)
     sf = TA.get("site_from", {}).get(lkey)
     if sf is not None and mult:
         # G4: every execution of this site lies inside a call of one of `from`, at most `per`
@@ -627,6 +632,7 @@ for r in LEX:
         mult = sum(M[k] for k in M if short(k) in sf["from"]) * ev(sf["per"])
     if C6_STATE is not None:
         C6_MODEL.rebound_witness(C6_STATE, f, line, r["kind"], mult, M)
+    OWNED_RETURN_MODEL.witness(OWNED_RETURN_STATE, f, line, r["kind"], mult, M, rebound=True)
     CUR[0] = f"{f}:{line}"
     CUR_FN[0] = fk
     priced = r["arg"] if r["kind"] == "push_str" else r["receiver"]

@@ -206,6 +206,11 @@ def prepare(snapshot, inherited, output):
     if "b7a_reformation_first_error" in text:
         raise ValueError("B7a first-return guard preimage already present")
     text["b7a_reformation_first_error"] = "FK895-v1"
+    owned = runpy.run_path(os.path.join(os.path.dirname(__file__), "b7a_returning_errors.py"))
+    if owned["MARKER"] in text:
+        raise ValueError("B7a owned first-error guard preimage already present")
+    text[owned["MARKER"]] = owned["VERSION"]
+    proof["owned_first_error_sources"] = owned["inspect"](snapshot)
     alterations = []
     for index, regex, bound, why, changed in BASE_LOOP_PREIMAGES:
         expected = dict(re=regex, bound=bound, why=why)

@@ -401,3 +401,7 @@ ID_AUDIT = list(ID_AUDIT) + _formed_audits
 SITE_TOTAL = list(globals().get("SITE_TOTAL", [])) + _formed_model["site_totals"](_SNAP, Resolved)
 LEX_SITE_SIZE = list(LEX_SITE_SIZE) + _formed_model["lex_sizes"](_SNAP, Resolved)
 SITE_FROM = list(globals().get("SITE_FROM", [])) + _formed_model["first_return_rules"](_SNAP, Resolved)
+
+# Five additional immediate-return allocations, with full owned call counts.
+_owned_returns = __import__("runpy").run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "b7a_returning_errors.py"))
+SITE_FROM = list(SITE_FROM) + _owned_returns["rules"](_SNAP, Resolved)

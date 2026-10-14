@@ -1332,3 +1332,28 @@ conflicting keys. Actual full E preparation must preserve every inherited
 rule and add the sole common FK895 clause at its resolved source key; L is
 unchanged. No downstream injection, marker relaxation, caller-count cut or
 qualified fit claim is used.
+
+
+Five further owned error allocations are bounded at one allocation per full
+enclosing function invocation: lib10470/10476 in exact_straight_summary_extrema,
+lib11141 in recover_curved_bend_local_forces, and retained_product1745/2831 in
+check_support_maps/support_observables. The first three immediately propagate
+through the outer Result with ?; the latter two directly return their owned
+Association String. The actual five allocation kinds, full caller inventories,
+source/type bodies, rule aliases and pre/post counts are checked before pricing
+and around the actual format/lexical SITE_FROM override. The common rules reach
+both L/E without replacing the E entries. Existing content/capacity bounds,
+numeric and scan work, successful equivalents and every downstream detail,
+display, clone and capture owner remain positive and unchanged. This candidate
+uses count-only precision; it does not use the optional typed55-byte span bound.
+Additional full raw exact_sum and curved_bend source bindings preserve the
+independently reviewed receiver/error closure. No M, margin, TEXT reserve,
+admission, oracle, sample count or qualification change is introduced.
+
+The envelope-only diagnostic projection retains its exact existing ENVZERO
+source declaration, run helper and tb emitter. Only its two excluded
+retained_product allocation sites have zero counts in this mode; their zero
+multiplicity and absent owner counts are required. The three lib sites keep
+positive witnesses there, and all five keep positive witnesses in base/X/W.
+Unknown/partial/extra exclusions, changed emitter code and arbitrary default
+zeros refuse. Every source/rule/caller/site inventory check still runs.
