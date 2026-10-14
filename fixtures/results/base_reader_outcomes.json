@@ -9401,10 +9401,9 @@
       },
       "id": "load_reference_fallback_uz-dense_scrutiny",
       "rows": {
-        "sha256": "9385269487961c069558f0ecbf576e4d5b9460809439dd123a432710514e4bcd",
+        "sha256": "e26a38eba02b6128cba64f137593dea371c2ac2959b9e65222f4b0d0454439a7",
         "signature_ids": [
           "supported-source-000",
-          null,
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",

@@ -2489,7 +2489,9 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     ("dense_scrutiny", "3b92b6ce2e72cd12cf3f96aa9a85ba9f2f9b3c38eed7f8879443527d5cd97e17", "7cbf1586f1fcfe2bdf65eae94f00646a872e89b47459fe87fed99fb01f25fe6b", "ee20a337dd159fdafcb512f5f5d3efaa731b176cf61423121fce2fde2f212bc0"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "7e7ab4450b19d45826128a178941e8a6f71bbc9770dd0a3ec989d707899f49ef", "83a6275589ec2b999a43f195e006989bc8b9da1134b74ec08b8a571ff0b8565c"), ("dense_scrutiny", "4c3a80002488e76939f5e7b965110da9a13ed37f8cca90f1727fce7a2e1b8484", "34bbd776db77e64f6d223918ad957a73b408cd752b89370649afcb06a3b41da8")];
+/// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
+/// reviewed retained-owner changes; the independent controls below remain unchanged.
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "09f13b7642352db26d3fc1f8ddcf4aea662e336cc87462d191a28f57191c0127", "dbcb4e03faf9c14b6baefa188ddb096fd84974473168082cba090b01fa7cb44b"), ("dense_scrutiny", "6a3d852231b21ee7c77e9b4fe334326248d2fdf86643d36cfbf8ab728a562cae", "3b65909ce7eeecef2a7e17b371292ac9c91e30bb773b5bc19cd8528f7b648e9a")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -3101,11 +3103,13 @@ fn two_member_exact(reversed: bool) -> Value {
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
+/// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
+/// reviewed retained-owner changes; the independent controls below remain unchanged.
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "57cb1e0df4f5c419d55d9f01466f5fdf257ba7e057ffe6e62b780cd5a9f367e1"),
-    (false, "dense_scrutiny", "b6d7cc7e2670276c298a5b35b74a61090695ebc63fc1d66e1787d506288086f1"),
-    (true, "sparse_interactive", "b3a470a4d9477edcfd399d8dbfb5f95d9e0c11b7cceaf9d5c9cf6c5d262d4555"),
-    (true, "dense_scrutiny", "065e7c0e7302f42136b3c1b1f5d3fc89da02fb6b85876583b459a78052ea2567")];
+    (false, "sparse_interactive", "f67e5e0793d062a7edfde91e5c33d2730b6975e8ebaa2f5a871d4735c02aa1a1"),
+    (false, "dense_scrutiny", "cb0b23fc4f7a941c2325311651f5491b1960fe7827aff4363d0e28215c4ada8f"),
+    (true, "sparse_interactive", "7f60f8ff5b8f193c7aef5231800e6da8ceeb727a848f64b39ab83fc717bd7246"),
+    (true, "dense_scrutiny", "d9e24e5fcd50a89015b0a3c07624f2dceec6d68965d0b94aa7e6df0cf53b3681")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3133,8 +3137,10 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
     }
 }
 /// RV123 S-2's pins: (mode, sha256 of the successor's bytes).
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "2c78cdfa0d720d093e88df0345ccc1be996714c165e4f0de4d0104da7b59a9f8"),
-    ("dense_scrutiny", "5e13a60e12e3a5714d89e82ec6227a11a43a604818e6ad2954a04dda6e816f66")];
+/// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
+/// reviewed retained-owner changes; the independent controls below remain unchanged.
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "9e00e5559cda3fe5edbf1b0c568d9463ad88a4059402dc563236e8b831da0a35"),
+    ("dense_scrutiny", "86ed6d8ff799e38d5832e3617ee42bcc50d4a779bbd864b4d8ecaf18a7173f04")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),

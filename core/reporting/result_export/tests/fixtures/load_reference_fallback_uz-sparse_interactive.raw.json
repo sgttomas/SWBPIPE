@@ -342,7 +342,7 @@
     "curved_bend_macro_element_count": 0,
     "spring_hanger_user_input_count": 0,
     "max_displacement": {
-      "value": 1.2010412149464313,
+      "value": 1.2010412149464316,
       "unit": "mm",
       "location_ref": "tip",
       "result_ref": "result:disp:tip"
@@ -369,7 +369,7 @@
         "component": "linear_solver_mode",
         "coordinate_system": "reduced_system",
         "location": "case:join",
-        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=10; original_profile_entries=15; ordered_profile_entries=9; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=108039554887.24281; max_abs_sparse_residual=0.000000000000009054521551611288; dense_fallback=false; dense_fallback_message=none",
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
         "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
       }
     },
@@ -387,7 +387,7 @@
     {
       "id": "result:disp:tip",
       "kind": "displacement_magnitude",
-      "value": 1.2010412149464313,
+      "value": 1.2010412149464316,
       "unit": "mm",
       "entity_ref": "tip",
       "basis_ref": {
