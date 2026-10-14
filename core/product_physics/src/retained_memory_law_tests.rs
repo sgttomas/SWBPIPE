@@ -1325,8 +1325,8 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     let c = caps::LOAD_CASES as u64;
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
-    // Current TEXT closure (the join on T4 batch 4) at C_eq = 3, maximum over the L/E routes.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 195_666_497, "current text closure at C_eq = 3, maximum over routes");
+    // Current canonical B7a TEXT closure at source 3e89c23, C_eq = 3, maximum over the L/E routes.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 264_354_973, "current text closure at C_eq = 3, maximum over routes");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
@@ -1335,7 +1335,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
     // Current generated TEXT atoms; their backing and visit counts stay positive.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (2_600_699, 2_330, 16_384, 24_556, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
+        (6_139_118, 2_330, 16_384, 25_855, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1560,12 +1560,13 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// Historical immutable main batch-5 record priced at source 15d75d7e14,
-/// retained as an internally coherent source carrier while B7a is explicitly
-/// UNREGISTERED. This is not B7a qualification; actual-source D3 follows final join.
+/// B7a local D3 record for the actual source 3e89c23ea1017ac86d9576805fa8e0a7b4cb0ac4.
+/// Requested + moving bytes, without R or the separately upward-rounded TEXT
+/// reserve, from the canonical 98-form union and measured 287-value layout.
+/// The unchanged identity/record assertions verify this candidate in-build.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_229_391_176, 5_552_823_138, 10_228_170_794, 10_004_112_863, 6_161_951_412, 10_026_554_767, 5_926_936_362],
-    [5_288_522_520, 5_611_954_482, 10_287_302_138, 10_063_244_207, 6_221_082_756, 10_085_686_111, 5_986_067_706],
+    [5_320_613_174, 5_644_045_112, 11_242_544_915, 11_012_624_092, 6_255_374_722, 10_306_810_938, 6_044_615_511],
+    [5_379_744_518, 5_703_176_456, 11_301_676_259, 11_071_755_436, 6_314_506_066, 10_365_942_282, 6_103_746_855],
 ];
 
 #[test]
@@ -1684,7 +1685,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 24_556, "current D_env at C_eq = 3 (the join on T4 batch 4)");
+    assert_eq!(caps.complete[3], 25_855, "current canonical D_env at C_eq = 3 (B7a source 3e89c23)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
