@@ -46,10 +46,10 @@ const caseFile = json("fixtures/results/retained_precision_carrier_cases.json");
 const corpus = readRetainedPrecisionCorpus();
 const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
 
-/** I76's goldens (committed at 055ee0c0bc) and its recorded inputs (R/I76/t6s_01/inputs/). */
+/** Current B7a goldens from the maintained I76 recipe and its fixed base/origin stand-ins. */
 const GOLDEN: Record<PreviewSolverMode, { path: string; sha256: string; base: string; origin: string; rows: number; nonQuantity: number }> = {
-  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "7394d3cb100939a1600a1f54682bb74c1e89b474da7263a10596c78ee571e943", base: "5a48e00d7976ed7e2e34967d023219a7e5e23144b35c680415d1b3786bfc44d8", origin: "99170fb742e65fb00a5d101f2269db7af450cf644908f6e71a3607359513c983", rows: 98, nonQuantity: 1 },
-  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "bdc1e4514df54b53b998c777468549a39f21444dfe03cc18ddbae162b9457e51", base: "3f054be38290bf9ae6e6a236c192d6eda8c5a0867367d8a0559509fe6f515e78", origin: "8aabc364c27701133e3574a121b861b90283fff99ad416b30a32d7f1326c5b28", rows: 99, nonQuantity: 2 },
+  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "25aaf1e4f287993d0f153b535fb4c29b8cc61733c80915b76926b363f737d7f9", base: "d795f854f3e6094ceb8ff6a66c558f01a05ed795d471f04a60c44db64d809477", origin: "0a8b9a303aedbd61af5bce058e1e6f4d6b443051932a6b559f14fa748c3fd1ba", rows: 98, nonQuantity: 1 },
+  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "7a03587151737440110b4a326b6d13dc67530037d155edb40fa6a459bbb6a066", base: "088d666e55f9e3f8b0a63c288e2c158ce39f7803f1604d03e59449d145b291cb", origin: "ddd0b0597d583533f1dc8be28bb8adb5ba17f9dad6c5737311186efa3b85c3f9", rows: 98, nonQuantity: 1 },
 };
 /** I76's fixed stand-ins (its CHECKPOINT_1 section 2): test values, not a qualified manifest or build. */
 const MANIFEST_REF = "test:t6s-golden-reference-only-manifest";
@@ -323,8 +323,8 @@ describe("the corpus's synthetic two-case bases, read by id", () => {
  * successors (PP `EXACT_PINNED`) with the same fixed desktop-shaped base and origin. The
  * Current builder is not exercised: physics-retained-1 is outside the static fresh set. */
 const EXACT_GOLDEN: Record<PreviewSolverMode, { successor: string; successorSha256: string; path: string; sha256: string; rows: number }> = {
-  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "fd8b1a4dd0b51122fdc39c006d4fd90da4d7ee103e8556694d7c39f567e3af85", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "f13f4f40307abe25c055a622465f4ec60472fb2686894c5d7a175db8c6d9941d", rows: 98 },
-  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "2fad0a166a565ce0f9390f8f5125a9675ff4ffa4b9532681cd5a960b8c2bd42d", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "de9f2315a978c70eccaa3b101bde647efcb605474323610e3cac8cdc8eb2d54b", rows: 99 },
+  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "5ef83dd9f046cb97939aa8af753a42b0b962c27bab4c73c725dc803584aee8e5", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "fa3201d52996551c5246718b81143219fbf0fc601e96b21ae9ddf40e714c0ec1", rows: 98 },
+  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "ee20a337dd159fdafcb512f5f5d3efaa731b176cf61423121fce2fde2f212bc0", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "15f286652513518bc7f1ddc0c503e5d201228ac0503e1d043012d370d725df81", rows: 98 },
 };
 describe.each(MODES)("%s: byte parity with the exact successor's Rust golden (B3b-T)", (mode) => {
   it("derives the golden's exact canonical bytes; it validates and carries the receipt and physics-1's evidence", async () => {

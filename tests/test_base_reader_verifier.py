@@ -124,7 +124,7 @@ def _outcome(item):
         # The committed digest is the sha256 of the outcomes' JSON text with sorted keys (serde_json's Map);
         # table rows and metadata hold only strings, booleans and null.
         digest = hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")).hexdigest()
-        entry["rows"] = {"sha256": digest, "signature_ids": [row["signature"]["signature_id"] if row["ok"] else row["error"]["code"] for row in rows]}
+        entry["rows"] = {"sha256": digest, "signature_ids": [(None if row["signature"] is None else row["signature"]["signature_id"]) if row["ok"] else row["error"]["code"] for row in rows]}
     return entry
 
 

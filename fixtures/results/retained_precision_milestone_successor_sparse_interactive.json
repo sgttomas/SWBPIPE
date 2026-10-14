@@ -135,7 +135,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.1.0",
+        "schema_version": "0.5.0",
         "supports": [
           {
             "id": "rigid:N0",
@@ -308,7 +308,7 @@
     "formulation_basis": {
       "limitations": [
         "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-        "Nonzero pressure is refused on this route, and so is legacy imposed_displacement.",
+        "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
         "On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No transverse shear, equivalent stress or code stress.",
         "On arcs: signed tangent-frame resultants and nominal stress components; endpoint force rows are node-on-element actions in the tangent frame at their end. No maximum, and no stress headline for a model containing an arc.",
         "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
@@ -363,7 +363,7 @@
         "id": "result:solver-mode:linear-solve-basis",
         "kind": "linear_solver_mode_basis",
         "metadata": {
-          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=46; original_profile_entries=44; ordered_profile_entries=43; original_half_bandwidth=8; ordered_half_bandwidth=7; nonpositive_pivots=0; pivot_condition_ratio_proxy=4913852.760417686; max_abs_sparse_residual=0.0000000000055997532999452204; dense_fallback=false; dense_fallback_message=none",
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
           "component": "linear_solver_mode",
           "coordinate_system": "reduced_system",
           "location": "case",
@@ -1934,7 +1934,7 @@
         },
         "recovery_method": "contribution_preserving_multiprecision_v1",
         "unit": "MPa",
-        "value": -2.8939662802624816e-98
+        "value": -2.893966280262482e-98
       },
       {
         "basis_ref": {
@@ -2143,7 +2143,7 @@
         },
         "recovery_method": "contribution_preserving_multiprecision_v1",
         "unit": "MPa",
-        "value": 1.698531866922523e-98
+        "value": 1.6985318669225226e-98
       },
       {
         "basis_ref": {
@@ -2994,7 +2994,7 @@
               ],
               "verification_precision": 256
             },
-            "source_identity_sha256": "4a00de3c40b2582c1b4e2dd3c5544dde511d7fc17be628da937c33235b397b56",
+            "source_identity_sha256": "cbc889997cd0eecd7dc97194e8acd9a605720020d50ad13914727bfe378ba2e9",
             "source_ref": 0,
             "status": "selected"
           }
@@ -3020,19 +3020,8 @@
           "domain": "source_blocks_invocation_v1",
           "profile": "openpipestress_jcs_ijson_v1",
           "scope": "actual_request_and_solver_mode",
-          "value": "87eb7e8435b9acfbb688c91c970932ebc83733f280bb604fbbb29510b6f21b5a"
+          "value": "8db7148cf88e8fbeeee17de121f7b2c70efbd0942c86c5f0504f6ee08c7d046b"
         },
-        "legacy_source_work": [
-          {
-            "case_index": 0,
-            "charged": 46628,
-            "helper_stage": "source_closure",
-            "limit": 4000000,
-            "rejected": 0,
-            "settlement": "booked",
-            "stage": "source closure"
-          }
-        ],
         "material_bases": [
           {
             "case_indices": [
@@ -3077,11 +3066,6 @@
               "outcome": "sensitive",
               "report_diagnostic_ref": "diagnostic:numerical-integrity:case"
             },
-            "legacy_source": {
-              "diagnostic_ref": null,
-              "disposition": "unavailable",
-              "work_ref": 0
-            },
             "material_basis_ref": 0,
             "requested_mode": "sparse_interactive",
             "w2": {
@@ -3097,19 +3081,18 @@
                 150,
                 1974,
                 678,
-                3939,
-                111018,
-                3577,
-                73,
+                3560,
+                108370,
+                3184,
+                74,
                 235,
-                1005,
-                29094
+                674,
+                29411
               ],
               "fault": null,
               "observation_capacity_bytes": [
                 4,
-                611,
-                0
+                280
               ],
               "prepared_capacity_bytes": [
                 48,
@@ -3783,7 +3766,7 @@
                 "sticky_status": "exact",
                 "wide_lme": {
                   "kind": "exact",
-                  "value": 17066976
+                  "value": 16718136
                 }
               },
               "prepared_capacity_bytes": [
@@ -4278,147 +4261,147 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 77
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abc641c94142f835"
+                    "value": "ad0539d5128101fd"
                   },
                   "row_index": 78
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab7442570ad573f4"
+                    "value": "acb352144a90f889"
                   },
                   "row_index": 79
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 80
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 81
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2bbb38c170183104"
+                    "value": "2cf9f5ec5a0ad21f"
                   },
                   "row_index": 82
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abafa62ea4ae291f"
+                    "value": "acee2ed7d38527b0"
                   },
                   "row_index": 83
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 84
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 85
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abba947d85de680e"
+                    "value": "acf95944853ece74"
                   },
                   "row_index": 86
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab939f87a45f1a4d"
+                    "value": "acd2b6cfb7bdc271"
                   },
                   "row_index": 87
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 88
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 89
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba14ad1126dbf65"
+                    "value": "ace07dbdcaf731db"
                   },
                   "row_index": 90
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba1173cc3046bcf"
+                    "value": "ace04c8d2e6ba360"
                   },
                   "row_index": 91
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 92
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 93
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2ba29358e6e15152"
+                    "value": "2ce1b70d748f3931"
                   },
                   "row_index": 94
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba85eb5b3d94a77"
+                    "value": "ace73db280f86588"
                   },
                   "row_index": 95
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 96
                 }
               ],
               "scalar_operations": {
                 "kind": "exact",
-                "value": 509
+                "value": 529
               },
               "summary_coverage": [
                 {
@@ -4457,7 +4440,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "0440067411623f499a5f0c73f24b52cc1d0512504c1a362237044a8d763e8bd4",
+        "publication_sha256": "8174283bc5685657ed7ac1d7bccd269bd8070df7a89eda090a5d736fc99419d4",
         "receipt_version": 1,
         "sources": [
           {
@@ -5317,7 +5300,7 @@
             },
             "preparation": {
               "attempt_ref": 0,
-              "sha256": "edc61d9def12faee4aaa17320987d29613deab68843e52fb92265a166ff10575"
+              "sha256": "5d49905d3a0913f47809f38cb5e850c70504d82c637dd0e983b6cd1ee3878de8"
             },
             "section_terms": [
               {
@@ -5437,7 +5420,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "1932f8843dee94baccff7c21ebc01523d8a509919b9a3bbd48e26167ffd1eff4"
+      "receipt_sha256": "bc1e36fac28680a6ad65901b021dbfeb9e3424349ede29ebd8358201839154d1"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",
@@ -5447,9 +5430,8 @@
       "rule_check": "RULE_INPUTS_INCOMPLETE"
     },
     "summary": {
-      "component_pressure_thrust_load_count": 0,
       "component_stress_modifier_count": 0,
-      "component_user_stiffness_macro_element_count": 0,
+      "curved_bend_macro_element_count": 0,
       "load_case_count": 1,
       "max_displacement": {
         "location_ref": "N1",

@@ -8,8 +8,8 @@ export type ReaderInput = { key: string; build: () => Promise<{ source: Json; in
 
 const PROJECT_ROOT = resolve(__dirname, "../../../../");
 const readJson = (path: string): Json => JSON.parse(readFileSync(resolve(PROJECT_ROOT, path), "utf8"));
-const DEF_O = "a7ed7ca0bf0bba6e8b821ca4befa00a0fa9541a83694be8b28ac63e39b1d0349";
-const DEF_E = "5a3bac430df9bbc77484d5419c75880ad40ae209b439e5f928374458025281af";
+const DEF_O = "c4aebcef3ae3863f9576fb3a7e323e77a91687938f6605a83a2fdc958febb15f";
+const DEF_E = "306af5fd3abf1e358a7f2eb7a5fa7d8b597c5cb25d4f3d30925acd17cc8c2525";
 const EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1";
 /** The shared corpus's successor fixtures (`retained_precision_*_successor_*.json`). */
 export const SUCCESSOR_FIXTURES = [

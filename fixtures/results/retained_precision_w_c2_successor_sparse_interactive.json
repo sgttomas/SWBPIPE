@@ -308,7 +308,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.1.0",
+        "schema_version": "0.5.0",
         "supports": [
           {
             "id": "rigid:N0",
@@ -617,16 +617,6 @@
         "affected_refs": [
           "case-b"
         ],
-        "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
-        "id": "diagnostic:source-recovery:case-b",
-        "message": "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Exact(Arithmetic(Range(\"arithmetic outside normal range\"))), work: WorkReport { charged: 91702, rejected: 0, limit: 4000000 } }",
-        "severity": "info",
-        "source": "core/product_physics"
-      },
-      {
-        "affected_refs": [
-          "case-b"
-        ],
         "code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
         "id": "diagnostic:numerical-integrity:case-b",
         "message": "M03-INTEGRITY-v1 represented original-equation structural evidence for load case case-b: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [-11, -11, -11, -12, -13, -13, -11, -11, -11, 255, 509, 509, 510, 509, 509], pivots: [PivotEvidence { ordered_index: 0, global_dof: 21, pivot: 1.2032076954412643, cancellation_scale: 1.2032076954412643, operation_count: 2, screen: 1.709860975212883e-14 }, PivotEvidence { ordered_index: 1, global_dof: 22, pivot: 1.3236608310684974, cancellation_scale: 1.3236608310684974, operation_count: 2, screen: 1.8810351762517963e-14 }, PivotEvidence { ordered_index: 2, global_dof: 20, pivot: 0.992745623301373, cancellation_scale: 6.949219363109611, operation_count: 4, screen: 1.9750869350643864e-13 }, PivotEvidence { ordered_index: 3, global_dof: 23, pivot: 1.3236608310684974, cancellation_scale: 1.3236608310684974, operation_count: 2, screen: 1.8810351762517963e-14 }, PivotEvidence { ordered_index: 4, global_dof: 19, pivot: 0.992745623301373, cancellation_scale: 6.949219363109611, operation_count: 4, screen: 1.9750869350643864e-13 }, PivotEvidence { ordered_index: 5, global_dof: 18, pivot: 3.1591403170087973, cancellation_scale: 3.1591403170087973, operation_count: 2, screen: 4.489408406994923e-14 }, PivotEvidence { ordered_index: 6, global_dof: 9, pivot: 1.564596043917011, cancellation_scale: 1.564596043917011, operation_count: 2, screen: 2.2234247068084464e-14 }, PivotEvidence { ordered_index: 7, global_dof: 3, pivot: 1.22862848930719, cancellation_scale: 1.9006322630776133, operation_count: 4, screen: 5.401921791524314e-14 }, PivotEvidence { ordered_index: 8, global_dof: 11, pivot: 1.034246912516387, cancellation_scale: 1.1790840764393855, operation_count: 6, screen: 5.026737752186476e-14 }, PivotEvidence { ordered_index: 9, global_dof: 10, pivot: 0.5832144255799585, cancellation_scale: 1.630116563375814, operation_count: 8, screen: 9.266139860391237e-14 }, PivotEvidence { ordered_index: 10, global_dof: 5, pivot: 0.8823855599531969, cancellation_scale: 1.8077825872057005, operation_count: 10, screen: 1.2845067851726116e-13 }, PivotEvidence { ordered_index: 11, global_dof: 4, pivot: 0.4124232620429731, cancellation_scale: 2.2777448851159243, operation_count: 12, screen: 1.9421220984406154e-13 }, PivotEvidence { ordered_index: 12, global_dof: 8, pivot: 2.6354975774622003, cancellation_scale: 2.6750929957362186, operation_count: 14, screen: 2.661075053844337e-13 }, PivotEvidence { ordered_index: 13, global_dof: 7, pivot: 5.364160329257572e-7, cancellation_scale: 5.310590036782386, operation_count: 16, screen: 6.037441877177112e-13 }, PivotEvidence { ordered_index: 14, global_dof: 6, pivot: 0.0062866002049502155, cancellation_scale: 5.518958918043058, operation_count: 14, screen: 5.490038635443492e-13 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 2.606477882912165e-8, residual_rows: [ResidualRow { global_dof: 3, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 22, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.5631940186722242e-13, passed: true }, ResidualRow { global_dof: 4, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 26, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 5, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 26, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 6, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 22, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.5631940186722242e-13, passed: true }, ResidualRow { global_dof: 7, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 26, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 8, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 26, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 9, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 22, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.5631940186722242e-13, passed: true }, ResidualRow { global_dof: 10, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 26, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 11, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 26, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 18, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 19, residual: 4e-323, denominator: 8.000000000000001e-307, row_scale_exponent: -1018, normalized_residual: 1.1102230246251565e-16, normalized_denominator: 2.247116418577895, normalized_evaluation_allowance: 2.4948003869184054e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 8.9e-322, guarded_ratio: 1.159629589209286e-15, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 20, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 21, residual: 0.0, denominator: 2e-307, row_scale_exponent: -1020, normalized_residual: 0.0, normalized_denominator: 2.2471164185778947, normalized_evaluation_allowance: 1.4968802321510418e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 1.33e-322, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 22, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 23, residual: 0.0, denominator: 4.0000000000000004e-307, row_scale_exponent: -1019, normalized_residual: 0.0, normalized_denominator: 2.247116418577895, normalized_evaluation_allowance: 2.4948003869184054e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 4.45e-322, guarded_ratio: 1.110223024625161e-15, target: 7.10542735760101e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 3, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 22, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.5631940186722242e-13, passed: true }, ResidualRow { global_dof: 4, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 5, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 6, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 22, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.5631940186722242e-13, passed: true }, ResidualRow { global_dof: 7, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 8, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 9, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 22, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.5631940186722242e-13, passed: true }, ResidualRow { global_dof: 10, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 11, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 18, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 6, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 19, residual: 1.5e-323, denominator: 8.000000000000001e-307, row_scale_exponent: -1018, normalized_residual: 4.4048135163398003e-17, normalized_denominator: 2.247116418577895, normalized_evaluation_allowance: 1.3970882166743215e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 56, evaluation_allowance: 4.975e-321, guarded_ratio: 6.236851008714612e-15, target: 3.979039320256586e-13, passed: true }, ResidualRow { global_dof: 20, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 21, residual: 5e-324, denominator: 2e-307, row_scale_exponent: -1020, normalized_residual: 6.103390992931931e-17, normalized_denominator: 2.2471164185778947, normalized_evaluation_allowance: 6.4864810059878766e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 5.8e-322, guarded_ratio: 2.913740855518677e-15, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 22, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 23, residual: -0.0, denominator: 4.0000000000000004e-307, row_scale_exponent: -1019, normalized_residual: -0.0, normalized_denominator: 2.247116418577895, normalized_evaluation_allowance: 9.48024147029e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 38, evaluation_allowance: 1.69e-321, guarded_ratio: 4.218847493575653e-15, target: 2.7000623958883923e-13, passed: true }], symmetry_projection_performed: true, maximum_scaled_skew: 5.551115123125783e-17, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"N0:UX\", \"N0:UY\", \"N0:UZ\", \"N0:RX\", \"N0:RY\", \"N0:RZ\", \"N1:UX\", \"N1:UY\", \"N1:UZ\", \"N1:RX\", \"N1:RY\", \"N1:RZ\", \"node:section-a:UX\", \"node:section-a:UY\", \"node:section-a:UZ\", \"node:section-a:RX\", \"node:section-a:RY\", \"node:section-a:RZ\", \"node:section-b:UX\", \"node:section-b:UY\", \"node:section-b:UZ\", \"node:section-b:RX\", \"node:section-b:RY\", \"node:section-b:RZ\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed. range_scaling: force_scale_exponent=518; basis=exact power-of-two; record=residual_rows.residual@node:section-b:UY:subnormal(relative_precision=0.0625); record=residual_rows.evaluation_allowance@node:section-b:UY:subnormal(relative_precision=0.002777777777777778); record=intended_residual_rows.residual@node:section-b:UY:subnormal(relative_precision=0.16666666666666669); record=intended_residual_rows.evaluation_allowance@node:section-b:UY:subnormal(relative_precision=0.000496524329692155); record=residual_rows.evaluation_allowance@node:section-b:RX:subnormal(relative_precision=0.01851851851851852); record=intended_residual_rows.residual@node:section-b:RX:subnormal(relative_precision=0.5); more=3",
@@ -692,16 +682,6 @@
         "affected_refs": [
           "case-c"
         ],
-        "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
-        "id": "diagnostic:source-recovery:case-c",
-        "message": "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Exact(Arithmetic(Range(\"arithmetic outside normal range\"))), work: WorkReport { charged: 93622, rejected: 0, limit: 4000000 } }",
-        "severity": "info",
-        "source": "core/product_physics"
-      },
-      {
-        "affected_refs": [
-          "case-c"
-        ],
         "code": "NUMERICAL_INTEGRITY_SENSITIVE",
         "id": "diagnostic:numerical-integrity:case-c",
         "message": "M03-INTEGRITY-v1 represented original-equation structural evidence for load case case-c: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Sensitive, factorization: \"positive skyline LDL\", scale_exponents: [-11, -11, -11, -12, -13, -13, -11, -11, -11, 255, 509, 509, 510, 509, 509], pivots: [PivotEvidence { ordered_index: 0, global_dof: 21, pivot: 1.2032076954412643, cancellation_scale: 1.2032076954412643, operation_count: 2, screen: 1.709860975212883e-14 }, PivotEvidence { ordered_index: 1, global_dof: 22, pivot: 1.3236608310684974, cancellation_scale: 1.3236608310684974, operation_count: 2, screen: 1.8810351762517963e-14 }, PivotEvidence { ordered_index: 2, global_dof: 20, pivot: 0.992745623301373, cancellation_scale: 6.949219363109611, operation_count: 4, screen: 1.9750869350643864e-13 }, PivotEvidence { ordered_index: 3, global_dof: 23, pivot: 1.3236608310684974, cancellation_scale: 1.3236608310684974, operation_count: 2, screen: 1.8810351762517963e-14 }, PivotEvidence { ordered_index: 4, global_dof: 19, pivot: 0.992745623301373, cancellation_scale: 6.949219363109611, operation_count: 4, screen: 1.9750869350643864e-13 }, PivotEvidence { ordered_index: 5, global_dof: 18, pivot: 3.1591403170087973, cancellation_scale: 3.1591403170087973, operation_count: 2, screen: 4.489408406994923e-14 }, PivotEvidence { ordered_index: 6, global_dof: 9, pivot: 1.564596043917011, cancellation_scale: 1.564596043917011, operation_count: 2, screen: 2.2234247068084464e-14 }, PivotEvidence { ordered_index: 7, global_dof: 3, pivot: 1.22862848930719, cancellation_scale: 1.9006322630776133, operation_count: 4, screen: 5.401921791524314e-14 }, PivotEvidence { ordered_index: 8, global_dof: 11, pivot: 1.034246912516387, cancellation_scale: 1.1790840764393855, operation_count: 6, screen: 5.026737752186476e-14 }, PivotEvidence { ordered_index: 9, global_dof: 10, pivot: 0.5832144255799585, cancellation_scale: 1.630116563375814, operation_count: 8, screen: 9.266139860391237e-14 }, PivotEvidence { ordered_index: 10, global_dof: 5, pivot: 0.8823855599531969, cancellation_scale: 1.8077825872057005, operation_count: 10, screen: 1.2845067851726116e-13 }, PivotEvidence { ordered_index: 11, global_dof: 4, pivot: 0.4124232620429731, cancellation_scale: 2.2777448851159243, operation_count: 12, screen: 1.9421220984406154e-13 }, PivotEvidence { ordered_index: 12, global_dof: 8, pivot: 2.6354975774622003, cancellation_scale: 2.6750929957362186, operation_count: 14, screen: 2.661075053844337e-13 }, PivotEvidence { ordered_index: 13, global_dof: 7, pivot: 5.364160329257572e-7, cancellation_scale: 5.310590036782386, operation_count: 16, screen: 6.037441877177112e-13 }, PivotEvidence { ordered_index: 14, global_dof: 6, pivot: 0.0062866002049502155, cancellation_scale: 5.518958918043058, operation_count: 14, screen: 5.490038635443492e-13 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 2.606477882912165e-8, residual_rows: [ResidualRow { global_dof: 3, residual: 4.0908249010485065e-14, denominator: 640.2631791888518, row_scale_exponent: 8, normalized_residual: 1.5979784769720728e-16, normalized_denominator: 2.5010280437064525, normalized_evaluation_allowance: 6.108737622583485e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 22, evaluation_allowance: 1.5638368313813722e-12, guarded_ratio: 2.506383519391059e-15, target: 1.5631940186722242e-13, passed: true }, ResidualRow { global_dof: 4, residual: 1.762479051592436e-15, denominator: 160.18785506077893, row_scale_exponent: 7, normalized_residual: 1.3769367590565906e-17, normalized_denominator: 1.2514676176623354, normalized_evaluation_allowance: 3.612461225623965e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 26, evaluation_allowance: 4.623950368798675e-13, guarded_ratio: 2.8975824400379777e-15, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 5, residual: 7.0013439490423934e-15, denominator: 160.18785506077668, row_scale_exponent: 7, normalized_residual: 5.46979996018937e-17, normalized_denominator: 1.2514676176623178, normalized_evaluation_allowance: 3.612461225623914e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 26, evaluation_allowance: 4.62395036879861e-13, guarded_ratio: 2.930286947476836e-15, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 6, residual: 6.003461616721495e-13, denominator: 11717.96828520802, row_scale_exponent: 13, normalized_residual: 7.328444356349481e-17, normalized_denominator: 1.4304160504404322, normalized_evaluation_allowance: 3.493777834783181e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 22, evaluation_allowance: 2.8621028022543818e-11, guarded_ratio: 2.4937236108671817e-15, target: 1.5631940186722242e-13, passed: true }, ResidualRow { global_dof: 7, residual: -2.8835545062833035e-12, denominator: 23755.820839483327, row_scale_exponent: 14, normalized_residual: -1.7599819984639303e-16, normalized_denominator: 1.449940236784871, normalized_evaluation_allowance: 4.185368291543463e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 26, evaluation_allowance: 6.85730740886481e-11, guarded_ratio: 3.0079629358109695e-15, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 8, residual: 2.1286356506013066e-12, denominator: 23755.820839483327, row_scale_exponent: 14, normalized_residual: 1.2992160953377116e-16, normalized_denominator: 1.449940236784871, normalized_evaluation_allowance: 4.185368291543463e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 26, evaluation_allowance: 6.85730740886481e-11, guarded_ratio: 2.976184667201228e-15, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 9, residual: 6.705747068735946e-14, denominator: 640.2770458555182, row_scale_exponent: 8, normalized_residual: 2.6194324487249787e-16, normalized_denominator: 2.501082210373118, normalized_evaluation_allowance: 6.108869924160583e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 22, evaluation_allowance: 1.5638707005851092e-12, guarded_ratio: 2.5472226153184654e-15, target: 1.5631940186722242e-13, passed: true }, ResidualRow { global_dof: 10, residual: -4.642120021713936e-15, denominator: 160.21238839411217, row_scale_exponent: 7, normalized_residual: -3.6266562669640123e-17, normalized_denominator: 1.2516592843290013, normalized_evaluation_allowance: 3.613014486764567e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 26, evaluation_allowance: 4.624658543058646e-13, guarded_ratio: 2.9155546522315413e-15, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 11, residual: -1.27675647831893e-15, denominator: 160.2123883941107, row_scale_exponent: 7, normalized_residual: -9.974659986866641e-18, normalized_denominator: 1.2516592843289898, normalized_evaluation_allowance: 3.613014486764534e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 26, evaluation_allowance: 4.624658543058604e-13, guarded_ratio: 2.8945490135469946e-15, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 18, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 19, residual: 4e-323, denominator: 8.000000000000001e-307, row_scale_exponent: -1018, normalized_residual: 1.1102230246251565e-16, normalized_denominator: 2.247116418577895, normalized_evaluation_allowance: 2.4948003869184054e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 8.9e-322, guarded_ratio: 1.159629589209286e-15, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 20, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 21, residual: 0.0, denominator: 2e-307, row_scale_exponent: -1020, normalized_residual: 0.0, normalized_denominator: 2.2471164185778947, normalized_evaluation_allowance: 1.4968802321510418e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 1.33e-322, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 22, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 23, residual: 0.0, denominator: 4.0000000000000004e-307, row_scale_exponent: -1019, normalized_residual: 0.0, normalized_denominator: 2.247116418577895, normalized_evaluation_allowance: 2.4948003869184054e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 4.45e-322, guarded_ratio: 1.110223024625161e-15, target: 7.10542735760101e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 3, residual: 2.678790839865138e-14, denominator: 640.2631791888518, row_scale_exponent: 8, normalized_residual: 1.0464026718223195e-16, normalized_denominator: 2.5010280437064525, normalized_evaluation_allowance: 8.718834606778813e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 314, evaluation_allowance: 2.232021659335376e-11, guarded_ratio: 3.4902841875218545e-14, target: 2.2311041902867925e-12, passed: true }, ResidualRow { global_dof: 4, residual: 2.550054315132243e-15, denominator: 160.18785506077893, row_scale_exponent: 7, normalized_residual: 1.992229933697065e-17, normalized_denominator: 1.2514676176623354, normalized_evaluation_allowance: 5.529844491532526e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 398, evaluation_allowance: 7.078200949161633e-12, guarded_ratio: 4.420279552897743e-14, target: 2.8279600883253235e-12, passed: true }, ResidualRow { global_dof: 5, residual: 2.060247361025063e-15, denominator: 160.18785506077668, row_scale_exponent: 7, normalized_residual: 1.6095682508008303e-17, normalized_denominator: 1.2514676176623178, normalized_evaluation_allowance: 5.279751022066136e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 380, evaluation_allowance: 6.758081308244654e-12, guarded_ratio: 4.220133638122012e-14, target: 2.7000623958884946e-12, passed: true }, ResidualRow { global_dof: 6, residual: 6.516501397956103e-13, denominator: 11717.96828520802, row_scale_exponent: 13, normalized_residual: 7.954713620551884e-17, normalized_denominator: 1.4304160504404322, normalized_evaluation_allowance: 4.954812202056466e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 312, evaluation_allowance: 4.058982155924657e-10, guarded_ratio: 3.469456955652262e-14, target: 2.2168933355715893e-12, passed: true }, ResidualRow { global_dof: 7, residual: -3.600537397313291e-12, denominator: 23755.820839483327, row_scale_exponent: 14, normalized_residual: -2.1975936262898506e-16, normalized_denominator: 1.449940236784871, normalized_evaluation_allowance: 6.986345532807799e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 434, evaluation_allowance: 1.1446428520952298e-9, guarded_ratio: 4.83352436967433e-14, target: 3.0837554731989834e-12, passed: true }, ResidualRow { global_dof: 8, residual: 1.9568429736186274e-12, denominator: 23755.820839483327, row_scale_exponent: 14, normalized_residual: 1.1943621665152755e-16, normalized_denominator: 1.449940236784871, normalized_evaluation_allowance: 6.117076733794773e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 380, evaluation_allowance: 1.0022218520649357e-9, guarded_ratio: 4.227084813544325e-14, target: 2.7000623958884946e-12, passed: true }, ResidualRow { global_dof: 9, residual: 8.664565512859272e-14, denominator: 640.2770458555182, row_scale_exponent: 8, normalized_residual: 3.384595903460653e-16, normalized_denominator: 2.501082210373118, normalized_evaluation_allowance: 8.885628980597799e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 320, evaluation_allowance: 2.2747210190330366e-11, guarded_ratio: 3.5662462043988955e-14, target: 2.2737367544324014e-12, passed: true }, ResidualRow { global_dof: 10, residual: -4.785561524432393e-15, denominator: 160.21238839411217, row_scale_exponent: 7, normalized_residual: -3.738719940962807e-17, normalized_denominator: 1.2516592843290013, normalized_evaluation_allowance: 5.280559634502475e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 380, evaluation_allowance: 6.759116332163168e-12, guarded_ratio: 4.221834504488585e-14, target: 2.7000623958884946e-12, passed: true }, ResidualRow { global_dof: 11, residual: -5.5734625953709744e-15, denominator: 160.2123883941107, row_scale_exponent: 7, normalized_residual: -4.354267652633574e-17, normalized_denominator: 1.2516592843289898, normalized_evaluation_allowance: 5.947577693597534e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 428, evaluation_allowance: 7.612899447804844e-12, guarded_ratio: 4.755233341668748e-14, target: 3.0411229090533734e-12, passed: true }, ResidualRow { global_dof: 18, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 6, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 19, residual: 1.5e-323, denominator: 8.000000000000001e-307, row_scale_exponent: -1018, normalized_residual: 4.4048135163398003e-17, normalized_denominator: 2.247116418577895, normalized_evaluation_allowance: 1.3970882166743215e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 56, evaluation_allowance: 4.975e-321, guarded_ratio: 6.236851008714612e-15, target: 3.979039320256586e-13, passed: true }, ResidualRow { global_dof: 20, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 21, residual: 5e-324, denominator: 2e-307, row_scale_exponent: -1020, normalized_residual: 6.103390992931931e-17, normalized_denominator: 2.2471164185778947, normalized_evaluation_allowance: 6.4864810059878766e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 26, evaluation_allowance: 5.8e-322, guarded_ratio: 2.913740855518677e-15, target: 1.8474111129762658e-13, passed: true }, ResidualRow { global_dof: 22, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 23, residual: -0.0, denominator: 4.0000000000000004e-307, row_scale_exponent: -1019, normalized_residual: -0.0, normalized_denominator: 2.247116418577895, normalized_evaluation_allowance: 9.48024147029e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 38, evaluation_allowance: 1.69e-321, guarded_ratio: 4.218847493575653e-15, target: 2.7000623958883923e-13, passed: true }], symmetry_projection_performed: true, maximum_scaled_skew: 5.551115123125783e-17, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"N0:UX\", \"N0:UY\", \"N0:UZ\", \"N0:RX\", \"N0:RY\", \"N0:RZ\", \"N1:UX\", \"N1:UY\", \"N1:UZ\", \"N1:RX\", \"N1:RY\", \"N1:RZ\", \"node:section-a:UX\", \"node:section-a:UY\", \"node:section-a:UZ\", \"node:section-a:RX\", \"node:section-a:RY\", \"node:section-a:RZ\", \"node:section-b:UX\", \"node:section-b:UY\", \"node:section-b:UZ\", \"node:section-b:RX\", \"node:section-b:RY\", \"node:section-b:RZ\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed. formation_check: reason=estimate; row=N1:RX; doubled_correction=8.093801056572112e-14; scale=3.333666549241316e-5; trigger_ratio=2.427897612739378 range_scaling: force_scale_exponent=518; basis=exact power-of-two; record=residual_rows.residual@node:section-b:UY:subnormal(relative_precision=0.0625); record=residual_rows.evaluation_allowance@node:section-b:UY:subnormal(relative_precision=0.002777777777777778); record=intended_residual_rows.residual@node:section-b:UY:subnormal(relative_precision=0.16666666666666669); record=intended_residual_rows.evaluation_allowance@node:section-b:UY:subnormal(relative_precision=0.000496524329692155); record=residual_rows.evaluation_allowance@node:section-b:RX:subnormal(relative_precision=0.01851851851851852); record=intended_residual_rows.residual@node:section-b:RX:subnormal(relative_precision=0.5); more=3",
@@ -751,7 +731,7 @@
     "formulation_basis": {
       "limitations": [
         "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-        "Nonzero pressure is refused on this route, and so is legacy imposed_displacement.",
+        "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
         "On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No transverse shear, equivalent stress or code stress.",
         "On arcs: signed tangent-frame resultants and nominal stress components; endpoint force rows are node-on-element actions in the tangent frame at their end. No maximum, and no stress headline for a model containing an arc.",
         "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
@@ -832,7 +812,7 @@
         "id": "result:solver-mode:linear-solve-basis",
         "kind": "linear_solver_mode_basis",
         "metadata": {
-          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=not_observed; original_profile_entries=not_observed; ordered_profile_entries=not_observed; original_half_bandwidth=not_observed; ordered_half_bandwidth=not_observed; nonpositive_pivots=not_observed; pivot_condition_ratio_proxy=not_observed; max_abs_sparse_residual=not_observed; dense_fallback=false; dense_fallback_message=none",
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
           "component": "linear_solver_mode",
           "coordinate_system": "reduced_system",
           "location": "case-a",
@@ -2807,7 +2787,7 @@
         },
         "recovery_method": "contribution_preserving_multiprecision_v1",
         "unit": "MPa",
-        "value": -2.8939662802624816e-98
+        "value": -2.893966280262482e-98
       },
       {
         "basis_ref": {
@@ -3016,7 +2996,7 @@
         },
         "recovery_method": "contribution_preserving_multiprecision_v1",
         "unit": "MPa",
-        "value": 1.698531866922523e-98
+        "value": 1.6985318669225226e-98
       },
       {
         "basis_ref": {
@@ -4053,7 +4033,7 @@
         "id": "result:loadcase:case-b:solver-mode:linear-solve-basis",
         "kind": "linear_solver_mode_basis",
         "metadata": {
-          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=not_observed; original_profile_entries=not_observed; ordered_profile_entries=not_observed; original_half_bandwidth=not_observed; ordered_half_bandwidth=not_observed; nonpositive_pivots=not_observed; pivot_condition_ratio_proxy=not_observed; max_abs_sparse_residual=not_observed; dense_fallback=false; dense_fallback_message=none",
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
           "component": "linear_solver_mode",
           "coordinate_system": "reduced_system",
           "location": "case-b",
@@ -7103,7 +7083,7 @@
         "id": "result:loadcase:case-c:solver-mode:linear-solve-basis",
         "kind": "linear_solver_mode_basis",
         "metadata": {
-          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=not_observed; original_profile_entries=not_observed; ordered_profile_entries=not_observed; original_half_bandwidth=not_observed; ordered_half_bandwidth=not_observed; nonpositive_pivots=not_observed; pivot_condition_ratio_proxy=not_observed; max_abs_sparse_residual=not_observed; dense_fallback=false; dense_fallback_message=none",
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
           "component": "linear_solver_mode",
           "coordinate_system": "reduced_system",
           "location": "case-c",
@@ -7132,7 +7112,7 @@
         "id": "result:loadcase:case-c:disp:N1",
         "kind": "displacement_magnitude",
         "unit": "mm",
-        "value": 0.09426732782247198
+        "value": 0.09426732782247199
       },
       {
         "basis_ref": {
@@ -11411,7 +11391,7 @@
               ],
               "verification_precision": 256
             },
-            "source_identity_sha256": "12b708878b7b78768f17b7421246692e166e59f4f75d84ae197882b025e081a0",
+            "source_identity_sha256": "37e6bd0006288ad7843c455719c3b5330c2e88a38e134cf2415573b489566d99",
             "source_ref": 0,
             "status": "selected"
           },
@@ -12140,37 +12120,8 @@
           "domain": "source_blocks_invocation_v1",
           "profile": "openpipestress_jcs_ijson_v1",
           "scope": "actual_request_and_solver_mode",
-          "value": "8abe45305e78fdb62f4895c4a184a8486928b98e041da634963a7ce1966cc152"
+          "value": "f76ac5430094758d27817703a8e0722ac74b9987b35976ec0ff7aa2ef333da63"
         },
-        "legacy_source_work": [
-          {
-            "case_index": 0,
-            "charged": 91870,
-            "helper_stage": "source_closure",
-            "limit": 4000000,
-            "rejected": 0,
-            "settlement": "booked",
-            "stage": "source closure"
-          },
-          {
-            "case_index": 1,
-            "charged": 91702,
-            "helper_stage": "source_closure",
-            "limit": 4000000,
-            "rejected": 0,
-            "settlement": "booked",
-            "stage": "source closure"
-          },
-          {
-            "case_index": 2,
-            "charged": 93622,
-            "helper_stage": "source_closure",
-            "limit": 4000000,
-            "rejected": 0,
-            "settlement": "booked",
-            "stage": "source closure"
-          }
-        ],
         "material_bases": [
           {
             "case_indices": [
@@ -12232,11 +12183,6 @@
               },
               "kind": "structural_failure"
             },
-            "legacy_source": {
-              "diagnostic_ref": null,
-              "disposition": "unavailable",
-              "work_ref": 0
-            },
             "material_basis_ref": 0,
             "requested_mode": "sparse_interactive",
             "w2": {
@@ -12258,7 +12204,6 @@
             "diagnostic_refs": [
               "diagnostic:load:load-tip-y:category-mapping",
               "diagnostic:load:load-tip-torque:category-mapping",
-              "diagnostic:source-recovery:case-b",
               "diagnostic:numerical-integrity:case-b"
             ],
             "formation": {
@@ -12272,11 +12217,6 @@
                 "tag": "range"
               },
               "kind": "structural_failure"
-            },
-            "legacy_source": {
-              "diagnostic_ref": "diagnostic:source-recovery:case-b",
-              "disposition": "unavailable",
-              "work_ref": 1
             },
             "material_basis_ref": 0,
             "requested_mode": "sparse_interactive",
@@ -12302,7 +12242,6 @@
               "diagnostic:load:load-2-c:category-mapping",
               "diagnostic:load:load-tip-y-c:category-mapping",
               "diagnostic:load:load-tip-torque-c:category-mapping",
-              "diagnostic:source-recovery:case-c",
               "diagnostic:numerical-integrity:case-c"
             ],
             "formation": {
@@ -12316,11 +12255,6 @@
                 "tag": "range"
               },
               "kind": "structural_failure"
-            },
-            "legacy_source": {
-              "diagnostic_ref": "diagnostic:source-recovery:case-c",
-              "disposition": "unavailable",
-              "work_ref": 2
             },
             "material_basis_ref": 0,
             "requested_mode": "sparse_interactive",
@@ -12346,19 +12280,18 @@
                 792,
                 6030,
                 1567,
-                10418,
-                216920,
-                9499,
-                178,
+                9080,
+                210984,
+                8128,
+                179,
                 476,
-                3424,
-                63866
+                2311,
+                64617
               ],
               "fault": null,
               "observation_capacity_bytes": [
                 18,
-                1953,
-                0
+                840
               ],
               "prepared_capacity_bytes": [
                 192,
@@ -13271,7 +13204,7 @@
                 "sticky_status": "exact",
                 "wide_lme": {
                   "kind": "exact",
-                  "value": 33123952
+                  "value": 32426272
                 }
               },
               "prepared_capacity_bytes": [
@@ -13906,140 +13839,140 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 99
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abc641c94142f835"
+                    "value": "ad0539d5128101fd"
                   },
                   "row_index": 100
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab7442570ad573f4"
+                    "value": "acb352144a90f889"
                   },
                   "row_index": 101
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 102
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 103
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2bbb38c170183104"
+                    "value": "2cf9f5ec5a0ad21f"
                   },
                   "row_index": 104
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abafa62ea4ae291f"
+                    "value": "acee2ed7d38527b0"
                   },
                   "row_index": 105
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 106
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 107
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abba947d85de680e"
+                    "value": "acf95944853ece74"
                   },
                   "row_index": 108
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab939f87a45f1a4d"
+                    "value": "acd2b6cfb7bdc271"
                   },
                   "row_index": 109
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 110
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 111
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba14ad1126dbf65"
+                    "value": "ace07dbdcaf731db"
                   },
                   "row_index": 112
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba1173cc3046bcf"
+                    "value": "ace04c8d2e6ba360"
                   },
                   "row_index": 113
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 114
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 115
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2ba29358e6e15152"
+                    "value": "2ce1b70d748f3931"
                   },
                   "row_index": 116
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba85eb5b3d94a77"
+                    "value": "ace73db280f86588"
                   },
                   "row_index": 117
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 118
                 },
@@ -14396,7 +14329,7 @@
               ],
               "scalar_operations": {
                 "kind": "exact",
-                "value": 783
+                "value": 823
               },
               "summary_coverage": [
                 {
@@ -14449,19 +14382,18 @@
                 790,
                 1539,
                 671,
-                3341,
-                21508,
-                2905,
-                163,
+                2345,
+                17056,
+                1876,
+                164,
                 127,
-                3345,
-                20995
+                2232,
+                21746
               ],
               "fault": null,
               "observation_capacity_bytes": [
                 18,
-                1953,
-                0
+                840
               ],
               "prepared_capacity_bytes": [
                 192,
@@ -15023,7 +14955,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "1ee789e63d85f1927d1aaadc0489668da4530181b22320e4a97b20c08e61c029",
+        "publication_sha256": "95d57aa205cc1f11311e1a1ec6ab64a45372f356e0f4f2b6af4a6f7d0cee94d6",
         "receipt_version": 1,
         "sources": [
           {
@@ -16615,7 +16547,7 @@
             },
             "preparation": {
               "attempt_ref": 0,
-              "sha256": "093fbfe0469302598df5af1281ac0d8db5f64560fb66436b3c8385417e429e24"
+              "sha256": "104ce2cac1d5533f2ed5eb3cc9216eb6a92d769fc03e685d339ae7d409b96920"
             },
             "section_terms": [
               {
@@ -18378,7 +18310,7 @@
             },
             "preparation": {
               "attempt_ref": 1,
-              "sha256": "adeb20eb082154c3f8a05c49a6fc3b7822a019ba49b585005d6ae682f85d72c2"
+              "sha256": "23eefbe565dfa84664155243e86a4142dc3dc55a3fb29930464a87905c63be35"
             },
             "section_terms": [
               {
@@ -18550,7 +18482,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "f9a99e3e24cb3a813143af49f4b4d535f7380d24db8fbe5e47adc07b34355f43"
+      "receipt_sha256": "52bec4cd76d819c4848fd773850f571aefa98f1e1cb55075bd29cfc705b72e38"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",
@@ -18560,9 +18492,8 @@
       "rule_check": "RULE_INPUTS_INCOMPLETE"
     },
     "summary": {
-      "component_pressure_thrust_load_count": 0,
       "component_stress_modifier_count": 0,
-      "component_user_stiffness_macro_element_count": 0,
+      "curved_bend_macro_element_count": 0,
       "load_case_count": 3,
       "max_displacement": {
         "location_ref": "node:section-b",

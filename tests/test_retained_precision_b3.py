@@ -24,8 +24,8 @@ if str(Path(__file__).resolve().parent) not in sys.path:
 from retained_precision_corpus import load_corpus  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-PINNED = {"sparse_interactive": "174e17c55eadf69439d21d8809776a0e7d2ba95fa01a4ed0046366fb141a11a6",
-          "dense_scrutiny": "ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55"}
+PINNED = {"sparse_interactive": "e3e0830d34d7403da45cc5900aa40cc42d090478d9c2d3ba57bcecf9b6070d2e",
+          "dense_scrutiny": "c24d4a1cbfb4668fe071fd1b9cc9abed35589c390992ebad33dd0a9159cf3316"}
 MODES = sorted(PINNED)
 LEGACY = {"version": "1.0.0", "mode": "legacy_pressure_v1"}
 INVOCATION = ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")
@@ -132,15 +132,24 @@ def test_b3a_m3l_mutations(mode, label):
 
 @pytest.mark.parametrize("value", [{}, False, [], "", 0, LEGACY])
 def test_b3a_branch_l_admits_only_an_absent_or_null_contract(value):
-    """N-4: on 0.1.0 and 0.2.0 the contract is absent or JSON null, type-strictly; no falsy value stands for null,
-    and the legacy contract belongs to 0.3.0 only."""
+    """N-4 on the current pressure-free 0.5.0: absent or JSON null only;
+    every other value, including the retired legacy contract, stays refused."""
     source, invocation = milestone("sparse_interactive")
-    for version in ("0.1.0", "0.2.0"):
+    for version in ("0.5.0",):
         for contract in (None, "absent"):
             fine = edited_invocation(invocation, lambda m: (m.update(schema_version=version), m.pop("pressure_contract", None) if contract == "absent" else m.update(pressure_contract=None)))
             assert outcome(reseal(source, fine), fine)[0] == "pass"
         bad = edited_invocation(invocation, lambda m: m.update(schema_version=version, pressure_contract=deepcopy(value)))
         assert outcome(reseal(source, bad), bad) == INVOCATION, (version, value)
+
+
+@pytest.mark.parametrize("version", ["0.1.0", "0.2.0"])
+@pytest.mark.parametrize("contract", [None, "absent"])
+def test_preview_retired_versions_stay_refused(version, contract):
+    """The format retirement does not restore a preview namespace without a contract."""
+    source, invocation = milestone("sparse_interactive")
+    retired = edited_invocation(invocation, lambda m: (m.update(schema_version=version), m.pop("pressure_contract", None) if contract == "absent" else m.update(pressure_contract=None)))
+    assert outcome(reseal(source, retired), retired) == INVOCATION
 
 
 def test_b3a_tightening_0_3_0_needs_the_legacy_contract():
@@ -153,7 +162,7 @@ def test_b3a_tightening_0_3_0_needs_the_legacy_contract():
 
 # B3a dropped: the one table RS (`b3a_legacy_pressure_contract_namespace_at_g8`), TS (its "B3a (I101)" block) and PY
 # pin alike, entry for entry: invocation edits on the shared corpus bases (07e's rule, `reseal`). Only branch L
-# (0.1.0 or 0.2.0, pressure_contract absent or JSON null) passes. "L3" in the names is B3a's retired contract on 0.3.0,
+# (current 0.5.0, pressure_contract absent or JSON null) passes. "L3" in the names is B3a's retired contract on 0.3.0,
 # refused on every base and before any load is read (the former N-11 entries).
 SHARED = {case["id"]: case for case in load_corpus()["cases"]}
 B3A_DROPPED_BASES = ("ordinary_prepared_synthetic", "ordinary_prepared_dense_synthetic", "two_case_synthetic",
@@ -181,8 +190,8 @@ def _zero_pressure(m):
 
 B3A_DROPPED_TABLE = [
     *[(f"L3 on {base}", base, [_schema("0.3.0"), _contract(LEGACY)], INVOCATION) for base in B3A_DROPPED_BASES],
-    ("L: 0.2.0, contract null", ORD, [_contract(None)], "pass"),
-    ("L: 0.1.0, contract absent", ORD, [_schema("0.1.0"), _no_contract], "pass"),
+    ("L: 0.5.0, contract null", ORD, [_contract(None)], "pass"),
+    ("L: 0.5.0, contract absent", ORD, [_schema("0.5.0"), _no_contract], "pass"),
     ("L3: mode exact_straight_pressure_v2, version 1.0.0", ORD, [_schema("0.3.0"), _contract({**LEGACY, "mode": "exact_straight_pressure_v2"})], INVOCATION),
     ("L3: version 1.0.1", ORD, [_schema("0.3.0"), _contract({**LEGACY, "version": "1.0.1"})], INVOCATION),
     ("L3: the exact contract 2.0.0", ORD, [_schema("0.3.0"), _contract({"version": "2.0.0", "mode": "exact_straight_pressure_v2"})], INVOCATION),
@@ -195,14 +204,14 @@ B3A_DROPPED_TABLE = [
     ("L3: version a number", ORD, [_schema("0.3.0"), _contract({**LEGACY, "version": 1.0})], INVOCATION),
     ("L3: mode null", ORD, [_schema("0.3.0"), _contract({**LEGACY, "mode": None})], INVOCATION),
     ("0.3.0, contract {}", ORD, [_schema("0.3.0"), _contract({})], INVOCATION),
-    ("0.2.0 keeping the L3 contract", ORD, [_contract(LEGACY)], INVOCATION),
+    ("0.5.0 keeping the L3 contract", ORD, [_contract(LEGACY)], INVOCATION),
     ("0.1.0 keeping the L3 contract", ORD, [_schema("0.1.0"), _contract(LEGACY)], INVOCATION),
     ("0.4.0 with the L3 contract", ORD, [_schema("0.4.0"), _contract(LEGACY)], INVOCATION),
-    ("N-4: 0.2.0, contract {}", ORD, [_contract({})], INVOCATION),
-    ("N-4: 0.2.0, contract false", ORD, [_contract(False)], INVOCATION),
-    ("N-4: 0.2.0, contract []", ORD, [_contract([])], INVOCATION),
-    ('N-4: 0.2.0, contract ""', ORD, [_contract("")], INVOCATION),
-    ("N-4: 0.2.0, contract 0", ORD, [_contract(0)], INVOCATION),
+    ("N-4: 0.5.0, contract {}", ORD, [_contract({})], INVOCATION),
+    ("N-4: 0.5.0, contract false", ORD, [_contract(False)], INVOCATION),
+    ("N-4: 0.5.0, contract []", ORD, [_contract([])], INVOCATION),
+    ('N-4: 0.5.0, contract ""', ORD, [_contract("")], INVOCATION),
+    ("N-4: 0.5.0, contract 0", ORD, [_contract(0)], INVOCATION),
     ("N-11: L3 with a zero-magnitude element pressure load", ORD, [_schema("0.3.0"), _contract(LEGACY), _zero_pressure], INVOCATION),
     ("N-11: L3 dense with a zero-magnitude element pressure load", DENSE, [_schema("0.3.0"), _contract(LEGACY), _zero_pressure], INVOCATION),
 ]
@@ -483,8 +492,8 @@ B3B_PASSES = {
 
 # Lane P's producer-solved m3x successors (B3b-P, b2 8d3419b542; PP retained_facade_tests.rs `EXACT_PINNED`):
 # document and receipt sha256, as RS pins them. Every B3b shape is also read on each.
-EXACT_PINNED = {"sparse_interactive": ("fd8b1a4dd0b51122fdc39c006d4fd90da4d7ee103e8556694d7c39f567e3af85", "9b4792ef7426c324ba4ae9726d1936560440e16a6326ba38a5191d163e1ffff6"),
-                "dense_scrutiny": ("2fad0a166a565ce0f9390f8f5125a9675ff4ffa4b9532681cd5a960b8c2bd42d", "e3ec745c885327f3823dcdd191e984ba0c1fd184d6a1730cee30d4c4283e5475")}
+EXACT_PINNED = {"sparse_interactive": ("5ef83dd9f046cb97939aa8af753a42b0b962c27bab4c73c725dc803584aee8e5", "57114af44b909de9494abe740eb14cb61aaceefae2beaf5a20b11f98f29cd0ce"),
+                "dense_scrutiny": ("ee20a337dd159fdafcb512f5f5d3efaa731b176cf61423121fce2fde2f212bc0", "3b92b6ce2e72cd12cf3f96aa9a85ba9f2f9b3c38eed7f8879443527d5cd97e17")}
 KINDS = ("synthetic", "producer")
 
 
@@ -574,9 +583,9 @@ def test_b3b_producer_m3x_successor_pins(mode):
     assert outcome(source, None, transport=True) == ("pass", False, "needs_recompute")
     got = rp.validate_retained_precision(source, invocation)["classifications"]
     counts = [sum(1 for c in got if c["class"] == k) for k in ("relative_verified", "absolute_verified", "input_derived", "non_quantity")]
-    assert counts == [25, 69, 3, 1 if mode == "sparse_interactive" else 2]
-    # Every quantity row as the synthetic base classes it, bit for bit (the dense parity observation, a non_quantity
-    # row, is the producer's own run).
+    assert counts == [25, 69, 3, 1]
+    # Every quantity row as the synthetic base classes it, bit for bit. E14 removed
+    # the separate dense parity observation; the current mode header is non_quantity.
     synthetic = rp.validate_retained_precision(*m3x(mode))["classifications"]
     quantity = lambda classes: [(c["class"], c["normalized_bits"], c["scale_bits"], c["bound_bits"]) for c in classes if c["class"] != "non_quantity"]
     assert quantity(got) == quantity(synthetic)
@@ -837,8 +846,8 @@ def test_addendum01_sourced_case_on_the_preview_route(mode, key, value, expected
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# Repair 01 (RV120, RV-R2): its inputs, stated as edits from bases these tests hold, re-materialize byte-equal to
-# RV120's own (input_sha256 as its INPUTS_INDEX).
+# Repair 01 (RV120, RV-R2): the preserved mutations use current bases and DEF-E.
+# input_sha256 pins Python sorted-compact [source, invocation]; the full constructed values also bind to native R1's JCS inputs.
 # - F1: on the exact route G5b runs the shared checks over every selected case first, then each case's exact
 #   evidence (DESIGN §6.2's G5b row), as RS and TS do. With a fault in case 0's evidence and one in case 1's shared
 #   checks, the shared one is read.

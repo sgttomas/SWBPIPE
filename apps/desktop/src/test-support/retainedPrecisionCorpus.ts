@@ -4,14 +4,12 @@ import { resolve } from "node:path";
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /**
- * The shared retained-precision reader corpus: one logical document expanded from ordered compact definitions. A new snapshot is appended here, in PY's
- * `tests/retained_precision_corpus.py` and in RS's `tests/retained_precision_contract.rs`. `cases`, `mutations`
- * and `must_pass` concatenate in file order; any other member appears once or identically in each file. Read the
- * definitions from disk; no product producer regenerates the independent frozen values.
+ * The current shared retained-precision corpus is one lossless DAG/v1 document.
+ * Each occurrence expands into independent containers. Fixture reads establish
+ * no new native execution; readers consume the current reviewed data directly.
  */
 export const RETAINED_PRECISION_CORPUS_FILES = [
-  "fixtures/results/retained_precision_cases.json", // 07m + 07n
-  "fixtures/results/retained_precision_cases_07o.json", // 07o (B2)
+  "fixtures/results/retained_precision_cases.json",
 ] as const;
 const LIST_MEMBERS = new Set(["cases", "mutations", "must_pass"]);
 const PROJECT_ROOT = resolve(__dirname, "../../../../");

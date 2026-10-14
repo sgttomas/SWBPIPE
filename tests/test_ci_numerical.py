@@ -522,9 +522,15 @@ class ReachabilitySafetyTests(unittest.TestCase):
             self.assertEqual(selected['classification'], 'full-fallback')
             # 41 discovered crates since the pressure-source join added core/numerics/correct_norm.
             self.assertEqual(len(selected['manifests']), 41)
-        selected = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases_07o.json'], profile)['piping_numerical_selection']
+        # D8's one current corpus retains its exact reader reachability.
+        selected = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases.json'], profile)['piping_numerical_selection']
         self.assertEqual(selected['classification'], 'reachability')
+        self.assertEqual(len(selected['manifests']), 10)
         self.assertIn('core/reporting/result_export/Cargo.toml', selected['manifests'])
+        # The retired snapshot has no current reader edge; unknown reads stay full.
+        retired = hosted_ci.select_paths([ci.PROJECT + 'fixtures/results/retained_precision_cases_07o.json'], profile)['piping_numerical_selection']
+        self.assertEqual(retired['classification'], 'full-fallback')
+        self.assertEqual(len(retired['manifests']), 41)
 
     def test_python_and_browser_checks_are_independent_of_cargo(self):
         profile = load_profile(ROOT / 'tools/hosted-ci-routing.json')[1]

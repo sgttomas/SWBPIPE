@@ -184,7 +184,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.1.0",
+        "schema_version": "0.5.0",
         "supports": [
           {
             "id": "rigid:N0",
@@ -464,7 +464,7 @@
     "formulation_basis": {
       "limitations": [
         "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-        "Nonzero pressure is refused on this route, and so is legacy imposed_displacement.",
+        "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
         "On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No transverse shear, equivalent stress or code stress.",
         "On arcs: signed tangent-frame resultants and nominal stress components; endpoint force rows are node-on-element actions in the tangent frame at their end. No maximum, and no stress headline for a model containing an arc.",
         "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
@@ -532,7 +532,7 @@
         "id": "result:solver-mode:linear-solve-basis",
         "kind": "linear_solver_mode_basis",
         "metadata": {
-          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=46; original_profile_entries=44; ordered_profile_entries=43; original_half_bandwidth=8; ordered_half_bandwidth=7; nonpositive_pivots=0; pivot_condition_ratio_proxy=4913852.760417686; max_abs_sparse_residual=0.0000000000055997532999452204; dense_fallback=false; dense_fallback_message=none",
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
           "component": "linear_solver_mode",
           "coordinate_system": "reduced_system",
           "location": "case:a",
@@ -2381,7 +2381,7 @@
         },
         "recovery_method": "contribution_preserving_multiprecision_v1",
         "unit": "MPa",
-        "value": -2.8939662802624816e-98
+        "value": -2.893966280262482e-98
       },
       {
         "basis_ref": {
@@ -2590,7 +2590,7 @@
         },
         "recovery_method": "contribution_preserving_multiprecision_v1",
         "unit": "MPa",
-        "value": 1.698531866922523e-98
+        "value": 1.6985318669225226e-98
       },
       {
         "basis_ref": {
@@ -2658,7 +2658,7 @@
         "id": "result:loadcase:case-b:solver-mode:linear-solve-basis",
         "kind": "linear_solver_mode_basis",
         "metadata": {
-          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=46; original_profile_entries=44; ordered_profile_entries=43; original_half_bandwidth=8; ordered_half_bandwidth=7; nonpositive_pivots=0; pivot_condition_ratio_proxy=4913852.760417686; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
           "component": "linear_solver_mode",
           "coordinate_system": "reduced_system",
           "location": "case:b",
@@ -5976,7 +5976,7 @@
           "result:loadcase:case-b:stress:M1:end-j:bending-normal-z"
         ],
         "unit": "MPa",
-        "value": -2.8939662802624816e-98
+        "value": -2.893966280262482e-98
       },
       {
         "basis_ref": {
@@ -6229,7 +6229,7 @@
           "result:loadcase:case-b:stress:M1:quarter-3:bending-normal-y"
         ],
         "unit": "MPa",
-        "value": 1.698531866922523e-98
+        "value": 1.6985318669225226e-98
       },
       {
         "basis_ref": {
@@ -8149,7 +8149,7 @@
               ],
               "verification_precision": 256
             },
-            "source_identity_sha256": "2e2b71121c85c074e0b591f11ca03fa72083b08bf18991ccda7fd6d3b6ebd034",
+            "source_identity_sha256": "61c4fc5f66b8c0a8f6ae4531d30265a4f5379d6969e9c6436d9f4e8a186e346b",
             "source_ref": 0,
             "status": "selected"
           },
@@ -9057,7 +9057,7 @@
               ],
               "verification_precision": 256
             },
-            "source_identity_sha256": "8bb6580f9c46b8a4882e838b89d4e2bb6975320cfe18a50f15491fbd8701de10",
+            "source_identity_sha256": "6273965fffeb06c0f9fe818cb3b690087b2eb03458116beba5c7b0c80a4e52e9",
             "source_ref": 2
           }
         ],
@@ -9113,9 +9113,8 @@
           "domain": "source_blocks_invocation_v1",
           "profile": "openpipestress_jcs_ijson_v1",
           "scope": "actual_request_and_solver_mode",
-          "value": "f6d9d549be2b83e153c9dce82e2677daa80215b6a5125619ec1ec893fb2199af"
+          "value": "df7425fe4b4eb8ad73782c4ce71990e614d6cd32fbab79afec566461e989e156"
         },
-        "legacy_source_work": [],
         "material_bases": [
           {
             "case_indices": [
@@ -9149,19 +9148,18 @@
                 534,
                 3168,
                 981,
-                6810,
-                137414,
-                6169,
-                141,
+                5926,
+                133558,
+                5267,
+                142,
                 310,
-                1951,
-                39319
+                1318,
+                39934
               ],
               "fault": null,
               "observation_capacity_bytes": [
                 12,
-                1193,
-                0
+                560
               ],
               "prepared_capacity_bytes": [
                 144,
@@ -9479,11 +9477,6 @@
               "outcome": "sensitive",
               "report_diagnostic_ref": "diagnostic:numerical-integrity:case:a"
             },
-            "legacy_source": {
-              "diagnostic_ref": null,
-              "disposition": "not_eligible",
-              "work_ref": null
-            },
             "material_basis_ref": 0,
             "requested_mode": "sparse_interactive",
             "w2": {
@@ -9506,11 +9499,6 @@
               "outcome": "checks_passed",
               "report_diagnostic_ref": "diagnostic:numerical-integrity:case:b"
             },
-            "legacy_source": {
-              "diagnostic_ref": null,
-              "disposition": "not_eligible",
-              "work_ref": null
-            },
             "material_basis_ref": 0,
             "requested_mode": "sparse_interactive",
             "w2": {
@@ -9526,19 +9514,18 @@
                 504,
                 3168,
                 914,
-                6801,
-                137414,
-                6169,
-                118,
+                5917,
+                133558,
+                5267,
+                119,
                 310,
-                1694,
-                37042
+                1061,
+                37657
               ],
               "fault": null,
               "observation_capacity_bytes": [
                 12,
-                1193,
-                0
+                560
               ],
               "prepared_capacity_bytes": [
                 72,
@@ -10212,7 +10199,7 @@
                 "sticky_status": "exact",
                 "wide_lme": {
                   "kind": "exact",
-                  "value": 17069376
+                  "value": 16720536
                 }
               },
               "prepared_capacity_bytes": [
@@ -10798,147 +10785,147 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 92
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abc641c94142f835"
+                    "value": "ad0539d5128101fd"
                   },
                   "row_index": 93
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab7442570ad573f4"
+                    "value": "acb352144a90f889"
                   },
                   "row_index": 94
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 95
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 96
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2bbb38c170183104"
+                    "value": "2cf9f5ec5a0ad21f"
                   },
                   "row_index": 97
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abafa62ea4ae291f"
+                    "value": "acee2ed7d38527b0"
                   },
                   "row_index": 98
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 99
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 100
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abba947d85de680e"
+                    "value": "acf95944853ece74"
                   },
                   "row_index": 101
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab939f87a45f1a4d"
+                    "value": "acd2b6cfb7bdc271"
                   },
                   "row_index": 102
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 103
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 104
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba14ad1126dbf65"
+                    "value": "ace07dbdcaf731db"
                   },
                   "row_index": 105
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba1173cc3046bcf"
+                    "value": "ace04c8d2e6ba360"
                   },
                   "row_index": 106
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 107
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 108
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2ba29358e6e15152"
+                    "value": "2ce1b70d748f3931"
                   },
                   "row_index": 109
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba85eb5b3d94a77"
+                    "value": "ace73db280f86588"
                   },
                   "row_index": 110
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 111
                 }
               ],
               "scalar_operations": {
                 "kind": "exact",
-                "value": 546
+                "value": 566
               },
               "summary_coverage": [
                 {
@@ -10991,19 +10978,18 @@
                 534,
                 3792,
                 1539,
-                10446,
-                242794,
-                9490,
-                146,
+                9562,
+                238938,
+                8588,
+                147,
                 755,
-                1951,
-                66879
+                1318,
+                67494
               ],
               "fault": null,
               "observation_capacity_bytes": [
                 12,
-                1193,
-                0
+                560
               ],
               "prepared_capacity_bytes": [
                 144,
@@ -11426,7 +11412,7 @@
                 "sticky_status": "exact",
                 "wide_lme": {
                   "kind": "exact",
-                  "value": 15726908
+                  "value": 15378068
                 }
               },
               "prepared_capacity_bytes": [
@@ -11781,140 +11767,140 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 51
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abc641c94142f835"
+                    "value": "ad0539d5128101fd"
                   },
                   "row_index": 52
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab7442570ad573f4"
+                    "value": "acb352144a90f889"
                   },
                   "row_index": 53
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 54
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 55
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2bbb38c170183104"
+                    "value": "2cf9f5ec5a0ad21f"
                   },
                   "row_index": 56
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abafa62ea4ae291f"
+                    "value": "acee2ed7d38527b0"
                   },
                   "row_index": 57
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 58
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 59
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba14ad1126dbf65"
+                    "value": "ace07dbdcaf731db"
                   },
                   "row_index": 60
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba1173cc3046bcf"
+                    "value": "ace04c8d2e6ba360"
                   },
                   "row_index": 61
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 62
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 63
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abba947d85de680e"
+                    "value": "acf95944853ece74"
                   },
                   "row_index": 64
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab939f87a45f1a4d"
+                    "value": "acd2b6cfb7bdc271"
                   },
                   "row_index": 65
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 66
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 67
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2ba29358e6e15152"
+                    "value": "2ce1b70d748f3931"
                   },
                   "row_index": 68
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba85eb5b3d94a77"
+                    "value": "ace73db280f86588"
                   },
                   "row_index": 69
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 70
                 },
@@ -12131,7 +12117,7 @@
               ],
               "scalar_operations": {
                 "kind": "exact",
-                "value": 552
+                "value": 572
               },
               "summary_coverage": [
                 {
@@ -12179,7 +12165,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "3dca744eb1a5437e7a6f3730e3a23b9c2e5b55626a710ad46c577919c89816bd",
+        "publication_sha256": "821b7b4a2efb5adb173223b9473a2b49b09fa8b545ec53897cc427533df48e5c",
         "receipt_version": 1,
         "sources": [
           {
@@ -13308,7 +13294,7 @@
             },
             "preparation": {
               "attempt_ref": 0,
-              "sha256": "edc61d9def12faee4aaa17320987d29613deab68843e52fb92265a166ff10575"
+              "sha256": "5d49905d3a0913f47809f38cb5e850c70504d82c637dd0e983b6cd1ee3878de8"
             },
             "section_terms": [
               {
@@ -14534,7 +14520,7 @@
             },
             "preparation": {
               "operand_preparation_ref": 0,
-              "sha256": "587c5817d99afbcdbb83b32ecf3618bae7128be19dc8035e32a818747fbdb0d3"
+              "sha256": "6e1815181307d7babff84eb744de9abe26fefa81c56c52367e8f1bed211da35d"
             },
             "section_terms": [
               {
@@ -14662,13 +14648,13 @@
               {
                 "case_index": 0,
                 "factor": "3ff0000000000000",
-                "source_identity_sha256": "2e2b71121c85c074e0b591f11ca03fa72083b08bf18991ccda7fd6d3b6ebd034",
+                "source_identity_sha256": "61c4fc5f66b8c0a8f6ae4531d30265a4f5379d6969e9c6436d9f4e8a186e346b",
                 "source_ref": 0
               },
               {
                 "case_index": 1,
                 "factor": "3ff0000000000000",
-                "source_identity_sha256": "8468520fb41f4ebeba41460d64d108bf58f0f0df22a4b569284a275c6fd0f8fe",
+                "source_identity_sha256": "a0492ec0f24723b3eaee92887bc1a58b9b78962e41cc86f9b3f20c983f31c4cd",
                 "source_ref": 1
               }
             ],
@@ -14698,7 +14684,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "3e4d480a057bff394e0a93e567f3b9be4c1df1f1562ad337625166273c3dcb8f"
+      "receipt_sha256": "6dc0f189837231daf6f1073a363723ac554729b1548ad52996f2c54bf3d202fb"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",
@@ -14708,9 +14694,8 @@
       "rule_check": "RULE_INPUTS_INCOMPLETE"
     },
     "summary": {
-      "component_pressure_thrust_load_count": 0,
       "component_stress_modifier_count": 0,
-      "component_user_stiffness_macro_element_count": 0,
+      "curved_bend_macro_element_count": 0,
       "load_case_count": 2,
       "max_displacement": {
         "location_ref": "N1",

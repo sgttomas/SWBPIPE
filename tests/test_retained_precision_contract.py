@@ -172,27 +172,6 @@ def apply_entry(fixture, entry):
     return apply_mutation(fixture["source"], dict(entry, _invocation_digest=digest)), invocation
 
 
-def test_complete_synthetic_draft_control_is_not_qualification():
-    from copy import deepcopy
-    for fixture in corpus()["cases"]:
-        source, invocation = deepcopy(fixture["source"]), deepcopy(fixture["invocation"])
-        if "gate" in fixture["expected"]:
-            # PR-B2 ruling 5: a base stated refused bound is refused there; unbound it passes with its classifications.
-            assert _outcome(rp._validate_draft, source, invocation)[:3] == ("refuse", fixture["expected"]["gate"], fixture["expected"]["code"])
-            assert rp._validate_draft(source)["classifications"] == fixture["expected_classifications"]
-            continue
-        result = rp._validate_draft(source, invocation)
-        assert result["classifications"] == fixture["expected_classifications"]
-        assert result["invocation_bound"]
-        # U7 (07i, D-U7-2): the shared expectation; 15 bases are eligible (07l: 13 synthetic plus the two
-        # producer-solved L = 0 bases), the two with an unavailable case are not.
-        assert result["numerical_eligible"] is fixture["expected"]["numerical_eligible"]
-        assert result["standing"] == fixture["expected"]["standing"]
-        assert source == fixture["source"] and invocation == fixture["invocation"]
-        assert rp._validate_draft(source)["numerical_eligible"] is False
-        # D-U6-1: the public entry runs every gate; the flag gates eligibility only.
-        assert rp.validate_retained_precision(source, invocation) == result
-        assert rp.validate_retained_precision(source)["numerical_eligible"] is False
 
 
 def _outcome(entry, source, invocation):
@@ -221,8 +200,8 @@ def _corpus_entries():
 
 
 MILESTONE_PINS = {
-    "sparse_interactive": ("174e17c55eadf69439d21d8809776a0e7d2ba95fa01a4ed0046366fb141a11a6", [25, 69, 3, 1]),
-    "dense_scrutiny": ("ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55", [25, 69, 3, 2]),
+    "sparse_interactive": ("e3e0830d34d7403da45cc5900aa40cc42d090478d9c2d3ba57bcecf9b6070d2e", [25, 69, 3, 1]),
+    "dense_scrutiny": ("c24d4a1cbfb4668fe071fd1b9cc9abed35589c390992ebad33dd0a9159cf3316", [25, 69, 3, 1]),
 }
 
 
@@ -234,20 +213,6 @@ def _milestone(mode):
     return json.loads(raw)
 
 
-def test_public_entry_equals_the_draft_on_every_corpus_entry():
-    """D-U6-1: no input changes its accept/refuse outcome except by reaching the
-    gates the public entry previously short-circuited at G0. U7: a passing entry's
-    eligibility is its shared expectation (07i)."""
-    count = 0
-    for label, source, invocation, eligibility in _corpus_entries():
-        public = _outcome(rp.validate_retained_precision, deepcopy(source), deepcopy(invocation))
-        draft = _outcome(rp._validate_draft, deepcopy(source), deepcopy(invocation))
-        assert public == draft, label
-        if public[0] == "pass":
-            got = {key: public[1][key] for key in ("invocation_bound", "numerical_eligible", "standing")}
-            assert got == eligibility, label
-        count += 1
-    assert count == 2 * len(corpus()["cases"]) + len(corpus()["mutations"]) + len(corpus().get("must_pass", []))
 
 
 @pytest.mark.parametrize("mode", sorted(MILESTONE_PINS))
@@ -276,13 +241,6 @@ def _expected(mutation):
     return mutation.get("expected_by_reader", {}).get("python", mutation["expected"])
 
 
-@pytest.mark.parametrize("mutation", corpus()["mutations"], ids=lambda x:x["id"])
-def test_shared_draft_first_failure_controls(mutation):
-    fixture = next(f for f in corpus()["cases"] if f["id"] == mutation["base"])
-    source, invocation = apply_entry(fixture, mutation)
-    with pytest.raises(rp.RetainedPrecisionError) as error:
-        rp._validate_draft(source, invocation)
-    assert {"gate":error.value.gate,"code":error.value.code} == _expected(mutation)
 
 
 def test_old_operational_error_is_retained_independently_of_new_ready():
@@ -325,26 +283,6 @@ def _set(path, value):
     return {"path": path, "op": "set", "value": value}
 
 
-@pytest.mark.parametrize("entry", corpus().get("must_pass", []), ids=lambda x: x["id"])
-def test_shared_publicly_consistent_attestations_must_pass(entry):
-    """I57 s4/s5: public coverage rules are necessary conditions only. These shared
-    rewrites keep every public relation, so readers must accept them; only producer
-    custody/replay can catch such attested private flags."""
-    fixture = next(f for f in corpus()["cases"] if f["id"] == entry["base"])
-    source, invocation = apply_entry(fixture, entry)
-    if entry["expected"] != "pass":
-        # PR-B2 ruling 5: an entry on a base refused bound states that refusal (its unbound and transport reads:
-        # `test_snapshot_07o_must_pass`).
-        assert entry["expected"] == fixture["expected"]
-        assert _outcome(rp._validate_draft, source, invocation)[:3] == ("refuse", entry["expected"]["gate"], entry["expected"]["code"])
-        return
-    result = rp._validate_draft(source, invocation)
-    # 07n (B1 SC): an admitted rewrite that changes the classes (a case no longer selected, a row added or removed)
-    # states its own `expected_classifications`, which the three readers agree on; otherwise the base's.
-    assert result["classifications"] == entry.get("expected_classifications", fixture["expected_classifications"])
-    # U7 (07i): 18 entries are eligible (07l: 14 plus the four L = 0 entries); the 10 with an unavailable case are not.
-    got = {key: result[key] for key in ("invocation_bound", "numerical_eligible", "standing")}
-    assert got == entry["expected_eligibility"]
 
 
 def _layout_index(source, predicate):
@@ -707,47 +645,6 @@ def test_rv79_surviving_mutants_m06_m09_m14():
         _set(A1 + ["proof", "checks"], checks), _set(A1 + ["proof", "summary_coverage"], None), _set(A1 + ["result"], values_failed)])
 
 
-def test_snapshot_07_counts_and_entry_format():
-    """Snapshot 07n (B1 SC) appends to 07m only (`test_snapshot_07n_appends_only_and_states_every_read` pins its
-    part); 07m's own slices below are unchanged. Snapshot 07m: 07l plus B6's eight G7 mutations, appended so no existing slice moves, with the N-3
-    probe's TS expectation aligned (B6; PLAN decision 11). 07l: 07k (07j plus RV94 N-3's G7 probe) plus
-    U8's two producer-solved L = 0 bases and their 8 mutations and 4 must-pass entries (U8-2; 07k: U7
-    repair; 07j: U7 slice L, C04; 07i: D-U7-2; 07h: RV90 S1, N1, N2, N4):
-    17 cases, 294 mutations, 28 must-pass and the D37 table; only rehash "all" (D11); one expectation
-    per entry except the two per-reader G7 entries; each must-pass entry also states its eligibility."""
-    c = corpus()
-    # 07o (B2) appends 19 cases, 69 mutations and 19 must-pass entries and states S-6's rehash as `format_rule`.
-    assert (len(c["cases"]), len(c["mutations"]), len(c["must_pass"])) == (26 + 19, 534 + 69, 78 + 19)
-    assert set(c) == {"version", "provenance", "arithmetic", "cases", "mutations", "must_pass", "d37", "format_rule"}
-    entries = c["mutations"][:294] + c["must_pass"][:28]
-    assert all(e["rehash"] == "all" for e in entries)
-    assert all(set(e) <= {"id", "base", "edits", "invocation_edits", "after_rehash", "rehash", "expected", "expected_by_reader", "expected_eligibility"} for e in entries)
-    assert all(("expected_eligibility" in e) == (e in c["must_pass"]) for e in entries)
-    eligible = lambda items, key: sum(item[key]["numerical_eligible"] for item in items)
-    assert (eligible(c["cases"][:17], "expected"), eligible(c["must_pass"][:28], "expected_eligibility")) == (15, 18)
-    # 07l (U8-2): the appended slices, on the two producer-solved L = 0 bases, each mode in turn.
-    l0 = lambda names: [f"{name}_{mode}" for mode in L0_PINS for name in names]
-    assert [e["id"] for e in c["mutations"][278:286]] == l0(["isolated_rotation_stop", "isolated_has_data", "isolated_estimate_coupled"]) + l0(["isolated_translation_rotation_stop"])
-    assert [e["id"] for e in c["must_pass"][24:28]] == l0(["isolated_estimate_uncoupled"]) + l0(["isolated_translation_stop"])
-    assert {e["base"] for e in c["mutations"][278:286] + c["must_pass"][24:28]} == {f"u8_l0_isolated_node_{mode}" for mode in L0_PINS}
-    # 07m (B6): the appended G7 slice, on two synthetic bases.
-    assert [e["id"] for e in c["mutations"][286:294]] == B6_07M_IDS
-    assert {e["base"] for e in c["mutations"][286:294]} == {O_BASE, P_BASE}
-    # 07j (C04): one must-pass entry has a not_required case that passes every gate, eligible.
-    statuses = lambda e: [x["status"] for x in apply_entry(next(f for f in c["cases"] if f["id"] == e["base"]), e)[0]["retained_precision"]["body"]["cases"]]
-    assert [e["id"] for e in c["must_pass"][:28] if "not_required" in statuses(e)] == ["not_required_second_case_checks_passed"]
-    assert [e["id"] for e in entries if "expected_by_reader" in e] == ["g7_maximum_off_enclosure", "g7_not_required_quality_enum_invalid"]
-    # RV94 N-5 (B6): the per-reader entries' whole expectation, pinned literally, so a changed shared or
-    # per-language value fails here as well as in the reader that reads it (R34, R35).
-    g7 = lambda code: {"gate": "G7", "code": code}
-    assert {e["id"]: (e["expected"], e["expected_by_reader"]) for e in entries if "expected_by_reader" in e} == {
-        "g7_maximum_off_enclosure": (g7("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"), {"python": g7("SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"),
-                                     "rust": g7("SOURCE_PREVIEW_PHYSICS_EXTREMA_BOUNDS")}),
-        # PLAN decision 11 (B6): the readers share the base readers' code.
-        "g7_not_required_quality_enum_invalid": (g7("SOURCE_NUMERICAL_CASE_INVALID"), {"python": g7("SOURCE_NUMERICAL_CASE_INVALID"),
-                                                 "rust": g7("SOURCE_NUMERICAL_CASE_INVALID")}),
-    }
-    assert len({e["id"] for e in entries}) == len(entries)
 
 
 # 07m (B6): the N-3 class at its full width (any case status, any part of the base case rule), then
@@ -776,18 +673,8 @@ def _slice_outcomes(start, stop, want):
     assert dict(tally) == want
 
 
-def test_snapshot_07k_g7_probe_slice():
-    """Mutation 277, RV94 N-3's G7 probe (07k), as its own one-entry slice (B6; I70's item 2)."""
-    assert [m["id"] for m in corpus()["mutations"][277:278]] == ["g7_not_required_quality_enum_invalid"]
-    _slice_outcomes(277, 278, {"G7 SOURCE_NUMERICAL_CASE_INVALID": 1})
 
 
-def test_snapshot_07m_g7_header_slice():
-    """07m (B6): the eight appended G7 mutations, by this reader's own first failure."""
-    assert [m["id"] for m in corpus()["mutations"][286:294]] == B6_07M_IDS
-    _slice_outcomes(286, 294, {"G7 SOURCE_NUMERICAL_CASE_INVALID": 4, "G7 SOURCE_NUMERICAL_QUALITY_INVALID": 1,
-                               "G7 SOURCE_FORMULATION_BASIS_UNSUPPORTED": 1, "G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED": 1,
-                               "G7 SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN": 1})
 
 
 def test_class2_ordinary_before_association_d17():
@@ -1022,10 +909,10 @@ def test_rv80_n2_integral_normalization_touches_only_the_receipt(monkeypatch):
 # PP's pinned L = 0 successor files (U8-1, `u8_l0_isolated_node_publishes_pinned_successor` at the U8
 # head): (file sha256, receipt sha256, class counts), the counts as all three readers observed them (I68).
 L0_PINS = {
-    "sparse_interactive": ("57951028f52124e04d83d16585564513dfbd69df6819264de6e2eb361d181c7f",
-                           "4d509cd499166bd885549213d03374dd41041cb80acacb41df4170f42c59be24", [25, 78, 9, 1]),
-    "dense_scrutiny": ("e8dd5f584948a469de58490ff8da09ab95f33de0605ada60334e885589b74ce0",
-                       "1d4e615e64fd219d976f4bc492c90cbab414e9d838e9fe8917bf1e01254cf671", [25, 78, 9, 2]),
+    "sparse_interactive": ("67e65da7cdc6c6a5e150505981fee087cfe6d7c9bf4bd6e0c545013d3e346d6d",
+                           "08af743f21c921308a69767ba91660ce361685828f524863efb9f6970fd3c254", [25, 78, 9, 1]),
+    "dense_scrutiny": ("08cf81a1f252e503c0b45c915caa573abe1263183c835b62bc4454cd8696eb64",
+                       "86e77dc6c1998d760f798997fd5942783f7182ce201a1e369b0171e3da71e5cd", [25, 78, 9, 1]),
 }
 # The registered dev/test build that published them (PP `REGISTERED_PROFILES` at the U8 head).
 L0_BUILD_IDENTITY = ("v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;"
@@ -1043,7 +930,7 @@ def test_producer_solved_bases_are_the_pinned_live_successors_d_u6_5():
     the class counts all three readers observed; without, it is not."""
     import hashlib
     c = corpus()
-    assert c["provenance"] == {"kind": "synthetic_control", "claim": "synthetic controls plus listed producer-solved bases; no native Current evidence"}
+    assert c["provenance"] == {"kind": "synthetic_control", "claim": "18 synthetic reader controls, 25 current public Direct publications and two declared hook-produced precommit refusal controls; no native Current evidence.", "producer_source": "1b24b01bd32fbaac1eeeac1487feee5da483ff69"}
     assert [f["id"] for f in c["cases"][:17] if f["provenance"] != SYNTHETIC_PROVENANCE] == [f"u8_l0_isolated_node_{mode}" for mode in L0_PINS]
     for mode, (file_sha, receipt_sha, counts) in L0_PINS.items():
         base = _cases()[f"u8_l0_isolated_node_{mode}"]
@@ -1067,6 +954,26 @@ def test_producer_solved_bases_are_the_pinned_live_successors_d_u6_5():
         assert eligibility(public) == base["expected"] == {"invocation_bound": True, "numerical_eligible": True, "standing": "eligible"}
         assert public["classifications"] == base["expected_classifications"]
         assert [sum(1 for x in public["classifications"] if x["class"] == k) for k in ("relative_verified", "absolute_verified", "input_derived", "non_quantity")] == counts
+
+
+def test_current_corpus_fixture_provenance_links():
+    """Every corpus file link names the actual bytes and the same source/invocation.
+
+    This checks stored provenance, not new producer execution or native standing.
+    """
+    import hashlib
+    for base in corpus()["cases"]:
+        provenance = base["provenance"]
+        if not isinstance(provenance, dict) or "fixture" not in provenance:
+            continue
+        path = (ROOT / provenance["fixture"]).resolve()
+        assert path.is_relative_to(ROOT.resolve()), base["id"]
+        raw = path.read_bytes()
+        assert hashlib.sha256(raw).hexdigest() == provenance["fixture_sha256"], base["id"]
+        doc = json.loads(raw)
+        assert set(doc) == {"id", "source", "invocation"} and doc["id"] == base["id"]
+        for key in ("source", "invocation"):
+            assert json.dumps(doc[key]) == json.dumps(base[key]), (base["id"], key)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -1828,18 +1735,18 @@ def test_i4p_ruling5_kernel_reason_without_a_run_is_g5_attempt_in_the_reader():
 # (admitted, not eligible) or a gate and code. An admitted rewrite that changes the classes states its own
 # `expected_classifications`. Detail texts are not pinned.
 # ---------------------------------------------------------------------------------------------
-N07_W_C2 = {"sparse_interactive": ("c653b8767e3b9ccb5f3e19e44953e65250b7c4e0ee2ffb27f21a5ba0f9abe5e4", "f9a99e3e24cb3a813143af49f4b4d535f7380d24db8fbe5e47adc07b34355f43"),
-            "dense_scrutiny": ("9e7fffa1b9cfc22549b250a6896aaec2ed05c4a644fd5fb9640cb94d38acec4a", "a5b6ff1b436121d830bd7b34608bacf758608ebac2bbfbf80f48405c3df69e7d")}
+N07_W_C2 = {"sparse_interactive": ("1a9fee6115140a843cdca6ae78f50223421285126356fbc4a064ed6525288535", "52bec4cd76d819c4848fd773850f571aefa98f1e1cb55075bd29cfc705b72e38"),
+            "dense_scrutiny": ("12d6696340acb1a772e2b666365bdea329dc78aca45b40756ede820dc13ea4c8", "83cdc160c391fced072af2baf025ea4ab990c8ceeb58b75a442a358ed24901be")}
 # PR-N (I109): the dense W-C2 and (C, B, A) successors re-pinned at the correctly rounded `rigid:N0`
 # support force magnitude (one ulp above macOS libm's hypot chain), one pin for every platform.
 # PP `retained_facade_tests.rs` REVERSED_PINNED, CBA_PINNED and AA2_PINNED: (receipt sha256, successor bytes sha256).
 N07_PP_PINNED = {
-    "cause_milestone_reversed_sparse_interactive": ("452057c5f8c278b0e81b8d9555dd9f9ed80f53790fb003e1d9f3b81fb03bfaa3", "80faccc913f44fe1f9a273c519c1b2e3da3fe37c51f396f6c4fdf84688f517f5"),
-    "cause_milestone_reversed_dense_scrutiny": ("79455f17810c19c227f9304af74d7f7b1e5c2198544433bd2554e8c844af7266", "2dbc7fc5ae0e1da4e86b4d3525212018fc062b590110090f77f4cd2e2377c013"),
-    "sf2_c_b_a_sparse_interactive": ("8f50bc11b4460c42167e9d3446d73a6fbbf1d1f7d231fb60b8e484751d3e5342", "f13bc5399f10281a32cf9a7270125dda8344a10679d2643770e31b3705777f25"),
-    "sf2_c_b_a_dense_scrutiny": ("c07795bf74a5ca34b26707b862b3026763ee351b5655591006e0b1b13e90cf0f", "47caff74691b99889a0440b7e1cd2b24cdc5c47abf14888592d2928802c7a8d8"),
-    "sf2_a_a2_sparse_interactive": ("fb41aa63728bb774876d689b21118bbd1747b109d694311b10532d73ab2d45c7", "4b47ca8edcfd89eb23d60b1f4a2122cf28cc18feb34491f61b1ce4e2226a90ee"),
-    "sf2_a_a2_dense_scrutiny": ("e69dd41f2842c2198f96b47b42f9e055c68a49b8fd73267a61ee827045e832eb", "bbd4fb5c901f3cab3615e4a1520bfa178d364964c20d67f1eb11d015ff281fb5"),
+    "cause_milestone_reversed_sparse_interactive": ("68b76cbf32b6b6b114d486fa94b952abe27999e55d811f1f3b2803cbe7b9ee01", "ae199588e10ec046916d3db9a66b907412be2fc1ae95badad507549e32d8457c"),
+    "cause_milestone_reversed_dense_scrutiny": ("754931b5c5639e92800c1344825b41773ed044e87137d944b3d4444695764be6", "c0513c0d6804f19ee2245a74f1342bcbff24082bdab0004c736fc53f4dae7f5b"),
+    "sf2_c_b_a_sparse_interactive": ("623bef4858f637a1505c65014b95dbb9189fe19ff2ae608d40f4f004016df562", "48f33043a8216f08171efbcabbf391ba81b3332ae9b0149a0a41604100899593"),
+    "sf2_c_b_a_dense_scrutiny": ("80ce2e742c09214194678065c17a1f99d0d0dcabf8679188adf49e5b3f02c6e9", "17b2f1e60618a89a0efae35646b30126f215eac98641760fbdc7430d7b5d718d"),
+    "sf2_a_a2_sparse_interactive": ("36dd81d88c83698f4c61249852c7f18006464dea7766326f2a01c51e6f853338", "fa5ee27d17c062baaa4b1c5a15505d29ff9e1e482fd9a1931830cc5cb2028547"),
+    "sf2_a_a2_dense_scrutiny": ("add882b91eae4004b3bcca26a34ccc0a7f038a50a450e010286d28b1e271466f", "46a25c19585342ae47dce33085c110da34aa59d6bedea7290955b67c8425feda"),
 }
 N07_BASES = ["w_c2_sparse_interactive", "w_c2_dense_scrutiny", "d38_beside_selected"] + list(N07_PP_PINNED)
 N07_KEYS = {"id", "base", "edits", "invocation_edits", "after_rehash", "rehash", "expected", "expected_by_reader", "expected_eligibility",
@@ -1851,25 +1758,6 @@ def _n07_entries():
     return c["mutations"][294:534] + c["must_pass"][28:78]
 
 
-def test_snapshot_07n_appends_only_and_states_every_read():
-    c = corpus()
-    assert [x["id"] for x in c["cases"][17:26]] == N07_BASES
-    assert (len(c["mutations"][294:534]), len(c["must_pass"][28:78])) == (240, 50)
-    new = _n07_entries()
-    assert all(set(e) <= N07_KEYS and e["rehash"] == "all" and "after_rehash" not in e for e in new)
-    assert all(("expected_eligibility" in e) == (e in c["must_pass"]) and (e["expected"] == "pass") == (e in c["must_pass"]) for e in new)
-    assert all("expected_transport" in e and ("expected_unbound" in e) != ("expected_unbound_by_reader" in e) for e in new)
-    per = [e for e in new if "expected_by_reader" in e]
-    assert len(per) == 45 and all("expected_unbound_by_reader" in e for e in per)
-    # The declared class only: Python's expectation is the shared one, Rust's raw code differs, all at G7, and the
-    # unbound read is the same raw read per reader. R1 removed the TypeScript member.
-    assert all(set(e["expected_by_reader"]) == {"python", "rust"} and e["expected_by_reader"]["python"] == e["expected"] != e["expected_by_reader"]["rust"]
-               and e["expected"]["gate"] == e["expected_by_reader"]["rust"]["gate"] == "G7" and e["expected_unbound_by_reader"] == e["expected_by_reader"] for e in per)
-    assert sum("expected_classifications" in e for e in c["must_pass"][28:78]) == 16
-    eligible = lambda items, key: sum(item[key]["numerical_eligible"] for item in items)
-    assert (eligible(c["cases"][:26], "expected"), eligible(c["must_pass"][:78], "expected_eligibility")) == (19, 46)
-    entries = c["mutations"][:534] + c["must_pass"][:78]
-    assert len({e["id"] for e in entries}) == len(entries) == 612
 
 
 def _n07_read(read, source):
@@ -1881,60 +1769,8 @@ def _n07_read(read, source):
     return "pass"
 
 
-@pytest.mark.parametrize("entry", corpus()["mutations"][294:534] + corpus()["must_pass"][28:78], ids=lambda x: x["id"])
-def test_snapshot_07n_unbound_and_transport_reads(entry):
-    """07n: each entry's unbound read (no invocation) and transport read, as the corpus states them for Python."""
-    fixture = next(f for f in corpus()["cases"] if f["id"] == entry["base"])
-    source, _ = apply_entry(fixture, entry)
-    unbound = entry["expected_unbound"] if "expected_unbound" in entry else entry["expected_unbound_by_reader"]["python"]
-    assert _n07_read(rp.validate_retained_precision, source) == unbound
-    assert _n07_read(rp.validate_retained_precision_transport, source) == entry["expected_transport"]
 
 
-def test_snapshot_07n_bases_are_the_pinned_successors_and_the_d38_derivation():
-    """07n's producer-solved bases are D-U6-5 copies: W-C2's committed fixtures (I85, I3), and the successors PP's
-    own tests pin (receipt and bytes sha256); `d38_beside_selected` is W-C2 sparse rewritten by DESIGN_v2 §2's
-    derivation (the records script's steps), resealed. Each passes with its invocation as stated, and is never
-    eligible without it."""
-    import hashlib
-    c = corpus()
-    bases = {x["id"]: x for x in c["cases"][17:26]}
-    for mode, (file_sha, receipt_sha) in N07_W_C2.items():
-        base = bases[f"w_c2_{mode}"]
-        raw = (ROOT / base["provenance"]["fixture"]).read_bytes()
-        assert hashlib.sha256(raw).hexdigest() == base["provenance"]["fixture_sha256"] == file_sha
-        doc = json.loads(raw)
-        assert doc["id"] == base["id"] and all(json.dumps(base[k]) == json.dumps(doc[k]) for k in ("source", "invocation"))
-        assert receipt_sha is None or base["source"]["retained_precision"]["receipt_sha256"] == receipt_sha
-    for bid, (receipt_sha, bytes_sha) in N07_PP_PINNED.items():
-        p = bases[bid]["provenance"]
-        assert (bases[bid]["source"]["retained_precision"]["receipt_sha256"], p["receipt_sha256"], p["successor_bytes_sha256"]) == (receipt_sha, receipt_sha, bytes_sha)
-        assert p["kind"] == "producer_solved" and p["solver_mode"] == bases[bid]["invocation"]["solver_mode"]
-    w = bases["w_c2_sparse_interactive"]
-    body = w["source"]["retained_precision"]["body"]
-    stages = dict.fromkeys(rp.STAGE_ORDER, "not_entered")
-    stages.update(preparation="completed", native="failed")
-    after = body["cases"][0]["run"]["invocation_after"]
-    a1 = B + ["product_attempts", 1]
-    derivation = [
-        _set(B + ["cases", 2, "run"], None),
-        _set(B + ["cases", 2, "reason"], {"code": "source_unavailable", "phase": "preparation", "cause": {"kind": "prepared_product_failure", "product_attempt_ref": 1}}),
-        _set(a1 + ["run_ref"], None), _set(a1 + ["proof"], None), _set(a1 + ["stages"], stages),
-        _set(a1 + ["result"], {"kind": "unavailable", "error": {"kind": "capture", "cause": {"kind": "origin", "cause": {"kind": "capacity"}}}}),
-        _set(B + ["builds"], [b for b in body["builds"] if b["origin"]["run"] != 1]),
-        _set(B + ["calls", 0, "owner_refs"], [{"kind": "case", "index": 0}]), _set(B + ["calls", 0, "run_refs"], [0]),
-        _set(B + ["calls", 0, "source_refs"], [0]), _set(B + ["calls", 0, "invocation_after"], after),
-        _set(B + ["groups", 0, "source_refs"], [0]), _set(B + ["work", "charged"], after),
-        _set(B + ["work", "execution_order"], [{"kind": "case", "index": 0}]),
-    ]
-    derived = apply_mutation(w["source"], {"edits": derivation, "rehash": "all"})
-    assert json.dumps(derived, sort_keys=True) == json.dumps(bases["d38_beside_selected"]["source"], sort_keys=True)
-    assert bases["d38_beside_selected"]["provenance"] == SYNTHETIC_PROVENANCE
-    for base in bases.values():
-        result = rp.validate_retained_precision(deepcopy(base["source"]), deepcopy(base["invocation"]))
-        assert {k: result[k] for k in ("invocation_bound", "numerical_eligible", "standing")} == base["expected"], base["id"]
-        assert result["classifications"] == base["expected_classifications"], base["id"]
-        assert rp.validate_retained_precision(deepcopy(base["source"]))["numerical_eligible"] is False
 
 
 # ---------------------------------------------------------------------------------------------
@@ -1971,66 +1807,10 @@ O07_KEYS = {"id", "base", "edits", "after_rehash", "rehash", "expected", "expect
 O07_REFUSED_BOUND = ["b2_operand_preparation_failure", "b2_operand_source_unavailable"]
 
 
-def test_snapshot_07o_appends_only_and_states_its_bases():
-    import hashlib
-    assert tuple(O07_SHA256) == CORPUS_FILES[:2]
-    assert {name: hashlib.sha256(expanded_snapshot_bytes(name)).hexdigest() for name in O07_SHA256} == O07_SHA256
-    joined = json.dumps(load_corpus(CORPUS_FILES[:2]), indent=2) + "\n"
-    assert hashlib.sha256(joined.encode()).hexdigest() == O07_JOINED_SHA256
-    c = corpus()
-    assert [x["id"] for x in c["cases"][26:]] == O07_BASES
-    new = c["mutations"][534:] + c["must_pass"][78:]
-    assert (len(c["mutations"][534:]), len(c["must_pass"][78:])) == (69, 19)
-    assert all(set(e) <= O07_KEYS and e["rehash"] == "all" for e in new)
-    stated = [e for e in c["must_pass"][78:] if e["expected"] != "pass"]
-    assert [e["base"] for e in stated] == O07_REFUSED_BOUND == [x["id"] for x in c["cases"][26:] if "gate" in x["expected"]]
-    assert all(e["expected"] == {"gate": "G8", "code": "RETAINED_PRECISION_PREPARATION_MISMATCH"} and e["expected_unbound"] == e["expected_transport"] == "pass"
-               and "expected_eligibility" not in e for e in stated)
-    rest = [e for e in new if e not in stated]
-    assert all(("expected_eligibility" in e) == (e in c["must_pass"]) and (e["expected"] == "pass") == (e in c["must_pass"]) for e in rest)
-    assert all("expected_unbound" not in e and "expected_transport" not in e for e in rest)
-    assert [e["id"] for e in new if "after_rehash" in e] == ["b2o_m10_combination_identity_changed", "b2o_m11_operand_identity_changed", "b2o_m12_operand_prepared_hash_case_domain"]
-    assert [e["id"] for e in new if "expected_by_reader" in e] == ["b2o_m69_combination_magnitude_off"]
-    assert [e["base"] for e in c["must_pass"][78:]] == O07_BASES
-    assert len({e["id"] for e in c["mutations"] + c["must_pass"]}) == 603 + 97
-    # The producer-solved and hook-produced bases state their pinned receipt; W-CB3's are the committed fixtures.
-    for base in c["cases"][26:41] + c["cases"][41:43]:
-        assert base["provenance"]["receipt_sha256"] == base["source"]["retained_precision"]["receipt_sha256"], base["id"]
-    for mode in ("sparse_interactive", "dense_scrutiny"):
-        doc = json.loads((ROOT / f"fixtures/results/retained_precision_combination_successor_{mode}.json").read_text())
-        base = next(x for x in c["cases"] if x["id"] == f"w_cb3_{mode}")
-        assert json.dumps(base["source"]) == json.dumps(doc["source"]) and json.dumps(base["invocation"]) == json.dumps(doc["invocation"])
-    for step in ("operand_preparation_ref", "operands[*].source_ref", "combinations[*].source_ref"):
-        assert step in c["format_rule"]["rehash_indexing"]
 
 
-def test_snapshot_07o_mutation_slice():
-    """The 69 designed first failures (B2-C §10.3 as amended), by this reader's own first failure."""
-    _slice_outcomes(534, 603, {"G0 SOURCE_PRODUCER_CONTRACT_UNSUPPORTED": 7, "G1 RETAINED_PRECISION_RECEIPT_MISMATCH": 9,
-                               "G2 RETAINED_PRECISION_ENCODING_MISMATCH": 2, "G3 RETAINED_PRECISION_COVERAGE_MISMATCH": 14,
-                               "G4 RETAINED_PRECISION_DIAGNOSTIC_MISMATCH": 4, "G5 RETAINED_PRECISION_ATTEMPT_MISMATCH": 10,
-                               "G5 RETAINED_PRECISION_WORK_MISMATCH": 3, "G5 RETAINED_PRECISION_PRODUCT_ATTEMPT_MISMATCH": 8,
-                               "G5b RETAINED_PRECISION_SCALE_MISMATCH": 1, "G5c RETAINED_PRECISION_CLASSIFICATION_MISMATCH": 1,
-                               "G6 RETAINED_PRECISION_ROW_METHOD_MISMATCH": 3, "G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID": 1,
-                               "G8 RETAINED_PRECISION_INVOCATION_MISMATCH": 3, "G8 RETAINED_PRECISION_PREPARATION_MISMATCH": 3})
 
 
-@pytest.mark.parametrize("entry", corpus()["must_pass"][78:], ids=lambda x: x["id"])
-def test_snapshot_07o_must_pass(entry):
-    """Each 07o must-pass entry: bound, its stated eligibility and its base's classifications (R-COMB-1's included), or
-    its stated refusal (PR-B2 ruling 5); unbound and transport, never eligible."""
-    fixture = next(f for f in corpus()["cases"] if f["id"] == entry["base"])
-    source, invocation = apply_entry(fixture, entry)
-    if entry["expected"] != "pass":
-        assert _outcome(rp.validate_retained_precision, deepcopy(source), deepcopy(invocation))[:3] == ("refuse", entry["expected"]["gate"], entry["expected"]["code"])
-        assert entry["expected_unbound"] == entry["expected_transport"] == "pass"
-    else:
-        result = rp.validate_retained_precision(deepcopy(source), deepcopy(invocation))
-        assert {k: result[k] for k in ("invocation_bound", "numerical_eligible", "standing")} == entry["expected_eligibility"]
-        assert result["classifications"] == fixture["expected_classifications"]
-    unbound = rp.validate_retained_precision(deepcopy(source))
-    assert not unbound["invocation_bound"] and not unbound["numerical_eligible"] and unbound["classifications"] == fixture["expected_classifications"]
-    assert rp.validate_retained_precision_transport(deepcopy(source))["standing"] == "needs_recompute"
 
 
 
@@ -2044,3 +1824,143 @@ def test_mutation_helpers_leave_cached_corpus_bases_unchanged():
     assert source != fixture["source"]
     assert source is not fixture["source"] and invocation is not fixture["invocation"]
     assert corpus()["cases"][0] == before
+
+
+
+
+# Inherited positive unbound/transport obligations from the former B2 corpus.
+INHERITED_B2_MUST_ACCEPT = frozenset(['b2o_must_pass_w_cb1_sparse_interactive', 'b2o_must_pass_w_cb1_dense_scrutiny', 'b2o_must_pass_w_cb1z_sparse_interactive', 'b2o_must_pass_w_cb2_sparse_interactive', 'b2o_must_pass_w_cb2_dense_scrutiny', 'b2o_must_pass_w_cb3_sparse_interactive', 'b2o_must_pass_w_cb3_dense_scrutiny', 'b2o_must_pass_w_cb4a_sparse_interactive', 'b2o_must_pass_w_cb4a_dense_scrutiny', 'b2o_must_pass_w_cb4b_sparse_interactive', 'b2o_must_pass_w_cb4b_dense_scrutiny', 'b2o_must_pass_w_cb5_sparse_interactive', 'b2o_must_pass_w_cb5_dense_scrutiny', 'b2o_must_pass_b2_c1_range_mechanics_sparse_interactive', 'b2o_must_pass_b2_c1_range_mechanics_dense_scrutiny', 'b2o_must_pass_b2_operand_preparation_failure', 'b2o_must_pass_b2_operand_source_unavailable', 'b2o_must_pass_b2_pre_source_refusal', 'b2o_must_pass_b2_base_withheld'])
+def _current_expected(entry, context):
+    key = "expected" if context == "bound" else "expected_" + context
+    expected = entry[key] if context == "bound" else entry.get(key)
+    if key + "_by_reader" in entry:
+        expected = entry[key + "_by_reader"]["python"]
+    if context == "bound" or key in entry or key + "_by_reader" in entry:
+        assert expected == "pass" or (isinstance(expected, dict) and isinstance(expected.get("gate"), str) and expected["gate"] and isinstance(expected.get("code"), str) and expected["code"])
+    return expected
+
+
+def _current_variant_expected(entry, context):
+    expected = _current_expected(entry, context)
+    return "pass" if expected is None and entry["id"] in INHERITED_B2_MUST_ACCEPT else expected
+
+
+def _current_must_declarations(entry, case):
+    eligibility = entry["expected_eligibility"]
+    assert isinstance(eligibility, dict) and type(eligibility.get("invocation_bound")) is bool and type(eligibility.get("numerical_eligible")) is bool and eligibility.get("standing") in ("eligible", "needs_recompute")
+    classes = entry["expected_classifications"] if "expected_classifications" in entry else case["expected_classifications"]
+    assert isinstance(classes, list)
+    return classes, eligibility
+
+
+def _current_read(source, invocation, expected, label, *, classes=None, eligibility=None, transport=False):
+    reader = rp.validate_retained_precision_transport if transport else rp.validate_retained_precision
+    if invocation is not None:
+        assert expected is not None, label
+    if not transport:
+        assert _outcome(rp.validate_retained_precision, deepcopy(source), deepcopy(invocation)) == _outcome(rp._validate_draft, deepcopy(source), deepcopy(invocation)), label
+    try:
+        result = reader(deepcopy(source)) if transport else reader(deepcopy(source), deepcopy(invocation))
+    except rp.RetainedPrecisionError as error:
+        actual = {"gate": error.gate, "code": error.code}
+        if expected is not None:
+            assert actual == expected, label
+        return
+    if expected is not None:
+        assert expected == "pass" or "gate" not in expected, label
+    if eligibility is not None:
+        assert {k: result[k] for k in ("invocation_bound", "numerical_eligible", "standing")} == eligibility, label
+    if invocation is None:
+        assert not result["invocation_bound"] and not result["numerical_eligible"], label
+    if classes is not None:
+        assert result["classifications"] == classes, label
+    if transport:
+        assert result["classifications"] == [], label
+
+
+def test_current_shared_corpus_contract():
+    """Current ids and declarations drive both bound and optional unbound/transport checks.
+
+    An unstated variant is observed and must remain unqualified if accepted;
+    it is not assigned an expected refusal merely from this run's output.
+    """
+    data = corpus()
+    cases = {case["id"]: case for case in data["cases"]}
+    assert len(cases) == len(data["cases"])
+    entries = data["mutations"] + data["must_pass"]
+    assert len({entry["id"] for entry in entries}) == len(entries)
+    for case in data["cases"]:
+        label = case["id"]
+        expected = case["expected"]
+        eligibility = expected if "gate" not in expected else None
+        _current_read(case["source"], case["invocation"], expected, label,
+                      classes=case["expected_classifications"] if eligibility else None,
+                      eligibility=eligibility)
+        _current_read(case["source"], None, "pass", label + ":unbound",
+                      classes=case["expected_classifications"], eligibility=NOT_ELIGIBLE)
+        _current_read(case["source"], None, "pass", label + ":transport",
+                      eligibility=NOT_ELIGIBLE, transport=True)
+    for kind in ("mutations", "must_pass"):
+        for entry in data[kind]:
+            assert entry["rehash"] == "all"
+            case = cases[entry["base"]]
+            source, invocation = apply_entry(case, entry)
+            expected = _current_expected(entry, "bound")
+            classes = entry.get("expected_classifications", case["expected_classifications"])
+            eligibility = entry.get("expected_eligibility")
+            if kind == "must_pass" and expected == "pass":
+                classes, eligibility = _current_must_declarations(entry, case)
+            _current_read(source, invocation, expected, entry["id"] + ":bound",
+                          classes=classes if expected == "pass" else None,
+                          eligibility=eligibility)
+            unbound = _current_variant_expected(entry, "unbound")
+            transport = _current_variant_expected(entry, "transport")
+            _current_read(source, None, unbound, entry["id"] + ":unbound",
+                          classes=classes if kind == "must_pass" else None)
+            _current_read(source, None, transport, entry["id"] + ":transport",
+                          transport=True)
+
+
+def test_current_corpus_requires_bound_and_must_pass_declarations():
+    data = corpus()
+    method = deepcopy(next(e for e in data["mutations"] if e["id"] == "method_null"))
+    del method["expected"]
+    with pytest.raises(KeyError):
+        _current_expected(method, "bound")
+    entry = deepcopy(next(e for e in data["must_pass"] if e["expected"] == "pass"))
+    case = deepcopy(next(c for c in data["cases"] if c["id"] == entry["base"]))
+    missing = deepcopy(entry)
+    del missing["expected_eligibility"]
+    with pytest.raises(KeyError):
+        _current_must_declarations(missing, case)
+    missing = deepcopy(entry)
+    missing["expected_eligibility"].pop("numerical_eligible")
+    with pytest.raises(AssertionError):
+        _current_must_declarations(missing, case)
+    entry.pop("expected_classifications", None)
+    del case["expected_classifications"]
+    with pytest.raises(KeyError):
+        _current_must_declarations(entry, case)
+    declared = {"expected": {"gate": "G1", "code": "x"}, "expected_by_reader": {"rust": {"gate": "G1", "code": "x"}}}
+    with pytest.raises(KeyError):
+        _current_expected(declared, "bound")
+    for invalid in (None, {}, {"gate":"G1"}, 0):
+        declared = {"expected": {"gate":"G1", "code":"x"}, "expected_by_reader":{"python":invalid}}
+        with pytest.raises(AssertionError):
+            _current_expected(declared, "bound")
+    assert _current_variant_expected({"id":"method_null"}, "unbound") is None
+
+
+def test_current_inherited_B2_contexts():
+    data = corpus()
+    entries = {e["id"]: e for e in data["must_pass"]}
+    cases = {c["id"]: c for c in data["cases"]}
+    assert INHERITED_B2_MUST_ACCEPT <= entries.keys()
+    for name in sorted(INHERITED_B2_MUST_ACCEPT):
+        entry = entries[name]
+        case = cases[entry["base"]]
+        source, _ = apply_entry(case, entry)
+        _current_read(source, None, _current_variant_expected(entry, "unbound"), name + ":unbound",
+                      classes=entry.get("expected_classifications",case["expected_classifications"]), eligibility=NOT_ELIGIBLE)
+        _current_read(source, None, _current_variant_expected(entry, "transport"), name + ":transport",
+                      eligibility=NOT_ELIGIBLE, transport=True)

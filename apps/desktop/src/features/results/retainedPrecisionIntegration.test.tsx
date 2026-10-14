@@ -250,7 +250,8 @@ describe("the inputs and the pinned identity", () => {
     const { source } = milestone("sparse_interactive");
     const table = previewPhysicsRetainedSemanticContract as Json;
     expect(table.semantic_contract_id).toBe(RETAINED_PRECISION_ID);
-    expect(table.rows).toStrictEqual(previewPhysicsSemanticContract.rows);
+    // B4/D1: failed ordinary attempts add one distinct requested-mode signature.
+    expect(table.rows).toStrictEqual([...previewPhysicsSemanticContract.rows, {"signature_id":"preview-physics-retained-requested-mode-basis","kind":"retained_precision_requested_mode_basis","unit":"mode_code","component":"requested_solver_mode","source_physical_semantic_dimension":"dimensionless","derivative_target_dimension":"dimensionless","category":"solver_mode","family":null,"canonical_disposition":"disclosed","legacy_declared_dimension":"dimensionless","legacy_run_creation_admission":"accepts_with_legacy_dimension_equal_new_semantics","governing_ratio_eligible":false}]);
     // The Rust reader reads the successor's rows by this table.
     const rows = readerRowSemantics(source);
     for (const row of source.results) { const signature = rows(row).signature; if (signature) expect(table.rows).toContainEqual(signature); }
@@ -589,7 +590,7 @@ describe.each(MODES)("%s: the rule-check gate and binding refusals", (mode) => {
     const { source, model } = milestone(mode);
     const received = await deliverDirect(source, model, mode);
     // U7: Current for the captured model, so only the absolute rows are withheld.
-    expect(classificationSummary(received, model)).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 0, input_derived: 3, non_quantity: mode === "sparse_interactive" ? 1 : 2, withheld: 69 }]);
+    expect(classificationSummary(received, model)).toStrictEqual([{ case_id: "case", relative_verified: 25, absolute_verified: 69, interval_bindable: 0, not_covered: 0, input_derived: 3, non_quantity: 1, withheld: 69 }]);
     expect(classificationSummary(structuredClone(received), model)).toStrictEqual([]);
     expect(classificationSummary(null)).toStrictEqual([]);
   });

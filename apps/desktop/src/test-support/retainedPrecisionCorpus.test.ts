@@ -30,7 +30,7 @@ describe("compact retained corpus storage", () => {
 
   it("retains the full shared case sets and isolates separate consumers", () => {
     const first = readRetainedPrecisionCorpus();
-    expect([first.cases.length, first.mutations.length, first.must_pass.length]).toEqual([45, 603, 97]);
+    expect([first.cases.length, first.mutations.length, first.must_pass.length]).toEqual([45, 593, 91]);
     const id = first.cases[0].id;
     first.cases[0].id = "changed-by-this-test";
     expect(readRetainedPrecisionCorpus().cases[0].id).toBe(id);

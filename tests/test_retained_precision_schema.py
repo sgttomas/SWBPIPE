@@ -106,8 +106,8 @@ SUCCESSORS = (SUCC, EXACT)
 PRESSURE_SOURCE = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRESSURE_SOURCE_SHA = "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf"
 MILESTONES = {
-    "sparse_interactive": "174e17c55eadf69439d21d8809776a0e7d2ba95fa01a4ed0046366fb141a11a6",
-    "dense_scrutiny": "ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55",
+    "sparse_interactive": "e3e0830d34d7403da45cc5900aa40cc42d090478d9c2d3ba57bcecf9b6070d2e",
+    "dense_scrutiny": "c24d4a1cbfb4668fe071fd1b9cc9abed35589c390992ebad33dd0a9159cf3316",
 }
 
 

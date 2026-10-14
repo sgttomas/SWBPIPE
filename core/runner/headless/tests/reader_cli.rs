@@ -11,9 +11,8 @@ use std::io::Write;
 use std::sync::OnceLock;
 use std::process::{Command, Stdio};
 
-const CORPUS_FILES: [&str; 2] = [
+const CORPUS_FILES: [&str; 1] = [
     include_str!("../../../../fixtures/results/retained_precision_cases.json"),
-    include_str!("../../../../fixtures/results/retained_precision_cases_07o.json"),
 ];
 const SUCCESSORS: [&str; 10] = [
     include_str!("../../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json"),

@@ -144,7 +144,7 @@
             "temperature": "degC"
           }
         },
-        "schema_version": "0.1.0",
+        "schema_version": "0.5.0",
         "supports": [
           {
             "id": "rigid:N0",
@@ -331,7 +331,7 @@
     "formulation_basis": {
       "limitations": [
         "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-        "Nonzero pressure is refused on this route, and so is legacy imposed_displacement.",
+        "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
         "On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No transverse shear, equivalent stress or code stress.",
         "On arcs: signed tangent-frame resultants and nominal stress components; endpoint force rows are node-on-element actions in the tangent frame at their end. No maximum, and no stress headline for a model containing an arc.",
         "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
@@ -386,7 +386,7 @@
         "id": "result:solver-mode:linear-solve-basis",
         "kind": "linear_solver_mode_basis",
         "metadata": {
-          "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=46; original_profile_entries=44; ordered_profile_entries=43; original_half_bandwidth=8; ordered_half_bandwidth=7; nonpositive_pivots=0; pivot_condition_ratio_proxy=4913852.760417686; max_abs_sparse_residual=0.0000000000055997532999452204; dense_fallback=false; dense_fallback_message=none",
+          "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
           "component": "linear_solver_mode",
           "coordinate_system": "reduced_system",
           "location": "case",
@@ -395,25 +395,6 @@
         "recovery_method": "contribution_preserving_multiprecision_v1",
         "unit": "mode_code",
         "value": 2.0
-      },
-      {
-        "basis_ref": {
-          "ref_id": "case",
-          "ref_type": "load_case"
-        },
-        "entity_ref": "solver:sparse_direct",
-        "id": "result:sparse-live:dense-parity-relative-delta",
-        "kind": "sparse_live_path_dense_parity_relative_delta",
-        "metadata": {
-          "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=9; sparse_entry_count=46; original_profile_entries=44; ordered_profile_entries=43; original_half_bandwidth=8; ordered_half_bandwidth=7; max_abs_dense_sparse_delta=0.0000000000002208588807716197; max_abs_sparse_residual=0.0000000000055997532999452204; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
-          "component": "sparse_live_path",
-          "coordinate_system": "reduced_system",
-          "location": "load_case",
-          "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
-        },
-        "recovery_method": "contribution_preserving_multiprecision_v1",
-        "unit": "unitless",
-        "value": 3.31336034355847e-9
       },
       {
         "basis_ref": {
@@ -2254,7 +2235,7 @@
         },
         "recovery_method": "contribution_preserving_multiprecision_v1",
         "unit": "MPa",
-        "value": -2.8939662802624816e-98
+        "value": -2.893966280262482e-98
       },
       {
         "basis_ref": {
@@ -2463,7 +2444,7 @@
         },
         "recovery_method": "contribution_preserving_multiprecision_v1",
         "unit": "MPa",
-        "value": 1.698531866922523e-98
+        "value": 1.6985318669225226e-98
       },
       {
         "basis_ref": {
@@ -3403,7 +3384,7 @@
               ],
               "verification_precision": 256
             },
-            "source_identity_sha256": "fe1aade1b65631fff3d22ed808c7fe09c4c3a0fdc403a4da1b122ed7c0b67d3d",
+            "source_identity_sha256": "3ef403e4a6c912169b25bfe4a6b46cb39d09af1ee73e2b4c6c7276a6cc940751",
             "source_ref": 0,
             "status": "selected"
           }
@@ -3429,19 +3410,8 @@
           "domain": "source_blocks_invocation_v1",
           "profile": "openpipestress_jcs_ijson_v1",
           "scope": "actual_request_and_solver_mode",
-          "value": "6461c6153420d7e06530acc5418b64642102e4021276a97ac18470b4eba59e76"
+          "value": "dea96915b47d0f37a4ce6988a5015cd910b56f51538cbd272a044d6bf90cd98a"
         },
-        "legacy_source_work": [
-          {
-            "case_index": 0,
-            "charged": 52100,
-            "helper_stage": "source_closure",
-            "limit": 4000000,
-            "rejected": 0,
-            "settlement": "booked",
-            "stage": "source closure"
-          }
-        ],
         "material_bases": [
           {
             "case_indices": [
@@ -3486,11 +3456,6 @@
               "outcome": "sensitive",
               "report_diagnostic_ref": "diagnostic:numerical-integrity:case"
             },
-            "legacy_source": {
-              "diagnostic_ref": null,
-              "disposition": "unavailable",
-              "work_ref": 0
-            },
             "material_basis_ref": 0,
             "requested_mode": "dense_scrutiny",
             "w2": {
@@ -3503,22 +3468,21 @@
           {
             "adapter": {
               "counts": [
-                271,
-                2403,
-                795,
-                5087,
-                134276,
-                4582,
+                270,
+                2379,
+                788,
+                4548,
+                120326,
+                4035,
                 79,
-                276,
-                1606,
-                34140
+                272,
+                679,
+                33613
               ],
               "fault": null,
               "observation_capacity_bytes": [
                 4,
-                606,
-                596
+                275
               ],
               "prepared_capacity_bytes": [
                 72,
@@ -3821,7 +3785,7 @@
                 1,
                 73,
                 0,
-                114,
+                113,
                 21,
                 30,
                 2
@@ -4192,16 +4156,16 @@
                 "sticky_status": "exact",
                 "wide_lme": {
                   "kind": "exact",
-                  "value": 17069376
+                  "value": 16720536
                 }
               },
               "prepared_capacity_bytes": [
-                912,
-                7296,
+                904,
+                7232,
                 16,
                 1,
                 32,
-                3648
+                3616
               ],
               "projection_conversions": {
                 "kind": "exact",
@@ -4213,12 +4177,19 @@
                     "kind": "normal",
                     "value": "0000000000000000"
                   },
-                  "row_index": 2
+                  "row_index": 1
                 },
                 {
                   "outcome": {
                     "kind": "normal",
                     "value": "3fb821e751965334"
+                  },
+                  "row_index": 2
+                },
+                {
+                  "outcome": {
+                    "kind": "normal",
+                    "value": "0000000000000000"
                   },
                   "row_index": 3
                 },
@@ -4246,14 +4217,14 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "3f0179ec9cbd821d"
                   },
                   "row_index": 7
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3f0179ec9cbd821d"
+                    "value": "3e449da7e361ce4c"
                   },
                   "row_index": 8
                 },
@@ -4267,35 +4238,35 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3e449da7e361ce4c"
+                    "value": "abaa98b6e78a82db"
                   },
                   "row_index": 10
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abaa98b6e78a82db"
+                    "value": "bfb11070016170a5"
                   },
                   "row_index": 11
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "bfb11070016170a5"
+                    "value": "3fb11070016170a5"
                   },
                   "row_index": 12
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3fb11070016170a5"
+                    "value": "3f017a5f1a5d9346"
                   },
                   "row_index": 13
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3f017a5f1a5d9346"
+                    "value": "3e5176adf2c370dd"
                   },
                   "row_index": 14
                 },
@@ -4309,7 +4280,7 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3e5176adf2c370dd"
+                    "value": "0000000000000000"
                   },
                   "row_index": 16
                 },
@@ -4351,28 +4322,28 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "ac0d74676a3646ea"
                   },
                   "row_index": 22
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac0d74676a3646ea"
+                    "value": "ac2caf0674cd6efc"
                   },
                   "row_index": 23
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac2caf0674cd6efc"
+                    "value": "2c35564636c83603"
                   },
                   "row_index": 24
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c35564636c83603"
+                    "value": "0000000000000000"
                   },
                   "row_index": 25
                 },
@@ -4395,7 +4366,7 @@
                     "kind": "normal",
                     "value": "0000000000000000"
                   },
-                  "row_index": 28
+                  "row_index": 30
                 },
                 {
                   "outcome": {
@@ -4414,14 +4385,14 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "bf73a92a30553261"
                   },
                   "row_index": 33
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "bf73a92a30553261"
+                    "value": "0000000000000000"
                   },
                   "row_index": 34
                 },
@@ -4437,7 +4408,7 @@
                     "kind": "normal",
                     "value": "0000000000000000"
                   },
-                  "row_index": 36
+                  "row_index": 38
                 },
                 {
                   "outcome": {
@@ -4463,14 +4434,14 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "bf83a92a30553261"
                   },
                   "row_index": 42
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "bf83a92a30553261"
+                    "value": "0000000000000000"
                   },
                   "row_index": 43
                 },
@@ -4479,7 +4450,7 @@
                     "kind": "normal",
                     "value": "0000000000000000"
                   },
-                  "row_index": 44
+                  "row_index": 46
                 },
                 {
                   "outcome": {
@@ -4512,16 +4483,16 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "bf83a92a30553261"
                   },
                   "row_index": 51
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "bf83a92a30553261"
+                    "value": "0000000000000000"
                   },
-                  "row_index": 52
+                  "row_index": 54
                 },
                 {
                   "outcome": {
@@ -4561,364 +4532,357 @@
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "0000000000000000"
+                    "value": "2c0b7d42c94b35cd"
                   },
-                  "row_index": 60
+                  "row_index": 62
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c0b7d42c94b35cd"
+                    "value": "ac0b7d42c94b35cd"
                   },
                   "row_index": 63
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac0b7d42c94b35cd"
+                    "value": "ac147aed43197a7d"
                   },
                   "row_index": 64
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac147aed43197a7d"
+                    "value": "2c147aed43197a7d"
                   },
                   "row_index": 65
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c147aed43197a7d"
+                    "value": "ac393a9009609b41"
                   },
                   "row_index": 66
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac393a9009609b41"
+                    "value": "2c393a9009609b41"
                   },
                   "row_index": 67
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c393a9009609b41"
+                    "value": "bf8d7dbf487fcb91"
                   },
                   "row_index": 68
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "bf8d7dbf487fcb91"
+                    "value": "3f8d7dbf487fcb91"
                   },
                   "row_index": 69
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3f8d7dbf487fcb91"
+                    "value": "2c477b9315c1c798"
                   },
                   "row_index": 70
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c477b9315c1c798"
+                    "value": "2c3cb889f09e4293"
                   },
                   "row_index": 71
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c3cb889f09e4293"
+                    "value": "2bf55ff6491a2fbd"
                   },
                   "row_index": 72
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2bf55ff6491a2fbd"
+                    "value": "ac30b23156e4beda"
                   },
                   "row_index": 73
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac30b23156e4beda"
+                    "value": "ac0b7d42c94b35cd"
                   },
                   "row_index": 74
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac0b7d42c94b35cd"
+                    "value": "2c147aed43197a7d"
                   },
                   "row_index": 75
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c147aed43197a7d"
+                    "value": "2c393a9009609b41"
                   },
                   "row_index": 76
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c393a9009609b41"
+                    "value": "3f8d7dbf487fcb91"
                   },
                   "row_index": 77
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3f8d7dbf487fcb91"
+                    "value": "ac3c0b3a247b1abf"
                   },
                   "row_index": 78
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac3c0b3a247b1abf"
+                    "value": "ac14b42f8499a7cd"
                   },
                   "row_index": 79
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac14b42f8499a7cd"
+                    "value": "ac0b7d42c94b35cd"
                   },
                   "row_index": 80
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac0b7d42c94b35cd"
+                    "value": "2c147aed43197a7d"
                   },
                   "row_index": 81
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c147aed43197a7d"
+                    "value": "2c393a9009609b41"
                   },
                   "row_index": 82
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c393a9009609b41"
+                    "value": "3f8d7dbf487fcb91"
                   },
                   "row_index": 83
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3f8d7dbf487fcb91"
+                    "value": "ac223e9c3ae54c9d"
                   },
                   "row_index": 84
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac223e9c3ae54c9d"
+                    "value": "ac220830bb7661d5"
                   },
                   "row_index": 85
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac220830bb7661d5"
+                    "value": "ac0b7d42c94b35cd"
                   },
                   "row_index": 86
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac0b7d42c94b35cd"
+                    "value": "2c147aed43197a7d"
                   },
                   "row_index": 87
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c147aed43197a7d"
+                    "value": "2c393a9009609b41"
                   },
                   "row_index": 88
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c393a9009609b41"
+                    "value": "3f8d7dbf487fcb91"
                   },
                   "row_index": 89
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3f8d7dbf487fcb91"
+                    "value": "2c23993bd32b9c45"
                   },
                   "row_index": 90
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2c23993bd32b9c45"
+                    "value": "ac29b649b49fefc4"
                   },
                   "row_index": 91
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ac29b649b49fefc4"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 92
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ad0539d5128101fd"
                   },
                   "row_index": 93
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abc641c94142f835"
+                    "value": "acb352144a90f889"
                   },
                   "row_index": 94
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab7442570ad573f4"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 95
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 96
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "2cf9f5ec5a0ad21f"
                   },
                   "row_index": 97
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2bbb38c170183104"
+                    "value": "acee2ed7d38527b0"
                   },
                   "row_index": 98
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abafa62ea4ae291f"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 99
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 100
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "acf95944853ece74"
                   },
                   "row_index": 101
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "abba947d85de680e"
+                    "value": "acd2b6cfb7bdc271"
                   },
                   "row_index": 102
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab939f87a45f1a4d"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 103
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 104
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "ace07dbdcaf731db"
                   },
                   "row_index": 105
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba14ad1126dbf65"
+                    "value": "ace04c8d2e6ba360"
                   },
                   "row_index": 106
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba1173cc3046bcf"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 107
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "3efbf3ab943069f4"
+                    "value": "ac81fd53017c8188"
                   },
                   "row_index": 108
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "ab42dd085012181e"
+                    "value": "2ce1b70d748f3931"
                   },
                   "row_index": 109
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "2ba29358e6e15152"
+                    "value": "ace73db280f86588"
                   },
                   "row_index": 110
                 },
                 {
                   "outcome": {
                     "kind": "normal",
-                    "value": "aba85eb5b3d94a77"
+                    "value": "403aa82dcd5efbcb"
                   },
                   "row_index": 111
-                },
-                {
-                  "outcome": {
-                    "kind": "normal",
-                    "value": "3efbf3ab943069f4"
-                  },
-                  "row_index": 112
                 }
               ],
               "scalar_operations": {
                 "kind": "exact",
-                "value": 546
+                "value": 566
               },
               "summary_coverage": [
                 {
@@ -4944,7 +4908,7 @@
               ],
               "visits": {
                 "kind": "exact",
-                "value": 20235
+                "value": 20092
               }
             },
             "result": {
@@ -4967,7 +4931,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "c42609177d1dc0fd9ff4083ff9fb6ff859d15619bade6162ea5dbd7cf5ee9d4e",
+        "publication_sha256": "810b006d30d96b88d8bb674c07a06b3f0cfabce587df01cf98b73a86c2ad14d6",
         "receipt_version": 1,
         "sources": [
           {
@@ -6096,7 +6060,7 @@
             },
             "preparation": {
               "attempt_ref": 0,
-              "sha256": "edc61d9def12faee4aaa17320987d29613deab68843e52fb92265a166ff10575"
+              "sha256": "5d49905d3a0913f47809f38cb5e850c70504d82c637dd0e983b6cd1ee3878de8"
             },
             "section_terms": [
               {
@@ -6230,7 +6194,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "1d4e615e64fd219d976f4bc492c90cbab414e9d838e9fe8917bf1e01254cf671"
+      "receipt_sha256": "86e77dc6c1998d760f798997fd5942783f7182ce201a1e369b0171e3da71e5cd"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",
@@ -6240,9 +6204,8 @@
       "rule_check": "RULE_INPUTS_INCOMPLETE"
     },
     "summary": {
-      "component_pressure_thrust_load_count": 0,
       "component_stress_modifier_count": 0,
-      "component_user_stiffness_macro_element_count": 0,
+      "curved_bend_macro_element_count": 0,
       "load_case_count": 1,
       "max_displacement": {
         "location_ref": "N1",

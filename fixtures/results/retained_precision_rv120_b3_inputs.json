@@ -1,5 +1,5 @@
 {
- "description": "RV120 (RV-R2, B3 readers) inputs pinned in the Python reader's B3 tests (I100 B3 repair 01): its G5b order probe with its controls (F1), and its four E/G-hat forgeries (F2). Each is stated as edits from a base the tests already hold, in the shared corpus grammar (07n), and is resealed by the 07e format rule with DEF-E's H. It re-materializes byte-equal to RV120's input: input_sha256 is RV120's INPUTS_INDEX value, the sha256 of the compact, key-sorted JSON of [source, invocation]. Repair 02 (I101) adds RV120's N2 probe, an exact_cases entry for a case not in the invocation, on both bases. Repair 03 (I101) adds the N2b two-fault probe on the exact two_case_synthetic (one entry's profile_mode, the other's material_basis) and its swap, materialized by the Rust reader's B3b shape list.",
+ "description": "RV120 (RV-R2, B3 readers) inputs pinned in the Python reader's B3 tests (I100 B3 repair 01): its G5b order probe with its controls (F1), and its four E/G-hat forgeries (F2). Each is stated as edits from a base the tests already hold, in the shared corpus grammar (07n), and is resealed by the 07e format rule with DEF-E's H. The preserved RV120 mutations are materialized on the current bases and resealed with the current DEF-E. input_sha256 is the sha256 of Python compact, key-sorted JSON of [source, invocation]; the full constructed values also match the current native R1 inputs under JCS. The historical INPUTS_INDEX is provenance, not the current byte identity. Repair 02 (I101) adds RV120's N2 probe, an exact_cases entry for a case not in the invocation, on both bases. Repair 03 (I101) adds the N2b two-fault probe on the exact two_case_synthetic (one entry's profile_mode, the other's material_basis) and its swap, materialized by the Rust reader's B3b shape list.",
  "record": "R/REVIEW_RV120/b3_readers_01/evidence/readers: g5b_order_inputs.jsonl.gz, forge_eg_inputs.jsonl.gz, INPUTS_INDEX.jsonl; N2: b3_probes (its INPUTS_INDEX sha256); N2b: the Rust reader's B3B_INPUTS_OUT (repair 03)",
  "bases": {
   "corpus": "fixtures/results/retained_precision_cases.json, the case with this id (RS's exact construction starts from it)",
@@ -13,7 +13,7 @@
    ],
    "name": "X G5b control: case 0's evidence As_m2 one ulp [two_case_synthetic]",
    "want": "G5b SECTION_MISMATCH",
-   "input_sha256": "c918ff9bff2c9f9591cbb1a73ebac8b29124cb18bc02e15652d3985f96aa6c17",
+   "input_sha256": "f30338cabc5046a26f118a0c96272d7fa00d9caffe41348e3eafd08b4a2e67a7",
    "edits": [
     {
      "op": "remove",
@@ -556,7 +556,7 @@
    ],
    "name": "X G5b control: case 1's body_scales force one ulp [two_case_synthetic]",
    "want": "G5b SCALE_MISMATCH",
-   "input_sha256": "8e233204f305932ee58f10492771e746142daae7664c286d74fd53b5f0c85954",
+   "input_sha256": "2e009d988dc7c7b2b010b8cc930759a63fe8970c009b667a44c1f461d8f0a602",
    "edits": [
     {
      "op": "remove",
@@ -1113,7 +1113,7 @@
    ],
    "name": "X G5b order: case 0's evidence As_m2 and case 1's body_scales force [two_case_synthetic]",
    "want": "G5b SCALE_MISMATCH",
-   "input_sha256": "892ea8a44af4732d22d102af4856b165f1f35d6dc331dffed93b2aef4793caf1",
+   "input_sha256": "4c3ab8a05242a745dfbb1b0de181e69bb45c53f445cd7f376354934caa729881",
    "edits": [
     {
      "op": "remove",
@@ -1670,7 +1670,7 @@
    ],
    "name": "X G5b order: case 0's evidence As_m2 and case 1's section term area [two_case_synthetic]",
    "want": "G5b SECTION_MISMATCH",
-   "input_sha256": "029c8e68c2dfc13eccd028eb8a2e0d15d207ae2c4c13be3d940c8613c4e1752d",
+   "input_sha256": "65ce9b337a3bd615b65e75fd12809624177543db18ad14dc97505ac1a21adcbf",
    "edits": [
     {
      "op": "remove",
@@ -2227,7 +2227,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [ordinary_prepared_synthetic]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "0e50977fa86753185bbfd250f3c3750f5dbe23084ec6e60e3898fe8d97e751bd",
+   "input_sha256": "0a2317c3fdbe00739f723ed9711a0a527d8579f34a7beb10bdf5ec486abd5951",
    "edits": [
     {
      "op": "remove",
@@ -2770,7 +2770,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [ordinary_prepared_synthetic]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "e84a7aba2d41216061a28345283de90bab940550824b8c87f2729ed8e80a6eec",
+   "input_sha256": "2e0c0d8cfa175a586aaf383e0ef941e2dfb25812bfc8207f3b88c313e3b7cac2",
    "edits": [
     {
      "op": "remove",
@@ -3313,7 +3313,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "68b6a6377b5fca89bcf0c9b648a66cdbeffbacc3922dffc3991786255c093859",
+   "input_sha256": "8e8f73be26d3564106dc51b87aaa28654f4998aa3e32bba274f6f377d21a9d19",
    "edits": [
     {
      "op": "set",
@@ -3487,7 +3487,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "5ab3f293fa872879b438398557242bc576fd0569a3b84fa4b1f9e92c14d7c406",
+   "input_sha256": "91a7b86010995c43a5219912b4ed069654c3c07b8ebc17788e57681c498ca5eb",
    "edits": [
     {
      "op": "set",
@@ -3673,7 +3673,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [ordinary_prepared_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "3fae649c39a3e6a5d02de16af720c8bb3a58c2c7b42ce13146ed4cfd0085afda",
+   "input_sha256": "8a07c28b79470b09dfbce4604b5f4fea474d8842add26522d687645e4535f31d",
    "edits": [
     {
      "path": [
@@ -4180,7 +4180,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [m3x_sparse_interactive]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "6ce13fc2551dafd25db3f100717e36919094b6e5e264788b875ff092f96654dd",
+   "input_sha256": "e9e32e0936e935140b4dc500fdb5895465c663757a85bb2bfdaae737b9195015",
    "edits": [
     {
      "path": [
@@ -4453,7 +4453,7 @@
    ],
    "name": "N2b: entry 0's profile_mode and entry 1's material_basis [two_case_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
-   "input_sha256": "00a7c45033a6e63bbc1a6a3816cca1072419c69e8ff938468aed5598b9e89c18",
+   "input_sha256": "2a6ee6458e36e36bee419a0f2d66e404c6e1dba5b7c0ccdeb11bd4fceddbed97",
    "edits": [
     {
      "path": [
@@ -4996,7 +4996,7 @@
    ],
    "name": "N2b: entry 0's material_basis and entry 1's profile_mode [two_case_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
-   "input_sha256": "3ee365efdd05d8d83676d5add68ff1f9198095e3b209a9c74b4337d85aea0d46",
+   "input_sha256": "2d955c9ed61513b5ce702a7482de21bc48ac8de722d57996203237c81d019ec5",
    "edits": [
     {
      "path": [

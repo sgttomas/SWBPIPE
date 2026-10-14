@@ -48,27 +48,27 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "174e17c55eadf69439d21d8809776a0e7d2ba95fa01a4ed0046366fb141a11a6",
-        "1932f8843dee94baccff7c21ebc01523d8a509919b9a3bbd48e26167ffd1eff4",
+        "e3e0830d34d7403da45cc5900aa40cc42d090478d9c2d3ba57bcecf9b6070d2e",
+        "bc1e36fac28680a6ad65901b021dbfeb9e3424349ede29ebd8358201839154d1",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55",
-        "39895d62e38a6bc87242d5591384c23ab274e71832d974f40da915d13a0f7356",
+        "c24d4a1cbfb4668fe071fd1b9cc9abed35589c390992ebad33dd0a9159cf3316",
+        "0712cc45083fddc20f4434ccdf887d2b9c3f46810c579b12c1a8fbde2c34ce79",
     ),
 ];
 /// The committed goldens' file sha256 (= the documents' canonical digests).
 const GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "7394d3cb100939a1600a1f54682bb74c1e89b474da7263a10596c78ee571e943"),
-    ("dense_scrutiny", "bdc1e4514df54b53b998c777468549a39f21444dfe03cc18ddbae162b9457e51"),
+    ("sparse_interactive", "25aaf1e4f287993d0f153b535fb4c29b8cc61733c80915b76926b363f737d7f9"),
+    ("dense_scrutiny", "7a03587151737440110b4a326b6d13dc67530037d155edb40fa6a459bbb6a066"),
 ];
 /// The milestone's validated class counts (as retained_precision_carriers.rs
 /// `CLASSES`): relative, absolute, input-derived, non-quantity. No validated
 /// statement has a `not_covered` row.
 const CLASSES: [(&str, [usize; 4]); 2] = [
     ("sparse_interactive", [25, 69, 3, 1]),
-    ("dense_scrutiny", [25, 69, 3, 2]),
+    ("dense_scrutiny", [25, 69, 3, 1]),
 ];
 /// B3b-T: lane P's m3x exact successors (PP retained_facade_tests.rs `EXACT_PINNED`):
 /// mode, file text, file sha256 (the fixture document's), receipt sha256.
@@ -76,26 +76,26 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "fd8b1a4dd0b51122fdc39c006d4fd90da4d7ee103e8556694d7c39f567e3af85",
-        "9b4792ef7426c324ba4ae9726d1936560440e16a6326ba38a5191d163e1ffff6",
+        "5ef83dd9f046cb97939aa8af753a42b0b962c27bab4c73c725dc803584aee8e5",
+        "57114af44b909de9494abe740eb14cb61aaceefae2beaf5a20b11f98f29cd0ce",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "2fad0a166a565ce0f9390f8f5125a9675ff4ffa4b9532681cd5a960b8c2bd42d",
-        "e3ec745c885327f3823dcdd191e984ba0c1fd184d6a1730cee30d4c4283e5475",
+        "ee20a337dd159fdafcb512f5f5d3efaa731b176cf61423121fce2fde2f212bc0",
+        "3b92b6ce2e72cd12cf3f96aa9a85ba9f2f9b3c38eed7f8879443527d5cd97e17",
     ),
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "f13f4f40307abe25c055a622465f4ec60472fb2686894c5d7a175db8c6d9941d"),
-    ("dense_scrutiny", "de9f2315a978c70eccaa3b101bde647efcb605474323610e3cac8cdc8eb2d54b"),
+    ("sparse_interactive", "fa3201d52996551c5246718b81143219fbf0fc601e96b21ae9ddf40e714c0ec1"),
+    ("dense_scrutiny", "15f286652513518bc7f1ddc0c503e5d201228ac0503e1d043012d370d725df81"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity); no `not_covered` row.
 const EXACT_CLASSES: [(&str, [usize; 4]); 2] = [
     ("sparse_interactive", [25, 69, 3, 1]),
-    ("dense_scrutiny", [25, 69, 3, 2]),
+    ("dense_scrutiny", [25, 69, 3, 1]),
 ];
 /// One set of goldens: the pinned successors, their identity, the goldens' file
 /// prefix and sha256, and the class counts; `label` prefixes the mode in messages
@@ -192,14 +192,14 @@ fn desktop_base(source: &Value, model: &Value) -> Value {
         .map(|x| desktop_diagnostic(x, &source["model_ref"]))
         .collect();
     json!({
-        "schema_version": "0.2.0",
+        "schema_version": s::RESULT_EXPORT_VERSION,
         "deliverable_id": "DEL-08-04",
         "package_id": "PKG-08",
         "scope_item": "SOW-046",
         "objectives": ["OBJ-007", "OBJ-009"],
         "export_format_status": {"baseline_format":"schema_first_json_result_envelope","additional_formats":"TBD","public_transport_protocol":"TBD","local_fea_package_format":"TBD","external_adapter_formats":"TBD"},
         "result_envelope": {
-            "schema_version": "0.2.0",
+            "schema_version": s::RESULT_EXPORT_VERSION,
             "envelope_id": format!("result-envelope:{run}"),
             "model_ref": d::reference("model_payload", project),
             "run_ref": d::reference("analysis_run", run),

@@ -1,19 +1,14 @@
-"""The shared retained-precision reader corpus: one logical document stored as ordered snapshot files.
+"""The current shared retained-precision corpus, stored losslessly as one DAG/v1 document.
 
-Each file stays under 50 MB (`test_fixture_file_size.py`): a new snapshot is a new file, appended to
-`CORPUS_FILES` here, in RS's `tests/retained_precision_contract.rs` and in TS's
-`src/test-support/retainedPrecisionCorpus.ts`, never grown into an existing file. `cases`, `mutations`
-and `must_pass` concatenate in file order; any other member appears once or identically in each file.
+Expansion preserves independent containers, scalar JSON forms and the exact
+current bytes; reading the fixtures establishes no new native execution.
 """
 import importlib.util
 import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CORPUS_FILES = (
-    "fixtures/results/retained_precision_cases.json",  # 07m + 07n
-    "fixtures/results/retained_precision_cases_07o.json",  # 07o (B2), compact JSON
-)
+CORPUS_FILES = ("fixtures/results/retained_precision_cases.json",)
 LIST_MEMBERS = ("cases", "mutations", "must_pass")
 
 _STORAGE_SPEC = importlib.util.spec_from_file_location(

@@ -5,17 +5,17 @@
   "fixtures": {
     "milestone_sparse_interactive": {
       "path": "fixtures/results/retained_precision_milestone_successor_sparse_interactive.json",
-      "sha256": "174e17c55eadf69439d21d8809776a0e7d2ba95fa01a4ed0046366fb141a11a6",
+      "sha256": "e3e0830d34d7403da45cc5900aa40cc42d090478d9c2d3ba57bcecf9b6070d2e",
       "shape": "milestone"
     },
     "milestone_dense_scrutiny": {
       "path": "fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json",
-      "sha256": "ff24764d702080b944dc52dbd46f56380a1e6f7dbceebd364fc4d9419c8f9f55",
+      "sha256": "c24d4a1cbfb4668fe071fd1b9cc9abed35589c390992ebad33dd0a9159cf3316",
       "shape": "milestone"
     },
     "preview_physics_1_invented_sparse": {
       "path": "fixtures/results/preview_physics_invented_sparse.json",
-      "sha256": "6041281c915aed65735ea896895d23485bc6e8dda3a7c7b7824cc0fa8255ab93",
+      "sha256": "7eba0ec1e1f46df3db6aea309d37c7cf6ae3a66bb67f696942df688186d9a8c9",
       "shape": "raw"
     }
   },

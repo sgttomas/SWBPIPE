@@ -5,7 +5,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -113,7 +113,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -128,10 +128,9 @@
       },
       "id": "results/preview_physics_connected_dense",
       "rows": {
-        "sha256": "dbf15dfe2914a002e766d4c7a3ae0c0ff089e54fabc0340fb70b77198c9b7dd8",
+        "sha256": "c4ecfc488bf2db7c21a392cced330d02e80cf2715bffc001c15709f774a9c1f0",
         "signature_ids": [
           "supported-source-000",
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -222,7 +221,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -881,7 +880,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -896,10 +895,9 @@
       },
       "id": "results/preview_physics_invented_dense",
       "rows": {
-        "sha256": "16d23cfae7a90c708628e179c4b587ca9c0f9ddea1733d71f560fe757f7be868",
+        "sha256": "8ca17d6671242a05b514053b38b424a33e2ca6b012b19c9ec6ac0338b7f8739e",
         "signature_ids": [
           "supported-source-000",
-          "supported-source-037",
           "supported-source-023",
           "supported-source-024",
           "supported-source-025",
@@ -1209,7 +1207,6 @@
           "preview-physics-intensified-bending",
           "preview-physics-intensified-bending",
           "supported-source-000",
-          "supported-source-037",
           "supported-source-023",
           "supported-source-024",
           "supported-source-025",
@@ -1542,7 +1539,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -2199,10 +2196,9 @@
       },
       "id": "results/physics_connected_mechanics_dense",
       "rows": {
-        "sha256": "b347044e914fddbb0a6fe9888b2d8e18c03a635cf315403295cfb802b704f8c7",
+        "sha256": "ae1586ce261ab39299014a4433bd4cb4b5085210d9175d8564911d6e1a8abbab",
         "signature_ids": [
           "supported-source-000",
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -2304,7 +2300,6 @@
           "supported-source-075",
           "supported-source-076",
           "supported-source-000",
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -2619,10 +2614,9 @@
       },
       "id": "results/physics_connected_ui_mechanics_dense",
       "rows": {
-        "sha256": "b347044e914fddbb0a6fe9888b2d8e18c03a635cf315403295cfb802b704f8c7",
+        "sha256": "ae1586ce261ab39299014a4433bd4cb4b5085210d9175d8564911d6e1a8abbab",
         "signature_ids": [
           "supported-source-000",
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -2724,7 +2718,6 @@
           "supported-source-075",
           "supported-source-076",
           "supported-source-000",
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -3039,10 +3032,9 @@
       },
       "id": "results/physics_thermal_ui_mechanics_dense",
       "rows": {
-        "sha256": "b347044e914fddbb0a6fe9888b2d8e18c03a635cf315403295cfb802b704f8c7",
+        "sha256": "ae1586ce261ab39299014a4433bd4cb4b5085210d9175d8564911d6e1a8abbab",
         "signature_ids": [
           "supported-source-000",
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -3144,7 +3136,6 @@
           "supported-source-075",
           "supported-source-076",
           "supported-source-000",
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -3234,195 +3225,8 @@
     {
       "dispatch": {
         "binding": {
-          "id": "openpipestress.result_semantics/0.3.0/precision-1",
-          "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
-        },
-        "error": null,
-        "ok": true,
-        "route": "precision",
-        "standing": {
-          "eligible": false,
-          "findings": [
-            "PRECISION_1_HISTORICAL_SEMANTICS"
-          ],
-          "route": "precision",
-          "status": "needs_recompute",
-          "token": "needs_recompute"
-        }
-      },
-      "id": "results/precision_connected_ui_mechanics_sparse",
-      "rows": {
-        "sha256": "e231e2b5242e7b24b499202435193601d758fb938d1fc723e0c2dd36ee7300ac",
-        "signature_ids": [
-          "supported-source-000",
-          "supported-source-001",
-          "supported-source-001",
-          "supported-source-002",
-          "supported-source-003",
-          "supported-source-004",
-          "supported-source-005",
-          "supported-source-006",
-          "supported-source-007",
-          "supported-source-002",
-          "supported-source-003",
-          "supported-source-004",
-          "supported-source-005",
-          "supported-source-006",
-          "supported-source-007",
-          "supported-source-008",
-          "supported-source-009",
-          "supported-source-009",
-          "supported-source-010",
-          "supported-source-010",
-          "supported-source-011",
-          "supported-source-011",
-          "supported-source-012",
-          "supported-source-012",
-          "supported-source-013",
-          "supported-source-013",
-          "supported-source-014",
-          "supported-source-014",
-          "supported-source-009",
-          "supported-source-010",
-          "supported-source-011",
-          "supported-source-012",
-          "supported-source-013",
-          "supported-source-014",
-          "supported-source-009",
-          "supported-source-010",
-          "supported-source-011",
-          "supported-source-012",
-          "supported-source-013",
-          "supported-source-014",
-          "supported-source-009",
-          "supported-source-010",
-          "supported-source-011",
-          "supported-source-012",
-          "supported-source-013",
-          "supported-source-014",
-          "supported-source-015",
-          "supported-source-016",
-          "supported-source-017",
-          "supported-source-018",
-          "supported-source-015",
-          "supported-source-016",
-          "supported-source-017",
-          "supported-source-018",
-          "supported-source-015",
-          "supported-source-016",
-          "supported-source-017",
-          "supported-source-018",
-          "supported-source-015",
-          "supported-source-016",
-          "supported-source-017",
-          "supported-source-018",
-          "supported-source-015",
-          "supported-source-016",
-          "supported-source-017",
-          "supported-source-018",
-          "supported-source-020"
-        ]
-      }
-    },
-    {
-      "dispatch": {
-        "binding": {
-          "id": "openpipestress.result_semantics/0.3.0/precision-1",
-          "sha256": "d75aacee175e178dbdeb256d89a65f4b375265f7da077725ee635af33df51d7e"
-        },
-        "error": null,
-        "ok": true,
-        "route": "precision",
-        "standing": {
-          "eligible": false,
-          "findings": [
-            "PRECISION_1_HISTORICAL_SEMANTICS"
-          ],
-          "route": "precision",
-          "status": "needs_recompute",
-          "token": "needs_recompute"
-        }
-      },
-      "id": "results/precision_connected_ui_mechanics_dense",
-      "rows": {
-        "sha256": "4975f67f941e25d16f171266d608da0c0c5286047b81c27e177ca2829062189e",
-        "signature_ids": [
-          "supported-source-000",
-          "supported-source-037",
-          "supported-source-001",
-          "supported-source-001",
-          "supported-source-002",
-          "supported-source-003",
-          "supported-source-004",
-          "supported-source-005",
-          "supported-source-006",
-          "supported-source-007",
-          "supported-source-002",
-          "supported-source-003",
-          "supported-source-004",
-          "supported-source-005",
-          "supported-source-006",
-          "supported-source-007",
-          "supported-source-008",
-          "supported-source-009",
-          "supported-source-009",
-          "supported-source-010",
-          "supported-source-010",
-          "supported-source-011",
-          "supported-source-011",
-          "supported-source-012",
-          "supported-source-012",
-          "supported-source-013",
-          "supported-source-013",
-          "supported-source-014",
-          "supported-source-014",
-          "supported-source-009",
-          "supported-source-010",
-          "supported-source-011",
-          "supported-source-012",
-          "supported-source-013",
-          "supported-source-014",
-          "supported-source-009",
-          "supported-source-010",
-          "supported-source-011",
-          "supported-source-012",
-          "supported-source-013",
-          "supported-source-014",
-          "supported-source-009",
-          "supported-source-010",
-          "supported-source-011",
-          "supported-source-012",
-          "supported-source-013",
-          "supported-source-014",
-          "supported-source-015",
-          "supported-source-016",
-          "supported-source-017",
-          "supported-source-018",
-          "supported-source-015",
-          "supported-source-016",
-          "supported-source-017",
-          "supported-source-018",
-          "supported-source-015",
-          "supported-source-016",
-          "supported-source-017",
-          "supported-source-018",
-          "supported-source-015",
-          "supported-source-016",
-          "supported-source-017",
-          "supported-source-018",
-          "supported-source-015",
-          "supported-source-016",
-          "supported-source-017",
-          "supported-source-018",
-          "supported-source-020"
-        ]
-      }
-    },
-    {
-      "dispatch": {
-        "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -3461,7 +3265,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -3500,7 +3304,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -4162,7 +3966,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -4180,10 +3984,9 @@
       },
       "id": "results/product_preview/invented_demo_result_preview_physics_1_dense",
       "rows": {
-        "sha256": "16d23cfae7a90c708628e179c4b587ca9c0f9ddea1733d71f560fe757f7be868",
+        "sha256": "8ca17d6671242a05b514053b38b424a33e2ca6b012b19c9ec6ac0338b7f8739e",
         "signature_ids": [
           "supported-source-000",
-          "supported-source-037",
           "supported-source-023",
           "supported-source-024",
           "supported-source-025",
@@ -4493,7 +4296,6 @@
           "preview-physics-intensified-bending",
           "preview-physics-intensified-bending",
           "supported-source-000",
-          "supported-source-037",
           "supported-source-023",
           "supported-source-024",
           "supported-source-025",
@@ -4958,9 +4760,8 @@
       },
       "id": "physics_source/n05-dense_scrutiny",
       "rows": {
-        "sha256": "988b46efd88fb5f518b780c962922f10fb0a9d5b628a7b46fd307ab374cf3882",
+        "sha256": "79a55cca96b96e473650386118976a98bf30e87a5c2383ec88d5987ab431018f",
         "signature_ids": [
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -5427,9 +5228,8 @@
       },
       "id": "physics_source/fields-dense_scrutiny",
       "rows": {
-        "sha256": "988b46efd88fb5f518b780c962922f10fb0a9d5b628a7b46fd307ab374cf3882",
+        "sha256": "79a55cca96b96e473650386118976a98bf30e87a5c2383ec88d5987ab431018f",
         "signature_ids": [
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -5772,9 +5572,8 @@
       },
       "id": "physics_source/mixed-dense_scrutiny",
       "rows": {
-        "sha256": "51bfac834eea8611ca3a726e9cb1b0bd4213a8b2ef6a7aa505fab79aa06fa7ad",
+        "sha256": "379597b9252975d998f75452e1f61e0a40bcf98b32bd74541e3e5f1cbc2b6695",
         "signature_ids": [
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -5858,7 +5657,6 @@
           "physics-source-endpoint-normal-maximum",
           "supported-source-050",
           "supported-source-000",
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -6228,9 +6026,8 @@
       },
       "id": "physics_source/mixed_units-dense_scrutiny",
       "rows": {
-        "sha256": "51bfac834eea8611ca3a726e9cb1b0bd4213a8b2ef6a7aa505fab79aa06fa7ad",
+        "sha256": "379597b9252975d998f75452e1f61e0a40bcf98b32bd74541e3e5f1cbc2b6695",
         "signature_ids": [
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -6314,7 +6111,6 @@
           "physics-source-endpoint-normal-maximum",
           "supported-source-050",
           "supported-source-000",
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -6574,9 +6370,8 @@
       },
       "id": "physics_source/n05_units-dense_scrutiny",
       "rows": {
-        "sha256": "988b46efd88fb5f518b780c962922f10fb0a9d5b628a7b46fd307ab374cf3882",
+        "sha256": "79a55cca96b96e473650386118976a98bf30e87a5c2383ec88d5987ab431018f",
         "signature_ids": [
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -6809,9 +6604,8 @@
       },
       "id": "physics_source/n05_unicode-dense_scrutiny",
       "rows": {
-        "sha256": "988b46efd88fb5f518b780c962922f10fb0a9d5b628a7b46fd307ab374cf3882",
+        "sha256": "79a55cca96b96e473650386118976a98bf30e87a5c2383ec88d5987ab431018f",
         "signature_ids": [
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -7241,10 +7035,10 @@
       },
       "id": "load_reference/connected-dense_scrutiny",
       "rows": {
-        "sha256": "32a73defe651a7d1758e3690fe309613e531a93ec5fc4eb247ab7b665ee16f16",
+        "sha256": "08687597f7d4246e25f9d4612f889f2c01c31688b978e53aa11bd6f1b55d5ad1",
         "signature_ids": [
           "supported-source-000",
-          "supported-source-037",
+          null,
           "supported-source-001",
           "supported-source-001",
           "supported-source-001",
@@ -7385,7 +7179,7 @@
           "supported-source-018",
           "supported-source-068",
           "supported-source-000",
-          "supported-source-037",
+          null,
           "supported-source-001",
           "supported-source-001",
           "supported-source-001",
@@ -7809,10 +7603,10 @@
       },
       "id": "load_reference/pressure-dense_scrutiny",
       "rows": {
-        "sha256": "1f2d89794c09ca7e67af3940107b14efba21f716081bee9d22fbde2ec5da6a40",
+        "sha256": "ebc05ebfcf2b729fccb740abd820fc489d442eb7358d6fc5c46a72999fb83c1a",
         "signature_ids": [
           "supported-source-000",
-          "supported-source-037",
+          null,
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -7922,7 +7716,7 @@
           "supported-source-075",
           "supported-source-076",
           "supported-source-000",
-          "supported-source-037",
+          null,
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -8183,9 +7977,8 @@
       },
       "id": "load_reference_source/n05-dense_scrutiny",
       "rows": {
-        "sha256": "988b46efd88fb5f518b780c962922f10fb0a9d5b628a7b46fd307ab374cf3882",
+        "sha256": "79a55cca96b96e473650386118976a98bf30e87a5c2383ec88d5987ab431018f",
         "signature_ids": [
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -8656,9 +8449,8 @@
       },
       "id": "load_reference_source/fields-dense_scrutiny",
       "rows": {
-        "sha256": "988b46efd88fb5f518b780c962922f10fb0a9d5b628a7b46fd307ab374cf3882",
+        "sha256": "79a55cca96b96e473650386118976a98bf30e87a5c2383ec88d5987ab431018f",
         "signature_ids": [
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -9002,9 +8794,8 @@
       },
       "id": "load_reference_source/mixed-dense_scrutiny",
       "rows": {
-        "sha256": "cc049be5085cf421ff5d973a2d38dd2d654b79facbde9458b1532806dd730616",
+        "sha256": "6f3c537f35cd6ff805e82de8c4a840437445199e72c77379c23bd1076f7f80d1",
         "signature_ids": [
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -9087,7 +8878,6 @@
           "supported-source-018",
           "physics-source-endpoint-normal-maximum",
           "supported-source-000",
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -9357,9 +9147,8 @@
       },
       "id": "load_reference_source/eigen_motion-dense_scrutiny",
       "rows": {
-        "sha256": "329480cb6fae00866908438e1cae72d0927616aee49e8e541f1e741565cfe8c8",
+        "sha256": "17f17821ae8efd883c1f953e6a17c9c99256e8a40657aa7b04d2f5466b4ebec6",
         "signature_ids": [
-          "supported-source-037",
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -9612,10 +9401,10 @@
       },
       "id": "load_reference_fallback_uz-dense_scrutiny",
       "rows": {
-        "sha256": "6c8575beedbc212d7fc923433aa3221ebe24dc8a5e86ece213ce40f3a3bfb218",
+        "sha256": "9385269487961c069558f0ecbf576e4d5b9460809439dd123a432710514e4bcd",
         "signature_ids": [
           "supported-source-000",
-          "supported-source-037",
+          null,
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -9722,7 +9511,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -9749,7 +9538,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -9779,7 +9568,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -9811,7 +9600,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -9843,7 +9632,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -9875,7 +9664,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -9907,7 +9696,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -9939,7 +9728,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -9971,7 +9760,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10006,7 +9795,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10038,7 +9827,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10070,7 +9859,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10102,7 +9891,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10134,7 +9923,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10161,7 +9950,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10193,7 +9982,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10226,7 +10015,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10258,7 +10047,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10290,7 +10079,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10322,7 +10111,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10349,7 +10138,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -10384,7 +10173,7 @@
       "dispatch": {
         "binding": {
           "id": "openpipestress.result_semantics/0.3.0/preview-physics-1",
-          "sha256": "903e670dc4c8392f631bed60b5d581897c13102502b549b254cc7b66c8a12499"
+          "sha256": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
         },
         "error": null,
         "ok": true,
@@ -13134,7 +12923,7 @@
       "dispatch": {
         "binding": null,
         "error": {
-          "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+          "code": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
           "detail": null
         },
         "ok": false,
@@ -13142,7 +12931,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+            "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
@@ -13164,7 +12953,7 @@
       "dispatch": {
         "binding": null,
         "error": {
-          "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+          "code": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
           "detail": null
         },
         "ok": false,
@@ -13172,7 +12961,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+            "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
@@ -13654,8 +13443,8 @@
       "dispatch": {
         "binding": null,
         "error": {
-          "code": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
-          "detail": null
+          "code": "SOURCE_PRECISION_1_RETIRED",
+          "detail": "SOURCE_PRECISION_1_RETIRED: precision-1 results are no longer read; re-run the analysis"
         },
         "ok": false,
         "route": "unsupported",
@@ -17082,7 +16871,7 @@
       "dispatch": {
         "binding": null,
         "error": {
-          "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+          "code": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
           "detail": null
         },
         "ok": false,
@@ -17090,7 +16879,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+            "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
             "MECHANICS_NOT_SOLVED"
           ],
           "route": "unsupported",
@@ -17981,7 +17770,7 @@
       "dispatch": {
         "binding": null,
         "error": {
-          "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+          "code": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
           "detail": null
         },
         "ok": false,
@@ -17989,7 +17778,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+            "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",
@@ -18018,7 +17807,7 @@
       "dispatch": {
         "binding": null,
         "error": {
-          "code": "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN",
+          "code": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
           "detail": null
         },
         "ok": false,
@@ -18026,7 +17815,7 @@
         "standing": {
           "eligible": false,
           "findings": [
-            "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"
+            "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
           ],
           "route": "unsupported",
           "status": "needs_recompute",

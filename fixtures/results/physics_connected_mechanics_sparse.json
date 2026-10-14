@@ -550,7 +550,7 @@
         "component": "linear_solver_mode",
         "coordinate_system": "reduced_system",
         "location": "case:closed-pressure",
-        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=852.4590163934429; max_abs_sparse_residual=0.0000000000009094947017729282; dense_fallback=false; dense_fallback_message=none",
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
         "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
       }
     },
@@ -2354,7 +2354,7 @@
         "component": "linear_solver_mode",
         "coordinate_system": "reduced_system",
         "location": "case:six-component-load",
-        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=852.4590163934429; max_abs_sparse_residual=0.0000000000018189894035458565; dense_fallback=false; dense_fallback_message=none",
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
         "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
       }
     },
