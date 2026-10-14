@@ -168,6 +168,11 @@ if C6_STATE is not None:
 elif TA.get("first_error_guard") or any("KD5C6:" in v.get("why", "") for v in TA.get("site_from", {}).values()):
     raise ValueError("KD5C6: current caps on a known historical source")
 
+# B7a targets one immediate-return allocation in the actual FK evaluator.
+# Full call counts, helper visits, loop costs and downstream copies remain.
+import b7a_formation_model as FK_RETURN_MODEL
+FK_RETURN_STATE = FK_RETURN_MODEL.first_return_state(proot, TA, cg, inv["rows"], LEX)
+
 # a `.join(` whose receiver is a work/bound status lattice value produces no String: drop it
 # before the ancestor set is formed, so its (non-text) callers' loops are not required
 _zero_join = [re.compile(r["re"]) for r in TA.get("join_rules", []) if r["bytes"] == "0"]
@@ -540,11 +545,13 @@ for r in inv["rows"]:
     reached, mult = site_mult(f, line, fk, loops, key)
     if C6_STATE is not None:
         C6_MODEL.positive_witness(C6_STATE, f, line, r["kind"], mult, M)
+    FK_RETURN_MODEL.first_return_witness(FK_RETURN_STATE, f, line, r["kind"], mult, M)
     sf = TA.get("site_from", {}).get(key)
     if sf is not None and mult:
         mult = sum(M[k] for k in M if short(k) in sf["from"]) * ev(sf["per"])
     if C6_STATE is not None:
         C6_MODEL.rebound_witness(C6_STATE, f, line, r["kind"], mult, M)
+    FK_RETURN_MODEL.first_return_witness(FK_RETURN_STATE, f, line, r["kind"], mult, M, rebound=True)
     so = TA.get("site_size", {}).get(key)
     if key in AGG:
         size = ev(AGG[key]["bytes"])

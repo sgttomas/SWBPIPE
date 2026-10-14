@@ -116,6 +116,7 @@ def test_exact_copied_rule_transform_retains_every_unrelated_owner(tmp_path):
     old_join = MODEL["FIDELITY_PREIMAGES"]["rows_join"]
     expected_text["join_rules"][expected_text["join_rules"].index(old_join)] = next(
         r for r in new_text["join_rules"] if r["re"] == "^rows$")
+    expected_text["b7a_reformation_first_error"] = "FK895-v1"
     assert new_text == expected_text
     assert {name: Path(path).read_bytes() for name, path in inherited.items()} == before
     assert all(hashlib.sha256(Path(actual[name]).read_bytes()).hexdigest() == digest
@@ -340,3 +341,87 @@ def test_newly_reached_identifier_audits_bind_exact_production_expressions():
     # Current model's every-source/class/cap refusal proof is retained.
     proof=MODEL["inspect"](SOURCE)
     assert len(proof["full_raw_source_fingerprints"])+len(proof["formation_raw_fingerprints"])==27
+
+
+
+def first_return_fixture():
+    site = MODEL["FIRST_RETURN_SITE"]
+    table = {"b7a_reformation_first_error":"FK895-v1", "site_from": {
+        site: dict(MODEL["FIRST_RETURN_RULE"], why="SQ2 G5: "+MODEL["FIRST_RETURN_WHY"])}}
+    root,parent = MODEL["FIRST_RETURN_ROOT"],MODEL["FIRST_RETURN_PARENT"]
+    graph = {"edges": {root: [],parent:[root]}}
+    inventory = [{"file":MODEL["FIRST_RETURN_FILE"],"line":895,"kind":"format","fn":root}]
+    return table,graph,inventory
+
+
+def test_first_return_preserves_full_evaluate_counts_and_positive_content():
+    table,graph,inventory=first_return_fixture()
+    state=MODEL["first_return_state"](SOURCE,table,graph,inventory,[])
+    f=MODEL["FIRST_RETURN_FILE"]
+    for full in (672,448,224,672):
+        counts={MODEL["FIRST_RETURN_ROOT"]:full}
+        MODEL["first_return_witness"](state,f,895,"format",full*1536,counts)
+        MODEL["first_return_witness"](state,f,895,"format",full,counts,rebound=True)
+        assert 2*8334*full in (11200896,7467264,3733632)
+    # The actual source-bound returning expression, not a visit cap.
+    source=(SOURCE/f).read_text()
+    assert 'fn evaluate<F, A, P>(' in source
+    assert '.map_err(|e| Failure::Closure(format!("{}: reformation {e:?}", term.source)))?;' in source
+    assert 'let value = v[p.local_row];' in source
+
+
+@pytest.mark.parametrize("change",["remove_qmark","catch_continue","second_site","crlf"])
+def test_first_return_source_change_refuses(tmp_path,change):
+    snapshot=source_copy(tmp_path)
+    p=snapshot/MODEL["FIRST_RETURN_FILE"]
+    raw=p.read_bytes()
+    needle=b'.map_err(|e| Failure::Closure(format!("{}: reformation {e:?}", term.source)))?;'
+    assert raw.count(needle)==1
+    if change=="crlf": raw=raw.replace(b"\n",b"\r\n")
+    elif change=="second_site": raw+=b"\n"+needle+b"\n"
+    else: raw=raw.replace(needle,needle.replace(b"?;",b";" if change=="remove_qmark" else b".unwrap_or_else(|_| continue);"))
+    p.write_bytes(raw)
+    table,graph,inventory=first_return_fixture()
+    with pytest.raises(ValueError,match="owner source changed"):
+        MODEL["first_return_state"](snapshot,table,graph,inventory,[])
+
+
+@pytest.mark.parametrize("change",["guard","per","owner","why","zero","total","aggregate","size","lex_size","alias_from"])
+def test_first_return_rule_or_override_drift_refuses(change):
+    table,graph,inventory=first_return_fixture()
+    key=MODEL["FIRST_RETURN_SITE"]
+    if change=="guard": del table["b7a_reformation_first_error"]
+    elif change in ("per","owner","why"):
+        field={"per":"per","owner":"from","why":"why"}[change]
+        table["site_from"][key][field]={"per":"0","owner":["unknown.rs:1:evaluate"],"why":"changed"}[change]
+    else:
+        family={"zero":"site_zero","total":"site_total","aggregate":"site_aggregate",
+                "size":"site_size","lex_size":"lex_site_size","alias_from":"site_from"}[change]
+        table.setdefault(family,{})[MODEL["FIRST_RETURN_FILE"]+":895:format"]={"bytes":0}
+    with pytest.raises(ValueError,match="B7aFK895"):
+        MODEL["first_return_state"](SOURCE,table,graph,inventory,[])
+
+
+@pytest.mark.parametrize("change",["missing_node","missing_edge","duplicate_edge","extra_parent","missing_site","duplicate_site","wrong_owner"])
+def test_first_return_exact_graph_inventory_refuses(change):
+    table,graph,inventory=first_return_fixture()
+    root,parent=MODEL["FIRST_RETURN_ROOT"],MODEL["FIRST_RETURN_PARENT"]
+    if change=="missing_node": del graph["edges"][root]
+    elif change=="missing_edge": graph["edges"][parent]=[]
+    elif change=="duplicate_edge": graph["edges"][parent].append(root)
+    elif change=="extra_parent": graph["edges"]["foreign.rs:1:evaluate"]=[root]
+    elif change=="missing_site": inventory=[]
+    elif change=="duplicate_site": inventory+=inventory[:]
+    else: inventory[0]["fn"]=parent
+    with pytest.raises(ValueError,match="B7aFK895"):
+        MODEL["first_return_state"](SOURCE,table,graph,inventory,[])
+
+
+@pytest.mark.parametrize("normal,post,count",[(0,672,672),(100,672,0),(100,671,672),(100,673,672)])
+def test_first_return_pre_and_post_counts_never_erase_positive_owner(normal,post,count):
+    table,graph,inventory=first_return_fixture()
+    state=MODEL["first_return_state"](SOURCE,table,graph,inventory,[])
+    counts={MODEL["FIRST_RETURN_ROOT"]:count}
+    with pytest.raises(ValueError,match="KD5C6"):
+        MODEL["first_return_witness"](state,MODEL["FIRST_RETURN_FILE"],895,"format",normal,counts)
+        MODEL["first_return_witness"](state,MODEL["FIRST_RETURN_FILE"],895,"format",post,counts,rebound=True)

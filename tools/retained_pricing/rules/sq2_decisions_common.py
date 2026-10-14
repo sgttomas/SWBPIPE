@@ -400,3 +400,4 @@ LOOP_TOTAL = list(globals().get("LOOP_TOTAL", [])) + _formed_totals
 ID_AUDIT = list(ID_AUDIT) + _formed_audits
 SITE_TOTAL = list(globals().get("SITE_TOTAL", [])) + _formed_model["site_totals"](_SNAP, Resolved)
 LEX_SITE_SIZE = list(LEX_SITE_SIZE) + _formed_model["lex_sizes"](_SNAP, Resolved)
+SITE_FROM = list(globals().get("SITE_FROM", [])) + _formed_model["first_return_rules"](_SNAP, Resolved)

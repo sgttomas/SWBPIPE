@@ -1294,3 +1294,18 @@ member_source268 identity is unchanged. Existing27 full raw source guards and
 admission/cap laws bind these constructors; foreign/preclosure and refusal
 costs do not inherit an admitted-domain alias. No generic fallback classifier,
 audit-gate relaxation or qualification claim is added.
+
+
+The FK895 first-return count preserves full evaluate multiplicity: the four
+dd870 graphs bind check_at's sole evaluate edge and672/448/224/672 evaluator
+calls. Only the reformation error String at895 is rebound to one allocation per
+evaluate call: map_err runs on Err and immediate? returns it, with no catch,
+retry or continuation in the guarded function. Its8334 content and capacity2
+remain; no visit, q traversal, graph/function call count, source/manifest owner,
+foreign/preclosure failure or downstream detail/unavailable/Preview/W2 copy is
+removed. Existing C6 positive/post-rebound and override-alias refusal semantics
+are reused for this one site, with an exact separate marker, source/rule,
+qualified caller/graph, inventory and pre/post witness. Every unknown source,
+changed rule, conflicting override or erased current owner stops pricing.
+This source-bound allocation correction is not an acceptance/budget change or
+a fit/D3/public-writer claim.

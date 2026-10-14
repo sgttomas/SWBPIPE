@@ -203,6 +203,9 @@ def prepare(snapshot, inherited, output):
            for name in ("loop_bounds.g4.json", "text_args.g4.json")}
     loops = json.loads(raw["loop_bounds.g4.json"])
     text = json.loads(raw["text_args.g4.json"])
+    if "b7a_reformation_first_error" in text:
+        raise ValueError("B7a first-return guard preimage already present")
+    text["b7a_reformation_first_error"] = "FK895-v1"
     alterations = []
     for index, regex, bound, why, changed in BASE_LOOP_PREIMAGES:
         expected = dict(re=regex, bound=bound, why=why)
@@ -303,3 +306,60 @@ def site_totals(snapshot, resolved):
                 ("formation_guard.rs:251", f"2*cases*(321*N+{g})"),
                 ("formation_guard.rs:322", f"2*cases*(N*(600+2+8208)+{g})"),
             )]
+
+
+
+FIRST_RETURN_FILE = "core/solver/frame_kernel/src/structural/formation_check.rs"
+FIRST_RETURN_ROOT = FIRST_RETURN_FILE + ":850:evaluate"
+FIRST_RETURN_PARENT = FIRST_RETURN_FILE + ":441:check_at"
+FIRST_RETURN_SITE = "structural/formation_check.rs:895"
+FIRST_RETURN_WHY = "B7aFK895: map_err formats only on Err and immediate? returns evaluate; preserve full evaluate calls/content/capacity and every helper/loop/copy cost"
+FIRST_RETURN_RULE = {"from": ["structural/formation_check.rs:850:evaluate"],
+                     "per": "1", "why": FIRST_RETURN_WHY}
+
+
+def first_return_rules(snapshot, resolved):
+    inspect(snapshot)
+    return [(resolved(FIRST_RETURN_SITE), {
+        "from": [resolved(FIRST_RETURN_RULE["from"][0])],
+        "per": "1", "why": FIRST_RETURN_WHY})]
+
+
+def first_return_state(snapshot, table, graph, formats, lexical):
+    inspect(snapshot)
+    if table.get("b7a_reformation_first_error") != "FK895-v1":
+        raise ValueError("B7aFK895: missing/versioned first-return guard")
+    actual = table.get("site_from", {}).get(FIRST_RETURN_SITE)
+    expected = dict(FIRST_RETURN_RULE, why="SQ2 G5: " + FIRST_RETURN_WHY)
+    if actual != expected:
+        raise ValueError("B7aFK895: exact source/per/why rule changed")
+    c6 = runpy.run_path(os.path.join(os.path.dirname(__file__), "kd5_first_error_model.py"))
+    site = {"file": FIRST_RETURN_FILE, "line": 895, "kind": "format",
+            "fn": FIRST_RETURN_ROOT, "roots": [FIRST_RETURN_ROOT]}
+    for family in ("site_from", "site_zero", "site_total", "site_aggregate", "site_size", "lex_site_size"):
+        for alias in c6["override_aliases"](site):
+            if family == "site_from" and alias == FIRST_RETURN_SITE:
+                continue
+            if alias in table.get(family, {}):
+                raise ValueError("B7aFK895: conflicting override: " + family + ":" + alias)
+    edges = graph["edges"]
+    if FIRST_RETURN_ROOT not in edges or FIRST_RETURN_PARENT not in edges:
+        raise ValueError("B7aFK895: missing qualified root/caller node")
+    parents = [caller for caller, targets in edges.items() for target in targets if target == FIRST_RETURN_ROOT]
+    if parents != [FIRST_RETURN_PARENT]:
+        raise ValueError("B7aFK895: qualified evaluate caller inventory changed")
+    matching = [row for row in formats + lexical if
+                (row["file"], row["line"], row["kind"]) == (FIRST_RETURN_FILE, 895, "format")]
+    if len(matching) != 1 or any(row.get("fn", FIRST_RETURN_ROOT) != FIRST_RETURN_ROOT for row in matching):
+        raise ValueError("B7aFK895: missing/duplicate/misqualified format site")
+    return {"sites": [site]}
+
+
+def first_return_witness(state, file, line, kind, mult, counts, rebound=False):
+    # Reuse C6's strict positive and exact post-rebind count checks. This
+    # targets one allocation only; it never limits helper visits or a graph.
+    if (file, line, kind) != (FIRST_RETURN_FILE, 895, "format"):
+        return
+    c6 = runpy.run_path(os.path.join(os.path.dirname(__file__), "kd5_first_error_model.py"))
+    check = c6["rebound_witness"] if rebound else c6["positive_witness"]
+    check(state, file, line, kind, mult, counts)
