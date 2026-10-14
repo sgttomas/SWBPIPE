@@ -216,6 +216,14 @@ ASSUMED.update({
 })
 
 
+# Shared B7a illustrative layouts must exist in each fresh pricing process.
+# These preserve the formed-construction helper's existing estimates; G5
+# binds both exact Rust types and supplies the actual qualification values.
+ASSUMED.update({
+    "s(FormationRow)": 3 * ASSUMED["s(ExactAccumulator)"] + 128,
+    "s((usize,[f64;4]))": 5 * ASSUMED["s(usize)"],
+})
+
 # KD5 illustrative layouts only; g5_profile binds actual in-build sizes.
 import os as _pricing_os
 _pricing_snapshot = _pricing_os.environ.get("RP_SNAPSHOT")

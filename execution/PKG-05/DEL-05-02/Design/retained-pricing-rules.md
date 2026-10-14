@@ -1309,3 +1309,15 @@ qualified caller/graph, inventory and pre/post witness. Every unknown source,
 changed rule, conflicting override or erased current owner stops pricing.
 This source-bound allocation correction is not an acceptance/budget change or
 a fit/D3/public-writer claim.
+
+
+The shared illustrative layout inventory carries FormationRow at the existing
+helper estimate 3*s(ExactAccumulator)+128 (3440 in its illustrative64-bit
+table), and (usize,[f64;4]) at5*s(usize) (40 in that table). The ordinary
+constructor and final G4 evaluator run in separate processes; a helper-local
+ASSUMED update cannot populate the final evaluator. Declaring these same two
+positive values in g3lib makes every process use the same illustrative
+inventory. Symbolic coefficients and actual G5 InBuild bindings are unchanged:
+FormationRow and the tuple still require their own actual native observation
+before qualification. Missing or unknown atoms continue to stop evaluation;
+no fallback size, qualified stride, reserve, cap or fit claim is introduced.

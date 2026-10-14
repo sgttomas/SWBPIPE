@@ -425,3 +425,32 @@ def test_first_return_pre_and_post_counts_never_erase_positive_owner(normal,post
     with pytest.raises(ValueError,match="KD5C6"):
         MODEL["first_return_witness"](state,MODEL["FIRST_RETURN_FILE"],895,"format",normal,counts)
         MODEL["first_return_witness"](state,MODEL["FIRST_RETURN_FILE"],895,"format",post,counts,rebound=True)
+
+
+def test_shared_illustrative_layouts_exist_in_fresh_process(tmp_path):
+    code = (
+        "import json,runpy; "
+        "g=runpy.run_path(" + repr(str(PRICING / "base/g3lib.py")) + "); "
+        "a=g['ASSUMED']; "
+        "v=g['X']({'s(FormationRow)':2,'s((usize,[f64;4]))':4}).ev(a); "
+        "print(json.dumps([a['s(FormationRow)'],a['s((usize,[f64;4]))'],v]))"
+    )
+    result = subprocess.run([sys.executable, "-c", code], cwd=tmp_path,
+                            text=True, capture_output=True)
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout) == [3 * 1104 + 128, 5 * 8, 7040]
+    # Actual qualified binders remain the separately measured Rust types.
+    generator = (PRICING / "base/g5_profile.py").read_text()
+    assert '"s(FormationRow)": sz("open_pipe_stress_frame_kernel::load_ledger::FormationRow")' in generator
+    assert '"s((usize,[f64;4]))": sz("(usize, [f64; 4])")' in generator
+
+
+@pytest.mark.parametrize("missing", [
+    "s(FormationRow)", "s((usize,[f64;4]))", "s(UnboundFormationAtom)"
+])
+def test_shared_illustrative_missing_atom_still_refuses(missing):
+    g3 = runpy.run_path(str(PRICING / "base/g3lib.py"))
+    values = dict(g3["ASSUMED"])
+    values.pop(missing, None)
+    with pytest.raises(KeyError, match="no ASSUMED value"):
+        g3["X"]({missing: 1}).ev(values)
