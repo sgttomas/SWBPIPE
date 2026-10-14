@@ -76,3 +76,42 @@ def prepare(snapshot, base, output):
                                  for name in ("text_args.g4.json", "sens.py")},
               "retired": removals}
     return {"text_args.g4.json": out_text, "sens.py": out_sens}, report
+
+# These complete route-E tuples are the old preview-only zero edges. Their
+# current resolved caller is bound as part of the preimage, not an alias.
+ROUTE_E_RETIRED_EDGES = (
+    (13, ("lib.rs:4442:solve_prepared_load_case", "source_receipt.rs:634:exact",
+          "a selected exact case takes FinalizedSourceBlockCase::composite_exact (lib.rs:5714-5717); `exact` is the !is_exact arm (lib.rs:5718-5719)")),
+    (14, ("lib.rs:4442:solve_prepared_load_case", "source_receipt.rs:717:ordinary",
+          "an unselected exact case takes ordinary_physics (lib.rs:5726-5729); `ordinary` is the !is_exact arm (lib.rs:5730-5731)")),
+    (15, ("lib.rs:2354:run_linear_static_preview_observed", "source_receipt.rs:836:finalize",
+          "`composite` = source_selected && is_exact, so a selected exact invocation takes finalize_composite (lib.rs:2872-2875)")),
+)
+
+
+def route_e_keymap_allow(snapshot, edges, inherited):
+    """Allow only these source-proven deleted keys; ordinary strict carry decides kind."""
+    source = {}
+    for file, expected in SOURCE_FILES.items():
+        with open(os.path.join(snapshot, file), "rb") as stream:
+            raw = stream.read()
+        if hashlib.sha256(raw).hexdigest() != expected:
+            raise ValueError("B7a route-E retirement source drift")
+        source[file] = raw.decode("utf-8")
+    receipt = source["core/product_physics/src/source_receipt.rs"]
+    for name in ("exact", "ordinary", "finalize"):
+        if re.search(r"^\s+(?:pub\(super\) )?fn " + name + r"\(", receipt, re.M):
+            raise ValueError("B7a route-E constructor restored")
+    for name in ("finalize_composite", "finalize_for"):
+        if len(re.findall(r"^\s+(?:pub\(super\) )?fn " + name + r"\(", receipt, re.M)) != 1:
+            raise ValueError("B7a route-E live finalizer changed")
+    allowed = dict(inherited)
+    for index, expected in ROUTE_E_RETIRED_EDGES:
+        if len(edges) <= index or edges[index] != expected or edges.count(expected) != 1:
+            raise ValueError("B7a route-E complete edge preimage or order changed")
+        key = expected[1]
+        if key in allowed:
+            raise ValueError("B7a route-E inherited allowance overlaps")
+        allowed[key] = ("deleted", "B4/D1 (b): preview receipt constructor retired; "
+                        "current composite, ordinary_physics and composite finalizers remain positive.")
+    return allowed

@@ -52,6 +52,10 @@ EDGE_ZERO = EDGE_ZERO + [
      "physics-retained-1's G7 validates project(successor), whose base id on route E is physics-1 (RS retained_precision.rs:4720, Route EXACT), so "
      "for_source takes the PHYSICS_ID arm, never the preview arm"),
 ]
+# B4/D1's deleted preview constructor keys retain the ordinary mapper's
+# exact-kind check. Source and complete edge preimages are checked first.
+_b7a_carry = runpy.run_path(os.path.join(H, "..", "lib", "b7a_retired_carry.py"))
+KEYMAP_ALLOW = _b7a_carry["route_e_keymap_allow"](os.environ["SQ2_SNAP"], EDGE_ZERO, KEYMAP_ALLOW)
 FN_ZERO = [
     ("source_receipt.rs:152:captured_load_state_case", "the 0.4.0 load-state replay; D1.3's load-state clause holds on route E (I95)"),
     ("source_receipt.rs:197:check_load_state_input", "the 0.4.0 load-state replay; D1.3's load-state clause holds on route E (I95)"),

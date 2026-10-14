@@ -1085,3 +1085,13 @@ to either guarded file, including a test-only suffix, requires this source
 binding to be re-audited before pricing is reused. The currently planned
 public corpus and D8 fixture paths are outside these two guarded files;
 any actual helper or test-suffix edit in either file requires re-audit.
+
+Route E's three historical EDGE_ZERO entries at indices 13–15 name the
+deleted preview constructors exact, ordinary and finalize. Before ordinary
+decision-key carry, the same raw source fingerprints and the complete
+caller/callee/reason tuples permit only these keys' deleted status through
+KEYMAP_ALLOW. A changed tuple, order, duplicate, source byte or restored
+constructor refuses. Replaced or fewer-definition statuses remain errors
+under the unchanged generic mapper. Current composite_exact,
+ordinary_physics, finalize_composite and finalize_for ownership stays priced;
+no surviving edge, cap or classification is removed.
