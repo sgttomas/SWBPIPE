@@ -70,7 +70,7 @@ pub(crate) fn validate_document(
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     // An explicit null is authored presence in every version: an older
-    // document carrying a new key at all blocks, and a 0.4.0 document may not
+    // document carrying a new key at all blocks, and a current group may not
     // author a null where it must either omit the key or supply a value.
     let carries = super::carries_fields(model);
     if !super::is_load_state(model) {
@@ -104,14 +104,14 @@ pub(crate) fn validate_document(
     }
     if request_materials_supplied {
         block(diagnostics, "LOAD_STATE_REQUEST_MATERIALS_UNSUPPORTED", &["materials"],
-            "model document 0.4.0 resolves members from model materials and their expansion laws; a separate request material list is not merged");
+            "the current exact load/reference-state group resolves members from model materials and their expansion laws; a separate request material list is not merged");
     }
     if model.load_cases.is_empty() {
         block(
             diagnostics,
             "LOAD_STATE_CASES_REQUIRED",
             &["load_cases"],
-            "model document 0.4.0 requires at least one load case with an explicit analysis_state",
+            "the authored load/reference-state group requires at least one load case with an explicit analysis_state",
         );
     }
     let pipe_ids = model
@@ -125,7 +125,7 @@ pub(crate) fn validate_document(
             diagnostics,
             "LOAD_STATE_REFERENCE_CONFIGURATION_REQUIRED",
             &["reference_configurations"],
-            "model document 0.4.0 requires explicit reference_configurations",
+            "the authored load/reference-state group requires explicit reference_configurations",
         ),
         Some(list) => {
             for configuration in list {
@@ -214,7 +214,7 @@ fn validate_case(
     let id = case.id.as_str();
     let Some(state) = case.analysis_state.value() else {
         block(diagnostics, "LOAD_STATE_ANALYSIS_STATE_REQUIRED", &[id, "analysis_state"],
-            "every 0.4.0 load case requires an explicit analysis_state; case labels never imply temperatures, fit or support state");
+            "every case in an authored load/reference-state group requires an explicit analysis_state; case labels never imply temperatures, fit or support state");
         return;
     };
     if case.modulus_basis_ref.is_some() || case.modulus_basis_temperature.is_some() {

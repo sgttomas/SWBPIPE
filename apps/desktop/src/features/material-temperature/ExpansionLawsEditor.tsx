@@ -20,8 +20,8 @@ const DATA_KINDS: Record<string, readonly string[]> = {
 };
 const DATA = { constant: ["coefficient"], table: ["interpolation", "points"] } as const;
 
-/** Material 0.4.0 expansion laws (`Material.expansion_laws`): user-owned
- * definitions, never library values. Pre-0.4 models show the gating line. */
+/** Current material expansion laws (`Material.expansion_laws`): user-owned
+ * definitions, never library values. Pressure-free models show the gating line. */
 export function ExpansionLawsEditor(props: RichFormProps & { material: Material }) {
   if (!isLoadStateModel(props.model)) return <LoadStateNeedsCurrent testId="expansion-laws-needs-current" />;
   return <LawsForm key={props.material.id} {...props} />;

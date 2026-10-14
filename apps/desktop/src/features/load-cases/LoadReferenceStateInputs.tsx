@@ -23,8 +23,8 @@ const THERMAL = {
 } as const;
 const PARTICIPATION = { active_model_device: [], inactive: [], locked_equivalent_support: ["components"] } as const;
 
-/** Model 0.4.0 reference configurations and the selected case's analysis
- * state. On any other model version only the one gating line is shown. */
+/** Current exact reference configurations and the selected case's analysis
+ * state. Without that contract only the gating line is shown. */
 export function LoadReferenceStateInputs(props: RichFormProps & { loadCase: LoadCase | null }) {
   if (!isLoadStateModel(props.model)) return <LoadStateNeedsCurrent testId="load-state-needs-current" />;
   return <section aria-label="Load/reference state inputs" data-testid="load-state-inputs">

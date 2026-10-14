@@ -4,12 +4,12 @@ import { PressureAuthoringPanel, pressureModeText } from "./PressureAuthoringPan
 import { pressureProfileTarget } from "./pressureContract";
 import { selectedPropertyRows } from "../model-workspace/modelView";
 import { evaluateModelDocumentLocal } from "../../services/projectService";
+import { canonicalJsonString, computeModelHash } from "../../services/hashService";
+import { applyModelOperation, validateModelOperation } from "../../services/operationService";
+import { makeRichIntent } from "../rich-authoring/formSupport";
 import type { PreviewModel, EditorOperationIntent } from "../../types";
 import fixture from "../../../../../fixtures/model_operations/exact_pressure_authoring_model.json";
 
-vi.mock("../../services/hashService", () => ({
-  canonicalJsonString: vi.fn(async (value: unknown) => JSON.stringify(value))
-}));
 afterEach(cleanup);
 function model(): PreviewModel {
   const model = structuredClone(fixture) as PreviewModel;
@@ -63,4 +63,43 @@ it("B7b saves incomplete current document bytes by version and refuses all retir
     retired.schema_version = version;
     expect(evaluateModelDocumentLocal(retired).status).toBe("retired_schema");
   }
+});
+
+it("B7b WASM common Review/Apply refuses an exhausted wall on an unbound scalar edit", async () => {
+  const current = model();
+  const pipe = current.pipe_segments[0];
+  pipe.section.wall_thickness = { value: 0.01, unit: "m" };
+  pipe.section.mill_tolerance = { value: 0.002, unit: "m" };
+  const hash = await computeModelHash(current);
+  for (const [value, accepted] of [[0.007, true], [0.009, false]] as const) {
+    const intent = makeRichIntent({ object_type: "Element", ref: pipe.id },
+      "set_field", "section.corrosion_allowance.value", "0", value, "Corrosion allowance");
+    intent.change.unit = "m";
+    intent.change.dimension = "length";
+    const reviewed = await validateModelOperation(current, intent, hash);
+    const applied = await applyModelOperation(current, intent, hash);
+    expect(reviewed.applied_model).toBeNull();
+    expect(Boolean(applied.applied_model)).toBe(accepted);
+    if (!accepted) expect(applied.diagnostics.map(d => d.code)).toContain("OP-SECTION-BINDING-INVALID");
+  }
+});
+
+it("B7b WASM applies explicit omitted-region then profile edits without manufacturing CA", async () => {
+  let current = model();
+  const originalSections = structuredClone(current.pipe_segments);
+  const loadCase = current.load_cases[0];
+  loadCase.primitive_loads = [];
+  delete loadCase.pressure_regions;
+  const regions = makeRichIntent({ object_type: "Load", ref: loadCase.id }, "update_load",
+    "pressure_regions", "not_present", [], "Pressure regions");
+  const outcome = await applyModelOperation(current, regions, await computeModelHash(current));
+  expect(outcome.diagnostics.filter(d => d.severity === "blocking")).toEqual([]);
+  current = outcome.applied_model as PreviewModel;
+  const profile = makeRichIntent({ object_type: "Model", ref: current.project.id }, "set_field",
+    "pressure_profile", await canonicalJsonString({ schema_version: "0.5.0" }),
+    pressureProfileTarget(current), "Pressure profile");
+  const activated = await applyModelOperation(current, profile, await computeModelHash(current));
+  expect(activated.diagnostics.filter(d => d.severity === "blocking")).toEqual([]);
+  expect((activated.applied_model as PreviewModel).pipe_segments).toEqual(originalSections);
+  expect((activated.applied_model as PreviewModel).pressure_contract).toEqual(pressureProfileTarget(current).pressure_contract);
 });

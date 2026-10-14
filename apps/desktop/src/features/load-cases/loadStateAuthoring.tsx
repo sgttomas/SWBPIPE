@@ -5,7 +5,7 @@ import type { EditorOperationIntent, OperationOutcomeDiagnostic, PreviewModel } 
 import { makeRichIntent, record, setMember, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import { isExactPressureContract } from "../pressure-authoring/pressureContract";
 
-/* Plain input fields for the model 0.4.0 load/reference-state records
+/* Plain input fields for the current exact load/reference-state group
  * (`openpipestress.load_reference_state/1.0.0`). Every edit is one whole-record
  * replacement submitted through the typed operations in
  * core/model_operations/operation_applier (load_state_authoring.rs): the draft
@@ -23,7 +23,7 @@ export function isLoadStateModel(model: Pick<PreviewModel, "schema_version" | "p
   return isExactPressureContract(model);
 }
 
-/** The one line shown instead of the fields on a pre-0.4 model (D3: no upgrade). */
+/** The one line shown when the current exact contract is absent. */
 export function LoadStateNeedsCurrent({ testId }: { testId: string }) {
   return <p className="muted" data-testid={testId}>{LOAD_STATE_NEEDS_CURRENT}</p>;
 }
