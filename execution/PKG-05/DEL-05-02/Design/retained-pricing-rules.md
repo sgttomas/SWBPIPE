@@ -1095,3 +1095,15 @@ constructor refuses. Replaced or fewer-definition statuses remain errors
 under the unchanged generic mapper. Current composite_exact,
 ordinary_physics, finalize_composite and finalize_for ownership stays priced;
 no surviving edge, cap or classification is removed.
+
+E11's from_radii constructor remains source-bound at its existing body
+fingerprint, but its exact cfg(test) attribute makes it absent from the
+callgraph's existing R1k production projection. C5 verifies the whole raw
+pressure_exact.rs file, the attached attribute and that projection before
+omitting only the constructor's private-CPP mul exclusion. Current source
+has 19 exclusion pairs from 18 callers; source_geometry::from_od_wall and
+the production methods following from_radii remain, and all three private
+CPP methods retain their positive owner charges. A restored production
+constructor, changed body, attribute, raw newline or resumed production
+method refuses; the callgraph's generic missing/witness checks stay strict.
+This full-file source binding also requires re-audit for later test edits.

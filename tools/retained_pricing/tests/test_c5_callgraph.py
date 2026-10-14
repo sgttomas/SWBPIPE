@@ -28,8 +28,10 @@ def test_current_exact_inventory():
     rules = MODEL["inspect_fallback_boundary"](PIPING)
     # H4 retires unused interior Lame; the join adds its exact-rational J7
     # caller. U2 adds two callers; batch 5 adds finish_source_groups' Scaled mul.
-    assert len(rules) == 20
-    assert len({r["caller"] for r in rules}) == 19
+    # E11 from_radii is an exactly guarded cfg(test) item, absent from R1k.
+    assert len(rules) == 19
+    assert len({r["caller"] for r in rules}) == 18
+    assert all(not r["caller"].endswith(":from_radii") for r in rules)
     assert {r["exclude_targets"][0] for r in rules} == {
         CPP + ":744:add", CPP + ":747:mul", CPP + ":763:divided"}
     assert all(not r["caller"].startswith(CPP + ":") for r in rules)
@@ -136,3 +138,35 @@ def test_no_exclusions_keeps_original_graph(tiny_graph):
     assert result.returncode == 0
     result, after = tiny_graph([])
     assert result.returncode == 0 and after == before
+
+
+@pytest.mark.parametrize("change", ["attribute", "duplicate_attribute", "body", "crlf", "resumed_production"])
+def test_exact_test_only_constructor_projection_drift_refuses(tmp_path, change):
+    snapshot = snapshot_copy(tmp_path)
+    file = snapshot / "core/product_physics/src/pressure_exact.rs"
+    raw = file.read_bytes()
+    declaration = b"    #[cfg(test)]\n    pub(crate) fn from_radii("
+    assert raw.count(declaration) == 1
+    if change == "attribute":
+        raw = raw.replace(declaration, b"    pub(crate) fn from_radii(", 1)
+    elif change == "duplicate_attribute":
+        raw = raw.replace(declaration, b"    #[cfg(test)]\n" + declaration, 1)
+    elif change == "body":
+        raw = raw.replace(b"let ai_scaled = pi_scaled.mul(ri_scaled).mul(ri_scaled);",
+                          b"let ai_scaled = pi_scaled.add(ri_scaled).mul(ri_scaled);", 1)
+    elif change == "crlf":
+        assert b"\r\n" not in raw
+        raw = raw.replace(b"\n", b"\r\n")
+    else:
+        assert b"fn inner_radius_m(" in raw
+        raw = raw.replace(b"fn inner_radius_m(", b"fn removed_inner_radius_m(", 1)
+    file.write_bytes(raw)
+    with pytest.raises(ValueError, match="test-only source drift|outside caller/receiver body changed"):
+        MODEL["inspect_fallback_boundary"](snapshot)
+
+
+def test_test_only_source_missing_refuses(tmp_path):
+    snapshot = snapshot_copy(tmp_path)
+    (snapshot / "core/product_physics/src/pressure_exact.rs").unlink()
+    with pytest.raises(FileNotFoundError):
+        MODEL["inspect_fallback_boundary"](snapshot)

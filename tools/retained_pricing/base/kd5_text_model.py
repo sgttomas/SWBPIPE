@@ -223,6 +223,36 @@ def _indented_function(text, name):
         raise ValueError(f"KD5C5: no same-indent end of fn {name}")
     return text[hit.start():hit.end() + end.end()], text.count("\n", 0, hit.start()) + 1
 
+# E11 made only this constructor test-only. Bind the actual raw file and
+# its exact attribute, body and production projection before omitting a
+# now-unwitnessable exclusion; never skip an arbitrary missing caller.
+B7A_PRESSURE_EXACT_SOURCE_PIN = "19d1aa0893b1b71316fc35c8d243d8b5a8de26050f8d03db1ff62baa802c189e"
+
+
+def test_only_from_radii(snapshot):
+    file = os.path.join(snapshot, "core/product_physics/src/pressure_exact.rs")
+    with open(file, "rb") as stream:
+        raw = stream.read()
+    if hashlib.sha256(raw).hexdigest() != B7A_PRESSURE_EXACT_SOURCE_PIN:
+        raise ValueError("KD5C5: from_radii test-only source drift")
+    source = raw.decode("utf-8")
+    body, line = _indented_function(source, "from_radii")
+    if hashlib.sha256(body.encode()).hexdigest() != "30bf50858d1c5a2223b5fa9c4f5a4d2643c87d26875e394770b6d69d89230340":
+        raise ValueError("KD5C5: from_radii test-only body drift")
+    if source.splitlines()[line - 2] != "    #[cfg(test)]":
+        raise ValueError("KD5C5: from_radii test-only attribute changed")
+    # Use the same existing R1k projection as the actual callgraph. Production
+    # resumes after the one method; its following methods cannot disappear.
+    import runpy
+    loopscan = runpy.run_path(os.path.join(os.path.dirname(__file__), "loopscan.py"))
+    production = loopscan["blank_test_items"](loopscan["blank_rust"](source))
+    if re.search(r"\bfn\s+from_radii\b", production):
+        raise ValueError("KD5C5: from_radii is production-visible")
+    for name in ("inner_radius_m", "outer_radius_m"):
+        _indented_function(production, name)
+    return True
+
+
 def inspect_fallback_boundary(snapshot):
     file = "core/product_physics/src/certified_publication.rs"
     with open(os.path.join(snapshot, file), encoding="utf-8") as stream:
@@ -261,6 +291,10 @@ def inspect_fallback_boundary(snapshot):
             raise ValueError(f"KD5C5: outside caller/receiver body changed: {caller_file}:{name}")
         if caller_file == file:
             raise ValueError("KD5C5: an inside-owner caller cannot be excluded")
+        if (relative, name) == ("pressure_exact.rs", "from_radii"):
+            test_only_from_radii(snapshot)
+            expected -= len(methods)
+            continue
         inventory.extend({"caller": f"{caller_file}:{line}:{name}", "name": method,
                           "exclude_targets": [targets[method]]} for method in methods)
     if len(inventory) != expected or len({(r["caller"], r["name"]) for r in inventory}) != expected:
