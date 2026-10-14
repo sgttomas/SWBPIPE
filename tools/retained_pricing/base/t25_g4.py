@@ -189,6 +189,12 @@ env_vf = (VF(arr=PA + 4 * PA, obj=3 * PA, ent=15 * PA, strb=PA * ROW, keyb=15 * 
                keyb=(9 + 15 * m + 2 * g) * 40, nums=10 * m, depth=6).scale(CC)
           + VF(arr=64, obj=24, ent=160, strb=24 * 1024, keyb=160 * 40, nums=60, depth=5).scale(CC))
 publication = env_vf.tree()
+import b7a_phase_model as _phase_model
+_selected_context = _phase_model.selected_publication_context(
+    os.environ["RP_SNAPSHOT"], H, json.load(open(os.environ["RP_STAGE1_EDGES"])))
+# Only the extra selected source_receipt::hash(publication) is conditional.
+# Initial capture/hash, inv_base/body/carried/C8 and all other hashes stay.
+_selected_publication_hash = hash_route(env_vf, L_PUB) if _selected_context["route"] == "E" else X()
 rows["T25.6 serialized(envelope) = publication Value"] = publication
 rows["T25.7 requested() x2 (the first a temporary), assessed quality Values x2"] = (requested * 2 + VF(obj=8, ent=60, strb=4096, keyb=2400, nums=20).tree() * 2)
 rows["T25.8 ids set, accounted set, observations"] = (X({"Node(&str,())": (PA + D) // 5 + 1}) + X({"Node(String,())": PA // 5 + 1})
@@ -200,7 +206,7 @@ case_wire_vf = (payload_vf.scale(0) + VF(obj=1, ent=12, strb=3 * 64 + 128, keyb=
 rows["T25.9 per case: actual rows clone + serialized(actual) + wire entry"] = (
     Xc("ResultItem", P) + B(P * ROW) + rowjson + case_wire_vf.tree()) * CC
 body_vf = case_wire_vf.scale(CC) + VF(arr=PA, obj=4, ent=20, strb=PA * RID + 512, keyb=20 * 32, nums=4)
-rows["T25.10 body json! (copies wire) + hash(publication) inside it"] = body_vf.tree() + hash_route(env_vf, L_PUB)
+rows["T25.10 body json! (copies wire) + hash(publication) inside it"] = body_vf.tree() + _selected_publication_hash
 rows["T25.11 hash(body), into_wire copy, retained receipt in the envelope"] = hash_route(body_vf, L_BODY) + body_vf.tree() * 2
 
 evv = dict(ASSUMED)
@@ -233,7 +239,7 @@ inv_base = (publication + requested + VF(obj=8, ent=60, strb=4096, keyb=2400, nu
             + rows["T25.8 ids set, accounted set, observations"]
             + rows["T25.9 per case: actual rows clone + serialized(actual) + wire entry"])
 inv = {
-    "I1 body json! with hash(publication) inside": inv_base + body_vf.tree() + hash_route(env_vf, L_PUB),
+    "I1 body json! with hash(publication) inside": inv_base + body_vf.tree() + _selected_publication_hash,
     "I2 hash(body)": inv_base + body_vf.tree() + hash_route(body_vf, L_BODY),
     "I3 into_wire copy": inv_base + body_vf.tree() * 2,
 }

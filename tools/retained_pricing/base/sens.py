@@ -17,7 +17,7 @@ for f in os.listdir(H):
     if f.endswith(".py") or f in ("loop_bounds.g4.json", "text_args.g4.json", "callgraph_rules.g4.json",
                                   "template_inventory_head.out.json", "crate_dirs.txt"):
         shutil.copy(os.path.join(H, f), os.path.join(work, f))
-env = dict(os.environ, G4_CAPS=caps, RP_SNAPSHOT=snap)
+env = dict(os.environ, G4_CAPS=caps, RP_SNAPSHOT=snap, RP_STAGE1_EDGES=edges)
 def run(args, out, extra=None, cwd=None):
     e = dict(env, **(extra or {}))
     with open(os.path.join(work, out), "w") as fh:

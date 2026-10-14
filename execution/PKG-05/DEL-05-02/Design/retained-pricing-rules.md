@@ -1444,3 +1444,23 @@ actual repricing and re-registration are required. This model changes no
 budget, margin, reserve, admission, criterion or expectation. Actual complete
 canonical pricing and native all-phase evaluation remain required before
 qualification or a public corpus writer can proceed.
+
+
+T25's selected invocation publication hash has a route-qualified producer.
+source_eligible1244 requires exact captured recovery; the per-case gate6136
+requires exact capture for all finalized case constructors; and the invocation
+gate3077/3081 requires selected exact context before finalize_composite and
+finalize_for. The latter obtains policy from the same capture's context,
+not an envelope label. Admitted pressure-free L has none of these selected
+producers. The model binds the existing source/admission/capture bytes and
+the complete qualified constructor/finalizer caller and stack inventory.
+
+Only the extra hash(publication) term inside T25 I1 and its corresponding
+row10 representation is absent on L. Every other S/I form, invocation/body,
+carried case, C8, header, initial raw/typed parse/hash, moving and W1/T16/T17
+owner stays positive at its existing bound. E's actual hash and foreign or
+ordinary product paths are unchanged. G4 consumes the stage_forms directly;
+the ordinary T25 row alone cannot change that profile. Full TAV_X, both X
+phase names, all fourteen phase identities, native bindings, coefficientwise
+union and upward reserve remain. Actual complete pricing/evaluation is still
+required; this producer distinction supplies no fit or qualification claim.

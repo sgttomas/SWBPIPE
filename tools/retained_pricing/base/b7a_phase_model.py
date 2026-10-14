@@ -189,6 +189,32 @@ def finding_witness(context, counts, caps):
     return finding_count(context, caps) * 6 * caps["n"]
 
 
+def selected_publication_context(snapshot, directory, graph):
+    """The three product gates bind only selected T25's publication hash."""
+    context = consumer_context(snapshot, directory)
+    expected = {
+        "core/product_physics/src/source_receipt/composite.rs:726:composite_exact": SOLVE,
+        "core/product_physics/src/source_receipt/composite.rs:952:ordinary_physics": SOLVE,
+        "core/product_physics/src/source_receipt.rs:694:failed": SOLVE,
+        "core/product_physics/src/source_receipt.rs:780:finalize_composite":
+            "core/product_physics/src/lib.rs:2543:run_linear_static_preview_observed_inner",
+        "core/product_physics/src/source_receipt.rs:796:finalize_for":
+            "core/product_physics/src/source_receipt.rs:780:finalize_composite",
+    }
+    for target, caller in expected.items():
+        parents = [key for key, values in graph["edges"].items() for value in values if value == target]
+        if target not in graph["edges"] or parents != [caller]:
+            raise ValueError("B7a T25: selected constructor/finalizer caller changed")
+        stacks = [row for row in graph["site_loops"] if row[1] == target]
+        if stacks != [[caller, target, [[]]]]:
+            raise ValueError("B7a T25: selected constructor/finalizer stack changed")
+    # inspect() binds raw lib/source_receipt/pressure/capture/admission.
+    # source_eligible, every per-case constructor and invocation finalizer
+    # require exact captured context derived from the same request. L has
+    # no such producer. This never zeroes shared checked/hash/serialized.
+    return context
+
+
 def consumer_context(snapshot, directory):
     directory = Path(directory)
     loops = json.loads((directory / "loop_bounds.g4.json").read_bytes())
@@ -356,7 +382,7 @@ def run_success_branch(work, snapshot, edges, lexicon, eps, caps):
     loop,text = success_tables(snapshot,loop,text)
     (target/"loop_bounds.g4.json").write_text(json.dumps(loop,indent=1)+"\n")
     (target/"text_args.g4.json").write_text(json.dumps(text,indent=1)+"\n")
-    env = dict(os.environ,G4_CAPS=caps,RP_SNAPSHOT=snapshot)
+    env = dict(os.environ,G4_CAPS=caps,RP_SNAPSHOT=snapshot,RP_STAGE1_EDGES=edges)
     for key in ("TB_FN_ZERO","TB_EXTRA_ZERO"):
         env.pop(key,None)
     def run(args,out,extra=None,cwd=None):
