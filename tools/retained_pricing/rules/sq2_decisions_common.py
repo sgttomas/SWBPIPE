@@ -184,7 +184,7 @@ IN, ST, RS_, CP, NUM_ = ({"bytes": 128, "source": "IN128"}, {"bytes": 128, "sour
 P_ = "core/product_physics/src/"; A_ = "core/loads/load_case_algebra/src/lib.rs:"
 ID_AUDIT = [
     (P_ + "lib.rs:13054", {"reference.entity_ref": IN, "combination.id": IN}),
-    (P_ + "lib.rs:10246", {"item.entity_ref": IN, "metadata.basis": ST}),
+    (P_ + "lib.rs:10246", {"item.entity_ref": IN, "metadata.basis": {"bytes": 2914, "source": "COMP"}}),
     (P_ + "lib.rs:13070", {"reference.id": RS_, "combination.id": IN}),
     (P_ + "validation.rs:1991", {"load_case_ref": IN, "combination.id": IN}),
     (P_ + "validation.rs:2144", {"operand_id": IN, "combination.id": IN}),
@@ -279,6 +279,9 @@ PREFIX.update({
     'for r in projected[" "].as_array_mut().ok_or_else(||': ("Pall", "RS retained_precision.rs project (B3b changed its error code by route): the projection's `results` rows, at most the envelope's rows (Pall = C_eq * P_final)"),
 })
 NEW.update({
+    # B7a named bases add groups, not additional batch Calls. This exact
+    # header precedes the historical combined calls/groups regex.
+    "iter:inv.groups().iter().map": ("cases+z", "B7a stage 1: one group per distinct requested basis plus each combination group"),
     "for case in &operands": ("3", "PP preview_physics.rs append_combination_results: the operand case ids of one combination (expression.operand_ids()). " + O),
 })
 # I104 kept three D1-era "one per invocation" rules at 1 (calls, groups, material bases). B2 adds one
@@ -380,3 +383,11 @@ exec(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "o10_rules
 # The complete current lib.rs pin guards this exact ID preimage removal;
 # all surviving displacement and other decision audits continue strict carry.
 ID_AUDIT = _labels_model["retire_combination_reaction_audit"](_SNAP, ID_AUDIT)
+
+# B7a: exact new owner headers and site-local positive metadata classes.
+# Existing O10 match checks, generic strict mapping and all other rules stay.
+_wide_model = __import__("runpy").run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "b7a_domain_model.py"))
+_wide_loops, _wide_audits, _wide_lex = _wide_model["text_decisions"](_SNAP, Resolved)
+O10_LOOPS_LAST = list(globals().get("O10_LOOPS_LAST", [])) + _wide_loops
+ID_AUDIT = list(ID_AUDIT) + _wide_audits
+LEX_SITE_SIZE = list(LEX_SITE_SIZE) + _wide_lex

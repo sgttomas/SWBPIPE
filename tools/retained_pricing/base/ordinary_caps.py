@@ -50,6 +50,12 @@ else:  # the I54 named-fixture facts (BOUND:87-93; ADDENDUM histogram) for cross
     P = 7 * n + 51 * m + 8 * g + 3; R0 = 7 * n + 51 * m + g + 3
     li_max = 1
 ID = __import__("g3lib").g4_caps()["ident"] if which == "caps" else 128
+_wide = False
+if _snapshot:
+    import b7a_domain_model as _wide_model
+    _wide_model.inspect(_snapshot)
+    _wide = True
+force_q = 12 * l if _wide else l
 _mc = __import__("g3lib").g4_caps()
 CC, LL = (_mc["c"], _mc["L"]) if which == "caps" else (1, l)   # I82: requested cases, total loads
 PA = CC * P                                                   # I82: rows of the c-case envelope
@@ -119,6 +125,11 @@ add("ErrorPrefix: blocked envelope quality/formulation/evidence (text in TEXT.md
 # ---------------- B_cache: material copies (BOUND row 'Material copies') ---------------
 mat_tree = (Xc("MaterialInput", 4) + Xc("TemperaturePoint", 4 * pts) + B(4 * (7 + pts * 7) * ID))
 add("Material copies (working clone + default-basis clone)", "B_cache", mat_tree * 2)
+if _wide:
+    # The already-counted working/base clones remain. At most CC additional
+    # selectors retain independent material vectors until ordinary rendering.
+    add("Named basis material clones (B7a stage 1)", "B_cache", mat_tree * CC)
+    add("Typed named selector strings (B7a stage 1)", "T_resident", B(CC * ID))
 
 # ---------------- O-N: normalization (S-4; PP lib.rs:2326-2331, 7514-7600, 8347-8446) ---
 # per quantity, sequentially: one format! id, one refs Vec of two Strings, one canonical
@@ -137,10 +148,14 @@ add("O-N per-load provenance parse transient (RV83 R-3; one at a time)", "Normal
     s("Value") * (4 * 64 + 2 * 64) + X({"Node(String,Value)": 42 + 25 // 5 + 1}) + B(128 + 128 + 128))
 
 # ---------------- BuildScratch / Built resident (BOUND rows :53-54) ----------------------
-add("BuiltModel straight resident", "Built",
-    V("FrameNode", n) + V("StraightPipeElement", m) + V("FrameElement", m) + A("LinearSupport", g)
-    + HashReq("(String,DerivedSection)", m) + B(2 * m * ID + g * ID)
-    + B(8 * (4 * g + 2 * r)) + B(8 * sp) + B(32))
+_built_resident = (V("FrameNode", n) + V("StraightPipeElement", m) + V("FrameElement", m) + A("LinearSupport", g)
+                   + HashReq("(String,DerivedSection)", m) + B(2 * m * ID + g * ID)
+                   + B(8 * (4 * g + 2 * r)) + B(8 * sp) + B(32))
+add("BuiltModel straight resident", "Built", _built_resident)
+if _wide:
+    add("Named basis BuiltModel residents (B7a stage 1)", "Built", _built_resident * CC)
+    _resolver_req, _resolver_mov = _wide_model.resolver_scratch(m, ID)
+    add("Named basis resolver construction (B7a stage 1)", "BuildScratch", _resolver_req * CC, _resolver_mov)
 add("Built helper maps (material, node, pipe)", "BuildScratch",
     HashReq("(&str,&T)", mats) + HashReq("(&str,usize)", n) + HashReq("(&str,&T)", m))
 
@@ -156,6 +171,10 @@ def pattern_build():
             + B(8 * (4 * N + 2 * Z)) + B(8 * (N + 1) + 8 * appendcap(Z) + 8 * Z)
             + Xc("(usize,usize,Matrix12)", m) + Xc("(usize,usize)", m) + B(8 * sp))
 add("Sparse K resident (basis stiffness)", "Basis", K_resident())
+if _wide:
+    add("Named basis stiffness residents (B7a stage 1)", "Basis", K_resident() * CC)
+    _basis_req, _basis_mov = _wide_model.cached_basis_headers(CC, ID)
+    add("All held basis state tuple/key/record owners (B7a stage 1)", "Basis", _basis_req, _basis_mov)
 add("Sparse pattern construction + assembly retention", "PatternAssemblyScratch", pattern_build(),
     B(8 * appendcap(Z)))
 
@@ -164,10 +183,22 @@ add("Primitive loads and application", "CasePrefix",
     A("PrimitiveLoad", l) + V("NodalLoadContribution", l) + B(2 * l * ID) + Sort("NodalLoadContribution", l)
     + HashReq("(&str,usize)", n) + HashReq("(&str,&T)", m))
 def assembled_force():
-    closure = V("LoadClosureRecord", l) + s("Vec") if KD5 else X()
-    return (closure + B(8 * N) + V("ForceTerm", l) + V("Option<FormationRecord>", l) + s("Vec<usize>") * N
-            + B(8 * (4 * N + 2 * l)) + B(8 * pushcap(min(l, N))) + B(l * ID))
-add("AssembledForce, nodal family", "CasePrefix", assembled_force(), s("ForceTerm") * (pushcap(l) // 2))
+    closure = V("LoadClosureRecord", force_q) + s("Vec") if KD5 else X()
+    formed = (_wide_model.primitive_copy(force_q) + _wide_model.manifest_copy(force_q) + _wide_model.formation_children(force_q)) if _wide else X()
+    return (closure + formed + B(8 * N) + V("ForceTerm", force_q) + V("Option<FormationRecord>", force_q) + s("Vec<usize>") * N
+            + B(8 * (4 * N + 2 * force_q)) + B(8 * pushcap(min(force_q, N))) + B(force_q * ID))
+_formed_mov = (s("LoadPrimitive") * (pushcap(force_q) // 2)
+               + s("LoadClosureRecord") * (pushcap(force_q) // 2)
+               + B(8 * force_q * 16)) if _wide else X()
+add("AssembledForce, nodal family", "CasePrefix", assembled_force(),
+    s("ForceTerm") * (pushcap(force_q) // 2) + _formed_mov)
+if _wide:
+    add("Element uniform LoadApplication owners (B7a stage 1)", "CasePrefix",
+        V("ElementUniformLoadContribution", l) + B(l * ID),
+        s("ElementUniformLoadContribution") * (pushcap(l) // 2))
+    _formation_req, _formation_mov = _wide_model.formation_constructor()
+    add("Formed load constructor staging (B7a stage 1)", "CasePrefix",
+        _wide_model.formed_constructor(force_q) + _formation_req * l, _formation_mov)
 # B5O1: positive new carriers, including both return/move/argument slots.
 # D1.4 refuses every component; D1.5 requires absent/empty region lists with
 # capacity zero. Only their joint/region backing children are empty. The
@@ -232,11 +263,11 @@ def typed_core(mode):
         out["Directed product/quotient helper staging (KD5O13)"] = _directed_helper_workspace
     report = (B(4 * F) + Xc("PivotEvidence", F) + V("ResidualRow", F) * 2 + Xc("ContributionRounding", Z)
               + B(8 * (2 * C + Z)) + tx("sym"))
-    fidelity = V("LoadFidelityRow", N) + s("String") * l + B(l * ID) + tx("audit_error")
+    fidelity = V("LoadFidelityRow", N) + s("String") * force_q + B(force_q * ID) + tx("audit_error")
     out["Completed report (+ original factor/prepared still live)"] = report
     out["Load-fidelity audit and report (returned report cloned once)"] = (
-        s("Vec<&ForceTerm>") * N + B(8 * (4 * N + 2 * l)) + B(N) + fresh_sums + A("(f64,f64)", C)
-        + Exp_req(1 + 2 * C + 2 * l) + Sort("String", li_max) + fidelity * 2)
+        s("Vec<&ForceTerm>") * N + B(8 * (4 * N + 2 * force_q)) + B(N) + fresh_sums + A("(f64,f64)", C)
+        + Exp_req(1 + 2 * C + 2 * force_q) + Sort("String", force_q if _wide else li_max) + fidelity * 2)
     out["Intended-action audit"] = fresh_sums + Exp_req(1 + 2 * C)
     out["Ordinary formation check (outer vectors)"] = (
         Xc("Option<usize>", N) + Xc("ExactAccumulator", F) + Xc("Vec<f64>", F) + B(8 * (4 * F + 288 * m))
@@ -248,10 +279,12 @@ def typed_core(mode):
         # cover psi, correction RHS/solve scratch and epsilon row/column sums.
         # The old per-row list allowance is retained conservatively.
         out["Ordinary formation check (outer vectors)"] += Xc("ExactAccumulator", F) * 2 + B(8 * 5 * F)
-        # D1.4/5/6/7 admit nodal loads only, with no states, regions,
-        # components or generated equivalents. Each closure record is
-        # retained above, but no formed primitive/entry/table owner exists.
-        out["D1 formed primitive and independent manifest children (KD5O3)"] = s("Vec") + V("LoadPrimitive", 0) + V("LoadClosureEntry", 0)
+        # B7a stage 1 admits full-span uniform straight member inputs.
+        # Typed formation owns one cloned primitive source and constructs
+        # comparison entries independently; q=12*l includes zero terms.
+        out["D1 formed primitive and independent manifest children (KD5O3)"] = (
+            _wide_model.primitive_copy(force_q) + _wide_model.manifest_copy(force_q)
+            if _wide else s("Vec") + V("LoadPrimitive", 0) + V("LoadClosureEntry", 0))
         # Both correction vectors and global exponents remain in the solution
         # through recovery. Inline owner includes all three Vec headers.
         out["StructuralSolution member-bound payload (KD5O4)"] = B(20 * N) + s("MemberBoundInputs")
@@ -284,8 +317,10 @@ dense_parity = (Mat(8, N, N) + Mat(8, F, F) * 2 + B(8 * F) + A("usize", F) + B(8
 
 # ---------------- W2 (W2_RETURN.md) ---------------------------------------------------------
 def w2(mode, core_total, report, fidelity):
-    scaled_force = ((Xc("LoadClosureRecord", l) + s("Vec") if KD5 else X()) + B(8 * N) + A("ForceTerm", l) + B(l * ID) + Xc("Vec<usize>", N) + B(8 * l)
-                    + Xc("Option<FormationRecord>", l) + B(8 * pushcap(min(l, N))))
+    scaled_children = (_wide_model.primitive_copy(force_q) + _wide_model.manifest_copy(force_q)) if _wide else X()
+    scaled_force = ((Xc("LoadClosureRecord", force_q) + s("Vec") if KD5 else X()) + scaled_children
+                    + B(8 * N) + A("ForceTerm", force_q) + B(force_q * ID) + Xc("Vec<usize>", N) + B(8 * force_q)
+                    + Xc("Option<FormationRecord>", force_q) + B(8 * pushcap(min(force_q, N))))
     scaled_prims = A("FrameElement", m) + A("(usize,f64)", sp)
     kbuild = K_resident() + pattern_build()
     evaluate = (kbuild + core_total + scaled_force + scaled_prims * 2 + B(N) + A("usize", F)) * 2
@@ -300,7 +335,7 @@ def w2(mode, core_total, report, fidelity):
         # KD5O5: outcome.solution and its PreviewLinearSolve clone coexist.
         tail += (B(20 * N) + s("MemberBoundInputs")) * 2
     tail_mov = (A("PublishedValue", k) + A("PublishedValue", sp) + A("[PublishedValue;12]", m) + A("usize", F)
-                + A("ForceTerm", l) + B(8 * pushcap(min(l, N))) + B(qf))
+                + A("ForceTerm", force_q) + B(8 * pushcap(min(force_q, N))) + B(qf) + _formed_mov)
     return evaluate + unscale + tail + B(16 * N) + Xc("(usize,f64)", sp), tail_mov
 
 # ---------------- Ordinary recovery (BOUND :75; ADDENDUM stress, guard maps, records) ----
@@ -323,6 +358,8 @@ if KD5:
     # KD5O8: price the recovery's separately constructed FormationSource
     # explicitly, preserving the prior assembly/check copy allowances.
     _recovery_groups += Xc("FrameElement", m) + Xc("(usize,f64)", sp) + s("Vec") * 6
+    if _wide:
+        _recovery_groups += _wide_model.primitive_copy(force_q)
 # KD5O11: PP caller owners and return/move slots, separate from the
 # kernel-only coefficient workspace. Retain the sum of disjoint slot
 # alternatives; no compiler reuse or move elision is presumed.
@@ -350,10 +387,11 @@ add("Formation-guard late maps and RecoveryFinding", "OrdinaryRecovery",
     + tx("recovery_finding") + _directed_helper_workspace)
 _coefficient_spans = X()
 if KD5 and "certify_straight_stress_spans(" in open(_cp_path, encoding="utf-8").read():
-    # KD5O10: current D1 admits no formed primitive/source (KD5O3),
-    # hence the actual boundary list is 0/1 and has one span. Retain
-    # the positive conservative 2l+1 allowance, without importing a
-    # general source_count<=l law into an extended B7 domain. FK
+    # KD5O10/B7a: every admitted uniform input emits one row-0 physical
+    # source occurrence and twelve terms, even for repeated targets/IDs.
+    # Thus source_count<=l is warranted without a uniqueness discount.
+    # Full-span inputs deduplicate to boundaries 0/1. Retain the larger
+    # conservative 2l+1 span allowance. FK
     # with_capacity is exact; PP Result collect is conservatively push-grown.
     # The FK input and PP output coexist while mapping; no in-place reuse.
     # Summing the earlier boundary backing is conservative over both peaks.
@@ -392,6 +430,10 @@ add("Preview rewrite", "PreviewRewrite",
 add("Final aggregation (results + rows_by_base_id clone + id_map)", "AggregationSuffix",
     (Xc("ResultItem", PA) + tx("row") * PA) * 2 + X({"Node(String,BTreeMap)": PA}) + X({"Node(String,ResultItem)": PA})
     + HashReq("(String,String)", PA) + B(2 * PA * ID))
+if _wide:
+    _map_req, _map_mov = _wide_model.record_map(CC, ID)
+    add("Independent combination modulus record map (B7a stage 1)", "AggregationSuffix", _map_req, _map_mov)
+    add("Additional held failed-manifest envelope owners (B7a stage 1)", "OldCaseStaging", _wide_model.failed_envelope_copy(CC, ID))
 add("Preview tree final copy (envelope evidence)", "AggregationSuffix", PREVIEW)
 # The Vec<Diagnostic> backing only: every diagnostic String (id, code, severity, source, message,
 # refs) was allocated by a text site and is already inside T08's TAV, so adding Text(diag_total)
@@ -431,6 +473,9 @@ else:
 PER_CASE_FAMILIES = ['Primitive loads and application', 'AssembledForce, nodal family', 'Sparse reduction (+ caller prescribed, observation force)', 'Formation-guard Bodies (build + resident)', 'Legacy profile observation', 'Straight member recovery (+ stress supplement)', 'Formation-guard late maps and RecoveryFinding', 'Ordinary scalar maximum (one helper at a time)', 'Source row qualification', 'Existing ordinary/failed source case (FinalizedSourceBlockCase::ordinary)', 'Preview rewrite', 'Preview tree final copy (envelope evidence)', 'T07 generic deep legacy-exact (RESIDUALS_G3 T07)']
 if "Prepared pressure case carriers and staging (B5O1)" in fam:
     PER_CASE_FAMILIES.append("Prepared pressure case carriers and staging (B5O1)")
+if _wide:
+    PER_CASE_FAMILIES.append("Formed load constructor staging (B7a stage 1)")
+    PER_CASE_FAMILIES.append("Element uniform LoadApplication owners (B7a stage 1)")
 for _f in PER_CASE_FAMILIES:                       # I82: one owner set per requested case, all counted live
     assert _f in fam, _f
     fam[_f] = fam[_f] * CC

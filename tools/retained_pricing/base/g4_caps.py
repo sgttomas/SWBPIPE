@@ -124,6 +124,11 @@ def rec(cnt, slots=0, obj=1, ent=0, strb=0, nums=0, depth=4):
     return VF(arr=cnt * slots, obj=cnt * obj, ent=cnt * ent, strb=cnt * strb, keyb=cnt * ent * KB, nums=cnt * nums, depth=depth)
 NB = n                                               # bodies <= n
 BUILDS, RECORDS, ATTEMPTS = 7, 4, 4
+import b7a_domain_model as _wide_model
+_wide_model.inspect(SNAP)
+# CC is the existing C_eq upper (3): requested basis groups plus combinations
+# cannot exceed it. Calls retain their one-batch-plus-z structure.
+BUILDS *= CC
 REFUSALS = 3 * N                                     # bound refusals per record: Uc and S per block (blocks <= F <= N) plus the shared build's
 SOURCE = (rec(1, obj=4, ent=23, strb=TOK + ID + 3 * SHA, nums=3)
           + rec(n, slots=1 + 3, ent=4, strb=ID + 3 * BITS, nums=2)                    # id_maps.nodes
@@ -168,6 +173,11 @@ ORDINARY = ORDINARY.scale(CC)                        # I82: ordinary_attempts[],
 CALLS = rec(1, slots=4 * AA, obj=3, ent=11, strb=2 * TOK, nums=6) + rec(1, slots=2 * AA, obj=2, ent=7, strb=SHA + TOK, nums=4)
 BUILDS_V = rec(BUILDS, slots=1, obj=4, ent=31, strb=3 * TOK + 19 * 0, nums=26) + REASON.scale(BUILDS)
 MATERIAL = rec(1, slots=2, obj=2, ent=4, strb=TOK) + rec(8, slots=1, obj=3, ent=7, strb=ID + 2 * BITS + 2 * TOK, nums=1)
+# Keep the historical base tree, then add a complete named-selector union:
+# outer/selector/case-index owners and up to8 conservative material owners
+# per basis. Actual used materials<=4; each selection may carry point_id.
+MATERIAL += (rec(CC, slots=3 + CC, obj=3, ent=10, strb=ID + 2 * TOK, nums=2)
+             + rec(8 * CC, slots=1, obj=4, ent=12, strb=2 * ID + 2 * BITS + 3 * TOK, nums=1))
 TOP = rec(1, obj=4, ent=24, strb=6 * TOK + 5 * TOK + 2 * SHA, nums=8) + rec(1, slots=1, ent=7, strb=TOK, nums=4)
 BODY = (TOP + CASE + SOURCE + MATERIAL + CALLS + BUILDS_V + ORDINARY + ATTEMPT)
 BODY.depth = 9
@@ -186,6 +196,16 @@ STAGED = (s("MechanicsEnvelope") + Xc("ResultItem", PA) + B(PA * ROW) + Xc("Diag
           + PREVIEW_T * CC + B(64 * 1024)
           + s("String") * (4 * PA))          # G5 part 2 (RV87 N-1(b)): ResultItem.source_result_refs Vec backings
 rows["T18.1 staged typed envelope copy (U3 D-b; live during T16 only)"] = STAGED
+# B4/D1 retains an additional failed Preview manifest beside its blocked
+# original before this later STAGED copy. Keep STAGED in full; this union
+# additionally pays diagnostic/evidence/row backings and content, quality
+# cases/reference vectors and all fixed quality labels.
+_FAILED_QUALITY = (V("NumericalCaseQuality", CC)
+                   + V("String", 3) * CC + s("String") * CC
+                   + B(CC * (ID + 64 + 3 * L_DIAGID) + 3 * 64))
+_FAILED_MANIFEST_COPY = STAGED + _FAILED_QUALITY
+rows["T18.1a additional failed-manifest typed clone (B7a stage 1)"] = _FAILED_MANIFEST_COPY
+
 
 # =========================================================================== T16 publication
 # serialize_frozen -> serialize_selected_from (retained_wire.rs:1474-1563 at b1f80234dc); finish
@@ -384,6 +404,7 @@ form("T17_moving_invocation", B(j3cap(INVOC_VF.text()) // 2))
 for name_, x_ in (("STAGED", STAGED), ("SUCC", SUCC.tree()), ("INVOC", INVOC), ("STATICS", STATICS), ("BODY", BODY.tree()),
                   ("NOTICE", NOTICE), ("NOTICE_moving", T18_RESERVE_MOV), ("T19", T19)):
     form(name_, x_)
+form("FAILED_MANIFEST_COPY", _FAILED_MANIFEST_COPY)
 for name_, c_ in (("TAV_X", TAV_X), ("TAV_W", TAV_W), ("TXT_moving", TXT_MOV), ("HELPER_moving", HELPER_MOV), ("T07_moving", T07_MOV)):
     form(name_, B(c_))
 exprs = {
@@ -394,7 +415,8 @@ exprs = {
 }
 # G5 part 2 (RV84 C-N3(a), (b); ruled): T19's spawn heap is allocated before the observed run and the reader's
 # process-lifetime statics are live after the first permitted invocation, so both count in every phase.
-EVERY = ["T11", "T19", "STATICS"]
+# The additional held source clone is conservatively resident in every phase.
+EVERY = ["T11", "T19", "STATICS", "FAILED_MANIFEST_COPY"]
 def phases_of(mode):
     ob = f"O_base_{mode}"
     w2 = [ob, "TAV_W", "T12_T15", "NOTICE"] + EVERY

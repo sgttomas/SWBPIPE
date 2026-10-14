@@ -1107,3 +1107,66 @@ CPP methods retain their positive owner charges. A restored production
 constructor, changed body, attribute, raw newline or resumed production
 method refuses; the callgraph's generic missing/witness checks stay strict.
 This full-file source binding also requires re-audit for later test edits.
+
+## B7a stage-1 positive ordinary domain costs
+
+The existing B4/D1 domain admits named-point material selectors and branch-L
+full-span uniform straight member inputs. The old nodal-only zero premise
+does not price that domain. The canonical b7a_domain_model binds eighteen full
+raw owner-source files plus the unique raw nongenerated admission prefix before D6 and late law_order,
+admit and sole-permit admission bodies. Actual census, capacities and
+cap enforcement are bound; generated registry bytes are excluded. Before
+ordinary strict carry, it transforms copies of exact base-rule preimages:
+uniform-load execution and formed-row decisions become positive; force
+terms are bounded by 12*l and uniform spans by l; material bases by cases.
+Every other base rule remains. Calls stay 1+z; basis groups are at most
+cases+z, and the existing C_eq=3 bounds build/storage families.
+
+Each straight uniform input emits all twelve DOFs, including zero values.
+q=12*l safely covers mixed nodal/member inputs without a target-ID discount.
+Every formed term retains one LoadPrimitive and a distinct closure entry
+whose Uniform/Authored binding has26 u64 words. Child backings use the
+existing 4q+2x and push-cap laws; identity strings have family16 and
+member-source268 byte bounds. Separate source/supplied/temporary constructor,
+typed FormationSource/comparison, scaled force per existing two-evaluation
+allowance, and recovery-source copies remain positive. Original formed-force
+records additionally retain their moved scaled_intended f64 children:
+each can push80components (128capacity). Single-call construction charges
+all63 expansion outputs plus2initial variable children conservatively;
+these children are not copied by FormationSource or W2's None formations. No intensity-table
+heap is imported: D1's absent analysis state selects Authored intensity.
+One row0 per prepared input proves physical source_count<=l, even with
+duplicate targets/IDs; full-span boundaries are0/1. The larger old2l+1 span
+and coefficient-workspace allowances remain.
+
+Ordinary retains the base and up to3 named material/BuiltModel/stiffness
+states through rendering. Original working/base material copies remain;
+new states add their independent children plus the exact private tuple
+backing and owned key/record strings. Sequential resolver scratch includes
+the all-pipe HashSet iterator bound, provenance strings/vector and join;
+no three-way scratch overlap is presumed or credited. The invocation's
+named BasisCustody objects retain selections/record children independently
+of CaseSlot swaps. Exact-growth old backing uses n-1, not a geometric half.
+Fresh in-build atoms bind LoadPrimitive, LoadClosureEntry, CertifiedSummand,
+BasisCustody and the actual BasisState tuple; illustrative values never
+establish ABI or qualification.
+
+With ID128 and four used materials, one provenance record is161+4ID=673,
+its joined text is4*673+9=2701, and aggregate record is85+ID+2701=2914.
+Formatted cached records use the existing2*length capacity bound; adapter
+copy and row clones preserve their existing length-capacity law. The
+previous600/1024 basis/copy classes and2648 join are raised at their actual
+source sites. Existing11474-byte row and both aggregation-copy charges
+cover modulus rows (3755-byte case/3745-byte combination bounds); they are
+retained. The separate combination record map is priced even when
+combinations are empty. Existing T11/T07, legacy/parity reserves, every
+positive B5/J/nonlinear charge, M12GiB, .9 margin and5% TEXT requirement
+remain. Additional failed Preview manifest envelope headers, limitation
+Vec/string children and transient LocatedQuantity strings are priced beside
+the retained original. A separate FAILED_MANIFEST_COPY form includes the complete
+additional typed envelope clone and its quality-case/reference children in every
+phase conservatively; the old STAGED family is kept separately. Source-bound
+site classes and exact O10 owner lists close the14new headers/24arguments,
+without a zero or generic uncapped waiver. These source/model changes require actual four-point/native15-input
+D3; no diagnostic tree or historical profile qualifies them. Any actual
+guarded-file edit requires re-audit before reuse.
