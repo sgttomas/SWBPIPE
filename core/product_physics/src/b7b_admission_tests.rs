@@ -190,14 +190,59 @@ fn b7b_absent_contract_objective_connector_keeps_its_named_refusal() {
     assert!(public_codes(raw).iter().any(|code| code == "PREVIEW_CONTRACT_VERSION_MISMATCH"));
 }
 
-/// B7b D3 (3ce082a9bb) registered the current source, so the former interim fact (the changed
-/// source was unregistered and issued no permit) is replaced by the current one: this build is
-/// the registered profile (M = 12 GiB), its binding is exact (a changed reviewed input or another
-/// build identity is Stale), the public Direct route reports Registered and issues the capture
-/// permit for an admitted exact request, and Headless stays refused at D1.0 (D-2).
+/// B7b D3 (3ce082a9bb; last re-registered at e70c115764) registered the current source, so the
+/// former interim fact (the changed source was unregistered and issued no permit) is replaced by
+/// the current one. In the registered build: it is the registered profile (M = 12 GiB), its
+/// binding is exact (a changed reviewed input or another build identity is Stale), the public
+/// Direct route reports Registered and issues the capture permit for an admitted exact request,
+/// and Headless stays refused at D1.0 (D-2). Any other build identity (another toolchain, target,
+/// profile or RUSTFLAGS, as on a hosted runner) is unregistered, and by `retained_facade_tests`'
+/// convention the same test is its control: the profile is Stale, the pure binding and identity
+/// checks still hold, the Direct route reports Stale with the D1.1 build refusal and publishes the
+/// plain ordinary bytes with no W1 run, and Headless stays refused at D1.0.
 #[test]
 fn b7b_current_source_is_registered_and_issues_a_permit() {
     use retained_memory::{bindings_hold, identity_match, LAYOUT_WITNESSES, READER_LAYOUTS};
+    if !crate::retained_facade_tests::registered() {
+        use crate::retained_facade_tests::{REGISTERED_IDENTITY, RETAINED_LIMIT};
+        use retained_memory::D1Clause;
+        assert_eq!(retained_memory::retained_profile(), Err(ProfileStatus::Stale), "an unregistered build is Stale");
+        let compiled = option_env!("OPS_RETAINED_REVIEWED_INPUTS").expect("build.rs records the reviewed inputs");
+        assert!(bindings_hold(LAYOUT_WITNESSES, Some(compiled), compiled, &READER_LAYOUTS, &READER_LAYOUTS));
+        let last = compiled.chars().last().unwrap();
+        let changed = format!("{}{}", &compiled[..compiled.len() - 1], if last == '0' { '1' } else { '0' });
+        assert!(!bindings_hold(LAYOUT_WITNESSES, Some(&changed), compiled, &READER_LAYOUTS, &READER_LAYOUTS));
+        assert_eq!(identity_match(Some(REGISTERED_IDENTITY), [REGISTERED_IDENTITY].into_iter()), Ok(0));
+        assert_eq!(identity_match(Some("v1;another-build"), [REGISTERED_IDENTITY].into_iter()), Err(ProfileStatus::Stale));
+        assert_eq!(identity_match(option_env!("OPS_RETAINED_BUILD_IDENTITY"), [REGISTERED_IDENTITY].into_iter()),
+            Err(ProfileStatus::Stale), "this build's identity is not the registered one");
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let raw = crate::retained_facade_tests::m3x();
+            let plain = serde_json::to_vec(&run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
+            let ordinary = |publication: RetainedPublication| match publication {
+                RetainedPublication::Ordinary(envelope) => serde_json::to_vec(&envelope).unwrap(),
+                other => panic!("{mode:?}: {other:?}"),
+            };
+            let output = run_linear_static_preview_value_with_retained_direct(raw.clone(), mode, RETAINED_LIMIT).unwrap();
+            let admission = output.admission().unwrap();
+            assert_eq!(admission.profile, ProfileStatus::Stale, "{mode:?}");
+            assert_eq!(admission.law().refusal.and_then(|refusal| refusal.clause()), Some(D1Clause::Build), "{mode:?}: no permit");
+            assert!(output.retained().is_none(), "{mode:?}: no W1 run");
+            assert_eq!(ordinary(output.into_publication()), plain, "{mode:?}: the unchanged ordinary route");
+            let invocation = json!({"request": &raw, "solver_mode": mode.as_str()});
+            let request_id = "request:b7b".to_string();
+            let context = RetainedHeadlessContext::from_borrowed_roots(&raw, &invocation, &request_id);
+            let output = run_linear_static_preview_value_with_retained_headless(
+                raw.clone(), mode, context, RETAINED_LIMIT,
+            ).unwrap();
+            assert_eq!(output.admission().unwrap().profile, ProfileStatus::Stale, "{mode:?}");
+            assert_eq!(output.admission().unwrap().law().refusal.and_then(|refusal| refusal.clause()), Some(D1Clause::Caller),
+                "{mode:?}: Headless is refused at D1.0");
+            assert!(output.retained().is_none());
+            assert_eq!(ordinary(output.into_publication()), plain, "{mode:?}: Headless publishes the ordinary route");
+        }
+        return;
+    }
     let facts = retained_memory::retained_profile().expect("the current source is the registered profile");
     assert_eq!(facts.qualified_limit(), RetainedByteLimit::new(12_884_901_888));
     let compiled = option_env!("OPS_RETAINED_REVIEWED_INPUTS").expect("build.rs records the reviewed inputs");

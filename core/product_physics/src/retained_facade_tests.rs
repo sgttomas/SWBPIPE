@@ -568,8 +568,9 @@ fn u3_r2_base_readers_accept_the_unavailable_notice() {
 use super::retained_tests_hooks::{self as hooks, Counts};
 
 /// The registered dev/test identity (R/I65/u4_g6_01/QUALIFICATION.md; the admission test's).
-const REGISTERED_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-fn registered() -> bool {
+/// Shared with `b7b_admission_tests`, which follows the same two-build convention.
+pub(super) const REGISTERED_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
+pub(super) fn registered() -> bool {
     option_env!("OPS_RETAINED_BUILD_IDENTITY") == Some(REGISTERED_IDENTITY)
 }
 /// One actual Direct invocation, counted: its output and the runs and G-C consultations.
@@ -588,7 +589,7 @@ fn published(output: RetainedPreviewOutput) -> Vec<u8> {
     }
 }
 /// The owner-adopted per-invocation default, 12 GiB: the registered profile's qualified M.
-const RETAINED_LIMIT: RetainedByteLimit = RetainedByteLimit::new(12_884_901_888);
+pub(super) const RETAINED_LIMIT: RetainedByteLimit = RetainedByteLimit::new(12_884_901_888);
 const ONE_RUN: Counts = Counts { runs: 1, complete_gates: 0 };
 const ONE_RUN_THROUGH_G_C: Counts = Counts { runs: 1, complete_gates: 1 };
 fn notices(bytes: &[u8]) -> usize {
