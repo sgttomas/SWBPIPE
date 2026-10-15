@@ -145,6 +145,24 @@ pub fn validate_transport_metadata_in(source: &Value, contract: SourceContract) 
         records.iter().any(|c| c["selected_method"] == EXACT),
         "SOURCE_SELECTION_REQUIRED",
     )?;
+    if resolved {
+        // One received state per case, in case order, each solved in the mode
+        // its receipt case records (the retired load-reference-source-1
+        // receipt's order and requested-mode bindings, kept on the current group).
+        require(
+            array(&evidence["load_reference_states"])?
+                .iter()
+                .map(|s| &s["load_case_id"])
+                .eq(physical.iter().map(|c| &c["load_case_id"])),
+            "LOAD_REFERENCE_CASE_ORDER",
+        )?;
+        for (record, state) in records.iter().zip(array(&evidence["load_reference_states"])?) {
+            require(
+                record["requested_mode"] == state["solve"]["requested_mode"],
+                "LOAD_REFERENCE_REQUESTED_MODE",
+            )?;
+        }
+    }
     for (record, exact) in records.iter().zip(physical) {
         let cid = text(&exact["load_case_id"])?;
         let pressure = array(&evidence["pressure"])?
@@ -1218,7 +1236,7 @@ mod review_repair_tests {
     fn isolated_torsion(action: f64) -> (Value, Value, Value) {
         // Isolated scalar helper input, deliberately not full/resealed source evidence.
         let mut source: Value = serde_json::from_str(include_str!(
-            "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
         ))
         .unwrap();
         let mut case = source["source_block_recovery"]["body"]["cases"][0].clone();
@@ -1292,10 +1310,10 @@ mod review_repair_tests {
     #[test]
     fn normalized_named_point_and_strict_bracket_match_actual_materials() {
         let request: Value = serde_json::from_str(include_str!(
-            "../../../../fixtures/product_preview/physics_source/mixed_units.request.json"
+            "../../../../fixtures/product_preview/pressure_source/physics_source/mixed_units.request.json"
         ))
         .unwrap();
-        let source:Value=serde_json::from_str(include_str!("../../../../fixtures/product_preview/physics_source/mixed_units-sparse_interactive.raw.json")).unwrap();
+        let source:Value=serde_json::from_str(include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/mixed_units-sparse_interactive.raw.json")).unwrap();
         let material = &request["model"]["materials"][0];
         let case = &request["model"]["load_cases"][1];
         let selected = selected_material(material, case).unwrap();
@@ -1379,7 +1397,7 @@ mod review_repair_tests {
     fn every_consumed_pair_is_checked_before_selected_material_publication() {
         for stage in ["base", "lower_bracket", "upper_bracket", "selected"] {
             let request: Value = serde_json::from_str(include_str!(
-                "../../../../fixtures/product_preview/physics_source/mixed_units.request.json"
+                "../../../../fixtures/product_preview/pressure_source/physics_source/mixed_units.request.json"
             ))
             .unwrap();
             let mut material = request["model"]["materials"][0].clone();
