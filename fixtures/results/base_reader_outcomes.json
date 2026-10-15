@@ -7035,10 +7035,9 @@
       },
       "id": "load_reference/connected-dense_scrutiny",
       "rows": {
-        "sha256": "08687597f7d4246e25f9d4612f889f2c01c31688b978e53aa11bd6f1b55d5ad1",
+        "sha256": "9af4a99c7bc17ad4644a53d97b3ed9f77f112e129b4eb243d98fa573f783471c",
         "signature_ids": [
           "supported-source-000",
-          null,
           "supported-source-001",
           "supported-source-001",
           "supported-source-001",
@@ -7179,7 +7178,6 @@
           "supported-source-018",
           "supported-source-068",
           "supported-source-000",
-          null,
           "supported-source-001",
           "supported-source-001",
           "supported-source-001",
@@ -7603,10 +7601,9 @@
       },
       "id": "load_reference/pressure-dense_scrutiny",
       "rows": {
-        "sha256": "ebc05ebfcf2b729fccb740abd820fc489d442eb7358d6fc5c46a72999fb83c1a",
+        "sha256": "5ff3d564e9f1d09f780873d164b4bcd9955f38e8c12348db0415bdafaba82112",
         "signature_ids": [
           "supported-source-000",
-          null,
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",
@@ -7716,7 +7713,6 @@
           "supported-source-075",
           "supported-source-076",
           "supported-source-000",
-          null,
           "supported-source-001",
           "supported-source-001",
           "supported-source-002",

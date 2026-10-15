@@ -31,16 +31,20 @@ fn stages(s: &StageWork) -> Value {
     })
 }
 
-fn attempt(a: &AttemptRecord) -> Value {
-    json!({
+/// B7a D6: K4's own and exact-sum work are read through their checked totals; an
+/// unavailable total refuses the record rather than recording a saturated amount.
+fn attempt(a: &AttemptRecord) -> Result<Value, WorkFault> {
+    let own_work = a.work.checked_lme().exact()?;
+    let exact_sum_work = a.k4_work.checked_lme().exact()?;
+    Ok(json!({
         "precision": a.precision,
         "role": format!("{:?}", a.role),
         "outcome": format!("{:?}", a.outcome),
         "residual_basis": a.residual_basis,
         "corrections": a.corrections,
         "gate": a.gate.as_ref().map(|g| format!("{g:?}")),
-        "own_work": a.work.limb_multiply_equivalents(),
-        "exact_sum_work": a.k4_work.limb_multiply_equivalents(),
+        "own_work": own_work,
+        "exact_sum_work": exact_sum_work,
         "stages": stages(&a.stages),
         "shared_work": a.shared_work,
         "shared_stages": stages(&a.shared_stages),
@@ -61,7 +65,7 @@ fn attempt(a: &AttemptRecord) -> Value {
             "g_max": v.g_max,
             "g_violation": v.g_violation,
         })),
-    })
+    }))
 }
 
 fn report(t: &Tally) -> Value {
@@ -122,7 +126,7 @@ pub fn case_record(
     r.insert("k4src_sha256".into(), json!(case.k4src_sha256));
     r.insert("outcome".into(), json!(outcome_text(o)));
     r.insert("case_limit".into(), json!(u64::MAX));
-    r.insert("invocation_charged".into(), json!(meter.charged()));
+    r.insert("invocation_charged".into(), json!(meter.checked_charged().exact()?));
     let attempts: Vec<Value> = match o {
         CaseOutcome::Selected(s) => {
             let e = s.evidence();
@@ -139,9 +143,9 @@ pub fn case_record(
             );
             r.insert("unpublishable_rows".into(), json!(e.unpublishable.len()));
             r.insert("published_rows".into(), json!(s.publish().rows.len()));
-            e.attempts.iter().map(attempt).collect()
+            e.attempts.iter().map(attempt).collect::<Result<_, _>>()?
         }
-        CaseOutcome::Unresolved { attempts, .. } => attempts.iter().map(attempt).collect(),
+        CaseOutcome::Unresolved { attempts, .. } => attempts.iter().map(attempt).collect::<Result<_, _>>()?,
         CaseOutcome::Refused { .. } => Vec::new(),
     };
     r.insert("attempts".into(), Value::Array(attempts));

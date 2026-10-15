@@ -410,36 +410,19 @@ def test_utf8_actual_unicode_source_roundtrips_exact_nine_members_and_value_bits
     with pytest.raises(AssertionError): validate_instance(json.loads(SCHEMA.read_text()), bad, instance_label="wrong UTF8 checksum label")
 
 
-DENSE_DIAGNOSTIC_RATIO_ID = "result:sparse-live:dense-parity-relative-delta"
-
-
-def test_new_method_diagnostic_ratio_witness_follows_exact_table_target():
-    raw, analysis, packet = captured(COMPOSITE_DIR / "fields-dense_scrutiny.raw.json")
-    original = next(row for row in raw["results"] if row["id"] == DENSE_DIAGNOSTIC_RATIO_ID)
-    identity, _, table = _source_contract(raw)
-    semantic, _ = sn._semantic(original, table)
-    assert identity == PHYSICS_SOURCE_CONTRACT_ID
-    assert semantic["signature_id"] == "supported-source-037"
-    assert semantic["category"] == "diagnostic_relative_ratio"
-    assert semantic["source_physical_semantic_dimension"] == "dimensionless"
-    assert semantic["derivative_target_dimension"] == "ratio"
-    assert semantic["governing_ratio_eligible"] is False
-    row = next(row for row in packet["result_rows"] if row["result_id"] == DENSE_DIAGNOSTIC_RATIO_ID)
-    assert row["result_family"] == "other" and row["dimension"] == "ratio"
-    witness = next(w for w in packet["unit_preservation_witnesses"] if w["result_id"] == DENSE_DIAGNOSTIC_RATIO_ID)
-    assert witness["source_quantity"] == witness["target_quantity"] == {"value": original["value"], "unit": original["unit"], "dimension": "ratio"}
-    assert witness["conversion_performed"] is False
-    assert not any(d["source"]["ref"] == DENSE_DIAGNOSTIC_RATIO_ID for d in packet["diagnostics"] if d["code"].startswith("SN-UNIT-WITNESS-WITHHELD"))
-    assert packet["professional_boundary"]["software_makes_compliance_claim"] is False
-    sn.validate_stress_neutral_export_package(packet)
-    sn.validate_stress_neutral_export_package(packet, source_envelope=raw, analysis_record=analysis)
+# b7-plan E14 deleted the DEC-050/053 parity observation (supported-source-037, the only
+# `diagnostic_relative_ratio` row of any current table), so the composite raw no longer publishes
+# `result:sparse-live:dense-parity-relative-delta` and its ratio-witness test was retired with it.
+# The table-override protection below stays live on a surviving nonzero composite witness.
+NEW_METHOD_WITNESS_ID = "result:disp:independent-root:rx"
 
 
 @pytest.mark.parametrize("change", ["source_dimension", "target_dimension", "value", "contradiction", "unknown_semantic", "missing_semantic"])
-def test_new_method_diagnostic_witness_and_category_cannot_override_table(change):
+def test_new_method_witness_and_category_cannot_override_table(change):
     raw, analysis, original = captured(COMPOSITE_DIR / "fields-dense_scrutiny.raw.json")
     packet = deepcopy(original)
-    witness = next(w for w in packet["unit_preservation_witnesses"] if w["result_id"] == DENSE_DIAGNOSTIC_RATIO_ID)
+    witness = next(w for w in packet["unit_preservation_witnesses"] if w["result_id"] == NEW_METHOD_WITNESS_ID)
+    assert witness["source_quantity"]["value"] != 0.0
     if change == "source_dimension":
         witness["source_quantity"]["dimension"] = "dimensionless"
     elif change == "target_dimension":
@@ -450,7 +433,7 @@ def test_new_method_diagnostic_witness_and_category_cannot_override_table(change
         packet["unit_preservation_witnesses"].remove(witness)
         packet["diagnostics"].append({
             "code": sn.WITHHOLDING_CODES[change], "class": "unit_preservation_witness", "severity": "blocking",
-            "source": {"object_type": "StressNeutralResultRow", "ref": DENSE_DIAGNOSTIC_RATIO_ID},
+            "source": {"object_type": "StressNeutralResultRow", "ref": NEW_METHOD_WITNESS_ID},
             "affected_object": {"object_type": "StressNeutralUnitWitness", "ref": witness["witness_id"]},
             "message": "Deliberately forged table-override category for a transport refusal test.",
             "remediation": "Retain the actual source/table interpretation.", "provenance": deepcopy(packet["provenance"]),

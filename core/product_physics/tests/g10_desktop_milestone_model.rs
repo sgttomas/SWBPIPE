@@ -23,8 +23,9 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// deleted retired thrust count) and the reworded pressure/imposed-displacement
 /// limitation sentence; B4/D1 (b) re-pinned both: the envelope loses only its
 /// source-recovery disclosure; E14 re-pinned dense, which no longer publishes the
-/// retired parity observation row. 4d142d738c (B7a C5) re-pinned the source for the
-/// adopted arc end-tangent limitation sentence (+39 bytes); this copy follows it.
+/// retired parity observation row. C5 re-pinned both for the adopted arc
+/// end-tangent limitation sentence: restoring the former sentence recovers the
+/// previous bytes exactly.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
     ("sparse_interactive", 68215, "262350431963ec51fe025007f4381fdfc84326f68b80a7c13f73bed768c1a580"),
     ("dense_scrutiny", 68236, "9fc0332eaf7798ed96f2013beb3cca2f7f429830b1e5719bdf535da8c02aad3d"),

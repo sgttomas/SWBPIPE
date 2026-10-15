@@ -1992,6 +1992,9 @@ const F1B_PRODUCT_SITES: &[(&str, &str, &str, usize)] = &[
         "force_scaled_spring_action",
         1,
     ),
+    // B7a's failed-ordinary ruling (5): CX-F's closed wire translation of K2b's named
+    // refusal reads `ForceScaleReason` only; it reaches no force-scaled entry.
+    ("retained_wire.rs", "fn force_refusal", "ForceScale", 4),
     ("source_recovery.rs", "fn solve_ordinary", "ForceScale", 1),
     (
         "source_recovery.rs",

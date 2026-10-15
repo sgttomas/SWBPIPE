@@ -1222,10 +1222,9 @@ fn f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope() {
                 // TEXT): removing them recovers main's a29e29f2..., exactly.
                 // B7a's H-4 then changed the summary (the curved macro-element
                 // count's name, the deleted retired thrust count) and reworded
-                // the pressure/imposed-displacement limitation sentence.
-                // 95fc09ff11 (preview arc end actions in tangent frames)
-                // then reworded the arc limitation sentence (3830 -> 3869
-                // bytes); restoring that one sentence recovers 762cf9ca....
+                // the pressure/imposed-displacement limitation sentence. C5 then
+                // adopted the arc end-tangent LIMITATIONS[3] sentence; restoring
+                // the former sentence recovers 762cf9ca..., exactly.
                 "40d62d453e993586c01821b0ba58b5a5d081fba0122d8a8778cd7cbf8736ac41",
                 "{ctx}"
             );

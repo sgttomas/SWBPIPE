@@ -874,8 +874,11 @@ fn u8_first_load_only() -> Value {
     raw["model"]["load_cases"][0]["primitive_loads"] = json!([first]);
     raw
 }
-/// RV93's Preparation sibling: support 1's spring stiffness set to 1e-300. The ordinary run does
-/// not solve (MODEL_INCOMPLETE), so preparation's MECHANICS_SOLVED requirement refuses.
+/// RV93's former Preparation sibling: support 1's spring stiffness set to 1e-300. The ordinary
+/// run does not solve (MODEL_INCOMPLETE). Under B4/D1's failed-ordinary successor rulings
+/// (b7-plan, group 2) this genuine ordinary failure passes failed-ordinary custody instead of
+/// preparation's former MECHANICS_SOLVED requirement, and the retained native run stops at a
+/// pivot on the spring's RX DOF (unresolved): the Native fallback, with the same bytes and notice.
 fn u8_tiny_spring() -> Value {
     let mut raw = raw();
     raw["model"]["supports"][1]["stiffness"]["value"]["value"] = json!(1e-300);
@@ -938,18 +941,20 @@ fn u8_l0_isolated_node() -> Value {
     raw
 }
 
-/// U8 (RV93 N-5; W-C1): real D1 inputs reach the Candidate, Preparation and Native fallbacks on
-/// the actual Direct entry, with no fault hook. In the registered build each publishes the plain
-/// bytes plus exactly one N1 notice, from one ordinary run that reached G-C once. In any other
-/// build each publishes the plain bytes from one run. B1 (T-4; RR "I81's B1-0 probe verified…",
-/// ruling 3): W-C1's variant is case C alone, since two-body case B is now `not_required`.
+/// U8 (RV93 N-5; W-C1): real D1 inputs reach the Candidate and Native fallbacks on the actual
+/// Direct entry, with no fault hook. In the registered build each publishes the plain bytes plus
+/// exactly one N1 notice, from one ordinary run that reached G-C once. In any other build each
+/// publishes the plain bytes from one run. B1 (T-4; RR "I81's B1-0 probe verified…", ruling 3):
+/// W-C1's variant is case C alone, since two-body case B is now `not_required`. B4/D1 group 2:
+/// tiny_spring's genuine ordinary failure now reaches the Native fallback (`u8_tiny_spring`);
+/// the Preparation fallback stays covered by the stage-fault and custody-tamper controls.
 #[test]
 fn u8_real_input_fallbacks_append_one_notice() {
     let case_c = w_c2_case_c();
     assert_eq!(sha(&serde_json::to_vec(&case_c).unwrap()), W_C2_CASE_C_INPUT_SHA256, "PROBE §4's case C");
     let variants = [
         ("first_load_only", u8_first_load_only(), W1Fallback::Candidate),
-        ("tiny_spring", u8_tiny_spring(), W1Fallback::Preparation),
+        ("tiny_spring", u8_tiny_spring(), W1Fallback::Native),
         ("w_c1_case_c", case_c, W1Fallback::Native),
     ];
     for mode in MODES {
@@ -2150,9 +2155,11 @@ fn b1_sp_seam_overflow_is_a_typed_g_b_refusal() {
 
 /// RV112 N-4: at c ≥ 2 the first G-B refusal stands, and no later case's late hook runs (no later
 /// G-B check, running total or late capture). Registered build, W-C2, both modes, with G-B's
-/// fault armed (consumed at case A's late hook): the refusal is A's, the running total holds A's
-/// three loads only (not 3 + 2 + 5), and no case has a late capture. The Direct entry publishes
-/// exactly the ordinary bytes (`LateGate`), with G-C not consulted.
+/// fault armed: the refusal is A's, the running total holds A's three loads only (not 3 + 2 + 5),
+/// and no case has a late capture. The Direct entry publishes exactly the ordinary bytes
+/// (`LateGate`), with G-C not consulted. B4/D1 W1 extension (b7-plan, T3 2026-10-11: "Validate
+/// the existing G-B gate before early allocation and G-C after terminal capture"): the fault is
+/// consumed at case A's early G-B check, so A's late hook does not run either.
 #[test]
 fn b1_sp_first_g_b_refusal_stands_and_stops_later_late_hooks() {
     use super::retained_memory::{admit, Entry};
@@ -2174,7 +2181,7 @@ fn b1_sp_first_g_b_refusal_stands_and_stops_later_late_hooks() {
         for index in 0..3 {
             let (late_calls, entries, source) = observer.with_case(index, |c| (c.prepared_late_calls, c.source_capture_entries, c.source.is_some()));
             assert_eq!((entries, source), (0, false), "{mode:?} case {index}: no late capture");
-            assert_eq!(late_calls, usize::from(index == 0), "{mode:?} case {index}: only A's late hook ran");
+            assert_eq!(late_calls, 0, "{mode:?} case {index}: G-B refused at A's early check, so no late hook ran");
         }
         assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{mode:?}: the ordinary run is untouched");
         hooks::fail_next_late_gate();

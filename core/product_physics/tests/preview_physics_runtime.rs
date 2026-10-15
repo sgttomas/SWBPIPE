@@ -960,11 +960,28 @@ fn b2_indeterminate_arc_resultants_depend_on_k() {
         let expected = &b2[key];
         close(case_action(&v, "support:roller", "case:y")[0], num(&expected["roller_on_pipe_Fx_N"]), NO_FROZEN_SCALE, "roller");
         close6(case_action(&v, "support:a", "case:y"), &vec3(&expected["anchor_on_pipe"]), NO_FROZEN_SCALE, NO_FROZEN_SCALE, "B2 anchor");
-        let rows = vec3(&expected["product_end_i_rows_node_on_element"]);
+        // C5 (b7-plan H-4 C4–C6; DEL-04-07 Design arc-frames-and-signs.md §§2–3): arc end rows
+        // are node-on-element actions in the tangent frame at their end. The frozen chord-frame
+        // block maps there by §3's R_i (s = sin(φ/2), c = cos(φ/2), φ = π/2 here); the frozen
+        // tangent-frame section at b cross-checks it (end_i = −cut(0), y toward the centre), and
+        // the frozen chord block stays a negative control. No reference value is changed.
+        let chord = vec3(&expected["product_end_i_rows_node_on_element"]);
+        let (s, c) = (SQRT1_2, SQRT1_2);
+        let r_i = |v: &[f64]| [c * v[0] + s * v[1], s * v[0] - c * v[1], -v[2]];
+        let (f, m) = (r_i(&chord[0..3]), r_i(&chord[3..6]));
+        let rows = [f[0], f[1], f[2], m[0], m[1], m[2]];
+        let section = &expected["section_at_b_tangent_frame_for_information"];
+        close(rows[0], -num(&section["N"]), NO_FROZEN_SCALE, "B2 R_i end_i F_x against the frozen tangent N");
+        close(rows[1], -num(&section["Vy_inward"]), NO_FROZEN_SCALE, "B2 R_i end_i F_y against the frozen tangent V_y");
+        close(rows[5], -num(&section["Mz_in_plane"]), NO_FROZEN_SCALE, "B2 R_i end_i M_z against the frozen tangent M_z");
         let kinds = ["element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z", "element_local_torsional_moment", "element_local_bending_moment_y", "element_local_bending_moment_z"];
+        let mut chord_discriminated = false;
         for (idx, kind) in kinds.iter().enumerate() {
-            close(row_value(&v, kind, "pipe:b-c", None, Some("end_i"), "load_case", "case:y"), rows[idx], NO_FROZEN_SCALE, &format!("B2 end_i {kind}"));
+            let observed = row_value(&v, kind, "pipe:b-c", None, Some("end_i"), "load_case", "case:y");
+            close(observed, rows[idx], NO_FROZEN_SCALE, &format!("B2 end_i {kind}"));
+            chord_discriminated |= (observed - chord[idx]).abs() > 1e3 * 1e-9 * chord[idx].abs();
         }
+        assert!(chord_discriminated, "the frozen chord block is a negative control");
     }
 }
 

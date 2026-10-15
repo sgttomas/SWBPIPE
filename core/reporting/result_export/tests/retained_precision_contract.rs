@@ -2761,12 +2761,14 @@ fn d30_native_run_ref_on_nonselected_run() {
     assert_eq!((got.gate, got.code.as_str()), ("G5", PRODUCT));
 }
 
-/// D31: G8 admits model schema_version 0.1.0 or 0.2.0 without a pressure
-/// contract; 0.4.0 stays excluded. B3a (B3-D §6.3, decision B3D-10): 0.3.0
-/// without a contract is outside D1.3 (the producer cannot emit it,
-/// `PRESSURE_CONTRACT_REQUIRED`), so it is G8 INVOCATION_MISMATCH; 0.3.0 with
-/// the legacy contract is `b3a_legacy_pressure_contract_namespace_at_g8`'s.
-/// The invocation edit rebinds the receipt's invocation digest.
+/// D31, as B7a keys it (b7-plan "Model format, pressure-free half"): G8's preview
+/// namespace is the current model version 0.5.0 without a pressure contract; the
+/// retired 0.1.0 and 0.2.0 are refused, and 0.4.0 stays excluded. B3a (B3-D §6.3,
+/// decision B3D-10): 0.3.0 without a contract is outside D1.3 (the producer cannot
+/// emit it, `PRESSURE_CONTRACT_REQUIRED`), so it is G8 INVOCATION_MISMATCH; 0.3.0
+/// with the legacy contract is `b3a_legacy_pressure_contract_namespace_at_g8`'s.
+/// The invocation edit rebinds the receipt's invocation digest. The verifier's
+/// twin is `tests/test_retained_precision_contract.py::test_model_schema_versions_d31`.
 #[test]
 fn d31_model_schema_versions_at_g8() {
     use serde_json::json;
@@ -2777,8 +2779,9 @@ fn d31_model_schema_versions_at_g8() {
     };
     let mut misses = Vec::new();
     for (version, want) in [
-        ("0.1.0", Value::Null),
-        ("0.2.0", Value::Null),
+        ("0.5.0", Value::Null),
+        ("0.1.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
+        ("0.2.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.3.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.4.0", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
         ("0.0.9", gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")),
@@ -3626,7 +3629,9 @@ fn b1_g8_mode_row_and_requested_mode_for_every_case() {
 /// E14 (replacing F-1 text B's P2-P4): the DEC-050/053 parity observation is retired and
 /// no table carries its kind. 07j's two-case statement is made dense (the invocation's mode,
 /// both requested modes and both mode rows): without a parity row it is admitted, with or
-/// without W2; any parity row, on either case, in either mode, is refused.
+/// without a published W2; any parity row, on either case, in either mode, is refused. A failed
+/// W2 is now only the closed named refusal (b7-plan failed-ordinary ruling (5)), so the former
+/// `not_engaged` W2 failure is no admitted control here, as in the verifier's twin.
 #[test]
 fn e14_retired_parity_rows_are_refused_for_every_case() {
     use serde_json::json;
@@ -3646,11 +3651,6 @@ fn e14_retired_parity_rows_are_refused_for_every_case() {
         set(rb(json!(["ordinary_attempts", 1, "initial"])), json!({"kind": "structural_failure", "error": {"tag": "range", "detail": "b1"}, "diagnostic_ref": null})),
         set(rb(json!(["ordinary_attempts", 1, "w2"])), json!({"kind": "published", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "force_scale_exponent": 3, "report_diagnostic_ref": report})),
     ];
-    // A W2 that was triggered and failed published nothing (b = 0).
-    let w2_failed = vec![
-        w2[0].clone(),
-        set(rb(json!(["ordinary_attempts", 1, "w2"])), json!({"kind": "failed", "trigger": {"tag": "evaluation", "error": {"tag": "range", "detail": "b1"}}, "failure": {"tag": "not_engaged"}, "diagnostic_ref": report})),
-    ];
     let one = b1_parity_row(&shared, UNAVAILABLE_ROW, "result:b1:parity-1");
     let two = b1_parity_row(&shared, UNAVAILABLE_ROW, "result:b1:parity-2");
     // Both mode rows carry the dense code; `rows` are appended to them in the one results edit.
@@ -3669,11 +3669,9 @@ fn e14_retired_parity_rows_are_refused_for_every_case() {
     let admitted_cases = [
         ("dense b = 0, no parity row on either case", on_dense(vec![], vec![])),
         ("dense, W2-published not_required case", on_dense(vec![], w2.clone())),
-        ("dense, not_required case whose W2 failed", on_dense(vec![], w2_failed.clone())),
     ];
     let refused_cases = [
         ("one parity row on the not_required case", on_dense(vec![one.clone()], vec![])),
-        ("one parity row on a not_required case whose W2 failed", on_dense(vec![one.clone()], w2_failed)),
         ("two parity rows on the not_required case", on_dense(vec![one.clone(), two], vec![])),
         ("a parity row on the W2-published not_required case", on_dense(vec![one], w2)),
         ("a parity row on the dense selected case", b1_entry(&shared, "ordinary_prepared_dense_synthetic", None, vec![b1_rows(&d, vec![parity_selected])], vec![])),
@@ -5381,9 +5379,11 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// The N2b probe inputs (sha256 of the canonical `[source, invocation]`). K-D5 re-based the
 /// corpus bases (current maximum declarations and limitation sentences, DEL-04-01
 /// kd5-member-relative-bound.md §§3.2, 3.4, 6), so these, RV120's N2 and F2 digests moved.
-const REPAIR03_N2B_INPUTS: [&str; 2] = ["d0521a806c6c1408f710e674d9f3a3dc6aab858d73471bf08c669d94501b9b23", "3e867ddc8024a453b2023ced4ecee951bece6c4fdda40ba8068b515b16ec540f"];
+/// B7a's one corpus regeneration moved the bases again; the current digests are the ones the
+/// R1 reader-outcomes record (`fixtures/results/retained_precision_reader_outcomes.json`) states.
+const REPAIR03_N2B_INPUTS: [&str; 2] = ["602d983e9879355e25feaf29c6f963449f6eb4a1a858935d5e049dffc219ec4e", "e222f3b27fa3299f08fb45ebce4fcb30f1f3c587c7178f78b49ffdba6e1b48a2"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
-const RV120_N2_INPUTS: [&str; 2] = ["1ff2833f6e45aa7fe488cedfb57c24e73d9ed6b67b68a29a91871c0f684461b9", "402e6922d40bce8d3ff41ee435ff2e90f4455dd68ae328f850c438475456ee2b"];
+const RV120_N2_INPUTS: [&str; 2] = ["9bd1344976e67f2aa70e165053ac3541cdc8ce60b2bdb26db98d8750d648fd37", "ecef33ca66b3cbdcab215eae095899975ac0cbf8b98670588c7879c57a69a922"];
 fn sha256_canonical(v: &Value) -> String {
     use open_pipe_stress_canonical_json::canonical_json;
     use sha2::{Digest, Sha256};
@@ -5392,10 +5392,10 @@ fn sha256_canonical(v: &Value) -> String {
 /// The forgeries' materialized inputs: sha256 of the canonical JSON of `[source, invocation]`
 /// (`canonical_json`), the same bytes as RV120's input lines (checked against its index).
 const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
-    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "2ae38c701c54bd1c29cfdd0eb9b666b99a2e8bba13f962c75a0bb7c394116264"),
-    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "72f491a72172e67d90b3723519d16700a966ca580e477dd08c3de67e1a8c1827"),
-    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "6068a30e4295ada12de028e00dd54224b6adddcc61886d81eee52c78d7d131b1"),
-    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "a78b7f7c11469c80af0d9dc78eae962548340eff1a609f03de2a42afa62f0df6"),
+    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "2c25bd9bf6487e7adbbd7fde90699cdddfea677568cc06147b3645e165f25de7"),
+    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "61a926f3484c1af367557f95059f384b420abd307e11aae31838786595ad4cef"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "2c725fd7610e17ba603127bc7bf1fc074b00f48aa16317b26de2fd43d9cf0522"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "23bf222a8100cdc52de6e6b5a2f1b8c9b82a2ca1ba9020c69b458cd23c0893dd"),
 ];
 /// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
 /// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.

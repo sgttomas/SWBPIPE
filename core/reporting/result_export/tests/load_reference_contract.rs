@@ -267,19 +267,19 @@ fn frozen_inputs_table_and_schema_are_pinned() {
     for (name, digest) in [
         (
             "connected-sparse",
-            "1215e981f8e011723fe9da632c8a3f3903675bad870aba3d5db32ff96fe8aad7",
+            "57d0c64f56356b91e70ddb2ddd3dbd87af7b654ad2ca524a50a19b35bb4ecbd5",
         ),
         (
             "connected-dense",
-            "1e056fbf0235d4ed7201069a844224b5342969da6fcea3485ec272716637be48",
+            "b7442e12640632f17b73d08b819b840613be4823540ad60e1522870e0e80f3a8",
         ),
         (
             "pressure-sparse",
-            "0086998e6f2c8a381686d06a467f73d82e8723a8bd4aad3e77673f2e4e93ea02",
+            "84f0f639095c87ee49ab425a7d2b298aa0e269285808515e9d7f3b80317746fa",
         ),
         (
             "pressure-dense",
-            "d0f2c85fb1fe186d14adcd10c35d94313cee017f4af9e0051a08b8bce94f3be3",
+            "eddcb2a1779de75eb3c564e0270e1d0d9f30af6febd1d042e6468672686e2b49",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
