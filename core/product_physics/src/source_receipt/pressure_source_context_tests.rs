@@ -158,7 +158,10 @@ fn pressure_case_context_uses_one_domain_without_changing_its_payload_shape() {
 /// The owner-approved J1 text amendment (b7-plan, 2026-10-12): the held
 /// pre-join limitation [7] and its joined, unselected replacement.
 const HELD_LIMITATION_7: &str = "No corrosion-allowance input or shear-deformation selection is provided. Retained-source recovery is not joined for this contract; only ordinary structural recovery is published. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
-const JOINED_LIMITATION_7: &str = "No corrosion-allowance input or shear-deformation selection is provided. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; 0.4.0 includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
+// B7b (finding (b)): the joined text states the current contract's allowance and
+// shear-model fields and keys the eigenload clause on the authored group, not
+// 0.4.0. The held pre-join text above is unchanged.
+const JOINED_LIMITATION_7: &str = "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
 
 /// The regenerated v3 reader corpora are unselected pressure-1 publications:
 /// each equals the joined unselected basis exactly. The held pre-join helper

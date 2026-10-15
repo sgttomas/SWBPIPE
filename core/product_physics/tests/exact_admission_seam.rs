@@ -580,25 +580,27 @@ fn a3_realized_bend_in_a_v3_exact_region_is_admitted_and_recovered_on_the_arc() 
     }
 }
 
-/// Unknown contract identities, and the retired v2 contract (B7b), are
-/// refused on a current document without and with the group; nothing falls
-/// back to another identity.
+/// Unknown contract identities are refused as unsupported, and the retired v2
+/// contract (B7b) by name with the re-author code, on a current document
+/// without and with the group; nothing falls back to another identity.
 #[test]
 fn unknown_contract_identities_are_refused_on_both_document_versions() {
     for base in [Base::X0, Base::Y0] {
-        for contract in [
-            json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"}),
-            json!({"version":"2.0.0","mode":"exact_straight_pressure_v2","shear_model":"euler_bernoulli"}),
-            json!({"version":"3.0.0","mode":"exact_straight_pressure_v2"}),
-            json!({"version":"2.0.0","mode":"exact_pressure_v3"}),
-            json!({"version":"3.0.0","mode":"exact_pressure_v4"}),
-            json!({"version":"3.0.0"}),
+        for (contract, code) in [
+            (json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"}), "PRESSURE_MODEL_REAUTHOR_REQUIRED"),
+            (json!({"version":"2.0.0","mode":"exact_straight_pressure_v2","shear_model":"euler_bernoulli"}), "PRESSURE_MODEL_REAUTHOR_REQUIRED"),
+            (json!({"version":"3.0.0","mode":"exact_straight_pressure_v2"}), "PRESSURE_CONTRACT_UNSUPPORTED"),
+            (json!({"version":"2.0.0","mode":"exact_pressure_v3"}), "PRESSURE_CONTRACT_UNSUPPORTED"),
+            (json!({"version":"3.0.0","mode":"exact_pressure_v4"}), "PRESSURE_CONTRACT_UNSUPPORTED"),
+            (json!({"version":"3.0.0"}), "PRESSURE_CONTRACT_UNSUPPORTED"),
         ] {
             let mut document = base.current();
             document["model"]["pressure_contract"] = contract.clone();
             for envelope in run_all(&document) {
                 assert_eq!(envelope["status"]["mechanics"], "MODEL_INCOMPLETE", "{contract}");
-                assert!(has_code(&envelope, "PRESSURE_CONTRACT_UNSUPPORTED"), "{contract}");
+                assert!(has_code(&envelope, code), "{contract}: {code}");
+                let other = if code == "PRESSURE_CONTRACT_UNSUPPORTED" { "PRESSURE_MODEL_REAUTHOR_REQUIRED" } else { "PRESSURE_CONTRACT_UNSUPPORTED" };
+                assert!(!has_code(&envelope, other), "{contract}: not {other}");
                 assert_ne!(envelope["producer"]["semantic_contract_id"], PRESSURE_ID);
             }
         }

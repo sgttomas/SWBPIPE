@@ -2092,37 +2092,38 @@ mod tests {
             assert_eq!(diagnostics[0].affected_refs, ["schema_version"]);
             assert!(diagnostics[0].message.contains(retired) && diagnostics[0].message.contains("re-author"), "{}", diagnostics[0].message);
         }
-        // Any other contract, the retired v2 contract included (B7b), stays
-        // unsupported on the current document.
-        for contract in [
-            json!({"version":"1.0.1","mode":"legacy_pressure_v1"}),
-            json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"}),
-        ] {
-            let mut unknown = input();
-            unknown["pressure_contract"] = contract;
-            expect_rejected(unknown, "PRESSURE_CONTRACT_UNSUPPORTED");
-        }
+        // An unknown contract stays unsupported on the current document; the two
+        // retired labels (1.0.0/legacy_pressure_v1 and, since B7b,
+        // 2.0.0/exact_straight_pressure_v2) take the re-author code below.
+        let mut unknown = input();
+        unknown["pressure_contract"] = json!({"version":"1.0.1","mode":"legacy_pressure_v1"});
+        expect_rejected(unknown, "PRESSURE_CONTRACT_UNSUPPORTED");
         // B7b deleted RV127 N-7's 0.3.0-era namespace pins (their documents are
-        // retired by version, above); the legacy label's refusal is checked below.
+        // retired by version, above); the retired labels' refusal is checked below.
     }
 
     /// U3 (D-2 A1): the retired 1.0.0/legacy_pressure_v1 label is refused with
-    /// the re-author code. B7b: the label can only appear on the current 0.5.0
-    /// document now.
+    /// the re-author code; B7b: so is the retired 2.0.0/exact_straight_pressure_v2
+    /// label. Either can only appear on the current 0.5.0 document now.
     #[test]
     fn retired_legacy_pressure_label_takes_the_reauthor_code() {
-        let mut labelled = input();
-        labelled["pressure_contract"] = json!({"version":"1.0.0","mode":"legacy_pressure_v1"});
-        labelled["load_cases"][0].as_object_mut().unwrap().remove("pressure_regions");
-        let mut diagnostics = Vec::new();
-        validate_profile(&parse(labelled), &mut diagnostics);
-        assert_eq!(
-            diagnostics.iter().map(|d| d.code.as_str()).collect::<Vec<_>>(),
-            ["PRESSURE_MODEL_REAUTHOR_REQUIRED"],
-            "{diagnostics:?}"
-        );
-        assert_eq!(diagnostics[0].affected_refs, ["pressure_contract"]);
-        assert!(diagnostics[0].message.contains("retired") && diagnostics[0].message.contains("3.0.0/exact_pressure_v3"));
+        for label in [
+            json!({"version":"1.0.0","mode":"legacy_pressure_v1"}),
+            json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"}),
+        ] {
+            let mut labelled = input();
+            labelled["pressure_contract"] = label.clone();
+            labelled["load_cases"][0].as_object_mut().unwrap().remove("pressure_regions");
+            let mut diagnostics = Vec::new();
+            validate_profile(&parse(labelled), &mut diagnostics);
+            assert_eq!(
+                diagnostics.iter().map(|d| d.code.as_str()).collect::<Vec<_>>(),
+                ["PRESSURE_MODEL_REAUTHOR_REQUIRED"],
+                "{label}: {diagnostics:?}"
+            );
+            assert_eq!(diagnostics[0].affected_refs, ["pressure_contract"]);
+            assert!(diagnostics[0].message.contains("retired") && diagnostics[0].message.contains("3.0.0/exact_pressure_v3"));
+        }
     }
 
     #[test]

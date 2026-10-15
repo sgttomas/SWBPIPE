@@ -425,8 +425,13 @@ fn composite_resource_policy_cannot_promote_old_method_or_refund_failure() {
 /// published and no source blocks are recovered.
 #[test]
 fn retired_legacy_pressure_label_is_refused_on_the_ordinary_route() {
+    // B7b: the retired v2 label is refused by the same name beside the legacy one.
+    for label in [
+        json!({"version":"1.0.0","mode":"legacy_pressure_v1"}),
+        json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"}),
+    ] {
     let mut value = exact_raw();
-    value["model"]["pressure_contract"] = json!({"version":"1.0.0","mode":"legacy_pressure_v1"});
+    value["model"]["pressure_contract"] = label;
     value["model"]["load_cases"][0]
         .as_object_mut()
         .unwrap()
@@ -453,6 +458,7 @@ fn retired_legacy_pressure_label_is_refused_on_the_ordinary_route() {
             .diagnostics
             .iter()
             .any(|d| d.code == "SOURCE_BLOCK_RECOVERY_SELECTED"));
+    }
     }
 }
 
@@ -502,8 +508,13 @@ fn zero_legacy_pressure_primitive_is_refused_on_the_ordinary_route_and_the_retai
 #[test]
 fn retired_legacy_pressure_label_is_refused_on_the_retained_entry() {
     use crate::retained_memory::{AdmissionRefusal, D1Clause};
+    // B7b: the retired v2 label is refused by the same name beside the legacy one.
+    for label in [
+        json!({"version":"1.0.0","mode":"legacy_pressure_v1"}),
+        json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"}),
+    ] {
     let mut value = exact_raw();
-    value["model"]["pressure_contract"] = json!({"version":"1.0.0","mode":"legacy_pressure_v1"});
+    value["model"]["pressure_contract"] = label;
     value["model"]["load_cases"][0]
         .as_object_mut()
         .unwrap()
@@ -530,5 +541,6 @@ fn retired_legacy_pressure_label_is_refused_on_the_retained_entry() {
             }
             crate::RetainedPublication::Successor(_) => panic!("a successor for a refused document"),
         }
+    }
     }
 }

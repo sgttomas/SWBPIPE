@@ -828,11 +828,12 @@ fn namespaces_and_nonzero_legacy_pressure_cannot_silently_fallback() {
         exact["model"]["schema_version"] = json!(retired);
         rejected(exact, "MODEL_SCHEMA_VERSION_RETIRED");
     }
-    // B7b: the retired v2 contract on the current document never falls back.
+    // B7b: the retired v2 contract on the current document never falls back; it
+    // is refused by name with the re-author code.
     let mut retired_contract = model(false, true, 0.0);
     retired_contract["model"]["pressure_contract"] =
         json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
-    rejected(retired_contract, "PRESSURE_CONTRACT_UNSUPPORTED");
+    rejected(retired_contract, "PRESSURE_MODEL_REAUTHOR_REQUIRED");
     // Regions without the contract are refused by name, never ignored.
     let mut regions = model(false, true, 0.0);
     regions["model"].as_object_mut().unwrap().remove("pressure_contract");
@@ -868,24 +869,29 @@ fn only_refusal(input: &Value, code: &str, refs: &[&str]) {
 /// U3 (D-1 A, D-2 A1): a model declaring the retired 1.0.0/legacy_pressure_v1
 /// label is refused with the re-author code, zero pressure included, with and
 /// without a combination (a feature the exact contract refuses). B7b: the label
-/// can only appear on the current 0.5.0 document now.
+/// can only appear on the current 0.5.0 document now, and the retired
+/// 2.0.0/exact_straight_pressure_v2 label is refused the same way.
 #[test]
 fn retired_legacy_pressure_label_takes_the_reauthor_code() {
-    let mut labelled = model(true, true, 0.012);
-    pressure_free(&mut labelled);
-    labelled["model"]["pressure_contract"] =
-        json!({"version":"1.0.0","mode":"legacy_pressure_v1"});
-    for pipe in labelled["model"]["pipe_segments"].as_array_mut().unwrap() {
-        pipe["section"]["corrosion_allowance"] = json!({"value":0.0,"unit":"m"});
+    for label in [
+        json!({"version":"1.0.0","mode":"legacy_pressure_v1"}),
+        json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"}),
+    ] {
+        let mut labelled = model(true, true, 0.012);
+        pressure_free(&mut labelled);
+        labelled["model"]["pressure_contract"] = label;
+        for pipe in labelled["model"]["pipe_segments"].as_array_mut().unwrap() {
+            pipe["section"]["corrosion_allowance"] = json!({"value":0.0,"unit":"m"});
+        }
+        // Without the exact contract the material route needs an explicit G.
+        labelled["model"]["materials"][0]["shear_modulus"] = json!({"value":77e9,"unit":"Pa"});
+        only_refusal(&labelled, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"]);
+        let mut combined = labelled.clone();
+        combined["model"]["combinations"] = json!([{"id":"combination:one","label":"one",
+            "basis":"mechanics","terms":[{"load_case":CASE,"factor":1.0}],
+            "provenance":"synthetic_combination"}]);
+        only_refusal(&combined, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"]);
     }
-    // Without the exact contract the material route needs an explicit G.
-    labelled["model"]["materials"][0]["shear_modulus"] = json!({"value":77e9,"unit":"Pa"});
-    only_refusal(&labelled, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"]);
-    let mut combined = labelled.clone();
-    combined["model"]["combinations"] = json!([{"id":"combination:one","label":"one",
-        "basis":"mechanics","terms":[{"load_case":CASE,"factor":1.0}],
-        "provenance":"synthetic_combination"}]);
-    only_refusal(&combined, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"]);
 }
 
 /// U3 (D-1 A, D-2 A1): legacy pressure is retired on the ordinary route. A 0.5.0
