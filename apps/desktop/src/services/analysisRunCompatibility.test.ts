@@ -7,7 +7,7 @@ import { PREVIEW_PHYSICS_CONTRACT_ID } from "../features/results/numericalResult
 import { PREVIEW_PHYSICS_CONTRACT_SHA256 } from "../test-support/contractBindings";
 import { minimalPreviewStatement, syncPreviewCases } from "../test-support/retiredPrecision";
 import { sourceContract } from "../features/results/resultReader";
-import physicsSource from "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json";
+import pressureSource from "../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json";
 import { retiredMechanicsResult } from "../test-support/retiredMechanicsResult";
 
 const result: MechanicsResult = {
@@ -207,7 +207,8 @@ it("binds a combination successor's Combination basis references (T6S, B2-C §10
 });
 
 describe.each([
-  ["physics-source", physicsSource, "PHYSICS_SOURCE_RECEIPT_HASH"],
+  // B7b: the v3 twin (pressure-source-1); Rust's source reader keeps its PHYSICS_SOURCE_ code family.
+  ["pressure-source", pressureSource, "PHYSICS_SOURCE_RECEIPT_HASH"],
 ] as const)("%s portable source consistency", (_route, fixture, receiptError) => {
   it("takes Rust's commitment verdict while preserving the surface's refusal codes", async () => {
     const source = structuredClone(fixture) as unknown as MechanicsResult;

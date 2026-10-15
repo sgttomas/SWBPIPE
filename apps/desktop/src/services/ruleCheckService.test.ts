@@ -9,7 +9,7 @@ import {
   ruleBindingPrecheck,
   RULE_CHECK_BACKEND_DIAGNOSTIC
 } from "./ruleCheckService";
-import physicsSourceMixed from "../../../../fixtures/product_preview/physics_source/mixed-sparse_interactive.raw.json";
+import pressureSourceMixed from "../../../../fixtures/product_preview/pressure_source/physics_source/mixed-sparse_interactive.raw.json";
 import previewInvented from "../../../../fixtures/results/preview_physics_invented_sparse.json";
 import { retiredPrecisionStatement } from "../test-support/retiredPrecision";
 import lLine from "../../../../fixtures/model_operations/pressure_v3_l_line_authoring.json";
@@ -163,7 +163,7 @@ describe("runRuleChecks", () => {
   });
 
   it("performs a simulated native solve when needed and omits empty rule binding arrays", async () => {
-    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" }), replay = createNativeMechanicsReplay({ profile: "preview" });
     const ruleResponse = {
       document_kind: "openpipestress.rule_check.run",
       rule_pack_id: "x",
@@ -204,7 +204,7 @@ describe("runRuleChecks", () => {
   });
 
   it("forwards non-empty bindings and retains both solved envelope and model coverage basis", async () => {
-    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" }), replay = createNativeMechanicsReplay({ profile: "preview" });
     const ruleResponse = {
       document_kind: "openpipestress.rule_check.run",
       rule_pack_id: "x",
@@ -263,14 +263,14 @@ describe("rule source provenance boundary in unit transport replay", () => {
     expect(invokeMock).not.toHaveBeenCalled();
   });
   it("rejects bundled references and unregistered imported source pairs", async () => {
-    const reference = await loadBundledMechanicsReference(), model = await loadPreviewModel(), pair = nativeMechanicsReplayPair();
+    const reference = await loadBundledMechanicsReference(), model = await loadPreviewModel(), pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
     (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__ = {};
     await expect(runRuleChecks({rulePackDocument,model,solvedEnvelope:reference.source})).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
     await expect(runRuleChecks({rulePackDocument,model:pair.model,solvedEnvelope:pair.source})).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
     expect(invokeMock).not.toHaveBeenCalled();
   });
   it("rejects cloned source, source mutation and changed model without invoking rule evaluation", async () => {
-    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" }), replay = createNativeMechanicsReplay({ profile: "preview" });
     (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockImplementation(replay.invoke);
     const source = await runPreviewMechanics(pair.model);
@@ -283,7 +283,7 @@ describe("rule source provenance boundary in unit transport replay", () => {
     expect(invokeMock).not.toHaveBeenCalled();
   });
   it("propagates a required native solve failure without invoking the rule backend", async () => {
-    const pair = nativeMechanicsReplayPair();
+    const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
     (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockRejectedValue(new Error("simulated native solve failure"));
     await expect(runRuleChecks({rulePackDocument,model:pair.model})).rejects.toThrow("simulated native solve failure");
@@ -291,7 +291,7 @@ describe("rule source provenance boundary in unit transport replay", () => {
     expect(invokeMock.mock.calls[0][0]).toBe("start_preview_mechanics_job");
   });
   it("releases the transient solve result even when the rule backend fails", async () => {
-    const pair = nativeMechanicsReplayPair(), replay = createNativeMechanicsReplay();
+    const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" }), replay = createNativeMechanicsReplay({ profile: "preview" });
     (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockImplementation(async (command, args, options) => {
       if (command === "run_rule_checks") throw new Error("simulated rule backend failure");
@@ -313,7 +313,7 @@ describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display on
     ]
   });
   it("refuses no binding to a composite's rows (B4/D1 (b): the source-blocks-1 summary refusal is gone)", () => {
-    const source = structuredClone(physicsSourceMixed) as unknown as MechanicsResult;
+    const source = structuredClone(pressureSourceMixed) as unknown as MechanicsResult;
     const maximum = source.results.find((r) => r.kind === "pipe_elastic_normal_stress_maximum_v2")!;
     const force = source.results.find((r) => r.kind === "element_local_axial_force")!;
     expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(maximum.id)), [{ input_id: "manual", result_id: force.id }])).toEqual([]);
@@ -333,12 +333,21 @@ describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display on
     await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model: pair.model, solvedEnvelope: source })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
     expect(invokeMock).not.toHaveBeenCalled();
   });
-  it("refuses a pressure-1 source, which the Rust reader names no route for (b7-plan R2)", async () => {
+  it("refuses a pressure-1 source before invoking the rule backend: the desktop's fresh set excludes it (b7-plan R2)", async () => {
     // T4-U2: the L line's pressure-1 result (invented data).
     const source = structuredClone(lLine.sparse_result) as unknown as MechanicsResult;
     const model = structuredClone(lLine.authored_model) as unknown as PreviewModel;
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model, solvedEnvelope: source })).rejects.toThrow(/^RULE_/);
     expect(invokeMock).not.toHaveBeenCalled();
+  });
+  it("refuses a transient pressure-1 native solve as not fresh and releases it without invoking the rule backend", async () => {
+    const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" }), replay = createNativeMechanicsReplay({ profile: "pressure" });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockImplementation(replay.invoke);
+    await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model: pair.model })).rejects.toThrow("RULE_SOURCE_IDENTITY_NOT_FRESH");
+    expect(invokeMock.mock.calls.map(([command]) => command)).not.toContain("run_rule_checks");
+    expect(invokeMock.mock.calls.at(-1)?.[0]).toBe("dispose_preview_mechanics_result");
+    expect(replay.custody()).toEqual([]);
   });
 });

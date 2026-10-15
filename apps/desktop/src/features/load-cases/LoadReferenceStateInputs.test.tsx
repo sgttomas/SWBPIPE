@@ -7,7 +7,7 @@ import { LOAD_STATE_NEEDS_CURRENT, NOT_PRESENT, toPayload } from "./loadStateAut
 import { applyModelOperation } from "../../services/operationService";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
-import connected from "../../../../../fixtures/product_preview/load_reference/connected.request.json";
+import connected from "../../../../../fixtures/product_preview/pressure/load_reference/connected.request.json";
 import exactPressure from "../../../../../fixtures/model_operations/exact_pressure_authoring_model.json";
 
 // All values are invented test inputs (see the fixture provenance
@@ -42,11 +42,21 @@ function controlValues(region: HTMLElement): string[] {
   return Array.from(region.querySelectorAll("input, select")).map(el => (el as HTMLInputElement | HTMLSelectElement).value);
 }
 
-describe("pre-0.4 gating (D3: no upgrade operation)", () => {
-  it("offers no load/reference-state field on a pre-0.4 model, only the one line", () => {
-    for (const version of ["0.1.0", "0.2.0", "0.3.0", "0.4.1"]) {
+/** The current exact-contract document without its contract: pressure-free 0.5.0. */
+function pressureFree(): PreviewModel {
+  const model = structuredClone(exactPressure) as unknown as PreviewModel;
+  delete (model as { pressure_contract?: unknown }).pressure_contract;
+  return model;
+}
+
+describe("gating to the current exact-contract document (D3: no upgrade operation; B7b: 0.5.0 with 3.0.0/exact_pressure_v3)", () => {
+  it("offers no load/reference-state field on a retired version or a pressure-free document, only the one line", () => {
+    const retired = ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.4.1"].map(version => {
       const model = structuredClone(exactPressure) as unknown as PreviewModel;
       model.schema_version = version;
+      return model;
+    });
+    for (const model of [...retired, pressureFree()]) {
       const { view } = renderInputs(model, model.load_cases[0].id);
       expect(screen.getByTestId("load-state-needs-current")).toHaveTextContent(LOAD_STATE_NEEDS_CURRENT);
       expect(screen.queryByTestId("load-state-inputs")).toBeNull();
@@ -61,13 +71,13 @@ describe("pre-0.4 gating (D3: no upgrade operation)", () => {
     }
   });
 
-  it("mounts the fields in the Load Case Manager on 0.4.0 and the one line on the 0.3.0 model", () => {
+  it("mounts the fields in the Load Case Manager on the exact-contract document and the one line on a pressure-free one", () => {
     const model = base();
     const first = render(<LoadCaseManagerPanel model={model} selection={{ type: "load", id: "case:hot" }} onQueueIntent={vi.fn()} onSelect={vi.fn()} />);
     expect(within(screen.getByTestId("load-case-manager")).getByTestId("load-state-inputs")).toBeInTheDocument();
     expect(screen.getByTestId("load-state-analysis-state")).toHaveTextContent("Analysis state — case:hot");
     first.unmount();
-    const legacy = structuredClone(exactPressure) as unknown as PreviewModel;
+    const legacy = pressureFree();
     render(<LoadCaseManagerPanel model={legacy} selection={{ type: "load", id: legacy.load_cases[0].id }} onQueueIntent={vi.fn()} onSelect={vi.fn()} />);
     expect(within(screen.getByTestId("load-case-manager")).getByTestId("load-state-needs-current")).toHaveTextContent(LOAD_STATE_NEEDS_CURRENT);
     expect(screen.queryByTestId("load-state-inputs")).toBeNull();
@@ -96,7 +106,7 @@ describe("operation submission, one field group at a time", () => {
     expect(model).toEqual(before); // no client-side mutation
     const next = await applied(model, intent);
     expect(next.reference_configurations).toEqual(expected);
-    expect(next.schema_version).toBe("0.4.0");
+    expect(next.schema_version).toBe("0.5.0");
   });
 
   it("analysis state: support motion, element thermal state, material selection and a load-source factor", async () => {

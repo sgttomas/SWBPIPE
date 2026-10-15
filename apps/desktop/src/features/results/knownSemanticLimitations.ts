@@ -1,22 +1,21 @@
 /** Frozen T0R notices, gate reasons and standing reasons (S1_INTERFACE §10).
  * Text only. N-A: these strings are UI labels and reasons; they are never
  * written into an exported results or stress-neutral document or its manifest. */
-import { PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
+import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
 import { currentSemanticContract, sourceContract } from "./resultReader";
 import { classificationSummary, retainedRowClasses } from "./retainedPrecisionStanding";
 import { decodeBinary64, type AccuracyClass } from "./retainedPrecisionTypes";
 import type { MechanicsResult } from "../../types";
 
-/** Static fresh-identity set: the same constant in each language, no route
- * predicate. T1 added its load/reference-state identities on activation.
+/** Static fresh-identity set: a constant, no route predicate.
  * U6d (D-U6-6; D2 4.7 S-1) adds the F2a preview successor: membership is not
- * standing, which comes only from the accepted reader's registered validation. */
+ * standing, which comes only from the accepted reader's registered validation.
+ * B7b removed the retired v2 identities (physics-1, physics-source-1 and T1's
+ * load-reference-1 and load-reference-source-1). The desktop's set still names
+ * neither pressure-1 nor pressure-source-1, which Rust's `FRESH_IDENTITIES` holds:
+ * every desktop output of theirs is refused (`outputPolicy.ts`). */
 export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
   PREVIEW_PHYSICS_CONTRACT_ID,
-  PHYSICS_CONTRACT_ID,
-  PHYSICS_SOURCE_CONTRACT_ID,
-  LOAD_REFERENCE_CONTRACT_ID,
-  LOAD_REFERENCE_SOURCE_CONTRACT_ID,
   PREVIEW_PHYSICS_RETAINED_CONTRACT_ID,
 ]);
 
@@ -125,7 +124,7 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined)
     }
   }
   // D2 4.9.9 UI summary: per-case counts over the registered validated classes (either
-  // successor; B3b's exact successor reads physics-1's rows, so no preview notice above).
+  // successor; B3b's exact successor reads pressure-1's rows since B7b D4 (a), so no preview notice above).
   if (isRetainedRoute(route)) {
     if (!retainedRowClasses(source)) notices.push({ id: "retained-precision-unvalidated", text: N_RP_UNVALIDATED });
     for (const c of classificationSummary(source)) {
@@ -151,7 +150,7 @@ export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "ki
   let route: ReturnType<typeof sourceContract>;
   try { route = sourceContract(source); } catch { return null; }
   if (route !== "preview_physics" && !isRetainedRoute(route)) return null;
-  // B3b: the exact successor's rows are physics-1's, which carry no preview kind label;
+  // B3b: the exact successor's rows are pressure-1's (B7b D4 (a)), which carry no preview kind label;
   // its rows carry their validated class label only.
   const kindLabel = route === "retained_physics" ? null : row.kind === PREVIEW_INTENSIFIED_KIND ? N_INTENSIFIED : row.kind === PREVIEW_MAXIMUM_KIND ? N_HEADLINE : null;
   // Only a registered successor has validated classes; any other source has none.

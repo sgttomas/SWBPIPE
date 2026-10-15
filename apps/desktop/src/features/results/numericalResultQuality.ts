@@ -2,15 +2,20 @@
  * and policies name, its route names, and the successor carrier's status mapping.
  * R2 (b7-plan Unit R): the route of a statement, its table binding, its downgrade
  * refusal and its standing are the Rust reader's verdict (`resultReader.ts`,
- * `resultStanding.ts`); nothing here reads a statement. */
-export const PHYSICS_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-source-1";
-/** J1/J3: the v3 retained-source identity, shared by 0.3.0 and 0.4.0 inputs. */
+ * `resultStanding.ts`); nothing here reads a statement.
+ *
+ * B7b (b7-plan, v2 deletion): the exact contract is 3.0.0/exact_pressure_v3 only. Its
+ * identities are pressure-1 (the ordinary exact route) and pressure-source-1 (the
+ * retained-source composite); a model with the load/reference-state group publishes
+ * its `load_reference_states` under either. A stored result naming a retired
+ * 2.0.0/exact_straight_pressure_v2 identity (physics-1, physics-source-1,
+ * load-reference-1, load-reference-source-1) reads unsupported through Rust's header
+ * (SOURCE_EXACT_PRESSURE_V2_RETIRED); the desktop names none of them. */
+/** J1/J3: the v3 retained-source identity. */
 export const PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1";
-export const PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-1";
+/** T4-U2: the ordinary exact identity (3.0.0/exact_pressure_v3). */
+export const PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1";
 export const PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1";
-/** T1 load/reference-state identities (0.4.0 exact route only). */
-export const LOAD_REFERENCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1";
-export const LOAD_REFERENCE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-source-1";
 /** U6d (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statement is checked
  * only by the accepted reader (the Rust one, through `retainedPrecisionReader.ts`), and
  * standing comes only from that reader's registered validation
@@ -31,7 +36,7 @@ export function isRetainedRoute(route: string): route is "retained_preview_physi
 export const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
 /** The desktop's route names, one per readable identity (Rust `reader_verdict::ROUTES`),
  * and `unsupported` for a statement the header dispatch refuses. */
-export type SourceContract = "physics" | "physics_source" | "pressure_source" | "preview_physics" | "load_reference" | "load_reference_source" | "pressure" | "retained_preview_physics" | "retained_physics" | "unsupported";
+export type SourceContract = "pressure_source" | "preview_physics" | "pressure" | "retained_preview_physics" | "retained_physics" | "unsupported";
 /** TS's standing status for each carrier token of the successor (RV92 N-8: carriers
  * compare the token; this mapping is pinned separately). TS has no `unsupported`
  * status: a refused statement reads `needs_recompute` with the reader's code. */

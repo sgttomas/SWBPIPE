@@ -1,8 +1,8 @@
-import { PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID } from "../results/numericalResultQuality";
+import { PRESSURE_CONTRACT_ID } from "../results/numericalResultQuality";
 import { retiredPrecisionStatement } from "../../test-support/retiredPrecision";
-import { PHYSICS_CONTRACT_SHA256, PREVIEW_PHYSICS_CONTRACT_SHA256 } from "../../test-support/contractBindings";
+import { PRESSURE_CONTRACT_SHA256 } from "../../test-support/contractBindings";
 import { currentSemanticContract, hasCurrentSourceContract } from "../results/resultReader";
-import { numericalResultStanding } from "../results/resultStanding";
+import { numericalResultStanding, sourceRecoveryModeMatches } from "../results/resultStanding";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -14,7 +14,7 @@ import { useResultsSessionState } from "./resultsSessionState";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { buildAnalysisRunV03, modelLoadBasisRefs, validateAnalysisRunV03 } from "../../services/analysisRunCompatibility";
+import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 it("keeps solved historical and unassessed carriers out of Current without changing stored evidence", () => {
@@ -81,46 +81,40 @@ it("never admits a stored precision-1 statement as Current (B1: refused by name,
 // received fixture bytes, not a live invocation or a Current-session manifest.
 const fixtureRoot = resolve(__dirname, "../../../../../");
 const readFixture = (path: string) => JSON.parse(readFileSync(resolve(fixtureRoot, path), "utf8"));
-const physicsSource = (mode = "sparse") => readFixture(`fixtures/results/physics_connected_mechanics_${mode}.json`) as MechanicsResult;
-const physicsModel = () => readFixture("core/product_physics/tests/fixtures/exact_pressure_connected_request.json").model as PreviewModel;
+// B7b: the exact route's received statement is pressure-1, the v3 twin of the retired physics-1.
+const pressureSource = (mode = "sparse") => readFixture(`fixtures/results/pressure_connected_mechanics_${mode}.json`) as MechanicsResult;
+const pressureModel = () => readFixture("core/product_physics/tests/fixtures/exact_pressure_connected_request.json").model as PreviewModel;
 
-it.each(["sparse", "dense"])("recognizes actual %s physics semantics without turning received history into Current", async mode => {
- const source = physicsSource(mode), model = physicsModel(), before = JSON.stringify(source);
- const binding = {id:PHYSICS_CONTRACT_ID,sha256:PHYSICS_CONTRACT_SHA256};
+it.each(["sparse", "dense"])("recognizes actual %s pressure-1 semantics without turning received history into Current", async mode => {
+ const source = pressureSource(mode), model = pressureModel(), before = JSON.stringify(source);
+ const binding = {id:PRESSURE_CONTRACT_ID,sha256:PRESSURE_CONTRACT_SHA256};
  expect(hasCurrentSourceContract(source)).toBe(true);
  expect(currentSemanticContract(source)).toEqual(binding);
  expect(numericalResultStanding(source,model).eligible).toBe(true); // numerical/source scope only
  const solver = {solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:"test:received-source-no-live-invocation",solver_mode:mode === "sparse" ? "sparse_interactive" : "dense_scrutiny",settings:{}};
- // Build an independently hashed reference-only analysis record. Do not install
- // it as CurrentSessionInputManifestEvidence or invent the missing UI fields.
+ // An independently hashed reference-only basis: the desktop builds no pressure-1 record.
  const manifest = {model_basis:{model_ref:model.project.id,model_payload:model},solver_basis:solver};
- const referenceBasis = {manifest,manifest_ref:{object_type:"InputManifest",ref:"test:reference-only-physics-state"},manifest_sha256:await canonicalSha256HexCheckedV1(manifest)};
- const analysis = await buildAnalysisRunV03(source,referenceBasis,undefined,modelLoadBasisRefs(model));
- expect(analysis.analysis_run.reproducibility.semantic_contract).toEqual(binding);
+ const referenceBasis = {manifest,manifest_ref:{object_type:"InputManifest",ref:"test:reference-only-pressure-state"},manifest_sha256:await canonicalSha256HexCheckedV1(manifest)};
+ await expect(buildAnalysisRunV03(source,referenceBasis,undefined,modelLoadBasisRefs(model))).rejects.toThrow("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
  const {result} = renderHook(() => useResultsSessionState());
- act(()=>{result.current.setResult(source);result.current.setAnalysisRun(analysis);});
+ act(()=>{result.current.setResult(source);});
  expect(result.current.result).toBe(source);
  expect(result.current.inputManifest).toBeNull();
  expect(result.current.currentSolvedResult).toBeNull();
  expect(result.current.currentSolvedResultRef.current).toBeNull();
  await expect(buildCurrentSessionInputManifest({model,solver,active_rule_packs:[],external_assets:[]})).rejects.toThrow("INPUT-MANIFEST-LOAD-BASIS-INCOMPLETE");
- const mismatched = structuredClone(analysis);
- mismatched.analysis_run.reproducibility.semantic_contract = {id:PREVIEW_PHYSICS_CONTRACT_ID,sha256:PREVIEW_PHYSICS_CONTRACT_SHA256};
- await expect(validateAnalysisRunV03(mismatched,source,modelLoadBasisRefs(model))).rejects.toThrow("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH");
- act(()=>result.current.setAnalysisRun(mismatched));
- expect(result.current.currentSolvedResult).toBeNull();
  expect(JSON.stringify(source)).toBe(before);
 });
 
 it.each(["unknown method", "Sensitive", "broken physical case"])("keeps actual-source %s controls outside Current", scenario => {
- const source = physicsSource(), model = physicsModel();
+ const source = pressureSource(), model = pressureModel();
  if(scenario === "unknown method") source.producer!.semantic_contract_id = "openpipestress.result_semantics/0.3.0/source-blocks-1";
  else if(scenario === "Sensitive") {
    source.numerical_quality!.status = "sensitive";
    for(const item of source.numerical_quality!.cases) {item.solve_quality="sensitive";item.accuracy_evidence="reference_verified";}
  } else (source.contract_evidence!.exact_cases as unknown[]).pop();
  const before = JSON.stringify(source);
- expect(currentSemanticContract(source)).toEqual(scenario === "unknown method" ? null : {id:PHYSICS_CONTRACT_ID,sha256:PHYSICS_CONTRACT_SHA256});
+ expect(currentSemanticContract(source)).toEqual(scenario === "unknown method" ? null : {id:PRESSURE_CONTRACT_ID,sha256:PRESSURE_CONTRACT_SHA256});
  expect(numericalResultStanding(source,model).eligible).toBe(false);
  const {result} = renderHook(() => useResultsSessionState());
  act(()=>result.current.setResult(source));
@@ -130,12 +124,12 @@ it.each(["unknown method", "Sensitive", "broken physical case"])("keeps actual-s
  expect(JSON.stringify(source)).toBe(before);
 });
 
-// The session always writes a manifest for the mode it actually requested, so a
-// mode-mismatched manifest is only reachable through these direct setters. It is
-// the control for the gate's physics-source mode clause (B4/D1 (b): source blocks remain
-// only on the composites).
-const retainedSourceFixtures = import.meta.glob("../../../../../fixtures/product_preview/physics_source/n05*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-it.each([["physics_source", "physics_source", "n05.request.json"]] as const)("refuses a %s result whose manifest records the other solver mode", async (_family, folder, requestName) => {
+// B7b: the gate's physics-source mode clause went with physics-source-1. Its v3 twin,
+// pressure-source-1 (the composite; B4/D1 (b): source blocks remain only there), is never
+// Current on the desktop, whatever the manifest's mode: no desktop output of it exists.
+// Its registration still records the one mode it was captured in.
+const retainedSourceFixtures = import.meta.glob("../../../../../fixtures/product_preview/pressure_source/physics_source/n05*.json", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+it.each([["pressure_source", "pressure_source/physics_source", "n05.request.json"]] as const)("keeps a registered %s result out of Current with either manifest mode", async (_family, folder, requestName) => {
  const prefix = `../../../../../fixtures/product_preview/${folder}/`;
  const mode = "sparse_interactive";
  const request = JSON.parse(retainedSourceFixtures[`${prefix}${requestName}`]);
@@ -153,11 +147,12 @@ it.each([["physics_source", "physics_source", "n05.request.json"]] as const)("re
  const analysis = await buildAnalysisRunPreview(source,{inputManifest:manifest});
  const {result} = renderHook(() => useResultsSessionState());
  act(()=>{result.current.setResult(source);result.current.setInputManifest(manifest);result.current.setAnalysisRun(analysis);});
- expect(result.current.currentSolvedResult).toBe(source);
+ expect(numericalResultStanding(source,model).eligible).toBe(true);
+ expect(sourceRecoveryModeMatches(source,model,mode)).toBe(true);
+ expect(sourceRecoveryModeMatches(source,model,"dense_scrutiny")).toBe(false);
+ expect(result.current.currentSolvedResult).toBeNull();
  const otherMode = structuredClone(manifest);
  otherMode.manifest.solver_basis.solver_mode = "dense_scrutiny";
  act(()=>result.current.setInputManifest(otherMode));
  expect(result.current.currentSolvedResult).toBeNull();
- act(()=>result.current.setInputManifest(manifest));
- expect(result.current.currentSolvedResult).toBe(source);
 });

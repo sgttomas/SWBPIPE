@@ -18,7 +18,8 @@ import {readRetainedPrecisionCorpus} from '../../test-support/retainedPrecisionC
 import modelJson from '../../../../../fixtures/product_preview/invented_demo_model.json';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import {buildAnalysisRunPreview,runPreviewMechanics,loadBundledMechanicsReference} from '../../services/previewService';
-import {buildStressNeutralExportPacket,validateStressNeutralExportPacket,precisionStressRow,strictWitnessDisposition} from './StressNeutralExportPanel';
+import {buildStressNeutralExportPacket,validateStressNeutralExportPacket,validateStressNeutralCsv,precisionStressRow,strictWitnessDisposition} from './StressNeutralExportPanel';
+import {PRESSURE_1_OUTPUT_REFUSAL} from '../results/outputPolicy';
 import {StressNeutralExportPanel} from './StressNeutralExportPanel';
 import {canonicalSha256HexCheckedV1,canonicalJsonCheckedV1} from '../../services/hashService';
 import type {PreviewModel,MechanicsResult} from '../../types';
@@ -329,19 +330,57 @@ it('refuses retired stress-neutral versions before reading their metadata',async
  expect(JSON.stringify(base)).toBe(original);await expect(validateStressNeutralExportPacket(base)).resolves.toBeUndefined();
 });
 
-it('projects received physics with its own identity and complete physical evidence',async()=>{
- const {model,source:result}=nativeMechanicsReplayPair();
- const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'received-physics-reference',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
- const analysisRun=await buildAnalysisRunPreview(result,{inputManifest}),before=JSON.stringify(result);
- const packet=await buildStressNeutralExportPacket({model,result,analysisRun});
- expect(packet.schema_version).toBe('0.3.0');
- expect(packet.semantic_contract.id).toBe(result.producer!.semantic_contract_id);
- expect(packet.contract_evidence).toEqual(result.contract_evidence);
- expect(packet).not.toHaveProperty('source_block_recovery');
- expect(packet.source_annotations).toHaveLength(result.results.length);
- expect(packet.manifest.package_members).toHaveLength(9);
- await expect(validateStressNeutralExportPacket(packet,result,analysisRun)).resolves.toBeUndefined();
+// B7b: the exact route's received statement is pressure-1 (the v3 twin of the retired
+// physics-1, whose package this test built): it has no desktop record and no package.
+it('refuses received exact-route results (pressure-1) with their own output reason, before any package',async()=>{
+ const {model,source:result}=nativeMechanicsReplayPair('sparse_interactive',{profile:'pressure'});
+ expect(result.producer!.semantic_contract_id).toBe('openpipestress.result_semantics/0.3.0/pressure-1');
+ const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'received-pressure-reference',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
+ const before=JSON.stringify(result);
+ await expect(buildAnalysisRunPreview(result,{inputManifest})).rejects.toThrow('ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH');
+ await expect(buildStressNeutralExportPacket({model,result,analysisRun:{} as any})).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
+ await expect(validateStressNeutralExportPacket({schema_version:'0.3.0'},result)).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
  expect(JSON.stringify(result)).toBe(before);
+});
+
+// Moved from the retired physics-source-1 integration suite (B7b), on the registered
+// preview-physics-1 package: the CSV profile is route-independent.
+it('preserves UTF8 quoted identifier code points and refuses invalid encoding or record separators', async () => {
+ const {model,result,analysisRun}=await currentPrecision();
+ const packet=await buildStressNeutralExportPacket({model,result,analysisRun});
+ const columns=packet.export_profile.csv_columns as string[];
+ const special='case:"温,\r\n度":😀';
+ const ids=[special,'','😀']; // Scalar order differs from UTF16 order at the last two IDs.
+ const rows=ids.map(id=>({...packet.result_rows[0],result_id:id,canonical_ref:{object_type:'Result',ref:id}}));
+ const csv=[columns.join(','),...rows.map(row=>columns.map(key=>{
+   const value=(row as any)[key],text=typeof value==='object'?value.ref:String(value);
+   return /[",\r\n]/.test(text)?`"${text.replaceAll('"','""')}"`:text;
+ }).join(','))].join('\n')+'\n';
+ expect(csv).toContain('"case:""温,\r\n度"":😀"');
+ expect(()=>validateStressNeutralCsv(csv,rows)).not.toThrow();
+ for(const bad of ['﻿'+csv,csv.replace('温','\ud800'),csv.replace(columns.join(',')+'\n',columns.join(',')+'\r\n')]) {
+   expect(()=>validateStressNeutralCsv(bad,rows)).toThrow('SN-CSV-ROW-BINDING-MISMATCH');
+ }
+ expect(()=>validateStressNeutralCsv(csv,[rows[0],rows[2],rows[1]])).toThrow('SN-CSV-ROW-BINDING-MISMATCH');
+ for(const mutate of [
+   (p:any)=>{p.export_profile.csv_encoding='ascii';},
+   (p:any)=>{p.export_profile.csv_row_order='locale';},
+   (p:any)=>{p.manifest.checksums.find((c:any)=>c.payload_ref.ref==='stress_neutral_results.csv').canonicalization='normalized_ascii_lf_text';},
+ ]) {
+   const bad=structuredClone(packet);mutate(bad);
+   await expect(validateStressNeutralExportPacket(bad)).rejects.toThrow(/SN-CSV-ENCODING-PROFILE-MISMATCH|SN-CHECKSUM-METADATA-MISMATCH/);
+ }
+});
+it("preserves signed-zero sidecars and rejects a coherently rehashed false sign against original source",async()=>{
+ const {model,result,analysisRun}=await currentPrecision();
+ const packet=await buildStressNeutralExportPacket({model,result,analysisRun});
+ const changed=JSON.parse(await canonicalJsonCheckedV1(packet));
+ const annotation=changed.source_annotations.find((a:any)=>a.source_value_bits==="0000000000000000");expect(annotation).toBeDefined();
+ annotation.source_value_bits="8000000000000000";
+ // Exact original-source comparison must reject before any package self-hash
+ // can present the changed sign as authentic. The raw producer is untouched.
+ await expect(validateStressNeutralExportPacket(changed,result,analysisRun)).rejects.toThrow("SN-SOURCE-ANNOTATION-BINDING-MISMATCH");
+ expect(await canonicalSha256HexCheckedV1(result)).toBe(await canonicalSha256HexCheckedV1(JSON.parse(nativeMechanicsReplayPair('sparse_interactive',{profile:'preview'}).bytes)));
 });
 
 it.each(['json','csv'] as const)('rechecks source and analysis contents at %s activation',async route=>{

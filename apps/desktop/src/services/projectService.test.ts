@@ -54,15 +54,16 @@ describe("projectService model-document version evidence (DEL-02-05 CLM-003, bro
   });
 
   // Each version the native evaluation handles (model_document_version.rs
-  // `evaluate_model_document`), with its native outcome. 0.1.0 and 0.2.0 are
-  // retired: refused by name with the re-author diagnostic, never migrated.
+  // `evaluate_model_document`), with its native outcome. 0.1.0 to 0.4.0 are
+  // retired (B7b: 0.3.0 and 0.4.0 with the v2 exact contract): refused by name with
+  // the re-author diagnostic, never migrated.
   it.each([
     ["0.1.0", "retired_schema", "0.5.0"],
     ["0.2.0", "retired_schema", "0.5.0"],
     ["0.0.9", "retired_schema", "0.5.0"],
     ["0.3.1", "retired_schema", "0.5.0"],
-    ["0.3.0", "current", "0.3.0"],
-    ["0.4.0", "current", "0.4.0"],
+    ["0.3.0", "retired_schema", "0.5.0"],
+    ["0.4.0", "retired_schema", "0.5.0"],
     ["0.5.0", "current", "0.5.0"],
     ["0.5.1", "newer_than_supported", "0.5.0"],
     ["1.0.0", "newer_than_supported", "0.5.0"],
@@ -76,7 +77,7 @@ describe("projectService model-document version evidence (DEL-02-05 CLM-003, bro
     expect(JSON.stringify(model)).toBe(before);
   });
 
-  it.each(["0.1.0", "0.2.0"])("refuses the retired %s by name with a re-author diagnostic and never migrates it", async (version) => {
+  it.each(["0.1.0", "0.2.0", "0.3.0", "0.4.0"])("refuses the retired %s by name with a re-author diagnostic and never migrates it", async (version) => {
     const evaluated = evaluateModelDocumentLocal(sampleModel(version));
     expect(evaluated.detail).toBe(`MODEL_SCHEMA_VERSION_RETIRED: model document ${version} is retired; re-author it as model document 0.5.0 (a pressure-free model omits pressure_contract). Nothing is migrated.`);
     await expect(createLocalProject(sampleModel(version))).rejects.toThrow(/status=retired_schema; source_schema_version=/);
@@ -84,17 +85,18 @@ describe("projectService model-document version evidence (DEL-02-05 CLM-003, bro
     expect(await findLocalProject("project:doc-migration-test")).toBeNull();
   });
 
-  it("mirrors native: the explicit 0.3.0 profile opens and saves in the browser as authored", async () => {
-    const model = sampleModel("0.3.0");
+  it("mirrors native: the explicit exact profile (0.5.0 with 3.0.0/exact_pressure_v3) opens and saves in the browser as authored", async () => {
+    const model: PreviewModel = { ...sampleModel("0.5.0"), pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } } as PreviewModel;
+    const before = JSON.stringify(model);
     const status = evaluateModelDocumentLocal(model);
-    expect(status.detail).toBe("Exact pressure model 0.3.0 is accepted without migration until B7b; pressure-profile inputs and solve eligibility are validated separately.");
+    expect(status.detail).toBe("Model document 0.5.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately.");
     const created = await createLocalProject(model);
     expect(created.model_document_version?.status).toBe("current");
-    expect(created.model.schema_version).toBe("0.3.0");
+    expect(JSON.stringify(created.model)).toBe(before);
     // Saves over its own stored snapshot (no envelope hash here), confirmed; the
     // replacement guard is covered below (HELP_HUMAN ruling 2026-10-10, #1252).
     await saveLocalProject(model, [], null, null, null, null, null, null, await shownRevision(model.project.id));
-    expect((await openLocalProject(model.project.id))?.model.schema_version).toBe("0.3.0");
+    expect(JSON.stringify((await openLocalProject(model.project.id))?.model)).toBe(before);
   });
 
   it("refuses newer-than-supported and invalid versions without coercion", () => {

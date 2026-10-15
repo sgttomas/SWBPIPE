@@ -11,7 +11,8 @@ import demoModel from "../../../../../fixtures/product_preview/invented_demo_mod
 import inventedPreviewModel from "../../../../../fixtures/product_preview/invented_preview_model.json";
 import { analysisRecordProjection, buildAnalysisRunV03, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
 import type { MechanicsResult, PreviewModel } from "../../types";
-import {readerRowSemantics} from "../results/resultReader";
+import {readerRowSemantics, sourceContract} from "../results/resultReader";
+import { PRESSURE_1_OUTPUT_REFUSAL } from "../results/outputPolicy";
 const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
 import { assembleReportPackageRequestBelowAvailabilityGate, buildReportPackageRequest, projectReceivedReportResults } from "./reportPackageRequest";
 import { N_REPORT } from "../results/knownSemanticLimitations";
@@ -28,7 +29,7 @@ const assembleBelowGate = assembleReportPackageRequestBelowAvailabilityGate;
 const loadDemoModel = async () => structuredClone(demoModel) as PreviewModel;
 
 // Actual captured full-UI pair through unit IPC replay, NOT native UI qualification.
-async function currentSession(profile: "physics" | "preview" = "preview", solverBuildRef = "open_pipe_stress_product_physics@0.2.0") {
+async function currentSession(profile: "preview" = "preview", solverBuildRef = "open_pipe_stress_product_physics@0.2.0") {
   const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(createNativeMechanicsReplay({ profile }).invoke);
@@ -499,11 +500,18 @@ it("refuses an imported or cloned source even when its manifest and analysis has
   expect(JSON.stringify(clone)).toBe(before);
 });
 
-it("keeps genuine physics source inspectable while explicitly withholding this report transport", async () => {
-  const session = await currentSession("physics"), before = JSON.stringify(session);
-  await expect(buildReportPackageRequest({ ...session, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-    .rejects.toThrow("REPORT-PACKAGE-PHYSICS-PROJECTION-UNAVAILABLE");
-  expect(JSON.stringify(session)).toBe(before);
+it("keeps a genuine exact-route source (pressure-1) inspectable while withholding this report transport by its output reason", async () => {
+  // B7b: the exact route's ordinary identity is pressure-1, the v3 twin of the retired
+  // physics-1. It has no desktop analysis-run record, so the gate refuses it before any.
+  const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  invokeMock.mockImplementation(createNativeMechanicsReplay({ profile: "pressure" }).invoke);
+  const result = await runPreviewMechanics(model);
+  expect(sourceContract(result)).toBe("pressure");
+  const before = JSON.stringify(result);
+  await expect(buildReportPackageRequest({ model, result, analysisRun: null as never, inputManifest: null as never, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
+    .rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
+  expect(JSON.stringify(result)).toBe(before);
 });
 
 it("refuses a registered preview session with the frozen T0R reason (report outage until T6)", async () => {

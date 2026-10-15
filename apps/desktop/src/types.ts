@@ -220,10 +220,11 @@ export type AnalysisStateInput = {
   provenance: string;
 };
 
-/* Published result evidence: `contract_evidence` of load-reference-1 and
- * load-reference-source-1 (schemas/load_reference_state.schema.json
- * LoadReferenceContractEvidence and LoadReferenceStateRecord). Readers: the Rust
- * load-reference readers, through features/results/resultReader.ts. */
+/* Published result evidence: the `load_reference_states` records of a pressure-1 or
+ * pressure-source-1 statement whose model carries the load/reference-state group
+ * (schemas/load_reference_state.schema.json LoadReferenceStateRecord). Readers: the
+ * Rust pressure-1 and pressure-source-1 readers, through
+ * features/results/resultReader.ts. */
 export type LoadReferenceConsumedMaterialPoint = { point_id: string; temperature_k: number | null; E_pa: number; nu: number; retained_G_ignored: boolean };
 export type LoadReferenceLawSegment = { use: "interpolation_sample" | "integration_interval"; lower_index: number; upper_index: number; start_k: number; end_k: number };
 export type LoadReferenceMember = {
@@ -288,11 +289,13 @@ export type LoadReferenceStateRecord = {
   contributions: LoadReferenceContribution[];
   excluded_sources: LoadReferenceExcludedSource[];
 };
-/** Closed evidence namespace; `pressure` and `exact_cases` are the inherited
- * physics-1 statements with the resolved member pair. */
-export type LoadReferenceContractEvidence = {
+/** The exact evidence namespace of a load/reference-state statement: pressure-1's
+ * (schemas/results_pressure_1.v0.3.schema.json PressureContractEvidence) or
+ * pressure-source-1's (schemas/physics_source_recovery.schema.json
+ * pressure_source_resolved_evidence), each with its `load_reference_states`. */
+export type LoadStateContractEvidence = {
   pressure: Array<Record<string, unknown>>;
-  connector: [];
+  connector: Array<Record<string, unknown>>;
   exact_cases: Array<Record<string, unknown>>;
   load_reference_states: LoadReferenceStateRecord[];
 };

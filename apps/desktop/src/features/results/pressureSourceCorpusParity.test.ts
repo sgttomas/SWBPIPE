@@ -32,7 +32,9 @@ describe("J2 pressure-source corpus, unchanged native outcomes through real wasm
     expect(CORPUS.schema_version).toBe("1.0.0");
     expect(ENTRIES.filter(entry => entry.raw_fixture)).toHaveLength(24);
     expect(new Set(ENTRIES.map(entry => entry.id)).size).toBe(ENTRIES.length);
-    for (const name of ["MJ2-wrong-domain", "MJ4-stale-receipt", "MJ4-publication-binding", "MJ5-v3-offered-to-v2", "MJ5-relabelled-shape", "MJ7-downgrade", "MJ3-selected-pressure-"]) {
+    // B7b: MJ5's v3-offered-to-v2 family went with the v2 reader; the regenerated J2
+    // corpus names the retired v2 identity, the pressure-1 cross-offer and a captured v2 context.
+    for (const name of ["MJ2-wrong-domain", "MJ4-stale-receipt", "MJ4-publication-binding", "MJ5-retired-v2-identity", "MJ5-pressure-source-offered-to-pressure-1", "MJ5-captured-v2-context", "MJ5-relabelled-shape", "MJ7-downgrade", "MJ3-selected-pressure-"]) {
       expect(ENTRIES.some(entry => entry.id.includes(name)), name).toBe(true);
     }
   });

@@ -43,7 +43,7 @@ describe("native review package received-result hash binding", () => {
 
 it("retains explicit exact-profile quantities without inventing an authored shear modulus", async () => {
   const modelModule = await import("../../../../../fixtures/model_operations/exact_pressure_authoring_model.json");
-  const resultModule = await import("../../../../../fixtures/results/physics_connected_mechanics_sparse.json");
+  const resultModule = await import("../../../../../fixtures/results/pressure_connected_mechanics_sparse.json");
   const model = structuredClone(modelModule.default) as import("../../types").PreviewModel;
   const result = resultModule.default as unknown as import("../../types").MechanicsResult;
   model.pipe_segments[0].section.material_density = { value: 1000.123456789, unit: "kg/m³" };

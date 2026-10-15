@@ -1,12 +1,8 @@
 import { validateRetainedPrecision } from "../features/results/retainedPrecisionReader";
-import { isRetainedRoute, PRESSURE_SOURCE_CONTRACT_ID } from "../features/results/numericalResultQuality";
+import { isRetainedRoute } from "../features/results/numericalResultQuality";
 import { hasCurrentSourceContract, readerDispatch, readerValidate, ResultReaderError, sourceContract, sourceSemanticBinding } from "../features/results/resultReader";
-import { validateLoadReferenceSourceEvidence } from "../features/results/resultStanding";
-import physicsTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_1.json";
-import physicsSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_source_1.json";
+import pressureSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json";
 import previewPhysicsTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json";
-import loadReferenceTable from "../../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json";
-import loadReferenceSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json";
 import previewPhysicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import physicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json";
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
@@ -28,13 +24,16 @@ const provenance = { source_name: "OpenPipeStress analysis record 0.2", source_l
 /** The record builder's tables (DEL-14-02, as Python's `compatibility.py` record builder):
  * the pinned table each binding names. The table is
  * the one the Rust header dispatch binds (`resultReader.ts`); the record's row
- * interpretation below is the record contract's own, not the reader's signature. */
+ * interpretation below is the record contract's own, not the reader's signature.
+ * B7b: the retired v2 tables (physics-1, physics-source-1, load-reference-1,
+ * load-reference-source-1) are deleted; pressure-source-1 binds its own table, as in
+ * Python's builder. pressure-1 has no desktop record (refused below), so its table is
+ * not loaded here. */
 type RecordTable = { rows: Array<{ signature_id: string; kind: string; unit: string; component: string | null; source_basis?: string; category: string; family: string | null; source_physical_semantic_dimension: string | null; derivative_target_dimension: string | null; legacy_declared_dimension: string | null; canonical_disposition: string }> };
 const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
-  [physicsTable.semantic_contract_id]: physicsTable,
-  [physicsSourceTable.semantic_contract_id]: physicsSourceTable, [PRESSURE_SOURCE_CONTRACT_ID]: physicsSourceTable,
-  [previewPhysicsTable.semantic_contract_id]: previewPhysicsTable, [loadReferenceTable.semantic_contract_id]: loadReferenceTable,
-  [loadReferenceSourceTable.semantic_contract_id]: loadReferenceSourceTable, [previewPhysicsRetainedTable.semantic_contract_id]: previewPhysicsRetainedTable,
+  [pressureSourceTable.semantic_contract_id]: pressureSourceTable,
+  [previewPhysicsTable.semantic_contract_id]: previewPhysicsTable,
+  [previewPhysicsRetainedTable.semantic_contract_id]: previewPhysicsRetainedTable,
   [physicsRetainedTable.semantic_contract_id]: physicsRetainedTable,
 } as Record<string, RecordTable>);
 function recordTable(source: MechanicsResult): RecordTable {
@@ -119,21 +118,13 @@ export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest
   if (sourceContract(result) === "pressure") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
   return buildAnalysisRecord(result, inputManifest, sourceContract(result) as V03Route, ruleCheckStatus, loadBasisRefs);
 }
-type V03Route = "physics" | "physics_source" | "pressure_source" | "preview_physics" | "load_reference" | "load_reference_source" | "retained_preview_physics" | "retained_physics";
-/** T1: the load/reference-state readers run before a record is built or
- * validated, as Python `_source_contract` runs them (raw evidence). */
-async function validateLoadReferenceRoute(source: MechanicsResult): Promise<void> {
-  if (sourceContract(source) === "load_reference") readerValidate("load-reference", source);
-  if (sourceContract(source) === "load_reference_source") await validateLoadReferenceSourceEvidence(source);
-}
+type V03Route = "pressure_source" | "preview_physics" | "retained_preview_physics" | "retained_physics";
 async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: V03Route, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
-  if (sourceContract(result) === "physics") readerValidate("physics", result);
-  await validateLoadReferenceRoute(result);
   // Preview-evidence check: a preview-physics-1 source is recorded only after its closed reader checks pass.
   if (sourceContract(result) === "preview_physics") readerValidate("preview-physics", result);
   // U6d: a successor is recorded only after the accepted reader passes (G0-G7, no invocation).
   if (isRetainedRoute(route)) await validateRetainedPrecision(result);
-  if (route === "physics_source" || route === "pressure_source") await validateRetainedRecoverySource(result);
+  if (route === "pressure_source") await validateRetainedRecoverySource(result);
   validateSourceRuleStatus(result); expectedLoadBasis(result, loadBasisRefs);
   if (inputManifest.manifest.model_basis.model_ref !== result.model_ref) throw new Error("ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH");
   const semanticBinding = sourceSemanticBinding(result);
@@ -180,11 +171,10 @@ async function buildAnalysisRecord(result: MechanicsResult, inputManifest: Manif
       provenance,
     },
   };
-  // Python mirror: load-reference-1 is recorded like physics-1 (no retained
-  // namespace), load-reference-source-1 and pressure-source-1 like physics-source-1
-  // (both retained). The pressure binding shares the existing physics-source rows.
-  if (route === "physics_source" || route === "pressure_source" || route === "load_reference_source") record.analysis_run.contract_evidence = structuredClone(result.contract_evidence);
-  if (route === "physics_source" || route === "pressure_source" || route === "load_reference_source") record.analysis_run.source_block_recovery = structuredClone(result.source_block_recovery);
+  // Python mirror: pressure-source-1 (with or without load/reference states) is a
+  // source record, carrying its physical evidence and receipt.
+  if (route === "pressure_source") record.analysis_run.contract_evidence = structuredClone(result.contract_evidence);
+  if (route === "pressure_source") record.analysis_run.source_block_recovery = structuredClone(result.source_block_recovery);
   // U6d (C1:162; D2 4.9.6): the complete receipt is copied whole, never recomputed or repaired.
   if (isRetainedRoute(route)) record.analysis_run.retained_precision = structuredClone(result.retained_precision);
   record.analysis_run.hashes.unshift({ algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: runRef, payload_scope: "analysis_run_record", value: await canonicalSha256HexCheckedV1(analysisRecordProjection(record)) });
@@ -211,19 +201,17 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
     return JSON.stringify(order(JSON.parse(checkedJsonText(a)))) === JSON.stringify(order(JSON.parse(checkedJsonText(b))));
   };
   if (!hasCurrentSourceContract(source) || record.schema_version !== ANALYSIS_RUN_V03 || record.run_contract_status.record_contract !== "strict_analysis_run_v0_3") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
-  if (sourceContract(source) === "physics") readerValidate("physics", source);
+  // As `buildAnalysisRunV03`: the desktop has no pressure-1 record contract, so it reads
+  // none (B7b: Python's product path now writes one; the desktop does not read it).
+  if (sourceContract(source) === "pressure") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
   if (sourceContract(source) === "preview_physics") readerValidate("preview-physics", source);
-  await validateLoadReferenceRoute(source);
   validateSourceRuleStatus(source);
   const run = record.analysis_run;
-  if (["physics_source", "pressure_source"].includes(sourceContract(source))) {
+  if (sourceContract(source) === "pressure_source") {
     await validateRetainedRecoverySource(source);
     if (!same(run.source_block_recovery, source.source_block_recovery)) throw new Error("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH");
-  } else if (sourceContract(source) === "load_reference_source") {
-    // The joined reader above verified the receipt and publication hashes.
-    if (!same(run.source_block_recovery, source.source_block_recovery)) throw new Error("ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH");
   } else if (Object.hasOwn(run, "source_block_recovery")) throw new Error("SOURCE_RECOVERY_METADATA_CONTRADICTION");
-  if (sourceContract(source) === "physics_source" || sourceContract(source) === "pressure_source" || sourceContract(source) === "load_reference_source") {
+  if (sourceContract(source) === "pressure_source") {
     if (!same(run.contract_evidence, source.contract_evidence)) throw new Error("ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH");
   } else if (Object.hasOwn(run, "contract_evidence")) throw new Error("ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN");
   // U6d: the successor's record carries its complete receipt, equal to the source's
@@ -260,7 +248,7 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
 /** Portable statement checks only; private native/method standing stays separate. */
 export async function validateRetainedRecoverySource(source: MechanicsResult): Promise<void> {
   const route = sourceContract(source);
-  if (route !== "physics_source" && route !== "pressure_source") throw new Error("SOURCE_RECOVERY_METADATA_CONTRADICTION");
+  if (route !== "pressure_source") throw new Error("SOURCE_RECOVERY_METADATA_CONTRADICTION");
   try { readerValidate("source-recovery", source); }
   catch (error) {
     // The record/export surfaces keep their refusal vocabulary over Rust's verdict.

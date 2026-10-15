@@ -5,15 +5,17 @@ import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { PhysicsSourceEvidencePanel, endpointLocationDescription } from "./PhysicsSourceEvidencePanel";
 
 afterEach(cleanup);
-const fixtureSources = import.meta.glob("../../../../../fixtures/product_preview/physics_source/*.raw.json", { query: "?raw", import: "default", eager: true }) as Record<string,string>;
-const fixture = (name: string) => JSON.parse(fixtureSources[`../../../../../fixtures/product_preview/physics_source/${name}.raw.json`]) as MechanicsResult;
+// B7b: the composite is pressure-source-1 (3.0.0/exact_pressure_v3), the v3 twin of the
+// retired physics-source-1; its committed producer raws.
+const fixtureSources = import.meta.glob("../../../../../fixtures/product_preview/pressure_source/physics_source/*.raw.json", { query: "?raw", import: "default", eager: true }) as Record<string,string>;
+const fixture = (name: string) => JSON.parse(fixtureSources[`../../../../../fixtures/product_preview/pressure_source/physics_source/${name}.raw.json`]) as MechanicsResult;
 it.each(["n05", "n06", "mixed", "fields"])('shows %s recorded methods and bounded maximum without promoting imported data', name => {
   for (const mode of ["sparse_interactive", "dense_scrutiny"]) {
     const result = fixture(`${name}-${mode}`), before = JSON.stringify(result);
     const view = render(<PhysicsSourceEvidencePanel result={result} />);
     const panel = screen.getByRole("region", { name: "Recorded recovery evidence" });
     expect(panel).toHaveTextContent(`Ordinary numerical attempt: ${result.numerical_quality!.status}`);
-    expect(panel).toHaveTextContent("exact_straight_pressure_v2");
+    expect(panel).toHaveTextContent("exact_pressure_v3");
     expect(panel).toHaveTextContent("These recorded labels do not grant Current use");
     const physical = result.contract_evidence as any, receipt = result.source_block_recovery as any;
     expect(within(panel).getByTestId("physics-source-case-coverage")).toHaveTextContent(`Recorded cases: ${receipt.body.cases.length}; physical cases: ${physical.exact_cases.length}`);

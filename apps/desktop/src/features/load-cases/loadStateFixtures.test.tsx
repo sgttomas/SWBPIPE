@@ -9,12 +9,13 @@ import { createLocalProject, listLocalProjects, openLocalProject } from "../../s
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
 import { validateModelOperation } from "../../services/operationService";
 import type { EditorOperationIntent, MechanicsResult, PreviewModel } from "../../types";
-import connected from "../../../../../fixtures/product_preview/load_reference/connected.request.json";
-import pressure from "../../../../../fixtures/product_preview/load_reference/pressure.request.json";
-import eigenMotion from "../../../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json";
-import connectedRaw from "../../../../../fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json";
+import connected from "../../../../../fixtures/product_preview/pressure/load_reference/connected.request.json";
+import pressure from "../../../../../fixtures/product_preview/pressure/load_reference/pressure.request.json";
+import eigenMotion from "../../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json";
+import connectedRaw from "../../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json";
 
-// T1 WP3 addendum. The committed 0.4.0 request models are used unmodified
+// T1 WP3 addendum, on the current format (B7b): the committed 0.5.0 exact-contract
+// request models with the load/reference-state group are used unmodified
 // (headlessly authored: their load cases may have no label, kind or status and
 // the model may have no desktop `diagnostics` array). Invented pass-through
 // values below are marked as such.
@@ -31,7 +32,7 @@ function renderPanels(model: PreviewModel, caseId: string, onQueueIntent: (inten
   </>);
 }
 
-describe("committed 0.4.0 request models render unmodified in the Load Case Manager and SolvePanel", () => {
+describe("committed load/reference-state request models render unmodified in the Load Case Manager and SolvePanel", () => {
   for (const name of Object.keys(FIXTURES) as Name[]) {
     it(`${name}: renders every case, shows absent metadata as not set, changes no byte`, () => {
       const model = committed(name);
@@ -92,7 +93,7 @@ describe("committed 0.4.0 request models render unmodified in the Load Case Mana
     expect(Object.hasOwn(model, "diagnostics")).toBe(false);
     render(<SolvePanel analysisRun={null} model={model} result={result} running={false} solveJob={initialSolveJob()} solverMode="sparse_interactive" onCancel={() => {}} onRun={() => {}} onSolverModeChange={() => {}} />);
     expect(screen.getByTestId("readiness-diagnostics")).toHaveTextContent(`${result.diagnostics.length} diagnostic`);
-    expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("ordinary load-reference-1");
+    expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("ordinary pressure-1");
     expect(JSON.stringify(model)).toBe(bytes);
   });
 
@@ -110,7 +111,7 @@ describe("committed 0.4.0 request models render unmodified in the Load Case Mana
   });
 });
 
-/** Every authored 0.4.0 key the plain fields cannot edit yet, with an invented value. */
+/** Every authored load/reference-state key the plain fields cannot edit yet, with an invented value. */
 const PASS_THROUGH = {
   "element_states[0].analysis_basis_override": { reason: "invented_wp3_pass_through", provenance: "invented_wp3_pass_through" },
   "element_states[0].mass_state_ref": "invented:wp3-mass-state",
@@ -140,7 +141,7 @@ function passThroughValues(model: PreviewModel): string[] {
   });
 }
 
-describe("workspace session on a committed 0.4.0 model opened through the browser open route", () => {
+describe("workspace session on a committed load/reference-state model opened through the browser open route", () => {
   async function openInSession(model: PreviewModel) {
     // The real browser persistence route: create the local browser snapshot,
     // then the session's own Open local handler restores it.

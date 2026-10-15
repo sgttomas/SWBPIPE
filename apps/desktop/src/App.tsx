@@ -822,7 +822,7 @@ function AppSession() {
           </button>
           <button type="button" data-testid="new-blank-040" onClick={handleCreateBlankLoadStateProject} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
-            Blank 0.4.0 model
+            Blank load/reference model
           </button>
           <button data-testid="open-model-document" type="button" onClick={() => void handleOpenModelDocument()} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />

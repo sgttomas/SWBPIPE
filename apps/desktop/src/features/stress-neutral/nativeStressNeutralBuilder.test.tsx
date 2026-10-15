@@ -14,7 +14,7 @@ import { runPreviewMechanics, buildAnalysisRunPreview } from "../../services/pre
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { canonicalJsonCheckedV1, checkedJsonText } from "../../services/hashService";
 import { numericalResultStanding } from "../results/resultStanding";
-import { LOAD_REFERENCE_OUTPUT_REFUSAL } from "../results/outputPolicy";
+import { PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL } from "../results/outputPolicy";
 import { modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { buildStressNeutralExportPacket, liveStressBinding, validateStressNeutralExportPacket } from "./StressNeutralExportPanel";
 import type { MechanicsResult, PreviewModel, AnalysisRunEnvelope } from "../../types";
@@ -24,7 +24,7 @@ const json = (name: string) => JSON.parse(readFileSync(resolve(project, name), "
 const modes = ["sparse_interactive", "dense_scrutiny"] as const;
 afterEach(() => { vi.mocked(invoke).mockReset(); delete (window as any).__TAURI_INTERNALS__; });
 
-async function admitted(profile: "preview" | "physics", mode: typeof modes[number]) {
+async function admitted(profile: "preview", mode: typeof modes[number]) {
   const { model } = nativeMechanicsReplayPair(mode, { profile });
   (window as any).__TAURI_INTERNALS__ = {};
   vi.mocked(invoke).mockImplementation(createNativeMechanicsReplay({ profile }).invoke);
@@ -76,7 +76,10 @@ function migrationEvidence(caseName: string, bytes: Record<string, Uint8Array>) 
   }
 }
 
-it.each(["preview", "physics"] as const)("%s: already admitted current public construction keeps complete bytes in both modes", async profile => {
+// B7b: the exact route's v2 package (physics-1) is retired with its identity; its v3
+// twin, pressure-1, has no desktop package (refused below), so preview-physics-1 is the
+// one admitted ordinary construction.
+it.each(["preview"] as const)("%s: already admitted current public construction keeps complete bytes in both modes", async profile => {
   for (const mode of modes) {
     const args = await admitted(profile, mode);
     expect(numericalResultStanding(args.result, args.model)).toMatchObject({ eligible: true, findings: [] });
@@ -91,17 +94,21 @@ it.each(["preview", "physics"] as const)("%s: already admitted current public co
   }
 }, 60_000);
 
+/** B7b: the load/reference-state results are the v3 twins, published under pressure-1
+ * (ordinary) and pressure-source-1 (joined), each with the Python product path's
+ * committed analysis-run record. */
 const loadReferenceCases = [
-  ...["connected", "pressure"].map(name => ({ family: "load_reference", name })),
-  ...["eigen_motion", "fields", "mixed", "n05", "n06"].map(name => ({ family: "load_reference_source", name })),
-].flatMap(({ family, name }) => modes.map(mode => ({ family, name, mode })));
+  ...["connected", "pressure"].map(name => ({ family: "pressure/load_reference", record: "pressure_load_state", name, reason: PRESSURE_1_OUTPUT_REFUSAL })),
+  ...["eigen_motion", "fields", "mixed", "n05", "n06"].map(name => ({ family: "pressure_source/load_reference_source", record: "pressure_source_load_state", name, reason: PRESSURE_SOURCE_OUTPUT_REFUSAL })),
+].flatMap(entry => modes.map(mode => ({ ...entry, mode })));
 
-it.each(loadReferenceCases)("$family/$name/$mode: real public output remains refused", async ({ family, name, mode }) => {
+it.each(loadReferenceCases)("$family/$name/$mode: real public output remains refused", async ({ family, record, name, mode, reason }) => {
   const model = json(`fixtures/product_preview/${family}/${name}.request.json`).model as PreviewModel;
   const result = json(`fixtures/product_preview/${family}/${name}-${mode}.raw.json`) as MechanicsResult;
   const suffix = mode === "sparse_interactive" ? "sparse" : "dense";
-  const analysisRun = json(`fixtures/results/${family}_${name}_${suffix}.analysis_run.json`) as AnalysisRunEnvelope;
+  const analysisRun = json(`fixtures/results/${record}_${name}_${suffix}.analysis_run.json`) as AnalysisRunEnvelope;
+  expect(analysisRun.analysis_run.run_id).toBe(result.run_id);
   const before = checkedJsonText({ model, result, analysisRun });
-  await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
+  await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(reason);
   expect(checkedJsonText({ model, result, analysisRun })).toBe(before);
 });

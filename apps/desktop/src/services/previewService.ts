@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import { isRetainedIdentity, isRetainedRoute, PRESSURE_SOURCE_CONTRACT_ID } from '../features/results/numericalResultQuality';
 import { hasCurrentSourceContract, readerValidate, rememberReceivedText, sourceContract } from '../features/results/resultReader';
-import { registerSourceRecovery, sameModelData, validateLoadReferenceSourceEvidence } from '../features/results/resultStanding';
+import { registerSourceRecovery, sameModelData } from '../features/results/resultStanding';
 import { registerRetainedPrecision } from '../features/results/retainedPrecisionStanding';
 import { invoke } from "@tauri-apps/api/core";
 import { invokeWithIngress } from "./nativeIngress";
@@ -165,8 +165,7 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     // known job. Method-specific source-block validation composes here when its
     // separately reviewed join is selected; none is inferred from these bytes.
     const sourceRoute = sourceContract(source);
-    if (sourceRoute === "physics_source" || sourceRoute === "pressure_source"
-      || source.producer?.semantic_contract_id === PRESSURE_SOURCE_CONTRACT_ID) {
+    if (sourceRoute === "pressure_source" || source.producer?.semantic_contract_id === PRESSURE_SOURCE_CONTRACT_ID) {
       // G3 (b7-plan R2): the caller's model is the one dispatched to native; a
       // normalization between them registers nothing.
       if (!sameModelData(JSON.parse(checkedJsonText(capture.callerModel)), capture.invocation.request.model)) throw new Error("CALLER_DISPATCH_NORMALIZATION_MISMATCH");
@@ -177,11 +176,11 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
     }
     // A preview-physics-1 source registers only when its closed reader checks pass.
     if (sourceContract(source) === "preview_physics") readerValidate("preview-physics", source, capture.invocation.request.model);
-    // T1: a load/reference-state source registers only when its closed reader
-    // checks pass. The joined reader also records its outcome for standing,
-    // which stays needs_recompute (never numerically eligible in T1).
-    if (sourceContract(source) === "load_reference") readerValidate("load-reference", source, capture.invocation.request.model);
-    if (sourceContract(source) === "load_reference_source") await validateLoadReferenceSourceEvidence(source);
+    // T1, on the current exact route (B7b): a pressure-1 source, with or without the
+    // load/reference-state group, registers only when its reader checks pass with the
+    // captured model. A joined pressure-source-1 source registered above with its
+    // invocation; its standing stays needs_recompute (never numerically eligible in T1).
+    if (sourceContract(source) === "pressure") readerValidate("pressure", source, capture.invocation.request.model);
     // U6d: a preview successor registers only after the accepted reader passes with
     // this captured invocation; its outcome is recorded against the exact bytes.
     // U7 slice T: its standing is bound to this live native capture and the current model.

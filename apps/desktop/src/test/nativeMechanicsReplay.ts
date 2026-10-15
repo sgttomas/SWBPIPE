@@ -3,8 +3,8 @@
  * It never installs a runtime, registers a source, or edits producer evidence. */
 import { isDeepStrictEqual } from "node:util";
 import modelFixture from "../../../../fixtures/model_operations/exact_pressure_authoring_model.json";
-import sparseFixture from "../../../../fixtures/results/physics_connected_ui_mechanics_sparse.json?raw";
-import denseFixture from "../../../../fixtures/results/physics_connected_ui_mechanics_dense.json?raw";
+import sparseFixture from "../../../../fixtures/results/pressure_connected_ui_mechanics_sparse.json?raw";
+import denseFixture from "../../../../fixtures/results/pressure_connected_ui_mechanics_dense.json?raw";
 import precisionModelFixture from "../../../../fixtures/model_operations/precision_connected_ui_model.json";
 import previewSparseFixture from "../../../../fixtures/results/preview_physics_connected_sparse.json?raw";
 import previewDenseFixture from "../../../../fixtures/results/preview_physics_connected_dense.json?raw";
@@ -18,20 +18,22 @@ import type { PreviewSolverMode } from "../services/previewService";
 export const solveBytes = jsonTextKeepingNegativeZero;
 
 export const NATIVE_MECHANICS_REPLAY_NOTICE = "Unit transport replay of captured producer bytes; NOT actual native UI qualification";
-/** `preview` is the fresh non-exact route (preview-physics-1); `physics` the exact route. */
-export type NativeMechanicsReplayProfile = "physics" | "preview";
+/** `preview` is the fresh non-exact route (preview-physics-1); `pressure` the exact route
+ * (pressure-1, 3.0.0/exact_pressure_v3 since B7b retired the v2 physics-1 pair), whose
+ * every desktop output is refused. */
+export type NativeMechanicsReplayProfile = "pressure" | "preview";
 const captureRef = "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/UI_PRODUCER_CAPTURE.json";
 function replayMode(mode: unknown): asserts mode is PreviewSolverMode {
   if (mode !== "sparse_interactive" && mode !== "dense_scrutiny") throw new Error("NATIVE_REPLAY_MODE_UNSUPPORTED");
 }
 export function nativeMechanicsReplayPair(mode: PreviewSolverMode = "sparse_interactive", options: { profile?: NativeMechanicsReplayProfile } = {}) {
   replayMode(mode);
-  const profile = options.profile ?? "physics";
-  if (profile !== "physics" && profile !== "preview") throw new Error("NATIVE_REPLAY_PROFILE_UNSUPPORTED");
+  const profile = options.profile ?? "pressure";
+  if (profile !== "pressure" && profile !== "preview") throw new Error("NATIVE_REPLAY_PROFILE_UNSUPPORTED");
   const sparse = mode === "sparse_interactive";
-  const model = profile === "physics" ? modelFixture : precisionModelFixture;
+  const model = profile === "pressure" ? modelFixture : precisionModelFixture;
   // The producer's bytes, as the native solve hands them over (b7-plan R1, exact bytes).
-  const bytes = profile === "physics" ? (sparse ? sparseFixture : denseFixture)
+  const bytes = profile === "pressure" ? (sparse ? sparseFixture : denseFixture)
     : (sparse ? previewSparseFixture : previewDenseFixture);
   return {
     model: structuredClone(model) as PreviewModel,
@@ -43,9 +45,9 @@ export function nativeMechanicsReplayPair(mode: PreviewSolverMode = "sparse_inte
       kind: "unit_transport_replay" as const,
       actual_native_ui_qualification: false as const,
       notice: NATIVE_MECHANICS_REPLAY_NOTICE,
-      capture_ref: profile === "physics" ? captureRef : "fixtures/results/preview_physics_connected_{sparse,dense}.json (T0R S2a producer output)",
-      model_fixture_ref: profile === "physics" ? "fixtures/model_operations/exact_pressure_authoring_model.json" : "fixtures/model_operations/precision_connected_ui_model.json",
-      source_fixture_ref: profile === "preview" ? `fixtures/results/preview_physics_connected_${sparse ? "sparse" : "dense"}.json` : `fixtures/results/physics_connected_ui_mechanics_${sparse ? "sparse" : "dense"}.json`,
+      capture_ref: profile === "pressure" ? captureRef : "fixtures/results/preview_physics_connected_{sparse,dense}.json (T0R S2a producer output)",
+      model_fixture_ref: profile === "pressure" ? "fixtures/model_operations/exact_pressure_authoring_model.json" : "fixtures/model_operations/precision_connected_ui_model.json",
+      source_fixture_ref: profile === "preview" ? `fixtures/results/preview_physics_connected_${sparse ? "sparse" : "dense"}.json` : `fixtures/results/pressure_connected_ui_mechanics_${sparse ? "sparse" : "dense"}.json`,
     },
   };
 }
@@ -173,7 +175,7 @@ export function createSolveJobTransport(
  * simulate failures. Unknown commands/jobs/models/modes fail rather than
  * silently replaying another source. */
 export function createNativeMechanicsReplay(options: { jobIdPrefix?: string; profile?: NativeMechanicsReplayProfile } = {}) {
-  const profile = options.profile ?? "physics";
+  const profile = options.profile ?? "pressure";
   nativeMechanicsReplayPair("sparse_interactive", { profile });
   const transport = createSolveJobTransport((request) => {
     replayMode(request.mode);

@@ -1,5 +1,4 @@
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
-import { validateRetainedRecoverySource } from "../../services/analysisRunCompatibility";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, isRetainedRoute, type SourceContract } from "../results/numericalResultQuality";
 import { currentSemanticContract, hasCurrentSourceContract, readerRowSemantics, readerTransport, sourceContract } from "../results/resultReader";
@@ -419,10 +418,10 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
   const semantics = currentSemanticContract(args.result);
   const version = STRESS_NEUTRAL_EXPORT_VERSION;
   const profile = STRESS_NEUTRAL_EXPORT_PROFILE;
-  if (route === "physics_source") await validateRetainedRecoverySource(args.result);
   // Pure packet projection; Current export stays gated by the panel's live binding,
-  // which requires full eligibility.
-  else if (numericalResultStanding(args.result, args.model).findings.length > 0) throw new Error("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
+  // which requires full eligibility. (B7b: the exact routes, pressure-1 and
+  // pressure-source-1, are refused above; the retired physics-source-1 arm went with v2.)
+  if (numericalResultStanding(args.result, args.model).findings.length > 0) throw new Error("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
   if (args.analysisRun.schema_version !== "0.3.0" || args.analysisRun.analysis_run.run_id !== args.result.run_id || args.model.project.id !== args.result.model_ref
     || args.analysisRun.analysis_run.solver_version?.solver_name !== args.result.producer!.component_name
     || args.analysisRun.analysis_run.solver_version?.solver_version !== args.result.producer!.component_version
@@ -508,8 +507,7 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
       software_creates_professional_reliance_record: false
     },
   };
-  if (route === "physics_source") packet.source_block_recovery = structuredClone(args.result.source_block_recovery);
-  if (route === "physics" || route === "physics_source" || route === "preview_physics" || retained) packet.contract_evidence = structuredClone(args.result.contract_evidence);
+  if (route === "preview_physics" || retained) packet.contract_evidence = structuredClone(args.result.contract_evidence);
   // D2 4.9.7 and RR decision 5: the successor's receipt travels with the package, whole.
   if (retained) packet.retained_precision = structuredClone(args.result.retained_precision);
   packet.source_annotations = await retainedSourceAnnotations(args.result);
@@ -555,11 +553,9 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     if (analysisRun !== undefined) await validateAnalysisRunV03(analysisRun, source, expectedBasisRefs);
     const same = async (a: unknown, b: unknown) => a !== undefined && b !== undefined && await canonicalSha256HexCheckedV1(a) === await canonicalSha256HexCheckedV1(b);
     for (const key of ["producer", "numerical_quality", "formulation_basis"] as const) if (!await same(packet[key], source[key])) throw new Error("SN-PRECISION-SOURCE-METADATA-MISMATCH");
-    if (sourceContract(source) === "physics_source") {
-      if (!await same(packet.source_block_recovery, source.source_block_recovery)) throw new Error("SN-SOURCE-RECOVERY-MISMATCH");
-    } else if (Object.hasOwn(packet, "source_block_recovery")) throw new Error("SN-SOURCE-RECOVERY-CONTRADICTION");
+    if (Object.hasOwn(packet, "source_block_recovery")) throw new Error("SN-SOURCE-RECOVERY-CONTRADICTION");
     const sourceRetained = isRetainedRoute(sourceContract(source));
-    if (["physics", "physics_source", "preview_physics", "retained_preview_physics", "retained_physics"].includes(sourceContract(source))) {
+    if (["preview_physics", "retained_preview_physics", "retained_physics"].includes(sourceContract(source))) {
       if (!await same(packet.contract_evidence, source.contract_evidence)) throw new Error("SN-PHYSICAL-EVIDENCE-MISMATCH");
     } else if (Object.hasOwn(packet, "contract_evidence")) throw new Error("SN-PHYSICAL-EVIDENCE-CONTRADICTION");
     // T6S-5 (D2 4.9.7): the copied receipt equals the source's, whole; no other identity's package carries one.
@@ -851,13 +847,12 @@ function safeFileToken(value: string): string {
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
 
 /** Every route has a deliberate entry (tsc-checked); null names no table here, and
- * such a route refuses (load/reference-state routes refuse earlier by the policy). */
+ * such a route refuses (the exact routes, pressure-1 and pressure-source-1, with or
+ * without load/reference states, refuse earlier by the policy). */
 const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported">, string | null>> = Object.freeze({
-  physics: "semantic_contract_v0_3_physics_1.json",
-  physics_source: "semantic_contract_v0_3_physics_source_1.json",
   preview_physics: "semantic_contract_v0_3_preview_physics_1.json", retained_preview_physics: "semantic_contract_v0_3_preview_physics_retained_1.json",
   retained_physics: "semantic_contract_v0_3_physics_retained_1.json",
-  load_reference: null, load_reference_source: null, pressure_source: null, pressure: null,
+  pressure_source: null, pressure: null,
 });
 function semanticTablePath(source: MechanicsResult): string {
   const route = sourceContract(source);
@@ -869,9 +864,7 @@ function semanticTablePath(source: MechanicsResult): string {
 }
 async function validateNeutralTransportEvidence(header: MechanicsResult): Promise<void> {
   const route = sourceContract(header);
-  if (route === "physics") readerTransport("physics", header);
-  else if (route === "preview_physics") readerTransport("preview-physics", header);
-  else if (route === "physics_source") readerTransport("physics-source", header);
+  if (route === "preview_physics") readerTransport("preview-physics", header);
   // T6S-5: the accepted reader's transport checks (G0-G2 and the base transport
   // metadata on its projection); a refusal carries the reader's code.
   else if (isRetainedRoute(route)) await validateRetainedPrecisionTransport(header);

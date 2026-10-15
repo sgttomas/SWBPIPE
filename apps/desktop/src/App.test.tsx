@@ -14662,7 +14662,9 @@ describe("workflow current and historical result boundaries", () => {
     // The product's blocking re-author refusal (one text for every legacy pressure primitive) is retained.
     const refusals = screen.getAllByTestId("diagnostic-PRESSURE_MODEL_REAUTHOR_REQUIRED");
     expect(refusals.length).toBeGreaterThan(0);
-    for (const refusal of refusals) expect(refusal).toHaveTextContent("re-author the model to 2.0.0/exact_straight_pressure_v2");
+    // B7b: the producer's remediation names the current contract (core/product_physics
+    // pressure_runtime.rs; the committed refused-preview fixture carries that text).
+    for (const refusal of refusals) expect(refusal).toHaveTextContent("re-author the model with pressure_contract 3.0.0/exact_pressure_v3");
     expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent(failedSummary);
     expect(screen.getByTestId("viewport-deformation-boundary")).toHaveTextContent("scale=not_generated");
     expect(renderedReportButton()).toBeDisabled();

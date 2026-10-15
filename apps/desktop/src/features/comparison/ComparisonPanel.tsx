@@ -160,7 +160,9 @@ function comparisonDimension(delta: ComparisonDelta, result: MechanicsResult | n
   if (left && (left.unit !== delta.unit || left.value !== delta.left_value || (left.dimension && left.dimension !== right.dimension))) return "unknown";
   if (!result || !labels) return "unknown";
   const contract = sourceContract(result);
-  if (!["physics", "physics_source", "preview_physics"].includes(contract)) return "unknown";
+  // B7b: the exact routes are pressure-1 and pressure-source-1 (the v3 twins of the
+  // retired physics-1 and physics-source-1).
+  if (!["pressure", "pressure_source", "preview_physics"].includes(contract)) return "unknown";
   const rightDimension = labels.dimension(right);
   const leftDimension = left ? labels.dimension(left) : null;
   if (!left || !rightDimension || leftDimension !== rightDimension) return "unknown";

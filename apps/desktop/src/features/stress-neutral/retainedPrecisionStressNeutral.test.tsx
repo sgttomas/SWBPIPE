@@ -16,7 +16,7 @@ import { resolve } from "node:path";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 vi.mock("../result-export/nativeResultSave", () => ({ isNativeResultSaveRuntime: vi.fn(() => false), saveNativeResultJson: vi.fn() }));
-import type { MechanicsResult, PreviewModel } from "../../types";
+import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { canonicalSha256HexCheckedV1, checkedJsonText } from "../../services/hashService";
 import { buildAnalysisRunPreview, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
@@ -29,7 +29,7 @@ import {
 } from "../results/retainedPrecisionStanding";
 import { validateRetainedPrecision } from "../results/retainedPrecisionReader";
 import type { RowClassification } from "../results/retainedPrecisionTypes";
-import { LOAD_REFERENCE_OUTPUT_REFUSAL, N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, surfaceOutputRefusal } from "../results/outputPolicy";
+import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, PRESSURE_1_OUTPUT_REFUSAL, surfaceOutputRefusal } from "../results/outputPolicy";
 import {
   RETAINED_ABSOLUTE_VERIFIED, RETAINED_NOT_COVERED, retainedClassDisclosure, retainedNotCoveredMessage, retainedPrecisionSummaryLine, retainedRowClassesFromReader, rustLowerExp,
 } from "../results/retainedPrecisionDisclosure";
@@ -97,10 +97,15 @@ async function previewControl(mode: PreviewSolverMode = "sparse_interactive") {
   const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
   return { model, result, analysisRun };
 }
+/** B7b: a load/reference-state result is the v3 twin, published under pressure-1, which
+ * has no desktop analysis-run record; the Python product path's committed record of it
+ * stands in for the record here. */
 async function loadReferenceScenario() {
-  const result = json("fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json") as MechanicsResult;
-  const model = structuredClone(json("fixtures/product_preview/load_reference/pressure.request.json").model) as PreviewModel;
-  const analysisRun = await buildAnalysisRunV03(result, manifestFor(result, model, "sparse_interactive") as Json, undefined, modelLoadBasisRefs(model));
+  const result = json("fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json") as MechanicsResult;
+  const model = structuredClone(json("fixtures/product_preview/pressure/load_reference/pressure.request.json").model) as PreviewModel;
+  await expect(buildAnalysisRunV03(result, manifestFor(result, model, "sparse_interactive") as Json, undefined, modelLoadBasisRefs(model))).rejects.toThrow("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
+  const analysisRun = json("fixtures/results/pressure_load_state_pressure_sparse.analysis_run.json") as AnalysisRunEnvelope;
+  expect(analysisRun.analysis_run.run_id).toBe(result.run_id);
   return { result, model, analysisRun };
 }
 const moved = (model: PreviewModel) => { const copy = structuredClone(model) as Json; copy.nodes[0].position.x += 1; return copy as PreviewModel; };
@@ -123,8 +128,8 @@ async function rehash(packet: Json) {
 describe("the panels (T6S-3): load/reference-state refusal and the summary line", () => {
   it("the stress-neutral builder and validator keep T1's load/reference-state refusal", async () => {
     const { result, model, analysisRun } = await loadReferenceScenario();
-    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
-    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
+    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
+    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
   });
   it.each(MODES)("%s: each panel shows one text-only per-case summary line from classificationSummary", async (mode) => {
     const { received, model, analysisRun, manifest } = await eligible(mode);

@@ -2,8 +2,9 @@
  * preview successor is refused. Each refuses through the one shared
  * function (`loadReferenceOutputRefusal` / `refuseLoadReferenceOutput`), which
  * returns the successor's own reason, or through the report package's
- * fresh-result refusal. `isLoadReferenceRoute` is unchanged, so the
- * load-reference text is never shown for a successor.
+ * fresh-result refusal. Another gated route's text (pressure-1's or
+ * pressure-source-1's, which carry the load/reference-state results since B7b) is
+ * never shown for a successor.
  * T6S-3 (RR decisions 2 and 12): the Result Export and Stress-Neutral Export
  * panels now read their own entries in the output policy (`outputPolicy.ts`),
  * which admit a successor only at numerically eligible standing with the live
@@ -31,8 +32,8 @@ import { computeModelHash } from "../../services/hashService";
 import { hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
 import { initialSolveJob } from "../workspace/solveJobAudit";
 import {
-  LOAD_REFERENCE_OUTPUT_REFUSAL, RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE, RETAINED_PRECISION_OUTPUT_REFUSAL, RETAINED_PHYSICS_OUTPUT_REFUSAL,
-  isLoadReferenceRoute, loadReferenceOutputRefusal, refuseLoadReferenceOutput,
+  PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE, RETAINED_PRECISION_OUTPUT_REFUSAL, RETAINED_PHYSICS_OUTPUT_REFUSAL,
+  loadReferenceOutputRefusal, refuseLoadReferenceOutput,
 } from "./loadReferenceOutputAvailability";
 import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, isFreshSemanticResult } from "./knownSemanticLimitations";
 import { currentSemanticContract } from "./resultReader";
@@ -121,18 +122,18 @@ const GATED: [string, ComponentType<Json>, string][] = [
 ];
 
 describe("the shared refusal", () => {
-  it("names the desktop route only, states the current refusal, never calls the result invalid or unsupported, and is distinct from load-reference", async () => {
+  it("names the desktop route only, states the current refusal, never calls the result invalid or unsupported, and is distinct from the exact routes' reasons", async () => {
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL.startsWith(`${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: `)).toBe(true);
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL).toContain("is not available on the desktop");
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL).not.toMatch(/\bT[0-9]/);
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL.toLowerCase()).not.toMatch(/invalid|unsupported/);
-    expect(RETAINED_PRECISION_OUTPUT_REFUSAL).not.toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
+    // B7b: load/reference-state results refuse under pressure-1's and pressure-source-1's own reasons.
+    for (const other of [PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL]) expect(RETAINED_PRECISION_OUTPUT_REFUSAL).not.toBe(other);
     // B3b (B3D-14): the exact successor's own reason, re-exported beside the preview one, which is untouched.
     expect(RETAINED_PHYSICS_OUTPUT_REFUSAL).toBe(`${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: This output of retained-precision results (physics-retained-1) is not available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. The result remains readable here; this is not a finding about the result.`);
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL).toContain("(preview-physics-retained-1)");
     for (const mode of MODES) {
       const { result } = await successor(mode);
-      expect(isLoadReferenceRoute(result)).toBe(false);
       expect(loadReferenceOutputRefusal(result)).toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
       expect(() => refuseLoadReferenceOutput(result)).toThrow(RETAINED_PRECISION_OUTPUT_REFUSAL);
     }
@@ -153,7 +154,7 @@ describe.each(GATED)("%s", (_label, Panel, prefix) => {
     const { props } = await successor(mode);
     render(<Panel {...props} />);
     expect(screen.getByTestId(`${prefix}-load-reference-output-unavailable`).textContent).toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
-    expect(screen.queryByText(LOAD_REFERENCE_OUTPUT_REFUSAL)).toBeNull();
+    for (const other of [PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL]) expect(screen.queryByText(other)).toBeNull();
     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
   });
   it("leaves a preview-physics-1 result's outputs unchanged", async () => {
@@ -182,7 +183,7 @@ describe.each(MODES)("%s: stress-neutral, result export and the report package k
     // text is never shown.
     expect(screen.getByTestId("stress-neutral-load-reference-output-unavailable").textContent).toBe(`${RETAINED_PRECISION_VALIDATION_REQUIRED}: ${N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE}`);
     expect(screen.queryByTestId("stress-neutral-empty")).toBeNull();
-    expect(screen.queryByText(LOAD_REFERENCE_OUTPUT_REFUSAL)).toBeNull();
+    for (const other of [PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL]) expect(screen.queryByText(other)).toBeNull();
     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
   });
   it("result export: the Current build and the panel refuse; the pure projection and its validator read no standing", async () => {

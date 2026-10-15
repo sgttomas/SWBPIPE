@@ -33,7 +33,9 @@ export const RESULT_READER_UNAVAILABLE = "RESULT_READER_UNAVAILABLE";
 /** The value has no JSON text a reader can read. */
 export const JSON_PARSE_REJECTED = "JSON_PARSE_REJECTED";
 
-export type ReaderName = "preview-physics" | "physics" | "physics-source" | "pressure-source" | "source-recovery" | "load-reference" | "load-reference-source";
+/** Rust `reader_verdict::READERS`. pressure-1 has no transport reader (Rust refuses it
+ * as SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED); a retired reader name is READER_UNKNOWN. */
+export type ReaderName = "preview-physics" | "pressure-source" | "source-recovery" | "pressure";
 export type TransportReaderName = Exclude<ReaderName, "source-recovery">;
 export type StandingToken = "numerically_eligible" | "needs_recompute" | "unsupported";
 /** G1: the desktop's numerical standing, as Rust computes it. */

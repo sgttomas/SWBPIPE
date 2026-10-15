@@ -1,6 +1,10 @@
-/** 0.4.0 session standing: Current, its invalidation by a load/reference-state
- * edit, and rule binding (T1 WP2). Unit transport replay of committed producer
- * bytes through mocked IPC; NOT a native UI qualification witness. */
+/** Load/reference-state session standing (T1 WP2), on the current exact identities
+ * (B7b: pressure-1 ordinary and pressure-source-1 joined, the v3 twins of the retired
+ * load-reference-1 and load-reference-source-1): native registration and its
+ * invalidation by a load/reference-state edit, standing, and the rule-check boundary.
+ * Neither identity is ever Current on the desktop: neither is in its fresh set and
+ * every desktop output of either is refused. Unit transport replay of committed
+ * producer bytes through mocked IPC; NOT a native UI qualification witness. */
 import { act, renderHook } from "@testing-library/react";
 import { createSolveJobTransport, solveBytes } from "../../test/nativeMechanicsReplay";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -14,7 +18,7 @@ import { runRuleChecks } from "../../services/ruleCheckService";
 import { numericalResultStanding } from "../results/resultStanding";
 import { LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE } from "../results/resultStanding";
 import { useResultsSessionState } from "./resultsSessionState";
-import type { MechanicsResult, PreviewModel } from "../../types";
+import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 
 afterEach(() => { invokeMock.mockReset(); delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__; });
 const root = resolve(__dirname, "../../../../../");
@@ -24,9 +28,11 @@ type Mode = "sparse_interactive" | "dense_scrutiny";
 async function solve(rawPath: string, requestPath: string, mode: Mode) {
   const request = json(requestPath), originalText = readFileSync(resolve(root, rawPath), "utf8");
   // The committed request model plus the case metadata the desktop session
-  // requires (invented labels only; the product reads no physics from them).
+  // requires where the request lacks it (invented labels only; the product reads no
+  // physics from them). A request that carries them is sent unchanged: the joined
+  // source's receipt binds the model it was solved for.
   const model = structuredClone(request.model) as PreviewModel;
-  for (const loadCase of model.load_cases) Object.assign(loadCase, { label: loadCase.id, kind: "invented_test_case", status: "invented_test_status" });
+  for (const loadCase of model.load_cases) if (loadCase.label === undefined) Object.assign(loadCase, { label: loadCase.id, kind: "invented_test_case", status: "invented_test_status" });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(createSolveJobTransport((sent) => {
     expect(sent.mode).toBe(mode);
@@ -36,45 +42,41 @@ async function solve(rawPath: string, requestPath: string, mode: Mode) {
   const source = await runPreviewMechanics(model, mode);
   const manifestFor = (m: PreviewModel) => buildCurrentSessionInputManifest({ model: m, solver: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "test:load-reference-unit-transport-replay", solver_mode: mode, settings: {} }, active_rule_packs: [], external_assets: [] });
   const manifest = await manifestFor(model);
-  const analysis = await buildAnalysisRunPreview(source, { inputManifest: manifest });
-  return { source, model, manifest, analysis, manifestFor };
+  return { source, model, manifest, manifestFor };
 }
+const ORDINARY = "fixtures/product_preview/pressure/load_reference";
+const JOINED = "fixtures/product_preview/pressure_source/load_reference_source";
 
-describe("load-reference-1 Current and its invalidation by a 0.4.0 edit", () => {
-  it.each(["sparse_interactive", "dense_scrutiny"] as Mode[])("%s: Current only for the actual model; a reference_configurations or analysis_state edit is not Current", async mode => {
-    const { source, model, manifest, analysis, manifestFor } = await solve(`fixtures/product_preview/load_reference/connected-${mode}.raw.json`, "fixtures/product_preview/load_reference/connected.request.json", mode);
+describe("ordinary pressure-1 load/reference-state registration and its invalidation by a load/reference-state edit", () => {
+  it.each(["sparse_interactive", "dense_scrutiny"] as Mode[])("%s: registered for the actual model only, readable, eligible standing and never Current; it has no desktop record", async mode => {
+    const { source, model, manifest } = await solve(`${ORDINARY}/connected-${mode}.raw.json`, `${ORDINARY}/connected.request.json`, mode);
     expect(hasNativeMechanicsInvocation(source, model, mode)).toBe(true);
+    expect(numericalResultStanding(source, model)).toMatchObject({ contract: "pressure", eligible: true, findings: [] });
+    await expect(buildAnalysisRunPreview(source, { inputManifest: manifest })).rejects.toThrow("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
+    // Python's product path records it; the desktop session never makes it Current.
+    const python = json(`fixtures/results/pressure_load_state_connected_${mode === "sparse_interactive" ? "sparse" : "dense"}.analysis_run.json`) as AnalysisRunEnvelope;
     const { result } = renderHook(() => useResultsSessionState());
-    act(() => { result.current.setResult(source); result.current.setInputManifest(manifest); result.current.setAnalysisRun(analysis); });
-    expect(result.current.currentSolvedResult).toBe(source);
+    act(() => { result.current.setResult(source); result.current.setInputManifest(manifest); result.current.setAnalysisRun(python); });
+    expect(result.current.result).toBe(source);
+    expect(result.current.currentSolvedResult).toBeNull();
 
     const reference = structuredClone(model);
     const fit = reference.reference_configurations![0].member_references[1].fit as { kind: string; length_change: { value: number; unit: string } };
     fit.length_change.value = -2;
     expect(hasNativeMechanicsInvocation(source, reference, mode)).toBe(false);
-    const referenceManifest = await manifestFor(reference);
-    act(() => result.current.setInputManifest(referenceManifest));
-    expect(result.current.currentSolvedResult).toBeNull();
 
     const state = structuredClone(model);
     state.load_cases[0].analysis_state!.support_states[0].boundary_motion![0].value.value = 0.75;
     expect(hasNativeMechanicsInvocation(source, state, mode)).toBe(false);
-    const stateManifest = await manifestFor(state);
-    act(() => result.current.setInputManifest(stateManifest));
-    expect(result.current.currentSolvedResult).toBeNull();
-
-    act(() => result.current.setInputManifest(manifest));
-    expect(result.current.currentSolvedResult).toBe(source);
     // A copy of the same bytes has no live registration.
-    act(() => result.current.setResult(structuredClone(source)));
-    expect(result.current.currentSolvedResult).toBeNull();
+    expect(hasNativeMechanicsInvocation(structuredClone(source), model, mode)).toBe(false);
   });
 
-  it("a load-reference-1 source that its reader refuses is never registered for Current", async () => {
-    const request = json("fixtures/product_preview/load_reference/connected.request.json");
+  it("a pressure-1 source that its reader refuses is never registered", async () => {
+    const request = json(`${ORDINARY}/connected.request.json`);
     const model = structuredClone(request.model) as PreviewModel;
     for (const loadCase of model.load_cases) Object.assign(loadCase, { label: loadCase.id, kind: "invented_test_case", status: "invented_test_status" });
-    const tampered = json("fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json");
+    const tampered = json(`${ORDINARY}/connected-sparse_interactive.raw.json`);
     tampered.contract_evidence.load_reference_states[0].members[0].fit_strain = 0.5; // invented tamper
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockImplementation(createSolveJobTransport(() => solveBytes(tampered)).invoke);
@@ -83,37 +85,34 @@ describe("load-reference-1 Current and its invalidation by a 0.4.0 edit", () => 
     expect(hasNativeMechanicsInvocation(source, model, "sparse_interactive")).toBe(false);
   });
 
-  it("a sensitive ordinary load-reference-1 result is readable and never Current", async () => {
-    const { source, manifest, analysis } = await solve("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json", "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json", "sparse_interactive");
+  it("a sensitive ordinary pressure-1 load/reference-state result is readable and never Current", async () => {
+    const { source, model, manifest } = await solve("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json", "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json", "sparse_interactive");
+    expect(numericalResultStanding(source, model).findings).toContain("NUMERICAL_INTEGRITY_NOT_QUALIFIED");
     const { result } = renderHook(() => useResultsSessionState());
-    act(() => { result.current.setResult(source); result.current.setInputManifest(manifest); result.current.setAnalysisRun(analysis); });
+    act(() => { result.current.setResult(source); result.current.setInputManifest(manifest); });
     expect(result.current.result).toBe(source);
     expect(result.current.currentSolvedResult).toBeNull();
   });
 });
 
 describe("rule binding on the reachable desktop path", () => {
-  it("an ordinary checks_passed load-reference-1 result binds rules exactly as physics-1 does", async () => {
-    const { source, model, manifest, analysis } = await solve("fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json", "fixtures/product_preview/load_reference/pressure.request.json", "sparse_interactive");
-    const { result } = renderHook(() => useResultsSessionState());
-    act(() => { result.current.setResult(source); result.current.setInputManifest(manifest); result.current.setAnalysisRun(analysis); });
-    expect(result.current.currentSolvedResult).toBe(source); // RuleCheckRunPanel receives it
+  it("an ordinary checks_passed pressure-1 load/reference-state result never reaches the rule backend", async () => {
+    const { source, model } = await solve(`${ORDINARY}/pressure-sparse_interactive.raw.json`, `${ORDINARY}/pressure.request.json`, "sparse_interactive");
+    expect(hasNativeMechanicsInvocation(source, model, "sparse_interactive")).toBe(true);
     invokeMock.mockReset();
     invokeMock.mockResolvedValue({ status: "RULE_INPUTS_INCOMPLETE" });
-    await runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "invented-test-only" } } as never, model, solvedEnvelope: source });
-    expect(invokeMock).toHaveBeenCalledTimes(1);
-    const [command, args] = invokeMock.mock.calls[0];
-    expect(command).toBe("run_rule_checks");
-    // The physics-1 argument shape: envelope and model, no source-block invocation.
-    expect(Object.keys(args).sort()).toEqual(["model", "rulePackDocument", "solvedEnvelope"]);
-    expect(args.solvedEnvelope).toStrictEqual(JSON.parse(JSON.stringify(source)));
+    await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "invented-test-only" } } as never, model, solvedEnvelope: source })).rejects.toThrow("RULE_SOURCE_IDENTITY_NOT_FRESH");
+    expect(invokeMock).not.toHaveBeenCalled();
   });
 
   it.each(["n05", "mixed"])("a registered joined %s result is refused through standing and never reaches the rule panel", async name => {
-    const { source, model, manifest, analysis } = await solve(`fixtures/product_preview/load_reference_source/${name}-sparse_interactive.raw.json`, `fixtures/product_preview/load_reference_source/${name}.request.json`, "sparse_interactive");
+    const { source, model, manifest } = await solve(`${JOINED}/${name}-sparse_interactive.raw.json`, `${JOINED}/${name}.request.json`, "sparse_interactive");
     expect(hasNativeMechanicsInvocation(source, model, "sparse_interactive")).toBe(true);
-    expect(numericalResultStanding(source, model)).toEqual({ contract: "load_reference_source", status: "needs_recompute", eligible: false, findings: [LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE] });
-    // The joined AnalysisRun retains both namespaces, like physics-source-1.
+    const standing = numericalResultStanding(source, model);
+    expect(standing).toMatchObject({ contract: "pressure_source", status: "needs_recompute", eligible: false });
+    expect(standing.findings).toContain(LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE);
+    // The joined AnalysisRun retains both namespaces (the source record).
+    const analysis = await buildAnalysisRunPreview(source, { inputManifest: manifest });
     expect(analysis.analysis_run.contract_evidence).toEqual(source.contract_evidence);
     expect(analysis.analysis_run.source_block_recovery).toEqual(source.source_block_recovery);
     const { result } = renderHook(() => useResultsSessionState());

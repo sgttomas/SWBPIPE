@@ -30,7 +30,10 @@ describe("compact retained corpus storage", () => {
 
   it("retains the full shared case sets and isolates separate consumers", () => {
     const first = readRetainedPrecisionCorpus();
-    expect([first.cases.length, first.mutations.length, first.must_pass.length]).toEqual([45, 593, 91]);
+    // B7b: 07n's g_pressure_contract_null moved from must-pass to the mutations beside its
+    // g_pressure_contract_* siblings: a present null contract is refused at G8 (b7-plan
+    // "Current model format": a present null fails the shared decoding boundary, c8d3cf3014).
+    expect([first.cases.length, first.mutations.length, first.must_pass.length]).toEqual([45, 594, 90]);
     const id = first.cases[0].id;
     first.cases[0].id = "changed-by-this-test";
     expect(readRetainedPrecisionCorpus().cases[0].id).toBe(id);

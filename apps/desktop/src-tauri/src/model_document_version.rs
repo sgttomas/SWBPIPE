@@ -136,8 +136,8 @@ mod tests {
     fn retired_versions_are_refused_by_name_with_a_re_author_diagnostic() {
         for version in ["0.1.0", "0.2.0", "0.3.0", "0.4.0"] {
             let mut doc = document(version);
-            // A carried contract or load/reference key changes nothing: the version refuses.
-            doc["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+            // A carried contract (here the current one) changes nothing: the version refuses.
+            doc["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
             let evaluated = evaluate_model_document(&doc);
             assert_eq!(evaluated.status, "retired_schema", "{version}");
             assert!(evaluated.is_refused());

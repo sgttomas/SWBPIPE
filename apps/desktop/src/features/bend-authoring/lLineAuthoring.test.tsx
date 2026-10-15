@@ -75,6 +75,13 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     model = await apply(model, insert);
     cleanup();
 
+    // B7b: each member's corrosion allowance, entered explicitly as zero (the inspector's
+    // quantity field), before pressure can be activated; as the applier's L line does.
+    for (const pipe of ["pipe:S1", "pipe:S2", "pipe:BEND"]) {
+      const allowance = makeRichIntent({ object_type: "Element", ref: pipe }, "set_field", "section.corrosion_allowance.value", "TBD", 0, "Corrosion allowance (explicit zero or greater)");
+      model = await apply(model, { ...allowance, change: { ...allowance.change, unit: "m", dimension: "length" } });
+    }
+
     // Regions through the realized bend (the picker names it with its k).
     const regions = (expected.load_cases[0] as Json).pressure_regions;
     render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: "case:u2" }} loadCaseId="case:u2" onQueueIntent={vi.fn()} />);
@@ -88,7 +95,7 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: "case:u2" }} onQueueIntent={queue} />);
     change("Pressure profile", "exact_pressure_v3");
     const profile = await queued(() => fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" })), queue);
-    expect(JSON.parse(profile.change.after)).toEqual({ schema_version: "0.3.0", pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3" } });
+    expect(JSON.parse(profile.change.after)).toEqual({ schema_version: "0.5.0", pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } });
     model = await apply(model, profile);
     cleanup();
 

@@ -46,8 +46,10 @@ async function renderShell(width = 1440) {
 async function renderCurrentReplayShell(width = 1440) {
   // Only Current-premise tests install this exact captured input/output pair.
   // IPC is simulated; subsequent browser chrome assertions are not native UI evidence.
-  const pair = nativeMechanicsReplayPair();
-  const replay = createNativeMechanicsReplay();
+  // B7b: the Current pair is the preview-physics-1 one; the exact route's pressure-1
+  // has no desktop record or output, so it is never Current.
+  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+  const replay = createNativeMechanicsReplay({ profile: "preview" });
   vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(pair.model);
   invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
     if (command === "sync_native_shell_state") return undefined;

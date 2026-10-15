@@ -1,4 +1,5 @@
 import type { MechanicsResult } from "../../types";
+import { PRESSURE_SOURCE_CONTRACT_ID } from "./numericalResultQuality";
 
 type RecordValue = Record<string, unknown>;
 const record = (v: unknown): RecordValue | null => v && typeof v === "object" && !Array.isArray(v) ? v as RecordValue : null;
@@ -19,12 +20,14 @@ export function endpointLocationDescription(value: unknown): string {
   return "Location evidence unavailable; no unique governing station is inferred.";
 }
 
-/** Render original method facts in both live and historical/reference contexts.
- * The private invocation and method validators remain the eligibility owners. */
+/** Render original method facts in both live and historical/reference contexts, for
+ * the retained-source composite pressure-source-1 (B7b: the v3 twin of the retired
+ * physics-source-1). The private invocation and method validators remain the
+ * eligibility owners. */
 export function PhysicsSourceEvidencePanel({ result }: { result: MechanicsResult }) {
   const physical = record(result.contract_evidence), receipt = record(result.source_block_recovery), body = record(receipt?.body);
   const cases = rows(body?.cases), exactCases = rows(physical?.exact_cases);
-  const composite = result.producer?.semantic_contract_id === "openpipestress.result_semantics/0.3.0/physics-source-1";
+  const composite = result.producer?.semantic_contract_id === PRESSURE_SOURCE_CONTRACT_ID;
   if (!composite) return null;
   const receiptIds = cases.map(c => text(record(c.basis_ref)?.ref_id));
   const physicalIds = exactCases.map(c => text(c.load_case_id));

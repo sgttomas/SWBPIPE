@@ -53,7 +53,8 @@ vi.mock("./wasmEngine/loadWasmEngine", async importOriginal => {
 });
 
 import { readerDispatch, readerSourceText, readerTransport, readerValidate, rememberReceivedText } from "../features/results/resultReader";
-import { PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID } from "../features/results/numericalResultQuality";
+import { PRESSURE_SOURCE_CONTRACT_ID } from "../features/results/numericalResultQuality";
+import { PRESSURE_SOURCE_CONTRACT_SHA256 } from "../test-support/contractBindings";
 import {
   LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE, SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED,
   numericalResultStanding, registerSourceRecovery, retainedSourceRecoveryInvocation, sourceRecoveryModeMatches,
@@ -69,22 +70,24 @@ import { canonicalSha256HexCheckedV1 } from "./hashService";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const MODE = "sparse_interactive" as const;
-const PRESSURE_SOURCE_CONTRACT_SHA256 = "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf";
 afterEach(() => {
   seam.invoke.mockReset(); seam.hashChecked.mockReset(); seam.plans.clear(); seam.reads.length = 0;
   delete (window as Json).__TAURI_INTERNALS__;
 });
 
-const SOURCE_ROUTES = ["physics_source", "pressure_source"] as const;
+/** B7b: pressure-source-1 is the one source route (physics-source-1 retired with v2). */
+const SOURCE_ROUTES = ["pressure_source"] as const;
 const SOURCE_BINDINGS = {
-  physics_source: { id: PHYSICS_SOURCE_CONTRACT_ID, sha256: "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53", policy: "PHYSICS-SOURCE-1", profile: "exact_straight_pressure_v2" },
   pressure_source: { id: PRESSURE_SOURCE_CONTRACT_ID, sha256: PRESSURE_SOURCE_CONTRACT_SHA256, policy: "PRESSURE-SOURCE-1", profile: "exact_pressure_v3" },
 };
-function scenario(version: "0.3.0" | "0.4.0", route: typeof SOURCE_ROUTES[number] = "pressure_source") {
+/** `loadState`: the model carries the load/reference-state group, whose joined source
+ * Rust never reads numerically eligible (T1). */
+type Group = "ordinary" | "loadState";
+function scenario(group: Group, route: typeof SOURCE_ROUTES[number] = "pressure_source") {
   const binding = SOURCE_BINDINGS[route];
   const model = structuredClone(modelFixture) as unknown as PreviewModel;
-  (model as Json).schema_version = version;
-  (model as Json).pressure_contract = route === "pressure_source" ? { version: "3.0.0", mode: "exact_pressure_v3" } : { version: "2.0.0", mode: "exact_straight_v2" };
+  (model as Json).schema_version = "0.5.0";
+  (model as Json).pressure_contract = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" };
   const source = {
     schema_version: "0.2.0", document_kind: "openpipestress.product_preview.mechanics_result",
     run_id: `invented:pressure-bridge:${++seam.nextId}`, model_ref: model.project.id,
@@ -96,7 +99,7 @@ function scenario(version: "0.3.0" | "0.4.0", route: typeof SOURCE_ROUTES[number
     diagnostics: [], summary: {}, contract_evidence: { invented_bridge_evidence: "copied unchanged" }, source_block_recovery: { body: { policy: binding.policy } },
   } as unknown as MechanicsResult;
   const bytes = `\n${JSON.stringify(source, null, 2).replace('"value": 0', '"value": -0.0')}\n`;
-  const eligible = version === "0.3.0";
+  const eligible = group === "ordinary";
   const verdict = (findings: string[]) => ({
     ok: true, route, binding: { id: binding.id, sha256: binding.sha256 }, error: null,
     standing: { route, token: eligible && findings.length === 0 ? "numerically_eligible" : "needs_recompute",
@@ -123,7 +126,7 @@ function scenario(version: "0.3.0" | "0.4.0", route: typeof SOURCE_ROUTES[number
 
 describe("pressure-source thin desktop bridge", () => {
   it("sends the explicit raw and transport reader names with the exact received text", () => {
-    const { bytes, model } = scenario("0.3.0");
+    const { bytes, model } = scenario("ordinary");
     const source = JSON.parse(bytes) as MechanicsResult;
     rememberReceivedText(source, bytes);
     expect(readerDispatch(source).route).toBe("pressure_source");
@@ -137,7 +140,7 @@ describe("pressure-source thin desktop bridge", () => {
   });
 
   it("registers a passing native reading with its captured invocation, while copies have no custody", async () => {
-    const { model, source, bytes } = scenario("0.3.0");
+    const { model, source, bytes } = scenario("ordinary");
     expect(numericalResultStanding(source, model).eligible).toBe(false);
     const received = await runPreviewMechanics(model, MODE);
     expect(receivedResultBytes(received)).toBe(bytes);
@@ -155,8 +158,8 @@ describe("pressure-source thin desktop bridge", () => {
     for (const surface of OUTPUT_SURFACES) expect(surfaceOutputRefusal(received, model, surface)).toBe(PRESSURE_SOURCE_OUTPUT_REFUSAL);
   });
 
-  it("presents the Rust 0.4 false-eligibility verdict despite valid native custody", async () => {
-    const { model } = scenario("0.4.0");
+  it("presents the Rust load/reference-state false-eligibility verdict despite valid native custody", async () => {
+    const { model } = scenario("loadState");
     const received = await runPreviewMechanics(model, MODE);
     expect(hasNativeMechanicsInvocation(received, model, MODE)).toBe(true);
     expect(numericalResultStanding(received, model)).toMatchObject({ contract: "pressure_source", status: "needs_recompute", eligible: false,
@@ -167,7 +170,7 @@ describe("pressure-source thin desktop bridge", () => {
   });
 
   it("invalidates native and source custody after a signed-zero-only source edit or a caller-model edit", async () => {
-    const first = scenario("0.3.0");
+    const first = scenario("ordinary");
     const received = await runPreviewMechanics(first.model, MODE);
     expect(Object.is(received.results[0].value, -0)).toBe(true);
     const before = JSON.stringify(received); received.results[0].value = 0;
@@ -175,7 +178,7 @@ describe("pressure-source thin desktop bridge", () => {
     expect(receivedResultBytes(received)).toBeNull();
     expect(hasNativeMechanicsInvocation(received, first.model)).toBe(false);
     expect(retainedSourceRecoveryInvocation(received, first.model)).toBeNull();
-    const second = scenario("0.3.0"), unchanged = structuredClone(second.model);
+    const second = scenario("ordinary"), unchanged = structuredClone(second.model);
     const returned = await runPreviewMechanics(second.model, MODE);
     second.model.nodes[0].position.x += 1;
     expect(hasNativeMechanicsInvocation(returned, unchanged)).toBe(false);
@@ -183,7 +186,7 @@ describe("pressure-source thin desktop bridge", () => {
   });
 
   it("does not register a Rust-refused reading and keeps received bytes inspectable", async () => {
-    const { model, bytes, plan } = scenario("0.3.0");
+    const { model, bytes, plan } = scenario("ordinary");
     plan.validation = { ok: false, error: { code: "PHYSICS_SOURCE_RECEIPT_HASH", detail: null } } as Json;
     const returned = await runPreviewMechanics(model, MODE);
     expect(receivedResultBytes(returned)).toBe(bytes);
@@ -192,7 +195,7 @@ describe("pressure-source thin desktop bridge", () => {
   });
 
   it("does not give an unsupported claimed pressure-source header native registration", async () => {
-    const { model, plan } = scenario("0.3.0");
+    const { model, plan } = scenario("ordinary");
     plan.unbound = { ok: false, route: "unsupported", binding: null, error: { code: "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED", detail: null },
       standing: { route: "unsupported", token: "unsupported", status: "needs_recompute", eligible: false, findings: ["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"] } } as Json;
     const returned = await runPreviewMechanics(model, MODE);
@@ -201,7 +204,7 @@ describe("pressure-source thin desktop bridge", () => {
   });
 
   it("keeps a completion inspectable without registration when the live caller changes in transit", async () => {
-    const { model, bytes, transport } = scenario("0.3.0"), original = structuredClone(model);
+    const { model, bytes, transport } = scenario("ordinary"), original = structuredClone(model);
     let release!: () => void;
     const gate = new Promise<void>(resolve => { release = resolve; });
     seam.invoke.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
@@ -217,7 +220,7 @@ describe("pressure-source thin desktop bridge", () => {
   });
 
   it("registers a first known job completion and refuses custody for a replayed take of the same job", async () => {
-    const { model, bytes } = scenario("0.3.0");
+    const { model, bytes } = scenario("ordinary");
     const start = await startPreviewMechanicsJob(model, MODE);
     if (start.mode !== "backend_job") throw new Error("expected the test native job");
     expect((await pollPreviewMechanicsJob(start.job_id)).state).toBe("completed");
@@ -248,7 +251,7 @@ async function resealRecord(record: AnalysisRunEnvelope) {
 }
 
 describe("current pressure-source record wrapper", () => {
-  it.each(["0.3.0", "0.4.0"] as const)("records %s against the reviewed pressure binding and existing source rows, without granting custody", async version => {
+  it.each(["ordinary", "loadState"] as const)("records the %s source against the reviewed pressure-source binding and its rows, without granting custody", async version => {
     const { source, model } = scenario(version), before = structuredClone(source);
     const record = await buildAnalysisRunV03(source, recordManifest(source));
     expect(source).toEqual(before);
@@ -267,7 +270,7 @@ describe("current pressure-source record wrapper", () => {
   });
 
   it("keeps the Rust portable-consistency refusal before building a current record", async () => {
-    const { source, plan } = scenario("0.3.0");
+    const { source, plan } = scenario("ordinary");
     plan.validation = { ok: false, error: { code: "SOURCE_BLOCKS_PUBLICATION_HASH", detail: null } } as Json;
     await expect(buildAnalysisRunV03(source, recordManifest(source))).rejects.toThrow("SOURCE_RECOVERY_PUBLICATION_HASH");
   });
@@ -276,7 +279,7 @@ describe("current pressure-source record wrapper", () => {
     ["source_block_recovery", "ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH"],
     ["contract_evidence", "ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH"],
   ] as const)("refuses a coherently resealed changed %s copy", async (field, code) => {
-    const { source } = scenario("0.3.0");
+    const { source } = scenario("ordinary");
     const record = await buildAnalysisRunV03(source, recordManifest(source));
     (record.analysis_run as Json)[field] = { invented_substitution: true };
     await resealRecord(record);
@@ -284,7 +287,7 @@ describe("current pressure-source record wrapper", () => {
   });
 
   it("refuses coherently resealed binding and row-source substitutions", async () => {
-    const { source } = scenario("0.3.0");
+    const { source } = scenario("ordinary");
     const record = await buildAnalysisRunV03(source, recordManifest(source));
     const wrongBinding = structuredClone(record);
     wrongBinding.analysis_run.reproducibility.semantic_contract!.sha256 = "0".repeat(64);
@@ -297,7 +300,7 @@ describe("current pressure-source record wrapper", () => {
   });
 
   it("recomputes the received-source digest even when the saved record checksum still matches", async () => {
-    const { source } = scenario("0.3.0");
+    const { source } = scenario("ordinary");
     const record = await buildAnalysisRunV03(source, recordManifest(source));
     const changed = structuredClone(source); changed.results[0].value = 1;
     expect(await verifyAnalysisRunRecord(record)).toBe("match");
@@ -315,7 +318,7 @@ function expectNoSourceCustody(source: MechanicsResult, model: PreviewModel) {
 
 describe("source registration follows final native capture", () => {
   it.each(SOURCE_ROUTES)("%s does not qualify a passed reader when the final canonical hash rejects", async route => {
-    const { model, bytes } = scenario("0.3.0", route);
+    const { model, bytes } = scenario("ordinary", route);
     seam.hashChecked.mockRejectedValue(new Error("invented final hash failure"));
     const returned = await runPreviewMechanics(model, MODE);
     expect(receivedResultBytes(returned)).toBe(bytes);
@@ -325,7 +328,7 @@ describe("source registration follows final native capture", () => {
   });
 
   it.each(SOURCE_ROUTES)("%s remains unqualified during the final hash and after a late job identity refusal", async route => {
-    const { model, bytes, transport } = scenario("0.3.0", route);
+    const { model, bytes, transport } = scenario("ordinary", route);
     let polls = 0;
     seam.invoke.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
       const answer = await transport.invoke(command, args, options);
@@ -354,7 +357,7 @@ describe("source registration follows final native capture", () => {
   });
 
   it.each(SOURCE_ROUTES)("%s activates after successful final registration and preserves direct-registration behavior", async route => {
-    const { model, source } = scenario("0.3.0", route);
+    const { model, source } = scenario("ordinary", route);
     const invocation = { request: { model, materials: [] }, solver_mode: MODE };
     await registerSourceRecovery(source, invocation, model);
     expect(hasNativeMechanicsInvocation(source, model)).toBe(false);

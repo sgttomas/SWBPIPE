@@ -1,7 +1,10 @@
-/** Every desktop output of a load/reference-state result is refused with the one
- * shared reason, and the report package keeps its fresh-result refusal.
- * Display stays. A physics-1 result is the control: its outputs are unchanged.
- * Unit rendering over committed producer bytes; all inputs are invented. */
+/** Every desktop output of a load/reference-state result is refused with its route's
+ * one shared reason, the report package included. B7b: such a result is published
+ * under pressure-1 (ordinary) or pressure-source-1 (joined), the v3 twins of the
+ * retired load-reference-1 and load-reference-source-1, so the reasons are
+ * PRESSURE-1-OUTPUT-NOT-YET-AVAILABLE's two texts. Display stays. A preview-physics-1
+ * result is the control: its outputs are unchanged. Unit rendering over committed
+ * producer bytes and records; all inputs are invented. */
 import { render, screen, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
@@ -11,8 +14,7 @@ import type { AnalysisRunEnvelope, EditorOperationIntent, MechanicsResult, Previ
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { computeModelHash } from "../../services/hashService";
 import { initialSolveJob } from "../workspace/solveJobAudit";
-import { LOAD_REFERENCE_OUTPUT_REFUSAL, loadReferenceOutputRefusal } from "./loadReferenceOutputAvailability";
-import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE } from "./knownSemanticLimitations";
+import { PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, loadReferenceOutputRefusal } from "./loadReferenceOutputAvailability";
 import { reportPackageUnavailableReason } from "../report/reportPackageRequest";
 import { buildStressNeutralExportPacket, validateStressNeutralExportPacket, StressNeutralExportPanel } from "../stress-neutral/StressNeutralExportPanel";
 import { buildCurrentResultExport, deriveResultDocument, resultDigest, validateResultDocument } from "../result-export/resultExportAdapter";
@@ -45,17 +47,21 @@ const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf
 import { receivedFixture } from "../../test-support/receivedText";
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-function desktopModel(requestPath: string): PreviewModel {
-  const model = structuredClone(json(requestPath).model) as PreviewModel & Record<string, unknown>;
+function desktopModel(modelPath: string): PreviewModel {
+  const document = json(modelPath);
+  const model = structuredClone(document.model ?? document) as PreviewModel & Record<string, unknown>;
   for (const loadCase of model.load_cases) Object.assign(loadCase, { label: loadCase.label ?? loadCase.id, kind: loadCase.kind ?? "invented_test_case", status: loadCase.status ?? "invented_test_status" });
   model.data_boundary ??= { source: "invented" };
   model.diagnostics ??= [];
   return model;
 }
-async function scenario(rawPath: string, requestPath: string) {
-  const result = receivedFixture<MechanicsResult>(rawPath), model = desktopModel(requestPath);
+/** `recordPath`: a committed record of the result (pressure-1 has no desktop record,
+ * so the Python product path's stands in); otherwise the desktop builds it. */
+async function scenario(rawPath: string, modelPath: string, recordPath?: string) {
+  const result = receivedFixture<MechanicsResult>(rawPath), model = desktopModel(modelPath);
   const manifest = { manifest_ref: { object_type: "InputManifest", ref: "manifest:invented-output-refusal" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: result.model_ref }, solver_basis: { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: "test:invented" } } };
-  const analysisRun = await buildAnalysisRunV03(result, manifest, undefined, modelLoadBasisRefs(model));
+  const analysisRun = recordPath ? json(recordPath) as AnalysisRunEnvelope : await buildAnalysisRunV03(result, manifest, undefined, modelLoadBasisRefs(model));
+  expect(analysisRun.analysis_run.run_id).toBe(result.run_id);
   const props = {
     model, result, analysisRun, knowledge: null, comparison: null, editorIntents: [], proposal: null, selectedReviewTarget: null,
     projectOperation: "", projectSummary: null, storageCapability: null, modelHash: await computeModelHash(model),
@@ -63,9 +69,11 @@ async function scenario(rawPath: string, requestPath: string) {
   };
   return { result, model, analysisRun, props };
 }
-const ordinary = () => scenario("fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json", "fixtures/product_preview/load_reference/pressure.request.json");
-const joined = () => scenario("fixtures/product_preview/load_reference_source/mixed-sparse_interactive.raw.json", "fixtures/product_preview/load_reference_source/mixed.request.json");
-const physics = () => scenario("fixtures/results/physics_connected_mechanics_sparse.json", "core/product_physics/tests/fixtures/exact_pressure_connected_request.json");
+const ordinary = () => scenario("fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json", "fixtures/product_preview/pressure/load_reference/pressure.request.json", "fixtures/results/pressure_load_state_pressure_sparse.analysis_run.json");
+const joined = () => scenario("fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json", "fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json");
+const preview = () => scenario("fixtures/results/preview_physics_connected_sparse.json", "fixtures/model_operations/precision_connected_ui_model.json");
+/** The two load/reference-state identities and each one's reason. */
+const STATES = [["pressure-1", ordinary, PRESSURE_1_OUTPUT_REFUSAL], ["pressure-source-1", joined, PRESSURE_SOURCE_OUTPUT_REFUSAL]] as const;
 
 /** Surfaces whose downloads or handoffs carry result data (group a). */
 const GATED: [string, ComponentType<Json>, string][] = [
@@ -91,24 +99,27 @@ const GATED: [string, ComponentType<Json>, string][] = [
 
 describe("the shared refusal", () => {
   it("names the desktop route only, states the current refusal and never calls the result invalid or unsupported", async () => {
-    expect(LOAD_REFERENCE_OUTPUT_REFUSAL).toContain("is not available on the desktop");
-    expect(LOAD_REFERENCE_OUTPUT_REFUSAL).not.toMatch(/\bT[0-9]/);
-    expect(LOAD_REFERENCE_OUTPUT_REFUSAL.toLowerCase()).not.toMatch(/invalid|unsupported/);
-    expect(loadReferenceOutputRefusal((await ordinary()).result)).toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
-    expect(loadReferenceOutputRefusal((await joined()).result)).toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
-    expect(loadReferenceOutputRefusal((await physics()).result)).toBeNull();
+    for (const [, make, reason] of STATES) {
+      expect(reason).toContain("is not yet available on the desktop");
+      expect(reason).not.toMatch(/\bT[0-9]/);
+      expect(reason.toLowerCase()).not.toMatch(/invalid|unsupported/);
+      const { result } = await make();
+      expect(Array.isArray((result.contract_evidence as Json).load_reference_states)).toBe(true);
+      expect(loadReferenceOutputRefusal(result)).toBe(reason);
+    }
+    expect(loadReferenceOutputRefusal((await preview()).result)).toBeNull();
   });
 });
 
 describe.each(GATED)("%s", (_label, Panel, prefix) => {
-  it.each([["load-reference-1", ordinary], ["load-reference-source-1", joined]] as const)("refuses %s output with the shared reason and keeps its display", async (_id, make) => {
+  it.each(STATES)("refuses %s output with the shared reason and keeps its display", async (_id, make, reason) => {
     const { props } = await make();
     render(<Panel {...props} />);
-    expect(screen.getByTestId(`${prefix}-load-reference-output-unavailable`).textContent).toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
+    expect(screen.getByTestId(`${prefix}-load-reference-output-unavailable`).textContent).toBe(reason);
     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
   });
-  it("leaves a physics-1 result's outputs unchanged", async () => {
-    const { props } = await physics();
+  it("leaves a preview-physics-1 result's outputs unchanged", async () => {
+    const { props } = await preview();
     render(<Panel {...props} />);
     expect(screen.queryByTestId(`${prefix}-load-reference-output-unavailable`)).toBeNull();
   });
@@ -156,7 +167,7 @@ const EDITING: [string, ComponentType<Json>, string][] = [
   ["Operation review ledger", OperationLedgerPanel, "operation-ledger"],
 ];
 describe("identifier-only downloads are not gated and carry no result values", () => {
-  it.each([["load-reference-1", ordinary], ["load-reference-source-1", joined]] as const)("%s: review geometry packet is invariant under every result value", async (_id, make) => {
+  it.each(STATES)("%s: review geometry packet is invariant under every result value", async (_id, make) => {
     const { model, result, analysisRun } = await make();
     const base = buildReviewGeometryPacket({ model, result, analysisRun });
     const changed = buildReviewGeometryPacket({ model, result: perturbed(result, keepResultIdentifier) as MechanicsResult, analysisRun: perturbed(analysisRun, keepRunIdentifiers) as AnalysisRunEnvelope });
@@ -165,7 +176,7 @@ describe("identifier-only downloads are not gated and carry no result values", (
     expect(screen.queryByTestId("review-geometry-load-reference-output-unavailable")).toBeNull();
     expect(screen.getByTestId("review-geometry-export-link")).toBeTruthy();
   });
-  it.each([["load-reference-1", ordinary], ["load-reference-source-1", joined]] as const)("%s: diff preview and review ledger packets are invariant under every AnalysisRun value", async (_id, make) => {
+  it.each(STATES)("%s: diff preview and review ledger packets are invariant under every AnalysisRun value", async (_id, make) => {
     const { model, analysisRun } = await make();
     const changedRun = perturbed(analysisRun, keepRunIdentifiers) as AnalysisRunEnvelope;
     for (const proposal of [null, PROPOSAL]) {
@@ -186,26 +197,26 @@ describe("identifier-only downloads are not gated and carry no result values", (
 });
 
 describe("stress-neutral and result export keep their own refusal points", () => {
-  it.each([["load-reference-1", ordinary], ["load-reference-source-1", joined]] as const)("%s: packet build, packet validation and panel all refuse", async (_id, make) => {
+  it.each(STATES)("%s: packet build, packet validation and panel all refuse", async (_id, make, reason) => {
     const { model, result, analysisRun } = await make();
-    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
-    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
-    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0", producer: result.producer, numerical_quality: result.numerical_quality, formulation_basis: result.formulation_basis, contract_evidence: result.contract_evidence, ...(result.source_block_recovery ? { source_block_recovery: result.source_block_recovery } : {}), export_profile: {} })).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
+    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(reason);
+    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow(reason);
+    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0", producer: result.producer, numerical_quality: result.numerical_quality, formulation_basis: result.formulation_basis, contract_evidence: result.contract_evidence, ...(result.source_block_recovery ? { source_block_recovery: result.source_block_recovery } : {}), export_profile: {} })).rejects.toThrow(reason);
     render(<StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun} />);
-    expect(screen.getByTestId("stress-neutral-load-reference-output-unavailable").textContent).toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
+    expect(screen.getByTestId("stress-neutral-load-reference-output-unavailable").textContent).toBe(reason);
     cleanup();
-    await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest: null })).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
-    await expect(validateResultDocument({ schema_version: "0.3.0", result_envelope: { schema_version: "0.3.0" } }, result)).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
+    await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest: null })).rejects.toThrow(reason);
+    await expect(validateResultDocument({ schema_version: "0.3.0", result_envelope: { schema_version: "0.3.0" } }, result)).rejects.toThrow(reason);
     // T1_WAVE2_REVIEW F3: a hash-consistent origin passes every earlier gate, so
-    // deriveResultDocument reaches its own load/reference-state refusal.
+    // deriveResultDocument reaches its own route refusal.
     expect(model.project.id).toBe(result.model_ref);
     const origin = { origin_id: "source-origin:invented", received_carrier_checksum: { value: await resultDigest(result) }, authentic_producer_available: true, original_producer_checksum: null };
-    await expect(deriveResultDocument({ result_envelope: {} }, model, result, origin)).rejects.toThrow(LOAD_REFERENCE_OUTPUT_REFUSAL);
+    await expect(deriveResultDocument({ result_envelope: {} }, model, result, origin)).rejects.toThrow(reason);
     render(<ResultExportPanel model={model} result={result} analysisRun={analysisRun} inputManifest={null} />);
-    expect(await screen.findByText(LOAD_REFERENCE_OUTPUT_REFUSAL, { exact: false })).toBeTruthy();
+    expect(await screen.findByText(reason, { exact: false })).toBeTruthy();
   });
-  it("the report package keeps T0R's fresh-result refusal for both identities", async () => {
-    for (const make of [ordinary, joined]) expect(reportPackageUnavailableReason((await make()).result)).toBe(`${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`);
+  it.each(STATES)("the report package refuses %s with its route's reason (B7b)", async (_id, make, reason) => {
+    expect(reportPackageUnavailableReason((await make()).result)).toBe(reason);
   });
 });
 

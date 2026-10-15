@@ -6,9 +6,10 @@ import {
   openWorkspaceSection,
 } from "./workspace-driver";
 
-// T1 WP3: plain model 0.4.0 load/reference-state fields on the browser lane.
+// T1 WP3: plain load/reference-state fields (model 0.5.0 with the exact contract since
+// B7b) on the browser lane.
 // Every value is an invented test input. The browser has no solver backend, so
-// no e2e here shows a 0.4.0 solve: the resolved-state block for the committed
+// no e2e here shows a load/reference-state solve: the resolved-state block for the committed
 // raws is proven in vitest (LoadReferenceStatesBlock.test.tsx), and the native
 // solve and block display remain the owner's-Mac witness.
 const P = "invented_wp3_ui_acceptance_input";
@@ -53,20 +54,21 @@ async function createNode(page: Page, id: string, x: string) {
   await expectTreeEntity(page, "node", id);
 }
 
-test("blank 0.4.0: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes", async ({ page }) => {
+test("blank load/reference model: author support motion, a thermal state and a material selection through the fields; Review/Apply, Undo/Redo restore the bytes", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
   await openWorkspaceSection(page, "operations");
   await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
 
-  // The pre-0.4 bundled fixture offers only the gating line.
+  // The pressure-free bundled fixture offers only the gating line (B7b: the group needs
+  // the current 0.5.0 document with the exact contract).
   await openWorkspaceSection(page, "loads");
-  await expect(page.getByTestId("load-state-needs-040")).toHaveText("Load/reference state needs a 0.4.0 model.");
+  await expect(page.getByTestId("load-state-needs-current")).toHaveText("Load/reference state needs the current model with an explicit exact pressure contract.");
   await expect(page.getByTestId("load-state-inputs")).toHaveCount(0);
 
   await openWorkspaceSection(page, "project");
-  await page.getByRole("button", { name: "Blank 0.4.0 model", exact: true }).click();
-  await expect(page.getByTestId("local-project-message")).toContainText("Created blank local model 0.4.0 document");
+  await page.getByRole("button", { name: "Blank load/reference model", exact: true }).click();
+  await expect(page.getByTestId("local-project-message")).toContainText("Created blank local load/reference-state model 0.5.0 document");
 
   // Existing authoring reaches a straight model: two nodes, a material, one pipe, a support, one case with one primitive.
   await createNode(page, "node:WP3-A", "0");

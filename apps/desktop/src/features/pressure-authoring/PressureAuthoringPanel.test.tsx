@@ -6,18 +6,21 @@ import type { PreviewModel, EditorOperationIntent } from "../../types";
 import fixture from "../../../../../fixtures/model_operations/exact_pressure_authoring_model.json";
 vi.mock("../../services/hashService", () => ({ canonicalJsonString: vi.fn(async (value: unknown) => JSON.stringify(value)) }));
 afterEach(cleanup);
+// B7b: the fixture is the current exact-contract document (0.5.0, 3.0.0/exact_pressure_v3
+// with euler_bernoulli); a pressure-free document is the same 0.5.0 without the contract.
 const model = fixture as PreviewModel;
-const V3 = { version: "3.0.0", mode: "exact_pressure_v3" };
+const V3 = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" as const };
+const pressureFree = () => { const free = structuredClone(model); delete free.pressure_contract; return free; };
 const change = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 it("requires explicit profile choice and queues only the profile projection", async () => {
-  const legacy = structuredClone(model); legacy.schema_version = "0.2.0"; delete legacy.pressure_contract;
+  const legacy = pressureFree();
   const queue = vi.fn(); render(<PressureAuthoringPanel model={legacy} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} />);
   expect((screen.getByRole("button", { name: "Queue pressure profile" }) as HTMLButtonElement).disabled).toBe(true);
   change("Pressure profile", "exact_pressure_v3"); fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
   await waitFor(() => expect(queue).toHaveBeenCalledOnce());
   const intent = queue.mock.calls[0][0] as EditorOperationIntent;
   expect(intent.target).toEqual({ object_type: "Model", ref: model.project.id });
-  expect(JSON.parse(intent.change.after)).toEqual({ schema_version: "0.3.0", pressure_contract: V3 });
+  expect(JSON.parse(intent.change.after)).toEqual({ schema_version: "0.5.0", pressure_contract: V3 });
   expect(legacy.load_cases).toEqual(model.load_cases);
 });
 it("shows the retired legacy label and re-authors it to the exact profile (U3)", async () => {
@@ -27,17 +30,17 @@ it("shows the retired legacy label and re-authors it to the exact profile (U3)",
   change("Pressure profile", "exact_pressure_v3"); fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
   await waitFor(() => expect(queue).toHaveBeenCalledOnce());
   const intent = queue.mock.calls[0][0] as EditorOperationIntent;
-  expect(JSON.parse(intent.change.before)).toEqual({ schema_version: "0.3.0", pressure_contract: { version: "1.0.0", mode: "legacy_pressure_v1" } });
-  expect(JSON.parse(intent.change.after)).toEqual({ schema_version: "0.3.0", pressure_contract: V3 });
+  expect(JSON.parse(intent.change.before)).toEqual({ schema_version: "0.5.0", pressure_contract: { version: "1.0.0", mode: "legacy_pressure_v1" } });
+  expect(JSON.parse(intent.change.after)).toEqual({ schema_version: "0.5.0", pressure_contract: V3 });
 });
 it("shows a model without a pressure contract as pressure-free (U3)", () => {
-  const free = structuredClone(model); free.schema_version = "0.2.0"; delete free.pressure_contract;
+  const free = pressureFree();
   render(<PressureAuthoringPanel model={free} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
   expect(screen.getByText(/pressure mode: none \(pressure-free namespace; legacy pressure primitives are refused\)/)).toBeInTheDocument();
   expect(screen.queryByText(/pressure mode: legacy\b/)).toBeNull();
 });
 it("says when a model without a contract still carries legacy pressure primitives, and when a contract is unsupported (U3, RV127 N-5)", () => {
-  const carrying = structuredClone(model); carrying.schema_version = "0.2.0"; delete carrying.pressure_contract;
+  const carrying = pressureFree();
   carrying.load_cases[0].primitive_loads = [...(carrying.load_cases[0].primitive_loads ?? []),
     { id: "load:legacy-p", category: "pressure", target: { type: "element", pipe: carrying.pipe_segments[0].id }, direction: "global_x", dimension: "pressure", magnitude: { value: 0, unit: "Pa" }, provenance: "legacy" }];
   render(<PressureAuthoringPanel model={carrying} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
@@ -48,17 +51,16 @@ it("says when a model without a contract still carries legacy pressure primitive
   expect(screen.getByText(/pressure mode: 1\.0\.1\/legacy_pressure_v1 \(unsupported; solves are refused/)).toBeInTheDocument();
   expect(screen.queryByText(/\(retired;/)).toBeNull();
 });
-it("offers only exact_pressure_v3, upgrades a v2 document explicitly and keeps a 0.4.0 version (T4-U2)", async () => {
-  render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
-  expect(screen.getByText(/pressure mode: exact_straight_pressure_v2 \(straight pipe only; still solvable; select exact_pressure_v3 to upgrade it\)/)).toBeInTheDocument();
+it("offers only exact_pressure_v3 and re-authors a retired v2 contract explicitly (T4-U2; B7b: v2 no longer solves)", async () => {
+  const v2 = structuredClone(model); v2.pressure_contract = { version: "2.0.0", mode: "exact_straight_pressure_v2" } as never;
+  const queue = vi.fn(); render(<PressureAuthoringPanel model={v2} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} />);
+  expect(screen.getByText(/pressure mode: 2\.0\.0\/exact_straight_pressure_v2 \(unsupported; solves are refused until the model is re-authored to exact_pressure_v3\)/)).toBeInTheDocument();
   const options = [...(screen.getByLabelText("Pressure profile") as HTMLSelectElement).options].map(o => o.value).filter(Boolean);
   expect(options).toEqual(["exact_pressure_v3"]);
-  cleanup();
-  const loadState = structuredClone(model); loadState.schema_version = "0.4.0";
-  const queue = vi.fn(); render(<PressureAuthoringPanel model={loadState} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} />);
   change("Pressure profile", "exact_pressure_v3"); fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
   await waitFor(() => expect(queue).toHaveBeenCalledOnce());
-  expect(JSON.parse(queue.mock.calls[0][0].change.after)).toEqual({ schema_version: "0.4.0", pressure_contract: V3 });
+  expect(JSON.parse(queue.mock.calls[0][0].change.before)).toEqual({ schema_version: "0.5.0", pressure_contract: { version: "2.0.0", mode: "exact_straight_pressure_v2" } });
+  expect(JSON.parse(queue.mock.calls[0][0].change.after)).toEqual({ schema_version: "0.5.0", pressure_contract: V3 });
 });
 it("shows a declared 3.0.0/exact_pressure_v3 contract with its families, the signed-pressure hint and the tangency rule (T4-U2)", () => {
   const v3 = structuredClone(model); v3.pressure_contract = V3;
@@ -68,7 +70,9 @@ it("shows a declared 3.0.0/exact_pressure_v3 contract with its families, the sig
   expect(screen.getByText(/a direction change above 1e-3 rad at a bend's end is refused as a mitre/)).toBeInTheDocument();
   expect(screen.getByText(/signed \(a negative value is a net external differential; external-pressure stability and collapse are not assessed\)/)).toBeInTheDocument();
   cleanup();
-  render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={vi.fn()} />);
+  // A document not on the current contract (here the retired v2 label) keeps the non-negative hint.
+  const v2 = structuredClone(model); v2.pressure_contract = { version: "2.0.0", mode: "exact_straight_pressure_v2" } as never;
+  render(<PressureAuthoringPanel model={v2} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={vi.fn()} />);
   expect(screen.getByText(/Expected dimension: pressure; p >= 0\./)).toBeInTheDocument();
 });
 it("labels realized-bend members with k and geometry-only bend spans as needing realization (T4-U2)", () => {
@@ -111,7 +115,9 @@ it("preserves explicit connector membership on 0.5.0 and never offers it on old 
   await waitFor(() => expect(queue).toHaveBeenCalledOnce());
   expect(JSON.parse(queue.mock.calls[0][0].change.after)[0].member_connector_ids).toEqual(["component:J"]);
   cleanup();
-  render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={queue} />);
+  // B7b: an old (retired-version) document is never offered it.
+  const old = structuredClone(model); old.schema_version = "0.4.0";
+  render(<PressureAuthoringPanel model={old} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={queue} />);
   expect(screen.queryByLabelText("Region 1 member connectors")).toBeNull();
 });
 it("allows explicit negative nu and does not synthesize G", async () => {

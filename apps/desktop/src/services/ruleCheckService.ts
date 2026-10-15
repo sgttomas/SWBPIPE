@@ -1,6 +1,6 @@
 import { isRetainedRoute } from "../features/results/numericalResultQuality";
 import { sourceContract } from "../features/results/resultReader";
-import { numericalResultStanding, retainedSourceRecoveryInvocation } from "../features/results/resultStanding";
+import { numericalResultStanding } from "../features/results/resultStanding";
 import { isFreshSemanticResult, ruleBindingRefusal, retainedRowClassLabel, N_RP_UNVALIDATED } from "../features/results/knownSemanticLimitations";
 import { retainedPrecisionInvocation } from "../features/results/retainedPrecisionStanding";
 import { invokeWithIngress } from "./nativeIngress";
@@ -135,8 +135,9 @@ async function checkSolvedSource(
 ): Promise<RuleCheckRunRoute> {
   if (!hasNativeMechanicsInvocation(source, model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
   // T0R: only the static fresh-identity set is rule-eligible.
+  // B7b: the retired physics-source-1 branch went with v2; pressure-source-1 is not in
+  // the desktop's fresh set (every desktop output of it is refused).
   if (!isFreshSemanticResult(source)) throw new Error("RULE_SOURCE_IDENTITY_NOT_FRESH: the result is not a fresh supported publication.");
-  if (sourceContract(source) === "physics_source" && !numericalResultStanding(source, model).eligible) throw new Error("SOURCE_BLOCKS_RULE_INPUT_UNQUALIFIED");
   // U6d: a preview successor requires eligible standing, as the receipt routes do;
   // standing comes only from its registered reader validation (never numerical_quality).
   if (isRetainedRoute(sourceContract(source))) {
@@ -144,7 +145,6 @@ async function checkSolvedSource(
     if (!standing.eligible) throw new Error(`${standing.findings[0]}: the retained-precision result is not numerically eligible for rule checks.`);
   }
   const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, solvedEnvelope: source };
-  if (sourceContract(source) === "physics_source") invokeArgs.sourceBlockInvocation = retainedSourceRecoveryInvocation(source, model);
   if (isRetainedRoute(sourceContract(source))) invokeArgs.sourceBlockInvocation = retainedPrecisionInvocation(source, model);
   if (model) invokeArgs.model = model;
   if (args.solverResultBindings && args.solverResultBindings.length > 0) {

@@ -1,4 +1,5 @@
 import { sourceContract } from "../results/resultReader";
+import { surfaceRouteRefusal } from "../results/outputPolicy";
 import { isFreshSemanticResult, N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE } from "../results/knownSemanticLimitations";
 import { hasNativeMechanicsInvocation } from "../../services/previewService";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
@@ -19,14 +20,15 @@ import { semanticLabels } from "../results/resultSemantics";
 import { buildRenderableReportInput } from "./renderableReportInput";
 import { buildStateComparisonHandoffSections } from "./stateComparisonHandoffSections";
 
-export const SOURCE_BLOCKS_REPORT_PACKAGE_UNAVAILABLE = "REPORT-PACKAGE-SOURCE-BLOCKS-UNAVAILABLE: This report package cannot preserve source-recovery evidence and signed support components. Use the supported result exports; report-package support for this method is unavailable.";
 /** T0R: the report package refuses every fresh identity until T6 (N-REPORT). The
- * method-specific reasons stay first. */
+ * method-specific reasons stay first: B7b retired the v2 ones (physics-1,
+ * physics-source-1) with their identities, and the exact routes (pressure-1 and the
+ * composite pressure-source-1, which also carry load/reference-state results) refuse
+ * with their output-policy reason, as every other surface does. */
 export function reportPackageUnavailableReason(result: MechanicsResult | null | undefined): string | null {
   if (!result) return null;
   const route = sourceContract(result);
-  if (route === "physics_source") return `${SOURCE_BLOCKS_REPORT_PACKAGE_UNAVAILABLE} ${N_REPORT}`;
-  if (route === "physics") return `REPORT-PACKAGE-PHYSICS-PROJECTION-UNAVAILABLE: this report transport does not preserve exact physical evidence; use canonical result export. ${N_REPORT}`;
+  if (route === "pressure" || route === "pressure_source") return surfaceRouteRefusal(result, "report-package");
   if (route === "preview_physics" || isFreshSemanticResult(result)) return `${REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE}: ${N_REPORT}`;
   return null;
 }
@@ -237,9 +239,6 @@ export async function assembleReportPackageRequestBelowAvailabilityGate({
   const strictAnalysis = resultHashScope === "received_result";
   if (resultHashScope === null) {
     throw new Error("REPORT-PACKAGE-ANALYSIS-VERSION-UNSUPPORTED");
-  }
-  if (sourceContract(result) === "physics") {
-    throw new Error("REPORT-PACKAGE-PHYSICS-PROJECTION-UNAVAILABLE: this legacy report transport does not preserve the exact physical metadata/evidence; use canonical result export.");
   }
   // Below the gate the strict 0.3.0 assembly reads the ordinary route as data; the
   // public gate refuses it until T6 (N-REPORT). B1 retired precision-1, its former data.

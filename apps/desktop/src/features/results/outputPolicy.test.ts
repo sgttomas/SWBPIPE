@@ -17,7 +17,7 @@ import { type SourceContract } from "./numericalResultQuality";
 import { numericalResultStanding } from "./resultStanding";
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_VALIDATION_REQUIRED } from "./retainedPrecisionStanding";
 import {
-  LOAD_REFERENCE_OUTPUT_REFUSAL, PRESSURE_1_OUTPUT_NOT_YET_AVAILABLE, PRESSURE_SOURCE_OUTPUT_REFUSAL, N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, OUTPUT_POLICY, OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL, OUTPUT_SURFACES, PRESSURE_1_OUTPUT_REFUSAL,
+  PRESSURE_1_OUTPUT_NOT_YET_AVAILABLE, PRESSURE_SOURCE_OUTPUT_REFUSAL, N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, OUTPUT_POLICY, OUTPUT_ROUTE_NOT_REGISTERED_REFUSAL, OUTPUT_SURFACES, PRESSURE_1_OUTPUT_REFUSAL,
   RETAINED_PRECISION_OUTPUT_REFUSAL, RETAINED_PHYSICS_OUTPUT_REFUSAL, routeOutputPolicy, routeSurfaceDecision, surfaceOutputRefusal, surfaceRouteRefusal,
 } from "./outputPolicy";
 import { loadReferenceOutputRefusal } from "./loadReferenceOutputAvailability";
@@ -49,7 +49,7 @@ async function eligible(mode: PreviewSolverMode) {
 const moved = (model: PreviewModel) => { const copy = structuredClone(model) as Json; copy.nodes[0].position.x += 1; return copy as PreviewModel; };
 
 /** Every SourceContract value, tied to the type in both directions by `tsc`. */
-const ROUTES: Record<SourceContract, true> = { physics: true, physics_source: true, pressure_source: true, preview_physics: true, load_reference: true, load_reference_source: true, pressure: true, retained_preview_physics: true, retained_physics: true, unsupported: true };
+const ROUTES: Record<SourceContract, true> = { pressure_source: true, preview_physics: true, pressure: true, retained_preview_physics: true, retained_physics: true, unsupported: true };
 /** T1's group a, by test-id prefix (the eighteen surfaces of the refusal tests). */
 const GATED_PREFIXES = ["pcf-export", "caepipe-mbf", "caepipe-external", "export-adapter-sdk", "adapter-framework", "external-prover", "missing-data", "design-workspace", "rule-check", "report-lint", "solve-job", "headless-runner", "local-fea", "native-package", "handoff", "export-review", "report", "rendered-report"];
 const PANELS = ["result-export", "stress-neutral"];
@@ -58,18 +58,15 @@ describe("the output policy (T6S-3)", () => {
   it("has one deliberate entry per route and names every surface", () => {
     expect(Object.keys(OUTPUT_POLICY).sort()).toStrictEqual(Object.keys(ROUTES).sort());
     expect([...OUTPUT_SURFACES]).toStrictEqual([...GATED_PREFIXES, "report-package", ...PANELS]);
-    for (const route of ["physics", "physics_source", "preview_physics", "unsupported"] as const) expect(OUTPUT_POLICY[route]).toStrictEqual({ gate: "none" });
-    for (const route of ["load_reference", "load_reference_source"] as const) {
+    for (const route of ["preview_physics", "unsupported"] as const) expect(OUTPUT_POLICY[route]).toStrictEqual({ gate: "none" });
+    // pressure-1 and pressure-source-1 (with or without load/reference states, B7b): readable
+    // through the Rust reader's own routes; every surface refuses each by its own reason.
+    for (const [route, reason] of [["pressure", PRESSURE_1_OUTPUT_REFUSAL], ["pressure_source", PRESSURE_SOURCE_OUTPUT_REFUSAL]] as const) {
       const policy = OUTPUT_POLICY[route] as Json;
-      expect([policy.gate, policy.reason]).toStrictEqual(["per_surface", LOAD_REFERENCE_OUTPUT_REFUSAL]);
+      expect([policy.gate, policy.reason]).toStrictEqual(["per_surface", reason]);
       expect(Object.keys(policy.surfaces)).toStrictEqual([...OUTPUT_SURFACES]);
       expect(Object.values(policy.surfaces).every(decision => decision === "refused")).toBe(true);
     }
-    // pressure-1: readable through the Rust reader's own route; every surface refuses it by its own reason.
-    const pressure = OUTPUT_POLICY.pressure as Json;
-    expect([pressure.gate, pressure.reason]).toStrictEqual(["per_surface", PRESSURE_1_OUTPUT_REFUSAL]);
-    expect(Object.keys(pressure.surfaces)).toStrictEqual([...OUTPUT_SURFACES]);
-    expect(Object.values(pressure.surfaces).every(decision => decision === "refused")).toBe(true);
     const successor = OUTPUT_POLICY.retained_preview_physics as Json;
     expect([successor.gate, successor.reason]).toStrictEqual(["per_surface", RETAINED_PRECISION_OUTPUT_REFUSAL]);
     expect(Object.keys(successor.surfaces).sort()).toStrictEqual([...OUTPUT_SURFACES].sort());
@@ -138,14 +135,18 @@ describe("the output policy (T6S-3)", () => {
       expect(surfaceRouteRefusal(structuredClone(received), surface)).toBeNull();
     }
   });
-  it("keeps load/reference-state results refused on both panels and every other surface", () => {
-    const result = json("fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json") as MechanicsResult;
-    const model = structuredClone(json("fixtures/product_preview/load_reference/pressure.request.json").model) as PreviewModel;
+  it.each([
+    ["pressure-1", "fixtures/product_preview/pressure/load_reference/pressure", PRESSURE_1_OUTPUT_REFUSAL],
+    ["pressure-source-1", "fixtures/product_preview/pressure_source/load_reference_source/mixed", PRESSURE_SOURCE_OUTPUT_REFUSAL],
+  ] as const)("keeps load/reference-state results (%s, B7b) refused on both panels and every other surface", (_id, stem, reason) => {
+    const result = json(`${stem}-sparse_interactive.raw.json`) as MechanicsResult;
+    const model = structuredClone(json(`${stem}.request.json`).model) as PreviewModel;
+    expect(Array.isArray((result.contract_evidence as Json).load_reference_states)).toBe(true);
     for (const surface of OUTPUT_SURFACES) {
-      expect(surfaceOutputRefusal(result, model, surface)).toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
-      expect(surfaceRouteRefusal(result, surface)).toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
+      expect(surfaceOutputRefusal(result, model, surface)).toBe(reason);
+      expect(surfaceRouteRefusal(result, surface)).toBe(reason);
     }
-    expect(loadReferenceOutputRefusal(result)).toBe(LOAD_REFERENCE_OUTPUT_REFUSAL);
+    expect(loadReferenceOutputRefusal(result)).toBe(reason);
   });
   it("an ungated route and a relabelled statement add no policy refusal; their own checks apply", async () => {
     const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });

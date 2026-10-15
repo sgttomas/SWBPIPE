@@ -12,10 +12,12 @@ afterEach(()=>{delete (window as any).__TAURI_INTERNALS__;vi.mocked(invoke).mock
 
 // Scoped IPC simulation of a genuine supported input/output pair, not a native
 // product witness. Registration goes through the production invocation path.
+// B7b: the exportable pair is preview-physics-1's; the exact route's pressure-1 (the
+// v3 twin of the retired physics-1) has no desktop record or export.
 async function currentProps(){
- const {model}=nativeMechanicsReplayPair();
+ const {model}=nativeMechanicsReplayPair('sparse_interactive',{profile:'preview'});
  (window as any).__TAURI_INTERNALS__={};
- vi.mocked(invoke).mockImplementation(createNativeMechanicsReplay().invoke);
+ vi.mocked(invoke).mockImplementation(createNativeMechanicsReplay({profile:'preview'}).invoke);
  const result=await runPreviewMechanics(model);
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'open_pipe_stress_product_physics@0.2.0',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});

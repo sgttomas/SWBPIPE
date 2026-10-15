@@ -7,7 +7,15 @@
  * value-preserving numeric re-serialization gives the same verdict (A2). The
  * text parses to the `Value` the native test read. An
  * unmutated statement is the corpus file's own text. Test input only; this
- * module reads nothing about a statement. */
+ * module reads nothing about a statement.
+ *
+ * B7b: the corpus is built from the current fixtures only, as the Rust test builds it.
+ * The exact-route statements are the v3 twins (0.5.0/3.0.0/exact_pressure_v3) read by the
+ * pressure-1 and pressure-source-1 readers, with and without the load/reference-state
+ * group; the joined statements take their invocation; the mutation files' `ps` reader
+ * is folded into `joined`; the ledger cases apply to the received joined statements
+ * directly (the v2 physics-source-1 projection is gone); `reseal` hashes the current
+ * case-evidence domain with the record bound by its case id. */
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { loadWasmEngine } from "../services/wasmEngine/loadWasmEngine";
@@ -135,17 +143,22 @@ function set(doc: Raw, path: string, value: Raw): void {
 const matches = (item: Raw, pattern: Raw) => isObject(pattern) && Object.keys(pattern).every(k => isObject(item) && Object.hasOwn(item, k) && rawEqual(item[k], pattern[k]));
 
 type Hash = (domain: string, payload: Raw) => string;
+/** The mutation files' `reseal` op (B7b: the current case-evidence domain, the record
+ * bound by its case id, as the reader binds it). */
 function reseal(doc: RawObject, op: RawObject, hash: Hash): void {
   const evidence = clone(doc.contract_evidence);
   const body = index(doc.source_block_recovery, "body");
   if (op.physical !== null && op.physical !== undefined) {
     const exact = index(evidence, "exact_cases") as Raw[];
     (index(body, "cases") as Raw[]).forEach((c, k) => {
-      const pressure = (index(evidence, "pressure") as Raw[]).filter(p => rawEqual(index(p, "load_case_id"), index(exact[k], "load_case_id")));
+      const caseId = index(exact[k] ?? null, "load_case_id");
+      const pressure = (index(evidence, "pressure") as Raw[]).filter(p => rawEqual(index(p, "load_case_id"), caseId));
+      const records = index(evidence, "load_reference_states");
+      const record = Array.isArray(records) ? records.find(r => rawEqual(index(r, "load_case_id"), caseId)) ?? null : null;
       const [domain, payload] = op.physical === "joined"
-        ? ["load_reference_source_case_evidence_v1", obj([["exact_case", exact[k] ?? null], ["pressure", pressure], ["load_reference_state", index(index(evidence, "load_reference_states"), k)]])]
+        ? ["pressure_source_case_evidence_v1", obj([["exact_case", exact[k] ?? null], ["pressure", pressure], ["load_reference_state", record]])]
         : op.physical === "joined_without_record"
-          ? ["load_reference_source_case_evidence_v1", obj([["exact_case", exact[k] ?? null], ["pressure", pressure]])]
+          ? ["pressure_source_case_evidence_v1", obj([["exact_case", exact[k] ?? null], ["pressure", pressure]])]
           : op.physical === "physics"
             ? ["physics_source_case_evidence_v1", obj([["exact_case", exact[k] ?? null], ["pressure", pressure]])]
             : (() => { throw new Error(`unknown reseal ${String(op.physical)}`); })();
@@ -236,8 +249,7 @@ export type BaseReaderInput = {
 };
 
 const ROUTE_READER: Record<string, string> = {
-  preview_physics: "preview-physics", physics: "physics", physics_source: "physics-source",
-  load_reference: "load-reference", load_reference_source: "load-reference-source",
+  preview_physics: "preview-physics", pressure: "pressure", pressure_source: "pressure-source",
 };
 
 /** The corpus inputs, in the native outcomes' order. A base statement's reader
@@ -270,12 +282,12 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
     ["preview_physics_invented_sparse", "core/product_physics/tests/fixtures/preview_physics_invented_model.json"],
     ["preview_physics_invented_dense", "core/product_physics/tests/fixtures/preview_physics_invented_model.json"],
     ["preview_physics_unicode_ids_sparse", "core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json"],
-    ["physics_connected_mechanics_sparse", "core/product_physics/tests/fixtures/exact_pressure_connected_request.json"],
-    ["physics_connected_mechanics_dense", "core/product_physics/tests/fixtures/exact_pressure_connected_request.json"],
-    ["physics_connected_ui_mechanics_sparse", "fixtures/model_operations/exact_pressure_authoring_model.json"],
-    ["physics_connected_ui_mechanics_dense", "fixtures/model_operations/exact_pressure_authoring_model.json"],
-    ["physics_thermal_ui_mechanics_sparse", "fixtures/model_operations/physics_thermal_ui_model.json"],
-    ["physics_thermal_ui_mechanics_dense", "fixtures/model_operations/physics_thermal_ui_model.json"],
+    ["pressure_connected_mechanics_sparse", "core/product_physics/tests/fixtures/exact_pressure_connected_request.json"],
+    ["pressure_connected_mechanics_dense", "core/product_physics/tests/fixtures/exact_pressure_connected_request.json"],
+    ["pressure_connected_ui_mechanics_sparse", "fixtures/model_operations/exact_pressure_authoring_model.json"],
+    ["pressure_connected_ui_mechanics_dense", "fixtures/model_operations/exact_pressure_authoring_model.json"],
+    ["pressure_thermal_ui_mechanics_sparse", "fixtures/model_operations/physics_thermal_ui_model.json"],
+    ["pressure_thermal_ui_mechanics_dense", "fixtures/model_operations/physics_thermal_ui_model.json"],
     ["../product_preview/invented_mechanics_result_preview_physics_1_sparse", null],
     ["../product_preview/invented_mechanics_result_preview_physics_1_dense", null],
     ["../product_preview/invented_demo_result_preview_physics_1_sparse", null],
@@ -287,9 +299,11 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
   const modes = ["sparse_interactive", "dense_scrutiny"];
   const invocationOf = (request: Raw, mode: string) => obj([["request", request], ["solver_mode", mode]]);
   for (const [dir, names, invoked] of [
-    ["physics_source", ["n05", "n06", "fields", "mixed", "mixed_units", "n05_units", "n05_unicode"], true],
-    ["load_reference", ["connected", "pressure"], false],
-    ["load_reference_source", ["n05", "n06", "fields", "mixed", "eigen_motion"], false],
+    ["pressure_source/physics_source", ["n05", "n06", "fields", "mixed", "mixed_units", "n05_units", "n05_unicode"], true],
+    ["pressure/load_reference", ["connected", "pressure"], false],
+    // The joined load/reference-state statements are read by the one source reader,
+    // which takes their invocation (never numerically eligible).
+    ["pressure_source/load_reference_source", ["n05", "n06", "fields", "mixed", "eigen_motion"], true],
   ] as const) {
     for (const name of names) {
       const request = read(`fixtures/product_preview/${dir}/${name}.request.json`);
@@ -319,8 +333,8 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
   }
   // load_reference*_mutations.json.
   for (const [file, reader, joined] of [
-    ["core/reporting/result_export/tests/fixtures/load_reference_mutations.json", "load-reference", false],
-    ["core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json", "load-reference-source", true],
+    ["core/reporting/result_export/tests/fixtures/load_reference_mutations.json", "pressure", false],
+    ["core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json", "pressure-source", true],
   ] as const) {
     const cases = read(file) as RawObject;
     const sources = new Map(Object.entries(cases.sources as RawObject).map(([k, v]) => [k, read(v as string)]));
@@ -329,8 +343,8 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
     for (const c of cases.cases as RawObject[]) {
       const [doc, literal] = apply(lookup(c.source as string), c.ops as Raw[], hash, lookup);
       const readers: string[] = [reader];
-      if (joined && Object.hasOwn(c, "lr")) readers.push("load-reference");
-      if (joined && Object.hasOwn(c, "ps")) readers.push("physics-source");
+      if (joined && Object.hasOwn(c, "lr")) readers.push("pressure");
+      if (Object.hasOwn(c, "ps")) throw new Error("B7b folded 'ps' into 'joined'");
       inputs.push(statement(`${prefix}/${c.id as string}`, doc, literal, readers));
     }
     for (const c of cases.transport_cases as RawObject[]) {
@@ -347,50 +361,18 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
   for (const c of read("fixtures/results/loadReferenceReaderCases.cases.json") as RawObject[]) {
     const [doc, literal] = apply(read(c.source as string), c.ops as Raw[], hash, () => { throw new Error("graft"); });
     if (literal !== null) throw new Error("reader-case literal");
-    inputs.push(statement(`lr-reader/${c.id as string}`, doc, null, ["load-reference"]));
+    inputs.push(statement(`lr-reader/${c.id as string}`, doc, null, ["pressure"]));
   }
-  const projections = new Map<string, Raw>();
+  // The ledger cases: the source reader's ledger checks on the received joined
+  // statement (B7b: no projection; the ops read the same members).
+  const received = new Map<string, Raw>();
   for (const c of read("fixtures/results/loadReferenceSourceLedger.cases.json") as RawObject[]) {
     const name = c.source as string;
-    if (!projections.has(name)) projections.set(name, physicsSourceProjection(read(`fixtures/product_preview/load_reference_source/${name}.raw.json`), hash));
-    const [doc, literal] = apply(projections.get(name)!, c.ops as Raw[], hash, () => { throw new Error("graft"); });
+    if (!received.has(name)) received.set(name, read(`fixtures/product_preview/pressure_source/load_reference_source/${name}.raw.json`));
+    const [doc, literal] = apply(received.get(name)!, c.ops as Raw[], hash, () => { throw new Error("graft"); });
     if (literal !== null) throw new Error("ledger literal");
     if (typeof c.reseal_publication === "boolean") reseal(doc as RawObject, obj([["physical", null], ["publication", c.reseal_publication], ["receipt", true]]), hash);
-    inputs.push(statement(`ledger/${c.id as string}`, doc, null, ["physics-source"]));
+    inputs.push(statement(`ledger/${c.id as string}`, doc, null, ["pressure-source"]));
   }
   return inputs;
-}
-
-/** result_export's `load_reference_source::physics_source_projection` of an
- * admitted joined publication (its `project` with `raw`), as test input: the
- * load-reference projection, relabelled physics-source-1, its case evidence,
- * publication and receipt hashes resealed. */
-function physicsSourceProjection(source: Raw, hash: Hash): Raw {
-  const projected = clone(source) as RawObject;
-  const evidence = projected.contract_evidence as RawObject;
-  delete evidence.load_reference_states;
-  for (const c of (index(evidence, "exact_cases") as Raw[] | null) ?? []) {
-    (c as RawObject).material_basis = "base_material_common_E_nu";
-    for (const material of (index(c, "pipe_materials") as Raw[] | null) ?? []) {
-      if (isObject(material)) { delete material.material_selection_kind; delete material.resolved_eigenstrain; }
-    }
-  }
-  for (const region of (index(evidence, "pressure") as Raw[] | null) ?? []) {
-    for (const material of (index(region, "materials") as Raw[] | null) ?? []) (material as RawObject).temperature_basis = obj([["selection", "base_material"]]);
-  }
-  (projected.producer as RawObject).semantic_contract_id = "openpipestress.result_semantics/0.3.0/physics-source-1";
-  (projected.formulation_basis as RawObject).profile_id = "exact_straight_pressure_v2";
-  const pressure = index(evidence, "pressure") as Raw[];
-  const body = index(projected.source_block_recovery, "body") as RawObject;
-  body.policy = "PHYSICS-SOURCE-1";
-  const exact = index(evidence, "exact_cases") as Raw[];
-  (body.cases as Raw[]).forEach((c, k) => {
-    if (k >= exact.length) return;
-    (c as RawObject).physical_evidence_sha256 = hash("physics_source_case_evidence_v1",
-      obj([["exact_case", exact[k]], ["pressure", pressure.filter(p => rawEqual(index(p, "load_case_id"), index(exact[k], "load_case_id")))]]));
-  });
-  const publication = clone(projected) as RawObject; delete publication.source_block_recovery;
-  body.publication_sha256 = hash("source_blocks_publication_v1", publication);
-  (projected.source_block_recovery as RawObject).receipt_sha256 = hash("source_blocks_receipt_v1", body);
-  return projected;
 }

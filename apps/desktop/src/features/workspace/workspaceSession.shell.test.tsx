@@ -170,7 +170,8 @@ describe("a stage or view switch is a presentation change", () => {
     // bytes are a real supported producer pair; this is not native UI evidence.
     const storage = await getLocalStorageCapability();
     const knowledge = await loadDesignKnowledge();
-    const replay = createNativeMechanicsReplay();
+    // B7b: the Current pair is preview-physics-1's (pressure-1 has no desktop record).
+    const replay = createNativeMechanicsReplay({ profile: "preview" });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockImplementation((command: string, args: Record<string, unknown>, options?: unknown) => {
       if (command === "get_local_storage_capability") return Promise.resolve(storage);

@@ -2,7 +2,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import inventedSparse from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
 import inventedModel from "../../../../../core/product_physics/tests/fixtures/preview_physics_invented_model.json";
-import physicsSourceN05 from "../../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json";
+import pressureSourceN05 from "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json";
+import { PRESSURE_SOURCE_OUTPUT_REFUSAL } from "./outputPolicy";
 import { ResultsPanel } from "./ResultsPanel";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { ComparisonPanel } from "../comparison/ComparisonPanel";
@@ -42,7 +43,7 @@ describe("text-only T0R UI (DESIGN §7)", () => {
   });
   // B4/D1 (b): N-SB and N-SB-MIXED went with source-blocks-1; a composite shows neither.
   it("Results notices: no source-blocks notice on a composite", () => {
-    render(<KnownSemanticNotices result={clone(physicsSourceN05)} testIdPrefix="results" />);
+    render(<KnownSemanticNotices result={clone(pressureSourceN05)} testIdPrefix="results" />);
     expect(screen.queryByTestId("results-notice-source-blocks-summary")).toBeNull();
     expect(screen.queryByTestId("results-notice-source-blocks-mixed")).toBeNull();
   });
@@ -61,7 +62,8 @@ describe("text-only T0R UI (DESIGN §7)", () => {
   });
   it("report package is unavailable for every fresh identity (N-REPORT)", () => {
     expect(reportPackageUnavailableReason(clone(inventedSparse))).toBe(`REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: ${N_REPORT}`);
-    expect(reportPackageUnavailableReason(clone(physicsSourceN05))).toContain(N_REPORT);
+    // B7b: the composite (pressure-source-1) refuses with its own output-policy reason.
+    expect(reportPackageUnavailableReason(clone(pressureSourceN05))).toBe(PRESSURE_SOURCE_OUTPUT_REFUSAL);
   });
   it("report packet SIF section never presents SIF×k rows as stress", () => {
     // The component refs of SIF×k review rows (component_user_stress_multiplier_review),

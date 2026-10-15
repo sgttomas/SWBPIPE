@@ -27,10 +27,12 @@ async function referenceSession(){
 }
 // Actual captured input/output pair through explicitly simulated IPC; this is a
 // unit premise for Current gates, never an actual native UI qualification.
+// B7b: the Current pair is preview-physics-1's; the exact route's pressure-1 (the v3
+// twin of the retired physics-1) has no desktop record or export.
 async function current(){
- const {model}=nativeMechanicsReplayPair();
+ const {model}=nativeMechanicsReplayPair('sparse_interactive',{profile:'preview'});
  (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__={};
- invokeMock.mockImplementation(createNativeMechanicsReplay().invoke);
+ invokeMock.mockImplementation(createNativeMechanicsReplay({profile:'preview'}).invoke);
  const result=await runPreviewMechanics(model);
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'open_pipe_stress_product_physics@0.2.0',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
