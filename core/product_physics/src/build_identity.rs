@@ -134,11 +134,13 @@ pub(crate) fn decode_identity(text: &str) -> Option<Vec<Vec<u8>>> {
 // ---- D-6's reviewed inputs (RR "U4 G4: the margin rule trips") ----------------
 // The reviewed-lock record binds REVIEWED_INPUT_COUNT inputs by SHA-256: the
 // PP lock, precommit reader statics and J1 appended statics in their order
-// (I93 REVISION_01 §1.4), then B7's nonresident pressure-source binding
-// table and batch 5's nonresident pressure result schema definition. B7a
-// removed four retired inputs and kept the others' relative order:
-// E2 the v0_2 semantic table, B1 the precision-1 table, and B4/D1 (b) the
-// source-blocks-1 table and its receipt schema. build.rs hashes them (no build-dependency:
+// (I93 REVISION_01 §1.4), then the resident pressure-source table, batch 5's
+// nonresident pressure result schema definition and the resident ordinary
+// pressure table. B7a removed four retired inputs (E2 the v0_2 semantic
+// table, B1 the precision-1 table, and B4/D1 (b) the source-blocks-1 table
+// and its receipt schema) and B7b four more with v2 (the physics-1,
+// load-reference-1, load-reference-source-1 and physics-source-1 tables),
+// each keeping the others' relative order. build.rs hashes them (no build-dependency:
 // the digest below is self-contained) and emits one line,
 // `OPS_RETAINED_REVIEWED_INPUTS=v1;<path>=<hex>;…`, in `REVIEWED_INPUTS` order,
 // with `unavailable` for any input it cannot read. A registered profile records
@@ -148,10 +150,10 @@ pub(crate) fn decode_identity(text: &str) -> Option<Vec<Vec<u8>>> {
 #[allow(dead_code)]
 pub(crate) const REVIEWED_INPUTS_VARIABLE: &str = "OPS_RETAINED_REVIEWED_INPUTS";
 /// The reviewed inputs, relative to this package's manifest directory: the PP
-/// lock, then the reader's statics in G4's ORIGINS.json order, followed by B7's
-/// source-qualified nonresident binding table, then the pressure result schema.
+/// lock, then the reader's statics in G4's ORIGINS.json order, followed by the
+/// pressure-source table, the pressure result schema and the pressure table.
 #[allow(dead_code)]
-pub(crate) const REVIEWED_INPUT_COUNT: usize = 16;
+pub(crate) const REVIEWED_INPUT_COUNT: usize = 12;
 #[allow(dead_code)]
 pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     "Cargo.lock",
@@ -159,11 +161,9 @@ pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     "../../schemas/retained_precision_mp_v2.schema.json",
     "../../fixtures/results/retained_precision_prepared_ordinary_v1.json",
     "../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
-    "../../fixtures/results/semantic_contract_v0_3_physics_1.json",
-    "../../fixtures/results/semantic_contract_v0_3_load_reference_1.json",
-    "../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json",
+    // B7b deleted the physics-1, load-reference-1, load-reference-source-1 and
+    // physics-source-1 tables with v2 (A4/A5); the others keep their order.
     "../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json",
-    "../../fixtures/results/semantic_contract_v0_3_physics_source_1.json",
     // B4/D1 (b) removed the retired source-blocks-1 table and its receipt schema.
     // B2/B3 J1 (I93 REVISION_01 §1.4; B3-D decision B3D-18: appended, so existing
     // positions keep their meaning): the combination and exact formation definitions
@@ -171,12 +171,12 @@ pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     "../../fixtures/results/retained_precision_prepared_combination_v1.json",
     "../../fixtures/results/retained_precision_prepared_exact_v1.json",
     "../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json",
-    // B7 D2/D3: append the nonresident binding; rows remain physics_source_contract().
+    // B7b (O-10): the resident current pressure-source table
+    // (`pressure_source_contract()`), in the join's position.
     "../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
     // U5a: nonresident definition of the pressure joint record, evidence and row shapes.
     "../../schemas/results_pressure_1.v0.3.schema.json",
-    // B7b: actual ordinary pressure residency; the four old obligations remain
-    // here until their owning loaders are deleted, then the final list is 12.
+    // B7b (O-10): the resident ordinary pressure table (`pressure_rows_contract()`).
     "../../fixtures/results/semantic_contract_v0_3_pressure_1.json",
 ];
 

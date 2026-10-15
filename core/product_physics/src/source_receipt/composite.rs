@@ -596,12 +596,10 @@ fn validate_physics_rows(
     source_selected: bool,
 ) -> Result<(), ReceiptError> {
     validate_case_rows(&case.id, actual)?;
-    // Ordinary physical admission deliberately uses the exact-physics table,
-    // never the older precision/source ordinary allowlist.
-    let table: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/results/semantic_contract_v0_3_physics_1.json"
-    ))
-    .map_err(|e| bad(e.to_string()))?;
+    // Physical row admission uses the reader's own resident pressure-source
+    // table: the same (kind, unit, component) signatures the publication is
+    // later read against, never an ordinary or retired allowlist.
+    let table = open_pipe_stress_result_export::semantic_contract::pressure_source_contract();
     let signatures = table["rows"]
         .as_array()
         .ok_or_else(|| bad("physics signatures"))?;

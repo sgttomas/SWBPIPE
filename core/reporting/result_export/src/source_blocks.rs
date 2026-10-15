@@ -1,7 +1,7 @@
-//! Closed source-block statement/binding checks of the exact-route composites
-//! (physics-source-1, load-reference-source-1, pressure-source-1). B4/D1 (b)
-//! retired the preview route's non-composite source-blocks-1 identity, its table
-//! and its receipt schema. No imported receipt constructs a live exact response,
+//! Closed source-block statement/binding checks of the exact-route composite
+//! (pressure-source-1). B4/D1 (b) retired the preview route's non-composite
+//! source-blocks-1 identity, its table and its receipt schema; B7b retired the
+//! v2 composites (physics-source-1, load-reference-source-1). No imported receipt constructs a live exact response,
 //! and a digest is never treated as arithmetic proof.
 use crate::semantic_contract::signature_in;
 use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;

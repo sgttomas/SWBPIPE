@@ -92,7 +92,7 @@ fn matrix3(v: &Value) -> bool {
 }
 
 /// T4-U2 (export): the canonical metadata vocabulary the connector rows add
-/// to physics-1's under pressure-1 (components, frame, location, basis).
+/// to the straight-member vocabulary under pressure-1 (components, frame, location, basis).
 pub const VOCABULARY_COMPONENTS: [&str; 14] = [
     "qt_x", "qt_y", "qt_z", "qr_x", "qr_y", "qr_z", "gt_x", "gt_y", "gt_z", "gr_x", "gr_y", "gr_z", "pe_x", "s_x",
 ];

@@ -15,7 +15,7 @@ pub const COMBINATION_DEFINITION_ID: &str = "RP-PREPARED-COMBINATION-DUAL-v1";
 pub const COMBINATION_DEFINITION_HASH: &str =
     "34ce87e7ad6da457d81a5cbf25a077fb5d08f2960c5fd815e1163646de02d24a";
 /// B3b (B3-D §6 with REVISION_01): the exact successor `<physics-retained>`,
-/// read on its own route (`EXACT`), whose base is physics-1.
+/// read on its own route (`EXACT`), whose base is pressure-1 (B7b D4 (a)).
 pub const EXACT_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-retained-1";
 pub const EXACT_PROFILE: &str = "exact_straight_retained_w1a_v2";
 pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
@@ -580,7 +580,7 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json");
 const TABLE_HASH: &str = "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1";
-/// The exact successor's table (XTABLE) and its inherited physics-1 table.
+/// The exact successor's table (XTABLE) and its inherited pressure-1 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 );
@@ -739,7 +739,7 @@ fn g0_exact(source: &Value) -> VResult {
         "G0",
         "FORMATION_MISMATCH",
     )?;
-    // 5. XTABLE's bytes and its inherited physics-1 hash.
+    // 5. XTABLE's bytes and its inherited pressure-1 hash.
     unsupported(
         sha256_hex(EXACT_TABLE_BYTES) == EXACT_TABLE_HASH
             && t["inherited_semantic_contract_sha256"] == sha256_hex(PRESSURE_TABLE_BYTES),
@@ -4817,7 +4817,7 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
                 .position(|c| c["id"] == entry["load_case_id"])
                 .ok_or_else(|| error("G8", "PREPARATION_MISMATCH"))
         };
-        // G8 step 5, S-C (B3D-12): physics-source-1's actual-material binding over
+        // G8 step 5, S-C (B3D-12): the source reader's actual-material binding over
         // every `exact_cases` entry; its own code is detail only (B3D-13).
         for entry in evidence {
             let ci = case_of(entry)?;
@@ -5983,7 +5983,7 @@ fn r_comb_1(source: &Value) -> Vec<RowClassification> {
 }
 /// G7's projection onto the route's base: remove the receipt and the row
 /// tokens; set the base identity and profile (preview-physics-1 and
-/// `product_preview_mechanics_v1`; physics-1 and `exact_straight_pressure_v2`).
+/// `product_preview_mechanics_v1`; pressure-1 and `exact_pressure_v3`).
 fn project(source: &Value, raw: bool, route: &Route) -> VResult<Value> {
     let mut projected = source.clone();
     projected
@@ -6085,7 +6085,7 @@ fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Rou
     // C1 G7 "existing base failure codes" (06b settlement): each language
     // reports its own unchanged base code, here the Rust base's
     // SOURCE_PREVIEW_PHYSICS_<CODE> (preview) or SOURCE_PHYSICS_<CODE>
-    // (exact: physics-1's unchanged `validate_physics_evidence`); any text
+    // (exact: pressure-1's `validate_pressure_evidence`); any text
     // after the code is detail.
     crate::semantic_contract::for_source(&projected).map_err(base_error)?;
     if let Some(inv) = actual_invocation {

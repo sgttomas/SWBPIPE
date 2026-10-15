@@ -183,7 +183,7 @@ pub(crate) fn exact_member_recovery<'m>(
             diagnostics,
             "EXACT_PRESSURE_REGION_MEMBER_NOT_STRAIGHT",
             &[case_id, &state.region_id, pipe_id],
-            "a curved (realized) bend member in an exact pressure region has no straight-member pressure recovery under 2.0.0/exact_straight_pressure_v2; it is refused, not recovered on its chord",
+            "a curved (realized) bend member in an exact pressure region has no straight-member pressure recovery; it is refused, not recovered on its chord",
         );
     }
     mechanical
@@ -360,7 +360,7 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
             for load in &case.primitive_loads {
                 if load.category == "pressure" || load.dimension == "pressure" {
                     problem(diagnostics, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &[&case.id, &load.id],
-                        "legacy pressure primitives are retired, zero values included; remove the primitive, or re-author the model to 2.0.0/exact_straight_pressure_v2 with explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials");
+                        "legacy pressure primitives are retired, zero values included; remove the primitive, or re-author the model with pressure_contract 3.0.0/exact_pressure_v3 (shear_model euler_bernoulli), an explicit corrosion_allowance on every pipe section, explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials");
                 }
             }
             continue;

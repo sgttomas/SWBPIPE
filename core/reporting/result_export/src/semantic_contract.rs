@@ -114,7 +114,7 @@ pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PR
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
     "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
-/// physics-1. Like the preview successor, its raw and transport statements are
+/// pressure-1 since B7b D4 (a). Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact
 /// route), and its standing comes only from that reader's verified receipt.
 pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_ID;
@@ -263,7 +263,7 @@ pub fn pressure_rows_contract() -> &'static Value {
 /// (kind, unit, components, locations).
 pub use crate::connector_evidence::KINDS as CONNECTOR_ROW_KINDS;
 /// T4-U2: the connector rows' stable basis and the canonical metadata
-/// vocabulary they add to physics-1's under pressure-1.
+/// vocabulary they add to the straight-member vocabulary under pressure-1.
 pub use crate::connector_evidence::{
     ROW_BASIS as CONNECTOR_ROW_BASIS, VOCABULARY_COMPONENTS as CONNECTOR_VOCABULARY_COMPONENTS,
     VOCABULARY_COORDINATE_SYSTEMS as CONNECTOR_VOCABULARY_COORDINATE_SYSTEMS,
@@ -365,6 +365,15 @@ pub const MECHANICS_RESULT_VERSION_RETIRED: &str = "MECHANICS_RESULT_VERSION_RET
 /// B4/D1 (b): the retired non-composite source-block identity, refused by name.
 pub const RETIRED_SOURCE_BLOCKS_ID: &str = "openpipestress.result_semantics/0.3.0/source-blocks-1";
 pub const SOURCE_BLOCKS_1_RETIRED: &str = "SOURCE_BLOCKS_1_RETIRED";
+/// B7b (A4/A5): the identities of the retired `2.0.0/exact_straight_pressure_v2`
+/// contract, refused by name (re-author the model and re-run); none is read.
+pub const RETIRED_EXACT_V2_IDS: [&str; 4] = [
+    "openpipestress.result_semantics/0.3.0/physics-1",
+    "openpipestress.result_semantics/0.3.0/physics-source-1",
+    "openpipestress.result_semantics/0.3.0/load-reference-1",
+    "openpipestress.result_semantics/0.3.0/load-reference-source-1",
+];
+pub const SOURCE_EXACT_PRESSURE_V2_RETIRED: &str = "SOURCE_EXACT_PRESSURE_V2_RETIRED";
 /// The one result-export version (b7-plan E2). Exports carry the source's
 /// producer header as copied members; their other versions are retired.
 pub const RESULT_EXPORT_VERSION: &str = "0.3.0";
@@ -407,6 +416,9 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
             }
             if p["semantic_contract_id"] == RETIRED_SOURCE_BLOCKS_ID {
                 return Err(format!("{SOURCE_BLOCKS_1_RETIRED}: source-blocks-1 results are no longer read; re-run the analysis"));
+            }
+            if RETIRED_EXACT_V2_IDS.iter().any(|id| p["semantic_contract_id"] == *id) {
+                return Err(format!("{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis"));
             }
             if !matches!(
                 p["semantic_contract_id"].as_str(),

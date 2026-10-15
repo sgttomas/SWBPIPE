@@ -812,7 +812,8 @@ pub(super) enum NamespaceBranch {
     /// L, the pressure-free preview route: a current-version (0.5.0) document that carries no
     /// pressure contract (`model_format::is_pressure_free`). The contract's absence selects it.
     Preview,
-    /// E (B3b): schema 0.3.0 with the `exact_straight_pressure_v2` contract, version 2.0.0.
+    /// E (B3b; B7b D4 (a)): a current-version (0.5.0) document declaring the exact
+    /// `3.0.0/exact_pressure_v3` contract with `shear_model = euler_bernoulli`.
     /// Its own D1.4 and D1.5 clauses apply (B3-D §4.2).
     Exact,
 }
@@ -868,10 +869,10 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     let refuse = |clause, fact| Err(AdmissionRefusal::Family(clause, fact));
     let m = &request.model;
     // D1.3: the namespace branch, decided once from (schema, contract) (B3-D §4.1–§4.3):
-    // branch L, a pressure-free 0.5.0 document (no pressure contract); or branch E (B3b), 0.3.0 with
-    // exactly `{version "2.0.0", mode "exact_straight_pressure_v2"}` (0.4.0 stays out). A
-    // schema in no branch refuses with `SchemaVersion`, a contract that does not match its
-    // schema's branch with `PressureContract`. Then, on every branch, no sections (S-4).
+    // branch L, a pressure-free 0.5.0 document (no pressure contract); or branch E (B3b; B7b
+    // D4 (a)), 0.5.0 with exactly `{version "3.0.0", mode "exact_pressure_v3", shear_model
+    // "euler_bernoulli"}` (the load/reference-state group stays out). A retired schema refuses
+    // with `SchemaVersion`, any other contract with `PressureContract`. Then, on every branch, no sections (S-4).
     let exact = match namespace_branch(m) {
         Ok(branch) => branch == NamespaceBranch::Exact,
         Err(fact) => return refuse(C::Namespace, fact),
@@ -911,7 +912,7 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
         return refuse(C::Invocation, F::Components);
     }
     // D1.5 (B1 SA): every case, in request order. B3b (B3-D §4.2): on branch E every case's
-    // `pressure_regions` is explicitly empty (`Some([])`, as physics-source-1 requires); absent
+    // `pressure_regions` is explicitly empty (`Some([])`, as pressure-source-1 requires); absent
     // or non-empty refuses. On L it is absent. RV122 SF-2 (RESIDUALS T03: actual
     // capacities, never construction history): the empty list's typed capacity is 0 too, or
     // it refuses with its capacity fact (the reason an empty `sections` with spare capacity

@@ -1228,8 +1228,7 @@ fn formation_check_evidence_line(model: &PreviewModel, check: &FormationCheck) -
 /// G-1 removed 2.1's load-row gate, T10): the captured entry of an exact-contract
 /// model, without nonlinear supports or combinations. B4/D1 (b): the pressure-free
 /// preview route selects no source blocks (W1 retains its cases); only the exact
-/// route's composites (physics-source-1, load-reference-source-1,
-/// pressure-source-1) attempt retained-source recovery.
+/// route's composite (pressure-source-1) attempts retained-source recovery.
 fn source_eligible(captured: bool, exact: bool, nonlinear: bool, combinations: bool) -> bool {
     captured && exact && !nonlinear && !combinations
 }
@@ -2342,7 +2341,7 @@ pub(crate) enum W1Fallback {
     Domain,
     /// The reserved-stack thread could not be spawned (STACK_PLAN §1).
     StackReservation,
-    /// An exact-route composite source response (physics-source-1, pressure-source-1) was
+    /// An exact-route composite source response (pressure-source-1) was
     /// selected on the ordinary route: the composite is the publication and W1 does not start
     /// (T-3 (c)). B4/D1 (b) retired the preview route's source blocks and with them W1's
     /// coexistence rule (D-15) on route L, so this arbitration is route E's alone.
@@ -2477,13 +2476,13 @@ fn run_linear_static_preview_captured(
     capture: Option<&source_receipt::CapturedInvocation>,
     source_budget: &mut SourceRecoveryBudget,
 ) -> MechanicsEnvelope {
-    // ROOT CP3 SF-1 (0.4.0 only): an invocation whose selected join cannot
-    // finalize never loses its ordinary results. It is republished with every
-    // case on its ordinary route (`load-reference-1`, no receipt); each
-    // successful retained-source attempt is declined with the recorded cause.
-    // The republication continues the same ledger, so the invocation limit
-    // bounds all executed work. Pre-0.4 invocations keep their existing
-    // behaviour and bytes.
+    // ROOT CP3 SF-1 (load/reference-state group only): an invocation whose
+    // selected join cannot finalize never loses its ordinary results. It is
+    // republished with every case on its ordinary route (`pressure-1`, no
+    // receipt); each successful retained-source attempt is declined with the
+    // recorded cause. The republication continues the same ledger, so the
+    // invocation limit bounds all executed work. Invocations without the group
+    // keep their existing behaviour and bytes.
     let fallback_request = (capture.is_some()
         && case_state::is_load_state(&request.model)
         && source_budget.load_state_join_withheld.is_none())
@@ -3193,8 +3192,8 @@ fn permitted_run(
 
 /// B3b-P (B3-D P-1; I95's ruling 1): an admitted model's W1 route, decided once, from its D1.3
 /// namespace branch: L takes the preview route (preview-physics-1 base), E the exact route
-/// (physics-1 base, `physics-retained-1`). `None` (no W1: `Domain`) for a load-state model and
-/// any model on no branch (0.4.0 included).
+/// (pressure-1 base, `physics-retained-1`; B7b D4 (a)). `None` (no W1: `Domain`) for a model
+/// carrying the load/reference-state group and any model on no branch.
 fn w1_route(model: &PreviewModel) -> Option<retained_product::W1Route> {
     use retained_memory::NamespaceBranch as B;
     if case_state::is_load_state(model) {
@@ -3208,7 +3207,7 @@ fn w1_route(model: &PreviewModel) -> Option<retained_product::W1Route> {
 }
 
 /// B3b-P (B3-D P-2; RR "I99's B3-W verified; …", ruling 2): W1's exact-block budget is the
-/// ordinary route's (`ordinary_dispatch`): `PHYSICS_SOURCE_WORK_LIMIT` per case. physics-source-1
+/// ordinary route's (`ordinary_dispatch`): `PHYSICS_SOURCE_WORK_LIMIT` per case. pressure-source-1
 /// then selects on the Direct entry exactly as on the ordinary route, so T-3 (c) publishes the
 /// exact ordinary bytes. Since B4/D1 (b) only the exact route attempts the method, so one
 /// budget serves both routes.

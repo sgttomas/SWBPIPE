@@ -249,7 +249,7 @@ pub fn transport(reader: &str, source: &Value) -> Value {
     }
 }
 
-/// G1: the findings of a physics-source-1 or pressure-source-1 validation with
+/// G1: the findings of a pressure-source-1 validation with
 /// its invocation, as the TypeScript validation produced them: per case in
 /// order, an unqualified case and each inspection-only row of a physical (or
 /// unknown) kind; then an envelope that is not qualified or whose model has
