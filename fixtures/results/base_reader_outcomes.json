@@ -18200,15 +18200,17 @@
           ],
           "route": "pressure_source",
           "status": "needs_recompute",
-          "token": "needs_recompute"
+          "token": "unsupported"
         }
       },
       "id": "lrs/SEL-selected-other-mode",
       "validate": {
         "pressure-source": {
-          "eligible": false,
-          "findings": [],
-          "ok": true
+          "error": {
+            "code": "PHYSICS_SOURCE_LOAD_REFERENCE_REQUESTED_MODE",
+            "detail": null
+          },
+          "ok": false
         }
       }
     },
@@ -19200,7 +19202,7 @@
       "validate": {
         "pressure-source": {
           "error": {
-            "code": "PHYSICS_SOURCE_ORDINARY_METHOD",
+            "code": "PHYSICS_SOURCE_LOAD_REFERENCE_REQUESTED_MODE",
             "detail": null
           },
           "ok": false
@@ -19380,7 +19382,7 @@
       "validate": {
         "pressure-source": {
           "error": {
-            "code": "SOURCE_BLOCKS_PUBLICATION_HASH",
+            "code": "PHYSICS_SOURCE_LOAD_REFERENCE_CASE_ORDER",
             "detail": null
           },
           "ok": false
@@ -19403,15 +19405,17 @@
           ],
           "route": "pressure_source",
           "status": "needs_recompute",
-          "token": "needs_recompute"
+          "token": "unsupported"
         }
       },
       "id": "lrs/REC-order-swap-resealed",
       "validate": {
         "pressure-source": {
-          "eligible": false,
-          "findings": [],
-          "ok": true
+          "error": {
+            "code": "PHYSICS_SOURCE_LOAD_REFERENCE_CASE_ORDER",
+            "detail": null
+          },
+          "ok": false
         }
       }
     },

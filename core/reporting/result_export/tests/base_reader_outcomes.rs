@@ -428,6 +428,8 @@ fn agrees(actual: &str, expected: &str) -> bool {
 /// dispatch entry's header refusal or, when the header admits, the reader's.
 fn check_expectations(outcomes: &BTreeMap<String, Value>) {
     let mut checked = 0;
+    // Every reader disagreement is collected and reported together.
+    let mut misses: Vec<String> = Vec::new();
     for (file, prefix, reader) in [
         ("core/reporting/result_export/tests/fixtures/load_reference_mutations.json", "lr", "pressure"),
         ("core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json", "lrs", "pressure-source"),
@@ -448,11 +450,15 @@ fn check_expectations(outcomes: &BTreeMap<String, Value>) {
                 continue;
             }
             let got = text(&entry["validate"][reader]);
-            assert!(agrees(&got, &own), "{prefix}/{id}: {reader} {got} != {own}");
+            if !agrees(&got, &own) {
+                misses.push(format!("{prefix}/{id}: {reader} {got} != {own}"));
+            }
             for (kind, other) in [("lr", "pressure")] {
                 if let Some(want) = joined.then(|| stated(kind)).flatten() {
                     let got = text(&entry["validate"][other]);
-                    assert!(agrees(&got, &want), "{prefix}/{id}: {kind} {got} != {want}");
+                    if !agrees(&got, &want) {
+                        misses.push(format!("{prefix}/{id}: {kind} {got} != {want}"));
+                    }
                 }
             }
             // The dispatch entry: an admitted raw dispatch is an admitted header
@@ -462,19 +468,23 @@ fn check_expectations(outcomes: &BTreeMap<String, Value>) {
             let header = d["ok"] == true;
             let route_reader = route_reader(d["route"].as_str().unwrap());
             if dispatch == "accept" {
-                assert!(header, "{prefix}/{id}: header refused {}", d["error"]);
-                if route_reader == Some(reader) {
-                    assert_eq!(got, "accept", "{prefix}/{id}");
+                if !header {
+                    misses.push(format!("{prefix}/{id}: header refused {}", d["error"]));
                 }
-            } else if header && route_reader == Some(reader) {
-                assert!(agrees(&got, &dispatch), "{prefix}/{id}: {got} != dispatch {dispatch}");
+                if route_reader == Some(reader) && got != "accept" {
+                    misses.push(format!("{prefix}/{id}: {got} != dispatch accept"));
+                }
+            } else if header && route_reader == Some(reader) && !agrees(&got, &dispatch) {
+                misses.push(format!("{prefix}/{id}: {got} != dispatch {dispatch}"));
             }
             checked += 1;
         }
         for case in cases["transport_cases"].as_array().unwrap() {
             let id = case["id"].as_str().unwrap();
             let got = text(&outcomes[&format!("{prefix}-transport/{id}")]["transport"][reader]);
-            assert!(agrees(&got, case["expect"].as_str().unwrap()), "{prefix}-transport/{id}: {got}");
+            if !agrees(&got, case["expect"].as_str().unwrap()) {
+                misses.push(format!("{prefix}-transport/{id}: {got} != {}", case["expect"]));
+            }
             checked += 1;
         }
     }
@@ -491,6 +501,7 @@ fn check_expectations(outcomes: &BTreeMap<String, Value>) {
     // transport reader), the joined cases (116 less 2 retired relabels, and their
     // 14 transport cases) and the tamper vector.
     assert_eq!(checked, 212 + 114 + 14 + 22);
+    assert!(misses.is_empty(), "{} disagreements:\n{}", misses.len(), misses.join("\n"));
 }
 
 #[test]

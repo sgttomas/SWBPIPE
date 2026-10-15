@@ -705,8 +705,8 @@
      "receipt": true
     }
    ],
-   "dispatch": "accept",
-   "note": "B7b finding (reported to the manager): the retired load-reference-source-1 reader bound each record's solve.requested_mode to its receipt case's requested_mode (JOIN_REQUESTED_MODE); the current pressure-source reader reads the received records directly and checks only that the records share one requested mode, so a resealed record naming the other mode is admitted. Observed outcome recorded; never numerically eligible."
+   "dispatch": "PHYSICS_SOURCE_LOAD_REFERENCE_REQUESTED_MODE",
+   "note": "B7b: the retired load-reference-source-1 reader bound each record's solve.requested_mode to its receipt case's requested_mode (JOIN_REQUESTED_MODE). That binding is restored on the current group (physics_source.rs validate_transport_metadata_in, commit 033626030c): each receipt case's requested_mode must equal its state's solve.requested_mode."
   },
   {
    "id": "SEL-mixed-record-modes",
@@ -1271,7 +1271,8 @@
      "receipt": true
     }
    ],
-   "dispatch": "PHYSICS_SOURCE_ORDINARY_METHOD"
+   "dispatch": "PHYSICS_SOURCE_LOAD_REFERENCE_REQUESTED_MODE",
+   "note": "B7b: the restored requested-mode binding on the current group (commit 033626030c; formerly the retired reader's JOIN_REQUESTED_MODE) refuses the receipt case whose requested_mode no longer equals its state's solve.requested_mode; it runs before the per-case ordinary-method check (ORDINARY_METHOD)."
   },
   {
    "id": "RCPT-selected-method-ordinary",
@@ -1352,7 +1353,8 @@
      "with": "/contract_evidence/load_reference_states/1"
     }
    ],
-   "dispatch": "SOURCE_BLOCKS_PUBLICATION_HASH"
+   "dispatch": "PHYSICS_SOURCE_LOAD_REFERENCE_CASE_ORDER",
+   "note": "B7b: the restored case-order binding on the current group (commit 033626030c; formerly the retired reader's JOIN_CASE_ORDER) is a transport-metadata check and runs before the publication hash, so the unresealed swap is refused by it rather than by SOURCE_BLOCKS_PUBLICATION_HASH."
   },
   {
    "id": "REC-order-swap-resealed",
@@ -1370,8 +1372,8 @@
      "receipt": true
     }
    ],
-   "dispatch": "accept",
-   "note": "B7b: the retired reader required records in receipt-case order (JOIN_CASE_ORDER), as its v2 projection paired them by index; the current reader binds each record to its exact case by load_case_id, so a resealed record-order swap is admitted (reported to the manager with SEL-selected-other-mode). Never numerically eligible."
+   "dispatch": "PHYSICS_SOURCE_LOAD_REFERENCE_CASE_ORDER",
+   "note": "B7b: the retired reader required records in receipt-case order (JOIN_CASE_ORDER). That binding is restored on the current group (physics_source.rs validate_transport_metadata_in, commit 033626030c): one received state per exact case, in case order."
   },
   {
    "id": "EXACT-order-swap-resealed",

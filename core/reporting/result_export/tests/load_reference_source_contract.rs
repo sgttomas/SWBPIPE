@@ -399,6 +399,8 @@ fn pinned_table_identity_profile_and_policy() {
 fn shared_adversarial_cases_match_in_rust() {
     let cases = cases();
     let mut log = Vec::new();
+    // Every disagreement is collected and reported together.
+    let mut misses = Vec::new();
     for case in cases["cases"].as_array().unwrap() {
         let id = case["id"].as_str().unwrap();
         let name = case["source"].as_str().unwrap();
@@ -428,7 +430,9 @@ fn shared_adversarial_cases_match_in_rust() {
         for kind in ["dispatch", "joined", "lr"] {
             if let Some(actual) = entry[kind].as_str() {
                 let want = expected(case, kind).unwrap_or_else(|| panic!("{id}: no {kind}"));
-                assert!(agrees(actual, want), "{id}: {kind} {actual} != {want}");
+                if !agrees(actual, want) {
+                    misses.push(format!("{id}: {kind} {actual} != {want}"));
+                }
             }
         }
         if literal.is_some() {
@@ -465,6 +469,7 @@ fn shared_adversarial_cases_match_in_rust() {
             );
         }
     }
+    assert!(misses.is_empty(), "{} disagreements:\n{}", misses.len(), misses.join("\n"));
     write_log("rust_outcomes.json", &log);
 }
 
