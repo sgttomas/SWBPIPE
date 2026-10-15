@@ -1,9 +1,10 @@
 {
-  "schema_version": "0.3.0",
+  "schema_version": "0.5.0",
   "document_kind": "openpipestress.product_preview.model",
   "pressure_contract": {
-    "version": "2.0.0",
-    "mode": "exact_straight_pressure_v2"
+    "version": "3.0.0",
+    "mode": "exact_pressure_v3",
+    "shear_model": "euler_bernoulli"
   },
   "project": {
     "id": "project:exact-pressure-connected-fixture",
@@ -51,6 +52,10 @@
       "from": "node:fixture-root",
       "to": "node:fixture-tip",
       "section": {
+        "corrosion_allowance": {
+          "value": 0.0,
+          "unit": "m"
+        },
         "outside_diameter": {
           "value": 0.12,
           "unit": "m"

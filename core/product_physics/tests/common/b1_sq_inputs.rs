@@ -17,7 +17,7 @@
 //! tests' builder transcribed (a lib test asserts the two are equal): `w_cb1()` (W-CB1, the
 //! cap-maximal C_eq = 3 input: SW's cases A and B and 1·A + 0.5·B), `w_cb2()`,
 //! `b2_c1_range_mechanics()`, `m3x()` (the exact successor), and `exact_cap_maximal()`, the
-//! cap-maximal three-case input authored as 0.3.0 exact (c = 3, z = 0: route E's priced shape).
+//! cap-maximal three-case input authored as exact (0.5.0 since B7b; c = 3, z = 0: route E's priced shape).
 #![allow(dead_code)]
 use serde_json::{json, Value};
 
@@ -425,28 +425,33 @@ pub fn b2_c1_range_mechanics() -> Value {
         {"id": "combination:2case", "label": "B2-P c = 1: 2 case", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 2.0}], "provenance": B2P}]);
     raw
 }
-/// I99's `exact` (the facade tests' `exact3`): `raw` authored as 0.3.0 exact, with the common E/ν
+/// I99's `exact` (the facade tests' `exact3`): `raw` authored as exact, with the common E/ν
 /// basis (ν = 0.25, no shear modulus) and explicitly empty pressure regions on every case.
+/// B7b re-authored it once to model 0.5.0 with `3.0.0/exact_pressure_v3`, `shear_model`
+/// Euler-Bernoulli and an explicit zero corrosion allowance on every pipe section.
 pub fn exact3(mut raw: Value) -> Value {
     let m = &mut raw["model"];
-    m["schema_version"] = json!("0.3.0");
-    m["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+    m["schema_version"] = json!("0.5.0");
+    m["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
     for material in m["materials"].as_array_mut().unwrap() {
         material.as_object_mut().unwrap().remove("shear_modulus");
         material["constitutive_basis"] = json!("homogeneous_isotropic_E_nu_v1");
         material["poisson_ratio"] = json!({"value": 0.25, "unit": "1"});
+    }
+    for pipe in m["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"]["corrosion_allowance"] = json!({"value": 0.0, "unit": "m"});
     }
     for case in m["load_cases"].as_array_mut().unwrap() {
         case["pressure_regions"] = json!([]);
     }
     raw
 }
-/// B3-W's `m3x`: the milestone authored as 0.3.0 exact (the exact successor).
+/// B3-W's `m3x`: the milestone authored as exact (the exact successor).
 pub fn m3x() -> Value {
     exact3(milestone())
 }
 /// The cap-maximal exact input: `i3_three_case()` (C cases at the count caps, Σ l_i = L, 16
-/// temperature points per material) authored as 0.3.0 exact: route E at c = 3. Its request-level
+/// temperature points per material) authored as exact: route E at c = 3. Its request-level
 /// `materials` take the same E/ν basis (the exact route requires it on every material).
 pub fn exact_cap_maximal() -> Value {
     let mut raw = exact3(i3_three_case());

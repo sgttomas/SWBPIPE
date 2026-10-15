@@ -303,3 +303,63 @@ fn b7b_member_connector_ids_absence_and_empty_array_are_the_only_empty_forms() {
         assert_decode_refused(raw.clone());
     }
 }
+
+/// B7b's one re-authoring of a copied lib-test model (manager decision; the
+/// integration twin is `tests/common/current_model.rs`): `schema_version` becomes
+/// 0.5.0; a declared v2 or v3 exact contract becomes the current
+/// `3.0.0/exact_pressure_v3` object with `shear_model` `euler_bernoulli`; and, on
+/// a contract-present document, every pipe section lacking one gains an explicit
+/// zero `corrosion_allowance`. Nothing else changes: no physical or numerical
+/// input, and no other contract (a retired-contract refusal control keeps its form).
+pub(crate) fn reauthor_current_model(model: &mut Value) {
+    if crate::is_retired_model_schema_version(model["schema_version"].as_str().unwrap_or("")) {
+        model["schema_version"] = json!(crate::MODEL_SCHEMA_VERSION);
+    }
+    let declared = model.get("pressure_contract").and_then(|contract| {
+        Some((contract.get("version")?.as_str()?, contract.get("mode")?.as_str()?))
+    });
+    if matches!(declared, Some(("2.0.0", "exact_straight_pressure_v2") | ("3.0.0", "exact_pressure_v3"))) {
+        model["pressure_contract"] = contract();
+    }
+    if model.get("pressure_contract") == Some(&contract()) {
+        for pipe in model["pipe_segments"].as_array_mut().into_iter().flatten() {
+            let section = pipe["section"].as_object_mut().expect("pipe section object");
+            section.entry("corrosion_allowance").or_insert(json!({"value": 0.0, "unit": "m"}));
+        }
+    }
+}
+
+/// [`reauthor_current_model`] applied to a copied request's `model`.
+pub(crate) fn reauthor_current_request(mut request: Value) -> Value {
+    reauthor_current_model(&mut request["model"]);
+    request
+}
+
+#[test]
+fn b7b_reauthoring_helper_changes_only_version_contract_and_allowance() {
+    let mut raw = request();
+    raw["model"]["schema_version"] = json!("0.3.0");
+    raw["model"]["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+    raw["model"]["pipe_segments"] = json!([
+        {"id": "pipe:a", "section": {"outside_diameter": {"value": 0.2, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"}}},
+        {"id": "pipe:b", "section": {"outside_diameter": {"value": 0.2, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"},
+            "corrosion_allowance": {"value": 0.0, "unit": "mm"}}}]);
+    let current = reauthor_current_request(raw.clone());
+    let mut expected = raw.clone();
+    expected["model"]["schema_version"] = json!("0.5.0");
+    expected["model"]["pressure_contract"] = contract();
+    expected["model"]["pipe_segments"][0]["section"]["corrosion_allowance"] = json!({"value": 0.0, "unit": "m"});
+    assert_eq!(current, expected);
+    // Pressure-free documents gain only the version; a retired contract keeps its form.
+    let mut free = request();
+    free["model"]["schema_version"] = json!("0.2.0");
+    free["model"]["pipe_segments"] = raw["model"]["pipe_segments"].clone();
+    let mut expected = free.clone();
+    expected["model"]["schema_version"] = json!("0.5.0");
+    assert_eq!(reauthor_current_request(free), expected);
+    let mut legacy = raw;
+    legacy["model"]["pressure_contract"] = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
+    let current = reauthor_current_request(legacy.clone());
+    assert_eq!(current["model"]["pressure_contract"], legacy["model"]["pressure_contract"]);
+    assert!(current["model"]["pipe_segments"][0]["section"].get("corrosion_allowance").is_none());
+}

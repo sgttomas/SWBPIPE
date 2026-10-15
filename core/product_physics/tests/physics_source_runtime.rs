@@ -1,21 +1,29 @@
 //! Public composite controls use separately authored explicit E/nu companions.
 //! Original NUM requests/references remain unchanged. No expected result is read
 //! from a produced raw fixture; analytical fields and whole-body balance apply.
+//! B7b: the controls are the current (0.5.0, v3) twins of the deleted v2
+//! requests, publishing pressure-source-1 under PRESSURE-SOURCE-1.
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, PreviewSolverMode,
 };
 use serde_json::{json, Value};
 
+const PRESSURE_SOURCE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
+
 fn request(name: &str) -> Value {
     let text = match name {
-        "n05" => include_str!("../../../fixtures/product_preview/physics_source/n05.request.json"),
-        "n06" => include_str!("../../../fixtures/product_preview/physics_source/n06.request.json"),
-        "fields" => {
-            include_str!("../../../fixtures/product_preview/physics_source/fields.request.json")
-        }
-        "mixed" => {
-            include_str!("../../../fixtures/product_preview/physics_source/mixed.request.json")
-        }
+        "n05" => include_str!(
+            "../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
+        ),
+        "n06" => include_str!(
+            "../../../fixtures/product_preview/pressure_source/physics_source/n06.request.json"
+        ),
+        "fields" => include_str!(
+            "../../../fixtures/product_preview/pressure_source/physics_source/fields.request.json"
+        ),
+        "mixed" => include_str!(
+            "../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json"
+        ),
         _ => unreachable!(),
     };
     serde_json::from_str(text).unwrap()
@@ -60,13 +68,10 @@ fn qualified(raw: &Value) {
         "{}",
         raw["diagnostics"]
     );
-    assert_eq!(
-        raw["producer"]["semantic_contract_id"],
-        "openpipestress.result_semantics/0.3.0/physics-source-1"
-    );
+    assert_eq!(raw["producer"]["semantic_contract_id"], PRESSURE_SOURCE_ID);
     assert_eq!(
         raw["source_block_recovery"]["body"]["policy"],
-        "PHYSICS-SOURCE-1"
+        "PRESSURE-SOURCE-1"
     );
     assert_eq!(
         raw["source_block_recovery"]["body"]["status"], "qualified",
@@ -298,10 +303,7 @@ fn nonempty_region_presence_never_enters_empty_region_source_method_even_at_zero
             region["pressure"]["value"] = json!(pressure);
             input["model"]["load_cases"][0]["pressure_regions"] = json!([region]);
             let raw = solve(input, mode);
-            assert_ne!(
-                raw["producer"]["semantic_contract_id"],
-                "openpipestress.result_semantics/0.3.0/physics-source-1"
-            );
+            assert_ne!(raw["producer"]["semantic_contract_id"], PRESSURE_SOURCE_ID);
             assert!(raw.get("source_block_recovery").is_none());
         }
     }

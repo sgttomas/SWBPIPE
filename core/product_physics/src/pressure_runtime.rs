@@ -25,9 +25,11 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 pub(crate) use super::exact_admission::ExactContract;
 use super::exact_admission::{self, component_family, support_family, Admission, ExactFamily};
-/// The retired legacy contract: recognized only so that it is refused by name.
+/// The retired legacy and v2 contracts: recognized only so that they are refused by name.
 const RETIRED_MODE: &str = "legacy_pressure_v1";
 const RETIRED_VERSION: &str = "1.0.0";
+const RETIRED_V2_MODE: &str = "exact_straight_pressure_v2";
+const RETIRED_V2_VERSION: &str = "2.0.0";
 const PRESSURE_BASIS: &str = "internal_differential_zero_external_v1";
 const MATERIAL_BASIS: &str = "homogeneous_isotropic_E_nu_v1";
 /// Representation agreement only, not an engineering geometry tolerance.
@@ -223,7 +225,15 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
     match model.schema_version.as_str() {
         crate::MODEL_SCHEMA_VERSION => {
             if let Some(contract) = &model.pressure_contract {
-                if ExactContract::of(model).is_none() {
+                let declared = (contract.version.as_deref(), contract.mode.as_deref());
+                if declared == (Some(RETIRED_VERSION), Some(RETIRED_MODE))
+                    || declared == (Some(RETIRED_V2_VERSION), Some(RETIRED_V2_MODE))
+                {
+                    // Retired contracts are refused by name with the re-author
+                    // diagnostic (owner, 2026-10-10); nothing is reinterpreted.
+                    problem(diagnostics, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"],
+                        "this pressure contract is retired; re-author the model with pressure_contract 3.0.0/exact_pressure_v3 (shear_model euler_bernoulli), an explicit corrosion_allowance on every pipe section, explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials");
+                } else if ExactContract::of(model).is_none() {
                     problem(diagnostics, "PRESSURE_CONTRACT_UNSUPPORTED", &["pressure_contract"],
                         "model document 0.5.0 accepts only 3.0.0/exact_pressure_v3; incomplete or unknown contracts never fall back");
                 } else {
@@ -1739,8 +1749,8 @@ mod tests {
 
     fn input() -> Value {
         json!({
-            "schema_version":"0.3.0", "document_kind":"openpipestress.product_preview.model",
-            "pressure_contract":{"version":"2.0.0","mode":"exact_straight_pressure_v2"},
+            "schema_version":"0.5.0", "document_kind":"openpipestress.product_preview.model",
+            "pressure_contract":{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"},
             "project":{"id":"project:region-test","units":{"length":"m"}},
             "analysis_status":{"mechanics":"not_run","rule_check":"not_run","professional_acceptance":"not_requested"},
             "nodes":[
@@ -1750,9 +1760,11 @@ mod tests {
             ],
             "pipe_segments":[
                 {"id":"pipe:A","from":"node:A","to":"node:B","material":"material:A","y_reference":{"x":0.0,"y":1.0,"z":0.0},
-                 "section":{"outside_diameter":{"value":4.0,"unit":"m"},"wall_thickness":{"value":1.0,"unit":"m"}}},
+                 "section":{"outside_diameter":{"value":4.0,"unit":"m"},"wall_thickness":{"value":1.0,"unit":"m"},
+                    "corrosion_allowance":{"value":0.0,"unit":"m"}}},
                 {"id":"pipe:B","from":"node:B","to":"node:C","material":"material:A","y_reference":{"x":0.0,"y":1.0,"z":0.0},
-                 "section":{"outside_diameter":{"value":4.0,"unit":"m"},"wall_thickness":{"value":1.0,"unit":"m"}}}
+                 "section":{"outside_diameter":{"value":4.0,"unit":"m"},"wall_thickness":{"value":1.0,"unit":"m"},
+                    "corrosion_allowance":{"value":0.0,"unit":"m"}}}
             ],
             "materials":[{"id":"material:A","constitutive_basis":"homogeneous_isotropic_E_nu_v1",
                 "elastic_modulus":{"value":120.0,"unit":"Pa"},"poisson_ratio":{"value":0.25,"unit":"1"},
@@ -1908,8 +1920,9 @@ mod tests {
 
     #[test]
     fn zero_poisson_limit_does_not_include_thermal_load() {
-        // T4-U0: the input's p = +3 replaces the former p = -3, which is now
-        // refused by name (`negative_pressure_is_refused_by_name_before_assembly`);
+        // T4-U0: the input's p = +3 replaces the former p = -3, which v2
+        // refused by name (B7b deleted v2; see
+        // `negative_pressure_assembles_under_the_current_contract`);
         // the cap load at node A is -p*Ai = -3*pi with Ai = pi.
         let mut value = input();
         value["materials"][0]["poisson_ratio"]["value"] = json!(0.0);
@@ -1925,36 +1938,23 @@ mod tests {
         assert_close(result.cap_loads[0], -3.0 * PI, 3.0 * PI);
     }
 
-    /// T4-U0 A2.6: p < 0 is refused by name before any load is assembled; the
-    /// strict IEEE test admits both signed zeros.
+    /// T4-U0 A2.6 under the current contract: B7b deleted v2's named refusal of
+    /// p < 0; `3.0.0/exact_pressure_v3` assembles a negative differential (its
+    /// external-pressure stability is not assessed, as its formulation states)
+    /// and both signed zeros, with no negative-pressure finding.
     #[test]
-    fn negative_pressure_is_refused_by_name_before_assembly() {
-        for (pressure, refused) in [(-3.0, true), (-5e-324, true), (-0.0, false), (0.0, false)] {
+    fn negative_pressure_assembles_under_the_current_contract() {
+        for pressure in [-3.0, -5e-324, -0.0, 0.0] {
             let mut value = input();
             value["load_cases"][0]["pressure_regions"][0]["pressure"]["value"] = json!(pressure);
             let (result, diagnostics) = assemble(value);
-            let negative = diagnostics
-                .iter()
-                .filter(|d| d.code == "PRESSURE_REGION_PRESSURE_NEGATIVE")
-                .collect::<Vec<_>>();
-            if refused {
-                assert!(result.is_none(), "{pressure:e}: assembled a refused case");
-                assert_eq!(negative.len(), 1, "{pressure:e}: {diagnostics:?}");
-                let finding = negative[0];
-                assert_eq!(finding.severity, "blocking");
-                assert_eq!(finding.affected_refs, ["case:A", "region:A", "pressure"]);
-                assert_eq!(
-                    finding.id,
-                    "diagnostic:pressure-runtime:case-A-region-A-pressure:PRESSURE_REGION_PRESSURE_NEGATIVE"
-                );
-                assert_eq!(
-                    finding.source.as_deref(),
-                    Some("core/product_physics/src/pressure_runtime.rs")
-                );
-            } else {
-                assert!(negative.is_empty(), "{pressure:e}: {diagnostics:?}");
-                assert!(!has_blocking(&diagnostics), "{pressure:e}: {diagnostics:?}");
-                let result = result.expect("a signed-zero pressure assembles");
+            assert!(
+                !diagnostics.iter().any(|d| d.code == "PRESSURE_REGION_PRESSURE_NEGATIVE"),
+                "{pressure:e}: {diagnostics:?}"
+            );
+            assert!(!has_blocking(&diagnostics), "{pressure:e}: {diagnostics:?}");
+            let result = result.expect("the current contract assembles a signed pressure");
+            if pressure == 0.0 {
                 assert!(result.cap_loads.iter().all(|value| *value == 0.0));
             }
         }
@@ -2043,12 +2043,19 @@ mod tests {
         let mut empty = input();
         empty["load_cases"][0]["pressure_regions"] = json!([]);
         assert!(assemble(empty).0.unwrap().pipe_states.is_empty());
+        // Regions without the contract (B7b: the current document's pressure-free
+        // form) are a namespace mismatch, never ignored.
         let mut old = input();
-        old["schema_version"] = json!(crate::MODEL_SCHEMA_VERSION);
+        old.as_object_mut().unwrap().remove("pressure_contract");
+        for pipe in old["pipe_segments"].as_array_mut().unwrap() {
+            pipe["section"].as_object_mut().unwrap().remove("corrosion_allowance");
+        }
         expect_rejected(old, "PREVIEW_CONTRACT_VERSION_MISMATCH");
         let mut old = input();
-        old["schema_version"] = json!(crate::MODEL_SCHEMA_VERSION);
         old.as_object_mut().unwrap().remove("pressure_contract");
+        for pipe in old["pipe_segments"].as_array_mut().unwrap() {
+            pipe["section"].as_object_mut().unwrap().remove("corrosion_allowance");
+        }
         old["load_cases"][0]
             .as_object_mut()
             .unwrap()
@@ -2067,7 +2074,8 @@ mod tests {
         validate_profile(&parse(old.clone()), &mut diagnostics);
         assert_eq!(diagnostics.len(), 1, "{diagnostics:?}");
         assert_eq!(diagnostics[0].code, "PRESSURE_MODEL_REAUTHOR_REQUIRED");
-        assert!(diagnostics[0].message.contains("2.0.0/exact_straight_pressure_v2"));
+        // B7b A5: the re-author text names the current contract.
+        assert!(diagnostics[0].message.contains("3.0.0/exact_pressure_v3"), "{}", diagnostics[0].message);
         // Without the primitive, the 0.5.0 document is pressure-free and admitted.
         old["load_cases"][0]["primitive_loads"] = json!([]);
         diagnostics.clear();
@@ -2084,8 +2092,25 @@ mod tests {
             assert_eq!(diagnostics[0].affected_refs, ["schema_version"]);
             assert!(diagnostics[0].message.contains(retired) && diagnostics[0].message.contains("re-author"), "{}", diagnostics[0].message);
         }
-        // The retired 1.0.0/legacy_pressure_v1 label is refused with the re-author code;
-        // any other contract stays unsupported.
+        // Any other contract, the retired v2 contract included (B7b), stays
+        // unsupported on the current document.
+        for contract in [
+            json!({"version":"1.0.1","mode":"legacy_pressure_v1"}),
+            json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"}),
+        ] {
+            let mut unknown = input();
+            unknown["pressure_contract"] = contract;
+            expect_rejected(unknown, "PRESSURE_CONTRACT_UNSUPPORTED");
+        }
+        // B7b deleted RV127 N-7's 0.3.0-era namespace pins (their documents are
+        // retired by version, above); the legacy label's refusal is checked below.
+    }
+
+    /// U3 (D-2 A1): the retired 1.0.0/legacy_pressure_v1 label is refused with
+    /// the re-author code. B7b: the label can only appear on the current 0.5.0
+    /// document now.
+    #[test]
+    fn retired_legacy_pressure_label_takes_the_reauthor_code() {
         let mut labelled = input();
         labelled["pressure_contract"] = json!({"version":"1.0.0","mode":"legacy_pressure_v1"});
         labelled["load_cases"][0].as_object_mut().unwrap().remove("pressure_regions");
@@ -2097,32 +2122,7 @@ mod tests {
             "{diagnostics:?}"
         );
         assert_eq!(diagnostics[0].affected_refs, ["pressure_contract"]);
-        assert!(diagnostics[0].message.contains("retired") && diagnostics[0].message.contains("2.0.0/exact_straight_pressure_v2"));
-        let mut unknown = input();
-        unknown["pressure_contract"] = json!({"version":"1.0.1","mode":"legacy_pressure_v1"});
-        expect_rejected(unknown, "PRESSURE_CONTRACT_UNSUPPORTED");
-        // RV127 N-7: the namespace refusals name the exact contract too.
-        for (schema, contract, code) in [
-            ("0.5.0", Some(json!({"version":"1.0.0","mode":"legacy_pressure_v1"})), "PREVIEW_CONTRACT_VERSION_MISMATCH"),
-            ("0.3.0", None, "PRESSURE_CONTRACT_REQUIRED"),
-        ] {
-            let mut value = input();
-            value["schema_version"] = json!(schema);
-            match contract {
-                Some(contract) => value["pressure_contract"] = contract,
-                None => {
-                    value.as_object_mut().unwrap().remove("pressure_contract");
-                }
-            }
-            value["load_cases"][0].as_object_mut().unwrap().remove("pressure_regions");
-            let mut diagnostics = Vec::new();
-            validate_profile(&parse(value), &mut diagnostics);
-            let found = diagnostics
-                .iter()
-                .find(|d| d.code == code)
-                .unwrap_or_else(|| panic!("{schema}: {diagnostics:?}"));
-            assert!(found.message.contains("2.0.0/exact_straight_pressure_v2"), "{schema}: {}", found.message);
-        }
+        assert!(diagnostics[0].message.contains("retired") && diagnostics[0].message.contains("3.0.0/exact_pressure_v3"));
     }
 
     #[test]

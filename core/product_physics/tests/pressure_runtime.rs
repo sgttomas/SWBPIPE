@@ -76,7 +76,8 @@ fn material(id: &str, e: f64, nu: f64) -> Value {
 fn pipe(id: &str, from: &str, to: &str, outside: f64, wall: f64, material_id: &str) -> Value {
     json!({"id":id,"from":from,"to":to,
         "section":{"outside_diameter":{"value":outside,"unit":"m"},
-            "wall_thickness":{"value":wall,"unit":"m"}},
+            "wall_thickness":{"value":wall,"unit":"m"},
+            "corrosion_allowance":{"value":0.0,"unit":"m"}},
         "material":material_id,"y_reference":{"x":0.0,"y":0.0,"z":1.0},
         "provenance":"synthetic_straight_annulus"})
 }
@@ -95,8 +96,8 @@ fn model(fixed: bool, transfer: bool, thermal: f64) -> Value {
             "dimension":"temperature_interval","provenance":"independent_thermal_strain"})]
     };
     json!({"model":{
-        "schema_version":"0.3.0","document_kind":"openpipestress.product_preview.model",
-        "pressure_contract":{"version":"2.0.0","mode":"exact_straight_pressure_v2"},
+        "schema_version":"0.5.0","document_kind":"openpipestress.product_preview.model",
+        "pressure_contract":{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"},
         "project":{"id":"project:pressure-oracle","units":{"length":"m","force":"N",
             "angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics",
@@ -495,7 +496,8 @@ fn exact_pressure_rotates_as_vectors_and_normalizes_mm_mpa_inputs() {
                     input["model"]["project"]["units"]["stress"] = json!("MPa");
                     input["model"]["pipe_segments"][0]["section"] = json!({
                         "outside_diameter":{"value":120.0,"unit":"mm"},
-                        "wall_thickness":{"value":10.0,"unit":"mm"}});
+                        "wall_thickness":{"value":10.0,"unit":"mm"},
+                        "corrosion_allowance":{"value":0.0,"unit":"m"}});
                     input["model"]["materials"][0]["elastic_modulus"] =
                         json!({"value":200000.0,"unit":"MPa"});
                     input["model"]["load_cases"][0]["pressure_regions"][0]["pressure"] =
@@ -688,6 +690,21 @@ fn zero_poisson_and_thermal_reversal_preserve_the_selected_equations() {
     }
 }
 
+/// The pressure-free form of a current exact test model: the contract, every
+/// case's `pressure_regions` and every section's corrosion allowance leave
+/// together (each is refused by name without the contract).
+fn pressure_free(input: &mut Value) {
+    let model = &mut input["model"];
+    assert_eq!(model["schema_version"], "0.5.0");
+    model.as_object_mut().unwrap().remove("pressure_contract");
+    for case in model["load_cases"].as_array_mut().unwrap() {
+        case.as_object_mut().unwrap().remove("pressure_regions");
+    }
+    for pipe in model["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"].as_object_mut().unwrap().remove("corrosion_allowance");
+    }
+}
+
 fn rejected(input: Value, code: &str) {
     for mode in MODES {
         let result = solve(input.clone(), mode);
@@ -797,74 +814,90 @@ fn namespaces_and_nonzero_legacy_pressure_cannot_silently_fallback() {
         "provenance":"explicit_invalid_legacy_pressure_in_exact_model"}]);
     rejected(exact_primitive.clone(), "EXACT_PRESSURE_REQUIRES_REGION");
     let mut legacy = exact_primitive;
-    legacy["model"]["schema_version"] = json!("0.5.0");
-    legacy["model"]
-        .as_object_mut()
-        .unwrap()
-        .remove("pressure_contract");
-    legacy["model"]["load_cases"][0]
-        .as_object_mut()
-        .unwrap()
-        .remove("pressure_regions");
+    pressure_free(&mut legacy);
     legacy["model"]["materials"][0]["shear_modulus"] = json!({"value":77e9,"unit":"Pa"});
     rejected(legacy.clone(), "PRESSURE_MODEL_REAUTHOR_REQUIRED");
-    // B7a: the retired 0.1.0 and 0.2.0 are refused by name (re-author), never solved.
-    for retired in ["0.1.0", "0.2.0"] {
+    // B7a/B7b: every retired version (0.1.0-0.4.0) is refused by name (re-author),
+    // never solved, with or without the current contract.
+    for retired in ["0.1.0", "0.2.0", "0.3.0", "0.4.0"] {
         let mut old = legacy.clone();
         old["model"]["schema_version"] = json!(retired);
         old["model"]["load_cases"][0]["primitive_loads"] = json!([]);
         rejected(old, "MODEL_SCHEMA_VERSION_RETIRED");
+        let mut exact = model(false, true, 0.0);
+        exact["model"]["schema_version"] = json!(retired);
+        rejected(exact, "MODEL_SCHEMA_VERSION_RETIRED");
     }
-    let mut mismatch = model(false, true, 0.0);
-    mismatch["model"]["schema_version"] = json!("0.5.0");
-    rejected(mismatch, "PREVIEW_CONTRACT_VERSION_MISMATCH");
+    // B7b: the retired v2 contract on the current document never falls back.
+    let mut retired_contract = model(false, true, 0.0);
+    retired_contract["model"]["pressure_contract"] =
+        json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
+    rejected(retired_contract, "PRESSURE_CONTRACT_UNSUPPORTED");
+    // Regions without the contract are refused by name, never ignored.
+    let mut regions = model(false, true, 0.0);
+    regions["model"].as_object_mut().unwrap().remove("pressure_contract");
+    for pipe in regions["model"]["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"].as_object_mut().unwrap().remove("corrosion_allowance");
+    }
+    rejected(regions, "PREVIEW_CONTRACT_VERSION_MISMATCH");
     let mut unknown = model(false, true, 0.0);
     unknown["model"]["pressure_contract"]["version"] = json!("99.0.0");
     rejected(unknown, "PRESSURE_CONTRACT_UNSUPPORTED");
 }
 
-/// U3 (D-1 A, D-2 A1): legacy pressure is retired on the ordinary route. A model
-/// declaring 1.0.0/legacy_pressure_v1 is refused with zero pressure, with and
-/// without a combination (a feature the exact contract refuses); a 0.5.0 model with
-/// a zero-valued pressure primitive is refused; the same 0.5.0 model without the
-/// primitive is pressure-free and solves.
+/// The one blocking refusal of `input` in both modes: `code`, `refs`, and a
+/// re-author text that names the current exact contract (B7b A5).
+fn only_refusal(input: &Value, code: &str, refs: &[&str]) {
+    for mode in MODES {
+        let result = solve(input.clone(), mode);
+        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+        assert!(result.results.is_empty());
+        let blocking = result
+            .diagnostics
+            .iter()
+            .filter(|d| d.severity == "blocking")
+            .collect::<Vec<_>>();
+        assert_eq!(blocking.len(), 1, "{blocking:?}");
+        assert_eq!(blocking[0].code, code, "{blocking:?}");
+        assert_eq!(blocking[0].affected_refs, refs);
+        assert!(blocking[0].message.contains("3.0.0/exact_pressure_v3"), "{}", blocking[0].message);
+        assert!(!blocking[0].message.contains("exact_straight_pressure_v2"));
+    }
+}
+
+/// U3 (D-1 A, D-2 A1): a model declaring the retired 1.0.0/legacy_pressure_v1
+/// label is refused with the re-author code, zero pressure included, with and
+/// without a combination (a feature the exact contract refuses). B7b: the label
+/// can only appear on the current 0.5.0 document now.
 #[test]
-fn retired_legacy_pressure_is_refused_and_pressure_free_documents_solve() {
-    let only = |input: &Value, code: &str, refs: &[&str]| {
-        for mode in MODES {
-            let result = solve(input.clone(), mode);
-            assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
-            assert!(result.results.is_empty());
-            let blocking = result
-                .diagnostics
-                .iter()
-                .filter(|d| d.severity == "blocking")
-                .collect::<Vec<_>>();
-            assert_eq!(blocking.len(), 1, "{blocking:?}");
-            assert_eq!(blocking[0].code, code);
-            assert_eq!(blocking[0].affected_refs, refs);
-            assert!(blocking[0].message.contains("2.0.0/exact_straight_pressure_v2"));
-        }
-    };
+fn retired_legacy_pressure_label_takes_the_reauthor_code() {
     let mut labelled = model(true, true, 0.012);
+    pressure_free(&mut labelled);
     labelled["model"]["pressure_contract"] =
         json!({"version":"1.0.0","mode":"legacy_pressure_v1"});
-    labelled["model"]["load_cases"][0]
-        .as_object_mut()
-        .unwrap()
-        .remove("pressure_regions");
+    for pipe in labelled["model"]["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"]["corrosion_allowance"] = json!({"value":0.0,"unit":"m"});
+    }
     // Without the exact contract the material route needs an explicit G.
     labelled["model"]["materials"][0]["shear_modulus"] = json!({"value":77e9,"unit":"Pa"});
-    only(&labelled, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"]);
+    only_refusal(&labelled, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"]);
     let mut combined = labelled.clone();
     combined["model"]["combinations"] = json!([{"id":"combination:one","label":"one",
         "basis":"mechanics","terms":[{"load_case":CASE,"factor":1.0}],
         "provenance":"synthetic_combination"}]);
-    only(&combined, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"]);
+    only_refusal(&combined, "PRESSURE_MODEL_REAUTHOR_REQUIRED", &["pressure_contract"]);
+}
 
-    let mut free = labelled;
-    free["model"]["schema_version"] = json!("0.5.0");
-    free["model"].as_object_mut().unwrap().remove("pressure_contract");
+/// U3 (D-1 A, D-2 A1): legacy pressure is retired on the ordinary route. A 0.5.0
+/// model with a zero-valued pressure primitive is refused; the same 0.5.0 model
+/// without the primitive is pressure-free and solves.
+#[test]
+fn retired_legacy_pressure_is_refused_and_pressure_free_documents_solve() {
+    let only = only_refusal;
+    let mut free = model(true, true, 0.012);
+    pressure_free(&mut free);
+    // Without the exact contract the material route needs an explicit G.
+    free["model"]["materials"][0]["shear_modulus"] = json!({"value":77e9,"unit":"Pa"});
     let mut zero = free.clone();
     zero["model"]["load_cases"][0]["primitive_loads"]
         .as_array_mut()
@@ -1040,15 +1073,7 @@ fn thermal_alpha_is_required_on_the_selected_basis_not_unused_base() {
 #[test]
 fn legacy_missing_g_remains_an_input_error() {
     let mut input = model(false, true, 0.0);
-    input["model"]["schema_version"] = json!("0.5.0");
-    input["model"]
-        .as_object_mut()
-        .unwrap()
-        .remove("pressure_contract");
-    input["model"]["load_cases"][0]
-        .as_object_mut()
-        .unwrap()
-        .remove("pressure_regions");
+    pressure_free(&mut input);
     rejected(input, "MATERIAL_INPUT_MISSING");
 }
 

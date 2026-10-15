@@ -7,8 +7,12 @@
 //!   published Passed; the mitre refusal control; each negative control's
 //!   listed wrong values are not what the product publishes.
 //! - `validation/references/t4_i8/` (T4-I8, rebuilt straight cases): every
-//!   row on the v3 straight route at the row's own criterion, and every v3
-//!   twin bit-equal to its v2 original apart from SP-1's closed exclusions.
+//!   row on the v3 straight route at the row's own criterion.
+//!
+//! B7b: the frozen documents stay 0.3.0/0.4.0 (bytes unchanged); every copy is
+//! re-authored to the current 0.5.0 exact document (`common/current_model.rs`)
+//! before it runs. The v2 originals and SP-1's v2/v3 twin clause were retired
+//! with `exact_straight_pressure_v2`.
 //!
 //! SP-3: a mismatch here is the product's to fix, never the reference's.
 
@@ -18,6 +22,9 @@ use open_pipe_stress_product_physics::{
 };
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, HashMap};
+
+#[path = "common/current_model.rs"]
+mod current_model;
 
 const I7: &str = include_str!("../../../validation/references/t4_i7/u2_reference_cases.json");
 const I7_DOCUMENTS: &str =
@@ -39,17 +46,20 @@ fn number(value: &Value) -> f64 {
     }
 }
 
+/// The captured entry on the re-authored copy of a frozen document.
 fn captured(document: &Value, mode: PreviewSolverMode) -> Value {
     serde_json::to_value(
-        run_linear_static_preview_value_with_mode(document.clone(), mode)
+        run_linear_static_preview_value_with_mode(current_model::reauthor_request(document.clone()), mode)
             .expect("the captured entry accepts the document"),
     )
     .unwrap()
 }
 
+/// The typed entry on the re-authored copy of a frozen document.
 fn typed(document: &Value, mode: PreviewSolverMode) -> Value {
     serde_json::to_value(run_linear_static_preview_with_mode(
-        serde_json::from_value(document.clone()).expect("the typed DTO deserializes"),
+        serde_json::from_value(current_model::reauthor_request(document.clone()))
+            .expect("the typed DTO deserializes"),
         mode,
     ))
     .unwrap()
@@ -461,8 +471,9 @@ fn i7_admitted_kinks_are_recorded_and_carried_by_the_remainder() {
 
 // ------------------------------------------------------------------ T4-I8
 
-/// Each T4-I8 document with its v3 twin (the reference's `v3_patch_for_both`).
-fn i8_documents(references: &Value) -> Vec<(String, Value, Value, Vec<Value>)> {
+/// Each T4-I8 document's v3 twin (the reference's `v3_patch_for_both` on the
+/// frozen document; `captured` re-authors the copy to 0.5.0).
+fn i8_documents(references: &Value) -> Vec<(String, Value, Vec<Value>)> {
     let mut found = Vec::new();
     for (case_id, case) in references["cases"].as_object().unwrap() {
         let mut owners = Vec::new();
@@ -482,10 +493,9 @@ fn i8_documents(references: &Value) -> Vec<(String, Value, Value, Vec<Value>)> {
                 .map(|cases| cases.values().flat_map(|c| c["rows"].as_array().unwrap().clone()).collect())
                 .unwrap_or_default();
             for version in VERSIONS {
-                let v2 = owner["documents"][format!("v2_model_{version}")].clone();
-                let mut v3 = v2.clone();
+                let mut v3 = owner["documents"][format!("v2_model_{version}")].clone();
                 v3["model"]["pressure_contract"] = patch["value"].clone();
-                found.push((format!("{name} {version}"), v2, v3, rows.clone()));
+                found.push((format!("{name} {version}"), v3, rows.clone()));
             }
         }
     }
@@ -508,7 +518,7 @@ fn i8_rows_match_on_the_v3_straight_route() {
     let references: Value = serde_json::from_str(I8).unwrap();
     let mut checked = 0usize;
     let mut failures = Vec::new();
-    for (name, _, v3, rows) in i8_documents(&references) {
+    for (name, v3, rows) in i8_documents(&references) {
         for mode in MODES {
             let envelope = captured(&v3, mode);
             assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{name}: {:?}", codes(&envelope));
@@ -548,66 +558,9 @@ fn i8_rows_match_on_the_v3_straight_route() {
     assert!(checked > 0);
 }
 
-/// SP-1's twin clause on every T4-I8 document: every numeric leaf of the v3
-/// envelope is bit-equal to the v2 one, apart from the closed exclusion list
-/// (identity, semantics, limitations and the evidence strings naming the
-/// contract), on both entries and in both modes.
-#[test]
-fn i8_v3_twins_are_bit_equal_to_v2() {
-    let references: Value = serde_json::from_str(I8).unwrap();
-    for (name, v2, v3, _) in i8_documents(&references) {
-        for mode in MODES {
-            for run in [captured, typed] {
-                let (original, twin) = (run(&v2, mode), run(&v3, mode));
-                assert_eq!(original["status"]["mechanics"], "MECHANICS_SOLVED", "{name}");
-                let mut differences = Vec::new();
-                compare("", &original, &twin, &mut differences);
-                assert!(differences.is_empty(), "{name} {mode:?}: {differences:#?}");
-            }
-        }
-    }
-}
-
-/// The closed exclusion list (T4-I8 /sp1_pair_scope E1-E4), as T4-U2a's
-/// seam test applies it.
-fn excluded(path: &str) -> bool {
-    path == "/producer/semantic_contract_id"
-        || path == "/formulation_basis/profile_id"
-        || path.starts_with("/formulation_basis/limitations")
-        || (path.starts_with("/contract_evidence/exact_cases/") && path.ends_with("/profile_mode"))
-        || (path.starts_with("/contract_evidence/pressure/")
-            && (path.ends_with("/profile_mode") || path.ends_with("/profile_version")))
-}
-
-fn compare(path: &str, a: &Value, b: &Value, differences: &mut Vec<String>) {
-    match (a, b) {
-        (Value::Object(x), Value::Object(y)) => {
-            for key in x.keys().chain(y.keys().filter(|k| !x.contains_key(*k))) {
-                let child = format!("{path}/{key}");
-                match (x.get(key), y.get(key)) {
-                    (Some(p), Some(q)) => compare(&child, p, q, differences),
-                    _ if excluded(&child) => {}
-                    _ => differences.push(format!("{child}: key present on one side")),
-                }
-            }
-        }
-        (Value::Array(x), Value::Array(y)) if x.len() == y.len() || excluded(path) => {
-            if !excluded(path) {
-                for (index, (p, q)) in x.iter().zip(y).enumerate() {
-                    compare(&format!("{path}/{index}"), p, q, differences);
-                }
-            }
-        }
-        (Value::Number(x), Value::Number(y)) => {
-            let (p, q) = (x.as_f64().unwrap(), y.as_f64().unwrap());
-            if p.to_bits() != q.to_bits() || x.to_string() != y.to_string() {
-                differences.push(format!("{path}: {x} vs {y}"));
-            }
-        }
-        _ if a == b || excluded(path) => {}
-        _ => differences.push(format!("{path}: {a} vs {b}")),
-    }
-}
+// B7b: SP-1's v2/v3 twin clause (`i8_v3_twins_are_bit_equal_to_v2`) protected
+// only the retired v2 contract and was deleted with it; the I8 rows above keep
+// the live v3 straight-route check.
 
 // --------------------------------------------------------- admission (D-2)
 

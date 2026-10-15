@@ -18,15 +18,11 @@ fn reference_inputs() -> (Value, Value) {
     assert_eq!(format!("{:x}", Sha256::digest(REQUESTS.as_bytes())), oracle["requests_sha256"].as_str().unwrap());
     (requests, oracle)
 }
-/// Re-author only the copied preview invocation's version for B7a's current
-/// public route. The SHA-bound frozen request and every physical input stay fixed.
+/// Re-author only the copied invocation to the current 0.5.0 document (B7a's
+/// pressure-free version; B7b's exact contract with zero allowance and
+/// Euler-Bernoulli). The SHA-bound frozen request and every physical input stay fixed.
 fn current_request(requests: &Value, id: &str) -> Value {
-    let mut document = requests["cases"][id].clone();
-    if document["model"]["schema_version"] == serde_json::json!("0.2.0") {
-        assert!(document["model"].get("pressure_contract").is_none());
-        document["model"]["schema_version"] = serde_json::json!(crate::MODEL_SCHEMA_VERSION);
-    }
-    document
+    crate::b7b_admission_tests::reauthor_current_request(requests["cases"][id].clone())
 }
 fn row<'a>(out: &'a MechanicsEnvelope, kind: &str, entity: &str, location: &str, component: &str) -> &'a ResultItem {
     let found = out.results.iter().filter(|r| r.kind == kind && r.entity_ref == entity &&

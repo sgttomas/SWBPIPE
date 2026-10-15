@@ -156,8 +156,8 @@ fn phys_r4(pressurized: bool) -> Value {
         );
     }
     json!({"model": {
-        "schema_version": "0.3.0", "document_kind": "openpipestress.product_preview.model",
-        "pressure_contract": {"version": "2.0.0", "mode": "exact_straight_pressure_v2"},
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
         "project": {"id": "project:section-oracle", "units": {"length": "m", "force": "N", "angle": "rad",
             "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
@@ -166,7 +166,8 @@ fn phys_r4(pressurized: bool) -> Value {
             {"id": b, "position": {"x": 1.0, "y": 0.0, "z": 0.0}, "provenance": PROV}],
         "pipe_segments": [{"id": "pipe:source-section", "from": a, "to": b, "section": {
             "outside_diameter": {"value": 4e-77, "unit": "m"},
-            "wall_thickness": {"value": 1e-77, "unit": "m"}},
+            "wall_thickness": {"value": 1e-77, "unit": "m"},
+            "corrosion_allowance": {"value": 0.0, "unit": "m"}},
             "material": "material:section", "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0},
             "provenance": PROV}],
         "materials": [{"id": "material:section", "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
@@ -394,7 +395,8 @@ fn exact_pressure(p: f64, (od, wall): (f64, f64), (e, nu): (f64, f64)) -> Value 
     let model = &mut request["model"];
     model["load_cases"][0]["pressure_regions"][0]["pressure"]["value"] = json!(p);
     model["pipe_segments"][0]["section"] = json!({"outside_diameter": {"value": od, "unit": "m"},
-        "wall_thickness": {"value": wall, "unit": "m"}});
+        "wall_thickness": {"value": wall, "unit": "m"},
+        "corrosion_allowance": {"value": 0.0, "unit": "m"}});
     model["materials"][0]["elastic_modulus"]["value"] = json!(e);
     model["materials"][0]["poisson_ratio"]["value"] = json!(nu);
     request
@@ -1221,7 +1223,10 @@ fn f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope() {
                 // B7a's H-4 then changed the summary (the curved macro-element
                 // count's name, the deleted retired thrust count) and reworded
                 // the pressure/imposed-displacement limitation sentence.
-                "762cf9ca637b610d05274fe53d3b4e2972f4c2d35786f7b50ec496650c72a08a",
+                // 95fc09ff11 (preview arc end actions in tangent frames)
+                // then reworded the arc limitation sentence (3830 -> 3869
+                // bytes); restoring that one sentence recovers 762cf9ca....
+                "40d62d453e993586c01821b0ba58b5a5d081fba0122d8a8778cd7cbf8736ac41",
                 "{ctx}"
             );
         }

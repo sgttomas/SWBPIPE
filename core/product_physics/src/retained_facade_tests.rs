@@ -2395,17 +2395,22 @@ fn b1_sp_constructor_ordinal_is_the_authored_index() {
 // milestone authored as 0.3.0 exact), the coexistence pins are n05 and n06 (with `fields` for
 // P-2), and the mixed exact base is `m3x_mix_anchor`. B3a is dropped; `m3l` is its refusal witness.
 
-/// `raw` authored as 0.3.0 exact (I99's `gen_inputs.py`, item 1): the exact contract; each
-/// material's shear modulus removed, with the common E/ν basis and ν = 0.25; explicitly empty
-/// pressure regions on every case. On the milestone this is B3-W's `m3x`.
+/// `raw` authored as exact (I99's `gen_inputs.py`, item 1; B7b: re-authored once to model 0.5.0
+/// with the current `3.0.0/exact_pressure_v3` contract, `shear_model` Euler-Bernoulli and an
+/// explicit zero corrosion allowance on every pipe section): each material's shear modulus
+/// removed, with the common E/ν basis and ν = 0.25; explicitly empty pressure regions on every
+/// case. On the milestone this is B3-W's `m3x`. `tests/common/b1_sq_inputs.rs` transcribes it.
 fn exact3(mut raw: Value) -> Value {
     let m = &mut raw["model"];
-    m["schema_version"] = json!("0.3.0");
-    m["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+    m["schema_version"] = json!("0.5.0");
+    m["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
     for material in m["materials"].as_array_mut().unwrap() {
         material.as_object_mut().unwrap().remove("shear_modulus");
         material["constitutive_basis"] = json!("homogeneous_isotropic_E_nu_v1");
         material["poisson_ratio"] = json!({"value": 0.25, "unit": "1"});
+    }
+    for pipe in m["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"]["corrosion_allowance"] = json!({"value": 0.0, "unit": "m"});
     }
     for case in m["load_cases"].as_array_mut().unwrap() {
         case["pressure_regions"] = json!([]);
@@ -2436,9 +2441,10 @@ fn m3l() -> Value {
 }
 /// The committed physics-source requests: B3b's coexistence pins n05 and n06, and P-2's
 /// selection discriminator `fields` (RR "I99's B3-W verified; …", rulings 1 and 2).
-const N05_EXACT: &str = include_str!("../../../fixtures/product_preview/physics_source/n05.request.json");
-const N06_EXACT: &str = include_str!("../../../fixtures/product_preview/physics_source/n06.request.json");
-const FIELDS_EXACT: &str = include_str!("../../../fixtures/product_preview/physics_source/fields.request.json");
+/// B7b: the current (0.5.0, v3) twins of the deleted v2 originals.
+const N05_EXACT: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
+const N06_EXACT: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n06.request.json");
+const FIELDS_EXACT: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/fields.request.json");
 fn model_of(raw: &Value) -> PreviewModel {
     source_receipt::CapturedInvocation::parse(raw.clone(), PreviewSolverMode::SparseInteractive).unwrap().0.model
 }
@@ -2451,12 +2457,15 @@ fn model_of(raw: &Value) -> PreviewModel {
 fn b3b_witness_inputs_and_routes() {
     use rp::W1Route as R;
     let value_sha = |v: &Value| sha(&serde_json::to_vec(v).unwrap());
-    assert_eq!(value_sha(&m3x()), "c920a96dc542c3ecadb63f724cfcf243d73d5dd71692e4f48827a620bb0e5497", "m3x");
-    assert_eq!(value_sha(&m3x_mix_anchor()), "6ca777a6e3ed658bcf58813d277e839033ac07f0b84efb8526351a20c67d1ee0", "m3x_mix_anchor");
+    // B7b re-pinned the exact witnesses after their one re-authoring to 0.5.0
+    // (v3, Euler-Bernoulli, zero corrosion allowance); `m3l` is a refusal
+    // control in its retired form and keeps its pin.
+    assert_eq!(value_sha(&m3x()), "71be3e9c0d05c7a5e050e63a285b5239769274dfe418002ac28df15299eb9c46", "m3x");
+    assert_eq!(value_sha(&m3x_mix_anchor()), "b91da678f65cc5809072fc699055b9dab053bc42c9a5cb494aa6a65814a1467d", "m3x_mix_anchor");
     assert_eq!(value_sha(&m3l()), "2f5ff465bfa97005a581d88e02c0a5478ea24da3bdc1c2eb9fcda491803fc0c3", "m3l");
-    for (name, text, file_sha) in [("n05", N05_EXACT, "332319ee6f47870a074a6c16fbf2f43c0171e376a0b4cd1cb7f7ad8b59254b00"),
-        ("n06", N06_EXACT, "5551f164b9e8ab88f04f3abce810e1e1b1ff47236bba6a296e32905f628be931"),
-        ("fields", FIELDS_EXACT, "7f8ff9d5e23712cedd6ca58a86a690517a8e820b9b072962ca43ad60be286002")] {
+    for (name, text, file_sha) in [("n05", N05_EXACT, "e01b5880a62454cc7dc295fe231b61e5c97e10367962fe18ac3cd5298887124b"),
+        ("n06", N06_EXACT, "35c17e4497ed98dbdd44f656fd886a9d98dc609ed646684ac1c05652dbdda6d1"),
+        ("fields", FIELDS_EXACT, "67ac4067d5b98063f591138af4d2e220e1f34c366b61bc4acd09c90acd41b199")] {
         assert_eq!(sha(text.as_bytes()), file_sha, "{name}");
         assert_eq!(w1_route(&model_of(&serde_json::from_str(text).unwrap())), Some(R::Exact), "{name}");
     }
@@ -2466,10 +2475,16 @@ fn b3b_witness_inputs_and_routes() {
     assert_eq!(w1_route(&model_of(&m3x_mix_anchor())), Some(R::Exact), "E, two cases");
     let mut four = m3x();
     four["model"]["schema_version"] = json!("0.4.0");
-    assert_eq!(w1_route(&model_of(&four)), None, "0.4.0 (a load-state document): no W1 route");
+    assert_eq!(w1_route(&model_of(&four)), None, "retired 0.4.0: no W1 route");
+    // B7b: a present null contract fails decoding, so the contract-absent control omits the
+    // key. Model 0.5.0 keys on what the document carries: without a contract it is
+    // pressure-free (`model_format::is_pressure_free`), so its namespace branch is L; the
+    // retired 0.3.0 form keeps HEAD's "no branch".
     let mut contractless = m3x();
-    contractless["model"]["pressure_contract"] = Value::Null;
-    assert_eq!(w1_route(&model_of(&contractless)), None, "0.3.0 without a contract: no branch");
+    contractless["model"].as_object_mut().unwrap().remove("pressure_contract");
+    assert_eq!(w1_route(&model_of(&contractless)), Some(R::Preview), "0.5.0 without a contract: pressure-free, branch L");
+    contractless["model"]["schema_version"] = json!("0.3.0");
+    assert_eq!(w1_route(&model_of(&contractless)), None, "retired 0.3.0 without a contract: no branch");
     // P-2: the exact route's budget is the ordinary route's.
     assert_eq!(w1_budget(R::Exact).per_case_limit, PHYSICS_SOURCE_WORK_LIMIT);
     assert_eq!(w1_budget(R::Preview).per_case_limit, SourceRecoveryBudget::default().per_case_limit);
@@ -2657,7 +2672,7 @@ fn b3b_exact_successor_is_pinned_in_both_modes() {
         let raw = m3x();
         let plain = plain(mode, &raw);
         let plain_value: Value = serde_json::from_slice(&plain).unwrap();
-        assert_eq!(plain_value["producer"]["semantic_contract_id"], json!(PHYSICS_SEMANTIC_CONTRACT_ID), "{name}: the physics-1 base");
+        assert_eq!(plain_value["producer"]["semantic_contract_id"], json!(exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID), "{name}: the pressure-1 base (B7b D4 (a))");
         assert!(plain_value["source_block_recovery"].is_null(), "{name}: no exact-block selection (T-3 (c) does not fire)");
         let (envelope, retained, captured) = exact_w1(&raw, mode);
         let successor = captured.unwrap_or_else(|| panic!("{name}: {retained:?}"));
@@ -2728,7 +2743,7 @@ fn b3b_direct_entry_runs_the_exact_route() {
 fn n11_base_readers_accept(raw: &Value, mode: PreviewSolverMode, plain: &[u8], noticed: &[u8], label: &str) {
     use open_pipe_stress_result_export::semantic_contract as sc;
     let (base, noticed): (Value, Value) = (serde_json::from_slice(plain).unwrap(), serde_json::from_slice(noticed).unwrap());
-    assert_eq!(base["producer"]["semantic_contract_id"], json!(PHYSICS_SEMANTIC_CONTRACT_ID), "{label}");
+    assert_eq!(base["producer"]["semantic_contract_id"], json!(exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID), "{label}");
     assert!(sc::for_source(&base).is_ok(), "{label}: precondition, the base is admitted");
     assert_eq!(sc::for_source(&noticed), sc::for_source(&base), "{label}: admitted with the same contract");
     assert_eq!(sc::standing_reason(&noticed), sc::standing_reason(&base), "{label}");
@@ -3091,7 +3106,9 @@ fn two_member_exact(reversed: bool) -> Value {
     let p = "invented_t3_p1_detection_input_no_library_data";
     raw["model"]["nodes"].as_array_mut().unwrap().push(json!({"id": "N2", "position": {"x": 2.0, "y": 4.0, "z": 4.0}, "provenance": p}));
     raw["model"]["pipe_segments"].as_array_mut().unwrap().push(json!({"id": "M2", "from": "N1", "to": "N2", "material": "mat:N",
-        "y_reference": {"x": 1, "y": 0, "z": 0}, "section": {"outside_diameter": {"value": 0.15, "unit": "m"}, "wall_thickness": {"value": 0.008, "unit": "m"}}, "provenance": p}));
+        "y_reference": {"x": 1, "y": 0, "z": 0}, "section": {"outside_diameter": {"value": 0.15, "unit": "m"}, "wall_thickness": {"value": 0.008, "unit": "m"},
+            // B7b: the current exact contract requires an authored allowance (0 m, as m3x's).
+            "corrosion_allowance": {"value": 0.0, "unit": "m"}}, "provenance": p}));
     if reversed {
         raw["model"]["pipe_segments"].as_array_mut().unwrap().reverse();
     }

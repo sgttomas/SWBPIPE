@@ -30,9 +30,13 @@ const I7_DOCUMENTS: &str =
     include_str!("../../../validation/references/t4_i7/u2_document_sketches.json");
 const MODES: [LinearSolveMode; 2] = [LinearSolveMode::DenseScrutiny, LinearSolveMode::SparseInteractive];
 
+/// The frozen sketch's copy, re-authored once to the current 0.5.0 exact form
+/// (B7b; the frozen reference itself is unchanged).
 fn sketch(id: &str) -> Value {
     let documents: Value = serde_json::from_str(I7_DOCUMENTS).unwrap();
-    documents["sketches"][id]["0.3.0"]["document"].clone()
+    crate::b7b_admission_tests::reauthor_current_request(
+        documents["sketches"][id]["0.3.0"]["document"].clone(),
+    )
 }
 
 struct Case {

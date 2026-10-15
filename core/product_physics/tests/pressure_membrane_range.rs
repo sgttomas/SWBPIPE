@@ -64,8 +64,8 @@ fn fixture(inputs: &Value, fixed: bool, pressurized: bool) -> Value {
         vec![]
     };
     json!({"model":{
-        "schema_version":"0.3.0","document_kind":"openpipestress.product_preview.model",
-        "pressure_contract":{"version":"2.0.0","mode":"exact_straight_pressure_v2"},
+        "schema_version":"0.5.0","document_kind":"openpipestress.product_preview.model",
+        "pressure_contract":{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"},
         "project":{"id":"project:section-oracle","units":{"length":"m","force":"N","angle":"rad",
             "pressure":"Pa","stress":"Pa","temperature":"degC"}},
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics",
@@ -74,7 +74,8 @@ fn fixture(inputs: &Value, fixed: bool, pressurized: bool) -> Value {
             {"id":B,"position":{"x":inputs["L_m"],"y":0.0,"z":0.0},"provenance":"synthetic"}],
         "pipe_segments":[{"id":PIPE,"from":A,"to":B,"section":{
             "outside_diameter":{"value":inputs["OD_m"],"unit":"m"},
-            "wall_thickness":{"value":inputs["wall_m"],"unit":"m"}},
+            "wall_thickness":{"value":inputs["wall_m"],"unit":"m"},
+            "corrosion_allowance":{"value":0.0,"unit":"m"}},
             "material":"material:section","y_reference":{"x":0.0,"y":1.0,"z":0.0},
             "provenance":"arithmetic_geometry_control_not_manufactured_pipe"}],
         "materials":[{"id":"material:section","constitutive_basis":"homogeneous_isotropic_E_nu_v1",

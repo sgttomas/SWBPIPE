@@ -1,12 +1,18 @@
 //! T4-U0 (exact-route hardening) public-entry controls.
 //!
-//! Pins the exact route's previously untested refusals (A1.1-A1.9), the
-//! emission order where two apply, and the 2.0.0/exact_straight_pressure_v2
-//! refusal of p < 0 (A2.1-A2.5). Every input is a committed invented fixture
-//! patched inline: X0 = `fixtures/exact_pressure_connected_request.json`
-//! (0.3.0), Y0 = `fixtures/product_preview/load_reference/pressure.request.json`
-//! (0.4.0). "Both entries" are the captured value entry and the typed entry;
-//! "both modes" are sparse-interactive and dense-scrutiny.
+//! Before B7b these pinned the `2.0.0/exact_straight_pressure_v2` route's
+//! composition, combination and negative-pressure refusals. B7b deleted that
+//! contract, so the checks that protected only its codes are gone; the live
+//! behaviours are kept on the current contract: the seam's emission order (now
+//! `EXACT_PRESSURE_FAMILY_NOT_ADMITTED`), the pressure-free connector refusal
+//! and the signed-zero pressure publication. Every input is a committed
+//! invented fixture patched inline: X0 =
+//! `fixtures/exact_pressure_connected_request.json` (without the
+//! load/reference-state group), Y0 =
+//! `fixtures/product_preview/pressure/load_reference/pressure.request.json`
+//! (with it), both current model 0.5.0 documents under
+//! `3.0.0/exact_pressure_v3`. "Both entries" are the captured value entry and
+//! the typed entry; "both modes" are sparse-interactive and dense-scrutiny.
 
 use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, run_linear_static_preview_with_mode,
@@ -17,15 +23,15 @@ use serde_json::{json, Value};
 
 const X0: &str = include_str!("fixtures/exact_pressure_connected_request.json");
 const Y0: &str =
-    include_str!("../../../fixtures/product_preview/load_reference/pressure.request.json");
+    include_str!("../../../fixtures/product_preview/pressure/load_reference/pressure.request.json");
 const MODES: [PreviewSolverMode; 2] = [
     PreviewSolverMode::SparseInteractive,
     PreviewSolverMode::DenseScrutiny,
 ];
 const SOURCE: &str = "core/product_physics/src/pressure_runtime.rs";
-const COMPOSITION: &str = "EXACT_PRESSURE_COMPOSITION_UNSUPPORTED";
-const COMBINATION: &str = "EXACT_PRESSURE_COMBINATION_UNSUPPORTED";
+const FAMILY: &str = "EXACT_PRESSURE_FAMILY_NOT_ADMITTED";
 const NEGATIVE: &str = "PRESSURE_REGION_PRESSURE_NEGATIVE";
+const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
 const PROVENANCE: &str = "invented_u0_control";
 
 #[derive(Clone, Copy)]
@@ -48,12 +54,6 @@ impl Base {
             Base::Y0 => "node:middle",
         }
     }
-    fn pipe(self) -> &'static str {
-        match self {
-            Base::X0 => "pipe:fixture-span",
-            Base::Y0 => "pipe:first",
-        }
-    }
     /// The two cases a combination sums, and the case that carries
     /// `equivalent_static`.
     fn cases(self) -> [&'static str; 2] {
@@ -66,12 +66,6 @@ impl Base {
         match self {
             Base::X0 => "case:six-component-load",
             Base::Y0 => "case:cold-pressure",
-        }
-    }
-    fn producer(self) -> &'static str {
-        match self {
-            Base::X0 => "openpipestress.result_semantics/0.3.0/physics-1",
-            Base::Y0 => "openpipestress.result_semantics/0.3.0/load-reference-1",
         }
     }
     fn empty_evidence(self) -> Value {
@@ -97,8 +91,9 @@ fn case_mut<'a>(document: &'a mut Value, id: &str) -> &'a mut Value {
         .unwrap()
 }
 
-/// 0.4.0 cases declare every support's participation; the added support gets
-/// one so that no load-state code is added.
+/// Cases with the load/reference-state group declare every support's
+/// participation; the added support gets one so that no load-state code is
+/// added.
 fn declare_support_state(document: &mut Value, support: &str) {
     for case in document["model"]["load_cases"].as_array_mut().unwrap() {
         if let Some(states) = case
@@ -115,26 +110,10 @@ fn valve(base: Base) -> Value {
     json!({"id":"component:valve","kind":"valve","node":base.tip(),"provenance":PROVENANCE})
 }
 
-fn bend(base: Base) -> Value {
-    json!({"id":"component:bend","kind":"bend","node":base.tip(),
-        "geometry":{"bend_pipe_ref":base.pipe(),"bend_radius":{"value":1.0,"unit":"m"},
-            "bend_plane_orientation":"invented","bend_geometry_source_reference":"invented"},
-        "modifiers":{"flexibility_factor_user_value":{"value":1.0,"unit":"none"},"source_reference":"invented"},
-        "mechanics_interface":{"solver_consumption":"curved_bend_macro_element"},
-        "provenance":PROVENANCE})
-}
-
 fn gap(base: Base) -> Value {
     json!({"id":"support:gap","node":base.tip(),"family":"nonlinear","restraints":[],
         "nonlinear":{"behavior":"gap","dof":"UZ","initial_state":"inactive",
             "closes_when":"positive_displacement","gap":{"value":1000.0,"unit":"mm"}},
-        "provenance":PROVENANCE})
-}
-
-fn constant_effort(base: Base) -> Value {
-    json!({"id":"support:ce","node":base.tip(),"family":"constant_effort_support","restraints":["UY"],
-        "hanger":{"hanger_type":"constant_effort_support","constant_load":{"value":375.0,"unit":"N"},
-            "travel_range":{"value":0.05,"unit":"m"},"source_reference":"invented"},
         "provenance":PROVENANCE})
 }
 
@@ -153,12 +132,6 @@ fn combination(base: Base) -> Value {
 fn with_valve(base: Base) -> Value {
     let mut document = base.document();
     push(&mut document, "components", valve(base));
-    document
-}
-
-fn with_combination(base: Base) -> Value {
-    let mut document = base.document();
-    document["model"]["combinations"] = json!([combination(base)]);
     document
 }
 
@@ -215,7 +188,7 @@ fn assert_blocked(envelope: &Value, base: Base) {
     assert_eq!(envelope["status"]["mechanics"], "MODEL_INCOMPLETE");
     assert_eq!(envelope["results"], json!([]));
     assert_eq!(envelope["contract_evidence"], base.empty_evidence());
-    assert_eq!(envelope["producer"]["semantic_contract_id"], base.producer());
+    assert_eq!(envelope["producer"]["semantic_contract_id"], PRESSURE_ID);
 }
 
 /// Index of the one diagnostic with `code` and exactly `refs`; checks its
@@ -258,104 +231,20 @@ fn has_code(envelope: &Value, code: &str) -> bool {
         .any(|d| d["code"] == code)
 }
 
-#[test]
-fn a1_metadata_only_component_is_refused_by_composition() {
-    for base in [Base::X0, Base::Y0] {
-        let envelope = run_all(&with_valve(base));
-        assert_blocked(&envelope, base);
-        position(&envelope, COMPOSITION, &["component:valve"]);
-    }
-}
-
-/// A1.2, the plan's negative control: a realized bend in an exact model is
-/// refused by composition in both entries and both modes, not a panic. T4-U2a
-/// lifts this refusal and owns the end-to-end form of the A3 wiring.
-#[test]
-fn a1_realized_bend_in_an_exact_model_is_refused_not_a_panic() {
-    for base in [Base::X0, Base::Y0] {
-        let mut document = base.document();
-        push(&mut document, "components", bend(base));
-        let envelope = run_all(&document);
-        assert_blocked(&envelope, base);
-        position(&envelope, COMPOSITION, &["component:bend"]);
-    }
-}
-
-#[test]
-fn a1_nonlinear_and_constant_effort_supports_are_refused_by_composition() {
-    for base in [Base::X0, Base::Y0] {
-        for (support, id) in [(gap(base), "support:gap"), (constant_effort(base), "support:ce")] {
-            let envelope = run_all(&with_support(base, support, true));
-            assert_blocked(&envelope, base);
-            position(&envelope, COMPOSITION, &[id]);
-            assert!(!has_code(&envelope, "LOAD_STATE_SUPPORT_STATE_MISSING"));
-        }
-    }
-}
-
-#[test]
-fn a1_equivalent_static_is_refused_by_composition() {
-    for base in [Base::X0, Base::Y0] {
-        let envelope = run_all(&with_equivalent_static(base));
-        assert_blocked(&envelope, base);
-        position(
-            &envelope,
-            COMPOSITION,
-            &[base.equivalent_static_case(), "equivalent_static"],
-        );
-    }
-}
-
-#[test]
-fn a1_combination_is_refused_by_name() {
-    for base in [Base::X0, Base::Y0] {
-        let envelope = run_all(&with_combination(base));
-        assert_blocked(&envelope, base);
-        position(&envelope, COMBINATION, &["combination:sum"]);
-    }
-}
-
-/// A1.7 and A1.8 pin today's objective-connector codes and their order before
-/// the composition code. These are connector-code pins that T4-U3 re-agrees
-/// (T4-RV2 N-7): T4-U3 changes the connector route and orders its legacy code
-/// first.
-#[test]
-fn a1_objective_connector_codes_precede_the_composition_code() {
-    for base in [Base::X0, Base::Y0] {
-        for (version, code) in [
-            ("1.0.0", "OBJECTIVE_CONNECTOR_NOT_IMPLEMENTED"),
-            ("2.0.0", "OBJECTIVE_CONNECTOR_VERSION_UNSUPPORTED"),
-        ] {
-            let mut document = base.document();
-            push(&mut document, "components", connector(base, version));
-            let envelope = run_all(&document);
-            assert_blocked(&envelope, base);
-            let connector_code = position(
-                &envelope,
-                code,
-                &["component:connector", "objective_connector"],
-            );
-            let composition = position(&envelope, COMPOSITION, &["component:connector"]);
-            assert!(connector_code < composition, "{version}: connector code first");
-            // T4-U3: the joint's validation rows are deleted (S19).
-            assert!(!envelope["diagnostics"].as_array().unwrap().iter().any(|d| {
-                d["code"].as_str().is_some_and(|code| code.starts_with("EXPANSION_JOINT_"))
-            }));
-        }
-    }
-}
-
 /// A1.9: on the pressure-free route (0.5.0, no pressure contract) the connector
-/// is refused as a contract-version mismatch, and no exact composition code
-/// applies.
+/// is refused as a contract-version mismatch, and no exact family code
+/// applies. The exact document's allowances leave with its contract.
 #[test]
 fn a1_objective_connector_outside_the_exact_route_is_a_version_mismatch() {
     let mut document = Base::X0.document();
     let model = &mut document["model"];
-    model["schema_version"] = json!("0.5.0");
+    assert_eq!(model["schema_version"], "0.5.0");
     model.as_object_mut().unwrap().remove("pressure_contract");
     for case in model["load_cases"].as_array_mut().unwrap() {
         case.as_object_mut().unwrap().remove("pressure_regions");
+    }
+    for pipe in model["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"].as_object_mut().unwrap().remove("corrosion_allowance");
     }
     push(&mut document, "components", connector(Base::X0, "1.0.0"));
     let envelope = run_all(&document);
@@ -366,20 +255,25 @@ fn a1_objective_connector_outside_the_exact_route_is_a_version_mismatch() {
         "PREVIEW_CONTRACT_VERSION_MISMATCH",
         &["component:connector", "objective_connector"],
     );
-    assert!(!has_code(&envelope, COMPOSITION));
+    assert!(!has_code(&envelope, FAMILY));
 }
 
+/// The seam's refusals keep the route's emission order (component, support,
+/// combination, then the per-case equivalent_static code), now under the
+/// current contract's family code; with the load/reference-state group, the
+/// support's family code precedes the load-state code that `validate_document`
+/// adds for the undeclared support, in the same batch.
 #[test]
 fn a1_precedence_follows_emission_order() {
     for base in [Base::X0, Base::Y0] {
-        // Component composition before combination.
+        // Component before combination.
         let mut document = with_valve(base);
         document["model"]["combinations"] = json!([combination(base)]);
         let envelope = run_all(&document);
         assert_blocked(&envelope, base);
         assert!(
-            position(&envelope, COMPOSITION, &["component:valve"])
-                < position(&envelope, COMBINATION, &["combination:sum"])
+            position(&envelope, FAMILY, &["component:valve"])
+                < position(&envelope, FAMILY, &["combination:sum"])
         );
 
         // Component before support.
@@ -388,8 +282,8 @@ fn a1_precedence_follows_emission_order() {
         let envelope = run_all(&document);
         assert_blocked(&envelope, base);
         assert!(
-            position(&envelope, COMPOSITION, &["component:valve"])
-                < position(&envelope, COMPOSITION, &["support:gap"])
+            position(&envelope, FAMILY, &["component:valve"])
+                < position(&envelope, FAMILY, &["support:gap"])
         );
 
         // Combination before the per-case equivalent_static code.
@@ -398,69 +292,28 @@ fn a1_precedence_follows_emission_order() {
         let envelope = run_all(&document);
         assert_blocked(&envelope, base);
         assert!(
-            position(&envelope, COMBINATION, &["combination:sum"])
+            position(&envelope, FAMILY, &["combination:sum"])
                 < position(
                     &envelope,
-                    COMPOSITION,
+                    FAMILY,
                     &[base.equivalent_static_case(), "equivalent_static"],
                 )
         );
     }
 
-    // 0.4.0: the support's composition code precedes the load-state code that
-    // `validate_document` adds for the undeclared support, in the same batch.
     let envelope = run_all(&with_support(Base::Y0, gap(Base::Y0), false));
     assert_blocked(&envelope, Base::Y0);
     assert!(
-        position(&envelope, COMPOSITION, &["support:gap"])
+        position(&envelope, FAMILY, &["support:gap"])
             < index_of(&envelope, "LOAD_STATE_SUPPORT_STATE_MISSING")
     );
 }
 
-#[test]
-fn a2_negative_pressure_is_refused_by_name_on_both_document_versions() {
-    for (base, case, region, pressure) in [
-        (
-            Base::X0,
-            "case:closed-pressure",
-            "region:fixture-pressure",
-            json!({"value":-2000,"unit":"kPa"}),
-        ),
-        (
-            Base::Y0,
-            "case:cold-pressure",
-            "region:closed",
-            json!({"value":-2,"unit":"MPa"}),
-        ),
-        // A2.3: the smallest negative subnormal.
-        (
-            Base::X0,
-            "case:closed-pressure",
-            "region:fixture-pressure",
-            json!({"value":-5e-324,"unit":"Pa"}),
-        ),
-    ] {
-        let mut document = base.document();
-        set_region_pressure(&mut document, case, pressure.clone());
-        let envelope = run_all(&document);
-        assert_blocked(&envelope, base);
-        position(&envelope, NEGATIVE, &[case, region, "pressure"]);
-        assert!(
-            envelope["diagnostics"][position(&envelope, NEGATIVE, &[case, region, "pressure"])]
-                ["message"]
-                .as_str()
-                .unwrap()
-                .contains("admits internal differential pressure p >= 0 only"),
-            "{pressure}"
-        );
-    }
-}
-
-/// A2.4 and A2.5: both signed zeros are admitted (the readers' `>= 0` admits
-/// -0.0). An authored Pa value is published unchanged, so -0.0 Pa publishes
-/// p_pa = -0.0; a scaled unit goes through the affine unit transform (offset
-/// +0.0), so -0.0 kPa publishes +0.0, as it did before T4-U0. Byte equality
-/// with the base is the SP-1 probe's, not this test's.
+/// A2.4 and A2.5: both signed zeros are admitted. An authored Pa value is
+/// published unchanged, so -0.0 Pa publishes p_pa = -0.0; a scaled unit goes
+/// through the affine unit transform (offset +0.0), so -0.0 kPa publishes
+/// +0.0, as it did before T4-U0. Byte equality with the base is the SP-1
+/// probe's, not this test's.
 #[test]
 fn a2_signed_zero_pressure_is_admitted() {
     for (value, unit, negative_zero) in [
@@ -493,25 +346,4 @@ fn a2_signed_zero_pressure_is_admitted() {
         // The accepted Rust reader admits the envelope.
         semantic_contract::for_source(&envelope).expect("the Rust reader admits p_pa = +-0");
     }
-}
-
-/// Order: exact-profile composition precedes the per-case region code.
-#[test]
-fn a2_composition_precedes_the_negative_pressure_code() {
-    let mut document = with_valve(Base::X0);
-    set_region_pressure(
-        &mut document,
-        "case:closed-pressure",
-        json!({"value":-2000,"unit":"kPa"}),
-    );
-    let envelope = run_all(&document);
-    assert_blocked(&envelope, Base::X0);
-    assert!(
-        position(&envelope, COMPOSITION, &["component:valve"])
-            < position(
-                &envelope,
-                NEGATIVE,
-                &["case:closed-pressure", "region:fixture-pressure", "pressure"],
-            )
-    );
 }

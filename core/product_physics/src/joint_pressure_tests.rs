@@ -35,15 +35,15 @@ fn model(anchored: bool) -> PreviewModel {
     }
     connector["stiffness"]["upper_triangle"] = json!(upper);
     connector["pressure_model"] = json!({"kind":"unpressurized"});
-    let pipe = |id, from, to| json!({"id":id,"from":from,"to":to,"material":"material:A","y_reference":{"x":0.,"y":1.,"z":0.},"section":{"outside_diameter":{"value":0.06,"unit":"m"},"wall_thickness":{"value":0.005,"unit":"m"}}});
+    let pipe = |id, from, to| json!({"id":id,"from":from,"to":to,"material":"material:A","y_reference":{"x":0.,"y":1.,"z":0.},"section":{"outside_diameter":{"value":0.06,"unit":"m"},"wall_thickness":{"value":0.005,"unit":"m"},"corrosion_allowance":{"value":0.0,"unit":"m"}}});
     let mut supports = vec![
         json!({"id":"support:A","node":"node:A","family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"]}),
     ];
     if anchored {
         supports.push(json!({"id":"support:D","node":"node:D","family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"]}));
     }
-    serde_json::from_value(json!({"schema_version":"0.3.0","document_kind":"openpipestress.product_preview.model",
-        "pressure_contract":{"version":"3.0.0","mode":"exact_pressure_v3"},"project":{"id":"project:dormant-joint","units":{"length":"m"}},
+    serde_json::from_value(json!({"schema_version":"0.5.0","document_kind":"openpipestress.product_preview.model",
+        "pressure_contract":{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"},"project":{"id":"project:dormant-joint","units":{"length":"m"}},
         "analysis_status":{"mechanics":"not_run","rule_check":"not_run","professional_acceptance":"not_requested"},
         "nodes":[{"id":"node:A","position":{"x":0.,"y":0.,"z":0.}},{"id":"node:B","position":{"x":2.,"y":0.,"z":0.}},{"id":"node:C","position":{"x":2.3,"y":0.,"z":0.}},{"id":"node:D","position":{"x":4.3,"y":0.,"z":0.}}],
         "pipe_segments":[pipe("pipe:L","node:A","node:B"),pipe("pipe:J","node:B","node:C"),pipe("pipe:R","node:C","node:D")],
@@ -258,8 +258,12 @@ fn u5a_internal_j3_controls_close_and_match_independent_representation_a() {
         }
     }
 }
+/// The classifier's blanket refusal remains on the retired versions. (B7b: the
+/// current decoder accepts `member_connector_ids` on 0.5.0, whose positive and
+/// fail-closed controls are `b7b_admission_tests`; the old decoder's refusal of
+/// the key lapsed with the version.)
 #[test]
-fn u5a_old_decoder_and_blanket_refusal_remain() {
+fn u5a_blanket_refusal_remains_on_retired_versions() {
     for version in ["0.3.0", "0.4.0"] {
         let mut model = model(true);
         model.schema_version = version.into();
@@ -268,14 +272,6 @@ fn u5a_old_decoder_and_blanket_refusal_remain() {
         assert!(diagnostics
             .iter()
             .any(|finding| finding.code == joint::PRESSURE_INTERFACE_UNRESOLVED));
-        let error =
-            serde_json::from_value::<PressureRegionInput>(json!({"member_connector_ids":[]}))
-                .unwrap_err()
-                .to_string();
-        assert!(
-            error.contains("unknown field `member_connector_ids`"),
-            "{error}"
-        );
     }
 }
 #[test]
@@ -329,8 +325,8 @@ fn reader_control(mode: PreviewSolverMode) -> Value {
 fn reader_control_for(mode: PreviewSolverMode, anchored: bool) -> Value {
     let mut case = case(anchored);
     // The already classified internal inputs use today's v3 mechanics
-    // context. This is not a document entry and activates no schema version.
-    case.model.schema_version = "0.3.0".into();
+    // context (B7b: the current 0.5.0 document with its exact contract).
+    case.model.schema_version = "0.5.0".into();
     let materials = case
         .model
         .materials
@@ -471,13 +467,15 @@ fn u5a_prepared_composition_and_maintained_participating_reader_control() {
         },
         PreviewSolverMode::DenseScrutiny,
     );
-    assert!(public.results.is_empty());
-    // B7a recognizes pressure-free 0.5.0; its contract-present form remains
-    // refused until B7b. This is the current named contract boundary.
-    assert!(public
-        .diagnostics
-        .iter()
-        .any(|finding| finding.code == "PREVIEW_CONTRACT_VERSION_MISMATCH"));
+    let blocking = public.diagnostics.iter().filter(|d| d.severity == "blocking")
+        .map(|d| (d.code.clone(), d.affected_refs.clone(), d.message.clone())).collect::<Vec<_>>();
+    assert!(public.results.is_empty(), "{blocking:?}");
+    // B7a recognized pressure-free 0.5.0 and refused its contract-present form
+    // until B7b (PREVIEW_CONTRACT_VERSION_MISMATCH). B7b admits that form, so
+    // the internal control (no authored provenance) is not a public document:
+    // the public entry refuses it by the input's own named findings instead.
+    assert!(!public.diagnostics.iter().any(|finding| finding.code == "PREVIEW_CONTRACT_VERSION_MISMATCH"), "{blocking:?}");
+    assert!(!blocking.is_empty() && blocking.iter().all(|(code, _, _)| code == "PROVENANCE_INPUT_MISSING"), "{blocking:?}");
 }
 
 #[test]

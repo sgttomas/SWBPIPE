@@ -10,11 +10,18 @@
 //!   member outside any region, beside a connector record;
 //! - a model whose only pipe is a replaced span (T4-RV23 NOTE-4).
 //!
+//! B7b: the frozen sketches stay 0.3.0/0.4.0; each copy is re-authored to the
+//! current 0.5.0 exact document before it runs (the labels keep the frozen
+//! version they were built from).
+//!
 //! Regenerate with `T4_U2_WRITE_ARC_CORPUS=1`; otherwise the committed bytes
 //! must be current.
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use open_pipe_stress_result_export::semantic_contract;
 use serde_json::{json, Value};
+
+#[path = "common/current_model.rs"]
+mod current_model;
 
 const I7_DOCUMENTS: &str =
     include_str!("../../../validation/references/t4_i7/u2_document_sketches.json");
@@ -22,13 +29,18 @@ const CORPUS: &str = include_str!("../../../fixtures/results/pressure_v3_arc_rea
 const CORPUS_PATH: &str = "../../fixtures/results/pressure_v3_arc_reader_corpus.json";
 const PROVENANCE: &str = "invented T4-U2 phase-2 reader corpus input (from T4-I7's L line); not library, component, catalog or code-rule data";
 
+/// A frozen T4-I7 sketch document (bytes unchanged), its copy re-authored by
+/// B7b to the current 0.5.0 exact document (`common/current_model.rs`).
 fn i7(id: &str, version: &str) -> Value {
     let documents: Value = serde_json::from_str(I7_DOCUMENTS).unwrap();
-    documents["sketches"][id][version]["document"].clone()
+    current_model::reauthor_request(documents["sketches"][id][version]["document"].clone())
 }
 
+/// Runs the re-authored copy of `document` (the re-authoring is the identity
+/// on an already current document).
 fn run(document: &Value, mode: PreviewSolverMode) -> Value {
-    serde_json::to_value(run_linear_static_preview_value_with_mode(document.clone(), mode).unwrap())
+    let document = current_model::reauthor_request(document.clone());
+    serde_json::to_value(run_linear_static_preview_value_with_mode(document, mode).unwrap())
         .unwrap()
 }
 
@@ -179,7 +191,7 @@ fn shared_arc_reader_corpus_is_current() {
     let corpus = json!({
         "corpus": "T4-U2 pressure-1 realized-arc reader corpus",
         "generator": "core/product_physics/tests/pressure_arc_readers.rs::shared_arc_reader_corpus_is_current",
-        "inputs": ["validation/references/t4_i7/u2_document_sketches.json U2-L-ANCH-PTW-K2 (0.3.0, 0.4.0) and U2-L-KINK-ANCH-P-K2 (0.3.0); the L line with a connector tail and a replaced-span-only model, both built by the generator from U2-L-ANCH-PTW-K2 0.3.0"],
+        "inputs": ["validation/references/t4_i7/u2_document_sketches.json U2-L-ANCH-PTW-K2 (0.3.0, 0.4.0) and U2-L-KINK-ANCH-P-K2 (0.3.0); the L line with a connector tail and a replaced-span-only model, both built by the generator from U2-L-ANCH-PTW-K2 0.3.0; every frozen sketch copy re-authored to model document 0.5.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time, the frozen bytes unchanged"],
         "cases": cases,
     });
     let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";

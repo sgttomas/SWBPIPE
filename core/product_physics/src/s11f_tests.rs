@@ -1376,7 +1376,7 @@ fn f6_multi_case_pre_0_4_invocation_never_errs_on_cancelling_loads() {
 
 fn load_state_witness() -> Value {
     serde_json::from_str(include_str!(
-        "../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+        "../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json"
     ))
     .unwrap()
 }
@@ -1419,7 +1419,8 @@ fn load_state_request(variant: LoadState) -> Value {
     m1["from"] = json!("root");
     m1["to"] = json!("mid");
     m1["section"] = json!({"outside_diameter": {"value": HOT_OD, "unit": "m"},
-        "wall_thickness": {"value": HOT_WALL, "unit": "m"}});
+        "wall_thickness": {"value": HOT_WALL, "unit": "m"},
+        "corrosion_allowance": {"value": 0.0, "unit": "m"}});
     let mut m2 = m1.clone();
     m2["id"] = json!("m2");
     m2["from"] = json!("mid");
@@ -1435,7 +1436,8 @@ fn load_state_request(variant: LoadState) -> Value {
         m05["from"] = json!("n05-root");
         m05["to"] = json!("n05-tip");
         m05["section"] = json!({"outside_diameter": {"value": 0.2, "unit": "m"},
-            "wall_thickness": {"value": 0.01, "unit": "m"}});
+            "wall_thickness": {"value": 0.01, "unit": "m"},
+            "corrosion_allowance": {"value": 0.0, "unit": "m"}});
         members.push(m05);
     }
     let member_ids: Vec<String> = members

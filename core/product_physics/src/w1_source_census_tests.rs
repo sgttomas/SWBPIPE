@@ -1128,7 +1128,7 @@ fn b4_early_captured_binding_refuses_changed_raw_context_and_normalizes_units() 
             assert!(observer.prepare_case(ordinary).is_err());
         }
         let unit_raw: Value = serde_json::from_str(include_str!(
-            "../../../fixtures/product_preview/physics_source/n05_units.request.json"
+            "../../../fixtures/product_preview/pressure_source/physics_source/n05_units.request.json"
         ))
         .unwrap();
         let (_, _, plain) = early_observed(&unit_raw, mode, false);
@@ -1154,7 +1154,7 @@ fn b4_early_captured_binding_refuses_changed_raw_context_and_normalizes_units() 
 #[test]
 fn b4_early_exact_material_binding_uses_authoritative_subnormal_words() {
     let baseline: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/product_preview/physics_source/n05_units.request.json"
+        "../../../fixtures/product_preview/pressure_source/physics_source/n05_units.request.json"
     ))
     .unwrap();
     for (nu, authoritative_bits, direct_bits) in [

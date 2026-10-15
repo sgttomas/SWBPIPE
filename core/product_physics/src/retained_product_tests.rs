@@ -2375,21 +2375,22 @@ fn b2p_early_hook_refuses_combinations_outside_d14() {
         request.model.combinations.clear();
     }
 }
-/// T4 (RV14 N2): the capture's exact-route scope clause reads the literal v2 contract that
-/// D1.3's branch E admits, so T4-U2a's wider `pressure_runtime::is_exact` (v2 or v3) does not
-/// move it. A v3 document keeps the outcome it had before U2a: refused on the exact route,
-/// not refused by this clause on the preview route; and D1.3 gives it no W1 route at all.
+/// T4 (RV14 N2), after B7b D4 (a): the capture's exact-route scope clause reads the current
+/// `3.0.0/exact_pressure_v3` contract that D1.3's branch E admits on model 0.5.0. A current
+/// exact document is in scope on the exact route only; a pressure-free document on the
+/// preview route only; a document still declaring the retired v2 contract is not exact, is
+/// refused on the exact route, and D1.3 gives it no W1 route at all.
 #[test]
-fn t4_n2_capture_exact_clause_is_literal_v2() {
+fn t4_n2_capture_exact_clause_is_the_current_contract() {
     use super::retained_product::W1Route;
     const SCOPE: &str = "outside private ordinary no-component/no-combination scope";
     let contract = |version: &str, mode: &str| -> pressure_runtime::PressureContractInput {
-        serde_json::from_value(serde_json::json!({"version": version, "mode": mode})).unwrap()
+        serde_json::from_value(serde_json::json!({"version": version, "mode": mode, "shear_model": "euler_bernoulli"})).unwrap()
     };
     let cases = [
-        ("legacy", "0.1.0", None),
-        ("v2", "0.3.0", Some(contract("2.0.0", "exact_straight_pressure_v2"))),
-        ("v3", "0.3.0", Some(contract("3.0.0", "exact_pressure_v3"))),
+        ("pressure-free", crate::MODEL_SCHEMA_VERSION, None),
+        ("retired v2", crate::MODEL_SCHEMA_VERSION, Some(contract("2.0.0", "exact_straight_pressure_v2"))),
+        ("v3", crate::MODEL_SCHEMA_VERSION, Some(contract("3.0.0", "exact_pressure_v3"))),
     ];
     for (label, schema, pressure_contract) in cases {
         let (mut request, inv) = source_receipt::CapturedInvocation::parse(i50_named_request(), PreviewSolverMode::SparseInteractive).unwrap();
@@ -2397,22 +2398,24 @@ fn t4_n2_capture_exact_clause_is_literal_v2() {
         request.model.pressure_contract = pressure_contract;
         request.model.combinations.clear();
         let model = &request.model;
-        // The pre-U2a `is_exact`: 0.3.0 or 0.4.0 with exactly `2.0.0/exact_straight_pressure_v2`.
-        let literal_v2 = label == "v2";
-        assert_eq!(pressure_runtime::is_exact(model), label != "legacy", "{label}: U2a's is_exact");
+        let current = label == "v3";
+        assert_eq!(pressure_runtime::is_exact(model), current, "{label}: is_exact");
         for route in [W1Route::Preview, W1Route::Exact] {
             let mut o = ProductCapture::prepared_probe_on(route);
             o.invocation(Some(&inv), PreviewSolverMode::SparseInteractive);
             o.normalized(model, &model.materials, false);
             let refused = o.error.as_ref().map(|e| e.to_string()).as_deref() == Some(SCOPE);
-            assert_eq!(refused, literal_v2 != (route == W1Route::Exact), "{label} on {route:?}");
+            assert_eq!(refused, current != (route == W1Route::Exact), "{label} on {route:?}");
         }
     }
     let (mut request, _) = source_receipt::CapturedInvocation::parse(i50_named_request(), PreviewSolverMode::SparseInteractive).unwrap();
+    request.model.pressure_contract = Some(contract("2.0.0", "exact_straight_pressure_v2"));
+    assert_eq!(super::retained_memory::namespace_branch(&request.model), Err(super::retained_memory::FamilyFact::PressureContract));
+    assert_eq!(super::w1_route(&request.model), None, "retired v2: no W1 route");
     request.model.schema_version = "0.3.0".into();
     request.model.pressure_contract = Some(contract("3.0.0", "exact_pressure_v3"));
-    assert_eq!(super::retained_memory::namespace_branch(&request.model), Err(super::retained_memory::FamilyFact::PressureContract));
-    assert_eq!(super::w1_route(&request.model), None, "v3: no W1 route");
+    assert_eq!(super::retained_memory::namespace_branch(&request.model), Err(super::retained_memory::FamilyFact::SchemaVersion));
+    assert_eq!(super::w1_route(&request.model), None, "retired 0.3.0: no W1 route");
 }
 #[test]
 fn i51_c0_isolated_late_hook_custody_and_prefixes() {

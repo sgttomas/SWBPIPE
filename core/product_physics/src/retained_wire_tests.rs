@@ -741,13 +741,14 @@ fn u1g2_initial_quality_crosscheck_negative() {
 /// B3b-P (B3-D P-9; REVISION_01 §1.2, S-1): the exact route's wire constants are bound to the
 /// in-tree statics J1 landed: DEF-E's H is `EXACT_DEFINITION_SHA256` and the physics-retained-1
 /// table binds it, its identity, profile, policies and `receipt_bindings` (B3D-8, the serializer's
-/// own values); its inherited hash is physics-1's table bytes. The preview route's descriptor is
+/// own values); its inherited hash is pressure-1's table bytes (B7b D4 (a)). The preview route's descriptor is
 /// the unchanged module constants.
 #[test]
 fn b3b_exact_constants_bound_to_in_tree_fixtures() {
     const EXACT_DEFINITION: &str = include_str!("../../../fixtures/results/retained_precision_prepared_exact_v1.json");
     const EXACT_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json");
-    const PHYSICS_1_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_physics_1.json");
+    // B7b D4 (a): physics-retained-1 is based on pressure-1 (exact_pressure_v3).
+    const PRESSURE_1_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_pressure_1.json");
     let definition: Value = serde_json::from_str(EXACT_DEFINITION).unwrap();
     let table: Value = serde_json::from_str(EXACT_TABLE).unwrap();
     assert_eq!(definition["id"], json!(wire::EXACT_DEFINITION_ID));
@@ -760,8 +761,8 @@ fn b3b_exact_constants_bound_to_in_tree_fixtures() {
     assert_eq!(table["accuracy_classification"]["policy"], json!(wire::FACADE_POLICY));
     assert_eq!(table["receipt_bindings"], json!({"canonicalization":wire::CANONICALIZATION,"method":wire::METHOD,"projection_policy":wire::PROJECTION_POLICY,
         "work":{"case_limit":wire::CASE_LIMIT,"invocation_limit":wire::INVOCATION_LIMIT},"work_policy":wire::WORK_POLICY}));
-    assert_eq!(table["inherited_semantic_contract_sha256"], json!(format!("{:x}", Sha256::digest(PHYSICS_1_TABLE.as_bytes()))));
-    assert_eq!(serde_json::from_str::<Value>(PHYSICS_1_TABLE).unwrap()["semantic_contract_id"], json!(PHYSICS_SEMANTIC_CONTRACT_ID));
+    assert_eq!(table["inherited_semantic_contract_sha256"], json!(format!("{:x}", Sha256::digest(PRESSURE_1_TABLE.as_bytes()))));
+    assert_eq!(serde_json::from_str::<Value>(PRESSURE_1_TABLE).unwrap()["semantic_contract_id"], json!(crate::exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID));
     // The two descriptors.
     let preview = wire::route_wire(rp::W1Route::Preview);
     assert_eq!((preview.semantic_id, preview.profile_id, preview.definition_id, preview.definition_sha256, preview.geometry_route),

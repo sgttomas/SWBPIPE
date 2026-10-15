@@ -19,6 +19,9 @@ use open_pipe_stress_product_physics::{
 use open_pipe_stress_result_export::semantic_contract;
 use serde_json::{json, Value};
 
+#[path = "common/current_model.rs"]
+mod current_model;
+
 const MODES: [PreviewSolverMode; 2] = [
     PreviewSolverMode::SparseInteractive,
     PreviewSolverMode::DenseScrutiny,
@@ -75,8 +78,12 @@ fn run(document: &Value) -> Vec<Value> {
 }
 
 /// The frozen 001 system document (0.3.0), the base of every document here.
+/// B7b: the frozen reference is unchanged; its copy is re-authored to the
+/// current 0.5.0 exact document (`common/current_model.rs`).
 fn demo_001() -> Value {
-    case("U3-SYS-DEMO-CONNECTOR-001")["inputs"]["document_v3_0.3.0"].clone()
+    current_model::reauthor_request(
+        case("U3-SYS-DEMO-CONNECTOR-001")["inputs"]["document_v3_0.3.0"].clone(),
+    )
 }
 
 /// The objective connector of a two-node document: 001's connector (its
@@ -115,7 +122,7 @@ impl Joint<'_> {
     }
 }
 
-/// A two-node connector document (v3, 0.3.0): N-A at `x_a` anchored, N-B at
+/// A two-node connector document (v3, re-authored 0.5.0): N-A at `x_a` anchored, N-B at
 /// `x_b` restrained in `restraints_b` (no support when empty), the replaced
 /// straight span P-AB, the connector, and one case with no primitive load
 /// (the preload is the only action). The pressure-1 readers require each case
@@ -405,8 +412,11 @@ fn each_classifier_row_refuses_with_exactly_its_code() {
             "JOINT_HARDWARE_LAW_UNSUPPORTED", "hardware tied is not supported"),
         ("hardware without a kind", demo_with(|c| c["hardware"] = json!({})),
             "JOINT_HARDWARE_LAW_UNSUPPORTED", "hardware (no kind) is not supported"),
+        // B7b: on the current 0.5.0 copy T4-U5a's pressure-model decode names
+        // both admitted models (`joint.rs` `pressure_model`); the pre-0.5.0
+        // "only the unpressurized pressure model" text left with 0.3.0/0.4.0.
         ("pressure model", demo_with(|c| c["pressure_model"]["kind"] = json!("pressurized")),
-            "JOINT_PRESSURE_INTERFACE_UNRESOLVED", "only the unpressurized pressure model"),
+            "JOINT_PRESSURE_INTERFACE_UNRESOLVED", "pressure model pressurized is not supported; only unpressurized and constant_effective_area_reference_v1 are"),
         ("both ends one node", demo_with(|c| c["end_j"]["node_ref"] = json!("node:N-130")),
             "OBJECTIVE_CONNECTOR_TOPOLOGY_UNRESOLVED", "both ends name the same node"),
         ("an unknown end node", demo_with(|c| c["end_j"]["node_ref"] = json!("node:N-999")),

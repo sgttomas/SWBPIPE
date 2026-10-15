@@ -1,102 +1,18 @@
-//! Consequences over genuine public producer twins. Resealing is used only to
+//! Consequences over genuine public producer outputs. Resealing is used only to
 //! construct named negative reader statements, never to fabricate a positive.
+//!
+//! B7b deleted the v2 contract, so there is no v2/v3 twin left to compare:
+//! D5's closed twin exclusions lapsed with v2. The consuming checks now hold
+//! each current control to its exact work arithmetic and its committed bytes,
+//! and the retired v2 identities and contract are refusal controls.
 use super::*;
 use open_pipe_stress_product_physics::result_export::derivative;
 
-fn matches(path: &[String], pattern: &[&str]) -> bool {
-    path.len() == pattern.len()
-        && path
-            .iter()
-            .zip(pattern)
-            .all(|(p, q)| *q == "*" || p.as_str() == *q)
-}
-fn excluded(path: &[String]) -> bool {
-    [
-        &["producer", "semantic_contract_id"][..],
-        &["formulation_basis", "profile_id"],
-        &["formulation_basis", "limitations"],
-        &["contract_evidence", "exact_cases", "*", "profile_mode"],
-        &["contract_evidence", "pressure", "*", "profile_mode"],
-        &["contract_evidence", "pressure", "*", "profile_version"],
-        &["source_block_recovery", "body", "policy"],
-        &["source_block_recovery", "body", "invocation", "value"],
-        &["source_block_recovery", "body", "publication_sha256"],
-        &["source_block_recovery", "receipt_sha256"],
-        &[
-            "source_block_recovery",
-            "body",
-            "cases",
-            "*",
-            "physical_evidence_sha256",
-        ],
-        &[
-            "source_block_recovery",
-            "body",
-            "cases",
-            "*",
-            "source",
-            "normalized_source_sha256",
-        ],
-        &[
-            "source_block_recovery",
-            "body",
-            "cases",
-            "*",
-            "source",
-            "functional_plan_sha256",
-        ],
-        &[
-            "source_block_recovery",
-            "body",
-            "cases",
-            "*",
-            "work",
-            "charged",
-        ],
-        &[
-            "source_block_recovery",
-            "body",
-            "invocation_work",
-            "charged",
-        ],
-        &[
-            "source_block_recovery",
-            "body",
-            "invocation_work",
-            "publication_charged",
-        ],
-    ]
-    .iter()
-    .any(|pattern| matches(path, pattern))
-}
-fn equal_leaves(left: &Value, right: &Value, path: &mut Vec<String>) {
-    if excluded(path) {
-        return;
-    }
-    match (left, right) {
-        (Value::Object(a), Value::Object(b)) => {
-            assert_eq!(
-                a.keys().collect::<Vec<_>>(),
-                b.keys().collect::<Vec<_>>(),
-                "members at {path:?}"
-            );
-            for (key, item) in a {
-                path.push(key.clone());
-                equal_leaves(item, &b[key], path);
-                path.pop();
-            }
-        }
-        (Value::Array(a), Value::Array(b)) => {
-            assert_eq!(a.len(), b.len(), "array size at {path:?}");
-            for (index, (a, b)) in a.iter().zip(b).enumerate() {
-                path.push(index.to_string());
-                equal_leaves(a, b, path);
-                path.pop();
-            }
-        }
-        _ => assert_eq!(left, right, "nonexcluded leaf at {path:?}"),
-    }
-}
+/// The pressure-source table binding, pinned independently of the reader
+/// constant (bytes changed at B7b's resident current table, a43583c625).
+const PRESSURE_SOURCE_TABLE_SHA256: &str =
+    "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435";
+
 fn encoded_length(request: &Value) -> u64 {
     let text = serde_json::to_string(request).unwrap();
     canonical_json_checked_v1_text(&text)
@@ -139,82 +55,37 @@ fn publication_other_inputs(request: &Value, source: &Value) -> u64 {
                 + 64 * count(&model["nodes"]).pow(2)
                 + 256 * rows)
 }
+/// D5/MJ9's public half, as exact integers: composite publication reserves
+/// `24E + P` from its actual encoded captured request `E` and other inputs `P`,
+/// and total invocation work is the case work (charged plus reserved
+/// unobserved failure) plus publication. The selected-case finalization
+/// expression `2(12E + B_k)` is checked at its private site by
+/// `pressure_source_private_reservation_inputs_confirm_all_twins_complete_expression`.
 fn check_publication_accounting(control: &Control) {
-    let v2 = &control.legacy.source["source_block_recovery"]["body"];
-    let v3 = &control.joined.source["source_block_recovery"]["body"];
-    let e2 = encoded_length(&control.original);
-    let e3 = encoded_length(&control.invocation["request"]);
-    let p2 = publication_other_inputs(&control.original, &control.legacy.source);
-    let p3 = publication_other_inputs(&control.invocation["request"], &control.joined.source);
+    let body = &control.joined.source["source_block_recovery"]["body"];
+    let e = encoded_length(&control.invocation["request"]);
+    let p = publication_other_inputs(&control.invocation["request"], &control.joined.source);
     assert_eq!(
-        v2["invocation_work"]["publication_charged"]
+        body["invocation_work"]["publication_charged"]
             .as_u64()
             .unwrap(),
-        24 * e2 + p2
+        24 * e + p
     );
-    assert_eq!(
-        v3["invocation_work"]["publication_charged"]
-            .as_u64()
-            .unwrap(),
-        24 * e3 + p3
-    );
-    for body in [v2, v3] {
-        let cases: u64 = body["cases"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|c| {
-                c["work"]["charged"].as_u64().unwrap()
-                    + c["work"]["reserved_unobserved_failure"].as_u64().unwrap()
-            })
-            .sum();
-        assert_eq!(
-            body["invocation_work"]["charged"].as_u64().unwrap(),
-            cases
-                + body["invocation_work"]["publication_charged"]
-                    .as_u64()
-                    .unwrap()
-        );
-    }
-    // pressure_source_private_reservation_inputs_confirm_all_twins_complete_expression
-    // independently proves equal non-E descriptor/system/row/support shapes and
-    // zero remaining-work deltas over these same 24 twins at the actual private
-    // reservation entry. Thus F_k's delta is zero here, not an inferred counter.
-    // This consuming check has no dependency on opt-in scratch observations.
-    let delta_e = i128::from(e3) - i128::from(e2);
-    for (a, b) in v2["cases"]
+    let cases: u64 = body["cases"]
         .as_array()
         .unwrap()
         .iter()
-        .zip(v3["cases"].as_array().unwrap())
-    {
-        let delta = i128::from(b["work"]["charged"].as_u64().unwrap())
-            - i128::from(a["work"]["charged"].as_u64().unwrap());
-        let expected = if a["selected_method"] == "retained_source_blocks_exact_v1" {
-            2 * 12 * delta_e
-        } else {
-            0
-        };
-        assert_eq!(
-            delta, expected,
-            "selected-case exact reservation delta {}",
-            a["basis_ref"]["ref_id"]
-        );
-    }
-    let local_delta: i128 = v2["cases"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .zip(v3["cases"].as_array().unwrap())
-        .map(|(a, b)| {
-            i128::from(b["work"]["charged"].as_u64().unwrap())
-                - i128::from(a["work"]["charged"].as_u64().unwrap())
+        .map(|c| {
+            c["work"]["charged"].as_u64().unwrap()
+                + c["work"]["reserved_unobserved_failure"].as_u64().unwrap()
         })
         .sum();
     assert_eq!(
-        i128::from(v3["invocation_work"]["charged"].as_u64().unwrap())
-            - i128::from(v2["invocation_work"]["charged"].as_u64().unwrap()),
-        local_delta + 24 * (i128::from(e3) - i128::from(e2)) + i128::from(p3) - i128::from(p2)
+        body["invocation_work"]["charged"].as_u64().unwrap(),
+        cases
+            + body["invocation_work"]["publication_charged"]
+                .as_u64()
+                .unwrap()
     );
 }
 fn case_payload(source: &Value, index: usize) -> Value {
@@ -312,14 +183,26 @@ fn check_refusal(outcome: &Value, code: &str) {
     assert_eq!(outcome["ok"], false, "{outcome}");
     assert_eq!(outcome["error"]["code"], code, "{outcome}");
 }
+/// Authored presence of the optional load/reference-state group, as the
+/// reader keys it (never the version).
+fn carries_group(model: &Value) -> bool {
+    model.get("reference_configurations").is_some()
+        || model["materials"]
+            .as_array()
+            .is_some_and(|m| m.iter().any(|m| m.get("expansion_laws").is_some()))
+        || model["load_cases"]
+            .as_array()
+            .is_some_and(|c| c.iter().any(|c| c.get("analysis_state").is_some()))
+}
 #[derive(Clone, Copy)]
 enum DispatchDisposition<'a> {
     PressureHealthy(bool),
     PressureFinding(&'a str),
     HeaderRefused(&'a str),
-    PhysicsV2CapturedV3,
-    LoadReferenceV2T1,
+    /// A retired v2 identity, refused by name at header dispatch.
+    HeaderRetiredV2,
 }
+const RETIRED_V2_DETAIL: &str = "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis";
 fn checked_dispatch(
     source: &Value,
     model: &Value,
@@ -330,7 +213,7 @@ fn checked_dispatch(
     let (route, binding, token, findings, error) = match disposition {
         DispatchDisposition::PressureHealthy(resolved) => (
             "pressure_source",
-            json!({"id":"openpipestress.result_semantics/0.3.0/pressure-source-1","sha256":"4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf"}),
+            json!({"id":"openpipestress.result_semantics/0.3.0/pressure-source-1","sha256":PRESSURE_SOURCE_TABLE_SHA256}),
             if resolved {
                 "needs_recompute"
             } else {
@@ -345,7 +228,7 @@ fn checked_dispatch(
         ),
         DispatchDisposition::PressureFinding(code) => (
             "pressure_source",
-            json!({"id":"openpipestress.result_semantics/0.3.0/pressure-source-1","sha256":"4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf"}),
+            json!({"id":"openpipestress.result_semantics/0.3.0/pressure-source-1","sha256":PRESSURE_SOURCE_TABLE_SHA256}),
             "unsupported",
             json!([code]),
             Value::Null,
@@ -357,19 +240,12 @@ fn checked_dispatch(
             json!([code]),
             json!({"code":code,"detail":null}),
         ),
-        DispatchDisposition::PhysicsV2CapturedV3 => (
-            "physics_source",
-            json!({"id":"openpipestress.result_semantics/0.3.0/physics-source-1","sha256":"0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53"}),
+        DispatchDisposition::HeaderRetiredV2 => (
             "unsupported",
-            json!([sc::V3_READ_AS_V2]),
             Value::Null,
-        ),
-        DispatchDisposition::LoadReferenceV2T1 => (
-            "load_reference_source",
-            json!({"id":"openpipestress.result_semantics/0.3.0/load-reference-source-1","sha256":"28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924"}),
-            "needs_recompute",
-            json!([rv::LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE]),
-            Value::Null,
+            "unsupported",
+            json!(["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"]),
+            json!({"code":"SOURCE_EXACT_PRESSURE_V2_RETIRED","detail":RETIRED_V2_DETAIL}),
         ),
     };
     let eligible = findings.as_array().unwrap().is_empty();
@@ -402,7 +278,7 @@ fn corpus_entry(
         }
         None => {
             assert_eq!(validation["ok"], true, "{validation}");
-            assert_eq!(validation["eligible"], model["schema_version"] == "0.3.0");
+            assert_eq!(validation["eligible"], !carries_group(model));
             assert_eq!(unbound["ok"], true, "{unbound}");
             assert_eq!(unbound["eligible"], false);
         }
@@ -415,6 +291,14 @@ fn corpus_entry(
     json!({"id":id,"reader":reader,"source":source,"invocation":invocation,"transport_source":transported,
         "expected":{"validation":validation,"unbound":unbound,"transport":transport,
         "dispatch":checked_dispatch(source,model,invocation,disposition)}})
+}
+/// The family's retired v2 composite identity (received text only).
+fn retired_identity(family: Family) -> &'static str {
+    if family.resolved() {
+        "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+    } else {
+        "openpipestress.result_semantics/0.3.0/physics-source-1"
+    }
 }
 fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
     let prefix = format!(
@@ -441,18 +325,19 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
         control.mode.as_str()
     ));
     entries.push(positive);
+    // MJ5 (B7b): a genuine statement whose header names the family's retired
+    // v2 identity is refused by name at header dispatch, and by the
+    // caller-selected current reader on its identity, raw and transported.
+    let mut retired = source.clone();
+    retired["producer"]["semantic_contract_id"] = json!(retired_identity(control.family));
     entries.push(corpus_entry(
-        format!("{prefix}:MJ5-v2-offered-to-v3"),
-        &control.legacy.source,
+        format!("{prefix}:MJ5-retired-v2-identity"),
+        &retired,
         invocation,
         "pressure-source",
-        Some(sc::V2_READ_AS_V3),
-        Some(sc::V2_READ_AS_V3),
-        if control.family.resolved() {
-            DispatchDisposition::LoadReferenceV2T1
-        } else {
-            DispatchDisposition::PhysicsV2CapturedV3
-        },
+        Some("PHYSICS_SOURCE_IDENTITY"),
+        Some("PHYSICS_SOURCE_IDENTITY"),
+        DispatchDisposition::HeaderRetiredV2,
     ));
     let mut wrong_domain = source.clone();
     reseal_physical(&mut wrong_domain, "physics_source_case_evidence_v1");
@@ -489,26 +374,33 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
         None,
         DispatchDisposition::PressureFinding("SOURCE_BLOCKS_PUBLICATION_HASH"),
     ));
+    // MJ5 (B7b): the reader is fixed by its caller. The genuine source offered
+    // to the ordinary pressure-1 reader is refused by that reader's own
+    // foreign-method check (the receipt), never read as pressure-1.
     entries.push(corpus_entry(
-        format!("{prefix}:MJ5-v3-offered-to-v2"),
+        format!("{prefix}:MJ5-pressure-source-offered-to-pressure-1"),
         source,
         invocation,
-        "physics-source",
-        Some(sc::V3_READ_AS_V2),
-        Some(sc::V3_READ_AS_V2),
+        "pressure",
+        Some(if control.family.resolved() {
+            "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+        } else {
+            "SOURCE_PHYSICS_FOREIGN_METHOD_EVIDENCE"
+        }),
+        Some(rv::PRESSURE_TRANSPORT_UNSUPPORTED),
         DispatchDisposition::PressureHealthy(control.family.resolved()),
     ));
     let mut relabelled = source.clone();
-    relabelled["producer"]["semantic_contract_id"] = json!(sc::PHYSICS_SOURCE_ID);
+    relabelled["producer"]["semantic_contract_id"] = json!(retired_identity(control.family));
     relabelled["source_block_recovery"] = json!({});
     entries.push(corpus_entry(
         format!("{prefix}:MJ5-relabelled-shape"),
         &relabelled,
         invocation,
         "pressure-source",
-        Some(sc::V2_READ_AS_V3),
-        Some(sc::V2_READ_AS_V3),
-        DispatchDisposition::HeaderRefused(sc::V3_READ_AS_V2),
+        Some("PHYSICS_SOURCE_IDENTITY"),
+        Some("PHYSICS_SOURCE_IDENTITY"),
+        DispatchDisposition::HeaderRetiredV2,
     ));
     let mut downgraded = source.clone();
     downgraded["producer"]["semantic_contract_id"] = json!(sc::PRESSURE_ID);
@@ -539,6 +431,9 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
         None,
         DispatchDisposition::PressureFinding("SOURCE_BLOCKS_INVOCATION_WORK_LEDGER"),
     ));
+    // MJ5: the expected contract comes from the captured invocation. A
+    // captured retired v2 contract is refused by name before any received
+    // label or profile is read.
     let mut captured_v2 = invocation.clone();
     captured_v2["request"]["model"]["pressure_contract"] =
         json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
@@ -546,19 +441,29 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
         format!("{prefix}:MJ5-captured-v2-context"),
         source,
         &captured_v2,
-        sc::V2_READ_AS_V3,
+        "PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED",
         entries,
     );
-    let mut other_version = invocation.clone();
-    other_version["request"]["model"]["schema_version"] = json!(if control.family.resolved() {
-        "0.3.0"
+    // The captured group's presence, not a version, fixes the resolved
+    // context: the opposite presence is refused by name.
+    let mut other_context = invocation.clone();
+    let model = &mut other_context["request"]["model"];
+    if control.family.resolved() {
+        model.as_object_mut().unwrap().remove("reference_configurations");
+        for material in model["materials"].as_array_mut().unwrap() {
+            material.as_object_mut().unwrap().remove("expansion_laws");
+        }
+        for case in model["load_cases"].as_array_mut().unwrap() {
+            case.as_object_mut().unwrap().remove("analysis_state");
+        }
     } else {
-        "0.4.0"
-    });
+        model["reference_configurations"] = json!([]);
+    }
+    assert_ne!(carries_group(model), control.family.resolved());
     add_context_entry(
         format!("{prefix}:received-captured-state-context"),
         source,
-        &other_version,
+        &other_context,
         "PHYSICS_SOURCE_ACTUAL_LOAD_REFERENCE_CONTEXT",
         entries,
     );
@@ -648,14 +553,21 @@ fn current_fixture(control: &Control) {
     if std::env::var("SWBPIPE_PRESSURE_SOURCE_FIXTURES_WRITE").as_deref() == Ok("1") {
         std::fs::create_dir_all(&folder).unwrap();
         std::fs::write(&raw, control.joined.bytes.as_bytes()).unwrap();
-        std::fs::write(
-            &request,
-            format!(
-                "{}\n",
-                serde_json::to_string_pretty(&control.invocation["request"]).unwrap()
-            ),
-        )
-        .unwrap();
+        // The committed current request is this control's input; it is
+        // rewritten only if its value changed, so its authored layout stays.
+        let committed: Option<Value> = std::fs::read_to_string(&request)
+            .ok()
+            .and_then(|text| serde_json::from_str(&text).ok());
+        if committed.as_ref() != Some(&control.invocation["request"]) {
+            std::fs::write(
+                &request,
+                format!(
+                    "{}\n",
+                    serde_json::to_string_pretty(&control.invocation["request"]).unwrap()
+                ),
+            )
+            .unwrap();
+        }
     }
     assert_eq!(
         std::fs::read_to_string(raw).unwrap(),
@@ -667,25 +579,23 @@ fn current_fixture(control: &Control) {
         control.invocation["request"]
     );
 }
-/// MJ9's kill: every nonexcluded leaf over all 24 twins and each work counter
-/// as an exact integer. It also keeps the committed v3 twins and the J2 reader
-/// corpus current.
+/// MJ9's kill (B7b meaning): every current control (twelve requests x two
+/// modes) keeps its exact work arithmetic, checked as exact integers
+/// (`check_publication_accounting`; counters are never ignored or compared
+/// with a tolerance), and its exact committed producer bytes. It also keeps
+/// the committed raw fixtures and the J2 reader corpus current. Its pre-B7b
+/// v2/v3 twin leaf comparison lapsed with v2.
 #[test]
-fn pressure_source_twins_have_only_d5_differences() {
+fn pressure_source_controls_keep_exact_work_and_current_bytes() {
     let mut entries = Vec::new();
     let mut controls = Vec::new();
-    for family in [Family::Physics03, Family::LoadReference04] {
+    for family in [Family::Physics, Family::LoadReference] {
         for name in family.names() {
             for mode in [
                 PreviewSolverMode::SparseInteractive,
                 PreviewSolverMode::DenseScrutiny,
             ] {
                 let control = check_control(family, name, mode);
-                equal_leaves(
-                    &control.legacy.source,
-                    &control.joined.source,
-                    &mut Vec::new(),
-                );
                 check_publication_accounting(&control);
                 current_fixture(&control);
                 controls.push(control);
@@ -695,7 +605,7 @@ fn pressure_source_twins_have_only_d5_differences() {
     assert_eq!(controls.len(), 24);
     for control in &controls {
         add_control_entries(control, &mut entries);
-        // This 0.3 consuming kill avoids changing an unrelated resolved-state
+        // This consuming kill avoids changing an unrelated resolved-state
         // inventory before testing the selected pressure inventory gate.
         if !control.family.resolved() && control.name == "n06" {
             let mixed = controls
@@ -735,14 +645,12 @@ fn pressure_source_declines_every_present_pressure_region() {
         PreviewSolverMode::SparseInteractive,
         PreviewSolverMode::DenseScrutiny,
     ] {
-        let original = Family::Physics03.request("n05");
-        let region = Family::Physics03.request("mixed")["model"]["load_cases"][1]
+        let original = Family::Physics.request("n05");
+        let region = Family::Physics.request("mixed")["model"]["load_cases"][1]
             ["pressure_regions"][0]
             .clone();
         for pressure in [-1e-5, 0.0, 1e-5] {
             let mut request = original.clone();
-            request["model"]["pressure_contract"] =
-                json!({"version":"3.0.0","mode":"exact_pressure_v3"});
             let mut entered = region.clone();
             entered["pressure"]["value"] = json!(pressure);
             request["model"]["load_cases"][0]["pressure_regions"] = json!([entered]);
@@ -789,7 +697,7 @@ fn read_listed_raw_fixture<T>(
 ) -> Result<Option<T>, &'static str> {
     let Some(value) = entry.get("raw_fixture") else { return Ok(None); };
     let input = value.as_str().ok_or("raw_fixture must be a listed string")?;
-    for family in [Family::Physics03, Family::LoadReference04] {
+    for family in [Family::Physics, Family::LoadReference] {
         for name in family.names() {
             for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
                 let generated = format!(
@@ -808,7 +716,7 @@ fn read_listed_raw_fixture<T>(
 #[test]
 fn pressure_source_raw_fixture_path_guard_admits_exact_generated24() {
     let mut accepted = std::collections::BTreeSet::new();
-    for family in [Family::Physics03, Family::LoadReference04] {
+    for family in [Family::Physics, Family::LoadReference] {
         for name in family.names() {
             for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
                 let generated = format!(
@@ -940,13 +848,14 @@ fn pressure_source_reader_corpus_native_reads_every_statement_unchanged() {
         check_corpus_entry(entry);
     }
 }
-/// MJ2's kill. Genuine n06 v3 twins on 0.3 and 0.4, in both modes, carry case
-/// commitments equal to an independent hash of the exact case payload under
-/// `pressure_source_case_evidence_v1` (`check_control`), never the v2 domain's.
-/// A wrong-domain commitment with resealed outer hashes fails raw and transport.
+/// MJ2's kill. Genuine n06 controls on both families, in both modes, carry
+/// case commitments equal to an independent hash of the exact case payload
+/// under `pressure_source_case_evidence_v1` (`check_control`), never the
+/// retired v2 domain's. A wrong-domain commitment with resealed outer hashes
+/// fails raw and transport.
 #[test]
 fn pressure_source_case_commitments_use_the_v3_domain() {
-    for family in [Family::Physics03, Family::LoadReference04] {
+    for family in [Family::Physics, Family::LoadReference] {
         for mode in [
             PreviewSolverMode::SparseInteractive,
             PreviewSolverMode::DenseScrutiny,
@@ -998,10 +907,11 @@ fn top_level_functions(text: &str) -> Vec<(String, String)> {
 }
 /// MJ4's source-qualified guard. Every reader function that dispatches
 /// `Method::PressureJoined` or calls the direct v3 load-state check reads the
-/// received evidence; none calls the v2 projection/reseal path, and that path's
-/// callers remain the v2 joined reader's own (`validate`,
-/// `physics_source_projection`). Verifying incoming hashes before a shim does
-/// not satisfy this guard.
+/// received evidence and contains no projection/reseal call. B7b deleted the
+/// v2 joined reader with its projection/reseal path, so
+/// `load_reference_source.rs` now has no projection caller at all and no
+/// reader source defines the v2 projection functions. Verifying incoming
+/// hashes before a shim does not satisfy this guard.
 fn pressure_joined_dispatch_has_no_v2_projection_or_reseal() {
     const READERS: [(&str, &str); 4] = [
         (
@@ -1024,6 +934,10 @@ fn pressure_joined_dispatch_has_no_v2_projection_or_reseal() {
     let mut direct = std::collections::BTreeSet::new();
     for (file, text) in READERS {
         for (name, body) in top_level_functions(text) {
+            assert!(
+                !matches!(name.as_str(), "physics_source_projection" | "project_load_reference"),
+                "{file}:{name}: the retired v2 projection path is deleted"
+            );
             if body.contains("Method::PressureJoined")
                 || body.contains("validate_pressure_source_evidence(")
             {
@@ -1059,25 +973,27 @@ fn pressure_joined_dispatch_has_no_v2_projection_or_reseal() {
         })
         .map(|(name, _)| name)
         .collect();
-    assert_eq!(
-        projection_callers,
-        ["physics_source_projection".to_owned(), "validate".to_owned()]
-            .into_iter()
-            .collect(),
-        "the v2 projection/reseal path is reached only from the v2 joined reader"
+    assert!(
+        projection_callers.is_empty(),
+        "no load_reference_source.rs function projects or reseals: {projection_callers:?}"
     );
 }
-/// MJ4's kill. Genuine eigen_motion, mixed and n06 v3 twins pass raw and
-/// transport checks with v3 commitments; a stale receipt hash and a coherently
-/// resealed changed publication commitment take their named outcomes (corpus);
-/// and the source-qualified guard above excludes every v2 projection/reseal
-/// call from the direct `Method::PressureJoined` dispatch.
+/// MJ4's kill. Genuine eigen_motion, mixed and n06 controls with the group pass
+/// raw and transport checks with v3 commitments; a stale receipt hash and a
+/// coherently resealed changed publication commitment take their named
+/// outcomes (corpus); and the source-qualified guard above excludes every
+/// projection/reseal call from the direct `Method::PressureJoined` dispatch.
 #[test]
 fn v3_load_state_join_reads_received_v3_evidence_directly() {
     pressure_joined_dispatch_has_no_v2_projection_or_reseal();
     named_corpus_controls("load_reference_source:");
     named_corpus_controls("MJ4-publication-binding");
 }
+/// MJ5's kill (B7b meaning): the expected contract and reader are fixed by
+/// the caller or the captured invocation, never inferred from a received
+/// label or profile; a retired v2 identity is refused by name
+/// (`SOURCE_EXACT_PRESSURE_V2_RETIRED`) and a captured retired contract by the
+/// reader's actual-contract refusal.
 #[test]
 fn source_contract_cross_reads_are_refused_by_name() {
     named_corpus_controls("MJ5-");

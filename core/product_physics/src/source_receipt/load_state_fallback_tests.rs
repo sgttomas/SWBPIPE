@@ -11,7 +11,7 @@ const CASE: &str = "case:join";
 
 fn witness() -> Value {
     serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+        "../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json"
     ))
     .unwrap()
 }
@@ -96,11 +96,11 @@ fn assert_ordinary_publication(
 ) {
     assert_eq!(
         envelope.producer.semantic_contract_id,
-        case_state::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID
+        exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID
     );
     assert_eq!(
         envelope.formulation_basis.profile_id,
-        case_state::LOAD_STATE_PROFILE_ID
+        exact_admission::PRESSURE_PROFILE_ID
     );
     assert!(
         envelope.source_block_recovery.is_none(),
@@ -126,7 +126,7 @@ fn assert_ordinary_publication(
     let ordinary = run_linear_static_preview_with_mode(typed, mode);
     assert_eq!(
         ordinary.producer.semantic_contract_id,
-        case_state::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID
+        exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID
     );
     assert!(!ordinary.results.is_empty());
     assert_eq!(
@@ -277,7 +277,7 @@ fn the_committed_witness_still_selects_and_finalizes_within_the_public_limit() {
         let envelope = run_linear_static_preview_value_with_mode(witness(), mode).unwrap();
         assert_eq!(
             envelope.producer.semantic_contract_id,
-            case_state::LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID
+            exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID
         );
         assert_eq!(
             envelope.source_block_recovery.as_ref().unwrap()["body"]["status"],
@@ -292,11 +292,12 @@ fn the_committed_witness_still_selects_and_finalizes_within_the_public_limit() {
 
 #[test]
 fn the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback() {
-    // Characterization only, not an endorsement: the inherited physics-source-1
-    // composite outcome is a separate open finding assigned to T3. This slice
-    // must not change pre-0.4 behaviour (reviewer probe P12).
+    // Characterization only, not an endorsement: the inherited composite
+    // outcome (physics-source-1 before B7b; its current pressure-source-1
+    // twin since) is a separate open finding assigned to T3. This slice must
+    // not change behaviour without the group (reviewer probe P12).
     let mut request: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/physics_source/mixed.request.json"
+        "../../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json"
     ))
     .unwrap();
     request["model"]["load_cases"][1]

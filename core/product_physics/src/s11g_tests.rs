@@ -1699,10 +1699,12 @@ fn t12_accurate_small_moment_rows_below_the_floor_stay_passed() {
 /// from this producer, so the check is now byte identity with it.
 #[test]
 fn t13_committed_fallback_uz_is_byte_identical() {
-    let request: Value = serde_json::from_str(include_str!(
+    // B7b: the result_export fixture's request is read through the shared
+    // re-authoring (a no-op once that fixture is itself 0.5.0).
+    let request: Value = crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(include_str!(
         "../../reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json"
     ))
-    .unwrap();
+    .unwrap());
     for (mode, committed) in [
         (PreviewSolverMode::SparseInteractive, include_str!("../../reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json")),
         (PreviewSolverMode::DenseScrutiny, include_str!("../../reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json")),
@@ -2834,7 +2836,7 @@ fn t20_characterization_rb_prime_residual_c1() {
 #[test]
 fn exact_pressure_operand_rows_carry_their_bound() {
     let request: Value = serde_json::from_str(include_str!(
-        "../../../fixtures/product_preview/load_reference/pressure.request.json"
+        "../../../fixtures/product_preview/pressure/load_reference/pressure.request.json"
     ))
     .unwrap();
     let Prepared {

@@ -12,6 +12,9 @@ use open_pipe_stress_product_physics::{
 };
 use serde_json::{json, Value};
 
+#[path = "common/current_model.rs"]
+mod current_model;
+
 const MODES: [PreviewSolverMode; 2] = [
     PreviewSolverMode::SparseInteractive,
     PreviewSolverMode::DenseScrutiny,
@@ -28,8 +31,11 @@ fn case(id: &str) -> Value {
 }
 
 /// Both entries (captured value and typed DTO) in both modes; the entries
-/// agree in each mode.
+/// agree in each mode. B7b: the frozen document (after any variant patch) is
+/// unchanged; its copy is re-authored to the current 0.5.0 exact document
+/// (`common/current_model.rs`) before it runs.
 fn run(document: &Value) -> Vec<Value> {
+    let document = &current_model::reauthor_request(document.clone());
     let mut outputs = Vec::new();
     for mode in MODES {
         let captured = serde_json::to_value(
@@ -328,6 +334,22 @@ fn every_refusal_variant_fails_for_exactly_its_intended_reason() {
             }
         }
         assert!(!documents.is_empty(), "{name}");
+        // B7b: this variant was refused "until T4-U5" (its own
+        // `expected_round_02.until`) on the pre-0.5.0 documents, which are retired.
+        // On the current 0.5.0 copy T4-U5a's region classifier applies
+        // (`joint.rs` `classify_pressure_participation`): a well-formed region
+        // that neither touches nor lists the unpressurized connector is admitted.
+        if name == "joint_case_with_pressure_region" {
+            assert_eq!(expected["until"], "T4-U5 (J3/J4)");
+            for (label, document) in documents {
+                for envelope in run(&document) {
+                    assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{label}: {}", envelope["diagnostics"]);
+                    assert!(!envelope["diagnostics"].to_string().contains(code), "{label}");
+                }
+                checked += 1;
+            }
+            continue;
+        }
         for (label, document) in documents {
             for envelope in run(&document) {
                 assert_refused(&envelope, code, &refs, &label);

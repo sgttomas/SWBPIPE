@@ -1721,10 +1721,10 @@ mod tests {
             "../../../validation/references/t4_i7/u2_document_sketches.json"
         ))
         .unwrap();
-        let mut model: PreviewModel = serde_json::from_value(
-            documents["sketches"]["U2-L-ANCH-PTW-K2"]["0.3.0"]["document"]["model"].clone(),
-        )
-        .unwrap();
+        // B7b: the frozen sketch's copy is re-authored to the current 0.5.0 form.
+        let mut sketch = documents["sketches"]["U2-L-ANCH-PTW-K2"]["0.3.0"]["document"]["model"].clone();
+        crate::b7b_admission_tests::reauthor_current_model(&mut sketch);
+        let mut model: PreviewModel = serde_json::from_value(sketch).unwrap();
         // The product's own preparation: units, then the exact route's derived G.
         let (mut materials, mut diagnostics) = (model.materials.clone(), Vec::new());
         super::super::normalize_model_units(&mut model, &mut materials, &mut diagnostics);
@@ -1748,10 +1748,10 @@ mod tests {
             "../../../validation/references/t4_i12/u3_reference_cases.json"
         ))
         .unwrap();
-        let mut connector: PreviewModel = serde_json::from_value(
-            references["cases"]["U3-SYS-DEMO-CONNECTOR-001"]["inputs"]["document_v3_0.3.0"]["model"].clone(),
-        )
-        .unwrap();
+        let mut connector_document =
+            references["cases"]["U3-SYS-DEMO-CONNECTOR-001"]["inputs"]["document_v3_0.3.0"]["model"].clone();
+        crate::b7b_admission_tests::reauthor_current_model(&mut connector_document);
+        let mut connector: PreviewModel = serde_json::from_value(connector_document).unwrap();
         let (mut materials, mut diagnostics) = (connector.materials.clone(), Vec::new());
         super::super::normalize_model_units(&mut connector, &mut materials, &mut diagnostics);
         super::super::pressure_material::resolve_base(&connector, &mut materials, &mut diagnostics);
@@ -1886,13 +1886,11 @@ mod tests {
         assert_eq!(failure.error, RecoveryError::Exact(exact::Error::Budget));
     }
 
-    fn pressure_source_fixture(v3: bool) -> Fixture {
-        let mut raw: Value = serde_json::from_str(include_str!(
-            "../../../fixtures/product_preview/physics_source/n05.request.json"
+    /// The committed current (0.5.0, v3) n05 source control.
+    fn pressure_source_fixture() -> Fixture {
+        let raw: Value = serde_json::from_str(include_str!(
+            "../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
         )).unwrap();
-        if v3 {
-            raw["model"]["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3"});
-        }
         let request: LinearStaticPreviewRequest = serde_json::from_value(raw).unwrap();
         let mut model = request.model;
         let mut diagnostics = Vec::new();
@@ -1905,33 +1903,29 @@ mod tests {
 
     #[test]
     fn pressure_source_empty_inventory_prepares_without_the_old_v3_gate() {
-        for v3 in [false, true] {
-            let fixture = pressure_source_fixture(v3);
-            let prepared = prepare_sources(&fixture.input(), &mut AttemptBudget::new(exact::Limits::default()));
-            assert!(prepared.is_ok(), "v3={v3}: {:?}", prepared.err());
-        }
+        let fixture = pressure_source_fixture();
+        let prepared = prepare_sources(&fixture.input(), &mut AttemptBudget::new(exact::Limits::default()));
+        assert!(prepared.is_ok(), "{:?}", prepared.err());
     }
 
     #[test]
     fn pressure_source_preparation_declines_every_present_pressure_region() {
         const EMPTY_REQUIRED: &str = "exact source recovery requires explicitly empty pressure regions";
-        for v3 in [false, true] {
-            for pressure in [0.0, 1.0, -1.0] {
-                let mut fixture = pressure_source_fixture(v3);
-                fixture.model.load_cases[0].pressure_regions = Some(vec![serde_json::from_value(json!({
-                    "id":"invented:source-family-region", "pressure":{"value":pressure,"unit":"Pa"}
-                })).unwrap()]);
-                assert_eq!(prepare_sources(&fixture.input(), &mut AttemptBudget::new(exact::Limits::default())).err(), Some(RecoveryError::Unsupported(EMPTY_REQUIRED)));
-            }
-            let mut fixture = pressure_source_fixture(v3);
-            fixture.model.load_cases[0].pressure_regions = None;
+        for pressure in [0.0, 1.0, -1.0] {
+            let mut fixture = pressure_source_fixture();
+            fixture.model.load_cases[0].pressure_regions = Some(vec![serde_json::from_value(json!({
+                "id":"invented:source-family-region", "pressure":{"value":pressure,"unit":"Pa"}
+            })).unwrap()]);
             assert_eq!(prepare_sources(&fixture.input(), &mut AttemptBudget::new(exact::Limits::default())).err(), Some(RecoveryError::Unsupported(EMPTY_REQUIRED)));
         }
+        let mut fixture = pressure_source_fixture();
+        fixture.model.load_cases[0].pressure_regions = None;
+        assert_eq!(prepare_sources(&fixture.input(), &mut AttemptBudget::new(exact::Limits::default())).err(), Some(RecoveryError::Unsupported(EMPTY_REQUIRED)));
     }
 
     #[test]
     fn pressure_source_denied_attempt_keeps_the_existing_work_boundary() {
-        let fixture = pressure_source_fixture(true);
+        let fixture = pressure_source_fixture();
         let failure = solve(fixture.input(), exact::Limits { operations: 0, ..exact::Limits::default() }).unwrap_err();
         assert_eq!(failure.stage, "source closure");
         assert_eq!(failure.work.charged, 0);

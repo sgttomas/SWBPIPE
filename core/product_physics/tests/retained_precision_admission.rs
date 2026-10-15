@@ -102,7 +102,7 @@ fn exact_and_invalid_ordinary_results_are_preserved() {
         // The pressure fixture's legacy route need not select source blocks.
         // Use the maintained explicit-material companion for that positive gate.
         let source: Value = serde_json::from_str(include_str!(
-            "../../../fixtures/product_preview/physics_source/n05.request.json"
+            "../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
         ))
         .unwrap();
         let selected = run_linear_static_preview_value_with_mode(source.clone(), mode).unwrap();

@@ -461,13 +461,9 @@ fn model_findings(
             "objective connector {}: hardware {} is not supported; only untied is (ties come with T4-U5)",
             spec.component_id, kind.unwrap_or("(no kind)")))),
     }
-    if model.schema_version == "0.5.0" {
-        if let Err(finding) = pressure_model(connector) {
-            findings.push(finding);
-        }
-    } else if connector.get("pressure_model").and_then(|p| text(p, "kind")) != Some("unpressurized") {
-        findings.push((PRESSURE_INTERFACE_UNRESOLVED, format!(
-            "objective connector {}: only the unpressurized pressure model is supported until T4-U5", spec.component_id)));
+    // Only current 0.5.0 exact documents reach the classifier (`ExactContract::of`).
+    if let Err(finding) = pressure_model(connector) {
+        findings.push(finding);
     }
     findings
 }
@@ -511,20 +507,14 @@ pub(crate) fn classify_connectors(model: &PreviewModel, diagnostics: &mut Vec<Di
         for (code, message) in findings {
             push(diagnostics, code, None, message);
         }
-        for case in &model.load_cases {
-            if model.schema_version != "0.5.0" && case.pressure_regions.as_ref().is_some_and(|regions| !regions.is_empty()) {
-                push(diagnostics, PRESSURE_INTERFACE_UNRESOLVED, Some(&case.id), format!(
-                    "load case {} has pressure regions, and a joint's pressure interface is not resolved until T4-U5; a pressurized model with a joint is refused", case.id));
-            }
-        }
         if span_known {
             refuse_applied_span_loads(model, &spec, diagnostics);
         }
-        if model.schema_version == "0.5.0" && !model_refused {
+        if !model_refused {
             classify_pressure_participation(model, &spec, diagnostics);
         }
     }
-    if model.schema_version == "0.5.0" {
+    {
         // Known means an actual component carrying the interface. A model
         // refusal does not turn that known connector into an unknown ID.
         let connector_ids = model.components.iter().filter(|component| component.kind=="expansion_joint" && component.objective_connector.is_some()).map(|component| component.id.as_str()).collect::<HashSet<_>>();

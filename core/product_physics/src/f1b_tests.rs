@@ -178,15 +178,15 @@ fn declared_subset() -> Vec<(&'static str, Value)> {
             )),
         ),
         (
-            "0.4.0 prescribed support motion",
+            "load/reference-state prescribed support motion",
             parse(include_str!(
-                "../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+                "../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json"
             )),
         ),
         (
-            "0.4.0 connected",
+            "load/reference-state connected",
             parse(include_str!(
-                "../../../fixtures/product_preview/load_reference/connected.request.json"
+                "../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
             )),
         ),
         ("skew chain", chain_request(7)),
@@ -201,7 +201,10 @@ fn u3_connector_request() -> Value {
         "../../../validation/references/t4_i12/u3_reference_cases.json"
     ))
     .unwrap();
-    as_request(references["cases"]["U3-SYS-DEMO-CONNECTOR-001"]["inputs"]["document_v3_0.3.0"].clone())
+    // B7b: only the copy is re-authored to the current 0.5.0 exact form.
+    crate::b7b_admission_tests::reauthor_current_request(as_request(
+        references["cases"]["U3-SYS-DEMO-CONNECTOR-001"]["inputs"]["document_v3_0.3.0"].clone(),
+    ))
 }
 
 /// One basis the product assembles for a request, formed by the product's own
@@ -1771,8 +1774,8 @@ fn phys_r4_request(pressurized: bool) -> Value {
             "magnitude": {"value": tip, "unit": "N*m"}, "provenance": "independent_section_geometry_reference"}));
     }
     json!({"model": {
-        "schema_version": "0.3.0", "document_kind": "openpipestress.product_preview.model",
-        "pressure_contract": {"version": "2.0.0", "mode": "exact_straight_pressure_v2"},
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
         "project": {"id": "project:section-oracle", "units": {"length": "m", "force": "N", "angle": "rad",
             "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
@@ -1781,7 +1784,8 @@ fn phys_r4_request(pressurized: bool) -> Value {
             {"id": b, "position": {"x": 1.0, "y": 0.0, "z": 0.0}, "provenance": "synthetic"}],
         "pipe_segments": [{"id": "pipe:source-section", "from": a, "to": b, "section": {
             "outside_diameter": {"value": 4e-77, "unit": "m"},
-            "wall_thickness": {"value": 1e-77, "unit": "m"}},
+            "wall_thickness": {"value": 1e-77, "unit": "m"},
+            "corrosion_allowance": {"value": 0.0, "unit": "m"}},
             "material": "material:section", "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0},
             "provenance": "arithmetic_geometry_control_not_manufactured_pipe"}],
         "materials": [{"id": "material:section", "constitutive_basis": "homogeneous_isotropic_E_nu_v1",

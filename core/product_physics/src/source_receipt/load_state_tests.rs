@@ -26,7 +26,7 @@ const ROOT_UY_DOF: usize = 1;
 /// retained source refuses.
 fn witness(pressure: bool) -> Value {
     let mut request: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+        "../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json"
     ))
     .unwrap();
     let material = &request["model"]["materials"][0];
@@ -318,14 +318,14 @@ fn joined_publication_uses_its_own_semantics_profile_policy_and_case_record() {
         let envelope = run_linear_static_preview_value_with_mode(witness(false), mode).unwrap();
         assert_eq!(
             envelope.producer.semantic_contract_id,
-            case_state::LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID
+            exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID
         );
         assert_eq!(
             envelope.formulation_basis.profile_id,
-            case_state::LOAD_STATE_SOURCE_PROFILE_ID
+            exact_admission::PRESSURE_PROFILE_ID
         );
         let receipt = envelope.source_block_recovery.as_ref().unwrap();
-        assert_eq!(receipt["body"]["policy"], "LOAD-REFERENCE-SOURCE-1");
+        assert_eq!(receipt["body"]["policy"], "PRESSURE-SOURCE-1");
         assert_eq!(receipt["body"]["status"], "qualified");
         assert_eq!(
             receipt["body"]["cases"][0]["selected_method"],
@@ -379,11 +379,11 @@ fn an_unavailable_join_keeps_the_ordinary_load_reference_publication() {
             .unwrap();
     assert_eq!(
         envelope.producer.semantic_contract_id,
-        case_state::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID
+        exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID
     );
     assert_eq!(
         envelope.formulation_basis.profile_id,
-        case_state::LOAD_STATE_PROFILE_ID
+        exact_admission::PRESSURE_PROFILE_ID
     );
     assert!(envelope.source_block_recovery.is_none());
     let record = &envelope.contract_evidence.as_ref().unwrap()["load_reference_states"][0];

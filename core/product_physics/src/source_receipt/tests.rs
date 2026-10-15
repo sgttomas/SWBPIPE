@@ -197,7 +197,7 @@ fn receipt_domain_hashes_are_acyclic_and_distinct() {
 // Append to source_receipt/tests.rs after parent's bounded public run.
 fn exact_raw() -> Value {
     serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/physics_source/n05.request.json"
+        "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
     ))
     .unwrap()
 }
@@ -331,7 +331,7 @@ fn composite_recipe_reserves_before_failures_and_geometry_changes() {
 #[ignore = "bounded resource measurement with private 16M test budget; not public qualification"]
 fn composite_fields_work_measurement() {
     let raw: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/physics_source/fields.request.json"
+        "../../../../fixtures/product_preview/pressure_source/physics_source/fields.request.json"
     ))
     .unwrap();
     for mode in [
@@ -446,7 +446,9 @@ fn retired_legacy_pressure_label_is_refused_on_the_ordinary_route() {
             .unwrap_or_else(|| panic!("{:?}", envelope.diagnostics));
         assert_eq!(refusal.severity, "blocking");
         assert_eq!(refusal.affected_refs, ["pressure_contract"]);
-        assert!(refusal.message.contains("2.0.0/exact_straight_pressure_v2"));
+        // B7b A5: the re-author diagnostic names the current contract.
+        assert!(refusal.message.contains("3.0.0/exact_pressure_v3"), "{}", refusal.message);
+        assert!(!refusal.message.contains("exact_straight_pressure_v2"));
         assert!(!envelope
             .diagnostics
             .iter()
@@ -480,7 +482,9 @@ fn zero_legacy_pressure_primitive_is_refused_on_the_ordinary_route_and_the_retai
             .find(|d| d.code == "PRESSURE_MODEL_REAUTHOR_REQUIRED")
             .unwrap_or_else(|| panic!("{:?}", envelope.diagnostics));
         assert_eq!(refusal.affected_refs, ["case", "load:zero-pressure"]);
-        assert!(refusal.message.contains("2.0.0/exact_straight_pressure_v2"));
+        // B7b A5: the re-author diagnostic names the current contract.
+        assert!(refusal.message.contains("3.0.0/exact_pressure_v3"), "{}", refusal.message);
+        assert!(!refusal.message.contains("exact_straight_pressure_v2"));
         let ordinary = serde_json::to_vec(&envelope).unwrap();
         let direct = crate::run_linear_static_preview_value_with_retained_direct(value.clone(), mode, RETAINED_LIMIT).unwrap();
         assert!(direct.retained().is_none());

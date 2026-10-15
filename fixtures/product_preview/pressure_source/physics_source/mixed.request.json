@@ -146,6 +146,10 @@
         "material": "material",
         "provenance": "original_analytical_fixture_numerical_integrity_v1_no_external_project_data",
         "section": {
+          "corrosion_allowance": {
+            "unit": "m",
+            "value": 0.0
+          },
           "outside_diameter": {
             "unit": "m",
             "value": 0.2
@@ -165,6 +169,7 @@
     ],
     "pressure_contract": {
       "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
       "version": "3.0.0"
     },
     "project": {
@@ -180,7 +185,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.3.0",
+    "schema_version": "0.5.0",
     "supports": [
       {
         "family": "anchor",

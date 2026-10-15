@@ -1,62 +1,38 @@
-//! J1 preparation: the captured source context and its publication check.
-//! Full v3 publication/readback is exercised after shared caller/composite fan-in.
+//! J1/B7b: the captured source context and its publication check. Since B7b
+//! deleted v2, the captured current exact contract is the only composite
+//! context; the retired v2 identities and contract are refusal controls.
 use super::*;
 
-fn request(load_state: bool, v3: bool) -> Value {
-    let mut raw: Value = serde_json::from_str(if load_state {
-        include_str!("../../../../fixtures/product_preview/load_reference_source/n05.request.json")
-    } else {
-        include_str!("../../../../fixtures/product_preview/physics_source/n05.request.json")
-    })
-    .unwrap();
-    if v3 {
-        raw["model"]["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3"});
-    }
-    raw
+/// The retired v2 composite identities, as received text only (B7b refuses them
+/// by name at header dispatch; the producer never publishes them).
+const RETIRED_PHYSICS_SOURCE_ID: &str = "openpipestress.result_semantics/0.3.0/physics-source-1";
+const RETIRED_LOAD_REFERENCE_SOURCE_ID: &str =
+    "openpipestress.result_semantics/0.3.0/load-reference-source-1";
+const RETIRED_V2_CONTRACT: &str = r#"{"version":"2.0.0","mode":"exact_straight_pressure_v2"}"#;
+
+/// The committed current (0.5.0, v3, CA 0, Euler-Bernoulli) source controls.
+fn fixture_request(family: &str, name: &str) -> Value {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
+        "../../fixtures/product_preview/pressure_source/{family}/{name}.request.json"
+    ));
+    serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
+}
+
+fn request(load_state: bool) -> Value {
+    fixture_request(if load_state { "load_reference_source" } else { "physics_source" }, "n05")
 }
 
 #[test]
-fn captured_composite_context_keeps_v2_names_and_unifies_v3_model_versions() {
+fn captured_composite_context_names_the_pressure_source_policy_on_both_families() {
     for mode in [
         PreviewSolverMode::SparseInteractive,
         PreviewSolverMode::DenseScrutiny,
     ] {
-        for (load_state, v3, id, policy, domain, profile) in [
-            (
-                false,
-                false,
-                COMPOSITE_SEMANTIC_ID,
-                "PHYSICS-SOURCE-1",
-                "physics_source_case_evidence_v1",
-                "exact_straight_pressure_v2",
-            ),
-            (
-                true,
-                false,
-                LOAD_REFERENCE_SOURCE_SEMANTIC_ID,
-                "LOAD-REFERENCE-SOURCE-1",
-                "load_reference_source_case_evidence_v1",
-                "resolved_straight_load_state_source_v1",
-            ),
-            (
-                false,
-                true,
-                "openpipestress.result_semantics/0.3.0/pressure-source-1",
-                "PRESSURE-SOURCE-1",
-                "pressure_source_case_evidence_v1",
-                "exact_pressure_v3",
-            ),
-            (
-                true,
-                true,
-                "openpipestress.result_semantics/0.3.0/pressure-source-1",
-                "PRESSURE-SOURCE-1",
-                "pressure_source_case_evidence_v1",
-                "exact_pressure_v3",
-            ),
-        ] {
-            let (parsed, captured) =
-                CapturedInvocation::parse(request(load_state, v3), mode).unwrap();
+        for load_state in [false, true] {
+            let raw = request(load_state);
+            assert_eq!(raw["model"]["schema_version"], crate::MODEL_SCHEMA_VERSION);
+            let (parsed, captured) = CapturedInvocation::parse(raw, mode).unwrap();
+            assert_eq!(case_state::is_load_state(&parsed.model), load_state);
             let context = captured.composite_context().unwrap();
             assert_eq!(
                 context,
@@ -67,17 +43,16 @@ fn captured_composite_context_keeps_v2_names_and_unifies_v3_model_versions() {
                     context.semantic_id(),
                     context.policy_name(),
                     context.case_evidence_domain(),
-                    context.profile_id()
+                    context.profile_id(),
+                    context.profile_mode(),
                 ),
-                (id, policy, domain, profile)
-            );
-            assert_eq!(
-                context.profile_mode(),
-                if v3 {
-                    "exact_pressure_v3"
-                } else {
-                    "exact_straight_pressure_v2"
-                }
+                (
+                    "openpipestress.result_semantics/0.3.0/pressure-source-1",
+                    "PRESSURE-SOURCE-1",
+                    "pressure_source_case_evidence_v1",
+                    "exact_pressure_v3",
+                    "exact_pressure_v3",
+                )
             );
         }
     }
@@ -85,31 +60,32 @@ fn captured_composite_context_keeps_v2_names_and_unifies_v3_model_versions() {
 
 #[test]
 fn publication_label_is_checked_against_the_captured_policy() {
-    let v2 = CapturedInvocation::parse(request(false, false), PreviewSolverMode::SparseInteractive)
-        .unwrap()
-        .1;
-    let v3 = CapturedInvocation::parse(request(false, true), PreviewSolverMode::SparseInteractive)
-        .unwrap()
-        .1;
-    for capture in [&v2, &v3] {
+    for load_state in [false, true] {
+        let capture =
+            CapturedInvocation::parse(request(load_state), PreviewSolverMode::SparseInteractive)
+                .unwrap()
+                .1;
         let context = capture.composite_context().unwrap();
+        assert_eq!(context, CompositeSourceContext::PressureSource);
         let good = json!({"producer":{"semantic_contract_id":context.semantic_id()}});
         assert_eq!(
             validate_publication_identity(&good, context.receipt_policy()),
             Ok(())
         );
-        let other = if context == CompositeSourceContext::PressureSource {
-            COMPOSITE_SEMANTIC_ID
-        } else {
-            exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID
-        };
-        let bad_label = json!({"producer":{"semantic_contract_id":other}});
-        assert_eq!(
-            validate_publication_identity(&bad_label, context.receipt_policy()),
-            Err(bad(
-                "publication must have source identity and omit receipt"
-            ))
-        );
+        for other in [
+            exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID,
+            RETIRED_PHYSICS_SOURCE_ID,
+            RETIRED_LOAD_REFERENCE_SOURCE_ID,
+        ] {
+            let bad_label = json!({"producer":{"semantic_contract_id":other}});
+            assert_eq!(
+                validate_publication_identity(&bad_label, context.receipt_policy()),
+                Err(bad(
+                    "publication must have source identity and omit receipt"
+                )),
+                "{other}"
+            );
+        }
         let with_receipt = json!({"producer":{"semantic_contract_id":context.semantic_id()},"source_block_recovery":null});
         assert!(validate_publication_identity(&with_receipt, context.receipt_policy()).is_err());
     }
@@ -117,19 +93,23 @@ fn publication_label_is_checked_against_the_captured_policy() {
 
 #[test]
 fn captured_context_does_not_infer_a_contract_from_a_publication_claim() {
-    let mut raw = request(false, true);
-    raw["producer"] = json!({"semantic_contract_id":COMPOSITE_SEMANTIC_ID});
+    let mut raw = request(false);
+    raw["producer"] = json!({"semantic_contract_id":RETIRED_PHYSICS_SOURCE_ID});
     let (_, captured) = CapturedInvocation::parse(raw, PreviewSolverMode::DenseScrutiny).unwrap();
     assert_eq!(
         captured.composite_context().unwrap(),
         CompositeSourceContext::PressureSource
     );
+    // B7b: a present null contract fails the shared decoding boundary.
+    let mut null_contract = request(false);
+    null_contract["model"]["pressure_contract"] = Value::Null;
+    assert!(CapturedInvocation::parse(null_contract, PreviewSolverMode::DenseScrutiny).is_err());
     for contract in [
-        Value::Null,
-        json!({"version":"3.0.0","mode":"exact_straight_pressure_v2"}),
-        json!({"version":"2.0.0","mode":"exact_pressure_v3"}),
+        serde_json::from_str(RETIRED_V2_CONTRACT).unwrap(),
+        json!({"version":"3.0.0","mode":"exact_straight_pressure_v2","shear_model":"euler_bernoulli"}),
+        json!({"version":"2.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"}),
     ] {
-        let mut raw = request(false, true);
+        let mut raw = request(false);
         raw["model"]["pressure_contract"] = contract;
         let (_, captured) =
             CapturedInvocation::parse(raw, PreviewSolverMode::DenseScrutiny).unwrap();
@@ -138,8 +118,7 @@ fn captured_context_does_not_infer_a_contract_from_a_publication_claim() {
             Err(bad("composite source requires an actual exact contract"))
         );
     }
-    let mut preview = request(false, false);
-    preview["model"]["schema_version"] = json!(crate::MODEL_SCHEMA_VERSION);
+    let mut preview = request(false);
     preview["model"]
         .as_object_mut()
         .unwrap()
@@ -153,7 +132,7 @@ fn captured_context_does_not_infer_a_contract_from_a_publication_claim() {
 fn pressure_case_context_uses_one_domain_without_changing_its_payload_shape() {
     for load_state in [false, true] {
         let (_, captured) = CapturedInvocation::parse(
-            request(load_state, true),
+            request(load_state),
             PreviewSolverMode::SparseInteractive,
         )
         .unwrap();
@@ -199,7 +178,10 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
     ] {
         let corpus: Value = serde_json::from_str(text).unwrap();
         for case in corpus["cases"].as_array().unwrap() {
-            let load_state = case["document_schema_version"] == "0.4.0";
+            // B7b: behaviour keys on the group's presence, never the version.
+            let load_state = case["envelope"]["contract_evidence"]
+                .get("load_reference_states")
+                .is_some();
             let held = exact_admission::pressure_v3_formulation_basis(load_state, connectors);
             let unselected = exact_admission::pressure_v3_formulation_basis_with_source(
                 load_state, connectors, false,
@@ -311,9 +293,6 @@ struct ObservedReservation {
     encoded_request: usize,
     inputs: ReservationInputs,
     actual_rows: Vec<ResultItem>,
-    // Kept private: exact replay/functionals inputs, not a counter oracle or
-    // serialized evidence. Equality establishes identical remaining work inputs.
-    remaining_inputs: String,
 }
 fn encoded_request(raw: &Value) -> usize {
     let text = serde_json::to_string(raw).unwrap();
@@ -340,13 +319,11 @@ pub(super) fn observe_reservation_inputs(capture: &CapturedInvocation, selected:
     PRIVATE_CAPTURE.with(|state| {
         let mut state = state.borrow_mut();
         if !state.armed { return; }
-        let response = selected.retained().response();
         state.reservations.push(ObservedReservation {
             case_id: selected.retained().descriptors()[0].key.case_id.clone(),
             encoded_request: encoded_request(capture.borrowed_raw()),
             inputs: reservation_inputs(selected, actual),
             actual_rows: actual.to_vec(),
-            remaining_inputs: format!("{:?}\n{:?}\n{:?}\n{}", response.source_system(),response.force_basis(),selected.retained().descriptors(),serde_json::to_string(actual).unwrap()),
         });
     });
 }
@@ -365,14 +342,8 @@ pub(super) fn intercept_finalizer(capture: &CapturedInvocation, envelope: &Mecha
         true
     })
 }
-fn fixture_request(family: &str, name: &str, v3: bool) -> Value {
-    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(format!("../../fixtures/product_preview/{family}/{name}.request.json"));
-    let mut raw: Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
-    if v3 { raw["model"]["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3"}); }
-    raw
-}
-fn snapshot(family: &str, name: &str, v3: bool, mode: PreviewSolverMode) -> FinalizerSnapshot {
-    let raw = fixture_request(family,name,v3);
+fn snapshot(family: &str, name: &str, mode: PreviewSolverMode) -> FinalizerSnapshot {
+    let raw = fixture_request(family,name);
     let arm = CaptureArm::new();
     let _discarded = crate::run_linear_static_preview_value_with_mode(raw.clone(),mode);
     let snapshot = arm.take();
@@ -427,80 +398,64 @@ fn check_snapshot_inputs(snapshot: &FinalizerSnapshot) {
         assert_eq!(stage_charged(reserved[index])-stage_charged(entries[index]),wrapper as i128);
     }
 }
-fn export_raw_inputs(family: &str,name: &str,v3: bool,snapshot: &FinalizerSnapshot) {
+fn export_raw_inputs(family: &str,name: &str,snapshot: &FinalizerSnapshot) {
     if let Some(directory) = std::env::var_os("SWBPIPE_PRESSURE_JOIN_RAW_INPUTS_DIR") {
         let directory = std::path::PathBuf::from(directory);
         std::fs::create_dir_all(&directory).unwrap();
         let rows: Vec<_> = snapshot.reservations.iter().map(|input|json!({"case_id":input.case_id,"encoded_request_utf8":input.encoded_request,"inputs":input.inputs})).collect();
-        let path = directory.join(format!("{family}-{name}-{}-{}.raw-inputs.json",snapshot.mode.as_str(),if v3 {"v3"} else {"v2"}));
+        let path = directory.join(format!("{family}-{name}-{}-v3.raw-inputs.json",snapshot.mode.as_str()));
         std::fs::write(path,serde_json::to_vec(&rows).unwrap()).unwrap();
     }
 }
+/// D5/MJ9's private half, over every committed current control (12 requests x
+/// two modes): each selected case's finalization reservation equals the
+/// independently evaluated complete expression `2(12E + B_k)` from its raw site
+/// inputs, and each wrapper stage delta equals `1024 + 64 rows + F + 4096
+/// support actions`. B7b deleted the v2 twin side; the same arithmetic is now
+/// checked directly on each control instead of as a v2/v3 difference.
 #[test]
 fn pressure_source_private_reservation_inputs_confirm_all_twins_complete_expression() {
     let families: [(&str,&[&str]);2] = [
         ("physics_source",&["n05","n06","n05_unicode","n05_units","fields","mixed","mixed_units"]),
         ("load_reference_source",&["n05","n06","eigen_motion","fields","mixed"]),
     ];
-    let mut twins = 0;
+    let mut controls = 0;
     for (family,names) in families {
         for name in names {
             for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
-                let v2 = snapshot(family,name,false,mode);
-                let v3 = snapshot(family,name,true,mode);
-                check_snapshot_inputs(&v2);check_snapshot_inputs(&v3);
-                assert_eq!(v2.reservations.len(),v3.reservations.len());
-                for (a,b) in v2.reservations.iter().zip(&v3.reservations) {
-                    assert_eq!(a.case_id,b.case_id);
-                    assert_eq!(a.inputs,b.inputs,"non-E reservation inputs: {family}/{name}/{}",mode.as_str());
-                    assert_eq!(a.remaining_inputs,b.remaining_inputs,"remaining replay/functionals inputs: {family}/{name}/{}",mode.as_str());
-                    let delta = b.encoded_request as i128-a.encoded_request as i128;
-                    assert_eq!(independent_finalization(b.encoded_request,&b.inputs) as i128-independent_finalization(a.encoded_request,&a.inputs) as i128,24*delta);
-                }
-                assert_eq!(v2.stages.len(),v3.stages.len());
-                let mut selected = 0;
-                let mut prefix_delta = 0;
-                for (a,b) in v2.stages.iter().zip(&v3.stages) {
-                    assert_eq!(a["stage"],b["stage"]);
-                    if a["stage"] == "source_case_finalization_entry" {
-                        prefix_delta = 0; // equal raw retained system/force/descriptor/row inputs
-                    } else if a["stage"] == "source_case_finalization_reserved" {
-                        let left = &v2.reservations[selected];let right = &v3.reservations[selected];
-                        prefix_delta += independent_wrapper(right.encoded_request,&right.inputs) as i128-independent_wrapper(left.encoded_request,&left.inputs) as i128;
-                        selected += 1;
-                    }
-                    assert_eq!(stage_charged(b)-stage_charged(a),prefix_delta,"remaining work path must have zero delta after equal raw inputs");
-                    assert_eq!(a["rejected"],b["rejected"]);
-                }
-                export_raw_inputs(family,name,false,&v2);export_raw_inputs(family,name,true,&v3);
-                twins += 1;
+                let current = snapshot(family,name,mode);
+                check_snapshot_inputs(&current);
+                export_raw_inputs(family,name,&current);
+                controls += 1;
             }
         }
     }
-    assert_eq!(twins,24);
+    assert_eq!(controls,24);
 }
-/// MJ1's kill, at the private finalizer.
+/// MJ1's kill, at the private finalizer: the policy and identity come from the
+/// captured contract. A contradictory envelope label (the ordinary pressure-1
+/// identity, or a retired v2 composite identity) fails finalization; the
+/// correctly labelled controls of both families publish PRESSURE-SOURCE-1.
 #[test]
 fn receipt_policy_is_bound_to_captured_contract() {
     for family in ["physics_source","load_reference_source"] {
-        for v3 in [false,true] {
-            for contradictory in [false,true] {
-                let snapshot = snapshot(family,"n06",v3,PreviewSolverMode::SparseInteractive);
-                let (_,capture) = CapturedInvocation::parse(snapshot.raw,snapshot.mode).unwrap();
-                let mut envelope = snapshot.envelope;
-                let mut budget = snapshot.budget;
-                let expected_policy = if v3 {"PRESSURE-SOURCE-1"} else if family == "load_reference_source" {"LOAD-REFERENCE-SOURCE-1"} else {"PHYSICS-SOURCE-1"};
-                if contradictory {
-                    envelope.producer.semantic_contract_id = if v3 { if family == "load_reference_source" { LOAD_REFERENCE_SOURCE_SEMANTIC_ID } else { COMPOSITE_SEMANTIC_ID } } else { exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID }.into();
-                }
-                let actual = FinalizedSourceBlockReceipt::finalize_composite(&capture,&envelope,snapshot.cases,&mut budget);
-                if contradictory {
-                    assert_eq!(actual.unwrap_err().0,"publication must have source identity and omit receipt");
-                } else {
-                    let actual = actual.unwrap().into_wire();
-                    assert_eq!(actual["body"]["policy"],expected_policy);
-                    assert_eq!(envelope.producer.semantic_contract_id,capture.composite_context().unwrap().semantic_id());
-                }
+        for contradictory in [None, Some(exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID),
+            Some(RETIRED_PHYSICS_SOURCE_ID), Some(RETIRED_LOAD_REFERENCE_SOURCE_ID)] {
+            let snapshot = snapshot(family,"n06",PreviewSolverMode::SparseInteractive);
+            let (_,capture) = CapturedInvocation::parse(snapshot.raw,snapshot.mode).unwrap();
+            let mut envelope = snapshot.envelope;
+            let mut budget = snapshot.budget;
+            if let Some(label) = contradictory {
+                envelope.producer.semantic_contract_id = label.into();
+            }
+            let actual = FinalizedSourceBlockReceipt::finalize_composite(&capture,&envelope,snapshot.cases,&mut budget);
+            if contradictory.is_some() {
+                assert_eq!(actual.unwrap_err().0,"publication must have source identity and omit receipt");
+            } else {
+                let actual = actual.unwrap().into_wire();
+                assert_eq!(actual["body"]["policy"],"PRESSURE-SOURCE-1");
+                assert_eq!(envelope.producer.semantic_contract_id,capture.composite_context().unwrap().semantic_id());
+                assert_eq!(envelope.producer.semantic_contract_id,exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID);
             }
         }
     }
@@ -516,7 +471,7 @@ fn private_reservation_expression_retains_saturation_without_changing_admitted_v
     // An explicit private oversize fault, not an admitted captured request.
     // It exercises the production saturation/refusal without allocating a
     // usize-sized input or changing any real fixture/counter/limit.
-    let mut snapshot = snapshot("physics_source","n06",false,PreviewSolverMode::SparseInteractive);
+    let mut snapshot = snapshot("physics_source","n06",PreviewSolverMode::SparseInteractive);
     let (_,mut capture) = CapturedInvocation::parse(snapshot.raw.clone(),snapshot.mode).unwrap();
     capture.encoded_len = usize::MAX;
     let observed = &snapshot.reservations[0];
@@ -535,8 +490,8 @@ fn private_reservation_expression_retains_saturation_without_changing_admitted_v
 #[test]
 fn cached_source_context_keeps_original_raw_custody_and_typed_selection() {
     for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
-        for (load_state,v3) in [(false,false),(true,false),(false,true),(true,true)] {
-            let raw=request(load_state,v3);
+        for load_state in [false,true] {
+            let raw=request(load_state);
             let before=raw.clone();
             let encoded=checked(&raw).unwrap().len();
             let digest=hash("source_blocks_invocation_v1",&json!({"request":&raw,"solver_mode":mode.as_str()})).unwrap();
@@ -560,11 +515,17 @@ fn cached_source_context_keeps_original_raw_custody_and_typed_selection() {
 fn cached_source_context_none_preserves_preview_and_invalid_contract_refusal() {
     let refusal=bad("composite source requires an actual exact contract");
     for schema in ["0.1.0","0.2.0","0.3.0","0.4.0","0.5.0"] {
-        for contract in [None,Some(Value::Null),Some(json!({})),
+        // B7b: a present null contract fails decoding (no capture is formed).
+        let mut null_contract=request(false);
+        null_contract["model"]["schema_version"]=json!(schema);
+        null_contract["model"]["pressure_contract"]=Value::Null;
+        assert!(CapturedInvocation::parse(null_contract,PreviewSolverMode::SparseInteractive).is_err());
+        for contract in [None,Some(json!({})),
+            Some(serde_json::from_str(RETIRED_V2_CONTRACT).unwrap()),
             Some(json!({"version":"3.0.0","mode":"exact_straight_pressure_v2"})),
             Some(json!({"version":"2.0.0","mode":"exact_pressure_v3"})),
             Some(json!({"version":"invalid","mode":"invalid"}))] {
-            let mut raw=request(false,false);
+            let mut raw=request(false);
             raw["model"]["schema_version"]=json!(schema);
             if let Some(contract)=contract { raw["model"]["pressure_contract"]=contract; }
             else {raw["model"].as_object_mut().unwrap().remove("pressure_contract");}
@@ -575,8 +536,9 @@ fn cached_source_context_none_preserves_preview_and_invalid_contract_refusal() {
             assert_eq!(capture.borrowed_raw(),&before);
         }
     }
-    for schema in ["0.1.0","0.2.0","0.5.0"] {
-        let mut raw=request(false,true);raw["model"]["schema_version"]=json!(schema);
+    // The current contract on a retired document version has no context.
+    for schema in crate::RETIRED_MODEL_SCHEMA_VERSIONS {
+        let mut raw=request(false);raw["model"]["schema_version"]=json!(schema);
         let (_,capture)=CapturedInvocation::parse(raw,PreviewSolverMode::DenseScrutiny).unwrap();
         assert_eq!(capture.composite_context(),Err(refusal.clone()));
     }
@@ -585,13 +547,13 @@ fn cached_source_context_none_preserves_preview_and_invalid_contract_refusal() {
 #[test]
 fn cached_source_context_preserves_checked_hash_and_serde_failure_order() {
     // Both faults are present: checked canonical input refuses before serde.
-    let mut raw=request(false,true);
+    let mut raw=request(false);
     raw["unsafe_integer"]=json!(9_007_199_254_740_993_u64);
     raw["model"]["pressure_contract"]["version"]=json!(42);
     let expected=checked(&raw).unwrap_err();
     assert_eq!(CapturedInvocation::parse(raw,PreviewSolverMode::DenseScrutiny).unwrap_err(),expected);
     for bad_contract in [json!(42),json!([]),json!({"version":42,"mode":"exact_pressure_v3"}),json!({"version":"3.0.0","mode":[]})] {
-        let mut raw=request(false,true);raw["model"]["pressure_contract"]=bad_contract;
+        let mut raw=request(false);raw["model"]["pressure_contract"]=bad_contract;
         checked(&raw).unwrap();
         let error=CapturedInvocation::parse(raw,PreviewSolverMode::SparseInteractive).unwrap_err();
         assert!(error.0.starts_with("request: "),"{}",error.0);
@@ -617,7 +579,9 @@ fn cached_source_context_reports_actual_positive_layout_and_lifetime() {
     use std::mem::{align_of,offset_of,size_of};
     let fields=size_of::<Value>()+size_of::<PreviewSolverMode>()+size_of::<String>()+size_of::<usize>()+size_of::<Option<CompositeSourceContext>>();
     let total=size_of::<CapturedInvocation>();
-    assert!(size_of::<CompositeSourceContext>()>0);
+    // B7b A4 deleted the v2 variant: the single-variant context is zero-sized,
+    // and the capture's inline `Option` tag remains positive (D3 prices it).
+    assert_eq!(size_of::<CompositeSourceContext>(),0);
     assert!(size_of::<Option<CompositeSourceContext>>()>0);
     assert!(total>=fields);
     println!("capture_context_layout={}",json!({
@@ -629,46 +593,35 @@ fn cached_source_context_reports_actual_positive_layout_and_lifetime() {
     // The positive inline tag owns no heap backing. Existing raw Value and
     // digest String owners remain with the non-Clone capture through its move/
     // borrow lifetime; this measurement does not infer allocator/compiler reuse.
-    let (_,capture)=CapturedInvocation::parse(request(false,true),PreviewSolverMode::SparseInteractive).unwrap();
+    let (_,capture)=CapturedInvocation::parse(request(false),PreviewSolverMode::SparseInteractive).unwrap();
     let moved=capture;let borrowed=&moved;
     assert_eq!(borrowed.composite_context(),Ok(CompositeSourceContext::PressureSource));
 }
 
+/// The captured context's caching preserves every committed current public
+/// serialization (12 requests x two modes). B7b deleted the optional v2 side.
 #[test]
-fn cached_source_context_preserves_current_v2_v3_public_serializations() {
+fn cached_source_context_preserves_current_public_serializations() {
     let project=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-    // V3's exact committed producer bytes are permanent controls. Coordinators
-    // may also supply previously captured original-v2 bytes for this repair;
-    // the test has no permanent dependency on that optional scratch evidence.
-    let original_v2=std::env::var_os("SWBPIPE_SOURCE_CONTEXT_V2_BYTES").map(std::path::PathBuf::from);
-    let families: [(&str,&str,&[&str]);2]=[
-        ("physics_source","0_3",&["n05","n06","n05_unicode","n05_units","fields","mixed","mixed_units"]),
-        ("load_reference_source","0_4",&["n05","n06","eigen_motion","fields","mixed"]),
+    let families: [(&str,&[&str]);2]=[
+        ("physics_source",&["n05","n06","n05_unicode","n05_units","fields","mixed","mixed_units"]),
+        ("load_reference_source",&["n05","n06","eigen_motion","fields","mixed"]),
     ];
-    let mut v3_controls=0;let mut v2_controls=0;
-    for (family,version,names) in families {
+    let mut controls=0;
+    for (family,names) in families {
         for name in names {
-            let original: Value=serde_json::from_str(&std::fs::read_to_string(project.join(format!("fixtures/product_preview/{family}/{name}.request.json"))).unwrap()).unwrap();
-            for v3 in [false,true] {
-                let mut raw=original.clone();
-                if v3 {raw["model"]["pressure_contract"]=json!({"version":"3.0.0","mode":"exact_pressure_v3"});}
-                for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
-                    let envelope=run_linear_static_preview_value_with_mode(raw.clone(),mode).unwrap();
-                    let bytes=serde_json::to_string(&envelope).unwrap();
-                    let expected=if v3 {
-                        v3_controls+=1;
-                        Some(project.join(format!("fixtures/product_preview/pressure_source/{family}/{name}-{}.raw.json",mode.as_str())))
-                    } else {original_v2.as_ref().map(|directory| {v2_controls+=1;directory.join(format!("{name}-{version}-{}-v2.raw.json",mode.as_str()))})};
-                    if let Some(expected)=expected {
-                        let expected_bytes=std::fs::read(&expected).unwrap();
-                        let first_difference=bytes.as_bytes().iter().zip(&expected_bytes).position(|(a,b)|a!=b);
-                        assert!(bytes.as_bytes()==expected_bytes,"exact public serialization {}: actual_len={}, expected_len={}, first_difference={first_difference:?}",expected.display(),bytes.len(),expected_bytes.len());
-                    }
-                }
+            let raw=fixture_request(family,name);
+            for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
+                let envelope=run_linear_static_preview_value_with_mode(raw.clone(),mode).unwrap();
+                let bytes=serde_json::to_string(&envelope).unwrap();
+                let expected=project.join(format!("fixtures/product_preview/pressure_source/{family}/{name}-{}.raw.json",mode.as_str()));
+                let expected_bytes=std::fs::read(&expected).unwrap();
+                let first_difference=bytes.as_bytes().iter().zip(&expected_bytes).position(|(a,b)|a!=b);
+                assert!(bytes.as_bytes()==expected_bytes,"exact public serialization {}: actual_len={}, expected_len={}, first_difference={first_difference:?}",expected.display(),bytes.len(),expected_bytes.len());
+                controls+=1;
             }
         }
     }
-    assert_eq!(v3_controls,24);
-    assert_eq!(v2_controls,if original_v2.is_some(){24}else{0});
-    println!("cache_serialization_controls_v3={v3_controls},v2={v2_controls}");
+    assert_eq!(controls,24);
+    println!("cache_serialization_controls={controls}");
 }

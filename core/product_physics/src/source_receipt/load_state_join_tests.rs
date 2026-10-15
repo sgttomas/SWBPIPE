@@ -42,7 +42,7 @@ const DOF_COUNT: usize = 12;
 
 fn witness() -> Value {
     let request: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+        "../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json"
     ))
     .unwrap();
     let model = &request["model"];
@@ -91,7 +91,7 @@ fn witness() -> Value {
 
 fn mixed_witness() -> Value {
     serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/load_reference_source/mixed.request.json"
+        "../../../../fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json"
     ))
     .unwrap()
 }
@@ -217,15 +217,15 @@ fn diagnostics_for<'a>(
 fn assert_joined(envelope: &MechanicsEnvelope, cases: usize) {
     assert_eq!(
         envelope.producer.semantic_contract_id,
-        case_state::LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID
+        exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID
     );
     assert_eq!(
         envelope.formulation_basis.profile_id,
-        case_state::LOAD_STATE_SOURCE_PROFILE_ID
+        exact_admission::PRESSURE_PROFILE_ID
     );
     assert_eq!(envelope.status.mechanics, "MECHANICS_SOLVED");
     let receipt = envelope.source_block_recovery.as_ref().expect("receipt");
-    assert_eq!(receipt["body"]["policy"], "LOAD-REFERENCE-SOURCE-1");
+    assert_eq!(receipt["body"]["policy"], "PRESSURE-SOURCE-1");
     assert_eq!(receipt["body"]["status"], "qualified");
     assert_eq!(receipt["body"]["cases"].as_array().unwrap().len(), cases);
     assert!(envelope
@@ -239,11 +239,11 @@ fn assert_joined(envelope: &MechanicsEnvelope, cases: usize) {
 fn assert_not_joined_unavailable(envelope: &MechanicsEnvelope, request: &Value) {
     assert_eq!(
         envelope.producer.semantic_contract_id,
-        case_state::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID
+        exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID
     );
     assert_eq!(
         envelope.formulation_basis.profile_id,
-        case_state::LOAD_STATE_PROFILE_ID
+        exact_admission::PRESSURE_PROFILE_ID
     );
     assert!(envelope.source_block_recovery.is_none());
     assert_eq!(envelope.status.mechanics, "MECHANICS_SOLVED");
@@ -865,7 +865,7 @@ fn assert_joined_rows_agree_with_ordinary(name: &str, request: &Value) {
         let ordinary = run_linear_static_preview_with_mode(typed, mode);
         assert_eq!(
             ordinary.producer.semantic_contract_id,
-            case_state::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID
+            exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID
         );
         assert!(ordinary.source_block_recovery.is_none());
         let rows: HashMap<_, _> = ordinary

@@ -89,7 +89,7 @@
       "id": "diagnostic:pressure-runtime:load-L-100-load-L-100-P:PRESSURE_MODEL_REAUTHOR_REQUIRED",
       "code": "PRESSURE_MODEL_REAUTHOR_REQUIRED",
       "severity": "blocking",
-      "message": "legacy pressure primitives are retired, zero values included; remove the primitive, or re-author the model to 2.0.0/exact_straight_pressure_v2 with explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials",
+      "message": "legacy pressure primitives are retired, zero values included; remove the primitive, or re-author the model with pressure_contract 3.0.0/exact_pressure_v3 (shear_model euler_bernoulli), an explicit corrosion_allowance on every pipe section, explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials",
       "source": "core/product_physics/src/pressure_runtime.rs",
       "affected_refs": [
         "load:L-100",
@@ -100,7 +100,7 @@
       "id": "diagnostic:pressure-runtime:load-L-100-load-L-100-P-EJ:PRESSURE_MODEL_REAUTHOR_REQUIRED",
       "code": "PRESSURE_MODEL_REAUTHOR_REQUIRED",
       "severity": "blocking",
-      "message": "legacy pressure primitives are retired, zero values included; remove the primitive, or re-author the model to 2.0.0/exact_straight_pressure_v2 with explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials",
+      "message": "legacy pressure primitives are retired, zero values included; remove the primitive, or re-author the model with pressure_contract 3.0.0/exact_pressure_v3 (shear_model euler_bernoulli), an explicit corrosion_allowance on every pipe section, explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials",
       "source": "core/product_physics/src/pressure_runtime.rs",
       "affected_refs": [
         "load:L-100",
@@ -111,7 +111,7 @@
       "id": "diagnostic:pressure-runtime:load-L-200-load-L-200-P:PRESSURE_MODEL_REAUTHOR_REQUIRED",
       "code": "PRESSURE_MODEL_REAUTHOR_REQUIRED",
       "severity": "blocking",
-      "message": "legacy pressure primitives are retired, zero values included; remove the primitive, or re-author the model to 2.0.0/exact_straight_pressure_v2 with explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials",
+      "message": "legacy pressure primitives are retired, zero values included; remove the primitive, or re-author the model with pressure_contract 3.0.0/exact_pressure_v3 (shear_model euler_bernoulli), an explicit corrosion_allowance on every pipe section, explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials",
       "source": "core/product_physics/src/pressure_runtime.rs",
       "affected_refs": [
         "load:L-200",
@@ -122,7 +122,7 @@
       "id": "diagnostic:pressure-runtime:load-L-200-load-L-200-P-EJ:PRESSURE_MODEL_REAUTHOR_REQUIRED",
       "code": "PRESSURE_MODEL_REAUTHOR_REQUIRED",
       "severity": "blocking",
-      "message": "legacy pressure primitives are retired, zero values included; remove the primitive, or re-author the model to 2.0.0/exact_straight_pressure_v2 with explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials",
+      "message": "legacy pressure primitives are retired, zero values included; remove the primitive, or re-author the model with pressure_contract 3.0.0/exact_pressure_v3 (shear_model euler_bernoulli), an explicit corrosion_allowance on every pipe section, explicit pressure_regions (an explicit [] for an unpressurized case) and E/nu materials",
       "source": "core/product_physics/src/pressure_runtime.rs",
       "affected_refs": [
         "load:L-200",

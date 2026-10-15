@@ -173,7 +173,7 @@
           "screen_limit": 1e-9,
           "screen_roundoff_multiplier": 32
         },
-        "profile_mode": "exact_straight_pressure_v2",
+        "profile_mode": "exact_pressure_v3",
         "stress_maximum_coverage": {
           "complete": true,
           "unavailable_pipe_ids": []
@@ -350,7 +350,7 @@
           "screen_limit": 1e-9,
           "screen_roundoff_multiplier": 32
         },
-        "profile_mode": "exact_straight_pressure_v2",
+        "profile_mode": "exact_pressure_v3",
         "stress_maximum_coverage": {
           "complete": true,
           "unavailable_pipe_ids": []
@@ -439,8 +439,8 @@
         "solve": {
           "boundary": "every restrained DOF prescribed; reduced K_ff u_f = f_f - K_fc g_c; complete u includes g; reactions from unreduced K u - f",
           "eigenload": "axial E_member*A_s*total_eigenstrain assembled once and removed once in recovery",
-          "recovery_method": "ordinary_sparse_structural_v1",
-          "requested_mode": "sparse_interactive"
+          "recovery_method": "ordinary_dense_structural_v1",
+          "requested_mode": "dense_scrutiny"
         },
         "source_recovery": {
           "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
@@ -529,8 +529,8 @@
         "solve": {
           "boundary": "every restrained DOF prescribed; reduced K_ff u_f = f_f - K_fc g_c; complete u includes g; reactions from unreduced K u - f",
           "eigenload": "axial E_member*A_s*total_eigenstrain assembled once and removed once in recovery",
-          "recovery_method": "ordinary_sparse_structural_v1",
-          "requested_mode": "sparse_interactive"
+          "recovery_method": "ordinary_dense_structural_v1",
+          "requested_mode": "dense_scrutiny"
         },
         "source_recovery": {
           "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
@@ -602,8 +602,8 @@
         ],
         "p_pa": 2000000.0,
         "pressure_basis": "internal_differential_zero_external_v1",
-        "profile_mode": "exact_straight_pressure_v2",
-        "profile_version": "2.0.0",
+        "profile_mode": "exact_pressure_v3",
+        "profile_version": "3.0.0",
         "provenance": "invented_load_reference_fixture_not_library_data",
         "region_id": "region:closed",
         "result_ids": [
@@ -745,8 +745,8 @@
         ],
         "p_pa": 2000000.0,
         "pressure_basis": "internal_differential_zero_external_v1",
-        "profile_mode": "exact_straight_pressure_v2",
-        "profile_version": "2.0.0",
+        "profile_mode": "exact_pressure_v3",
+        "profile_version": "3.0.0",
         "provenance": "invented_load_reference_fixture_not_library_data",
         "region_id": "region:closed",
         "result_ids": [
@@ -832,7 +832,7 @@
   "producer": {
     "component_name": "open_pipe_stress_product_physics",
     "component_version": "0.2.0",
-    "semantic_contract_id": "openpipestress.result_semantics/0.3.0/load-reference-1"
+    "semantic_contract_id": "openpipestress.result_semantics/0.3.0/pressure-1"
   },
   "numerical_quality": {
     "value_representation": "finite_binary64",
@@ -869,14 +869,21 @@
     ]
   },
   "formulation_basis": {
-    "profile_id": "resolved_straight_load_state_v1",
+    "profile_id": "exact_pressure_v3",
     "limitations": [
-      "Independently solved linear small-displacement straight circular members on the exact straight-pressure route; one resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition.",
+      "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+      "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
+      "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
+      "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+      "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "No corrosion-allowance input or shear-deformation selection is provided. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; 0.4.0 includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently.",
       "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints.",
       "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.",
       "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.",
-      "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented. Combinations remain unsupported.",
-      "Retained-source recovery is not joined for these inputs; only ordinary structural recovery is published. No code compliance or professional acceptance is produced.",
+      "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented.",
       "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
       "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
     ]
@@ -914,7 +921,7 @@
     {
       "id": "result:solver-mode:linear-solve-basis",
       "kind": "linear_solver_mode_basis",
-      "value": 1.0,
+      "value": 2.0,
       "unit": "mode_code",
       "entity_ref": "solver:linear_static_preview",
       "basis_ref": {
@@ -925,7 +932,7 @@
         "component": "linear_solver_mode",
         "coordinate_system": "reduced_system",
         "location": "case:cold-pressure",
-        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=0; original_profile_entries=0; ordered_profile_entries=0; original_half_bandwidth=0; ordered_half_bandwidth=0; nonpositive_pivots=0; pivot_condition_ratio_proxy=not_observed; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
         "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
       }
     },
@@ -2862,7 +2869,7 @@
     {
       "id": "result:loadcase:case-hot-pressure:solver-mode:linear-solve-basis",
       "kind": "linear_solver_mode_basis",
-      "value": 1.0,
+      "value": 2.0,
       "unit": "mode_code",
       "entity_ref": "solver:linear_static_preview",
       "basis_ref": {
@@ -2873,7 +2880,7 @@
         "component": "linear_solver_mode",
         "coordinate_system": "reduced_system",
         "location": "case:hot-pressure",
-        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=0; original_profile_entries=0; ordered_profile_entries=0; original_half_bandwidth=0; ordered_half_bandwidth=0; nonpositive_pivots=0; pivot_condition_ratio_proxy=not_observed; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
         "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
       }
     },
@@ -4813,7 +4820,7 @@
       "id": "diagnostic:load-state:case-cold-pressure:source-recovery-not-joined",
       "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
       "severity": "info",
-      "message": "requested_mode=sparse_interactive; the published response for this case is the ordinary structural route; no retained-source response is joined into it; retained_source_attempt=not_required_ordinary_checks_passed",
+      "message": "requested_mode=dense_scrutiny; the published response for this case is the ordinary structural route; no retained-source response is joined into it; retained_source_attempt=not_required_ordinary_checks_passed",
       "source": "core/product_physics",
       "affected_refs": [
         "case:cold-pressure"
@@ -4823,7 +4830,7 @@
       "id": "diagnostic:numerical-integrity:case:cold-pressure",
       "code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
       "severity": "info",
-      "message": "M03-INTEGRITY-v1 represented original-equation structural evidence for load case case:cold-pressure: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [], pivots: [], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:root:UX\", \"node:root:UY\", \"node:root:UZ\", \"node:root:RX\", \"node:root:RY\", \"node:root:RZ\", \"node:middle:UX\", \"node:middle:UY\", \"node:middle:UZ\", \"node:middle:RX\", \"node:middle:RY\", \"node:middle:RZ\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+      "message": "M03-INTEGRITY-v1 represented original-equation structural evidence for load case case:cold-pressure: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive dense Cholesky\", scale_exponents: [], pivots: [], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:root:UX\", \"node:root:UY\", \"node:root:UZ\", \"node:root:RX\", \"node:root:RY\", \"node:root:RZ\", \"node:middle:UX\", \"node:middle:UY\", \"node:middle:UZ\", \"node:middle:RX\", \"node:middle:RY\", \"node:middle:RZ\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
       "source": "core/product_physics",
       "affected_refs": [
         "case:cold-pressure"
@@ -4833,7 +4840,7 @@
       "id": "diagnostic:load-state:case-hot-pressure:source-recovery-not-joined",
       "code": "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED",
       "severity": "info",
-      "message": "requested_mode=sparse_interactive; the published response for this case is the ordinary structural route; no retained-source response is joined into it; retained_source_attempt=not_required_ordinary_checks_passed",
+      "message": "requested_mode=dense_scrutiny; the published response for this case is the ordinary structural route; no retained-source response is joined into it; retained_source_attempt=not_required_ordinary_checks_passed",
       "source": "core/product_physics",
       "affected_refs": [
         "case:hot-pressure"
@@ -4843,7 +4850,7 @@
       "id": "diagnostic:numerical-integrity:case:hot-pressure",
       "code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
       "severity": "info",
-      "message": "M03-INTEGRITY-v1 represented original-equation structural evidence for load case case:hot-pressure: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [], pivots: [], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:root:UX\", \"node:root:UY\", \"node:root:UZ\", \"node:root:RX\", \"node:root:RY\", \"node:root:RZ\", \"node:middle:UX\", \"node:middle:UY\", \"node:middle:UZ\", \"node:middle:RX\", \"node:middle:RY\", \"node:middle:RZ\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+      "message": "M03-INTEGRITY-v1 represented original-equation structural evidence for load case case:hot-pressure: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive dense Cholesky\", scale_exponents: [], pivots: [], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 1.0, residual_rows: [], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [], assembly_relative_perturbation_estimate: 0.0, assembly_amplification_estimate: 0.0, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; objective welded unreleased straight-frame family\") }; global_dof_map=[\"node:root:UX\", \"node:root:UY\", \"node:root:UZ\", \"node:root:RX\", \"node:root:RY\", \"node:root:RZ\", \"node:middle:UX\", \"node:middle:UY\", \"node:middle:UZ\", \"node:middle:RX\", \"node:middle:RY\", \"node:middle:RZ\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
       "source": "core/product_physics",
       "affected_refs": [
         "case:hot-pressure"

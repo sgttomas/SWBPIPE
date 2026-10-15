@@ -34,7 +34,8 @@ fn node(id: &str, x: f64) -> Value {
 
 fn pipe(id: &str, from: &str, to: &str) -> Value {
     json!({"id": id, "from": from, "to": to,
-        "section": {"outside_diameter": {"value": 0.2, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"}},
+        "section": {"outside_diameter": {"value": 0.2, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"},
+            "corrosion_allowance": {"value": 0.0, "unit": "m"}},
         "material": "material:shared", "y_reference": {"x": 0, "y": 1, "z": 0}, "provenance": "invented"})
 }
 
@@ -77,8 +78,8 @@ fn model(
         })
         .collect::<Vec<_>>();
     json!({"model": {
-        "schema_version": "0.4.0", "document_kind": "openpipestress.product_preview.model",
-        "pressure_contract": {"version": "2.0.0", "mode": "exact_straight_pressure_v2"},
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
         "project": {"id": "project:load-state-smoke", "units": {"length": "m"}},
         "analysis_status": {"mechanics": "ready", "rule_check": "not_performed", "professional_acceptance": "not_provided"},
         "nodes": nodes, "pipe_segments": pipes, "supports": supports, "components": [],
@@ -164,13 +165,15 @@ fn prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_r
             "{:?}",
             envelope.diagnostics
         );
+        // B7b: a load/reference-state model publishes the ordinary pressure-1
+        // identity under exact_pressure_v3 (records keep their own profile).
         assert_eq!(
             envelope.producer.semantic_contract_id,
-            crate::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID
+            crate::exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID
         );
         assert_eq!(
             envelope.formulation_basis.profile_id,
-            crate::LOAD_STATE_PROFILE_ID
+            crate::exact_admission::PRESSURE_PROFILE_ID
         );
         assert!(envelope.source_block_recovery.is_none());
         let case = "prescribed_translation_two_bar";
@@ -330,9 +333,13 @@ fn declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not() {
     assert!(envelope.results.is_empty());
 }
 
-/// T1 routing of blocked 0.4.0 envelopes (S6 §6, DESIGN 10.3): a 0.4.0
-/// document is exact-route only, so a blocked one keeps load-reference-1, its
+/// T1 routing of blocked load/reference-state envelopes (S6 §6, DESIGN 10.3),
+/// keyed since B7b on the contract and the group, never the version: a blocked
+/// document with the current exact contract and the group keeps pressure-1, its
 /// profile and the empty load/reference namespace; it never gets the preview id.
+/// Without the exact contract the document is not on the exact route at all:
+/// the group is refused by name (`LOAD_STATE_CONTRACT_VERSION_MISMATCH`) and no
+/// exact namespace is invented.
 #[test]
 fn blocked_load_state_envelopes_keep_the_load_reference_identity() {
     let mut missing_contract = two_bar();
@@ -342,13 +349,31 @@ fn blocked_load_state_envelopes_keep_the_load_reference_identity() {
         .remove("pressure_contract");
     let mut legacy_contract = two_bar();
     legacy_contract["model"]["pressure_contract"] = json!({"version": "1.0.0", "mode": "legacy"});
+    for (label, request) in [("missing contract", missing_contract), ("legacy contract", legacy_contract)] {
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            let envelope = run(&request, mode);
+            assert!(
+                blocking_codes(&envelope).contains(&"LOAD_STATE_CONTRACT_VERSION_MISMATCH".to_string()),
+                "{label}: {:?}",
+                envelope.diagnostics
+            );
+            assert!(envelope.results.is_empty(), "{label}");
+            assert_eq!(
+                envelope.producer.semantic_contract_id,
+                crate::preview_physics::ID,
+                "{label}"
+            );
+            // The pressure-free route's own (empty) evidence; no exact or
+            // load/reference namespace is invented.
+            assert_eq!(envelope.contract_evidence, Some(crate::preview_physics::empty_evidence()), "{label}");
+        }
+    }
     let mut blocked_exact = two_bar();
     blocked_exact["model"]["load_cases"][0]["analysis_state"]["provenance"] = json!("");
-    for (label, request) in [
-        ("missing contract", missing_contract),
-        ("legacy contract", legacy_contract),
-        ("exact, blocked input", blocked_exact),
-    ] {
+    for (label, request) in [("exact, blocked input", blocked_exact)] {
         for mode in [
             PreviewSolverMode::SparseInteractive,
             PreviewSolverMode::DenseScrutiny,
@@ -362,12 +387,12 @@ fn blocked_load_state_envelopes_keep_the_load_reference_identity() {
             assert!(envelope.results.is_empty(), "{label}");
             assert_eq!(
                 envelope.producer.semantic_contract_id,
-                crate::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID,
+                crate::exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID,
                 "{label}"
             );
             assert_eq!(
                 envelope.formulation_basis.profile_id,
-                crate::LOAD_STATE_PROFILE_ID,
+                crate::exact_admission::PRESSURE_PROFILE_ID,
                 "{label}"
             );
             assert_eq!(

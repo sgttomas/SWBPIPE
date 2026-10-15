@@ -10528,18 +10528,6 @@ fn exact_straight_summary_extrema(
     certified_publication::fallback_circular_maximum(&spans,end_forces,loads,length,section,pressure_state)
 }
 
-fn is_exact_pressure_result_kind(kind: &str) -> bool {
-    matches!(
-        kind,
-        "pipe_wall_endpoint_action_v2"
-            | "pipe_wall_axial_force_v2"
-            | "pipe_effective_axial_force_v2"
-            | "pipe_axial_membrane_stress_v2"
-            | "pipe_lame_radial_stress_v2"
-            | "pipe_lame_hoop_stress_v2"
-    )
-}
-
 fn straight_summary_extrema(
     pipe: &StraightPipeElement,
     end_forces: &[f64],
@@ -13830,7 +13818,8 @@ mod tests {
         const CONTROL:&str=include_str!("../../../validation/references/kd5_member_bound/two_body_request.json");
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/two_body_oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap());
-        let wire:serde_json::Value=serde_json::from_str(CONTROL).unwrap();
+        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.5.0.
+        let wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
         let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
         normalize_model_units(&mut model,&mut materials,&mut diagnostics);
         let resolved=case_state::resolve::resolve_case(&model,&materials,&model.load_cases[0],&mut diagnostics).unwrap();
@@ -14049,7 +14038,10 @@ mod tests {
     #[test]
     fn kd5_authored_uniform_weight_and_nodal_factors_keep_raw_operands() {
         use open_pipe_stress_frame_kernel::structural::{IntensityPrimitive,MassPrimitive};
-        let mut model=p5_beam_request().model;model.schema_version="0.4.0".into();
+        // B7b: the load/reference-state group keys on the current exact contract and
+        // the group's presence (0.5.0), never on a version string.
+        let mut model=p5_beam_request().model;model.schema_version=crate::MODEL_SCHEMA_VERSION.into();
+        model.pressure_contract=Some(PressureContractInput {version:Some("3.0.0".into()),mode:Some("exact_pressure_v3".into()),shear_model:Some("euler_bernoulli".into())});
         let case_id=model.load_cases[0].id.clone();
         let mut load=model.load_cases[0].primitive_loads[0].clone();load.id="factor:load".into();load.magnitude.value=0.1;
         load.target=LoadTargetInput::Element {pipe:model.pipe_segments[0].id.clone()};load.category="distributed_force".into();load.dimension="force_per_length".into();load.magnitude.unit="N/m".into();
@@ -14070,8 +14062,9 @@ mod tests {
         assert_eq!(force.values()[7],0.1*1.1);
         assert!(force.closure_records()[0].formed);
         assert!(matches!(force.load_primitives()[0].formula,LoadFormula::NodalProduct {global_dof:7,magnitude:0.1,factor:1.1}));
-        // An un-factored authored nodal term stays an input term.
-        model.schema_version=crate::MODEL_SCHEMA_VERSION.into();nodal.nodal_loads[0].value=0.1;
+        // An un-factored authored nodal term stays an input term (without the
+        // exact contract the group selects no load/reference state).
+        model.pressure_contract=None;nodal.nodal_loads[0].value=0.1;
         let mut ledger=LoadLedger::new();certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len());
         let force=ledger.finish(model.nodes.len()*6).unwrap();assert!(!force.closure_records()[0].formed);assert!(force.load_primitives().is_empty());
     }
@@ -14110,7 +14103,8 @@ mod tests {
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap(),"the independent oracle binds the complete maintained control bytes");
         for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
-            let mut wire:serde_json::Value=serde_json::from_str(CONTROL).unwrap();
+            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.5.0.
+            let mut wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
             let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();
             let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
             normalize_model_units(&mut model,&mut materials,&mut diagnostics);
@@ -23152,10 +23146,11 @@ mod tests {
     }
 
     // SP-1 (T4-RV12 B-1): D-B's relaxed bend-geometry warning applies on every
-    // route except documents declaring 2.0.0/exact_straight_pressure_v2, which
-    // keep the pre-T4-U1 condition and text whatever their schema version.
+    // route. B7b deleted v2's pre-T4-U1 condition and text with the contract: a
+    // document still declaring 2.0.0/exact_straight_pressure_v2 (refused by
+    // name elsewhere) takes the same D-B condition, whatever its version.
     #[test]
-    fn t4_u1_bend_geometry_warning_keeps_its_v2_condition_and_text() {
+    fn t4_u1_bend_geometry_warning_has_no_v2_condition_left() {
         const V2_TEXT: &str = "bend/elbow component requires explicit radius, angle, plane orientation, and invented or cleared geometry source to support component provenance review";
         const D_B_TEXT: &str = "bend/elbow component requires explicit radius, angle (unless realized as a curved bend), and invented or cleared geometry source to support component provenance review";
         let warnings = |model: &PreviewModel| {
@@ -23191,18 +23186,19 @@ mod tests {
             .unwrap()
             .solver_consumption = Some("mechanics_geometry_only".to_string());
         for model in [&realized, &geometry_only] {
-            assert_eq!(warnings(model), Vec::<String>::new(), "D-B off v2");
-            for schema in ["0.3.0", "0.4.0", "0.1.0"] {
+            assert_eq!(warnings(model), Vec::<String>::new(), "D-B");
+            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0"] {
                 let mut declared = model.clone();
                 v2(&mut declared, schema);
-                assert_eq!(warnings(&declared), vec![V2_TEXT.to_string()], "v2 at {schema}");
+                assert_eq!(warnings(&declared), Vec::<String>::new(), "no v2 condition at {schema}");
             }
         }
         let mut no_radius = realized.clone();
         no_radius.components[0].geometry.as_mut().unwrap().bend_radius = None;
         assert_eq!(warnings(&no_radius), vec![D_B_TEXT.to_string()]);
         v2(&mut no_radius, "0.3.0");
-        assert_eq!(warnings(&no_radius), vec![V2_TEXT.to_string()]);
+        assert_eq!(warnings(&no_radius), vec![D_B_TEXT.to_string()]);
+        assert_ne!(warnings(&no_radius), vec![V2_TEXT.to_string()]);
         let mut complete_v2 = complete.clone();
         v2(&mut complete_v2, "0.4.0");
         assert_eq!(warnings(&complete_v2), Vec::<String>::new());

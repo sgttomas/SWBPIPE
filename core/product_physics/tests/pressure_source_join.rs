@@ -1,7 +1,15 @@
-//! First four genuine pressure-source consuming controls, produced through the
-//! public captured-request API. No result is relabelled, projected or resealed.
+//! Genuine pressure-source consuming controls, produced through the public
+//! captured-request API. No result is relabelled, projected or resealed.
 //! The n06 equilibrium controls and protected criterion are the existing ones
 //! in physics_source_runtime.rs; this is not the reserved desktop G10 witness.
+//!
+//! B7b deleted the v2 exact contract (`2.0.0/exact_straight_pressure_v2`) and
+//! its physics-source-1 and load-reference-source-1 publications. The twelve
+//! committed source controls are now the current 0.5.0 documents under
+//! `fixtures/product_preview/pressure_source/` (v3, explicit zero corrosion
+//! allowance, Euler-Bernoulli), each re-authored once from its deleted v2
+//! original. The two families stay distinct: without and with the optional
+//! load/reference-state group.
 use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
 use open_pipe_stress_product_physics::result_export::{
     physics_source as ps, reader_verdict as rv, semantic_contract as sc,
@@ -12,10 +20,15 @@ use open_pipe_stress_product_physics::{
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
+#[path = "common/current_model.rs"]
+mod current_model;
+
 #[derive(Clone, Copy)]
 enum Family {
-    Physics03,
-    LoadReference04,
+    /// Straight source controls without the load/reference-state group.
+    Physics,
+    /// Source controls carrying the load/reference-state group.
+    LoadReference,
 }
 impl Family {
     fn name(self) -> &'static str {
@@ -40,36 +53,29 @@ impl Family {
             ]
         }
     }
-    fn request(self, name: &str) -> Value {
+    fn request_path(self, name: &str) -> String {
         assert!(self.names().contains(&name));
-        let path = project_root().join(format!(
-            "fixtures/product_preview/{}/{name}.request.json",
-            self.name()
-        ));
-        serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
+        format!("fixtures/product_preview/pressure_source/{}/{name}.request.json", self.name())
+    }
+    /// The committed current request: 0.5.0 with the current exact contract.
+    fn request(self, name: &str) -> Value {
+        let request = current_model::fixture(&self.request_path(name));
+        current_model::assert_current_exact_request(&request, &self.request_path(name));
+        request
     }
     fn resolved(self) -> bool {
-        matches!(self, Self::LoadReference04)
-    }
-    fn legacy_identity(self) -> &'static str {
-        if self.resolved() {
-            sc::LOAD_REFERENCE_SOURCE_ID
-        } else {
-            sc::PHYSICS_SOURCE_ID
-        }
+        matches!(self, Self::LoadReference)
     }
 }
 
 fn project_root() -> std::path::PathBuf {
-    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
+    current_model::project_root()
 }
 struct Control {
     family: Family,
     name: String,
     mode: PreviewSolverMode,
-    original: Value,
     invocation: Value,
-    legacy: Produced,
     joined: Produced,
 }
 #[path = "pressure_source_join/consequences.rs"]
@@ -89,26 +95,14 @@ fn produce(request: &Value, mode: PreviewSolverMode) -> Produced {
     let source = serde_json::from_str(&bytes).unwrap();
     Produced { bytes, source }
 }
-fn capture_evidence(
-    family: Family,
-    name: &str,
-    mode: PreviewSolverMode,
-    legacy: &Produced,
-    joined: &Produced,
-) {
+fn capture_evidence(family: Family, name: &str, mode: PreviewSolverMode, joined: &Produced) {
     // No default writes and no permanent test dependency on captured outputs.
     // A coordinator may explicitly request exact invented-control evidence.
     if let Some(directory) = std::env::var_os("SWBPIPE_PRESSURE_JOIN_EVIDENCE_DIR") {
         let directory = std::path::PathBuf::from(directory);
         std::fs::create_dir_all(&directory).unwrap();
-        let version = if family.resolved() { "0_4" } else { "0_3" };
-        for (contract, produced) in [("v2", legacy), ("v3", joined)] {
-            let path = directory.join(format!(
-                "{name}-{version}-{}-{contract}.raw.json",
-                mode.as_str()
-            ));
-            std::fs::write(&path, produced.bytes.as_bytes()).unwrap();
-        }
+        let path = directory.join(format!("{}-{name}-{}.raw.json", family.name(), mode.as_str()));
+        std::fs::write(&path, joined.bytes.as_bytes()).unwrap();
     }
 }
 fn domain_commitment(domain: &str, payload: &Value) -> String {
@@ -204,34 +198,10 @@ fn existing_n06_equilibrium(source: &Value, request: &Value) {
 fn check_control(family: Family, name: &str, mode: PreviewSolverMode) -> Control {
     let original = family.request(name);
     let snapshot = original.clone();
-    assert_eq!(
-        original["model"]["pressure_contract"],
-        json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"})
-    );
-    let legacy = produce(&original, mode);
-    assert_eq!(original, snapshot);
-    assert_eq!(
-        legacy.source["producer"]["semantic_contract_id"],
-        family.legacy_identity()
-    );
-    if name == "n06" {
-        existing_n06_equilibrium(&legacy.source, &original);
-    }
-    // Keep exact current T4 v2 bytes available for the later byte-basis check.
-    // Historical goldens are not rewritten or treated as an oracle for declared T4 changes.
-
-    let mut twin = original.clone();
-    twin["model"]["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3"});
-    let mut restored = twin.clone();
-    restored["model"]["pressure_contract"] = original["model"]["pressure_contract"].clone();
-    assert_eq!(
-        restored, original,
-        "The only authored twin change is the pressure contract"
-    );
-    let produced = produce(&twin, mode);
-    capture_evidence(family, name, mode, &legacy, &produced);
+    let produced = produce(&original, mode);
+    capture_evidence(family, name, mode, &produced);
     let source = &produced.source;
-    let invocation = json!({"request":twin,"solver_mode":mode.as_str()});
+    let invocation = json!({"request":original,"solver_mode":mode.as_str()});
     assert_eq!(original, snapshot, "Original requests remain untouched");
     assert_eq!(
         source["status"]["mechanics"], "MECHANICS_SOLVED",
@@ -375,44 +345,42 @@ fn check_control(family: Family, name: &str, mode: PreviewSolverMode) -> Control
         assert_eq!(bound["standing"]["token"], "numerically_eligible");
         assert_eq!(bound["standing"]["findings"], json!([]));
     }
-    // Genuine sources, explicitly caller-selected opposite readers; no relabelling.
-    assert_eq!(
-        ps::validate_in(source, None, ps::SourceContract::PhysicsV2),
-        Err(sc::V3_READ_AS_V2.into())
-    );
-    assert_eq!(
-        ps::validate_transport_metadata_in(source, ps::SourceContract::PhysicsV2),
-        Err(sc::V3_READ_AS_V2.into())
-    );
-    assert_eq!(
-        ps::validate_in(&legacy.source, None, ps::SourceContract::PressureV3),
-        Err(sc::V2_READ_AS_V3.into())
-    );
-    assert_eq!(
-        ps::validate_transport_metadata_in(&legacy.source, ps::SourceContract::PressureV3),
-        Err(sc::V2_READ_AS_V3.into())
-    );
-    assert_eq!(
-        ps::validate_transport_metadata_in(&transported, ps::SourceContract::PhysicsV2),
-        Err(sc::V3_READ_AS_V2.into())
-    );
+    // The expected context is the caller's (here the captured invocation's),
+    // never the received profile: a genuine source whose header names a
+    // retired v2 identity is refused by name at header dispatch, and by the
+    // caller-selected current reader on its identity, raw and transported.
+    for retired in sc::RETIRED_EXACT_V2_IDS {
+        let mut relabelled = source.clone();
+        relabelled["producer"]["semantic_contract_id"] = json!(retired);
+        let refused = rv::dispatch(&relabelled, Some(&invocation["request"]["model"]), Some(&invocation));
+        assert_eq!(refused["ok"], false, "{refused}");
+        assert_eq!(refused["error"]["code"], sc::SOURCE_EXACT_PRESSURE_V2_RETIRED, "{refused}");
+        assert_eq!(
+            ps::validate_in(&relabelled, Some(&invocation), ps::SourceContract::PressureV3),
+            Err("PHYSICS_SOURCE_IDENTITY".into())
+        );
+        let mut transported_relabelled = transported.clone();
+        transported_relabelled["producer"]["semantic_contract_id"] = json!(retired);
+        assert_eq!(
+            ps::validate_transport_metadata_in(&transported_relabelled, ps::SourceContract::PressureV3),
+            Err("PHYSICS_SOURCE_IDENTITY".into())
+        );
+    }
     Control {
         family,
         name: name.to_owned(),
         mode,
-        original,
         invocation,
-        legacy,
         joined: produced,
     }
 }
 
-/// M1's kill: the v3 twins of both source families' n06, in both modes,
+/// M1's kill: the current n06 controls of both source families, in both modes,
 /// publish solved selected recovery with a valid pressure-source receipt and
 /// no missing-join diagnostic (`check_control`).
 #[test]
 fn v3_rescued_cases_publish_pressure_source() {
-    for family in [Family::Physics03, Family::LoadReference04] {
+    for family in [Family::Physics, Family::LoadReference] {
         for mode in [
             PreviewSolverMode::SparseInteractive,
             PreviewSolverMode::DenseScrutiny,
@@ -422,83 +390,89 @@ fn v3_rescued_cases_publish_pressure_source() {
     }
 }
 
-/// MJ6's independent pre-join counterpart basis: the final common source at
-/// qualified B7a 1b24b01, with the three reviewed join seams restored from
-/// 4225e9a835. Current mechanics, H4, C5, U4a and custody changes stay on both
-/// sides. All twelve immutable v2 requests in both modes use the ordinary public
-/// `run_linear_static_preview_value_with_mode` with no retained profile, followed
-/// by exact `serde_json::to_string`. Whole output bytes agree; no hash, counter,
-/// limitation or numerical exclusion applies. These pins come only from the
-/// independently captured predecessor side, not the joined producer outputs.
-/// Historical pretty raw goldens are separate fixture representations.
-const V2_PREJOIN_BASIS: [(Family, &str, &str, PreviewSolverMode, usize, &str); 24] = [
-    (Family::Physics03, "n05", "332319ee6f47870a074a6c16fbf2f43c0171e376a0b4cd1cb7f7ad8b59254b00", PreviewSolverMode::SparseInteractive, 116628, "fbca5893809ed43ccae0d4f7e54fc56407da8473b1e47abcc76dde6c497f3856"),
-    (Family::Physics03, "n05", "332319ee6f47870a074a6c16fbf2f43c0171e376a0b4cd1cb7f7ad8b59254b00", PreviewSolverMode::DenseScrutiny, 116629, "336d340bbd256344a6caf05dd8acf9a9a56e6464725e346af6276fc1473f0eb4"),
-    (Family::Physics03, "n06", "5551f164b9e8ab88f04f3abce810e1e1b1ff47236bba6a296e32905f628be931", PreviewSolverMode::SparseInteractive, 109570, "327873ebd838cb90d9450ca0d756b5cdc577bf641ad378990b12086a125bc32c"),
-    (Family::Physics03, "n06", "5551f164b9e8ab88f04f3abce810e1e1b1ff47236bba6a296e32905f628be931", PreviewSolverMode::DenseScrutiny, 109558, "8dc9c6a2495e6cb2be09690e9e6e81962dc9d7439dca1fe7d102aba9d508810c"),
-    (Family::Physics03, "n05_unicode", "494310fccac2ff287f7da79614e243d25cb889997adf7fa6b6ff2fc39ec177e9", PreviewSolverMode::SparseInteractive, 119566, "227231ca84a459818d260d7105fc555196044539e7e482c93de38c67bfc815f4"),
-    (Family::Physics03, "n05_unicode", "494310fccac2ff287f7da79614e243d25cb889997adf7fa6b6ff2fc39ec177e9", PreviewSolverMode::DenseScrutiny, 119567, "0d502bf107553325ec046477c0b20f3cace1a89375205904a403e69368fea8a0"),
-    (Family::Physics03, "n05_units", "4774ffdeb00bf3a400032994f18b85b8b53b37695e88a6e15c7f6c8b3abb2775", PreviewSolverMode::SparseInteractive, 116634, "d2711a590239cb0aa1acc20e59147fb7c6120d2fc5e7e8a9730e80b2b6a65079"),
-    (Family::Physics03, "n05_units", "4774ffdeb00bf3a400032994f18b85b8b53b37695e88a6e15c7f6c8b3abb2775", PreviewSolverMode::DenseScrutiny, 116635, "29226f979d7cf5e049e1dd5feb2260d8b543c76a4c0db6c7a66d745a6b5e9a6e"),
-    (Family::Physics03, "fields", "7f8ff9d5e23712cedd6ca58a86a690517a8e820b9b072962ca43ad60be286002", PreviewSolverMode::SparseInteractive, 124200, "50d3b74e56adf77ef141505bbb7ce6a95b02d6c715764daa68733c7bd08ba971"),
-    (Family::Physics03, "fields", "7f8ff9d5e23712cedd6ca58a86a690517a8e820b9b072962ca43ad60be286002", PreviewSolverMode::DenseScrutiny, 124381, "c2383a374b43acdf5de0688305abc52642cac83362015fcf869b692d39fb5cd0"),
-    (Family::Physics03, "mixed", "a623608d33423c9bcf40a6ef5324f11576c52501953c3f0e6d08d24ddcb84abf", PreviewSolverMode::SparseInteractive, 220399, "62f98fb2df6615213b2f63cfdc3d07e1e2edf3e9242bf4a89d0e1073eb3a2300"),
-    (Family::Physics03, "mixed", "a623608d33423c9bcf40a6ef5324f11576c52501953c3f0e6d08d24ddcb84abf", PreviewSolverMode::DenseScrutiny, 220393, "68d9f9a46c16a545a312142c20acb9566a7127595a6d316f25c74d25cba12fd6"),
-    (Family::Physics03, "mixed_units", "065f004d03ab11324958a6b5a0c8763e063e18f9a413c9ffee336903d4a1725a", PreviewSolverMode::SparseInteractive, 220512, "26d2a90ff83c0ae17f6de2f981dc663b25ff3ca65142635e23901ad97ec9dabd"),
-    (Family::Physics03, "mixed_units", "065f004d03ab11324958a6b5a0c8763e063e18f9a413c9ffee336903d4a1725a", PreviewSolverMode::DenseScrutiny, 220506, "7454c70c9d98987499ef42c9a6a55dae5670b7922d265c2057750e72bb734e63"),
-    (Family::LoadReference04, "n05", "b31f44a2d3e106d9c4c139f9ec3f933a212811926d23eabae068c647b4b83ed5", PreviewSolverMode::SparseInteractive, 119228, "381d331c3862c852fbd1038a45c5ed06038f81c41095a16c24a9643538201b29"),
-    (Family::LoadReference04, "n05", "b31f44a2d3e106d9c4c139f9ec3f933a212811926d23eabae068c647b4b83ed5", PreviewSolverMode::DenseScrutiny, 119225, "5db4c518229e2ae5e32bee26b2c3f1e80d6f6894ec4d018066902b35b3fc66e7"),
-    (Family::LoadReference04, "n06", "d24d570ecbb8a75cdb4ea21899ccd51b294e6e4637636c4768826ba3094fe141", PreviewSolverMode::SparseInteractive, 112172, "3306c96649ea393ea8f3d2f86e1c313e879374186d39280cf52e92264fa6f961"),
-    (Family::LoadReference04, "n06", "d24d570ecbb8a75cdb4ea21899ccd51b294e6e4637636c4768826ba3094fe141", PreviewSolverMode::DenseScrutiny, 112156, "8884cea721a29f254aaf4c4c491ba2435a42136fb472e99d16e64fe762952975"),
-    (Family::LoadReference04, "eigen_motion", "58ce5b95d185d56964a30962b355c14595cdf831505603c6e5d455425c4ea8e9", PreviewSolverMode::SparseInteractive, 131714, "8373cca38063ae65cd06d64231cbfd26b2c27aabcdd1d4e59b537b7884640f4d"),
-    (Family::LoadReference04, "eigen_motion", "58ce5b95d185d56964a30962b355c14595cdf831505603c6e5d455425c4ea8e9", PreviewSolverMode::DenseScrutiny, 131709, "bb0638d34c6b1183038237dfb11e8bea41137e769a33100ee545a70b6c326e71"),
-    (Family::LoadReference04, "fields", "8c9a605758ea2e76269b8b7f2ffc5738e9c758d735189326b43335b58c2dce61", PreviewSolverMode::SparseInteractive, 127990, "6c1b645ca364fe60e38d5aa54b26aad2a28908cd9f934e37c1e355593289ba3c"),
-    (Family::LoadReference04, "fields", "8c9a605758ea2e76269b8b7f2ffc5738e9c758d735189326b43335b58c2dce61", PreviewSolverMode::DenseScrutiny, 128167, "fef68c6127b9247774d99abb3952ff32f6686f4c0b5e2167b2ba4da71a99b5f1"),
-    (Family::LoadReference04, "mixed", "14d2ab92aba8190c133b0c41d4dd8e7e0443b06044f48a49b3b408d6fa912ad2", PreviewSolverMode::SparseInteractive, 225090, "99a595534a81ee0f58e4273dbc4acc30258cc711fc25ce20334b01f0c38f7d6c"),
-    (Family::LoadReference04, "mixed", "14d2ab92aba8190c133b0c41d4dd8e7e0443b06044f48a49b3b408d6fa912ad2", PreviewSolverMode::DenseScrutiny, 225071, "f27645b497255f901e0eb442259d7e9c57795f6528cd4afe2b11134035f3c771"),
+/// MJ6's current basis (B7b): the twelve committed current requests (each the
+/// once re-authored twin of a deleted v2 original) in both modes, through the
+/// ordinary public `run_linear_static_preview_value_with_mode` with no retained
+/// profile, followed by exact `serde_json::to_string`. The pins are the
+/// regenerated committed raw fixtures `pressure_source/{family}/{name}-{mode}.raw.json`
+/// (B7b's regeneration evidence records that against the pre-B7b v3 twins
+/// and the v2 originals only the declared value classes moved). No hash,
+/// counter, limitation or numerical exclusion applies.
+const CURRENT_SOURCE_BASIS: [(Family, &str, &str, PreviewSolverMode, usize, &str); 24] = [
+    (Family::Physics, "n05", "e01b5880a62454cc7dc295fe231b61e5c97e10367962fe18ac3cd5298887124b", PreviewSolverMode::SparseInteractive, 117554, "854010ce1e1784b4de06bb9aff334f21aab8dd65664be9e96d7c2841f82defeb"),
+    (Family::Physics, "n05", "e01b5880a62454cc7dc295fe231b61e5c97e10367962fe18ac3cd5298887124b", PreviewSolverMode::DenseScrutiny, 117555, "210f16b378dc93c6a0a98786ece79702525ca5cce1ec4fd9752ff477c63f2c94"),
+    (Family::Physics, "n06", "35c17e4497ed98dbdd44f656fd886a9d98dc609ed646684ac1c05652dbdda6d1", PreviewSolverMode::SparseInteractive, 110496, "22afc7946ec200e1c580c2ced964d97bb0aa182dcbb1814ff756f43654f430e4"),
+    (Family::Physics, "n06", "35c17e4497ed98dbdd44f656fd886a9d98dc609ed646684ac1c05652dbdda6d1", PreviewSolverMode::DenseScrutiny, 110484, "90a6ab22132aa7b3ec481eb7fc476203cc4528883df80baa3d279f20dab4b384"),
+    (Family::Physics, "n05_unicode", "74ab6800139f989121ab34242ed9837c4d91d446eca2d627c3596c2dd26446ad", PreviewSolverMode::SparseInteractive, 120492, "3259edfbd88dc4157b81eb6dbca2d7cd078b2839024ba0d50d059f54aadc7d3e"),
+    (Family::Physics, "n05_unicode", "74ab6800139f989121ab34242ed9837c4d91d446eca2d627c3596c2dd26446ad", PreviewSolverMode::DenseScrutiny, 120493, "de229e24fec377ab5f24d07c558ca4519516aa9dcbd25c3c30016bb84506a04e"),
+    (Family::Physics, "n05_units", "c9fc898a5d1a7cf95baa9cafb271d7afc6ef0dfe384a282048f369319b3ec5ab", PreviewSolverMode::SparseInteractive, 117560, "20372c11fb0004950d30d612b5fb648103e566602015072209f0dc51c77a1c38"),
+    (Family::Physics, "n05_units", "c9fc898a5d1a7cf95baa9cafb271d7afc6ef0dfe384a282048f369319b3ec5ab", PreviewSolverMode::DenseScrutiny, 117561, "9f5297d7399b6889365dd3938790525f0527f417626daa07a3575e66d32ca463"),
+    (Family::Physics, "fields", "67ac4067d5b98063f591138af4d2e220e1f34c366b61bc4acd09c90acd41b199", PreviewSolverMode::SparseInteractive, 125126, "2347b88c7e20598e639e4e811e152d5156bfe4951da9ee876f80ab0e8fe12d4b"),
+    (Family::Physics, "fields", "67ac4067d5b98063f591138af4d2e220e1f34c366b61bc4acd09c90acd41b199", PreviewSolverMode::DenseScrutiny, 125307, "62edfad529002041f5f70588177613e78a9ef2dc338b5290f3a1a96d21a48543"),
+    (Family::Physics, "mixed", "9dac61d072f63a076f7874f06bd485faff63e259c4c818a35f1f6a3717146561", PreviewSolverMode::SparseInteractive, 221307, "ef9ddd813fb47483ad702cb5adf38306d5514b45cc4880f9021877422807b469"),
+    (Family::Physics, "mixed", "9dac61d072f63a076f7874f06bd485faff63e259c4c818a35f1f6a3717146561", PreviewSolverMode::DenseScrutiny, 221301, "ff55c714f408c60fb6e79a91f6a6b3a876d4704709767d7b3184d2937667505a"),
+    (Family::Physics, "mixed_units", "7f8064e950182ea0e517a55765bc4bb2fcda8528636a69b665ce21c79897ea7d", PreviewSolverMode::SparseInteractive, 221420, "be307e40a97a0b61a4d216cfeb3dc590bf13d38606d07103ab5e057bf4c9ccdc"),
+    (Family::Physics, "mixed_units", "7f8064e950182ea0e517a55765bc4bb2fcda8528636a69b665ce21c79897ea7d", PreviewSolverMode::DenseScrutiny, 221414, "c54c2f30414078d0b1636793cbffe8cce1f02c4a446b9476e607c4373e407682"),
+    (Family::LoadReference, "n05", "6667d339787c74f9ddd51ce4a4cbf31af4fe56277796f036a403f7625a2e4c67", PreviewSolverMode::SparseInteractive, 120849, "6e301cf284fc56186ae6f0d966d00e6f68d2c12b2eaaf63bb7e621af62f52043"),
+    (Family::LoadReference, "n05", "6667d339787c74f9ddd51ce4a4cbf31af4fe56277796f036a403f7625a2e4c67", PreviewSolverMode::DenseScrutiny, 120846, "27c0451fc66592eff78e98d6703c3d2c005beedc17bc68196f9ac85e8cd711bc"),
+    (Family::LoadReference, "n06", "517274cf136b7db4cef941dfaa69470127217aa34cdd335932313e5927ade326", PreviewSolverMode::SparseInteractive, 113793, "2feaddf865ab93221c53b221d3d23488dc9d2069328468c5b5ed0d399d4ff288"),
+    (Family::LoadReference, "n06", "517274cf136b7db4cef941dfaa69470127217aa34cdd335932313e5927ade326", PreviewSolverMode::DenseScrutiny, 113777, "86af218adb8c3affd6f5f1f310f97d5478b953df6d950e79042c25a8938b5f42"),
+    (Family::LoadReference, "eigen_motion", "79da8affca8726761874be4ad7553ec9212c37042dd336d4dbf469adeb61ba5d", PreviewSolverMode::SparseInteractive, 133335, "93475f0741dddb002b84c10bcb9600289918c2449c1bb581568aaf9e5399d893"),
+    (Family::LoadReference, "eigen_motion", "79da8affca8726761874be4ad7553ec9212c37042dd336d4dbf469adeb61ba5d", PreviewSolverMode::DenseScrutiny, 133330, "1613e2ab247a1389fb7f9fdfbff683c4d2d08f8fa03b6f4be4786b948a9efafa"),
+    (Family::LoadReference, "fields", "fcf738819baf2bbff402420ea1955ab811be36c95088e91743e66c47e082c753", PreviewSolverMode::SparseInteractive, 129611, "bfa6dd8b3127653f29ee2cb07c7e488452642f813a5a357d005b138dec64f189"),
+    (Family::LoadReference, "fields", "fcf738819baf2bbff402420ea1955ab811be36c95088e91743e66c47e082c753", PreviewSolverMode::DenseScrutiny, 129788, "ba84133f4dce65d1c97b5b98b48d1434e684f3667c3bfeec20cf7741d2cf0233"),
+    (Family::LoadReference, "mixed", "ba12d4c6a056c3fff3761bf777db97244230f6202dacaedc03059f67244f3c5d", PreviewSolverMode::SparseInteractive, 226693, "3693f735076e15a14073d24e9171915d1fe00c45dff8bef4f42db1f88fb2188a"),
+    (Family::LoadReference, "mixed", "ba12d4c6a056c3fff3761bf777db97244230f6202dacaedc03059f67244f3c5d", PreviewSolverMode::DenseScrutiny, 226674, "4f44682a9705be1d7d10b1868524187d6de3115763ca4021509e5bc89459bcb1"),
 ];
 
-/// MJ6's kill: the join changes no v2 source-publication byte. Exact producer
-/// serialization of all twelve original requests x both modes equals the
-/// pre-join basis; no hash, counter, limitation or numeric exclusion applies.
+/// MJ6's kill (B7b meaning): changing the established source work limit
+/// (8,000,000, `PHYSICS_SOURCE_WORK_LIMIT`) or any other published byte of a
+/// current source publication fails here. Exact producer serialization of all
+/// twelve current requests x both modes equals the pinned current basis and
+/// the committed raw fixture; no hash, counter, limitation or numeric exclusion
+/// applies. Its pre-B7b meaning (the join preserves v2 bytes) lapsed with v2.
 #[test]
-fn join_preserves_every_v2_source_publication_byte() {
+fn join_preserves_every_source_publication_byte() {
     let mut covered = std::collections::BTreeSet::new();
-    for (family, name, request_sha256, mode, length, sha256) in V2_PREJOIN_BASIS {
-        let path = project_root().join(format!(
-            "fixtures/product_preview/{}/{name}.request.json",
-            family.name()
-        ));
-        let request_bytes = std::fs::read(path).unwrap();
+    for (family, name, request_sha256, mode, length, sha256) in CURRENT_SOURCE_BASIS {
+        let request_bytes = std::fs::read(project_root().join(family.request_path(name))).unwrap();
         assert_eq!(
             format!("{:x}", Sha256::digest(&request_bytes)),
             request_sha256,
-            "{}/{name}: the immutable original request",
+            "{}/{name}: the committed current request",
             family.name()
         );
         let request: Value = serde_json::from_slice(&request_bytes).unwrap();
         assert_eq!(request, family.request(name));
-        assert_eq!(
-            request["model"]["pressure_contract"],
-            json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"})
-        );
         let produced = produce(&request, mode);
         let label = format!("{}/{name}/{}", family.name(), mode.as_str());
         assert_eq!(
             produced.source["producer"]["semantic_contract_id"],
-            family.legacy_identity(),
+            ps::PRESSURE_CONTRACT_ID,
             "{label}"
         );
+        for case in produced.source["source_block_recovery"]["body"]["cases"].as_array().unwrap() {
+            if case["selected_method"] == "retained_source_blocks_exact_v1" {
+                assert_eq!(case["work"]["limit"], json!(8_000_000), "{label}: the established work limit");
+            }
+        }
         assert_eq!(produced.bytes.len(), length, "{label}: exact byte length");
         assert_eq!(
             format!("{:x}", Sha256::digest(produced.bytes.as_bytes())),
             sha256,
             "{label}: exact producer bytes"
         );
+        let committed = std::fs::read(project_root().join(format!(
+            "fixtures/product_preview/pressure_source/{}/{name}-{}.raw.json",
+            family.name(),
+            mode.as_str()
+        )))
+        .unwrap();
+        assert_eq!(format!("{:x}", Sha256::digest(&committed)), sha256, "{label}: committed raw");
         assert!(covered.insert(label));
     }
     let mut expected = std::collections::BTreeSet::new();
-    for family in [Family::Physics03, Family::LoadReference04] {
+    for family in [Family::Physics, Family::LoadReference] {
         for name in family.names() {
             for mode in [
                 PreviewSolverMode::SparseInteractive,

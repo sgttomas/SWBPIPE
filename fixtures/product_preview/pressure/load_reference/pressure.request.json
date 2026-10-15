@@ -1,13 +1,14 @@
 {
   "model": {
-    "schema_version": "0.4.0",
+    "schema_version": "0.5.0",
     "document_kind": "openpipestress.product_preview.model",
     "pressure_contract": {
-      "version": "2.0.0",
-      "mode": "exact_straight_pressure_v2"
+      "version": "3.0.0",
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli"
     },
     "project": {
-      "id": "project:load-reference-connected",
+      "id": "project:load-reference-pressure",
       "units": {
         "length": "m",
         "force": "N",
@@ -40,15 +41,6 @@
           "z": 0
         },
         "provenance": "invented_load_reference_fixture_not_library_data"
-      },
-      {
-        "id": "node:far",
-        "position": {
-          "x": 2,
-          "y": 0,
-          "z": 0
-        },
-        "provenance": "invented_load_reference_fixture_not_library_data"
       }
     ],
     "pipe_segments": [
@@ -58,28 +50,10 @@
         "to": "node:middle",
         "material": "material:shared",
         "section": {
-          "outside_diameter": {
-            "value": 200,
-            "unit": "mm"
+          "corrosion_allowance": {
+            "value": 0.0,
+            "unit": "m"
           },
-          "wall_thickness": {
-            "value": 10,
-            "unit": "mm"
-          }
-        },
-        "y_reference": {
-          "x": 0,
-          "y": 1,
-          "z": 0
-        },
-        "provenance": "invented_load_reference_fixture_not_library_data"
-      },
-      {
-        "id": "pipe:second",
-        "from": "node:middle",
-        "to": "node:far",
-        "material": "material:shared",
-        "section": {
           "outside_diameter": {
             "value": 200,
             "unit": "mm"
@@ -114,7 +88,7 @@
       },
       {
         "id": "support:far",
-        "node": "node:far",
+        "node": "node:middle",
         "family": "anchor",
         "restraints": [
           "UX",
@@ -216,24 +190,6 @@
               "kind": "none"
             },
             "provenance": "invented_load_reference_fixture_not_library_data"
-          },
-          {
-            "pipe_ref": "pipe:second",
-            "basis": {
-              "kind": "temperature_reference",
-              "installation_temperature": {
-                "value": 20,
-                "unit": "degC"
-              }
-            },
-            "fit": {
-              "kind": "natural_length_change",
-              "length_change": {
-                "value": -1,
-                "unit": "mm"
-              }
-            },
-            "provenance": "invented_load_reference_fixture_not_library_data"
           }
         ],
         "provenance": "invented_load_reference_fixture_not_library_data"
@@ -241,63 +197,41 @@
     ],
     "load_cases": [
       {
-        "id": "case:cold",
+        "id": "case:cold-pressure",
         "provenance": "invented_load_reference_fixture_not_library_data",
-        "pressure_regions": [],
-        "primitive_loads": [
+        "pressure_regions": [
           {
-            "id": "load:transverse:case:cold",
-            "category": "concentrated_force",
-            "target": {
-              "type": "node",
-              "node": "node:middle"
+            "id": "region:closed",
+            "member_pipe_ids": [
+              "pipe:first"
+            ],
+            "pressure_basis": "internal_differential_zero_external_v1",
+            "pressure": {
+              "value": 2,
+              "unit": "MPa"
             },
-            "direction": "global_y",
-            "magnitude": {
-              "value": -1000.0,
-              "unit": "N"
-            },
-            "dimension": "force",
-            "provenance": "invented_load_reference_fixture_not_library_data"
-          },
-          {
-            "id": "load:stored-unused:case:cold",
-            "category": "concentrated_force",
-            "target": {
-              "type": "node",
-              "node": "node:middle"
-            },
-            "direction": "global_y",
-            "magnitude": {
-              "value": 999.0,
-              "unit": "N"
-            },
-            "dimension": "force",
+            "terminals": [
+              {
+                "node_ref": "node:root",
+                "closure_transfer": "transfers_to_wall",
+                "provenance": "invented_load_reference_fixture_not_library_data"
+              },
+              {
+                "node_ref": "node:middle",
+                "closure_transfer": "transfers_to_wall",
+                "provenance": "invented_load_reference_fixture_not_library_data"
+              }
+            ],
             "provenance": "invented_load_reference_fixture_not_library_data"
           }
         ],
+        "primitive_loads": [],
         "analysis_state": {
           "contract": "openpipestress.load_reference_state/1.0.0",
           "reference_configuration_ref": "reference:installed",
           "element_states": [
             {
               "pipe_ref": "pipe:first",
-              "operating_temperature": {
-                "value": 20,
-                "unit": "degC"
-              },
-              "material_selection": {
-                "kind": "exact_point",
-                "material_ref": "material:shared",
-                "point_ref": "point:cold"
-              },
-              "thermal_state": {
-                "kind": "free_length_state",
-                "expansion_law_ref": "law:secant"
-              }
-            },
-            {
-              "pipe_ref": "pipe:second",
               "operating_temperature": {
                 "value": 20,
                 "unit": "degC"
@@ -318,25 +252,7 @@
               "support_ref": "support:root",
               "participation": {
                 "kind": "active_model_device"
-              },
-              "boundary_motion": [
-                {
-                  "dof": "UX",
-                  "value": {
-                    "value": 0.5,
-                    "unit": "mm"
-                  },
-                  "meaning": "absolute_reference_displacement"
-                },
-                {
-                  "dof": "RZ",
-                  "value": {
-                    "value": 0.001,
-                    "unit": "rad"
-                  },
-                  "meaning": "absolute_reference_displacement"
-                }
-              ]
+              }
             },
             {
               "support_ref": "support:far",
@@ -345,12 +261,7 @@
               }
             }
           ],
-          "load_sources": [
-            {
-              "source_ref": "load:transverse:case:cold",
-              "factor": 1.0
-            }
-          ],
+          "load_sources": [],
           "history": {
             "kind": "independent_equilibrium"
           },
@@ -358,63 +269,41 @@
         }
       },
       {
-        "id": "case:hot",
+        "id": "case:hot-pressure",
         "provenance": "invented_load_reference_fixture_not_library_data",
-        "pressure_regions": [],
-        "primitive_loads": [
+        "pressure_regions": [
           {
-            "id": "load:transverse:case:hot",
-            "category": "concentrated_force",
-            "target": {
-              "type": "node",
-              "node": "node:middle"
+            "id": "region:closed",
+            "member_pipe_ids": [
+              "pipe:first"
+            ],
+            "pressure_basis": "internal_differential_zero_external_v1",
+            "pressure": {
+              "value": 2,
+              "unit": "MPa"
             },
-            "direction": "global_y",
-            "magnitude": {
-              "value": -1000.0,
-              "unit": "N"
-            },
-            "dimension": "force",
-            "provenance": "invented_load_reference_fixture_not_library_data"
-          },
-          {
-            "id": "load:stored-unused:case:hot",
-            "category": "concentrated_force",
-            "target": {
-              "type": "node",
-              "node": "node:middle"
-            },
-            "direction": "global_y",
-            "magnitude": {
-              "value": 999.0,
-              "unit": "N"
-            },
-            "dimension": "force",
+            "terminals": [
+              {
+                "node_ref": "node:root",
+                "closure_transfer": "transfers_to_wall",
+                "provenance": "invented_load_reference_fixture_not_library_data"
+              },
+              {
+                "node_ref": "node:middle",
+                "closure_transfer": "transfers_to_wall",
+                "provenance": "invented_load_reference_fixture_not_library_data"
+              }
+            ],
             "provenance": "invented_load_reference_fixture_not_library_data"
           }
         ],
+        "primitive_loads": [],
         "analysis_state": {
           "contract": "openpipestress.load_reference_state/1.0.0",
           "reference_configuration_ref": "reference:installed",
           "element_states": [
             {
               "pipe_ref": "pipe:first",
-              "operating_temperature": {
-                "value": 150,
-                "unit": "degC"
-              },
-              "material_selection": {
-                "kind": "exact_point",
-                "material_ref": "material:shared",
-                "point_ref": "point:hot"
-              },
-              "thermal_state": {
-                "kind": "free_length_state",
-                "expansion_law_ref": "law:secant"
-              }
-            },
-            {
-              "pipe_ref": "pipe:second",
               "operating_temperature": {
                 "value": 150,
                 "unit": "degC"
@@ -435,25 +324,7 @@
               "support_ref": "support:root",
               "participation": {
                 "kind": "active_model_device"
-              },
-              "boundary_motion": [
-                {
-                  "dof": "UX",
-                  "value": {
-                    "value": 0.5,
-                    "unit": "mm"
-                  },
-                  "meaning": "absolute_reference_displacement"
-                },
-                {
-                  "dof": "RZ",
-                  "value": {
-                    "value": 0.001,
-                    "unit": "rad"
-                  },
-                  "meaning": "absolute_reference_displacement"
-                }
-              ]
+              }
             },
             {
               "support_ref": "support:far",
@@ -462,12 +333,7 @@
               }
             }
           ],
-          "load_sources": [
-            {
-              "source_ref": "load:transverse:case:hot",
-              "factor": 1.5
-            }
-          ],
+          "load_sources": [],
           "history": {
             "kind": "independent_equilibrium"
           },

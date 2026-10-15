@@ -418,8 +418,8 @@ fn assert_reviewed_reader_input_bindings() {
     // other input keeps its order.
     assert_eq!(&build_identity::REVIEWED_INPUTS[..13], &ORIGINAL);
     assert_eq!(build_identity::REVIEWED_INPUTS.len(), 15);
-    assert_eq!(build_identity::REVIEWED_INPUTS[13], PRESSURE_SOURCE_BINDING_INPUT);
-    assert_eq!(build_identity::REVIEWED_INPUTS[14], PRESSURE_SCHEMA_BINDING_INPUT);
+    assert_eq!(build_identity::REVIEWED_INPUTS.get(13).copied(), Some(PRESSURE_SOURCE_BINDING_INPUT));
+    assert_eq!(build_identity::REVIEWED_INPUTS.get(14).copied(), Some(PRESSURE_SCHEMA_BINDING_INPUT));
     let audited = audited_reader_sources();
     let sources: Vec<_> = audited[..4].iter().map(|(source, region)|
         audited_reader_production(source, *region).expect("reader test region changed: re-audit before exclusion")
@@ -577,8 +577,8 @@ fn pressure_source_and_schema_are_the_only_nonresident_bindings() {
     let bytes = include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json");
     assert_eq!(format!("{:x}", Sha256::digest(bytes)), sc::PRESSURE_SOURCE_TABLE_SHA256);
     let table = sc::verify_pressure_source_table(bytes).unwrap();
-    assert_eq!(table["rows"], sc::physics_source_contract()["rows"]);
-    assert_eq!(table["canonical_metadata_vocabulary"], sc::physics_source_contract()["canonical_metadata_vocabulary"]);
+    assert_eq!(table["rows"], sc::pressure_source_contract()["rows"]);
+    assert_eq!(table["canonical_metadata_vocabulary"], sc::pressure_source_contract()["canonical_metadata_vocabulary"]);
     assert_eq!(reader_verdict::binding("pressure_source"), json!({"id":sc::PRESSURE_SOURCE_ID,"sha256":sc::PRESSURE_SOURCE_TABLE_SHA256}));
     let mut edited = bytes.to_vec(); edited.push(b'\n');
     assert_eq!(sc::verify_pressure_source_table(&edited).unwrap_err(), "SOURCE_PRESSURE_SOURCE_TABLE_HASH");
@@ -631,16 +631,17 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "f961a56bdd386d26f10ee279b0c5926c7436760c18eee0e3c3c158bd474b42c9",
         "9be78bef3b340330f06b99966bcc9fd2fdf652f2a54506fc270f6b16588761c6",
         "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53",
-        "a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1",
-        "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09",
-        "28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924",
+        // B7b PP compile fix only: the deleted physics-1, load-reference-1,
+        // load-reference-source-1 and physics-source-1 digests left with their
+        // inputs; the ordinary pressure table's actual digest is appended at its
+        // index. Every remaining pin is unchanged; D3 re-pins this record.
         "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3",
-        "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53",
         "8d00e0622777fe01d8886a90371393ee5189c18800adb6d203e60c35f9e2485a",
         "0eeb9e49a5e1659ccfe2b12ce19af65d2819f0594832300513f34c066b84bc7e",
         "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886",
         "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf",
         "774dad290e17ece0292b7a6021c59c8067e13aa4267c6bdbb25bb3fb17da75c5",
+        "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [
@@ -649,16 +650,13 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_bytes!("../../../schemas/retained_precision_mp_v2.schema.json"),
         include_bytes!("../../../fixtures/results/retained_precision_prepared_ordinary_v1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"),
-        include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_1.json"),
-        include_bytes!("../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json"),
-        include_bytes!("../../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json"),
-        include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_source_1.json"),
         include_bytes!("../../../fixtures/results/retained_precision_prepared_combination_v1.json"),
         include_bytes!("../../../fixtures/results/retained_precision_prepared_exact_v1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json"),
         include_bytes!("../../../schemas/results_pressure_1.v0.3.schema.json"),
+        include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_1.json"),
     ];
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets the reviewed inputs");
     assert_eq!(option_env!("OPS_RETAINED_REVIEWED_INPUTS"), Some(compiled));
@@ -2732,8 +2730,9 @@ fn exact3(mut raw: Value) -> Value {
     raw
 }
 /// The committed physics-source requests n05 and n06 (B3b's coexistence pins).
-const N05: &str = include_str!("../../../fixtures/product_preview/physics_source/n05.request.json");
-const N06: &str = include_str!("../../../fixtures/product_preview/physics_source/n06.request.json");
+// B7b PP compile fix only: the v2 originals were deleted; their current twins.
+const N05: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
+const N06: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n06.request.json");
 
 /// B3-D §4.2's law tests: 0.3.0 exact with `[]` on every case is inside D1 (alone, with C cases,
 /// and as B3-W's mixed base `m3x_mix_anchor`), with a permit in the registered build; refused:

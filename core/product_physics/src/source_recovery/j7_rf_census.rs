@@ -1,21 +1,24 @@
 //! J7 RF census (b7-plan, "The J7 RF census"): the maintained consuming check.
 //!
 //! Every frozen T3 R1 case in D1's source family runs, in both solver modes, as a
-//! genuine 0.3.0 request under `3.0.0/exact_pressure_v3` with explicitly empty
-//! `pressure_regions`, and as its v2 twin (`2.0.0/exact_straight_pressure_v2`, the
-//! only change). Inputs are `fixtures/results/j7_rf_census_inputs.json`
-//! (`tools/fixtures/j7_rf_census_inputs.py` over the frozen references); each
-//! case/mode's typed first cause and exact work are pinned in
+//! genuine request under `3.0.0/exact_pressure_v3` with explicitly empty
+//! `pressure_regions`. Inputs are `fixtures/results/j7_rf_census_inputs.json`
+//! (`tools/fixtures/j7_rf_census_inputs.py` over the frozen references, authored
+//! as 0.3.0); B7b re-authors each copy once, at run time, to the current 0.5.0
+//! document (`shear_model` Euler-Bernoulli, an explicit zero corrosion allowance
+//! on every pipe section) and changes nothing else. Each case/mode's public
+//! outcome (identity, quality, blocking findings, source attempt, and the digests
+//! of its published rows and diagnostics), the direct method's selection, stage,
+//! error, work and response digest, and the typed first cause are pinned in
 //! `fixtures/results/j7_rf_census_expected.json`. Live, for every case and mode:
-//! - v3 and v2 public envelopes differ only at D5's closed exclusions (identity,
-//!   profile, limitations, profile_mode/profile_version); refusals are identical;
 //! - the direct method call (the committed `j7_t4_consequences.rs` input sequence
-//!   over the actual normalized/built/boundary/load-owned source) has identical
-//!   selection, stage, error, work and response digest in v3 and v2;
+//!   over the actual normalized/built/boundary/load-owned source) is recorded;
 //! - any public source attempt declines with exactly that typed failure;
 //! - no envelope publishes a source-recovery identity or `source_block_recovery`;
 //! - a directly selected case (only RF-ZERO-TINY) meets
 //!   `|obs - exp| <= 1e-9 * max(|exp|, scale)` exactly on every reference row.
+//! B7b deleted the v2 twin (`2.0.0/exact_straight_pressure_v2`) that this census
+//! compared against D5's closed exclusions before v2's deletion.
 //! The 216-case classification is recomputed here from the frozen file.
 //! Regenerate the pin only for a deliberate change:
 //! `SWBPIPE_J7_RF_CENSUS_WRITE=1 cargo test --lib j7_rf_census_expected_write`.
@@ -39,16 +42,8 @@ const EXPECTED_PATH: &str = "../../fixtures/results/j7_rf_census_expected.json";
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const FAMILIES: [&str; 10] = ["RF-CHAIN", "RF-SKEW", "RF-WEAK", "RF-LARGE", "RF-INVARIANCE", "RF-RANGE", "RF-ZERO", "RF-FINITE", "RF-MECH", "RF-CANCEL"];
 const PRESSURE_1: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
-const PHYSICS_1: &str = "openpipestress.result_semantics/0.3.0/physics-1";
-/// D5's closed exclusions that a non-selected twin can show (JSON pointers, `#` = any index).
-const D5_EXCLUDED: [&str; 5] = [
-    "/producer/semantic_contract_id",
-    "/formulation_basis/profile_id",
-    "/formulation_basis/limitations",
-    "/contract_evidence/exact_cases/#/profile_mode",
-    "/contract_evidence/exact_cases/#/profile_version",
-];
-/// Every source-recovery identity: none may be published by a frozen RF case.
+/// Every source-recovery identity (the current one and the two retired v2
+/// ones): none may be published by a frozen RF case.
 const SOURCE_IDENTITIES: [&str; 3] = [
     "openpipestress.result_semantics/0.3.0/pressure-source-1",
     "openpipestress.result_semantics/0.3.0/physics-source-1",
@@ -235,27 +230,9 @@ fn response_digest(m: &SelectedSourceRecovery) -> String {
     }
     format!("{:x}", h.finalize())
 }
-fn leaf_diff(a: &Value, b: &Value, path: String, out: &mut Vec<String>) {
-    match (a, b) {
-        (Value::Object(x), Value::Object(y)) => {
-            let keys: BTreeSet<_> = x.keys().chain(y.keys()).collect();
-            for k in keys {
-                leaf_diff(x.get(k).unwrap_or(&Value::Null), y.get(k).unwrap_or(&Value::Null), format!("{path}/{k}"), out);
-            }
-        }
-        (Value::Array(x), Value::Array(y)) if x.len() == y.len() => {
-            for (i, (u, v)) in x.iter().zip(y).enumerate() {
-                leaf_diff(u, v, format!("{path}/{i}"), out);
-            }
-        }
-        (Value::Number(x), Value::Number(y))
-            if x.as_f64().map(f64::to_bits) == y.as_f64().map(f64::to_bits) && x.is_f64() == y.is_f64() => {}
-        _ if a == b => {}
-        _ => out.push(path),
-    }
-}
-fn pointer_class(path: &str) -> String {
-    path.split('/').map(|p| if !p.is_empty() && p.bytes().all(|b| b.is_ascii_digit()) { "#" } else { p }).collect::<Vec<_>>().join("/")
+/// The digest of a published member's exact serialization (rows or diagnostics).
+fn member_digest(value: &Value) -> String {
+    sha(serde_json::to_string(value).unwrap().as_bytes())
 }
 
 /// One contract's actual run: public envelope (or refusal) and the direct method call.
@@ -285,7 +262,7 @@ fn method_value(run: &Run) -> Value {
                                "error": format!("{:?}", f.error), "work": work_json(&f.work)}),
     }
 }
-/// The pinned typed first cause of one case/mode (v3; the v2 twin is checked equal live).
+/// The pinned typed first cause of one case/mode.
 fn first_cause(run: &Run) -> Value {
     let method = method_value(run);
     if let Err(e) = &run.public {
@@ -337,64 +314,50 @@ fn public_value(public: &Result<Value, String>) -> Value {
                 "numerical_quality": env["numerical_quality"]["status"],
                 "blocking": blocking,
                 "source_attempt": if diags.iter().any(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE") { "declined" } else { "not_attempted" },
+                "results_sha256": member_digest(&env["results"]),
+                "diagnostics_sha256": member_digest(&env["diagnostics"]),
             })
         }
     }
 }
 
-/// One case and mode: live twin, decline-text and no-publication checks; returns the
-/// pinned entry.
+/// One case's request: the committed input's copy, re-authored once to the
+/// current 0.5.0 exact document (B7b); the committed inputs stay 0.3.0.
+fn current_request(case: &Value) -> Value {
+    let input = &case["request"];
+    assert_eq!(input["model"]["pressure_contract"], json!({"version": "3.0.0", "mode": "exact_pressure_v3"}));
+    let current = crate::b7b_admission_tests::reauthor_current_request(input.clone());
+    assert_eq!(current["model"]["schema_version"], crate::MODEL_SCHEMA_VERSION);
+    current
+}
+
+/// One case and mode: decline-text and no-publication checks; returns the pinned entry.
 fn census_entry(case: &Value, mode: PreviewSolverMode) -> Value {
     let id = case["id"].as_str().unwrap();
-    let v3_raw = case["request"].clone();
-    assert_eq!(v3_raw["model"]["pressure_contract"], json!({"version": "3.0.0", "mode": "exact_pressure_v3"}));
-    let mut v2_raw = v3_raw.clone();
-    v2_raw["model"]["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
-    let (v3, v2) = (run(&v3_raw, mode), run(&v2_raw, mode));
+    let v3 = run(&current_request(case), mode);
     let at = format!("{id} {}", mode.as_str());
-    for (label, r) in [("v3", &v3), ("v2", &v2)] {
-        // No frozen RF case publishes a source-recovery identity, in v3 or v2.
-        if let Ok(env) = &r.public {
-            assert!(env.get("source_block_recovery").is_none(), "{at} {label}: source publication");
-            assert!(!SOURCE_IDENTITIES.iter().any(|s| env["producer"]["semantic_contract_id"] == *s), "{at} {label}: source identity");
-        }
-        // A public attempt declines with exactly the direct method's typed failure.
-        let declines: Vec<String> = r.public.as_ref().map(|env| env["diagnostics"].as_array().unwrap().iter()
-            .filter(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE").map(|d| d["message"].as_str().unwrap().to_owned()).collect())
-            .unwrap_or_default();
-        match (&r.method, declines.as_slice()) {
-            (_, []) => {}
-            (Some(Err(f)), [text]) => assert_eq!(*text, format!("The bounded retained-source method did not produce a selected response: {f:?}"), "{at} {label}"),
-            (_, other) => panic!("{at} {label}: public attempt without a matching direct decline: {other:?}"),
-        }
+    // No frozen RF case publishes a source-recovery identity.
+    if let Ok(env) = &v3.public {
+        assert!(env.get("source_block_recovery").is_none(), "{at}: source publication");
+        assert!(!SOURCE_IDENTITIES.iter().any(|s| env["producer"]["semantic_contract_id"] == *s), "{at}: source identity");
+        assert_eq!(env["producer"]["semantic_contract_id"], PRESSURE_1, "{at}");
     }
-    // The v3/v2 twin is identical outside D5's closed exclusions.
-    match (&v3.public, &v2.public) {
-        (Err(a), Err(b)) => assert_eq!(a, b, "{at}: refusal twin"),
-        (Ok(a), Ok(b)) => {
-            assert_eq!(
-                (a["producer"]["semantic_contract_id"].as_str(), b["producer"]["semantic_contract_id"].as_str()),
-                (Some(PRESSURE_1), Some(PHYSICS_1)), "{at}"
-            );
-            let mut diffs = Vec::new();
-            leaf_diff(a, b, String::new(), &mut diffs);
-            let outside: Vec<_> = diffs.iter().filter(|p| !D5_EXCLUDED.contains(&pointer_class(p).as_str())).collect();
-            assert!(outside.is_empty(), "{at}: twin differs outside D5's exclusions: {outside:?}");
-        }
-        _ => panic!("{at}: one twin refused, the other published"),
+    // A public attempt declines with exactly the direct method's typed failure.
+    let declines: Vec<String> = v3.public.as_ref().map(|env| env["diagnostics"].as_array().unwrap().iter()
+        .filter(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE").map(|d| d["message"].as_str().unwrap().to_owned()).collect())
+        .unwrap_or_default();
+    match (&v3.method, declines.as_slice()) {
+        (_, []) => {}
+        (Some(Err(f)), [text]) => assert_eq!(*text, format!("The bounded retained-source method did not produce a selected response: {f:?}"), "{at}"),
+        (_, other) => panic!("{at}: public attempt without a matching direct decline: {other:?}"),
     }
-    assert_eq!(method_value(&v3), method_value(&v2), "{at}: direct-method twin");
-    let mut public = public_value(&v3.public);
-    if let Ok(env) = &v2.public {
-        public["twin_identity"] = env["producer"]["semantic_contract_id"].clone();
-    }
-    let mut entry = json!({"id": id, "family": case["family"], "mode": mode.as_str(), "public": public, "first_cause": first_cause(&v3)});
+    let mut entry = json!({"id": id, "family": case["family"], "mode": mode.as_str(), "public": public_value(&v3.public),
+        "first_cause": first_cause(&v3)});
     // A directly selected case meets the frozen criterion on every reference row.
-    if let (Some(Ok(m3)), Some(Ok(m2)), Ok(o3), Ok(o2)) = (&v3.method, &v2.method, &v3.owned, &v2.owned) {
+    if let (Some(Ok(m3)), Ok(o3)) = (&v3.method, &v3.owned) {
         let refcase = &references()["cases"][id];
         let (n3, p3) = method_comparison(refcase, m3, o3);
-        let (n2, p2) = method_comparison(refcase, m2, o2);
-        assert_eq!((p3, p2), (n3, n2), "{at}: direct-method rows outside the frozen criterion");
+        assert_eq!(p3, n3, "{at}: direct-method rows outside the frozen criterion");
         entry["method_only_comparison"] = json!({"rows": n3, "pass": p3});
     }
     entry
@@ -495,7 +458,8 @@ fn j7_rf_census_classification_and_pin() {
         let id = e["id"].as_str().unwrap();
         per_case.entry(id).or_default().insert(e["first_cause"]["class"].as_str().unwrap());
         classes.entry(e["first_cause"]["class"].as_str().unwrap().into()).or_default().insert(id.into());
-        assert!(!SOURCE_IDENTITIES.iter().any(|s| e["public"]["identity"] == *s || e["public"]["twin_identity"] == *s));
+        assert!(!SOURCE_IDENTITIES.iter().any(|s| e["public"]["identity"] == *s));
+        assert!(e["public"].get("twin_identity").is_none(), "B7b: no v2 twin is run");
     }
     assert_eq!(per_case.keys().map(|k| k.to_string()).collect::<BTreeSet<_>>(), family);
     assert!(per_case.values().all(|c| c.len() == 1), "a case's first cause is mode-independent");
@@ -515,32 +479,23 @@ fn j7_rf_census_classification_and_pin() {
     }
 }
 
-/// The twin comparison names every leaf outside D5's exclusions (a changed row
-/// value, an added diagnostic) and none inside them.
+/// The pinned public digests name a changed published row value or an added
+/// diagnostic (they replace the deleted v2 twin's leaf comparison).
 #[test]
-fn j7_rf_census_twin_comparison_flags_only_nonexcluded_leaves() {
-    let a = json!({"producer": {"semantic_contract_id": PRESSURE_1}, "formulation_basis": {"profile_id": "x", "limitations": ["a", "b"]},
-                   "contract_evidence": {"exact_cases": [{"profile_mode": "x", "v": 1.0}]}, "results": [{"value": 1.0}], "diagnostics": []});
-    let mut b = a.clone();
-    b["producer"]["semantic_contract_id"] = json!(PHYSICS_1);
-    b["formulation_basis"]["profile_id"] = json!("y");
-    b["formulation_basis"]["limitations"] = json!(["c"]);
-    b["contract_evidence"]["exact_cases"][0]["profile_mode"] = json!("y");
-    let outside = |b: &Value| {
-        let mut diffs = Vec::new();
-        leaf_diff(&a, b, String::new(), &mut diffs);
-        diffs.into_iter().filter(|p| !D5_EXCLUDED.contains(&pointer_class(p).as_str())).collect::<Vec<_>>()
-    };
-    assert!(outside(&b).is_empty());
-    let mut row = b.clone();
+fn j7_rf_census_public_digests_flag_row_and_diagnostic_changes() {
+    let a = json!({"producer": {"semantic_contract_id": PRESSURE_1}, "numerical_quality": {"status": "checks_passed"},
+                   "results": [{"value": 1.0}], "diagnostics": []});
+    let base = public_value(&Ok(a.clone()));
+    let mut row = a.clone();
     row["results"][0]["value"] = json!(f64::from_bits(1.0f64.to_bits() + 1));
-    assert_eq!(outside(&row), ["/results/0/value"]);
-    let mut diagnostic = b.clone();
-    diagnostic["diagnostics"] = json!([{"code": "X"}]);
-    assert_eq!(outside(&diagnostic), ["/diagnostics"]);
-    let mut evidence = b.clone();
-    evidence["contract_evidence"]["exact_cases"][0]["v"] = json!(2.0);
-    assert_eq!(outside(&evidence), ["/contract_evidence/exact_cases/0/v"]);
+    let changed = public_value(&Ok(row));
+    assert_ne!(changed["results_sha256"], base["results_sha256"]);
+    assert_eq!(changed["diagnostics_sha256"], base["diagnostics_sha256"]);
+    let mut diagnostic = a;
+    diagnostic["diagnostics"] = json!([{"code": "X", "severity": "warning", "message": "x"}]);
+    let changed = public_value(&Ok(diagnostic));
+    assert_eq!(changed["results_sha256"], base["results_sha256"]);
+    assert_ne!(changed["diagnostics_sha256"], base["diagnostics_sha256"]);
 }
 
 /// Regeneration only (`SWBPIPE_J7_RF_CENSUS_WRITE=1`); otherwise a no-op whose
