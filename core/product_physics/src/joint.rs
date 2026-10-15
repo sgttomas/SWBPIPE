@@ -524,7 +524,7 @@ pub(crate) fn classify_connectors(model: &PreviewModel, diagnostics: &mut Vec<Di
                 for id in region.member_connector_ids.iter().flatten() {
                     if !connector_ids.contains(id.as_str()) || !seen.insert(id) {
                         pressure_finding(diagnostics, &case.id, region.id.as_deref().unwrap_or_default(), id,
-                            "member_connector_ids must name unique objective connectors of the model");
+                            "member_connector_ids must name unique objective connectors of the model", None);
                     }
                 }
             }
@@ -532,13 +532,19 @@ pub(crate) fn classify_connectors(model: &PreviewModel, diagnostics: &mut Vec<Di
     }
 }
 
-fn pressure_finding(diagnostics: &mut Vec<Diagnostic>, case: &str, region: &str, connector: &str, reason: &str) {
+/// `extra` names the region member the finding is about, when there is one
+/// (the listed replaced span: t4_u5a RV-03 names it).
+fn pressure_finding(diagnostics: &mut Vec<Diagnostic>, case: &str, region: &str, connector: &str, reason: &str, extra: Option<&str>) {
+    let mut refs = vec![case.to_string(), region.to_string(), connector.to_string()];
+    refs.extend(extra.map(str::to_string));
     diagnostics.push(diag(
         &format!("diagnostic:joint:{}:pressure:{}", stable_suffix(connector), stable_suffix(&format!("{case}:{region}"))),
         PRESSURE_INTERFACE_UNRESOLVED, "blocking", format!("load case {case}, region {region}, connector {connector}: {reason}"),
-        vec![case.into(), region.into(), connector.into()],
+        refs,
     ));
 }
+
+const REPLACED_SPAN_LISTED: &str = "the replaced span cannot be a member pipe of the region";
 
 fn classify_pressure_participation(model: &PreviewModel, spec: &ConnectorSpec, diagnostics: &mut Vec<Diagnostic>) {
     let arcs = super::curved_bend_realized_pipe_ids(model);
@@ -557,7 +563,7 @@ fn classify_pressure_participation(model: &PreviewModel, spec: &ConnectorSpec, d
             else if spec.pressure.is_none() { Some("an unpressurized connector cannot be a pressure-region edge") }
             else if spec.pressure.as_ref().is_some_and(|pressure| region.pressure_basis.as_deref() != Some(&pressure.pressure_basis)) { Some("joint and region pressure bases differ") }
             else if terminals.iter().any(|terminal| terminal.node_ref.as_deref().is_some_and(at_end)) { Some("a joint face cannot be a region terminal") }
-            else if members.contains(&spec.span_id) { Some("the replaced span cannot be a member pipe of the region") }
+            else if members.contains(&spec.span_id) { Some(REPLACED_SPAN_LISTED) }
             else if spec.end_i.offset_local.iter().chain(&spec.end_j.offset_local).any(|offset| *offset != 0.0) { Some("pressurized joint attachment offsets must be exactly zero") }
             else if [&spec.node_i, &spec.node_j].iter().any(|node| {
                 let faces = model.pipe_segments.iter().filter(|pipe| pipe.id != spec.span_id && (&pipe.from == *node || &pipe.to == *node)).collect::<Vec<_>>();
@@ -565,7 +571,8 @@ fn classify_pressure_participation(model: &PreviewModel, spec: &ConnectorSpec, d
                     || connector_specs(model).iter().any(|other| other.component_id != spec.component_id && (&other.node_i == *node || &other.node_j == *node))
             }) { Some("each joint face must meet exactly one straight member pipe of the same region") }
             else { None };
-            if let Some(reason) = reason { pressure_finding(diagnostics, &case.id, region.id.as_deref().unwrap_or_default(), &spec.component_id, reason); }
+            let extra = (reason == Some(REPLACED_SPAN_LISTED)).then_some(spec.span_id.as_str());
+            if let Some(reason) = reason { pressure_finding(diagnostics, &case.id, region.id.as_deref().unwrap_or_default(), &spec.component_id, reason, extra); }
         }
     }
 }

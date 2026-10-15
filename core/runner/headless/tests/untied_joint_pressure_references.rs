@@ -156,10 +156,18 @@ fn assert_values(source: &Value, request: &Value, case: &Value, oracle: &Value, 
             close(geometry["Ai_m2"].as_f64().unwrap(),&case["scalars"]["Ai_m2"],0.0,oracle,label);
         }
         for load in region["applied_loads"].as_array().unwrap() {
-            close(load["mathematical_cap_pair_local_n"][1].as_f64().unwrap(),
-                &case["scalars"]["Pi_n"],floor("force_n"),oracle,label);
-            close(load["eigenload_pair_local_n"][1].as_f64().unwrap(),
-                &case["scalars"]["h_2nuPi_n"],floor("force_n"),oracle,label);
+            // Both pairs are the member's applied local RHS at [end i, end j]
+            // (pressure_exact.rs `cap_pair`, `eigenload_pair`): caps [-Pi, +Pi]
+            // and the Poisson pair [+h, -h]. The oracle's h_2nuPi_n is the
+            // scalar h = 2*nu*Pi, applied +h at a member's first node and -h
+            // at its second (u5a_reference.py `build`), so end j carries -h.
+            let pi=number(&case["scalars"]["Pi_n"]); let h=number(&case["scalars"]["h_2nuPi_n"]);
+            for (key,pair) in [("mathematical_cap_pair_local_n",[-pi,pi]),("eigenload_pair_local_n",[h,-h])] {
+                for (end,expected) in pair.into_iter().enumerate() {
+                    close(load[key][end].as_f64().unwrap(),&json!({"value":expected}),floor("force_n"),oracle,
+                        &format!("{label} {} {key}[{end}]",load["pipe_id"]));
+                }
+            }
         }
         if let Some(edges)=region.get("joint_edges") {
             joint_edges.extend(edges.as_array().expect("joint_edges must be an array"));
@@ -286,32 +294,44 @@ fn u5_seventeen_refusal_variants_keep_exact_codes_refs_and_no_export_in_both_mod
 #[test]
 fn u5_current_closed_area_and_region_ownership_counterfactuals_fail_closed() {
     let oracle=references(); let base=payload(&oracle["cases"]["J3-1"]);
-    let mut variants=Vec::new();
+    // (request, blocking codes exactly, regions every joint-pressure finding set must name)
+    let mut variants:Vec<(Value,&[&str],&[&str])>=Vec::new();
     for area in [json!({"value":-1.0,"unit":"m^2"}), json!({"value":1.0,"unit":"N"}),
         json!({"value":null,"unit":"m^2"}), json!({"value":0.004,"unit":"m^2","extra":true})] {
         let mut request=base.clone();
         request["model"]["components"][0]["objective_connector"]["pressure_model"]["effective_area"]=area;
-        variants.push((request,"JOINT_PRESSURE_AREA_MISSING"));
+        variants.push((request,&["JOINT_PRESSURE_AREA_MISSING"],&[]));
     }
     let mut request=base.clone();
     request["model"]["components"][0]["objective_connector"]["pressure_model"]["extra"]=Value::Null;
-    variants.push((request,"JOINT_PRESSURE_INTERFACE_UNRESOLVED"));
+    variants.push((request,&["JOINT_PRESSURE_INTERFACE_UNRESOLVED"],&[]));
     let mut request=base.clone();
     request["model"]["load_cases"][0]["pressure_regions"][0]["member_connector_ids"]
         .as_array_mut().unwrap().push(json!("component:C-J"));
-    variants.push((request,"JOINT_PRESSURE_INTERFACE_UNRESOLVED"));
+    variants.push((request,&["JOINT_PRESSURE_INTERFACE_UNRESOLVED"],&[]));
     let mut request=base.clone();
     let mut second=request["model"]["load_cases"][0]["pressure_regions"][0].clone();
     second["id"]=json!("region:second");
     request["model"]["load_cases"][0]["pressure_regions"].as_array_mut().unwrap().push(second);
-    variants.push((request,"JOINT_PRESSURE_INTERFACE_UNRESOLVED"));
-    for (request,code) in variants {
+    // The copied region also relists pipes L and R, which the region input
+    // check independently and correctly refuses (PRESSURE_REGION_PIPE_OVERLAP);
+    // J3-1 has no other pipe for a second region. The ownership finding names
+    // both listing regions (a touching, unlisting region would name only one).
+    variants.push((request,&["JOINT_PRESSURE_INTERFACE_UNRESOLVED","PRESSURE_REGION_PIPE_OVERLAP"],
+        &["region:U5A","region:second"]));
+    for (request,codes,regions) in variants {
         for mode in MODES {
             let (sources,document)=run(&request,mode);
             for source in sources {
-                assert_eq!(blocking(&source),BTreeSet::from([code.to_string()]),"{mode:?}");
+                assert_eq!(blocking(&source),codes.iter().map(|c|c.to_string()).collect(),"{mode:?}");
                 assert_eq!(source["status"]["mechanics"],"MODEL_INCOMPLETE");
                 assert_eq!(source["results"],json!([]));
+                let joint_refs:BTreeSet<&str>=source["diagnostics"].as_array().unwrap().iter()
+                    .filter(|d|d["code"]=="JOINT_PRESSURE_INTERFACE_UNRESOLVED")
+                    .flat_map(|d|d["affected_refs"].as_array().unwrap()).map(|v|v.as_str().unwrap()).collect();
+                for region in regions {
+                    assert!(joint_refs.contains(region),"{mode:?}: joint finding for {region}");
+                }
             }
             assert!(document.is_none());
         }
