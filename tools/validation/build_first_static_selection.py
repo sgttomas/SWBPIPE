@@ -14,12 +14,11 @@ from pathlib import Path
 import os
 import re
 try:
-    from .qualification_physics import SELECTED_ADMISSION_FILES
+    from .qualification_physics import SELECTED_ADMISSION_FILES, TRANSPORT
 except ImportError:
-    from qualification_physics import SELECTED_ADMISSION_FILES
+    from qualification_physics import SELECTED_ADMISSION_FILES, TRANSPORT
 
 FORMAT = 'openpipestress.qualification_selection/1'
-TRANSPORT = 'ordinary_physics_1_cli_1.0_raw0.2'
 PACKET_HASH = '0603a990838166c1da43b26f8b657dae3051289097700a76859d1afaa45db02b'
 BINDING_HASH = 'be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9'
 ADDENDUM_HASH = '1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2'
@@ -114,7 +113,8 @@ def build(package: Path, output: Path, candidate_commit: str, executable_sha256:
                             'reference_numeric_values_unchanged': True, 'criterion_nonreview_fields_unchanged': True,
                             'assertion_id_selector_rule_fields_unchanged': True,
                             'selector_origin_metadata_retained_in_original': source['selectors']})
-    selection = {'format': FORMAT, 'profile_id': 'first_static_ordinary_physics_1/'+mode,
+    # B7b: the cases are qualified as pressure-1 on the gate's re-authored copy of each frozen input.
+    selection = {'format': FORMAT, 'profile_id': 'first_static_ordinary_pressure_1/'+mode,
                  'purpose': 'development_comparison', 'transport': TRANSPORT,
                  'runner': {'candidate_commit': candidate_commit, 'executable_sha256': executable_sha256,
                             'solver_mode': mode, 'explicit_local_private_intent': True},

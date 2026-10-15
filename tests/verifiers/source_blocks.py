@@ -1,7 +1,8 @@
 """Shared source-block receipt statement/binding validation for the composite identities, never arithmetic proof.
 
-B4/D1 (b) retired the non-composite source-blocks-1 identity; physics-source-1 and
-pressure-source-1 call `_validate_source_blocks` with their contract context.
+B4/D1 (b) retired the non-composite source-blocks-1 identity, and B7b the v2 composites (physics-source-1,
+load-reference-source-1); the current composite, pressure-source-1, calls `_validate_source_blocks` with its
+contract context.
 
 Test verifier (b7-plan R2): the product reader is Rust's (`core/reporting/result_export/src/source_blocks.rs`), which
 product Python reaches only through `openpipestress-runner read`. Tests only: no module outside `tests/` imports

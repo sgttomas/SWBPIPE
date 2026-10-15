@@ -1,4 +1,10 @@
-"""Reader checks use preserved outputs from actual joined sparse/dense invocations."""
+"""Reader checks use preserved outputs from actual joined sparse/dense invocations.
+
+B7b (A4/A5): the ordinary exact route publishes pressure-1 (`3.0.0/exact_pressure_v3`) in place of the retired
+physics-1 (`2.0.0/exact_straight_pressure_v2`). These consumer checks run on its v3 twins
+(`fixtures/results/pressure_{connected,thermal_ui}_mechanics_*`): the product takes the Rust reader's verdict, and
+the independent test verifier is `tests/verifiers/pressure_1.py`. A stored physics-1 result is refused by name.
+"""
 from copy import deepcopy
 import hashlib
 import json
@@ -6,11 +12,11 @@ from pathlib import Path
 
 import pytest
 from core.analysis_runs.compatibility import (
-    PHYSICS_CONTRACT_ID, PHYSICS_CONTRACT_SHA256,
+    PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256,
     build_analysis_run, numerical_use_standing, validate_analysis_run_v0_3,
     verify_analysis_run_record,
 )
-from tests.verifiers.physics_evidence import validate_physics_evidence
+from tests.verifiers.pressure_1 import validate_pressure_evidence as validate_physics_evidence
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 from schema_validation import validate_instance
 
@@ -18,7 +24,7 @@ PROJECT = Path(__file__).resolve().parents[1]
 
 
 def actual(mode="sparse"):
-    return json.loads((PROJECT / f"fixtures/results/physics_connected_mechanics_{mode}.json").read_text())
+    return json.loads((PROJECT / f"fixtures/results/pressure_connected_mechanics_{mode}.json").read_text())
 
 
 def build(source):
@@ -38,7 +44,8 @@ def test_actual_physics_source_analysis_round_trip(mode):
     assert verify_analysis_run_record(record) == "match"
     validate_analysis_run_v0_3(record, source)
     validate_instance(json.loads((PROJECT / "schemas/analysis_run.schema.json").read_text()), record, instance_label="actual physics analysis")
-    assert record["analysis_run"]["reproducibility"]["semantic_contract"] == {"id": PHYSICS_CONTRACT_ID, "sha256": PHYSICS_CONTRACT_SHA256}
+    assert record["analysis_run"]["reproducibility"]["semantic_contract"] == {"id": PRESSURE_CONTRACT_ID, "sha256": PRESSURE_CONTRACT_SHA256}
+    assert "contract_evidence" not in record["analysis_run"] and "source_block_recovery" not in record["analysis_run"]
     assert numerical_use_standing(source, bases(source)) == "numerically_eligible"
     assert len(record["analysis_run"]["result_refs"]) == len(source["results"])
     received = next(item for item in record["analysis_run"]["hashes"] if item["payload_scope"] == "received_result")
@@ -49,10 +56,20 @@ def test_actual_physics_source_analysis_round_trip(mode):
     assert len(source["contract_evidence"]["pressure"]) == 1
 
 
-def test_physics_table_identity():
-    assert hashlib.sha256((PROJECT / "fixtures/results/semantic_contract_v0_3_physics_1.json").read_bytes()).hexdigest() == PHYSICS_CONTRACT_SHA256
-    # B1: precision-1's table is gone; physics-1 no longer names it.
+def test_pressure_table_identity():
+    assert hashlib.sha256((PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_1.json").read_bytes()).hexdigest() == PRESSURE_CONTRACT_SHA256
+    # B1 and B7b: precision-1's and physics-1's tables are gone.
     assert not (PROJECT / "fixtures/results/semantic_contract_v0_3_precision_1.json").exists()
+    assert not (PROJECT / "fixtures/results/semantic_contract_v0_3_physics_1.json").exists()
+
+
+def test_a_stored_physics_one_result_is_refused_by_name():
+    source = actual()
+    source["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/physics-1"
+    source["formulation_basis"]["profile_id"] = "exact_straight_pressure_v2"
+    with pytest.raises(ValueError, match="^SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0"):
+        build(source)
+    assert numerical_use_standing(source, bases(source)) == "unsupported"
 
 
 @pytest.mark.parametrize("change", [
@@ -84,7 +101,8 @@ def test_physics_source_corruption_cannot_gain_semantic_or_numerical_admission(c
     assert numerical_use_standing(source, bases(source)) == "unsupported"
 
 
-@pytest.mark.parametrize("identity", ["openpipestress.result_semantics/0.3.0/precision-1", "openpipestress.result_semantics/0.3.0/source-blocks-1", "openpipestress.result_semantics/0.3.0/precision-2"])
+@pytest.mark.parametrize("identity", ["openpipestress.result_semantics/0.3.0/precision-1", "openpipestress.result_semantics/0.3.0/source-blocks-1", "openpipestress.result_semantics/0.3.0/precision-2",
+                                      "openpipestress.result_semantics/0.3.0/physics-1", "openpipestress.result_semantics/0.3.0/load-reference-1"])
 def test_physics_never_falls_back_to_other_contract(identity):
     source = actual()
     source["producer"]["semantic_contract_id"] = identity
@@ -106,7 +124,10 @@ def test_actual_physics_carrier_remains_inspectable_without_numerical_promotion(
 def test_physics_evidence_schema_is_closed_and_case_scoped():
     import jsonschema
     schema = json.loads((PROJECT / "schemas/results.v0.3.schema.yaml").read_text())
-    validator = jsonschema.Draft202012Validator({"$ref": "#/$defs/PhysicsContractEvidence", "$defs": schema["$defs"]})
+    from schema_validation import _registry, _resource_texts
+    pressure = json.loads((PROJECT / "schemas/results_pressure_1.v0.3.schema.json").read_text())
+    validator = jsonschema.Draft202012Validator({"$ref": "#/$defs/PressureContractEvidence", "$defs": pressure["$defs"]},
+                                                registry=_registry(_resource_texts(), ""))
     source = actual()
     validator.validate(source["contract_evidence"])
     validate_physics_evidence(source)
@@ -151,7 +172,7 @@ def test_actual_headless_physics_derivative_and_analysis_share_the_full_source()
         source_hash = canonical_sha256_checked_v1(source)
         received = next(item for item in record["analysis_run"]["hashes"] if item["payload_scope"] == "received_result")
         assert envelope["reproducibility"]["source_origin_bindings"][0]["received_carrier_checksum"]["value"] == received["value"] == source_hash
-        assert envelope["semantic_contract_ref"]["ref_id"] == PHYSICS_CONTRACT_ID
+        assert envelope["semantic_contract_ref"]["ref_id"] == PRESSURE_CONTRACT_ID
         assert len(envelope["row_accounting"]) == len(source["results"])
 
 
@@ -201,7 +222,7 @@ def test_review_corruptions_refused_before_record_or_numerical_admission(mode, c
     change(source)
     with pytest.raises(ValueError, match="SOURCE_PHYSICS_EVIDENCE_INVALID"):
         validate_physics_evidence(source)
-    # The product takes the Rust reader's refusal (b7-plan R2's declared class): its own physics-1 code.
+    # The product takes the Rust reader's refusal (b7-plan R2's declared class): its own pressure-1 code.
     with pytest.raises(ValueError, match="^SOURCE_PHYSICS_"):
         build(source)
     assert numerical_use_standing(source, bases(source)) == "unsupported"
@@ -218,7 +239,7 @@ def test_pressure_rhs_force_only_vectors_reject_moments(field, slot):
 
 @pytest.mark.parametrize("mode", ["sparse", "dense"])
 def test_actual_pressure_and_thermal_source_preserves_pressure_only_ledger(mode):
-    source = json.loads((PROJECT / f"fixtures/results/physics_thermal_ui_mechanics_{mode}.json").read_text())
+    source = json.loads((PROJECT / f"fixtures/results/pressure_thermal_ui_mechanics_{mode}.json").read_text())
     original = deepcopy(source)
     assert source["status"]["mechanics"] == "MECHANICS_SOLVED"
     region = source["contract_evidence"]["pressure"][0]

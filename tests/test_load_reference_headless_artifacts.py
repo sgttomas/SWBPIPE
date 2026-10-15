@@ -1,19 +1,23 @@
-"""T1 WP4 consumers of the actual headless 0.4.0 artifacts.
+"""T1 WP4 consumers of the actual headless load/reference-state artifacts, re-pointed by B7b.
 
 The Rust lanes ``core/runner/headless/src/load_reference_route_tests.rs`` and
 ``core/runner/headless/tests/load_reference_cli.rs`` write the actual request,
-invocation, raw, (for load-reference-1) canonical document and manifest files,
+invocation, raw, (for pressure-1) canonical document and manifest files,
 and the actual CLI input and stdout, when these variables are set:
 
-- ``HEADLESS_LOAD_REFERENCE_OUTPUT_DIR``: load-reference-1, the two committed
-  load-reference requests in both modes;
-- ``HEADLESS_LOAD_REFERENCE_SOURCE_OUTPUT_DIR``: load-reference-source-1, the
-  five committed joined witnesses in both modes.
+- ``HEADLESS_LOAD_REFERENCE_OUTPUT_DIR``: pressure-1 with the load/reference-state
+  group (model 0.5.0, 3.0.0/exact_pressure_v3), the two committed requests in
+  ``pressure/load_reference`` in both modes;
+- ``HEADLESS_LOAD_REFERENCE_SOURCE_OUTPUT_DIR``: pressure-source-1 with the group,
+  the five committed joined witnesses in ``pressure_source/load_reference_source``
+  in both modes.
 
-In T1 the joined route is never numerically eligible (T1_WAVE1_RULINGS.md
-section 7), so the headless binding builds no joined canonical document; its
-artifacts carry no document file. These tests read the artifacts; they skip only
-when the variable is unset and must be run with it set. All inputs are invented.
+The joined route is never numerically eligible (T1_WAVE1_RULINGS.md section 7;
+LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1), so the headless binding
+builds no joined canonical document; its artifacts carry no document file. The
+retired load-reference-1 and load-reference-source-1 identities are not read.
+These tests read the artifacts; they skip only when the variable is unset and
+must be run with it set. All inputs are invented.
 """
 from __future__ import annotations
 
@@ -24,11 +28,11 @@ from pathlib import Path
 import pytest
 
 from core.analysis_runs.compatibility import (
-    LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_SHA256, LOAD_REFERENCE_SOURCE_CONTRACT_ID,
-    LOAD_REFERENCE_SOURCE_CONTRACT_SHA256, _source_contract, build_analysis_run_v0_3,
+    PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256, PRESSURE_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_SHA256, _source_contract, build_analysis_run_v0_3,
     numerical_use_standing, validate_analysis_run_v0_3, verify_analysis_run_record,
 )
-from tests.verifiers.load_reference_source import validate_load_reference_source_evidence
+from tests.verifiers.load_reference_source import validate_pressure_source_evidence
+from tests.verifiers.physics_source import validate_physics_source
 from tests.verifiers.source_blocks import domain_hash
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 from schema_validation import envelope_branches, validate_instance
@@ -122,26 +126,27 @@ def _committed_carrier(path: str):
 
 
 @pytest.mark.parametrize(("stem", "short"), LR_NAMES, ids=[f"{s}-{m}" for s, m in LR_NAMES])
-def test_actual_load_reference_one_document_selects_its_branch_and_analysis_run_matches(stem, short):
+def test_actual_pressure_load_state_document_selects_its_branch_and_analysis_run_matches(stem, short):
     folder = _folder("HEADLESS_LOAD_REFERENCE_OUTPUT_DIR")
     name, request, invocation, raw = _common(
         folder, stem, short,
-        "fixtures/product_preview/load_reference/{stem}.request.json",
-        "fixtures/product_preview/load_reference/{stem}-{mode}.raw.json",
+        "fixtures/product_preview/pressure/load_reference/{stem}.request.json",
+        "fixtures/product_preview/pressure/load_reference/{stem}-{mode}.raw.json",
         LR_SUFFIXES,
     )
+    assert "load_reference_states" in raw["contract_evidence"]
     document = _load(folder / f"{name}.document.json")
-    # Schema: the whole results 0.3 carrier, on the load-reference-1 branch only.
+    # Schema: the whole results 0.3 carrier, on the pressure-1 branch only.
     validate_instance(json.loads(RESULTS_SCHEMA.read_text(encoding="utf-8")), document, instance_label=f"actual headless {name}")
-    assert _matching_result_branches(document) == [_branch_of(LOAD_REFERENCE_CONTRACT_ID)]
+    assert _matching_result_branches(document) == [_branch_of(PRESSURE_CONTRACT_ID)]
     envelope = document["result_envelope"]
-    assert envelope["semantic_contract_ref"] == {"ref_type": "semantic_contract", "ref_id": LOAD_REFERENCE_CONTRACT_ID}
+    assert envelope["semantic_contract_ref"] == {"ref_type": "semantic_contract", "ref_id": PRESSURE_CONTRACT_ID}
     for key in ("producer", "numerical_quality", "formulation_basis", "contract_evidence"):
         assert envelope[key] == raw[key], key
     assert "source_block_recovery" not in envelope and "source_block_recovery" not in raw
     assert len(envelope["row_accounting"]) == len(raw["results"])
     # Reader and standing.
-    assert _source_contract(raw)[0] == LOAD_REFERENCE_CONTRACT_ID
+    assert _source_contract(raw)[0] == PRESSURE_CONTRACT_ID
     assert numerical_use_standing(raw, _bases(raw)) == "numerically_eligible"
     # AnalysisRun: verified, bound to the same received bytes as the document,
     # and equal to the committed carrier for the same producer bytes.
@@ -150,12 +155,12 @@ def test_actual_load_reference_one_document_selects_its_branch_and_analysis_run_
     validate_analysis_run_v0_3(record, raw)
     assert verify_analysis_run_record(record) == "match"
     run = record["analysis_run"]
-    assert run["reproducibility"]["semantic_contract"] == {"id": LOAD_REFERENCE_CONTRACT_ID, "sha256": LOAD_REFERENCE_CONTRACT_SHA256}
+    assert run["reproducibility"]["semantic_contract"] == {"id": PRESSURE_CONTRACT_ID, "sha256": PRESSURE_CONTRACT_SHA256}
     received = next(item for item in run["hashes"] if item["payload_scope"] == "received_result")
     origin = envelope["reproducibility"]["source_origin_bindings"][0]
     assert received["value"] == origin["received_carrier_checksum"]["value"] == canonical_sha256_checked_v1(raw)
     assert origin["origin_class"] == "attested_headless_producer"
-    assert record == _committed_carrier(f"fixtures/results/load_reference_{stem}_{short}.analysis_run.json")
+    assert record == _committed_carrier(f"fixtures/results/pressure_load_state_{stem}_{short}.analysis_run.json")
 
 
 @pytest.mark.parametrize(("stem", "short"), LRS_NAMES, ids=[f"{s}-{m}" for s, m in LRS_NAMES])
@@ -163,28 +168,30 @@ def test_actual_joined_receipt_is_invocation_bound_and_never_eligible_without_a_
     folder = _folder("HEADLESS_LOAD_REFERENCE_SOURCE_OUTPUT_DIR")
     name, request, invocation, raw = _common(
         folder, stem, short,
-        "fixtures/product_preview/load_reference_source/{stem}.request.json",
-        "fixtures/product_preview/load_reference_source/{stem}-{mode}.raw.json",
+        "fixtures/product_preview/pressure_source/load_reference_source/{stem}.request.json",
+        "fixtures/product_preview/pressure_source/load_reference_source/{stem}-{mode}.raw.json",
         LRS_SUFFIXES,
     )
+    assert "load_reference_states" in raw["contract_evidence"]
     assert not (folder / f"{name}.document.json").exists(), "T1 builds no joined headless document"
     # The retained receipt binds the actual invocation, not the other mode's.
     receipt = raw["source_block_recovery"]
     assert receipt["body"]["invocation"]["value"] == domain_hash("source_blocks_invocation_v1", invocation)
     other = {"request": request, "solver_mode": next(m for m in MODES.values() if m != invocation["solver_mode"])}
     assert receipt["body"]["invocation"]["value"] != domain_hash("source_blocks_invocation_v1", other)
-    # The joined reader admits the received bytes and never grants eligibility.
-    assert validate_load_reference_source_evidence(raw) is False
-    assert _source_contract(raw)[0] == LOAD_REFERENCE_SOURCE_CONTRACT_ID
+    # The current source reader admits the received bytes and never grants eligibility.
+    validate_pressure_source_evidence(raw, raw=True)
+    assert validate_physics_source(raw, invocation) is False
+    assert _source_contract(raw)[0] == PRESSURE_SOURCE_CONTRACT_ID
     assert numerical_use_standing(raw, _bases(raw)) == "needs_recompute"
     carrier = f"{stem}-{short}"
     record = build_analysis_run_v0_3(raw, input_manifest_ref={"object_type": "InputManifest", "ref": f"manifest:load-reference-source-{carrier}"}, input_manifest_hash="1" * 64)
     validate_analysis_run_v0_3(record, raw)
     assert verify_analysis_run_record(record) == "match"
     run = record["analysis_run"]
-    assert run["reproducibility"]["semantic_contract"] == {"id": LOAD_REFERENCE_SOURCE_CONTRACT_ID, "sha256": LOAD_REFERENCE_SOURCE_CONTRACT_SHA256}
+    assert run["reproducibility"]["semantic_contract"] == {"id": PRESSURE_SOURCE_CONTRACT_ID, "sha256": PRESSURE_SOURCE_CONTRACT_SHA256}
     assert run["source_block_recovery"] == receipt and run["contract_evidence"] == raw["contract_evidence"]
-    assert record == _committed_carrier(f"fixtures/results/load_reference_source_{stem}_{short}.analysis_run.json")
+    assert record == _committed_carrier(f"fixtures/results/pressure_source_load_state_{stem}_{short}.analysis_run.json")
 
 
 def test_artifact_folders_hold_exactly_the_expected_cases():

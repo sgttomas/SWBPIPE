@@ -130,15 +130,15 @@ def test_b3a_m3l_mutations(mode, label):
     assert outcome(reseal(source, invocation), invocation) == expected
 
 
-@pytest.mark.parametrize("value", [{}, False, [], "", 0, LEGACY])
-def test_b3a_branch_l_admits_only_an_absent_or_null_contract(value):
-    """N-4 on the current pressure-free 0.5.0: absent or JSON null only;
-    every other value, including the retired legacy contract, stays refused."""
+@pytest.mark.parametrize("value", [None, {}, False, [], "", 0, LEGACY])
+def test_b3a_branch_l_admits_only_an_absent_contract(value):
+    """N-4 on the current pressure-free 0.5.0: absent only (B7a/B7b, b7-plan c8d3cf3014: "The optional contract is
+    absent only when its key is absent"; a present null is refused, as the Rust readers refuse it); every other value,
+    including the retired legacy contract, stays refused."""
     source, invocation = milestone("sparse_interactive")
     for version in ("0.5.0",):
-        for contract in (None, "absent"):
-            fine = edited_invocation(invocation, lambda m: (m.update(schema_version=version), m.pop("pressure_contract", None) if contract == "absent" else m.update(pressure_contract=None)))
-            assert outcome(reseal(source, fine), fine)[0] == "pass"
+        fine = edited_invocation(invocation, lambda m: (m.update(schema_version=version), m.pop("pressure_contract", None)))
+        assert outcome(reseal(source, fine), fine)[0] == "pass"
         bad = edited_invocation(invocation, lambda m: m.update(schema_version=version, pressure_contract=deepcopy(value)))
         assert outcome(reseal(source, bad), bad) == INVOCATION, (version, value)
 
@@ -190,7 +190,8 @@ def _zero_pressure(m):
 
 B3A_DROPPED_TABLE = [
     *[(f"L3 on {base}", base, [_schema("0.3.0"), _contract(LEGACY)], INVOCATION) for base in B3A_DROPPED_BASES],
-    ("L: 0.5.0, contract null", ORD, [_contract(None)], "pass"),
+    # B7a/B7b: a present null contract is authored presence, outside branch L (Rust "L: 0.5.0, contract null").
+    ("L: 0.5.0, contract null", ORD, [_contract(None)], INVOCATION),
     ("L: 0.5.0, contract absent", ORD, [_schema("0.5.0"), _no_contract], "pass"),
     ("L3: mode exact_straight_pressure_v2, version 1.0.0", ORD, [_schema("0.3.0"), _contract({**LEGACY, "mode": "exact_straight_pressure_v2"})], INVOCATION),
     ("L3: version 1.0.1", ORD, [_schema("0.3.0"), _contract({**LEGACY, "version": "1.0.1"})], INVOCATION),
@@ -231,16 +232,20 @@ def test_b3a_dropped_namespace_table(name, base, changes, expected):
 
 # ---------------------------------------------------------------------------------------------------------------
 # B3b: the `<physics-retained>` branch (B3-D §6 with REVISION_01; RV116's rulings). The synthetic exact base is the
-# milestone successor re-expressed on I99's m3x request (0ffbea35…): schema 0.3.0, the exact contract, E and
-# nu = 0.25 (so G_hat = E/2.5 = 80 GPa, the milestone's G, bit for bit), explicitly empty regions; the receipt with
-# derived_e_nu, the exact route and DEF-E (prepared section bits unchanged, B3D-3); physics-1's contract_evidence
-# whose case entry states the prepared section (B3D-4); the preparation hash with DEF-E's H (S-1).
+# milestone successor re-expressed on I99's m3x request (0ffbea35…), B7b's current exact document: model 0.5.0, the
+# current contract {3.0.0, exact_pressure_v3, euler_bernoulli} with an authored zero corrosion_allowance on every pipe
+# section, E and nu = 0.25 (so G_hat = E/2.5 = 80 GPa, the milestone's G, bit for bit), explicitly empty regions; the
+# receipt with derived_e_nu, the exact route and DEF-E (prepared section bits unchanged, B3D-3); pressure-1's
+# contract_evidence (D4 (a): profile_mode exact_pressure_v3) whose case entry states the prepared section (B3D-4); the
+# preparation hash with DEF-E's H (S-1).
 
 from core.analysis_runs import compatibility as c  # noqa: E402
 
-EXACT = {"version": "2.0.0", "mode": "exact_straight_pressure_v2"}
+EXACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
+ZERO_ALLOWANCE = {"value": 0.0, "unit": "m"}
 NU = 0.25
-PHYSICS_1_LIMITATIONS = json.loads((ROOT / "fixtures/results/physics_connected_mechanics_sparse.json").read_text())["formulation_basis"]["limitations"]
+# D4 (a): the exact successor's base is pressure-1; its limitations are the committed pressure-1 envelope's.
+PRESSURE_1_LIMITATIONS = json.loads((ROOT / "fixtures/results/pressure_connected_mechanics_sparse.json").read_text())["formulation_basis"]["limitations"]
 UNSUPPORTED = ("G0", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
 RECEIPT = ("G1", "RETAINED_PRECISION_RECEIPT_MISMATCH")
 SECTION = ("G5b", "RETAINED_PRECISION_SECTION_MISMATCH")
@@ -249,7 +254,9 @@ BASE_G7 = ("G7", "SOURCE_PHYSICS_EVIDENCE_INVALID")
 
 def m3x_invocation(invocation):
     def change(model):
-        model.update(schema_version="0.3.0", pressure_contract=dict(EXACT))
+        model.update(schema_version="0.5.0", pressure_contract=dict(EXACT))
+        for pipe in model["pipe_segments"]:
+            pipe["section"]["corrosion_allowance"] = dict(ZERO_ALLOWANCE)
         for material in model["materials"]:
             material.pop("shear_modulus", None)
             material.update(constitutive_basis="homogeneous_isotropic_E_nu_v1", poisson_ratio={"value": NU, "unit": "1"})
@@ -259,8 +266,8 @@ def m3x_invocation(invocation):
 
 
 def exact_evidence(source, invocation):
-    """physics-1's closed contract_evidence for the synthetic base: per case, the prepared section (B3D-4), E, nu and
-    G_hat, the preview successor's regenerated extrema, complete coverage and the all-zero pressure RHS."""
+    """pressure-1's closed contract_evidence for the synthetic base (D4 (a)): per case, the prepared section (B3D-4), E,
+    nu and G_hat, the preview successor's regenerated extrema, complete coverage and the all-zero pressure RHS."""
     body = source["retained_precision"]["body"]
     model = invocation["request"]["model"]
     preview = {case["load_case_id"]: case for case in source["contract_evidence"]["preview_cases"]}
@@ -285,7 +292,7 @@ def exact_evidence(source, invocation):
                               "constitutive_basis": "homogeneous_isotropic_E_nu_v1", "thermal_consumed": False, "alpha_per_kelvin": None,
                               "provenance": material["provenance"]})
         zero = [0.0] * (6 * len(nodes))
-        entries.append({"load_case_id": cid, "profile_mode": "exact_straight_pressure_v2", "material_basis": "base_material_common_E_nu",
+        entries.append({"load_case_id": cid, "profile_mode": "exact_pressure_v3", "material_basis": "base_material_common_E_nu",
                         "pipe_materials": published, "pipe_sections": sections, "pipe_stress_extrema": deepcopy(preview[cid]["pipe_stress_extrema"]),
                         "stress_maximum_coverage": {"complete": True, "unavailable_pipe_ids": []},
                         "pressure_rhs_assembly": {"method": "source_factor_grouped_pressure_rhs_v1", "load_case_id": cid, "node_order": nodes,
@@ -302,7 +309,7 @@ def m3x(mode):
     invocation = m3x_invocation(invocation)
     source = deepcopy(source)
     source["producer"]["semantic_contract_id"] = rp.EXACT_CONTRACT_ID
-    source["formulation_basis"] = {"limitations": list(PHYSICS_1_LIMITATIONS), "profile_id": rp.EXACT_PROFILE}
+    source["formulation_basis"] = {"limitations": list(PRESSURE_1_LIMITATIONS), "profile_id": rp.EXACT_PROFILE}
     source["contract_evidence"] = exact_evidence(source, invocation)
     body = source["retained_precision"]["body"]
     for basis in body["material_bases"]:
@@ -421,7 +428,11 @@ B3B_REFUSALS = {
     "x18 a named point basis equal to the base, named in the receipt": (lambda s, i: _named_point(s, i), PREPARATION),
     "x19 the owner entry's pipe section listed twice": (_evidence(["exact_cases", 0, lambda e: e.update(pipe_sections=[e["pipe_sections"][0], deepcopy(e["pipe_sections"][0])])]), SECTION),
     "x20 the owner entry's As_m2 a string": (_evidence(["exact_cases", 0, "pipe_sections", 0, lambda p: p.update(As_m2=repr(p["As_m2"]))]), SECTION),
-    "x21 invocation contract version 2.0.1": (_model(lambda m: m["pressure_contract"].update(version="2.0.1")), INVOCATION),
+    "x21 invocation contract version 3.0.1": (_model(lambda m: m["pressure_contract"].update(version="3.0.1")), INVOCATION),
+    # B7b: the retired v2 contract and a current contract without its shear model are outside the exact namespace.
+    "x33 invocation contract the retired v2": (_model(lambda m: m.update(pressure_contract={"version": "2.0.0", "mode": "exact_straight_pressure_v2"})), INVOCATION),
+    "x34 invocation contract without shear_model": (_model(lambda m: m["pressure_contract"].pop("shear_model")), INVOCATION),
+    "x35 invocation schema 0.3.0": (_model(lambda m: m.update(schema_version="0.3.0")), INVOCATION),
     "x22 invocation contract with an extra null key": (_model(lambda m: m["pressure_contract"].update(extra=None)), INVOCATION),
     "x23 a component added to the invocation": (_model(lambda m: m.update(components=[{"id": "component:x"}])), INVOCATION),
     "x24 authored nu unit empty": (_model(lambda m: m["materials"][0]["poisson_ratio"].update(unit="")), PREPARATION),
@@ -433,7 +444,7 @@ B3B_REFUSALS = {
     "x31 producer component_version 0.2.1": (_envelope(lambda s: s["producer"].update(component_version="0.2.1")), UNSUPPORTED),
     "x32 a material's selection named_point": (_receipt_material(lambda m: m.update(selection={"kind": "named_point", "point_id": "point:x"})), PREPARATION),
     "x26 G_hat one ulp high, every copy consistent": (lambda s, i: _g_hat_forged(s, i), PREPARATION),
-    "x17 physics-1 headline altered": (_envelope(lambda s: s["summary"]["max_open_formula_stress"].update(value=ulp(s["summary"]["max_open_formula_stress"]["value"]))), BASE_G7),
+    "x17 pressure-1 headline altered": (_envelope(lambda s: s["summary"]["max_open_formula_stress"].update(value=ulp(s["summary"]["max_open_formula_stress"]["value"]))), BASE_G7),
 }
 def _named_point(source, invocation):
     """Kills the base-only selection guards: a case naming a temperature point whose E and nu equal the base's, with the
@@ -450,7 +461,7 @@ def _named_point(source, invocation):
 def _g_hat_forged(source, invocation):
     """Kills a G_hat binding that only compares E: the receipt's shear modulus one ulp above RN64(E/(2*RN64(1+nu))),
     with every copy made consistent (member G and the native source hashes, old_source, the operational inputs and
-    torsional stiffnesses, both section echoes, and the published G_pa, within physics-1's 2-ulp tolerance)."""
+    torsional stiffnesses, both section echoes, and the published G_pa, within the base reader's 2-ulp tolerance)."""
     body = source["retained_precision"]["body"]
     g = rp.bits(ulp(rp.from_bits(body["material_bases"][0]["materials"][0]["shear_modulus"])))
     body["material_bases"][0]["materials"][0]["shear_modulus"] = g
@@ -491,9 +502,11 @@ B3B_PASSES = {
 
 
 # Lane P's producer-solved m3x successors (B3b-P, b2 8d3419b542; PP retained_facade_tests.rs `EXACT_PINNED`):
-# document and receipt sha256, as RS pins them. Every B3b shape is also read on each.
-EXACT_PINNED = {"sparse_interactive": ("5ef83dd9f046cb97939aa8af753a42b0b962c27bab4c73c725dc803584aee8e5", "57114af44b909de9494abe740eb14cb61aaceefae2beaf5a20b11f98f29cd0ce"),
-                "dense_scrutiny": ("ee20a337dd159fdafcb512f5f5d3efaa731b176cf61423121fce2fde2f212bc0", "3b92b6ce2e72cd12cf3f96aa9a85ba9f2f9b3c38eed7f8879443527d5cd97e17")}
+# document and receipt sha256, as RS pins them. Every B3b shape is also read on each. B7b's W1 regeneration (the
+# current 0.5.0 exact document; PP retained_facade_tests.rs and RS retained_precision_contract.rs `M3X` pin the same
+# bytes) replaced 5ef83dd9.../57114af4... and ee20a337.../3b92b6ce....
+EXACT_PINNED = {"sparse_interactive": ("45e14e68249abbeafa358f9e7317e9060da8e59c83db948a8184b98b8859001c", "f6bb7e7fc74ebce71c67da5da81906fece54e412aa2697d5548eb13f50b67524"),
+                "dense_scrutiny": ("0f490c22e7b2a25fa5dc1dd3d3a7ae7a701c744bfaac2fc2a2aa8f95f3451259", "0317aed643760641eec81708a0d5f506963e109a78c97a715617c081c28b7701")}
 KINDS = ("synthetic", "producer")
 
 
@@ -550,8 +563,8 @@ def test_b3b_m3x_synthetic_base_is_eligible_and_classified_as_the_milestone(mode
     assert (unbound["invocation_bound"], unbound["numerical_eligible"]) == (False, False)
     transport = rp.validate_retained_precision_transport(source)
     assert (transport["numerical_eligible"], transport["standing"], transport["classifications"]) == (False, "needs_recompute", [])
-    # The base's own physics-1 validator accepts the projection (G7).
-    assert dispatch(rp._project(source, rp.EXACT_ROUTE))[0] == "openpipestress.result_semantics/0.3.0/physics-1"
+    # D4 (a): the base's own pressure-1 reader accepts the projection (G7).
+    assert dispatch(rp._project(source, rp.EXACT_ROUTE))[0] == "openpipestress.result_semantics/0.3.0/pressure-1"
     # The preview reader's path is not taken: G0 dispatches on the identity.
     assert rp.ROUTES[source["producer"]["semantic_contract_id"]] is rp.EXACT_ROUTE
 
@@ -621,7 +634,7 @@ def test_b3b_s1_payload_carries_the_route_hash():
 
 
 def test_b3b_g5b_evidence_check_runs_only_on_the_exact_branch():
-    """The preview branch has no physics-1 evidence: its G5b is unchanged; the exact branch binds the owner entry."""
+    """The preview branch has no exact evidence: its G5b is unchanged; the exact branch binds the owner entry."""
     source, invocation = milestone("sparse_interactive")
     assert "exact_cases" not in source["contract_evidence"]
     assert rp.validate_retained_precision(source, invocation)["numerical_eligible"] is True
@@ -647,7 +660,8 @@ def _packaged(tmp_path, monkeypatch, edit_table=None, edit_definition=None):
     table), with the reader's ROOT pointed at it and its table constant pinned to the copy's bytes."""
     results = tmp_path / "fixtures/results"
     results.mkdir(parents=True)
-    for name in ("semantic_contract_v0_3_physics_retained_1.json", "retained_precision_prepared_exact_v1.json", "semantic_contract_v0_3_physics_1.json"):
+    # D4 (a): the exact route's inherited table is pressure-1's.
+    for name in ("semantic_contract_v0_3_physics_retained_1.json", "retained_precision_prepared_exact_v1.json", "semantic_contract_v0_3_pressure_1.json"):
         (results / name).write_bytes((ROOT / "fixtures/results" / name).read_bytes())
     table = json.loads((results / "semantic_contract_v0_3_physics_retained_1.json").read_text())
     if edit_table is not None:
@@ -721,7 +735,7 @@ def test_b3b_g0_table_bytes_and_definition_hash(tmp_path, monkeypatch):
 
 # ---------------------------------------------------------------------------------------------------------------
 # The exact successor through the Python carriers (compatibility.py): dispatch, standing, classes, binding refusal
-# and the AnalysisRun record, which carries the receipt and, as physics-1's, no contract_evidence.
+# and the AnalysisRun record, which carries the receipt and, as its pressure-1 base's, no contract_evidence.
 
 
 def dispatch(source, check_receipt=True):
@@ -771,13 +785,15 @@ def test_b3b_carriers(mode):
     with pytest.raises(ValueError) as error:
         c.validate_analysis_run_v0_3(dropped, source)
     assert str(error.value) == c.ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH
-    # F-5: physics-1 carrying the receipt is a downgrade; the Rust reader's G7 text comes back on a refused
+    # F-5: pressure-1 carrying the receipt is a downgrade; the Rust reader's G7 text comes back on a refused
     # successor (its own base code, where the verifier reports SOURCE_PHYSICS_EVIDENCE_INVALID).
     downgraded = rp._project(source, rp.EXACT_ROUTE)
     downgraded["retained_precision"] = deepcopy(source["retained_precision"])
     assert dispatch(downgraded) == c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN
+    # D4 (a): the projection is read by the pressure-1 reader, which admits objective connector records (T4-U3), so
+    # the invented record is refused by its record shape (formerly physics-1's CONNECTOR_UNSUPPORTED).
     broken, _ = exact_shape(mode, "16 connector non-empty")
-    assert dispatch(broken) == "SOURCE_PHYSICS_CONNECTOR_UNSUPPORTED"
+    assert dispatch(broken) == "SOURCE_PHYSICS_CONNECTOR_RECORD_SHAPE"
     with pytest.raises(rp.RetainedPrecisionError) as verifier:
         rp.validate_retained_precision(broken)
     assert (verifier.value.gate, verifier.value.code) == BASE_G7
@@ -979,6 +995,7 @@ def test_b7a_preview_namespace_keys_on_the_contracts_absence_not_the_version():
     assert not rp._preview_namespace(model("0.5.0", pressure_contract=None))
     for contract in ({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}, {}, False):
         assert not rp._preview_namespace(model("0.5.0", pressure_contract=contract)), contract
+        assert not rp._exact_namespace(model("0.5.0", pressure_contract=contract)), contract
     for version in ("0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.1"):
         assert not rp._preview_namespace(model(version)), version
     assert not rp._preview_namespace({"project": {"id": "p"}})

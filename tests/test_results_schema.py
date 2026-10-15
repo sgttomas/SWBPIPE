@@ -33,7 +33,8 @@ PRODUCT_PREVIEW_RESULT_PATH = (
 # Committed 0.3.0 result-export documents, as derive_document writes them.
 CURRENT_EXPORT_PATHS = tuple(
     ROOT / "fixtures" / "results" / name
-    for name in ("load_reference_connected_sparse.document.json", "load_reference_source_n05_sparse.document.json")
+    # B7b: the pressure-1 and pressure-source-1 twins of the retired load-reference documents.
+    for name in ("pressure_load_state_connected_sparse.document.json", "pressure_source_load_state_n05_sparse.document.json")
 )
 TP_PHYS_015_RESULT_ENVELOPE_PATH = (
     ROOT

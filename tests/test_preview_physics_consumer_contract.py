@@ -14,8 +14,7 @@ import pytest
 
 from core.analysis_runs.compatibility import (
     FRESH_CONTRACT_IDS, PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_SHA256,
-    PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, _source_contract,
-    LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID,
+    PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, _source_contract, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID,
     build_analysis_run, is_fresh_contract_id, numerical_use_standing, rule_binding_refusal,
     standing_reason, validate_analysis_run_v0_3, verify_analysis_run_record,
 )
@@ -27,6 +26,9 @@ from preview_transport_source import RETIRED_PRECISION_CONTRACT_ID
 from tests.verifiers import compatibility as verifier
 
 RETIRED_SOURCE_BLOCKS_ID = "openpipestress.result_semantics/0.3.0/source-blocks-1"
+# B7b: the retired exact v2 identities (refused by name, SOURCE_EXACT_PRESSURE_V2_RETIRED).
+RETIRED_PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
+RETIRED_LOAD_REFERENCE_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
 
 PROJECT = Path(__file__).resolve().parents[1]
 SUPPORT_SIGN = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
@@ -165,9 +167,10 @@ def test_table_identity_and_registry():
     # U6b (D-U6-6): plus the F2a preview successor; membership is not standing.
     # b7-plan's pressure-source join: plus pressure-source-1.
     # B4/D1 (b): minus the retired source-blocks-1.
-    assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID,
-                                  PRESSURE_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID}
+    # B7b: minus the four retired exact v2 identities, plus the exact successor pressure-1.
+    assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PRESSURE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID}
     assert not is_fresh_contract_id(RETIRED_PRECISION_CONTRACT_ID) and is_fresh_contract_id(PREVIEW_PHYSICS_CONTRACT_ID)
+    assert not any(is_fresh_contract_id(identity) for identity in (RETIRED_PHYSICS_ID, RETIRED_LOAD_REFERENCE_ID))
 
 
 def test_hand_built_envelope_reads_records_and_is_current_eligible():
@@ -452,7 +455,7 @@ def test_transport_metadata_checks_statement_without_rows():
             _source_contract(bad, check_receipt=False)
 
 
-@pytest.mark.parametrize("identity", [RETIRED_PRECISION_CONTRACT_ID, PHYSICS_CONTRACT_ID, RETIRED_SOURCE_BLOCKS_ID, "openpipestress.result_semantics/0.3.0/preview-physics-2"])
+@pytest.mark.parametrize("identity", [RETIRED_PRECISION_CONTRACT_ID, RETIRED_PHYSICS_ID, RETIRED_LOAD_REFERENCE_ID, PRESSURE_CONTRACT_ID, RETIRED_SOURCE_BLOCKS_ID, "openpipestress.result_semantics/0.3.0/preview-physics-2"])
 def test_preview_never_falls_back_to_another_contract(identity):
     source = envelope()
     source["producer"]["semantic_contract_id"] = identity
@@ -797,7 +800,7 @@ def test_shared_tamper_vector(variant):
 # ---- B4/D1 (b): source blocks remain only on the composites ----
 
 def _composite_mixed():
-    folder = PROJECT / "fixtures/product_preview/physics_source"
+    folder = PROJECT / "fixtures/product_preview/pressure_source/physics_source"
     source = json.loads((folder / "mixed-sparse_interactive.raw.json").read_text(), parse_int=lambda t: -0.0 if t == "-0" else int(t))
     request = json.loads((folder / "mixed.request.json").read_text(), parse_int=lambda t: -0.0 if t == "-0" else int(t))
     return source, {"request": request, "solver_mode": "sparse_interactive"}
@@ -814,7 +817,7 @@ def test_a_stored_source_blocks_1_statement_is_refused_by_name():
 @pytest.mark.parametrize("stem", ["mixed", "mixed_units"])
 def test_physics_source_with_ordinary_cases_stays_admitted(stem):
     from tests.verifiers.physics_source import validate_physics_source
-    folder = PROJECT / "fixtures/product_preview/physics_source"
+    folder = PROJECT / "fixtures/product_preview/pressure_source/physics_source"
     source = json.loads((folder / f"{stem}-sparse_interactive.raw.json").read_text(), parse_int=lambda t: -0.0 if t == "-0" else int(t))
     request = json.loads((folder / f"{stem}.request.json").read_text(), parse_int=lambda t: -0.0 if t == "-0" else int(t))
     context = {"request": request, "solver_mode": "sparse_interactive"}
@@ -825,7 +828,7 @@ def test_physics_source_with_ordinary_cases_stays_admitted(stem):
 
 
 def test_rule_binding_refuses_no_composite_row():
-    composite = json.loads((PROJECT / "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json").read_text())
+    composite = json.loads((PROJECT / "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json").read_text())
     assert all(rule_binding_refusal(composite, row) is None for row in composite["results"])
 
 def test_preview_stress_neutral_package_roundtrips_without_new_fields(tmp_path):
@@ -842,7 +845,7 @@ def test_preview_stress_neutral_package_roundtrips_without_new_fields(tmp_path):
     assert packet["contract_evidence"] == source["contract_evidence"]
     assert "source_block_recovery" not in packet
     validate_instance(json.loads((PROJECT / "schemas/stress_neutral_export.schema.json").read_text()), packet, instance_label="preview stress-neutral package")
-    physics_raw = json.loads((PROJECT / "fixtures/results/physics_connected_mechanics_sparse.json").read_text())
+    physics_raw = json.loads((PROJECT / "fixtures/results/pressure_connected_mechanics_sparse.json").read_text())
     physics_analysis = build(physics_raw)
     physics_packet = sn.build_stress_neutral_export_package(source_envelope=physics_raw, analysis_record=physics_analysis, **arguments(physics_raw, physics_analysis))
     assert set(packet) == set(physics_packet)
@@ -970,9 +973,11 @@ def test_generated_unchanged_demo_output_is_recorded_truthfully(mode):
     if source["status"]["mechanics"] != "MECHANICS_SOLVED":
         assert source["contract_evidence"] == {"preview_cases": [], "combination_gates": []}
         assert numerical_use_standing(source, bases(source)) == "needs_recompute"
-    # One re-author text for every legacy pressure primitive (RV127 S-1).
+    # One re-author text for every legacy pressure primitive (RV127 S-1); B7b names the current exact contract.
     reauthor = {d["message"] for d in source["diagnostics"] if d["code"] == "PRESSURE_MODEL_REAUTHOR_REQUIRED"}
-    assert len(reauthor) == 1 and "2.0.0/exact_straight_pressure_v2" in reauthor.pop()
+    assert len(reauthor) == 1
+    text = reauthor.pop()
+    assert "3.0.0/exact_pressure_v3" in text and "2.0.0" not in text and "exact_straight_pressure_v2" not in text
 
 
 @pytest.mark.parametrize("mode", ["sparse", "dense"])

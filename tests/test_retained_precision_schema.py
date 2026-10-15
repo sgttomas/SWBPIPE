@@ -91,20 +91,26 @@ def test_results_successor_branch_is_explicit_and_old_branches_reject_receipt():
 
 SUCC = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PREVIEW = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-SUCC_SHA = "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53"
-PREVIEW_SHA = "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
+# B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables") re-issued the tables: pressure-1
+# left preview-physics-1's reserved successors (36064ef3... and f675693b... before), the preview successor inherits
+# the new preview hash, the exact successor (D4 (a)) inherits pressure-1's, and pressure-source-1 is the current
+# PRESSURE-SOURCE-1 table (4a1873e7... before).
+SUCC_SHA = "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1"
+PREVIEW_SHA = "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32"
 PROFILE = "product_preview_retained_w1a_v2"
 CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered"]
 # B3b (B3-D §7): the exact successor `<physics-retained>`, whose carrier branches follow
 # the preview successor's. Both successors, and only they, carry a receipt.
 EXACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-EXACT_SHA = "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886"
+EXACT_SHA = "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 SUCCESSORS = (SUCC, EXACT)
 # b7-plan's pressure-source join: a tenth run branch (no receipt); its contract
 # registry entry is appended after the exact successor's.
 PRESSURE_SOURCE = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PRESSURE_SOURCE_SHA = "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf"
+PRESSURE_SOURCE_SHA = "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435"
+# B7b: the composite source statement is pressure-source-1's (physics-source-1 is retired).
+SOURCE_RAW = "pressure_source/physics_source/n05-sparse_interactive.raw.json"
 MILESTONES = {
     "sparse_interactive": "e3e0830d34d7403da45cc5900aa40cc42d090478d9c2d3ba57bcecf9b6070d2e",
     "dense_scrutiny": "c24d4a1cbfb4668fe071fd1b9cc9abed35589c390992ebad33dd0a9159cf3316",
@@ -177,15 +183,15 @@ def test_rv78_n2_y0_every_successor_statement_has_a_valid_derivative_shape(label
 
 
 def foreign_source_block_recovery():
-    """A shape-valid foreign member: the real physics-source n05 receipt (RV88 U6c N-1)."""
-    raw = json.loads((ROOT / "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json").read_text())
+    """A shape-valid foreign member: the real pressure-source n05 receipt (RV88 U6c N-1)."""
+    raw = json.loads((ROOT / "fixtures/product_preview" / SOURCE_RAW).read_text())
     return deepcopy(raw["source_block_recovery"])
 
 
 def real_value_row(document):
-    """A real derivative value row (load-reference-1's first displacement), on the
-    document's own basis, so Y11's token is the only change (RV88 U6c N-1)."""
-    source = json.loads((ROOT / "fixtures/results/load_reference_connected_sparse.document.json").read_text())
+    """A real derivative value row (the pressure-1 load/reference-state document's first displacement, B7b's twin
+    of load-reference-1's), on the document's own basis, so Y11's token is the only change (RV88 U6c N-1)."""
+    source = json.loads((ROOT / "fixtures/results/pressure_load_state_connected_sparse.document.json").read_text())
     row = deepcopy(source["result_envelope"]["result_sets"][0]["values"][0])
     row["basis_ref"] = deepcopy(document["result_envelope"]["result_sets"][0]["basis_ref"])
     return row
@@ -231,11 +237,11 @@ def test_rv78_n2_receipt_and_branch_probes(label, source):
 def test_rv78_n2_y4_member_is_shape_valid_where_it_belongs():
     """Y4's foreign member is a real receipt, accepted on its own identity's
     branch, so its refusal on the successor branch is the branch's."""
-    raw = json.loads((ROOT / "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json").read_text())
+    raw = json.loads((ROOT / "fixtures/product_preview" / SOURCE_RAW).read_text())
     document = results_document(raw)
-    check("results.v0.3.schema.yaml", document, False, "physics-source n05 without its receipt")
+    check("results.v0.3.schema.yaml", document, False, "pressure-source n05 without its receipt")
     document["result_envelope"]["source_block_recovery"] = foreign_source_block_recovery()
-    check("results.v0.3.schema.yaml", document, True, "physics-source n05 with its own receipt")
+    check("results.v0.3.schema.yaml", document, True, "pressure-source n05 with its own receipt")
     historical = json.loads((ROOT / "fixtures/results/preview_physics_connected_sparse.json").read_text())
     check("results.v0.3.schema.yaml", results_document(historical), True, "Y10 historical preview")
 
@@ -303,8 +309,8 @@ def test_analysis_run_successor_branch_requires_the_receipt_and_only_it(mode):
         "receipt_unknown_member": lambda r: r["analysis_run"]["retained_precision"].__setitem__("unknown", 1),
         # Shape-valid foreign members (a physics-source receipt, physics-source
         # evidence): only the successor branch's own exclusions refuse them.
-        "source_block_recovery": lambda r: r["analysis_run"].__setitem__("source_block_recovery", foreign("physics_source/n05-sparse_interactive.raw.json", "source_block_recovery")),
-        "contract_evidence": lambda r: r["analysis_run"].__setitem__("contract_evidence", foreign("physics_source/n05-sparse_interactive.raw.json", "contract_evidence")),
+        "source_block_recovery": lambda r: r["analysis_run"].__setitem__("source_block_recovery", foreign(SOURCE_RAW, "source_block_recovery")),
+        "contract_evidence": lambda r: r["analysis_run"].__setitem__("contract_evidence", foreign(SOURCE_RAW, "contract_evidence")),
         "preview_sha": lambda r: r["analysis_run"]["reproducibility"]["semantic_contract"].__setitem__("sha256", PREVIEW_SHA),
         "row_identity_mixed": lambda r: r["analysis_run"]["result_refs"][0]["semantic_contract"].update(id=PREVIEW, sha256=PREVIEW_SHA),
     }
@@ -329,12 +335,12 @@ def test_every_existing_analysis_run_branch_refuses_a_receipt():
         assert refused is (sid not in SUCCESSORS), sid
         assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
     # T4-U2 added pressure-1; the pressure-source join added pressure-source-1;
-    # B1 removed precision-1 and B4/D1 (b) source-blocks-1.
-    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 9
+    # B1 removed precision-1 and B4/D1 (b) source-blocks-1; B7b the four exact v2 identities.
+    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 5
     contract = schema["$defs"]["SemanticContract"]
     assert {"properties": {"id": {"const": SUCC}, "sha256": {"const": SUCC_SHA}}} in contract["oneOf"]
     # Two receipt-carrying identities without a former `not` now refuse a receipt.
-    for path in ("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json",):
+    for path in ("fixtures/product_preview/" + SOURCE_RAW,):
         raw = json.loads((ROOT / path).read_text())
         record = analysis_record(raw)
         check("analysis_run.schema.json", record, True, path)
@@ -408,24 +414,27 @@ def test_every_existing_stress_neutral_branch_refuses_a_receipt():
         ids.append(sid)
         assert ({"required": ["retained_precision"]} in branch.get("not", {}).get("anyOf", [])) is (sid not in SUCCESSORS), sid
         assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
-    # T4-U2 added pressure-1; B1 removed precision-1 and B4/D1 (b) source-blocks-1.
-    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and len(ids) == 8
+    # T4-U2 added pressure-1; B1 removed precision-1 and B4/D1 (b) source-blocks-1; B7b the four exact v2
+    # identities and added pressure-source-1's branch.
+    assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 5
 
 
 # ---- B3b (I101, lane T): the exact successor's carrier branches (B3-D §7; REVISION_01 §6).
-# Shape checks only, on a physics-1 fixture re-stated under the exact identity with a
-# shape-valid receipt: schema validity creates no standing.
+# Shape checks only, on a pressure-1 fixture (B7b, D4 (a): the exact successor's G7 projection is
+# pressure-1/exact_pressure_v3) re-stated under the exact identity with a shape-valid receipt:
+# schema validity creates no standing.
+
+PLAIN = "fixtures/results/pressure_connected_mechanics_sparse.json"
+
 
 def exact_source():
-    """A physics-1 statement under the exact successor's identity, profile and limitations,
-    carrying the shared corpus's first receipt (shape only; no reader runs here)."""
-    source = json.loads((ROOT / "fixtures/results/physics_connected_mechanics_sparse.json").read_text())
-    assert source["producer"]["semantic_contract_id"] == "openpipestress.result_semantics/0.3.0/physics-1"
+    """A pressure-1 statement under the exact successor's identity and profile (its limitations are pressure-1's,
+    the branch's const), carrying the shared corpus's first receipt (shape only; no reader runs here)."""
+    source = json.loads((ROOT / PLAIN).read_text())
+    assert source["producer"]["semantic_contract_id"] == "openpipestress.result_semantics/0.3.0/pressure-1"
     source = deepcopy(source)
     source["producer"]["semantic_contract_id"] = EXACT
     source["formulation_basis"]["profile_id"] = EXACT_PROFILE
-    source["formulation_basis"]["limitations"] = json.loads(
-        (ROOT / "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json").read_text())["formulation_basis"]["limitations"]
     source["retained_precision"] = deepcopy(CORPUS["cases"][0]["source"]["retained_precision"])
     return source
 
@@ -435,7 +444,8 @@ def test_exact_successor_results_branch():
     branch = schema["$defs"]["ResultEnvelope"]["oneOf"][-1]
     assert branch["properties"]["producer"]["properties"]["semantic_contract_id"] == {"const": EXACT}
     assert branch["properties"]["formulation_basis"]["properties"]["profile_id"] == {"const": EXACT_PROFILE}
-    assert branch["properties"]["contract_evidence"] == {"$ref": "#/$defs/PhysicsContractEvidence"}
+    # D4 (a): the exact successor's evidence is the G7 transport shape over pressure-1's evidence.
+    assert branch["properties"]["contract_evidence"] == {"$ref": "#/$defs/ExactRetainedContractEvidence"}
     assert branch["properties"]["result_sets"] == {"items": {"$ref": "#/$defs/ResultSet"}}
     assert branch["properties"]["retained_precision"] == {"$ref": "retained_precision_mp_v2.schema.json"}
     assert branch["required"] == ["contract_evidence", "retained_precision"]
@@ -449,6 +459,7 @@ def test_exact_successor_results_branch():
         "no_receipt": lambda s: s.pop("retained_precision"),
         "preview_profile": lambda s: s["formulation_basis"].__setitem__("profile_id", PROFILE),
         "physics_profile": lambda s: s["formulation_basis"].__setitem__("profile_id", "exact_straight_pressure_v2"),
+        "pressure_profile": lambda s: s["formulation_basis"].__setitem__("profile_id", "exact_pressure_v3"),
         "other_limitations": lambda s: s["formulation_basis"].__setitem__("limitations", ["Straight circular members and linear restraints or springs only."]),
         "preview_evidence": lambda s: s.__setitem__("contract_evidence", deepcopy(CORPUS["cases"][0]["source"]["contract_evidence"])),
         "source_block_recovery": lambda s: s.__setitem__("source_block_recovery", foreign_source_block_recovery()),
@@ -460,9 +471,9 @@ def test_exact_successor_results_branch():
 
 
 def test_exact_successor_analysis_run_branch():
-    plain = json.loads((ROOT / "fixtures/results/physics_connected_mechanics_sparse.json").read_text())
+    plain = json.loads((ROOT / PLAIN).read_text())
     base = analysis_record(plain)
-    check("analysis_run.schema.json", base, True, "base physics-1 record")
+    check("analysis_run.schema.json", base, True, "base pressure-1 record")
     record = deepcopy(base)
     run = record["analysis_run"]
     run["reproducibility"]["semantic_contract"] = {"id": EXACT, "sha256": EXACT_SHA}
@@ -473,8 +484,8 @@ def test_exact_successor_analysis_run_branch():
     refused = {
         "no_receipt": lambda r: r["analysis_run"].pop("retained_precision"),
         "preview_successor_sha": lambda r: r["analysis_run"]["reproducibility"]["semantic_contract"].__setitem__("sha256", SUCC_SHA),
-        "contract_evidence": lambda r: r["analysis_run"].__setitem__("contract_evidence", foreign("physics_source/n05-sparse_interactive.raw.json", "contract_evidence")),
-        "source_block_recovery": lambda r: r["analysis_run"].__setitem__("source_block_recovery", foreign("physics_source/n05-sparse_interactive.raw.json", "source_block_recovery")),
+        "contract_evidence": lambda r: r["analysis_run"].__setitem__("contract_evidence", foreign(SOURCE_RAW, "contract_evidence")),
+        "source_block_recovery": lambda r: r["analysis_run"].__setitem__("source_block_recovery", foreign(SOURCE_RAW, "source_block_recovery")),
         "row_identity_mixed": lambda r: r["analysis_run"]["result_refs"][0]["semantic_contract"].update(id=SUCC, sha256=SUCC_SHA),
     }
     for name, edit in refused.items():
@@ -486,9 +497,9 @@ def test_exact_successor_analysis_run_branch():
 
 
 def test_exact_successor_stress_neutral_branch():
-    plain = json.loads((ROOT / "fixtures/results/physics_connected_mechanics_sparse.json").read_text())
+    plain = json.loads((ROOT / PLAIN).read_text())
     base = stress_neutral_package(plain)
-    check("stress_neutral_export.v0.3.schema.json", base, True, "base physics-1 package")
+    check("stress_neutral_export.v0.3.schema.json", base, True, "base pressure-1 package")
     packet = deepcopy(base)
     packet["producer"]["semantic_contract_id"] = EXACT
     packet["semantic_contract_ref"]["ref_id"] = EXACT

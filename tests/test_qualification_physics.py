@@ -1,9 +1,10 @@
-"""Bounded adapter tests for the ordinary physics-1 reader verdict; a synthetic reader stub is not solver evidence.
+"""Bounded adapter tests for the ordinary pressure-1 reader verdict; a synthetic reader stub is not solver evidence.
 
-b7-plan R2: the adapter takes the Rust product reader's verdict (`openpipestress-runner read physics`, named by
+b7-plan R2: the adapter takes the Rust product reader's verdict (`openpipestress-runner read pressure`, named by
 OPENPIPESTRESS_RUNNER_BIN) on the parsed snapshot, after the binding's selected reader source, table and unit
 authority are checked. The stub tests exercise process custody and response checking; the real reader is run
-on the committed physics-1 statements.
+on the committed pressure-1 statements. B7b retired physics-1: its binding formats and identities are refused,
+and the frozen first-static inputs are submitted as a declared re-authored copy.
 """
 from __future__ import annotations
 from copy import deepcopy
@@ -49,7 +50,7 @@ class ReaderVerdictTests(unittest.TestCase):
             target.write_bytes(data)
         self.dependencies = {name: hashlib.sha256(data).hexdigest() for name, data in payloads.items()}
         self.binding = {'format': physics.BINDING_FORMAT, 'status': 'prepared_not_admitted', 'contract_id': physics.CONTRACT,
-                        'entrypoint': 'validate_physics_evidence',
+                        'entrypoint': physics.ENTRYPOINT,
                         'files': [{'path': name, 'sha256': digest} for name, digest in self.dependencies.items()]}
         self.binding_path = self.root / 'binding.json'
         self.binding_path.write_text(json.dumps(self.binding))
@@ -73,7 +74,7 @@ class ReaderVerdictTests(unittest.TestCase):
     def test_the_reader_verdict_is_taken_from_the_runner(self):
         observation = self.observe()
         self.assertEqual(observation['response']['verdict'], 'consistent')
-        self.assertEqual(observation['process']['command'], [str(self.stub), 'read', 'physics'])
+        self.assertEqual(observation['process']['command'], [str(self.stub), 'read', 'pressure'])
         self.assertEqual(json.loads((self.root / 'reader-1/stdin.bin').read_bytes()), {'source': self.raw})
         self.assertEqual(observation['reader_executable_sha256'], hashlib.sha256(self.stub.read_bytes()).hexdigest())
         self.assertEqual(observation['response']['dependencies'], self.binding['files'])
@@ -102,8 +103,9 @@ class ReaderVerdictTests(unittest.TestCase):
         self.assertFalse(any((self.root / f'reader-{index}').exists() for index in range(1, self.count + 1)))
 
     def test_unknown_profile_and_source_receipt_refuse(self):
+        retired = dict(self.raw['producer'], semantic_contract_id='openpipestress.result_semantics/0.3.0/physics-1')
         for change in [{'producer': {'semantic_contract_id': 'openpipestress.result_semantics/0.3.0/physics-source-1'}},
-                       {'schema_version': '0.1.0'}, {'source_block_recovery': None}]:
+                       {'producer': retired}, {'schema_version': '0.1.0'}, {'source_block_recovery': None}]:
             with self.assertRaisesRegex(ValueError, 'ORDINARY-PHYSICS'):
                 self.observe(raw=self.raw | change)
 
@@ -111,14 +113,68 @@ class ReaderVerdictTests(unittest.TestCase):
         with patch.object(physics, 'DEPENDENCIES', self.dependencies), self.assertRaisesRegex(ValueError, 'not admitted'):
             physics.load_binding(self.source, self.binding_path, hashlib.sha256(self.binding_path.read_bytes()).hexdigest())
 
-    def test_a_former_python_reader_binding_is_refused(self):
-        self.binding_path.write_text(json.dumps(dict(self.binding, format='openpipestress.ordinary_physics_consistency_binding/1')))
+    def test_a_former_python_or_physics_one_reader_binding_is_refused(self):
+        # Version 1 named the former Python reader, version 2 the retired physics-1 Rust reader (B7b).
+        for version in (1, 2):
+            self.binding_path.write_text(json.dumps(dict(self.binding, format=f'openpipestress.ordinary_physics_consistency_binding/{version}')))
+            with self.assertRaisesRegex(ValueError, 'unsupported binding identity'):
+                self.loaded()
+        retired = dict(self.binding, contract_id='openpipestress.result_semantics/0.3.0/physics-1')
+        self.binding_path.write_text(json.dumps(retired))
         with self.assertRaisesRegex(ValueError, 'unsupported binding identity'):
+            self.loaded()
+        self.binding_path.write_text(json.dumps(dict(self.binding, entrypoint='validate_physics_evidence')))
+        with self.assertRaisesRegex(ValueError, 'unsupported owned entry'):
             self.loaded()
 
 
+class ReauthoringTests(unittest.TestCase):
+    """B7b: the frozen first-static runner inputs are submitted as a declared re-authored copy (the product tests'
+    one re-authoring rule); the frozen bytes, and everything but the model version, contract and explicit zero
+    corrosion allowance, are unchanged."""
+
+    FIRST_STATIC = PROJECT / 'validation/qualification/fixtures/first_static'
+
+    def test_the_frozen_inputs_are_re_authored_as_a_copy_only(self):
+        for slug in ('axial', 'bending_torsion'):
+            path = self.FIRST_STATIC / f'{slug}.runner_input.candidate.json'
+            data = path.read_bytes()
+            original = json.loads(data)
+            submitted, record = physics.reauthor_runner_input(data)
+            self.assertEqual(path.read_bytes(), data)
+            self.assertEqual(record['frozen_input_sha256'], hashlib.sha256(data).hexdigest())
+            self.assertEqual(record['submitted_input_sha256'], hashlib.sha256(submitted).hexdigest())
+            request = json.loads(submitted)
+            model = request['solve']['preview_model']['model']
+            self.assertEqual(model['schema_version'], physics.MODEL_VERSION)
+            self.assertEqual(model['pressure_contract'], physics.PRESSURE_CONTRACT)
+            self.assertEqual([pipe['section']['corrosion_allowance'] for pipe in model['pipe_segments']], [physics.ZERO_CORROSION_ALLOWANCE])
+            # Nothing else changes.
+            expected = deepcopy(original)
+            source = expected['solve']['preview_model']['model']
+            self.assertEqual((source['schema_version'], source['pressure_contract']), ('0.3.0', {'version': '2.0.0', 'mode': 'exact_straight_pressure_v2'}))
+            source.update(schema_version=physics.MODEL_VERSION, pressure_contract=physics.PRESSURE_CONTRACT)
+            for pipe in source['pipe_segments']:
+                pipe['section']['corrosion_allowance'] = physics.ZERO_CORROSION_ALLOWANCE
+            self.assertEqual(request, expected)
+            # The re-authoring is the identity on its own output.
+            self.assertEqual(physics.reauthor_runner_input(submitted)[0], submitted)
+
+    def test_other_contracts_and_present_allowances_are_kept(self):
+        model = {'schema_version': '0.4.0', 'pressure_contract': {'version': '1.0.0', 'mode': 'legacy_pressure_v1'},
+                 'pipe_segments': [{'section': {}}]}
+        self.assertEqual(physics.reauthor_model(model), dict(model, schema_version='0.5.0'))
+        model = {'schema_version': '0.5.0', 'pressure_contract': {'version': '3.0.0', 'mode': 'exact_pressure_v3'},
+                 'pipe_segments': [{'section': {'corrosion_allowance': {'value': 0.001, 'unit': 'm'}}}, {'section': {}}]}
+        reauthored = physics.reauthor_model(model)
+        self.assertEqual(reauthored['pressure_contract'], physics.PRESSURE_CONTRACT)
+        self.assertEqual([pipe['section']['corrosion_allowance'] for pipe in reauthored['pipe_segments']],
+                         [{'value': 0.001, 'unit': 'm'}, physics.ZERO_CORROSION_ALLOWANCE])
+        self.assertNotIn('corrosion_allowance', model['pipe_segments'][1]['section'])
+
+
 class RustReaderTests(unittest.TestCase):
-    """The real Rust reader (OPENPIPESTRESS_RUNNER_BIN) on the committed physics-1 statements, with the pinned binding."""
+    """The real Rust reader (OPENPIPESTRESS_RUNNER_BIN) on the committed pressure-1 statements, with the pinned binding."""
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -126,7 +182,7 @@ class RustReaderTests(unittest.TestCase):
         self.root = Path(self.tmp.name).resolve()
         self.binding_path = self.root / 'binding.json'
         self.binding_path.write_text(json.dumps({'format': physics.BINDING_FORMAT, 'status': 'prepared_not_admitted', 'contract_id': physics.CONTRACT,
-                                                 'entrypoint': 'validate_physics_evidence',
+                                                 'entrypoint': physics.ENTRYPOINT,
                                                  'files': [{'path': name, 'sha256': digest} for name, digest in physics.DEPENDENCIES.items()]}))
 
     def test_the_pins_are_the_working_tree_reader_table_and_units(self):
@@ -137,10 +193,10 @@ class RustReaderTests(unittest.TestCase):
     def test_the_rust_reader_admits_and_refuses_committed_statements(self):
         binding = physics.load_binding(PROJECT, self.binding_path, hashlib.sha256(self.binding_path.read_bytes()).hexdigest(), require_reviewed=False)
         for mode in ('sparse', 'dense'):
-            raw = json.loads((PROJECT / f'fixtures/results/physics_connected_mechanics_{mode}.json').read_text())
+            raw = json.loads((PROJECT / f'fixtures/results/pressure_connected_mechanics_{mode}.json').read_text())
             observation = physics.consistency_observation(raw, binding, self.root / f'{mode}-reader')
             self.assertEqual(observation['response']['verdict'], 'consistent')
-            self.assertEqual(observation['process']['command'][1:], ['read', 'physics'])
+            self.assertEqual(observation['process']['command'][1:], ['read', 'pressure'])
             broken = deepcopy(raw)
             broken['contract_evidence']['exact_cases'].pop()
             with self.assertRaisesRegex(ValueError, 'owned reader refused: SOURCE_PHYSICS_'):

@@ -3,13 +3,14 @@
 Reads the shared generated pressure-1 corpus (the Rust reader's
 ``tests/pressure_contract.rs`` reads the same bytes; the Rust reader is the
 only product reader). The independent verifier (``tests/verifiers/pressure_1.py``)
-admits v3 straight families with signed p_pa, refuses v2 evidence offered as
-pressure-1 and pressure-1 evidence under a v2 identity by name, and refuses
-unknown identities. Python product paths take the Rust reader's verdict (b7-plan
-R2) through its pressure route: a raw statement is read, a transported one is
-refused by name (there is no pressure-1 transport reader), and no 0.3
-AnalysisRun record is built from pressure-1; the v2 verifiers do not read v3
-evidence.
+admits v3 straight families with signed p_pa. B7b retired the v2 contract: no
+v2 reader remains, evidence relabelled with the retired v2 profile is refused at
+the current profile check, a statement under a retired v2 identity is refused by
+name (``SOURCE_EXACT_PRESSURE_V2_RETIRED``) and unknown identities are refused.
+Python product paths take the Rust reader's verdict (b7-plan R2) through its
+pressure route: a raw statement is read, a transported one is refused by name
+(there is no pressure-1 transport reader), and B7b admits a 0.3 AnalysisRun
+record built from the raw pressure-1 statement.
 """
 import ast
 from copy import deepcopy
@@ -21,10 +22,8 @@ from core.analysis_runs import rust_reader
 from core.analysis_runs.compatibility import (
     PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256, _source_contract, build_analysis_run_v0_3, numerical_use_standing,
 )
-from tests.verifiers.load_reference_evidence import validate_load_reference_evidence
-from tests.verifiers.physics_evidence import validate_physics_evidence
 from tests.verifiers.pressure_1 import (
-    CONTRACT_ID, LOAD_REFERENCE_ID, NOT_PRESSURE_1, PHYSICS_ID, V2_READ_AS_V3, V3_READ_AS_V2,
+    CONTRACT_ID, RETIRED_EXACT_V2_IDS, SOURCE_EXACT_PRESSURE_V2_RETIRED, V2_RETIRED_TEXT,
     validate_exact_pressure_evidence, validate_pressure_evidence, verify_source,
 )
 
@@ -50,10 +49,6 @@ def relabel(envelope, version, mode):
     return out
 
 
-def v2_product_reader(envelope):
-    (validate_load_reference_evidence if load_state(envelope) else validate_physics_evidence)(envelope)
-
-
 def test_corpus_shape():
     assert len(CASES) == 4 and {load_state(e) for _, e in CASES} == {True, False}
     assert all(r["p_pa"] < 0 for _, e in CASES if not load_state(e) for r in e["contract_evidence"]["pressure"])
@@ -74,8 +69,10 @@ def test_python_product_paths_take_the_rust_verdict_of_pressure_1(label, envelop
     assert (contract_id, sha256) == (PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256)
     with pytest.raises(ValueError, match=PRESSURE_TRANSPORT_REFUSAL):
         _source_contract(deepcopy(envelope), check_receipt=False)
-    with pytest.raises(ValueError, match="ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH"):
-        build_analysis_run_v0_3(deepcopy(envelope), input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:x"}, input_manifest_hash="1" * 64)
+    # B7b: pressure-1 is a current record contract; the record binds the pressure-1 table.
+    record = build_analysis_run_v0_3(deepcopy(envelope), input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:x"}, input_manifest_hash="1" * 64)
+    refs = record["analysis_run"]["result_refs"]
+    assert refs and {(r["semantic_contract"]["id"], r["semantic_contract"]["sha256"]) for r in refs} == {(PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256)}
     bases = [case["basis_ref"] for case in envelope["numerical_quality"]["cases"]]
     # One verdict and one standing: the Rust reader's pressure route.
     assert numerical_use_standing(deepcopy(envelope), bases) == rust_reader.standing(deepcopy(envelope), bases, None)["token"]
@@ -85,26 +82,29 @@ def test_python_product_paths_take_the_rust_verdict_of_pressure_1(label, envelop
     assert dispatch["standing"]["route"] == "pressure"
     assert dispatch["standing"]["eligible"] == (envelope["numerical_quality"]["status"] == "checks_passed")
     assert rust_reader.validate("pressure", deepcopy(envelope), model=model) == {"ok": True}
-    # The v2 product readers do not read v3 evidence (their closed v2 checks refuse it).
-    with pytest.raises(ValueError):
-        v2_product_reader(deepcopy(envelope))
 
 
 @pytest.mark.parametrize("label,envelope", CASES)
-def test_neither_contract_is_read_as_the_other(label, envelope):
+def test_retired_v2_labels_are_refused(label, envelope):
+    # B7b: no v2 reader remains (Rust `retired_v2_labels_are_refused`). Evidence relabelled with the retired v2
+    # profile is refused at the current case-profile check; a retired v2 identity is refused by name.
     as_v2 = relabel(envelope, "2.0.0", "exact_straight_pressure_v2")
-    with pytest.raises(ValueError) as refused:
+    with pytest.raises(ValueError, match="case profile"):
         validate_pressure_evidence(deepcopy(as_v2))
-    assert str(refused.value).endswith(V2_READ_AS_V3)
-    relabelled = deepcopy(envelope)
-    relabelled["producer"]["semantic_contract_id"] = LOAD_REFERENCE_ID if load_state(envelope) else PHYSICS_ID
-    with pytest.raises(ValueError) as refused:
-        validate_exact_pressure_evidence(relabelled)
-    assert str(refused.value).endswith(V3_READ_AS_V2)
-    # A v2 publication under a v2 identity is not this verifier's to read.
-    as_v2["producer"]["semantic_contract_id"] = relabelled["producer"]["semantic_contract_id"]
-    with pytest.raises(ValueError, match=NOT_PRESSURE_1):
-        validate_exact_pressure_evidence(as_v2)
+    assert len(RETIRED_EXACT_V2_IDS) == 4
+    for identity in RETIRED_EXACT_V2_IDS:
+        relabelled = deepcopy(envelope)
+        relabelled["producer"]["semantic_contract_id"] = identity
+        with pytest.raises(ValueError) as refused:
+            validate_exact_pressure_evidence(relabelled)
+        assert str(refused.value) == V2_RETIRED_TEXT
+        assert str(refused.value).startswith(f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: ") and "re-author the model as 0.5.0" in str(refused.value)
+        # The product paths take the Rust verdict: the same refusal, by name, at the header.
+        for check_receipt in (True, False):
+            with pytest.raises(ValueError) as refused:
+                _source_contract(deepcopy(relabelled), check_receipt=check_receipt)
+            assert str(refused.value).startswith(f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: "), str(refused.value)
+        assert rust_reader.dispatch(deepcopy(relabelled), None)["ok"] is False
 
 
 @pytest.mark.parametrize("label,envelope", CASES)
@@ -144,7 +144,7 @@ def test_null_or_non_mapping_metadata_is_refused_by_name(label, envelope):
 def test_header_refusals_are_named(label, envelope):
     for mutate, code in [
             (lambda e: e.__setitem__("schema_version", "0.1.0"), "SOURCE_SCHEMA_VERSION_UNSUPPORTED"),
-            (lambda e: e.__setitem__("source_block_recovery", {}), "SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN"),
+            (lambda e: e.__setitem__("source_block_recovery", {}), "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"),
             (lambda e: e.__setitem__("carrier_evidence", {}), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
             (lambda e: e.__setitem__("retained_precision", {}), "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"),
             (lambda e: e["results"][0].__setitem__("recovery_method", "contribution_preserving_multiprecision_v1"), "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"),

@@ -19,8 +19,12 @@ CHECK_IDS = (
     'complete_unique_scalar_rows', 'normal_maximum_evidence', 'governing_location',
     'stress_summary_binding', 'displacement_summary_binding',
 )
-CONTRACT = 'openpipestress.result_semantics/0.3.0/physics-1'
-PROFILE = 'exact_straight_pressure_v2'
+# B7b: the first-static cases are qualified as pressure-1 on the re-authored 0.5.0 copy of their frozen input.
+CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-1'
+PROFILE = 'exact_pressure_v3'
+MODEL_VERSION = '0.5.0'
+PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': PROFILE, 'shear_model': 'euler_bernoulli'}
+ZERO_CORROSION_ALLOWANCE = {'value': 0, 'unit': 'm'}
 CASE_BASIS = {'ref_type': 'load_case', 'ref_id': 'case'}
 MAXIMUM_ID = 'result:elastic-maximum:4:case:4:pipe'
 ENCLOSURE = 'supplied_binary64_polynomial_coefficient_enclosures; solution error is separate'
@@ -208,11 +212,17 @@ def _input_model(request, case_id):
     _require(set(pipe['y_reference']) == {'x', 'y', 'z'}, 'member axis shape differs')
     for axis in ('x', 'y', 'z'):
         _same_number(pipe['y_reference'][axis], 1 if axis == 'y' else 0, 'member axis')
-    _require(set(pipe['section']) == {'outside_diameter', 'wall_thickness'}, 'section overrides/deductions unsupported')
+    # The re-authored copy declares the retired contract's implicit zero allowance explicitly; no other deduction.
+    _require(set(pipe['section']) == {'outside_diameter', 'wall_thickness', 'corrosion_allowance'}
+             and set(pipe['section']['corrosion_allowance']) == {'value', 'unit'}
+             and pipe['section']['corrosion_allowance']['unit'] == 'm', 'section overrides/deductions unsupported')
+    _same_number(pipe['section']['corrosion_allowance']['value'], ZERO_CORROSION_ALLOWANCE['value'], 'authored corrosion allowance')
     for key, expected in [('outside_diameter', .2), ('wall_thickness', .01)]:
         quantity = pipe['section'][key]
         _require(set(quantity) == {'value', 'unit'} and quantity['unit'] == 'm', 'section must be authored in m')
         _same_number(quantity['value'], expected, 'authored section ' + key)
+    _require(model['schema_version'] == MODEL_VERSION and model['pressure_contract'] == PRESSURE_CONTRACT,
+             'current model document and exact contract required')
     material = _one(model['materials'], 'input material')
     _require(set(material) <= {'id', 'label', 'constitutive_basis', 'elastic_modulus', 'poisson_ratio', 'provenance'}
              and material['id'] == 'material'
@@ -296,14 +306,14 @@ def check_first_static_structure(raw, request, case_binding, section_reference,
         _require(case_binding['ordinary_contract_ok'], 'upstream pinned ordinary contract/table check failed')
         _require(raw['schema_version'] == '0.2.0' and raw['producer'] == {
             'component_name': 'open_pipe_stress_product_physics', 'component_version': '0.2.0',
-            'semantic_contract_id': CONTRACT}, 'ordinary physics-1 producer required')
+            'semantic_contract_id': CONTRACT}, 'ordinary pressure-1 producer required')
         _require('source_block_recovery' not in raw and 'carrier_evidence' not in raw, 'source/composite namespace refused')
         formulation = raw['formulation_basis']
         _require(set(formulation) == {'profile_id', 'limitations'} and formulation['profile_id'] == PROFILE
                  and type(formulation['limitations']) is list and formulation['limitations']
                  and all(type(row) is str and row for row in formulation['limitations']), 'formulation basis differs')
-        _require(request['solve']['preview_model']['model']['pressure_contract'] ==
-                 {'version': '2.0.0', 'mode': PROFILE}, 'authored formulation differs')
+        _require(request['solve']['preview_model']['model']['pressure_contract'] == PRESSURE_CONTRACT,
+                 'authored formulation differs')
         details['semantic_contract_id'] = CONTRACT
 
     def material_section(details):

@@ -9,18 +9,23 @@ retires (`numericalResultQuality.ts`'s `sourceContract` and `numericalResultStan
 
 - G1: the standing's findings, the TypeScript standing's codes in its order, beside the
   `numerical_use_standing` token (here the verifier's own, `compatibility.numerical_use_standing`).
-- G2: with a current model, the physics, preview-physics and load-reference readers run the TypeScript
-  model checks after the unchanged reader: every solved case is a model load case
-  (`SOURCE_PHYSICS_MODEL_CASE_COVERAGE`), each case's members are the model's pipes but those an
-  objective connector replaces (`SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE`), and a support row names a model
-  support (`SOURCE_PHYSICS_SUPPORT_BINDING`); on load-reference-1 under
-  `SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE`. Preview-physics-1's TypeScript reader ignores its model.
+- G2: with a current model, the pressure reader runs the TypeScript model checks after the unchanged
+  reader: every solved case is a model load case (`SOURCE_PHYSICS_MODEL_CASE_COVERAGE`), each case's
+  members are the model's pipes but those an objective connector replaces
+  (`SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE`), and a support row names a model support
+  (`SOURCE_PHYSICS_SUPPORT_BINDING`); the pressure-source reader runs them against its invocation's
+  model. Preview-physics-1's TypeScript reader ignores its model.
 - G5: one header dispatch: the downgrade guard, a carrier namespace, the metadata header, then the
-  TypeScript header's checks (each source route's receipt shape, the evidence object the load-reference
-  and pressure routes need, no identity outside these routes).
+  TypeScript header's checks (the source route's receipt shape, the evidence object the pressure route
+  needs, no identity outside these routes).
 - pressure-1 (DEL-04-07 `pressure-contract.md`, "Reading pressure-1"): its own route, read here by the
   independent `pressure_1` verifier with G2's model checks and the ordinary standing; it has no transport
   reader, so a transported pressure-1 statement is refused by name.
+- B7b (A4/A5): five routes (`pressure_source`, `preview_physics`, `pressure`, `retained_preview_physics`,
+  `retained_physics`) and four readers (`preview-physics`, `pressure-source`, `source-recovery`,
+  `pressure`), as Rust's `ROUTES` and `READERS`. A stored `2.0.0/exact_straight_pressure_v2` result is
+  refused at the header by name (`SOURCE_EXACT_PRESSURE_V2_RETIRED`); its standing finding is
+  `SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED`.
 
 Outcomes have the Rust entries' shape: `{"ok": true, ...}` or `{"ok": false, "error": {"code", "detail"}}`.
 The readers themselves are this package's verifiers. Tests only; no product import, no process.
@@ -33,40 +38,28 @@ import re
 from typing import Any
 
 from . import compatibility as c
-from . import load_reference_evidence as lr
-from . import load_reference_source as lrs
-from . import physics_evidence, physics_source, preview_physics_evidence, pressure_1
+from . import physics_source, preview_physics_evidence, pressure_1, source_blocks
 
-ROUTES = ("physics", "physics_source", "pressure_source", "preview_physics", "load_reference",
-          "load_reference_source", "pressure", "retained_preview_physics", "retained_physics")
+ROUTES = ("pressure_source", "preview_physics", "pressure", "retained_preview_physics", "retained_physics")
+READERS = ("preview-physics", "pressure-source", "source-recovery", "pressure")
 UNSUPPORTED = "unsupported"
 SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED = "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
 SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED = "SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED"
 LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE = "LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1"
 RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE = "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE"
-PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
-PRESSURE_PROFILE = "exact_pressure_v3"
-PRESSURE_CONTRACT_SHA256 = "07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742"
-PRESSURE_TRANSPORT_UNSUPPORTED = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
-ROUTE_READERS = {"preview_physics": "preview-physics", "physics": "physics", "physics_source": "physics-source", "pressure_source": "pressure-source",
-                 "load_reference": "load-reference", "load_reference_source": "load-reference-source",
-                 "pressure": "pressure"}
-_IDENTITY_ROUTES = {c.PHYSICS_CONTRACT_ID: "physics",
-                    c.PHYSICS_SOURCE_CONTRACT_ID: "physics_source", c.PRESSURE_SOURCE_CONTRACT_ID: "pressure_source", c.PREVIEW_PHYSICS_CONTRACT_ID: "preview_physics",
-                    c.LOAD_REFERENCE_CONTRACT_ID: "load_reference", c.LOAD_REFERENCE_SOURCE_CONTRACT_ID: "load_reference_source",
+PRESSURE_CONTRACT_ID = c.PRESSURE_CONTRACT_ID
+PRESSURE_PROFILE = c.PRESSURE_PROFILE
+PRESSURE_CONTRACT_SHA256 = c.PRESSURE_CONTRACT_SHA256
+PRESSURE_TRANSPORT_UNSUPPORTED = c.PRESSURE_TRANSPORT_UNSUPPORTED
+ROUTE_READERS = {"preview_physics": "preview-physics", "pressure_source": "pressure-source", "pressure": "pressure"}
+_IDENTITY_ROUTES = {c.PRESSURE_SOURCE_CONTRACT_ID: "pressure_source", c.PREVIEW_PHYSICS_CONTRACT_ID: "preview_physics",
+                    PRESSURE_CONTRACT_ID: "pressure",
                     c.PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: "retained_preview_physics", c.PHYSICS_RETAINED_CONTRACT_ID: "retained_physics"}
-_BINDINGS = {**{route: identity for identity, route in _IDENTITY_ROUTES.items()}, "pressure": PRESSURE_CONTRACT_ID}
-_SHA256 = {c.PHYSICS_CONTRACT_ID: c.PHYSICS_CONTRACT_SHA256,
-           c.PHYSICS_SOURCE_CONTRACT_ID: c.PHYSICS_SOURCE_CONTRACT_SHA256, c.PRESSURE_SOURCE_CONTRACT_ID: c.PRESSURE_SOURCE_CONTRACT_SHA256,
-           c.PREVIEW_PHYSICS_CONTRACT_ID: c.PREVIEW_PHYSICS_CONTRACT_SHA256, c.LOAD_REFERENCE_CONTRACT_ID: c.LOAD_REFERENCE_CONTRACT_SHA256,
-           c.LOAD_REFERENCE_SOURCE_CONTRACT_ID: c.LOAD_REFERENCE_SOURCE_CONTRACT_SHA256,
+_BINDINGS = {route: identity for identity, route in _IDENTITY_ROUTES.items()}
+_SHA256 = {c.PRESSURE_SOURCE_CONTRACT_ID: c.PRESSURE_SOURCE_CONTRACT_SHA256, c.PREVIEW_PHYSICS_CONTRACT_ID: c.PREVIEW_PHYSICS_CONTRACT_SHA256,
            PRESSURE_CONTRACT_ID: PRESSURE_CONTRACT_SHA256, **{identity: pinned[0] for identity, pinned in c.RETAINED_CONTRACTS.items()}}
-_TABLE_PATHS = {c.PHYSICS_CONTRACT_ID: c._PHYSICS_CONTRACT_PATH,
-                c.PHYSICS_SOURCE_CONTRACT_ID: c._PHYSICS_SOURCE_CONTRACT_PATH, c.PRESSURE_SOURCE_CONTRACT_ID: c._PRESSURE_SOURCE_CONTRACT_PATH,
-                c.PREVIEW_PHYSICS_CONTRACT_ID: c._PREVIEW_PHYSICS_CONTRACT_PATH, c.LOAD_REFERENCE_CONTRACT_ID: c._LOAD_REFERENCE_CONTRACT_PATH,
-                c.LOAD_REFERENCE_SOURCE_CONTRACT_ID: c._LOAD_REFERENCE_SOURCE_CONTRACT_PATH,
-                PRESSURE_CONTRACT_ID: c._RESULTS_DIR / "semantic_contract_v0_3_pressure_1.json",
-                **{identity: pinned[1] for identity, pinned in c.RETAINED_CONTRACTS.items()}}
+_TABLE_PATHS = {c.PRESSURE_SOURCE_CONTRACT_ID: c._PRESSURE_SOURCE_CONTRACT_PATH, c.PREVIEW_PHYSICS_CONTRACT_ID: c._PREVIEW_PHYSICS_CONTRACT_PATH,
+                PRESSURE_CONTRACT_ID: c._PRESSURE_CONTRACT_PATH, **{identity: pinned[1] for identity, pinned in c.RETAINED_CONTRACTS.items()}}
 _QUALITY_STATUSES = ("not_assessed", "checks_passed", "sensitive", "unresolved", "failed")
 _SUPPORT_KINDS = {"support_reaction_component_v2", "support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2"}
 _TABLES: dict[str, Any] = {}
@@ -89,6 +82,7 @@ def _refusal(text: str) -> dict[str, Any]:
 
 def _table(identity: str | None) -> Any:
     if identity == c.PRESSURE_SOURCE_CONTRACT_ID: return physics_source.pressure_source_table()
+    if identity == PRESSURE_CONTRACT_ID: return pressure_1.pressure_table()
     path = _TABLE_PATHS[identity]
     key = str(path)
     if key not in _TABLES:
@@ -128,7 +122,7 @@ def _metadata_header(source: Any) -> str:
         raise Refused(c.MECHANICS_RESULT_VERSION_RETIRED)
     if version != "0.2.0":
         raise Refused("SOURCE_SCHEMA_VERSION_UNSUPPORTED")
-    known = {*(set(_IDENTITY_ROUTES) - set(c.RETAINED_CONTRACTS)), PRESSURE_CONTRACT_ID}
+    known = set(_IDENTITY_ROUTES) - set(c.RETAINED_CONTRACTS)
     if (not _keys(producer, {"component_name", "component_version", "semantic_contract_id"}) or producer["component_name"] != "open_pipe_stress_product_physics"
             or producer["component_version"] != "0.2.0"):
         raise Refused("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
@@ -136,17 +130,16 @@ def _metadata_header(source: Any) -> str:
         raise Refused(f"{c.SOURCE_PRECISION_1_RETIRED}: precision-1 results are no longer read; re-run the analysis")
     if identity == c.RETIRED_SOURCE_BLOCKS_CONTRACT_ID:
         raise Refused(f"{c.SOURCE_BLOCKS_1_RETIRED}: source-blocks-1 results are no longer read; re-run the analysis")
+    if identity in c.RETIRED_EXACT_V2_IDS:
+        raise Refused(c.SOURCE_EXACT_PRESSURE_V2_RETIRED_TEXT)
     if not isinstance(identity, str) or identity not in known:
         raise Refused("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
-    if identity in {c.LOAD_REFERENCE_CONTRACT_ID, c.LOAD_REFERENCE_SOURCE_CONTRACT_ID} and "carrier_evidence" in source:
-        raise Refused("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
-    if identity not in {c.PHYSICS_SOURCE_CONTRACT_ID, c.PRESSURE_SOURCE_CONTRACT_ID, c.LOAD_REFERENCE_SOURCE_CONTRACT_ID} and "source_block_recovery" in source:
+    if identity != c.PRESSURE_SOURCE_CONTRACT_ID and "source_block_recovery" in source:
         raise Refused("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
     if identity == c.PREVIEW_PHYSICS_CONTRACT_ID and not isinstance(source.get("contract_evidence"), Mapping):
         raise Refused("SOURCE_PREVIEW_PHYSICS_EVIDENCE_REQUIRED")
-    if identity in (c.PHYSICS_SOURCE_CONTRACT_ID, c.PRESSURE_SOURCE_CONTRACT_ID):
-        context = physics_source.SourceContract.PRESSURE_V3 if identity == c.PRESSURE_SOURCE_CONTRACT_ID else physics_source.SourceContract.PHYSICS_V2
-        try: context.check_received(source)
+    if identity == c.PRESSURE_SOURCE_CONTRACT_ID:
+        try: physics_source.SourceContract.PRESSURE_V3.check_received(source)
         except ValueError as error: raise Refused(str(error)) from error
     quality = source.get("numerical_quality")
     if (not _keys(quality, {"value_representation", "publication_quantization", "integrity_policy", "status", "cases"})
@@ -164,28 +157,12 @@ def _metadata_header(source: Any) -> str:
                 or not isinstance(case["evidence_refs"], list) or not all(_text(item) for item in case["evidence_refs"])
                 or not _keys(basis, {"ref_type", "ref_id"}) or not _text(basis["ref_type"]) or not _text(basis["ref_id"])):
             raise Refused("SOURCE_NUMERICAL_CASE_INVALID")
-    profile = {c.PHYSICS_CONTRACT_ID: "exact_straight_pressure_v2", c.PHYSICS_SOURCE_CONTRACT_ID: "exact_straight_pressure_v2",
-               PRESSURE_CONTRACT_ID: PRESSURE_PROFILE, c.PRESSURE_SOURCE_CONTRACT_ID: PRESSURE_PROFILE, c.LOAD_REFERENCE_CONTRACT_ID: c.LOAD_REFERENCE_PROFILE,
-               c.LOAD_REFERENCE_SOURCE_CONTRACT_ID: c.LOAD_REFERENCE_SOURCE_PROFILE}.get(identity, "product_preview_mechanics_v1")
+    profile = {PRESSURE_CONTRACT_ID: PRESSURE_PROFILE, c.PRESSURE_SOURCE_CONTRACT_ID: PRESSURE_PROFILE}.get(identity, "product_preview_mechanics_v1")
     formulation = source.get("formulation_basis")
     if (not _keys(formulation, {"profile_id", "limitations"}) or formulation["profile_id"] != profile
             or not isinstance(formulation["limitations"], list) or not formulation["limitations"] or not all(_text(item) for item in formulation["limitations"])):
         raise Refused("SOURCE_FORMULATION_BASIS_UNSUPPORTED")
-    return "pressure" if identity == PRESSURE_CONTRACT_ID else _IDENTITY_ROUTES[identity]
-
-
-def _joined_receipt_shape(receipt: Any) -> None:
-    """TS `loadReferenceSourceReceiptShape`: the joined policy, then the physics-source-1 receipt shape with only
-    the policy substituted; under the joined reader's codes."""
-    body = receipt.get("body") if isinstance(receipt, Mapping) else None
-    if not isinstance(body, Mapping) or body.get("policy") != lrs.POLICY:
-        raise Refused(lr._code("JOIN_RECEIPT_POLICY"))
-    shaped = json.loads(json.dumps(receipt))
-    shaped["body"]["policy"] = lrs.PHYSICS_SOURCE_POLICY
-    try:
-        physics_source.validate_receipt_shape(shaped)
-    except ValueError:
-        raise Refused(lr._code("JOIN_RECEIPT_SHAPE")) from None
+    return _IDENTITY_ROUTES[identity]
 
 
 def route(source: Any) -> str:
@@ -199,14 +176,10 @@ def route(source: Any) -> str:
     evidence_object = isinstance(source.get("contract_evidence"), Mapping) if isinstance(source, Mapping) else False
     receipt = source.get("source_block_recovery") if isinstance(source, Mapping) else None
     try:
-        if name == "physics_source":
-            physics_source.validate_receipt_shape(receipt)
         if name == "pressure_source":
             physics_source.validate_receipt_shape(receipt, source_contract=physics_source.SourceContract.PRESSURE_V3)
-        if name in ("load_reference", "load_reference_source", "pressure") and not evidence_object:
+        if name == "pressure" and not evidence_object:
             raise Refused(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
-        if name == "load_reference_source":
-            _joined_receipt_shape(receipt)
     except Refused:
         raise
     except ValueError as error:
@@ -241,43 +214,46 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
                 raise Refused("SOURCE_PHYSICS_SUPPORT_BINDING")
 
 
-def _source_validate(source: Any, invocation: Any, context=physics_source.SourceContract.PHYSICS_V2) -> bool:
+def _source_validate(source: Any, invocation: Any, context=physics_source.SourceContract.PRESSURE_V3) -> bool:
     eligible = physics_source.validate_physics_source(source, invocation, source_contract=context)
     if invocation is not None:
         physics_model_checks(source, invocation["request"]["model"])
     return eligible
 
 
+def source_recovery(source: Any) -> None:
+    """Rust `reader_verdict::source_recovery`: the portable receipt/publication consistency the record and export
+    builders read: the header route (pressure-source-1 only), its transport metadata and the publication
+    commitment. No raw rows, invocation or eligibility."""
+    try:
+        name = route(source)
+    except Refused:
+        name = None
+    if name != "pressure_source":
+        raise Refused("SOURCE_RECOVERY_METADATA_CONTRADICTION")
+    physics_source.validate_transport_metadata(source, source_contract=physics_source.SourceContract.PRESSURE_V3)
+    publication = {key: value for key, value in source.items() if key != "source_block_recovery"}
+    if source["source_block_recovery"]["body"]["publication_sha256"] != source_blocks.domain_hash("source_blocks_publication_v1", publication):
+        raise Refused("SOURCE_BLOCKS_PUBLICATION_HASH")
+
+
 def validate(reader: str, source: Any, model: Any = None, invocation: Any = None) -> dict[str, Any]:
-    """One reader's raw validation: `{"ok": true}` (with `eligible`, and the source readers' G1 `findings`) or the refusal."""
+    """One reader's raw validation: `{"ok": true}` (with `eligible`, and the source reader's G1 `findings`) or the refusal."""
     model, invocation = _present(model), _present(invocation)
     try:
+        if reader == "source-recovery":
+            source_recovery(source)
+            return {"ok": True}
         if reader == "preview-physics":
             preview_physics_evidence.validate_preview_physics_evidence(source)
-            return {"ok": True}
-        if reader == "physics":
-            physics_evidence.validate_physics_evidence(source)
-            if model is not None:
-                physics_model_checks(source, model)
-            return {"ok": True}
-        if reader == "load-reference":
-            lr.validate_load_reference_evidence(source)
-            if model is not None:
-                try:
-                    physics_model_checks(lr._project(source), model)
-                except Refused as error:
-                    raise Refused(f"{lr._code('PHYSICS_EVIDENCE')}: {error}") from error
             return {"ok": True}
         if reader == "pressure":
             pressure_1.validate_pressure_evidence(source)
             if model is not None:
                 physics_model_checks(source, model)
             return {"ok": True}
-        if reader == "load-reference-source":
-            return {"ok": True, "eligible": lrs.validate_load_reference_source_evidence(source)}
-        if reader in ("physics-source", "pressure-source"):
-            context = physics_source.SourceContract.PRESSURE_V3 if reader == "pressure-source" else physics_source.SourceContract.PHYSICS_V2
-            eligible = _source_validate(source, invocation, context)
+        if reader == "pressure-source":
+            eligible = _source_validate(source, invocation)
             return {"ok": True, "eligible": eligible, "findings": [] if invocation is None else source_findings(source, invocation)}
     except ValueError as error:
         return _refusal(str(error))
@@ -286,10 +262,8 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
 
 def transport(reader: str, source: Any) -> dict[str, Any]:
     """One reader's transport (metadata-only) checks; never eligible."""
-    checks = {"preview-physics": preview_physics_evidence.validate_transport_metadata, "physics": physics_evidence.validate_transport_metadata,
-              "physics-source": physics_source.validate_transport_metadata,
-              "pressure-source": lambda source: physics_source.validate_transport_metadata(source, source_contract=physics_source.SourceContract.PRESSURE_V3), "load-reference": lr.validate_load_reference_transport_metadata,
-              "load-reference-source": lrs.validate_load_reference_source_transport_metadata}
+    checks = {"preview-physics": preview_physics_evidence.validate_transport_metadata,
+              "pressure-source": lambda source: physics_source.validate_transport_metadata(source, source_contract=physics_source.SourceContract.PRESSURE_V3)}
     if reader == "pressure":
         return _refusal(PRESSURE_TRANSPORT_UNSUPPORTED)
     if reader not in checks:
@@ -317,7 +291,7 @@ def source_findings(source: Mapping[str, Any], invocation: Mapping[str, Any]) ->
     """G1: TS `validateKnownSourceRecovery`'s findings: per case in order, an unqualified case and each
     inspection-only row of a physical (or unknown) kind; then an envelope not qualified, or whose model has
     combinations; then an unsolved envelope. Each code once, first place kept."""
-    table = _table(c.PHYSICS_SOURCE_CONTRACT_ID)
+    table = _table(c.PRESSURE_SOURCE_CONTRACT_ID)
     rows = {row["id"]: row for row in source.get("results") or [] if isinstance(row, Mapping) and isinstance(row.get("id"), str)}
     def physical(row: Mapping[str, Any]) -> bool:
         semantic = _semantic(table, row)
@@ -394,31 +368,23 @@ def standing(source: Any, model: Any = None, invocation: Any = None) -> dict[str
         name = route(source)
     except Refused as error:
         code = str(error)
-        findings.append(code if code in {c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN", physics_evidence.V3_READ_AS_V2, physics_evidence.V2_READ_AS_V3, c.MECHANICS_RESULT_VERSION_RETIRED} else SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
+        findings.append(code if code in {c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN", c.MECHANICS_RESULT_VERSION_RETIRED} else SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
         name = UNSUPPORTED
     def done(findings: list[str]) -> dict[str, Any]:
         eligible = not findings
         return {"route": name, "token": token, "status": "integrity_checked" if eligible else "needs_recompute", "eligible": eligible, "findings": findings}
-    if name in ("physics_source", "pressure_source"):
+    if name == "pressure_source":
         if invocation is None:
             findings.append(SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED)
         else:
-            context = physics_source.SourceContract.PRESSURE_V3 if name == "pressure_source" else physics_source.SourceContract.PHYSICS_V2
             try:
-                _source_validate(source, invocation, context)
+                _source_validate(source, invocation)
             except ValueError as error:
                 findings.append(str(error))
             else:
                 findings += source_findings(source, invocation)
-                if name == "pressure_source" and "load_reference_states" in source["contract_evidence"]:
+                if "load_reference_states" in source["contract_evidence"]:
                     findings.append(LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE)
-    elif name == "load_reference_source":
-        try:
-            lrs.validate_load_reference_source_evidence(source)
-            findings.append(LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE)
-        except ValueError as error:
-            findings.append(str(error))
-        return {"route": name, "token": token, "status": "needs_recompute", "eligible": False, "findings": findings}
     elif name in ("retained_preview_physics", "retained_physics"):
         if token != "numerically_eligible":
             from .retained_precision import RetainedPrecisionError, validate_retained_precision
@@ -429,7 +395,7 @@ def standing(source: Any, model: Any = None, invocation: Any = None) -> dict[str
                 findings.append(error.code)
         return done(findings)
     elif name != UNSUPPORTED:
-        reader = {"physics": "physics", "load_reference": "load-reference", "preview_physics": "preview-physics", "pressure": "pressure"}.get(name)
+        reader = {"preview_physics": "preview-physics", "pressure": "pressure"}.get(name)
         if reader is not None:
             outcome = validate(reader, source, model, None)
             if outcome["ok"] is not True:

@@ -225,7 +225,7 @@ def state_record_hash_from(envelope):
 def test_run_history_preserves_distinct_record_revisions_with_repeated_run_id():
     from core.analysis_runs.compatibility import build_analysis_run
 
-    mechanics = json.loads((ROOT / "fixtures/product_preview/load_reference_source/n05-sparse_interactive.raw.json").read_text())
+    mechanics = json.loads((ROOT / "fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json").read_text())
     manifest_ref = {"object_type": "InputManifest", "ref": "input-manifest:repeated"}
     first = build_analysis_run(mechanics, input_manifest_ref=manifest_ref, input_manifest_hash="1" * 64)
     revised = build_analysis_run(mechanics, input_manifest_ref=manifest_ref, input_manifest_hash="1" * 64, rule_check_status="USER_RULE_CHECKED")

@@ -1,24 +1,19 @@
-"""Closed admission of the load-reference-1 raw evidence namespace.
+"""Closed admission of the current load/reference-state evidence group on pressure-source-1.
 
 Test verifier (b7-plan R2): the product reader is Rust's (`core/reporting/result_export/src/load_reference.rs`), which
 product Python reaches only through `openpipestress-runner read`. Tests only: no module outside `tests/` imports
 this one, and it imports nothing from product code (`tests/test_verifier_independence.py`).
 
-Mirror of ``core/reporting/result_export/src/load_reference.rs``: the same
-checks run in the same order and raise the same error strings, so the Rust and
-Python readers accept and reject the same inputs. Change both together.
-Arrays are walked in document order so the first failure is deterministic.
-
-After the load-reference-specific pre-pass, the unchanged physics-1 validator
-checks rows, extrema, regions and the pressure RHS on a projected copy. The
-projection only removes or neutralizes fields that the pre-pass has already
-bound. This establishes internal source consistency, never producer origin,
-solver accuracy or model freshness.
+Mirror of ``core/reporting/result_export/src/load_reference.rs``'s pre-pass (S1-S13) in its retained-source form
+(``Method::PressureJoined``): the same checks run in the same order and raise the same error strings. Change both
+together. Arrays are walked in document order so the first failure is deterministic. pressure-1's own pre-pass is
+``pressure_1.py``'s. B7b (A4/A5) retired load-reference-1 and load-reference-source-1 with the
+``2.0.0/exact_straight_pressure_v2`` contract; neither is read here. This establishes internal source consistency,
+never producer origin, solver accuracy or model freshness.
 """
 from __future__ import annotations
 
 from copy import deepcopy
-from functools import lru_cache
 import hashlib
 import json
 import math
@@ -27,14 +22,12 @@ from pathlib import Path
 from collections.abc import Mapping
 from typing import Any
 
-CONTRACT_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
-PROFILE = "resolved_straight_load_state_v1"
-TABLE_SHA256 = "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09"
-TABLE_PATH = Path(__file__).resolve().parents[2] / "fixtures" / "results" / "semantic_contract_v0_3_load_reference_1.json"
-TRANSPORT_SCHEMA_SHA256 = "2ac01a19ac496893a14864dcfa6c7523f7acb6659181d38c498f722e1059f500"
+TRANSPORT_SCHEMA_SHA256 = "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0"
 TRANSPORT_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "load_reference_state.schema.json"
 
 RECORD_CONTRACT = "openpipestress.load_reference_state/1.0.0"
+# The per-case record's resolved-state profile (not a result identity).
+RECORD_PROFILE = "resolved_straight_load_state_v1"
 MATERIAL_BASIS = "resolved_per_member_load_reference_state_v1"
 NOT_JOINED = "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED"
 # Selected retained-source method and its info diagnostic (joined method only).
@@ -42,12 +35,7 @@ EXACT_METHOD = "retained_source_blocks_exact_v1"
 SELECTED = "SOURCE_BLOCK_RECOVERY_SELECTED"
 # A failed retained-source attempt; never emitted for a selected case.
 UNAVAILABLE = "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
-# The method whose namespace is admitted: load-reference-1 (unchanged) or the
-# joined load-reference-source-1 pre-pass (``load_reference_source``).
-LOAD_REFERENCE = "load_reference"
-JOINED = "joined"
-# The pressure-source-1 0.4.0 pre-pass (b7-plan D2, direct v3 reading);
-# pressure-1's own pre-pass is `pressure_1.py`'s.
+# The retained-source pre-pass (b7-plan D2, direct v3 reading; Rust `Method::PressureJoined`).
 PRESSURE_JOINED = "pressure_joined"
 REGION_TEMPERATURE_BASIS = "resolved_member_state"
 G_BASIS = "E/[2(1+nu)] from the selected pair"
@@ -236,59 +224,11 @@ def _positive(value: float | None) -> bool:
     return value is None or value > 0
 
 
-def verify_load_reference_table(data: bytes) -> dict[str, Any]:
-    """Pinned table bytes: identity, profile and sha256 are checked, never inferred."""
-    if hashlib.sha256(data).hexdigest() != TABLE_SHA256:
-        raise LoadReferenceError("SOURCE_LOAD_REFERENCE_TABLE_HASH")
-    table = json.loads(data)
-    if not isinstance(table, Mapping) or table.get("semantic_contract_id") != CONTRACT_ID or table.get("formulation_profile_id") != PROFILE:
-        raise LoadReferenceError("SOURCE_LOAD_REFERENCE_TABLE_IDENTITY")
-    return table
-
-
-@lru_cache(maxsize=1)
-def load_reference_table() -> dict[str, Any]:
-    return verify_load_reference_table(TABLE_PATH.read_bytes())
-
-
 def transport_schema() -> dict[str, Any]:
     data = TRANSPORT_SCHEMA_PATH.read_bytes()
     if hashlib.sha256(data).hexdigest() != TRANSPORT_SCHEMA_SHA256:
         raise LoadReferenceError("SOURCE_LOAD_REFERENCE_TRANSPORT_SCHEMA_HASH")
     return json.loads(data)
-
-
-def validate_load_reference_evidence(source: Mapping[str, Any]) -> None:
-    """Raw load-reference-1 publication: closed evidence, joins, rows and diagnostics."""
-    _guarded(source, raw=True)
-
-
-def validate_load_reference_transport_metadata(source: Mapping[str, Any]) -> None:
-    """Retained statements without raw rows: frozen schema shape and internal joins only."""
-    _guarded(source, raw=False)
-
-
-def _guarded(source: Mapping[str, Any], *, raw: bool) -> None:
-    try:
-        _validate(source, raw)
-    except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
-        raise LoadReferenceError("SOURCE_LOAD_REFERENCE_MALFORMED") from error
-
-
-def _validate(source: Mapping[str, Any], raw: bool) -> None:
-    _prepass(source, raw, LOAD_REFERENCE)
-    # S14 inherited physics-1 checks on the projected copy.
-    projected = _project(source)
-    from .physics_evidence import validate_physics_evidence, validate_transport_metadata
-    try:
-        if raw:
-            validate_physics_evidence(projected)
-        else:
-            validate_transport_metadata(projected)
-    except ValueError as error:
-        raise LoadReferenceError(f"{_code('PHYSICS_EVIDENCE')}: {error}") from error
-    except (TypeError, KeyError, AttributeError, OverflowError, IndexError) as error:
-        raise LoadReferenceError(f"{_code('PHYSICS_EVIDENCE')}: SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
 
 
 def _is_selected(record: Any) -> bool:
@@ -297,12 +237,12 @@ def _is_selected(record: Any) -> bool:
 
 
 def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
-    """Steps S1-S13, shared with the joined reader (Rust ``load_reference::prepass``).
-
-    The joined method differs only in S1 (the receipt is required), S7
-    (``recovery_method``), S10 (a selected record), S10b and S13.
-    """
-    joined = method in (JOINED, PRESSURE_JOINED)
+    """Steps S1-S13 of Rust ``load_reference::prepass`` in its retained-source form (``Method::PressureJoined``):
+    S1 requires the receipt, S7 the ``recovery_method``, S10 admits a selected record, S10b and S13 bind the
+    selected response. pressure-1's ordinary pre-pass is ``pressure_1.py``'s; no other method is read here."""
+    if method != PRESSURE_JOINED:
+        raise ValueError(f"LOAD_REFERENCE_METHOD_UNSUPPORTED: {method}")
+    joined = True
     # S1 foreign method namespaces.
     if joined:
         _require(not isinstance(source, Mapping) or "carrier_evidence" not in source, "FOREIGN_METHOD_EVIDENCE")
@@ -418,31 +358,11 @@ def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
             _require(not any(_eq(_get(d, "code"), UNAVAILABLE) and isinstance(_get(d, "affected_refs"), list) and any(isinstance(r, str) and r in selected_ids for r in d["affected_refs"]) for d in diagnostics), "JOIN_SELECTED_UNAVAILABLE_DIAGNOSTIC")
 
 
-def _project(source: Mapping[str, Any]) -> dict[str, Any]:
-    projected = deepcopy(dict(source)) if isinstance(source, Mapping) else deepcopy(source)
-    evidence = projected.get("contract_evidence") if isinstance(projected, dict) else None
-    if isinstance(evidence, dict):
-        evidence.pop("load_reference_states", None)
-        for case in evidence.get("exact_cases") if isinstance(evidence.get("exact_cases"), list) else []:
-            if isinstance(case, dict):
-                case["material_basis"] = "base_material_common_E_nu"
-                for material in case.get("pipe_materials") if isinstance(case.get("pipe_materials"), list) else []:
-                    if isinstance(material, dict):
-                        material.pop("material_selection_kind", None)
-                        material.pop("resolved_eigenstrain", None)
-        for region in evidence.get("pressure") if isinstance(evidence.get("pressure"), list) else []:
-            if isinstance(region, dict):
-                for material in region.get("materials") if isinstance(region.get("materials"), list) else []:
-                    if isinstance(material, dict):
-                        material["temperature_basis"] = {"selection": "base_material"}
-    return projected
-
-
-def _validate_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[str, Any]]], pressure: list[Any], method: str = LOAD_REFERENCE) -> None:
+def _validate_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[str, Any]]], pressure: list[Any], method: str = PRESSURE_JOINED) -> None:
     case_id = _text(record["load_case_id"])
     # R1-R7 record-level closed statements.
     _require(_eq(record["contract"], RECORD_CONTRACT), "RECORD_CONTRACT")
-    _require(_eq(record["profile"], PROFILE), "RECORD_PROFILE")
+    _require(_eq(record["profile"], RECORD_PROFILE), "RECORD_PROFILE")
     configuration = _text(record["reference_configuration_id"])
     _text(record["provenance"])
     geometry = record["reference_geometry"]
@@ -456,7 +376,7 @@ def _validate_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[s
     pair = (solve["requested_mode"], solve["recovery_method"])
     # The joined method also admits the selected retained-source response in
     # either requested mode (ADDENDUM_2 section 5.3).
-    selected = method in (JOINED, PRESSURE_JOINED) and _eq(solve["recovery_method"], EXACT_METHOD)
+    selected = method == PRESSURE_JOINED and _eq(solve["recovery_method"], EXACT_METHOD)
     _require(
         all(isinstance(item, str) for item in pair)
         and (pair in {("sparse_interactive", "ordinary_sparse_structural_v1"), ("dense_scrutiny", "ordinary_dense_structural_v1")}

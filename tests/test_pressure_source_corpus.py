@@ -21,7 +21,10 @@ def test_pressure_source_corpus_has_24_genuine_twins_and_named_mutations():
     assert CORPUS["schema_version"] == "1.0.0"
     assert sum("raw_fixture" in entry for entry in ENTRIES) == 24
     assert len({entry["id"] for entry in ENTRIES}) == len(ENTRIES)
-    for name in ("MJ2-wrong-domain", "MJ4-stale-receipt", "MJ4-publication-binding", "MJ5-v3-offered-to-v2", "MJ5-relabelled-shape", "MJ7-downgrade", "MJ3-selected-pressure-"):
+    # B7b: the v2 reader is gone, so MJ5 offers a pressure-source-1 statement to the pressure-1 reader and names the
+    # retired v2 identity and captured v2 context refusals.
+    for name in ("MJ2-wrong-domain", "MJ4-stale-receipt", "MJ4-publication-binding", "MJ5-pressure-source-offered-to-pressure-1",
+                 "MJ5-retired-v2-identity", "MJ5-captured-v2-context", "MJ5-relabelled-shape", "MJ7-downgrade", "MJ3-selected-pressure-"):
         assert any(name in entry["id"] for entry in ENTRIES), name
 
 

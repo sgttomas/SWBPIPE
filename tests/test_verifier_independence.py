@@ -305,7 +305,7 @@ def test_the_verifiers_units_reproduce_the_producers_converted_materials_and_sec
     verifier runs (`_actual_materials` over `_canonical_inputs`) matches them bit for bit with this
     module's conversions."""
     from tests.verifiers.physics_source import _actual_materials, _canonical_inputs
-    folder = ROOT / "fixtures/product_preview/physics_source"
+    folder = ROOT / "fixtures/product_preview/pressure_source/physics_source"
     source = json.loads((folder / f"{name}-{mode}.raw.json").read_text(encoding="utf-8"))
     invocation = {"request": json.loads((folder / f"{name}.request.json").read_text(encoding="utf-8")), "solver_mode": mode}
     canonical = _canonical_inputs(invocation, units.convert_quantities_to_canonical)
@@ -319,19 +319,22 @@ def test_the_verifiers_units_reproduce_the_producers_converted_materials_and_sec
 @pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
 def test_the_base_verifiers_read_raw_statements_without_any_process(no_processes, mode):
     """R2: the base verifiers' hashing (receipt, publication and invocation digests) and unit conversion
-    run in process: physics-source-1 statements bound to their producer's invocation,
-    and a joined load-reference-source-1 statement, are admitted with no process spawned."""
+    run in process: pressure-source-1 statements bound to their producer's invocation, and a
+    pressure-source-1 statement carrying the load/reference-state group (B7b: the twin of the retired
+    joined load-reference-source-1), are admitted with no process spawned."""
     from tests.verifiers import compatibility
-    from tests.verifiers.load_reference_source import validate_load_reference_source_evidence
+    from tests.verifiers.load_reference_source import validate_pressure_source_evidence
     from tests.verifiers.physics_source import validate_physics_source
-    for folder, name, request, validate in (("physics_source", "n05", "n05", validate_physics_source),
-                                            ("physics_source", "mixed_units", "mixed_units", validate_physics_source)):
+    for folder, name, request, validate in (("pressure_source/physics_source", "n05", "n05", validate_physics_source),
+                                            ("pressure_source/physics_source", "mixed_units", "mixed_units", validate_physics_source)):
         base = ROOT / "fixtures/product_preview" / folder
         source = json.loads((base / f"{name}-{mode}.raw.json").read_text(encoding="utf-8"))
         invocation = {"request": json.loads((base / f"{request}.request.json").read_text(encoding="utf-8")), "solver_mode": mode}
         assert validate(deepcopy(source), invocation) is True, (folder, name)
         refs = [case["basis_ref"] for case in source["source_block_recovery"]["body"]["cases"]]
         assert compatibility.numerical_use_standing(source, refs, invocation) == "numerically_eligible", (folder, name)
-    joined = json.loads((ROOT / f"fixtures/product_preview/load_reference_source/n05-{mode}.raw.json").read_text(encoding="utf-8"))
-    assert validate_load_reference_source_evidence(joined) is False
-    assert compatibility._source_contract(joined)[0] == compatibility.LOAD_REFERENCE_SOURCE_CONTRACT_ID
+    joined = json.loads((ROOT / f"fixtures/product_preview/pressure_source/load_reference_source/n05-{mode}.raw.json").read_text(encoding="utf-8"))
+    validate_pressure_source_evidence(deepcopy(joined), raw=True)
+    # Admitted, never numerically eligible (LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1).
+    assert validate_physics_source(deepcopy(joined)) is False
+    assert compatibility._source_contract(joined)[0] == compatibility.PRESSURE_SOURCE_CONTRACT_ID

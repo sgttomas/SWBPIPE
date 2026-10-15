@@ -1,17 +1,20 @@
-"""Load/reference-state schema contract (model 0.4.0, load-reference-1).
+"""Load/reference-state schema contract: model 0.5.0's optional load/reference-state group (B7b).
 
-Shape only. The authored namespace is checked against the frozen producer
-requests; raw evidence against the frozen producer envelopes. Coverage, unit
-dimension and parse-then-block rules are producer diagnostics and are not
-asserted here. Carrier instances are schema-level transforms of physics-1
-carriers built by the existing Python route (AnalysisRun, stress-neutral) or a
-minimal hand-built results 0.3 scaffold around verbatim raw metadata; they are
-not reader output and carry no hash or cross-binding claim.
+Shape only. The authored namespace is checked against the current producer requests (model 0.5.0 with the exact
+pressure contract); raw evidence against the current producer envelopes, which publish pressure-1
+(`3.0.0/exact_pressure_v3`) with `contract_evidence.load_reference_states`: results_pressure_1.v0.3's
+PressureContractEvidence, whose records are load_reference_state.schema.json's LoadReferenceStateRecord. Coverage,
+unit dimension and parse-then-block rules are producer diagnostics and are not asserted here. Under the one shape
+pressure-1 shares with and without the group, three facts the retired load-reference-1 evidence schema encoded are
+reader checks (the group's presence, the exact cases' resolved material basis and the regions' resolved temperature
+basis); they are checked here through the readers, the product's (Rust) and the verifier. Carrier instances are the
+actual pressure_load_state_* AnalysisRun and stress-neutral fixtures the product's Python route builds, or a minimal
+hand-built results 0.3 scaffold around verbatim raw metadata; they are not reader output and carry no hash or
+cross-binding claim. B7b retired load-reference-1, its table and its definitions.
 """
 from __future__ import annotations
 
 from copy import deepcopy
-import hashlib
 import json
 from pathlib import Path
 
@@ -21,22 +24,29 @@ from schema_validation import envelope_branches, schema_for_definition, validate
 
 PROJECT = Path(__file__).resolve().parents[1]
 SCHEMAS = PROJECT / "schemas"
-LOAD_REFERENCE = PROJECT / "fixtures/product_preview/load_reference"
+LOAD_REFERENCE = PROJECT / "fixtures/product_preview/pressure/load_reference"
 LR_SCHEMA_NAME = "load_reference_state.schema.json"
-CARRIERS = ("results.v0.3.schema.yaml", "analysis_run.v0.3.schema.json", "stress_neutral_export.v0.3.schema.json")
+PRESSURE_SCHEMA_NAME = "results_pressure_1.v0.3.schema.json"
+CARRIERS = ("results.v0.3.schema.yaml", PRESSURE_SCHEMA_NAME, "analysis_run.v0.3.schema.json", "stress_neutral_export.v0.3.schema.json")
 
 CONTRACT = "openpipestress.load_reference_state/1.0.0"
-LR_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
-LR_SHA = "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09"
-LR_PROFILE = "resolved_straight_load_state_v1"
-PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
+RECORD_PROFILE = "resolved_straight_load_state_v1"
+PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
+PRESSURE_SHA = "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375"
+PRESSURE_PROFILE = "exact_pressure_v3"
 PRESSURE_SOURCE_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PHYSICS_SHA = "a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1"
-PHYSICS_PROFILE = "exact_straight_pressure_v2"
-LR_EVIDENCE_REF = {"$ref": "load_reference_state.schema.json#/$defs/LoadReferenceContractEvidence"}
-PHYSICS_RAW = PROJECT / "fixtures/results/physics_connected_mechanics_sparse.json"
-# B4/D1 (b): the foreign receipt is a composite's (the only source-block receipt remaining).
-SOURCE_BLOCKS_RAW = PROJECT / "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
+PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+PREVIEW_SHA = "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32"
+RETIRED_LR_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
+RETIRED_IDS = ("openpipestress.result_semantics/0.3.0/physics-1", "openpipestress.result_semantics/0.3.0/physics-source-1",
+               RETIRED_LR_ID, "openpipestress.result_semantics/0.3.0/load-reference-source-1")
+EXACT_CONTRACT = {"version": "3.0.0", "mode": PRESSURE_PROFILE, "shear_model": "euler_bernoulli"}
+EVIDENCE_REF = {"$ref": f"{PRESSURE_SCHEMA_NAME}#/$defs/PressureContractEvidence"}
+PRESSURE_RAW = PROJECT / "fixtures/results/pressure_connected_mechanics_sparse.json"
+PREVIEW_RAW = PROJECT / "fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json"
+# B4/D1 (b): the foreign receipt is the composite's (the only source-block receipt remaining).
+SOURCE_BLOCKS_RAW = PROJECT / "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
+CARRIER_STEMS = [f"{stem}_{short}" for stem in ("connected", "pressure") for short in ("sparse", "dense")]
 
 # Authored keys the wire (CP2_WIRE.md) and the typed DTO make optional.
 OPTIONAL_AUTHORED = {"label", "operating_temperature", "analysis_basis_override", "mass_state_ref",
@@ -63,6 +73,7 @@ def schema(name):
 
 
 LRS = schema(LR_SCHEMA_NAME)
+PRESSURE_SCHEMA = schema(PRESSURE_SCHEMA_NAME)
 
 
 def definition(name):
@@ -78,6 +89,23 @@ def rejected(name, instance):
         validate_instance(definition(name), instance, schema_label=LR_SCHEMA_NAME, instance_label=name)
 
 
+def evidence_definition():
+    """results_pressure_1's PressureContractEvidence as a root of its own; its sibling references resolve locally."""
+    root = schema_for_definition(PRESSURE_SCHEMA, "PressureContractEvidence")
+    if "$id" in PRESSURE_SCHEMA:
+        root["$id"] = PRESSURE_SCHEMA["$id"]
+    return root
+
+
+def evidence_accepted(instance):
+    validate_instance(evidence_definition(), instance, schema_label=PRESSURE_SCHEMA_NAME, instance_label="PressureContractEvidence")
+
+
+def evidence_rejected(instance):
+    with pytest.raises(AssertionError):
+        validate_instance(evidence_definition(), instance, schema_label=PRESSURE_SCHEMA_NAME, instance_label="PressureContractEvidence")
+
+
 def request(stem):
     return strict_json(LOAD_REFERENCE / f"{stem}.request.json")["model"]
 
@@ -90,6 +118,20 @@ def raw_paths():
 
 def raw(stem="pressure-sparse_interactive"):
     return strict_json(LOAD_REFERENCE / f"{stem}.raw.json")
+
+
+def reader_refusals(document):
+    """The product's (Rust) and the verifier's raw dispatch of a statement: their refusal texts, or "accept"."""
+    from core.analysis_runs.compatibility import _source_contract
+    from tests.verifiers import compatibility as verifier
+
+    def outcome(read):
+        try:
+            read(document)
+        except ValueError as error:
+            return str(error)
+        return "accept"
+    return outcome(_source_contract), outcome(verifier._source_contract)
 
 
 def walk_objects(value):
@@ -227,13 +269,16 @@ def test_schema_documents_parse_strictly_and_are_draft_2020_12(name):
     validate_schema_document(document, schema_label=name)
 
 
-def test_semantic_table_identity_is_the_pinned_load_reference_table():
-    table_path = PROJECT / "fixtures/results/semantic_contract_v0_3_load_reference_1.json"
-    assert hashlib.sha256(table_path.read_bytes()).hexdigest() == LR_SHA
-    table = strict_json(table_path)
-    assert table["semantic_contract_id"] == LR_ID
-    assert table["formulation_profile_id"] == LR_PROFILE
-    assert table["inherited_semantic_contract_sha256"] == PHYSICS_SHA
+def test_retired_load_reference_table_and_definitions_are_absent():
+    """B7b retired load-reference-1 with `2.0.0/exact_straight_pressure_v2`: its table and its evidence
+    definitions are gone; the group's records and resolved materials remain."""
+    assert not (PROJECT / "fixtures/results/semantic_contract_v0_3_load_reference_1.json").exists()
+    for name in ("LoadReferenceContractEvidence", "LoadReferenceExactCase", "LoadReferencePressureEvidence", "PhysicsGeometry"):
+        assert name not in LRS["$defs"], name
+    for name in ("LoadReferenceStateRecord", "LoadReferencePipeMaterial", "LoadReferenceRegionMaterial"):
+        assert name in LRS["$defs"], name
+    text = (SCHEMAS / LR_SCHEMA_NAME).read_text(encoding="utf-8")
+    assert "exact_straight_pressure_v2" not in text and RETIRED_LR_ID not in text
 
 
 def test_load_reference_schema_stays_within_the_closed_shape_checker_vocabulary():
@@ -271,7 +316,7 @@ def test_load_reference_schema_stays_within_the_closed_shape_checker_vocabulary(
     check(LRS, "#")
 
 
-# ---------------------------------------------------------------- physics-shape reuse
+# ---------------------------------------------------------------- resolved-material shapes
 def _without(value, pointer_parts):
     value = deepcopy(value)
     parent = value
@@ -281,53 +326,30 @@ def _without(value, pointer_parts):
     return value
 
 
-def test_physics_shape_copies_differ_only_at_the_documented_pointers():
+def test_resolved_material_shapes_differ_only_at_the_documented_keys():
     results = schema("results.v0.3.schema.yaml")["$defs"]
-    physics = results["PhysicsContractEvidence"]["properties"]
-    defs = LRS["$defs"]
-    assert defs["PhysicsGeometry"] == results["PhysicsGeometry"]
-    # Pressure: only materials[].temperature_basis differs; the producer publishes "resolved_member_state".
-    pressure = physics["pressure"]["items"]
-    assert defs["LoadReferencePressureEvidence"]["properties"]["materials"]["items"]["properties"]["temperature_basis"] == {
-        "const": "resolved_member_state"}
-    tb = ["properties", "materials", "items", "properties", "temperature_basis"]
-    assert _without(_without(defs["LoadReferencePressureEvidence"], ["description"]), tb) == _without(pressure, tb)
-    # Exact cases: material_basis const and pipe_materials items only.
-    exact = physics["exact_cases"]["items"]
-    ours = _without(defs["LoadReferenceExactCase"], ["description"])
-    assert ours["properties"]["material_basis"] == {"const": "resolved_per_member_load_reference_state_v1"}
-    assert ours["properties"]["pipe_materials"]["items"] == {"$ref": "#/$defs/LoadReferencePipeMaterial"}
-    for part in (["properties", "material_basis"], ["properties", "pipe_materials", "items"]):
-        ours, exact = _without(ours, part), _without(exact, part)
-    assert ours == exact
-    # Pipe materials: PhysicsMaterial plus the two resolved-member keys.
-    material = _without(defs["LoadReferencePipeMaterial"], ["description"])
     base = results["PhysicsMaterial"]
+    defs = LRS["$defs"]
+    # Pipe materials: PhysicsMaterial plus the two resolved-member keys; pressure-1 holds the same closed shape.
+    material = _without(defs["LoadReferencePipeMaterial"], ["description"])
     assert material["required"] == base["required"] + ["material_selection_kind", "resolved_eigenstrain"]
     assert {k: v for k, v in material["properties"].items() if k in base["properties"]} == base["properties"]
     assert set(material["properties"]) - set(base["properties"]) == {"material_selection_kind", "resolved_eigenstrain"}
     assert {k: v for k, v in material.items() if k not in {"required", "properties"}} == {
         k: v for k, v in base.items() if k not in {"required", "properties"}}
+    assert _without(PRESSURE_SCHEMA["$defs"]["PressureResolvedPipeMaterial"], ["description"]) == material
+    # Region materials: PhysicsMaterial plus temperature_basis, the resolved per-member pair's constant.
+    region = _without(defs["LoadReferenceRegionMaterial"], ["description"])
+    assert region["required"] == base["required"] + ["temperature_basis"]
+    assert region["properties"]["temperature_basis"] == {"const": "resolved_member_state"}
+    assert {k: v for k, v in region["properties"].items() if k != "temperature_basis"} == base["properties"]
 
 
-def test_raw_pressure_evidence_is_not_the_physics_pressure_shape():
-    """Why pressure is a documented copy instead of a $ref: temperature_basis differs in the actual output."""
-    evidence = raw()["contract_evidence"]
-    assert evidence["pressure"], "the pressure envelope carries pressure regions"
-    results = schema("results.v0.3.schema.yaml")
-    physics_like = {key: value for key, value in evidence.items() if key != "load_reference_states"}
-    physics_like["exact_cases"] = []
-    with pytest.raises(AssertionError):
-        validate_instance(schema_for_definition(results, "PhysicsContractEvidence"), physics_like)
-    physics_like["pressure"] = []
-    validate_instance(schema_for_definition(results, "PhysicsContractEvidence"), physics_like)
-
-
-# ---------------------------------------------------------------- positive: frozen producer inputs and outputs
+# ---------------------------------------------------------------- positive: current producer inputs and outputs
 @pytest.mark.parametrize("stem", ("connected", "pressure"))
-def test_frozen_request_authored_namespace_validates(stem):
+def test_current_request_authored_namespace_validates(stem):
     model = request(stem)
-    assert model["schema_version"] == "0.4.0"
+    assert model["schema_version"] == "0.5.0" and model["pressure_contract"] == EXACT_CONTRACT
     assert model["reference_configurations"]
     for index, configuration in enumerate(model["reference_configurations"]):
         validate_instance(definition("ReferenceConfiguration"), configuration, instance_label=f"{stem}:reference[{index}]")
@@ -343,20 +365,26 @@ def test_frozen_request_authored_namespace_validates(stem):
 @pytest.mark.parametrize("path", raw_paths(), ids=lambda path: path.stem)
 def test_every_raw_envelope_contract_evidence_validates(path):
     envelope = strict_json(path)
-    assert envelope["producer"]["semantic_contract_id"] == LR_ID
-    assert envelope["formulation_basis"]["profile_id"] == LR_PROFILE
+    assert envelope["producer"]["semantic_contract_id"] == PRESSURE_ID
+    assert envelope["formulation_basis"]["profile_id"] == PRESSURE_PROFILE
     assert "source_block_recovery" not in envelope
     evidence = envelope["contract_evidence"]
     assert set(evidence) == {"pressure", "connector", "exact_cases", "load_reference_states"}
-    validate_instance(definition("LoadReferenceContractEvidence"), evidence, instance_label=path.stem)
+    evidence_accepted(evidence)
+    for record in evidence["load_reference_states"]:
+        assert record["contract"] == CONTRACT and record["profile"] == RECORD_PROFILE
+        validate_instance(definition("LoadReferenceStateRecord"), record, instance_label=f"{path.stem}:{record['load_case_id']}")
 
 
-def test_physics_and_load_reference_evidence_do_not_cross_validate():
-    rejected("LoadReferenceContractEvidence", strict_json(PHYSICS_RAW)["contract_evidence"])
+def test_pressure_evidence_is_one_shape_and_the_retained_exact_shape_refuses_the_group():
+    """pressure-1 publishes one evidence shape with or without the group; the exact successor's retained shape
+    (results 0.3 ExactRetainedContractEvidence, straight members only) admits neither the group nor its
+    resolved members."""
+    evidence_accepted(strict_json(PRESSURE_RAW)["contract_evidence"])
     results = schema("results.v0.3.schema.yaml")
     for path in raw_paths():
         with pytest.raises(AssertionError):
-            validate_instance(schema_for_definition(results, "PhysicsContractEvidence"), strict_json(path)["contract_evidence"])
+            validate_instance(schema_for_definition(results, "ExactRetainedContractEvidence"), strict_json(path)["contract_evidence"])
 
 
 @pytest.mark.parametrize("name,instance", AUTHORED, ids=[name for name, _ in AUTHORED])
@@ -491,29 +519,29 @@ RAW_OBJECTS = [path for path, _ in walk_objects(RAW_SET)]
 
 @pytest.mark.parametrize("index", range(len(RAW_SET)))
 def test_raw_walk_starting_points_are_valid(index):
-    accepted("LoadReferenceContractEvidence", RAW_SET[index])
+    evidence_accepted(RAW_SET[index])
 
 
 @pytest.mark.parametrize("path", RAW_OBJECTS, ids=[label(p) for p in RAW_OBJECTS])
 def test_raw_unknown_key_is_rejected_at_every_object_level(path):
     evidence = deepcopy(RAW_SET[path[0]])
     at(evidence, path[1:])["unexpected_key"] = True
-    rejected("LoadReferenceContractEvidence", evidence)
+    evidence_rejected(evidence)
 
 
-# Missing keys: every key of the load-reference-specific shapes (the evidence root, each
-# load_reference_states record and its sub-objects, exact_cases pipe_materials). The physics-copied
-# shapes are pinned equal to results.v0.3 above.
+# Missing keys: every key of the load/reference-state shapes (the evidence root, each load_reference_states
+# record and its sub-objects, exact_cases pipe_materials). The group itself is optional in pressure-1's one shape
+# and is selected by presence: its removal is refused by the readers (below), not by the shape.
 RAW_KEYS = [(path, key) for path, node in walk_objects(RAW_SET)
             if path[1:] == () or path[1:2] == ("load_reference_states",) or "pipe_materials" in path
-            for key in node]
+            for key in node if (path[1:], key) != ((), "load_reference_states")]
 
 
 @pytest.mark.parametrize("path,key", RAW_KEYS, ids=[f"{label(p)}/{k}" for p, k in RAW_KEYS])
 def test_raw_missing_key_is_rejected(path, key):
     evidence = deepcopy(RAW_SET[path[0]])
     del at(evidence, path[1:])[key]
-    rejected("LoadReferenceContractEvidence", evidence)
+    evidence_rejected(evidence)
 
 
 def _first_state():
@@ -525,15 +553,14 @@ def _first_state():
 @pytest.mark.parametrize("mutation", (
     "contract", "profile", "source_recovery_status", "source_recovery_code", "history", "geometry_kind",
     "projection_hash", "mode_method_mix", "segment_use", "fit_kind", "reference_basis", "thermal_definition",
-    "selection_kind", "exact_material_basis", "exact_selection_kind", "pressure_temperature_basis",
-    "support_unit_mismatch", "support_law", "owner_kind", "classification", "pressure_factor", "excluded_owner",
-    "connector", "string_number",
+    "selection_kind", "exact_selection_kind", "support_unit_mismatch", "support_law", "owner_kind", "classification",
+    "pressure_factor", "excluded_owner", "connector", "string_number",
 ))
 def test_raw_evidence_enum_and_constant_mutations_are_rejected(mutation):
     evidence, state = _first_state()
     member = state["members"][0]
     if mutation == "contract": state["contract"] = "openpipestress.load_reference_state/2.0.0"
-    elif mutation == "profile": state["profile"] = PHYSICS_PROFILE
+    elif mutation == "profile": state["profile"] = "exact_straight_pressure_v2"
     elif mutation == "source_recovery_status": state["source_recovery"]["status"] = "joined"
     elif mutation == "source_recovery_code": state["source_recovery"]["code"] = "OTHER"
     elif mutation == "history": state["history"]["kind"] = "continuation"
@@ -547,9 +574,7 @@ def test_raw_evidence_enum_and_constant_mutations_are_rejected(mutation):
     elif mutation == "reference_basis": member["reference_basis"] = "ambient"
     elif mutation == "thermal_definition": member["thermal_definition"] = "engineering_tangent"
     elif mutation == "selection_kind": member["material_selection_kind"] = "base_material"
-    elif mutation == "exact_material_basis": evidence["exact_cases"][0]["material_basis"] = "case_wide_base_material"
     elif mutation == "exact_selection_kind": evidence["exact_cases"][0]["pipe_materials"][0]["material_selection_kind"] = "interpolation"
-    elif mutation == "pressure_temperature_basis": evidence["pressure"][0]["materials"][0]["temperature_basis"] = {"selection": "base_material"}
     elif mutation == "support_unit_mismatch":
         state["support_components"] = [{"support_id": "support:root", "node_id": "node:root", "dof": "RZ", "global_dof": 5,
                                         "law_kind": "rigid_prescribed", "prescribed_value": 0.001, "unit": "m",
@@ -570,7 +595,24 @@ def test_raw_evidence_enum_and_constant_mutations_are_rejected(mutation):
          "reason": "not listed in analysis_state.load_sources"}]
     elif mutation == "connector": evidence["connector"] = [{}]
     elif mutation == "string_number": member["selected_E_pa"] = str(member["selected_E_pa"])
-    rejected("LoadReferenceContractEvidence", evidence)
+    evidence_rejected(evidence)
+
+
+@pytest.mark.parametrize(("mutation", "rust", "verifier"), (
+    ("group_removed", "SOURCE_PHYSICS_MATERIAL_SHAPE", "SOURCE_PHYSICS_EVIDENCE_INVALID: material shape"),
+    ("exact_material_basis", "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS", "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS"),
+    ("pressure_temperature_basis", "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS", "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS"),
+))
+def test_group_presence_and_resolved_bases_are_reader_checks_under_the_shared_shape(mutation, rust, verifier):
+    """The retired load-reference-1 evidence schema encoded these as constants; pressure-1's one shape admits
+    them, and both readers refuse them (the verifier's text is its own, as its other generic codes)."""
+    document = raw()
+    evidence = document["contract_evidence"]
+    if mutation == "group_removed": del evidence["load_reference_states"]
+    elif mutation == "exact_material_basis": evidence["exact_cases"][0]["material_basis"] = "case_wide_base_material"
+    else: evidence["pressure"][0]["materials"][0]["temperature_basis"] = {"selection": "base_material"}
+    evidence_accepted(evidence)
+    assert reader_refusals(document) == (rust, verifier)
 
 
 def test_raw_absent_optionals_are_null_and_admitted_values_are_accepted():
@@ -582,7 +624,7 @@ def test_raw_absent_optionals_are_null_and_admitted_values_are_accepted():
         member[key] = None
     member["consumed_material_points"] = [dict(member["consumed_material_points"][0], temperature_k=None)] if member[
         "consumed_material_points"] else []
-    accepted("LoadReferenceContractEvidence", evidence)
+    evidence_accepted(evidence)
     member.update(interpolation_fraction=0.5, applicability_reference="user basis",
                   analysis_basis_override={"reason": "invented", "provenance": "invented"}, fit_kind="fit_strain",
                   fit_input={"strain": -0.0002}, thermal_definition="logarithmic_per_current_length",
@@ -592,59 +634,39 @@ def test_raw_absent_optionals_are_null_and_admitted_values_are_accepted():
                                           "start_k": 293.15, "end_k": 423.15}],
                   consulted_law_segments=[{"use": "interpolation_sample", "lower_index": 0, "upper_index": 1,
                                            "start_k": 293.15, "end_k": 293.15}])
-    accepted("LoadReferenceContractEvidence", evidence)
+    evidence_accepted(evidence)
     for bad in ({"strain": -0.0002, "length_change_m": 0.001}, {"length_change_m": "1"}, {}):
         member["fit_input"] = bad
-        rejected("LoadReferenceContractEvidence", evidence)
+        evidence_rejected(evidence)
 
 
 # ---------------------------------------------------------------- carriers
-def test_carrier_branches_are_appended_after_the_existing_methods():
-    """T1's branches follow every branch main carries (T0R's preview-physics-1
-    included); positions are looked up by identity, the relative order is pinned."""
-    results = schema("results.v0.3.schema.yaml")["$defs"]["ResultEnvelope"]
+def test_carrier_branches_are_the_current_identities():
+    """The results, AnalysisRun and stress-neutral carriers name the current identities only; a load/reference-state
+    publication is carried on pressure-1's (or pressure-source-1's) branch, whose evidence is PressureContractEvidence."""
     ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
            for branch in envelope_branches(schema("results.v0.3.schema.yaml"))]
-    # B1 removed precision-1's branch; B4/D1 (b) source-blocks-1's.
-    assert ids == [PHYSICS_ID,
-                   "openpipestress.result_semantics/0.3.0/physics-source-1",
-                   # b7-plan's pressure-source join carries pressure-source-1 after physics-source-1.
-                   PRESSURE_SOURCE_ID,
-                   "openpipestress.result_semantics/0.3.0/preview-physics-1", LR_ID,
-                   "openpipestress.result_semantics/0.3.0/load-reference-source-1",
-                   # T4-U2's pressure-1 follows T1's branches and precedes the successors.
-                   "openpipestress.result_semantics/0.3.0/pressure-1",
-                   # T3's F2a preview successor follows T1's branches (C1:162; U6c).
+    assert ids == [PRESSURE_SOURCE_ID, PREVIEW_ID, PRESSURE_ID,
                    "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
-                   # B3b's exact successor follows the preview successor (B3-D §7).
                    "openpipestress.result_semantics/0.3.0/physics-retained-1"]
-    lr = ids.index(LR_ID)
-    evidence = results["properties"]["contract_evidence"]["anyOf"]
-    assert evidence.count(LR_EVIDENCE_REF) == 1
-    # LR evidence follows main's evidence kinds; LRS's and the pressure-source join's follow it.
-    assert evidence.index(LR_EVIDENCE_REF) == len(evidence) - 3, "LR evidence follows main's evidence kinds"
-    assert evidence[-1] == {"$ref": "#/$defs/PressureSourceContractEvidence"}
-    assert results["oneOf"][lr]["properties"]["contract_evidence"] == LR_EVIDENCE_REF
-    assert results["oneOf"][lr]["properties"]["formulation_basis"]["properties"]["profile_id"] == {"const": LR_PROFILE}
+    results = schema("results.v0.3.schema.yaml")["$defs"]["ResultEnvelope"]
+    assert results["properties"]["contract_evidence"]["anyOf"].count(EVIDENCE_REF) == 1
+    pressure_branch = envelope_branches(schema("results.v0.3.schema.yaml"))[ids.index(PRESSURE_ID)]
+    assert pressure_branch["properties"]["contract_evidence"] == {"$ref": "#/$defs/PressureContractEvidence"}
+    assert pressure_branch["properties"]["formulation_basis"]["properties"]["profile_id"] == {"const": PRESSURE_PROFILE}
     run = schema("analysis_run.v0.3.schema.json")["$defs"]
-    contracts = run["SemanticContract"]["oneOf"]
-    # The run's contract registry appends pressure-source-1 after the existing identities.
-    registry = [identifier for identifier in ids if identifier != PRESSURE_SOURCE_ID] + [PRESSURE_SOURCE_ID]
-    assert [branch["properties"]["id"]["const"] for branch in contracts] == registry
-    assert contracts[registry.index(LR_ID)] == {"properties": {"id": {"const": LR_ID}, "sha256": {"const": LR_SHA}}}
-    assert len(run["AnalysisRun"]["oneOf"]) == len(ids)
-    assert run["AnalysisRun"]["oneOf"][lr]["not"] == {"anyOf": [{"required": ["source_block_recovery"]},
-                                                               {"required": ["contract_evidence"]},
-                                                               {"required": ["retained_precision"]}]}
+    contracts = [branch["properties"]["id"]["const"] for branch in run["SemanticContract"]["oneOf"]]
+    assert sorted(contracts) == sorted(ids)
+    assert run["SemanticContract"]["oneOf"][contracts.index(PRESSURE_ID)] == {"properties": {"id": {"const": PRESSURE_ID}, "sha256": {"const": PRESSURE_SHA}}}
     package = schema("stress_neutral_export.v0.3.schema.json")
     package_ids = [branch["properties"]["semantic_contract"]["properties"]["id"]["const"] for branch in package["oneOf"]]
-    # pressure-source-1 exports as the result document (b7-plan D6/MJ8); it has no stress-neutral package branch.
-    export_ids = [identifier for identifier in ids if identifier != PRESSURE_SOURCE_ID]
-    assert package_ids == export_ids
-    package_lr = export_ids.index(LR_ID)
-    assert package["oneOf"][package_lr]["properties"]["semantic_contract"]["properties"] == {
-        "id": {"const": LR_ID}, "sha256": {"const": LR_SHA}}
-    assert package["oneOf"][package_lr]["properties"]["contract_evidence"] == LR_EVIDENCE_REF
+    assert package_ids == ids
+    branch = package["oneOf"][package_ids.index(PRESSURE_ID)]
+    assert branch["properties"]["semantic_contract"]["properties"] == {"id": {"const": PRESSURE_ID}, "sha256": {"const": PRESSURE_SHA}}
+    assert branch["properties"]["contract_evidence"] == EVIDENCE_REF
+    for name in ("results.v0.3.schema.yaml", PRESSURE_SCHEMA_NAME, "analysis_run.v0.3.schema.json", "stress_neutral_export.v0.3.schema.json", LR_SCHEMA_NAME):
+        text = (SCHEMAS / name).read_text(encoding="utf-8")
+        assert not any(identity in text for identity in RETIRED_IDS), name
 
 
 def _results_document(source, contract_id):
@@ -723,49 +745,41 @@ def receipt():
 
 
 @pytest.mark.parametrize("path", raw_paths(), ids=lambda path: path.stem)
-def test_results_load_reference_branch_accepts_verbatim_raw_metadata(path):
-    results_valid(_results_document(strict_json(path), LR_ID))
+def test_results_pressure_branch_accepts_verbatim_load_state_raw_metadata(path):
+    results_valid(_results_document(strict_json(path), PRESSURE_ID))
 
 
-def test_results_physics_branch_still_accepts_its_scaffold():
-    results_valid(_results_document(strict_json(PHYSICS_RAW), PHYSICS_ID))
+def test_results_pressure_branch_still_accepts_its_plain_scaffold():
+    results_valid(_results_document(strict_json(PRESSURE_RAW), PRESSURE_ID))
 
 
 @pytest.mark.parametrize("mutation", (
-    "producer_id", "ref_id", "profile", "unknown_id", "source_block_recovery", "physics_evidence",
-    "missing_evidence", "evidence_extra_key", "relabel_as_physics", "physics_carries_load_reference_states",
+    "producer_id", "ref_id", "profile", "unknown_id", "source_block_recovery", "preview_evidence",
+    "missing_evidence", "evidence_extra_key", "relabel_as_retired_load_reference", "records_extra_key",
 ))
-def test_results_load_reference_branch_rejects_contract_mixups(mutation):
+def test_results_pressure_branch_rejects_contract_mixups(mutation):
     source = raw()
-    document = _results_document(source, LR_ID)
+    document = _results_document(source, PRESSURE_ID)
     envelope = document["result_envelope"]
-    if mutation == "producer_id": envelope["producer"]["semantic_contract_id"] = PHYSICS_ID
-    elif mutation == "ref_id": envelope["semantic_contract_ref"]["ref_id"] = PHYSICS_ID
-    elif mutation == "profile": envelope["formulation_basis"]["profile_id"] = PHYSICS_PROFILE
+    if mutation == "producer_id": envelope["producer"]["semantic_contract_id"] = PREVIEW_ID
+    elif mutation == "ref_id": envelope["semantic_contract_ref"]["ref_id"] = PREVIEW_ID
+    elif mutation == "profile": envelope["formulation_basis"]["profile_id"] = RECORD_PROFILE
     elif mutation == "unknown_id":
-        envelope["producer"]["semantic_contract_id"] = envelope["semantic_contract_ref"]["ref_id"] = LR_ID.replace("-1", "-2")
+        envelope["producer"]["semantic_contract_id"] = envelope["semantic_contract_ref"]["ref_id"] = PRESSURE_ID.replace("-1", "-2")
     elif mutation == "source_block_recovery": envelope["source_block_recovery"] = receipt()
-    elif mutation == "physics_evidence": envelope["contract_evidence"] = strict_json(PHYSICS_RAW)["contract_evidence"]
+    elif mutation == "preview_evidence": envelope["contract_evidence"] = strict_json(PREVIEW_RAW)["contract_evidence"]
     elif mutation == "missing_evidence": del envelope["contract_evidence"]
     elif mutation == "evidence_extra_key": envelope["contract_evidence"]["source_receipt"] = {}
-    elif mutation == "relabel_as_physics":
-        envelope["producer"]["semantic_contract_id"] = envelope["semantic_contract_ref"]["ref_id"] = PHYSICS_ID
-        envelope["formulation_basis"]["profile_id"] = PHYSICS_PROFILE
-    elif mutation == "physics_carries_load_reference_states":
-        document = _results_document(strict_json(PHYSICS_RAW), PHYSICS_ID)
-        document["result_envelope"]["contract_evidence"]["load_reference_states"] = deepcopy(
-            source["contract_evidence"]["load_reference_states"])
+    elif mutation == "relabel_as_retired_load_reference":
+        envelope["producer"]["semantic_contract_id"] = envelope["semantic_contract_ref"]["ref_id"] = RETIRED_LR_ID
+        envelope["formulation_basis"]["profile_id"] = RECORD_PROFILE
+    elif mutation == "records_extra_key":
+        envelope["contract_evidence"]["load_reference_states"][0]["unexpected_key"] = True
     results_invalid(document)
 
 
-@pytest.fixture(scope="module")
-def physics_carriers():
-    """Actual physics-1 AnalysisRun and stress-neutral carriers from the existing Python route."""
-    from test_stress_neutral_physics_source import ACTUAL_PATHS, captured
-    assert ACTUAL_PATHS[0] == PHYSICS_RAW
-    source, analysis, packet = captured(ACTUAL_PATHS[0])
-    assert source["producer"]["semantic_contract_id"] == PHYSICS_ID
-    return deepcopy(analysis), deepcopy(packet)
+def carrier(stem, kind):
+    return strict_json(PROJECT / f"fixtures/results/pressure_load_state_{stem}.{kind}.json")
 
 
 def analysis_valid(record):
@@ -778,7 +792,7 @@ def analysis_invalid(record):
         validate_instance(schema("analysis_run.v0.3.schema.json"), record, instance_label="AnalysisRun")
 
 
-def _load_reference_record(record, contract_id=LR_ID, sha=LR_SHA, rows=None):
+def _rebound(record, contract_id=PRESSURE_ID, sha=PRESSURE_SHA, rows=None):
     record = deepcopy(record)
     run = record["analysis_run"]
     run["reproducibility"]["semantic_contract"].update(id=contract_id, sha256=sha)
@@ -787,35 +801,30 @@ def _load_reference_record(record, contract_id=LR_ID, sha=LR_SHA, rows=None):
     return record
 
 
-def test_analysis_run_load_reference_branch_mirrors_physics(physics_carriers):
-    analysis, _ = physics_carriers
-    analysis_valid(analysis)
-    assert analysis["analysis_run"]["result_refs"], "the transform must rebind at least one row"
-    analysis_valid(_load_reference_record(analysis))
+@pytest.mark.parametrize("stem", CARRIER_STEMS)
+def test_analysis_run_pressure_branch_accepts_the_actual_load_state_carriers(stem):
+    record = carrier(stem, "analysis_run")
+    assert record["analysis_run"]["reproducibility"]["semantic_contract"] == {"id": PRESSURE_ID, "sha256": PRESSURE_SHA}
+    assert record["analysis_run"]["result_refs"], "the record binds rows"
+    analysis_valid(record)
 
 
 @pytest.mark.parametrize("mutation", (
-    "physics_hash", "table_hash_under_physics_id", "unknown_id", "mixed_rows", "contract_evidence",
-    "source_block_recovery", "physics_carries_load_reference_states",
+    "preview_hash", "retired_identity", "unknown_id", "mixed_rows", "contract_evidence", "source_block_recovery",
 ))
-def test_analysis_run_load_reference_branch_rejects_contract_mixups(physics_carriers, mutation):
-    analysis, _ = physics_carriers
+def test_analysis_run_pressure_branch_rejects_contract_mixups(mutation):
+    analysis = carrier("pressure_sparse", "analysis_run")
     evidence = raw()["contract_evidence"]
-    if mutation == "physics_hash": record = _load_reference_record(analysis, sha=PHYSICS_SHA)
-    elif mutation == "table_hash_under_physics_id": record = _load_reference_record(analysis, contract_id=PHYSICS_ID)
-    elif mutation == "unknown_id": record = _load_reference_record(analysis, contract_id=LR_ID.replace("-1", "-2"))
-    elif mutation == "mixed_rows": record = _load_reference_record(analysis, rows=(PHYSICS_ID, PHYSICS_SHA))
+    if mutation == "preview_hash": record = _rebound(analysis, sha=PREVIEW_SHA)
+    elif mutation == "retired_identity": record = _rebound(analysis, contract_id=RETIRED_LR_ID, sha="e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09")
+    elif mutation == "unknown_id": record = _rebound(analysis, contract_id=PRESSURE_ID.replace("-1", "-2"))
+    elif mutation == "mixed_rows": record = _rebound(analysis, rows=(PREVIEW_ID, PREVIEW_SHA))
     elif mutation == "contract_evidence":
-        record = _load_reference_record(analysis)
+        record = deepcopy(analysis)
         record["analysis_run"]["contract_evidence"] = evidence
     elif mutation == "source_block_recovery":
-        record = _load_reference_record(analysis)
-        record["analysis_run"]["source_block_recovery"] = receipt()
-    elif mutation == "physics_carries_load_reference_states":
         record = deepcopy(analysis)
-        physics = strict_json(PHYSICS_RAW)["contract_evidence"]
-        physics["load_reference_states"] = evidence["load_reference_states"]
-        record["analysis_run"]["contract_evidence"] = physics
+        record["analysis_run"]["source_block_recovery"] = receipt()
     analysis_invalid(record)
 
 
@@ -828,43 +837,31 @@ def package_invalid(packet):
         validate_instance(schema("stress_neutral_export.v0.3.schema.json"), packet, instance_label="stress-neutral 0.3")
 
 
-def _load_reference_packet(packet, source):
-    packet = deepcopy(packet)
-    for key in ("producer", "formulation_basis", "numerical_quality", "contract_evidence"):
-        packet[key] = deepcopy(source[key])
-    packet["semantic_contract_ref"]["ref_id"] = LR_ID
-    packet["semantic_contract"] = {"id": LR_ID, "sha256": LR_SHA}
-    return packet
-
-
-@pytest.mark.parametrize("path", raw_paths(), ids=lambda path: path.stem)
-def test_stress_neutral_load_reference_branch_accepts_verbatim_raw_metadata(physics_carriers, path):
-    _, packet = physics_carriers
+@pytest.mark.parametrize("stem", CARRIER_STEMS)
+def test_stress_neutral_pressure_branch_accepts_the_actual_load_state_packages(stem):
+    packet = carrier(stem, "stress_neutral")
+    assert packet["semantic_contract"] == {"id": PRESSURE_ID, "sha256": PRESSURE_SHA}
+    assert "load_reference_states" in packet["contract_evidence"]
     package_valid(packet)
-    package_valid(_load_reference_packet(packet, strict_json(path)))
 
 
 @pytest.mark.parametrize("mutation", (
-    "sha", "producer_id", "ref_id", "contract_id", "profile", "source_block_recovery", "physics_evidence",
-    "missing_evidence", "missing_source_annotations", "precision_csv_policy", "physics_carries_load_reference_states",
+    "sha", "producer_id", "ref_id", "contract_id", "profile", "source_block_recovery", "preview_evidence",
+    "missing_evidence", "missing_source_annotations", "csv_policy", "records_extra_key",
 ))
-def test_stress_neutral_load_reference_branch_rejects_contract_mixups(physics_carriers, mutation):
-    _, physics_packet = physics_carriers
-    source = raw()
-    packet = _load_reference_packet(physics_packet, source)
-    if mutation == "sha": packet["semantic_contract"]["sha256"] = PHYSICS_SHA
-    elif mutation == "producer_id": packet["producer"]["semantic_contract_id"] = PHYSICS_ID
-    elif mutation == "ref_id": packet["semantic_contract_ref"]["ref_id"] = PHYSICS_ID
-    elif mutation == "contract_id": packet["semantic_contract"]["id"] = PHYSICS_ID
-    elif mutation == "profile": packet["formulation_basis"]["profile_id"] = PHYSICS_PROFILE
+def test_stress_neutral_pressure_branch_rejects_contract_mixups(mutation):
+    packet = carrier("pressure_sparse", "stress_neutral")
+    if mutation == "sha": packet["semantic_contract"]["sha256"] = PREVIEW_SHA
+    elif mutation == "producer_id": packet["producer"]["semantic_contract_id"] = PREVIEW_ID
+    elif mutation == "ref_id": packet["semantic_contract_ref"]["ref_id"] = PREVIEW_ID
+    elif mutation == "contract_id": packet["semantic_contract"]["id"] = PREVIEW_ID
+    elif mutation == "profile": packet["formulation_basis"]["profile_id"] = RECORD_PROFILE
     elif mutation == "source_block_recovery": packet["source_block_recovery"] = receipt()
-    elif mutation == "physics_evidence": packet["contract_evidence"] = strict_json(PHYSICS_RAW)["contract_evidence"]
+    elif mutation == "preview_evidence": packet["contract_evidence"] = strict_json(PREVIEW_RAW)["contract_evidence"]
     elif mutation == "missing_evidence": del packet["contract_evidence"]
     elif mutation == "missing_source_annotations": del packet["source_annotations"]
-    elif mutation == "precision_csv_policy":
+    elif mutation == "csv_policy":
         for key in ("csv_encoding", "csv_row_order"):
             del packet["export_profile"][key]
-    elif mutation == "physics_carries_load_reference_states":
-        packet = deepcopy(physics_packet)
-        packet["contract_evidence"]["load_reference_states"] = deepcopy(source["contract_evidence"]["load_reference_states"])
+    elif mutation == "records_extra_key": packet["contract_evidence"]["load_reference_states"][0]["unexpected_key"] = True
     package_invalid(packet)

@@ -42,7 +42,7 @@ PINS = {
 PROV = "invented_frozen_RF_J7_census_product_adapter_no_library_data"
 DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
 DOF_LIMIT = 256  # D1: at most 256 DOFs (source_recovery::DENSE_SOURCE_DOF_LIMIT)
-TEMPLATE = PROJECT / "fixtures/product_preview/physics_source/n05.request.json"
+TEMPLATE = PROJECT / "fixtures/product_preview/pressure_source/physics_source/n05.request.json"
 
 
 def _load(name, path):
@@ -94,6 +94,9 @@ def make(cid, ref, template):
     request = json.loads(json.dumps(template))
     out = request["model"]
     out["schema_version"] = "0.3.0"
+    # The template is the current 0.5.0 pressure-source request (B7b); the census inputs keep their committed
+    # 0.3.0 spelling, with the contract member last as it was authored, so the fixture bytes are unchanged.
+    out.pop("pressure_contract", None)
     out["pressure_contract"] = {"version": "3.0.0", "mode": "exact_pressure_v3"}
     out["project"]["id"] = "invented:j7-census:" + cid
     out["project"]["name"] = "Invented J7 RF census " + cid

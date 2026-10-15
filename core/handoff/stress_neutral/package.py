@@ -20,8 +20,8 @@ from core.handoff.external_prover.authority_boundary import contains_prohibited_
 from core.analysis_runs.compatibility import (
     _source_contract, _semantic, validate_analysis_run_v0_3,
     _source_basis_reference, _source_reference_text,
-    _validate_source_reference_fields, PHYSICS_CONTRACT_ID,
-    PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID,
+    _validate_source_reference_fields, PRESSURE_CONTRACT_ID,
+    PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID,
 )
 
 REQUIRED_SOURCE_BASIS_REFS = {
@@ -93,9 +93,12 @@ VERSION = "0.3.0"
 PROFILE = "openpipestress_jcs_ijson_v1"
 EXPORT_PROFILE = "ops.stress_neutral.v3"
 MEMBERS = ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json", "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"]
-SUPPORTED_METHODS = {PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID}
-PHYSICAL_METHODS = {PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}
-RECEIPT_METHODS = {PHYSICS_SOURCE_CONTRACT_ID, LOAD_REFERENCE_SOURCE_CONTRACT_ID}
+# B7b (A4/A5): the current exact identities, pressure-1 and pressure-source-1, take over the retired v2 identities'
+# packages (physics-1, physics-source-1, load-reference-1, load-reference-source-1, which the Rust reader refuses by
+# name). A load/reference-state model publishes either with contract_evidence.load_reference_states.
+SUPPORTED_METHODS = {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID}
+PHYSICAL_METHODS = {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID}
+RECEIPT_METHODS = {PRESSURE_SOURCE_CONTRACT_ID}
 # preview-physics-1 retains its closed preview statement; no receipt namespace.
 PREVIEW_METHODS = {PREVIEW_PHYSICS_CONTRACT_ID}
 
@@ -104,23 +107,45 @@ def _method_namespaces(contract_id: str) -> set[str]:
     return ({"contract_evidence"} if contract_id in PHYSICAL_METHODS | PREVIEW_METHODS else set()) | ({"source_block_recovery"} if contract_id in RECEIPT_METHODS else set())
 
 
-def _transport_contract(package: Mapping[str, Any]) -> tuple[str, str, Path]:
+def _transport_contract(package: Mapping[str, Any], source_envelope: Mapping[str, Any] | None = None) -> tuple[str, str, Path]:
     """Validate retained transport statements; never reconstruct raw publication.
 
     Source validation below separately requires the actual supplied raw envelope.
     This metadata view deliberately has no results, diagnostics or fake status.
+    pressure-1 has no transport reading (below), so its package is read through its source.
     """
     metadata = {"schema_version": "0.2.0", **{key: package.get(key) for key in ("producer", "numerical_quality", "formulation_basis")}}
     for key in ("contract_evidence", "source_block_recovery", "carrier_evidence"):
         if key in package:
             metadata[key] = package[key]
-    method = _source_contract(metadata, check_receipt=False)
+    producer = package.get("producer")
+    if isinstance(producer, Mapping) and producer.get("semantic_contract_id") == PRESSURE_CONTRACT_ID and source_envelope is not None:
+        method = _pressure_source_reading(source_envelope)
+    else:
+        # A pressure-1 package without its source takes Rust's transport verdict too: the reader
+        # refuses it by name (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED).
+        method = _source_contract(metadata, check_receipt=False)
     if method[0] not in SUPPORTED_METHODS:
         raise ValueError("SN-SOURCE-METHOD-UNSUPPORTED")
     expected = _method_namespaces(method[0])
     if {key for key in ("contract_evidence", "source_block_recovery") if key in package} != expected:
         raise ValueError("SN-SOURCE-NAMESPACE-MISMATCH")
     return method
+
+
+def _pressure_source_reading(source_envelope: Mapping[str, Any]) -> tuple[str, str, Path]:
+    """pressure-1's package statements, read through their source (B7b). Rust has no pressure-1
+    transport reader (`transport("pressure")` is refused by name), so a pressure-1 package is read
+    only with its supplied source envelope: the source takes Rust's raw reading (`read pressure`),
+    and every member the package copies from it (producer, numerical quality, formulation basis,
+    contract evidence, rows, annotations and the received checksum) is then bound to that source by
+    the checks that follow."""
+    method = _source_contract(source_envelope)
+    if method[0] != PRESSURE_CONTRACT_ID:
+        raise ValueError("SN-SOURCE-METHOD-BINDING-MISMATCH")
+    return method
+
+
 WITHHOLDING_CODES = {
     "diagnostic_work": "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK",
     "unknown_semantic": "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC",
@@ -541,9 +566,10 @@ def read_materialized_members(input_dir: str | Path, **validation: Any) -> dict[
     return reconstruct_materialized_members({name: (directory / name).read_bytes() for name in MEMBERS}, **validation)
 
 
-def write_materialized_members(package: Mapping[str, Any], output_dir: str | Path) -> list[Path]:
-    """Validate and write the exact nine contracted member byte streams."""
-    validate_stress_neutral_export_package(package)
+def write_materialized_members(package: Mapping[str, Any], output_dir: str | Path, **validation: Any) -> list[Path]:
+    """Validate and write the exact nine contracted member byte streams. `validation` takes the
+    validator's optional source bindings; a pressure-1 package needs its source (no transport reader)."""
+    validate_stress_neutral_export_package(package, **validation)
     destination = Path(output_dir)
     destination.mkdir(parents=True, exist_ok=True)
     written = []
@@ -561,7 +587,7 @@ def validate_stress_neutral_export_package(package: Mapping[str, Any], *, source
     """
     if package.get("schema_version") != VERSION:
         raise ValueError("SN-VERSION-UNSUPPORTED")
-    contract_id, contract_hash, contract_path = _transport_contract(package)
+    contract_id, contract_hash, contract_path = _transport_contract(package, source_envelope)
     csv_encoding, csv_canonicalization = _csv_policy(package)
     semantic_contract_ref = {"object_type": "ExternalReference", "ref": f"fixtures/results/{contract_path.name}"}
     if package.get("semantic_contract") != {"id":contract_id, "sha256":contract_hash} or package.get("semantic_contract_ref") != {"ref_type":"semantic_contract", "ref_id":contract_id}:

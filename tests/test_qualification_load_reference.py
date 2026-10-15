@@ -1,13 +1,13 @@
-"""load-reference-1 VP-HARNESS adapter checks: synthetic controls, not solver evidence.
+"""pressure-1 load/reference-state VP-HARNESS adapter checks: synthetic controls, not solver evidence.
 
-The fake runner replays the committed producer raws
-(``fixtures/product_preview/load_reference/*.raw.json``) inside a synthetic
-ControlledExport wrapper. Reference values are synthetic harness controls
+B7b retired load-reference-1; pressure-1 publishes the load/reference-state group. The fake runner replays the
+committed pressure-1 producer raws (``fixtures/product_preview/pressure/load_reference/*.raw.json``) inside a
+synthetic ControlledExport wrapper. Reference values are synthetic harness controls
 copied from those raws (``reference_kind: harness_synthetic``); they are not
 analytical targets, criteria or production policy, and no product solver is
 executed. The owned reader genuinely runs against the committed raws: b7-plan R2,
 the Rust product reader through the explicitly built ``openpipestress-runner read
-load-reference`` named by OPENPIPESTRESS_RUNNER_BIN (the test session builds it).
+pressure`` named by OPENPIPESTRESS_RUNNER_BIN (the test session builds it).
 """
 from __future__ import annotations
 from copy import deepcopy
@@ -27,7 +27,7 @@ sys.path.insert(0, str(PROJECT))
 from tools.validation import qualification_load_reference as lr
 from tools.validation.qualification_process import capture, sha256_bytes
 
-RAWS = PROJECT / 'fixtures/product_preview/load_reference'
+RAWS = PROJECT / 'fixtures/product_preview/pressure/load_reference'
 TABLE = json.loads((PROJECT / lr.TABLE).read_text())
 FAMILIES = {(row['kind'], row['unit'], row['component']): row for row in TABLE['rows']}
 PACKAGE = 'validation/qualification/fixtures/synthetic_load_reference_harness'
@@ -268,10 +268,13 @@ class PinTests(unittest.TestCase):
         for path, digest in lr.DEPENDENCIES.items():
             if path != lr.MODULE:
                 self.assertEqual(sha256_bytes((PROJECT / path).read_bytes()), digest, path)
-        # b7-plan R2: the owned reader is Rust's; its pinned source is the load-reference-1 reader over physics-1's.
+        # b7-plan R2: the owned reader is Rust's; B7b: its pinned source is the pressure-1 reader's load/reference-state
+        # pre-pass over the pressure reader, against the pressure-1 table (the retired load-reference-1 table is gone).
         self.assertEqual((lr.MODULE, lr.BINDING_FORMAT), ('core/reporting/result_export/src/load_reference.rs',
-                                                          'openpipestress.load_reference_consistency_binding/2'))
-        self.assertEqual(lr.TRANSPORT, 'load_reference_1_cli_1.0_raw0.2')
+                                                          'openpipestress.load_reference_consistency_binding/3'))
+        self.assertEqual((lr.CONTRACT, lr.READER, lr.ENTRYPOINT), ('openpipestress.result_semantics/0.3.0/pressure-1', 'pressure', 'validate_pressure_evidence'))
+        self.assertEqual(lr.TRANSPORT, 'pressure_1_load_state_cli_1.0_raw0.2')
+        self.assertFalse((PROJECT / 'fixtures/results/semantic_contract_v0_3_load_reference_1.json').exists())
         self.assertNotIn('source', lr.CONTRACT.rsplit('/', 1)[-1])
 
     def test_working_tree_reader_matches_pin(self):
@@ -461,7 +464,7 @@ class ValueFaultTests(unittest.TestCase):
 
 class BindingTests(unittest.TestCase):
     def test_connector_evidence_fails_the_contract_obligation(self):
-        # REVIEW_B X07: connector evidence is outside the load-reference-1 profile.
+        # REVIEW_B X07: connector evidence is outside the load/reference-state profile.
         case = self.observed(lambda raw: raw['contract_evidence'].update(connector=[{'synthetic': 'connector'}]))
         contract = check(case, 'load_reference_contract')
         self.assertEqual(contract['state'], 'failed')
@@ -532,8 +535,11 @@ class TransportRefusalTests(unittest.TestCase):
         changes = [
             (lambda raw: raw['producer'].update(semantic_contract_id='openpipestress.result_semantics/0.3.0/physics-1'), 'raw/producer identity'),
             (lambda raw: raw['producer'].update(semantic_contract_id='openpipestress.result_semantics/0.3.0/load-reference-source-1'), 'raw/producer identity'),
+            (lambda raw: raw['producer'].update(semantic_contract_id='openpipestress.result_semantics/0.3.0/load-reference-1'), 'raw/producer identity'),
+            (lambda raw: raw['producer'].update(semantic_contract_id='openpipestress.result_semantics/0.3.0/pressure-source-1'), 'raw/producer identity'),
             (lambda raw: raw['formulation_basis'].update(profile_id='resolved_straight_load_state_source_v1'), 'formulation basis invalid'),
             (lambda raw: raw['formulation_basis'].update(profile_id='exact_straight_pressure_v2'), 'formulation basis invalid'),
+            (lambda raw: raw['formulation_basis'].update(profile_id='resolved_straight_load_state_v1'), 'formulation basis invalid'),
             (lambda raw: raw.update(schema_version='0.1.0'), 'raw/producer identity'),
             (lambda raw: raw.update(source_block_recovery=None), 'source/composite namespace refused'),
             (lambda raw: raw.update(carrier_evidence={}), 'source/composite namespace refused'),
@@ -698,7 +704,7 @@ class ReaderTests(unittest.TestCase):
         self.assertEqual(case['state'], 'failed')
 
     def test_reader_verdict_is_the_runners_and_bound(self):
-        """b7-plan R2: the verdict is the Rust reader's, through `openpipestress-runner read load-reference`; the
+        """b7-plan R2: the verdict is the Rust reader's, through `openpipestress-runner read pressure`; the
         binding's selected sources are checked before the reader runs, and a foreign identity never reaches it."""
         fixture = Fixture(self, families=('pressure',))
         binding_path = fixture.root / 'binding.json'
@@ -880,8 +886,8 @@ class AdmissionTests(unittest.TestCase):
         row_index = next(i for i, a in enumerate(selectors['assertions']) if 'namespace' not in a['selector'] and a['selector']['metadata'])
         evidence_index = next(i for i, a in enumerate(selectors['assertions']) if a['selector'].get('record') == 'member')
         mutations = [
-            (lambda s: s['assertions'][row_index]['selector'].update(dimension='angle'), 'contradicts pinned load-reference-1 semantics'),
-            (lambda s: s['assertions'][row_index]['selector'].update(kind='invented_kind'), 'contradicts pinned load-reference-1 semantics'),
+            (lambda s: s['assertions'][row_index]['selector'].update(dimension='angle'), 'contradicts pinned pressure-1 semantics'),
+            (lambda s: s['assertions'][row_index]['selector'].update(kind='invented_kind'), 'contradicts pinned pressure-1 semantics'),
             (lambda s: s['assertions'][row_index]['selector']['metadata'].update(location='TBD'), 'unresolved source metadata'),
             (lambda s: s['assertions'][row_index]['selector'].pop('dimension'), 'complete explicit row selector required'),
             (lambda s: s['assertions'][row_index]['selector'].update(basis_ref={'ref_type': 'combination', 'ref_id': 'combo'}), 'bind a load case'),

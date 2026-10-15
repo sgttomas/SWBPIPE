@@ -33,7 +33,7 @@ J7_RF_CENSUS_INPUTS = {
     'tools/fixtures/retained_precision_corpus.py',
     'fixtures/results/j7_rf_census_inputs.json',
     'fixtures/results/j7_rf_census_expected.json',
-    'fixtures/product_preview/physics_source/n05.request.json',
+    'fixtures/product_preview/pressure_source/physics_source/n05.request.json',
     'validation/benchmarks/numerical_robustness/cases/gen_vk_cases.py',
     'validation/references/t3_r1/REFERENCES/references.json',
     'validation/references/t3_r1/REFERENCES/references.py',

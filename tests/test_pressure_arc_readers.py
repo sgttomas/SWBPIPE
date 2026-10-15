@@ -1,19 +1,17 @@
 """T4-U2: the test-only pressure-1 verifier admits realized-arc envelopes over
 the shared arc corpus (the Rust reader's ``tests/pressure_arc_contract.rs``
 reads the same bytes; the Rust reader is the only product reader), refuses
-each broken arc binding by name, refuses arc evidence offered under v2, and
-covers a model whose only pipe is a replaced span by its connector (T4-RV23
-NOTE-4). The v2 product readers do not read arc evidence.
+each broken arc binding by name, and covers a model whose only pipe is a
+replaced span by its connector (T4-RV23 NOTE-4). (B7b deleted the v2 contract
+and its arc-refusal check with it, as in the Rust twin.)
 """
 from copy import deepcopy
 import json
 from pathlib import Path
 
 import pytest
-from tests.verifiers.load_reference_evidence import validate_load_reference_evidence
-from tests.verifiers.physics_evidence import validate_physics_evidence
 from tests.verifiers.pressure_1 import (
-    CONTRACT_ID as PRESSURE_ID, V2_READ_AS_V3, validate_exact_pressure_evidence, validate_pressure_evidence, verify_source,
+    CONTRACT_ID as PRESSURE_ID, validate_exact_pressure_evidence, validate_pressure_evidence, verify_source,
 )
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -117,22 +115,6 @@ def test_broken_arc_bindings_are_refused_by_name(label, envelope, what, mutate, 
         validate_pressure_evidence(broken)
     # The 0.4.0 pre-pass names its own codes (SOURCE_LOAD_REFERENCE_REGION_SHAPE).
     assert str(refused.value).lower().replace("_", " ").endswith(detail.lower()), str(refused.value)
-
-
-@pytest.mark.parametrize("label,envelope", ARC_CASES)
-def test_arc_evidence_is_refused_under_v2(label, envelope):
-    as_v2 = deepcopy(envelope)
-    for case in as_v2["contract_evidence"]["exact_cases"]:
-        case["profile_mode"] = "exact_straight_pressure_v2"
-    for r in as_v2["contract_evidence"]["pressure"]:
-        r["profile_version"], r["profile_mode"] = "2.0.0", "exact_straight_pressure_v2"
-    with pytest.raises(ValueError) as refused:
-        validate_pressure_evidence(deepcopy(as_v2))
-    assert str(refused.value).endswith(V2_READ_AS_V3), str(refused.value)
-    # The v2 product readers refuse it by their closed v2 shapes.
-    reader = validate_load_reference_evidence if load_state(envelope) else validate_physics_evidence
-    with pytest.raises(ValueError):
-        reader(as_v2)
 
 
 def test_a_replaced_span_only_model_needs_its_connector():

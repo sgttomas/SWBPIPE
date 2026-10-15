@@ -1426,7 +1426,8 @@ def test_b1_repair02_receipt_references_at_g3_and_the_ordinary_basis_at_g5():
 def test_b1_repair02_model_scope_at_g8_invocation():
     """Item 2: the invocation model's scope as PP accepts it, at G8 INVOCATION_MISMATCH, before any
     PREPARATION check: no `reference_configurations` member (null included; PP `validate_document`), a
-    `pressure_contract` absent or null, and `combinations` and `components` absent or `[]` (PP's typed model).
+    `pressure_contract` absent (a present null is refused since B7a/B7b), and `combinations` and `components` absent
+    or `[]` (PP's typed model).
     RV113 §10.2's probes. Unbound reads have no invocation, so they are unaffected."""
     model = ["request", "model"]
     refused = {
@@ -1445,11 +1446,13 @@ def test_b1_repair02_model_scope_at_g8_invocation():
         "combinations [{}]": [_set(model + ["combinations"], [{}])],
         "components 'x'": [_set(model + ["components"], "x")],
         "components null": [_set(model + ["components"], None)],
+        # B7a/B7b (b7-plan, c8d3cf3014): the optional contract is absent only when its key is absent; a present
+        # null is authored presence, outside the pressure-free branch (Rust "pressure_contract null (present: refused)").
+        "pressure_contract null": [_set(model + ["pressure_contract"], None)],
     }
     got = {name: _b1_verdict(O_BASE, [], edits) for name, edits in refused.items()}
     assert got == dict.fromkeys(refused, INVOCATION)
     admitted = {
-        "pressure_contract null": [_set(model + ["pressure_contract"], None)],
         "combinations []": [_set(model + ["combinations"], [])],
         "components []": [_set(model + ["components"], [])],
     }

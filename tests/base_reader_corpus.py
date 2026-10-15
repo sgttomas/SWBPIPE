@@ -5,6 +5,11 @@ corpus files and pins the native `reader_verdict` outcome of each in
 `fixtures/results/base_reader_outcomes.json`. This module builds the same statements in Python, from
 the same files with the same mutation grammar, so the Python verifier and the product's Rust-routed
 paths can be compared with those outcomes entry by entry. Test support only.
+
+B7b: the corpus is built from the current fixtures only (the Rust test's B7b construction): the exact-route
+statements are the v3 twins read by the pressure-1 and pressure-source-1 readers, with and without the
+load/reference-state group; the ledger cases apply to the received joined statements directly (the v2
+projection is gone); the retired v2 identities appear only as named refusals.
 """
 from __future__ import annotations
 
@@ -18,8 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTCOMES = ROOT / "fixtures/results/base_reader_outcomes.json"
 MARKER = "__BASE_READER_TEXT_LITERAL__"
 MODES = ("sparse_interactive", "dense_scrutiny")
-ROUTE_READERS = {"preview_physics": "preview-physics", "physics": "physics", "physics_source": "physics-source",
-                 "load_reference": "load-reference", "load_reference_source": "load-reference-source"}
+ROUTE_READERS = {"preview_physics": "preview-physics", "pressure": "pressure", "pressure_source": "pressure-source"}
 PARSE_REJECTED = "JSON_PARSE_REJECTED"
 
 
@@ -75,17 +79,20 @@ def _matches(item: Any, pattern: dict[str, Any]) -> bool:
 
 
 def reseal(doc: dict[str, Any], op: dict[str, Any], domain_hash: Callable[[str, Any], str]) -> None:
-    """The corpus's `reseal` op: recompute the named receipt hashes over the mutated statement."""
+    """The corpus's `reseal` op: recompute the named receipt hashes over the mutated statement (B7b: the current
+    case-evidence domain, the record bound by its case id, as the reader binds it)."""
     evidence = doc.get("contract_evidence")
     if op.get("physical") is not None:
         exact = evidence["exact_cases"]
         for index, case in enumerate(doc["source_block_recovery"]["body"]["cases"]):
             pressure = [p for p in evidence["pressure"] if p["load_case_id"] == exact[index]["load_case_id"]]
+            records = evidence.get("load_reference_states")
+            record = next((r for r in records if r.get("load_case_id") == exact[index]["load_case_id"]), None) if isinstance(records, list) else None
             kind = op["physical"]
             if kind == "joined":
-                domain, payload = "load_reference_source_case_evidence_v1", {"exact_case": exact[index], "pressure": pressure, "load_reference_state": evidence["load_reference_states"][index]}
+                domain, payload = "pressure_source_case_evidence_v1", {"exact_case": exact[index], "pressure": pressure, "load_reference_state": record}
             elif kind == "joined_without_record":
-                domain, payload = "load_reference_source_case_evidence_v1", {"exact_case": exact[index], "pressure": pressure}
+                domain, payload = "pressure_source_case_evidence_v1", {"exact_case": exact[index], "pressure": pressure}
             elif kind == "physics":
                 domain, payload = "physics_source_case_evidence_v1", {"exact_case": exact[index], "pressure": pressure}
             else:
@@ -172,8 +179,7 @@ def _materialized(doc: Any, literal: str | None) -> tuple[Any, str | None]:
 
 
 @lru_cache(maxsize=1)
-def corpus_inputs(route_of: Callable[[Any], str | None], domain_hash: Callable[[str, Any], str],
-                  physics_source_projection: Callable[[Any], Any]) -> tuple[Input, ...]:
+def corpus_inputs(route_of: Callable[[Any], str | None], domain_hash: Callable[[str, Any], str]) -> tuple[Input, ...]:
     """The corpus statements in the Rust test's order. `route_of(source)` names a base statement's route (or
     None when its header is refused), as the Rust test reads `rv::route`; the caller supplies its own reading."""
     inputs: list[Input] = []
@@ -189,12 +195,12 @@ def corpus_inputs(route_of: Callable[[Any], str | None], domain_hash: Callable[[
         ("preview_physics_invented_sparse", "core/product_physics/tests/fixtures/preview_physics_invented_model.json"),
         ("preview_physics_invented_dense", "core/product_physics/tests/fixtures/preview_physics_invented_model.json"),
         ("preview_physics_unicode_ids_sparse", "core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json"),
-        ("physics_connected_mechanics_sparse", "core/product_physics/tests/fixtures/exact_pressure_connected_request.json"),
-        ("physics_connected_mechanics_dense", "core/product_physics/tests/fixtures/exact_pressure_connected_request.json"),
-        ("physics_connected_ui_mechanics_sparse", "fixtures/model_operations/exact_pressure_authoring_model.json"),
-        ("physics_connected_ui_mechanics_dense", "fixtures/model_operations/exact_pressure_authoring_model.json"),
-        ("physics_thermal_ui_mechanics_sparse", "fixtures/model_operations/physics_thermal_ui_model.json"),
-        ("physics_thermal_ui_mechanics_dense", "fixtures/model_operations/physics_thermal_ui_model.json"),
+        ("pressure_connected_mechanics_sparse", "core/product_physics/tests/fixtures/exact_pressure_connected_request.json"),
+        ("pressure_connected_mechanics_dense", "core/product_physics/tests/fixtures/exact_pressure_connected_request.json"),
+        ("pressure_connected_ui_mechanics_sparse", "fixtures/model_operations/exact_pressure_authoring_model.json"),
+        ("pressure_connected_ui_mechanics_dense", "fixtures/model_operations/exact_pressure_authoring_model.json"),
+        ("pressure_thermal_ui_mechanics_sparse", "fixtures/model_operations/physics_thermal_ui_model.json"),
+        ("pressure_thermal_ui_mechanics_dense", "fixtures/model_operations/physics_thermal_ui_model.json"),
         ("../product_preview/invented_mechanics_result_preview_physics_1_sparse", None),
         ("../product_preview/invented_mechanics_result_preview_physics_1_dense", None),
         ("../product_preview/invented_demo_result_preview_physics_1_sparse", None),
@@ -202,9 +208,11 @@ def corpus_inputs(route_of: Callable[[Any], str | None], domain_hash: Callable[[
     ]
     for name, model in results:
         base(f"results/{name.removeprefix('../')}", read(f"fixtures/results/{name}.json"), model_at(model) if model else None, None)
-    for folder, names, invoked in (("physics_source", ("n05", "n06", "fields", "mixed", "mixed_units", "n05_units", "n05_unicode"), True),
-                                   ("load_reference", ("connected", "pressure"), False),
-                                   ("load_reference_source", ("n05", "n06", "fields", "mixed", "eigen_motion"), False)):
+    # The joined load/reference-state statements are read by the one source reader, which takes their invocation
+    # (never numerically eligible).
+    for folder, names, invoked in (("pressure_source/physics_source", ("n05", "n06", "fields", "mixed", "mixed_units", "n05_units", "n05_unicode"), True),
+                                   ("pressure/load_reference", ("connected", "pressure"), False),
+                                   ("pressure_source/load_reference_source", ("n05", "n06", "fields", "mixed", "eigen_motion"), True)):
         for name in names:
             request = read(f"fixtures/product_preview/{folder}/{name}.request.json")
             for mode in MODES:
@@ -225,8 +233,8 @@ def corpus_inputs(route_of: Callable[[Any], str | None], domain_hash: Callable[[
         doc, literal = apply(read(vector["bases"][variant["base"]]), variant["ops"], unreachable, domain_hash)
         assert literal is None
         inputs.append(Input(f"tamper/{variant['id']}", doc, None, None, None, ("preview-physics",), (), False))
-    for path, reader, joined in (("core/reporting/result_export/tests/fixtures/load_reference_mutations.json", "load-reference", False),
-                                 ("core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json", "load-reference-source", True)):
+    for path, reader, joined in (("core/reporting/result_export/tests/fixtures/load_reference_mutations.json", "pressure", False),
+                                 ("core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json", "pressure-source", True)):
         cases = read(path)
         sources = {name: read(file) for name, file in cases["sources"].items()}
         lookup = lambda name: sources[name]
@@ -235,9 +243,8 @@ def corpus_inputs(route_of: Callable[[Any], str | None], domain_hash: Callable[[
             doc, literal = apply(sources[case["source"]], case["ops"], lookup, domain_hash)
             readers = [reader]
             if joined and "lr" in case:
-                readers.append("load-reference")
-            if joined and "ps" in case:
-                readers.append("physics-source")
+                readers.append("pressure")
+            assert "ps" not in case, "B7b folded 'ps' into 'joined'"
             source, text = _materialized(doc, literal)
             inputs.append(Input(f"{prefix}/{case['id']}", source, text, None, None, tuple(readers), (), False))
         for case in cases["transport_cases"]:
@@ -247,17 +254,18 @@ def corpus_inputs(route_of: Callable[[Any], str | None], domain_hash: Callable[[
     for case in read("fixtures/results/loadReferenceReaderCases.cases.json"):
         doc, literal = apply(read(case["source"]), case["ops"], unreachable, domain_hash)
         assert literal is None
-        inputs.append(Input(f"lr-reader/{case['id']}", doc, None, None, None, ("load-reference",), (), False))
-    projections: dict[str, Any] = {}
+        inputs.append(Input(f"lr-reader/{case['id']}", doc, None, None, None, ("pressure",), (), False))
+    # The ledger cases: the source reader's ledger checks on the received joined statement (B7b: no projection).
+    received: dict[str, Any] = {}
     for case in read("fixtures/results/loadReferenceSourceLedger.cases.json"):
         name = case["source"]
-        if name not in projections:
-            projections[name] = physics_source_projection(read(f"fixtures/product_preview/load_reference_source/{name}.raw.json"))
-        doc, literal = apply(projections[name], case["ops"], unreachable, domain_hash)
+        if name not in received:
+            received[name] = read(f"fixtures/product_preview/pressure_source/load_reference_source/{name}.raw.json")
+        doc, literal = apply(received[name], case["ops"], unreachable, domain_hash)
         assert literal is None
         if isinstance(case.get("reseal_publication"), bool):
             reseal(doc, {"physical": None, "publication": case["reseal_publication"], "receipt": True}, domain_hash)
-        inputs.append(Input(f"ledger/{case['id']}", doc, None, None, None, ("physics-source",), (), False))
+        inputs.append(Input(f"ledger/{case['id']}", doc, None, None, None, ("pressure-source",), (), False))
     return tuple(inputs)
 
 

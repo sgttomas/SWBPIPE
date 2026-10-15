@@ -23,7 +23,9 @@ from tools.validation.qualification_physics_structure import check_first_static_
 from test_qualification_physics_structure import synthetic_case
 from qualification_fixture_support import fixture_package
 
-TABLE = json.loads((PROJECT/'validation/qualification/fixtures/ordinary_physics_1_semantics.json').read_text())
+# B7b: the selectors resolve against the current pressure-1 table, the binding's own (the retired physics-1 table
+# and its qualification mirror are not read).
+TABLE = json.loads((PROJECT/physics.TABLE).read_text())
 
 
 def wrapper(observation):
@@ -88,6 +90,8 @@ class PhysicsIntegrationTests(unittest.TestCase):
     def test_future_composite_sensitive_duplicate_diagnostics_and_wrong_mode_refuse(self):
         observation = synthetic_case()
         mutations = [lambda raw: raw['producer'].update(semantic_contract_id='openpipestress.result_semantics/0.3.0/physics-source-1'),
+                     lambda raw: raw['producer'].update(semantic_contract_id='openpipestress.result_semantics/0.3.0/physics-1'),
+                     lambda raw: raw['formulation_basis'].update(profile_id='exact_straight_pressure_v2'),
                      lambda raw: raw.update(source_block_recovery=None),
                      lambda raw: raw['numerical_quality'].update(status='sensitive'),
                      lambda raw: raw['diagnostics'].append(deepcopy(raw['diagnostics'][0])),
@@ -157,7 +161,7 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
     """Real supervised processes with deliberately synthetic solver/reader stubs.
 
     Only the closed reader dependency constants/origin and the reader executable
-    (OPENPIPESTRESS_RUNNER_BIN, a stub answering `read physics`) are patched for this test.
+    (OPENPIPESTRESS_RUNNER_BIN, a stub answering `read pressure`) are patched for this test.
     Transport dispatch, byte custody, reader process capture, selected target
     binding, scalar comparison and all ten structural checks execute normally.
     This cannot qualify a solver or the production physical validator.
@@ -170,7 +174,7 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
         self.source = self.root/'synthetic-reader'
         data = {
             physics.MODULE: b'// synthetic reader source binding; the stub reader below answers\n',
-            physics.TABLE: (PROJECT/'validation/qualification/fixtures/ordinary_physics_1_semantics.json').read_bytes(),
+            physics.TABLE: (PROJECT/physics.TABLE).read_bytes(),
             physics.UNITS: b'// explicit synthetic test authority; no production claim\n',
         }
         self.dependencies = {name: hashlib.sha256(content).hexdigest() for name,content in data.items()}
@@ -186,7 +190,7 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
             'sys.exit(0 if ok else 1)\n')
         self.reader.chmod(0o700)
         self.binding.write_text(json.dumps({'format':physics.BINDING_FORMAT,
-            'status':'reviewed_candidate','contract_id':physics.CONTRACT,'entrypoint':'validate_physics_evidence',
+            'status':'reviewed_candidate','contract_id':physics.CONTRACT,'entrypoint':physics.ENTRYPOINT,
             'files':[{'path':name,'sha256':digest} for name,digest in self.dependencies.items()],
             'review_basis':[{'path':'test-review.txt','sha256':hashlib.sha256(review.read_bytes()).hexdigest()}]}))
         self.executable=self.root/'synthetic-runner'
@@ -228,7 +232,14 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
                 self.assertEqual(case['process']['command'][1:],['solve','--input','-','--solver-mode',mode,'--explicit-local-private-intent'])
                 self.assertEqual(case['physical_consistency']['response']['verdict'],'consistent')
                 self.assertEqual(case['custody_at_publication'],'checked')
-                self.assertEqual(case['physical_consistency']['process']['command'],[str(self.reader),'read','physics'])
+                self.assertEqual(case['physical_consistency']['process']['command'],[str(self.reader),'read','pressure'])
+                # B7b: the runner received the declared re-authored copy; the frozen input stays bound.
+                reauthoring=case['runner_input_reauthoring']
+                self.assertEqual(reauthoring['rule'],physics.REAUTHORING)
+                self.assertEqual(case['process']['stdin_sha256'],reauthoring['submitted_input_sha256'])
+                frozen=next(b for b in case['bindings'] if b['role']=='input')
+                self.assertEqual(frozen['sha256'],reauthoring['frozen_input_sha256'])
+                self.assertNotEqual(frozen['sha256'],reauthoring['submitted_input_sha256'])
             self.assertEqual(json.loads((out/'ledger.json').read_text()),result)
 
     def test_reader_refusal_retains_all_obligations(self):

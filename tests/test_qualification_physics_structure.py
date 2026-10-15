@@ -9,6 +9,7 @@ import unittest
 
 PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT))
+from tools.validation import qualification_physics as physics
 from tools.validation import qualification_physics_structure as structure
 
 BINDINGS = PROJECT / 'validation/qualification/fixtures/first_static'
@@ -24,7 +25,8 @@ def synthetic_case(slug='axial', mode='sparse_interactive'):
     No product outputs supply any numeric target, and no process is invoked.
     Upstream flags here are stubs solely for testing this pure reader's contract.
     """
-    request = load(slug + '.runner_input.candidate.json')
+    # B7b: the gate submits (and checks the raw against) the declared re-authored copy of the frozen input.
+    request = json.loads(physics.reauthor_runner_input((BINDINGS / (slug + '.runner_input.candidate.json')).read_bytes())[0])
     selectors = load(slug + '.selectors.candidate.json')['assertions']
     values = {row['assertion_id']: row['value'] for row in load(slug + '.reference.candidate.json')['values']}
     criteria = load('STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json')
@@ -189,6 +191,12 @@ class FirstStaticStructureTests(unittest.TestCase):
             lambda m: m['load_cases'][0]['pressure_regions'].append({'id': 'extra'}),
             lambda m: m['components'].append({'id': 'extra'}),
             lambda m: m['load_cases'][0].update(temperature=1),
+            # B7b: the re-authored copy's explicit zero allowance and current contract are bound too.
+            lambda m: m['pipe_segments'][0]['section']['corrosion_allowance'].update(value=0.001),
+            lambda m: m['pipe_segments'][0]['section'].pop('corrosion_allowance'),
+            lambda m: m.update(schema_version='0.3.0'),
+            lambda m: m.update(pressure_contract={'version': '2.0.0', 'mode': 'exact_straight_pressure_v2'}),
+            lambda m: m['pressure_contract'].pop('shear_model'),
         ]
         for mutate in mutations:
             with self.subTest(mutation=mutate):

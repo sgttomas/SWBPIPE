@@ -32,21 +32,22 @@ CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PROFILE = "product_preview_retained_w1a_v2"
 DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
 DEFINITION_HASH = "c4aebcef3ae3863f9576fb3a7e323e77a91687938f6605a83a2fdc958febb15f"
-TABLE_HASH = "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53"
+TABLE_HASH = "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1"
 # B2-C (CONTRACT §8 row 4, REVISION_02 §0): DEF-C's id and H, the preview table's second formation definition.
 COMBINATION_DEFINITION_ID = "RP-PREPARED-COMBINATION-DUAL-v1"
 COMBINATION_DEFINITION_HASH = "34ce87e7ad6da457d81a5cbf25a077fb5d08f2960c5fd815e1163646de02d24a"
 PREVIEW_DEFINITIONS = [{"id": DEFINITION_ID, "sha256": DEFINITION_HASH}, {"id": COMBINATION_DEFINITION_ID, "sha256": COMBINATION_DEFINITION_HASH}]
 RETAINED_DISPOSITIONS = ("retained_selected", "retained_unavailable")
 METHOD = "contribution_preserving_multiprecision_v1"
-# B3b (B3-D, final for J1, with REVISION_01): the `<physics-retained>` route, model 0.3.0 with the
-# exact_straight_pressure_v2 contract and explicitly empty pressure regions, over physics-1. G0 reads its table's
-# bound values (§2.4; decision 31, N-12) and cross-checks them against these constants, so neither drifts alone.
+# B3b (B3-D, final for J1, with REVISION_01): the `<physics-retained>` route. Since B7b D4 (a) its base is pressure-1
+# (`3.0.0/exact_pressure_v3`): a current 0.5.0 model with the closed v3 Euler-Bernoulli contract and explicitly empty
+# pressure regions. G0 reads its table's bound values (§2.4; decision 31, N-12) and cross-checks them against these
+# constants, so neither drifts alone.
 EXACT_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
-EXACT_DEFINITION_HASH = "306af5fd3abf1e358a7f2eb7a5fa7d8b597c5cb25d4f3d30925acd17cc8c2525"
-EXACT_TABLE_HASH = "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886"
+EXACT_DEFINITION_HASH = "ff28bea4ca9613d689edd1428b07e869a0a3ac824012b49382307b6293819def"
+EXACT_TABLE_HASH = "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 FACADE_POLICY = "RP-FACADE-SI-v2"
 RECEIPT_BINDINGS = {"canonicalization": "openpipestress_jcs_ijson_v1", "method": METHOD, "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
@@ -83,7 +84,7 @@ PREVIEW_ROUTE = Route(False, CONTRACT_ID, PROFILE, DEFINITION_ID, DEFINITION_HAS
                       "openpipestress.result_semantics/0.3.0/preview-physics-1", "product_preview_mechanics_v1",
                       "SOURCE_PREVIEW_PHYSICS_INVALID", frozenset({"SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "SOURCE_PREVIEW_PHYSICS_INVALID"}))
 EXACT_ROUTE = Route(True, EXACT_CONTRACT_ID, EXACT_PROFILE, EXACT_DEFINITION_ID, EXACT_DEFINITION_HASH,
-                    "openpipestress.result_semantics/0.3.0/physics-1", "exact_straight_pressure_v2",
+                    "openpipestress.result_semantics/0.3.0/pressure-1", "exact_pressure_v3",
                     "SOURCE_PHYSICS_EVIDENCE_INVALID", frozenset({"SOURCE_PHYSICS_EVIDENCE_INVALID"}))
 ROUTES = {PREVIEW_ROUTE.contract_id: PREVIEW_ROUTE, EXACT_ROUTE.contract_id: EXACT_ROUTE}
 
@@ -2613,8 +2614,9 @@ def _transport_base(snapshot: dict[str, Any], route: Route = PREVIEW_ROUTE) -> N
     Its gate (the alignment set, item 4): the metadata check raises only SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID,
     and the header check never does (it runs first, and every header code differs), so that code is G7's and
     every other is the header's, G2. Raw reads keep Python's own header order at G7 (the declared raw codes).
-    B3b (B3-D §6.2, transport): on the exact branch the projection is physics-1's and its metadata check is physics-1's
-    transport check, whose code (SOURCE_PHYSICS_EVIDENCE_INVALID) is G7's in the same way."""
+    B3b (B3-D §6.2, transport) with B7b D4 (a): on the exact branch the projection is pressure-1's and its metadata
+    check is the exact-retained transport check (results 0.3's ExactRetainedContractEvidence), whose code
+    (SOURCE_PHYSICS_EVIDENCE_INVALID) is G7's in the same way."""
     projected=_project(snapshot,route)
     try:_source_contract(projected,check_receipt=False,rust_header_order=True)
     except ValueError as exc:
@@ -2639,8 +2641,8 @@ def _g0_exact(receipt):
     definition = json.loads((results / "retained_precision_prepared_exact_v1.json").read_text())
     need(_hash("retained_precision_formation_v1", definition) == EXACT_DEFINITION_HASH
          and _same(table.get("product_formation_definitions"), [{"id": EXACT_DEFINITION_ID, "sha256": EXACT_DEFINITION_HASH}]), "FORMATION_MISMATCH")
-    # 5. The table's bytes, and its inherited hash is physics-1's packaged table.
-    inherited = (results / "semantic_contract_v0_3_physics_1.json").read_bytes()
+    # 5. The table's bytes, and its inherited hash is pressure-1's packaged table (B7b D4 (a)).
+    inherited = (results / "semantic_contract_v0_3_pressure_1.json").read_bytes()
     need(hashlib.sha256(table_bytes).hexdigest() == EXACT_TABLE_HASH and hashlib.sha256(inherited).hexdigest() == table.get("inherited_semantic_contract_sha256"))
     # 6. The cross-check: each bound table value equals the reader's constant.
     policy = table.get("accuracy_classification")
@@ -2722,7 +2724,7 @@ def _raise(gate, code, detail=None):
 
 def _project(snapshot: dict[str, Any], route: Route) -> dict[str, Any]:
     """G7's projection to the route's base (D2 §4.9.3; B3-D §6.2): no receipt, the base identity and profile, and
-    no row token. The exact branch keeps physics-1's contract_evidence for physics-1's unchanged base validator."""
+    no row token. The exact branch keeps its contract_evidence for pressure-1's base validator (B7b D4 (a))."""
     projected=deepcopy(snapshot);del projected["retained_precision"]
     projected["producer"]["semantic_contract_id"]=route.base_id;projected["formulation_basis"]["profile_id"]=route.base_profile
     for row in projected["results"] if type(projected.get("results")) is list else []:
@@ -2863,7 +2865,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             if d["code"] in ("RETAINED_PRECISION_SELECTED","RETAINED_PRECISION_UNAVAILABLE"):_need(type(d.get("affected_refs")) is list and len(d["affected_refs"])==1 and (d["affected_refs"][0] in ids or d["affected_refs"][0] in cids),state["gate"],"DIAGNOSTIC_MISMATCH")
         _g4_combinations(combos,diags)
         state["gate"]="G5";_g5_native(body);_g5_ordinary(body,cases,diags,quality,(snapshot.get("contract_evidence") or {}).get("combination_gates"));_g5_requested_mode(body,rows,diags,quality,snapshot["numerical_quality"].get("status"));_g5_products(body,rows,route)
-        # B3-D §6.2: on the exact branch G5b also binds each selected case's own physics-1 section evidence.
+        # B3-D §6.2: on the exact branch G5b also binds each selected case's own pressure-1 section evidence.
         state["gate"]="G5a";phase=state["phase"];classes=_g5_numeric(body,rows,phase,(snapshot.get("contract_evidence"),) if route.exact else None)
         state["gate"]="G6"
         for c in cases:

@@ -28,11 +28,12 @@ numerical accuracy or model freshness):
 - realized arcs: region and member keys, the bend term, junctions, withheld
   rows and arc signs;
 - objective connector records and their 24 rows per case;
-- model-scoped review rows, the evidence keys and the 0.4.0
-  load/reference-state pre-pass;
-- the cross-reads by name: v2 evidence offered as pressure-1
-  (``V2_READ_AS_V3``) and pressure-1 evidence under a v2 identity
-  (``V3_READ_AS_V2``).
+- model-scoped review rows, the evidence keys and the load/reference-state
+  pre-pass of an envelope that carries the group;
+- B7b (A4/A5): the retired ``2.0.0/exact_straight_pressure_v2`` identities
+  (physics-1, physics-source-1, load-reference-1, load-reference-source-1)
+  are refused by name (``SOURCE_EXACT_PRESSURE_V2_RETIRED``), as the Rust
+  header refuses them; there are no cross-read refusals any more.
 """
 from __future__ import annotations
 
@@ -50,20 +51,22 @@ PROJECT = Path(__file__).resolve().parents[2]
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
 PROFILE = "exact_pressure_v3"
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
-STRAIGHT_V2 = ("2.0.0", "exact_straight_pressure_v2")
-PHYSICS_ID = "openpipestress.result_semantics/0.3.0/physics-1"
-LOAD_REFERENCE_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
 PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": CONTRACT_ID}
 TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_1.json"
-TABLE_SHA256 = "07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742"
+TABLE_SHA256 = "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375"
 
 # Refusals by name.
-V3_READ_AS_V2 = "SOURCE_PHYSICS_EXACT_PRESSURE_V3_READ_AS_V2"
-V2_READ_AS_V3 = "SOURCE_PHYSICS_EXACT_STRAIGHT_PRESSURE_V2_READ_AS_V3"
 CONTRACT_UNKNOWN = "SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"
-# A straight-v2 identity whose evidence names no v3 contract: a v2 reader's
-# publication, which this verifier does not read.
-NOT_PRESSURE_1 = "SOURCE_PHYSICS_PRESSURE_1_REQUIRED"
+# B7b: the retired v2 identities, refused by name with the Rust header's text.
+RETIRED_EXACT_V2_IDS = (
+    "openpipestress.result_semantics/0.3.0/physics-1",
+    "openpipestress.result_semantics/0.3.0/physics-source-1",
+    "openpipestress.result_semantics/0.3.0/load-reference-1",
+    "openpipestress.result_semantics/0.3.0/load-reference-source-1",
+)
+SOURCE_EXACT_PRESSURE_V2_RETIRED = "SOURCE_EXACT_PRESSURE_V2_RETIRED"
+V2_RETIRED_TEXT = (f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
+                   "re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis")
 RETAINED_METHOD = "contribution_preserving_multiprecision_v1"
 RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
 
@@ -154,9 +157,9 @@ def verify_source(source: Mapping[str, Any], *, raw: bool = True) -> None:
 
 
 def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
-    """Raw pressure-1 evidence. A 0.4.0 envelope carries ``load_reference_states``
-    and takes the load/reference-state pre-pass first; a 0.3.0 envelope takes the
-    physics checks directly."""
+    """Raw pressure-1 evidence. An envelope that carries ``load_reference_states``
+    takes the load/reference-state pre-pass first; any other takes the physics
+    checks directly."""
     evidence = source.get("contract_evidence") if isinstance(source, Mapping) else None
     if isinstance(evidence, Mapping) and "load_reference_states" in evidence:
         _load_state_evidence(source)
@@ -168,26 +171,24 @@ def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
 
 
 def validate_exact_pressure_evidence(source: Mapping[str, Any]) -> None:
-    """Identity dispatch. pressure-1 is verified; pressure-1 evidence under a
-    straight-v2 identity is refused as ``V3_READ_AS_V2``; any other identity is
-    refused by name."""
+    """Identity dispatch. pressure-1 is verified; a retired v2 identity is
+    refused by name (``SOURCE_EXACT_PRESSURE_V2_RETIRED``); any other identity
+    is refused as unknown."""
     producer = source.get("producer") if isinstance(source, Mapping) else None
     identity = producer.get("semantic_contract_id") if isinstance(producer, Mapping) else None
     if identity == CONTRACT_ID:
         basis = source.get("formulation_basis")
         _require(isinstance(basis, Mapping) and basis.get("profile_id") == PROFILE, "pressure-1 formulation profile")
         validate_pressure_evidence(source)
-    elif identity in (PHYSICS_ID, LOAD_REFERENCE_ID):
-        if _names_contract(source.get("contract_evidence"), PRESSURE_V3):
-            raise ValueError(V3_READ_AS_V2)
-        raise ValueError(f"{NOT_PRESSURE_1}: {identity!r}")
+    elif identity in RETIRED_EXACT_V2_IDS:
+        raise ValueError(V2_RETIRED_TEXT)
     else:
         raise ValueError(f"{CONTRACT_UNKNOWN}: {identity!r}")
 
 
 def validate_pressure_transport_metadata(source: Mapping[str, Any]) -> None:
     """pressure-1 statements without raw rows: closed shape against the results
-    0.3 ``PressureContractEvidence`` (held in ``results_pressure_1.v0.3``; 0.4.0
+    0.3 ``PressureContractEvidence`` (held in ``results_pressure_1.v0.3``; load/reference-state
     records against the frozen load/reference-state schema) and internal joins
     only; never raw row evidence."""
     try:
@@ -196,14 +197,20 @@ def validate_pressure_transport_metadata(source: Mapping[str, Any]) -> None:
         raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed transport evidence") from error
 
 
-def pressure_table() -> dict[str, Any]:
-    data = TABLE_PATH.read_bytes()
+def verify_pressure_table(data: bytes) -> dict[str, Any]:
+    """The reviewed ordinary pressure table (Rust `semantic_contract::verify_pressure_table`): its bytes, then its
+    identity, profile and counts (88 signatures, 59 kinds)."""
     if hashlib.sha256(data).hexdigest() != TABLE_SHA256:
-        raise ValueError("SOURCE_PHYSICS_PRESSURE_TABLE_HASH")
+        raise ValueError("SOURCE_PRESSURE_TABLE_HASH")
     table = json.loads(data)
-    if not isinstance(table, Mapping) or table.get("semantic_contract_id") != CONTRACT_ID or table.get("formulation_profile_id") != PROFILE:
-        raise ValueError("SOURCE_PHYSICS_PRESSURE_TABLE_IDENTITY")
+    if (not isinstance(table, Mapping) or table.get("semantic_contract_id") != CONTRACT_ID or table.get("formulation_profile_id") != PROFILE
+            or table.get("source_signature_count") != 88 or table.get("source_kind_count") != 59):
+        raise ValueError("SOURCE_PRESSURE_TABLE_IDENTITY")
     return table
+
+
+def pressure_table() -> dict[str, Any]:
+    return verify_pressure_table(TABLE_PATH.read_bytes())
 
 
 # --------------------------------------------------------------------------
@@ -225,7 +232,7 @@ def _header(source: Any, *, raw: bool) -> None:
     if source.get("producer") != PRODUCER:
         raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     if "source_block_recovery" in source:
-        raise ValueError("SOURCE_BLOCKS_LEGACY_DOWNGRADE_FORBIDDEN")
+        raise ValueError("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
     quality = source.get("numerical_quality")
     if (not isinstance(quality, Mapping) or set(quality) != {"value_representation", "publication_quantization", "integrity_policy", "status", "cases"}
             or quality.get("value_representation") != "finite_binary64" or quality.get("publication_quantization") != "none"
@@ -307,16 +314,6 @@ def _float_bits(value: float) -> int:
     return int.from_bytes(struct.pack(">d", value), "big")
 
 
-def _names_contract(evidence: Any, contract: tuple[str, str]) -> bool:
-    """Whether the evidence names ``contract`` on any exact case or region."""
-    if not isinstance(evidence, Mapping):
-        return False
-    cases = evidence.get("exact_cases") if isinstance(evidence.get("exact_cases"), list) else []
-    regions = evidence.get("pressure") if isinstance(evidence.get("pressure"), list) else []
-    return any(isinstance(c, Mapping) and c.get("profile_mode") == contract[1] for c in cases) or any(
-        isinstance(r, Mapping) and (r.get("profile_mode") == contract[1] or r.get("profile_version") == contract[0]) for r in regions)
-
-
 def arc_members(region: Any) -> set[str]:
     """The realized-arc members of one region; refused when malformed."""
     arcs: set[str] = set()
@@ -388,9 +385,10 @@ def _model_scoped_review(row: Mapping[str, Any], table: Mapping[str, Any]) -> bo
 
 
 def _physics(source: Mapping[str, Any]) -> None:
-    if _names_contract(source.get("contract_evidence"), STRAIGHT_V2):
-        raise ValueError(V2_READ_AS_V3)
-    _require(not any(key in source for key in ("source_block_recovery", "carrier_evidence")), "unsupported source namespace")
+    # Rust `physics_evidence::validate_physics_evidence_in` (ordinary, non-composite): a receipt or carrier namespace
+    # is foreign method evidence, refused by its own code.
+    if any(key in source for key in ("source_block_recovery", "carrier_evidence")):
+        raise ValueError("SOURCE_PHYSICS_FOREIGN_METHOD_EVIDENCE")
     evidence = source.get("contract_evidence")
     _shape(evidence, EVIDENCE_KEYS_0_3_0, "namespace")
     _finite_tree(evidence)
@@ -880,7 +878,7 @@ def _transport(source: Mapping[str, Any]) -> None:
 
 
 # --------------------------------------------------------------------------
-# 0.4.0: the load/reference-state pre-pass, then the physics checks on a
+# The load/reference-state group: its pre-pass, then the physics checks on a
 # projection. The pre-pass names its own codes (SOURCE_LOAD_REFERENCE_*).
 # --------------------------------------------------------------------------
 

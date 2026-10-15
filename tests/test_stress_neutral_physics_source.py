@@ -2,6 +2,10 @@
 
 Projection arguments identify the supplied records, not a fresh native invocation.
 No source header, quality flag, numeric value or method receipt is fabricated.
+
+B7b (A4/A5): the current exact identities are pressure-1 and pressure-source-1 (`3.0.0/exact_pressure_v3`); they
+take over the retired physics-1 and physics-source-1 packages, over the regenerated v3 producer twins. pressure-1
+has no transport reader in Rust (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED), so its package is validated with its source.
 """
 from copy import deepcopy
 from functools import lru_cache
@@ -19,8 +23,8 @@ import pytest
 from checked_json_fixture_cache import checked_json_fixture_cache
 
 from core.analysis_runs.compatibility import (
-    _source_contract, build_analysis_run_v0_3, PHYSICS_CONTRACT_ID,
-    PHYSICS_SOURCE_CONTRACT_ID,
+    _source_contract, build_analysis_run_v0_3, PRESSURE_CONTRACT_ID,
+    PRESSURE_SOURCE_CONTRACT_ID,
 )
 from core.handoff.stress_neutral import package as sn
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
@@ -33,10 +37,17 @@ SCHEMA = PROJECT / "schemas/stress_neutral_export.v0.3.schema.json"
 # B4/D1 (b): the preview route's source-blocks-1 captures left; the composites keep source blocks.
 ACTUAL_PATHS = [
     PROJECT / f"fixtures/results/{name}_{mode}.json"
-    for name in ("physics_connected_mechanics", "physics_thermal_ui_mechanics")
+    for name in ("pressure_connected_mechanics", "pressure_thermal_ui_mechanics")
     for mode in ("sparse", "dense")
 ]
-COMPOSITE_DIR = PROJECT / "fixtures/product_preview/physics_source"
+COMPOSITE_DIR = PROJECT / "fixtures/product_preview/pressure_source/physics_source"
+PRESSURE_TRANSPORT_UNSUPPORTED = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
+
+
+def bound(raw):
+    """The validator's source bindings a package needs on its own: pressure-1 has no transport reader, so its
+    package is read through its source; every other method also validates standalone."""
+    return {"source_envelope": raw} if raw["producer"]["semantic_contract_id"] == PRESSURE_CONTRACT_ID else {}
 
 
 def arguments(raw, analysis):
@@ -69,7 +80,7 @@ def test_actual_physical_and_source_methods_roundtrip_all_nine_members(path, tmp
     raw, analysis, packet = captured(path)
     before = deepcopy(packet)
     identity, digest, table = _source_contract(raw)
-    assert identity == PHYSICS_CONTRACT_ID
+    assert identity == PRESSURE_CONTRACT_ID
     assert packet["producer"] == raw["producer"]
     assert packet["semantic_contract"] == {"id": identity, "sha256": digest}
     assert packet["source_carrier_checksum"]["value"] == canonical_sha256_checked_v1(raw)
@@ -86,12 +97,19 @@ def test_actual_physical_and_source_methods_roundtrip_all_nine_members(path, tmp
     assert packet["contract_evidence"] == raw["contract_evidence"]
     assert "source_block_recovery" not in packet
     validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label=path.stem)
-    sn.validate_stress_neutral_export_package(packet)
+    # Rust has no pressure-1 transport reader: without its source the package is refused by Rust's name.
+    with pytest.raises(ValueError, match=PRESSURE_TRANSPORT_UNSUPPORTED):
+        sn.validate_stress_neutral_export_package(packet)
+    sn.validate_stress_neutral_export_package(packet, source_envelope=raw)
     sn.validate_stress_neutral_export_package(packet, source_envelope=raw, analysis_record=analysis)
-    written = sn.write_materialized_members(packet, tmp_path)
+    with pytest.raises(ValueError, match=PRESSURE_TRANSPORT_UNSUPPORTED):
+        sn.write_materialized_members(packet, tmp_path / "unbound")
+    written = sn.write_materialized_members(packet, tmp_path, source_envelope=raw)
     assert [p.name for p in written] == sn.MEMBERS
     assert set(p.name for p in tmp_path.iterdir()) == set(sn.MEMBERS)
-    assert sn.read_materialized_members(tmp_path) == packet
+    with pytest.raises(ValueError, match=PRESSURE_TRANSPORT_UNSUPPORTED):
+        sn.read_materialized_members(tmp_path)
+    assert sn.read_materialized_members(tmp_path, source_envelope=raw) == packet
     assert sn.read_materialized_members(tmp_path, source_envelope=raw, analysis_record=analysis) == packet
     assert packet == before
 
@@ -119,7 +137,7 @@ def test_actual_composite_files_are_required_and_retain_both_namespaces(tmp_path
     assert any("sparse" in path.name for path in paths) and any("dense" in path.name for path in paths)
     for path in paths:
         raw, analysis, packet = captured(path)
-        assert raw["producer"]["semantic_contract_id"] == PHYSICS_SOURCE_CONTRACT_ID
+        assert raw["producer"]["semantic_contract_id"] == PRESSURE_SOURCE_CONTRACT_ID
         assert packet["contract_evidence"] == raw["contract_evidence"]
         assert packet["source_block_recovery"] == raw["source_block_recovery"]
         assert [a["source_row"] for a in packet["source_annotations"]] == raw["results"]
@@ -133,27 +151,29 @@ def test_actual_composite_files_are_required_and_retain_both_namespaces(tmp_path
                 assert row["metadata"]["basis"] in {"retained_source_endpoint_normal_max_v1", "recovered_from_open_mechanics_stress_components"}
 
 
+@pytest.mark.parametrize("path", [ACTUAL_PATHS[0], COMPOSITE_DIR / "n05-sparse_interactive.raw.json"], ids=["pressure", "pressure_source"])
 @pytest.mark.parametrize("change", ["missing", "duplicate", "wrong_index", "raw_value", "raw_metadata", "raw_hash", "wrong_id"])
-def test_annotation_tampering_fails_even_after_package_rehash(change):
-    raw, analysis, original = captured(ACTUAL_PATHS[0])
+def test_annotation_tampering_fails_even_after_package_rehash(change, path):
+    raw, analysis, original = captured(path)
     packet = deepcopy(original)
     annotations = packet["source_annotations"]
     if change == "missing": annotations.pop()
     elif change == "duplicate": annotations[1] = deepcopy(annotations[0])
     elif change == "wrong_index": annotations[0]["source_row_index"] = True
     elif change == "raw_value": annotations[0]["source_row"]["value"] += 1
-    elif change == "raw_metadata": annotations[0]["source_row"]["metadata"]["basis"] = "forged"
+    elif change == "raw_metadata": next(a for a in annotations if isinstance(a["source_row"].get("metadata"), dict))["source_row"]["metadata"]["basis"] = "forged"
     elif change == "raw_hash": annotations[0]["source_row_sha256"] = "f" * 64
     else: annotations[0]["source_result_id"] = "unrelated"
     rehash_packet(packet)
     with pytest.raises(ValueError, match="SN-SOURCE-ANNOTATION"):
-        sn.validate_stress_neutral_export_package(packet)
+        sn.validate_stress_neutral_export_package(packet, **bound(raw))
     with pytest.raises(ValueError):
         sn.validate_stress_neutral_export_package(packet, source_envelope=raw, analysis_record=analysis)
 
 
 def test_coherently_rehashed_annotation_is_not_an_authenticity_claim():
-    raw, _, original = captured(ACTUAL_PATHS[0])
+    # Standalone transport needs a method with a transport reader: pressure-source-1's (pressure-1 has none).
+    raw, _, original = captured(COMPOSITE_DIR / "n05-sparse_interactive.raw.json")
     packet = deepcopy(original)
     # A nonnumeric raw annotation can be internally consistent but differs from
     # supplied original source. Standalone transport cannot authenticate it.
@@ -166,14 +186,14 @@ def test_coherently_rehashed_annotation_is_not_an_authenticity_claim():
         sn.validate_stress_neutral_export_package(packet, source_envelope=raw)
 
 
-@pytest.mark.parametrize("path", [ACTUAL_PATHS[0], COMPOSITE_DIR / "n05-sparse_interactive.raw.json"], ids=["physics", "physics_source"])
+@pytest.mark.parametrize("path", [ACTUAL_PATHS[0], COMPOSITE_DIR / "n05-sparse_interactive.raw.json"], ids=["pressure", "pressure_source"])
 def test_method_namespace_removal_substitution_and_relabel_are_rejected(path):
     raw, _, original = captured(path)
-    field = "contract_evidence" if raw["producer"]["semantic_contract_id"] == PHYSICS_CONTRACT_ID else "source_block_recovery"
+    field = "contract_evidence" if raw["producer"]["semantic_contract_id"] == PRESSURE_CONTRACT_ID else "source_block_recovery"
     for bad_value in [None, False, {}, []]:
         packet = deepcopy(original); packet[field] = bad_value; rehash_packet(packet)
         with pytest.raises((ValueError, KeyError, TypeError)):
-            sn.validate_stress_neutral_export_package(packet)
+            sn.validate_stress_neutral_export_package(packet, **bound(raw))
         with pytest.raises(AssertionError):
             validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label="invalid namespace")
     packet = deepcopy(original)
@@ -185,16 +205,16 @@ def test_method_namespace_removal_substitution_and_relabel_are_rejected(path):
     with pytest.raises(AssertionError): validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label="unknown method")
     packet = deepcopy(original); packet["semantic_contract"]["sha256"] = "f" * 64; rehash_packet(packet)
     with pytest.raises(ValueError, match="SEMANTIC-CONTRACT"):
-        sn.validate_stress_neutral_export_package(packet)
+        sn.validate_stress_neutral_export_package(packet, **bound(raw))
     with pytest.raises(AssertionError): validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label="wrong method hash")
 
 
 def test_new_method_privacy_professional_and_member_guards_stay_closed():
-    _, _, original = captured(ACTUAL_PATHS[0])
+    raw, _, original = captured(ACTUAL_PATHS[0])
     for group, key in [("privacy", "private_payload_embedded"), ("privacy", "protected_payload_embedded"), ("professional_boundary", "software_makes_solver_validation_claim"), ("professional_boundary", "software_makes_approval_claim")]:
         packet = deepcopy(original); packet[group][key] = True; rehash_packet(packet)
         with pytest.raises(ValueError, match="BOUNDARY-VIOLATION"):
-            sn.validate_stress_neutral_export_package(packet)
+            sn.validate_stress_neutral_export_package(packet, **bound(raw))
     members = sn.materialized_members(original)
     members["extra.json"] = b"{}"
     with pytest.raises(ValueError, match="INVENTORY"):
@@ -204,7 +224,7 @@ def test_new_method_privacy_professional_and_member_guards_stay_closed():
 def test_physics_shape_definitions_match_published_result_schema():
     current = json.loads(SCHEMA.read_text())
     result = json.loads((PROJECT / "schemas/results.v0.3.schema.yaml").read_text())
-    for key in ["PhysicsContractEvidence", "PhysicsGeometry", "PhysicsMaterial"]:
+    for key in ["ExactRetainedContractEvidence", "PhysicsGeometry", "PhysicsMaterial"]:
         assert current["$defs"][key] == result["$defs"][key]
 
 
@@ -296,7 +316,7 @@ def test_cr02_actual_mixed_signed_zeros_survive_materialize_reopen_and_bind_orig
         validate_instance(json.loads(SCHEMA.read_text()), malformed, instance_label="missing CR02 sidecar")
 
 
-UTF8_METHODS = [PHYSICS_CONTRACT_ID, PHYSICS_SOURCE_CONTRACT_ID]
+UTF8_METHODS = [PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID]
 
 
 def csv_transport_row(identity, value=1.25):
@@ -450,25 +470,27 @@ def test_new_method_witness_and_category_cannot_override_table(change):
         sn.validate_stress_neutral_export_package(packet, source_envelope=raw, analysis_record=analysis)
 
 
-# E3's equal-input Python construction basis is fixed before source/model/row
-# regeneration. The fixtures are complete package-file witnesses, whose
-# insertion-order file encoding is distinct from the checked member encoding.
+# E3's equal-input Python construction basis: complete package-file witnesses, whose insertion-order file
+# encoding is distinct from the checked member encoding. B7b replaced the 14 v2 witnesses (load_reference_* and
+# load_reference_source_*) by their v3 twins: pressure-1 (pressure_load_state_*) and pressure-source-1
+# (pressure_source_load_state_*) over the regenerated load/reference-state producer fixtures.
 E3_PACKAGE_NAMES = [
     f"{family}_{mode}"
-    for family in ("load_reference_connected", "load_reference_pressure",
-        "load_reference_source_eigen_motion", "load_reference_source_fields",
-        "load_reference_source_mixed", "load_reference_source_n05", "load_reference_source_n06")
+    for family in ("pressure_load_state_connected", "pressure_load_state_pressure",
+        "pressure_source_load_state_eigen_motion", "pressure_source_load_state_fields",
+        "pressure_source_load_state_mixed", "pressure_source_load_state_n05", "pressure_source_load_state_n06")
     for mode in ("sparse", "dense")
 ]
+E3_RAW_FOLDERS = {"pressure_source_load_state": "pressure_source/load_reference_source", "pressure_load_state": "pressure/load_reference"}
 
 
 @pytest.mark.parametrize("name", E3_PACKAGE_NAMES)
 def test_current_native_builder_matches_committed_package_file_bytes_on_identical_inputs(name):
     stem, mode = name.rsplit("_", 1)
-    source_family = "load_reference_source" if stem.startswith("load_reference_source_") else "load_reference"
-    case = stem.removeprefix(source_family + "_")
+    family = "pressure_source_load_state" if stem.startswith("pressure_source_load_state_") else "pressure_load_state"
+    case = stem.removeprefix(family + "_")
     solver_mode = "sparse_interactive" if mode == "sparse" else "dense_scrutiny"
-    raw = json.loads((PROJECT / f"fixtures/product_preview/{source_family}/{case}-{solver_mode}.raw.json").read_text())
+    raw = json.loads((PROJECT / f"fixtures/product_preview/{E3_RAW_FOLDERS[family]}/{case}-{solver_mode}.raw.json").read_text())
     analysis = json.loads((PROJECT / f"fixtures/results/{name}.analysis_run.json").read_text())
     packet = sn.build_stress_neutral_export_package(source_envelope=raw, analysis_record=analysis, **arguments(raw, analysis))
     file_bytes = (json.dumps(packet, ensure_ascii=False, separators=(",", ":"), allow_nan=False) + "\n").encode("utf-8")

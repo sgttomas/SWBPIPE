@@ -1,16 +1,18 @@
 """T4-U3 (S14): the test-only pressure-1 verifier admits objective connector
 records and rows over the shared connector corpus (the Rust reader's
 ``tests/connector_contract.rs`` reads the same bytes; the Rust reader is the
-only product reader), refuses each broken binding by name, and the v2 product
-readers refuse connector evidence.
+only product reader), refuses each broken binding by name, and the retained-source
+route (pressure-source-1) refuses connector evidence. (The retired v2 readers'
+refusal of connector evidence went with them in B7b.)
 """
 from copy import deepcopy
 import json
 from pathlib import Path
 
 import pytest
-from tests.verifiers.load_reference_evidence import validate_load_reference_evidence
-from tests.verifiers.physics_evidence import validate_physics_evidence
+from core.analysis_runs import rust_reader
+from tests.verifiers import physics_source
+from tests.verifiers.source_blocks import domain_hash
 from tests.verifiers.pressure_1 import (
     CONTRACT_ID as PRESSURE_ID, validate_exact_pressure_evidence, validate_pressure_evidence, verify_source,
 )
@@ -159,22 +161,27 @@ def test_broken_connector_bindings_are_refused_by_name(label, envelope, what, mu
     assert str(refused.value).endswith(f"SOURCE_PHYSICS_EVIDENCE_INVALID: {detail}"), str(refused.value)
 
 
-@pytest.mark.parametrize("label,envelope", CASES)
-def test_every_other_contract_refuses_connector_evidence(label, envelope):
-    as_v2 = deepcopy(envelope)
-    for case in as_v2["contract_evidence"]["exact_cases"]:
-        case["profile_mode"] = "exact_straight_pressure_v2"
-    # The hanger's model-scoped input review rows are pressure-1's (v2 keeps its
-    # case-scoped rule); they are not what this test refuses.
-    as_v2["results"] = [r for r in as_v2["results"] if "basis_ref" in r]
-    reader = validate_load_reference_evidence if load_state(envelope) else validate_physics_evidence
+@pytest.mark.parametrize("family,path,code", [
+    # The ordinary family's closed physical shape (`connector: const []`) refuses the record before the evidence
+    # check; the load/reference-state pre-pass names it first. Both readers agree (the Rust verdict below).
+    ("0.3 family", "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json", "PHYSICS_SOURCE_PHYSICAL_SHAPE"),
+    ("load/reference-state family", "fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json", "CONNECTOR_UNSUPPORTED"),
+])
+def test_the_source_route_refuses_connector_evidence(family, path, code):
+    # B7b (Rust `the_source_route_refuses_connector_evidence`): the retained-source route (pressure-source-1, both
+    # source families) declines objective connectors (b7-plan J7/D7). A connector record grafted into a genuine
+    # pressure-source-1 statement is refused by name, its receipt resealed so that the evidence check is reached.
+    source = json.loads((PROJECT / path).read_text())
+    physics_source.validate_physics_source(deepcopy(source))
+    source["contract_evidence"]["connector"] = [deepcopy(CASES[0][1]["contract_evidence"]["connector"][0])]
+    publication = {key: value for key, value in source.items() if key != "source_block_recovery"}
+    recovery = source["source_block_recovery"]
+    recovery["body"]["publication_sha256"] = domain_hash("source_blocks_publication_v1", publication)
+    recovery["receipt_sha256"] = domain_hash("source_blocks_receipt_v1", recovery["body"])
     with pytest.raises(ValueError) as refused:
-        reader(deepcopy(as_v2))
-    assert "CONNECTOR_UNSUPPORTED" in str(refused.value) or str(refused.value).endswith("unsupported connector"), str(refused.value)
-    # The v2 product readers (as on main) refuse connector records; connector
-    # rows without their records are refused as unbound by the verifier (the
-    # "record removed" mutation above) and by the Rust reader under every
-    # contract, not by the v2 Python product readers, which T3's unit R2 retires.
-    with pytest.raises(ValueError) as refused:
-        validate_pressure_evidence(as_v2)
-    assert str(refused.value).endswith("V2_READ_AS_V3"), str(refused.value)
+        physics_source.validate_physics_source(deepcopy(source))
+    assert str(refused.value).endswith(code), f"{family}: {refused.value}"
+    # The product path takes the Rust reader's verdict, refused by the same name.
+    with pytest.raises(rust_reader.ReaderRefusal) as refused:
+        rust_reader.validate("pressure-source", deepcopy(source))
+    assert str(refused.value).endswith(code), f"{family}: {refused.value}"

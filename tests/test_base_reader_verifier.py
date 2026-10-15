@@ -23,7 +23,7 @@ import pytest
 
 from core.analysis_runs import compatibility as product, rust_reader
 from tests import base_reader_corpus as corpus
-from tests.verifiers import load_reference_source as lrs, reader_verdict as rv
+from tests.verifiers import reader_verdict as rv
 from tests.verifiers.source_blocks import domain_hash
 
 # The declared class: both readers refuse, with a different code or detail. Each reader keeps its own words
@@ -39,21 +39,24 @@ DECLARED_VALIDATE = {
         "V11-support-both-attributed-and-withheld", "A4-N2-basis-ref-extra-key", "A4-N3-diagnostic-without-id",
         "A4-N4-combination-source-result-refs-null", "A4-N5-duplicate-combination-force-magnitude",
         "A4-N6-support-row-without-basis-ref-element-local", "A4-N8-blocked-envelope-without-summary")},
-    "load-reference": {f"lr/{name}" for name in (
+    # B7b: the load/reference-state statements are read by the pressure-1 reader. Its inherited checks keep their
+    # own words; the three cases the ordinary pressure reader now reads (no or a broken group, a closed connector)
+    # and the moved connector case join them (as test_load_reference_readers declares).
+    "pressure": {f"lr/{name}" for name in (
         "UNKNOWN-case-section-inherited", "UNKNOWN-maximum-coverage-inherited", "SWAP-numerical-evidence-inherited",
         "PROFILE-exact-case-mode-inherited", "INHERITED-maximum-unit", "INHERITED-extrema-gap", "INHERITED-rhs-method",
-        "INHERITED-headline", "INHERITED-section-diameter", "INHERITED-region-pressure-rhs")},
-    "load-reference-source": {"lrs/NUM-unsafe-integer-in-publication"},
-    "physics-source": {f"ledger/{name}" for name in (
-        "ROWS", "EVIDENCE_IDS", "VALUE_NONFINITE", "ROW_FIELDS", "ORDINARY_REPORT_KIND", "EXACT_SOURCE_REQUIRED",
+        "INHERITED-headline", "INHERITED-section-diameter", "INHERITED-region-pressure-rhs",
+        "MISSING-load-reference-states", "MISSING-contract-evidence", "CLOSED-connector")} | {"lr-reader/CONNECTOR_NOT_ARRAY"},
+    # B7b: one source reader (pressure-source-1) reads the composite ledger cases and the joined statements.
+    "pressure-source": {"lrs/NUM-unsafe-integer-in-publication"} | {f"ledger/{name}" for name in (
+        "EVIDENCE_IDS", "VALUE_NONFINITE", "ROW_FIELDS", "ORDINARY_REPORT_KIND", "EXACT_SOURCE_REQUIRED",
         "SUPPORT_IDENTITY", "PROJECTION_IDS", "FUNCTIONAL_IDS", "PROJECTION_RESULTS", "ROW_INPUTS", "PROJECTION_ROW",
         "PROJECTION_RELATIVE_BOUND", "DERIVED_SIGNATURE", "SUPPORT_TERM_DUPLICATE", "SUPPORT_RESULT_BIJECTION",
         "SUPPORT_MAGNITUDE_COVERAGE", "SOURCE_FALLBACK_TRIGGER", "EVIDENCE_IDS#empty-id", "PHYSICAL_OBSERVATION_ESCAPE")},
 }
-# Standing findings that differ only in the route reader's refusal text (the reader above, or physics-1's own
-# reader on the two load-reference statements relabelled physics-1, whose physics-1 reading the corpus does not pin).
-DECLARED_STANDING = (DECLARED_VALIDATE["preview-physics"] | DECLARED_VALIDATE["load-reference"] | DECLARED_VALIDATE["load-reference-source"]
-                     | {"lr/TABLE-id-physics-1-exact-profile", "lr/PHYSICS1-with-load-reference-states", "lr/PHYSICS1-with-empty-load-reference-states"})
+# Standing findings that differ only in the route reader's refusal text (the reader above). A statement whose
+# evidence object is missing is refused at the route before any reader text reaches its standing.
+DECLARED_STANDING = (DECLARED_VALIDATE["preview-physics"] | DECLARED_VALIDATE["pressure"]) - {"lr/MISSING-contract-evidence"}
 STANDING_CODES = {"LEGACY_ABSOLUTE_ROUNDING_INTEGRITY_NOT_ASSESSED", rv.SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED, "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN",
                   rv.SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED, rv.LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE,
                   rv.RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
@@ -69,12 +72,8 @@ def _route_of(source):
         return None
 
 
-def _projection(source):
-    return lrs._project(source, True)
-
-
 def inputs():
-    return corpus.corpus_inputs(_route_of, domain_hash, _projection)
+    return corpus.corpus_inputs(_route_of, domain_hash)
 
 
 def _strict_json(text):
@@ -95,7 +94,8 @@ def _strict_json(text):
 
 def test_the_corpus_is_the_committed_corpus():
     built, committed = inputs(), corpus.committed()
-    assert [item.id for item in built] == list(committed) and len(built) == 543
+    # B7b: 543 less the 14 load-reference transport cases retired with the v2 transport reader.
+    assert [item.id for item in built] == list(committed) and len(built) == 529
     for item in built:
         entry = committed[item.id]
         if item.source is None:
@@ -157,12 +157,14 @@ def test_the_verifier_gives_every_committed_outcome_but_the_declared_class():
             assert ours["transport"][reader] == theirs["transport"][reader], (item.id, reader)
         if item.rows:
             assert ours["rows"] == theirs["rows"], item.id
-    assert compared > 600
+    # B7b: 580 reader and transport readings of the parsed statements (fewer than before: one source reader).
+    assert compared == 580
     assert validate_differences == DECLARED_VALIDATE
     assert standing_differences == DECLARED_STANDING
 
 
-@pytest.mark.parametrize("group", ["results/", "physics_source/", "load_reference", "tamper/", "lr/", "lrs/", "lr-", "ledger/"])
+@pytest.mark.parametrize("group", ["results/", "pressure_source/physics_source/", "pressure/load_reference/", "pressure_source/load_reference_source/",
+                                   "load_reference_fallback_uz", "tamper/", "lr/", "lrs/", "lr-", "ledger/"])
 def test_product_reads_each_statement_as_the_rust_reader(group):
     """Product `_source_contract` (header dispatch, then the route's reader, through the runner) gives the
     committed native reading of every corpus statement: the header refusal or the route reader's outcome
@@ -170,7 +172,7 @@ def test_product_reads_each_statement_as_the_rust_reader(group):
     committed = corpus.committed()
     checked = 0
     for item in inputs():
-        if not item.id.startswith(group) or (group == "load_reference" and item.id.startswith("load_reference_source")):
+        if not item.id.startswith(group):
             continue
         expected = corpus.product_reading(committed[item.id])
         if expected is None:
@@ -194,15 +196,15 @@ def test_product_reads_each_statement_as_the_rust_reader(group):
 
 # G1 and G2 off the corpus: built statements read through the verifier and through the Rust reader.
 def _physics():
-    source = corpus.read("fixtures/results/physics_connected_mechanics_sparse.json")
+    source = corpus.read("fixtures/results/pressure_connected_mechanics_sparse.json")
     model = corpus.model_at("core/product_physics/tests/fixtures/exact_pressure_connected_request.json")
     return source, model
 
 
 def _cases():
     source, model = _physics()
-    lr_source = corpus.read("fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json")
-    lr_model = corpus.read("fixtures/product_preview/load_reference/connected.request.json")["model"]
+    lr_source = corpus.read("fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json")
+    lr_model = corpus.read("fixtures/product_preview/pressure/load_reference/connected.request.json")["model"]
     fewer_cases = deepcopy(model)
     fewer_cases["load_cases"] = fewer_cases["load_cases"][1:] or []
     extra_pipe = deepcopy(model)
@@ -216,16 +218,18 @@ def _cases():
     contradiction["numerical_quality"]["status"] = "sensitive"
     unsolved = deepcopy(source)
     unsolved["status"]["mechanics"] = "MODEL_INCOMPLETE"
-    # B4/D1 (b): the composite physics-source-1 statement is the source route here.
-    blocks = corpus.read("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json")
-    blocks_request = corpus.read("fixtures/product_preview/physics_source/n05.request.json")
+    # B4/D1 (b), B7b: the composite pressure-source-1 statement is the source route here.
+    blocks = corpus.read("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json")
+    blocks_request = corpus.read("fixtures/product_preview/pressure_source/physics_source/n05.request.json")
     combinations = deepcopy(blocks_request)
     combinations["model"]["combinations"] = [{"id": "combination:invented", "terms": []}]
     return [
         ("physics-model-case-coverage", source, fewer_cases, None, "SOURCE_PHYSICS_MODEL_CASE_COVERAGE"),
         ("physics-model-member-coverage", source, extra_pipe, None, "SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE"),
         ("physics-support-binding", source, foreign_support, None, "SOURCE_PHYSICS_SUPPORT_BINDING"),
-        ("load-reference-model-case-coverage", lr_source, lr_fewer, None, "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_MODEL_CASE_COVERAGE"),
+        # B7b: the load/reference-state statement is read by the pressure reader, whose G2 model checks follow its
+        # evidence checks unwrapped (Rust `reader_verdict::validate`'s "pressure" arm), as on the ordinary statement.
+        ("pressure-load-state-model-case-coverage", lr_source, lr_fewer, None, "SOURCE_PHYSICS_MODEL_CASE_COVERAGE"),
         ("aggregate-contradiction", contradiction, model, None, None),
         ("unsolved", unsolved, model, None, None),
         ("source-blocks-without-invocation", blocks, blocks_request["model"], None, None),

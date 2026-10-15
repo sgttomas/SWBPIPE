@@ -1,11 +1,14 @@
-"""Explicit physics-source-1 consumer binding; no imported record proves custody.
+"""Explicit pressure-source-1 consumer binding; no imported record proves custody.
 
 Test verifier (b7-plan R2): the product reader is Rust's (`core/reporting/result_export/src/physics_source.rs`), which
 product Python reaches only through `openpipestress-runner read`. Tests only: no module outside `tests/` imports
 this one, and it imports nothing from product code (`tests/test_verifier_independence.py`).
 
-The untouched received source is checked in both method contexts. Actual numerical
-eligibility additionally requires the independently captured full invocation.
+B7b (A4/A5): the retained-source composite has one current contract, `pressure-source-1` under
+`3.0.0/exact_pressure_v3` (policy PRESSURE-SOURCE-1, case domain `pressure_source_case_evidence_v1`). The retired
+`physics-source-1` (`2.0.0/exact_straight_pressure_v2`) is not read here; a stored v2 result is refused by name at
+the header (`compatibility.py`, `reader_verdict.py`). Actual numerical eligibility additionally requires the
+independently captured full invocation, a current model document 0.5.0 with the exact contract.
 """
 from __future__ import annotations
 
@@ -23,23 +26,23 @@ from . import source_blocks as blocks
 from .preview_physics_evidence import correctly_rounded_norm
 
 ROOT = Path(__file__).resolve().parents[2]
-CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-source-1"
-PROFILE = "exact_straight_pressure_v2"
 EXACT = blocks.EXACT
 MAX_BASIS = "retained_source_endpoint_normal_max_v1"
 MAX_SIGN = "nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate"
 SUPPORT_SIGN = physical.SUPPORT_SIGN
-TABLE = json.loads((ROOT / "fixtures/results/semantic_contract_v0_3_physics_source_1.json").read_text())
 SCHEMA_PATH = ROOT / "schemas/physics_source_recovery.schema.json"
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRESSURE_PROFILE = "exact_pressure_v3"
-PRESSURE_TABLE_SHA256 = "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf"
+PRESSURE_TABLE_SHA256 = "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435"
 PRESSURE_TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
+# The current model document and the one exact contract a captured invocation must author
+# (b7-plan "Current model format"): 0.5.0, `pressure_contract` present, Euler-Bernoulli only.
+MODEL_VERSION = "0.5.0"
+EXACT_PRESSURE_CONTRACT = {"version": "3.0.0", "mode": PRESSURE_PROFILE, "shear_model": "euler_bernoulli"}
 
 
 class SourceContract(Enum):
-    """Caller-selected source context; received evidence never selects it."""
-    PHYSICS_V2 = (CONTRACT_ID, PROFILE, "PHYSICS-SOURCE-1", "physics_source_case_evidence_v1", physical.STRAIGHT_V2)
+    """The current source context (Rust `physics_source::SourceContract`); received evidence never selects it."""
     PRESSURE_V3 = (PRESSURE_CONTRACT_ID, PRESSURE_PROFILE, "PRESSURE-SOURCE-1", "pressure_source_case_evidence_v1", physical.PRESSURE_V3)
 
     @property
@@ -53,7 +56,7 @@ class SourceContract(Enum):
     @property
     def pressure(self): return self.value[4]
     @property
-    def TABLE(self): return pressure_source_table() if self is SourceContract.PRESSURE_V3 else TABLE
+    def TABLE(self): return pressure_source_table()
     @property
     def EXACT(self): return EXACT
     @property
@@ -71,39 +74,38 @@ class SourceContract(Enum):
 
     @classmethod
     def from_invocation(cls, invocation):
-        contract = _get(_get(_get(invocation, "request"), "model"), "pressure_contract")
-        for candidate in cls:
-            if contract == {"version": candidate.pressure[0], "mode": candidate.PROFILE}: return candidate
+        """The captured model's contract: a current 0.5.0 document with the exact v3 contract and no outer
+        shear key, as Rust's `from_invocation`; anything else is refused."""
+        model = _get(_get(invocation, "request"), "model")
+        if (_get(model, "schema_version") == MODEL_VERSION and isinstance(model, Mapping) and "shear_model" not in model
+                and _get(model, "pressure_contract") == EXACT_PRESSURE_CONTRACT):
+            return SourceContract.PRESSURE_V3
         raise ValueError("PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED")
 
-    def cross_read(self):
-        return physical.V3_READ_AS_V2 if self is SourceContract.PHYSICS_V2 else physical.V2_READ_AS_V3
-
     def check_invocation(self, invocation):
-        try: actual = SourceContract.from_invocation(invocation)
-        except ValueError:
-            if self is SourceContract.PHYSICS_V2: return  # Existing v2 malformed-input depth.
-            raise
-        if actual is not self: raise ValueError(self.cross_read())
+        SourceContract.from_invocation(invocation)
 
     def check_received(self, source):
-        other = SourceContract.PRESSURE_V3 if self is SourceContract.PHYSICS_V2 else SourceContract.PHYSICS_V2
         header = _get(_get(source, "producer"), "semantic_contract_id")
         profile = _get(_get(source, "formulation_basis"), "profile_id")
-        evidence = _get(source, "contract_evidence")
-        if self is SourceContract.PRESSURE_V3 and header == physical.PRESSURE_ID and isinstance(source, Mapping) and "source_block_recovery" in source:
+        if header == physical.PRESSURE_ID and isinstance(source, Mapping) and "source_block_recovery" in source:
             raise ValueError("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
-        cases, regions = _get(evidence, "exact_cases"), _get(evidence, "pressure")
-        names_other = header == other.CONTRACT_ID or profile == other.PROFILE
-        names_other |= self is SourceContract.PRESSURE_V3 and header == "openpipestress.result_semantics/0.3.0/load-reference-source-1"
-        names_other |= isinstance(cases, list) and any(_get(c, "profile_mode") == other.PROFILE for c in cases)
-        names_other |= isinstance(regions, list) and any(_get(r, "profile_mode") == other.PROFILE or _get(r, "profile_version") == other.pressure[0] for r in regions)
-        if names_other: raise ValueError(self.cross_read())
-        if self is SourceContract.PRESSURE_V3:
-            _require(header == self.CONTRACT_ID and profile == self.PROFILE, "IDENTITY")
+        _require(header == self.CONTRACT_ID and profile == self.PROFILE, "IDENTITY")
 
 
 def _get(value, key): return value.get(key) if isinstance(value, Mapping) else None
+
+
+def model_carries_load_state(model: Any) -> bool:
+    """Authored presence selects the optional load/reference-state group (Rust `model_carries_load_state`):
+    `reference_configurations`, any material's `expansion_laws` or any case's `analysis_state`. Null and
+    incomplete values keep the group's validation duties."""
+    if not isinstance(model, Mapping):
+        return False
+    materials, cases = model.get("materials"), model.get("load_cases")
+    return ("reference_configurations" in model
+            or (isinstance(materials, list) and any(isinstance(m, Mapping) and "expansion_laws" in m for m in materials))
+            or (isinstance(cases, list) and any(isinstance(c, Mapping) and "analysis_state" in c for c in cases)))
 
 
 def _context(context):
@@ -112,24 +114,22 @@ def _context(context):
 
 
 def verify_pressure_source_table(data):
-    """Verify the reviewed binding, then alias the existing shared row table."""
+    """The reviewed current source table: its bytes, identity, profile, policy and counts (Rust
+    `verify_pressure_source_table`). It is resident on its own; no other table aliases it."""
     if hashlib.sha256(data).hexdigest() != PRESSURE_TABLE_SHA256:
         raise ValueError("SOURCE_PRESSURE_SOURCE_TABLE_HASH")
     table = json.loads(data)
-    if not (table.get("semantic_contract_id") == PRESSURE_CONTRACT_ID
+    if not (isinstance(table, Mapping) and table.get("semantic_contract_id") == PRESSURE_CONTRACT_ID
             and table.get("formulation_profile_id") == PRESSURE_PROFILE
             and table.get("source_block_policy") == "PRESSURE-SOURCE-1"
-            and table["rows"] == TABLE["rows"]
-            and table["canonical_metadata_vocabulary"] == TABLE["canonical_metadata_vocabulary"]):
+            and table.get("source_signature_count") == 69 and table.get("source_kind_count") == 51):
         raise ValueError("SOURCE_PRESSURE_SOURCE_TABLE_IDENTITY")
     return table
 
 
 @lru_cache(maxsize=1)
 def pressure_source_table():
-    # The only retained value is the existing TABLE reference, never a second row table.
-    verify_pressure_source_table(PRESSURE_TABLE_PATH.read_bytes())
-    return TABLE
+    return verify_pressure_source_table(PRESSURE_TABLE_PATH.read_bytes())
 
 
 def _schema_shape(value, rule, schema, resolved=False):
@@ -148,7 +148,7 @@ def _schema() -> dict[str, Any]:
     return json.loads(SCHEMA_PATH.read_text())
 
 
-def validate_receipt_shape(receipt: Any, *, source_contract: SourceContract = SourceContract.PHYSICS_V2) -> None:
+def validate_receipt_shape(receipt: Any, *, source_contract: SourceContract = SourceContract.PRESSURE_V3) -> None:
     contract = _context(source_contract)
     schema = _schema()
     rule = schema  # the schema's root is the closed PRESSURE-SOURCE-1 receipt
@@ -161,7 +161,7 @@ def _case(source: Mapping[str, Any], cid: str) -> Mapping[str, Any]:
     return found[0]
 
 
-def _validate_transport_metadata(source: Mapping[str, Any], source_contract: SourceContract = SourceContract.PHYSICS_V2) -> None:
+def _validate_transport_metadata(source: Mapping[str, Any], source_contract: SourceContract = SourceContract.PRESSURE_V3) -> None:
     """Closed transported statements under an explicit context; no Current claim."""
     contract = _context(source_contract)
     contract.check_received(source)
@@ -412,7 +412,7 @@ def validate_stress(source: Mapping[str, Any], case: Mapping[str, Any], row: Map
     _require(blocks._normal_or_exact_zero(pa, action == 0) and blocks._normal_or_exact_zero(value, action == 0) and _same(row["value"],value), "STRESS_RECIPE_VALUE")
 
 
-def validate_source_case(source: Mapping[str, Any], case: Mapping[str, Any], invocation: Mapping[str, Any] | None, *, source_contract: SourceContract = SourceContract.PHYSICS_V2) -> None:
+def validate_source_case(source: Mapping[str, Any], case: Mapping[str, Any], invocation: Mapping[str, Any] | None, *, source_contract: SourceContract = SourceContract.PRESSURE_V3) -> None:
     contract = _context(source_contract)
     _require(case["ordinary_attempt"]["outcome"] in {"sensitive", "rejected"}, "SOURCE_FALLBACK_TRIGGER")
     physical_case = next(c for c in source["contract_evidence"]["exact_cases"] if c["load_case_id"] == case["basis_ref"]["ref_id"])
@@ -426,13 +426,16 @@ def validate_source_case(source: Mapping[str, Any], case: Mapping[str, Any], inv
     _require(len(stresses) == len(expected_stresses) == 20 * len(case["source"]["member_ids"]) and {c["result_id"] for c in stresses} == expected_stresses, "STRESS_CHECK_COVERAGE")
     if invocation is not None:
         model = invocation["request"]["model"]
-        _require(model.get("schema_version") in ({"0.3.0", "0.4.0"} if contract is SourceContract.PRESSURE_V3 else {"0.3.0"})
-                 and model.get("pressure_contract") == {"version":contract.pressure[0], "mode":contract.PROFILE}, "ACTUAL_EXACT_PROFILE")
+        try:
+            actual_contract = SourceContract.from_invocation(invocation)
+        except ValueError:
+            actual_contract = None
+        _require(model.get("schema_version") == MODEL_VERSION and actual_contract is contract, "ACTUAL_EXACT_PROFILE")
         actual = next(c for c in model["load_cases"] if c["id"] == case["basis_ref"]["ref_id"])
         _require(actual.get("pressure_regions") == [] and "pressure_regions" in actual, "ACTUAL_EMPTY_PRESSURE_INVENTORY")
         _require(not model.get("components") and not model.get("combinations") and actual.get("equivalent_static") is None, "ACTUAL_SOURCE_FAMILY")
         _require(all((load.get("target", {}).get("type") == "node" and load.get("category") != "thermal")
-                     or (contract is SourceContract.PRESSURE_V3 and model.get("schema_version") == "0.4.0"
+                     or (model_carries_load_state(model)
                          and load.get("target", {}).get("type") == "element" and load.get("category") == "thermal"
                          and load.get("dimension") in {"temperature_change", "temperature_interval"})
                      for load in actual.get("primitive_loads", [])), "ACTUAL_NODAL_LOADS")
@@ -557,16 +560,17 @@ def _actual_materials(invocation, actual, exact, canonical):
         _require((alpha is not None and _same(alpha,material["alpha_per_kelvin"])) if thermal else material["alpha_per_kelvin"] is None,"ACTUAL_SELECTED_ALPHA")
 
 
-def validate_physics_source(source: Mapping[str, Any], actual_invocation: Mapping[str, Any] | None = None, *, source_contract: SourceContract = SourceContract.PHYSICS_V2) -> bool:
+def validate_physics_source(source: Mapping[str, Any], actual_invocation: Mapping[str, Any] | None = None, *, source_contract: SourceContract = SourceContract.PRESSURE_V3) -> bool:
     contract = _context(source_contract)
     try:
         if actual_invocation is not None: contract.check_invocation(actual_invocation)
         contract.check_received(source)
-        resolved = contract is SourceContract.PRESSURE_V3 and isinstance(_get(source, "contract_evidence"), Mapping) and "load_reference_states" in source["contract_evidence"]
-        if contract is SourceContract.PRESSURE_V3 and actual_invocation is not None:
-            version = _get(_get(_get(actual_invocation, "request"), "model"), "schema_version")
-            _require(version in ("0.3.0", "0.4.0"), "ACTUAL_MODEL_SCHEMA")
-            _require(resolved == (version == "0.4.0"), "ACTUAL_LOAD_REFERENCE_CONTEXT")
+        resolved = isinstance(_get(source, "contract_evidence"), Mapping) and "load_reference_states" in source["contract_evidence"]
+        if actual_invocation is not None:
+            model = _get(_get(actual_invocation, "request"), "model")
+            _require(_get(model, "schema_version") == MODEL_VERSION, "ACTUAL_MODEL_SCHEMA")
+            # The load/reference-state group keys on its authored presence, never on a version.
+            _require(resolved == model_carries_load_state(model), "ACTUAL_LOAD_REFERENCE_CONTEXT")
         if resolved:
             from .load_reference_source import validate_pressure_source_evidence
             validate_pressure_source_evidence(source, raw=True)
@@ -584,7 +588,7 @@ def validate_physics_source(source: Mapping[str, Any], actual_invocation: Mappin
         raise ValueError("PHYSICS_SOURCE_MALFORMED_VALUE") from error
 
 
-def validate_transport_metadata(source: Mapping[str, Any], *, source_contract: SourceContract = SourceContract.PHYSICS_V2) -> None:
+def validate_transport_metadata(source: Mapping[str, Any], *, source_contract: SourceContract = SourceContract.PRESSURE_V3) -> None:
     """Validate transported statements in the explicit caller-selected context."""
     contract = _context(source_contract)
     try:

@@ -150,10 +150,10 @@ def test_checksum_positions_require_exact_scope_profile_reference_and_inventory(
         assert_schema_rejects(case)
 
 
-# Copy checks: a joined load-reference-source record carries both the
-# source-block receipt and the contract evidence. Each forged copy is resealed
-# with its own record checksum, so only the copy check can refuse it.
-JOINED_SOURCE = PROJECT / "fixtures/product_preview/load_reference_source/n05-sparse_interactive.raw.json"
+# Copy checks: a pressure-source-1 record of a load/reference-state model carries
+# both the source-block receipt and the contract evidence. Each forged copy is
+# resealed with its own record checksum, so only the copy check can refuse it.
+JOINED_SOURCE = PROJECT / "fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json"
 RECEIPT_MISMATCH = "^ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH$"
 EVIDENCE_MISMATCH = "^ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH$"
 

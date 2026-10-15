@@ -1,8 +1,13 @@
-"""Closed ordinary physics-1 adapter support; physical consistency is not origin.
+"""Closed ordinary pressure-1 adapter support for the first-static cases; physical consistency is not origin.
+
+B7b retired physics-1 (2.0.0/exact_straight_pressure_v2) and the 0.1.0-0.4.0 model documents. The two
+first-static cases are qualified as pressure-1 (3.0.0/exact_pressure_v3 on model document 0.5.0): the frozen,
+SHA-bound runner inputs are never edited; the gate verifies their bytes and submits a re-authored copy
+(``reauthor_runner_input``, the product tests' one re-authoring rule) to the selected runner.
 
 The final reviewed candidate binding is supplied explicitly. Its physical-consistency
 verdict is the Rust product reader's (b7-plan R2: Rust is the only product reader),
-taken from the explicitly built `openpipestress-runner read physics` named by
+taken from the explicitly built `openpipestress-runner read pressure` named by
 OPENPIPESTRESS_RUNNER_BIN. No build, network, unit conversion or older-profile fallback occurs.
 """
 from __future__ import annotations
@@ -20,23 +25,33 @@ except ImportError:
     from qualification_process import capture, file_sha256, sha256_bytes
 from core.analysis_runs import rust_reader
 
-TRANSPORT = 'ordinary_physics_1_cli_1.0_raw0.2'
-CONTRACT = 'openpipestress.result_semantics/0.3.0/physics-1'
-PROFILE = 'exact_straight_pressure_v2'
-TABLE = 'fixtures/results/semantic_contract_v0_3_physics_1.json'
-# b7-plan R2: the owned reader is Rust's physics-1 reader (`validate_physics_evidence`); the binding
-# selects its source with the table and unit authority. Re-pin deliberately whenever the reader changes.
+TRANSPORT = 'ordinary_pressure_1_cli_1.0_raw0.2'
+CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-1'
+PROFILE = 'exact_pressure_v3'
+TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_1.json'
+# b7-plan R2: the owned reader is Rust's current pressure-1 reader (`validate_pressure_evidence`, held in
+# physics_evidence.rs); the binding selects its source with the table and unit authority. Re-pin deliberately
+# whenever the reader changes. B7b re-pinned all three: physics-1's reader and table (a6681f69...) are retired.
 MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
-TABLE_SHA256 = 'a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1'
+TABLE_SHA256 = 'a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375'
 DEPENDENCIES = {
-    MODULE: '8e05867a62aeeb6086e9ec865c5ff9586b3642151722632763bf2312fd05aa58',
+    MODULE: '38302413b131204fafecc99e62780cf73a70db552e95ecc57bbf054e781addb2',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
-# Version 2: the files name the Rust reader's source (version 1 named the former Python reader).
-BINDING_FORMAT = 'openpipestress.ordinary_physics_consistency_binding/2'
-READER = 'physics'
+# Version 3: the binding names the pressure-1 reader (version 2 named the retired physics-1 Rust reader,
+# version 1 the former Python reader); both older formats are refused.
+BINDING_FORMAT = 'openpipestress.ordinary_physics_consistency_binding/3'
+ENTRYPOINT = 'validate_pressure_evidence'
+READER = 'pressure'
+# B7b: model document 0.5.0 is the only current version; its exact contract names the shear model.
+MODEL_VERSION = '0.5.0'
+RETIRED_MODEL_VERSIONS = ('0.1.0', '0.2.0', '0.3.0', '0.4.0')
+PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': PROFILE, 'shear_model': 'euler_bernoulli'}
+REAUTHORED_PRESSURE_CONTRACTS = ({'version': '2.0.0', 'mode': 'exact_straight_pressure_v2'}, {'version': '3.0.0', 'mode': PROFILE})
+ZERO_CORROSION_ALLOWANCE = {'value': 0.0, 'unit': 'm'}
+REAUTHORING = 'openpipestress.current_model_reauthoring/1'
 LIMIT = 8 * 1024 * 1024
 REFERENCE_BASIS_SHA256 = 'be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9'
 SECTION_CRITERIA_SHA256 = '1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2'
@@ -141,6 +156,51 @@ REQUIRED_SECTION_IDS = tuple('section.' + name for name in (
     'outside_diameter_m', 'effective_wall_thickness_m', 'ro_m', 'ri_m',
     'As_m2', 'Ai_m2', 'I_m4', 'J_m4', 'Z_m3'))
 
+def reauthor_model(model: dict) -> dict:
+    """B7b's one re-authoring of a copied model document (Rust `tests/common/current_model.rs` `reauthor_model`):
+    a retired ``schema_version`` -> 0.5.0; a declared v2 or v3 exact contract -> the current contract; and, on a
+    document carrying the current contract, an explicit zero ``corrosion_allowance`` on every pipe section that
+    lacks one (the retired contracts had no allowance: the authored wall was the effective wall). Nothing else
+    changes: no physical or numerical input and no other contract. The caller's object is not modified."""
+    model = deepcopy(model)
+    if model.get('schema_version') in RETIRED_MODEL_VERSIONS:
+        model['schema_version'] = MODEL_VERSION
+    contract = model.get('pressure_contract')
+    if type(contract) is dict and {key: contract.get(key) for key in ('version', 'mode')} in REAUTHORED_PRESSURE_CONTRACTS:
+        model['pressure_contract'] = deepcopy(PRESSURE_CONTRACT)
+    if model.get('pressure_contract') == PRESSURE_CONTRACT:
+        for pipe in model.get('pipe_segments') or []:
+            pipe['section'].setdefault('corrosion_allowance', deepcopy(ZERO_CORROSION_ALLOWANCE))
+    return model
+
+
+def model_carries_load_state(model) -> bool:
+    """Authored presence selects the optional load/reference-state group (Rust `physics_source::model_carries_load_state`):
+    ``reference_configurations``, any material's ``expansion_laws`` or any case's ``analysis_state``; never a version."""
+    if type(model) is not dict:
+        return False
+    materials, cases = model.get('materials'), model.get('load_cases')
+    return ('reference_configurations' in model
+            or (type(materials) is list and any(type(m) is dict and 'expansion_laws' in m for m in materials))
+            or (type(cases) is list and any(type(c) is dict and 'analysis_state' in c for c in cases)))
+
+
+def reauthor_runner_input(data: bytes) -> tuple[bytes, dict]:
+    """The runner input submitted for a frozen, SHA-bound CLI input: the same request with its preview model
+    re-authored (``reauthor_model``). Returns the submitted bytes and the closed re-authoring record."""
+    request = json.loads(data)
+    require(type(request) is dict and type(request.get('solve')) is dict and type(request['solve'].get('preview_model')) is dict
+            and type(request['solve']['preview_model'].get('model')) is dict, 'runner input has no preview model to re-author')
+    original = request['solve']['preview_model']['model']
+    request['solve']['preview_model']['model'] = reauthor_model(original)
+    submitted = json.dumps(request, ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode()
+    return submitted, {'rule': REAUTHORING, 'frozen_input_sha256': sha256_bytes(data), 'submitted_input_sha256': sha256_bytes(submitted),
+                       'model_schema_version': [original.get('schema_version'), MODEL_VERSION],
+                       'pressure_contract': [original.get('pressure_contract'), PRESSURE_CONTRACT],
+                       'explicit_zero_corrosion_allowance': True,
+                       'scope': 'declared re-authoring of a copy; the frozen input, references and criteria are unchanged'}
+
+
 def section_obligations(state='not_run', reason='not executed'):
     return [{'id': key, 'state': state, 'reason': reason} for key in REQUIRED_SECTION_IDS]
 
@@ -180,7 +240,7 @@ def load_binding(source_root: Path, binding_path: Path, expected_sha256: str,
     binding = json.loads(data)
     require(binding.get('format') == BINDING_FORMAT
             and binding.get('contract_id') == CONTRACT, 'unsupported binding identity')
-    require(binding.get('entrypoint') == 'validate_physics_evidence', 'unsupported owned entry')
+    require(binding.get('entrypoint') == ENTRYPOINT, 'unsupported owned entry')
     if require_reviewed:
         require(binding.get('status') == 'reviewed_candidate' and bool(binding.get('review_basis')),
                 'reviewed candidate/module binding not admitted')
@@ -234,7 +294,7 @@ def reader_verdict(process: dict, response_bytes: bytes, reader: str, require=No
 
 
 def consistency_observation(raw: dict, binding: dict, directory: Path) -> dict:
-    """Take the Rust product reader's verdict on the parsed snapshot (`openpipestress-runner read physics`).
+    """Take the Rust product reader's verdict on the parsed snapshot (`openpipestress-runner read pressure`).
 
     Raw is a transport snapshot extracted from separately captured/checked solver
     stdout. This derived replay hash is not the original stdout's raw-byte hash.
@@ -281,8 +341,8 @@ def ordinary_header_and_standing(raw: dict, request: dict, mode: str) -> None:
             and formulation['profile_id'] == PROFILE and type(formulation['limitations']) is list
             and formulation['limitations'] and all(type(x) is str and x for x in formulation['limitations']), 'formulation basis invalid')
     model = request['solve']['preview_model']['model']
-    require(model.get('schema_version') == '0.3.0' and model.get('pressure_contract') == {
-        'version': '2.0.0', 'mode': PROFILE}, 'actual exact-profile model required')
+    require(model.get('schema_version') == MODEL_VERSION and model.get('pressure_contract') == PRESSURE_CONTRACT,
+            'actual exact-profile model required')
     expected_cases = [case['id'] for case in model['load_cases']]
     require(expected_cases and len(set(expected_cases)) == len(expected_cases), 'actual case inventory invalid')
     quality = raw.get('numerical_quality')

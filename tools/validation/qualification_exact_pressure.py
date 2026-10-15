@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """Closed VP-HARNESS adapter for the exact_pressure_1 raw0.2 transport (T4-U2).
 
-Mirrors the load-reference-1 adapter: an explicitly selected foreground
+Mirrors the load/reference-state adapter: an explicitly selected foreground
 ``openpipestress-runner solve --input - --solver-mode <mode>`` process, the
 ControlledExport/CLI1.0 wrapper and a raw0.2 mechanics envelope whose producer
 is exactly ``openpipestress.result_semantics/0.3.0/pressure-1`` with profile
-``exact_pressure_v3`` on a ``3.0.0/exact_pressure_v3`` document (0.3.0, or
-0.4.0 with its load/reference-state records). Cases come from a hash-locked
+``exact_pressure_v3`` on a model document 0.5.0 under the current exact contract
+(with its load/reference-state records when the document carries that group).
+B7b retired the 0.3.0/0.4.0 documents: the package's frozen, hash-bound case
+inputs (0.3.0, or 0.4.0 with the group) are never edited; each run submits their
+declared re-authored copy (``qualification_physics.reauthor_runner_input``, the
+product tests' one re-authoring rule), against which the raw is read. Cases come from a hash-locked
 case manifest (``openpipestress.exact_pressure_qualification_manifest/1``)
 named by a run selection record. Every required selector, including the
 terminal fields of ``contract_evidence.pressure``, resolves exactly once; every
@@ -15,12 +19,12 @@ Numerical standing is reported beside, never inside, the comparison outcomes.
 
 Records observed outcomes only: never app Current, independent reference
 approval, physical validation, professional acceptance or release
-qualification. physics-1, load-reference-1, source/composite namespaces and
+qualification. The retired physics-1 and load-reference-1, source/composite namespaces and
 unknown future profiles are refused. No build, network, unit conversion,
 reference regeneration or fallback occurs. The owned reader's verdict is the
 Rust product reader's (``reader_verdict``'s ``pressure`` route), taken from the
 explicitly built ``openpipestress-runner read pressure`` named by
-OPENPIPESTRESS_RUNNER_BIN, as the physics-1 and load-reference-1 gates take
+OPENPIPESTRESS_RUNNER_BIN, as the first-static and load/reference-state gates take
 theirs (b7-plan R2).
 """
 from __future__ import annotations
@@ -58,18 +62,26 @@ READER = 'pressure'
 ENTRYPOINT = 'validate_pressure_evidence'
 CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-1'
 PROFILE = 'exact_pressure_v3'
-PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': 'exact_pressure_v3'}
+# B7b: the submitted (re-authored) document is model 0.5.0 under the current contract; the package's frozen
+# documents keep their 0.3.0/0.4.0 spelling under the former v3 contract object.
+MODEL_VERSION = physics.MODEL_VERSION
+PRESSURE_CONTRACT = physics.PRESSURE_CONTRACT
+FROZEN_PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': 'exact_pressure_v3'}
+FROZEN_VERSIONS = ('0.3.0', '0.4.0')
 TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_1.json'
-TABLE_SHA256 = '07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742'
+# B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables"; O-10): pressure-1's own reviewed
+# resident table (88 signatures, 59 kinds); the former pin 07a6a308... named the table before its re-issue.
+TABLE_SHA256 = 'a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375'
 # The owned reader is the Rust product reader of pressure-1 (owner, 2026-10-10:
-# "move to one product reader in Rust"): `validate_pressure_evidence` (a 0.4.0
-# envelope takes its load/reference-state pre-pass), reached through
+# "move to one product reader in Rust"): `validate_pressure_evidence` (an envelope
+# carrying the load/reference-state group takes its pre-pass), reached through
 # `reader_verdict`'s pressure route. The binding selects its source with the
-# table and unit authority (read-only, as for physics-1). Reader source bytes as
+# table and unit authority (read-only, as for the first-static adapter). Reader source bytes as
 # of this conversion (the former pin was the test-only verifier's, 0a0192ee...);
 # re-pin deliberately whenever the reader changes.
 MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
-MODULE_SHA256 = '8e05867a62aeeb6086e9ec865c5ff9586b3642151722632763bf2312fd05aa58'
+# B7b re-pin (the reader's B7b source: v2 paths removed, the current pressure reader kept; was 8e05867a...).
+MODULE_SHA256 = physics.DEPENDENCIES[physics.MODULE]
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: MODULE_SHA256,
@@ -84,8 +96,9 @@ MODES = ('sparse_interactive', 'dense_scrutiny')
 MODE_CODES = {'sparse_interactive': 1.0, 'dense_scrutiny': 2.0}
 RECOVERY_METHODS = {'sparse_interactive': 'ordinary_sparse_structural_v1', 'dense_scrutiny': 'ordinary_dense_structural_v1'}
 PRODUCER = {'component_name': 'open_pipe_stress_product_physics', 'component_version': '0.2.0', 'semantic_contract_id': CONTRACT}
-EVIDENCE_KEYS = {'0.3.0': {'pressure', 'connector', 'exact_cases'},
-                 '0.4.0': {'pressure', 'connector', 'exact_cases', 'load_reference_states'}}
+# Keyed by the load/reference-state group's authored presence (never by a version).
+EVIDENCE_KEYS = {False: {'pressure', 'connector', 'exact_cases'},
+                 True: {'pressure', 'connector', 'exact_cases', 'load_reference_states'}}
 NOT_JOINED = {'status': 'not_joined', 'code': 'LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED'}
 STATES = gate.STATES
 STANDING_VALUES = ('not_assessed', 'checks_passed', 'sensitive', 'unresolved', 'failed')
@@ -371,9 +384,19 @@ def load_case_ids(request):
 
 
 def model_version(model) -> str:
-    require(type(model) is dict and model.get('schema_version') in EVIDENCE_KEYS and model.get('pressure_contract') == PRESSURE_CONTRACT,
-            'actual 0.3.0/0.4.0 model under 3.0.0/exact_pressure_v3 required')
+    """The frozen package document's version: 0.3.0, or 0.4.0 with the load/reference-state group."""
+    require(type(model) is dict and model.get('schema_version') in FROZEN_VERSIONS and model.get('pressure_contract') == FROZEN_PRESSURE_CONTRACT,
+            'frozen 0.3.0/0.4.0 package document under 3.0.0/exact_pressure_v3 required')
+    require(physics.model_carries_load_state(model) == (model['schema_version'] == '0.4.0'),
+            'frozen document version and load/reference-state group disagree')
     return model['schema_version']
+
+
+def current_model(model) -> bool:
+    """The submitted document: model 0.5.0 under the current contract. Returns the load/reference-state group's presence."""
+    require(type(model) is dict and model.get('schema_version') == MODEL_VERSION and model.get('pressure_contract') == PRESSURE_CONTRACT,
+            'actual 0.5.0 model under the current 3.0.0/exact_pressure_v3 contract required')
+    return physics.model_carries_load_state(model)
 
 
 def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[dict]) -> dict:
@@ -398,6 +421,11 @@ def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[di
     model = product['model']
     version = model_version(model)
     _text(model['project']['id'], 'actual model ID')
+    # The frozen input stays bound by its bytes; the runner receives the declared re-authored copy.
+    runner_input, reauthoring = physics.reauthor_runner_input(files['runner_input'])
+    request = gate.strict_json(runner_input)
+    load_state = current_model(request['solve']['preview_model']['model'])
+    require(load_state == (version == '0.4.0'), 're-authoring changed the load/reference-state group')
     request_cases = load_case_ids(request)
     require(type(reference) is dict and reference.get('format') == REFERENCE_FORMAT and reference.get('case_id') == case['case_id'],
             'reference identity/version mismatch')
@@ -439,9 +467,11 @@ def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[di
     pairs = [(_selector_identity(item['assertion']['selector']), item['expected'])
              for item in selected if item['polarity'] == 'negative']
     require(len(set(pairs)) == len(pairs), 'duplicate negative (selector, wrong value) pair')
-    return {'input': files['runner_input'], 'reference_bytes': files['reference'], 'criterion_bytes': files['criteria'],
+    return {'input': files['runner_input'], 'runner_input': runner_input, 'reauthoring': reauthoring,
+            'reference_bytes': files['reference'], 'criterion_bytes': files['criteria'],
             'selector_bytes': files['selectors'], 'request': request, 'request_cases': request_cases, 'selected': selected,
-            'absences': absences, 'profile': profile, 'bindings': bindings, 'reference_kind': kind, 'version': version}
+            'absences': absences, 'profile': profile, 'bindings': bindings, 'reference_kind': kind, 'version': version,
+            'load_state': load_state}
 
 
 # --------------------------------------------------------------------------
@@ -481,7 +511,7 @@ def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple
             and type(formulation['limitations']) is list and formulation['limitations']
             and all(type(x) is str and x for x in formulation['limitations']), 'formulation basis invalid')
     model = request['solve']['preview_model']['model']
-    version = model_version(model)
+    load_state = current_model(model)
     require(mechanics.get('run_id') == 'run:preview-linear-static-001', 'raw run identity mismatch for current profile')
     require(mechanics.get('model_ref') == model['project']['id'], 'actual model identity mismatch')
     require(mechanics.get('accepted_model_state_mutated') is False, 'solver reports model mutation')
@@ -495,7 +525,7 @@ def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple
     require(type(quality['cases']) is list and all(type(c) is dict and set(c) == {'basis_ref', 'structural_status', 'solve_quality',
             'model_matrix_fidelity', 'accuracy_evidence', 'evidence_refs'} for c in quality['cases']), 'numerical standing missing or malformed')
     evidence = mechanics.get('contract_evidence')
-    require(type(evidence) is dict and set(evidence) == EVIDENCE_KEYS[version], 'pressure-1 evidence namespace for the document version required')
+    require(type(evidence) is dict and set(evidence) == EVIDENCE_KEYS[load_state], 'pressure-1 evidence namespace for the document required')
     rows = mechanics.get('results')
     require(type(rows) is list and rows and all(type(row) is dict for row in rows), 'result rows missing')
     ids = [row.get('id') for row in rows]
@@ -639,7 +669,8 @@ def structural_checks(mechanics: dict, prepared: dict, mode: str, standing: dict
         output.append({'id': check_id, 'state': state, 'reason': reason, 'details': details})
 
     def transport(details):
-        details.update(mode=mode, mode_code=MODE_CODES[mode], document_schema_version=prepared['version'])
+        details.update(mode=mode, mode_code=MODE_CODES[mode], document_schema_version=MODEL_VERSION,
+                       frozen_document_version=prepared['version'], load_reference_state_group=prepared['load_state'])
 
     def input_binding(details):
         evidence = mechanics['contract_evidence']
@@ -661,7 +692,7 @@ def structural_checks(mechanics: dict, prepared: dict, mode: str, standing: dict
         require(standing['standing'] == 'checks_passed', 'insufficient numerical standing: ' + standing['standing'])
 
     def records(details):
-        """Each authored pressure region is published once under v3 for its case; 0.4.0 adds its state records."""
+        """Each authored pressure region is published once under v3 for its case; the load/reference-state group adds its state records."""
         evidence = mechanics['contract_evidence']
         published = sorted((r.get('load_case_id'), r.get('region_id'), r.get('profile_version'), r.get('profile_mode'))
                            for r in evidence['pressure'])
@@ -669,7 +700,7 @@ def structural_checks(mechanics: dict, prepared: dict, mode: str, standing: dict
                           for case in model['load_cases'] for region in case.get('pressure_regions', []))
         require(published == authored, 'published pressure regions differ from the bound input')
         details['regions'] = [f'{case}/{region}' for case, region, _, _ in published]
-        if prepared['version'] != '0.4.0':
+        if not prepared['load_state']:
             return
         by_case = {}
         for record in evidence['load_reference_states']:
@@ -981,10 +1012,11 @@ def run_selection(run_path: Path, executable: Path, source_root: Path, output_di
             arguments = ['solve', '--input', '-', '--solver-mode', mode]
             if runner['explicit_local_private_intent']:
                 arguments.append('--explicit-local-private-intent')
-            process = capture(executable, arguments, prepared['input'], output_dir / prefix, timeout_seconds, output_limit_bytes,
+            case_ledger['runner_input_reauthoring'] = prepared['reauthoring']
+            process = capture(executable, arguments, prepared['runner_input'], output_dir / prefix, timeout_seconds, output_limit_bytes,
                               expected_executable_sha256=runner['executable_sha256'])
             case_ledger['process'] = process
-            artifacts.append(gate.artifact_binding('input', f'{prefix}/stdin.bin', prepared['input']))
+            artifacts.append(gate.artifact_binding('input', f'{prefix}/stdin.bin', prepared['runner_input']))
             for stream_name in ('stdout', 'stderr'):
                 artifacts.append({'role': stream_name, 'path': f'{prefix}/{stream_name}.bin',
                                   'sha256': process[stream_name + '_sha256'], 'byte_length': process[stream_name + '_bytes'],
