@@ -488,7 +488,9 @@
      "value": {}
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+   "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "joined": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "note": "B7b: the current load/reference-state group owns no carrier namespace. Restored header parity with the retired load-reference routes (semantic_contract.rs current_header, commit ccb19ba0bf) refuses a load/reference-state statement carrying carrier_evidence at the header, before the method-evidence check; the source reader alone (joined) still refuses the foreign carrier namespace in its pre-pass."
   },
   {
    "id": "NS-receipt-removed",

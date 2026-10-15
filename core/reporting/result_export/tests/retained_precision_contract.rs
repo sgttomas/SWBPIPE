@@ -6746,3 +6746,69 @@ fn current_inherited_b2_contexts() {
         current_read(&source, None, current_variant_expected(entry, "transport", &pass), name, None, Some(&unqualified), true);
     }
 }
+
+/// B7b (ccb19ba0bf; DEF-E's G8 and b7-plan "Exact-contract fields"): D1.3's exact
+/// namespace requires every pipe section of the invocation to declare a length-valued
+/// zero corrosion allowance; the preview namespace requires none. On lane P's genuine
+/// W1 exact successors (both modes), an invocation whose pipe carries 0.001 m, no
+/// allowance, a null one or one of the wrong dimension, its digest rebound and the
+/// receipt resealed (`apply_on`), is refused bound at G8 INVOCATION_MISMATCH while its
+/// unbound and transport readings are unchanged; an explicit zero in millimetres reads
+/// as the genuine successor. A preview successor (the committed milestone successors
+/// and the shared corpus's ordinary bases) whose invocation adds an allowance is
+/// refused bound at G8 likewise.
+#[test]
+fn b7b_corrosion_allowance_namespace_at_g8() {
+    use serde_json::json;
+    let ca = json!(["request", "model", "pipe_segments", 0, "section", "corrosion_allowance"]);
+    let inv = gate("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH");
+    let reseal = |doc: &Value, invocation_edits: Vec<Value>| {
+        apply_on(doc, &json!({"edits": [], "rehash": "all", "invocation_edits": invocation_edits}))
+    };
+    for (name, _, text, ..) in M3X {
+        let doc: Value = serde_json::from_str(text).unwrap();
+        assert_eq!(doc["invocation"]["request"]["model"]["pipe_segments"][0]["section"]["corrosion_allowance"], json!({"unit": "m", "value": 0.0}), "{name}");
+        let genuine = readings(&doc["source"], &doc["invocation"]);
+        assert_eq!(genuine["bound"], json!({"ok": {"eligible": true}}), "{name}");
+        let (source, invocation) = reseal(&doc, vec![]);
+        assert_eq!(readings(&source, &invocation), genuine, "{name}: the reseal alone");
+        let (source, invocation) = reseal(&doc, vec![set(ca.clone(), json!({"value": 0.0, "unit": "mm"}))]);
+        assert_eq!(readings(&source, &invocation), genuine, "{name}: 0 mm");
+        for (what, edit) in [
+            ("0.001 m", set(ca.clone(), json!({"value": 0.001, "unit": "m"}))),
+            ("absent", remove(ca.clone())),
+            ("null", set(ca.clone(), Value::Null)),
+            ("wrong dimension", set(ca.clone(), json!({"value": 0.0, "unit": "Pa"}))),
+        ] {
+            let (source, invocation) = reseal(&doc, vec![edit]);
+            assert_eq!(
+                readings(&source, &invocation),
+                json!({"bound": inv, "unbound": genuine["unbound"], "transport": genuine["transport"]}),
+                "{name}: {what}"
+            );
+        }
+    }
+    let milestones = ["sparse_interactive", "dense_scrutiny"].map(|mode| {
+        let path = format!("{}/../../../fixtures/results/retained_precision_milestone_successor_{mode}.json", env!("CARGO_MANIFEST_DIR"));
+        (mode, serde_json::from_str::<Value>(&std::fs::read_to_string(path).unwrap()).unwrap())
+    });
+    for (mode, doc) in &milestones {
+        assert_eq!(doc["source"]["producer"]["semantic_contract_id"], rp::CONTRACT_ID, "{mode}");
+        let genuine = readings(&doc["source"], &doc["invocation"]);
+        assert!(genuine["bound"].get("ok").is_some(), "{mode}: {genuine}");
+        for (what, value) in [("zero", json!({"value": 0.0, "unit": "m"})), ("0.001 m", json!({"value": 0.001, "unit": "m"}))] {
+            let (source, invocation) = reseal(doc, vec![set(ca.clone(), value)]);
+            assert_eq!(
+                readings(&source, &invocation),
+                json!({"bound": inv, "unbound": genuine["unbound"], "transport": genuine["transport"]}),
+                "milestone {mode}: {what}"
+            );
+        }
+    }
+    let shared = corpus();
+    for base in [ORD, "ordinary_prepared_dense_synthetic"] {
+        let entry = json!({"id": "b7b_preview_ca", "base": base, "edits": [], "rehash": "all",
+            "invocation_edits": [set(ca.clone(), json!({"value": 0.0, "unit": "m"}))]});
+        assert_eq!(observe(&shared, &entry), inv, "{base}");
+    }
+}

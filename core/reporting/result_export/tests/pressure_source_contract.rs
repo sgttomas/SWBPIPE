@@ -199,3 +199,100 @@ fn pressure_source_binding_uses_the_reviewed_resident_table() {
     let mut edited = bytes.to_vec(); edited.push(b'\n');
     assert_eq!(sc::verify_pressure_source_table(&edited).unwrap_err(), "SOURCE_PRESSURE_SOURCE_TABLE_HASH");
 }
+
+/// The statement with its receipt's invocation digest rebound to `captured` and the
+/// receipt resealed (the receipt is `H(source_blocks_receipt_v1, body)`).
+fn rebound(statement: &Value, captured: &Value) -> Value {
+    use open_pipe_stress_result_export::source_blocks::domain_hash;
+    let mut out = statement.clone();
+    let receipt = &mut out["source_block_recovery"];
+    receipt["body"]["invocation"]["value"] = json!(domain_hash("source_blocks_invocation_v1", captured).unwrap());
+    receipt["receipt_sha256"] = json!(domain_hash("source_blocks_receipt_v1", &receipt["body"]).unwrap());
+    out
+}
+
+/// B7b (ccb19ba0bf; b7-plan "Exact-contract fields"): the captured exact document
+/// declares an explicit length-valued zero corrosion allowance on every pipe section.
+/// On the 0.3-style statement and on its load/reference-state twin, a captured
+/// allowance of 0.001 m, an absent or a null allowance, or one of the wrong dimension
+/// is refused (PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE), with or without the
+/// receipt's invocation digest rebound to it; the unbound and transport readings of
+/// the rebound statement are unchanged. An explicit zero in another length unit, rebound,
+/// reads as the genuine statement does.
+#[test]
+fn captured_exact_document_requires_zero_corrosion_allowances() {
+    const CA: &str = "/request/model/pipe_segments/0/section/corrosion_allowance";
+    const CODE: &str = "PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE";
+    let (resolved, resolved_invocation) = load_state();
+    for (label, statement, captured, genuine) in [
+        ("0.3-style n06", source(), invocation(), Ok(true)),
+        ("load/reference-state n06", resolved, resolved_invocation, Ok(false)),
+    ] {
+        assert_eq!(captured.pointer(CA), Some(&json!({"unit": "m", "value": 0.0})), "{label}");
+        assert_eq!(ps::validate(&statement, Some(&captured)), genuine, "{label}");
+        let mut millimetres = captured.clone();
+        *millimetres.pointer_mut(CA).unwrap() = json!({"value": 0.0, "unit": "mm"});
+        assert_eq!(ps::validate(&rebound(&statement, &millimetres), Some(&millimetres)), genuine, "{label}: 0 mm");
+        for (what, value) in [
+            ("0.001 m", Some(json!({"value": 0.001, "unit": "m"}))),
+            ("absent", None),
+            ("null", Some(Value::Null)),
+            ("wrong dimension", Some(json!({"value": 0.0, "unit": "Pa"}))),
+        ] {
+            let mut other = captured.clone();
+            match value {
+                Some(v) => *other.pointer_mut(CA).unwrap() = v,
+                None => {
+                    other.pointer_mut("/request/model/pipe_segments/0/section").unwrap().as_object_mut().unwrap().remove("corrosion_allowance");
+                }
+            }
+            let ctx = format!("{label}: {what}");
+            assert_eq!(ps::validate(&statement, Some(&other)), Err(CODE.into()), "{ctx}");
+            let resealed = rebound(&statement, &other);
+            assert_eq!(ps::validate(&resealed, Some(&other)), Err(CODE.into()), "{ctx}: rebound");
+            assert_eq!(reader_verdict::validate("pressure-source", &resealed, None, Some(&other))["error"]["code"], CODE, "{ctx}");
+            assert_eq!(ps::validate(&resealed, None), Ok(false), "{ctx}: unbound");
+            assert_eq!(ps::validate_transport_metadata(&resealed), Ok(()), "{ctx}: transport");
+            let refs = vec![json!({"ref_type": "load_case", "ref_id": "case"})];
+            assert_ne!(sc::numerical_use_standing_with_context(&resealed, &refs, Some(&other)), "numerically_eligible", "{ctx}");
+        }
+    }
+}
+
+/// B7b (ccb19ba0bf), header parity with the retired load-reference routes:
+/// (1) the load/reference-state group owns no carrier namespace, so a pressure-1 or
+/// pressure-source-1 statement carrying the group and `carrier_evidence` is refused at
+/// the header (SOURCE_PRODUCER_CONTRACT_UNSUPPORTED; the reader-verdict dispatch's own
+/// carrier guard gives SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED); (2) the pressure-source
+/// route requires its evidence object before its receipt is read.
+#[test]
+fn header_guards_refuse_a_carrier_on_the_group_and_a_source_without_evidence() {
+    const UNSUPPORTED: &str = "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED";
+    let pressure_group: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
+    ))
+    .unwrap();
+    let (resolved, _) = load_state();
+    for (label, statement) in [("pressure-1 with the group", pressure_group), ("pressure-source-1 with the group", resolved.clone())] {
+        assert!(sc::for_source(&statement).is_ok(), "{label}: control");
+        let mut carrier = statement.clone();
+        carrier["carrier_evidence"] = json!({});
+        assert_eq!(sc::for_source(&carrier).unwrap_err(), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", "{label}");
+        assert_eq!(sc::for_source_metadata(&carrier).unwrap_err(), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", "{label}");
+        assert_eq!(reader_verdict::dispatch(&carrier, None, None)["error"]["code"], UNSUPPORTED, "{label}");
+    }
+    for (label, statement) in [("0.3-style n06", source()), ("load/reference-state n06", resolved)] {
+        assert_eq!(reader_verdict::dispatch(&statement, None, None)["route"], "pressure_source", "{label}: control");
+        for (what, evidence) in [("removed", None), ("null", Some(Value::Null)), ("an array", Some(json!([])))] {
+            let mut other = statement.clone();
+            match evidence {
+                Some(v) => other["contract_evidence"] = v,
+                None => {
+                    other.as_object_mut().unwrap().remove("contract_evidence");
+                }
+            }
+            let dispatched = reader_verdict::dispatch(&other, None, None);
+            assert_eq!((dispatched["route"].as_str(), dispatched["error"]["code"].as_str()), (Some("unsupported"), Some(UNSUPPORTED)), "{label}: evidence {what}");
+        }
+    }
+}

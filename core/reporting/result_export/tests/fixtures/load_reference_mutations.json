@@ -1171,8 +1171,9 @@
      "value": {}
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
-   "note": "B7b: pressure-1's header admits the identity; the load/reference-state pre-pass refuses the foreign carrier namespace."
+   "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
+   "validator": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
+   "note": "B7b: the current load/reference-state group owns no carrier namespace. Restored header parity with the retired load-reference routes (semantic_contract.rs current_header, commit ccb19ba0bf) refuses a load/reference-state statement carrying carrier_evidence at the header, before the method-evidence check; the evidence reader alone (validator) still refuses the foreign carrier namespace in its pre-pass."
   },
   {
    "id": "PROFILE-exact",

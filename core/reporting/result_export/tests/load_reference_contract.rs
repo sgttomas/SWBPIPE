@@ -314,6 +314,8 @@ fn current_inputs_table_and_schema_are_pinned() {
 fn shared_adversarial_cases_match_in_rust() {
     let cases = cases();
     let mut log = Vec::new();
+    // Every disagreement is collected and reported together.
+    let mut misses = Vec::new();
     for case in cases["cases"].as_array().unwrap() {
         let id = case["id"].as_str().unwrap();
         let (doc, nonfinite) = apply(&source(case["source"].as_str().unwrap()), &case["ops"]);
@@ -338,16 +340,12 @@ fn shared_adversarial_cases_match_in_rust() {
             &mut log,
             json!({"id": id, "dispatch": dispatch, "validator": validator}),
         );
-        assert!(
-            agrees(&dispatch, expected(case, "dispatch")),
-            "{id}: dispatch {dispatch} != {}",
-            expected(case, "dispatch")
-        );
-        assert!(
-            agrees(&validator, expected(case, "validator")),
-            "{id}: validator {validator} != {}",
-            expected(case, "validator")
-        );
+        if !agrees(&dispatch, expected(case, "dispatch")) {
+            misses.push(format!("{id}: dispatch {dispatch} != {}", expected(case, "dispatch")));
+        }
+        if !agrees(&validator, expected(case, "validator")) {
+            misses.push(format!("{id}: validator {validator} != {}", expected(case, "validator")));
+        }
         if nonfinite.is_some() {
             continue;
         }
@@ -394,6 +392,7 @@ fn shared_adversarial_cases_match_in_rust() {
             );
         }
     }
+    assert!(misses.is_empty(), "{} disagreements:\n{}", misses.len(), misses.join("\n"));
     write_log("rust_outcomes.json", &log);
 }
 
