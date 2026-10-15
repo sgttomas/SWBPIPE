@@ -125,9 +125,9 @@ describe("load/reference-state documents through session state, manifests, IPC a
 });
 
 describe("saved load/reference-state results keep the raw hash and the resolved evidence", () => {
-  // The joined (pressure-source-1) result is recorded by the desktop; the ordinary
-  // (pressure-1) one has no desktop record (ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH),
-  // so its committed Python record is checked against the raw hash instead.
+  // Both are recorded by the desktop as Python records them (B7b): the joined
+  // (pressure-source-1) record embeds the resolved evidence; the ordinary (pressure-1)
+  // record embeds none, and its desktop and committed Python records bind the same raw hash.
   it("fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json", async () => {
     const path = "fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json";
     const raw = receivedFixture<MechanicsResult>(path), model = json(path.replace(/-(sparse_interactive|dense_scrutiny)\.raw\.json$/, ".request.json")).model as PreviewModel;
@@ -137,9 +137,14 @@ describe("saved load/reference-state results keep the raw hash and the resolved 
     expect(text(record.analysis_run.contract_evidence)).toBe(text(raw.contract_evidence));
   });
   it("fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json", async () => {
-    const raw = receivedFixture<MechanicsResult>("fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json");
-    const record = json("fixtures/results/pressure_load_state_connected_sparse.analysis_run.json") as AnalysisRunEnvelope;
-    expect(record.analysis_run.hashes.find(h => h.payload_scope === "received_result")!.value).toBe(await canonicalSha256HexCheckedV1(raw));
-    expect(Object.hasOwn(record.analysis_run, "contract_evidence")).toBe(false);
+    const path = "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json";
+    const raw = receivedFixture<MechanicsResult>(path), model = json("fixtures/product_preview/pressure/load_reference/connected.request.json").model as PreviewModel;
+    const manifest = { manifest_ref: { object_type: "InputManifest", ref: "manifest:invented" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: raw.model_ref }, solver_basis: { solver_name: raw.producer!.component_name, solver_version: raw.producer!.component_version, solver_build_ref: "test:invented" } } };
+    const desktop = await buildAnalysisRunV03(raw, manifest, undefined, modelLoadBasisRefs(model));
+    const python = json("fixtures/results/pressure_load_state_connected_sparse.analysis_run.json") as AnalysisRunEnvelope;
+    for (const record of [desktop, python]) {
+      expect(record.analysis_run.hashes.find(h => h.payload_scope === "received_result")!.value).toBe(await canonicalSha256HexCheckedV1(raw));
+      expect(Object.hasOwn(record.analysis_run, "contract_evidence")).toBe(false);
+    }
   });
 });

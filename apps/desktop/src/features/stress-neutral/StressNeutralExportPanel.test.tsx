@@ -331,14 +331,16 @@ it('refuses retired stress-neutral versions before reading their metadata',async
 });
 
 // B7b: the exact route's received statement is pressure-1 (the v3 twin of the retired
-// physics-1, whose package this test built): it has no desktop record and no package.
+// physics-1, whose package this test built): it has its analysis-run record (as Python's
+// builder makes it) and still no package.
 it('refuses received exact-route results (pressure-1) with their own output reason, before any package',async()=>{
  const {model,source:result}=nativeMechanicsReplayPair('sparse_interactive',{profile:'pressure'});
  expect(result.producer!.semantic_contract_id).toBe('openpipestress.result_semantics/0.3.0/pressure-1');
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'received-pressure-reference',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
  const before=JSON.stringify(result);
- await expect(buildAnalysisRunPreview(result,{inputManifest})).rejects.toThrow('ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH');
- await expect(buildStressNeutralExportPacket({model,result,analysisRun:{} as any})).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
+ const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
+ expect(analysisRun.analysis_run.reproducibility.semantic_contract?.id).toBe('openpipestress.result_semantics/0.3.0/pressure-1');
+ await expect(buildStressNeutralExportPacket({model,result,analysisRun})).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
  await expect(validateStressNeutralExportPacket({schema_version:'0.3.0'},result)).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
  expect(JSON.stringify(result)).toBe(before);
 });

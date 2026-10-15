@@ -92,10 +92,12 @@ it.each(["sparse", "dense"])("recognizes actual %s pressure-1 semantics without 
  expect(currentSemanticContract(source)).toEqual(binding);
  expect(numericalResultStanding(source,model).eligible).toBe(true); // numerical/source scope only
  const solver = {solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:"test:received-source-no-live-invocation",solver_mode:mode === "sparse" ? "sparse_interactive" : "dense_scrutiny",settings:{}};
- // An independently hashed reference-only basis: the desktop builds no pressure-1 record.
+ // An independently hashed reference-only basis: the desktop records pressure-1 as Python
+ // does (B7b), and a held record still does not make a received statement Current.
  const manifest = {model_basis:{model_ref:model.project.id,model_payload:model},solver_basis:solver};
  const referenceBasis = {manifest,manifest_ref:{object_type:"InputManifest",ref:"test:reference-only-pressure-state"},manifest_sha256:await canonicalSha256HexCheckedV1(manifest)};
- await expect(buildAnalysisRunV03(source,referenceBasis,undefined,modelLoadBasisRefs(model))).rejects.toThrow("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
+ const record = await buildAnalysisRunV03(source,referenceBasis,undefined,modelLoadBasisRefs(model));
+ expect(record.analysis_run.reproducibility.semantic_contract).toEqual(binding);
  const {result} = renderHook(() => useResultsSessionState());
  act(()=>{result.current.setResult(source);});
  expect(result.current.result).toBe(source);

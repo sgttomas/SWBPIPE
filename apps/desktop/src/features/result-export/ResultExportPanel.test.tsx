@@ -13,7 +13,7 @@ afterEach(()=>{delete (window as any).__TAURI_INTERNALS__;vi.mocked(invoke).mock
 // Scoped IPC simulation of a genuine supported input/output pair, not a native
 // product witness. Registration goes through the production invocation path.
 // B7b: the exportable pair is preview-physics-1's; the exact route's pressure-1 (the
-// v3 twin of the retired physics-1) has no desktop record or export.
+// v3 twin of the retired physics-1) is recorded but has no desktop export.
 async function currentProps(){
  const {model}=nativeMechanicsReplayPair('sparse_interactive',{profile:'preview'});
  (window as any).__TAURI_INTERNALS__={};

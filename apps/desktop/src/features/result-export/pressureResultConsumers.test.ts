@@ -18,10 +18,10 @@ import { deriveResultDocument, buildCurrentResultExport, resultDigest, ref, deri
 
 /** B7b: the v3 twin of the retired physics-1 consumer suite. The exact route's ordinary
  * identity is pressure-1 (3.0.0/exact_pressure_v3); the desktop reads it through the Rust
- * reader's own route and offers no output of it: no analysis-run record
- * (ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH) and every surface refused
- * (PRESSURE-1-OUTPUT-NOT-YET-AVAILABLE). Actual committed producer bytes; loading them
- * here creates no native invocation or Current proof. */
+ * reader's own route and records it as Python's builder does (DEL-14-02: the record binds
+ * pressure-1's table and embeds no evidence), but offers no output of it: every surface
+ * is refused (PRESSURE-1-OUTPUT-NOT-YET-AVAILABLE). Actual committed producer bytes;
+ * loading them here creates no native invocation or Current proof. */
 const project = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(project, path), "utf8"));
 const raw = (mode = "sparse"): MechanicsResult => json(`fixtures/results/pressure_connected_mechanics_${mode}.json`);
@@ -104,12 +104,14 @@ describe("actual pressure-1 source consumers (B7b: the v3 twin of physics-1)", (
       expect(() => readerValidate(retired as never, raw()), retired).toThrow(`READER_UNKNOWN: ${retired}`);
     }
   });
-  it.each(["sparse", "dense"])("%s: builds no analysis-run record and offers no result export or projection", async mode => {
+  it.each(["sparse", "dense"])("%s: builds its analysis-run record and still offers no result export or projection", async mode => {
     const source = raw(mode), before = JSON.stringify(source);
     const record = { model_basis: { model_ref: source.model_ref, model_payload: model() }, solver_basis: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "test:reference-only", solver_mode: "sparse_interactive", settings: {} } };
     const inputManifest = { manifest: record, manifest_ref: { object_type: "InputManifest", ref: "test:reference-only-pressure-analysis" }, manifest_sha256: await resultDigest(record) };
-    await expect(buildAnalysisRunV03(source, inputManifest as never, undefined, modelLoadBasisRefs(model()))).rejects.toThrow("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
-    await expect(buildCurrentResultExport({ model: model(), result: source, analysisRun: {} as never, inputManifest: null })).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
+    const analysisRun = await buildAnalysisRunV03(source, inputManifest as never, undefined, modelLoadBasisRefs(model()));
+    expect(analysisRun.analysis_run.reproducibility.semantic_contract).toStrictEqual({ id: PRESSURE_CONTRACT_ID, sha256: PRESSURE_CONTRACT_SHA256 });
+    expect(Object.hasOwn(analysisRun.analysis_run, "contract_evidence")).toBe(false);
+    await expect(buildCurrentResultExport({ model: model(), result: source, analysisRun, inputManifest: null })).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
     const origin = { origin_id: "test:received-source", origin_class: "received_current_dimension_absent", qualification_ref: ref("test_fixture", "unattested-source-consumer-projection"), authentic_producer_available: false,
       received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_carrier", payload_ref: ref("received_current_carrier", source.run_id), value: await resultDigest(source) }, original_producer_checksum: null,
       origin_limit: "Consumer projection only; no native producer or Current qualification", actual_model_ref: ref("model_payload", source.model_ref), mechanics_run_ref: ref("mechanics_run", source.run_id), request_model_ref: null, request_run_ref: null, request_alias_disclosure: null };

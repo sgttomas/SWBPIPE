@@ -406,8 +406,9 @@ describe("project handlers: a failed or empty open leaves the open project as it
     // session/rule races, not a native UI or engineering qualification witness.
     const storage = await getLocalStorageCapability();
     const knowledge = await previewService.loadDesignKnowledge();
-    // B7b: a solved, recorded session is the preview-physics-1 pair (the exact route's
-    // pressure-1 has no desktop analysis-run record, so its session solve does not complete).
+    // B7b: a solved, Current session is the preview-physics-1 pair (the exact route's
+    // pressure-1 solve completes and is recorded, but is never Current; see
+    // features/workspace/exactSessionSolve.session.test.tsx).
     const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
     const replay = createNativeMechanicsReplay({ profile: "preview" });
     vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(pair.model);

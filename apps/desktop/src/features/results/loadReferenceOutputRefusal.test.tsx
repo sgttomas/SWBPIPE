@@ -11,7 +11,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { ComponentType } from "react";
 import type { AnalysisRunEnvelope, EditorOperationIntent, MechanicsResult, PreviewModel } from "../../types";
-import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
+import { buildAnalysisRunV03, modelLoadBasisRefs, validateAnalysisRunV03 } from "../../services/analysisRunCompatibility";
 import { computeModelHash } from "../../services/hashService";
 import { initialSolveJob } from "../workspace/solveJobAudit";
 import { PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, loadReferenceOutputRefusal } from "./loadReferenceOutputAvailability";
@@ -55,12 +55,14 @@ function desktopModel(modelPath: string): PreviewModel {
   model.diagnostics ??= [];
   return model;
 }
-/** `recordPath`: a committed record of the result (pressure-1 has no desktop record,
- * so the Python product path's stands in); otherwise the desktop builds it. */
+/** `recordPath`: the committed Python product-path record of the result, which the
+ * desktop reads (B7b: the desktop builds the same record for pressure-1); otherwise the
+ * desktop builds it. */
 async function scenario(rawPath: string, modelPath: string, recordPath?: string) {
   const result = receivedFixture<MechanicsResult>(rawPath), model = desktopModel(modelPath);
   const manifest = { manifest_ref: { object_type: "InputManifest", ref: "manifest:invented-output-refusal" }, manifest_sha256: "1".repeat(64), manifest: { model_basis: { model_ref: result.model_ref }, solver_basis: { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: "test:invented" } } };
   const analysisRun = recordPath ? json(recordPath) as AnalysisRunEnvelope : await buildAnalysisRunV03(result, manifest, undefined, modelLoadBasisRefs(model));
+  if (recordPath) await validateAnalysisRunV03(analysisRun, result, modelLoadBasisRefs(model));
   expect(analysisRun.analysis_run.run_id).toBe(result.run_id);
   const props = {
     model, result, analysisRun, knowledge: null, comparison: null, editorIntents: [], proposal: null, selectedReviewTarget: null,

@@ -97,15 +97,16 @@ async function previewControl(mode: PreviewSolverMode = "sparse_interactive") {
   const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
   return { model, result, analysisRun };
 }
-/** B7b: a load/reference-state result is the v3 twin, published under pressure-1, which
- * has no desktop analysis-run record; the Python product path's committed record of it
- * stands in for the record here. */
+/** B7b: a load/reference-state result is the v3 twin, published under pressure-1, whose
+ * desktop analysis-run record mirrors the Python product path's committed record
+ * (`loadReferenceAnalysisRun.test.ts` proves the equality); holding it grants no package. */
 async function loadReferenceScenario() {
   const result = json("fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json") as MechanicsResult;
   const model = structuredClone(json("fixtures/product_preview/pressure/load_reference/pressure.request.json").model) as PreviewModel;
-  await expect(buildAnalysisRunV03(result, manifestFor(result, model, "sparse_interactive") as Json, undefined, modelLoadBasisRefs(model))).rejects.toThrow("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
-  const analysisRun = json("fixtures/results/pressure_load_state_pressure_sparse.analysis_run.json") as AnalysisRunEnvelope;
+  const analysisRun = await buildAnalysisRunV03(result, manifestFor(result, model, "sparse_interactive") as Json, undefined, modelLoadBasisRefs(model));
+  const python = json("fixtures/results/pressure_load_state_pressure_sparse.analysis_run.json") as AnalysisRunEnvelope;
   expect(analysisRun.analysis_run.run_id).toBe(result.run_id);
+  expect(analysisRun.analysis_run.reproducibility.semantic_contract).toStrictEqual(python.analysis_run.reproducibility.semantic_contract);
   return { result, model, analysisRun };
 }
 const moved = (model: PreviewModel) => { const copy = structuredClone(model) as Json; copy.nodes[0].position.x += 1; return copy as PreviewModel; };

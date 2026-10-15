@@ -502,7 +502,7 @@ it("refuses an imported or cloned source even when its manifest and analysis has
 
 it("keeps a genuine exact-route source (pressure-1) inspectable while withholding this report transport by its output reason", async () => {
   // B7b: the exact route's ordinary identity is pressure-1, the v3 twin of the retired
-  // physics-1. It has no desktop analysis-run record, so the gate refuses it before any.
+  // physics-1. The gate refuses it by its output reason before reading any record.
   const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(createNativeMechanicsReplay({ profile: "pressure" }).invoke);

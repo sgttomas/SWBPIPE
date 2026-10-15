@@ -28,7 +28,7 @@ async function referenceSession(){
 // Actual captured input/output pair through explicitly simulated IPC; this is a
 // unit premise for Current gates, never an actual native UI qualification.
 // B7b: the Current pair is preview-physics-1's; the exact route's pressure-1 (the v3
-// twin of the retired physics-1) has no desktop record or export.
+// twin of the retired physics-1) is recorded but has no desktop export.
 async function current(){
  const {model}=nativeMechanicsReplayPair('sparse_interactive',{profile:'preview'});
  (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__={};

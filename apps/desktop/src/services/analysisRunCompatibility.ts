@@ -1,6 +1,7 @@
 import { validateRetainedPrecision } from "../features/results/retainedPrecisionReader";
 import { isRetainedRoute } from "../features/results/numericalResultQuality";
 import { hasCurrentSourceContract, readerDispatch, readerValidate, ResultReaderError, sourceContract, sourceSemanticBinding } from "../features/results/resultReader";
+import pressureTable from "../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json";
 import pressureSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json";
 import previewPhysicsTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json";
 import previewPhysicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
@@ -26,11 +27,11 @@ const provenance = { source_name: "OpenPipeStress analysis record 0.2", source_l
  * the one the Rust header dispatch binds (`resultReader.ts`); the record's row
  * interpretation below is the record contract's own, not the reader's signature.
  * B7b: the retired v2 tables (physics-1, physics-source-1, load-reference-1,
- * load-reference-source-1) are deleted; pressure-source-1 binds its own table, as in
- * Python's builder. pressure-1 has no desktop record (refused below), so its table is
- * not loaded here. */
+ * load-reference-source-1) are deleted; pressure-1 and pressure-source-1 each bind their
+ * own table, as in Python's builder (`_TABLES`, `CURRENT_RECORD_CONTRACT_IDS`). */
 type RecordTable = { rows: Array<{ signature_id: string; kind: string; unit: string; component: string | null; source_basis?: string; category: string; family: string | null; source_physical_semantic_dimension: string | null; derivative_target_dimension: string | null; legacy_declared_dimension: string | null; canonical_disposition: string }> };
 const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
+  [pressureTable.semantic_contract_id]: pressureTable,
   [pressureSourceTable.semantic_contract_id]: pressureSourceTable,
   [previewPhysicsTable.semantic_contract_id]: previewPhysicsTable,
   [previewPhysicsRetainedTable.semantic_contract_id]: previewPhysicsRetainedTable,
@@ -114,14 +115,18 @@ export function analysisRecordProjection(record: AnalysisRunEnvelope): AnalysisR
 /** The current (0.3.0) record; a result no current record contract reads is refused, never recorded in an older format. */
 export async function buildAnalysisRunV03(result: MechanicsResult, inputManifest: ManifestEvidence, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
   if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
-  // pressure-1 is read (its own Rust route) but has no 0.3 AnalysisRun record, as in Python's builder.
-  if (sourceContract(result) === "pressure") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
   return buildAnalysisRecord(result, inputManifest, sourceContract(result) as V03Route, ruleCheckStatus, loadBasisRefs);
 }
-type V03Route = "pressure_source" | "preview_physics" | "retained_preview_physics" | "retained_physics";
+/** Every current-record route (Python's `CURRENT_RECORD_CONTRACT_IDS`). B7b: pressure-1 has a
+ * record, as Python builds it: the ordinary exact route, with or without the
+ * load/reference-state group, carrying neither contract_evidence nor source_block_recovery.
+ * Holding a record grants no output: every output surface still refuses pressure-1 by name. */
+type V03Route = "pressure" | "pressure_source" | "preview_physics" | "retained_preview_physics" | "retained_physics";
 async function buildAnalysisRecord(result: MechanicsResult, inputManifest: ManifestEvidence, route: V03Route, ruleCheckStatus?: string | null, loadBasisRefs?: ObjectRef[]): Promise<AnalysisRunEnvelope> {
   // Preview-evidence check: a preview-physics-1 source is recorded only after its closed reader checks pass.
   if (sourceContract(result) === "preview_physics") readerValidate("preview-physics", result);
+  // As Python's `_source_contract`: a pressure-1 source is recorded only after its route's reader passes.
+  if (sourceContract(result) === "pressure") readerValidate("pressure", result);
   // U6d: a successor is recorded only after the accepted reader passes (G0-G7, no invocation).
   if (isRetainedRoute(route)) await validateRetainedPrecision(result);
   if (route === "pressure_source") await validateRetainedRecoverySource(result);
@@ -201,10 +206,9 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
     return JSON.stringify(order(JSON.parse(checkedJsonText(a)))) === JSON.stringify(order(JSON.parse(checkedJsonText(b))));
   };
   if (!hasCurrentSourceContract(source) || record.schema_version !== ANALYSIS_RUN_V03 || record.run_contract_status.record_contract !== "strict_analysis_run_v0_3") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
-  // As `buildAnalysisRunV03`: the desktop has no pressure-1 record contract, so it reads
-  // none (B7b: Python's product path now writes one; the desktop does not read it).
-  if (sourceContract(source) === "pressure") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
   if (sourceContract(source) === "preview_physics") readerValidate("preview-physics", source);
+  // B7b: a pressure-1 record is read as Python's validator reads it, after the route's reader.
+  if (sourceContract(source) === "pressure") readerValidate("pressure", source);
   validateSourceRuleStatus(source);
   const run = record.analysis_run;
   if (sourceContract(source) === "pressure_source") {

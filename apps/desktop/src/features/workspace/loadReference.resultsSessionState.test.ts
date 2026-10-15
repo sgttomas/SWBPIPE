@@ -48,15 +48,19 @@ const ORDINARY = "fixtures/product_preview/pressure/load_reference";
 const JOINED = "fixtures/product_preview/pressure_source/load_reference_source";
 
 describe("ordinary pressure-1 load/reference-state registration and its invalidation by a load/reference-state edit", () => {
-  it.each(["sparse_interactive", "dense_scrutiny"] as Mode[])("%s: registered for the actual model only, readable, eligible standing and never Current; it has no desktop record", async mode => {
+  it.each(["sparse_interactive", "dense_scrutiny"] as Mode[])("%s: registered for the actual model only, readable, eligible standing, recorded as Python records it, and never Current", async mode => {
     const { source, model, manifest } = await solve(`${ORDINARY}/connected-${mode}.raw.json`, `${ORDINARY}/connected.request.json`, mode);
     expect(hasNativeMechanicsInvocation(source, model, mode)).toBe(true);
     expect(numericalResultStanding(source, model)).toMatchObject({ contract: "pressure", eligible: true, findings: [] });
-    await expect(buildAnalysisRunPreview(source, { inputManifest: manifest })).rejects.toThrow("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
-    // Python's product path records it; the desktop session never makes it Current.
+    // B7b: the session records it (the record binds pressure-1's table, as Python's carrier
+    // does); the desktop session never makes it Current.
+    const analysis = await buildAnalysisRunPreview(source, { inputManifest: manifest });
     const python = json(`fixtures/results/pressure_load_state_connected_${mode === "sparse_interactive" ? "sparse" : "dense"}.analysis_run.json`) as AnalysisRunEnvelope;
+    expect(analysis.analysis_run.reproducibility.semantic_contract).toStrictEqual(python.analysis_run.reproducibility.semantic_contract);
+    expect(analysis.analysis_run.result_refs.map(r => r.semantic_contract)).toStrictEqual(python.analysis_run.result_refs.map(r => r.semantic_contract));
     const { result } = renderHook(() => useResultsSessionState());
-    act(() => { result.current.setResult(source); result.current.setInputManifest(manifest); result.current.setAnalysisRun(python); });
+    act(() => { result.current.setResult(source); result.current.setInputManifest(manifest); result.current.setAnalysisRun(analysis); });
+    expect(result.current.analysisRun).toBe(analysis);
     expect(result.current.result).toBe(source);
     expect(result.current.currentSolvedResult).toBeNull();
 
