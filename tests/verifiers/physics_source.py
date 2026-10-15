@@ -182,6 +182,13 @@ def _validate_transport_metadata(source: Mapping[str, Any], source_contract: Sou
     _require([c["load_case_id"] for c in cases] == [c["basis_ref"]["ref_id"] for c in body["cases"]], "CASE_ORDER")
     _require(len({c["load_case_id"] for c in cases}) == len(cases), "CASE_UNIQUENESS")
     _require(any(c["selected_method"] == EXACT for c in body["cases"]), "SOURCE_SELECTION_REQUIRED")
+    if resolved:
+        # Rust `validate_transport_metadata_in` (raw and transport): one received state per exact
+        # case, in case order, each solved in the mode its receipt case records.
+        states = evidence["load_reference_states"]
+        _require([_get(s, "load_case_id") for s in states] == [c["load_case_id"] for c in cases], "LOAD_REFERENCE_CASE_ORDER")
+        for record, state in zip(body["cases"], states):
+            _require(_get(record, "requested_mode") == _get(_get(state, "solve"), "requested_mode"), "LOAD_REFERENCE_REQUESTED_MODE")
     for record, case in zip(body["cases"], cases):
         cid = case["load_case_id"]
         pressure = [p for p in evidence["pressure"] if p["load_case_id"] == cid]

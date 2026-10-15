@@ -1757,8 +1757,10 @@ N07_KEYS = {"id", "base", "edits", "invocation_edits", "after_rehash", "rehash",
 
 
 def _n07_entries():
+    # B7b: 07n's g_pressure_contract_null moved from must-pass (index 33) to the mutations beside its
+    # g_pressure_contract_* siblings (index 345), refused at G8 (b7-plan "Current model format", c8d3cf3014).
     c = corpus()
-    return c["mutations"][294:534] + c["must_pass"][28:78]
+    return c["mutations"][294:535] + c["must_pass"][28:77]
 
 
 

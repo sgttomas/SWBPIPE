@@ -358,6 +358,37 @@ def test_fallback_envelopes_remain_ordinary_pressure_one(name):
     assert "contract_evidence" not in record["analysis_run"] and "source_block_recovery" not in record["analysis_run"]
 
 
+def _resealed(raw, mutate):
+    doc = deepcopy(raw)
+    mutate(doc["contract_evidence"]["load_reference_states"])
+    return apply(doc, [{"op": "reseal", "physical": "joined", "publication": True, "receipt": True}])
+
+
+def _flip(state):
+    state["solve"]["requested_mode"] = {"sparse_interactive": "dense_scrutiny", "dense_scrutiny": "sparse_interactive"}[state["solve"]["requested_mode"]]
+
+
+@pytest.mark.parametrize("name,mutate,code", [
+    # The retired load-reference-source-1 receipt's bindings, kept on the current group (raw and transport, after
+    # SOURCE_SELECTION_REQUIRED, before the per-case RECOVERY_METHOD and PHYSICAL_CASE_HASH): a resealed statement
+    # whose states are reordered, or whose state claims the other requested mode, is internally inconsistent.
+    ("mixed-sparse", lambda states: states.reverse(), "PHYSICS_SOURCE_LOAD_REFERENCE_CASE_ORDER"),
+    ("mixed-dense", lambda states: states.reverse(), "PHYSICS_SOURCE_LOAD_REFERENCE_CASE_ORDER"),
+    ("n05-sparse", lambda states: _flip(states[0]), "PHYSICS_SOURCE_LOAD_REFERENCE_REQUESTED_MODE"),
+    ("n06-dense", lambda states: _flip(states[0]), "PHYSICS_SOURCE_LOAD_REFERENCE_REQUESTED_MODE"),
+])
+def test_received_states_bind_case_order_and_requested_mode(name, mutate, code):
+    from core.analysis_runs import rust_reader
+    raw = actual(name)
+    assert outcome(lambda: validate_physics_source(deepcopy(raw))) == "accept"
+    forged = _resealed(raw, mutate)
+    assert outcome(lambda: validate_physics_source(deepcopy(forged))) == code
+    assert outcome(lambda: validate_transport_metadata(metadata(forged))) == code
+    with pytest.raises(rust_reader.ReaderRefusal) as refusal:
+        rust_reader.validate("pressure-source", forged)
+    assert refusal.value.code == code
+
+
 def test_zzz_write_parity_log():
     """Evidence only: the per-case outcomes for the return record."""
     folder = os.environ.get("LOAD_REFERENCE_SOURCE_PARITY_OUT")
