@@ -346,7 +346,10 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
         })),
         (include_str!("../../reporting/result_export/src/physics_source.rs"), Some(AuditedTestRegion {
             first_item: "#[cfg(test)]\nmod review_repair_tests {",
-            complete_suffix_sha256: "655a01a8aa82af00737e17ed325c683194c559fc5d8874d510f1f81c74f32f66",
+            // Re-audited at B7b D3 (033626030c): the closed test module's four
+            // include paths moved under fixtures/product_preview/pressure_source/;
+            // nothing else in the suffix changed and it holds no production.
+            complete_suffix_sha256: "179c3dbcddf5ac7f5a51f1b60c1e8a747d669298299e133adcc21c2e660f48c5",
             production_resume: None,
             trailing_test: None,
         })),
@@ -1633,13 +1636,14 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// B7b D3 record for the actual source 7e638477a869982836954500e8e46186d165d185.
+/// B7b D3 record for the actual source 1bcc55a80b (re-done after the
+/// 7e638477a8 registration; the transport schema cache is now a priced static).
 /// Requested + moving bytes, without R or the separately upward-rounded TEXT
 /// reserve, from the canonical 98-form union and measured 287-value layout.
 /// The unchanged identity/record assertions verify this candidate in-build.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_328_270_434, 5_651_702_372, 11_248_967_583, 11_019_391_368, 6_262_469_774, 10_330_868_862, 6_068_548_323],
-    [5_387_401_778, 5_710_833_716, 11_308_098_927, 11_078_522_712, 6_321_601_118, 10_390_000_206, 6_127_679_667],
+    [5_328_815_387, 5_652_247_325, 11_249_512_536, 11_019_936_321, 6_263_014_727, 10_331_413_815, 6_069_093_276],
+    [5_387_946_731, 5_711_378_669, 11_308_643_880, 11_079_067_665, 6_322_146_071, 10_390_545_159, 6_128_224_620],
 ];
 
 #[test]

@@ -206,21 +206,45 @@ def test_actual_reader_cached_allocations_include_all_live_owners_and_duplicates
     kd5 = runpy.run_path(str(PRICING / "base/kd5_text_model.py"))
     paths = MODEL["reader_static_files"](SOURCE, MODEL["STATIC_PREIMAGE"])
     counts = Counter(paths)
-    # B7b (A4/A5, O-10): ten distinct inputs, twelve actual OnceLock<Value> allocations;
-    # the pressure-source and ordinary pressure tables are resident, the schema is not.
-    assert len(paths) == 12 and len(counts) == 10
+    # B7b (A4/A5, O-10): eleven distinct inputs, thirteen actual OnceLock allocations;
+    # the pressure-source and ordinary pressure tables are resident, the result schema is
+    # not; load_reference's transport schema cache is a surviving owner (D3 review, D2).
+    assert len(paths) == 13 and len(counts) == 11
     assert counts["fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"] == 2
     assert counts["fixtures/results/semantic_contract_v0_3_physics_retained_1.json"] == 2
     assert counts["fixtures/results/semantic_contract_v0_3_pressure_source_1.json"] == 1
     assert counts["fixtures/results/semantic_contract_v0_3_pressure_1.json"] == 1
+    assert counts["schemas/load_reference_state.schema.json"] == 1
     assert "schemas/results_pressure_1.v0.3.schema.json" not in counts
     for owner, path in MODEL["STATIC_OWNERS"]:
         file, function = owner.rsplit(":", 1)
         raw = (SOURCE / file).read_bytes().decode()
         body, _ = kd5["_indented_function"](raw, function)
-        assert "OnceLock<Value>" in body and "get_or_init" in body
+        cache = "OnceLock<Result<Value, String>>" if function == "transport_schema" else "OnceLock<Value>"
+        assert cache in body and "get_or_init" in body, owner
         assert path in raw
         assert isinstance(json.loads((SOURCE / path).read_bytes()), dict)
+
+
+def test_every_result_export_cached_owner_is_a_priced_static():
+    """B7b D3 review (b7-plan D2): every process-lifetime OnceLock in result_export's source is a listed owner,
+    except the one `#[cfg(test)] fn shared_test_corpus`."""
+    import re
+    kd5 = runpy.run_path(str(PRICING / "base/kd5_text_model.py"))
+    found = set()
+    for path in sorted((SOURCE / "core/reporting/result_export/src").rglob("*.rs")):
+        lines = path.read_text().split("\n")
+        for i, line in enumerate(lines):
+            if re.search(r"\bstatic\s+\w+\s*:\s*(std::sync::)?OnceLock<", line):
+                owner = next(m.group(1) for j in range(i, -1, -1)
+                             if (m := re.match(r"\s*(?:pub(?:\([^)]*\))?\s+)?fn\s+(\w+)", lines[j])))
+                found.add((str(path.relative_to(SOURCE)), owner))
+    owners = {tuple(o.rsplit(":", 1)) for o, _ in MODEL["STATIC_OWNERS"]}
+    test_only = {("core/reporting/result_export/src/retained_precision.rs", "shared_test_corpus")}
+    raw = (SOURCE / "core/reporting/result_export/src/retained_precision.rs").read_text()
+    assert "#[cfg(test)]\nfn shared_test_corpus() -> &'static Value {" in raw
+    assert found == owners | test_only
+    assert kd5["_indented_function"](raw, "shared_test_corpus")[0]
 
 
 @pytest.mark.parametrize("change", ["remove", "duplicate", "reorder", "nonresident"])

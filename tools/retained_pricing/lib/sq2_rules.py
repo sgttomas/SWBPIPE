@@ -147,6 +147,11 @@ for key, per, why in D.get("SITE_FROM_REBIND", []):
 for key, bytes_, why in D.get("O10_SITE_SIZE", []):
     TA["site_size"][key] = {"bytes": bytes_, "why": "O-10: " + why}; LOG["other"].append(["site_size", key, bytes_])
     LOG.setdefault("o10_mult0_sites", []).append(key)
+# B7b-JR: sites whose own multiplicity (no size, zero or other rule) must stay 0; o10_check.py fails the run otherwise.
+for key, why in D.get("O10_MULT0_SITES", []):
+    if not key:
+        raise SystemExit(f"O10_MULT0_SITES: unresolved site ({why[:60]})")
+    LOG.setdefault("o10_mult0_sites", []).append(key); LOG["other"].append(["mult0_guard", key, why])
 for key, why in D.get("SITE_ZERO", []):
     TA["site_zero"][key] = "SQ2 G5: " + why; LOG["other"].append(["site_zero", key])
 for key, value in D.get("ID_AUDIT", []):

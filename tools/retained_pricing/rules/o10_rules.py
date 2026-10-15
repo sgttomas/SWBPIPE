@@ -71,6 +71,12 @@ NOV3 = ("D1.3 (namespace_branch) admits only schema 0.1.0/0.2.0 with no pressure
         "2.0.0/exact_straight_pressure_v2; an ObjectiveConnector is made only by joint::build_connector (FK ObjectiveConnector "
         "fields are private; ObjectiveConnector::new is called only there), whose one call (build_model_for_members) runs only "
         "when exact_contract(model) == PressureV3 (3.0.0/exact_pressure_v3), and iterates model.components")
+if B7B_EXACT_BASE:
+    # B7b-P1: route E is 3.0.0/exact_pressure_v3 since D4 (a), so premise P1 ("no admitted model is PressureV3") no
+    # longer holds; L1-L3 and J rest on P2 (D1.4: no components) alone.
+    NOV3 = ("B7b-P1: P1 no longer holds (route E is 3.0.0/exact_pressure_v3, D4 (a)); an ObjectiveConnector is made only by "
+            "joint::build_connector (FK ObjectiveConnector fields are private; ObjectiveConnector::new is called only there), "
+            "whose one call (build_model_for_members) iterates model.components, empty under P2 (" + D14 + ")")
 # O10_LOOPS_LAST: (exact loop header, bound, why, the only functions it may match: checked after the run by o10_check.py).
 O10_LOOPS_LAST = []
 if _PRESSURE_FN == "assemble_pressure_case":
@@ -753,7 +759,7 @@ if _os.path.exists(_os.path.join(_SNAP, _J7C)):
         raise SystemExit("J3: j7_rf_census is no longer a #[cfg(test)] module; re-review")
     _J3W = (O10 + "J3 (test code, multiplicity 0): source_recovery.rs declares j7_rf_census only under #[cfg(test)]; "
             "size 0 with no site_zero, so o10_check.py fails the run if the site's multiplicity is ever positive")
-    O10_SITE_SIZE = list(globals().get("O10_SITE_SIZE", [])) + [(site(_fn, _J7C, _t, row=_row), 0, _J3W) for _fn, _t, _row in (
+    _J3_SPECS = (
         ("actual", 'format!("normalization/admission: {:?}", blocking(&diagnostics))', None),
         ("actual", '.ok_or_else(|| format!("model build: {:?}", blocking(&diagnostics)))?', None),
         ("actual", 'return Err(format!("model build: {:?}", blocking(&diagnostics)));', None),
@@ -765,24 +771,31 @@ if _os.path.exists(_os.path.join(_SNAP, _J7C)):
         ("method_value", 'format!("{:?}", f.error)', None),
         ("public_value", 'format!("{}: {}", d["code"].as_str().unwrap(), d["message"].as_str().unwrap())', None),
         ("census_entry", 'did not produce a selected response: {f:?}")', None),
-        ("j7_rf_census_expected_write", 'sha(INPUTS.as_bytes()), REFERENCES_SHA256, lines.join(",\\n")', "format!("))]
+        ("j7_rf_census_expected_write", 'sha(INPUTS.as_bytes()), REFERENCES_SHA256, lines.join(",\\n")', "format!("))
     # Two of these sites also hold an identifier placeholder (`node`, `path`), so the chain still evaluates their format;
     # their other arguments get honest classes (unused at multiplicity 0).
     _j7c = open(_os.path.join(_SNAP, _J7C), encoding="utf-8").read()
     if 'const REFERENCES_SHA256: &str = "7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9175e0d3ad4cf89cc9";' not in _j7c:
         raise SystemExit("J3: the census's pinned references.json changed; re-measure its longest reference key")
-    O10_ID_AUDIT = O10_ID_AUDIT + [
-        (site("method_row_holds", _J7C, 'format!("spring:{node}:{ordinal}")', full=True),
+    _J3_AUDITS = (
+        ("method_row_holds", 'format!("spring:{node}:{ordinal}")',
          {"ordinal": {"bytes": 13, "source": O10 + "J3: a '.'-part of a reference key r[0] of references.json (sha 7b176dbb..., "
                       "pinned and asserted by the census); its longest key is 13 B"}}),
-        (site("leaf_diff", _J7C, 'format!("{path}/{k}")', full=True),
+        ("leaf_diff", 'format!("{path}/{k}")',
          {"k": {"bytes": 1024, "source": O10 + "J3: a JSON object key of a produced public envelope (schema field names and "
                 "entity-keyed maps of D1-capped ids) or of the test's literals: RES"}}),
-    ]
+    )
     # B7b-J3: B7b's test-only census rewrite (2d0e2210c1) deletes leaf_diff; site() returns None for a function the
-    # snapshot no longer defines, and such a rule bounds nothing. Only present test sites keep their size-0 rules.
-    O10_SITE_SIZE = [(_k, _b, _w) for _k, _b, _w in O10_SITE_SIZE if _k is not None]
-    O10_ID_AUDIT = [(_k, _v) for _k, _v in O10_ID_AUDIT if _k is not None]
+    # snapshot no longer defines, and such a rule bounds nothing. Only J3's own entries are filtered, and the dropped
+    # set must be exactly the functions the snapshot no longer defines, of which only leaf_diff may be missing.
+    _j3_dropped = sorted({_fn for _fn, _t, _row in _J3_SPECS if site(_fn, _J7C, _t, row=_row) is None}
+                         | {_fn for _fn, _t, _v in _J3_AUDITS if site(_fn, _J7C, _t, full=True) is None})
+    if any(fnkey(_fn, _J7C) for _fn in _j3_dropped) or not set(_j3_dropped) <= {"leaf_diff"}:
+        raise SystemExit(f"B7b-J3: J3's dropped census sites changed; re-review: {_j3_dropped}")
+    O10_SITE_SIZE = list(globals().get("O10_SITE_SIZE", [])) + [(_k, 0, _J3W) for _k in (
+        site(_fn, _J7C, _t, row=_row) for _fn, _t, _row in _J3_SPECS) if _k is not None]
+    O10_ID_AUDIT = O10_ID_AUDIT + [(_k, _v) for _k, _v in (
+        (site(_fn, _J7C, _t, full=True), _v) for _fn, _t, _v in _J3_AUDITS) if _k is not None]
 
 # J4: the v3 formulation basis's first and selection limitations are `identity.to_string()` and `source.to_string()`,
 # each a whole &'static str chosen from literals in pressure_v3_formulation_basis_in (2 identity texts; 3 source texts by
@@ -887,14 +900,19 @@ if fnkey("derive_pipe_section", PP_ + "lib.rs") and fnkey("normalize_model_units
         O10_ID_AUDIT = O10_ID_AUDIT + [(Resolved(f"{_LIB}:{_n}"), {"stable_suffix(pipe_id)": IN}) for _n in _ca_fmt] \
             + [(Resolved(f"{_LIB}:{_n}"), {"pipe_id": IN}) for _n in _ca_refs]
         # B7b-DPS: B7b's derive_pipe_section (the function its corrosion-allowance refusals changed) pushes at most one
-        # diagnostic per call: its only diagnostic sites are `diagnostics.push(diag(..))` statements, each followed
-        # immediately by `return None;`, and it calls no other diagnostic producer. Its four sites are therefore one
+        # diagnostic per call. Checked premise, exactly: (a) every `diag(` in its body is a `diagnostics.push(diag(..));`
+        # statement; (b) each such statement is immediately followed by `return None;`; (c) after the signature, the
+        # `diagnostics` parameter appears only in those statements (no other push and no callee receives it). Pushes by
+        # other functions (its callers' own sites) are their own sites, priced separately. Its four sites are therefore one
         # exclusive group (text_budget B7b-DX): D and the retained diagnostic bytes pay one diagnostic per call, at the
         # largest member's bytes; each site's own TEXT request, ID format and refs stay priced at every site.
         _dps_body = _dps[_dps_start - 1:_dps_end - 1]
         if sum(l.count("diag(") for l in _dps_body) != sum(l.count("diagnostics.push(diag(") for l in _dps_body) \
                 or any("diagnostics.push(" in l and "diagnostics.push(diag(" not in l for l in _dps_body):
             raise SystemExit("B7b-DPS: derive_pipe_section has a diagnostic producer other than a pushed diag(..); re-review")
+        _dps_sig = next(_i for _i, _l in enumerate(_dps_body) if _l.rstrip().endswith("{"))
+        if any(len(_re.findall(r"\bdiagnostics\b", _l)) != _l.count("diagnostics.push(diag(") for _l in _dps_body[_dps_sig + 1:]):
+            raise SystemExit("B7b-DPS: derive_pipe_section uses `diagnostics` other than in a pushed diag(..); re-review")
         _dps_sites = []
         for _i, _l in enumerate(_dps_body):
             if "diagnostics.push(diag(" not in _l:
@@ -916,4 +934,18 @@ if fnkey("derive_pipe_section", PP_ + "lib.rs") and fnkey("normalize_model_units
             "B7b-DPS", Resolved(f"lib.rs:{_dps_start}:derive_pipe_section"),
             [Resolved(f"lib.rs:{_n}") for _n in _dps_sites],
             "B7b-DPS: derive_pipe_section's four diagnostics (section dimensions, mill tolerance, corrosion allowance "
-            "invalid, corrosion allowance nonzero) are each followed by `return None;`: at most one per call")]
+            "invalid, corrosion allowance nonzero) are each a `diagnostics.push(diag(..));` immediately followed by "
+            "`return None;`, and `diagnostics` is used nowhere else in the body: at most one per call")]
+
+# B7b-JR (b4447b7212): joint::pressure_finding may add a fourth ref (the listed replaced span: an admitted pipe ID,
+# <= 128 B) through `refs.extend(extra.map(str::to_string))`; the refs Vec then holds <= 4 Strings in capacity <= 6,
+# beyond the generic `refs` class (4*(24+128)). Its multiplicity is 0 on the D1 graph: classify_connectors calls it in
+# the loop over each case's pressure_regions' member_connector_ids (regions absent on L and explicitly empty on E, D1.5)
+# and through classify_pressure_participation, reached only inside its loop over model.components (P2, D1.4). That zero
+# is guarded rather than assumed: o10_check.py fails the run if the diag site's own multiplicity is ever positive.
+if fnkey("pressure_finding", PP_ + "joint.rs") and fnkey("classify_pressure_participation", PP_ + "joint.rs"):
+    _jr = open(_os.path.join(_SNAP, PP_ + "joint.rs"), encoding="utf-8").read()
+    if "refs.extend(extra.map(str::to_string));" in _jr:
+        O10_MULT0_SITES = list(globals().get("O10_MULT0_SITES", [])) + [
+            (site("pressure_finding", PP_ + "joint.rs", "diagnostics.push(diag("),
+             O10 + "B7b-JR: pressure_finding (<= 4 refs, capacity <= 6) has multiplicity 0 by D1.5 and P2 (D1.4)")]

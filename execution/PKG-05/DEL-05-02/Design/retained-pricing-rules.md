@@ -1498,16 +1498,25 @@ later failures beside other Frozen cases. Association/detail/JSON/RefusedCase
 and receipt failures keep their independent owned generations and copies.
 This is a positive per-invocation bound, never a prepared-custody zero.
 
-## B7b: actual-source D3 at `7e638477a8`
+## B7b: actual-source D3 at `1bcc55a80b`
 
 B7b deletes the `2.0.0/exact_straight_pressure_v2` contract with its four
 tables and readers (A4/A5), rebases route E's successor on pressure-1 (D4 (a)),
 makes the current pressure-source table and the ordinary pressure table
 independently resident (O-10), adds model 0.5.0's exact half (`shear_model`,
 an explicit per-section `corrosion_allowance`) and keys the load/reference-state
-selector on presence. Line numbers below are at `7e638477a8`. Each stop of the
-tool on this source is resolved here; nothing below changes M, the 0.9 M margin,
-R, the 5 % TEXT reserve, the numerical domain or an acceptance criterion.
+selector on presence. D3 was first done at `7e638477a8` and re-done at the
+final source `1bcc55a80b` (below, "Re-done at `1bcc55a80b`"). Line numbers are
+at `7e638477a8` unless stated. Each stop of the tool is resolved here; nothing
+below changes M, the 0.9 M margin, R, the 5 % TEXT reserve, the numerical
+domain or an acceptance criterion.
+
+**Reproduction.** The committed tool's one-current-value pins (B7a's source
+models, re-bound here) hold the registered revision's bytes, so the committed
+tool reproduces the registered tree at that revision (`1bcc55a80b`), not at
+`7e638477a8` or earlier: an earlier B7b revision stops at the
+`physics_source.rs` pin (exit 4). Reproduce one with a scratch copy of the tool
+whose pins are restored to that revision's values, as README step 5 describes.
 
 **Prunes.** Five rules are pruned beyond B7a's 22, each because its subject no
 longer exists anywhere in the crate (not moved): the `for_source` zero edges to
@@ -1548,8 +1557,16 @@ The route-E keymap allowance resolves its solve caller by name.
 `OnceLock<Value>` owners (physics-1, load-reference-1, load-reference-source-1,
 physics-source-1) leave; `pressure_source_contract()` and
 `pressure_rows_contract()` are distinct resident owners over their reviewed
-bytes and are priced positively in their own right: twelve allocations over
-ten inputs. The pressure result schema stays nonresident.
+bytes and are priced positively in their own right. `load_reference::
+transport_schema()`'s `OnceLock<Result<Value, String>>` over the pinned
+`schemas/load_reference_state.schema.json` is a surviving independent
+process-lifetime owner too (b7-plan D2): although its one caller,
+`validate_transport_metadata_in`'s resolved branch, is unreached on the D1
+graph, any earlier use in the same process leaves it resident, so it is priced
+as its Ok Value exactly like the other tables (the Err String is smaller).
+Thirteen allocations over eleven inputs; a test fails if result_export gains a
+cached owner that is not listed (the one `#[cfg(test)] shared_test_corpus`
+excepted). The pressure result schema stays nonresident.
 
 **B7b-B (`o10_rules.py`).** The route-E rules select B7a's or B7b's argument
 from retained_precision's two route base ids: {physics-1, preview-physics-1}
@@ -1574,13 +1591,21 @@ keeps the prepass edge untaken on both routes.
 `number()`/`array()` and `require_connector` sites keep their `<= 1 per call`
 bounds, now per `validate_pressure_evidence` call.
 
+**B7b-P1.** Section B's premise P1 ("no admitted model has
+`exact_contract(model) == PressureV3`") and `o10_rules.py`'s `NOV3` text no
+longer hold: route E is `3.0.0/exact_pressure_v3`. `build_model_for_members`
+calls `build_connector` only in its loop over `model.components`, and
+`connector_specs` reads only `model.components`, so P3's empty built connector
+collections, and with them L1–L3 and J, rest on P2 (D1.4: no components) alone.
+On B7b sources `NOV3` states this.
+
 **B7b-E1, B7b-E4.** On route E every reached caller of
 `connector_evidence::validate` now passes PressureV3, so `admitted` is true and
-the old StraightV2 refusal premise is gone. The zeros now rest on D1.4: the
+the old StraightV2 refusal premise is gone. E1's zero now rests on D1.4: the
 records are `project(successor)`'s `contract_evidence.connector`, which the
 producer builds one per objective-connector component, and an admitted model has
-no components; connector rows are published only for built connectors, which D1
-leaves empty (L1). So the records loop and `row_basis` are not entered.
+no components. E4 and A3 are inert at B7b: `connector_evidence.rs` no longer
+defines `row_basis`, so neither rule is added (both are guarded by its name).
 
 **B7b-LS.** `case_state::is_load_state` is an exact contract plus an authored
 load/reference-state field. D1.3 refuses every such field (reference
@@ -1599,8 +1624,10 @@ producer inserts that member only under `is_load_state` (false, B7b-LS) and
 the function-as-value zero edge's callee left with the v2-era readers.
 
 **B7b-J3.** B7b's test-only census rewrite deletes `leaf_diff`; J3's size-0
-rules for absent test sites resolve to nothing and are dropped. Only present
-test sites keep their rules; no production site is affected.
+rule and ID audit for it resolve to nothing and are dropped. The filter applies
+only to J3's own entries, and the run stops unless the dropped functions are
+exactly ones the census no longer defines, of which only `leaf_diff` may be
+missing. Every other J3 site keeps its rule; no production site is affected.
 
 **B7b-VP.** On a 0.5.0 document `validate_profile` adds one per-pipe match on
 (contract, corrosion allowance): at most one `problem()` per pipe. The base
@@ -1616,15 +1643,19 @@ mill-tolerance siblings. Each site keeps the chain's own multiplicity.
 **Scoped TEXT (`b7a_scoped_text_model`).** `problem()` keeps its nine callers.
 B7b's new `validate_profile` messages are at most 327 B with at most two refs,
 inside the unchanged 453/760 bounds; physics_source's longest `require` detail
-literal is 37 B, inside 40.
+literal is 37 B, inside 40 (`1bcc55a80b`'s two new details are 25 and 29 B).
 
 **B7b-DPS and B7b-DX (exclusive diagnostics).** B7b changed `derive_pipe_section`
 (two corrosion-allowance refusals beside the dimension and mill-tolerance ones).
-Each of its four diagnostic sites is a `diagnostics.push(diag(..))` statement
-followed immediately by `return None;`, and the function has no other diagnostic
-producer, so one call pushes at most one diagnostic. `o10_rules.py` declares the
-four sites one exclusive group and verifies that structure on the source; any
-fifth site, missing `return None;`, other push or bare `diag(` stops the run.
+The premise, exactly as `o10_rules.py` checks it on the source: (a) every
+`diag(` in the body is a `diagnostics.push(diag(..));` statement; (b) each such
+statement is immediately followed by `return None;`; (c) after the signature,
+the `diagnostics` parameter appears only in those statements, so no other push
+and no callee receives it. One call therefore pushes at most one diagnostic.
+Pushes by other functions, including this function's callers, are their own
+sites and are priced separately. The four sites are one exclusive group; a fifth
+site, a missing `return None;`, any other push or use of `diagnostics`, or a
+bare `diag(` stops the run.
 `text_budget.py` then adds the owner's call count to D once and the largest
 member's diagnostic bytes once per call. It refuses (unclassified) unless every
 member is a reached diag site of that owner, outside any loop, with exactly the
@@ -1633,6 +1664,35 @@ priced at every site, as in B7a's mutually exclusive allocation groups. The
 rule also bounds B7a's two pre-existing sites at one per call instead of two.
 It is load-bearing: without it, the merged dense W3 phase exceeds ⌊0.9 M⌋
 after the 5 % reserve. With it, all point and merged phase evaluations pass.
+
+**Re-done at `1bcc55a80b`.** After the first registration two priced files
+changed; each diff was audited to be exactly the following, and the
+`physics_source.rs` full-file pin was re-bound.
+- **`physics_source.rs` (`033626030c`).** `validate_transport_metadata_in`'s
+  resolved branch gains two bindings, `require(..., "LOAD_REFERENCE_CASE_ORDER")`
+  and, per receipt case, `require(..., "LOAD_REFERENCE_REQUESTED_MODE")`; its
+  closed test module's include paths move (test only). On the D1 graph the
+  function is unreached: its one reached-caller path, `for_source` →
+  `validate_in`, is J1's zero (the precommit reader's projected base id is never
+  pressure-source-1), and the branch also needs `load_reference_states`, absent
+  by B7b-LS. The new sites stay positively priced if ever reached: each call
+  allocates only in `require`'s own `Err(format!(...))` (detail ≤ 40 B STATIC)
+  or `array()`'s Err, both priced per call, and the new `zip` loop has no rule,
+  so a reached path stops the run as an unmapped header.
+- **`joint.rs` (`b4447b7212`), B7b-JR.** `pressure_finding` may add a fourth ref,
+  the listed replaced span (an admitted pipe ID, ≤ 128 B), through
+  `refs.extend(extra.map(str::to_string))`. Its refs Vec then holds ≤ 4 Strings
+  in capacity ≤ 6 (6·24 + 4·128 = 656 B), beyond the generic `refs` class
+  (4·(24 + 128) = 608 B). Its multiplicity is 0: `classify_connectors` calls it
+  in the loop over each case's `pressure_regions` and their
+  `member_connector_ids` (regions absent on L, explicitly empty on E, D1.5), and
+  `classify_pressure_participation` is reached only inside the loop over
+  `model.components` (P2). The zero is guarded rather than assumed: the new
+  `O10_MULT0_SITES` family lists the site, and `o10_check` fails the run if its
+  own multiplicity is ever positive (a positive price would then need the
+  656 B class).
+Both stay at multiplicity 0, so the only coefficient change at `1bcc55a80b` is
+STATICS, from the transport schema owner above.
 
 **B7a reproduction.** With B7a's nine source-bound model files restored from
 `3e89c23ea1` and every other current tool file kept, the tool reproduces B7a's

@@ -65,6 +65,7 @@ def test_the_group_is_derive_pipe_sections_four_returning_diagnostics(monkeypatc
     ("fifth", "diagnostic inventory changed"),
     ("other_push", "producer other than a pushed diag"),
     ("bare_diag", "producer other than a pushed diag"),
+    ("callee", "uses `diagnostics` other than in a pushed diag"),
 ])
 def test_a_changed_premise_refuses(tmp_path, mutation, message):
     text = (SOURCE / LIB).read_text()
@@ -82,6 +83,9 @@ def test_a_changed_premise_refuses(tmp_path, mutation, message):
         anchor = "    let id = od - 2.0 * thickness;\n"
         assert text.count(anchor) == 1
         text = text.replace(anchor, "    diagnostics.push(diagnostics[0].clone());\n" + anchor, 1)
+    elif mutation == "callee":
+        anchor = "    let id = od - 2.0 * thickness;\n"
+        text = text.replace(anchor, "    check_more(input, pipe_id, diagnostics);\n" + anchor, 1)
     else:
         anchor = "    let id = od - 2.0 * thickness;\n"
         text = text.replace(anchor, '    let _ = diag("x", "x", "info", "x", vec![]);\n' + anchor, 1)
@@ -136,3 +140,25 @@ def test_any_unproven_member_leaves_the_run_incomplete(case):
     else:
         calls = {}
     assert run(seen, calls) == (7, 100, {("diag-exclusive", "B7b-DPS"): 1})
+
+
+def test_b7b_jr_guards_pressure_findings_diagnostic_at_multiplicity_zero(monkeypatch):
+    """B7b-JR: the fourth-ref pressure finding is guarded (o10_check's multiplicity-0 list), not zeroed or resized."""
+    lines = (SOURCE / "core/product_physics/src/joint.rs").read_text().split("\n")
+    start = next(i for i, line in enumerate(lines) if line.startswith("fn pressure_finding("))
+    push = next(i + 1 for i in range(start, len(lines)) if "diagnostics.push(diag(" in lines[i])
+    assert "refs.extend(extra.map(str::to_string));" in lines[push - 2]
+    d = decisions(monkeypatch)
+    assert [key for key, _ in d["O10_MULT0_SITES"]] == [f"joint.rs:{push}"]
+    assert not any(str(key).startswith("joint.rs:") and key == f"joint.rs:{push}" for key, _, _ in d.get("O10_SITE_SIZE", []))
+    assert not any(key == f"joint.rs:{push}" for key, _ in d.get("SITE_ZERO", []))
+
+
+def test_b7b_j3_drops_only_its_own_deleted_census_sites(monkeypatch):
+    """B7b-J3: J3's filter touches only J3's entries; the one dropped census function is the deleted leaf_diff."""
+    d = decisions(monkeypatch)
+    assert all(key for key, _, _ in d["O10_SITE_SIZE"]) and all(key for key, _ in d["O10_ID_AUDIT"])
+    census = "source_recovery/j7_rf_census.rs"
+    assert "fn leaf_diff(" not in (SOURCE / "core/product_physics/src" / census).read_text()
+    sizes = [key for key, _, why in d["O10_SITE_SIZE"] if "J3 (test code" in why]
+    assert len(sizes) == 11 and all(str(key).startswith(census + ":") for key in sizes)

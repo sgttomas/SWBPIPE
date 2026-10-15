@@ -53,8 +53,9 @@ AUDIT_PREIMAGES = {
     _SUF: {'id': {'bytes': 128, 'source': 'IN128'}},
     PP + 'formation_guard.rs:239': None,
 }
-# B7b: physics_source.rs keeps its 89 require calls with the longest detail
-# literal 37 B (ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE), so 40 holds.
+# B7b: physics_source.rs's require calls pass literal details, the longest
+# 37 B (ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE), so 40 holds; 033626030c's
+# LOAD_REFERENCE_CASE_ORDER (25 B) and LOAD_REFERENCE_REQUESTED_MODE (29 B) too.
 AUDIT_CURRENT = {
     _REQ: {'detail': {'bytes': 40, 'source': 'STATIC'}},
     _FMT: {

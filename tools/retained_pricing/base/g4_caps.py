@@ -287,7 +287,8 @@ STATICS = X(); static_facts = {}
 for p_ in STATIC_FILES:
     t_, f_ = static_tree(os.path.join(SNAP, p_))
     STATICS = STATICS + t_; static_facts[p_] = f_
-rows["T17.0 the 14 result_export OnceLock owners over 12 JSON inputs (process-lifetime, first use counted here)"] = STATICS
+rows[f"T17.0 the {len(STATIC_FILES)} result_export OnceLock owners over {len(set(STATIC_FILES))} JSON inputs "
+     "(process-lifetime, first use counted here)"] = STATICS
 INVOC = INVOC_VF.tree()
 ENVP = ENV_S                                                                          # project()/public: the successor without its receipt
 SETS = (X({"Node(&str,())": tree_nodes(PA) + 2 * tree_nodes(DENV) + tree_nodes(n + m + g)})   # rowids, diagnostic ids x2, model ids
