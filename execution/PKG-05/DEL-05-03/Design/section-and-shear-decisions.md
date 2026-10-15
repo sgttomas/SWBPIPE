@@ -1,6 +1,6 @@
 # Section bases and shear model
 
-The owner ruled D-5 and D-6 on 2026-10-10: "D-5 and D-6 as recommended". Both apply to `3.0.0/exact_pressure_v3` documents. `2.0.0/exact_straight_pressure_v2`, until B7b deletes it, and pressure-free documents keep their current single basis and Euler–Bernoulli model, byte-identical (H-1, DEL-04-07 Design). On 2026-10-12 the owner answered O1–O4 and HELP_HUMAN ruled H1, H4 and H5 (both relayed to T4's WORKING_ITEMS); O2–O4, H1, H4 and H5 are applied below where they govern. On PRD non-goal 19 the owner chose "Lift for tie rods only" (O1); SCA-012 and its PRD amendment are carried in this branch and are not yet on main.
+The owner ruled D-5 and D-6 on 2026-10-10: "D-5 and D-6 as recommended". Both apply to `3.0.0/exact_pressure_v3` documents, the only exact contract since B7b deleted `2.0.0/exact_straight_pressure_v2`. Pressure-free documents keep their current single basis and Euler–Bernoulli model, byte-identical (H-1, DEL-04-07 Design). On 2026-10-12 the owner answered O1–O4 and HELP_HUMAN ruled H1, H4 and H5 (both relayed to T4's WORKING_ITEMS); O2–O4, H1, H4 and H5 are applied below where they govern. On PRD non-goal 19 the owner chose "Lift for tie rods only" (O1); SCA-012 and its PRD amendment are carried in this branch and are not yet on main.
 
 ## The two fields (O2, O3, H1)
 

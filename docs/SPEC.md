@@ -579,8 +579,8 @@ section properties: axial normal stress, bending normal stress components, and
 torsional shear stress. It has no pressure components: its legacy thin-wall
 pressure membrane was removed when the owner retired the legacy pressure
 contract product-wide (see the current DEL-04-07 pressure contract linked above).
-Pressure is solved only through the exact straight-pressure contract
-`2.0.0/exact_straight_pressure_v2`, within that contract's own qualifications.
+Pressure is solved only through the exact pressure contract
+`3.0.0/exact_pressure_v3`, within that contract's own qualifications.
 Missing resultants, missing section
 inputs, non-finite values, non-positive properties, incomplete mechanics
 status, and human-approval status are deterministic findings, not silent

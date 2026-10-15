@@ -74,8 +74,8 @@ stress, and mechanics-only stress range. The pressure membrane family has no
 fixture since the owner retired the legacy pressure contract product-wide:
 `STRESS-PRESSURE-MEMBRANE-ORIGINAL` was an oracle of the retired legacy
 pressure computation and was removed with it (#1168; current DEL-04-07 pressure contract).
-Pressure is solved only through the exact straight-pressure contract
-`2.0.0/exact_straight_pressure_v2`, within that contract's own qualifications.
+Pressure is solved only through the exact pressure contract
+`3.0.0/exact_pressure_v3`, within that contract's own qualifications.
 The fixtures use original invented
 values and keep final release tolerances, CI gates, fatigue/allowable
 criteria, and professional reliance policy as `TBD` until human approval.
