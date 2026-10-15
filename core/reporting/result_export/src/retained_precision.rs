@@ -4552,11 +4552,27 @@ fn exact_material(raw: &Value) -> VResult<(f64, f64, f64)> {
     fail(g.is_normal() && g > 0.0)?;
     Ok((e, g, nu))
 }
-/// D1.3 on the exact route: the current document's three-member v3 contract.
+/// D1.3 on the exact route: the current document's three-member v3 contract,
+/// with an explicit zero corrosion allowance on every pipe section (DEF-E G8).
 fn exact_namespace(model: &Value) -> bool {
     model["schema_version"].as_str() == Some("0.5.0")
         && model.as_object().is_some_and(|object| !object.contains_key("shear_model"))
         && pressure_contract_is(&model["pressure_contract"], "3.0.0", "exact_pressure_v3")
+        && section_allowances(model, true)
+}
+/// b7-plan "Exact-contract fields": an exact document declares an explicit
+/// length-valued zero `corrosion_allowance` on every pipe section (absent,
+/// null, malformed, non-length or nonzero allowances are outside the
+/// contract the producer admits); a pressure-free document declares none.
+fn section_allowances(model: &Value, exact: bool) -> bool {
+    list(&model["pipe_segments"]).iter().all(|pipe| {
+        let section = &pipe["section"];
+        if exact {
+            unit_value(&section["corrosion_allowance"], Dimension::Length).is_ok_and(|v| v == 0.0)
+        } else {
+            section.as_object().is_none_or(|s| !s.contains_key("corrosion_allowance"))
+        }
+    })
 }
 fn normalized_nodes(model: &Value) -> VResult<Vec<Value>> {
     let mut out = Vec::new();
@@ -4617,6 +4633,7 @@ fn preview_namespace(model: &Value) -> bool {
     model["schema_version"].as_str() == Some("0.5.0")
         && model.as_object().is_some_and(|object|
             !object.contains_key("pressure_contract") && !object.contains_key("shear_model"))
+        && section_allowances(model, false)
 }
 fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
     let b = &source["retained_precision"]["body"];

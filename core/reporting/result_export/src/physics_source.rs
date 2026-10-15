@@ -32,7 +32,8 @@ impl SourceContract {
         }
     }
     pub(crate) fn check_invocation(self, invocation: &Value) -> Result<(), String> {
-        Self::from_invocation(invocation).map(|_| ())
+        Self::from_invocation(invocation)?;
+        zero_corrosion_allowances(&invocation["request"]["model"])
     }
     pub(crate) fn check_received(self, source: &Value) -> Result<(), String> {
         let header = &source["producer"]["semantic_contract_id"];
@@ -41,6 +42,21 @@ impl SourceContract {
         }
         require(*header == self.identity() && source["formulation_basis"]["profile_id"] == self.profile(), "IDENTITY")
     }
+}
+
+/// b7-plan "Exact-contract fields": every pipe section of the captured exact
+/// document declares an explicit length-valued zero corrosion allowance;
+/// absent, null, malformed or nonzero allowances are outside the contract the
+/// producer admits, so a statement bound to such an invocation is refused.
+fn zero_corrosion_allowances(model: &Value) -> Result<(), String> {
+    for pipe in array(&model["pipe_segments"])? {
+        require(
+            normalized_quantity(&pipe["section"]["corrosion_allowance"], Dimension::Length)
+                .is_ok_and(|value| value == 0.0),
+            "ACTUAL_CORROSION_ALLOWANCE",
+        )?;
+    }
+    Ok(())
 }
 
 /// Authored presence selects the optional load/reference-state group.

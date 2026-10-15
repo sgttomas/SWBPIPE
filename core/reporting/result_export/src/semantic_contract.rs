@@ -428,6 +428,13 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
             ) {
                 return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
             }
+            // The load/reference-state group owns no carrier namespace (the
+            // retired load-reference routes' guard, kept on the current group).
+            if source["contract_evidence"].get("load_reference_states").is_some()
+                && source.get("carrier_evidence").is_some()
+            {
+                return Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into());
+            }
             if p["semantic_contract_id"] != PRESSURE_SOURCE_ID
                 && source.get("source_block_recovery").is_some()
             {

@@ -95,6 +95,11 @@ pub fn route(source: &Value) -> Result<(&'static str, &'static Value), String> {
     let receipt = &source["source_block_recovery"];
     let route = match source["producer"]["semantic_contract_id"].as_str() {
         Some(sc::PRESSURE_SOURCE_ID) => {
+            // As the retired load-reference-source-1 route did: the composite
+            // needs its evidence object before its receipt is read.
+            if !evidence_object {
+                return Err(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into());
+            }
             crate::physics_source::SourceContract::PressureV3.check_received(source)?;
             crate::physics_source::validate_receipt_shape_in(receipt, crate::physics_source::SourceContract::PressureV3)?;
             "pressure_source"
