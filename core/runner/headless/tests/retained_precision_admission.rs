@@ -36,7 +36,7 @@ fn request(model: &Value) -> RunnerRequest {
         privacy: PrivacyContext::local_first_public_metadata(),
         provenance: Provenance {
             source_name: "invented composite consumer fixture".into(),
-            source_location: "fixtures/product_preview/physics_source".into(),
+            source_location: "fixtures/product_preview/pressure_source/physics_source".into(),
             source_license: "project invented".into(),
             contributor: "OpenPipeStress".into(),
             contributor_certification: "invented non-engineering example".into(),

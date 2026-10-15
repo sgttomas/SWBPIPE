@@ -99,6 +99,10 @@
         "material": "material:steel",
         "provenance": "invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data",
         "section": {
+          "corrosion_allowance": {
+            "unit": "m",
+            "value": 0.0
+          },
           "mill_tolerance": {
             "unit": "m",
             "value": 0.000889
@@ -125,6 +129,10 @@
         "material": "material:steel",
         "provenance": "invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data",
         "section": {
+          "corrosion_allowance": {
+            "unit": "m",
+            "value": 0.0
+          },
           "mill_tolerance": {
             "unit": "m",
             "value": 0.000889
@@ -152,6 +160,10 @@
         "material": "material:steel",
         "provenance": "invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data",
         "section": {
+          "corrosion_allowance": {
+            "unit": "m",
+            "value": 0.0
+          },
           "mill_tolerance": {
             "unit": "m",
             "value": 0.000889
@@ -175,6 +187,7 @@
     ],
     "pressure_contract": {
       "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
       "version": "3.0.0"
     },
     "project": {
@@ -188,7 +201,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.3.0",
+    "schema_version": "0.5.0",
     "supports": [
       {
         "family": "anchor",
@@ -227,7 +240,7 @@
     "hash_status": "computed_local_preview",
     "payload_ref": "project:corpus-bend",
     "payload_scope": "model_payload",
-    "value": "sha256:8021e1f6df1a7abe0b992fc38b9edb05e7260c6270432d15d6679adb7e6e3527"
+    "value": "sha256:24ceb4dcdb412f6fde3679cc18847c2099dde669fde4962b7f2ab98cc50f3077"
   },
   "description": "Realize a geometry-only span bend: solver consumption, the user's k and its source; tangent at both ends.",
   "expected": {
@@ -341,6 +354,10 @@
           "material": "material:steel",
           "provenance": "invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data",
           "section": {
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0
+            },
             "mill_tolerance": {
               "unit": "m",
               "value": 0.000889
@@ -367,6 +384,10 @@
           "material": "material:steel",
           "provenance": "invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data",
           "section": {
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0
+            },
             "mill_tolerance": {
               "unit": "m",
               "value": 0.000889
@@ -394,6 +415,10 @@
           "material": "material:steel",
           "provenance": "invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data",
           "section": {
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0
+            },
             "mill_tolerance": {
               "unit": "m",
               "value": 0.000889
@@ -417,6 +442,7 @@
       ],
       "pressure_contract": {
         "mode": "exact_pressure_v3",
+        "shear_model": "euler_bernoulli",
         "version": "3.0.0"
       },
       "project": {
@@ -430,7 +456,7 @@
           "temperature": "degC"
         }
       },
-      "schema_version": "0.3.0",
+      "schema_version": "0.5.0",
       "supports": [
         {
           "family": "anchor",
@@ -462,7 +488,7 @@
         }
       ]
     },
-    "applied_model_canonical_sha256": "sha256:6e8916c633613cea5a62f0bb733ac3108f64967b6c63de21223314b75133fbc8",
+    "applied_model_canonical_sha256": "sha256:d61386e4c63d0a6f787e2cb51cb3bf5e3ef0af59150ecc4ff752928ff0dba0c1",
     "outcome": {
       "acceptance": {
         "acceptance_basis": "user_initiated_apply_in_local_session",
@@ -501,10 +527,10 @@
       "mode": "apply",
       "model_basis": {
         "backend_canonicalization": "rfc8785_jcs",
-        "backend_model_hash": "sha256:8021e1f6df1a7abe0b992fc38b9edb05e7260c6270432d15d6679adb7e6e3527",
+        "backend_model_hash": "sha256:24ceb4dcdb412f6fde3679cc18847c2099dde669fde4962b7f2ab98cc50f3077",
         "binding_status": "claimed_model_hash_matches_current_backend_model",
         "claimed_hash_canonicalization": "rfc8785_jcs",
-        "claimed_model_hash": "sha256:8021e1f6df1a7abe0b992fc38b9edb05e7260c6270432d15d6679adb7e6e3527"
+        "claimed_model_hash": "sha256:24ceb4dcdb412f6fde3679cc18847c2099dde669fde4962b7f2ab98cc50f3077"
       },
       "operation_id": "op:corpus-accept-set-field-bend-realization",
       "operation_kind": "modify",

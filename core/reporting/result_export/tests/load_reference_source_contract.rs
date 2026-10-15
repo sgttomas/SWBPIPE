@@ -1,9 +1,12 @@
-//! load-reference-source-1 readers on the ten committed joined producer
-//! envelopes, with the adversarial cases shared with
-//! `tests/test_load_reference_source_readers.py`. Both readers must reproduce
-//! every expectation in the case file. This proves consumer admission and
-//! carrier preservation, not producer authentication or numerical eligibility.
-//! All inputs are invented.
+//! The current pressure-source-1 reader on the ten committed joined producer
+//! envelopes that carry the load/reference-state group (B7b's v3 twins of the
+//! retired load-reference-source-1 statements, same physical inputs,
+//! 0.5.0/3.0.0/exact_pressure_v3), with the adversarial cases shared with the
+//! Python verifier and the base-reader corpus. Both readers must reproduce every
+//! expectation in the case file. This proves consumer admission and carrier
+//! preservation, not producer authentication or numerical eligibility (a valid
+//! load/reference-state reading is never numerically eligible). All inputs are
+//! invented.
 use open_pipe_stress_result_export::{
     derivative as d, physics_source as ps, semantic_contract as s, source_blocks::domain_hash,
 };
@@ -12,9 +15,10 @@ use sha2::{Digest, Sha256};
 
 const CASES: &str = include_str!("fixtures/load_reference_source_mutations.json");
 const TABLE: &str = include_str!(
-    "../../../../fixtures/results/semantic_contract_v0_3_load_reference_source_1.json"
+    "../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
 );
-const INHERITED: &str = "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE";
+/// The pressure-1 reader's inherited-physics prefix ('lr' readings).
+const INHERITED: &str = "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE";
 const MARKER: &str = "__LOAD_REFERENCE_SOURCE_TEXT__";
 const JOINED: [&str; 10] = [
     "n05-sparse",
@@ -32,37 +36,37 @@ const JOINED: [&str; 10] = [
 fn source_text(name: &str) -> &'static str {
     match name {
         "n05-sparse" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/n05-sparse_interactive.raw.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json"
         ),
         "n05-dense" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/n05-dense_scrutiny.raw.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/n05-dense_scrutiny.raw.json"
         ),
         "n06-sparse" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/n06-sparse_interactive.raw.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/n06-sparse_interactive.raw.json"
         ),
         "n06-dense" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/n06-dense_scrutiny.raw.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/n06-dense_scrutiny.raw.json"
         ),
         "fields-sparse" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/fields-sparse_interactive.raw.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/fields-sparse_interactive.raw.json"
         ),
         "fields-dense" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/fields-dense_scrutiny.raw.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/fields-dense_scrutiny.raw.json"
         ),
         "mixed-sparse" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/mixed-sparse_interactive.raw.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json"
         ),
         "mixed-dense" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/mixed-dense_scrutiny.raw.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/mixed-dense_scrutiny.raw.json"
         ),
         "eigen_motion-sparse" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/eigen_motion-sparse_interactive.raw.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-sparse_interactive.raw.json"
         ),
         "eigen_motion-dense" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/eigen_motion-dense_scrutiny.raw.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json"
         ),
         "lr-connected-sparse" => include_str!(
-            "../../../../fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json"
+            "../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
         ),
         "lr-fallback-sparse" => {
             include_str!("fixtures/load_reference_fallback_uz-sparse_interactive.raw.json")
@@ -71,7 +75,7 @@ fn source_text(name: &str) -> &'static str {
             include_str!("fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json")
         }
         "ps-n05-sparse" => include_str!(
-            "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
         ),
         _ => panic!("unknown source {name}"),
     }
@@ -79,28 +83,28 @@ fn source_text(name: &str) -> &'static str {
 fn request_text(name: &str) -> &'static str {
     match name.rsplit_once('-').map_or(name, |(stem, _)| stem) {
         "n05" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/n05.request.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/n05.request.json"
         ),
         "n06" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/n06.request.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/n06.request.json"
         ),
         "fields" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/fields.request.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/fields.request.json"
         ),
         "mixed" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/mixed.request.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json"
         ),
         "eigen_motion" => include_str!(
-            "../../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+            "../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json"
         ),
         "lr-connected" => {
             include_str!(
-                "../../../../fixtures/product_preview/load_reference/connected.request.json"
+                "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
             )
         }
         "lr-fallback" => include_str!("fixtures/load_reference_fallback_uz.request.json"),
         "ps-n05" => {
-            include_str!("../../../../fixtures/product_preview/physics_source/n05.request.json")
+            include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json")
         }
         other => panic!("unknown request {other}"),
     }
@@ -157,7 +161,8 @@ fn matches(item: &Value, pattern: &Value) -> bool {
         .iter()
         .all(|(k, v)| item.get(k) == Some(v))
 }
-/// Recompute the receipt commitments so that a later check can be reached.
+/// Recompute the receipt commitments so that a later check can be reached
+/// (B7b: the current case-evidence domain, the record bound by its case id).
 fn reseal(doc: &mut Value, op: &Value) {
     let evidence = doc["contract_evidence"].clone();
     if !op["physical"].is_null() {
@@ -174,13 +179,18 @@ fn reseal(doc: &mut Value, op: &Value) {
                 .iter()
                 .filter(|p| p["load_case_id"] == exact[index]["load_case_id"])
                 .collect();
+            let record = evidence["load_reference_states"]
+                .as_array()
+                .and_then(|r| r.iter().find(|r| r["load_case_id"] == exact[index]["load_case_id"]))
+                .cloned()
+                .unwrap_or(Value::Null);
             let (domain, payload) = match op["physical"].as_str().unwrap() {
                 "joined" => (
-                    "load_reference_source_case_evidence_v1",
-                    json!({"exact_case": exact[index], "pressure": pressure, "load_reference_state": evidence["load_reference_states"][index]}),
+                    "pressure_source_case_evidence_v1",
+                    json!({"exact_case": exact[index], "pressure": pressure, "load_reference_state": record}),
                 ),
                 "joined_without_record" => (
-                    "load_reference_source_case_evidence_v1",
+                    "pressure_source_case_evidence_v1",
                     json!({"exact_case": exact[index], "pressure": pressure}),
                 ),
                 "physics" => (
@@ -369,34 +379,19 @@ fn write_log(name: &str, log: &[Value]) {
 
 #[test]
 fn pinned_table_identity_profile_and_policy() {
-    assert_eq!(sha(TABLE.as_bytes()), s::LOAD_REFERENCE_SOURCE_TABLE_SHA256);
-    assert_eq!(
-        s::LOAD_REFERENCE_SOURCE_TABLE_SHA256,
-        "28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924"
-    );
-    let table = s::load_reference_source_contract();
-    assert_eq!(table["semantic_contract_id"], s::LOAD_REFERENCE_SOURCE_ID);
-    assert_eq!(
-        table["formulation_profile_id"],
-        s::LOAD_REFERENCE_SOURCE_PROFILE
-    );
-    assert_eq!(table["source_block_policy"], "LOAD-REFERENCE-SOURCE-1");
-    // Result rows use the physics-source-1 signatures unchanged.
-    assert_eq!(table["rows"], s::physics_source_contract()["rows"]);
-    assert_eq!(
-        table["canonical_metadata_vocabulary"],
-        s::physics_source_contract()["canonical_metadata_vocabulary"]
-    );
+    // B7b: one pressure-source-1 identity, table, profile and policy for both
+    // source families; the retired load-reference-source-1 table is gone.
+    assert_eq!(sha(TABLE.as_bytes()), s::PRESSURE_SOURCE_TABLE_SHA256);
+    let table = s::pressure_source_contract();
+    assert_eq!(table["semantic_contract_id"], s::PRESSURE_SOURCE_ID);
+    assert_eq!(table["formulation_profile_id"], s::PRESSURE_PROFILE);
+    assert_eq!(table["source_block_policy"], "PRESSURE-SOURCE-1");
     for name in JOINED {
         let raw = source(name);
-        assert_eq!(
-            raw["producer"]["semantic_contract_id"],
-            s::LOAD_REFERENCE_SOURCE_ID
-        );
-        assert_eq!(
-            raw["source_block_recovery"]["body"]["policy"],
-            "LOAD-REFERENCE-SOURCE-1"
-        );
+        assert_eq!(raw["producer"]["semantic_contract_id"], s::PRESSURE_SOURCE_ID, "{name}");
+        assert_eq!(raw["formulation_basis"]["profile_id"], s::PRESSURE_PROFILE, "{name}");
+        assert_eq!(raw["source_block_recovery"]["body"]["policy"], "PRESSURE-SOURCE-1", "{name}");
+        assert!(raw["contract_evidence"].get("load_reference_states").is_some(), "{name}");
     }
 }
 
@@ -423,16 +418,14 @@ fn shared_adversarial_cases_match_in_rust() {
             }
         } else {
             entry["dispatch"] = json!(outcome(s::for_source(&doc)));
-            entry["joined"] = json!(outcome(s::validate_load_reference_source_evidence(&doc)));
+            entry["joined"] = json!(outcome(ps::validate(&doc, None)));
             if case.get("lr").is_some() {
-                entry["lr"] = json!(outcome(s::validate_load_reference_evidence(&doc)));
+                entry["lr"] = json!(outcome(s::validate_pressure_evidence(&doc)));
             }
-            if case.get("ps").is_some() {
-                entry["ps"] = json!(outcome(ps::validate(&doc, None)));
-            }
+            assert!(case.get("ps").is_none(), "{id}: 'ps' readings are folded into 'joined'");
         }
         log.push(entry.clone());
-        for kind in ["dispatch", "joined", "lr", "ps"] {
+        for kind in ["dispatch", "joined", "lr"] {
             if let Some(actual) = entry[kind].as_str() {
                 let want = expected(case, kind).unwrap_or_else(|| panic!("{id}: no {kind}"));
                 assert!(agrees(actual, want), "{id}: {kind} {actual} != {want}");
@@ -443,7 +436,7 @@ fn shared_adversarial_cases_match_in_rust() {
         }
         let contract = case["accept_contract"]
             .as_str()
-            .unwrap_or(s::LOAD_REFERENCE_SOURCE_ID);
+            .unwrap_or(s::PRESSURE_SOURCE_ID);
         if entry["dispatch"] == "accept" {
             assert_eq!(
                 s::for_source(&doc).unwrap().0["semantic_contract_id"],
@@ -453,7 +446,7 @@ fn shared_adversarial_cases_match_in_rust() {
             let document = derive(&doc, &model(name)).unwrap_or_else(|e| panic!("{id}: {e}"));
             let e = &document["result_envelope"];
             assert_eq!(e["contract_evidence"], doc["contract_evidence"], "{id}");
-            if contract == s::LOAD_REFERENCE_SOURCE_ID {
+            if contract == s::PRESSURE_SOURCE_ID {
                 assert_eq!(e["source_block_recovery"], doc["source_block_recovery"]);
             } else {
                 assert!(e.get("source_block_recovery").is_none(), "{id}");
@@ -482,12 +475,8 @@ fn table_bytes_and_transport_cases_match_in_rust() {
     for case in cases["table_cases"].as_array().unwrap() {
         let mut text = match case["file"].as_str() {
             None => TABLE.to_string(),
-            Some("fixtures/results/semantic_contract_v0_3_physics_source_1.json") => include_str!(
-                "../../../../fixtures/results/semantic_contract_v0_3_physics_source_1.json"
-            )
-            .to_string(),
-            Some("fixtures/results/semantic_contract_v0_3_load_reference_1.json") => include_str!(
-                "../../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json"
+            Some("fixtures/results/semantic_contract_v0_3_pressure_1.json") => include_str!(
+                "../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json"
             )
             .to_string(),
             Some(other) => panic!("unknown table file {other}"),
@@ -496,7 +485,7 @@ fn table_bytes_and_transport_cases_match_in_rust() {
             assert!(text.contains(find));
             text = text.replacen(find, case["replace"].as_str().unwrap(), 1);
         }
-        let result = outcome(s::verify_load_reference_source_table(text.as_bytes()));
+        let result = outcome(s::verify_pressure_source_table(text.as_bytes()));
         log.push(json!({"id": case["id"], "table": result}));
         assert_eq!(result, case["expect"].as_str().unwrap(), "{}", case["id"]);
     }
@@ -516,7 +505,7 @@ fn table_bytes_and_transport_cases_match_in_rust() {
                 meta[key] = v.clone();
             }
         }
-        let result = outcome(s::validate_load_reference_source_transport_metadata(&meta));
+        let result = outcome(ps::validate_transport_metadata(&meta));
         log.push(json!({"id": case["id"], "transport": result}));
         assert!(
             agrees(&result, case["expect"].as_str().unwrap()),
@@ -526,7 +515,7 @@ fn table_bytes_and_transport_cases_match_in_rust() {
         if result == "accept" {
             assert_eq!(
                 s::for_source_metadata(&meta).unwrap().0["semantic_contract_id"],
-                s::LOAD_REFERENCE_SOURCE_ID
+                s::PRESSURE_SOURCE_ID
             );
         }
     }
@@ -551,7 +540,7 @@ fn canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim() 
         }
         assert_eq!(
             e["semantic_contract_ref"],
-            d::reference("semantic_contract", s::LOAD_REFERENCE_SOURCE_ID)
+            d::reference("semantic_contract", s::PRESSURE_SOURCE_ID)
         );
         assert_eq!(
             e["row_accounting"].as_array().unwrap().len(),
@@ -575,7 +564,7 @@ fn canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim() 
         let text = serde_json::to_string(&doc).unwrap() + "\n";
         let (stem, mode) = name.rsplit_once('-').unwrap();
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
-            "../../../fixtures/results/load_reference_source_{stem}_{mode}.document.json"
+            "../../../fixtures/results/pressure_source_load_state_{stem}_{mode}.document.json"
         ));
         if std::env::var("LOAD_REFERENCE_SOURCE_WRITE_FIXTURES").as_deref() == Ok("1") {
             std::fs::write(&path, &text).unwrap();
@@ -599,12 +588,12 @@ fn canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim() 
             ),
             (
                 "/result_envelope/semantic_contract_ref/ref_id",
-                json!(s::PHYSICS_SOURCE_ID),
+                json!(s::PRESSURE_ID),
                 "SEMANTIC_CONTRACT_BINDING_MISMATCH",
             ),
             (
                 "/result_envelope/formulation_basis/profile_id",
-                json!(s::LOAD_REFERENCE_PROFILE),
+                json!("resolved_straight_load_state_source_v1"),
                 "SOURCE_METADATA_BINDING_MISMATCH",
             ),
         ] {
@@ -633,40 +622,41 @@ fn canonical_documents_preserve_source_metadata_receipt_and_evidence_verbatim() 
 }
 
 #[test]
-fn header_dispatch_binds_one_profile_and_existing_readers_refuse_joined_labels() {
+fn header_dispatch_binds_one_profile_and_the_ordinary_reader_refuses_joined_statements() {
     let raw = source("mixed-dense");
     let mut header = raw.clone();
     header.as_object_mut().unwrap().remove("results");
     assert_eq!(
         s::for_source_metadata(&header).unwrap().0["semantic_contract_id"],
-        s::LOAD_REFERENCE_SOURCE_ID
+        s::PRESSURE_SOURCE_ID
     );
     assert!(s::for_source(&header).is_err());
-    // No other contract accepts the joined profile.
-    for id in [
-        s::PHYSICS_ID,
-        s::PHYSICS_SOURCE_ID,
-        s::LOAD_REFERENCE_ID,
-    ] {
-        let mut bad = raw.clone();
-        bad["producer"]["semantic_contract_id"] = json!(id);
-        bad.as_object_mut().unwrap().remove("source_block_recovery");
-        bad["formulation_basis"]["profile_id"] = json!(s::LOAD_REFERENCE_SOURCE_PROFILE);
-        assert_eq!(
-            s::for_source_metadata(&bad).unwrap_err(),
-            "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
-            "{id}"
-        );
+    // B7b: a joined statement relabelled with a retired v2 identity is refused by
+    // name at the header, whatever profile it claims.
+    for id in s::RETIRED_EXACT_V2_IDS {
+        for profile in [s::PRESSURE_PROFILE, "resolved_straight_load_state_source_v1"] {
+            let mut bad = raw.clone();
+            bad["producer"]["semantic_contract_id"] = json!(id);
+            bad.as_object_mut().unwrap().remove("source_block_recovery");
+            bad["formulation_basis"]["profile_id"] = json!(profile);
+            assert!(
+                s::for_source_metadata(&bad).unwrap_err().starts_with(s::SOURCE_EXACT_PRESSURE_V2_RETIRED),
+                "{id} {profile}"
+            );
+        }
     }
     for name in JOINED {
         let raw = source(name);
+        // The ordinary pressure-1 reader refuses the receipt-carrying statement.
         assert_eq!(
-            s::validate_load_reference_evidence(&raw).unwrap_err(),
+            s::validate_pressure_evidence(&raw).unwrap_err(),
             "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
         );
-        assert_eq!(
-            ps::validate(&raw, None).unwrap_err(),
-            "PHYSICS_SOURCE_RECEIPT_SHAPE"
-        );
+        // The source reader admits it, never numerically eligible, with or
+        // without its captured invocation.
+        let mode = if name.ends_with("dense") { "dense_scrutiny" } else { "sparse_interactive" };
+        let invocation = json!({"request": serde_json::from_str::<Value>(request_text(name)).unwrap(), "solver_mode": mode});
+        assert_eq!(ps::validate(&raw, None), Ok(false), "{name}");
+        assert_eq!(ps::validate(&raw, Some(&invocation)), Ok(false), "{name}");
     }
 }

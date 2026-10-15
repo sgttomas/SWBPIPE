@@ -3903,7 +3903,9 @@ fn b1_r2_ordinary_basis_reference_at_g5_attempt() {
 }
 
 /// Item 2, (g), at G8 INVOCATION, PP's acceptance: no `reference_configurations` member
-/// (null included); `pressure_contract` absent or null; `components` absent or [];
+/// (null included); `pressure_contract` absent (B7a, b7-plan "The optional contract is
+/// absent only when its key is absent": a present null is authored presence, refused,
+/// as in `src/retained_precision.rs` `preview_namespace`); `components` absent or [];
 /// `combinations` absent or an array whose entries the receipt's equal (B2-C §10.1 G8).
 /// Unbound reads do not see the invocation.
 #[test]
@@ -3992,9 +3994,9 @@ fn b1_r2_g_model_scope_at_g8_invocation() {
                 admitted(true),
             ),
             (
-                "pressure_contract null",
+                "pressure_contract null (present: refused)",
                 invocation(vec![set(model("pressure_contract"), Value::Null)]),
-                admitted(true),
+                refused.clone(),
             ),
         ],
         |e| b1_verdict(&shared, e),
@@ -4867,7 +4869,7 @@ fn b1_i4p_transport_metadata_demands_alone() {
 /// B3a dropped (RR "Owner decisions: the legacy pressure contract is retired
 /// product-wide; ..."; formerly B3-D §6.3 and §6.4; REVISION_01 §3, N-4): G8's
 /// namespace predicate is type-strict. Only branch L (current 0.5.0,
-/// `pressure_contract` absent or JSON null) is admitted; any other value is G8
+/// `pressure_contract` absent; B7a: a JSON null is present, so refused) is admitted; any other value is G8
 /// INVOCATION_MISMATCH. "L3" in the entry names is B3a's retired contract
 /// `{"version":"1.0.0","mode":"legacy_pressure_v1"}` on 0.3.0, now refused on
 /// every base, and before any load is read (the former N-11 entries). The
@@ -4918,7 +4920,8 @@ fn b3a_legacy_pressure_contract_namespace_at_g8() {
         entries.push((format!("L3 on {base}"), base, vec![schema("0.3.0"), contract(l3.clone())], inv.clone()));
     }
     for (name, edits, want) in [
-        ("L: 0.5.0, contract null", vec![contract(Value::Null)], Value::Null),
+        // B7a: a present null contract is authored presence, outside branch L.
+        ("L: 0.5.0, contract null", vec![contract(Value::Null)], inv.clone()),
         ("L: 0.5.0, contract absent", vec![schema("0.5.0"), no_contract()], Value::Null),
         ("L3: mode exact_straight_pressure_v2, version 1.0.0", vec![schema("0.3.0"), contract(with("mode", json!("exact_straight_pressure_v2")))], inv.clone()),
         ("L3: version 1.0.1", vec![schema("0.3.0"), contract(with("version", json!("1.0.1")))], inv.clone()),
@@ -4978,14 +4981,15 @@ fn b3a_legacy_pressure_contract_namespace_at_g8() {
 /// RN64(2e11 / (2 RN64(1 + nu))) is exactly the bases' G = 7.7e10 Pa, so the
 /// synthetic exact successor keeps every receipt number of its preview base.
 const EXACT_NU: f64 = 0.2987012987012987;
-/// The exact producer's seven `exact_straight_pressure_formulation_basis`
-/// strings, as physics-source-1's committed n05 envelope publishes them.
+/// The exact producer's ordinary `exact_pressure_v3` formulation-basis strings,
+/// as the committed pressure-1 envelope publishes them (B7b D4 (a): the exact
+/// successor's base is pressure-1).
 fn exact_limitations() -> Value {
-    let n05: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
+    let base: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/results/pressure_connected_mechanics_sparse.json"
     ))
     .unwrap();
-    n05["formulation_basis"]["limitations"].clone()
+    base["formulation_basis"]["limitations"].clone()
 }
 fn decode_bits(v: &Value) -> f64 {
     f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap())
@@ -4993,11 +4997,15 @@ fn decode_bits(v: &Value) -> f64 {
 /// A reader-local synthetic exact successor (not producer output; lane P's
 /// `m3x` successors replace it as the witness): a shared preview base whose
 /// cases are all selected, re-stated on the exact route.
-/// - Invocation: model 0.3.0 with `{2.0.0, exact_straight_pressure_v2}`, every
-///   case's `pressure_regions` explicitly [], each material with `poisson_ratio`
-///   EXACT_NU and `homogeneous_isotropic_E_nu_v1`.
+/// - Invocation (B7b: the current exact document): model 0.5.0 with
+///   `{3.0.0, exact_pressure_v3, euler_bernoulli}` and an authored zero
+///   `corrosion_allowance` on every pipe section, every case's
+///   `pressure_regions` explicitly [], each material with `poisson_ratio`
+///   EXACT_NU and `homogeneous_isotropic_E_nu_v1` (as the Python reader's RV120
+///   re-statement, `fixtures/results/retained_precision_rv120_b3_inputs.json`).
 /// - Envelope: the exact identity and profile with the exact producer's
-///   limitations; physics-1's `contract_evidence` built from the receipt's own
+///   limitations; pressure-1's `contract_evidence` (profile_mode
+///   `exact_pressure_v3`) built from the receipt's own
 ///   sections (OD, wall, ro, A, I, J, Z), the base's extrema and coverage, the
 ///   material's E, nu and G-hat, and a zero pressure assembly.
 /// - Receipt: `derived_e_nu` shear origins, `geometry.route` exact, the exact
@@ -5010,8 +5018,12 @@ fn exact_successor(shared: &Value, base: &str) -> (Value, Value) {
     let mut invocation = case["invocation"].clone();
     {
         let model = &mut invocation["request"]["model"];
-        model["schema_version"] = json!("0.3.0");
-        model["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+        model["schema_version"] = json!("0.5.0");
+        model["pressure_contract"] =
+            json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
+        for p in model["pipe_segments"].as_array_mut().unwrap() {
+            p["section"]["corrosion_allowance"] = json!({"value": 0.0, "unit": "m"});
+        }
         for c in model["load_cases"].as_array_mut().unwrap() {
             c["pressure_regions"] = json!([]);
         }
@@ -5054,7 +5066,7 @@ fn exact_successor(shared: &Value, base: &str) -> (Value, Value) {
         let preview = source["contract_evidence"]["preview_cases"].as_array().unwrap().iter()
             .find(|c| c["load_case_id"] == id).unwrap();
         let zeros = json!(vec![0.0; nodes.len() * 6]);
-        exact_cases.push(json!({"load_case_id": id, "profile_mode": "exact_straight_pressure_v2",
+        exact_cases.push(json!({"load_case_id": id, "profile_mode": "exact_pressure_v3",
             "material_basis": "base_material_common_E_nu", "pipe_materials": materials, "pipe_sections": sections,
             "pipe_stress_extrema": preview["pipe_stress_extrema"],
             "stress_maximum_coverage": {"complete": preview["stress_maximum_coverage"]["complete"],
@@ -5122,15 +5134,15 @@ const M3X: [(&str, &str, &str, &str, &str); 2] = [
         "m3x_sparse_interactive",
         "<s1:m3x_sparse_interactive>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "5ef83dd9f046cb97939aa8af753a42b0b962c27bab4c73c725dc803584aee8e5",
-        "57114af44b909de9494abe740eb14cb61aaceefae2beaf5a20b11f98f29cd0ce",
+        "45e14e68249abbeafa358f9e7317e9060da8e59c83db948a8184b98b8859001c",
+        "f6bb7e7fc74ebce71c67da5da81906fece54e412aa2697d5548eb13f50b67524",
     ),
     (
         "m3x_dense_scrutiny",
         "<s1:m3x_dense_scrutiny>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "ee20a337dd159fdafcb512f5f5d3efaa731b176cf61423121fce2fde2f212bc0",
-        "3b92b6ce2e72cd12cf3f96aa9a85ba9f2f9b3c38eed7f8879443527d5cd97e17",
+        "0f490c22e7b2a25fa5dc1dd3d3a7ae7a701c744bfaac2fc2a2aa8f95f3451259",
+        "0317aed643760641eec81708a0d5f506963e109a78c97a715617c081c28b7701",
     ),
 ];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {
@@ -5381,9 +5393,13 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// kd5-member-relative-bound.md §§3.2, 3.4, 6), so these, RV120's N2 and F2 digests moved.
 /// B7a's one corpus regeneration moved the bases again; the current digests are the ones the
 /// R1 reader-outcomes record (`fixtures/results/retained_precision_reader_outcomes.json`) states.
-const REPAIR03_N2B_INPUTS: [&str; 2] = ["602d983e9879355e25feaf29c6f963449f6eb4a1a858935d5e049dffc219ec4e", "e222f3b27fa3299f08fb45ebce4fcb30f1f3c587c7178f78b49ffdba6e1b48a2"];
+/// B7b re-stated the synthetic exact construction and RV120's inputs on the current exact
+/// route (model 0.5.0, the complete v3 contract, a zero corrosion allowance, profile_mode
+/// exact_pressure_v3; W1's `retained_precision_rv120_b3_inputs.json` and m3x successors), so
+/// all eight digests moved; each equals the R1 record's input digest for the same RV120 key.
+const REPAIR03_N2B_INPUTS: [&str; 2] = ["cc862f389838ecbae57ae6baf5eb18dad750a5a6eb108bd83461f87a4ed9d9db", "961b962a1f20f166d04df1ee87fdea589e53dae3eded300b2c77650d1ea1fd7e"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
-const RV120_N2_INPUTS: [&str; 2] = ["9bd1344976e67f2aa70e165053ac3541cdc8ce60b2bdb26db98d8750d648fd37", "ecef33ca66b3cbdcab215eae095899975ac0cbf8b98670588c7879c57a69a922"];
+const RV120_N2_INPUTS: [&str; 2] = ["5bcef58c872c70d7298ea2db2a3557a6e655779c86d7176e244e71872b1536dd", "f2d7bbea60651390cfe817e083d9215fbcb3c9cbca4b29c70807ab113b8df0ca"];
 fn sha256_canonical(v: &Value) -> String {
     use open_pipe_stress_canonical_json::canonical_json;
     use sha2::{Digest, Sha256};
@@ -5392,10 +5408,10 @@ fn sha256_canonical(v: &Value) -> String {
 /// The forgeries' materialized inputs: sha256 of the canonical JSON of `[source, invocation]`
 /// (`canonical_json`), the same bytes as RV120's input lines (checked against its index).
 const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
-    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "2c25bd9bf6487e7adbbd7fde90699cdddfea677568cc06147b3645e165f25de7"),
-    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "61a926f3484c1af367557f95059f384b420abd307e11aae31838786595ad4cef"),
-    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "2c725fd7610e17ba603127bc7bf1fc074b00f48aa16317b26de2fd43d9cf0522"),
-    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "23bf222a8100cdc52de6e6b5a2f1b8c9b82a2ca1ba9020c69b458cd23c0893dd"),
+    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "849bf31bf8ab0998d87b42bf5801bbd7137edd6fa1114c12b381899c50d8b6a9"),
+    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "29d6c537045d33a829b8d2bf3f3d4593f70f298d4204c0d212710f6fe92c1949"),
+    ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "cb5edc4814d61e48e5ca893c7b2eab8d8e3cfcbc2ff05f667305c22915fd9553"),
+    ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "84aeda36beec855c3a41f14f91e2a769a463aa98847089d2ed20115131e17077"),
 ];
 /// RV120 F2: the four forgeries are RV120's inputs (by digest), and all three readings
 /// hold: bound G8 PREPARATION_MISMATCH (step 4), unbound and on transport never eligible.
@@ -5478,15 +5494,20 @@ fn b3b_rows(shared: &Value, base_name: &'static str) -> Vec<(ExactShape, Value)>
         ("15g the owner entry's As_m2 a string", vec![set(ce(json!(["pipe_sections", 0, "As_m2"])), json!(format!("{}", section("As_m2"))))], vec![], vec![], sec.clone()),
         ("15h the owner entry listed twice", vec![set(json!(["contract_evidence", "exact_cases"]), json!([entry, entry]))], vec![], vec![], sec.clone()),
         ("16b contract_evidence removed", vec![remove(json!(["contract_evidence"]))], vec![], vec![], sec.clone()),
-        ("16 connector non-empty", vec![set(json!(["contract_evidence", "connector"]), json!([{"id": "connector:x"}]))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_CONNECTOR_UNSUPPORTED")),
+        // B7b: pressure-1 (the exact successor's base, D4 (a)) admits connector evidence
+        // under its own resident table (O-10), so the invented record is refused by its
+        // record shape (formerly physics-1's CONNECTOR_UNSUPPORTED), as in PY's
+        // tests/test_retained_precision_b3.py.
+        ("16 connector non-empty", vec![set(json!(["contract_evidence", "connector"]), json!([{"id": "connector:x"}]))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_CONNECTOR_RECORD_SHAPE")),
         ("17 an entry's G_pa three ulps", vec![set(ce(json!(["pipe_materials", 0, "G_pa"])), json!(ulps(material("G_pa"), 3)))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_MATERIAL_G_BINDING")),
         ("18 recovery_method added to an exact_cases entry", vec![set(ce(json!(["recovery_method"])), json!("retained_source_blocks_exact_v1"))], vec![], vec![], gate("G7", "SOURCE_PHYSICS_CASE_SHAPE")),
         ("19 invocation contract -> legacy 1.0.0", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "1.0.0", "mode": "legacy_pressure_v1"}))], vec![], inv.clone()),
         ("20 invocation schema -> 0.4.0", vec![], vec![set(model(json!(["schema_version"])), json!("0.4.0"))], vec![], inv.clone()),
         ("21 invocation pressure_contract false", vec![], vec![set(model(json!(["pressure_contract"])), json!(false))], vec![], inv.clone()),
-        ("21b invocation contract with an extra key", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2", "extra": null}))], vec![], inv.clone()),
-        ("21c invocation contract version 2.0.1", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "2.0.1", "mode": "exact_straight_pressure_v2"}))], vec![], inv.clone()),
-        ("21d invocation contract removed (0.3.0, absent)", vec![], vec![remove(model(json!(["pressure_contract"])))], vec![], inv.clone()),
+        // B7b: perturbations of the base's current contract (formerly of v2's).
+        ("21b invocation contract with an extra key", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli", "extra": null}))], vec![], inv.clone()),
+        ("21c invocation contract version 3.0.1", vec![], vec![set(model(json!(["pressure_contract"])), json!({"version": "3.0.1", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}))], vec![], inv.clone()),
+        ("21d invocation contract removed (absent)", vec![], vec![remove(model(json!(["pressure_contract"])))], vec![], inv.clone()),
         // Entry 22: B2-C admits model combinations; G8's entry and expression equality refuses this one (no receipt entry names it).
         ("22 a combination added to the invocation", vec![], vec![set(model(json!(["combinations"])), json!([{"id": "combination:x", "kind": "algebraic", "terms": [{"load_case": case_id, "factor": 1.0}]}]))], vec![], inv.clone()),
         ("22b a component added to the invocation", vec![], vec![set(model(json!(["components"])), json!([{"id": "component:x"}]))], vec![], inv.clone()),
@@ -5608,8 +5629,8 @@ fn b3b_exact_successor_readings_standing_and_dispatch() {
         assert_eq!(classes.len(), rp::validate(&source, None).unwrap().classifications.len());
         // F-5: the receipt member and the method token stay the successors' own.
         let mut downgraded = source.clone();
-        downgraded["producer"]["semantic_contract_id"] = json!(sc::PHYSICS_ID);
-        downgraded["formulation_basis"]["profile_id"] = json!("exact_straight_pressure_v2");
+        downgraded["producer"]["semantic_contract_id"] = json!(sc::PRESSURE_ID);
+        downgraded["formulation_basis"]["profile_id"] = json!(sc::PRESSURE_PROFILE);
         assert_eq!(sc::for_source(&downgraded).unwrap_err(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN);
     }
     // Unbound and transport readings of three shapes: a G8 shape reads unbound and on

@@ -2,9 +2,9 @@
 //! arc corpus (also read by the Python reader): N_w = N_el +
 //! pAi and S = N_el in the arc's own sign conventions, end rows along the end
 //! tangents, and the straight Lame rows and maximum withheld with the named
-//! reason. Each broken arc binding is refused by name; arc evidence under the
-//! v2 contract is refused; a model whose only pipe is a replaced span is
-//! covered by its connector (T4-RV23 NOTE-4).
+//! reason. Each broken arc binding is refused by name; a model whose only pipe
+//! is a replaced span is covered by its connector (T4-RV23 NOTE-4). (B7b
+//! deleted the v2 contract and its arc-refusal check with it.)
 use open_pipe_stress_result_export::semantic_contract as s;
 use serde_json::{json, Value};
 
@@ -139,27 +139,6 @@ fn broken_arc_bindings_are_refused_by_name() {
             let error = s::validate_pressure_evidence(&broken).unwrap_err();
             assert!(error.ends_with(code), "{label} / {what}: {error}");
         }
-    }
-}
-
-#[test]
-fn arc_evidence_is_refused_under_v2() {
-    for (label, envelope) in corpus().into_iter().filter(|(_, e)| has_arc_region(e)) {
-        let mut as_v2 = envelope.clone();
-        for case in as_v2["contract_evidence"]["exact_cases"].as_array_mut().unwrap() {
-            case["profile_mode"] = json!("exact_straight_pressure_v2");
-        }
-        for region in as_v2["contract_evidence"]["pressure"].as_array_mut().unwrap() {
-            region["profile_version"] = json!("2.0.0");
-            region["profile_mode"] = json!("exact_straight_pressure_v2");
-        }
-        let error = if as_v2["contract_evidence"].get("load_reference_states").is_some() {
-            s::validate_load_reference_evidence(&as_v2)
-        } else {
-            s::validate_physics_evidence(&as_v2)
-        }
-        .unwrap_err();
-        assert!(error.ends_with("ARC_UNSUPPORTED"), "{label}: {error}");
     }
 }
 

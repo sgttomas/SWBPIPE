@@ -1,7 +1,7 @@
 //! T4-U3 (S14): the pressure-1 reader admits objective connector records and
 //! rows over the shared connector corpus (also read by the Python
-//! reader), refuses each broken binding by name, and every other
-//! contract refuses connector evidence (`CONNECTOR_UNSUPPORTED`).
+//! reader), refuses each broken binding by name, and the retained-source route
+//! (pressure-source-1) refuses connector evidence (`CONNECTOR_UNSUPPORTED`).
 use open_pipe_stress_result_export::semantic_contract as s;
 use serde_json::{json, Value};
 
@@ -128,7 +128,10 @@ fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {
         }), "CONNECTOR_ROW_COVERAGE"),
         ("row unbound", Box::new(|e: &mut Value| first_connector_row(e)["entity_ref"] = json!("component:C-999")), "CONNECTOR_ROW_UNBOUND"),
         ("row unknown kind", Box::new(|e: &mut Value| first_connector_row(e)["kind"] = json!("connector_energy_v1")), "CONNECTOR_ROW_KIND"),
-        ("row unit", Box::new(|e: &mut Value| first_connector_row(e)["unit"] = json!("mm")), "CONNECTOR_ROW_SEMANTICS"),
+        // B7b (O-10): pressure-1's own resident table carries the connector
+        // signatures, so its unit check refuses a wrong unit before the
+        // connector row binding is read.
+        ("row unit", Box::new(|e: &mut Value| first_connector_row(e)["unit"] = json!("mm")), "SOURCE_UNIT_CONTRADICTION: connector_generalized_translation_v1"),
         ("row basis", Box::new(|e: &mut Value| first_connector_row(e)["metadata"]["basis"] = json!("objective_connector_v1;replaces_span=pipe:P-120;symmetric_midpoint_small_rotation_v1")), "CONNECTOR_ROW_SEMANTICS"),
         ("row sign", Box::new(|e: &mut Value| first_connector_row(e)["metadata"]["sign_convention"] = json!("global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f")), "CONNECTOR_ROW_SEMANTICS"),
         ("row duplicated", Box::new(|e: &mut Value| {
@@ -170,26 +173,36 @@ fn broken_connector_bindings_are_refused_by_name() {
     }
 }
 
-/// Connector records or rows offered under physics-1 / load-reference-1
-/// (v2) are refused: the records by the namespace check, the rows on their own.
+/// B7b: the retained-source route (pressure-source-1, both source families)
+/// declines objective connectors (b7-plan J7/D7), so a connector record grafted
+/// into a genuine pressure-source-1 statement is refused, its receipt resealed
+/// so that the evidence checks are reached. (The retired v2 readers' refusal of
+/// connector evidence went with them.)
 #[test]
-fn every_other_contract_refuses_connector_evidence() {
-    for (label, envelope) in corpus() {
-        let mut v2 = envelope.clone();
-        for case in v2["contract_evidence"]["exact_cases"].as_array_mut().unwrap() {
-            case["profile_mode"] = json!("exact_straight_pressure_v2");
-        }
-        // The hanger's model-scoped input review rows are pressure-1's (v2
-        // keeps its case-scoped rule); they are not what this test refuses.
-        v2["results"].as_array_mut().unwrap().retain(|r| r.get("basis_ref").is_some());
-        let read = |e: &Value| {
-            if load_state(e) { s::validate_load_reference_evidence(e) } else { s::validate_physics_evidence(e) }
-        };
-        let error = read(&v2).unwrap_err();
-        assert!(error.ends_with("CONNECTOR_UNSUPPORTED"), "{label}: {error}");
-        // Rows alone, with no record, are refused too.
-        v2["contract_evidence"]["connector"] = json!([]);
-        let error = read(&v2).unwrap_err();
-        assert!(error.ends_with("CONNECTOR_UNSUPPORTED"), "{label}: {error}");
+fn the_source_route_refuses_connector_evidence() {
+    use open_pipe_stress_result_export::{physics_source as ps, source_blocks::domain_hash};
+    let read = |path: &str| -> Value {
+        let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../../");
+        serde_json::from_str(&std::fs::read_to_string(format!("{root}{path}")).unwrap()).unwrap()
+    };
+    let record = corpus().remove(0).1["contract_evidence"]["connector"][0].clone();
+    // The 0.3 family's closed receipt evidence shape admits only an empty
+    // connector list; the load/reference-state pre-pass refuses it by name first.
+    for (family, path, code) in [
+        ("0.3 family", "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json", "PHYSICS_SOURCE_PHYSICAL_SHAPE"),
+        ("load/reference-state family", "fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json", "SOURCE_LOAD_REFERENCE_CONNECTOR_UNSUPPORTED"),
+    ] {
+        let mut source = read(path);
+        assert_eq!(ps::validate(&source, None).map(|_| ()), Ok(()), "{family}");
+        source["contract_evidence"]["connector"] = json!([record.clone()]);
+        let mut publication = source.clone();
+        publication.as_object_mut().unwrap().remove("source_block_recovery");
+        source["source_block_recovery"]["body"]["publication_sha256"] =
+            json!(domain_hash("source_blocks_publication_v1", &publication).unwrap());
+        source["source_block_recovery"]["receipt_sha256"] =
+            json!(domain_hash("source_blocks_receipt_v1", &source["source_block_recovery"]["body"]).unwrap());
+        assert_eq!(ps::validate(&source, None).unwrap_err(), code, "{family}");
+        assert_eq!(s::for_source(&source).unwrap_err(), code, "{family}");
+        assert_eq!(ps::validate_transport_metadata(&source).unwrap_err(), code, "{family}");
     }
 }

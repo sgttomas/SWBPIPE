@@ -223,42 +223,47 @@ fn the_cli_reads_the_input_bytes_as_given_and_refuses_unusable_input_with_exit_2
 #[test]
 fn base_readers_read_through_the_cli_as_reader_verdict() {
     use open_pipe_stress_result_export::reader_verdict as rv;
-    // B4/D1 (b): the composite physics-source-1 statement is the source route here.
+    // B4/D1 (b): the composite statement is the source route here; B7b: the
+    // current pressure-source-1 (0.5.0/v3) statement.
     let blocks: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
+        "../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
     ))
     .unwrap();
     let request: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/physics_source/n05.request.json"
+        "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
     ))
     .unwrap();
     let invocation = json!({"request": request, "solver_mode": "sparse_interactive"});
+    // pressure-1 with the load/reference-state group, and without it.
     let lr: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json"
+        "../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
     ))
     .unwrap();
     let lr_model = serde_json::from_str::<Value>(include_str!(
-        "../../../../fixtures/product_preview/load_reference/connected.request.json"
+        "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
     ))
     .unwrap()["model"]
         .clone();
     let physics: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/results/physics_connected_mechanics_sparse.json"
+        "../../../../fixtures/results/pressure_connected_mechanics_sparse.json"
     ))
     .unwrap();
     let mut fewer = lr_model.clone();
     fewer["load_cases"].as_array_mut().unwrap().remove(0);
+    let mut retired = physics.clone();
+    retired["producer"]["semantic_contract_id"] = json!("openpipestress.result_semantics/0.3.0/physics-1");
     let reads = [
         ("dispatch", json!({"source": blocks, "model": request["model"], "invocation": invocation}),
             rv::dispatch(&blocks, Some(&request["model"]), Some(&invocation))),
         ("dispatch", json!({"source": lr, "model": lr_model}), rv::dispatch(&lr, Some(&lr_model), None)),
         ("dispatch", json!({"source": {"carrier_evidence": {}}}), rv::dispatch(&json!({"carrier_evidence": {}}), None, None)),
-        ("physics-source", json!({"source": blocks, "invocation": invocation}), rv::validate("physics-source", &blocks, None, Some(&invocation))),
-        ("load-reference", json!({"source": lr, "model": fewer}), rv::validate("load-reference", &lr, Some(&fewer), None)),
-        ("load-reference-transport", json!({"source": lr}), rv::transport("load-reference", &lr)),
-        ("physics", json!({"source": physics}), rv::validate("physics", &physics, None, None)),
-        ("physics-transport", json!({"source": physics}), rv::transport("physics", &physics)),
+        ("pressure-source", json!({"source": blocks, "invocation": invocation}), rv::validate("pressure-source", &blocks, None, Some(&invocation))),
+        ("pressure", json!({"source": lr, "model": fewer}), rv::validate("pressure", &lr, Some(&fewer), None)),
+        ("pressure-source-transport", json!({"source": blocks}), rv::transport("pressure-source", &blocks)),
+        ("pressure", json!({"source": physics}), rv::validate("pressure", &physics, None, None)),
+        ("pressure-transport", json!({"source": physics}), rv::transport("pressure", &physics)),
         ("row-semantics", json!({"row": lr["results"][0], "source": lr}), rv::row_semantics(&lr["results"][0], Some(&lr))),
+        ("dispatch", json!({"source": retired}), rv::dispatch(&retired, None, None)),
     ];
     let mut codes = Vec::new();
     for (reader, input, outcome) in reads {
@@ -270,6 +275,14 @@ fn base_readers_read_through_the_cli_as_reader_verdict() {
         assert_eq!(code, if verdict["outcome"]["ok"] == true { 0 } else { 1 }, "{reader}");
         codes.push(code);
     }
-    // Admitted, admitted, refused; then the readers: pass, refuse (G2), pass, pass, pass, pass.
-    assert_eq!(codes, [0, 0, 1, 0, 1, 0, 0, 0, 0]);
+    // Admitted, admitted, refused; then the readers: pass, refuse (G2), pass, pass,
+    // refuse (no pressure-1 transport reader), pass; then a retired v2 identity,
+    // refused by name at the header.
+    assert_eq!(codes, [0, 0, 1, 0, 1, 0, 0, 1, 0, 1]);
+    // B7b: the retired v2 readers are no longer read commands (unusable: exit 2).
+    for reader in ["physics", "physics-source", "load-reference", "load-reference-source", "physics-transport"] {
+        let (code, verdict, stderr) = run(&["read", reader], &json!({"source": physics}).to_string());
+        assert_eq!((code, verdict), (2, Value::Null), "{reader}");
+        assert!(stderr.contains("unknown reader"), "{reader}: {stderr}");
+    }
 }

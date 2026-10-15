@@ -1,11 +1,12 @@
-//! Typed authoring operations for the model 0.4.0 load/reference-state records
+//! Typed authoring operations for the load/reference-state records (B7b: on the
+//! current model 0.5.0 with the exact pressure contract; first introduced on 0.4.0)
 //! (T1 WP3): `Model/reference_configurations`, `Material/expansion_laws` and
 //! `Load/analysis_state`, carried through the common Review/Apply, inverse
 //! (Undo/Redo) and atomic-batch seam.
 //!
 //! Base models are the maintained product witnesses
-//! `fixtures/product_preview/load_reference_source/eigen_motion.request.json`
-//! and `fixtures/product_preview/load_reference/connected.request.json`. Every
+//! `fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json`
+//! and `fixtures/product_preview/pressure/load_reference/connected.request.json`. Every
 //! edit below is an invented test input. Closed-form expectations are computed
 //! from the witness constants (node positions, entered motions, entered strains,
 //! entered coefficients), never from a producer output.
@@ -19,10 +20,10 @@ use open_pipe_stress_product_physics::{
 use serde_json::{json, Value};
 
 const EIGEN_MOTION: &str = include_str!(
-    "../../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+    "../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json"
 );
 const CONNECTED: &str =
-    include_str!("../../../../fixtures/product_preview/load_reference/connected.request.json");
+    include_str!("../../../../fixtures/product_preview/pressure/load_reference/connected.request.json");
 
 fn request(text: &str) -> Value {
     serde_json::from_str(text).unwrap()
@@ -662,8 +663,9 @@ fn explicit_null_wrong_version_missing_hash_and_envelope_are_refused() {
             "OP-LOAD-STATE-EXPLICIT-NULL",
         );
 
-        // The model must already be 0.4.0; nothing sets or changes the version.
-        for version in [json!("0.3.0"), json!("0.4.1"), Value::Null] {
+        // The model must already be current (B7b: 0.5.0); nothing sets or
+        // changes the version, and a retired version is refused.
+        for version in [json!("0.3.0"), json!("0.4.0"), json!("0.4.1"), Value::Null] {
             let mut older = base.clone();
             older["schema_version"] = version;
             refused(&older, &op, "OP-LOAD-STATE-SCHEMA-VERSION-INVALID");
@@ -1425,35 +1427,42 @@ fn codes(model: &Value, op: &Value) -> (bool, Vec<String>) {
 }
 
 #[test]
-fn pressure_profile_keeps_a_0_4_0_model_version_and_writes_only_v3() {
+fn pressure_profile_keeps_the_current_model_version_and_writes_only_v3() {
+    // B7b: the witness is the current 0.5.0 document with the complete v3
+    // contract; 0.5.0 is the only version authored.
     let model = connected();
+    assert_eq!(model["schema_version"], "0.5.0");
     let project = model["project"]["id"].as_str().unwrap().to_string();
     let before = canonical_json(&json!({
         "schema_version": model["schema_version"],
         "pressure_contract": model["pressure_contract"],
     }));
     let v2 = json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
-    let v3 = json!({"version":"3.0.0","mode":"exact_pressure_v3"});
+    let v3 = json!({"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"});
+    assert_eq!(model["pressure_contract"], v3);
     let code = "OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED";
-    // The version change the review found is refused; so is any v2 write.
+    // A version change is refused; so is any retired v2 write.
     for (after, refusal) in [
         (json!({"schema_version":"0.3.0","pressure_contract":v3}), code),
-        (json!({"schema_version":"0.4.0","pressure_contract":v2}), "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED"),
+        (json!({"schema_version":"0.4.0","pressure_contract":v3}), code),
+        (json!({"schema_version":"0.5.0","pressure_contract":v2}), "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED"),
     ] {
         let op = intent("Model", &project, "pressure_profile", &before, &after.to_string());
         refused(&model, &op, refusal);
     }
-    // The contract-only upgrade keeps the version and every other byte.
+    // Activation on the contract-free copy keeps the version and every other byte.
+    let mut free = model.clone();
+    free.as_object_mut().unwrap().remove("pressure_contract");
+    let free_before = canonical_json(&json!({"schema_version": free["schema_version"]}));
     let upgrade = intent(
         "Model",
         &project,
         "pressure_profile",
-        &before,
-        &json!({"schema_version":"0.4.0","pressure_contract":v3}).to_string(),
+        &free_before,
+        &json!({"schema_version":"0.5.0","pressure_contract":v3}).to_string(),
     );
-    let upgraded = apply_operation(&model, &upgrade, Some(&hash(&model))).applied_model.expect("contract-only upgrade");
-    let mut expected = model.clone();
-    expected["pressure_contract"] = v3.clone();
+    let upgraded = apply_operation(&free, &upgrade, Some(&hash(&free))).applied_model.expect("contract-only activation");
+    let expected = model.clone();
     assert_same_bytes(&upgraded, &expected);
     // Inside an atomic batch, after an admitted load-state edit, the whole
     // batch is refused and no model is returned.
@@ -1471,7 +1480,7 @@ fn pressure_profile_keeps_a_0_4_0_model_version_and_writes_only_v3() {
         &project,
         "pressure_profile",
         &before,
-        &json!({"schema_version":"0.3.0","pressure_contract":v3}).to_string(),
+        &json!({"schema_version":"0.4.0","pressure_contract":v3}).to_string(),
     );
     let batch = json!({"batch_id":"batch:pressure-profile-lock","operations":[edit, downgrade]});
     let claim = hash(&model);
@@ -1496,7 +1505,7 @@ fn pressure_profile_keeps_a_0_4_0_model_version_and_writes_only_v3() {
         applied["validation"]["application_status"], "applied_to_session_model",
         "{applied:#}"
     );
-    assert_eq!(applied["applied_model"]["schema_version"], "0.4.0");
+    assert_eq!(applied["applied_model"]["schema_version"], "0.5.0");
 }
 
 #[test]
@@ -1541,7 +1550,7 @@ fn temperature_points_replacement_cannot_orphan_an_exact_point() {
     }
     assert_eq!(canonical_json(&points), before);
 
-    // Admitted: a new complete E/nu point. On a 0.4.0 exact model no
+    // Admitted: a new complete E/nu point. On an exact model carrying the group no
     // not-solve-ready warning is raised (F9): E/nu is the point basis, and
     // thermal definitions live in the load/reference state.
     let mut added = points.clone();
@@ -1550,7 +1559,7 @@ fn temperature_points_replacement_cannot_orphan_an_exact_point() {
     let (applied, found) = codes(&base, &op(&base, &added));
     assert!(applied, "{found:?}");
     assert!(found.is_empty(), "{found:?}");
-    // An incomplete 0.4.0 point still warns, for its missing E/nu pair only.
+    // An incomplete point on that model still warns, for its missing E/nu pair only.
     let mut partial = points.clone();
     partial.as_array_mut().unwrap().push(
         json!({"id":"point:invented-partial","temperature":{"value":80,"unit":"degC"},
@@ -1679,23 +1688,25 @@ fn support_deletion_scans_every_case_not_only_the_first() {
 }
 
 // ---------------------------------------------------------------------------
-// Addendum 3 (review B backcheck L-1): the F9 relaxation is 0.4.0-only.
+// Addendum 3 (review B backcheck L-1): the F9 relaxation applies only to a
+// document carrying the load/reference-state group (B7b: selected by the
+// group's presence on the current 0.5.0 exact document, not by a version).
 // ---------------------------------------------------------------------------
 
 #[test]
-fn exact_0_3_0_points_still_demand_the_expansion_coefficient() {
-    // On the 0.3.0 exact model a point that is complete for E/nu but lacks the
-    // coefficient keeps the existing not-solve-ready warning; the same point
-    // with the coefficient raises none. Invented points.
+fn exact_points_without_the_load_state_group_still_demand_the_expansion_coefficient() {
+    // On the exact model without the group a point that is complete for E/nu
+    // but lacks the coefficient keeps the existing not-solve-ready warning; the
+    // same point with the coefficient raises none. Invented points.
     let model: Value = serde_json::from_str(include_str!(
         "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
     ))
     .unwrap();
-    assert_eq!(model["schema_version"], "0.3.0");
-    assert_eq!(
-        model["pressure_contract"]["mode"],
-        "exact_straight_pressure_v2"
-    );
+    assert_eq!(model["schema_version"], "0.5.0");
+    assert_eq!(model["pressure_contract"]["mode"], "exact_pressure_v3");
+    assert!(model.get("reference_configurations").is_none());
+    assert!(model["load_cases"].as_array().unwrap().iter().all(|c| c.get("analysis_state").is_none()));
+    assert!(model["materials"].as_array().unwrap().iter().all(|m| m.get("expansion_laws").is_none()));
     let material = &model["materials"][0];
     let id = material["id"].as_str().unwrap();
     let points = json!([

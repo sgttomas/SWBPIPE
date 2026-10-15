@@ -1,12 +1,13 @@
 //! B4/D1 (b): the non-composite source-blocks-1 identity is retired. A stored
 //! source-blocks-1 statement is refused by name; the composite identities keep
-//! the shared source-block machinery and their ordinary cases.
+//! the shared source-block machinery and their ordinary cases (B7b: the
+//! current pressure-source-1 statement on the 0.5.0/v3 corpus).
 use open_pipe_stress_result_export::{reader_verdict, semantic_contract};
 use serde_json::{json, Value};
 
 fn read(file: &str) -> Value {
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../../fixtures/product_preview/physics_source")
+        .join("../../../fixtures/product_preview/pressure_source/physics_source")
         .join(file);
     serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
 }
@@ -31,7 +32,7 @@ fn a_stored_source_blocks_1_statement_is_refused_by_name() {
 }
 
 #[test]
-fn physics_source_ordinary_cases_stay_admitted() {
+fn pressure_source_ordinary_cases_stay_admitted() {
     for mode in ["dense_scrutiny", "sparse_interactive"] {
         let source = read(&format!("mixed-{mode}.raw.json"));
         let request = read("mixed.request.json");

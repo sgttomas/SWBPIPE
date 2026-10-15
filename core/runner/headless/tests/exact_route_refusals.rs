@@ -1,7 +1,15 @@
 //! T4-U0 (exact-route hardening) through the headless runner: an exact
-//! document refused for a metadata-only component (A1.1), a combination (A1.6)
-//! or a negative region pressure (A2.1) is blocked with no export, in both
-//! solver modes. The input is PP's committed invented X0 fixture.
+//! document refused for a metadata-only component (A1.1) or a combination
+//! (A1.6) is blocked with no export, in both solver modes. The input is PP's
+//! committed invented X0 fixture (the current 0.5.0 `3.0.0/exact_pressure_v3`
+//! document).
+//!
+//! B7b: the retired `2.0.0/exact_straight_pressure_v2` route's composition and
+//! combination codes are gone; v3's admission seam refuses both families by name
+//! (`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`). The negative-region-pressure refusal
+//! (A2.1) protected only v2: v3 admits a signed differential, so it is deleted
+//! here (PP's `tests/exact_route_refusals.rs` and the applier's
+//! `signed_region_pressure_follows_the_document_contract` keep the live check).
 use open_pipe_stress_headless_runner::{
     run_preview_model_value_with_mode, PrivacyContext, ProfessionalBoundary, Provenance,
     RedistributionStatus, Reference, RunnerOperation, RunnerRequest, TbdDecisions,
@@ -62,27 +70,18 @@ fn exact_route_refusals_are_blocked_without_export_in_both_modes() {
         "terms":[{"load_case":"case:closed-pressure","factor":1.0},
             {"load_case":"case:six-component-load","factor":1.0}],
         "provenance":"invented_u0_control"}]);
-    let mut negative = base.clone();
-    negative["model"]["load_cases"][0]["pressure_regions"][0]["pressure"] =
-        json!({"value":-2000,"unit":"kPa"});
     for (name, payload, code, refs) in [
         (
             "A1.1",
             valve,
-            "EXACT_PRESSURE_COMPOSITION_UNSUPPORTED",
+            "EXACT_PRESSURE_FAMILY_NOT_ADMITTED",
             json!(["component:valve"]),
         ),
         (
             "A1.6",
             combination,
-            "EXACT_PRESSURE_COMBINATION_UNSUPPORTED",
+            "EXACT_PRESSURE_FAMILY_NOT_ADMITTED",
             json!(["combination:sum"]),
-        ),
-        (
-            "A2.1",
-            negative,
-            "PRESSURE_REGION_PRESSURE_NEGATIVE",
-            json!(["case:closed-pressure", "region:fixture-pressure", "pressure"]),
         ),
     ] {
         for mode in MODES {

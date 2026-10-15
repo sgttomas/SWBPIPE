@@ -542,6 +542,9 @@ mod tests {
    }
  }
  #[test]
+ /// B7b: the connected exact solve publishes pressure-1 (the current contract,
+ /// 0.5.0/3.0.0/exact_pressure_v3); `HEADLESS_PHYSICS_OUTPUT_DIR` keeps its name
+ /// and now carries that pressure-1 twin of the retired physics-1 artifacts.
  fn connected_physics_actual_solve_preserves_case_evidence_and_qualified_export() {
    let payload: Value = serde_json::from_str(include_str!("../../../product_physics/tests/fixtures/exact_pressure_connected_request.json")).unwrap();
    for (name, mode) in [("sparse", open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive), ("dense", open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny)] {
@@ -550,8 +553,8 @@ mod tests {
      assert_eq!(mechanics.status.mechanics, "MECHANICS_SOLVED");
      assert_eq!(mechanics.numerical_quality.status, open_pipe_stress_product_physics::NumericalQualityStatus::ChecksPassed);
      let raw = serde_json::to_value(mechanics).unwrap();
-     assert_eq!(raw["producer"]["semantic_contract_id"], export::semantic_contract::PHYSICS_ID);
-     export::semantic_contract::validate_physics_evidence(&raw).unwrap();
+     assert_eq!(raw["producer"]["semantic_contract_id"], export::semantic_contract::PRESSURE_ID);
+     export::semantic_contract::validate_pressure_evidence(&raw).unwrap();
      let doc = output.result_envelope_document.as_ref().unwrap_or_else(|| panic!("{name}: {:?}", output.canonical_export_unavailability));
      export::derivative::validate_document(doc, &raw).unwrap();
      for key in ["producer", "numerical_quality", "formulation_basis", "contract_evidence"] {
@@ -635,10 +638,11 @@ mod tests {
  }
 
  /// B4/D1 (b): source blocks remain only on the exact route's composites; these
- /// bindings read physics-source-1's committed requests (one per stem, both modes).
+ /// bindings read pressure-source-1's committed requests (B7b's 0.5.0/v3 twins of
+ /// the retired physics-source-1 requests; one per stem, both modes).
  fn source_input(stem: &str, _mode: open_pipe_stress_product_physics::PreviewSolverMode) -> Value {
    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-     .join("../../../fixtures/product_preview/physics_source")
+     .join("../../../fixtures/product_preview/pressure_source/physics_source")
      .join(format!("{stem}.request.json"));
    serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap()
  }
@@ -678,7 +682,7 @@ mod tests {
        let output = crate::run_preview_model_value_with_mode(request(), input.clone(), mode).unwrap();
        let mechanics = output.mechanics_envelope.as_ref().unwrap();
        let raw = serde_json::to_value(mechanics).unwrap();
-       assert_eq!(mechanics.producer.semantic_contract_id, export::semantic_contract::PHYSICS_SOURCE_ID);
+       assert_eq!(mechanics.producer.semantic_contract_id, export::semantic_contract::PRESSURE_SOURCE_ID);
        assert_eq!(mechanics.status.mechanics, "MECHANICS_SOLVED");
        assert_ne!(mechanics.numerical_quality.status, open_pipe_stress_product_physics::NumericalQualityStatus::ChecksPassed,
          "source method must retain the ordinary method's non-passing observation");
@@ -744,7 +748,7 @@ mod tests {
    let output = crate::run_preview_model_value_with_mode(request(), input.clone(), PreviewSolverMode::SparseInteractive).unwrap();
    let mechanics = output.mechanics_envelope.as_ref().unwrap();
    let raw = serde_json::to_value(mechanics).unwrap();
-   assert_eq!(mechanics.producer.semantic_contract_id, export::semantic_contract::PHYSICS_SOURCE_ID);
+   assert_eq!(mechanics.producer.semantic_contract_id, export::semantic_contract::PRESSURE_SOURCE_ID);
    let proof = output.qualified_preview_evidence.as_ref().unwrap();
    assert_eq!(proof.actual_invocation["request"], input);
    assert_eq!(proof.solve_payload, input);
@@ -803,13 +807,13 @@ mod tests {
 
 
  #[test]
- fn actual_pressure_thermal_headless_route_retains_physics_identity() {
+ fn actual_pressure_thermal_headless_route_retains_the_exact_identity() {
    let model: Value = serde_json::from_str(include_str!("../../../../fixtures/model_operations/physics_thermal_ui_model.json")).unwrap();
    for mode in [open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive, open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny] {
      let payload = serde_json::json!({"model":model,"materials":[]});
      let output = crate::run_preview_model_value_with_mode(request(), payload.clone(), mode).unwrap();
      let raw = serde_json::to_value(output.mechanics_envelope.as_ref().unwrap()).unwrap();
-     assert_eq!(raw["producer"]["semantic_contract_id"], export::semantic_contract::PHYSICS_ID);
+     assert_eq!(raw["producer"]["semantic_contract_id"], export::semantic_contract::PRESSURE_ID);
      assert_eq!(raw["contract_evidence"]["pressure"][0]["materials"][0]["thermal_consumed"], true);
      assert_eq!(raw["contract_evidence"]["pressure"][0]["applied_loads"][0]["thermal_included"], false);
      assert!(raw.get("source_block_recovery").is_none());

@@ -1,7 +1,7 @@
 {
   "model": {
     "document_kind": "openpipestress.product_preview.model",
-    "schema_version": "0.4.0",
+    "schema_version": "0.5.0",
     "diagnostics": [],
     "analysis_status": {
       "mechanics": "ready_for_preview_diagnostics",
@@ -27,8 +27,9 @@
       }
     },
     "pressure_contract": {
-      "version": "2.0.0",
-      "mode": "exact_straight_pressure_v2"
+      "version": "3.0.0",
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli"
     },
     "nodes": [
       {
@@ -63,6 +64,10 @@
           },
           "wall_thickness": {
             "value": 0.01,
+            "unit": "m"
+          },
+          "corrosion_allowance": {
+            "value": 0.0,
             "unit": "m"
           }
         },

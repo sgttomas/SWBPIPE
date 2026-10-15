@@ -1,7 +1,7 @@
 [
  {
   "id": "NUMERICAL_CASE_DUPLICATE",
-  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "append",
@@ -25,7 +25,7 @@
  },
  {
   "id": "MATERIAL_DUPLICATE",
-  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "append",
@@ -49,7 +49,7 @@
  },
  {
   "id": "SECTION_DUPLICATE",
-  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "append",
@@ -73,7 +73,7 @@
  },
  {
   "id": "MEMBER_MATERIAL_COVERAGE",
-  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "append",
@@ -97,7 +97,7 @@
  },
  {
   "id": "MEMBER_CONTRIBUTION_COVERAGE",
-  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "append",
@@ -118,7 +118,7 @@
  },
  {
   "id": "SUPPORT_CONTRIBUTION_COVERAGE",
-  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "append",
@@ -135,7 +135,7 @@
  },
  {
   "id": "POINT_TEMPERATURE_RANGE",
-  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "set",
@@ -147,7 +147,7 @@
  },
  {
   "id": "MATERIAL_POINT_RANGE",
-  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "set",
@@ -171,7 +171,7 @@
  },
  {
   "id": "REFERENCE_LENGTH",
-  "source": "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "set",
@@ -183,7 +183,7 @@
  },
  {
   "id": "CONNECTOR_NOT_ARRAY",
-  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "set",
@@ -195,7 +195,7 @@
  },
  {
   "id": "REGION_CASE_UNRESOLVED",
-  "source": "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "append",
@@ -349,7 +349,7 @@
  },
  {
   "id": "REGION_MATERIAL_UNBOUND_PIPE",
-  "source": "fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "append",
@@ -372,7 +372,7 @@
  },
  {
   "id": "SUPPORT_COMPONENT_DOF_NAME",
-  "source": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "source": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "ops": [
    {
     "op": "set",

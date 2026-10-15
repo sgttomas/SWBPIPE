@@ -1,4 +1,8 @@
 //! Genuine public-producer fixtures plus explicitly corrupted copies, not native Current.
+//! B7b: the current retained-source reader (pressure-source-1, 0.3 source family,
+//! 0.5.0/3.0.0/exact_pressure_v3) over the v3 twins of the retired physics-source-1
+//! fixtures (same physical inputs), with the case-evidence domain
+//! `pressure_source_case_evidence_v1`.
 use open_pipe_stress_result_export::{physics_source, semantic_contract, source_blocks};
 use serde_json::{json, Value};
 use std::path::PathBuf;
@@ -11,10 +15,16 @@ fn read(path: &str) -> Value {
 fn actual(name: &str, mode: &str) -> (Value, Value) {
     (
         read(&format!(
-            "fixtures/product_preview/physics_source/{name}-{mode}.raw.json"
+            "fixtures/product_preview/pressure_source/physics_source/{name}-{mode}.raw.json"
         )),
-        json!({"request":read(&format!("fixtures/product_preview/physics_source/{name}.request.json")),"solver_mode":mode}),
+        json!({"request":read(&format!("fixtures/product_preview/pressure_source/physics_source/{name}.request.json")),"solver_mode":mode}),
     )
+}
+/// The members a transported statement keeps (no raw rows or diagnostics).
+fn transported(source: &Value) -> Value {
+    json!({"schema_version":source["schema_version"],"producer":source["producer"],
+        "numerical_quality":source["numerical_quality"],"formulation_basis":source["formulation_basis"],
+        "contract_evidence":source["contract_evidence"],"source_block_recovery":source["source_block_recovery"]})
 }
 fn reseal_negative(source: &mut Value, invocation: Option<&Value>) {
     let physical = source["contract_evidence"].clone();
@@ -37,7 +47,7 @@ fn reseal_negative(source: &mut Value, invocation: Option<&Value>) {
             .filter(|p| p["load_case_id"] == exact["load_case_id"])
             .collect::<Vec<_>>();
         case["physical_evidence_sha256"] = json!(source_blocks::domain_hash(
-            "physics_source_case_evidence_v1",
+            "pressure_source_case_evidence_v1",
             &json!({"exact_case":exact,"pressure":pressure})
         )
         .unwrap());
@@ -79,12 +89,7 @@ fn actual_records_require_original_full_invocation() {
                 "{name}/{mode}"
             );
             assert_eq!(physics_source::validate(&source, None), Ok(false));
-            assert_eq!(
-                physics_source::validate_transport_metadata(
-                    &json!({"contract_evidence":source["contract_evidence"],"source_block_recovery":source["source_block_recovery"]})
-                ),
-                Ok(())
-            );
+            assert_eq!(physics_source::validate_transport_metadata(&transported(&source)), Ok(()));
             assert_eq!(source, original);
             let mut changed = invocation.clone();
             changed["request"]["unknown_but_captured"] = json!(false);
@@ -109,7 +114,7 @@ fn maximum_signature_requires_explicit_basis_without_claiming_current() {
         .find(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2")
         .unwrap()
         .clone();
-    let table = semantic_contract::physics_source_contract();
+    let table = semantic_contract::pressure_source_contract();
     let exact = semantic_contract::signature_in(table, &row)
         .unwrap()
         .unwrap();
@@ -128,11 +133,16 @@ fn maximum_signature_requires_explicit_basis_without_claiming_current() {
 fn old_entrypoints_and_composite_remain_separate() {
     let (source, invocation) = actual("n05", "sparse_interactive");
     assert!(physics_source::validate(&source, Some(&invocation)).is_ok());
-    assert!(semantic_contract::validate_physics_evidence(&source).is_err());
-    // B4/D1 (b): a source-blocks-1 statement is retired; the composite reader refuses it.
+    // The ordinary pressure-1 reader refuses a receipt-carrying statement.
+    assert!(semantic_contract::validate_pressure_evidence(&source).is_err());
+    // B4/D1 (b): a source-blocks-1 statement is retired; the composite reader
+    // refuses it, as it refuses a retired v2 identity and an ordinary pressure-1
+    // statement.
     let mut retired = source.clone();
     retired["producer"]["semantic_contract_id"] = json!(semantic_contract::RETIRED_SOURCE_BLOCKS_ID);
-    for statement in [read("fixtures/results/physics_connected_mechanics_sparse.json"), retired] {
+    let mut v2 = source.clone();
+    v2["producer"]["semantic_contract_id"] = json!(semantic_contract::RETIRED_EXACT_V2_IDS[1]);
+    for statement in [read("fixtures/results/pressure_connected_mechanics_sparse.json"), retired, v2] {
         assert!(physics_source::validate(&statement, None).is_err());
     }
 }
@@ -275,25 +285,21 @@ fn rehashed_false_statements_remain_invalid() {
         );
     }
 }
+/// B7b: the retired physics-1 transport reader went with v2 (pressure-1 has no
+/// transport reader, SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED). The source route's
+/// transport check reads the transported evidence and receipt without raw rows,
+/// and refuses a changed extremum declaration in the transported evidence.
 #[test]
 fn physical_transport_never_reconstructs_raw_rows() {
-    for name in [
-        "physics_connected_mechanics_sparse",
-        "physics_thermal_ui_mechanics_sparse",
+    for path in [
+        "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json",
+        "fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json",
     ] {
-        let source = read(&format!("fixtures/results/{name}.json"));
-        assert_eq!(
-            semantic_contract::validate_physics_transport_metadata(
-                &json!({"contract_evidence":source["contract_evidence"]})
-            ),
-            Ok(())
-        );
-        let mut bad = source["contract_evidence"].clone();
-        bad["exact_cases"][0]["pipe_stress_extrema"][0]["coefficient_basis"] = json!("invented");
-        assert!(semantic_contract::validate_physics_transport_metadata(
-            &json!({"contract_evidence":bad})
-        )
-        .is_err());
+        let source = transported(&read(path));
+        assert_eq!(physics_source::validate_transport_metadata(&source), Ok(()), "{path}");
+        let mut bad = source.clone();
+        bad["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0]["coefficient_basis"] = json!("invented");
+        assert!(physics_source::validate_transport_metadata(&bad).is_err(), "{path}");
     }
 }
 

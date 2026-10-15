@@ -1,8 +1,10 @@
 //! T4-U2 phase 2: pressure-1 (`3.0.0/exact_pressure_v3`) through the headless
 //! runner's export chain, in both solver modes: every document of the shared
-//! arc reader corpus (realized arcs on 0.3.0 and 0.4.0, the admitted kink, an
-//! arc beside a connector, a replaced-span-only model) and the frozen T4-I12
-//! connector system documents (with their variable spring hanger), and the L
+//! arc reader corpus (realized arcs, B7b: all on the current 0.5.0 document,
+//! the admitted kink, an arc beside a connector, a replaced-span-only model)
+//! and the frozen T4-I12 connector system documents (with their variable
+//! spring hanger; B7b: each frozen 0.3.0/0.4.0 copy re-authored to 0.5.0 by the
+//! shared rule in `core/product_physics/tests/common/current_model.rs`), and the L
 //! line authored from its corner through the operation applier (T4-U2 phase 3,
 //! `fixtures/model_operations/pressure_v3_l_line_authoring.json`) produce a
 //! pressure-1 export document that the exporter's independent check admits,
@@ -18,6 +20,9 @@ use open_pipe_stress_headless_runner::{
 use open_pipe_stress_product_physics::PreviewSolverMode;
 use open_pipe_stress_result_export::{derivative, semantic_contract as s};
 use serde_json::Value;
+
+#[path = "../../../product_physics/tests/common/current_model.rs"]
+mod current_model;
 
 const ARC_CORPUS: &str =
     include_str!("../../../../fixtures/results/pressure_v3_arc_reader_corpus.json");
@@ -75,9 +80,13 @@ fn inputs() -> Vec<(String, Value)> {
         .collect();
     let references: Value = serde_json::from_str(I12).unwrap();
     for (case, key) in [("U3-SYS-DEMO-CONNECTOR-001", "document_v3_0.3.0"), ("U3-SYS-DEMO-CONNECTOR-002-LR1", "document_v3_0.4.0")] {
-        out.push((format!("connector-{}", case.to_lowercase()), references["cases"][case]["inputs"][key].clone()));
+        let frozen = references["cases"][case]["inputs"][key].clone();
+        out.push((format!("connector-{}", case.to_lowercase()), current_model::reauthor_request(frozen)));
     }
     let authored: Value = serde_json::from_str(AUTHORED).unwrap();
+    // The applier authors the current document itself (no re-authoring here).
+    assert_eq!(authored["authored_model"]["schema_version"], current_model::CURRENT_MODEL_VERSION);
+    assert_eq!(authored["authored_model"]["pressure_contract"], current_model::current_contract());
     out.push(("authored-l-line".into(), serde_json::json!({"model": authored["authored_model"], "materials": []})));
     out
 }

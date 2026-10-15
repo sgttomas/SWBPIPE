@@ -490,30 +490,30 @@ fn a_stored_precision_1_result_is_refused_by_name() {
         assert_eq!(verdict["error"]["code"], s::SOURCE_PRECISION_1_RETIRED);
         assert_eq!(verdict["binding"], Value::Null);
     }
-    for id in [s::PREVIEW_PHYSICS_ID, s::PHYSICS_ID, s::PHYSICS_SOURCE_ID] {
+    for id in [s::PREVIEW_PHYSICS_ID, s::PRESSURE_ID, s::PRESSURE_SOURCE_ID] {
         assert!(s::is_fresh_identity(id));
     }
-    // T1 activation (DESIGN 10.3): exactly the four T0R identities plus T1's
-    // two 0.4.0 exact-route identities, plus T3's F2a preview successor (U6a,
-    // D-U6-6: membership is not standing), plus B7's joined pressure-source-1
-    // (b7-plan D1); nothing else is fresh.
+    // B7b (A4/A5): the four identities of the retired 2.0.0/exact_straight_pressure_v2
+    // contract are no longer fresh; a stored one is refused by name.
+    for id in s::RETIRED_EXACT_V2_IDS {
+        assert!(!s::is_fresh_identity(id), "{id}");
+    }
+    // The current fresh set: preview-physics-1, the exact contract's pressure-1
+    // (T4-U2, with its export chain) and joined pressure-source-1 (b7-plan D1),
+    // and T3's F2a preview successor (U6a, D-U6-6: membership is not standing);
+    // nothing else is fresh.
     let mut fresh: Vec<&str> = s::FRESH_IDENTITIES.to_vec();
     fresh.sort_unstable();
     let mut expected = vec![
         s::PREVIEW_PHYSICS_ID,
-        s::PHYSICS_ID,
-        s::PHYSICS_SOURCE_ID,
         s::PRESSURE_SOURCE_ID,
-        s::LOAD_REFERENCE_ID,
-        s::LOAD_REFERENCE_SOURCE_ID,
         s::PREVIEW_PHYSICS_RETAINED_ID,
-        // T4-U2: pressure-1, with its export chain.
         s::PRESSURE_ID,
     ];
     expected.sort_unstable();
     assert_eq!(
         fresh, expected,
-        "T1, U6a and T4-U2 extend the set only with their activated identities"
+        "only the current identities are fresh after B7b's v2 retirement"
     );
     // B4/D1 (b): the retired source-blocks-1 identity is not fresh.
     assert!(!s::is_fresh_identity(s::RETIRED_SOURCE_BLOCKS_ID));

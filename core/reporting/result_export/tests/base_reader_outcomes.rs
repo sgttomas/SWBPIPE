@@ -11,16 +11,20 @@
 //! `BASE_READER_OUTCOMES_WRITE=1` rewrites the committed file;
 //! `BASE_READER_INPUTS_OUT=<dir>` also writes the materialized inputs
 //! (`inputs.jsonl`) for a comparison outside Rust.
-use open_pipe_stress_result_export::{
-    load_reference_source::physics_source_projection, reader_verdict as rv, source_blocks::domain_hash,
-};
+//!
+//! B7b: the corpus is built from the current fixtures only. The exact-route
+//! statements are the v3 twins (0.5.0/3.0.0/exact_pressure_v3) read by the
+//! pressure-1 and pressure-source-1 readers, with and without the
+//! load/reference-state group; the retired v2 identities appear only as named
+//! refusals (the mutation files' relabel cases). The ledger cases apply to the
+//! received joined statements directly (the v2 projection is gone).
+use open_pipe_stress_result_export::{reader_verdict as rv, source_blocks::domain_hash};
 use serde_json::{json, Map, Value};
 use std::collections::BTreeMap;
 
 const OUTCOMES: &str = "fixtures/results/base_reader_outcomes.json";
 const MARKER: &str = "__BASE_READER_TEXT_LITERAL__";
 const LR_PHYSICS: &str = "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE";
-const LRS_PHYSICS_SOURCE: &str = "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE";
 
 fn root() -> std::path::PathBuf {
     std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..")
@@ -60,6 +64,8 @@ fn set(doc: &mut Value, path: &str, value: Value) {
 fn matches(item: &Value, pattern: &Value) -> bool {
     pattern.as_object().unwrap().iter().all(|(k, v)| item.get(k) == Some(v))
 }
+/// The mutation files' `reseal` op (B7b: the current case-evidence domain, the
+/// record bound by its case id, as the reader binds it).
 fn reseal(doc: &mut Value, op: &Value) {
     let evidence = doc["contract_evidence"].clone();
     if !op["physical"].is_null() {
@@ -71,10 +77,15 @@ fn reseal(doc: &mut Value, op: &Value) {
                 .iter()
                 .filter(|p| p["load_case_id"] == exact[index]["load_case_id"])
                 .collect();
+            let record = evidence["load_reference_states"]
+                .as_array()
+                .and_then(|r| r.iter().find(|r| r["load_case_id"] == exact[index]["load_case_id"]))
+                .cloned()
+                .unwrap_or(Value::Null);
             let (domain, payload) = match op["physical"].as_str().unwrap() {
-                "joined" => ("load_reference_source_case_evidence_v1",
-                    json!({"exact_case": exact[index], "pressure": pressure, "load_reference_state": evidence["load_reference_states"][index]})),
-                "joined_without_record" => ("load_reference_source_case_evidence_v1", json!({"exact_case": exact[index], "pressure": pressure})),
+                "joined" => ("pressure_source_case_evidence_v1",
+                    json!({"exact_case": exact[index], "pressure": pressure, "load_reference_state": record})),
+                "joined_without_record" => ("pressure_source_case_evidence_v1", json!({"exact_case": exact[index], "pressure": pressure})),
                 "physics" => ("physics_source_case_evidence_v1", json!({"exact_case": exact[index], "pressure": pressure})),
                 other => panic!("unknown reseal {other}"),
             };
@@ -197,10 +208,8 @@ struct Input {
 fn route_reader(route: &str) -> Option<&'static str> {
     Some(match route {
         "preview_physics" => "preview-physics",
-        "physics" => "physics",
-        "physics_source" => "physics-source",
-        "load_reference" => "load-reference",
-        "load_reference_source" => "load-reference-source",
+        "pressure" => "pressure",
+        "pressure_source" => "pressure-source",
         _ => return None,
     })
 }
@@ -254,12 +263,12 @@ fn build_corpus() -> Vec<Input> {
         ("preview_physics_invented_sparse", Some("core/product_physics/tests/fixtures/preview_physics_invented_model.json")),
         ("preview_physics_invented_dense", Some("core/product_physics/tests/fixtures/preview_physics_invented_model.json")),
         ("preview_physics_unicode_ids_sparse", Some("core/product_physics/tests/fixtures/preview_physics_unicode_ids_model.json")),
-        ("physics_connected_mechanics_sparse", Some("core/product_physics/tests/fixtures/exact_pressure_connected_request.json")),
-        ("physics_connected_mechanics_dense", Some("core/product_physics/tests/fixtures/exact_pressure_connected_request.json")),
-        ("physics_connected_ui_mechanics_sparse", Some("fixtures/model_operations/exact_pressure_authoring_model.json")),
-        ("physics_connected_ui_mechanics_dense", Some("fixtures/model_operations/exact_pressure_authoring_model.json")),
-        ("physics_thermal_ui_mechanics_sparse", Some("fixtures/model_operations/physics_thermal_ui_model.json")),
-        ("physics_thermal_ui_mechanics_dense", Some("fixtures/model_operations/physics_thermal_ui_model.json")),
+        ("pressure_connected_mechanics_sparse", Some("core/product_physics/tests/fixtures/exact_pressure_connected_request.json")),
+        ("pressure_connected_mechanics_dense", Some("core/product_physics/tests/fixtures/exact_pressure_connected_request.json")),
+        ("pressure_connected_ui_mechanics_sparse", Some("fixtures/model_operations/exact_pressure_authoring_model.json")),
+        ("pressure_connected_ui_mechanics_dense", Some("fixtures/model_operations/exact_pressure_authoring_model.json")),
+        ("pressure_thermal_ui_mechanics_sparse", Some("fixtures/model_operations/physics_thermal_ui_model.json")),
+        ("pressure_thermal_ui_mechanics_dense", Some("fixtures/model_operations/physics_thermal_ui_model.json")),
         ("../product_preview/invented_mechanics_result_preview_physics_1_sparse", None),
         ("../product_preview/invented_mechanics_result_preview_physics_1_dense", None),
         ("../product_preview/invented_demo_result_preview_physics_1_sparse", None),
@@ -273,9 +282,11 @@ fn build_corpus() -> Vec<Input> {
     // the source routes.
     let modes = ["sparse_interactive", "dense_scrutiny"];
     for (dir, names, invoked) in [
-        ("physics_source", &["n05", "n06", "fields", "mixed", "mixed_units", "n05_units", "n05_unicode"][..], true),
-        ("load_reference", &["connected", "pressure"][..], false),
-        ("load_reference_source", &["n05", "n06", "fields", "mixed", "eigen_motion"][..], false),
+        ("pressure_source/physics_source", &["n05", "n06", "fields", "mixed", "mixed_units", "n05_units", "n05_unicode"][..], true),
+        ("pressure/load_reference", &["connected", "pressure"][..], false),
+        // The joined load/reference-state statements are read by the one source
+        // reader, which takes their invocation (never numerically eligible).
+        ("pressure_source/load_reference_source", &["n05", "n06", "fields", "mixed", "eigen_motion"][..], true),
     ] {
         for name in names {
             let request = read(&format!("fixtures/product_preview/{dir}/{name}.request.json"));
@@ -304,8 +315,8 @@ fn build_corpus() -> Vec<Input> {
     // load_reference*_mutations.json: each case under its reader(s), and the
     // transport cases on the transported members.
     for (file, reader, extra) in [
-        ("core/reporting/result_export/tests/fixtures/load_reference_mutations.json", "load-reference", false),
-        ("core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json", "load-reference-source", true),
+        ("core/reporting/result_export/tests/fixtures/load_reference_mutations.json", "pressure", false),
+        ("core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json", "pressure-source", true),
     ] {
         let cases = read(file);
         let sources: BTreeMap<String, Value> = cases["sources"]
@@ -320,11 +331,9 @@ fn build_corpus() -> Vec<Input> {
             let (doc, literal) = apply(&sources[case["source"].as_str().unwrap()], &case["ops"], &lookup);
             let mut readers = vec![reader];
             if extra && case.get("lr").is_some() {
-                readers.push("load-reference");
+                readers.push("pressure");
             }
-            if extra && case.get("ps").is_some() {
-                readers.push("physics-source");
-            }
+            assert!(case.get("ps").is_none(), "B7b folded 'ps' into 'joined'");
             inputs.push(Input { id: format!("{prefix}/{}", case["id"].as_str().unwrap()), source: materialized(doc, literal),
                 model: None, invocation: None, readers, transports: vec![], rows: false });
         }
@@ -340,24 +349,24 @@ fn build_corpus() -> Vec<Input> {
         let (doc, literal) = apply(&read(case["source"].as_str().unwrap()), &case["ops"], &|_| unreachable!());
         assert!(literal.is_none());
         inputs.push(Input { id: format!("lr-reader/{}", case["id"].as_str().unwrap()), source: Ok(doc), model: None,
-            invocation: None, readers: vec!["load-reference"], transports: vec![], rows: false });
+            invocation: None, readers: vec!["pressure"], transports: vec![], rows: false });
     }
-    let mut projections: BTreeMap<String, Value> = BTreeMap::new();
+    // The ledger cases: the source reader's ledger checks on the received joined
+    // statement (B7b: no projection; the ops read the same members).
+    let mut sources: BTreeMap<String, Value> = BTreeMap::new();
     for case in read("fixtures/results/loadReferenceSourceLedger.cases.json").as_array().unwrap() {
         let name = case["source"].as_str().unwrap();
-        let projected = projections
+        let received = sources
             .entry(name.into())
-            .or_insert_with(|| {
-                physics_source_projection(&read(&format!("fixtures/product_preview/load_reference_source/{name}.raw.json"))).unwrap()
-            })
+            .or_insert_with(|| read(&format!("fixtures/product_preview/pressure_source/load_reference_source/{name}.raw.json")))
             .clone();
-        let (mut doc, literal) = apply(&projected, &case["ops"], &|_| unreachable!());
+        let (mut doc, literal) = apply(&received, &case["ops"], &|_| unreachable!());
         assert!(literal.is_none());
         if let Some(publication) = case["reseal_publication"].as_bool() {
             reseal(&mut doc, &json!({"physical": null, "publication": publication, "receipt": true}));
         }
         inputs.push(Input { id: format!("ledger/{}", case["id"].as_str().unwrap()), source: Ok(doc), model: None,
-            invocation: None, readers: vec!["physics-source"], transports: vec![], rows: false });
+            invocation: None, readers: vec!["pressure-source"], transports: vec![], rows: false });
     }
     inputs
 }
@@ -407,7 +416,7 @@ fn text(outcome: &Value) -> String {
     e["detail"].as_str().or(e["code"].as_str()).unwrap().to_string()
 }
 fn agrees(actual: &str, expected: &str) -> bool {
-    if expected == LR_PHYSICS || expected == LRS_PHYSICS_SOURCE {
+    if expected == LR_PHYSICS {
         actual.split(": ").next() == Some(expected)
     } else {
         actual == expected
@@ -420,8 +429,8 @@ fn agrees(actual: &str, expected: &str) -> bool {
 fn check_expectations(outcomes: &BTreeMap<String, Value>) {
     let mut checked = 0;
     for (file, prefix, reader) in [
-        ("core/reporting/result_export/tests/fixtures/load_reference_mutations.json", "lr", "load-reference"),
-        ("core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json", "lrs", "load-reference-source"),
+        ("core/reporting/result_export/tests/fixtures/load_reference_mutations.json", "lr", "pressure"),
+        ("core/reporting/result_export/tests/fixtures/load_reference_source_mutations.json", "lrs", "pressure-source"),
     ] {
         let cases = read(file);
         let joined = prefix == "lrs";
@@ -440,7 +449,7 @@ fn check_expectations(outcomes: &BTreeMap<String, Value>) {
             }
             let got = text(&entry["validate"][reader]);
             assert!(agrees(&got, &own), "{prefix}/{id}: {reader} {got} != {own}");
-            for (kind, other) in [("lr", "load-reference"), ("ps", "physics-source")] {
+            for (kind, other) in [("lr", "pressure")] {
                 if let Some(want) = joined.then(|| stated(kind)).flatten() {
                     let got = text(&entry["validate"][other]);
                     assert!(agrees(&got, &want), "{prefix}/{id}: {kind} {got} != {want}");
@@ -477,7 +486,11 @@ fn check_expectations(outcomes: &BTreeMap<String, Value>) {
         assert_eq!(admitted, variant["expect"] == "accepted", "tamper/{id}");
         checked += 1;
     }
-    assert_eq!(checked, 210 + 14 + 116 + 14 + 22);
+    // B7b: the load/reference-state cases (210 retired-reader cases re-authored,
+    // plus 2 added named refusals; their 14 transport cases retired with the v2
+    // transport reader), the joined cases (116 less 2 retired relabels, and their
+    // 14 transport cases) and the tamper vector.
+    assert_eq!(checked, 212 + 114 + 14 + 22);
 }
 
 #[test]

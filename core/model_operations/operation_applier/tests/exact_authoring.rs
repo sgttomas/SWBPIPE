@@ -6,18 +6,26 @@ use open_pipe_stress_product_physics::{
     run_linear_static_preview_with_mode, LinearStaticPreviewRequest, PreviewSolverMode,
 };
 use serde_json::{json, Value};
-/// The committed exact authoring document declares
-/// `2.0.0/exact_straight_pressure_v2` (an existing document, still solvable).
-fn v2_fixture() -> Value {
-    serde_json::from_str(include_str!(
+/// The committed exact authoring document (B7b: the current 0.5.0 document
+/// with `3.0.0/exact_pressure_v3`, its explicit euler_bernoulli shear model and
+/// an explicit corrosion allowance): what authoring produces from its inputs.
+fn fixture() -> Value {
+    let model: Value = serde_json::from_str(include_str!(
         "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
     ))
-    .unwrap()
+    .unwrap();
+    assert_eq!(model["schema_version"], "0.5.0");
+    assert_eq!(
+        model["pressure_contract"],
+        json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"})
+    );
+    model
 }
-/// What authoring now produces from the same inputs: `3.0.0/exact_pressure_v3`.
-fn fixture() -> Value {
-    let mut model = v2_fixture();
-    model["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
+/// A refusal control: the same document declaring the retired
+/// `2.0.0/exact_straight_pressure_v2` contract (never written, never solved).
+fn retired_v2_fixture() -> Value {
+    let mut model = fixture();
+    model["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
     model
 }
 fn hash(model: &Value) -> Value {
@@ -571,13 +579,15 @@ fn pressure_terminal_nodes_block_direct_and_batch_delete_in_incomplete_models() 
     assert_eq!(model, original);
 }
 
-/// O3: new authoring writes only `3.0.0/exact_pressure_v3`. A v2 write is
-/// refused (from a pressure-free document and as a downgrade); an existing v2
-/// document is upgraded explicitly; a 0.4.0 document changes its contract only.
+/// O3: new authoring writes only the complete `3.0.0/exact_pressure_v3`
+/// contract. A retired v2 write is refused (as a downgrade and as a re-selection
+/// on a retired document), as is a v3 contract without its shear model; a
+/// retired v2 contract on a current document is replaced explicitly; a retired
+/// model version is never authored (B7b: 0.5.0 is the only current version).
 #[test]
 fn pressure_profile_writes_only_the_current_contract() {
     let v3 = fixture();
-    let v2 = v2_fixture();
+    let v2 = retired_v2_fixture();
     let profile = |m: &Value| projection(m, &["schema_version", "pressure_contract"]);
     let id = v3["project"]["id"].as_str().unwrap().to_string();
     let code = |model: &Value, before: &Value, after: &Value| {
@@ -588,28 +598,30 @@ fn pressure_profile_writes_only_the_current_contract() {
     // v2 is never written: not from v3, and not as a re-selection on a v2 document.
     assert!(code(&v3, &profile(&v3), &profile(&v2)).contains(&"OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED".to_string()));
     assert!(code(&v2, &profile(&v2), &profile(&v2)).contains(&"OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED".to_string()));
-    // v2 -> v3 on 0.3.0: the explicit upgrade keeps every other byte.
+    // A v3 contract without its explicit shear model is never written.
+    let mut no_shear = profile(&v3);
+    no_shear["pressure_contract"].as_object_mut().unwrap().remove("shear_model");
+    assert!(code(&v3, &profile(&v3), &no_shear).contains(&"OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED".to_string()));
+    // Retired v2 -> v3 on the current document: the explicit replacement keeps
+    // every other byte.
     let upgraded = apply(&v2, &intent("Model", &id, "pressure_profile", Some(&profile(&v2)), &profile(&v3)));
     assert_eq!(canonical_json(&upgraded), canonical_json(&v3));
-    // 0.4.0: the contract changes and the version stays; a version change is locked.
-    let mut v2_load_state = v2.clone();
-    v2_load_state["schema_version"] = json!("0.4.0");
-    let mut v3_load_state = v3.clone();
-    v3_load_state["schema_version"] = json!("0.4.0");
-    let upgraded = apply(
-        &v2_load_state,
-        &intent("Model", &id, "pressure_profile", Some(&profile(&v2_load_state)), &profile(&v3_load_state)),
-    );
-    assert_eq!(upgraded["pressure_contract"], v3["pressure_contract"]);
-    assert_eq!(upgraded["schema_version"], "0.4.0");
-    assert!(code(&v2_load_state, &profile(&v2_load_state), &profile(&v3))
-        .contains(&"OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED".to_string()));
+    // A retired model version is locked: neither authored on nor written to.
+    for retired in ["0.3.0", "0.4.0"] {
+        let mut old = v3.clone();
+        old["schema_version"] = json!(retired);
+        assert!(code(&old, &profile(&old), &profile(&v3))
+            .contains(&"OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED".to_string()), "{retired}");
+        assert!(code(&v3, &profile(&v3), &profile(&old))
+            .contains(&"OP-PRESSURE-PROFILE-SCHEMA-VERSION-LOCKED".to_string()), "{retired}");
+    }
 }
 
-/// O4: signed pressure is admitted under v3 only.
+/// O4: signed pressure is admitted under v3 only (the retired v2 contract is a
+/// refusal control).
 #[test]
 fn signed_region_pressure_follows_the_document_contract() {
-    for (model, admitted) in [(fixture(), true), (v2_fixture(), false)] {
+    for (model, admitted) in [(fixture(), true), (retired_v2_fixture(), false)] {
         let case = &model["load_cases"][0];
         let mut regions = case["pressure_regions"].clone();
         regions[0]["pressure"]["value"] = json!(-1.0e5);

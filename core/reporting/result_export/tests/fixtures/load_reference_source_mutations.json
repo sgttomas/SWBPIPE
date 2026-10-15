@@ -1,20 +1,20 @@
 {
- "description": "Shared adversarial cases for the load-reference-source-1 readers (Rust result_export tests/load_reference_source_contract.rs and Python tests/test_load_reference_source_readers.py). Authored by LSI/T1_WP1_JOINED_READERS/_run_records/make_cases.py from the wire and the check order, not captured from either reader. 'dispatch' is the raw-dispatch outcome (Rust semantic_contract::for_source, Python compatibility._source_contract); an accepted case selects 'accept_contract' (default load-reference-source-1). 'joined' is validate_load_reference_source_evidence called directly and defaults to 'dispatch'. 'lr' (validate_load_reference_evidence) and 'ps' (physics-source-1 validator without an invocation) are checked where present. A value equal to SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE is compared by leading code, the inherited physics-source-1 detail being recorded separately. Keys suffixed _rust or _python replace a shared value where the languages cannot agree, with a note. Ops are those of load_reference_mutations.json plus 'reseal': in order it recomputes each case's physical_evidence_sha256 ('joined' over {exact_case, pressure, load_reference_state} with domain load_reference_source_case_evidence_v1, 'joined_without_record' without the record, 'physics' over {exact_case, pressure} with domain physics_source_case_evidence_v1, null to keep), then the publication_sha256, then the receipt_sha256, so that a check after the receipt can be reached. Transport cases run validate_load_reference_source_transport_metadata on {schema_version, producer, numerical_quality, formulation_basis, contract_evidence, source_block_recovery, carrier_evidence}. Table cases run the pinned-table verifier on the joined table bytes (or on 'file').",
+ "description": "Shared adversarial cases for the current pressure-source-1 reader on load/reference-state publications (Rust result_export tests/load_reference_source_contract.rs; the Python verifier and the base-reader corpus read the same file). B7b re-authored the retired load-reference-source-1 cases as v3 twins over the current 0.5.0/3.0.0/exact_pressure_v3 producer fixtures under fixtures/product_preview/pressure_source/ (physical values unchanged). 'dispatch' is the raw-dispatch outcome (Rust semantic_contract::for_source); an accepted case selects 'accept_contract' (default pressure-source-1). 'joined' is the current pressure-source reader (Rust physics_source::validate without an invocation) called directly and defaults to 'dispatch'; it is the one reader of both source families, so the retired physics-source-1 'ps' readings are folded into it. 'lr' (validate_pressure_evidence, the pressure-1 reader) is checked where present. A relabel between the retired joined and ordinary identities became the relabel between pressure-source-1 and pressure-1 (with the coherent profile exact_pressure_v3 where the case set the target's own profile); a relabel to physics-1 or physics-source-1 keeps that retired identity, refused by name (SOURCE_EXACT_PRESSURE_V2_RETIRED); a retired profile or policy string is a value no current identity carries. Keys suffixed _rust or _python replace a shared value where the languages cannot agree, with a note. Ops are those of load_reference_mutations.json plus 'reseal': in order it recomputes each case's physical_evidence_sha256 ('joined' over {exact_case, pressure, load_reference_state} with domain pressure_source_case_evidence_v1, the record being the one whose load_case_id is the exact case's, as the reader binds it; 'joined_without_record' over {exact_case, pressure} with the same domain; 'physics' over {exact_case, pressure} with the retired domain physics_source_case_evidence_v1; null to keep), then the publication_sha256, then the receipt_sha256, so that a check after the receipt can be reached. Transport cases run the pressure-source transport check (physics_source::validate_transport_metadata) on {schema_version, producer, numerical_quality, formulation_basis, contract_evidence, source_block_recovery, carrier_evidence}. Table cases run verify_pressure_source_table on the pinned pressure-source-1 table bytes (or on 'file').",
  "sources": {
-  "n05-sparse": "fixtures/product_preview/load_reference_source/n05-sparse_interactive.raw.json",
-  "n05-dense": "fixtures/product_preview/load_reference_source/n05-dense_scrutiny.raw.json",
-  "n06-sparse": "fixtures/product_preview/load_reference_source/n06-sparse_interactive.raw.json",
-  "n06-dense": "fixtures/product_preview/load_reference_source/n06-dense_scrutiny.raw.json",
-  "fields-sparse": "fixtures/product_preview/load_reference_source/fields-sparse_interactive.raw.json",
-  "fields-dense": "fixtures/product_preview/load_reference_source/fields-dense_scrutiny.raw.json",
-  "mixed-sparse": "fixtures/product_preview/load_reference_source/mixed-sparse_interactive.raw.json",
-  "mixed-dense": "fixtures/product_preview/load_reference_source/mixed-dense_scrutiny.raw.json",
-  "eigen_motion-sparse": "fixtures/product_preview/load_reference_source/eigen_motion-sparse_interactive.raw.json",
-  "eigen_motion-dense": "fixtures/product_preview/load_reference_source/eigen_motion-dense_scrutiny.raw.json",
-  "lr-connected-sparse": "fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json",
+  "n05-sparse": "fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json",
+  "n05-dense": "fixtures/product_preview/pressure_source/load_reference_source/n05-dense_scrutiny.raw.json",
+  "n06-sparse": "fixtures/product_preview/pressure_source/load_reference_source/n06-sparse_interactive.raw.json",
+  "n06-dense": "fixtures/product_preview/pressure_source/load_reference_source/n06-dense_scrutiny.raw.json",
+  "fields-sparse": "fixtures/product_preview/pressure_source/load_reference_source/fields-sparse_interactive.raw.json",
+  "fields-dense": "fixtures/product_preview/pressure_source/load_reference_source/fields-dense_scrutiny.raw.json",
+  "mixed-sparse": "fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json",
+  "mixed-dense": "fixtures/product_preview/pressure_source/load_reference_source/mixed-dense_scrutiny.raw.json",
+  "eigen_motion-sparse": "fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-sparse_interactive.raw.json",
+  "eigen_motion-dense": "fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json",
+  "lr-connected-sparse": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "lr-fallback-sparse": "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json",
   "lr-fallback-dense": "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json",
-  "ps-n05-sparse": "fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"
+  "ps-n05-sparse": "fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
  },
  "cases": [
   {
@@ -22,98 +22,88 @@
    "source": "n05-sparse",
    "ops": [],
    "dispatch": "accept",
-   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
-   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
    "id": "ACCEPT-n05-dense",
    "source": "n05-dense",
    "ops": [],
    "dispatch": "accept",
-   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
-   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
    "id": "ACCEPT-n06-sparse",
    "source": "n06-sparse",
    "ops": [],
    "dispatch": "accept",
-   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
-   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
    "id": "ACCEPT-n06-dense",
    "source": "n06-dense",
    "ops": [],
    "dispatch": "accept",
-   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
-   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
    "id": "ACCEPT-fields-sparse",
    "source": "fields-sparse",
    "ops": [],
    "dispatch": "accept",
-   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
-   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
    "id": "ACCEPT-fields-dense",
    "source": "fields-dense",
    "ops": [],
    "dispatch": "accept",
-   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
-   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
    "id": "ACCEPT-mixed-sparse",
    "source": "mixed-sparse",
    "ops": [],
    "dispatch": "accept",
-   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
-   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
    "id": "ACCEPT-mixed-dense",
    "source": "mixed-dense",
    "ops": [],
    "dispatch": "accept",
-   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
-   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
    "id": "ACCEPT-eigen_motion-sparse",
    "source": "eigen_motion-sparse",
    "ops": [],
    "dispatch": "accept",
-   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
-   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
    "id": "ACCEPT-eigen_motion-dense",
    "source": "eigen_motion-dense",
    "ops": [],
    "dispatch": "accept",
-   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE",
-   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+   "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
    "id": "ACCEPT-lr-fallback-sparse",
    "source": "lr-fallback-sparse",
    "ops": [],
    "dispatch": "accept",
-   "accept_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
-   "lr": "accept"
+   "accept_contract": "openpipestress.result_semantics/0.3.0/pressure-1",
+   "lr": "accept",
+   "joined": "PHYSICS_SOURCE_IDENTITY"
   },
   {
    "id": "ACCEPT-lr-fallback-dense",
    "source": "lr-fallback-dense",
    "ops": [],
    "dispatch": "accept",
-   "accept_contract": "openpipestress.result_semantics/0.3.0/load-reference-1",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
-   "lr": "accept"
+   "accept_contract": "openpipestress.result_semantics/0.3.0/pressure-1",
+   "lr": "accept",
+   "joined": "PHYSICS_SOURCE_IDENTITY"
   },
   {
    "id": "ACCEPT-not-joined-message-text",
@@ -197,11 +187,11 @@
     {
      "op": "set",
      "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-2"
+     "value": "openpipestress.result_semantics/0.3.0/pressure-source-2"
     }
    ],
    "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+   "joined": "PHYSICS_SOURCE_IDENTITY"
   },
   {
    "id": "ID-producer-version",
@@ -214,7 +204,7 @@
     }
    ],
    "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH"
+   "joined": "SOURCE_BLOCKS_PRODUCER"
   },
   {
    "id": "PROFILE-load-reference",
@@ -226,8 +216,7 @@
      "value": "resolved_straight_load_state_v1"
     }
    ],
-   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+   "dispatch": "PHYSICS_SOURCE_IDENTITY"
   },
   {
    "id": "PROFILE-physics-source",
@@ -239,8 +228,7 @@
      "value": "exact_straight_pressure_v2"
     }
    ],
-   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+   "dispatch": "PHYSICS_SOURCE_IDENTITY"
   },
   {
    "id": "PROFILE-empty-limitations",
@@ -253,7 +241,7 @@
     }
    ],
    "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH"
+   "joined": "SOURCE_BLOCKS_FORMULATION"
   },
   {
    "id": "PROFILE-record-joined-profile",
@@ -274,16 +262,15 @@
     {
      "op": "set",
      "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/load-reference-1"
+     "value": "openpipestress.result_semantics/0.3.0/pressure-1"
     },
     {
      "op": "set",
      "path": "/formulation_basis/profile_id",
-     "value": "resolved_straight_load_state_v1"
+     "value": "exact_pressure_v3"
     }
    ],
    "dispatch": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
    "lr": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
@@ -293,11 +280,10 @@
     {
      "op": "set",
      "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/load-reference-1"
+     "value": "openpipestress.result_semantics/0.3.0/pressure-1"
     }
    ],
-   "dispatch": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+   "dispatch": "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
   },
   {
    "id": "RELABEL-joined-as-load-reference-receipt-removed",
@@ -306,12 +292,12 @@
     {
      "op": "set",
      "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/load-reference-1"
+     "value": "openpipestress.result_semantics/0.3.0/pressure-1"
     },
     {
      "op": "set",
      "path": "/formulation_basis/profile_id",
-     "value": "resolved_straight_load_state_v1"
+     "value": "exact_pressure_v3"
     },
     {
      "op": "remove",
@@ -319,8 +305,8 @@
     }
    ],
    "dispatch": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
-   "lr": "SOURCE_LOAD_REFERENCE_CASE_SHAPE"
+   "lr": "SOURCE_LOAD_REFERENCE_CASE_SHAPE",
+   "joined": "PHYSICS_SOURCE_IDENTITY"
   },
   {
    "id": "RELABEL-joined-as-physics-source",
@@ -337,9 +323,8 @@
      "value": "exact_straight_pressure_v2"
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
-   "ps": "PHYSICS_SOURCE_RECEIPT_SHAPE"
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis",
+   "joined": "PHYSICS_SOURCE_IDENTITY"
   },
   {
    "id": "RELABEL-joined-as-physics-source-resealed",
@@ -367,9 +352,8 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_FORBIDDEN",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY",
-   "ps": "PHYSICS_SOURCE_PHYSICAL_SHAPE"
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis",
+   "joined": "PHYSICS_SOURCE_IDENTITY"
   },
   {
    "id": "RELABEL-joined-as-physics-source-id-only",
@@ -381,8 +365,8 @@
      "value": "openpipestress.result_semantics/0.3.0/physics-source-1"
     }
    ],
-   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis",
+   "joined": "PHYSICS_SOURCE_IDENTITY"
   },
   {
    "id": "RELABEL-load-reference-as-joined",
@@ -391,12 +375,12 @@
     {
      "op": "set",
      "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+     "value": "openpipestress.result_semantics/0.3.0/pressure-source-1"
     },
     {
      "op": "set",
      "path": "/formulation_basis/profile_id",
-     "value": "resolved_straight_load_state_source_v1"
+     "value": "exact_pressure_v3"
     }
    ],
    "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
@@ -409,11 +393,10 @@
     {
      "op": "set",
      "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+     "value": "openpipestress.result_semantics/0.3.0/pressure-source-1"
     }
    ],
-   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
+   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED"
   },
   {
    "id": "RELABEL-fallback-as-joined",
@@ -422,12 +405,12 @@
     {
      "op": "set",
      "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+     "value": "openpipestress.result_semantics/0.3.0/pressure-source-1"
     },
     {
      "op": "set",
      "path": "/formulation_basis/profile_id",
-     "value": "resolved_straight_load_state_source_v1"
+     "value": "exact_pressure_v3"
     }
    ],
    "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED",
@@ -440,12 +423,12 @@
     {
      "op": "set",
      "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+     "value": "openpipestress.result_semantics/0.3.0/pressure-source-1"
     },
     {
      "op": "set",
      "path": "/formulation_basis/profile_id",
-     "value": "resolved_straight_load_state_source_v1"
+     "value": "exact_pressure_v3"
     },
     {
      "op": "graft",
@@ -457,37 +440,6 @@
    "dispatch": "SOURCE_LOAD_REFERENCE_CASE_SHAPE"
   },
   {
-   "id": "RELABEL-physics-source-as-joined",
-   "source": "ps-n05-sparse",
-   "ops": [
-    {
-     "op": "set",
-     "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
-    },
-    {
-     "op": "set",
-     "path": "/formulation_basis/profile_id",
-     "value": "resolved_straight_load_state_source_v1"
-    }
-   ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE",
-   "ps": "SOURCE_BLOCKS_PRODUCER"
-  },
-  {
-   "id": "RELABEL-physics-source-as-joined-id-only",
-   "source": "ps-n05-sparse",
-   "ops": [
-    {
-     "op": "set",
-     "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
-    }
-   ],
-   "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
-   "joined": "SOURCE_LOAD_REFERENCE_JOIN_IDENTITY"
-  },
-  {
    "id": "NS-missing-load-reference-states",
    "source": "n05-sparse",
    "ops": [
@@ -496,7 +448,7 @@
      "path": "/contract_evidence/load_reference_states"
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_EVIDENCE_SHAPE"
+   "dispatch": "PHYSICS_SOURCE_PHYSICAL_SHAPE"
   },
   {
    "id": "NS-extra-evidence-key",
@@ -536,8 +488,7 @@
      "value": {}
     }
    ],
-   "dispatch": "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED",
-   "joined": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
+   "dispatch": "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
   },
   {
    "id": "NS-receipt-removed",
@@ -754,7 +705,8 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_REQUESTED_MODE"
+   "dispatch": "accept",
+   "note": "B7b finding (reported to the manager): the retired load-reference-source-1 reader bound each record's solve.requested_mode to its receipt case's requested_mode (JOIN_REQUESTED_MODE); the current pressure-source reader reads the received records directly and checks only that the records share one requested mode, so a resealed record naming the other mode is admitted. Observed outcome recorded; never numerically eligible."
   },
   {
    "id": "SEL-mixed-record-modes",
@@ -1044,7 +996,7 @@
      "value": "PHYSICS-SOURCE-1"
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY"
+   "dispatch": "PHYSICS_SOURCE_RECEIPT_SHAPE"
   },
   {
    "id": "RCPT-policy-source-blocks",
@@ -1056,7 +1008,7 @@
      "value": "SOURCE-BLOCKS-1"
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY"
+   "dispatch": "PHYSICS_SOURCE_RECEIPT_SHAPE"
   },
   {
    "id": "RCPT-policy-missing",
@@ -1067,7 +1019,7 @@
      "path": "/source_block_recovery/body/policy"
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY"
+   "dispatch": "PHYSICS_SOURCE_RECEIPT_SHAPE"
   },
   {
    "id": "RCPT-policy-physics-source-resealed",
@@ -1085,7 +1037,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY"
+   "dispatch": "PHYSICS_SOURCE_RECEIPT_SHAPE"
   },
   {
    "id": "RCPT-extra-body-key",
@@ -1103,7 +1055,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE"
+   "dispatch": "PHYSICS_SOURCE_RECEIPT_SHAPE"
   },
   {
    "id": "RCPT-status-partial",
@@ -1121,7 +1073,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_SHAPE"
+   "dispatch": "PHYSICS_SOURCE_RECEIPT_SHAPE"
   },
   {
    "id": "RCPT-receipt-hash",
@@ -1133,7 +1085,7 @@
      "value": "0000000000000000000000000000000000000000000000000000000000000000"
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH"
+   "dispatch": "PHYSICS_SOURCE_RECEIPT_HASH"
   },
   {
    "id": "RCPT-body-changed",
@@ -1145,7 +1097,7 @@
      "value": 1
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH"
+   "dispatch": "PHYSICS_SOURCE_RECEIPT_HASH"
   },
   {
    "id": "PUB-row-value",
@@ -1157,7 +1109,7 @@
      "value": 1.0
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH"
+   "dispatch": "SOURCE_BLOCKS_PUBLICATION_HASH"
   },
   {
    "id": "PUB-row-value-resealed",
@@ -1175,7 +1127,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE"
+   "dispatch": "SOURCE_BLOCKS_DERIVED_NORM_VALUE"
   },
   {
    "id": "PUB-evidence-changed-receipt-only",
@@ -1193,7 +1145,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH"
+   "dispatch": "PHYSICS_SOURCE_PHYSICAL_CASE_HASH"
   },
   {
    "id": "HASH-physical-zero",
@@ -1211,7 +1163,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+   "dispatch": "PHYSICS_SOURCE_PHYSICAL_CASE_HASH"
   },
   {
    "id": "HASH-physical-physics-source-domain",
@@ -1224,7 +1176,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+   "dispatch": "PHYSICS_SOURCE_PHYSICAL_CASE_HASH"
   },
   {
    "id": "HASH-physical-without-record",
@@ -1237,7 +1189,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+   "dispatch": "PHYSICS_SOURCE_PHYSICAL_CASE_HASH"
   },
   {
    "id": "HASH-record-changed-physical-stale",
@@ -1255,7 +1207,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+   "dispatch": "PHYSICS_SOURCE_PHYSICAL_CASE_HASH"
   },
   {
    "id": "HASH-ordinary-record-changed-physical-stale",
@@ -1273,7 +1225,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+   "dispatch": "PHYSICS_SOURCE_PHYSICAL_CASE_HASH"
   },
   {
    "id": "HASH-exact-case-changed-physical-stale",
@@ -1296,7 +1248,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+   "dispatch": "PHYSICS_SOURCE_PHYSICAL_CASE_HASH"
   },
   {
    "id": "RCPT-requested-mode-mismatch",
@@ -1319,7 +1271,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_REQUESTED_MODE"
+   "dispatch": "PHYSICS_SOURCE_ORDINARY_METHOD"
   },
   {
    "id": "RCPT-selected-method-ordinary",
@@ -1337,7 +1289,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD"
+   "dispatch": "PHYSICS_SOURCE_SOURCE_SELECTION_REQUIRED"
   },
   {
    "id": "REC-missing",
@@ -1400,7 +1352,7 @@
      "with": "/contract_evidence/load_reference_states/1"
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PUBLICATION_HASH"
+   "dispatch": "SOURCE_BLOCKS_PUBLICATION_HASH"
   },
   {
    "id": "REC-order-swap-resealed",
@@ -1418,7 +1370,8 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER"
+   "dispatch": "accept",
+   "note": "B7b: the retired reader required records in receipt-case order (JOIN_CASE_ORDER), as its v2 projection paired them by index; the current reader binds each record to its exact case by load_case_id, so a resealed record-order swap is admitted (reported to the manager with SEL-selected-other-mode). Never numerically eligible."
   },
   {
    "id": "EXACT-order-swap-resealed",
@@ -1436,7 +1389,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER"
+   "dispatch": "PHYSICS_SOURCE_CASE_ORDER"
   },
   {
    "id": "RCPT-case-order-swap-resealed",
@@ -1454,7 +1407,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_CASE_ORDER"
+   "dispatch": "PHYSICS_SOURCE_CASE_ORDER"
   },
   {
    "id": "BIND-exact-E-forged",
@@ -1538,7 +1491,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE"
+   "dispatch": "PHYSICS_SOURCE_MAXIMUM_ROW"
   },
   {
    "id": "PS-selected-over-pressure-resealed",
@@ -1590,7 +1543,7 @@
      "receipt": true
     }
    ],
-   "dispatch": "SOURCE_LOAD_REFERENCE_JOIN_RECOVERY_METHOD"
+   "dispatch": "PHYSICS_SOURCE_RECOVERY_METHOD"
   },
   {
    "id": "NUM-NONFINITE-member-E",
@@ -1925,35 +1878,28 @@
   },
   {
    "id": "TABLEBYTES-id-edit",
-   "find": "0.3.0/load-reference-source-1\"",
-   "replace": "0.3.0/load-reference-source-2\"",
-   "expect": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+   "find": "0.3.0/pressure-source-1\"",
+   "replace": "0.3.0/pressure-source-2\"",
+   "expect": "SOURCE_PRESSURE_SOURCE_TABLE_HASH"
   },
   {
    "id": "TABLEBYTES-profile-edit",
-   "find": "\"resolved_straight_load_state_source_v1\"",
-   "replace": "\"resolved_straight_load_state_v1\"",
-   "expect": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+   "find": "\"exact_pressure_v3\"",
+   "replace": "\"resolved_straight_load_state_source_v1\"",
+   "expect": "SOURCE_PRESSURE_SOURCE_TABLE_HASH"
   },
   {
    "id": "TABLEBYTES-policy-edit",
-   "find": "\"LOAD-REFERENCE-SOURCE-1\"",
+   "find": "\"PRESSURE-SOURCE-1\"",
    "replace": "\"PHYSICS-SOURCE-1\"",
-   "expect": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+   "expect": "SOURCE_PRESSURE_SOURCE_TABLE_HASH"
   },
   {
-   "id": "TABLEBYTES-physics-source-table",
-   "file": "fixtures/results/semantic_contract_v0_3_physics_source_1.json",
+   "id": "TABLEBYTES-pressure-table",
+   "file": "fixtures/results/semantic_contract_v0_3_pressure_1.json",
    "find": null,
    "replace": null,
-   "expect": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
-  },
-  {
-   "id": "TABLEBYTES-load-reference-table",
-   "file": "fixtures/results/semantic_contract_v0_3_load_reference_1.json",
-   "find": null,
-   "replace": null,
-   "expect": "SOURCE_LOAD_REFERENCE_SOURCE_TABLE_HASH"
+   "expect": "SOURCE_PRESSURE_SOURCE_TABLE_HASH"
   }
  ],
  "transport_cases": [
@@ -1991,7 +1937,7 @@
      "value": "PHYSICS-SOURCE-1"
     }
    ],
-   "expect": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_POLICY"
+   "expect": "PHYSICS_SOURCE_RECEIPT_SHAPE"
   },
   {
    "id": "TRANSPORT-receipt-hash",
@@ -2003,7 +1949,7 @@
      "value": "0000000000000000000000000000000000000000000000000000000000000000"
     }
    ],
-   "expect": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH"
+   "expect": "PHYSICS_SOURCE_RECEIPT_HASH"
   },
   {
    "id": "TRANSPORT-physical-hash",
@@ -2021,7 +1967,7 @@
      "receipt": true
     }
    ],
-   "expect": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICAL_CASE_HASH"
+   "expect": "PHYSICS_SOURCE_PHYSICAL_CASE_HASH"
   },
   {
    "id": "TRANSPORT-record-missing",
@@ -2081,12 +2027,12 @@
     {
      "op": "set",
      "path": "/producer/semantic_contract_id",
-     "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
+     "value": "openpipestress.result_semantics/0.3.0/pressure-source-1"
     },
     {
      "op": "set",
      "path": "/formulation_basis/profile_id",
-     "value": "resolved_straight_load_state_source_v1"
+     "value": "exact_pressure_v3"
     }
    ],
    "expect": "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_REQUIRED"
@@ -2125,7 +2071,7 @@
      "receipt": true
     }
    ],
-   "expect": "SOURCE_LOAD_REFERENCE_JOIN_PHYSICS_SOURCE"
+   "expect": "PHYSICS_SOURCE_PHYSICAL_SHAPE"
   },
   {
    "id": "TRANSPORT-no-diagnostic-binding",

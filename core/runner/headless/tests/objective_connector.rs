@@ -5,7 +5,16 @@
 //! disclosure, and is exported under pressure-1 (T4-U2 phase 2: the connector
 //! rows are exported quantities with a stable basis); a legacy joint
 //! on the same document is refused with `LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED`;
-//! a case with a pressure region is refused with `JOINT_PRESSURE_INTERFACE_UNRESOLVED`.
+//! a case with a pressure region away from the joint was refused with
+//! `JOINT_PRESSURE_INTERFACE_UNRESOLVED` "until T4-U5" (the variant's own
+//! `expected_round_02.until`); B7b: on the current 0.5.0 copy T4-U5a's region
+//! classifier admits it, so it solves and exports under pressure-1 (as in PP's
+//! `tests/connector_system_references.rs`).
+//!
+//! B7b: the frozen documents (0.3.0 and 0.4.0, after any variant patch) are
+//! unchanged; each copy is re-authored to the current 0.5.0 exact document by
+//! the one shared rule (`core/product_physics/tests/common/current_model.rs`)
+//! before it runs.
 use open_pipe_stress_headless_runner::{
     run_preview_model_value_with_mode, PrivacyContext, ProfessionalBoundary, Provenance,
     RedistributionStatus, Reference, RunnerOperation, RunnerRequest, TbdDecisions,
@@ -13,6 +22,9 @@ use open_pipe_stress_headless_runner::{
 use open_pipe_stress_product_physics::PreviewSolverMode;
 use serde_json::{json, Value};
 use std::collections::BTreeSet;
+
+#[path = "../../../product_physics/tests/common/current_model.rs"]
+mod current_model;
 
 const REFERENCES: &str =
     include_str!("../../../../validation/references/t4_i12/u3_reference_cases.json");
@@ -64,6 +76,7 @@ fn request(model: &Value) -> RunnerRequest {
 /// The runner's raw mechanics envelope, its export unavailability and its
 /// export document.
 fn run(payload: &Value, mode: PreviewSolverMode) -> (Value, Option<String>, Option<Value>) {
+    let payload = &current_model::reauthor_request(payload.clone());
     let output =
         run_preview_model_value_with_mode(request(&payload["model"]), payload.clone(), mode)
             .unwrap();
@@ -127,7 +140,8 @@ fn an_admitted_v3_connector_solves_and_exports_under_pressure_1_in_both_modes() 
                 && d["severity"] == "info"
                 && d["affected_refs"] == json!(["component:C-150", "pipe:P-130"])));
             assert!(blocking_codes(&raw).is_empty(), "{case} {mode:?}");
-            // T4-U2: exported under pressure-1, on 0.3.0 and 0.4.0 alike. The
+            // T4-U2: exported under pressure-1, from the 0.3.0 and 0.4.0 frozen
+            // documents alike (each re-authored to 0.5.0, B7b). The
             // spring hanger's input review rows are model scoped (pressure-1),
             // so the reader admits them; the numerical standing gate was never
             // the cause (it read the reader's refusal as "unsupported").
@@ -189,7 +203,7 @@ fn a_legacy_joint_on_a_v3_document_is_refused_without_export_in_both_modes() {
 }
 
 #[test]
-fn a_pressurized_case_with_a_joint_is_refused_without_export_in_both_modes() {
+fn a_pressurized_case_beside_an_unpressurized_joint_solves_and_exports_in_both_modes() {
     let references = references();
     let case = &references["cases"]["U3-SYS-DEMO-CONNECTOR-001"];
     let variant = &case["refusal_variants"]["joint_case_with_pressure_region"];
@@ -197,20 +211,26 @@ fn a_pressurized_case_with_a_joint_is_refused_without_export_in_both_modes() {
         &case["inputs"]["document_v3_0.3.0"],
         &variant["document_patch_round_02"]["operations"],
     );
+    // The frozen expectation names the code and the milestone that lifts it.
+    let expected: BTreeSet<String> = variant["expected_round_02"]["blocking_codes_exactly"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|c| c.as_str().unwrap().to_string())
+        .collect();
+    assert_eq!(expected, BTreeSet::from(["JOINT_PRESSURE_INTERFACE_UNRESOLVED".to_string()]));
+    assert_eq!(variant["expected_round_02"]["until"], "T4-U5 (J3/J4)");
     for mode in MODES {
         let (raw, unavailability, document) = run(&payload, mode);
-        let exported = document.is_some();
-        assert_eq!(raw["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
-        assert_eq!(raw["results"], json!([]), "{mode:?}");
-        let expected: BTreeSet<String> = variant["expected_round_02"]["blocking_codes_exactly"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|c| c.as_str().unwrap().to_string())
-            .collect();
-        assert_eq!(expected, BTreeSet::from(["JOINT_PRESSURE_INTERFACE_UNRESOLVED".to_string()]));
-        assert_eq!(blocking_codes(&raw), expected, "{mode:?}: {}", raw["diagnostics"]);
-        assert!(!exported, "{mode:?}");
-        assert_eq!(unavailability.as_deref(), Some("SOURCE_NOT_SOLVED"), "{mode:?}");
+        assert_eq!(raw["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", raw["diagnostics"]);
+        assert_eq!(raw["producer"]["semantic_contract_id"], PRESSURE_ID, "{mode:?}");
+        assert!(blocking_codes(&raw).is_empty(), "{mode:?}: {}", raw["diagnostics"]);
+        assert!(!raw["diagnostics"].to_string().contains("JOINT_PRESSURE_INTERFACE_UNRESOLVED"), "{mode:?}");
+        assert!(!raw["contract_evidence"]["pressure"].as_array().unwrap().is_empty(), "{mode:?}");
+        assert!(unavailability.is_none(), "{mode:?}: {unavailability:?}");
+        let document = document.expect("an export document");
+        open_pipe_stress_result_export::derivative::validate_document(&document, &raw)
+            .unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        assert_eq!(document["result_envelope"]["semantic_contract_ref"]["ref_id"], PRESSURE_ID, "{mode:?}");
     }
 }

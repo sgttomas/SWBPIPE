@@ -33,7 +33,7 @@ fn request(model: &Value) -> RunnerRequest {
         privacy: PrivacyContext::local_first_public_metadata(),
         provenance: Provenance {
             source_name: "invented composite consumer fixture".into(),
-            source_location: "fixtures/product_preview/physics_source".into(),
+            source_location: "fixtures/product_preview/pressure_source/physics_source".into(),
             source_license: "project invented".into(),
             contributor: "OpenPipeStress".into(),
             contributor_certification: "invented non-engineering example".into(),
@@ -48,7 +48,7 @@ fn request(model: &Value) -> RunnerRequest {
 #[test]
 fn actual_composite_invocations_preserve_canonical_evidence_and_maximum_methods() {
     let fixtures = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../../fixtures/product_preview/physics_source");
+        .join("../../../fixtures/product_preview/pressure_source/physics_source");
     for name in ["n05", "n06", "mixed", "fields"] {
         for mode in [
             PreviewSolverMode::SparseInteractive,
@@ -78,7 +78,7 @@ fn actual_composite_invocations_preserve_canonical_evidence_and_maximum_methods(
             });
             assert_eq!(
                 raw["producer"]["semantic_contract_id"],
-                semantic_contract::PHYSICS_SOURCE_ID
+                semantic_contract::PRESSURE_SOURCE_ID
             );
             assert_eq!(
                 document["result_envelope"]["contract_evidence"],
@@ -153,7 +153,7 @@ fn actual_composite_invocations_preserve_canonical_evidence_and_maximum_methods(
                 .filter(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2")
             {
                 let signature = semantic_contract::signature_in(
-                    semantic_contract::physics_source_contract(),
+                    semantic_contract::pressure_source_contract(),
                     row,
                 )
                 .unwrap()

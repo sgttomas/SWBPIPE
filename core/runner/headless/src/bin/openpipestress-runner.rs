@@ -1077,9 +1077,10 @@ mod tests {
             PreviewSolverMode::SparseInteractive,
             PreviewSolverMode::DenseScrutiny,
         ] {
-            // B4/D1 (b): source blocks remain only on the exact route's composites.
+            // B4/D1 (b): source blocks remain only on the exact route's composites
+            // (B7b: the current pressure-source-1 request, 0.5.0/v3).
             let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../../fixtures/product_preview/physics_source/n05.request.json");
+                .join("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
             let payload: Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
             let raw = json!({"request":request(RunnerOperation::Solve),"solve":{"preview_model":payload},"rule_check_aggregate":"USER_RULE_CHECKED"}).to_string();
             let args = parse_args([
@@ -1151,7 +1152,7 @@ mod tests {
     #[test]
     fn retired_legacy_pressure_label_is_refused_by_a_cli_solve() {
         let mut preview_model: Value = serde_json::from_str(include_str!(
-            "../../../../../fixtures/product_preview/physics_source/n05.request.json"
+            "../../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
         ))
         .expect("exact fixture must parse");
         preview_model["model"]["pressure_contract"] =

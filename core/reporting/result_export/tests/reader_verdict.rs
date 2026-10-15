@@ -1,7 +1,10 @@
 //! b7-plan R2: the base-route verdicts for callers outside Rust. Cases taken
 //! from the desktop's reader tests (numericalResultQuality, loadReferenceReaders,
 //! sourceBlockRecovery, physicsSourceRecovery, previewPhysicsEvidence), so the
-//! G1, G2 and G5 ports keep the behaviour those tests pinned.
+//! G1, G2 and G5 ports keep the behaviour those tests pinned. B7b re-pointed the
+//! exact-route cases at the current identities (pressure-1 and pressure-source-1,
+//! with and without the load/reference-state group) and pins the named refusal of
+//! the retired v2 identities.
 use open_pipe_stress_result_export::reader_verdict as rv;
 use open_pipe_stress_result_export::semantic_contract as sc;
 use serde_json::{json, Value};
@@ -240,76 +243,92 @@ fn g1_aggregate_consistency_is_distinct_from_qualification() {
     );
 }
 
-// loadReferenceReaders.test.ts.
+// loadReferenceReaders.test.ts, re-pointed by B7b at the current exact identities:
+// the load/reference-state group is read under pressure-1 and pressure-source-1.
 const LR: [&str; 4] = ["connected-sparse_interactive", "connected-dense_scrutiny", "pressure-sparse_interactive", "pressure-dense_scrutiny"];
 fn lr_raw(name: &str) -> Value {
-    read(&format!("fixtures/product_preview/load_reference/{name}.raw.json"))
+    read(&format!("fixtures/product_preview/pressure/load_reference/{name}.raw.json"))
 }
 fn lr_model(name: &str) -> Value {
-    read(&format!("fixtures/product_preview/load_reference/{}.request.json", name.split('-').next().unwrap()))["model"].clone()
+    read(&format!("fixtures/product_preview/pressure/load_reference/{}.request.json", name.split('-').next().unwrap()))["model"].clone()
 }
 fn lrs_raw(name: &str) -> Value {
-    read(&format!("fixtures/product_preview/load_reference_source/{name}.raw.json"))
+    read(&format!("fixtures/product_preview/pressure_source/load_reference_source/{name}.raw.json"))
+}
+fn lrs_request(stem: &str) -> Value {
+    read(&format!("fixtures/product_preview/pressure_source/load_reference_source/{stem}.request.json"))
 }
 
 #[test]
-fn g5_load_reference_identities_dispatch_with_their_tables() {
+fn g5_load_state_statements_dispatch_with_their_tables() {
     for name in LR {
         let raw = lr_raw(name);
         let d = rv::dispatch(&raw, Some(&lr_model(name)), None);
-        assert_eq!((d["ok"].as_bool(), d["route"].as_str()), (Some(true), Some("load_reference")), "{name}");
-        assert_eq!(d["binding"]["id"], sc::LOAD_REFERENCE_ID);
+        assert_eq!((d["ok"].as_bool(), d["route"].as_str()), (Some(true), Some("pressure")), "{name}");
+        assert_eq!(d["binding"]["id"], sc::PRESSURE_ID);
         // The actual model: the published checks_passed cases are eligible.
         assert_eq!(d["standing"]["status"], "integrity_checked", "{name}: {}", d["standing"]);
         assert_eq!(findings(&d["standing"]), Vec::<&str>::new());
-        assert_eq!(rv::validate("load-reference", &raw, Some(&lr_model(name)), None), json!({"ok": true}));
+        assert_eq!(rv::validate("pressure", &raw, Some(&lr_model(name)), None), json!({"ok": true}));
     }
     for name in ["n05", "n06", "fields", "mixed", "eigen_motion"] {
         for mode in ["sparse_interactive", "dense_scrutiny"] {
             let raw = lrs_raw(&format!("{name}-{mode}"));
-            let model = read(&format!("fixtures/product_preview/load_reference_source/{name}.request.json"))["model"].clone();
-            let d = rv::dispatch(&raw, Some(&model), None);
-            assert_eq!(d["route"], "load_reference_source", "{name}-{mode}");
-            assert_eq!(d["binding"]["id"], sc::LOAD_REFERENCE_SOURCE_ID);
+            let request = lrs_request(name);
+            let d = rv::dispatch(&raw, Some(&request["model"]), None);
+            assert_eq!(d["route"], "pressure_source", "{name}-{mode}");
+            assert_eq!(d["binding"]["id"], sc::PRESSURE_SOURCE_ID);
+            // G4: without the registered invocation the source route needs it.
             assert_eq!(
                 d["standing"],
-                json!({"route": "load_reference_source", "token": d["standing"]["token"], "status": "needs_recompute",
-                    "eligible": false, "findings": [rv::LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE]})
+                json!({"route": "pressure_source", "token": d["standing"]["token"], "status": "needs_recompute",
+                    "eligible": false, "findings": [rv::SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED]})
             );
+            // With it, a valid load/reference-state reading is never eligible (T1).
+            let inv = invocation(request.clone(), mode);
+            let s = rv::standing(&raw, Some(&request["model"]), Some(&inv));
+            assert_eq!(s["eligible"], false, "{name}-{mode}");
+            assert!(findings(&s).contains(&rv::LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE), "{name}-{mode}: {s}");
+            let v = rv::validate("pressure-source", &raw, None, Some(&inv));
+            assert_eq!((v["ok"].as_bool(), v["eligible"].as_bool()), (Some(true), Some(false)), "{name}-{mode}: {v}");
+            assert_eq!(rv::transport("pressure-source", &raw), json!({"ok": true}), "{name}-{mode}");
         }
     }
 }
 
 #[test]
-fn g5_each_load_reference_identity_binds_one_profile_evidence_and_receipt() {
+fn g5_each_exact_identity_binds_its_profile_evidence_and_receipt() {
     let lr = lr_raw(LR[0]);
     let lrs = lrs_raw("n05-sparse_interactive");
     let edits: Vec<(&str, &Value, Box<dyn Fn(&mut Value)>)> = vec![
-        ("LR with the joined profile", &lr, Box::new(|s| s["formulation_basis"]["profile_id"] = json!("resolved_straight_load_state_source_v1"))),
-        ("LR with the physics profile", &lr, Box::new(|s| s["formulation_basis"]["profile_id"] = json!("exact_straight_pressure_v2"))),
-        ("LR without contract evidence", &lr, Box::new(|s| {
+        ("pressure-1 with the retired joined profile", &lr, Box::new(|s| s["formulation_basis"]["profile_id"] = json!("resolved_straight_load_state_source_v1"))),
+        ("pressure-1 with the retired v2 profile", &lr, Box::new(|s| s["formulation_basis"]["profile_id"] = json!("exact_straight_pressure_v2"))),
+        ("pressure-1 without contract evidence", &lr, Box::new(|s| {
             s.as_object_mut().unwrap().remove("contract_evidence");
         })),
-        ("LR with null contract evidence", &lr, Box::new(|s| s["contract_evidence"] = json!(null))),
-        ("LR with array contract evidence", &lr, Box::new(|s| s["contract_evidence"] = json!([]))),
-        ("LR with a source-block receipt", &lr, Box::new(|s| s["source_block_recovery"] = lrs_raw("n05-sparse_interactive")["source_block_recovery"].clone())),
-        ("LR with a carrier namespace", &lr, Box::new(|s| s["carrier_evidence"] = json!({}))),
-        ("joined with the LR profile", &lrs, Box::new(|s| s["formulation_basis"]["profile_id"] = json!("resolved_straight_load_state_v1"))),
+        ("pressure-1 with null contract evidence", &lr, Box::new(|s| s["contract_evidence"] = json!(null))),
+        ("pressure-1 with array contract evidence", &lr, Box::new(|s| s["contract_evidence"] = json!([]))),
+        ("pressure-1 with a source-block receipt", &lr, Box::new(|s| s["source_block_recovery"] = lrs_raw("n05-sparse_interactive")["source_block_recovery"].clone())),
+        ("pressure-1 with a carrier namespace", &lr, Box::new(|s| s["carrier_evidence"] = json!({}))),
+        ("joined with the retired load-state profile", &lrs, Box::new(|s| s["formulation_basis"]["profile_id"] = json!("resolved_straight_load_state_v1"))),
         ("joined without its receipt", &lrs, Box::new(|s| {
             s.as_object_mut().unwrap().remove("source_block_recovery");
         })),
-        ("joined with the physics-source policy", &lrs, Box::new(|s| s["source_block_recovery"]["body"]["policy"] = json!("PHYSICS-SOURCE-1"))),
+        ("joined with the retired physics-source policy", &lrs, Box::new(|s| s["source_block_recovery"]["body"]["policy"] = json!("PHYSICS-SOURCE-1"))),
         ("joined with an extra receipt key", &lrs, Box::new(|s| s["source_block_recovery"]["body"]["invented"] = json!(1))),
-        ("joined without contract evidence", &lrs, Box::new(|s| {
-            s.as_object_mut().unwrap().remove("contract_evidence");
+        ("joined relabelled as pressure-1", &lrs, Box::new(|s| {
+            s["producer"]["semantic_contract_id"] = json!(sc::PRESSURE_ID);
         })),
-        ("joined relabelled as load-reference-1", &lrs, Box::new(|s| {
-            s["producer"]["semantic_contract_id"] = json!(sc::LOAD_REFERENCE_ID);
-            s["formulation_basis"]["profile_id"] = json!("resolved_straight_load_state_v1");
-        })),
-        ("LR relabelled as joined", &lr, Box::new(|s| {
-            s["producer"]["semantic_contract_id"] = json!(sc::LOAD_REFERENCE_SOURCE_ID);
+        ("joined relabelled as retired load-reference-source-1", &lrs, Box::new(|s| {
+            s["producer"]["semantic_contract_id"] = json!(sc::RETIRED_EXACT_V2_IDS[3]);
             s["formulation_basis"]["profile_id"] = json!("resolved_straight_load_state_source_v1");
+        })),
+        ("pressure-1 relabelled as joined", &lr, Box::new(|s| {
+            s["producer"]["semantic_contract_id"] = json!(sc::PRESSURE_SOURCE_ID);
+        })),
+        ("pressure-1 relabelled as retired load-reference-1", &lr, Box::new(|s| {
+            s["producer"]["semantic_contract_id"] = json!(sc::RETIRED_EXACT_V2_IDS[2]);
+            s["formulation_basis"]["profile_id"] = json!("resolved_straight_load_state_v1");
         })),
     ];
     for (name, base, edit) in edits {
@@ -320,8 +339,8 @@ fn g5_each_load_reference_identity_binds_one_profile_evidence_and_receipt() {
         assert_eq!((d["ok"].as_bool(), d["binding"].is_null()), (Some(false), true), "{name}");
         assert_eq!(d["standing"]["eligible"], false);
     }
-    // The joined receipt shape: its policy plus the closed physics-source-1 shape.
-    use open_pipe_stress_result_export::load_reference_source::validate_receipt_shape;
+    // The current receipt shape: its policy and the closed PRESSURE-SOURCE-1 shape.
+    use open_pipe_stress_result_export::physics_source::validate_receipt_shape;
     let receipt = lrs["source_block_recovery"].clone();
     assert!(validate_receipt_shape(&receipt).is_ok());
     let mut policy = receipt.clone();
@@ -334,35 +353,32 @@ fn g5_each_load_reference_identity_binds_one_profile_evidence_and_receipt() {
 }
 
 #[test]
-fn g2_load_reference_reader_refusals_and_model_binding_are_findings() {
+fn g2_load_state_reader_refusals_and_model_binding_are_findings() {
     let mut raw = lr_raw(LR[0]);
     let model = lr_model(LR[0]);
     raw["contract_evidence"]["load_reference_states"][0]["members"][0]["derived_G_pa"] = json!(1);
     let s = standing(&raw, Some(&model));
     assert_eq!(s["eligible"], false);
     assert!(findings(&s).iter().any(|f| f.starts_with("SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING")), "{s}");
-    // The physics-1 reader's model binding applies to the projected copy.
+    // G2's model binding runs after the unchanged pressure-1 reader (B7b: on the
+    // received statement; the retired reader's projected copy is gone).
     let raw = lr_raw(LR[0]);
     let mut fewer = model.clone();
     fewer["load_cases"].as_array_mut().unwrap().remove(0);
     let s = standing(&raw, Some(&fewer));
     assert_eq!(s["eligible"], false);
-    assert!(
-        findings(&s).contains(&"SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_MODEL_CASE_COVERAGE"),
-        "{s}"
-    );
+    assert!(findings(&s).contains(&"SOURCE_PHYSICS_MODEL_CASE_COVERAGE"), "{s}");
     assert_eq!(
-        rv::validate("load-reference", &raw, Some(&fewer), None)["error"],
-        json!({"code": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
-            "detail": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_MODEL_CASE_COVERAGE"})
+        rv::validate("pressure", &raw, Some(&fewer), None)["error"],
+        json!({"code": "SOURCE_PHYSICS_MODEL_CASE_COVERAGE", "detail": null})
     );
     // With no model the reader is today's Rust reader.
-    assert_eq!(rv::validate("load-reference", &raw, None, None), json!({"ok": true}));
+    assert_eq!(rv::validate("pressure", &raw, None, None), json!({"ok": true}));
     for mode in ["sparse_interactive", "dense_scrutiny"] {
         let raw = read(&format!("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-{mode}.raw.json"));
         let model = read("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json")["model"].clone();
-        assert_eq!(route(&raw), "load_reference");
-        assert_eq!(rv::validate("load-reference", &raw, Some(&model), None), json!({"ok": true}));
+        assert_eq!(route(&raw), "pressure");
+        assert_eq!(rv::validate("pressure", &raw, Some(&model), None), json!({"ok": true}));
         let s = standing(&raw, Some(&model));
         assert_eq!(s["eligible"], false);
         assert!(findings(&s).contains(&"NUMERICAL_INTEGRITY_NOT_QUALIFIED"));
@@ -373,8 +389,10 @@ fn g2_load_reference_reader_refusals_and_model_binding_are_findings() {
 fn g1_joined_refusal_keeps_its_validation_code() {
     let mut raw = lrs_raw("n05-sparse_interactive");
     raw["source_block_recovery"]["receipt_sha256"] = json!("0".repeat(64));
-    assert_eq!(findings(&standing(&raw, None)), ["SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH"]);
-    assert_eq!(rv::validate("load-reference-source", &raw, None, None)["error"]["code"], "SOURCE_LOAD_REFERENCE_JOIN_RECEIPT_HASH");
+    let request = lrs_request("n05");
+    let inv = invocation(request.clone(), "sparse_interactive");
+    assert_eq!(findings(&rv::standing(&raw, Some(&request["model"]), Some(&inv))), ["PHYSICS_SOURCE_RECEIPT_HASH"]);
+    assert_eq!(rv::validate("pressure-source", &raw, None, None)["error"]["code"], "PHYSICS_SOURCE_RECEIPT_HASH");
 }
 
 #[test]
@@ -382,11 +400,11 @@ fn g2_physics_model_binding() {
     let request = read("core/product_physics/tests/fixtures/exact_pressure_connected_request.json");
     let model = &request["model"];
     for mode in ["sparse", "dense"] {
-        let raw = read(&format!("fixtures/results/physics_connected_mechanics_{mode}.json"));
-        assert_eq!(route(&raw), "physics");
-        assert_eq!(rv::validate("physics", &raw, Some(model), None), json!({"ok": true}));
-        assert_eq!(rv::validate("physics", &raw, None, None), json!({"ok": true}));
-        let code = |m: &Value| rv::validate("physics", &raw, Some(m), None)["error"]["code"].clone();
+        let raw = read(&format!("fixtures/results/pressure_connected_mechanics_{mode}.json"));
+        assert_eq!(route(&raw), "pressure");
+        assert_eq!(rv::validate("pressure", &raw, Some(model), None), json!({"ok": true}));
+        assert_eq!(rv::validate("pressure", &raw, None, None), json!({"ok": true}));
+        let code = |m: &Value| rv::validate("pressure", &raw, Some(m), None)["error"]["code"].clone();
         let mut fewer = model.clone();
         fewer["load_cases"].as_array_mut().unwrap().pop();
         assert_eq!(code(&fewer), "SOURCE_PHYSICS_MODEL_CASE_COVERAGE");
@@ -419,7 +437,7 @@ fn invocation(request: Value, mode: &str) -> Value {
 #[test]
 fn a_stored_source_blocks_1_statement_reads_unsupported_by_name() {
     // B4/D1 (b): the non-composite identity is retired; its header refuses by name.
-    let mut stored = read("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json");
+    let mut stored = read("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json");
     stored["producer"]["semantic_contract_id"] = json!(sc::RETIRED_SOURCE_BLOCKS_ID);
     let d = rv::dispatch(&stored, None, None);
     assert_eq!((d["route"].as_str(), d["error"]["code"].as_str()), (Some(rv::UNSUPPORTED), Some(sc::SOURCE_BLOCKS_1_RETIRED)));
@@ -429,19 +447,19 @@ fn a_stored_source_blocks_1_statement_reads_unsupported_by_name() {
 }
 
 #[test]
-fn g1_genuine_physics_source_validates_with_its_invocation() {
+fn g1_genuine_pressure_source_validates_with_its_invocation() {
     for name in ["n05", "n06", "fields", "mixed", "mixed_units", "n05_units", "n05_unicode"] {
-        let request = read(&format!("fixtures/product_preview/physics_source/{name}.request.json"));
+        let request = read(&format!("fixtures/product_preview/pressure_source/physics_source/{name}.request.json"));
         for mode in ["dense_scrutiny", "sparse_interactive"] {
-            let raw = read(&format!("fixtures/product_preview/physics_source/{name}-{mode}.raw.json"));
+            let raw = read(&format!("fixtures/product_preview/pressure_source/physics_source/{name}-{mode}.raw.json"));
             let inv = invocation(request.clone(), mode);
-            assert_eq!(route(&raw), "physics_source", "{name}");
-            let v = rv::validate("physics-source", &raw, None, Some(&inv));
+            assert_eq!(route(&raw), "pressure_source", "{name}");
+            let v = rv::validate("pressure-source", &raw, None, Some(&inv));
             assert_eq!(v["ok"], true, "{name}-{mode}: {v}");
             let s = rv::standing(&raw, Some(&request["model"]), Some(&inv));
             assert_eq!(s["findings"], v["findings"], "{name}-{mode}");
             assert_eq!(s["eligible"], v["eligible"], "{name}-{mode}");
-            assert_eq!(rv::transport("physics-source", &raw), json!({"ok": true}));
+            assert_eq!(rv::transport("pressure-source", &raw), json!({"ok": true}));
             // G2 through the invocation's model.
             let mut other = request.clone();
             other["model"]["supports"] = json!([{"id": "support:other"}]);
@@ -449,7 +467,7 @@ fn g1_genuine_physics_source_validates_with_its_invocation() {
                 r["kind"].as_str().is_some_and(|k| k.starts_with("support_reaction_") && k.ends_with("_v2"))
             });
             if has_support_rows {
-                let refused = rv::validate("physics-source", &raw, None, Some(&invocation(other, mode)));
+                let refused = rv::validate("pressure-source", &raw, None, Some(&invocation(other, mode)));
                 assert_eq!(refused["ok"], false, "{name}-{mode}");
             }
         }
@@ -474,7 +492,7 @@ fn g5_source_receipt_presence_on_other_headers_is_unsupported() {
     unknown["producer"]["semantic_contract_id"] = json!(format!("{}/future", sc::RETIRED_SOURCE_BLOCKS_ID));
     assert_eq!(route(&unknown), rv::UNSUPPORTED);
     // A source route's receipt shape is the header's (G5): an extra receipt key.
-    let mut composite = read("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json");
+    let mut composite = read("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json");
     composite["source_block_recovery"]["extra"] = json!(1);
     assert_eq!(route(&composite), rv::UNSUPPORTED);
     // A stored precision-1 statement is refused by name (B1).
@@ -515,15 +533,17 @@ fn preview_physics_standing_and_transport() {
 fn binding_hashes_are_the_table_files() {
     use sha2::{Digest, Sha256};
     let files = [
-        ("physics", "semantic_contract_v0_3_physics_1.json"),
-        ("physics_source", "semantic_contract_v0_3_physics_source_1.json"),
+        ("pressure_source", "semantic_contract_v0_3_pressure_source_1.json"),
         ("preview_physics", "semantic_contract_v0_3_preview_physics_1.json"),
-        ("load_reference", "semantic_contract_v0_3_load_reference_1.json"),
-        ("load_reference_source", "semantic_contract_v0_3_load_reference_source_1.json"),
         ("pressure", "semantic_contract_v0_3_pressure_1.json"),
         ("retained_preview_physics", "semantic_contract_v0_3_preview_physics_retained_1.json"),
         ("retained_physics", "semantic_contract_v0_3_physics_retained_1.json"),
     ];
+    // B7b: the five current routes; the retired v2 routes bind nothing.
+    assert_eq!(rv::ROUTES.as_slice(), files.iter().map(|f| f.0).collect::<Vec<_>>().as_slice());
+    for retired in ["physics", "physics_source", "load_reference", "load_reference_source", "source_blocks"] {
+        assert_eq!(rv::binding(retired), Value::Null, "{retired}");
+    }
     let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../../fixtures/results/");
     for (route, file) in files {
         let bytes = std::fs::read(format!("{root}{file}")).unwrap();
@@ -559,7 +579,10 @@ fn error_json_splits_code_and_detail() {
 #[test]
 fn source_recovery_preserves_the_portable_commitment_check_depth() {
     use open_pipe_stress_result_export::source_blocks::domain_hash;
-    for (folder, receipt_error) in [("physics_source", "PHYSICS_SOURCE_RECEIPT_HASH")] {
+    for (folder, receipt_error) in [
+        ("pressure_source/physics_source", "PHYSICS_SOURCE_RECEIPT_HASH"),
+        ("pressure_source/load_reference_source", "PHYSICS_SOURCE_RECEIPT_HASH"),
+    ] {
         let raw = read(&format!("fixtures/product_preview/{folder}/n05-sparse_interactive.raw.json"));
         assert_eq!(rv::validate("source-recovery", &raw, None, None), json!({"ok": true}));
         let mut bad = raw.clone();
@@ -577,7 +600,7 @@ fn source_recovery_preserves_the_portable_commitment_check_depth() {
         changed["source_block_recovery"]["body"]["publication_sha256"] = json!(domain_hash("source_blocks_publication_v1", &publication).unwrap());
         changed["source_block_recovery"]["receipt_sha256"] = json!(domain_hash("source_blocks_receipt_v1", &changed["source_block_recovery"]["body"]).unwrap());
         assert_eq!(rv::validate("source-recovery", &changed, None, None), json!({"ok": true}));
-        assert_eq!(rv::validate("physics-source", &changed, None, None)["ok"], false);
+        assert_eq!(rv::validate("pressure-source", &changed, None, None)["ok"], false);
     }
     assert_eq!(rv::validate("source-recovery", &ordinary_source(), None, None)["error"]["code"], "SOURCE_RECOVERY_METADATA_CONTRADICTION");
 }
@@ -632,5 +655,41 @@ fn pressure_1_dispatches_to_its_reader_and_ordinary_standing() {
     for case in arc["cases"].as_array().unwrap() {
         let model = &case["document"]["model"];
         assert_eq!(rv::validate("pressure", &case["envelope"], Some(model), None), json!({"ok": true}), "{}", case["label"]);
+    }
+}
+
+/// B7b (A4/A5): the four identities of the retired 2.0.0/exact_straight_pressure_v2
+/// contract are refused by name at the header (SOURCE_EXACT_PRESSURE_V2_RETIRED),
+/// read as unsupported by the standing and name no table; no v2 reader remains.
+/// precision-1 (B1), source-blocks-1 (B4/D1 (b)) and the 0.1.0 mechanics-result
+/// carrier (E2) keep their own names.
+#[test]
+fn retired_identities_and_readers_are_refused_by_name() {
+    assert_eq!(rv::READERS, ["preview-physics", "pressure-source", "source-recovery", "pressure"]);
+    let base = lr_raw(LR[0]);
+    for id in sc::RETIRED_EXACT_V2_IDS {
+        let mut s = base.clone();
+        s["producer"]["semantic_contract_id"] = json!(id);
+        assert_eq!(route(&s), rv::UNSUPPORTED, "{id}");
+        let d = rv::dispatch(&s, None, None);
+        assert_eq!((d["ok"].as_bool(), d["binding"].is_null()), (Some(false), true), "{id}");
+        assert_eq!(d["error"]["code"], sc::SOURCE_EXACT_PRESSURE_V2_RETIRED, "{id}");
+        assert!(d["error"]["detail"].as_str().unwrap().contains("re-author the model as 0.5.0"), "{id}");
+        assert_eq!(findings(&d["standing"]), [rv::SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED], "{id}");
+        assert_eq!(rv::row_semantics(&s["results"][0], Some(&s))["error"]["code"], "SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED", "{id}");
+    }
+    for reader in ["physics", "physics-source", "load-reference", "load-reference-source", "source-blocks"] {
+        assert_eq!(rv::validate(reader, &base, None, None)["error"]["code"], "READER_UNKNOWN", "{reader}");
+        assert_eq!(rv::transport(reader, &base)["error"]["code"], "READER_UNKNOWN", "{reader}");
+    }
+    let named = [
+        ("/producer/semantic_contract_id", json!(sc::RETIRED_PRECISION_ID), sc::SOURCE_PRECISION_1_RETIRED),
+        ("/producer/semantic_contract_id", json!(sc::RETIRED_SOURCE_BLOCKS_ID), sc::SOURCE_BLOCKS_1_RETIRED),
+        ("/schema_version", json!(sc::RETIRED_MECHANICS_RESULT_VERSION), sc::MECHANICS_RESULT_VERSION_RETIRED),
+    ];
+    for (pointer, value, code) in named {
+        let mut s = base.clone();
+        *s.pointer_mut(pointer).unwrap() = value;
+        assert_eq!(rv::dispatch(&s, None, None)["error"]["code"], code);
     }
 }

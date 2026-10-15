@@ -1,4 +1,5 @@
-//! T1 WP4: the 0.4.0 route through the actual `openpipestress-runner solve`
+//! T1 WP4 (B7b: on the current 0.5.0 exact pressure v3 route): the
+//! load/reference-state group through the actual `openpipestress-runner solve`
 //! process (stdin JSON in, the `ControlledExport`-wrapped CLI output on stdout),
 //! in both solver modes. Tests only; no native UI qualification is claimed.
 //! When `HEADLESS_LOAD_REFERENCE_OUTPUT_DIR` / `HEADLESS_LOAD_REFERENCE_SOURCE_OUTPUT_DIR`
@@ -15,9 +16,10 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
-const LR_ID: &str = "openpipestress.result_semantics/0.3.0/load-reference-1";
-const LRS_ID: &str = "openpipestress.result_semantics/0.3.0/load-reference-source-1";
-const PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
+/// B7b: the group is selected by presence on the exact pressure-1 and
+/// pressure-source-1 statements; the retired load-reference identities are gone.
+const LR_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
+const LRS_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
 const MODES: [PreviewSolverMode; 2] = [
     PreviewSolverMode::SparseInteractive,
@@ -34,13 +36,13 @@ fn read(path: &str) -> Value {
 
 fn lr_request(stem: &str) -> Value {
     read(&format!(
-        "fixtures/product_preview/load_reference/{stem}.request.json"
+        "fixtures/product_preview/pressure/load_reference/{stem}.request.json"
     ))
 }
 
 fn lrs_request(stem: &str) -> Value {
     read(&format!(
-        "fixtures/product_preview/load_reference_source/{stem}.request.json"
+        "fixtures/product_preview/pressure_source/load_reference_source/{stem}.request.json"
     ))
 }
 
@@ -243,7 +245,7 @@ fn assert_blocked_run(run: &Run, ctx: &str) -> Value {
 }
 
 #[test]
-fn cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route() {
+fn cli_pressure_load_state_both_modes_is_controlled_and_equals_the_library_route() {
     for stem in ["connected", "pressure"] {
         let payload = lr_request(stem);
         for mode in MODES {
@@ -255,7 +257,7 @@ fn cli_load_reference_one_both_modes_is_controlled_and_equals_the_library_route(
             assert!(raw.get("source_block_recovery").is_none(), "{ctx}");
             assert_eq!(raw["numerical_quality"]["status"], "checks_passed", "{ctx}");
             let frozen = read(&format!(
-                "fixtures/product_preview/load_reference/{stem}-{}.raw.json",
+                "fixtures/product_preview/pressure/load_reference/{stem}-{}.raw.json",
                 mode.as_str()
             ));
             assert_eq!(raw, frozen, "{ctx}");
@@ -299,12 +301,12 @@ fn cli_explicit_output_path_receives_the_controlled_stdout() {
 }
 
 /// Without the wrapper-owned local-private intent, the ControlledExport wrapper
-/// withholds the whole solved 0.4.0 output (existing DEC-065 policy, not T1's):
+/// withholds the whole solved load/reference-state output (existing DEC-065 policy, not T1's):
 /// no payload on stdout, exit 1, and no file at an explicit output path.
 #[test]
 fn cli_without_local_private_intent_withholds_the_solved_output() {
     for (label, payload) in [
-        ("load-reference-1", lr_request("connected")),
+        ("pressure-1", lr_request("connected")),
         ("joined", lrs_request("n05")),
     ] {
         for mode in MODES {
@@ -371,7 +373,7 @@ fn cli_joined_witnesses_both_modes_retain_the_invocation_bound_receipt() {
             let raw = assert_solved_matches_library(&payload, mode, &run, &ctx);
             assert_eq!(raw["producer"]["semantic_contract_id"], LRS_ID, "{ctx}");
             let frozen = read(&format!(
-                "fixtures/product_preview/load_reference_source/{stem}-{}.raw.json",
+                "fixtures/product_preview/pressure_source/load_reference_source/{stem}-{}.raw.json",
                 mode.as_str()
             ));
             assert_eq!(raw, frozen, "{ctx}");
@@ -397,6 +399,9 @@ fn cli_refusals_have_targeted_codes_and_publish_nothing_as_solved() {
     explicit_null["model"]["materials"][0]["expansion_laws"] = Value::Null;
     let mut unknown = lr_request("connected");
     unknown["model"]["load_cases"][0]["analysis_state"]["unreviewed_field"] = json!(true);
+    // B7b: a retired model version is refused by name and is never exact (the
+    // identity follows the current route, preview-physics-1); the carried group
+    // still blocks rather than being ignored.
     let mut pre_exact = lr_request("connected");
     pre_exact["model"]["schema_version"] = json!("0.3.0");
     let mut pre_ordinary = pre_exact.clone();
@@ -404,6 +409,20 @@ fn cli_refusals_have_targeted_codes_and_publish_nothing_as_solved() {
         .as_object_mut()
         .unwrap()
         .remove("pressure_contract");
+    let mut v4_exact = lr_request("connected");
+    v4_exact["model"]["schema_version"] = json!("0.4.0");
+    // A current document without the exact contract, or with a retired one,
+    // carrying the group: blocked on the pressure-free route.
+    let mut missing = lr_request("connected");
+    missing["model"]
+        .as_object_mut()
+        .unwrap()
+        .remove("pressure_contract");
+    let mut retired_v2 = lr_request("connected");
+    retired_v2["model"]["pressure_contract"] =
+        json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
+    let mut legacy = lr_request("connected");
+    legacy["model"]["pressure_contract"] = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
     for mode in MODES {
         let m = mode.as_str();
         let raw = assert_blocked_run(
@@ -439,36 +458,52 @@ fn cli_refusals_have_targeted_codes_and_publish_nothing_as_solved() {
             "unknown/{m}"
         );
 
-        for (label, payload, identity) in [
-            ("exact", &pre_exact, PHYSICS_ID),
-            ("ordinary", &pre_ordinary, PREVIEW_PHYSICS_ID),
+        for (label, payload, codes) in [
+            ("0.3.0 exact", &pre_exact, &["MODEL_SCHEMA_VERSION_RETIRED", "LOAD_STATE_CONTRACT_VERSION_MISMATCH"][..]),
+            ("0.3.0 ordinary", &pre_ordinary, &["MODEL_SCHEMA_VERSION_RETIRED", "LOAD_STATE_CONTRACT_VERSION_MISMATCH"][..]),
+            ("0.4.0 exact", &v4_exact, &["MODEL_SCHEMA_VERSION_RETIRED", "LOAD_STATE_CONTRACT_VERSION_MISMATCH"][..]),
+            ("missing contract", &missing, &["LOAD_STATE_CONTRACT_VERSION_MISMATCH"][..]),
+            ("retired v2 contract", &retired_v2, &["PRESSURE_MODEL_REAUTHOR_REQUIRED", "LOAD_STATE_CONTRACT_VERSION_MISMATCH"][..]),
+            ("retired legacy contract", &legacy, &["PRESSURE_MODEL_REAUTHOR_REQUIRED", "LOAD_STATE_CONTRACT_VERSION_MISMATCH"][..]),
         ] {
-            let raw = assert_blocked_run(&solve_cli(payload, mode), &format!("0.3.0 {label}/{m}"));
-            assert!(
-                blocking_codes(&raw).contains(&"LOAD_STATE_CONTRACT_VERSION_MISMATCH".to_string()),
-                "{label}/{m}"
-            );
+            let raw = assert_blocked_run(&solve_cli(payload, mode), &format!("{label}/{m}"));
+            for code in codes {
+                assert!(
+                    blocking_codes(&raw).contains(&code.to_string()),
+                    "{label}/{m}: {code} not in {:?}",
+                    blocking_codes(&raw)
+                );
+            }
             assert_eq!(
-                raw["producer"]["semantic_contract_id"], identity,
+                raw["producer"]["semantic_contract_id"], PREVIEW_PHYSICS_ID,
                 "{label}/{m}"
             );
         }
     }
 }
 
+/// B7b: an exact-contract document carrying the group whose solve is blocked
+/// keeps pressure-1's identity and the empty evidence namespace through the CLI.
 #[test]
-fn cli_blocked_0_4_0_documents_stay_on_load_reference_one() {
-    let mut missing = lr_request("connected");
-    missing["model"]
+fn cli_blocked_load_state_documents_keep_the_exact_identity() {
+    let mut no_shear = lr_request("connected");
+    no_shear["model"]["pressure_contract"]
         .as_object_mut()
         .unwrap()
-        .remove("pressure_contract");
-    let mut legacy = lr_request("connected");
-    legacy["model"]["pressure_contract"] = json!({"version": "1.0.0", "mode": "legacy"});
-    for (label, payload) in [("missing", missing), ("legacy", legacy)] {
+        .remove("shear_model");
+    let mut no_allowance = lr_request("connected");
+    no_allowance["model"]["pipe_segments"][0]["section"]
+        .as_object_mut()
+        .unwrap()
+        .remove("corrosion_allowance");
+    for (label, payload, code) in [
+        ("missing shear model", no_shear, "EXACT_PRESSURE_SHEAR_MODEL_REQUIRED"),
+        ("missing corrosion allowance", no_allowance, "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED"),
+    ] {
         for mode in MODES {
             let ctx = format!("blocked {label}/{}", mode.as_str());
             let raw = assert_blocked_run(&solve_cli(&payload, mode), &ctx);
+            assert!(blocking_codes(&raw).contains(&code.to_string()), "{ctx}: {:?}", blocking_codes(&raw));
             assert_eq!(raw["producer"]["semantic_contract_id"], LR_ID, "{ctx}");
             assert_ne!(
                 raw["producer"]["semantic_contract_id"], PREVIEW_PHYSICS_ID,

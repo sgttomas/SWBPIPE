@@ -1,7 +1,8 @@
 //! T4-U2a: reader dispatch on the exact pressure contract identity, over the
 //! shared generated pressure-1 corpus (also read by the Python
-//! reader). v2 is unchanged and still refuses p_pa < 0; v3 admits straight
-//! families with signed p_pa; neither is read as the other; unknown
+//! reader). v3 admits straight families with signed p_pa; B7b retired the v2
+//! contract, so a statement labelled with a retired v2 identity is refused by
+//! name and v2 profile labels are refused by the current reader; unknown
 //! identities are refused.
 use open_pipe_stress_result_export::semantic_contract as s;
 use serde_json::{json, Value};
@@ -36,14 +37,6 @@ fn relabel(envelope: &Value, version: &str, mode: &str) -> Value {
     out
 }
 
-fn v2_reader(envelope: &Value) -> Result<(), String> {
-    if load_state(envelope) {
-        s::validate_load_reference_evidence(envelope)
-    } else {
-        s::validate_physics_evidence(envelope)
-    }
-}
-
 #[test]
 fn the_shared_corpus_is_admitted_by_the_pressure_1_reader_and_dispatch() {
     let cases = corpus();
@@ -53,13 +46,12 @@ fn the_shared_corpus_is_admitted_by_the_pressure_1_reader_and_dispatch() {
         assert_eq!(envelope["producer"]["semantic_contract_id"], s::PRESSURE_ID, "{label}");
         s::validate_pressure_evidence(envelope).unwrap_or_else(|e| panic!("{label}: {e}"));
         let (table, version) = s::for_source(envelope).unwrap_or_else(|e| panic!("{label}: {e}"));
-        // pressure-1 rows resolve against physics-1's resident table (no
-        // pressure-1 static in the reader; T4-RV14 F1).
+        // pressure-1 rows resolve against its own reviewed resident table (B7b, O-10).
         assert!(std::ptr::eq(table, s::pressure_rows_contract()) && version == "0.3.0", "{label}");
         let (meta, meta_version) = s::for_source_metadata(envelope).unwrap();
         assert!(std::ptr::eq(meta, table) && meta_version == "0.3.0", "{label}");
     }
-    // Signed pressure is exercised: the 0.3.0 cases carry p_pa < 0.
+    // Signed pressure is exercised: the cases without the group carry p_pa < 0.
     assert!(cases.iter().filter(|(_, e)| !load_state(e)).all(|(_, e)| e["contract_evidence"]["pressure"]
         .as_array()
         .unwrap()
@@ -67,21 +59,22 @@ fn the_shared_corpus_is_admitted_by_the_pressure_1_reader_and_dispatch() {
         .all(|r| r["p_pa"].as_f64().unwrap() < 0.0)));
 }
 
+/// B7b: no v2 reader remains. Evidence relabelled with the retired v2 profile is
+/// refused by the current reader at its profile check, and a statement whose
+/// header names a retired v2 identity is refused by name at the header.
 #[test]
-fn neither_contract_is_read_as_the_other() {
+fn retired_v2_labels_are_refused() {
     for (label, envelope) in corpus() {
-        let error = v2_reader(&envelope).unwrap_err();
-        assert!(error.ends_with(s::V3_READ_AS_V2), "{label}: {error}");
         let as_v2 = relabel(&envelope, "2.0.0", "exact_straight_pressure_v2");
         let error = s::validate_pressure_evidence(&as_v2).unwrap_err();
-        assert!(error.ends_with(s::V2_READ_AS_V3), "{label}: {error}");
-        // Relabelled v2 evidence read by the v2 reader: v2 is unchanged.
-        let v2 = v2_reader(&as_v2);
-        if load_state(&envelope) {
-            v2.unwrap_or_else(|e| panic!("{label}: {e}"));
-        } else {
-            // p_pa < 0 is still refused under v2.
-            assert!(v2.unwrap_err().ends_with("SOURCE_PHYSICS_PRESSURE_RANGE"), "{label}");
+        assert!(error.ends_with("SOURCE_PHYSICS_CASE_PROFILE"), "{label}: {error}");
+        for id in s::RETIRED_EXACT_V2_IDS {
+            let mut relabelled = envelope.clone();
+            relabelled["producer"]["semantic_contract_id"] = json!(id);
+            for refusal in [s::for_source(&relabelled).unwrap_err(), s::for_source_metadata(&relabelled).unwrap_err()] {
+                assert!(refusal.starts_with(&format!("{}: ", s::SOURCE_EXACT_PRESSURE_V2_RETIRED)), "{label} {id}: {refusal}");
+                assert!(refusal.contains("re-author the model as 0.5.0"), "{label} {id}: {refusal}");
+            }
         }
     }
 }
@@ -99,44 +92,25 @@ fn unknown_identities_and_profiles_are_refused() {
         assert!(error.ends_with("SOURCE_PHYSICS_CASE_PROFILE"), "{label}: {error}");
         let error = s::validate_pressure_evidence(&relabel(&envelope, "4.0.0", "exact_pressure_v3")).unwrap_err();
         assert!(error.ends_with("SOURCE_PHYSICS_REGION_PROFILE"), "{label}: {error}");
-        // pressure-1 relabelled as physics-1 is refused by the v2 dispatch.
-        let mut relabelled = envelope.clone();
-        relabelled["producer"]["semantic_contract_id"] = json!(if load_state(&envelope) { s::LOAD_REFERENCE_ID } else { s::PHYSICS_ID });
-        assert!(s::for_source(&relabelled).is_err(), "{label}");
     }
 }
 
+/// B7b (O-10): pressure-1 has its own reviewed resident table. Its physical rows
+/// are the exact source family's (the independent pressure-source-1 table, less
+/// its source-basis signatures), followed by one signature per legacy connector
+/// (kind, unit, component) and exactly the two U5 scalar signatures.
 #[test]
-fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
+fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     let pressure: Value = serde_json::from_str(include_str!(
         "../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json"
     ))
     .unwrap();
-    let physics = s::physics_contract();
-    assert!(std::ptr::eq(s::pressure_rows_contract(), physics));
+    let source = s::pressure_source_contract();
+    assert_eq!(&pressure, s::pressure_rows_contract());
     assert_eq!(pressure["semantic_contract_id"], s::PRESSURE_ID);
     assert_eq!(pressure["formulation_profile_id"], s::PRESSURE_PROFILE);
-    assert!(!pressure["reserved_inactive_successors"].as_array().unwrap().contains(&json!(s::PRESSURE_ID)));
-    // The ordinary table stays staged, nonresident and unreviewed through
-    // batch 5, the join and B7a; B7b D4 owns its synchronization and binding.
-    // Preserve its complete pre-U5 extension, independently of the current
-    // reader/schema's exact two-family delta. No current row is filtered out.
-    let own = [
-        "semantic_contract_id",
-        "formulation_profile_id",
-        "inherited_semantic_contract_sha256",
-        "reserved_inactive_successors",
-        "contract_evidence_policy",
-        "supported_profile_limitations",
-        "rows",
-        "source_signature_count",
-        "source_kind_count",
-        "canonical_metadata_vocabulary",
-    ];
-    // physics-1 roots its lineage (B1 retired precision-1, its parent); only
-    // pressure-1 carries an inherited pin.
-    let (p, q) = (pressure.as_object().unwrap(), physics.as_object().unwrap());
-    assert!(!q.contains_key("inherited_semantic_contract_sha256"));
+    assert_eq!(pressure["reserved_inactive_successors"], json!([]));
+    assert!(pressure.get("inherited_semantic_contract_sha256").is_none());
     // Immutable pre-U5 constants from connector_evidence.rs at
     // f79493a7215f798e5d0328d52e5f461ee9065eff, not inferred from today's reader.
     const LEGACY_KINDS: [(&str, &str, [&str; 3], &[&str]); 6] = [
@@ -170,43 +144,66 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
     assert_eq!(s::CONNECTOR_VOCABULARY_COORDINATE_SYSTEMS, [LOCAL_FRAME]);
     assert_eq!(s::CONNECTOR_VOCABULARY_LOCATIONS, [LOCAL]);
     assert_eq!(s::CONNECTOR_ROW_BASIS, BASIS);
-    // The staged table's entire vocabulary is physics-1's plus the legacy
-    // components, frame, location and basis, with no extra or missing member.
-    let mut vocabulary = q["canonical_metadata_vocabulary"].clone();
+    // The vocabulary is the source family's (without its source-only maximum
+    // basis) plus the connector components, frame, location and basis.
+    let mut vocabulary = source["canonical_metadata_vocabulary"].clone();
+    vocabulary["basis"]["enum"]
+        .as_array_mut()
+        .unwrap()
+        .retain(|b| b != open_pipe_stress_result_export::physics_source::MAX_BASIS);
     let extend = |v: &mut Value, key: &str, extra: &[&str]| {
         let list = v[key]["enum"].as_array_mut().unwrap();
         list.extend(extra.iter().map(|x| json!(x)));
     };
-    extend(&mut vocabulary, "component", &LEGACY_COMPONENTS);
+    extend(&mut vocabulary, "component", &current_components);
     extend(&mut vocabulary, "coordinate_system", &[LOCAL_FRAME]);
     extend(&mut vocabulary, "location", &[LOCAL]);
     extend(&mut vocabulary, "basis", &[BASIS]);
-    assert_eq!(p["canonical_metadata_vocabulary"], vocabulary);
-    let mut current_vocabulary = vocabulary.clone();
-    extend(&mut current_vocabulary, "component", &["pe_x", "s_x"]);
+    assert_eq!(pressure["canonical_metadata_vocabulary"], vocabulary);
     let schema: Value = serde_json::from_str(include_str!(
         "../../../../schemas/results_pressure_1.v0.3.schema.json"
     ))
     .unwrap();
-    assert_eq!(schema["$defs"]["PressureResultMetadata"]["properties"], current_vocabulary);
+    assert_eq!(schema["$defs"]["PressureResultMetadata"]["properties"], vocabulary);
     assert_eq!(schema["$defs"]["PressureResultMetadata"]["required"],
         json!(["component", "coordinate_system", "location", "basis", "sign_convention"]));
     assert_eq!(schema["$defs"]["PressureResultMetadata"]["additionalProperties"], false);
-    assert_eq!(
-        p.keys().filter(|k| *k != "inherited_semantic_contract_sha256").collect::<Vec<_>>(),
-        q.keys().collect::<Vec<_>>()
-    );
-    for (key, value) in p {
-        if !own.contains(&key.as_str()) {
-            assert_eq!(value, &q[key], "{key}");
-        }
+    // The two tables share their header members; the source table adds only its
+    // source-block and source-basis policies.
+    let (p, q) = (pressure.as_object().unwrap(), source.as_object().unwrap());
+    let mut source_keys: Vec<&String> = q.keys().collect();
+    source_keys.retain(|k| !matches!(k.as_str(), "source_block_policy" | "source_basis_signature_policy"));
+    assert_eq!(p.keys().collect::<Vec<_>>(), source_keys);
+    for key in ["schema_version", "hash_vectors", "source_schema_version", "source_producer", "reserved_inactive_successors", "formulation_profile_id"] {
+        assert_eq!(p[key], q[key], "{key}");
     }
-    // T4-U3: the rows are physics-1's, in order, then exactly one signature
-    // per legacy connector (kind, unit, component), not the reader's padded
-    // scalar entries. B7b will add exactly the two U5_SIGNATURES above.
-    let (rows, inherited) = (p["rows"].as_array().unwrap(), q["rows"].as_array().unwrap());
-    assert_eq!(&rows[..inherited.len()], &inherited[..]);
-    let connector: Vec<(String, String, String)> = rows[inherited.len()..]
+    // Rows: the physical family's signatures, then exactly one per legacy
+    // connector (kind, unit, component), then the two U5 signatures.
+    let rows = p["rows"].as_array().unwrap();
+    let signature = |r: &Value| (r["kind"].as_str().unwrap().to_string(), r["unit"].as_str().unwrap().to_string(), r["component"].as_str().map(String::from));
+    // A source row may add its declared `source_basis` (the source table's
+    // source_basis_signature_policy); the ordinary row has none.
+    let without_id = |r: &Value| {
+        let mut r = r.clone();
+        r.as_object_mut().unwrap().remove("signature_id");
+        r.as_object_mut().unwrap().remove("source_basis");
+        r
+    };
+    let split = rows.iter().position(|r| r["kind"].as_str().unwrap().starts_with("connector_")).unwrap();
+    let (physical, connector) = rows.split_at(split);
+    assert!(physical.iter().all(|r| r.get("source_basis").is_none()));
+    let source_rows = q["rows"].as_array().unwrap();
+    let mut a: Vec<_> = physical.iter().map(signature).collect();
+    let mut b: Vec<_> = source_rows.iter().map(signature).collect();
+    a.sort();
+    a.dedup();
+    b.sort();
+    b.dedup();
+    assert_eq!(a, b, "the ordinary and source tables cover one physical family");
+    for row in physical {
+        assert!(source_rows.iter().any(|s| without_id(s) == without_id(row)), "{row}");
+    }
+    let connector: Vec<(String, String, String)> = connector
         .iter()
         .map(|r| {
             assert!(r["kind"].as_str().unwrap().starts_with("connector_"));
@@ -214,15 +211,17 @@ fn the_pressure_1_skeleton_keeps_physics_1_rows_under_its_own_identity() {
             (r["kind"].as_str().unwrap().into(), r["unit"].as_str().unwrap().into(), r["component"].as_str().unwrap().into())
         })
         .collect();
-    let expected: Vec<(String, String, String)> = LEGACY_KINDS
+    let mut expected: Vec<(String, String, String)> = LEGACY_KINDS
         .iter()
         .flat_map(|(kind, unit, components, _)| {
             components.iter().map(move |c| (kind.to_string(), unit.to_string(), c.to_string()))
         })
         .collect();
+    expected.extend(U5_SIGNATURES.iter().map(|(k, u, c)| (k.to_string(), u.to_string(), c.to_string())));
     assert_eq!(connector, expected);
     assert_eq!(p["source_signature_count"], rows.len());
-    assert_eq!(p["source_kind_count"], q["source_kind_count"].as_u64().unwrap() + 6);
+    assert_eq!(rows.len(), 88);
+    assert_eq!(p["source_kind_count"], 59);
     // Signature ids are identities, not positions: stable and ascending, and
     // removed rows are not renumbered: B3's three retired rows (008, 020, 021),
     // E14's retired parity signature (037) and H-4's joint and thrust rows (038-042).

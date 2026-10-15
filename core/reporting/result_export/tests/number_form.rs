@@ -1,7 +1,8 @@
 //! b7-plan R2 A2: the readers read numbers by value, not by their JSON form.
-//! physics-source-1's section parameters were the one comparison that read the
+//! The source reader's section parameters were the one comparison that read the
 //! form (`pa_per_mpa` against the float `1e6`); a statement re-serialized in JCS
 //! or `JSON.stringify` form writes it `1000000`. A wrong value is still refused.
+//! B7b: read over the current pressure-source-1 and pressure-1 statements.
 use open_pipe_stress_result_export::{physics_source as ps, reader_verdict as rv, source_blocks::domain_hash};
 use serde_json::{json, Value};
 
@@ -10,8 +11,8 @@ fn read(path: &str) -> Value {
     serde_json::from_str(&std::fs::read_to_string(format!("{root}{path}")).unwrap()).unwrap()
 }
 fn genuine() -> (Value, Value) {
-    let request = read("fixtures/product_preview/physics_source/n05.request.json");
-    let source = read("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json");
+    let request = read("fixtures/product_preview/pressure_source/physics_source/n05.request.json");
+    let source = read("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json");
     (source, json!({"request": request, "solver_mode": "sparse_interactive"}))
 }
 /// The first section-stress check's parameters set to `value`, the receipt resealed
@@ -40,7 +41,7 @@ fn section_parameters_compare_by_value() {
     assert_eq!(ps::validate(&jcs, Some(&invocation)), Ok(true));
     let integer = with_parameter(&source, "pa_per_mpa", json!(1_000_000));
     assert_eq!(ps::validate(&integer, Some(&invocation)), Ok(true));
-    assert_eq!(rv::validate("physics-source", &integer, None, Some(&invocation))["ok"], true);
+    assert_eq!(rv::validate("pressure-source", &integer, None, Some(&invocation))["ok"], true);
     // Wrong values are refused as before.
     // Wrong values are refused as before: the receipt schema holds `pa_per_mpa` and
     // the members, and the section check the copied section values.
@@ -84,12 +85,12 @@ fn copied_members_bind_by_value() {
     let jcs = |v: &Value| -> Value { serde_json::from_str(&open_pipe_stress_canonical_json::canonical_json(v)).unwrap() };
     for (raw, request) in [
         (
-            read("fixtures/results/physics_connected_mechanics_sparse.json"),
+            read("fixtures/results/pressure_connected_mechanics_sparse.json"),
             read("core/product_physics/tests/fixtures/exact_pressure_connected_request.json"),
         ),
         (
-            read("fixtures/product_preview/physics_source/n05-sparse_interactive.raw.json"),
-            read("fixtures/product_preview/physics_source/n05.request.json"),
+            read("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"),
+            read("fixtures/product_preview/pressure_source/physics_source/n05.request.json"),
         ),
     ] {
         let doc = derived(&raw, &request);

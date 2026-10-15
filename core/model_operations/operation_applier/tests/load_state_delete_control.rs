@@ -16,6 +16,15 @@
 //! fixture models, blessed from the base revision (`203396e4d`). Its
 //! pressure-profile rows were removed when authoring moved to
 //! `3.0.0/exact_pressure_v3` (T4-U2); `tests/exact_authoring.rs` covers the profile.
+//!
+//! B7b: model document 0.5.0 is the only current version, so every input model
+//! is now the re-authored 0.5.0 document (the exact ones with the complete v3
+//! contract and explicit corrosion allowances). Both goldens were re-blessed
+//! with `LOAD_REFERENCE_DELETE_CONTROL_BLESS=1` from the current applier on
+//! those inputs; they now pin the current outcomes (no longer the base
+//! revision's bytes). Every row's `applied` flag and diagnostic codes were
+//! compared with the previous golden; the comparison and the classification of
+//! each changed row are B7b evidence outside the repository.
 use open_pipe_stress_operation_applier::{
     apply_operation, canonical_json, sha256_hex, validate_operation,
 };
@@ -27,7 +36,8 @@ fn fixture(text: &str) -> Value {
     let value: Value = serde_json::from_str(text).unwrap();
     value.get("model").cloned().unwrap_or(value)
 }
-/// The 0.4.0 witnesses with every load/reference-state record removed.
+/// The load/reference-state witnesses (current 0.5.0) with every
+/// load/reference-state record removed.
 fn stripped(text: &str) -> Value {
     let mut model = fixture(text);
     model
@@ -45,33 +55,33 @@ fn stripped(text: &str) -> Value {
 fn models() -> Vec<(&'static str, Value)> {
     vec![
         (
-            "precision_connected_ui_model_0_2_0",
+            "precision_connected_ui_model",
             fixture(include_str!(
                 "../../../../fixtures/model_operations/precision_connected_ui_model.json"
             )),
         ),
         (
-            "exact_pressure_authoring_model_0_3_0",
+            "exact_pressure_authoring_model",
             fixture(include_str!(
                 "../../../../fixtures/model_operations/exact_pressure_authoring_model.json"
             )),
         ),
         (
-            "physics_thermal_ui_model_0_3_0",
+            "physics_thermal_ui_model",
             fixture(include_str!(
                 "../../../../fixtures/model_operations/physics_thermal_ui_model.json"
             )),
         ),
         (
-            "connected_0_4_0_without_load_state_records",
+            "connected_without_load_state_records",
             stripped(include_str!(
-                "../../../../fixtures/product_preview/load_reference/connected.request.json"
+                "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
             )),
         ),
         (
-            "eigen_motion_0_4_0_without_load_state_records",
+            "eigen_motion_without_load_state_records",
             stripped(include_str!(
-                "../../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+                "../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json"
             )),
         ),
     ]
@@ -248,7 +258,7 @@ fn outcomes() -> Value {
 }
 
 #[test]
-fn delete_outcomes_without_load_state_records_are_byte_identical_to_the_base_revision() {
+fn delete_outcomes_without_load_state_records_match_the_golden() {
     let actual = outcomes();
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(GOLDEN);
     if std::env::var_os("LOAD_REFERENCE_DELETE_CONTROL_BLESS").is_some() {
@@ -273,8 +283,8 @@ fn delete_outcomes_without_load_state_records_are_byte_identical_to_the_base_rev
 }
 
 // ---------------------------------------------------------------------------
-// Addendum 2 (review B F1, F2, F9): temperature-point
-// authoring on models before 0.4.0 is byte-identical to the base revision.
+// Addendum 2 (review B F1, F2, F9): temperature-point authoring on the models
+// without the load/reference-state group (B7b: re-blessed on the 0.5.0 inputs).
 // ---------------------------------------------------------------------------
 
 const AUTHORING_GOLDEN: &str =
@@ -362,7 +372,8 @@ fn authoring_intents(model: &Value) -> Vec<(String, Value, Value)> {
 }
 fn authoring_outcomes() -> Value {
     let mut records = Map::new();
-    // Models before 0.4.0 only: F9 deliberately changes 0.4.0 warnings.
+    // The three models without the load/reference-state witnesses only: F9
+    // deliberately changes the warnings of a document carrying the group.
     for (name, model) in models().into_iter().take(3) {
         for (key, base, op) in authoring_intents(&model) {
             let claim = hash(&base);
@@ -390,8 +401,7 @@ fn authoring_outcomes() -> Value {
 }
 
 #[test]
-fn temperature_point_outcomes_before_0_4_0_are_byte_identical_to_the_base_revision(
-) {
+fn temperature_point_outcomes_without_the_load_state_witnesses_match_the_golden() {
     let actual = authoring_outcomes();
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(AUTHORING_GOLDEN);
     if std::env::var_os("LOAD_REFERENCE_DELETE_CONTROL_BLESS").is_some() {

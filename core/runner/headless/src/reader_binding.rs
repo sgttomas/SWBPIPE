@@ -142,21 +142,18 @@ pub const READERS: &[Reader] = &[
         read: dispatch,
     },
     // `reader_verdict::validate`: `{"source", "model"?}` or `{"source", "invocation"?}`.
+    // B7b: the current readers only (`reader_verdict::READERS`); the retired v2
+    // readers (physics, physics-source, load-reference, load-reference-source)
+    // have no entry, and a statement under a retired identity is refused by name
+    // at `dispatch`.
     base!("preview-physics", &[]),
-    base!("physics", &["model"]),
-    base!("physics-source", &["invocation"]),
     base!("pressure-source", &["invocation"]),
     base!("source-recovery", &[]),
-    base!("load-reference", &["model"]),
-    base!("load-reference-source", &[]),
     base!("pressure", &["model"]),
-    // `reader_verdict::transport`: `{"source": <statement>}`.
+    // `reader_verdict::transport`: `{"source": <statement>}`. pressure-1 has no
+    // transport reader; its entry refuses by name (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED).
     transport!("preview-physics"),
-    transport!("physics"),
-    transport!("physics-source"),
     transport!("pressure-source"),
-    transport!("load-reference"),
-    transport!("load-reference-source"),
     transport!("pressure"),
     // `reader_verdict::row_semantics`: `{"row", "source"?}`.
     Reader {
@@ -254,12 +251,21 @@ mod tests {
                 r#"{"source":{},"invocation":null}"#,
             ),
             ("dispatch", r#"{"source":{},"extra":1}"#),
-            ("physics", r#"{"source":{},"invocation":null}"#),
-            ("physics-source", r#"{"source":{},"model":null}"#),
+            ("pressure", r#"{"source":{},"invocation":null}"#),
+            ("pressure-source", r#"{"source":{},"model":null}"#),
             ("preview-physics", r#"{"source":{},"model":{}}"#),
-            ("load-reference-source", r#"{"source":{},"model":{}}"#),
-            ("physics-transport", r#"{"source":{},"model":{}}"#),
-            ("physics-source-transport", r#"{"source":{},"model":{}}"#),
+            ("source-recovery", r#"{"source":{},"model":{}}"#),
+            ("pressure-transport", r#"{"source":{},"model":{}}"#),
+            ("pressure-source-transport", r#"{"source":{},"model":{}}"#),
+            // B7b: the retired v2 readers have no entry.
+            ("physics", r#"{"source":{}}"#),
+            ("physics-source", r#"{"source":{}}"#),
+            ("load-reference", r#"{"source":{}}"#),
+            ("load-reference-source", r#"{"source":{}}"#),
+            ("physics-transport", r#"{"source":{}}"#),
+            ("physics-source-transport", r#"{"source":{}}"#),
+            ("load-reference-transport", r#"{"source":{}}"#),
+            ("load-reference-source-transport", r#"{"source":{}}"#),
             ("standing", r#"{"source":{}}"#),
             ("rule-binding", r#"{"row":{}}"#),
             ("classification-summary", r#"{"source":{},"model":{}}"#),
@@ -303,11 +309,12 @@ mod tests {
         for (reader, input, outcome) in [
             ("dispatch", json!({"source": source}), rv::dispatch(&source, None, None)),
             ("dispatch", json!({"source": source, "model": null, "invocation": null}), rv::dispatch(&source, None, None)),
-            ("physics", json!({"source": source, "model": {"load_cases": []}}), rv::validate("physics", &source, Some(&json!({"load_cases": []})), None)),
-            ("physics-source", json!({"source": source}), rv::validate("physics-source", &source, None, None)),
+            ("pressure", json!({"source": source, "model": {"load_cases": []}}), rv::validate("pressure", &source, Some(&json!({"load_cases": []})), None)),
+            ("pressure-source", json!({"source": source}), rv::validate("pressure-source", &source, None, None)),
             ("source-recovery", json!({"source": source}), rv::validate("source-recovery", &source, None, None)),
-            ("physics-source-transport", json!({"source": source}), rv::transport("physics-source", &source)),
-            ("load-reference-transport", json!({"source": source}), rv::transport("load-reference", &source)),
+            ("pressure-source-transport", json!({"source": source}), rv::transport("pressure-source", &source)),
+            ("pressure-transport", json!({"source": source}), rv::transport("pressure", &source)),
+            ("preview-physics-transport", json!({"source": source}), rv::transport("preview-physics", &source)),
             ("row-semantics", json!({"row": {"kind": "x"}}), rv::row_semantics(&json!({"kind": "x"}), None)),
         ] {
             let (code, output) = read(reader, &input.to_string()).unwrap();
@@ -319,10 +326,21 @@ mod tests {
         assert_eq!((code, output["outcome"]["route"].as_str()), (EXIT_REFUSED, Some("unsupported")));
         assert_eq!(output["outcome"]["error"]["code"], sc::MECHANICS_RESULT_VERSION_RETIRED);
         assert_eq!(output["outcome"]["standing"]["eligible"], false);
-        // Every reader_verdict reader and transport has an entry.
+        // Every reader_verdict reader has an entry, and the base and transport
+        // entries are exactly the current readers (B7b).
         for name in rv::READERS {
             assert!(READERS.iter().any(|r| r.name == name), "{name}");
         }
+        let names: Vec<&str> = READERS.iter().map(|r| r.name).collect();
+        assert_eq!(
+            names,
+            [
+                "retained-precision", "retained-precision-transport", "dispatch",
+                "preview-physics", "pressure-source", "source-recovery", "pressure",
+                "preview-physics-transport", "pressure-source-transport", "pressure-transport",
+                "row-semantics", "standing", "classification-summary", "rule-binding",
+            ]
+        );
     }
 
     #[test]

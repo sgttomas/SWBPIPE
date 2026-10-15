@@ -1,15 +1,17 @@
-//! T1 WP4: the 0.4.0 (load/reference-state) route through the headless value
-//! runner, in both solver modes. Tests only; no product semantics change.
+//! T1 WP4, re-pointed by B7b: the load/reference-state group (model 0.5.0 with
+//! the exact contract 3.0.0/exact_pressure_v3) through the headless value runner,
+//! in both solver modes. Tests only; no product semantics change.
 //!
-//! - `load-reference-1`: the actual solve of the committed load-reference
-//!   requests mints the opaque `QualifiedPreviewEvidence` and a canonical
-//!   0.3.0 results document bound to it.
-//! - `load-reference-source-1` (joined): the actual solve of the committed joined
-//!   witnesses retains a receipt bound to the actual invocation. The joined
-//!   route is never numerically eligible in T1 (T1_WAVE1_RULINGS.md section 7),
-//!   so the binding builds no canonical document and mints no opaque proof;
-//!   a joined binding route belongs to T3 with its eligibility.
-//! - Refusals, blocked 0.4.0 envelopes and the SF-1 fallback, through the runner.
+//! - `pressure-1` with the group: the actual solve of the committed requests
+//!   mints the opaque `QualifiedPreviewEvidence` and a canonical 0.3.0 results
+//!   document bound to it.
+//! - `pressure-source-1` with the group (joined): the actual solve of the
+//!   committed joined witnesses retains a receipt bound to the actual invocation.
+//!   A load/reference-state reading is never numerically eligible
+//!   (T1_WAVE1_RULINGS.md section 7; the join standing ruling), so the binding
+//!   builds no canonical document and mints no opaque proof.
+//! - Refusals, blocked load/reference-state envelopes and the SF-1 fallback,
+//!   through the runner.
 //!
 //! Actual artifacts are written only when `HEADLESS_LOAD_REFERENCE_OUTPUT_DIR`
 //! or `HEADLESS_LOAD_REFERENCE_SOURCE_OUTPUT_DIR` is set; the Python consumer
@@ -28,16 +30,16 @@ use open_pipe_stress_product_physics::{
     run_linear_static_preview_value_with_mode, NumericalQualityStatus, PreviewSolverMode,
 };
 use open_pipe_stress_result_export::derivative::{digest, validate_document};
-use open_pipe_stress_result_export::{load_reference_source, semantic_contract, source_blocks};
+use open_pipe_stress_result_export::{physics_source, semantic_contract, source_blocks};
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 
-const LR_ID: &str = "openpipestress.result_semantics/0.3.0/load-reference-1";
-const LR_PROFILE: &str = "resolved_straight_load_state_v1";
-const LRS_ID: &str = "openpipestress.result_semantics/0.3.0/load-reference-source-1";
-const LRS_PROFILE: &str = "resolved_straight_load_state_source_v1";
-const LRS_POLICY: &str = "LOAD-REFERENCE-SOURCE-1";
-const PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
+/// The current exact identities carry the group (B7b); one profile for both.
+const LR_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
+const LR_PROFILE: &str = "exact_pressure_v3";
+const LRS_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
+const LRS_PROFILE: &str = "exact_pressure_v3";
+const LRS_POLICY: &str = "PRESSURE-SOURCE-1";
 const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
 const NEEDS_RECOMPUTE_UNAVAILABLE: &str =
     "result-envelope production failed structurally: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE";
@@ -58,13 +60,13 @@ fn read(path: &str) -> Value {
 
 fn lr_request(stem: &str) -> Value {
     read(&format!(
-        "fixtures/product_preview/load_reference/{stem}.request.json"
+        "fixtures/product_preview/pressure/load_reference/{stem}.request.json"
     ))
 }
 
 fn lrs_request(stem: &str) -> Value {
     read(&format!(
-        "fixtures/product_preview/load_reference_source/{stem}.request.json"
+        "fixtures/product_preview/pressure_source/load_reference_source/{stem}.request.json"
     ))
 }
 
@@ -94,7 +96,7 @@ fn metadata(payload: &Value) -> RunnerRequest {
         privacy: PrivacyContext::local_first_public_metadata(),
         provenance: Provenance {
             source_name: "invented T1 WP4 load/reference-state fixture".into(),
-            source_location: "fixtures/product_preview/load_reference".into(),
+            source_location: "fixtures/product_preview/pressure/load_reference".into(),
             source_license: "project invented".into(),
             contributor: "OpenPipeStress".into(),
             contributor_certification: "invented non-engineering example".into(),
@@ -182,10 +184,10 @@ fn write_artifacts(var: &str, name: &str, files: &[(&str, &Value)]) {
     .unwrap();
 }
 
-// ---------------------------------------------------------------- (1) load-reference-1
+// ---------------------------------------------------------------- (1) pressure-1 with the group
 
 #[test]
-fn load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_both_modes() {
+fn pressure_load_state_actual_solve_mints_bound_evidence_and_canonical_document_both_modes() {
     for stem in LR_STEMS {
         let payload = lr_request(stem);
         for mode in MODES {
@@ -194,9 +196,10 @@ fn load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_b
             let output = solve(&payload, mode);
             let mechanics = output.mechanics_envelope.as_ref().unwrap();
             let raw = raw_of(&output);
-            // Identity routing: the exact 0.4.0 route, never the preview default.
+            // Identity routing: the exact route, never the preview default.
             assert_eq!(raw["producer"]["semantic_contract_id"], LR_ID, "{ctx}");
             assert_eq!(raw["formulation_basis"]["profile_id"], LR_PROFILE, "{ctx}");
+            assert!(raw["contract_evidence"].get("load_reference_states").is_some(), "{ctx}");
             assert!(raw.get("source_block_recovery").is_none(), "{ctx}");
             assert_eq!(mechanics.status.mechanics, "MECHANICS_SOLVED", "{ctx}");
             assert_eq!(
@@ -206,7 +209,7 @@ fn load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_b
             );
             // The runner does not alter the frozen producer envelope.
             let frozen = read(&format!(
-                "fixtures/product_preview/load_reference/{stem}-{}.raw.json",
+                "fixtures/product_preview/pressure/load_reference/{stem}-{}.raw.json",
                 mode.as_str()
             ));
             assert_eq!(raw, frozen, "{ctx}: actual producer changed");
@@ -392,15 +395,15 @@ fn load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_b
                 .is_err(),
                 "{ctx}"
             );
-            // Characterization, not extension: load-reference-1 carries no receipt,
-            // so no received byte binds the invocation. The evidence's only custody
+            // Characterization, not extension: pressure-1 carries no receipt, so
+            // no received byte binds the invocation. The evidence's only custody
             // is its opacity (crate-private fields, no constructor or Deserialize).
             // A crate-internal forgery that re-digests a relabelled mode is not
             // detected by the binding, unlike the source-block receipt route; the
             // document it yields differs only in the qualification reference.
-            // Observed behaviour, not a requirement: physics-1 and preview-physics-1
-            // share it (the binding is identity-agnostic). ROOT routed it to T6
-            // (reader and proof hardening); a T6 binding flips this assertion.
+            // Observed behaviour, not a requirement: preview-physics-1 shares it
+            // (the binding is identity-agnostic). ROOT routed it to T6 (reader and
+            // proof hardening); a T6 binding flips this assertion.
             mode_tamper.invocation_digest = digest(&mode_tamper.actual_invocation).unwrap();
             let relabelled = build_result_export_document_with_evidence(
                 &request,
@@ -467,7 +470,7 @@ fn load_reference_one_actual_solve_mints_bound_evidence_and_canonical_document_b
     }
 }
 
-// ---------------------------------------------------------------- (2) load-reference-source-1
+// ---------------------------------------------------------------- (2) pressure-source-1 with the group
 
 #[test]
 fn joined_actual_solve_retains_invocation_bound_receipt_without_canonical_export_both_modes() {
@@ -488,7 +491,7 @@ fn joined_actual_solve_retains_invocation_bound_receipt_without_canonical_export
                 "{ctx}"
             );
             let frozen = read(&format!(
-                "fixtures/product_preview/load_reference_source/{stem}-{}.raw.json",
+                "fixtures/product_preview/pressure_source/load_reference_source/{stem}-{}.raw.json",
                 mode.as_str()
             ));
             assert_eq!(raw, frozen, "{ctx}: actual producer changed");
@@ -520,12 +523,11 @@ fn joined_actual_solve_retains_invocation_bound_receipt_without_canonical_export
                 .unwrap(),
                 "{ctx}: the receipt names the mode that actually ran"
             );
-            // The joined reader admits the received bytes and never grants eligibility.
-            assert_eq!(
-                load_reference_source::validate_load_reference_source_evidence(&raw),
-                Ok(false),
-                "{ctx}"
-            );
+            // The source reader admits the received bytes and never grants
+            // eligibility to a load/reference-state reading, with or without the
+            // actual invocation.
+            assert_eq!(physics_source::validate(&raw, None), Ok(false), "{ctx}");
+            assert_eq!(physics_source::validate(&raw, Some(&actual)), Ok(false), "{ctx}");
             assert_eq!(
                 semantic_contract::numerical_use_standing(&raw, &bases(&payload)),
                 "needs_recompute",
@@ -702,60 +704,92 @@ fn unknown_load_state_field_is_refused_at_the_request_boundary_before_any_public
 }
 
 #[test]
-fn pre_0_4_documents_carrying_load_state_keys_block_on_their_own_route() {
-    // With the exact pressure contract: the 0.3.0 exact route (physics-1).
-    let mut exact = lr_request("connected");
-    exact["model"]["schema_version"] = json!("0.3.0");
-    // Without it: the ordinary pre-0.4 default route (preview-physics-1).
-    let mut ordinary = exact.clone();
+fn contract_free_or_retired_documents_carrying_load_state_keys_block() {
+    // B7b: behaviour keys on the contract's and the group's presence, never on the
+    // version. A current document without the exact contract that carries the
+    // group blocks on the pressure-free preview route; the group is never ignored.
+    let mut ordinary = lr_request("connected");
     ordinary["model"]
         .as_object_mut()
         .unwrap()
         .remove("pressure_contract");
-    for (label, payload, identity) in [
-        ("exact contract", exact, PHYSICS_ID),
-        ("no contract", ordinary, PREVIEW_PHYSICS_ID),
-    ] {
+    let mut joined_ordinary = lrs_request("eigen_motion");
+    joined_ordinary["model"]
+        .as_object_mut()
+        .unwrap()
+        .remove("pressure_contract");
+    for (label, payload) in [("no contract", ordinary), ("joined witness, no contract", joined_ordinary)] {
         for mode in MODES {
-            let ctx = format!("0.3.0 {label}/{}", mode.as_str());
+            let ctx = format!("{label}/{}", mode.as_str());
             let raw = assert_blocked_not_published(&solve(&payload, mode), &ctx);
             assert!(
                 blocking_codes(&raw).contains(&"LOAD_STATE_CONTRACT_VERSION_MISMATCH".to_string()),
                 "{ctx}: {:?}",
                 blocking_codes(&raw)
             );
-            assert_eq!(raw["producer"]["semantic_contract_id"], identity, "{ctx}");
+            assert_eq!(raw["producer"]["semantic_contract_id"], PREVIEW_PHYSICS_ID, "{ctx}");
             assert_ne!(raw["producer"]["semantic_contract_id"], LR_ID, "{ctx}");
             assert_ne!(raw["producer"]["semantic_contract_id"], LRS_ID, "{ctx}");
         }
     }
-}
-
-// ---------------------------------------------------------------- (4) blocked 0.4.0
-
-#[test]
-fn blocked_0_4_0_envelopes_keep_the_load_reference_identity_through_the_runner() {
-    let mut missing = lr_request("connected");
-    missing["model"]
-        .as_object_mut()
-        .unwrap()
-        .remove("pressure_contract");
+    // A retired model document version (0.3.0, 0.4.0) is refused by name, as is
+    // a retired pressure contract on the current version; nothing is migrated.
+    let mut v3 = lr_request("connected");
+    v3["model"]["schema_version"] = json!("0.3.0");
+    let mut v4 = lr_request("connected");
+    v4["model"]["schema_version"] = json!("0.4.0");
+    let mut retired_v2 = lr_request("connected");
+    retired_v2["model"]["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
     let mut legacy = lr_request("connected");
-    legacy["model"]["pressure_contract"] = json!({"version": "1.0.0", "mode": "legacy"});
-    let mut joined_missing = lrs_request("eigen_motion");
-    joined_missing["model"]
-        .as_object_mut()
-        .unwrap()
-        .remove("pressure_contract");
-    for (label, payload) in [
-        ("missing contract", missing),
-        ("legacy contract", legacy),
-        ("joined witness, missing contract", joined_missing),
+    legacy["model"]["pressure_contract"] = json!({"version": "1.0.0", "mode": "legacy_pressure_v1"});
+    for (label, payload, code) in [
+        ("model 0.3.0", v3, "MODEL_SCHEMA_VERSION_RETIRED"),
+        ("model 0.4.0", v4, "MODEL_SCHEMA_VERSION_RETIRED"),
+        ("retired v2 contract", retired_v2, "PRESSURE_MODEL_REAUTHOR_REQUIRED"),
+        ("retired legacy contract", legacy, "PRESSURE_MODEL_REAUTHOR_REQUIRED"),
     ] {
         for mode in MODES {
             let ctx = format!("{label}/{}", mode.as_str());
             let raw = assert_blocked_not_published(&solve(&payload, mode), &ctx);
-            assert!(!blocking_codes(&raw).is_empty(), "{ctx}");
+            assert!(blocking_codes(&raw).contains(&code.to_string()), "{ctx}: {:?}", blocking_codes(&raw));
+            assert!(
+                !semantic_contract::RETIRED_EXACT_V2_IDS.iter().any(|id| raw["producer"]["semantic_contract_id"] == *id),
+                "{ctx}: a blocked envelope never publishes a retired identity"
+            );
+        }
+    }
+}
+
+// ---------------------------------------------------------------- (4) blocked load/reference-state envelopes
+
+#[test]
+fn blocked_load_state_envelopes_keep_the_exact_identity_through_the_runner() {
+    // An exact-contract document carrying the group whose solve is blocked keeps
+    // pressure-1's identity, profile and the empty evidence namespace.
+    let mut no_shear = lr_request("connected");
+    no_shear["model"]["pressure_contract"]
+        .as_object_mut()
+        .unwrap()
+        .remove("shear_model");
+    let mut no_allowance = lr_request("connected");
+    no_allowance["model"]["pipe_segments"][0]["section"]
+        .as_object_mut()
+        .unwrap()
+        .remove("corrosion_allowance");
+    let mut joined_no_shear = lrs_request("eigen_motion");
+    joined_no_shear["model"]["pressure_contract"]
+        .as_object_mut()
+        .unwrap()
+        .remove("shear_model");
+    for (label, payload, code) in [
+        ("missing shear model", no_shear, "EXACT_PRESSURE_SHEAR_MODEL_REQUIRED"),
+        ("missing corrosion allowance", no_allowance, "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED"),
+        ("joined witness, missing shear model", joined_no_shear, "EXACT_PRESSURE_SHEAR_MODEL_REQUIRED"),
+    ] {
+        for mode in MODES {
+            let ctx = format!("{label}/{}", mode.as_str());
+            let raw = assert_blocked_not_published(&solve(&payload, mode), &ctx);
+            assert!(blocking_codes(&raw).contains(&code.to_string()), "{ctx}: {:?}", blocking_codes(&raw));
             assert_eq!(raw["producer"]["semantic_contract_id"], LR_ID, "{ctx}");
             assert_ne!(
                 raw["producer"]["semantic_contract_id"], PREVIEW_PHYSICS_ID,

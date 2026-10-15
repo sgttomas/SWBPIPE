@@ -8,10 +8,19 @@
 //!
 //! The bend operations (realize, insert at corner), the region checks and the
 //! agent refusal of k are covered here as well. All data are invented.
+//!
+//! B7b: the corner document is the current 0.5.0 pressure-free document; the
+//! user enters each member's corrosion allowance (an explicit zero) before
+//! activating the complete `3.0.0/exact_pressure_v3` contract (euler_bernoulli).
+//! T4-I7's frozen 0.3.0 sketch is unchanged; its copy is re-authored to 0.5.0
+//! by the one shared rule (`core/product_physics/tests/common/current_model.rs`).
 use open_pipe_stress_operation_applier::{apply_operation, canonical_json, sha256_hex, validate_operation};
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 use std::collections::HashMap;
+
+#[path = "../../../product_physics/tests/common/current_model.rs"]
+mod current_model;
 
 const I7_DOCUMENTS: &str = include_str!("../../../../validation/references/t4_i7/u2_document_sketches.json");
 const PROVENANCE: &str = "invented T4-U2 authoring input (from T4-I7's L line); not library, component, catalog or code-rule data";
@@ -62,10 +71,11 @@ fn codes(model: &Value, intent: &Value) -> Vec<String> {
 }
 
 /// The L line's corner document before any bend or load: A —S1— X —S2— D,
-/// anchored at A and D, pressure-free (0.2.0), with a legacy E/G material.
+/// anchored at A and D, pressure-free (current 0.5.0, no pressure contract and
+/// no corrosion allowance yet), with a legacy E/G material.
 fn corner_document() -> Value {
     let mut model = i7_l_line();
-    model["schema_version"] = json!("0.2.0");
+    model["schema_version"] = json!(current_model::CURRENT_MODEL_VERSION);
     model.as_object_mut().unwrap().remove("pressure_contract");
     model["project"]["id"] = json!("project:t4-u2-l-line-authoring");
     let nodes = model["nodes"].as_array_mut().unwrap();
@@ -125,10 +135,15 @@ fn authored(material_op: bool) -> Value {
         model = apply(&model, &structured("set_field", "Material", "material:steel", "constitutive_properties", Some(&projection(&model["materials"][0])), &target));
     }
     model = apply(&model, &insert_bend(&model, &insert_bend_payload()));
+    // B7b: each member's corrosion allowance, entered explicitly (zero is an
+    // authored value, never a default) before the contract is activated.
+    for pipe in ["pipe:S1", "pipe:BEND", "pipe:S2"] {
+        model = apply(&model, &intent("modify", "set_field", "Element", pipe, "section.corrosion_allowance.value", "TBD", "0", "m", "length"));
+    }
     let regions = reference["load_cases"][0]["pressure_regions"].clone();
     model = apply(&model, &structured("update_load", "Load", "case:u2", "pressure_regions", None, &regions));
-    let profile = json!({"schema_version": "0.3.0", "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3"}});
-    model = apply(&model, &structured("set_field", "Model", "project:t4-u2-l-line-authoring", "pressure_profile", Some(&json!({"schema_version": "0.2.0"})), &profile));
+    let profile = json!({"schema_version": current_model::CURRENT_MODEL_VERSION, "pressure_contract": current_model::current_contract()});
+    model = apply(&model, &structured("set_field", "Model", "project:t4-u2-l-line-authoring", "pressure_profile", Some(&json!({"schema_version": current_model::CURRENT_MODEL_VERSION})), &profile));
     for load in reference["load_cases"][0]["primitive_loads"].as_array().unwrap() {
         let (unit, dimension) = (load["magnitude"]["unit"].as_str().unwrap(), load["dimension"].as_str().unwrap());
         model = apply(&model, &intent("create", "create_primitive_load", "Load", "case:u2", "primitive_loads", "not_present", &load.to_string(), unit, dimension));
@@ -158,13 +173,19 @@ fn the_l_line_is_authored_from_its_corner_and_solves_under_pressure_1_in_both_mo
     assert_eq!(bend["modifiers"]["flexibility_factor_user_value"], json!({"value": 2.0, "unit": "none"}));
     assert_eq!(bend["geometry"]["bend_pipe_ref"], "pipe:BEND");
     assert!(bend["geometry"].get("bend_angle").is_none() && bend["geometry"].get("bend_plane_orientation").is_none());
-    assert_eq!(model["pressure_contract"], json!({"version": "3.0.0", "mode": "exact_pressure_v3"}));
+    assert_eq!(model["pressure_contract"], current_model::current_contract());
+    assert_eq!(model["schema_version"], current_model::CURRENT_MODEL_VERSION);
+    for pipe in model["pipe_segments"].as_array().unwrap() {
+        assert_eq!(pipe["section"]["corrosion_allowance"], json!({"value": 0.0, "unit": "m"}), "{}", pipe["id"]);
+    }
     // Plain JSON transport preserves the authored document.
     let restored: Value = serde_json::from_str(&serde_json::to_string(&model).unwrap()).unwrap();
     assert_eq!(canonical_json(&restored), canonical_json(&model));
 
-    // T4-I7's hand-placed document: the same geometry, loads and k.
+    // T4-I7's hand-placed document: the same geometry, loads and k (its frozen
+    // 0.3.0 copy re-authored to the current document).
     let mut reference = i7_l_line();
+    current_model::reauthor_model(&mut reference);
     reference["project"]["id"] = model["project"]["id"].clone();
     for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
         let authored_result = solve(&restored, mode);

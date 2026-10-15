@@ -1,13 +1,16 @@
-//! Actual joined sparse/dense producer bytes, retained under fixtures/results.
+//! Actual sparse/dense producer bytes of the current exact pressure contract
+//! (pressure-1, 0.5.0/3.0.0/exact_pressure_v3), retained under fixtures/results.
+//! B7b moved these physical-evidence checks from the retired physics-1 statements
+//! onto their pressure-1 twins (`pressure_*_mechanics_*`, same physical inputs).
 //! This proves consumer admission and source binding, not producer authentication.
 use open_pipe_stress_result_export::{derivative as d, semantic_contract as s};
 use serde_json::{json, Value};
 
 fn source(dense: bool) -> Value {
     serde_json::from_str(if dense {
-        include_str!("../../../../fixtures/results/physics_connected_mechanics_dense.json")
+        include_str!("../../../../fixtures/results/pressure_connected_mechanics_dense.json")
     } else {
-        include_str!("../../../../fixtures/results/physics_connected_mechanics_sparse.json")
+        include_str!("../../../../fixtures/results/pressure_connected_mechanics_sparse.json")
     })
     .unwrap()
 }
@@ -37,12 +40,12 @@ fn derive(raw: &Value) -> Result<Value, String> {
     d::derive_document(base, &request["model"], raw, origin, Some(&request))
 }
 #[test]
-fn actual_joined_outputs_admit_preserve_and_validate_physics_derivatives() {
+fn actual_outputs_admit_preserve_and_validate_pressure_derivatives() {
     for dense in [false, true] {
         let raw = source(dense);
         assert_eq!(
             s::for_source(&raw).unwrap().0["semantic_contract_id"],
-            s::PHYSICS_ID
+            s::PRESSURE_ID
         );
         assert_eq!(
             s::numerical_use_standing(&raw, &bases(&raw)),
@@ -75,9 +78,9 @@ fn actual_joined_outputs_admit_preserve_and_validate_physics_derivatives() {
             std::fs::create_dir_all(&dir).unwrap();
             std::fs::write(
                 std::path::Path::new(&dir).join(if dense {
-                    "physics-dense.document.json"
+                    "pressure-dense.document.json"
                 } else {
-                    "physics-sparse.document.json"
+                    "pressure-sparse.document.json"
                 }),
                 serde_json::to_vec_pretty(&doc).unwrap(),
             )
@@ -257,7 +260,10 @@ fn metadata_only_dispatch_cannot_qualify_missing_raw_evidence_or_reserved_method
         "openpipestress.result_semantics/0.3.0/precision-2",
         "openpipestress.result_semantics/0.3.0/source-blocks-1",
         "openpipestress.result_semantics/0.3.0/unknown",
-    ] {
+    ]
+    .into_iter()
+    .chain(s::RETIRED_EXACT_V2_IDS)
+    {
         let mut bad = raw.clone();
         bad["producer"]["semantic_contract_id"] = json!(id);
         assert!(s::for_source(&bad).is_err());
@@ -314,13 +320,13 @@ fn canonical_physical_evidence_is_source_bound_even_after_rehash() {
     );
 }
 #[test]
-fn physics_table_declares_its_own_signature_counts() {
-    // B1: the table no longer inherits precision-1 (deleted); its rows were
-    // already inlined, so only the inherited digest went.
-    assert!(s::physics_contract().get("inherited_semantic_contract_sha256").is_none());
-    // E14: one signature and kind fewer (the retired parity observation).
-    assert_eq!(s::physics_contract()["source_signature_count"], 68);
-    assert_eq!(s::physics_contract()["source_kind_count"], 51);
+fn pressure_table_declares_its_own_signature_counts() {
+    // B7b (O-10): pressure-1's own reviewed table inherits nothing (B1 retired
+    // precision-1; B7b retired physics-1, whose 68 physical signatures it keeps,
+    // E14's parity observation already gone), plus 18 connector and 2 U5 signatures.
+    assert!(s::pressure_rows_contract().get("inherited_semantic_contract_sha256").is_none());
+    assert_eq!(s::pressure_rows_contract()["source_signature_count"], 88);
+    assert_eq!(s::pressure_rows_contract()["source_kind_count"], 59);
 }
 
 #[test]
@@ -359,8 +365,8 @@ fn explicit_unavailable_extrema_preserve_signed_rows_and_withhold_headline() {
 #[test]
 fn actual_pressure_thermal_cases_retain_distinct_pressure_only_ledgers() {
     for bytes in [
-        include_str!("../../../../fixtures/results/physics_thermal_ui_mechanics_sparse.json"),
-        include_str!("../../../../fixtures/results/physics_thermal_ui_mechanics_dense.json"),
+        include_str!("../../../../fixtures/results/pressure_thermal_ui_mechanics_sparse.json"),
+        include_str!("../../../../fixtures/results/pressure_thermal_ui_mechanics_dense.json"),
     ] {
         let raw: Value = serde_json::from_str(bytes).unwrap();
         assert_eq!(

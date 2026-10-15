@@ -73,6 +73,10 @@
         "material": "material:steel",
         "provenance": "invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data",
         "section": {
+          "corrosion_allowance": {
+            "unit": "m",
+            "value": 0.0
+          },
           "mill_tolerance": {
             "unit": "m",
             "value": 0.000889
@@ -99,6 +103,10 @@
         "material": "material:steel",
         "provenance": "invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data",
         "section": {
+          "corrosion_allowance": {
+            "unit": "m",
+            "value": 0.0
+          },
           "mill_tolerance": {
             "unit": "m",
             "value": 0.000889
@@ -122,6 +130,7 @@
     ],
     "pressure_contract": {
       "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
       "version": "3.0.0"
     },
     "project": {
@@ -135,7 +144,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.3.0",
+    "schema_version": "0.5.0",
     "supports": [
       {
         "family": "anchor",
@@ -174,7 +183,7 @@
     "hash_status": "computed_local_preview",
     "payload_ref": "project:corpus-bend",
     "payload_scope": "model_payload",
-    "value": "sha256:9ad0e95c593c72b10388e338da7c367e827d4e9fd0afd32462bd6ed0d9ddae96"
+    "value": "sha256:372a81fc9e7940493c09cbf9f2ac259d357cbe002ae58f1826864ee7ce53df62"
   },
   "description": "Insert a realized bend (R, user k) at a corner of two straights: tangent points, shortened pipes and the arc span.",
   "expected": {
@@ -288,6 +297,10 @@
           "material": "material:steel",
           "provenance": "invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data",
           "section": {
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0
+            },
             "mill_tolerance": {
               "unit": "m",
               "value": 0.000889
@@ -314,6 +327,10 @@
           "material": "material:steel",
           "provenance": "invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data",
           "section": {
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0
+            },
             "mill_tolerance": {
               "unit": "m",
               "value": 0.000889
@@ -341,6 +358,10 @@
           "material": "material:steel",
           "provenance": "invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data",
           "section": {
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0
+            },
             "mill_tolerance": {
               "unit": "m",
               "value": 0.000889
@@ -364,6 +385,7 @@
       ],
       "pressure_contract": {
         "mode": "exact_pressure_v3",
+        "shear_model": "euler_bernoulli",
         "version": "3.0.0"
       },
       "project": {
@@ -377,7 +399,7 @@
           "temperature": "degC"
         }
       },
-      "schema_version": "0.3.0",
+      "schema_version": "0.5.0",
       "supports": [
         {
           "family": "anchor",
@@ -409,7 +431,7 @@
         }
       ]
     },
-    "applied_model_canonical_sha256": "sha256:274f1201b25e358727d132a15f109273dd62f303d55737e88585d2157c0c9cfd",
+    "applied_model_canonical_sha256": "sha256:c6253468c199ea01e790eed4b51cf2dda9f41fe8b4e766af53abd2fe8e412a81",
     "outcome": {
       "acceptance": {
         "acceptance_basis": "user_initiated_apply_in_local_session",
@@ -463,8 +485,8 @@
           "unit": "none"
         },
         {
-          "after": "{\"from\":\"node:A\",\"id\":\"pipe:S1\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:B\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1}}",
-          "before": "{\"from\":\"node:A\",\"id\":\"pipe:S1\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:X\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1}}",
+          "after": "{\"from\":\"node:A\",\"id\":\"pipe:S1\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:B\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1}}",
+          "before": "{\"from\":\"node:A\",\"id\":\"pipe:S1\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:X\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1}}",
           "change_kind": "insert_bend_at_corner",
           "dimension": "dimensionless",
           "entity_ref": "pipe:S1",
@@ -473,8 +495,8 @@
           "unit": "none"
         },
         {
-          "after": "{\"from\":\"node:C\",\"id\":\"pipe:S2\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:D\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1}}",
-          "before": "{\"from\":\"node:X\",\"id\":\"pipe:S2\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:D\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1}}",
+          "after": "{\"from\":\"node:C\",\"id\":\"pipe:S2\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:D\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1}}",
+          "before": "{\"from\":\"node:X\",\"id\":\"pipe:S2\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:D\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1}}",
           "change_kind": "insert_bend_at_corner",
           "dimension": "dimensionless",
           "entity_ref": "pipe:S2",
@@ -483,7 +505,7 @@
           "unit": "none"
         },
         {
-          "after": "{\"from\":\"node:B\",\"id\":\"pipe:BEND\",\"label\":\"Bend arc\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:C\",\"y_reference\":{\"x\":1,\"y\":0,\"z\":0}}",
+          "after": "{\"from\":\"node:B\",\"id\":\"pipe:BEND\",\"label\":\"Bend arc\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:C\",\"y_reference\":{\"x\":1,\"y\":0,\"z\":0}}",
           "before": "not_present",
           "change_kind": "connect_pipe_run",
           "dimension": "dimensionless",
@@ -508,10 +530,10 @@
       "mode": "apply",
       "model_basis": {
         "backend_canonicalization": "rfc8785_jcs",
-        "backend_model_hash": "sha256:9ad0e95c593c72b10388e338da7c367e827d4e9fd0afd32462bd6ed0d9ddae96",
+        "backend_model_hash": "sha256:372a81fc9e7940493c09cbf9f2ac259d357cbe002ae58f1826864ee7ce53df62",
         "binding_status": "claimed_model_hash_matches_current_backend_model",
         "claimed_hash_canonicalization": "rfc8785_jcs",
-        "claimed_model_hash": "sha256:9ad0e95c593c72b10388e338da7c367e827d4e9fd0afd32462bd6ed0d9ddae96"
+        "claimed_model_hash": "sha256:372a81fc9e7940493c09cbf9f2ac259d357cbe002ae58f1826864ee7ce53df62"
       },
       "operation_id": "op:corpus-accept-insert-bend-at-corner",
       "operation_kind": "modify",
@@ -546,7 +568,7 @@
     "author_type": "user",
     "change": {
       "after": "{\"radius\": {\"value\": 250, \"unit\": \"mm\"}, \"flexibility_factor\": {\"value\": 2, \"unit\": \"none\"}, \"flexibility_source_reference\": \"invented corpus value\", \"new_nodes\": [{\"id\": \"node:B\", \"label\": \"Bend start\", \"provenance\": \"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\"}, {\"id\": \"node:C\", \"label\": \"Bend end\", \"provenance\": \"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\"}], \"new_pipe\": {\"id\": \"pipe:BEND\", \"label\": \"Bend arc\", \"provenance\": \"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\"}, \"component\": {\"id\": \"component:bend-1\", \"label\": \"Bend\", \"provenance\": \"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\", \"geometry_source_reference\": \"inserted at the corner\"}}",
-      "before": "{\"markers\":[],\"node\":{\"id\":\"node:X\",\"label\":\"Corner\",\"position\":{\"x\":3.25,\"y\":0,\"z\":0},\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\"},\"pipes\":[{\"from\":\"node:A\",\"id\":\"pipe:S1\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:X\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1}},{\"from\":\"node:X\",\"id\":\"pipe:S2\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:D\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1}}]}",
+      "before": "{\"markers\":[],\"node\":{\"id\":\"node:X\",\"label\":\"Corner\",\"position\":{\"x\":3.25,\"y\":0,\"z\":0},\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\"},\"pipes\":[{\"from\":\"node:A\",\"id\":\"pipe:S1\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:X\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1}},{\"from\":\"node:X\",\"id\":\"pipe:S2\",\"material\":\"material:steel\",\"provenance\":\"invented contract corpus input (T4-U2 bend authoring); not library, component, catalog or code-rule data\",\"section\":{\"corrosion_allowance\":{\"unit\":\"m\",\"value\":0},\"mill_tolerance\":{\"unit\":\"m\",\"value\":0.000889},\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1683},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.00711}},\"to\":\"node:D\",\"y_reference\":{\"x\":0,\"y\":0,\"z\":1}}]}",
       "change_id": "change:corpus-accept-insert-bend-at-corner",
       "change_kind": "insert_bend_at_corner",
       "dimension": "dimensionless",

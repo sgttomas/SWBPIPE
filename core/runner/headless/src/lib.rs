@@ -1515,9 +1515,10 @@ mod tests {
         for case in ordinary["model"]["load_cases"].as_array_mut().unwrap() {
             case["primitive_loads"].as_array_mut().unwrap().retain(|load| !(load["category"] == "pressure" || load["dimension"] == "pressure"));
         }
-        // A fresh non-exact solve publishes preview-physics-1, its route's identity.
+        // A fresh non-exact solve publishes preview-physics-1, its route's identity;
+        // the exact solve publishes the current exact contract's pressure-1 (B7b).
         for (payload, contract) in [(ordinary, open_pipe_stress_result_export::semantic_contract::PREVIEW_PHYSICS_ID),
-            (exact, open_pipe_stress_result_export::semantic_contract::PHYSICS_ID)] {
+            (exact, open_pipe_stress_result_export::semantic_contract::PRESSURE_ID)] {
             for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
                 let baseline = run_preview_model_value_mode(request(), payload.clone(), None, mode).unwrap();
                 let raw = serde_json::to_value(baseline.mechanics_envelope.as_ref().unwrap()).unwrap();
@@ -1569,7 +1570,7 @@ mod tests {
             assert_eq!(raw["contract_evidence"], serde_json::json!({"pressure":[],"connector":[],"exact_cases":[]}));
             assert!(raw["results"].as_array().unwrap().is_empty());
             assert!(raw["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == diagnostic));
-            assert_eq!(semantic_contract::for_source(&raw).unwrap().0["semantic_contract_id"], semantic_contract::PHYSICS_ID);
+            assert_eq!(semantic_contract::for_source(&raw).unwrap().0["semantic_contract_id"], semantic_contract::PRESSURE_ID);
             let requested = payload["model"]["load_cases"].as_array().unwrap().iter().map(|c|
                 serde_json::json!({"ref_type":"load_case","ref_id":c["id"]})).collect::<Vec<_>>();
             assert_eq!(semantic_contract::numerical_use_standing(&raw, &requested), "needs_recompute");

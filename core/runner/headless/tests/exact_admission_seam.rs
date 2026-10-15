@@ -4,8 +4,8 @@
 //! straight v3 document, and since T4-U2 phase 1 one whose region member is a
 //! realized bend, solves under `pressure-1`; since T4-U2 phase 2 both produce
 //! a pressure-1 export document that the exporter's own check admits.
-//! The input is PP's committed invented X0 fixture with only the contract
-//! identity changed.
+//! The input is PP's committed invented X0 fixture (B7b: already the current
+//! 0.5.0 exact document) with the current contract stated explicitly.
 use open_pipe_stress_headless_runner::{
     run_preview_model_value_with_mode, PrivacyContext, ProfessionalBoundary, Provenance,
     RedistributionStatus, Reference, RunnerOperation, RunnerRequest, TbdDecisions,
@@ -58,7 +58,8 @@ fn request(model: &Value) -> RunnerRequest {
 
 fn v3() -> Value {
     let mut document: Value = serde_json::from_str(X0).unwrap();
-    document["model"]["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3"});
+    document["model"]["pressure_contract"] =
+        json!({"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"});
     document
 }
 

@@ -1,16 +1,19 @@
-//! load-reference-1 readers on the four frozen producer envelopes, with the
-//! adversarial cases shared with `tests/test_load_reference_readers.py`.
-//! Both readers must reproduce every expectation in the case file. This proves
-//! consumer admission and carrier preservation, not producer authentication.
+//! The current pressure-1 reader on documents carrying the optional
+//! load/reference-state group: the four current producer envelopes (B7b's v3
+//! twins of the retired load-reference-1 statements, same physical inputs,
+//! 0.5.0/3.0.0/exact_pressure_v3), with the adversarial cases shared with the
+//! Python verifier and the base-reader corpus. Both readers must reproduce every
+//! expectation in the case file. This proves consumer admission and carrier
+//! preservation, not producer authentication.
 use open_pipe_stress_result_export::{
-    derivative as d, load_reference as lr, semantic_contract as s,
+    derivative as d, load_reference as lr, reader_verdict as rv, semantic_contract as s,
 };
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
 const CASES: &str = include_str!("fixtures/load_reference_mutations.json");
 const TABLE: &str =
-    include_str!("../../../../fixtures/results/semantic_contract_v0_3_load_reference_1.json");
+    include_str!("../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json");
 const PHYSICS_PREFIX: &str = "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE";
 const NONFINITE_MARKER: &str = "__LOAD_REFERENCE_NONFINITE__";
 const RAW: [&str; 4] = [
@@ -23,19 +26,19 @@ const RAW: [&str; 4] = [
 fn source_text(name: &str) -> &'static str {
     match name {
         "connected-sparse" => include_str!(
-            "../../../../fixtures/product_preview/load_reference/connected-sparse_interactive.raw.json"
+            "../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
         ),
         "connected-dense" => include_str!(
-            "../../../../fixtures/product_preview/load_reference/connected-dense_scrutiny.raw.json"
+            "../../../../fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json"
         ),
         "pressure-sparse" => include_str!(
-            "../../../../fixtures/product_preview/load_reference/pressure-sparse_interactive.raw.json"
+            "../../../../fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json"
         ),
         "pressure-dense" => include_str!(
-            "../../../../fixtures/product_preview/load_reference/pressure-dense_scrutiny.raw.json"
+            "../../../../fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json"
         ),
         "physics-sparse" => {
-            include_str!("../../../../fixtures/results/physics_connected_mechanics_sparse.json")
+            include_str!("../../../../fixtures/results/pressure_connected_mechanics_sparse.json")
         }
         _ => panic!("unknown source {name}"),
     }
@@ -45,9 +48,9 @@ fn source(name: &str) -> Value {
 }
 fn request(name: &str) -> Value {
     serde_json::from_str(if name.starts_with("connected") {
-        include_str!("../../../../fixtures/product_preview/load_reference/connected.request.json")
+        include_str!("../../../../fixtures/product_preview/pressure/load_reference/connected.request.json")
     } else {
-        include_str!("../../../../fixtures/product_preview/load_reference/pressure.request.json")
+        include_str!("../../../../fixtures/product_preview/pressure/load_reference/pressure.request.json")
     })
     .unwrap()
 }
@@ -263,41 +266,47 @@ fn write_log(name: &str, log: &[Value]) {
 }
 
 #[test]
-fn frozen_inputs_table_and_schema_are_pinned() {
+fn current_inputs_table_and_schema_are_pinned() {
+    // B7b: the regenerated 0.5.0/v3 producer envelopes (fixtures commit 2d0e2210c1).
     for (name, digest) in [
         (
             "connected-sparse",
-            "57d0c64f56356b91e70ddb2ddd3dbd87af7b654ad2ca524a50a19b35bb4ecbd5",
+            "c268a1411f464359f3aa3f5c1636a2dceb1dddfa815db46d13b4847d295ce160",
         ),
         (
             "connected-dense",
-            "b7442e12640632f17b73d08b819b840613be4823540ad60e1522870e0e80f3a8",
+            "c5669cf9e6d6b3b04fc8df02c741f2abfab3dae032ee706a86e7f48cba81eb83",
         ),
         (
             "pressure-sparse",
-            "84f0f639095c87ee49ab425a7d2b298aa0e269285808515e9d7f3b80317746fa",
+            "9fe1e28cc2d09a033867f15b85e298e27c4ca3cb271a7bc518bb85ed7fab6c75",
         ),
         (
             "pressure-dense",
-            "eddcb2a1779de75eb3c564e0270e1d0d9f30af6febd1d042e6468672686e2b49",
+            "d24cd7d411959fbd241532993759be1c4862e501587bf313f2cfdd50edc72204",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
+        let raw = source(name);
+        assert_eq!(raw["producer"]["semantic_contract_id"], s::PRESSURE_ID, "{name}");
+        for record in raw["contract_evidence"]["load_reference_states"].as_array().unwrap() {
+            assert_eq!((record["contract"].as_str(), record["profile"].as_str()), (Some(lr::RECORD_CONTRACT), Some(lr::RECORD_PROFILE)), "{name}");
+        }
     }
-    assert_eq!(sha(TABLE.as_bytes()), s::LOAD_REFERENCE_TABLE_SHA256);
-    let table = s::load_reference_contract();
-    assert_eq!(table["semantic_contract_id"], s::LOAD_REFERENCE_ID);
-    assert_eq!(table["formulation_profile_id"], s::LOAD_REFERENCE_PROFILE);
-    // Result rows use the physics-1 signatures unchanged.
-    assert_eq!(table["rows"], s::physics_contract()["rows"]);
-    assert_eq!(
-        table["canonical_metadata_vocabulary"],
-        s::physics_contract()["canonical_metadata_vocabulary"]
-    );
+    // Result rows use pressure-1's own reviewed table (B7b, O-10).
+    assert_eq!(sha(TABLE.as_bytes()), s::PRESSURE_TABLE_SHA256);
+    let table = s::pressure_rows_contract();
+    assert_eq!(table["semantic_contract_id"], s::PRESSURE_ID);
+    assert_eq!(table["formulation_profile_id"], s::PRESSURE_PROFILE);
     assert!(lr::transport_schema().is_ok());
+    // B7b A5: load_reference_state.schema.json lost its v2 definitions.
     assert_eq!(
         lr::TRANSPORT_SCHEMA_SHA256,
-        "2ac01a19ac496893a14864dcfa6c7523f7acb6659181d38c498f722e1059f500"
+        "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0"
+    );
+    assert_eq!(
+        sha(include_bytes!("../../../../schemas/load_reference_state.schema.json")),
+        lr::TRANSPORT_SCHEMA_SHA256
     );
 }
 
@@ -322,7 +331,7 @@ fn shared_adversarial_cases_match_in_rust() {
         } else {
             (
                 outcome(s::for_source(&doc)),
-                outcome(s::validate_load_reference_evidence(&doc)),
+                outcome(s::validate_pressure_evidence(&doc)),
             )
         };
         record(
@@ -355,7 +364,7 @@ fn shared_adversarial_cases_match_in_rust() {
         if dispatch == "accept" {
             assert_eq!(
                 s::for_source(&doc).unwrap().0["semantic_contract_id"],
-                s::LOAD_REFERENCE_ID
+                s::PRESSURE_ID
             );
             if let Some(code) = case["carrier_rust"].as_str() {
                 // Both readers admit it; the checked-JSON carrier profile does not.
@@ -398,36 +407,25 @@ fn table_bytes_and_transport_cases_match_in_rust() {
             assert!(text.contains(find));
             text = text.replacen(find, case["replace"].as_str().unwrap(), 1);
         }
-        let result = outcome(s::verify_load_reference_table(text.as_bytes()));
+        let result = outcome(s::verify_pressure_table(text.as_bytes()));
         record(&mut log, json!({"id": case["id"], "table": result}));
         assert_eq!(result, case["expect"].as_str().unwrap(), "{}", case["id"]);
     }
-    for case in cases["transport_cases"].as_array().unwrap() {
-        let (doc, nonfinite) = apply(&source(case["source"].as_str().unwrap()), &case["ops"]);
-        assert!(nonfinite.is_none());
+    // B7b: pressure-1 has no transport (metadata-only) reader, so the retired
+    // load-reference-1 transport cases have no current twin: the case file states
+    // none, and a transported statement is refused by name while its header alone
+    // still dispatches (header only; never a qualification of raw output).
+    assert_eq!(cases["transport_cases"], json!([]));
+    for name in RAW {
+        let doc = source(name);
         let mut meta = json!({"schema_version": doc["schema_version"]});
-        for key in [
-            "producer",
-            "numerical_quality",
-            "formulation_basis",
-            "contract_evidence",
-            "source_block_recovery",
-            "carrier_evidence",
-        ] {
-            if let Some(v) = doc.get(key) {
-                meta[key] = v.clone();
-            }
+        for key in ["producer", "numerical_quality", "formulation_basis", "contract_evidence"] {
+            meta[key] = doc[key].clone();
         }
-        let result = outcome(s::validate_load_reference_transport_metadata(&meta));
-        record(&mut log, json!({"id": case["id"], "transport": result}));
-        assert!(
-            agrees(&result, case["expect"].as_str().unwrap()),
-            "{}: {result}",
-            case["id"]
-        );
-        if result == "accept" {
-            assert!(s::for_source_metadata(&meta).is_ok());
-        }
+        let result = rv::transport("pressure", &meta);
+        record(&mut log, json!({"id": name, "transport": result}));
+        assert_eq!(result["error"]["code"], rv::PRESSURE_TRANSPORT_UNSUPPORTED, "{name}");
+        assert!(s::for_source_metadata(&meta).is_ok(), "{name}");
     }
     write_log("rust_table_transport_outcomes.json", &log);
 }
@@ -451,7 +449,7 @@ fn canonical_documents_preserve_source_metadata_and_evidence_verbatim() {
         assert!(e.get("source_block_recovery").is_none());
         assert_eq!(
             e["semantic_contract_ref"],
-            d::reference("semantic_contract", s::LOAD_REFERENCE_ID)
+            d::reference("semantic_contract", s::PRESSURE_ID)
         );
         assert_eq!(
             e["row_accounting"].as_array().unwrap().len(),
@@ -476,7 +474,7 @@ fn canonical_documents_preserve_source_metadata_and_evidence_verbatim() {
         // Compact bytes plus a newline: the carriers are large and regenerated by rerun.
         let text = serde_json::to_string(&doc).unwrap() + "\n";
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
-            "../../../fixtures/results/load_reference_{}.document.json",
+            "../../../fixtures/results/pressure_load_state_{}.document.json",
             name.replace('-', "_")
         ));
         if std::env::var("LOAD_REFERENCE_WRITE_FIXTURES").as_deref() == Ok("1") {
@@ -496,7 +494,7 @@ fn canonical_documents_preserve_source_metadata_and_evidence_verbatim() {
             ),
             (
                 "/result_envelope/semantic_contract_ref/ref_id",
-                json!(s::PHYSICS_ID),
+                json!(s::PRESSURE_SOURCE_ID),
                 "SEMANTIC_CONTRACT_BINDING_MISMATCH",
             ),
             (
@@ -536,26 +534,28 @@ fn header_only_dispatch_is_bound_to_one_profile_and_never_qualifies_raw_output()
     header.as_object_mut().unwrap().remove("results");
     assert_eq!(
         s::for_source_metadata(&header).unwrap().0["semantic_contract_id"],
-        s::LOAD_REFERENCE_ID
+        s::PRESSURE_ID
     );
     assert!(s::for_source(&header).is_err());
-    // Existing physics-1 dispatch is unchanged.
+    // One pressure-1 identity and profile with and without the group: the
+    // ordinary statement dispatches to the same table.
     let physics = source("physics-sparse");
+    assert!(physics["contract_evidence"].get("load_reference_states").is_none());
     assert_eq!(
         s::for_source(&physics).unwrap().0["semantic_contract_id"],
-        s::PHYSICS_ID
+        s::PRESSURE_ID
     );
-    for id in [
-        s::PHYSICS_ID,
-        s::PHYSICS_SOURCE_ID,
-    ] {
-        let mut bad = physics.clone();
-        bad["producer"]["semantic_contract_id"] = json!(id);
-        bad["formulation_basis"]["profile_id"] = json!(s::LOAD_REFERENCE_PROFILE);
-        assert_eq!(
-            s::for_source_metadata(&bad).unwrap_err(),
-            "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
-            "{id}"
-        );
+    // B7b: every retired v2 identity is refused by name at the header, whatever
+    // profile it claims.
+    for id in s::RETIRED_EXACT_V2_IDS {
+        for profile in [s::PRESSURE_PROFILE, "exact_straight_pressure_v2", "resolved_straight_load_state_v1"] {
+            for statement in [&physics, &raw] {
+                let mut bad = statement.clone();
+                bad["producer"]["semantic_contract_id"] = json!(id);
+                bad["formulation_basis"]["profile_id"] = json!(profile);
+                let refusal = s::for_source_metadata(&bad).unwrap_err();
+                assert!(refusal.starts_with(&format!("{}: ", s::SOURCE_EXACT_PRESSURE_V2_RETIRED)), "{id} {profile}: {refusal}");
+            }
+        }
     }
 }

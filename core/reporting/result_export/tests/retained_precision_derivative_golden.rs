@@ -76,20 +76,20 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "5ef83dd9f046cb97939aa8af753a42b0b962c27bab4c73c725dc803584aee8e5",
-        "57114af44b909de9494abe740eb14cb61aaceefae2beaf5a20b11f98f29cd0ce",
+        "45e14e68249abbeafa358f9e7317e9060da8e59c83db948a8184b98b8859001c",
+        "f6bb7e7fc74ebce71c67da5da81906fece54e412aa2697d5548eb13f50b67524",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "ee20a337dd159fdafcb512f5f5d3efaa731b176cf61423121fce2fde2f212bc0",
-        "3b92b6ce2e72cd12cf3f96aa9a85ba9f2f9b3c38eed7f8879443527d5cd97e17",
+        "0f490c22e7b2a25fa5dc1dd3d3a7ae7a701c744bfaac2fc2a2aa8f95f3451259",
+        "0317aed643760641eec81708a0d5f506963e109a78c97a715617c081c28b7701",
     ),
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "fa3201d52996551c5246718b81143219fbf0fc601e96b21ae9ddf40e714c0ec1"),
-    ("dense_scrutiny", "15f286652513518bc7f1ddc0c503e5d201228ac0503e1d043012d370d725df81"),
+    ("sparse_interactive", "4af45d2536aad6849c384d271d67b2732654455e88b60411c2a5c8a1adaf2ead"),
+    ("dense_scrutiny", "9de40cffb951167fd6cedb4ed62dfb1204aeea92194fee22b6848b46bb0c53a8"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
 /// non-quantity); no `not_covered` row.

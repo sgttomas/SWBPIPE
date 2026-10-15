@@ -5136,7 +5136,7 @@ fn resolve_create_primitive_load(
             "OP-PRESSURE-PRIMITIVE-RETIRED",
             "blocking",
             "Pressure primitive loads are retired, zero values included; the product refuses them (PRESSURE_MODEL_REAUTHOR_REQUIRED).".to_string(),
-            "Author pressure as exact pressure regions: select the 2.0.0/exact_straight_pressure_v2 profile, then enter the load case's pressure_regions (an explicit [] for an unpressurized case).",
+            "Author pressure as exact pressure regions: on model 0.5.0 select the 3.0.0/exact_pressure_v3 profile (shear_model euler_bernoulli) with an explicit section.corrosion_allowance on every pipe, then enter the load case's pressure_regions (an explicit [] for an unpressurized case).",
             vec![target_ref.to_string()],
         );
         return None;
@@ -11123,7 +11123,8 @@ mod tests {
             let diagnostic = &refused.diagnostics[0];
             assert_eq!(diagnostic.severity, "blocking");
             assert!(diagnostic.message.contains("PRESSURE_MODEL_REAUTHOR_REQUIRED"));
-            assert!(diagnostic.remediation.contains("2.0.0/exact_straight_pressure_v2"));
+            assert!(diagnostic.remediation.contains("3.0.0/exact_pressure_v3"));
+            assert!(!diagnostic.remediation.contains("exact_straight_pressure_v2"));
         }
 
         let thermal_payload = json!({
@@ -13418,9 +13419,10 @@ mod tests {
     /// A v3 document: the objective connector for the replaced span between
     /// its end nodes.
     fn v3_model() -> Value {
+        // B7b: the current 0.5.0 exact document (sample_model is already 0.5.0).
         let mut model = sample_model();
-        model["schema_version"] = json!("0.3.0");
-        model["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
+        model["pressure_contract"] =
+            json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
         model
     }
 
@@ -13466,7 +13468,7 @@ mod tests {
             assert!(outcome.applied_model.is_none(), "{change:?}");
             assert!(!codes(&outcome).is_empty(), "{change:?}");
         }
-        // A v2 document admits neither form.
+        // A document with the retired 2.0.0 contract admits neither form.
         let mut v2 = v3_model();
         v2["pressure_contract"] = json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"});
         let outcome = apply_operation(&v2, &expansion_joint_intent(&payload), None);
