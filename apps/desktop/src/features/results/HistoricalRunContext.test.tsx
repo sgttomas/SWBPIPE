@@ -1,4 +1,5 @@
-import { buildAnalysisRunV03, ANALYSIS_RUN_SCHEMA_VERSION_RETIRED } from "../../services/analysisRunCompatibility";
+import { buildAnalysisRunV03, analysisRecordProjection, modelLoadBasisRefs, ANALYSIS_RUN_SCHEMA_VERSION_RETIRED } from "../../services/analysisRunCompatibility";
+import { nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { render, screen, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildHistoricalRunContext, buildBundledReferenceContext, HistoricalRunPanel } from "./HistoricalRunContext";
@@ -7,7 +8,8 @@ import savedModel from "../../../../../fixtures/model_operations/precision_conne
 import savedResult from "../../../../../fixtures/results/preview_physics_connected_sparse.json";
 import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
-import type { LocalProjectEnvelope, PreviewModel, MechanicsResult } from "../../types";
+import type { AnalysisRunEnvelope, LocalProjectEnvelope, PreviewModel, MechanicsResult } from "../../types";
+type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /** A saved run with a current (0.3.0) analysis record over the connected
  * preview-physics-1 producer output and its model (B1 retired the synthetic
@@ -188,6 +190,47 @@ it("retains contradictory null-header historical bytes and hash claims while wit
   expect(context?.rawMechanicsResult).toEqual(saved.mechanics_result);
   expect(context?.findings).toContain("SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED");
   expect(JSON.stringify(saved)).toBe(before);
+});
+
+/** B7b: a reopened pressure-1 record is read by the record validator; a forged record's
+ * refusal is a displayed finding only. The record is rehashed after each forgery, so its
+ * own checksum and the project envelope hash still match and only the validator refuses. */
+describe("a reopened exact (pressure-1) record", () => {
+  async function savedExact() {
+    const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
+    const model = pair.model, mechanics_result = pair.source;
+    const inputManifest = await buildCurrentSessionInputManifest({ model, solver: { solver_name: mechanics_result.producer!.component_name, solver_version: mechanics_result.producer!.component_version, solver_build_ref: "synthetic@1", solver_mode: "sparse_interactive", settings: {} }, active_rule_packs: [], external_assets: [] });
+    const analysis_run = await buildAnalysisRunV03(mechanics_result, inputManifest, undefined, modelLoadBasisRefs(model));
+    const model_hash = await computeModelHash(model);
+    return rehash({ model, mechanics_result, analysis_run, model_hash, editor_intents: [], proposal: null, selected_review_target: null } as unknown as LocalProjectEnvelope);
+  }
+  async function forge(edit: (run: AnalysisRunEnvelope["analysis_run"], source: MechanicsResult) => void) {
+    const saved = await savedExact();
+    edit(saved.analysis_run!.analysis_run, saved.mechanics_result!);
+    const own = saved.analysis_run!.analysis_run.hashes.find(h => h.payload_scope === "analysis_run_record")!;
+    own.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(saved.analysis_run!));
+    return rehash(saved);
+  }
+  it("reads a genuine record without a record finding", async () => {
+    const findings = (await buildHistoricalRunContext(await savedExact()))!.findings;
+    expect(findings.filter(f => f.startsWith("ANALYSIS_") || f.startsWith("SOURCE_") || f.startsWith("HISTORICAL_ANALYSIS"))).toEqual([]);
+  });
+  it.each([
+    ["its table switched to pressure-source-1's", (run: Json) => { run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
+    ["the source's evidence embedded", (run: Json, source: MechanicsResult) => { run.contract_evidence = structuredClone(source.contract_evidence); }, "ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN"],
+    ["a retained-precision receipt embedded", (run: Json) => { run.retained_precision = { receipt_sha256: "0".repeat(64) }; }, "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"],
+  ] as const)("names a forged record with %s, displays it, and changes nothing", async (_name, edit, code) => {
+    const saved = await forge(edit as never), before = JSON.stringify(saved);
+    const context = (await buildHistoricalRunContext(saved))!;
+    expect(context.findings).toContain(code);
+    expect(context.findings).not.toContain("HISTORICAL_ANALYSIS_HASH_MISMATCH");
+    expect(context.findings).not.toContain("HISTORICAL_ENVELOPE_HASH_MISMATCH");
+    expect(context.mechanicsResult).toBe(saved.mechanics_result);
+    expect(context.analysisRun).toBe(saved.analysis_run);
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.getByText(code)).toBeInTheDocument();
+    expect(JSON.stringify(saved)).toBe(before);
+  });
 });
 
 afterEach(cleanup);

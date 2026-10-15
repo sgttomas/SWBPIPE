@@ -1,5 +1,7 @@
-import {render,screen} from '@testing-library/react';
+import {cleanup,render,screen} from '@testing-library/react';
 import {it,expect} from 'vitest';
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
 import {ResultsPanel} from './ResultsPanel';
 import type {MechanicsResult} from '../../types';
 import {currentCarrierHeader} from '../../test-support/currentCarrierHeader';
@@ -16,6 +18,24 @@ it('shows exact signed tiny scientific values and historical recompute qualifica
  for(let i=0;i<3;i++) expect(screen.getByTestId(`result-row-tiny:${i}`).textContent).toContain(String(result.results[i].value));
  expect(screen.getAllByTestId('numerical-result-standing').at(-1)?.textContent).toContain('Needs recompute');
  expect(JSON.stringify(result)).toBe(before);
+});
+
+// DEL-07-04: a mechanics display shows its diagnostics and limitations. Every published
+// limitation of the exact identities (pressure-1 and pressure-source-1, each with and
+// without the load/reference-state group) is visible in the standing line.
+it.each([
+ ['pressure-1','fixtures/results/pressure_connected_mechanics_sparse.json'],
+ ['pressure-1 with load/reference states','fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json'],
+ ['pressure-source-1','fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json'],
+ ['pressure-source-1 with load/reference states','fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json'],
+])('shows every formulation limitation of a %s result',(_,path)=>{
+ const result=JSON.parse(readFileSync(resolve(__dirname,'../../../../../',path),'utf8')) as MechanicsResult;
+ const limitations=result.formulation_basis!.limitations;
+ expect(limitations.length).toBeGreaterThan(0);
+ render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={()=>{}}/>);
+ const standing=screen.getByTestId('numerical-result-standing').textContent??'';
+ for(const limitation of limitations) expect(standing).toContain(limitation);
+ cleanup();
 });
 
 it('details a preview-physics-1 combination row with its recovery basis and every source result',()=>{

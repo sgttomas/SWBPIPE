@@ -352,7 +352,8 @@ it('preserves UTF8 quoted identifier code points and refuses invalid encoding or
  const packet=await buildStressNeutralExportPacket({model,result,analysisRun});
  const columns=packet.export_profile.csv_columns as string[];
  const special='case:"温,\r\n度":😀';
- const ids=[special,'','😀']; // Scalar order differs from UTF16 order at the last two IDs.
+ // U+E000 (private use) and U+FEFF (BOM) are written as code points so the source holds no invisible characters.
+ const ids=[special,String.fromCharCode(0xe000),'😀']; // Scalar order differs from UTF16 order at the last two IDs.
  const rows=ids.map(id=>({...packet.result_rows[0],result_id:id,canonical_ref:{object_type:'Result',ref:id}}));
  const csv=[columns.join(','),...rows.map(row=>columns.map(key=>{
    const value=(row as any)[key],text=typeof value==='object'?value.ref:String(value);
@@ -360,7 +361,7 @@ it('preserves UTF8 quoted identifier code points and refuses invalid encoding or
  }).join(','))].join('\n')+'\n';
  expect(csv).toContain('"case:""温,\r\n度"":😀"');
  expect(()=>validateStressNeutralCsv(csv,rows)).not.toThrow();
- for(const bad of ['﻿'+csv,csv.replace('温','\ud800'),csv.replace(columns.join(',')+'\n',columns.join(',')+'\r\n')]) {
+ for(const bad of [String.fromCharCode(0xfeff)+csv,csv.replace('温','\ud800'),csv.replace(columns.join(',')+'\n',columns.join(',')+'\r\n')]) {
    expect(()=>validateStressNeutralCsv(bad,rows)).toThrow('SN-CSV-ROW-BINDING-MISMATCH');
  }
  expect(()=>validateStressNeutralCsv(csv,[rows[0],rows[2],rows[1]])).toThrow('SN-CSV-ROW-BINDING-MISMATCH');

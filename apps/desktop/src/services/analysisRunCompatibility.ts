@@ -20,7 +20,9 @@ export const ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH = "ANALYSIS_RETAINED_P
 /** U6d: a record of any other identity carries a retained-precision receipt. */
 export const ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
 type ManifestEvidence = { manifest_ref: ObjectRef; manifest_sha256: string; manifest: { model_basis: { model_ref: string }; solver_basis: { solver_name: string; solver_version: string; solver_build_ref: string } } };
-const provenance = { source_name: "OpenPipeStress analysis record 0.2", source_location: "analysis_run.compatibility.v0.2", source_license: "project-governed", review_status: "pending", professional_claim: false };
+/** The record's provenance labels, Python's (`core/analysis_runs/compatibility.py`
+ * `_build_analysis_run`) for the one current (0.3.0) record. */
+const provenance = { source_name: "OpenPipeStress analysis record 0.3", source_location: "analysis_run.compatibility.v0.3", source_license: "project-governed", review_status: "pending", professional_claim: false };
 
 /** The record builder's tables (DEL-14-02, as Python's `compatibility.py` record builder):
  * the pinned table each binding names. The table is

@@ -29,13 +29,19 @@ const FAMILY = {
   joined: { folder: "pressure_source/load_reference_source", carrier: "pressure_source_load_state" },
 } as const;
 
+/** The one field in which the two records differ, and only because their inputs differ:
+ * the desktop always binds an input-manifest payload (`model_state_ref_and_solver_settings_
+ * unit_basis_bound_by_input_manifest`), while the committed Python carriers were built
+ * without one (`input_manifest_payload_unavailable_…`); the record self-hash follows it.
+ * Provenance labels are the same (B7b aligned the desktop's to Python's 0.3 labels). */
+const DESKTOP_NOTES = ["created_at_unavailable", "model_state_ref_and_solver_settings_unit_basis_bound_by_input_manifest"];
+const CARRIER_NOTES = ["created_at_unavailable", "input_manifest_payload_unavailable_solver_settings_unit_basis_not_independently_verified"];
 function normalize(record: Json): Json {
   const copy = structuredClone(record);
   const run = copy.analysis_run;
-  delete run.provenance;
+  expect([DESKTOP_NOTES, CARRIER_NOTES]).toContainEqual(run.reproducibility.determinism_notes);
   delete run.reproducibility.determinism_notes;
   run.hashes = run.hashes.filter((h: Json) => h.payload_scope !== "analysis_run_record");
-  for (const ref of run.result_refs) delete ref.provenance;
   return copy;
 }
 
@@ -89,16 +95,33 @@ describe("ordinary (pressure-1) AnalysisRun mirror", () => {
   });
 });
 
+/** The two refusal codes in which the desktop validator and Python's
+ * `validate_analysis_run_v0_3` differ for the same forged record. Both predate B7b and
+ * hold for every identity; they are declared here, not normalized away. */
+const DECLARED_CODE_DIFFERENCES = [
+  { forgery: "a non-source record carrying a source receipt", desktop: "SOURCE_RECOVERY_METADATA_CONTRADICTION", python: "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
+    edit: (r: Json) => { r.analysis_run.source_block_recovery = {}; } },
+  { forgery: "a record naming another model state", desktop: "ANALYSIS_SOURCE_MODEL_STATE_MISMATCH", python: "ANALYSIS_SOURCE_MODEL_MISMATCH",
+    edit: (r: Json) => { r.analysis_run.model_state_ref = { object_type: "ModelState", ref: "state:invented-other-model:preview" }; } },
+] as const;
+
 describe("records bound to other evidence are refused", () => {
   it.each([
     ["ordinary carrying contract_evidence", (r: Json, raw: Json) => { r.analysis_run.contract_evidence = structuredClone(raw.contract_evidence); }, "ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN"],
-    ["ordinary carrying a source receipt", (r: Json) => { r.analysis_run.source_block_recovery = {}; }, "SOURCE_RECOVERY_METADATA_CONTRADICTION"],
     ["ordinary bound to pressure-source-1's table", (r: Json) => { r.analysis_run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
     ["ordinary with another row binding", (r: Json) => { r.analysis_run.result_refs[0].semantic_contract.sha256 = "0".repeat(64); }, "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"],
-  ])("%s", async (_name, edit, code) => {
+    ["ordinary carrying a retained-precision receipt", (r: Json) => { r.analysis_run.retained_precision = { receipt_sha256: "0".repeat(64) }; }, "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"],
+  ])("%s (the same code as Python's validator)", async (_name, edit, code) => {
     const { raw, model, python } = await mirror("pressure-sparse", "ordinary");
     const forged = structuredClone(python); edit(forged, raw);
     await expect(validateAnalysisRunV03(forged, raw, modelLoadBasisRefs(model))).rejects.toThrow(code);
+  });
+  it.each(DECLARED_CODE_DIFFERENCES)("$forgery: the desktop names $desktop where Python names $python (declared difference)", async ({ desktop, python: pythonCode, edit }) => {
+    const { raw, model, python } = await mirror("pressure-sparse", "ordinary");
+    const forged = structuredClone(python); edit(forged);
+    const refusal = await validateAnalysisRunV03(forged, raw, modelLoadBasisRefs(model)).then(() => null, (error: Error) => error.message);
+    expect(refusal).toBe(desktop);
+    expect(refusal).not.toBe(pythonCode);
   });
   it("a tampered raw ordinary result is refused by the reader before a record is built", async () => {
     const { raw, model, manifest } = inputs("ordinary", "connected-sparse");

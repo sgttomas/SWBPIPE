@@ -13,7 +13,7 @@ import { readerRowSemantics } from "../results/resultReader";
 import { PRESSURE_1_OUTPUT_REFUSAL } from "../results/outputPolicy";
 const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
 const canonicalResultMetadata = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).canonical_metadata;
-import { buildAnalysisRunV03, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
+import { buildAnalysisRunV03, modelLoadBasisRefs, validateAnalysisRunV03 } from "../../services/analysisRunCompatibility";
 import { deriveResultDocument, buildCurrentResultExport, resultDigest, ref, derivativeProvenance } from "./resultExportAdapter";
 
 /** B7b: the v3 twin of the retired physics-1 consumer suite. The exact route's ordinary
@@ -111,6 +111,10 @@ describe("actual pressure-1 source consumers (B7b: the v3 twin of physics-1)", (
     const analysisRun = await buildAnalysisRunV03(source, inputManifest as never, undefined, modelLoadBasisRefs(model()));
     expect(analysisRun.analysis_run.reproducibility.semantic_contract).toStrictEqual({ id: PRESSURE_CONTRACT_ID, sha256: PRESSURE_CONTRACT_SHA256 });
     expect(Object.hasOwn(analysisRun.analysis_run, "contract_evidence")).toBe(false);
+    // The record and its source validate after a JSON reopen; a changed source no longer validates against it.
+    await validateAnalysisRunV03(JSON.parse(JSON.stringify(analysisRun)), JSON.parse(JSON.stringify(source)), modelLoadBasisRefs(model()));
+    const changed = raw(mode); evidence(changed).pressure[0].provenance += ":changed";
+    await expect(validateAnalysisRunV03(analysisRun, changed, modelLoadBasisRefs(model()))).rejects.toThrow("ANALYSIS_RECEIVED_SOURCE_MISMATCH");
     await expect(buildCurrentResultExport({ model: model(), result: source, analysisRun, inputManifest: null })).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
     const origin = { origin_id: "test:received-source", origin_class: "received_current_dimension_absent", qualification_ref: ref("test_fixture", "unattested-source-consumer-projection"), authentic_producer_available: false,
       received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_carrier", payload_ref: ref("received_current_carrier", source.run_id), value: await resultDigest(source) }, original_producer_checksum: null,

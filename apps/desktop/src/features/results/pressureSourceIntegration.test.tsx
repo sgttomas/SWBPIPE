@@ -156,6 +156,17 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     expect(numericalResultStanding(session.source,session.model).eligible).toBe(true);
     expect(session.analysisRun.analysis_run.run_id).toBe(session.source.run_id);
     expect(session.hook.result.current.results.currentSolvedResult).toBeNull();
+    // Mode binding through the session: a solve that receives these bytes, recorded under
+    // `mode`, for the other mode is refused at the session boundary and holds nothing.
+    assertLiveCase(generation);
+    act(()=>session.hook.result.current.results.setSolverMode(otherMode));
+    await act(async()=>{await session.hook.result.current.results.handleRun();});
+    expect(session.started).toEqual([mode,otherMode]);
+    expect(session.hook.result.current.results.result).toBeNull();
+    expect(session.hook.result.current.results.analysisRun).toBeNull();
+    expect(session.hook.result.current.results.currentSolvedResult).toBeNull();
+    expect(session.hook.result.current.results.solveJob.state).toBe("failed");
+    expect(session.hook.result.current.results.solveJob.events.at(-1)?.message).toContain("SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED");
     session.hook.unmount(); liveHooks.delete(session.hook);
   },30000);
 });

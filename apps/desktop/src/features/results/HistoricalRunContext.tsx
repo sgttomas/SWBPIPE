@@ -5,7 +5,7 @@ import { validateRetainedPrecision } from "./retainedPrecisionReader";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
 import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
-import { verifyAnalysisRunRecord, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, ANALYSIS_RUN_SCHEMA_VERSION_RETIRED, ANALYSIS_RUN_V03 } from "../../services/analysisRunCompatibility";
+import { verifyAnalysisRunRecord, validateAnalysisRunV03, modelLoadBasisRefs, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, ANALYSIS_RUN_SCHEMA_VERSION_RETIRED, ANALYSIS_RUN_V03 } from "../../services/analysisRunCompatibility";
 import type { BundledMechanicsReference } from "../../services/previewService";
 import { ResultsPanel } from "./ResultsPanel";
 
@@ -131,6 +131,20 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
     }
   } catch {
     findings.push("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
+  }
+  // B7b: a current (0.3.0) record is read against its saved source by the record
+  // validator, as on the record's own path (its table, embedded namespaces, receipt and
+  // row bindings). The saved load basis is checked for well-formedness and for covering
+  // its source's rows and cases; no saved manifest states which basis the solve requested.
+  // Its refusal is a finding only: reopening displays evidence and establishes nothing,
+  // so nothing here changes standing, rows or bytes.
+  if (currentRecord && mechanicsResult && record) {
+    const savedBasis = Array.isArray(record.load_basis_refs) ? record.load_basis_refs : modelLoadBasisRefs(opened.model);
+    try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, savedBasis); }
+    catch (error) {
+      const finding = error instanceof Error ? error.message : "HISTORICAL_ANALYSIS_VALIDATION_UNAVAILABLE";
+      if (!findings.includes(finding)) findings.push(finding);
+    }
   }
   return { designation: "historical_saved_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, findings, runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run") };
 }
