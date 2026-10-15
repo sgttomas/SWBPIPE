@@ -937,6 +937,20 @@ if fnkey("derive_pipe_section", PP_ + "lib.rs") and fnkey("normalize_model_units
             "invalid, corrosion allowance nonzero) are each a `diagnostics.push(diag(..));` immediately followed by "
             "`return None;`, and `diagnostics` is used nowhere else in the body: at most one per call")]
 
+# B7b-ZA (ccb19ba0bf): retained_precision's namespace predicates (exact_namespace, preview_namespace) call
+# section_allowances, whose one loop visits each of the captured model's pipe_segments once (`list(..).iter().all`,
+# short-circuiting): <= m per call. On the exact route each visit converts the section's corrosion_allowance once
+# (unit_value: its Ok/Err paths are priced at their own sites per call); on the preview route it reads a key only.
+_RP = RE_ + "retained_precision.rs"
+if fnkey("section_allowances", _RP):
+    _rp_src = open(_os.path.join(_SNAP, _RP), encoding="utf-8").read()
+    _sa = _rp_src.split("fn section_allowances(", 1)[1].split("\n}\n", 1)[0]
+    if _sa.count("list(&model[\"pipe_segments\"]).iter().all(") != 1 or _sa.count("unit_value(") != 1 or "for " in _sa:
+        raise SystemExit("B7b-ZA: section_allowances changed; re-review its loop and conversions")
+    O10_LOOPS_LAST += [('iter:list(&model[" "]).iter().all', "m",
+        O10 + "B7b-ZA: section_allowances visits each captured pipe segment once (D1.9: pipes <= m), one unit_value "
+        "per visit on the exact route", ["retained_precision.rs:section_allowances"])]
+
 # B7b-JR (b4447b7212): joint::pressure_finding may add a fourth ref (the listed replaced span: an admitted pipe ID,
 # <= 128 B) through `refs.extend(extra.map(str::to_string))`; the refs Vec then holds <= 4 Strings in capacity <= 6,
 # beyond the generic `refs` class (4*(24+128)). Its multiplicity is 0 on the D1 graph: classify_connectors calls it in

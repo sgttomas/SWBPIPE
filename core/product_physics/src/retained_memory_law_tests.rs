@@ -358,8 +358,10 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // test-only includes of the two current tables), then production from
             // `for_source_metadata` on, which stays inspected, then the closed E14
             // module to the end of the file (its table list changed, test-only).
+            // Re-audited at ccb19ba0bf: only the inspected production between the
+            // regions changed (current_header's load-state carrier guard).
             first_item: SEMANTIC_B7B_TEST_ITEM,
-            complete_suffix_sha256: "3da59e71265f35634fba17e9d0650f039c94dd72a4b4a837efd8845f29b97233",
+            complete_suffix_sha256: "78c770d4a5f38a9362e158ab95103d0ae135d7cf3b8aa0f832b347c702a6a9f5",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -1636,14 +1638,15 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// B7b D3 record for the actual source 1bcc55a80b (re-done after the
-/// 7e638477a8 registration; the transport schema cache is now a priced static).
-/// Requested + moving bytes, without R or the separately upward-rounded TEXT
-/// reserve, from the canonical 98-form union and measured 287-value layout.
-/// The unchanged identity/record assertions verify this candidate in-build.
+/// B7b D3 record for the actual source 837a04b770 (re-done after the
+/// 7e638477a8 and 1bcc55a80b registrations; the readers' corrosion-allowance
+/// namespace checks add W-phase TEXT). Requested + moving bytes, without R or
+/// the separately upward-rounded TEXT reserve, from the canonical 98-form union
+/// and measured 287-value layout. The unchanged identity/record assertions
+/// verify this candidate in-build.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_328_815_387, 5_652_247_325, 11_249_512_536, 11_019_936_321, 6_263_014_727, 10_331_413_815, 6_069_093_276],
-    [5_387_946_731, 5_711_378_669, 11_308_643_880, 11_079_067_665, 6_322_146_071, 10_390_545_159, 6_128_224_620],
+    [5_328_954_531, 5_652_386_469, 11_249_651_680, 11_020_075_465, 6_263_153_871, 10_331_413_815, 6_069_093_276],
+    [5_388_085_875, 5_711_517_813, 11_308_783_024, 11_079_206_809, 6_322_285_215, 10_390_545_159, 6_128_224_620],
 ];
 
 #[test]

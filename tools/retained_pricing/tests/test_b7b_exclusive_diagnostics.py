@@ -162,3 +162,40 @@ def test_b7b_j3_drops_only_its_own_deleted_census_sites(monkeypatch):
     assert "fn leaf_diff(" not in (SOURCE / "core/product_physics/src" / census).read_text()
     sizes = [key for key, _, why in d["O10_SITE_SIZE"] if "J3 (test code" in why]
     assert len(sizes) == 11 and all(str(key).startswith(census + ":") for key in sizes)
+
+
+RP = "core/reporting/result_export/src/retained_precision.rs"
+
+
+def za_block(snapshot):
+    """o10_rules.py's B7b-ZA block, as written, with its own fnkey, over `snapshot`."""
+    module = ast.parse((PRICING / "rules/o10_rules.py").read_text())
+    helpers = [node for node in module.body if isinstance(node, ast.FunctionDef) and node.name == "fnkey"]
+    assign = [node for node in module.body if isinstance(node, ast.Assign) and ast.unparse(node.targets[0]) == "_RP"]
+    blocks = [node for node in module.body if isinstance(node, ast.If) and "section_allowances" in ast.unparse(node.test)]
+    assert len(helpers) == len(assign) == len(blocks) == 1
+    namespace = {"_SNAP": str(snapshot), "_os": os, "_re": re, "Resolved": Resolved, "RE_": "core/reporting/result_export/src/",
+                 "O10": "O-10 (T4): ", "O10_LOOPS_LAST": []}
+    exec(compile(ast.Module(body=helpers + assign + blocks, type_ignores=[]), "o10 B7b-ZA", "exec"), namespace)
+    return namespace["O10_LOOPS_LAST"]
+
+
+@pytest.mark.parametrize("mutation", [None, "loop", "second_conversion"])
+def test_b7b_za_bounds_section_allowances_by_m_and_refuses_drift(tmp_path, mutation):
+    text = (SOURCE / RP).read_text()
+    anchor = '            unit_value(&section["corrosion_allowance"], Dimension::Length).is_ok_and(|v| v == 0.0)\n'
+    assert text.count(anchor) == 1
+    if mutation == "loop":
+        text = text.replace(anchor, "            for _ in 0..1 {}\n" + anchor, 1)
+    elif mutation == "second_conversion":
+        text = text.replace(anchor, anchor.replace("is_ok_and(|v| v == 0.0)",
+                            'is_ok_and(|v| v == 0.0) && unit_value(&section["outside_diameter"], Dimension::Length).is_ok()'), 1)
+    target = tmp_path / "snap" / RP
+    target.parent.mkdir(parents=True)
+    target.write_text(text)
+    if mutation is None:
+        assert za_block(tmp_path / "snap") == [('iter:list(&model[" "]).iter().all', "m", za_block(tmp_path / "snap")[0][2],
+                                                ["retained_precision.rs:section_allowances"])]
+    else:
+        with pytest.raises(SystemExit, match="B7b-ZA"):
+            za_block(tmp_path / "snap")

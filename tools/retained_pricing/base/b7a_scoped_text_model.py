@@ -22,7 +22,7 @@ LN = {
     'suffix': 13619,      # lib.rs `id.replace(':', "-")` (13614)
     'diag_fn': 13568,     # lib.rs fn diag (13563)
     'suffix_fn': 13618,   # lib.rs fn stable_suffix (13613)
-    'require': 62,        # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89)
+    'require': 78,        # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf)
 }
 PR = PP + 'pressure_runtime.rs:'
 PROBLEM = PR + '%d:problem' % LN['problem']

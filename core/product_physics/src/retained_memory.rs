@@ -1174,8 +1174,8 @@ pub(super) struct RegisteredProfile {
 static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
     // aarch64-apple-darwin, rustc 1.97.1 (8bab26f4f68e), profile=debug, opt_level=0,
     // debug_assertions=true, panic=unwind, no RUSTFLAGS.
-    // B7b actual-source D3 at source 1bcc55a80b (re-done after 7e638477a8's
-    // registration for physics_source.rs and joint.rs): canonical 98-form union,
+    // B7b actual-source D3 at source 837a04b770 (re-done after the 7e638477a8 and
+    // 1bcc55a80b registrations for the readers' changes): canonical 98-form union,
     // actual 287 bindings/layouts and the ordered 12 current input digests below
     // (B7b's resident pressure-source and pressure tables included). The one registered entry supplies G0; its genuine
     // profile, input, witness and resource checks still govern.
@@ -1284,7 +1284,7 @@ pub(super) fn priced_maximum(estimates: usize, mode: crate::PreviewSolverMode) -
 /// U4 G5 part 2: the cap-priced admission maximum as named in-build expressions. Every term is a
 /// linear form over layout atoms at the D1 caps (l <= 128); every maximum (stages, phases, moving
 /// candidates) is taken here, in the build. Source: the G4 chain with RV84/RV87's corrections at
-/// SQ2 G5 at 1bcc55a80b: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
+/// SQ2 G5 at 837a04b770: the maximum over routes L (C_eq <= 3: worst shape c = 3, z = 0) and E (c = 3), SQ2 rules; text at l <= 128.
 pub(super) mod profile {
     #![allow(clippy::all, dead_code)]
     use open_pipe_stress_frame_kernel::structural::retained_resource as fkr;
@@ -1319,8 +1319,8 @@ pub(super) mod profile {
     /// longest-string atoms of the hash route (RV84 C-N1; RV87 N-3).
     pub(crate) const TEXT_D: u64 = 71239; // D
     pub(crate) const TEXT_D_ENV: u64 = 25791; // D_env
-    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 5173812098; // TAV_text_moving
-    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 5171211398; // TAV_text_requested
+    pub(crate) const TEXT_TAV_TEXT_MOVING: u64 = 5173951242; // TAV_text_moving
+    pub(crate) const TEXT_TAV_TEXT_REQUESTED: u64 = 5171350542; // TAV_text_requested
     pub(crate) const TEXT_TEXT_AUDIT_ERROR: u64 = 16384; // Text(audit_error)
     pub(crate) const TEXT_TEXT_DIAG_ENV: u64 = 264366429; // Text(diag_env)
     pub(crate) const TEXT_TEXT_DIAG_TOTAL: u64 = 399110093; // Text(diag_total)
@@ -2545,7 +2545,7 @@ pub(super) mod profile {
         Form { name: "T25_S5", constant: 70217356, terms: &[(9, 13718), (125, 1), (148, 3), (199, 2048), (223, 2115), (264, 9036)] },
         Form { name: "T25_carried_case", constant: 137034882, terms: &[(9, 22107), (199, 6144), (223, 6345), (264, 14418)] },
         Form { name: "T25_moving", constant: 683020646, terms: &[] },
-        Form { name: "TAV_W", constant: 3919168710, terms: &[] },
+        Form { name: "TAV_W", constant: 3919307854, terms: &[] },
         Form { name: "TAV_X", constant: 4389823010, terms: &[] },
         Form { name: "TXT_moving", constant: 6139118, terms: &[] },
         Form { name: "success__BODY", constant: 196695258, terms: &[(9, 91973), (264, 114905)] },
@@ -2594,7 +2594,7 @@ pub(super) mod profile {
         Form { name: "success__T25_S5", constant: 70217356, terms: &[(9, 13718), (125, 1), (148, 3), (199, 2048), (223, 2115), (264, 9036)] },
         Form { name: "success__T25_carried_case", constant: 137034882, terms: &[(9, 22107), (199, 6144), (223, 6345), (264, 14418)] },
         Form { name: "success__T25_moving", constant: 683020646, terms: &[] },
-        Form { name: "success__TAV_W", constant: 3906799302, terms: &[] },
+        Form { name: "success__TAV_W", constant: 3906938446, terms: &[] },
         Form { name: "success__TAV_X", constant: 4389823010, terms: &[] },
         Form { name: "success__TXT_moving", constant: 6139118, terms: &[] },
     ];
@@ -2817,7 +2817,7 @@ pub(super) mod profile {
     pub(crate) const DENSE: Option<(u64, usize)> = maximum(&phases_dense(&ATOM_VALUES));
     /// The Python chain's own evaluation (ASSUMED strides), for the transcription check.
     #[cfg(test)]
-    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(11026313421, "W3 publication (T16) with the staged copy"), (11085444765, "W3 publication (T16) with the staged copy")];
+    pub(crate) const PYTHON_CHECK: [(u64, &str); 2] = [(11026452565, "W3 publication (T16) with the staged copy"), (11085583909, "W3 publication (T16) with the staged copy")];
 }
 // ---- END GENERATED PROFILE ----
 

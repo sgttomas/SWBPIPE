@@ -1498,24 +1498,23 @@ later failures beside other Frozen cases. Association/detail/JSON/RefusedCase
 and receipt failures keep their independent owned generations and copies.
 This is a positive per-invocation bound, never a prepared-custody zero.
 
-## B7b: actual-source D3 at `1bcc55a80b`
+## B7b: actual-source D3 at `837a04b770`
 
 B7b deletes the `2.0.0/exact_straight_pressure_v2` contract with its four
 tables and readers (A4/A5), rebases route E's successor on pressure-1 (D4 (a)),
 makes the current pressure-source table and the ordinary pressure table
 independently resident (O-10), adds model 0.5.0's exact half (`shear_model`,
 an explicit per-section `corrosion_allowance`) and keys the load/reference-state
-selector on presence. D3 was first done at `7e638477a8` and re-done at the
-final source `1bcc55a80b` (below, "Re-done at `1bcc55a80b`"). Line numbers are
-at `7e638477a8` unless stated. Each stop of the tool is resolved here; nothing
-below changes M, the 0.9 M margin, R, the 5 % TEXT reserve, the numerical
-domain or an acceptance criterion.
+selector on presence. D3 was first done at `7e638477a8`, re-done at
+`1bcc55a80b` and again at the final source `837a04b770` (below, "Re-done at
+..."). Line numbers are at `7e638477a8` unless stated. Each stop of the tool is
+resolved here; nothing below changes M, the 0.9 M margin, R, the 5 % TEXT
+reserve, the numerical domain or an acceptance criterion.
 
 **Reproduction.** The committed tool's one-current-value pins (B7a's source
 models, re-bound here) hold the registered revision's bytes, so the committed
-tool reproduces the registered tree at that revision (`1bcc55a80b`), not at
-`7e638477a8` or earlier: an earlier B7b revision stops at the
-`physics_source.rs` pin (exit 4). Reproduce one with a scratch copy of the tool
+tool reproduces the registered tree at that revision (`837a04b770`), not at an
+earlier one: an earlier B7b revision stops at a result_export pin (exit 4). Reproduce one with a scratch copy of the tool
 whose pins are restored to that revision's values, as README step 5 describes.
 
 **Prunes.** Five rules are pruned beyond B7a's 22, each because its subject no
@@ -1693,6 +1692,48 @@ changed; each diff was audited to be exactly the following, and the
   656 B class).
 Both stay at multiplicity 0, so the only coefficient change at `1bcc55a80b` is
 STATICS, from the transport schema owner above.
+
+**Re-done at `837a04b770`, B7b-ZA.** `ccb19ba0bf` makes the readers require the
+exact contract's zero corrosion allowance; `837a04b770` changes only test code
+(the `#[cfg(test)]` census, the J2 join test and their fixtures; no new
+`format!` site; J3's texts still resolve), and the later B7b commits through
+`2b47627e66` change no Rust source. The census's sites stay at multiplicity 0
+under `o10_check`, and with those test-only changes reverted the tool prices
+the identical tree. Each
+priced diff was audited to be exactly the following, and the `retained_precision.rs`,
+`physics_source.rs` and `semantic_contract.rs` full-file pins were re-bound.
+Moved line keys with unchanged text were re-keyed: `b7a_domain_model`'s three
+`retained_precision.rs` audits (+17 lines) and the scoped model's `require`
+line (`physics_source.rs:78`).
+- **`retained_precision.rs` `section_allowances`**, called by `exact_namespace`
+  and `preview_namespace`. Those are G8's two namespace predicates, each reached
+  once per invocation on its route. Its one loop,
+  `list(&model["pipe_segments"]).iter().all(..)`, visits each captured pipe
+  segment at most once: bound `m` (D1.9), keyed to this function only and
+  `o10_check`-confined. On the exact route each visit runs one `unit_value(..,
+  Length)`; its `error(..)`/`need(..)` failure values and the `unit_by_symbol`
+  lookup are priced at their own sites per call. The call graph carries the
+  conversion on both routes (32 more `unit_value`/`unit_by_symbol` calls each),
+  an overcount on the preview route, which only reads a key. This is the only
+  pricing change: TAV_W and the TEXT atoms rise by 139,144 B, which is
+  `unit_by_symbol`'s per-call TEXT ×32 plus 72 B below. A guard stops the run if
+  the function gains a loop or a second conversion.
+- **`physics_source.rs` `zero_corrosion_allowances`**, from
+  `SourceContract::check_invocation`. Its callers, `validate_in` and
+  `source_blocks::validate_source_contract_in`, are unreached on the D1 graph:
+  `for_source` → `validate_in` is J1's zero, and no reached function calls the
+  other. Each pipe's `require` Err would be priced at `require`'s site (the
+  detail `ACTUAL_CORROSION_ALLOWANCE` is 26 B ≤ 40), and its `for` loop has no
+  rule, so a reached path stops the run.
+- **`semantic_contract.rs` `current_header` guard** (load/reference states with
+  `carrier_evidence`). It is on the reached `for_source_metadata` path, once per
+  call, and its `Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into())` is priced
+  positively there (+72 B TEXT).
+- **`reader_verdict.rs` `route()`** pressure-source arm's evidence-object guard.
+  Its callers (`source_recovery`, `standing`, `dispatch`, `row_semantics`) are not
+  reached from the retained route's roots. The guard's one allocation, the
+  constant code's `.into()`, sits in that unreached function and would be priced
+  per call there if it were reached.
 
 **B7a reproduction.** With B7a's nine source-bound model files restored from
 `3e89c23ea1` and every other current tool file kept, the tool reproduces B7a's
