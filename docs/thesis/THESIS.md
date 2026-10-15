@@ -8,7 +8,7 @@
 
 Piping design begins before the conditions of a final calculation are settled.
 A route, support arrangement or equipment connection expresses an intention
-under developing constraints. Analysis can reveal consequences that change
+under developing constraints, and analysis can reveal consequences that change
 that intention. A useful design environment supports this inquiry as well as
 the calculation.
 
@@ -18,7 +18,7 @@ of investigation. The person's judgment shapes what is modeled, how results
 are understood and what they will stand behind.
 
 The application gives Chirality an engineering expression: its objects have
-physical referents, its abstractions omit consequential details, and plausible
+physical referents, its abstractions omit details that matter, and plausible
 numerical results may be wrong. Common operations, explicit transformations,
 examined numerical methods and contextual handoff preserve the relationships
 needed to assess the work.
@@ -28,10 +28,10 @@ of the architecture; complete App–SWBPIPE integration and transfer to another
 practitioner remain to be demonstrated.
 
 This essay develops the evaluative view of the work introduced in the
-[shared introduction][S1]. SWBPIPE is a domain software instance in which
+[shared introduction][S1]. SWBPIPE is an instance of domain software in which
 Root's normative orientation and the App's operative hypotheses meet physical
-referents and engineering consequences. Evaluation concerns the adequacy of
-the design environment throughout engineering inquiry. The
+referents and engineering consequences. Evaluation asks whether the design
+environment is adequate throughout engineering inquiry. The
 [support-arrangement example][S2] connects the three views through an
 illustrative revision.
 
@@ -44,12 +44,13 @@ performs favourably in one analysis may be impractical to build or maintain.
 Conversely, an initially convenient layout may impose loads or movements that
 change what counts as a useful design.
 
-These relationships develop through work. Early information is incomplete;
-assumptions become more explicit; new constraints arrive; calculation reveals
-an effect that was not obvious in the initial arrangement. An environment that
-requires every decision to be settled before any useful examination can occur
-can make this development unnecessarily difficult. An environment that silently
-completes the missing decisions can make it deceptively easy.
+These relationships develop through work: early information is incomplete,
+assumptions become more explicit, new constraints arrive, and calculation
+reveals an effect that was not obvious in the initial arrangement. An
+environment that requires every decision to be settled before any useful
+examination is possible can make this development unnecessarily difficult. An
+environment that silently completes the missing decisions can make it
+deceptively easy.
 
 **Why and under what conditions can an open,
 agent-enabled piping design environment expand useful engineering inquiry
@@ -59,7 +60,7 @@ subsequent reliance?**
 SWBPIPE supports early route and support design: forming alternatives,
 examining mechanical consequences and preparing a coherent handoff.[P1]
 
-There are credible alternatives. A practitioner can work directly in an
+There are credible alternatives: a practitioner can work directly in an
 established analysis tool, combine a modeling application with scripts, or use
 a general coding agent to manipulate files. SWBPIPE must offer a benefit beyond
 the availability of an agent or an additional solver. Its case is strongest
@@ -72,14 +73,14 @@ different purposes. That distinction does not excuse weak mechanics: wrong
 feedback can redirect a design long before final review.[P1]
 
 The operation engine provides a concrete example of a related problem. Native
-and browser editing once used separate Rust and TypeScript implementations;
-tests of each did not establish agreement between their validation and model
-hashes. The browser path could therefore supply reassuring evidence about a
+and browser editing once used separate Rust and TypeScript implementations,
+and tests of each did not establish that their validation and model hashes
+agreed. The browser path could therefore supply reassuring evidence about a
 different implementation. The decision to use the same Rust crate through a
 WebAssembly build addressed that source of divergence.[P2]
 [Section 4.1](#41-common-semantics-must-reach-the-exercised-engine) examines the
 change and its limits. A useful design environment needs the work being
-examined to remain connected to the work actually performed.
+examined to stay connected to the work actually done.
 
 ## 2. Shared orientation, engineering subject
 
@@ -92,16 +93,16 @@ consequences and the costs of control.
 Moving a support changes an object, rests on assumptions, affects calculated
 behaviour and serves a purpose. A favourable result matters in relation to
 those conditions. None of these questions belongs exclusively to this essay
-or to one of the other views. They are mutually corrective throughout the work.
+or to one of the other views; they correct one another throughout the work.
 
 Evaluation returns findings to what produced them. A numerical defect calls for
 implementation repair; an unsuitable idealization calls for model revision;
 an impractical arrangement calls for a different design question. Findings can
 also challenge a prior purpose, such as addressing access alone when a newly
 recognized construction condition makes that framing inadequate. An agent may
-investigate and revise within its assignment or adopted policy. A change to an
-adopted commitment remains with the authority that holds it. This iterative
-relation connects domain experience back to methods and normative purposes.
+investigate and revise within its assignment or adopted policy, but a change to
+an adopted commitment remains with the authority that holds it. This iterative
+relationship connects domain experience back to methods and normative purposes.
 
 Agents extend **reckoning** through analysis, inference, comparison, planning,
 criticism and adaptive action. **Judgment** is the person's situated and
@@ -116,7 +117,7 @@ consequences be available for examination.
 
 ## 3. A model is an interpreted account of a physical undertaking
 
-The physical model is an account of the proposed arrangement. It can carry
+The physical model is an account of the proposed arrangement and can carry
 geometry, components, supports, materials, loads, constraints, provenance and
 unresolved assumptions. Those objects remain connected to design intent even
 where the solver has no direct use for them. An access requirement or a
@@ -127,12 +128,12 @@ The analytical model selects and idealizes aspects of that account for a
 particular calculation. Nodes, elements, restraints and constitutive properties
 make a mechanical question tractable. Their explicitness is useful precisely
 because they do not constitute the entire physical undertaking. A numerical
-answer can be correct for that idealization and inadequate for the intended
-situation.
+answer can be correct for that idealization and still inadequate for the
+intended situation.
 
 The handoff model performs a further interpretation. A receiving tool has its
-own concepts, supported behaviours and representations. Transferring a model
-therefore involves correspondence, possible approximation and possible loss.
+own concepts, supported behaviours and representations, so transferring a model
+involves correspondence, possible approximation and possible loss.
 Treating export as a change of file extension would obscure those questions.
 
 These distinctions explain why SWBPIPE needs a persistent physical account
@@ -143,26 +144,26 @@ calculation. A stress engineer should be able to examine that relationship
 without reconstructing the designer's intent from a result table.
 
 The PRD calls the deterministic model graph the source of truth for the
-application. That is a software authority claim: it identifies which recorded
-state governs an operation. It does not establish that the recorded graph is a
-true or sufficient account of the physical installation. The application can
-preserve and check internal consistency while the person remains responsible
-for determining whether the represented conditions apply.[P1]
+application. That is a claim about authority within the software: it identifies
+which recorded state governs an operation. It does not establish that the
+recorded graph is a true or sufficient account of the physical installation. The
+application can preserve and check internal consistency while the person remains
+responsible for determining whether the represented conditions apply.[P1]
 
 Stable identity helps this inquiry across changes. If a support, element or load
 retains an identifiable relation to its earlier state, a comparison can concern
-what changed rather than merely which numbers differ. The purpose of retained
-model states and analysis runs is to keep the subject of a claim recoverable:
-which model, data, method and settings produced the result under discussion.
+what changed rather than merely which numbers differ. Retained model states
+and analysis runs are meant to keep the subject of a claim recoverable: which
+model, data, method and settings produced the result under discussion.
 Their value is lost if they become an additional administrative account that
 cannot be related back to the current engineering question.
 
 ### 3.1 Missing input is an engineering finding
 
-No-silent-defaults is often expressed as a validation rule. Its deeper reason
-is that an unknown condition and an assumed condition can produce different
-engineering conclusions. Supplying a plausible value may make a solver run
-while making the grounds of its answer harder to inspect.
+No-silent-defaults is often expressed as a validation rule. The deeper reason
+for it is that an unknown condition and an assumed condition can produce
+different engineering conclusions. Supplying a plausible value may make a solver
+run while making the grounds of its answer harder to inspect.
 
 The internal solver-boundary adapter requires explicit properties, quantities,
 units, dimensions and provenance. Its tests expect missing shear modulus to
@@ -171,12 +172,12 @@ and invalid orientations and reversed load spans to be refused.[I1][T1]
 This internal path does not establish the behaviour of every graphical or
 agent route.
 
-The useful behaviour is the preservation of an unanswered question. Other
-parts of the model can remain available while the missing ground is exposed.
-This gives the person and agent a concrete matter to investigate rather than
+The useful behaviour is that an unanswered question is preserved: other parts
+of the model can remain available while the missing ground is exposed. This
+gives the person and agent a concrete matter to investigate rather than
 a successful calculation whose assumptions are concealed.
 
-Explicitness has costs. Requiring repeated manual entry of facts already
+Explicitness has costs: requiring repeated manual entry of facts already
 available elsewhere can discourage use and produce new errors. Assistance can
 therefore locate sources, suggest a value with its basis or identify a suitable
 library binding. The essential distinction is whether the value and its source
@@ -185,11 +186,11 @@ was involved in obtaining it.
 
 ## 4. Agent capability becomes useful through domain meaning
 
-An agent can suggest that a support should move. To participate in the design,
+An agent can suggest that a support should move. To take part in the design,
 it must also establish which support, in which model state, for what intended
 effect and under which constraints. The application must make the resulting
-operation inspectable and preserve a distinction between a suggestion, a
-validated change and an applied result.
+operation inspectable and keep a suggestion, a validated change and an applied
+result distinct from one another.
 
 That is why the common operation model is more important than a convenient
 command interface. It permits a person's action and an agent's action to bear
@@ -197,13 +198,13 @@ on the same domain meanings. Different interfaces may serve different forms
 of attention, but an object should not acquire different validation rules
 merely because an agent rather than a person addresses it.
 
-The agent can then explore an intelligible design space. It can examine a
+The agent can then explore an understandable design space. It can examine a
 constraint, prepare an alternative and compare consequences with an identified
 basis. It can also discover that the requested action is unavailable, that an
 input is missing or that the proposed change is stale. These are meaningful
-outcomes, rather than failures to produce sufficiently persuasive prose.
+outcomes, not failures to produce sufficiently persuasive prose.
 
-The question of autonomy belongs to the particular operation and its authority.
+Autonomy is a question for the particular operation and its authority.
 A direct application permitted in one context does not imply that every
 engineering act is available to an external agent. Likewise, preserving human
 judgment does not logically require the person to issue every low-level command.
@@ -218,13 +219,13 @@ their availability does not itself authorize a change.
 The June operation-engine decision provides a useful counterexample. SWBPIPE
 had a Rust operation engine for native use and a separate TypeScript mirror
 for browser use. The browser route gave agents and developers a fast way to
-exercise editing. However, tests of each engine did not establish that their
+exercise editing, but tests of each engine did not establish that their
 validation and canonical model hashes agreed. The accessible examination path
 could therefore give reassuring evidence about a different implementation.[P2]
 
 The decision replaced the mirror with a WebAssembly build of the same Rust
-crate. Current TypeScript routes an operation to the native command or the
-WebAssembly build and contains no independent validation or application
+crate. The current TypeScript code routes an operation to the native command
+or the WebAssembly build and contains no independent validation or application
 semantics. The Rust engine separates validation from application, preserves
 the input model and returns a changed model only through the application path.
 Its corpus tests compare semantic outcomes, resulting documents and model
@@ -235,18 +236,18 @@ Reusing the engine reduced one source of divergence while preserving the
 accessible browser examination path.
 
 Here operation validation asks whether an edit meets defined model-operation
-conditions. It does not validate the physical model for engineering use.
+conditions; it does not validate the physical model for engineering use.
 Implementation verification examines specified behaviour; numerical verification
 examines the calculation against suitable independent reference grounds within
 its stated scope.
 
 Model applicability asks whether the idealization represents the intended
 conditions. Engineering adequacy asks whether the resulting design and evidence
-serve the undertaking.
-Acceptance concerns what a person accepts within their authority; professional
-authentication concerns their attributable commitment to accountable reliance
-within a defined scope and purpose. Neither is a solver output. These relations
-can inform each other without becoming one ascending software status.
+serve the work. Acceptance concerns what a person accepts within their
+authority; professional authentication concerns their attributable commitment to
+accountable reliance within a defined scope and purpose. Neither is a solver
+output. These relationships can inform each other without becoming one ascending
+software status.
 
 A shared defect can affect every consumer of that engine. Reference evidence
 and examination of the underlying assumptions remain necessary. Native/browser
@@ -255,7 +256,7 @@ consistency does not establish a completed external-agent integration.
 ## 5. Serious mechanics before professional reliance
 
 SWBPIPE's separation between internal analysis and professional reliance could
-be misunderstood as permission for approximate or weak calculation. The
+be misunderstood as permission for approximate or weak calculation, but the
 opposite follows from its design purpose. A result used to choose a route or
 support concept can redirect substantial work. If that result is wrong in a
 way the user cannot see, later validation may expose the problem only after
@@ -294,34 +295,34 @@ the global solve. Improving the local formulation does not remove that relation.
 Some cases remain Sensitive or are refused; a further formulation change or
 acceptance of a stated limitation is a separate matter.[P3]
 
-Repair should improve the relation between implementation and the intended
-problem. A useful limit explains why a result cannot carry the desired inference
-and what might change that situation.
+Repair should improve the relationship between the implementation and the
+intended problem. A useful limit explains why a result cannot carry the desired
+inference and what might change that situation.
 
 The mutation discussion in the same source provides a second lesson. A proposed
 mutant was ruled equivalent under stated admissibility conditions, and the
 former kill tests were removed. More tests would not create a meaningful
-distinction where the premise required for that distinction no longer held.
-The account illustrates the importance of examining the claim a test is meant
-to support, rather than equating a larger test inventory with stronger evidence.
-It is a reported design disposition, not a fresh proof performed here.[P3]
+distinction where the premise required for that distinction no longer held. The
+account illustrates why it is important to examine the claim a test is meant to
+support, rather than equating a larger test inventory with stronger evidence. It
+is a reported design disposition, not a fresh proof performed here.[P3]
 
 ## 6. Open mechanics and particular engineering knowledge
 
-A public mechanics engine and an organization's engineering knowledge have
-different conditions of circulation and use. Algorithms, schemas and lawful
+A public mechanics engine and an organization's engineering knowledge are
+subject to different conditions of circulation and use. Algorithms, schemas and lawful
 examples can be shared and examined. Project data, licensed sources, material
 libraries, owner requirements and particular rule definitions may have
 restrictions that the public project cannot erase.
 
-Keeping these contributions separate serves more than repository hygiene. It
+Keeping these contributions separate serves more than repository hygiene: it
 makes their roles available for inspection. The mechanics explains how a model
-is calculated. User-supplied data identifies the conditions applied. A rule pack
-expresses an evaluation under a particular basis. The resulting conclusion can
-then be questioned at the appropriate level instead of appearing as an opaque
-pronouncement from the software.[P1][P4]
+is calculated, user-supplied data identifies the conditions applied, and a rule
+pack expresses an evaluation under a particular basis. The resulting conclusion
+can then be questioned at the appropriate level instead of appearing as an
+opaque pronouncement from the software.[P1][P4]
 
-This separation also permits variation among organizations without pretending
+This separation also permits organizations to differ without pretending
 that one public default captures their practice. The cost is real: users must
 supply, check and maintain the relevant data. If that work is excessively
 burdensome, the architecture may remain principled but unattractive. Useful
@@ -343,7 +344,7 @@ bringing retrieved material into a candidate design.[P5]
 
 Retrieved material needs a source, a standing and relevance to the question.
 The resources carry recorded material, not a practitioner's whole understanding.
-Even a suitable passage requires interpretation in relation to the current
+Even a suitable passage has to be interpreted in relation to the current
 geometry, loads, conditions and purpose. The joined Domains research activity
 remains prospective.[A2]
 
@@ -373,14 +374,14 @@ objective that converts these distinct concerns into engineering adequacy.
 In the illustrative [support revision][S2], inquiry starts from an access
 concern in the current arrangement. Any mechanical comparison must therefore be
 read with that purpose, the physical arrangement and its unresolved conditions.
-Discovery of an additional construction or maintenance condition can require
+Discovering an additional construction or maintenance condition can require
 representing an omitted constraint and trying another arrangement. It can also
 broaden the initial access inquiry into finding a support concept that can be
 built, accessed and maintained under the applicable constraints. The example
 supplies a connecting argument, not evidence that this joined activity has
 already been implemented or exercised.
 
-Judgment enters before the final choice. It shapes what is modeled, what is
+Judgment enters before the final choice: it shapes what is modeled, what is
 left unresolved, what deserves comparison and how much evidence is appropriate.
 The person can also change the question after seeing a result. An agent's
 reckoning can assist each step without making the person's commitment an
@@ -392,7 +393,7 @@ autonomy level does not settle the worth of the design.[A2]
 
 This is also why constant human confirmation is not a sufficient account of
 responsibility. A person can approve many changes without understanding them.
-Repeated low-value prompts can diminish attention to a consequential choice.
+Repeated low-value prompts can diminish attention to a choice that matters.
 Conversely, bounded continuing authority can permit useful exploration while
 leaving significant commitments with the person. Whether a particular
 arrangement succeeds is a question for the actual activity and its evidence,
@@ -401,8 +402,8 @@ not something guaranteed by either an approval button or an autonomy setting.
 ## 8. Handoff extends the undertaking beyond the application
 
 A design environment should improve the next participant's ability to work.
-Its usefulness is reduced if its internal results cannot be related to the
-receiving tool's objects, or if the receiving professional must reconstruct all
+It is less useful if its internal results cannot be related to the receiving
+tool's objects, or if the receiving professional must reconstruct all
 assumptions before beginning review.
 
 Handoff quality therefore concerns meaning as well as format. A receiving
@@ -419,16 +420,17 @@ ingesting downstream results. Defined tests examine missing unit metadata,
 inconsistent hash or unit bases, unsupported target behaviour and prohibited
 authority metadata.[I5][T4]
 
-The adopted product pathway includes validation in an accepted professional
-tool and competent human review before project reliance. That is a project
+The adopted product pathway includes validation in an accepted professional tool
+and competent human review before project reliance. That is a project
 commitment, not a theorem that a named tool guarantees adequacy. Different tools
-can share assumptions, and a receiving result can still concern an incorrectly
-specified problem. The professional's judgment must engage with the model and
-its use, not merely with the provenance of the software that calculated it.
-[P1][P6]
+can share assumptions, and a result from the receiving tool can still concern an
+incorrectly specified problem. The professional's judgment must engage with the
+model and its use, not merely with the provenance of the software that
+calculated it. [P1][P6]
 
-Interoperability also has a practical cost. Mappings require maintenance as
-source and target capabilities evolve. Unsupported cases need usable responses.
+Interoperability also has a practical cost: mappings require maintenance as
+source and target capabilities evolve, and unsupported cases need usable
+responses.
 If export loses too much meaning or requires repeated manual reconstruction,
 the promised advantage of an early design environment may disappear. Handoff
 must therefore be evaluated as part of the connected engineering activity.
@@ -442,13 +444,13 @@ operations and distinguish several kinds of result. A generic agent panel
 supplies none of those things by itself.
 
 What can transfer is a set of relationships and some means for sustaining them:
-a person directs an undertaking; an agent can perceive the relevant objects;
+a person directs work; an agent can perceive the relevant objects;
 action is bounded by application semantics and authority; outcomes remain
 inspectable; methods can develop through use. Shared components and interface
 contracts can reduce repeated work where those relationships align. The host
 still supplies its particular domain and an adequate implementation.
 
-A capability catalog is useful in that role. It can give human and agent
+A capability catalog is useful in that role: it can give human and agent
 interfaces a common account of an operation's purpose, inputs, preconditions,
 effects and returned standing. The common account does not automatically
 provide a good interface, a correct solver or a recovery path. The App contract
@@ -459,7 +461,7 @@ A complete App–SWBPIPE adjustment and checking journey remains unestablished.
 An external read must concern the state later acted upon; an interrupted request
 must have an intelligible outcome; host authority must still apply.[A2]
 
-This sets a concrete meaning for proliferation. Another application has joined
+This gives proliferation a concrete meaning. Another application has joined
 the pattern when the approach makes useful participation possible in its own
 practice, at a defensible cost. Sharing a runtime is neither a necessary nor a
 sufficient condition. A new host may reuse a panel or protocol while retaining
@@ -477,7 +479,7 @@ current repository does not settle them.
 The App's successive implementations make an important method visible: a
 product can be reconsidered from its current purpose and requirements instead
 of treating its earlier code as the permanent definition of what it must be.
-A PRD gives that reconsideration a shared reference. Experience supplies
+A PRD gives that reconsideration a shared reference. Experience raises
 questions the PRD did not anticipate, and the owner interprets what should
 remain a commitment.[A1]
 
@@ -494,7 +496,8 @@ its engineering adequacy intact. It cannot fully encode the practitioner's
 experience, every operational assumption or all the failures learned through
 use. Re-derivation is an interpretive design activity involving current
 commitments, existing implementation, examination evidence and human judgment.
-Its success depends on retaining learning as well as producing a new product.
+Its success depends on retaining what was learned as well as on producing a new
+product.
 
 This also limits the appeal of perpetual rebuilding. An existing implementation
 may be the most reliable and economical means available. A rewrite is warranted
@@ -502,8 +505,8 @@ by what it can improve, not by a general preference for novelty or a stronger
 model's ability to generate it. Every reconstruction risks losing tacit
 knowledge, known edge cases and familiar interactions.
 
-The continuity that matters is consequently more than a preserved document or
-code history. Later participants need access to the current technical condition
+So the continuity that matters is more than a preserved document or code
+history. Later participants need access to the current technical condition
 and the reasons it bears on the next change. Deliverable design notes and
 applicable reference cases can serve that purpose. Their value depends on
 being discoverable and useful at the point of work, rather than accumulating
@@ -520,7 +523,7 @@ if supposed common semantics concealed different behaviour at an actual
 human–agent integration boundary.
 
 The distinction between design iteration and later reliance must be examined
-in practice. It cannot be sustained by disclaimers alone. People must be able
+in practice; disclaimers alone cannot sustain it. People must be able
 to understand what the result supports, recognize material limitations and
 carry the design into the intended next activity. An interface that regularly
 invites stronger conclusions than its evidence supports would count against
@@ -529,13 +532,13 @@ the architecture despite correct boundary text.
 Useful evaluation would examine complete activities and their costs: whether
 a practitioner can form and revise an intended model; whether another person
 can inspect the assumptions and reproduce the relevant analysis; whether agent
-assistance improves the alternatives considered; whether a consequential error
+assistance improves the alternatives considered; whether an error that matters
 is exposed in time; and whether handoff preserves enough meaning to continue.
 Those questions require actual use and comparison, not merely larger counts
 of generated models, tests or merged changes. The relevant comparison includes
 preparation, review, repair, construction and maintenance implications, and
 attention spent recovering meaning at handoff. An apparent saving in modeling
-can be a loss elsewhere in the undertaking.
+can be a loss elsewhere in the work.
 
 Such findings must be able to alter the next activity: representations can gain
 an omitted relationship, methods can change the order or scope of examination,
@@ -544,7 +547,7 @@ is justified only where it helps that correction. Evaluation need not create a
 new approval sequence or permanent record for every question.
 
 The owner supplies engineering experience and sustained direction. A second
-practitioner's use would test whether the application remains intelligible
+practitioner's use would test whether the application remains understandable
 without that continuing interpretation.
 
 ## 12. Conclusion
@@ -553,9 +556,9 @@ SWBPIPE connects forming a design with understanding what it entails. Useful
 early investigation preserves physical intent, analytical assumptions, the
 grounds of results and the conditions of further use.
 
-Agents can extend what the person investigates and performs. Their value depends
+Agents can extend what the person investigates and does. Their value depends
 on meaningful access to the domain and inspectable consequences. Judgment shapes
-the undertaking throughout: which question matters, which assumptions are
+the work throughout: which question matters, which assumptions are
 adopted and what the person will stand behind.
 
 Chirality's means must earn their usefulness here. Numerical methods, model
@@ -574,7 +577,7 @@ argument supports and what remains to be learned.
 
 Product sources, implementation and Design accounts are examined at
 `a602024416ace9652f61bb2043889c307fd4e09d`. Tests were inspected rather than
-rerun; source links may reflect later development. Product requirements retain
+rerun. Product requirements retain
 their authority. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 - **R1:** [Root thesis][R1]: why the shared means of work remain revisable.
