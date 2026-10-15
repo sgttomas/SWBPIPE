@@ -117,6 +117,92 @@ def test_selected_source_admission_and_standing_stay_unchanged():
     assert source == before
 
 
+CA_REFUSED = {
+    "nonzero 0.001 m": lambda s: s.update(corrosion_allowance={"value": 0.001, "unit": "m"}),
+    "absent": lambda s: s.pop("corrosion_allowance"),
+    "null": lambda s: s.update(corrosion_allowance=None),
+    "wrong dimension (0 Pa)": lambda s: s.update(corrosion_allowance={"value": 0.0, "unit": "Pa"}),
+    "malformed value (string)": lambda s: s.update(corrosion_allowance={"value": "0", "unit": "m"}),
+}
+CA_ADMITTED = {
+    "unchanged": lambda s: None,
+    "zero in mm": lambda s: s.update(corrosion_allowance={"value": 0.0, "unit": "mm"}),
+}
+CA_FAMILIES = {"0.3": ("physics_source", True), "load-reference-state": ("load_reference_source", False)}
+
+
+def _ca_statement(family, name, mode, change):
+    """A genuine pressure-source-1 statement resealed to an invocation whose last pipe section's allowance is changed:
+    the receipt's invocation digest and receipt hash follow the edited invocation, so only the allowance differs."""
+    folder = ROOT / "fixtures/product_preview/pressure_source" / CA_FAMILIES[family][0]
+    source = json.loads((folder / f"{name}-{mode}.raw.json").read_text())
+    captured = {"request": json.loads((folder / f"{name}.request.json").read_text()), "solver_mode": mode}
+    change(captured["request"]["model"]["pipe_segments"][-1]["section"])
+    body = source["source_block_recovery"]["body"]
+    body["invocation"]["value"] = blocks.domain_hash("source_blocks_invocation_v1", captured)
+    source["source_block_recovery"]["receipt_sha256"] = blocks.domain_hash("source_blocks_receipt_v1", body)
+    return source, captured
+
+
+@pytest.mark.parametrize("label", sorted(CA_REFUSED) + sorted(CA_ADMITTED))
+@pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
+@pytest.mark.parametrize("name", ["n05", "n06"])
+@pytest.mark.parametrize("family", sorted(CA_FAMILIES))
+def test_the_captured_exact_document_carries_an_explicit_zero_corrosion_allowance(family, name, mode, label):
+    """B7b review finding (b7-plan "Exact-contract fields"): a resealed pressure-source-1 statement whose captured
+    invocation's allowance was nonzero, absent, null or non-length read "pass, eligible" in both readers. Rust
+    `SourceContract::check_invocation` and the verifier now refuse it first, PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE;
+    zero in any length unit keeps the statement's own standing (eligible on 0.3, never on a load/reference state)."""
+    source, captured = _ca_statement(family, name, mode, {**CA_REFUSED, **CA_ADMITTED}[label])
+    refs = [case["basis_ref"] for case in source["numerical_quality"]["cases"]]
+    if label in CA_REFUSED:
+        with pytest.raises(ValueError, match="^PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE$"):
+            ps.validate_physics_source(deepcopy(source), deepcopy(captured))
+        with pytest.raises(rust_reader.ReaderRefusal) as refused:
+            rust_reader.validate("pressure-source", source, invocation=captured)
+        assert refused.value.code == "PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE"
+        # The allowance binds only the invocation: without one the statement still reads, never eligible.
+        assert ps.validate_physics_source(deepcopy(source)) is False
+    else:
+        eligible = CA_FAMILIES[family][1]
+        assert ps.validate_physics_source(deepcopy(source), deepcopy(captured)) is eligible
+        assert rust_reader.validate("pressure-source", source, invocation=captured)["eligible"] is eligible
+    assert c.numerical_use_standing(deepcopy(source), refs, deepcopy(captured)) == rust_reader.standing(source, refs, captured)["token"]
+
+
+@pytest.mark.parametrize("path", ["pressure_source/load_reference_source/n05-sparse_interactive.raw.json",
+                                  "pressure/load_reference/connected-sparse_interactive.raw.json"])
+def test_a_load_reference_state_statement_owns_no_carrier_namespace(path):
+    """Rust `current_header` (the retired load-reference routes' guard, kept on the current group): after the identity
+    allowlist and before the recovery downgrade check, a statement with load_reference_states and a carrier_evidence
+    member is refused, in both header orders; the route refuses any carrier first, in both readers."""
+    source = json.loads((ROOT / "fixtures/product_preview" / path).read_text())
+    source["carrier_evidence"] = {}
+    for order in (False, True):
+        with pytest.raises(ValueError, match="^SOURCE_PRODUCER_CONTRACT_UNSUPPORTED$"):
+            c._source_contract(deepcopy(source), check_receipt=not order, rust_header_order=order)
+    with pytest.raises(verdict.Refused, match="^SOURCE_PRODUCER_CONTRACT_UNSUPPORTED$"):
+        verdict._metadata_header(deepcopy(source))
+    for dispatch in (verdict.dispatch(deepcopy(source)), rust_reader.dispatch(deepcopy(source), None)):
+        assert dispatch["error"]["code"] == "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"
+
+
+@pytest.mark.parametrize("evidence", ["removed", None, [], "x"])
+@pytest.mark.parametrize("folder", ["physics_source", "load_reference_source"])
+def test_the_pressure_source_route_needs_its_evidence_object_before_its_receipt(folder, evidence):
+    """Rust `reader_verdict::route`: as the retired load-reference-source-1 route did, the composite needs its
+    evidence object before its receipt is read (SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED), in both readers."""
+    source = json.loads((ROOT / "fixtures/product_preview/pressure_source" / folder / "n05-sparse_interactive.raw.json").read_text())
+    if evidence == "removed":
+        del source["contract_evidence"]
+    else:
+        source["contract_evidence"] = evidence
+    with pytest.raises(verdict.Refused, match="^SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED$"):
+        verdict.route(deepcopy(source))
+    for dispatch in (verdict.dispatch(deepcopy(source)), rust_reader.dispatch(deepcopy(source), None)):
+        assert (dispatch["route"], dispatch["error"]["code"]) == ("unsupported", "SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED")
+
+
 def test_pressure_binding_pin_is_checked_and_resident_on_its_own():
     data = ps.PRESSURE_TABLE_PATH.read_bytes()
     table = ps.verify_pressure_source_table(data)

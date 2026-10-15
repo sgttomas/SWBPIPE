@@ -252,6 +252,11 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
         raise ValueError(SOURCE_EXACT_PRESSURE_V2_RETIRED_TEXT)
     if not isinstance(producer, Mapping) or not isinstance(producer.get("semantic_contract_id"), str) or producer.get("semantic_contract_id") not in {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID} or producer != {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": producer.get("semantic_contract_id")}:
         raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+    # Rust `current_header`, after the identity allowlist and before the recovery downgrade check: the
+    # load/reference-state group owns no carrier namespace (the retired load-reference routes' guard, kept on
+    # the current group), in both header orders.
+    if isinstance(source.get("contract_evidence"), Mapping) and "load_reference_states" in source["contract_evidence"] and "carrier_evidence" in source:
+        raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     pressure_source = producer["semantic_contract_id"] == PRESSURE_SOURCE_CONTRACT_ID
     pressure = producer["semantic_contract_id"] == PRESSURE_CONTRACT_ID
     preview = producer["semantic_contract_id"] == PREVIEW_PHYSICS_CONTRACT_ID

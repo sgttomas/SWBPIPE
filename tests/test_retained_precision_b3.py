@@ -363,6 +363,21 @@ def _set_body(key, value):
     return _receipt(lambda b: b.update({key: value}))
 
 
+# Corrosion-allowance edits of one pipe section (b7-plan "Exact-contract fields"): refused on an exact document, and
+# zero in any length unit admitted.
+CA_REFUSED = {
+    "nonzero 0.001 m": lambda s: s.update(corrosion_allowance={"value": 0.001, "unit": "m"}),
+    "absent": lambda s: s.pop("corrosion_allowance"),
+    "null": lambda s: s.update(corrosion_allowance=None),
+    "wrong dimension (0 Pa)": lambda s: s.update(corrosion_allowance={"value": 0.0, "unit": "Pa"}),
+    "malformed value (string)": lambda s: s.update(corrosion_allowance={"value": "0", "unit": "m"}),
+}
+CA_ADMITTED = {
+    "zero in mm": lambda s: s.update(corrosion_allowance={"value": 0.0, "unit": "mm"}),
+    "negative zero in m": lambda s: s.update(corrosion_allowance={"value": -0.0, "unit": "m"}),
+}
+
+
 def _section(key, steps=1):
     return _evidence(["exact_cases", 0, "pipe_sections", 0, lambda p: p.update({key: ulp(p[key], steps)})])
 
@@ -433,6 +448,11 @@ B3B_REFUSALS = {
     "x33 invocation contract the retired v2": (_model(lambda m: m.update(pressure_contract={"version": "2.0.0", "mode": "exact_straight_pressure_v2"})), INVOCATION),
     "x34 invocation contract without shear_model": (_model(lambda m: m["pressure_contract"].pop("shear_model")), INVOCATION),
     "x35 invocation schema 0.3.0": (_model(lambda m: m.update(schema_version="0.3.0")), INVOCATION),
+    # B7b review finding (DEF-E G8; b7-plan "Exact-contract fields"): every pipe section of the exact document declares an
+    # explicit length-valued zero corrosion allowance; nonzero, absent, null, non-length or malformed is outside the
+    # exact namespace (Rust `exact_namespace` with `section_allowances(model, true)`). The last section is edited.
+    **{f"x{36 + i} invocation corrosion_allowance {name}": (_model(lambda m, change=change: change(m["pipe_segments"][-1]["section"])), INVOCATION)
+       for i, (name, change) in enumerate(CA_REFUSED.items())},
     "x22 invocation contract with an extra null key": (_model(lambda m: m["pressure_contract"].update(extra=None)), INVOCATION),
     "x23 a component added to the invocation": (_model(lambda m: m.update(components=[{"id": "component:x"}])), INVOCATION),
     "x24 authored nu unit empty": (_model(lambda m: m["materials"][0]["poisson_ratio"].update(unit="")), PREPARATION),
@@ -498,6 +518,8 @@ def _g_hat_forged(source, invocation):
 B3B_PASSES = {
     "p01 an authored redundant G in the invocation (ignored by the producer)": _model(lambda m: m["materials"][0].update(shear_modulus={"unit": "Pa", "value": 8.0e10})),
     "p02 a case-level pressure key (PP's typed case has none; addendum 01)": _model(lambda m: m["load_cases"][0].update(pressure={"value": 1000.0, "unit": "Pa"})),
+    **{f"p{3 + i} invocation corrosion_allowance {name}": _model(lambda m, change=change: change(m["pipe_segments"][-1]["section"]))
+       for i, (name, change) in enumerate(CA_ADMITTED.items())},
 }
 
 
@@ -584,6 +606,50 @@ def test_b3b_m3x_mutations(kind, mode, label):
 def test_b3b_m3x_must_pass(kind, mode, label):
     source, invocation = exact_shape(mode, label, kind)
     assert outcome(source, invocation) == ("pass", True, "eligible")
+
+
+CA_LABELS = sorted(label for label in [*B3B_REFUSALS, *B3B_PASSES] if "corrosion_allowance" in label)
+
+
+def _rust_outcome(source, invocation):
+    from core.analysis_runs import rust_reader
+    try:
+        result = rust_reader.retained_precision(source, invocation)
+    except rust_reader.ReaderRefusal as error:
+        return (error.gate, error.code)
+    # Rust's outcome carries no standing token; a bound eligible read is "eligible", any other admitted read
+    # "needs_recompute", as the verifier's `standing`.
+    return ("pass", result["numerical_eligible"], "eligible" if result["invocation_bound"] and result["numerical_eligible"] else "needs_recompute")
+
+
+@pytest.mark.parametrize("label", CA_LABELS)
+@pytest.mark.parametrize("mode", MODES)
+@pytest.mark.parametrize("kind", KINDS)
+def test_b3b_corrosion_allowance_is_bound_by_both_readers(kind, mode, label):
+    """B7b review finding (DEF-E G8; b7-plan "Exact-contract fields"): a resealed exact successor whose invocation's
+    allowance is nonzero, absent, null, non-length or malformed was read "pass, eligible" by both readers. Both now
+    refuse it at G8 INVOCATION_MISMATCH; zero in any length unit stays eligible."""
+    expected = B3B_REFUSALS[label][1] if label in B3B_REFUSALS else ("pass", True, "eligible")
+    source, invocation = exact_shape(mode, label, kind)
+    assert outcome(source, invocation) == expected
+    assert _rust_outcome(source, invocation) == expected
+
+
+@pytest.mark.parametrize("value", [{"value": 0.0, "unit": "m"}, {"value": 0.001, "unit": "m"}, None])
+@pytest.mark.parametrize("mode", MODES)
+@pytest.mark.parametrize("name", ["milestone", "l0"])
+def test_preview_successor_invocation_carrying_an_allowance_is_refused(name, mode, value):
+    """The pressure-free half (b7-plan "Exact-contract fields": CORROSION_ALLOWANCE_WITHOUT_PRESSURE_CONTRACT): a
+    preview successor whose invocation adds the key on one pipe section, zero and null included, is outside the
+    preview namespace in both readers (Rust `preview_namespace` with `section_allowances(model, false)`)."""
+    doc = json.loads((ROOT / f"fixtures/results/retained_precision_{name}_successor_{mode}.json").read_text())
+    source, invocation = doc["source"], doc["invocation"]
+    control = reseal(source, invocation)
+    assert outcome(control, invocation) == _rust_outcome(control, invocation) == ("pass", True, "eligible")
+    changed = edited_invocation(invocation, lambda m: m["pipe_segments"][0]["section"].update(corrosion_allowance=deepcopy(value)))
+    forged = reseal(source, changed)
+    assert outcome(forged, changed) == _rust_outcome(forged, changed) == INVOCATION
+    assert outcome(forged, None) == ("pass", False, "needs_recompute")
 
 
 @pytest.mark.parametrize("mode", MODES)

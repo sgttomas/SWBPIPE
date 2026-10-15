@@ -84,6 +84,7 @@ class SourceContract(Enum):
 
     def check_invocation(self, invocation):
         SourceContract.from_invocation(invocation)
+        _zero_corrosion_allowances(_get(_get(invocation, "request"), "model"))
 
     def check_received(self, source):
         header = _get(_get(source, "producer"), "semantic_contract_id")
@@ -94,6 +95,24 @@ class SourceContract(Enum):
 
 
 def _get(value, key): return value.get(key) if isinstance(value, Mapping) else None
+
+
+def _zero_corrosion_allowances(model):
+    """Rust `zero_corrosion_allowances` (b7-plan "Exact-contract fields"): every pipe section of the captured exact
+    document declares an explicit length-valued zero corrosion allowance (its `normalized_quantity`, exactly 0.0);
+    absent, null, malformed, non-length or nonzero allowances refuse the statement bound to that invocation."""
+    pipes = _get(model, "pipe_segments")
+    _require(isinstance(pipes, list), "ARRAY")
+    from .units import to_canonical
+    for pipe in pipes:
+        quantity = _get(_get(pipe, "section"), "corrosion_allowance")
+        value, unit = _get(quantity, "value"), _get(quantity, "unit")
+        try:
+            zero = (type(value) in (int, float) and math.isfinite(value) and isinstance(unit, str) and bool(unit)
+                    and to_canonical(value, unit, "length") == 0.0)
+        except (ValueError, OverflowError):
+            zero = False
+        _require(zero, "ACTUAL_CORROSION_ALLOWANCE")
 
 
 def model_carries_load_state(model: Any) -> bool:

@@ -134,6 +134,9 @@ def _metadata_header(source: Any) -> str:
         raise Refused(c.SOURCE_EXACT_PRESSURE_V2_RETIRED_TEXT)
     if not isinstance(identity, str) or identity not in known:
         raise Refused("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
+    # Rust `current_header`: the load/reference-state group owns no carrier namespace.
+    if isinstance(source.get("contract_evidence"), Mapping) and "load_reference_states" in source["contract_evidence"] and "carrier_evidence" in source:
+        raise Refused("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     if identity != c.PRESSURE_SOURCE_CONTRACT_ID and "source_block_recovery" in source:
         raise Refused("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
     if identity == c.PREVIEW_PHYSICS_CONTRACT_ID and not isinstance(source.get("contract_evidence"), Mapping):
@@ -176,6 +179,10 @@ def route(source: Any) -> str:
     evidence_object = isinstance(source.get("contract_evidence"), Mapping) if isinstance(source, Mapping) else False
     receipt = source.get("source_block_recovery") if isinstance(source, Mapping) else None
     try:
+        # Rust `route`: as the retired load-reference-source-1 route did, the composite needs its evidence
+        # object before its receipt is read.
+        if name == "pressure_source" and not evidence_object:
+            raise Refused(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
         if name == "pressure_source":
             physics_source.validate_receipt_shape(receipt, source_contract=physics_source.SourceContract.PRESSURE_V3)
         if name == "pressure" and not evidence_object:

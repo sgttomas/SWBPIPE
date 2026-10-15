@@ -25,7 +25,7 @@ from typing import Any, NamedTuple
 from .compatibility import _source_contract
 from .physics_source import _actual_materials, _canonical_inputs
 from .canonical_json import canonical_sha256
-from .units import convert_quantities_to_canonical
+from .units import convert_quantities_to_canonical, to_canonical
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
@@ -1786,17 +1786,41 @@ def _preview_namespace(model):
     {"version": "1.0.0", "mode": "legacy_pressure_v1"} included (B3a's branch L3 is dropped; the owner retired that
     contract product-wide)."""
     version = model.get("schema_version")
-    return type(version) is str and version == "0.5.0" and "pressure_contract" not in model and "shear_model" not in model
+    return (type(version) is str and version == "0.5.0" and "pressure_contract" not in model and "shear_model" not in model
+            and _section_allowances(model, exact=False))
 
 
 EXACT_PRESSURE_CONTRACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
 
 
+def _zero_length(quantity):
+    """Rust `unit_value(q, Dimension::Length)` equal to 0.0: a JSON number in a length unit whose canonical
+    value is exactly zero (-0.0 included); absent, null, malformed, non-length or nonzero fail."""
+    if not isinstance(quantity, dict) or type(quantity.get("value")) not in (int, float) or not isinstance(quantity.get("unit"), str):
+        return False
+    try:
+        return to_canonical(quantity["value"], quantity["unit"], "length") == 0.0
+    except (ValueError, OverflowError):
+        return False
+
+
+def _section_allowances(model, exact):
+    """Rust `section_allowances` (b7-plan "Exact-contract fields"; DEF-E G8): on the exact route every pipe section
+    declares an explicit length-valued zero `corrosion_allowance`; a pressure-free document declares none
+    (CORROSION_ALLOWANCE_WITHOUT_PRESSURE_CONTRACT). A non-array `pipe_segments` has no sections here."""
+    pipes = model.get("pipe_segments")
+    sections = [pipe.get("section") if isinstance(pipe, dict) else None for pipe in (pipes if isinstance(pipes, list) else [])]
+    if exact:
+        return all(_zero_length(section.get("corrosion_allowance") if isinstance(section, dict) else None) for section in sections)
+    return all(not isinstance(section, dict) or "corrosion_allowance" not in section for section in sections)
+
+
 def _exact_namespace(model):
-    """G8's current exact namespace, with the closed v3 Euler–Bernoulli contract.
-    Load/reference states remain outside the retained domain."""
+    """G8's current exact namespace, with the closed v3 Euler–Bernoulli contract and an explicit zero corrosion
+    allowance on every pipe section. Load/reference states remain outside the retained domain."""
     version = model.get("schema_version")
-    return type(version) is str and version == "0.5.0" and "shear_model" not in model and _pressure_contract_is(model, EXACT_PRESSURE_CONTRACT)
+    return (type(version) is str and version == "0.5.0" and "shear_model" not in model and _pressure_contract_is(model, EXACT_PRESSURE_CONTRACT)
+            and _section_allowances(model, exact=True))
 
 
 def _g8_exact_materials(body, source, invocation, case_bases):
