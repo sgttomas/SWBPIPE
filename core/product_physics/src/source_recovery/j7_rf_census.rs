@@ -8,7 +8,8 @@
 //! document (`shear_model` Euler-Bernoulli, an explicit zero corrosion allowance
 //! on every pipe section) and changes nothing else. Each case/mode's public
 //! outcome (identity, quality, blocking findings, source attempt, and the digests
-//! of its published rows and diagnostics), the direct method's selection, stage,
+//! of its published rows and diagnostics, of its contract evidence, numerical
+//! quality, summary and status, and of the whole envelope), the direct method's selection, stage,
 //! error, work and response digest, and the typed first cause are pinned in
 //! `fixtures/results/j7_rf_census_expected.json`. Live, for every case and mode:
 //! - the direct method call (the committed `j7_t4_consequences.rs` input sequence
@@ -316,6 +317,13 @@ fn public_value(public: &Result<Value, String>) -> Value {
                 "source_attempt": if diags.iter().any(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE") { "declined" } else { "not_attempted" },
                 "results_sha256": member_digest(&env["results"]),
                 "diagnostics_sha256": member_digest(&env["diagnostics"]),
+                // B7b F2: the whole published envelope, and the members a change
+                // would most likely touch named separately so a difference is located.
+                "envelope_sha256": member_digest(env),
+                "contract_evidence_sha256": member_digest(&env["contract_evidence"]),
+                "numerical_quality_sha256": member_digest(&env["numerical_quality"]),
+                "summary_sha256": member_digest(&env["summary"]),
+                "status_sha256": member_digest(&env["status"]),
             })
         }
     }
@@ -496,6 +504,43 @@ fn j7_rf_census_public_digests_flag_row_and_diagnostic_changes() {
     let changed = public_value(&Ok(diagnostic));
     assert_eq!(changed["results_sha256"], base["results_sha256"]);
     assert_ne!(changed["diagnostics_sha256"], base["diagnostics_sha256"]);
+    assert_ne!(changed["envelope_sha256"], base["envelope_sha256"]);
+}
+
+/// B7b F2: a change confined to contract evidence, the numerical-quality detail
+/// (status unchanged), the summary or the status, or to any other envelope member,
+/// is flagged by the pinned digests although rows and diagnostics are unchanged.
+#[test]
+fn j7_rf_census_public_digests_flag_envelope_member_changes() {
+    let a = json!({"producer": {"semantic_contract_id": PRESSURE_1, "component_version": "1"},
+                   "contract_evidence": {"pressure_contract": {"version": "3.0.0"}},
+                   "numerical_quality": {"status": "checks_passed", "cases": [{"id": "c", "status": "checks_passed"}]},
+                   "summary": {"node_count": 2}, "status": {"mechanics": "preview_complete"},
+                   "results": [{"value": 1.0}], "diagnostics": []});
+    let base = public_value(&Ok(a.clone()));
+    let unchanged = ["outcome", "identity", "numerical_quality", "blocking", "source_attempt", "results_sha256", "diagnostics_sha256"];
+    for (pointer, value, member) in [
+        ("/contract_evidence/pressure_contract/version", json!("2.0.0"), Some("contract_evidence_sha256")),
+        ("/numerical_quality/cases/0/status", json!("checks_failed"), Some("numerical_quality_sha256")),
+        ("/summary/node_count", json!(3), Some("summary_sha256")),
+        ("/status/mechanics", json!("preview_refused"), Some("status_sha256")),
+        ("/producer/component_version", json!("2"), None),
+    ] {
+        let mut env = a.clone();
+        *env.pointer_mut(pointer).unwrap() = value;
+        let changed = public_value(&Ok(env));
+        for key in unchanged { assert_eq!(changed[key], base[key], "{pointer}: {key}"); }
+        assert_ne!(changed["envelope_sha256"], base["envelope_sha256"], "{pointer}");
+        for key in ["contract_evidence_sha256", "numerical_quality_sha256", "summary_sha256", "status_sha256"] {
+            if Some(key) == member { assert_ne!(changed[key], base[key], "{pointer}"); } else { assert_eq!(changed[key], base[key], "{pointer}: {key}"); }
+        }
+    }
+    // An absent contract-evidence member has its own stable digest (of `null`).
+    let mut env = a;
+    env.as_object_mut().unwrap().remove("contract_evidence");
+    let changed = public_value(&Ok(env));
+    assert_ne!(changed["contract_evidence_sha256"], base["contract_evidence_sha256"]);
+    assert_eq!(changed["contract_evidence_sha256"], json!(member_digest(&Value::Null)));
 }
 
 /// Regeneration only (`SWBPIPE_J7_RF_CENSUS_WRITE=1`); otherwise a no-op whose

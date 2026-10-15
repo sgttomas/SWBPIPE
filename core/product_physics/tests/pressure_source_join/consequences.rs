@@ -467,6 +467,50 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
         "PHYSICS_SOURCE_ACTUAL_LOAD_REFERENCE_CONTEXT",
         entries,
     );
+    // B7b F1: every pipe section of the captured exact document declares an
+    // explicit length-valued zero corrosion allowance. A genuine statement
+    // coherently bound to an invocation whose allowance is nonzero, absent or
+    // null (its invocation commitment and receipt resealed to that invocation)
+    // is refused on the bound read; the unbound and transported reads cannot
+    // see the invocation and read the statement as before (admitted, not
+    // numerically eligible; transport passes).
+    for (label, allowance) in [
+        ("nonzero", Some(json!({"value": 0.001, "unit": "m"}))),
+        ("absent", None),
+        ("null", Some(Value::Null)),
+    ] {
+        let mut captured = invocation.clone();
+        for pipe in captured["request"]["model"]["pipe_segments"].as_array_mut().unwrap() {
+            let section = pipe["section"].as_object_mut().unwrap();
+            match &allowance {
+                Some(value) => {
+                    section.insert("corrosion_allowance".to_owned(), value.clone());
+                }
+                None => {
+                    section.remove("corrosion_allowance");
+                }
+            }
+        }
+        assert_ne!(captured, *invocation);
+        let mut bound = source.clone();
+        bound["source_block_recovery"]["body"]["invocation"]["value"] =
+            json!(domain_commitment("source_blocks_invocation_v1", &captured));
+        reseal_receipt(&mut bound);
+        add_context_entry(
+            format!("{prefix}:F1-captured-corrosion-allowance-{label}"),
+            &bound,
+            &captured,
+            "PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE",
+            entries,
+        );
+        // Coherence: the resealed statement binds the changed invocation, so
+        // offered with the genuine (zero-allowance) invocation it fails only
+        // the invocation commitment.
+        check_refusal(
+            &rv::validate("pressure-source", &bound, Some(&invocation["request"]["model"]), Some(invocation)),
+            "SOURCE_BLOCKS_INVOCATION_HASH",
+        );
+    }
     check_export_binds_the_received_receipt(source, &invocation["request"]["model"], &prefix);
 }
 fn add_context_entry(
@@ -775,13 +819,13 @@ fn pressure_source_raw_fixture_path_guard_refuses_before_read() {
 #[test]
 fn pressure_source_corpus_cache_shares_one_strict_expansion() {
     let corpus = read_corpus();
-    assert_eq!(corpus["entries"].as_array().unwrap().len(), 270);
+    assert_eq!(corpus["entries"].as_array().unwrap().len(), 342);
     for _ in 0..8 { assert!(std::ptr::eq(corpus, read_corpus())); }
     std::thread::scope(|scope| {
         let readers: Vec<_> = (0..8).map(|_| scope.spawn(read_corpus)).collect();
         for reader in readers { assert!(std::ptr::eq(corpus, reader.join().unwrap())); }
     });
-    println!("pressure_source_corpus_cache=one_shared_immutable_value,270entries");
+    println!("pressure_source_corpus_cache=one_shared_immutable_value,342entries");
 }
 fn check_corpus_entry(entry: &Value) {
     let source = &entry["source"];
