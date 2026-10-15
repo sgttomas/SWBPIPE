@@ -2,10 +2,10 @@
  * current exact identities (B7b: the v3 twins of the retired load-reference-1 and
  * load-reference-source-1). For both, the desktop record mirrors Python
  * `build_analysis_run_v0_3` (DEL-14-02). Proof: the desktop record of each committed raw
- * equals the committed Python carrier by canonical hash after normalizing only the three
- * route-independent fields in which the two builders already differ for every identity
- * (provenance labels, determinism notes, and therefore the record self-hash), and the
- * desktop validator reads Python's carrier.
+ * equals the committed Python carrier by canonical hash after normalizing only the
+ * determinism notes, in which the two records differ because their inputs differ
+ * (`DESKTOP_NOTES`, `CARRIER_NOTES` below), and therefore the record self-hash; provenance
+ * labels are compared, not normalized. The desktop validator reads Python's carrier.
  * - Joined, pressure-source-1 (fixtures/results/pressure_source_load_state_*.analysis_run.json):
  *   a source record carrying contract_evidence and source_block_recovery.
  * - Ordinary, pressure-1 (fixtures/results/pressure_load_state_*.analysis_run.json): a record
@@ -95,15 +95,32 @@ describe("ordinary (pressure-1) AnalysisRun mirror", () => {
   });
 });
 
-/** The two refusal codes in which the desktop validator and Python's
- * `validate_analysis_run_v0_3` differ for the same forged record. Both predate B7b and
- * hold for every identity; they are declared here, not normalized away. */
-const DECLARED_CODE_DIFFERENCES = [
+/** Refusal codes in which the desktop validator and Python's `validate_analysis_run_v0_3`
+ * (`core/analysis_runs/compatibility.py`) differ for the same forged record or source: each
+ * row's desktop code is exercised here, and its Python code is one Python's validator raises
+ * (each measured against Python's validator on this forgery). They predate B7b and hold for
+ * every identity; they are declared here, not normalized away. The table is not exhaustive.
+ * Measured differences it does not exercise: a record without `run_contract_status` (Python
+ * names ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH; the desktop validator reads the member
+ * unguarded and fails with a runtime error, which a reopen names
+ * HISTORICAL_ANALYSIS_EVIDENCE_INVALID), and the order of the run and model-state checks
+ * (the desktop checks the run_id first, Python the model state, so a record wrong in both
+ * is ANALYSIS_SOURCE_RUN_MISMATCH on the desktop and ANALYSIS_SOURCE_MODEL_MISMATCH in Python). */
+const DECLARED_CODE_DIFFERENCES: ReadonlyArray<{ forgery: string; desktop: string; python: string; edit: (record: Json, source: Json) => void }> = [
   { forgery: "a non-source record carrying a source receipt", desktop: "SOURCE_RECOVERY_METADATA_CONTRADICTION", python: "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN",
     edit: (r: Json) => { r.analysis_run.source_block_recovery = {}; } },
   { forgery: "a record naming another model state", desktop: "ANALYSIS_SOURCE_MODEL_STATE_MISMATCH", python: "ANALYSIS_SOURCE_MODEL_MISMATCH",
     edit: (r: Json) => { r.analysis_run.model_state_ref = { object_type: "ModelState", ref: "state:invented-other-model:preview" }; } },
-] as const;
+  { forgery: "a source whose rule_check is outside the vocabulary", desktop: "ANALYSIS_SOURCE_RULE_STATUS_INVALID", python: "ANALYSIS_RULE_STATUS_INVALID",
+    edit: (_r: Json, source: Json) => { source.status.rule_check = "INVENTED_RULE_STATUS"; } },
+];
+/** The text of Python's `validate_analysis_run_v0_3`, which the declared Python codes are read against. */
+function pythonValidatorText(): string {
+  const text = readFileSync(resolve(root, "core/analysis_runs/compatibility.py"), "utf8");
+  const start = text.indexOf("\ndef validate_analysis_run_v0_3(");
+  expect(start).toBeGreaterThan(0);
+  return text.slice(start, text.indexOf("\ndef ", start + 1));
+}
 
 describe("records bound to other evidence are refused", () => {
   it.each([
@@ -118,10 +135,13 @@ describe("records bound to other evidence are refused", () => {
   });
   it.each(DECLARED_CODE_DIFFERENCES)("$forgery: the desktop names $desktop where Python names $python (declared difference)", async ({ desktop, python: pythonCode, edit }) => {
     const { raw, model, python } = await mirror("pressure-sparse", "ordinary");
-    const forged = structuredClone(python); edit(forged);
-    const refusal = await validateAnalysisRunV03(forged, raw, modelLoadBasisRefs(model)).then(() => null, (error: Error) => error.message);
+    const forged = structuredClone(python), source = structuredClone(raw); edit(forged, source);
+    const refusal = await validateAnalysisRunV03(forged, source, modelLoadBasisRefs(model)).then(() => null, (error: Error) => error.message);
     expect(refusal).toBe(desktop);
-    expect(refusal).not.toBe(pythonCode);
+    // The declared Python code is one Python's validator raises; the desktop's is not one of its codes.
+    const pythonValidator = pythonValidatorText();
+    expect(pythonValidator).toContain(`raise ValueError("${pythonCode}")`);
+    expect(pythonValidator).not.toContain(`"${desktop}"`);
   });
   it("a tampered raw ordinary result is refused by the reader before a record is built", async () => {
     const { raw, model, manifest } = inputs("ordinary", "connected-sparse");

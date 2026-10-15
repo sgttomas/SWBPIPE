@@ -3,6 +3,7 @@ import { nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { render, screen, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { buildHistoricalRunContext, buildBundledReferenceContext, HistoricalRunPanel } from "./HistoricalRunContext";
+import { numericalResultStanding } from "./resultStanding";
 import { loadBundledMechanicsReference, hasNativeMechanicsInvocation } from "../../services/previewService";
 import savedModel from "../../../../../fixtures/model_operations/precision_connected_ui_model.json";
 import savedResult from "../../../../../fixtures/results/preview_physics_connected_sparse.json";
@@ -204,16 +205,54 @@ describe("a reopened exact (pressure-1) record", () => {
     const model_hash = await computeModelHash(model);
     return rehash({ model, mechanics_result, analysis_run, model_hash, editor_intents: [], proposal: null, selected_review_target: null } as unknown as LocalProjectEnvelope);
   }
-  async function forge(edit: (run: AnalysisRunEnvelope["analysis_run"], source: MechanicsResult) => void) {
+  async function forge(edit: (run: AnalysisRunEnvelope["analysis_run"], source: MechanicsResult, envelope: AnalysisRunEnvelope) => void) {
     const saved = await savedExact();
-    edit(saved.analysis_run!.analysis_run, saved.mechanics_result!);
+    edit(saved.analysis_run!.analysis_run, saved.mechanics_result!, saved.analysis_run!);
     const own = saved.analysis_run!.analysis_run.hashes.find(h => h.payload_scope === "analysis_run_record")!;
     own.value = await canonicalSha256HexCheckedV1(analysisRecordProjection(saved.analysis_run!));
     return rehash(saved);
   }
   it("reads a genuine record without a record finding", async () => {
     const findings = (await buildHistoricalRunContext(await savedExact()))!.findings;
-    expect(findings.filter(f => f.startsWith("ANALYSIS_") || f.startsWith("SOURCE_") || f.startsWith("HISTORICAL_ANALYSIS"))).toEqual([]);
+    expect(findings).toStrictEqual(["HISTORICAL_INPUT_MANIFEST_MISSING"]);
+  });
+  // A malformed record the validator reads unguarded is one named finding, never the
+  // runtime's text (e.g. "Cannot read properties of null").
+  it.each([
+    ["a null run_contract_status", (_run: Json, _source: MechanicsResult, envelope: Json) => { envelope.run_contract_status = null; }],
+    ["a null reproducibility", (run: Json) => { run.reproducibility = null; }],
+    ["a null result ref", (run: Json) => { run.result_refs[0] = null; }],
+  ] as const)("names a malformed record with %s HISTORICAL_ANALYSIS_EVIDENCE_INVALID and changes nothing", async (_name, edit) => {
+    const saved = await forge(edit as never), before = JSON.stringify(saved);
+    const standing = numericalResultStanding(saved.mechanics_result!, saved.model);
+    const context = (await buildHistoricalRunContext(saved))!;
+    expect(context.findings).toStrictEqual(["HISTORICAL_INPUT_MANIFEST_MISSING", "HISTORICAL_ANALYSIS_EVIDENCE_INVALID"]);
+    expect(context.mechanicsResult).toBe(saved.mechanics_result);
+    expect(context.analysisRun).toBe(saved.analysis_run);
+    expect(numericalResultStanding(context.mechanicsResult!, saved.model)).toStrictEqual(standing);
+    render(<HistoricalRunPanel context={context} />);
+    expect(screen.getByText("HISTORICAL_ANALYSIS_EVIDENCE_INVALID")).toBeInTheDocument();
+    expect(JSON.stringify(saved)).toBe(before);
+  });
+  // The saved load basis is read as saved; the current model is not consulted for it, so a
+  // model without load_cases still reopens. An absent list is named by the validator.
+  it.each([
+    ["absent", (run: Json) => { delete run.load_basis_refs; }, "ANALYSIS_SOURCE_LOAD_BASIS_MISMATCH"],
+    ["null", (run: Json) => { run.load_basis_refs = null; }, "ANALYSIS_LOAD_BASIS_INVALID"],
+  ] as const)("reopens a record whose load basis is %s on a model without load_cases and names it", async (_name, edit, code) => {
+    const saved = await forge(edit as never);
+    delete (saved.model as Json).load_cases;
+    saved.model_hash = await computeModelHash(saved.model);
+    await rehash(saved);
+    const before = JSON.stringify(saved);
+    // The model's missing cases show in the source's standing; the record adds only its code.
+    const standing = numericalResultStanding(saved.mechanics_result!, saved.model).findings;
+    expect(standing).toContain("REQUESTED_NUMERICAL_BASIS_UNAVAILABLE");
+    const context = (await buildHistoricalRunContext(saved))!;
+    expect(context.findings).toStrictEqual(["HISTORICAL_INPUT_MANIFEST_MISSING", ...standing, code]);
+    expect(context.mechanicsResult).toBe(saved.mechanics_result);
+    expect(context.analysisRun).toBe(saved.analysis_run);
+    expect(JSON.stringify(saved)).toBe(before);
   });
   it.each([
     ["its table switched to pressure-source-1's", (run: Json) => { run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],

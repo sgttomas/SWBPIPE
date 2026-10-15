@@ -145,11 +145,14 @@ export function classificationSummary(source: MechanicsResult | null | undefined
 /** Results-panel standing text from the registered receipt only, never from the
  * ordinary `numerical_quality` (D2 4.9.2). The receipt's case count is shown only
  * from a validated registration, never from an unvalidated or refused receipt
- * (RV91 N-4). Text only; it changes no standing. */
+ * (RV91 N-4). Every branch carries the published `formulation_basis.limitations`,
+ * in order, as every other route's standing text does (DEL-07-04: mechanics outputs
+ * are shown only with their limitations visible); the retained route's header check
+ * admits only a non-empty list of them. Text only; it changes no standing. */
 export function retainedPrecisionStandingText(source: MechanicsResult): string {
   const outcome = retainedPrecisionRegistration(source);
   // D-U7-6: eligibility is a property of the supplied statement and its invocation.
-  const tail = "Current use is checked separately against the actual invocation and the requested cases. The reader checks these bytes and their invocation; it does not establish which producer made them. Numerical checks do not establish engineering correctness.";
+  const tail = `${source.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and the requested cases. The reader checks these bytes and their invocation; it does not establish which producer made them. Numerical checks do not establish engineering correctness.`;
   if (!outcome) return `Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. ${tail}`;
   if (outcome.error !== null) return `Retained precision: receipt refused by the retained-precision reader (${outcome.error}); unsupported, values shown for inspection only. ${tail}`;
   const cases = receiptCases(source);

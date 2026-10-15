@@ -5,7 +5,7 @@ import { validateRetainedPrecision } from "./retainedPrecisionReader";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
 import { canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
-import { verifyAnalysisRunRecord, validateAnalysisRunV03, modelLoadBasisRefs, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, ANALYSIS_RUN_SCHEMA_VERSION_RETIRED, ANALYSIS_RUN_V03 } from "../../services/analysisRunCompatibility";
+import { verifyAnalysisRunRecord, validateAnalysisRunV03, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, ANALYSIS_RUN_SCHEMA_VERSION_RETIRED, ANALYSIS_RUN_V03 } from "../../services/analysisRunCompatibility";
 import type { BundledMechanicsReference } from "../../services/previewService";
 import { ResultsPanel } from "./ResultsPanel";
 
@@ -72,6 +72,12 @@ function isHistoricalMechanicsEvidence(value: unknown): value is MechanicsResult
     && Array.isArray(value.results) && Array.isArray(value.diagnostics);
 }
 
+/** A named refusal: the record validator's codes, and those of the readers it calls,
+ * are upper-case words joined by `_` or `-` (`ANALYSIS_SOURCE_LOAD_BASIS_MISMATCH`,
+ * `ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH`, Rust's `error_json` codes), alone or followed
+ * by a detail (`SOURCE_UNIT_CONTRADICTION: <kind> / <unit>`). A runtime's own message is not. */
+const NAMED_REFUSAL = /^[A-Z][A-Z0-9]*(?:[_-][A-Z0-9]+)+(?![\w-])/;
+
 async function sameSavedReceipt(copy: unknown, receipt: unknown): Promise<boolean> {
   // An absent copy is refused by the checked profile, so it never matches.
   try { return await canonicalSha256HexCheckedV1(copy) === await canonicalSha256HexCheckedV1(receipt); } catch { return false; }
@@ -134,15 +140,20 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   }
   // B7b: a current (0.3.0) record is read against its saved source by the record
   // validator, as on the record's own path (its table, embedded namespaces, receipt and
-  // row bindings). The saved load basis is checked for well-formedness and for covering
-  // its source's rows and cases; no saved manifest states which basis the solve requested.
-  // Its refusal is a finding only: reopening displays evidence and establishes nothing,
-  // so nothing here changes standing, rows or bytes.
+  // row bindings). The saved load basis, as saved, is checked for well-formedness and for
+  // covering its source's rows and cases; no saved manifest states which basis the solve
+  // requested. A malformed list is refused as malformed (ANALYSIS_LOAD_BASIS_INVALID); for a
+  // record without the list none is passed, so the validator derives the basis from the
+  // source's rows and names the absent list (ANALYSIS_SOURCE_LOAD_BASIS_MISMATCH). The current
+  // model is never read for it. Its refusal is a finding only: reopening displays
+  // evidence and establishes nothing, so nothing here changes standing, rows or bytes.
   if (currentRecord && mechanicsResult && record) {
-    const savedBasis = Array.isArray(record.load_basis_refs) ? record.load_basis_refs : modelLoadBasisRefs(opened.model);
-    try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, savedBasis); }
+    try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, record.load_basis_refs); }
     catch (error) {
-      const finding = error instanceof Error ? error.message : "HISTORICAL_ANALYSIS_VALIDATION_UNAVAILABLE";
+      // A named refusal is shown as the validator states it. Anything else (a malformed
+      // record read where the validator does not guard it) is one named finding, never
+      // the runtime's own text.
+      const finding = !(error instanceof Error) ? "HISTORICAL_ANALYSIS_VALIDATION_UNAVAILABLE" : NAMED_REFUSAL.test(error.message) ? error.message : "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
       if (!findings.includes(finding)) findings.push(finding);
     }
   }

@@ -1711,8 +1711,17 @@ line (`physics_source.rs:78`).
   `list(&model["pipe_segments"]).iter().all(..)`, visits each captured pipe
   segment at most once: bound `m` (D1.9), keyed to this function only and
   `o10_check`-confined. On the exact route each visit runs one `unit_value(..,
-  Length)`; its `error(..)`/`need(..)` failure values and the `unit_by_symbol`
-  lookup are priced at their own sites per call. The call graph carries the
+  Length)`; the `unit_by_symbol` lookup is priced at its own site per call.
+  `unit_value`'s `error(..)` sites stay under their SITE_FROM cap (769 per
+  validate), whose premise is that no reader caller swallows an `Err` except
+  `g5_native`'s `tw()`; `section_allowances` also swallows one
+  (`.is_ok_and`), and `all()` stops at the first failure, so it adds at most one
+  uncharged error value per validate, under 1 KB. On the D1 graph it adds none:
+  the producer refuses a missing, invalid or nonzero allowance before any
+  successor exists (`pressure_runtime.rs` and `derive_pipe_section`), so every
+  captured allowance the reader converts is a valid zero length. (Independent
+  D3 review, 2026-10-15; adding `section_allowances` to the premise's list or
+  charging +1 in the formula is left for the next re-registration.) The call graph carries the
   conversion on both routes (32 more `unit_value`/`unit_by_symbol` calls each),
   an overcount on the preview route, which only reads a key. This is the only
   pricing change: TAV_W and the TEXT atoms rise by 139,144 B, which is

@@ -20,21 +20,27 @@ it('shows exact signed tiny scientific values and historical recompute qualifica
  expect(JSON.stringify(result)).toBe(before);
 });
 
-// DEL-07-04: a mechanics display shows its diagnostics and limitations. Every published
-// limitation of the exact identities (pressure-1 and pressure-source-1, each with and
-// without the load/reference-state group) is visible in the standing line.
+// DEL-07-04: a mechanics display shows its diagnostics and limitations. The published
+// limitations of every route that shows rows with them (pressure-1 and pressure-source-1,
+// each with and without the load/reference-state group, preview-physics-1, and both
+// retained successors, whose statements carry the fixture's `source` member) appear in
+// the standing line once, joined in published order.
 it.each([
- ['pressure-1','fixtures/results/pressure_connected_mechanics_sparse.json'],
- ['pressure-1 with load/reference states','fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json'],
- ['pressure-source-1','fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json'],
- ['pressure-source-1 with load/reference states','fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json'],
-])('shows every formulation limitation of a %s result',(_,path)=>{
- const result=JSON.parse(readFileSync(resolve(__dirname,'../../../../../',path),'utf8')) as MechanicsResult;
+ ['pressure-1','fixtures/results/pressure_connected_mechanics_sparse.json',null],
+ ['pressure-1 with load/reference states','fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json',null],
+ ['pressure-source-1','fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json',null],
+ ['pressure-source-1 with load/reference states','fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json',null],
+ ['preview-physics-1','fixtures/results/preview_physics_unicode_ids_sparse.json',null],
+ ['physics-retained-1','fixtures/results/retained_precision_exact_successor_dense_scrutiny.json','source'],
+ ['preview-physics-retained-1','fixtures/results/retained_precision_milestone_successor_sparse_interactive.json','source'],
+] as const)('shows every formulation limitation of a %s result, once and in order',(_,path,member)=>{
+ const read=JSON.parse(readFileSync(resolve(__dirname,'../../../../../',path),'utf8'));
+ const result=(member?read[member]:read) as MechanicsResult;
  const limitations=result.formulation_basis!.limitations;
  expect(limitations.length).toBeGreaterThan(0);
  render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={()=>{}}/>);
  const standing=screen.getByTestId('numerical-result-standing').textContent??'';
- for(const limitation of limitations) expect(standing).toContain(limitation);
+ expect(standing.split(limitations.join(' ')).length-1).toBe(1);
  cleanup();
 });
 

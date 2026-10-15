@@ -1,4 +1,5 @@
 """Numerical CI contracts, without executing Cargo or browser tools."""
+import errno
 import importlib.util
 import io
 from functools import cache
@@ -285,10 +286,13 @@ class NumericalTests(unittest.TestCase):
                     # provenance sentence such as connector_readers.rs's corpus `inputs`
                     # (written into a committed corpus) has a path component longer than
                     # the filesystem allows, and `exists()` raises ENAMETOOLONG instead of
-                    # answering. A name the filesystem cannot hold is no runtime resource.
+                    # answering. A name the filesystem cannot hold is no runtime resource;
+                    # any other error is raised, never read as an absent resource.
                     try:
                         present = path.exists()
-                    except OSError:
+                    except OSError as error:
+                        if error.errno != errno.ENAMETOOLONG:
+                            raise
                         present = False
                     if not present:
                         continue

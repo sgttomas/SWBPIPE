@@ -1090,8 +1090,10 @@ describe("notices, labels and the results-panel standing text", () => {
     expect(retainedPrecisionStandingText(refused)).not.toContain("Selected cases");
     expect(retainedPrecisionStandingText(structuredClone(received))).not.toContain("Selected cases");
     // D-U7-6 (I61 slice A 1.5): every standing text says the reader does not establish producer origin.
+    // DEL-07-04: validated, refused and unregistered, each shows the published limitations once, in order.
     for (const s of [received, refused, structuredClone(received)]) {
       expect(retainedPrecisionStandingText(s)).toContain("against the actual invocation and the requested cases. The reader checks these bytes and their invocation; it does not establish which producer made them. Numerical checks do not establish engineering correctness.");
+      expect(retainedPrecisionStandingText(s).split(s.formulation_basis!.limitations.join(" ")).length - 1).toBe(1);
     }
   });
   it("the case count is the validated receipt's selected cases over all its cases (RV91 N-4)", async () => {
