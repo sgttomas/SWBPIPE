@@ -248,12 +248,8 @@
       "properties": {
         "id": {
           "enum": [
-            "openpipestress.result_semantics/0.3.0/physics-1",
-            "openpipestress.result_semantics/0.3.0/physics-source-1",
             "openpipestress.result_semantics/0.3.0/pressure-source-1",
             "openpipestress.result_semantics/0.3.0/preview-physics-1",
-            "openpipestress.result_semantics/0.3.0/load-reference-1",
-            "openpipestress.result_semantics/0.3.0/load-reference-source-1",
             "openpipestress.result_semantics/0.3.0/pressure-1",
             "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
             "openpipestress.result_semantics/0.3.0/physics-retained-1"
@@ -261,15 +257,11 @@
         },
         "sha256": {
           "enum": [
-            "a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1",
-            "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53",
-            "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3",
-            "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09",
-            "28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924",
-            "07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742",
-            "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53",
-            "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886",
-            "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf"
+            "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32",
+            "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375",
+            "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1",
+            "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574",
+            "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435"
           ]
         },
         "signature_id": {
@@ -283,50 +275,10 @@
         {
           "properties": {
             "id": {
-              "const": "openpipestress.result_semantics/0.3.0/physics-1"
-            },
-            "sha256": {
-              "const": "a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1"
-            }
-          }
-        },
-        {
-          "properties": {
-            "id": {
-              "const": "openpipestress.result_semantics/0.3.0/physics-source-1"
-            },
-            "sha256": {
-              "const": "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53"
-            }
-          }
-        },
-        {
-          "properties": {
-            "id": {
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-1"
             },
             "sha256": {
-              "const": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
-            }
-          }
-        },
-        {
-          "properties": {
-            "id": {
-              "const": "openpipestress.result_semantics/0.3.0/load-reference-1"
-            },
-            "sha256": {
-              "const": "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09"
-            }
-          }
-        },
-        {
-          "properties": {
-            "id": {
-              "const": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
-            },
-            "sha256": {
-              "const": "28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924"
+              "const": "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32"
             }
           }
         },
@@ -336,7 +288,7 @@
               "const": "openpipestress.result_semantics/0.3.0/pressure-1"
             },
             "sha256": {
-              "const": "07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742"
+              "const": "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375"
             }
           }
         },
@@ -346,7 +298,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
             },
             "sha256": {
-              "const": "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53"
+              "const": "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1"
             }
           }
         },
@@ -356,7 +308,7 @@
               "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
             },
             "sha256": {
-              "const": "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886"
+              "const": "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574"
             }
           }
         },
@@ -366,7 +318,7 @@
               "const": "openpipestress.result_semantics/0.3.0/pressure-source-1"
             },
             "sha256": {
-              "const": "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf"
+              "const": "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435"
             }
           }
         }
@@ -702,142 +654,16 @@
           "$ref": "#/$defs/Provenance"
         },
         "source_block_recovery": {
-          "oneOf": [
-            {
-              "$ref": "physics_source_recovery.schema.json"
-            },
-            {
-              "$ref": "results.v0.3.schema.yaml#/$defs/LoadReferenceSourceRecovery"
-            },
-            {
-              "$ref": "physics_source_recovery.schema.json#/$defs/pressure_source_receipt"
-            }
-          ]
+          "$ref": "physics_source_recovery.schema.json"
         },
         "contract_evidence": {
-          "anyOf": [
-            {
-              "$ref": "physics_source_recovery.schema.json#/$defs/physical_evidence"
-            },
-            {
-              "$ref": "results.v0.3.schema.yaml#/$defs/LoadReferenceSourceContractEvidence"
-            },
-            {
-              "$ref": "physics_source_recovery.schema.json#/$defs/pressure_source_physical_evidence"
-            }
-          ]
+          "$ref": "physics_source_recovery.schema.json#/$defs/pressure_source_physical_evidence"
         },
         "retained_precision": {
           "$ref": "retained_precision_mp_v2.schema.json"
         }
       },
       "oneOf": [
-        {
-          "properties": {
-            "reproducibility": {
-              "properties": {
-                "semantic_contract": {
-                  "properties": {
-                    "id": {
-                      "const": "openpipestress.result_semantics/0.3.0/physics-1"
-                    },
-                    "sha256": {
-                      "const": "a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1"
-                    }
-                  }
-                }
-              }
-            },
-            "result_refs": {
-              "items": {
-                "properties": {
-                  "semantic_contract": {
-                    "properties": {
-                      "id": {
-                        "const": "openpipestress.result_semantics/0.3.0/physics-1"
-                      },
-                      "sha256": {
-                        "const": "a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "not": {
-            "anyOf": [
-              {
-                "required": [
-                  "source_block_recovery"
-                ]
-              },
-              {
-                "required": [
-                  "contract_evidence"
-                ]
-              },
-              {
-                "required": [
-                  "retained_precision"
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "required": [
-            "source_block_recovery",
-            "contract_evidence"
-          ],
-          "properties": {
-            "reproducibility": {
-              "properties": {
-                "semantic_contract": {
-                  "properties": {
-                    "id": {
-                      "const": "openpipestress.result_semantics/0.3.0/physics-source-1"
-                    },
-                    "sha256": {
-                      "const": "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53"
-                    }
-                  }
-                }
-              }
-            },
-            "result_refs": {
-              "items": {
-                "properties": {
-                  "semantic_contract": {
-                    "properties": {
-                      "id": {
-                        "const": "openpipestress.result_semantics/0.3.0/physics-source-1"
-                      },
-                      "sha256": {
-                        "const": "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "source_block_recovery": {
-              "$ref": "physics_source_recovery.schema.json"
-            },
-            "contract_evidence": {
-              "$ref": "physics_source_recovery.schema.json#/$defs/physical_evidence"
-            }
-          },
-          "not": {
-            "anyOf": [
-              {
-                "required": [
-                  "retained_precision"
-                ]
-              }
-            ]
-          }
-        },
         {
           "required": [
             "source_block_recovery",
@@ -852,7 +678,7 @@
                       "const": "openpipestress.result_semantics/0.3.0/pressure-source-1"
                     },
                     "sha256": {
-                      "const": "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf"
+                      "const": "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435"
                     }
                   }
                 }
@@ -867,7 +693,7 @@
                         "const": "openpipestress.result_semantics/0.3.0/pressure-source-1"
                       },
                       "sha256": {
-                        "const": "4a1873e73d2e804c21d1d5beb8483e1510db3d26b72c29235414a06533637aaf"
+                        "const": "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435"
                       }
                     }
                   }
@@ -875,7 +701,7 @@
               }
             },
             "source_block_recovery": {
-              "$ref": "physics_source_recovery.schema.json#/$defs/pressure_source_receipt"
+              "$ref": "physics_source_recovery.schema.json"
             },
             "contract_evidence": {
               "$ref": "physics_source_recovery.schema.json#/$defs/pressure_source_physical_evidence"
@@ -901,7 +727,7 @@
                       "const": "openpipestress.result_semantics/0.3.0/preview-physics-1"
                     },
                     "sha256": {
-                      "const": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
+                      "const": "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32"
                     }
                   }
                 }
@@ -916,7 +742,7 @@
                         "const": "openpipestress.result_semantics/0.3.0/preview-physics-1"
                       },
                       "sha256": {
-                        "const": "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"
+                        "const": "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32"
                       }
                     }
                   }
@@ -936,112 +762,6 @@
                   "contract_evidence"
                 ]
               },
-              {
-                "required": [
-                  "retained_precision"
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "properties": {
-            "reproducibility": {
-              "properties": {
-                "semantic_contract": {
-                  "properties": {
-                    "id": {
-                      "const": "openpipestress.result_semantics/0.3.0/load-reference-1"
-                    },
-                    "sha256": {
-                      "const": "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09"
-                    }
-                  }
-                }
-              }
-            },
-            "result_refs": {
-              "items": {
-                "properties": {
-                  "semantic_contract": {
-                    "properties": {
-                      "id": {
-                        "const": "openpipestress.result_semantics/0.3.0/load-reference-1"
-                      },
-                      "sha256": {
-                        "const": "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "not": {
-            "anyOf": [
-              {
-                "required": [
-                  "source_block_recovery"
-                ]
-              },
-              {
-                "required": [
-                  "contract_evidence"
-                ]
-              },
-              {
-                "required": [
-                  "retained_precision"
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "required": [
-            "source_block_recovery",
-            "contract_evidence"
-          ],
-          "properties": {
-            "reproducibility": {
-              "properties": {
-                "semantic_contract": {
-                  "properties": {
-                    "id": {
-                      "const": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
-                    },
-                    "sha256": {
-                      "const": "28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924"
-                    }
-                  }
-                }
-              }
-            },
-            "result_refs": {
-              "items": {
-                "properties": {
-                  "semantic_contract": {
-                    "properties": {
-                      "id": {
-                        "const": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
-                      },
-                      "sha256": {
-                        "const": "28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "source_block_recovery": {
-              "$ref": "results.v0.3.schema.yaml#/$defs/LoadReferenceSourceRecovery"
-            },
-            "contract_evidence": {
-              "$ref": "results.v0.3.schema.yaml#/$defs/LoadReferenceSourceContractEvidence"
-            }
-          },
-          "not": {
-            "anyOf": [
               {
                 "required": [
                   "retained_precision"
@@ -1060,7 +780,7 @@
                       "const": "openpipestress.result_semantics/0.3.0/pressure-1"
                     },
                     "sha256": {
-                      "const": "07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742"
+                      "const": "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375"
                     }
                   }
                 }
@@ -1075,7 +795,7 @@
                         "const": "openpipestress.result_semantics/0.3.0/pressure-1"
                       },
                       "sha256": {
-                        "const": "07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742"
+                        "const": "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375"
                       }
                     }
                   }
@@ -1116,7 +836,7 @@
                       "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
                     },
                     "sha256": {
-                      "const": "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53"
+                      "const": "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1"
                     }
                   }
                 }
@@ -1131,7 +851,7 @@
                         "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
                       },
                       "sha256": {
-                        "const": "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53"
+                        "const": "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1"
                       }
                     }
                   }
@@ -1167,7 +887,7 @@
                       "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
                     },
                     "sha256": {
-                      "const": "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886"
+                      "const": "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574"
                     }
                   }
                 }
@@ -1182,7 +902,7 @@
                         "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
                       },
                       "sha256": {
-                        "const": "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886"
+                        "const": "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574"
                       }
                     }
                   }

@@ -151,7 +151,7 @@ def _schema() -> dict[str, Any]:
 def validate_receipt_shape(receipt: Any, *, source_contract: SourceContract = SourceContract.PHYSICS_V2) -> None:
     contract = _context(source_contract)
     schema = _schema()
-    rule = schema if contract is SourceContract.PHYSICS_V2 else schema["$defs"]["pressure_source_receipt"]
+    rule = schema  # the schema's root is the closed PRESSURE-SOURCE-1 receipt
     _require(_get(_get(receipt, "body"), "policy") == contract.policy and _schema_shape(receipt, rule, schema), "RECEIPT_SHAPE")
 
 
@@ -175,7 +175,7 @@ def _validate_transport_metadata(source: Mapping[str, Any], source_contract: Sou
     _require(receipt["receipt_sha256"] == blocks.domain_hash("source_blocks_receipt_v1", body), "RECEIPT_HASH")
     evidence = source["contract_evidence"]
     schema = _schema()
-    rule = schema["$defs"]["physical_evidence" if contract is SourceContract.PHYSICS_V2 else "pressure_source_physical_evidence"]
+    rule = schema["$defs"]["pressure_source_physical_evidence"]
     _require(_schema_shape(evidence, rule, schema, resolved), "PHYSICAL_SHAPE")
     physical._finite_tree(evidence)
     cases = evidence["exact_cases"]

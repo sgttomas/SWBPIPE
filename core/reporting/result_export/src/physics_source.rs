@@ -91,8 +91,8 @@ pub fn validate_receipt_shape(receipt: &Value) -> Result<(), String> {
     validate_receipt_shape_in(receipt, SourceContract::PressureV3)
 }
 pub fn validate_receipt_shape_in(receipt: &Value, contract: SourceContract) -> Result<(), String> {
-    let definition = &schema()["$defs"]["pressure_source_receipt"];
-    require(receipt["body"]["policy"] == contract.policy() && shape_in(receipt, definition, schema()), "RECEIPT_SHAPE")
+    // The schema's root is the closed PRESSURE-SOURCE-1 receipt.
+    require(receipt["body"]["policy"] == contract.policy() && shape_in(receipt, schema(), schema()), "RECEIPT_SHAPE")
 }
 fn case<'a>(source: &'a Value, cid: &str) -> Result<&'a Value, String> {
     let found = array(&source["source_block_recovery"]["body"]["cases"])?

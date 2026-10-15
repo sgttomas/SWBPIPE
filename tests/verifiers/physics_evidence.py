@@ -349,7 +349,7 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
     from .source_blocks import _shape as schema_shape
     schema = json.loads((Path(__file__).resolve().parents[2] / "schemas/results.v0.3.schema.yaml").read_text())
     evidence = source.get("contract_evidence")
-    _require(schema_shape(evidence, schema["$defs"]["PhysicsContractEvidence"], schema), "transport evidence shape")
+    _require(schema_shape(evidence, schema["$defs"]["ExactRetainedContractEvidence"], schema), "transport evidence shape")
     _finite_tree(evidence)
     cases = _indexed(evidence["exact_cases"], "load_case_id", "transport cases")
     result_ids: set[str] = set()

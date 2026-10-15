@@ -49,7 +49,7 @@ pub const EIGENLOAD: &str =
     "axial E_member*A_s*total_eigenstrain assembled once and removed once in recovery";
 /// Frozen `schemas/load_reference_state.schema.json` (relayed by the manager).
 pub const TRANSPORT_SCHEMA_SHA256: &str =
-    "2ac01a19ac496893a14864dcfa6c7523f7acb6659181d38c498f722e1059f500";
+    "5415d8f6d8856dba3470ab46423ba54d253e14a49680031d877a333b6d5d00a0";
 const TRANSPORT_SCHEMA_BYTES: &str =
     include_str!("../../../../schemas/load_reference_state.schema.json");
 
@@ -337,9 +337,8 @@ pub(crate) fn validate_pressure_load_reference_evidence(source: &Value) -> Check
 }
 
 /// Steps S1-S13, shared with the joined reader. The joined method differs only
-/// in S1 (the receipt is required), the transport schema (not applied: the
-/// frozen schema admits only not-joined records), S7 (`recovery_method`), S10
-/// (a selected record), S10b and S13 (the selected diagnostic).
+/// in S1 (the receipt is required), S7 (`recovery_method`), S10 (a selected
+/// record), S10b and S13 (the selected diagnostic).
 pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
     let joined = method == Method::PressureJoined;
     // S1 foreign method namespaces.
@@ -362,17 +361,6 @@ pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
     // S2 finite numbers everywhere.
     finite_tree(source)?;
     let evidence = &source["contract_evidence"];
-    if !raw && !joined {
-        let schema = transport_schema()?;
-        require(
-            crate::source_blocks::shape_in(
-                evidence,
-                &schema["$defs"]["LoadReferenceContractEvidence"],
-                schema,
-            ),
-            "TRANSPORT_SHAPE",
-        )?;
-    }
     // S3-S5 namespace.
     require(keys(evidence, EVIDENCE_KEYS), "EVIDENCE_SHAPE")?;
     // T4-U3: pressure-1's connector records are checked by the inherited

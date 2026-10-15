@@ -299,9 +299,8 @@ def _is_selected(record: Any) -> bool:
 def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
     """Steps S1-S13, shared with the joined reader (Rust ``load_reference::prepass``).
 
-    The joined method differs only in S1 (the receipt is required), the
-    transport schema (not applied: the frozen schema admits only not-joined
-    records), S7 (``recovery_method``), S10 (a selected record), S10b and S13.
+    The joined method differs only in S1 (the receipt is required), S7
+    (``recovery_method``), S10 (a selected record), S10b and S13.
     """
     joined = method in (JOINED, PRESSURE_JOINED)
     # S1 foreign method namespaces.
@@ -313,10 +312,6 @@ def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
     # S2 finite numbers everywhere.
     _finite_tree(source)
     evidence = _get(source, "contract_evidence")
-    if not raw and not joined:
-        from .source_blocks import _shape as schema_shape
-        schema = transport_schema()
-        _require(schema_shape(evidence, schema["$defs"]["LoadReferenceContractEvidence"], schema), "TRANSPORT_SHAPE")
     # S3-S5 namespace.
     _require(_keys(evidence, EVIDENCE_KEYS), "EVIDENCE_SHAPE")
     _require(not _array(evidence["connector"]), "CONNECTOR_UNSUPPORTED")
