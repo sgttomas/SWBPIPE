@@ -139,7 +139,10 @@ def inspect_directed_helpers(snapshot):
 
 # B7a E14: this exact full-file source deletes the DEC-050/053 observation
 # lane and its sole guard caller. No successor replaces its Iterator<usize>::max.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = "8e171f8a889a2d35c8a2c939def31aabac9a9f9994f681d38bbdf340484e4283"
+# B7b: re-bound to the current lib.rs; v2's deletion and the 0.5.0 exact
+# fields add or remove no `.min(`/`.max(` call (the production lib.rs
+# callers are the same five functions as at B7a's 3e89c23ea1).
+B7A_PRIMITIVE_LIB_SOURCE_PIN = "650be7f49cd69e837caf641c925c801b4bf60fa4d2a7282c2e6edd9fd24492db"
 
 
 def primitive_lib_minmax_callers(snapshot):

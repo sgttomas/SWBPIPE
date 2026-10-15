@@ -94,6 +94,7 @@ All outputs go to `--out`.
      - `{"as": n, "why": …}` maps it to the head's n-th definition.
 
      The decision keys use the same resolutions.
+   - **Replaced site in a deleted function.** A line key whose line a hunk replaced stops the run. A reviewed entry `{"as": "deleted", "fn": name, "why": …}` prunes it only when `name` is the key's enclosing function at the basis and the revision's file no longer defines `fn name`; a moved function still stops.
 3. Check the premise pins (the warrant lines of dead branches) against the snapshot's text.
 4. Regenerate the template inventory on the snapshot.
 5. For each route, apply the decisions with `lib/sq2_rules.py` and `rules/sq2_decisions_{L,E}.py`.
@@ -118,7 +119,7 @@ All outputs go to `--out`.
 
 **`rules/`** holds the decision tables: SQ2's route rules and the O-10 name-keyed rules.
 - `i95_new_loops.json` lists I95's B3-S rebinding loops for route E.
-- `linemap_resolutions.json` holds the reviewed resolutions of `fewer_definitions` keys. Its one entry is the frame kernel's `UserStiffnessElement::orientation`, deleted by T4-U3. That entry is not used on main; at `666cb30520` it reproduces O-10's tree.
+- `linemap_resolutions.json` holds the reviewed resolutions. One `fewer_definitions` entry is the frame kernel's `UserStiffnessElement::orientation`, deleted by T4-U3; at `666cb30520` it reproduces O-10's tree. One site entry is `load_reference_source.rs:47`, inside the private `fn code` B7b deleted with the v2 readers.
 
 **`lib/`** is the machinery.
 - `linemap_lib.py`, `linemap_rules.py`, `sq2_rules.py`, `rule_ops.py`, `o10_check.py`, `merge_trees.py`, `tree_eval.py` and `census_patch.py` are T3's O-10 tools.
@@ -148,7 +149,7 @@ Add a rule when a run stops or reports incomplete on a new head.
 2. Write the argument in DEL-05-02's `Design/retained-pricing-rules.md` under a new label. State the code facts it rests on, the bound or class, and why the bound holds on the D1 graph. A zero needs a premise, not an observation.
 3. Add the rule to `rules/o10_rules.py` under the same label, keyed by name: `fnkey(name, file)` or `site(fn, file, text)`, never a bare line number.
    - Guard it with `if fnkey(...)` so that heads without the function add nothing.
-   - Use the existing families: `O10_LOOPS_LAST` (exact header, bound, why, the only `file:fn` it may match), `O10_EDGE_ZERO`, `O10_SITE_FROM`, `O10_SITE_SIZE`, `O10_ID_AUDIT` and `O10_ARGS_FIRST`.
+   - Use the existing families: `O10_LOOPS_LAST` (exact header, bound, why, the only `file:fn` it may match), `O10_EDGE_ZERO`, `O10_SITE_FROM`, `O10_SITE_SIZE`, `O10_ID_AUDIT`, `O10_ARGS_FIRST` and `O10_DIAG_EXCLUSIVE` (B7b-DX: diagnostic sites of one function of which a call pushes at most one; `text_budget.py` counts the group once per call at its largest member and leaves the run incomplete unless every member is an unlooped site of that function with its multiplicity).
    - For a site you claim has multiplicity 0, prefer `O10_SITE_SIZE` 0, which `o10_check` guards, over a zero.
 4. If a function the decisions name was renamed or deleted, change only the affected entry and leave its argument unchanged. Use `rs_any` for a rename, or a `KEYMAP_ALLOW` entry `("deleted", why)` for a deletion.
 5. Re-run the head and the registered revision. The registered tree must still reproduce exactly. The KD5 source pins in `base/kd5_text_model.py` and `base/kd5_first_error_model.py`, and the source-bound closure pin in `rules/o10_rules.py`, hold one current value each, so the committed tool stops (exit 4) on the registered revision once a pin moves; reproduce it with a scratch copy of the tool whose pins are restored to the registered revision's values, with the new rules kept. Restore the original case consumer in place of the batch 5 wrapper/helper pair when reproducing that earlier source. Then compare against the registered tree as above.

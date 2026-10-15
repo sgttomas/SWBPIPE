@@ -35,7 +35,11 @@ def rs_any(*names, f="core/reporting/result_export/src/retained_precision.rs"):
 # edge; with the function gone the edge has no callee, so this key may stay unmapped (the rule then names nothing).
 # Each entry is (the kind the line map must report, why); rule_ops.carry_decision_keys never allows "replaced".
 KEYMAP_ALLOW = {"lib.rs:13102:append_combination_results": ("deleted",
-    "E13 (#1251): fn append_combination_results is deleted (lib.rs, pre-B7 cleanup); EDGE_ZERO[0]'s callee no longer exists")}
+    "E13 (#1251): fn append_combination_results is deleted (lib.rs, pre-B7 cleanup); EDGE_ZERO[0]'s callee no longer exists"),
+    # B7b-K1: the function-as-value zero edge's callee is deleted with the v2-era readers; the edge names nothing.
+    "load_reference_source.rs:46:code": ("deleted",
+    "B7b (A4/A5, 54018fe688): load_reference_source.rs is reduced to the current pre-pass and its private fn code is "
+    "deleted; preview_case_evidence's `.map(code)` names load_reference.rs's code (EDGE_ZERO[3]) and this callee no longer exists")}
 Z = "D1.4 (B2-A): the model's combinations, z <= 2 (D1.9 row Combinations)"
 T = "D1.4 (B2-A): one combination's terms, repeats counted, <= 3 (D1.9 row CombinationTerms)"
 O = "D1.4 (B2-A): one combination's operand load cases (mechanics terms, a subtraction's two ids, or a range envelope's ids), <= 3 (D1.9 rows CombinationTerms and RangeOperands)"
@@ -379,6 +383,22 @@ SITE_FROM_REBIND = [("retained_precision.rs:223", "1+4*64*(att+z)", RSR + "g5_na
 # O-10 (T4's heads): rules keyed by name at the snapshot; their arguments are in DEL-05-02's
 # Design/retained-pricing-rules.md.
 exec(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "o10_rules.py")).read())
+# B7b-VP: model 0.5.0's exact half adds validate_profile's per-pipe corrosion-allowance check (pressure_runtime.rs): on a
+# 0.5.0 document each pipe takes at most one arm of `match (&model.pressure_contract, &pipe.section.corrosion_allowance)`
+# (EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED on E, CORROSION_ALLOWANCE_WITHOUT_PRESSURE_CONTRACT on L): <= m problem()
+# calls per validate_profile call, independent of the per-load arm the base rule bounds by L. Its contract-arm problems
+# cannot fire on admitted inputs (L has no contract; E's namespace requires {3.0.0, exact_pressure_v3, euler_bernoulli});
+# every admitted document is 0.5.0, so neither version arm fires. The base per-call bound is rebound L -> L+m.
+_VP_FILE = "core/product_physics/src/pressure_runtime.rs"
+if fnkey("validate_profile", _VP_FILE) and fnkey("problem", _VP_FILE):
+    _vp_src = open(_os.path.join(_SNAP, _VP_FILE), encoding="utf-8").read()
+    if "match (&model.pressure_contract, &pipe.section.corrosion_allowance) {" in _vp_src:
+        if _vp_src.count("for pipe in &model.pipe_segments {") != 1:
+            raise SystemExit("B7b-VP: validate_profile's per-pipe corrosion loop changed; re-review")
+        EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("validate_profile", _VP_FILE), fnkey("problem", _VP_FILE), "L+m",
+            "B7b-VP: validate_profile's problem() calls: <= L from the base rule's per-load arm (PRESSURE_MODEL_REAUTHOR_REQUIRED "
+            "or EXACT_PRESSURE_REQUIRES_REGION, one per primitive load) plus <= m from the per-pipe corrosion-allowance match "
+            "(one arm per pipe); the 0.5.0 contract/shear/version arms cannot fire on an admitted document")]
 # B7a E13 leftover: the support-vector reaction arm no longer exists.
 # The complete current lib.rs pin guards this exact ID preimage removal;
 # all surviving displacement and other decision audits continue strict carry.

@@ -4,7 +4,7 @@ import json
 import os
 import re
 
-SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': 'bd4a56be5e30f20d33633086916eaa62393fe5f1524ac8d6272bd1e500709395', 'core/product_physics/src/source_receipt.rs': 'dc36c7f8a75377ea61abb82322d572798388e632cc087c31b3bf3f642040af0d'}
+SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': 'bd4a56be5e30f20d33633086916eaa62393fe5f1524ac8d6272bd1e500709395', 'core/product_physics/src/source_receipt.rs': '55b2e4b67ae3929f8a3a62c8149d939ec81a92d5762dc173e55fd54f20cfb768'}
 ROW_FILE = "core/product_physics/src/source_receipt/rows.rs"
 RETIRED_IDS = {
     ROW_FILE + ":390": {"primary[&s.functional_indices[c]].id": {"bytes": 1024, "source": "RES"}},
@@ -106,7 +106,17 @@ def route_e_keymap_allow(snapshot, edges, inherited):
         if len(re.findall(r"^\s+(?:pub\(super\) )?fn " + name + r"\(", receipt, re.M)) != 1:
             raise ValueError("B7a route-E live finalizer changed")
     allowed = dict(inherited)
+    # B7b: the two solve-case callers are resolved by name at the snapshot (rs_any in
+    # sq2_decisions_E.py); bind the preimage to that same unique current definition.
+    with open(os.path.join(snapshot, "core/product_physics/src/lib.rs"), encoding="utf-8") as stream:
+        lib_lines = stream.read().split("\n")
+    solve = [i + 1 for i, line in enumerate(lib_lines) if re.match(r"fn solve_prepared_load_case\(", line)]
+    if len(solve) != 1:
+        raise ValueError("B7a route-E solve-case caller is not unique")
+    solve_key = f"lib.rs:{solve[0]}:solve_prepared_load_case"
     for index, expected in ROUTE_E_RETIRED_EDGES:
+        if expected[0] == "lib.rs:4442:solve_prepared_load_case":
+            expected = (solve_key,) + expected[1:]
         if len(edges) <= index or edges[index] != expected or edges.count(expected) != 1:
             raise ValueError("B7a route-E complete edge preimage or order changed")
         key = expected[1]

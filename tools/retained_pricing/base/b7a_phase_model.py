@@ -36,7 +36,7 @@ INVALIDATION = (
 FG_FILE = "core/product_physics/src/formation_guard.rs"
 FG = FG_FILE + ":304:load_row_finding"
 DECIDE = FG_FILE + ":223:decide_row"
-SOLVE = "core/product_physics/src/lib.rs:4442:solve_prepared_load_case"
+SOLVE = "core/product_physics/src/lib.rs:4427:solve_prepared_load_case"   # B7b snapshot line (B7a: 4442)
 ROW_LOOP = "for row in &rows"
 LOOP_RULE = {
     "fn": "formation_guard.rs:304:load_row_finding",
@@ -192,14 +192,15 @@ def finding_witness(context, counts, caps):
 def selected_publication_context(snapshot, directory, graph):
     """The three product gates bind only selected T25's publication hash."""
     context = consumer_context(snapshot, directory)
+    # B7b snapshot lines (B7a: composite 726/952, source_receipt 694/780/796, lib 2543).
     expected = {
-        "core/product_physics/src/source_receipt/composite.rs:726:composite_exact": SOLVE,
-        "core/product_physics/src/source_receipt/composite.rs:952:ordinary_physics": SOLVE,
-        "core/product_physics/src/source_receipt.rs:694:failed": SOLVE,
-        "core/product_physics/src/source_receipt.rs:780:finalize_composite":
-            "core/product_physics/src/lib.rs:2543:run_linear_static_preview_observed_inner",
-        "core/product_physics/src/source_receipt.rs:796:finalize_for":
-            "core/product_physics/src/source_receipt.rs:780:finalize_composite",
+        "core/product_physics/src/source_receipt/composite.rs:724:composite_exact": SOLVE,
+        "core/product_physics/src/source_receipt/composite.rs:950:ordinary_physics": SOLVE,
+        "core/product_physics/src/source_receipt.rs:646:failed": SOLVE,
+        "core/product_physics/src/source_receipt.rs:732:finalize_composite":
+            "core/product_physics/src/lib.rs:2532:run_linear_static_preview_observed_inner",
+        "core/product_physics/src/source_receipt.rs:748:finalize_for":
+            "core/product_physics/src/source_receipt.rs:732:finalize_composite",
     }
     for target, caller in expected.items():
         parents = [key for key, values in graph["edges"].items() for value in values if value == target]

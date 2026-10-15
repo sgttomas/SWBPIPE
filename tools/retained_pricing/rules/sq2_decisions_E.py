@@ -6,8 +6,19 @@ branch live, and the mirror of route L: the preview-only W1 functions and branch
 import os, json, runpy
 H = os.path.dirname(os.path.abspath(__file__))
 globals().update({k: v for k, v in runpy.run_path(os.path.join(H, "sq2_decisions_common.py")).items() if k.isupper() or k in ("rs", "rs_any", "Resolved")})
-EXACT = ("route E (B3b): 0.3.0 with {2.0.0, exact_straight_pressure_v2}, so pressure_runtime::is_exact is true; every case's "
+RE_FULL = "core/reporting/result_export/src/"
+# B7b-B: B7B_EXACT_BASE (o10_rules.py) is true on B7b's source, where D4 (a) rebased route E on pressure-1 and model
+# 0.5.0 carries the exact contract: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, shear_model euler_bernoulli}.
+EXACT = (("route E (B3b; B7b D4 (a)): 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}" if B7B_EXACT_BASE else
+          "route E (B3b): 0.3.0 with {2.0.0, exact_straight_pressure_v2}") + ", so pressure_runtime::is_exact is true; every case's "
          "pressure_regions is explicitly Some([]) (D1.5's exact clause)")
+# B7b-LS: the load/reference-state selector keys on presence (case_state::is_load_state = an exact contract and an
+# authored group field; carries_fields). D1.3's namespace clause refuses each authored group field (reference_configurations,
+# model and request expansion_laws, analysis_state) on every branch, so is_load_state is false on admitted E.
+LOAD_STATE_OFF = ("D1.3's namespace clause refuses every authored load/reference-state field (retained_memory.rs family_clauses: "
+                  "ReferenceConfigurations, MaterialExpansionLaw, RequestExpansionLaws, AnalysisState), so case_state::is_load_state "
+                  "(exact contract && carries_fields) is false on route E (B7b-LS)" if B7B_EXACT_BASE else
+                  "D1.3's load-state clause holds on route E: called only under case_state::is_load_state (0.4.0), false for 0.3.0 (I95)")
 FN_ZERO_RESTATE = [
     ("lib.rs:11552:append_exact_pressure_results", EXACT + ". Its only call (lib.rs:5595-5599) is under `exact_pressure...pipe_states.get(&pipe_index)` Some; "
      "build_pressure_case_with_members inserts a pipe state only for a member of a region (its region loop, pressure_runtime.rs:474ff.), so with every region "
@@ -25,12 +36,20 @@ EDGE_ZERO_REMOVE_CALLER = [
 ]
 EDGE_ZERO_REMOVE = [
     ("pressure_runtime.rs:115:validate_profile", "pressure_runtime.rs:356:check_suffixes"),
-    ("semantic_contract.rs:480:for_source", "physics_evidence.rs:319:validate_physics_evidence"),
-    ("semantic_contract.rs:480:for_source", "semantic_contract.rs:533:forbid_load_reference_evidence"),
 ]
+if B7B_EXACT_BASE:
+    # B7b-R1: route E's G7 base is pressure-1, so for_source takes the PRESSURE_ID arm: the common R1 zero is removed
+    # here (validate_pressure_evidence is priced at its multiplicity). B7b deleted validate_physics_evidence and
+    # forbid_load_reference_evidence with v2; the line map prunes their base zero edges, so no removal names them.
+    EDGE_ZERO_REMOVE += [(rs("for_source", f=RE_FULL + "semantic_contract.rs"),
+                          rs("validate_pressure_evidence", f=RE_FULL + "physics_evidence.rs"))]
+else:
+    EDGE_ZERO_REMOVE += [
+        ("semantic_contract.rs:480:for_source", "physics_evidence.rs:319:validate_physics_evidence"),
+        ("semantic_contract.rs:480:for_source", "semantic_contract.rs:533:forbid_load_reference_evidence"),
+    ]
 EDGE_ZERO = EDGE_ZERO + [
-    ("source_receipt/composite.rs:406:physical_source", "source_receipt.rs:152:captured_load_state_case",
-     "D1.3's load-state clause holds on route E: called only under case_state::is_load_state (0.4.0), false for 0.3.0 (I95)"),
+    ("source_receipt/composite.rs:406:physical_source", "source_receipt.rs:152:captured_load_state_case", LOAD_STATE_OFF),
     # I95's credits (RR ruling 2, provisional; re-read on c3cf970ad3: SQ2's written argument)
     ("pressure_runtime.rs:835:finish_source_groups", "pressure_runtime.rs:89:problem",
      "D1.5-exact credit (I95 C-2), re-read at c3cf970ad3 (pressure_runtime.rs:835-920): `groups` is empty (factor groups are made only by add_factor_term "
@@ -49,16 +68,27 @@ EDGE_ZERO = EDGE_ZERO + [
     ("lib.rs:2354:run_linear_static_preview_observed", "preview_physics.rs:248:evidence",
      "the preview evidence is rendered only from `preview` (lib.rs:2860-2864), None on route E"),
     ("semantic_contract.rs:480:for_source", "preview_physics_evidence.rs:244:validate_preview_physics_evidence",
-     "physics-retained-1's G7 validates project(successor), whose base id on route E is physics-1 (RS retained_precision.rs:4720, Route EXACT), so "
-     "for_source takes the PHYSICS_ID arm, never the preview arm"),
+     ("physics-retained-1's G7 validates project(successor), whose base id on route E is pressure-1 since B7b D4 (a) (RS Route EXACT "
+      "base_id), so for_source takes the PRESSURE_ID arm, never the preview arm") if B7B_EXACT_BASE else
+     ("physics-retained-1's G7 validates project(successor), whose base id on route E is physics-1 (RS retained_precision.rs:4720, Route EXACT), so "
+      "for_source takes the PHYSICS_ID arm, never the preview arm")),
 ]
 # B4/D1's deleted preview constructor keys retain the ordinary mapper's
 # exact-kind check. Source and complete edge preimages are checked first.
 _b7a_carry = runpy.run_path(os.path.join(H, "..", "lib", "b7a_retired_carry.py"))
 KEYMAP_ALLOW = _b7a_carry["route_e_keymap_allow"](os.environ["SQ2_SNAP"], EDGE_ZERO, KEYMAP_ALLOW)
+if B7B_EXACT_BASE:
+    # B7b-LR: validate_pressure_evidence takes its load/reference-state arm only when project(successor) carries
+    # contract_evidence.load_reference_states; the producer inserts that member only under case_state::is_load_state
+    # (lib.rs, both envelope constructors), false on route E (B7b-LS), and project() copies contract_evidence unchanged.
+    EDGE_ZERO = EDGE_ZERO + [(rs("validate_pressure_evidence", f=RE_FULL + "physics_evidence.rs"),
+                              rs("validate_pressure_load_reference_evidence", f=RE_FULL + "load_reference.rs"),
+                              "B7b-LR (route E): " + LOAD_STATE_OFF + "; the producer adds contract_evidence.load_reference_states only "
+                              "under is_load_state and RS project() copies contract_evidence, so the successor has none and "
+                              "validate_pressure_evidence takes its physics arm (validate_physics_evidence_in(.., false, PressureV3))")]
 FN_ZERO = [
-    ("source_receipt.rs:152:captured_load_state_case", "the 0.4.0 load-state replay; D1.3's load-state clause holds on route E (I95)"),
-    ("source_receipt.rs:197:check_load_state_input", "the 0.4.0 load-state replay; D1.3's load-state clause holds on route E (I95)"),
+    ("source_receipt.rs:152:captured_load_state_case", "the load-state replay; " + LOAD_STATE_OFF),
+    ("source_receipt.rs:197:check_load_state_input", "the load-state replay; " + LOAD_STATE_OFF),
     # B3b-P/B3b-R: the preview-only W1 and reader functions (the mirror of route L's exact-only list)
     ("retained_product.rs:2562:preview_case_evidence", "route E: observables_view's Preview arm only (retained_product.rs:2461)"),
     ("retained_wire.rs:937:explicit_g_origin", "route E: material_basis' Preview arm only (retained_wire.rs:927)"),
@@ -86,9 +116,14 @@ LOOP_ZERO_RESTATE = [
      "(filled only per region member) or pressure-thrust aggregates (expansion-joint components, D1.4); each header it matches is listed in zero_hits_E.json"),
 ]
 LOOPS_LAST = [(rx, b, "I95 B3-S (route E, newly reached): " + why) for rx, b, why in json.load(open(os.path.join(H, "i95_new_loops.json")))]
-SITE_FROM = list(globals().get("SITE_FROM", [])) + [("physics_evidence.rs:%d" % ln, {"from": ["physics_evidence.rs:319:validate_physics_evidence"], "per": "1",
+# B7b-F: route E's reached physics-evidence entry is validate_pressure_evidence (D4 (a); validate_physics_evidence is
+# deleted), which returns validate_physics_evidence_in's Result unchanged on its physics arm (B7b-LR).
+_PE_ENTRY = rs("validate_pressure_evidence", f=RE_FULL + "physics_evidence.rs") if B7B_EXACT_BASE else "physics_evidence.rs:319:validate_physics_evidence"
+_PE_NAME = "validate_pressure_evidence" if B7B_EXACT_BASE else "validate_physics_evidence"
+SITE_FROM = list(globals().get("SITE_FROM", [])) + [("physics_evidence.rs:%d" % ln, {"from": [_PE_ENTRY], "per": "1",
     "why": "route E (I95, as G4's preview_physics_evidence.rs:90/:100): require()/text()/number()/array() (physics_evidence.rs:34-58) allocate only on "
-           "failure and every failure returns through `?`; the one swallowing `.ok()` is inside the region loop (empty): <= 1 per validate_physics_evidence call"})
+           "failure and every failure returns through `?`; the one swallowing `.ok()` is inside the region loop (empty): <= 1 per " + _PE_NAME + " call"
+           + ("; B7b-F: the entry is validate_pressure_evidence" if B7B_EXACT_BASE else "")})
     for ln in (38, 48, 53, 57)]
 if len({key for key, _ in SITE_FROM}) != len(SITE_FROM):
     raise ValueError("route E: duplicate/conflicting common and local SITE_FROM key")

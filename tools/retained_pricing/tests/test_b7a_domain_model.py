@@ -87,10 +87,11 @@ def test_generated_record_bytes_are_not_a_circular_source_premise(tmp_path):
     snapshot = source_copy(tmp_path)
     target = snapshot / "core/product_physics/src/retained_memory.rs"
     source = target.read_text()
-    # This is only a guard-dependency control, never a registered build.
-    old = "v1;UNREGISTERED=b7a-batch5-D3-pending"
+    # This is only a guard-dependency control, never a registered build. B7b D3: the
+    # registered entry's reviewed-input record (after the admission marker) is the control.
+    old = 'reviewed_inputs: "v1;Cargo.lock='
     assert source.count(old) == 1
-    target.write_text(source.replace(old, "v1;UNREGISTERED=guard-control", 1))
+    target.write_text(source.replace(old, 'reviewed_inputs: "v1;UNREGISTERED=guard-control;Cargo.lock=', 1))
     MODEL["inspect"](snapshot)
 
 
@@ -173,22 +174,23 @@ def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
     _, audits, _ = MODEL["text_decisions"](SOURCE, lambda key: key)
     actual = dict(audits)
     pp = "core/product_physics/src/"
+    # B7b: the same sites on B7b's unchanged lines (B7a's 10627.. + 5).
     sites = {
-        "lib.rs:10627": {"load_case_id"},
-        "lib.rs:10641": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:10648": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:10653": {"load.load_id"},
-        "lib.rs:10654": {"bend.pipe_id"},
-        "lib.rs:10655": {"bend.component_id"},
-        "lib.rs:10656": {"load_case_id"},
-        "lib.rs:10715": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:10722": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:10727": {"load.load_id"},
-        "lib.rs:10728": {"bend.pipe_id"},
-        "lib.rs:10729": {"bend.component_id"},
-        "lib.rs:10730": {"load_case_id"},
-        "lib.rs:10769": {"stable_suffix(&load.load_id)"},
-        "lib.rs:10776": {"load.load_id", "load_case_id"},
+        "lib.rs:10632": {"load_case_id"},
+        "lib.rs:10646": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:10653": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:10658": {"load.load_id"},
+        "lib.rs:10659": {"bend.pipe_id"},
+        "lib.rs:10660": {"bend.component_id"},
+        "lib.rs:10661": {"load_case_id"},
+        "lib.rs:10720": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:10727": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:10732": {"load.load_id"},
+        "lib.rs:10733": {"bend.pipe_id"},
+        "lib.rs:10734": {"bend.component_id"},
+        "lib.rs:10735": {"load_case_id"},
+        "lib.rs:10774": {"stable_suffix(&load.load_id)"},
+        "lib.rs:10781": {"load.load_id", "load_case_id"},
         "certified_loads.rs:233": {"case_id"},
         "certified_loads.rs:256": {"case_id"},
     }
@@ -204,10 +206,13 @@ def test_actual_reader_cached_allocations_include_all_live_owners_and_duplicates
     kd5 = runpy.run_path(str(PRICING / "base/kd5_text_model.py"))
     paths = MODEL["reader_static_files"](SOURCE, MODEL["STATIC_PREIMAGE"])
     counts = Counter(paths)
-    assert len(paths) == 14 and len(counts) == 12
+    # B7b (A4/A5, O-10): ten distinct inputs, twelve actual OnceLock<Value> allocations;
+    # the pressure-source and ordinary pressure tables are resident, the schema is not.
+    assert len(paths) == 12 and len(counts) == 10
     assert counts["fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"] == 2
     assert counts["fixtures/results/semantic_contract_v0_3_physics_retained_1.json"] == 2
-    assert "fixtures/results/semantic_contract_v0_3_pressure_source_1.json" not in counts
+    assert counts["fixtures/results/semantic_contract_v0_3_pressure_source_1.json"] == 1
+    assert counts["fixtures/results/semantic_contract_v0_3_pressure_1.json"] == 1
     assert "schemas/results_pressure_1.v0.3.schema.json" not in counts
     for owner, path in MODEL["STATIC_OWNERS"]:
         file, function = owner.rsplit(":", 1)

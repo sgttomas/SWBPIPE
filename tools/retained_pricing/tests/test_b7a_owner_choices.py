@@ -59,11 +59,12 @@ def test_complete_choice_once_and_all_auxiliaries_positive(actual):
 
 
 @pytest.mark.parametrize("family",["site_zero","site_from","site_total","site_aggregate","site_size","lex_site_size"])
-@pytest.mark.parametrize("line",[1124,3057,3071,3073,3185,3194,3217,13239,13614,3005,3227])
+# B7b: the two lib.rs helper rows are at B7b's lines (B7a 13239/13614 + 5; unchanged text).
+@pytest.mark.parametrize("line",[1124,3057,3071,3073,3185,3194,3217,13244,13619,3005,3227])
 def test_complete_group_source_error_and_auxiliary_alias_refusal(family,line):
     args=inputs();table=args[0]
-    file=MODEL["FK"]+"structural.rs" if line==1124 else MODEL["PP"]+("lib.rs" if line in (13239,13614) else "retained_product.rs")
-    kind={1124:"clone_text",3185:"to_string",13614:"replace"}.get(line,"format")
+    file=MODEL["FK"]+"structural.rs" if line==1124 else MODEL["PP"]+("lib.rs" if line in (13244,13619) else "retained_product.rs")
+    kind={1124:"clone_text",3185:"to_string",13619:"replace"}.get(line,"format")
     table.setdefault(family,{})[file+":"+str(line)+":"+kind]={"bytes":0}
     with pytest.raises(ValueError):MODEL["state"](SOURCE,*args)
 

@@ -9,11 +9,13 @@ import os
 import re
 import runpy
 
-SOURCE_FILES = {"core/product_physics/src/lib.rs":"8e171f8a889a2d35c8a2c939def31aabac9a9f9994f681d38bbdf340484e4283","core/product_physics/src/certified_loads.rs":"d695564353f1ce177fcb0f1f91c8ee00ab3bf8ad57bdeb9cf25f5501b11a67b1","core/product_physics/src/retained_product.rs":"e0cf6a0681a7ecfc01a41cf18ef83c4d8789b8f45811c20e9707b3cc8c18a27c","core/product_physics/src/retained_wire.rs":"31484751460173cbefe3c9328efe42d6e2313746988ac7bb5bc836460c959b7f","core/product_physics/src/certified_publication.rs":"635b29d6e52dfeec94812b69a6e60b80fa3ec3630cc76edee799e82f763dc886","core/solver/frame_kernel/src/load_ledger.rs":"8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f","core/solver/frame_kernel/src/structural/formation_check.rs":"d6305e0b55708dfd107dc74460d90af46377ccf7106c8d7d74d371baf38419df","core/solver/frame_kernel/src/structural/certified_recovery.rs":"953da59448e8a47653e23b989ab1f46d00dc0a93e15d8152ea890df37ee671fd","core/loads/primitive_loads/src/lib.rs":"f0536b0c0bfdb0df69e7a8dd251dfb0b15607caf3ad693fa1adc3b912152f121","core/solver/straight_pipe/src/lib.rs":"b743d7ac67312253d39bd7fe772fbff3e2b320eeaca6a41dda6d256ed9af4856","core/product_physics/src/preview_physics.rs":"8b24d69c79e7dd0e7fd8d375b74042ea5e22216eaa8fe5449f1eb915eb2b45b1","core/reporting/result_export/src/retained_precision.rs":"241d8db741fba3b7204c3bd5936d4eee58a2cad8a819865fa2d7fd0ca3dd9205","core/product_physics/src/model_format.rs":"a47f529dc22869d3435552337bfe7032f133c654a3a2faeeb1a83fc7059548df","core/product_physics/src/pressure_runtime.rs":"b876348a88047dc8af9354d909a74cbe07db00931cf78215412525357f873fa5","core/product_physics/src/source_receipt.rs":"dc36c7f8a75377ea61abb82322d572798388e632cc087c31b3bf3f642040af0d","core/product_physics/src/exact_admission.rs":"c4beff11ee573e89ce7774a5d46367c2e4026e78542efb4aeaa50172d49791b0","core/product_physics/src/case_state/mod.rs":"17f17f20c6c3556af1c3465418f0fa964fbdf2db4a5ba1b49c5914e90d7c75b5","core/solver/nonlinear_integration/src/structural_adapter.rs":"7405c5cf32f59edf1c590859868e9af76bd08803aee3eea9b99a44be2aa5893b","core/solver/frame_kernel/src/lib.rs":"f21e07046cba2909b67694d429a11dab915a0e27ea28ea79878a18b83bdd2843","core/reporting/result_export/src/semantic_contract.rs":"5f727dce170c2674465a6fb2a5455070c22deff84aafb9996e5d03a00e4f7e1d","core/reporting/result_export/src/physics_source.rs":"12bab9917680ca6bbf2de59ee337459c5e8a2db80eb9fa9edb83963cbae007c1"}
+# B7b D3: the full-file pins are B7b's actual source (retained-pricing-rules.md, B7b section);
+# pressure_runtime.rs's later change is inside its `mod tests` only (production prefix identical).
+SOURCE_FILES = {"core/product_physics/src/lib.rs":"650be7f49cd69e837caf641c925c801b4bf60fa4d2a7282c2e6edd9fd24492db","core/product_physics/src/certified_loads.rs":"d695564353f1ce177fcb0f1f91c8ee00ab3bf8ad57bdeb9cf25f5501b11a67b1","core/product_physics/src/retained_product.rs":"a9b4b7f75f45ffcd559e73267cf6607576615be54365b803f79bba9ec1e015d5","core/product_physics/src/retained_wire.rs":"7a387c1514b40674d57e9b3726a3e7373e3eecedd2a422bed3a1785531605610","core/product_physics/src/certified_publication.rs":"635b29d6e52dfeec94812b69a6e60b80fa3ec3630cc76edee799e82f763dc886","core/solver/frame_kernel/src/load_ledger.rs":"8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f","core/solver/frame_kernel/src/structural/formation_check.rs":"d6305e0b55708dfd107dc74460d90af46377ccf7106c8d7d74d371baf38419df","core/solver/frame_kernel/src/structural/certified_recovery.rs":"953da59448e8a47653e23b989ab1f46d00dc0a93e15d8152ea890df37ee671fd","core/loads/primitive_loads/src/lib.rs":"f0536b0c0bfdb0df69e7a8dd251dfb0b15607caf3ad693fa1adc3b912152f121","core/solver/straight_pipe/src/lib.rs":"b743d7ac67312253d39bd7fe772fbff3e2b320eeaca6a41dda6d256ed9af4856","core/product_physics/src/preview_physics.rs":"61b2fb2f3f9bc3aa9803bf6bf5c95cf5e51c841289ef5c415bf86fe00f33b468","core/reporting/result_export/src/retained_precision.rs":"e2cf6e2213b19f340184ea22cd3db69fb3e0553f5d65a1e84e8beebbf1f87c72","core/product_physics/src/model_format.rs":"5b96cf74cbeb8c4a4fe11509e634525d3384c56cb9ff37b11a3c12d39a1df71f","core/product_physics/src/pressure_runtime.rs":"5b0a258e6f42cce626c84ef1f178d48a4d110bd1b652ac948809d62611556008","core/product_physics/src/source_receipt.rs":"55b2e4b67ae3929f8a3a62c8149d939ec81a92d5762dc173e55fd54f20cfb768","core/product_physics/src/exact_admission.rs":"fe922a19a7a305afc88da68a9b22e22f9b6651004ed4b6d1760f4a1da0800c47","core/product_physics/src/case_state/mod.rs":"633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab","core/solver/nonlinear_integration/src/structural_adapter.rs":"7405c5cf32f59edf1c590859868e9af76bd08803aee3eea9b99a44be2aa5893b","core/solver/frame_kernel/src/lib.rs":"f21e07046cba2909b67694d429a11dab915a0e27ea28ea79878a18b83bdd2843","core/reporting/result_export/src/semantic_contract.rs":"dd445277d8cb09796840b4b47bba34cbea39892fad697c100072bcf817ea2390","core/reporting/result_export/src/physics_source.rs":"9e0395261427ce971b337e47efc756fb630d2109c41d1ce5063c3d7039d34ac6"}
 CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
-FAMILY_PIN = "e640cc8365bdd6634734be237345fcb375a3e1ee7a653bb42a6067fa8640bb3a"
+FAMILY_PIN = "6f85658b105d1d38c0fa23d94aba52572c81273956764d4824371bc7c4cf2d3a"
 ADMISSION_MARKER = "// ---- D-6: the build status --------------------------------------------------"
-ADMISSION_PREFIX_PIN = "f4063371220434eaa3f95d4df61354543c40aec4901ce84490a6af78eb730ae7"
+ADMISSION_PREFIX_PIN = "fd571c720e7992835c6f832e2c77e0e6f01ab7f6d5229a40c94fbb8cc21e34be"
 ADMISSION_LATE_PINS = {"law_order":"b0f9eae8c2d716f14cfda1ff895a65d7833b086383ec34154b501daa1ac344a3","admit":"67334c60ce1a606b5cd73e2715474cfc40150a11def9143752993af4c79904c8","admission":"7627646ef640f23a095bab2f355c7576e1ff79baeb2a9ea44be4550765f60003"}
 MATERIALS = 4
 OPERAND_WORDS = 26
@@ -21,7 +23,12 @@ MEMBER_SOURCE = 268
 FAMILY_BYTES = 16
 
 STATIC_PREIMAGE = ('schemas/physics_source_recovery.schema.json', 'schemas/retained_precision_mp_v2.schema.json', 'fixtures/results/retained_precision_prepared_ordinary_v1.json', 'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json', 'fixtures/results/semantic_contract_v0_2.json', 'fixtures/results/semantic_contract_v0_3_physics_1.json', 'fixtures/results/semantic_contract_v0_3_load_reference_1.json', 'fixtures/results/semantic_contract_v0_3_load_reference_source_1.json', 'fixtures/results/semantic_contract_v0_3_preview_physics_1.json', 'fixtures/results/semantic_contract_v0_3_physics_source_1.json', 'fixtures/results/semantic_contract_v0_3_source_blocks_1.json', 'schemas/source_block_recovery.schema.json')
-STATIC_OWNERS = (('core/reporting/result_export/src/physics_source.rs:schema', 'schemas/physics_source_recovery.schema.json'), ('core/reporting/result_export/src/retained_precision.rs:schema', 'schemas/retained_precision_mp_v2.schema.json'), ('core/reporting/result_export/src/retained_precision.rs:definition', 'fixtures/results/retained_precision_prepared_ordinary_v1.json'), ('core/reporting/result_export/src/retained_precision.rs:table', 'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:physics_contract', 'fixtures/results/semantic_contract_v0_3_physics_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:load_reference_contract', 'fixtures/results/semantic_contract_v0_3_load_reference_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:load_reference_source_contract', 'fixtures/results/semantic_contract_v0_3_load_reference_source_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:preview_physics_contract', 'fixtures/results/semantic_contract_v0_3_preview_physics_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:physics_source_contract', 'fixtures/results/semantic_contract_v0_3_physics_source_1.json'), ('core/reporting/result_export/src/retained_precision.rs:combination_definition', 'fixtures/results/retained_precision_prepared_combination_v1.json'), ('core/reporting/result_export/src/retained_precision.rs:exact_definition', 'fixtures/results/retained_precision_prepared_exact_v1.json'), ('core/reporting/result_export/src/semantic_contract.rs:physics_retained_contract', 'fixtures/results/semantic_contract_v0_3_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:preview_physics_retained_contract', 'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json'), ('core/reporting/result_export/src/retained_precision.rs:exact_table', 'fixtures/results/semantic_contract_v0_3_physics_retained_1.json'))
+# B7b (A4/A5, O-10): physics_contract, load_reference_contract,
+# load_reference_source_contract and physics_source_contract are deleted
+# with their tables. pressure_rows_contract() (the ordinary pressure-1 table)
+# and pressure_source_contract() (the pressure-source-1 table) are distinct
+# resident OnceLock<Value> owners and are priced positively in their own right.
+STATIC_OWNERS = (('core/reporting/result_export/src/physics_source.rs:schema', 'schemas/physics_source_recovery.schema.json'), ('core/reporting/result_export/src/retained_precision.rs:schema', 'schemas/retained_precision_mp_v2.schema.json'), ('core/reporting/result_export/src/retained_precision.rs:definition', 'fixtures/results/retained_precision_prepared_ordinary_v1.json'), ('core/reporting/result_export/src/retained_precision.rs:table', 'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:preview_physics_contract', 'fixtures/results/semantic_contract_v0_3_preview_physics_1.json'), ('core/reporting/result_export/src/retained_precision.rs:combination_definition', 'fixtures/results/retained_precision_prepared_combination_v1.json'), ('core/reporting/result_export/src/retained_precision.rs:exact_definition', 'fixtures/results/retained_precision_prepared_exact_v1.json'), ('core/reporting/result_export/src/semantic_contract.rs:physics_retained_contract', 'fixtures/results/semantic_contract_v0_3_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:preview_physics_retained_contract', 'fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json'), ('core/reporting/result_export/src/retained_precision.rs:exact_table', 'fixtures/results/semantic_contract_v0_3_physics_retained_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:pressure_source_contract', 'fixtures/results/semantic_contract_v0_3_pressure_source_1.json'), ('core/reporting/result_export/src/semantic_contract.rs:pressure_rows_contract', 'fixtures/results/semantic_contract_v0_3_pressure_1.json'))
 
 
 def inspect(snapshot):
@@ -223,21 +230,22 @@ def text_decisions(snapshot, resolved):
     static = {"bytes": 64, "source": "STATIC"}
     audits = [
 
-        (pp + "lib.rs:10627", {"load_case_id": inp}),
-        (pp + "lib.rs:10641", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:10648", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:10653", {"load.load_id": inp}),
-        (pp + "lib.rs:10654", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:10655", {"bend.component_id": inp}),
-        (pp + "lib.rs:10656", {"load_case_id": inp}),
-        (pp + "lib.rs:10715", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:10722", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:10727", {"load.load_id": inp}),
-        (pp + "lib.rs:10728", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:10729", {"bend.component_id": inp}),
-        (pp + "lib.rs:10730", {"load_case_id": inp}),
-        (pp + "lib.rs:10769", {"stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:10776", {"load.load_id": inp, "load_case_id": inp}),
+        # B7b: snapshot keys follow B7b's unchanged lines (B7a 10627.. +5).
+        (pp + "lib.rs:10632", {"load_case_id": inp}),
+        (pp + "lib.rs:10646", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:10653", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:10658", {"load.load_id": inp}),
+        (pp + "lib.rs:10659", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:10660", {"bend.component_id": inp}),
+        (pp + "lib.rs:10661", {"load_case_id": inp}),
+        (pp + "lib.rs:10720", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:10727", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:10732", {"load.load_id": inp}),
+        (pp + "lib.rs:10733", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:10734", {"bend.component_id": inp}),
+        (pp + "lib.rs:10735", {"load_case_id": inp}),
+        (pp + "lib.rs:10774", {"stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:10781", {"load.load_id": inp, "load_case_id": inp}),
         (pp + "certified_loads.rs:233", {"case_id": inp}),
         (pp + "certified_loads.rs:256", {"case_id": inp}),
         (pp + "retained_product.rs:4298", {"stable_suffix(id)": inp}),
@@ -249,14 +257,14 @@ def text_decisions(snapshot, resolved):
         (pp + "retained_product.rs:4332", {"member.id": inp}),
         (pp + "retained_product.rs:4358", {"ordinary.document_kind": static}),
         (pp + "retained_product.rs:4359", {"ordinary.model_ref": inp}),
-        (pp + "lib.rs:1008", {"semantic_contract_id": static}),
-        (pp + "lib.rs:3079", {"context.semantic_id()": static}),
-        (pp + "lib.rs:5314", {"support.id": inp}),
-        (pp + "lib.rs:5985", {"pipe.element_id": inp}),
-        (pp + "model_format.rs:27", {"version": static}),
-        (re_ + "retained_precision.rs:5536", {"mode": static}),
-        (re_ + "retained_precision.rs:5618", {"text(cid)": inp}),
-        (re_ + "retained_precision.rs:5642", {"text(cid)": inp}),
+        (pp + "lib.rs:1054", {"semantic_contract_id": static}),
+        (pp + "lib.rs:3064", {"context.semantic_id()": static}),
+        (pp + "lib.rs:5299", {"support.id": inp}),
+        (pp + "lib.rs:5970", {"pipe.element_id": inp}),
+        (pp + "model_format.rs:26", {"version": static}),
+        (re_ + "retained_precision.rs:5538", {"mode": static}),
+        (re_ + "retained_precision.rs:5620", {"text(cid)": inp}),
+        (re_ + "retained_precision.rs:5644", {"text(cid)": inp}),
     ]
     lex = [("retained_product.rs:4356", {"class": 64, "why": "source-bound mechanics schema literal"}),
            ("retained_product.rs:4358", {"class": 2914, "why": "positive formulation content upper; actual struct/Vec storage is separate"}),
@@ -338,7 +346,7 @@ def reader_static_files(snapshot, historical):
     inspect(snapshot)
     if tuple(historical) != STATIC_PREIMAGE:
         raise ValueError("B7a historical reader static inventory changed")
-    # Twelve distinct inputs, fourteen actual OnceLock<Value> allocations.
+    # B7b: ten distinct inputs, twelve actual OnceLock<Value> allocations.
     # Never deduplicate by path or skip an absent file: g4's unchanged
     # static_tree parser must account every listed allocation positively.
     return [path for _, path in STATIC_OWNERS]

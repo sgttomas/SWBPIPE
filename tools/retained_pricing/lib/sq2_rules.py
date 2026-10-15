@@ -155,6 +155,13 @@ for rule in reversed(D.get("ARGS_FIRST", [])):
     rule = dict(rule); rule["why"] = "SQ2 G5: " + rule["why"]; TA["args"].insert(0, rule); LOG["other"].append(["args", rule])
 for key, value in D.get("LEX_SITE_SIZE", []):
     TA["lex_site_size"][key] = value; LOG["other"].append(["lex_site_size", key, value])
+# B7b-DX: exclusive diagnostic groups (o10_rules.py, by name at the snapshot): text_budget.py counts each group's
+# diagnostics once per owner call and verifies every member against its owner.
+for name, fn, sites, why in D.get("O10_DIAG_EXCLUSIVE", []):
+    if name in TA.setdefault("diag_exclusive", {}) or any(s in g["sites"] for g in TA["diag_exclusive"].values() for s in sites):
+        raise SystemExit(f"O10_DIAG_EXCLUSIVE duplicate group or member: {name}")
+    TA["diag_exclusive"][name] = {"fn": fn, "sites": list(sites), "why": "O-10: " + why}
+    LOG["other"].append(["diag_exclusive", name, fn, list(sites)])
 if D.get("B7A_SCOPED_TEXT"):
     _scoped = runpy.run_path(D["B7A_SCOPED_TEXT"]["model"])
     TA, _scope_proof = _scoped["transform"](D["B7A_SCOPED_TEXT"]["snapshot"], LB, TA)

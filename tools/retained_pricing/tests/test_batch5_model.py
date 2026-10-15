@@ -19,7 +19,9 @@ def test_current_positive_carrier_source_is_bound():
 
 @pytest.mark.parametrize("file,old,new", [
     (PRESSURE, "    pub assembled_operand_bounds: Vec<f64>,", "    pub assembled_operand_bounds: Vec<Vec<f64>>,"),
-    (PRESSURE, "    #[serde(skip)]", "    #[serde(default)]"),
+    # B7b: member_connector_ids is a current-format field (B7a: `#[serde(skip)]`).
+    (PRESSURE, '    #[serde(default, deserialize_with = "super::deserialize_present_value")]\n    pub member_connector_ids',
+     "    #[serde(default)]\n    pub member_connector_ids"),
     (PRESSURE, "    let mut cap_terms =", "    let extra_owner = vec![0.0; 1024];\n    let mut cap_terms ="),
     (PRESSURE, "    let mut by_dof =", "    let extra_owner = vec![Vec::<f64>::new(); 1024];\n    let mut by_dof ="),
     (LIB, "fn solve_prepared_load_case(", "fn renamed_prepared_load_case("),

@@ -450,6 +450,10 @@ def arg_max(spec, arg, lex=False):
     return None
 
 AGG = TA.get("site_aggregate", {})
+# B7b-DX: exclusive diagnostic groups (empty unless a decision declares one; see the group pass after the rows).
+DIAG_EXCLUSIVE = TA.get("diag_exclusive", {})
+DIAG_EXCLUSIVE_SITES = {k for g in DIAG_EXCLUSIVE.values() for k in g["sites"]}
+DIAG_EXCLUSIVE_SEEN = {}
 unclassified = collections.Counter()
 rows, total_req, max_size = [], 0, 0
 D, diag_bytes = 0, 0
@@ -607,9 +611,15 @@ for r in inv["rows"]:
             size = max(size, evaluate_format(r))
     SCOPED_TEXT_MODEL.witness(SCOPED_TEXT_STATE, f, line, r["kind"], mult, M)
     if r["kind"] == "diag" and mult:
-        D += mult
         rb = refs_bytes(f, line)
-        diag_bytes += mult * (size + message_size(r) + rb)
+        if key in DIAG_EXCLUSIVE_SITES:
+            # B7b-DX: a declared exclusive group's sites pay their count and diagnostic bytes once per owner
+            # call (below); every other cost of the site (its TEXT request, formats, refs) stays as priced here.
+            DIAG_EXCLUSIVE_SEEN[key] = {"fn": fk, "loops": list(loops), "mult": mult,
+                                        "bytes": size + message_size(r) + rb}
+        else:
+            D += mult
+            diag_bytes += mult * (size + message_size(r) + rb)
         if mult and rb > TA["diag_refs_default_bytes"]:
             big_refs.append((key, rb, mult))
     tav_size = size
@@ -629,6 +639,21 @@ for r in inv["rows"]:
         max_size = max(max_size, tav_size)
     rows.append({"file": f, "line": line, "kind": r["kind"], "fn": fk, "reached": bool(reached), "loops": loops,
                  "mult": mult, "bytes": tav_size, "req": req})
+# B7b-DX: each declared exclusive diagnostic group (text_args `diag_exclusive`, from the decisions' O10_DIAG_EXCLUSIVE)
+# pushes at most one diagnostic per call of its owner. Every member must be a reached diag site of that owner with the
+# owner's own multiplicity (no enclosing loop), so the group adds that multiplicity to D once and its largest member's
+# bytes to the retained diagnostic bytes. Any missing, extra-loop, foreign or unequal member leaves the run incomplete.
+for name, group in DIAG_EXCLUSIVE.items():
+    seen = [DIAG_EXCLUSIVE_SEEN.get(k) for k in group["sites"]]
+    owner_mult = sum(M[k] for k in M if short(k) == short(group["fn"]))
+    if not owner_mult and all(s is None for s in seen):
+        continue                      # the owner is not reached in this variant: the group adds nothing
+    if (any(s is None for s in seen) or any(short(s["fn"]) != short(group["fn"]) or s["loops"] or s["mult"] != owner_mult
+                                            for s in seen)):
+        unclassified[("diag-exclusive", name)] += 1
+        continue
+    D += owner_mult
+    diag_bytes += owner_mult * max(s["bytes"] for s in seen)
 for r in LEX:
     f, line, fk = r["file"], r["line"], r["fn"]
     key = f"{short(f)}:{line}:{r['kind']}"

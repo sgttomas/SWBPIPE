@@ -247,9 +247,15 @@ per_mode! {
         let original_control = original.clone();
         assert_eq!(witness(&format!("W3 original L {mode:?}"), WITNESS_STACK,
             move || permitted_work(original_control, mode, |_| {})), Ran::Successor);
+        // B7b D3 re-authored the E counterpart once from the retired 0.3.0/v2 declaration to the
+        // current one (D4 (a)): the same 0.5.0 document with `3.0.0/exact_pressure_v3`, shear
+        // model Euler-Bernoulli and an explicit zero corrosion allowance on each pipe section.
         let mut raw = original.clone();
-        raw["model"]["schema_version"] = json!("0.3.0");
-        raw["model"]["pressure_contract"] = json!({"version":"2.0.0","mode":"exact_straight_pressure_v2"});
+        raw["model"]["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"});
+        for pipe in raw["model"]["pipe_segments"].as_array_mut().unwrap() {
+            assert!(pipe["section"].get("corrosion_allowance").is_none(), "N05 declares no allowance");
+            pipe["section"]["corrosion_allowance"] = json!({"value":0.0,"unit":"m"});
+        }
         for material in raw["model"]["materials"].as_array_mut().unwrap() {
             let e = material["elastic_modulus"]["value"].as_f64().unwrap();
             let g = material["shear_modulus"]["value"].as_f64().unwrap();
@@ -265,6 +271,9 @@ per_mode! {
             let model = value["model"].as_object_mut().unwrap();
             model.remove("schema_version");
             model.remove("pressure_contract");
+            for pipe in model["pipe_segments"].as_array_mut().unwrap() {
+                pipe["section"].as_object_mut().unwrap().remove("corrosion_allowance");
+            }
             for material in model["materials"].as_array_mut().unwrap() {
                 material.as_object_mut().unwrap().remove("constitutive_basis");
                 material.as_object_mut().unwrap().remove("poisson_ratio");
@@ -274,8 +283,9 @@ per_mode! {
             }
             value
         };
+        assert_eq!(raw["model"]["schema_version"], original["model"]["schema_version"], "the current document version stays");
         assert_eq!(physical(raw.clone()), physical(original.clone()),
-            "only the exact declaration and analytically equivalent material basis move");
+            "only the exact declaration, the zero allowance and the analytically equivalent material basis move");
         let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
         let mut normalized = request.model.materials.clone();
         let mut material_diagnostics = Vec::new();
@@ -502,7 +512,8 @@ per_mode! {
 }
 
 per_mode! {
-    /// The exact successor (B3-W's `m3x`): the milestone authored as 0.3.0 exact. A successor.
+    /// The exact successor (B3-W's `m3x`): the milestone authored as exact (B7b: 0.5.0 with the
+    /// v3 contract and a zero allowance). A successor.
     witness_m3x, |mode| {
         let raw = inputs::m3x();
         inside_d1("m3x", &raw, mode, 1, 0, true);
@@ -513,7 +524,7 @@ per_mode! {
 
 per_mode! {
     /// The cap-maximal exact input: the cap-maximal three-case input (`i3_three_case`) authored as
-    /// 0.3.0 exact, route E's priced shape (c = 3, z = 0) at the count caps.
+    /// exact (B7b: 0.5.0, v3), route E's priced shape (c = 3, z = 0) at the count caps.
     witness_exact_cap_maximal, |mode| {
         let raw = inputs::exact_cap_maximal();
         inside_d1("exact cap-maximal", &raw, mode, 3, 0, true);

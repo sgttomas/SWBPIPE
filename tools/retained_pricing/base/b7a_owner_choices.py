@@ -277,18 +277,19 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1062:audit_load_fidelity',
                  'template': 'final id association: {}',
                  'literal_bytes': 22,
                  'placeholders': [{'spec': '', 'arg': 'row.id'}]}],
+ # B7b snapshot lib.rs lines (B7a: 13239/13238 and 13614/13613; unchanged text).
  'helper_rows': [{'file': 'core/product_physics/src/lib.rs',
-                  'line': 13239,
+                  'line': 13244,
                   'kind': 'format',
                   'template': 'result:loadcase:{}:{}',
                   'literal_bytes': 17,
                   'placeholders': [{'spec': '', 'arg': 'stable_suffix(load_case_id)'},
                                    {'spec': '', 'arg': 'result_tail(base_id)'}],
-                  'fn': 'core/product_physics/src/lib.rs:13238:qualified_load_case_result_id'},
+                  'fn': 'core/product_physics/src/lib.rs:13243:qualified_load_case_result_id'},
                  {'file': 'core/product_physics/src/lib.rs',
-                  'line': 13614,
+                  'line': 13619,
                   'kind': 'replace',
-                  'fn': 'core/product_physics/src/lib.rs:13613:stable_suffix',
+                  'fn': 'core/product_physics/src/lib.rs:13618:stable_suffix',
                   'receiver': 'id',
                   'literal_bytes': None,
                   'arg': '\' \', " "'}],
@@ -300,11 +301,11 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1062:audit_load_fidelity',
                                                                       'super::result_tail(&expected)': {'bytes': 1024,
                                                                                                         'source': 'RES'}},
                 'core/product_physics/src/retained_product.rs:3185': None,
-                'core/product_physics/src/lib.rs:13239': {'result_tail(base_id)': {'bytes': 600,
+                'core/product_physics/src/lib.rs:13244': {'result_tail(base_id)': {'bytes': 600,
                                                                                    'source': 'COMP'},
                                                           'stable_suffix(load_case_id)': {'bytes': 128,
                                                                                           'source': 'IN128'}},
-                'core/product_physics/src/lib.rs:13614': {'id': {'bytes': 128, 'source': 'IN128'}},
+                'core/product_physics/src/lib.rs:13619': {'id': {'bytes': 128, 'source': 'IN128'}},
                 'core/product_physics/src/retained_product.rs:2544': {'r.kind': {'bytes': 128,
                                                                                  'source': 'STATIC'}},
                 'core/product_physics/src/retained_product.rs:3005': {'row.id': {'bytes': 1024,
@@ -386,8 +387,8 @@ def state(snapshot, table, loops, graph, formats, lexical, extra_zero="", fn_zer
     selected = [r for r in loops["loops"] if re.search(r["re"], "iter:terms.iter().map")]
     if selected != [PREIMAGES["source_loop"]]:
         raise ValueError("B7a owner choices: source loop priority changed")
-    protected = {SOURCE_OWNER, VALIDATOR, PP+"lib.rs:13238:qualified_load_case_result_id",
-                 PP+"lib.rs:13613:stable_suffix", ERROR_OWNER} | {FK+name for name in PREIMAGES["source_from"]["from"]}
+    protected = {SOURCE_OWNER, VALIDATOR, PP+"lib.rs:13243:qualified_load_case_result_id",
+                 PP+"lib.rs:13618:stable_suffix", ERROR_OWNER} | {FK+name for name in PREIMAGES["source_from"]["from"]}
     for family in ("fn_cap","fn_zero"):
         if any(row["fn"] in protected or row["fn"] in {key.split("/src/")[-1] for key in protected}
                for row in loops.get(family, [])):

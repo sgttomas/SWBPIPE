@@ -19,41 +19,41 @@ SOURCES = {
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 10470,
+    "line": 10487,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:10429:exact_straight_summary_extrema",
-    "short": "lib.rs:10470",
-    "from": "lib.rs:10429:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:10446:exact_straight_summary_extrema",
+    "short": "lib.rs:10487",
+    "from": "lib.rs:10446:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4442:solve_prepared_load_case",
-      "core/product_physics/src/membrane_publication_range.rs:158:original_subnormal_wall_force_direct_extrema_preserves_membrane",
-      "core/product_physics/src/membrane_publication_range.rs:232:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
+      "core/product_physics/src/lib.rs:4427:solve_prepared_load_case",
+      "core/product_physics/src/membrane_publication_range.rs:159:original_subnormal_wall_force_direct_extrema_preserves_membrane",
+      "core/product_physics/src/membrane_publication_range.rs:233:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       "core/product_physics/src/retained_product.rs:5453:prepared_maxima"
     ]
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 10476,
+    "line": 10493,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:10429:exact_straight_summary_extrema",
-    "short": "lib.rs:10476",
-    "from": "lib.rs:10429:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:10446:exact_straight_summary_extrema",
+    "short": "lib.rs:10493",
+    "from": "lib.rs:10446:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4442:solve_prepared_load_case",
-      "core/product_physics/src/membrane_publication_range.rs:158:original_subnormal_wall_force_direct_extrema_preserves_membrane",
-      "core/product_physics/src/membrane_publication_range.rs:232:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
+      "core/product_physics/src/lib.rs:4427:solve_prepared_load_case",
+      "core/product_physics/src/membrane_publication_range.rs:159:original_subnormal_wall_force_direct_extrema_preserves_membrane",
+      "core/product_physics/src/membrane_publication_range.rs:233:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       "core/product_physics/src/retained_product.rs:5453:prepared_maxima"
     ]
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11141,
+    "line": 11146,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:11122:recover_curved_bend_local_forces",
-    "short": "lib.rs:11141",
-    "from": "lib.rs:11122:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:11127:recover_curved_bend_local_forces",
+    "short": "lib.rs:11146",
+    "from": "lib.rs:11127:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:4442:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:4427:solve_prepared_load_case"
     ]
   },
   {
@@ -92,8 +92,9 @@ MODE_SOURCE = {
              "b175a455bb7e5e4c0cc5b8d1d3cb9a70baf116b98d71e7903d0c5e97235ac923"},
     "run": {"5cb207a921dd8a22509e5ee6381cfb43d7fedece747041acdd8394f4ce823c5d"},
     # Exact base emitter and its ordinary SQ2 _X cap transport. ENV behavior is identical.
+    # B7b: the transport's only change is the carried retained_w1 key (lib.rs:3489 -> 3474).
     "tb": {"0de99a4ac9ca186b441654d8434053ca626474b769d11aa4a3b6f93180b78471",
-           "366f2344cfc38cb99aa40fa93173a9a516bb9a1b409179f4f6152fc3a7fc375c"},
+           "221aa563c6d5e5339ae70b8e44a6d31a866cc32cf7b84a975b557504e4be7645"},
 }
 
 

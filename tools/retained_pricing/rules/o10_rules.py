@@ -19,12 +19,23 @@ def fnkey(name, f):
 RE_ = "core/reporting/result_export/src/"
 O10_EDGE_ZERO, O10_SITE_FROM, O10_SITE_ZERO, O10_ID_AUDIT = [], [], [], []
 O10 = "O-10 (T4): "
+# B7b-B (D4 (a)): the precommit reader's two route bases, read from retained_precision's ROUTE literals. B7a's source
+# has {physics-1, preview-physics-1}; B7b's has {pressure-1, preview-physics-1} (route E rebased on pressure-1).
+# B7B_EXACT_BASE selects the B7b route-E rules (sq2_decisions_E.py, below); any other pair stops the run.
+_rp_bases = sorted(_re.findall(r'base_id:\s*"([^"]+)"', open(_os.path.join(_SNAP, RE_ + "retained_precision.rs"), encoding="utf-8").read()))
+_BASES_B7A = ["openpipestress.result_semantics/0.3.0/physics-1", "openpipestress.result_semantics/0.3.0/preview-physics-1"]
+_BASES_B7B = ["openpipestress.result_semantics/0.3.0/pressure-1", "openpipestress.result_semantics/0.3.0/preview-physics-1"]
+if _rp_bases not in (_BASES_B7A, _BASES_B7B):
+    raise SystemExit(f"B7b-B: retained_precision's two route bases changed; re-review R1/J1 and route E: {_rp_bases}")
+B7B_EXACT_BASE = _rp_bases == _BASES_B7B
 # R1 (Agent 0's ruling: accepted). The pressure-1 arm of the precommit reader's dispatch.
 _c, _e = fnkey("for_source", RE_ + "semantic_contract.rs"), fnkey("validate_pressure_evidence", RE_ + "physics_evidence.rs")
 if _c and _e:
     O10_EDGE_ZERO = O10_EDGE_ZERO + [(_c, _e, O10 + "R1 (ruled accepted): the precommit reader validates project(successor), whose "
         "producer.semantic_contract_id is the route's base id (preview-physics-1 on route L, physics-1 on route E; RS project()), "
-        "never pressure-1, so for_source never takes the PRESSURE_ID arm; the same argument as the registered G4 (T17) siblings")]
+        "never pressure-1, so for_source never takes the PRESSURE_ID arm; the same argument as the registered G4 (T17) siblings"
+        + ("; B7b-R1: since B7b D4 (a) route E's base is pressure-1, so this zero holds on route L only and "
+           "sq2_decisions_E.py removes it" if B7B_EXACT_BASE else ""))]
 
 
 def site(name, f, text, full=False, row=None):
@@ -80,14 +91,22 @@ if fnkey("append_connector_results", PP_ + "lib.rs"):
          "or empty, empty under D1. " + NOV3, ["structural_adapter.rs:new"]),
     ]
 if fnkey("validate", CE):
+    # B7b-E1/E2/E4/E5: since D4 (a) route E's G7 reaches validate_pressure_evidence -> validate_physics_evidence_in(..,
+    # PressureV3), so `admitted` is true; the zero now rests on D1.4 through the producer instead of `admitted`.
+    _E1_B7B = ("B7b-E1 (route E, connector_evidence::validate): every reached caller passes PressureV3 "
+        "(validate_pressure_evidence -> validate_physics_evidence_in(.., false, PressureV3)), so `admitted` is true and "
+        "`require_connector(admitted || records.is_empty(), ..)` passes; `records` is project(successor)'s "
+        "contract_evidence.connector, which the producer sets to joint::connector_evidence(model): one record per "
+        "objective-connector component (filter_map over model.components). " + D14 + ", so the list is empty")
     O10_LOOPS_LAST += [
         ("for r in records", "0",
-         O10 + "E1 (route E, connector_evidence::validate): `records` non-empty returns Err at `require_connector(admitted || "
+         O10 + (_E1_B7B if B7B_EXACT_BASE else
+         "E1 (route E, connector_evidence::validate): `records` non-empty returns Err at `require_connector(admitted || "
          "records.is_empty(), \"UNSUPPORTED\")?` before this loop unless `admitted`; admitted = (contract == PressureV3), and the "
          "reached callers pass StraightV2 (validate_physics_evidence -> validate_physics_evidence_in(.., StraightV2)); the "
          "PressureV3 callers are validate_pressure_evidence (physics_evidence.rs) and its load-state arm "
          "load_reference::validate_pressure_load_reference_evidence (load_reference.rs:387, called only from "
-         "validate_pressure_evidence), both behind the edge R1 zeroes", ["connector_evidence.rs:validate"]),
+         "validate_pressure_evidence), both behind the edge R1 zeroes"), ["connector_evidence.rs:validate"]),
         ("for component in spans.keys()", "0",
          O10 + "E2 (route E): `spans` is filled only inside the records loop (E1), so it is empty", ["connector_evidence.rs:validate"]),
         ("for row in rows.values()", "Pall",
@@ -96,13 +115,20 @@ if fnkey("validate", CE):
     ]
     if fnkey("row_basis", CE):
         O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("validate", CE), fnkey("row_basis", CE),
-        O10 + "E4 (route E): row_basis is called only for a connector-kind row after `require_connector(admitted, \"UNSUPPORTED\")?`, "
-        "which returns Err when !admitted (E1: every reached caller passes StraightV2), ending validate")]
+        O10 + ("B7b-E4 (route E): row_basis is called only for a connector-kind row (is_connector_kind) after the "
+        "kind check; the producer publishes connector rows only for built connectors (lib.rs append_connector_results "
+        "iterates built.connectors, L1: empty under D1), and " + D14 + ", so project(successor) has no connector row"
+        if B7B_EXACT_BASE else
+        "E4 (route E): row_basis is called only for a connector-kind row after `require_connector(admitted, \"UNSUPPORTED\")?`, "
+        "which returns Err when !admitted (E1: every reached caller passes StraightV2), ending validate"))]
+    _E5_FROM = "validate_pressure_evidence" if B7B_EXACT_BASE else "validate_physics_evidence"
     O10_SITE_FROM = O10_SITE_FROM + [(site("require_connector", CE, 'Err(format!("SOURCE_PHYSICS_CONNECTOR_{code}"))'),
-        {"from": [fnkey("validate_physics_evidence", RE_ + "physics_evidence.rs")], "per": "1",
+        {"from": [fnkey(_E5_FROM, RE_ + "physics_evidence.rs")], "per": "1",
          "why": O10 + "E5 (route E, as physics_evidence.rs require()): require_connector allocates only when it returns Err; all 16 "
          "calls in connector_evidence.rs are `require_connector(..)?` and connector_evidence::validate's caller "
-         "(validate_physics_evidence_in) propagates with `?`: <= 1 per validate_physics_evidence call"})]
+         "(validate_physics_evidence_in) propagates with `?`: <= 1 per " + _E5_FROM + " call"
+         + ("; B7b-E5: route E's reached entry is validate_pressure_evidence (D4 (a)), whose physics arm returns "
+            "validate_physics_evidence_in's Result unchanged" if B7B_EXACT_BASE else "")})]
     O10_ID_AUDIT = O10_ID_AUDIT + [
         (site("require_connector", CE, 'Err(format!("SOURCE_PHYSICS_CONNECTOR_{code}"))', full=True), {"code": ST}),
     ]
@@ -691,13 +717,14 @@ _SC = RE_ + "semantic_contract.rs"
 if fnkey("for_source", _SC) and fnkey("validate_in", RE_ + "physics_source.rs"):
     site("for_source", _SC, "Some(PRESSURE_SOURCE_ID) =>")
     _rp = open(_os.path.join(_SNAP, RE_ + "retained_precision.rs"), encoding="utf-8").read()
-    if sorted(_re.findall(r'base_id:\s*"([^"]+)"', _rp)) != ["openpipestress.result_semantics/0.3.0/physics-1",
-                                                           "openpipestress.result_semantics/0.3.0/preview-physics-1"] \
+    # B7b-J1: B7b's route E base is pressure-1 (D4 (a)); either pair (B7B_EXACT_BASE above) excludes pressure-source-1.
+    if sorted(_re.findall(r'base_id:\s*"([^"]+)"', _rp)) != (_BASES_B7B if B7B_EXACT_BASE else _BASES_B7A) \
             or 'projected["producer"]["semantic_contract_id"] = json!(route.base_id);' not in _rp:
         raise SystemExit("J1: retained_precision's G7 projection no longer pins the two base identities; re-review")
     O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("for_source", _SC), fnkey("validate_in", RE_ + "physics_source.rs"),
         O10 + "J1: the precommit reader validates project(successor), whose producer.semantic_contract_id is the route's "
-        "base id (preview-physics-1 on route L, physics-1 on route E; retained_precision project()), never pressure-source-1, "
+        "base id (preview-physics-1 on route L, " + ("pressure-1 (B7b D4 (a))" if B7B_EXACT_BASE else "physics-1")
+        + " on route E; retained_precision project()), never pressure-source-1, "
         "so for_source never takes the PRESSURE_SOURCE_ID arm; R1's argument")]
 
 # J2: `attempted.push(request, id)` in lib.rs CaseSet::attempted passes the loop's pattern binding `(&request, &id)`, not
@@ -752,6 +779,10 @@ if _os.path.exists(_os.path.join(_SNAP, _J7C)):
          {"k": {"bytes": 1024, "source": O10 + "J3: a JSON object key of a produced public envelope (schema field names and "
                 "entity-keyed maps of D1-capped ids) or of the test's literals: RES"}}),
     ]
+    # B7b-J3: B7b's test-only census rewrite (2d0e2210c1) deletes leaf_diff; site() returns None for a function the
+    # snapshot no longer defines, and such a rule bounds nothing. Only present test sites keep their size-0 rules.
+    O10_SITE_SIZE = [(_k, _b, _w) for _k, _b, _w in O10_SITE_SIZE if _k is not None]
+    O10_ID_AUDIT = [(_k, _v) for _k, _v in O10_ID_AUDIT if _k is not None]
 
 # J4: the v3 formulation basis's first and selection limitations are `identity.to_string()` and `source.to_string()`,
 # each a whole &'static str chosen from literals in pressure_v3_formulation_basis_in (2 identity texts; 3 source texts by
@@ -790,8 +821,12 @@ if fnkey("validate_physics_evidence_in", _PE) and fnkey("prepass", RE_ + "load_r
             if _f.endswith(".rs"):
                 _src = open(_os.path.join(_d, _f), encoding="utf-8").read()
                 _j5_calls += [(_f, _m) for _m in _re.findall(r"validate_physics_evidence_in\(([^,]*),\s*(true|false)\b", _src)]
-    if sorted((_f, _m[1]) for _f, _m in _j5_calls) != [("load_reference.rs", "false"), ("physics_evidence.rs", "false"),
-                                                       ("physics_evidence.rs", "false"), ("physics_source.rs", "true")]:
+    # B7b-J5: v2's deletion removes validate_physics_evidence's call; validate_pressure_evidence's composite = false
+    # call remains (route E's reached caller since D4 (a)), so the prepass edge stays untaken on both routes.
+    if sorted((_f, _m[1]) for _f, _m in _j5_calls) != ([("load_reference.rs", "false"), ("physics_evidence.rs", "false"),
+                                                        ("physics_source.rs", "true")] if B7B_EXACT_BASE else
+                                                       [("load_reference.rs", "false"), ("physics_evidence.rs", "false"),
+                                                        ("physics_evidence.rs", "false"), ("physics_source.rs", "true")]):
         raise SystemExit(f"J5: validate_physics_evidence_in's call inventory changed; re-review: {_j5_calls}")
     site("validate_in", RE_ + "physics_source.rs", "crate::physics_evidence::validate_physics_evidence_in(source, true, contract.pressure())?;")
     O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("validate_physics_evidence_in", _PE), fnkey("prepass", RE_ + "load_reference.rs"),
@@ -824,3 +859,61 @@ if fnkey("confirm_with_applied", _NI_CONFIRMATION):
     O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
         {"re": r"^gate\.report\.reciprocal_condition_estimate$", "max": 30, "why": O10 + "NLKD5A1: StructuralReport.reciprocal_condition_estimate is an f64; its Debug is <= 24 B, within the 30 B cap"},
     ]
+
+# B7b-CA (model 0.5.0's exact half): the explicit corrosion allowance of a pipe section. normalize_model_units converts a
+# present allowance like mill_tolerance (its unit-conversion diagnostic ID and refs), and derive_pipe_section refuses an
+# invalid or nonzero allowance by name (two diagnostics, each followed by `return None`). Every identifier is the pipe's
+# admitted ID (<= 128 B, D1.9 TEXT_BYTES); stable_suffix replaces ':' with '-' and keeps the byte length (as the
+# mill-tolerance siblings' carried IN128 audits). The multiplicity of each site is the chain's own (per pipe and call).
+if fnkey("derive_pipe_section", PP_ + "lib.rs") and fnkey("normalize_model_units", PP_ + "lib.rs"):
+    _LIB = PP_ + "lib.rs"
+    _lib_src = open(_os.path.join(_SNAP, _LIB), encoding="utf-8").read()
+    if "corrosion_allowance" in _lib_src:
+        O10_ID_AUDIT = O10_ID_AUDIT + [
+            (site("normalize_model_units", _LIB, '"diagnostic:unit-conversion:pipe:{}:corrosion-allowance", stable_suffix(&pipe.id)', full=True),
+             {"stable_suffix(&pipe.id)": IN}),
+            (site("normalize_model_units", _LIB, 'vec![pipe.id.clone(), "corrosion_allowance".to_string()],', full=True),
+             {"pipe.id": IN}),
+        ]
+        _dps = open(_os.path.join(_SNAP, _LIB), encoding="utf-8").read().split("\n")
+        _dps_start = int(fnkey("derive_pipe_section", _LIB).split(":")[1])
+        _dps_end = next(i + 1 for i in range(_dps_start, len(_dps)) if _re.match(r"(pub(\([a-z]+\))?\s+)?fn\s", _dps[i]))
+        _ca_fmt = [i + 1 for i in range(_dps_start - 1, _dps_end - 1)
+                   if '&format!("diagnostic:section:{}:corrosion-allowance", stable_suffix(pipe_id)),' in _dps[i]]
+        _ca_refs = [i + 1 for i in range(_dps_start - 1, _dps_end - 1)
+                    if 'vec![pipe_id.to_string(), "corrosion_allowance".to_string()],' in _dps[i]]
+        if len(_ca_fmt) != 2 or len(_ca_refs) != 2:
+            raise SystemExit(f"B7b-CA: derive_pipe_section's corrosion-allowance diagnostics changed; re-review: {_ca_fmt} {_ca_refs}")
+        O10_ID_AUDIT = O10_ID_AUDIT + [(Resolved(f"{_LIB}:{_n}"), {"stable_suffix(pipe_id)": IN}) for _n in _ca_fmt] \
+            + [(Resolved(f"{_LIB}:{_n}"), {"pipe_id": IN}) for _n in _ca_refs]
+        # B7b-DPS: B7b's derive_pipe_section (the function its corrosion-allowance refusals changed) pushes at most one
+        # diagnostic per call: its only diagnostic sites are `diagnostics.push(diag(..))` statements, each followed
+        # immediately by `return None;`, and it calls no other diagnostic producer. Its four sites are therefore one
+        # exclusive group (text_budget B7b-DX): D and the retained diagnostic bytes pay one diagnostic per call, at the
+        # largest member's bytes; each site's own TEXT request, ID format and refs stay priced at every site.
+        _dps_body = _dps[_dps_start - 1:_dps_end - 1]
+        if sum(l.count("diag(") for l in _dps_body) != sum(l.count("diagnostics.push(diag(") for l in _dps_body) \
+                or any("diagnostics.push(" in l and "diagnostics.push(diag(" not in l for l in _dps_body):
+            raise SystemExit("B7b-DPS: derive_pipe_section has a diagnostic producer other than a pushed diag(..); re-review")
+        _dps_sites = []
+        for _i, _l in enumerate(_dps_body):
+            if "diagnostics.push(diag(" not in _l:
+                continue
+            _j, _depth = _i, 0
+            while True:
+                _depth += _dps_body[_j].count("(") - _dps_body[_j].count(")")
+                if _depth <= 0:
+                    break
+                _j += 1
+            _next = next(x.strip() for x in _dps_body[_j + 1:] if x.strip())
+            if not _dps_body[_j].rstrip().endswith(");") or _next != "return None;":
+                raise SystemExit(f"B7b-DPS: a derive_pipe_section diagnostic is not followed by `return None;`: line {_dps_start + _i}")
+            _dps_sites.append(_dps_start + _i)
+        if len(_dps_sites) != 4:
+            raise SystemExit(f"B7b-DPS: derive_pipe_section's diagnostic inventory changed; re-review: {_dps_sites}")
+        # Snapshot keys (Resolved): the decision-key carry leaves them as written.
+        O10_DIAG_EXCLUSIVE = list(globals().get("O10_DIAG_EXCLUSIVE", [])) + [(
+            "B7b-DPS", Resolved(f"lib.rs:{_dps_start}:derive_pipe_section"),
+            [Resolved(f"lib.rs:{_n}") for _n in _dps_sites],
+            "B7b-DPS: derive_pipe_section's four diagnostics (section dimensions, mill tolerance, corrosion allowance "
+            "invalid, corrosion allowance nonzero) are each followed by `return None;`: at most one per call")]

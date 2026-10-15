@@ -20,7 +20,9 @@ def decisions(monkeypatch):
 def test_only_three_exact_deleted_allowances_and_all_edges_preserved(monkeypatch):
     d = decisions(monkeypatch)
     edges = deepcopy(d["EDGE_ZERO"])
-    inherited = {"lib.rs:13102:append_combination_results": d["KEYMAP_ALLOW"]["lib.rs:13102:append_combination_results"]}
+    # The common allowances inherited before route E's: E13's, and B7b-K1's deleted callee.
+    inherited = {key: d["KEYMAP_ALLOW"][key] for key in
+                 ("lib.rs:13102:append_combination_results", "load_reference_source.rs:46:code")}
     before = dict(inherited)
     result = MODEL["route_e_keymap_allow"](SOURCE, edges, inherited)
     assert result == d["KEYMAP_ALLOW"]

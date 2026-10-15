@@ -6,6 +6,7 @@ import pytest
 P = Path(__file__).resolve().parents[1]
 M = runpy.run_path(str(P / 'base/b7a_scoped_text_model.py'))
 SOURCE = P.parents[1]
+LN = M['LN']   # B7b: the bound sites' snapshot lines (B7a's in the model's comments)
 
 
 def preimages():
@@ -35,28 +36,29 @@ def test_every_authoritative_preimage_drift_refuses(key):
 @pytest.mark.parametrize('family',['site_zero','site_total','site_size','site_from','site_aggregate'])
 def test_unit_competing_aliases_cannot_erase_copy(family):
     loops,table=preimages();current,_=M['transform'](SOURCE,loops,table)
-    current.setdefault(family,{})['core/product_physics/src/lib.rs:9162:into_text']={'bytes':0}
+    current.setdefault(family,{})['core/product_physics/src/lib.rs:%d:into_text'%LN['unit_message']]={'bytes':0}
     with pytest.raises(ValueError,match='competing override'):M['state'](SOURCE,current,loops)
 
 
 def test_messages_refs_and_helper_delta_are_local_and_positive():
     loops,table=preimages();active,_=M['transform'](SOURCE,loops,table)
-    row={'file':M['PP']+'pressure_runtime.rs','line':166,'kind':'diag','message_arg':'message'}
+    row={'file':M['PP']+'pressure_runtime.rs','line':LN['diag'],'kind':'diag','message_arg':'message'}
     assert M['message'](active,row)==453
-    assert M['refs'](active,row['file'],166)==760
+    assert M['refs'](active,row['file'],LN['diag'])==760
     assert M['owner_total'](active,M['PROBLEM'],[M['REF_LOOP']],{M['PROBLEM']:14000})==70000
-    assert M['extra_requested'](active,M['PP']+'lib.rs',13614,'replace',{M['PROBLEM']:14000})==14448000
-    assert M['message'](active,dict(row,line=165)) is None
-    assert M['refs'](active,row['file'],165) is None
+    assert M['extra_requested'](active,M['PP']+'lib.rs',LN['suffix'],'replace',{M['PROBLEM']:14000})==14448000
+    assert M['message'](active,dict(row,line=LN['diag']-1)) is None
+    assert M['refs'](active,row['file'],LN['diag']-1) is None
     assert M['owner_total'](active,'other.rs:1:other',[M['REF_LOOP']],{M['PROBLEM']:14000}) is None
-    assert M['extra_requested'](active,M['PP']+'lib.rs',13613,'replace',{M['PROBLEM']:14000})==0
+    assert M['extra_requested'](active,M['PP']+'lib.rs',LN['suffix_fn'],'replace',{M['PROBLEM']:14000})==0
 
 
 def test_authoritative_unit_audit_and_lexical_class_agree():
     loops,table=preimages();active,_=M['transform'](SOURCE,loops,table)
-    assert active['id_audit'][M['PP']+'lib.rs:9162']['message']['bytes']==600
-    assert active['lex_site_size']['lib.rs:9162']['class']==600
-    active['id_audit'][M['PP']+'lib.rs:9162']['message']['bytes']=8192
+    unit='lib.rs:%d'%LN['unit_message']
+    assert active['id_audit'][M['PP']+unit]['message']['bytes']==600
+    assert active['lex_site_size'][unit]['class']==600
+    active['id_audit'][M['PP']+unit]['message']['bytes']=8192
     with pytest.raises(ValueError,match='current audit changed'):M['state'](SOURCE,active,loops)
 
 
@@ -66,7 +68,7 @@ def test_missing_or_nonpositive_owner_refuses(count):
     with pytest.raises(ValueError,match='missing/zero'):
         M['owner_total']({},M['PROBLEM'],[M['REF_LOOP']],counts)
     with pytest.raises(ValueError,match='missing/zero'):
-        M['extra_requested']({},M['PP']+'lib.rs',13614,'replace',counts)
+        M['extra_requested']({},M['PP']+'lib.rs',LN['suffix'],'replace',counts)
 
 
 @pytest.mark.parametrize('line',[239,322])
@@ -95,9 +97,9 @@ def test_consuming_ref_loop_conflict_and_reordering_refuse(where):
     with pytest.raises(ValueError,match='priority changed'):M['state'](SOURCE,active,loops)
 
 
-@pytest.mark.parametrize('line,kind',[(166,'diag'),(167,'format'),(169,'join'),(174,'to_string')])
+@pytest.mark.parametrize('line,kind',M['PROBLEM_SITES'])
 def test_positive_problem_pre_and_post_witness(line,kind):
-    expected=35 if line==174 else 7
+    expected=35 if line==LN['to_string'] else 7
     M['witness']({},M['PP']+'pressure_runtime.rs',line,kind,expected,{M['PROBLEM']:7})
     with pytest.raises(ValueError,match='witness changed'):
         M['witness']({},M['PP']+'pressure_runtime.rs',line,kind,0,{M['PROBLEM']:7})

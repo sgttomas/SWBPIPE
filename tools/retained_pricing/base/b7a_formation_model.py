@@ -17,7 +17,8 @@ SOURCE_FILES = {
     "core/product_physics/src/self_weight.rs": "6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261",
     "core/product_physics/src/source_receipt/source.rs": "26d29ae48b461ceb5cf945edfbef905944c693e763f837bbee217df8fedf518d",
     "core/solver/frame_kernel/src/structural.rs": "6b3acedd507096ee023932d530cda56fadc697b78ca065473cd53f8531def1e8",
-    "core/product_physics/src/source_recovery.rs": "60277c01e84528ed45f0c6ff5436f4c35aa1b8b0f9d61a8da72123190340f0d6",
+    # B7b: only the #[cfg(test)] mod tests body (from line 1585) changed.
+    "core/product_physics/src/source_recovery.rs": "0f7efc39eda5b2b3a3bcfeee5b10f09de2d4ec7a6a92b6ded99e37be44d27b70",
     "core/solver/frame_kernel/src/structural/sparse.rs": "f0e774d2f105484fd43f393fd18ce459990aeb459222b5481ce70843b7acd0ff",
 }
 RANGE_CONTENT = 59

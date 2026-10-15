@@ -16,12 +16,18 @@ PINS = {
         "solve_prepared_load_case": "ec460ec2eb0e06a2e35fba545ad93656d16099974250a664397d63b7f27edae0",
         "append_curved_bend_macro_element_results": "9ebc4f11d1a881b3310579118792190c4d4c9c81964a3a89eb04952f0312304c",
     },
+    # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
+    # component, region, section and load-state refusals that empty the carriers' children are unchanged.
     "core/product_physics/src/retained_memory.rs": {
-        "namespace_branch": "25ed35d22908c0a261e32534d15fd8fa06599dd607addd7309b2407c205ccbc8",
-        "family_clauses": "e640cc8365bdd6634734be237345fcb375a3e1ee7a653bb42a6067fa8640bb3a",
+        "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
+        "family_clauses": "6f85658b105d1d38c0fa23d94aba52572c81273956764d4824371bc7c4cf2d3a",
     },
 }
-PRESSURE_PREFIX_PIN = "8a596c8289d6e2f8bbde7302138efc22454128f1df0d638fa263ace323d9d626"
+# B7b: the production prefix deletes v2's declaration, refusal and negative-pressure
+# gate, adds the 0.5.0 contract/shear/corrosion refusals (diagnostics only) and lets
+# PressureRegionInput decode member_connector_ids; admitted regions stay empty (E) or
+# absent (L), so no carrier child is populated.
+PRESSURE_PREFIX_PIN = "642e67b895762cf2bcede5dc471f66fe8c5705b70a2658fb82aeef65a6f6d6d1"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

@@ -13,7 +13,9 @@ full (`core/.../src/x.rs`). It maps from OLD to NEW in this order:
      run stops) unless `resolutions` names it: {"as": "deleted", "why": ...} (its own definition is the one gone) or
      {"as": <n>, "why": ...} (it is NEW's n-th definition, 1-based). Anything else is "replaced";
    - a site key by text: the OLD line's text (stripped) found exactly once in the hunk's NEW range, else exactly once in
-     the NEW file; none is "deleted" when the hunk removed the line with nothing in its place, else "replaced".
+     the NEW file; none is "deleted" when the hunk removed the line with nothing in its place, else "replaced". A
+     "replaced" site whose enclosing OLD function NEW no longer defines in that file is "deleted" only when
+     `resolutions` names it with that function ({"as": "deleted", "fn": name, "why": ...}; B7b).
 A key never maps silently: every key that is not left as written is reported with how it was mapped.
 """
 import gzip, json, os, re, subprocess
@@ -33,13 +35,16 @@ def load_rows(paths):
 
 
 def load_resolutions(path):
-    """The reviewed resolutions of "fewer_definitions" keys: {key: {"as": "deleted" | n, "why": ...}} (None: none)."""
+    """The reviewed resolutions: {key: {"as": "deleted" | n, "why": ...}} for "fewer_definitions" fn keys, and
+    {key: {"as": "deleted", "fn": name, "why": ...}} for a site key inside a function deleted from its file (B7b)."""
     if not path:
         return {}
     keys = json.load(open(path)).get("keys", {})
     for k, v in keys.items():
         if not (v.get("as") == "deleted" or (isinstance(v.get("as"), int) and v["as"] >= 1)) or not v.get("why"):
             raise SystemExit(f"resolution for {k}: 'as' must be \"deleted\" or a definition number >= 1, with a 'why'")
+        if "fn" in v and (v.get("as") != "deleted" or not isinstance(v["fn"], str) or not v["fn"]):
+            raise SystemExit(f"resolution for {k}: a site resolution names its deleted enclosing 'fn' with 'as': \"deleted\"")
     return keys
 
 
@@ -94,6 +99,15 @@ class Mapper:
     @staticmethod
     def defs(lines, name):
         return [i + 1 for i, l in enumerate(lines) if re.search(r"\bfn\s+" + re.escape(name) + r"\b", l)]
+
+    @staticmethod
+    def enclosing(lines, ln):
+        """The name of the nearest `fn` definition at or above line ln (None if none)."""
+        for i in range(min(ln, len(lines)) - 1, -1, -1):
+            m = re.match(r"\s*(?:pub(?:\([^)]*\))?\s+)?(?:const\s+)?fn\s+([A-Za-z_][A-Za-z_0-9]*)", lines[i])
+            if m:
+                return m.group(1)
+        return None
 
     def pick(self, path, ln, name, ctx, whole):
         """The one OLD file the key names, or None (reported)."""
@@ -164,6 +178,15 @@ class Mapper:
                     nl, how = inf[0], "by text in the file"
                 else:
                     kind = "deleted" if (not new or (hunk and hunk[3] == 0)) else "replaced"
+                    # B7b: a site inside a function the revision deleted from this file is
+                    # pruned only by a reviewed resolution naming that function; the
+                    # enclosing OLD fn must be named in the entry and absent at NEW.
+                    res = self.resolutions.get(whole) if (kind == "replaced" and hunk is not None) else None
+                    if res is not None and res.get("as") == "deleted" and res.get("fn"):
+                        owner = self.enclosing(old, ln)
+                        if owner == res["fn"] and not self.defs(new, owner):
+                            kind = "deleted"
+                            self.resolutions_used.append([ctx, whole, res])
                     self.unmapped.append([ctx, whole, f"line {ln} of {f}: text {'not found' if not inf else 'not unique'} at NEW", kind])
                     return whole
         out = whole.replace(f":{ln}", f":{nl}", 1)
