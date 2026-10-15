@@ -1,17 +1,18 @@
-//! Closed admission of the load-reference-1 raw evidence namespace
+//! Closed admission of the current load/reference-state evidence group
 //! (`contract_evidence.load_reference_states` beside `pressure`, `connector` and
-//! `exact_cases`). These checks establish internal source consistency, not
-//! solver accuracy, producer origin or model freshness.
+//! `exact_cases`) on the pressure-1 and pressure-source-1 routes. These checks
+//! establish internal source consistency, not solver accuracy, producer origin
+//! or model freshness.
 //!
 //! The order of checks and every error string are shared with the Python
-//! reader `core/analysis_runs/load_reference_evidence.py`; change both together.
+//! verifier `tests/verifiers/load_reference_evidence.py`; change both together.
 //! Checks iterate arrays in document order so that the first failure is
 //! deterministic in both languages.
 //!
-//! After the load-reference-specific pre-pass, the unchanged physics-1
-//! validator checks rows, extrema, regions and the pressure RHS on a projected
-//! copy. The projection only removes or neutralizes fields that the pre-pass has
-//! already bound: `load_reference_states`, the two extra resolved-member keys of
+//! After this pre-pass, the current pressure validator checks rows, extrema,
+//! regions and the pressure RHS on a projected copy. The projection only
+//! removes or neutralizes fields that the pre-pass has already bound:
+//! `load_reference_states`, the two extra resolved-member keys of
 //! `pipe_materials`, the `material_basis` constant and the region
 //! `temperature_basis` constant.
 use crate::physics_evidence::PressureContract;
@@ -22,24 +23,17 @@ use std::sync::OnceLock;
 
 type Check = Result<(), String>;
 
-/// The method whose evidence namespace is being admitted. `LoadReference` is
-/// the unchanged load-reference-1 behaviour; `Joined` is the
-/// load-reference-source-1 pre-pass (`crate::load_reference_source`), which
-/// shares every check and code except where ADDENDUM_2 section 5.3 lets a case
-/// publish its selected retained-source response.
+/// Current ordinary and retained-source pressure pre-passes. The latter
+/// shares every record check while allowing a selected retained-source case.
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Method {
-    LoadReference,
-    Joined,
-    /// T4-U2a/T4-U3: the `pressure-1` 0.4.0 pre-pass. Identical to
-    /// `LoadReference` except that connector records are left to the
-    /// inherited physics pass under the v3 contract.
     Pressure,
-    /// pressure-source-1: joined 0.4 evidence is read directly under v3.
     PressureJoined,
 }
 
 pub const RECORD_CONTRACT: &str = "openpipestress.load_reference_state/1.0.0";
+/// The per-case record's resolved-state profile (not a result identity).
+pub const RECORD_PROFILE: &str = "resolved_straight_load_state_v1";
 pub const MATERIAL_BASIS: &str = "resolved_per_member_load_reference_state_v1";
 pub const NOT_JOINED: &str = "LOAD_STATE_SOURCE_RECOVERY_NOT_JOINED";
 /// Selected retained-source method and its info diagnostic (joined method only).
@@ -333,43 +327,13 @@ pub fn transport_schema() -> Result<&'static Value, String> {
         .map_err(Clone::clone)
 }
 
-/// Raw load-reference-1 publication: closed evidence, cross-bindings, rows and
-/// diagnostics. Never authenticates the producer.
-pub fn validate_load_reference_evidence(source: &Value) -> Check {
-    validate(source, true, PressureContract::StraightV2)
-}
-
-/// Retained load-reference-1 statements without raw rows or diagnostics:
-/// frozen schema shape, closed evidence and internal joins only. This cannot
-/// qualify a publication or a current invocation.
-pub fn validate_load_reference_transport_metadata(source: &Value) -> Check {
-    validate(source, false, PressureContract::StraightV2)
-}
-
-/// T4-U2a: `contract` selects the inherited raw physics checks: v2's
-/// (physics-1) or, for a 0.4.0 `pressure-1` envelope, v3's. T4-U3: the v3
-/// contract also selects the `pressure-1` pre-pass, which leaves connector
-/// records to the inherited v3 physics checks.
-fn validate(source: &Value, raw: bool, contract: PressureContract) -> Check {
-    let method = match contract {
-        PressureContract::StraightV2 => Method::LoadReference,
-        PressureContract::PressureV3 => Method::Pressure,
-    };
-    prepass(source, raw, method)?;
-    // S14 inherited physics-1 checks on the projected copy.
-    let projected = project(source);
-    let inherited = if raw {
-        crate::physics_evidence::validate_physics_evidence_in(&projected, false, contract)
-    } else {
-        crate::physics_evidence::validate_transport_metadata(&projected)
-    };
-    inherited.map_err(|e| format!("{}: {e}", code("PHYSICS_EVIDENCE")))
-}
-
-/// T4-U2a: a 0.4.0 `pressure-1` envelope (`3.0.0/exact_pressure_v3`): the same
-/// pre-pass S1-S13, then the inherited physics checks under the v3 contract.
+/// The ordinary pressure group's closed pre-pass, followed by pressure
+/// checks on the projection of already bound resolved-state fields.
 pub(crate) fn validate_pressure_load_reference_evidence(source: &Value) -> Check {
-    validate(source, true, PressureContract::PressureV3)
+    prepass(source, true, Method::Pressure)?;
+    let projected = project(source);
+    crate::physics_evidence::validate_physics_evidence_in(&projected, false, PressureContract::PressureV3)
+        .map_err(|e| format!("{}: {e}", code("PHYSICS_EVIDENCE")))
 }
 
 /// Steps S1-S13, shared with the joined reader. The joined method differs only
@@ -377,7 +341,7 @@ pub(crate) fn validate_pressure_load_reference_evidence(source: &Value) -> Check
 /// frozen schema admits only not-joined records), S7 (`recovery_method`), S10
 /// (a selected record), S10b and S13 (the selected diagnostic).
 pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
-    let joined = matches!(method, Method::Joined | Method::PressureJoined);
+    let joined = method == Method::PressureJoined;
     // S1 foreign method namespaces.
     if joined {
         require(
@@ -682,7 +646,7 @@ fn validate_record(
     // R1-R7 record-level closed statements.
     require(record["contract"] == RECORD_CONTRACT, "RECORD_CONTRACT")?;
     require(
-        record["profile"] == crate::semantic_contract::LOAD_REFERENCE_PROFILE,
+        record["profile"] == RECORD_PROFILE,
         "RECORD_PROFILE",
     )?;
     let configuration = text(&record["reference_configuration_id"])?;
@@ -709,7 +673,7 @@ fn validate_record(
     )?;
     // The joined method also admits the selected retained-source response
     // in either requested mode (ADDENDUM_2 section 5.3).
-    let selected = matches!(method, Method::Joined | Method::PressureJoined) && solve["recovery_method"] == EXACT_METHOD;
+    let selected = method == Method::PressureJoined && solve["recovery_method"] == EXACT_METHOD;
     require(
         (matches!(
             (

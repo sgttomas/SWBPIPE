@@ -16,11 +16,7 @@ mod case_state;
 pub use case_state::input::{
     AnalysisStateInput, Authored, ExpansionLawInput, ReferenceConfigurationInput,
 };
-pub use case_state::{
-    LOAD_REFERENCE_SEMANTIC_CONTRACT_ID, LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID,
-    LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_MODEL_VERSION, LOAD_STATE_PROFILE_ID,
-    LOAD_STATE_SOURCE_PROFILE_ID,
-};
+pub use case_state::{LOAD_REFERENCE_STATE_CONTRACT, LOAD_STATE_MODEL_VERSION, LOAD_STATE_PROFILE_ID};
 mod model_format;
 pub use model_format::{
     carries_load_reference_state, is_retired_model_schema_version, retired_model_schema_message, MODEL_SCHEMA_VERSION,
@@ -980,10 +976,7 @@ impl SourceRecoveryBudget {
     }
 }
 
-pub const PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID: &str =
-    "openpipestress.result_semantics/0.3.0/physics-source-1";
 pub const PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID: &str = exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID;
-pub const PHYSICS_SEMANTIC_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-1";
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
 pub struct MechanicsProducer {
@@ -1062,17 +1055,11 @@ pub fn mechanics_producer(semantic_contract_id: &str) -> MechanicsProducer {
     }
 }
 
-/// B1: the identity is a function of the model's route. The exact routes
-/// (pressure-1, load-reference-1, physics-1) and otherwise the ordinary
-/// preview route (preview-physics-1); a source-selected envelope takes its
-/// source identity when it is published.
+/// The identity follows the actual current model route; source selection
+/// changes it only at publication.
 fn mechanics_producer_for_model(model: &PreviewModel) -> MechanicsProducer {
-    mechanics_producer(if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
+    mechanics_producer(if pressure_runtime::is_exact(model) {
         PRESSURE_SEMANTIC_CONTRACT_ID
-    } else if case_state::is_load_state(model) {
-        LOAD_REFERENCE_SEMANTIC_CONTRACT_ID
-    } else if pressure_runtime::is_exact(model) {
-        PHYSICS_SEMANTIC_CONTRACT_ID
     } else {
         preview_physics::ID
     })
@@ -1097,15 +1084,9 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
             basis.limitations.push(bend_pressure::BEND_LIMITATION.to_string());
         }
         basis
-    } else
-    // T1 (DESIGN 10.3): 0.4.0 is exact-route only. A 0.4.0 document without
-    // the exact contract never solves (pressure_runtime blocks it), and its
-    // blocked envelope stays on the load/reference-state identity and profile.
-    if case_state::is_load_state(model) {
-        load_state_formulation_basis()
-    } else if !pressure_runtime::is_exact(model) {
+    } else {
         preview_formulation_basis()
-    } else { exact_straight_pressure_formulation_basis() };
+    };
     basis.limitations.extend([
         "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).".to_string(),
         "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
@@ -1113,51 +1094,7 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
     basis
 }
 
-fn load_state_formulation_basis() -> FormulationBasis {
-    {
-        FormulationBasis {
-            profile_id: LOAD_STATE_PROFILE_ID.to_string(),
-            limitations: vec![
-                "Independently solved linear small-displacement straight circular members on the exact straight-pressure route; one resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition.".to_string(),
-                "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints.".to_string(),
-                "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.".to_string(),
-                "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.".to_string(),
-                "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented. Combinations remain unsupported.".to_string(),
-                "Retained-source recovery is not joined for these inputs; only ordinary structural recovery is published. No code compliance or professional acceptance is produced.".to_string(),
-            ],
-        }
-    }
-}
 
-/// The joined load/reference-state envelope: the ordinary profile's physics
-/// with the selected retained-source response published for sensitive or
-/// rejected ordinary cases.
-fn joined_load_state_formulation_basis() -> FormulationBasis {
-    let mut basis = load_state_formulation_basis();
-    basis.profile_id = LOAD_STATE_SOURCE_PROFILE_ID.to_string();
-    let last = basis.limitations.len() - 1;
-    basis.limitations[last] = "A case whose ordinary attempt is sensitive or rejected publishes its selected retained-source exact response when the resolved case closes on the retained source (eigen element loads, member pairs and prescribed motions included) and no pressure region is present; every other case publishes checked ordinary structural recovery. A finalized receipt binds every case. No code compliance or professional acceptance is produced.".to_string();
-    basis.limitations.extend([
-        "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).".to_string(),
-        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
-    ]);
-    basis
-}
-
-fn exact_straight_pressure_formulation_basis() -> FormulationBasis {
-    FormulationBasis {
-        profile_id: "exact_straight_pressure_v2".to_string(),
-        limitations: vec![
-            "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section.".to_string(),
-            "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented.".to_string(),
-            "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.".to_string(),
-            "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.".to_string(),
-            "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.".to_string(),
-            "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.".to_string(),
-            "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate.".to_string(),
-        ],
-    }
-}
 
 /// Precision preservation alone supplies no structural integrity assessment.
 fn integrity_dof_map(model: &PreviewModel) -> Vec<String> {
@@ -2530,7 +2467,7 @@ fn ordinary_dispatch(
 }
 
 fn source_finalization_failed(envelope: &MechanicsEnvelope) -> bool {
-    matches!(envelope.producer.semantic_contract_id.as_str(), PHYSICS_SOURCE_SEMANTIC_CONTRACT_ID | LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID | PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID)
+    envelope.producer.semantic_contract_id == PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID
         && envelope.source_block_recovery.is_none()
 }
 
@@ -3080,11 +3017,7 @@ fn run_linear_static_preview_observed_inner(
             }
         }
     } else { None };
-    let source_formulation = composite_context.and_then(|context| match context {
-        source_receipt::CompositeSourceContext::PressureSource => Some(formulation_basis_for_model_with_source(&model, true)),
-        source_receipt::CompositeSourceContext::LoadReferenceSource => Some(joined_load_state_formulation_basis()),
-        source_receipt::CompositeSourceContext::PhysicsSource => None,
-    });
+    let source_formulation = composite_context.map(|_| formulation_basis_for_model_with_source(&model, true));
     let mut envelope = MechanicsEnvelope {
         contract_evidence: pressure_runtime::is_exact(&model).then(|| {
             let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": joint::connector_evidence(&model), "exact_cases": exact_cases});

@@ -7,75 +7,48 @@ use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
 use std::sync::OnceLock;
 
-pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-source-1";
-pub const PROFILE: &str = "exact_straight_pressure_v2";
 pub const PRESSURE_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 pub const PRESSURE_PROFILE: &str = "exact_pressure_v3";
-/// The expected contract is selected by the caller, or by its captured invocation.
-/// Received profiles never select the reader that will validate them.
+/// Current source identity selected independently from the actual invocation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SourceContract { PhysicsV2, PressureV3 }
+pub enum SourceContract { PressureV3 }
 impl SourceContract {
-    pub const fn identity(self) -> &'static str {
-        match self { Self::PhysicsV2 => CONTRACT_ID, Self::PressureV3 => PRESSURE_CONTRACT_ID }
-    }
-    pub const fn profile(self) -> &'static str {
-        match self { Self::PhysicsV2 => PROFILE, Self::PressureV3 => PRESSURE_PROFILE }
-    }
-    pub const fn policy(self) -> &'static str {
-        match self { Self::PhysicsV2 => "PHYSICS-SOURCE-1", Self::PressureV3 => "PRESSURE-SOURCE-1" }
-    }
-    pub const fn case_domain(self) -> &'static str {
-        match self { Self::PhysicsV2 => "physics_source_case_evidence_v1", Self::PressureV3 => "pressure_source_case_evidence_v1" }
-    }
+    pub const fn identity(self) -> &'static str { PRESSURE_CONTRACT_ID }
+    pub const fn profile(self) -> &'static str { PRESSURE_PROFILE }
+    pub const fn policy(self) -> &'static str { "PRESSURE-SOURCE-1" }
+    pub const fn case_domain(self) -> &'static str { "pressure_source_case_evidence_v1" }
     pub const fn pressure(self) -> crate::physics_evidence::PressureContract {
-        match self {
-            Self::PhysicsV2 => crate::physics_evidence::PressureContract::StraightV2,
-            Self::PressureV3 => crate::physics_evidence::PressureContract::PressureV3,
-        }
+        crate::physics_evidence::PressureContract::PressureV3
     }
     pub fn from_invocation(invocation: &Value) -> Result<Self, String> {
-        let contract = &invocation["request"]["model"]["pressure_contract"];
-        if *contract == json!({"version":"2.0.0", "mode":PROFILE}) { Ok(Self::PhysicsV2) }
-        else if *contract == json!({"version":"3.0.0", "mode":PRESSURE_PROFILE}) { Ok(Self::PressureV3) }
-        else { Err("PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED".into()) }
-    }
-    fn cross_read(self) -> &'static str {
-        match self {
-            Self::PhysicsV2 => crate::physics_evidence::V3_READ_AS_V2,
-            Self::PressureV3 => crate::physics_evidence::V2_READ_AS_V3,
+        let model = &invocation["request"]["model"];
+        if model["schema_version"] == "0.5.0"
+            && model.get("shear_model").is_none()
+            && model["pressure_contract"] == json!({"version":"3.0.0", "mode":PRESSURE_PROFILE, "shear_model":"euler_bernoulli"})
+        {
+            Ok(Self::PressureV3)
+        } else {
+            Err("PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED".into())
         }
     }
     pub(crate) fn check_invocation(self, invocation: &Value) -> Result<(), String> {
-        match Self::from_invocation(invocation) {
-            Ok(actual) if actual != self => Err(self.cross_read().into()),
-            Ok(_) => Ok(()),
-            // Preserve v2's existing malformed-invocation failure depth; its
-            // source-case check still requires the exact authored v2 contract.
-            Err(_) if self == Self::PhysicsV2 => Ok(()),
-            Err(error) => Err(error),
-        }
+        Self::from_invocation(invocation).map(|_| ())
     }
-    /// Directional cross-read checks precede generic receipt/physical shape checks.
     pub(crate) fn check_received(self, source: &Value) -> Result<(), String> {
-        let other = match self { Self::PhysicsV2 => Self::PressureV3, Self::PressureV3 => Self::PhysicsV2 };
         let header = &source["producer"]["semantic_contract_id"];
-        let evidence = &source["contract_evidence"];
-        if self == Self::PressureV3 && *header == crate::semantic_contract::PRESSURE_ID
-            && source.get("source_block_recovery").is_some() {
+        if *header == crate::semantic_contract::PRESSURE_ID && source.get("source_block_recovery").is_some() {
             return Err("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN".into());
         }
-        let names_other = *header == other.identity()
-            || (self == Self::PressureV3 && *header == crate::load_reference_source::CONTRACT_ID)
-            || source["formulation_basis"]["profile_id"] == other.profile()
-            || evidence["exact_cases"].as_array().is_some_and(|a| a.iter().any(|c| c["profile_mode"] == other.profile()))
-            || evidence["pressure"].as_array().is_some_and(|a| a.iter().any(|r| r["profile_mode"] == other.profile() || r["profile_version"] == other.pressure().version()));
-        if names_other { return Err(self.cross_read().into()); }
-        if self == Self::PressureV3 {
-            require(*header == self.identity() && source["formulation_basis"]["profile_id"] == self.profile(), "IDENTITY")?;
-        }
-        Ok(())
+        require(*header == self.identity() && source["formulation_basis"]["profile_id"] == self.profile(), "IDENTITY")
     }
+}
+
+/// Authored presence selects the optional load/reference-state group.
+/// Null and incomplete values retain the group's validation duties.
+fn model_carries_load_state(model: &Value) -> bool {
+    model.get("reference_configurations").is_some()
+        || model["materials"].as_array().is_some_and(|materials| materials.iter().any(|m| m.get("expansion_laws").is_some()))
+        || model["load_cases"].as_array().is_some_and(|cases| cases.iter().any(|c| c.get("analysis_state").is_some()))
 }
 
 pub const EXACT: &str = "retained_source_blocks_exact_v1";
@@ -115,12 +88,10 @@ fn schema() -> &'static Value {
     })
 }
 pub fn validate_receipt_shape(receipt: &Value) -> Result<(), String> {
-    validate_receipt_shape_in(receipt, SourceContract::PhysicsV2)
+    validate_receipt_shape_in(receipt, SourceContract::PressureV3)
 }
 pub fn validate_receipt_shape_in(receipt: &Value, contract: SourceContract) -> Result<(), String> {
-    let definition = if contract == SourceContract::PressureV3 {
-        &schema()["$defs"]["pressure_source_receipt"]
-    } else { schema() };
+    let definition = &schema()["$defs"]["pressure_source_receipt"];
     require(receipt["body"]["policy"] == contract.policy() && shape_in(receipt, definition, schema()), "RECEIPT_SHAPE")
 }
 fn case<'a>(source: &'a Value, cid: &str) -> Result<&'a Value, String> {
@@ -133,7 +104,7 @@ fn case<'a>(source: &'a Value, cid: &str) -> Result<&'a Value, String> {
 }
 /// Transport statements only: no raw publication hash, invocation, or Current claim.
 pub fn validate_transport_metadata(source: &Value) -> Result<(), String> {
-    validate_transport_metadata_in(source, SourceContract::PhysicsV2)
+    validate_transport_metadata_in(source, SourceContract::PressureV3)
 }
 /// Explicit transport context, without an invocation or a freshness claim.
 pub fn validate_transport_metadata_in(source: &Value, contract: SourceContract) -> Result<(), String> {
@@ -148,9 +119,7 @@ pub fn validate_transport_metadata_in(source: &Value, contract: SourceContract) 
         "RECEIPT_HASH",
     )?;
     let evidence = &source["contract_evidence"];
-    let definition = &schema()["$defs"][if contract == SourceContract::PressureV3 {
-        "pressure_source_physical_evidence"
-    } else { "physical_evidence" }];
+    let definition = &schema()["$defs"]["pressure_source_physical_evidence"];
     let closed_shape = if resolved {
         // This already pinned resource serves the received resolved state. No
         // result/schema copy or received-profile inference selects the context.
@@ -756,7 +725,7 @@ pub(crate) fn validate_source_case_in(
     if let Some(invocation) = invocation {
         let model = &invocation["request"]["model"];
         require(
-            (model["schema_version"] == "0.3.0" || (contract == SourceContract::PressureV3 && model["schema_version"] == "0.4.0"))
+            model["schema_version"] == "0.5.0"
                 && SourceContract::from_invocation(invocation).ok() == Some(contract),
             "ACTUAL_EXACT_PROFILE",
         )?;
@@ -780,7 +749,7 @@ pub(crate) fn validate_source_case_in(
             array(&actual["primitive_loads"])?
                 .iter()
                 .all(|l| (l["target"]["type"] == "node" && l["category"] != "thermal")
-                    || (contract == SourceContract::PressureV3 && model["schema_version"] == "0.4.0"
+                    || (model_carries_load_state(model)
                         && l["target"]["type"] == "element" && l["category"] == "thermal"
                         && matches!(l["dimension"].as_str(), Some("temperature_change" | "temperature_interval")))),
             "ACTUAL_NODAL_LOADS",
@@ -1210,7 +1179,7 @@ fn validate_stress(
     require(same(&row["value"], value)?, "STRESS_RECIPE_VALUE")
 }
 pub fn validate(source: &Value, actual_invocation: Option<&Value>) -> Result<bool, String> {
-    validate_in(source, actual_invocation, SourceContract::PhysicsV2)
+    validate_in(source, actual_invocation, SourceContract::PressureV3)
 }
 /// Raw admission under a caller-selected source contract. The invocation fixes
 /// its expected contract independently of every received label and profile.
@@ -1220,9 +1189,9 @@ pub fn validate_in(source: &Value, actual_invocation: Option<&Value>, contract: 
     let resolved = contract == SourceContract::PressureV3 && source["contract_evidence"].get("load_reference_states").is_some();
     if contract == SourceContract::PressureV3 {
         if let Some(invocation) = actual_invocation {
-            let version = &invocation["request"]["model"]["schema_version"];
-            require(matches!(version.as_str(), Some("0.3.0" | "0.4.0")), "ACTUAL_MODEL_SCHEMA")?;
-            require(resolved == (*version == "0.4.0"), "ACTUAL_LOAD_REFERENCE_CONTEXT")?;
+            let model = &invocation["request"]["model"];
+            require(model["schema_version"] == "0.5.0", "ACTUAL_MODEL_SCHEMA")?;
+            require(resolved == model_carries_load_state(model), "ACTUAL_LOAD_REFERENCE_CONTEXT")?;
         }
     }
     if resolved { crate::load_reference_source::validate_pressure_source_evidence(source, true)?; }
@@ -1238,7 +1207,7 @@ pub fn validate_in(source: &Value, actual_invocation: Option<&Value>, contract: 
             actual_materials(invocation, actual, exact)?;
         }
     }
-    // T1 still holds: reading and binding the 0.4 resolved state does not
+    // T1 still holds: reading and binding the current resolved state does not
     // independently rederive it from the captured request (join standing ruling).
     Ok(eligible && !resolved)
 }

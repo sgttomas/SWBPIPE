@@ -6420,7 +6420,8 @@ pub fn validate_transport_metadata(source: &Value) -> VResult<Validation> {
         })?;
     // B1's alignment set, item 4: the header check stays at G2; the base's
     // transport metadata check runs at G7, as PY and TS run it: preview-physics-1's
-    // on the preview route, physics-1's unchanged one on the exact route (B3-D §6.2).
+    // on the preview route, the full current exact-retained pressure transport
+    // check on the exact route (B7b D4). No current check is retired with v2.
     if route.exact {
         crate::physics_evidence::validate_transport_metadata(&projected).map_err(base_error)?;
     } else {

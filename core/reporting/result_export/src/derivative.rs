@@ -158,11 +158,7 @@ pub fn derive_document(
         if matches!(
             source["producer"]["semantic_contract_id"].as_str(),
             Some(
-                crate::semantic_contract::PHYSICS_ID
-                    | crate::semantic_contract::PHYSICS_SOURCE_ID
-                    | crate::semantic_contract::LOAD_REFERENCE_ID
-                    | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
-                    | crate::semantic_contract::PRESSURE_ID
+                crate::semantic_contract::PRESSURE_ID
                     | crate::semantic_contract::PRESSURE_SOURCE_ID
                     | crate::semantic_contract::PREVIEW_PHYSICS_ID
                     | PREVIEW_PHYSICS_RETAINED_ID
@@ -171,16 +167,9 @@ pub fn derive_document(
         ) {
             e["contract_evidence"] = source["contract_evidence"].clone();
         }
-        // b7-plan MJ8: pressure-source-1's received v3 receipt travels whole,
-        // as the other source identities' receipts do (D6 lapsed with T4-U2).
-        if matches!(
-            source["producer"]["semantic_contract_id"].as_str(),
-            Some(
-                crate::semantic_contract::PHYSICS_SOURCE_ID
-                    | crate::semantic_contract::PRESSURE_SOURCE_ID
-                    | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
-            )
-        ) {
+        // b7-plan MJ8: pressure-source-1's received v3 receipt travels whole
+        // (D6 lapsed with T4-U2); it is the only source identity.
+        if source["producer"]["semantic_contract_id"] == crate::semantic_contract::PRESSURE_SOURCE_ID {
             e["source_block_recovery"] = source["source_block_recovery"].clone();
         } else if e.get("source_block_recovery").is_some() {
             return Err("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN".into());
@@ -403,14 +392,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     guard_json(source)?;
     let (table, version) = for_source(source)?;
     let classes = retained_row_classes(source)?;
-    if matches!(
-        source["producer"]["semantic_contract_id"].as_str(),
-        Some(
-            crate::semantic_contract::PHYSICS_SOURCE_ID
-                | crate::semantic_contract::PRESSURE_SOURCE_ID
-                | crate::semantic_contract::LOAD_REFERENCE_SOURCE_ID
-        )
-    ) {
+    if source["producer"]["semantic_contract_id"] == crate::semantic_contract::PRESSURE_SOURCE_ID {
         if !crate::json_value_eq(&doc["result_envelope"]["source_block_recovery"], &source["source_block_recovery"]) {
             return Err("SOURCE_BLOCK_RECEIPT_BINDING_MISMATCH".into());
         }

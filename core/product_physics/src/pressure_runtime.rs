@@ -133,21 +133,7 @@ struct Junction {
     theta: f64,
 }
 
-/// SP-1 (T4-U1): whether the document declares the v2 contract
-/// (`2.0.0/exact_straight_pressure_v2`), whatever its schema version. Such a
-/// document keeps its pre-T4-U1 component diagnostics byte for byte. The
-/// classification is the admission seam's (`ExactContract::from_declared`),
-/// without `ExactContract::of`'s schema-version filter.
-pub(crate) fn declares_exact_straight_v2(model: &PreviewModel) -> bool {
-    model.pressure_contract.as_ref().is_some_and(|contract| {
-        ExactContract::from_declared(contract.version.as_deref(), contract.mode.as_deref())
-            == Some(ExactContract::StraightV2)
-    })
-}
-
-/// Model 0.4.0 (load/reference state) reuses this exact straight route unchanged.
-/// Both exact contracts (v2 and its v3 successor) take the exact route; the
-/// admission seam (`exact_admission`) decides which families each admits.
+/// The sole current exact contract selects this route.
 pub(crate) fn is_exact(model: &PreviewModel) -> bool {
     ExactContract::of(model).is_some()
 }
@@ -436,25 +422,6 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                     "PRESSURE_REGION_INPUT_MISSING",
                     &[&case.id, id, "pressure"],
                     "pressure region requires an explicit finite signed pressure quantity",
-                );
-            }
-            // T4-U0: the v2 readers refuse p_pa < 0, so the producer refuses it
-            // by name. Every pressure unit converts by a positive factor, so a
-            // negative authored value is a negative published value. The strict
-            // IEEE test admits -0.0 and +0.0, as the readers' `>= 0` tests do.
-            // T4-U2a: v3 admits a finite signed pressure (plan section 4.3
-            // item 2); its limitations state that collapse is not assessed.
-            if !contract.admits_negative_pressure()
-                && region
-                    .pressure
-                    .as_ref()
-                    .is_some_and(|pressure| pressure.value.is_finite() && pressure.value < 0.0)
-            {
-                problem(
-                    diagnostics,
-                    "PRESSURE_REGION_PRESSURE_NEGATIVE",
-                    &[&case.id, id, "pressure"],
-                    "the 2.0.0/exact_straight_pressure_v2 profile admits internal differential pressure p >= 0 only, and its result readers refuse p_pa < 0; a negative differential (external pressure exceeding internal) is refused, not published; external-pressure stability and collapse are not assessed by this profile",
                 );
             }
             if present(&region.provenance).is_none() {

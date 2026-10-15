@@ -30,13 +30,9 @@ use crate::semantic_contract as sc;
 use serde_json::{json, Value};
 
 /// The desktop's route names (its `SourceContract`), one per readable identity.
-pub const ROUTES: [&str; 9] = [
-    "physics",
-    "physics_source",
+pub const ROUTES: [&str; 5] = [
     "pressure_source",
     "preview_physics",
-    "load_reference",
-    "load_reference_source",
     "pressure",
     "retained_preview_physics",
     "retained_physics",
@@ -56,16 +52,12 @@ pub const PRESSURE_TRANSPORT_UNSUPPORTED: &str = "SOURCE_PRESSURE_TRANSPORT_UNSU
 
 /// Each route's pinned table binding `{id, sha256}` (the table file's sha256;
 /// `binding_hashes_are_the_table_files` checks them).
-const BINDINGS: [(&str, &str, &str); 9] = [
-    ("physics", sc::PHYSICS_ID, "a6681f69fdc59e561b7b36dd067c276488075af07c552fb349e1b965da4195a1"),
-    ("physics_source", sc::PHYSICS_SOURCE_ID, "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53"),
+const BINDINGS: [(&str, &str, &str); 5] = [
     ("pressure_source", sc::PRESSURE_SOURCE_ID, sc::PRESSURE_SOURCE_TABLE_SHA256),
-    ("preview_physics", sc::PREVIEW_PHYSICS_ID, "f675693b11ef0dbf8da774dd063fe9ca94727d8dca980786bb0f32ba04e8f9e3"),
-    ("load_reference", sc::LOAD_REFERENCE_ID, "e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09"),
-    ("load_reference_source", sc::LOAD_REFERENCE_SOURCE_ID, "28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924"),
-    ("pressure", sc::PRESSURE_ID, "07a6a30827139ac0de1f4beca5ec6baa102682e8551811fc6d17a90e91df6742"),
-    ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, "36064ef3b8195799e2bf0a39194ebe8d3e8f0d7462482593090cf6b88b595d53"),
-    ("retained_physics", sc::PHYSICS_RETAINED_ID, "9e9b73d4c19a1fb0487d6210ec67915fbb43c122a32d9857c4eb623ce4504886"),
+    ("preview_physics", sc::PREVIEW_PHYSICS_ID, sc::PREVIEW_PHYSICS_SHA256),
+    ("pressure", sc::PRESSURE_ID, sc::PRESSURE_TABLE_SHA256),
+    ("retained_preview_physics", sc::PREVIEW_PHYSICS_RETAINED_ID, sc::PREVIEW_PHYSICS_RETAINED_SHA256),
+    ("retained_physics", sc::PHYSICS_RETAINED_ID, sc::PHYSICS_RETAINED_SHA256),
 ];
 
 /// A reader's error text as `{code, detail}`: the code is the leading
@@ -102,31 +94,12 @@ pub fn route(source: &Value) -> Result<(&'static str, &'static Value), String> {
     let evidence_object = source.get("contract_evidence").is_some_and(Value::is_object);
     let receipt = &source["source_block_recovery"];
     let route = match source["producer"]["semantic_contract_id"].as_str() {
-        Some(sc::PHYSICS_ID) => "physics",
-        Some(sc::PHYSICS_SOURCE_ID) => {
-            crate::physics_source::SourceContract::PhysicsV2.check_received(source)?;
-            crate::physics_source::validate_receipt_shape(receipt)?;
-            "physics_source"
-        }
         Some(sc::PRESSURE_SOURCE_ID) => {
             crate::physics_source::SourceContract::PressureV3.check_received(source)?;
             crate::physics_source::validate_receipt_shape_in(receipt, crate::physics_source::SourceContract::PressureV3)?;
             "pressure_source"
         }
         Some(sc::PREVIEW_PHYSICS_ID) => "preview_physics",
-        Some(sc::LOAD_REFERENCE_ID) => {
-            if !evidence_object {
-                return Err(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into());
-            }
-            "load_reference"
-        }
-        Some(sc::LOAD_REFERENCE_SOURCE_ID) => {
-            if !evidence_object {
-                return Err(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into());
-            }
-            crate::load_reference_source::validate_receipt_shape(receipt)?;
-            "load_reference_source"
-        }
         Some(sc::PRESSURE_ID) => {
             if !evidence_object {
                 return Err(SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into());
@@ -199,19 +172,15 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
 }
 
 /// The readers by name: `(reader, source, model, invocation)` to an outcome.
-pub const READERS: [&str; 8] = [
+pub const READERS: [&str; 4] = [
     "preview-physics",
-    "physics",
-    "physics-source",
     "pressure-source",
     "source-recovery",
-    "load-reference",
-    "load-reference-source",
     "pressure",
 ];
 
-/// One reader's raw validation. `model` (G2) reaches the physics and
-/// load-reference readers; `invocation` the source readers. A pass is
+/// One current reader's raw validation. `model` (G2) reaches the pressure
+/// reader; `invocation` reaches the retained-source reader. A pass is
 /// `{"ok":true}`, with `eligible` from the readers that grant eligibility and
 /// `findings` (the source readers' standing findings, G1) beside it.
 pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation: Option<&Value>) -> Value {
@@ -223,28 +192,13 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
     match reader {
         "source-recovery" => checked(source_recovery(source)),
         "preview-physics" => checked(sc::validate_preview_physics_evidence(source)),
-        "physics" => checked(sc::validate_physics_evidence(source).and_then(|()| {
-            model.map_or(Ok(()), |m| physics_model_checks(source, m))
-        })),
-        "load-reference" => checked(sc::validate_load_reference_evidence(source).and_then(|()| {
-            // As the reader's inherited physics-1 checks: on the projected copy,
-            // under the reader's own code.
-            model.map_or(Ok(()), |m| {
-                physics_model_checks(&crate::load_reference::project(source), m)
-                    .map_err(|e| format!("SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: {e}"))
-            })
-        })),
-        // pressure-1: its reader (0.3.0 and 0.4.0), then G2's model checks,
+        // Current pressure-1 reader, then G2's model checks,
         // which read only the cases, members, connectors and support rows.
         "pressure" => checked(sc::validate_pressure_evidence(source).and_then(|()| {
             model.map_or(Ok(()), |m| physics_model_checks(source, m))
         })),
-        "load-reference-source" => match sc::validate_load_reference_source_evidence(source) {
-            Ok(eligible) => json!({"ok": true, "eligible": eligible}),
-            Err(e) => verdict_refusal(&e),
-        },
-        "physics-source" | "pressure-source" => {
-            let contract = if reader == "pressure-source" { crate::physics_source::SourceContract::PressureV3 } else { crate::physics_source::SourceContract::PhysicsV2 };
+        "pressure-source" => {
+            let contract = crate::physics_source::SourceContract::PressureV3;
             match source_validate_in(source, invocation, contract) {
                 Ok(eligible) => {
                     let findings = invocation
@@ -257,7 +211,7 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
         other => verdict_refusal(&format!("READER_UNKNOWN: {other}")),
     }
 }
-/// A source reader's validation. With an invocation, physics-source-1 also takes
+/// The current source reader's validation. With an invocation it also takes
 /// G2's model checks against the invocation's model, as the TypeScript validation
 /// ran its physics checks with that model.
 fn source_validate_in(source: &Value, invocation: Option<&Value>, contract: crate::physics_source::SourceContract) -> Result<bool, String> {
@@ -273,7 +227,6 @@ fn source_validate_in(source: &Value, invocation: Option<&Value>, contract: crat
 /// It does not validate raw rows, an invocation, or numerical eligibility.
 pub fn source_recovery(source: &Value) -> Result<(), String> {
     match route(source).map(|r| r.0) {
-        Ok("physics_source") => crate::physics_source::validate_transport_metadata(source)?,
         Ok("pressure_source") => crate::physics_source::validate_transport_metadata_in(source, crate::physics_source::SourceContract::PressureV3)?,
         _ => return Err("SOURCE_RECOVERY_METADATA_CONTRADICTION".into()),
     }
@@ -286,11 +239,7 @@ pub fn transport(reader: &str, source: &Value) -> Value {
         "preview-physics" => {
             crate::retained_precision::validate_preview_physics_transport_metadata(source)
         }
-        "physics" => sc::validate_physics_transport_metadata(source),
-        "physics-source" => crate::physics_source::validate_transport_metadata(source),
         "pressure-source" => crate::physics_source::validate_transport_metadata_in(source, crate::physics_source::SourceContract::PressureV3),
-        "load-reference" => sc::validate_load_reference_transport_metadata(source),
-        "load-reference-source" => sc::validate_load_reference_source_transport_metadata(source),
         "pressure" => Err(PRESSURE_TRANSPORT_UNSUPPORTED.into()),
         other => Err(format!("READER_UNKNOWN: {other}")),
     };
@@ -390,7 +339,7 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
         Ok((route, _)) => route,
         Err(code) => {
             findings.push(
-                if matches!(code.as_str(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN | "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN" | crate::physics_evidence::V3_READ_AS_V2 | crate::physics_evidence::V2_READ_AS_V3) || code == sc::MECHANICS_RESULT_VERSION_RETIRED { code } else { SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into() },
+                if matches!(code.as_str(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN | "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN") || code == sc::MECHANICS_RESULT_VERSION_RETIRED { code } else { SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into() },
             );
             UNSUPPORTED
         }
@@ -402,28 +351,21 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
     };
     match route {
         UNSUPPORTED => {}
-        "physics_source" | "pressure_source" => match invocation {
+        "pressure_source" => match invocation {
             None => findings.push(SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED.into()),
             Some(i) => {
-                let contract = if route == "pressure_source" { crate::physics_source::SourceContract::PressureV3 } else { crate::physics_source::SourceContract::PhysicsV2 };
+                let contract = crate::physics_source::SourceContract::PressureV3;
                 match source_validate_in(source, Some(i), contract) {
                     Err(code) => findings.push(code),
                     Ok(_) => {
                         findings.extend(source_findings(source, i).into_iter().map(String::from));
-                        if route == "pressure_source" && source["contract_evidence"].get("load_reference_states").is_some() {
+                        if source["contract_evidence"].get("load_reference_states").is_some() {
                             findings.push(LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE.into());
                         }
                     }
                 }
             }
         },
-        "load_reference_source" => {
-            findings.push(match sc::validate_load_reference_source_evidence(source) {
-                Ok(_) => LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE.into(),
-                Err(code) => code,
-            });
-            return json!({"route": route, "token": token, "status": "needs_recompute", "eligible": false, "findings": findings});
-        }
         "retained_preview_physics" | "retained_physics" => {
             let eligible = token == "numerically_eligible";
             if !eligible {
@@ -436,8 +378,6 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
         }
         _ => {
             let checked = match route {
-                "physics" => Some(validate("physics", source, model, None)),
-                "load_reference" => Some(validate("load-reference", source, model, None)),
                 "pressure" => Some(validate("pressure", source, model, None)),
                 "preview_physics" => Some(validate("preview-physics", source, model, None)),
                 _ => None,

@@ -1,34 +1,18 @@
-//! T4-U2a: the exact route's contract identity and family-dispatching
-//! admission seam.
+//! The current exact route's contract identity and family admission seam.
 //!
-//! Two exact contracts exist on model documents 0.3.0 and 0.4.0:
-//! `2.0.0/exact_straight_pressure_v2` (straight-only, unchanged) and its
-//! successor `3.0.0/exact_pressure_v3` (H-1), published under the reserved
-//! `pressure-1` result semantics. Straight circular pipe members and linear
-//! restraints or springs are the base of both contracts. Every other object
-//! family the exact route can meet is classified here and dispatched through
-//! one admission table, [`admission`]:
-//!
-//! - under v2 the table returns v2's existing codes and texts unchanged
-//!   (SP-1); the call sites keep v2's emission order;
-//! - under v3 every family is refused with the blocking
-//!   `EXACT_PRESSURE_FAMILY_NOT_ADMITTED`, naming the family, until a later
-//!   unit admits it.
-//!
-//! **Extending the seam.** A unit that admits a family adds one arm,
-//! `(ExactContract::PressureV3, ExactFamily::X) => Admission::Admitted`, to
-//! [`admission`] and supplies that family's mechanics, evidence and readers in
-//! the same change: T4-U2 admits [`ExactFamily::RealizedBend`]; T4-U3 admits
-//! [`ExactFamily::ObjectiveConnector`]. Admitting a family here without its
-//! mechanics is unsafe (T4-I1 section 5.2: lifting the refusal alone panics).
+//! Model 0.5.0 declares `3.0.0/exact_pressure_v3` explicitly; an absent
+//! contract selects the pressure-free preview route. Straight circular members
+//! and linear restraints or springs are the base. Realized bends and objective
+//! connectors have their own mechanics, evidence and readers. Other families
+//! retain their named refusals. Admission of another family must supply those
+//! consumers together; lifting a refusal alone cannot establish mechanics.
 
 use super::{FormulationBasis, PreviewComponent, PreviewModel, PreviewSupport};
 
-/// The reserved successor result semantics that `3.0.0/exact_pressure_v3`
-/// publishes under, on 0.3.0 and 0.4.0 documents alike (H-1).
+/// The ordinary result semantics of the current exact contract.
 pub(crate) const PRESSURE_SEMANTIC_CONTRACT_ID: &str =
     "openpipestress.result_semantics/0.3.0/pressure-1";
-/// The captured v3 contract's retained-source publication, on both model versions.
+/// The captured current exact contract's retained-source publication.
 pub(crate) const PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID: &str =
     "openpipestress.result_semantics/0.3.0/pressure-source-1";
 /// The formulation profile of every `pressure-1` envelope.
@@ -37,11 +21,9 @@ pub(crate) const PRESSURE_PROFILE_ID: &str = "exact_pressure_v3";
 /// The named seam refusal for a family a v3 document may not yet contain.
 pub(crate) const FAMILY_NOT_ADMITTED: &str = "EXACT_PRESSURE_FAMILY_NOT_ADMITTED";
 
-/// An exact pressure contract declared on a 0.3.0 or 0.4.0 model document.
+/// The sole exact pressure contract declared on a current model document.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ExactContract {
-    /// `2.0.0/exact_straight_pressure_v2`: straight members only; byte-identical.
-    StraightV2,
     /// `3.0.0/exact_pressure_v3`: the successor, admitted family by family.
     PressureV3,
 }
@@ -49,14 +31,12 @@ pub(crate) enum ExactContract {
 impl ExactContract {
     pub(crate) const fn version(self) -> &'static str {
         match self {
-            ExactContract::StraightV2 => "2.0.0",
             ExactContract::PressureV3 => "3.0.0",
         }
     }
 
     pub(crate) const fn mode(self) -> &'static str {
         match self {
-            ExactContract::StraightV2 => "exact_straight_pressure_v2",
             ExactContract::PressureV3 => "exact_pressure_v3",
         }
     }
@@ -78,16 +58,11 @@ impl ExactContract {
         })
     }
 
-    /// Whether p < 0 is admitted (plan section 4.3 item 2): v3 only. v2's
-    /// readers refuse p_pa < 0, so v2 refuses it at the producer (T4-U0).
-    pub(crate) const fn admits_negative_pressure(self) -> bool {
-        matches!(self, ExactContract::PressureV3)
-    }
 }
 
 /// v3's own formulation basis (its approximation text). It names the admitted
 /// families, states the D-3 exclusions and that external-pressure stability
-/// and collapse are not assessed. A 0.4.0 document adds the load/reference
+/// and collapse are not assessed. An authored load/reference-state group adds
 /// state method's statements; a model with an objective connector (T4-U3)
 /// then adds the connector law's statement.
 #[cfg(test)]
@@ -279,9 +254,8 @@ pub(crate) enum Admission {
     Refused { code: &'static str, message: &'static str },
 }
 
-/// The admission table. Under v2 it reproduces v2's existing codes and texts
-/// (SP-1). Under v3 the objective connector (T4-U3) and the realized bend
-/// (T4-U2) are admitted.
+/// The current admission table: the objective connector and realized bend
+/// are admitted with their integrated mechanics.
 pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admission {
     match (contract, family) {
         // T4-U3: an explicit objective connector on v3, with its own
@@ -290,38 +264,10 @@ pub(crate) fn admission(contract: ExactContract, family: ExactFamily) -> Admissi
         // T4-U2: a realized curved bend on v3, with its member-owned pressure
         // term, chain topology and arc recovery (`bend_pressure`).
         (ExactContract::PressureV3, ExactFamily::RealizedBend) => Admission::Admitted,
-        (ExactContract::StraightV2, _) => {
-            let (code, message) = straight_v2_refusal(family);
-            Admission::Refused { code, message }
-        }
         (ExactContract::PressureV3, _) => Admission::Refused {
             code: FAMILY_NOT_ADMITTED,
             message: family.v3_refusal(),
         },
-    }
-}
-
-/// v2's codes and texts, verbatim from its first exact composition.
-fn straight_v2_refusal(family: ExactFamily) -> (&'static str, &'static str) {
-    match family {
-        ExactFamily::NonlinearSupport | ExactFamily::ConstantEffortSupport => (
-            "EXACT_PRESSURE_COMPOSITION_UNSUPPORTED",
-            "the first exact pressure profile supports linear restraints and springs, not nonlinear or constant-effort support composition",
-        ),
-        ExactFamily::Combination => (
-            "EXACT_PRESSURE_COMBINATION_UNSUPPORTED",
-            "exact pressure combinations require signed physical-state combination and pressure-region evidence; scalar row algebra is not a valid fallback",
-        ),
-        ExactFamily::EquivalentStatic => (
-            "EXACT_PRESSURE_COMPOSITION_UNSUPPORTED",
-            "equivalent-static generation is outside the first exact pressure composition",
-        ),
-        // Metadata-only fitting records are also excluded: accepting one as a
-        // straight span would misrepresent the explicit first composition.
-        _ => (
-            "EXACT_PRESSURE_COMPOSITION_UNSUPPORTED",
-            "the first exact pressure profile supports straight circular pipes only; fitting/component records require their own integrated mechanics proof",
-        ),
     }
 }
 
@@ -421,17 +367,13 @@ mod tests {
                 }
                 Admission::Admitted => panic!("{family:?} admitted before its unit"),
             }
-            assert!(matches!(
-                admission(ExactContract::StraightV2, family),
-                Admission::Refused { code, .. } if code != FAMILY_NOT_ADMITTED
-            ));
         }
     }
 
     #[test]
     fn contract_identity_is_exact_on_both_fields() {
         for (version, mode, expected) in [
-            (Some("2.0.0"), Some("exact_straight_pressure_v2"), Some(ExactContract::StraightV2)),
+            (Some("2.0.0"), Some("exact_straight_pressure_v2"), None),
             (Some("3.0.0"), Some("exact_pressure_v3"), Some(ExactContract::PressureV3)),
             (Some("3.0.0"), Some("exact_straight_pressure_v2"), None),
             (Some("2.0.0"), Some("exact_pressure_v3"), None),
@@ -441,7 +383,5 @@ mod tests {
         ] {
             assert_eq!(ExactContract::from_declared(version, mode), expected, "{version:?} {mode:?}");
         }
-        assert!(ExactContract::PressureV3.admits_negative_pressure());
-        assert!(!ExactContract::StraightV2.admits_negative_pressure());
     }
 }

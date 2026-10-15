@@ -14,11 +14,6 @@ mod endpoint_maximum;
 mod rows;
 mod source;
 pub(super) use composite::{composite_member_maximum, composite_support_norms};
-pub(super) const COMPOSITE_SEMANTIC_ID: &str =
-    "openpipestress.result_semantics/0.3.0/physics-source-1";
-
-pub(super) const LOAD_REFERENCE_SOURCE_SEMANTIC_ID: &str =
-    case_state::LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID;
 const CRITERION: f64 = 1e-9;
 const MAX_ITEMS: usize = 16_384;
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -44,7 +39,7 @@ fn serialized<T: Serialize>(v: &T) -> Result<Value, ReceiptError> {
     serde_json::to_value(v).map_err(|e| bad(e.to_string()))
 }
 
-/// One captured 0.4.0 case re-derived through the product resolver pipeline.
+/// One captured current load/reference-state case re-derived through the product resolver pipeline.
 struct LoadStateReplay {
     model: PreviewModel,
     materials: Vec<MaterialInput>,
@@ -52,85 +47,42 @@ struct LoadStateReplay {
     built: BuiltModel,
 }
 
-/// Closed receipt policies, one per exact-route composite (B4/D1 (b) retired the
-/// preview route's non-composite SOURCE-BLOCKS-1). Each names one semantic
-/// identity; none is chosen from a caller label.
+/// The current exact source receipt policy. Selection remains tied to the
+/// actual captured model contract, never a received envelope label.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ReceiptPolicy {
-    PhysicsSource,
-    LoadReferenceSource,
     PressureSource,
 }
 impl ReceiptPolicy {
     fn semantic_id(self) -> &'static str {
-        match self {
-            Self::PhysicsSource => COMPOSITE_SEMANTIC_ID,
-            Self::LoadReferenceSource => LOAD_REFERENCE_SOURCE_SEMANTIC_ID,
-            Self::PressureSource => exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID,
-        }
+        exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID
     }
-    fn name(self) -> &'static str {
-        match self {
-            Self::PhysicsSource => "PHYSICS-SOURCE-1",
-            Self::LoadReferenceSource => "LOAD-REFERENCE-SOURCE-1",
-            Self::PressureSource => "PRESSURE-SOURCE-1",
-        }
-    }
-    fn case_evidence_domain(self) -> &'static str {
-        match self {
-            Self::LoadReferenceSource => "load_reference_source_case_evidence_v1",
-            Self::PressureSource => "pressure_source_case_evidence_v1",
-            Self::PhysicsSource => "physics_source_case_evidence_v1",
-        }
-    }
+    fn name(self) -> &'static str { "PRESSURE-SOURCE-1" }
+    fn case_evidence_domain(self) -> &'static str { "pressure_source_case_evidence_v1" }
 }
 
-/// One composite source namespace selected from the actual model contract.
-/// v3 uses the same identity/policy/domain on 0.3.0 and 0.4.0; the latter's
-/// resolved-case ownership is still checked separately by the source pipeline.
+/// The source namespace selected from the actual current exact contract.
+/// Resolved-case ownership is checked separately by the source pipeline.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum CompositeSourceContext {
-    PhysicsSource,
-    LoadReferenceSource,
     PressureSource,
 }
 impl CompositeSourceContext {
     fn from_model(model: &PreviewModel) -> Option<Self> {
-        match exact_admission::ExactContract::of(model) {
-            Some(exact_admission::ExactContract::PressureV3) => Some(Self::PressureSource),
-            Some(exact_admission::ExactContract::StraightV2) => Some(
-                if case_state::is_load_state(model) { Self::LoadReferenceSource } else { Self::PhysicsSource }
-            ),
-            None => None,
-        }
+        exact_admission::ExactContract::of(model).map(|_| Self::PressureSource)
     }
     pub(super) fn for_model(model: &PreviewModel) -> Result<Self, ReceiptError> {
         Self::from_model(model).ok_or_else(|| bad("composite source requires an actual exact contract"))
     }
-    fn receipt_policy(self) -> ReceiptPolicy {
-        match self {
-            Self::PhysicsSource => ReceiptPolicy::PhysicsSource,
-            Self::LoadReferenceSource => ReceiptPolicy::LoadReferenceSource,
-            Self::PressureSource => ReceiptPolicy::PressureSource,
-        }
-    }
+    fn receipt_policy(self) -> ReceiptPolicy { ReceiptPolicy::PressureSource }
     pub(super) fn semantic_id(self) -> &'static str { self.receipt_policy().semantic_id() }
     pub(super) fn policy_name(self) -> &'static str { self.receipt_policy().name() }
     pub(super) fn case_evidence_domain(self) -> &'static str { self.receipt_policy().case_evidence_domain() }
     pub(super) const fn exact_contract(self) -> exact_admission::ExactContract {
-        match self {
-            Self::PressureSource => exact_admission::ExactContract::PressureV3,
-            Self::PhysicsSource | Self::LoadReferenceSource => exact_admission::ExactContract::StraightV2,
-        }
+        exact_admission::ExactContract::PressureV3
     }
     pub(super) const fn profile_mode(self) -> &'static str { self.exact_contract().mode() }
-    pub(super) const fn profile_id(self) -> &'static str {
-        match self {
-            Self::PhysicsSource => "exact_straight_pressure_v2",
-            Self::LoadReferenceSource => case_state::LOAD_STATE_SOURCE_PROFILE_ID,
-            Self::PressureSource => exact_admission::PRESSURE_PROFILE_ID,
-        }
-    }
+    pub(super) const fn profile_id(self) -> &'static str { exact_admission::PRESSURE_PROFILE_ID }
 }
 
 /// Validate the publication label against the independently selected policy.
@@ -204,7 +156,7 @@ impl CapturedInvocation {
     ) -> Result<Option<String>, ReceiptError> {
         self.check_input_with_physical(input, selected, None)
     }
-    /// Captured 0.4.0 re-derivation: validation, normalization and per-case
+    /// Captured current load/reference-state re-derivation: validation, normalization and per-case
     /// resolution exactly as the product route performs them, then one
     /// member-pair build. The case-wide base/modulus methods are never used.
     fn captured_load_state_case(&self, case_id: &str) -> Result<LoadStateReplay, ReceiptError> {
@@ -248,7 +200,7 @@ impl CapturedInvocation {
             built,
         })
     }
-    /// Replays the selected response against the captured 0.4.0 invocation's
+    /// Replays the selected response against the captured current load/reference-state invocation's
     /// own resolved case: stiffness from its member pairs, force from its
     /// declared source ledger plus eigen loads, prescribed values from its
     /// support motions.
