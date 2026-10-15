@@ -114,9 +114,9 @@
     "profile_id": "product_preview_mechanics_v1",
     "limitations": [
       "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
-      "Nonzero pressure is refused on this route, and so is legacy imposed_displacement.",
+      "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
       "On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No transverse shear, equivalent stress or code stress.",
-      "On arcs: signed tangent-frame resultants and nominal stress components. Endpoint force rows are in the chord frame. No maximum, and no stress headline for a model containing an arc.",
+      "On arcs: signed tangent-frame resultants and nominal stress components; endpoint force rows are node-on-element actions in the tangent frame at their end. No maximum, and no stress headline for a model containing an arc.",
       "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
       "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
       "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
@@ -138,8 +138,7 @@
     "support_count": 2,
     "load_case_count": 2,
     "component_stress_modifier_count": 0,
-    "component_user_stiffness_macro_element_count": 0,
-    "component_pressure_thrust_load_count": 0,
+    "curved_bend_macro_element_count": 0,
     "spring_hanger_user_input_count": 0,
     "max_displacement": {
       "value": 0.001675315190441003,
@@ -169,26 +168,8 @@
         "component": "linear_solver_mode",
         "coordinate_system": "reduced_system",
         "location": "case",
-        "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=11; original_profile_entries=17; ordered_profile_entries=10; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=5969036181615.625; max_abs_sparse_residual=0.000000000000009054521551611288; dense_fallback=false; dense_fallback_message=none",
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
         "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
-      }
-    },
-    {
-      "id": "result:sparse-live:dense-parity-relative-delta",
-      "kind": "sparse_live_path_dense_parity_relative_delta",
-      "value": 4.627936216670247e-11,
-      "unit": "unitless",
-      "entity_ref": "solver:sparse_direct",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "case"
-      },
-      "metadata": {
-        "component": "sparse_live_path",
-        "coordinate_system": "reduced_system",
-        "location": "load_case",
-        "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=7; sparse_entry_count=11; original_profile_entries=17; ordered_profile_entries=10; original_half_bandwidth=4; ordered_half_bandwidth=1; max_abs_dense_sparse_delta=0.000000000000004627944078308688; max_abs_sparse_residual=0.000000000000009054521551611288; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
-        "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
       }
     },
     {
@@ -1649,26 +1630,8 @@
         "component": "linear_solver_mode",
         "coordinate_system": "reduced_system",
         "location": "case:signed-companion",
-        "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=11; original_profile_entries=17; ordered_profile_entries=10; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=5969036181615.625; max_abs_sparse_residual=0.00000000000011368683772161603; dense_fallback=false; dense_fallback_message=none",
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
         "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
-      }
-    },
-    {
-      "id": "result:loadcase:case-signed-companion:sparse-live:dense-parity-relative-delta",
-      "kind": "sparse_live_path_dense_parity_relative_delta",
-      "value": 4.627936216670247e-11,
-      "unit": "unitless",
-      "entity_ref": "solver:sparse_direct",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "case:signed-companion"
-      },
-      "metadata": {
-        "component": "sparse_live_path",
-        "coordinate_system": "reduced_system",
-        "location": "load_case",
-        "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=7; sparse_entry_count=11; original_profile_entries=17; ordered_profile_entries=10; original_half_bandwidth=4; ordered_half_bandwidth=1; max_abs_dense_sparse_delta=0.000000000000009255888156617376; max_abs_sparse_residual=0.00000000000011368683772161603; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
-        "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
       }
     },
     {

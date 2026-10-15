@@ -625,7 +625,7 @@
             "id": "result:solver-mode:linear-solve-basis",
             "kind": "linear_solver_mode_basis",
             "metadata": {
-              "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=852.4590163934429; max_abs_sparse_residual=0.0000000000009094947017729282; dense_fallback=false; dense_fallback_message=none",
+              "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
               "component": "linear_solver_mode",
               "coordinate_system": "reduced_system",
               "location": "case:closed-pressure",
@@ -2429,7 +2429,7 @@
             "id": "result:loadcase:case-six-component-load:solver-mode:linear-solve-basis",
             "kind": "linear_solver_mode_basis",
             "metadata": {
-              "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=852.4590163934429; max_abs_sparse_residual=0.0000000000018189894035458565; dense_fallback=false; dense_fallback_message=none",
+              "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
               "component": "linear_solver_mode",
               "coordinate_system": "reduced_system",
               "location": "case:six-component-load",
@@ -4396,7 +4396,7 @@
             "id": "result:solver-mode:linear-solve-basis",
             "kind": "linear_solver_mode_basis",
             "metadata": {
-              "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=852.4590163934429; max_abs_sparse_residual=0.0000000000009094947017729282; dense_fallback=false; dense_fallback_message=none",
+              "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
               "component": "linear_solver_mode",
               "coordinate_system": "reduced_system",
               "location": "case:closed-pressure",
@@ -4404,24 +4404,6 @@
             },
             "unit": "mode_code",
             "value": 2.0
-          },
-          {
-            "basis_ref": {
-              "ref_id": "case:closed-pressure",
-              "ref_type": "load_case"
-            },
-            "entity_ref": "solver:sparse_direct",
-            "id": "result:sparse-live:dense-parity-relative-delta",
-            "kind": "sparse_live_path_dense_parity_relative_delta",
-            "metadata": {
-              "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=6; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; max_abs_dense_sparse_delta=0; max_abs_sparse_residual=0.0000000000009094947017729282; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
-              "component": "sparse_live_path",
-              "coordinate_system": "reduced_system",
-              "location": "load_case",
-              "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
-            },
-            "unit": "unitless",
-            "value": 0.0
           },
           {
             "basis_ref": {
@@ -6218,7 +6200,7 @@
             "id": "result:loadcase:case-six-component-load:solver-mode:linear-solve-basis",
             "kind": "linear_solver_mode_basis",
             "metadata": {
-              "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=852.4590163934429; max_abs_sparse_residual=0.0000000000018189894035458565; dense_fallback=false; dense_fallback_message=none",
+              "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
               "component": "linear_solver_mode",
               "coordinate_system": "reduced_system",
               "location": "case:six-component-load",
@@ -6226,24 +6208,6 @@
             },
             "unit": "mode_code",
             "value": 2.0
-          },
-          {
-            "basis_ref": {
-              "ref_id": "case:six-component-load",
-              "ref_type": "load_case"
-            },
-            "entity_ref": "solver:sparse_direct",
-            "id": "result:loadcase:case-six-component-load:sparse-live:dense-parity-relative-delta",
-            "kind": "sparse_live_path_dense_parity_relative_delta",
-            "metadata": {
-              "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=6; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; max_abs_dense_sparse_delta=0.0000000000000000002168404344971009; max_abs_sparse_residual=0.0000000000018189894035458565; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
-              "component": "sparse_live_path",
-              "coordinate_system": "reduced_system",
-              "location": "load_case",
-              "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
-            },
-            "unit": "unitless",
-            "value": 1.4284422376487984e-16
           },
           {
             "basis_ref": {
@@ -8538,7 +8502,7 @@
             "id": "result:solver-mode:linear-solve-basis",
             "kind": "linear_solver_mode_basis",
             "metadata": {
-              "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=0; original_profile_entries=0; ordered_profile_entries=0; original_half_bandwidth=0; ordered_half_bandwidth=0; nonpositive_pivots=0; pivot_condition_ratio_proxy=not_observed; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+              "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
               "component": "linear_solver_mode",
               "coordinate_system": "reduced_system",
               "location": "case:cold-pressure",
@@ -10486,7 +10450,7 @@
             "id": "result:loadcase:case-hot-pressure:solver-mode:linear-solve-basis",
             "kind": "linear_solver_mode_basis",
             "metadata": {
-              "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=0; original_profile_entries=0; ordered_profile_entries=0; original_half_bandwidth=0; ordered_half_bandwidth=0; nonpositive_pivots=0; pivot_condition_ratio_proxy=not_observed; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+              "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
               "component": "linear_solver_mode",
               "coordinate_system": "reduced_system",
               "location": "case:hot-pressure",
@@ -13418,7 +13382,7 @@
             "id": "result:solver-mode:linear-solve-basis",
             "kind": "linear_solver_mode_basis",
             "metadata": {
-              "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=0; original_profile_entries=0; ordered_profile_entries=0; original_half_bandwidth=0; ordered_half_bandwidth=0; nonpositive_pivots=0; pivot_condition_ratio_proxy=not_observed; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+              "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
               "component": "linear_solver_mode",
               "coordinate_system": "reduced_system",
               "location": "case:cold-pressure",
@@ -13426,24 +13390,6 @@
             },
             "unit": "mode_code",
             "value": 2.0
-          },
-          {
-            "basis_ref": {
-              "ref_id": "case:cold-pressure",
-              "ref_type": "load_case"
-            },
-            "entity_ref": "solver:sparse_direct",
-            "id": "result:sparse-live:dense-parity-relative-delta",
-            "kind": "sparse_live_path_dense_parity_relative_delta",
-            "metadata": {
-              "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=0; sparse_entry_count=0; original_profile_entries=0; ordered_profile_entries=0; original_half_bandwidth=0; ordered_half_bandwidth=0; max_abs_dense_sparse_delta=0; max_abs_sparse_residual=0; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
-              "component": "sparse_live_path",
-              "coordinate_system": "reduced_system",
-              "location": "load_case",
-              "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
-            },
-            "unit": "unitless",
-            "value": 0.0
           },
           {
             "basis_ref": {
@@ -15384,7 +15330,7 @@
             "id": "result:loadcase:case-hot-pressure:solver-mode:linear-solve-basis",
             "kind": "linear_solver_mode_basis",
             "metadata": {
-              "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; profile_pivot_residual_observation_basis=legacy_unscaled_DEC050_DEC053;  default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=0; original_profile_entries=0; ordered_profile_entries=0; original_half_bandwidth=0; ordered_half_bandwidth=0; nonpositive_pivots=0; pivot_condition_ratio_proxy=not_observed; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+              "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_structural_integrity_primary; structural_policy=M03-INTEGRITY-v1; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; dense_fallback=false; dense_fallback_message=none",
               "component": "linear_solver_mode",
               "coordinate_system": "reduced_system",
               "location": "case:hot-pressure",
@@ -15392,24 +15338,6 @@
             },
             "unit": "mode_code",
             "value": 2.0
-          },
-          {
-            "basis_ref": {
-              "ref_id": "case:hot-pressure",
-              "ref_type": "load_case"
-            },
-            "entity_ref": "solver:sparse_direct",
-            "id": "result:loadcase:case-hot-pressure:sparse-live:dense-parity-relative-delta",
-            "kind": "sparse_live_path_dense_parity_relative_delta",
-            "metadata": {
-              "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=0; sparse_entry_count=0; original_profile_entries=0; ordered_profile_entries=0; original_half_bandwidth=0; ordered_half_bandwidth=0; max_abs_dense_sparse_delta=0; max_abs_sparse_residual=0; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
-              "component": "sparse_live_path",
-              "coordinate_system": "reduced_system",
-              "location": "load_case",
-              "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
-            },
-            "unit": "unitless",
-            "value": 0.0
           },
           {
             "basis_ref": {
