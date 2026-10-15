@@ -279,7 +279,18 @@ class NumericalTests(unittest.TestCase):
                 crate = next(parent for parent in source.parents if (parent / 'Cargo.toml').is_file())
                 candidates = {base.joinpath(value).resolve() for base in (project, source.parent, crate)}
                 for path in candidates:
-                    if not path.is_relative_to(project) or not path.exists():
+                    if not path.is_relative_to(project):
+                        continue
+                    # Every literal with a resource prefix is probed, prose included: a
+                    # provenance sentence such as connector_readers.rs's corpus `inputs`
+                    # (written into a committed corpus) has a path component longer than
+                    # the filesystem allows, and `exists()` raises ENAMETOOLONG instead of
+                    # answering. A name the filesystem cannot hold is no runtime resource.
+                    try:
+                        present = path.exists()
+                    except OSError:
+                        present = False
+                    if not present:
                         continue
                     relative = path.relative_to(repo).as_posix()
                     self.assertTrue(numerical_input(relative), f'Runtime resource omitted by numerical policy: {source} -> {relative}')

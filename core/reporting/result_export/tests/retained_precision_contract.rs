@@ -6812,3 +6812,144 @@ fn b7b_corrosion_allowance_namespace_at_g8() {
         assert_eq!(observe(&shared, &entry), inv, "{base}");
     }
 }
+
+// B7b review N-1: `section_allowances` covers every pipe section, on both routes, not the
+// first. `b7b_corrosion_allowance_namespace_at_g8` edits pipe 0 of one-pipe invocations
+// only, so the three controls below read a pipe other than index 0, each with its digest
+// rebound and the receipt resealed (`apply_on`). Each kills a first-section-only check on
+// its own.
+/// The invocation pointer of pipe `pipe`'s section allowance.
+fn n1_allowance(pipe: usize) -> Value {
+    serde_json::json!(["request", "model", "pipe_segments", pipe, "section", "corrosion_allowance"])
+}
+/// Allowance edits outside the exact namespace, on pipe `pipe`.
+fn n1_refused(pipe: usize) -> [(&'static str, Value); 4] {
+    use serde_json::json;
+    [
+        ("0.001 m", set(n1_allowance(pipe), json!({"value": 0.001, "unit": "m"}))),
+        ("absent", remove(n1_allowance(pipe))),
+        ("null", set(n1_allowance(pipe), Value::Null)),
+        ("wrong dimension", set(n1_allowance(pipe), json!({"value": 0.0, "unit": "Pa"}))),
+    ]
+}
+/// `doc` with `invocation_edits`, its digest rebound and the receipt resealed.
+fn n1_reseal(doc: &Value, invocation_edits: Vec<Value>) -> (Value, Value) {
+    apply_on(doc, &serde_json::json!({"edits": [], "rehash": "all", "invocation_edits": invocation_edits}))
+}
+
+/// Exact, lane P's genuine W1 successors (both modes, one pipe): a second pipe (a copy of
+/// the first under a new id) appended to the invocation's model with 0.001 m, no allowance,
+/// a null one or one of the wrong dimension is refused bound at G8 INVOCATION_MISMATCH
+/// (D1.3's namespace runs before any G8 step that reads a pipe; no earlier gate reads the
+/// invocation's pipes); unbound and transport are unchanged. With an explicit 0 m on the
+/// second pipe the namespace admits it and G8 refuses it later, at PREPARATION_MISMATCH
+/// (the receipt's sources cover one member), not at the namespace.
+#[test]
+fn b7b_n1_exact_allowance_on_an_appended_second_pipe() {
+    use serde_json::json;
+    let inv = gate("G8", INVOCATION);
+    let (reseal, ca, refused) = (n1_reseal, n1_allowance, n1_refused);
+    for (name, _, text, ..) in M3X {
+        let doc: Value = serde_json::from_str(text).unwrap();
+        let pipes = doc["invocation"]["request"]["model"]["pipe_segments"].clone();
+        assert_eq!(pipes.as_array().unwrap().len(), 1, "{name}");
+        let genuine = readings(&doc["source"], &doc["invocation"]);
+        assert_eq!(genuine["bound"], json!({"ok": {"eligible": true}}), "{name}");
+        let refused_bound = json!({"bound": inv, "unbound": genuine["unbound"], "transport": genuine["transport"]});
+        // One invocation edit setting the two pipes: the first unchanged and the appended
+        // second with `change` (an edit of pipe 1) applied.
+        let appended = |change: Value| {
+            let mut second = pipes[0].clone();
+            second["id"] = json!(format!("{}-second", second["id"].as_str().unwrap()));
+            let mut two = doc["invocation"].clone();
+            two["request"]["model"]["pipe_segments"] = json!([pipes[0].clone(), second]);
+            edit(&mut two, &change);
+            set(json!(["request", "model", "pipe_segments"]), two["request"]["model"]["pipe_segments"].clone())
+        };
+        let (source, invocation) = reseal(&doc, vec![appended(set(ca(1), json!({"value": 0.0, "unit": "m"})))]);
+        assert_eq!(invocation["request"]["model"]["pipe_segments"].as_array().unwrap().len(), 2, "{name}");
+        assert_eq!(
+            readings(&source, &invocation),
+            json!({"bound": gate("G8", PREPARATION), "unbound": genuine["unbound"], "transport": genuine["transport"]}),
+            "{name}: second pipe 0 m"
+        );
+        for (what, edit) in refused(1) {
+            let (source, invocation) = reseal(&doc, vec![appended(edit)]);
+            assert_eq!(invocation["request"]["model"]["pipe_segments"][0]["section"]["corrosion_allowance"], json!({"unit": "m", "value": 0.0}), "{name}: {what}");
+            assert_eq!(readings(&source, &invocation), refused_bound, "{name}: second pipe {what}");
+        }
+    }
+}
+
+/// Exact, reader-local two-pipe successors (`exact_successor` on the shared corpus's
+/// two-pipe bases): pipe 1 carrying 0.001 m, no allowance, a null one or one of the wrong
+/// dimension is refused bound at G8 INVOCATION_MISMATCH, and an explicit zero in
+/// millimetres on pipe 1 reads as the genuine successor.
+#[test]
+fn b7b_n1_exact_allowance_on_pipe_1_of_a_two_pipe_successor() {
+    use serde_json::json;
+    let inv = gate("G8", INVOCATION);
+    let (reseal, ca, refused) = (n1_reseal, n1_allowance, n1_refused);
+    let shared = corpus();
+    for base in ["two_body_synthetic", "p512_ladder_synthetic"] {
+        let (source, invocation) = exact_successor(shared, base);
+        assert_eq!(invocation["request"]["model"]["pipe_segments"].as_array().unwrap().len(), 2, "{base}");
+        let doc = json!({"source": source, "invocation": invocation});
+        let genuine = readings(&doc["source"], &doc["invocation"]);
+        assert_eq!(genuine["bound"], json!({"ok": {"eligible": true}}), "{base}");
+        let (source, invocation) = reseal(&doc, vec![set(ca(1), json!({"value": 0.0, "unit": "mm"}))]);
+        assert_eq!(readings(&source, &invocation), genuine, "{base}: pipe 1 0 mm");
+        for (what, edit) in refused(1) {
+            let (source, invocation) = reseal(&doc, vec![edit]);
+            assert_eq!(
+                readings(&source, &invocation),
+                json!({"bound": inv, "unbound": genuine["unbound"], "transport": genuine["transport"]}),
+                "{base}: pipe 1 {what}"
+            );
+        }
+    }
+}
+
+/// Preview, the shared corpus's 32-pipe W-CB1 bases (both modes) and the committed two-pipe
+/// W-C2 successors (both modes): an allowance key on pipe 1 or the last pipe (zero, 0.001 m
+/// or null) is refused bound at G8 INVOCATION_MISMATCH; unbound and transport are unchanged
+/// on the successors.
+#[test]
+fn b7b_n1_preview_allowance_on_a_pipe_other_than_the_first() {
+    use serde_json::json;
+    let inv = gate("G8", INVOCATION);
+    let (reseal, ca) = (n1_reseal, n1_allowance);
+    let shared = corpus();
+    let allowances = [json!({"value": 0.0, "unit": "m"}), json!({"value": 0.001, "unit": "m"}), Value::Null];
+    for base in ["w_cb1_sparse_interactive", "w_cb1_dense_scrutiny"] {
+        let case = shared["cases"].as_array().unwrap().iter().find(|c| c["id"] == base).unwrap();
+        let last = case["invocation"]["request"]["model"]["pipe_segments"].as_array().unwrap().len() - 1;
+        assert_eq!(last, 31, "{base}");
+        let control = json!({"id": "b7b_n1_preview", "base": base, "edits": [], "rehash": "all"});
+        assert_eq!(observe(shared, &control), Value::Null, "{base}: control");
+        for pipe in [1, last] {
+            for value in &allowances {
+                let entry = json!({"id": "b7b_n1_preview_ca", "base": base, "edits": [], "rehash": "all",
+                    "invocation_edits": [set(ca(pipe), value.clone())]});
+                assert_eq!(observe(shared, &entry), inv, "{base}: pipe {pipe} {value}");
+            }
+        }
+    }
+    for name in ["w_c2_successor_sparse_interactive", "w_c2_successor_dense_scrutiny"] {
+        let text = R1_SUCCESSORS.iter().find(|(n, _)| *n == name).unwrap().1;
+        let doc: Value = serde_json::from_str(text).unwrap();
+        assert_eq!(doc["invocation"]["request"]["model"]["pipe_segments"].as_array().unwrap().len(), 2, "{name}");
+        let genuine = readings(&doc["source"], &doc["invocation"]);
+        assert!(genuine["bound"].get("ok").is_some(), "{name}: {genuine}");
+        let (source, invocation) = reseal(&doc, vec![]);
+        assert_eq!(readings(&source, &invocation), genuine, "{name}: the reseal alone");
+        for value in &allowances {
+            let (source, invocation) = reseal(&doc, vec![set(ca(1), value.clone())]);
+            assert_eq!(
+                readings(&source, &invocation),
+                json!({"bound": inv, "unbound": genuine["unbound"], "transport": genuine["transport"]}),
+                "{name}: pipe 1 {value}"
+            );
+        }
+    }
+}

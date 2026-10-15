@@ -259,6 +259,74 @@ fn captured_exact_document_requires_zero_corrosion_allowances() {
     }
 }
 
+/// `captured` with a second pipe segment appended to its model: a copy of the first
+/// (same nodes, material and section) under a new id, whose section allowance is
+/// `allowance` (`None` removes the key). The first pipe keeps its explicit 0 m.
+fn with_second_pipe(captured: &Value, allowance: Option<Value>) -> Value {
+    let mut other = captured.clone();
+    let pipes = other.pointer_mut("/request/model/pipe_segments").unwrap().as_array_mut().unwrap();
+    assert_eq!(pipes.len(), 1, "the committed request has one pipe segment");
+    let mut second = pipes[0].clone();
+    second["id"] = json!(format!("{}-second", second["id"].as_str().unwrap()));
+    let section = second["section"].as_object_mut().unwrap();
+    match allowance {
+        Some(v) => {
+            section.insert("corrosion_allowance".into(), v);
+        }
+        None => {
+            section.remove("corrosion_allowance");
+        }
+    }
+    pipes.push(second);
+    other
+}
+
+/// B7b review N-1: the allowance check covers every pipe section, not the first. Every
+/// committed pressure-source-1 request has one pipe, so on the 0.3-style n06 statement and
+/// its load/reference-state twin a second pipe is appended to the captured model and the
+/// receipt's invocation digest rebound to it (`rebound`). `check_invocation` is the first
+/// step of `validate_in` (after `from_invocation`, which reads no pipe), so a second pipe
+/// carrying 0.001 m, no allowance, a null one or one of the wrong dimension is refused
+/// PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE, deterministically, bound and through the
+/// reader verdict, while the first pipe keeps its explicit 0 m. With an explicit 0 m on the
+/// second pipe the allowance check passes and the statement is refused later instead, by
+/// the receipt's coverage of the captured model (SOURCE_BLOCKS_CURRENT_MODEL_SOURCE_COVERAGE:
+/// its sources name one member, the model two pipes), never for the allowance; a
+/// first-section-only check would give that code for every value above.
+#[test]
+fn captured_allowance_is_required_on_every_pipe_section() {
+    const CODE: &str = "PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE";
+    const LATER: &str = "SOURCE_BLOCKS_CURRENT_MODEL_SOURCE_COVERAGE";
+    let (resolved, resolved_invocation) = load_state();
+    for (label, statement, captured, genuine) in [
+        ("0.3-style n06", source(), invocation(), Ok(true)),
+        ("load/reference-state n06", resolved, resolved_invocation, Ok(false)),
+    ] {
+        assert_eq!(ps::validate(&statement, Some(&captured)), genuine, "{label}: control");
+        let zero = with_second_pipe(&captured, Some(json!({"value": 0.0, "unit": "m"})));
+        let resealed = rebound(&statement, &zero);
+        assert_eq!(ps::validate(&resealed, Some(&zero)), Err(LATER.into()), "{label}: second pipe 0 m");
+        assert_eq!(reader_verdict::validate("pressure-source", &resealed, None, Some(&zero))["error"]["code"], LATER, "{label}: second pipe 0 m");
+        for (what, value) in [
+            ("0.001 m", Some(json!({"value": 0.001, "unit": "m"}))),
+            ("absent", None),
+            ("null", Some(Value::Null)),
+            ("wrong dimension", Some(json!({"value": 0.0, "unit": "Pa"}))),
+        ] {
+            let other = with_second_pipe(&captured, value);
+            let ctx = format!("{label}: second pipe {what}");
+            assert_eq!(other.pointer("/request/model/pipe_segments/0/section/corrosion_allowance"), Some(&json!({"unit": "m", "value": 0.0})), "{ctx}");
+            assert_eq!(ps::validate(&statement, Some(&other)), Err(CODE.into()), "{ctx}");
+            let resealed = rebound(&statement, &other);
+            assert_eq!(ps::validate(&resealed, Some(&other)), Err(CODE.into()), "{ctx}: rebound");
+            assert_eq!(reader_verdict::validate("pressure-source", &resealed, None, Some(&other))["error"]["code"], CODE, "{ctx}");
+            assert_eq!(ps::validate(&resealed, None), Ok(false), "{ctx}: unbound");
+            let refs = vec![json!({"ref_type": "load_case", "ref_id": "case"})];
+            assert_ne!(sc::numerical_use_standing_with_context(&resealed, &refs, Some(&other)), "numerically_eligible", "{ctx}");
+        }
+    }
+}
+
 /// B7b (ccb19ba0bf), header parity with the retired load-reference routes:
 /// (1) the load/reference-state group owns no carrier namespace, so a pressure-1 or
 /// pressure-source-1 statement carrying the group and `carrier_evidence` is refused at

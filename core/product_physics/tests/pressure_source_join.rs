@@ -59,7 +59,7 @@ impl Family {
     }
     /// The committed current request: 0.5.0 with the current exact contract.
     fn request(self, name: &str) -> Value {
-        let request = current_model::fixture(&self.request_path(name));
+        let request = fixture(&self.request_path(name));
         current_model::assert_current_exact_request(&request, &self.request_path(name));
         request
     }
@@ -70,6 +70,13 @@ impl Family {
 
 fn project_root() -> std::path::PathBuf {
     current_model::project_root()
+}
+/// A committed JSON fixture, by project-relative path. Kept here, its only
+/// caller, so the runtime read stays out of `common/current_model.rs`, which
+/// other crates compile through `#[path]`.
+fn fixture(path: &str) -> Value {
+    serde_json::from_str(&std::fs::read_to_string(project_root().join(path)).unwrap())
+        .unwrap_or_else(|error| panic!("{path}: {error}"))
 }
 struct Control {
     family: Family,

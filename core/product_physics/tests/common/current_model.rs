@@ -67,9 +67,3 @@ pub fn assert_current_exact_request(request: &Value, label: &str) {
 pub fn project_root() -> std::path::PathBuf {
     std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
-
-/// A committed JSON fixture, by project-relative path.
-pub fn fixture(path: &str) -> Value {
-    serde_json::from_str(&std::fs::read_to_string(project_root().join(path)).unwrap())
-        .unwrap_or_else(|error| panic!("{path}: {error}"))
-}

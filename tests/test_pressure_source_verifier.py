@@ -170,7 +170,54 @@ def test_the_captured_exact_document_carries_an_explicit_zero_corrosion_allowanc
     assert c.numerical_use_standing(deepcopy(source), refs, deepcopy(captured)) == rust_reader.standing(source, refs, captured)["token"]
 
 
-@pytest.mark.parametrize("path", ["pressure_source/load_reference_source/n05-sparse_interactive.raw.json",
+def _ca_second_pipe_statement(family, name, mode, change):
+    """A genuine pressure-source-1 statement resealed to an invocation with a second pipe segment appended to its model
+    (a copy of the first under a new id, its section changed by `change`); the first pipe keeps its explicit 0 m."""
+    folder = ROOT / "fixtures/product_preview/pressure_source" / CA_FAMILIES[family][0]
+    source = json.loads((folder / f"{name}-{mode}.raw.json").read_text())
+    captured = {"request": json.loads((folder / f"{name}.request.json").read_text()), "solver_mode": mode}
+    pipes = captured["request"]["model"]["pipe_segments"]
+    assert len(pipes) == 1, "every committed pressure-source-1 request has one pipe segment"
+    second = deepcopy(pipes[0])
+    second["id"] = f"{second['id']}-second"
+    change(second["section"])
+    pipes.append(second)
+    body = source["source_block_recovery"]["body"]
+    body["invocation"]["value"] = blocks.domain_hash("source_blocks_invocation_v1", captured)
+    source["source_block_recovery"]["receipt_sha256"] = blocks.domain_hash("source_blocks_receipt_v1", body)
+    return source, captured
+
+
+CA_SECOND_ZERO = "zero in m"
+
+
+@pytest.mark.parametrize("label", sorted(CA_REFUSED) + [CA_SECOND_ZERO])
+@pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
+@pytest.mark.parametrize("name", ["n05", "n06"])
+@pytest.mark.parametrize("family", sorted(CA_FAMILIES))
+def test_every_captured_pipe_section_carries_an_explicit_zero_allowance(family, name, mode, label):
+    """B7b review N-1: every committed request has one pipe, so the controls above cannot tell an every-section check
+    from a first-section one. With a second pipe appended (the first keeps 0 m) whose allowance is nonzero, absent,
+    null, non-length or malformed, both readers refuse PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE (the check is the
+    first step after the captured contract). With 0 m on the second pipe the allowance check passes and both refuse the
+    statement later, by the receipt's coverage of the captured model (SOURCE_BLOCKS_CURRENT_MODEL_SOURCE_COVERAGE: its
+    sources name one member), never for the allowance; a first-section-only check would give that code throughout."""
+    change = CA_REFUSED.get(label, lambda s: s.update(corrosion_allowance={"value": 0.0, "unit": "m"}))
+    source, captured = _ca_second_pipe_statement(family, name, mode, change)
+    assert captured["request"]["model"]["pipe_segments"][0]["section"]["corrosion_allowance"] == {"value": 0.0, "unit": "m"}
+    expected = "PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE" if label in CA_REFUSED else "SOURCE_BLOCKS_CURRENT_MODEL_SOURCE_COVERAGE"
+    with pytest.raises(ValueError) as python:
+        ps.validate_physics_source(deepcopy(source), deepcopy(captured))
+    with pytest.raises(rust_reader.ReaderRefusal) as rust:
+        rust_reader.validate("pressure-source", source, invocation=captured)
+    assert (str(python.value), rust.value.code) == (expected, expected)
+    assert ps.validate_physics_source(deepcopy(source)) is False
+    refs = [case["basis_ref"] for case in source["numerical_quality"]["cases"]]
+    standing = c.numerical_use_standing(deepcopy(source), refs, deepcopy(captured))
+    assert standing != "numerically_eligible" and standing == rust_reader.standing(source, refs, captured)["token"]
+
+
+@pytest.mark.parametrize("path",["pressure_source/load_reference_source/n05-sparse_interactive.raw.json",
                                   "pressure/load_reference/connected-sparse_interactive.raw.json"])
 def test_a_load_reference_state_statement_owns_no_carrier_namespace(path):
     """Rust `current_header` (the retired load-reference routes' guard, kept on the current group): after the identity

@@ -252,20 +252,20 @@ SECTION = ("G5b", "RETAINED_PRECISION_SECTION_MISMATCH")
 BASE_G7 = ("G7", "SOURCE_PHYSICS_EVIDENCE_INVALID")
 
 
-def m3x_invocation(invocation):
+def m3x_invocation(invocation, nu=NU):
     def change(model):
         model.update(schema_version="0.5.0", pressure_contract=dict(EXACT))
         for pipe in model["pipe_segments"]:
             pipe["section"]["corrosion_allowance"] = dict(ZERO_ALLOWANCE)
         for material in model["materials"]:
             material.pop("shear_modulus", None)
-            material.update(constitutive_basis="homogeneous_isotropic_E_nu_v1", poisson_ratio={"value": NU, "unit": "1"})
+            material.update(constitutive_basis="homogeneous_isotropic_E_nu_v1", poisson_ratio={"value": nu, "unit": "1"})
         for case in model["load_cases"]:
             case["pressure_regions"] = []
     return edited_invocation(invocation, change)
 
 
-def exact_evidence(source, invocation):
+def exact_evidence(source, invocation, nu=NU):
     """pressure-1's closed contract_evidence for the synthetic base (D4 (a)): per case, the prepared section (B3D-4), E,
     nu and G_hat, the preview successor's regenerated extrema, complete coverage and the all-zero pressure RHS."""
     body = source["retained_precision"]["body"]
@@ -288,7 +288,7 @@ def exact_evidence(source, invocation):
                              "J_m4": rp.from_bits(g["actual_polar_moment"]), "Z_m3": rp.from_bits(term["section_modulus"])})
             material = materials[pipe["material"]]
             e = material["elastic_modulus"]["value"]
-            published.append({"pipe_id": pipe["id"], "material_id": material["id"], "E_pa": e, "nu": NU, "G_pa": e / (2.0 * (1.0 + NU)),
+            published.append({"pipe_id": pipe["id"], "material_id": material["id"], "E_pa": e, "nu": nu, "G_pa": e / (2.0 * (1.0 + nu)),
                               "constitutive_basis": "homogeneous_isotropic_E_nu_v1", "thermal_consumed": False, "alpha_per_kelvin": None,
                               "provenance": material["provenance"]})
         zero = [0.0] * (6 * len(nodes))
@@ -305,16 +305,20 @@ def exact_evidence(source, invocation):
 
 
 def m3x(mode):
-    source, invocation = milestone(mode)
-    invocation = m3x_invocation(invocation)
+    return exact_successor(*milestone(mode))
+
+
+def exact_successor(source, invocation, nu=NU):
+    """A preview base (every case selected) re-stated on the exact route with `nu`, as `m3x` re-states the milestone."""
+    invocation = m3x_invocation(invocation, nu)
     source = deepcopy(source)
     source["producer"]["semantic_contract_id"] = rp.EXACT_CONTRACT_ID
     source["formulation_basis"] = {"limitations": list(PRESSURE_1_LIMITATIONS), "profile_id": rp.EXACT_PROFILE}
-    source["contract_evidence"] = exact_evidence(source, invocation)
+    source["contract_evidence"] = exact_evidence(source, invocation, nu)
     body = source["retained_precision"]["body"]
     for basis in body["material_bases"]:
         for material in basis["materials"]:
-            material["shear_origin"] = {"kind": "derived_e_nu", "poisson_ratio": rp.bits(NU), "constitutive_basis": "homogeneous_isotropic_E_nu_v1"}
+            material["shear_origin"] = {"kind": "derived_e_nu", "poisson_ratio": rp.bits(nu), "constitutive_basis": "homogeneous_isotropic_E_nu_v1"}
     for src in body["sources"]:
         for term in src["section_terms"]:
             term["geometry"]["route"] = "exact"
@@ -648,6 +652,99 @@ def test_preview_successor_invocation_carrying_an_allowance_is_refused(name, mod
     assert outcome(control, invocation) == _rust_outcome(control, invocation) == ("pass", True, "eligible")
     changed = edited_invocation(invocation, lambda m: m["pipe_segments"][0]["section"].update(corrosion_allowance=deepcopy(value)))
     forged = reseal(source, changed)
+    assert outcome(forged, changed) == _rust_outcome(forged, changed) == INVOCATION
+    assert outcome(forged, None) == ("pass", False, "needs_recompute")
+
+
+# B7b review N-1: every exact base above has one pipe and every preview edit above is on pipe 0, so none tells an
+# every-section allowance check from a first-section one. These read a pipe other than index 0.
+CA_SECOND_ZERO = "zero in m"
+
+
+def _second_pipe(change):
+    """Appends a second pipe segment to the invocation's model: a copy of the first under a new id, its section changed
+    by `change`; the first keeps its explicit 0 m."""
+    def apply(model):
+        assert len(model["pipe_segments"]) == 1
+        second = deepcopy(model["pipe_segments"][0])
+        second["id"] = f"{second['id']}-second"
+        change(second["section"])
+        model["pipe_segments"].append(second)
+    return apply
+
+
+@pytest.mark.parametrize("label", sorted(CA_REFUSED) + [CA_SECOND_ZERO])
+@pytest.mark.parametrize("mode", MODES)
+@pytest.mark.parametrize("kind", KINDS)
+def test_b3b_allowance_on_an_appended_second_pipe_is_bound_by_both_readers(kind, mode, label):
+    """On the synthetic and the producer's m3x bases (one pipe), a second pipe appended to the invocation with a nonzero,
+    absent, null, non-length or malformed allowance is outside D1.3's exact namespace in both readers (G8
+    INVOCATION_MISMATCH; the namespace runs before any G8 step that reads a pipe). With 0 m on the second pipe the
+    namespace admits it and both refuse it later, G8 PREPARATION_MISMATCH (the receipt prepared one member), not at the
+    namespace; a first-section-only check would give that code throughout."""
+    source, invocation = exact_base(mode, kind)
+    change = CA_REFUSED.get(label, lambda s: s.update(corrosion_allowance=dict(ZERO_ALLOWANCE)))
+    invocation = edited_invocation(invocation, _second_pipe(change))
+    assert invocation["request"]["model"]["pipe_segments"][0]["section"]["corrosion_allowance"] == ZERO_ALLOWANCE
+    source = reseal(source, invocation, rp.EXACT_DEFINITION_HASH)
+    expected = INVOCATION if label in CA_REFUSED else PREPARATION
+    assert outcome(source, invocation) == _rust_outcome(source, invocation) == expected
+    assert outcome(source, None) == ("pass", False, "needs_recompute")
+
+
+# Rust `retained_precision_contract.rs` EXACT_NU: the shared corpus's two-pipe synthetic bases have G = E / (2 (1 + nu)).
+EXACT_NU = 0.2987012987012987
+
+
+@pytest.mark.parametrize("label", sorted(CA_REFUSED) + sorted(CA_ADMITTED))
+@pytest.mark.parametrize("base", ["two_body_synthetic", "p512_ladder_synthetic"])
+def test_b3b_allowance_on_pipe_1_of_a_two_pipe_exact_successor(base, label):
+    """Reader-local two-pipe exact successors (Rust `exact_successor` on the same shared bases): pipe 1's allowance
+    nonzero, absent, null, non-length or malformed is refused at G8 INVOCATION_MISMATCH by both readers, and zero in any
+    length unit on pipe 1 keeps the successor eligible."""
+    source, invocation = exact_successor(SHARED[base]["source"], SHARED[base]["invocation"], EXACT_NU)
+    assert len(invocation["request"]["model"]["pipe_segments"]) == 2
+    assert outcome(source, invocation) == _rust_outcome(source, invocation) == ("pass", True, "eligible")
+    change = {**CA_REFUSED, **CA_ADMITTED}[label]
+    invocation = edited_invocation(invocation, lambda m: change(m["pipe_segments"][1]["section"]))
+    source = reseal(source, invocation, rp.EXACT_DEFINITION_HASH)
+    expected = INVOCATION if label in CA_REFUSED else ("pass", True, "eligible")
+    assert outcome(source, invocation) == _rust_outcome(source, invocation) == expected
+
+
+def _preview_base(name):
+    if name in SHARED:
+        return SHARED[name]["source"], SHARED[name]["invocation"]
+    doc = json.loads((ROOT / f"fixtures/results/retained_precision_{name}.json").read_text())
+    return doc["source"], doc["invocation"]
+
+
+def _rebind(source, invocation):
+    """Only the invocation changes, so only its digest and the receipt hash over the body follow it: no preparation
+    hash, source identity or publication hash reads the invocation. (`reseal` covers no CombinationSource.)"""
+    source = deepcopy(source)
+    body = source["retained_precision"]["body"]
+    body["invocation"]["value"] = rp._hash("source_blocks_invocation_v1", invocation)
+    source["retained_precision"]["receipt_sha256"] = rp._hash("retained_precision_receipt_mp_v2", body)
+    return source
+
+
+PREVIEW_MULTI_PIPE = [(base, pipe) for base in ("w_cb1_sparse_interactive", "w_cb1_dense_scrutiny") for pipe in (1, 31)] + [
+    (base, 1) for base in ("w_c2_successor_sparse_interactive", "w_c2_successor_dense_scrutiny")]
+
+
+@pytest.mark.parametrize("value", [{"value": 0.0, "unit": "m"}, {"value": 0.001, "unit": "m"}, None])
+@pytest.mark.parametrize("name,pipe", PREVIEW_MULTI_PIPE)
+def test_preview_allowance_on_a_pipe_other_than_the_first_is_refused(name, pipe, value):
+    """The pressure-free half on multi-pipe bases (the shared corpus's 32-pipe W-CB1 bases and the committed two-pipe
+    W-C2 successors, both modes): an allowance key on pipe 1 or the last pipe, zero and null included, is outside the
+    preview namespace in both readers."""
+    source, invocation = _preview_base(name)
+    assert len(invocation["request"]["model"]["pipe_segments"]) > pipe > 0
+    assert _rebind(source, invocation) == source
+    assert outcome(source, invocation)[0] == _rust_outcome(source, invocation)[0] == "pass"
+    changed = edited_invocation(invocation, lambda m: m["pipe_segments"][pipe]["section"].update(corrosion_allowance=deepcopy(value)))
+    forged = _rebind(source, changed)
     assert outcome(forged, changed) == _rust_outcome(forged, changed) == INVOCATION
     assert outcome(forged, None) == ("pass", False, "needs_recompute")
 

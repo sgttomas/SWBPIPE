@@ -228,8 +228,11 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
     version = source.get("schema_version")
     # A source-block receipt belongs only to its explicit method branch below;
     # the unrelated carrier namespace remains unsupported for every profile. On the exact identities (pressure-1,
-    # pressure-source-1) Rust's header has no carrier check since B7b (it went with load-reference-1's); their
-    # readers refuse the foreign namespace themselves, as here.
+    # pressure-source-1) Rust's header (`current_header`) has one carrier check, restored in B7b as the retired
+    # load-reference routes' guard: after the identity allowlist, a statement whose `contract_evidence` carries the
+    # load/reference-state group (`load_reference_states`) and a `carrier_evidence` member is refused
+    # SOURCE_PRODUCER_CONTRACT_UNSUPPORTED (mirrored below, in both header orders). Any other carrier on those
+    # identities passes the header; their readers refuse the foreign namespace themselves, as here.
     named = source.get("producer").get("semantic_contract_id") if isinstance(source.get("producer"), Mapping) else None
     if "carrier_evidence" in source and not rust_header_order and named not in {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID}:
         raise ValueError("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
