@@ -2506,14 +2506,22 @@ fn b3b_witness_inputs_and_routes() {
 /// literals and fallback enclosures, the two linear limitation sentences, the CHECKS_PASSED base
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
+/// B7b re-pin (D4 (a)/A6, registered at D3 3ce082a9bb): against the pre-B7b fixtures only the
+/// re-authored request (0.5.0, v3, Euler-Bernoulli, CA 0 m), the pressure-1 base's
+/// limitations and `profile_mode`, DEF-E's H in the preparation hash, the identity-byte
+/// counter that follows the compared profile text, and the hashes that bind them changed
+/// (B7b evidence `w1/evidence-exact-successors.txt`); every physical and certificate value is
+/// bit-identical.
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "57114af44b909de9494abe740eb14cb61aaceefae2beaf5a20b11f98f29cd0ce", "92bc0aae7ba4a9efea059fb529fe0cb2d144bd274a3756c69de379a0e4034e36", "5ef83dd9f046cb97939aa8af753a42b0b962c27bab4c73c725dc803584aee8e5"),
-    ("dense_scrutiny", "3b92b6ce2e72cd12cf3f96aa9a85ba9f2f9b3c38eed7f8879443527d5cd97e17", "7cbf1586f1fcfe2bdf65eae94f00646a872e89b47459fe87fed99fb01f25fe6b", "ee20a337dd159fdafcb512f5f5d3efaa731b176cf61423121fce2fde2f212bc0"),
+    ("sparse_interactive", "f6bb7e7fc74ebce71c67da5da81906fece54e412aa2697d5548eb13f50b67524", "25d5b9ca60401f844b0e50bbf8918ee38ff50e598603163a470faa94cc372d3e", "45e14e68249abbeafa358f9e7317e9060da8e59c83db948a8184b98b8859001c"),
+    ("dense_scrutiny", "0317aed643760641eec81708a0d5f506963e109a78c97a715617c081c28b7701", "d7caf7bb6362e66801857191c2823174d7c80f7b3f6cf1e4da104ea6e930a463", "0f490c22e7b2a25fa5dc1dd3d3a7ae7a701c744bfaac2fc2a2aa8f95f3451259"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
 /// reviewed retained-owner changes; the independent controls below remain unchanged.
-const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "09f13b7642352db26d3fc1f8ddcf4aea662e336cc87462d191a28f57191c0127", "dbcb4e03faf9c14b6baefa188ddb096fd84974473168082cba090b01fa7cb44b"), ("dense_scrutiny", "6a3d852231b21ee7c77e9b4fe334326248d2fdf86643d36cfbf8ab728a562cae", "3b65909ce7eeecef2a7e17b371292ac9c91e30bb773b5bc19cd8528f7b648e9a")];
+/// B7b re-pin: read from the producer after the one re-authoring of `m3x_mix_anchor` and D3's
+/// registration, on the same route and value classes as `EXACT_PINNED`.
+const MIX_PINNED: [(&str, &str, &str); 2] = [("sparse_interactive", "b571d188dd19c47efa15285d7f09d31a78c33284a17bbf593b42cff8e7f23bab", "d71b9da9ec787bf109fc2476214c2a1c562674701faa337b3a29e147b9c223bf"), ("dense_scrutiny", "13e5dc135cc0f1a6a9c8842d45616be214d7f91d5e77abec108a37e999ac13d5", "c15296ebd2160d22d489840abe0f0b3eda7712479a715d10ae55d5a2022e6dbe")];
 /// The exact successor's fixture document (D-U6-5's form).
 fn exact_document(raw: &Value, mode: PreviewSolverMode, successor: &Value) -> String {
     serde_json::to_string_pretty(&json!({"id":format!("b3b_m3x_{}", mode.as_str()),"source":successor,
@@ -2988,20 +2996,26 @@ fn b3b_exact_observables_refuse_each_evidence_defect() {
 /// B3a is dropped (RR "Owner decisions: the legacy pressure contract is retired product-wide;
 /// …"): `m3l`, B3a's former witness, is now its refusal witness. G-A refuses it at D1.3 with
 /// `PressureContract`, so it takes the ordinary route: the plain bytes, no W1, one run, in both
-/// modes and every build.
+/// modes and every build. B7b: model document 0.3.0 is retired, so the label is carried by
+/// `m3l`'s copy re-authored to 0.5.0 (the legacy label kept; it is not an exact contract, so no
+/// allowance is added); the frozen 0.3.0 `m3l` itself is refused earlier, by `SchemaVersion`.
 #[test]
 fn b3a_dropped_m3l_takes_the_ordinary_route() {
     use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
-    for mode in MODES {
-        let raw = m3l();
-        let plain = plain(mode, &raw);
-        let (output, counts) = direct(&raw, mode);
-        assert_eq!(output.admission().unwrap().law().domain, Some(AdmissionRefusal::Family(D1Clause::Namespace, FamilyFact::PressureContract)),
-            "{mode:?}: D1.3 refuses the label");
-        assert!(output.admission().unwrap().law().refusal.is_some(), "{mode:?}: G-A refuses");
-        assert!(output.retained().is_none() && output.successor().is_none(), "{mode:?}: no W1");
-        assert_eq!(counts, ONE_RUN, "{mode:?}");
-        assert_eq!(published(output), plain, "{mode:?}: the ordinary route's bytes");
+    let current = crate::b7b_admission_tests::reauthor_current_request(m3l());
+    assert_eq!(current["model"]["schema_version"], json!("0.5.0"));
+    assert_eq!(current["model"]["pressure_contract"], json!({"version": "1.0.0", "mode": "legacy_pressure_v1"}));
+    for (raw, fact) in [(current, FamilyFact::PressureContract), (m3l(), FamilyFact::SchemaVersion)] {
+        for mode in MODES {
+            let plain = plain(mode, &raw);
+            let (output, counts) = direct(&raw, mode);
+            assert_eq!(output.admission().unwrap().law().domain, Some(AdmissionRefusal::Family(D1Clause::Namespace, fact)),
+                "{mode:?}: D1.3 refuses the {fact:?}");
+            assert!(output.admission().unwrap().law().refusal.is_some(), "{mode:?}: G-A refuses");
+            assert!(output.retained().is_none() && output.successor().is_none(), "{mode:?}: no W1");
+            assert_eq!(counts, ONE_RUN, "{mode:?}");
+            assert_eq!(published(output), plain, "{mode:?}: the ordinary route's bytes");
+        }
     }
 }
 
@@ -3129,11 +3143,13 @@ fn two_member_exact(reversed: bool) -> Value {
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
 /// reviewed retained-owner changes; the independent controls below remain unchanged.
+/// B7b re-pin: read from the producer after the one re-authoring (M2's authored zero allowance
+/// included) and D3's registration, on the same route and value classes as `EXACT_PINNED`.
 const TWO_MEMBER_PINNED: [(bool, &str, &str); 4] = [
-    (false, "sparse_interactive", "f67e5e0793d062a7edfde91e5c33d2730b6975e8ebaa2f5a871d4735c02aa1a1"),
-    (false, "dense_scrutiny", "cb0b23fc4f7a941c2325311651f5491b1960fe7827aff4363d0e28215c4ada8f"),
-    (true, "sparse_interactive", "7f60f8ff5b8f193c7aef5231800e6da8ceeb727a848f64b39ab83fc717bd7246"),
-    (true, "dense_scrutiny", "d9e24e5fcd50a89015b0a3c07624f2dceec6d68965d0b94aa7e6df0cf53b3681")];
+    (false, "sparse_interactive", "64e5aa3552151fda1e88c57eeb76cf83e53004dd5f3d61c9b64141b376d63676"),
+    (false, "dense_scrutiny", "43307db54dcb7cf976d7d97447668d64ca3283ec94955d6553a6cd3efc6060fe"),
+    (true, "sparse_interactive", "4952144457d1ba23330e5c389d4f9d646c82d89d0a8855b793dc67cf50b84107"),
+    (true, "dense_scrutiny", "66c8d4ff9da1704b2041f97d3a48aa24ddfc4606d13c8462b8748624cf369f4d")];
 /// RV123 S-1: a two-member exact successor, in both authored member orders and both modes: each
 /// member's `pipe_sections` entry takes its own prepared A, I, J and Z (`assert_exact_successor`),
 /// and M2's prepared section differs from its source annulus's in at least one value, so the
@@ -3163,8 +3179,10 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// RV123 S-2's pins: (mode, sha256 of the successor's bytes).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
 /// reviewed retained-owner changes; the independent controls below remain unchanged.
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "9e00e5559cda3fe5edbf1b0c568d9463ad88a4059402dc563236e8b831da0a35"),
-    ("dense_scrutiny", "86ed6d8ff799e38d5832e3617ee42bcc50d4a779bbd864b4d8ecaf18a7173f04")];
+/// B7b re-pin: read from the producer after the one re-authoring and D3's registration, on the
+/// same route and value classes as `EXACT_PINNED`.
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "bfdce6d2f065ba1239fe2c347941102004e25952544da25f2ec6ecd8038709ff"),
+    ("dense_scrutiny", "a503732194b03d48c98b6af621a20a96e1bd6557144dd03c37d947b924bb3a9b")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),

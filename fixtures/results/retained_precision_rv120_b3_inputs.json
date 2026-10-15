@@ -1,5 +1,5 @@
 {
- "description": "RV120 (RV-R2, B3 readers) inputs pinned in the Python reader's B3 tests (I100 B3 repair 01): its G5b order probe with its controls (F1), and its four E/G-hat forgeries (F2). Each is stated as edits from a base the tests already hold, in the shared corpus grammar (07n), and is resealed by the 07e format rule with DEF-E's H. The preserved RV120 mutations are materialized on the current bases and resealed with the current DEF-E. input_sha256 is the sha256 of Python compact, key-sorted JSON of [source, invocation]; the full constructed values also match the current native R1 inputs under JCS. The historical INPUTS_INDEX is provenance, not the current byte identity. Repair 02 (I101) adds RV120's N2 probe, an exact_cases entry for a case not in the invocation, on both bases. Repair 03 (I101) adds the N2b two-fault probe on the exact two_case_synthetic (one entry's profile_mode, the other's material_basis) and its swap, materialized by the Rust reader's B3b shape list.",
+ "description": "RV120 (RV-R2, B3 readers) inputs pinned in the Python reader's B3 tests (I100 B3 repair 01): its G5b order probe with its controls (F1), and its four E/G-hat forgeries (F2). Each is stated as edits from a base the tests already hold, in the shared corpus grammar (07n), and is resealed by the 07e format rule with DEF-E's H. The preserved RV120 mutations are materialized on the current bases and resealed with the current DEF-E. input_sha256 is the sha256 of Python compact, key-sorted JSON of [source, invocation]; the full constructed values also match the current native R1 inputs under JCS. The historical INPUTS_INDEX is provenance, not the current byte identity. Repair 02 (I101) adds RV120's N2 probe, an exact_cases entry for a case not in the invocation, on both bases. Repair 03 (I101) adds the N2b two-fault probe on the exact two_case_synthetic (one entry's profile_mode, the other's material_basis) and its swap, materialized by the Rust reader's B3b shape list. B7b re-states every shape on the current exact route (model 0.5.0, 3.0.0/exact_pressure_v3 with euler_bernoulli and an authored zero corrosion allowance; exact_cases profile_mode exact_pressure_v3; the pressure-1 base's current limitations) and on the current m3x successors; each shape's mutation and documented outcome are unchanged.",
  "record": "R/REVIEW_RV120/b3_readers_01/evidence/readers: g5b_order_inputs.jsonl.gz, forge_eg_inputs.jsonl.gz, INPUTS_INDEX.jsonl; N2: b3_probes (its INPUTS_INDEX sha256); N2b: the Rust reader's B3B_INPUTS_OUT (repair 03)",
  "bases": {
   "corpus": "fixtures/results/retained_precision_cases.json, the case with this id (RS's exact construction starts from it)",
@@ -13,7 +13,7 @@
    ],
    "name": "X G5b control: case 0's evidence As_m2 one ulp [two_case_synthetic]",
    "want": "G5b SECTION_MISMATCH",
-   "input_sha256": "f30338cabc5046a26f118a0c96272d7fa00d9caffe41348e3eafd08b4a2e67a7",
+   "input_sha256": "e22b21c0efa504ce84ac3cefb08e68e90e6cf4f6e2867cbdb4bffe1246f7b2b2",
    "edits": [
     {
      "op": "remove",
@@ -164,7 +164,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -290,7 +290,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -310,64 +310,20 @@
      "op": "set",
      "path": [
       "formulation_basis",
-      "limitations",
-      0
+      "limitations"
      ],
-     "value": "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      1
-     ],
-     "value": "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      2
-     ],
-     "value": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      3
-     ],
-     "value": "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      4
-     ],
-     "value": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      5
-     ],
-     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      6
-     ],
-     "value": "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+     "value": [
+      "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+      "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
+      "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
+      "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+      "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+     ]
     },
     {
      "op": "set",
@@ -531,11 +487,27 @@
      "path": [
       "request",
       "model",
+      "pipe_segments",
+      0,
+      "section",
+      "corrosion_allowance"
+     ],
+     "value": {
+      "unit": "m",
+      "value": 0.0
+     }
+    },
+    {
+     "op": "set",
+     "path": [
+      "request",
+      "model",
       "pressure_contract"
      ],
      "value": {
-      "mode": "exact_straight_pressure_v2",
-      "version": "2.0.0"
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
+      "version": "3.0.0"
      }
     },
     {
@@ -545,7 +517,7 @@
       "model",
       "schema_version"
      ],
-     "value": "0.3.0"
+     "value": "0.5.0"
     }
    ]
   },
@@ -556,7 +528,7 @@
    ],
    "name": "X G5b control: case 1's body_scales force one ulp [two_case_synthetic]",
    "want": "G5b SCALE_MISMATCH",
-   "input_sha256": "2e009d988dc7c7b2b010b8cc930759a63fe8970c009b667a44c1f461d8f0a602",
+   "input_sha256": "7f9fa3f1ae97a869fce58b43df44be63cf62999790f0ed6cfce91390040ce924",
    "edits": [
     {
      "op": "remove",
@@ -707,7 +679,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -833,7 +805,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -853,64 +825,20 @@
      "op": "set",
      "path": [
       "formulation_basis",
-      "limitations",
-      0
+      "limitations"
      ],
-     "value": "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      1
-     ],
-     "value": "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      2
-     ],
-     "value": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      3
-     ],
-     "value": "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      4
-     ],
-     "value": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      5
-     ],
-     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      6
-     ],
-     "value": "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+     "value": [
+      "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+      "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
+      "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
+      "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+      "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+     ]
     },
     {
      "op": "set",
@@ -1088,11 +1016,27 @@
      "path": [
       "request",
       "model",
+      "pipe_segments",
+      0,
+      "section",
+      "corrosion_allowance"
+     ],
+     "value": {
+      "unit": "m",
+      "value": 0.0
+     }
+    },
+    {
+     "op": "set",
+     "path": [
+      "request",
+      "model",
       "pressure_contract"
      ],
      "value": {
-      "mode": "exact_straight_pressure_v2",
-      "version": "2.0.0"
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
+      "version": "3.0.0"
      }
     },
     {
@@ -1102,7 +1046,7 @@
       "model",
       "schema_version"
      ],
-     "value": "0.3.0"
+     "value": "0.5.0"
     }
    ]
   },
@@ -1113,7 +1057,7 @@
    ],
    "name": "X G5b order: case 0's evidence As_m2 and case 1's body_scales force [two_case_synthetic]",
    "want": "G5b SCALE_MISMATCH",
-   "input_sha256": "4c3ab8a05242a745dfbb1b0de181e69bb45c53f445cd7f376354934caa729881",
+   "input_sha256": "284db21df4772282f61fe3eb01912304a3eaa919d92b712dad765602ad7244ee",
    "edits": [
     {
      "op": "remove",
@@ -1264,7 +1208,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -1390,7 +1334,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -1410,64 +1354,20 @@
      "op": "set",
      "path": [
       "formulation_basis",
-      "limitations",
-      0
+      "limitations"
      ],
-     "value": "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      1
-     ],
-     "value": "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      2
-     ],
-     "value": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      3
-     ],
-     "value": "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      4
-     ],
-     "value": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      5
-     ],
-     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      6
-     ],
-     "value": "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+     "value": [
+      "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+      "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
+      "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
+      "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+      "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+     ]
     },
     {
      "op": "set",
@@ -1645,11 +1545,27 @@
      "path": [
       "request",
       "model",
+      "pipe_segments",
+      0,
+      "section",
+      "corrosion_allowance"
+     ],
+     "value": {
+      "unit": "m",
+      "value": 0.0
+     }
+    },
+    {
+     "op": "set",
+     "path": [
+      "request",
+      "model",
       "pressure_contract"
      ],
      "value": {
-      "mode": "exact_straight_pressure_v2",
-      "version": "2.0.0"
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
+      "version": "3.0.0"
      }
     },
     {
@@ -1659,7 +1575,7 @@
       "model",
       "schema_version"
      ],
-     "value": "0.3.0"
+     "value": "0.5.0"
     }
    ]
   },
@@ -1670,7 +1586,7 @@
    ],
    "name": "X G5b order: case 0's evidence As_m2 and case 1's section term area [two_case_synthetic]",
    "want": "G5b SECTION_MISMATCH",
-   "input_sha256": "65ce9b337a3bd615b65e75fd12809624177543db18ad14dc97505ac1a21adcbf",
+   "input_sha256": "221fe2157bb7a8bbfcb260b9776629348cdda926a7256bd3b46874ed865232d5",
    "edits": [
     {
      "op": "remove",
@@ -1821,7 +1737,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -1947,7 +1863,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -1967,64 +1883,20 @@
      "op": "set",
      "path": [
       "formulation_basis",
-      "limitations",
-      0
+      "limitations"
      ],
-     "value": "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      1
-     ],
-     "value": "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      2
-     ],
-     "value": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      3
-     ],
-     "value": "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      4
-     ],
-     "value": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      5
-     ],
-     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      6
-     ],
-     "value": "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+     "value": [
+      "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+      "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
+      "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
+      "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+      "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+     ]
     },
     {
      "op": "set",
@@ -2202,11 +2074,27 @@
      "path": [
       "request",
       "model",
+      "pipe_segments",
+      0,
+      "section",
+      "corrosion_allowance"
+     ],
+     "value": {
+      "unit": "m",
+      "value": 0.0
+     }
+    },
+    {
+     "op": "set",
+     "path": [
+      "request",
+      "model",
       "pressure_contract"
      ],
      "value": {
-      "mode": "exact_straight_pressure_v2",
-      "version": "2.0.0"
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
+      "version": "3.0.0"
      }
     },
     {
@@ -2216,7 +2104,7 @@
       "model",
       "schema_version"
      ],
-     "value": "0.3.0"
+     "value": "0.5.0"
     }
    ]
   },
@@ -2227,7 +2115,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [ordinary_prepared_synthetic]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "0a2317c3fdbe00739f723ed9711a0a527d8579f34a7beb10bdf5ec486abd5951",
+   "input_sha256": "dc6b6d259ce53cac811a2fc50943b9e2d7add290c6e80a1af448c71d9601b7eb",
    "edits": [
     {
      "op": "remove",
@@ -2378,7 +2266,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -2398,64 +2286,20 @@
      "op": "set",
      "path": [
       "formulation_basis",
-      "limitations",
-      0
+      "limitations"
      ],
-     "value": "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      1
-     ],
-     "value": "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      2
-     ],
-     "value": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      3
-     ],
-     "value": "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      4
-     ],
-     "value": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      5
-     ],
-     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      6
-     ],
-     "value": "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+     "value": [
+      "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+      "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
+      "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
+      "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+      "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+     ]
     },
     {
      "op": "set",
@@ -2745,11 +2589,27 @@
      "path": [
       "request",
       "model",
+      "pipe_segments",
+      0,
+      "section",
+      "corrosion_allowance"
+     ],
+     "value": {
+      "unit": "m",
+      "value": 0.0
+     }
+    },
+    {
+     "op": "set",
+     "path": [
+      "request",
+      "model",
       "pressure_contract"
      ],
      "value": {
-      "mode": "exact_straight_pressure_v2",
-      "version": "2.0.0"
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
+      "version": "3.0.0"
      }
     },
     {
@@ -2759,7 +2619,7 @@
       "model",
       "schema_version"
      ],
-     "value": "0.3.0"
+     "value": "0.5.0"
     }
    ]
   },
@@ -2770,7 +2630,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [ordinary_prepared_synthetic]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "2e0c0d8cfa175a586aaf383e0ef941e2dfb25812bfc8207f3b88c313e3b7cac2",
+   "input_sha256": "11b6f1b05000ae88d6667b342f047ed0743dc9f70d2301bd5d08303e750a460e",
    "edits": [
     {
      "op": "remove",
@@ -2921,7 +2781,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -2941,64 +2801,20 @@
      "op": "set",
      "path": [
       "formulation_basis",
-      "limitations",
-      0
+      "limitations"
      ],
-     "value": "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      1
-     ],
-     "value": "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      2
-     ],
-     "value": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      3
-     ],
-     "value": "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      4
-     ],
-     "value": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      5
-     ],
-     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
-    },
-    {
-     "op": "set",
-     "path": [
-      "formulation_basis",
-      "limitations",
-      6
-     ],
-     "value": "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+     "value": [
+      "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+      "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
+      "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
+      "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+      "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+     ]
     },
     {
      "op": "set",
@@ -3288,11 +3104,27 @@
      "path": [
       "request",
       "model",
+      "pipe_segments",
+      0,
+      "section",
+      "corrosion_allowance"
+     ],
+     "value": {
+      "unit": "m",
+      "value": 0.0
+     }
+    },
+    {
+     "op": "set",
+     "path": [
+      "request",
+      "model",
       "pressure_contract"
      ],
      "value": {
-      "mode": "exact_straight_pressure_v2",
-      "version": "2.0.0"
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
+      "version": "3.0.0"
      }
     },
     {
@@ -3302,7 +3134,7 @@
       "model",
       "schema_version"
      ],
-     "value": "0.3.0"
+     "value": "0.5.0"
     }
    ]
   },
@@ -3313,7 +3145,7 @@
    ],
    "name": "forge E-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "8e8f73be26d3564106dc51b87aaa28654f4998aa3e32bba274f6f377d21a9d19",
+   "input_sha256": "8dba9bd87a92402e03cd606590973379b7a3cec106c2b1a557307832103abb04",
    "edits": [
     {
      "op": "set",
@@ -3487,7 +3319,7 @@
    ],
    "name": "forge G-hat+1ulp, every copy, native hashes resealed [m3x_sparse_interactive]",
    "want": "G8 PREPARATION_MISMATCH",
-   "input_sha256": "91a7b86010995c43a5219912b4ed069654c3c07b8ebc17788e57681c498ca5eb",
+   "input_sha256": "c7b56ccc1e3da825da47402d843939373fd31baa75bf0067a215f737445ce76e",
    "edits": [
     {
      "op": "set",
@@ -3673,7 +3505,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [ordinary_prepared_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "8a07c28b79470b09dfbce4604b5f4fea474d8842add26522d687645e4535f31d",
+   "input_sha256": "2ebef3d9e411677d4640316b4645c0cf71fa2bea0eefe1ab925c5df775152cf3",
    "edits": [
     {
      "path": [
@@ -3824,7 +3656,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -3950,7 +3782,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -3969,65 +3801,21 @@
     {
      "path": [
       "formulation_basis",
-      "limitations",
-      0
+      "limitations"
      ],
      "op": "set",
-     "value": "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      1
-     ],
-     "op": "set",
-     "value": "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      2
-     ],
-     "op": "set",
-     "value": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      3
-     ],
-     "op": "set",
-     "value": "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      4
-     ],
-     "op": "set",
-     "value": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      5
-     ],
-     "op": "set",
-     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      6
-     ],
-     "op": "set",
-     "value": "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+     "value": [
+      "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+      "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
+      "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
+      "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+      "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+     ]
     },
     {
      "path": [
@@ -4154,12 +3942,28 @@
      "path": [
       "request",
       "model",
+      "pipe_segments",
+      0,
+      "section",
+      "corrosion_allowance"
+     ],
+     "op": "set",
+     "value": {
+      "unit": "m",
+      "value": 0.0
+     }
+    },
+    {
+     "path": [
+      "request",
+      "model",
       "pressure_contract"
      ],
      "op": "set",
      "value": {
-      "mode": "exact_straight_pressure_v2",
-      "version": "2.0.0"
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
+      "version": "3.0.0"
      }
     },
     {
@@ -4169,7 +3973,7 @@
       "schema_version"
      ],
      "op": "set",
-     "value": "0.3.0"
+     "value": "0.5.0"
     }
    ]
   },
@@ -4180,7 +3984,7 @@
    ],
    "name": "X G8: an exact_cases entry for a case not in the invocation [m3x_sparse_interactive]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (transport: maximum result ID)",
-   "input_sha256": "e9e32e0936e935140b4dc500fdb5895465c663757a85bb2bfdaae737b9195015",
+   "input_sha256": "a8ee673d485a31c386e9c642ef23413e6090429492a8da9effd1d1af6959c15f",
    "edits": [
     {
      "path": [
@@ -4309,7 +4113,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -4435,7 +4239,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -4453,7 +4257,7 @@
    ],
    "name": "N2b: entry 0's profile_mode and entry 1's material_basis [two_case_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
-   "input_sha256": "2a6ee6458e36e36bee419a0f2d66e404c6e1dba5b7c0ccdeb11bd4fceddbed97",
+   "input_sha256": "53338fcbc086e94b9acfcb19bde4f54e2052457cb6b32bbcf3edd71fb5e019aa",
    "edits": [
     {
      "path": [
@@ -4730,7 +4534,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -4749,65 +4553,21 @@
     {
      "path": [
       "formulation_basis",
-      "limitations",
-      0
+      "limitations"
      ],
      "op": "set",
-     "value": "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      1
-     ],
-     "op": "set",
-     "value": "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      2
-     ],
-     "op": "set",
-     "value": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      3
-     ],
-     "op": "set",
-     "value": "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      4
-     ],
-     "op": "set",
-     "value": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      5
-     ],
-     "op": "set",
-     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      6
-     ],
-     "op": "set",
-     "value": "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+     "value": [
+      "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+      "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
+      "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
+      "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+      "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+     ]
     },
     {
      "path": [
@@ -4970,12 +4730,28 @@
      "path": [
       "request",
       "model",
+      "pipe_segments",
+      0,
+      "section",
+      "corrosion_allowance"
+     ],
+     "op": "set",
+     "value": {
+      "unit": "m",
+      "value": 0.0
+     }
+    },
+    {
+     "path": [
+      "request",
+      "model",
       "pressure_contract"
      ],
      "op": "set",
      "value": {
-      "mode": "exact_straight_pressure_v2",
-      "version": "2.0.0"
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
+      "version": "3.0.0"
      }
     },
     {
@@ -4985,7 +4761,7 @@
       "schema_version"
      ],
      "op": "set",
-     "value": "0.3.0"
+     "value": "0.5.0"
     }
    ]
   },
@@ -4996,7 +4772,7 @@
    ],
    "name": "N2b: entry 0's material_basis and entry 1's profile_mode [two_case_synthetic]",
    "want": "G7 SOURCE_PHYSICS_EVIDENCE_INVALID (case profile/material basis; transport: evidence shape)",
-   "input_sha256": "2d955c9ed61513b5ce702a7482de21bc48ac8de722d57996203237c81d019ec5",
+   "input_sha256": "9730fdc2875508ac3a2d107be60172cdc8709452c57291b638297d39fa4fa67b",
    "edits": [
     {
      "path": [
@@ -5147,7 +4923,7 @@
         "screen_limit": 1e-09,
         "screen_roundoff_multiplier": 32
        },
-       "profile_mode": "exact_straight_pressure_v2",
+       "profile_mode": "exact_pressure_v3",
        "stress_maximum_coverage": {
         "complete": true,
         "unavailable_pipe_ids": []
@@ -5292,65 +5068,21 @@
     {
      "path": [
       "formulation_basis",
-      "limitations",
-      0
+      "limitations"
      ],
      "op": "set",
-     "value": "Small-displacement homogeneous-isotropic straight circular members with explicit common E/nu selection; G is derived, and source OD/effective wall define the section."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      1
-     ],
-     "op": "set",
-     "value": "Pressure is internal differential with zero external pressure, explicit case-scoped collinear equal-bore regions and closure-transfer paths; pressure bends, joints and nonlinear support composition remain unimplemented."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      2
-     ],
-     "op": "set",
-     "value": "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      3
-     ],
-     "op": "set",
-     "value": "Pressure is uniform within each region. Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      4
-     ],
-     "op": "set",
-     "value": "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      5
-     ],
-     "op": "set",
-     "value": "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline."
-    },
-    {
-     "path": [
-      "formulation_basis",
-      "limitations",
-      6
-     ],
-     "op": "set",
-     "value": "Exact-profile combinations and equivalent-static generators remain unsupported; no code compliance or professional acceptance is produced, and actual numerical admission remains separate."
+     "value": [
+      "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+      "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
+      "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
+      "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
+      "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
+      "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
+      "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+     ]
     },
     {
      "path": [
@@ -5513,12 +5245,28 @@
      "path": [
       "request",
       "model",
+      "pipe_segments",
+      0,
+      "section",
+      "corrosion_allowance"
+     ],
+     "op": "set",
+     "value": {
+      "unit": "m",
+      "value": 0.0
+     }
+    },
+    {
+     "path": [
+      "request",
+      "model",
       "pressure_contract"
      ],
      "op": "set",
      "value": {
-      "mode": "exact_straight_pressure_v2",
-      "version": "2.0.0"
+      "mode": "exact_pressure_v3",
+      "shear_model": "euler_bernoulli",
+      "version": "3.0.0"
      }
     },
     {
@@ -5528,7 +5276,7 @@
       "schema_version"
      ],
      "op": "set",
-     "value": "0.3.0"
+     "value": "0.5.0"
     }
    ]
   }

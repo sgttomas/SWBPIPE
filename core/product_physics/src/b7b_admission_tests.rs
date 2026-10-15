@@ -190,24 +190,39 @@ fn b7b_absent_contract_objective_connector_keeps_its_named_refusal() {
     assert!(public_codes(raw).iter().any(|code| code == "PREVIEW_CONTRACT_VERSION_MISMATCH"));
 }
 
+/// B7b D3 (3ce082a9bb) registered the current source, so the former interim fact (the changed
+/// source was unregistered and issued no permit) is replaced by the current one: this build is
+/// the registered profile (M = 12 GiB), its binding is exact (a changed reviewed input or another
+/// build identity is Stale), the public Direct route reports Registered and issues the capture
+/// permit for an admitted exact request, and Headless stays refused at D1.0 (D-2).
 #[test]
-fn b7b_changed_source_is_unregistered_and_cannot_issue_a_permit() {
-    assert!(matches!(retained_memory::retained_profile(), Err(ProfileStatus::Missing)));
+fn b7b_current_source_is_registered_and_issues_a_permit() {
+    use retained_memory::{bindings_hold, identity_match, LAYOUT_WITNESSES, READER_LAYOUTS};
+    let facts = retained_memory::retained_profile().expect("the current source is the registered profile");
+    assert_eq!(facts.qualified_limit(), RetainedByteLimit::new(12_884_901_888));
+    let compiled = option_env!("OPS_RETAINED_REVIEWED_INPUTS").expect("build.rs records the reviewed inputs");
+    assert!(bindings_hold(LAYOUT_WITNESSES, Some(compiled), compiled, &READER_LAYOUTS, &READER_LAYOUTS));
+    // Any one changed reviewed-input digest breaks the binding: the build would be Stale.
+    let last = compiled.chars().last().unwrap();
+    let changed = format!("{}{}", &compiled[..compiled.len() - 1], if last == '0' { '1' } else { '0' });
+    assert!(!bindings_hold(LAYOUT_WITNESSES, Some(&changed), compiled, &READER_LAYOUTS, &READER_LAYOUTS));
+    assert_eq!(identity_match(Some(facts.identity()), [facts.identity()].into_iter()), Ok(0));
+    assert_eq!(identity_match(Some("v1;another-build"), [facts.identity()].into_iter()), Err(ProfileStatus::Stale));
     for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
-        let raw = request();
-        let output = run_linear_static_preview_value_with_retained_direct(
-            raw.clone(), mode, RetainedByteLimit::new(0),
-        ).unwrap();
-        assert_eq!(output.admission().unwrap().profile, ProfileStatus::Missing);
-        assert!(output.retained().is_none());
-        assert!(matches!(output.into_publication(), RetainedPublication::Ordinary(_)));
+        let raw = crate::retained_facade_tests::m3x();
+        let output = run_linear_static_preview_value_with_retained_direct(raw.clone(), mode, facts.qualified_limit()).unwrap();
+        let admission = output.admission().unwrap();
+        assert_eq!(admission.profile, ProfileStatus::Registered, "{mode:?}");
+        assert_eq!(admission.law().refusal, None, "{mode:?}: the permit is issued");
+        assert!(output.retained().is_some(), "{mode:?}: W1 ran under the permit");
         let invocation = json!({"request": &raw, "solver_mode": mode.as_str()});
         let request_id = "request:b7b".to_string();
         let context = RetainedHeadlessContext::from_borrowed_roots(&raw, &invocation, &request_id);
         let output = run_linear_static_preview_value_with_retained_headless(
-            raw.clone(), mode, context, RetainedByteLimit::new(0),
+            raw.clone(), mode, context, facts.qualified_limit(),
         ).unwrap();
-        assert_eq!(output.admission().unwrap().profile, ProfileStatus::Missing);
+        assert_eq!(output.admission().unwrap().profile, ProfileStatus::Registered, "{mode:?}");
+        assert!(output.admission().unwrap().law().refusal.is_some(), "{mode:?}: Headless is refused at D1.0");
         assert!(output.retained().is_none());
         assert!(matches!(output.into_publication(), RetainedPublication::Ordinary(_)));
     }
