@@ -76,26 +76,28 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "45e14e68249abbeafa358f9e7317e9060da8e59c83db948a8184b98b8859001c",
-        "f6bb7e7fc74ebce71c67da5da81906fece54e412aa2697d5548eb13f50b67524",
+        "79d40f1a67c74efa911e408fca9c19c45ea9b6d9de7f60de97973fa66e798b1f",
+        "d231b6ee48ed52f7accef419e25d631d4b4d0971940431aa2ca91f3eaeb1c75c",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "0f490c22e7b2a25fa5dc1dd3d3a7ae7a701c744bfaac2fc2a2aa8f95f3451259",
-        "0317aed643760641eec81708a0d5f506963e109a78c97a715617c081c28b7701",
+        "c9336f5155e654f67958d932d974cecb54423d80cd72c14fc868a15cb7791b3b",
+        "07742144211b669b283ee455afa739511b4ba0cd1ec4bdbcdadf47fe9ae0ae46",
     ),
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "4af45d2536aad6849c384d271d67b2732654455e88b60411c2a5c8a1adaf2ead"),
-    ("dense_scrutiny", "9de40cffb951167fd6cedb4ed62dfb1204aeea92194fee22b6848b46bb0c53a8"),
+    ("sparse_interactive", "a5947cdefa432a69bafa0b8bae62f7ddefd7d17d2e13ba00b85fcfe1553d8922"),
+    ("dense_scrutiny", "f0eafab7b254258c644bac3817f992282f8cb44932263a2b390130f8a7bfa97a"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
-/// non-quantity); no `not_covered` row.
+/// non-quantity); no `not_covered` row. T4-U6 (D-5 §2.5): each of the member's 21
+/// reduced stress twins takes its nominal row's class (5 relative, 16 absolute;
+/// the receipt's own lists stay at 25 and 69).
 const EXACT_CLASSES: [(&str, [usize; 4]); 2] = [
-    ("sparse_interactive", [25, 69, 3, 1]),
-    ("dense_scrutiny", [25, 69, 3, 1]),
+    ("sparse_interactive", [25 + 5, 69 + 16, 3, 1]),
+    ("dense_scrutiny", [25 + 5, 69 + 16, 3, 1]),
 ];
 /// One set of goldens: the pinned successors, their identity, the goldens' file
 /// prefix and sha256, and the class counts; `label` prefixes the mode in messages

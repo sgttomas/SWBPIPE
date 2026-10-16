@@ -591,9 +591,10 @@ B3B_PASSES = {
 # Lane P's producer-solved m3x successors (B3b-P, b2 8d3419b542; PP retained_facade_tests.rs `EXACT_PINNED`):
 # document and receipt sha256, as RS pins them. Every B3b shape is also read on each. B7b's W1 regeneration (the
 # current 0.5.0 exact document; PP retained_facade_tests.rs and RS retained_precision_contract.rs `M3X` pin the same
-# bytes) replaced 5ef83dd9.../57114af4... and ee20a337.../3b92b6ce....
-EXACT_PINNED = {"sparse_interactive": ("45e14e68249abbeafa358f9e7317e9060da8e59c83db948a8184b98b8859001c", "f6bb7e7fc74ebce71c67da5da81906fece54e412aa2697d5548eb13f50b67524"),
-                "dense_scrutiny": ("0f490c22e7b2a25fa5dc1dd3d3a7ae7a701c744bfaac2fc2a2aa8f95f3451259", "0317aed643760641eec81708a0d5f506963e109a78c97a715617c081c28b7701")}
+# bytes) replaced 5ef83dd9.../57114af4... and ee20a337.../3b92b6ce.... T4-U6's regeneration on the D-5 producer
+# (reduced stress twins, per-basis headlines and evidence) replaced 45e14e68.../f6bb7e7f... and 0f490c22.../0317aed6....
+EXACT_PINNED = {"sparse_interactive": ("79d40f1a67c74efa911e408fca9c19c45ea9b6d9de7f60de97973fa66e798b1f", "d231b6ee48ed52f7accef419e25d631d4b4d0971940431aa2ca91f3eaeb1c75c"),
+                "dense_scrutiny": ("c9336f5155e654f67958d932d974cecb54423d80cd72c14fc868a15cb7791b3b", "07742144211b669b283ee455afa739511b4ba0cd1ec4bdbcdadf47fe9ae0ae46")}
 KINDS = ("synthetic", "producer")
 
 

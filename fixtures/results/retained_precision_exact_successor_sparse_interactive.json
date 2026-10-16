@@ -234,17 +234,36 @@
           ],
           "pipe_sections": [
             {
-              "Ai_m2": 0.02544690049407733,
-              "As_m2": 0.005969026041820607,
-              "I_m4": 0.000027009842839238254,
-              "J_m4": 0.00005401968567847651,
-              "Z_m3": 0.0002700984283923825,
-              "effective_wall_thickness_m": 0.01,
-              "geometry_basis": "authored_normalized_od_wall_v1",
+              "beam_theory": {
+                "model": "euler_bernoulli"
+              },
+              "corrosion_allowance_m": 0.0,
+              "geometry_basis": "authored_od_wall_d5_sections_v1",
+              "mill_tolerance_m": 0.0,
+              "nominal_section": {
+                "As_m2": 0.005969026041820607,
+                "I_m4": 0.000027009842839238254,
+                "J_m4": 0.00005401968567847651,
+                "Z_m3": 0.0002700984283923825,
+                "ri_m": 0.09000000000000001,
+                "wall_m": 0.01
+              },
               "outside_diameter_m": 0.2,
               "pipe_id": "M1",
-              "ri_m": 0.09000000000000001,
-              "ro_m": 0.1
+              "pressure_bore": {
+                "Ai_m2": 0.02544690049407733,
+                "ri_m": 0.09000000000000001
+              },
+              "reduced_section": {
+                "As_m2": 0.005969026041820607,
+                "I_m4": 0.000027009842839238254,
+                "J_m4": 0.00005401968567847651,
+                "Z_m3": 0.0002700984283923825,
+                "ri_m": 0.09000000000000001,
+                "wall_m": 0.01
+              },
+              "ro_m": 0.1,
+              "wall_thickness_m": 0.01
             }
           ],
           "pipe_stress_extrema": [
@@ -256,7 +275,24 @@
               "global_upper_bound_pa": 8.170865639376739e-92,
               "local_fraction": 0.0,
               "pipe_id": "M1",
-              "result_id": "result:elastic-maximum:4:case:2:M1",
+              "result_id": "result:elastic-maximum:4:case:2:M1:nominal_section",
+              "section_basis": "nominal_section",
+              "span_index": 0,
+              "station_fraction": 0.0,
+              "subdivisions": 0,
+              "value_lower_pa": 8.170865639376634e-92,
+              "value_upper_pa": 8.170865639376739e-92
+            },
+            {
+              "approximation": "piecewise_quadratic_straight_section_statics",
+              "certified_gap_pa": 1.0491613045780085e-105,
+              "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+              "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+              "global_upper_bound_pa": 8.170865639376739e-92,
+              "local_fraction": 0.0,
+              "pipe_id": "M1",
+              "result_id": "result:elastic-maximum:4:case:2:M1:reduced_section",
+              "section_basis": "reduced_section",
               "span_index": 0,
               "station_fraction": 0.0,
               "subdivisions": 0,
@@ -337,10 +373,18 @@
             "screen_roundoff_multiplier": 32
           },
           "profile_mode": "exact_pressure_v3",
-          "stress_maximum_coverage": {
-            "complete": true,
-            "unavailable_pipe_ids": []
-          }
+          "stress_maximum_coverage": [
+            {
+              "complete": true,
+              "section_basis": "nominal_section",
+              "unavailable_pipe_ids": []
+            },
+            {
+              "complete": true,
+              "section_basis": "reduced_section",
+              "unavailable_pipe_ids": []
+            }
+          ]
         }
       ],
       "pressure": []
@@ -410,14 +454,14 @@
     "document_kind": "openpipestress.product_preview.mechanics_result",
     "formulation_basis": {
       "limitations": [
-        "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+        "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
         "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
         "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
         "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
         "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
         "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
         "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-        "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+        "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
         "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
         "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
       ],
@@ -1913,10 +1957,10 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:end-i:axial-normal",
+        "id": "result:stress:M1:end-i:axial-normal:nominal-section",
         "kind": "element_local_axial_normal_stress",
         "metadata": {
-          "basis": "recovered_from_local_element_stiffness",
+          "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
           "component": "axial_normal_stress",
           "coordinate_system": "element_local",
           "location": "end_i",
@@ -1932,10 +1976,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:end-i:bending-normal-y",
+        "id": "result:stress:M1:end-i:axial-normal:reduced-section",
+        "kind": "element_local_axial_normal_stress",
+        "metadata": {
+          "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -2.6950797008491574e-100
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:end-i:bending-normal-y:nominal-section",
         "kind": "element_local_bending_normal_stress_y",
         "metadata": {
-          "basis": "recovered_from_local_element_stiffness",
+          "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
           "component": "bending_normal_stress_y",
           "coordinate_system": "element_local",
           "location": "end_i",
@@ -1951,10 +2014,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:end-i:bending-normal-z",
+        "id": "result:stress:M1:end-i:bending-normal-y:reduced-section",
+        "kind": "element_local_bending_normal_stress_y",
+        "metadata": {
+          "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -8.14062216253843e-98
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:end-i:bending-normal-z:nominal-section",
         "kind": "element_local_bending_normal_stress_z",
         "metadata": {
-          "basis": "recovered_from_local_element_stiffness",
+          "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
           "component": "bending_normal_stress_z",
           "coordinate_system": "element_local",
           "location": "end_i",
@@ -1970,10 +2052,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:end-i:torsional-shear",
+        "id": "result:stress:M1:end-i:bending-normal-z:reduced-section",
+        "kind": "element_local_bending_normal_stress_z",
+        "metadata": {
+          "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -2.315594233304357e-99
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:end-i:torsional-shear:nominal-section",
         "kind": "element_local_torsional_shear_stress",
         "metadata": {
-          "basis": "recovered_from_local_element_stiffness",
+          "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
           "component": "torsional_shear_stress",
           "coordinate_system": "element_local",
           "location": "end_i",
@@ -1989,10 +2090,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:end-j:axial-normal",
+        "id": "result:stress:M1:end-i:torsional-shear:reduced-section",
+        "kind": "element_local_torsional_shear_stress",
+        "metadata": {
+          "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": 0.000026656948886575078
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:end-j:axial-normal:nominal-section",
         "kind": "element_local_axial_normal_stress",
         "metadata": {
-          "basis": "recovered_from_local_element_stiffness",
+          "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
           "component": "axial_normal_stress",
           "coordinate_system": "element_local",
           "location": "end_j",
@@ -2008,10 +2128,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:end-j:bending-normal-y",
+        "id": "result:stress:M1:end-j:axial-normal:reduced-section",
+        "kind": "element_local_axial_normal_stress",
+        "metadata": {
+          "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -2.6950797008491574e-100
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:end-j:bending-normal-y:nominal-section",
         "kind": "element_local_bending_normal_stress_y",
         "metadata": {
-          "basis": "recovered_from_local_element_stiffness",
+          "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
           "component": "bending_normal_stress_y",
           "coordinate_system": "element_local",
           "location": "end_j",
@@ -2027,10 +2166,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:end-j:bending-normal-z",
+        "id": "result:stress:M1:end-j:bending-normal-y:reduced-section",
+        "kind": "element_local_bending_normal_stress_y",
+        "metadata": {
+          "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": 4.97824987674284e-98
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:end-j:bending-normal-z:nominal-section",
         "kind": "element_local_bending_normal_stress_z",
         "metadata": {
-          "basis": "recovered_from_local_element_stiffness",
+          "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
           "component": "bending_normal_stress_z",
           "coordinate_system": "element_local",
           "location": "end_j",
@@ -2046,10 +2204,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:end-j:torsional-shear",
+        "id": "result:stress:M1:end-j:bending-normal-z:reduced-section",
+        "kind": "element_local_bending_normal_stress_z",
+        "metadata": {
+          "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -2.893966280262482e-98
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:end-j:torsional-shear:nominal-section",
         "kind": "element_local_torsional_shear_stress",
         "metadata": {
-          "basis": "recovered_from_local_element_stiffness",
+          "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
           "component": "torsional_shear_stress",
           "coordinate_system": "element_local",
           "location": "end_j",
@@ -2065,10 +2242,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:quarter-1:axial-normal",
+        "id": "result:stress:M1:end-j:torsional-shear:reduced-section",
+        "kind": "element_local_torsional_shear_stress",
+        "metadata": {
+          "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "end_j",
+          "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": 0.000026656948886575078
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:quarter-1:axial-normal:nominal-section",
         "kind": "element_local_axial_normal_stress",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
           "component": "axial_normal_stress",
           "coordinate_system": "element_local",
           "location": "quarter_1",
@@ -2084,10 +2280,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:quarter-1:bending-normal-y",
+        "id": "result:stress:M1:quarter-1:axial-normal:reduced-section",
+        "kind": "element_local_axial_normal_stress",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -2.6950797008491574e-100
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:quarter-1:bending-normal-y:nominal-section",
         "kind": "element_local_bending_normal_stress_y",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
           "component": "bending_normal_stress_y",
           "coordinate_system": "element_local",
           "location": "quarter_1",
@@ -2103,10 +2318,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:quarter-1:bending-normal-z",
+        "id": "result:stress:M1:quarter-1:bending-normal-y:reduced-section",
+        "kind": "element_local_bending_normal_stress_y",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -4.860904152718112e-98
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:quarter-1:bending-normal-z:nominal-section",
         "kind": "element_local_bending_normal_stress_z",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
           "component": "bending_normal_stress_z",
           "coordinate_system": "element_local",
           "location": "quarter_1",
@@ -2122,10 +2356,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:quarter-1:torsional-shear",
+        "id": "result:stress:M1:quarter-1:bending-normal-z:reduced-section",
+        "kind": "element_local_bending_normal_stress_z",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -8.971611375634471e-99
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:quarter-1:torsional-shear:nominal-section",
         "kind": "element_local_torsional_shear_stress",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
           "component": "torsional_shear_stress",
           "coordinate_system": "element_local",
           "location": "quarter_1",
@@ -2141,10 +2394,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:midspan:axial-normal",
+        "id": "result:stress:M1:quarter-1:torsional-shear:reduced-section",
+        "kind": "element_local_torsional_shear_stress",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "quarter_1",
+          "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": 0.000026656948886575078
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:midspan:axial-normal:nominal-section",
         "kind": "element_local_axial_normal_stress",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
           "component": "axial_normal_stress",
           "coordinate_system": "element_local",
           "location": "midspan",
@@ -2160,10 +2432,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:midspan:bending-normal-y",
+        "id": "result:stress:M1:midspan:axial-normal:reduced-section",
+        "kind": "element_local_axial_normal_stress",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -2.6950797008491574e-100
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:midspan:bending-normal-y:nominal-section",
         "kind": "element_local_bending_normal_stress_y",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
           "component": "bending_normal_stress_y",
           "coordinate_system": "element_local",
           "location": "midspan",
@@ -2179,10 +2470,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:midspan:bending-normal-z",
+        "id": "result:stress:M1:midspan:bending-normal-y:reduced-section",
+        "kind": "element_local_bending_normal_stress_y",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -1.5811861428977945e-98
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:midspan:bending-normal-z:nominal-section",
         "kind": "element_local_bending_normal_stress_z",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
           "component": "bending_normal_stress_z",
           "coordinate_system": "element_local",
           "location": "midspan",
@@ -2198,10 +2508,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:midspan:torsional-shear",
+        "id": "result:stress:M1:midspan:bending-normal-z:reduced-section",
+        "kind": "element_local_bending_normal_stress_z",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -1.5627628517964587e-98
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:midspan:torsional-shear:nominal-section",
         "kind": "element_local_torsional_shear_stress",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
           "component": "torsional_shear_stress",
           "coordinate_system": "element_local",
           "location": "midspan",
@@ -2217,10 +2546,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:quarter-3:axial-normal",
+        "id": "result:stress:M1:midspan:torsional-shear:reduced-section",
+        "kind": "element_local_torsional_shear_stress",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "midspan",
+          "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": 0.000026656948886575078
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:quarter-3:axial-normal:nominal-section",
         "kind": "element_local_axial_normal_stress",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
           "component": "axial_normal_stress",
           "coordinate_system": "element_local",
           "location": "quarter_3",
@@ -2236,10 +2584,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:quarter-3:bending-normal-y",
+        "id": "result:stress:M1:quarter-3:axial-normal:reduced-section",
+        "kind": "element_local_axial_normal_stress",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -2.6950797008491574e-100
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:quarter-3:bending-normal-y:nominal-section",
         "kind": "element_local_bending_normal_stress_y",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
           "component": "bending_normal_stress_y",
           "coordinate_system": "element_local",
           "location": "quarter_3",
@@ -2255,10 +2622,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:quarter-3:bending-normal-z",
+        "id": "result:stress:M1:quarter-3:bending-normal-y:reduced-section",
+        "kind": "element_local_bending_normal_stress_y",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": 1.6985318669225226e-98
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:quarter-3:bending-normal-z:nominal-section",
         "kind": "element_local_bending_normal_stress_z",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
           "component": "bending_normal_stress_z",
           "coordinate_system": "element_local",
           "location": "quarter_3",
@@ -2274,10 +2660,29 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:stress:M1:quarter-3:torsional-shear",
+        "id": "result:stress:M1:quarter-3:bending-normal-z:reduced-section",
+        "kind": "element_local_bending_normal_stress_z",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": -2.2283645660294702e-98
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:stress:M1:quarter-3:torsional-shear:nominal-section",
         "kind": "element_local_torsional_shear_stress",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
           "component": "torsional_shear_stress",
           "coordinate_system": "element_local",
           "location": "quarter_3",
@@ -2293,10 +2698,48 @@
           "ref_type": "load_case"
         },
         "entity_ref": "M1",
-        "id": "result:elastic-maximum:4:case:2:M1",
+        "id": "result:stress:M1:quarter-3:torsional-shear:reduced-section",
+        "kind": "element_local_torsional_shear_stress",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "quarter_3",
+          "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "MPa",
+        "value": 0.000026656948886575078
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:elastic-maximum:4:case:2:M1:nominal_section",
         "kind": "pipe_elastic_normal_stress_maximum_v2",
         "metadata": {
-          "basis": "recovered_from_open_mechanics_stress_components",
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+          "component": "maximum_absolute_normal_stress",
+          "coordinate_system": "pipe_section",
+          "location": "governing_station",
+          "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
+        },
+        "recovery_method": "contribution_preserving_multiprecision_v1",
+        "unit": "Pa",
+        "value": 8.170865639376687e-92
+      },
+      {
+        "basis_ref": {
+          "ref_id": "case",
+          "ref_type": "load_case"
+        },
+        "entity_ref": "M1",
+        "id": "result:elastic-maximum:4:case:2:M1:reduced_section",
+        "kind": "pipe_elastic_normal_stress_maximum_v2",
+        "metadata": {
+          "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
           "component": "maximum_absolute_normal_stress",
           "coordinate_system": "pipe_section",
           "location": "governing_station",
@@ -2924,67 +3367,67 @@
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:end-i:axial-normal"
+                  "result_id": "result:stress:M1:end-i:axial-normal:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:end-i:bending-normal-y"
+                  "result_id": "result:stress:M1:end-i:bending-normal-y:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:end-i:bending-normal-z"
+                  "result_id": "result:stress:M1:end-i:bending-normal-z:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:end-j:axial-normal"
+                  "result_id": "result:stress:M1:end-j:axial-normal:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:end-j:bending-normal-y"
+                  "result_id": "result:stress:M1:end-j:bending-normal-y:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:end-j:bending-normal-z"
+                  "result_id": "result:stress:M1:end-j:bending-normal-z:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:quarter-1:axial-normal"
+                  "result_id": "result:stress:M1:quarter-1:axial-normal:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:quarter-1:bending-normal-y"
+                  "result_id": "result:stress:M1:quarter-1:bending-normal-y:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:quarter-1:bending-normal-z"
+                  "result_id": "result:stress:M1:quarter-1:bending-normal-z:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:midspan:axial-normal"
+                  "result_id": "result:stress:M1:midspan:axial-normal:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:midspan:bending-normal-y"
+                  "result_id": "result:stress:M1:midspan:bending-normal-y:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:midspan:bending-normal-z"
+                  "result_id": "result:stress:M1:midspan:bending-normal-z:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:quarter-3:axial-normal"
+                  "result_id": "result:stress:M1:quarter-3:axial-normal:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:quarter-3:bending-normal-y"
+                  "result_id": "result:stress:M1:quarter-3:bending-normal-y:nominal-section"
                 },
                 {
                   "bound": "3c4b0f1c3b53cee9",
-                  "result_id": "result:stress:M1:quarter-3:bending-normal-z"
+                  "result_id": "result:stress:M1:quarter-3:bending-normal-z:nominal-section"
                 },
                 {
                   "bound": "3c62f327f1759218",
-                  "result_id": "result:elastic-maximum:4:case:2:M1"
+                  "result_id": "result:elastic-maximum:4:case:2:M1:nominal_section"
                 }
               ],
               "body_scales": [
@@ -3098,7 +3541,7 @@
               ],
               "verification_precision": 256
             },
-            "source_identity_sha256": "bf7ce879b124deafc878be92f479d7065e0932fd17c7e9a84b4a00efd2a2b5c4",
+            "source_identity_sha256": "e441e3bac01949e29337884b8598d1e126107c0cb76e6440c75dcf995ebe3ed0",
             "source_ref": 0,
             "status": "selected"
           }
@@ -3185,15 +3628,15 @@
             "adapter": {
               "counts": [
                 154,
-                2014,
-                688,
-                3590,
-                108496,
-                3209,
-                76,
-                234,
-                674,
-                29507
+                2371,
+                723,
+                4178,
+                144384,
+                3731,
+                79,
+                235,
+                744,
+                32417
               ],
               "fault": null,
               "observation_capacity_bytes": [
@@ -4523,7 +4966,7 @@
               ],
               "visits": {
                 "kind": "exact",
-                "value": 15036
+                "value": 15708
               }
             },
             "result": {
@@ -4546,7 +4989,7 @@
           }
         ],
         "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
-        "publication_sha256": "3bc72899e7c5349cbd13d27d8a66854eb9c2864ce84de503aa129e73457d2837",
+        "publication_sha256": "839d26381c1bbbb6ffccc07f43b7dfa4947f88bab0cf162f68720b912cb9a251",
         "receipt_version": 1,
         "sources": [
           {
@@ -5406,7 +5849,7 @@
             },
             "preparation": {
               "attempt_ref": 0,
-              "sha256": "82781d045ee5af83c261e006bd89f0cf267cb2d9759e051b7105f38b5a37d769"
+              "sha256": "ee827e3db1af6cb16ff3b4b778a94ec417496ea096f6c62bee2021860e3710f7"
             },
             "section_terms": [
               {
@@ -5526,7 +5969,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "f6bb7e7fc74ebce71c67da5da81906fece54e412aa2697d5548eb13f50b67524"
+      "receipt_sha256": "d231b6ee48ed52f7accef419e25d631d4b4d0971940431aa2ca91f3eaeb1c75c"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",
@@ -5545,9 +5988,16 @@
         "unit": "mm",
         "value": 0.09426732770800755
       },
-      "max_open_formula_stress": {
+      "max_open_formula_stress": null,
+      "max_open_formula_stress_nominal_section": {
         "location_ref": "M1",
-        "result_ref": "result:elastic-maximum:4:case:2:M1",
+        "result_ref": "result:elastic-maximum:4:case:2:M1:nominal_section",
+        "unit": "Pa",
+        "value": 8.170865639376687e-92
+      },
+      "max_open_formula_stress_reduced_section": {
+        "location_ref": "M1",
+        "result_ref": "result:elastic-maximum:4:case:2:M1:reduced_section",
         "unit": "Pa",
         "value": 8.170865639376687e-92
       },
