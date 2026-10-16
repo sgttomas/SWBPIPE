@@ -5623,7 +5623,10 @@ impl ProductCapture {
                 node_j:FrameNode{index:m.node_j as usize,coordinates:source.nodes()[m.node_j as usize]},
                 section:StraightPipeSectionProperties{elastic_modulus:m.elastic_modulus,shear_modulus:m.shear_modulus,
                     area:m.area,second_moment_y:m.second_moment_y,second_moment_z:m.second_moment_z,
-                    torsion_constant:m.torsion_constant,mass_per_length:None},y_reference:m.y_reference};
+                    torsion_constant:m.torsion_constant,mass_per_length:None,
+                    // T4-U8: W1's retained member is Euler-Bernoulli (G-A declines a Timoshenko
+                    // document by `ShearModel` before any retained source is formed).
+                    beam_theory:open_pipe_stress_frame_kernel::BeamTheory::EulerBernoulli},y_reference:m.y_reference};
             let section=DerivedSection{area:f.area,internal_area:0.0,second_moment:f.second_moment,
                 torsion_constant:f.torsion_constant,section_modulus:f.section_modulus,torsion_radius:f.radius,
                 wall_thickness:f.effective_wall};
