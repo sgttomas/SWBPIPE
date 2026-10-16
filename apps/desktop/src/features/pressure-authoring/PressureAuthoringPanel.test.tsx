@@ -1,17 +1,32 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { MaterialConstitutiveForm, PressureAuthoringPanel } from "./PressureAuthoringPanel";
+import { MaterialConstitutiveForm, PressureAuthoringPanel, pressureModeText } from "./PressureAuthoringPanel";
+import { pressureProfileTarget } from "./pressureContract";
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
 import type { PreviewModel, EditorOperationIntent } from "../../types";
 import fixture from "../../../../../fixtures/model_operations/exact_pressure_authoring_model.json";
 vi.mock("../../services/hashService", () => ({ canonicalJsonString: vi.fn(async (value: unknown) => JSON.stringify(value)) }));
 afterEach(cleanup);
 // B7b: the fixture is the current exact-contract document (0.5.0, 3.0.0/exact_pressure_v3
-// with euler_bernoulli); a pressure-free document is the same 0.5.0 without the contract.
+// with an explicit euler_bernoulli selection); a pressure-free document is the same 0.5.0
+// without the contract. T4-U8 (D-6/O3): new authoring writes Timoshenko by default.
 const model = fixture as PreviewModel;
-const V3 = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" as const };
+const V3_EB = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" as const };
+const V3 = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" as const };
 const pressureFree = () => { const free = structuredClone(model); delete free.pressure_contract; return free; };
+const withContract = (contract: unknown) => { const current = structuredClone(model); current.pressure_contract = contract as PreviewModel["pressure_contract"]; return current; };
 const change = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
+/** Select the profile, optionally a shear model, queue it and return the queued after. */
+async function queuedProfile(current: PreviewModel, shear?: string) {
+  const queue = vi.fn(); render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} />);
+  change("Pressure profile", "exact_pressure_v3");
+  if (shear) change("Shear model", shear);
+  fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" }));
+  await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+  const after = JSON.parse((queue.mock.calls[0][0] as EditorOperationIntent).change.after);
+  cleanup();
+  return after;
+}
 it("requires explicit profile choice and queues only the profile projection", async () => {
   const legacy = pressureFree();
   const queue = vi.fn(); render(<PressureAuthoringPanel model={legacy} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={queue} />);
@@ -65,7 +80,9 @@ it("offers only exact_pressure_v3 and re-authors a retired v2 contract explicitl
 it("shows a declared 3.0.0/exact_pressure_v3 contract with its families, the signed-pressure hint and the tangency rule (T4-U2)", () => {
   const v3 = structuredClone(model); v3.pressure_contract = V3;
   render(<PressureAuthoringPanel model={v3} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={vi.fn()} />);
-  expect(screen.getByText(/pressure mode: exact_pressure_v3 \(straight members, realized bends and linear restraints or springs; other families are refused by name; pressure-1 results are read with their standing, and no desktop output is offered for them\)/)).toBeInTheDocument();
+  // T4-U8: the mode text also names the document's straight-member shear model and
+  // states that realized arcs are Euler–Bernoulli under either model.
+  expect(screen.getByText(/pressure mode: exact_pressure_v3 \(straight members, realized bends and linear restraints or springs; other families are refused by name; straight members use Timoshenko \(energy-matched annular shear factor\), and realized arcs are Euler–Bernoulli under either shear model; pressure-1 results are read with their standing, and no desktop output is offered for them\)/)).toBeInTheDocument();
   expect(screen.queryByText(/solves are refused/)).toBeNull();
   expect(screen.getByText(/a direction change above 1e-3 rad at a bend's end is refused as a mitre/)).toBeInTheDocument();
   expect(screen.getByText(/signed \(a negative value is a net external differential; external-pressure stability and collapse are not assessed\)/)).toBeInTheDocument();
@@ -74,6 +91,56 @@ it("shows a declared 3.0.0/exact_pressure_v3 contract with its families, the sig
   const v2 = structuredClone(model); v2.pressure_contract = { version: "2.0.0", mode: "exact_straight_pressure_v2" } as never;
   render(<PressureAuthoringPanel model={v2} selection={{ type: "load", id: model.load_cases[0].id }} loadCaseId={model.load_cases[0].id} onQueueIntent={vi.fn()} />);
   expect(screen.getByText(/Expected dimension: pressure; p >= 0\./)).toBeInTheDocument();
+});
+it("writes the Timoshenko default and Euler–Bernoulli only as an explicit choice (T4-U8, D-6/O3)", async () => {
+  const free = pressureFree();
+  render(<PressureAuthoringPanel model={free} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+  const selector = screen.getByLabelText("Shear model") as HTMLSelectElement;
+  expect([...selector.options].map(o => [o.value, o.textContent])).toEqual([
+    ["timoshenko_annulus_energy_v1", "Timoshenko (energy-matched annular shear factor)"],
+    ["euler_bernoulli", "Euler–Bernoulli"],
+  ]);
+  expect(selector.value).toBe("timoshenko_annulus_energy_v1");
+  expect(screen.getByText("The shear model applies to straight members; realized arcs are Euler–Bernoulli under either model.")).toBeInTheDocument();
+  cleanup();
+  // The default write, without touching the selector.
+  expect(await queuedProfile(free)).toEqual({ schema_version: "0.5.0", pressure_contract: V3 });
+  // The explicit Euler–Bernoulli write.
+  expect(await queuedProfile(free, "euler_bernoulli")).toEqual({ schema_version: "0.5.0", pressure_contract: V3_EB });
+  // Activation writes only the profile: no allowance is supplied for a section missing one.
+  const missing = pressureFree(); delete missing.pipe_segments[0].section.corrosion_allowance;
+  render(<PressureAuthoringPanel model={missing} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+  change("Pressure profile", "exact_pressure_v3"); change("Shear model", "euler_bernoulli");
+  expect(screen.getByRole("button", { name: "Queue pressure profile" })).toBeDisabled();
+  expect(missing.pipe_segments[0].section.corrosion_allowance).toBeUndefined();
+});
+it("preserves a document's shear selection on re-queue unless the user changes it (T4-U8)", async () => {
+  // Euler–Bernoulli stays Euler–Bernoulli, and the selector shows it.
+  const eb = withContract(V3_EB);
+  render(<PressureAuthoringPanel model={eb} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+  expect((screen.getByLabelText("Shear model") as HTMLSelectElement).value).toBe("euler_bernoulli");
+  expect(screen.getByText(/straight members use Euler–Bernoulli, and realized arcs are Euler–Bernoulli under either shear model/)).toBeInTheDocument();
+  cleanup();
+  expect(await queuedProfile(eb)).toEqual({ schema_version: "0.5.0", pressure_contract: V3_EB });
+  expect(eb.pressure_contract).toEqual(V3_EB);
+  // Timoshenko stays Timoshenko.
+  expect(await queuedProfile(withContract(V3))).toEqual({ schema_version: "0.5.0", pressure_contract: V3 });
+  // The user's explicit change is written, in both directions.
+  expect(await queuedProfile(eb, "timoshenko_annulus_energy_v1")).toEqual({ schema_version: "0.5.0", pressure_contract: V3 });
+  expect(await queuedProfile(withContract(V3), "euler_bernoulli")).toEqual({ schema_version: "0.5.0", pressure_contract: V3_EB });
+  // No admitted selection (absent or unknown) is shown as such; the queued profile then
+  // carries the default, which the before/after review shows explicitly.
+  for (const contract of [{ version: "3.0.0", mode: "exact_pressure_v3" }, { ...V3, shear_model: "cowper" }]) {
+    const current = withContract(contract);
+    expect(pressureModeText(current)).toContain("no admitted shear model is selected, so solves are refused until one is");
+    expect(pressureProfileTarget(current)).toEqual({ schema_version: "0.5.0", pressure_contract: V3 });
+    expect(await queuedProfile(current)).toEqual({ schema_version: "0.5.0", pressure_contract: V3 });
+  }
+  // The target itself: the explicit choice, else the document's selection, else the default.
+  expect(pressureProfileTarget(eb).pressure_contract).toEqual(V3_EB);
+  expect(pressureProfileTarget(eb, "timoshenko_annulus_energy_v1").pressure_contract).toEqual(V3);
+  expect(pressureProfileTarget(pressureFree()).pressure_contract).toEqual(V3);
+  expect(pressureProfileTarget(pressureFree(), "euler_bernoulli").pressure_contract).toEqual(V3_EB);
 });
 it("labels realized-bend members with k and geometry-only bend spans as needing realization (T4-U2)", () => {
   const v3 = structuredClone(model); v3.pressure_contract = V3;

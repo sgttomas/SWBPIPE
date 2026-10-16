@@ -15,7 +15,8 @@ const AT = new Date("2026-06-12T00:00:00Z");
 // tree 1b95d0b66 before this change and re-pinned by B7a, which made the blank
 // a current 0.5.0 document (its schema_version is the only change).
 const BASE_BLANK_SHA256 = "453cac5786dabfff1e2db0904f4d49b518d16fc3b4eedc6ddcd53295ee106d84";
-const CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" };
+// T4-U8 (D-6/O3): the blank's contract carries the authoring default shear model.
+const CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" };
 
 // B7b: the load/reference-state blank is the one current version, 0.5.0, with the exact
 // contract the group requires and an empty reference-configuration list (0.4.0 is retired).
