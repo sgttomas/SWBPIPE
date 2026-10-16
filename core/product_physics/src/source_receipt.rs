@@ -26,8 +26,24 @@ fn checked(value: &Value) -> Result<String, ReceiptError> {
     canonical_json_checked_v1_text(&text).map_err(bad)
 }
 fn hash(domain: &'static str, payload: &Value) -> Result<String, ReceiptError> {
-    let text = checked(&json!({"domain":domain,"payload":payload}))?;
+    let text = hash_text(domain, payload)?;
     Ok(format!("{:x}", Sha256::digest(text.as_bytes())))
+}
+/// The checked canonical `{"domain","payload"}` text that `hash` digests.
+fn hash_text(domain: &str, payload: &Value) -> Result<String, ReceiptError> {
+    let text = serde_json::to_string(&DomainPayload { domain, payload }).map_err(|e| bad(e.to_string()))?;
+    canonical_json_checked_v1_text(&text).map_err(bad)
+}
+/// The hashed `{"domain","payload"}` wrapper, serialized from borrows instead
+/// of a copy of the payload (a whole publication envelope) in a new `Value`,
+/// as U6-DH does in `retained_wire.rs`. Its text is the former `json!`
+/// object's: serde_json's object map orders keys, and `domain` < `payload`,
+/// the field order here; each field serializes as the same string and the
+/// same borrowed `Value`.
+#[derive(Serialize)]
+struct DomainPayload<'a> {
+    domain: &'a str,
+    payload: &'a Value,
 }
 fn bits(value: f64) -> String {
     format!("{:016x}", value.to_bits())
