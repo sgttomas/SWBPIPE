@@ -2215,7 +2215,7 @@
     "PhysicsGeometry": {
       "type": "object",
       "additionalProperties": false,
-      "description": "D-5 section bases (DEL-05-03 Design section-bases-and-timoshenko.md section 2.3): the authored OD, nominal wall, mill tolerance and corrosion allowance; the nominal section (stiffness, metal mass, nominal stress family), the reduced section (wall minus mill tolerance and corrosion allowance; reduced stress family), the pressure bore of the reduced wall, and the straight member's shear model. The readers rederive the walls, radii and the Timoshenko factor; the leaves are prepared values.",
+      "description": "D-5 section bases (DEL-05-03 Design section-bases-and-timoshenko.md section 2.3): the authored OD, nominal wall, mill tolerance and corrosion allowance; the nominal section (stiffness, metal mass, nominal stress family), the reduced section (wall minus mill tolerance and corrosion allowance; reduced stress family), the pressure bore of the reduced wall, and the member's shear model. A realized arc's entry, and only an arc's, carries member_kind = realized_arc (section 2.5) and is Euler-Bernoulli under either contract. The readers rederive the walls, radii and the Timoshenko factor; the leaves are prepared values.",
       "required": [
         "pipe_id",
         "geometry_basis",
@@ -2268,6 +2268,23 @@
         },
         "beam_theory": {
           "$ref": "#/$defs/PhysicsBeamTheory"
+        },
+        "member_kind": {
+          "const": "realized_arc"
+        }
+      },
+      "if": {
+        "required": [
+          "member_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "beam_theory": {
+            "const": {
+              "model": "euler_bernoulli"
+            }
+          }
         }
       }
     },

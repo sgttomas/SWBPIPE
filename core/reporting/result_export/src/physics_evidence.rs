@@ -162,7 +162,10 @@ fn material_in(v: &Value, resolved: bool) -> Check {
     Ok(())
 }
 /// T4-U6 (D-5): one `pipe_sections` entry, its three geometries rederived from
-/// its captured authored values (`section_basis::section`).
+/// its captured authored values (`section_basis::section`). The exact-retained
+/// transport reads it with exactly §2.5's straight keys (the retained route has
+/// no realized arc); the evidence reader takes the arc marker
+/// (`section_basis::marked_section`).
 fn geometry(v: &Value) -> Result<crate::section_basis::Sections, String> {
     crate::section_basis::section(v)
 }
@@ -394,12 +397,24 @@ pub(crate) fn validate_physics_evidence_in(
         "CONNECTOR_UNSUPPORTED",
     )?;
     let cases = indexed(&evidence["exact_cases"], "load_case_id")?;
-    // T4-U2: the realized-arc members of each case's pressure regions.
+    // T4-U2: the realized-arc members of each case's pressure regions. The
+    // pressure-source-1 composite never carries a realized arc (D7 declines
+    // every document with one), so an arc region there is refused by name
+    // (`SOURCE_PHYSICS_ARC_UNSUPPORTED`).
+    let arcs_admitted = !composite && contract == PressureContract::PressureV3;
     let mut arc_members: HashSet<(&str, &str)> = HashSet::new();
+    // §2.5: each member a region's geometry records, by case; its record and its
+    // case section mark the same arcs.
+    let mut region_members: HashSet<(&str, &str)> = HashSet::new();
     for region in array(&evidence["pressure"])? {
         let case = region["load_case_id"].as_str().unwrap_or_default();
-        for pipe in crate::arc_evidence::members(region, contract == PressureContract::PressureV3)? {
+        for pipe in crate::arc_evidence::members(region, arcs_admitted)? {
             arc_members.insert((case, pipe));
+        }
+        for g in region["geometry"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
+            if let Some(pipe) = g["pipe_id"].as_str() {
+                region_members.insert((case, pipe));
+            }
         }
     }
     // RV23 NOTE-4: a case's structural members are its published pipes and
@@ -457,6 +472,10 @@ pub(crate) fn validate_physics_evidence_in(
     // shear model (§3.6: the selection is per document; arcs stay Euler-Bernoulli).
     let mut case_sections: HashMap<(&str, &str), crate::section_basis::Sections> = HashMap::new();
     let mut straight_models: HashSet<&str> = HashSet::new();
+    // §2.5: the document's realized arcs, as every case's `pipe_sections`
+    // marks them (`member_kind = "realized_arc"`), including arcs outside every
+    // pressure region; a model fact, so every case marks the same members.
+    let mut marked_arcs: Option<HashSet<&str>> = None;
     // N2b (RV120; WORKING_ITEMS' ruling): every loop of this validator runs in array order,
     // as TS's and PY's do, so its first failure (the code) never depends on a hash map's or
     // set's per-process order. The maps and sets only detect duplicates and answer lookups.
@@ -500,18 +519,33 @@ pub(crate) fn validate_physics_evidence_in(
         for m in array(&case["pipe_materials"])? {
             material_in(m, resolved)?;
         }
+        let mut case_arcs: HashSet<&str> = HashSet::new();
         for s in array(&case["pipe_sections"])? {
-            let sections = geometry(s)?;
+            let (sections, arc) = crate::section_basis::marked_section(s)?;
             let pipe = text(&s["pipe_id"])?;
-            // §3.1: kappa_E from this case's nu (per resolved case on load-state documents).
-            let arc = arc_members.contains(&(case_id, pipe));
+            // §2.5: an arc is known by its marker, and a region records a member
+            // as an arc exactly when its case section is marked. The
+            // pressure-source-1 composite carries none.
+            require(!(composite && arc), "ARC_UNSUPPORTED")?;
+            require(
+                !region_members.contains(&(case_id, pipe)) || arc == arc_members.contains(&(case_id, pipe)),
+                "ARC_MARKER",
+            )?;
+            // §3.1: kappa_E from this case's nu (per resolved case on load-state
+            // documents); a marked arc is Euler-Bernoulli.
             crate::section_basis::beam_theory(&sections, number(&materials[pipe]["nu"])?, arc)?;
-            if !arc {
+            if arc {
+                case_arcs.insert(pipe);
+            } else {
                 straight_models.insert(crate::section_basis::model(&sections));
             }
             case_sections.insert((case_id, pipe), sections);
         }
         require(straight_models.len() <= 1, "SHEAR_MODEL_CONSISTENCY")?;
+        match &marked_arcs {
+            Some(arcs) => require(*arcs == case_arcs, "ARC_MARKER")?,
+            None => marked_arcs = Some(case_arcs.clone()),
+        }
         let coverage = crate::section_basis::coverage(&case["stress_maximum_coverage"])?;
         let mut unavailable_by_basis: [HashSet<&str>; 2] = [HashSet::new(), HashSet::new()];
         for (slot, ((unavailable, complete), done)) in coverage
@@ -521,13 +555,9 @@ pub(crate) fn validate_physics_evidence_in(
         {
             let unavailable: HashSet<&str> = unavailable.iter().copied().collect();
             require(unavailable.is_subset(&members), "STRESS_COVERAGE")?;
-            require(
-                arc_members
-                    .iter()
-                    .filter(|(c, _)| *c == case_id)
-                    .all(|(_, pipe)| unavailable.contains(pipe)),
-                "ARC_WITHHELD",
-            )?;
+            // §2.1: the maximum is withheld on every realized arc, in a pressure
+            // region or not, on both bases.
+            require(case_arcs.is_subset(&unavailable), "ARC_WITHHELD")?;
             *done &= *complete;
             unavailable_by_basis[slot] = unavailable;
         }
@@ -631,6 +661,7 @@ pub(crate) fn validate_physics_evidence_in(
         }
         case_members.insert(case_id, members);
     }
+    let marked_arcs = marked_arcs.unwrap_or_default();
     let mut slots = HashSet::new();
     let mut support_components: HashMap<(&str, &str), HashSet<&str>> = HashMap::new();
     for row in array(&source["results"])? {
@@ -684,7 +715,7 @@ pub(crate) fn validate_physics_evidence_in(
             kind,
             signature,
             composite && cases[case]["recovery_method"] == crate::physics_source::EXACT,
-            arc_members.contains(&(case, text(&row["entity_ref"])?)),
+            marked_arcs.contains(text(&row["entity_ref"])?),
         )?;
         if pipe_kind(kind) {
             require(
@@ -812,7 +843,7 @@ pub(crate) fn validate_physics_evidence_in(
         let exact = cases
             .get(case)
             .ok_or("SOURCE_PHYSICS_REGION_CASE_UNRESOLVED")?;
-        let arcs = crate::arc_evidence::members(region, contract == PressureContract::PressureV3)?;
+        let arcs = crate::arc_evidence::members(region, arcs_admitted)?;
         require(
             crate::arc_evidence::region_shape(region, REGION_KEYS, !arcs.is_empty()),
             "REGION_SHAPE",
@@ -858,8 +889,10 @@ pub(crate) fn validate_physics_evidence_in(
             )?;
             for duplicate in array(&region[field])? {
                 let member = text(&duplicate["pipe_id"])?;
+                // §2.5: an arc's record adds only its end tangents to its case
+                // section, which carries the marker.
                 let dropped: Vec<&str> = if field == "geometry" && arcs.contains(member) {
-                    [extra].into_iter().chain(crate::arc_evidence::GEOMETRY_KEYS).collect()
+                    [extra].into_iter().chain(crate::arc_evidence::REGION_GEOMETRY_KEYS).collect()
                 } else {
                     vec![extra]
                 };
@@ -1433,6 +1466,10 @@ pub fn validate_transport_metadata(source: &Value) -> Check {
     Ok(())
 }
 
+
+#[cfg(test)]
+#[path = "arc_marker_tests.rs"]
+mod arc_marker_tests;
 
 #[cfg(test)]
 mod b7b_exact_transport_tests {
