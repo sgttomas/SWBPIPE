@@ -1,6 +1,8 @@
-"""Aggregate kd5t_compare.py output into the M3 tables (after kd5-eval-final/analyze.py and b4-finish/analyze_b4.py).
+"""Aggregate kd5t_compare.py output into the M3 tables and verdict (after kd5-eval-final/analyze.py and b4-finish/analyze_b4.py).
 
-Usage: python3 -I -B kd5t_report.py <eval.jsonl> [<eval.jsonl> ...] [--by family|theory|placement|mill] [--json out.json]
+Usage: python3 -I -B kd5t_report.py <eval.jsonl> [<eval.jsonl> ...] [--by family|theory|placement|mill|section]
+                                    [--phi-table <set.jsonl>] [--json out.json]
+The verdict passes when no run fails a clause of kd5t_compare.py (C0-C8).
 """
 
 from __future__ import annotations
@@ -41,29 +43,31 @@ def table(recs):
             t["Passed: judged groups"] += r.get("n_judged", 0)
             t["Passed: judged member/section/support/stress breaches (groups)"] += len(r.get("breaches", []))
             t["Passed: case-modes with such a breach"] += bool(r.get("breaches"))
-            t["Passed: displacement/rotation breach groups (reported apart)"] += len(r.get("disp_breaches", []))
-            t["Passed: extension (Lame) breach groups"] += len(r.get("ext_breaches", []))
-            t["Passed: strict max_station_checks coverage failures (rows)"] += len(r.get("max_fail", []))
-            t["Passed: case-modes with a coverage failure"] += bool(r.get("max_fail"))
+            t["Passed: displacement/rotation breach groups against their own q (information)"] += len(r.get("disp_breaches", []))
             for g, w in (r.get("worst_by_group") or {}).items():
                 if g not in worst or w["ratio"] > worst[g][0]:
                     worst[g] = (w["ratio"], r["tag"], r["entry"], r["mode"], w["entity"], w["loc"], w["basis"])
             for b in r.get("breaches", [])[:2]:
                 examples["Passed breaches"].append((r["tag"], r["entry"], r["mode"], b["group"], b["entity"], b["loc"], b["basis"], b["ratio"]))
-            for c in r.get("max_fail", [])[:1]:
-                examples["coverage failures"].append((r["tag"], r["entry"], r["mode"], c))
             for cid, cs in (r.get("cases") or {}).items():
-                if cs.get("headline_findings"):
-                    t["Passed: headline findings (extension)"] += 1
-                    examples["headline findings"].append((r["tag"], r["entry"], r["mode"], cs["headline_findings"][:2]))
                 for c in cs["max_checks"]:
-                    if not c.get("evidence"):
-                        t["Passed: maxima without same-basis evidence"] += 1
                     x = c.get("ref_outside_enclosure_over_crit")
                     if x is not None:
-                        t["Passed: maxima checked against the exact reference"] += 1
+                        t["Passed: maxima checked against the exact maximum"] += 1
                         if x > 1:
-                            t["Passed: maxima whose enclosure misses the exact maximum by > CRIT (extension)"] += 1
+                            t["Passed: maxima whose enclosure misses the exact maximum by > CRIT"] += 1
+                t["Passed: groups the reference judges left unjudged (C8)"] += cs.get("n_unjudged_by_ref", 0)
+        t["strict max_station_checks coverage failures (rows, C2)"] += len(r.get("max_fail", []))
+        for c in r.get("max_fail", [])[:1]:
+            examples["coverage failures"].append((r["tag"], r["entry"], r["mode"], c))
+        for cid, cs in (r.get("cases") or {}).items():
+            if cs.get("headline_findings"):
+                t["headline findings"] += 1
+                examples["headline findings"].append((r["tag"], r["entry"], r["mode"], cs["headline_findings"][:2]))
+            t["maxima without same-basis evidence"] += sum(1 for c in cs["max_checks"] if not c.get("evidence"))
+            t["basis-free stress rows (U6 producer)"] += cs.get("n_basis_free", 0)
+            t["basis-suffixed rows (pre-U6 producer)"] += cs.get("n_unexpected_basis", 0)
+            t["missing maxima"] += len(cs.get("missing_maxima", []))
         if r["cls"].startswith("sensitive"):
             t["Sensitive"] += 1
         t["max rows checked"] += r.get("n_max", 0)
@@ -87,16 +91,33 @@ def table(recs):
         for c in r.get("typed_extra_codes") or []:
             t["typed-only diagnostic code: " + c] += 1
         if r["cls"] == "passed":
-            for b in r.get("disp_breaches", []):
-                rb = b.get("ratio_body")
-                if rb is not None:
-                    key = "Passed: displacement/rotation breaches beyond 1e-9 of the body scale"
-                    t[key] += rb > 1
-                    if "disp_body_worst" not in worst or rb > worst["disp_body_worst"][0]:
-                        worst["disp_body_worst"] = (rb, r["tag"], r["entry"], r["mode"], b["entity"], b["group"], None)
+            t["Passed: displacement/rotation groups beyond 1e-9 of the body's published scale (C3)"] += len(r.get("disp_beyond_body", []))
+            for b in r.get("disp_beyond_body", [])[:2]:
+                examples["C3 displacement/rotation beyond the body scale"].append((r["tag"], r["entry"], r["mode"], b["group"], b["entity"], b["err"], b["ratio_body"]))
+            for key, val in (("disp_body_worst", r.get("worst_disp_body")), ("disp_body_coupled_worst (information)", r.get("worst_disp_body_coupled"))):
+                if val is not None and (key not in worst or val > worst[key][0]):
+                    worst[key] = (val, r["tag"], r["entry"], r["mode"], None, None, None)
         if r.get("notices"):
             t["STRESS_FREE notices"] += r["notices"]
+        vf = r.get("verdict_failures") or {}
+        t["VERDICT runs failing"] += bool(vf)
+        for c, n in vf.items():
+            t[f"VERDICT {c} failures"] += n
+            if len(examples["verdict " + c]) < 4:
+                examples["verdict " + c].append((r["tag"], r["entry"], r["mode"], r["cls"]))
     return t, worst, examples
+
+
+def standings_vs_twins(recs):
+    """Per family: standings of each theory (the Timoshenko set against its Euler-Bernoulli twins)."""
+    t = collections.defaultdict(collections.Counter)
+    for r in recs:
+        m = r.get("meta") or {}
+        t[(m.get("family"), m.get("theory"))][r.get("cls", "error")] += 1
+    print("  family / theory: standings")
+    for k in sorted(t, key=lambda k: (str(k[0]), str(k[1]))):
+        print(f"    {str(k[0]):16s} {str(k[1]):30s} {dict(sorted(t[k].items()))}")
+    return {f"{k[0]}|{k[1]}": dict(v) for k, v in t.items()}
 
 
 def phi_table(recs, set_path):
@@ -115,8 +136,9 @@ def phi_table(recs, set_path):
         row = t[dec]
         row["Passed"] += 1
         row["member/section/support/stress breach"] += bool(r.get("breaches"))
-        row["displacement/rotation breach beyond the body scale"] += any((b.get("ratio_body") or 0) > 1 for b in r.get("disp_breaches", []))
-        row["any breach"] += bool(r.get("breaches")) or any((b.get("ratio_body") or 0) > 1 for b in r.get("disp_breaches", []))
+        row["displacement/rotation breach beyond the body scale"] += bool(r.get("disp_beyond_body"))
+        row["any breach"] += bool(r.get("breaches")) or bool(r.get("disp_beyond_body"))
+        row["verdict fails"] += bool(r.get("verdict_failures"))
     print("  max phi decade | Passed | member/section/support/stress breach | disp/rot breach beyond body scale | any")
     for dec in sorted(t):
         row = t[dec]
@@ -144,7 +166,7 @@ def main():
     recs = load(args)
     groups = {"all": recs}
     if by:
-        key = {"family": "family", "theory": "theory", "placement": "placement", "mill": "mill_and_allowance"}[by]
+        key = {"family": "family", "theory": "theory", "placement": "placement", "mill": "mill_and_allowance", "section": "section_variant"}[by]
         groups = collections.defaultdict(list)
         for r in recs:
             groups[str(r["meta"][key])].append(r)
@@ -163,6 +185,10 @@ def main():
         for k, v in ex.items():
             print(f"  examples [{k}] ({len(v)}): {v[:4]}")
         report[name] = {"counts": dict(t), "worst": {g: list(w) for g, w in worst.items()}}
+    failing = sum(1 for r in recs if r.get("verdict_failures"))
+    print(f"M3 VERDICT: {'PASS' if failing == 0 else 'FAIL'} ({failing} of {len(recs)} runs fail a clause)")
+    report["verdict"] = {"pass": failing == 0, "failing_runs": failing, "runs": len(recs)}
+    report["standings_vs_twins"] = standings_vs_twins(recs)
     if phi_set:
         report["phi_table"] = phi_table(recs, phi_set)
     if jout:

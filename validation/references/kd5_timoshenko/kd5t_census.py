@@ -1,31 +1,49 @@
 """M3-T premise census (section-bases Design section 4 item 5; K-D5 design section 2, A1 and epsilon_E).
 
-What the product exposes: the K-D5 gate's `reciprocal_condition_estimate` r_hat, its power-of-two
-`scale_exponents` D (one per free DOF, in global DOF order) and `global_dof_map`, all inside the
-NUMERICAL_INTEGRITY_* diagnostic message. What it does not expose: ||K~_s||_1 (the gate's own
-norm), est itself, and epsilon_E (the formation-error triangle bound). So:
+A1 is the claim that the Hager estimate is within 2^10 of the true inverse norm of the gate's prepared
+matrix K~_s; the epsilon_E go/no-go is epsilon_E <= 2^-40 ||K~_s||_1 on every case-mode (no-go above
+2^-36) [K-D5 section 2.1].
 
-- Hager ratio. With est = 1/(r_hat ||K~_s||_1) (K-D5 section 2, step 7), the ratio of the true
-  inverse norm to the estimate is ||K~_s^-1||_1 / est = kappa_1(K~_s) * r_hat. kappa_1 is formed
-  here from the independent reference stiffness: K~ = D K_ff D with the product's D and the exact
-  (110-digit) free-DOF stiffness of kd5t_engine, whose entries differ from the product's binary64
-  prepared matrix by input-representation rounding only. A1 is the claim ratio <= 2^10.
-- epsilon_E / ||K~_s||_1 cannot be measured from outside the product: it needs the product's own
-  binary64 element contributions in assembly order. It is reported as unavailable.
+What the product publishes: the gate's reciprocal_condition_estimate r_hat, its power-of-two scale
+exponents D (one per free DOF, global DOF order) and global_dof_map, inside the NUMERICAL_INTEGRITY
+diagnostic. It does not publish est, ||K~_s||_1 or epsilon_E. Hence three modes:
 
-Usage: python3 -I -B kd5t_census.py <set.jsonl> <runs.jsonl> [<runs.jsonl> ...] --out <census.jsonl>
+  hager      <set.jsonl> <runs.jsonl>... --out <f>   Hager ratio from published values only:
+             ||K~_s^-1||_1 / est = kappa_1(D K D) * r_hat, with the exact free-DOF stiffness of
+             kd5t_engine (straight members). diag(D K D) in [1, 4) confirms the mapping.
+  probe      <dump.jsonl> [--requests <in.jsonl>...] --out <f>
+             consumes the dump of an instrumented product build (format below): epsilon_E/||K~_s||_1
+             against 2^-40 and 2^-36, 2^10 est epsilon_E, and the Hager ratio ||K~_s^-1||_1/est with the
+             exact inverse of the dumped K~_s (binary64 entries taken exactly), or, without a dumped
+             matrix, of D K D from the engine for straight-only requests.
+  standings  <runs.jsonl>... [--out <f>]            Passed / Sensitive / fail-closed / refused counts per
+             corpus and shear model, paired by tag stem (the "|reauth-eb" / "|reauth-ts" suffix or the
+             set's twin tags).
+  --selftest <set.jsonl> <runs.jsonl>               validates the probe arithmetic on synthetic dumps.
+
+Probe dump format (one JSON line per K-D5 evaluation; the runner sets KD5_ACTIVE_TAG, KD5_ACTIVE_ENTRY
+and KD5_ACTIVE_MODE so the probe can label lines):
+  {"tag", "entry", "mode", "case", "attempt": "ordinary"|"w2", "r_hat", "est", "norm1_Ks",
+   "epsilon_E", "epsilon_E_parts": [elements, assembly, projection] (optional), "contraction",
+   "outcome": "passed"|"sensitive:<reason>"|"fail_closed:<detail>",
+   "Ks": [[...]] (optional, the prepared scaled symmetric matrix the factor sees), "scale_exponents" (optional)}
 """
 
 from __future__ import annotations
 
+import collections
 import json
 import os
 import re
 import sys
 from decimal import Decimal
+from fractions import Fraction as Q
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import kd5t_engine as E  # noqa: E402
+
+GO = Q(1, 2 ** 40)
+NO_GO = Q(1, 2 ** 36)
 
 
 def parse_gate(message):
@@ -39,14 +57,17 @@ def parse_gate(message):
     return float(m.group(1)), exps, dofmap
 
 
-def inverse(a):
+def inverse_norm1(a):
+    """||a^-1||_1 for a square matrix of Decimal or Fraction entries (exact for Fractions)."""
     n = len(a)
-    cols = []
+    best = None
     for k in range(n):
-        e = [E.ZERO] * n
-        e[k] = E.ONE
-        cols.append(E.solve_dense(a, e))
-    return [[cols[c][r] for c in range(n)] for r in range(n)]
+        e = [0 * a[0][0]] * n
+        e[k] = 1 + 0 * a[0][0]
+        col = E.solve_dense(a, e)
+        s = sum(abs(x) for x in col)
+        best = s if best is None or s > best else best
+    return best
 
 
 def norm1(a):
@@ -54,7 +75,18 @@ def norm1(a):
     return max(sum(abs(a[r][c]) for r in range(n)) for c in range(n))
 
 
-def census(gen, run, max_n=72):
+def engine_scaled(request, exps):
+    ref = E.Reference(request)
+    case = ref.cases[next(iter(ref.cases))]
+    free = case["free"]
+    if len(free) != len(exps):
+        raise ValueError(f"scale exponent count {len(exps)} != free DOFs {len(free)}")
+    Dg = [Decimal(2) ** e for e in exps]
+    K = case["Kff"]
+    return ref, [[Dg[r] * K[r][c] * Dg[c] for c in range(len(free))] for r in range(len(free))]
+
+
+def hager_record(gen, run, max_n=72):
     ds = run.get("diagnostics") or []
     msg = next((d["message"] for d in ds if d["code"].startswith("NUMERICAL_INTEGRITY")), None)
     rec = {"tag": run["tag"], "entry": run["entry"], "mode": run["mode"], "code": next((d["code"] for d in ds if d["code"].startswith("NUMERICAL_INTEGRITY")), None)}
@@ -66,70 +98,210 @@ def census(gen, run, max_n=72):
         rec["status"] = "gate values not in the message"
         return rec
     rhat, exps, dofmap = gate
-    ref = E.Reference(gen["request"])
-    case = ref.cases["case:1"]
-    names = [f"{n}:{d}" for n in ref.node_order for d in E.DOFS]
+    names = [f"{n['id']}:{d}" for n in gen["request"]["model"]["nodes"] for d in E.DOFS]
     if names != dofmap:
         rec["status"] = "global_dof_map differs from the request node/DOF order"
         return rec
-    free = case["free"]
-    if len(free) != len(exps):
-        rec["status"] = f"scale exponent count {len(exps)} != free DOFs {len(free)}"
-        return rec
-    if len(free) > max_n:
-        rec["status"] = "too large for the exact inverse"
-        return rec
-    if not free:
+    if not exps:
         rec["status"] = "no free DOFs"
         return rec
-    Dg = [Decimal(2) ** e for e in exps]
-    K = case["Kff"]
-    Ks = [[Dg[r] * K[r][c] * Dg[c] for c in range(len(free))] for r in range(len(free))]
-    diag = [Ks[k][k] for k in range(len(free))]
-    nK = norm1(Ks)
-    nInv = norm1(inverse(Ks))
+    if len(exps) > max_n:
+        rec["status"] = "too large for the exact inverse"
+        return rec
+    _, Ks = engine_scaled(gen["request"], exps)
+    nK, nInv = norm1(Ks), inverse_norm1(Ks)
     kappa = nK * nInv
-    rec.update({"status": "ok", "n_free": len(free), "rhat": rhat, "norm1_Ks": float(nK), "norm1_inv": float(nInv), "kappa1": float(kappa),
+    diag = [Ks[k][k] for k in range(len(Ks))]
+    rec.update({"status": "ok", "n_free": len(Ks), "rhat": rhat, "norm1_Ks": float(nK), "norm1_inv": float(nInv), "kappa1": float(kappa),
                 "hager_ratio": float(kappa * Decimal(repr(rhat))), "diag_min": float(min(diag)), "diag_max": float(max(diag)),
-                "A1_margin": float(Decimal(1024) / (kappa * Decimal(repr(rhat)))), "epsilon_E_over_norm": None,
-                "epsilon_E_status": "not exposed by the product (needs its binary64 element contributions in assembly order)"})
+                "A1_margin": float(Decimal(1024) / (kappa * Decimal(repr(rhat))))})
     return rec
 
 
-def work(job):
-    gen, runs = job
-    out = []
-    for run in runs:
-        try:
-            out.append(census(gen, run))
-        except Exception as exc:  # noqa: BLE001
-            out.append({"tag": run["tag"], "entry": run["entry"], "mode": run["mode"], "status": "error: " + repr(exc)[:300]})
-    return out
+def probe_record(line, requests):
+    rec = {k: line.get(k) for k in ("tag", "entry", "mode", "case", "attempt", "outcome")}
+    nK = Q(line["norm1_Ks"]) if line.get("norm1_Ks") is not None else None
+    eps = Q(line["epsilon_E"]) if line.get("epsilon_E") is not None else None
+    est = Q(line["est"]) if line.get("est") is not None else None
+    if nK and eps is not None:
+        r = eps / nK
+        rec["epsilon_E_over_norm"] = float(r)
+        rec["go"] = r <= GO
+        rec["no_go"] = r > NO_GO
+    if est is not None and eps is not None:
+        rec["neumann"] = float(1024 * est * eps)
+    if est is not None:
+        inv = None
+        if line.get("Ks"):
+            Ks = [[Q(v) for v in row] for row in line["Ks"]]
+            if nK is not None and norm1(Ks) != nK:
+                rec["norm_mismatch"] = float(norm1(Ks) / nK)
+            inv = Q(inverse_norm1(Ks))
+            rec["hager_basis"] = "dumped K~_s (exact inverse of its binary64 entries)"
+        elif line.get("scale_exponents") and line["tag"] in requests:
+            _, Ks = engine_scaled(requests[line["tag"]], line["scale_exponents"])
+            inv = Q(inverse_norm1(Ks))
+            rec["hager_basis"] = "engine D K D (straight members)"
+        if inv is not None:
+            rec["hager_ratio"] = float(inv / est)
+            rec["A1"] = inv <= 1024 * est
+    return rec
 
 
-def main():
-    args = sys.argv[1:]
-    i = args.index("--out")
-    out_path = args[i + 1]
-    del args[i:i + 2]
-    set_path, run_paths = args[0], args[1:]
+def classify(run):
+    ds = run.get("diagnostics") or []
+    if run.get("error"):
+        return "error"
+    if any(d.get("severity") == "blocking" for d in ds):
+        return "refused:" + ",".join(sorted({d["code"] for d in ds if d.get("severity") == "blocking"}))
+    codes = [d for d in ds if d["code"].startswith("NUMERICAL_INTEGRITY")]
+    if not codes:
+        return "no-integrity"
+    if codes[0]["code"] == "NUMERICAL_INTEGRITY_CHECKS_PASSED":
+        return "passed"
+    msg = codes[0].get("message", "")
+    if "reason=formation_check_unavailable" in msg or "member-relative formation check is not available" in msg:
+        return "fail-closed"
+    if "S11-G recovery guard (R-b'): load case" in msg:
+        return "sensitive-recovery-guard"
+    if "reason=estimate" in msg:
+        return "sensitive-d5c1"
+    if "S11-G formation-noise guard" in msg:
+        return "sensitive-load-row"
+    return "sensitive-gate-or-solve"
+
+
+def stem(tag):
+    for suf in ("|reauth-eb", "|reauth-ts", "|eb", "|ts"):
+        if tag.endswith(suf):
+            return tag[: -len(suf)], suf.split("-")[-1].strip("|")
+    return tag, "?"
+
+
+def corpus_of(tag):
+    t = tag.split("|")[0]
+    if t.startswith("invented:rv30") or tag[:2] in ("A|", "B|", "C|", "D|"):
+        return "RV30"
+    if "i43w1" in t:
+        return "W1"
+    if "rv29" in t:
+        return "RV29"
+    if t.startswith("m3t"):
+        return "M3-T"
+    return "realistic"
+
+
+def standings(paths):
+    c = collections.defaultdict(collections.Counter)
+    pairs = collections.defaultdict(dict)
+    for p in paths:
+        for line in open(p):
+            r = json.loads(line)
+            s, th = stem(r["tag"])
+            cls = classify(r)
+            c[(corpus_of(r["tag"]), th)][cls] += 1
+            pairs[(s, r["entry"], r["mode"])][th] = cls
+    moves = collections.Counter()
+    for k, v in pairs.items():
+        if "eb" in v and "ts" in v:
+            moves[(v["eb"], v["ts"])] += 1
+    return c, moves
+
+
+def selftest(set_path, runs_path):
+    """Synthetic dumps from the engine and the gate's published r_hat and D: the probe arithmetic must
+    reproduce the hager-mode ratio, and the go/no-go and A1 flags must flip at their thresholds."""
     gens = {}
     for line in open(set_path):
         x = json.loads(line)
         gens[x["tag"]] = x
-    runs = {}
-    for p in run_paths:
-        for line in open(p):
-            r = json.loads(line)
-            if r["entry"] != "typed":
-                continue  # the gate is entry-independent; the captured entry repeats it
-            runs.setdefault(r["tag"], []).append({k: r.get(k) for k in ("tag", "entry", "mode", "diagnostics")})
-    import multiprocessing as mp
-    jobs = [(gens[t], rs) for t, rs in runs.items()]
-    with mp.get_context("fork").Pool(6) as pool, open(out_path, "w") as f:
-        for res in pool.imap_unordered(work, jobs, chunksize=2):
-            for rec in res:
+    n = 0
+    bad = []
+    for line in open(runs_path):
+        run = json.loads(line)
+        if run["entry"] != "typed" or n >= 6:
+            continue
+        h = hager_record(gens[run["tag"]], run)
+        if h.get("status") != "ok":
+            continue
+        n += 1
+        msg = next(d["message"] for d in run["diagnostics"] if d["code"].startswith("NUMERICAL_INTEGRITY"))
+        rhat, exps, _ = parse_gate(msg)
+        _, Ks = engine_scaled(gens[run["tag"]]["request"], exps)
+        nK = Q(norm1(Ks))
+        est = 1 / (Q(rhat) * nK)
+        for eps_ratio, go, nogo in ((Q(1, 2 ** 41), True, False), (Q(1, 2 ** 38), False, False), (Q(1, 2 ** 35), False, True)):
+            dump = {"tag": run["tag"], "entry": "typed", "mode": run["mode"], "case": "case:1", "r_hat": rhat, "est": float(est),
+                    "norm1_Ks": float(nK), "epsilon_E": float(eps_ratio * nK), "scale_exponents": exps}
+            rec = probe_record(dump, {run["tag"]: gens[run["tag"]]["request"]})
+            if rec["go"] != go or rec["no_go"] != nogo:
+                bad.append((run["tag"], "go/no-go", float(eps_ratio)))
+            if abs(rec["hager_ratio"] / h["hager_ratio"] - 1) > 1e-12:
+                bad.append((run["tag"], "hager ratio", rec["hager_ratio"], h["hager_ratio"]))
+        dump = {"tag": run["tag"], "entry": "typed", "mode": run["mode"], "est": float(est) / 2000, "norm1_Ks": float(nK), "epsilon_E": 0.0,
+                "scale_exponents": exps}
+        if probe_record(dump, {run["tag"]: gens[run["tag"]]["request"]})["A1"]:
+            bad.append((run["tag"], "A1 not refuted by an estimate 2000x too small"))
+        # a dumped matrix (binary64 entries of D K D) gives the same Hager ratio to rounding
+        dump = {"tag": run["tag"], "entry": "typed", "mode": run["mode"], "est": float(est), "norm1_Ks": float(nK), "epsilon_E": 0.0,
+                "Ks": [[float(v) for v in row] for row in Ks]}
+        rec = probe_record(dump, {})
+        if abs(rec["hager_ratio"] / h["hager_ratio"] - 1) > 1e-9:
+            bad.append((run["tag"], "dumped-matrix hager ratio", rec["hager_ratio"], h["hager_ratio"]))
+    print(f"census self-test: {n} models, {len(bad)} failures {bad[:3]}")
+    if bad or n == 0:
+        raise SystemExit(1)
+
+
+def main():
+    args = sys.argv[1:]
+    if args[0] == "--selftest":
+        selftest(args[1], args[2])
+        return
+    mode = args.pop(0)
+    out_path = None
+    if "--out" in args:
+        i = args.index("--out")
+        out_path = args[i + 1]
+        del args[i:i + 2]
+    if mode == "hager":
+        set_path, run_paths = args[0], args[1:]
+        gens = {}
+        for line in open(set_path):
+            x = json.loads(line)
+            gens[x["tag"]] = x
+        jobs = []
+        for p in run_paths:
+            for line in open(p):
+                r = json.loads(line)
+                if r["entry"] == "typed":  # the gate is entry-independent
+                    jobs.append((gens[r["tag"]], {k: r.get(k) for k in ("tag", "entry", "mode", "diagnostics")}))
+        import multiprocessing as mp
+        with mp.get_context("fork").Pool(6) as pool, open(out_path, "w") as f:
+            for rec in pool.starmap(hager_record, jobs, chunksize=4):
                 f.write(json.dumps(rec) + "\n")
+    elif mode == "probe":
+        requests = {}
+        if "--requests" in args:
+            i = args.index("--requests")
+            for p in args[i + 1:]:
+                for line in open(p):
+                    x = json.loads(line)
+                    requests[x["tag"]] = x["request"]
+            del args[i:]
+        with open(out_path, "w") as f:
+            for line in open(args[0]):
+                f.write(json.dumps(probe_record(json.loads(line), requests)) + "\n")
+    elif mode == "standings":
+        c, moves = standings(args)
+        for k in sorted(c):
+            print(k, dict(sorted(c[k].items())))
+        print("EB -> TS moves:", dict(moves))
+        if out_path:
+            json.dump({"standings": {f"{a}|{b}": dict(v) for (a, b), v in c.items()}, "moves": {f"{a} -> {b}": n for (a, b), n in moves.items()}},
+                      open(out_path, "w"), indent=1, sort_keys=True)
+    else:
+        raise SystemExit(__doc__)
 
 
 if __name__ == "__main__":
