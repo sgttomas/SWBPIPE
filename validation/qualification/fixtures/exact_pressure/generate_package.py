@@ -40,7 +40,9 @@ with ``section_basis``). Where a document's bases coincide (no mill tolerance,
 no corrosion allowance) the reference keeps its one stress value, and both
 families are asserted against it under the same criterion. The re-authored
 T4-I8 MILLTOL owners carry their own model 0.5.0 documents, with and without
-the load/reference-state group, instead of the v2 documents and v3 patch.
+the load/reference-state group, instead of the v2 documents and v3 patch; both
+run again under the owner's declared ``shear_model_variant`` (Timoshenko), whose
+rows are the same rows (no transverse load: the response is unchanged).
 
 Usage (WORKING_ROOT is ``projects/chirality-piping``)::
 
@@ -100,6 +102,9 @@ UNDERSCORE_ID_FAMILIES = ('result:pressure-exact:', 'result:elastic-maximum:')
 # The re-authored T4-I8 owners' documents (case label -> document key) and their current contract.
 I8_CURRENT_DOCUMENTS = (('0.5.0', 'v3_model_0.5.0'), ('0.5.0_load_state_group', 'v3_model_0.5.0_load_state_group'))
 CURRENT_PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': 'exact_pressure_v3', 'shear_model': 'euler_bernoulli'}
+# Each declared shear-model variant (the owner's `shear_model_variant` patch; every row unchanged) runs both
+# documents again under that model, as `<label>_<suffix>`.
+I8_SHEAR_VARIANTS = {'timoshenko_annulus_energy_v1': 'timoshenko'}
 
 # --------------------------------------------------------------------------
 # Row identity: the producer's row IDs and published metadata (identification)
@@ -700,7 +705,8 @@ def i8_owners(references: dict):
 
 def i8_documents(case_key: str, owner: dict):
     """(case label, document) of one owner: the v2 documents on 0.3.0 and 0.4.0 under the v3 patch or, for an
-    owner re-authored on D-5, its own model 0.5.0 documents without and with the load/reference-state group."""
+    owner re-authored on D-5, its own model 0.5.0 documents without and with the load/reference-state group,
+    then both again under its declared shear-model variant (whose rows are the same rows)."""
     documents = owner['documents']
     if 'v3_patch_for_both' in documents:
         patch = documents['v3_patch_for_both']
@@ -718,6 +724,16 @@ def i8_documents(case_key: str, owner: dict):
                 f'{case_key} {label}: document identity')
         require(('reference_configurations' in model) == key.endswith('_load_state_group'), f'{case_key} {label}: load/reference-state group')
         yield label, document
+    variant = documents.get('shear_model_variant')
+    if variant is None:
+        return
+    require(set(variant) == {'op', 'path', 'value', 'expectation'} and variant['op'] == 'replace'
+            and variant['path'] == '/model/pressure_contract/shear_model' and variant['value'] in I8_SHEAR_VARIANTS,
+            f'{case_key}: shear-model variant patch')
+    for label, key in I8_CURRENT_DOCUMENTS:
+        document = copy.deepcopy(documents[key])
+        document['model']['pressure_contract']['shear_model'] = variant['value']
+        yield f'{label}_{I8_SHEAR_VARIANTS[variant["value"]]}', document
 
 
 def i8_case(references: dict, case_key: str, variant: str | None, owner: dict, label: str, document: dict, pi: Decimal,

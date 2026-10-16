@@ -10,7 +10,11 @@ is exactly ``openpipestress.result_semantics/0.3.0/pressure-1`` with profile
 B7b retired the 0.3.0/0.4.0 documents: the package's frozen, hash-bound case
 inputs (0.3.0, or 0.4.0 with the group) are never edited; each run submits their
 declared re-authored copy (``qualification_physics.reauthor_runner_input``, the
-product tests' one re-authoring rule), against which the raw is read. Cases come from a hash-locked
+product tests' one re-authoring rule), against which the raw is read. A package
+document already current (T4-U6: model 0.5.0 under 3.0.0/exact_pressure_v3 with
+an explicit shear model and an explicit corrosion allowance on every section) is
+submitted unchanged; its ledger records the identity re-authoring, with the same
+hash on both sides. Cases come from a hash-locked
 case manifest (``openpipestress.exact_pressure_qualification_manifest/1``)
 named by a run selection record. Every required selector, including the
 terminal fields of ``contract_evidence.pressure``, resolves exactly once; every
@@ -68,6 +72,10 @@ MODEL_VERSION = physics.MODEL_VERSION
 PRESSURE_CONTRACT = physics.PRESSURE_CONTRACT
 FROZEN_PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': 'exact_pressure_v3'}
 FROZEN_VERSIONS = ('0.3.0', '0.4.0')
+# T4-U6 (manager ruling, 2026-10-16): a package document authored current (the D-5 re-authored T4-I8 MILLTOL) is
+# submitted unchanged. Its contract names its shear model explicitly: Euler-Bernoulli or the T4-U8 Timoshenko model.
+SHEAR_MODELS = ('euler_bernoulli', 'timoshenko_annulus_energy_v1')
+IDENTITY_SCOPE = 'identity: the package document is already current and is submitted unchanged; the frozen input, references and criteria are unchanged'
 TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_1.json'
 # B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables"; O-10): pressure-1's own reviewed
 # resident table; the former pin 07a6a308... named the table before its re-issue. T4-U6 (D-5, §2.4) re-issued it
@@ -386,8 +394,26 @@ def load_case_ids(request):
     return ids
 
 
+def current_contract(contract) -> bool:
+    """The current exact contract with an explicit shear model."""
+    return (type(contract) is dict and set(contract) == set(PRESSURE_CONTRACT)
+            and all(contract[key] == PRESSURE_CONTRACT[key] for key in ('version', 'mode')) and contract['shear_model'] in SHEAR_MODELS)
+
+
+def current_package_document(model) -> bool:
+    """A package document authored current: model 0.5.0, the current contract and an explicit corrosion_allowance on every section."""
+    sections = [pipe.get('section') if type(pipe) is dict else None for pipe in model.get('pipe_segments') or []] if type(model) is dict else []
+    return (type(model) is dict and model.get('schema_version') == MODEL_VERSION and current_contract(model.get('pressure_contract'))
+            and bool(sections) and all(type(section) is dict and 'corrosion_allowance' in section for section in sections))
+
+
 def model_version(model) -> str:
-    """The frozen package document's version: 0.3.0, or 0.4.0 with the load/reference-state group."""
+    """The package document's version: a frozen 0.3.0 (or 0.4.0 with the load/reference-state group) under the former
+    contract, or a document authored current (0.5.0), which is submitted unchanged."""
+    if type(model) is dict and model.get('schema_version') == MODEL_VERSION:
+        require(current_package_document(model), 'a 0.5.0 package document requires the current 3.0.0/exact_pressure_v3 contract with '
+                'an explicit shear_model and an explicit corrosion_allowance on every section')
+        return MODEL_VERSION
     require(type(model) is dict and model.get('schema_version') in FROZEN_VERSIONS and model.get('pressure_contract') == FROZEN_PRESSURE_CONTRACT,
             'frozen 0.3.0/0.4.0 package document under 3.0.0/exact_pressure_v3 required')
     require(physics.model_carries_load_state(model) == (model['schema_version'] == '0.4.0'),
@@ -395,9 +421,20 @@ def model_version(model) -> str:
     return model['schema_version']
 
 
+def submitted_input(data: bytes, model: dict, version: str) -> tuple[bytes, dict]:
+    """The runner input the run submits: a frozen document's declared re-authored copy, or a current document unchanged."""
+    if version != MODEL_VERSION:
+        return physics.reauthor_runner_input(data)
+    digest = sha256_bytes(data)
+    contract = model['pressure_contract']
+    return data, {'rule': physics.REAUTHORING, 'frozen_input_sha256': digest, 'submitted_input_sha256': digest,
+                  'model_schema_version': [MODEL_VERSION, MODEL_VERSION], 'pressure_contract': [contract, contract],
+                  'explicit_zero_corrosion_allowance': False, 'scope': IDENTITY_SCOPE}
+
+
 def current_model(model) -> bool:
     """The submitted document: model 0.5.0 under the current contract. Returns the load/reference-state group's presence."""
-    require(type(model) is dict and model.get('schema_version') == MODEL_VERSION and model.get('pressure_contract') == PRESSURE_CONTRACT,
+    require(type(model) is dict and model.get('schema_version') == MODEL_VERSION and current_contract(model.get('pressure_contract')),
             'actual 0.5.0 model under the current 3.0.0/exact_pressure_v3 contract required')
     return physics.model_carries_load_state(model)
 
@@ -424,11 +461,13 @@ def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[di
     model = product['model']
     version = model_version(model)
     _text(model['project']['id'], 'actual model ID')
-    # The frozen input stays bound by its bytes; the runner receives the declared re-authored copy.
-    runner_input, reauthoring = physics.reauthor_runner_input(files['runner_input'])
+    # The frozen input stays bound by its bytes; the runner receives the declared re-authored copy (a current
+    # document: the input itself).
+    runner_input, reauthoring = submitted_input(files['runner_input'], model, version)
     request = gate.strict_json(runner_input)
     load_state = current_model(request['solve']['preview_model']['model'])
-    require(load_state == (version == '0.4.0'), 're-authoring changed the load/reference-state group')
+    require(load_state == (version == '0.4.0' or (version == MODEL_VERSION and physics.model_carries_load_state(model))),
+            're-authoring changed the load/reference-state group')
     request_cases = load_case_ids(request)
     require(type(reference) is dict and reference.get('format') == REFERENCE_FORMAT and reference.get('case_id') == case['case_id'],
             'reference identity/version mismatch')

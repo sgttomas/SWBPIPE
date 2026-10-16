@@ -191,6 +191,18 @@ and the exact_pressure_1 adapter take `read pressure`, the Rust reader's pressur
 route (`validate_pressure_evidence`; `openpipestress.exact_pressure_consistency_binding/2`),
 the same way; both submit the declared re-authored copy of each frozen case input.
 
+T4-U6 (manager ruling, 2026-10-16) adds one exact_pressure_1 case: a package
+document authored current is submitted unchanged. This covers the D-5
+re-authored T4-I8 MILLTOL documents and their declared Timoshenko variant. Such
+a document is model 0.5.0 under `3.0.0/exact_pressure_v3`, with an explicit
+`shear_model` (`euler_bernoulli` or `timoshenko_annulus_energy_v1`) and an
+explicit `corrosion_allowance` on every section. Its `runner_input_reauthoring`
+record is the identity: the same rule name, the same frozen and submitted
+sha256, the same version and contract on both sides, and
+`explicit_zero_corrosion_allowance: false`. Every other package document must
+still be a frozen 0.3.0/0.4.0 document under the former `3.0.0/exact_pressure_v3`
+contract object, submitted as its re-authored copy.
+
 The ten structural checks cover transport/mode, input binding, ordinary contract,
 case/material/section, numerical standing, complete unique scalar coverage,
 normal maximum evidence, governing location and both summary bindings (the
