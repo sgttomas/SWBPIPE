@@ -14,10 +14,18 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
   - 28 are RF-CANCEL cases, whose blocks have order 4 (section 2). Their ordinary route passes its checks in both modes, so the public route attempts no recovery. Like RF-ZERO-TINY, they are method-only selections, and their public envelopes do not change.
   - RF-SKEW-T-PIN-OFF-345-r1e-04/-08/-12 and RF-MECH-LINE345-RX-COMPANION have non-axis-aligned members, carried by the exact congruence (section 3).
   - RF-SKEW-T-PIN-OFF-345-r1e-08 and -r1e-12 are sensitive on the ordinary route in both modes, so their four public envelopes newly publish `pressure-source-1`. This is the first public RF selected-source coverage, and the census binds it (section 6).
-- **What stays out.** Every other case keeps a typed first cause: an exact block of order above 4, the 4 subnormal-reserve cases, the 29 HASH-001 refusals and the 6 ordinary axis-gate refusals.
+- **What stays out.** Every other case keeps a typed first cause:
+  - an exact block of order above 4 (89 cases);
+  - the 4 subnormal-reserve cases;
+  - the 29 HASH-001 refusals;
+  - the 6 ordinary axis-gate refusals.
+
+  No previously selected case loses selection, and no first cause changes except as section 6 states (measured).
 - **Two rulings applied** (HELP_HUMAN, 2026-10-16):
   - the subnormal final reserve is excluded (section 4);
-  - metered charging becomes the single work-charging rule for exact attempts (section 5).
+  - metered charging becomes the single work-charging rule for exact attempts (section 5). Existing work counters move and are re-pinned.
+  - Under that rule, one committed source case also changes outcome for work alone: `load_reference_fallback_uz` now passes the replay screen it used to fail, and publishes selected (section 5.5).
+  - No strict-gap outcome changes in any committed suite (measured).
 - **No change** to a reference, criterion, tolerance, expected case, exclusion, D1 limit, semantic table or model format.
 - **D3** is estimated at about 8 MB more in the phases that price the live source attempt and its receipt replay (derived, section 9). That fits if U6/U8's registration leaves at least about 10 MB in each such phase.
 - **No ruling is outstanding.** Section 11 lists what stays reserved.
@@ -36,9 +44,12 @@ Three throwaway probes ran in the scratch worktree `/Users/ryan/dev/chirality-t3
   - A scratch implementation of sections 2 and 3, under the legacy charges, runs the census's direct method on all 161 cases (`RF_PROTO_OUT=/private/tmp/rf-design-proto/measure.jsonl test --lib rf_proto_measure`).
   - Section 3.6 describes the shortcut it takes for the Context's congruence source.
   - Outputs: `measure.jsonl`, `summary.json`, `census_diff.jsonl` and the logs.
-- **P3, metered charging** (`/private/tmp/rf-design-proto/metered/`, then `/private/tmp/rf-design-proto/uniform/`).
-  - P2's prototype with metered `Work::mul` (section 5): first for extended attempts only (`RF_PROTO_METERED=1`), then as the single rule with the per-pair constant 96 (`RF_PROTO_UNIFORM=1`).
-  - Outputs: `measure.jsonl`, `summary.json`, `compare.json`, the test-suite logs and `prototype.diff` in each directory.
+- **P3, metered charging.** P2's prototype with metered `Work::mul` (section 5), run twice:
+  - `/private/tmp/rf-design-proto/metered/`: for "extended" attempts only (`RF_PROTO_METERED=1`), with a per-pair constant of 4. This was an intermediate step, superseded by the ruling.
+  - `/private/tmp/rf-design-proto/uniform/`: the ruled rule. It applies to every exact attempt with the per-pair constant 96 (`RF_PROTO_UNIFORM=1`). The order cap is scoped per entry (section 2.1), and a scratch counter records operations and radix iterations.
+  - The uniform run covers the census measurement (`measure.jsonl`, `compare.json`, `summary.json`), the leaf diff of the 24 source controls (`controls_leafdiff.json`), strict-gap endings under both rules (`strictgap_*.json`) and these suites under both rules: frame kernel lib, nonlinear lib and integration, product-physics lib, and the product-physics integration targets `kd5_preview_maximum_enclosure`, `physics_source_runtime`, `pressure_source_join`, `s11f_site_test` and `source_block_recovery` (`suite_*.log`).
+  - The "baseline" logs are the same scratch tree run with main's behaviour. The `result_export` suite was not run, because it reads committed fixtures, which no probe changes.
+  - Every measured run ended normally. The last job's rc=101 (10:13:53Z) is its own test failures, classified in section 5.5; it was not an interruption.
 
 Controls that passed (measured):
 - **P1.**
@@ -52,7 +63,12 @@ Controls that passed (measured):
   - RF-ZERO-TINY still charges 742,625 with an identical response digest.
   - The 52 block cases whose first component is above 4 keep identical errors and work.
   - `source_recovery::tests` pass 10/10.
-- **P2 and P3, for every selected case.** Every published displacement and member end action contains P1's exact value inside its certified interval, and lies within 2 ulps of the correctly rounded value. The direct method is mode-independent: `dense_scrutiny` spot checks equal `sparse_interactive` in outcome, work and response digest.
+- **P2 and P3, for every selected case.** Every published displacement and member end action contains P1's exact value inside its certified interval, and lies within 2 ulps of the correctly rounded value.
+- **Mode independence.** `dense_scrutiny` spot checks (six in P2, three in P3) equal `sparse_interactive` in outcome, work and response digest.
+- **P3 (uniform).**
+  - The frame-kernel lib passes 611/611, with the legacy-entry tests unchanged.
+  - The nonlinear lib (151) and its integration tests (4) pass identically under both rules.
+  - No multiplication anywhere in the census or its replays is charged below its counted operations (section 5.4).
 
 ### 1.2 The 94 exact-block cases
 
@@ -213,7 +229,7 @@ Every exact operation is charged through `Work` under section 5's rule. Witness 
 
 Measured on the prototype for the 28 selectable RF-CANCEL cases:
 - **Under the legacy charges:** selection costs 3,417,588 to 6,377,841, and Evaluation is the largest stage. Selection plus the receipt's same-ledger functional replay costs 6,835,938 to 12,756,933, and only 8 of the 28 fit within 8,000,000.
-- **Under metered charging (P3):** selection costs 285,786 to 369,689, and selection plus replay 565,958 to 734,253. ⟪UNIFORM-CANCEL⟫
+- **Under section 5's rule (P3, uniform):** selection costs 370,674 to 538,389, and selection plus replay 742,110 to 1,078,029. For example, CANCEL-F-G1e5-GnG selects at 429,395 and replays within 859,737.
 - **Expansion lengths:** no expansion-length budget is reached. The longest expansion in any case is 35 terms (an `add`) against `expansion_terms` = 256.
 
 ### 2.8 Limits
@@ -232,7 +248,11 @@ On the pre-0.4 route, `source_receipt` replays a selected case on the case's own
 
 **Rule.** The replay screen that the 0.4 route already applies before selection, `SelectedSourceRecovery::reserve_captured_replay` (charged ≤ limit − charged), applies to every selection on both routes. A case that fails the screen is declined with `Budget` at stage "captured replay reservation", keeps its executed work and publishes ordinarily.
 
-This changes no existing outcome. The largest selection in the 24 source controls is about 3.7 million before replay: their pinned totals including replay are at most 7,341,815, under legacy charges, and section 5 only lowers charges (derived). Every measured new selection fits as well: ⟪UNIFORM-REPLAY-MAX⟫. A failure that passes the screen keeps today's named refusal on the pre-0.4 route and today's republication on the 0.4 route.
+This changes no existing outcome:
+- The largest selection in the 24 source controls is about 3.7 million before replay: their pinned totals including replay are at most 7,341,815, under legacy charges. Section 5 only lowers charges (derived).
+- Every measured new selection fits under section 5's rule. The largest is RF-SKEW-T-PIN-OFF-345-r1e-08: 2,832,853 at selection, under the screen's 4,000,000, and 5,667,343 including replay (P3).
+
+A failure that passes the screen keeps today's named refusal on the pre-0.4 route and today's republication on the 0.4 route.
 
 ## 3. Non-axis-aligned member transforms
 
@@ -279,12 +299,17 @@ Exact equilibrium therefore holds between the members' exact global end actions,
 
 ### 3.5 Work and units
 
-The congruence formation is charged on the attempt's ledger, in stage SourceClosure, under section 5's rule. Measured per member:
+The congruence formation is charged on the attempt's ledger, in stage SourceClosure, under section 5's rule.
 
-| Member direction | Metered, P3 | Legacy charges |
-|---|---|---|
-| (3,4,0) | 6,600 | 796,096 |
-| (1,2,2) | 24,652 | 2,084,836 |
+Measured per member under the uniform rule (P3), with the direct triple sum:
+
+| Member direction | Uniform rule (P3) |
+|---|---|
+| (3,4,0) | 33,608 |
+| (1,2,2) or (1,2,−2) | 102,076 |
+| (1,8,−4) | about 102,400 |
+
+The same members charge 924,176 and about 2.6 million under the legacy charges. The two-stage form, which section 3.3 specifies, gave value-equal entries for less work in every member, under both the legacy charges and the extended-only metering (for a (3,4,0) member, 796,096 against 924,176 and 6,600 against 7,112). It was not re-measured under the uniform rule.
 
 Descriptor units grow, derived from `descriptors_charge`'s counting rule and K_local's sparsity:
 - A congruence member's end rows carry up to 12 terms, each with a two-atom product, where today they carry 2 to 4 single-atom terms.
@@ -300,17 +325,17 @@ The prototype implemented 3.3 with a shortcut. It replaced each congruence membe
 
 The shortcut does not build a receipt, so the public publication path for a congruence member was not exercised. The implementation verifies it (sections 6 and 12).
 
-Measured at 8,000,000:
+Measured at the unchanged 8,000,000:
 
-| Cases | Legacy charges (P2) | Metered (P3) |
+| Cases | Legacy charges (P2) | Section 5's rule (P3, uniform) |
 |---|---|---|
-| SKEW-T-PIN-OFF-345 r1e-04/08/12 | `Budget` in Preparation; 30.9M / 33.4M / 32.0M needed | selected [4,2], 28/28; selection 1.70M / 1.89M / 1.80M, with replay 3.40M / 3.78M / 3.61M |
-| MECH-LINE345-RX-COMPANION | `Budget` in Evaluation; 15.3M needed | selected [3,2], 26/26; selection 737,495, with replay 1,476,282 |
-| LARGE-CHAIN/TREE/CONT-n00010-ROT | `Budget` in SourceClosure (about 27.0M needed) | `UnsupportedBlock` 60/60/45 (about 1.0M) |
-| INVARIANCE-CONT4-ROT-Q3/Q9 | `Budget` in SourceClosure (about 21.6M needed) | `UnsupportedBlock` 36 (about 0.81M) |
-| the other 18 | `UnsupportedBlock` 5, 6, 9 or 12 | the same, at much lower work |
+| SKEW-T-PIN-OFF-345 r1e-04/08/12 | `Budget` in Preparation; 30.9M / 33.4M / 32.0M needed | selected [4,2], 28/28. Selection 2,571,226 / 2,832,853 / 2,708,316; with replay 5,143,867 / 5,667,343 / 5,418,108 |
+| MECH-LINE345-RX-COMPANION | `Budget` in Evaluation; 15.3M needed | selected [3,2], 26/26. Selection 1,167,411; with replay 2,336,114 |
+| LARGE-CHAIN/TREE/CONT-n00010-ROT | `Budget` in SourceClosure (about 27.0M needed) | `UnsupportedBlock` 60 / 60 / 45 (about 1.75M) |
+| INVARIANCE-CONT4-ROT-Q3/Q9 | `Budget` in SourceClosure (about 21.6M needed) | `UnsupportedBlock` 36 (about 1.41M) |
+| the other 18 | `UnsupportedBlock` 5, 6, 9 or 12 | the same errors, at lower work (for example ZERO-TORSION 172,089, FINITE-ROT-Q9-NONMULT 365,141) |
 
-⟪UNIFORM-TRANSFORM⟫
+Under the uniform rule no transform case ends in `Budget`. All 23 that do not select carry `UnsupportedBlock` with an order above 4.
 
 ## 4. The subnormal final reserve: excluded (HELP_HUMAN ruling, 2026-10-16)
 
@@ -378,17 +403,59 @@ The argument rests on structure. The census is its control.
 - four `exact_radix` scalings: of a by −ea and b by −eb (at most 3 iterations each, since |ea|, |eb| ≤ 1074 and each iteration moves at most 512), and of lo and hi by ea + eb (at most 5 iterations each, since |ea + eb| ≤ 2148). That is at most 16 iterations, each costing two multiplications and three comparisons (5): 80;
 - the product and its fused residual (2).
 
-The total is 86, in `Work::add`'s unit of one floating-point operation or comparison. C₂ = 96 covers it. P3 records each pair's actual radix iterations: ⟪UNIFORM-RADIX⟫.
+The total is 86, in `Work::add`'s unit of one floating-point operation or comparison. C₂ = 96 covers it.
+
+P3 recorded each pair's actual radix iterations over the 232,225 metered pairs of the census attempts and their replays (measured):
+- the largest count is 6 iterations, against the bound of 16;
+- no pair needs more than the constant covers;
+- the smallest per-pair slack (charged minus counted) is 62.
 
 ### 5.4 The control and the oracle
 
-- **The maintained control.** A test-build operation counter (`#[cfg(test)]` in the frame kernel) counts every executed two-sum step, two-product operation and radix iteration. A census-wide test asserts charged ≥ counted for every exact attempt and every replay. P3 measured: ⟪UNIFORM-SHORTFALL⟫.
+- **The maintained control.** A test-build operation counter (`#[cfg(test)]` in the frame kernel) counts every executed two-sum step, two-product operation and radix iteration. A census-wide test asserts charged ≥ counted for every exact attempt and every replay.
+
+P3 measured, over all 161 cases and their replays, 34,423,472 charged against 17,406,962 counted operations in metered multiplications. The smallest slack is 72 per call and 62 per pair, and no call was charged less than it executed.
 - **The independent oracle.** A frame-kernel test recomputes each charge of a set of products and sums of varied operand lengths from the operand lengths alone, in MJ9's style and without the producer's counters, and compares the totals exactly.
 - **The readers.** The Rust reader and the Python verifier keep their work checks, which are the ledger's structure and limits: per case, charged plus reserved at most the limit at most 8,000,000; the invocation sums at most 64,000,000 and consistent with the publication charge. They do not redo the solve, and they cannot recompute arithmetic charges.
 
 ### 5.5 Consequences
 
-⟪UNIFORM-CONSEQUENCES⟫
+All measured on P3's uniform run, against main's behaviour in the same scratch tree.
+
+**Census.**
+- **Categories:** 32 newly selected; RF-ZERO-TINY selected as before; 14 order reclassifications and 23 transform reclassifications (section 6); 56 with an unchanged error; and 35 that make no attempt (HASH-001 and the axis gate).
+- **Exceptions: none.** No previously selected case loses selection. No first cause changes beyond those classes. Every non-selected case's error is unchanged apart from its work numbers.
+- **RF-ZERO-TINY** now charges 126,845, with 253,699 including replay, against 742,625 today. Its response digest and rows (25/25) are unchanged.
+
+**Strict-gap qualification.** The strict-gap path ends identically under both rules: 1,943 exact attempts in the nonlinear suites and 40 in the product-physics lib.
+- Neither rule ends any attempt in `Budget`.
+- The two strict-gap replays that a test drives into `Budget` do so under both rules.
+- Nothing is newly qualified, so no DEL-04-01 K-D5 outcome changes (`kd5-nonlinear-active-set.md`).
+- The rule does widen what the strict-gap helper can complete within its 2,000,000 per-call limit, for models that today exhaust it.
+
+**Suites.**
+- **Frame kernel lib:** 611/611 pass.
+- **Nonlinear:** lib 151 and integration 4 pass, identically under both rules.
+- **Product-physics lib:** 20 failures, each explained:
+  - the 10 census family tests: coverage and work;
+  - the 2 registration law tests (`retained_memory::law_tests`): any priced-source change stales the registered profile, and they fail in main-behaviour mode of the same tree too. They are D3's re-registration (section 9);
+  - `cached_source_context_preserves_current_public_serializations`: work digits;
+  - `retained_facade_tests::b3b_rv123_s2_unavailable_exact_case_binds_def_e`: its W1 route-E successor carries a source decline whose first cause becomes `UnsupportedBlock` instead of "not a signed permutation". This is section 3's reclassification, together with the hashes that bind it, in both modes;
+  - five `source_receipt::load_state_fallback_tests`, and `s11g_tests::t13_committed_fallback_uz_is_byte_identical`: below.
+- **Product-physics integration:**
+  - `pressure_source_join`'s two control tests: work counters, in the 6 leaves below;
+  - `s11f_site_test`'s `rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites`: a source-audit list of frame-kernel functions, which the prototype changed by renaming one. The implementation keeps that list current.
+
+**Outcomes that change for work alone.** Both cases below lose a `Budget` refusal under the lower charges, as 5.2 (5) predicts.
+- **The five fallback tests.** Each constructs a "budget cliff" whose limits were tuned to the legacy charges. Under the uniform rule the cliff is not reached and the selected join finalizes (`pressure-source-1` in place of the expected `pressure-1`). The SF-1 and SF-1R fallback paths themselves are unchanged. The implementation re-derives each test's limits from the uniform charges, so every fallback path stays exercised.
+- **The committed `core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-*.raw.json`** (0.4 load-reference route, both modes).
+  - Today its source attempt is declined at the replay screen ("captured replay reservation", `Budget`, charged 4,061,151 against the 4,000,000 threshold), and it publishes its ordinary result.
+  - Under the uniform rule it passes the screen and publishes the selected resolved `pressure-source-1`. Its retained maximum then takes the retained-source basis (`retained_section_functionals_binary64` in place of `j_side_section_equilibrium_binary64_enclosures`).
+  - The published values are the source method's certified projections (relative bound ≤ 1e-9). The existing 0.4 boundary still makes the evidence numerically ineligible. No reference covers the case.
+  - The implementation regenerates the fixture through its writer, re-states T13's expectations for the selected publication (T13's preconditions on the ordinary report are unchanged), and reads the result with the Rust reader and the Python verifier.
+  - If the fixture's purpose is to keep a committed example of the screen's refusal, the implementation keeps one by lowering that request's case limit, not by restoring legacy charges.
+
+**Committed bytes.** Each of the 24 raw source controls differs in exactly 6 leaves, out of 2,984 to 5,067: 3 work counters, 2 hashes binding them and 1 decline text embedding work (`controls_leafdiff.json`). Their 30 derived documents and J2's bases follow from them. The retained corpus `retained_precision_cases.json` is expected to be unchanged (derived, not run): its two decline messages are source-closure refusals (the excluded subnormal reserve), which perform no multiplication, so their work counters do not move. Its pack step regenerates it at implementation, and any byte difference must be explained.
 
 ## 6. The consuming check: the J7 RF census
 
@@ -404,7 +471,17 @@ The census (`source_recovery/j7_rf_census.rs`, pinned in `fixtures/results/j7_rf
 
 Any other decline still panics as unclassified. `exact_block_order_above_2` and `transform_not_signed_permutation` disappear, because no case can reach them any more.
 
-**Pinned counts.** `j7_rf_census_classification_and_pin` pins the new counts, measured on P3: ⟪UNIFORM-COUNTS⟫
+**Pinned counts.** `j7_rf_census_classification_and_pin` pins the new counts, measured on P3 (161 in total):
+
+| Class | Cases |
+|---|---|
+| `selected_method_only` | 31: the 28 RF-CANCEL, RF-SKEW-T-PIN-OFF-345-r1e-04, RF-MECH-LINE345-RX-COMPANION, RF-ZERO-TINY |
+| `selected_published` (new: selected, and published as `pressure-source-1`) | 2: RF-SKEW-T-PIN-OFF-345-r1e-08 and -r1e-12 |
+| `exact_block_order_above_4` | 89: the 66 block cases that stay out and the 23 transform cases that stay out |
+| `checked_value_range` | 4 |
+| `hash001_unsafe_integral_float` | 29 |
+| `ordinary_axis_gate` | 6 |
+| `budget`, `transform_not_block_rotation` | 0 |
 
 **Method-only selections.** All 28 RF-CANCEL cases are `checks_passed` on the ordinary route in both modes. The public route attempts no recovery for them (`needs_source_recovery`), so, like RF-ZERO-TINY, they are method-only selections with unchanged public envelopes. This is the expected outcome.
 
@@ -418,7 +495,10 @@ Any other decline still panics as unclassified. `exact_block_order_above_2` and 
 - its typed error, for the 14 reclassified block cases and the transform cases whose ordinary route is sensitive or unresolved;
 - its work counters, for every public decline, under section 5.
 
-No `results_sha256`, identity, source attempt or numerical quality changes except in the four new publications (measured on P2; ⟪UNIFORM-PUBLIC⟫).
+No `results_sha256`, identity, source attempt or numerical quality changes except in the four new publications.
+- *Measured* on P2, under legacy charges: 37 entries (19 cases) differ, only in `diagnostics_sha256` and `envelope_sha256`.
+- *Derived* for section 5's rule: every public decline's message also changes in its work numbers. P3 did not re-measure the public envelopes.
+- *Not measured:* P2's congruence shortcut builds no receipt, so the four new publications are first produced by the implementation, which must establish them as above.
 
 **Re-pinning.** The pin is regenerated once, deliberately (`SWBPIPE_J7_RF_CENSUS_WRITE=1`). The review compares it with the previous pin entry by entry, and every difference must fall in a class stated here.
 
@@ -484,7 +564,12 @@ Each mutant is introduced into a scratch copy of the implementation and must be 
   - `lib.rs` (the replay screen on both routes);
   - `source_recovery/j7_rf_census.rs` (classes, public binding).
 - Readers (DEL-05-02): `result_export/src/source_blocks.rs` and `tests/verifiers/source_blocks.py`.
-- The nonlinear crate's code does not change, but its strict-gap work and any qualification the rule newly allows do (section 5.5).
+- Nonlinear (DEL-04-01): the code does not change. Its strict-gap path is charged by the new rule:
+  - its work counters move;
+  - no committed outcome changes (measured, section 5.5);
+  - models that exhaust today's 2,000,000 per-call limit can complete.
+  DEL-04-01 is therefore an affected deliverable, as well as the owner of the frame-kernel changes.
+- `tools.deliverables impact DEL-05-02` also lists DEL-04-07, DEL-07-03 (material, component and rule-pack editors) and DEL-11-01 (user guide skeleton). RF changes no editor or guide surface; the desktop reads receipts through the Rust reader.
 
 **Reviewed inputs.** Only #1, `physics_source_recovery.schema.json`, changes. No semantic table changes.
 
@@ -511,9 +596,19 @@ The new loops also need rules, or the run stops: the block arithmetic (bounded b
 
 **Fixtures, corpora and pins.**
 - *From coverage:* the census pin, J2 (two new bases in both modes, and mutations) and the four new public envelopes, which are pinned only in the census.
-- *From the uniform rule:* every committed artifact that carries a source attempt's work counters or a decline message with them. That covers the 24 raw source controls (`fixtures/product_preview/pressure_source/**`) and their 30 derived documents (`fixtures/results/pressure_source_load_state_*`), J2's existing bases and the single retained corpus `fixtures/results/retained_precision_cases.json`, which contains one decline message. Through that corpus it also reaches the R1 and R2 reader records and the desktop WASM equivalence inputs. It also covers `core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-*.raw.json`, MJ6/MJ9's captured bases, the W1 census pins and the nonlinear suites' pins.
-- All are regenerated by their own writers, and every byte difference must be a work counter, a hash binding a work counter, or a decline text embedding one. ⟪UNIFORM-BYTES⟫
-- U6/U8 regenerates the same families for its own reasons (its design, section 9). RF regenerates them once more, on top of U6/U8's bytes.
+- *From section 3's reclassification:* the W1 route-E successor pinned by `retained_facade_tests::b3b_rv123_s2_unavailable_exact_case_binds_def_e`. Its decline text and the hashes binding it move, in both modes.
+- *From the uniform rule:* every committed artifact that carries a source attempt's work counters, or a decline message containing them:
+  - the 24 raw source controls (`fixtures/product_preview/pressure_source/**`; measured: 6 leaves each, all work-derived) and their 30 derived documents (`fixtures/results/pressure_source_load_state_*`);
+  - J2's existing bases;
+  - MJ6/MJ9's captured bases (`tests/pressure_source_join.rs`);
+  - the public-serialization pin in `source_receipt/pressure_source_context_tests.rs`;
+  - `core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-*.raw.json`, whose outcome changes for work alone (section 5.5);
+  - the five `load_state_fallback_tests` scenarios, whose limits are re-derived.
+- Every regenerated byte difference must be a work counter, a hash binding one, a decline text embedding one, or one of the outcome changes listed in section 5.5. Each file is regenerated by its own writer.
+- *Expected unchanged:*
+  - the nonlinear suites and their pins (measured: identical under both rules), and DEL-04-01's K-D5 nonlinear outcomes;
+  - the retained corpus `fixtures/results/retained_precision_cases.json`, and through it the R1 and R2 reader records and the desktop WASM inputs (derived, section 5.5).
+- U6/U8 regenerates several of the same families for its own reasons (its design, section 9). RF regenerates them once more, on top of U6/U8's bytes.
 
 **Unchanged:** references, criteria, tolerances, tables, D1 limits, the model format, the 0.4 eligibility boundary and the desktop.
 
