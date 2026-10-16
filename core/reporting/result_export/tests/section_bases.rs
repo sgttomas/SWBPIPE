@@ -180,7 +180,7 @@ fn pressure_1_reader_refuses_cross_basis_stress() {
     let nominal = doc["results"].as_array().unwrap().iter().find(|r| r["id"] == sb::twin_id(&id).unwrap().as_str()).unwrap()["value"].clone();
     find(&mut doc, "element_local_bending_normal_stress_y", ":reduced-section")["value"] = nominal;
     assert_eq!(refused(&doc), "SOURCE_PHYSICS_ROW_BASIS_SECTION");
-    // The nominal-basis Lame hoop evaluated at the pressure bore.
+    // One basis for both Lame families: the reduced hoop copied onto its nominal twin.
     let mut doc = distinct(&base(), 0.001);
     let id = find(&mut doc, "pipe_lame_hoop_stress_v2", ":reduced_section")["id"].as_str().unwrap().to_string();
     let reduced = doc["results"].as_array().unwrap().iter().find(|r| r["id"] == id.as_str()).unwrap()["value"].clone();
@@ -192,6 +192,195 @@ fn pressure_1_reader_refuses_cross_basis_stress() {
     let row = find(&mut doc, "element_local_torsional_shear_stress", ":nominal-section");
     row["metadata"]["basis"] = json!(row["metadata"]["basis"].as_str().unwrap().replace("nominal_section", "reduced_section"));
     assert_eq!(refused(&doc), "SOURCE_PHYSICS_ROW_SECTION_BASIS");
+}
+
+/// (case, pipe) to its case section, and to its pressure region's p.
+fn case_sections_and_pressures(doc: &Value) -> (HashMap<(String, String), Value>, HashMap<(String, String), f64>) {
+    let evidence = &doc["contract_evidence"];
+    let sections = evidence["exact_cases"].as_array().unwrap().iter().flat_map(|c| {
+        c["pipe_sections"].as_array().unwrap().iter().map(|s| ((c["load_case_id"].as_str().unwrap().to_string(), s["pipe_id"].as_str().unwrap().to_string()), s.clone())).collect::<Vec<_>>()
+    }).collect();
+    let pressures = evidence["pressure"].as_array().unwrap().iter().flat_map(|r| {
+        r["member_pipe_ids"].as_array().unwrap().iter().map(|m| ((r["load_case_id"].as_str().unwrap().to_string(), m.as_str().unwrap().to_string()), f(&r["p_pa"]))).collect::<Vec<_>>()
+    }).collect();
+    (sections, pressures)
+}
+
+#[test]
+fn pressure_1_reader_refuses_nominal_lame_at_the_pressure_bore() {
+    // §8, §2.1: the nominal-basis Lame rows evaluated at the pressure bore. On
+    // distinct bases every nominal hoop row is published as 2p*Ai/A_n at the
+    // outer surface and that plus p at the inner, with Ai = pi*r_i,r^2 the
+    // pressure bore's area and A_n the nominal area: neither the nominal
+    // annulus's own hoop nor the reduced twin's.
+    let mut doc = distinct(&base(), 0.001);
+    let (sections, pressures) = case_sections_and_pressures(&doc);
+    let by_id: HashMap<String, Value> = doc["results"].as_array().unwrap().iter().map(|r| (r["id"].as_str().unwrap().to_string(), r.clone())).collect();
+    let mut published = 0;
+    for row in doc["results"].as_array_mut().unwrap() {
+        let id = row["id"].as_str().unwrap().to_string();
+        if row["kind"] != "pipe_lame_hoop_stress_v2" || sb::id_basis(&id) != Some(sb::NOMINAL) { continue; }
+        let key = (row["basis_ref"]["ref_id"].as_str().unwrap().to_string(), row["entity_ref"].as_str().unwrap().to_string());
+        let (s, p) = (&sections[&key], pressures[&key]);
+        let outer = 2.0 * (p * f(&s["pressure_bore"]["Ai_m2"])) / f(&s["nominal_section"]["As_m2"]);
+        let value = if row["metadata"]["component"] == "lame_outer_hoop_stress" { outer } else { outer + p };
+        assert!(value != f(&row["value"]) && value != f(&by_id[&sb::twin_id(&id).unwrap()]["value"]), "{id}: a third value");
+        row["value"] = json!(value);
+        published += 1;
+    }
+    assert!(published > 0);
+    assert_eq!(refused(&doc), "SOURCE_PHYSICS_ROW_BASIS_SECTION");
+}
+
+#[test]
+fn pressure_1_reader_compares_basis_twins_by_bits() {
+    // A2: a twin pair's numbers compare by their binary64 bits, in Rust as in
+    // the Python verifier. An exact positive zero's twin written -0.0 is
+    // refused; written `0` it is the same binary64 number and is accepted.
+    let rows_at = |doc: &Value, kind: &str| -> Vec<usize> {
+        doc["results"].as_array().unwrap().iter().enumerate()
+            .filter(|(_, r)| r["kind"] == kind && sb::id_basis(r["id"].as_str().unwrap()) == Some(sb::REDUCED)
+                && r["value"].as_f64().map(f64::to_bits) == Some(0))
+            .map(|(i, _)| i).collect()
+    };
+    // Coincident bases: stress row twins (twin_values).
+    for kind in ["element_local_bending_normal_stress_y", "element_local_torsional_shear_stress"] {
+        let index = rows_at(&base(), kind)[0];
+        for (value, expected) in [(json!(-0.0), Err("SOURCE_PHYSICS_ROW_BASIS_SECTION".to_string())), (json!(0), Ok(()))] {
+            let mut doc = base();
+            doc["results"][index]["value"] = value.clone();
+            assert_eq!(s::validate_pressure_evidence(&doc), expected, "{kind} = {value}");
+        }
+    }
+    // Distinct bases: the Lame radial twins at the outer surface.
+    let doc = distinct(&base(), 0.001);
+    let radial = rows_at(&doc, "pipe_lame_radial_stress_v2");
+    assert!(!radial.is_empty());
+    for (value, expected) in [(json!(-0.0), Err("SOURCE_PHYSICS_ROW_BASIS_SECTION".to_string())), (json!(0), Ok(()))] {
+        let mut changed = doc.clone();
+        changed["results"][radial[0]]["value"] = value.clone();
+        assert_eq!(s::validate_pressure_evidence(&changed), expected, "radial = {value}");
+    }
+    // Coincident bases: the maximum records (extrema_twins).
+    let extremum = base()["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"].as_array().unwrap().iter()
+        .position(|e| e["section_basis"] == sb::REDUCED).unwrap();
+    for key in ["station_fraction", "local_fraction"] {
+        let pointer = format!("/contract_evidence/exact_cases/0/pipe_stress_extrema/{extremum}/{key}");
+        assert_eq!(base().pointer(&pointer).unwrap().as_f64().map(f64::to_bits), Some(0), "{key}");
+        for (value, expected) in [(json!(-0.0), Err("SOURCE_PHYSICS_ROW_BASIS_SECTION".to_string())), (json!(0), Ok(()))] {
+            let mut doc = base();
+            *doc.pointer_mut(&pointer).unwrap() = value.clone();
+            assert_eq!(s::validate_pressure_evidence(&doc), expected, "{key} = {value}");
+        }
+    }
+}
+
+#[test]
+fn basis_headlines_bind_their_maximum_rows_by_bits() {
+    // A2: a headline binds its maximum row's value bit for bit. On a zero
+    // maximum, the headline written -0.0 is refused and written `0` accepted.
+    let rows: Vec<Value> = sb::BASES.iter().map(|b| json!({"id": format!("result:elastic-maximum:case:a:pipe:a:{b}"),
+        "kind": "pipe_elastic_normal_stress_maximum_v2", "value": 0.0, "unit": "Pa", "entity_ref": "pipe:a",
+        "metadata": {"basis": format!("recovered_from_open_mechanics_stress_components{}{b}", sb::TOKEN_SEPARATOR)}})).collect();
+    let by_id: HashMap<&str, &Value> = rows.iter().map(|r| (r["id"].as_str().unwrap(), r)).collect();
+    let maxima: Vec<&Value> = rows.iter().collect();
+    let summary = |reduced: Value| {
+        let mut summary = json!({"max_open_formula_stress": null});
+        for (b, r) in sb::BASES.iter().zip(&rows) {
+            summary[format!("max_open_formula_stress_{b}")] = json!({"value": 0.0, "unit": "Pa", "location_ref": "pipe:a", "result_ref": r["id"]});
+        }
+        summary["max_open_formula_stress_reduced_section"]["value"] = reduced;
+        summary
+    };
+    for (value, expected) in [(json!(0.0), Ok(())), (json!(0), Ok(())), (json!(-0.0), Err("SOURCE_PHYSICS_HEADLINE_RESULT_BINDING".to_string()))] {
+        assert_eq!(sb::headlines(&summary(value.clone()), &by_id, &maxima, [true, true]), expected, "{value}");
+    }
+}
+
+/// Sets one authored section quantity of `model`'s pipe `pipe`.
+fn set_model_section(model: &mut Value, pipe: &str, key: &str, value: Value) {
+    let segment = model["pipe_segments"].as_array_mut().unwrap().iter_mut().find(|p| p["id"] == pipe).unwrap();
+    segment["section"][key] = value;
+}
+
+#[test]
+fn pressure_1_model_checks_bind_each_section_input_to_the_model() {
+    // §1, §5 (FINAL-B): G2 binds each case section's captured D, t, c_m (0.0
+    // when the model has none) and c_a to the model's section of that pipe,
+    // bit for bit after the units authority: each one ulp off is refused by
+    // name, as is a signed zero and a pipe's section swapped with another's.
+    let request: Value = serde_json::from_str(include_str!("../../../../core/product_physics/tests/fixtures/exact_pressure_connected_request.json")).unwrap();
+    let connected = (base(), request["model"].clone());
+    let entry = arc_corpus_entry("U2-L-ANCH-PTW-K2 0.3.0");
+    let milled = (entry["envelope"].clone(), entry["document"]["model"].clone());
+    // An allowance on the arc document: the evidence's distinct bases and the model's 0.0005 m.
+    let mut allowed = (distinct(&entry["envelope"], 0.0005), entry["document"]["model"].clone());
+    for segment in allowed.1["pipe_segments"].as_array_mut().unwrap() {
+        segment["section"]["corrosion_allowance"] = json!({"value": 0.0005, "unit": "m"});
+    }
+    let code = "SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY";
+    let leaves = [("outside_diameter", "outside_diameter_m"), ("wall_thickness", "wall_thickness_m"),
+        ("mill_tolerance", "mill_tolerance_m"), ("corrosion_allowance", "corrosion_allowance_m")];
+    for (label, (doc, model)) in [("connected", &connected), ("milled arc", &milled), ("allowance on the arc", &allowed)] {
+        assert_eq!(reader_verdict::validate("pressure", doc, Some(model), None), json!({"ok": true}), "{label}");
+        let section = &doc["contract_evidence"]["exact_cases"][0]["pipe_sections"][0];
+        let pipe = section["pipe_id"].as_str().unwrap();
+        for (key, leaf) in leaves {
+            let mut changed = model.clone();
+            set_model_section(&mut changed, pipe, key, json!({"value": f(&section[leaf]).next_up(), "unit": "m"}));
+            let verdict = reader_verdict::validate("pressure", doc, Some(&changed), None);
+            assert_eq!(verdict["error"]["code"], code, "{label}: {key} one ulp up: {verdict}");
+            assert_eq!(reader_verdict::physics_model_checks(doc, &changed), Err(code.to_string()), "{label}: {key}");
+            // The same quantity in metres, bit for bit, is bound.
+            set_model_section(&mut changed, pipe, key, json!({"value": section[leaf], "unit": "m"}));
+            assert_eq!(reader_verdict::physics_model_checks(doc, &changed), Ok(()), "{label}: {key} restated");
+        }
+    }
+    // The connected document has no mill tolerance and a zero allowance: an
+    // absent or null mill tolerance is 0.0; a signed zero is not.
+    let (doc, model) = &connected;
+    let pipe = doc["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]["pipe_id"].as_str().unwrap();
+    assert!(model["pipe_segments"][0]["section"].get("mill_tolerance").is_none());
+    for (key, value, expected) in [
+        ("mill_tolerance", Value::Null, Ok(())),
+        ("mill_tolerance", json!({"value": 0, "unit": "mm"}), Ok(())),
+        ("mill_tolerance", json!({"value": -0.0, "unit": "m"}), Err(code.to_string())),
+        ("corrosion_allowance", json!({"value": -0.0, "unit": "m"}), Err(code.to_string())),
+        ("corrosion_allowance", Value::Null, Err(code.to_string())),
+        ("wall_thickness", json!({"value": 10.0, "unit": "mm"}), Ok(())),
+        ("wall_thickness", json!({"value": 10.0, "unit": "N"}), Err(code.to_string())),
+    ] {
+        let mut changed = model.clone();
+        set_model_section(&mut changed, pipe, key, value.clone());
+        assert_eq!(reader_verdict::physics_model_checks(doc, &changed), expected, "{key} = {value}");
+    }
+    // A pipe whose section is another pipe's: the arc document's members with
+    // their own walls, then two of them swapped in the model.
+    let (mut doc, mut model) = milled.clone();
+    let pipes: Vec<String> = doc["contract_evidence"]["exact_cases"][0]["pipe_sections"].as_array().unwrap().iter()
+        .map(|s| s["pipe_id"].as_str().unwrap().to_string()).collect();
+    assert!(pipes.len() >= 2);
+    let wall = |i: usize| 0.004 + 0.001 * i as f64;
+    for (i, pipe) in pipes.iter().enumerate() {
+        set_model_section(&mut model, pipe, "wall_thickness", json!({"value": wall(i), "unit": "m"}));
+        for case in doc["contract_evidence"]["exact_cases"].as_array_mut().unwrap() {
+            for s in case["pipe_sections"].as_array_mut().unwrap() {
+                if s["pipe_id"] == pipe.as_str() { s["wall_thickness_m"] = json!(wall(i)); }
+            }
+        }
+    }
+    assert_eq!(reader_verdict::physics_model_checks(&doc, &model), Ok(()));
+    let mut reversed = model.clone();
+    reversed["pipe_segments"].as_array_mut().unwrap().reverse();
+    assert_eq!(reader_verdict::physics_model_checks(&doc, &reversed), Ok(()), "bound by pipe id, not by order");
+    let (a, b) = (pipes[0].as_str(), pipes[1].as_str());
+    let section = |m: &Value, p: &str| m["pipe_segments"].as_array().unwrap().iter().find(|s| s["id"] == p).unwrap()["section"].clone();
+    let mut swapped = model.clone();
+    let (section_a, section_b) = (section(&model, a), section(&model, b));
+    swapped["pipe_segments"].as_array_mut().unwrap().iter_mut().for_each(|s| {
+        if s["id"] == a { s["section"] = section_b.clone(); } else if s["id"] == b { s["section"] = section_a.clone(); }
+    });
+    assert_eq!(reader_verdict::physics_model_checks(&doc, &swapped), Err(code.to_string()));
 }
 
 #[test]

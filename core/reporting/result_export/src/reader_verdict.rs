@@ -129,10 +129,12 @@ pub fn binding(route: &str) -> Value {
 /// G2: the checks against the current model, after the reader admitted the
 /// evidence (TS `physicsResultEvidence.ts`: every solved exact case is a model
 /// load case; each case's members are the model's pipes but those an objective
-/// connector replaces; a support row names a model support; T4-U8, each section
-/// entry states the beam theory the model's `pressure_contract` selects for its
-/// member, `section_basis::bind_shear_model`). Each runs only when the model
-/// carries the member it reads.
+/// connector replaces; T4-U6, each case section's captured authored values are
+/// the model's section of that pipe, [`model_section_bound`]; a support row
+/// names a model support; T4-U8, each section entry states the beam theory the
+/// model's `pressure_contract` selects for its member,
+/// `section_basis::bind_shear_model`). Each runs only when the model carries
+/// the member it reads.
 pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String> {
     fn ids<'a>(items: &'a Value, key: &str) -> Vec<&'a Value> {
         items.as_array().map(|a| a.iter().map(|x| &x[key]).collect()).unwrap_or_default()
@@ -159,6 +161,17 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
                 return Err("SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE".into());
             }
         }
+        // T4-U6 (§1, §5; FINAL-B): the evidence reader rederived each case
+        // section's three geometries from its captured (D, t, c_m, c_a); those
+        // are the model's, bit for bit.
+        let segments = model["pipe_segments"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+        for case in cases {
+            for section in case["pipe_sections"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
+                if !model_section_bound(section, segments) {
+                    return Err("SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY".into());
+                }
+            }
+        }
     }
     // T4-U8 (§3.6, §5): every section entry states the beam theory the model's
     // contract selects for its member (a realized arc, Euler-Bernoulli).
@@ -182,6 +195,35 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
         }
     }
     Ok(())
+}
+
+/// T4-U6 (D-5 §1, §2.5, §5): one `pipe_sections` entry's captured authored
+/// values are the model's section of the same pipe, bit for bit, as
+/// pressure-source-1 binds them against its invocation
+/// (`physics_source::actual_materials`): `outside_diameter_m`,
+/// `wall_thickness_m`, `mill_tolerance_m` (0.0 where the model's section has
+/// none) and `corrosion_allowance_m`, each the model's quantity in metres by
+/// the units authority the producer normalizes with. A signed zero is not its
+/// other zero. A pipe the model lacks, a quantity it lacks (the allowance is
+/// required) or one that does not normalize to a finite length is unbound.
+fn model_section_bound(section: &Value, segments: &[Value]) -> bool {
+    use open_pipe_stress_units::Dimension;
+    let Some(pipe) = segments.iter().find(|p| p["id"] == section["pipe_id"]) else {
+        return false;
+    };
+    let authored = &pipe["section"];
+    let length = |quantity: &Value| crate::physics_source::normalized_quantity(quantity, Dimension::Length).ok();
+    let mill_tolerance = if authored["mill_tolerance"].is_null() { Some(0.0) } else { length(&authored["mill_tolerance"]) };
+    [
+        ("outside_diameter_m", length(&authored["outside_diameter"])),
+        ("wall_thickness_m", length(&authored["wall_thickness"])),
+        ("mill_tolerance_m", mill_tolerance),
+        ("corrosion_allowance_m", length(&authored["corrosion_allowance"])),
+    ]
+    .into_iter()
+    .all(|(key, model)| {
+        model.is_some_and(|m| section[key].as_f64().is_some_and(|e| e.is_finite() && e.to_bits() == m.to_bits()))
+    })
 }
 
 /// The readers by name: `(reader, source, model, invocation)` to an outcome.

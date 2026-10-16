@@ -162,7 +162,7 @@ def test_pressure_1_reader_refuses_cross_basis_stress(base):
             row["value"] = rows[sb.twin_id(row["id"])]["value"]
             break
     _refused(doc, "stress basis section")
-    # The nominal-basis Lame hoop evaluated at the pressure bore (§8).
+    # One basis for both Lame families: the reduced hoop copied onto its nominal twin.
     doc = distinct(base)
     for row in doc["results"]:
         if row["kind"] == "pipe_lame_hoop_stress_v2" and row["id"].endswith(":nominal_section"):
@@ -178,6 +178,161 @@ def test_pressure_1_reader_refuses_cross_basis_stress(base):
     row = next(r for r in doc["results"] if r["kind"] == "element_local_torsional_shear_stress" and r["id"].endswith(":nominal-section"))
     row["metadata"]["basis"] = row["metadata"]["basis"].replace("nominal_section", "reduced_section")
     _refused(doc, "stress row section basis")
+
+
+def _case_sections_and_pressures(doc):
+    evidence = doc["contract_evidence"]
+    sections = {(case["load_case_id"], s["pipe_id"]): s for case in evidence["exact_cases"] for s in case["pipe_sections"]}
+    pressures = {(region["load_case_id"], pid): region["p_pa"] for region in evidence["pressure"] for pid in region["member_pipe_ids"]}
+    return sections, pressures
+
+
+def test_pressure_1_reader_refuses_nominal_lame_at_the_pressure_bore(base):
+    """§8, §2.1: the nominal-basis Lame rows evaluated at the pressure bore. On distinct bases every nominal hoop row is
+    published as 2p*Ai/A_n at the outer surface and that plus p at the inner, with Ai = pi*r_i,r^2 the pressure bore's
+    area and A_n the nominal area: neither the nominal annulus's own hoop nor the reduced twin's (Rust's twin is
+    section_bases.rs's test of the same name)."""
+    doc = distinct(base)
+    sections, pressures = _case_sections_and_pressures(doc)
+    rows = _rows(deepcopy(doc))
+    published = 0
+    for row in doc["results"]:
+        if row["kind"] != "pipe_lame_hoop_stress_v2" or sb.id_basis(row["id"]) != sb.NOMINAL:
+            continue
+        key = (row["basis_ref"]["ref_id"], row["entity_ref"])
+        s, p = sections[key], pressures[key]
+        outer = 2.0 * (p * s["pressure_bore"]["Ai_m2"]) / s["nominal_section"]["As_m2"]
+        value = outer if row["metadata"]["component"] == "lame_outer_hoop_stress" else outer + p
+        assert value != row["value"] and value != rows[sb.twin_id(row["id"])]["value"], row["id"]
+        row["value"] = value
+        published += 1
+    assert published
+    _refused(doc, "stress basis section")
+
+
+def _reduced_zero_rows(doc, kind):
+    return [i for i, r in enumerate(doc["results"]) if r["kind"] == kind and sb.id_basis(r["id"]) == sb.REDUCED
+            and type(r["value"]) is float and struct.pack(">d", r["value"]) == bytes(8)]
+
+
+@pytest.mark.parametrize("value", [-0.0, 0])
+def test_pressure_1_reader_compares_basis_twins_by_bits(base, value):
+    """A2: a twin pair's numbers compare by their binary64 bits, as the Rust reader does. An exact positive zero's twin
+    written -0.0 is refused; written ``0`` it is the same binary64 number and is accepted (Rust's twin is section_bases.rs's
+    test of the same name)."""
+    def read(doc):
+        if type(value) is int:
+            pressure_1.validate_pressure_evidence(doc)
+        else:
+            _refused(doc, "^SOURCE_PHYSICS_EVIDENCE_INVALID: stress basis section$")
+    # Coincident bases: stress row twins (twin_values).
+    for kind in ("element_local_bending_normal_stress_y", "element_local_torsional_shear_stress"):
+        doc = deepcopy(base)
+        doc["results"][_reduced_zero_rows(doc, kind)[0]]["value"] = value
+        read(doc)
+    # Distinct bases: the Lame radial twins at the outer surface.
+    doc = distinct(base)
+    doc["results"][_reduced_zero_rows(doc, "pipe_lame_radial_stress_v2")[0]]["value"] = value
+    read(doc)
+    # Coincident bases: the maximum records (extrema_twins).
+    for key in ("station_fraction", "local_fraction"):
+        doc = deepcopy(base)
+        extremum = next(e for e in doc["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"] if e["section_basis"] == sb.REDUCED)
+        assert struct.pack(">d", extremum[key]) == bytes(8), key
+        extremum[key] = value
+        read(doc)
+
+
+def test_basis_headlines_bind_their_maximum_rows_by_bits():
+    """A2: a headline binds its maximum row's value bit for bit. On a zero maximum, the headline written -0.0 is refused
+    and written ``0`` accepted (Rust's twin: basis_headlines_bind_their_maximum_rows_by_bits)."""
+    rows = {f"result:elastic-maximum:case:a:pipe:a:{b}": {"id": f"result:elastic-maximum:case:a:pipe:a:{b}", "kind": "pipe_elastic_normal_stress_maximum_v2",
+            "value": 0.0, "unit": "Pa", "entity_ref": "pipe:a", "metadata": {"basis": f"recovered_from_open_mechanics_stress_components{sb.SEPARATOR}{b}"}}
+            for b in sb.BASES}
+
+    def summary(reduced):
+        out = {"max_open_formula_stress": None}
+        for b, rid in zip(sb.BASES, rows):
+            out[f"max_open_formula_stress_{b}"] = {"value": 0.0, "unit": "Pa", "location_ref": "pipe:a", "result_ref": rid}
+        out["max_open_formula_stress_reduced_section"]["value"] = reduced
+        return out
+
+    complete = {b: True for b in sb.BASES}
+    for value in (0.0, 0):
+        sb.headlines(summary(value), rows, complete)
+    with pytest.raises(sb.BasisError, match="^stress maximum headline binding$"):
+        sb.headlines(summary(-0.0), rows, complete)
+
+
+def _set_model_section(model, pipe, key, value):
+    next(p for p in model["pipe_segments"] if p["id"] == pipe)["section"][key] = value
+
+
+def test_pressure_1_model_checks_bind_each_section_input_to_the_model(base):
+    """§1, §5 (FINAL-B): G2 binds each case section's captured D, t, c_m (0.0 when the model has none) and c_a to the
+    model's section of that pipe, bit for bit after the unit catalog: each one ulp off is refused by name, as is a
+    signed zero and a pipe's section swapped with another's (Rust's twin is section_bases.rs's test of the same name)."""
+    code = "^SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY$"
+    request = json.loads((ROOT / "core/product_physics/tests/fixtures/exact_pressure_connected_request.json").read_text())
+    connected = (deepcopy(base), request["model"])
+    entry = _arc_corpus_entry("U2-L-ANCH-PTW-K2 0.3.0")
+    milled = (entry["envelope"], entry["document"]["model"])
+    # An allowance on the arc document: the evidence's distinct bases and the model's 0.0005 m.
+    allowed = (distinct(entry["envelope"], 0.0005), deepcopy(entry["document"]["model"]))
+    for segment in allowed[1]["pipe_segments"]:
+        segment["section"]["corrosion_allowance"] = {"value": 0.0005, "unit": "m"}
+    leaves = (("outside_diameter", "outside_diameter_m"), ("wall_thickness", "wall_thickness_m"),
+              ("mill_tolerance", "mill_tolerance_m"), ("corrosion_allowance", "corrosion_allowance_m"))
+    for label, (doc, model) in (("connected", connected), ("milled arc", milled), ("allowance on the arc", allowed)):
+        assert rv.validate("pressure", doc, model) == {"ok": True}, label
+        section = doc["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]
+        for key, leaf in leaves:
+            changed = deepcopy(model)
+            _set_model_section(changed, section["pipe_id"], key, {"value": math.nextafter(section[leaf], math.inf), "unit": "m"})
+            assert rv.validate("pressure", doc, changed) == {"ok": False, "error": {"code": "SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY", "detail": None}}, (label, key)
+            with pytest.raises(rv.Refused, match=code):
+                rv.physics_model_checks(doc, changed)
+            # The same quantity in metres, bit for bit, is bound.
+            _set_model_section(changed, section["pipe_id"], key, {"value": section[leaf], "unit": "m"})
+            rv.physics_model_checks(doc, changed)
+    # The connected document has no mill tolerance and a zero allowance: an absent or null mill tolerance is 0.0; a
+    # signed zero is not.
+    doc, model = connected
+    pipe = doc["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]["pipe_id"]
+    assert "mill_tolerance" not in model["pipe_segments"][0]["section"]
+    for key, value, bound in (("mill_tolerance", None, True), ("mill_tolerance", {"value": 0, "unit": "mm"}, True),
+                              ("mill_tolerance", {"value": -0.0, "unit": "m"}, False), ("corrosion_allowance", {"value": -0.0, "unit": "m"}, False),
+                              ("corrosion_allowance", None, False), ("wall_thickness", {"value": 10.0, "unit": "mm"}, True),
+                              ("wall_thickness", {"value": 10.0, "unit": "N"}, False)):
+        changed = deepcopy(model)
+        _set_model_section(changed, pipe, key, value)
+        if bound:
+            rv.physics_model_checks(doc, changed)
+        else:
+            with pytest.raises(rv.Refused, match=code):
+                rv.physics_model_checks(doc, changed)
+    # A pipe whose section is another pipe's: the arc document's members with their own walls, then two of them
+    # swapped in the model.
+    doc, model = deepcopy(milled[0]), deepcopy(milled[1])
+    pipes = [s["pipe_id"] for s in doc["contract_evidence"]["exact_cases"][0]["pipe_sections"]]
+    assert len(pipes) >= 2
+    for i, pipe in enumerate(pipes):
+        _set_model_section(model, pipe, "wall_thickness", {"value": 0.004 + 0.001 * i, "unit": "m"})
+        for case in doc["contract_evidence"]["exact_cases"]:
+            for s in case["pipe_sections"]:
+                if s["pipe_id"] == pipe:
+                    s["wall_thickness_m"] = 0.004 + 0.001 * i
+    rv.physics_model_checks(doc, model)
+    reversed_model = deepcopy(model)
+    reversed_model["pipe_segments"].reverse()
+    rv.physics_model_checks(doc, reversed_model)  # bound by pipe id, not by order
+    swapped = deepcopy(model)
+    sections = {p["id"]: p["section"] for p in model["pipe_segments"]}
+    for segment in swapped["pipe_segments"]:
+        if segment["id"] in pipes[:2]:
+            segment["section"] = deepcopy(sections[pipes[1] if segment["id"] == pipes[0] else pipes[0]])
+    with pytest.raises(rv.Refused, match=code):
+        rv.physics_model_checks(doc, swapped)
 
 
 def test_pressure_1_reader_refuses_cross_basis_headline(base):

@@ -162,16 +162,62 @@ def _zero_action_twins(source):
 @pytest.mark.parametrize("member", ["interval0", "interval1", "value"])
 def test_reduced_stress_check_refuses_a_signed_zero_twin(twin, member):
     # T4-U6 (D-5 §2.5, §5; b7-plan R2 A2): the reduced twin's check binds its nominal twin's action bit for bit;
-    # -0.0 equals 0.0 by value, not by bits. A nominal check is read first, so its own recipe refuses a -0.0
-    # operand (its row publishes +0.0); its bounds reach the twin check.
+    # -0.0 equals 0.0 by value, not by bits. Each twin's action is also its station's, bit for bit
+    # (STRESS_FUNCTIONAL_LINK, read first), so a signed-zero action is refused there on either twin; written `0` it is
+    # the same binary64 number and is accepted (Rust's twin: reduced_stress_check_binds_its_nominal_twin_bit_for_bit).
+    for value, code in ((-0.0, "STRESS_FUNCTIONAL_LINK"), (0, None)):
+        source,invocation=actual()
+        checks,nominal,reduced=_zero_action_twins(source)
+        action=checks[nominal if twin=="nominal" else reduced]["action"]
+        if member=="value":action["value"]=value
+        else:action["interval"][int(member[-1])]=value
+        reseal_negative(source)
+        if code is None:
+            assert composite.validate_physics_source(source,invocation)
+        else:
+            with pytest.raises(ValueError,match=f"^PHYSICS_SOURCE_{code}$"):composite.validate_physics_source(source,invocation)
+
+
+def _zero_links(source):
+    """Rust `retained_source_links_compare_numbers_by_bits`'s sites: each an exact positive zero on one side of a link
+    (path from the document root, its refusal code)."""
+    record=source["source_block_recovery"]["body"]["cases"][0]
+    zero=lambda v: type(v) in (int,float) and struct.pack(">d",v)==bytes(8)
+    # A midspan station action of a stress component (axial 0, torsion 3, bending 4 and 5) with an exact positive zero:
+    # stress checks link it, no endpoint section does.
+    station=record["source"]["section_functionals"][0]["stations"][2]
+    component=next(c for c in (0,3,4,5) if zero(station["actions"][c]["value"]))
+    assert sum(c["functional_index"]==station["functional_indices"][component] for c in record["section_stress_checks"])==2
+    extremum=next(i for i,e in enumerate(source["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"]) if e["section_basis"]==sb.NOMINAL)
+    norm=next(i for i,c in enumerate(record["derived_checks"]) if all(zero(v) for v in c["intervals"][0]))
+    receipt=("source_block_recovery","body","cases",0)
+    sites=[(receipt+("source","section_functionals",0,"stations",2,"actions",component,"value"),"STRESS_FUNCTIONAL_LINK"),
+           (receipt+("source","endpoint_sections",0,"endpoints",0,"actions",0,"value"),"ENDPOINT_SECTION_LINK"),
+           (("contract_evidence","exact_cases",0,"pipe_stress_extrema",extremum,"endpoints",0,"actions",0,"value"),"MAXIMUM_ENDPOINT_SOURCE"),
+           (receipt+("derived_checks",norm,"intervals",0,0),"NORM_PROJECTION_BINDING")]
+    for path,_ in sites:
+        target=source
+        for key in path:target=target[key]
+        assert zero(target),path
+    return sites
+
+
+@pytest.mark.parametrize("site", range(4))
+@pytest.mark.parametrize("value", [-0.0, 0])
+def test_retained_source_links_compare_numbers_by_bits(site, value):
+    # T4-U6 (A2): every link of the retained-source receipt compares its numbers by their binary64 bits, as the Rust
+    # reader does: an exact positive zero on one side of a link written -0.0 is refused by name; written `0` it is the
+    # same binary64 number and is accepted.
     source,invocation=actual()
-    checks,nominal,reduced=_zero_action_twins(source)
-    action=checks[nominal if twin=="nominal" else reduced]["action"]
-    if member=="value":action["value"]=-0.0
-    else:action["interval"][int(member[-1])]=-0.0
+    path,code=_zero_links(source)[site]
+    target=source
+    for key in path[:-1]:target=target[key]
+    target[path[-1]]=value
     reseal_negative(source)
-    code="STRESS_RECIPE_VALUE" if (twin,member)==("nominal","value") else "STRESS_BASIS_TWIN"
-    with pytest.raises(ValueError,match=f"^PHYSICS_SOURCE_{code}$"):composite.validate_physics_source(source,invocation)
+    if value==0 and type(value) is int:
+        assert composite.validate_physics_source(source,invocation)
+    else:
+        with pytest.raises(ValueError,match=f"^PHYSICS_SOURCE_{code}$"):composite.validate_physics_source(source,invocation)
 
 
 @pytest.mark.parametrize("twin", ["nominal", "reduced"])

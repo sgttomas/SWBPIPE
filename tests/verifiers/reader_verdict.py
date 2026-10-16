@@ -12,7 +12,9 @@ retires (`numericalResultQuality.ts`'s `sourceContract` and `numericalResultStan
 - G2: with a current model, the pressure reader runs the TypeScript model checks after the unchanged
   reader: every solved case is a model load case (`SOURCE_PHYSICS_MODEL_CASE_COVERAGE`), each case's
   members are the model's pipes but those an objective connector replaces
-  (`SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE`), each section entry states the beam theory the model's contract
+  (`SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE`), each case section's captured D, t, c_m and c_a are the model's
+  section of that pipe bit for bit (T4-U6: `SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY`), each section entry states the
+  beam theory the model's contract
   selects for its member (T4-U8: `SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT`, `SOURCE_PHYSICS_ARC_BEAM_THEORY`), and a
   support row names a model support (`SOURCE_PHYSICS_SUPPORT_BINDING`); the pressure-source reader runs them
   against its invocation's model. Preview-physics-1's TypeScript reader ignores its model.
@@ -35,6 +37,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 import json
+import math
 import re
 from typing import Any
 
@@ -200,6 +203,41 @@ def binding(name: str) -> dict[str, str] | None:
     return None if identity is None else {"id": identity, "sha256": _SHA256[identity]}
 
 
+def _model_section_bound(section: Any, segments: list[Any]) -> bool:
+    """Rust `reader_verdict::model_section_bound` (T4-U6, D-5 §1, §2.5, §5): one ``pipe_sections`` entry's captured
+    authored values are the model's section of the same pipe, bit for bit, as pressure-source-1 binds them against its
+    invocation (``physics_source._actual_materials``): ``outside_diameter_m``, ``wall_thickness_m``,
+    ``mill_tolerance_m`` (0.0 where the model's section has none) and ``corrosion_allowance_m``, each the model's
+    quantity in metres by the verifier's unit catalog (``units.to_canonical``). A signed zero is not its other zero. A
+    pipe the model lacks, a quantity it lacks (the allowance is required) or one that does not normalize to a finite
+    length is unbound."""
+    from .units import to_canonical
+
+    if not isinstance(section, Mapping):
+        return False
+    pipe = next((p for p in segments if isinstance(p, Mapping) and p.get("id") == section.get("pipe_id")), None)
+    authored = pipe.get("section") if isinstance(pipe, Mapping) else None
+    if not isinstance(authored, Mapping):
+        return False
+
+    def length(quantity: Any) -> float | None:
+        if not isinstance(quantity, Mapping):
+            return None
+        value, unit = quantity.get("value"), quantity.get("unit")
+        if type(value) not in (int, float) or not math.isfinite(value) or not isinstance(unit, str) or not unit:
+            return None
+        try:
+            return to_canonical(value, unit, "length")
+        except (ValueError, OverflowError):
+            return None
+
+    mill_tolerance = 0.0 if authored.get("mill_tolerance") is None else length(authored["mill_tolerance"])
+    expected = (("outside_diameter_m", length(authored.get("outside_diameter"))), ("wall_thickness_m", length(authored.get("wall_thickness"))),
+                ("mill_tolerance_m", mill_tolerance), ("corrosion_allowance_m", length(authored.get("corrosion_allowance"))))
+    return all(model is not None and type(section.get(key)) in (int, float) and math.isfinite(section[key]) and sb.bits(section[key]) == sb.bits(model)
+               for key, model in expected)
+
+
 def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
     """G2: TS `validateKnownPhysicsEvidence`'s model checks, after the unchanged reader admitted the evidence."""
     same = lambda a, b: len(a) == len(b) and all(item in b for item in a)
@@ -215,6 +253,14 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
         for case in cases:
             if not same(ids(case.get("pipe_materials"), "pipe_id"), pipes):
                 raise Refused("SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE")
+        # T4-U6 (§1, §5; FINAL-B): the evidence reader rederived each case section's three geometries from its captured
+        # (D, t, c_m, c_a); those are the model's, bit for bit.
+        segments = model["pipe_segments"] if isinstance(model["pipe_segments"], list) else []
+        for case in cases:
+            sections = case.get("pipe_sections") if isinstance(case, Mapping) else None
+            for section in sections if isinstance(sections, list) else []:
+                if not _model_section_bound(section, segments):
+                    raise Refused("SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY")
     # T4-U8 (§3.6, §5): every section entry states the beam theory the model's contract selects for its member (a
     # realized arc, Euler-Bernoulli).
     if model.get("pressure_contract") is not None:
