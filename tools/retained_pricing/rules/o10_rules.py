@@ -1445,6 +1445,10 @@ if _D5:
 # rows_by_base_id only `if preview.is_some()` (lib.rs run_linear_static_preview_observed_inner, checked), and
 # `preview = (!pressure_runtime::is_exact(&model)).then(..)` is None on route E (an exact contract). ordinary_caps'
 # "Final aggregation" then holds the results once, with no rows_by_base_id map nodes; the id_map stays.
+# U6-RB-V (registration at addbdc030e): the one `results` Vec is push-built from `Vec::new()` across every case, so on
+# route E it is priced at its push capacity, V("ResultItem", PA) = pushcap(PA) slots (16,384 at PA = 8,361). Route L's
+# doubled term covers that capacity; the first U6-RB rewrite priced PA exact slots, which only route L's 51-row G-C
+# bound kept sufficient. The G-C bounds on route E admit route E's own P_final (retained_memory.rs `phase_caps_on`).
 U6_RB_PATCHES = []
 _AGG = fnkey("run_linear_static_preview_observed_inner", _LIB)
 if _AGG:
@@ -1454,9 +1458,12 @@ if _AGG:
     if _RB_GUARDED in _agg:
         if _agg.count("rows_by_base_id") != 3 \
                 or "    let preview = (!pressure_runtime::is_exact(&model)).then(|| {\n" not in _agg or _agg.count("let preview =") != 1 \
-                or "        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, &mut results, &mut diagnostics),\n" not in _agg:
-            raise SystemExit("U6-RB: the guarded rows_by_base_id or the preview binding changed; re-review")
+                or "        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, &mut results, &mut diagnostics),\n" not in _agg \
+                or _agg.count("    let mut results = Vec::new();\n") != 1 or _agg.count("let mut results") != 1:
+            raise SystemExit("U6-RB: the guarded rows_by_base_id, the preview binding or the push-built results changed; re-review")
         U6_RB_PATCHES = [("ordinary_caps.py",
             '    (Xc("ResultItem", PA) + tx("row") * PA) * 2 + X({"Node(String,BTreeMap)": PA}) + X({"Node(String,ResultItem)": PA})\n',
-            '    (Xc("ResultItem", PA) + tx("row") * PA)   # U6-RB (route E): no rows_by_base_id clone or map without the preview\n',
-            "U6-RB: route E has no preview, so the final aggregation makes no rows_by_base_id clone or map nodes")]
+            '    V("ResultItem", PA) + tx("row") * PA   # U6-RB (route E): no rows_by_base_id clone or map without the preview;'
+            ' the push-built results at their push capacity (U6-RB-V)\n',
+            "U6-RB: route E has no preview, so the final aggregation makes no rows_by_base_id clone or map nodes; its push-built "
+            "results Vec is priced at its push capacity")]
