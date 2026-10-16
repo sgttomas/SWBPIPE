@@ -173,8 +173,9 @@ def test_composite_work_limit_is_its_policy_bound():
 
 def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route():
     source = read_received(COMPOSITE_ROOT / "n05-sparse_interactive.raw.json")
+    # T4-U6 (D-5 §2.1): the retained-source maximum's token names its section basis.
     actual = next(row["metadata"] for row in source["results"]
-                  if row.get("metadata", {}).get("basis") == "retained_source_endpoint_normal_max_v1")
+                  if row.get("metadata", {}).get("basis") == "retained_source_endpoint_normal_max_v1; section_basis=nominal_section")
     results = schema("results.v0.3.schema.yaml")
     validate_instance(schema_for_definition(results, "PhysicsSourceMaximumMetadata"), actual)
     with pytest.raises(AssertionError): validate_instance(schema_for_definition(results, "ResultMetadata"), actual)
