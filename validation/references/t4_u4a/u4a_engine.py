@@ -22,6 +22,11 @@ no shear deformation):
   -2 nu p Ai / (E As) added to eps0; the section's wall force is N_w and its
   elastic (effective) force is S = N_w - p Ai; shear and moments are common.
 
+D-5 section bases (T4-U6; model key section_bases = "d5", used for pressure-1): EA, EI, GJ and the
+Poisson strain's As use the nominal wall; p Ai uses the pressure bore OD/2 - ((t - c_m) - c_a); the
+generator recovers stresses on the nominal and on the reduced section. Without the key (preview-physics-1)
+one section, wall - mill tolerance, serves everything, as before.
+
 Arc geometry is the product's documented rule (bend_plane_orientation): from
 the authored chord d = x_j - x_i, the authored radius R and the pipe
 y_reference projected normal to the chord (n_hat), the arc bows toward
@@ -143,6 +148,14 @@ def unit(a):
 
 
 VZERO = (ZERO, ZERO, ZERO)
+
+
+def annulus(od: Decimal, wall: Decimal) -> dict:
+    """One section basis: OD and its own wall (the same formulas and order as the single section)."""
+    idia = od - 2 * wall
+    I = PI * (od ** 4 - idia ** 4) / 64
+    return {"wall": wall, "ri": od / 2 - wall, "As": PI * (od * od - idia * idia) / 4, "Ai": PI * idia * idia / 4,
+            "I": I, "J": 2 * I, "Z": I / (od / 2)}
 
 
 # -------------------------------------------------------------- quadrature
@@ -290,14 +303,26 @@ class Line:
             self.members.append(Member(spec, self.positions, forward))
         sec = model["section"]
         od = dec(sec["outside_diameter"])
-        wall = dec(sec["wall_thickness"]) - dec(sec.get("mill_tolerance", "0"))
-        idia = od - 2 * wall
-        self.ro = od / 2
-        self.As = PI * (od * od - idia * idia) / 4
-        self.Ai = PI * idia * idia / 4
-        self.I = PI * (od ** 4 - idia ** 4) / 64
-        self.J = 2 * self.I
-        self.Z = self.I / self.ro
+        self.bases = None
+        if model.get("section_bases") == "d5":
+            # D-5 (DEL-05-03 Design section 1): stiffness (and the As of the Poisson strain) on the nominal
+            # wall t; Ai on the pressure bore OD/2 - t_r with t_r = (t - c_m) - c_a; stresses on both sections.
+            t = dec(sec["wall_thickness"])
+            t_r = (t - dec(sec.get("mill_tolerance", "0"))) - dec(sec.get("corrosion_allowance", "0"))
+            self.bases = {"nominal_section": annulus(od, t), "reduced_section": annulus(od, t_r)}
+            nominal, reduced = self.bases["nominal_section"], self.bases["reduced_section"]
+            self.ro = od / 2
+            self.As, self.I, self.J, self.Z = nominal["As"], nominal["I"], nominal["J"], nominal["Z"]
+            self.Ai, self.ri_bore = reduced["Ai"], reduced["ri"]
+        else:
+            wall = dec(sec["wall_thickness"]) - dec(sec.get("mill_tolerance", "0"))
+            idia = od - 2 * wall
+            self.ro = od / 2
+            self.As = PI * (od * od - idia * idia) / 4
+            self.Ai = PI * idia * idia / 4
+            self.I = PI * (od ** 4 - idia ** 4) / 64
+            self.J = 2 * self.I
+            self.Z = self.I / self.ro
         mat = model["material"]
         self.E = dec(mat["E"])
         self.G = dec(mat["G"]) if "G" in mat else self.E / (2 * (ONE + dec(mat["nu"])))

@@ -22,6 +22,34 @@ keeps the engine's import from writing `__pycache__` here) and
 `shasum -a 256 -c SHA256SUMS`. `--write` replaces them and is used only for an
 intended change of the references, never to absorb a product result.
 
+## D-5 re-freeze of the pressure-1 cases (T4-U6)
+
+The owner ruled D-5 on 2026-10-10 ("D-5 and D-6 as recommended"; DEL-05-03
+Design `section-bases-and-timoshenko.md` §§1, 2.1 and 7). The eight
+pressure-1 cases (section OD 0.1143 m, wall 0.00602 m, mill tolerance
+0.0007 m; no corrosion allowance in the requests, which the current-format
+re-authoring writes as 0) are re-frozen:
+
+- the engine's `section_bases = "d5"` puts EA, EI, GJ and the As of the
+  Poisson strain on the nominal wall and p·Ai on the pressure bore
+  OD/2 − ((wall − mill) − allowance), as before;
+- `derived` gives `section_bases` (nominal and reduced), `pressure_bore` and
+  the stiffness section;
+- the stresses are recovered on each basis in
+  `stresses_SI_by_section_basis.{nominal_section, reduced_section}`, which
+  replaces `nominal_stresses_SI` on pressure-1 (that key's "nominal" never
+  meant a section basis);
+- all rows, zero scales, discriminators and the objectivity and quadrature
+  checks are recomputed. In the free-tip cases every force, moment and
+  reduced-basis stress is unchanged; displacements, the nominal-basis
+  stresses and the anchored cases' actions move.
+
+The twelve preview-physics-1 cases keep their bytes (one section, as the
+preview route keeps), and `requests.json` is unchanged, so
+`requests_sha256` is unchanged. The I7 cross-check now binds the re-frozen
+T4-I7 file. The re-freeze was derived without reading product code and
+awaits refutation by a separate TASK.
+
 ## Cases
 
 Twelve preview-physics-1 cases (eleven linear and the gap case) and eight
@@ -67,20 +95,24 @@ which enters these rows.
   Section, material, radius, k, pressure and temperature are exact decimal
   targets.
 - **Cross-check against T4-I7.** `u4a_generate.py` recomputes all 79 valued
-  T4-I7 cases (`../t4_i7/u2_reference_cases.json`, SHA-256 `a91bfbc8…2828`,
-  read as data). T4-I7 was derived independently by a different method
-  implementation and reviewed by T4-RV3. The check covers every station, every
-  arc's `tangent_frame` and `chord_frame_elastic` end rows, and support A. The
-  largest difference is 4.7e-20 relative, against a 1e-18 bound. So T4-I7's
-  `tangent_frame` block, `F_y` to `M_z`, is itself the post-U4a expectation for
-  pressure-1 arc end rows. Its 79 cases need no copy here.
+  T4-I7 cases (`../t4_i7/u2_reference_cases.json`, SHA-256 `4bb9d0fa…ab66`
+  after its D-5 re-freeze, read as data), both under D-5. T4-I7 was derived
+  independently by a different method implementation and reviewed by T4-RV3.
+  The check covers every station, every arc's `tangent_frame` and
+  `chord_frame_elastic` end rows, and support A: 13,536 values. The largest
+  difference is 4.2e-20 relative (4.7e-20 before D-5), against a 1e-18 bound.
+  So T4-I7's `tangent_frame` block, `F_y` to `M_z`, is itself the post-U4a
+  expectation for pressure-1 arc end rows. Its 79 cases need no copy here.
 - **Admission check.** Before freezing, a scratch harness ran every request
-  through today's product (main `6aec8cfd6c`, `openpipestress-runner solve`)
+  through the product of that time (main `6aec8cfd6c`, `openpipestress-runner solve`)
   in both modes. All requests were admitted. The 19 linear cases are published
   Passed; the gap case publishes binary64 recovery. The unchanged rows
   (displacements, stations, endpoint stresses, the pressure family) and
-  today's chord-frame arc end rows all agreed with the oracle within 4e-4 of
-  the criterion. No product value was used to form any expectation.
+  the chord-frame arc end rows of that time all agreed with the oracle within
+  4e-4 of the criterion. No product value was used to form any expectation.
+  That agreement is with the pre-D-5 single section: the re-frozen pressure-1
+  values differ from a product without D-5 by design, and no product run was
+  made for the re-freeze.
 
 ## Oracle content (per case)
 
@@ -93,7 +125,9 @@ which enters these rows.
   - `end_rows_node_on_element_elastic.<end>.tangent_frame`, which U4a
     publishes, and `.chord_frame`, today's rows.
   - `wall_end_action_along_end_tangent` (pressure-1).
-  - `nominal_stresses_SI`.
+  - `nominal_stresses_SI` (preview-physics-1, one section) or
+    `stresses_SI_by_section_basis.{nominal_section, reduced_section}`
+    (pressure-1, D-5).
   - `zero_scale`.
   - `tangent_axes_45_digits` and `binary64_tangent_axes_inexact` on arcs.
 - `node_displacements` and `support_A_on_pipe` hold the support action at A.
@@ -161,7 +195,9 @@ the criterion. A mismatch is the product's to fix, never the reference's.
    1e3 tolerances of today's `chord_frame` value.
 5. Assert the unchanged families at the same criterion: station cuts,
    endpoint stresses, pressure-family rows including the wall end action,
-   straight members' end rows, displacements and support reactions. On
+   straight members' end rows, displacements and support reactions (on
+   pressure-1, each stress row against its own basis in
+   `stresses_SI_by_section_basis`). On
    pressure-1, `element_local_axial_force` is absent on straights as well as
    on arcs (the `bend_pressure.rs` retain filter), so the oracle's elastic F_x
    end rows of pressure-1 straights are not asserted. This step catches a

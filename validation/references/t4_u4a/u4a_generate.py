@@ -369,8 +369,11 @@ CUT_KEYS = ["N", "V_y", "V_z", "T", "M_y", "M_z"]
 def engine_model(c):
     members = [dict(m, y_reference=m["y_reference"]) for m in c["members"]]
     loads = dict(c["loads"])
-    return {"nodes": c["nodes"], "traversal_order": c["traversal_order"], "members": members, "section": c["section"],
-            "material": c["material"], "loads": loads, "anchor_last": c["anchor_last"], "last_restraint": c["last_restraint"]}
+    model = {"nodes": c["nodes"], "traversal_order": c["traversal_order"], "members": members, "section": c["section"],
+             "material": c["material"], "loads": loads, "anchor_last": c["anchor_last"], "last_restraint": c["last_restraint"]}
+    if c["route"] == PR1:
+        model["section_bases"] = "d5"  # D-5 (T4-U6): the exact route's section bases; preview-physics-1 keeps one section
+    return model
 
 
 def rotation(rows_axes, chord_axes):
@@ -394,11 +397,19 @@ def mutant_frames(m, end):
 def oracle_case(c):
     line = E.Line(engine_model(c)).solve()
     pressure = c["route"] == PR1
+    if line.bases is None:
+        derived = {"A_s": fmt(line.As), "A_i": fmt(line.Ai), "I": fmt(line.I), "J": fmt(line.J), "Z": fmt(line.Z), "r_o": fmt(line.ro),
+                   "E": fmt(line.E), "G": fmt(line.G), "p_Ai": fmt(line.p_ai),
+                   "eps0": {m.id: fmt(line.eps0[m.id]) for m in line.members}}
+    else:
+        derived = {"stiffness_section": "nominal_section",
+                   "section_bases": {b: {"wall": fmt(s["wall"]), "r_i": fmt(s["ri"]), "A_s": fmt(s["As"]), "I": fmt(s["I"]),
+                                         "J": fmt(s["J"]), "Z": fmt(s["Z"])} for b, s in line.bases.items()},
+                   "pressure_bore": {"r_i": fmt(line.ri_bore), "A_i": fmt(line.Ai)}, "r_o": fmt(line.ro),
+                   "E": fmt(line.E), "G": fmt(line.G), "p_Ai": fmt(line.p_ai),
+                   "eps0": {m.id: fmt(line.eps0[m.id]) for m in line.members}}
     out = {"route": c["route"], "description": c["description"], "family": c["family"], "skew": c["skew"],
-           "derived": {"A_s": fmt(line.As), "A_i": fmt(line.Ai), "I": fmt(line.I), "J": fmt(line.J), "Z": fmt(line.Z), "r_o": fmt(line.ro),
-                       "E": fmt(line.E), "G": fmt(line.G), "p_Ai": fmt(line.p_ai),
-                       "eps0": {m.id: fmt(line.eps0[m.id]) for m in line.members}},
-           "members": {}}
+           "derived": derived, "members": {}}
     if line.last_dofs:
         out["redundant_support_D_on_pipe"] = {"force": vec(line.redundant[0]), "moment_about_D": vec(line.redundant[1])}
     fa, ma = line.support_a()
@@ -462,13 +473,23 @@ def oracle_case(c):
         rec["end_rows_node_on_element_elastic"] = end_rows
         if pressure:
             rec["wall_end_action_along_end_tangent"] = {"end_i": fmt(-cut_rows["end_i"][2]["N_w"]), "end_j": fmt(cut_rows["end_j"][2]["N_w"])}
-        stresses = {}
-        for loc, _ in E.FRACTIONS:
-            cut = cut_rows[loc][2]
-            axial = cut["N_w"] if pressure else cut["N"]
-            stresses[loc] = {("sigma_m_wall_membrane" if pressure else "sigma_axial"): fmt(axial / line.As),
-                             "sigma_b_y": fmt(cut["M_y"] / line.Z), "sigma_b_z": fmt(cut["M_z"] / line.Z), "tau_t": fmt(cut["T"] * line.ro / line.J)}
-        rec["nominal_stresses_SI"] = stresses
+        if line.bases is None:
+            stresses = {}
+            for loc, _ in E.FRACTIONS:
+                cut = cut_rows[loc][2]
+                axial = cut["N_w"] if pressure else cut["N"]
+                stresses[loc] = {("sigma_m_wall_membrane" if pressure else "sigma_axial"): fmt(axial / line.As),
+                                 "sigma_b_y": fmt(cut["M_y"] / line.Z), "sigma_b_z": fmt(cut["M_z"] / line.Z), "tau_t": fmt(cut["T"] * line.ro / line.J)}
+            rec["nominal_stresses_SI"] = stresses
+        else:  # D-5: the one wall force and section actions on each basis (DEL-05-03 Design section 2.1)
+            by_basis = {}
+            for b, s in line.bases.items():
+                by_basis[b] = {}
+                for loc, _ in E.FRACTIONS:
+                    cut = cut_rows[loc][2]
+                    by_basis[b][loc] = {"sigma_m_wall_membrane": fmt(cut["N_w"] / s["As"]), "sigma_b_y": fmt(cut["M_y"] / s["Z"]),
+                                        "sigma_b_z": fmt(cut["M_z"] / s["Z"]), "tau_t": fmt(cut["T"] * line.ro / s["J"])}
+            rec["stresses_SI_by_section_basis"] = by_basis
         raw[m.id] = (m, cut_rows, ends)
         out["members"][m.id] = rec
     # node displacements (unchanged by U4a; for validating the request against the product)
@@ -570,7 +591,8 @@ def i7_model(case):
             "section": i["section"], "material": {"E": i["material"]["E"], "nu": i["material"]["nu"], "alpha": i["material"]["alpha_per_degC"]},
             "loads": {"p": i["pressure"]["p_Pa"], "terminal_A": i["pressure"]["terminal_A"], "terminal_D": i["pressure"]["terminal_D"],
                       "delta_T_all": i["thermal"]["delta_T_degC"], "uniform_all": [] if w == 0 else [["0", "0", str(-w)]]},
-            "anchor_last": any(s.endswith("at " + g["traversal_order"][-1]) for s in i["supports"])}
+            "anchor_last": any(s.endswith("at " + g["traversal_order"][-1]) for s in i["supports"]),
+            "section_bases": "d5"}  # T4-I7 is exact-route (D-5); its allowance is 0
 
 
 def i7_cross_check():
@@ -703,6 +725,7 @@ def build():
             "chord_to_tangent_rotation": "rows are the tangent axes at that end in chord components: end_i [[c, s, 0], [s, -c, 0], [0, 0, -1]], end_j [[c, -s, 0], [-s, -c, 0], [0, 0, -1]], s = L/(2R), c = sqrt(1 - s^2)",
             "wall_end_action": "pressure-1: node-on-element wall action along the end tangent, end_i = -N_w(0), end_j = +N_w(1)",
             "stresses": "SI (Pa): sigma_axial = N/As (preview-physics-1) or sigma_m_wall_membrane = N_w/As (pressure-1); sigma_b_y = M_y/Z; sigma_b_z = M_z/Z; tau_t = T r_o/J",
+            "section_bases": "pressure-1 (D-5, T4-U6; DEL-05-03 Design sections 1 and 2.1): stiffness (EA, EI, GJ and the As of the Poisson strain) on the nominal wall, p Ai on the pressure bore OD/2 - ((wall - mill) - allowance) with allowance 0 (the documents carry none; the current-format re-authoring writes 0), and the stresses on each basis in stresses_SI_by_section_basis.{nominal_section, reduced_section} (A_b, Z_b, J_b of that basis); preview-physics-1 keeps its one section and nominal_stresses_SI",
             "supports": "support-on-pipe, global; moment about the attached node",
             "displacements": "global translations (m) and right-hand rotations (rad)",
         },
