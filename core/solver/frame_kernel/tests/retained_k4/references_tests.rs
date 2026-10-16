@@ -631,6 +631,7 @@ fn represented_system(
             second_moment_y: m.second_moment_y,
             second_moment_z: m.second_moment_z,
             torsion_constant: m.torsion_constant,
+            beam_theory: crate::BeamTheory::EulerBernoulli,
         };
         let element =
             crate::FrameElement::new(node(m.node_i), node(m.node_j), section, m.y_reference)

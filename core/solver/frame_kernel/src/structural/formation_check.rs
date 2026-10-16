@@ -15,7 +15,7 @@ use super::retained::wide::{Wide2, WideArith, WideError};
 use super::{binary_exponent, StructuralError, StructuralSystem};
 use crate::connector::ObjectiveConnector;
 use crate::exact_sum::{ExactAccumulator, SumError};
-use crate::{element_dof_map, FrameElement, DOF_PER_NODE, ELEMENT_DOF};
+use crate::{element_dof_map, BeamTheory, FrameElement, DOF_PER_NODE, ELEMENT_DOF};
 
 /// Precision of the re-formation (D1 §4.3.1 step 1).
 pub const FORMATION_PRECISION: u32 = 128;
@@ -867,6 +867,7 @@ where
 {
     let ledger = ledger.ok_or_else(|| Failure::Closure("no ledger".into()))?;
     load_closure(source, ledger)?;
+    straight_frames_bound(source)?;
     let n = system.force.len();
     let free = system.free_dofs;
     if source.node_count.checked_mul(DOF_PER_NODE) != Some(n)
@@ -1140,6 +1141,13 @@ fn body_scales(source: &FormationSource, free: &[usize], u: &[f64]) -> Vec<(f64,
 fn bits(out: &mut Vec<u64>, values: impl IntoIterator<Item = f64>) {
     out.extend(values.into_iter().map(f64::to_bits));
 }
+/// T4-U8 (Design §4 item 2): the binding's beam-theory leaf. An
+/// Euler–Bernoulli frame adds nothing, so its binding is unchanged; a
+/// Timoshenko frame adds this tag and the bits of A_s. The tag is the bit
+/// pattern of a NaN: every word that follows a frame binding in a formula's
+/// binding is a small family tag or the bits of a finite operand, so the
+/// encoding is prefix-free over re-formable primitives.
+const TIMOSHENKO_BINDING_TAG: u64 = u64::MAX;
 fn frame_binding(out: &mut Vec<u64>, f: &FrameElement) {
     out.extend([f.node_i.index as u64, f.node_j.index as u64]);
     bits(out, f.node_i.coordinates);
@@ -1157,6 +1165,127 @@ fn frame_binding(out: &mut Vec<u64>, f: &FrameElement) {
             p.torsion_constant,
         ],
     );
+    if let BeamTheory::Timoshenko { shear_area } = p.beam_theory {
+        out.extend([TIMOSHENKO_BINDING_TAG, shear_area.to_bits()]);
+    }
+}
+/// Two frames bit-equal in every leaf of `frame_binding`, the beam-theory
+/// leaf included (no heap copy).
+pub(super) fn frames_bit_equal(x: &FrameElement, y: &FrameElement) -> bool {
+    let words = |f: &FrameElement| {
+        let (p, n) = (&f.section, [f.node_i.coordinates, f.node_j.coordinates, f.y_reference]);
+        let leaves = [
+            p.elastic_modulus,
+            p.shear_modulus,
+            p.area,
+            p.second_moment_y,
+            p.second_moment_z,
+            p.torsion_constant,
+        ];
+        let theory = match p.beam_theory {
+            BeamTheory::EulerBernoulli => (0_u64, 0_u64),
+            BeamTheory::Timoshenko { shear_area } => (TIMOSHENKO_BINDING_TAG, shear_area.to_bits()),
+        };
+        (f.node_i.index, f.node_j.index, n.map(|v| v.map(f64::to_bits)), leaves.map(f64::to_bits), theory)
+    };
+    words(x) == words(y)
+}
+/// The frame of a straight load primitive.
+pub(super) fn straight_primitive_frame(formula: &LoadFormula) -> Option<&FrameElement> {
+    match formula {
+        LoadFormula::UniformStraight { frame, .. }
+        | LoadFormula::FreeStrainStraight { frame, .. }
+        | LoadFormula::PressureOperand {
+            geometry: PressureGeometry::Straight { frame },
+            ..
+        } => Some(frame),
+        _ => None,
+    }
+}
+/// T4-U8 (Design §4 item 2): every straight load primitive's frame is
+/// bit-equal, its beam-theory leaf included, to a FormationSource frame on
+/// its node pair, compared at the primitive's force exponent (a W2 source
+/// holds each frame with E and G times 2^b; a primitive keeps its authored
+/// leaves and its exponent). Otherwise the case fails closed: a primitive
+/// frame without the stiffness frame's leaf would certify a mixed system (a
+/// stale Euler–Bernoulli load vector with Timoshenko K).
+///
+/// `FormationSource` carries no member identity on its frames, so parallel
+/// members on one node pair are told apart only by their bits: a primitive
+/// must equal one of the pair's frames. A pair with no frame (a span whose
+/// stiffness is a connector or a spring stand-in) has no stiffness frame to
+/// mix with and is not checked here; the closure manifest binds it.
+fn straight_frames_bound(source: &FormationSource) -> Result<(), Failure> {
+    match unbound_straight_primitive(source) {
+        None => Ok(()),
+        Some(p) => Err(Failure::Closure(format!(
+            "{}: straight primitive frame is not its formation-source frame",
+            p.identity.source
+        ))),
+    }
+}
+/// The first straight primitive of `source` that `straight_frames_bound`
+/// refuses, if any (`primitive_frame_bound` for each, with one cursor).
+pub(super) fn unbound_straight_primitive(source: &FormationSource) -> Option<&LoadPrimitive> {
+    let mut cursor = FrameCursor::default();
+    source
+        .loads
+        .iter()
+        .find(|p| !primitive_frame_bound(source, p, &mut cursor))
+}
+/// Where `primitive_frame_bound` searches first, on the stack: the last few
+/// matched frames (a node's grouped pressure operands alternate between the
+/// members meeting it), then the frames from the last match on, wrapping, so
+/// a producer that lists its members in frame order is checked in about one
+/// pass over both lists. It never changes a result, only the search order.
+#[derive(Debug, Default)]
+pub(super) struct FrameCursor {
+    recent: [Option<usize>; 4],
+    slot: usize,
+    start: usize,
+}
+/// `p` is not a straight primitive, or its pair has no source frame, or one
+/// of the pair's source frames is bit-equal to its frame at its force
+/// exponent (`straight_frames_bound`).
+pub(super) fn primitive_frame_bound(
+    source: &FormationSource,
+    p: &LoadPrimitive,
+    cursor: &mut FrameCursor,
+) -> bool {
+    let Some(frame) = straight_primitive_frame(&p.formula) else {
+        return true;
+    };
+    let pair = |f: &FrameElement| {
+        let (a, b) = (f.node_i.index, f.node_j.index);
+        (a.min(b), a.max(b))
+    };
+    // E and G times 2^exponent, exactly (any exponent, as the ledger's).
+    let Ok(scaled) = frame.force_scaled(crate::ForceScale {
+        exponent: p.force_scale_exponent,
+    }) else {
+        // Unscalable leaves match no frame; bound only if the pair has none.
+        return !source.frames.iter().any(|f| pair(f) == pair(frame));
+    };
+    let bound = |k: usize| frames_bit_equal(&source.frames[k], &scaled);
+    if cursor.recent.iter().flatten().any(|&k| bound(k)) {
+        return true;
+    }
+    let count = source.frames.len();
+    let start = if cursor.start < count { cursor.start } else { 0 };
+    let mut paired = false;
+    for k in (start..count).chain(0..start) {
+        if pair(&source.frames[k]) != pair(frame) {
+            continue;
+        }
+        paired = true;
+        if bound(k) {
+            cursor.start = k;
+            cursor.recent[cursor.slot] = Some(k);
+            cursor.slot = (cursor.slot + 1) % cursor.recent.len();
+            return true;
+        }
+    }
+    !paired
 }
 fn curved_binding(out: &mut Vec<u64>, f: &CurvedFormation) {
     out.extend([f.node_i as u64, f.node_j as u64]);
@@ -1957,6 +2086,18 @@ pub(super) fn load_reformation(p: &LoadPrimitive) -> Result<([Wide2; 12], [f64; 
             start_fraction,
             end_fraction,
         } => {
+            // T4-U8 (Design §3.4, §4 item 4): a full span has the
+            // Euler–Bernoulli vector in a Timoshenko element; a partial span
+            // does not, and its exact Timoshenko vector is not re-formed
+            // here, so it is unavailable (fail closed), never formed with the
+            // stale Euler–Bernoulli vector.
+            if frame.section.beam_theory.is_timoshenko()
+                && !(*start_fraction == 0.0 && *end_fraction == 1.0)
+            {
+                return Err(LoadFailure::Wide(WideError::CountRange(
+                    "timoshenko partial-span uniform load: unavailable",
+                )));
+            }
             let w = intensity_balls(&mut b, intensity)?;
             uniform_straight_balls(&mut b, frame, w, *start_fraction, *end_fraction)?
         }
@@ -2317,6 +2458,13 @@ fn small(v: f64) -> Wide2 {
 
 /// A straight frame re-formed from its primitives (D1 §4.3.1 step 1): the
 /// frame, L, EA/L, GJ/L, 12EI/L³, 6EI/L², 4EI/L, 2EI/L and TᵀKT, all at p.
+///
+/// T4-U8 (Design §4 item 1): a Timoshenko leaf forms, per plane and at p
+/// from the frame's own leaves, φ = 12EI/(G·A_s·L²), 1+φ, 4+φ and 2−φ, then
+/// 12EI/(L³(1+φ)), 6EI/(L²(1+φ)), (4+φ)EI/(L(1+φ)) and (2−φ)EI/(L(1+φ)) in
+/// the same positions. EA/L and GJ/L are unchanged (A is the metal area).
+/// Every consumer (ρ, s, s₂, ε_E, certified recovery, reactions, stress
+/// spans) sees this one intended element.
 pub(super) fn frame_matrix(a: &mut WideArith, e: &FrameElement) -> Result<Element, WideError> {
     let (axes, length) = chord_axes(a, e.node_i.coordinates, e.node_j.coordinates, e.y_reference)?;
     let s = &e.section;
@@ -2327,17 +2475,42 @@ pub(super) fn frame_matrix(a: &mut WideArith, e: &FrameElement) -> Result<Elemen
     let axial = a.div(&ea, &length)?;
     let gj = a.mul(&gm, &lift(s.torsion_constant)?)?;
     let torsion = a.div(&gj, &length)?;
+    // (G·A_s)·L², the Timoshenko denominator of φ; None for Euler–Bernoulli.
+    let shear = match s.beam_theory {
+        BeamTheory::EulerBernoulli => None,
+        BeamTheory::Timoshenko { shear_area } => {
+            let gas = a.mul(&gm, &lift(shear_area)?)?;
+            Some(a.mul(&gas, &l2)?)
+        }
+    };
     let mut coefficients = |i: f64| -> Result<[Wide2; 4], WideError> {
         let ei = a.mul(&em, &lift(i)?)?;
         let t12 = a.mul(&small(12.0), &ei)?;
         let t6 = a.mul(&small(6.0), &ei)?;
-        let t4 = a.mul(&small(4.0), &ei)?;
-        let t2 = a.mul(&small(2.0), &ei)?;
+        let Some(gasl2) = shear else {
+            let t4 = a.mul(&small(4.0), &ei)?;
+            let t2 = a.mul(&small(2.0), &ei)?;
+            return Ok([
+                a.div(&t12, &l3)?,
+                a.div(&t6, &l2)?,
+                a.div(&t4, &length)?,
+                a.div(&t2, &length)?,
+            ]);
+        };
+        let phi = a.div(&t12, &gasl2)?;
+        let one_plus_phi = a.add(&Wide2::ONE, &phi)?;
+        let four_plus_phi = a.add(&small(4.0), &phi)?;
+        let two_minus_phi = a.sub(&small(2.0), &phi)?;
+        let d3 = a.mul(&l3, &one_plus_phi)?;
+        let d2 = a.mul(&l2, &one_plus_phi)?;
+        let d1 = a.mul(&length, &one_plus_phi)?;
+        let t4 = a.mul(&four_plus_phi, &ei)?;
+        let t2 = a.mul(&two_minus_phi, &ei)?;
         Ok([
-            a.div(&t12, &l3)?,
-            a.div(&t6, &l2)?,
-            a.div(&t4, &length)?,
-            a.div(&t2, &length)?,
+            a.div(&t12, &d3)?,
+            a.div(&t6, &d2)?,
+            a.div(&t4, &d1)?,
+            a.div(&t2, &d1)?,
         ])
     };
     let [z12, z6, z4, z2] = coefficients(s.second_moment_z)?;
@@ -2765,3 +2938,6 @@ fn invert6(a: &mut WideArith, f: &M6) -> Result<M6, WideError> {
 #[cfg(test)]
 #[path = "formation_check_tests.rs"]
 mod tests;
+#[cfg(test)]
+#[path = "formation_check_timoshenko_tests.rs"]
+mod timoshenko_tests;

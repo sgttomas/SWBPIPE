@@ -7,7 +7,8 @@ use super::arc_certificate::{
     abs_up, add_up, arc_geometry, div_up, finite, mul_up, ArcCertificateFailure, Ball, Balls,
 };
 use super::formation_check::{
-    ball_chord_axes, chord_axes, connector_matrix, curved_matrix, frame_matrix, load_reformation, CurvedFormation,
+    ball_chord_axes, chord_axes, connector_matrix, curved_matrix, frame_matrix, frames_bit_equal,
+    load_reformation, primitive_frame_bound, straight_primitive_frame, CurvedFormation,
     FormationSource, LoadFormula, LoadPrimitive, MemberBoundInputs,
 };
 use super::retained::wide::multi::Binary64Outcome;
@@ -766,10 +767,33 @@ struct StraightRecoveryContext {
     equivalent_scale: [f64; 12],
     map: [usize; 12],
 }
+/// T4-U8 (Design §4 item 2): the recovery frame of a straight member is
+/// bit-equal, its beam-theory leaf included, to the frame of every straight
+/// primitive of that member (the member's source prefix and node pair, as
+/// `CertifiedMemberLoads` selects them; no force scaling, since recovery
+/// takes the physical frame and authored leaves). Otherwise the recovery
+/// fails closed: K_int·u with one element and loads re-formed for another
+/// would certify a mixed system.
+fn straight_member_frames_bound(
+    frame: &FrameElement,
+    loads: &CertifiedMemberLoads,
+) -> Result<(), RecoveryFailure> {
+    let unbound = loads.primitives.iter().any(|p| {
+        p.identity.source.starts_with(loads.source_prefix)
+            && member_pair(&p.formula)
+                .is_some_and(|(i, j)| same_pair(loads.node_i, loads.node_j, i, j))
+            && straight_primitive_frame(&p.formula).is_some_and(|f| !frames_bit_equal(f, frame))
+    });
+    if unbound {
+        return Err(shape("straight recovery frame is not its member primitives' frame"));
+    }
+    Ok(())
+}
 fn straight_context(
     frame: &FrameElement,
     loads: &CertifiedMemberLoads,
 ) -> Result<StraightRecoveryContext, RecoveryFailure> {
+    straight_member_frames_bound(frame, loads)?;
     let mut a = WideArith::new(128)?;
     let matrix = frame_matrix(&mut a, frame)?;
     let (axes, length) = chord_axes(
@@ -1354,6 +1378,7 @@ pub fn certify_support_reaction(
             remainder = add_up(remainder, row.remainder);
         }
     }
+    let mut frame_cursor = super::formation_check::FrameCursor::default();
     for (index, term) in force
         .terms()
         .iter()
@@ -1366,6 +1391,13 @@ pub fn certify_support_reaction(
             .ok_or_else(|| shape("reaction closure"))?;
         if record.formed {
             for primitive in source.loads.iter().filter(|p| p.term_index == index) {
+                // T4-U8 (Design §4 item 2): the reaction's straight load
+                // primitives are bound to their formation-source frames.
+                if !primitive_frame_bound(source, primitive, &mut frame_cursor) {
+                    return Err(shape(
+                        "support reaction: straight primitive frame is not its formation-source frame",
+                    ));
+                }
                 let (m, r) = load_reformation(primitive)?;
                 let row = primitive.local_row;
                 let ball = Ball {
@@ -1897,6 +1929,9 @@ pub const fn certified_stress_control_sizes() -> CertifiedStressControlSizes {
     // Two Ball operators cover local_operator output+return staging.
     // Wide scratch names include frame axes,length,em,gm,l2,l3,ea,axial,gj,
     // torsion; coefficient closure ei,t12,t6,t4,t2 and returned arrays;
+    // T4-U8's Timoshenko leaf adds gas and the captured (G*As)*L^2 option,
+    // and in the closure phi,1+phi,4+phi,2-phi,d3,d2,d1 (eleven slots, inside
+    // the same 256 bound; the Euler–Bernoulli frame forms none of them);
     // z12/z6/z4/z2/y12/y6/y4/y2; bz/by and their array-iterator/pattern copies;
     // rotate temp,s,t; chord d,length,ex,yr,projection,yc,t,ym,ey,ez;
     // vector-helper return arrays/products and arithmetic-result move slots.

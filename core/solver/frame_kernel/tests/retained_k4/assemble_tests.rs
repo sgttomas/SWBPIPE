@@ -263,6 +263,7 @@ fn at_p53_the_axis_aligned_element_agrees_with_the_products_local_stiffness() {
         second_moment_y: member.second_moment_y,
         second_moment_z: member.second_moment_z,
         torsion_constant: member.torsion_constant,
+        beam_theory: crate::BeamTheory::EulerBernoulli,
     };
     let product = crate::local_stiffness(crate::FrameProperties {
         section,
