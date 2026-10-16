@@ -286,6 +286,15 @@ Euler–Bernoulli C3 over the whole set is 0.742 (`SHORT02|S3M1|utmskew|m0|eb`, 
 "1.2e-4" in the message of commit `9bc482073d` is wrong. The earlier Euler–Bernoulli run set
 (`w1eb`, 1,928 runs) gives the same counts and worst ratio.
 
+**Product freshness (epoch head `addbdc030e`).** Between `77cc26f426` and `addbdc030e` the product
+changed only in a byte-preserving receipt-hash serialization and the realized-arc evidence marker.
+The runner was built against a detached `addbdc030e` and run on four chunks: cantilevers with every
+section variant, the φ = 2 cluster, pressure chains with mill tolerance and allowance, and
+near-Sensitive soft-spring and short-member models. That is 160 models (80 Euler–Bernoulli and 80
+Timoshenko) and 640 runs, both modes and both entries, Passed and Sensitive. Every record equals the
+saved `77cc26f426` record in every field except timing: rows, diagnostics, numerical quality, summary
+and contract evidence. The verdict above therefore stands for `addbdc030e`.
+
 ## Premise census (`kd5t_census.py`, `kd5t_reauthor.py`)
 
 **`hager`.** κ₁(D·K·D)·r̂ from the gate's published r̂ and scale exponents D, with the engine's exact
