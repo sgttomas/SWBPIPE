@@ -231,9 +231,9 @@ Each is killed by the named test.
 |---|---|
 | Mill tolerance leaking into stiffness (stiffness on t − c_m) | `u6_bases_stiffness_uses_the_nominal_wall` (t4_u6 displacements; MILLTOL displacements) |
 | Allowance leaking into stiffness | `u6_bases_stiffness_uses_the_nominal_wall` |
-| Contents on the nominal bore; metal mass on the reduced wall | `u6_bases_mass_metal_nominal_contents_pressure_bore` |
+| Contents on the nominal bore; metal mass on the reduced wall | `u6_bases_mass_metal_nominal_contents_pressure_bore` (the frozen request's generated self-weight record no longer matches, so the product refuses it: `SELF_WEIGHT_INPUT_INVALID`) |
 | Cap area on the nominal bore | `i8_milltol_d5_refreeze` (`cap_area_on_nominal_bore` discriminator) |
-| ε_p area on the reduced section | `u6_bases_restrained_wall_force_uses_the_stiffness_area` |
+| ε_p area on the reduced section | `i7_valued_cases_match_in_both_modes_and_document_versions` (re-frozen T4-I7 realized arcs with mill tolerance: the arc's `PressureFreeStrainCurved` is the only site where As enters ε_p; straights apply the Poisson pair 2νpAi as forces, so t4_u6's straight cases cannot see this mutant). `u6_bases_restrained_wall_force_uses_the_stiffness_area` pins the restrained straight wall force N_w and S on t4_u6 |
 | One basis for both families (reduced rows copied from nominal) | `u6_bases_stress_rows_on_both_sections`; reader mutation `pressure_1_reader_refuses_cross_basis_stress` |
 | A headline bound across bases | reader mutation `pressure_1_reader_refuses_cross_basis_headline` |
 | Stale Euler–Bernoulli load equivalents with Timoshenko K | `timoshenko_distal_half_load_kills_the_stale_vector` (54/384) |
@@ -266,6 +266,7 @@ Each is killed by the named test.
 The budget is met by byte-preserving source changes that remove resident copies. Each gets its own adjudication rule in `retained-pricing-rules.md`, argued from code facts, with a source pin and independent review:
 - **U6-DH** (domain hash): `retained_wire.rs` `domain_hash` serializes a borrowed `{domain, payload}` wrapper instead of copying the payload into a new Value; the text and hash are identical, which a test pins. Measured: +420.6 MB of merged dense W3.
 - **U6-RB** (rows by base id): the `rows_by_base_id` clone (`lib.rs`) is built only when the preview exists, which route E never has. Measured: +104.2 MB of merged dense W3 under the dual family; it also restores X1.
+- **U6-SH** (source-receipt hash): `source_receipt.rs` `hash` serializes a borrowed `{domain, payload}` wrapper, as U6-DH does, instead of copying every hashed payload (publication envelope, receipt body, case evidence) into a new Value; a test pins the text and hash to the former construction. Added after the actual-source pricing of the PP source found X1 short (merged dense X1 −335.3 MB): selected-source finalization rose 662 MB with 72 rows per member, and the X-branch text rose 515 MB instead of falling. With U6-SH every one of the 70 evaluations passes (HELP_HUMAN, 2026-10-16: no objection). The site-specific narrowing of message arguments (a broadened U6-AC) is not used: it conflicts with KD5T3's "no type-wide subject or message narrowing".
 - **Row premise.** The reduced family is emitted only from exact-route code, which route L zeroes, and the tool's per-member row premise P_final becomes route-specific: route E publishes 72 rows per member in place of 51, argued from the exact-route push sites and checked by the I95-style census.
 - **Reserve lever, U6-AC** (argument classes), used only if needed: the stress-row metadata arguments priced at 2,173 B are constants of at most about 180 B; estimated +31 MB of W3 and about +67 MB of X1.
 
