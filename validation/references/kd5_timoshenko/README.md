@@ -309,11 +309,79 @@ probe can label its lines. The consumer reports:
   engine's D·K·D.
 
 `--selftest` validates this arithmetic on synthetic dumps. The probe itself is product
-instrumentation. It is not built here, because the M3-T reference author does not read or write the
-product implementation (Design §7).
+instrumentation, so it is not kept here: the reference side (engine, generator, comparison) still reads
+no product code (Design §7).
 
 **`standings`.** Counts Passed, Sensitive, fail-closed and refused for the re-authored corpora by
 shear model, and the EB → Timoshenko moves by tag stem.
+
+**ε_E census, measured (Design §4 item 5; K-D5 §2.1).** The product does not publish ε_E, so it was
+measured with an instrumented build that was never committed.
+
+- **Build.** A detached scratch worktree of `addbdc030e` with a probe in FK
+  `core/solver/frame_kernel/src/structural/formation_check.rs` (154 added lines, 3 changed).
+  - `epsilon_e` also keeps the row and column sums of each of its three parts (element formation,
+    assembly rounding, projection change) and returns the same value.
+  - `evaluate`, right after step 7, writes one JSON line per K-D5 evaluation to `$KD5_PROBE_OUT`: the
+    gate's (r̂, est, ‖K̃_s‖₁), ε_E, its three parts, 2^10·est·ε_E and the outcome. Lines are labelled
+    with the runner's `KD5_ACTIVE_*`.
+  - `check_at` writes a line for an evaluation that ends before step 7 (a D5C-1 demotion). The product
+    forms no ε_E there, so the probe forms it with the same `epsilon_e`. Nothing the probe computes
+    reaches the result.
+  - The patch is scratch evidence (`t4-u6u8-m3t3-ev/kd5_probe_formation_check.diff`, sha256
+    `6dedc3fa…`).
+- **No published byte changed.**
+  - Judged set: the instrumented runs of all 3,856 runs equal the saved runs in every field except
+    timing (1,078,632 rows, the diagnostics, summaries and evidence). Four chunks (640 runs) also equal
+    the uninstrumented `addbdc030e` runs.
+  - Corpora: all 15,736 standings-only runs equal the saved uninstrumented runs (diagnostics, numerical
+    quality and summary).
+- **Sets.**
+  - The judged set, Euler–Bernoulli and Timoshenko.
+  - The realistic, RV29 and W1 corpora re-authored by `kd5t_reauthor.py` with either shear model. The
+    Timoshenko form makes straight tangents Timoshenko and keeps arcs Euler–Bernoulli.
+  - Each set is run in both modes and both entries.
+- **What is counted.** Every run has at most one K-D5 evaluation. Runs that the gate demotes
+  (r̂ < 2^-26) have none. Every Passed run reached step 7.
+
+ε_E/‖K̃_s‖₁ (go: every evaluation ≤ 2^-40 = 9.09e-13; no-go above 2^-36):
+
+| Set | Shear model | Runs | Passed | Sensitive | Fail-closed | K-D5 evaluations | Median | p99 | Max | Max / 2^-40 | Max 2^10·est·ε_E |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Judged set | Euler–Bernoulli | 1,928 | 1,804 | 124 | 0 | 1,832 | 1.2e-16 | 7.1e-16 | 8.1e-16 | 8.9e-4 | 2.2e-5 |
+| Judged set | Timoshenko | 1,928 | 1,876 | 52 | 0 | 1,888 | 1.4e-16 | 6.1e-16 | 6.7e-16 | 7.3e-4 | 2.2e-5 |
+| Realistic | Euler–Bernoulli | 1,968 (4 refused) | 1,846 | 118 | 0 | 1,868 | 2.1e-15 | 6.3e-15 | 6.5e-15 | 7.2e-3 | 2.7e-4 |
+| Realistic | Timoshenko | 1,968 (4 refused) | 1,842 | 122 | 0 | 1,868 | 2.0e-15 | 6.3e-15 | 6.5e-15 | 7.2e-3 | 2.7e-4 |
+| RV29 | Euler–Bernoulli | 212 | 184 | 28 | 0 | 200 | 1.3e-15 | 4.9e-13 | 4.9e-13 | 0.541 | 1.5e-4 |
+| RV29 | Timoshenko | 212 | 188 | 24 | 0 | 200 | 1.3e-15 | 4.9e-13 | 4.9e-13 | 0.542 | 1.5e-4 |
+| W1 | Euler–Bernoulli | 5,688 | 5,344 | 344 | 0 | 5,344 | 2.8e-16 | 8.3e-16 | 1.1e-15 | 1.2e-3 | 2.4e-5 |
+| W1 | Timoshenko | 5,688 | 5,560 | 128 | 0 | 5,560 | 2.8e-16 | 8.0e-16 | 1.1e-15 | 1.2e-3 | 2.1e-5 |
+
+**Verdict: go, on every set and shear model.**
+
+- No evaluation exceeds 2^-40 and none exceeds 2^-36, so there is no Passed or fail-closed case above
+  the threshold.
+- The largest value is RV29 `k10000`, an arc beside a stiff spring: 4.93e-13, 0.542 of the threshold.
+  That case is Passed. The Timoshenko re-authoring keeps that arc Euler–Bernoulli.
+- The Euler–Bernoulli maxima reproduce K-D5 §2.1's measurements: realistic 6.5e-15 and 2.7e-4, RV29
+  4.9e-13, W1 1.1e-15.
+- The Timoshenko maxima equal the Euler–Bernoulli ones to two digits on each corpus. The judged set's
+  Timoshenko maximum is below its Euler–Bernoulli one.
+- In every worst case the element-formation part dominates.
+- No fail-closed case occurs.
+
+Standings against the Euler–Bernoulli baseline (`kd5t_census.py standings`, by run):
+
+- 9,158 runs stay Passed.
+- 308 move from Sensitive to Passed:
+  - 270 from the gate (W1 216, judged set 54);
+  - 38 from D5C-1 (judged set 22, realistic 10, RV29 6).
+- 20 move from Passed to Sensitive:
+  - 18 by D5C-1 (realistic 12, judged set 4, RV29 2);
+  - 2 by the realistic recovery guard (R-b′), both after step 7.
+
+  These moves are fail-safe.
+- 2 judged-set runs move from the gate to D5C-1.
 
 ## Runner (`runner/`)
 

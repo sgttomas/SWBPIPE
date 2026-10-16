@@ -23,10 +23,13 @@ diagnostic. It does not publish est, ||K~_s||_1 or epsilon_E. Hence three modes:
 
 Probe dump format (one JSON line per K-D5 evaluation; the runner sets KD5_ACTIVE_TAG, KD5_ACTIVE_ENTRY
 and KD5_ACTIVE_MODE so the probe can label lines):
-  {"tag", "entry", "mode", "case", "attempt": "ordinary"|"w2", "r_hat", "est", "norm1_Ks",
-   "epsilon_E", "epsilon_E_parts": [elements, assembly, projection] (optional), "contraction",
-   "outcome": "passed"|"sensitive:<reason>"|"fail_closed:<detail>",
-   "Ks": [[...]] (optional, the prepared scaled symmetric matrix the factor sees), "scale_exponents" (optional)}
+  {"tag", "entry", "mode", "step7": whether the evaluation reached step 7, "r_hat", "est", "norm1_Ks",
+   "epsilon_E" (the product's own at step 7; formed by the probe with the same function otherwise),
+   "epsilon_E_parts": [elements, assembly, projection] (each the larger of its row- and column-sum norms),
+   "neumann_2p10_est_epsE", "outcome": "bound" (step 7 completed: the member-bound inputs exist; the
+   standing is then PP's) | "sensitive:estimate" (D5C-1) | "fail_closed:<detail>",
+   optional "case", "attempt", "contraction", "Ks": [[...]] (the prepared scaled symmetric matrix the
+   factor sees) and "scale_exponents"}. The README records the probe used for the census.
 """
 
 from __future__ import annotations
