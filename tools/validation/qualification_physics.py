@@ -37,8 +37,9 @@ UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds).
 TABLE_SHA256 = '4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e'
 DEPENDENCIES = {
-    # T4-U6/U8 re-pin: the D-5 section bases and the Timoshenko beam theory (was 38302413...).
-    MODULE: '8bf263d6a613a62f9a757059c7811dfc32a05b9cb363e52e70edf0127e0f0ccf',
+    # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
+    # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite).
+    MODULE: 'f91e678e95115acc613c6c422b444ba00887fec20689fda51961dc7351fd9177',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
