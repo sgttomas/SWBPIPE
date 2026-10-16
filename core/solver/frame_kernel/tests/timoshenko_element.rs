@@ -870,6 +870,86 @@ fn timoshenko_k2b_phi_is_scale_invariant_and_the_census_holds() {
     assert_eq!(ForceScaleCensus::timoshenko_phi(huge, 3e10, 100.0), Some(phi[1]));
 }
 
+/// The binary exponent of a normal binary64 value, read from its bits.
+fn binary_exponent(value: f64) -> i32 {
+    assert!(value.is_normal(), "{value:e}");
+    ((value.abs().to_bits() >> 52) & 0x7ff) as i32 - 1023
+}
+
+/// The census span of one element, after checking that every nonzero
+/// coefficient of its formed K lies within the span's margins.
+fn census_span(element: &FrameElement) -> (i32, i32) {
+    let mut census = ForceScaleCensus::new();
+    census.frame(element).unwrap();
+    let (low, high) = census.span().unwrap();
+    for value in element.local_stiffness().unwrap().iter().flatten().filter(|v| **v != 0.0) {
+        let exponent = binary_exponent(*value);
+        assert!(exponent >= low - 3 && exponent <= high + 2, "{value:e} outside [{low}, {high}]");
+    }
+    (low, high)
+}
+
+/// K2b (Design §4 item 3; final review FINAL-A, F4): the census takes the
+/// exponents of 1+phi, 4+phi and 2-phi from the actual binary64 phi, never
+/// from the leaf exponents (1+phi as 1, 4+phi as 4, 2-phi as 2). With
+/// E = G = A = J = 1 every census entry is a sum of the exponents listed in
+/// the comments; each element puts one of those factors at an extreme of the
+/// span, so substituting its leaf-predicted exponent moves the span.
+#[test]
+fn timoshenko_k2b_census_uses_the_actual_phi_exponents() {
+    let along_x = |section: FrameSection, length: f64| {
+        element(0, 1, [0.0; 3], [length, 0.0, 0.0], section, [0.0, 1.0, 0.0])
+    };
+    let phi = |e: &FrameElement| e.properties().unwrap().timoshenko_phi().unwrap().unwrap();
+
+    // (a) phi within ulps of 2 on both sides: phi_y = 2 - 2^-50 and phi_z =
+    // 2 + 2^-49 exactly (A_s = 12, L = 1). 2-phi_y has exponent -50 and
+    // 1+phi_y exponent 1, so (2-phi_y)EIy/(L(1+phi_y)) predicts -51, the
+    // span's low; the span's high is (12E)Iz, 3 + e(Iz) = 4. The leaf value
+    // of 2-phi (exponent 1) would put the low at 0, above the formed
+    // k_ry,ry' (2^-50 (2 - 2^-50) / (3 - 2^-50), exponent -51) by more than
+    // the margin.
+    let near_two = along_x(abstract_section(2.0 - 2f64.powi(-50), 2.0 + 2f64.powi(-49), 12.0), 1.0);
+    let [phi_y, phi_z] = phi(&near_two);
+    assert_eq!((phi_y, phi_z), (2.0 - 2f64.powi(-50), 2.0 + 2f64.powi(-49)), "precondition");
+    assert_eq!((binary_exponent(2.0 - phi_y), binary_exponent(2.0 - phi_z)), (-50, -49));
+    assert_eq!(binary_exponent(1.0 + phi_y), 1);
+    assert_eq!(census_span(&near_two), (-51, 4));
+    let k = near_two.local_stiffness().unwrap();
+    assert_eq!(binary_exponent(k[RY][RY + DOF_PER_NODE]), -51, "the formed (2-phi_y) coefficient");
+    // The census shifts exactly with the 2^b scaling of E and G: phi does
+    // not move, and every entry carries exactly one of e(E), e(G).
+    for b in [-40, 40] {
+        let scaled = near_two.force_scaled(ForceScale::new(b).unwrap()).unwrap();
+        assert_eq!(phi(&scaled).map(f64::to_bits), [phi_y, phi_z].map(f64::to_bits));
+        assert_eq!(census_span(&scaled), (-51 + b, 4 + b), "b = {b}");
+    }
+
+    // (b) Large phi across a power of two: phi_y = 2^40 - 2 (Iy = 2^40 - 2,
+    // A_s = 12, L = 1), phi_z = 1. 4+phi_y has exponent 40 and 2-phi_y 39, so
+    // the high is (4+phi_y)(E Iy) at 40 + 39 = 79, alone; the leaf value of
+    // 4+phi (exponent 2) would leave (2-phi_y)(E Iy) at 78. The low is
+    // (2-phi_z)EIz/(L(1+phi_z)) at 0 - 1 = -1.
+    let across = along_x(abstract_section(2f64.powi(40) - 2.0, 1.0, 12.0), 1.0);
+    let [phi_y, phi_z] = phi(&across);
+    assert_eq!((phi_y, phi_z), (2f64.powi(40) - 2.0, 1.0), "precondition");
+    assert_eq!((binary_exponent(4.0 + phi_y), binary_exponent(2.0 - phi_y)), (40, 39));
+    assert_eq!(census_span(&across), (-1, 79));
+
+    // (c) Large phi on a short member: Iy = Iz = 1, A_s = 2^-20, L = 2^-10, so
+    // phi = 12 * 2^40 = 1.5 * 2^43 and 1+phi, 4+phi and 2-phi all have
+    // exponent 43. The high is (4+phi)(EI) = 43 and the low (G A_s)L^2 =
+    // -40; the coefficients divided by L^n(1+phi) predict -10, -21 and 10.
+    // The leaf value of 1+phi (exponent 0) would predict them as 33, 22 and
+    // 53, moving the high to 53.
+    let short = FrameSection::timoshenko(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2f64.powi(-20)).unwrap();
+    let short = along_x(short, 2f64.powi(-10));
+    let [phi_y, phi_z] = phi(&short);
+    assert_eq!((phi_y, phi_z), (1.5 * 2f64.powi(43), 1.5 * 2f64.powi(43)), "precondition");
+    assert_eq!(binary_exponent(1.0 + phi_y), 43);
+    assert_eq!(census_span(&short), (-40, 43));
+}
+
 // --------------------------------------------- the W1 retained assembler
 
 /// Design §3.6: the retained W1 element stays Euler–Bernoulli and refuses a
