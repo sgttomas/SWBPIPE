@@ -863,11 +863,31 @@ if fnkey("validate_physics_evidence_in", _PE) and fnkey("prepass", RE_ + "load_r
             or _pe_txt.count("crate::load_reference::prepass(") != 1:
         raise SystemExit("J5: validate_physics_evidence_in's prepass call is no longer only under `resolved`; re-review")
     _j5_calls = []
+    # T4-U6/U8 (epoch addbdc030e): a file the crate includes only through `#[cfg(test)] #[path = ".."] mod ..;` is test
+    # code, absent from every product build, so its calls are not product callers (arc_marker_tests.rs, the realized-arc
+    # marker's reader tests, calls with composite = true). A `#[path]` module without `#[cfg(test)]`, or a plain `mod`
+    # named like such a file's stem, stops the run.
+    _j5_srcs = {}
     for _d, _, _fs in _os.walk(_os.path.join(_SNAP, RE_)):
         for _f in sorted(_fs):
             if _f.endswith(".rs"):
-                _src = open(_os.path.join(_d, _f), encoding="utf-8").read()
-                _j5_calls += [(_f, _m) for _m in _re.findall(r"validate_physics_evidence_in\(([^,]*),\s*(true|false)\b", _src)]
+                _j5_srcs[_os.path.normpath(_os.path.join(_d, _f))] = open(_os.path.join(_d, _f), encoding="utf-8").read()
+    _j5_test_only = set()
+    for _path, _src in _j5_srcs.items():
+        for _attrs, _p in _re.findall(r'((?:#\[[^\]]*\]\s*)*)#\[path\s*=\s*"([^"]+)"\]\s*mod\s+\w+\s*;', _src):
+            if "#[cfg(test)]" not in _attrs:
+                raise SystemExit(f"J5: {_p} is included as a module outside #[cfg(test)]; re-review")
+            _j5_test_only.add(_os.path.normpath(_os.path.join(_os.path.dirname(_path), _p)))
+    for _src in _j5_srcs.values():
+        for _t in _j5_test_only:
+            for _m in _re.finditer(r"\bmod\s+" + _re.escape(_os.path.basename(_t)[:-3]) + r"\s*;", _src):
+                if not _re.search(r'#\[path\s*=\s*"[^"]+"\]\s*$', _src[:_m.start()]):
+                    raise SystemExit(f"J5: {_t} is also a plain module; re-review")
+    for _path, _src in sorted(_j5_srcs.items()):
+        if _path in _j5_test_only:
+            continue
+        _j5_calls += [(_os.path.basename(_path), _m)
+                      for _m in _re.findall(r"validate_physics_evidence_in\(([^,]*),\s*(true|false)\b", _src)]
     # B7b-J5: v2's deletion removes validate_physics_evidence's call; validate_pressure_evidence's composite = false
     # call remains (route E's reached caller since D4 (a)), so the prepass edge stays untaken on both routes.
     if sorted((_f, _m[1]) for _f, _m in _j5_calls) != ([("load_reference.rs", "false"), ("physics_evidence.rs", "false"),
@@ -1425,6 +1445,10 @@ if _D5:
 # rows_by_base_id only `if preview.is_some()` (lib.rs run_linear_static_preview_observed_inner, checked), and
 # `preview = (!pressure_runtime::is_exact(&model)).then(..)` is None on route E (an exact contract). ordinary_caps'
 # "Final aggregation" then holds the results once, with no rows_by_base_id map nodes; the id_map stays.
+# U6-RB-V (registration at addbdc030e): the one `results` Vec is push-built from `Vec::new()` across every case, so on
+# route E it is priced at its push capacity, V("ResultItem", PA) = pushcap(PA) slots (16,384 at PA = 8,361). Route L's
+# term (2·PA slots and PA map nodes) covers its push capacity and the clone; the first U6-RB rewrite priced PA exact
+# slots, which only route L's 51-row G-C bound kept sufficient. The G-C bounds on route E admit route E's own P_final (retained_memory.rs `phase_caps_on`).
 U6_RB_PATCHES = []
 _AGG = fnkey("run_linear_static_preview_observed_inner", _LIB)
 if _AGG:
@@ -1434,9 +1458,12 @@ if _AGG:
     if _RB_GUARDED in _agg:
         if _agg.count("rows_by_base_id") != 3 \
                 or "    let preview = (!pressure_runtime::is_exact(&model)).then(|| {\n" not in _agg or _agg.count("let preview =") != 1 \
-                or "        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, &mut results, &mut diagnostics),\n" not in _agg:
-            raise SystemExit("U6-RB: the guarded rows_by_base_id or the preview binding changed; re-review")
+                or "        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, &mut results, &mut diagnostics),\n" not in _agg \
+                or _agg.count("    let mut results = Vec::new();\n") != 1 or _agg.count("let mut results") != 1:
+            raise SystemExit("U6-RB: the guarded rows_by_base_id, the preview binding or the push-built results changed; re-review")
         U6_RB_PATCHES = [("ordinary_caps.py",
             '    (Xc("ResultItem", PA) + tx("row") * PA) * 2 + X({"Node(String,BTreeMap)": PA}) + X({"Node(String,ResultItem)": PA})\n',
-            '    (Xc("ResultItem", PA) + tx("row") * PA)   # U6-RB (route E): no rows_by_base_id clone or map without the preview\n',
-            "U6-RB: route E has no preview, so the final aggregation makes no rows_by_base_id clone or map nodes")]
+            '    V("ResultItem", PA) + tx("row") * PA   # U6-RB (route E): no rows_by_base_id clone or map without the preview;'
+            ' the push-built results at their push capacity (U6-RB-V)\n',
+            "U6-RB: route E has no preview, so the final aggregation makes no rows_by_base_id clone or map nodes; its push-built "
+            "results Vec is priced at its push capacity")]

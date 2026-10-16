@@ -194,10 +194,11 @@ def selected_publication_context(snapshot, directory, graph):
     context = consumer_context(snapshot, directory)
     # B7b snapshot lines (B7a: composite 726/952, source_receipt 694/780/796, lib 2543).
     # T4-U6 snapshot lines, unchanged text (B7b: composite 724/950, lib 2532; source_receipt 646/732/748 before
-    # U6-SH's hash_text and DomainPayload, +16).
+    # U6-SH's hash_text and DomainPayload, +16). Epoch addbdc030e: composite 731/982 -> 726/977 (physical_source_built
+    # calls `exact_pipe_sections`, -5).
     expected = {
-        "core/product_physics/src/source_receipt/composite.rs:731:composite_exact": SOLVE,
-        "core/product_physics/src/source_receipt/composite.rs:982:ordinary_physics": SOLVE,
+        "core/product_physics/src/source_receipt/composite.rs:726:composite_exact": SOLVE,
+        "core/product_physics/src/source_receipt/composite.rs:977:ordinary_physics": SOLVE,
         "core/product_physics/src/source_receipt.rs:662:failed": SOLVE,
         "core/product_physics/src/source_receipt.rs:748:finalize_composite":
             "core/product_physics/src/lib.rs:2553:run_linear_static_preview_observed_inner",

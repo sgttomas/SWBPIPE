@@ -22,7 +22,11 @@ import runpy
 # Option A (433fc1f1e4): source_receipt.rs changes only `hash` (U6-SH: a borrowed wrapper through `hash_text`);
 # physics_source.rs's actual_materials adds one Err-only `require(.., "ACTUAL_SHEAR_MODEL")` per pipe in its existing
 # loop (18 B, inside the 40 B detail class) and a test module.
-SOURCE_FILES = {"core/product_physics/src/lib.rs":"2f294e4e5adab56894bfc87a9e246edefd5aa1fa3ca75e0473e4a6927aa8e943","core/product_physics/src/certified_loads.rs":"56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f","core/product_physics/src/retained_product.rs":"e556de37036a1e9c8454dc869764ce9763612e974bbd6dcbeabe2a569e213e01","core/product_physics/src/retained_wire.rs":"7e4326e5b294f6db2ed0995eeca1a8bae3e4ddd487bb0f70436f82426eaa6f3a","core/product_physics/src/certified_publication.rs":"1c6de84c0f7c4cd0799a5b2c7f4bacf3d5d950bb062a816066aaabdd45b489c5","core/solver/frame_kernel/src/load_ledger.rs":"8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f","core/solver/frame_kernel/src/structural/formation_check.rs":"0d83c8a61b890d757b96529d255e38c42b35793ae5c998871331278c8cbaa384","core/solver/frame_kernel/src/structural/certified_recovery.rs":"1766a0d94cf02b909b4875cae756b6df5d0bb81489c359281109b7cb248999dc","core/loads/primitive_loads/src/lib.rs":"f0536b0c0bfdb0df69e7a8dd251dfb0b15607caf3ad693fa1adc3b912152f121","core/solver/straight_pipe/src/lib.rs":"a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7","core/product_physics/src/preview_physics.rs":"61b2fb2f3f9bc3aa9803bf6bf5c95cf5e51c841289ef5c415bf86fe00f33b468","core/reporting/result_export/src/retained_precision.rs":"24d85a5b4d319975b76886f7f34cf52c052b6ce9f408301a54ba3f2790c83daa","core/product_physics/src/model_format.rs":"5b96cf74cbeb8c4a4fe11509e634525d3384c56cb9ff37b11a3c12d39a1df71f","core/product_physics/src/pressure_runtime.rs":"6375957f8ba4e185f98c525853dbd251b810008b4cb70e10c6fb1ae0e6fdbfa5","core/product_physics/src/source_receipt.rs":"5b5649100b344b463ba74f9a062351e7a16f49974ac5c7dea1f02bfb69bbc2e5","core/product_physics/src/exact_admission.rs":"493e5876cdc5fbbe593a1435a6c8b235323a2a76f8b339f41fe14e8e541eec7b","core/product_physics/src/case_state/mod.rs":"633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab","core/solver/nonlinear_integration/src/structural_adapter.rs":"bf42cfa532f0f36823fb78128ad175d6bb9a5765e8fd7374599da89df4232a8b","core/solver/frame_kernel/src/lib.rs":"76d2b727e5ccaa051ffda7daad7ea0b299741a70b8388a54b310b5570f7cffa9","core/reporting/result_export/src/semantic_contract.rs":"38a51fdafa74d034dd79709713e8b94f07571846d7765d72fdf0351e8e28bb9e","core/reporting/result_export/src/physics_source.rs":"736321742d04b03f789d256193446077129f77f988c8cbea440e0a42374543ad"}
+# Epoch addbdc030e (PP's realized-arc marker): lib.rs's `pipe_sections` moves into `exact_pipe_sections`, which with
+# `realized_arc` and `mark_realized_arc` replaces the same expressions in the case solve, `assemble_pressure_case`
+# (pressure_runtime.rs, region path only) and T25's `physical_source_built`; the marker is set only on a realized arc
+# (none on D1: no components). No owner this model prices changes; the moved keys below are re-keyed.
+SOURCE_FILES = {"core/product_physics/src/lib.rs":"f0785eb7d9decf288929d89a353bc2a7d677ee09df5bc820a7341635bc232cd9","core/product_physics/src/certified_loads.rs":"56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f","core/product_physics/src/retained_product.rs":"e556de37036a1e9c8454dc869764ce9763612e974bbd6dcbeabe2a569e213e01","core/product_physics/src/retained_wire.rs":"7e4326e5b294f6db2ed0995eeca1a8bae3e4ddd487bb0f70436f82426eaa6f3a","core/product_physics/src/certified_publication.rs":"1c6de84c0f7c4cd0799a5b2c7f4bacf3d5d950bb062a816066aaabdd45b489c5","core/solver/frame_kernel/src/load_ledger.rs":"8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f","core/solver/frame_kernel/src/structural/formation_check.rs":"0d83c8a61b890d757b96529d255e38c42b35793ae5c998871331278c8cbaa384","core/solver/frame_kernel/src/structural/certified_recovery.rs":"1766a0d94cf02b909b4875cae756b6df5d0bb81489c359281109b7cb248999dc","core/loads/primitive_loads/src/lib.rs":"f0536b0c0bfdb0df69e7a8dd251dfb0b15607caf3ad693fa1adc3b912152f121","core/solver/straight_pipe/src/lib.rs":"a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7","core/product_physics/src/preview_physics.rs":"61b2fb2f3f9bc3aa9803bf6bf5c95cf5e51c841289ef5c415bf86fe00f33b468","core/reporting/result_export/src/retained_precision.rs":"24d85a5b4d319975b76886f7f34cf52c052b6ce9f408301a54ba3f2790c83daa","core/product_physics/src/model_format.rs":"5b96cf74cbeb8c4a4fe11509e634525d3384c56cb9ff37b11a3c12d39a1df71f","core/product_physics/src/pressure_runtime.rs":"e0897c0216eb1d774e15d44c1641bc33e2b3b5a01a1da7ec192ea722fc5b8de2","core/product_physics/src/source_receipt.rs":"5b5649100b344b463ba74f9a062351e7a16f49974ac5c7dea1f02bfb69bbc2e5","core/product_physics/src/exact_admission.rs":"493e5876cdc5fbbe593a1435a6c8b235323a2a76f8b339f41fe14e8e541eec7b","core/product_physics/src/case_state/mod.rs":"633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab","core/solver/nonlinear_integration/src/structural_adapter.rs":"bf42cfa532f0f36823fb78128ad175d6bb9a5765e8fd7374599da89df4232a8b","core/solver/frame_kernel/src/lib.rs":"76d2b727e5ccaa051ffda7daad7ea0b299741a70b8388a54b310b5570f7cffa9","core/reporting/result_export/src/semantic_contract.rs":"38a51fdafa74d034dd79709713e8b94f07571846d7765d72fdf0351e8e28bb9e","core/reporting/result_export/src/physics_source.rs":"736321742d04b03f789d256193446077129f77f988c8cbea440e0a42374543ad"}
 CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # T4-U6/U8 (O4): family_clauses adds one refusal, a nonzero mill tolerance or corrosion allowance on branch E
 # (FamilyFact::SectionAllowance), and namespace_branch refuses the Timoshenko exact contract (FamilyFact::ShearModel).
@@ -250,22 +254,23 @@ def text_decisions(snapshot, resolved):
         # B7b: snapshot keys follow B7b's unchanged lines (B7a 10627.. +5).
         # T4-U6/U8 (PP head 20c6126a16): every key below moved with unchanged text (B7b: lib.rs
         # add_uniform_element_loads 10632.., 1054, 3064, 5299, 5970; certified_loads.rs 233/256; retained_product.rs
-        # failed_manifest 4298..; retained_precision.rs 5555/5637/5661).
-        (pp + "lib.rs:10955", {"load_case_id": inp}),
-        (pp + "lib.rs:10969", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:10976", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:10981", {"load.load_id": inp}),
-        (pp + "lib.rs:10982", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:10983", {"bend.component_id": inp}),
-        (pp + "lib.rs:10984", {"load_case_id": inp}),
-        (pp + "lib.rs:11043", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:11050", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:11055", {"load.load_id": inp}),
-        (pp + "lib.rs:11056", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:11057", {"bend.component_id": inp}),
-        (pp + "lib.rs:11058", {"load_case_id": inp}),
-        (pp + "lib.rs:11097", {"stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:11104", {"load.load_id": inp, "load_case_id": inp}),
+        # failed_manifest 4298..; retained_precision.rs 5555/5637/5661). Epoch addbdc030e: the lib.rs keys +36
+        # (the realized-arc marker's three helpers after `straight_section_resultants`).
+        (pp + "lib.rs:10991", {"load_case_id": inp}),
+        (pp + "lib.rs:11005", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:11012", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:11017", {"load.load_id": inp}),
+        (pp + "lib.rs:11018", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:11019", {"bend.component_id": inp}),
+        (pp + "lib.rs:11020", {"load_case_id": inp}),
+        (pp + "lib.rs:11079", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:11086", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:11091", {"load.load_id": inp}),
+        (pp + "lib.rs:11092", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:11093", {"bend.component_id": inp}),
+        (pp + "lib.rs:11094", {"load_case_id": inp}),
+        (pp + "lib.rs:11133", {"stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:11140", {"load.load_id": inp, "load_case_id": inp}),
         (pp + "certified_loads.rs:236", {"case_id": inp}),
         (pp + "certified_loads.rs:259", {"case_id": inp}),
         (pp + "retained_product.rs:4397", {"stable_suffix(id)": inp}),

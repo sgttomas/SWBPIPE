@@ -174,23 +174,23 @@ def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
     _, audits, _ = MODEL["text_decisions"](SOURCE, lambda key: key)
     actual = dict(audits)
     pp = "core/product_physics/src/"
-    # T4-U6/U8: the same sites on the priced source's unchanged lines (B7b's 10632.. + 323; certified_loads + 3).
+    # T4-U6/U8: the same sites on the priced source's unchanged lines (B7b's 10632.. + 359; certified_loads + 3).
     sites = {
-        "lib.rs:10955": {"load_case_id"},
-        "lib.rs:10969": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:10976": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:10981": {"load.load_id"},
-        "lib.rs:10982": {"bend.pipe_id"},
-        "lib.rs:10983": {"bend.component_id"},
-        "lib.rs:10984": {"load_case_id"},
-        "lib.rs:11043": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:11050": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:11055": {"load.load_id"},
-        "lib.rs:11056": {"bend.pipe_id"},
-        "lib.rs:11057": {"bend.component_id"},
-        "lib.rs:11058": {"load_case_id"},
-        "lib.rs:11097": {"stable_suffix(&load.load_id)"},
-        "lib.rs:11104": {"load.load_id", "load_case_id"},
+        "lib.rs:10991": {"load_case_id"},
+        "lib.rs:11005": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:11012": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:11017": {"load.load_id"},
+        "lib.rs:11018": {"bend.pipe_id"},
+        "lib.rs:11019": {"bend.component_id"},
+        "lib.rs:11020": {"load_case_id"},
+        "lib.rs:11079": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:11086": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:11091": {"load.load_id"},
+        "lib.rs:11092": {"bend.pipe_id"},
+        "lib.rs:11093": {"bend.component_id"},
+        "lib.rs:11094": {"load_case_id"},
+        "lib.rs:11133": {"stable_suffix(&load.load_id)"},
+        "lib.rs:11140": {"load.load_id", "load_case_id"},
         "certified_loads.rs:236": {"case_id"},
         "certified_loads.rs:259": {"case_id"},
     }

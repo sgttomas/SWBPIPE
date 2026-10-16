@@ -7,7 +7,9 @@ no field is presumed fixed merely because a fixture showed it.
 """
 import hashlib, os, re
 
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '9b6c0a2a68029af3f190eaa905693d0ad7b9f2bfd62ba19671921f16d9fe9674', 'straight_stress_spans': '224aa2a82dbae1bbc0ec77594eb34ffc5cbc6589a926eb309bdd4634ea33e490', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'ac7bcd693cb6d4d4b41f8bbdc8f945b4e76fddc5362e74eb30b51c2785daf825'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '253021d2ab4b78a7b0237624c25264f37ae1b50a45703662725737bff3eca2fe'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '9b6c0a2a68029af3f190eaa905693d0ad7b9f2bfd62ba19671921f16d9fe9674', 'straight_stress_spans': '224aa2a82dbae1bbc0ec77594eb34ffc5cbc6589a926eb309bdd4634ea33e490', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'ac7bcd693cb6d4d4b41f8bbdc8f945b4e76fddc5362e74eb30b51c2785daf825'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': 'e0da006706889873e7c442b3c6d551c2112a529d0c3c45581d6e035cefd003ae'}}
+# Epoch addbdc030e: solve_prepared_load_case's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus
+# the realized-arc marker on a realized arc (none on D1); no record constructor or label changes.
 # T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): straight_stress_spans,
 # pressure_adjustment and arc_pressure_wall read the pressure bore from ExactSectionBases; fallback_circular_maximum
 # takes the basis with the state and binds that basis's area; certified_recovery gains the T4-U8 frame-binding
@@ -149,8 +151,9 @@ def inspect_directed_helpers(snapshot):
 # B7b: re-bound to the current lib.rs; v2's deletion and the 0.5.0 exact
 # fields add or remove no `.min(`/`.max(` call (the production lib.rs
 # callers are the same five functions as at B7a's 3e89c23ea1).
-# T4-U6/U8: D-5's and PP's lib.rs diffs add or remove no `.min(`/`.max(` call.
-B7A_PRIMITIVE_LIB_SOURCE_PIN = "2f294e4e5adab56894bfc87a9e246edefd5aa1fa3ca75e0473e4a6927aa8e943"
+# T4-U6/U8: D-5's and PP's lib.rs diffs add or remove no `.min(`/`.max(` call, nor does the epoch's realized-arc
+# marker (addbdc030e).
+B7A_PRIMITIVE_LIB_SOURCE_PIN = "f0785eb7d9decf288929d89a353bc2a7d677ee09df5bc820a7341635bc232cd9"
 
 
 def primitive_lib_minmax_callers(snapshot):

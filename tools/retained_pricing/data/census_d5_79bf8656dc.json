@@ -188,11 +188,11 @@
    "g": 2,
    "cases": 1,
    "empty_region_cases": [
-    "case:温度:α"
+    "case:\u6e29\u5ea6:\u03b1"
    ],
    "rows": 102,
    "rows_by_basis_ref": {
-    "case:温度:α": 102
+    "case:\u6e29\u5ea6:\u03b1": 102
    },
    "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
    "contract_evidence_keys": [
@@ -210,11 +210,11 @@
    "g": 2,
    "cases": 1,
    "empty_region_cases": [
-    "case:温度:α"
+    "case:\u6e29\u5ea6:\u03b1"
    ],
    "rows": 102,
    "rows_by_basis_ref": {
-    "case:温度:α": 102
+    "case:\u6e29\u5ea6:\u03b1": 102
    },
    "producer": "openpipestress.result_semantics/0.3.0/pressure-source-1",
    "contract_evidence_keys": [

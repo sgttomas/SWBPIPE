@@ -20,15 +20,16 @@ SOURCES = {
 # 10446/10487/10493, 11127/11146, 4427; membrane_publication_range.rs 159/233; retained_product.rs 5453 and
 # 2811/2831/2850/6369).
 # The caller inventories are unchanged; D-5 calls exact_straight_summary_extrema once per basis from the case solve,
-# which the chain's own multiplicity counts.
+# which the chain's own multiplicity counts. Epoch addbdc030e: the lib.rs owners and sites after
+# `straight_section_resultants` move +36 (the realized-arc marker's helpers), text unchanged.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 10810,
+    "line": 10846,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:10768:exact_straight_summary_extrema",
-    "short": "lib.rs:10810",
-    "from": "lib.rs:10768:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:10804:exact_straight_summary_extrema",
+    "short": "lib.rs:10846",
+    "from": "lib.rs:10804:exact_straight_summary_extrema",
     "parents": [
       "core/product_physics/src/lib.rs:4500:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
@@ -38,11 +39,11 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 10816,
+    "line": 10852,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:10768:exact_straight_summary_extrema",
-    "short": "lib.rs:10816",
-    "from": "lib.rs:10768:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:10804:exact_straight_summary_extrema",
+    "short": "lib.rs:10852",
+    "from": "lib.rs:10804:exact_straight_summary_extrema",
     "parents": [
       "core/product_physics/src/lib.rs:4500:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
@@ -52,11 +53,11 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11471,
+    "line": 11507,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:11452:recover_curved_bend_local_forces",
-    "short": "lib.rs:11471",
-    "from": "lib.rs:11452:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:11488:recover_curved_bend_local_forces",
+    "short": "lib.rs:11507",
+    "from": "lib.rs:11488:recover_curved_bend_local_forces",
     "parents": [
       "core/product_physics/src/lib.rs:4500:solve_prepared_load_case"
     ]

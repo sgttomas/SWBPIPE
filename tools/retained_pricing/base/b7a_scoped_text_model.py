@@ -12,7 +12,8 @@ PP = 'core/product_physics/src/'
 RE = 'core/reporting/result_export/src/'
 # B7b: the snapshot lines of the bound sites (B7a 3e89c23ea1 values in comments).
 # The inherited full-file pins bind these files; each line keeps B7a's text.
-# T4-U6/U8 (PP head 20c6126a16): every line moved with unchanged text (B7b values in brackets).
+# T4-U6/U8 (PP head 20c6126a16): every line moved with unchanged text (B7b values in brackets). Epoch addbdc030e:
+# lib.rs's suffix and diag lines +36 more (the realized-arc marker's helpers).
 LN = {
     'problem': 162,       # pressure_runtime.rs fn problem (160) [148]
     'diag': 168,          # `let mut finding = diag(` (166) [154]
@@ -20,9 +21,9 @@ LN = {
     'join': 171,          # `stable_suffix(&refs.join(":"))` (169) [157]
     'to_string': 176,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
     'unit_message': 9393, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 13966,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 13915,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 13965,   # lib.rs fn stable_suffix (13613) [13618]
+    'suffix': 14002,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 13951,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 14001,   # lib.rs fn stable_suffix (13613) [13618]
     'require': 95,        # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'
@@ -82,10 +83,11 @@ EXTRA_CURRENT = {'lib.rs:%d' % LN['suffix']: {'owner': PROBLEM, 'extra_content':
 OWNER_LOOP = {'owner': PROBLEM, 'header': REF_LOOP, 'per_call': 5}
 PROBLEM_SITES = [(LN['diag'], 'diag'), (LN['format'], 'format'), (LN['join'], 'join'), (LN['to_string'], 'to_string')]
 PROBLEM_PARENTS = [PR + x for x in (   # B7a: 188, 234, 531, 545, 618, 1091, 1332, 1480, 1720
-    # T4-U6 [B7b: 176, 222, 507, 521, 594, 1067, 1308, 1456, 1696]
+    # T4-U6 [B7b: 176, 222, 507, 521, 594, 1067, 1308, 1456, 1696]; epoch addbdc030e: -3 after
+    # assemble_pressure_case's `realized_arc` call
     '190:exact_member_recovery', '236:validate_profile', '519:check_suffixes',
-    '533:normalize_region_units', '606:assemble_pressure_case', '1085:add_joint_terms',
-    '1335:finish_source_groups', '1483:traverse_region', '1723:collinear_run')]
+    '533:normalize_region_units', '606:assemble_pressure_case', '1082:add_joint_terms',
+    '1332:finish_source_groups', '1480:traverse_region', '1720:collinear_run')]
 
 
 def adjacent(name):

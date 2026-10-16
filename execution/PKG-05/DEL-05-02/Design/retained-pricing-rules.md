@@ -1761,7 +1761,8 @@ section (D-5), and T4-U8 adds the Timoshenko straight member (D-6); DEL-05-03's
 2026-10-16: "Apply the borrowed {domain, payload} wrapper in source_receipt.rs
 hash, with its own adjudication rule, a source pin, a test pinning identical
 hash text, and an independent review") and the epoch's reader binding of each
-section's beam theory. The tool's one-current-value pins hold `433fc1f1e4`.
+section's beam theory. Registration prices the epoch head `addbdc030e` (below,
+"Epoch source"). The tool's one-current-value pins hold `addbdc030e`.
 Line numbers are at `433fc1f1e4` unless stated. Each rule below is added only
 where its source exists, so the registered B7b source adds nothing. Nothing
 here changes M, the 0.9 M margin, R, the 5 % TEXT reserve, the budget model,
@@ -1772,7 +1773,8 @@ B7a/B7b source models, `kd5_*`, `batch5_model`, `b7a_retired_carry`, KD5's
 `evaluate` pin in `o10_rules.py` and C7's NumericCase pins) are restored to the
 registered values, with every new rule kept, prices `837a04b770` with exit 0.
 `generate --check` of that tree matches the block committed since `e70c115764`
-(and unchanged at `433fc1f1e4`) exactly.
+(and unchanged at `433fc1f1e4` and `addbdc030e`) exactly; re-checked with the
+tool that prices `addbdc030e` (1,450 coefficients identical).
 
 **Pins and moved keys.** Each moved pin was re-bound after its diff was read:
 - **Full-file pins** (`b7a_domain_model`, `b7a_formation_model`,
@@ -1803,6 +1805,51 @@ registered values, with every new rule kept, prices `837a04b770` with exit 0.
   (`FIRST_RETURN_LINE` 909); `retained_w1` (lib.rs 3474 → 3510); the T25
   callers (`source_receipt.rs` 646/732/748 → 662/748/764). The tool's own tests
   follow the same lines.
+
+**Epoch source `addbdc030e`.** Beyond `433fc1f1e4` the epoch adds PP's
+realized-arc marker and RD2's reader binding of it; each diff was read and the
+priced change is exactly the following.
+- **The marker (PP).** `lib.rs` gains `exact_pipe_sections`, `realized_arc` and
+  `mark_realized_arc` after `straight_section_resultants`. The case solve's
+  `pipe_sections`, `assemble_pressure_case`'s region geometry
+  (`pressure_runtime.rs`) and T25's `physical_source_built` (`composite.rs`)
+  call them in place of the same inline expressions. The marker
+  (`member_kind = "realized_arc"`) is set only on a pipe that
+  `built.curved_bend_elements` realizes, and `build_curved_bend_macro_elements`
+  builds those only from `model.components` (P2: none on D1), so
+  `realized_arc`'s `find` allocates nothing and no marker is set. Re-bound:
+  the `lib.rs` and `pressure_runtime.rs` full-file pins, the
+  `solve_prepared_load_case` body pins (`batch5_model`, `kd5_text_model`,
+  `kd5_first_error_model`) and the pressure prefix. The diff adds no
+  `.min(`/`.max(` call. Moved with unchanged text and re-keyed: `lib.rs` lines
+  after the helpers (+36), `pressure_runtime.rs` after the arc lookup (−3) and
+  `composite.rs`'s two T25 callers (731/982 → 726/977).
+- **The readers (RD2).** `validate_physics_evidence_in`, reached on route E
+  through `validate_pressure_evidence`, adds three sets: `region_members` (each
+  region geometry entry), `case_arcs` (each marked section) and `marked_arcs`
+  (one clone of the first case's `case_arcs`). Route E's regions are
+  explicitly empty (D1.5) and no section is marked (above), so all three stay
+  empty; an empty std `HashSet` and its clone hold no table. The new geometry
+  loop sits in the region loop, which D1.5's region rule already zeroes. The
+  new `require(..)?` checks (`ARC_UNSUPPORTED`, `ARC_MARKER`) fall under
+  B7b-E5's at most one error per call. `section_basis::marked_section` reads
+  the marker through `arc_marker`, whose Err (`"SOURCE_PHYSICS_MEMBER_KIND"`,
+  26 B) is priced at its own site per call: 96 calls on route E, +4,992 B of
+  TEXT. `bind_shear_model`'s new check is in `reader_verdict::route()`'s path,
+  unreached from the retained roots (B7b-ZA). Reviewed input #1
+  (`physics_source_recovery.schema.json`, +454 B: the marker's `member_kind`
+  and its `if`/`then`) is a priced static input: STATICS rises by 228 B of
+  text, 8 map nodes and 6 Value slots.
+- **J5-T (test-only modules).** RD2's `arc_marker_tests.rs`, included by
+  `physics_evidence.rs` only through `#[cfg(test)] #[path = ..] mod ..;`, calls
+  `validate_physics_evidence_in` with `composite = true`. Test code is absent
+  from every product build, so J5's caller inventory omits files the crate
+  includes only that way. A `#[path]` module without `#[cfg(test)]`, or a
+  plain `mod` named like such a file, stops the run.
+
+No rule is pruned beyond the 31 below, and the tree differs from
+`433fc1f1e4`'s only in STATICS and route E's TEXT atoms above and in U6-RB-V's
+results capacity (below).
 
 **Prunes.** The line map prunes 31 rules: B7b's 27 and four ID audits at basis
 `lib.rs` 5508, 5509, 5562 and 5563. Those four were the two maxima's `Err`
@@ -1897,16 +1944,16 @@ R0 = 7n + 72m + g + 3, in place of 51m. Route L publishes no reduced row,
 because its model has no exact contract, and keeps 51. The census (`lib/census_exact.py`, I95's B3-S method) measured
 exactly 7n + 72m + 8g rows on every empty-region exact case of the 7
 pressure-source-1 fixtures in both modes (for example `fields`: 102 =
-14 + 72 + 16). The fixtures were regenerated by their own writer
-(`SWBPIPE_PRESSURE_SOURCE_FIXTURES_WRITE`) at `20c6126a16` in a scratch tree,
-because the committed fixtures there are still pre-D-5. The census also gives
+14 + 72 + 16). The census is taken on the committed fixtures, regenerated on
+the D-5 producer by their own writer (`SWBPIPE_PRESSURE_SOURCE_FIXTURES_WRITE`)
+at `79bf8656dc`; it equals, fact for fact, D3's census of fixtures regenerated
+at `20c6126a16` in a scratch tree. The census also gives
 the D-5 per-case evidence: `pipe_stress_extrema` once per member and basis, the
 nested section bases and two coverage lists. At the caps that is 3,118 array
 slots, 868 objects, 4,029 entries and 414,656 string bytes (STR_CAP 304: the
 elastic-maximum id 287 B plus ':' and a basis token).
-`data/census_d5_20c6126a16.json` holds it. **Guard:** route E stops unless the
-census states 51 + 21 rows per member. Registration should re-take it on the
-committed, regenerated fixtures.
+`data/census_d5_79bf8656dc.json` holds it. **Guard:** route E stops unless the
+census states 51 + 21 rows per member.
 
 **Byte-preserving source changes (U6-DH, U6-SH, U6-RB).** Each removes a
 resident copy without changing published bytes. Each is detected by its exact
@@ -1939,6 +1986,16 @@ the run (exit 4).
   nodes (a new `O10_TYPED_PATCHES` family rewrites that one `ordinary_caps.py`
   line on E). The `id_map` stays. **Guard:** the guarded block, the binding and
   its one consumer are checked.
+- **U6-RB-V (route E, registration).** The one `results` Vec is push-built
+  from `Vec::new()` across every case (checked: one `let mut results =
+  Vec::new();`), so the rewrite prices it at its push capacity,
+  `V("ResultItem", PA)`: 16,384 slots at PA = 8,361, not PA exact slots. Route
+  L's term is unchanged: its 2·PA slots and PA map nodes (3,640 B each in-build)
+  cover both its push capacity (8,192 slots) and the clone's entries. The first
+  rewrite was sufficient only while G-C still bounded route E's results by route
+  L's 6,345 rows (capacity ≤ 8,192); route E's G-C now admits its own 8,361
+  (below, "Gate bounds"). Cost: +8,023 × s(ResultItem) (296 B) = 2,374,808 B in
+  every phase of the merged tree, where route E sets that coefficient.
 
 **D-5/D-6 owners (U6-ES, U6-WS, U6-RS, U8-FM).** Four resident owners sit
 outside the chain's TEXT inventory and are priced positively
@@ -1972,24 +2029,57 @@ half-changed form stops the run, and a snapshot without it adds nothing.
 
   The source-recovery assembly passes none.
 
-**Current D3 binding.** At `433fc1f1e4` `run` exits 0: all four points are
+**Gate bounds (registration).** G-C (`retained_memory.rs phase_caps_on`) must
+admit what D1 produces and stay within what the profile prices. Before
+registration its route-E bounds were still route L's 51-row P_final and I95's
+pre-D-5 evidence census, so G-C refused the cap-maximal exact input in every
+build (8,355 results against 6,345; `witness_tests::f1_g_c_admits_...`). On
+route E the result rows and their capacity are now C_eq·P_final at route E's
+own P_final = 7n + 72m + 8g + 3 (8,361 and 16,384 at the caps; U6-RP, U6-RB-V),
+and the five contract-evidence bounds are C times the D-5 census at (n, m, g):
+arrays 14 + 78m + 19n, objects 4 + 27m, entries 29 + 125m, string bytes
+6080 + 12464m + 304n, key bytes 495 + 1286m (at the caps 9,354; 2,604; 12,079
+after the node cut, so objects + ⌊entries / 5⌋ = 5,019 nodes; 1,243,968;
+124,941). These equal route E's chain terms ("Final aggregation" and "Preview
+tree final copy (envelope evidence)": 5,019·Node(String,Value) + 9,354·s(Value)
++ 1,368,909 B). The rows' text bound stays route L's 2·C_eq·P_final·Text(row) on
+both routes: Text(row) bounds one row's text and route E's 8,361 rows stay below
+route L's 12,690. Route L's bounds are unchanged.
+
+**Current D3 binding.** At `addbdc030e` `run` exits 0: all four points are
 complete, with no unmapped header or unclassified argument, and both O-10
 checks pass. Against the registered tree the structure is equal: 1,128
 coefficients equal, 294 higher and 34 lower, so the block must be
 re-registered. `generate` gives 288 atoms, 98 forms and no Estimate (1,544
 lines), keeps `threshold_bytes` at M, and `generate --check` reproduces it. All
-70 evaluations pass at that source's in-build atoms (a scratch law-test build of
-the generated block). Required = requested + moving + R and reserve =
-⌈TAV/20⌉ (TAV_W for W1–W5, TAV_X for X1/X2), against ⌊0.9 M⌋ = 11,596,411,699 B.
-The tightest headrooms:
+70 evaluations pass at the registered build's in-build atoms. Required =
+requested + moving + R and reserve = ⌈TAV/20⌉ (TAV_W for W1–W5, TAV_X for
+X1/X2), against ⌊0.9 M⌋ = 11,596,411,699 B. The tightest headrooms:
 
 | Tree | Mode | Phase | Headroom |
 |---|---|---|---|
-| merged | dense | W4 | 54,400,077 B |
-| merged | dense | X1 | 79,906,959 B |
-| merged | sparse | W4 | 113,531,421 B |
-| merged | sparse | X1 | 139,038,303 B |
-| L_30 | dense | W4 | 177,807,250 B |
+| merged | dense | W4 | 52,018,961 B |
+| merged | dense | X1 | 77,525,843 B |
+| merged | sparse | W4 | 111,150,305 B |
+| merged | sparse | X1 | 136,657,187 B |
+| L_30 | dense | W4 | 177,800,942 B |
 
-Registration (the generated block, the native law-test values and their
-independent review) binds the final integrated source and is not done here.
+T07 (the live source attempt) is a row of the ordinary base that every phase
+holds, so every evaluation prices it; T25 (the receipt replay) is priced in X1
+only, whose tightest evaluation is the merged dense one above. Against
+`433fc1f1e4` the epoch's source costs 6,308 B in every merged evaluation (the
+schema's STATICS; route E's +4,992 B of TEXT stays below route L's TAV_W), and
+U6-RB-V 2,374,808 B. W4 (the precommit reader with the successor and the
+invocation Value) is the in-build maximum in both modes (B7b's was W3).
+
+**Registration.** `REGISTERED_PROFILES` keeps the build identity (rustc 1.97.1,
+aarch64-apple-darwin, debug, opt-level 0, debug assertions, unwind, no
+RUSTFLAGS, `open_pipe_stress_product_physics@0.2.0`), the four reader layouts
+(56, 64, 96 and 16 B, align 8) and `threshold_bytes` = M. Six of the twelve
+reviewed-input digests move with D-5's schemas and tables (#1, #7–#11). The law
+tests pin the in-build phase record, the text atoms (D_env 28,127,
+Text(diag_env) 262,735,773), the digests and the re-audited reader test
+suffixes (`retained_precision.rs`, `physics_source.rs` and
+`semantic_contract.rs` gain closed test code only). The block's basis line
+names `addbdc030e`; the merged branch head, with FX's fixtures, prices the same
+tree.
