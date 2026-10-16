@@ -109,6 +109,7 @@ export function ResultsPanel({
         <>
           <p data-testid="numerical-result-standing">{sourceContract(result) === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(sourceContract(result)) ? retainedPrecisionStandingText(result) : sourceContract(result) === "pressure_source" ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`}</p>
           <KnownSemanticNotices result={result} testIdPrefix="results" />
+          <SectionBasisHeadlines result={result} />
           <PhysicsSourceEvidencePanel result={result} />
           <ResultControls
             familyCounts={familyCounts}
@@ -189,6 +190,43 @@ export function ResultsPanel({
       ) : (
         <p className="muted">Run the bounded preview mechanics path to populate result summaries.</p>
       )}
+    </section>
+  );
+}
+
+const SECTION_BASIS_HEADLINES = [
+  { key: "max_open_formula_stress_nominal_section", basis: "nominal_section", label: "Nominal section (nominal wall)" },
+  { key: "max_open_formula_stress_reduced_section", basis: "reduced_section", label: "Reduced section (wall minus mill tolerance and corrosion allowance)" }
+] as const;
+
+/** T4-U6 (D-5): an exact-contract result's stress headline on each section basis,
+ * labelled by its basis. Shown only when the result carries the per-basis keys
+ * (pressure-free results do not). A view in this panel, not an output surface: it
+ * never picks a governing basis, and every output surface's refusal stands. */
+function SectionBasisHeadlines({ result }: { result: MechanicsResult }) {
+  const present = SECTION_BASIS_HEADLINES.filter((headline) => Object.hasOwn(result.summary, headline.key));
+  if (present.length === 0) return null;
+  return (
+    <section className="result-detail-panel" aria-label="Stress headlines by section basis" data-testid="section-basis-headlines">
+      <h3>Stress Headline per Section Basis</h3>
+      <dl>
+        {present.map((headline) => {
+          const quantity = result.summary[headline.key];
+          return (
+            <div key={headline.key} data-testid={`section-basis-headline-${headline.basis}`}>
+              <dt>{headline.label}</dt>
+              <dd>
+                {quantity === null
+                  ? "withheld: a stress maximum on this basis is not available for every member in every load case"
+                  : quantity && typeof quantity.value === "number" && typeof quantity.unit === "string"
+                    ? <><QuantityReadout quantity={{ value: quantity.value, unit: quantity.unit, dimension_id: "stress" }} /> at {quantity.location_ref} ({quantity.result_ref})</>
+                    : "not readable"}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+      <small>Each section basis has its own maximum; no governing basis is chosen.</small>
     </section>
   );
 }
