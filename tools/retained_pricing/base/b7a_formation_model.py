@@ -14,11 +14,17 @@ import runpy
 
 SOURCE_FILES = {
     "core/product_physics/src/formation_guard.rs": "5c67a95ea2f1e8d6eab2eac3928fb65e1eb790bea32317b05ca4241637aa9c0c",
-    "core/product_physics/src/self_weight.rs": "6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261",
+    # PP (D-5 mass): an exact-contract section's generated self-weight uses EXACT_MASS_METHOD (metal on the nominal
+    # wall, contents on the pressure bore, the allowance among its inputs); the added refusals are static `invalid`
+    # messages and retained_basis checks one more input key. The formed-load and finding owners are unchanged.
+    "core/product_physics/src/self_weight.rs": "a1e523fd975b0b99720c3c229737cb00f35797c8f38202797b23ef205bb3f75c",
     "core/product_physics/src/source_receipt/source.rs": "26d29ae48b461ceb5cf945edfbef905944c693e763f837bbee217df8fedf518d",
-    "core/solver/frame_kernel/src/structural.rs": "6b3acedd507096ee023932d530cda56fadc697b78ca065473cd53f8531def1e8",
-    # B7b: only the #[cfg(test)] mod tests body (from line 1585) changed.
-    "core/product_physics/src/source_recovery.rs": "0f7efc39eda5b2b3a3bcfeee5b10f09de2d4ec7a6a92b6ded99e37be44d27b70",
+    # T4-U8: one added re-export line in retained_api (retained::assemble's Timoshenko refusal).
+    "core/solver/frame_kernel/src/structural.rs": "d2157743e0aa5fe7a08ab44abc176653e55183af01919320c8d240f8f273ec40",
+    # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
+    # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
+    # No formed-load or finding owner changes.
+    "core/product_physics/src/source_recovery.rs": "7c3963db8c93c7a6fd809b94b51db3cba4139c9a0064ca090804f67c7f866a53",
     "core/solver/frame_kernel/src/structural/sparse.rs": "f0e774d2f105484fd43f393fd18ce459990aeb459222b5481ce70843b7acd0ff",
 }
 RANGE_CONTENT = 59
@@ -169,7 +175,9 @@ def decisions(snapshot, resolved):
     # 31-byte global_dof fallback. Keep the existing conservative600 class.
     audit[0][1]["dof_label(row.dof)"] = {"bytes": 600, "source": "COMP"}
     audit[1][1]["case_id"] = {"bytes": 128, "source": "IN128"}
-    audit.append((resolved("core/product_physics/src/self_weight.rs:814"), {
+    # T4-U6/U8 snapshot keys (PP head 20c6126a16; same text): self_weight.rs 814 -> 869 (the D-5 exact mass branch
+    # above it); formation_check.rs +13 from check_at on (PP's frame-member binding before it).
+    audit.append((resolved("core/product_physics/src/self_weight.rs:869"), {
         "case.id": {"bytes": 128, "source": "IN128"},
         "pipe": {"bytes": 128, "source": "IN128"},
         "case.id.len()": {"bytes": 20, "source": "NUM"},
@@ -178,11 +186,11 @@ def decisions(snapshot, resolved):
     fc = "core/solver/frame_kernel/src/structural/formation_check.rs:"
     # ForceTerm.source is the bare admitted load_id, not the separately
     # owned member_source identity in LoadPrimitive/manifest entries.
-    for line in (495, 501, 511, 561, 574, 581):
+    for line in (508, 514, 524, 574, 587, 594):
         audit.append((resolved(fc + str(line)), {
             "terms[p.term_index].source": {"bytes": 128, "source": "IN128"},
         }))
-    for line in (613, 623, 629, 635, 895):
+    for line in (626, 636, 642, 648, FIRST_RETURN_LINE):
         audit.append((resolved(fc + str(line)), {
             "term.source": {"bytes": 128, "source": "IN128"},
         }))
@@ -317,11 +325,15 @@ def site_totals(snapshot, resolved):
 
 
 FIRST_RETURN_FILE = "core/solver/frame_kernel/src/structural/formation_check.rs"
-FIRST_RETURN_ROOT = FIRST_RETURN_FILE + ":850:evaluate"
-FIRST_RETURN_PARENT = FIRST_RETURN_FILE + ":441:check_at"
-FIRST_RETURN_SITE = "structural/formation_check.rs:895"
+FIRST_RETURN_ROOT = FIRST_RETURN_FILE + ":863:evaluate"
+FIRST_RETURN_PARENT = FIRST_RETURN_FILE + ":454:check_at"
+# T4-U8: evaluate's added `straight_frames_bound(source)?;` (the line after load_closure) moves the reformation
+# map_err site from 895 (B7b) to 896 with unchanged text; PP's member-identity binding moves evaluate (850),
+# check_at (441) and the site by 13 more (909), text unchanged.
+FIRST_RETURN_LINE = 909
+FIRST_RETURN_SITE = "structural/formation_check.rs:%d" % FIRST_RETURN_LINE
 FIRST_RETURN_WHY = "B7aFK895: map_err formats only on Err and immediate? returns evaluate; preserve full evaluate calls/content/capacity and every helper/loop/copy cost"
-FIRST_RETURN_RULE = {"from": ["structural/formation_check.rs:850:evaluate"],
+FIRST_RETURN_RULE = {"from": ["structural/formation_check.rs:863:evaluate"],
                      "per": "1", "why": FIRST_RETURN_WHY}
 
 
@@ -341,7 +353,7 @@ def first_return_state(snapshot, table, graph, formats, lexical):
     if actual != expected:
         raise ValueError("B7aFK895: exact source/per/why rule changed")
     c6 = runpy.run_path(os.path.join(os.path.dirname(__file__), "kd5_first_error_model.py"))
-    site = {"file": FIRST_RETURN_FILE, "line": 895, "kind": "format",
+    site = {"file": FIRST_RETURN_FILE, "line": FIRST_RETURN_LINE, "kind": "format",
             "fn": FIRST_RETURN_ROOT, "roots": [FIRST_RETURN_ROOT]}
     for family in ("site_from", "site_zero", "site_total", "site_aggregate", "site_size", "lex_site_size"):
         for alias in c6["override_aliases"](site):
@@ -356,7 +368,7 @@ def first_return_state(snapshot, table, graph, formats, lexical):
     if parents != [FIRST_RETURN_PARENT]:
         raise ValueError("B7aFK895: qualified evaluate caller inventory changed")
     matching = [row for row in formats + lexical if
-                (row["file"], row["line"], row["kind"]) == (FIRST_RETURN_FILE, 895, "format")]
+                (row["file"], row["line"], row["kind"]) == (FIRST_RETURN_FILE, FIRST_RETURN_LINE, "format")]
     if len(matching) != 1 or any(row.get("fn", FIRST_RETURN_ROOT) != FIRST_RETURN_ROOT for row in matching):
         raise ValueError("B7aFK895: missing/duplicate/misqualified format site")
     return {"sites": [site]}
@@ -365,7 +377,7 @@ def first_return_state(snapshot, table, graph, formats, lexical):
 def first_return_witness(state, file, line, kind, mult, counts, rebound=False):
     # Reuse C6's strict positive and exact post-rebind count checks. This
     # targets one allocation only; it never limits helper visits or a graph.
-    if (file, line, kind) != (FIRST_RETURN_FILE, 895, "format"):
+    if (file, line, kind) != (FIRST_RETURN_FILE, FIRST_RETURN_LINE, "format"):
         return
     c6 = runpy.run_path(os.path.join(os.path.dirname(__file__), "kd5_first_error_model.py"))
     check = c6["rebound_witness"] if rebound else c6["positive_witness"]

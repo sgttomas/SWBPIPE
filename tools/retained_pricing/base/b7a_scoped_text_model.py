@@ -12,17 +12,18 @@ PP = 'core/product_physics/src/'
 RE = 'core/reporting/result_export/src/'
 # B7b: the snapshot lines of the bound sites (B7a 3e89c23ea1 values in comments).
 # The inherited full-file pins bind these files; each line keeps B7a's text.
+# T4-U6/U8 (PP head 20c6126a16): every line moved with unchanged text (B7b values in brackets).
 LN = {
-    'problem': 148,       # pressure_runtime.rs fn problem (160)
-    'diag': 154,          # `let mut finding = diag(` (166)
-    'format': 155,        # `&format!(` (167)
-    'join': 157,          # `stable_suffix(&refs.join(":"))` (169)
-    'to_string': 162,     # `refs.iter().map(|value| value.to_string()).collect(),` (174)
-    'unit_message': 9159, # lib.rs `message.into()` (9162)
-    'suffix': 13619,      # lib.rs `id.replace(':', "-")` (13614)
-    'diag_fn': 13568,     # lib.rs fn diag (13563)
-    'suffix_fn': 13618,   # lib.rs fn stable_suffix (13613)
-    'require': 78,        # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf)
+    'problem': 162,       # pressure_runtime.rs fn problem (160) [148]
+    'diag': 168,          # `let mut finding = diag(` (166) [154]
+    'format': 169,        # `&format!(` (167) [155]
+    'join': 171,          # `stable_suffix(&refs.join(":"))` (169) [157]
+    'to_string': 176,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
+    'unit_message': 9393, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 13966,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 13915,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 13965,   # lib.rs fn stable_suffix (13613) [13618]
+    'require': 95,        # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'
 PROBLEM = PR + '%d:problem' % LN['problem']
@@ -67,8 +68,8 @@ AUDIT_CURRENT = {
     PP + 'formation_guard.rs:239': {'failure': {'bytes': 43, 'source': 'STATIC'}},
 }
 LEX_CURRENT = {
-    'retained_product.rs:3028': {'class': 46, 'why': WHY + '; requested mode literal'},
-    'retained_product.rs:3185': {'class': 167, 'why': WHY + '; straight endpoint sign literal'},
+    'retained_product.rs:3120': {'class': 46, 'why': WHY + '; requested mode literal'},   # [B7b 3028]
+    'retained_product.rs:3277': {'class': 167, 'why': WHY + '; straight endpoint sign literal'},   # [B7b 3185]
     'preview_physics.rs:598': {'class': 47, 'why': WHY + '; arc basis literal'},
     'lib.rs:%d' % LN['unit_message']: {'class': 600, 'why': WHY + '; unit-conversion owned message'},
     'pressure_runtime.rs:%d' % LN['join']: {'class': 644, 'why': WHY + '; complete five-ref joined spelling'},
@@ -81,9 +82,10 @@ EXTRA_CURRENT = {'lib.rs:%d' % LN['suffix']: {'owner': PROBLEM, 'extra_content':
 OWNER_LOOP = {'owner': PROBLEM, 'header': REF_LOOP, 'per_call': 5}
 PROBLEM_SITES = [(LN['diag'], 'diag'), (LN['format'], 'format'), (LN['join'], 'join'), (LN['to_string'], 'to_string')]
 PROBLEM_PARENTS = [PR + x for x in (   # B7a: 188, 234, 531, 545, 618, 1091, 1332, 1480, 1720
-    '176:exact_member_recovery', '222:validate_profile', '507:check_suffixes',
-    '521:normalize_region_units', '594:assemble_pressure_case', '1067:add_joint_terms',
-    '1308:finish_source_groups', '1456:traverse_region', '1696:collinear_run')]
+    # T4-U6 [B7b: 176, 222, 507, 521, 594, 1067, 1308, 1456, 1696]
+    '190:exact_member_recovery', '236:validate_profile', '519:check_suffixes',
+    '533:normalize_region_units', '606:assemble_pressure_case', '1085:add_joint_terms',
+    '1335:finish_source_groups', '1483:traverse_region', '1723:collinear_run')]
 
 
 def adjacent(name):
@@ -175,8 +177,8 @@ def state(snapshot, table, loops, graph=None, formats=None, lexical=None):
         (PP + 'lib.rs', LN['unit_message'], 'into_text'),
         (PP + 'lib.rs', LN['suffix'], 'replace'),
         (RE + 'physics_source.rs', LN['require'], 'format'),
-        (PP + 'retained_product.rs', 3028, 'to_string'),
-        (PP + 'retained_product.rs', 3185, 'to_string'),
+        (PP + 'retained_product.rs', 3120, 'to_string'),
+        (PP + 'retained_product.rs', 3277, 'to_string'),
         (PP + 'preview_physics.rs', 598, 'to_string'),
         (PP + 'formation_guard.rs', 239, 'format'),
         (PP + 'formation_guard.rs', 322, 'format'),

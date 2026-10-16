@@ -16,44 +16,49 @@ SOURCES = {
     "core/solver/frame_kernel/src/exact_sum.rs": "3a847f8dbaa74768603c4d9693b538f1f63c2d172026ed7ab400aea3b4800f67",
     "core/solver/curved_bend/src/lib.rs": "6166e6c27247955ccabfbb8a51bbd5ebe6589bbc49b5a62b096ef0c0b8798a1c",
 }
+# T4-U6/U8 (PP head 20c6126a16): the owners, sites and callers below moved with unchanged text (B7b lines: lib.rs
+# 10446/10487/10493, 11127/11146, 4427; membrane_publication_range.rs 159/233; retained_product.rs 5453 and
+# 2811/2831/2850/6369).
+# The caller inventories are unchanged; D-5 calls exact_straight_summary_extrema once per basis from the case solve,
+# which the chain's own multiplicity counts.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 10487,
+    "line": 10810,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:10446:exact_straight_summary_extrema",
-    "short": "lib.rs:10487",
-    "from": "lib.rs:10446:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:10768:exact_straight_summary_extrema",
+    "short": "lib.rs:10810",
+    "from": "lib.rs:10768:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4427:solve_prepared_load_case",
-      "core/product_physics/src/membrane_publication_range.rs:159:original_subnormal_wall_force_direct_extrema_preserves_membrane",
-      "core/product_physics/src/membrane_publication_range.rs:233:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
-      "core/product_physics/src/retained_product.rs:5453:prepared_maxima"
+      "core/product_physics/src/lib.rs:4500:solve_prepared_load_case",
+      "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
+      "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
+      "core/product_physics/src/retained_product.rs:5589:prepared_maxima"
     ]
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 10493,
+    "line": 10816,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:10446:exact_straight_summary_extrema",
-    "short": "lib.rs:10493",
-    "from": "lib.rs:10446:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:10768:exact_straight_summary_extrema",
+    "short": "lib.rs:10816",
+    "from": "lib.rs:10768:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4427:solve_prepared_load_case",
-      "core/product_physics/src/membrane_publication_range.rs:159:original_subnormal_wall_force_direct_extrema_preserves_membrane",
-      "core/product_physics/src/membrane_publication_range.rs:233:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
-      "core/product_physics/src/retained_product.rs:5453:prepared_maxima"
+      "core/product_physics/src/lib.rs:4500:solve_prepared_load_case",
+      "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
+      "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
+      "core/product_physics/src/retained_product.rs:5589:prepared_maxima"
     ]
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11146,
+    "line": 11471,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:11127:recover_curved_bend_local_forces",
-    "short": "lib.rs:11146",
-    "from": "lib.rs:11127:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:11452:recover_curved_bend_local_forces",
+    "short": "lib.rs:11471",
+    "from": "lib.rs:11452:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:4427:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:4500:solve_prepared_load_case"
     ]
   },
   {
@@ -70,14 +75,14 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/retained_product.rs",
-    "line": 2831,
+    "line": 2893,
     "kind": "into_text",
-    "owner": "core/product_physics/src/retained_product.rs:2811:support_observables",
-    "short": "retained_product.rs:2831",
-    "from": "retained_product.rs:2811:support_observables",
+    "owner": "core/product_physics/src/retained_product.rs:2873:support_observables",
+    "short": "retained_product.rs:2893",
+    "from": "retained_product.rs:2873:support_observables",
     "parents": [
-      "core/product_physics/src/retained_product.rs:2850:case_observables",
-      "core/product_physics/src/retained_product.rs:6369:combination_observables"
+      "core/product_physics/src/retained_product.rs:2912:case_observables",
+      "core/product_physics/src/retained_product.rs:6578:combination_observables"
     ]
   }
 ]
@@ -93,8 +98,9 @@ MODE_SOURCE = {
     "run": {"5cb207a921dd8a22509e5ee6381cfb43d7fedece747041acdd8394f4ce823c5d"},
     # Exact base emitter and its ordinary SQ2 _X cap transport. ENV behavior is identical.
     # B7b: the transport's only change is the carried retained_w1 key (lib.rs:3489 -> 3474).
+    # T4-U6/U8 (PP 20c6126a16): again only that key (lib.rs:3474 -> 3510; B7b's 221aa563c6d5e533...).
     "tb": {"0de99a4ac9ca186b441654d8434053ca626474b769d11aa4a3b6f93180b78471",
-           "221aa563c6d5e5339ae70b8e44a6d31a866cc32cf7b84a975b557504e4be7645"},
+           "f8f52f6d35ee56b09dc9f8c554211b4f61d929146863d7e71688bcb671bc98a4"},
 }
 
 

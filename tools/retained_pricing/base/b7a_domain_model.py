@@ -13,11 +13,20 @@ import runpy
 # pressure_runtime.rs's later change is inside its `mod tests` only (production prefix identical);
 # physics_source.rs adds only the two resolved-branch requires (033626030c) and test include paths;
 # ccb19ba0bf adds the readers' zero-corrosion-allowance checks and two guards (retained-pricing-rules.md, B7b-ZA).
-SOURCE_FILES = {"core/product_physics/src/lib.rs":"650be7f49cd69e837caf641c925c801b4bf60fa4d2a7282c2e6edd9fd24492db","core/product_physics/src/certified_loads.rs":"d695564353f1ce177fcb0f1f91c8ee00ab3bf8ad57bdeb9cf25f5501b11a67b1","core/product_physics/src/retained_product.rs":"a9b4b7f75f45ffcd559e73267cf6607576615be54365b803f79bba9ec1e015d5","core/product_physics/src/retained_wire.rs":"7a387c1514b40674d57e9b3726a3e7373e3eecedd2a422bed3a1785531605610","core/product_physics/src/certified_publication.rs":"635b29d6e52dfeec94812b69a6e60b80fa3ec3630cc76edee799e82f763dc886","core/solver/frame_kernel/src/load_ledger.rs":"8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f","core/solver/frame_kernel/src/structural/formation_check.rs":"d6305e0b55708dfd107dc74460d90af46377ccf7106c8d7d74d371baf38419df","core/solver/frame_kernel/src/structural/certified_recovery.rs":"953da59448e8a47653e23b989ab1f46d00dc0a93e15d8152ea890df37ee671fd","core/loads/primitive_loads/src/lib.rs":"f0536b0c0bfdb0df69e7a8dd251dfb0b15607caf3ad693fa1adc3b912152f121","core/solver/straight_pipe/src/lib.rs":"b743d7ac67312253d39bd7fe772fbff3e2b320eeaca6a41dda6d256ed9af4856","core/product_physics/src/preview_physics.rs":"61b2fb2f3f9bc3aa9803bf6bf5c95cf5e51c841289ef5c415bf86fe00f33b468","core/reporting/result_export/src/retained_precision.rs":"a465d4f7cc5ed40fbde8ac51f0cba6eac5db2d8c349550132dd852865d994439","core/product_physics/src/model_format.rs":"5b96cf74cbeb8c4a4fe11509e634525d3384c56cb9ff37b11a3c12d39a1df71f","core/product_physics/src/pressure_runtime.rs":"5b0a258e6f42cce626c84ef1f178d48a4d110bd1b652ac948809d62611556008","core/product_physics/src/source_receipt.rs":"55b2e4b67ae3929f8a3a62c8149d939ec81a92d5762dc173e55fd54f20cfb768","core/product_physics/src/exact_admission.rs":"fe922a19a7a305afc88da68a9b22e22f9b6651004ed4b6d1760f4a1da0800c47","core/product_physics/src/case_state/mod.rs":"633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab","core/solver/nonlinear_integration/src/structural_adapter.rs":"7405c5cf32f59edf1c590859868e9af76bd08803aee3eea9b99a44be2aa5893b","core/solver/frame_kernel/src/lib.rs":"f21e07046cba2909b67694d429a11dab915a0e27ea28ea79878a18b83bdd2843","core/reporting/result_export/src/semantic_contract.rs":"fd765e563e7099543571b23484df8c0417a492322967488949b0a466a095ce1b","core/reporting/result_export/src/physics_source.rs":"54f8136f31b65f3b22968c55ffb26662557ae69d4e0fc83f9bc2f9a88c414f36"}
+# T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): the changed owner files are re-bound to the
+# priced source after their diffs were read; the D-5 and Timoshenko changes add no owner this model prices.
+# PP (503180f78a..20c6126a16): lib.rs, certified_loads.rs, retained_product.rs, retained_wire.rs (one hash constant),
+# certified_publication.rs, formation_check.rs, certified_recovery.rs, straight_pipe, pressure_runtime.rs and
+# structural_adapter.rs change for the Timoshenko admission, the D-5 exact mass and member-identity frame binding:
+# frame_members copies are priced by U8-FM; no owner this model prices changes.
+SOURCE_FILES = {"core/product_physics/src/lib.rs":"2f294e4e5adab56894bfc87a9e246edefd5aa1fa3ca75e0473e4a6927aa8e943","core/product_physics/src/certified_loads.rs":"56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f","core/product_physics/src/retained_product.rs":"e556de37036a1e9c8454dc869764ce9763612e974bbd6dcbeabe2a569e213e01","core/product_physics/src/retained_wire.rs":"7e4326e5b294f6db2ed0995eeca1a8bae3e4ddd487bb0f70436f82426eaa6f3a","core/product_physics/src/certified_publication.rs":"1c6de84c0f7c4cd0799a5b2c7f4bacf3d5d950bb062a816066aaabdd45b489c5","core/solver/frame_kernel/src/load_ledger.rs":"8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f","core/solver/frame_kernel/src/structural/formation_check.rs":"0d83c8a61b890d757b96529d255e38c42b35793ae5c998871331278c8cbaa384","core/solver/frame_kernel/src/structural/certified_recovery.rs":"1766a0d94cf02b909b4875cae756b6df5d0bb81489c359281109b7cb248999dc","core/loads/primitive_loads/src/lib.rs":"f0536b0c0bfdb0df69e7a8dd251dfb0b15607caf3ad693fa1adc3b912152f121","core/solver/straight_pipe/src/lib.rs":"a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7","core/product_physics/src/preview_physics.rs":"61b2fb2f3f9bc3aa9803bf6bf5c95cf5e51c841289ef5c415bf86fe00f33b468","core/reporting/result_export/src/retained_precision.rs":"24d85a5b4d319975b76886f7f34cf52c052b6ce9f408301a54ba3f2790c83daa","core/product_physics/src/model_format.rs":"5b96cf74cbeb8c4a4fe11509e634525d3384c56cb9ff37b11a3c12d39a1df71f","core/product_physics/src/pressure_runtime.rs":"6375957f8ba4e185f98c525853dbd251b810008b4cb70e10c6fb1ae0e6fdbfa5","core/product_physics/src/source_receipt.rs":"55b2e4b67ae3929f8a3a62c8149d939ec81a92d5762dc173e55fd54f20cfb768","core/product_physics/src/exact_admission.rs":"493e5876cdc5fbbe593a1435a6c8b235323a2a76f8b339f41fe14e8e541eec7b","core/product_physics/src/case_state/mod.rs":"633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab","core/solver/nonlinear_integration/src/structural_adapter.rs":"bf42cfa532f0f36823fb78128ad175d6bb9a5765e8fd7374599da89df4232a8b","core/solver/frame_kernel/src/lib.rs":"76d2b727e5ccaa051ffda7daad7ea0b299741a70b8388a54b310b5570f7cffa9","core/reporting/result_export/src/semantic_contract.rs":"38a51fdafa74d034dd79709713e8b94f07571846d7765d72fdf0351e8e28bb9e","core/reporting/result_export/src/physics_source.rs":"e71794ebf773554c51f74e06b1ae99fa94997a43c604e04a1eab019cb52578c5"}
 CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
-FAMILY_PIN = "6f85658b105d1d38c0fa23d94aba52572c81273956764d4824371bc7c4cf2d3a"
+# T4-U6/U8 (O4): family_clauses adds one refusal, a nonzero mill tolerance or corrosion allowance on branch E
+# (FamilyFact::SectionAllowance), and namespace_branch refuses the Timoshenko exact contract (FamilyFact::ShearModel).
+# Both only narrow admission; the caps, census and late admission bodies are unchanged.
+FAMILY_PIN = "39dae5a7af4014c66631dbb8f5ecf6f12d9f88412d8983d6e7308d2e43c7d6a6"
 ADMISSION_MARKER = "// ---- D-6: the build status --------------------------------------------------"
-ADMISSION_PREFIX_PIN = "fd571c720e7992835c6f832e2c77e0e6f01ab7f6d5229a40c94fbb8cc21e34be"
+ADMISSION_PREFIX_PIN = "e6a40f6e0b0e191de410c1cd8d43b08aaa67b27eec5cfac6ca75994c3efb4c2d"
 ADMISSION_LATE_PINS = {"law_order":"b0f9eae8c2d716f14cfda1ff895a65d7833b086383ec34154b501daa1ac344a3","admit":"67334c60ce1a606b5cd73e2715474cfc40150a11def9143752993af4c79904c8","admission":"7627646ef640f23a095bab2f355c7576e1ff79baeb2a9ea44be4550765f60003"}
 MATERIALS = 4
 OPERAND_WORDS = 26
@@ -236,45 +245,48 @@ def text_decisions(snapshot, resolved):
     audits = [
 
         # B7b: snapshot keys follow B7b's unchanged lines (B7a 10627.. +5).
-        (pp + "lib.rs:10632", {"load_case_id": inp}),
-        (pp + "lib.rs:10646", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:10653", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:10658", {"load.load_id": inp}),
-        (pp + "lib.rs:10659", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:10660", {"bend.component_id": inp}),
-        (pp + "lib.rs:10661", {"load_case_id": inp}),
-        (pp + "lib.rs:10720", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:10727", {"load.load_id": inp, "bend.pipe_id": inp}),
-        (pp + "lib.rs:10732", {"load.load_id": inp}),
-        (pp + "lib.rs:10733", {"bend.pipe_id": inp}),
-        (pp + "lib.rs:10734", {"bend.component_id": inp}),
-        (pp + "lib.rs:10735", {"load_case_id": inp}),
-        (pp + "lib.rs:10774", {"stable_suffix(&load.load_id)": inp}),
-        (pp + "lib.rs:10781", {"load.load_id": inp, "load_case_id": inp}),
-        (pp + "certified_loads.rs:233", {"case_id": inp}),
-        (pp + "certified_loads.rs:256", {"case_id": inp}),
-        (pp + "retained_product.rs:4298", {"stable_suffix(id)": inp}),
-        (pp + "retained_product.rs:4299", {"id": inp}),
-        (pp + "retained_product.rs:4307", {"id": inp, "id.len()": inp, "component": static}),
-        (pp + "retained_product.rs:4309", {"id": inp}),
-        (pp + "retained_product.rs:4310", {"component": static}),
-        (pp + "retained_product.rs:4327", {"member.id": inp, "member.id.len()": inp}),
-        (pp + "retained_product.rs:4332", {"member.id": inp}),
-        (pp + "retained_product.rs:4358", {"ordinary.document_kind": static}),
-        (pp + "retained_product.rs:4359", {"ordinary.model_ref": inp}),
-        (pp + "lib.rs:1054", {"semantic_contract_id": static}),
-        (pp + "lib.rs:3064", {"context.semantic_id()": static}),
-        (pp + "lib.rs:5299", {"support.id": inp}),
-        (pp + "lib.rs:5970", {"pipe.element_id": inp}),
+        # T4-U6/U8 (PP head 20c6126a16): every key below moved with unchanged text (B7b: lib.rs
+        # add_uniform_element_loads 10632.., 1054, 3064, 5299, 5970; certified_loads.rs 233/256; retained_product.rs
+        # failed_manifest 4298..; retained_precision.rs 5555/5637/5661).
+        (pp + "lib.rs:10955", {"load_case_id": inp}),
+        (pp + "lib.rs:10969", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:10976", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:10981", {"load.load_id": inp}),
+        (pp + "lib.rs:10982", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:10983", {"bend.component_id": inp}),
+        (pp + "lib.rs:10984", {"load_case_id": inp}),
+        (pp + "lib.rs:11043", {"stable_suffix(load_case_id)": inp, "stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:11050", {"load.load_id": inp, "bend.pipe_id": inp}),
+        (pp + "lib.rs:11055", {"load.load_id": inp}),
+        (pp + "lib.rs:11056", {"bend.pipe_id": inp}),
+        (pp + "lib.rs:11057", {"bend.component_id": inp}),
+        (pp + "lib.rs:11058", {"load_case_id": inp}),
+        (pp + "lib.rs:11097", {"stable_suffix(&load.load_id)": inp}),
+        (pp + "lib.rs:11104", {"load.load_id": inp, "load_case_id": inp}),
+        (pp + "certified_loads.rs:236", {"case_id": inp}),
+        (pp + "certified_loads.rs:259", {"case_id": inp}),
+        (pp + "retained_product.rs:4397", {"stable_suffix(id)": inp}),
+        (pp + "retained_product.rs:4398", {"id": inp}),
+        (pp + "retained_product.rs:4406", {"id": inp, "id.len()": inp, "component": static}),
+        (pp + "retained_product.rs:4408", {"id": inp}),
+        (pp + "retained_product.rs:4409", {"component": static}),
+        (pp + "retained_product.rs:4426", {"member.id": inp, "member.id.len()": inp}),
+        (pp + "retained_product.rs:4431", {"member.id": inp}),
+        (pp + "retained_product.rs:4457", {"ordinary.document_kind": static}),
+        (pp + "retained_product.rs:4458", {"ordinary.model_ref": inp}),
+        (pp + "lib.rs:1058", {"semantic_contract_id": static}),
+        (pp + "lib.rs:3100", {"context.semantic_id()": static}),
+        (pp + "lib.rs:5378", {"support.id": inp}),
+        (pp + "lib.rs:6122", {"pipe.element_id": inp}),
         (pp + "model_format.rs:26", {"version": static}),
         # ccb19ba0bf: +17 lines (section_allowances), same text.
-        (re_ + "retained_precision.rs:5555", {"mode": static}),
-        (re_ + "retained_precision.rs:5637", {"text(cid)": inp}),
-        (re_ + "retained_precision.rs:5661", {"text(cid)": inp}),
+        (re_ + "retained_precision.rs:5649", {"mode": static}),
+        (re_ + "retained_precision.rs:5731", {"text(cid)": inp}),
+        (re_ + "retained_precision.rs:5755", {"text(cid)": inp}),
     ]
-    lex = [("retained_product.rs:4356", {"class": 64, "why": "source-bound mechanics schema literal"}),
-           ("retained_product.rs:4358", {"class": 2914, "why": "positive formulation content upper; actual struct/Vec storage is separate"}),
-           ("retained_product.rs:4362", {"class": 2914, "why": "positive summary-owned text upper; inline header and LocatedQuantity children stay separate"})]
+    lex = [("retained_product.rs:4455", {"class": 64, "why": "source-bound mechanics schema literal"}),
+           ("retained_product.rs:4457", {"class": 2914, "why": "positive formulation content upper; actual struct/Vec storage is separate"}),
+           ("retained_product.rs:4461", {"class": 2914, "why": "positive summary-owned text upper; inline header and LocatedQuantity children stay separate"})]
     return loops, [(resolved(key), values) for key, values in audits], [(resolved(key), value) for key, value in lex]
 
 

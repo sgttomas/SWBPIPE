@@ -12,19 +12,28 @@ MARKER = "b7a_owner_choices"
 VERSION = "v1"
 PP = "core/product_physics/src/"
 FK = "core/solver/frame_kernel/src/"
-SOURCE_SITE = FK + "structural.rs:1124"
-SOURCE_OWNER = FK + "structural.rs:1123:row_sources"
-SOURCE_RULE = "structural.rs:1124"
-VALIDATOR = PP + "retained_product.rs:2964:validate_final_metadata"
-BOUNDS = {3028:46,3051:37,3057:140,3082:143,3109:158,3128:162,
-          3162:188,3163:338,3197:169,3202:322}
-ERROR_SITES = {2544:149,3005:1049,3227:1046}
-ERROR_OWNER = PP+"retained_product.rs:2348:bind_rows_subject"
+# T4-U6/U8: every snapshot line below moved with unchanged text (structural.rs +1 from one added re-export;
+# retained_product.rs and lib.rs by the D-5 hunks before them). No recipe, error, source-copy or helper site changed.
+# B7b values: VALIDATOR 2964, BOUNDS 3028..3202 (+89), ERROR_SITES 2544/3005/3227 (+16/+89/+96), structural.rs
+# 1123/1124 (+1), lib.rs 13243/13244/13618/13619 (+251/+255), freeze_combination 6253 (+203).
+SOURCE_LINE = 1125
+SOURCE_SITE = FK + "structural.rs:%d" % SOURCE_LINE
+SOURCE_OWNER = FK + "structural.rs:1124:row_sources"
+SOURCE_RULE = "structural.rs:%d" % SOURCE_LINE
+# PP (20c6126a16): retained_product.rs moves +3 from line 1995 on (StraightMember::from_frame), +6 after the
+# retained member overlay; lib.rs's helpers move +92. Text unchanged.
+VALIDATOR = PP + "retained_product.rs:3050:validate_final_metadata"
+BOUNDS = {3120:46,3143:37,3149:140,3174:143,3201:158,3220:162,
+          3254:188,3255:338,3289:169,3294:322}
+ERROR_SITES = {2563:149,3097:1049,3326:1046}
+ROWS_ERROR_LINE = 2563          # the one error site owned by bind_rows_subject (inside its row loop)
+HELPER_FNS = (PP + "lib.rs:13586:qualified_load_case_result_id", PP + "lib.rs:13965:stable_suffix")
+ERROR_OWNER = PP+"retained_product.rs:2351:bind_rows_subject"
 ERROR_WHY = "B7a metadata first error: immediate propagation out of whole bind_rows_subject; full owner M/content/capacity and independent errors/detail copies retained"
 SOURCE_WHY = ("B7a row-source ownership: audited success or terminal Range fallback "
               "are exclusive per DOF; partitioned force terms are cloned at most q "
               "per full audit; both caller counts/String128/capacity2 remain")
-PREIMAGES = {'source_from': {'from': ['structural.rs:1062:audit_load_fidelity',
+PREIMAGES = {'source_from': {'from': ['structural.rs:1063:audit_load_fidelity',
                           'structural/sparse.rs:1851:audit_sparse_load_fidelity'],
                  'per': '24*l',
                  'why': 'B7a: both audited callers retain their complete2*q source-copy upper before '
@@ -34,20 +43,20 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1062:audit_load_fidelity',
                         'unaudited_row and audit_load_row (structural.rs:1037-1180), so <= 2l clones per '
                         'audit call'},
  'group_rows': [{'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 3057,
+                 'line': 3149,
                  'kind': 'format',
                  'template': 'result:disp:{suffix}',
                  'literal_bytes': 12,
                  'placeholders': [{'spec': '', 'arg': 'suffix'}]},
                 {'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 3082,
+                 'line': 3174,
                  'kind': 'format',
                  'template': 'result:disp:{suffix}:{}',
                  'literal_bytes': 13,
                  'placeholders': [{'spec': '', 'arg': 'suffix'},
                                   {'spec': '', 'arg': '["ux", "uy", "uz", "rx", "ry", "rz"][i]'}]},
                 {'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 3109,
+                 'line': 3201,
                  'kind': 'format',
                  'template': 'result:{}:{suffix}:{}{}',
                  'literal_bytes': 9,
@@ -64,7 +73,7 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1062:audit_load_fidelity',
                                           '                ][i]'},
                                   {'spec': '', 'arg': 'if end == k::End::J { ":end-j" } else { "" }'}]},
                 {'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 3128,
+                 'line': 3220,
                  'kind': 'format',
                  'template': 'result:{}:{suffix}:{}:{}',
                  'literal_bytes': 10,
@@ -81,7 +90,7 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1062:audit_load_fidelity',
                                           '                    "bending-z"\n'
                                           '                ][i]'}]},
                 {'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 3162,
+                 'line': 3254,
                  'kind': 'format',
                  'template': 'result:support-action:{}:{}:{}',
                  'literal_bytes': 24,
@@ -89,7 +98,7 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1062:audit_load_fidelity',
                                   {'spec': '', 'arg': 'row.entity_ref'},
                                   {'spec': '', 'arg': 'component'}]},
                 {'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 3163,
+                 'line': 3255,
                  'kind': 'format',
                  'template': 'result:support-action:{}:{}:{}:{}:{}',
                  'literal_bytes': 26,
@@ -99,7 +108,7 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1062:audit_load_fidelity',
                                   {'spec': '', 'arg': 'row.entity_ref'},
                                   {'spec': '', 'arg': 'component'}]},
                 {'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 3197,
+                 'line': 3289,
                  'kind': 'format',
                  'template': 'result:stress:{suffix}:{idloc}:{tail}',
                  'literal_bytes': 16,
@@ -107,7 +116,7 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1062:audit_load_fidelity',
                                   {'spec': '', 'arg': 'idloc'},
                                   {'spec': '', 'arg': 'tail'}]},
                 {'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 3202,
+                 'line': 3294,
                  'kind': 'format',
                  'template': 'result:elastic-maximum:{}:{}:{}:{}',
                  'literal_bytes': 26,
@@ -116,34 +125,34 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1062:audit_load_fidelity',
                                   {'spec': '', 'arg': 'row.entity_ref.len()'},
                                   {'spec': '', 'arg': 'row.entity_ref'}]},
                 {'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 3028,
+                 'line': 3120,
                  'kind': 'to_string',
-                 'fn': 'core/product_physics/src/retained_product.rs:2964:validate_final_metadata',
+                 'fn': 'core/product_physics/src/retained_product.rs:3050:validate_final_metadata',
                  'receiver': 'REQUESTED_MODE_ID',
                  'literal_bytes': None,
                  'arg': ''},
                 {'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 3051,
+                 'line': 3143,
                  'kind': 'to_string',
-                 'fn': 'core/product_physics/src/retained_product.rs:2964:validate_final_metadata',
+                 'fn': 'core/product_physics/src/retained_product.rs:3050:validate_final_metadata',
                  'receiver': '" "',
                  'literal_bytes': 37,
                  'arg': ''}],
  'aux_rows': [{'file': 'core/product_physics/src/retained_product.rs',
-               'line': 3071,
+               'line': 3163,
                'kind': 'format',
                'template': 'positive value follows the global cartesian {axis} axis displacement of the node',
                'literal_bytes': 74,
                'placeholders': [{'spec': '', 'arg': 'axis'}]},
               {'file': 'core/product_physics/src/retained_product.rs',
-               'line': 3073,
+               'line': 3165,
                'kind': 'format',
                'template': 'positive value follows the right-hand-rule rotation about the global cartesian '
                            '{axis} axis',
                'literal_bytes': 84,
                'placeholders': [{'spec': '', 'arg': 'axis'}]},
               {'file': 'core/product_physics/src/retained_product.rs',
-               'line': 3194,
+               'line': 3286,
                'kind': 'format',
                'template': '{prefix}; j-side section action in the element-local frame (x toward end j); '
                            'section equilibrium from stiffness-recovered end actions with consistent '
@@ -151,42 +160,42 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1062:audit_load_fidelity',
                'literal_bytes': 179,
                'placeholders': [{'spec': '', 'arg': 'prefix'}]},
               {'file': 'core/product_physics/src/retained_product.rs',
-               'line': 3217,
+               'line': 3316,
                'kind': 'format',
                'template': 'result:combination:{}:{}',
                'literal_bytes': 20,
                'placeholders': [{'spec': '', 'arg': 'stable_suffix(id)'},
                                 {'spec': '', 'arg': 'super::result_tail(&expected)'}]},
               {'file': 'core/product_physics/src/retained_product.rs',
-               'line': 3185,
+               'line': 3277,
                'kind': 'to_string',
-               'fn': 'core/product_physics/src/retained_product.rs:2964:validate_final_metadata',
+               'fn': 'core/product_physics/src/retained_product.rs:3050:validate_final_metadata',
                'receiver': 'STRAIGHT_ENDPOINT_SECTION_SIGN_CONVENTION',
                'literal_bytes': None,
                'arg': ''}],
- 'audit_preimages': {'core/product_physics/src/retained_product.rs:3028': None,
-                     'core/product_physics/src/retained_product.rs:3051': None,
-                     'core/product_physics/src/retained_product.rs:3057': {'suffix': {'bytes': 128,
+ 'audit_preimages': {'core/product_physics/src/retained_product.rs:3120': None,
+                     'core/product_physics/src/retained_product.rs:3143': None,
+                     'core/product_physics/src/retained_product.rs:3149': {'suffix': {'bytes': 128,
                                                                                       'source': 'IN128'}},
-                     'core/product_physics/src/retained_product.rs:3082': {'suffix': {'bytes': 128,
+                     'core/product_physics/src/retained_product.rs:3174': {'suffix': {'bytes': 128,
                                                                                       'source': 'IN128'}},
-                     'core/product_physics/src/retained_product.rs:3109': {'["axial","shear-y","shear-z","torsion","bending-y","bending-z"][i]': {'bytes': 128,
+                     'core/product_physics/src/retained_product.rs:3201': {'["axial","shear-y","shear-z","torsion","bending-y","bending-z"][i]': {'bytes': 128,
                                                                                                                                                   'source': 'STATIC'},
                                                                            'suffix': {'bytes': 128,
                                                                                       'source': 'IN128'}},
-                     'core/product_physics/src/retained_product.rs:3128': {'["axial","shear-y","shear-z","torsion","bending-y","bending-z"][i]': {'bytes': 128,
+                     'core/product_physics/src/retained_product.rs:3220': {'["axial","shear-y","shear-z","torsion","bending-y","bending-z"][i]': {'bytes': 128,
                                                                                                                                                   'source': 'STATIC'},
                                                                            'station_id_location(loc)': {'bytes': 600,
                                                                                                         'source': 'COMP'},
                                                                            'suffix': {'bytes': 128,
                                                                                       'source': 'IN128'}},
-                     'core/product_physics/src/retained_product.rs:3162': {'row.entity_ref': {'bytes': 128,
+                     'core/product_physics/src/retained_product.rs:3254': {'row.entity_ref': {'bytes': 128,
                                                                                               'source': 'IN128'},
                                                                            'component': {'bytes': 128,
                                                                                          'source': 'STATIC'},
                                                                            'row.entity_ref.len()': {'bytes': 20,
                                                                                                     'source': 'NUM'}},
-                     'core/product_physics/src/retained_product.rs:3163': {'case': {'bytes': 2173,
+                     'core/product_physics/src/retained_product.rs:3255': {'case': {'bytes': 2173,
                                                                                     'source': 'IN128'},
                                                                            'component': {'bytes': 128,
                                                                                          'source': 'STATIC'},
@@ -194,130 +203,130 @@ PREIMAGES = {'source_from': {'from': ['structural.rs:1062:audit_load_fidelity',
                                                                                               'source': 'IN128'},
                                                                            'row.entity_ref.len()': {'bytes': 20,
                                                                                                     'source': 'NUM'}},
-                     'core/product_physics/src/retained_product.rs:3197': {'idloc': {'bytes': 128,
+                     'core/product_physics/src/retained_product.rs:3289': {'idloc': {'bytes': 128,
                                                                                      'source': 'STATIC'},
                                                                            'suffix': {'bytes': 128,
                                                                                       'source': 'IN128'}},
-                     'core/product_physics/src/retained_product.rs:3202': {'case': {'bytes': 2173,
+                     'core/product_physics/src/retained_product.rs:3294': {'case': {'bytes': 2173,
                                                                                     'source': 'IN128'},
                                                                            'row.entity_ref': {'bytes': 128,
                                                                                               'source': 'IN128'},
                                                                            'row.entity_ref.len()': {'bytes': 20,
                                                                                                     'source': 'NUM'}}},
- 'lex_preimages': {'retained_product.rs:3028': {'class': 46,
+ 'lex_preimages': {'retained_product.rs:3120': {'class': 46,
                                                 'why': 'B7a scoped TEXT: exact current producer and admitted '
                                                        'source/type closure; requested mode literal'}},
- 'parents': {'core/solver/frame_kernel/src/structural.rs:1123:row_sources': ['core/solver/frame_kernel/src/structural.rs:1131:unaudited_row',
-                                                                             'core/solver/frame_kernel/src/structural.rs:1160:audit_load_row'],
-             'core/solver/frame_kernel/src/structural.rs:1131:unaudited_row': ['core/solver/frame_kernel/src/structural.rs:1062:audit_load_fidelity',
+ 'parents': {'core/solver/frame_kernel/src/structural.rs:1124:row_sources': ['core/solver/frame_kernel/src/structural.rs:1132:unaudited_row',
+                                                                             'core/solver/frame_kernel/src/structural.rs:1161:audit_load_row'],
+             'core/solver/frame_kernel/src/structural.rs:1132:unaudited_row': ['core/solver/frame_kernel/src/structural.rs:1063:audit_load_fidelity',
                                                                                'core/solver/frame_kernel/src/structural/sparse.rs:1851:audit_sparse_load_fidelity'],
-             'core/solver/frame_kernel/src/structural.rs:1160:audit_load_row': ['core/solver/frame_kernel/src/structural.rs:1062:audit_load_fidelity',
+             'core/solver/frame_kernel/src/structural.rs:1161:audit_load_row': ['core/solver/frame_kernel/src/structural.rs:1063:audit_load_fidelity',
                                                                                 'core/solver/frame_kernel/src/structural/sparse.rs:1851:audit_sparse_load_fidelity'],
-             'core/product_physics/src/retained_product.rs:2964:validate_final_metadata': ['core/product_physics/src/retained_product.rs:2348:bind_rows_subject'],
-             'core/solver/frame_kernel/src/structural.rs:1062:audit_load_fidelity': ['core/solver/frame_kernel/src/structural.rs:514:load_fidelity'],
+             'core/product_physics/src/retained_product.rs:3050:validate_final_metadata': ['core/product_physics/src/retained_product.rs:2351:bind_rows_subject'],
+             'core/solver/frame_kernel/src/structural.rs:1063:audit_load_fidelity': ['core/solver/frame_kernel/src/structural.rs:515:load_fidelity'],
              'core/solver/frame_kernel/src/structural/sparse.rs:1851:audit_sparse_load_fidelity': ['core/solver/frame_kernel/src/structural/sparse.rs:1179:load_fidelity'],
-             'core/product_physics/src/retained_product.rs:2348:bind_rows_subject': ['core/product_physics/src/retained_product.rs:2332:bind_combination_rows_scoped',
-                                                                                     'core/product_physics/src/retained_product.rs:2341:bind_rows_view',
-                                                                                     'core/product_physics/src/retained_product.rs:6253:freeze_combination']},
- 'site_stacks': [['core/product_physics/src/retained_product.rs:2348:bind_rows_subject',
-                  'core/product_physics/src/retained_product.rs:2964:validate_final_metadata',
+             'core/product_physics/src/retained_product.rs:2351:bind_rows_subject': ['core/product_physics/src/retained_product.rs:2335:bind_combination_rows_scoped',
+                                                                                     'core/product_physics/src/retained_product.rs:2344:bind_rows_view',
+                                                                                     'core/product_physics/src/retained_product.rs:6462:freeze_combination']},
+ 'site_stacks': [['core/product_physics/src/retained_product.rs:2351:bind_rows_subject',
+                  'core/product_physics/src/retained_product.rs:3050:validate_final_metadata',
                   [['for observed in view.rows()']]],
-                 ['core/solver/frame_kernel/src/structural.rs:1062:audit_load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1160:audit_load_row',
+                 ['core/solver/frame_kernel/src/structural.rs:1063:audit_load_fidelity',
+                  'core/solver/frame_kernel/src/structural.rs:1161:audit_load_row',
                   [['for i in 0..n']]],
-                 ['core/solver/frame_kernel/src/structural.rs:1062:audit_load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1131:unaudited_row',
+                 ['core/solver/frame_kernel/src/structural.rs:1063:audit_load_fidelity',
+                  'core/solver/frame_kernel/src/structural.rs:1132:unaudited_row',
                   [['for i in 0..n']]],
-                 ['core/solver/frame_kernel/src/structural.rs:1131:unaudited_row',
-                  'core/solver/frame_kernel/src/structural.rs:1123:row_sources',
+                 ['core/solver/frame_kernel/src/structural.rs:1132:unaudited_row',
+                  'core/solver/frame_kernel/src/structural.rs:1124:row_sources',
                   [[]]],
-                 ['core/solver/frame_kernel/src/structural.rs:1160:audit_load_row',
-                  'core/solver/frame_kernel/src/structural.rs:1123:row_sources',
+                 ['core/solver/frame_kernel/src/structural.rs:1161:audit_load_row',
+                  'core/solver/frame_kernel/src/structural.rs:1124:row_sources',
                   [[]]],
                  ['core/solver/frame_kernel/src/structural/sparse.rs:1851:audit_sparse_load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1160:audit_load_row',
+                  'core/solver/frame_kernel/src/structural.rs:1161:audit_load_row',
                   [['for i in 0..n']]],
                  ['core/solver/frame_kernel/src/structural/sparse.rs:1851:audit_sparse_load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1131:unaudited_row',
+                  'core/solver/frame_kernel/src/structural.rs:1132:unaudited_row',
                   [['for i in 0..n']]],
-                 ['core/solver/frame_kernel/src/structural.rs:514:load_fidelity',
-                  'core/solver/frame_kernel/src/structural.rs:1062:audit_load_fidelity',
+                 ['core/solver/frame_kernel/src/structural.rs:515:load_fidelity',
+                  'core/solver/frame_kernel/src/structural.rs:1063:audit_load_fidelity',
                   [[]]],
                  ['core/solver/frame_kernel/src/structural/sparse.rs:1179:load_fidelity',
                   'core/solver/frame_kernel/src/structural/sparse.rs:1851:audit_sparse_load_fidelity',
                   [[]]],
-                 ['core/product_physics/src/retained_product.rs:2332:bind_combination_rows_scoped',
-                  'core/product_physics/src/retained_product.rs:2348:bind_rows_subject',
+                 ['core/product_physics/src/retained_product.rs:2335:bind_combination_rows_scoped',
+                  'core/product_physics/src/retained_product.rs:2351:bind_rows_subject',
                   [[]]],
-                 ['core/product_physics/src/retained_product.rs:2341:bind_rows_view',
-                  'core/product_physics/src/retained_product.rs:2348:bind_rows_subject',
+                 ['core/product_physics/src/retained_product.rs:2344:bind_rows_view',
+                  'core/product_physics/src/retained_product.rs:2351:bind_rows_subject',
                   [[]]],
-                 ['core/product_physics/src/retained_product.rs:6253:freeze_combination',
-                  'core/product_physics/src/retained_product.rs:2348:bind_rows_subject',
+                 ['core/product_physics/src/retained_product.rs:6462:freeze_combination',
+                  'core/product_physics/src/retained_product.rs:2351:bind_rows_subject',
                   [[], []]]],
  'source_loop': {'re': '^iter:terms\\.iter\\(\\)\\.map$',
                  'bound': '12*l',
                  'why': 'B7a q<=12*l positive force-term upper; input-count owners retain l. Was: G4 (R-1, '
                         'newly reached): structural.rs:1098 row_sources: the force terms of one row <= l'},
  'error_rows': [{'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 2544,
+                 'line': 2563,
                  'kind': 'format',
                  'template': 'uncovered actual row {}',
                  'literal_bytes': 21,
                  'placeholders': [{'spec': '', 'arg': 'r.kind'}]},
                 {'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 3005,
+                 'line': 3097,
                  'kind': 'format',
                  'template': 'final metadata mismatch: {}',
                  'literal_bytes': 25,
                  'placeholders': [{'spec': '', 'arg': 'row.id'}]},
                 {'file': 'core/product_physics/src/retained_product.rs',
-                 'line': 3227,
+                 'line': 3326,
                  'kind': 'format',
                  'template': 'final id association: {}',
                  'literal_bytes': 22,
                  'placeholders': [{'spec': '', 'arg': 'row.id'}]}],
  # B7b snapshot lib.rs lines (B7a: 13239/13238 and 13614/13613; unchanged text).
  'helper_rows': [{'file': 'core/product_physics/src/lib.rs',
-                  'line': 13244,
+                  'line': 13587,
                   'kind': 'format',
                   'template': 'result:loadcase:{}:{}',
                   'literal_bytes': 17,
                   'placeholders': [{'spec': '', 'arg': 'stable_suffix(load_case_id)'},
                                    {'spec': '', 'arg': 'result_tail(base_id)'}],
-                  'fn': 'core/product_physics/src/lib.rs:13243:qualified_load_case_result_id'},
+                  'fn': 'core/product_physics/src/lib.rs:13586:qualified_load_case_result_id'},
                  {'file': 'core/product_physics/src/lib.rs',
-                  'line': 13619,
+                  'line': 13966,
                   'kind': 'replace',
-                  'fn': 'core/product_physics/src/lib.rs:13618:stable_suffix',
+                  'fn': 'core/product_physics/src/lib.rs:13965:stable_suffix',
                   'receiver': 'id',
                   'literal_bytes': None,
                   'arg': '\' \', " "'}],
- 'aux_audits': {'core/product_physics/src/retained_product.rs:3071': None,
-                'core/product_physics/src/retained_product.rs:3073': None,
-                'core/product_physics/src/retained_product.rs:3194': None,
-                'core/product_physics/src/retained_product.rs:3217': {'stable_suffix(id)': {'bytes': 128,
+ 'aux_audits': {'core/product_physics/src/retained_product.rs:3163': None,
+                'core/product_physics/src/retained_product.rs:3165': None,
+                'core/product_physics/src/retained_product.rs:3286': None,
+                'core/product_physics/src/retained_product.rs:3316': {'stable_suffix(id)': {'bytes': 128,
                                                                                             'source': 'IN128'},
                                                                       'super::result_tail(&expected)': {'bytes': 1024,
                                                                                                         'source': 'RES'}},
-                'core/product_physics/src/retained_product.rs:3185': None,
-                'core/product_physics/src/lib.rs:13244': {'result_tail(base_id)': {'bytes': 600,
+                'core/product_physics/src/retained_product.rs:3277': None,
+                'core/product_physics/src/lib.rs:13587': {'result_tail(base_id)': {'bytes': 600,
                                                                                    'source': 'COMP'},
                                                           'stable_suffix(load_case_id)': {'bytes': 128,
                                                                                           'source': 'IN128'}},
-                'core/product_physics/src/lib.rs:13619': {'id': {'bytes': 128, 'source': 'IN128'}},
-                'core/product_physics/src/retained_product.rs:2544': {'r.kind': {'bytes': 128,
+                'core/product_physics/src/lib.rs:13966': {'id': {'bytes': 128, 'source': 'IN128'}},
+                'core/product_physics/src/retained_product.rs:2563': {'r.kind': {'bytes': 128,
                                                                                  'source': 'STATIC'}},
-                'core/product_physics/src/retained_product.rs:3005': {'row.id': {'bytes': 1024,
+                'core/product_physics/src/retained_product.rs:3097': {'row.id': {'bytes': 1024,
                                                                                  'source': 'RES'}},
-                'core/product_physics/src/retained_product.rs:3227': {'row.id': {'bytes': 1024,
+                'core/product_physics/src/retained_product.rs:3326': {'row.id': {'bytes': 1024,
                                                                                  'source': 'RES'}}},
  'aux_overrides': {'site_from': {},
                    'site_zero': {},
                    'site_total': {},
                    'site_aggregate': {},
                    'site_size': {},
-                   'lex_site_size': {'retained_product.rs:3185': {'class': 167,
+                   'lex_site_size': {'retained_product.rs:3277': {'class': 167,
                                                                   'why': 'B7a scoped TEXT: exact current '
                                                                          'producer and admitted source/type '
                                                                          'closure; straight endpoint sign '
@@ -387,14 +396,13 @@ def state(snapshot, table, loops, graph, formats, lexical, extra_zero="", fn_zer
     selected = [r for r in loops["loops"] if re.search(r["re"], "iter:terms.iter().map")]
     if selected != [PREIMAGES["source_loop"]]:
         raise ValueError("B7a owner choices: source loop priority changed")
-    protected = {SOURCE_OWNER, VALIDATOR, PP+"lib.rs:13243:qualified_load_case_result_id",
-                 PP+"lib.rs:13618:stable_suffix", ERROR_OWNER} | {FK+name for name in PREIMAGES["source_from"]["from"]}
+    protected = {SOURCE_OWNER, VALIDATOR, *HELPER_FNS, ERROR_OWNER} | {FK+name for name in PREIMAGES["source_from"]["from"]}
     for family in ("fn_cap","fn_zero"):
         if any(row["fn"] in protected or row["fn"] in {key.split("/src/")[-1] for key in protected}
                for row in loops.get(family, [])):
             raise ValueError("B7a owner choices: protected function cap/zero changed")
     aliases = adjacent("kd5_first_error_model.py")["override_aliases"]
-    targets = [dict(file=FK+"structural.rs",line=1124,kind="clone_text")]
+    targets = [dict(file=FK+"structural.rs",line=SOURCE_LINE,kind="clone_text")]
     for row in PREIMAGES["error_rows"]:
         targets.append(row)
         matches = [r for r in formats if (r["file"],r["line"],r["kind"]) == (row["file"],row["line"],row["kind"])]
@@ -426,7 +434,7 @@ def state(snapshot, table, loops, graph, formats, lexical, extra_zero="", fn_zer
                    (row["file"],row["line"],row["kind"])]
         if len(matches) != 1 or inventory_row(matches[0]) != inventory_row(row):
             raise ValueError("B7a owner choices: independent helper allocation changed")
-    source_rows = [r for r in lexical if (r["file"],r["line"],r["kind"]) == (FK+"structural.rs",1124,"clone_text")]
+    source_rows = [r for r in lexical if (r["file"],r["line"],r["kind"]) == (FK+"structural.rs",SOURCE_LINE,"clone_text")]
     if len(source_rows) != 1 or source_rows[0]["fn"] != SOURCE_OWNER or source_rows[0]["receiver"] != "t.source":
         raise ValueError("B7a owner choices: source-copy allocation changed")
     for row in targets:
@@ -471,7 +479,7 @@ def positive(counts, owner):
 
 
 def source_witness(active, file, line, kind, mult, counts, loads, rebound=False, owner=None, stack=None):
-    if (file,line,kind) != (FK+"structural.rs",1124,"clone_text"):
+    if (file,line,kind) != (FK+"structural.rs",SOURCE_LINE,"clone_text"):
         return
     if type(loads) is not int or loads <= 0:
         raise ValueError("B7a owner choices: invalid source input count")
@@ -502,8 +510,8 @@ def recipe_witness(active, row, counts):
 def error_witness(active, file, line, kind, mult, counts, owner, stack, rebound=False):
     if (file,line,kind) not in {(PP+"retained_product.rs",line,"format") for line in ERROR_SITES}:
         return
-    expected_owner=ERROR_OWNER if line==2544 else VALIDATOR
-    expected_stack=["for observed in view.rows()"] if line==2544 else []
+    expected_owner=ERROR_OWNER if line==ROWS_ERROR_LINE else VALIDATOR
+    expected_stack=["for observed in view.rows()"] if line==ROWS_ERROR_LINE else []
     if owner != expected_owner or stack!=expected_stack:
         raise ValueError("B7a owner choices: metadata error owner/loop changed")
     if active["envelope_only"]:

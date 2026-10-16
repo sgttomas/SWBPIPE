@@ -49,15 +49,28 @@ def derive_pipe_section_sites():
     return start, [i + 1 for i in range(start - 1, end - 1) if "diagnostics.push(diag(" in lines[i]]
 
 
-def test_the_group_is_derive_pipe_sections_four_returning_diagnostics(monkeypatch, tmp_path):
+def test_the_group_is_derive_pipe_sections_three_returning_diagnostics(monkeypatch, tmp_path):
+    """U6-DPS: on D-5 source the nonzero-allowance refusal is gone; the dimension, mill-tolerance and invalid-allowance
+    diagnostics remain one exclusive group (B7b's four-site form is the registered B7b source's)."""
+    text = (SOURCE / LIB).read_text()
+    assert "EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED" not in text and "fn section_basis_row(" in text
     start, sites = derive_pipe_section_sites()
-    assert len(sites) == 4
+    assert len(sites) == 3
     expected = [("B7b-DPS", f"lib.rs:{start}:derive_pipe_section", [f"lib.rs:{n}" for n in sites])]
     groups = decisions(monkeypatch)["O10_DIAG_EXCLUSIVE"]
     assert [(name, fn, members) for name, fn, members, _ in groups] == expected
-    block = ca_block(with_lib(tmp_path, (SOURCE / LIB).read_text()))
+    block = ca_block(with_lib(tmp_path, text))
     assert [(name, fn, members) for name, fn, members, _ in block["O10_DIAG_EXCLUSIVE"]] == expected
-    assert len(block["O10_ID_AUDIT"]) == 6, "two unit-conversion and four section corrosion-allowance ID sites"
+    assert block["O10_DIAG_EXCLUSIVE"][0][3].startswith("U6-DPS (B7b-DPS on D-5 source)")
+    assert len(block["O10_ID_AUDIT"]) == 4, "two unit-conversion and two section corrosion-allowance ID sites"
+
+
+def test_u6_dps_refuses_a_lost_allowance_refusal_without_section_bases(tmp_path):
+    """U6-DPS: only D-5 source (section_basis_row) may have derive_pipe_section without the nonzero refusal."""
+    text = (SOURCE / LIB).read_text()
+    assert text.count("fn section_basis_row(") == 1
+    with pytest.raises(SystemExit, match="U6-DPS"):
+        ca_block(with_lib(tmp_path, text.replace("fn section_basis_row(", "fn section_basis_row_renamed(")))
 
 
 @pytest.mark.parametrize("mutation,message", [
@@ -69,7 +82,8 @@ def test_the_group_is_derive_pipe_sections_four_returning_diagnostics(monkeypatc
 ])
 def test_a_changed_premise_refuses(tmp_path, mutation, message):
     text = (SOURCE / LIB).read_text()
-    nonzero = '"nonzero corrosion allowance is not yet supported",\n'
+    # U6-DPS: on D-5 source the last diagnostic is the invalid-allowance refusal (B7b's anchor, the nonzero one, is gone).
+    nonzero = '"corrosion allowance must be a finite non-negative length that leaves a positive wall after mill tolerance",\n'
     assert text.count(nonzero) == 1
     at = text.index(nonzero)
     close = text.index("            ));\n            return None;\n", at)

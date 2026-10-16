@@ -13,21 +13,30 @@ HELPERS = runpy.run_path(os.path.join(os.path.dirname(__file__), "kd5_text_model
 PINS = {
     "core/product_physics/src/lib.rs": {
         "solve_load_case_observed": "5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061",
-        "solve_prepared_load_case": "ec460ec2eb0e06a2e35fba545ad93656d16099974250a664397d63b7f27edae0",
+        # T4-U6/U8: D-5's stress rows, per-basis maxima, extrema and coverage (priced at their own sites and by the
+        # U6 rules); its carriers, staging and prepared-pressure calls are unchanged.
+        "solve_prepared_load_case": "253021d2ab4b78a7b0237624c25264f37ae1b50a45703662725737bff3eca2fe",
         "append_curved_bend_macro_element_results": "9ebc4f11d1a881b3310579118792190c4d4c9c81964a3a89eb04952f0312304c",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
     # component, region, section and load-state refusals that empty the carriers' children are unchanged.
+    # T4-U6/U8 (O4): namespace_branch refuses the Timoshenko exact contract (ShearModel) and family_clauses a nonzero
+    # mill tolerance or allowance on branch E (SectionAllowance); both narrow admission only.
     "core/product_physics/src/retained_memory.rs": {
-        "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "6f85658b105d1d38c0fa23d94aba52572c81273956764d4824371bc7c4cf2d3a",
+        "namespace_branch": "1f891b6c19c3ff9f7699c80fbc0c5417c97cd141d35f59db02e4d7951f62ceb7",
+        "family_clauses": "39dae5a7af4014c66631dbb8f5ecf6f12d9f88412d8983d6e7308d2e43c7d6a6",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure
 # gate, adds the 0.5.0 contract/shear/corrosion refusals (diagnostics only) and lets
 # PressureRegionInput decode member_connector_ids; admitted regions stay empty (E) or
 # absent (L), so no carrier child is populated.
-PRESSURE_PREFIX_PIN = "642e67b895762cf2bcede5dc471f66fe8c5705b70a2658fb82aeef65a6f6d6d1"
+# T4-U6 (D-5): ExactPressurePipeState holds ExactSectionBases in place of one SourceAnnulus; every changed production
+# line is in the per-region member body, the joint/factor-group terms or closure_source, all reached only through a
+# pressure region (absent on L, explicitly empty on E). No carrier or staging changes.
+# PP: validate_profile admits both shear models (one fewer refusal arm), selects_timoshenko is a predicate, and
+# closure_source's straight operand identity begins with its member prefix (region path only).
+PRESSURE_PREFIX_PIN = "0dce739c193eca0a846aef13224b4c753eacdd5888994ae32e1fe26329c7a797"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

@@ -85,13 +85,14 @@ class VF:
         return EPS * self.strb + self.keyb + 8 * self.values() + 24 * self.nums
 
 
-def hash_route(vf, lmax):
+def hash_route(vf, lmax, copy=True):
     """domain_hash (retained_wire.rs:194-197; result_export source_blocks.rs:182-187): the json!
     wrapper's deep copy, the to_string text (J3: <= max(128, 2e)), the checked parse tree with seen
     sets, the canonical output (<= max(8, 2e)), the per-string to_string temporary (RV84 S-3) and
-    the parser's escape scratch, all coexisting at the render (G3 T25 route + S-3)."""
+    the parser's escape scratch, all coexisting at the render (G3 T25 route + S-3). copy=False: a
+    domain_hash that serializes a borrowed wrapper (U6-DH, below) makes no copy; the rest is unchanged."""
     e = vf.text()
-    return (vf.tree() + B(j3cap(e)) + vf.parsed() + HashReq("String", 16) * vf.depth
+    return ((vf.tree() if copy else X()) + B(j3cap(e)) + vf.parsed() + HashReq("String", 16) * vf.depth
             + B(2 * max(24, RID) + 2080 + max(8, 2 * e) + vf.depth * 8 * 16 + 144 + 128)
             + B(max(128, 2 * (EPS * lmax + 2))) + B(2 * lmax))
 
@@ -234,13 +235,37 @@ ENV_GROWTH = s("Value") * DENV
 # and the originals live in serialize_selected_from until it returns, after finish()'s P2-P4
 THIRD = RUN.scale(AA).tree() + SELECTION.scale(AA).tree()   # I82: every case_v json! copy
 MEMBERS = BODY.tree()                                                                 # finish()'s member Values (moved in, then copied by json!)
+# U6-DH (T4-U6, DEL-05-03 Design section 9; retained-pricing-rules.md "U6-DH"): T16's three hashes (source identity,
+# publication, receipt: retained_wire.rs serialize/finish) call retained_wire::domain_hash. Where it serializes the
+# borrowed DomainPayload {domain, payload} (checked: its exact text) instead of json!'s copy of the payload into a new
+# Value, the route makes no wrapper copy; the text and hash are the same. Any other form stops here. T17 (the RS
+# reader: result_export source_blocks::domain_hash) and T25 (source_receipt's hash) still copy (json!).
+_RW_SRC = open(os.path.join(SNAP, "core/product_physics/src/retained_wire.rs"), encoding="utf-8").read()
+_RW_COPY = ("pub(super) fn domain_hash(domain: &str, payload: &Value) -> Option<String> {\n"
+            "    let text = serde_json::to_string(&json!({\"domain\":domain,\"payload\":payload})).ok()?;\n"
+            "    canonical_json_checked_v1_text(&text).ok().map(|canon| sha_hex(canon.as_bytes()))\n}\n")
+_RW_BORROW = ("pub(super) fn domain_hash(domain: &str, payload: &Value) -> Option<String> {\n"
+              "    let text = domain_text(domain, payload)?;\n"
+              "    canonical_json_checked_v1_text(&text).ok().map(|canon| sha_hex(canon.as_bytes()))\n}\n")
+_RW_BORROW_TEXT = ("pub(super) fn domain_text(domain: &str, payload: &Value) -> Option<String> {\n"
+                   "    serde_json::to_string(&DomainPayload { domain, payload }).ok()\n}\n")
+_RW_BORROW_TYPE = ("#[derive(serde::Serialize)]\nstruct DomainPayload<'a> {\n    domain: &'a str,\n    payload: &'a Value,\n}\n")
+if _RW_SRC.count("fn domain_hash(") != 1:
+    raise SystemExit("U6-DH: retained_wire's domain_hash is not one function; re-review")
+if _RW_COPY in _RW_SRC:
+    _T16_COPY = True
+elif _RW_BORROW in _RW_SRC and _RW_BORROW_TEXT in _RW_SRC and _RW_BORROW_TYPE in _RW_SRC \
+        and _RW_SRC.count("DomainPayload") == 2 and _RW_SRC.count("domain_text(") == 2:
+    _T16_COPY = False
+else:
+    raise SystemExit("U6-DH: retained_wire's domain_hash changed; re-review the publication hash route")
 st16 = {
     "P1 env to_value + successor deltas + members + source identity hash":
-        ENV_S.tree() + ENV_GROWTH + LOCALS16 + SOURCE.tree() * 2 + hash_route(SOURCE, ID) + PREP_PAYLOAD.tree(),
+        ENV_S.tree() + ENV_GROWTH + LOCALS16 + SOURCE.tree() * 2 + hash_route(SOURCE, ID, _T16_COPY) + PREP_PAYLOAD.tree(),
     "P2 body json! + hash(publication)":
-        ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() + hash_route(ENV_S, L_PUB),
+        ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() + hash_route(ENV_S, L_PUB, _T16_COPY),
     "P3 hash(body)":
-        ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() + hash_route(BODY, L_DIAGID),
+        ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() + hash_route(BODY, L_DIAGID, _T16_COPY),
     "P4 retained_precision insert (third body copy)":
         ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() * 2 + VF(obj=1, ent=2, strb=SHA).tree(),
 }

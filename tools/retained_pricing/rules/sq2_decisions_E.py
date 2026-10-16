@@ -5,7 +5,7 @@ the real code at c3cf970ad3 (keys re-derived, each premise re-read), with B3b-P'
 branch live, and the mirror of route L: the preview-only W1 functions and branches zero."""
 import os, json, runpy
 H = os.path.dirname(os.path.abspath(__file__))
-globals().update({k: v for k, v in runpy.run_path(os.path.join(H, "sq2_decisions_common.py")).items() if k.isupper() or k in ("rs", "rs_any", "Resolved")})
+globals().update({k: v for k, v in runpy.run_path(os.path.join(H, "sq2_decisions_common.py")).items() if k.isupper() or k in ("rs", "rs_any", "rs_line", "Resolved")})
 RE_FULL = "core/reporting/result_export/src/"
 # B7b-B: B7B_EXACT_BASE (o10_rules.py) is true on B7b's source, where D4 (a) rebased route E on pressure-1 and model
 # 0.5.0 carries the exact contract: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, shear_model euler_bernoulli}.
@@ -128,6 +128,16 @@ SITE_FROM = list(globals().get("SITE_FROM", [])) + [("physics_evidence.rs:%d" % 
 if len({key for key, _ in SITE_FROM}) != len(SITE_FROM):
     raise ValueError("route E: duplicate/conflicting common and local SITE_FROM key")
 CENSUS = {"patcher": os.path.join(os.path.dirname(H), "lib", "census_patch.py"), "json": os.path.join(os.path.dirname(H), "data", "census_c3cf.json")}
+if U6_D5:
+    # U6-RP (T4-U6, D-5): route E's rows per member. Each exact member publishes 12 end-force, 18 station-resultant,
+    # 8 endpoint-stress, 12 station-stress rows and one maximum (51); D-5 publishes the 20 element-local stress rows
+    # through push_basis_twins and the maximum once per basis through section_basis_row (U6-L2, U6-LF), so 21 rows
+    # more: 72. The census (lib/census_exact.py: I95's method on the pressure-source-1 producer fixtures, regenerated
+    # at 20c6126a16 by their own writer) measures 7n + 72m + 8g rows on every empty-region exact case, and the D-5
+    # per-case evidence (pipe_stress_extrema one per member and basis; nested section bases; two coverage lists).
+    CENSUS["json"] = os.path.join(os.path.dirname(H), "data", "census_d5_20c6126a16.json")
+    if json.load(open(CENSUS["json"]))["rows_per_member"] != 51 + 21:
+        raise SystemExit("U6-RP: the D-5 census no longer measures 72 rows per member; re-review")
 # ---- route E batch 2: B3b's exact loops (PP W1, RS reader, RE physics-1 base validator) and the identifier audit
 NEW.update({
     'for v in assembly[key].as_array().ok_or(" ")?': ("N", "PP retained_product.rs exact_case_evidence: one assembled pressure RHS vector (6n entries; the producer's own evidence)"),
@@ -142,14 +152,43 @@ NEW.update({
     'for pm in list(&entry[" "])': ("m", "RS retained_precision.rs g8 (`if route.exact`): one exact case's pipe_materials, one per member"),
     'for st in list(&c.source[" "])': ("m", "RS retained_precision.rs g5b_exact_evidence: one case source's section_terms, one per member"),
 })
+# U6-LF (T4-U6, D-5): both section bases on route E. U6-EX: D-5 publishes one pipe_stress_extrema entry per
+# (member, basis) (the case solve pushes one per basis in each maximum branch; physics_evidence refuses a repeated
+# (pipe, basis)), so the extrema loops' bound is 2*m.
+O10_LOOPS_FIRST = list(O10_LOOPS_FIRST) + U6_BOTH_E
+O10_LOOPS_LAST = list(O10_LOOPS_LAST) + U6_LOOPS_E
+O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + U6_RB_PATCHES
+if U6_D5:
+    NEW['for ex in array(&case[" "])?'] = ("2*m", "RE physics_evidence.rs: an exact case's pipe_stress_extrema, one per member and "
+                                           "section basis (U6-EX, D-5)")
 C_ = "core/product_physics/src/source_receipt/composite.rs:"; PM_ = "core/product_physics/src/pressure_material.rs:"
 MAT_CLONE = {"bytes": 11264, "source": "COMP"}
+# U6-K (T4-U6, D-5): composite_exact publishes the source maximum row once per section basis through
+# section_basis_row, replacing the basis keys 781 (the id format!) and 798 (the row literal). On D-5 source the two
+# keys are re-expressed by name at their replacement lines in composite_exact, with the same classes (the id and
+# the case id are IN128, their lengths NUM); on earlier source the basis keys carry as before.
+_C_LINES = open(os.path.join(os.environ["SQ2_SNAP"], C_[:-1]), encoding="utf-8").read().split("\n")
+def _composite_exact_line(text):
+    """The one line of the method composite_exact (its header to its same-indent closing brace) holding `text`."""
+    heads = [i for i, l in enumerate(_C_LINES) if "fn composite_exact(" in l]
+    if len(heads) != 1:
+        raise SystemExit(f"U6-K: composite_exact defined {len(heads)} times")
+    indent = _C_LINES[heads[0]][:len(_C_LINES[heads[0]]) - len(_C_LINES[heads[0]].lstrip())]
+    end = next(i for i in range(heads[0] + 1, len(_C_LINES)) if _C_LINES[i] == indent + "}")
+    hits = [i + 1 for i in range(heads[0], end) if text in _C_LINES[i]]
+    if len(hits) != 1:
+        raise SystemExit(f"U6-K: {text!r} in composite_exact: {hits}")
+    return Resolved(C_ + str(hits[0]))
+_U6_COMPOSITE = any("section_basis_row(ResultItem{id:format!(" in l for l in _C_LINES)
+_C781 = _composite_exact_line("let row = section_basis_row(ResultItem{id:format!(") if _U6_COMPOSITE else C_ + "781"
+_C798 = (_composite_exact_line('),kind:"pipe_elastic_normal_stress_maximum_v2".into(),value:maximum.value_pa(),unit:"Pa".into(),entity_ref:id.clone(),')
+         if _U6_COMPOSITE else C_ + "798")
 ID_AUDIT = ID_AUDIT + [
     (C_ + "97", {"member_id": IN}), (C_ + "322", {"id": IN}),
     (C_ + "349", {"input.load_case.id": IN, "id": IN, "input.load_case.id.len()": NUM_, "id.len()": NUM_}),
     (C_ + "609", {"row.kind": ST}), (C_ + "777", {"m.member_id": IN}),
-    (C_ + "781", {"input.load_case.id": IN, "id": IN, "input.load_case.id.len()": NUM_, "id.len()": NUM_}),
-    (C_ + "798", {"id": IN, "input.load_case.id": IN}),
+    (_C781, {"input.load_case.id": IN, "id": IN, "input.load_case.id.len()": NUM_, "id.len()": NUM_}),
+    (_C798, {"id": IN, "input.load_case.id": IN}),
     (C_ + "828", {"primary[&support.functional_indices[group*3+c]].id": RS_}),
     (C_ + "925", {"input.load_case.id": IN}), (C_ + "961", {"case_id": IN}), (C_ + "968", {"r.id": RS_}),
     (PM_ + "7", {"stable_suffix(material)": IN, "code": ST}), (PM_ + "15", {"material": IN}),

@@ -7,6 +7,10 @@ NEW="8f9f963b4dd1b66691d6b2151fc2818bb1204581282bf6b04396adac33eef718"
 # B7a B4/D1 removes only the two obsolete non-composite selector args.
 # The borrowed MemberSection comparison and complete positive frame are unchanged.
 B7A="b2507ed61be43b58d8696a3f8f137ee551d8e48397ede7bf34a73399c14446c3"
+# T4-U6 (D-5): composite_exact publishes the source maximum once per section basis (each after a coincident-section
+# check) and binds each basis's evidence; the borrowed MemberSection comparison, its descriptor binding and the
+# staging frame are unchanged. The new rows and evidence are priced at their own sites and by the row premise.
+U6="39beb234d2eab8ecbf770ac1f8d12dc7661ce94bc34b0d44a1904dda60907f21"
 # Source union of bindings, complete operand/argument/result/move slots;
 # each is rounded to the maximum native alignment, with no slot reuse.
 SLOTS={"&'static u8":16,"&'static [u8]":8,"usize":16,"u64":4,
@@ -20,8 +24,8 @@ def inspect(snapshot):
     if not end:raise ValueError("C8: missing comparison owner end")
     body=source[hit.start():hit.end()+end.end()]
     digest=hashlib.sha256(body.encode()).hexdigest()
-    if digest not in (OLD,NEW,B7A):raise ValueError("C8: comparison owner/call-chain/lifetime source changed")
-    borrowed=digest in (NEW,B7A)
+    if digest not in (OLD,NEW,B7A,U6):raise ValueError("C8: comparison owner/call-chain/lifetime source changed")
+    borrowed=digest in (NEW,B7A,U6)
     needle="member: descriptor_member," if borrowed else "member: member.member_id.clone(),"
     if body.count(needle)!=1:raise ValueError("C8: missing/duplicate metadata expression")
     line=source.count(chr(10),0,hit.start()+body.index(needle))+1

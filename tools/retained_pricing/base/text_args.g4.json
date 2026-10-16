@@ -1867,16 +1867,6 @@
     "source": "IN128"
    }
   },
-  "core/product_physics/src/lib.rs:5387": {
-   "location.replace('_',\"-\")": {
-    "bytes": 600,
-    "source": "STATIC"
-   },
-   "stable_suffix(&pipe.element_id)": {
-    "bytes": 128,
-    "source": "IN128"
-   }
-  },
   "core/product_physics/src/lib.rs:5390": {
    "location": {
     "bytes": 128,
@@ -1889,70 +1879,16 @@
     "source": "IN128"
    }
   },
-  "core/product_physics/src/lib.rs:5403": {
-   "location.replace('_',\"-\")": {
-    "bytes": 600,
-    "source": "STATIC"
-   },
-   "stable_suffix(&pipe.element_id)": {
-    "bytes": 128,
-    "source": "IN128"
-   }
-  },
   "core/product_physics/src/lib.rs:5406": {
    "location": {
     "bytes": 128,
     "source": "STATIC"
    }
   },
-  "core/product_physics/src/lib.rs:5412": {
-   "pipe.element_id": {
-    "bytes": 128,
-    "source": "IN128"
-   }
-  },
   "core/product_physics/src/lib.rs:5486": {
    "pipe.element_id": {
     "bytes": 128,
     "source": "IN128"
-   }
-  },
-  "core/product_physics/src/lib.rs:5497": {
-   "load_case.id": {
-    "bytes": 128,
-    "source": "IN128"
-   },
-   "load_case.id.len()": {
-    "bytes": 20,
-    "source": "NUM"
-   },
-   "pipe.element_id": {
-    "bytes": 128,
-    "source": "IN128"
-   },
-   "pipe.element_id.len()": {
-    "bytes": 20,
-    "source": "NUM"
-   }
-  },
-  "core/product_physics/src/lib.rs:5498": {
-   "pipe.element_id": {
-    "bytes": 128,
-    "source": "IN128"
-   },
-   "result_id": {
-    "bytes": 322,
-    "source": "TPLSITE"
-   }
-  },
-  "core/product_physics/src/lib.rs:5503": {
-   "pipe.element_id": {
-    "bytes": 128,
-    "source": "IN128"
-   },
-   "result_id": {
-    "bytes": 322,
-    "source": "TPLSITE"
    }
   },
   "core/product_physics/src/lib.rs:5508": {
@@ -1969,34 +1905,6 @@
    "pipe.element_id": {
     "bytes": 128,
     "source": "IN128"
-   }
-  },
-  "core/product_physics/src/lib.rs:5529": {
-   "load_case.id": {
-    "bytes": 128,
-    "source": "IN128"
-   },
-   "load_case.id.len()": {
-    "bytes": 20,
-    "source": "NUM"
-   },
-   "pipe.element_id": {
-    "bytes": 128,
-    "source": "IN128"
-   },
-   "pipe.element_id.len()": {
-    "bytes": 20,
-    "source": "NUM"
-   }
-  },
-  "core/product_physics/src/lib.rs:5536": {
-   "pipe.element_id": {
-    "bytes": 128,
-    "source": "IN128"
-   },
-   "result_id": {
-    "bytes": 322,
-    "source": "TPLSITE"
    }
   },
   "core/product_physics/src/lib.rs:5550": {

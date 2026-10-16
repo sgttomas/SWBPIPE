@@ -32,8 +32,9 @@ def test_current_exact_inventory():
     assert len(rules) == 19
     assert len({r["caller"] for r in rules}) == 18
     assert all(not r["caller"].endswith(":from_radii") for r in rules)
+    # T4-U6/U8: FallbackError's methods at the priced source's lines, unchanged text (B7b: 744, 747, 763).
     assert {r["exclude_targets"][0] for r in rules} == {
-        CPP + ":744:add", CPP + ":747:mul", CPP + ":763:divided"}
+        CPP + ":754:add", CPP + ":757:mul", CPP + ":773:divided"}
     assert all(not r["caller"].startswith(CPP + ":") for r in rules)
 
 

@@ -23,5 +23,8 @@ NEW.update({
 EDGE_ZERO = EDGE_ZERO + [
     (rs("g8"), "physics_source.rs:897:actual_materials", "RS g8 calls it only inside `if route.exact` (retained_precision.rs:3925-3943): " + EX),
 ]
+# U6-LF (T4-U6, D-5): the case solve's two per-basis loops sit in `is_exact(model)` arms (o10_rules.py checks it).
+O10_LOOPS_FIRST = list(O10_LOOPS_FIRST) + U6_BOTH_L
+O10_LOOPS_LAST = list(O10_LOOPS_LAST) + U6_LOOPS_L
 
 B7A_STAGE1_ROUTE = "L"

@@ -32,4 +32,22 @@ PREVIEW_T = (s("Value") * _PX["arr"] + X({"Node(String,Value)": _PX["obj"] + _PX
                keyb=(9 + 15 * m + 2 * g) * 40, nums=10 * m, depth=6).scale(CC)''', '''          + VF(depth=7, **_exmax(n, m, g)).scale(CC)                 # I95: max(preview, exact)''')
     patch("t25_g4.py", '''# ---------------------------------------------------------------- per-invocation finalize''',
           helper + '''# ---------------------------------------------------------------- per-invocation finalize''')
-    return {"per_case_evidence_coefficients": {k: coef(k) for k in FIELDS}, "at_caps": census["componentwise_max"]}
+    # U6-RP (T4-U6, D-5): a census taken under D-5 states the route's rows per member, measured on every committed
+    # empty-region exact case (census_exact.py); the route's P_final and R0 take it in place of 51 at the caps.
+    rpm = census.get("rows_per_member", 51)
+    if rpm != 51:
+        why = f"   # U6-RP: route E's census, {rpm} rows per member"
+        patch("g3lib.py", "P=7 * n + 51 * m + 8 * g + 3, R0=7 * n + 51 * m + g + 3,",
+              f"P=7 * n + {rpm} * m + 8 * g + 3, R0=7 * n + {rpm} * m + g + 3,")
+        patch("g4_caps.py", "P = 7 * n + 51 * m + 8 * g + 3                     # P_final",
+              f"P = 7 * n + {rpm} * m + 8 * g + 3                     # P_final" + why)
+        patch("ordinary_caps.py", "    mats = 8; pts = 16                                # model + request materials; points each\n"
+              "    P = 7 * n + 51 * m + 8 * g + 3; R0 = 7 * n + 51 * m + g + 3",
+              "    mats = 8; pts = 16                                # model + request materials; points each\n"
+              f"    P = 7 * n + {rpm} * m + 8 * g + 3; R0 = 7 * n + {rpm} * m + g + 3" + why)
+        patch("producer_caps.py", "P_final = 7 * n + 51 * m + 8 * g + 3",
+              f"P_final = 7 * n + ({rpm} if which == \"caps\" else 51) * m + 8 * g + 3" + why)
+        patch("t25_g4.py", "P = 7 * n + 51 * m + 8 * g + 3\nR0 = 7 * n + 51 * m + g + 3",
+              f"P = 7 * n + {rpm} * m + 8 * g + 3" + why + f"\nR0 = 7 * n + {rpm} * m + g + 3")
+    return dict({"per_case_evidence_coefficients": {k: coef(k) for k in FIELDS}, "at_caps": census["componentwise_max"]},
+                **({"rows_per_member": rpm} if rpm != 51 else {}))

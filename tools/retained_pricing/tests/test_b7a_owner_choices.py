@@ -28,7 +28,7 @@ def inputs():
     for target,parents in p["parents"].items():
         for parent in parents:graph["edges"].setdefault(parent,[]).append(target)
     rows=p["group_rows"]+p["aux_rows"]+p["helper_rows"]+p["error_rows"]
-    source=dict(file=MODEL["FK"]+"structural.rs",line=1124,kind="clone_text",fn=MODEL["SOURCE_OWNER"],receiver="t.source",literal_bytes=None,arg="")
+    source=dict(file=MODEL["FK"]+"structural.rs",line=MODEL["SOURCE_LINE"],kind="clone_text",fn=MODEL["SOURCE_OWNER"],receiver="t.source",literal_bytes=None,arg="")
     return table,loops,graph,[r for r in rows if r["kind"]=="format"],[r for r in rows if r["kind"]!="format"]+[source]
 
 
@@ -59,12 +59,13 @@ def test_complete_choice_once_and_all_auxiliaries_positive(actual):
 
 
 @pytest.mark.parametrize("family",["site_zero","site_from","site_total","site_aggregate","site_size","lex_site_size"])
-# B7b: the two lib.rs helper rows are at B7b's lines (B7a 13239/13614 + 5; unchanged text).
-@pytest.mark.parametrize("line",[1124,3057,3071,3073,3185,3194,3217,13244,13619,3005,3227])
+# T4-U6/U8: the same sites at the priced source's lines, unchanged text (B7b: structural.rs 1124; retained_product.rs
+# 3057, 3071, 3073, 3185, 3194, 3217, 3005, 3227; lib.rs helpers 13244/13619).
+@pytest.mark.parametrize("line",[1125,3149,3163,3165,3277,3286,3316,13587,13966,3097,3326])
 def test_complete_group_source_error_and_auxiliary_alias_refusal(family,line):
     args=inputs();table=args[0]
-    file=MODEL["FK"]+"structural.rs" if line==1124 else MODEL["PP"]+("lib.rs" if line in (13244,13619) else "retained_product.rs")
-    kind={1124:"clone_text",3185:"to_string",13619:"replace"}.get(line,"format")
+    file=MODEL["FK"]+"structural.rs" if line==MODEL["SOURCE_LINE"] else MODEL["PP"]+("lib.rs" if line in (13587,13966) else "retained_product.rs")
+    kind={MODEL["SOURCE_LINE"]:"clone_text",3277:"to_string",13966:"replace"}.get(line,"format")
     table.setdefault(family,{})[file+":"+str(line)+":"+kind]={"bytes":0}
     with pytest.raises(ValueError):MODEL["state"](SOURCE,*args)
 
@@ -82,7 +83,7 @@ def test_actual_current_inventory_priority_and_source_width_refuse(mutation):
     if mutation=="loop":loops["loops"][0]["bound"]="l"
     if mutation=="earlier_loop":loops["loops"].insert(0,{"re":"terms","bound":"0","why":"unknown"})
     if mutation=="function_cap":loops["fn_cap"]=[{"fn":target,"cap":"0"}]
-    if mutation=="contents":table[MODEL["MARKER"]]["base_contents"]["3163"]=1
+    if mutation=="contents":table[MODEL["MARKER"]]["base_contents"]["3255"]=1   # B7b: 3163
     with pytest.raises(ValueError):MODEL["state"](SOURCE,*args)
 
 
@@ -90,7 +91,7 @@ def test_actual_current_inventory_priority_and_source_width_refuse(mutation):
 def test_effective_both_audit_counts_source_width_and_capacity_unchanged(loads,one_audit):
     context,_=active()
     counts={MODEL["FK"]+name:one_audit for name in MODEL["PREIMAGES"]["source_from"]["from"]}
-    args=(context,MODEL["FK"]+"structural.rs",1124,"clone_text",2*one_audit*12*loads,counts,loads)
+    args=(context,MODEL["FK"]+"structural.rs",MODEL["SOURCE_LINE"],"clone_text",2*one_audit*12*loads,counts,loads)
     MODEL["source_witness"](*args,rebound=True,owner=MODEL["SOURCE_OWNER"],stack=["iter:terms.iter().map"])
     assert args[4]*128*2=={336:264241152,224:176160768,112:88080384}[one_audit]
     with pytest.raises(ValueError):MODEL["source_witness"](*args[:4],0,*args[5:],owner=MODEL["SOURCE_OWNER"],stack=["iter:terms.iter().map"])
@@ -100,7 +101,7 @@ def test_canonical_envelope_projection_has_positive_audits_and_helpers_only_rp_z
     mode=runpy.run_path(str(PRICING/"base/b7a_returning_errors.py"))["ENVELOPE_ZERO"]
     context,_=active(mode)
     counts={MODEL["FK"]+name:336 for name in MODEL["PREIMAGES"]["source_from"]["from"]}
-    MODEL["source_witness"](context,MODEL["FK"]+"structural.rs",1124,"clone_text",1032192,counts,128,
+    MODEL["source_witness"](context,MODEL["FK"]+"structural.rs",MODEL["SOURCE_LINE"],"clone_text",1032192,counts,128,
                               rebound=True,owner=MODEL["SOURCE_OWNER"],stack=["iter:terms.iter().map"])
     rows=[]
     for spec in MODEL["PREIMAGES"]["group_rows"]+MODEL["PREIMAGES"]["aux_rows"]+MODEL["PREIMAGES"]["helper_rows"]:
@@ -118,12 +119,12 @@ def test_saved_rule_json_retains_exact_marker_and_preimages():
     assert MODEL["state"](SOURCE,*saved)==MODEL["state"](SOURCE,*args)
 
 
-@pytest.mark.parametrize("site",[2544,3005,3227])
+@pytest.mark.parametrize("site",[2563,3097,3326])   # B7b: 2544, 3005, 3227
 def test_first_error_keeps_full_validator_and_whole_bind_owner_counts(site):
     context,_=active()
     counts={MODEL["VALIDATOR"]:21150,MODEL["ERROR_OWNER"]:10}
-    owner=MODEL["ERROR_OWNER"] if site==2544 else MODEL["VALIDATOR"]
-    stack=["for observed in view.rows()"] if site==2544 else []
+    owner=MODEL["ERROR_OWNER"] if site==MODEL["ROWS_ERROR_LINE"] else MODEL["VALIDATOR"]
+    stack=["for observed in view.rows()"] if site==MODEL["ROWS_ERROR_LINE"] else []
     MODEL["error_witness"](context,MODEL["PP"]+"retained_product.rs",site,"format",21150,counts,owner,stack)
     MODEL["error_witness"](context,MODEL["PP"]+"retained_product.rs",site,"format",10,counts,owner,stack,rebound=True)
     with pytest.raises(ValueError):MODEL["error_witness"](context,MODEL["PP"]+"retained_product.rs",site,"format",0,counts,owner,stack,rebound=True)

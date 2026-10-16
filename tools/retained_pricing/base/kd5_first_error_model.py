@@ -8,10 +8,15 @@ import runpy
 HELPERS = runpy.run_path(os.path.join(os.path.dirname(__file__), "kd5_text_model.py"))
 CPP = "core/product_physics/src/certified_publication.rs"
 LIB = "core/product_physics/src/lib.rs"
-CPP_FILE_PIN = "635b29d6e52dfeec94812b69a6e60b80fa3ec3630cc76edee799e82f763dc886"
-CPP_PREFIX_PIN = "965647cc57fbbc336dc380d0f942222c9c636bc62048d91a59dee740575bd9a9"
-PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea0060e97', 'exact': '1722765731354ee41c0650743cbe5e3f6bd9bbe80d8bf67fb5e3e2edb7db79ac', 'rounded': '50e699a9e3ca58e8aae1425c397fc84b2bae7596fcaa665e749ba941fb21053a', 'accumulate': 'fa801055fcc8cdba9fa63b8c9e1a43d13ab6a4b531140fd05cc86636c78d47b3', 'add': '6cf32ee08ae1324229b3332932b16be33f710e3db38f38799285b70a170b555d', 'mul': 'b7a13d3aa95f1a81250596c2894aa53c08261ef50678482907ca925eb89fd375', 'divided': '42236c96706c6fd58796004eca2d9791bd37e011f0e77c1ee482673d74a501d8', 'exact_scaled': 'ce309e689bd86000332875400f5c116223ac722bc7a98a561aee67175b3d54d9', 'divided_scaled': 'aaeb7baff5bbc828cb9919c77c789e02c6c3b0d7292cfc2f24e395862231160f', 'min': '5f9dbece75030436c8445ea973d65501847f6a89f2f1aa716280eaf2c84995f0', 'max': '2b09f8df493dc541baa172795f41a10196b6e7e782333679916ed4531779de79', 'active_length': '31f1a47315b78ee62cf5e53ad68b1bdf7399a11bdab0a4df47f0550002786c95', 'fallback_section_errors': '77d7713b9a110474f69c9c98522feaedb5a615db9f5334d4db3541108a6696c9', 'fallback_circular_maximum': 'fc6978a4f0f6b82e4348388f34715c311ecccdb7e8b01537711cbd282e207ff2', 'straight_stress_spans': 'ab6bb7b081a367e4782fdb07fb115e587184e7468b3a310e8dbf38c76fa0ba61', 'directed_transport_sum': '6754f267ec85e4045fe19eabccac12312648039bb49a4c0e237639272ca7c5d8', 'maximum_cover': 'e6b1a37db23c2da925e0b069eb3e3d3e85d0bd4c6ee6f413cfbdffd4d1ef5959', 'public_mpa_magnitude_in_pa_upper': '8daef91ad0c895e81b7ce00a72f2e098a665b4b696bb682472d7497aa827397f', 'maximum_summary_mpa': '2db64af82e567c32dd219848e7ae090b698c6a2426df3f02a4d04540dbd51a8c', 'circular_maximum': 'ec77f771a0d86d9cb4a7eb98626cbba3e5f77e8359e8e8c4bbe3a018341cea0a', 'l1_summary': '669870df23a039c3d65e5f51c721e101935bc1e1bee5218c8d22ab3d2864473e', 'summary_row': '82a68500450979089472fbc47df8ceebb7bfcc4b94b8eef16647b2501d2ebfe2', 'stress_mpa': '22ff193d88839b0e2f4ff6d60e445eafddbf3cd63af9b748037941cf9c6a99c9'}
-LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': 'ec460ec2eb0e06a2e35fba545ad93656d16099974250a664397d63b7f27edae0', 'exact_straight_summary_extrema': 'c1905b2780be30a7d74ef74e2f5826c02f01ed9b6c92908bfe0a5e36d3f120e1'}
+# T4-U6 (D-5): fallback_circular_maximum takes (state, basis) and binds that basis's area (two added comment lines
+# move its sites at offsets 25/142/162 to 27/144/164); straight_stress_spans and the two pressure helpers read the
+# pressure bore from ExactSectionBases. No allocation is added or removed in these bodies, and every first-return
+# alternative still returns (retained-pricing-rules.md, "T4-U6/U8: actual-source D3").
+# PP: straight_stress_spans takes the case's formation source and binds its member loads to it (a borrow).
+CPP_FILE_PIN = "1c6de84c0f7c4cd0799a5b2c7f4bacf3d5d950bb062a816066aaabdd45b489c5"
+CPP_PREFIX_PIN = "f89aecf841885f1579a99624aaa931d65bf510335f8c466afd23775b87551440"
+PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea0060e97', 'exact': '1722765731354ee41c0650743cbe5e3f6bd9bbe80d8bf67fb5e3e2edb7db79ac', 'rounded': '50e699a9e3ca58e8aae1425c397fc84b2bae7596fcaa665e749ba941fb21053a', 'accumulate': 'fa801055fcc8cdba9fa63b8c9e1a43d13ab6a4b531140fd05cc86636c78d47b3', 'add': '6cf32ee08ae1324229b3332932b16be33f710e3db38f38799285b70a170b555d', 'mul': 'b7a13d3aa95f1a81250596c2894aa53c08261ef50678482907ca925eb89fd375', 'divided': '42236c96706c6fd58796004eca2d9791bd37e011f0e77c1ee482673d74a501d8', 'exact_scaled': 'ce309e689bd86000332875400f5c116223ac722bc7a98a561aee67175b3d54d9', 'divided_scaled': 'aaeb7baff5bbc828cb9919c77c789e02c6c3b0d7292cfc2f24e395862231160f', 'min': '5f9dbece75030436c8445ea973d65501847f6a89f2f1aa716280eaf2c84995f0', 'max': '2b09f8df493dc541baa172795f41a10196b6e7e782333679916ed4531779de79', 'active_length': '31f1a47315b78ee62cf5e53ad68b1bdf7399a11bdab0a4df47f0550002786c95', 'fallback_section_errors': '77d7713b9a110474f69c9c98522feaedb5a615db9f5334d4db3541108a6696c9', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'straight_stress_spans': '224aa2a82dbae1bbc0ec77594eb34ffc5cbc6589a926eb309bdd4634ea33e490', 'directed_transport_sum': '6754f267ec85e4045fe19eabccac12312648039bb49a4c0e237639272ca7c5d8', 'maximum_cover': 'e6b1a37db23c2da925e0b069eb3e3d3e85d0bd4c6ee6f413cfbdffd4d1ef5959', 'public_mpa_magnitude_in_pa_upper': '8daef91ad0c895e81b7ce00a72f2e098a665b4b696bb682472d7497aa827397f', 'maximum_summary_mpa': '2db64af82e567c32dd219848e7ae090b698c6a2426df3f02a4d04540dbd51a8c', 'circular_maximum': 'ec77f771a0d86d9cb4a7eb98626cbba3e5f77e8359e8e8c4bbe3a018341cea0a', 'l1_summary': '669870df23a039c3d65e5f51c721e101935bc1e1bee5218c8d22ab3d2864473e', 'summary_row': '82a68500450979089472fbc47df8ceebb7bfcc4b94b8eef16647b2501d2ebfe2', 'stress_mpa': '22ff193d88839b0e2f4ff6d60e445eafddbf3cd63af9b748037941cf9c6a99c9'}
+LIB_PINS = {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '253021d2ab4b78a7b0237624c25264f37ae1b50a45703662725737bff3eca2fe', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
 PRIVATE = ("checked", "exact", "rounded", "accumulate", "add", "mul", "divided", "exact_scaled", "divided_scaled", "min", "max", "active_length")
 ENTRY = ("summary_row", "stress_mpa", "maximum_summary_mpa", "fallback_section_errors", "fallback_circular_maximum")
 PRIVATE_ROOTS = ("fallback_circular_maximum", "summary_row", "stress_mpa", "maximum_summary_mpa")
@@ -31,12 +36,12 @@ SITE_DEFS = (
     ("directed_transport_sum", 16, "to_string", TRANSPORT_ROOTS),
     ("checked", 4, "into_text", PRIVATE_ROOTS),
     ("divided", 2, "into_text", PRIVATE_ROOTS),
-    ("fallback_circular_maximum", 142, "into_text", ("fallback_circular_maximum",)),
+    ("fallback_circular_maximum", 144, "into_text", ("fallback_circular_maximum",)),
 )
 # These nearby alternatives are inventoried but never capped by C6.
 UNTOUCHED = (("fallback_circular_maximum", 13, "into_text"),
-             ("fallback_circular_maximum", 25, "into_text"),
-             ("fallback_circular_maximum", 162, "format"))
+             ("fallback_circular_maximum", 27, "into_text"),
+             ("fallback_circular_maximum", 164, "format"))
 
 
 def inspect(snapshot):
