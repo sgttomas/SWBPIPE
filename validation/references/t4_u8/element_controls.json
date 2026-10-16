@@ -833,7 +833,9 @@
    "theta_a": "17/64",
    "assembly_equals_flexibility_closed_form": true,
    "energy_identity": "1/2 F u(L) = sum int (M^2/2EI + V^2/2Ks) + 1/2 k u(a)^2, exactly",
-   "strain_energy": "37/256",
+   "work_half_F_uL": "37/256",
+   "beam_strain_energy": "173/1536",
+   "spring_energy_half_k_ua2": "49/1536",
    "discriminator_euler_bernoulli_recovery": {
     "root_member_end_actions_expected": ["-1/8", "-9/16", "1/8", "1/2"],
     "root_member_end_actions_wrong": ["-5/8", "-11/16", "5/8", "3/8"]
@@ -845,7 +847,9 @@
    "theta_a": "13/48",
    "assembly_equals_flexibility_closed_form": true,
    "energy_identity": "1/2 F u(L) = sum int (M^2/2EI + V^2/2Ks) + 1/2 k u(a)^2, exactly",
-   "strain_energy": "71/576"
+   "work_half_F_uL": "71/576",
+   "beam_strain_energy": "163/1728",
+   "spring_energy_half_k_ua2": "25/864"
   },
   "fixture": "fixed-root cantilever EI = 1, L = 1, linear ground spring k = 12 at a = 1/2, tip force F = 1; Timoshenko Ks = 12; two exact elements assembled and solved here"
  },
