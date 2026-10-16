@@ -12,9 +12,9 @@ invented.
 **Independence.** The engine, generator, comparison, census and re-authoring tool are standard-library
 Python. They import and read no product code. The public request and response format came from the
 schemas, committed request fixtures, the surviving harness and the product's published rows on probe
-models. Expected values come only from the engine's own arithmetic. The scratch runner links the
-product crate by path and calls only `run_linear_static_preview_with_mode` (typed) and
-`run_linear_static_preview_value_with_mode` (captured).
+models. Expected values come only from the engine's own arithmetic. The runner (`runner/`) is harness,
+not reference: it links the product crate by path and calls only `run_linear_static_preview_with_mode`
+(typed) and `run_linear_static_preview_value_with_mode` (captured).
 
 ## Files
 
@@ -22,10 +22,12 @@ product crate by path and calls only `run_linear_static_preview_with_mode` (type
 |---|---|
 | `kd5t_engine.py` | Exact reference engine: a public request in, every expected published row out (110-digit `decimal`; rational element controls in `fractions`). `--check` runs its self-check (58 checks). |
 | `kd5t_generate.py` | Judged-set generator: `full <dir>` writes the set and controls, `freeze` writes the frozen subset, `split` makes runner inputs, `check` verifies everything. |
-| `kd5t_compare.py` | Reconstructed M3 judging and coverage and the M3 verdict (clauses C0–C8), aware of the section basis and of the producer (`--producer u6\|pre-u6`). `--selftest <set>` exercises every rule and clause. |
+| `kd5t_compare.py` | Reconstructed M3 judging and coverage and the M3 verdict (acceptance clauses C0–C4, the K-D5 M3 criterion, and the information clauses), aware of the section basis and of the producer (`--producer u6\|pre-u6`). `--selftest <set>` exercises every rule and clause. |
 | `kd5t_report.py` | Aggregates the comparison into the M3 tables and the verdict, by family, theory, placement or section variant, and by phi decade. |
 | `kd5t_census.py` | Premise census: the Hager ratio from published gate values (`hager`), the probe-dump consumer (`probe`), and standings of the re-authored corpora (`standings`). |
 | `kd5t_reauthor.py` | Re-authors the surviving RV30, realistic, RV29 and W1 corpora as 0.5.0 exact documents with either shear model. |
+| `runner/` | The product-driving runner (harness): `Cargo.toml`, `Cargo.lock`, `src/main.rs` and `build.sh`. |
+| `run.sh`, `census.sh` | Drivers: runner and comparison over a split set; re-authoring and slim runs of the census corpora. |
 | `frozen/kd5t_frozen_subset.jsonl` | 64 models (32 designs in both theories), each line `{tag, meta, ref, request}`, with exact expected rows. |
 | `SHA256SUMS` | Digests of the files above, except this README. |
 
@@ -126,11 +128,19 @@ product crate by path and calls only `run_linear_static_preview_with_mode` (type
   `ref.phi` and `ref.phi_minus_2`.
 - **Controls (`controls.jsonl`).** For every Euler–Bernoulli zero-mill model, the reference with E
   scaled by 1 + 2^-20 (a perturbed stiffness).
-- **The stale-vector mutant.** It has no product-level control here. Every exact-route member load is
-  full-span, and for a full-span load the stale Euler–Bernoulli vector and the Timoshenko vector
-  coincide (SHEAR_REFERENCE §4). Partial-span loads cannot reach the exact route (Design §3.4). The
-  mutant is killed at element level by t4_u8's `timoshenko_distal_half_load_kills_the_stale_vector`
-  (54/384 against 53/384).
+- **The stale-vector mutant is not observable on the judged set.** Every member load of the set is a
+  full-span uniform intensity (authored, or self-weight and contents authored as intensities), and the
+  other loads are nodal, axial (free strain, Poisson pairs, caps) or prescribed motions. For a full-span
+  uniform load on a prismatic member the Timoshenko consistent vector is [wL/2, wL²/12, wL/2, −wL²/12],
+  identical to the Euler–Bernoulli one (SHEAR_REFERENCE §4; Design §3.4), so a product that used the
+  stale Euler–Bernoulli vector with Timoshenko K would publish the same bits as a correct one, in
+  assembly and in recovery. The only load where the two vectors differ is a partial span, and partial
+  spans cannot reach the exact route: their extents arise only from equivalent-static wind, which the
+  exact route refuses (Design §3.4), and K-D5 records a Timoshenko frame with a partial-span primitive as
+  unavailable (Design §4 item 4). The mutant is killed at element level by t4_u8's
+  `timoshenko_distal_half_load_kills_the_stale_vector` (54/384 against 53/384). The product-level
+  sensitivity control that remains is the Timoshenko product judged against the Euler–Bernoulli
+  reference (`--ref twin` on the Timoshenko runs), which must breach at high φ.
 
 ## The comparison and the M3 verdict (`kd5t_compare.py`)
 
@@ -146,36 +156,88 @@ harness's own (stricter) addition.
 | `group_of` | Per location: \|N\|, hypot(V_y, V_z), \|T\|, hypot(M_y, M_z). Pipe-wall kinds are their own groups. Stress groups are keyed by basis. Supports: force vector, moment vector and the two magnitudes. Displacement, rotation and displacement magnitude | K-D5 §3.2; cc `ACT` and `conv`; analysis scripts |
 | Lamé | A group per (pipe, location, basis), judged against its own q | own, stricter |
 | Scales | SF = max(force, moment/L_b), SM = max(moment, L_b·force) from the published ACT groups | K-D5 §3.3; cc |
-| Coverage | (U − \|axial\|)² ≥ My² + Mz² exactly, for every station sample of the same pipe and basis. The axial sample is the wall membrane stress where pressurized | K-D5 §3.2 and §4; cc. Membrane sample: own, stricter |
+| Displacement scales | S*_t = max(S_t, L_b·S_r) for translation groups, S*_r = max(S_r, S_t/L_b) for rotation groups; S_t and S_r the largest published translation and rotation components | K-D5 "The defect", §3.3, §4.1 (below) |
+| Coverage | (U − \|axial\|)² ≥ My² + Mz² exactly, for every station sample of the same pipe and basis. The axial sample is the wall membrane stress where pressurized | K-D5 §3.2 ("the exact-pressure route uses wall axial stress") and §4; cc |
 | Producer | `u6`: every stress row names its basis and both families are published. `pre-u6`: unsuffixed rows judged on the reduced (today's single) section | Design §§1, 2.1, 2.5 |
+| Bodies | One connected body per model (per-body scales are not implemented; a second body is a harness error) | own |
 
-Here "cc" is `compare_current.py`.
+Here "cc" is `compare_current.py`; L_b is the node bounding-box diagonal.
 
-**Verdict.** A run fails on any clause, and the set passes when no run fails.
+**Verdict.** Acceptance is the K-D5 M3 criterion (Design §4 item 5; K-D5 §4.3). A run fails the
+verdict on any acceptance clause, and the set passes when no run fails.
 
 | Clause | Requirement | Source |
 |---|---|---|
-| C0 | No reference or harness error | own |
-| C1 | 0 judged member, section, support, stress or Lamé breaches on Passed cases | K-D5 §4.3 |
-| C2 | 0 strict coverage failures | K-D5 §4.3 |
-| C3 | On Passed cases, every displacement and rotation group within RD(1e-9) of its body's published scale (translations against the largest published translation, rotations against the largest published rotation) | K-D5 §4.3, literal. The scale coupled through L_b is reported for information |
-| C4, C4b | 0 typed/captured disagreements (integrity codes or breach counts), and identical published rows | K-D5 §4.3 and b4; row identity own |
-| C5 | No refusal, DTO or runner error | own |
-| C6 | 0 unmapped or unpublished rows; on `u6`, no basis-free stress row and both maxima per pipe; on `pre-u6`, no basis-suffixed row | own; Design §2.1 |
-| C7 | Same-basis evidence for every maximum; on Passed cases the evidence enclosure contains the exact maximum to within CRIT; headlines equal their basis maximum | own; Design §§2.2, 2.5 |
-| C8 | No vacuous pass: every group the reference itself would judge (reference scales, a factor-2 floor margin) is judged | own |
+| C0 | Every run is judged: no reference or harness error | without it the criterion is not evaluated |
+| C1 | 0 judged member, section, support or stress breaches on Passed cases (pipe-wall groups included) | K-D5 §4.3 |
+| C2 | 0 strict coverage failures | K-D5 §3.2, §4, §4.3 |
+| C3 | On Passed cases, every displacement and rotation group within RD(1e-9) of its body's coupled scale of its kind, S*_t or S*_r | K-D5 per-DOF rule (below) |
+| C4 | 0 typed/captured disagreements (integrity codes or breach counts) | K-D5 §4.3; b4 |
 
-`--selftest` passes 653 checks on the frozen subset. It covers:
+Information clauses are this harness's own, stricter checks. K-D5 does not require them, so they are
+counted and reported beside the verdict, not accepted on (manager ruling for this epoch: "a clause the
+tool marks 'own and stricter' is reported information unless K-D5 requires it").
+
+| Clause | Reported | Source |
+|---|---|---|
+| C1L | Judged Lamé breaches on Passed cases | own, stricter |
+| C3lit | C3 against the separate published scales (translations against the largest published translation, component or magnitude; rotations against the largest published rotation) | own, stricter literal reading |
+| C4b | Typed and captured published rows differ | own |
+| C5 | Refusal, DTO or runner error | own |
+| C6 | Unmapped or unpublished rows; on `u6`, a basis-free stress row or a missing maximum; on `pre-u6`, a basis-suffixed row | own; Design §2.1 |
+| C7 | A maximum without same-basis evidence; on Passed cases an enclosure that misses the exact maximum by more than CRIT; a headline that is not its basis maximum | own; Design §§2.2, 2.5 |
+| C8 | A vacuous pass: a group the reference itself would judge (reference scales, a factor-2 floor margin) is not judged | own |
+
+**C3 and the K-D5 text it rests on** (`kd5-member-relative-bound.md`). K-D5 does not repair published
+displacements and rotations; its per-DOF rule judges them against a body scale:
+
+- The defect: "K-D5 bounds the forward error of u per DOF against max(|u_i|, S*_kind)."
+- §3.2: "Displacement and rotation rows are published unchanged (u). K-D5's per-DOF rule judges them,
+  as today."
+- §3.3: "S*_g is the body's coupled scale over the published (repaired) rows. It is the moment scale
+  for bending, torsion and support moment groups, and the force scale for axial, shear and support
+  force groups (O-13's scale extension, which includes arcs)."
+- §4.1: "The genuine evaluation judges each displacement or rotation group against its own q. […] All
+  lie within D5C-1's 1e-9·S*. They are comparison artefacts of judging displacement groups without a
+  body-scale floor; those rows are the solve's own and byte-identical to the baseline."
+- §4.3: "The only judged breaches on Passed cases are the displacement and rotation noise groups of
+  section 4.1 (RV30 224 case-modes, 508 groups; W1 212), every one within 1e-9 of its body's published
+  displacement or rotation scale (worst 0.35)."
+- The rulings, HELP_HUMAN 2026-10-12: "No displacement-noise floor is added; a floor would be a
+  criterion change, which remains a possible later owner choice."
+
+C3 is that rule: the scale of a displacement or rotation group is S*_kind, K-D5's coupled body scale
+over the published rows, of the group's kind. K-D5 calls the coupled scales "the force scale" and "the
+moment scale"; in the same way "its body's published displacement or rotation scale" is S*_t or S*_r.
+K-D5 writes the coupling formula out for forces and moments (§3.3). The translation/rotation form
+used here, S*_t = max(S_t, L_b·S_r) and S*_r = max(S_r, S_t/L_b), is the one T4-I6's independent
+reference gives for K-D5's per-DOF rule (`validation/references/t4_i6/round_01/_run_records/r01_lib.py`,
+`actual_ratio` and `kd5_trigger`: `tr, ro = max(st, lb * sr), max(sr, st / lb)`). The comparison is
+per group (the 2-norm of the group's error), stricter than per DOF by at most √3, and S_t uses
+components only.
+
+- **A zero field in a moving body** (FF00: an axial-only run, true rotations exactly zero, published
+  rotation noise 1.15e-15 rad) is judged against the body's coupled rotation scale, so its noise passes
+  C3. The separate-scale reading fails it by a factor of 1e9 (C3lit).
+- **An all-zero body.** No displacement-noise floor exists. A body whose published translations and
+  rotations are all noise is judged against that noise and fails C3. A body whose rows are exactly zero
+  passes.
+
+`--selftest` passes 722 checks on the frozen subset. It covers:
 - the predicates at their exact boundaries (CRIT strict, floor inclusive, guard);
 - CRIT pinned from both sides (1 ± 1e-5) on the largest judged group of every group kind;
-- C3 on rotations and translations scaled by 1 + 1e-6;
+- C3 pinned from both sides: a component error of (1 ± 1e-5)·CRIT·S*_kind on translations and rotations;
+- C3lit on rotations and translations scaled by 1 + 1e-6;
+- rotation noise in an exactly zero rotation field (passes C3, raises C3lit), and an all-zero
+  displacement field published as noise (fails C3) or as exact zeros (passes);
 - C8 on an all-zero publication;
 - coverage, headline and evidence mutants;
 - unmapped and dropped rows, and a producer mismatch;
-- typed/captured row and code changes, and a refusal;
+- typed/captured row and code changes, and a refusal (C5 raised, no acceptance clause failed);
 - a nominal/reduced swap;
-- nominal Lamé evaluated at the pressure bore;
-- basis-free rows on `u6`, and reduced maxima without reduced evidence.
+- nominal Lamé evaluated at the pressure bore (C1L);
+- basis-free rows on `u6`, and reduced maxima without reduced evidence;
+- a second body (C0).
 
 ## Premise census (`kd5t_census.py`, `kd5t_reauthor.py`)
 
@@ -197,29 +259,36 @@ product implementation (Design §7).
 **`standings`.** Counts Passed, Sensitive, fail-closed and refused for the re-authored corpora by
 shear model, and the EB → Timoshenko moves by tag stem.
 
-## Runner (scratch, untracked)
+## Runner (`runner/`)
 
-The runner is `Cargo.toml`, `src/main.rs` and `build.sh`. It was copied from the T3 scratch
-`b4-finish/cand` with the `retained_direct` arm dropped.
+A standalone crate: it joins no Cargo workspace (its own `[workspace]` root) and has its own
+`Cargo.lock`; it changes no product build or lock file. Its one product dependency is
+`../../../../core/product_physics`, the product of the checkout it sits in. The existing headless runner
+(`openpipestress-runner solve`) does not suffice: it drives only the captured entry, and the judged set
+needs the typed entry as well.
 
-`build.sh` symlinks the Git worktree that holds `$KD5T_PP` and builds through `t3_cargo.sh` with
-`CARGO_TARGET_DIR` under the T3 targets tree. Inputs are lines `{tag, request}`. `KD5_IN`,
-`KD5_OUT`, `KD5_ENTRIES` and `KD5_MODES` control a run; `KD5_SLIM` drops rows and evidence for
-standings-only runs.
+`runner/build.sh <checkout root> <target dir> <binary out>` builds it with `--locked`. Cargo is
+`$KD5T_CARGO` (default `cargo`). For a checkout other than this one, for example a detached worktree of
+a product commit, it first copies `Cargo.toml`, `Cargo.lock` and `src/main.rs` to the same path inside
+that checkout. Inputs are lines `{tag, request}`. `KD5_IN`, `KD5_OUT`, `KD5_ENTRIES` and `KD5_MODES`
+control a run; `KD5_SLIM` drops rows and evidence for standings-only runs.
+
+The drivers take every path as an argument. `KD5T_PY` names the Python and `KD5T_WRAP` an optional
+command prefix for each runner and comparison job (a host's resource wrapper).
 
 ## Reproduce
 
 ```
 python3 -I -B kd5t_engine.py --check
 python3 -I -B kd5t_generate.py check          # self-checks, frozen bytes, compare self-test, SHA256SUMS
-python3 -I -B kd5t_generate.py full <dir> 8
-python3 -I -B kd5t_generate.py split <dir>/set.jsonl <runs>/chunks hv 40     # or: eb, ts, pending, stiffness_control, all
-# run the runner on each chunk, then
-python3 -I -B kd5t_compare.py <dir>/set.jsonl <runs.jsonl> <eval.jsonl> --producer u6 [--ref twin | --ref control:<dir>/controls.jsonl:pertE]
-python3 -I -B kd5t_report.py <eval.jsonl>... --by section [--phi-table <dir>/set.jsonl]
-python3 -I -B kd5t_census.py hager <dir>/set.jsonl <runs.jsonl>... --out <census.jsonl>
-python3 -I -B kd5t_reauthor.py <eb|ts> <out.jsonl> <corpus chunk>...
-python3 -I -B kd5t_census.py standings <runs.jsonl>...
+python3 -I -B kd5t_generate.py full <set> 8
+python3 -I -B kd5t_generate.py split <set>/set.jsonl <run>/chunks all 40     # or: eb, ts, hv, pending, stiffness_control
+runner/build.sh <checkout> <target dir> <runner.bin>
+./run.sh <runner.bin> <set> <run> own twin control     # writes <run>/out and <run>/eval
+python3 -I -B kd5t_report.py <run>/eval/c.*.own.jsonl --by section --phi-table <set>/set.jsonl
+python3 -I -B kd5t_census.py hager <set>/set.jsonl <run>/out/c.*.out.jsonl --out <census.jsonl>
+KD5T_KEEP_INPUTS=1 ./census.sh <eb|ts> <runner.bin> <corpus dir> <census out>
+python3 -I -B kd5t_census.py standings <census out>/*.out.jsonl
 ```
 
 `freeze` regenerates the references for an intended change of them, never to absorb a product result.

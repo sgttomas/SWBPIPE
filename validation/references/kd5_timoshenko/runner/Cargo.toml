@@ -1,0 +1,19 @@
+[package]
+name = "kd5t_runner"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+# The M3-T harness runner (not reference): it drives the product through its two public entry points,
+# run_linear_static_preview_with_mode (typed) and run_linear_static_preview_value_with_mode (captured).
+# The path dependency is the product_physics crate of the checkout this directory sits in; build.sh
+# copies these files to the same path inside another checkout to build against that product.
+[dependencies]
+open_pipe_stress_product_physics = { path = "../../../../core/product_physics" }
+serde_json = { version = "=1.0.149", features = ["float_roundtrip"] }
+
+[profile.release]
+debug = false
+
+# A standalone root: this crate joins no workspace and changes no other Cargo.lock.
+[workspace]
