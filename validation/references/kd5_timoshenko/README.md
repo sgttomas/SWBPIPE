@@ -22,7 +22,7 @@ not reference: it links the product crate by path and calls only `run_linear_sta
 |---|---|
 | `kd5t_engine.py` | Exact reference engine: a public request in, every expected published row out (110-digit `decimal`; rational element controls in `fractions`). `--check` runs its self-check (58 checks). |
 | `kd5t_generate.py` | Judged-set generator: `full <dir>` writes the set and controls, `freeze` writes the frozen subset, `split` makes runner inputs, `check` verifies everything. |
-| `kd5t_compare.py` | Reconstructed M3 judging and coverage and the M3 verdict (acceptance clauses C0–C4, C6 and C8: the K-D5 M3 criterion and the soundness of its judging; and the information clauses), aware of the section basis and of the producer (`--producer u6\|pre-u6`). `--selftest <set>` exercises every rule and clause. |
+| `kd5t_compare.py` | Reconstructed M3 judging and coverage and the M3 verdict (acceptance clauses C0–C4, C6, C8 and C9: the K-D5 M3 criterion and the soundness of its judging; and the information clauses), aware of the section basis and of the producer (`--producer u6\|pre-u6`). `--selftest <set>` exercises every rule and clause. |
 | `kd5t_report.py` | Aggregates the comparison into the M3 tables and the verdict, by family, theory, placement or section variant, and by phi decade. |
 | `kd5t_census.py` | Premise census: the Hager ratio from published gate values (`hager`), the probe-dump consumer (`probe`), and standings of the re-authored corpora (`standings`). |
 | `kd5t_reauthor.py` | Re-authors the surviving RV30, realistic, RV29 and W1 corpora as 0.5.0 exact documents with either shear model. |
@@ -181,6 +181,7 @@ fails.
 | C4 | 0 typed/captured disagreements (integrity codes or breach counts) | K-D5 §4.3; b4 |
 | C6 | On Passed cases, every reference row and every maximum of a basis the producer must publish is published (an expected group unpublished, for example dropped station rows, is a coverage failure) | coverage; manager ruling (F3) |
 | C8 | On Passed cases, no vacuous pass: every group the reference itself would judge (reference scales, a factor-2 floor margin) is judged; a body with a nonzero reference has a judged group; a Passed run publishes rows | coverage; manager ruling (F1) |
+| C9 | On Passed cases, no row identity published more than once with different values. The identity is the judging key: case, kind, entity, location, component and, for stress rows, the basis. Only one publication of an identity can be judged, so without C9 the verdict would depend on row order. Each conflicting identity counts once, whatever the order | judging soundness; REFUTE3 residual; manager: "Make a second, different value for the same row identity an acceptance failure" |
 
 Information clauses are this harness's own, stricter checks. K-D5 does not require them, so they are
 counted and reported beside the verdict, not accepted on (manager ruling for this epoch: "a clause the
@@ -191,7 +192,7 @@ tool marks 'own and stricter' is reported information unless K-D5 requires it").
 | C3lit | C3 against the separate published scales (translations against the largest published translation, component or magnitude; rotations against the largest published rotation) | own, stricter literal reading |
 | C4b | Typed and captured published rows differ | own |
 | C5 | Refusal, DTO or runner error | own |
-| C6i | Unmapped or duplicate product rows; on `u6`, a basis-free stress row; on `pre-u6`, a basis-suffixed row; on runs that are not Passed, unpublished rows or maxima and null or non-finite values | own; Design §2.1 |
+| C6i | Unmapped or duplicate product rows (a repeat with the same value included); on `u6`, a basis-free stress row; on `pre-u6`, a basis-suffixed row; on runs that are not Passed, unpublished rows or maxima, null or non-finite values and conflicting identities (C9's) | own; Design §2.1 |
 | C7 | A maximum without same-basis evidence; on Passed cases an enclosure that misses the exact maximum by more than CRIT; a headline that is not its basis maximum | own; Design §§2.2, 2.5 |
 
 **Lamé rows are in C1** (manager ruling on finding F4: "Lamé rows are stress rows. Include them in
@@ -246,7 +247,7 @@ components only.
   rotations are all noise is judged against that noise and fails C3. A body whose rows are exactly zero
   passes.
 
-`--selftest` passes 836 checks on the frozen subset. It covers:
+`--selftest` passes 948 checks on the frozen subset. It covers:
 - the predicates at their exact boundaries (CRIT strict, floor inclusive, guard);
 - CRIT pinned from both sides (1 ± 1e-5) on the largest judged group of every group kind;
 - C3 pinned from both sides: a component error of (1 ± 1e-5)·CRIT·S*_kind on translations and rotations;
@@ -261,6 +262,10 @@ components only.
 - C8: a Passed run with no rows, and one gross support moment that lifts the published scales;
 - coverage, headline and evidence mutants;
 - unmapped rows (C6i), a dropped row (C6) and a producer mismatch;
+- C9: a second value of one row identity, one ulp off or doubled, placed after or before the original
+  (each fails C9 once; the doubled value placed first also fails C1, placed after it passes C1, which is
+  the order dependence C9 removes); the same conflict on a Sensitive run (C6i only); a same-value repeat
+  (C6i only); and a second, different maximum row of one pipe and basis (C9);
 - typed/captured row and code changes, and a refusal (C5 raised, no acceptance clause failed);
 - a nominal/reduced swap;
 - F4: nominal Lamé evaluated at the pressure bore, and reduced Lamé rows copied from nominal (C1);
@@ -285,6 +290,10 @@ the worst judged Lamé group is 3.5e-7 of c. Information on the own references: 
 Euler–Bernoulli C3 over the whole set is 0.742 (`SHORT02|S3M1|utmskew|m0|eb`, typed, dense); the figure
 "1.2e-4" in the message of commit `9bc482073d` is wrong. The earlier Euler–Bernoulli run set
 (`w1eb`, 1,928 runs) gives the same counts and worst ratio.
+
+Both run sets were re-judged with C9 against the own, twin and control references (11,104 judged
+records). No verdict, acceptance-failure count or information count changed on any record, and no row
+identity is published twice.
 
 **Product freshness (epoch head `addbdc030e`).** Between `77cc26f426` and `addbdc030e` the product
 changed only in a byte-preserving receipt-hash serialization and the realized-arc evidence marker.

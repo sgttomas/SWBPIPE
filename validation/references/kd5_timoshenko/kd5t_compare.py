@@ -68,7 +68,7 @@ The M3 verdict. Acceptance is the K-D5 M3 criterion and the soundness of the jud
 [Design §4 item 5: "0 judged member, section, support or stress breaches on Passed cases and 0
 strict coverage failures"; K-D5 §4.3; manager ruling M3T2: a Passed case on which an expected group
 is unpublished, or on which nothing is judged, is a coverage failure]. A run fails the verdict on
-any acceptance clause (C0-C4, C6, C8), and the set passes when no run fails.
+any acceptance clause (C0-C4, C6, C8, C9), and the set passes when no run fails.
 - C0: every run is judged (no reference or harness error); otherwise the criterion is not evaluated.
 - C1 [K-D5 §4.3]: 0 judged member, section, support or stress breaches on Passed cases (pipe-wall
   groups and Lame rows included), and no null or non-finite published value on a Passed case.
@@ -85,6 +85,13 @@ any acceptance clause (C0-C4, C6, C8), and the set passes when no run fails.
   reference itself would judge with a factor-2 margin on the floor (scales formed from the reference
   values) is not judged; a body with a nonzero reference has no judged group; or a Passed run
   publishes no rows (or is refused).
+- C9 [judging soundness; REFUTE3 residual; manager, M3T4: "Make a second, different value for the
+  same row identity an acceptance failure"]: on Passed cases, a row identity
+  published more than once with different values. The identity is the judging key (case, kind,
+  entity, location, component and, for stress rows, the lookup basis), so only one publication of
+  it can be judged and the verdict would otherwise depend on row order. Counted once per identity,
+  whatever the order; a repeat with the same value stays C6i information (an unmapped duplicate),
+  and on runs that are not Passed a conflicting identity is C6i information.
 
 Reported information: clauses this harness adds, which K-D5 does not require (manager ruling: own,
 stricter clauses are reported, not acceptance). They are counted per run in `info`.
@@ -146,12 +153,13 @@ CLAUSES = {  # acceptance: the K-D5 M3 criterion and the soundness of its judgin
     "C4": "typed/captured disagreement (integrity codes or breach counts)",
     "C6": "expected reference row or maximum unpublished (Passed)",
     "C8": "vacuous pass: a group the reference judges is not judged, nothing judged, or no rows (Passed)",
+    "C9": "a row identity published more than once with different values (Passed)",
 }
 INFO = {  # reported information: own, stricter clauses
     "C3lit": "displacement/rotation group beyond 1e-9 of the body's separate published scale (Passed)",
     "C4b": "typed/captured published rows differ",
     "C5": "refused, DTO or runner error",
-    "C6i": "unmapped, basis-free or unexpected-basis rows; unpublished or non-finite rows when not Passed",
+    "C6i": "unmapped, duplicate, basis-free or unexpected-basis rows; unpublished, non-finite or conflicting rows when not Passed",
     "C7": "maximum evidence missing, exact maximum outside the enclosure, or headline finding",
 }
 
@@ -365,6 +373,13 @@ def judge_run(gen, ref, run, producer="u6"):
         basis_free, unexpected_basis, nonfinite = [], [], []
         station = collections.defaultdict(dict)
         maxrows = []
+        # C9: a row identity (the judging key) published more than once with different values; only the
+        # first publication is judged, so count the identity once, independent of row order
+        published = collections.defaultdict(list)
+        for row in rows_by_case.get(cid, []):
+            lb = (row_basis(row) or "reduced_section") if row["kind"] in STRESS_KINDS else None
+            published[(row["kind"], row["entity_ref"], row.get("location"), row.get("component"), lb)].append(row.get("value"))
+        conflicting = sorted([list(k) for k, vs in published.items() if any(v != vs[0] for v in vs[1:])], key=repr)
         for row in rows_by_case.get(cid, []):
             kind = row["kind"]
             basis = row_basis(row)
@@ -510,6 +525,7 @@ def judge_run(gen, ref, run, producer="u6"):
                              "n_unexpected_basis": len(unexpected_basis), "missing_maxima": [list(x) for x in missing_max],
                              "unjudged_by_ref": unjudged_by_ref[:10], "n_unjudged_by_ref": len(unjudged_by_ref),
                              "nonfinite": nonfinite[:10], "n_nonfinite": len(nonfinite),
+                             "conflicting": conflicting[:10], "n_conflicting": len(conflicting),
                              "n_judged_ref_only": sum(g["judged_ref_only"] for g in stats),
                              "max_checks": mchecks, "SF": qf(SF), "SM": qf(SM), "SF_ref": qf(SFr), "SM_ref": qf(SMr),
                              "body_D": qf(bD), "body_R": qf(bR),
@@ -523,9 +539,10 @@ def judge_run(gen, ref, run, producer="u6"):
             fails["C1"] += cs["n_nonfinite"]
             fails["C6"] += unpublished
             fails["C8"] += len(unjudged_by_ref) + (1 if ref_nonzero and n_judged == 0 else 0)
+            fails["C9"] += cs["n_conflicting"]
             info["C7"] += sum(1 for c in mchecks if (c["ref_outside_enclosure_over_crit"] or 0) > 1)
         else:
-            info["C6i"] += unpublished + cs["n_nonfinite"]
+            info["C6i"] += unpublished + cs["n_nonfinite"] + cs["n_conflicting"]
         for g in stats:
             g["case"] = cid
         all_groups += stats
@@ -830,6 +847,40 @@ def selftest(set_path):
             rec = judge_run(g, g["ref"], r2, prod)
             check(f"{name} {prod}: an unknown row raises C6i and a dropped row fails C6", rec["n_unmapped"] == 1 and rec["n_missing"] == 1
                   and rec["info"].get("C6i", 0) == 1 and rec["verdict_failures"].get("C6", 0) == 1)
+            # C9 (acceptance): one row identity published twice with different values fails once, whatever
+            # the order (before C9, a gross second value after the judged first passed and before it failed C1);
+            # a same-value repeat is C6i information; on a run that is not Passed a conflict is C6i information
+            kinds = [r["kind"] for r in run["results"]]
+            i = max((j for j, k in enumerate(kinds) if k == "element_local_bending_moment_z"), key=lambda j: abs(run["results"][j]["value"]))
+            v = run["results"][i]["value"]
+            for label, value, before, c1 in (("one ulp off, after the original", math.nextafter(v, math.inf), False, False),
+                                             ("one ulp off, before the original", math.nextafter(v, math.inf), True, False),
+                                             ("doubled, after the original", 2 * v, False, False),
+                                             ("doubled, before the original", 2 * v, True, True)):
+                r2 = copy.deepcopy(run)
+                dup = copy.deepcopy(r2["results"][i])
+                dup["value"] = value
+                r2["results"].insert(i if before else i + 1, dup)
+                vf = work((g, g["ref"], [r2], prod))[0]["verdict_failures"]
+                check(f"{name} {prod}: a second value of one row identity ({label}) fails C9 once" + (" and C1" if c1 else ", C1 clean"),
+                      vf.get("C9", 0) == 1 and (vf.get("C1", 0) > 0) == c1 and "C0" not in vf)
+                if label.startswith("doubled, after"):
+                    r2["diagnostics"] = [{"code": "NUMERICAL_INTEGRITY_SENSITIVE", "severity": "warning", "message": "synthetic"}]
+                    res = work((g, g["ref"], [r2], prod))[0]
+                    check(f"{name} {prod}: the same conflict on a Sensitive run is C6i information (unmapped and conflicting), not C9",
+                          not res["verdict_failures"] and res["info"].get("C6i", 0) == 2)
+            r2 = copy.deepcopy(run)
+            r2["results"].insert(i + 1, copy.deepcopy(r2["results"][i]))
+            res = work((g, g["ref"], [r2], prod))[0]
+            check(f"{name} {prod}: a same-value repeat of one row identity raises C6i and fails no clause",
+                  not res["verdict_failures"] and res["info"].get("C6i", 0) == 1)
+            r2 = copy.deepcopy(run)
+            j = kinds.index("pipe_elastic_normal_stress_maximum_v2")
+            dup = copy.deepcopy(r2["results"][j])
+            dup["value"] = 2 * dup["value"]
+            r2["results"].append(dup)
+            vf = work((g, g["ref"], [r2], prod))[0]["verdict_failures"]
+            check(f"{name} {prod}: a second, different maximum row of one pipe and basis fails C9 once", vf.get("C9", 0) == 1 and "C0" not in vf)
             # producer mismatch: C6i; the single family judged as U6 also leaves the nominal family unpublished (C6)
             rec = judge_run(g, g["ref"], run, "pre-u6" if suffixed else "u6")
             check(f"{name} {prod}: judged as the other producer raises C6i" + ("" if suffixed else " and fails C6"),
