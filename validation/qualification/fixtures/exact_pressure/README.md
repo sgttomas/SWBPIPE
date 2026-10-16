@@ -22,6 +22,15 @@ the package. Admission changes statuses only, never a value or rule. It is a
 development-comparison admission, not engineering acceptance or a release
 criterion. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
+**T4-U6 (D-5) re-freeze, pending.** T4-I7 (72 cases with mill tolerance) and
+T4-I8 MILLTOL were re-frozen on D-5 (DEL-05-03 Design
+`section-bases-and-timoshenko.md` §7) and await independent refutation. The
+generator already reads the re-frozen shapes (section bases below), so
+`--check` differs from the committed `MANIFEST.json`. That manifest, the
+hashes above and the counts below still describe the pre-D-5 package. They are
+regenerated, and the new review bound in `ADMISSION.json`, only after the
+refutation returns.
+
 All inputs are invented test quantities from the references. None of them is
 material-library, component-library or code-rule data.
 
@@ -58,6 +67,10 @@ Each case below runs on 0.3.0 and on 0.4.0, in both solver modes.
 - **T4-I7.** Each of the 79 valued cases, run on its own document.
 - **T4-I8.** Each owner with rows. Its v2 document is patched to
   `3.0.0/exact_pressure_v3` by the reference's own `v3_patch_for_both`.
+  The D-5 re-authored MILLTOL owners are the exception. They carry their own
+  model 0.5.0 documents under the current contract, run as
+  `@0.5.0` and `@0.5.0_load_state_group` (with the load/reference-state
+  group).
 
 Case IDs are `<reference case>@<version>`.
 
@@ -105,6 +118,16 @@ Totals:
   from producer output.
 - A mismatch shows as an unresolved selector in the gate, never as a changed
   value.
+- **Section bases (D-5, Design §2.1, §2.5).** Every stress row is asserted
+  on both section bases, the nominal selector immediately followed by its
+  reduced twin. Each names its basis: the ID's final segment
+  (`:nominal_section` on `result:pressure-exact:` and
+  `result:elastic-maximum:` IDs, `:nominal-section` on the others) and
+  `; section_basis=<basis>` after the recovery token. A re-frozen reference
+  supplies each basis's own value. Where a document's bases coincide (no mill
+  tolerance, no corrosion allowance), its one frozen value and rule apply to
+  both families (Design §7). The generator requires each case's layout to agree
+  with its document's sections.
 
 **Terminal evidence selectors.** These address one component of a region
 terminal's global vector:
@@ -134,6 +157,8 @@ absence. The gate's `declared_absences` obligation checks both.
 - **Stations.** Five stations per member, with `N_w`, `S` and `sigma_m`.
   - The section actions and the bending and torsion stresses are also
     asserted; stresses are converted from Pa to MPa.
+  - In a re-frozen case each station's stresses are under
+    `stresses_by_section_basis/<basis>`.
   - The section actions are not asserted at the end stations (see end rows).
 - **End rows.**
   - Every member's end station action equals its element-local end row: end_i
@@ -145,7 +170,8 @@ absence. The gate's `declared_absences` obligation checks both.
   - The wall end action is along the end tangent (`tangent_frame`).
   - Not published, recorded as a `not_published` gap: the element-local axial
     end force, replaced by the pressure family.
-- **Lamé values.** Straights only, at all five stations.
+- **Lamé values.** Straights only, at all five stations. In a re-frozen case
+  `lame_surface` is keyed by basis.
 - **Arc absences.** Five kinds are withheld on every arc, each a declared
   absence:
   - the Lamé radial and hoop rows;
@@ -163,7 +189,9 @@ absence. The gate's `declared_absences` obligation checks both.
 **T4-I8 mapping:**
 
 - **Rows.** Every row of each load case, with its own criterion and its own
-  `reference_origin` pointer.
+  `reference_origin` pointer. A MILLTOL stress row names its `section_basis`;
+  the other owners' bases coincide, so each of their stress rows is asserted
+  on both.
 - **Absences.** Four kinds are declared absent on every pressurized member:
   `element_local_axial_force`, `element_local_axial_normal_stress`,
   `pipe_section_pressure_hoop_stress` and
@@ -171,8 +199,13 @@ absence. The gate's `declared_absences` obligation checks both.
 - **Discriminators.** Each is mapped explicitly (`I8_DISCRIMINATORS`) to the
   quantity it names, in the variant and load case it names. It is scored at the
   first row that carries that quantity; every such row is asserted positively.
-- **Inactive control.** `cap_area_on_nominal_bore` is not producible before
-  T4-U6, so it is a `not_active` gap.
+  A control that declares its own `target` must name exactly the mapped
+  quantities.
+- **D-5 controls.** The MILLTOL controls name their section basis (for example
+  `sigma_z_reduced_section`). The three renamed controls must carry the
+  `former_id` the generator lists (`I8_FORMER_IDS`).
+  `cap_area_on_nominal_bore` is active from T4-U6 and is scored. A control
+  active only from a later unit would be a `not_active` gap.
 
 ## Values and criteria
 
@@ -193,7 +226,7 @@ with `max(absolute, relative*max(|observed|, |expected|))`.
 
 | Source | Rule | Values |
 |---|---|---|
-| T4-I7 | `criterion:<family>:<dimension>:<unit>:floor:<group>` | relative 1e-9 with the group's absolute floor 1e-9*zero_scale, converted to the row unit (the reference's `1e-9*max(|expected|, zero_scale(group))`) |
+| T4-I7 | `criterion:<family>:<dimension>:<unit>:floor:<group>` | relative 1e-9 with the group's absolute floor 1e-9*zero_scale, converted to the row unit (the reference's `1e-9*max(|expected|, zero_scale(group))`); a re-frozen case's stress groups are `<group>@<basis>` |
 | T4-I8 nonzero | `…:relative_1e-9` | relative 1e-9, absolute 0 |
 | T4-I8 zero | `…:zero_scale:<case>:<tag>` | relative 0, absolute 1e-9*zero_scale in the row unit; recomputed and required equal to the frozen row criterion |
 

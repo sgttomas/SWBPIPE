@@ -30,6 +30,18 @@ zero_scale(group))`` encoded as relative 1e-9 with the group's absolute floor
 a zero row's absolute floor 1e-9*zero_scale), recomputed here from its zero
 scale and required equal to the frozen precomputed floor.
 
+Section bases (T4-U6, D-5; DEL-05-03 Design ``section-bases-and-timoshenko.md``
+sections 2.1, 2.5 and 7). Every stress row is published on the nominal and on
+the reduced section, nominal first; each selector names its basis (id segment
+and ``; section_basis=<basis>`` token). A re-frozen reference gives each basis
+its own value (T4-I7 ``stresses_by_section_basis`` and ``lame_surface`` by
+basis, with per-basis stress zero-scale groups ``<group>@<basis>``; T4-I8 rows
+with ``section_basis``). Where a document's bases coincide (no mill tolerance,
+no corrosion allowance) the reference keeps its one stress value, and both
+families are asserted against it under the same criterion. The re-authored
+T4-I8 MILLTOL owners carry their own model 0.5.0 documents, with and without
+the load/reference-state group, instead of the v2 documents and v3 patch.
+
 Usage (WORKING_ROOT is ``projects/chirality-piping``)::
 
     python validation/qualification/fixtures/exact_pressure/generate_package.py --write
@@ -80,6 +92,14 @@ TERMINAL_FIELDS = (('closure_pressure_load_global', 'closure_pressure_load_globa
                    ('remote_closure_support_reaction_global', 'remote_closure_support_reaction_global_n'))
 TERMINAL_FAMILY = 'pressure_terminal_force'
 AXES = ('x', 'y', 'z')
+# D-5 (Design §2.1, §2.5): both section bases in publication order, the token suffix and the id families whose
+# basis segment keeps the underscore spelling (every other stress id family takes the hyphenated one).
+SECTION_BASES = ('nominal_section', 'reduced_section')
+SECTION_BASIS_SEPARATOR = '; section_basis='
+UNDERSCORE_ID_FAMILIES = ('result:pressure-exact:', 'result:elastic-maximum:')
+# The re-authored T4-I8 owners' documents (case label -> document key) and their current contract.
+I8_CURRENT_DOCUMENTS = (('0.5.0', 'v3_model_0.5.0'), ('0.5.0_load_state_group', 'v3_model_0.5.0_load_state_group'))
+CURRENT_PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': 'exact_pressure_v3', 'shear_model': 'euler_bernoulli'}
 
 # --------------------------------------------------------------------------
 # Row identity: the producer's row IDs and published metadata (identification)
@@ -223,20 +243,54 @@ def row_id(kind: str, component: str, entity: str, location: str, case_id: str, 
     return f'{prefix}stress:{slug(entity)}:{location.replace("_", "-")}:{suffix}'
 
 
+def section_basis_id(result_id: str, basis: str) -> str:
+    """§2.5: a stress row's id with its final basis segment."""
+    return f'{result_id}:{basis}' if result_id.startswith(UNDERSCORE_ID_FAMILIES) else f'{result_id}:{basis.replace("_", "-")}'
+
+
+def bases_coincide(document: dict) -> bool:
+    """Whether every member's nominal and reduced sections coincide: no mill tolerance and no corrosion allowance."""
+    def zero(section, key):
+        quantity = section.get(key)
+        return quantity is None or quantity['value'] == 0
+    return all(zero(pipe['section'], 'mill_tolerance') and zero(pipe['section'], 'corrosion_allowance')
+               for pipe in document['model']['pipe_segments'])
+
+
 class Semantics:
-    """Dimensions and result families from the pinned pressure-1 table (the contract, not output)."""
+    """Dimensions and result families from the pinned pressure-1 table (the contract, not output).
+
+    D-5 (§2.4): a stress kind has one signature per (recovery token x section basis), each with its
+    ``source_basis``; every other kind has one signature without it."""
 
     def __init__(self):
         table = json.loads((WORKING_ROOT / TABLE).read_bytes())
         require(table['semantic_contract_id'] == CONTRACT, 'pressure-1 table identity')
-        self.rows = {(row['kind'], row['unit'], row['component']): row for row in table['rows']}
+        self.rows = {}
+        for row in table['rows']:
+            key = (row['kind'], row['unit'], row['component'], row.get('source_basis'))
+            require(key not in self.rows, f'pressure-1 signature {key} is not unique')
+            self.rows[key] = row
+        self.per_basis = {key[:3] for key in self.rows if key[3] is not None and SECTION_BASIS_SEPARATOR in key[3]}
 
-    def selector(self, kind, unit, component, entity, location, member, case_id, first_case):
-        row = self.rows.get((kind, unit, component))
-        require(row is not None and row['family'] is not None, f'no pressure-1 quantity {kind} {unit} {component}')
-        selector = {'id': row_id(kind, component, entity, location, case_id, first_case), 'kind': kind, 'unit': unit,
+    def bases(self, kind, unit, component) -> tuple:
+        """The section bases a quantity is published on: both for a stress kind, else none."""
+        return SECTION_BASES if (kind, unit, component) in self.per_basis else (None,)
+
+    def selector(self, kind, unit, component, entity, location, member, case_id, first_case, basis=None):
+        meta = metadata(kind, component, member, location)
+        result_id = row_id(kind, component, entity, location, case_id, first_case)
+        if (kind, unit, component) in self.per_basis:
+            require(basis in SECTION_BASES, f'{kind} is published per section basis; a basis is required')
+            meta['basis'] += SECTION_BASIS_SEPARATOR + basis
+            result_id = section_basis_id(result_id, basis)
+        else:
+            require(basis is None, f'{kind} is published once and names no section basis')
+        row = self.rows.get((kind, unit, component, meta['basis'] if basis else None))
+        require(row is not None and row['family'] is not None, f'no pressure-1 quantity {kind} {unit} {component} {meta["basis"]}')
+        selector = {'id': result_id, 'kind': kind, 'unit': unit,
                     'entity_ref': entity, 'basis_ref': {'ref_type': 'load_case', 'ref_id': case_id},
-                    'metadata': metadata(kind, component, member, location),
+                    'metadata': meta,
                     'dimension': row['source_physical_semantic_dimension']}
         return selector, row['family']
 
@@ -412,6 +466,8 @@ I7_STATION = (
     ('tau_t', 'element_local_torsional_shear_stress', 'torsional_shear_stress', 'Pa', 'MPa', 'bending_torsion_stress'),
 )
 I7_SECTION_ACTIONS = {'V_y', 'V_z', 'T', 'M_y', 'M_z'}
+# D-5: the station stresses, under stresses_by_section_basis/<basis> in a re-frozen case.
+I7_STRESSES = {'sigma_m', 'sigma_b_y', 'sigma_b_z', 'tau_t'}
 # End row quantity -> station quantity it equals (end_i negated, end_j as is), kind and component.
 I7_END_ROWS = (('F_y', 'V_y'), ('F_z', 'V_z'), ('M_x', 'T'), ('M_y', 'M_y'), ('M_z', 'M_z'))
 I7_LAME = (('inner_radial', 'pipe_lame_radial_stress_v2', 'lame_inner_radial_stress'),
@@ -432,8 +488,20 @@ def i7_case(case_key: str, version: str, case: dict, document: dict, semantics: 
     require(out.load_cases == ['case:u2'], f'{case_key}: one load case expected')
     load_case = out.load_cases[0]
     floors = {group: (Decimal(entry['zero_scale']), entry['unit']) for group, entry in case['zero_scale'].items()}
+    # D-5: a re-frozen case (sections with mill tolerance) gives each stress its value on each basis; a case whose
+    # bases coincide keeps its one stress value, which both families are asserted against (Design §7).
+    members = case['expected']['members'].values()
+    layouts = {'stresses_by_section_basis' in station for member in members for station in member['stations'].values()}
+    require(len(layouts) == 1, f'{case_key}: stations mix the per-basis and the single stress layout')
+    per_basis = layouts.pop()
+    require(per_basis != bases_coincide(document), f'{case_key}: stress layout disagrees with the section bases of its document')
+    require(not per_basis or all(set(station['stresses_by_section_basis']) == set(SECTION_BASES) for member in members
+                                 for station in member['stations'].values()), f'{case_key}: stresses_by_section_basis keys')
+    require(not per_basis or all(set(member['lame_surface']) == set(SECTION_BASES) for member in members
+                                 if member['kind'] == 'straight'), f'{case_key}: lame_surface is not keyed by section basis')
 
     def floor_rule(family, dimension, unit, group, reference_unit):
+        require(group in floors, f'{case_key}: no zero scale {group}')
         scale, scale_unit = floors[group]
         require(scale_unit == reference_unit, f'{case_key}: zero scale {group} unit {scale_unit}, row {reference_unit}')
         with decimal.localcontext(CONTEXT):
@@ -442,12 +510,23 @@ def i7_case(case_key: str, version: str, case: dict, document: dict, semantics: 
                         f'T4-I7 criterion |observed - expected| <= 1e-9*max(|expected|, zero_scale({group})); '
                         f'zero_scale = {scale} {scale_unit} (case {case_key} zero_scale block)')
 
-    def add(pointer, text, reference_unit, kind, component, unit, entity, location, member, group):
-        selector, family = semantics.selector(kind, unit, component, entity, location, member, load_case, True)
+    def add(pointer, text, reference_unit, kind, component, unit, entity, location, member, group, basis=None):
+        selector, family = semantics.selector(kind, unit, component, entity, location, member, load_case, True, basis)
         rule = floor_rule(family, selector['dimension'], unit, group, reference_unit)
         expected = convert(Decimal(text), reference_unit, unit, pointer)
+        # Both families of a single frozen value share its pointer; each is handled by its own selector.
+        handle = f'{pointer}@{selector["id"]}' if basis and not per_basis else None
         out.assert_positive(selector, family, expected, rule,
-                            {'reference': I7, 'pointer': pointer, 'reference_unit': reference_unit, 'transform': 'identity', 'group': group})
+                            {'reference': I7, 'pointer': pointer, 'reference_unit': reference_unit, 'transform': 'identity', 'group': group},
+                            handle)
+
+    def add_stress(pointer, single, by_basis, reference_unit, kind, component, unit, entity, location, member, group):
+        """One stress on both section bases, nominal first: ``by_basis(basis)`` is (pointer, value) of a re-frozen case."""
+        for basis in SECTION_BASES:
+            if per_basis:
+                add(*by_basis(basis), reference_unit, kind, component, unit, entity, location, member, f'{group}@{basis}', basis)
+            else:
+                add(pointer, single(), reference_unit, kind, component, unit, entity, location, member, group, basis)
 
     expected = case['expected']
     for node, values in expected['nodes'].items():
@@ -476,6 +555,13 @@ def i7_case(case_key: str, version: str, case: dict, document: dict, semantics: 
                     # All members assert it through their own end tangent frame.
                     implied.append(pointer)
                     continue
+                if key in I7_STRESSES:
+                    require(per_basis != (key in station), f'{case_key}: {pointer} is not in the case\'s stress layout')
+                    add_stress(pointer, lambda: station[key],
+                               lambda basis: (f'{base}/stations/{location}/stresses_by_section_basis/{basis}/{key}',
+                                              station['stresses_by_section_basis'][basis][key]),
+                               reference_unit, kind, component, unit, pipe, location, kind_of, group)
+                    continue
                 add(pointer, station[key], reference_unit, kind, component, unit, pipe, location, kind_of, group)
         for location in ('end_i', 'end_j'):
             block = 'tangent_frame' if arc else 'element_local'
@@ -501,9 +587,11 @@ def i7_case(case_key: str, version: str, case: dict, document: dict, semantics: 
         else:
             for location in LOCATIONS:
                 # One surface value per member, published at every station (pointer@station).
+                # D-5: in a re-frozen case lame_surface is keyed by basis (pointer <basis>/<key>@station).
                 for key, kind, component in I7_LAME:
-                    add(f'{base}/lame_surface/{key}@{location}', member['lame_surface'][key], 'Pa', kind, component, 'Pa',
-                        pipe, location, 'straight', 'lame_stress')
+                    add_stress(f'{base}/lame_surface/{key}@{location}', lambda: member['lame_surface'][key],
+                               lambda basis: (f'{base}/lame_surface/{basis}/{key}@{location}', member['lame_surface'][basis][key]),
+                               'Pa', kind, component, 'Pa', pipe, location, 'straight', 'lame_stress')
     for node, terminal in expected['terminals'].items():
         for key, field in TERMINAL_FIELDS:
             if terminal[key] is None:
@@ -545,18 +633,35 @@ def i7_case(case_key: str, version: str, case: dict, document: dict, semantics: 
 # --------------------------------------------------------------------------
 
 # Each discriminator -> [(owner variant or None, expected key)]; the load case is the control's own `case`.
+# A control that declares its own `target` must name exactly these pairs.
+_FREE, _RESTRAINED = 'free_transferring', 'axially_restrained_transferring'
 I8_DISCRIMINATORS = {
+    # Re-authored and re-frozen on D-5 (T4-U6): stress expectations name their section basis.
     'milltol_lame_membrane': {
-        'retired_thin_wall_hoop': [('free_transferring', 'lame_inner_hoop'), ('axially_restrained_transferring', 'lame_inner_hoop')],
-        'retired_thin_wall_longitudinal_free': [('free_transferring', 'sigma_z')],
-        'retired_thin_wall_longitudinal_restrained': [('axially_restrained_transferring', 'sigma_z')],
-        'allowance_not_folded': [('free_transferring', 'lame_inner_hoop'), ('axially_restrained_transferring', 'lame_inner_hoop')],
-        'allowance_not_folded_sigma_z_free': [('free_transferring', 'sigma_z')],
-        'mill_tolerance_ignored': [('free_transferring', 'lame_inner_hoop'), ('axially_restrained_transferring', 'lame_inner_hoop')],
-        'mill_tolerance_ignored_sigma_z_free': [('free_transferring', 'sigma_z')],
-        'longitudinal_pressure_added_free': [('free_transferring', 'sigma_z')],
-        'poisson_sign_reversed_restrained': [('axially_restrained_transferring', 'Nw')],
-        'cap_area_on_authored_bore': [('free_transferring', 'sigma_z')],
+        'retired_thin_wall_hoop': [(_FREE, 'lame_inner_hoop_reduced_section'), (_RESTRAINED, 'lame_inner_hoop_reduced_section')],
+        'retired_thin_wall_longitudinal_free': [(_FREE, 'sigma_z_reduced_section')],
+        'retired_thin_wall_longitudinal_restrained': [(_RESTRAINED, 'sigma_z_reduced_section')],
+        'allowance_omitted_from_reduced_section': [(_FREE, 'lame_inner_hoop_reduced_section'), (_RESTRAINED, 'lame_inner_hoop_reduced_section')],
+        'allowance_omitted_from_reduced_section_sigma_z_free': [(_FREE, 'sigma_z_reduced_section')],
+        'allowance_omitted_from_pressure_bore_wall_force_free': [(_FREE, 'Nw')],
+        'mill_tolerance_ignored': [(_FREE, 'lame_inner_hoop_reduced_section'), (_RESTRAINED, 'lame_inner_hoop_reduced_section')],
+        'mill_tolerance_ignored_sigma_z_free': [(_FREE, 'sigma_z_reduced_section')],
+        'cap_area_on_nominal_bore': [(_FREE, 'sigma_z_reduced_section')],
+        'cap_area_on_nominal_bore_wall_force_free': [(_FREE, 'Nw')],
+        'longitudinal_pressure_added_free': [(_FREE, 'sigma_z_reduced_section')],
+        'poisson_sign_reversed_restrained': [(_RESTRAINED, 'Nw')],
+        'cap_area_on_bore_without_mill_tolerance': [(_FREE, 'sigma_z_reduced_section')],
+        'mill_tolerance_in_stiffness': [(_FREE, 'B_ux')],
+        'allowance_in_stiffness': [(_FREE, 'B_ux')],
+        'stiffness_on_reduced_section': [(_FREE, 'B_ux')],
+        'eps_p_area_on_reduced_section': [(_RESTRAINED, 'Nw')],
+        'poisson_eigenstrain_area_on_reduced_section': [(_RESTRAINED, 'Nw')],
+        'single_basis_reduced_rows_from_nominal': [(_FREE, 'sigma_z_reduced_section')],
+        'single_basis_reduced_hoop_from_nominal': [(_FREE, 'lame_inner_hoop_reduced_section'), (_RESTRAINED, 'lame_inner_hoop_reduced_section')],
+        'single_basis_nominal_rows_from_reduced': [(_FREE, 'sigma_z_nominal_section')],
+        'single_basis_nominal_hoop_from_reduced': [(_FREE, 'lame_inner_hoop_nominal_section'), (_RESTRAINED, 'lame_inner_hoop_nominal_section')],
+        'nominal_lame_at_pressure_bore': [(_FREE, 'lame_inner_hoop_nominal_section'), (_RESTRAINED, 'lame_inner_hoop_nominal_section')],
+        'nominal_lame_at_pressure_bore_outer': [(_FREE, 'lame_outer_hoop_nominal_section'), (_RESTRAINED, 'lame_outer_hoop_nominal_section')],
     },
     'tp_phys_pressure_halves': {
         'legacy_same_sign_thrust': [(None, 'Nw')], 'pressure_as_compression': [(None, 'Nw')],
@@ -571,6 +676,12 @@ I8_DISCRIMINATORS = {
         'mean_hoop_as_surface': [(None, 'lame_inner_hoop')],
     },
 }
+# The D-5 re-freeze renamed three MILLTOL controls (each names its `former_id`).
+I8_FORMER_IDS = {'allowance_omitted_from_reduced_section': 'allowance_not_folded',
+                 'allowance_omitted_from_reduced_section_sigma_z_free': 'allowance_not_folded_sigma_z_free',
+                 'cap_area_on_bore_without_mill_tolerance': 'cap_area_on_authored_bore'}
+# Units whose controls are active in this package (a control's `active_from`).
+I8_ACTIVE_FROM = {'T4-U6'}
 I8_ABSENT = ('element_local_axial_force', 'element_local_axial_normal_stress',
              'pipe_section_pressure_hoop_stress', 'pipe_section_pressure_longitudinal_stress')
 # No rows of its own: its values are the v2 fixture SOURCE_ODWALL_EXPECTATIONS.json, and its SP-1 twin
@@ -587,59 +698,68 @@ def i8_owners(references: dict):
             yield case_key, None, case
 
 
-def i8_case(references: dict, case_key: str, variant: str | None, owner: dict, version: str, pi: Decimal, semantics: Semantics) -> Case:
-    patch = owner['documents']['v3_patch_for_both']
-    require(patch['op'] == 'replace' and patch['path'] == '/model/pressure_contract' and patch['value'] == PRESSURE_CONTRACT,
-            f'{case_key}: v3 patch')
-    document = copy.deepcopy(owner['documents'][f'v2_model_{version}'])
-    document['model']['pressure_contract'] = copy.deepcopy(patch['value'])
+def i8_documents(case_key: str, owner: dict):
+    """(case label, document) of one owner: the v2 documents on 0.3.0 and 0.4.0 under the v3 patch or, for an
+    owner re-authored on D-5, its own model 0.5.0 documents without and with the load/reference-state group."""
+    documents = owner['documents']
+    if 'v3_patch_for_both' in documents:
+        patch = documents['v3_patch_for_both']
+        require(patch['op'] == 'replace' and patch['path'] == '/model/pressure_contract' and patch['value'] == PRESSURE_CONTRACT,
+                f'{case_key}: v3 patch')
+        for version in VERSIONS:
+            document = copy.deepcopy(documents[f'v2_model_{version}'])
+            document['model']['pressure_contract'] = copy.deepcopy(patch['value'])
+            yield version, document
+        return
+    for label, key in I8_CURRENT_DOCUMENTS:
+        document = copy.deepcopy(documents[key])
+        model = document['model']
+        require(model['schema_version'] == '0.5.0' and model['pressure_contract'] == CURRENT_PRESSURE_CONTRACT,
+                f'{case_key} {label}: document identity')
+        require(('reference_configurations' in model) == key.endswith('_load_state_group'), f'{case_key} {label}: load/reference-state group')
+        yield label, document
+
+
+def i8_case(references: dict, case_key: str, variant: str | None, owner: dict, label: str, document: dict, pi: Decimal,
+            semantics: Semantics) -> Case:
     owner_id = case_key if variant is None else f'{case_key}.{variant}'
-    out = Case(f'{owner_id}@{version}', I8, case_key, document, semantics)
+    out = Case(f'{owner_id}@{label}', I8, case_key, document, semantics)
     require(set(out.load_cases) == set(owner['load_cases']), f'{owner_id}: load cases differ from the document')
     pressurized = set()
     for region in (r for case in document['model']['load_cases'] for r in case.get('pressure_regions', [])):
         pressurized.update(region['member_pipe_ids'])
+    # D-5: a re-frozen owner names each stress row's basis; where the bases coincide the one row is both families'.
+    coincide = bases_coincide(document)
     by_key = {}
     for index, case_id in enumerate(out.load_cases):
         for row in owner['load_cases'][case_id]['rows']:
             origin = row['reference_origin']
             require(origin['kind'] == 'analytical' and origin['transform'] == 'identity', f'{owner_id}: origin kind')
             require(row['basis_ref'] == {'ref_type': 'load_case', 'ref_id': case_id}, f'{owner_id}: row basis')
-            selector, family = semantics.selector(row['kind'], row['unit'], row['component'], row['entity_ref'], row['location'],
-                                                  'straight', case_id, index == 0)
-            require(selector['metadata']['coordinate_system'] == row['coordinate_system'], f'{owner_id}: coordinate system of {selector["id"]}')
-            quantity = resolve(references, origin['pointer'])
-            require(quantity['unit'] == origin['reference_unit'], f'{owner_id}: reference unit at {origin["pointer"]}')
-            value = convert(maintained(quantity, pi, origin['pointer']), origin['reference_unit'], row['unit'], origin['pointer'])
-            criterion = row['criterion']
-            if criterion['kind'] == 'relative':
-                require(criterion == {'kind': 'relative', 'relative_tolerance': 1e-09, 'absolute_tolerance': 0.0}, f'{owner_id}: criterion')
-                require(value != 0, f'{owner_id}: a relative criterion needs a nonzero reference')
-                rule = out.rule(family, selector['dimension'], row['unit'], 'relative_1e-9', 1e-09, 0.0,
-                                'T4-I8 criterion |observed - expected| <= 1e-9*|expected| (the existing protected relative criterion)')
+            bases = semantics.bases(row['kind'], row['unit'], row['component'])
+            if 'section_basis' in row:
+                require(not coincide and bases == SECTION_BASES and row['section_basis'] in SECTION_BASES,
+                        f'{owner_id}: {row["kind"]} names section basis {row["section_basis"]}')
+                bases = (row['section_basis'],)
             else:
-                require(criterion['kind'] == 'zero_scale' and criterion['relative_tolerance'] == 0.0 and value == 0, f'{owner_id}: criterion')
-                scale = origin['zero_scale']
-                base = resolve(references, scale['base']['pointer'])
-                require(base['unit'] == scale['base']['reference_unit'] == scale['scale_unit'], f'{owner_id}: zero scale unit')
-                with decimal.localcontext(CONTEXT):
-                    absolute = RELATIVE * convert(abs(maintained(base, pi, scale['base']['pointer'])), scale['scale_unit'], row['unit'], scale['tag'])
-                require(binary64(absolute) == criterion['absolute_tolerance'], f'{owner_id}: zero floor differs from the frozen row criterion')
-                rule = out.rule(family, selector['dimension'], row['unit'], f'zero_scale:{case_id}:{scale["tag"]}', 0.0, binary64(absolute),
-                                f'T4-I8 zero rule |observed| <= 1e-9*zero_scale; zero_scale {scale["base"]["pointer"]} in {row["unit"]}')
-            handle = f'{origin["pointer"]}@{selector["id"]}'
-            out.assert_positive(selector, family, value, rule,
-                                {'reference': I8, 'pointer': origin['pointer'], 'reference_unit': origin['reference_unit'], 'transform': 'identity'},
-                                handle)
-            by_key.setdefault((case_id, row['expected']), []).append(handle)
+                require(coincide or bases == (None,), f'{owner_id}: {row["kind"]} names no section basis on distinct bases')
+            for basis in bases:
+                assert_i8_row(references, out, owner_id, row, case_id, index, basis, pi, semantics, by_key)
     out.absences.extend({'row': {'kind': kind, 'entity_ref': pipe}} for pipe in sorted(pressurized) for kind in I8_ABSENT)
     mapping = I8_DISCRIMINATORS.get(case_key, {})
     for control in references['cases'][case_key].get('wrong_result_discriminators') or []:
-        if control.get('producible_today') is False:
-            out.gap('not_active', f'control {control["id"]} is active from {control.get("active_from")}; not producible today')
+        require('producible_today' not in control, f'{case_key}: control {control["id"]} uses the retired producible_today')
+        require(control.get('former_id') == I8_FORMER_IDS.get(control['id']), f'{case_key}: control {control["id"]} former id')
+        if control.get('active_from', next(iter(I8_ACTIVE_FROM))) not in I8_ACTIVE_FROM:
+            out.gap('not_active', f'control {control["id"]} is active from {control["active_from"]}; not producible in this package')
             continue
         targets = mapping.get(control['id'])
         require(targets is not None, f'{case_key}: discriminator {control["id"]} has no mapping')
+        if 'target' in control:
+            declared = control['target']
+            require(set(declared) == {'variants', 'expected'}
+                    and sorted((v, declared['expected']) for v in declared['variants']) == sorted(targets),
+                    f'{case_key}: discriminator {control["id"]} target differs from the mapping')
         for target_variant, key in targets:
             if target_variant != variant:
                 continue
@@ -652,6 +772,39 @@ def i8_case(references: dict, case_key: str, variant: str | None, owner: dict, v
             out.assert_negative(control['id'], handles[0], convert(maintained(wrong, pi, control['id']), wrong['unit'], unit, control['id']),
                                 f'/cases/{case_key}/wrong_result_discriminators/{control["id"]}')
     return out
+
+
+def assert_i8_row(references: dict, out: Case, owner_id: str, row: dict, case_id: str, index: int, basis: str | None,
+                  pi: Decimal, semantics: Semantics, by_key: dict) -> None:
+    """One T4-I8 row on one section basis (``None`` for a quantity published once)."""
+    origin = row['reference_origin']
+    selector, family = semantics.selector(row['kind'], row['unit'], row['component'], row['entity_ref'], row['location'],
+                                          'straight', case_id, index == 0, basis)
+    require(selector['metadata']['coordinate_system'] == row['coordinate_system'], f'{owner_id}: coordinate system of {selector["id"]}')
+    quantity = resolve(references, origin['pointer'])
+    require(quantity['unit'] == origin['reference_unit'], f'{owner_id}: reference unit at {origin["pointer"]}')
+    value = convert(maintained(quantity, pi, origin['pointer']), origin['reference_unit'], row['unit'], origin['pointer'])
+    criterion = row['criterion']
+    if criterion['kind'] == 'relative':
+        require(criterion == {'kind': 'relative', 'relative_tolerance': 1e-09, 'absolute_tolerance': 0.0}, f'{owner_id}: criterion')
+        require(value != 0, f'{owner_id}: a relative criterion needs a nonzero reference')
+        rule = out.rule(family, selector['dimension'], row['unit'], 'relative_1e-9', 1e-09, 0.0,
+                        'T4-I8 criterion |observed - expected| <= 1e-9*|expected| (the existing protected relative criterion)')
+    else:
+        require(criterion['kind'] == 'zero_scale' and criterion['relative_tolerance'] == 0.0 and value == 0, f'{owner_id}: criterion')
+        scale = origin['zero_scale']
+        base = resolve(references, scale['base']['pointer'])
+        require(base['unit'] == scale['base']['reference_unit'] == scale['scale_unit'], f'{owner_id}: zero scale unit')
+        with decimal.localcontext(CONTEXT):
+            absolute = RELATIVE * convert(abs(maintained(base, pi, scale['base']['pointer'])), scale['scale_unit'], row['unit'], scale['tag'])
+        require(binary64(absolute) == criterion['absolute_tolerance'], f'{owner_id}: zero floor differs from the frozen row criterion')
+        rule = out.rule(family, selector['dimension'], row['unit'], f'zero_scale:{case_id}:{scale["tag"]}', 0.0, binary64(absolute),
+                        f'T4-I8 zero rule |observed| <= 1e-9*zero_scale; zero_scale {scale["base"]["pointer"]} in {row["unit"]}')
+    handle = f'{origin["pointer"]}@{selector["id"]}'
+    out.assert_positive(selector, family, value, rule,
+                        {'reference': I8, 'pointer': origin['pointer'], 'reference_unit': origin['reference_unit'], 'transform': 'identity'},
+                        handle)
+    by_key.setdefault((case_id, row['expected']), []).append(handle)
 
 
 # --------------------------------------------------------------------------
@@ -714,7 +867,8 @@ def admission() -> dict | None:
 
 
 def cases() -> list[Case]:
-    """Every case: the T4-I7 valued cases, then the T4-I8 owners with rows, each on 0.3.0 and 0.4.0."""
+    """Every case: the T4-I7 valued cases on 0.3.0 and 0.4.0, then the T4-I8 owners with rows, each on its
+    two documents (0.3.0 and 0.4.0, or a D-5 re-authored owner's 0.5.0 without and with the load/reference-state group)."""
     semantics = Semantics()
     i7 = json.loads((WORKING_ROOT / I7).read_bytes())
     sketches = json.loads((WORKING_ROOT / I7_DOCUMENTS).read_bytes())['sketches']
@@ -732,8 +886,8 @@ def cases() -> list[Case]:
     for case_key, variant, owner in i8_owners(i8):
         if case_key in I8_NO_ROWS:
             continue
-        for version in VERSIONS:
-            built.append(i8_case(i8, case_key, variant, owner, version, pi, semantics))
+        for label, document in i8_documents(case_key, owner):
+            built.append(i8_case(i8, case_key, variant, owner, label, document, pi, semantics))
     return built
 
 
