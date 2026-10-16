@@ -1,4 +1,4 @@
-# T4-U2 rebuilt straight references (T4-I8, repair round 01)
+# T4-U2 rebuilt straight references (T4-I8, repair round 01; case 1 re-frozen for D-5)
 
 Frozen closed-form expectations for the straight cases T4-U2 rebuilds on the
 exact route (Lamé surface values with σz, a pressure-plus-thermal annular case
@@ -12,13 +12,64 @@ own criterion and SP-1's twin clause (`/sp1_pair_scope`).
 
 | File | sha256 | Role |
 |---|---|---|
-| `rebuilt_reference_cases.json` | `838578ab…724b` | the cases, rows in T1's selector shape with their criteria, the documents and the SP-1 pair scope |
-| `_run_records/derive_rebuilt_references.py` | `eb795f54…7460` | writes the JSON (standard library only) |
-| `_run_records/check_reference_json.py` | `725553bc…824c` | re-evaluates the quantities and rows and compares with a frozen file |
+| `rebuilt_reference_cases.json` | `6f305474…21e0` | the cases, rows in T1's selector shape with their criteria, the documents and the SP-1 pair scope |
+| `_run_records/derive_rebuilt_references.py` | `1ae18e9e…3b32` | writes the JSON (standard library only) |
+| `_run_records/check_reference_json.py` | `10219c38…27ef` | re-evaluates the quantities and rows and compares with an earlier frozen file |
 
-`SHA256SUMS` holds these three lines verbatim from the archive's
-`T4-I8/SHA256SUMS`. Every byte is unchanged from its source; check with
-`shasum -a 256 -c SHA256SUMS` in this directory.
+`SHA256SUMS` holds these three digests; check with `shasum -a 256 -c SHA256SUMS`
+in this directory.
+
+## D-5 re-freeze of case 1 (T4-U6)
+
+The owner ruled D-5 on 2026-10-10 ("D-5 and D-6 as recommended"; DEL-05-03
+Design `section-and-shear-decisions.md`, technical design
+`section-bases-and-timoshenko.md` §§1, 2.1, 2.5 and 7). Case 1,
+`EXACT-PRESSURE-MILLTOL-LAME-MEMBRANE-001`, was frozen on one section (the
+authored wall 0.008 m with the 0.002 m allowance folded in, minus the mill
+tolerance) and marked for re-freeze if D-5 changed its basis. It does, so:
+
+- **Re-authored.** Both variants are written in model 0.5.0 under the current
+  contract (`shear_model` `euler_bernoulli`) with the true nominal wall
+  0.01 m, explicit `mill_tolerance` 0.00125 m and `corrosion_allowance`
+  0.002 m, without and with the load/reference-state group. A
+  `shear_model_variant` patch selects `timoshenko_annulus_energy_v1`; every
+  row is the same under it (no transverse load), so this one re-freeze serves
+  T4-U6 and T4-U8. There is no v2 twin any more (nonzero mill tolerance and
+  allowance; SP-1 scope after D-5 and D-6). The product refuses these
+  documents until T4-U6 admits a nonzero allowance.
+- **Re-frozen on D-5.** Stiffness and the As of ε_p use the nominal section
+  (ri 0.09 m); Ai uses the pressure bore ri,r = OD/2 − ((t − c_m) − c_a) =
+  0.09325 m; every stress row (σz, the four Lamé rows, the zero bending and
+  torsional rows, the maximum) is published on the nominal and on the reduced
+  section (wall 0.00675 m) and carries `section_basis`. Rows: 204 → 286.
+  Zero scales are per basis (`scale_stress_nominal_section`,
+  `scale_stress_reduced_section`); the length and rotation scales use the
+  stiffer nominal section, so every floor is the same or tighter.
+- **Prediction check** (`cases/milltol_lame_membrane/refreeze/prediction_check`).
+  Against the repair-01 values, computed by the unchanged repair-01 function:
+  Nw, S, the reduced-section σz, Lamé rows and maximum, and the restrained
+  reactions are unchanged in exact form; node:B ux (free) moved from
+  5.3329e-8 m to 3.6613e-8 m, and every section-dependent nominal-section row
+  (σz, Lamé hoop, maximum) is new. One wording refinement is recorded rather
+  than resolved: the nominal radial Lamé rows (−p, 0) do not move, because
+  they are basis-independent boundary tractions.
+- **Discriminators.** All eleven repair-01 controls are kept with their wrong
+  values. `cap_area_on_nominal_bore` is now active. Two are renamed because the
+  fold is gone (`allowance_not_folded` → `allowance_omitted_from_reduced_section`,
+  `cap_area_on_authored_bore` → `cap_area_on_bore_without_mill_tolerance`;
+  `former_id` names the old id). New controls cover mill tolerance or
+  allowance in stiffness, the retired single stiffness section, ε_p (and the
+  Poisson eigenstrain) on the reduced area, single-basis copies in both
+  directions, the nominal Lamé formed at the pressure bore, and the cap thrust
+  on the nominal or mill-only bore. Each names its target quantity and lies
+  at least 1.2e6 tolerances from it.
+- **Unchanged.** Cases 2–5 (zero mill tolerance and allowance; the bases
+  coincide) are byte-identical within the file. Their consuming tests assert
+  both stress families against the one expected value.
+
+This re-freeze was derived without reading product code, from the Design and
+its vetted bases, and awaits refutation by a separate TASK before any product
+output is compared with it.
 
 ## Provenance
 
@@ -26,20 +77,27 @@ own criterion and SP-1's twin clause (`/sp1_pair_scope`).
   `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/T4-I8/`,
   repair round 01 at `5b07d85cf3`; that directory's `SHA256SUMS` has digest
   `65bf2f50d6526e6a143773de006a5540943deefffd58fdbe560f0eab6ff15509`
-  (10/10 entries verified).
+  (10/10 entries verified). The repair-01 bytes of the three files are in Git
+  history before this re-freeze (`838578ab…724b`, `eb795f54…7460`,
+  `725553bc…824c`).
 - Refuted by T4-RV4 (PASS WITH FINDINGS, nothing blocking), which confirmed
   the repair (RV4's `SHA256SUMS` digest `96b6711c…`). No frozen value changed
   in repair round 01.
 - The definition is the archive's `T4-I8/REBUILT_REFERENCE.md`. Case 2's three
   lateral deflections and the twin's tip deflection are marked for re-freeze in
-  T4-U8 if D-6 changes the default; MILLTOL in T4-U6 if D-5 changes the basis.
+  T4-U8 if D-6 changes the default.
 
 ## Reproduce
 
+From this directory (the twin fixture is read by path and only compared):
+
 ```
-python3 -I _run_records/derive_rebuilt_references.py \
+python3 -I -B _run_records/derive_rebuilt_references.py \
   ../../../core/product_physics/tests/fixtures/pressure_reference/SOURCE_ODWALL_EXPECTATIONS.json <output json>
+python3 -I -B _run_records/check_reference_json.py <output json> [<earlier frozen json>]
 ```
 
-It writes `rebuilt_reference_cases.json` byte for byte (re-run by T4-I32,
-2026-10-10).
+The first writes `rebuilt_reference_cases.json` byte for byte (248 checks).
+The second re-evaluates it; given the repair-01 file it also checks that cases
+2–5 kept every value and that case 1 kept what D-5 keeps and moved what it
+moves.

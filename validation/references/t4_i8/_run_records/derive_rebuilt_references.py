@@ -12,6 +12,14 @@ Every value is exact: a rational times pi**k (k in -1, 0, 1). Closed forms
 (Lame, Hooke with the Poisson term, beam statics) are evaluated in Fractions and
 cross-checked by a second method (exact direct-stiffness solve with consistent
 loads and section recovery; the general Lame family; compliance identities).
+
+T4-U6 (D-5): case 1 (MILLTOL) is re-authored with the true nominal wall and an
+explicit corrosion allowance in model 0.5.0 and re-frozen on the D-5 section
+bases (DEL-05-03 Design section-bases-and-timoshenko.md sections 1, 2.1, 2.5, 7):
+stiffness and the As of eps_p on the nominal wall, Ai on the pressure bore, every
+stress row on the nominal and the reduced section with its own maximum. The
+repair-01 freeze of case 1 (case_milltol_before_d5) is evaluated only to check the
+re-freeze against its frozen prediction. Cases 2-5 are unchanged byte for byte.
 """
 
 import hashlib
@@ -196,6 +204,42 @@ def axial_state(g, E, nu, p, eps_th, restrained, transfer=True):
     return {"P": P, "EA": EA, "Nw": Nw, "S": S, "sigma_z": sz, "strain": strain}
 
 
+# ---------------------------------------------------------------- D-5 section bases (T4-U6)
+BASES = ("nominal_section", "reduced_section")
+
+
+def d5_geometry(od, t, c_m, c_a):
+    """D-5 (DEL-05-03 Design section 1): the nominal section on the wall t (stiffness, metal mass, the
+    eps_p area, nominal-basis stresses); the reduced section on t_r = (t - c_m) - c_a (reduced-basis
+    stresses); the pressure bore r_i,r = OD/2 - t_r (Ai for caps and the Poisson pair, contents mass)."""
+    od, t, c_m, c_a = F(od), F(t), F(c_m), F(c_a)
+    t_r = (t - c_m) - c_a
+    check(f"D-5 reduced wall positive [{od},{t},{c_m},{c_a}]", 0 < t_r < t or (c_m == 0 and c_a == 0 and t_r == t))
+    nominal, reduced = annulus(od, t), annulus(od, t_r)
+    check(f"D-5 pressure bore r_i,r == OD/2 - t + c_m + c_a [{od},{t},{c_m},{c_a}]", reduced["ri"] == od / 2 - t + c_m + c_a)
+    return {"nominal_section": nominal, "reduced_section": reduced,
+            "pressure_bore": {"ri": reduced["ri"], "Ai": reduced["Ai"]}, "t_r": t_r}
+
+
+def axial_state_d5(geo, E, nu, p, eps_th, restrained):
+    """Hooke with the Poisson term under D-5: one mechanical solution with the stiffness (nominal) As, the
+    As of eps_p equal to the stiffness As (RV1 N-5) and the cap area Ai on the pressure bore; then the one
+    wall force on each basis, sigma_z = Nw/A_b."""
+    E, nu, p, eps_th = F(E), F(nu), F(p), F(eps_th)
+    stiff = geo["nominal_section"]
+    P = Q(p) * geo["pressure_bore"]["Ai"]
+    EA = Q(E) * stiff["As"]
+    if restrained:
+        strain = F(0)
+        Nw = EA * Q(strain - eps_th) + Q(2 * nu) * P
+    else:
+        Nw = P
+        strain = ((Nw / stiff["As"]) - Q(nu * 2) * (P / stiff["As"])).r / E + eps_th
+    check("D-5 axial compliance identity on the stiffness As",
+          Q(strain - eps_th) == (Nw / stiff["As"] - Q(nu * 2) * (P / stiff["As"])) / Q(E))
+    return {"P": P, "EA": EA, "Nw": Nw, "S": Nw - P, "strain": strain, "sigma_z": {b: Nw / geo[b]["As"] for b in BASES}}
+
+
 def self_test_qualified_tables():
     """Reproduce the qualified rational table and the 6 m companion (PRESSURE_REFERENCE_QUALIFICATION
     section 2; STRESS_REFERENCE section 8) with this script's own functions."""
@@ -323,7 +367,8 @@ class Ledger:
         v = self._q[name]
         return abs(v.dec()) if isinstance(v, Q) else abs(v)
 
-    def row(self, kind, entity, component, location, unit, frame, name, q, scale=None, ref_unit=None, refreeze=None):
+    def row(self, kind, entity, component, location, unit, frame, name, q, scale=None, ref_unit=None, refreeze=None,
+            section_basis=None):
         ref_unit = ref_unit or unit
         if q is not None:
             self.put(name, q, ref_unit)
@@ -340,10 +385,13 @@ class Ledger:
             crit = {"kind": "zero_scale", "relative_tolerance": 0.0, "absolute_tolerance": float(tol)}
         else:
             crit = dict(CRIT_REL)
-        entry = {"kind": kind, "entity_ref": entity, "component": component, "location": location,
-                 "unit": unit, "coordinate_system": frame,
-                 "basis_ref": {"ref_type": "load_case", "ref_id": self.case_id},
-                 "expected": name, "reference_origin": origin, "criterion": crit}
+        entry = {"kind": kind, "entity_ref": entity, "component": component, "location": location}
+        if section_basis is not None:   # D-5 stress rows only (DEL-05-03 Design section 2.5); absent elsewhere
+            assert section_basis in BASES, section_basis
+            entry["section_basis"] = section_basis
+        entry.update({"unit": unit, "coordinate_system": frame,
+                      "basis_ref": {"ref_type": "load_case", "ref_id": self.case_id},
+                      "expected": name, "reference_origin": origin, "criterion": crit})
         if refreeze:
             entry["refreeze"] = refreeze
         self.rows.append(entry)
@@ -575,8 +623,47 @@ def documents(doc030, states040):
             "note": "The v2 documents run on today's exact route (straight only). The v3 documents are the v2 documents with V3_PATCH applied. The pair is held to /sp1_pair_scope (all inputs here have p >= 0), separately for 0.3.0 and 0.4.0 and for each mode."}
 
 
-# ================================================================= CASE 1: MILLTOL
-def case_milltol():
+# ---------------------------------------------------------------- current-format documents (D-5 re-authoring)
+CURRENT_CONTRACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
+
+
+def pipe_d5(id_, a, b, od, wall, mat, mill, allowance):
+    sec = {"outside_diameter": {"value": fnum(od), "unit": "m"}, "wall_thickness": {"value": fnum(wall), "unit": "m"},
+           "mill_tolerance": {"value": fnum(mill), "unit": "m"}, "corrosion_allowance": {"value": fnum(allowance), "unit": "m"}}
+    return {"id": id_, "from": a, "to": b, "section": sec, "material": mat,
+            "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0}, "provenance": PROV}
+
+
+def doc_050(project, nodes, pipes, supports, materials, cases):
+    """Model document 0.5.0 under the current exact contract (shear_model explicit), without the
+    load/reference-state group."""
+    return {"model": {"schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+                      "pressure_contract": dict(CURRENT_CONTRACT),
+                      "project": {"id": project, "units": UNITS},
+                      "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
+                                          "rule_check": "not_performed_user_rule_inputs_missing",
+                                          "professional_acceptance": "not_provided"},
+                      "nodes": nodes, "pipe_segments": pipes, "supports": supports, "components": [],
+                      "materials": materials, "load_cases": cases, "combinations": []}, "materials": []}
+
+
+def documents_d5(doc050, states):
+    """The two current-format forms of one case: without and with the load/reference-state group (the group
+    keeps 0.4.0's rules, B7b), and the Timoshenko selection as a patch."""
+    group = to_040(doc050, states)
+    group["model"]["schema_version"] = "0.5.0"
+    return {"v3_model_0.5.0": doc050, "v3_model_0.5.0_load_state_group": group,
+            "shear_model_variant": {"op": "replace", "path": "/model/pressure_contract/shear_model",
+                                    "value": "timoshenko_annulus_energy_v1",
+                                    "expectation": "every row of this case is unchanged under the patch: there is no transverse load, and the axial and torsional stiffness do not involve the shear area (DEL-05-03 Design sections 3.3 and 7: one re-freeze serves T4-U6 and T4-U8)"},
+            "sp1_pair": "not applicable: the section has nonzero mill tolerance and corrosion allowance, so SP-1's twin clause does not apply and no v2 twin exists (DEL-05-03 section-and-shear-decisions.md, SP-1 scope after D-5 and D-6)",
+            "note": "Re-authored in model 0.5.0 under 3.0.0/exact_pressure_v3 with the true nominal wall 0.01 m and explicit mill_tolerance 0.00125 m and corrosion_allowance 0.002 m (before D-5 the allowance was folded into an authored wall of 0.008 m). Both forms carry the same physical inputs; they are run separately, in both solver modes, against the same rows. The documents need the product's T4-U6 admission of a nonzero allowance."}
+
+
+# ================================================================= CASE 1: MILLTOL before D-5 (repair round 01, unchanged)
+def case_milltol_before_d5():
+    """The repair-01 freeze of case 1 on the retired single section, unchanged. It is no longer written to
+    the file; case_milltol() evaluates it only to check the D-5 re-freeze against its frozen prediction."""
     od, t_nom, ca, mill = F(1, 5), F(1, 100), F(1, 500), F(1, 800)
     wall_authored = t_nom - ca                      # corrosion allowance folded into the authored wall
     t_eff = wall_authored - mill                    # product section rule: wall - mill tolerance
@@ -665,6 +752,269 @@ def case_milltol():
                  "why": "the producible mixed basis: the mill reduction applied to As but Ai taken from the authored bore (ri 0.092); today's rule takes Ai from the reduced bore (ri 0.09325)"})
     out["wrong_result_discriminators"] = disc
     out["limits"] = "Long straight homogeneous isotropic annulus, zero external pressure increment, small strain; tiny invented p (2000 Pa) kept from the retired case. Not a corrosion or code-thickness rule."
+    return out
+
+
+# ================================================================= CASE 1: MILLTOL re-authored and re-frozen on D-5 (T4-U6)
+D5_PRESSURE_STRESS = [("pipe_axial_membrane_stress_v2", "axial_membrane_stress", "sigma_z"),
+                      ("pipe_lame_radial_stress_v2", "lame_inner_radial_stress", "lame_inner_radial"),
+                      ("pipe_lame_radial_stress_v2", "lame_outer_radial_stress", "lame_outer_radial"),
+                      ("pipe_lame_hoop_stress_v2", "lame_inner_hoop_stress", "lame_inner_hoop"),
+                      ("pipe_lame_hoop_stress_v2", "lame_outer_hoop_stress", "lame_outer_hoop")]
+
+
+def pressure_rows_d5(led, pipe, st, lames, scale_force, scale_stress):
+    """pressure_rows on D-5: the wall and effective forces once; each stress row on the nominal section
+    immediately followed by its reduced twin (DEL-05-03 Design section 2.5); Lame on each basis's own
+    annulus and sigma_z = Nw/A_b (section 2.1)."""
+    led.put("Nw", st["Nw"], "N")
+    for loc, _ in STATIONS:
+        led.row("pipe_wall_axial_force_v2", pipe, "wall_axial_force", loc, "N", "element_local", "Nw", st["Nw"], scale_force)
+        led.row("pipe_effective_axial_force_v2", pipe, "effective_axial_force", loc, "N", "element_local", "S", st["S"], scale_force)
+        for kind, comp, key in D5_PRESSURE_STRESS:
+            for b in BASES:
+                val = st["sigma_z"][b] if key == "sigma_z" else Q(lames[b][key[len("lame_"):]])
+                led.row(kind, pipe, comp, loc, "Pa", "pipe_section", f"{key}_{b}", val, scale_stress[b], section_basis=b)
+    led.row("pipe_wall_endpoint_action_v2", pipe, "wall_axial_end_action", "end_i", "N", "element_local", "wall_end_action_i", -st["Nw"], scale_force)
+    led.row("pipe_wall_endpoint_action_v2", pipe, "wall_axial_end_action", "end_j", "N", "element_local", "wall_end_action_j", st["Nw"], scale_force)
+
+
+def section_block(g, wall):
+    return {"wall": qty(wall, "m"), "ri": qty(g["ri"], "m"), "As": qty(g["As"], "m^2"), "I": qty(g["I"], "m^4"),
+            "J": qty(g["J"], "m^4"), "Z": qty(g["Z"], "m^3")}
+
+
+def binary64_d5_order(od, t, c_m, c_a):
+    """DEL-05-03 Design section 1's binary64 order applied to the authored binary64 inputs (Python float:
+    IEEE binary64, round to nearest even, no fused multiply-add). An exhibit for the evidence readers; the
+    rows' exact values are for the decimal inputs, and the 1e-9 criterion absorbs the operand rounding."""
+    D_, t_, m_, a_ = float(od), float(t), float(c_m), float(c_a)
+    t_r = (t_ - m_) - a_
+    ri_r = D_ / 2 - t_r
+    ri_alt = D_ / 2 - t_ + m_ + a_
+    ri_n = D_ / 2 - t_
+    exact_ri_r = F(od) / 2 - ((F(t) - F(c_m)) - F(c_a))
+    return {"order": "t_r = (t - c_m) - c_a, then r_i,r = OD/2 - t_r; r_i,n = OD/2 - t",
+            "t_r": t_r, "t_r_hex": t_r.hex(), "ri_reduced": ri_r, "ri_reduced_hex": ri_r.hex(),
+            "ri_nominal": ri_n, "ri_nominal_hex": ri_n.hex(),
+            "ri_reduced_by_the_other_order": ri_alt, "ri_reduced_by_the_other_order_hex": ri_alt.hex(),
+            "the_other_order": "((OD/2 - t) + c_m) + c_a",
+            "orders_round_alike": ri_alt == ri_r,
+            "ri_reduced_relative_difference_from_the_decimal_target": format(float(abs(F(ri_r) - exact_ri_r) / exact_ri_r), ".3e")}
+
+
+def case_milltol():
+    before = case_milltol_before_d5()
+    od, t_nom, ca, mill = F(1, 5), F(1, 100), F(1, 500), F(1, 800)
+    geo = d5_geometry(od, t_nom, mill, ca)
+    nom, red, bore = geo["nominal_section"], geo["reduced_section"], geo["pressure_bore"]
+    check("MILLTOL D-5 reduced wall t_r == 0.00675 (the retired t_eff)", geo["t_r"] == F(27, 4000))
+    check("MILLTOL D-5 pressure bore ri == 0.09325 (unchanged)", bore["ri"] == F(373, 4000))
+    check("MILLTOL nominal annulus is SHEAR_REFERENCE S-B's (ro 0.1, ri 0.09, A 0.0019 pi, I 0.0000085975 pi)",
+          nom["ri"] == F(9, 100) and nom["As"] == Q(F(19, 10000), 1) and nom["I"] == Q(F(85975, 10 ** 10), 1))
+    E, nu, p, L = 200 * 10 ** 9, F(3, 10), 2000, F(2)
+    lames = {b: lame(geo[b], p) for b in BASES}
+    P = Q(p) * bore["Ai"]
+    check("MILLTOL P == 139129/8000 pi (Ai on the pressure bore; unchanged)", P == Q(F(139129, 8000), 1))
+    retired_hoop = F(p) * ((od - geo["t_r"]) / 2) / geo["t_r"]
+    check("retired thin-wall hoop 28629.6296... on the reduced wall", abs(float(retired_hoop) - 28629.62962962963) < 1e-9)
+    out = {"case_id": "EXACT-PRESSURE-MILLTOL-LAME-MEMBRANE-001",
+           "rebuilds": before["rebuilds"],
+           "refreeze": {"unit": "T4-U6",
+                        "status": "re-authored and re-frozen on D-5 by the T4-U6/T4-U8 independent reference TASK; awaiting independent refutation",
+                        "ruling": "D-5 (owner, 2026-10-10: \"D-5 and D-6 as recommended\"); DEL-05-03 Design section-and-shear-decisions.md and section-bases-and-timoshenko.md sections 1, 2.1, 2.5 and 7",
+                        "condition_frozen_at_5b07d85cf3": before["refreeze"]["condition"],
+                        "basis_before": before["refreeze"]["basis_today"] + "; " + before["refreeze"]["fold"],
+                        "basis_now": "nominal section (OD 0.2 m, wall 0.01 m, ri 0.09 m) for stiffness and for the As of eps_p; Ai = pi ri,r^2 on the pressure bore ri,r = OD/2 - ((t - c_m) - c_a) = 0.09325 m; every stress row published on the nominal section and on the reduced section (wall 0.00675 m, ri 0.09325 m), each basis with its own maximum; one mechanical solution",
+                        "prediction_frozen_at_5b07d85cf3": before["refreeze"]["after_D5_as_recommended"],
+                        "shear_model": "no transverse load: every row is the same under euler_bernoulli and timoshenko_annulus_energy_v1, so this one re-freeze serves T4-U6 and T4-U8 (documents/shear_model_variant)",
+                        "admission": "the re-authored documents carry a nonzero corrosion allowance, which the product refuses by name (EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED) until T4-U6 lands; every row and discriminator of this case applies from T4-U6"},
+           "inputs": {"outside_diameter": qty(od, "m"), "wall_thickness": qty(t_nom, "m"), "mill_tolerance": qty(mill, "m"),
+                      "corrosion_allowance": qty(ca, "m"), "reduced_wall": qty(geo["t_r"], "m"), "pressure": qty(p, "Pa"),
+                      "E": qty(E, "Pa"), "nu": qty(nu, "1"), "length": qty(L, "m")},
+           "derived": {"ro": qty(nom["ro"], "m"), "nominal_section": section_block(nom, t_nom),
+                       "reduced_section": section_block(red, geo["t_r"]),
+                       "pressure_bore": {"ri": qty(bore["ri"], "m"), "Ai": qty(bore["Ai"], "m^2")}, "P": qty(P, "N"),
+                       "binary64_order": binary64_d5_order(od, t_nom, mill, ca)},
+           "equations": ["t_r = (t - c_m) - c_a; ro = OD/2; nominal ri,n = ro - t; reduced section and pressure bore ri,r = ro - t_r",
+                         "each section b (wall w_b, ri,b): As = pi w (OD - w); I = As (ro^2 + ri^2)/4; J = 2I; Z = I/ro",
+                         "Ai = pi ri,r^2 (pressure bore); P = p Ai",
+                         "Lame on each basis's own annulus: sigma_r(ri,b) = -p; sigma_r(ro) = 0; sigma_h(ri,b) = p (ro^2+ri,b^2)/(ro^2-ri,b^2); sigma_h(ro) = 2 p ri,b^2/(ro^2-ri,b^2)",
+                         "free, transferring closures: Nw = P; S = 0; sigma_z,b = P/As,b; u_tip = (1-2nu) P L/(E As,n)",
+                         "axially restrained, transferring closures: Nw = 2 nu P; S = (2nu-1) P; root Fx = P - Nw = (1-2nu)P; far Fx = Nw - P; independent of As because the As of eps_p is the stiffness As (RV1 N-5)",
+                         "per-basis maximum: |Nw|/As,b (no section moment)"],
+           "variants": {}}
+    mat = [material("material:milltol", E, nu)]
+    nodes = [node("node:A", 0), node("node:B", L)]
+    pipes = [pipe_d5("pipe:A-B", "node:A", "node:B", od, t_nom, "material:milltol", mill, ca)]
+    free_ext = Q(axial_state_d5(geo, E, nu, p, 0, False)["strain"] * L)
+    check("MILLTOL free extension on the stiffness As: (1-2nu) P L/(E As,n)", free_ext == Q((1 - 2 * nu) * L) * P / (Q(E) * nom["As"]))
+    ledgers = {}
+    for key, restrained in (("free_transferring", False), ("axially_restrained_transferring", True)):
+        cid = "case:milltol-" + ("restrained" if restrained else "free")
+        st = axial_state_d5(geo, E, nu, p, 0, restrained)
+        led = Ledger(cid)
+        ext = Q(st["strain"] * L)
+        led.scale("scale_force", P, "N", "P = p Ai, Ai on the pressure bore")
+        led.scale("scale_moment", P * Q(L), "N*m", "P L")
+        for b in BASES:
+            led.scale(f"scale_stress_{b}", P / geo[b]["As"], "Pa", f"P/As of the {b.replace('_', ' ')}")
+        led.scale("scale_length", free_ext, "m", "free closed-tube extension (1-2nu) P L/(E As), As the stiffness (nominal) section")
+        led.scale("scale_rotation", free_ext / Q(L), "rad", "free extension / L")
+        sc = {b: f"scale_stress_{b}" for b in BASES}
+        pressure_rows_d5(led, "pipe:A-B", st, lames, "scale_force", sc)
+        transverse_rows(led, "pipe:A-B", "AB", {}, "scale_force", "scale_moment")
+        for loc, _ in STATIONS:
+            for kind, comp, _which in STRESS:
+                for b in BASES:
+                    led.row(kind, "pipe:A-B", comp, loc, "MPa", "element_local", "zero_stress", Q(0), sc[b], ref_unit="Pa", section_basis=b)
+        for b in BASES:
+            sz = st["sigma_z"][b]
+            led.row("pipe_elastic_normal_stress_maximum_v2", "pipe:A-B", "maximum_absolute_normal_stress", "governing_station", "Pa",
+                    "pipe_section", f"AB_maximum_{b}", Q(abs(sz.r), sz.k), section_basis=b)
+        node_rows(led, "node:A", Q(0), Q(0), Q(0), "scale_length", "scale_rotation", "A")
+        node_rows(led, "node:B", ext, Q(0), Q(0), "scale_length", "scale_rotation", "B")
+        support_rows(led, "support:A", [P - st["Nw"], Q(0), Q(0), Q(0), Q(0), Q(0)], "scale_force", "scale_moment", "A")
+        sups = [support("support:A", "node:A", "anchor", ["UX", "UY", "UZ", "RX", "RY", "RZ"])]
+        if restrained:
+            support_rows(led, "support:B", [st["Nw"] - P, Q(0), Q(0), Q(0), Q(0), Q(0)], "scale_force", "scale_moment", "B")
+            sups.append(support("support:B", "node:B", "anchor", ["UX", "UY", "UZ", "RX", "RY", "RZ"]))
+        cases = [{"id": cid, "primitive_loads": [], "pressure_regions": [region("region:milltol", ["pipe:A-B"], p, "node:A", "node:B")], "provenance": PROV}]
+        doc = doc_050("project:t4-i8-milltol-" + key, nodes, pipes, sups, mat, cases)
+        out["variants"][key] = {"load_cases": {cid: led.to_json(f"/cases/milltol_lame_membrane/variants/{key}/load_cases/{cid}")},
+                                "documents": documents_d5(doc, {})}
+        ledgers[key] = led
+
+    # ---- the frozen prediction (T4-I8 repair 01, refreeze.after_D5_as_recommended) against the re-freeze
+    def expected_of(holder, variant, name):
+        return list(holder["variants"][variant]["load_cases"].values())[0]["expected"][name]
+
+    plan = []
+    for variant in ("free_transferring", "axially_restrained_transferring"):
+        plan += [(variant, "Nw", "Nw", "Nw", "stay"), (variant, "S", "S", "S", "stay")]
+        for key, label in (("sigma_z", "sigma_z"), ("lame_inner_radial", "Lame inner radial"), ("lame_outer_radial", "Lame outer radial"),
+                           ("lame_inner_hoop", "Lame inner hoop"), ("lame_outer_hoop", "Lame outer hoop")):
+            plan.append((variant, f"{label}, reduced section", key, f"{key}_reduced_section", "stay"))
+        plan.append((variant, "elastic maximum, reduced section", "AB_maximum", "AB_maximum_reduced_section", "stay"))
+        for key, label in (("sigma_z", "sigma_z"), ("lame_inner_hoop", "Lame inner hoop"), ("lame_outer_hoop", "Lame outer hoop"),
+                           ("lame_inner_radial", "Lame inner radial"), ("lame_outer_radial", "Lame outer radial")):
+            plan.append((variant, f"{label}, nominal section", key, f"{key}_nominal_section", "move"))
+        plan.append((variant, "elastic maximum, nominal section", "AB_maximum", "AB_maximum_nominal_section", "move"))
+    plan.append(("free_transferring", "node:B ux (displacement)", "B_ux", "B_ux", "move"))
+    plan += [("axially_restrained_transferring", "support:A Fx", "A_Fx", "A_Fx", "stay"),
+             ("axially_restrained_transferring", "support:B Fx", "B_Fx", "B_Fx", "stay")]
+    entries, disagreements = [], []
+    for variant, label, bname, aname, predicted in plan:
+        qb, qa = expected_of(before, variant, bname), expected_of(out, variant, aname)
+        outcome = "unchanged" if (qb["exact"] == qa["exact"] and qb["value"] == qa["value"]) else "moved"
+        agrees = (predicted == "stay") == (outcome == "unchanged")
+        e = {"variant": variant, "quantity": label, "predicted": predicted, "outcome": outcome, "agrees": agrees,
+             "before": {"pointer_name": bname, "exact": qb["exact"], "value": qb["value"]},
+             "after": {"pointer_name": aname, "exact": qa["exact"], "value": qa["value"]}}
+        if not agrees:
+            e["explanation"] = ("the radial Lame surface values are the boundary tractions -p (inner) and 0 (outer) on every annulus, "
+                                "so they cannot move with the basis; the prediction's 'any nominal-section stress row' holds for every "
+                                "nonzero row that depends on the section (sigma_z, the hoop rows, the maximum) and not for these two")
+            disagreements.append((variant, label))
+        entries.append(e)
+    # the only disagreements are the basis-independent radial rows, which the physics fixes
+    check("D-5 prediction: every 'stay' quantity is unchanged in exact form", all(e["outcome"] == "unchanged" for e in entries if e["predicted"] == "stay"))
+    check("D-5 prediction: every section-dependent 'move' quantity moved",
+          all(e["outcome"] == "moved" for e in entries if e["predicted"] == "move" and "radial" not in e["quantity"]))
+    check("D-5 prediction: the radial Lame rows are -p and 0 on both bases (basis-independent)",
+          all(lames[b]["inner_radial"] == -p and lames[b]["outer_radial"] == 0 for b in BASES)
+          and sorted(disagreements) == sorted((v, f"Lame {s} radial, nominal section") for v in ("free_transferring", "axially_restrained_transferring") for s in ("inner", "outer")))
+    out["refreeze"]["prediction_check"] = {
+        "result": ("agrees: Nw, S, the reduced-section sigma_z, Lame rows and maximum, and the restrained reactions are unchanged in exact form; "
+                   "node:B ux (free) and every section-dependent nominal-section stress row (sigma_z, Lame hoop, maximum) moved. "
+                   "One wording refinement, reported rather than resolved: the nominal-section radial Lame rows (-p inner, 0 outer) do not move, "
+                   "because they are basis-independent boundary tractions; the zero bending and torsional stress rows are zero on both bases"),
+        "entries": entries}
+
+    # ---- wrong-result discriminators (values a correct product must not produce)
+    def ann(wall):
+        return annulus(od, wall)
+
+    def bore_P(ri):
+        return Q(p * ri * ri, 1)
+
+    def free_u(A_stiff):
+        return Q((1 - 2 * nu) * L) * P / (Q(E) * A_stiff)
+
+    FREE, RESTR = "free_transferring", "axially_restrained_transferring"
+    disc = []
+
+    def add(id_, quantity, variants, expected, wrong, unit, why, **extra):
+        rec = {"id": id_, "quantity": quantity, "target": {"variants": list(variants), "expected": expected},
+               "wrong": qty(wrong, unit), "why": why}
+        rec.update(extra)
+        dists = []
+        for v in variants:
+            right = ledgers[v]._q[expected]
+            rd = right.dec() if isinstance(right, Q) else right
+            wd = wrong.dec() if isinstance(wrong, Q) else Q(wrong).dec()
+            dists.append(abs(wd - rd) / (Decimal("1e-9") * abs(rd)))
+        rec["distance_in_tolerances"] = format(min(dists), ".3e")
+        check(f"MILLTOL discriminator {id_} lies >= 1e3 tolerances from the reference", min(dists) >= 1000)
+        disc.append(rec)
+
+    A_n, A_r = nom["As"], red["As"]
+    g_m = ann(t_nom - mill)          # allowance omitted: mill-only reduced wall and bore
+    g_a = ann(t_nom - ca)            # mill tolerance omitted: allowance-only reduced wall and bore
+    add("retired_thin_wall_hoop", "lame_inner_hoop (reduced_section)", (FREE, RESTR), "lame_inner_hoop_reduced_section", retired_hoop, "Pa",
+        "the retired p r_m/t_eff is not the Lame surface value")
+    add("retired_thin_wall_longitudinal_free", "sigma_z (free, reduced_section)", (FREE,), "sigma_z_reduced_section", retired_hoop / 2, "Pa",
+        "hoop/2 has no exact counterpart; free sigma_z = P/As")
+    add("retired_thin_wall_longitudinal_restrained", "sigma_z (restrained, reduced_section)", (RESTR,), "sigma_z_reduced_section", retired_hoop / 2, "Pa",
+        "restrained sigma_z = 2 nu P/As")
+    add("allowance_omitted_from_reduced_section", "lame_inner_hoop (reduced_section)", (FREE, RESTR), "lame_inner_hoop_reduced_section",
+        lame(g_m, p)["inner_hoop"], "Pa", "reduced wall t - c_m = 0.00875 and its bore 0.09125 (the allowance omitted: a mill-only bore)",
+        former_id="allowance_not_folded")
+    add("allowance_omitted_from_reduced_section_sigma_z_free", "sigma_z (free, reduced_section)", (FREE,), "sigma_z_reduced_section",
+        bore_P(g_m["ri"]) / g_m["As"], "Pa", "the allowance omitted from the reduced wall and from the pressure bore", former_id="allowance_not_folded_sigma_z_free")
+    add("allowance_omitted_from_pressure_bore_wall_force_free", "Nw (free)", (FREE,), "Nw", bore_P(g_m["ri"]), "N",
+        "Ai on the mill-only bore 0.09125 (the allowance omitted from the pressure bore)")
+    add("mill_tolerance_ignored", "lame_inner_hoop (reduced_section)", (FREE, RESTR), "lame_inner_hoop_reduced_section", lame(g_a, p)["inner_hoop"], "Pa",
+        "reduced wall t - c_a = 0.008 without the mill-tolerance reduction")
+    add("mill_tolerance_ignored_sigma_z_free", "sigma_z (free, reduced_section)", (FREE,), "sigma_z_reduced_section", bore_P(g_a["ri"]) / g_a["As"], "Pa",
+        "mill tolerance ignored in the reduced wall and the pressure bore")
+    add("cap_area_on_nominal_bore", "sigma_z (free, reduced_section)", (FREE,), "sigma_z_reduced_section", bore_P(nom["ri"]) / A_r, "Pa",
+        "Ai from the nominal bore (ri 0.09) with the reduced As; activated by the D-5 re-authoring, which carries the nominal wall and the allowance input",
+        active_from="T4-U6")
+    add("cap_area_on_nominal_bore_wall_force_free", "Nw (free)", (FREE,), "Nw", bore_P(nom["ri"]), "N",
+        "the cap thrust p pi ri,n^2 on the nominal bore instead of the pressure bore", active_from="T4-U6")
+    add("longitudinal_pressure_added_free", "sigma_z (free, reduced_section)", (FREE,), "sigma_z_reduced_section", Q(2) * P / A_r, "Pa",
+        "Nw/As plus a separate longitudinal P/As counts the cap twice")
+    add("poisson_sign_reversed_restrained", "Nw (restrained)", (RESTR,), "Nw", Q(-2 * nu) * P, "N", "pressure Poisson term as compression")
+    s_mill_bore = bore_P(od / 2 - (t_nom - ca)) / A_r
+    check("S-3 control value carried over: Ai on the bore without the mill tolerance gives sigma_z = 270848000/20871", s_mill_bore == Q(F(270848000, 20871)))
+    add("cap_area_on_bore_without_mill_tolerance", "sigma_z (free, reduced_section)", (FREE,), "sigma_z_reduced_section", s_mill_bore, "Pa",
+        "Ai on the bore OD/2 - (t - c_a) = 0.092 (the mill tolerance omitted from the pressure bore) with the reduced As; the value of repair 01's S-3 control, whose 'authored bore' was 0.092 under the fold",
+        former_id="cap_area_on_authored_bore")
+    add("mill_tolerance_in_stiffness", "node:B ux (free)", (FREE,), "B_ux", free_u(ann(t_nom - mill)["As"]), "m",
+        "stiffness and the eps_p area on t - c_m = 0.00875 instead of the nominal wall")
+    add("allowance_in_stiffness", "node:B ux (free)", (FREE,), "B_ux", free_u(ann(t_nom - ca)["As"]), "m",
+        "stiffness and the eps_p area on t - c_a = 0.008 instead of the nominal wall")
+    add("stiffness_on_reduced_section", "node:B ux (free)", (FREE,), "B_ux", free_u(A_r), "m",
+        "the retired single section: stiffness on t_r = 0.00675 (the repair-01 value 5.3329e-8 m)")
+    add("eps_p_area_on_reduced_section", "Nw (restrained)", (RESTR,), "Nw", P - Q(1 - 2 * nu) * P * A_n / A_r, "N",
+        "eps_p = (1-2nu) pAi/(E As) formed with the reduced As while the stiffness is E As,n: S = -E As,n eps_p, Nw = S + P")
+    add("poisson_eigenstrain_area_on_reduced_section", "Nw (restrained)", (RESTR,), "Nw", Q(2 * nu) * P * A_n / A_r, "N",
+        "the Poisson eigenstrain -2 nu pAi/(E As) formed with the reduced As while the stiffness is E As,n")
+    add("single_basis_reduced_rows_from_nominal", "sigma_z (free, reduced_section)", (FREE,), "sigma_z_reduced_section", P / A_n, "Pa",
+        "one basis for both families: the reduced row copied from the nominal row")
+    add("single_basis_reduced_hoop_from_nominal", "lame_inner_hoop (reduced_section)", (FREE, RESTR), "lame_inner_hoop_reduced_section",
+        lames["nominal_section"]["inner_hoop"], "Pa", "one basis for both families: the reduced Lame row copied from the nominal row")
+    add("single_basis_nominal_rows_from_reduced", "sigma_z (free, nominal_section)", (FREE,), "sigma_z_nominal_section", P / A_r, "Pa",
+        "one basis for both families: the nominal row copied from the reduced row (the retired single family)")
+    add("single_basis_nominal_hoop_from_reduced", "lame_inner_hoop (nominal_section)", (FREE, RESTR), "lame_inner_hoop_nominal_section",
+        lames["reduced_section"]["inner_hoop"], "Pa", "one basis for both families: the nominal Lame row copied from the reduced row")
+    add("nominal_lame_at_pressure_bore", "lame_inner_hoop (nominal_section)", (FREE, RESTR), "lame_inner_hoop_nominal_section",
+        Q(2) * P / A_n + Q(p), "Pa", "the nominal-basis hoop formed with the pressure-bore Ai over the nominal As (2pAi/As,n + p), not the nominal annulus's own Lame solution")
+    add("nominal_lame_at_pressure_bore_outer", "lame_outer_hoop (nominal_section)", (FREE, RESTR), "lame_outer_hoop_nominal_section",
+        Q(2) * P / A_n, "Pa", "the nominal-basis outer hoop 2pAi/As,n with Ai on the pressure bore")
+    out["wrong_result_discriminators"] = disc
+    out["limits"] = before["limits"]
     return out
 
 
@@ -1120,7 +1470,7 @@ def case_twin_separate():
 
 
 SP1_PAIR_SCOPE = {
-    "applies_to": "every v2/v3 document pair in this file (cases 1-3 and both twins); recommended mechanically for every existing v2 exact document in PP's tests with p >= 0, which also covers reversed member and terminal order, unequal-wall chains and mixed closures (T4-RV4 N-4)",
+    "applies_to": "every v2/v3 document pair in this file (cases 2-3 and both twins; case 1 has no v2 twin since its D-5 re-authoring, because its section has nonzero mill tolerance and corrosion allowance); recommended mechanically for every existing v2 exact document in PP's tests with p >= 0, which also covers reversed member and terminal order, unequal-wall chains and mixed closures (T4-RV4 N-4)",
     "inputs": "v2-admissible inputs only: p >= 0 in every region. v3 admits signed pressure and v2 refuses p < 0 after T4-U0, so a p < 0 v3 document has no v2 twin",
     "clause_1_v2_anchor": "the candidate's serialized v2 envelope is byte-identical to the base revision's for the same document and mode (base = the PR's merge base on main); T4-U0's declared p < 0 refusal lies outside the p >= 0 scope",
     "clause_2_v3_equals_v2": "every numeric JSON leaf of the candidate's v3 envelope equals the candidate's v2 leaf at the same path as an f64 bit pattern (sign of zero included); arrays are compared in order; every non-numeric leaf is equal too, except the closed exclusion list",
@@ -1148,6 +1498,11 @@ def main():
         "schema_version": "independent.exact_pressure_rebuilt_reference_cases/1.0.0",
         "purpose": "Independent analytical references for T4-U2's rebuilt straight cases (VP-STATIC exact_pressure_1). Frozen before any implementation; not product request DTOs or observed solver outputs.",
         "status": "frozen_by_T4-I8_awaiting_independent_refutation",
+        "d5_refreeze": {"unit": "T4-U6 (with T4-U8)", "case": "milltol_lame_membrane",
+                        "change": "case 1 re-authored with the true nominal wall 0.01 m, explicit mill_tolerance 0.00125 m and corrosion_allowance 0.002 m in model 0.5.0, and re-frozen on D-5 (nominal stiffness and eps_p area, Ai on the pressure bore, every stress row on the nominal and the reduced section); its own refreeze block holds the check against the frozen prediction",
+                        "unchanged": "cases 2 and 3 and both twins: zero mill tolerance and zero allowance, so both bases coincide with the one section they were frozen on; their consuming tests assert both stress families against the one expected value (DEL-05-03 Design section 7)",
+                        "status": "re-frozen by the T4-U6/T4-U8 independent reference TASK; awaiting independent refutation",
+                        "basis": "DEL-05-03 Design section-bases-and-timoshenko.md at b3f4da7661 (sections 1, 2.1, 2.5, 7) and its rulings; no product code read"},
         "author": {"task": "T4-I8", "role": "TASK (Type 2)", "brief": "R4/BRIEFS/T4-I8_U2_STRAIGHT_REBUILT_REFERENCES.md",
                    "brief_sha256": "1f294de53fa8dfbfc0bb63aa9300b4567332cbc884c6cb37353d5c315a7aa134", "records_revision": "0c17c8d352"},
         "conventions_basis": {"code_revision": "ed012c7ccf", "use": "read for conventions only (section rule, row kinds, stations, frames, signs); no value taken from the product"},
@@ -1175,6 +1530,8 @@ def main():
             "stations": "end_i 0, quarter_1 0.25, midspan 0.5, quarter_3 0.75, end_j 1 of each member (PP/src/lib.rs:11518-11524@ed012c7ccf)",
             "absent_on_pressurized_members": "element_local_axial_force, element_local_axial_normal_stress, pipe_section_pressure_hoop_stress, pipe_section_pressure_longitudinal_stress (PP/src/lib.rs:11462-11471@ed012c7ccf)"},
         "section_rule": "effective wall = wall_thickness - mill_tolerance (absent slot = no reduction); ro = OD/2; ri = ro - effective wall; As = pi t (OD - t); Ai = pi ri^2 (reduced bore); I = As (ro^2+ri^2)/4; J = 2I; Z = I/ro (PP/src/lib.rs:10213-10230, 7244-7258; annulus_geometry.rs:34-45; pressure_exact/source_geometry.rs:28-46@ed012c7ccf)",
+        "section_rule_d5": "D-5 (DEL-05-03 Design section 1): nominal section on the wall t (stiffness A, I, J, the As of eps_p, metal mass, nominal-basis stresses); reduced section on t_r = (t - c_m) - c_a (reduced-basis stresses); pressure bore ri,r = OD/2 - t_r (Ai for caps and the Poisson pair, contents mass); each section's As, I, J = 2I, Z = I/ro as in section_rule with its own wall. Applies to case 1; for cases 2-3 and the twins (c_m = c_a = 0) all three coincide with section_rule's one section",
+        "section_basis": "D-5 stress rows (pipe_axial_membrane_stress_v2, pipe_lame_radial_stress_v2, pipe_lame_hoop_stress_v2, element_local_bending_normal_stress_y/z, element_local_torsional_shear_stress, pipe_elastic_normal_stress_maximum_v2) carry section_basis nominal_section or reduced_section and are identified by (kind, entity_ref, component, location, section_basis); every other row is published once and has no section_basis",
         "criteria": {"modes": ["sparse_interactive", "dense_scrutiny"], "same_reference_both_modes": True,
                      "nonzero": "|observed - expected| <= 1e-9 |expected|",
                      "zero": "|observed| <= 1e-9 * |zero_scale| converted into the row unit; each row's reference_origin.zero_scale is T1's {tag, base: {pointer, reference_unit}, scale_unit}, and criterion.absolute_tolerance is precomputed in the row unit",
@@ -1209,7 +1566,15 @@ def main():
     print(f"  combined: D_uy={e['D_uy']['value']!r} m D_rz={e['D_rz']['value']!r} rad A_Mz={e['A_Mz']['value']!r} A_Fy={e['A_Fy']['value']!r}")
     for key in ("free_transferring", "axially_restrained_transferring"):
         lc = list(cases["milltol_lame_membrane"]["variants"][key]["load_cases"].values())[0]["expected"]
-        print(f"  milltol {key}: sigma_z={lc['sigma_z']['value']!r} hoop_in={lc['lame_inner_hoop']['value']!r} hoop_out={lc['lame_outer_hoop']['value']!r} Nw={lc['Nw']['value']!r}")
+        for b in BASES:
+            print(f"  milltol {key} {b}: sigma_z={lc['sigma_z_' + b]['value']!r} hoop_in={lc['lame_inner_hoop_' + b]['value']!r} "
+                  f"hoop_out={lc['lame_outer_hoop_' + b]['value']!r}")
+        print(f"  milltol {key}: Nw={lc['Nw']['value']!r} S={lc['S']['value']!r}" + (f" B_ux={lc['B_ux']['value']!r} m" if "B_ux" in lc else ""))
+    pc = cases["milltol_lame_membrane"]["refreeze"]["prediction_check"]
+    print(f"  milltol D-5 prediction check: {sum(e['agrees'] for e in pc['entries'])}/{len(pc['entries'])} agree; "
+          + "; ".join(f"{e['variant']} {e['quantity']}: predicted {e['predicted']}, {e['outcome']}" for e in pc["entries"] if not e["agrees"]))
+    for dsc in cases["milltol_lame_membrane"]["wrong_result_discriminators"]:
+        print(f"  milltol discriminator {dsc['id']}: wrong {dsc['wrong']['value']!r} {dsc['wrong']['unit']} ({dsc['quantity']}); {dsc['distance_in_tolerances']} tolerances")
     lc = cases["pressure_membrane_thin_wall_limit"]["load_cases"]["case:membrane-free"]["expected"]
     print(f"  membrane: sigma_z={lc['sigma_z']['value']!r} hoop_in={lc['lame_inner_hoop']['value']!r} hoop_out={lc['lame_outer_hoop']['value']!r}")
     comp = cases["pressure_membrane_thin_wall_limit"]["thin_wall_comparison"]

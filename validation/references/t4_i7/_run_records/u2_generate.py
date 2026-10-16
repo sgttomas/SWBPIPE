@@ -3,8 +3,12 @@ realized bends) by the direct unit-load (flexibility) method of u2_engine.py.
 
 Standard library only. Run with the shared host's Python in isolated mode:
     python -I u2_generate.py <output_dir>
+    python -I u2_generate.py --check     # regenerate and compare with the committed files
 Writes <output_dir>/u2_reference_cases.json and <output_dir>/u2_document_sketches.json and
 prints a summary. No product module is imported and no product value is read.
+
+T4-U6 (D-5): the sections are D-5 sections (u2_engine.D5Section); the 72 cases with mill tolerance are
+re-frozen with nominal stiffness and both stress families; the 8 coincident cases keep their entries.
 """
 import json
 import os
@@ -200,7 +204,7 @@ def case_list():
 # ------------------------------------------------------------------ model build
 def build_chain(case, polygon_n=0):
     g = case["geom"]
-    sec = E.Section(**g["sec"])
+    sec = E.D5Section(**g["sec"])  # D-5: nominal stiffness, pressure-bore Ai (corrosion allowance 0 in T4-I7)
     mat = E.Material(**g["mat"])
     coords = {nid: tuple(dec_of_float(c) for c in p) for nid, p in g["nodes"]}
     node_ids = [nid for nid, _ in g["nodes"]]
@@ -251,14 +255,20 @@ def load_case(case, sec, **mut):
 
 
 # ------------------------------------------------------------------ evaluation and records
-def station_record(sol, chain, mi, f, sec, P):
+def station_record(sol, chain, mi, f, sec, P, dual=False):
+    """The station's actions; with coincident bases (dual False) the single stress family as before D-5,
+    otherwise the stresses of each section basis b: sigma_m = N_w/A_b, M/Z_b, T r_o/J_b (DEL-05-03 2.1)."""
     mem = chain.members[mi]
     X, F, M = E.j_side_action(sol, chain, mi, f)
     fr = mem.frame_at_authored(f)
     N, Vy, Vz = (dot(F, e) for e in fr)
     T, My, Mz = (dot(M, e) for e in fr)
-    return dict(N_w=N, S=N - P, sigma_m=N / sec.As, V_y=Vy, V_z=Vz, T=T, M_y=My, M_z=Mz,
-                sigma_b_y=My / sec.Z, sigma_b_z=Mz / sec.Z, tau_t=T * sec.ro / sec.J), (F, M)
+    if not dual:
+        return dict(N_w=N, S=N - P, sigma_m=N / sec.As, V_y=Vy, V_z=Vz, T=T, M_y=My, M_z=Mz,
+                    sigma_b_y=My / sec.Z, sigma_b_z=Mz / sec.Z, tau_t=T * sec.ro / sec.J), None, (F, M)
+    stresses = {b: dict(sigma_m=N / s.As, sigma_b_y=My / s.Z, sigma_b_z=Mz / s.Z, tau_t=T * s.ro / s.J)
+                for b, s in sec.bases.items()}
+    return dict(N_w=N, S=N - P, V_y=Vy, V_z=Vz, T=T, M_y=My, M_z=Mz), stresses, (F, M)
 
 
 def end_rows(F, M, frame, sign):
@@ -323,6 +333,12 @@ def record_case(case):
         "elastic_end_force_chord_frame": F0, "lame_stress": lc.p if lc.p else ONE,
     }
     chars["rotation"] = chars["displacement"] / Lc
+    dual = not sec.coincident  # D-5: two stress families (nominal and reduced section), each in its own groups
+    if dual:
+        for b, s in sec.bases.items():
+            chars["membrane_stress@" + b] = F0 / s.As
+            chars["bending_torsion_stress@" + b] = F0 * Lc / s.Z
+            chars["lame_stress@" + b] = chars["lame_stress"]
     raw = []  # (group, setter) for snapping/zero-scale
 
     def put(dct, key, val, group):
@@ -374,11 +390,19 @@ def record_case(case):
                                           "z": fmtv(mem.chord_frame[2])})
         actions = {}
         for name, f in STATIONS:
-            rec, FM = station_record(sol, chain, mi, f, sec, P)
+            rec, stresses, FM = station_record(sol, chain, mi, f, sec, P, dual)
             actions[name] = FM
             d = {"fraction": f}
             for key, val in rec.items():
                 put(d, key, val, GROUP_OF[key])
+            if stresses is not None:
+                by_basis = {}
+                for b, srec in stresses.items():
+                    sd = {}
+                    for key, val in srec.items():
+                        put(sd, key, val, GROUP_OF[key] + "@" + b)
+                    by_basis[b] = sd
+                d["stresses_by_section_basis"] = by_basis
             md["stations"][name] = d
         for name, f, sign in (("end_i", "0", -ONE), ("end_j", "1", ONE)):
             F, M = actions[name]
@@ -408,12 +432,24 @@ def record_case(case):
                     put(d, key, dot(Mn, mem.chord_frame[a]), "section_moment")
                 dd["chord_frame_elastic"] = d
                 md["end_rows"][name] = dd
-        if mem.kind == "straight" and lc.p != 0:
+        if mem.kind == "straight" and lc.p != 0 and not dual:
             lame = {}
             put(lame, "inner_radial", -lc.p, "lame_stress")
             put(lame, "outer_radial", ZERO, "lame_stress")
             put(lame, "inner_hoop", 2 * P / sec.As + lc.p, "lame_stress")
             put(lame, "outer_hoop", 2 * P / sec.As, "lame_stress")
+            md["lame_surface"] = lame
+        elif mem.kind == "straight" and lc.p != 0:
+            # D-5: each basis's own closed annulus, internal pressure p at its own bore (DEL-05-03 2.1)
+            lame = {}
+            for b, s in sec.bases.items():
+                own = lc.p * s.Ai
+                ld = {}
+                put(ld, "inner_radial", -lc.p, "lame_stress@" + b)
+                put(ld, "outer_radial", ZERO, "lame_stress@" + b)
+                put(ld, "inner_hoop", 2 * own / s.As + lc.p, "lame_stress@" + b)
+                put(ld, "outer_hoop", 2 * own / s.As, "lame_stress@" + b)
+                lame[b] = ld
             md["lame_surface"] = lame
         elif mem.kind == "arc":
             md["lame_surface"] = "withheld_on_arcs"
@@ -422,7 +458,7 @@ def record_case(case):
     gmax = {}
     for grp, dct, key in raw:
         val = dct[key]
-        if abs(val) < SNAP * chars[grp.split("@")[0]]:
+        if abs(val) < SNAP * chars.get(grp, chars[grp.split("@")[0]]):
             val = ZERO
             dct[key] = ZERO
         gmax[grp] = max(gmax.get(grp, ZERO), abs(val))
@@ -432,19 +468,34 @@ def record_case(case):
                 "wall_axial_force": F0, "effective_axial_force": F0, "membrane_stress": F0 / sec.As,
                 "shear_force": F0, "section_moment": F0 * Lc, "bending_torsion_stress": F0 / sec.As,
                 "elastic_end_force_chord_frame": F0, "lame_stress": abs(lc.p) or ONE}
+    if dual:
+        for b, s in sec.bases.items():
+            fallback["membrane_stress@" + b] = F0 / s.As
+            fallback["bending_torsion_stress@" + b] = F0 / s.As
+            fallback["lame_stress@" + b] = fallback["lame_stress"]
     zero_scale = {}
     for grp in gmax:
-        zs = gmax[grp] if gmax[grp] != 0 else fallback[grp.split("@")[0]]
+        zs = gmax[grp] if gmax[grp] != 0 else fallback.get(grp, fallback[grp.split("@")[0]])
         zero_scale[grp] = dict(unit=UNIT_OF_GROUP[grp.split("@")[0]], zero_scale=fmt(zs), absolute_floor=fmt(D("1e-9") * zs),
                                basis="max |expected| in this group for this case" if gmax[grp] != 0
                                else "group expected identically zero; characteristic scale (see README rules)")
     for grp, dct, key in raw:
         dct[key] = fmt(dct[key])
     res = sol.equilibrium_residual
-    derived = dict(t_effective=fmt(sec.t), r_o=fmt(sec.ro), r_i=fmt(sec.ri), A_s=fmt(sec.As), A_i=fmt(sec.Ai),
-                   I=fmt(sec.I), J=fmt(sec.J), Z=fmt(sec.Z), G=fmt(mat.G), P_pAi=fmt(P), eps_poisson=fmt(eps_nu),
-                   eps_p=fmt(eps_p), eps_thermal=fmt(eps_th), w_self_weight=fmt(wv),
-                   total_centreline_length=fmt(total_len), W_total=fmt(wv * total_len), L_c=fmt(Lc))
+    if not dual:
+        nb = sec.bases["nominal_section"]
+        derived = dict(t_effective=fmt(nb.t), r_o=fmt(sec.ro), r_i=fmt(nb.ri), A_s=fmt(sec.As), A_i=fmt(sec.Ai),
+                       I=fmt(sec.I), J=fmt(sec.J), Z=fmt(sec.Z), G=fmt(mat.G), P_pAi=fmt(P), eps_poisson=fmt(eps_nu),
+                       eps_p=fmt(eps_p), eps_thermal=fmt(eps_th), w_self_weight=fmt(wv),
+                       total_centreline_length=fmt(total_len), W_total=fmt(wv * total_len), L_c=fmt(Lc))
+    else:
+        derived = dict(stiffness_section="nominal_section",
+                       section_bases={b: dict(wall=fmt(s.t), r_i=fmt(s.ri), A_s=fmt(s.As), I=fmt(s.I), J=fmt(s.J),
+                                              Z=fmt(s.Z)) for b, s in sec.bases.items()},
+                       pressure_bore=dict(r_i=fmt(sec.ri_bore), A_i=fmt(sec.Ai)),
+                       r_o=fmt(sec.ro), G=fmt(mat.G), P_pAi=fmt(P), eps_poisson=fmt(eps_nu),
+                       eps_p=fmt(eps_p), eps_thermal=fmt(eps_th), w_self_weight=fmt(wv),
+                       total_centreline_length=fmt(total_len), W_total=fmt(wv * total_len), L_c=fmt(Lc))
     derived["alpha_tan_provisional_rad"] = ALPHA_TAN
     derived["junction_angles_rad"] = junction_angles(chain)
     checks = dict(global_equilibrium_residual_force=fmt(max(abs(c) for c in res[0])),
@@ -837,8 +888,33 @@ def doc_040(case, chain_info):
 
 
 # ------------------------------------------------------------------ main
+D5_SECTION_RULE = ("D-5 (DEL-05-03 Design section 1), corrosion allowance c_a = 0 (the documents carry none; the "
+                   "current-format re-authoring writes 0): for each basis b with wall t_b, ID_b = OD - 2 t_b; "
+                   "As = pi(OD^2-ID_b^2)/4; I = pi(OD^4-ID_b^4)/64; J = 2I; Z = I/(OD/2); torsion radius OD/2. "
+                   "nominal_section t_n = wall: stiffness As, I, J and the As of the Poisson eigenstrain; "
+                   "reduced_section t_r = (wall - mill) - c_a: reduced-basis stresses; pressure bore "
+                   "ID_r = OD - 2 t_r: Ai = pi ID_r^2/4 for caps, wall load, kink forces and the Poisson term")
+
+
 def case_inputs(case):
     g = case["geom"]
+    dual = D(g["sec"]["mill"]) != 0
+    if dual:
+        section = dict(outside_diameter=g["sec"]["od"], wall_thickness=g["sec"]["wall"],
+                       mill_tolerance=g["sec"]["mill"], corrosion_allowance="0", unit="m", rule=D5_SECTION_RULE)
+    else:
+        section = dict(outside_diameter=g["sec"]["od"], wall_thickness=g["sec"]["wall"],
+                       mill_tolerance=g["sec"]["mill"], unit="m",
+                       rule="t_eff = wall - mill; ID = OD - 2 t_eff; As = pi(OD^2-ID^2)/4; Ai = pi ID^2/4; "
+                            "I = pi(OD^4-ID^4)/64; J = 2I; Z = I/(OD/2); torsion radius OD/2")
+    if not case["weight"]:
+        derivation = None
+    elif dual:
+        derivation = ("w = (As*7850 + Ai*1000)*9.80665 rounded to 17 significant digits, with As and Ai of the "
+                      "single pre-D-5 section (wall - mill); an authored distributed force, so D-5's mass rule does "
+                      "not apply to it and the documents keep it unchanged")
+    else:
+        derivation = "w = (As*7850 + Ai*1000)*9.80665 rounded to 17 significant digits"
     return dict(
         geometry=dict(name=g["name"], node_coordinates_binary64_exact={nid: [repr(c) for c in p] for nid, p in g["nodes"]},
                       traversal_order=[nid for nid, _ in g["nodes"]],
@@ -847,10 +923,7 @@ def case_inputs(case):
                                     **({"bend_radius": m["R"], "flexibility_factor_k": case["k"],
                                         "component": m["comp"]} if m["kind"] == "arc" else {}))
                                for m in g["members"]]),
-        section=dict(outside_diameter=g["sec"]["od"], wall_thickness=g["sec"]["wall"],
-                     mill_tolerance=g["sec"]["mill"], unit="m",
-                     rule="t_eff = wall - mill; ID = OD - 2 t_eff; As = pi(OD^2-ID^2)/4; Ai = pi ID^2/4; "
-                          "I = pi(OD^4-ID^4)/64; J = 2I; Z = I/(OD/2); torsion radius OD/2"),
+        section=section,
         material=dict(E=g["mat"]["E"], nu=g["mat"]["nu"], alpha_per_degC=g["mat"]["alpha"],
                       G="E/(2(1+nu)) (derived; no authored G)"),
         pressure=dict(p_Pa=case["p"], region="one region over every member in traversal order",
@@ -859,8 +932,7 @@ def case_inputs(case):
         thermal=dict(delta_T_degC=case["dT"], applies_to="every member (straights and arcs), uniform"),
         self_weight=dict(w_N_per_m=W_L if case["weight"] else "0",
                          direction="global -Z (gravity), per unit centreline length (arc length on bends)",
-                         informative_derivation="w = (As*7850 + Ai*1000)*9.80665 rounded to 17 significant digits"
-                         if case["weight"] else None),
+                         informative_derivation=derivation),
         supports=["support:A anchor at %s" % g["nodes"][0][0]] + (
             ["support:D anchor at %s" % g["nodes"][-1][0]] if case["anchorD"] else []),
         units_of_document=case["units"])
@@ -967,7 +1039,16 @@ def header():
                    "and not observed solver outputs.",
         "author": "T4-I7 (TASK, Type 2) for T4's WORKING_ITEMS; refuted by T4-RV3 (values pass); repair round 01 "
                   "applies RV3's B-1 and S-1 to S-3 (REPAIR_01.md)",
-        "revision": "repair 01",
+        "revision": "repair 01; D-5 re-freeze (T4-U6)",
+        "d5_refreeze": {
+            "ruling": "D-5 (owner, 2026-10-10: \"D-5 and D-6 as recommended\"); DEL-05-03 Design section-bases-and-timoshenko.md sections 1, 2.1, 2.5 and 7",
+            "cases": "the 72 cases whose section has mill tolerance 0.000889 m (corrosion allowance 0) are re-frozen in every row: the stiffness section moves from wall - mill to the nominal wall (displacements everywhere; forces, moments and reactions wherever the line is indeterminate), the Poisson eigenstrain uses the stiffness As, Ai stays on the pressure bore, and every stress is recovered on both section bases",
+            "unchanged": "the 8 CBPT cases (no mill tolerance, allowance 0) keep their entries byte for byte: their bases coincide, and their single stress family is the value of both families (their consumers assert both families against it)",
+            "layout": "in a re-frozen case each station's sigma_m, sigma_b_y, sigma_b_z and tau_t move into stresses_by_section_basis.{nominal_section, reduced_section}; a straight's lame_surface is keyed by basis; stress zero-scale groups are per basis (membrane_stress@<basis>, bending_torsion_stress@<basis>, lame_stress@<basis>); derived gives section_bases, pressure_bore and the stiffness section",
+            "documents": "u2_document_sketches.json is unchanged: the same documents mean the nominal wall plus mill tolerance under D-5, and the current-format re-authoring adds corrosion_allowance 0; the authored self-weight intensity is unchanged",
+            "shear_model": "Euler-Bernoulli throughout (the documents are re-authored with shear_model euler_bernoulli); straights under timoshenko_annulus_energy_v1 are T4-U8's",
+            "status": "re-frozen by the T4-U6/T4-U8 independent reference TASK without reading product code; awaiting independent refutation",
+        },
         "code_basis_for_conventions": "ed012c7ccf (read for conventions only, never for values)",
         "target_contract": {"model": "3.0.0/exact_pressure_v3 (H-1; provisional spelling, T4-U2a)",
                             "result_semantics": "pressure-1 (reserved; provisional)",
@@ -990,7 +1071,9 @@ def header():
                           "max |expected| over the group in that case; if the group "
                           "is identically zero, a characteristic scale: force pAi (or W_total if larger), moment "
                           "that force times L_c, translation |eps_p + eps_th|*L_c, rotation |eps_p + eps_th|, stress "
-                          "force/As; given as absolute_floor = 1e-9 * zero_scale in each case's zero_scale block",
+                          "force/As; given as absolute_floor = 1e-9 * zero_scale in each case's zero_scale block; "
+                          "in a D-5 re-frozen case each stress group is per section basis (group@nominal_section, "
+                          "group@reduced_section), with that basis's As in its characteristic scale",
             "unit_transforms": "references are SI (m, rad, N, N*m, Pa); the product publishes nodal translations in "
                                "mm (x1000); compare after exact unit conversion",
             "no_relaxation": "this file allocates no new or relaxed threshold beyond the per-group floor the brief "
@@ -1013,7 +1096,9 @@ def header():
             "small strain, small displacement, linear elastic, homogeneous isotropic E/nu with G = E/(2(1+nu))",
             "static internal pressure only; excluded (D-3): flow momentum and transient loads, bend opening "
             "(Bourdon), pressure stiffening of k and SIF, ovalization",
-            "Poisson eigenstrain -2 nu pAi/(E As) on every member including arcs (straight Lame mean; RV1 S-5)",
+            "Poisson eigenstrain -2 nu pAi/(E As) on every member including arcs (straight Lame mean; RV1 S-5); "
+            "under D-5 As is the stiffness (nominal) section and Ai the pressure bore",
+            "D-5 section bases: stiffness on the nominal wall; stresses on the nominal and the reduced section",
         ],
         "loads_applied_in_the_direct_method": [
             "wetted-wall load (pAi/R) along the outward normal per unit arc length on every arc, at the centreline, "
@@ -1053,9 +1138,13 @@ def header():
                                    "action minus the bend's own cap pair c_b = [-pAi t_i, +pAi t_j] (H-2); moments "
                                    "equal the wall moments. These are today's chord-frame component end rows on arcs "
                                    "(I1 section 5.3 #8; I2 section 3.4); they are not wall actions (repair 01 S-1)",
-            "derived_rows": "S = N_w - pAi; sigma_m = N_w/As; sigma_b_y = M_y/Z; sigma_b_z = M_z/Z; tau_t = T*r_o/J",
+            "derived_rows": "S = N_w - pAi; sigma_m = N_w/As; sigma_b_y = M_y/Z; sigma_b_z = M_z/Z; tau_t = T*r_o/J; "
+                            "in a D-5 re-frozen case on each section basis b: sigma_m = N_w/A_b, M_y/Z_b, M_z/Z_b, "
+                            "T*r_o/J_b (stresses_by_section_basis)",
             "lame_surface": "straights only: inner radial -p, outer radial 0, inner hoop 2pAi/As + p, outer hoop "
-                            "2pAi/As; withheld on arcs (plan section 2 and 4.3 item 1)",
+                            "2pAi/As; withheld on arcs (plan section 2 and 4.3 item 1); in a D-5 re-frozen case per "
+                            "basis b on its own annulus: inner hoop 2p*pi*r_i,b^2/A_b + p, outer hoop 2p*pi*r_i,b^2/A_b "
+                            "(the reduced basis's bore is the pressure bore; the nominal basis's is OD/2 - wall)",
             "terminals": "closure_pressure_load_global is the outward cap on the closure; pipe_cap_transfer_global "
                          "is the part applied to the pipe; remote_closure_support_reaction_global = -cap for a "
                          "separately supported closure (product evidence fields)",
@@ -1086,5 +1175,22 @@ def header():
     }
 
 
+def check_committed():
+    """--check: regenerate into a temporary directory and compare byte for byte with the committed files."""
+    import tempfile
+    ref = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    with tempfile.TemporaryDirectory() as tmp:
+        main(tmp)
+        bad = []
+        for name in ("u2_reference_cases.json", "u2_document_sketches.json"):
+            with open(os.path.join(tmp, name), "rb") as a, open(os.path.join(ref, name), "rb") as b:
+                if a.read() != b.read():
+                    bad.append(name)
+    print("MISMATCH: " + ", ".join(bad) if bad else "u2_reference_cases.json and u2_document_sketches.json reproduce byte for byte")
+    return 1 if bad else 0
+
+
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--check":
+        sys.exit(check_committed())
     main(sys.argv[1] if len(sys.argv) > 1 else ".")

@@ -1,6 +1,7 @@
-"""T4-I8: consumer-side check of rebuilt_reference_cases.json (standard library only). Repair round 01.
+"""T4-I8: consumer-side check of rebuilt_reference_cases.json (standard library only). Repair round 01,
+extended for the D-5 re-freeze of case 1 (T4-U6).
 
-Usage: python -I check_reference_json.py <rebuilt_reference_cases.json> [<frozen round-00 json>]
+Usage: python -I check_reference_json.py <rebuilt_reference_cases.json> [<earlier frozen json>]
 
 Checks, on the written bytes only:
 1. every quantity's `exact` re-evaluates (Decimal, 120 digits, pi from the file) to its `decimal`
@@ -16,9 +17,15 @@ Checks, on the written bytes only:
 4. discriminators: every wrong value is distinct from its correct value under the negative rule,
    and S-3's producible control equals 270848000/20871 Pa;
 5. documents: v2 0.3.0/0.4.0 agree on geometry, E/nu, supports, regions, thermal states and sources;
-   every v2 document has p >= 0 (S-4 c) and points to /sp1_pair_scope;
-6. optional: against the frozen round-00 file, every quantity present in both under the same pointer
-   has the same exact form and binary64 value (no frozen value changed).
+   every v2 document has p >= 0 (S-4 c) and points to /sp1_pair_scope; case 1's current-format (0.5.0)
+   forms agree likewise, carry the current contract and the explicit wall, mill tolerance and allowance;
+6. D-5 (case 1): stress rows carry section_basis and the row key includes it; both families present for
+   every stress kind; each discriminator's target resolves and is distinct;
+7. optional: against an earlier frozen file, every quantity of cases 2-5 present in both under the same
+   pointer has the same exact form and binary64 value (no frozen value changed); for case 1, the
+   quantities D-5 keeps (Nw, S, reduced-section sigma_z, Lame and maximum, reactions, P, the force and
+   reduced stress scales, and the carried-over discriminators) are unchanged and the declared movers
+   (node:B ux free, scale_length, scale_rotation) moved.
 """
 import json
 import sys
@@ -141,9 +148,22 @@ def check_load_case(doc, base, lc, pi):
                 fail(f"{base}: nonzero row criterion {c}")
         if "refreeze" in r:
             counts["refreeze_rows"] += 1
-    keys = [(r["kind"], r["entity_ref"], r["component"], r["location"]) for r in lc["rows"]]
+    keys = [(r["kind"], r["entity_ref"], r["component"], r["location"], r.get("section_basis")) for r in lc["rows"]]
     if len(keys) != len(set(keys)):
         fail(f"{base}: duplicate row selectors")
+    based = [r for r in lc["rows"] if "section_basis" in r]
+    if based:  # D-5: every stress kind on both bases, no basis on any other row
+        counts["section_basis_rows"] = counts.get("section_basis_rows", 0) + len(based)
+        stress = {"pipe_axial_membrane_stress_v2", "pipe_lame_radial_stress_v2", "pipe_lame_hoop_stress_v2",
+                  "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z",
+                  "element_local_torsional_shear_stress", "pipe_elastic_normal_stress_maximum_v2"}
+        for r in lc["rows"]:
+            if (r["kind"] in stress) != ("section_basis" in r):
+                fail(f"{base}: section_basis on {r['kind']} {r['location']} is {r.get('section_basis')}")
+        nom = {k[:4] for k in keys if k[4] == "nominal_section"}
+        red = {k[:4] for k in keys if k[4] == "reduced_section"}
+        if nom != red or not nom:
+            fail(f"{base}: the two stress families differ in their selectors")
 
 
 def distinct(correct, wrong):
@@ -182,6 +202,48 @@ def check_documents(name, docs):
         fail(f"{name}: v3 patch")
 
 
+CURRENT_CONTRACT = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
+
+
+def check_documents_d5(name, docs):
+    """Case 1 after its D-5 re-authoring: model 0.5.0 under the current contract, without and with the
+    load/reference-state group; the true wall with explicit mill tolerance and allowance; no v2 twin."""
+    d, g = docs["v3_model_0.5.0"]["model"], docs["v3_model_0.5.0_load_state_group"]["model"]
+    counts["documents"] += 2
+    if set(docs) != {"v3_model_0.5.0", "v3_model_0.5.0_load_state_group", "shear_model_variant", "sp1_pair", "note"}:
+        fail(f"{name}: document keys {sorted(docs)}")
+    if d["schema_version"] != "0.5.0" or g["schema_version"] != "0.5.0":
+        fail(f"{name}: schema versions")
+    if d["pressure_contract"] != CURRENT_CONTRACT or g["pressure_contract"] != CURRENT_CONTRACT:
+        fail(f"{name}: contract")
+    for key in ("nodes", "pipe_segments", "supports"):
+        if d[key] != g[key]:
+            fail(f"{name}: {key} differ between the two forms")
+    for p in d["pipe_segments"]:
+        sec = p["section"]
+        got = {k: (sec[k]["value"], sec[k]["unit"]) for k in sec}
+        if got != {"outside_diameter": (0.2, "m"), "wall_thickness": (0.01, "m"), "mill_tolerance": (0.00125, "m"),
+                   "corrosion_allowance": (0.002, "m")}:
+            fail(f"{name}: section {got}")
+    if "reference_configurations" in d or any("analysis_state" in c for c in d["load_cases"]):
+        fail(f"{name}: the plain form carries the load/reference-state group")
+    if "reference_configurations" not in g or not all("analysis_state" in c for c in g["load_cases"]):
+        fail(f"{name}: the group form lacks the load/reference-state group")
+    for c3, c4 in zip(d["load_cases"], g["load_cases"]):
+        if c3["pressure_regions"] != c4["pressure_regions"]:
+            fail(f"{name}: regions differ")
+        src = {s["source_ref"] for s in c4["analysis_state"]["load_sources"]}
+        if src != {l["id"] for l in c4["primitive_loads"]}:
+            fail(f"{name}: load sources incomplete")
+        if {s["support_ref"] for s in c4["analysis_state"]["support_states"]} != {s["id"] for s in g["supports"]}:
+            fail(f"{name}: support states incomplete")
+    v = docs["shear_model_variant"]
+    if (v["op"], v["path"], v["value"]) != ("replace", "/model/pressure_contract/shear_model", "timoshenko_annulus_energy_v1"):
+        fail(f"{name}: shear-model variant patch")
+    if not docs["sp1_pair"].startswith("not applicable"):
+        fail(f"{name}: case 1 has no SP-1 twin after D-5")
+
+
 def holders(cases):
     for key, case in cases.items():
         yield f"/cases/{key}", case
@@ -201,7 +263,12 @@ def compare_frozen(new, old):
         elif isinstance(node, list):
             for i, v in enumerate(node):
                 yield from leaves(v, f"{path}/{i}")
+    d5_case = "/cases/milltol_lame_membrane"
+    d5 = "v3_model_0.5.0" in new["cases"]["milltol_lame_membrane"]["variants"]["free_transferring"]["documents"]
+    old_single = "v2_model_0.3.0" in old["cases"]["milltol_lame_membrane"]["variants"]["free_transferring"]["documents"]
     for path, q in leaves(old["cases"], "/cases"):
+        if d5 and old_single and path.startswith(d5_case + "/"):
+            continue  # case 1 across its D-5 re-freeze is compared by the mapping below
         try:
             n = resolve(new, path)
         except (KeyError, IndexError, ValueError, TypeError):
@@ -209,8 +276,12 @@ def compare_frozen(new, old):
         counts["frozen_compared"] += 1
         if n.get("exact") != q["exact"] or n.get("value") != q["value"] or n.get("unit") != q["unit"]:
             fail(f"frozen value changed at {path}")
+    if d5 and old_single:
+        compare_milltol_d5(new["cases"]["milltol_lame_membrane"], old["cases"]["milltol_lame_membrane"])
     # round 00's case-2 side block of support magnitudes moved into rows (N-3): values must be unchanged
     for cid, lc in old["cases"]["tp_phys_pressure_halves"]["load_cases"].items():
+        if "support_magnitudes" not in lc:
+            continue  # only round 00 had the side block
         e = new["cases"]["tp_phys_pressure_halves"]["load_cases"][cid]["expected"]
         for sup, tag in (("support:A", "A"), ("support:D", "D")):
             for k in ("force_magnitude", "moment_magnitude"):
@@ -219,6 +290,62 @@ def compare_frozen(new, old):
                 counts["frozen_compared"] += 1
                 if n["value"] != q["value"]:
                     fail(f"moved support magnitude changed: {cid} {sup} {k}")
+
+
+def compare_milltol_d5(new, old):
+    """Case 1, single-section freeze -> D-5 re-freeze: what D-5 keeps is unchanged, what it moves moved."""
+    def same(a, b):
+        return a["exact"] == b["exact"] and a["value"] == b["value"] and a["unit"] == b["unit"]
+    keep = {"Nw": "Nw", "S": "S", "wall_end_action_i": "wall_end_action_i", "wall_end_action_j": "wall_end_action_j",
+            "sigma_z": "sigma_z_reduced_section", "lame_inner_radial": "lame_inner_radial_reduced_section",
+            "lame_outer_radial": "lame_outer_radial_reduced_section", "lame_inner_hoop": "lame_inner_hoop_reduced_section",
+            "lame_outer_hoop": "lame_outer_hoop_reduced_section", "AB_maximum": "AB_maximum_reduced_section",
+            "zero_force": "zero_force", "zero_moment": "zero_moment", "zero_stress": "zero_stress",
+            "zero_length": "zero_length", "zero_rotation": "zero_rotation"}
+    for variant, ov in old["variants"].items():
+        olc = list(ov["load_cases"].values())[0]
+        nlc = list(new["variants"][variant]["load_cases"].values())[0]
+        for name, q in olc["expected"].items():
+            if name in keep:
+                counts["frozen_compared"] += 1
+                if not same(q, nlc["expected"][keep[name]]):
+                    fail(f"milltol {variant}: {name} changed under D-5")
+            elif name.startswith(("A_", "B_F", "B_M", "B_force", "B_moment")):
+                counts["frozen_compared"] += 1
+                if not same(q, nlc["expected"][name]):
+                    fail(f"milltol {variant}: reaction {name} changed under D-5")
+            elif name == "B_ux":
+                counts["frozen_compared"] += 1
+                n = nlc["expected"]["B_ux"]
+                if same(q, n) or not (0 < n["value"] < q["value"]):
+                    fail(f"milltol {variant}: B_ux did not move to the stiffer nominal value")
+            else:
+                fail(f"milltol {variant}: unmapped frozen quantity {name}")
+        for name, q in olc["zero_scales"].items():
+            counts["frozen_compared"] += 1
+            if name in ("scale_force", "scale_moment"):
+                ok = same(q, nlc["zero_scales"][name])
+            elif name == "scale_stress":
+                ok = same(q, nlc["zero_scales"]["scale_stress_reduced_section"])
+            else:  # scale_length, scale_rotation: the free extension on the stiffer section is smaller (a tighter floor)
+                ok = 0 < nlc["zero_scales"][name]["value"] < q["value"]
+            if not ok:
+                fail(f"milltol {variant}: zero scale {name} not as D-5 requires")
+    old_d = {d["id"]: d for d in old["wrong_result_discriminators"]}
+    carried = 0
+    for d in new["wrong_result_discriminators"]:  # carried over (cap_area_on_nominal_bore activated): same wrong value
+        src = old_d.get(d.get("former_id", d["id"]))
+        if src is not None:
+            carried += 1
+            counts["frozen_compared"] += 1
+            if src["wrong"] != d["wrong"]:
+                fail(f"milltol discriminator {d['id']} changed its wrong value")
+    if carried != len(old_d):
+        fail(f"milltol: {len(old_d) - carried} frozen discriminators were dropped")
+    for k in ("ro", "P"):
+        counts["frozen_compared"] += 1
+        if not same(old["derived"][k], new["derived"][k]):
+            fail(f"milltol derived {k} changed")
 
 
 def main():
@@ -232,7 +359,10 @@ def main():
         for cid, lc in h.get("load_cases", {}).items():
             check_load_case(doc, f"{base}/load_cases/{cid}", lc, pi)
         if "documents" in h:
-            check_documents(base, h["documents"])
+            if "v3_model_0.5.0" in h["documents"]:
+                check_documents_d5(base, h["documents"])
+            else:
+                check_documents(base, h["documents"])
     # re-freeze tags: exactly the nonzero uy rows of case 2 combined
     tagged = [(r["entity_ref"], r["kind"]) for base, h in holders(cases) for lc in h.get("load_cases", {}).values()
               for r in lc["rows"] if "refreeze" in r]
@@ -244,18 +374,26 @@ def main():
         fail("missing T4-U8 re-freeze blocks")
     # discriminators
     m = cases["milltol_lame_membrane"]
-    mf = list(m["variants"]["free_transferring"]["load_cases"].values())[0]["expected"]
-    mr = list(m["variants"]["axially_restrained_transferring"]["load_cases"].values())[0]["expected"]
-    target = {"lame_inner_hoop": mf["lame_inner_hoop"]["value"], "sigma_z (free)": mf["sigma_z"]["value"],
-              "sigma_z (restrained)": mr["sigma_z"]["value"], "Nw (restrained)": mr["Nw"]["value"]}
     ids = {d["id"]: d for d in m["wrong_result_discriminators"]}
-    s3 = ids.get("cap_area_on_authored_bore")
-    if not s3 or s3["wrong"]["exact"] != {"kind": "rational", "rational": "270848000/20871"} or s3["wrong"]["value"] != 12977.241148004408:
+    s3 = ids.get("cap_area_on_bore_without_mill_tolerance")
+    if not s3 or s3.get("former_id") != "cap_area_on_authored_bore" or \
+            s3["wrong"]["exact"] != {"kind": "rational", "rational": "270848000/20871"} or s3["wrong"]["value"] != 12977.241148004408:
         fail("S-3 control missing or wrong")
+    if "producible_today" in ids.get("cap_area_on_nominal_bore", {"producible_today": None}):
+        fail("cap_area_on_nominal_bore is not active after the D-5 re-authoring")
     for dsc in m["wrong_result_discriminators"]:
         counts["discriminators"] += 1
-        if not distinct(target[dsc["quantity"]], dsc["wrong"]["value"]):
-            fail(f"milltol discriminator {dsc['id']} not distinct")
+        for variant in dsc["target"]["variants"]:
+            e = list(m["variants"][variant]["load_cases"].values())[0]["expected"]
+            right = e.get(dsc["target"]["expected"])
+            if right is None:
+                fail(f"milltol discriminator {dsc['id']} targets a missing quantity {dsc['target']}")
+            elif not distinct(right["value"], dsc["wrong"]["value"]) or right["unit"] != dsc["wrong"]["unit"]:
+                fail(f"milltol discriminator {dsc['id']} not distinct or not in the target unit ({variant})")
+    pc = m["refreeze"]["prediction_check"]["entries"]
+    bad = [e for e in pc if not e["agrees"] and "radial" not in e["quantity"]]
+    if bad or not all(e["outcome"] == "unchanged" for e in pc if "radial" in e["quantity"]):
+        fail(f"milltol D-5 prediction check: unexplained disagreements {bad}")
     t = cases["tp_phys_pressure_halves"]["load_cases"]
     for dsc in cases["tp_phys_pressure_halves"]["wrong_result_discriminators"]:
         counts["discriminators"] += 1
