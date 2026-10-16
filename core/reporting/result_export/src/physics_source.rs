@@ -1032,6 +1032,12 @@ pub(crate) fn actual_materials(invocation: &Value, actual: &Value, exact: &Value
             && pipes.len() == array(&exact["pipe_materials"])?.len(),
         "ACTUAL_MATERIAL_COVERAGE",
     )?;
+    // T4-U8 (§3.6, §5): each section states the beam theory the captured
+    // contract selects for its member. Both callers admit only euler_bernoulli
+    // contracts (`SourceContract::from_invocation`, G8's `exact_namespace`),
+    // which select Euler-Bernoulli for a realized arc and a straight member
+    // alike (`section_basis::selected_model`); any other contract fails closed.
+    let shear_model = model["pressure_contract"]["shear_model"].as_str();
     for ((pipe, section), material) in pipes
         .iter()
         .zip(array(&exact["pipe_sections"])?)
@@ -1065,6 +1071,11 @@ pub(crate) fn actual_materials(invocation: &Value, actual: &Value, exact: &Value
             )? && section["mill_tolerance_m"].as_f64() == Some(tolerance)
                 && section["corrosion_allowance_m"].as_f64() == Some(allowance),
             "ACTUAL_SOURCE_GEOMETRY",
+        )?;
+        require(
+            shear_model == Some(crate::section_basis::EULER_BERNOULLI)
+                && section["beam_theory"]["model"].as_str() == shear_model,
+            "ACTUAL_SHEAR_MODEL",
         )?;
         let authored = array(materials)?
             .iter()
@@ -1401,6 +1412,40 @@ mod review_repair_tests {
             let (source, case, row) = isolated_torsion(action);
             assert_eq!(validate_stress(&source, &case, &row, &[]), Ok(()));
         }
+    }
+    #[test]
+    fn actual_materials_bind_each_section_beam_theory_to_the_euler_bernoulli_contract() {
+        // T4-U8 (§3.6, §5): pressure-source-1 and G8 step 5 admit euler_bernoulli
+        // contracts only; each captured section states the model it selects.
+        let request: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
+        ))
+        .unwrap();
+        let invocation = json!({"request": request, "solver_mode": "sparse_interactive"});
+        let exact = |invocation: &Value, beam: Value| {
+            let model = &invocation["request"]["model"];
+            let (pipe, authored) = (&model["pipe_segments"][0], &model["materials"][0]);
+            let length = |q: &Value| normalized_quantity(q, Dimension::Length).unwrap();
+            let selected = selected_material(authored, &model["load_cases"][0]).unwrap();
+            json!({"pipe_sections": [{"pipe_id": pipe["id"], "outside_diameter_m": length(&pipe["section"]["outside_diameter"]),
+                "wall_thickness_m": length(&pipe["section"]["wall_thickness"]), "mill_tolerance_m": 0.0,
+                "corrosion_allowance_m": length(&pipe["section"]["corrosion_allowance"]), "beam_theory": beam}],
+                "pipe_materials": [{"pipe_id": pipe["id"], "material_id": pipe["material"],
+                    "constitutive_basis": authored["constitutive_basis"], "E_pa": selected.e, "nu": selected.nu,
+                    "thermal_consumed": false, "alpha_per_kelvin": null}]})
+        };
+        let check = |invocation: &Value, beam: Value| {
+            actual_materials(invocation, &invocation["request"]["model"]["load_cases"][0], &exact(invocation, beam))
+        };
+        let timoshenko = json!({"model": crate::section_basis::TIMOSHENKO, "shear_factor": 0.5, "shear_area_m2": 1e-3});
+        assert_eq!(check(&invocation, json!({"model": crate::section_basis::EULER_BERNOULLI})), Ok(()));
+        for beam in [timoshenko.clone(), json!({"model": "cowper"}), Value::Null] {
+            assert_eq!(check(&invocation, beam), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
+        }
+        // Any other contract fails closed, even where the section agrees with it.
+        let mut other = invocation.clone();
+        other["request"]["model"]["pressure_contract"]["shear_model"] = json!(crate::section_basis::TIMOSHENKO);
+        assert_eq!(check(&other, timoshenko), Err("PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL".into()));
     }
     #[test]
     fn normalized_named_point_and_strict_bracket_match_actual_materials() {

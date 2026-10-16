@@ -15,6 +15,11 @@
 //! successor overlays them with its prepared bits (DEF-E), so no reader
 //! recomputes them. Coincident bases (equal walls) carry bit-equal leaves.
 //!
+//! The beam theory each entry states is bound to the captured model where a
+//! reader has it (§5): a straight member states the contract's
+//! `pressure_contract.shear_model`, a realized arc Euler-Bernoulli
+//! ([`bind_shear_model`], [`selected_model`]).
+//!
 //! Stress rows name their basis (`<recovery token>; section_basis=<basis>` and
 //! an id ending in `:<basis>` or its hyphenated spelling); every stress row has
 //! its other-basis twin with the same declared semantics, and each twin pair is
@@ -89,6 +94,9 @@ fn number(v: &Value) -> Result<f64, String> {
     v.as_f64()
         .filter(|n| n.is_finite())
         .ok_or_else(|| "SOURCE_PHYSICS_NUMBER_INVALID".into())
+}
+fn items(v: &Value) -> &[Value] {
+    v.as_array().map(Vec::as_slice).unwrap_or(&[])
 }
 
 pub fn is_stress_kind(kind: &str) -> bool {
@@ -305,6 +313,64 @@ pub fn model(sections: &Sections) -> &'static str {
         Beam::EulerBernoulli => EULER_BERNOULLI,
         Beam::Timoshenko { .. } => TIMOSHENKO,
     }
+}
+
+/// §3.6: the realized arcs of a captured model document, as the producer
+/// realizes them: the pipes named by `geometry.bend_pipe_ref` of its `bend` or
+/// `elbow` components whose `mechanics_interface.solver_consumption` is
+/// `curved_bend_macro_element`. The model is the only place that names an arc
+/// outside every pressure region (the evidence marks arcs in region geometry).
+pub fn realized_arcs(model: &Value) -> std::collections::HashSet<&str> {
+    items(&model["components"])
+        .iter()
+        .filter(|c| {
+            matches!(c["kind"].as_str(), Some("bend" | "elbow"))
+                && c["mechanics_interface"]["solver_consumption"] == "curved_bend_macro_element"
+        })
+        .filter_map(|c| c["geometry"]["bend_pipe_ref"].as_str().filter(|r| !r.trim().is_empty()))
+        .collect()
+}
+/// §3.6, §5: the beam theory a captured contract selects for one member: a
+/// realized arc is Euler-Bernoulli whatever the document selects; a straight
+/// member takes the contract's `pressure_contract.shear_model`.
+pub fn selected_model(shear_model: &str, arc: bool) -> &str {
+    if arc {
+        EULER_BERNOULLI
+    } else {
+        shear_model
+    }
+}
+/// §5 (pressure-1, against the captured model): each exact case's
+/// `pipe_sections` entry and each pressure region's geometry entry states the
+/// beam theory the model's contract selects for that member
+/// ([`selected_model`]). Arcs are the model's realized arcs and the arcs the
+/// region geometry marks. An arc stating another model is refused by
+/// `SOURCE_PHYSICS_ARC_BEAM_THEORY`; a straight member stating a model other
+/// than the contract's, or a contract naming no admitted model, by
+/// `SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT`. κ and A_s are the evidence reader's
+/// ([`beam_theory`]); this binds only the selection.
+pub fn bind_shear_model(evidence: &Value, model: &Value) -> Check {
+    let shear_model = model["pressure_contract"]["shear_model"]
+        .as_str()
+        .filter(|m| [EULER_BERNOULLI, TIMOSHENKO].contains(m))
+        .ok_or("SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT")?;
+    let mut arcs = realized_arcs(model);
+    for region in items(&evidence["pressure"]) {
+        for g in items(&region["geometry"]) {
+            if g.get("member_kind").is_some() {
+                arcs.insert(g["pipe_id"].as_str().unwrap_or_default());
+            }
+        }
+    }
+    let sections = items(&evidence["exact_cases"]).iter().flat_map(|case| items(&case["pipe_sections"]));
+    let geometry = items(&evidence["pressure"]).iter().flat_map(|region| items(&region["geometry"]));
+    for entry in sections.chain(geometry) {
+        let arc = arcs.contains(entry["pipe_id"].as_str().unwrap_or_default());
+        if entry["beam_theory"]["model"].as_str() != Some(selected_model(shear_model, arc)) {
+            return Err(if arc { "SOURCE_PHYSICS_ARC_BEAM_THEORY" } else { "SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT" }.into());
+        }
+    }
+    Ok(())
 }
 
 /// The 64-epsilon representation guard, on the E17 scale (no new tolerance).

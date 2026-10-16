@@ -17,10 +17,13 @@ import struct
 
 import pytest
 
+from tests.verifiers import physics_evidence as physical
 from tests.verifiers import physics_source as ps
 from tests.verifiers import pressure_1
+from tests.verifiers import reader_verdict as rv
 from tests.verifiers import retained_precision as rp
 from tests.verifiers import section_basis as sb
+from tests.verifiers import source_blocks
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / "fixtures/results/pressure_connected_mechanics_dense.json"
@@ -283,6 +286,152 @@ def test_pressure_1_reader_refuses_an_arc_claiming_timoshenko(arc):
     _refused(doc, "arc beam theory|geometry disagreement")
 
 
+def _contract_model(doc, shear_model):
+    """A model carrying only what G2's checks read here: the solved cases and the exact contract naming the shear model."""
+    return {"load_cases": [{"id": case["load_case_id"]} for case in doc["contract_evidence"]["exact_cases"]],
+            "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": shear_model}}
+
+
+def _with_case_beam(doc, pipe, beam):
+    doc = deepcopy(doc)
+    for case in doc["contract_evidence"]["exact_cases"]:
+        for s in case["pipe_sections"]:
+            if s["pipe_id"] == pipe:
+                s["beam_theory"] = deepcopy(beam)
+    return doc
+
+
+def _arc_corpus_entry(label):
+    return next(c for c in json.loads(ARC.read_text())["cases"] if c["label"].startswith(label))
+
+
+def test_pressure_1_reader_refuses_beam_theory_contradicting_the_contract(base):
+    """§5: a straight member's beam theory is the captured contract's shear model (G2, against the model); kappa and A_s
+    stay the evidence reader's. Rust's twin is section_bases.rs's test of the same name."""
+    eb, tim = sb.EULER_BERNOULLI, sb.TIMOSHENKO
+    euler = distinct(base)
+    timo = timoshenko(euler)
+    rv.physics_model_checks(euler, _contract_model(euler, eb))
+    rv.physics_model_checks(timo, _contract_model(timo, tim))
+    # A contract naming no admitted model selects nothing.
+    for doc, model in ((euler, tim), (timo, eb), (euler, "cowper")):
+        with pytest.raises(rv.Refused, match="^SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT$"):
+            rv.physics_model_checks(doc, _contract_model(doc, model))
+    # A region geometry record contradicting the contract, its case section agreeing.
+    region = deepcopy(timo)
+    region["contract_evidence"]["pressure"][0]["geometry"][0]["beam_theory"] = {"model": eb}
+    with pytest.raises(rv.Refused, match="^SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT$"):
+        rv.physics_model_checks(region, _contract_model(region, tim))
+    # The pressure route: the evidence reader, then G2 against the model.
+    refusal = {"ok": False, "error": {"code": "SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT", "detail": None}}
+    for doc, model, expected in ((timo, eb, refusal), (timo, tim, {"ok": True}), (euler, tim, refusal), (euler, eb, {"ok": True})):
+        assert rv.validate("pressure", doc, _contract_model(doc, model)) == expected
+
+
+def test_pressure_1_model_checks_take_realized_arcs_from_the_model():
+    """§3.6: a realized arc is Euler-Bernoulli under either contract. The model names the arcs, including one no pressure
+    region marks (the L line with a connector has explicitly empty regions)."""
+    eb, tim = sb.EULER_BERNOULLI, sb.TIMOSHENKO
+    entry = _arc_corpus_entry("L line with connector")
+    doc = shape(entry["envelope"])
+    assert all("member_kind" not in g for region in doc["contract_evidence"]["pressure"] for g in region["geometry"])
+    model = deepcopy(entry["document"]["model"])
+    assert sb.realized_arcs(model) == {"pipe:BEND"}
+    model["pressure_contract"]["shear_model"] = tim
+    claimed = timoshenko(doc)
+    stated = _with_case_beam(claimed, "pipe:BEND", {"model": eb})
+    rv.physics_model_checks(stated, model)
+    # The arc claiming Timoshenko (its kappa and A_s consistent).
+    with pytest.raises(rv.Refused, match="^SOURCE_PHYSICS_ARC_BEAM_THEORY$"):
+        rv.physics_model_checks(claimed, model)
+    # A bend the model does not realize as an arc is a straight member.
+    geometric = deepcopy(model)
+    for component in geometric["components"]:
+        if component["kind"] == "bend":
+            component["mechanics_interface"]["solver_consumption"] = "mechanics_geometry_only"
+    assert sb.realized_arcs(geometric) == set()
+    with pytest.raises(rv.Refused, match="^SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT$"):
+        rv.physics_model_checks(stated, geometric)
+    # Under Euler-Bernoulli every member states Euler-Bernoulli.
+    model["pressure_contract"]["shear_model"] = eb
+    rv.physics_model_checks(doc, model)
+    with pytest.raises(rv.Refused, match="^SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT$"):
+        rv.physics_model_checks(stated, model)
+    # An arc a region marks is an arc without the model's components.
+    entry = _arc_corpus_entry("U2-L-ANCH-PTW-K2 0.3.0")
+    timo = timoshenko(shape(entry["envelope"]))
+    model = deepcopy(entry["document"]["model"])
+    model["pressure_contract"]["shear_model"] = tim
+    del model["components"]
+    rv.physics_model_checks(timo, model)
+    bend = next(g["pipe_id"] for g in timo["contract_evidence"]["pressure"][0]["geometry"] if "member_kind" in g)
+    straight = next(s["beam_theory"] for s in timo["contract_evidence"]["exact_cases"][0]["pipe_sections"] if s["pipe_id"] != bend)
+    with pytest.raises(rv.Refused, match="^SOURCE_PHYSICS_ARC_BEAM_THEORY$"):
+        rv.physics_model_checks(_with_case_beam(timo, bend, straight), model)
+
+
+def test_pressure_source_1_composite_reads_arcs_and_one_straight_shear_model(base, arc):
+    """§3.6: the pressure-source-1 composite reading (``physics_evidence.py``) checks each section's beam theory as
+    ``pressure_1.py`` and Rust's shared reader do: a realized arc its region marks is Euler-Bernoulli, by name, and the
+    document has one straight-member shear model."""
+    def composite(doc):
+        doc = deepcopy(doc)
+        for case in doc["contract_evidence"]["exact_cases"]:
+            case["recovery_method"] = source_blocks.MODES["dense_scrutiny"]
+        return doc
+
+    context = ps.SourceContract.PRESSURE_V3
+    mixed = composite(timoshenko(base))
+    mixed["contract_evidence"]["exact_cases"][1]["pipe_sections"][0]["beam_theory"] = {"model": sb.EULER_BERNOULLI}
+    with pytest.raises(ValueError, match="one straight shear model per document"):
+        physical._validate_physics_evidence(mixed, context=context)
+    doc = timoshenko(arc)
+    region = next(r for r in doc["contract_evidence"]["pressure"] if any("member_kind" in g for g in r["geometry"]))
+    bend = next(g for g in region["geometry"] if "member_kind" in g)
+    nu = next(m["nu"] for c in doc["contract_evidence"]["exact_cases"] for m in c["pipe_materials"] if m["pipe_id"] == bend["pipe_id"])
+    kappa = sb.timoshenko_shear_factor(bend["nominal_section"]["ri_m"], bend["ro_m"], nu)
+    claim = {"model": sb.TIMOSHENKO, "shear_factor": kappa, "shear_area_m2": kappa * bend["nominal_section"]["As_m2"]}
+    # The arc's case section claims Timoshenko (its region record states Euler-Bernoulli).
+    with pytest.raises(ValueError, match="arc beam theory"):
+        physical._validate_physics_evidence(composite(_with_case_beam(doc, bend["pipe_id"], claim)), context=context)
+    # The arc's region geometry record claims Timoshenko.
+    bend["beam_theory"] = claim
+    with pytest.raises(ValueError, match="arc beam theory"):
+        physical._validate_physics_evidence(composite(doc), context=context)
+
+
+def test_pressure_source_1_and_physics_retained_1_bind_the_section_beam_theory_to_the_invocation():
+    """§5: both source routes admit euler_bernoulli contracts only; each captured section states it
+    (``physics_source._actual_materials``, also G8 step 5). Rust's twin is physics_source.rs's
+    ``actual_materials_bind_each_section_beam_theory_to_the_euler_bernoulli_contract``."""
+    request = json.loads((ROOT / "fixtures/product_preview/pressure_source/physics_source/n05.request.json").read_text())
+    invocation = {"request": request, "solver_mode": "sparse_interactive"}
+
+    def check(invocation, beam):
+        model = invocation["request"]["model"]
+        pipe, authored, case = model["pipe_segments"][0], model["materials"][0], model["load_cases"][0]
+        canonical = ps._canonical_inputs(invocation)
+        e, nu, _ = ps._selected_material(authored, case, canonical)
+        section = pipe["section"]
+        exact = {"pipe_sections": [{"pipe_id": pipe["id"], "outside_diameter_m": canonical(section["outside_diameter"], "length"),
+                                    "wall_thickness_m": canonical(section["wall_thickness"], "length"), "mill_tolerance_m": 0.0,
+                                    "corrosion_allowance_m": canonical(section["corrosion_allowance"], "length"), "beam_theory": beam}],
+                 "pipe_materials": [{"pipe_id": pipe["id"], "material_id": pipe["material"], "constitutive_basis": authored["constitutive_basis"],
+                                     "E_pa": e, "nu": nu, "thermal_consumed": False, "alpha_per_kelvin": None}]}
+        ps._actual_materials(invocation, case, exact, canonical)
+
+    timoshenko_claim = {"model": sb.TIMOSHENKO, "shear_factor": 0.5, "shear_area_m2": 1e-3}
+    check(invocation, {"model": sb.EULER_BERNOULLI})
+    for beam in (timoshenko_claim, {"model": "cowper"}, None):
+        with pytest.raises(ValueError, match="^PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL$"):
+            check(invocation, beam)
+    # Any other contract fails closed, even where the section agrees with it.
+    other = deepcopy(invocation)
+    other["request"]["model"]["pressure_contract"]["shear_model"] = sb.TIMOSHENKO
+    with pytest.raises(ValueError, match="^PHYSICS_SOURCE_ACTUAL_SHEAR_MODEL$"):
+        check(other, timoshenko_claim)
+
+
 def test_pressure_1_reader_refuses_a_basis_less_thin_wall_row_on_an_exact_envelope(base):
     doc = deepcopy(base)
     case = doc["contract_evidence"]["exact_cases"][0]
@@ -330,6 +479,59 @@ def test_the_d5_geometry_is_rederived_in_its_fixed_order(base):
     s = doc["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]
     s["reduced_section"]["As_m2"] = math.nextafter(s["reduced_section"]["As_m2"], 1.0)
     _refused(doc, "section bases")
+
+
+def test_u6_joint_face_area_is_the_d5_pressure_bore():
+    """§1, §2.3, §2.5: a joint face's bore area is the region geometry's ``pressure_bore.Ai_m2``, on distinct bases (a
+    nonzero corrosion allowance puts the pressure bore off the nominal bore). Rust's twin is connector_evidence.rs
+    ``u6_joint_face_area_is_the_d5_pressure_bore``."""
+    p, ae, od, wall, allowance = 2.0e6, 0.0125, 0.1143, 0.006, 0.0015
+    reduced = (wall - 0.0) - allowance
+
+    def annulus(w):
+        ro, ri = od * 0.5, od * 0.5 - w
+        area = (math.pi * w) * (od - w)
+        second = (area * ((ro * ro) + (ri * ri))) * 0.25
+        return {"wall_m": w, "ri_m": ri, "As_m2": area, "I_m4": second, "J_m4": second * 2, "Z_m3": second / ro}
+
+    def bore(w):
+        ri = od * 0.5 - w
+        return (math.pi * ri) * ri
+
+    def geometry(pipe):
+        return {"pipe_id": pipe, "geometry_basis": sb.GEOMETRY_BASIS, "outside_diameter_m": od, "ro_m": od * 0.5, "wall_thickness_m": wall,
+                "mill_tolerance_m": 0.0, "corrosion_allowance_m": allowance, "nominal_section": annulus(wall), "reduced_section": annulus(reduced),
+                "pressure_bore": {"ri_m": od * 0.5 - reduced, "Ai_m2": bore(reduced)}, "beam_theory": {"model": sb.EULER_BERNOULLI}, "traversal_forward": True}
+
+    def region(entries, face):
+        pe = p * ae
+        difference = pe - p * face
+        return [{"load_case_id": "case:A", "p_pa": p, "pressure_basis": "internal_differential_zero_external_v1", "member_pipe_ids": ["pipe:A", "pipe:B"],
+                 "member_connector_ids": ["connector:J"], "terminals": [{"node_ref": "node:0"}, {"node_ref": "node:3"}], "geometry": entries,
+                 "joint_edges": [{"connector_id": "connector:J", "node_i_ref": "node:1", "node_j_ref": "node:2", "face_i_pipe_id": "pipe:A",
+                                  "face_j_pipe_id": "pipe:B", "p_pa": p, "effective_area_m2": ae, "face_bore_area_m2": [face, face],
+                                  "joint_pressure_force_n": pe, "area_difference_force_n": [difference, difference],
+                                  "attachment_pair_global_n": [[-difference, 0.0, 0.0], [difference, 0.0, 0.0]],
+                                  "representation": "B: p(Ae - Ai) at the attachments; joint_effective_area + joint_face_cap"}]}]
+
+    record = {"component_id": "connector:J", "pressure_model": "constant_effective_area_reference_v1", "effective_area_m2": ae, "node_i": "node:1",
+              "node_j": "node:2", "pressure_basis": "internal_differential_zero_external_v1", "end_i_offset_local_m": [0.0, 0.0, 0.0],
+              "end_j_offset_local_m": [0.0, 0.0, 0.0], "connector_axes_global": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]}
+    check = lambda regions: pressure_1._joint_pressure_bindings([record], regions, {}, set(), False)
+    assert bore(reduced) != bore(wall)
+    # The D-5 region geometry is read: the face is the pressure bore.
+    check(region([geometry("pipe:A"), geometry("pipe:B")], bore(reduced)))
+    # A face on the nominal bore contradicts the pressure bore.
+    with pytest.raises(ValueError, match="joint face area"):
+        check(region([geometry("pipe:A"), geometry("pipe:B")], bore(wall)))
+    # A stray single-section Ai_m2 beside the D-5 entry, set to the nominal bore, does not bind the face.
+    stray = [{**geometry(pipe), "Ai_m2": bore(wall)} for pipe in ("pipe:A", "pipe:B")]
+    with pytest.raises(ValueError, match="joint face area"):
+        check(region(stray, bore(wall)))
+    # An entry without the pressure bore states no face area.
+    bare = [{k: v for k, v in geometry(pipe).items() if k != "pressure_bore"} for pipe in ("pipe:A", "pipe:B")]
+    with pytest.raises(ValueError, match="joint face area"):
+        check(region(bare, bore(reduced)))
 
 
 def test_pressure_source_1_and_physics_retained_1_refuse_nonzero_mill_tolerance():

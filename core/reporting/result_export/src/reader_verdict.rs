@@ -9,8 +9,9 @@
 //!   standing produced them, beside `numerical_use_standing_with_context`'s token
 //!   (`standing`).
 //! - G2: the model-bound physics checks (`MODEL_CASE_COVERAGE`,
-//!   `MODEL_MEMBER_COVERAGE`, `SUPPORT_BINDING`), run after the unchanged reader
-//!   when a model is given (`physics_model_checks`).
+//!   `MODEL_MEMBER_COVERAGE`, `SUPPORT_BINDING`; T4-U8: `SHEAR_MODEL_CONTRACT`
+//!   and `ARC_BEAM_THEORY` against the model's contract), run after the
+//!   unchanged reader when a model is given (`physics_model_checks`).
 //! - G5: one header dispatch, the superset of both languages' (`route`): the
 //!   TypeScript header's receipt-shape, evidence-presence and namespace checks
 //!   around `for_source_metadata`, whose retained transport reading stays.
@@ -128,8 +129,10 @@ pub fn binding(route: &str) -> Value {
 /// G2: the checks against the current model, after the reader admitted the
 /// evidence (TS `physicsResultEvidence.ts`: every solved exact case is a model
 /// load case; each case's members are the model's pipes but those an objective
-/// connector replaces; a support row names a model support). Each runs only when
-/// the model carries the member it reads.
+/// connector replaces; a support row names a model support; T4-U8, each section
+/// entry states the beam theory the model's `pressure_contract` selects for its
+/// member, `section_basis::bind_shear_model`). Each runs only when the model
+/// carries the member it reads.
 pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String> {
     fn ids<'a>(items: &'a Value, key: &str) -> Vec<&'a Value> {
         items.as_array().map(|a| a.iter().map(|x| &x[key]).collect()).unwrap_or_default()
@@ -156,6 +159,11 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
                 return Err("SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE".into());
             }
         }
+    }
+    // T4-U8 (§3.6, §5): every section entry states the beam theory the model's
+    // contract selects for its member (a realized arc, Euler-Bernoulli).
+    if model.get("pressure_contract").is_some_and(|v| !v.is_null()) {
+        crate::section_basis::bind_shear_model(evidence, model)?;
     }
     if model.get("supports").is_some_and(|v| !v.is_null()) {
         let supports = ids(&model["supports"], "id");

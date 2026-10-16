@@ -12,9 +12,10 @@ retires (`numericalResultQuality.ts`'s `sourceContract` and `numericalResultStan
 - G2: with a current model, the pressure reader runs the TypeScript model checks after the unchanged
   reader: every solved case is a model load case (`SOURCE_PHYSICS_MODEL_CASE_COVERAGE`), each case's
   members are the model's pipes but those an objective connector replaces
-  (`SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE`), and a support row names a model support
-  (`SOURCE_PHYSICS_SUPPORT_BINDING`); the pressure-source reader runs them against its invocation's
-  model. Preview-physics-1's TypeScript reader ignores its model.
+  (`SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE`), each section entry states the beam theory the model's contract
+  selects for its member (T4-U8: `SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT`, `SOURCE_PHYSICS_ARC_BEAM_THEORY`), and a
+  support row names a model support (`SOURCE_PHYSICS_SUPPORT_BINDING`); the pressure-source reader runs them
+  against its invocation's model. Preview-physics-1's TypeScript reader ignores its model.
 - G5: one header dispatch: the downgrade guard, a carrier namespace, the metadata header, then the
   TypeScript header's checks (the source route's receipt shape, the evidence object the pressure route
   needs, no identity outside these routes).
@@ -38,7 +39,7 @@ import re
 from typing import Any
 
 from . import compatibility as c
-from . import physics_source, preview_physics_evidence, pressure_1, source_blocks
+from . import physics_source, preview_physics_evidence, pressure_1, section_basis as sb, source_blocks
 
 ROUTES = ("pressure_source", "preview_physics", "pressure", "retained_preview_physics", "retained_physics")
 READERS = ("preview-physics", "pressure-source", "source-recovery", "pressure")
@@ -214,6 +215,13 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
         for case in cases:
             if not same(ids(case.get("pipe_materials"), "pipe_id"), pipes):
                 raise Refused("SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE")
+    # T4-U8 (§3.6, §5): every section entry states the beam theory the model's contract selects for its member (a
+    # realized arc, Euler-Bernoulli).
+    if model.get("pressure_contract") is not None:
+        try:
+            sb.bind_shear_model(evidence, model)
+        except sb.BasisError as error:
+            raise Refused(str(error)) from error
     if model.get("supports") is not None:
         supports = ids(model["supports"], "id")
         for row in source.get("results") or []:
