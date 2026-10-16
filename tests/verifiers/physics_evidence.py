@@ -14,6 +14,14 @@ cross-read refusals are deleted with v2.
 The published membrane and effective force values are source observations. This
 reader validates their provenance relationships without reconstructing them from
 rounded neighbouring rows or treating pressure arithmetic as a numerical pass.
+
+T4-U6/U8 (DEL-05-03 ``section-bases-and-timoshenko.md``): each ``pipe_sections`` entry is the D-5
+shape, rederived from its captured authored values by ``section_basis.py``. Every stress row names its
+section basis and has its other-basis twin; the twins are compared with each other against the two
+sections' leaves (bit-equal where the bases coincide, else the same resultant within the 64-epsilon
+representation guard), and Lame rows against their own annulus. That is a relation between twin rows and
+the declared sections, not a reconstruction of a row from force rows. Coverage, maxima and headlines are
+per basis; ``max_open_formula_stress`` is null on exact documents.
 """
 from __future__ import annotations
 
@@ -23,6 +31,8 @@ import json
 from pathlib import Path
 from collections.abc import Mapping
 from typing import Any
+
+from . import section_basis as sb
 
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
@@ -44,13 +54,23 @@ SIGNS = {
 }
 SUPPORT_SIGN = "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
 
-GEOMETRY = {"pipe_id", "geometry_basis", "outside_diameter_m", "effective_wall_thickness_m", "ri_m", "ro_m", "Ai_m2", "As_m2", "I_m4", "J_m4", "Z_m3"}
+# T4-U6 (D-5, §2.5): the pipe_sections entry's keys.
+GEOMETRY = sb.SECTION_KEYS
 MATERIAL = {"pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance"}
+STRESS_COMPONENTS = {"axial_membrane_stress", "lame_inner_radial_stress", "lame_outer_radial_stress", "lame_inner_hoop_stress", "lame_outer_hoop_stress"}
 
 
 def _require(condition: bool, detail: str) -> None:
     if not condition:
         raise ValueError(f"SOURCE_PHYSICS_EVIDENCE_INVALID: {detail}")
+
+
+def _basis(check, *args):
+    """A section-basis check's refusal as this verifier's own (``SOURCE_PHYSICS_EVIDENCE_INVALID: <detail>``)."""
+    try:
+        return check(*args)
+    except sb.BasisError as error:
+        raise ValueError(f"SOURCE_PHYSICS_EVIDENCE_INVALID: {error}") from error
 
 
 def _shape(value: Any, keys: set[str], detail: str) -> None:
@@ -113,6 +133,8 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
         _require(bool(cases) and set(cases) == set(numerical_ids), "case coverage")
     materials: dict[str, dict[str, Any]] = {}
     geometries: dict[str, dict[str, Any]] = {}
+    sections: dict[tuple[str, str], dict[str, Any]] = {}
+    complete = {basis: bool(cases) for basis in sb.BASES}
     extrema_ids: set[str] = set()
     for cid, case in cases.items():
         _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"recovery_method"} if context is not None else set()), "case shape")
@@ -129,33 +151,45 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
             # representation difference. Duplicated source records agree exactly.
             _require(math.isfinite(expected_g) and expected_g > 0 and abs(int.from_bytes(struct.pack(">d", material["G_pa"]), "big") - int.from_bytes(struct.pack(">d", expected_g), "big")) <= 2, "derived shear modulus")
             _require(type(material["thermal_consumed"]) is bool and (_number(material["alpha_per_kelvin"]) if material["thermal_consumed"] else material["alpha_per_kelvin"] is None), "thermal alpha")
-        for geometry in geometries[cid].values():
-            _shape(geometry, GEOMETRY, "geometry shape")
-            _require(geometry["geometry_basis"] == "authored_normalized_od_wall_v1" and all(_number(geometry[k]) and geometry[k] > 0 for k in GEOMETRY - {"pipe_id", "geometry_basis"}), "source geometry")
-            _require(geometry["ri_m"] < geometry["ro_m"] and geometry["effective_wall_thickness_m"] < geometry["outside_diameter_m"] / 2 and geometry["ro_m"] == geometry["outside_diameter_m"] * 0.5 and geometry["ri_m"] == geometry["outside_diameter_m"] * 0.5 - geometry["effective_wall_thickness_m"], "source annulus")
-        coverage = case["stress_maximum_coverage"]
-        _shape(coverage, {"complete", "unavailable_pipe_ids"}, "maximum coverage")
-        _require(type(coverage["complete"]) is bool and _strings(coverage["unavailable_pipe_ids"]), "maximum coverage values")
-        missing = set(coverage["unavailable_pipe_ids"])
-        _require(missing <= set(geometries[cid]) and coverage["complete"] == (not missing), "maximum coverage contradiction")
-        extrema = _indexed(case["pipe_stress_extrema"], "pipe_id", "extrema")
-        _require(set(extrema) == set(geometries[cid]) - missing, "maximum member coverage")
-        for pid, extremum in extrema.items():
+        for pid, geometry in geometries[cid].items():
+            # T4-U6/U8: the three geometries rederived from the captured authored values; no realized arc here.
+            parsed = _basis(sb.section, geometry)
+            _basis(sb.beam_theory, parsed, materials[cid][pid]["nu"], False)
+            sections[cid, pid] = parsed
+        missing_by_basis: dict[str, set[str]] = {}
+        for basis, (missing, done) in zip(sb.BASES, _basis(sb.coverage, case["stress_maximum_coverage"])):
+            _require(missing <= set(geometries[cid]), "maximum coverage contradiction")
+            complete[basis] = complete[basis] and done
+            missing_by_basis[basis] = missing
+        _require(isinstance(case["pipe_stress_extrema"], list), "extrema")
+        extrema_by_basis: dict[str, dict[str, Any]] = {basis: {} for basis in sb.BASES}
+        for extremum in case["pipe_stress_extrema"]:
+            basis = _basis(sb.extremum_basis, extremum)
+            _require(_text(extremum.get("pipe_id")) and extremum["pipe_id"] not in extrema_by_basis[basis], "duplicate extrema")
+            extrema_by_basis[basis][extremum["pipe_id"]] = extremum
+        for basis in sb.BASES:
+            _require(set(extrema_by_basis[basis]) == set(geometries[cid]) - missing_by_basis[basis], "maximum member coverage")
+        for pid, extremum in [(pid, ex) for basis in sb.BASES for pid, ex in extrema_by_basis[basis].items()]:
             if context is not None and case["recovery_method"] == context.EXACT:
                 context.validate_maximum(source, case, extremum, rows)
                 _require(extremum["result_id"] not in extrema_ids, "duplicate extrema result binding")
                 extrema_ids.add(extremum["result_id"])
                 continue
-            _shape(extremum, {"pipe_id", "result_id", "approximation", "coefficient_basis", "enclosure_scope", "station_fraction", "span_index", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa", "subdivisions"}, "extrema shape")
+            _shape(extremum, sb.EXTREMUM_KEYS, "extrema shape")
             _require(_text(extremum["result_id"]) and extremum["result_id"] not in extrema_ids, "duplicate extrema result binding")
             extrema_ids.add(extremum["result_id"])
             row = rows.get(extremum["result_id"], {})
-            _require(row.get("kind") == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") == pid and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}, "extrema result binding")
+            row_basis = sb.split_token((row.get("metadata") or {}).get("basis"))
+            _require(row.get("kind") == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") == pid and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}
+                     and row_basis is not None and row_basis[1] == extremum["section_basis"], "extrema result binding")
             _require(row.get("value") == extremum["value_lower_pa"] + 0.5 * (extremum["value_upper_pa"] - extremum["value_lower_pa"]), "extrema published witness")
             _require(all(_number(extremum[k]) for k in ("station_fraction", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa")), "extrema numeric values")
             _require(0 <= extremum["station_fraction"] <= 1 and 0 <= extremum["local_fraction"] <= 1 and 0 <= extremum["value_lower_pa"] <= extremum["value_upper_pa"] <= extremum["global_upper_bound_pa"] and 0 <= extremum["global_upper_bound_pa"] - extremum["value_lower_pa"] <= extremum["certified_gap_pa"] <= 1e-12 + 1e-12 * extremum["value_lower_pa"], "extrema bounds")
             _require(extremum["value_upper_pa"] == extremum["global_upper_bound_pa"], "extrema bounds")
             _require(type(extremum["span_index"]) is int and extremum["span_index"] >= 0 and type(extremum["subdivisions"]) is int and 0 <= extremum["subdivisions"] <= 131072 and extremum["approximation"] == "piecewise_quadratic_straight_section_statics" and extremum["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures" and extremum["enclosure_scope"] == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate", "extrema witness")
+        for pid, nominal in extrema_by_basis[sb.NOMINAL].items():
+            if pid in extrema_by_basis[sb.REDUCED]:
+                _basis(sb.extrema_twins, nominal, extrema_by_basis[sb.REDUCED][pid], sections[cid, pid])
         _validate_rhs(case["pressure_rhs_assembly"], cid)
     owners: dict[tuple[str, str], str] = {}
     bindings: set[str] = set()
@@ -204,8 +238,11 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
                 _require(terminal["pipe_cap_transfer_global_n"] == terminal["closure_pressure_load_global_n"], "terminal wall transfer disagreement")
         for pid in members:
             physical = [row for row in rows.values() if row.get("entity_ref") == pid and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid} and row.get("kind") in PIPE_KINDS - {"pipe_elastic_normal_stress_maximum_v2"}]
-            observed = [(row.get("metadata", {}).get("location"), row.get("metadata", {}).get("component")) for row in physical]
-            expected_locations = {(station, component) for station in ("end_i", "end_j", "quarter_1", "midspan", "quarter_3") for component in ("wall_axial_force", "effective_axial_force", "axial_membrane_stress", "lame_inner_radial_stress", "lame_outer_radial_stress", "lame_inner_hoop_stress", "lame_outer_hoop_stress")} | {("end_i", "wall_axial_end_action"), ("end_j", "wall_axial_end_action")}
+            # T4-U6 (§2.1): a stress slot is published on both bases, a force slot once.
+            observed = [(row.get("metadata", {}).get("location"), row.get("metadata", {}).get("component"),
+                         (sb.split_token(row.get("metadata", {}).get("basis")) or (None, "unnamed"))[1] if row.get("kind") in sb.STRESS_KINDS else None) for row in physical]
+            slots = {(station, component) for station in ("end_i", "end_j", "quarter_1", "midspan", "quarter_3") for component in ("wall_axial_force", "effective_axial_force", "axial_membrane_stress", "lame_inner_radial_stress", "lame_outer_radial_stress", "lame_inner_hoop_stress", "lame_outer_hoop_stress")} | {("end_i", "wall_axial_end_action"), ("end_j", "wall_axial_end_action")}
+            expected_locations = {(station, component, basis) for station, component in slots for basis in (sb.BASES if component in STRESS_COMPONENTS else (None,))}
             _require(len(observed) == len(expected_locations) and set(observed) == expected_locations, "pressure station coverage")
         ids = region["result_ids"]
         expected = {row["id"] for row in rows.values() if row.get("kind") in PIPE_KINDS and row.get("entity_ref") in members and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}}
@@ -221,6 +258,11 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
         _require(basis["ref_type"] == "load_case" and basis["ref_id"] in cases, "row case scope")
         _require(all(_text(row.get(key)) for key in ("kind", "entity_ref", "unit")), "source row identity")
         _require(row.get("source_result_refs", []) == [], "unsupported direct-row derivation")
+        # T4-U6 (§2.4): an inherited thin-wall row names no section basis; every stress row names its basis.
+        _require(row.get("kind") not in sb.THIN_WALL_KINDS, "thin-wall row names no section basis")
+        stress = row.get("kind") in sb.STRESS_KINDS
+        section_basis = _basis(sb.row_basis, row)[1] if stress else None
+        _require(not stress or (basis["ref_id"], row["entity_ref"]) in sections, "stress row member scope")
         if row.get("kind", "").endswith("_v2"):
             _require(row.get("kind") in PIPE_KINDS or row.get("kind", "").startswith("support_reaction_"), "unknown physical kind")
             metadata = row.get("metadata")
@@ -229,10 +271,11 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
             support = row["kind"].startswith("support_reaction_")
             _require(metadata["sign_convention"] == (context.MAX_SIGN if context is not None and row["kind"] == "pipe_elastic_normal_stress_maximum_v2" and cases[basis["ref_id"]]["recovery_method"] == context.EXACT else SUPPORT_SIGN if support else SIGNS[row["kind"]]), "physical sign convention")
             force = row["kind"] in {"pipe_wall_endpoint_action_v2", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2"}
-            _require(metadata["coordinate_system"] == ("global" if support else "element_local" if force else "pipe_section") and metadata["basis"] == (context.MAX_BASIS if context is not None and row["kind"] == "pipe_elastic_normal_stress_maximum_v2" and cases[basis["ref_id"]]["recovery_method"] == context.EXACT else "recovered_from_assembled_support_law" if support else "recovered_from_local_element_stiffness" if force else "recovered_from_open_mechanics_stress_components"), "physical recovery basis")
+            declared = sb.split_token(metadata["basis"])[0] if stress else metadata["basis"]
+            _require(metadata["coordinate_system"] == ("global" if support else "element_local" if force else "pipe_section") and declared == (context.MAX_BASIS if context is not None and row["kind"] == "pipe_elastic_normal_stress_maximum_v2" and cases[basis["ref_id"]]["recovery_method"] == context.EXACT else "recovered_from_assembled_support_law" if support else "recovered_from_local_element_stiffness" if force else "recovered_from_open_mechanics_stress_components"), "physical recovery basis")
             locations = {"node"} if support else {"governing_station"} if row["kind"] == "pipe_elastic_normal_stress_maximum_v2" else {"end_i", "end_j"} if row["kind"] == "pipe_wall_endpoint_action_v2" else {"end_i", "end_j", "quarter_1", "midspan", "quarter_3"}
             _require(metadata["location"] in locations, "physical location/derivation")
-            slot = (basis["ref_id"], row["entity_ref"], row["kind"], metadata["component"], metadata["location"])
+            slot = (basis["ref_id"], row["entity_ref"], row["kind"], metadata["component"], metadata["location"], section_basis)
             _require(slot not in physical_slots, "duplicate physical result slot")
             physical_slots.add(slot)
             if support:
@@ -248,15 +291,9 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
                 _require((cid, pid) in owners and row["id"] in bindings, "unbound pressure row")
     for components in support_components.values():
         _require(len(components) == 8 and set(components) == {"Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"}, "support component coverage")
-    headline = source.get("summary", {}).get("max_open_formula_stress")
-    complete = bool(cases) and all(case["stress_maximum_coverage"]["complete"] for case in cases.values())
-    if not complete:
-        _require(headline is None, "incomplete stress maximum headline")
-    elif headline is not None:
-        _shape(headline, {"value", "unit", "location_ref", "result_ref"}, "stress maximum headline")
-        maximum_rows = [row for row in rows.values() if row.get("kind") == "pipe_elastic_normal_stress_maximum_v2"]
-        selected = rows.get(headline.get("result_ref"), {})
-        _require(bool(maximum_rows) and selected in maximum_rows and headline.get("value") == selected["value"] == max(row["value"] for row in maximum_rows) and headline.get("unit") == selected["unit"] and headline.get("location_ref") == selected["entity_ref"], "stress maximum headline binding")
+    # T4-U6 (D-5, §2.1, §2.2): both families of every stress signature against the two sections; one headline per basis.
+    _basis(sb.twins, rows, sections, {key: region_pressures[key[0], rid] for key, rid in owners.items()})
+    _basis(sb.headlines, source.get("summary"), rows, complete)
     for cid, case in cases.items():
         for group in case["pressure_rhs_assembly"]["groups"]:
             for term in group["terms"]:
@@ -265,7 +302,8 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
                 _require(abs(term["coefficient"]) == expected_magnitude, "RHS term coefficient binding")
                 _require(group["pressure_bits"] == struct.pack(">d", region_pressures[cid, term["region_id"]]).hex(), "RHS source pressure bits")
                 geometry = geometries[cid][term["pipe_id"]]
-                a, b = geometry["outside_diameter_m"] * 0.5, geometry["effective_wall_thickness_m"]
+                # T4-U6 (D-5): the pressure load path is on the pressure bore (the reduced wall's inner radius).
+                a, b = geometry["outside_diameter_m"] * 0.5, geometry["reduced_section"]["wall_m"]
                 hi = a - b
                 b_virtual = a - hi
                 a_virtual = hi + b_virtual
@@ -340,12 +378,14 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
             expected = e / (2 * (1 + nu))
             _require(math.isfinite(expected) and abs(int.from_bytes(struct.pack(">d", g), "big") - int.from_bytes(struct.pack(">d", expected), "big")) <= 2, "transport shear modulus")
         for section in sections.values():
-            _require(all(section[k] > 0 for k in GEOMETRY - {"pipe_id","geometry_basis"}) and section["effective_wall_thickness_m"] < section["outside_diameter_m"]*.5 and section["ro_m"] == section["outside_diameter_m"]*.5 and section["ri_m"] == section["ro_m"] - section["effective_wall_thickness_m"], "transport section range")
-        coverage = case["stress_maximum_coverage"]
-        missing = set(coverage["unavailable_pipe_ids"])
-        _require(_strings(coverage["unavailable_pipe_ids"]) and missing <= set(sections) and coverage["complete"] == (not missing), "transport maximum coverage")
-        maxima = _indexed(case["pipe_stress_extrema"], "pipe_id", "transport maxima")
-        _require(set(maxima) == set(sections) - missing, "transport maximum members")
+            # T4-U6 (D-5): the three geometries rederived from the captured authored values.
+            _basis(sb.section, section)
+        maxima: dict[tuple[str, str], Any] = {}
+        for basis, (missing, _) in zip(sb.BASES, _basis(sb.coverage, case["stress_maximum_coverage"])):
+            _require(missing <= set(sections), "transport maximum coverage")
+            own = [ex for ex in case["pipe_stress_extrema"] if _basis(sb.extremum_basis, ex) == basis]
+            _require(len({ex["pipe_id"] for ex in own}) == len(own) and {ex["pipe_id"] for ex in own} == set(sections) - missing, "transport maximum members")
+            maxima.update({(ex["pipe_id"], basis): ex for ex in own})
         for ex in maxima.values():
             _require(ex["result_id"] not in result_ids, "transport maximum result ID")
             result_ids.add(ex["result_id"])

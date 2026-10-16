@@ -46,6 +46,11 @@ def test_each_ordinary_maximum_transport_refuses_old_or_mixed_scope(schema_name)
     assert branches, "current ordinary maximum branch is missing"
     for branch in branches:
         validator = jsonschema.Draft202012Validator({"$defs": schema["$defs"], **branch})
+        # T4-U6 (D-5, §2.5): an exact-contract maximum names its section basis; the preview one has none.
+        maximum.pop("section_basis", None)
+        if "section_basis" in branch.get("required", []):
+            maximum["section_basis"] = "nominal_section"
+            assert not validator.is_valid(dict(maximum, section_basis="thin_wall")), schema_name
         validator.validate(maximum)
         for field, value in (("coefficient_basis", OLD_BASIS),
                              ("enclosure_scope", OLD_SCOPE),
