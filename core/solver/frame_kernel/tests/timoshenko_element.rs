@@ -320,6 +320,102 @@ fn timoshenko_bending_planes_and_rotation_covariance() {
     }
 }
 
+/// SHEAR_REFERENCE §5 S-A, +1 N/m over the distal half at phi = 1, with the
+/// frozen vectors: the exact Timoshenko feq [7/64, 13/384, 25/64, -19/384]
+/// gives tip v 53/384, theta 7/48, root Fy -1/2, Mz -3/8; the stale
+/// Euler–Bernoulli vector [3/32, 5/192, 13/32, -11/192] with the same
+/// Timoshenko K gives v 9/64 = 54/384 and the same theta (the killed mutant:
+/// rotation and balance alone cannot see it). K-D5 refuses to form a
+/// Timoshenko partial span at all (`kd5_timoshenko_partial_span_is_unavailable`).
+#[test]
+fn timoshenko_distal_half_load_kills_the_stale_vector() {
+    let model = run(abstract_section(1.0, 1.0, 12.0), 1.0, 1);
+    let tip = DOF_PER_NODE;
+    let nodal = |v: [f64; 4]| {
+        let mut f = vec![0.0; 12];
+        f[UY] = v[0];
+        f[RZ] = v[1];
+        f[tip + UY] = v[2];
+        f[tip + RZ] = v[3];
+        f
+    };
+    let exact = nodal([7.0 / 64.0, 13.0 / 384.0, 25.0 / 64.0, -19.0 / 384.0]);
+    let stale = nodal([3.0 / 32.0, 5.0 / 192.0, 13.0 / 32.0, -11.0 / 192.0]);
+    for f in [&exact, &stale] {
+        close(f[UY] + f[tip + UY], 0.5, 1e-16, "force balance");
+        close(f[RZ] + f[tip + UY] + f[tip + RZ], 3.0 / 8.0, 1e-16, "moment balance");
+    }
+    let (u, r) = solve(&model, 2, &[], &exact);
+    close(u[tip + UY], 53.0 / 384.0, 1e-15, "tip v");
+    close(u[tip + RZ], 7.0 / 48.0, 1e-15, "tip theta");
+    close(r[UY], -0.5, 1e-15, "root Fy");
+    close(r[RZ], -3.0 / 8.0, 1e-15, "root Mz");
+    let (wrong, _) = solve(&model, 2, &[], &stale);
+    close(wrong[tip + UY], 54.0 / 384.0, 1e-15, "stale tip v");
+    close(wrong[tip + RZ], 7.0 / 48.0, 1e-15, "stale tip theta");
+    assert!((wrong[tip + UY] - u[tip + UY]).abs() > 2e-3);
+}
+
+/// SHEAR_REFERENCE §5 S-E: a fixed-root cantilever (EI = 1, Ks = 12, L = 1)
+/// with a ground spring k = 12 at a = 1/2 and a tip force F = 1, assembled
+/// with FK from two elements. Timoshenko: R = -7/8, u(a) = 7/96,
+/// u(L) = 37/128, theta(L) = 25/64, root force -1/8, moment -9/16.
+/// Euler–Bernoulli: R = -5/6, u(a) = 5/72, u(L) = 71/288, theta(L) = 19/48,
+/// root -1/6, -7/12. The root element's end actions are recovered with its
+/// own (Timoshenko) matrix, in binary64 and by K-D5's certified recovery;
+/// the Euler–Bernoulli matrix on the Timoshenko displacements (a
+/// stiffness-only replacement) does not give them.
+#[test]
+fn timoshenko_recovered_end_actions_use_the_timoshenko_matrix() {
+    use open_pipe_stress_frame_kernel::structural::{
+        certify_straight_recovery, CertifiedMemberLoads, MemberBoundInputs,
+    };
+    let eb = FrameSection::new(1.0, 1.0, 1.0, 1.0, 1.0, 1.0).unwrap();
+    let spring = [(DOF_PER_NODE + UY, 12.0)];
+    let force = tip_force(3, UY, 1.0);
+    let bound = MemberBoundInputs {
+        w: vec![0.0; 18],
+        w2: vec![0.0; 18],
+        exponents: vec![i32::MIN; 18],
+        lambda_sigma: 0.0,
+    };
+    let root_actions = |e: &FrameElement, u: &[f64]| {
+        // Along x with y reference y: local = global.
+        let k = e.local_stiffness().unwrap();
+        [UY, RZ].map(|r| (0..12).map(|c| k[r][c] * u[c]).sum::<f64>())
+    };
+    for (section, expected) in [
+        (
+            abstract_section(1.0, 1.0, 12.0),
+            [-7.0 / 8.0, 7.0 / 96.0, 37.0 / 128.0, 25.0 / 64.0, -1.0 / 8.0, -9.0 / 16.0],
+        ),
+        (eb, [-5.0 / 6.0, 5.0 / 72.0, 71.0 / 288.0, 19.0 / 48.0, -1.0 / 6.0, -7.0 / 12.0]),
+    ] {
+        let [reaction, ua, ul, theta, root_force, root_moment] = expected;
+        let what = format!("{:?}", section.beam_theory());
+        let model = run(section, 1.0, 2);
+        let (u, r) = solve(&model, 3, &spring, &force);
+        close(u[DOF_PER_NODE + UY], ua, 1e-14, &format!("{what} u(a)"));
+        close(-12.0 * u[DOF_PER_NODE + UY], reaction, 1e-14, &format!("{what} R"));
+        close(u[2 * DOF_PER_NODE + UY], ul, 1e-14, &format!("{what} u(L)"));
+        close(u[2 * DOF_PER_NODE + RZ], theta, 1e-14, &format!("{what} theta(L)"));
+        close(r[UY], root_force, 1e-14, &format!("{what} support force"));
+        close(r[RZ], root_moment, 1e-14, &format!("{what} support moment"));
+        let [f, m] = root_actions(&model[0], &u);
+        close(f, root_force, 1e-14, &format!("{what} root force"));
+        close(m, root_moment, 1e-14, &format!("{what} root moment"));
+        let certified =
+            certify_straight_recovery(&model[0], &CertifiedMemberLoads::default(), &u, &bound).unwrap();
+        close(certified.ends[UY].published, root_force, 1e-14, &format!("{what} certified force"));
+        close(certified.ends[RZ].published, root_moment, 1e-14, &format!("{what} certified moment"));
+        if section.beam_theory().is_timoshenko() {
+            let stale = element(0, 1, [0.0; 3], [0.5, 0.0, 0.0], eb, [0.0, 1.0, 0.0]);
+            let [f, _] = root_actions(&stale, &u);
+            assert!((f - root_force).abs() > 1e-2, "stiffness-only replacement: {f}");
+        }
+    }
+}
+
 // ------------------------------------------------- kappa (S-B and S-C)
 
 /// SHEAR_REFERENCE §5 S-B/S-C (kills Cowper, solid-circle and 5/6 factors).
