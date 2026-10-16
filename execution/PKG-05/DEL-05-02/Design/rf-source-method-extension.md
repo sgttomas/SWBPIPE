@@ -254,7 +254,11 @@ Extending the screen to the pre-0.4 route would change that recorded behaviour. 
 - under section 5's rule, the largest new selection is RF-SKEW-T-PIN-OFF-345-r1e-08, at 2,832,853, and 5,667,343 with its functional replay (P3);
 - every new selection fits within 8,000,000 including replay.
 
-What still has to be established at implementation: that the finalization reservations of the two new public publications (section 6) fit in the remaining margin of about 2.3 million. Those reservations are 24E + F + P (b7-plan, D5/MJ9), where E is the encoded request's bytes, a few tens of kilobytes for these one-member requests (derived). If they did not fit, the pre-0.4 named refusal would apply and the census binding in section 6 would fail. That would be an implementation finding, not a reason to loosen anything.
+What still has to be established at implementation, for the two new public publications (section 6), is two separate checks (b7-plan, D5/MJ9; E is the encoded request's bytes, a few tens of kilobytes for these one-member requests, derived):
+- **On the case ledger:** the selected case's finalization reservation 24E + F_k fits in the case ledger's remaining margin, about 2.33 million after 5,667,343.
+- **On the invocation ledger:** the composite publication's 24E + P fits the invocation ledger, through `reserve_publication`.
+
+If either did not fit, the pre-0.4 named refusal would apply and the census binding in section 6 would fail. That would be an implementation finding, not a reason to loosen anything.
 
 ## 3. Non-axis-aligned member transforms
 
@@ -414,7 +418,9 @@ The argument rests on structure. The census is its control.
 
    A strict-gap iteration that newly qualifies also changes the inputs of later iterations. So an earlier case that now runs further, or newly selects or qualifies, can leave a later case a smaller limit. In a heavy multi-case invocation, a previously selected later case could then lose selection.
 
-   That outcome **fails closed**: a typed `Budget` decline and an ordinary publication, with no reference, criterion or limit touched. No committed suite exhibits it. The census runs single-case invocations, and the strict-gap endings are identical under both rules (5.5). Section 6's statement that no previously selected case loses selection is measured on those single-case invocations.
+   That outcome **fails closed**, with no reference, criterion or limit touched, in one of two ways:
+   - a typed `Budget` decline and an ordinary publication;
+   - or, when the shared invocation ledger runs short at the composite's publication reservation (`reserve_publication`), the existing pre-0.4 blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` refusal. The 0.4 route republishes ordinarily in that case. No committed suite exhibits it. The census runs single-case invocations, and the strict-gap endings are identical under both rules (5.5). Section 6's statement that no previously selected case loses selection is measured on those single-case invocations.
 
 ### 5.3 The per-pair constant
 
@@ -427,7 +433,7 @@ The argument rests on structure. The census is its control.
 
 The worst case is 66. C₂ = 96 covers it, with a margin of 30.
 
-A stricter model also fits: P3's counter charged 6 per two-sum step, 2 per exponent read, 5 per radix iteration and 2 for the product, which gives a worst case of 86 ≤ 96. The monotonicity of 5.2 (5) allows any C₂ ≤ 126 (≤ 144 with the per-pair bound), so the choice of model cannot break it.
+A stricter model also fits: P3's counter charged 6 per two-sum step, 2 per exponent read, 5 per radix iteration and 2 for the product, which gives a worst case of 86 ≤ 96. The monotonicity of 5.2 (5) allows any C₂ ≤ 126 (≤ 144 with the per-pair bound), so neither stated model breaks it. A model that also counted `clamp`, the loop test and every comparison (about 9 or more per iteration) would need C₂ ≥ 150. It would break the bound, and is not this design's model.
 
 **Measured.** P3 recorded each pair's actual radix iterations over the 232,225 metered pairs of the census attempts and their replays:
 - the largest count is 6 iterations, against the bound of 16;
@@ -607,7 +613,7 @@ Each mutant is introduced into a scratch copy of the implementation and must be 
 | RF-12 | Formation-determinism check skipped | `congruence_closure_refuses_a_changed_rounded_contribution` |
 | RF-13 | Unit precheck skipped | `congruence_unit_precheck_declines_before_descriptor_construction` |
 | RF-13b | Unit precheck undercounts (D3's memory bound depends on it) | `congruence_unit_precheck_equals_descriptors_charge` (the precheck's count equals `descriptors_charge`'s count of the built descriptors, for every congruence census case and constructed models of 1 to 5 members) |
-| RF-14 | Pre-0.4 publication behaviour changed (for example a screen added) | the existing `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback` |
+| RF-14 | Pre-0.4 publication behaviour changed (for example a replay screen added) | `pre04_selection_takes_no_replay_screen`: a pre-0.4 selection run through `run_linear_static_preview_captured` with a private `SourceRecoveryBudget { per_case_limit }` set between its selection charge c and 2c (the hook the 0.4 fallback tests use). It is not declined at "captured replay reservation": it selects, then finalizes or takes the named refusal. The existing `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback` stays as well |
 | RF-15 | Producer keeps `b.len() > 2` | `order_four_selection_publishes_a_pressure_source_receipt` (J2's order-4 base publishes, and Rust and Python read it) |
 | RF-16 | Reader or verifier keeps `block_order > 2` | J2's `block_order` 3 and 4 mutations (Rust and Python) |
 | RF-17 | Congruence case published with level `…represented_contributions` | `congruence_receipt_declares_declared_member_congruence` |
@@ -620,7 +626,13 @@ Each mutant is introduced into a scratch copy of the implementation and must be 
 ## 9. Blast radius and D3
 
 **Code.**
-- Frame kernel (DEL-04-01): `structural/exact_boundary.rs` (cap per entry, order-3/4 arithmetic, witness, reactions, congruence source, metered `mul`) and `exact_boundary/functionals.rs` (retained bounds, replay), with new tests.
+- Frame kernel (DEL-04-01):
+  - `structural/exact_boundary.rs`: cap per entry, order-3/4 arithmetic, witness, reactions, congruence source, metered `mul`;
+  - `exact_boundary/functionals.rs`: retained bounds, replay, the shared-denominator check;
+  - `structural.rs`: a charged variant of `Expansion::add_product`, so the pre-add charges sit inside its unreordered sequence (5.1), plus the dev-only operation counter;
+  - new tests.
+
+  `tests/s11f_site_test.rs`'s list of frame-kernel functions that touch the force is kept current with these changes.
 - Product physics (DEL-04-07):
   - `source_recovery.rs` (closure, descriptors, unit precheck);
   - `source_receipt/source.rs` (blocks, level, payload);
