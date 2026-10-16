@@ -113,7 +113,10 @@ run was used.
   patch; and the energy identities.
 - **S-E**: the rational interior spring, assembled and equal to CONTRACT's
   flexibility forms. Timoshenko [−7/8, 7/96, 37/128, 25/64, −1/8, −9/16];
-  Euler–Bernoulli [−5/6, 5/72, 71/288, 19/48, −1/6, −7/12].
+  Euler–Bernoulli [−5/6, 5/72, 71/288, 19/48, −1/6, −7/12]. The energy record
+  separates the external work ½F·u(L) (`work_half_F_uL`: 37/256 Timoshenko,
+  71/576 EB) into the beam strain energy (`beam_strain_energy`: 173/1536, 163/1728)
+  and the spring energy ½k·u(a)².
 
 **Layer B** (`product_cases.json`; the S-B section is ro 0.1 m, ri 0.09 m, E 200 GPa, ν 0.3; κ_E = 16609827/33068756):
 
@@ -149,6 +152,16 @@ relative), with the wrong values, and names those that do not move them there:
 - one basis for both stress families;
 - the base ν instead of the case ν;
 - one case's shear terms reused.
+
+Two discriminators need care:
+- **`euler_bernoulli_recovery` reaction rows.** The 76 reaction rows listed for
+  this mutant assume a product sums reactions from the Euler–Bernoulli-recovered
+  member end actions. A product that takes reactions from R = K u − f with the
+  assembled Timoshenko K publishes correct reactions under this mutant. The
+  mutant's end-action, station and stress rows kill it on either reaction path.
+- **`base_nu_for_kappa`.** This is the weakest discriminator: it moves the tip uy
+  by 2.6e-6 relative in case:cold and 3.3e-6 in case:hot. That is still far
+  outside the 1e-9 criterion, so it remains valid.
 
 The stale Euler–Bernoulli load vector is an element-level discriminator only
 (S-A). The exact route has no partial-span member load, and for full-span loads
