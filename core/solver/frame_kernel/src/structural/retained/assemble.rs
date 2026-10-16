@@ -223,6 +223,63 @@ where
     ))
 }
 
+/// T4-U8 (`DEL-05-03` Design §3.6): the retained W1 element formed here is
+/// the Euler–Bernoulli frame (D's bending block (EI/L)[[4,2],[2,4]]); it has
+/// no shear term and stays Euler–Bernoulli. `StraightMember` carries no
+/// beam-theory leaf, so a Timoshenko frame reaches this assembler only
+/// through a conversion from an FK frame, and `StraightMember::from_frame`
+/// refuses it by this name.
+pub const RETAINED_TIMOSHENKO_REFUSAL: &str =
+    "timoshenko_annulus_energy_v1 straight members are not a retained-source formulation";
+
+/// Why `StraightMember::from_frame` refuses a frame.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RetainedMemberRefusal {
+    /// A Timoshenko leaf (`RETAINED_TIMOSHENKO_REFUSAL`).
+    Timoshenko,
+    /// A node index that is not a `u32`.
+    NodeIndexRange,
+}
+
+impl RetainedMemberRefusal {
+    pub fn reason(self) -> &'static str {
+        match self {
+            Self::Timoshenko => RETAINED_TIMOSHENKO_REFUSAL,
+            Self::NodeIndexRange => "retained member node index outside u32",
+        }
+    }
+}
+
+impl StraightMember {
+    /// The retained member of an Euler–Bernoulli FK frame, its leaves copied
+    /// bit for bit. A Timoshenko frame is refused by name, never formed
+    /// without its shear term.
+    pub fn from_frame(id: u32, frame: &crate::FrameElement) -> Result<Self, RetainedMemberRefusal> {
+        let s = frame.section;
+        if s.beam_theory.is_timoshenko() {
+            return Err(RetainedMemberRefusal::Timoshenko);
+        }
+        let (Ok(node_i), Ok(node_j)) = (
+            u32::try_from(frame.node_i.index),
+            u32::try_from(frame.node_j.index),
+        ) else {
+            return Err(RetainedMemberRefusal::NodeIndexRange);
+        };
+        Ok(Self {
+            id,
+            node_i,
+            node_j,
+            elastic_modulus: s.elastic_modulus,
+            shear_modulus: s.shear_modulus,
+            area: s.area,
+            second_moment_y: s.second_moment_y,
+            second_moment_z: s.second_moment_z,
+            torsion_constant: s.torsion_constant,
+            y_reference: frame.y_reference,
+        })
+    }
+}
+
 /// The member's operators at the context's precision (module documentation,
 /// items 1–3).
 pub(crate) fn form_member<const L: usize>(

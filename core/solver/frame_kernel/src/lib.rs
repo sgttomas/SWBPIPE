@@ -8,6 +8,7 @@ pub mod exact_sum;
 pub mod load_ledger;
 pub mod structural;
 pub mod rigid_body;
+pub mod shear;
 
 use std::error::Error;
 use std::fmt;
@@ -439,6 +440,33 @@ impl FrameNode {
     }
 }
 
+/// T4-U8 (D-6, H5): the bending theory of a straight frame, a leaf of its
+/// section. `EulerBernoulli` is today's element. `Timoshenko` is the exact
+/// static two-node element with shear rigidity `G * shear_area` in both
+/// bending planes (`DEL-05-03` Design `section-bases-and-timoshenko.md`
+/// §3.3); `shear_area` is A_s = kappa * A, an area, never the metal area of
+/// EA or of a load. Axial EA/L and torsion GJ/L are the same in both.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub enum BeamTheory {
+    #[default]
+    EulerBernoulli,
+    Timoshenko { shear_area: f64 },
+}
+
+impl BeamTheory {
+    pub fn is_timoshenko(self) -> bool {
+        matches!(self, Self::Timoshenko { .. })
+    }
+
+    /// A_s of a Timoshenko leaf; `None` for Euler–Bernoulli.
+    pub fn shear_area(self) -> Option<f64> {
+        match self {
+            Self::EulerBernoulli => None,
+            Self::Timoshenko { shear_area } => Some(shear_area),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct FrameSection {
     pub elastic_modulus: f64,
@@ -447,9 +475,12 @@ pub struct FrameSection {
     pub second_moment_y: f64,
     pub second_moment_z: f64,
     pub torsion_constant: f64,
+    /// T4-U8: `EulerBernoulli` from `new`, `Timoshenko` from `timoshenko`.
+    pub beam_theory: BeamTheory,
 }
 
 impl FrameSection {
+    /// An Euler–Bernoulli section, as before T4-U8.
     pub fn new(
         elastic_modulus: f64,
         shear_modulus: f64,
@@ -472,7 +503,43 @@ impl FrameSection {
             second_moment_y,
             second_moment_z,
             torsion_constant,
+            beam_theory: BeamTheory::EulerBernoulli,
         })
+    }
+
+    /// T4-U8: a Timoshenko section with shear area A_s (finite, positive),
+    /// for example `shear::shear_area(kappa, A)`.
+    pub fn timoshenko(
+        elastic_modulus: f64,
+        shear_modulus: f64,
+        area: f64,
+        second_moment_y: f64,
+        second_moment_z: f64,
+        torsion_constant: f64,
+        shear_area: f64,
+    ) -> Result<Self, FrameKernelError> {
+        let section = Self::new(
+            elastic_modulus,
+            shear_modulus,
+            area,
+            second_moment_y,
+            second_moment_z,
+            torsion_constant,
+        )?;
+        validate_positive_finite("shear_area", shear_area)?;
+        Ok(Self {
+            beam_theory: BeamTheory::Timoshenko { shear_area },
+            ..section
+        })
+    }
+
+    pub fn beam_theory(&self) -> BeamTheory {
+        self.beam_theory
+    }
+
+    /// A_s of a Timoshenko section; `None` for Euler–Bernoulli.
+    pub fn shear_area(&self) -> Option<f64> {
+        self.beam_theory.shear_area()
     }
 }
 
@@ -486,6 +553,29 @@ impl FrameProperties {
     pub fn new(section: FrameSection, length: f64) -> Result<Self, FrameKernelError> {
         validate_positive_finite("length", length)?;
         Ok(Self { section, length })
+    }
+
+    /// T4-U8: the shear-deformation ratios [phi_y, phi_z], phi = 12EI/(G A_s
+    /// L^2), of a Timoshenko section (Iy for the plane v = u_z, theta = -r_y;
+    /// Iz for v = u_y, theta = r_z), formed by the same checked binary64
+    /// operations as `local_stiffness`, so bit for bit its values. `None` for
+    /// an Euler–Bernoulli section.
+    pub fn timoshenko_phi(&self) -> Result<Option<[f64; 2]>, FrameKernelError> {
+        let BeamTheory::Timoshenko { shear_area } = self.section.beam_theory else {
+            return Ok(None);
+        };
+        validate_local_stiffness_operands(*self)?;
+        let s = self.section;
+        let length2 = checked_formation_product(
+            "L^2 (for 6EI/L^2 and 12EI/L^3): L*L",
+            self.length,
+            self.length,
+        )?;
+        let shared = TimoshenkoShared::form(s.elastic_modulus, s.shear_modulus, shear_area, length2)?;
+        Ok(Some([
+            shared.phi(&TIMOSHENKO_Y, s.second_moment_y)?.1,
+            shared.phi(&TIMOSHENKO_Z, s.second_moment_z)?.1,
+        ]))
     }
 }
 
@@ -642,6 +732,9 @@ pub fn local_stiffness(properties: FrameProperties) -> Result<Matrix12, FrameKer
     validate_positive_finite("second_moment_z", section.second_moment_z)?;
     validate_positive_finite("torsion_constant", section.torsion_constant)?;
     validate_positive_finite("length", properties.length)?;
+    if let BeamTheory::Timoshenko { shear_area } = section.beam_theory {
+        validate_positive_finite("shear_area", shear_area)?;
+    }
 
     let e = section.elastic_modulus;
     let g = section.shear_modulus;
@@ -675,50 +768,71 @@ pub fn local_stiffness(properties: FrameProperties) -> Result<Matrix12, FrameKer
         length,
     )?;
 
-    let twelve_e = checked_formation_product("12EIy/L^3 and 12EIz/L^3: 12*E", 12.0, e)?;
-    let bend_y_12 = checked_formation_quotient(
-        "12EIy/L^3: (12*E*Iy)/L^3",
-        checked_formation_product("12EIy/L^3: (12*E)*Iy", twelve_e, iy)?,
-        length3,
-    )?;
-    let six_e = checked_formation_product("6EIy/L^2 and 6EIz/L^2: 6*E", 6.0, e)?;
-    let bend_y_6 = checked_formation_quotient(
-        "6EIy/L^2: (6*E*Iy)/L^2",
-        checked_formation_product("6EIy/L^2: (6*E)*Iy", six_e, iy)?,
-        length2,
-    )?;
-    let four_e = checked_formation_product("4EIy/L and 4EIz/L: 4*E", 4.0, e)?;
-    let bend_y_4 = checked_formation_quotient(
-        "4EIy/L: (4*E*Iy)/L",
-        checked_formation_product("4EIy/L: (4*E)*Iy", four_e, iy)?,
-        length,
-    )?;
-    let two_e = checked_formation_product("2EIy/L and 2EIz/L: 2*E", 2.0, e)?;
-    let bend_y_2 = checked_formation_quotient(
-        "2EIy/L: (2*E*Iy)/L",
-        checked_formation_product("2EIy/L: (2*E)*Iy", two_e, iy)?,
-        length,
-    )?;
-    let bend_z_12 = checked_formation_quotient(
-        "12EIz/L^3: (12*E*Iz)/L^3",
-        checked_formation_product("12EIz/L^3: (12*E)*Iz", twelve_e, iz)?,
-        length3,
-    )?;
-    let bend_z_6 = checked_formation_quotient(
-        "6EIz/L^2: (6*E*Iz)/L^2",
-        checked_formation_product("6EIz/L^2: (6*E)*Iz", six_e, iz)?,
-        length2,
-    )?;
-    let bend_z_4 = checked_formation_quotient(
-        "4EIz/L: (4*E*Iz)/L",
-        checked_formation_product("4EIz/L: (4*E)*Iz", four_e, iz)?,
-        length,
-    )?;
-    let bend_z_2 = checked_formation_quotient(
-        "2EIz/L: (2*E*Iz)/L",
-        checked_formation_product("2EIz/L: (2*E)*Iz", two_e, iz)?,
-        length,
-    )?;
+    // T4-U8: the bending coefficients [k12, k6, k4, k2] of the Iy plane, then
+    // the Iz plane. Euler–Bernoulli is the formation above T4-U8, unchanged.
+    let [bend_y, bend_z] = match section.beam_theory {
+        BeamTheory::EulerBernoulli => {
+            let twelve_e = checked_formation_product("12EIy/L^3 and 12EIz/L^3: 12*E", 12.0, e)?;
+            let bend_y_12 = checked_formation_quotient(
+                "12EIy/L^3: (12*E*Iy)/L^3",
+                checked_formation_product("12EIy/L^3: (12*E)*Iy", twelve_e, iy)?,
+                length3,
+            )?;
+            let six_e = checked_formation_product("6EIy/L^2 and 6EIz/L^2: 6*E", 6.0, e)?;
+            let bend_y_6 = checked_formation_quotient(
+                "6EIy/L^2: (6*E*Iy)/L^2",
+                checked_formation_product("6EIy/L^2: (6*E)*Iy", six_e, iy)?,
+                length2,
+            )?;
+            let four_e = checked_formation_product("4EIy/L and 4EIz/L: 4*E", 4.0, e)?;
+            let bend_y_4 = checked_formation_quotient(
+                "4EIy/L: (4*E*Iy)/L",
+                checked_formation_product("4EIy/L: (4*E)*Iy", four_e, iy)?,
+                length,
+            )?;
+            let two_e = checked_formation_product("2EIy/L and 2EIz/L: 2*E", 2.0, e)?;
+            let bend_y_2 = checked_formation_quotient(
+                "2EIy/L: (2*E*Iy)/L",
+                checked_formation_product("2EIy/L: (2*E)*Iy", two_e, iy)?,
+                length,
+            )?;
+            let bend_z_12 = checked_formation_quotient(
+                "12EIz/L^3: (12*E*Iz)/L^3",
+                checked_formation_product("12EIz/L^3: (12*E)*Iz", twelve_e, iz)?,
+                length3,
+            )?;
+            let bend_z_6 = checked_formation_quotient(
+                "6EIz/L^2: (6*E*Iz)/L^2",
+                checked_formation_product("6EIz/L^2: (6*E)*Iz", six_e, iz)?,
+                length2,
+            )?;
+            let bend_z_4 = checked_formation_quotient(
+                "4EIz/L: (4*E*Iz)/L",
+                checked_formation_product("4EIz/L: (4*E)*Iz", four_e, iz)?,
+                length,
+            )?;
+            let bend_z_2 = checked_formation_quotient(
+                "2EIz/L: (2*E*Iz)/L",
+                checked_formation_product("2EIz/L: (2*E)*Iz", two_e, iz)?,
+                length,
+            )?;
+            [
+                [bend_y_12, bend_y_6, bend_y_4, bend_y_2],
+                [bend_z_12, bend_z_6, bend_z_4, bend_z_2],
+            ]
+        }
+        BeamTheory::Timoshenko { shear_area } => {
+            let shared = TimoshenkoShared::form(e, g, shear_area, length2)?;
+            let six_e = checked_formation_product("6EI/(L^2(1+phi)): 6*E", 6.0, e)?;
+            let lengths = [length, length2, length3];
+            [
+                timoshenko_plane(&shared, &TIMOSHENKO_Y, e, six_e, iy, lengths)?,
+                timoshenko_plane(&shared, &TIMOSHENKO_Z, e, six_e, iz, lengths)?,
+            ]
+        }
+    };
+    let [bend_y_12, bend_y_6, bend_y_4, bend_y_2] = bend_y;
+    let [bend_z_12, bend_z_6, bend_z_4, bend_z_2] = bend_z;
 
     let mut stiffness = [[0.0; ELEMENT_DOF]; ELEMENT_DOF];
 
@@ -775,6 +889,159 @@ fn checked_formation_value(
         return Err(FrameKernelError::NumericalRange { name });
     }
     Ok(value)
+}
+
+/// K2a, T4-U8: a Timoshenko intermediate that may be exactly zero, 2 - phi
+/// and its product (2 - phi)*(E*I) (phi = 2 exactly is not an underflow): it
+/// is checked for finiteness only.
+fn checked_formation_finite(name: &'static str, value: f64) -> Result<f64, FrameKernelError> {
+    if !value.is_finite() {
+        return Err(FrameKernelError::NumericalRange { name });
+    }
+    Ok(value)
+}
+
+/// The operand validation of `local_stiffness`, in its order and with its
+/// errors, shear area included (T4-U8's `timoshenko_phi` and the K2b census).
+fn validate_local_stiffness_operands(properties: FrameProperties) -> Result<(), FrameKernelError> {
+    let section = properties.section;
+    validate_positive_finite("elastic_modulus", section.elastic_modulus)?;
+    validate_positive_finite("shear_modulus", section.shear_modulus)?;
+    validate_positive_finite("area", section.area)?;
+    validate_positive_finite("second_moment_y", section.second_moment_y)?;
+    validate_positive_finite("second_moment_z", section.second_moment_z)?;
+    validate_positive_finite("torsion_constant", section.torsion_constant)?;
+    validate_positive_finite("length", properties.length)?;
+    if let BeamTheory::Timoshenko { shear_area } = section.beam_theory {
+        validate_positive_finite("shear_area", shear_area)?;
+    }
+    Ok(())
+}
+
+// ------------------------------------------------------------- T4-U8 element
+
+/// The K2a names of one Timoshenko bending plane's intermediates.
+struct TimoshenkoNames {
+    twelve_ei: &'static str,
+    phi: &'static str,
+    one_plus_phi: &'static str,
+    four_plus_phi: &'static str,
+    two_minus_phi: &'static str,
+    k12_denominator: &'static str,
+    k12: &'static str,
+    six_ei: &'static str,
+    k6_denominator: &'static str,
+    k6: &'static str,
+    ei: &'static str,
+    l_denominator: &'static str,
+    k4_numerator: &'static str,
+    k4: &'static str,
+    k2_numerator: &'static str,
+    k2: &'static str,
+}
+
+const TIMOSHENKO_Y: TimoshenkoNames = TimoshenkoNames {
+    twelve_ei: "phi_y and 12EIy/(L^3(1+phi_y)): (12*E)*Iy",
+    phi: "phi_y: ((12*E)*Iy)/((G*As)*L^2)",
+    one_plus_phi: "1+phi_y",
+    four_plus_phi: "4+phi_y",
+    two_minus_phi: "2-phi_y",
+    k12_denominator: "12EIy/(L^3(1+phi_y)): L^3*(1+phi_y)",
+    k12: "12EIy/(L^3(1+phi_y)): ((12*E)*Iy)/(L^3*(1+phi_y))",
+    six_ei: "6EIy/(L^2(1+phi_y)): (6*E)*Iy",
+    k6_denominator: "6EIy/(L^2(1+phi_y)): L^2*(1+phi_y)",
+    k6: "6EIy/(L^2(1+phi_y)): ((6*E)*Iy)/(L^2*(1+phi_y))",
+    ei: "(4+phi_y)EIy/(L(1+phi_y)) and (2-phi_y)EIy/(L(1+phi_y)): E*Iy",
+    l_denominator: "(4+phi_y)EIy/(L(1+phi_y)) and (2-phi_y)EIy/(L(1+phi_y)): L*(1+phi_y)",
+    k4_numerator: "(4+phi_y)EIy/(L(1+phi_y)): (4+phi_y)*(E*Iy)",
+    k4: "(4+phi_y)EIy/(L(1+phi_y)): ((4+phi_y)*(E*Iy))/(L*(1+phi_y))",
+    k2_numerator: "(2-phi_y)EIy/(L(1+phi_y)): (2-phi_y)*(E*Iy)",
+    k2: "(2-phi_y)EIy/(L(1+phi_y)): ((2-phi_y)*(E*Iy))/(L*(1+phi_y))",
+};
+
+const TIMOSHENKO_Z: TimoshenkoNames = TimoshenkoNames {
+    twelve_ei: "phi_z and 12EIz/(L^3(1+phi_z)): (12*E)*Iz",
+    phi: "phi_z: ((12*E)*Iz)/((G*As)*L^2)",
+    one_plus_phi: "1+phi_z",
+    four_plus_phi: "4+phi_z",
+    two_minus_phi: "2-phi_z",
+    k12_denominator: "12EIz/(L^3(1+phi_z)): L^3*(1+phi_z)",
+    k12: "12EIz/(L^3(1+phi_z)): ((12*E)*Iz)/(L^3*(1+phi_z))",
+    six_ei: "6EIz/(L^2(1+phi_z)): (6*E)*Iz",
+    k6_denominator: "6EIz/(L^2(1+phi_z)): L^2*(1+phi_z)",
+    k6: "6EIz/(L^2(1+phi_z)): ((6*E)*Iz)/(L^2*(1+phi_z))",
+    ei: "(4+phi_z)EIz/(L(1+phi_z)) and (2-phi_z)EIz/(L(1+phi_z)): E*Iz",
+    l_denominator: "(4+phi_z)EIz/(L(1+phi_z)) and (2-phi_z)EIz/(L(1+phi_z)): L*(1+phi_z)",
+    k4_numerator: "(4+phi_z)EIz/(L(1+phi_z)): (4+phi_z)*(E*Iz)",
+    k4: "(4+phi_z)EIz/(L(1+phi_z)): ((4+phi_z)*(E*Iz))/(L*(1+phi_z))",
+    k2_numerator: "(2-phi_z)EIz/(L(1+phi_z)): (2-phi_z)*(E*Iz)",
+    k2: "(2-phi_z)EIz/(L(1+phi_z)): ((2-phi_z)*(E*Iz))/(L*(1+phi_z))",
+};
+
+/// The plane-independent Timoshenko intermediates: 12*E and (G*As)*L^2.
+struct TimoshenkoShared {
+    twelve_e: f64,
+    g_as_l2: f64,
+}
+
+impl TimoshenkoShared {
+    fn form(e: f64, g: f64, shear_area: f64, length2: f64) -> Result<Self, FrameKernelError> {
+        let g_as = checked_formation_product("phi: G*As", g, shear_area)?;
+        let g_as_l2 = checked_formation_product("phi: (G*As)*L^2", g_as, length2)?;
+        let twelve_e = checked_formation_product("phi and 12EI/(L^3(1+phi)): 12*E", 12.0, e)?;
+        Ok(Self { twelve_e, g_as_l2 })
+    }
+
+    /// ((12*E)*I, phi) of one plane: phi = ((12*E)*I)/((G*As)*L^2).
+    fn phi(&self, names: &TimoshenkoNames, i: f64) -> Result<(f64, f64), FrameKernelError> {
+        let twelve_ei = checked_formation_product(names.twelve_ei, self.twelve_e, i)?;
+        let phi = checked_formation_quotient(names.phi, twelve_ei, self.g_as_l2)?;
+        Ok((twelve_ei, phi))
+    }
+}
+
+/// One Timoshenko plane's [k12, k6, k4, k2] (Design §3.3):
+/// 12EI/(L^3(1+phi)), 6EI/(L^2(1+phi)), (4+phi)EI/(L(1+phi)) and
+/// (2-phi)EI/(L(1+phi)), each intermediate a named K2a checked formation.
+/// `lengths` is [L, L^2, L^3] as `local_stiffness` formed them. With phi
+/// below 2^-53 every coefficient has the Euler–Bernoulli bits.
+fn timoshenko_plane(
+    shared: &TimoshenkoShared,
+    names: &TimoshenkoNames,
+    e: f64,
+    six_e: f64,
+    i: f64,
+    lengths: [f64; 3],
+) -> Result<[f64; 4], FrameKernelError> {
+    let [length, length2, length3] = lengths;
+    let (twelve_ei, phi) = shared.phi(names, i)?;
+    let one_plus_phi = checked_formation_value(names.one_plus_phi, 1.0, phi, 1.0 + phi)?;
+    let four_plus_phi = checked_formation_value(names.four_plus_phi, 4.0, phi, 4.0 + phi)?;
+    let two_minus_phi = checked_formation_finite(names.two_minus_phi, 2.0 - phi)?;
+    let k12 = checked_formation_quotient(
+        names.k12,
+        twelve_ei,
+        checked_formation_product(names.k12_denominator, length3, one_plus_phi)?,
+    )?;
+    let k6 = checked_formation_quotient(
+        names.k6,
+        checked_formation_product(names.six_ei, six_e, i)?,
+        checked_formation_product(names.k6_denominator, length2, one_plus_phi)?,
+    )?;
+    let ei = checked_formation_product(names.ei, e, i)?;
+    let l_denominator = checked_formation_product(names.l_denominator, length, one_plus_phi)?;
+    let k4 = checked_formation_quotient(
+        names.k4,
+        checked_formation_product(names.k4_numerator, four_plus_phi, ei)?,
+        l_denominator,
+    )?;
+    // A zero numerator (phi = 2) gives k2 = +0 through the checked quotient.
+    let k2 = checked_formation_quotient(
+        names.k2,
+        checked_formation_finite(names.k2_numerator, two_minus_phi * ei)?,
+        l_denominator,
+    )?;
+    Ok([k12, k6, k4, k2])
 }
 
 // ------------------------------------------------------------------ K2b
@@ -1071,6 +1338,21 @@ impl ForceScaleCensus {
     /// A frame's section and length. The operands are validated as
     /// `local_stiffness` validates them (the same errors), then E and G and
     /// the 24 predicted exponents enter the census.
+    ///
+    /// T4-U8, a Timoshenko section (Design §4 item 3): A_s is an area, so
+    /// phi = ((12E)I)/((G A_s)L^2) is bit-invariant under the exact 2^b
+    /// scaling of E and G, and so are 1+phi, 4+phi, 2-phi and the
+    /// denominators L^3(1+phi), L^2(1+phi), L(1+phi). The values K2a checks
+    /// that scale with b are E·A, EA/L, G·J, GJ/L, G·A_s, (G·A_s)·L^2, 12E,
+    /// 6E and per plane (12E)·I, (6E)·I, E·I, (4+phi)·(E·I), (2-phi)·(E·I)
+    /// and the four coefficients. Their exponents are predicted from the leaf
+    /// exponents and the **actual** binary64 exponents of those
+    /// scale-invariant factors, with the actual phi (formed as
+    /// `local_stiffness` forms it, at a scale where it is in range), since the
+    /// exponent of 2-phi cannot be predicted from leaf exponents. An exact
+    /// zero 2-phi is excluded. A scale-invariant factor outside the normal
+    /// range cannot be brought into range by any b; its values are left to
+    /// K2a's refusal at the selected b. No product of the solve is formed.
     pub fn frame(&mut self, element: &FrameElement) -> Result<(), FrameKernelError> {
         let section = element.section;
         let length = element.length()?;
@@ -1086,7 +1368,12 @@ impl ForceScaleCensus {
         for (name, value) in operands {
             validate_positive_finite(name, value)?;
         }
-        if operands.iter().any(|(_, value)| value.is_subnormal()) {
+        if let BeamTheory::Timoshenko { shear_area } = section.beam_theory {
+            validate_positive_finite("shear_area", shear_area)?;
+        }
+        if operands.iter().any(|(_, value)| value.is_subnormal())
+            || section.shear_area().is_some_and(f64::is_subnormal)
+        {
             self.subnormal = true;
             return Ok(());
         }
@@ -1096,15 +1383,70 @@ impl ForceScaleCensus {
         for predicted in [e + a, e + a - l, g + j, g + j - l] {
             self.exponent(predicted);
         }
-        // (exponent of k, power of L) for k = 12, 6, 4, 2.
-        for (k, power) in [(3, 3), (2, 2), (2, 1), (1, 1)] {
-            self.exponent(k + e);
-            for i in [iy, iz] {
-                self.exponent(k + e + i);
-                self.exponent(k + e + i - power * l);
+        let BeamTheory::Timoshenko { shear_area } = section.beam_theory else {
+            // (exponent of k, power of L) for k = 12, 6, 4, 2.
+            for (k, power) in [(3, 3), (2, 2), (2, 1), (1, 1)] {
+                self.exponent(k + e);
+                for i in [iy, iz] {
+                    self.exponent(k + e + i);
+                    self.exponent(k + e + i - power * l);
+                }
+            }
+            return Ok(());
+        };
+        self.timoshenko_frame(section, shear_area, length, [e, g, iy, iz]);
+        Ok(())
+    }
+
+    /// The Timoshenko values of `frame` (its documentation). `exponents` is
+    /// [e(E), e(G), e(Iy), e(Iz)].
+    fn timoshenko_frame(
+        &mut self,
+        section: FrameSection,
+        shear_area: f64,
+        length: f64,
+        exponents: [i32; 4],
+    ) {
+        let [e, g, iy, iz] = exponents;
+        let exponent_of = |value: f64| value.is_normal().then(|| structural::binary_exponent(value));
+        let length2 = length * length;
+        let length3 = length2 * length;
+        let s = structural::binary_exponent(shear_area);
+        self.exponent(g + s);
+        if let Some(l2) = exponent_of(length2) {
+            self.exponent(g + s + l2);
+        }
+        // 12 = 1.5*2^3 and 6 = 1.5*2^2.
+        self.exponent(3 + e);
+        self.exponent(2 + e);
+        for (moment, i) in [(section.second_moment_y, iy), (section.second_moment_z, iz)] {
+            self.exponent(3 + e + i);
+            self.exponent(2 + e + i);
+            self.exponent(e + i);
+            let Some(phi) = Self::timoshenko_phi(section, moment, length2) else {
+                continue;
+            };
+            let one_plus_phi = 1.0 + phi;
+            let four = structural::binary_exponent(4.0 + phi);
+            self.exponent(four + e + i);
+            let two_minus_phi = 2.0 - phi;
+            let two = (two_minus_phi != 0.0).then(|| structural::binary_exponent(two_minus_phi));
+            if let Some(two) = two {
+                self.exponent(two + e + i);
+            }
+            if let Some(d3) = exponent_of(length3 * one_plus_phi) {
+                self.exponent(3 + e + i - d3);
+            }
+            if let Some(d2) = exponent_of(length2 * one_plus_phi) {
+                self.exponent(2 + e + i - d2);
+            }
+            if let Some(d1) = exponent_of(length * one_plus_phi) {
+                self.exponent(four + e + i - d1);
+                if let Some(two) = two {
+                    self.exponent(two + e + i - d1);
+                }
             }
         }
-        Ok(())
     }
 
     /// T4-U3 (S8): an objective connector's K entries and its formed Ke
@@ -1149,6 +1491,41 @@ impl ForceScaleCensus {
                 self.exponent(structural::binary_exponent(x) + structural::binary_exponent(y));
             }
         }
+    }
+
+    /// T4-U8: the binary64 phi of one Timoshenko plane, exactly as
+    /// `local_stiffness` forms it (12*E, (12*E)*I, G*A_s, (G*A_s)*L^2, the
+    /// quotient), at 2^0 when every step is normal there, otherwise with E and
+    /// G both scaled exactly by 2^s, s centring (12*E)*I. Where two such
+    /// formations are all-normal they give the same bits (an exact
+    /// power-of-two scaling commutes with rounding in the normal range), so
+    /// this is the phi of any b at which the formation succeeds. `None` when
+    /// neither formation is all-normal.
+    pub fn timoshenko_phi(
+        section: FrameSection,
+        moment: f64,
+        length2: f64,
+    ) -> Option<f64> {
+        let shear_area = section.shear_area()?;
+        if !length2.is_normal() {
+            return None;
+        }
+        let attempt = |e: f64, g: f64| -> Option<f64> {
+            let twelve_e = 12.0 * e;
+            let twelve_ei = twelve_e * moment;
+            let g_as = g * shear_area;
+            let g_as_l2 = g_as * length2;
+            let phi = twelve_ei / g_as_l2;
+            [twelve_e, twelve_ei, g_as, g_as_l2, phi]
+                .iter()
+                .all(|value| value.is_normal())
+                .then_some(phi)
+        };
+        let (e, g) = (section.elastic_modulus, section.shear_modulus);
+        attempt(e, g).or_else(|| {
+            let s = -(structural::binary_exponent(e) + structural::binary_exponent(moment) + 3);
+            attempt(exact_normal_scaling(e, s)?, exact_normal_scaling(g, s)?)
+        })
     }
 
     /// (e_min, e_max), or `None` when no nonzero value was recorded.

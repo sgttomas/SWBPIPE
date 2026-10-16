@@ -1,13 +1,17 @@
 # 3D Frame Stiffness Kernel
 
-This crate is the conservative first slice for `DEL-04-01`. It provides a code-neutral mechanics kernel for 3D Euler-Bernoulli frame stiffness, coordinate transforms, boundary-condition reduction, global dense assembly, and a temporary dense solve interface.
+This crate is the conservative first slice for `DEL-04-01`. It provides a code-neutral mechanics kernel for 3D frame stiffness (Euler-Bernoulli, or the exact static Timoshenko element), coordinate transforms, boundary-condition reduction, global dense assembly, and a temporary dense solve interface.
 
 ## Scope
 
 - Two-node 3D frame elements.
 - Six degrees of freedom per node.
 - Public node and element DOF mapping helpers for the fixed six-DOF ordering.
-- Local 12 by 12 Euler-Bernoulli stiffness terms for axial, torsion, bending about local `y`, and bending about local `z`.
+- Local 12 by 12 stiffness terms for axial, torsion, bending about local `y`, and bending about local `z`, for either bending theory of the section's `BeamTheory` leaf:
+  - `EulerBernoulli` (`FrameSection::new`): 12EI/L³, 6EI/L², 4EI/L and 2EI/L, as before T4-U8.
+  - `Timoshenko { shear_area }` (`FrameSection::timoshenko`, T4-U8/D-6): the exact static two-node element with shear rigidity `G * shear_area` in both planes. Per plane phi = 12EI/(G A_s L²), and the same positions hold 12EI/(L³(1+phi)), 6EI/(L²(1+phi)), (4+phi)EI/(L(1+phi)) and (2-phi)EI/(L(1+phi)). Axial EA/L uses the metal area and torsion GJ/L is unchanged. Nodal rotations are section rotations, not slopes. Every intermediate is a named K2a checked formation; 2-phi and its product may be exactly zero.
+- `shear::annulus_energy_shear_factor` and `shear::shear_area`: the energy-matched annular shear factor kappa_E (`timoshenko_annulus_energy_v1`, not Cowper's or 5/6) in a fixed binary64 operation order, and A_s = kappa_E * A.
+- The K-D5 formation check re-forms a Timoshenko frame at p from its own leaves (phi, 1+phi, 4+phi, 2-phi) and binds every straight load primitive's frame, leaf included, to its formation-source frame; a Timoshenko partial-span uniform load is unavailable (fail closed). The retained W1 element stays Euler-Bernoulli and refuses a Timoshenko leaf by name.
 - Direction-cosine transforms from validated local element axes to global axes.
 - Dense global assembly and boundary-condition reduction, including force adjustment for prescribed displacements.
 - Deterministic dense Gaussian elimination with partial pivoting for small reduced systems.
@@ -41,7 +45,7 @@ This crate computes open mechanics quantities only. It does not encode complianc
 
 ## Verification
 
-The unit tests cover six-DOF mapping, local stiffness terms, local-to-global transform behavior, global assembly, boundary-condition reduction, prescribed-displacement force adjustment, the temporary dense solve interface, singular-system detection, metadata boundaries, invalid node topology, repeated restraints, invalid orientation, and non-finite input rejection.
+The unit tests cover six-DOF mapping, local stiffness terms, local-to-global transform behavior, global assembly, boundary-condition reduction, prescribed-displacement force adjustment, the temporary dense solve interface, singular-system detection, metadata boundaries, invalid node topology, repeated restraints, invalid orientation, and non-finite input rejection. `tests/timoshenko_element.rs` and the K-D5 Timoshenko unit tests check the Timoshenko element against SHEAR_REFERENCE's frozen controls (S-A, S-B, S-C, S-D).
 
 ## Future Replacement Point
 

@@ -41,6 +41,7 @@ pub mod retained_api {
         RetainedCombination,
     };
     pub use super::retained::factor::{reverse_cuthill_mckee, BodyGeometry};
+    pub use super::retained::assemble::{RetainedMemberRefusal, RETAINED_TIMOSHENKO_REFUSAL};
     pub use super::retained::ledger::LedgerRefusal;
     pub use super::retained::origins::{
         BuildOrigin, BuildPhase, BuildState, CacheImport, CallKind, CallOrigin, CallResult,
