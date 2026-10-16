@@ -267,13 +267,15 @@ pub(crate) fn resolve(
     let writes = match object_type {
         "Model" => {
             object(&after, PROFILE_KEYS)?;
-            // Activation supplies the current identity and explicit admitted shear,
-            // while every real user section retains its own authored allowance.
-            if !crate::is_pressure_v3_contract(&after)
-                || after["pressure_contract"]["shear_model"] != "euler_bernoulli" {
+            // Activation supplies the current identity and an explicit admitted shear
+            // model (T4-U8, D-6/O3: timoshenko_annulus_energy_v1, the authoring
+            // default, or euler_bernoulli; an unknown value is refused), while every
+            // real user section retains its own authored allowance: no allowance is
+            // written or manufactured here.
+            if !crate::is_pressure_v3_contract(&after) {
                 return Err(RichError {
                     code: "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED",
-                    message: "New pressure authoring requires the closed 3.0.0/exact_pressure_v3 contract with explicit euler_bernoulli shear_model".into(),
+                    message: "New pressure authoring requires the closed 3.0.0/exact_pressure_v3 contract with an explicit shear_model: timoshenko_annulus_energy_v1 (the default) or euler_bernoulli".into(),
                 });
             }
             if model["schema_version"] != open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION

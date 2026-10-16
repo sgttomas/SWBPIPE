@@ -5136,7 +5136,7 @@ fn resolve_create_primitive_load(
             "OP-PRESSURE-PRIMITIVE-RETIRED",
             "blocking",
             "Pressure primitive loads are retired, zero values included; the product refuses them (PRESSURE_MODEL_REAUTHOR_REQUIRED).".to_string(),
-            "Author pressure as exact pressure regions: on model 0.5.0 select the 3.0.0/exact_pressure_v3 profile (shear_model euler_bernoulli) with an explicit section.corrosion_allowance on every pipe, then enter the load case's pressure_regions (an explicit [] for an unpressurized case).",
+            "Author pressure as exact pressure regions: on model 0.5.0 select the 3.0.0/exact_pressure_v3 profile (shear_model timoshenko_annulus_energy_v1, the default, or euler_bernoulli) with an explicit section.corrosion_allowance on every pipe, then enter the load case's pressure_regions (an explicit [] for an unpressurized case).",
             vec![target_ref.to_string()],
         );
         return None;
@@ -11124,6 +11124,8 @@ mod tests {
             assert_eq!(diagnostic.severity, "blocking");
             assert!(diagnostic.message.contains("PRESSURE_MODEL_REAUTHOR_REQUIRED"));
             assert!(diagnostic.remediation.contains("3.0.0/exact_pressure_v3"));
+            // T4-U8 (D-6/O3): both admitted shear models are named, the default first.
+            assert!(diagnostic.remediation.contains("shear_model timoshenko_annulus_energy_v1, the default, or euler_bernoulli"));
             assert!(!diagnostic.remediation.contains("exact_straight_pressure_v2"));
         }
 

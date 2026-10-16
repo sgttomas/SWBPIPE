@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from "react";
 import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
-import { isPressureV3, PRESSURE_V3, pressureProfileTarget } from "./pressureContract";
+import { DEFAULT_SHEAR_MODEL, documentShearModel, isPressureV3, isShearModel, PRESSURE_V3, pressureProfileTarget, SHEAR_MODEL_CHOICES, type ShearModel } from "./pressureContract";
 
 export const MATERIAL_KEYS = ["constitutive_basis", "elastic_modulus", "shear_modulus", "poisson_ratio", "provenance"] as const;
 export function materialProjection(material: object): DraftRecord {
@@ -62,6 +62,13 @@ function CreateExactMaterial(props: RichFormProps) {
     <button type="button" onClick={() => void submit()}>Queue exact material</button>
   </fieldset><QueueFeedback {...state} /></details>;
 }
+const shearModelLabel = (model: ShearModel) => SHEAR_MODEL_CHOICES.find(choice => choice.value === model)!.label;
+/** T4-U8: what a v3 document's straight members use; an absent or unknown value is
+ * shown as such (the solver refuses it by name), never as a default. */
+function shearModelText(model: RichFormProps["model"]): string {
+  const selected = documentShearModel(model);
+  return selected ? `straight members use ${shearModelLabel(selected)}` : "no admitted shear model is selected, so solves are refused until one is";
+}
 /** Show actual authored presence, including malformed objects. The one current
  * document format selects v3 explicitly; no retired input is reinterpreted. */
 export function pressureModeText(model: RichFormProps["model"]): string {
@@ -69,7 +76,7 @@ export function pressureModeText(model: RichFormProps["model"]): string {
   const reauthor = `re-authored to ${PRESSURE_V3.mode}`;
   if (Object.hasOwn(model, "pressure_contract")) {
     if (!contract || typeof contract !== "object" || Array.isArray(contract)) return "invalid authored pressure contract (an object is required)";
-    if (isPressureV3(model)) return `${contract.mode} (straight members, realized bends and linear restraints or springs; other families are refused by name; pressure-1 results are read with their standing, and no desktop output is offered for them)`;
+    if (isPressureV3(model)) return `${contract.mode} (straight members, realized bends and linear restraints or springs; other families are refused by name; ${shearModelText(model)}, and realized arcs are Euler–Bernoulli under either shear model; pressure-1 results are read with their standing, and no desktop output is offered for them)`;
     const declared = `${contract.version}/${contract.mode}`;
     if (contract.version === "1.0.0" && contract.mode === "legacy_pressure_v1") return `${declared} (retired; solves are refused until the model is ${reauthor})`;
     return `${declared} (unsupported; solves are refused until the model is ${reauthor})`;
@@ -94,6 +101,10 @@ function memberLabel(model: RichFormProps["model"], pipe: RichFormProps["model"]
 export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: string }) {
   const state = useRichQueue(props);
   const [profile, setProfile] = useState("");
+  // T4-U8 (D-6/O3): null until the user changes the selector, so the queued profile
+  // keeps the document's own selection, or else writes the Timoshenko default.
+  const [shearChoice, setShearChoice] = useState<ShearModel | null>(null);
+  const shearModel = shearChoice ?? documentShearModel(props.model) ?? DEFAULT_SHEAR_MODEL;
   const profileReasonId = useId();
   const missingAllowance = props.model.pipe_segments.some(pipe => !Object.hasOwn(pipe.section, "corrosion_allowance"));
   const profileDisabledReason = state.busy ? "Wait for the current change to finish queuing."
@@ -106,7 +117,13 @@ export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: str
     <p>Pressure is uniform within each region. Structural line loads act as entered; a contents-density value does not imply hydrostatic pressure head or a coupled static-fluid pressure and weight state.</p>
     <fieldset disabled={state.busy}>
       <TextField label="Pressure profile" value={profile} choices={[PRESSURE_V3.mode]} onChange={setProfile} />
-      <button type="button" disabled={!!profileDisabledReason} title={profileDisabledReason} aria-describedby={profileDisabledReason ? profileReasonId : undefined} onClick={() => void state.queue({ object_type: "Model", ref: props.model.project.id }, "set_field", "pressure_profile", currentProfile, pressureProfileTarget(props.model), "Exact pressure profile")}>Queue pressure profile</button>
+      <label>Shear model
+        <select aria-label="Shear model" value={shearModel} onChange={e => { const value = e.target.value; if (isShearModel(value)) setShearChoice(value); }}>
+          {SHEAR_MODEL_CHOICES.map(choice => <option key={choice.value} value={choice.value}>{choice.label}</option>)}
+        </select>
+      </label>
+      <p>The shear model applies to straight members; realized arcs are Euler–Bernoulli under either model.</p>
+      <button type="button" disabled={!!profileDisabledReason} title={profileDisabledReason} aria-describedby={profileDisabledReason ? profileReasonId : undefined} onClick={() => void state.queue({ object_type: "Model", ref: props.model.project.id }, "set_field", "pressure_profile", currentProfile, pressureProfileTarget(props.model, shearChoice ?? undefined), "Exact pressure profile")}>Queue pressure profile</button>
     </fieldset>
     {profileDisabledReason && <p id={profileReasonId}>{profileDisabledReason}</p>}
     <QueueFeedback {...state} />

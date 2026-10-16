@@ -509,6 +509,13 @@ export type NumericalQuality = {
     evidence_refs: string[];
   }>;
 };
+/** A per-basis stress headline (`LocatedQuantity`). */
+export type SectionBasisHeadline = {
+  value: number;
+  unit: string;
+  location_ref: string;
+  result_ref: string;
+};
 export type MechanicsResult = {
   contract_evidence?: Record<string, unknown>;
   /** Preserved producer receipt; eligibility requires independently captured invocation. */
@@ -541,6 +548,12 @@ export type MechanicsResult = {
       location_ref: string;
       result_ref: string;
     } | null;
+    /** T4-U6 (D-5): on an exact-contract result each section basis has its own headline,
+     * bound to a maximum row of that basis, or null when its coverage is incomplete
+     * (`max_open_formula_stress` is then null: no governing basis is chosen). Both keys
+     * are absent on pressure-free results. Shown in the session view only. */
+    max_open_formula_stress_nominal_section?: SectionBasisHeadline | null;
+    max_open_formula_stress_reduced_section?: SectionBasisHeadline | null;
   };
   results: Array<{
     id: string;

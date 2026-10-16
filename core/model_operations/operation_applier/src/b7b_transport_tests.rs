@@ -17,29 +17,39 @@ fn model() -> Value {
     })
 }
 
-fn profile_edit(model: &Value) -> Result<Option<rich_authoring::RichEdit>, rich_authoring::RichError> {
+/// T4-U8 (D-6/O3): both admitted shear models; the authoring default first.
+const SHEAR_MODELS: [&str; 2] = ["timoshenko_annulus_energy_v1", "euler_bernoulli"];
+
+fn profile_edit(model: &Value, shear_model: &str) -> Result<Option<rich_authoring::RichEdit>, rich_authoring::RichError> {
     let before = canonical_json(&json!({"schema_version": model["schema_version"]}));
     let after = canonical_json(&json!({"schema_version": "0.5.0",
-        "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}}));
+        "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": shear_model}}));
     pressure_authoring::resolve(model, "Model", "project:b7b", "pressure_profile",
         &before, &after, "none", "dimensionless")
 }
 
+/// T4-U8: the allowance rule is independent of the shear selection, so it is
+/// checked under both admitted models (until U8 only euler_bernoulli was admitted).
 #[test]
 fn b7b_profile_activation_requires_explicit_ca_and_never_writes_user_sections() {
-    let model = model();
-    let before = model.clone();
-    let edit = profile_edit(&model).unwrap().unwrap();
-    assert_eq!(model, before);
-    assert_eq!(edit.writes.iter().map(|(path, _)| path.clone()).collect::<Vec<_>>(),
-        vec![vec!["schema_version".to_string()], vec!["pressure_contract".to_string()]]);
-    let mut absent = model.clone();
-    absent["pipe_segments"][0]["section"].as_object_mut().unwrap().remove("corrosion_allowance");
-    assert_eq!(profile_edit(&absent).unwrap_err().code, "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED");
-    let mut malformed = model.clone();
-    malformed["pipe_segments"][0]["section"]["corrosion_allowance"] = Value::Null;
-    assert!(profile_edit(&malformed).is_err());
-    assert!(malformed["pipe_segments"][0]["section"]["corrosion_allowance"].is_null());
+    for shear_model in SHEAR_MODELS {
+        let model = model();
+        let before = model.clone();
+        let edit = profile_edit(&model, shear_model).unwrap().unwrap();
+        assert_eq!(model, before);
+        assert_eq!(edit.writes.iter().map(|(path, _)| path.clone()).collect::<Vec<_>>(),
+            vec![vec!["schema_version".to_string()], vec!["pressure_contract".to_string()]], "{shear_model}");
+        assert_eq!(edit.writes[1].1.as_ref().unwrap()["shear_model"], shear_model);
+        let mut absent = model.clone();
+        absent["pipe_segments"][0]["section"].as_object_mut().unwrap().remove("corrosion_allowance");
+        assert_eq!(profile_edit(&absent, shear_model).unwrap_err().code, "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED");
+        let mut malformed = model.clone();
+        malformed["pipe_segments"][0]["section"]["corrosion_allowance"] = Value::Null;
+        assert!(profile_edit(&malformed, shear_model).is_err());
+        assert!(malformed["pipe_segments"][0]["section"]["corrosion_allowance"].is_null());
+    }
+    // An unknown shear model is refused before any section is read.
+    assert_eq!(profile_edit(&model(), "timoshenko").unwrap_err().code, "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED");
 }
 
 #[test]
@@ -202,8 +212,15 @@ fn b7b_common_split_transform_preserve_valid_or_absent_ca_and_refuse_invalid_ca(
     }
 }
 
+/// T4-U8: the sequence runs with each admitted shear model (the default first).
 #[test]
 fn b7b_common_explicit_region_then_profile_sequence_has_no_preactivation_cycle() {
+    for shear_model in SHEAR_MODELS {
+        explicit_region_then_profile(shear_model);
+    }
+}
+
+fn explicit_region_then_profile(shear_model: &str) {
     let mut current = editor_model();
     current["load_cases"][0].as_object_mut().unwrap().remove("pressure_regions");
     let sections = current["pipe_segments"].clone();
@@ -223,7 +240,7 @@ fn b7b_common_explicit_region_then_profile_sequence_has_no_preactivation_cycle()
     assert!(staged.diagnostics.iter().any(|finding| finding.code == "PREVIEW_CONTRACT_VERSION_MISMATCH"),
         "explicit preactivation authoring does not admit pressure regions on the preview solve");
     let after = json!({"schema_version": "0.5.0", "pressure_contract": {
-        "version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}});
+        "version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": shear_model}});
     let mut profile = intent("set_field", "pressure_profile",
         canonical_json(&json!({"schema_version": "0.5.0"})), canonical_json(&after), "none", "dimensionless");
     profile["target"] = json!({"object_type": "Model", "ref": "project:b7b"});

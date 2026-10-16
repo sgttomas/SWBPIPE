@@ -90,10 +90,13 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     cleanup();
     model = await apply(model, makeRichIntent({ object_type: "Load", ref: "case:u2" }, "update_load", "pressure_regions", "not_present", regions, "Pressure regions"));
 
-    // The profile: exact_pressure_v3 is the only choice.
+    // The profile: exact_pressure_v3 is the only choice. T4-U8: the shear model is
+    // selected explicitly as Euler–Bernoulli (the default is Timoshenko), because the
+    // applier's L line is the Euler–Bernoulli document asserted against T4-I7.
     queue = vi.fn();
     render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: "case:u2" }} onQueueIntent={queue} />);
     change("Pressure profile", "exact_pressure_v3");
+    change("Shear model", "euler_bernoulli");
     const profile = await queued(() => fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" })), queue);
     expect(JSON.parse(profile.change.after)).toEqual({ schema_version: "0.5.0", pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } });
     model = await apply(model, profile);

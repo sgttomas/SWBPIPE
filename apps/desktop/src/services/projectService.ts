@@ -430,11 +430,12 @@ export function buildBlankLocalModelDocument(createdAt: Date = new Date()): Prev
 
 /** T1 WP3 (D3): a blank document for load/reference-state work, beside the unchanged
  * blank path. B7b: it is model 0.5.0 with the exact contract the load/reference-state
- * group requires, the current 3.0.0/exact_pressure_v3 (euler_bernoulli), and an empty
+ * group requires, the current 3.0.0/exact_pressure_v3 (since T4-U8 with the authoring
+ * default timoshenko_annulus_energy_v1, D-6/O3), and an empty
  * reference-configuration list; it carries no materials, sections, cases or reference
  * values, and no document is upgraded to produce it. */
 export const BLANK_LOAD_STATE_MODEL_SCHEMA_VERSION = "0.5.0";
-export const BLANK_LOAD_STATE_PRESSURE_CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } as const;
+export const BLANK_LOAD_STATE_PRESSURE_CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" } as const;
 export function buildBlankLoadStateModelDocument(createdAt: Date = new Date()): PreviewModel {
   const { schema_version: blankVersion, ...blank } = buildBlankLocalModelDocument(createdAt);
   void blankVersion;
