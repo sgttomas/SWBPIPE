@@ -7,7 +7,7 @@
 use open_pipe_stress_frame_kernel::exact_sum::{ExactAccumulator, SumError};
 use open_pipe_stress_frame_kernel::load_ledger::{gamma, product_upward, round_upward, Formation};
 use open_pipe_stress_frame_kernel::{
-    CanonicalDimension, CanonicalModelReference, FrameElement, FrameKernelError,
+    BeamTheory, CanonicalDimension, CanonicalModelReference, FrameElement, FrameKernelError,
     FrameKernelUnitBasis, FrameNode, FrameOrientation, FrameSection, Matrix12,
     QuantityUnitMetadata, UnitSystemRef, DOF_PER_NODE, ELEMENT_DOF, RX, RY, RZ, UX, UY, UZ,
 };
@@ -23,6 +23,9 @@ pub struct StraightPipeSectionProperties {
     pub second_moment_z: f64,
     pub torsion_constant: f64,
     pub mass_per_length: Option<f64>,
+    /// T4-U8: the frame section's beam-theory leaf (`EulerBernoulli` from
+    /// `new`, `Timoshenko` from `timoshenko`), carried into `frame_section`.
+    pub beam_theory: BeamTheory,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -339,6 +342,11 @@ pub enum StraightPipeError {
         actual: usize,
     },
     FrameKernel(FrameKernelError),
+    /// T4-U8: a load the element's beam theory does not support, named (a
+    /// point member force in a Timoshenko element; Design §3.4).
+    UnsupportedLoadForBeamTheory {
+        name: &'static str,
+    },
 }
 
 impl fmt::Display for StraightPipeError {
@@ -368,6 +376,9 @@ impl fmt::Display for StraightPipeError {
                 )
             }
             Self::FrameKernel(error) => write!(f, "{error}"),
+            Self::UnsupportedLoadForBeamTheory { name } => {
+                write!(f, "unsupported load for the element's beam theory: {name}")
+            }
         }
     }
 }
@@ -408,18 +419,64 @@ impl StraightPipeSectionProperties {
             second_moment_z,
             torsion_constant,
             mass_per_length,
+            beam_theory: BeamTheory::EulerBernoulli,
         })
     }
 
+    /// T4-U8: a Timoshenko straight-pipe section with shear area A_s (finite,
+    /// positive; for example FK `shear::shear_area(kappa, area)`). `area` stays
+    /// the metal area of EA, weight and loads.
+    #[allow(clippy::too_many_arguments)]
+    pub fn timoshenko(
+        elastic_modulus: f64,
+        shear_modulus: f64,
+        area: f64,
+        second_moment_y: f64,
+        second_moment_z: f64,
+        torsion_constant: f64,
+        shear_area: f64,
+        mass_per_length: Option<f64>,
+    ) -> Result<Self, StraightPipeError> {
+        let section = Self::new(
+            elastic_modulus,
+            shear_modulus,
+            area,
+            second_moment_y,
+            second_moment_z,
+            torsion_constant,
+            mass_per_length,
+        )?;
+        validate_positive_finite("shear_area", shear_area)?;
+        Ok(Self {
+            beam_theory: BeamTheory::Timoshenko { shear_area },
+            ..section
+        })
+    }
+
+    pub fn beam_theory(&self) -> BeamTheory {
+        self.beam_theory
+    }
+
     pub fn frame_section(&self) -> Result<FrameSection, StraightPipeError> {
-        Ok(FrameSection::new(
-            self.elastic_modulus,
-            self.shear_modulus,
-            self.area,
-            self.second_moment_y,
-            self.second_moment_z,
-            self.torsion_constant,
-        )?)
+        Ok(match self.beam_theory {
+            BeamTheory::EulerBernoulli => FrameSection::new(
+                self.elastic_modulus,
+                self.shear_modulus,
+                self.area,
+                self.second_moment_y,
+                self.second_moment_z,
+                self.torsion_constant,
+            )?,
+            BeamTheory::Timoshenko { shear_area } => FrameSection::timoshenko(
+                self.elastic_modulus,
+                self.shear_modulus,
+                self.area,
+                self.second_moment_y,
+                self.second_moment_z,
+                self.torsion_constant,
+                shear_area,
+            )?,
+        })
     }
 }
 
@@ -581,20 +638,42 @@ impl StraightPipeElement {
 
     /// One fixed-end term array per load: uniform loads first, then point
     /// forces, in the given order. Each array is formed from its own load only.
+    ///
+    /// T4-U8 (Design §3.4), a Timoshenko element: a full-span uniform load has
+    /// the Euler–Bernoulli terms, unchanged; a partial-span uniform load has
+    /// the exact Timoshenko terms (`timoshenko_plane_terms`); a point member
+    /// force is refused by name, never formed with Hermite terms. These terms
+    /// are the ones assembly and the loaded end-force recovery both use.
     pub fn equivalent_nodal_load_terms_with_spans(
         &self,
         uniform_loads: &[SpannedUniformLocalLoad],
         point_forces: &[PointLocalForce],
     ) -> Result<Vec<[f64; ELEMENT_DOF]>, StraightPipeError> {
         let length = self.length()?;
+        let phi = self.timoshenko_phi()?;
+        if phi.is_some() && !point_forces.is_empty() {
+            return Err(StraightPipeError::UnsupportedLoadForBeamTheory {
+                name: "point member force in a timoshenko element (no Hermite equivalent)",
+            });
+        }
         let mut terms = Vec::with_capacity(uniform_loads.len() + point_forces.len());
         for load in uniform_loads {
-            terms.push(spanned_uniform_equivalent_terms(length, *load)?);
+            terms.push(spanned_uniform_equivalent_terms(length, *load, phi)?);
         }
         for load in point_forces {
             terms.push(point_equivalent_terms(length, *load)?);
         }
         Ok(terms)
+    }
+
+    /// T4-U8: the element's [phi_y, phi_z] (FK `FrameProperties::
+    /// timoshenko_phi`, the stiffness formation's own bits); `None` for an
+    /// Euler–Bernoulli element, which forms nothing here.
+    pub fn timoshenko_phi(&self) -> Result<Option<[f64; 2]>, StraightPipeError> {
+        if !self.section.beam_theory.is_timoshenko() {
+            return Ok(None);
+        }
+        Ok(self.frame_element()?.properties()?.timoshenko_phi()?)
     }
 
     pub fn equivalent_global_nodal_loads(
@@ -669,6 +748,12 @@ impl StraightPipeElement {
     /// binary64 range, every slot falls back to `Formation::Bounded` with
     /// gamma_16 * sum|monomials| plus an absolute 64 * 2^-1074 (rounded
     /// upward); a bound that cannot be represented is `+inf`, which fires.
+    ///
+    /// T4-U8: the intended formula is the Euler–Bernoulli one, which a
+    /// Timoshenko element shares only on a full span. A Timoshenko element
+    /// with a partial span has no exact intended formula here, so every slot
+    /// is `Formation::CannotBound` (the case demotes, fail closed); its values
+    /// are the Timoshenko equivalents.
     pub fn equivalent_global_nodal_loads_with_spans_formed(
         &self,
         uniform_loads: &[SpannedGlobalUniformLoad],
@@ -676,6 +761,12 @@ impl StraightPipeElement {
         let values = self.equivalent_global_nodal_loads_with_spans(uniform_loads, &[])?;
         let orientation = self.frame_element()?.orientation()?;
         let length = self.length()?;
+        let partial = |load: &SpannedGlobalUniformLoad| {
+            !(load.span.start_fraction == 0.0 && load.span.end_fraction == 1.0)
+        };
+        if self.section.beam_theory.is_timoshenko() && uniform_loads.iter().any(partial) {
+            return Ok((values, vec![Formation::CannotBound; ELEMENT_DOF]));
+        }
         let formations = match exact_scaled_intended(&orientation, length, uniform_loads) {
             Some(rows) => rows
                 .into_iter()
@@ -1389,9 +1480,11 @@ fn local_axial_effect_terms(
 }
 
 /// One uniform load's own fixed-end terms (formation from one source).
+/// `phi` is the element's [phi_y, phi_z] when it is Timoshenko.
 fn spanned_uniform_equivalent_terms(
     length: f64,
     load: SpannedUniformLocalLoad,
+    phi: Option<[f64; 2]>,
 ) -> Result<[f64; ELEMENT_DOF], StraightPipeError> {
     validate_spanned_uniform_load(load)?;
     let a = load.span.start_fraction;
@@ -1419,6 +1512,10 @@ fn spanned_uniform_equivalent_terms(
     validate_finite("spanned_uniform_j_transverse", transverse_j)?;
     validate_finite("spanned_uniform_j_rotation", rotation_j)?;
 
+    let plane = [transverse_i, rotation_i, transverse_j, rotation_j];
+    // R_ss = (1/L) integral (L - s) w ds over the span, the simply supported
+    // i-end reaction, is the axial_i polynomial (the same formula and bits).
+    let reaction_i = axial_i;
     let mut terms = [0.0; ELEMENT_DOF];
     match load.direction {
         LocalLoadDirection::X => {
@@ -1426,12 +1523,18 @@ fn spanned_uniform_equivalent_terms(
             terms[DOF_PER_NODE + UX] = axial_j;
         }
         LocalLoadDirection::Y => {
+            // The Iz plane: v = u_y, theta = r_z.
+            let [transverse_i, rotation_i, transverse_j, rotation_j] =
+                timoshenko_plane_terms(plane, phi.map(|p| p[1]), load.span, reaction_i, length)?;
             terms[UY] = transverse_i;
             terms[RZ] = rotation_i;
             terms[DOF_PER_NODE + UY] = transverse_j;
             terms[DOF_PER_NODE + RZ] = rotation_j;
         }
         LocalLoadDirection::Z => {
+            // The Iy plane: v = u_z, theta = -r_y.
+            let [transverse_i, rotation_i, transverse_j, rotation_j] =
+                timoshenko_plane_terms(plane, phi.map(|p| p[0]), load.span, reaction_i, length)?;
             terms[UZ] = transverse_i;
             terms[RY] = -rotation_i;
             terms[DOF_PER_NODE + UZ] = transverse_j;
@@ -1439,6 +1542,39 @@ fn spanned_uniform_equivalent_terms(
         }
     }
     Ok(terms)
+}
+
+/// T4-U8 (Design §3.4): one bending plane's fixed-end terms [V_i, M_i, V_j,
+/// M_j] in its (v, theta) convention. Euler–Bernoulli (`phi` is `None`) and a
+/// full span return `plane` unchanged (a full span's Timoshenko vector is the
+/// Euler–Bernoulli one). A partial span in a Timoshenko element returns
+/// feq_EB + dV0 [1, L/2, -1, L/2] with dV0 = phi/(1+phi) (R_ss - V0_EB),
+/// from SHEAR_REFERENCE §4's integrated solution with v(L) = theta(L) = 0, in
+/// the binary64 order ratio = phi/(1+phi), dV0 = ratio*(R_ss - V0_EB),
+/// dM = dV0*(L/2).
+fn timoshenko_plane_terms(
+    plane: [f64; 4],
+    phi: Option<f64>,
+    span: UniformLoadSpan,
+    reaction_i: f64,
+    length: f64,
+) -> Result<[f64; 4], StraightPipeError> {
+    let full = span.start_fraction == 0.0 && span.end_fraction == 1.0;
+    let Some(phi) = phi.filter(|_| !full) else {
+        return Ok(plane);
+    };
+    let [transverse_i, rotation_i, transverse_j, rotation_j] = plane;
+    let ratio = phi / (1.0 + phi);
+    let shear_change = ratio * (reaction_i - transverse_i);
+    let moment_change = shear_change * (0.5 * length);
+    let corrected = [
+        transverse_i + shear_change,
+        rotation_i + moment_change,
+        transverse_j - shear_change,
+        rotation_j + moment_change,
+    ];
+    validate_finite_slice("timoshenko_partial_span_terms", &corrected)?;
+    Ok(corrected)
 }
 
 /// One point force's own fixed-end terms (formation from one source).
