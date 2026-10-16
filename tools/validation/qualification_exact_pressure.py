@@ -70,8 +70,9 @@ FROZEN_PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': 'exact_pressure_v3'}
 FROZEN_VERSIONS = ('0.3.0', '0.4.0')
 TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_1.json'
 # B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables"; O-10): pressure-1's own reviewed
-# resident table (88 signatures, 59 kinds); the former pin 07a6a308... named the table before its re-issue.
-TABLE_SHA256 = 'a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375'
+# resident table; the former pin 07a6a308... named the table before its re-issue. T4-U6 (D-5, §2.4) re-issued it
+# with one stress signature per (recovery token x section basis): 106 signatures, 59 kinds (B7b's was a4e3bf2c...).
+TABLE_SHA256 = '4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e'
 # The owned reader is the Rust product reader of pressure-1 (owner, 2026-10-10:
 # "move to one product reader in Rust"): `validate_pressure_evidence` (an envelope
 # carrying the load/reference-state group takes its pre-pass), reached through
@@ -346,8 +347,10 @@ def row_semantics(selector, semantic_rows):
     metadata = selector['metadata']
     require(type(metadata) is dict and set(metadata) == set(gate.META), 'complete source metadata required')
     require(all(type(v) is str and v and v != 'TBD' for v in metadata.values()), 'unresolved source metadata')
+    # T4-U6 (D-5, §2.4): one signature per (kind, unit, component, basis); a declared source_basis is matched exactly.
     signatures = [row for row in semantic_rows if row['kind'] == selector['kind'] and row['unit'] == selector['unit']
-                  and row['component'] == metadata['component']]
+                  and row['component'] == metadata['component']
+                  and ('source_basis' not in row or row['source_basis'] == metadata['basis'])]
     require(len(signatures) == 1 and signatures[0]['source_physical_semantic_dimension'] == selector['dimension'],
             'selector contradicts pinned pressure-1 semantics')
     return signatures[0]['family']

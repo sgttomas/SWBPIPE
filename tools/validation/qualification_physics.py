@@ -34,9 +34,11 @@ TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_1.json'
 # whenever the reader changes. B7b re-pinned all three: physics-1's reader and table (a6681f69...) are retired.
 MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
-TABLE_SHA256 = 'a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375'
+# T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds).
+TABLE_SHA256 = '4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e'
 DEPENDENCIES = {
-    MODULE: '38302413b131204fafecc99e62780cf73a70db552e95ecc57bbf054e781addb2',
+    # T4-U6/U8 re-pin: the D-5 section bases and the Timoshenko beam theory (was 38302413...).
+    MODULE: '8bf263d6a613a62f9a757059c7811dfc32a05b9cb363e52e70edf0127e0f0ccf',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
