@@ -42,6 +42,15 @@ ACTUAL_PATHS = [
 ]
 COMPOSITE_DIR = PROJECT / "fixtures/product_preview/pressure_source/physics_source"
 PRESSURE_TRANSPORT_UNSUPPORTED = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
+# T4-U6 (DEL-05-03 Design §2.1, §2.5): an exact stress row's token is its recovery token followed by its
+# section basis, and its id ends in that basis.
+SECTION_BASES = ("nominal_section", "reduced_section")
+
+
+def section_token(recovery: str, row: dict) -> bool:
+    """Whether the row's basis is ``recovery`` on one section basis, the one its id names."""
+    return any(row["metadata"]["basis"] == f"{recovery}; section_basis={basis}" and row["id"].endswith(f":{basis}")
+               for basis in SECTION_BASES)
 
 
 def bound(raw):
@@ -126,7 +135,7 @@ def test_physics_support_moments_and_maxima_keep_distinct_source_semantics():
             assert rows[row["id"]]["unit"] == ("N*m" if moment else "N")
         if row["kind"] == "pipe_elastic_normal_stress_maximum_v2":
             assert rows[row["id"]]["result_family"] == "stress"
-            assert row["metadata"]["basis"] == "recovered_from_open_mechanics_stress_components"
+            assert section_token("recovered_from_open_mechanics_stress_components", row), row["id"]
             assert rows[row["id"]]["station_ref"]["ref"] == "governing_station"
     assert len([r for r in raw["results"] if r["kind"] == "support_reaction_component_v2"]) == 12
 
@@ -148,7 +157,7 @@ def test_actual_composite_files_are_required_and_retain_both_namespaces(tmp_path
             assert a["source_value_bits"] == struct.pack(">d", float(original_row["value"])).hex()
             row = a["source_row"]
             if row["kind"] == "pipe_elastic_normal_stress_maximum_v2":
-                assert row["metadata"]["basis"] in {"retained_source_endpoint_normal_max_v1", "recovered_from_open_mechanics_stress_components"}
+                assert any(section_token(token, row) for token in ("retained_source_endpoint_normal_max_v1", "recovered_from_open_mechanics_stress_components")), row["id"]
 
 
 @pytest.mark.parametrize("path", [ACTUAL_PATHS[0], COMPOSITE_DIR / "n05-sparse_interactive.raw.json"], ids=["pressure", "pressure_source"])

@@ -87,11 +87,24 @@ describe("actual pressure-1 source consumers (B7b: the v3 twin of physics-1)", (
     expect(numericalResultStanding(source, model()).eligible).toBe(false);
   });
   it("withholds a headline for incomplete extrema but retains valid signed rows", () => {
-    const source = raw(), c = evidence(source).exact_cases[1], id = c.pipe_stress_extrema[0].result_id;
-    c.stress_maximum_coverage = { complete: false, unavailable_pipe_ids: [c.pipe_materials[0].pipe_id] }; c.pipe_stress_extrema = [];
-    source.results = source.results.filter(r => r.id !== id);
+    // T4-U6 (D-5 sections 2.2, 2.5): the member's maximum is withdrawn on both section bases (each
+    // basis has its own maximum record, coverage record and headline), so both headlines are withheld.
+    const source = raw(), c = evidence(source).exact_cases[1], pipe = c.pipe_materials[0].pipe_id;
+    const removed: string[] = c.pipe_stress_extrema.filter((x: { pipe_id: string }) => x.pipe_id === pipe).map((x: { result_id: string }) => x.result_id);
+    expect(removed).toHaveLength(2);
+    c.stress_maximum_coverage = ["nominal_section", "reduced_section"].map(section_basis => ({ section_basis, complete: false, unavailable_pipe_ids: [pipe] }));
+    c.pipe_stress_extrema = c.pipe_stress_extrema.filter((x: { pipe_id: string }) => x.pipe_id !== pipe);
+    source.results = source.results.filter(r => !removed.includes(r.id));
+    expect(source.summary.max_open_formula_stress).toBeNull();
     expect(() => readerValidate("pressure", source)).toThrow("SOURCE_PHYSICS_INCOMPLETE_STRESS_HEADLINE");
-    source.summary.max_open_formula_stress = null;
+    // Either basis's headline, kept over its incomplete coverage, is refused.
+    for (const [withheld, kept] of [["max_open_formula_stress_nominal_section", "max_open_formula_stress_reduced_section"], ["max_open_formula_stress_reduced_section", "max_open_formula_stress_nominal_section"]] as const) {
+      const one = structuredClone(source); one.summary[withheld] = null;
+      expect(one.summary[kept]).toBeTruthy();
+      expect(() => readerValidate("pressure", one)).toThrow("SOURCE_PHYSICS_INCOMPLETE_STRESS_HEADLINE");
+    }
+    source.summary.max_open_formula_stress_nominal_section = null;
+    source.summary.max_open_formula_stress_reduced_section = null;
     expect(() => readerValidate("pressure", source)).not.toThrow();
   });
   it("keeps Sensitive evidence inspectable without promoting its accuracy claim", () => {

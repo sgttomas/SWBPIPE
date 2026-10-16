@@ -53,16 +53,29 @@ pub fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)>
             row(e, "pipe_wall_axial_force_v2", "pipe:BEND", "midspan")["metadata"]["sign_convention"] =
                 json!("tension-positive material wall section resultant Nw");
         }), "ROW_SEMANTICS"),
+        // T4-U6 (D-5 §2.1, §2.5): the straight's hoop row is published on both
+        // section bases, each id ending in its basis; the arc copy keeps the pair.
         ("arc hoop row", Box::new(|e: &mut Value| {
-            let mut hoop = row(e, "pipe_lame_hoop_stress_v2", "pipe:S1", "midspan").clone();
-            hoop["entity_ref"] = json!("pipe:BEND");
-            hoop["id"] = json!("result:arc-hoop");
-            rows(e).push(hoop);
+            let twins: Vec<Value> = rows(e)
+                .iter()
+                .filter(|r| r["kind"] == "pipe_lame_hoop_stress_v2" && r["entity_ref"] == "pipe:S1" && r["metadata"]["location"] == "midspan")
+                .take(2)
+                .cloned()
+                .collect();
+            for mut hoop in twins {
+                let basis = hoop["id"].as_str().unwrap().rsplit(':').next().unwrap().to_string();
+                assert!(basis == "nominal_section" || basis == "reduced_section", "{basis}");
+                hoop["entity_ref"] = json!("pipe:BEND");
+                hoop["id"] = json!(format!("result:arc-hoop:{basis}"));
+                rows(e).push(hoop);
+            }
         }), "ARC_WITHHELD"),
+        // T4-U6 (D-5 §2.5): one coverage record per section basis.
         ("arc maximum not withheld", Box::new(|e: &mut Value| {
-            let coverage = &mut e["contract_evidence"]["exact_cases"][0]["stress_maximum_coverage"];
-            coverage["unavailable_pipe_ids"] = json!([]);
-            coverage["complete"] = json!(true);
+            for coverage in e["contract_evidence"]["exact_cases"][0]["stress_maximum_coverage"].as_array_mut().unwrap() {
+                coverage["unavailable_pipe_ids"] = json!([]);
+                coverage["complete"] = json!(true);
+            }
         }), "ARC_WITHHELD"),
         ("arc region key removed", Box::new(|e: &mut Value| {
             region(e).as_object_mut().unwrap().remove("tangency_rule");

@@ -564,7 +564,7 @@
    {
     "op": "set",
     "path": "/source_block_recovery/body/cases/0/source/normalized_source_sha256",
-    "value": "ca4a2f69ed82a9770c5327e9187405077e7bc6657c473b91b36ec50fae03d51c"
+    "value": "db3db9d8fef40133d04e32c929540f38b8e2d2113cc9b0902d07f705317c69b0"
    }
   ],
   "reseal_publication": true,
@@ -1298,7 +1298,7 @@
     "op": "append",
     "path": "/results",
     "value": {
-     "id": "result:invented-stress",
+     "id": "result:invented-stress:nominal-section",
      "kind": "element_local_axial_normal_stress",
      "value": 0.0,
      "unit": "MPa",
@@ -1311,7 +1311,29 @@
       "component": "axial_normal_stress",
       "coordinate_system": "element_local",
       "location": "end_i",
-      "basis": "recovered_from_local_element_stiffness",
+      "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
+      "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+     }
+    }
+   },
+   {
+    "op": "append",
+    "path": "/results",
+    "value": {
+     "id": "result:invented-stress:reduced-section",
+     "kind": "element_local_axial_normal_stress",
+     "value": 0.0,
+     "unit": "MPa",
+     "entity_ref": "independent-member",
+     "basis_ref": {
+      "ref_type": "load_case",
+      "ref_id": "case"
+     },
+     "metadata": {
+      "component": "axial_normal_stress",
+      "coordinate_system": "element_local",
+      "location": "end_i",
+      "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
       "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
      }
     }
@@ -1323,7 +1345,18 @@
      "input_result_ids": [],
      "projection_id": null,
      "recipe_id": "retained_source_straight_stress_v1",
-     "result_id": "result:invented-stress",
+     "result_id": "result:invented-stress:nominal-section",
+     "treatment": "checked_derived"
+    }
+   },
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "value": {
+     "input_result_ids": [],
+     "projection_id": null,
+     "recipe_id": "retained_source_straight_stress_v1",
+     "result_id": "result:invented-stress:reduced-section",
      "treatment": "checked_derived"
     }
    },
@@ -1351,7 +1384,34 @@
      },
      "pipe_id": "independent-member",
      "recipe_id": "retained_source_straight_stress_v1",
-     "result_id": "result:invented-stress"
+     "result_id": "result:invented-stress:nominal-section"
+    }
+   },
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/section_stress_checks",
+    "value": {
+     "action": {
+      "interval": [
+       0.0,
+       0.0
+      ],
+      "value": 0.0
+     },
+     "component": "axial_normal_stress",
+     "functional_id": "source-functional:4:case:12",
+     "functional_index": 12,
+     "location": "end_i",
+     "parameters": {
+      "area_m2": 0.005969026041820607,
+      "pa_per_mpa": 1000000.0,
+      "section_modulus_m3": 0.0002700984283923826,
+      "torsion_constant_m4": 5.4019685678476514e-05,
+      "torsion_radius_m": 0.1
+     },
+     "pipe_id": "independent-member",
+     "recipe_id": "retained_source_straight_stress_v1",
+     "result_id": "result:invented-stress:reduced-section"
     }
    }
   ],
@@ -1366,7 +1426,7 @@
     "op": "append",
     "path": "/results",
     "value": {
-     "id": "result:invented-maximum",
+     "id": "result:invented-maximum:nominal_section",
      "kind": "pipe_elastic_normal_stress_maximum_v2",
      "value": 0.0,
      "unit": "Pa",
@@ -1379,7 +1439,29 @@
       "component": "maximum_absolute_normal_stress",
       "coordinate_system": "pipe_section",
       "location": "governing_station",
-      "basis": "retained_source_endpoint_normal_max_v1",
+      "basis": "retained_source_endpoint_normal_max_v1; section_basis=nominal_section",
+      "sign_convention": "nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate"
+     }
+    }
+   },
+   {
+    "op": "append",
+    "path": "/results",
+    "value": {
+     "id": "result:invented-maximum:reduced_section",
+     "kind": "pipe_elastic_normal_stress_maximum_v2",
+     "value": 0.0,
+     "unit": "Pa",
+     "entity_ref": "independent-member",
+     "basis_ref": {
+      "ref_type": "load_case",
+      "ref_id": "case"
+     },
+     "metadata": {
+      "component": "maximum_absolute_normal_stress",
+      "coordinate_system": "pipe_section",
+      "location": "governing_station",
+      "basis": "retained_source_endpoint_normal_max_v1; section_basis=reduced_section",
       "sign_convention": "nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate"
      }
     }
@@ -1391,7 +1473,18 @@
      "input_result_ids": [],
      "projection_id": null,
      "recipe_id": "retained_source_endpoint_normal_max_v1",
-     "result_id": "result:invented-maximum",
+     "result_id": "result:invented-maximum:nominal_section",
+     "treatment": "checked_derived"
+    }
+   },
+   {
+    "op": "append",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "value": {
+     "input_result_ids": [],
+     "projection_id": null,
+     "recipe_id": "retained_source_endpoint_normal_max_v1",
+     "result_id": "result:invented-maximum:reduced_section",
      "treatment": "checked_derived"
     }
    },
@@ -1495,7 +1588,118 @@
      "pipe_id": "independent-member",
      "relative_error_bound": 0.0,
      "relative_limit": 1e-09,
-     "result_id": "result:invented-maximum",
+     "result_id": "result:invented-maximum:nominal_section",
+     "section_basis": "nominal_section",
+     "section_modulus_m3": 0.0002700984283923826,
+     "source_identity_sha256": "69d9d9017b936b6d2d2dbc91c896462e41841a7cd9a327fbde64626898b3ca50",
+     "station_fraction": 0.0,
+     "value_lower_pa": 0.0,
+     "value_pa": 0.0,
+     "value_upper_pa": 0.0
+    }
+   },
+   {
+    "op": "append",
+    "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema",
+    "value": {
+     "absolute_error_bound_pa": 0.0,
+     "area_m2": 0.005969026041820607,
+     "basis": "retained_source_endpoint_normal_max_v1",
+     "coefficient_basis": "retained_section_functionals_binary64",
+     "enclosure_scope": "retained_action_projection_and_ordered_binary64_recipe;represented_source_section_operands",
+     "endpoints": [
+      {
+       "actions": [
+        {
+         "interval": [
+          0.0,
+          0.0
+         ],
+         "value": 0.0
+        },
+        {
+         "interval": [
+          0.0,
+          0.0
+         ],
+         "value": 0.0
+        },
+        {
+         "interval": [
+          0.0,
+          0.0
+         ],
+         "value": 0.0
+        }
+       ],
+       "functional_ids": [
+        "source-functional:4:case:12",
+        "source-functional:4:case:16",
+        "source-functional:4:case:17"
+       ],
+       "functional_indices": [
+        12,
+        16,
+        17
+       ],
+       "interval_pa": [
+        0.0,
+        0.0
+       ],
+       "station_fraction": 0.0,
+       "value_pa": 0.0
+      },
+      {
+       "actions": [
+        {
+         "interval": [
+          0.0,
+          0.0
+         ],
+         "value": 0.0
+        },
+        {
+         "interval": [
+          0.0,
+          0.0
+         ],
+         "value": 0.0
+        },
+        {
+         "interval": [
+          0.0,
+          0.0
+         ],
+         "value": 0.0
+        }
+       ],
+       "functional_ids": [
+        "source-functional:4:case:36",
+        "source-functional:4:case:40",
+        "source-functional:4:case:41"
+       ],
+       "functional_indices": [
+        36,
+        40,
+        41
+       ],
+       "interval_pa": [
+        0.0,
+        0.0
+       ],
+       "station_fraction": 1.0,
+       "value_pa": 0.0
+      }
+     ],
+     "load_case_id": "case",
+     "locations": {
+      "kind": "whole_span_constant"
+     },
+     "pipe_id": "independent-member",
+     "relative_error_bound": 0.0,
+     "relative_limit": 1e-09,
+     "result_id": "result:invented-maximum:reduced_section",
+     "section_basis": "reduced_section",
      "section_modulus_m3": 0.0002700984283923826,
      "source_identity_sha256": "69d9d9017b936b6d2d2dbc91c896462e41841a7cd9a327fbde64626898b3ca50",
      "station_fraction": 0.0,
@@ -1991,280 +2195,560 @@
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:end-i:axial-normal"
-    }
-   },
-   {
-    "op": "remove_where",
-    "path": "/results",
-    "match": {
-     "id": "result:stress:member:end-i:axial-normal"
+     "result_id": "result:stress:member:end-i:axial-normal:nominal-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:end-i:bending-normal-y"
+     "result_id": "result:stress:member:end-i:axial-normal:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/results",
     "match": {
-     "id": "result:stress:member:end-i:bending-normal-y"
+     "id": "result:stress:member:end-i:axial-normal:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-i:axial-normal:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:end-i:bending-normal-z"
-    }
-   },
-   {
-    "op": "remove_where",
-    "path": "/results",
-    "match": {
-     "id": "result:stress:member:end-i:bending-normal-z"
+     "result_id": "result:stress:member:end-i:bending-normal-y:nominal-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:end-i:torsional-shear"
+     "result_id": "result:stress:member:end-i:bending-normal-y:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/results",
     "match": {
-     "id": "result:stress:member:end-i:torsional-shear"
+     "id": "result:stress:member:end-i:bending-normal-y:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-i:bending-normal-y:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:end-j:axial-normal"
-    }
-   },
-   {
-    "op": "remove_where",
-    "path": "/results",
-    "match": {
-     "id": "result:stress:member:end-j:axial-normal"
+     "result_id": "result:stress:member:end-i:bending-normal-z:nominal-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:end-j:bending-normal-y"
+     "result_id": "result:stress:member:end-i:bending-normal-z:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/results",
     "match": {
-     "id": "result:stress:member:end-j:bending-normal-y"
+     "id": "result:stress:member:end-i:bending-normal-z:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-i:bending-normal-z:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:end-j:bending-normal-z"
-    }
-   },
-   {
-    "op": "remove_where",
-    "path": "/results",
-    "match": {
-     "id": "result:stress:member:end-j:bending-normal-z"
+     "result_id": "result:stress:member:end-i:torsional-shear:nominal-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:end-j:torsional-shear"
+     "result_id": "result:stress:member:end-i:torsional-shear:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/results",
     "match": {
-     "id": "result:stress:member:end-j:torsional-shear"
+     "id": "result:stress:member:end-i:torsional-shear:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-i:torsional-shear:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:quarter-1:axial-normal"
-    }
-   },
-   {
-    "op": "remove_where",
-    "path": "/results",
-    "match": {
-     "id": "result:stress:member:quarter-1:axial-normal"
+     "result_id": "result:stress:member:end-j:axial-normal:nominal-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:quarter-1:bending-normal-y"
+     "result_id": "result:stress:member:end-j:axial-normal:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/results",
     "match": {
-     "id": "result:stress:member:quarter-1:bending-normal-y"
+     "id": "result:stress:member:end-j:axial-normal:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-j:axial-normal:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:quarter-1:bending-normal-z"
-    }
-   },
-   {
-    "op": "remove_where",
-    "path": "/results",
-    "match": {
-     "id": "result:stress:member:quarter-1:bending-normal-z"
+     "result_id": "result:stress:member:end-j:bending-normal-y:nominal-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:quarter-1:torsional-shear"
+     "result_id": "result:stress:member:end-j:bending-normal-y:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/results",
     "match": {
-     "id": "result:stress:member:quarter-1:torsional-shear"
+     "id": "result:stress:member:end-j:bending-normal-y:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-j:bending-normal-y:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:midspan:axial-normal"
-    }
-   },
-   {
-    "op": "remove_where",
-    "path": "/results",
-    "match": {
-     "id": "result:stress:member:midspan:axial-normal"
+     "result_id": "result:stress:member:end-j:bending-normal-z:nominal-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:midspan:bending-normal-y"
+     "result_id": "result:stress:member:end-j:bending-normal-z:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/results",
     "match": {
-     "id": "result:stress:member:midspan:bending-normal-y"
+     "id": "result:stress:member:end-j:bending-normal-z:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-j:bending-normal-z:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:midspan:bending-normal-z"
-    }
-   },
-   {
-    "op": "remove_where",
-    "path": "/results",
-    "match": {
-     "id": "result:stress:member:midspan:bending-normal-z"
+     "result_id": "result:stress:member:end-j:torsional-shear:nominal-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:midspan:torsional-shear"
+     "result_id": "result:stress:member:end-j:torsional-shear:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/results",
     "match": {
-     "id": "result:stress:member:midspan:torsional-shear"
+     "id": "result:stress:member:end-j:torsional-shear:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-j:torsional-shear:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:quarter-3:axial-normal"
-    }
-   },
-   {
-    "op": "remove_where",
-    "path": "/results",
-    "match": {
-     "id": "result:stress:member:quarter-3:axial-normal"
+     "result_id": "result:stress:member:quarter-1:axial-normal:nominal-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:quarter-3:bending-normal-y"
+     "result_id": "result:stress:member:quarter-1:axial-normal:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/results",
     "match": {
-     "id": "result:stress:member:quarter-3:bending-normal-y"
+     "id": "result:stress:member:quarter-1:axial-normal:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:axial-normal:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:quarter-3:bending-normal-z"
-    }
-   },
-   {
-    "op": "remove_where",
-    "path": "/results",
-    "match": {
-     "id": "result:stress:member:quarter-3:bending-normal-z"
+     "result_id": "result:stress:member:quarter-1:bending-normal-y:nominal-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/source_block_recovery/body/cases/0/rows",
     "match": {
-     "result_id": "result:stress:member:quarter-3:torsional-shear"
+     "result_id": "result:stress:member:quarter-1:bending-normal-y:reduced-section"
     }
    },
    {
     "op": "remove_where",
     "path": "/results",
     "match": {
-     "id": "result:stress:member:quarter-3:torsional-shear"
+     "id": "result:stress:member:quarter-1:bending-normal-y:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:bending-normal-y:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-1:bending-normal-z:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-1:bending-normal-z:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:bending-normal-z:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:bending-normal-z:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-1:torsional-shear:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-1:torsional-shear:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:torsional-shear:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:torsional-shear:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:axial-normal:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:axial-normal:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:axial-normal:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:axial-normal:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:bending-normal-y:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:bending-normal-y:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:bending-normal-y:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:bending-normal-y:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:bending-normal-z:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:bending-normal-z:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:bending-normal-z:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:bending-normal-z:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:torsional-shear:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:torsional-shear:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:torsional-shear:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:torsional-shear:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:axial-normal:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:axial-normal:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:axial-normal:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:axial-normal:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:bending-normal-y:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:bending-normal-y:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:bending-normal-y:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:bending-normal-y:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:bending-normal-z:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:bending-normal-z:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:bending-normal-z:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:bending-normal-z:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:torsional-shear:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:torsional-shear:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:torsional-shear:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:torsional-shear:reduced-section"
     }
    }
   ],

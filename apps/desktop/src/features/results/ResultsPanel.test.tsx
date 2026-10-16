@@ -65,24 +65,27 @@ it('details a preview-physics-1 combination row with its recovery basis and ever
 // T4-U6 (D-5, design section 2.2): an exact-contract result carries one stress headline per
 // section basis and a null max_open_formula_stress. The session results view shows both,
 // labelled by basis, and never picks a governing one; it is a view, so every output
-// surface still refuses the identity. The per-basis summary is built here from the
-// committed pressure-1 envelope (invented values), independently of the producer TASK.
+// surface still refuses the identity. The committed pressure-1 envelope is the producer's
+// D-5 output (coincident bases); the reduced headline's value is changed here (an invented
+// value) so the two shown headlines differ.
 it('shows both per-basis stress headlines of an exact result, labelled by basis, and chooses no governing basis',()=>{
  const read=JSON.parse(readFileSync(resolve(__dirname,'../../../../../fixtures/results/pressure_connected_mechanics_sparse.json'),'utf8')) as MechanicsResult;
- const headline=read.summary.max_open_formula_stress!;
+ expect(read.summary.max_open_formula_stress).toBeNull();
+ const nominalHeadline=read.summary.max_open_formula_stress_nominal_section!;
+ const reducedHeadline=read.summary.max_open_formula_stress_reduced_section!;
+ expect(nominalHeadline.result_ref.endsWith(':nominal_section')).toBe(true);
+ expect(reducedHeadline.result_ref.endsWith(':reduced_section')).toBe(true);
  const result=structuredClone(read);
- result.summary.max_open_formula_stress=null;
- result.summary.max_open_formula_stress_nominal_section={...headline,result_ref:`${headline.result_ref}:nominal_section`};
- result.summary.max_open_formula_stress_reduced_section={...headline,value:headline.value*1.25,result_ref:`${headline.result_ref}:reduced_section`};
+ result.summary.max_open_formula_stress_reduced_section={...reducedHeadline,value:reducedHeadline.value*1.25};
  const before=JSON.stringify(result);
  render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={()=>{}}/>);
  const nominal=screen.getByTestId('section-basis-headline-nominal_section').textContent??'';
  const reduced=screen.getByTestId('section-basis-headline-reduced_section').textContent??'';
  expect(nominal).toContain('Nominal section (nominal wall)');
- expect(nominal).toContain(`${headline.result_ref}:nominal_section`);
- expect(nominal).toContain(headline.location_ref);
+ expect(nominal).toContain(nominalHeadline.result_ref);
+ expect(nominal).toContain(nominalHeadline.location_ref);
  expect(reduced).toContain('Reduced section (wall minus mill tolerance and corrosion allowance)');
- expect(reduced).toContain(`${headline.result_ref}:reduced_section`);
+ expect(reduced).toContain(reducedHeadline.result_ref);
  const block=screen.getByTestId('section-basis-headlines');
  expect(block.textContent).toContain('no governing basis is chosen');
  expect(block.textContent).not.toMatch(/\bgoverning (basis|headline):/i);
@@ -93,12 +96,18 @@ it('shows both per-basis stress headlines of an exact result, labelled by basis,
  result.summary.max_open_formula_stress_reduced_section=null;
  render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={()=>{}}/>);
  expect(screen.getByTestId('section-basis-headline-reduced_section').textContent).toContain('withheld: a stress maximum on this basis is not available for every member in every load case');
- expect(screen.getByTestId('section-basis-headline-nominal_section').textContent).toContain(`${headline.result_ref}:nominal_section`);
+ expect(screen.getByTestId('section-basis-headline-nominal_section').textContent).toContain(nominalHeadline.result_ref);
  cleanup();
- // Without the per-basis keys (pressure-free results, and envelopes before D-5) nothing is shown.
- render(<ResultsPanel result={read} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={()=>{}}/>);
+ // Without the per-basis keys nothing is shown: a pressure-free result (the producer omits
+ // them), and the exact envelope with both keys removed.
+ const withoutKeys=structuredClone(read);
+ delete withoutKeys.summary.max_open_formula_stress_nominal_section;
+ delete withoutKeys.summary.max_open_formula_stress_reduced_section;
+ render(<ResultsPanel result={withoutKeys} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={()=>{}}/>);
  expect(screen.queryByTestId('section-basis-headlines')).toBeNull();
  cleanup();
- render(<ResultsPanel result={structuredClone(unicodeSparse) as unknown as MechanicsResult} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={()=>{}}/>);
+ const pressureFree=structuredClone(unicodeSparse) as unknown as MechanicsResult;
+ expect(pressureFree.summary.max_open_formula_stress_nominal_section).toBeUndefined();
+ render(<ResultsPanel result={pressureFree} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={()=>{}}/>);
  expect(screen.queryByTestId('section-basis-headlines')).toBeNull();
 });

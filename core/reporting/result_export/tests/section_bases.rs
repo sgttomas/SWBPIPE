@@ -2,124 +2,29 @@
 //! product readers read the D-5 section bases and the D-6 beam theory, and
 //! refuse each reader mutant.
 //!
-//! The documents are synthetic: a committed pressure-1 fixture (or arc corpus
-//! envelope) is shaped in memory to §2.5's interface (both stress families,
-//! basis tokens and id segments, the D-5 `pipe_sections` with each realized
-//! arc's marker, per-basis maximum records and headlines) with coincident
-//! bases, then given distinct bases (a
-//! nonzero corrosion allowance) or a Timoshenko selection, then mutated. No
-//! committed fixture is read as current §2.5 output, and none is written. The
-//! Python verifiers' twins of these mutations are
+//! The documents are the regenerated committed pressure-1 fixtures, which are
+//! the producer's §2.5 output (both stress families, basis tokens and id
+//! segments, the D-5 `pipe_sections` with each realized arc's marker,
+//! per-basis maximum records and headlines): `pressure_connected_mechanics_dense`
+//! (coincident bases) and the arc corpus's envelopes (their I7 sketches carry
+//! a mill tolerance, so their bases differ). Each is then given distinct bases
+//! (a nonzero corrosion allowance) or a Timoshenko selection, then mutated. No
+//! fixture is written. The Python verifiers' twins of these mutations are
 //! `tests/test_section_bases_readers.py`.
 use open_pipe_stress_result_export::{physics_source, reader_verdict, section_basis as sb, semantic_contract as s};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
-const UNDERSCORE_IDS: [&str; 2] = ["result:pressure-exact:", "result:elastic-maximum:"];
-
-fn suffix(id: &str, basis: &str) -> String {
-    if UNDERSCORE_IDS.iter().any(|p| id.starts_with(p)) {
-        format!("{id}:{basis}")
-    } else {
-        format!("{id}:{}", basis.replace('_', "-"))
-    }
-}
-/// The D-5 entry of a committed single-section entry, its effective wall taken
-/// as the nominal wall (c_m = c_a = 0).
-fn section(old: &Value) -> Value {
-    let annulus = json!({"wall_m": old["effective_wall_thickness_m"], "ri_m": old["ri_m"], "As_m2": old["As_m2"],
-        "I_m4": old["I_m4"], "J_m4": old["J_m4"], "Z_m3": old["Z_m3"]});
-    json!({"pipe_id": old["pipe_id"], "geometry_basis": sb::GEOMETRY_BASIS, "outside_diameter_m": old["outside_diameter_m"],
-        "ro_m": old["ro_m"], "wall_thickness_m": old["effective_wall_thickness_m"], "mill_tolerance_m": 0.0,
-        "corrosion_allowance_m": 0.0, "nominal_section": annulus.clone(), "reduced_section": annulus,
-        "pressure_bore": {"ri_m": old["ri_m"], "Ai_m2": old["Ai_m2"]}, "beam_theory": {"model": sb::EULER_BERNOULLI}})
-}
-/// §2.5 with coincident bases. Each realized arc's case section carries the
-/// marker: the arcs its region geometry marks.
-fn shape(envelope: &Value) -> Value {
-    shape_marking(envelope, &[])
-}
-/// §2.5 with coincident bases; the arcs the region geometry marks and `arcs`
-/// (the model's arcs outside every region) carry the marker on their case sections.
-fn shape_marking(envelope: &Value, arcs: &[&str]) -> Value {
+/// `envelope` with the realized-arc marker removed from `pipe`'s case sections.
+fn unmarked(envelope: &Value, pipe: &str) -> Value {
     let mut doc = envelope.clone();
-    let mut marked: Vec<Value> = arcs.iter().map(|a| json!(a)).collect();
-    for region in doc["contract_evidence"]["pressure"].as_array().unwrap() {
-        for g in region["geometry"].as_array().unwrap() {
-            if g.get("member_kind").is_some() { marked.push(g["pipe_id"].clone()); }
-        }
-    }
-    let mut renamed: HashMap<String, Vec<String>> = HashMap::new();
-    let mut rows = Vec::new();
-    for row in doc["results"].as_array().unwrap() {
-        if !sb::is_stress_kind(row["kind"].as_str().unwrap()) {
-            rows.push(row.clone());
-            continue;
-        }
-        let mut ids = Vec::new();
-        for basis in sb::BASES {
-            let mut twin = row.clone();
-            let id = suffix(row["id"].as_str().unwrap(), basis);
-            twin["id"] = json!(id);
-            twin["metadata"]["basis"] = json!(format!("{}; section_basis={basis}", row["metadata"]["basis"].as_str().unwrap()));
-            ids.push(id);
-            rows.push(twin);
-        }
-        renamed.insert(row["id"].as_str().unwrap().to_string(), ids);
-    }
-    doc["results"] = json!(rows);
     for case in doc["contract_evidence"]["exact_cases"].as_array_mut().unwrap() {
-        case["pipe_sections"] = json!(case["pipe_sections"].as_array().unwrap().iter().map(|old| {
-            let mut entry = section(old);
-            if marked.contains(&old["pipe_id"]) { entry[sb::MEMBER_KIND] = json!(sb::REALIZED_ARC); }
-            entry
-        }).collect::<Vec<_>>());
-        let old = case["stress_maximum_coverage"].clone();
-        case["stress_maximum_coverage"] = json!(sb::BASES.map(|b| json!({"section_basis": b, "complete": old["complete"],
-            "unavailable_pipe_ids": old["unavailable_pipe_ids"]})));
-        let mut extrema = Vec::new();
-        for ex in case["pipe_stress_extrema"].as_array().unwrap() {
-            for basis in sb::BASES {
-                let mut twin = ex.clone();
-                twin["section_basis"] = json!(basis);
-                twin["result_id"] = json!(suffix(ex["result_id"].as_str().unwrap(), basis));
-                extrema.push(twin);
+        for s in case["pipe_sections"].as_array_mut().unwrap() {
+            if s["pipe_id"] == pipe {
+                assert_eq!(s.as_object_mut().unwrap().remove(sb::MEMBER_KIND), Some(json!(sb::REALIZED_ARC)), "{pipe} is marked");
             }
         }
-        case["pipe_stress_extrema"] = json!(extrema);
     }
-    for region in doc["contract_evidence"]["pressure"].as_array_mut().unwrap() {
-        let geometry: Vec<Value> = region["geometry"].as_array().unwrap().iter().map(|g| {
-            let mut entry = section(g);
-            entry["traversal_forward"] = g["traversal_forward"].clone();
-            for key in ["member_kind", "arc_end_tangents_global"] {
-                if let Some(v) = g.get(key) { entry[key] = v.clone(); }
-            }
-            entry
-        }).collect();
-        region["geometry"] = json!(geometry);
-        let ids: Vec<Value> = region["result_ids"].as_array().unwrap().iter().flat_map(|id| {
-            renamed.get(id.as_str().unwrap()).map_or_else(|| vec![id.clone()], |v| v.iter().map(|x| json!(x)).collect())
-        }).collect();
-        region["result_ids"] = json!(ids);
-    }
-    let old = doc["summary"].clone();
-    let mut summary = serde_json::Map::new();
-    for (key, value) in old.as_object().unwrap() {
-        if key == "max_open_formula_stress" {
-            summary.insert(key.clone(), Value::Null);
-            for basis in sb::BASES {
-                let mut headline = value.clone();
-                if !headline.is_null() {
-                    headline["result_ref"] = json!(suffix(value["result_ref"].as_str().unwrap(), basis));
-                }
-                summary.insert(format!("{key}_{basis}"), headline);
-            }
-        } else {
-            summary.insert(key.clone(), value.clone());
-        }
-    }
-    doc["summary"] = Value::Object(summary);
     doc
 }
 fn f(v: &Value) -> f64 {
@@ -226,11 +131,28 @@ fn timoshenko(doc: &Value, radius: &str, area: &str, factor: Option<f64>) -> Val
     doc
 }
 fn base() -> Value {
-    shape(&serde_json::from_str(include_str!("../../../../fixtures/results/pressure_connected_mechanics_dense.json")).unwrap())
+    serde_json::from_str(include_str!("../../../../fixtures/results/pressure_connected_mechanics_dense.json")).unwrap()
 }
 fn arc() -> Value {
     let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/results/pressure_v3_arc_reader_corpus.json")).unwrap();
-    shape(&corpus["cases"][0]["envelope"])
+    corpus["cases"][0]["envelope"].clone()
+}
+
+#[test]
+fn the_fixtures_are_the_d5_interface_with_the_expected_bases() {
+    // The regenerated fixtures carry §2.5's interface; the connected fixture's
+    // bases coincide (no mill tolerance or allowance), the arc's differ (its
+    // I7 sketch's mill tolerance).
+    for (doc, coincident) in [(base(), true), (arc(), false)] {
+        assert!(doc["summary"]["max_open_formula_stress"].is_null());
+        for case in doc["contract_evidence"]["exact_cases"].as_array().unwrap() {
+            assert_eq!(case["stress_maximum_coverage"].as_array().unwrap().len(), 2);
+            for s in case["pipe_sections"].as_array().unwrap() {
+                assert_eq!(s["geometry_basis"], sb::GEOMETRY_BASIS);
+                assert_eq!(s["nominal_section"] == s["reduced_section"], coincident, "{}", s["pipe_id"]);
+            }
+        }
+    }
 }
 fn refused(doc: &Value) -> String {
     s::validate_pressure_evidence(doc).expect_err("the mutant is refused")
@@ -423,7 +345,8 @@ fn pressure_1_model_checks_take_realized_arcs_from_the_model() {
     let mut model = entry["document"]["model"].clone();
     let arcs: Vec<String> = sb::realized_arcs(&model).into_iter().map(String::from).collect();
     assert_eq!(arcs, ["pipe:BEND"]);
-    let doc = shape_marking(&entry["envelope"], &["pipe:BEND"]);
+    // The producer marks the arc outside every region on its case sections.
+    let doc = entry["envelope"].clone();
     assert!(doc["contract_evidence"]["pressure"].as_array().unwrap().iter()
         .all(|r| r["geometry"].as_array().unwrap().iter().all(|g| g.get("member_kind").is_none())));
     model["pressure_contract"]["shear_model"] = json!(tim);
@@ -431,7 +354,7 @@ fn pressure_1_model_checks_take_realized_arcs_from_the_model() {
     let stated = timoshenko(&doc, n, n, None);
     assert_eq!(reader_verdict::physics_model_checks(&stated, &model), Ok(()));
     // The arc claiming Timoshenko (its kappa and A_s consistent).
-    let unmarked = timoshenko(&shape(&entry["envelope"]), n, n, None);
+    let unmarked = timoshenko(&unmarked(&doc, "pipe:BEND"), n, n, None);
     let claim = unmarked["contract_evidence"]["exact_cases"][0]["pipe_sections"].as_array().unwrap().iter()
         .find(|s| s["pipe_id"] == "pipe:BEND").unwrap()["beam_theory"].clone();
     assert_eq!(claim["model"], tim);
@@ -458,7 +381,7 @@ fn pressure_1_model_checks_take_realized_arcs_from_the_model() {
     assert_eq!(reader_verdict::physics_model_checks(&stated, &model), Err("SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT".into()));
     // An arc a region marks: its marked section is the model's realized arc.
     let entry = arc_corpus_entry("U2-L-ANCH-PTW-K2 0.3.0");
-    let timo = timoshenko(&shape(&entry["envelope"]), n, n, None);
+    let timo = timoshenko(&entry["envelope"], n, n, None);
     let mut model = entry["document"]["model"].clone();
     model["pressure_contract"]["shear_model"] = json!(tim);
     assert_eq!(reader_verdict::physics_model_checks(&timo, &model), Ok(()));

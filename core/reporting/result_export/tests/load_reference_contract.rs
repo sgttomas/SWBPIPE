@@ -267,23 +267,24 @@ fn write_log(name: &str, log: &[Value]) {
 
 #[test]
 fn current_inputs_table_and_schema_are_pinned() {
-    // B7b: the regenerated 0.5.0/v3 producer envelopes (fixtures commit 2d0e2210c1).
+    // B7b: the regenerated 0.5.0/v3 producer envelopes (fixtures commit 2d0e2210c1);
+    // T4-U6: regenerated again on the D-5 producer (both section-basis families).
     for (name, digest) in [
         (
             "connected-sparse",
-            "c268a1411f464359f3aa3f5c1636a2dceb1dddfa815db46d13b4847d295ce160",
+            "b0338abda578dd364e0436a28ec672208985e902181bff92c85a907ce4cef225",
         ),
         (
             "connected-dense",
-            "c5669cf9e6d6b3b04fc8df02c741f2abfab3dae032ee706a86e7f48cba81eb83",
+            "698e444fc2e96af11b0188125676676754a67fdcd2cf6a4877195de2150e3e64",
         ),
         (
             "pressure-sparse",
-            "9fe1e28cc2d09a033867f15b85e298e27c4ca3cb271a7bc518bb85ed7fab6c75",
+            "f12c3a9de57214e2665711e96467f486ee0461f530f2ef78e6ae541391267892",
         ),
         (
             "pressure-dense",
-            "d24cd7d411959fbd241532993759be1c4862e501587bf313f2cfdd50edc72204",
+            "df0a7a94a0cb2461f4632807a4b2375653a07e03610d4c7f0f11014bf2d3c8a4",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");

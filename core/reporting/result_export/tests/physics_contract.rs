@@ -133,7 +133,8 @@ fn physical_case_member_material_region_and_extrema_tampering_is_rejected() {
             json!(["unknown"]),
         ),
         ("/contract_evidence/pressure/0/materials/0/nu", json!(0.2)),
-        ("/contract_evidence/pressure/0/geometry/0/As_m2", json!(1)),
+        // T4-U6 (D-5 §2.3): the region geometry's area is its nominal section's.
+        ("/contract_evidence/pressure/0/geometry/0/nominal_section/As_m2", json!(1)),
         (
             "/contract_evidence/pressure/0/terminals/0/closure_transfer",
             json!("unknown"),
@@ -154,8 +155,9 @@ fn physical_case_member_material_region_and_extrema_tampering_is_rejected() {
             "/contract_evidence/exact_cases/0/pipe_stress_extrema/0/certified_gap_pa",
             json!(1e9),
         ),
+        // T4-U6 (D-5 §2.5): the coverage records are per basis, nominal first.
         (
-            "/contract_evidence/exact_cases/0/stress_maximum_coverage/complete",
+            "/contract_evidence/exact_cases/0/stress_maximum_coverage/0/complete",
             json!(false),
         ),
         (
@@ -182,7 +184,9 @@ fn physical_case_member_material_region_and_extrema_tampering_is_rejected() {
             "/numerical_quality/cases/0/basis_ref/ref_id",
             json!("missing"),
         ),
-        ("/summary/max_open_formula_stress/value", json!(1)),
+        // T4-U6 (D-5 §2.2): `max_open_formula_stress` is null on an exact
+        // document; each basis has its own headline.
+        ("/summary/max_open_formula_stress_nominal_section/value", json!(1)),
     ] {
         let mut bad = raw.clone();
         if path == "/contract_evidence/extra" {
@@ -333,23 +337,40 @@ fn pressure_table_declares_its_own_signature_counts() {
 #[test]
 fn explicit_unavailable_extrema_preserve_signed_rows_and_withhold_headline() {
     // A disclosure-path mutation, not a newly produced or qualified solve.
+    // T4-U6 (D-5 §2.2, §2.5): the member's maximum is withdrawn on both
+    // section bases (each basis has its own maximum record, coverage record
+    // and headline), so both headlines are withheld.
     let mut raw = source(false);
-    let removed_id =
-        raw["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0]["result_id"].clone();
-    let pipe =
-        raw["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0]["pipe_id"].clone();
+    let extrema = raw["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"].clone();
+    let pipe = extrema[0]["pipe_id"].clone();
+    let removed: Vec<Value> = extrema
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|x| x["pipe_id"] == pipe)
+        .map(|x| x["result_id"].clone())
+        .collect();
+    assert_eq!(removed.len(), 2, "one maximum per section basis");
     raw["results"]
         .as_array_mut()
         .unwrap()
-        .retain(|r| r["id"] != removed_id);
+        .retain(|r| !removed.contains(&r["id"]));
     raw["contract_evidence"]["pressure"][0]["result_ids"]
         .as_array_mut()
         .unwrap()
-        .retain(|id| *id != removed_id);
+        .retain(|id| !removed.contains(id));
     raw["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"] = json!([]);
-    raw["contract_evidence"]["exact_cases"][0]["stress_maximum_coverage"] =
-        json!({"complete":false,"unavailable_pipe_ids":[pipe]});
-    let headline = raw["summary"]["max_open_formula_stress"].take();
+    raw["contract_evidence"]["exact_cases"][0]["stress_maximum_coverage"] = json!([
+        {"section_basis":"nominal_section","complete":false,"unavailable_pipe_ids":[pipe]},
+        {"section_basis":"reduced_section","complete":false,"unavailable_pipe_ids":[pipe]}
+    ]);
+    assert!(raw["summary"]["max_open_formula_stress"].is_null());
+    let keys = [
+        "max_open_formula_stress_nominal_section",
+        "max_open_formula_stress_reduced_section",
+    ];
+    let headlines = keys.map(|key| raw["summary"][key].take());
+    assert!(headlines.iter().all(|h| h.is_object()));
     s::for_source(&raw).unwrap();
     let doc = derive(&raw).unwrap();
     assert!(doc["result_envelope"]["result_sets"][0]["values"]
@@ -357,10 +378,17 @@ fn explicit_unavailable_extrema_preserve_signed_rows_and_withhold_headline() {
         .unwrap()
         .iter()
         .any(|r| r["source_kind"] == "pipe_axial_membrane_stress_v2"));
-    raw["summary"]["max_open_formula_stress"] = headline;
-    assert!(s::for_source(&raw)
-        .unwrap_err()
-        .contains("INCOMPLETE_STRESS_HEADLINE"));
+    // Either basis's headline, kept over its incomplete coverage, is refused.
+    for (key, headline) in keys.iter().zip(&headlines) {
+        let mut bad = raw.clone();
+        bad["summary"][*key] = headline.clone();
+        assert!(
+            s::for_source(&bad)
+                .unwrap_err()
+                .contains("INCOMPLETE_STRESS_HEADLINE"),
+            "{key}"
+        );
+    }
 }
 
 #[test]
