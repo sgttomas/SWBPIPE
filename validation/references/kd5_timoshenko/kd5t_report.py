@@ -2,8 +2,9 @@
 
 Usage: python3 -I -B kd5t_report.py <eval.jsonl> [<eval.jsonl> ...] [--by family|theory|placement|mill|section]
                                     [--phi-table <set.jsonl>] [--json out.json]
-The verdict passes when no run fails an acceptance clause of kd5t_compare.py (C0-C4, the K-D5 M3
-criterion); the information clauses (C1L, C3lit, C4b, C5-C8) are counted and listed beside it.
+The verdict passes when no run fails an acceptance clause of kd5t_compare.py (C0-C4, C6 and C8: the
+K-D5 M3 criterion and the soundness of its judging); the information clauses (C3lit, C4b, C5, C6i, C7)
+are counted and listed beside it.
 """
 
 from __future__ import annotations
@@ -44,7 +45,9 @@ def table(recs):
             t["Passed: judged groups"] += r.get("n_judged", 0)
             t["Passed: judged member/section/support/stress breaches (groups)"] += len(r.get("breaches", []))
             t["Passed: case-modes with such a breach"] += bool(r.get("breaches"))
-            t["Passed: judged Lame breaches (C1L, information)"] += len(r.get("lame_breaches", []))
+            t["Passed: of which Lame groups (C1)"] += len(r.get("lame_breaches", []))
+            t["Passed: groups judged only on the reference scales (F1)"] += r.get("n_judged_ref_only", 0)
+            t["Passed: null or non-finite published values (C1)"] += r.get("n_nonfinite", 0)
             t["Passed: displacement/rotation breach groups against their own q (information)"] += len(r.get("disp_breaches", []))
             for g, w in (r.get("worst_by_group") or {}).items():
                 if g not in worst or w["ratio"] > worst[g][0]:
@@ -105,7 +108,7 @@ def table(recs):
         if r.get("notices"):
             t["STRESS_FREE notices"] += r["notices"]
         vf = r.get("verdict_failures") or {}
-        t["VERDICT runs failing (acceptance, C0-C4)"] += bool(vf)
+        t["VERDICT runs failing (acceptance: C0-C4, C6, C8)"] += bool(vf)
         for c, n in vf.items():
             t[f"VERDICT {c} failures"] += n
             if len(examples["verdict " + c]) < 4:
@@ -199,7 +202,8 @@ def main():
         report[name] = {"counts": dict(t), "worst": {g: list(w) for g, w in worst.items()}}
     failing = sum(1 for r in recs if r.get("verdict_failures"))
     flagged = collections.Counter(c for r in recs for c in (r.get("info") or {}))
-    print(f"M3 VERDICT (K-D5 M3 criterion, C0-C4): {'PASS' if failing == 0 else 'FAIL'} ({failing} of {len(recs)} runs fail an acceptance clause)")
+    print(f"M3 VERDICT (K-D5 M3 criterion and judging soundness: C0-C4, C6, C8): {'PASS' if failing == 0 else 'FAIL'} "
+          f"({failing} of {len(recs)} runs fail an acceptance clause)")
     print(f"information clauses (own, stricter), runs raising each: {dict(sorted(flagged.items()))}")
     report["verdict"] = {"pass": failing == 0, "failing_runs": failing, "runs": len(recs), "info_runs": dict(flagged)}
     report["standings_vs_twins"] = standings_vs_twins(recs)

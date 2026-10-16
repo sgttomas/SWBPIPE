@@ -22,7 +22,7 @@ not reference: it links the product crate by path and calls only `run_linear_sta
 |---|---|
 | `kd5t_engine.py` | Exact reference engine: a public request in, every expected published row out (110-digit `decimal`; rational element controls in `fractions`). `--check` runs its self-check (58 checks). |
 | `kd5t_generate.py` | Judged-set generator: `full <dir>` writes the set and controls, `freeze` writes the frozen subset, `split` makes runner inputs, `check` verifies everything. |
-| `kd5t_compare.py` | Reconstructed M3 judging and coverage and the M3 verdict (acceptance clauses C0–C4, the K-D5 M3 criterion, and the information clauses), aware of the section basis and of the producer (`--producer u6\|pre-u6`). `--selftest <set>` exercises every rule and clause. |
+| `kd5t_compare.py` | Reconstructed M3 judging and coverage and the M3 verdict (acceptance clauses C0–C4, C6 and C8: the K-D5 M3 criterion and the soundness of its judging; and the information clauses), aware of the section basis and of the producer (`--producer u6\|pre-u6`). `--selftest <set>` exercises every rule and clause. |
 | `kd5t_report.py` | Aggregates the comparison into the M3 tables and the verdict, by family, theory, placement or section variant, and by phi decade. |
 | `kd5t_census.py` | Premise census: the Hager ratio from published gate values (`hager`), the probe-dump consumer (`probe`), and standings of the re-authored corpora (`standings`). |
 | `kd5t_reauthor.py` | Re-authors the surviving RV30, realistic, RV29 and W1 corpora as 0.5.0 exact documents with either shear model. |
@@ -154,8 +154,10 @@ harness's own (stricter) addition.
 | CRIT | RD(1e-9) = 0x1.12e0be826d694p-30; a breach is Σ(v − t)² > CRIT²·Σv² | K-D5 §3.3; cc `breach` |
 | FLOOR, guard | 2^-34 and 2^-988; a group is judged iff S ≥ 2^-988 and max(q², t²)·conv² ≥ FLOOR²·S² | K-D5 §3.3; cc `judged` |
 | `group_of` | Per location: \|N\|, hypot(V_y, V_z), \|T\|, hypot(M_y, M_z). Pipe-wall kinds are their own groups. Stress groups are keyed by basis. Supports: force vector, moment vector and the two magnitudes. Displacement, rotation and displacement magnitude | K-D5 §3.2; cc `ACT` and `conv`; analysis scripts |
-| Lamé | A group per (pipe, location, basis), judged against its own q | own, stricter |
+| Lamé | Stress rows (the pressure-1 `stress` family). A group per (pipe, location, basis), judged against its own q, since they scale no certified resultant | K-D5 §3.2 "every published member row" (below); own scale |
 | Scales | SF = max(force, moment/L_b), SM = max(moment, L_b·force) from the published ACT groups | K-D5 §3.3; cc |
+| Reference scales | A force, moment, stress or Lamé group is also judged when it passes the guard and floor on max(published, reference): SF and SM formed from both the published and the reference values of the same groups, and max(q, t) for Lamé. A vanishing publication (all zero, or scaled below the guard) is therefore judged and breaches. Where the published scale passes the guard, any group judged on the larger scale is already judged on the published one, so nothing changes there | manager ruling (refuter finding F1) |
+| Overflow | Ratios and magnitudes are display values, formed without exceptions (+inf beyond the binary64 range). Every decision is an exact rational predicate, so a judged group whose ratio overflows is a breach. A null (serde's non-finite) or non-finite published value is a C1 breach on a Passed case; a null evidence upper covers nothing (C2) | manager ruling (F2); K-D5 §3.3 "A nonfinite q … fails closed" |
 | Displacement scales | S*_t = max(S_t, L_b·S_r) for translation groups, S*_r = max(S_r, S_t/L_b) for rotation groups; S_t and S_r the largest published translation and rotation components | K-D5 "The defect", §3.3, §4.1 (below) |
 | Coverage | (U − \|axial\|)² ≥ My² + Mz² exactly, for every station sample of the same pipe and basis. The axial sample is the wall membrane stress where pressurized | K-D5 §3.2 ("the exact-pressure route uses wall axial stress") and §4; cc |
 | Producer | `u6`: every stress row names its basis and both families are published. `pre-u6`: unsuffixed rows judged on the reduced (today's single) section | Design §§1, 2.1, 2.5 |
@@ -163,16 +165,22 @@ harness's own (stricter) addition.
 
 Here "cc" is `compare_current.py`; L_b is the node bounding-box diagonal.
 
-**Verdict.** Acceptance is the K-D5 M3 criterion (Design §4 item 5; K-D5 §4.3). A run fails the
-verdict on any acceptance clause, and the set passes when no run fails.
+**Verdict.** Acceptance is the K-D5 M3 criterion, "0 judged member, section, support or stress
+breaches on Passed cases and 0 strict coverage failures" (Design §4 item 5; K-D5 §4.3), together with
+the soundness of the judging itself. Manager ruling for this epoch, on the refuter's findings F1 and
+F3: "A Passed case on which an expected group is unpublished, or on which nothing is judged, is a
+coverage failure." A run fails the verdict on any acceptance clause, and the set passes when no run
+fails.
 
 | Clause | Requirement | Source |
 |---|---|---|
 | C0 | Every run is judged: no reference or harness error | without it the criterion is not evaluated |
-| C1 | 0 judged member, section, support or stress breaches on Passed cases (pipe-wall groups included) | K-D5 §4.3 |
-| C2 | 0 strict coverage failures | K-D5 §3.2, §4, §4.3 |
+| C1 | 0 judged member, section, support or stress breaches on Passed cases (pipe-wall groups and Lamé rows included); no null or non-finite published value on a Passed case | K-D5 §4.3, §3.2, §3.3 |
+| C2 | 0 strict coverage failures of the circular maxima | K-D5 §3.2, §4, §4.3 |
 | C3 | On Passed cases, every displacement and rotation group within RD(1e-9) of its body's coupled scale of its kind, S*_t or S*_r | K-D5 per-DOF rule (below) |
 | C4 | 0 typed/captured disagreements (integrity codes or breach counts) | K-D5 §4.3; b4 |
+| C6 | On Passed cases, every reference row and every maximum of a basis the producer must publish is published (an expected group unpublished, for example dropped station rows, is a coverage failure) | coverage; manager ruling (F3) |
+| C8 | On Passed cases, no vacuous pass: every group the reference itself would judge (reference scales, a factor-2 floor margin) is judged; a body with a nonzero reference has a judged group; a Passed run publishes rows | coverage; manager ruling (F1) |
 
 Information clauses are this harness's own, stricter checks. K-D5 does not require them, so they are
 counted and reported beside the verdict, not accepted on (manager ruling for this epoch: "a clause the
@@ -180,13 +188,28 @@ tool marks 'own and stricter' is reported information unless K-D5 requires it").
 
 | Clause | Reported | Source |
 |---|---|---|
-| C1L | Judged Lamé breaches on Passed cases | own, stricter |
 | C3lit | C3 against the separate published scales (translations against the largest published translation, component or magnitude; rotations against the largest published rotation) | own, stricter literal reading |
 | C4b | Typed and captured published rows differ | own |
 | C5 | Refusal, DTO or runner error | own |
-| C6 | Unmapped or unpublished rows; on `u6`, a basis-free stress row or a missing maximum; on `pre-u6`, a basis-suffixed row | own; Design §2.1 |
+| C6i | Unmapped or duplicate product rows; on `u6`, a basis-free stress row; on `pre-u6`, a basis-suffixed row; on runs that are not Passed, unpublished rows or maxima and null or non-finite values | own; Design §2.1 |
 | C7 | A maximum without same-basis evidence; on Passed cases an enclosure that misses the exact maximum by more than CRIT; a headline that is not its basis maximum | own; Design §§2.2, 2.5 |
-| C8 | A vacuous pass: a group the reference itself would judge (reference scales, a factor-2 floor margin) is not judged | own |
+
+**Lamé rows are in C1** (manager ruling on finding F4: "Lamé rows are stress rows. Include them in
+C1's acceptance unless K-D5's text excludes those pipe-wall groups from the certified groups"). K-D5
+does not exclude them; it does not name them at all. Neither K-D5 file contains "Lamé", "hoop" or
+"radial". Its group text is general:
+
+- §3.2: "The groups are every published member row, for straight members, realized arcs and connectors".
+- §3.2: "Pipe-wall rows form their own groups."
+- §3.2: "Stress rows are scaled at p from the certified resultants and judged through the resultant
+  they scale. This covers the axial, bending and torsional components and the component
+  stress-multiplier rows".
+- Design §4: "The certificate bounds published member, section, support and pipe-wall groups".
+- Design §2.1 lists `pipe_lame_radial_stress_v2` and `pipe_lame_hoop_stress_v2` among the rows "whose
+  pressure-1 table family is `stress`".
+
+Lamé rows scale no certified resultant (they are −p, 0 and the hoop terms of each basis's annulus), so
+each Lamé group is judged against its own q, the strictest available scale.
 
 **C3 and the K-D5 text it rests on** (`kd5-member-relative-bound.md`). K-D5 does not repair published
 displacements and rotations; its per-DOF rule judges them against a body scale:
@@ -223,21 +246,45 @@ components only.
   rotations are all noise is judged against that noise and fails C3. A body whose rows are exactly zero
   passes.
 
-`--selftest` passes 722 checks on the frozen subset. It covers:
+`--selftest` passes 836 checks on the frozen subset. It covers:
 - the predicates at their exact boundaries (CRIT strict, floor inclusive, guard);
 - CRIT pinned from both sides (1 ± 1e-5) on the largest judged group of every group kind;
 - C3 pinned from both sides: a component error of (1 ± 1e-5)·CRIT·S*_kind on translations and rotations;
 - C3lit on rotations and translations scaled by 1 + 1e-6;
 - rotation noise in an exactly zero rotation field (passes C3, raises C3lit), and an all-zero
   displacement field published as noise (fails C3) or as exact zeros (passes);
-- C8 on an all-zero publication;
+- F1: an all-zero publication (fails C1 on the reference scales, and C3), and every force, moment,
+  stress and reaction row zero with correct displacements (fails C1 on the reference scales);
+- F2: every action row scaled by 1e-300 (fails C1 with +inf ratios, no exception), a null and an
+  infinite published value (C1 and C6), and a null evidence upper (C2);
+- F3: one member's interior station rows dropped (C6);
+- C8: a Passed run with no rows, and one gross support moment that lifts the published scales;
 - coverage, headline and evidence mutants;
-- unmapped and dropped rows, and a producer mismatch;
+- unmapped rows (C6i), a dropped row (C6) and a producer mismatch;
 - typed/captured row and code changes, and a refusal (C5 raised, no acceptance clause failed);
 - a nominal/reduced swap;
-- nominal Lamé evaluated at the pressure bore (C1L);
+- F4: nominal Lamé evaluated at the pressure bore, and reduced Lamé rows copied from nominal (C1);
 - basis-free rows on `u6`, and reduced maxima without reduced evidence;
 - a second body (C0).
+
+**Measured verdict** (the saved runs on product `77cc26f426`, re-judged with this comparison; 964
+models, both modes, typed and captured entries, 3,856 runs):
+
+| Run set | Runs | Passed | Sensitive | Fail-closed | Verdict | Judged breaches on Passed (C1) | Worst C3, err/(c·S*_kind) |
+|---|---|---|---|---|---|---|---|
+| Timoshenko, own reference | 1,928 | 1,876 | 52 | 0 | PASS (all acceptance clauses 0) | 0 | 0.565 |
+| Euler–Bernoulli, own reference | 1,928 | 1,804 | 124 | 0 | PASS (all acceptance clauses 0) | 0 | 0.742 |
+| Timoshenko against the Euler–Bernoulli reference | 1,928 | | | | FAIL, 1,796 runs | 133,612 (C3 11,962) | |
+| Euler–Bernoulli against the Timoshenko reference | 1,928 | | | | FAIL, 1,724 runs | 127,316 (C3 11,552) | |
+| Euler–Bernoulli zero mill, E perturbed by 2^-20 | 1,368 | | | | FAIL, 1,220 runs | 86,864 (C3 7,194) | |
+
+Every group judged on a Passed run is judged on the published scales: 0 groups are judged only on
+the reference scales, 0 groups the reference judges are left unjudged, 0 rows are unpublished and
+the worst judged Lamé group is 3.5e-7 of c. Information on the own references: C3lit 338 groups in
+312 runs (172 Euler–Bernoulli, 166 Timoshenko), every other information clause 0. The worst
+Euler–Bernoulli C3 over the whole set is 0.742 (`SHORT02|S3M1|utmskew|m0|eb`, typed, dense); the figure
+"1.2e-4" in the message of commit `9bc482073d` is wrong. The earlier Euler–Bernoulli run set
+(`w1eb`, 1,928 runs) gives the same counts and worst ratio.
 
 ## Premise census (`kd5t_census.py`, `kd5t_reauthor.py`)
 
