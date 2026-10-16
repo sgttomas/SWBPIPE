@@ -304,6 +304,47 @@ Timoshenko) and 640 runs, both modes and both entries, Passed and Sensitive. Eve
 saved `77cc26f426` record in every field except timing: rows, diagnostics, numerical quality, summary
 and contract evidence. The verdict above therefore stands for `addbdc030e`.
 
+**Product freshness (epoch head `1ef3487611`).** The whole judged set was rerun on a detached
+`1ef3487611`, uninstrumented and with the census probe, 3,856 runs each. Every record of both runs
+equals the saved `77cc26f426` record in every field except timing (1,078,632 rows). Judged with C9
+against the own, twin and control references, the uninstrumented run gives the saved runs' judgement
+in every field of every record. The verdict above therefore stands for `1ef3487611`.
+
+**The bit-identical-to-main control (Design §4 item 5).** "The Euler–Bernoulli twins with zero mill
+tolerance are bit-identical to main and must show 0 breaches."
+
+- **Set.** The 342 Euler–Bernoulli models of section variant `m0`: mill tolerance and allowance both 0.
+  That is 1,368 runs, both modes and both entries.
+- **Runs.** On main `2b642c39fb` and on the epoch head `1ef3487611`. The committed runner builds against
+  main unchanged (`build.sh`, `--locked`), so no main-compatible variant was needed.
+- **Method, row for row.** The byte envelopes differ by design: the epoch publishes the reduced family,
+  the basis tokens, the id segments and the per-basis headlines, and its limitations differ. So:
+  - Each epoch row is stripped of its basis suffix: the final `:nominal_section`, `:reduced_section`,
+    `:nominal-section` or `:reduced-section` id segment, and the `; section_basis=…` token in
+    `metadata.basis`.
+  - The stripped row must be one of main's rows. It must equal that row in kind, unit, entity, case,
+    location, component and stripped metadata, and in value bit for bit (the binary64 repr, sign of zero
+    included).
+  - Every main row must be matched. The epoch rows without their reduced twins must be main's rows in
+    main's order.
+  - Main's `max_open_formula_stress` value must equal both per-basis headlines. Every other summary
+    field must be equal, and so must the K-D5 integrity code and message, the other diagnostic codes and
+    the numerical-quality record (basis-stripped).
+- **Result: bit-identical on all 1,368 runs.**
+  - Main's 281,892 rows are matched by 374,244 epoch rows: 189,540 non-stress rows one to one, and
+    92,352 main stress rows each by its nominal and its reduced twin.
+  - The 2,736 per-basis headlines equal main's headline.
+  - There is no difference of any kind.
+- **Main judged by this harness.** The same 1,368 main runs, judged with `--producer pre-u6` against the
+  own reference: 1,246 Passed, 122 Sensitive, 0 judged breaches, 0 C3 groups, and every acceptance
+  clause 0.
+- **Main on the other Euler–Bernoulli variants (information).** These are the D-5 changes, not control
+  failures:
+  - The 140 mill-only runs are Passed on main and fail the D-5 reference (7,064 judged breaches): main
+    forms stiffness on t − c_m, D-5 on the nominal wall t.
+  - The 420 runs with a nonzero allowance are refused on main by name
+    (`EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED`).
+
 ## Premise census (`kd5t_census.py`, `kd5t_reauthor.py`)
 
 **`hager`.** κ₁(D·K·D)·r̂ from the gate's published r̂ and scale exponents D, with the engine's exact
