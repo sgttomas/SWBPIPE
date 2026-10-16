@@ -207,6 +207,9 @@ fn mass(section: &PipeSectionInput) -> MassPrimitive {
             .as_ref()
             .map_or(0.0, |q| q.value),
         insulation_density: section.insulation_density.as_ref().map_or(0.0, |q| q.value),
+        // Equivalent-static generation stays on the preview mass basis (and
+        // is refused on the exact route).
+        corrosion_allowance: None,
     }
 }
 pub(super) fn intensity(
@@ -296,6 +299,10 @@ pub(super) fn intensity(
                         contents_density: q("contents_density"),
                         insulation_thickness: q("insulation_thickness"),
                         insulation_density: q("insulation_density"),
+                        // D-5: the exact mass method names its allowance.
+                        corrosion_allowance: (evidence["mass_method"]
+                            == self_weight::EXACT_MASS_METHOD)
+                            .then(|| q("corrosion_allowance")),
                     };
                     let gravity = evidence["normalized_acceleration_m_per_s2"]
                         .as_f64()

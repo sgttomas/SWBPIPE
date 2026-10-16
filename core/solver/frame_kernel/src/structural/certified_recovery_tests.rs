@@ -28,6 +28,17 @@ fn frame() -> FrameElement {
     )
     .unwrap()
 }
+/// T4-U8 (Design §4 item 2): a certified straight recovery is bound to its
+/// member's formation-source frame. These controls' one member is `MEMBER`.
+const MEMBER: &str = "member:1:m:";
+fn member_source(frame: &FrameElement) -> FormationSource {
+    FormationSource {
+        node_count: 2,
+        frames: vec![*frame],
+        frame_members: vec![MEMBER.into()],
+        ..FormationSource::default()
+    }
+}
 #[test]
 fn exact_projection_uses_guard_and_sticky_bits() {
     let mut acc = ExactAccumulator::new();
@@ -127,7 +138,8 @@ fn uniform_straight_ends_and_all_sections_match_exact_statics() {
             force_scale_exponent: 0,
         });
     }
-    let loads = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap();
+    let source = member_source(&frame);
+    let loads = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap().with_member_source(&source, MEMBER);
     assert_eq!(loads.uniform_loads().count(), 1);
     let recovered = certify_straight_recovery(&frame, &loads, &[0.0; 12], &bound(12)).unwrap();
     assert_eq!(recovered.ends[1].published, 6.0);
@@ -213,8 +225,9 @@ fn same_expression_cancelling_loads_publish_the_net_rows() {
     let alone = ball(&net[row]);
     assert!(!alone.m.is_zero());
     assert_ne!(midpoint_publication(presum.m).unwrap(), midpoint_publication(alone.m).unwrap());
-    let cancelling = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap();
-    let reference = CertifiedMemberLoads::from_primitives(0, 1, &net).unwrap();
+    let source = member_source(&frame);
+    let cancelling = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap().with_member_source(&source, MEMBER);
+    let reference = CertifiedMemberLoads::from_primitives(0, 1, &net).unwrap().with_member_source(&source, MEMBER);
     assert_eq!(cancelling.uniform_loads().count(), 3);
     let u = [1e-3, -2e-3, 3e-4, 1e-4, -5e-4, 2e-4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
     let bound = bound(12);
@@ -252,7 +265,8 @@ fn multi_primitive_rows_are_one_exact_sum_of_their_primitives() {
     let frame = frame();
     let mut primitives = sourced_uniform_primitives(&frame, "a", [0.0, -6.0, 0.0], 0);
     primitives.extend(sourced_uniform_primitives(&frame, "b", [0.0, 3.0, 1.5], 12));
-    let loads = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap();
+    let source = member_source(&frame);
+    let loads = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap().with_member_source(&source, MEMBER);
     for row in 0..12 {
         let mut sum = ExactAccumulator::new();
         let mut radius = 0.0;
@@ -567,8 +581,16 @@ fn parallel_members_use_source_qualified_borrowed_loads() {
             });
         }
     }
-    let loads =
-        CertifiedMemberLoads::from_member_primitives(0, 1, &primitives, "member:1:A:").unwrap();
+    // T4-U8: the parallel members each have their own formation-source frame.
+    let source = FormationSource {
+        node_count: 2,
+        frames: vec![frame, frame],
+        frame_members: vec!["member:1:A:".into(), "member:1:B:".into()],
+        ..FormationSource::default()
+    };
+    let loads = CertifiedMemberLoads::from_member_primitives(0, 1, &primitives, "member:1:A:")
+        .unwrap()
+        .with_member_source(&source, "member:1:A:");
     assert_eq!(loads.uniform_loads().count(), 1);
     let recovered = certify_straight_recovery(&frame, &loads, &[0.0; 12], &bound(12)).unwrap();
     assert_eq!(recovered.ends[1].published, 6.0);
@@ -1008,7 +1030,8 @@ fn uniform_primitives(
 fn source_bernstein_controls_match_exact_uniform_statics_and_fixed_sections() {
     let frame = frame();
     let primitives = uniform_primitives(&frame, [0.0, -6.0, 0.0], 0.0, 1.0);
-    let loads = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap();
+    let source = member_source(&frame);
+    let loads = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap().with_member_source(&source, MEMBER);
     let u = [0.0; 12];
     let bound = bound(12);
     let spans = certify_straight_stress_spans(&frame, &loads, &u, &bound, 2.0, 4.0, None).unwrap();
@@ -1030,7 +1053,8 @@ fn source_bernstein_controls_match_exact_uniform_statics_and_fixed_sections() {
 fn partial_span_controls_keep_the_three_exact_polynomials_and_both_boundary_sides() {
     let frame = frame();
     let primitives = uniform_primitives(&frame, [0.0, -6.0, 0.0], 0.25, 0.75);
-    let loads = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap();
+    let source = member_source(&frame);
+    let loads = CertifiedMemberLoads::from_primitives(0, 1, &primitives).unwrap().with_member_source(&source, MEMBER);
     let spans =
         certify_straight_stress_spans(&frame, &loads, &[0.0; 12], &bound(12), 2.0, 1.0, None)
             .unwrap();
@@ -1060,7 +1084,8 @@ fn partial_span_controls_keep_the_three_exact_polynomials_and_both_boundary_side
 #[test]
 fn source_controls_use_the_corrections_and_exclude_the_solution_remainder() {
     let frame = frame();
-    let loads = CertifiedMemberLoads::default();
+    let source = member_source(&frame);
+    let loads = CertifiedMemberLoads::default().with_member_source(&source, MEMBER);
     let mut u = [0.0; 12];
     u[6] = 1e16;
     let mut first = bound(12);
@@ -1081,7 +1106,8 @@ fn source_controls_use_the_corrections_and_exclude_the_solution_remainder() {
 #[test]
 fn source_controls_preserve_zero_and_hold_the_same_pressure_wall_increment() {
     let frame = frame();
-    let loads = CertifiedMemberLoads::default();
+    let source = member_source(&frame);
+    let loads = CertifiedMemberLoads::default().with_member_source(&source, MEMBER);
     let u = [0.0; 12];
     let bound = bound(12);
     let zero = certify_straight_stress_spans(&frame, &loads, &u, &bound, 2.0, 4.0, None).unwrap();

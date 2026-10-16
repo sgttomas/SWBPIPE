@@ -257,8 +257,15 @@ fn timoshenko_recovered_end_actions_use_the_timoshenko_matrix() {
             exponents: vec![i32::MIN; 18],
             lambda_sigma: 0.0,
         };
-        let certified =
-            certify_straight_recovery(&frames[0], &CertifiedMemberLoads::default(), &u, &bound).unwrap();
+        // T4-U8 (Design §4 item 2): bound to the member's formation-source frame.
+        let source = open_pipe_stress_frame_kernel::structural::FormationSource {
+            node_count: 3,
+            frames: frames.clone(),
+            frame_members: vec!["member:1:A:".into(), "member:1:B:".into()],
+            ..Default::default()
+        };
+        let loads = CertifiedMemberLoads::default().with_member_source(&source, "member:1:A:");
+        let certified = certify_straight_recovery(&frames[0], &loads, &u, &bound).unwrap();
         close(certified.ends[UY].published, root_force, 1e-14, &format!("{what} certified root force"));
         close(certified.ends[RZ].published, root_moment, 1e-14, &format!("{what} certified root moment"));
         if section.beam_theory().is_timoshenko() {

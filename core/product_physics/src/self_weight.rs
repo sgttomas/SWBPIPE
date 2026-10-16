@@ -274,6 +274,8 @@ fn generate_operations(
     }
     let mut evidence = Vec::new();
     let mut loads = Vec::new();
+    // D-5 (DEL-05-03 Design §1): an exact-contract document's mass basis.
+    let exact = super::pressure_runtime::is_exact(model);
     for pipe in &mut subset.pipe_segments {
         let original = model
             .pipe_segments
@@ -331,6 +333,11 @@ fn generate_operations(
                 normalize(q, dim, false, name, &mut d);
             }
         }
+        if exact {
+            if let Some(q) = &mut section.corrosion_allowance {
+                normalize(q, Dimension::Length, false, "corrosion_allowance", &mut d);
+            }
+        }
         match &mut section.material_density {
             Some(q) => normalize(q, Dimension::Density, true, "material_density", &mut d),
             None => invalid(&mut d, &pipe.id, "explicit material density required"),
@@ -338,7 +345,7 @@ fn generate_operations(
         if !d.is_empty() {
             continue;
         }
-        let Some(mass) = stable_mass_per_length(pipe, &mut d) else {
+        let Some(mass) = stable_mass_per_length(pipe, exact, &mut d) else {
             continue;
         };
         let intensity = mass * gravity.value;
@@ -360,9 +367,12 @@ fn generate_operations(
             "mass_inputs":{"outside_diameter":quantity(&s.outside_diameter),"wall_thickness":quantity(&s.wall_thickness),"mill_tolerance":optional(&s.mill_tolerance),
                 "material_density":optional(&s.material_density),"contents_density":optional(&s.contents_density),"insulation_thickness":optional(&s.insulation_thickness),"insulation_density":optional(&s.insulation_density)},
             "mass_kg_per_m":mass,"contents_absent":s.contents_density.is_none(),"insulation_absent":s.insulation_thickness.is_none() && s.insulation_density.is_none()});
-        e["mass_method"] = json!(STABLE_MASS_METHOD);
+        if exact {
+            e["mass_inputs"]["corrosion_allowance"] = optional(&s.corrosion_allowance);
+        }
+        e["mass_method"] = json!(if exact { EXACT_MASS_METHOD } else { STABLE_MASS_METHOD });
         e["source_model_hash"] = json!(request.source_model_hash);
-        e["normalized_dependencies"] = dependency_projection(&pipe.section, &original.section_ref);
+        e["normalized_dependencies"] = dependency_projection(&pipe.section, &original.section_ref, exact);
         let id = format!(
             "load:self-weight:{}:{}:{}:{}",
             request.case_id.len(),
@@ -409,7 +419,14 @@ fn generate_operations(
 
 /// Same explicit density participation as legacy generation, with the named
 /// source-area successor. Only annulus_geometry owns the circular area algebra.
-fn stable_mass_per_length(pipe: &super::PreviewPipe, d: &mut Vec<Diagnostic>) -> Option<f64> {
+///
+/// `exact` selects the D-5 basis of an exact-contract section (DEL-05-03
+/// Design §1; `EXACT_MASS_METHOD`): pipe metal on the nominal wall t and
+/// contents on the pressure bore D/2 - t_r, t_r = (t - c_m) - c_a in that
+/// binary64 order (`ExactSectionBases::reduced_wall`), the corrosion allowance
+/// c_a an explicit operand. Otherwise (`STABLE_MASS_METHOD`, the preview
+/// route, unchanged) both use the single wall t - c_m.
+fn stable_mass_per_length(pipe: &super::PreviewPipe, exact: bool, d: &mut Vec<Diagnostic>) -> Option<f64> {
     use crate::annulus_geometry::{
         source_bore_area_m2, source_insulation_area_m2, source_wall_area_m2, SourceAreaError,
     };
@@ -462,7 +479,21 @@ fn stable_mass_per_length(pipe: &super::PreviewPipe, d: &mut Vec<Diagnostic>) ->
         invalid(d, &pipe.id, "mill deduction must be finite and nonnegative");
         return None;
     }
-    let wall = s.wall_thickness.value - mill;
+    let (metal_wall, bore_wall) = if exact {
+        let Some(allowance) = s.corrosion_allowance.as_ref().map(|q| q.value) else {
+            invalid(d, &pipe.id, "explicit corrosion allowance required on an exact-contract section");
+            return None;
+        };
+        if !allowance.is_finite() || allowance < 0.0 {
+            invalid(d, &pipe.id, "corrosion allowance must be finite and nonnegative");
+            return None;
+        }
+        let nominal = s.wall_thickness.value;
+        (nominal, crate::pressure_exact::ExactSectionBases::reduced_wall(nominal, mill, allowance))
+    } else {
+        let wall = s.wall_thickness.value - mill;
+        (wall, wall)
+    };
     let Some(density) = s.material_density.as_ref().map(|q| q.value) else {
         invalid(d, &pipe.id, "explicit material density required");
         return None;
@@ -471,10 +502,10 @@ fn stable_mass_per_length(pipe: &super::PreviewPipe, d: &mut Vec<Diagnostic>) ->
         invalid(d, &pipe.id, "material density must be finite and positive");
         return None;
     }
-    let metal = area(source_wall_area_m2(od, wall), &pipe.id, d)?;
+    let metal = area(source_wall_area_m2(od, metal_wall), &pipe.id, d)?;
     let mut mass = term(metal, density, &pipe.id, d)?;
     if let Some(contents) = &s.contents_density {
-        let bore = area(source_bore_area_m2(od, wall), &pipe.id, d)?;
+        let bore = area(source_bore_area_m2(od, bore_wall), &pipe.id, d)?;
         mass += term(bore, contents.value, &pipe.id, d)?;
     }
     match (&s.insulation_thickness, &s.insulation_density) {
@@ -505,6 +536,11 @@ fn stable_mass_per_length(pipe: &super::PreviewPipe, d: &mut Vec<Diagnostic>) ->
 }
 
 pub const STABLE_MASS_METHOD: &str = "source_od_effective_wall_areas/v1";
+/// T4-U6 (DEL-05-03 Design §1, "D-5 mass"): the mass method of an
+/// exact-contract section, metal on the nominal wall and contents on the
+/// pressure bore, with the corrosion allowance among its `mass_inputs` and
+/// `normalized_dependencies`.
+pub const EXACT_MASS_METHOD: &str = "source_od_nominal_wall_pressure_bore_areas/v1";
 pub const GENERATED_METHOD: &str = "pipe_mass_per_length_times_explicit_axis_acceleration/v2";
 pub const LEGACY_METHOD: &str = "pipe_mass_per_length_times_explicit_axis_acceleration/v1";
 pub const MANUAL_OVERRIDE_METHOD: &str = "manual_override_of_generated_self_weight/v1";
@@ -534,16 +570,33 @@ fn valid_hash(value: &str) -> bool {
                 .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
     })
 }
-fn dependency_projection(s: &super::PipeSectionInput, reference: &Option<String>) -> Value {
-    json!({"section_ref":reference,
+fn dependency_projection(s: &super::PipeSectionInput, reference: &Option<String>, exact: bool) -> Value {
+    let mut projection = json!({"section_ref":reference,
         "outside_diameter":quantity(&s.outside_diameter),
         "wall_thickness":quantity(&s.wall_thickness),
         "mill_tolerance":optional(&s.mill_tolerance),
         "material_density":optional(&s.material_density),
         "contents_density":optional(&s.contents_density),
         "insulation_thickness":optional(&s.insulation_thickness),
-        "insulation_density":optional(&s.insulation_density)})
+        "insulation_density":optional(&s.insulation_density)});
+    // D-5 (EXACT_MASS_METHOD): the allowance moves the contents bore.
+    if exact {
+        projection["corrosion_allowance"] = optional(&s.corrosion_allowance);
+    }
+    projection
 }
+/// The keys of a generated record's `mass_inputs` (and of a section rebuilt
+/// from them): the preview method's, plus the corrosion allowance under
+/// `EXACT_MASS_METHOD`.
+const MASS_INPUT_KEYS: [&str; 7] = [
+    "outside_diameter",
+    "wall_thickness",
+    "mill_tolerance",
+    "material_density",
+    "contents_density",
+    "insulation_thickness",
+    "insulation_density",
+];
 fn primitive_payload(load: &super::PreviewPrimitiveLoad) -> Value {
     let target = match &load.target {
         super::LoadTargetInput::Node { node } => json!({"type":"node","node":node}),
@@ -612,19 +665,16 @@ fn retained_basis(
     let reference: Option<String> =
         serde_json::from_value(evidence.get("section_ref").cloned().ok_or_else(fail)?)
             .map_err(|_| fail())?;
+    // The generated record's mass basis: the preview method or, on an
+    // exact-contract section, D-5's (with the allowance as an input).
+    // (A generated record naming neither method fails below, where the
+    // preview method was always checked.)
+    let exact = method == GENERATED_METHOD && evidence["mass_method"] == EXACT_MASS_METHOD;
     let inputs = evidence["mass_inputs"].as_object().ok_or_else(fail)?;
-    for key in [
-        "outside_diameter",
-        "wall_thickness",
-        "mill_tolerance",
-        "material_density",
-        "contents_density",
-        "insulation_thickness",
-        "insulation_density",
-    ] {
-        if !inputs.contains_key(key) {
-            return Err(fail());
-        }
+    if MASS_INPUT_KEYS.iter().any(|key| !inputs.contains_key(*key))
+        || (exact && !inputs.contains_key("corrosion_allowance"))
+    {
+        return Err(fail());
     }
     let mut section: super::PipeSectionInput =
         serde_json::from_value(Value::Object(inputs.clone())).map_err(|_| fail())?;
@@ -686,6 +736,11 @@ fn retained_basis(
             normalize(q, dimension, false, name, &mut d);
         }
     }
+    if exact {
+        if let Some(q) = &mut section.corrosion_allowance {
+            normalize(q, Dimension::Length, false, "corrosion_allowance", &mut d);
+        }
+    }
     match &mut section.material_density {
         Some(q) => normalize(q, Dimension::Density, true, "material_density", &mut d),
         None => return Err(fail()),
@@ -699,7 +754,7 @@ fn retained_basis(
     {
         return Err(fail());
     }
-    let dependencies = dependency_projection(&section, &reference);
+    let dependencies = dependency_projection(&section, &reference, exact);
     let pipe = super::PreviewPipe {
         id: pipe_id.into(),
         from: String::new(),
@@ -713,10 +768,10 @@ fn retained_basis(
     let mass = if method == LEGACY_METHOD {
         compute_pipe_mass_per_length(&pipe, case_id, &mut d)
     } else {
-        if evidence["mass_method"] != STABLE_MASS_METHOD {
+        if !exact && evidence["mass_method"] != STABLE_MASS_METHOD {
             return Err(fail());
         }
-        stable_mass_per_length(&pipe, &mut d)
+        stable_mass_per_length(&pipe, exact, &mut d)
     };
     let Some(mass) = mass else {
         return Err(if d.is_empty() { fail() } else { d });
@@ -880,8 +935,11 @@ pub fn inspect_applied_self_weight(
                 source.load_cases.clear();
                 let generated = generate_operations(&source, &request, true)?;
                 let current_evidence = &generated.source_evidence[0];
+                // A document moved across the exact contract changes the mass
+                // method (D-5) even where the consumed quantities agree.
                 status.state = if method == Some(LEGACY_METHOD)
                     || current_evidence["normalized_dependencies"] != old_dependencies
+                    || current_evidence["mass_method"] != evidence["mass_method"]
                 {
                     AppliedSelfWeightState::Stale
                 } else {

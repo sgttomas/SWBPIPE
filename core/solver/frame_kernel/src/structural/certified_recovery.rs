@@ -419,6 +419,16 @@ pub struct CertifiedMemberLoads<'a> {
     node_i: usize,
     node_j: usize,
     source_prefix: &'a str,
+    /// T4-U8 (Design §4 item 2): the FormationSource frame of this member
+    /// (`with_member_source`), which a straight recovery frame must equal.
+    member_frame: MemberFrame<'a>,
+}
+/// Whether member loads are bound to a formation source, and the source frame
+/// of their member there (`None`: the member has no frame in that source).
+#[derive(Debug, Clone, Copy)]
+enum MemberFrame<'a> {
+    Unbound,
+    Source(Option<&'a FrameElement>),
 }
 impl Default for CertifiedMemberLoads<'_> {
     fn default() -> Self {
@@ -429,6 +439,7 @@ impl Default for CertifiedMemberLoads<'_> {
             node_i: usize::MAX,
             node_j: usize::MAX,
             source_prefix: "",
+            member_frame: MemberFrame::Unbound,
         }
     }
 }
@@ -504,6 +515,20 @@ impl<'a> CertifiedMemberLoads<'a> {
             out.equivalent[row] = sum_ball(&sum, radius)?;
         }
         Ok(out)
+    }
+    /// T4-U8 (Design §4 item 2): binds these member loads to `source`, the
+    /// formation source the case's K_int is formed from, and to `member`,
+    /// their member's identity there (`FormationSource::frame_members`; the
+    /// product's `member:{len}:{id}:`, the same prefix that selects its
+    /// loads). A certified straight recovery requires loads bound here and a
+    /// recovery frame bit-equal to that member's source frame, beam-theory
+    /// leaf included; a member with no frame there, an empty identity, or a
+    /// source without complete member identities fails closed.
+    pub fn with_member_source(mut self, source: &'a FormationSource, member: &str) -> Self {
+        self.member_frame = MemberFrame::Source(
+            super::formation_check::member_frame_index(source, member).map(|k| &source.frames[k]),
+        );
+        self
     }
     /// Re-forms each source once on the stack; the complete scalar closure
     /// carries row 0 even when its load is zero. No recovery load cache exists.
@@ -768,16 +793,23 @@ struct StraightRecoveryContext {
     map: [usize; 12],
 }
 /// T4-U8 (Design §4 item 2): the recovery frame of a straight member is
-/// bit-equal, its beam-theory leaf included, to the frame of every straight
+/// bit-equal, its beam-theory leaf included, to the FormationSource frame of
+/// the same member (`CertifiedMemberLoads::with_member_source`), whether or
+/// not the member has a load primitive, and to the frame of every straight
 /// primitive of that member (the member's source prefix and node pair, as
 /// `CertifiedMemberLoads` selects them; no force scaling, since recovery
 /// takes the physical frame and authored leaves). Otherwise the recovery
-/// fails closed: K_int·u with one element and loads re-formed for another
-/// would certify a mixed system.
+/// fails closed: K_int·u with one element and an operator or loads re-formed
+/// for another would certify a mixed system. Loads not bound to a source, and
+/// a member with no source frame, fail closed.
 fn straight_member_frames_bound(
     frame: &FrameElement,
     loads: &CertifiedMemberLoads,
 ) -> Result<(), RecoveryFailure> {
+    match loads.member_frame {
+        MemberFrame::Source(Some(source_frame)) if frames_bit_equal(source_frame, frame) => {}
+        _ => return Err(shape("straight recovery frame is not its member's formation-source frame")),
+    }
     let unbound = loads.primitives.iter().any(|p| {
         p.identity.source.starts_with(loads.source_prefix)
             && member_pair(&p.formula)

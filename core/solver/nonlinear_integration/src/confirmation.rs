@@ -81,6 +81,9 @@ pub fn confirm_converged_state(
     solve: &NonlinearFrameSolveResult,
     force: &AssembledForce,
     curved_sources: &[CurvedBendMacroElement],
+    // T4-U8 (DEL-05-03 Design §4 item 2): each of `input.elements`' member
+    // identity (`AssemblyEvidence::with_frame_members`).
+    frame_members: &[String],
     mode: LinearSolveMode,
 ) -> Result<Confirmation, NonlinearIntegrationError> {
     let applied = solve
@@ -88,7 +91,7 @@ pub fn confirm_converged_state(
         .last()
         .map(|last| last.applied_sliding_friction_forces.clone())
         .unwrap_or_default();
-    confirm_with_applied(input, springs, solve, force, curved_sources, mode, &applied)
+    confirm_with_applied(input, springs, solve, force, curved_sources, frame_members, mode, &applied)
 }
 
 fn not_established(reason: impl Into<String>) -> Result<Confirmation, NonlinearIntegrationError> {
@@ -114,6 +117,9 @@ pub(crate) fn confirm_with_applied(
     solve: &NonlinearFrameSolveResult,
     force: &AssembledForce,
     curved_sources: &[CurvedBendMacroElement],
+    // T4-U8 (DEL-05-03 Design §4 item 2): each of `input.elements`' member
+    // identity (`AssemblyEvidence::with_frame_members`).
+    frame_members: &[String],
     mode: LinearSolveMode,
     applied: &[AppliedSlidingFrictionForce],
 ) -> Result<Confirmation, NonlinearIntegrationError> {
@@ -279,7 +285,8 @@ pub(crate) fn confirm_with_applied(
         &input.connectors,
         &input.curved_bend_elements,
         springs,
-    )?;
+    )?
+    .with_frame_members(frame_members);
     let attempt = evidence.confirm_with_formation_check(
         &receipt.original_stiffness,
         &gate_force,

@@ -1232,6 +1232,7 @@ fn kd5_pi_families_enclose_independent_256_bit_reference() {
         contents_density: 1.0,
         insulation_thickness: 0.25,
         insulation_density: 0.5,
+        corrosion_allowance: None,
     };
     let f = axial_frame();
     let cases = [
@@ -1262,6 +1263,26 @@ fn kd5_pi_families_enclose_independent_256_bit_reference() {
             },
             0,
             4.0625,
+        ),
+        // T4-U6 (D-5 mass): metal on the nominal wall 0.5 (0.75 pi x 2), the
+        // contents on the pressure bore 1 - ((0.5 - 0.125) - 0.125) = 0.75
+        // (0.5625 pi x 1), insulation as above (0.28125 pi): 2.34375 pi.
+        (
+            LoadFormula::UniformStraight {
+                frame: f,
+                intensity: IntensityPrimitive::SelfWeight {
+                    mass: MassPrimitive {
+                        mill_tolerance: 0.125,
+                        corrosion_allowance: Some(0.125),
+                        ..m
+                    },
+                    gravity: [2.0, 0.0, 0.0],
+                },
+                start_fraction: 0.0,
+                end_fraction: 1.0,
+            },
+            0,
+            9.375,
         ),
         (
             LoadFormula::PressureOperand {
@@ -1302,6 +1323,64 @@ fn kd5_pi_families_enclose_independent_256_bit_reference() {
         );
         assert!(radius[row] < 1e-30);
     }
+}
+/// T4-U6 (Design §1, D-5 mass): the allowance is a binding leaf. A preview
+/// mass binds as before D-5 (no added word); an exact mass, c_a = 0 included,
+/// binds its basis and its allowance, so neither stands in for the other.
+#[test]
+fn d5_mass_allowance_is_a_closure_binding_leaf() {
+    let m = MassPrimitive {
+        outer_diameter: 2.0,
+        wall_thickness: 0.5,
+        mill_tolerance: 0.125,
+        pipe_density: 2.0,
+        contents_density: 1.0,
+        insulation_thickness: 0.0,
+        insulation_density: 0.0,
+        corrosion_allowance: None,
+    };
+    let bits = |mass: MassPrimitive| {
+        primitive(
+            LoadFormula::UniformStraight {
+                frame: axial_frame(),
+                intensity: IntensityPrimitive::SelfWeight { mass, gravity: [2.0, 0.0, 0.0] },
+                start_fraction: 0.0,
+                end_fraction: 1.0,
+            },
+            0,
+            0,
+        )
+        .closure_entry()
+        .operand_bits
+    };
+    let preview = bits(m);
+    let zero = bits(MassPrimitive { corrosion_allowance: Some(0.0), ..m });
+    let exact = bits(MassPrimitive { corrosion_allowance: Some(0.125), ..m });
+    // The mass binding is followed by gravity (3 words), the two fractions,
+    // the local row and the exponent: the allowance leaf sits between.
+    let leaf = preview.len() - 7;
+    assert_eq!(zero.len(), preview.len() + 2);
+    assert_eq!(zero[..leaf], preview[..leaf]);
+    assert_eq!(zero[leaf + 2..], preview[leaf..]);
+    assert_eq!(zero[leaf..leaf + 2], [u64::MAX - 1, 0.0f64.to_bits()]);
+    assert_eq!(exact[leaf..leaf + 2], [u64::MAX - 1, 0.125f64.to_bits()]);
+    // The two bases re-form different intensities whenever c_m > 0.
+    let reform = |mass| {
+        load_reformation(&primitive(
+            LoadFormula::UniformStraight {
+                frame: axial_frame(),
+                intensity: IntensityPrimitive::SelfWeight { mass, gravity: [2.0, 0.0, 0.0] },
+                start_fraction: 0.0,
+                end_fraction: 1.0,
+            },
+            0,
+            0,
+        ))
+        .unwrap()
+        .0[0]
+    };
+    let zero_value = reform(MassPrimitive { corrosion_allowance: Some(0.0), ..m });
+    assert!(reform(m).cmp_value(&zero_value).is_ne());
 }
 fn quarter_arc() -> CurvedFormation {
     CurvedFormation {

@@ -222,6 +222,10 @@ pub(crate) struct ExactSectionBases {
     reduced: SourceAnnulus,
     mill_tolerance_m: f64,
     corrosion_allowance_m: f64,
+    /// T4-U8 (Design §3.1): (kappa_E, A_s) of a timoshenko_annulus_energy_v1
+    /// straight member, formed from the nominal annulus; `None` for an
+    /// Euler-Bernoulli member and every realized arc.
+    timoshenko: Option<(f64, f64)>,
 }
 
 impl ExactSectionBases {
@@ -245,7 +249,20 @@ impl ExactSectionBases {
             reduced: SourceAnnulus::from_od_wall(od_m, reduced_wall)?,
             mill_tolerance_m,
             corrosion_allowance_m,
+            timoshenko: None,
         })
+    }
+    /// The same section bases of a timoshenko_annulus_energy_v1 straight
+    /// member, with its energy-matched factor kappa_E and shear area A_s
+    /// (FK `shear::annulus_energy_shear_factor` on the nominal annulus and
+    /// `shear::shear_area` on its area), for the stiffness leaf and the
+    /// evidence's `beam_theory`.
+    pub(crate) fn with_timoshenko(self, shear_factor: f64, shear_area_m2: f64) -> Self {
+        Self { timoshenko: Some((shear_factor, shear_area_m2)), ..self }
+    }
+    /// (kappa_E, A_s) of a Timoshenko straight member; `None` otherwise.
+    pub(crate) fn timoshenko(self) -> Option<(f64, f64)> {
+        self.timoshenko
     }
     pub(crate) fn nominal(self) -> SourceAnnulus {
         self.nominal

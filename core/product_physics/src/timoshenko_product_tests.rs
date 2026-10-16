@@ -1,0 +1,334 @@
+//! T4-U8 (DEL-05-03 Design `section-bases-and-timoshenko.md` §3, §4 item 2,
+//! §5, §8): the product's Timoshenko threading. These are product checks of
+//! the threading (which section, which nu, which members, which binding); they
+//! do not compare product output with the frozen references (`t4_u8`,
+//! `kd5_timoshenko`), which separate agents freeze and refute.
+use super::*;
+use open_pipe_stress_frame_kernel::shear::{annulus_energy_shear_factor, shear_area};
+use open_pipe_stress_frame_kernel::BeamTheory;
+use serde_json::{json, Value};
+
+const N05: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
+const EIGEN_MOTION: &str =
+    include_str!("../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json");
+const I7_DOCUMENTS: &str = include_str!("../../../validation/references/t4_i7/u2_document_sketches.json");
+const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
+const TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
+const INVENTED: &str = "invented_t4_u8_product_threading_test_not_library_data";
+
+fn with_shear_model(mut request: Value, shear_model: &str) -> Value {
+    request["model"]["pressure_contract"]["shear_model"] = json!(shear_model);
+    request
+}
+fn with_sections(mut request: Value, mill: f64, allowance: f64) -> Value {
+    for pipe in request["model"]["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"]["mill_tolerance"] = json!({"value": mill, "unit": "m"});
+        pipe["section"]["corrosion_allowance"] = json!({"value": allowance, "unit": "m"});
+    }
+    request
+}
+fn run(request: &Value, mode: PreviewSolverMode) -> Value {
+    serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap()
+}
+fn number(v: &Value) -> f64 {
+    v.as_f64().unwrap_or_else(|| panic!("a number: {v}"))
+}
+/// The product's own preparation and build of a request's model (base E/nu).
+fn built(request: &Value) -> (PreviewModel, BuiltModel) {
+    let request: LinearStaticPreviewRequest = serde_json::from_value(request.clone()).unwrap();
+    let mut model = request.model;
+    let mut materials = if request.materials.is_empty() { model.materials.clone() } else { request.materials };
+    let mut diagnostics = Vec::new();
+    pressure_runtime::validate_profile(&model, &mut diagnostics);
+    resolve_shared_sections(&mut model, &mut diagnostics);
+    normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+    pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+    let built = build_model(&model, &materials, &mut diagnostics).expect("the model builds");
+    assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
+    model.materials = materials;
+    (model, built)
+}
+/// kappa_E and A_s of an evidence section record, checked bit for bit
+/// against FK's functions of its nominal leaves and `nu`.
+fn assert_timoshenko_evidence(section: &Value, nu: f64, label: &str) -> (f64, f64) {
+    let nominal = &section["nominal_section"];
+    let kappa = annulus_energy_shear_factor(number(&nominal["ri_m"]), number(&section["ro_m"]), nu).unwrap();
+    let shear = shear_area(kappa, number(&nominal["As_m2"])).unwrap();
+    let theory = &section["beam_theory"];
+    assert_eq!(theory["model"], json!(TIMOSHENKO), "{label}: {theory}");
+    assert_eq!(theory.as_object().unwrap().len(), 3, "{label}: {theory}");
+    assert_eq!(number(&theory["shear_factor"]).to_bits(), kappa.to_bits(), "{label}: kappa_E");
+    assert_eq!(number(&theory["shear_area_m2"]).to_bits(), shear.to_bits(), "{label}: A_s");
+    (kappa, shear)
+}
+
+/// Design §3.1, §8 ("kappa or A_s formed on the reduced section"): with
+/// c_m, c_a > 0, kappa_E and A_s come from the nominal (stiffness) annulus and
+/// its area, never from the reduced section; the built frame's leaf is that
+/// A_s; and the stiffness section itself is the Euler-Bernoulli twin's.
+#[test]
+fn timoshenko_shear_area_uses_the_stiffness_section() {
+    let base: Value = serde_json::from_str(N05).unwrap();
+    let (mill, allowance) = (0.0005, 0.001);
+    let timoshenko = with_shear_model(with_sections(base.clone(), mill, allowance), TIMOSHENKO);
+    let euler_bernoulli = with_sections(base.clone(), mill, allowance);
+    let nu = number(&base["model"]["materials"][0]["poisson_ratio"]["value"]);
+    let (_, t) = built(&timoshenko);
+    let (_, eb) = built(&euler_bernoulli);
+    assert!(!t.pipes.is_empty());
+    for (tp, ep) in t.pipes.iter().zip(&eb.pipes) {
+        let bases = t.exact_sections[&tp.element_id];
+        let (nominal, reduced) = (bases.nominal(), bases.reduced());
+        assert_ne!(nominal.wall_area_m2().to_bits(), reduced.wall_area_m2().to_bits(), "precondition: the bases differ");
+        let kappa = annulus_energy_shear_factor(nominal.inner_radius_m(), nominal.outer_radius_m(), nu).unwrap();
+        let expected = shear_area(kappa, nominal.wall_area_m2()).unwrap();
+        let reduced_kappa = annulus_energy_shear_factor(reduced.inner_radius_m(), reduced.outer_radius_m(), nu).unwrap();
+        let mutant = shear_area(reduced_kappa, reduced.wall_area_m2()).unwrap();
+        assert_ne!(expected.to_bits(), mutant.to_bits(), "the reduced-section mutant is distinguishable");
+        assert_eq!(tp.section.beam_theory, BeamTheory::Timoshenko { shear_area: expected });
+        assert_eq!(bases.timoshenko().map(|(k, a)| (k.to_bits(), a.to_bits())), Some((kappa.to_bits(), expected.to_bits())));
+        let frame = tp.frame_element().unwrap();
+        assert_eq!(frame.section.beam_theory.shear_area().map(f64::to_bits), Some(expected.to_bits()));
+        // A, I and J are the nominal section's, identical to the Euler-Bernoulli twin's.
+        assert_eq!(ep.section.beam_theory, BeamTheory::EulerBernoulli);
+        for (x, y) in [(tp.section.area, ep.section.area), (tp.section.second_moment_y, ep.section.second_moment_y),
+            (tp.section.torsion_constant, ep.section.torsion_constant), (tp.section.area, nominal.wall_area_m2())] {
+            assert_eq!(x.to_bits(), y.to_bits());
+        }
+    }
+    for mode in MODES {
+        let envelope = run(&timoshenko, mode);
+        assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}: {}", envelope["diagnostics"]);
+        for case in envelope["contract_evidence"]["exact_cases"].as_array().unwrap() {
+            for section in case["pipe_sections"].as_array().unwrap() {
+                let (_, a_s) = assert_timoshenko_evidence(section, nu, &format!("{mode:?}"));
+                let reduced = &section["reduced_section"];
+                let reduced_kappa = annulus_energy_shear_factor(number(&reduced["ri_m"]), number(&section["ro_m"]), nu).unwrap();
+                assert_ne!(a_s.to_bits(), shear_area(reduced_kappa, number(&reduced["As_m2"])).unwrap().to_bits());
+            }
+        }
+        let plain = run(&euler_bernoulli, mode);
+        for case in plain["contract_evidence"]["exact_cases"].as_array().unwrap() {
+            for section in case["pipe_sections"].as_array().unwrap() {
+                assert_eq!(section["beam_theory"], json!({"model": "euler_bernoulli"}), "{mode:?}");
+            }
+        }
+    }
+}
+
+/// Design §3.1 ("A missing nu or G basis blocks a Timoshenko solve by name; no
+/// default factor exists"): a timoshenko_annulus_energy_v1 straight member
+/// whose material carries G but no Poisson ratio is not built; the build blocks
+/// with EXACT_PRESSURE_SHEAR_FACTOR_UNAVAILABLE naming the member and the
+/// missing nu, while its Euler-Bernoulli twin builds from the same inputs. On
+/// the public route the same document is refused earlier, by
+/// EXACT_PRESSURE_POISSON_RATIO_REQUIRED, and nothing is solved.
+#[test]
+fn timoshenko_without_a_nu_basis_is_blocked_by_name() {
+    let base: Value = serde_json::from_str(N05).unwrap();
+    let timoshenko = with_shear_model(base.clone(), TIMOSHENKO);
+    // The product's preparation (G derived from E/nu), then a material basis
+    // without nu, as a direct build sees it.
+    let build = |request: &Value| {
+        let request: LinearStaticPreviewRequest = serde_json::from_value(request.clone()).unwrap();
+        let mut model = request.model;
+        let mut materials = if request.materials.is_empty() { model.materials.clone() } else { request.materials };
+        let mut diagnostics = Vec::new();
+        resolve_shared_sections(&mut model, &mut diagnostics);
+        normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+        pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+        assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
+        for material in &mut materials {
+            assert!(material.shear_modulus.is_some(), "precondition: G is present");
+            material.poisson_ratio = None;
+        }
+        let built = build_model(&model, &materials, &mut diagnostics);
+        (built, diagnostics)
+    };
+    let (built, diagnostics) = build(&timoshenko);
+    let pipes: Vec<String> = timoshenko["model"]["pipe_segments"].as_array().unwrap().iter()
+        .map(|pipe| pipe["id"].as_str().unwrap().to_owned()).collect();
+    assert!(!pipes.is_empty());
+    for pipe in &pipes {
+        let blocked = diagnostics.iter().find(|d| d.code == "EXACT_PRESSURE_SHEAR_FACTOR_UNAVAILABLE" && d.affected_refs == vec![pipe.clone()])
+            .unwrap_or_else(|| panic!("{pipe}: blocked by name: {diagnostics:?}"));
+        assert_eq!(blocked.severity, "blocking");
+        assert!(blocked.message.contains("Poisson ratio") && blocked.message.contains("no default shear factor"), "{}", blocked.message);
+    }
+    assert!(built.map_or(true, |built| built.pipes.is_empty() && built.frame_elements.is_empty()), "no Timoshenko member is built without nu");
+    let (built, diagnostics) = build(&base);
+    assert!(!has_blocking(&diagnostics), "the Euler-Bernoulli twin needs no nu here: {diagnostics:?}");
+    assert_eq!(built.expect("the Euler-Bernoulli twin builds").pipes.len(), pipes.len());
+
+    let mut public = timoshenko.clone();
+    for material in public["model"]["materials"].as_array_mut().unwrap() {
+        material.as_object_mut().unwrap().remove("poisson_ratio");
+    }
+    for mode in MODES {
+        let envelope = run(&public, mode);
+        assert_ne!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}");
+        assert!(envelope["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == json!("EXACT_PRESSURE_POISSON_RATIO_REQUIRED")
+            && d["severity"] == json!("blocking")), "{mode:?}: {}", envelope["diagnostics"]);
+    }
+}
+
+/// Design §3.1, §8 ("Base-material nu instead of the resolved per-case nu"):
+/// on a load-state document whose cases resolve different E/nu pairs, each
+/// case's kappa_E and A_s are FK's functions of that case's own nu, and they
+/// differ between the cases.
+#[test]
+fn timoshenko_load_state_uses_the_resolved_case_nu() {
+    let mut request: Value = serde_json::from_str(EIGEN_MOTION).unwrap();
+    let base_nu = number(&request["model"]["materials"][0]["poisson_ratio"]["value"]);
+    let point_nu = 0.3;
+    assert_ne!(base_nu, point_nu);
+    // Case 0 selects an invented exact point (E 1.5e11 Pa, nu 0.3); a second
+    // case, copied from it, selects the base pair explicitly.
+    let mut second = request["model"]["load_cases"][0].clone();
+    request["model"]["materials"][0]["temperature_points"] = json!([{
+        "id": "point:u8-test", "temperature": {"value": 20, "unit": "degC"},
+        "elastic_modulus": {"value": 1.5e11, "unit": "Pa"}, "poisson_ratio": {"value": point_nu, "unit": "1"},
+        "provenance": INVENTED}]);
+    request["model"]["load_cases"][0]["analysis_state"]["element_states"][0]["material_selection"] =
+        json!({"kind": "exact_point", "material_ref": "material", "point_ref": "point:u8-test"});
+    second["id"] = json!("case:second");
+    second["primitive_loads"][0]["id"] = json!("torque:second");
+    second["analysis_state"]["load_sources"][0]["source_ref"] = json!("torque:second");
+    request["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    let request = with_shear_model(request, TIMOSHENKO);
+    for mode in MODES {
+        let envelope = run(&request, mode);
+        assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}: {}", envelope["diagnostics"]);
+        let cases = envelope["contract_evidence"]["exact_cases"].as_array().unwrap();
+        let section = |id: &str| {
+            let case = cases.iter().find(|c| c["load_case_id"] == json!(id)).unwrap_or_else(|| panic!("{mode:?}: {id}"));
+            case["pipe_sections"][0].clone()
+        };
+        let (kappa_point, area_point) = assert_timoshenko_evidence(&section("case:join"), point_nu, "case:join");
+        let (kappa_base, area_base) = assert_timoshenko_evidence(&section("case:second"), base_nu, "case:second");
+        assert_ne!(kappa_point.to_bits(), kappa_base.to_bits(), "{mode:?}: each case its own nu");
+        assert_ne!(area_point.to_bits(), area_base.to_bits(), "{mode:?}");
+    }
+}
+
+/// The T4-I7 sketch re-authored to the current form (B7b), as a request.
+fn sketch(id: &str) -> Value {
+    let documents: Value = serde_json::from_str(I7_DOCUMENTS).unwrap();
+    crate::b7b_admission_tests::reauthor_current_request(documents["sketches"][id]["0.3.0"]["document"].clone())
+}
+/// Every object of `value` holding `key`.
+fn records_with<'a>(value: &'a Value, key: &str, out: &mut Vec<&'a Value>) {
+    match value {
+        Value::Object(map) => {
+            if map.contains_key(key) {
+                out.push(value);
+            }
+            map.values().for_each(|v| records_with(v, key, out));
+        }
+        Value::Array(items) => items.iter().for_each(|v| records_with(v, key, out)),
+        _ => {}
+    }
+}
+
+/// Design §3.6, §8 ("Shear deformation applied to a realized arc, or arc
+/// evidence claiming Timoshenko"): on a mixed L-line under
+/// timoshenko_annulus_energy_v1 every realized arc's element stiffness is the
+/// Euler-Bernoulli document's, bit for bit, and its evidence names
+/// euler_bernoulli; the straight members carry the Timoshenko leaf.
+#[test]
+fn timoshenko_realized_arcs_stay_euler_bernoulli() {
+    let euler_bernoulli = sketch("U2-L-ANCH-PTW-K2");
+    assert_eq!(euler_bernoulli["model"]["pressure_contract"]["shear_model"], json!("euler_bernoulli"));
+    let timoshenko = with_shear_model(euler_bernoulli.clone(), TIMOSHENKO);
+    let (_, t) = built(&timoshenko);
+    let (_, eb) = built(&euler_bernoulli);
+    assert!(!t.curved_bend_elements.is_empty() && !t.frame_elements.is_empty(), "precondition: a mixed L-line");
+    assert_eq!(t.curved_bend_elements.len(), eb.curved_bend_elements.len());
+    for (x, y) in t.curved_bend_elements.iter().zip(&eb.curved_bend_elements) {
+        assert_eq!(x.pipe_id, y.pipe_id);
+        let (kx, ky) = (x.macro_element.global_stiffness().unwrap(), y.macro_element.global_stiffness().unwrap());
+        for (rx, ry) in kx.iter().zip(&ky) {
+            assert_eq!(rx.map(f64::to_bits), ry.map(f64::to_bits), "{}: arc stiffness row", x.pipe_id);
+        }
+        assert_eq!(x.global_stiffness.map(|r| r.map(f64::to_bits)), y.global_stiffness.map(|r| r.map(f64::to_bits)));
+        assert!(t.exact_sections[&x.pipe_id].timoshenko().is_none(), "{}: an arc has no shear leaf", x.pipe_id);
+    }
+    assert!(t.frame_elements.iter().all(|f| f.section.beam_theory.is_timoshenko()));
+    assert!(eb.frame_elements.iter().all(|f| !f.section.beam_theory.is_timoshenko()));
+    let arc_ids: Vec<&str> = t.curved_bend_elements.iter().map(|b| b.pipe_id.as_str()).collect();
+    for mode in MODES {
+        let envelope = run(&timoshenko, mode);
+        assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}: {}", envelope["diagnostics"]);
+        let mut sections = Vec::new();
+        records_with(&envelope["contract_evidence"], "beam_theory", &mut sections);
+        let mut arcs = 0;
+        for section in &sections {
+            let arc = section.get("member_kind") == Some(&json!("realized_arc"))
+                || arc_ids.contains(&section["pipe_id"].as_str().unwrap_or(""));
+            if arc {
+                arcs += 1;
+                assert_eq!(section["beam_theory"], json!({"model": "euler_bernoulli"}), "{mode:?}: {}", section["pipe_id"]);
+            } else {
+                assert_eq!(section["beam_theory"]["model"], json!(TIMOSHENKO), "{mode:?}: {}", section["pipe_id"]);
+            }
+        }
+        assert!(arcs > 0, "{mode:?}: arc evidence is published");
+    }
+}
+
+/// Design §4 item 2, §8 ("Timoshenko leaf missing from a recovery or
+/// primitive frame"), at the product level: a member with no load primitive
+/// has nothing to bind its recovery frame to but its formation-source frame.
+/// The product's certified member recovery binds it there by member identity:
+/// the unmutated frame certifies; the same member's frame with its Timoshenko
+/// leaf dropped (a stale Euler-Bernoulli recovery frame) fails closed, as does
+/// a source that names no member identities.
+#[test]
+fn kd5_straight_frames_are_bound_to_the_formation_source() {
+    let request = with_shear_model(serde_json::from_str(N05).unwrap(), TIMOSHENKO);
+    let (_, built) = built(&request);
+    let n = built.nodes.len() * DOF_PER_NODE;
+    let force = LoadLedger::new().finish(n).unwrap();
+    assert!(force.load_primitives().is_empty(), "precondition: no load primitive on any member");
+    let source = certified_publication::source(&built, &force, &[]);
+    assert_eq!(source.frame_members.len(), source.frames.len());
+    let bound = MemberBoundInputs { w: vec![0.0; n], w2: vec![0.0; n], exponents: vec![i32::MIN; n], lambda_sigma: 0.0 };
+    let u = vec![0.0; n];
+    let section = built.sections[&built.pipes[0].element_id].clone();
+    for pipe in &built.pipes {
+        assert!(pipe.section.beam_theory.is_timoshenko(), "precondition: {} is Timoshenko", pipe.element_id);
+        assert!(certified_publication::member(pipe, None, &force, &source, &u, &bound).is_ok(), "{}", pipe.element_id);
+        assert!(certified_publication::straight_stress_spans(pipe, &force, &source, &u, &bound, &section, None).is_ok());
+        let mut stale = pipe.clone();
+        stale.section.beam_theory = BeamTheory::EulerBernoulli;
+        assert!(certified_publication::member(&stale, None, &force, &source, &u, &bound).is_err(), "{}: a dropped leaf", pipe.element_id);
+        assert!(certified_publication::straight_stress_spans(&stale, &force, &source, &u, &bound, &section, None).is_err());
+        let mut anonymous = source.clone();
+        anonymous.frame_members.clear();
+        assert!(certified_publication::member(pipe, None, &force, &anonymous, &u, &bound).is_err(), "{}: no member identity", pipe.element_id);
+    }
+}
+
+/// Design §5 (O4): with timoshenko_annulus_energy_v1 admitted, the
+/// prepare_sources decline is reached by a published document: a Timoshenko
+/// twin of a retained-source document publishes ordinary pressure-1 rows and
+/// names the decline; its Euler-Bernoulli original publishes
+/// pressure-source-1. (W1-E's G-A decline: `o4_w1e_declines_at_admission`.)
+#[test]
+fn o4_timoshenko_declines_are_reached_by_published_documents() {
+    const DECLINE: &str = "timoshenko_annulus_energy_v1 straight members are not a retained-source formulation";
+    let original: Value = serde_json::from_str(N05).unwrap();
+    let timoshenko = with_shear_model(original.clone(), TIMOSHENKO);
+    for mode in MODES {
+        let control = run(&original, mode);
+        assert_eq!(control["producer"]["semantic_contract_id"], json!(exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID), "{mode:?}");
+        let envelope = run(&timoshenko, mode);
+        assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}: {}", envelope["diagnostics"]);
+        assert_eq!(envelope["producer"]["semantic_contract_id"], json!(exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID), "{mode:?}");
+        assert!(envelope.get("source_block_recovery").is_none(), "{mode:?}");
+        let declined = envelope["diagnostics"].as_array().unwrap().iter().any(|d| {
+            d["code"] == json!("SOURCE_BLOCK_RECOVERY_UNAVAILABLE") && d["message"].as_str().is_some_and(|m| m.contains(DECLINE))
+        });
+        assert!(declined, "{mode:?}: the decline is named: {}", envelope["diagnostics"]);
+    }
+}

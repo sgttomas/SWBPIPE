@@ -242,7 +242,7 @@ fn confirm(input: &NonlinearFrameSolveInput, force: &AssembledForce, mode: Linea
     if let Some(mutate) = applied {
         mutate(&mut forces);
     }
-    confirm_with_applied(input, &[], &solve, force, &[], mode, &forces).unwrap()
+    confirm_with_applied(input, &[], &solve, force, &[], &[], mode, &forces).unwrap()
 }
 
 fn reason(c: Confirmation) -> String {
@@ -327,7 +327,7 @@ fn named_preconditions_fail_closed_before_the_attempt() {
     let (input, force) = cantilever(vec![s], vec![st], Vec::new(), vec![d], &[], &[(8, -100.0), (6, 80.0)]);
     let solve = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, LinearSolveMode::DenseScrutiny, &[]).unwrap();
     assert!(solve.converged, "{:?}", solve.diagnostics);
-    let c = confirm_converged_state(&input, &[], &solve, &force, &[], LinearSolveMode::DenseScrutiny).unwrap();
+    let c = confirm_converged_state(&input, &[], &solve, &force, &[], &[], LinearSolveMode::DenseScrutiny).unwrap();
     let r = reason(c);
     assert_eq!(r, "support NL-F: friction normal source is not a base restraint");
     // A rotational friction support (refused at PP validation; NI is defensive).
@@ -360,7 +360,7 @@ fn named_preconditions_fail_closed_before_the_attempt() {
         &[(8, -1.0)],
     );
     let solve = solve_active_set_frame_with_mode_and_springs_assembled(&input, &force, LinearSolveMode::DenseScrutiny, &[]).unwrap();
-    let r = reason(confirm_converged_state(&input, &[], &solve, &force, &[], LinearSolveMode::DenseScrutiny).unwrap());
+    let r = reason(confirm_converged_state(&input, &[], &solve, &force, &[], &[], LinearSolveMode::DenseScrutiny).unwrap());
     assert_eq!(r, "confirmation attempt: gap supports keep their recovery-basis branch");
 }
 

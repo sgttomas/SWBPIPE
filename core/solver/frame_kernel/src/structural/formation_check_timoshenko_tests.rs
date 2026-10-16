@@ -86,6 +86,19 @@ fn formed(formula: &LoadFormula) -> [f64; 12] {
     v.map(|w| round(&w))
 }
 
+/// The cantilever member's identity (`FormationSource::frame_members`): its
+/// primitives' sources begin with it (`member:1:T:w`).
+const MEMBER_T: &str = "member:1:T:";
+/// The one-member formation source of `frame` under `MEMBER_T`.
+fn member_t_source(frame: &FrameElement) -> FormationSource {
+    FormationSource {
+        node_count: 2,
+        frames: vec![*frame],
+        frame_members: vec![MEMBER_T.into()],
+        ..FormationSource::default()
+    }
+}
+
 /// The K-D5 checked cantilever: `stiffness_frame` in K and the source,
 /// `force` closed by its own primitives.
 fn checked_cantilever(
@@ -108,6 +121,7 @@ fn checked_cantilever(
         node_count: 2,
         loads: force.load_primitives().to_vec(),
         frames: vec![*stiffness_frame],
+        frame_members: vec![MEMBER_T.into()],
         ..FormationSource::default()
     };
     let prescribed: Vec<_> = (0..6).map(|i| (i, 0.0)).collect();
@@ -226,8 +240,10 @@ fn kd5_timoshenko_full_span_closes_and_passes() {
     // 400) N/m over L = 2 m, so the root carries Fy = 3000 N, Fz = -800 N,
     // Mz = 3000 N·m and My = 800 N·m, and the free tip carries nothing.
     let bound = solution.member_bound.as_ref().unwrap();
-    let loads =
-        CertifiedMemberLoads::from_member_primitives(0, 1, force.load_primitives(), "member:1:T:").unwrap();
+    let source = member_t_source(&t);
+    let loads = CertifiedMemberLoads::from_member_primitives(0, 1, force.load_primitives(), MEMBER_T)
+        .unwrap()
+        .with_member_source(&source, MEMBER_T);
     let rows = certify_straight_recovery(&t, &loads, &solution.displacements, bound).unwrap();
     for (row, expected) in [
         (crate::UY, 3000.0),
@@ -322,45 +338,60 @@ fn kd5_straight_frames_are_bound_to_the_formation_source() {
         frame,
         strain: strain.clone(),
     };
-    let source = |loads: Vec<LoadPrimitive>, frames: Vec<FrameElement>| FormationSource {
+    // Each frame's member identity, parallel to the frames.
+    let source = |loads: Vec<LoadPrimitive>, frames: Vec<FrameElement>, members: &[&str]| FormationSource {
         node_count: 2,
         loads,
         frames,
+        frame_members: members.iter().map(|m| m.to_string()).collect(),
         ..FormationSource::default()
     };
+    const M: &str = "member:1:m:";
+    const OWN: &str = "member:1:m:load";
     for family in [&pressure as &dyn Fn(FrameElement) -> LoadFormula, &free_strain, &|f| uniform(f, 0.0, 1.0)] {
-        assert!(unbound_straight_primitive(&source(vec![primitive(family(t), 0, "m")], vec![t])).is_none());
+        assert!(unbound_straight_primitive(&source(vec![primitive(family(t), 0, OWN)], vec![t], &[M])).is_none());
         for mutant in [eb, other] {
-            assert!(unbound_straight_primitive(&source(vec![primitive(family(mutant), 0, "m")], vec![t])).is_some());
+            assert!(unbound_straight_primitive(&source(vec![primitive(family(mutant), 0, OWN)], vec![t], &[M])).is_some());
         }
         // No frame on the pair (a connector-replaced span): nothing to mix.
-        assert!(unbound_straight_primitive(&source(vec![primitive(family(eb), 0, "m")], vec![])).is_none());
+        assert!(unbound_straight_primitive(&source(vec![primitive(family(eb), 0, OWN)], vec![], &[])).is_none());
+        // Keyed by member identity: without identities, with an empty one, or
+        // beside another member's frame, a straight primitive fails closed.
+        assert!(unbound_straight_primitive(&source(vec![primitive(family(t), 0, OWN)], vec![t], &[])).is_some());
+        assert!(unbound_straight_primitive(&source(vec![primitive(family(t), 0, OWN)], vec![t], &[""])).is_some());
+        assert!(unbound_straight_primitive(&source(vec![primitive(family(t), 0, OWN)], vec![t], &["member:1:n:"])).is_some());
     }
     // Reversed nodes are another frame.
     let reversed = frame(1, 0, [2.0, 0.0, 0.0], [0.0; 3], s_b_section(1.0), [0.0, 1.0, 0.0]);
-    assert!(unbound_straight_primitive(&source(vec![primitive(uniform(reversed, 0.0, 1.0), 0, "m")], vec![t])).is_some());
+    assert!(unbound_straight_primitive(&source(vec![primitive(uniform(reversed, 0.0, 1.0), 0, OWN)], vec![t], &[M])).is_some());
     // W2: the source holds E and G times 2^b; the primitive its leaves and b.
     for b in [-40, 40] {
         let scale = crate::ForceScale::new(b).unwrap();
-        let mut bound = primitive(uniform(t, 0.0, 1.0), 0, "m");
+        let mut bound = primitive(uniform(t, 0.0, 1.0), 0, OWN);
         bound.force_scale_exponent = b;
-        assert!(unbound_straight_primitive(&source(vec![bound.clone()], vec![t.force_scaled(scale).unwrap()])).is_none());
-        assert!(unbound_straight_primitive(&source(vec![bound.clone()], vec![t])).is_some());
+        assert!(unbound_straight_primitive(&source(vec![bound.clone()], vec![t.force_scaled(scale).unwrap()], &[M])).is_none());
+        assert!(unbound_straight_primitive(&source(vec![bound.clone()], vec![t], &[M])).is_some());
         let mut wrong = bound;
         wrong.formula = uniform(eb, 0.0, 1.0);
-        assert!(unbound_straight_primitive(&source(vec![wrong], vec![t.force_scaled(scale).unwrap()])).is_some());
+        assert!(unbound_straight_primitive(&source(vec![wrong], vec![t.force_scaled(scale).unwrap()], &[M])).is_some());
     }
     // Parallel members on one node pair are admitted: each primitive binds
-    // to its own member's frame; a third leaf binds to neither.
+    // to its own member's frame, not to the other member's; a third leaf
+    // binds to neither.
     let parallel = vec![t, other];
-    for f in [t, other] {
-        assert!(unbound_straight_primitive(&source(vec![primitive(uniform(f, 0.0, 1.0), 0, "m")], parallel.clone())).is_none());
+    let members = ["member:1:A:", "member:1:B:"];
+    for (f, own) in [(t, "member:1:A:w"), (other, "member:1:B:w")] {
+        assert!(unbound_straight_primitive(&source(vec![primitive(uniform(f, 0.0, 1.0), 0, own)], parallel.clone(), &members)).is_none());
+    }
+    for (f, swapped) in [(other, "member:1:A:w"), (t, "member:1:B:w")] {
+        assert!(unbound_straight_primitive(&source(vec![primitive(uniform(f, 0.0, 1.0), 0, swapped)], parallel.clone(), &members)).is_some());
     }
     let third = cantilever(s_b_section(0.25));
-    assert!(unbound_straight_primitive(&source(vec![primitive(uniform(third, 0.0, 1.0), 0, "m")], parallel.clone())).is_some());
+    assert!(unbound_straight_primitive(&source(vec![primitive(uniform(third, 0.0, 1.0), 0, "member:1:A:w")], parallel.clone(), &members)).is_some());
 
-    // Certified recovery, keyed by the member's source prefix: the recovery
-    // frame equals its own member's primitive frames, leaf included.
+    // Certified recovery, keyed by member identity: the recovery frame equals
+    // its own member's formation-source frame and its member's primitive
+    // frames, leaf included; member C has no load primitive.
     let mut primitives = Vec::new();
     for (prefix, f) in [("member:1:A:w", t), ("member:1:B:w", other)] {
         for row in 0..12 {
@@ -376,22 +407,32 @@ fn kd5_straight_frames_are_bound_to_the_formation_source() {
         lambda_sigma: 0.0,
     };
     let u = [0.0; 12];
-    let loads_a = CertifiedMemberLoads::from_member_primitives(0, 1, &primitives, "member:1:A:").unwrap();
-    let loads_b = CertifiedMemberLoads::from_member_primitives(0, 1, &primitives, "member:1:B:").unwrap();
+    let k_source = source(primitives.clone(), vec![t, other, t], &["member:1:A:", "member:1:B:", "member:1:C:"]);
+    let loads = |member: &'static str| {
+        CertifiedMemberLoads::from_member_primitives(0, 1, &primitives, member).unwrap().with_member_source(&k_source, member)
+    };
+    let (loads_a, loads_b, loads_c) = (loads("member:1:A:"), loads("member:1:B:"), loads("member:1:C:"));
     assert!(certify_straight_recovery(&t, &loads_a, &u, &bound).is_ok());
     assert!(certify_straight_recovery(&other, &loads_b, &u, &bound).is_ok());
-    for (wrong, loads) in [(&eb, &loads_a), (&other, &loads_a), (&t, &loads_b)] {
+    assert!(certify_straight_recovery(&t, &loads_c, &u, &bound).is_ok());
+    let unbound = CertifiedMemberLoads::from_member_primitives(0, 1, &primitives, "member:1:A:").unwrap();
+    let absent = CertifiedMemberLoads::from_member_primitives(0, 1, &primitives, "member:1:D:")
+        .unwrap()
+        .with_member_source(&k_source, "member:1:D:");
+    for (wrong, loads) in [(&eb, &loads_a), (&other, &loads_a), (&t, &loads_b), (&eb, &loads_c), (&other, &loads_c), (&t, &unbound), (&t, &absent)] {
         assert!(certify_straight_recovery(wrong, loads, &u, &bound).is_err());
         assert!(certify_straight_section(wrong, loads, &u, &bound, 0.5).is_err());
         assert!(certify_straight_stress_spans(wrong, loads, &u, &bound, 1.0, 1.0, None).is_err());
     }
     // A support reaction's straight primitives are bound to the source too.
     let force = ledger(&recipe, formed(&recipe), "member:1:T:w");
-    let good = source(force.load_primitives().to_vec(), vec![t]);
+    let good = source(force.load_primitives().to_vec(), vec![t], &[MEMBER_T]);
     assert!(certify_support_reaction(&good, &force, 1, &u, &bound).is_ok());
     let drifted = ledger(&uniform(eb, 0.0, 1.0), formed(&recipe), "member:1:T:w");
-    let bad = source(drifted.load_primitives().to_vec(), vec![t]);
+    let bad = source(drifted.load_primitives().to_vec(), vec![t], &[MEMBER_T]);
     assert!(certify_support_reaction(&bad, &drifted, 1, &u, &bound).is_err());
+    let anonymous = source(force.load_primitives().to_vec(), vec![t], &[]);
+    assert!(certify_support_reaction(&anonymous, &force, 1, &u, &bound).is_err());
 }
 
 use super::super::certified_recovery::{

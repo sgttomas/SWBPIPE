@@ -1224,8 +1224,16 @@ fn validate_generation_record(record: &Value) -> Result<()> {
         }
     }
     if record["method"] == GENERATED_V2 {
-        if record["mass_method"] != "source_od_effective_wall_areas/v1" {
-            return Err(err("Unsupported generated self-weight mass method"));
+        // The preview mass method, or D-5's on an exact-contract section
+        // (DEL-05-03 Design §1), which also consumes the corrosion allowance.
+        let exact = match record["mass_method"].as_str() {
+            Some("source_od_effective_wall_areas/v1") => false,
+            Some("source_od_nominal_wall_pressure_bore_areas/v1") => true,
+            _ => return Err(err("Unsupported generated self-weight mass method")),
+        };
+        if exact {
+            let value = mass.get("corrosion_allowance").ok_or_else(|| err("Missing mass input corrosion_allowance"))?;
+            nonnegative(value, Dimension::Length)?;
         }
         if let Some(legacy) = record.get("legacy_generation_provenance") {
             text(Some(legacy), "legacy_generation_provenance")?;
@@ -1239,6 +1247,9 @@ fn validate_generation_record(record: &Value) -> Result<()> {
         let deps = record.get("normalized_dependencies").and_then(Value::as_object).ok_or_else(|| err("Missing normalized dependencies"))?;
         for key in ["section_ref", "outside_diameter", "wall_thickness", "material_density", "mill_tolerance", "contents_density", "insulation_thickness", "insulation_density"] {
             if !deps.contains_key(key) { return Err(err(format!("Missing normalized dependency {key}"))); }
+        }
+        if exact && !deps.contains_key("corrosion_allowance") {
+            return Err(err("Missing normalized dependency corrosion_allowance"));
         }
     }
     Ok(())

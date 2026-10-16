@@ -141,6 +141,11 @@ pub struct MassPrimitive {
     pub contents_density: f64,
     pub insulation_thickness: f64,
     pub insulation_density: f64,
+    /// T4-U6 (DEL-05-03 Design §1, D-5 mass): `Some(c_a)` selects the
+    /// exact-contract basis, pipe metal on the nominal wall t and contents on
+    /// the pressure bore D/2 - ((t - c_m) - c_a); `None` keeps the preview
+    /// basis, both on the single wall t - c_m.
+    pub corrosion_allowance: Option<f64>,
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum IntensityPrimitive {
@@ -312,6 +317,14 @@ pub struct FormationSource {
     pub node_count: usize,
     pub loads: Vec<LoadPrimitive>,
     pub frames: Vec<FrameElement>,
+    /// T4-U8 (Design §4 item 2): each frame's member identity, parallel to
+    /// `frames`: the source prefix its member's load primitives carry (the
+    /// product's `member:{len}:{id}:`). A straight load primitive and a
+    /// certified straight recovery are bound, bit for bit and beam-theory leaf
+    /// included, to the frame of their own member. Without these identities
+    /// (empty, or not one non-empty identity per frame) a source that holds a
+    /// straight load primitive fails closed.
+    pub frame_members: Vec<String>,
     /// T4-U3 (S10): objective connectors, re-formed by `connector_matrix`
     /// (at 2^b, K-D5's scaled source holds `ObjectiveConnector::force_scaled`).
     pub connectors: Vec<ObjectiveConnector>,
@@ -1148,6 +1161,12 @@ fn bits(out: &mut Vec<u64>, values: impl IntoIterator<Item = f64>) {
 /// binding is a small family tag or the bits of a finite operand, so the
 /// encoding is prefix-free over re-formable primitives.
 const TIMOSHENKO_BINDING_TAG: u64 = u64::MAX;
+/// T4-U6 (Design §1, D-5 mass): the mass binding's allowance leaf, on the
+/// same pattern. A preview mass (`corrosion_allowance: None`) adds nothing,
+/// so its binding is unchanged; an exact-contract mass adds this tag (a NaN
+/// bit pattern, never the bits of the finite operand that follows a mass
+/// binding) and the bits of c_a.
+const MASS_ALLOWANCE_BINDING_TAG: u64 = u64::MAX - 1;
 fn frame_binding(out: &mut Vec<u64>, f: &FrameElement) {
     out.extend([f.node_i.index as u64, f.node_j.index as u64]);
     bits(out, f.node_i.coordinates);
@@ -1203,18 +1222,21 @@ pub(super) fn straight_primitive_frame(formula: &LoadFormula) -> Option<&FrameEl
     }
 }
 /// T4-U8 (Design §4 item 2): every straight load primitive's frame is
-/// bit-equal, its beam-theory leaf included, to a FormationSource frame on
-/// its node pair, compared at the primitive's force exponent (a W2 source
+/// bit-equal, its beam-theory leaf included, to the FormationSource frame of
+/// its own member, compared at the primitive's force exponent (a W2 source
 /// holds each frame with E and G times 2^b; a primitive keeps its authored
 /// leaves and its exponent). Otherwise the case fails closed: a primitive
 /// frame without the stiffness frame's leaf would certify a mixed system (a
 /// stale Euler–Bernoulli load vector with Timoshenko K).
 ///
-/// `FormationSource` carries no member identity on its frames, so parallel
-/// members on one node pair are told apart only by their bits: a primitive
-/// must equal one of the pair's frames. A pair with no frame (a span whose
-/// stiffness is a connector or a spring stand-in) has no stiffness frame to
-/// mix with and is not checked here; the closure manifest binds it.
+/// The member is keyed by identity (`FormationSource::frame_members`: the
+/// primitive's source begins with its member's identity), so parallel members
+/// on one node pair are each bound to their own frame. A source without one
+/// non-empty member identity per frame cannot key a straight primitive and
+/// fails closed. A primitive whose member has no frame is bound only where its
+/// node pair has no frame either (a span whose stiffness is a connector or a
+/// spring stand-in has no stiffness frame to mix with; the closure manifest
+/// binds it); beside another member's frame it fails closed.
 fn straight_frames_bound(source: &FormationSource) -> Result<(), Failure> {
     match unbound_straight_primitive(source) {
         None => Ok(()),
@@ -1234,7 +1256,7 @@ pub(super) fn unbound_straight_primitive(source: &FormationSource) -> Option<&Lo
         .find(|p| !primitive_frame_bound(source, p, &mut cursor))
 }
 /// Where `primitive_frame_bound` searches first, on the stack: the last few
-/// matched frames (a node's grouped pressure operands alternate between the
+/// matched members (a node's grouped pressure operands alternate between the
 /// members meeting it), then the frames from the last match on, wrapping, so
 /// a producer that lists its members in frame order is checked in about one
 /// pass over both lists. It never changes a result, only the search order.
@@ -1244,9 +1266,25 @@ pub(super) struct FrameCursor {
     slot: usize,
     start: usize,
 }
-/// `p` is not a straight primitive, or its pair has no source frame, or one
-/// of the pair's source frames is bit-equal to its frame at its force
-/// exponent (`straight_frames_bound`).
+/// Whether every frame of `source` carries one non-empty member identity
+/// (`FormationSource::frame_members`).
+pub(super) fn frame_members_complete(source: &FormationSource) -> bool {
+    source.frame_members.len() == source.frames.len()
+        && source.frame_members.iter().all(|m| !m.is_empty())
+}
+/// The index of the frame whose member identity is exactly `member`, when the
+/// source's member identities are complete.
+pub(super) fn member_frame_index(source: &FormationSource, member: &str) -> Option<usize> {
+    if member.is_empty() || !frame_members_complete(source) {
+        return None;
+    }
+    source.frame_members.iter().position(|m| m == member)
+}
+/// `p` is not a straight primitive; or its member (the frame whose identity
+/// begins its source) has a source frame bit-equal to its frame at its force
+/// exponent; or its member has no frame and neither has its node pair
+/// (`straight_frames_bound`). A source without complete member identities
+/// binds no straight primitive.
 pub(super) fn primitive_frame_bound(
     source: &FormationSource,
     p: &LoadPrimitive,
@@ -1255,35 +1293,36 @@ pub(super) fn primitive_frame_bound(
     let Some(frame) = straight_primitive_frame(&p.formula) else {
         return true;
     };
+    if !frame_members_complete(source) {
+        return false;
+    }
     let pair = |f: &FrameElement| {
         let (a, b) = (f.node_i.index, f.node_j.index);
         (a.min(b), a.max(b))
     };
+    let own = |k: usize| p.identity.source.starts_with(source.frame_members[k].as_str());
     // E and G times 2^exponent, exactly (any exponent, as the ledger's).
-    let Ok(scaled) = frame.force_scaled(crate::ForceScale {
-        exponent: p.force_scale_exponent,
-    }) else {
-        // Unscalable leaves match no frame; bound only if the pair has none.
-        return !source.frames.iter().any(|f| pair(f) == pair(frame));
-    };
-    let bound = |k: usize| frames_bit_equal(&source.frames[k], &scaled);
-    if cursor.recent.iter().flatten().any(|&k| bound(k)) {
-        return true;
+    let scaled = frame
+        .force_scaled(crate::ForceScale {
+            exponent: p.force_scale_exponent,
+        })
+        .ok();
+    // Unscalable leaves match no frame.
+    let bound = |k: usize| scaled.as_ref().is_some_and(|s| frames_bit_equal(&source.frames[k], s));
+    if let Some(&k) = cursor.recent.iter().flatten().find(|&&k| own(k)) {
+        return bound(k);
     }
     let count = source.frames.len();
     let start = if cursor.start < count { cursor.start } else { 0 };
     let mut paired = false;
     for k in (start..count).chain(0..start) {
-        if pair(&source.frames[k]) != pair(frame) {
-            continue;
-        }
-        paired = true;
-        if bound(k) {
+        if own(k) {
             cursor.start = k;
             cursor.recent[cursor.slot] = Some(k);
             cursor.slot = (cursor.slot + 1) % cursor.recent.len();
-            return true;
+            return bound(k);
         }
+        paired |= pair(&source.frames[k]) == pair(frame);
     }
     !paired
 }
@@ -1319,6 +1358,9 @@ fn mass_binding(out: &mut Vec<u64>, m: &MassPrimitive) {
             m.insulation_density,
         ],
     );
+    if let Some(allowance) = m.corrosion_allowance {
+        out.extend([MASS_ALLOWANCE_BINDING_TAG, allowance.to_bits()]);
+    }
 }
 fn intensity_binding(out: &mut Vec<u64>, v: &IntensityPrimitive) {
     match v {
@@ -1668,14 +1710,31 @@ fn mass_reformation(b: &mut Balls, m: &MassPrimitive) -> Result<Ball, LoadFailur
     let tol = b.lift(m.mill_tolerance)?;
     let t = b.sub(wall, tol)?;
     let r = b.half(od)?;
-    let ri = b.sub(r, t)?;
+    // D-5 (Design §1): the exact basis puts the metal on the nominal wall and
+    // the contents on the pressure bore r - ((t - c_m) - c_a); the preview
+    // basis puts both on the single wall t - c_m, in today's operation order.
+    let (metal_wall, bore_wall) = match m.corrosion_allowance {
+        Some(allowance) => {
+            let ca = b.lift(allowance)?;
+            (wall, Some(b.sub(t, ca)?))
+        }
+        None => (t, None),
+    };
+    let ri = b.sub(r, metal_wall)?;
     let ro2 = b.mul(r, r)?;
     let ri2 = b.mul(ri, ri)?;
     let pipe_area = b.sub(ro2, ri2)?;
     let pipe_area = b.mul(pi, pipe_area)?;
     let rho = b.lift(m.pipe_density)?;
     let pipe_mass = b.mul(rho, pipe_area)?;
-    let inside_area = b.mul(pi, ri2)?;
+    let bore2 = match bore_wall {
+        Some(bore_wall) => {
+            let bore = b.sub(r, bore_wall)?;
+            b.mul(bore, bore)?
+        }
+        None => ri2,
+    };
+    let inside_area = b.mul(pi, bore2)?;
     let rho = b.lift(m.contents_density)?;
     let contents = b.mul(rho, inside_area)?;
     let ins = b.lift(m.insulation_thickness)?;

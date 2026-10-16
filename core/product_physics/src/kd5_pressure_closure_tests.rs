@@ -320,15 +320,21 @@ fn checked_solves(case: &Case, b: i32) -> Vec<(String, SolveQuality, String, boo
         .collect::<Vec<_>>();
     let macros = built.curved_bend_elements.iter().map(|e| e.macro_element).collect::<Vec<_>>();
     let mut out = Vec::new();
+    // T4-U8 (Design §4 item 2): the product's source names each frame's member.
+    let members = crate::frame_member_identities(built);
     for mode in MODES {
-        let assembly = AssemblyEvidence::new(built.nodes.len(), &built.frame_elements, &built.connectors, &curved, &[]).unwrap();
+        let assembly = AssemblyEvidence::new(built.nodes.len(), &built.frame_elements, &built.connectors, &curved, &[])
+            .unwrap()
+            .with_frame_members(&members);
         let ordinary = assembly.solve_assembled_with_formation_check(&dense, &case.force, &free, &prescribed, mode, &macros, true).unwrap();
         out.push((format!("ordinary {mode:?}"), ordinary.report.quality, format!("{:?}", ordinary.formation_check), ordinary.member_bound.is_some()));
         let scale = ForceScale::new(b).unwrap();
         let factor = 2f64.powi(b);
         let scaled = dense.iter().map(|row| row.iter().map(|v| v * factor).collect()).collect::<Vec<Vec<f64>>>();
-        let assembly = AssemblyEvidence::new_force_scaled(built.nodes.len(), &built.frame_elements, &built.connectors, &curved, &[], scale).unwrap();
-        let w2 = assembly.solve_force_scaled_with_formation_check(&scaled, &case.force, &free, &prescribed, mode, &macros, true).unwrap();
+        let assembly = AssemblyEvidence::new_force_scaled(built.nodes.len(), &built.frame_elements, &built.connectors, &curved, &[], scale)
+            .unwrap()
+            .with_frame_members(&members);
+        let w2 =assembly.solve_force_scaled_with_formation_check(&scaled, &case.force, &free, &prescribed, mode, &macros, true).unwrap();
         out.push((format!("W2 2^{b} {mode:?}"), w2.solution.report.quality, format!("{:?}", w2.solution.formation_check), w2.solution.member_bound.is_some()));
     }
     out

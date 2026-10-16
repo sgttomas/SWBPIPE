@@ -42,6 +42,18 @@ const ARC_WITHHELD_REASON: &str = "withheld on realized arcs: the straight Lame 
 /// T4-U2 (D-D): the named refusal of a direction change above alpha_tan at a
 /// realized bend's end; static text (T3 O-10).
 const MITRE_UNSUPPORTED: &str = "PRESSURE_REGION_MITRE_UNSUPPORTED";
+/// The exact contract's two shear models (DEL-05-03 Design §3, §5).
+pub(crate) const EULER_BERNOULLI: &str = "euler_bernoulli";
+pub(crate) const TIMOSHENKO_ANNULUS_ENERGY: &str = "timoshenko_annulus_energy_v1";
+
+/// T4-U8 (DEL-05-03 Design §3.6): whether an exact-contract document selects
+/// the Timoshenko straight member (per document; realized arcs stay
+/// Euler-Bernoulli).
+pub(crate) fn selects_timoshenko(model: &PreviewModel) -> bool {
+    is_exact(model)
+        && model.pressure_contract.as_ref().and_then(|contract| contract.shear_model.as_deref())
+            == Some(TIMOSHENKO_ANNULUS_ENERGY)
+}
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -242,10 +254,8 @@ pub(crate) fn validate_profile(model: &PreviewModel, diagnostics: &mut Vec<Diagn
                     match contract.shear_model.as_deref() {
                         None => problem(diagnostics, "EXACT_PRESSURE_SHEAR_MODEL_REQUIRED",
                             &["pressure_contract", "shear_model"], "an exact pressure contract requires an explicit shear_model"),
-                        Some("euler_bernoulli") => {}
-                        Some("timoshenko_annulus_energy_v1") => problem(diagnostics,
-                            "EXACT_PRESSURE_SHEAR_MODEL_UNSUPPORTED", &["pressure_contract", "shear_model"],
-                            "only euler_bernoulli is admitted until the Timoshenko formulation lands"),
+                        // T4-U8 (DEL-05-03 Design §5): both shear models are admitted.
+                        Some(EULER_BERNOULLI | TIMOSHENKO_ANNULUS_ENERGY) => {}
                         Some(_) => problem(diagnostics, "PRESSURE_CONTRACT_UNSUPPORTED",
                             &["pressure_contract", "shear_model"], "unknown shear_model; no fallback is used"),
                     }
@@ -1301,8 +1311,16 @@ fn closure_source(
     } else {
         PressureCoefficient::Constant(sign)
     };
+    // T4-U8 (DEL-05-03 Design §4 item 2): a straight operand's identity begins
+    // with its member's identity (`member:{len}:{pipe}:`), so K-D5 binds its
+    // frame to that member's formation-source frame; an arc operand keeps its
+    // region-first identity.
+    let identity = match geometry {
+        PressureGeometry::Straight { .. } => format!("{}{}:{}", super::member_prefix(&term.2), term.1, term.3),
+        _ => format!("{}:{}:{}", term.1, term.2, term.3),
+    };
     (
-        format!("{}:{}:{}", term.1, term.2, term.3),
+        identity,
         LoadFormula::PressureOperand {
             geometry,
             pressure: state.pressure.pressure_pa(),

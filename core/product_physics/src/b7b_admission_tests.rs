@@ -184,13 +184,15 @@ fn b7b_explicit_ca_refusals_preserve_unit_and_section_priority() {
 }
 
 #[test]
-fn b7b_shear_required_and_known_unsupported_have_named_public_refusals() {
+fn b7b_shear_required_and_unknown_have_named_public_refusals() {
     let mut raw = current_joint_request();
     raw["model"]["pressure_contract"].as_object_mut().unwrap().remove("shear_model");
     assert!(public_codes(raw).iter().any(|code| code == "EXACT_PRESSURE_SHEAR_MODEL_REQUIRED"));
+    // T4-U8 (DEL-05-03 Design §5): EXACT_PRESSURE_SHEAR_MODEL_UNSUPPORTED is
+    // removed; timoshenko_annulus_energy_v1 is admitted, no shear refusal.
     let mut raw = current_joint_request();
     raw["model"]["pressure_contract"]["shear_model"] = json!("timoshenko_annulus_energy_v1");
-    assert!(public_codes(raw).iter().any(|code| code == "EXACT_PRESSURE_SHEAR_MODEL_UNSUPPORTED"));
+    assert!(!public_codes(raw).iter().any(|code| code.starts_with("EXACT_PRESSURE_SHEAR_MODEL")));
     let mut raw = current_joint_request();
     raw["model"]["pressure_contract"]["shear_model"] = Value::Null;
     assert!(public_codes(raw).iter().any(|code| code == "EXACT_PRESSURE_SHEAR_MODEL_REQUIRED"));

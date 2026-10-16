@@ -269,6 +269,7 @@ impl Model {
         ForceScalingCase {
             node_count: self.node_count,
             frames: &self.frames,
+            frame_members: &[],
             connectors: &[],
             curved: &self.slots,
             curved_sources: &self.macros,

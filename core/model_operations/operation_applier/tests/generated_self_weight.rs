@@ -322,3 +322,57 @@ fn target_case_requires_complete_reconciliation_of_all_generated_records() {
     assert!(imported["applied_model"].is_object(),"{imported}");
     assert_eq!(model,original);
 }
+
+/// The generated self-weight of an exact-contract (3.0.0/exact_pressure_v3)
+/// document, whose section declares mill tolerance and corrosion allowance.
+fn exact_generated_model() -> Value {
+    let mut model = legacy_model(); model["load_cases"] = json!([]);
+    model["pressure_contract"] = json!({"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"euler_bernoulli"});
+    model["pipe_segments"][0]["section"]["mill_tolerance"] = json!({"value":0.5,"unit":"mm"});
+    model["pipe_segments"][0]["section"]["corrosion_allowance"] = json!({"value":1,"unit":"mm"});
+    let request: SelfWeightRequest = serde_json::from_value(json!({"case_id":"case:weight","label":"Invented exact self weight","pipe_refs":["pipe:beam"],"gravity":{"value":-7,"unit":"m/s^2","axis":"global_y"},"provenance":"explicit invented gravity","source_model_hash":claim(&model)["value"]})).unwrap();
+    let typed: PreviewModel = serde_json::from_value(model.clone()).unwrap();
+    let plan = generate_self_weight_operations(&typed,&request).unwrap();
+    let mut case: Value = serde_json::from_str(&plan.changes[0].after).unwrap();
+    case["primitive_loads"] = json!([serde_json::from_str::<Value>(&plan.changes[1].after).unwrap()]);
+    model["load_cases"] = json!([case]); model
+}
+
+/// D-5 (DEL-05-03 Design §1): the applier admits a refresh under the exact
+/// mass method `source_od_nominal_wall_pressure_bore_areas/v1` only when the
+/// record carries the corrosion allowance as a length among its mass inputs
+/// and among its normalized dependencies. Each refusal is the applier's own
+/// record check, named, on the submitted record and on the prior one.
+#[test]
+fn exact_mass_method_is_admitted_only_with_its_allowance() {
+    let mut m = exact_generated_model();
+    let record: Value = serde_json::from_str(m["load_cases"][0]["primitive_loads"][0]["provenance"].as_str().unwrap()).unwrap();
+    assert_eq!(record["mass_method"], json!("source_od_nominal_wall_pressure_bore_areas/v1"));
+    assert_eq!(record["mass_inputs"]["corrosion_allowance"], json!({"value":1.0,"unit":"mm"}));
+    m["pipe_segments"][0]["section"]["material_density"]["value"] = json!(2000);
+    let next = refresh(&m);
+    let out = apply_operation(&m,&edit(&m,&next,"refresh-exact"),Some(&claim(&m)));
+    assert!(out.applied_model.is_some(),"{:?}",out.diagnostics);
+    let refreshed: Value = serde_json::from_str(next[0]["provenance"].as_str().unwrap()).unwrap();
+    assert_eq!(refreshed["mass_method"], record["mass_method"]);
+    let tampers: [(&str, &str, fn(&mut Value)); 5] = [
+        ("no allowance input", "Missing mass input corrosion_allowance", |r| { r["mass_inputs"].as_object_mut().unwrap().remove("corrosion_allowance"); }),
+        ("negative allowance input", "Quantity must be nonnegative", |r| r["mass_inputs"]["corrosion_allowance"]["value"] = json!(-1.0)),
+        ("dimensionless allowance input", "is not in the catalog for length", |r| r["mass_inputs"]["corrosion_allowance"]["unit"] = json!("1")),
+        ("no allowance dependency", "Missing normalized dependency corrosion_allowance", |r| { r["normalized_dependencies"].as_object_mut().unwrap().remove("corrosion_allowance"); }),
+        ("unknown mass method", "Unsupported generated self-weight mass method", |r| r["mass_method"] = json!("source_od_unknown_areas/v1")),
+    ];
+    let refused = |model: &Value, primitives: &Value, label: &str, message: &str| {
+        let out = apply_operation(model,&edit(model,primitives,label),Some(&claim(model)));
+        assert!(out.applied_model.is_none(),"{label}");
+        assert!(out.diagnostics.iter().any(|d| d.message.contains(message)),"{label}: {:?}",out.diagnostics);
+    };
+    for (label, message, tamper) in tampers {
+        let mut submitted = refreshed.clone(); tamper(&mut submitted);
+        let mut bad = next.clone(); bad[0]["provenance"] = json!(submitted.to_string());
+        refused(&m,&bad,&format!("submitted {label}"),message);
+        let mut prior_model = m.clone(); let mut prior = record.clone(); tamper(&mut prior);
+        prior_model["load_cases"][0]["primitive_loads"][0]["provenance"] = json!(prior.to_string());
+        refused(&prior_model,&next,&format!("prior {label}"),message);
+    }
+}

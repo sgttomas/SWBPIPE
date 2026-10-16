@@ -353,7 +353,7 @@ fn main_dense_attempt(
     prescribed: &[(usize, f64)],
     mode: PreviewSolverMode,
 ) -> String {
-    let (curved, springs, free, curved_sources) = attempt_inputs(built, springs, force, prescribed);
+    let (curved, springs, free, curved_sources, frame_members) = attempt_inputs(built, springs, force, prescribed);
     let solved = AssemblyEvidence::new(
         built.nodes.len(),
         &built.frame_elements,
@@ -362,7 +362,7 @@ fn main_dense_attempt(
         &springs,
     )
     .and_then(|assembly| {
-        assembly.solve_assembled_with_formation_check(
+        assembly.with_frame_members(&frame_members).solve_assembled_with_formation_check(
             dense,
             force,
             &free,
@@ -384,7 +384,7 @@ fn pattern_attempt(
     prescribed: &[(usize, f64)],
     mode: PreviewSolverMode,
 ) -> String {
-    let (curved, springs, free, curved_sources) = attempt_inputs(built, springs, force, prescribed);
+    let (curved, springs, free, curved_sources, frame_members) = attempt_inputs(built, springs, force, prescribed);
     let solved = SparseAssemblyEvidence::new(
         stiffness.pattern(),
         built.nodes.len(),
@@ -394,7 +394,7 @@ fn pattern_attempt(
         &springs,
     )
     .and_then(|assembly| {
-        assembly.solve_assembled_with_formation_check(
+        assembly.with_frame_members(&frame_members).solve_assembled_with_formation_check(
             stiffness,
             force,
             &free,
@@ -412,6 +412,8 @@ type AttemptInputs = (
     Vec<(usize, f64)>,
     Vec<usize>,
     Vec<CurvedBendMacroElement>,
+    // T4-U8: each frame's member identity, as the product names it.
+    Vec<String>,
 );
 
 fn attempt_inputs(
@@ -440,7 +442,7 @@ fn attempt_inputs(
         .iter()
         .map(|e| e.macro_element)
         .collect();
-    (curved, springs, free, curved_sources)
+    (curved, springs, free, curved_sources, crate::frame_member_identities(built))
 }
 
 fn linear_mode(mode: PreviewSolverMode) -> LinearSolveMode {
@@ -1416,7 +1418,7 @@ fn pattern_attempt_result(
     prescribed: &[(usize, f64)],
     mode: PreviewSolverMode,
 ) -> Result<open_pipe_stress_frame_kernel::structural::StructuralSolution, StructuralError> {
-    let (curved, springs, free, curved_sources) = attempt_inputs(built, springs, force, prescribed);
+    let (curved, springs, free, curved_sources, frame_members) = attempt_inputs(built, springs, force, prescribed);
     SparseAssemblyEvidence::new(
         stiffness.pattern(),
         built.nodes.len(),
@@ -1426,7 +1428,7 @@ fn pattern_attempt_result(
         &springs,
     )
     .and_then(|assembly| {
-        assembly.solve_assembled_with_formation_check(
+        assembly.with_frame_members(&frame_members).solve_assembled_with_formation_check(
             stiffness,
             force,
             &free,
@@ -1845,6 +1847,7 @@ fn orchestrator_case<'a>(
     ForceScalingCase {
         node_count: basis.built.nodes.len(),
         frames: &basis.built.frame_elements,
+        frame_members: &inputs.4,
         connectors: &basis.built.connectors,
         curved: &inputs.0,
         curved_sources: &inputs.3,

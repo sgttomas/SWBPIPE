@@ -15,6 +15,8 @@ pub(super) fn source(
         node_count: built.nodes.len(),
         loads: force.load_primitives().to_vec(),
         frames: built.frame_elements.clone(),
+        // T4-U8 (DEL-05-03 Design §4 item 2): each frame's member identity.
+        frame_members: super::frame_member_identities(built),
         connectors: built.connectors.clone(),
         curved: built
             .curved_bend_elements
@@ -28,20 +30,25 @@ pub(super) fn source(
         unavailable: Vec::new(),
     }
 }
+/// `source` is the case's certified formation source (`source`): a straight
+/// member's recovery frame is bound to its own member's frame there (T4-U8,
+/// DEL-05-03 Design §4 item 2), whether or not the member has a load primitive.
 pub(super) fn member(
     pipe: &StraightPipeElement,
     bend: Option<&CurvedBendMacroBuild>,
     force: &AssembledForce,
+    source: &FormationSource,
     u: &[f64],
     bound: &MemberBoundInputs,
 ) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
-    let prefix = format!("member:{}:{}:", pipe.element_id.len(), pipe.element_id);
+    let prefix = super::member_prefix(&pipe.element_id);
     let loads = CertifiedMemberLoads::from_member_primitives(
         pipe.node_i.index,
         pipe.node_j.index,
         force.load_primitives(),
         &prefix,
-    )?;
+    )?
+    .with_member_source(source, &prefix);
     if let Some(bend) = bend {
         certify_arc_recovery(
             &curved_formation_of(bend),
@@ -553,6 +560,7 @@ fn public_mpa_magnitude_in_pa_upper(value: f64) -> Result<f64, String> {
 pub(super) fn straight_stress_spans(
     pipe: &StraightPipeElement,
     force: &AssembledForce,
+    source: &FormationSource,
     u: &[f64],
     bound: &MemberBoundInputs,
     section: &DerivedSection,
@@ -565,14 +573,15 @@ pub(super) fn straight_stress_spans(
     use open_pipe_stress_stress_recovery::elastic_extrema::{
         EnclosedQuadraticStressSpan, StressCoefficientBounds,
     };
-    let prefix = format!("member:{}:{}:", pipe.element_id.len(), pipe.element_id);
+    let prefix = super::member_prefix(&pipe.element_id);
     let loads = CertifiedMemberLoads::from_member_primitives(
         pipe.node_i.index,
         pipe.node_j.index,
         force.load_primitives(),
         &prefix,
     )
-    .map_err(|error| format!("maximum member loads: {error:?}"))?;
+    .map_err(|error| format!("maximum member loads: {error:?}"))?
+    .with_member_source(source, &prefix);
     let frame = pipe
         .frame_element()
         .map_err(|error| format!("maximum physical frame: {error:?}"))?;

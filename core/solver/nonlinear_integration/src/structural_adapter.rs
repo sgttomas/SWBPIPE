@@ -51,6 +51,9 @@ struct FormationPrimitives {
     connectors: Vec<ObjectiveConnector>,
     curved: Vec<CurvedSlot>,
     springs: Vec<(usize, f64)>,
+    /// T4-U8 (Design §4 item 2): each frame's member identity, parallel to
+    /// `frames` (`with_frame_members`); empty unless the producer names them.
+    frame_members: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -201,6 +204,16 @@ impl AssemblyEvidence {
     /// `LoadFidelityReport`, never a refusal. The solve itself is unchanged.
     pub fn with_force_terms(mut self, terms: &[ForceTerm]) -> Self {
         self.force_terms = Some(terms.to_vec());
+        self
+    }
+
+    /// T4-U8 (Design §4 item 2): names each frame's member identity, parallel
+    /// to the frames this evidence was built from (the source prefix its
+    /// member's load primitives carry). K-D5's formation source carries them,
+    /// so each straight load primitive is bound to its own member's frame; a
+    /// source with straight primitives and no identities fails closed.
+    pub fn with_frame_members(mut self, members: &[String]) -> Self {
+        self.formation.frame_members = members.to_vec();
         self
     }
 
@@ -742,6 +755,11 @@ impl SparseAssemblyEvidence {
     /// `AssemblyEvidence::with_force_terms` (S11-K's C3-detect terms).
     pub fn with_force_terms(mut self, terms: &[ForceTerm]) -> Self {
         self.force_terms = Some(terms.to_vec());
+        self
+    }
+    /// `AssemblyEvidence::with_frame_members` (T4-U8, Design §4 item 2).
+    pub fn with_frame_members(mut self, members: &[String]) -> Self {
+        self.formation.frame_members = members.to_vec();
         self
     }
     pub fn qualified_passive_family(&self) -> bool {
@@ -1307,6 +1325,7 @@ impl<S: EvidenceStore> EvidenceParts<S> {
                     })
                     .collect(),
                 springs: springs.to_vec(),
+                frame_members: Vec::new(),
             },
             store,
         };
@@ -1752,6 +1771,7 @@ fn formation_source(
         node_count: primitives.node_count,
         loads: Vec::new(),
         frames: primitives.frames.clone(),
+        frame_members: primitives.frame_members.clone(),
         connectors: primitives.connectors.clone(),
         curved: Vec::new(),
         springs: primitives.springs.clone(),
@@ -1891,6 +1911,7 @@ fn force_scaled_formation_source(
         node_count: primitives.node_count,
         loads: Vec::new(),
         frames: primitives.frames.clone(),
+        frame_members: primitives.frame_members.clone(),
         connectors: primitives.connectors.clone(),
         curved: Vec::new(),
         springs: primitives.springs.clone(),
@@ -1983,6 +2004,10 @@ pub enum EvidenceRepresentation {
 pub struct ForceScalingCase<'a> {
     pub node_count: usize,
     pub frames: &'a [FrameElement],
+    /// T4-U8 (Design §4 item 2): each frame's member identity, parallel to
+    /// `frames` (`AssemblyEvidence::with_frame_members`); empty when the
+    /// producer names none.
+    pub frame_members: &'a [String],
     /// T4-U3: objective connectors, unscaled (after the frames).
     pub connectors: &'a [ObjectiveConnector],
     /// Realized curved bends formed at b = 0, added to the stiffness as
@@ -2093,7 +2118,7 @@ fn evaluate_force_scaled(
         )
         .map_err(ForceScaledError::Structural)
         .and_then(|evidence| {
-            evidence.solve_force_scaled_with_formation_check(
+            evidence.with_frame_members(case.frame_members).solve_force_scaled_with_formation_check(
                 &stiffness.to_dense(),
                 case.force,
                 &free,
@@ -2115,7 +2140,7 @@ fn evaluate_force_scaled(
             )
             .map_err(ForceScaledError::Structural)
             .and_then(|evidence| {
-                evidence.solve_force_scaled_with_formation_check(
+                evidence.with_frame_members(case.frame_members).solve_force_scaled_with_formation_check(
                     &stiffness,
                     case.force,
                     &free,

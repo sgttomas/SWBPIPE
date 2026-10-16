@@ -119,6 +119,8 @@ fn solutions(case: &Case) -> Vec<open_pipe_stress_frame_kernel::structural::Stru
     };
     let dense = formed.to_dense();
     let mut out = Vec::new();
+    // T4-U8 (Design §4 item 2): the product's source names each frame's member.
+    let members = crate::frame_member_identities(built);
     for mode in [
         LinearSolveMode::DenseScrutiny,
         LinearSolveMode::SparseInteractive,
@@ -130,7 +132,8 @@ fn solutions(case: &Case) -> Vec<open_pipe_stress_frame_kernel::structural::Stru
             &[],
             &[],
         )
-        .unwrap();
+        .unwrap()
+        .with_frame_members(&members);
         out.push(
             assembly
                 .solve_assembled_with_formation_check(
@@ -157,7 +160,8 @@ fn solutions(case: &Case) -> Vec<open_pipe_stress_frame_kernel::structural::Stru
             &[],
             scale,
         )
-        .unwrap();
+        .unwrap()
+        .with_frame_members(&members);
         out.push(
             assembly
                 .solve_force_scaled_with_formation_check(

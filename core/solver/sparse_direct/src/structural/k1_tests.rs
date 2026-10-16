@@ -208,6 +208,7 @@ impl Model {
             // no closure primitive; the ledger's own (empty) list is supplied.
             loads: self.ledger().load_primitives().to_vec(),
             frames: self.frames.clone(),
+            frame_members: Vec::new(),
             connectors: self.connectors.clone(),
             curved: Vec::new(),
             springs: self.springs.clone(),

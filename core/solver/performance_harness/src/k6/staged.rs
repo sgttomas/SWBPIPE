@@ -294,6 +294,7 @@ pub fn frames_formation_source(
         node_count,
         loads: loads.to_vec(),
         frames: frames.to_vec(),
+        frame_members: Vec::new(),
         connectors: Vec::new(),
         curved: Vec::new(),
         springs: Vec::new(),

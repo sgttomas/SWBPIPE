@@ -39,6 +39,10 @@ mod source_budget_tests;
 #[cfg(test)]
 mod kd5_pressure_closure_tests;
 #[cfg(test)]
+mod timoshenko_product_tests;
+#[cfg(test)]
+mod d5_mass_product_tests;
+#[cfg(test)]
 mod kd5_nonlinear_tests;
 #[cfg(test)]
 mod u4a_tests;
@@ -1614,9 +1618,11 @@ fn force_scaling_attempt(
         PreviewSolverMode::DenseScrutiny => LinearSolveMode::DenseScrutiny,
         PreviewSolverMode::SparseInteractive => LinearSolveMode::SparseInteractive,
     };
+    let frame_members = frame_member_identities(built);
     let case = ForceScalingCase {
         node_count: built.nodes.len(),
         frames: &built.frame_elements,
+        frame_members: &frame_members,
         connectors: &built.connectors,
         curved: &curved,
         curved_sources: &curved_sources,
@@ -4161,6 +4167,38 @@ fn replaced_span_ids_of(built: &BuiltModel) -> HashSet<&str> {
     built.connector_records.iter().map(|r| r.span_id.as_str()).collect()
 }
 
+/// The source prefix of a member's load primitives (`certified_loads::member_source`).
+fn member_prefix(member: &str) -> String {
+    format!("member:{}:{member}:", member.len())
+}
+
+/// T4-U8 (DEL-05-03 Design §4 item 2): each of `built.frame_elements`' member
+/// identity, in order: the source prefix of its member's load primitives.
+/// `build_model_for_members` pushes one frame per pipe that is neither a
+/// realized arc nor a connector-replaced span, in pipe order; each identity
+/// is checked against its pipe's own frame. Derived on demand (nothing is
+/// kept resident). If the frames do not follow the pipes so, the list is
+/// empty, and K-D5 then fails closed on any straight load primitive.
+fn frame_member_identities(built: &BuiltModel) -> Vec<String> {
+    let arcs: HashSet<usize> = built.curved_bend_elements.iter().map(|bend| bend.pipe_index).collect();
+    let replaced: HashSet<usize> = built.connector_records.iter().map(|record| record.span_index).collect();
+    let mut frames = built.frame_elements.iter();
+    let mut members = Vec::with_capacity(built.frame_elements.len());
+    for (index, pipe) in built.pipes.iter().enumerate() {
+        if arcs.contains(&index) || replaced.contains(&index) {
+            continue;
+        }
+        match (frames.next(), pipe.frame_element()) {
+            (Some(frame), Ok(own)) if *frame == own => members.push(member_prefix(&pipe.element_id)),
+            _ => return Vec::new(),
+        }
+    }
+    if frames.next().is_some() {
+        return Vec::new();
+    }
+    members
+}
+
 /// T4-U3 (S14): each connector's recovered rows for one case, from the solved
 /// displacements: q − q_ref, g and the global end actions (node on element),
 /// each component one exact sum rounded once. A declared coverage limit:
@@ -5510,7 +5548,8 @@ fn solve_prepared_load_case(
         let mut certified_wall = None;
         if let Some(bound) = member_bound {
             let pressure_state = exact_pressure.as_ref().and_then(|case| case.pipe_states.get(&pipe_index));
-            let certificate = certified_publication::member(pipe, macro_bend, &force, &displacements, bound).and_then(|mechanical| {
+            let source = certified_source.as_ref().expect("a certified source with the member bound");
+            let certificate = certified_publication::member(pipe, macro_bend, &force, source, &displacements, bound).and_then(|mechanical| {
                 match pressure_state {
                     // T4-U2 (H-2) on a realized arc: the published member rows
                     // are elastic (S = N_el); the wall rows are N_w = N_el + pAi
@@ -5708,7 +5747,7 @@ fn solve_prepared_load_case(
         // One same-source coefficient enclosure serves the two distinct
         // maximum laws; it never repairs a case demoted by a prior guard.
         let certified_spans=if macro_bend.is_none() {
-            certified_member.as_ref().and(member_bound).map(|bound| certified_publication::straight_stress_spans(pipe,&force,&displacements,bound,section,exact_pressure.as_ref().and_then(|case|case.pipe_states.get(&pipe_index))))
+            certified_member.as_ref().and(member_bound).map(|bound| certified_publication::straight_stress_spans(pipe,&force,certified_source.as_ref().expect("a certified source with the member bound"),&displacements,bound,section,exact_pressure.as_ref().and_then(|case|case.pipe_states.get(&pipe_index))))
         } else {None};
         if let Some(record) = preview_record.as_mut() {
             record.members.push(preview_physics::MemberRecord {
@@ -5983,7 +6022,7 @@ fn solve_prepared_load_case(
                             let spans = match basis {
                                 pressure_exact::SectionBasis::Nominal => spans,
                                 pressure_exact::SectionBasis::Reduced => {
-                                    reduced_spans = certified_publication::straight_stress_spans(pipe,&force,&displacements,member_bound.expect("certified spans have a bound"),basis_section,pressure_state);
+                                    reduced_spans = certified_publication::straight_stress_spans(pipe,&force,certified_source.as_ref().expect("certified spans have a source"),&displacements,member_bound.expect("certified spans have a bound"),basis_section,pressure_state);
                                     &reduced_spans
                                 }
                             };
@@ -6449,6 +6488,7 @@ fn append_nonlinear_support_loop_results(
                                     &solve,
                                     force,
                                     &curved_sources,
+                                    &frame_member_identities(built),
                                     solver_mode.nonlinear_mode(),
                                 )
                                 .unwrap_or_else(|error| Confirmation::NotEstablished {
@@ -6777,6 +6817,8 @@ fn solve_preview_reduced_system(
     // scrutiny SA materializes the dense view of the same values and runs
     // today's dense Cholesky path (K1: the `StructuralSolution` is
     // byte-identical in `Debug` to the dense evidence's).
+    // T4-U8 (DEL-05-03 Design §4 item 2): K-D5's source keys each straight
+    // load primitive to its own member's frame.
     let assembly = SparseAssemblyEvidence::new(
         stiffness.pattern(),
         built.nodes.len(),
@@ -6784,7 +6826,8 @@ fn solve_preview_reduced_system(
         &built.connectors,
         &curved,
         &springs,
-    )?;
+    )?
+    .with_frame_members(&frame_member_identities(built));
     let free = (0..global_force.len())
         .filter(|i| !restrained_dofs.contains(i))
         .collect::<Vec<_>>();
@@ -7615,7 +7658,41 @@ fn build_model_for_members(
                     .value,
             ),
         };
-        let section = match StraightPipeSectionProperties::new(
+        // T4-U8 (DEL-05-03 Design §3.1, §3.6): on a document selecting
+        // timoshenko_annulus_energy_v1 every straight member carries the shear
+        // area A_s = kappa_E * A_n, with kappa_E (FK `shear`) from the nominal
+        // annulus's binary64 leaves and the member's selected nu, the E/nu basis
+        // that gives its G (per resolved case on a load-state document). A
+        // realized arc stays Euler-Bernoulli. A missing basis or a factor out of
+        // range blocks by name; no default factor exists.
+        let shear_area = if pressure_runtime::selects_timoshenko(model) && !curved_bend_pipe_ids.contains(pipe.id.as_str()) {
+            let nu = match member_pairs {
+                Some(pairs) => pairs.get(&pipe.id).map(|pair| pair.poisson_ratio()),
+                None => material.poisson_ratio.as_ref().map(|nu| nu.value),
+            };
+            let factor = exact_sections.get(&pipe.id).copied().ok_or("the nominal annulus").and_then(|bases| {
+                let nu = nu.ok_or("the member's selected Poisson ratio")?;
+                let nominal = bases.nominal();
+                let kappa = open_pipe_stress_frame_kernel::shear::annulus_energy_shear_factor(nominal.inner_radius_m(), nominal.outer_radius_m(), nu)
+                    .map_err(|_| "the energy-matched annular shear factor")?;
+                let shear_area = open_pipe_stress_frame_kernel::shear::shear_area(kappa, derived.area).map_err(|_| "the shear area")?;
+                Ok((bases, kappa, shear_area))
+            });
+            match factor {
+                Ok((bases, kappa, shear_area)) => {
+                    exact_sections.insert(pipe.id.clone(), bases.with_timoshenko(kappa, shear_area));
+                    Some(shear_area)
+                }
+                Err(missing) => {
+                    diagnostics.push(diag(&format!("diagnostic:exact-section:{}:shear", stable_suffix(&pipe.id)), "EXACT_PRESSURE_SHEAR_FACTOR_UNAVAILABLE", "blocking",
+                        format!("a timoshenko_annulus_energy_v1 member requires {missing}; no default shear factor is used"), vec![pipe.id.clone()]));
+                    continue;
+                }
+            }
+        } else {
+            None
+        };
+        let section = match shear_area.map_or_else(|| StraightPipeSectionProperties::new(
             elastic_modulus,
             shear_modulus,
             derived.area,
@@ -7623,7 +7700,16 @@ fn build_model_for_members(
             derived.second_moment,
             derived.torsion_constant,
             None,
-        ) {
+        ), |shear_area| StraightPipeSectionProperties::timoshenko(
+            elastic_modulus,
+            shear_modulus,
+            derived.area,
+            derived.second_moment,
+            derived.second_moment,
+            derived.torsion_constant,
+            shear_area,
+            None,
+        )) {
             Ok(section) => section,
             Err(error) => {
                 diagnostics.push(diag(
@@ -10592,7 +10678,13 @@ fn exact_section_evidence(pipe_id: &str, g: pressure_exact::ExactSectionBases) -
         "wall_thickness_m":g.nominal_wall_m(),"mill_tolerance_m":g.mill_tolerance_m(),"corrosion_allowance_m":g.corrosion_allowance_m(),
         "nominal_section":section(g.nominal()),"reduced_section":section(g.reduced()),
         "pressure_bore":{"ri_m":g.pressure_bore_radius_m(),"Ai_m2":g.pressure_bore_area_m2()},
-        "beam_theory":{"model":"euler_bernoulli"}})
+        // T4-U8 (§2.3): a Timoshenko straight member's kappa_E and A_s; every
+        // other member, realized arcs included, is Euler-Bernoulli.
+        "beam_theory":match g.timoshenko() {
+            Some((shear_factor, shear_area)) => serde_json::json!({"model":pressure_runtime::TIMOSHENKO_ANNULUS_ENERGY,
+                "shear_factor":shear_factor,"shear_area_m2":shear_area}),
+            None => serde_json::json!({"model":pressure_runtime::EULER_BERNOULLI}),
+        }})
 }
 
 /// D-5 (§2.1, §2.5): a stress row named for its section basis: its id gains
@@ -14130,7 +14222,7 @@ mod tests {
             let boundary=prepare_boundary(2,&built.supports);
             assert!(formation_guard::load_row_finding(&force,&formation_bodies(&built),&boundary.restrained_dofs,|d|d.to_string(),&case.id).is_some());
             let curved=vec![CurvedBendStiffnessElement::from_macro_element(bend.component_id.clone(),&bend.macro_element).unwrap()];
-            let assembly=AssemblyEvidence::new(2,&built.frame_elements,&[],&curved,&[]).unwrap();
+            let assembly=AssemblyEvidence::new(2,&built.frame_elements,&[],&curved,&[]).unwrap().with_frame_members(&frame_member_identities(&built));
             let formed=form_basis_stiffness(&built,&[],true).unwrap();let BasisStiffness::Formed(formed)=formed else {panic!("formed fixture")};
             let free=(0..12).filter(|d|!boundary.restrained_dofs.contains(d)).collect::<Vec<_>>();let prescribed=boundary.restrained_dofs.iter().map(|&d|(d,0.0)).collect::<Vec<_>>();
             let solver_mode=if mode==PreviewSolverMode::DenseScrutiny {LinearSolveMode::DenseScrutiny} else {LinearSolveMode::SparseInteractive};
@@ -14310,7 +14402,7 @@ mod tests {
         let evidence=serde_json::json!({"method":self_weight::GENERATED_METHOD,"normalized_acceleration_m_per_s2":-9.81,"mass_inputs":{"outside_diameter":{"value":0.2},"wall_thickness":{"value":0.01},"material_density":{"value":7800.0}}});
         model.load_cases[0].primitive_loads[0].provenance=Some(evidence.to_string());
         assert_eq!(certified_loads::intensity(&model,uniform,&case_id),IntensityPrimitive::Seismic {
-            mass:MassPrimitive {outer_diameter:0.2,wall_thickness:0.01,mill_tolerance:0.0,pipe_density:7800.0,contents_density:0.0,insulation_thickness:0.0,insulation_density:0.0},coefficient:1.1,gravity:-9.81,direction:[0.0,1.0,0.0] });
+            mass:MassPrimitive {outer_diameter:0.2,wall_thickness:0.01,mill_tolerance:0.0,pipe_density:7800.0,contents_density:0.0,insulation_thickness:0.0,insulation_density:0.0,corrosion_allowance:None},coefficient:1.1,gravity:-9.81,direction:[0.0,1.0,0.0] });
         let mut ledger=LoadLedger::new();
         let mut nodal=LoadApplication {nodal_loads:vec![open_pipe_stress_primitive_loads::NodalLoadContribution {load_id:"factor:load".into(),node_index:1,global_dof:7,value:0.1*1.1}],..application};
         certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len());
@@ -14470,7 +14562,9 @@ mod tests {
         assert!(force.values().iter().all(|value|*value==0.0));
         assert_eq!(force.load_primitives().len(),6);
         let source_prefix=certified_loads::member_source(&built.pipes[0].element_id,"");
-        let loads=open_pipe_stress_frame_kernel::structural::CertifiedMemberLoads::from_member_primitives(0,1,force.load_primitives(),&source_prefix).unwrap();
+        // T4-U8: the recovery is bound to the member's frame in the case's certified source.
+        let source=certified_publication::source(&built,&force,&[]);
+        let loads=open_pipe_stress_frame_kernel::structural::CertifiedMemberLoads::from_member_primitives(0,1,force.load_primitives(),&source_prefix).unwrap().with_member_source(&source,&source_prefix);
         let bound=MemberBoundInputs { w:vec![0.0;12],w2:vec![0.0;12],exponents:vec![i32::MIN;12],lambda_sigma:0.0 };
         let recovered=open_pipe_stress_frame_kernel::structural::certify_straight_recovery(&frame,&loads,&[0.0;12],&bound).unwrap();
         let expected=frame.section.elastic_modulus*frame.section.area*2f64.powi(-55);

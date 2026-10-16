@@ -1995,27 +1995,30 @@ impl ProductCapture {
                 self.fail("resolved/built K mismatch");
                 return None;
             }
-            let (Ok(ni), Ok(nj)) = (u32::try_from(b.node_i.index), u32::try_from(b.node_j.index))
-            else {
-                self.fail_count("node count range");
+            // T4-U8 (DEL-05-03 Design §3.6): the retained member is formed from the built frame
+            // by FK's `StraightMember::from_frame`, which copies an Euler-Bernoulli frame's
+            // leaves bit for bit and refuses a Timoshenko leaf by name, so such a leaf can never
+            // reach the Euler-Bernoulli retained assembler (G-A already declines the document).
+            let Ok(frame) = b.frame_element() else {
+                self.fail("retained member frame");
                 return None;
+            };
+            let member = match k::StraightMember::from_frame(id, &frame) {
+                Ok(member) => member,
+                Err(k::RetainedMemberRefusal::NodeIndexRange) => {
+                    self.fail_count("node count range");
+                    return None;
+                }
+                Err(k::RetainedMemberRefusal::Timoshenko) => {
+                    self.fail(k::RETAINED_TIMOSHENKO_REFUSAL);
+                    return None;
+                }
             };
             if !self.adapter.enter(AdapterEvent::MapWrite, 1) {
                 self.fail("map-write accounting");
                 return None;
             }
-            parts.members.push(k::StraightMember {
-                id,
-                node_i: ni,
-                node_j: nj,
-                elastic_modulus: b.section.elastic_modulus,
-                shear_modulus: b.section.shear_modulus,
-                area: b.section.area,
-                second_moment_y: b.section.second_moment_y,
-                second_moment_z: b.section.second_moment_z,
-                torsion_constant: b.section.torsion_constant,
-                y_reference: b.y_reference,
-            });
+            parts.members.push(member);
             if !self.adapter.enter(AdapterEvent::MapWrite, 1) {
                 self.fail("map-write accounting");
                 return None;
