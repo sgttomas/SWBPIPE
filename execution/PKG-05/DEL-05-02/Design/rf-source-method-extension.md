@@ -20,11 +20,11 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
   - the 29 HASH-001 refusals;
   - the 6 ordinary axis-gate refusals.
 
-  No previously selected case loses selection, and no first cause changes except as section 6 states (measured).
+  No previously selected case loses selection, and no first cause changes except as section 6 states. This was measured on the census's single-case invocations. Section 5.2 states the cross-attempt exception, which fails closed.
 - **Two rulings applied** (HELP_HUMAN, 2026-10-16):
   - the subnormal final reserve is excluded (section 4);
   - metered charging becomes the single work-charging rule for exact attempts (section 5). Existing work counters move and are re-pinned.
-  - Under that rule, one committed source case also changes outcome for work alone: `load_reference_fallback_uz` now passes the replay screen it used to fail, and publishes selected (section 5.5).
+  - Under that rule, one committed source case also changes outcome for work alone: `load_reference_fallback_uz` now passes the replay screen it used to fail, and publishes selected. The implementation keeps that fixture's role, or re-states its consumers (section 5.5).
   - No strict-gap outcome changes in any committed suite (measured).
 - **No change** to a reference, criterion, tolerance, expected case, exclusion, D1 limit, semantic table or model format.
 - **D3** is estimated at about 8 MB more in the phases that price the live source attempt and its receipt replay (derived, section 9). That fits if U6/U8's registration leaves at least about 10 MB in each such phase.
@@ -48,6 +48,7 @@ Three throwaway probes ran in the scratch worktree `/Users/ryan/dev/chirality-t3
   - `/private/tmp/rf-design-proto/metered/`: for "extended" attempts only (`RF_PROTO_METERED=1`), with a per-pair constant of 4. This was an intermediate step, superseded by the ruling.
   - `/private/tmp/rf-design-proto/uniform/`: the ruled rule. It applies to every exact attempt with the per-pair constant 96 (`RF_PROTO_UNIFORM=1`). The order cap is scoped per entry (section 2.1), and a scratch counter records operations and radix iterations.
   - The uniform run covers the census measurement (`measure.jsonl`, `compare.json`, `summary.json`), the leaf diff of the 24 source controls (`controls_leafdiff.json`), strict-gap endings under both rules (`strictgap_*.json`) and these suites under both rules: frame kernel lib, nonlinear lib and integration, product-physics lib, and the product-physics integration targets `kd5_preview_maximum_enclosure`, `physics_source_runtime`, `pressure_source_join`, `s11f_site_test` and `source_block_recovery` (`suite_*.log`).
+  - The extended-only run's source is `metered/prototype.diff`. The uniform run's source was saved from the scratch tree after the run, as `uniform/prototype.diff` (tracked files) and `uniform/prototype-untracked.tar` (the probe scripts).
   - The "baseline" logs are the same scratch tree run with main's behaviour. The `result_export` suite was not run, because it reads committed fixtures, which no probe changes.
   - Every measured run ended normally. The last job's rc=101 (10:13:53Z) is its own test failures, classified in section 5.5; it was not an interruption.
 
@@ -82,8 +83,8 @@ The census pins only the *first* free component above order 2, in BFS order over
 | Family | Component orders, in BFS order |
 |---|---|
 | RF-CHAIN-T/A n03 | [4,3,6,6] or [4,6,6,3] |
-| RF-CHAIN-T/A n05 | [6,5,10,10] |
-| RF-CHAIN-T/A n10 | [11,10,20,20] |
+| RF-CHAIN-T / -A n05 | [6,5,10,10] / [6,10,10,5] |
+| RF-CHAIN-T / -A n10 | [11,10,20,20] / [11,20,20,10] |
 | RF-WEAK-W-AX / -W-L / -W-3D | [4,8,8,4] / [7,6] / [24] |
 | RF-LARGE axis-aligned | CHAIN [10,20,20,10]; TREE [60]; CONT [10,15,15,1,1,1,1,1] |
 | RF-INVARIANCE | PINTOR [6,6,6]; LFRAME [8,7], relabelled [7,8]; CONT4 [8,12,12,1,1,1,1], relabelled first 12 |
@@ -149,7 +150,7 @@ P1 decided every reference row exactly with the census's own predicate: `|obs �
   - Under R2, the four transform cases pass: PIN-OFF-345 28/28 at all three spring ratios (worst 5e-7 of the tolerance) and MECH-LINE345 26/26.
   - Under R1, PIN-OFF-345-r1e-08 and -r1e-12 fail: 16/28, worst 131 and 1.3e6 times the tolerance, at R.N0.UZ.
 - **Eight cases fail under every block or transform limit, and all are outside an order-4 cap**: RF-WEAK-W-L-r1e-08/-12 ([7,6]), RF-SKEW-T-CANT-OFF-345-r1e-08/-12 ([5,4]), RF-SKEW-T-CANT-OFF-122-r1e-08/-12 ([9]), RF-RANGE-SKEW-F-960 and RF-RANGE-SKEW-E-1000 ([9]).
-  - **Cause.** In the product's binary64 K_local, the coefficients 12EI/L³, 6EI/L², 4EI/L and 2EI/L are each rounded separately. That leaves every member with a nonzero exact rigid-rotation residual, between 2.8e-17 and 1.05e-16 of its stiffness in all 126 analysable cases. A soft spring with k/a ≈ 1e-8 or 1e-12 magnifies the residual by about a/k.
+  - **Cause.** In the product's binary64 K_local, the coefficients 12EI/L³, 6EI/L², 4EI/L and 2EI/L are each rounded separately. That leaves every member with a nonzero exact rigid-rotation residual, between 1.02e-17 and 1.05e-16 of its stiffness per member, across all 126 analysable cases. A soft spring with k/a ≈ 1e-8 or 1e-12 magnifies the residual by about a/k.
   - **Diagnostic.** A source R3 forms K_local exactly from the same binary64 E, G, A, I, J and L, and keeps the binary64 T. It passes all 126 cases, so the transform's non-orthogonality is not the cause.
   - **Consequence for later work.** The method certifies the exact solution of its declared binary64 source and cannot know the reference. An extension above order 4 would therefore select cases that miss the frozen criterion, unless it declines them or changes local formation. That would be a later unit under its own design; nothing here depends on it.
 
@@ -168,7 +169,7 @@ These keep their first causes; none makes a source attempt:
 - the source method, through the functional entry `Context::prepare_with_budget` and its replay `RetainedFunctionalSet::replay_against`;
 - the nonlinear strict-gap qualification, through the legacy `Context::new` (`nonlinear_integration/src/structural_adapter.rs`) and the legacy `RetainedResponse::replay_against`.
 
-The order cap becomes a private Context parameter, set by the entry: **4 on the functional entry and its replay, 2 on the legacy entries.** A replayed Context uses the cap of the entry that produced it. The strict-gap qualification's block scope therefore does not widen, and these tests stay unchanged:
+The order cap becomes a private Context parameter, set by the entry: **4 on the functional entry and its replay, 2 on the legacy entries.** A replayed Context uses the cap of the entry that produced it. The legacy `RetainedResponse::replay_against` keeps its `dofs.len() > 2` witness check (`exact_boundary.rs`, "retained minor size"). The strict-gap qualification's block scope therefore does not widen, and these tests stay unchanged:
 - nonlinear `strict_gap_unsupported_blocks_and_mixed_families_do_not_gain_qualification`;
 - frame-kernel `unsupported_singular_negative_asymmetric_range_and_budget_are_explicit` and `original_exact_graph_does_not_use_absorbed_stored_coupling`.
 
@@ -198,7 +199,8 @@ All arithmetic uses the existing `Expansion` operations through `Work`. There is
   - The cofactor sign is applied as the sign of the summed product, with no separate negation.
 - **Solve.** Let h be the block's existing right-hand side (f minus the prescribed couplings). Then num_p = Σ_q adj[p][q]·h_q, and u[block[p]] = num_p / Δo.
   - Every DOF of the block takes a clone of the **same** Δo expansion as its denominator.
-  - `functionals::evaluate` combines a block's numerators before any ratio sum when the denominators are bit-identical. That keeps the functional expansions short.
+  - **The shared denominator is a correctness precondition.** `functionals::evaluate` combines a block's numerators before any ratio sum, and it takes `displacement[block[0]].denominator` for the whole block without checking (`functionals.rs`, `evaluate`). A block whose DOFs carried different denominators would publish wrong values, not merely cost more work.
+  - So for every block of order ≥ 3, `evaluate` checks that all the block's denominators carry bit-identical terms, charging the comparison, and refuses with `Invalid` otherwise. Blocks of order ≤ 2 keep today's path.
 - **Where it runs.** The minors, Δ3, Δ4 and the adjugate are computed once while the Context is prepared (stage Preparation) and kept privately in the Context. Solve forms h and adj·h. This costs about 1 MB per Context at the D1 caps (section 9), and avoids recomputing the cofactors in Solve and again in every replay.
 - **Reactions.** `solve_charged` forms r_i = −f_i + Σ_j k_ij u_j with `ratio_add`, which multiplies denominators. For a block of order 3 or 4, that would raise its denominator to the power of the block order.
   - Columns j in a block of order ≤ 2 keep the existing per-DOF loop, in the same order.
@@ -221,7 +223,7 @@ On the 28 selectable RF-CANCEL cases, the largest certified relative bound is 6.
 
 Both fields enter `same_bits` and `scalar_count` only when present, so order-1 and order-2 witnesses and their replay comparisons are unchanged.
 
-The retained-witness size checks (`functionals::retained_charge` and the functional replay) admit `dofs.len() ≤ 4`. The size bound is (o(o+1)/2 + o)·E + o for o ≥ 3, where E is `expansion_terms`, and the existing 4E + 2 for o ≤ 2. Replay recomputes the Context, so a changed retained minor or entry is refused as `retained block/minor mismatch`.
+The retained-witness size checks (`functionals::retained_charge` and the functional replay) admit `dofs.len() ≤ 4`. The size bound is (o(o+1)/2 + o)·E + o for o ≥ 3, where E is `expansion_terms`, and the existing 4E + 2 for o ≤ 2. Replay recomputes the Context, so a changed retained minor or entry is refused as "functional retained block/minor mismatch" (`RetainedFunctionalSet::replay_against`).
 
 ### 2.7 Work and expansion lengths
 
@@ -242,17 +244,17 @@ These are unchanged:
 
 The order cap rises from 2 to 4 on the functional entry only. That is the commissioned extension.
 
-### 2.9 Publication when the replay cannot fit
+### 2.9 Publication and the receipt replay
 
-On the pre-0.4 route, `source_receipt` replays a selected case on the case's own ledger before publishing it. If that replay exceeds the case limit, the envelope keeps the pressure-source-1 identity and gets a blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` diagnostic. That is the pre-0.4 path's named refusal (DEL-04-07 `pressure-contract.md`).
+**No new rule.** The publication paths stay as they are:
+- On the 0.4 route, the existing replay screen (`SelectedSourceRecovery::reserve_captured_replay`: charged ≤ limit − charged) runs before selection, and a join that still cannot finalize republishes ordinarily (ROOT CP3 SF-1R).
+- On the pre-0.4 route, a selected case is replayed on its own ledger before publication. If finalization fails, the envelope gets the pre-0.4 path's named refusal, the blocking `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED`. DEL-04-07 `pressure-contract.md` records "the pre-0.4 path retains its named refusal", and `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback` pins it.
 
-**Rule.** The replay screen that the 0.4 route already applies before selection, `SelectedSourceRecovery::reserve_captured_replay` (charged ≤ limit − charged), applies to every selection on both routes. A case that fails the screen is declined with `Budget` at stage "captured replay reservation", keeps its executed work and publishes ordinarily.
+Extending the screen to the pre-0.4 route would change that recorded behaviour. No measured selection needs it:
+- under section 5's rule, the largest new selection is RF-SKEW-T-PIN-OFF-345-r1e-08, at 2,832,853, and 5,667,343 with its functional replay (P3);
+- every new selection fits within 8,000,000 including replay.
 
-This changes no existing outcome:
-- The largest selection in the 24 source controls is about 3.7 million before replay: their pinned totals including replay are at most 7,341,815, under legacy charges. Section 5 only lowers charges (derived).
-- Every measured new selection fits under section 5's rule. The largest is RF-SKEW-T-PIN-OFF-345-r1e-08: 2,832,853 at selection, under the screen's 4,000,000, and 5,667,343 including replay (P3).
-
-A failure that passes the screen keeps today's named refusal on the pre-0.4 route and today's republication on the 0.4 route.
+What still has to be established at implementation: that the finalization reservations of the two new public publications (section 6) fit in the remaining margin of about 2.3 million. Those reservations are 24E + F + P (b7-plan, D5/MJ9), where E is the encoded request's bytes, a few tens of kilobytes for these one-member requests (derived). If they did not fit, the pre-0.4 named refusal would apply and the census binding in section 6 would fail. That would be an implementation finding, not a reason to loosen anything.
 
 ## 3. Non-axis-aligned member transforms
 
@@ -288,32 +290,35 @@ The functional entry takes one more argument: the list of congruence members, ea
 - **Coverage.** The rounded contributions stay in `StructuralSystem::contributions`. The existing coverage check against the aggregate passes through its ordered-fold alternative, which is how the aggregate was formed.
 - **The exact entries k.** For a congruence member, k uses the exact entries G_ij = Σ_k Σ_l T[k][i]·K_local[k][l]·T[l][j] instead of its rounded contributions. Zero factors are skipped, and the entries are formed in the two-stage order Tᵀ·(K·T), which P3 measured as value-equal to the direct triple sum in every member and cheaper. Other contributions and springs enter k as today.
 - **Checks.** The existing exact symmetry check, the block search and the positive-definiteness warrant apply to this k.
-- **Replay.** The Snapshot stores the congruence operands, `matches` compares them bit for bit, and replay re-forms them.
+- **Replay and retained copies.** The Snapshot stores the congruence operands (K_local and T: 288 values per member, plus the map and contribution range), `matches` compares them bit for bit, and replay re-forms them.
+  - `Snapshot::copy_charge`, `functionals::retained_charge` and `source_preflight` charge and size-check those operands, before any copy, as they do contributions.
+  - The functional replay (`RetainedFunctionalSet::replay_against`) and `check_binding_with_budget` take the expected congruence list, and `SelectedSourceRecovery::replay_against` and `check_binding_against` rebuild it from the current invocation through `prepare_sources`.
 
 ### 3.4 Recovery rows
 
 - **Member end actions** of a congruence member: rows[r] = Σ_p K_local[r][p]·(T·u_e)_p. Each row's terms are the products [K_local[r][p], T[p][j]] for every nonzero pair, merged per global DOF into one `AffineTerm` with several products. Section rows follow from these rows unchanged, through the existing [sign, fraction, length] products.
 - **Rigid-support action rows.** For a congruence member they use its exact entries, as triple products [T[k][i], K_local[k][l], T[l][j]], in place of its rounded contributions. Signed-permutation members and springs are as today.
 
-Exact equilibrium therefore holds between the members' exact global end actions, the support actions and the loads, as it does today for signed permutations.
+A member's exact global end action is Tᵀ·rows: the 12 local end actions, rotated back exactly by its declared T. Exact equilibrium holds at every node between the members' exact global end actions, the support actions and the loads, because Tᵀ·(K_local·T·u_e) is the member's exact congruence contribution. It holds today for signed permutations in the same way.
 
 ### 3.5 Work and units
 
-The congruence formation is charged on the attempt's ledger, in stage SourceClosure, under section 5's rule.
+The congruence formation happens inside the Context (section 3.3). It is therefore charged on the attempt's ledger in stage **Preparation**, under section 5's rule; the prototype charged it in SourceClosure, so its stage attribution differs from the design's.
 
-Measured per member under the uniform rule (P3), with the direct triple sum:
+Measured per member under the uniform rule (P3):
 
-| Member direction | Uniform rule (P3) |
-|---|---|
-| (3,4,0) | 33,608 |
-| (1,2,2) or (1,2,−2) | 102,076 |
-| (1,8,−4) | about 102,400 |
+| Member direction | Two-stage Tᵀ·(K·T), as specified | Direct triple sum |
+|---|---|---|
+| (3,4,0) | 29,416 | 33,608 |
+| (1,2,2) or (1,2,−2) | 84,268 | 102,076 |
+| (1,8,−4) | | about 102,400 |
 
-The same members charge 924,176 and about 2.6 million under the legacy charges. The two-stage form, which section 3.3 specifies, gave value-equal entries for less work in every member, under both the legacy charges and the extended-only metering (for a (3,4,0) member, 796,096 against 924,176 and 6,600 against 7,112). It was not re-measured under the uniform rule.
+The two forms gave value-equal entries in every member. The same members charge 924,176 and about 2.6 million under the legacy charges, with the direct sum. The census totals in 3.6 were measured with the direct sum, so they carry about 4,000 to 18,000 per member more than the specified form.
 
 Descriptor units grow, derived from `descriptors_charge`'s counting rule and K_local's sparsity:
-- A congruence member's end rows carry up to 12 terms, each with a two-atom product, where today they carry 2 to 4 single-atom terms.
-- That comes to about 2,900 units per member, against about 820 today, plus about 1,800 for each rigid support the member touches.
+- A congruence member's end rows carry up to 12 terms, each with a two-atom product, where today they carry 2 to 4 single-atom terms. Its section rows add the [sign, fraction, length] atoms to those terms.
+- That comes to about 2,900 units per member, against about 820 today.
+- Each rigid support the member touches adds about 800 to 950 units. Each of its 6 support rows has at most 12 terms, each with at most 3 triple products of 3 atoms (1 + 3·4 = 13 units), so at most about 160 units per row (derived; the independent review counted about 800 per support).
 - The unchanged 16,384-unit law therefore admits roughly four or five congruence members per model.
 - Section 3.2's unit precheck declines a larger model by `Budget`, before descriptor #1 is built, so its memory stays within the unit law (section 9).
 
@@ -349,7 +354,7 @@ Under the uniform rule no transform case ends in `Budget`. All 23 that do not se
 - **RANGE-CHAIN-E-1000 and RANGE-CONT-E-1000** also have blocks of order 10 and 15 (profiles [6,5,10,10] and [10,15,15,1,1,1,1,1]).
 - **RANGE-SKEW-E-1000** has one (1,2,2) member and an order-9 block, and its exact solve misses the frozen criterion (explained below).
 - **RANGE-THIN-B** has one identity member and profile [1,2,2,1]. It is the only case that could become selectable: its exact solve passes 25/25, but it needs both changes named in the ruling.
-- **The reserve has no consuming meaning on the source path today.** `AssemblyEvidence::new` computes it for every frame (`transform_roundoff`; for each identity member in these cases, 36 subnormal, 4 normal and 104 zero reserves), and the source path then discards it: the exact Context receives no symmetry evidence.
+- **The reserve has no consuming meaning on the source path today.** `AssemblyEvidence::new` computes it for every frame (`transform_roundoff`; 36 subnormal, 4 normal and 104 zero reserves per identity member in these cases, except RANGE-CHAIN-E-1000's member M2, with 28 subnormal and 12 normal), and the source path then discards it: the exact Context receives no symmetry evidence.
 
 **Why RANGE-SKEW-E-1000 misses the criterion** (recorded for a later unit).
 - **The case.** It is RF-SKEW-T-CANT-OFF-122-r1e-08 with E and G scaled by 2⁻¹⁰⁰⁰, with a soft root torsional spring at k/a ≈ 1e-8.
@@ -378,10 +383,11 @@ Under the uniform rule no transform case ends in `Budget`. All 23 that do not se
 ### 5.1 The rule
 
 `Work::mul(a, b)` processes each term pair (x, y) of its product loop, in order:
-1. it refuses with `Budget` if `out.len() + 2 > E` (the existing expansion-length refusal; E = `expansion_terms` = 256);
-2. it charges **C₂ = 96**, the two-product (5.3);
-3. it computes (lo, hi) with the existing two-product arithmetic (`Expansion::add_product`'s, unchanged);
-4. it charges 6·len(out) + 1 and then adds lo, and charges 6·len(out) + 1 again and then adds hi, where len(out) is the output length at the moment of each charge.
+1. it refuses with `Budget` if `out.len() + 2 > E` (the existing expansion-length refusal; E = `expansion_terms` = 256). A pair therefore proceeds only while len(out) ≤ E − 2;
+2. it charges **C₂ = 96**, which covers the two-product, including its exponent reads and radix scalings (5.3);
+3. it runs `Expansion::add_product`'s existing sequence unchanged and unreordered, with one charge inserted immediately before each of its two `add` calls, each after that part's radix scaling: 6·len(out) + 1 before adding the scaled lo, and 6·len(out) + 1 again before adding the scaled hi. Here len(out) is the output length at the moment of each charge.
+
+Because nothing is reordered, values, lengths and the error raised by a `Range` failure are exactly those of today's `add_product`.
 
 The existing up-front precharge, pairs·(12E + 128), is removed. `Work::add`, `sum`, `scalar` and every explicit `w.charge` are unchanged.
 
@@ -390,32 +396,53 @@ The rule applies wherever `exact_boundary`'s `Work` multiplies: both Context ent
 ### 5.2 Soundness
 
 The argument rests on structure. The census is its control.
-1. **Charge before execution.** Every primitive step is charged before it executes. The per-pair constant is charged before the two-product. Each grow-expansion add is charged, before it runs, by the same formula `Work::add` uses (6·len + 1: len two-sum steps of 6 operations each, plus the final term), evaluated on the actual current length. `Work::charge` refuses before any work when the next total would pass the limit.
+1. **Charge before execution.** Every primitive step is charged before it executes.
+   - The per-pair constant is charged before the two-product.
+   - Each grow-expansion add is charged before it runs, by the same formula `Work::add` uses: 6·len + 1, that is len two-sum steps of 6 arithmetic operations each, plus the final term (5.3 states the unit). The formula is evaluated on the actual current length.
+   - `Work::charge` refuses before any work when the next total would pass the limit.
 2. **The constant covers the two-product.** See 5.3.
 3. **Executed work is bounded by the limit.** Each charge is at least the operations of the step it precedes, and a refused charge's step never executes. So the operations executed in an attempt never exceed its charged total, and the charged total never exceeds the limit.
 4. **Refusal is typed and publishes nothing partial.** A refusal records its amount in `rejected` (D6's checked total) and returns `Error::Budget`. The partial `out` is a local and is dropped. No `Ratio`, `Response` or projection is built from it. The attempt ends in the existing typed `RecoveryFailure` (or strict-gap `Unsupported`), and the case publishes its ordinary result as today.
-5. **Never above the legacy charge.** A metered pair charges at most C₂ + 2·(6·(E − 1) + 1), because len(out) ≤ E − 1 whenever an add is reached (step 1 refuses at E − 2). For E = 256 that is 96 + 2·1,531 = 3,158, so in particular **2·(6·256 + 1) + 96 = 3,170 ≤ 3,200 = 12E + 128**, the legacy charge per pair. The arithmetic is identical under both rules, so every later operand length is identical too. Hence every attempt's metered total is at most its legacy total. The uniform rule can only remove a `Budget` refusal, never add one, and no case that selects or qualifies under the legacy charges can lose that outcome.
+5. **Never above the legacy charge, step by step.**
+   - *Per pair.* A pair proceeds only while len(out) ≤ E − 2 (5.1, step 1). Its first add is therefore charged at length at most E − 2 and its second at most E − 1, so a metered pair costs at most C₂ + (6(E − 2) + 1) + (6(E − 1) + 1) = 12E + 80 for C₂ = 96. The legacy charge is 12E + 128 per pair, for every E. With the coarser bound used as the headline, **2·(6·256 + 1) + 96 = 3,170 ≤ 3,200 = 12·256 + 128**.
+   - *Same arithmetic.* Every other charge is unchanged, and the arithmetic, its values and its lengths are identical under both rules (5.1). So at every point of an attempt's execution, its metered running total is at most the legacy running total for the same executed prefix.
+   - *Conclusion within one attempt.* Under a fixed limit, an attempt that completes under the legacy charges completes under the metered rule, with a total at most its legacy total. A `Budget` refusal can only disappear, never appear.
+   - *Not a claim about totals.* An attempt that the legacy rule refuses can, under the metered rule, run further and charge *more* than the legacy rule charged before refusing. The per-attempt conclusion does not imply that every metered total is at most every legacy total.
+6. **The cross-attempt exception.** Several attempts can share one ledger:
+   - the source budget of an invocation (`SourceRecoveryBudget::case_limit`: min(8,000,000, 64,000,000 − charged));
+   - the strict-gap run budget (`remaining_run_work`, debited by each call's charge).
+
+   A strict-gap iteration that newly qualifies also changes the inputs of later iterations. So an earlier case that now runs further, or newly selects or qualifies, can leave a later case a smaller limit. In a heavy multi-case invocation, a previously selected later case could then lose selection.
+
+   That outcome **fails closed**: a typed `Budget` decline and an ordinary publication, with no reference, criterion or limit touched. No committed suite exhibits it. The census runs single-case invocations, and the strict-gap endings are identical under both rules (5.5). Section 6's statement that no previously selected case loses selection is measured on those single-case invocations.
 
 ### 5.3 The per-pair constant
 
-`Expansion::add_product(a, b, 0)` performs, per pair:
-- two `binary_exponent` reads (at most 2 operations each: 4);
-- four `exact_radix` scalings: of a by −ea and b by −eb (at most 3 iterations each, since |ea|, |eb| ≤ 1074 and each iteration moves at most 512), and of lo and hi by ea + eb (at most 5 iterations each, since |ea + eb| ≤ 2148). That is at most 16 iterations, each costing two multiplications and three comparisons (5): 80;
-- the product and its fused residual (2).
+**The cost model (declared).** The unit is one floating-point arithmetic operation: +, −, ×, a fused multiply-add, and `2.0_f64.powi(k)` counted as one. Comparisons, `clamp` and integer exponent arithmetic are not counted. This is `Work::add`'s existing unit: its 6 per two-sum step counts the step's six arithmetic operations (`structural.rs`, `Expansion::add`) and none of its four comparisons. The implementation's operation counter and its oracle (5.4) both use this model.
 
-The total is 86, in `Work::add`'s unit of one floating-point operation or comparison. C₂ = 96 covers it.
+**The count.** `Expansion::add_product(a, b, 0)` performs, per pair (`Work::mul` always passes exponent 0):
+- two `binary_exponent` reads: integer bit operations, 0;
+- four `exact_radix` scalings: of a by −ea and b by −eb, at most 3 iterations each, since |ea|, |eb| ≤ 1074 (subnormals included) and each iteration moves at most 512; and of lo and hi by ea + eb, at most 5 iterations each, since |ea + eb| ≤ 2148. That is at most 16 iterations, each with two `powi` and two multiplications (4), so at most 64;
+- the product and its fused residual: 2.
 
-P3 recorded each pair's actual radix iterations over the 232,225 metered pairs of the census attempts and their replays (measured):
+The worst case is 66. C₂ = 96 covers it, with a margin of 30.
+
+A stricter model also fits: P3's counter charged 6 per two-sum step, 2 per exponent read, 5 per radix iteration and 2 for the product, which gives a worst case of 86 ≤ 96. The monotonicity of 5.2 (5) allows any C₂ ≤ 126 (≤ 144 with the per-pair bound), so the choice of model cannot break it.
+
+**Measured.** P3 recorded each pair's actual radix iterations over the 232,225 metered pairs of the census attempts and their replays:
 - the largest count is 6 iterations, against the bound of 16;
 - no pair needs more than the constant covers;
-- the smallest per-pair slack (charged minus counted) is 62.
+- under the stricter model, the smallest per-pair slack (charged minus counted) is 62, so under the declared model it is at least that.
 
 ### 5.4 The control and the oracle
 
-- **The maintained control.** A test-build operation counter (`#[cfg(test)]` in the frame kernel) counts every executed two-sum step, two-product operation and radix iteration. A census-wide test asserts charged ≥ counted for every exact attempt and every replay.
-
-P3 measured, over all 161 cases and their replays, 34,423,472 charged against 17,406,962 counted operations in metered multiplications. The smallest slack is 72 per call and 62 per pair, and no call was charged less than it executed.
-- **The independent oracle.** A frame-kernel test recomputes each charge of a set of products and sums of varied operand lengths from the operand lengths alone, in MJ9's style and without the producer's counters, and compares the totals exactly.
+- **The maintained control.** An operation counter in the frame kernel counts every executed two-sum step, two-product operation and radix iteration, under 5.3's model. A census-wide test asserts charged ≥ counted for every exact attempt and every replay.
+  - The counter sits behind a dev-only cargo feature of the frame kernel (for example `exact-operation-count`), which `core/product_physics`'s and the frame kernel's test builds enable through their dev-dependencies. It adds a thread-local counter and no field to any priced type, and the registered build does not enable it.
+  - A plain `#[cfg(test)]` counter would not work: it is not compiled when product_physics's tests run.
+  - P3 measured, over all 161 cases and their replays, 34,423,472 charged against 17,406,962 counted operations in metered multiplications, under the stricter model. The smallest slack is 72 per call and 62 per pair, and no call was charged less than it executed.
+- **The independent oracle.** A frame-kernel test reimplements grow-expansion and the two-product on binary64, including zero elimination, independently of the producer's `Expansion`. With that implementation it replays each product's actual output-length sequence, recomputes the charge of each `mul`, `add` and `sum`, and compares the totals exactly with the producer's `WorkReport`, in MJ9's style and without the producer's counters.
+  - The cases cover varied operand lengths, cancellations that shorten expansions, the expansion-length refusal, and a limit set between two steps.
+  - Operand lengths alone do not determine the charge, because zero elimination depends on the values. That is why the oracle replays the arithmetic.
 - **The readers.** The Rust reader and the Python verifier keep their work checks, which are the ledger's structure and limits: per case, charged plus reserved at most the limit at most 8,000,000; the invocation sums at most 64,000,000 and consistent with the publication charge. They do not redo the solve, and they cannot recompute arithmetic charges.
 
 ### 5.5 Consequences
@@ -424,7 +451,7 @@ All measured on P3's uniform run, against main's behaviour in the same scratch t
 
 **Census.**
 - **Categories:** 32 newly selected; RF-ZERO-TINY selected as before; 14 order reclassifications and 23 transform reclassifications (section 6); 56 with an unchanged error; and 35 that make no attempt (HASH-001 and the axis gate).
-- **Exceptions: none.** No previously selected case loses selection. No first cause changes beyond those classes. Every non-selected case's error is unchanged apart from its work numbers.
+- **Exceptions: none.** On these single-case invocations, no previously selected case loses selection. No first cause changes beyond those classes. Every non-selected case's error is unchanged apart from its work numbers. Section 5.2 (6) covers multi-case invocations.
 - **RF-ZERO-TINY** now charges 126,845, with 253,699 including replay, against 742,625 today. Its response digest and rows (25/25) are unchanged.
 
 **Strict-gap qualification.** The strict-gap path ends identically under both rules: 1,943 exact attempts in the nonlinear suites and 40 in the product-physics lib.
@@ -447,15 +474,28 @@ All measured on P3's uniform run, against main's behaviour in the same scratch t
   - `s11f_site_test`'s `rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites`: a source-audit list of frame-kernel functions, which the prototype changed by renaming one. The implementation keeps that list current.
 
 **Outcomes that change for work alone.** Both cases below lose a `Budget` refusal under the lower charges, as 5.2 (5) predicts.
-- **The five fallback tests.** Each constructs a "budget cliff" whose limits were tuned to the legacy charges. Under the uniform rule the cliff is not reached and the selected join finalizes (`pressure-source-1` in place of the expected `pressure-1`). The SF-1 and SF-1R fallback paths themselves are unchanged. The implementation re-derives each test's limits from the uniform charges, so every fallback path stays exercised.
+- **The five fallback tests** (`source_receipt/load_state_fallback_tests.rs`). Each constructs a "budget cliff": extra loads or copied cases at the public 8,000,000 and 64,000,000 limits, or a private `SourceRecoveryBudget` limit such as 7,000,000. Those cliffs were tuned to the legacy charges. Under the uniform rule the cliff is not reached and the selected join finalizes (`pressure-source-1` in place of the expected `pressure-1`). The SF-1 and SF-1R fallback paths themselves are unchanged.
+  - **Re-derivation.** Each scenario's limits or sizes are recomputed from the uniform charges, so that the same path is reached.
+  - A scenario that uses a private limit sets a new private limit.
+  - A scenario defined at a public limit is first scaled: more extra loads or copies, within D1's caps.
+  - If the cliff cannot be reached within those caps (the uniform charges are about 5 to 8 times lower), the scenario is re-stated with a private limit. It is then paired with a positive control showing that the public limit now admits the case.
+  - The implementing PR lists every such change to what a test establishes.
 - **The committed `core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-*.raw.json`** (0.4 load-reference route, both modes).
   - Today its source attempt is declined at the replay screen ("captured replay reservation", `Budget`, charged 4,061,151 against the 4,000,000 threshold), and it publishes its ordinary result.
-  - Under the uniform rule it passes the screen and publishes the selected resolved `pressure-source-1`. Its retained maximum then takes the retained-source basis (`retained_section_functionals_binary64` in place of `j_side_section_equilibrium_binary64_enclosures`).
-  - The published values are the source method's certified projections (relative bound ≤ 1e-9). The existing 0.4 boundary still makes the evidence numerically ineligible. No reference covers the case.
-  - The implementation regenerates the fixture through its writer, re-states T13's expectations for the selected publication (T13's preconditions on the ordinary report are unchanged), and reads the result with the Rust reader and the Python verifier.
-  - If the fixture's purpose is to keep a committed example of the screen's refusal, the implementation keeps one by lowering that request's case limit, not by restoring legacy charges.
+  - Under the uniform rule it passes the screen and publishes the selected resolved `pressure-source-1`. Its retained maximum then takes the retained-source basis (`retained_section_functionals_binary64` in place of `j_side_section_equilibrium_binary64_enclosures`). The published values would be the source method's certified projections (relative bound ≤ 1e-9), the existing 0.4 boundary keeps the evidence numerically ineligible, and no reference covers the case.
+  - **The fixture's role.** It is the committed *sensitive ordinary pressure-1* raw of a 0.4 case, and several consumers depend on that role:
+    - T13 (`s11g_tests.rs`), which concerns the K-D5 ordinary maximum declaration on a Sensitive case;
+    - `result_export/tests/reader_verdict.rs` (route `"pressure"`), `base_reader_outcomes.rs`, `tests/base_reader_corpus.py`, `fixtures/results/base_reader_outcomes.json`, `fixtures/results/loadReferenceReaderCases.cases.json` and `load_reference_source_contract.rs` (`lr-fallback`);
+    - the desktop's `loadReference.resultsSessionState.test.ts` ("sensitive ordinary pressure-1 … never Current"), `LoadReferenceStatesBlock.test.tsx` and `baseReaderInputs.ts`;
+    - `test_ci_numerical.py`.
+  - **Repair.** The implementation keeps that role with a sensitive 0.4 request whose source attempt declines for a reason independent of work (a named source-family decline). T13's preconditions must still hold: Sensitive, and R-b at end i. A committed request cannot lower its case limit through the public producer, so a lower limit is not an option.
+  - Only if no such request preserves T13's preconditions does the fixture become the selected publication, with every consumer above re-stated in the implementing PR.
 
-**Committed bytes.** Each of the 24 raw source controls differs in exactly 6 leaves, out of 2,984 to 5,067: 3 work counters, 2 hashes binding them and 1 decline text embedding work (`controls_leafdiff.json`). Their 30 derived documents and J2's bases follow from them. The retained corpus `retained_precision_cases.json` is expected to be unchanged (derived, not run): its two decline messages are source-closure refusals (the excluded subnormal reserve), which perform no multiplication, so their work counters do not move. Its pack step regenerates it at implementation, and any byte difference must be explained.
+**Not run under the uniform rule.** These suites were not run, so their evidence is still to come at implementation:
+- `result_export`, the Python verifiers, the desktop and headless;
+- six product-physics integration targets that touch source recovery: `exact_admission_seam`, `formation_check_runtime`, `f1b_w2_runtime`, `load_reference_state_runtime`, `load_reference_state_runtime_extension` and `retained_precision_admission`.
+
+**Committed bytes.** Each of the 24 raw source controls differs in exactly 6 leaves, out of 2,948 to 5,067: 3 work counters, 2 hashes binding them and 1 decline text embedding work (`controls_leafdiff.json`). Their 30 derived documents and J2's bases follow from them. The retained corpus `retained_precision_cases.json` is expected to be unchanged (derived, not run): its two decline messages are source-closure refusals (the excluded subnormal reserve), which perform no multiplication, so their work counters do not move. Its pack step regenerates it at implementation, and any byte difference must be explained.
 
 ## 6. The consuming check: the J7 RF census
 
@@ -483,13 +523,22 @@ Any other decline still panics as unclassified. `exact_block_order_above_2` and 
 | `ordinary_axis_gate` | 6 |
 | `budget`, `transform_not_block_rotation` | 0 |
 
+The selected/declined split and every decline class are measured (P3, `compare.json`). The split of the 33 selections into `selected_method_only` and `selected_published` is derived:
+- from the pinned ordinary qualities, which say whether the public route attempts recovery;
+- from the measured selection-plus-replay totals.
+
+The public path itself was not exercised for a congruence member (section 3.6).
+
+`j7_rf_census_classification_and_pin` today hard-codes RF-ZERO-TINY as the only selected case. It is generalised to pin both selected classes and their members.
+
 **Method-only selections.** All 28 RF-CANCEL cases are `checks_passed` on the ordinary route in both modes. The public route attempts no recovery for them (`needs_source_recovery`), so, like RF-ZERO-TINY, they are method-only selections with unchanged public envelopes. This is the expected outcome.
 
 **New public coverage.** RF-SKEW-T-PIN-OFF-345-r1e-08 and -r1e-12 are sensitive on the ordinary route in both modes. They newly publish `pressure-source-1`, in four envelopes. The census assertion that no frozen RF case publishes a source-recovery identity becomes a binding of exactly those four entries. For each, the census checks that:
 - the identity is `pressure-source-1`, and the receipt carries level `complete_identified_declared_member_congruence`;
-- the Rust reader accepts the envelope (`physics_source` raw read with the captured invocation), and so does the independent Python verifier;
+- the Rust reader accepts the envelope (`physics_source` raw read with the captured invocation);
+- the envelope is byte-identical to the corresponding J2 base (section 7). J2 carries both requests in both modes, and the independent Python verifier and wasm read J2, so that is how all four envelopes reach the Python verifier: the Rust census cannot run Python;
 - every published source row equals the direct method's projected value bit for bit, and every reference row meets the frozen criterion (the direct method's `method_comparison`);
-- the receipt's work ledger is within its limits.
+- the receipt's work ledger is within its limits, and its finalization fitted (section 2.9).
 
 **Other public bytes.** These change only where a public attempt's decline message embeds a changed failure:
 - its typed error, for the 14 reclassified block cases and the transform cases whose ordinary route is sensitive or unresolved;
@@ -501,6 +550,12 @@ No `results_sha256`, identity, source attempt or numerical quality changes excep
 - *Not measured:* P2's congruence shortcut builds no receipt, so the four new publications are first produced by the implementation, which must establish them as above.
 
 **Re-pinning.** The pin is regenerated once, deliberately (`SWBPIPE_J7_RF_CENSUS_WRITE=1`). The review compares it with the previous pin entry by entry, and every difference must fall in a class stated here.
+
+**Text updated at implementation, not by this design PR:**
+- b7-plan's J7 census paragraph (a Design condition naming "an exact block of order above 2 … 94 cases" and "Public RF selected-source coverage is zero");
+- the census module's doc comment (`j7_rf_census.rs`, which names RF-ZERO-TINY as the only directly selected case).
+
+Both change with the implementation, to the counts and coverage it establishes.
 
 ## 7. Receipt, Rust reader and Python verifier (v3 only)
 
@@ -519,9 +574,16 @@ The changes apply to the current `PRESSURE-SOURCE-1` receipt only; v2 is gone.
   - block length and the level enum are checked through the schema;
   - their work checks are unchanged (section 5.4).
 
+  **Stored receipts.** A stored pressure-source-1 result that recorded an `unsupported_block` refusal of order 3 or 4 becomes unreadable: the receipt carries no version that would set it apart, and `FAILURE_BLOCK_ORDER` refuses it.
+  - This applies the owner's direction of 2026-10-10 (one current version; "nothing needs to be preserved for backwards compatibility"): the current reader judges a receipt against the current producer's contract, and such a result is re-run.
+  - No committed fixture or corpus carries such a receipt (checked by the independent review).
+  - The alternative is to keep the readers at `> 2` and rely on the producer never to emit an order of 3 or 4. That would leave a receipt the current producer cannot produce readable as valid, so it is not taken.
+
   Neither reader can re-derive the exact solve, the transform closure or the charges, and neither does today. They check structure, partition, projections, hash bindings and the work ledger, and they gain nothing that would share producer code. The Python verifier stays independent and reads the J2 corpus unmodified.
 - **J2** (`fixtures/results/pressure_source_reader_corpus.json`, generated by its PP test):
-  - two genuine bases are added, in both modes: the census's RF-SKEW-T-PIN-OFF-345-r1e-08 request (a congruence publication), and an invented order-4 model whose ordinary route is sensitive, which the implementation chooses and pins;
+  - three genuine bases are added, in both modes:
+    - the census's RF-SKEW-T-PIN-OFF-345-r1e-08 and -r1e-12 requests, re-authored as the census re-authors them (congruence publications; section 6 binds its four envelopes to them);
+    - an invented order-4 model whose ordinary route is sensitive, which the implementation chooses and pins. It is authored with an explicit `euler_bernoulli` shear model and zero mill tolerance and corrosion allowance, which the readers require after U6/U8 (section 10);
   - reader mutations are added: a 5-DOF block (schema), `unsupported_block` with `block_order` 3 or 4 (`FAILURE_BLOCK_ORDER`), and an unknown `level`. Native Rust, wasm and the Python verifier read all of them. The desktop reads through the Rust reader (wasm), so no TypeScript changes.
 - **Tables.** No semantic table changes. Limitation 1 of pressure-source-1 names "the existing bounded source adapter load, transform, block and 256-DOF limits" without giving their values, and the receipt's `level` carries the source basis.
 
@@ -535,7 +597,7 @@ Each mutant is introduced into a scratch copy of the implementation and must be 
 | RF-2 | Legacy entry admits order 3 | the existing FK tests `unsupported_singular_negative_asymmetric_range_and_budget_are_explicit` and `original_exact_graph_does_not_use_absorbed_stored_coupling`, and nonlinear `strict_gap_unsupported_blocks_and_mixed_families_do_not_gain_qualification` |
 | RF-3 | Warrant checks only det A > 0, or skips Δ3 | `order_four_warrant_checks_every_leading_minor` (a symmetric 4×4 with Δ1, Δ2, Δ4 > 0 and Δ3 < 0 is `NotPositiveDefinite`) |
 | RF-4 | Adjugate transposed, or a cofactor sign flipped | `order_three_and_four_solutions_are_exact` (SPD blocks with distinct entries, compared with independently computed rationals); the Context's zero-reaction check |
-| RF-5 | A block's DOFs get distinct denominator expansions | `order_four_block_dofs_share_one_denominator` (bit-identical denominators); the re-pinned census work |
+| RF-5 | A block's DOFs get distinct denominator expansions (which `evaluate` would otherwise turn into wrong values) | `order_four_block_dofs_share_one_denominator` (bit-identical denominators); `evaluate_refuses_a_block_with_mixed_denominators` (the 2.4 check refuses a mutated denominator with `Invalid`) |
 | RF-6 | Reaction grouping applied to order ≤ 2 blocks | the re-pinned source controls (`pressure_source_controls_keep_exact_work_and_current_bytes`) and RF-ZERO-TINY's re-pinned work |
 | RF-7 | `upper` or `minors` left out of `same_bits` | `order_four_replay_refuses_a_mutated_minor` |
 | RF-8 | Retained witness bound loosened or omitted for o ≥ 3 | `retained_order_four_witness_size_is_bounded` |
@@ -544,12 +606,13 @@ Each mutant is introduced into a scratch copy of the implementation and must be 
 | RF-11 | Member end rows formed without T, or from rounded globals | `congruence_end_actions_equilibrate_exactly` (at every node, the sum of the members' exact global end actions equals supports plus loads) |
 | RF-12 | Formation-determinism check skipped | `congruence_closure_refuses_a_changed_rounded_contribution` |
 | RF-13 | Unit precheck skipped | `congruence_unit_precheck_declines_before_descriptor_construction` |
-| RF-14 | Replay screen not applied on the pre-0.4 route | `selection_reserves_its_replay_on_both_routes` (a constructed selection above half the limit declines with `Budget` at "captured replay reservation" and publishes ordinarily) |
+| RF-13b | Unit precheck undercounts (D3's memory bound depends on it) | `congruence_unit_precheck_equals_descriptors_charge` (the precheck's count equals `descriptors_charge`'s count of the built descriptors, for every congruence census case and constructed models of 1 to 5 members) |
+| RF-14 | Pre-0.4 publication behaviour changed (for example a screen added) | the existing `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback` |
 | RF-15 | Producer keeps `b.len() > 2` | `order_four_selection_publishes_a_pressure_source_receipt` (J2's order-4 base publishes, and Rust and Python read it) |
 | RF-16 | Reader or verifier keeps `block_order > 2` | J2's `block_order` 3 and 4 mutations (Rust and Python) |
 | RF-17 | Congruence case published with level `…represented_contributions` | `congruence_receipt_declares_declared_member_congruence` |
 | RF-18 | Transform decline text loses "transform" | `transform_declines_map_to_unsupported_source_closure` |
-| RF-W1 | Per-pair constant dropped or reduced (undercharge) | `metered_mul_charges_match_the_independent_oracle` (exact equality with the operand-length oracle); the maintained charged ≥ counted control |
+| RF-W1 | Per-pair constant dropped or reduced (undercharge) | `metered_mul_charges_match_the_independent_oracle` (exact equality with the independent grow-expansion oracle of 5.4); the maintained charged ≥ counted control |
 | RF-W2 | Pre-add charge taken after the add, or on the length after it | `metered_refusal_precedes_the_refused_step` (at a limit set between two steps, the refusal happens before the add and nothing partial escapes); the oracle |
 | RF-W3 | Legacy precharge kept on some entry (two regimes) | the oracle run through every entry (functional, legacy, `Response`, `RetainedResponse` and strict-gap) |
 | RF-W4 | Expansion-length refusal dropped from the metered loop | `metered_mul_keeps_the_expansion_term_refusal` (a product that would pass E terms refuses with `Budget`) |
@@ -561,14 +624,16 @@ Each mutant is introduced into a scratch copy of the implementation and must be 
 - Product physics (DEL-04-07):
   - `source_recovery.rs` (closure, descriptors, unit precheck);
   - `source_receipt/source.rs` (blocks, level, payload);
-  - `lib.rs` (the replay screen on both routes);
-  - `source_recovery/j7_rf_census.rs` (classes, public binding).
+  - `source_recovery/j7_rf_census.rs` (classes, public binding, its module doc);
+  - `source_receipt/load_state_fallback_tests.rs`, `s11g_tests.rs` (T13) and `retained_facade_tests.rs` (B3B RV123 S2), whose scenarios or pins move (section 5.5).
+  - `lib.rs`'s publication paths are unchanged (section 2.9).
 - Readers (DEL-05-02): `result_export/src/source_blocks.rs` and `tests/verifiers/source_blocks.py`.
-- Nonlinear (DEL-04-01): the code does not change. Its strict-gap path is charged by the new rule:
+- Nonlinear (`core/solver/nonlinear_integration`, owned by DEL-04-04): the code does not change. Its strict-gap path is charged by the new rule:
   - its work counters move;
   - no committed outcome changes (measured, section 5.5);
   - models that exhaust today's 2,000,000 per-call limit can complete.
-  DEL-04-01 is therefore an affected deliverable, as well as the owner of the frame-kernel changes.
+
+  DEL-04-04 is therefore affected, and so is DEL-04-01, as the owner of the frame-kernel changes and of the K-D5 nonlinear design (`kd5-nonlinear-active-set.md`), which HELP_HUMAN's ruling names.
 - `tools.deliverables impact DEL-05-02` also lists DEL-04-07, DEL-07-03 (material, component and rule-pack editors) and DEL-11-01 (user guide skeleton). RF changes no editor or guide surface; the desktop reads receipts through the Rust reader.
 
 **Reviewed inputs.** Only #1, `physics_source_recovery.schema.json`, changes. No semantic table changes.
@@ -581,7 +646,7 @@ Each mutant is introduced into a scratch copy of the implementation and must be 
 - `exact::Limits`, `Work` and `AttemptBudget` keep their layouts; the charging rule needs no field.
 
 **TEXT.**
-- New or changed literals: the transform decline (40 B, replacing 44 B), the receipt level (46 B) and "captured replay reservation" on the pre-0.4 route (existing literal).
+- New or changed literals: the transform decline (40 B, replacing 44 B) and the receipt level (46 B).
 - The census module's new sites, at multiplicity 0, are listed under J3's guarded rule.
 - Decline messages that embed work counters keep their classes (a usize Debug is at most 20 B).
 
@@ -595,14 +660,14 @@ Each mutant is introduced into a scratch copy of the implementation and must be 
 The new loops also need rules, or the run stops: the block arithmetic (bounded by order 4), the congruence formation (144 entries × 9 products), the reaction grouping (bounded by blocks) and the unit precheck.
 
 **Fixtures, corpora and pins.**
-- *From coverage:* the census pin, J2 (two new bases in both modes, and mutations) and the four new public envelopes, which are pinned only in the census.
+- *From coverage:* the census pin; J2 (three new bases in both modes, and mutations); the four new public envelopes, pinned in the census and byte-equal to J2's PIN-OFF-345 bases; and, at implementation, b7-plan's J7 census paragraph and the census module doc (section 6).
 - *From section 3's reclassification:* the W1 route-E successor pinned by `retained_facade_tests::b3b_rv123_s2_unavailable_exact_case_binds_def_e`. Its decline text and the hashes binding it move, in both modes.
 - *From the uniform rule:* every committed artifact that carries a source attempt's work counters, or a decline message containing them:
   - the 24 raw source controls (`fixtures/product_preview/pressure_source/**`; measured: 6 leaves each, all work-derived) and their 30 derived documents (`fixtures/results/pressure_source_load_state_*`);
   - J2's existing bases;
   - MJ6/MJ9's captured bases (`tests/pressure_source_join.rs`);
   - the public-serialization pin in `source_receipt/pressure_source_context_tests.rs`;
-  - `core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-*.raw.json`, whose outcome changes for work alone (section 5.5);
+  - `core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-*.raw.json`, whose outcome changes for work alone. It is either replaced by a work-independent sensitive 0.4 request, or becomes the selected publication with its consumers re-stated: T13, the reader-verdict and base-reader corpora, `loadReferenceReaderCases`, `load_reference_source_contract.rs`, the desktop load-reference tests and `test_ci_numerical.py` (section 5.5);
   - the five `load_state_fallback_tests` scenarios, whose limits are re-derived.
 - Every regenerated byte difference must be a work counter, a hash binding one, a decline text embedding one, or one of the outcome changes listed in section 5.5. Each file is regenerated by its own writer.
 - *Expected unchanged:*
@@ -610,7 +675,7 @@ The new loops also need rules, or the run stops: the block arithmetic (bounded b
   - the retained corpus `fixtures/results/retained_precision_cases.json`, and through it the R1 and R2 reader records and the desktop WASM inputs (derived, section 5.5).
 - U6/U8 regenerates several of the same families for its own reasons (its design, section 9). RF regenerates them once more, on top of U6/U8's bytes.
 
-**Unchanged:** references, criteria, tolerances, tables, D1 limits, the model format, the 0.4 eligibility boundary and the desktop.
+**Unchanged:** references, criteria, tolerances, tables, D1 limits, the model format, the 0.4 eligibility boundary and the desktop's code. The desktop's load-reference tests are affected only through `load_reference_fallback_uz`, as above.
 
 **D3** (derived; the actual-source re-registration replaces these figures). In the phases that price the live source attempt (T07) and its receipt replay (T25), at the D1 caps (32 nodes, so N = 192, and m = 32 members):
 - **Order 4: about +2.1 MB.** The adjugate cache is about 0.98 MB in each of two live Contexts. The witnesses, transients and accumulators add about 0.1 MB.
@@ -621,7 +686,7 @@ The new loops also need rules, or the run stops: the block arithmetic (bounded b
 - **TEXT: negligible** (under 1 KB per invocation).
 - **Total: about 8 MB.** The charging rule does not affect memory.
 
-At B7b's registration, the tight merged dense W3 phase had 24,554,418 B of headroom. U6/U8 is re-registering. Its design estimates its levers at about +390 MB for merged dense W3 and leaves X1 the tight phase at about +53 MB; those figures are its estimates, not measurements, and exclude several unpriced items.
+At B7b's registration, the tight merged dense W3 phase had 24,554,418 B of headroom. U6/U8 is re-registering. Its design reports merged dense W3 at +390.6 MB with its levers ("measured", on scratch pricing of `dff1ff2a08`). It estimates X1 as then the tight phase, at about +53 MB; that figure is not measured. Both figures exclude several items its design lists as not yet priced.
 
 **Assumption.** RF fits at M = 12 GiB, with the unchanged 0.9 M margin and 5 % TEXT reserve, if U6/U8's registered profile leaves at least about 10 MB in every phase that prices T07 or T25. If it leaves less, RF has one lever of its own: recomputing the adjugate in Solve frees about 2 MB at the cost of work. Otherwise RF returns to HELP_HUMAN with the measured shortfall. Decision 22 is not proposed for change.
 
@@ -638,7 +703,11 @@ U6/U8 (`codex/piping-t4-u6u8-20261016`, head `334dda5eb0` when this was written;
 7. **The uniform rule's regenerated families** (section 9) are the same families U6/U8 regenerates. Their bases move with U6/U8 first.
 8. **D3.** U6/U8 adds U6-DH, U6-RB and the route-specific row premise, and re-prices the FK layouts. RF's delta adds to whatever headroom U6/U8 registers (section 9). *Re-check:* U6/U8's registered per-phase headroom against RF's estimate, before RF's implementation begins.
 9. **b7-plan.** U6/U8 edits "Current model format". RF adds only the two link lines (the B7b table row and "After B7b" item 2). The hunks are disjoint.
-10. **The later O4 epoch** (Timoshenko and corrosion-allowance source extension) will lift U6/U8's declines. Its Timoshenko local matrices then enter RF's congruence unchanged. The congruence handles any declared K_local, and the O4 epoch must keep RF's closure, witness and charging rules.
+10. **Readers and authoring after U6/U8.**
+    - After U6/U8 the pressure-source-1 readers require `euler_bernoulli` and zero allowances. J2's new invented order-4 base is authored that way (section 7).
+    - With Timoshenko as the authoring default (U8), default-authored documents are declined by name before they reach RF's paths, until the O4 epoch.
+    - U6/U8 also edits `source_receipt/pressure_source_context_tests.rs` and `retained_memory.rs`, both of which RF re-pins. Their re-pinning starts from U6/U8's bytes.
+11. **The later O4 epoch** (Timoshenko and corrosion-allowance source extension) will lift U6/U8's declines. Its Timoshenko local matrices then enter RF's congruence unchanged. The congruence handles any declared K_local, and the O4 epoch must keep RF's closure, witness and charging rules.
 
 ## 11. Rulings
 
@@ -650,8 +719,11 @@ U6/U8 (`codex/piping-t4-u6u8-20261016`, head `334dda5eb0` when this was written;
 **Decided in this design, for the independent review to check:**
 - the exact source of a non-axis-aligned member is its exact congruence (3.1);
 - the order cap is scoped per entry (2.1);
-- the replay screen applies to every selection (2.9);
-- the receipt states the source basis through `level`, and no table changes (7).
+- no new publication rule; the pre-0.4 path keeps its named refusal (2.9);
+- the receipt states the source basis through `level`, and no table changes (7);
+- a stored receipt recording an order-3 or 4 block refusal is no longer readable and is re-run, under the owner's one-current-version direction (7).
+
+**Stated for HELP_HUMAN's information.** The ruling expected that no previously selected case loses selection. The census shows that for its single-case invocations. On a shared invocation or strict-gap run ledger, the cross-attempt exception of 5.2 (6) can in principle cost a later case its selection, and that outcome fails closed. No committed suite exhibits it.
 
 **Not proposed, and reserved:**
 - any change to D1's limits (`PHYSICS_SOURCE_WORK_LIMIT`, the exact-boundary limits, 256 DOFs);
@@ -669,17 +741,19 @@ None is needed. If U6/U8's registered headroom leaves RF short, the shortfall re
 
 **Order of work,** from merged main after U6/U8:
 1. Re-check section 10's points.
-2. Frame kernel: the charging rule, its oracle and its control.
+2. Frame kernel: the charging rule, its oracle and its control. Re-pin every work counter it moves (section 5.5), and nothing else.
 3. Orders 3 and 4.
 4. The congruence source.
-5. Product physics: closure, descriptors, unit precheck, receipt and screen.
+
+   After steps 3 and 4, every order-1/2, signed-permutation control must be byte-identical to its step-2 re-pin. Otherwise the rule's own work changes would mask RF-6.
+5. Product physics: closure, descriptors, unit precheck and receipt.
 6. The readers, J2 and the census.
 7. The regenerated families.
 8. The pricing rules and the actual-source D3 re-registration at M = 12 GiB, with the unchanged 0.9 M margin and 5 % TEXT reserve.
 
 **Checks.**
 - The mutants of section 8, each killed by its named test.
-- The suites `select_affected_checks.py` selects for the changed paths, including `frame_kernel`, `nonlinear_integration`, `product_physics` (with `pressure_source_join` and the census) and `result_export`, and the Python verifier tests.
+- The suites `select_affected_checks.py` selects for the changed paths, including `frame_kernel`, `nonlinear_integration`, `product_physics` (with `pressure_source_join`, the census and the six integration targets section 5.5 lists as not yet run), `result_export`, headless, the desktop's load-reference tests, and the Python verifier tests.
 - The census and J2 in native Rust, wasm and Python.
 - The hosted `harness` on the exact head.
 
