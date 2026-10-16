@@ -42,7 +42,12 @@ re-authoring writes as 0) are re-frozen:
 - all rows, zero scales, discriminators and the objectivity and quadrature
   checks are recomputed. In the free-tip cases every force, moment and
   reduced-basis stress is unchanged; displacements, the nominal-basis
-  stresses and the anchored cases' actions move.
+  stresses and the anchored cases' actions move;
+- the zero-scale rule is unchanged (per member, 1e-9 × that member's own
+  largest force or moment). Where the re-frozen restraint actions rose, so did
+  the floors: 19 of the 152 member scales rose, by at most ×1.115
+  (`U4A-PR1-Z-ANCH-NEGP`, `pipe:BEND1`, force). This is not a loosening: each
+  floor stays tied to its member's own maximum.
 
 The twelve preview-physics-1 cases keep their bytes (one section, as the
 preview route keeps), and `requests.json` is unchanged, so

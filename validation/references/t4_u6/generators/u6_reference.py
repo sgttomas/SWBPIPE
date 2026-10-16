@@ -857,16 +857,64 @@ def request_doc(project, coincident, shear, restrained, thermal, cases):
     return {"model": model, "materials": []}
 
 
+def request_doc_load_state_group(plain):
+    """The same document with the load/reference-state group (B7b: 0.4.0's rules inside model 0.5.0), formed
+    as T4-I8's to_040 forms it: an installed reference configuration with a direct strain reference per
+    pipe; the material's expansion coefficient and every thermal primitive moved into each case's element
+    thermal_state (constant_alpha_interval, engineering interval); every remaining primitive listed in
+    load_sources with factor 1; every support an active model device."""
+    doc = json.loads(json.dumps(plain))
+    m = doc["model"]
+    m["reference_configurations"] = [{"id": "reference:installed", "label": "Installed reference",
+                                      "geometry_ref": {"kind": "authored_model_geometry"},
+                                      "member_references": [{"pipe_ref": p["id"], "basis": {"kind": "direct_strain_reference"},
+                                                             "fit": {"kind": "none"}, "provenance": PROV} for p in m["pipe_segments"]],
+                                      "provenance": PROV}]
+    alpha = {mat["id"]: mat.pop("thermal_expansion_coefficient", None) for mat in m["materials"]}
+    for case in m["load_cases"]:
+        thermal = {l["target"]["pipe"]: l["magnitude"] for l in case["primitive_loads"] if l["category"] == "thermal"}
+        case["primitive_loads"] = [l for l in case["primitive_loads"] if l["category"] != "thermal"]
+        states = []
+        for p in m["pipe_segments"]:
+            if p["id"] in thermal:
+                ts = {"kind": "constant_alpha_interval", "coefficient": alpha[p["material"]], "temperature_change": thermal[p["id"]],
+                      "coefficient_meaning": "engineering_interval", "provenance": PROV}
+            else:
+                ts = {"kind": "unchanged_reference", "provenance": PROV}
+            states.append({"pipe_ref": p["id"], "material_selection": {"kind": "explicit_base_properties", "material_ref": p["material"],
+                                                                        "applicability_reference": "invented analytical basis declared applicable (T4-U6)"},
+                           "thermal_state": ts})
+        case["analysis_state"] = {"contract": "openpipestress.load_reference_state/1.0.0", "reference_configuration_ref": "reference:installed",
+                                  "element_states": states,
+                                  "support_states": [{"support_ref": s["id"], "participation": {"kind": "active_model_device"}} for s in m["supports"]],
+                                  "load_sources": [{"source_ref": l["id"], "factor": 1.0} for l in case["primitive_loads"]],
+                                  "history": {"kind": "independent_equilibrium"}, "provenance": PROV}
+    p0, g0 = plain["model"], m
+    check("load/reference-state twin: same nodes, pipes, supports and pressure regions",
+          all(p0[k] == g0[k] for k in ("nodes", "pipe_segments", "supports"))
+          and [c["pressure_regions"] for c in p0["load_cases"]] == [c["pressure_regions"] for c in g0["load_cases"]])
+    check("load/reference-state twin: each thermal primitive becomes alpha dT in its case's element state",
+          all({l["target"]["pipe"]: l["magnitude"]["value"] for l in cp["primitive_loads"] if l["category"] == "thermal"}
+              == {e["pipe_ref"]: e["thermal_state"]["temperature_change"]["value"] for e in cg["analysis_state"]["element_states"]
+                  if e["thermal_state"]["kind"] == "constant_alpha_interval"}
+              for cp, cg in zip(p0["load_cases"], g0["load_cases"]))
+          and all(e["thermal_state"]["coefficient"]["value"] == float(ALPHA) for c in g0["load_cases"] for e in c["analysis_state"]["element_states"]
+                  if e["thermal_state"]["kind"] == "constant_alpha_interval"))
+    return doc
+
+
 def dump(value):
     return (json.dumps(value, indent=1, ensure_ascii=False, allow_nan=False) + "\n").encode()
 
 
 # ---------------------------------------------------------------- the cases
 CASES = [
-    # (case id, coincident, restrained, variants: [(shear model, request file or None)], runnable load cases, pending load cases)
-    ("U6-BASES-001", False, False, [(EB, "U6-BASES-001-EB"), (TIMO, "U6-BASES-001-TIMO")], ["case:pressure-tip", "case:axial-tip"], ["case:self-weight", "case:combined"]),
-    ("U6-BASES-002", False, True, [(EB, "U6-BASES-002")], ["case:restrained-pressure", "case:restrained-pressure-thermal"], []),
-    ("U6-BASES-COINCIDENT", True, False, [(EB, "U6-BASES-COINCIDENT")], ["case:pressure-tip", "case:axial-tip"], []),
+    # (case id, coincident, restrained, variants: [(shear model, request, load/reference-state-group twin or None)],
+    #  runnable load cases, pending load cases)
+    ("U6-BASES-001", False, False, [(EB, "U6-BASES-001-EB", None), (TIMO, "U6-BASES-001-TIMO", None)], ["case:pressure-tip", "case:axial-tip"],
+     ["case:self-weight", "case:combined"]),
+    ("U6-BASES-002", False, True, [(EB, "U6-BASES-002", "U6-BASES-002-GROUP")], ["case:restrained-pressure", "case:restrained-pressure-thermal"], []),
+    ("U6-BASES-COINCIDENT", True, False, [(EB, "U6-BASES-COINCIDENT", None)], ["case:pressure-tip", "case:axial-tip"], []),
 ]
 DESCRIPTION = {
     "U6-BASES-001": "A pressurized straight cantilever (anchored at A, free at B, L = 2 m) with mill tolerance 0.00125 m and corrosion allowance 0.002 m on OD 0.2 m, wall 0.01 m: the same model on each basis. Displacements on the nominal stiffness; reactions; the pressure thrust on the pressure bore; every stress row on the nominal and the reduced section with per-basis maxima. Euler-Bernoulli and Timoshenko (timoshenko_annulus_energy_v1, kappa_E from the nominal annulus) documents. The self-weight load cases are frozen, but their request entry is pending (README, open items).",
@@ -882,14 +930,23 @@ def section_evidence(phys):
     bt = {"model": phys["shear_model"]}
     if phys["shear_model"] == TIMO:
         bt.update({"shear_factor": qty(phys["kappa"], "1"), "shear_area_m2": qty(phys["shear_area"], "m^2")})
-        ri, ro = float(OD) / 2 - float(WALL), float(OD) / 2
-        kb = kappa_binary64(ri, ro, float(NU))
-        bt["shear_factor_binary64_exhibit"] = {"value": kb, "hex": kb.hex(), "from": "the Design section 3.1 operation order on the binary64 leaves r_i,n = OD/2 - t, r_o = OD/2, nu",
-                                               "relative_difference_from_exact": format(float(abs(F(kb) - phys["kappa"]) / phys["kappa"]), ".3e")}
     return {"pipe_id": PIPE, "geometry_basis": "authored_od_wall_d5_sections_v1", "outside_diameter_m": qty(OD, "m"), "ro_m": qty(OD / 2, "m"),
             "wall_thickness_m": qty(WALL, "m"), "mill_tolerance_m": qty(phys["mill"], "m"), "corrosion_allowance_m": qty(phys["allowance"], "m"),
             "nominal_section": block(phys["nominal"]), "reduced_section": block(phys["reduced"]),
             "pressure_bore": {"ri_m": qty(phys["reduced"]["ri"], "m"), "Ai_m2": qty(phys["reduced"]["Ai"], "m^2")}, "beam_theory": bt}
+
+
+def shear_factor_exhibit(phys):
+    """kappa evaluated in binary64 in the Design section 3.1 order from the binary64 leaves, for the evidence
+    readers; kept outside the pipe_sections evidence object, which has exactly the Design's keys."""
+    ri, ro = float(OD) / 2 - float(WALL), float(OD) / 2
+    kb = kappa_binary64(ri, ro, float(NU))
+    return {"value": kb, "hex": kb.hex(), "from": "the Design section 3.1 operation order on the binary64 leaves r_i,n = OD/2 - t, r_o = OD/2, nu",
+            "relative_difference_from_exact": format(float(abs(F(kb) - phys["kappa"]) / phys["kappa"]), ".3e")}
+
+
+EVIDENCE_KEYS = ["pipe_id", "geometry_basis", "outside_diameter_m", "ro_m", "wall_thickness_m", "mill_tolerance_m", "corrosion_allowance_m",
+                 "nominal_section", "reduced_section", "pressure_bore", "beam_theory"]
 
 
 def build():
@@ -898,16 +955,31 @@ def build():
     disc_count = 0
     for case_id, coincident, restrained, variants, runnable, pending in CASES:
         case_out = {"description": DESCRIPTION[case_id], "variants": {}, "wrong_result_discriminators": []}
-        for shear, request in variants:
+        for shear, request, group_request in variants:
             phys = physics(coincident, shear)
             base = f"/cases/{case_id}/variants/{shear}"
-            var = {"request": None, "pipe_sections_evidence": section_evidence(phys), "load_cases": {}}
+            evidence = section_evidence(phys)
+            check("pipe_sections evidence has exactly the Design section 2.5 keys, in order", list(evidence) == EVIDENCE_KEYS
+                  and all(list(evidence[s]) == ["wall_m", "ri_m", "As_m2", "I_m4", "J_m4", "Z_m3"] for s in ("nominal_section", "reduced_section"))
+                  and list(evidence["pressure_bore"]) == ["ri_m", "Ai_m2"]
+                  and list(evidence["beam_theory"]) == (["model", "shear_factor", "shear_area_m2"] if shear == TIMO else ["model"]))
+            var = {"request": None, "pipe_sections_evidence": evidence, "load_cases": {}}
+            if shear == TIMO:
+                var["binary64_exhibits"] = {"shear_factor": shear_factor_exhibit(phys)}
             if request:
                 doc = request_doc(f"project:invented-t4-u6-{request.lower()}", coincident, shear, restrained,
                                   any(LOAD_CASES[c]["thermal"] for c in runnable), runnable)
                 data = dump(doc)
                 files[f"requests/{request}.request.json"] = data
                 var["request"] = {"path": f"requests/{request}.request.json", "sha256": hashlib.sha256(data).hexdigest(), "load_cases": list(runnable)}
+            if group_request:
+                gdoc = request_doc_load_state_group(doc)
+                gdoc["model"]["project"]["id"] = f"project:invented-t4-u6-{group_request.lower()}"
+                gdata = dump(gdoc)
+                files[f"requests/{group_request}.request.json"] = gdata
+                var["request_load_state_group"] = {
+                    "path": f"requests/{group_request}.request.json", "sha256": hashlib.sha256(gdata).hexdigest(), "load_cases": list(runnable),
+                    "note": "the same physical inputs with the load/reference-state group (thermal as each case's element thermal_state); judged against the same rows"}
             for cid in runnable + pending:
                 lc = LOAD_CASES[cid]
                 rows, evidence, r, cuts = rows_of(phys, lc)
