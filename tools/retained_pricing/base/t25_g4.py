@@ -104,9 +104,20 @@ class VF:
     def text(self):
         return EPS * self.strb + self.keyb + 8 * self.values() + 24 * self.nums
 
+# U6-SH (T4-U6 D3, option A; retained-pricing-rules.md "U6-SH"): every T25 hash route is source_receipt.rs `hash`
+# (its only definition in the crate; source.rs and composite.rs call it through `use super::*`). Where `hash`
+# serializes the borrowed DomainPayload {domain, payload} through `hash_text` (checked: their exact text and the one
+# struct) instead of `checked(&json!({"domain":domain,"payload":payload}))`, no copy of the payload is made; the
+# to_string text, the checked parse and the canonical output are `checked`'s and stay priced. Any other form stops
+# (u6_owners_model.receipt_hash_copies).
+import u6_owners_model as _u6_model
+T25_HASH_COPY = _u6_model.receipt_hash_copies(
+    open(os.path.join(os.environ["RP_SNAPSHOT"], "core/product_physics/src/source_receipt.rs"), encoding="utf-8").read())
+
+
 def hash_route(vf, lmax):
     e = vf.text()
-    return (vf.tree() + B(j3cap(e)) + vf.parsed()
+    return ((vf.tree() if T25_HASH_COPY else X()) + B(j3cap(e)) + vf.parsed()
             + HashReq("String", 16) * vf.depth          # active seen sets (<= 16 keys per frame bound below)
             + B(2 * max(24, RID) + 2080 + max(8, 2 * e) + vf.depth * 8 * 16 + 144 + 128)
             + B(max(128, 2 * (EPS * lmax + 2)))        # S-3: the per-string to_string temporary (one at a time)
@@ -130,6 +141,11 @@ rows["T25.1c build_model + helper maps + boundary"] = (
     + HashReq("(String,DerivedSection)", m) + B(2 * m * ID + g * ID + 8 * (4 * g + 2 * r) + 8 * sp + 32)
     + HashReq("(&str,&T)", 8) + HashReq("(&str,usize)", n) + HashReq("(&str,&T)", m)
     + V("usize", r) + V("SpringEntry", sp) + B(sp * ID) + V("SupportFinding", r))
+if _u6_model.inspect(os.environ["RP_SNAPSHOT"])["exact_sections"]:
+    # U6-ES: the rebuilt model's exact_sections, one (pipe id, ExactSectionBases) entry per built pipe.
+    ASSUMED.setdefault("s((String,ExactSectionBases))", 400)   # illustrative; the in-build size_of qualifies
+    rows["T25.1c build_model + helper maps + boundary"] = (rows["T25.1c build_model + helper maps + boundary"]
+                                                           + HashReq("(String,ExactSectionBases)", m) + B(m * ID))
 rows["T25.1d dense stiffness, loads, application, force, prescribed, free"] = (
     Mat(8, N, N) + A("PrimitiveLoad", l) + V("NodalLoadContribution", l) + B(2 * l * ID)
     + B(8 * N) + V("ForceTerm", l) + V("Option<FormationRecord>", l) + s("Vec<usize>") * N

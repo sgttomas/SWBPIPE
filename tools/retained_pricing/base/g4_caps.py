@@ -238,27 +238,12 @@ MEMBERS = BODY.tree()                                                           
 # U6-DH (T4-U6, DEL-05-03 Design section 9; retained-pricing-rules.md "U6-DH"): T16's three hashes (source identity,
 # publication, receipt: retained_wire.rs serialize/finish) call retained_wire::domain_hash. Where it serializes the
 # borrowed DomainPayload {domain, payload} (checked: its exact text) instead of json!'s copy of the payload into a new
-# Value, the route makes no wrapper copy; the text and hash are the same. Any other form stops here. T17 (the RS
-# reader: result_export source_blocks::domain_hash) and T25 (source_receipt's hash) still copy (json!).
-_RW_SRC = open(os.path.join(SNAP, "core/product_physics/src/retained_wire.rs"), encoding="utf-8").read()
-_RW_COPY = ("pub(super) fn domain_hash(domain: &str, payload: &Value) -> Option<String> {\n"
-            "    let text = serde_json::to_string(&json!({\"domain\":domain,\"payload\":payload})).ok()?;\n"
-            "    canonical_json_checked_v1_text(&text).ok().map(|canon| sha_hex(canon.as_bytes()))\n}\n")
-_RW_BORROW = ("pub(super) fn domain_hash(domain: &str, payload: &Value) -> Option<String> {\n"
-              "    let text = domain_text(domain, payload)?;\n"
-              "    canonical_json_checked_v1_text(&text).ok().map(|canon| sha_hex(canon.as_bytes()))\n}\n")
-_RW_BORROW_TEXT = ("pub(super) fn domain_text(domain: &str, payload: &Value) -> Option<String> {\n"
-                   "    serde_json::to_string(&DomainPayload { domain, payload }).ok()\n}\n")
-_RW_BORROW_TYPE = ("#[derive(serde::Serialize)]\nstruct DomainPayload<'a> {\n    domain: &'a str,\n    payload: &'a Value,\n}\n")
-if _RW_SRC.count("fn domain_hash(") != 1:
-    raise SystemExit("U6-DH: retained_wire's domain_hash is not one function; re-review")
-if _RW_COPY in _RW_SRC:
-    _T16_COPY = True
-elif _RW_BORROW in _RW_SRC and _RW_BORROW_TEXT in _RW_SRC and _RW_BORROW_TYPE in _RW_SRC \
-        and _RW_SRC.count("DomainPayload") == 2 and _RW_SRC.count("domain_text(") == 2:
-    _T16_COPY = False
-else:
-    raise SystemExit("U6-DH: retained_wire's domain_hash changed; re-review the publication hash route")
+# Value, the route makes no wrapper copy; the text and hash are the same. Any other form stops here
+# (u6_owners_model.domain_hash_copies). T17 (the RS reader: result_export source_blocks::domain_hash) still copies
+# (json!); T25 (source_receipt's hash) is U6-SH, in t25_g4.py.
+import u6_owners_model as _u6_model
+_T16_COPY = _u6_model.domain_hash_copies(
+    open(os.path.join(SNAP, "core/product_physics/src/retained_wire.rs"), encoding="utf-8").read())
 st16 = {
     "P1 env to_value + successor deltas + members + source identity hash":
         ENV_S.tree() + ENV_GROWTH + LOCALS16 + SOURCE.tree() * 2 + hash_route(SOURCE, ID, _T16_COPY) + PREP_PAYLOAD.tree(),
@@ -331,6 +316,13 @@ if _prescribed_keys.borrowed(SNAP):
     ASSUMED.update({"Node((&str,&str),())": 472, "s(NumericCaseBorrowed)": 168,
                     "s(BTreeSetBorrowed)": 24, "s(PairBorrowed)": 32, "s(NumericCaseResultBorrowed)": 240})
     evv.update(ASSUMED)
+if _u6_model.inspect(SNAP)["all_rows"]:
+    # U6-RS (T4-U6 D3; retained-pricing-rules.md "U6-RS"): NumericCase's tenth field `all_rows` (a Vec header per
+    # numeric case and per Result carrier, beyond NumericCaseBorrowed's nine-field upper) holding every published row
+    # of its case (<= PA over all cases), rows_for's transient full vector (<= P) beside its filtered one, g5c's
+    # drained `bound` classes (<= P) beside the rebuilt classes, and the one `last` class clone (its id and basis_ref).
+    SETS = (SETS + s("&Value") * (PA + P) + s("Vec") * (pushcap(CC) + 2) + Xc("RowClassification", P)
+            + s("RowClassification") + B(RID + 2 * ID + 64) + X({"Node(String,Value)": 1}))
 # G5 part 2 (RV87 N-2): the walkers allocate per object: objects() (retained_precision.rs:1694) pushes a
 # reference per object of a work owner (<= BODY); located() (:1722) pushes (path.clone(), &Map) per object
 # of an attempt (accounting_rules, :1850; ATTEMPT), the path <= 9 segments of <= 32 bytes

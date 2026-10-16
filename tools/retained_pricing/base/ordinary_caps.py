@@ -56,6 +56,13 @@ if _snapshot:
     _wide_model.inspect(_snapshot)
     _wide = True
 force_q = 12 * l if _wide else l
+# T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): the D-5/D-6 resident owners, each priced
+# positively where its source exists (u6_owners_model checks the source text): U6-ES (BuiltModel.exact_sections),
+# U6-WS (the case solve's reduced stresses, stress sites and reduced spans), U8-FM (FormationSource.frame_members).
+import u6_owners_model as _u6_model
+_u6 = _u6_model.inspect(_snapshot) if _snapshot else {"exact_sections": False, "reduced_workspace": False,
+                                                      "frame_members": False, "all_rows": False}
+_FM = (Xc("String", m) + B(m * textcap(_u6_model.MEMBER_PREFIX))) if _u6["frame_members"] else X()
 _mc = __import__("g3lib").g4_caps()
 CC, LL = (_mc["c"], _mc["L"]) if which == "caps" else (1, l)   # I82: requested cases, total loads
 if _wide:
@@ -165,6 +172,11 @@ add("O-N per-load provenance parse transient (RV83 R-3; one at a time)", "Normal
 _built_resident = (V("FrameNode", n) + V("StraightPipeElement", m) + V("FrameElement", m) + A("LinearSupport", g)
                    + HashReq("(String,DerivedSection)", m) + B(2 * m * ID + g * ID)
                    + B(8 * (4 * g + 2 * r)) + B(8 * sp) + B(32))
+if _u6["exact_sections"]:
+    # U6-ES: one (pipe id, ExactSectionBases) entry per built pipe, beside the DerivedSection map. The illustrative
+    # stride is the chain's own check only; the in-build size_of qualifies (g5_profile).
+    ASSUMED.setdefault("s((String,ExactSectionBases))", 400)
+    _built_resident = _built_resident + HashReq("(String,ExactSectionBases)", m) + B(m * ID)
 add("BuiltModel straight resident", "Built", _built_resident)
 if _wide:
     add("Named basis BuiltModel residents (B7a stage 1)", "Built", _built_resident * _named_cases)
@@ -243,7 +255,8 @@ def typed_core(mode):
         out["AssemblyEvidence (sparse pattern copy)"] = (
             B(8 * (N + 1) + 16 * Z + 16 * Z + 16 * Z) + V("StiffnessContribution", C)
             + Xc("Option<[f64;3]>", n) + V("(usize,usize,bool)", m) + B(8 * pushcap(sp))
-            + Xc("FrameElement", m) * 2 + Xc("(usize,f64)", sp) * 2)
+            + Xc("FrameElement", m) * 2 + Xc("(usize,f64)", sp) * 2
+            + _FM * 3)   # U8-FM: PP's identities, the evidence's to_vec and formation_source's clone
         # Sparse typed preparation (BOUND :63)
         out["Sparse typed preparation"] = (
             B(8 * (F + 1) + 3 * 8 * appendcap(Zf) + 8 * Zf + 8 * F + 8 * F + 4 * F)
@@ -265,7 +278,8 @@ def typed_core(mode):
         out["AssemblyEvidence (dense) + three dense global views"] = (
             Mat(8, N, N) * 2 + Mat(8, N, N) * 2 + V("StiffnessContribution", C) + Xc("Option<[f64;3]>", n)
             + V("(usize,usize,bool)", m) + B(8 * pushcap(sp)) + Xc("FrameElement", m) * 2
-            + Xc("(usize,f64)", sp) * 2 + Mat(8, N, N) * 3)
+            + Xc("(usize,f64)", sp) * 2 + Mat(8, N, N) * 3
+            + _FM * 3)   # U8-FM: PP's identities, the evidence's to_vec and formation_source's clone
         out["Dense typed preparation + Cholesky"] = (Mat(8, F, F) + B(8 * F + 4 * F) + Mat(8, F, F)
                                                      + V("PivotEvidence", F))
         dense_headers = (s("Vec<Expansion>") * N + s("Expansion") * (N * N)) * 2
@@ -337,7 +351,7 @@ def w2(mode, core_total, report, fidelity):
     scaled_force = ((Xc("LoadClosureRecord", force_q) + s("Vec") if KD5 else X()) + scaled_children
                     + B(8 * N) + A("ForceTerm", force_q) + B(force_q * ID) + Xc("Vec<usize>", N) + B(8 * force_q)
                     + Xc("Option<FormationRecord>", force_q) + B(8 * pushcap(min(force_q, N))))
-    scaled_prims = A("FrameElement", m) + A("(usize,f64)", sp)
+    scaled_prims = A("FrameElement", m) + A("(usize,f64)", sp) + _FM   # U8-FM: each scaled copy's identities
     kbuild = K_resident() + pattern_build()
     evaluate = (kbuild + core_total + scaled_force + scaled_prims * 2 + B(N) + A("usize", F)) * 2
     unscale = V("RecordOutcome", 6 * F) + B(4 * F + 8 * (d + 1))
@@ -374,6 +388,7 @@ if KD5:
     # KD5O8: price the recovery's separately constructed FormationSource
     # explicitly, preserving the prior assembly/check copy allowances.
     _recovery_groups += Xc("FrameElement", m) + Xc("(usize,f64)", sp) + s("Vec") * 6
+    _recovery_groups += _FM   # U8-FM: certified_publication's source() fills frame_members from PP's identities
     if _wide:
         _recovery_groups += _phase_owner("recovery_source_children")
 # KD5O11: PP caller owners and return/move slots, separate from the
@@ -390,12 +405,18 @@ _pp_certified_callers = (
 ) if KD5 else X()
 J = 17 + max(8, 2 * 57)
 stress_children = s("AnalysisStatus") * 8 + s("StressFinding") * 4 + B(4 * J)
+# U6-WS: per member (one member's at a time), the reduced section's end and station stresses beside the nominal
+# ones (2 ends + <= 3 stations, KD5L7; the bare StressRecoveryResult priced at the (&str, ..) tuple), their
+# children, the stations Vec, the stress_sites Vec (vec! of 2 plus <= 3 pushes) and the stress-finding bases (<= 2).
+_reduced_stresses = (s("(&str,StressRecoveryResult)") * 5 + stress_children * 5 + s("Vec")
+                     + B(pushcap(5) * _u6_model.STRESS_SITE + 2 * _u6_model.FINDING_BASIS)) if _u6["reduced_workspace"] else X()
 add("Straight member recovery (+ stress supplement)", "OrdinaryRecovery",
     B(96 + 160) + s("StationResultants") * 4 + B(8 * N)
     + HashReq("(String,[f64;6])", g) + B(g * ID) + Xc("SupportVector", g) + B(g * ID)
     + V("MemberRecord", m) + B(m * ID) + V("RecoveryRecord", _recovery_count) + B(_recovery_count * ID) + _recovery_groups + _pp_certified_callers
     + tx("err") * (2 * m + 1) + tx("err") * m
-    + s("(&str,StressRecoveryResult)") * 3 + stress_children * 6 + s("AnalysisStatus") + B(64 + 16 + 160),
+    + s("(&str,StressRecoveryResult)") * 3 + stress_children * 6 + s("AnalysisStatus") + B(64 + 16 + 160)
+    + _reduced_stresses,
     B(32) + s("AnalysisStatus") * 8 + s("StressFinding") * 2 + B(max(8, 2 * 57)))
 q = m + n + g
 add("Formation-guard late maps and RecoveryFinding", "OrdinaryRecovery",
@@ -416,6 +437,10 @@ if KD5 and "certify_straight_stress_spans(" in open(_cp_path, encoding="utf-8").
                           + V("EnclosedQuadraticStressSpan", _span_count)
                           + B(8 * (2 * l + 2)) + s("Vec") * 3
                           + s("CertifiedStressControlWorkspace"))
+    if _u6["reduced_workspace"]:
+        # U6-WS: the exact maximum's reduced basis forms its own spans (straight_stress_spans on the reduced
+        # section) while the member's nominal spans stay held: one more PP output beside this workspace.
+        _coefficient_spans = _coefficient_spans + V("EnclosedQuadraticStressSpan", _span_count) + s("Vec")
 _fallback_workspace = X()
 if KD5 and "fn fallback_circular_maximum(" in open(_cp_path, encoding="utf-8").read():
     import re as _pricing_re

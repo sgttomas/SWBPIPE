@@ -4,7 +4,7 @@ HELPERS = runpy.run_path(os.path.join(os.path.dirname(__file__), "kd5_text_model
 FILE = "core/reporting/result_export/src/retained_precision.rs"
 # T4-U6 (D-5): NumericCase gains `all_rows` (every published row, reduced twins included) and g5c gives each reduced
 # twin its nominal row's class; the prescribed set, its borrowed pairs and their lifetimes are unchanged. The new
-# field and its Vec are priced by U6-RS (`all_rows_field`, g5_profile.py and g4_caps.py).
+# field and its Vec are priced by U6-RS (`all_rows_field`, u6_owners_model.py and g4_caps.py).
 PINS = {"numeric_cases":"9342fa881a9a15724197456be1dab39570904d2e4120a5185b366a19e9163cd9",
         "numeric_owner":"60bf376d50b8b0b25dc9786a4b6cbf5fe1f50d93ff2dec6082eed1a68911e9b8",
         "g5c":"5320501f786602dc5436c2464c26e7a1a8851fa500fe649076cc6b9b866238f9"}
