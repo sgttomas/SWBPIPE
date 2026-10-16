@@ -12,10 +12,18 @@ MINOR defects: the S-E `strain_energy` field included the spring energy; the
 TWIN-A `euler_bernoulli_recovery` reaction-magnitude discriminator rested on an
 unstated assumption; and one moved row was not listed. They were repaired in
 `5e84d520a7` without changing any frozen value, product case or request (see
-S-E under Cases, and Discriminators). Confirmation of the repair is pending.
+S-E under Cases, and Discriminators). On 2026-10-16 an independent refuter
+confirmed all three repairs:
+- the S-E energy terms are correct;
+- the TWIN-A reaction-magnitude discriminator's frozen value F(1+φ) is
+  correct; the original refuter's value had kept the (1−2ν)pAi axial load at
+  node A;
+- the reported unlisted moved row was TWIN-A Fx, which does not move under
+  that mutant.
+
 The `status` strings inside `element_controls.json` and `product_cases.json`
-still say "awaiting independent refutation"; they are left unchanged so that
-those files keep their bytes and hashes.
+record this confirmation. Updating them changed only those two strings and
+the files' hashes.
 
 ## Files
 
