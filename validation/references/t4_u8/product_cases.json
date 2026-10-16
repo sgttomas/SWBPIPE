@@ -1,7 +1,7 @@
 {
  "schema_version": "independent.t4_u8_timoshenko_product_cases/1.0.0",
  "unit": "T4-U8 product exact-route references (Timoshenko straight member) and the T4-I8 marked re-freezes",
- "status": "frozen independent reference before any product comparison; awaiting independent refutation; not product output, not a qualification or acceptance claim",
+ "status": "frozen independent reference before any product comparison; refuted independently on 2026-10-16, its MINOR findings repaired in 5e84d520a7 without a value change, and all three repairs confirmed by an independent refuter on 2026-10-16; not product output, not a qualification or acceptance claim",
  "independence": "generators/u8_reference.py imports, reads and runs no product code; expected values are this generator's exact arithmetic, never product observations",
  "sources": {
   "physics": "SHEAR_REFERENCE at f2211ecef6 (CONTRACT.md sections 1-5, INDEPENDENT_REFUTATION.md, _run_records/shear_refutation/reference_arithmetic.py and stdout)",

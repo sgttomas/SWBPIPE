@@ -2701,7 +2701,9 @@ def element_controls():
     return {
         "schema_version": "independent.t4_u8_timoshenko_element_controls/1.0.0",
         "unit": "T4-U8 element-level controls (frame kernel / straight_pipe tests)",
-        "status": "frozen independent reference; awaiting independent refutation; not product output",
+        "status": "frozen independent reference; refuted independently on 2026-10-16, its MINOR findings repaired in "
+                  "5e84d520a7 without a value change, and all three repairs confirmed by an independent refuter on "
+                  "2026-10-16; not product output",
         "independence": "generators/u8_reference.py imports, reads and runs no product code",
         "basis": "exact rationals (abstract fixtures) and exact Q(pi) (physical companions); every expected value "
                  "derived by this generator; text forms: 'p/q', 'r*pi', 'r/pi', '(n0 + n1*pi)/(d0 + d1*pi)'",
@@ -2858,8 +2860,9 @@ def product_document(cases):
     return {
         "schema_version": "independent.t4_u8_timoshenko_product_cases/1.0.0",
         "unit": "T4-U8 product exact-route references (Timoshenko straight member) and the T4-I8 marked re-freezes",
-        "status": "frozen independent reference before any product comparison; awaiting independent refutation; "
-                  "not product output, not a qualification or acceptance claim",
+        "status": "frozen independent reference before any product comparison; refuted independently on 2026-10-16, "
+                  "its MINOR findings repaired in 5e84d520a7 without a value change, and all three repairs confirmed "
+                  "by an independent refuter on 2026-10-16; not product output, not a qualification or acceptance claim",
         "independence": "generators/u8_reference.py imports, reads and runs no product code; expected values are "
                         "this generator's exact arithmetic, never product observations",
         "sources": {
