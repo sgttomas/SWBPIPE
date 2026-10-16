@@ -9,9 +9,10 @@ use super::*;
 use open_pipe_stress_product_physics::result_export::derivative;
 
 /// The pressure-source table binding, pinned independently of the reader
-/// constant (bytes changed at B7b's resident current table, a43583c625).
+/// constant (bytes changed at B7b's resident current table, a43583c625, and
+/// at T4-U6's per-basis stress signatures).
 const PRESSURE_SOURCE_TABLE_SHA256: &str =
-    "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435";
+    "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53";
 
 fn encoded_length(request: &Value) -> u64 {
     let text = serde_json::to_string(request).unwrap();
