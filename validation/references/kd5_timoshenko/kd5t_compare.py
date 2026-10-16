@@ -29,40 +29,55 @@ Judging rules
   displacement, rotation and displacement-magnitude groups. Names are cc's ACT/conv names and the
   analysis scripts' group names. The key is (group, entity, location, section basis).
 - Lame rows form a group per (pipe, location, basis) judged against its own q [own, stricter: K-D5
-  does not list them; the D-5 "nominal Lame at the pressure bore" mutant needs them judged].
+  does not list them; the D-5 "nominal Lame at the pressure bore" mutant needs them judged]. Their
+  breaches are reported as C1L, not acceptance.
 - conv to force units: s_axial A_b*1e6, s_bending Z_b*1e6, s_torsion J_b/r_o*1e6, membrane A_b,
   with the row's basis section [cc `conv`; per basis: Design §2.1].
 - Coupled scales: SF = max(force, moment/L_b), SM = max(moment, L_b*force) over the published ACT
   groups, L_b the node bounding-box diagonal [K-D5 §3.3; cc]. Displacement and rotation groups use
-  their own q [cc; K-D5 §4.1].
+  their own q for judging [cc; K-D5 §4.1]; their own-q breaches are reported, not acceptance.
+- Displacement and rotation scales for C3 [K-D5 "The defect", §3.3, §4.1]: S*_t = max(S_t, L_b*S_r)
+  for translation groups (components and magnitude) and S*_r = max(S_r, S_t/L_b) for rotation
+  groups, with S_t and S_r the largest published translation and rotation components of the body
+  (mm and rad, L_b in mm). This is the per-DOF rule's "max(|u_i|, S*_kind)" with K-D5's S*, the
+  body's coupled scale over the published rows, as for the force and moment scales above.
+- One body per model: per-body scales are not implemented, so a model with more than one connected
+  body is a harness error (C0).
 - SKIP: the solver-mode row [cc]. Maxima are checked by coverage, not as groups [cc].
 - Coverage: U = evidence `value_upper_pa` of the same pipe and, on the U6 producer, the same
   `section_basis`; every published station sample of that pipe and basis satisfies (U - |axial|)^2
   >= My^2 + Mz^2 with U - |axial| >= 0, exactly [K-D5 §3.2, §4; cc
   `circular_public_sample_covered`]. The axial sample is the wall membrane stress where the member
-  is pressurized [K-D5 §3.2 "the exact-pressure route uses wall axial stress"; own, stricter: cc
-  used axial 0 there].
+  is pressurized [K-D5 §3.2 "the exact-pressure route uses wall axial stress"; cc used axial 0 there].
 
-The M3 verdict (a run fails on any clause; the set passes when no run fails)
-- C1 [K-D5 §4.3]: 0 judged member, section, support or stress breaches on Passed cases (Lame
-  included, see above).
-- C2 [K-D5 §4.3]: 0 strict coverage failures, on every run with results.
-- C3 [K-D5 §4.3, literally]: on Passed cases every displacement and rotation group is within
-  RD(1e-9) of its body's published scale: translation groups against the largest published
-  translation (component or magnitude), rotation groups against the largest published rotation.
-  The scale coupled through L_b is reported for information only [own].
-- C4 [K-D5 §4.3; b4]: 0 typed/captured disagreements (integrity codes or breach counts); and
-  identical published rows [own, stricter].
-- C5 [own, stricter]: admission: no refusal, DTO or runner error.
-- C6 [own, stricter; Design §§2.1, 2.5 for both families]: 0 unmapped product rows, 0 unpublished
-  reference rows; on the U6 producer 0 stress rows without a basis and both maxima per pipe; on
-  today's producer 0 basis-suffixed rows.
-- C7 [own, stricter; Design §§2.2, 2.5 for the headlines]: every maximum binds same-basis evidence;
-  on Passed cases the evidence enclosure contains the exact maximum to within CRIT of it; the
-  headline(s) equal the maximum of their basis (and the single headline is null on U6).
-- C8 [own, stricter]: on Passed cases, no vacuous pass: every group that the reference itself
-  would judge with a factor-2 margin on the floor (scales formed from the reference values) is
-  judged, and a body with a nonzero reference has judged groups.
+The M3 verdict. Acceptance is the K-D5 M3 criterion [Design §4 item 5; K-D5 §4.3]. A run fails the
+verdict on any acceptance clause (C0-C4), and the set passes when no run fails.
+- C0: every run is judged (no reference or harness error); otherwise the criterion is not evaluated.
+- C1 [K-D5 §4.3]: 0 judged member, section, support or stress breaches on Passed cases (pipe-wall
+  groups included).
+- C2 [K-D5 §3.2, §4, §4.3]: 0 strict coverage failures, on every run with results.
+- C3 [K-D5 "The defect", §3.2, §4.1, §4.3]: on Passed cases every displacement and rotation group is
+  within RD(1e-9) of its body's coupled scale of its kind, S*_t or S*_r. No displacement-noise floor
+  applies (HELP_HUMAN, 2026-10-12): in a body whose published translations and rotations are all
+  noise, the noise is the scale.
+- C4 [K-D5 §4.3; b4]: 0 typed/captured disagreements (integrity codes or breach counts).
+
+Reported information: clauses this harness adds, which K-D5 does not require (manager ruling: own,
+stricter clauses are reported, not acceptance). They are counted per run in `info`.
+- C1L [own, stricter]: judged Lame breaches on Passed cases.
+- C3lit [own, stricter]: C3 against the separate published scales (translations against the largest
+  published translation, component or magnitude; rotations against the largest published rotation).
+- C4b [own, stricter]: typed and captured published rows differ.
+- C5 [own]: refusal, DTO or runner error.
+- C6 [own; Design §§2.1, 2.5 for both families]: unmapped product rows or unpublished reference rows;
+  on the U6 producer a stress row without a basis or a missing maximum; on today's producer a
+  basis-suffixed row.
+- C7 [own; Design §§2.2, 2.5 for the headlines]: a maximum without same-basis evidence; on Passed
+  cases an evidence enclosure that misses the exact maximum by more than CRIT of it; a headline that
+  is not the maximum of its basis (or a single headline that is not null on U6).
+- C8 [own]: on Passed cases, a vacuous pass: a group that the reference itself would judge with a
+  factor-2 margin on the floor (scales formed from the reference values) is not judged, or a body
+  with a nonzero reference has no judged group.
 """
 
 from __future__ import annotations
@@ -103,12 +118,16 @@ REACT = {"Fx": "reactF", "Fy": "reactF", "Fz": "reactF", "Mx": "reactM", "My": "
 ACT = {"axial", "shear", "torsion", "bending", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2", "pipe_wall_endpoint_action_v2",
        "reactF", "reactM", "reactFmag", "reactMmag"}
 NONACT = {"disp", "rot", "dispmag", "rotmag"}
-CLAUSES = {
+CLAUSES = {  # acceptance: the K-D5 M3 criterion
     "C0": "reference or harness error",
     "C1": "judged member/section/support/stress breach on a Passed case",
     "C2": "strict coverage failure",
-    "C3": "displacement/rotation group beyond 1e-9 of the body's published scale (Passed)",
+    "C3": "displacement/rotation group beyond 1e-9 of the body's coupled scale S*_kind (Passed)",
     "C4": "typed/captured disagreement (integrity codes or breach counts)",
+}
+INFO = {  # reported information: own, stricter clauses
+    "C1L": "judged Lame breach on a Passed case",
+    "C3lit": "displacement/rotation group beyond 1e-9 of the body's separate published scale (Passed)",
     "C4b": "typed/captured published rows differ",
     "C5": "refused, DTO or runner error",
     "C6": "unmapped, unpublished, basis-free or unexpected-basis rows",
@@ -230,10 +249,32 @@ def coupled(groups, Lb, which):
     return SF, SM
 
 
+def bodies(request):
+    """Connected bodies of the model by its pipe segments (one is supported, see the docstring)."""
+    model = request["model"]
+    parent = {n["id"]: n["id"] for n in model["nodes"]}
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    for p in model.get("pipe_segments") or []:
+        parent[find(p["from"])] = find(p["to"])
+    if model.get("components"):
+        raise ValueError("components are not modelled by this harness")
+    return len({find(a) for a in parent})
+
+
 def judge_run(gen, ref, run, producer="u6"):
     rec = {"tag": gen["tag"], "entry": run["entry"], "mode": run["mode"], "producer": producer}
+    if bodies(gen["request"]) != 1:
+        raise ValueError("a model with more than one body: per-body scales are not implemented")
     fails = collections.Counter()
+    info = collections.Counter()
     rec["verdict_failures"] = fails
+    rec["info"] = info
     ds = run.get("diagnostics") or []
     rec["blocking"] = [d["code"] for d in ds if d.get("severity") == "blocking"]
     rec["integrity"] = [d["code"] for d in ds if d["code"].startswith("NUMERICAL_INTEGRITY")]
@@ -251,10 +292,10 @@ def judge_run(gen, ref, run, producer="u6"):
     passed = rec["cls"] == "passed"
     if "error" in run:
         rec["error"] = run["error"]
-        rec["verdict_failures"] = {"C5": 1}
+        rec["verdict_failures"], rec["info"] = {}, {"C5": 1}
         return rec
     if rec["blocking"] or not run.get("results"):
-        rec["verdict_failures"] = {"C5": 1}
+        rec["verdict_failures"], rec["info"] = {}, {"C5": 1}
         return rec
     rows_by_case = collections.defaultdict(list)
     for row in run["results"]:
@@ -306,11 +347,16 @@ def judge_run(gen, ref, run, producer="u6"):
         missing = [list(k) for k in refrows if k not in used and not (k[4] == "nominal_section" and not need_nominal)]
         SF, SM = coupled(groups, Lb, "pub")
         SFr, SMr = coupled(groups, Lb, "ref")
-        # C3 scales: the body's published translation and rotation scales [K-D5 §4.3], and the coupled form (information)
+        # C3 scales [K-D5]: S*_t = max(S_t, L_b S_r), S*_r = max(S_r, S_t / L_b) from the published
+        # translation and rotation components (mm, rad; L_b in mm)
+        sT = max([max(abs(x) for x in g["pub"]) for k, g in groups.items() if k[0] == "disp"] + [Q(0)])
+        sR = max([max(abs(x) for x in g["pub"]) for k, g in groups.items() if k[0] == "rot"] + [Q(0)])
+        LbMM = Q(Lb) * 1000
+        body_kd5 = {"D": max(sT, LbMM * sR) if Lb else sT, "R": max(sR, sT / LbMM) if Lb else sR}
+        # C3lit (information): the separate published scales (translation including magnitude rows)
         bD = max([max(abs(x) for x in g["pub"]) for k, g in groups.items() if g["fam"] == "D"] + [Q(0)])
         bR = max([max(abs(x) for x in g["pub"]) for k, g in groups.items() if g["fam"] == "R"] + [Q(0)])
-        body = {"D": bD, "R": bR}
-        body_coupled = {"D": max(bD, bR * Q(Lb) * 1000) if Lb else bD, "R": max(bR, bD / (Q(Lb) * 1000)) if Lb else bR}
+        body_literal = {"D": bD, "R": bR}
         # C8 reference scales of the own-q families (the largest reference value of the family in the case)
         fam_ref = collections.defaultdict(lambda: Q(0))
         for k, g in groups.items():
@@ -329,12 +375,11 @@ def judge_run(gen, ref, run, producer="u6"):
             ratio = math.sqrt(float(e2 / (CRIT ** 2 * q2))) if q2 else (math.inf if e2 else 0.0)
             st = {"group": key[0], "entity": key[1], "loc": key[2], "basis": key[3], "n": len(g["pub"]), "q": math.sqrt(float(q2)),
                   "err": math.sqrt(float(e2)), "ratio": ratio, "judged": judged, "breach": breach}
-            if g["fam"] in body:
-                sc = body[g["fam"]]
-                st["beyond_body"] = e2 > CRIT ** 2 * sc * sc
-                st["ratio_body"] = (math.sqrt(float(e2)) / (float(CRIT) * float(sc))) if sc else (math.inf if e2 else 0.0)
-                scc = body_coupled[g["fam"]]
-                st["ratio_body_coupled"] = (math.sqrt(float(e2)) / (float(CRIT) * float(scc))) if scc else (math.inf if e2 else 0.0)
+            if g["fam"] in body_kd5:
+                for name, scales in (("kd5", body_kd5), ("literal", body_literal)):
+                    sc = scales[g["fam"]]
+                    st["beyond_" + name] = e2 > CRIT ** 2 * sc * sc
+                    st["ratio_" + name] = (math.sqrt(float(e2)) / (float(CRIT) * float(sc))) if sc else (math.inf if e2 else 0.0)
             # C8: would the reference itself judge this group (scales from reference values, floor margin 2)?
             if t2 > 0:
                 ref_nonzero = True
@@ -400,14 +445,15 @@ def judge_run(gen, ref, run, producer="u6"):
                              "basis_free": basis_free[:10], "n_basis_free": len(basis_free), "unexpected_basis": unexpected_basis[:10],
                              "n_unexpected_basis": len(unexpected_basis), "missing_maxima": [list(x) for x in missing_max],
                              "unjudged_by_ref": unjudged_by_ref[:10], "n_unjudged_by_ref": len(unjudged_by_ref),
-                             "max_checks": mchecks, "SF": float(SF), "SM": float(SM), "body_D": float(bD), "body_R": float(bR)}
-        # verdict clauses for this case
+                             "max_checks": mchecks, "SF": float(SF), "SM": float(SM), "body_D": float(bD), "body_R": float(bR),
+                             "S_t": float(sT), "S_r": float(sR), "Sstar_t": float(body_kd5["D"]), "Sstar_r": float(body_kd5["R"])}
+        # information clauses for this case
         cs = rec["cases"][cid]
-        fails["C6"] += cs["n_unmapped"] + cs["n_missing"] + cs["n_basis_free"] + cs["n_unexpected_basis"] + len(missing_max)
-        fails["C7"] += sum(1 for c in mchecks if not c["evidence"]) + len(head)
+        info["C6"] += cs["n_unmapped"] + cs["n_missing"] + cs["n_basis_free"] + cs["n_unexpected_basis"] + len(missing_max)
+        info["C7"] += sum(1 for c in mchecks if not c["evidence"]) + len(head)
         if passed:
-            fails["C7"] += sum(1 for c in mchecks if (c["ref_outside_enclosure_over_crit"] or 0) > 1)
-            fails["C8"] += len(unjudged_by_ref) + (1 if ref_nonzero and n_judged == 0 else 0)
+            info["C7"] += sum(1 for c in mchecks if (c["ref_outside_enclosure_over_crit"] or 0) > 1)
+            info["C8"] += len(unjudged_by_ref) + (1 if ref_nonzero and n_judged == 0 else 0)
         for g in stats:
             g["case"] = cid
         all_groups += stats
@@ -416,17 +462,19 @@ def judge_run(gen, ref, run, producer="u6"):
     rec["n_groups"] = len(all_groups)
     rec["n_judged"] = len(judged)
     rec["judged_by_group"] = dict(collections.Counter(g["group"] for g in judged))
-    rec["breaches"] = [g for g in judged if g["breach"] and g["group"] not in NONACT]
+    rec["breaches"] = [g for g in judged if g["breach"] and g["group"] not in NONACT and g["group"] != "lame"]
+    rec["lame_breaches"] = [g for g in judged if g["breach"] and g["group"] == "lame"]
     rec["disp_breaches"] = [g for g in judged if g["breach"] and g["group"] in NONACT]
-    rec["disp_beyond_body"] = [g for g in all_groups if g["group"] in NONACT and g.get("beyond_body")]
+    rec["disp_beyond_kd5"] = [g for g in all_groups if g["group"] in NONACT and g.get("beyond_kd5")]
+    rec["disp_beyond_literal"] = [g for g in all_groups if g["group"] in NONACT and g.get("beyond_literal")]
     worst = {}
     for g in judged:
         if g["group"] not in worst or g["ratio"] > worst[g["group"]]["ratio"]:
             worst[g["group"]] = {k: g[k] for k in ("ratio", "entity", "loc", "basis", "q", "err", "case")}
     rec["worst_by_group"] = worst
     wb = [g for g in all_groups if g["group"] in NONACT]
-    rec["worst_disp_body"] = max((g["ratio_body"] for g in wb), default=0.0)
-    rec["worst_disp_body_coupled"] = max((g["ratio_body_coupled"] for g in wb), default=0.0)
+    rec["worst_disp_kd5"] = max((g["ratio_kd5"] for g in wb), default=0.0)
+    rec["worst_disp_literal"] = max((g["ratio_literal"] for g in wb), default=0.0)
     rec["max_fail"] = [c for cs in rec["cases"].values() for c in cs["max_checks"] if not c["covers_published_stations"]]
     rec["n_max"] = sum(len(cs["max_checks"]) for cs in rec["cases"].values())
     rec["n_unmapped"] = sum(cs["n_unmapped"] for cs in rec["cases"].values())
@@ -434,8 +482,11 @@ def judge_run(gen, ref, run, producer="u6"):
     fails["C2"] += len(rec["max_fail"])
     if passed:
         fails["C1"] += len(rec["breaches"])
-        fails["C3"] += len(rec["disp_beyond_body"])
+        fails["C3"] += len(rec["disp_beyond_kd5"])
+        info["C1L"] += len(rec["lame_breaches"])
+        info["C3lit"] += len(rec["disp_beyond_literal"])
     rec["verdict_failures"] = {k: v for k, v in fails.items() if v}
+    rec["info"] = {k: v for k, v in info.items() if v}
     return rec
 
 
@@ -471,10 +522,12 @@ def work(job, producer="u6"):
                 rec["typed_captured_disagree"] = (orec["integrity"] != rec.get("integrity") or len(orec.get("breaches", [])) != len(rec.get("breaches", [])))
                 vf = rec["verdict_failures"]
                 vf["C4"] = vf.get("C4", 0) + int(rec["typed_captured_disagree"])
-                vf["C4b"] = vf.get("C4b", 0) + int(not rec["typed_captured_rows_identical"])
+                inf = rec.setdefault("info", {})
+                inf["C4b"] = inf.get("C4b", 0) + int(not rec["typed_captured_rows_identical"])
         rec.pop("_groups", None)
         rec["meta"] = {k: gen["meta"].get(k) for k in ("family", "theory", "placement", "mill_and_allowance", "section_variant", "harness_validation", "design", "load_state", "twin")}
         rec["verdict_failures"] = {k: v for k, v in rec["verdict_failures"].items() if v}
+        rec["info"] = {k: v for k, v in rec.get("info", {}).items() if v}
         rec["verdict"] = "fail" if rec["verdict_failures"] else "pass"
         out.append(rec)
     return out
@@ -566,7 +619,8 @@ def selftest(set_path):
             prod = "u6" if suffixed else "pre-u6"
             run = synthetic_run(g, suffixed)
             rec = judge_run(g, g["ref"], run, prod)
-            check(f"{g['tag']} {prod}: the reference published as itself passes every clause", not rec["verdict_failures"] and rec["n_judged"] > 0)
+            check(f"{g['tag']} {prod}: the reference published as itself passes every clause and raises no information clause",
+                  not rec["verdict_failures"] and not rec["info"] and rec["n_judged"] > 0)
             # CRIT from both sides on the largest judged group of every group kind present
             byg = collections.defaultdict(list)
             for i, r in enumerate(run["results"]):
@@ -588,10 +642,22 @@ def selftest(set_path):
                     r2["results"][big]["value"] = v + math.copysign(factor * float(CRIT) * qn, v)
                     rec = judge_run(g, g["ref"], r2, prod)
                     hit = any(b["group"] == gk[0] and b["entity"] == gk[1] and b["loc"] == gk[2] and b["basis"] == gk[3]
-                              for b in rec["breaches"] + rec["disp_breaches"])
+                              for b in rec["breaches"] + rec["disp_breaches"] + rec["lame_breaches"])
                     check(f"{g['tag'].split('|')[1]} {prod}: {gk[0]} at {factor:.5f} CRIT {'breaches' if expect else 'does not breach'}", hit == expect)
             pinned_kinds.update(kinds_done)
-            # C3: rotations or translations wrong by 1e-6
+            name = g["tag"].split("|")[1]
+            # C3 pinned from both sides on each kind: a component error of (1 +- 1e-5) CRIT S*_kind
+            cs = judge_run(g, g["ref"], run, prod)["cases"]["case:1"]
+            for prefix, star in (("global_nodal_displacement", "Sstar_t"), ("global_nodal_rotation", "Sstar_r")):
+                idx = [i for i, r in enumerate(run["results"]) if r["kind"].startswith(prefix)]
+                i = min(idx, key=lambda i: abs(run["results"][i]["value"]))
+                for factor, expect in ((1 + 1e-5, True), (1 - 1e-5, False)):
+                    r2 = copy.deepcopy(run)
+                    r2["results"][i]["value"] += factor * float(CRIT) * cs[star]
+                    rec = judge_run(g, g["ref"], r2, prod)
+                    check(f"{name} {prod}: {prefix} error {factor:.5f} CRIT S*_kind {'fails' if expect else 'passes'} C3",
+                          (rec["verdict_failures"].get("C3", 0) > 0) == expect)
+            # C3lit (information): rotations or translations wrong by 1e-6
             for prefix in ("global_nodal_rotation", "global_nodal_displacement"):
                 r2 = copy.deepcopy(run)
                 nonzero = any(r["kind"].startswith(prefix) and r["value"] != 0.0 for r in r2["results"])
@@ -600,54 +666,88 @@ def selftest(set_path):
                         r["value"] *= 1 + 1e-6
                 rec = judge_run(g, g["ref"], r2, prod)
                 if nonzero:
-                    check(f"{g['tag'].split('|')[1]} {prod}: {prefix} x(1+1e-6) fails C3", rec["verdict_failures"].get("C3", 0) > 0)
-            # C8: every published row zero
+                    check(f"{name} {prod}: {prefix} x(1+1e-6) raises C3lit", rec["info"].get("C3lit", 0) > 0)
+            # C8 (information): every published row zero
             r2 = copy.deepcopy(run)
             for r in r2["results"]:
                 r["value"] = 0.0
             for e in r2["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"]:
                 e["value_upper_pa"] = e["value_lower_pa"] = 0.0
             rec = judge_run(g, g["ref"], r2, prod)
-            check(f"{g['tag'].split('|')[1]} {prod}: an all-zero publication fails C8", rec["verdict_failures"].get("C8", 0) > 0)
-            # C2 coverage, C7 headline, evidence and enclosure
+            check(f"{name} {prod}: an all-zero publication raises C8", rec["info"].get("C8", 0) > 0)
+            # C2 coverage; C7 headline, evidence and enclosure (information)
             r2 = copy.deepcopy(run)
             r2["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0]["value_upper_pa"] *= 0.999
             rec = judge_run(g, g["ref"], r2, prod)
-            check(f"{g['tag'].split('|')[1]} {prod}: an upper bound 0.1% low fails C2 and C7", rec["verdict_failures"].get("C2", 0) > 0 and rec["verdict_failures"].get("C7", 0) > 0)
+            check(f"{name} {prod}: an upper bound 0.1% low fails C2 and raises C7", rec["verdict_failures"].get("C2", 0) > 0 and rec["info"].get("C7", 0) > 0)
             r2 = copy.deepcopy(run)
             key = "max_open_formula_stress_reduced_section" if suffixed else "max_open_formula_stress"
             r2["summary"][key] = {"value": r2["summary"][key]["value"] * 0.5, "unit": "Pa"}
             rec = judge_run(g, g["ref"], r2, prod)
-            check(f"{g['tag'].split('|')[1]} {prod}: a headline below its basis maximum fails C7", rec["verdict_failures"].get("C7", 0) > 0)
+            check(f"{name} {prod}: a headline below its basis maximum raises C7", rec["info"].get("C7", 0) > 0)
             r2 = copy.deepcopy(run)
             r2["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"] = []
             rec = judge_run(g, g["ref"], r2, prod)
-            check(f"{g['tag'].split('|')[1]} {prod}: missing maximum evidence fails C7", rec["verdict_failures"].get("C7", 0) > 0)
-            # C6 unmapped and missing
+            check(f"{name} {prod}: missing maximum evidence raises C7", rec["info"].get("C7", 0) > 0)
+            # C6 unmapped and missing (information)
             r2 = copy.deepcopy(run)
             r2["results"].append({"kind": "element_local_bending_moment_q", "value": 1.0, "entity_ref": "x", "case": "case:1", "location": "midspan", "component": "q", "metadata": {}})
             r2["results"].pop(5)
             rec = judge_run(g, g["ref"], r2, prod)
-            check(f"{g['tag'].split('|')[1]} {prod}: an unknown row and a dropped row fail C6", rec["n_unmapped"] == 1 and rec["n_missing"] == 1 and rec["verdict_failures"].get("C6", 0) == 2)
+            check(f"{name} {prod}: an unknown row and a dropped row raise C6", rec["n_unmapped"] == 1 and rec["n_missing"] == 1 and rec["info"].get("C6", 0) == 2)
             # C6 producer mismatch
             rec = judge_run(g, g["ref"], run, "pre-u6" if suffixed else "u6")
-            check(f"{g['tag'].split('|')[1]} {prod}: judged as the other producer fails C6", rec["verdict_failures"].get("C6", 0) > 0)
-            # C4, C4b typed/captured
+            check(f"{name} {prod}: judged as the other producer raises C6", rec["info"].get("C6", 0) > 0)
+            # C4 typed/captured; C4b (information)
             cap = copy.deepcopy(run)
             cap["entry"] = "captured"
             i = [r["kind"] for r in cap["results"]].index("element_local_bending_moment_z")
             cap["results"][i]["value"] = math.nextafter(cap["results"][i]["value"], math.inf)
             res = {r["entry"]: r for r in work((g, g["ref"], [run, cap], prod))}
-            check(f"{g['tag'].split('|')[1]} {prod}: a captured row one ulp off fails C4b", res["captured"]["verdict_failures"].get("C4b", 0) == 1)
+            check(f"{name} {prod}: a captured row one ulp off raises C4b", res["captured"]["info"].get("C4b", 0) == 1)
             cap["diagnostics"] = [{"code": "NUMERICAL_INTEGRITY_SENSITIVE", "severity": "warning", "message": "synthetic"}]
             res = {r["entry"]: r for r in work((g, g["ref"], [run, cap], prod))}
-            check(f"{g['tag'].split('|')[1]} {prod}: a captured integrity code that differs fails C4", res["captured"]["verdict_failures"].get("C4", 0) == 1)
-            # C5
+            check(f"{name} {prod}: a captured integrity code that differs fails C4", res["captured"]["verdict_failures"].get("C4", 0) == 1)
+            # C5 (information): a refusal fails no acceptance clause
             r2 = copy.deepcopy(run)
             r2["diagnostics"] = [{"code": "EXACT_PRESSURE_SHEAR_MODEL_UNSUPPORTED", "severity": "blocking", "message": "x"}]
             r2["results"] = []
             rec = judge_run(g, g["ref"], r2, prod)
-            check(f"{g['tag'].split('|')[1]} {prod}: a refusal fails C5", rec["verdict_failures"].get("C5", 0) == 1)
+            check(f"{name} {prod}: a refusal raises C5 and fails no acceptance clause", rec["info"].get("C5", 0) == 1 and not rec["verdict_failures"])
+    # C3 in a body with an exactly zero rotation field (the FF00 case): rotation noise against S*_r passes C3,
+    # and fails the separate-scale C3lit
+    zero_rot = [g for g in gens if g["meta"]["harness_validation"]
+                and all(Decimal(r[5]) == 0 for r in g["ref"]["cases"]["case:1"]["rows"] if r[0].startswith("global_nodal_rotation"))
+                and any(Decimal(r[5]) != 0 for r in g["ref"]["cases"]["case:1"]["rows"] if r[0].startswith("global_nodal_displacement"))][:2]
+    if not zero_rot:
+        raise SystemExit("self-test needs a model with an exactly zero rotation field")
+    for g in zero_rot:
+        run = synthetic_run(g, True)
+        r2 = copy.deepcopy(run)
+        i = next(i for i, r in enumerate(r2["results"]) if r["kind"] == "global_nodal_rotation_z")
+        r2["results"][i]["value"] = 1.15e-15
+        rec = judge_run(g, g["ref"], r2, "u6")
+        check(f"{g['tag'].split('|')[1]}: rotation noise 1.15e-15 in an exactly zero rotation field passes C3 and raises C3lit",
+              not rec["verdict_failures"] and rec["info"].get("C3lit", 0) > 0)
+    # No displacement-noise floor: a body whose true translations and rotations are all zero
+    g = copy.deepcopy(plain[0])
+    for r in g["ref"]["cases"]["case:1"]["rows"]:
+        if r[0].startswith("global_nodal_") or r[0] == "displacement_magnitude":
+            r[5] = "0"
+    run = synthetic_run(g, True)
+    rec = judge_run(g, g["ref"], run, "u6")
+    check(f"{g['tag'].split('|')[1]}: an all-zero displacement field published as exact zeros passes C3", rec["verdict_failures"].get("C3", 0) == 0)
+    r2 = copy.deepcopy(run)
+    for r in r2["results"]:
+        if r["kind"].startswith("global_nodal_"):
+            r["value"] = 1e-15
+    rec = judge_run(g, g["ref"], r2, "u6")
+    check(f"{g['tag'].split('|')[1]}: an all-zero displacement field published as noise fails C3 (no noise floor)", rec["verdict_failures"].get("C3", 0) > 0)
+    # one body per model
+    g = copy.deepcopy(plain[0])
+    g["request"]["model"]["nodes"].append({"id": "node:island", "position": {"x": 0.0, "y": 0.0, "z": 0.0}})
+    res = work((g, g["ref"], [synthetic_run(g, True)], "u6"))
+    check("a model with a second body is a harness error (C0)", res[0]["verdict_failures"].get("C0", 0) == 1)
     for g in mills:
         run = synthetic_run(g, True)
         # nominal and reduced bending stresses swapped
@@ -672,7 +772,9 @@ def selftest(set_path):
                 outer = 2 * p * float(Decimal(s["pressure_bore"]["Ai"])) / float(Decimal(s["nominal_section"]["A"]))
                 r["value"] = outer if r["component"] == "lame_outer_hoop_stress" else outer + p
         rec = judge_run(g, g["ref"], r2, "u6")
-        check(f"{g['tag'].split('|')[1]}: nominal Lame hoop at the pressure bore fails C1 (lame)", any(b["group"] == "lame" and b["basis"] == "nominal_section" for b in rec["breaches"]))
+        check(f"{g['tag'].split('|')[1]}: nominal Lame hoop at the pressure bore raises C1L (lame), not C1",
+              any(b["group"] == "lame" and b["basis"] == "nominal_section" for b in rec["lame_breaches"]) and rec["info"].get("C1L", 0) > 0
+              and not rec["breaches"])
         # a basis-free stress row, and the suffix-free single family, on the U6 producer
         r2 = copy.deepcopy(run)
         for r in r2["results"]:
@@ -680,9 +782,9 @@ def selftest(set_path):
                 r["metadata"]["basis"] = "recovered_from_open_mechanics_stress_components"
                 break
         rec = judge_run(g, g["ref"], r2, "u6")
-        check(f"{g['tag'].split('|')[1]}: one basis-free stress row on the U6 producer fails C6", rec["verdict_failures"].get("C6", 0) > 0)
+        check(f"{g['tag'].split('|')[1]}: one basis-free stress row on the U6 producer raises C6", rec["info"].get("C6", 0) > 0)
         rec = judge_run(g, g["ref"], synthetic_run(g, False), "u6")
-        check(f"{g['tag'].split('|')[1]}: a suffix-free single family on the U6 producer fails C6", rec["verdict_failures"].get("C6", 0) > 0)
+        check(f"{g['tag'].split('|')[1]}: a suffix-free single family on the U6 producer raises C6", rec["info"].get("C6", 0) > 0)
         # reduced maximum bound to the nominal evidence
         r2 = copy.deepcopy(run)
         evs = r2["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"]
@@ -690,7 +792,7 @@ def selftest(set_path):
             if e["section_basis"] == "reduced_section":
                 e["section_basis"] = "nominal_section_x"
         rec = judge_run(g, g["ref"], r2, "u6")
-        check(f"{g['tag'].split('|')[1]}: reduced maxima without reduced evidence fail C7", rec["verdict_failures"].get("C7", 0) > 0)
+        check(f"{g['tag'].split('|')[1]}: reduced maxima without reduced evidence raise C7", rec["info"].get("C7", 0) > 0)
     every = {"disp", "rot", "dispmag", "reactF", "reactM", "reactFmag", "reactMmag", "axial", "shear", "torsion", "bending", "s_axial", "s_bending",
              "s_torsion", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2", "pipe_wall_endpoint_action_v2", "pipe_axial_membrane_stress_v2", "lame"}
     check(f"CRIT pinned from both sides on every group kind (missing: {sorted(every - pinned_kinds)})", every <= pinned_kinds)
