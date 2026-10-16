@@ -326,6 +326,35 @@
   "pipe_stress_extrema": 2
  },
  "coverage_lists": 2,
+ "locations_shapes": {
+  "strict_endpoint": {
+   "arr": 0,
+   "obj": 1,
+   "ent": 2,
+   "strb": 608,
+   "keyb": 12,
+   "nums": 0,
+   "depth": 2
+  },
+  "whole_span_constant": {
+   "arr": 0,
+   "obj": 1,
+   "ent": 1,
+   "strb": 304,
+   "keyb": 4,
+   "nums": 0,
+   "depth": 2
+  },
+  "endpoint_candidates": {
+   "arr": 0,
+   "obj": 1,
+   "ent": 3,
+   "strb": 304,
+   "keyb": 43,
+   "nums": 0,
+   "depth": 2
+  }
+ },
  "exact_evidence_case_parts": {
   "rest": {
    "arr": 14,
@@ -339,9 +368,9 @@
   "per_pipe": {
    "arr": 76,
    "obj": 27,
-   "ent": 125,
+   "ent": 127,
    "strb": 11856,
-   "keyb": 1286,
+   "keyb": 1348,
    "nums": 104,
    "depth": 7
   },
@@ -367,9 +396,9 @@
    "pipe_stress_extrema": {
     "arr": 74,
     "obj": 20,
-    "ent": 90,
+    "ent": 92,
     "strb": 9728,
-    "keyb": 980,
+    "keyb": 1042,
     "nums": 82,
     "depth": 7
    }
@@ -405,9 +434,9 @@
  "exact_evidence_per_case_at_caps": {
   "arr": 3118,
   "obj": 868,
-  "ent": 4029,
+  "ent": 4093,
   "strb": 414656,
-  "keyb": 41647,
+  "keyb": 43631,
   "nums": 3907,
   "depth": 7
  },
@@ -423,9 +452,9 @@
  "componentwise_max": {
   "arr": 3118,
   "obj": 868,
-  "ent": 4029,
+  "ent": 4093,
   "strb": 414656,
-  "keyb": 41647,
+  "keyb": 43631,
   "nums": 3907,
   "depth": 7
  },

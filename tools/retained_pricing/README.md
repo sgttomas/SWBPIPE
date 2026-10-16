@@ -124,13 +124,13 @@ All outputs go to `--out`.
 
 **`lib/`** is the machinery.
 - `linemap_lib.py`, `linemap_rules.py`, `sq2_rules.py`, `rule_ops.py`, `o10_check.py`, `merge_trees.py`, `tree_eval.py` and `census_patch.py` are T3's O-10 tools.
-- `census_exact.py` takes route E's census by I95's method on the pressure-source-1 producer fixtures (U6-RP): `python3 census_exact.py <projects/chirality-piping dir> <out json>`.
+- `census_exact.py` takes route E's census by I95's method on the pressure-source-1 producer fixtures (U6-RP), counting each source-selected extremum at its largest `locations` shape (U6-RL): `python3 census_exact.py <projects/chirality-piping dir> <out json>`.
 - `mk_looplog.py` is vendored unchanged from the I104 record above (`tools/mk_looplog.py`).
 
 **`data/`** holds three files.
 - `basis_text_rows.json` lists the (file, line) of the basis runs' TEXT rows. The line map uses it only to choose among files that a short key could name.
 - `census_c3cf.json` is I95's exact-evidence census, used for route E's per-case evidence forms before D-5.
-- `census_d5_79bf8656dc.json` is the D-5 census (72 rows per member and the per-basis evidence) on the committed pressure-source-1 fixtures as regenerated at `79bf8656dc`, used on D-5 source.
+- `census_d5_79bf8656dc.json` is the D-5 census (72 rows per member and the per-basis evidence) on the committed pressure-source-1 fixtures as regenerated at `79bf8656dc`, used on D-5 source. `census_exact.py` reproduces it byte for byte (`tests/test_census_exact.py`).
 
 ## Limits
 

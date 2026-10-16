@@ -564,11 +564,12 @@ fn complete_facts_on_route(raw: Value, mode: PreviewSolverMode) -> ([PhaseObserv
 /// C_eq·P_final at route E's own P_final = 7n + 72m + 8g + 3 (T4-U6, D-5: 8,361 and 16,384 at the
 /// caps, against route L's 6,345 and 8,192), and in the five contract-evidence rows, which are C
 /// times route E's per-case facts (the componentwise maximum of the preview tree and the D-5
-/// evidence census at the D1 caps), the facts the registered profile prices for the evidence owner
+/// evidence census at the D1 caps, each source-selected extremum at the maximum over its three
+/// `locations` shapes, U6-RL), the facts the registered profile prices for the evidence owner
 /// (retained-pricing-rules.md, "Gate bounds (registration)"). At (n, m, g) = (32, 32, 32) and
-/// C = 3, per case: arrays max(160, 3,118), objects max(67, 868), entries max(553, 4,029), string
-/// bytes max(66,816, 414,656), key bytes max(22,120, 41,647); the entries bound is cut to 12,079 so
-/// that objects + ⌊entries / 5⌋ ≤ 3·(868 + ⌊4,029 / 5⌋) = 5,019, the BTree nodes the profile prices.
+/// C = 3, per case: arrays max(160, 3,118), objects max(67, 868), entries max(553, 4,093), string
+/// bytes max(66,816, 414,656), key bytes max(22,120, 43,631); the entries bound is cut to 12,274 so
+/// that objects + ⌊entries / 5⌋ ≤ 3·(868 + ⌊4,093 / 5⌋) = 5,058, the BTree nodes the profile prices.
 #[test]
 fn f1_g_c_contract_evidence_bounds_are_per_route() {
     use crate::retained_product::W1Route;
@@ -577,20 +578,20 @@ fn f1_g_c_contract_evidence_bounds_are_per_route() {
     assert_eq!(l.complete[..2], [6_345, 8_192], "route L: C_eq times route L's P_final, and its push capacity");
     assert_eq!(e.complete[..2], [8_361, 16_384], "route E: C_eq times route E's P_final, and its push capacity");
     assert_eq!(l.complete[9..14], [480, 201, 1_654, 200_448, 66_360], "route L: C times the preview tree, entries cut to the priced nodes");
-    assert_eq!(e.complete[9..14], [9_354, 2_604, 12_079, 1_243_968, 124_941], "route E: C times max(preview tree, D-5 exact census)");
+    assert_eq!(e.complete[9..14], [9_354, 2_604, 12_274, 1_243_968, 130_893], "route E: C times max(preview tree, D-5 exact census)");
     assert_eq!(e.late, l.late, "G-B is route-independent");
     for i in (0..COMPLETE_FACTS).filter(|i| !(0..2).contains(i) && !(9..14).contains(i)) {
         assert_eq!(e.complete[i], l.complete[i], "row {i} is route-independent");
     }
     // The node count the profile prices (`value_tree`: objects + ⌊entries / 5⌋ per case, times C),
-    // reached and not exceeded on each route: 531 on route L, 5,019 on route E.
-    for (caps, nodes) in [(l, 3 * (67 + 553 / 5)), (e, 3 * (868 + 4_029 / 5))] {
+    // reached and not exceeded on each route: 531 on route L, 5,058 on route E.
+    for (caps, nodes) in [(l, 3 * (67 + 553 / 5)), (e, 3 * (868 + 4_093 / 5))] {
         assert!(caps.complete[10] + caps.complete[11] / 5 == nodes && caps.complete[10] + (caps.complete[11] + 1) / 5 > nodes, "{nodes}");
     }
     // The profile prices the evidence owner at these facts: route E's chain's "Final aggregation"
-    // and "Preview tree final copy (envelope evidence)" terms are 5,019·Node(String,Value)
-    // + 9,354·s(Value) + 1,368,909 B, and the arrays and bytes bounds sum to it.
-    assert_eq!((e.complete[9], e.complete[12] + e.complete[13]), (9_354, 1_368_909));
+    // and "Preview tree final copy (envelope evidence)" terms are 5,058·Node(String,Value)
+    // + 9,354·s(Value) + 1,374,861 B, and the arrays and bytes bounds sum to it.
+    assert_eq!((e.complete[9], e.complete[12] + e.complete[13]), (9_354, 1_374_861));
     // Each fact admits its bound and refuses one more on route E.
     let (facts, _, _) = complete_facts_on_route(inputs::exact_cap_maximal(), PreviewSolverMode::SparseInteractive);
     let mut at = facts;
@@ -685,6 +686,157 @@ fn f1_check_complete_reads_the_observer_route() {
         let refusal = permit.check_complete(&CompleteFacts { ordinary: &ordinary, capture: &preview, requested_cases }).unwrap_err();
         assert_eq!((refusal.gate, refusal.fact, refusal.cap), (PhaseGate::Complete, PhaseFact::EnvelopeResults, 6_345), "{mode:?}: route L's bounds");
         assert!(refusal.observed > 6_345 && refusal.observed <= phase_caps_on(W1Route::Exact).complete[0], "{mode:?}: {}", refusal.observed);
+    }
+}
+
+// ---- U6-RL (T4-U6/U8 D3 review R2): source-selected endpoint ties under route E's G-C ----------
+
+/// An exact input whose three cases select the retained source (the separate body S's soft
+/// torsional spring makes each case Sensitive) and whose line members tie at their endpoints: L1 is
+/// free between the anchored L0 and L2, so a transverse force there bends M0 and M1
+/// antisymmetrically, with equal end moments of opposite sign (`endpoint_candidates`). S carries a
+/// constant moment (`whole_span_constant`). Every free block has order at most two, the
+/// retained-source method's limit; dyadic section and material values keep its work small.
+fn source_selected_ties() -> Value {
+    let p = "invented_t4_u6u8_reg2_witness_input_no_library_data";
+    let section = json!({"outside_diameter": {"value": 0.25, "unit": "m"}, "wall_thickness": {"value": 0.015625, "unit": "m"},
+        "corrosion_allowance": {"value": 0.0, "unit": "m"}});
+    let material = json!({"id": "mat", "elastic_modulus": {"value": 137_438_953_472.0, "unit": "Pa"},
+        "constitutive_basis": "homogeneous_isotropic_E_nu_v1", "poisson_ratio": {"value": 0.25, "unit": "1"}, "provenance": p});
+    let node = |id: &str, x: f64, y: f64| json!({"id": id, "position": {"x": x, "y": y, "z": 0.0}, "provenance": p});
+    let pipe = |id: &str, from: &str, to: &str| json!({"id": id, "from": from, "to": to, "material": "mat",
+        "y_reference": {"x": 0.0, "y": 1.0, "z": 0.0}, "section": section, "provenance": p});
+    let support = |id: &str, node: &str, family: &str, restraints: &[&str]| json!({"id": id, "node": node, "family": family,
+        "restraints": restraints, "provenance": p});
+    let mut spring = support("spring:S0", "S0", "spring", &["RX"]);
+    spring["stiffness"] = json!({"dof": "RX", "value": {"value": 1.0 / 16_384.0, "unit": "N*m/rad"}});
+    let case = |id: &str, f: f64| json!({"id": id, "label": "U6-RL witness case", "kind": "primitive_user_load", "pressure_regions": [],
+        "provenance": p, "primitive_loads": [
+            {"id": format!("{id}:force"), "category": "concentrated_force", "target": {"type": "node", "node": "L1"},
+                "direction": "UY", "magnitude": {"value": f, "unit": "N"}, "dimension": "force", "provenance": p},
+            {"id": format!("{id}:moment"), "category": "concentrated_moment", "target": {"type": "node", "node": "S1"},
+                "direction": "RZ", "magnitude": {"value": f, "unit": "N*m"}, "dimension": "moment", "provenance": p}]});
+    json!({"materials": [material], "model": {
+        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "professional_acceptance": "not_provided",
+            "rule_check": "not_performed_user_rule_inputs_missing"},
+        "project": {"id": "invented:t4-u6u8-reg2:source-selected-ties", "units": {"angle": "rad", "force": "N", "length": "m",
+            "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
+        "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
+        "nodes": [node("L0", 0.0, 0.0), node("L1", 2.0, 0.0), node("L2", 4.0, 0.0), node("S0", 0.0, 10.0), node("S1", 2.0, 10.0)],
+        "pipe_segments": [pipe("M0", "L0", "L1"), pipe("M1", "L1", "L2"), pipe("S", "S0", "S1")],
+        "materials": [material],
+        "supports": [support("anchor:L0", "L0", "anchor", &["UX", "UY", "UZ", "RX", "RY", "RZ"]),
+            support("anchor:L2", "L2", "anchor", &["UX", "UY", "UZ", "RX", "RY", "RZ"]),
+            support("anchor:S0", "S0", "anchor", &["UX", "UY", "UZ", "RY", "RZ"]), spring,
+            json!({"id": "restraint:L1", "node": "L1", "restraints": ["UZ"], "provenance": p})],
+        "load_cases": [case("case:a", 1.0), case("case:b", -2.0), case("case:c", 3.0)], "combinations": []}})
+}
+
+/// U6-RL (T4-U6/U8 D3 review R2): route E's contract-evidence bounds admit source-selected endpoint
+/// ties. A selected case's maximum (`source_receipt/composite.rs` `maximum_inner`) publishes
+/// `locations` in one of three shapes; `endpoint_candidates` has one entry and 31 key bytes more
+/// than the `strict_endpoint` shape of the D-5 census fixture, so the census, the chain that prices
+/// the evidence owner, and route E's bounds take each extremum at the maximum over the three shapes:
+/// per member 127 entries and 1,348 key bytes (the strict shape's 125 and 1,286 plus 2 and 62).
+/// A selected run finalizes its source-block receipt, so W1 falls back (`Coexistence`) and G-C's
+/// `SourceBlockRecovery` row (cap 0) refuses it; the profile prices its evidence in the X-branch
+/// phases at the census facts, with no runtime gate. The evidence rows (status and the five facts)
+/// are checked.
+/// (a) `source_selected_ties`: its three cases are selected, each line member ties on both bases, a
+///     tied member's facts are route E's per-member coefficients, and the evidence is within route
+///     E's bounds.
+/// (b) The retained-source method's per-case work budget keeps selected inputs small (m = 3 here;
+///     larger lines exhaust it), so the near-cap owner is composed from (a)'s own selected cases: in
+///     each, M0's tied entries for m members and 32 nodes (node order and the three 6n RHS vectors),
+///     C = 3 cases. At m = 23 it is within route E's bounds with a complete census; at m = 24 G-C's
+///     borrowed census stops at its 16,384-value limit, which G-C refuses as an incomplete census.
+#[test]
+fn u6_rl_evidence_bounds_admit_source_selected_endpoint_ties() {
+    use crate::retained_product::{ProductCapture, W1Route};
+    const EVIDENCE: std::ops::Range<usize> = 8..14;
+    let caps = phase_caps_on(W1Route::Exact);
+    let within = |o: &[PhaseObservation; COMPLETE_FACTS], label: &str| {
+        assert_eq!(o[8].fact, PhaseFact::ContractEvidenceStatus);
+        for i in EVIDENCE {
+            assert!(o[i].observed <= caps.complete[i], "{label}: {:?} {} above {}", o[i].fact, o[i].observed, caps.complete[i]);
+        }
+    };
+    // Route E's per-member coefficients of the entries and key-byte bounds (one case, n = g = 0).
+    let per_member = |i: usize| evidence_caps(W1Route::Exact, 0, 1, 0)[i] - evidence_caps(W1Route::Exact, 0, 0, 0)[i];
+    assert_eq!((per_member(2), per_member(4)), (127, 1_348));
+    let member = |case: &Value, id: &str| {
+        let mut facts = (0u64, 0u64);
+        for key in ["pipe_materials", "pipe_sections", "pipe_stress_extrema"] {
+            for x in case[key].as_array().unwrap().iter().filter(|x| x["pipe_id"] == id) {
+                let c = borrowed_value_census(x);
+                facts = (facts.0 + c.object_entries as u64, facts.1 + c.key_bytes as u64);
+            }
+        }
+        facts
+    };
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let (request, capture) = CapturedInvocation::parse(source_selected_ties(), mode).unwrap();
+        let requested_cases = request.model.load_cases.len();
+        let route = crate::w1_route(&request.model).unwrap();
+        assert_eq!(route, W1Route::Exact, "{mode:?}");
+        let mut observer = ProductCapture::prepared_probe_on(route);
+        let ordinary = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::w1_budget(route), Some(&mut observer));
+        assert!(ordinary.source_block_recovery.is_some(), "{mode:?}: the selected receipt finalizes (the X branch)");
+        let evidence = ordinary.contract_evidence.clone().expect("exact evidence");
+        let cases = evidence["exact_cases"].as_array().unwrap();
+        assert_eq!(cases.len(), 3, "{mode:?}: three exact cases");
+        for case in cases {
+            let extrema = case["pipe_stress_extrema"].as_array().unwrap();
+            assert_eq!(extrema.len(), 6, "{mode:?}: three members on both bases");
+            assert!(extrema.iter().all(|x| x["basis"] == "retained_source_endpoint_normal_max_v1"), "{mode:?}: source-selected");
+            for x in extrema {
+                let tie = x["pipe_id"] != "S";
+                let kind = if tie { "endpoint_candidates" } else { "whole_span_constant" };
+                assert_eq!(x["locations"]["kind"], kind, "{mode:?}: {}", x["pipe_id"]);
+                assert_eq!(x["locations"].as_object().unwrap().len(), if tie { 3 } else { 1 }, "{mode:?}");
+            }
+            // A tied member's facts are route E's per-member coefficients; the constant member's are below.
+            assert_eq!(member(case, "M0"), (per_member(2), per_member(4)), "{mode:?}: a tied member");
+            assert_eq!(member(case, "M1"), member(case, "M0"), "{mode:?}");
+            assert_eq!(member(case, "S"), (123, 1_270), "{mode:?}: a whole-span-constant member");
+        }
+        // (a) The selected run itself, off W1 at G-C's SourceBlockRecovery row.
+        let facts = complete_observations(&CompleteFacts { ordinary: &ordinary, capture: &observer, requested_cases });
+        within(&facts, &format!("{mode:?} (a)"));
+        let refusal = check_phase(PhaseGate::Complete, &facts, &caps.complete).unwrap_err();
+        assert_eq!((refusal.fact, refusal.observed, refusal.cap), (PhaseFact::SourceBlockRecovery, 1, 0), "{mode:?}");
+        // (b) The near-cap owner composed from (a)'s cases.
+        let composed = |members: usize| {
+            let near_cap = |case: &Value| {
+                let mut case = case.clone();
+                for key in ["pipe_materials", "pipe_sections", "pipe_stress_extrema"] {
+                    let own: Vec<Value> = case[key].as_array().unwrap().iter().filter(|x| x["pipe_id"] == "M0").cloned().collect();
+                    case[key] = Value::Array((0..members).flat_map(|_| own.iter().cloned()).collect());
+                }
+                let rhs = &mut case["pressure_rhs_assembly"];
+                rhs["node_order"] = Value::Array((0..32).map(|i| json!(format!("node:{i}"))).collect());
+                for key in ["assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global"] {
+                    let first = rhs[key][0].clone();
+                    rhs[key] = Value::Array(vec![first; 6 * 32]);
+                }
+                case
+            };
+            let mut evidence = evidence.clone();
+            evidence["exact_cases"] = Value::Array(cases.iter().map(near_cap).collect());
+            let ties = evidence["exact_cases"].as_array().unwrap().iter()
+                .flat_map(|c| c["pipe_stress_extrema"].as_array().unwrap().iter())
+                .filter(|x| x["locations"]["kind"] == "endpoint_candidates").count();
+            assert_eq!(ties, 3 * members * 2, "{mode:?}: every composed extremum ties");
+            let mut near = ordinary.clone();
+            near.contract_evidence = Some(evidence);
+            complete_observations(&CompleteFacts { ordinary: &near, capture: &observer, requested_cases })
+        };
+        let o = composed(23);
+        println!("U6_RL_NEAR_CAP {mode:?} m=23 {:?}", &o[8..14]);
+        within(&o, &format!("{mode:?} (b)"));
+        let over = composed(24);
+        assert_eq!((over[8].fact, over[8].observed), (PhaseFact::ContractEvidenceStatus, 1), "{mode:?}: the census value limit");
     }
 }
 

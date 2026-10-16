@@ -1950,10 +1950,38 @@ at `79bf8656dc`; it equals, fact for fact, D3's census of fixtures regenerated
 at `20c6126a16` in a scratch tree. The census also gives
 the D-5 per-case evidence: `pipe_stress_extrema` once per member and basis, the
 nested section bases and two coverage lists. At the caps that is 3,118 array
-slots, 868 objects, 4,029 entries and 414,656 string bytes (STR_CAP 304: the
-elastic-maximum id 287 B plus ':' and a basis token).
+slots, 868 objects, 4,093 entries, 414,656 string bytes (STR_CAP 304: the
+elastic-maximum id 287 B plus ':' and a basis token) and 43,631 key bytes, with
+each extremum at its largest `locations` shape (U6-RL).
 `data/census_d5_79bf8656dc.json` holds it. **Guard:** route E stops unless the
 census states 51 + 21 rows per member.
+
+**U6-RL (`locations` shapes, review R2).** The census case's extrema are the
+source-selected maximum's (`source_receipt/composite.rs` `maximum_inner`), route
+E's larger extremum form in every fact; the certified or fallback form of the case
+solve has no `locations`. `maximum_inner` publishes `locations` in one of three
+shapes, one per variant of `Locations`: `strict_endpoint` (2 entries, the keys
+`kind` and `endpoint`, 12 B, two strings), `whole_span_constant` (1 entry, 4 B,
+one string) and `endpoint_candidates` (3 entries, `kind`, `exact_tie_proven` and
+`interior_equal_possible`, 43 B, one string and two booleans). The fixture shows
+`strict_endpoint`, but a lawful source-selected case with endpoint ties publishes
+`endpoint_candidates`, one entry and 31 key bytes more. The census therefore
+counts each extremum at the componentwise maximum over the three shapes: the
+strings of `strict_endpoint` (608 B at STR_CAP) and the entries and key bytes of
+`endpoint_candidates`. Per member (two extrema) that adds 2 entries and 62 key
+bytes: 127 entries and 1,348 key bytes in place of 125 and 1,286. Per case at
+the caps it adds 64 entries and 1,984 key bytes, and C = 3 cases add 192 and
+5,952. The chain prices these facts through `census_patch.py`'s `_exmax` (the
+evidence owner in `ordinary_caps.py`, `g4_caps.py` and `t25_g4.py`), so every
+copy of the evidence owner rises with them. This matters most on the X branch: a
+selected run finalizes its source-block receipt and W1 falls back
+(`Coexistence`) without consulting G-C, so only the a priori price bounds that
+evidence. `retained_memory_witness_tests.rs`'s
+`u6_rl_evidence_bounds_admit_source_selected_endpoint_ties` reads a selected run
+whose line members tie: a tied member's facts are exactly 127 entries and 1,348
+key bytes. **Guard:** the census stops unless `composite.rs` builds exactly these
+three shapes (`maximum::Locations::` occurs three times and each `json!` literal
+once), and unless every census extremum carries `locations`.
 
 **Byte-preserving source changes (U6-DH, U6-SH, U6-RB).** Each removes a
 resident copy without changing published bytes. Each is detected by its exact
@@ -2015,10 +2043,28 @@ half-changed form stops the run, and a snapshot without it adds nothing.
   reduced ones.
 - **U6-RS.** The reader's `NumericCase` gains `all_rows`, a tenth field beyond
   `NumericCaseBorrowed`'s nine-field upper: one Vec header per numeric case
-  and per Result carrier. It holds every published row of its case (≤ PA over
-  all cases). `rows_for`'s transient full vector (≤ P) sits beside its filtered
-  one, and `g5c`'s drained `bound` classes (≤ P) beside the rebuilt classes,
-  with one `last` class clone (its id and `basis_ref`).
+  and per Result carrier. It holds every published row of its case.
+  `rows_for`'s transient full vector sits beside its filtered one, and `g5c`'s
+  drained `bound` classes (≤ P) beside the rebuilt classes, with one `last`
+  class clone (its id and `basis_ref`).
+
+  The two row vectors are priced at their capacities (review R1). `rows_all_for`
+  is `list(..).iter().filter(..).collect()`: a filter's size hint has lower
+  bound 0, so the collected Vec takes 4 slots at its first row and doubles when
+  full, which is push capacity pushcap(h) for h rows. Each numeric owner (a
+  selected case or a `retained_selected` combination, at most C_eq) holds at most
+  P rows, so the `all_rows` vectors hold at most C_eq·pushcap(P) slots, not PA.
+  The one transient full vector (`rows_for`'s, or `g5b_exact_evidence`'s `all`,
+  one case at a time) holds at most pushcap(P), not P. On route E, P = 2,787 and
+  pushcap(P) = 4,096, so the term is 3·4,096 + 4,096 = 16,384 slots in place of
+  8,361 + 2,787 = 11,148: 5,236 more, +41,888 B at s(&Value) = 8. Route L
+  (P = 2,115, pushcap 4,096) rises by 7,924 slots, +63,392 B. The term is priced
+  here rather than taken from the pre-D-5 "rows_for vectors" term 8·PA, which
+  prices the filtered `rows` vectors and the other pre-D-5 row vectors: its
+  inventory is not re-derived here, and the tool takes no reuse credit. Whether or
+  not std collects `rows_for`'s filter in place, the filtered `rows` Vec has
+  capacity at most pushcap(h) over its entry's published rows, the bound that
+  term carried before D-5, at route E's P (U6-RP counts the twins).
 - **U8-FM.** `FormationSource.frame_members` holds one member prefix (U8-MP,
   ≤ 140 B, priced at `textcap`) per frame. It is filled from PP's
   `frame_member_identities` and copied wherever the frames are:
@@ -2037,14 +2083,28 @@ build (8,355 results against 6,345; `witness_tests::f1_g_c_admits_...`). On
 route E the result rows and their capacity are now C_eq·P_final at route E's
 own P_final = 7n + 72m + 8g + 3 (8,361 and 16,384 at the caps; U6-RP, U6-RB-V),
 and the five contract-evidence bounds are C times the D-5 census at (n, m, g):
-arrays 14 + 78m + 19n, objects 4 + 27m, entries 29 + 125m, string bytes
-6080 + 12464m + 304n, key bytes 495 + 1286m (at the caps 9,354; 2,604; 12,079
-after the node cut, so objects + ⌊entries / 5⌋ = 5,019 nodes; 1,243,968;
-124,941). These equal route E's chain terms ("Final aggregation" and "Preview
-tree final copy (envelope evidence)": 5,019·Node(String,Value) + 9,354·s(Value)
-+ 1,368,909 B). The rows' text bound stays route L's 2·C_eq·P_final·Text(row) on
+arrays 14 + 78m + 19n, objects 4 + 27m, entries 29 + 127m, string bytes
+6080 + 12464m + 304n, key bytes 495 + 1348m (U6-RL; at the caps 9,354; 2,604;
+12,274 after the node cut, so objects + ⌊entries / 5⌋ = 5,058 nodes; 1,243,968;
+130,893). These equal route E's chain terms ("Final aggregation" and "Preview
+tree final copy (envelope evidence)": 5,058·Node(String,Value) + 9,354·s(Value)
++ 1,374,861 B). The rows' text bound stays route L's 2·C_eq·P_final·Text(row) on
 both routes: Text(row) bounds one row's text and route E's 8,361 rows stay below
 route L's 12,690. Route L's bounds are unchanged.
+
+Two limits keep these bounds fail-closed rather than reachable at the census
+maximum. The census counts each case, not the evidence wrapper (one object, its
+three keys `connector`, `exact_cases` and `pressure`, 28 B, and the cases'
+array slots), and the entries bound is cut to the priced nodes, so an owner at
+exactly C times the census maximum would be refused. G-C's borrowed census also
+stops at 16,384 values (`VALUE_LIMIT`), below the route-E bounds' 21,628 array
+slots and entries, and G-C refuses an incomplete census. Neither is reached by a
+lawful input: a source-selected run never consults G-C (`Coexistence`), and the
+retained-source method's per-case work budget keeps selected inputs to a few
+members (a three-case line of four members already exhausts it). The witness
+composes a near-cap owner from a selected run's own tied entries: at m = 23 and
+n = 32 (C = 3) it is within route E's bounds with a complete census, and at
+m = 24 the census reaches its value limit.
 
 **Current D3 binding.** At `addbdc030e` `run` exits 0: all four points are
 complete, with no unmapped header or unclassified argument, and both O-10

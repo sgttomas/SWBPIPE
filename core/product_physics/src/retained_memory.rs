@@ -3255,9 +3255,10 @@ pub(super) const fn phase_caps() -> PhaseCaps {
 ///   tree and the exact route's physics evidence, I95's B3-S census at (n, m, g) (rest + per pipe
 ///   + per unavailable pipe + 6 per DOF and 1 per node). T4-U6 (D-5; U6-RP): the census on the
 ///   D-5 producer's committed fixtures (`data/census_d5_79bf8656dc.json`: `pipe_stress_extrema`
-///   once per member and basis, both section bases, two coverage lists, strings at STR_CAP 304):
-///   arrays 14 + 78m + 19n, objects 4 + 27m, entries 29 + 125m, string bytes
-///   6080 + 12464m + 304n, key bytes 495 + 1286m. These are the facts route E's chain prices for
+///   once per member and basis, both section bases, two coverage lists, strings at STR_CAP 304,
+///   each source-selected extremum at the maximum over its three `locations` shapes, U6-RL):
+///   arrays 14 + 78m + 19n, objects 4 + 27m, entries 29 + 127m, string bytes
+///   6080 + 12464m + 304n, key bytes 495 + 1348m. These are the facts route E's chain prices for
 ///   the evidence owner (`_exmax` in ordinary_caps.py, g4_caps.py and t25_g4.py, scaled by C), so
 ///   the registered profile, the maximum over routes, prices them.
 const fn evidence_caps(route: crate::retained_product::W1Route, n: u64, m: u64, g: u64) -> [u64; 5] {
@@ -3271,9 +3272,9 @@ const fn evidence_caps(route: crate::retained_product::W1Route, n: u64, m: u64, 
         crate::retained_product::W1Route::Exact => [
             max(preview[0], 14 + 78 * m + 19 * n),
             max(preview[1], 4 + 27 * m),
-            max(preview[2], 29 + 125 * m),
+            max(preview[2], 29 + 127 * m),
             max(preview[3], 6080 + 12464 * m + 304 * n),
-            max(preview[4], 495 + 1286 * m),
+            max(preview[4], 495 + 1348 * m),
         ],
     }
 }
