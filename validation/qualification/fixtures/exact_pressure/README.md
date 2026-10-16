@@ -1,35 +1,41 @@
-# VP-STATIC exact_pressure_1 cases (T4-U2; U4a tangent mapping)
+# VP-STATIC exact_pressure_1 cases (T4-U2; U4a tangent mapping; T4-U6 section bases)
 
 This package scores the `exact_pressure_1_cli_1.0_raw0.2` transport
 (`tools/validation/qualification_exact_pressure.py`) against the frozen,
-independently refuted T4-U2 references:
+independently refuted T4-U2 references, re-frozen on D-5 for T4-U6:
 
 - `validation/references/t4_i7/u2_reference_cases.json` (T4-I7, pressure
-  through realized bends; sha256 `a91bfbc8…2828`) with its documents
+  through realized bends; sha256 `4bb9d0fa…ab66`) with its documents
   `u2_document_sketches.json`;
 - `validation/references/t4_i8/rebuilt_reference_cases.json` (T4-I8, the
-  rebuilt straight cases; sha256 `838578ab…724b`).
+  rebuilt straight cases; sha256 `6f305474…21e0`).
 
-**Status: admitted for development comparison after independent review of the U4a tangent mapping.**
-The references are frozen and refuted (T4-RV3, T4-RV4). The current
-`INDEPENDENT_REVIEW_T4-U4A.md` checks arc end selectors, their sign metadata
-and implied endpoint section actions, reusing the unchanged warrants of
-the historical `INDEPENDENT_REVIEW_T4-RV28.md`. `ADMISSION.json` binds the
-current review by SHA-256.
-Without `ADMISSION.json`, every generated reference is
-`pending_independent_review` and every profile a draft, so the gate refuses
-the package. Admission changes statuses only, never a value or rule. It is a
-development-comparison admission, not engineering acceptance or a release
-criterion. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+**Status: pending independent review of the T4-U6 mapping delta; not admitted.**
+T4-I7 (the 72 cases with mill tolerance) and T4-I8 MILLTOL were re-frozen on
+D-5 (DEL-05-03 Design `section-bases-and-timoshenko.md` §7). That re-freeze was
+refuted independently on 2026-10-16, which found no wrong frozen value and no
+loosening. Earlier reviews: T4-RV3 and T4-RV4 refuted the references,
+`INDEPENDENT_REVIEW_T4-RV28.md` admitted the package, and
+`INDEPENDENT_REVIEW_T4-U4A.md` admitted the U4a tangent mapping. The committed
+`MANIFEST.json` is the unadmitted package of the T4-U6 generator. Its
+`ADMISSION.json` is withdrawn until the review of this delta is bound, so the
+old U4a review never binds the re-frozen values. Without `ADMISSION.json`,
+every generated reference is `pending_independent_review` and every profile is
+a draft, so the gate refuses the package. Admission changes statuses only,
+never a value or rule. It is a development-comparison admission, not
+engineering acceptance or a release criterion. Standard claim fence applies
+(F-PIP-2; claims taxonomy per DEC-081).
 
-**T4-U6 (D-5) re-freeze, pending.** T4-I7 (72 cases with mill tolerance) and
-T4-I8 MILLTOL were re-frozen on D-5 (DEL-05-03 Design
-`section-bases-and-timoshenko.md` §7) and await independent refutation. The
-generator already reads the re-frozen shapes (section bases below), so
-`--check` differs from the committed `MANIFEST.json`. That manifest, the
-hashes above and the counts below still describe the pre-D-5 package. They are
-regenerated, and the new review bound in `ADMISSION.json`, only after the
-refutation returns.
+**Zero-scale floors after the re-freeze.** The T4-I7 floors are
+`1e-9*zero_scale(group)`, and their rule is unchanged. A group's zero scale is
+still the largest |expected| in that group for the case, or its stated
+characteristic scale when the group is identically zero. The re-freeze moved
+the values, so the floors moved with them. Across 1,074 matched groups, 143
+rose (by at most a factor of 1.17), 467 fell (to at least 0.87) and 464 are
+unchanged. The stress groups are now split by basis (`<group>@<basis>`). A
+higher floor follows from a larger reference value under the same rule; it is
+not a relaxed criterion. T4-U4a's re-frozen floors follow the same rule; this
+package does not consume them.
 
 All inputs are invented test quantities from the references. None of them is
 material-library, component-library or code-rule data.
@@ -40,8 +46,8 @@ material-library, component-library or code-rule data.
 |---|---|---|
 | `generate_package.py` | yes | The generator. It reads the references and the pinned pressure-1 table only. |
 | `MANIFEST.json` | yes | `openpipestress.exact_pressure_qualification_manifest/1`: one entry per case, binding each case file by path and sha256. |
-| `ADMISSION.json` | yes | `openpipestress.exact_pressure_admission/1`: the admission record, binding the review by path and sha256. |
-| `INDEPENDENT_REVIEW_T4-U4A.md` | yes | The current independent tangent-mapping review, bound by `ADMISSION.json`. |
+| `ADMISSION.json` | absent while pending | `openpipestress.exact_pressure_admission/1`: the admission record, binding the review by path and sha256. |
+| `INDEPENDENT_REVIEW_T4-U4A.md` | yes | The independent U4a tangent-mapping review; it admitted the pre-D-5 package. |
 | `INDEPENDENT_REVIEW_T4-RV28.md` | yes | The preserved historical review of the unchanged basis. |
 | `cases/` | no (`.gitignore`) | Five files per case, written by `--write`: `runner_input`, `preview_request`, `selectors`, `reference`, `criteria`. |
 
@@ -62,42 +68,50 @@ python validation/qualification/fixtures/exact_pressure/generate_package.py --ch
 
 ## Cases
 
-Each case below runs on 0.3.0 and on 0.4.0, in both solver modes.
+Every case runs in both solver modes.
 
-- **T4-I7.** Each of the 79 valued cases, run on its own document.
+- **T4-I7.** Each of the 79 valued cases, run on its own document on 0.3.0
+  and on 0.4.0.
 - **T4-I8.** Each owner with rows. Its v2 document is patched to
-  `3.0.0/exact_pressure_v3` by the reference's own `v3_patch_for_both`.
-  The D-5 re-authored MILLTOL owners are the exception. They carry their own
-  model 0.5.0 documents under the current contract, run as
-  `@0.5.0` and `@0.5.0_load_state_group` (with the load/reference-state
-  group).
+  `3.0.0/exact_pressure_v3` by the reference's own `v3_patch_for_both`, and
+  runs on 0.3.0 and on 0.4.0. The D-5 re-authored MILLTOL owners are the
+  exception. They carry their own model 0.5.0 documents under the current
+  contract, run as `@0.5.0` and `@0.5.0_load_state_group` (with the
+  load/reference-state group). Both run again under the owner's declared
+  `shear_model_variant`, as `@0.5.0_timoshenko` and
+  `@0.5.0_load_state_group_timoshenko`. These assert the same rows, values and
+  rules: the case has no transverse load, so Timoshenko leaves its axial-only
+  response unchanged. The transport submits these current documents unchanged
+  (`GATE_USAGE.md`).
 
 Case IDs are `<reference case>@<version>`.
 
-| Family | Cases per version | Positive per version | Negative per version | Absences per version |
+| Family | Cases | Positive | Negative | Absences |
 |---|---|---|---|---|
-| L-FREE (I7) | 26 | 6614 | 34 | 170 |
-| L-ANCH (I7) | 25 | 6508 | 133 | 164 |
-| U-ANCH (I7) | 18 | 12576 | 48 | 386 |
-| CBPT (I7) | 8 | 696 | 31 | 56 |
-| KINK (I7) | 2 | 512 | 13 | 14 |
-| milltol_lame_membrane (I8, two variants) | 2 | 204 | 13 | 8 |
-| tp_phys_pressure_halves (I8) | 1 | 548 | 11 | 12 |
-| pressure_membrane_thin_wall_limit (I8) | 1 | 98 | 4 | 4 |
-| v3_straight_twin_separate_closures (I8) | 1 | 106 | 0 | 4 |
-| **Total** | **84** | **27862** | **287** | **818** |
+| L-FREE (I7) | 52 | 18428 | 68 | 340 |
+| L-ANCH (I7) | 50 | 18016 | 266 | 328 |
+| U-ANCH (I7) | 36 | 35232 | 96 | 772 |
+| CBPT (I7) | 16 | 1712 | 62 | 112 |
+| KINK (I7) | 4 | 1424 | 26 | 28 |
+| milltol_lame_membrane (I8, two variants, four documents each) | 8 | 1144 | 124 | 32 |
+| tp_phys_pressure_halves (I8) | 2 | 1588 | 22 | 24 |
+| pressure_membrane_thin_wall_limit (I8) | 2 | 278 | 8 | 8 |
+| v3_straight_twin_separate_closures (I8) | 2 | 294 | 0 | 8 |
+| **Total per mode** | **172** | **78116** | **672** | **1652** |
 
 Totals:
 
-- **Per mode:** 168 cases, 55,724 positive and 574 negative assertions.
+- **Per mode:** 172 cases, 78,116 positive and 672 negative assertions.
+- **T4-U6 section bases:** every stress row is asserted on both bases. Before
+  D-5 the 168 cases had 55,724 positive assertions.
 - **U4a tangent mapping:** 2,660 tangent arc end assertions; 1,798 values
-  differ from the former chord mapping. Twenty-six formerly unscored arc
-  endpoint negative controls now score the end rows. These counts come from
-  the generated selectors and reference files.
+  differed from the former chord mapping. Twenty-six formerly unscored arc
+  endpoint negative controls score the end rows. These counts are from the
+  U4a round's generated selectors and reference files.
 - **Terminal evidence:** 2,094 of the positive assertions are terminal-evidence
   selectors.
-- **I8 rows:** every row is asserted, 956 per version. That includes the 150
-  rows published in MPa and the three symbolic rows.
+- **I8 rows:** every row is asserted: 3,304 positive assertions, 720 of them
+  in MPa.
 
 **Not in the package:**
 
