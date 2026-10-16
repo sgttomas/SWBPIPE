@@ -162,7 +162,7 @@ def test_pressure_1_reader_refuses_cross_basis_stress(base):
             row["value"] = rows[sb.twin_id(row["id"])]["value"]
             break
     _refused(doc, "stress basis section")
-    # The nominal-basis Lame hoop evaluated at the pressure bore (§8).
+    # One basis for both Lame families: the reduced hoop copied onto its nominal twin.
     doc = distinct(base)
     for row in doc["results"]:
         if row["kind"] == "pipe_lame_hoop_stress_v2" and row["id"].endswith(":nominal_section"):
@@ -178,6 +178,36 @@ def test_pressure_1_reader_refuses_cross_basis_stress(base):
     row = next(r for r in doc["results"] if r["kind"] == "element_local_torsional_shear_stress" and r["id"].endswith(":nominal-section"))
     row["metadata"]["basis"] = row["metadata"]["basis"].replace("nominal_section", "reduced_section")
     _refused(doc, "stress row section basis")
+
+
+def _case_sections_and_pressures(doc):
+    evidence = doc["contract_evidence"]
+    sections = {(case["load_case_id"], s["pipe_id"]): s for case in evidence["exact_cases"] for s in case["pipe_sections"]}
+    pressures = {(region["load_case_id"], pid): region["p_pa"] for region in evidence["pressure"] for pid in region["member_pipe_ids"]}
+    return sections, pressures
+
+
+def test_pressure_1_reader_refuses_nominal_lame_at_the_pressure_bore(base):
+    """§8, §2.1: the nominal-basis Lame rows evaluated at the pressure bore. On distinct bases every nominal hoop row is
+    published as 2p*Ai/A_n at the outer surface and that plus p at the inner, with Ai = pi*r_i,r^2 the pressure bore's
+    area and A_n the nominal area: neither the nominal annulus's own hoop nor the reduced twin's (Rust's twin is
+    section_bases.rs's test of the same name)."""
+    doc = distinct(base)
+    sections, pressures = _case_sections_and_pressures(doc)
+    rows = _rows(deepcopy(doc))
+    published = 0
+    for row in doc["results"]:
+        if row["kind"] != "pipe_lame_hoop_stress_v2" or sb.id_basis(row["id"]) != sb.NOMINAL:
+            continue
+        key = (row["basis_ref"]["ref_id"], row["entity_ref"])
+        s, p = sections[key], pressures[key]
+        outer = 2.0 * (p * s["pressure_bore"]["Ai_m2"]) / s["nominal_section"]["As_m2"]
+        value = outer if row["metadata"]["component"] == "lame_outer_hoop_stress" else outer + p
+        assert value != row["value"] and value != rows[sb.twin_id(row["id"])]["value"], row["id"]
+        row["value"] = value
+        published += 1
+    assert published
+    _refused(doc, "stress basis section")
 
 
 def _reduced_zero_rows(doc, kind):

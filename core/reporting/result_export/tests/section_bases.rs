@@ -180,7 +180,7 @@ fn pressure_1_reader_refuses_cross_basis_stress() {
     let nominal = doc["results"].as_array().unwrap().iter().find(|r| r["id"] == sb::twin_id(&id).unwrap().as_str()).unwrap()["value"].clone();
     find(&mut doc, "element_local_bending_normal_stress_y", ":reduced-section")["value"] = nominal;
     assert_eq!(refused(&doc), "SOURCE_PHYSICS_ROW_BASIS_SECTION");
-    // The nominal-basis Lame hoop evaluated at the pressure bore.
+    // One basis for both Lame families: the reduced hoop copied onto its nominal twin.
     let mut doc = distinct(&base(), 0.001);
     let id = find(&mut doc, "pipe_lame_hoop_stress_v2", ":reduced_section")["id"].as_str().unwrap().to_string();
     let reduced = doc["results"].as_array().unwrap().iter().find(|r| r["id"] == id.as_str()).unwrap()["value"].clone();
@@ -192,6 +192,44 @@ fn pressure_1_reader_refuses_cross_basis_stress() {
     let row = find(&mut doc, "element_local_torsional_shear_stress", ":nominal-section");
     row["metadata"]["basis"] = json!(row["metadata"]["basis"].as_str().unwrap().replace("nominal_section", "reduced_section"));
     assert_eq!(refused(&doc), "SOURCE_PHYSICS_ROW_SECTION_BASIS");
+}
+
+/// (case, pipe) to its case section, and to its pressure region's p.
+fn case_sections_and_pressures(doc: &Value) -> (HashMap<(String, String), Value>, HashMap<(String, String), f64>) {
+    let evidence = &doc["contract_evidence"];
+    let sections = evidence["exact_cases"].as_array().unwrap().iter().flat_map(|c| {
+        c["pipe_sections"].as_array().unwrap().iter().map(|s| ((c["load_case_id"].as_str().unwrap().to_string(), s["pipe_id"].as_str().unwrap().to_string()), s.clone())).collect::<Vec<_>>()
+    }).collect();
+    let pressures = evidence["pressure"].as_array().unwrap().iter().flat_map(|r| {
+        r["member_pipe_ids"].as_array().unwrap().iter().map(|m| ((r["load_case_id"].as_str().unwrap().to_string(), m.as_str().unwrap().to_string()), f(&r["p_pa"]))).collect::<Vec<_>>()
+    }).collect();
+    (sections, pressures)
+}
+
+#[test]
+fn pressure_1_reader_refuses_nominal_lame_at_the_pressure_bore() {
+    // §8, §2.1: the nominal-basis Lame rows evaluated at the pressure bore. On
+    // distinct bases every nominal hoop row is published as 2p*Ai/A_n at the
+    // outer surface and that plus p at the inner, with Ai = pi*r_i,r^2 the
+    // pressure bore's area and A_n the nominal area: neither the nominal
+    // annulus's own hoop nor the reduced twin's.
+    let mut doc = distinct(&base(), 0.001);
+    let (sections, pressures) = case_sections_and_pressures(&doc);
+    let by_id: HashMap<String, Value> = doc["results"].as_array().unwrap().iter().map(|r| (r["id"].as_str().unwrap().to_string(), r.clone())).collect();
+    let mut published = 0;
+    for row in doc["results"].as_array_mut().unwrap() {
+        let id = row["id"].as_str().unwrap().to_string();
+        if row["kind"] != "pipe_lame_hoop_stress_v2" || sb::id_basis(&id) != Some(sb::NOMINAL) { continue; }
+        let key = (row["basis_ref"]["ref_id"].as_str().unwrap().to_string(), row["entity_ref"].as_str().unwrap().to_string());
+        let (s, p) = (&sections[&key], pressures[&key]);
+        let outer = 2.0 * (p * f(&s["pressure_bore"]["Ai_m2"])) / f(&s["nominal_section"]["As_m2"]);
+        let value = if row["metadata"]["component"] == "lame_outer_hoop_stress" { outer } else { outer + p };
+        assert!(value != f(&row["value"]) && value != f(&by_id[&sb::twin_id(&id).unwrap()]["value"]), "{id}: a third value");
+        row["value"] = json!(value);
+        published += 1;
+    }
+    assert!(published > 0);
+    assert_eq!(refused(&doc), "SOURCE_PHYSICS_ROW_BASIS_SECTION");
 }
 
 #[test]
