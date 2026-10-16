@@ -313,6 +313,122 @@ fn timoshenko_realized_arcs_stay_euler_bernoulli() {
     }
 }
 
+/// Design §2.5: a straight member's `pipe_sections` entry has exactly these keys; a realized
+/// arc's has these and `member_kind`.
+const PIPE_SECTION_KEYS: [&str; 11] = ["pipe_id", "geometry_basis", "outside_diameter_m", "ro_m", "wall_thickness_m",
+    "mill_tolerance_m", "corrosion_allowance_m", "nominal_section", "reduced_section", "pressure_bore", "beam_theory"];
+/// The I7 mixed L-line (straight S1, realized arc BEND, straight S2) and the pipe ids of the
+/// realized arcs the product builds from it.
+fn mixed_l_line(shear_model: &str) -> (Value, std::collections::BTreeSet<String>, usize) {
+    let request = with_shear_model(sketch("U2-L-ANCH-PTW-K2"), shear_model);
+    let (_, b) = built(&request);
+    let arcs: std::collections::BTreeSet<String> = b.curved_bend_elements.iter().map(|bend| bend.pipe_id.clone()).collect();
+    assert!(!arcs.is_empty() && arcs.len() < b.pipes.len(), "precondition: a mixed L-line");
+    (request, arcs, b.pipes.len())
+}
+/// One exact case's `pipe_sections` entries by pipe id, each checked for the §2.5 key set: a
+/// realized arc (and only a realized arc) carries `member_kind = "realized_arc"` and
+/// Euler-Bernoulli beam theory.
+fn checked_pipe_sections<'a>(case: &'a Value, arcs: &std::collections::BTreeSet<String>, members: usize, label: &str)
+    -> BTreeMap<&'a str, &'a Value> {
+    let sections = case["pipe_sections"].as_array().unwrap();
+    assert_eq!(sections.len(), members, "{label}: one entry per member");
+    let mut by_id = BTreeMap::new();
+    for section in sections {
+        let id = section["pipe_id"].as_str().unwrap();
+        let mut keys: std::collections::BTreeSet<&str> = section.as_object().unwrap().keys().map(String::as_str).collect();
+        if arcs.contains(id) {
+            assert_eq!(section["member_kind"], json!("realized_arc"), "{label} {id}: the arc marker");
+            assert_eq!(section["beam_theory"], json!({"model": "euler_bernoulli"}), "{label} {id}: an arc is Euler-Bernoulli");
+            keys.remove("member_kind");
+        } else {
+            assert!(section.get("member_kind").is_none(), "{label} {id}: a straight member has no member_kind");
+        }
+        assert_eq!(keys, PIPE_SECTION_KEYS.into_iter().collect(), "{label} {id}: the section keys");
+        assert!(by_id.insert(id, section).is_none(), "{label} {id}: one entry");
+    }
+    by_id
+}
+
+/// Design §2.5 (the arc marker): a Timoshenko document whose realized arc lies outside every
+/// pressure region (explicitly empty regions, so no region geometry names any member) still
+/// marks the arc's `pipe_sections` entry `member_kind = "realized_arc"` with Euler-Bernoulli beam
+/// theory, and each straight member's entry has exactly the D-5 keys and its Timoshenko leaf.
+#[test]
+fn pipe_sections_mark_a_realized_arc_outside_every_pressure_region() {
+    let (mut request, arcs, members) = mixed_l_line(TIMOSHENKO);
+    for case in request["model"]["load_cases"].as_array_mut().unwrap() {
+        assert!(case["pressure_regions"].as_array().is_some_and(|r| !r.is_empty()), "precondition: authored regions");
+        case["pressure_regions"] = json!([]);
+    }
+    for mode in MODES {
+        let envelope = run(&request, mode);
+        assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}: {}", envelope["diagnostics"]);
+        let evidence = &envelope["contract_evidence"];
+        let mut geometry = Vec::new();
+        records_with(&evidence["pressure"], "traversal_forward", &mut geometry);
+        assert!(geometry.is_empty(), "{mode:?}: precondition: no region geometry");
+        let cases = evidence["exact_cases"].as_array().unwrap();
+        assert!(!cases.is_empty(), "{mode:?}: exact case evidence");
+        for case in cases {
+            let label = format!("{mode:?} {}", case["load_case_id"]);
+            let sections = checked_pipe_sections(case, &arcs, members, &label);
+            let mut straight = 0;
+            for (id, section) in sections {
+                if arcs.contains(id) {
+                    continue;
+                }
+                let material = case["pipe_materials"].as_array().unwrap().iter().find(|m| m["pipe_id"] == id).unwrap();
+                assert_timoshenko_evidence(section, number(&material["nu"]), &format!("{label} {id}"));
+                straight += 1;
+            }
+            assert_eq!(straight + arcs.len(), members, "{label}: every straight member is Timoshenko");
+        }
+    }
+}
+
+/// Design §2.5: with the arc inside a pressure region, under either shear model, the region
+/// geometry and `pipe_sections` mark the same members, exactly the realized arcs, and each region
+/// geometry record's section part (without its traversal and tangent keys) is its member's
+/// `pipe_sections` entry, marker included.
+#[test]
+fn pipe_sections_and_region_geometry_mark_the_same_realized_arcs() {
+    for shear_model in ["euler_bernoulli", TIMOSHENKO] {
+        let (request, arcs, members) = mixed_l_line(shear_model);
+        for mode in MODES {
+            let envelope = run(&request, mode);
+            assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{shear_model} {mode:?}: {}", envelope["diagnostics"]);
+            let evidence = &envelope["contract_evidence"];
+            let cases = evidence["exact_cases"].as_array().unwrap();
+            assert!(!cases.is_empty(), "{shear_model} {mode:?}: exact case evidence");
+            for case in cases {
+                let label = format!("{shear_model} {mode:?} {}", case["load_case_id"]);
+                let sections = checked_pipe_sections(case, &arcs, members, &label);
+                let regions: Vec<&Value> = evidence["pressure"].as_array().unwrap().iter()
+                    .filter(|region| region["load_case_id"] == case["load_case_id"]).collect();
+                assert!(!regions.is_empty(), "{label}: a pressure region");
+                let mut region_arcs = std::collections::BTreeSet::new();
+                for record in regions.iter().flat_map(|region| region["geometry"].as_array().unwrap()) {
+                    let id = record["pipe_id"].as_str().unwrap();
+                    match record.get("member_kind") {
+                        Some(kind) => {
+                            assert_eq!(kind, &json!("realized_arc"), "{label} {id}: region marker");
+                            region_arcs.insert(id.to_string());
+                        }
+                        None => assert!(!arcs.contains(id), "{label} {id}: an unmarked arc in the region geometry"),
+                    }
+                    let mut part = record.clone();
+                    let object = part.as_object_mut().unwrap();
+                    object.remove("traversal_forward").expect("a region geometry record");
+                    object.remove("arc_end_tangents_global");
+                    assert_eq!(&part, sections[id], "{label} {id}: region geometry section part is the pipe_sections entry");
+                }
+                assert_eq!(region_arcs, arcs, "{label}: the region marks exactly the realized arcs");
+            }
+        }
+    }
+}
+
 /// Design §4 item 2, §8 ("Timoshenko leaf missing from a recovery or
 /// primitive frame"), at the product level: a member with no load primitive
 /// has nothing to bind its recovery frame to but its formation-source frame.

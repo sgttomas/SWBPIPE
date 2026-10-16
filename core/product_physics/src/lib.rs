@@ -6239,7 +6239,7 @@ fn solve_prepared_load_case(
         "load_case_id":load_case.id,"profile_mode":pressure_runtime::exact_contract(model).map(|c| c.mode()),
         "material_basis":modulus_basis_record.unwrap_or("base_material_common_E_nu"),
         "pressure_rhs_assembly":pressure_assembly_evidence,
-        "pipe_sections":built.pipes.iter().map(|pipe| exact_section_evidence(&pipe.element_id,*built.exact_sections.get(&pipe.element_id).expect("every built exact member has source geometry"))).collect::<Vec<_>>(),
+        "pipe_sections":exact_pipe_sections(built),
         "pipe_stress_extrema":pipe_stress_extrema,
         "stress_maximum_coverage":[
             {"section_basis":pressure_exact::SectionBasis::Nominal.token(),"complete":unavailable_stress_maximum_members.is_empty(),"unavailable_pipe_ids":unavailable_stress_maximum_members},
@@ -10664,12 +10664,48 @@ fn straight_section_resultants(
     ])
 }
 
+/// T4-U8 (DEL-05-03 Design §2.5): an exact case's `pipe_sections`, one entry
+/// per built member in pipe order. A realized arc's entry carries the region
+/// geometry's marker (`mark_realized_arc`), arc membership decided as the
+/// region geometry decides it (`realized_arc`), so a reader without the model
+/// knows every arc, including arcs outside every pressure region. A straight
+/// member's entry keeps exactly the `exact_section_evidence` keys.
+fn exact_pipe_sections(built: &BuiltModel) -> Vec<serde_json::Value> {
+    built
+        .pipes
+        .iter()
+        .enumerate()
+        .map(|(index, pipe)| {
+            let sections = *built.exact_sections.get(&pipe.element_id).expect("every built exact member has source geometry");
+            let mut entry = exact_section_evidence(&pipe.element_id, sections);
+            if realized_arc(built, index).is_some() {
+                mark_realized_arc(&mut entry);
+            }
+            entry
+        })
+        .collect()
+}
+
+/// The realized arc built on `built.pipes[pipe_index]`, if that pipe is one:
+/// the curved bend macro element realized on it. The one arc membership of
+/// the region geometry and of `pipe_sections`.
+fn realized_arc(built: &BuiltModel, pipe_index: usize) -> Option<&CurvedBendMacroBuild> {
+    built.curved_bend_elements.iter().find(|bend| bend.pipe_index == pipe_index)
+}
+
+/// The realized-arc marker `member_kind = "realized_arc"` of a section record
+/// (region geometry and `pipe_sections`, §2.5).
+fn mark_realized_arc(entry: &mut serde_json::Value) {
+    entry["member_kind"] = serde_json::json!("realized_arc");
+}
+
 /// D-5 (DEL-05-03 Design `section-bases-and-timoshenko.md` §2.3, §2.5): one
 /// pipe's `pipe_sections` entry, the one shape of every identity's section
 /// evidence and of the realized-arc geometry record: the authored OD, wall,
 /// mill tolerance (absent = 0) and allowance, both sections, the pressure bore
-/// and the straight-member beam theory. Every straight member and realized arc
-/// is Euler-Bernoulli in this revision.
+/// and the beam theory (a realized arc's sections carry no shear leaf, so it
+/// is Euler-Bernoulli under either selection). Callers add the realized-arc
+/// marker.
 fn exact_section_evidence(pipe_id: &str, g: pressure_exact::ExactSectionBases) -> serde_json::Value {
     let section = |s: pressure_exact::SourceAnnulus| serde_json::json!({"wall_m":s.effective_wall_thickness_m(),
         "ri_m":s.inner_radius_m(),"As_m2":s.wall_area_m2(),"I_m4":s.second_moment_m4(),"J_m4":s.polar_moment_m4(),"Z_m3":s.section_modulus_m3()});

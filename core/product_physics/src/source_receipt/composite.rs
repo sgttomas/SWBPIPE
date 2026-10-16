@@ -523,12 +523,7 @@ pub(super) fn physical_source_built(
     {
         return Err(bad("physical case/method/material/coverage binding"));
     }
-    let sections: Vec<_> = built
-        .pipes
-        .iter()
-        .map(|p| exact_section_evidence(&p.element_id, built.exact_sections[&p.element_id]))
-        .collect();
-    if evidence["pipe_sections"] != json!(sections) {
+    if evidence["pipe_sections"] != json!(exact_pipe_sections(built)) {
         return Err(bad("physical source geometry binding"));
     }
     let material_evidence: Value = if let Some((state, _)) = load_state {

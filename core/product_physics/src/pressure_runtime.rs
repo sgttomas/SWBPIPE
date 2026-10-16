@@ -825,10 +825,7 @@ fn assemble_pressure_case(
             // T4-U2: a realized arc in a v3 region (bends never reach here
             // under v2: the seam refuses them). Its end directions are the
             // arc's end tangents; a straight member's are its local x.
-            let arc_build = built
-                .curved_bend_elements
-                .iter()
-                .find(|bend| bend.pipe_index == step.pipe_index);
+            let arc_build = super::realized_arc(built, step.pipe_index);
             let arc = match arc_build {
                 None => None,
                 Some(bend) => match (
@@ -852,7 +849,7 @@ fn assemble_pressure_case(
             let mut member_geometry = super::exact_section_evidence(&pipe.element_id, sections);
             member_geometry["traversal_forward"] = json!(step.forward);
             if let Some(arc) = &arc {
-                member_geometry["member_kind"] = json!("realized_arc");
+                super::mark_realized_arc(&mut member_geometry);
                 member_geometry["arc_end_tangents_global"] = json!(arc.tangents);
             }
             geometry.push(member_geometry);
