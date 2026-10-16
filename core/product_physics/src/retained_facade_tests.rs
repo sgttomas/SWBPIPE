@@ -3241,7 +3241,11 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
             assert_exact_successor(&label, &successor, &plain_value, &["selected"]);
             let section = |e: &Value| e["exact_cases"][0]["pipe_sections"].as_array().unwrap().iter().find(|s| s["pipe_id"] == "M2").unwrap().clone();
             let (now, was) = (section(&successor["contract_evidence"]), section(&plain_value["contract_evidence"]));
-            assert!(["As_m2", "I_m4", "J_m4", "Z_m3"].iter().any(|k| num_bits(&now[*k]) != num_bits(&was[*k])), "{label}: M2's prepared section is not its source annulus's");
+            // D-5: the prepared section is written to both nested sections (Design §2.3).
+            for basis in ["nominal_section", "reduced_section"] {
+                assert!(["As_m2", "I_m4", "J_m4", "Z_m3"].iter().any(|k| num_bits(&now[basis][*k]) != num_bits(&was[basis][*k])),
+                    "{label}: M2's prepared {basis} is not its source annulus's");
+            }
             let bytes = sha(&serde_json::to_vec(&successor).unwrap());
             println!("RV123_S1 {label} successor_sha256={bytes}");
             let pinned = TWO_MEMBER_PINNED.iter().find(|(r, m, _)| *r == reversed && *m == mode.as_str()).unwrap().2;
