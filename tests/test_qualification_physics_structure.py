@@ -27,8 +27,11 @@ def synthetic_case(slug='axial', mode='sparse_interactive'):
     """
     # B7b: the gate submits (and checks the raw against) the declared re-authored copy of the frozen input.
     request = json.loads(physics.reauthor_runner_input((BINDINGS / (slug + '.runner_input.candidate.json')).read_bytes())[0])
-    selectors = load(slug + '.selectors.candidate.json')['assertions']
-    values = {row['assertion_id']: row['value'] for row in load(slug + '.reference.candidate.json')['values']}
+    # T4-U6 (D-5): the observation follows the declared re-authored selector copy (each stress selector on both
+    # section bases, same value), the D-5 section on coincident bases and the per-basis maximum records.
+    selectors, values = physics.reauthor_selectors(load(slug + '.selectors.candidate.json')['assertions'],
+                                                    load(slug + '.reference.candidate.json')['values'])[:2]
+    values = {row['assertion_id']: row['value'] for row in values}
     criteria = load('STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json')
     rows = []
     for assertion in selectors:
@@ -41,9 +44,21 @@ def synthetic_case(slug='axial', mode='sparse_interactive'):
     rows.append({'id': 'synthetic:mode', 'kind': 'linear_solver_mode_basis', 'unit': 'mode_code',
                  'value': 1 if mode == 'sparse_interactive' else 2,
                  'basis_ref': deepcopy(structure.CASE_BASIS)})
-    maximum = values['stress.maximum_absolute_normal']
-    section = {row['observed_field']: row['reference_value_binary64'] for row in criteria['quantities']}
-    section.update(pipe_id='pipe', geometry_basis='authored_normalized_od_wall_v1')
+    maximum = values['stress.maximum_absolute_normal.nominal_section']
+    flat = {row['observed_field']: row['reference_value_binary64'] for row in criteria['quantities']}
+    section = {'pipe_id': 'pipe', 'geometry_basis': structure.D5_GEOMETRY_BASIS, 'mill_tolerance_m': 0.0,
+               'corrosion_allowance_m': 0.0, 'beam_theory': {'model': 'euler_bernoulli'}}
+    for field, locations in structure.D5_LOCATIONS.items():
+        for path in locations:
+            target = section
+            for key in path[:-1]:
+                target = target.setdefault(key, {})
+            target[path[-1]] = flat[field]
+    extremum = {'pipe_id': 'pipe', 'approximation': 'piecewise_quadratic_straight_section_statics',
+                'coefficient_basis': 'j_side_section_equilibrium_binary64_enclosures', 'enclosure_scope': structure.ENCLOSURE,
+                'value_lower_pa': maximum, 'value_upper_pa': maximum, 'global_upper_bound_pa': maximum,
+                'certified_gap_pa': 0.0, 'station_fraction': 0.0, 'local_fraction': 0.0,
+                'span_index': 0, 'subdivisions': 0}
     raw = {
         'schema_version': '0.2.0', 'producer': {'component_name': 'open_pipe_stress_product_physics',
             'component_version': '0.2.0', 'semantic_contract_id': structure.CONTRACT},
@@ -62,13 +77,10 @@ def synthetic_case(slug='axial', mode='sparse_interactive'):
                 'pipe_id': 'pipe', 'material_id': 'material', 'alpha_per_kelvin': None,
                 'constitutive_basis': 'homogeneous_isotropic_E_nu_v1', 'thermal_consumed': False}],
             'pipe_sections': [section],
-            'pipe_stress_extrema': [{'pipe_id': 'pipe', 'result_id': structure.MAXIMUM_ID,
-                'approximation': 'piecewise_quadratic_straight_section_statics',
-                'coefficient_basis': 'j_side_section_equilibrium_binary64_enclosures', 'enclosure_scope': structure.ENCLOSURE,
-                'value_lower_pa': maximum, 'value_upper_pa': maximum, 'global_upper_bound_pa': maximum,
-                'certified_gap_pa': 0.0, 'station_fraction': 0.0, 'local_fraction': 0.0,
-                'span_index': 0, 'subdivisions': 0}],
-            'stress_maximum_coverage': {'complete': True, 'unavailable_pipe_ids': []}}]},
+            'pipe_stress_extrema': [dict(extremum, section_basis=basis, result_id=structure.MAXIMUM_IDS[basis])
+                                    for basis in structure.SECTION_BASES],
+            'stress_maximum_coverage': [{'section_basis': basis, 'complete': True, 'unavailable_pipe_ids': []}
+                                        for basis in structure.SECTION_BASES]}]},
         'results': rows,
         'numerical_quality': {'value_representation': 'finite_binary64', 'publication_quantization': 'none',
             'integrity_policy': 'M03-INTEGRITY-v1', 'status': 'checks_passed', 'cases': [{
@@ -82,8 +94,9 @@ def synthetic_case(slug='axial', mode='sparse_interactive'):
             'spring_hanger_user_input_count': 0,
             'max_displacement': {'value': values['node.tip.magnitude'], 'unit': 'mm',
                 'location_ref': 'tip', 'result_ref': 'result:disp:tip'},
-            'max_open_formula_stress': {'value': maximum, 'unit': 'Pa', 'location_ref': 'pipe',
-                'result_ref': structure.MAXIMUM_ID}},
+            'max_open_formula_stress': None,
+            **{structure.HEADLINE_KEYS[basis]: {'value': maximum, 'unit': 'Pa', 'location_ref': 'pipe',
+                                                'result_ref': structure.MAXIMUM_IDS[basis]} for basis in structure.SECTION_BASES}},
     }
     binding = {'case_id': 'original_static_' + slug + '_v1', 'mode': mode,
                'transport_identity_ok': True, 'actual_input_binding_ok': True, 'ordinary_contract_ok': True}
@@ -107,8 +120,23 @@ class FirstStaticStructureTests(unittest.TestCase):
     def exact_case(self):
         return self.inputs['raw']['contract_evidence']['exact_cases'][0]
 
-    def extremum(self):
-        return self.exact_case()['pipe_stress_extrema'][0]
+    def extremum(self, index=0):
+        return self.exact_case()['pipe_stress_extrema'][index]
+
+    def section_quantity(self, field):
+        first = structure.D5_LOCATIONS[field][0]
+        target = self.exact_case()['pipe_sections'][0]
+        for key in first[:-1]:
+            target = target[key]
+        return target[first[-1]]
+
+    def set_section_quantity(self, field, value, every_basis=True):
+        """The addendum quantity at its D-5 locations (all coincident ones, or only the first)."""
+        for path in structure.D5_LOCATIONS[field][:None if every_basis else 1]:
+            target = self.exact_case()['pipe_sections'][0]
+            for key in path[:-1]:
+                target = target[key]
+            target[path[-1]] = value
 
     def test_all_four_synthetic_case_modes_and_no_mutation(self):
         for slug in ('axial', 'bending_torsion'):
@@ -234,19 +262,19 @@ class FirstStaticStructureTests(unittest.TestCase):
             for value in (None, True, '0.1', float('nan'), float('inf'), -1):
                 with self.subTest(field=field, value=value):
                     self.inputs = synthetic_case()
-                    self.exact_case()['pipe_sections'][0][field] = value
+                    self.set_section_quantity(field, value)
                     check = self.checks()['complete_case_material_section']
                     self.assertEqual(check['state'], 'failed')
                     self.assertEqual(len(check['details']['section_quantities']), 9)
             self.inputs = synthetic_case()
-            self.exact_case()['pipe_sections'][0][field] *= 1 + 2e-9
+            self.set_section_quantity(field, self.section_quantity(field) * (1 + 2e-9))
             self.failed('complete_case_material_section')
 
     def test_derived_rounding_allowed_but_source_identity_exact(self):
-        self.exact_case()['pipe_sections'][0]['ri_m'] = .1 - .01
-        self.exact_case()['pipe_sections'][0]['As_m2'] *= 1 + 5e-10
+        self.set_section_quantity('ri_m', .1 - .01)
+        self.set_section_quantity('As_m2', self.section_quantity('As_m2') * (1 + 5e-10))
         self.assertEqual(self.checks()['complete_case_material_section']['state'], 'matched')
-        self.exact_case()['pipe_sections'][0]['outside_diameter_m'] *= 1 + 5e-10
+        self.set_section_quantity('outside_diameter_m', self.section_quantity('outside_diameter_m') * (1 + 5e-10))
         self.failed('complete_case_material_section')
 
     def test_relative_criterion_boundary_and_missing_quantity(self):
@@ -254,13 +282,41 @@ class FirstStaticStructureTests(unittest.TestCase):
         # that the expected distinction does not depend on a last-bit tie.
         for factor, state in [(1 + .999999e-9, 'matched'), (1 + 1.000001e-9, 'failed')]:
             self.inputs = synthetic_case()
-            self.exact_case()['pipe_sections'][0]['Ai_m2'] *= factor
+            self.set_section_quantity('Ai_m2', self.section_quantity('Ai_m2') * factor)
             self.assertEqual(self.checks()['complete_case_material_section']['state'], state)
         self.inputs = synthetic_case()
-        del self.exact_case()['pipe_sections'][0]['Ai_m2']
+        del self.exact_case()['pipe_sections'][0]['pressure_bore']['Ai_m2']
         check = self.checks()['complete_case_material_section']
         self.assertEqual(check['state'], 'failed')
         self.assertEqual(len(check['details']['section_quantities']), 9)
+
+    def test_d5_section_bases_must_coincide_and_carry_no_reduction(self):
+        """T4-U6: a quantity changed on one basis only, a nonzero mill tolerance or allowance, a Timoshenko or
+        missing beam theory, the retired geometry basis or a flat retired field fails the section obligation."""
+        for field, locations in structure.D5_LOCATIONS.items():
+            if len(locations) == 1:
+                continue
+            with self.subTest(field=field):
+                self.inputs = synthetic_case()
+                path = locations[-1]
+                target = self.exact_case()['pipe_sections'][0]
+                for key in path[:-1]:
+                    target = target[key]
+                target[path[-1]] *= 1 + 4e-16
+                check = self.checks()['complete_case_material_section']
+                self.assertEqual(check['state'], 'failed')
+                row = next(r for r in check['details']['section_quantities'] if r['id'] == 'section.' + field)
+                self.assertIn('section bases do not coincide', row['reason'])
+        for mutate in [lambda s: s.update(mill_tolerance_m=0.001), lambda s: s.update(corrosion_allowance_m=0.002),
+                       lambda s: s.update(beam_theory={'model': 'timoshenko_annulus_energy_v1', 'shear_factor': 0.53, 'shear_area_m2': 0.003}),
+                       lambda s: s.pop('beam_theory'), lambda s: s.update(geometry_basis='authored_normalized_od_wall_v1'),
+                       lambda s: s.update(effective_wall_thickness_m=0.01)]:
+            with self.subTest(mutation=mutate):
+                self.inputs = synthetic_case()
+                mutate(self.exact_case()['pipe_sections'][0])
+                check = self.checks()['complete_case_material_section']
+                self.assertEqual(check['state'], 'failed')
+                self.assertEqual(len(check['details']['section_quantities']), 9)
 
     def test_scalar_coverage_and_metadata_absence(self):
         self.inputs['scalar_coverage_ok'] = False
@@ -275,12 +331,14 @@ class FirstStaticStructureTests(unittest.TestCase):
         self.failed('complete_unique_scalar_rows')
 
     def test_additional_disclosure_does_not_change_73_denominator(self):
+        # T4-U6: the 73 frozen selectors are read as their 94 derived ones (21 stress selectors on both bases).
         self.inputs['raw']['results'].append({'id': 'synthetic:additional-disclosure',
             'kind': 'synthetic_disclosure', 'value': 0, 'unit': 'unitless'})
         check = self.checks()['complete_unique_scalar_rows']
         self.assertEqual(check['state'], 'matched')
-        self.assertEqual(check['details']['required_scalar_rows'], 73)
-        self.assertEqual(check['details']['observed_total_rows'], 75)
+        self.assertEqual((check['details']['frozen_scalar_rows'], check['details']['required_scalar_rows']), (73, 94))
+        self.assertEqual(len(physics.DERIVED_ASSERTION_IDS), 94)
+        self.assertEqual(check['details']['observed_total_rows'], 96)
 
     def test_finite_and_actual_numerical_diagnostics(self):
         for value in (True, '0', float('inf')):
@@ -305,15 +363,26 @@ class FirstStaticStructureTests(unittest.TestCase):
             lambda e: e.update(certified_gap_pa=-1),
         ]
         for mutate in mutations:
+            for index in (0, 1):  # each basis's extremum
+                self.inputs = synthetic_case()
+                mutate(self.extremum(index))
+                self.failed('normal_maximum_evidence')
+        for index in (0, 1):
             self.inputs = synthetic_case()
-            mutate(self.extremum())
+            self.exact_case()['stress_maximum_coverage'][index]['unavailable_pipe_ids'] = ['pipe']
             self.failed('normal_maximum_evidence')
-        self.inputs = synthetic_case()
-        self.exact_case()['stress_maximum_coverage']['unavailable_pipe_ids'] = ['pipe']
-        self.failed('normal_maximum_evidence')
-        self.inputs = synthetic_case()
-        self.exact_case()['stress_maximum_coverage']['complete'] = 1
-        self.failed('normal_maximum_evidence')
+            self.inputs = synthetic_case()
+            self.exact_case()['stress_maximum_coverage'][index]['complete'] = 1
+            self.failed('normal_maximum_evidence')
+        # T4-U6: per-basis records in order; the coincident twins agree apart from their basis and row.
+        for mutate in [lambda c: c['pipe_stress_extrema'].reverse(), lambda c: c['pipe_stress_extrema'].pop(),
+                       lambda c: c['stress_maximum_coverage'].reverse(), lambda c: c['stress_maximum_coverage'].pop(),
+                       lambda c: c.update(stress_maximum_coverage={'complete': True, 'unavailable_pipe_ids': []}),
+                       lambda c: c['pipe_stress_extrema'][1].update(section_basis='nominal_section'),
+                       lambda c: c['pipe_stress_extrema'][1].update(subdivisions=1)]:
+            self.inputs = synthetic_case()
+            mutate(self.exact_case())
+            self.failed('normal_maximum_evidence')
 
     def test_physical_consistency_is_required_and_not_reimplemented(self):
         self.inputs['physical_consistency_ok'] = False
@@ -328,11 +397,12 @@ class FirstStaticStructureTests(unittest.TestCase):
     def test_coefficient_enclosure_does_not_need_to_contain_decimal_reference(self):
         # Synthetic binary64-coefficient observation outside the ideal oracle.
         # Scalar accuracy is separately assessed by the caller's existing rule.
-        row = next(row for row in self.inputs['raw']['results'] if row['id'] == structure.MAXIMUM_ID)
-        row['value'] += 1e-7
-        for field in ('value_lower_pa', 'value_upper_pa', 'global_upper_bound_pa'):
-            self.extremum()[field] = row['value']
-        self.inputs['raw']['summary']['max_open_formula_stress']['value'] = row['value']
+        for index, basis in enumerate(structure.SECTION_BASES):
+            row = next(row for row in self.inputs['raw']['results'] if row['id'] == structure.MAXIMUM_IDS[basis])
+            row['value'] += 1e-7
+            for field in ('value_lower_pa', 'value_upper_pa', 'global_upper_bound_pa'):
+                self.extremum(index)[field] = row['value']
+            self.inputs['raw']['summary'][structure.HEADLINE_KEYS[basis]]['value'] = row['value']
         self.assertEqual(self.checks()['normal_maximum_evidence']['state'], 'matched')
 
     def test_axial_tie_and_strict_combined_location(self):
@@ -344,12 +414,14 @@ class FirstStaticStructureTests(unittest.TestCase):
         self.extremum().update(station_fraction=.75, local_fraction=.75)
         self.failed('governing_location')
         for field, value in [('station_fraction', -0.1), ('local_fraction', 1.1), ('span_index', True)]:
-            self.inputs = synthetic_case()
-            self.extremum()[field] = value
-            self.failed('governing_location')
+            for index in (0, 1):
+                self.inputs = synthetic_case()
+                self.extremum(index)[field] = value
+                self.failed('governing_location')
 
     def test_summaries_bind_exact_value_units_and_references(self):
-        for key, check in [('max_open_formula_stress', 'stress_summary_binding'),
+        for key, check in [(structure.HEADLINE_KEYS['nominal_section'], 'stress_summary_binding'),
+                           (structure.HEADLINE_KEYS['reduced_section'], 'stress_summary_binding'),
                            ('max_displacement', 'displacement_summary_binding')]:
             for field, value in [('value', 0), ('unit', 'wrong'), ('location_ref', 'wrong'), ('result_ref', 'wrong')]:
                 self.inputs = synthetic_case()
@@ -358,6 +430,17 @@ class FirstStaticStructureTests(unittest.TestCase):
         self.inputs = synthetic_case()
         self.inputs['raw']['summary']['load_case_count'] = True
         self.failed('displacement_summary_binding')
+        # T4-U6 (§2.2): no governing basis; each headline binds its own basis's row.
+        summary = lambda: self.inputs['raw']['summary']
+        for mutate in [lambda: summary().update(max_open_formula_stress=deepcopy(summary()[structure.HEADLINE_KEYS['nominal_section']])),
+                       lambda: summary().pop('max_open_formula_stress'),
+                       lambda: summary().pop(structure.HEADLINE_KEYS['reduced_section']),
+                       lambda: summary().update({structure.HEADLINE_KEYS['reduced_section']: None}),
+                       lambda: summary()[structure.HEADLINE_KEYS['reduced_section']].update(
+                           result_ref=structure.MAXIMUM_IDS['nominal_section'])]:
+            self.inputs = synthetic_case()
+            mutate()
+            self.failed('stress_summary_binding')
 
 
 if __name__ == '__main__':

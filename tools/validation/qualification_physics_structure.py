@@ -4,6 +4,11 @@ The caller supplies parsed, byte-bound inputs and private upstream check results
 Those booleans must be computed from captured transport/process/table evidence,
 never copied from a selection manifest. This reader does no I/O, admission,
 solver execution, unit conversion, or physical-evidence reimplementation.
+
+T4-U6 (D-5; validation/qualification/GATE_USAGE.md): the frozen addendum and
+structural expectations are read through the declared re-authored copy. The
+nine section quantities are taken at their D-5 locations on coincident bases,
+and the maximum, coverage and stress headline obligations hold on each basis.
 """
 from __future__ import annotations
 
@@ -26,8 +31,31 @@ MODEL_VERSION = '0.5.0'
 PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': PROFILE, 'shear_model': 'euler_bernoulli'}
 ZERO_CORROSION_ALLOWANCE = {'value': 0, 'unit': 'm'}
 CASE_BASIS = {'ref_type': 'load_case', 'ref_id': 'case'}
+# T4-U6 (D-5; DEL-05-03 section-bases-and-timoshenko.md §2.2, §2.5): each section basis has its own maximum row,
+# extremum, coverage record and headline; the basis-free headline is null on exact documents.
+SECTION_BASES = ('nominal_section', 'reduced_section')
 MAXIMUM_ID = 'result:elastic-maximum:4:case:4:pipe'
+MAXIMUM_IDS = {basis: MAXIMUM_ID + ':' + basis for basis in SECTION_BASES}
+HEADLINE_KEYS = {basis: 'max_open_formula_stress_' + basis for basis in SECTION_BASES}
 ENCLOSURE = 'supplied_binary64_polynomial_coefficient_enclosures; solution error is separate'
+FROZEN_SCALAR_ROWS, DERIVED_SCALAR_ROWS = 73, 94
+D5_GEOMETRY_BASIS = 'authored_od_wall_d5_sections_v1'
+D5_SECTION_KEYS = {'pipe_id', 'geometry_basis', 'outside_diameter_m', 'ro_m', 'wall_thickness_m', 'mill_tolerance_m',
+                   'corrosion_allowance_m', 'nominal_section', 'reduced_section', 'pressure_bore', 'beam_theory'}
+# The frozen addendum's nine flat quantities, read at their D-5 locations. The first location is compared with the
+# addendum; the others are the same quantity on the other, coincident basis and must equal it (both first-static
+# documents author zero mill tolerance and zero allowance, so the nominal and reduced sections coincide).
+D5_LOCATIONS = {
+    'outside_diameter_m': (('outside_diameter_m',),),
+    'effective_wall_thickness_m': (('wall_thickness_m',), ('nominal_section', 'wall_m'), ('reduced_section', 'wall_m')),
+    'ro_m': (('ro_m',),),
+    'ri_m': (('nominal_section', 'ri_m'), ('reduced_section', 'ri_m'), ('pressure_bore', 'ri_m')),
+    'As_m2': (('nominal_section', 'As_m2'), ('reduced_section', 'As_m2')),
+    'Ai_m2': (('pressure_bore', 'Ai_m2'),),
+    'I_m4': (('nominal_section', 'I_m4'), ('reduced_section', 'I_m4')),
+    'J_m4': (('nominal_section', 'J_m4'), ('reduced_section', 'J_m4')),
+    'Z_m3': (('nominal_section', 'Z_m3'), ('reduced_section', 'Z_m3')),
+}
 CASES = {
     'original_static_axial_v1': ('axial', [('global_x', 1000, 'force')]),
     'original_static_bending_torsion_v1': (
@@ -77,11 +105,33 @@ def _exact_case(raw):
     return case
 
 
-def _extremum(raw):
-    result = _one(_exact_case(raw)['pipe_stress_extrema'], 'pipe maximum evidence')
-    _require(result.get('pipe_id') == 'pipe' and result.get('result_id') == MAXIMUM_ID,
-             'maximum member/result binding differs')
-    return result
+def _extrema(raw):
+    """The member's two per-basis extrema, nominal then reduced (§2.5), each bound to its own maximum row."""
+    rows = _exact_case(raw)['pipe_stress_extrema']
+    _require(type(rows) is list and len(rows) == len(SECTION_BASES) and all(type(row) is dict for row in rows),
+             'pipe maximum evidence requires one object per section basis')
+    for row, basis in zip(rows, SECTION_BASES):
+        _require(row.get('pipe_id') == 'pipe' and row.get('section_basis') == basis and row.get('result_id') == MAXIMUM_IDS[basis],
+                 'maximum member/basis/result binding differs')
+    return dict(zip(SECTION_BASES, rows))
+
+
+def _leaf(section, path):
+    value = section
+    for key in path:
+        _require(type(value) is dict and key in value, 'D-5 section location missing: ' + '.'.join(path))
+        value = value[key]
+    return value
+
+
+def _d5_section(section):
+    """§2.5's pipe_sections entry with coincident bases: zero mill tolerance and allowance, Euler-Bernoulli."""
+    _require(type(section) is dict and set(section) == D5_SECTION_KEYS, 'actual D-5 section shape differs')
+    _require(section['pipe_id'] == 'pipe' and section['geometry_basis'] == D5_GEOMETRY_BASIS, 'actual geometry basis differs')
+    _require(_number(section['mill_tolerance_m']) == 0 and _number(section['corrosion_allowance_m']) == 0
+             and section['beam_theory'] == {'model': 'euler_bernoulli'},
+             'coincident section bases required: zero mill tolerance and allowance, Euler-Bernoulli')
+    return section
 
 
 def _row(raw, result_id, kind, unit, entity):
@@ -340,15 +390,19 @@ def check_first_static_structure(raw, request, case_binding, section_reference,
                  'actual material/thermal binding differs')
         for key, expected in [('E_pa', 200e9), ('nu', .25), ('G_pa', 80e9)]:
             _same_number(material[key], expected, 'actual material ' + key)
-        section = _one(case['pipe_sections'], 'actual pipe section')
-        _require(section['pipe_id'] == 'pipe' and section['geometry_basis'] == 'authored_normalized_od_wall_v1',
-                 'actual geometry basis differs')
+        # T4-U6 (D-5): the addendum's frozen selection names the retired single-section basis; the derived reading
+        # takes each of its nine quantities at its D-5 location, on coincident bases.
+        section = _d5_section(_one(case['pipe_sections'], 'actual pipe section'))
         for target, (field, _, unit, _) in zip(details['section_quantities'], SECTION_FIELDS):
             q, rule = quantities[field], rules[quantities[field]['criterion_ref']]
-            target.update(unit=unit, criterion_ref=q['criterion_ref'])
+            target.update(unit=unit, criterion_ref=q['criterion_ref'],
+                          locations=['.'.join(path) for path in D5_LOCATIONS[field]])
             try:
-                actual = _number(section.get(field))
+                first, *aliases = D5_LOCATIONS[field]
+                actual = _number(_leaf(section, first))
                 _require(actual > 0, 'positive section value required')
+                _require(all(_number(_leaf(section, path)) == actual for path in aliases),
+                         'section bases do not coincide: ' + field)
                 expected = q['reference_value_binary64']
                 if field in IDENTITY_POINTERS:
                     key = 'outside_diameter' if field == 'outside_diameter_m' else 'wall_thickness'
@@ -389,57 +443,74 @@ def check_first_static_structure(raw, request, case_binding, section_reference,
         details['accuracy_evidence'] = 'not_claimed'
 
     def coverage(details):
-        _require(scalar_coverage_ok, 'upstream 73 exact selector/metadata/dimension coverage failed')
+        _require(scalar_coverage_ok, f'upstream {DERIVED_SCALAR_ROWS} derived exact selector/metadata/dimension coverage failed')
         rows = raw['results']
         _require(type(rows) is list and all(type(row) is dict for row in rows), 'scalar rows missing')
         ids = [row.get('id') for row in rows]
         _require(all(type(item) is str and item for item in ids) and len(ids) == len(set(ids)), 'duplicate/missing row IDs')
-        # The upstream result concerns the 73 selected engineering rows. The
+        # The upstream result concerns the 94 derived engineering rows (the 73
+        # frozen selectors, each stress selector on both section bases). The
         # producer's additional disclosed solver/physical rows stay in the raw
         # audit record; they are not a new required-row denominator.
         for entity in ('root', 'tip'):
             row = _row(raw, 'result:disp:' + entity, 'displacement_magnitude', 'mm', entity)
             _require('metadata' not in row, 'displacement magnitude metadata must be absent, not null/object')
-        details.update(required_scalar_rows=73, observed_total_rows=len(rows))
+        details.update(required_scalar_rows=DERIVED_SCALAR_ROWS, frozen_scalar_rows=FROZEN_SCALAR_ROWS,
+                       observed_total_rows=len(rows))
 
     def maximum(details):
-        ex = _extremum(raw)
+        extrema = _extrema(raw)
         coverage = _exact_case(raw)['stress_maximum_coverage']
-        _require(set(coverage) == {'complete', 'unavailable_pipe_ids'}
-                 and coverage['complete'] is True and coverage['unavailable_pipe_ids'] == [],
-                 'normal maximum coverage incomplete')
-        _require(ex['approximation'] == 'piecewise_quadratic_straight_section_statics'
-                 and ex['coefficient_basis'] == 'j_side_section_equilibrium_binary64_enclosures'
-                 and ex['enclosure_scope'] == ENCLOSURE, 'normal maximum method/enclosure scope differs')
-        row = _row(raw, MAXIMUM_ID, 'pipe_elastic_normal_stress_maximum_v2', 'Pa', 'pipe')
-        lower, upper, global_upper = [_number(ex[key]) for key in
-                                     ('value_lower_pa', 'value_upper_pa', 'global_upper_bound_pa')]
-        _require(0 <= lower <= row['value'] <= upper <= global_upper, 'maximum interval ordering/containment differs')
-        _require(_number(ex['certified_gap_pa']) >= 0, 'negative certified gap')
+        _require(type(coverage) is list and coverage == [
+            {'section_basis': basis, 'complete': True, 'unavailable_pipe_ids': []} for basis in SECTION_BASES]
+            and all(type(record['complete']) is bool for record in coverage),
+            'normal maximum coverage incomplete or not per section basis')
+        for basis, ex in extrema.items():
+            _require(ex['approximation'] == 'piecewise_quadratic_straight_section_statics'
+                     and ex['coefficient_basis'] == 'j_side_section_equilibrium_binary64_enclosures'
+                     and ex['enclosure_scope'] == ENCLOSURE, 'normal maximum method/enclosure scope differs')
+            row = _row(raw, MAXIMUM_IDS[basis], 'pipe_elastic_normal_stress_maximum_v2', 'Pa', 'pipe')
+            lower, upper, global_upper = [_number(ex[key]) for key in
+                                         ('value_lower_pa', 'value_upper_pa', 'global_upper_bound_pa')]
+            _require(0 <= lower <= row['value'] <= upper <= global_upper, 'maximum interval ordering/containment differs')
+            _require(_number(ex['certified_gap_pa']) >= 0, 'negative certified gap')
+        # Coincident bases: the reduced extremum is the nominal one apart from its basis and row.
+        strip = lambda ex: {key: value for key, value in ex.items() if key not in ('section_basis', 'result_id')}
+        _require(strip(extrema['nominal_section']) == strip(extrema['reduced_section']), 'coincident-basis extrema differ')
+        ex = extrema['nominal_section']
         details.update(coefficient_basis=ex['coefficient_basis'], enclosure_scope=ex['enclosure_scope'],
-                       physical_consistency=physical_consistency_ok)
+                       section_bases=list(SECTION_BASES), physical_consistency=physical_consistency_ok)
         _require(physical_consistency_ok is True, 'owned coefficient/gap consistency unavailable or failed')
 
     def location(details):
-        ex = _extremum(raw)
-        fraction = _number(ex['station_fraction'])
-        _require(0 <= fraction <= 1 and 0 <= _number(ex['local_fraction']) <= 1, 'station witness outside member')
-        _require(type(ex['span_index']) is int and ex['span_index'] == 0, 'single interval span index differs')
-        if case_binding['case_id'] == 'original_static_bending_torsion_v1':
-            _require(fraction == 0 and ex['local_fraction'] == 0, 'combined-case maximum must govern at root')
-            details['location_interpretation'] = 'strict root station; opposite absolute-normal fibers tied'
-        else:
-            details['location_interpretation'] = 'witness of constant axial all-stations tie; no unique station/fiber claim'
-        details['station_fraction'] = fraction
+        for basis, ex in _extrema(raw).items():
+            fraction = _number(ex['station_fraction'])
+            _require(0 <= fraction <= 1 and 0 <= _number(ex['local_fraction']) <= 1, 'station witness outside member')
+            _require(type(ex['span_index']) is int and ex['span_index'] == 0, 'single interval span index differs')
+            if case_binding['case_id'] == 'original_static_bending_torsion_v1':
+                _require(fraction == 0 and ex['local_fraction'] == 0, 'combined-case maximum must govern at root')
+                details['location_interpretation'] = 'strict root station; opposite absolute-normal fibers tied'
+            else:
+                details['location_interpretation'] = 'witness of constant axial all-stations tie; no unique station/fiber claim'
+            details.setdefault('station_fraction', {})[basis] = fraction
 
     def summary(details, key, result_id, kind, unit, entity):
         row = _row(raw, result_id, kind, unit, entity)
         summary_value = raw['summary'][key]
-        _require(set(summary_value) == {'value', 'unit', 'location_ref', 'result_ref'}
+        _require(type(summary_value) is dict and set(summary_value) == {'value', 'unit', 'location_ref', 'result_ref'}
                  and summary_value['unit'] == unit and summary_value['location_ref'] == entity
                  and summary_value['result_ref'] == result_id, 'summary quantity/reference differs')
         _same_number(summary_value['value'], row['value'], 'summary/raw exact value')
         details.update(result_ref=result_id, unit=unit, observed=row['value'])
+
+    def stress_headlines(details):
+        # §2.2: no governing basis; each basis's headline binds its own maximum row.
+        _require('max_open_formula_stress' in raw['summary'] and raw['summary']['max_open_formula_stress'] is None,
+                 'the basis-free stress headline must be null on an exact document')
+        for basis in SECTION_BASES:
+            binding = {}
+            summary(binding, HEADLINE_KEYS[basis], MAXIMUM_IDS[basis], 'pipe_elastic_normal_stress_maximum_v2', 'Pa', 'pipe')
+            details.setdefault('bindings', {})[HEADLINE_KEYS[basis]] = binding
 
     def displacement(details):
         summary(details, 'max_displacement', 'result:disp:tip', 'displacement_magnitude', 'mm', 'tip')
@@ -451,8 +522,7 @@ def check_first_static_structure(raw, request, case_binding, section_reference,
                      'summary count differs: ' + name)
 
     operations = [transport, input_binding, contract, material_section, numerical, coverage,
-                  maximum, location, lambda details: summary(details, 'max_open_formula_stress',
-                  MAXIMUM_ID, 'pipe_elastic_normal_stress_maximum_v2', 'Pa', 'pipe'), displacement]
+                  maximum, location, stress_headlines, displacement]
     for check_id, operation in zip(CHECK_IDS, operations):
         assess(check_id, operation)
     maximum_check = output[6]

@@ -25,7 +25,44 @@ frozen, hash-bound runner inputs are never edited; the gate checks their bytes a
 submits a declared re-authored copy (model 0.5.0, the current
 `3.0.0/exact_pressure_v3` contract with `shear_model: euler_bernoulli`, and an
 explicit zero `corrosion_allowance` on the section; nothing else changes), records
-both hashes in the case ledger, and reads the raw against the copy. Source-block,
+both hashes in the case ledger, and reads the raw against the copy.
+
+T4-U6 (D-5; DEL-05-03 `section-bases-and-timoshenko.md` §2.1-§2.5) publishes
+every exact stress row on the nominal and on the reduced section, each naming
+its basis, with per-basis maxima, coverage and headlines and the D-5
+`pipe_sections` shape. The first-static frozen selectors,
+`STRUCTURAL_NUMERIC_ADDENDUM` and `STRUCTURAL_EXPECTATIONS` bytes are never
+edited either; the gate reads them through a declared re-authored copy, as it
+does the runner input (rule `openpipestress.section_basis_selector_reauthoring/1`,
+`qualification_physics.reauthor_selectors`):
+
+- each stress-kind selector (the 21 frozen `stress.*` assertions per case)
+  becomes its nominal twin and its reduced twin: assertion ID
+  `<frozen id>.nominal_section` / `.reduced_section`, result ID with the §2.5
+  basis segment (`:nominal-section` on element-stress rows, `:nominal_section`
+  on `result:elastic-maximum:` rows), `metadata.basis` with
+  `; section_basis=<basis>`, and the same kind, unit, entity, case basis,
+  dimension, criterion rule and expected reference value. Every other selector
+  is unchanged. Each case's 73 frozen selectors are 94 derived obligations;
+- the addendum's nine flat section quantities are read at their D-5 locations
+  (`outside_diameter_m`, `ro_m`; the effective wall at `wall_thickness_m`;
+  `ri_m`, `As_m2`, `I_m4`, `J_m4`, `Z_m3` in `nominal_section`; `Ai_m2` in
+  `pressure_bore`) with coincident bases required: zero mill tolerance and
+  allowance, Euler-Bernoulli, and the same value at every alias on the reduced
+  section and the pressure bore. Its frozen selection still names the retired
+  `authored_normalized_od_wall_v1`; the derived reading requires
+  `authored_od_wall_d5_sections_v1`;
+- the structure checker reads per-basis extrema (nominal then reduced, each
+  bound to its own maximum row and equal apart from basis and row), the
+  two-entry per-basis coverage, a null `max_open_formula_stress` and both
+  per-basis headlines.
+
+The case ledger records `selector_reauthoring` with the frozen and derived
+selector and reference-value hashes, beside `runner_input_reauthoring`. No
+frozen first-static or load-reference input authors a nonzero mill tolerance or
+corrosion allowance, so no reference basis changes under D-5. The load-reference
+package selects no stress row and has no section addendum; it is read
+unchanged. Source-block,
 pressure-source/composite, the retired identities, sensitive standing, legacy
 fallback and unknown future profiles are refused. The CLI emits a raw envelope,
 not a canonical0.3 document.
@@ -50,9 +87,10 @@ Its `format` is `openpipestress.qualification_selection/1`. It contains:
 
 The ordinary transport additionally binds `physics_binding`, `reference_basis`,
 and boolean `runner.explicit_local_private_intent`. Each of its two cases retains
-all 73 scalar selectors plus ten separately reported structural obligations. The
-complete ordered case inventory is required. The authoritative two-case/73-ID
-ledger is predeclared even when a malformed submission omits or duplicates a
+all 73 frozen scalar selectors, read as 94 derived obligations, plus ten separately
+reported structural obligations. The complete ordered case inventory is required.
+The authoritative two-case/94-ID derived ledger is predeclared even when a
+malformed submission omits or duplicates a
 case/assertion; submitted inventory is recorded separately. Failures retain the
 nine section identities as unavailable/error details per case, and malformed
 checker returns cannot shrink those nested obligations. Displacement magnitudes genuinely
@@ -88,8 +126,9 @@ scalar rules and section criteria are hash-bound. The derivation helper
 review/admission metadata. It verifies the original packet and Root's technical
 selection/review records and refuses existing output directories. Generate one
 two-case manifest per mode with the real candidate commit, executable digest and
-reviewed reader binding: 292 scalar and 40 structured obligations across four
-prospective runs, plus 36 section subchecks inside the existing obligations.
+reviewed reader binding: 376 derived scalar (292 frozen) and 40 structured
+obligations across four prospective runs, plus 36 section subchecks inside the
+existing obligations.
 Preparation is not execution. Root's selection is agent technical selection
 under owner delegation, not personal human equation review or release acceptance.
 
@@ -154,7 +193,8 @@ the same way; both submit the declared re-authored copy of each frozen case inpu
 
 The ten structural checks cover transport/mode, input binding, ordinary contract,
 case/material/section, numerical standing, complete unique scalar coverage,
-normal maximum evidence, governing location and both summary bindings. Section
+normal maximum evidence, governing location and both summary bindings (the
+maximum, location and stress-headline obligations hold on each section basis). Section
 OD/wall use selected exact same-unit identity; other positive section quantities
 use the addendum's explicit relative rule without an inferred absolute floor.
 Enclosure ordering/containment and summary identity use exact relations; the

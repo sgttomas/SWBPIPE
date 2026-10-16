@@ -188,7 +188,9 @@ def predeclare(manifest: dict) -> dict:
                     'id': case.get('id') if type(case) is dict else None,
                     'assertion_count': len(assertions) if type(assertions) is list else None,
                     'assertion_ids': [row.get('id') if type(row) is dict else None for row in assertions[:MAX_ASSERTIONS]] if type(assertions) is list else None})
-        cases = [{'id': cid, 'assertions': [{'id': aid} for aid in physics.REQUIRED_ASSERTION_IDS]}
+        # T4-U6 (D-5): the required obligations are the derived ones (each frozen stress assertion as its two
+        # section-basis twins); the submitted inventory is still checked against the frozen 73.
+        cases = [{'id': cid, 'assertions': [{'id': aid} for aid in physics.DERIVED_ASSERTION_IDS]}
                  for cid in physics.REQUIRED_CASE_IDS]
     require(type(cases) is list and 0 < len(cases) <= MAX_CASES, 'nonzero bounded case inventory required')
     ledger, seen, assertion_total = [], set(), 0
@@ -367,8 +369,16 @@ def prepare_case(case: dict, base: Path, purpose: str, semantic_rows: list[dict]
     require(type(values) is list and all(type(x) is dict for x in values), 'reference values missing')
     expected = {value.get('assertion_id'): value for value in values}
     require(len(expected) == len(values) and set(expected) == {a['id'] for a in case['assertions']}, 'reference assertion denominator mismatch')
+    assertions, selector_reauthoring = case['assertions'], None
+    if transport == physics.TRANSPORT:
+        # T4-U6 (D-5): the frozen selectors stay bound by their own bytes (and selection check); the case is read
+        # through their declared re-authored copy, each stress selector as its nominal and reduced twin.
+        require(type(assertions) is list and all(type(a) is dict and type(a.get('selector')) is dict and type(a.get('id')) is str
+                                                 for a in assertions), 'complete explicit selector required')
+        assertions, values, selector_reauthoring = physics.reauthor_selectors(assertions, values)
+        expected = {value['assertion_id']: value for value in values}
     selected, selector_ids = [], set()
-    for assertion in case['assertions']:
+    for assertion in assertions:
         require(set(assertion) == {'id', 'selector', 'criterion_rule_id'}, 'unknown/missing assertion fields')
         selector = assertion['selector']
         require(type(selector) is dict and set(selector) == SELECTOR_KEYS, 'complete explicit selector required')
@@ -413,7 +423,8 @@ def prepare_case(case: dict, base: Path, purpose: str, semantic_rows: list[dict]
         # re-authored copy, which is what the raw is checked against.
         runner_input, reauthoring = physics.reauthor_runner_input(input_bytes)
         request = strict_json(runner_input)
-        require(len(selected) == 73, 'first-static profile requires all 73 scalar obligations')
+        require(len(case['assertions']) == len(physics.REQUIRED_ASSERTION_IDS) and len(selected) == len(physics.DERIVED_ASSERTION_IDS),
+                'first-static profile requires all 73 frozen scalar obligations as their 94 derived obligations')
         require(type(case['structural']) is dict and set(case['structural']) == {'obligations', 'section_reference', 'section_criteria'}, 'closed first-static structural binding required')
         structural = {}
         for role, binding in case['structural'].items():
@@ -422,6 +433,7 @@ def prepare_case(case: dict, base: Path, purpose: str, semantic_rows: list[dict]
         obligations = structural['obligations']['value']
         require([row['id'] for row in obligations['required_checks']] == list(physics.REQUIRED_STRUCTURAL_CHECKS), 'complete selected structural denominator required')
     return {'input': input_bytes, 'runner_input': runner_input, 'reauthoring': reauthoring,
+            'selector_reauthoring': selector_reauthoring,
             'reference_bytes': ref_bytes, 'criterion_bytes': criterion_bytes,
             'request': request, 'selected': selected, 'profile': profile, 'structural': structural,
             'bindings': [{'role': role, 'path': str(path), 'sha256': sha256_bytes(data)} for role, path, data in
@@ -596,6 +608,8 @@ def run_selection(manifest_path: Path, executable: Path, source_root: Path, outp
                     original_bindings[case['id']].append({'role': role, 'path': str(value['path']), 'sha256': value['sha256']})
             if prepared['reauthoring']:
                 case_ledger['runner_input_reauthoring'] = prepared['reauthoring']
+            if prepared['selector_reauthoring']:
+                case_ledger['selector_reauthoring'] = prepared['selector_reauthoring']
             case_ledger['retained_artifacts'] = case_artifacts[case['id']]
             case_ledger['reason'] = 'admitted, process pending'
             atomic_record(output_dir / 'ledger.json', ledger)

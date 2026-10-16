@@ -74,8 +74,12 @@ class PhysicsIntegrationTests(unittest.TestCase):
                 gate.evaluate_rows(case_ledger,prepared,rows)
                 self.assertEqual(case_ledger['state'],'matched')
                 by_id = {row['id']:row for row in rows}
-                coverage = all(gate.selector_matches(by_id[a['selector']['id']],a['selector']) for a in case['assertions'])
+                # T4-U6: the obligations are the declared re-authored selectors (each stress selector on both bases).
+                coverage = all(gate.selector_matches(by_id[item['assertion']['selector']['id']],item['assertion']['selector'])
+                               for item in prepared['selected'])
                 self.assertTrue(coverage)
+                self.assertEqual(len(prepared['selected']),94)
+                self.assertEqual(prepared['selector_reauthoring']['assertion_counts'],[73,94])
                 checks = check_first_static_structure(raw,observation['request'],observation['case_binding'],
                     prepared['structural']['section_reference']['value'],prepared['structural']['section_criteria']['value'],coverage,True)
                 # True here is a declared stub for this synthetic composition
@@ -84,7 +88,7 @@ class PhysicsIntegrationTests(unittest.TestCase):
                 case_ledger['structural_checks'] = checks
             gate.summarize(ledger)
             self.assertEqual(ledger['outcome'],'in_progress')
-            self.assertEqual((ledger['summary']['required_assertions'],ledger['summary']['required_structural_checks']),(146,20))
+            self.assertEqual((ledger['summary']['required_assertions'],ledger['summary']['required_structural_checks']),(188,20))
             # No final publication/process custody is asserted by these pure tests.
 
     def test_future_composite_sensitive_duplicate_diagnostics_and_wrong_mode_refuse(self):
@@ -129,7 +133,7 @@ class PhysicsIntegrationTests(unittest.TestCase):
         with self.assertRaises(ValueError): self.prepare(case)
         gate.fail_case(ledger['cases'][0],'blocked','incomplete selection')
         gate.summarize(ledger)
-        self.assertEqual(ledger['summary']['required_assertions'],146)
+        self.assertEqual(ledger['summary']['required_assertions'],188)
         self.assertEqual(ledger['summary']['required_structural_checks'],20)
         self.assertEqual(ledger['summary']['structural_checks']['blocked'],10)
 
@@ -144,7 +148,8 @@ class PhysicsIntegrationTests(unittest.TestCase):
             for case in ledger['cases']: gate.fail_case(case,'blocked','synthetic admission refusal')
             gate.summarize(ledger)
             self.assertEqual((ledger['summary']['required_cases'],ledger['summary']['required_assertions'],
-                              ledger['summary']['required_structural_checks'],ledger['summary']['required_section_subchecks']),(2,146,20,18))
+                              ledger['summary']['required_structural_checks'],ledger['summary']['required_section_subchecks']),(2,188,20,18))
+            self.assertEqual(tuple(row['id'] for row in ledger['cases'][0]['assertions']),physics.DERIVED_ASSERTION_IDS)
             self.assertEqual(ledger['summary']['section_subchecks']['blocked'],18)
             self.assertNotEqual(ledger['outcome'],'all_required_assertions_matched')
 
@@ -225,7 +230,7 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
         for mode in ('sparse_interactive','dense_scrutiny'):
             result,out=self.run_composition(mode)
             self.assertEqual(result['outcome'],'all_required_assertions_matched',result)
-            self.assertEqual((result['summary']['required_assertions'],result['summary']['required_structural_checks']),(146,20))
+            self.assertEqual((result['summary']['required_assertions'],result['summary']['required_structural_checks']),(188,20))
             self.assertEqual(result['summary']['required_section_subchecks'],18)
             self.assertEqual(result['summary']['section_subchecks']['matched'],18)
             for case in result['cases']:
@@ -240,12 +245,18 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
                 frozen=next(b for b in case['bindings'] if b['role']=='input')
                 self.assertEqual(frozen['sha256'],reauthoring['frozen_input_sha256'])
                 self.assertNotEqual(frozen['sha256'],reauthoring['submitted_input_sha256'])
+                # T4-U6: the frozen selectors were read through their declared re-authored copy; both hashes recorded.
+                selectors=case['selector_reauthoring']
+                self.assertEqual((selectors['rule'],selectors['assertion_counts']),(physics.SELECTOR_REAUTHORING,[73,94]))
+                self.assertNotEqual(selectors['frozen_selectors_sha256'],selectors['derived_selectors_sha256'])
+                self.assertEqual(len(selectors['twinned_assertion_ids']),21)
+                self.assertEqual([row['id'] for row in case['assertions']],list(physics.DERIVED_ASSERTION_IDS))
             self.assertEqual(json.loads((out/'ledger.json').read_text()),result)
 
     def test_reader_refusal_retains_all_obligations(self):
         result,_=self.run_composition(refuse_reader=True)
         self.assertNotEqual(result['outcome'],'all_required_assertions_matched')
-        self.assertEqual(result['summary']['assertions']['error'],146)
+        self.assertEqual(result['summary']['assertions']['error'],188)
         self.assertEqual(result['summary']['structural_checks']['error'],20)
 
     def test_malformed_submitted_inventory_keeps_all_required_obligations(self):
@@ -258,7 +269,7 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
             result,_=self.run_composition(mutate_manifest=mutation)
             self.assertTrue(all(case['state']=='blocked' and case['process'] is None for case in result['cases']))
             self.assertEqual((result['summary']['required_cases'],result['summary']['required_assertions'],
-                              result['summary']['required_structural_checks'],result['summary']['required_section_subchecks']),(2,146,20,18))
+                              result['summary']['required_structural_checks'],result['summary']['required_section_subchecks']),(2,188,20,18))
             self.assertEqual(result['summary']['section_subchecks']['blocked'],18)
             self.assertIn('submitted_inventory',result)
 
@@ -268,7 +279,7 @@ class PhysicsProcessCompositionTests(unittest.TestCase):
         for code in changes:
             result,_=self.run_composition(child_extra=code)
             self.assertNotEqual(result['outcome'],'all_required_assertions_matched')
-            self.assertEqual(result['summary']['required_assertions'],146)
+            self.assertEqual(result['summary']['required_assertions'],188)
             self.assertEqual(result['summary']['required_structural_checks'],20)
             self.assertTrue(any(case['state']=='error' for case in result['cases']))
 

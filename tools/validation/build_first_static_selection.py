@@ -14,9 +14,9 @@ from pathlib import Path
 import os
 import re
 try:
-    from .qualification_physics import SELECTED_ADMISSION_FILES, TRANSPORT
+    from .qualification_physics import SELECTED_ADMISSION_FILES, SELECTOR_REAUTHORING, TRANSPORT
 except ImportError:
-    from qualification_physics import SELECTED_ADMISSION_FILES, TRANSPORT
+    from qualification_physics import SELECTED_ADMISSION_FILES, SELECTOR_REAUTHORING, TRANSPORT
 
 FORMAT = 'openpipestress.qualification_selection/1'
 PACKET_HASH = '0603a990838166c1da43b26f8b657dae3051289097700a76859d1afaa45db02b'
@@ -124,7 +124,10 @@ def build(package: Path, output: Path, candidate_commit: str, executable_sha256:
     write(path, selection)
     write(output/'DERIVATION.json', {'source_package_binding_sha256': BINDING_HASH, 'structural_addendum_sha256': ADDENDUM_HASH,
                                     'selection_sha256': digest(path.read_bytes()), 'derivations': derivations,
-                                    'scalar_obligations': 146, 'structural_obligations': 20, 'section_subchecks': 18,
+                                    # T4-U6 (D-5): the 146 frozen selectors are read as 188 derived obligations
+                                    # (the gate's declared selector re-authoring; GATE_USAGE.md).
+                                    'frozen_scalar_selectors': 146, 'selector_reauthoring': SELECTOR_REAUTHORING,
+                                    'scalar_obligations': 188, 'structural_obligations': 20, 'section_subchecks': 18,
                                     'actual_runs_performed': 0, 'claim': 'execution metadata derivation only; no observed target values or profile qualification'})
     return path
 

@@ -48,7 +48,8 @@ class SelectionDerivationTests(unittest.TestCase):
                     changed['review'] = old['review']
                 self.assertEqual(criterion, old_criterion)
             derived = json.loads((out/'DERIVATION.json').read_text())
-            self.assertEqual((derived['scalar_obligations'],derived['structural_obligations'],derived['section_subchecks']), (146,20,18))
+            # T4-U6 (D-5): the 146 frozen selectors (kept verbatim above) are 188 derived obligations at the gate.
+            self.assertEqual((derived['frozen_scalar_selectors'],derived['scalar_obligations'],derived['structural_obligations'],derived['section_subchecks']), (146,188,20,18))
             self.assertEqual(derived['actual_runs_performed'],0)
         for path, content in before.items():
             self.assertEqual((self.package/path).read_bytes(),content)
