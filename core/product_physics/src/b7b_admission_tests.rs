@@ -135,6 +135,9 @@ fn public_codes(raw: Value) -> Vec<String> {
         .unwrap().diagnostics.into_iter().map(|diagnostic| diagnostic.code).collect()
 }
 
+/// T4-U6 (DEL-05-03 Design §5): `EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED`
+/// is removed, so the former nonzero-allowance refusal is now an admission with
+/// the D-5 geometry; every other allowance refusal, and its priority, stays.
 #[test]
 fn b7b_explicit_ca_refusals_preserve_unit_and_section_priority() {
     let base = current_joint_request();
@@ -143,7 +146,6 @@ fn b7b_explicit_ca_refusals_preserve_unit_and_section_priority() {
         (Some(json!({"value": 0.0, "unit": "Pa"})), "UNIT_CONVERSION_UNAVAILABLE"),
         (Some(json!({"value": -0.001, "unit": "m"})), "PIPE_DIMENSION_INVALID"),
         (Some(json!({"value": 1.0, "unit": "m"})), "PIPE_DIMENSION_INVALID"),
-        (Some(json!({"value": 0.001, "unit": "m"})), "EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED"),
     ];
     for (quantity, expected) in variants {
         let mut raw = base.clone();
@@ -154,10 +156,27 @@ fn b7b_explicit_ca_refusals_preserve_unit_and_section_priority() {
         }
         let codes = public_codes(raw);
         assert!(codes.iter().any(|code| code == expected), "{expected}: {codes:?}");
-        if expected != "EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED" {
-            assert!(!codes.iter().any(|code| code == "EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED"), "{codes:?}");
-        }
+        assert!(!codes.iter().any(|code| code == "EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED"), "{codes:?}");
     }
+    // A nonzero allowance is admitted: the case solves, no allowance refusal is
+    // published, and the member's evidence carries the D-5 sections. Every
+    // section takes it, so the region's pressure bores stay equal.
+    let mut raw = base.clone();
+    for pipe in raw["model"]["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"]["corrosion_allowance"] = json!({"value": 0.001, "unit": "m"});
+    }
+    let envelope = run_linear_static_preview_value_with_mode(raw.clone(), PreviewSolverMode::SparseInteractive).unwrap();
+    assert!(!envelope.diagnostics.iter().any(|d| d.code == "EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED" || d.severity == "blocking"),
+        "{:?}", envelope.diagnostics);
+    assert_eq!(envelope.status.mechanics, "MECHANICS_SOLVED");
+    let pipe = &raw["model"]["pipe_segments"][0];
+    let section = &envelope.contract_evidence.as_ref().unwrap()["exact_cases"][0]["pipe_sections"]
+        .as_array().unwrap().iter().find(|s| s["pipe_id"] == pipe["id"]).unwrap().clone();
+    let wall = pipe["section"]["wall_thickness"]["value"].as_f64().unwrap();
+    let mill = pipe["section"]["mill_tolerance"]["value"].as_f64().unwrap_or(0.0);
+    assert_eq!(section["corrosion_allowance_m"].as_f64().unwrap().to_bits(), 0.001f64.to_bits());
+    assert_eq!(section["nominal_section"]["wall_m"].as_f64().unwrap().to_bits(), wall.to_bits());
+    assert_eq!(section["reduced_section"]["wall_m"].as_f64().unwrap().to_bits(), ((wall - mill) - 0.001).to_bits());
     let mut raw = base;
     raw["model"].as_object_mut().unwrap().remove("pressure_contract");
     let codes = public_codes(raw);

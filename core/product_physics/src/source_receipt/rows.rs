@@ -381,6 +381,20 @@ pub(super) fn derived_for(
             .sections
             .get(&m.member_id)
             .ok_or_else(|| bad("derived section source"))?;
+        // D-5: the source-derived stress rows are published per basis. A
+        // selected case's bases coincide (`prepare_sources` declines nonzero
+        // mill tolerance and allowance), so the reduced twin binds the same
+        // functional and the same section, bit for bit.
+        let bases = input
+            .built
+            .exact_sections
+            .get(&m.member_id)
+            .copied()
+            .ok_or_else(|| bad("derived section bases"))?;
+        let reduced = exact_basis_section(bases, pressure_exact::SectionBasis::Reduced);
+        if !same_stress_section(&reduced, section) {
+            return Err(bad("derived stress section bases differ"));
+        }
         for (s, location) in [
             (0, "end_i"),
             (1, "quarter_1"),
@@ -439,24 +453,32 @@ pub(super) fn derived_for(
                 return Err(bad("stress summary MPa publication range"));
             }
             let mut generated = Vec::new();
-            if s == 0 || s == 4 {
-                append_endpoint_stress_results(
-                    &mut generated,
-                    &m.member_id,
-                    location,
-                    c,
-                    STRAIGHT_ENDPOINT_SECTION_SIGN_CONVENTION,
-                );
-            } else {
-                append_station_stress_results(
-                    &mut generated,
-                    &m.member_id,
-                    location,
-                    c,
-                    "recovered_from_open_mechanics_stress_components",
-                    None,
-                );
-            }
+            push_basis_twins(&mut generated, true, bad("derived stress twin rows"), |rows, basis| {
+                // The reduced section is bit-equal to the nominal one (above).
+                let c = match basis {
+                    pressure_exact::SectionBasis::Nominal => *c,
+                    pressure_exact::SectionBasis::Reduced => recover_section_stress(&actions, &reduced).components,
+                };
+                if s == 0 || s == 4 {
+                    append_endpoint_stress_results(
+                        rows,
+                        &m.member_id,
+                        location,
+                        &c,
+                        STRAIGHT_ENDPOINT_SECTION_SIGN_CONVENTION,
+                    );
+                } else {
+                    append_station_stress_results(
+                        rows,
+                        &m.member_id,
+                        location,
+                        &c,
+                        "recovered_from_open_mechanics_stress_components",
+                        None,
+                    );
+                }
+                Ok(())
+            })?;
             for row in generated {
                 if !matches!(
                     row.kind.as_str(),

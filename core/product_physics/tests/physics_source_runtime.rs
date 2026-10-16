@@ -59,8 +59,31 @@ fn row<'a>(
                 && component.map_or(true, |c| r["metadata"]["component"] == c)
         })
         .collect();
-    assert_eq!(rows.len(), 1, "{entity}/{kind}/{component:?}/{case}");
-    rows[0]
+    basis_pair(rows).unwrap_or_else(|| panic!("{entity}/{kind}/{component:?}/{case}"))
+}
+/// D-5 (DEL-05-03 Design §2.1, §2.5): a stress row is published on the nominal
+/// section and immediately followed by its reduced twin. The source family
+/// admits zero mill tolerance and zero allowance only, so the twins are
+/// bit-equal and the nominal row stands for both. `None` unless exactly one
+/// basis-free row or one such pair.
+fn basis_pair(rows: Vec<&Value>) -> Option<&Value> {
+    let basis = |r: &Value| r["metadata"]["basis"].as_str().unwrap_or("").to_owned();
+    match rows.as_slice() {
+        [one] => (!basis(one).contains("; section_basis=")).then_some(*one),
+        [nominal, reduced] => {
+            let stem = basis(nominal).strip_suffix("; section_basis=nominal_section")?.to_owned();
+            let reduced_stem = basis(reduced).strip_suffix("; section_basis=reduced_section")?.to_owned();
+            let id = |r: &Value, a: &str, b: &str| {
+                let id = r["id"].as_str().unwrap_or("");
+                id.strip_suffix(a).or_else(|| id.strip_suffix(b)).map(str::to_owned)
+            };
+            let same_id = id(nominal, ":nominal-section", ":nominal_section")
+                .is_some_and(|n| id(reduced, ":reduced-section", ":reduced_section") == Some(n));
+            let same_value = nominal["value"].as_f64().map(f64::to_bits) == reduced["value"].as_f64().map(f64::to_bits);
+            (stem == reduced_stem && same_id && same_value).then_some(*nominal)
+        }
+        _ => None,
+    }
 }
 fn qualified(raw: &Value) {
     assert_eq!(
@@ -152,9 +175,10 @@ fn actual_explicit_material_source_companions_preserve_torsion_actions_and_const
                 None,
                 "case",
             );
+            // D-5: the nominal row of the maximum's twin pair names its basis.
             assert_eq!(
                 maximum["metadata"]["basis"],
-                "retained_source_endpoint_normal_max_v1"
+                "retained_source_endpoint_normal_max_v1; section_basis=nominal_section"
             );
             assert_eq!(maximum["value"], 0.0);
             let material = &raw["contract_evidence"]["exact_cases"][0]["pipe_materials"][0];

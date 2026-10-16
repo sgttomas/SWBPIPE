@@ -155,18 +155,19 @@ fn pressure_case_context_uses_one_domain_without_changing_its_payload_shape() {
     }
 }
 
-/// The owner-approved J1 text amendment (b7-plan, 2026-10-12): the held
-/// pre-join limitation [7] and its joined, unselected replacement.
-const HELD_LIMITATION_7: &str = "No corrosion-allowance input or shear-deformation selection is provided. Retained-source recovery is not joined for this contract; only ordinary structural recovery is published. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
-// B7b (finding (b)): the joined text states the current contract's allowance and
-// shear-model fields and keys the eigenload clause on the authored group, not
-// 0.4.0. The held pre-join text above is unchanged.
-const JOINED_LIMITATION_7: &str = "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
+/// T4-U6 (DEL-05-03 Design `section-bases-and-timoshenko.md` §2.4): limitation
+/// [7] of pressure-1 (joined, unselected), verbatim from the design. It
+/// replaces B7b's text, which admitted only a zero allowance and
+/// euler_bernoulli; the held pre-join text went with its test-only helper.
+const JOINED_LIMITATION_7: &str = "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
+/// T4-U6 (§2.4): limitation [0] of pressure-1, the B7b text with the
+/// shear-model parenthesis, the realized-bend clause and the section-bases
+/// sentences of the design (the latter after the admitted-families sentence).
+const PRESSURE_1_IDENTITY: &str = "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.";
 
 /// The regenerated v3 reader corpora are unselected pressure-1 publications:
-/// each equals the joined unselected basis exactly. The held pre-join helper
-/// differs from it only at limitation [7], by exactly the approved OLD/CURRENT
-/// pair; the selected basis names the source publication.
+/// each equals the joined unselected basis exactly; the selected basis names
+/// the source publication and differs only at limitations [0] and [7].
 #[test]
 fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
     for (text, connectors) in [
@@ -185,7 +186,6 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
             let load_state = case["envelope"]["contract_evidence"]
                 .get("load_reference_states")
                 .is_some();
-            let held = exact_admission::pressure_v3_formulation_basis(load_state, connectors);
             let unselected = exact_admission::pressure_v3_formulation_basis_with_source(
                 load_state, connectors, false,
             );
@@ -200,30 +200,20 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
             assert_eq!(tail.len(), 2);
             assert!(tail[0].starts_with("Member actions, section actions, stresses and support reactions"));
             assert!(tail[1].starts_with("The recovery is checked against the formation check's re-formed system"));
-            assert_eq!(held.limitations[7], HELD_LIMITATION_7);
+            assert_eq!(unselected.limitations[0], PRESSURE_1_IDENTITY);
             assert_eq!(unselected.limitations[7], JOINED_LIMITATION_7);
-            let mut amended = held.limitations.clone();
-            amended[7] = JOINED_LIMITATION_7.to_string();
-            assert_eq!(amended, unselected.limitations);
-            for selected in [false, true] {
-                let joined = exact_admission::pressure_v3_formulation_basis_with_source(
-                    load_state, connectors, selected,
-                );
-                assert_eq!(joined.profile_id, held.profile_id);
-                assert_eq!(joined.limitations.len(), held.limitations.len());
-                assert_eq!(&joined.limitations[1..7], &held.limitations[1..7]);
-                assert_eq!(&joined.limitations[8..], &held.limitations[8..]);
-                assert!(!joined.limitations[7].contains("not joined"));
-                if selected {
-                    assert!(joined.limitations[0].contains("under pressure-source-1 semantics"));
-                    assert!(joined.limitations[7].contains("selected retained-source response"));
-                } else {
-                    assert_eq!(joined.limitations[0], held.limitations[0]);
-                    assert!(
-                        joined.limitations[7].contains("publishes ordinary structural recovery")
-                    );
-                }
-            }
+            let selected = exact_admission::pressure_v3_formulation_basis_with_source(
+                load_state, connectors, true,
+            );
+            assert_eq!(selected.profile_id, unselected.profile_id);
+            assert_eq!(selected.limitations.len(), unselected.limitations.len());
+            assert_eq!(&selected.limitations[1..7], &unselected.limitations[1..7]);
+            assert_eq!(&selected.limitations[8..], &unselected.limitations[8..]);
+            assert!(selected.limitations[0].contains("under pressure-source-1 semantics"));
+            assert!(selected.limitations[0].contains("Euler-Bernoulli with coincident section bases"));
+            assert!(selected.limitations[7].contains("selected retained-source response"));
+            assert!(selected.limitations[7].contains("zero mill tolerance and zero corrosion allowance, where the two bases coincide"));
+            assert!(unselected.limitations[7].contains("publishes ordinary structural recovery"));
         }
     }
 }

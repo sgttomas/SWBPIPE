@@ -521,6 +521,31 @@ fn prepare_sources(
     if !input.built.connectors.is_empty() {
         return Err(unsupported("objective connector is not a straight source family"));
     }
+    // O4 interim (owner, 2026-10-12: "Scope extension after B7b"; DEL-05-03
+    // Design `section-bases-and-timoshenko.md` §5): the source method has one
+    // Euler-Bernoulli section, so a Timoshenko document and a pipe section with
+    // a second (reduced) basis are declined by name, after the D7 declines and
+    // the budget refusal above. These are document facts: such a document
+    // publishes ordinary pressure-1 rows and never becomes a composite. They
+    // apply to exact-contract documents only, the documents D-5 gives two
+    // bases: the pressure-free preview route keeps its one (t - c_m) section
+    // and its source recovery unchanged.
+    if super::pressure_runtime::is_exact(input.model) {
+        if input.model.pressure_contract.as_ref().and_then(|contract| contract.shear_model.as_deref())
+            == Some("timoshenko_annulus_energy_v1")
+        {
+            return Err(unsupported(
+                "timoshenko_annulus_energy_v1 straight members are not a retained-source formulation",
+            ));
+        }
+        let nonzero = |q: &Option<Quantity>| q.as_ref().is_some_and(|q| q.value != 0.0);
+        if input.model.pipe_segments.iter().any(|pipe| nonzero(&pipe.section.mill_tolerance)) {
+            return Err(unsupported("nonzero mill tolerance is not a retained-source section basis"));
+        }
+        if input.model.pipe_segments.iter().any(|pipe| nonzero(&pipe.section.corrosion_allowance)) {
+            return Err(unsupported("nonzero corrosion allowance is not a retained-source section basis"));
+        }
+    }
     if input.force.len() != n
         || input.stiffness.len() != n
         || input.stiffness.iter().any(|row| row.len() != n)
@@ -1296,7 +1321,7 @@ fn close_load_state(
             || !bits(frame.section.elastic_modulus, pair.elastic_modulus_pa())
             || !bits(frame.section.shear_modulus, pair.shear_modulus_pa())
             || !bits(frame.section.area, section.area)
-            || !bits(section.area, geometry.wall_area_m2())
+            || !bits(section.area, geometry.nominal().wall_area_m2())
             || !strain.total_eigenstrain.is_finite()
         {
             return Err(mismatch(
@@ -1906,6 +1931,94 @@ mod tests {
         let fixture = pressure_source_fixture();
         let prepared = prepare_sources(&fixture.input(), &mut AttemptBudget::new(exact::Limits::default()));
         assert!(prepared.is_ok(), "{:?}", prepared.err());
+    }
+
+    /// O4 interim (DEL-05-03 Design `section-bases-and-timoshenko.md` §5):
+    /// `prepare_sources` declines a Timoshenko document, nonzero mill tolerance
+    /// and nonzero corrosion allowance by name, after the D7 family declines
+    /// and the budget/DOF refusal and before the dimension closure. The
+    /// messages avoid "coincident" and "transform" (other receipt codes). The
+    /// declines are exact-contract document facts: an explicit zero still
+    /// prepares, and the pressure-free route keeps its one t - c_m section.
+    #[test]
+    fn o4_prepare_sources_declines_by_name() {
+        const TIMOSHENKO: &str = "timoshenko_annulus_energy_v1 straight members are not a retained-source formulation";
+        const MILL: &str = "nonzero mill tolerance is not a retained-source section basis";
+        const ALLOWANCE: &str = "nonzero corrosion allowance is not a retained-source section basis";
+        for message in [TIMOSHENKO, MILL, ALLOWANCE] {
+            assert!(!message.contains("coincident") && !message.contains("transform"), "{message}");
+        }
+        let length = |value: f64| Some(Quantity { value, unit: "m".into() });
+        let prepare = |fixture: &Fixture, limits: exact::Limits| {
+            prepare_sources(&fixture.input(), &mut AttemptBudget::new(limits)).err()
+        };
+        let refuse = |fixture: &Fixture| prepare(fixture, exact::Limits::default());
+        let control = pressure_source_fixture();
+        assert_eq!(refuse(&control), None, "control: the n05 v3 source prepares");
+        // Each document fact, authored before the build (the built model then
+        // carries its D-5 bases), is declined by its own name.
+        let timoshenko = || {
+            let mut fixture = pressure_source_fixture();
+            fixture.model.pressure_contract.as_mut().unwrap().shear_model = Some("timoshenko_annulus_energy_v1".into());
+            fixture
+        };
+        let with_section = |edit: &dyn Fn(&mut crate::PipeSectionInput)| {
+            let mut fixture = pressure_source_fixture();
+            edit(&mut fixture.model.pipe_segments[0].section);
+            Fixture::new(fixture.model)
+        };
+        let mill = || with_section(&|s| s.mill_tolerance = length(0.0005));
+        let allowance = || with_section(&|s| s.corrosion_allowance = length(0.001));
+        for (label, fixture, message) in [("timoshenko", timoshenko(), TIMOSHENKO), ("mill", mill(), MILL), ("allowance", allowance(), ALLOWANCE)] {
+            assert_eq!(refuse(&fixture), Some(RecoveryError::Unsupported(message)), "{label}");
+            // Before the dimension closure: a broken stiffness dimension still
+            // takes the document fact's name.
+            let mut broken = fixture;
+            broken.stiffness.pop();
+            assert_eq!(refuse(&broken), Some(RecoveryError::Unsupported(message)), "{label}: before the dimension closure");
+        }
+        // After the budget/DOF refusal: a model above the source budget is
+        // refused by budget first.
+        for (label, fixture) in [("timoshenko", timoshenko()), ("mill", mill()), ("allowance", allowance())] {
+            assert_eq!(prepare(&fixture, exact::Limits { dofs: 0, ..exact::Limits::default() }),
+                Some(RecoveryError::Exact(exact::Error::Budget)), "{label}: budget first");
+        }
+        // The Timoshenko name precedes the section names; mill precedes allowance.
+        let mut all = with_section(&|s| { s.mill_tolerance = length(0.0005); s.corrosion_allowance = length(0.001); });
+        assert_eq!(refuse(&all), Some(RecoveryError::Unsupported(MILL)));
+        all.model.pressure_contract.as_mut().unwrap().shear_model = Some("timoshenko_annulus_energy_v1".into());
+        assert_eq!(refuse(&all), Some(RecoveryError::Unsupported(TIMOSHENKO)));
+        // Explicit zeros prepare: the bases coincide.
+        let zeros = with_section(&|s| { s.mill_tolerance = length(0.0); s.corrosion_allowance = length(0.0); });
+        assert_eq!(refuse(&zeros), None, "explicit zero mill tolerance and allowance");
+        // After the D7 family declines: a realized bend with mill tolerance is
+        // declined as a bend.
+        let documents: Value = serde_json::from_str(include_str!(
+            "../../../validation/references/t4_i7/u2_document_sketches.json"
+        ))
+        .unwrap();
+        let mut sketch = documents["sketches"]["U2-L-ANCH-PTW-K2"]["0.3.0"]["document"]["model"].clone();
+        crate::b7b_admission_tests::reauthor_current_model(&mut sketch);
+        let mut model: PreviewModel = serde_json::from_value(sketch).unwrap();
+        for pipe in &mut model.pipe_segments {
+            pipe.section.mill_tolerance = length(0.0005);
+        }
+        model.pressure_contract.as_mut().unwrap().shear_model = Some("timoshenko_annulus_energy_v1".into());
+        let (mut materials, mut diagnostics) = (model.materials.clone(), Vec::new());
+        super::super::normalize_model_units(&mut model, &mut materials, &mut diagnostics);
+        super::super::pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
+        model.materials = materials;
+        let bend = Fixture::new(model);
+        assert!(!bend.built.curved_bend_elements.is_empty(), "precondition: a realized bend");
+        assert_eq!(refuse(&bend), Some(RecoveryError::Unsupported(
+            "realized curved bend (curved_bend_macro_element) is not a straight source family")));
+        // The pressure-free route: nonzero mill tolerance keeps its one
+        // t - c_m section and prepares as before.
+        let mut preview = Fixture::model();
+        preview.pipe_segments[0].section.mill_tolerance = length(0.0005);
+        let preview = Fixture::new(preview);
+        assert!(crate::model_format::is_pressure_free(&preview.model));
+        assert_eq!(refuse(&preview), None, "pressure-free mill tolerance");
     }
 
     #[test]

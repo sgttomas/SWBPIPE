@@ -65,22 +65,34 @@ fn actual_x1_loads_find_peak_missed_by_old_signed_sum_candidates() {
         close(maximum.value, expected, 0.0);
         assert!(maximum.value > 1e6 * 325.0_f64.sqrt() / 16.0);
         assert_eq!(maximum.unit, "Pa");
-        assert_eq!(
-            output
-                .summary
-                .max_open_formula_stress
-                .as_ref()
-                .unwrap()
-                .result_ref,
-            maximum.id
-        );
-        let evidence =
-            &output.contract_evidence.as_ref().unwrap()["exact_cases"][0]["pipe_stress_extrema"][0];
-        let lower = evidence["value_lower_pa"].as_f64().unwrap();
-        let upper = evidence["global_upper_bound_pa"].as_f64().unwrap();
-        assert!(upper >= lower);
-        assert!(upper - lower <= 1.001e-12 * (1.0 + lower));
-        assert_eq!(evidence["result_id"], maximum.id);
+        // D-5 (DEL-05-03 Design §2.2, §2.5): the maximum is published on the
+        // nominal section, then on the reduced one (bit-equal here: no mill
+        // tolerance or allowance), each with its own headline and extremum.
+        let reduced = output
+            .results
+            .iter()
+            .filter(|r| r.kind == "pipe_elastic_normal_stress_maximum_v2")
+            .nth(1)
+            .unwrap();
+        assert!(maximum.id.ends_with(":nominal_section") && reduced.id.ends_with(":reduced_section"));
+        assert_eq!(maximum.value.to_bits(), reduced.value.to_bits());
+        assert!(output.summary.max_open_formula_stress.is_none());
+        for (index, (headline, row)) in [
+            (&output.summary.max_open_formula_stress_nominal_section, maximum),
+            (&output.summary.max_open_formula_stress_reduced_section, reduced),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            assert_eq!(headline.as_ref().unwrap().as_ref().unwrap().result_ref, row.id);
+            let evidence = &output.contract_evidence.as_ref().unwrap()["exact_cases"][0]
+                ["pipe_stress_extrema"][index];
+            let lower = evidence["value_lower_pa"].as_f64().unwrap();
+            let upper = evidence["global_upper_bound_pa"].as_f64().unwrap();
+            assert!(upper >= lower);
+            assert!(upper - lower <= 1.001e-12 * (1.0 + lower));
+            assert_eq!(evidence["result_id"], row.id);
+        }
         assert_eq!(
             output.contract_evidence.as_ref().unwrap()["pressure"],
             json!([])

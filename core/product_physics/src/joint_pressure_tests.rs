@@ -394,7 +394,10 @@ fn reader_control_for(mode: PreviewSolverMode, anchored: bool) -> Value {
             curved_bend_macro_element_count: 0,
             spring_hanger_user_input_count: 0,
             max_displacement: solve.max_displacement,
-            max_open_formula_stress: solve.max_stress,
+            // D-5: an exact-contract envelope names each basis's headline.
+            max_open_formula_stress: None,
+            max_open_formula_stress_nominal_section: Some(solve.max_stress),
+            max_open_formula_stress_reduced_section: Some(solve.max_stress_reduced),
         },
         results: solve.results,
         diagnostics,
