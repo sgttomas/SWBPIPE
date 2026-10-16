@@ -1,14 +1,19 @@
 //! T4-U8 (DEL-05-03 Design `section-bases-and-timoshenko.md` §3, §4 item 2,
-//! §5, §8): the product's Timoshenko threading. These are product checks of
-//! the threading (which section, which nu, which members, which binding); they
-//! do not compare product output with the frozen references (`t4_u8`,
-//! `kd5_timoshenko`), which separate agents freeze and refute.
+//! §5, §8): the product's Timoshenko threading (which section, which nu, which
+//! members, which binding). `timoshenko_shear_area_uses_the_stiffness_section`
+//! compares with the frozen t4_u6 Timoshenko variant; the other checks here
+//! are of the threading itself, and the t4_u8 freeze is consumed by
+//! `tests/t4_u8_timoshenko_references.rs`.
 use super::*;
 use open_pipe_stress_frame_kernel::shear::{annulus_energy_shear_factor, shear_area};
 use open_pipe_stress_frame_kernel::BeamTheory;
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 
 const N05: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
+const U6_ORACLE: &str = include_str!("../../../validation/references/t4_u6/oracle.json");
+const U6_TIMOSHENKO_SELF_WEIGHT: &str =
+    include_str!("../../../validation/references/t4_u6/requests/U6-BASES-001-TIMO-SELF-WEIGHT.request.json");
 const EIGEN_MOTION: &str =
     include_str!("../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json");
 const I7_DOCUMENTS: &str = include_str!("../../../validation/references/t4_i7/u2_document_sketches.json");
@@ -18,13 +23,6 @@ const INVENTED: &str = "invented_t4_u8_product_threading_test_not_library_data";
 
 fn with_shear_model(mut request: Value, shear_model: &str) -> Value {
     request["model"]["pressure_contract"]["shear_model"] = json!(shear_model);
-    request
-}
-fn with_sections(mut request: Value, mill: f64, allowance: f64) -> Value {
-    for pipe in request["model"]["pipe_segments"].as_array_mut().unwrap() {
-        pipe["section"]["mill_tolerance"] = json!({"value": mill, "unit": "m"});
-        pipe["section"]["corrosion_allowance"] = json!({"value": allowance, "unit": "m"});
-    }
     request
 }
 fn run(request: &Value, mode: PreviewSolverMode) -> Value {
@@ -62,17 +60,38 @@ fn assert_timoshenko_evidence(section: &Value, nu: f64, label: &str) -> (f64, f6
     (kappa, shear)
 }
 
-/// Design §3.1, §8 ("kappa or A_s formed on the reduced section"): with
-/// c_m, c_a > 0, kappa_E and A_s come from the nominal (stiffness) annulus and
-/// its area, never from the reduced section; the built frame's leaf is that
-/// A_s; and the stiffness section itself is the Euler-Bernoulli twin's.
+/// The published rows of `case` with a frozen row's identity and `basis`.
+fn published_rows<'a>(envelope: &'a Value, row: &Value, case: &str, basis: &str) -> Vec<&'a Value> {
+    envelope["results"].as_array().unwrap().iter().filter(|r| {
+        r["kind"] == row["kind"] && r["entity_ref"] == row["entity_ref"]
+            && r["metadata"]["component"] == row["component"] && r["metadata"]["location"] == row["location"]
+            && r["basis_ref"]["ref_id"] == json!(case)
+            && r["metadata"]["basis"].as_str().and_then(|b| b.rsplit_once("; section_basis=")).map_or("", |(_, b)| b) == basis
+    }).collect()
+}
+
+/// Design §3.1, §8 ("kappa or A_s formed on the reduced section"), against
+/// the frozen t4_u6 Timoshenko variant (c_m 0.00125 m, c_a 0.002 m; its
+/// SHA-bound self-weight request, read unmodified): kappa_E and A_s come from
+/// the nominal (stiffness) annulus, never the reduced section. The built
+/// member's leaf and the published `beam_theory` carry kappa_E bit-equal to
+/// the frozen binary64 exhibit of Design §3.1's order and A_s at the frozen
+/// exact value; A, I and J are the Euler-Bernoulli twin's nominal section;
+/// and no row listed for `kappa_on_reduced_section` takes its wrong value.
 #[test]
 fn timoshenko_shear_area_uses_the_stiffness_section() {
-    let base: Value = serde_json::from_str(N05).unwrap();
-    let (mill, allowance) = (0.0005, 0.001);
-    let timoshenko = with_shear_model(with_sections(base.clone(), mill, allowance), TIMOSHENKO);
-    let euler_bernoulli = with_sections(base.clone(), mill, allowance);
-    let nu = number(&base["model"]["materials"][0]["poisson_ratio"]["value"]);
+    let oracle: Value = serde_json::from_str(U6_ORACLE).unwrap();
+    let variant = &oracle["cases"]["U6-BASES-001"]["variants"][TIMOSHENKO];
+    let binding = &variant["request_self_weight"];
+    assert_eq!(format!("{:x}", Sha256::digest(U6_TIMOSHENKO_SELF_WEIGHT.as_bytes())), binding["sha256"].as_str().unwrap());
+    let timoshenko: Value = serde_json::from_str(U6_TIMOSHENKO_SELF_WEIGHT).unwrap();
+    assert_eq!(timoshenko["model"]["pressure_contract"]["shear_model"], json!(TIMOSHENKO));
+    let frozen = &variant["pipe_sections_evidence"]["beam_theory"];
+    let exhibit = number(&variant["binary64_exhibits"]["shear_factor"]["value"]);
+    let frozen_kappa = number(&frozen["shear_factor"]["value"]);
+    let frozen_area = number(&frozen["shear_area_m2"]["value"]);
+    assert!((exhibit - frozen_kappa).abs() <= 1e-9 * frozen_kappa);
+    let euler_bernoulli = with_shear_model(timoshenko.clone(), "euler_bernoulli");
     let (_, t) = built(&timoshenko);
     let (_, eb) = built(&euler_bernoulli);
     assert!(!t.pipes.is_empty());
@@ -80,15 +99,12 @@ fn timoshenko_shear_area_uses_the_stiffness_section() {
         let bases = t.exact_sections[&tp.element_id];
         let (nominal, reduced) = (bases.nominal(), bases.reduced());
         assert_ne!(nominal.wall_area_m2().to_bits(), reduced.wall_area_m2().to_bits(), "precondition: the bases differ");
-        let kappa = annulus_energy_shear_factor(nominal.inner_radius_m(), nominal.outer_radius_m(), nu).unwrap();
-        let expected = shear_area(kappa, nominal.wall_area_m2()).unwrap();
-        let reduced_kappa = annulus_energy_shear_factor(reduced.inner_radius_m(), reduced.outer_radius_m(), nu).unwrap();
-        let mutant = shear_area(reduced_kappa, reduced.wall_area_m2()).unwrap();
-        assert_ne!(expected.to_bits(), mutant.to_bits(), "the reduced-section mutant is distinguishable");
-        assert_eq!(tp.section.beam_theory, BeamTheory::Timoshenko { shear_area: expected });
-        assert_eq!(bases.timoshenko().map(|(k, a)| (k.to_bits(), a.to_bits())), Some((kappa.to_bits(), expected.to_bits())));
+        let (kappa, area) = bases.timoshenko().expect("a Timoshenko member's factor");
+        assert_eq!(kappa.to_bits(), exhibit.to_bits(), "kappa_E in Design §3.1's binary64 order");
+        assert!((area - frozen_area).abs() <= 1e-9 * frozen_area, "A_s {area:e} vs frozen {frozen_area:e}");
+        assert_eq!(tp.section.beam_theory, BeamTheory::Timoshenko { shear_area: area });
         let frame = tp.frame_element().unwrap();
-        assert_eq!(frame.section.beam_theory.shear_area().map(f64::to_bits), Some(expected.to_bits()));
+        assert_eq!(frame.section.beam_theory.shear_area().map(f64::to_bits), Some(area.to_bits()));
         // A, I and J are the nominal section's, identical to the Euler-Bernoulli twin's.
         assert_eq!(ep.section.beam_theory, BeamTheory::EulerBernoulli);
         for (x, y) in [(tp.section.area, ep.section.area), (tp.section.second_moment_y, ep.section.second_moment_y),
@@ -96,23 +112,44 @@ fn timoshenko_shear_area_uses_the_stiffness_section() {
             assert_eq!(x.to_bits(), y.to_bits());
         }
     }
+    let cases: Vec<&str> = binding["load_cases"].as_array().unwrap().iter().map(|c| c.as_str().unwrap()).collect();
     for mode in MODES {
         let envelope = run(&timoshenko, mode);
         assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}: {}", envelope["diagnostics"]);
         for case in envelope["contract_evidence"]["exact_cases"].as_array().unwrap() {
             for section in case["pipe_sections"].as_array().unwrap() {
-                let (_, a_s) = assert_timoshenko_evidence(section, nu, &format!("{mode:?}"));
-                let reduced = &section["reduced_section"];
-                let reduced_kappa = annulus_energy_shear_factor(number(&reduced["ri_m"]), number(&section["ro_m"]), nu).unwrap();
-                assert_ne!(a_s.to_bits(), shear_area(reduced_kappa, number(&reduced["As_m2"])).unwrap().to_bits());
+                let theory = &section["beam_theory"];
+                assert_eq!(theory["model"], json!(TIMOSHENKO), "{mode:?}");
+                assert_eq!(number(&theory["shear_factor"]).to_bits(), exhibit.to_bits(), "{mode:?}: kappa_E");
+                let area = number(&theory["shear_area_m2"]);
+                assert!((area - frozen_area).abs() <= 1e-9 * frozen_area, "{mode:?}: A_s {area:e}");
             }
         }
-        let plain = run(&euler_bernoulli, mode);
-        for case in plain["contract_evidence"]["exact_cases"].as_array().unwrap() {
-            for section in case["pipe_sections"].as_array().unwrap() {
-                assert_eq!(section["beam_theory"], json!({"model": "euler_bernoulli"}), "{mode:?}");
+        let mut evaluated = 0;
+        for discriminator in oracle["cases"]["U6-BASES-001"]["wrong_result_discriminators"].as_array().unwrap() {
+            let load_case = discriminator["load_case"].as_str().unwrap();
+            if discriminator["id"] != json!("kappa_on_reduced_section") || discriminator["variant"] != json!(TIMOSHENKO) || !cases.contains(&load_case) {
+                continue;
+            }
+            let rows = variant["load_cases"][load_case]["rows"].as_array().unwrap();
+            for listed in discriminator["listed_rows"].as_array().unwrap() {
+                let row = rows.iter().find(|r| ["kind", "entity_ref", "component", "location", "section_basis"].iter().all(|k| r.get(*k) == listed.get(*k))).unwrap();
+                let factor = match (row["reference_origin"]["reference_unit"].as_str().unwrap(), row["unit"].as_str().unwrap()) {
+                    ("m", "mm") => 1000.0, ("Pa", "MPa") => 1e-6, (a, b) => { assert_eq!(a, b); 1.0 }
+                };
+                let expected = number(&oracle.pointer(row["reference_origin"]["pointer"].as_str().unwrap()).unwrap()["value"]) * factor;
+                let wrong = number(&listed["wrong"]["value"]) * factor;
+                let absolute = number(&row["criterion"]["absolute_tolerance"]);
+                let tolerance = number(&row["criterion"]["relative_tolerance"]) * expected.abs() + absolute;
+                let found = published_rows(&envelope, row, load_case, listed["section_basis"].as_str().unwrap_or(""));
+                assert_eq!(found.len(), 1, "{mode:?} {load_case} {listed}");
+                let observed = number(&found[0]["value"]);
+                assert!((observed - expected).abs() <= tolerance, "{mode:?} {load_case} {}: {observed:e} vs frozen {expected:e}", row["kind"]);
+                assert!((observed - wrong).abs() > absolute.max(1e-9 * observed.abs().max(wrong.abs())), "{mode:?} {load_case}: the reduced-section kappa value");
+                evaluated += 1;
             }
         }
+        assert!(evaluated > 0, "{mode:?}: kappa_on_reduced_section rows");
     }
 }
 

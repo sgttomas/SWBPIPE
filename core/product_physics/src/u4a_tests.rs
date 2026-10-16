@@ -25,9 +25,15 @@ fn current_request(requests: &Value, id: &str) -> Value {
     crate::b7b_admission_tests::reauthor_current_request(requests["cases"][id].clone())
 }
 fn row<'a>(out: &'a MechanicsEnvelope, kind: &str, entity: &str, location: &str, component: &str) -> &'a ResultItem {
+    row_on(out, kind, entity, location, component, "")
+}
+/// The one row on section basis `basis` (D-5: `; section_basis=…` on its
+/// token; "" for a row published once, as every preview row is).
+fn row_on<'a>(out: &'a MechanicsEnvelope, kind: &str, entity: &str, location: &str, component: &str, basis: &str) -> &'a ResultItem {
     let found = out.results.iter().filter(|r| r.kind == kind && r.entity_ref == entity &&
-        r.metadata.as_ref().is_some_and(|m| (location.is_empty() || m.location == location) && (component.is_empty() || m.component == component))).collect::<Vec<_>>();
-    assert_eq!(found.len(), 1, "{entity} {kind} {location} {component}: {:?}", out.diagnostics);
+        r.metadata.as_ref().is_some_and(|m| (location.is_empty() || m.location == location) && (component.is_empty() || m.component == component)
+            && m.basis.rsplit_once("; section_basis=").map_or("", |(_, b)| b) == basis)).collect::<Vec<_>>();
+    assert_eq!(found.len(), 1, "{entity} {kind} {location} {component} [{basis}]: {:?}", out.diagnostics);
     found[0]
 }
 fn close(label: &str, got: f64, expected: f64, scale: f64) {
@@ -77,17 +83,29 @@ fn check(out: &MechanicsEnvelope, case: &Value, label: &str) {
                 let sign = if endpoint && location == "end_i" {-1.0} else {1.0};
                 close(&format!("{label} cut {pipe} {location} {key}"), sign*row(out, kind, pipe, location, "").value, n(&cut[key]), if key == "N" || key.starts_with('V') {force_scale} else {moment_scale});
             }
-            for (key, kind) in [("sigma_b_y", "element_local_bending_normal_stress_y"), ("sigma_b_z", "element_local_bending_normal_stress_z"), ("tau_t", "element_local_torsional_shear_stress")] {
-                let stress = &member["nominal_stresses_SI"][location];
-                let max_stress = if key == "tau_t" {moment_scale*n(&case["derived"]["r_o"])/n(&case["derived"]["J"])} else {moment_scale/n(&case["derived"]["Z"])};
-                close(&format!("{label} stress {pipe} {location} {key}"), row(out,kind,pipe,location,"").value*1e6, n(&stress[key]),max_stress);
+            // D-5 (T4-U6): a pressure-1 case's stresses are frozen per section
+            // basis with that basis's section (`stresses_SI_by_section_basis`,
+            // `derived.section_bases`); a preview case keeps its one section.
+            let bases: Vec<(&str, &Value, &Value)> = if pressure {
+                ["nominal_section", "reduced_section"].into_iter()
+                    .map(|b| (b, &member["stresses_SI_by_section_basis"][b][location], &case["derived"]["section_bases"][b])).collect()
+            } else {
+                vec![("", &member["nominal_stresses_SI"][location], &case["derived"])]
+            };
+            for &(basis, stress, section) in &bases {
+                for (key, kind) in [("sigma_b_y", "element_local_bending_normal_stress_y"), ("sigma_b_z", "element_local_bending_normal_stress_z"), ("tau_t", "element_local_torsional_shear_stress")] {
+                    let max_stress = if key == "tau_t" {moment_scale*n(&case["derived"]["r_o"])/n(&section["J"])} else {moment_scale/n(&section["Z"])};
+                    close(&format!("{label} stress {pipe} {location} {key} [{basis}]"), row_on(out,kind,pipe,location,"",basis).value*1e6, n(&stress[key]),max_stress);
+                }
             }
             if pressure {
                 for (key, kind) in [("N_w", "pipe_wall_axial_force_v2"), ("S", "pipe_effective_axial_force_v2")] {
                     close(&format!("{label} pressure {pipe} {location} {key}"), row(out,kind,pipe,location,"").value,n(&cut[key]),force_scale);
                 }
-                let stress = &member["nominal_stresses_SI"][location]["sigma_m_wall_membrane"];
-                close(label,row(out,"pipe_axial_membrane_stress_v2",pipe,location,"").value,n(stress),force_scale/n(&case["derived"]["A_s"]));
+                for &(basis, stress, section) in &bases {
+                    close(&format!("{label} membrane {pipe} {location} [{basis}]"),row_on(out,"pipe_axial_membrane_stress_v2",pipe,location,"",basis).value,
+                        n(&stress["sigma_m_wall_membrane"]),force_scale/n(&section["A_s"]));
+                }
             } else {
                 let stress = &member["nominal_stresses_SI"][location]["sigma_axial"];
                 close(label,row(out,"element_local_axial_normal_stress",pipe,location,"").value*1e6,n(stress),force_scale/n(&case["derived"]["A_s"]));

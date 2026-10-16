@@ -156,8 +156,11 @@ fn solve(model: &Value, mode: PreviewSolverMode) -> Value {
     serde_json::to_value(envelope).unwrap()
 }
 
+/// A row's identity; D-5 stress rows are published once per section basis
+/// (`; section_basis=…` on the recovery token), which is part of the key.
 fn row_key(row: &Value) -> String {
-    format!("{}|{}|{}|{}|{}", row["basis_ref"]["ref_id"], row["entity_ref"], row["kind"], row["metadata"]["component"], row["metadata"]["location"])
+    let basis = row["metadata"]["basis"].as_str().and_then(|b| b.rsplit_once("; section_basis=")).map_or("", |(_, b)| b);
+    format!("{}|{}|{}|{}|{}|{basis}", row["basis_ref"]["ref_id"], row["entity_ref"], row["kind"], row["metadata"]["component"], row["metadata"]["location"])
 }
 
 #[test]

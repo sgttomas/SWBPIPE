@@ -9,6 +9,11 @@
 //! - `validation/references/t4_i8/` (T4-I8, rebuilt straight cases): every
 //!   row on the v3 straight route at the row's own criterion.
 //!
+//! T4-U6 (D-5): stress rows are compared per section basis. Re-frozen cases
+//! (I7's 72 mill-tolerance sketches, I8's MILLTOL) state each basis's value;
+//! cases frozen where the bases coincide state one value, which both families
+//! must carry (DEL-05-03 Design §7).
+//!
 //! B7b: the frozen documents stay 0.3.0/0.4.0 (bytes unchanged); every copy is
 //! re-authored to the current 0.5.0 exact document (`common/current_model.rs`)
 //! before it runs. The v2 originals and SP-1's v2/v3 twin clause were retired
@@ -25,6 +30,9 @@ use std::collections::{BTreeMap, HashMap};
 
 #[path = "common/current_model.rs"]
 mod current_model;
+#[path = "common/frozen_rows.rs"]
+mod frozen_rows;
+use frozen_rows::{section_basis, BASES};
 
 const I7: &str = include_str!("../../../validation/references/t4_i7/u2_reference_cases.json");
 const I7_DOCUMENTS: &str =
@@ -74,8 +82,9 @@ fn codes(envelope: &Value) -> Vec<String> {
         .collect()
 }
 
-/// The published rows by (kind, entity, location, component).
-struct Rows(HashMap<(String, String, String, String), Vec<f64>>);
+/// The published rows by (kind, entity, location, component, section basis);
+/// the basis is "" on a row published once (D-5, Design §2.1).
+struct Rows(HashMap<(String, String, String, String, String), Vec<f64>>);
 
 impl Rows {
     fn of(envelope: &Value) -> Self {
@@ -88,29 +97,39 @@ impl Rows {
                 text(&row["entity_ref"]),
                 text(&metadata["location"]),
                 text(&metadata["component"]),
+                section_basis(row).to_string(),
             ))
             .or_default()
             .push(number(&row["value"]));
         }
         Self(rows)
     }
-    /// The one row matching; `component` empty matches any.
+    /// The one row published once matching; `component` empty matches any.
     fn one(&self, kind: &str, entity: &str, location: &str, component: &str) -> Result<f64, String> {
+        self.one_on(kind, entity, location, component, "")
+    }
+    /// The one row of section basis `basis` matching; `component` empty
+    /// matches any.
+    fn one_on(&self, kind: &str, entity: &str, location: &str, component: &str, basis: &str) -> Result<f64, String> {
         let found = self
             .0
             .iter()
-            .filter(|((k, e, l, c), _)| {
-                k == kind && e == entity && (location.is_empty() || l == location) && (component.is_empty() || c == component)
+            .filter(|((k, e, l, c, b), _)| {
+                k == kind
+                    && e == entity
+                    && (location.is_empty() || l == location)
+                    && (component.is_empty() || c == component)
+                    && b == basis
             })
             .flat_map(|(_, values)| values.iter().copied())
             .collect::<Vec<_>>();
         match found.as_slice() {
             [value] => Ok(*value),
-            other => Err(format!("{kind} {entity} {location} {component}: {} rows", other.len())),
+            other => Err(format!("{kind} {entity} {location} {component} [{basis}]: {} rows", other.len())),
         }
     }
     fn any(&self, kind: &str, entity: &str) -> bool {
-        self.0.keys().any(|(k, e, _, _)| k == kind && e == entity)
+        self.0.keys().any(|(k, e, _, _, _)| k == kind && e == entity)
     }
 }
 
@@ -143,18 +162,25 @@ const DOFS: [(&str, &str, f64, &str); 6] = [
     ("rz", "global_nodal_rotation_z", 1.0, "rotation"),
 ];
 /// Station quantity -> (kind, published unit factor, group, end-row kind).
-const STATION: [(&str, &str, f64, &str, bool); 11] = [
+const STATION: [(&str, &str, f64, &str, bool); 7] = [
     ("N_w", "pipe_wall_axial_force_v2", 1.0, "wall_axial_force", false),
     ("S", "pipe_effective_axial_force_v2", 1.0, "effective_axial_force", false),
-    ("sigma_m", "pipe_axial_membrane_stress_v2", 1.0, "membrane_stress", false),
     ("V_y", "element_local_shear_force_y", 1.0, "shear_force", true),
     ("V_z", "element_local_shear_force_z", 1.0, "shear_force", true),
     ("T", "element_local_torsional_moment", 1.0, "section_moment", true),
     ("M_y", "element_local_bending_moment_y", 1.0, "section_moment", true),
     ("M_z", "element_local_bending_moment_z", 1.0, "section_moment", true),
-    ("sigma_b_y", "element_local_bending_normal_stress_y", 1e-6, "bending_torsion_stress", false),
-    ("sigma_b_z", "element_local_bending_normal_stress_z", 1e-6, "bending_torsion_stress", false),
-    ("tau_t", "element_local_torsional_shear_stress", 1e-6, "bending_torsion_stress", false),
+];
+/// Station stress quantity -> (kind, published unit factor, group), published
+/// once per section basis (D-5). A re-frozen case states each basis's value
+/// under `stresses_by_section_basis` with per-basis groups (`{group}@{basis}`);
+/// a case frozen where the bases coincide states one value, which both
+/// families must carry (Design §7).
+const STATION_STRESS: [(&str, &str, f64, &str); 4] = [
+    ("sigma_m", "pipe_axial_membrane_stress_v2", 1.0, "membrane_stress"),
+    ("sigma_b_y", "element_local_bending_normal_stress_y", 1e-6, "bending_torsion_stress"),
+    ("sigma_b_z", "element_local_bending_normal_stress_z", 1e-6, "bending_torsion_stress"),
+    ("tau_t", "element_local_torsional_shear_stress", 1e-6, "bending_torsion_stress"),
 ];
 const END_ROWS: [(&str, &str); 5] = [
     ("F_y", "element_local_shear_force_y"),
@@ -213,6 +239,18 @@ fn i7_checks(case: &Value, envelope: &Value) -> (Vec<Check>, Vec<String>) {
                 };
                 push(format!("/expected/members/{pipe}/stations/{location}/{key}"), &station[key], scale, group, observed);
             }
+            let by_basis = &station["stresses_by_section_basis"];
+            for (key, kind, scale, group) in STATION_STRESS {
+                for basis in BASES {
+                    let observed = rows.one_on(kind, pipe, location, "", basis);
+                    if by_basis.is_object() {
+                        push(format!("/expected/members/{pipe}/stations/{location}/stresses_by_section_basis/{basis}/{key}"),
+                            &by_basis[basis][key], scale, &format!("{group}@{basis}"), observed);
+                    } else {
+                        push(format!("/expected/members/{pipe}/stations/{location}/{key}@{basis}"), &station[key], scale, group, observed);
+                    }
+                }
+            }
         }
         for location in ["end_i", "end_j"] {
             let end = &member["end_rows"][location];
@@ -246,10 +284,21 @@ fn i7_checks(case: &Value, envelope: &Value) -> (Vec<Check>, Vec<String>) {
                 }
             }
         } else {
+            // Each basis's Lamé values are its own annulus's (re-frozen cases
+            // key them by basis); a case frozen with coincident bases states one.
+            let lame = &member["lame_surface"];
             for location in LOCATIONS {
                 for (key, kind, component) in LAME {
-                    push(format!("/expected/members/{pipe}/lame_surface/{key}@{location}"), &member["lame_surface"][key], 1.0,
-                        "lame_stress", rows.one(kind, pipe, location, component));
+                    for basis in BASES {
+                        let observed = rows.one_on(kind, pipe, location, component, basis);
+                        if lame.get(basis).is_some() {
+                            push(format!("/expected/members/{pipe}/lame_surface/{basis}/{key}@{location}"), &lame[basis][key], 1.0,
+                                &format!("lame_stress@{basis}"), observed);
+                        } else {
+                            push(format!("/expected/members/{pipe}/lame_surface/{key}@{location}@{basis}"), &lame[key], 1.0,
+                                "lame_stress", observed);
+                        }
+                    }
                 }
             }
         }
@@ -472,10 +521,14 @@ fn i7_admitted_kinks_are_recorded_and_carried_by_the_remainder() {
 // ------------------------------------------------------------------ T4-I8
 
 /// Each T4-I8 document's v3 twin (the reference's `v3_patch_for_both` on the
-/// frozen document; `captured` re-authors the copy to 0.5.0).
+/// frozen document; `captured` re-authors the copy to 0.5.0). Case 1 (MILLTOL),
+/// re-authored in 0.5.0 for D-5, has its own documents (`milltol_runs`).
 fn i8_documents(references: &Value) -> Vec<(String, Value, Vec<Value>)> {
     let mut found = Vec::new();
     for (case_id, case) in references["cases"].as_object().unwrap() {
+        if case_id == "milltol_lame_membrane" {
+            continue;
+        }
         let mut owners = Vec::new();
         if let Some(variants) = case["variants"].as_object() {
             for (variant, body) in variants {
@@ -502,17 +555,12 @@ fn i8_documents(references: &Value) -> Vec<(String, Value, Vec<Value>)> {
     found
 }
 
-fn unit_factor(reference_unit: &str, row_unit: &str) -> f64 {
-    match (reference_unit, row_unit) {
-        ("m", "mm") => 1000.0,
-        ("Pa", "MPa") => 1e-6,
-        (a, b) if a == b => 1.0,
-        other => panic!("unit pair {other:?}"),
-    }
-}
-
 /// Every T4-I8 row on the v3 straight route, in both modes and on both
-/// document versions, at the row's own criterion.
+/// document versions, at the row's own criterion. Cases 2–5 (zero mill
+/// tolerance and allowance, frozen once) carry each stress row on both
+/// section bases at the one frozen value (Design §7); case 1 (MILLTOL) is
+/// checked row by row on its own basis, in both 0.5.0 forms and under its
+/// `shear_model_variant` patch.
 #[test]
 fn i8_rows_match_on_the_v3_straight_route() {
     let references: Value = serde_json::from_str(I8).unwrap();
@@ -525,37 +573,51 @@ fn i8_rows_match_on_the_v3_straight_route() {
             assert_eq!(envelope["formulation_basis"]["profile_id"], "exact_pressure_v3");
             let results = envelope["results"].as_array().unwrap();
             for row in &rows {
+                assert!(row.get("section_basis").is_none(), "{name}: cases 2-5 are frozen once");
                 let origin = &row["reference_origin"];
                 let expected = number(&references.pointer(origin["pointer"].as_str().unwrap()).unwrap()["value"])
-                    * unit_factor(origin["reference_unit"].as_str().unwrap(), row["unit"].as_str().unwrap());
-                let matching = results
-                    .iter()
-                    .filter(|r| {
-                        r["kind"] == row["kind"]
-                            && r["entity_ref"] == row["entity_ref"]
-                            && r["metadata"]["component"] == row["component"]
-                            && r["metadata"]["location"] == row["location"]
-                            && r["basis_ref"]["ref_id"] == row["basis_ref"]["ref_id"]
-                    })
-                    .collect::<Vec<_>>();
+                    * frozen_rows::unit_factor(origin["reference_unit"].as_str().unwrap(), row["unit"].as_str().unwrap());
                 let criterion = &row["criterion"];
                 let tolerance = number(&criterion["relative_tolerance"]) * expected.abs()
                     + number(&criterion["absolute_tolerance"]);
-                checked += 1;
-                match matching.as_slice() {
-                    [found] if (number(&found["value"]) - expected).abs() <= tolerance => {}
-                    other => failures.push(format!(
-                        "{name} {mode:?} {} {} {} {}: {:?} vs {expected:e}",
-                        row["kind"], row["entity_ref"], row["location"], row["basis_ref"]["ref_id"],
-                        other.iter().map(|r| number(&r["value"])).collect::<Vec<_>>()
-                    )),
-                }
+                let case = row["basis_ref"]["ref_id"].as_str().unwrap();
+                checked += frozen_rows::compare(results, row, case, expected, tolerance, &format!("{name} {mode:?}"), &mut failures);
             }
         }
     }
-    eprintln!("T4-I8: {checked} rows checked on v3");
+    let mut milltol = 0usize;
+    for (variant, form, mode, envelope) in frozen_rows::milltol_runs(&references) {
+        milltol += frozen_rows::milltol_rows(&references, &variant, &envelope, &|_| true, &format!("{variant} {form} {mode:?}"), &mut failures);
+    }
+    eprintln!("T4-I8: {checked} values checked on cases 2-5 and the twins; {milltol} on MILLTOL");
     assert!(failures.is_empty(), "{}", failures[..failures.len().min(20)].join("\n"));
-    assert!(checked > 0);
+    assert!(checked > 0 && milltol > 0);
+}
+
+/// Design §7 and §8 ("Cap area on the nominal bore"): MILLTOL, re-authored with
+/// the nominal wall 0.01 m, mill tolerance 0.00125 m and allowance 0.002 m and
+/// re-frozen on D-5. Every frozen row matches in both forms, both modes and
+/// under the shear-model patch, and no published value is any of the case's
+/// discriminators' wrong values; in particular the free reduced σz and Nw are
+/// the frozen values, not `cap_area_on_nominal_bore`'s.
+#[test]
+fn i8_milltol_d5_refreeze() {
+    let references: Value = serde_json::from_str(I8).unwrap();
+    let case = &references["cases"]["milltol_lame_membrane"];
+    assert_eq!(case["inputs"]["wall_thickness"]["value"], json!(0.01));
+    let (mut checked, mut failures, mut evaluated) = (0usize, Vec::new(), BTreeMap::new());
+    for (variant, form, mode, envelope) in frozen_rows::milltol_runs(&references) {
+        let context = format!("{variant} {form} {mode:?}");
+        checked += frozen_rows::milltol_rows(&references, &variant, &envelope, &|_| true, &context, &mut failures);
+        frozen_rows::milltol_discriminators(&references, &variant, &envelope, &[], &context, &mut evaluated, &mut failures);
+    }
+    eprintln!("T4-I8 MILLTOL: {checked} values; discriminator rows {evaluated:?}");
+    assert!(failures.is_empty(), "{}", failures[..failures.len().min(20)].join("\n"));
+    for discriminator in case["wrong_result_discriminators"].as_array().unwrap() {
+        let id = discriminator["id"].as_str().unwrap();
+        assert!(evaluated.get(id).is_some_and(|n| *n > 0), "{id} evaluated: {evaluated:?}");
+    }
+    assert!(evaluated["cap_area_on_nominal_bore"] > 0 && evaluated["cap_area_on_nominal_bore_wall_force_free"] > 0);
 }
 
 // B7b: SP-1's v2/v3 twin clause (`i8_v3_twins_are_bit_equal_to_v2`) protected
