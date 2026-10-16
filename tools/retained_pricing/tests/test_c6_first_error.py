@@ -37,16 +37,20 @@ for caller, target in PAIRS:
 # the reviewed batch-5 production prefix. Every allocation owner body is
 # unchanged; this independent current-site inventory keeps all 14 capped and
 # three uncapped sites, including their original negative controls.
-SITE_INVENTORY = ((511,"format","maximum_cover"), (522,"format","maximum_cover"),
-    (535,"to_string","public_mpa_magnitude_in_pa_upper"),
-    (538,"to_string","public_mpa_magnitude_in_pa_upper"),
-    (541,"to_string","public_mpa_magnitude_in_pa_upper"),
-    (637,"into_text","directed_transport_sum"), (641,"to_string","directed_transport_sum"),
-    (643,"to_string","directed_transport_sum"), (646,"to_string","directed_transport_sum"),
-    (648,"into_text","directed_transport_sum"), (651,"to_string","directed_transport_sum"),
-    (716,"into_text","checked"), (765,"into_text","divided"),
-    (978,"into_text","fallback_circular_maximum"), (990,"into_text","fallback_circular_maximum"),
-    (1107,"into_text","fallback_circular_maximum"), (1127,"format","fallback_circular_maximum"))
+# T4-U6/U8: the same sites at the priced source's lines, unchanged text (B7b: 511, 522, 535, 538, 541, 637, 641, 643,
+# 646, 648, 651, 716, 765, 978, 990, 1107, 1127); fallback_circular_maximum's two added comment lines move its later
+# sites by 2 more.
+CHECKED = 726
+SITE_INVENTORY = ((519,"format","maximum_cover"), (530,"format","maximum_cover"),
+    (543,"to_string","public_mpa_magnitude_in_pa_upper"),
+    (546,"to_string","public_mpa_magnitude_in_pa_upper"),
+    (549,"to_string","public_mpa_magnitude_in_pa_upper"),
+    (647,"into_text","directed_transport_sum"), (651,"to_string","directed_transport_sum"),
+    (653,"to_string","directed_transport_sum"), (656,"to_string","directed_transport_sum"),
+    (658,"into_text","directed_transport_sum"), (661,"to_string","directed_transport_sum"),
+    (CHECKED,"into_text","checked"), (775,"into_text","divided"),
+    (988,"into_text","fallback_circular_maximum"), (1002,"into_text","fallback_circular_maximum"),
+    (1119,"into_text","fallback_circular_maximum"), (1139,"format","fallback_circular_maximum"))
 FORMATS, LEX = [], []
 for line, kind, owner in SITE_INVENTORY:
     row = {"file": CPP, "line": line, "kind": kind, "fn": STATE["keys"][owner]}
@@ -101,10 +105,10 @@ def test_all_graph_parent_inventory_refuses(change):
 @pytest.mark.parametrize("change", ["missing", "duplicate", "new", "wrong_kind", "wrong_owner"])
 def test_exact_kind_site_inventory_refuses(change):
     lexical = copy.deepcopy(LEX)
-    index = next(i for i,r in enumerate(lexical) if r["file"] == CPP and r["line"] == 716)
+    index = next(i for i,r in enumerate(lexical) if r["file"] == CPP and r["line"] == CHECKED)
     if change == "missing": lexical.pop(index)
     if change == "duplicate": lexical.append(copy.deepcopy(lexical[index]))
-    if change == "new": lexical.append(dict(lexical[index], line=717))
+    if change == "new": lexical.append(dict(lexical[index], line=CHECKED + 1))
     if change == "wrong_kind": lexical[index]["kind"] = "clone_text"
     if change == "wrong_owner": lexical[index]["fn"] = STATE["keys"]["maximum_summary_mpa"]
     with pytest.raises(ValueError, match="kind\\+site|misqualified"): MODEL["verify_inventory"](STATE, FORMATS, lexical)
@@ -223,8 +227,8 @@ def test_actual_entry_gate_refuses_caps_with_all_table_markers_removed(tmp_path)
 
 @pytest.mark.parametrize("family", ["site_from", "site_zero", "site_total", "site_aggregate", "site_size", "lex_site_size"])
 @pytest.mark.parametrize("alias", [
-    "certified_publication.rs:716:into_text", "src/certified_publication.rs:716",
-    "product_physics/src/certified_publication.rs:716", "core/product_physics/src/certified_publication.rs:716",
+    f"certified_publication.rs:{CHECKED}:into_text", f"src/certified_publication.rs:{CHECKED}",
+    f"product_physics/src/certified_publication.rs:{CHECKED}", f"core/product_physics/src/certified_publication.rs:{CHECKED}",
 ])
 def test_all_count_and_byte_override_aliases_refuse(family, alias):
     rules = table()
@@ -243,10 +247,10 @@ def test_actual_post_rebind_count_must_match_positive_roots(mult):
 
 
 @pytest.mark.parametrize("family,alias,override", [
-    ("lex_site_size", "product_physics/src/certified_publication.rs:716", {"class":0}),
-    ("lex_site_size", "src/certified_publication.rs:716", {"class":0}),
-    ("site_zero", "certified_publication.rs:716:into_text", "untagged zero multiplier"),
-    ("site_from", "product_physics/src/certified_publication.rs:716", {"from":[],"per":"0","why":"untagged"}),
+    ("lex_site_size", f"product_physics/src/certified_publication.rs:{CHECKED}", {"class":0}),
+    ("lex_site_size", f"src/certified_publication.rs:{CHECKED}", {"class":0}),
+    ("site_zero", f"certified_publication.rs:{CHECKED}:into_text", "untagged zero multiplier"),
+    ("site_from", f"product_physics/src/certified_publication.rs:{CHECKED}", {"from":[],"per":"0","why":"untagged"}),
 ])
 def test_actual_entry_refuses_zero_byte_and_zero_count_aliases(tmp_path,family,alias,override):
     rules = table()

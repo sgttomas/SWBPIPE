@@ -85,13 +85,14 @@ class VF:
         return EPS * self.strb + self.keyb + 8 * self.values() + 24 * self.nums
 
 
-def hash_route(vf, lmax):
+def hash_route(vf, lmax, copy=True):
     """domain_hash (retained_wire.rs:194-197; result_export source_blocks.rs:182-187): the json!
     wrapper's deep copy, the to_string text (J3: <= max(128, 2e)), the checked parse tree with seen
     sets, the canonical output (<= max(8, 2e)), the per-string to_string temporary (RV84 S-3) and
-    the parser's escape scratch, all coexisting at the render (G3 T25 route + S-3)."""
+    the parser's escape scratch, all coexisting at the render (G3 T25 route + S-3). copy=False: a
+    domain_hash that serializes a borrowed wrapper (U6-DH, below) makes no copy; the rest is unchanged."""
     e = vf.text()
-    return (vf.tree() + B(j3cap(e)) + vf.parsed() + HashReq("String", 16) * vf.depth
+    return ((vf.tree() if copy else X()) + B(j3cap(e)) + vf.parsed() + HashReq("String", 16) * vf.depth
             + B(2 * max(24, RID) + 2080 + max(8, 2 * e) + vf.depth * 8 * 16 + 144 + 128)
             + B(max(128, 2 * (EPS * lmax + 2))) + B(2 * lmax))
 
@@ -234,13 +235,22 @@ ENV_GROWTH = s("Value") * DENV
 # and the originals live in serialize_selected_from until it returns, after finish()'s P2-P4
 THIRD = RUN.scale(AA).tree() + SELECTION.scale(AA).tree()   # I82: every case_v json! copy
 MEMBERS = BODY.tree()                                                                 # finish()'s member Values (moved in, then copied by json!)
+# U6-DH (T4-U6, DEL-05-03 Design section 9; retained-pricing-rules.md "U6-DH"): T16's three hashes (source identity,
+# publication, receipt: retained_wire.rs serialize/finish) call retained_wire::domain_hash. Where it serializes the
+# borrowed DomainPayload {domain, payload} (checked: its exact text) instead of json!'s copy of the payload into a new
+# Value, the route makes no wrapper copy; the text and hash are the same. Any other form stops here
+# (u6_owners_model.domain_hash_copies). T17 (the RS reader: result_export source_blocks::domain_hash) still copies
+# (json!); T25 (source_receipt's hash) is U6-SH, in t25_g4.py.
+import u6_owners_model as _u6_model
+_T16_COPY = _u6_model.domain_hash_copies(
+    open(os.path.join(SNAP, "core/product_physics/src/retained_wire.rs"), encoding="utf-8").read())
 st16 = {
     "P1 env to_value + successor deltas + members + source identity hash":
-        ENV_S.tree() + ENV_GROWTH + LOCALS16 + SOURCE.tree() * 2 + hash_route(SOURCE, ID) + PREP_PAYLOAD.tree(),
+        ENV_S.tree() + ENV_GROWTH + LOCALS16 + SOURCE.tree() * 2 + hash_route(SOURCE, ID, _T16_COPY) + PREP_PAYLOAD.tree(),
     "P2 body json! + hash(publication)":
-        ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() + hash_route(ENV_S, L_PUB),
+        ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() + hash_route(ENV_S, L_PUB, _T16_COPY),
     "P3 hash(body)":
-        ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() + hash_route(BODY, L_DIAGID),
+        ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() + hash_route(BODY, L_DIAGID, _T16_COPY),
     "P4 retained_precision insert (third body copy)":
         ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() * 2 + VF(obj=1, ent=2, strb=SHA).tree(),
 }
@@ -306,6 +316,13 @@ if _prescribed_keys.borrowed(SNAP):
     ASSUMED.update({"Node((&str,&str),())": 472, "s(NumericCaseBorrowed)": 168,
                     "s(BTreeSetBorrowed)": 24, "s(PairBorrowed)": 32, "s(NumericCaseResultBorrowed)": 240})
     evv.update(ASSUMED)
+if _u6_model.inspect(SNAP)["all_rows"]:
+    # U6-RS (T4-U6 D3; retained-pricing-rules.md "U6-RS"): NumericCase's tenth field `all_rows` (a Vec header per
+    # numeric case and per Result carrier, beyond NumericCaseBorrowed's nine-field upper) holding every published row
+    # of its case (<= PA over all cases), rows_for's transient full vector (<= P) beside its filtered one, g5c's
+    # drained `bound` classes (<= P) beside the rebuilt classes, and the one `last` class clone (its id and basis_ref).
+    SETS = (SETS + s("&Value") * (PA + P) + s("Vec") * (pushcap(CC) + 2) + Xc("RowClassification", P)
+            + s("RowClassification") + B(RID + 2 * ID + 64) + X({"Node(String,Value)": 1}))
 # G5 part 2 (RV87 N-2): the walkers allocate per object: objects() (retained_precision.rs:1694) pushes a
 # reference per object of a work owner (<= BODY); located() (:1722) pushes (path.clone(), &Map) per object
 # of an attempt (accounting_rules, :1850; ATTEMPT), the path <= 9 segments of <= 32 bytes

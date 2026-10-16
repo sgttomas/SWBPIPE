@@ -236,7 +236,7 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
     assert len(total) == 1 and total[0]["total"] == "cases*N"
     assert re.search(total[0]["loop"], "for row in &rows")
     assert first("for row in &rows")["bound"] == "P"
-    for key in ("formation_guard.rs:315", "formation_guard.rs:320", "self_weight.rs:814"):
+    for key in ("formation_guard.rs:315", "formation_guard.rs:320", "self_weight.rs:869"):
         assert key not in text["site_zero"]
     for key in ("formation_guard.rs:239", "formation_guard.rs:241", "formation_guard.rs:251", "formation_guard.rs:322"):
         assert key in text["site_total"]
@@ -344,17 +344,18 @@ def test_newly_reached_identifier_audits_bind_exact_production_expressions():
     pp = "core/product_physics/src/"
     assert table[pp+"formation_guard.rs:322"]["dof_label(row.dof)"] == {"bytes":600,"source":"COMP"}
     assert table[pp+"formation_guard.rs:327"]["case_id"] == {"bytes":128,"source":"IN128"}
-    assert table[pp+"self_weight.rs:814"] == {
+    # T4-U6/U8 snapshot lines, unchanged text (B7b: self_weight.rs 814; formation_check.rs 495..635 and 895).
+    assert table[pp+"self_weight.rs:869"] == {
         "case.id":{"bytes":128,"source":"IN128"},
         "pipe":{"bytes":128,"source":"IN128"},
         "case.id.len()":{"bytes":20,"source":"NUM"},
         "pipe.len()":{"bytes":20,"source":"NUM"},
     }
     fc = "core/solver/frame_kernel/src/structural/formation_check.rs:"
-    for line in (495,501,511,561,574,581):
+    for line in (508,514,524,574,587,594):
         assert table[fc+str(line)] == {
             "terms[p.term_index].source":{"bytes":128,"source":"IN128"}}
-    for line in (613,623,629,635,895):
+    for line in (626,636,642,648,MODEL["FIRST_RETURN_LINE"]):
         assert table[fc+str(line)] == {
             "term.source":{"bytes":128,"source":"IN128"}}
     # These are literal producer/source edges under the existing raw guards,
@@ -384,7 +385,7 @@ def first_return_fixture():
         site: dict(MODEL["FIRST_RETURN_RULE"], why="SQ2 G5: "+MODEL["FIRST_RETURN_WHY"])}}
     root,parent = MODEL["FIRST_RETURN_ROOT"],MODEL["FIRST_RETURN_PARENT"]
     graph = {"edges": {root: [],parent:[root]}}
-    inventory = [{"file":MODEL["FIRST_RETURN_FILE"],"line":895,"kind":"format","fn":root}]
+    inventory = [{"file":MODEL["FIRST_RETURN_FILE"],"line":MODEL["FIRST_RETURN_LINE"],"kind":"format","fn":root}]
     return table,graph,inventory
 
 
@@ -394,8 +395,8 @@ def test_first_return_preserves_full_evaluate_counts_and_positive_content():
     f=MODEL["FIRST_RETURN_FILE"]
     for full in (672,448,224,672):
         counts={MODEL["FIRST_RETURN_ROOT"]:full}
-        MODEL["first_return_witness"](state,f,895,"format",full*1536,counts)
-        MODEL["first_return_witness"](state,f,895,"format",full,counts,rebound=True)
+        MODEL["first_return_witness"](state,f,MODEL["FIRST_RETURN_LINE"],"format",full*1536,counts)
+        MODEL["first_return_witness"](state,f,MODEL["FIRST_RETURN_LINE"],"format",full,counts,rebound=True)
         assert 2*8334*full in (11200896,7467264,3733632)
     # The actual source-bound returning expression, not a visit cap.
     source=(SOURCE/f).read_text()
@@ -431,7 +432,7 @@ def test_first_return_rule_or_override_drift_refuses(change):
     else:
         family={"zero":"site_zero","total":"site_total","aggregate":"site_aggregate",
                 "size":"site_size","lex_size":"lex_site_size","alias_from":"site_from"}[change]
-        table.setdefault(family,{})[MODEL["FIRST_RETURN_FILE"]+":895:format"]={"bytes":0}
+        table.setdefault(family,{})[MODEL["FIRST_RETURN_FILE"]+":%d:format" % MODEL["FIRST_RETURN_LINE"]]={"bytes":0}
     with pytest.raises(ValueError,match="B7aFK895"):
         MODEL["first_return_state"](SOURCE,table,graph,inventory,[])
 
@@ -457,8 +458,8 @@ def test_first_return_pre_and_post_counts_never_erase_positive_owner(normal,post
     state=MODEL["first_return_state"](SOURCE,table,graph,inventory,[])
     counts={MODEL["FIRST_RETURN_ROOT"]:count}
     with pytest.raises(ValueError,match="KD5C6"):
-        MODEL["first_return_witness"](state,MODEL["FIRST_RETURN_FILE"],895,"format",normal,counts)
-        MODEL["first_return_witness"](state,MODEL["FIRST_RETURN_FILE"],895,"format",post,counts,rebound=True)
+        MODEL["first_return_witness"](state,MODEL["FIRST_RETURN_FILE"],MODEL["FIRST_RETURN_LINE"],"format",normal,counts)
+        MODEL["first_return_witness"](state,MODEL["FIRST_RETURN_FILE"],MODEL["FIRST_RETURN_LINE"],"format",post,counts,rebound=True)
 
 
 def test_shared_illustrative_layouts_exist_in_fresh_process(tmp_path):

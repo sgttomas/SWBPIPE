@@ -59,6 +59,7 @@ BIND = {
     "s(PrimitiveLoadInput)": sz("crate::PreviewPrimitiveLoad"),
     "s(Authored<Vec<ExpansionLawInput>>)": sz("crate::Authored<Vec<crate::ExpansionLawInput>>"),
     "s((String,DerivedSection))": sz("(String, crate::DerivedSection)"), "s((String,ResultItem))": sz("(String, crate::ResultItem)"),
+    "s((String,ExactSectionBases))": sz("(String, crate::pressure_exact::ExactSectionBases)"),   # U6-ES
     "s(StationResultants)": sz("crate::StationResultants"), "s(MemberRecord)": sz("crate::preview_physics::MemberRecord"),
     "s(RecoveryGroup)": sz("crate::formation_guard::RecoveryGroup"),
     "s(FormationRow)": sz("open_pipe_stress_frame_kernel::load_ledger::FormationRow"),

@@ -256,9 +256,19 @@ if fnkey("add_curved_bend_pressure_equivalent_load", PP_ + "lib.rs"):
         ]:
             O10_ID_AUDIT += [(site("append_arc_pressure_results", _BP, _text, full=True, row="format!(" if _text.startswith('"result:') else None), _values)]
     _L = PP_ + "lib.rs"
-    O10_ID_AUDIT += [
-        (site(_CASE_FN, _L, 'last.id = format!("diagnostic:exact-stress:', full=True), {"stable_suffix(&load_case.id)": IN, "stable_suffix(&pipe.element_id)": IN}),
-    ]
+    if fnkey("section_basis_row", _L):
+        # U6-K (D-5): the arc branch's case-qualified id is now formatted once per basis, beside the straight id; both
+        # end in the basis's static hyphen segment (`SectionBasis::hyphen`, <= 15 B). The authored ids keep IN128.
+        O10_ID_AUDIT += [
+            (site(_CASE_FN, _L, 'Some(_) => format!("diagnostic:exact-stress:{}:{}:extrema:{}"', full=True),
+             {"stable_suffix(&load_case.id)": IN, "stable_suffix(&pipe.element_id)": IN, "basis.hyphen()": ST}),
+            (site(_CASE_FN, _L, 'None => format!("diagnostic:exact-stress:{}:extrema:{}"', full=True),
+             {"stable_suffix(&pipe.element_id)": IN, "basis.hyphen()": ST}),
+        ]
+    else:
+        O10_ID_AUDIT += [
+            (site(_CASE_FN, _L, 'last.id = format!("diagnostic:exact-stress:', full=True), {"stable_suffix(&load_case.id)": IN, "stable_suffix(&pipe.element_id)": IN}),
+        ]
     if fnkey("arc_recovery_finding", PP_ + "formation_guard.rs"):
         O10_ID_AUDIT += [(site(_CASE_FN, _L, "project: model.project.id.clone()", full=True), {"model.project.id": IN})]
     if fnkey("arc_recovery_record", _L):
@@ -340,7 +350,14 @@ if fnkey("member_group_fires", PP_ + "formation_guard.rs"):
 # KD5A1: current certified publication's input ids and fixed owned labels.
 _CP = PP_ + "certified_publication.rs"
 if fnkey("member", _CP):
-    O10_ID_AUDIT += [(site("member", _CP, 'let prefix = format!("member:', full=True), {"pipe.element_id.len()": NUM_, "pipe.element_id": IN})]
+    if fnkey("member_prefix", PP_ + "lib.rs"):
+        # U8-MP (T4-U8, PP): certified_publication's member and straight_stress_spans call lib.rs member_prefix, the
+        # one `format!("member:{}:{member}:", member.len())`, also used by frame_member_identities and the pressure
+        # closure identity. Every caller passes a pipe's admitted element id (IN128); its length is NUM.
+        O10_ID_AUDIT += [(site("member_prefix", PP_ + "lib.rs", 'format!("member:{}:{member}:", member.len())', full=True),
+                          {"member": IN, "member.len()": NUM_})]
+    else:
+        O10_ID_AUDIT += [(site("member", _CP, 'let prefix = format!("member:', full=True), {"pipe.element_id.len()": NUM_, "pipe.element_id": IN})]
     for _fn, _text, _values in [
         ("group", "location: location.into()", {"location": ST}),
         ("group", "kind: kind.into()", {"kind": ST}),
@@ -409,11 +426,24 @@ if fnkey("member_group_fires", _FG):
     O10_ID_AUDIT += [(site("summand", _CL, "family: family.into()", full=True), {"family": ST}),
         (site("summand", _CL, "source: source.into()", full=True), {"source": CP}),
         (site(_CASE_FN, PP_ + "lib.rs", "record.certified_support_norms.push", full=True), {"support.id": IN}),
-        # KD5A3 (batch 4 re-key): the pressure closure label moved, unchanged,
-        # from finish_source_groups' map closure into its callee closure_source.
-        (site("closure_source" if fnkey("closure_source", PP_ + "pressure_runtime.rs") else "finish_source_groups",
-              PP_ + "pressure_runtime.rs", ('        format!("{}:{}:{}", term.1, term.2, term.3)' if _PRESSURE_FN == "assemble_pressure_case" else 'format!("{}:{}:{}", term.1, term.2, term.3)'), full=True), {"term.1": IN, "term.2": IN, "term.3": ST}),
     ]
+    _PR = PP_ + "pressure_runtime.rs"
+    if fnkey("member_prefix", PP_ + "lib.rs") and fnkey("closure_source", _PR):
+        # U8-MP (PP): closure_source's label is now per geometry: a straight operand's begins with its member prefix
+        # (lib.rs member_prefix of term.2, a pipe's admitted id: <= "member:" + 3 digits + ":" + 128 + ":" = 140 B)
+        # and the arc label keeps KD5A3's spelling. Both are inside the region path (KD5L10).
+        O10_ID_AUDIT += [
+            (site("closure_source", _PR, 'PressureGeometry::Straight { .. } => format!("{}{}:{}", super::member_prefix(&term.2), term.1, term.3)', full=True),
+             {"super::member_prefix(&term.2)": {"bytes": 140, "source": "O10: U8-MP member prefix of an admitted pipe id"}, "term.1": IN, "term.3": ST}),
+            (site("closure_source", _PR, '_ => format!("{}:{}:{}", term.1, term.2, term.3),', full=True), {"term.1": IN, "term.2": IN, "term.3": ST}),
+        ]
+    else:
+        O10_ID_AUDIT += [
+            # KD5A3 (batch 4 re-key): the pressure closure label moved, unchanged,
+            # from finish_source_groups' map closure into its callee closure_source.
+            (site("closure_source" if fnkey("closure_source", _PR) else "finish_source_groups",
+                  _PR, ('        format!("{}:{}:{}", term.1, term.2, term.3)' if _PRESSURE_FN == "assemble_pressure_case" else 'format!("{}:{}:{}", term.1, term.2, term.3)'), full=True), {"term.1": IN, "term.2": IN, "term.3": ST}),
+        ]
     if _PRESSURE_FN == "assemble_pressure_case":
         O10_ID_AUDIT += [(site("closure_source", PP_ + "pressure_runtime.rs", 'return (format!("{}:{}:{}", term.1, term.2, term.3)', full=True), {"term.1": IN, "term.2": IN, "term.3": ST})]
     _LL = FK_ + "load_ledger.rs"
@@ -484,11 +514,14 @@ if fnkey("member_group_fires", _FG):
         # the cache (no new allocation, error or detail call); `load_closure`
         # gained the two friction formulas in the existing nodal binding arm
         # (inventory still 15). `detail` is byte-identical.
+        # T4-U8 (FK): `evaluate` adds one `straight_frames_bound(source)?;` after `load_closure(..)?`. Its only
+        # allocation is one returned Failure::Closure (U8-FB), which `detail` formats in its existing Closure arm;
+        # the per-invocation caps below are unchanged (retained-pricing-rules.md, "T4-U6/U8: actual-source D3").
         _invocation_pins = {
             "detail": "ae006b02fed244b2e77686378bdb17b87c442a1d4873add6f4b2129d3be1bc0f",
             "check": "d22bba23d1f09025f3ec267d9ea30b8aaa748e6294b5b34d0e4ea7f1f2616ef7",
             "check_at": "29c96900380beb699a6040a67ec13d7b665944cf47fb02d26b1b64d8de4251e4",
-            "evaluate": "89c4ab5160fad0545ea1311a358f416b57aadfd8f04e35c022b6f850dc68741b",
+            "evaluate": "a422166f88cfa91bb6d5596111fc42f7d5df1757ad76890e40b30d4765d678d1",
             "load_closure": "6bfe5799af60c5d13745d67a5828fe1d07b2b295dd51fd60be8371196ac8fb9b",
         }
         _detail_from = "check_at"
@@ -605,9 +638,10 @@ if fnkey("append_stress_mpa", _CP):
         (site("append_stress_mpa", _CP, "let sign_convention=", full=True), {"label": ST,
             'iftail=="torsional-shear"{"torsionalshear"}elseiftail=="axial-normal"{"normal"}else{"bendingnormal"}': ST,
             "sign": {"bytes": _fixed["sign_bytes"], "source": "KD5A7: measured fixed sign constants consumed by pinned case caller"}}),
-        (site("straight_stress_spans", _CP, 'format!("member:', full=True), {"pipe.element_id": IN, "pipe.element_id.len()": NUM_}),
         (site("recovery_finding", _FG, '"{}.{}.{}: member comparison unavailable', full=True, row="format!("), {"record.member": IN}),
     ]
+    if not fnkey("member_prefix", PP_ + "lib.rs"):   # U8-MP: on PP source the prefix is lib.rs member_prefix's
+        O10_ID_AUDIT += [(site("straight_stress_spans", _CP, 'format!("member:', full=True), {"pipe.element_id": IN, "pipe.element_id.len()": NUM_})]
     O10_ARGS_FIRST += [{"re": "^located$", "max": 128, "why": "KD5A7: endpoint/station location rewrites preserve caller's fixed≤128-B token"}]
 
 # KD5A8: the withheld certified-summary warning's three authored-id copies
@@ -895,7 +929,14 @@ if fnkey("derive_pipe_section", PP_ + "lib.rs") and fnkey("normalize_model_units
                    if '&format!("diagnostic:section:{}:corrosion-allowance", stable_suffix(pipe_id)),' in _dps[i]]
         _ca_refs = [i + 1 for i in range(_dps_start - 1, _dps_end - 1)
                     if 'vec![pipe_id.to_string(), "corrosion_allowance".to_string()],' in _dps[i]]
-        if len(_ca_fmt) != 2 or len(_ca_refs) != 2:
+        # U6-DPS (T4-U6, D-5): D-5 admits a nonzero allowance, so derive_pipe_section's nonzero refusal
+        # (EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED) is gone and one corrosion-allowance diagnostic (the
+        # invalid-value refusal) remains, with the same ID, refs and IN128 classes. Only D-5 source may drop it.
+        _ca_refused = any("EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED" in _l for _l in _dps[_dps_start - 1:_dps_end - 1])
+        if not _ca_refused and not fnkey("section_basis_row", _LIB):
+            raise SystemExit("U6-DPS: derive_pipe_section lost its nonzero-allowance refusal without D-5's section bases; re-review")
+        _ca_count = 2 if _ca_refused else 1
+        if len(_ca_fmt) != _ca_count or len(_ca_refs) != _ca_count:
             raise SystemExit(f"B7b-CA: derive_pipe_section's corrosion-allowance diagnostics changed; re-review: {_ca_fmt} {_ca_refs}")
         O10_ID_AUDIT = O10_ID_AUDIT + [(Resolved(f"{_LIB}:{_n}"), {"stable_suffix(pipe_id)": IN}) for _n in _ca_fmt] \
             + [(Resolved(f"{_LIB}:{_n}"), {"pipe_id": IN}) for _n in _ca_refs]
@@ -927,14 +968,19 @@ if fnkey("derive_pipe_section", PP_ + "lib.rs") and fnkey("normalize_model_units
             if not _dps_body[_j].rstrip().endswith(");") or _next != "return None;":
                 raise SystemExit(f"B7b-DPS: a derive_pipe_section diagnostic is not followed by `return None;`: line {_dps_start + _i}")
             _dps_sites.append(_dps_start + _i)
-        if len(_dps_sites) != 4:
+        # U6-DPS: the same checked premise (a)-(c) holds on D-5 source, whose body keeps three of B7b's four sites
+        # (section dimensions, mill tolerance, corrosion allowance invalid); the group is still one diagnostic per call.
+        if len(_dps_sites) != (4 if _ca_refused else 3):
             raise SystemExit(f"B7b-DPS: derive_pipe_section's diagnostic inventory changed; re-review: {_dps_sites}")
         # Snapshot keys (Resolved): the decision-key carry leaves them as written.
         O10_DIAG_EXCLUSIVE = list(globals().get("O10_DIAG_EXCLUSIVE", [])) + [(
             "B7b-DPS", Resolved(f"lib.rs:{_dps_start}:derive_pipe_section"),
             [Resolved(f"lib.rs:{_n}") for _n in _dps_sites],
-            "B7b-DPS: derive_pipe_section's four diagnostics (section dimensions, mill tolerance, corrosion allowance "
-            "invalid, corrosion allowance nonzero) are each a `diagnostics.push(diag(..));` immediately followed by "
+            ("B7b-DPS: derive_pipe_section's four diagnostics (section dimensions, mill tolerance, corrosion allowance "
+             "invalid, corrosion allowance nonzero) are each" if _ca_refused else
+             "U6-DPS (B7b-DPS on D-5 source): derive_pipe_section's three diagnostics (section dimensions, mill "
+             "tolerance, corrosion allowance invalid) are each")
+            + " a `diagnostics.push(diag(..));` immediately followed by "
             "`return None;`, and `diagnostics` is used nowhere else in the body: at most one per call")]
 
 # B7b-ZA (ccb19ba0bf): retained_precision's namespace predicates (exact_namespace, preview_namespace) call
@@ -963,3 +1009,434 @@ if fnkey("pressure_finding", PP_ + "joint.rs") and fnkey("classify_pressure_part
         O10_MULT0_SITES = list(globals().get("O10_MULT0_SITES", [])) + [
             (site("pressure_finding", PP_ + "joint.rs", "diagnostics.push(diag("),
              O10 + "B7b-JR: pressure_finding (<= 4 refs, capacity <= 6) has multiplicity 0 by D1.5 and P2 (D1.4)")]
+
+
+# ---- T4-U6/U8 (DEL-05-03 Design section-bases-and-timoshenko.md §9; retained-pricing-rules.md, "T4-U6/U8: actual-source
+# D3"). Each rule is added only where its source exists.
+def fn_lines(name, f):
+    """(lines, start, end) of the one `fn name` in file f: 1-based start, exclusive end (the next fn at the same or
+    lower indent), as site() reads it."""
+    k = fnkey(name, f)
+    if not k:
+        raise SystemExit(f"T4-U6: fn {name} is not unique in {f}")
+    lines = open(_os.path.join(_SNAP, f), encoding="utf-8").read().split("\n")
+    start = int(k.split(":")[1]); ind = len(lines[start - 1]) - len(lines[start - 1].lstrip())
+    end = next((i + 1 for i in range(start, len(lines)) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?(const\s+)?fn\s", lines[i])
+                and len(lines[i]) - len(lines[i].lstrip()) <= ind), len(lines) + 1)
+    return lines, start, end
+
+
+def site_is(name, f, text, nth=1, count=1):
+    """The nth (1-based) of exactly `count` lines of fn `name` in file f whose stripped text is exactly `text`."""
+    lines, start, end = fn_lines(name, f)
+    hits = [i + 1 for i in range(start - 1, end - 1) if lines[i].strip() == text]
+    if len(hits) != count:
+        raise SystemExit(f"T4-U6 site_is(): {text!r} in {f}:{name}: {hits} (expected {count})")
+    return Resolved(f"{f}:{hits[nth - 1]}")
+
+
+def site_after(name, f, anchor, text, within=12):
+    """The first line holding `text` within `within` lines after the one line of fn `name` holding `anchor`."""
+    lines, start, end = fn_lines(name, f)
+    a = [i + 1 for i in range(start - 1, end - 1) if anchor in lines[i]]
+    if len(a) != 1:
+        raise SystemExit(f"T4-U6 site_after(): anchor {anchor!r} in {f}:{name}: {a}")
+    hits = [i + 1 for i in range(a[0], min(a[0] + within, end - 1)) if text in lines[i]]
+    if not hits:
+        raise SystemExit(f"T4-U6 site_after(): {text!r} after {anchor!r} in {f}:{name}")
+    return Resolved(f"{f}:{hits[0]}")
+
+
+_LIB = PP_ + "lib.rs"
+_D5 = bool(fnkey("section_basis_row", _LIB) and fnkey("push_basis_twins", _LIB))
+# U6-K: the eight basis audit keys whose lines D-5 replaced inside the case solve (lib.rs 5387, 5403, 5412, 5497,
+# 5498, 5503, 5529, 5536 at 2243be380b: the two stress-finding diagnostic loops, now one loop over the stress sites,
+# once per basis; the retained-source and exact maximum rows, now one per basis through section_basis_row) leave
+# base/text_args.g4.json. On earlier source they are re-added here by name with their basis classes (the registered
+# trees reproduce); on D-5 source the replacement sites take the same classes. A row id that section_basis_row has
+# extended by ':' and the basis token (<= 15 B) is TPLSITE 322 + 16 = 338.
+_STRESS_DIAG = {"location.replace('_',\"-\")": {"bytes": 600, "source": "STATIC"}, "stable_suffix(&pipe.element_id)": IN}
+_MAX_ID = {"load_case.id": IN, "load_case.id.len()": NUM_, "pipe.element_id": IN, "pipe.element_id.len()": NUM_}
+_RID = {"bytes": 322, "source": "TPLSITE"}
+_RID_D5 = {"bytes": 338, "source": "TPLSITE"}
+if fnkey(_CASE_FN, _LIB) and not _D5:
+    O10_ID_AUDIT += [
+        (site_after(_CASE_FN, _LIB, 'for (location, stress) in [("end_i", &end_i_stress), ("end_j", &end_j_stress)] {', "&format!("), _STRESS_DIAG),
+        (site_after(_CASE_FN, _LIB, "for (location, stress) in &station_stresses {", "&format!("), _STRESS_DIAG),
+        (site_after(_CASE_FN, _LIB, "for (location, stress) in &station_stresses {", "vec![pipe.element_id.clone()],"), {"pipe.element_id": IN}),
+        (site(_CASE_FN, _LIB, 'let result_id = format!("result:elastic-maximum:{}:{}:{}:{}", load_case.id.len(), load_case.id, pipe.element_id.len(), pipe.element_id);', full=True), _MAX_ID),
+        (site(_CASE_FN, _LIB, 'results.push(ResultItem { id: result_id.clone(), kind: "pipe_elastic_normal_stress_maximum_v2".into()', full=True), {"pipe.element_id": IN, "result_id": _RID}),
+        (site(_CASE_FN, _LIB, 'max_stress = Some(LocatedQuantity { value, unit: "Pa".into(), location_ref: pipe.element_id.clone(), result_ref: result_id.clone() });', full=True), {"pipe.element_id": IN, "result_id": _RID}),
+        (site_is(_CASE_FN, _LIB, "let result_id = format!("), _MAX_ID),
+        (site(_CASE_FN, _LIB, 'results.push(ResultItem { id:result_id.clone(),kind:"pipe_elastic_normal_stress_maximum_v2".to_string()', full=True), {"pipe.element_id": IN, "result_id": _RID}),
+    ]
+U6_D5 = _D5
+O10_LOOPS_FIRST, U6_BOTH_E, U6_BOTH_L, U6_LOOPS_E, U6_LOOPS_L = [], [], [], [], []
+
+
+def _text_of(f):
+    return open(_os.path.join(_SNAP, f), encoding="utf-8").read()
+
+
+def _production(f):
+    return _text_of(f).split("#[cfg(test)]", 1)[0]
+
+
+def _fn_text(name, f):
+    lines, start, end = fn_lines(name, f)
+    return "\n".join(lines[start - 1:end - 1])
+
+
+def _literals(text):
+    """The raw bytes of each string literal in `text` (a raw literal's length bounds its decoded one)."""
+    return [len(l.encode()) for l in _re.findall(r'"((?:[^"\\]|\\.)*)"', text)]
+
+
+def _const_len(f, decl):
+    """The declared length N of the one `decl: [T; N]` in file f."""
+    src = _text_of(f)
+    m = _re.findall(_re.escape(decl) + r":\s*\[[^;\]]+;\s*(\d+)\]", src)
+    if len(m) != 1:
+        raise SystemExit(f"U6-L: {decl} is not one array constant in {f}: {m}")
+    return int(m[0])
+
+
+def _calls_with_literal_last_arg(src, callee):
+    """The last argument of every call `callee(..)` in src (not its definition); each must be one string literal."""
+    out = []
+    for m in _re.finditer(r"(?<![\w.:])" + _re.escape(callee) + r"\(", src):
+        if src[max(0, m.start() - 3):m.start()] == "fn ":
+            continue
+        i, depth, args, cur = m.end(), 1, [], ""
+        while depth:
+            ch = src[i]
+            if ch == '"':
+                j = i + 1
+                while src[j] != '"':
+                    j += 2 if src[j] == "\\" else 1
+                cur += src[i:j + 1]; i = j + 1; continue
+            depth += ch in "([{"; depth -= ch in ")]}"
+            if ch == "," and depth == 1:
+                args.append(cur); cur = ""
+            elif depth:
+                cur += ch
+            i += 1
+        args = [a.strip() for a in args + [cur] if a.strip()]
+        lits = _literals(args[-1])
+        if not _re.fullmatch(r'"(?:[^"\\]|\\.)*"', args[-1]) or len(lits) != 1:
+            raise SystemExit(f"U6-A: a {callee}() call's last argument is not one string literal: {args[-1][:80]!r}")
+        out.append(lits[0])
+    return out
+
+
+if _D5:
+    # ---- U6-L (T4-U6, D-5): the loops D-5 adds or re-shapes. Each bound is read from the code it names; the
+    # constants' declared lengths are checked here, and o10_check.py confines each header to the functions listed.
+    _GEOM = PP_ + "pressure_exact/source_geometry.rs"
+    _SBR = RE_ + "section_basis.rs"
+    _PEV = RE_ + "physics_evidence.rs"
+    _RPX = RE_ + "retained_precision.rs"
+    _RPP = PP_ + "retained_product.rs"
+    _COMP = PP_ + "source_receipt/composite.rs"
+    _ROWS = PP_ + "source_receipt/rows.rs"
+    _CPUB = PP_ + "certified_publication.rs"
+    _FC = FK_ + "structural/formation_check.rs"
+    _CR = FK_ + "structural/certified_recovery.rs"
+    if (_const_len(_GEOM, "pub(crate) const BOTH"), _const_len(_SBR, "pub const BASES"), _const_len(_SBR, "pub const ANNULUS_KEYS"),
+            _const_len(_RPP, "const PREPARED_SECTION_BASES")) != (2, 2, 6, 2):
+        raise SystemExit("U6-L: a section-basis constant's length changed; re-review")
+    # U6-L1: stress_sites is a vec! of the two ends plus one push per station of station_stresses (<= 3: KD5L7's
+    # bound on `for (index, (location, stress)) in station_stresses.iter().enumerate()`); `bases` is a vec! of one
+    # entry (no reduced stress: the preview route) or two (nominal, reduced).
+    _cs, _cs0, _cs1 = fn_lines(_CASE_FN, _LIB)
+    _cs_body = [l.strip() for l in _cs[_cs0 - 1:_cs1 - 1]]
+    _i = _cs_body.index("let mut stress_sites = vec![")
+    if not (_cs_body[_i + 1].startswith('("end_i", 0usize, true, &end_i_stress,') and _cs_body[_i + 2].startswith('("end_j", 4, true, &end_j_stress,')
+            and _cs_body[_i + 3] == "];" and _cs_body[_i + 4] == "for (index, (location, stress)) in station_stresses.iter().enumerate() {"
+            and _cs_body[_i + 5].startswith("stress_sites.push((*location, index + 1, false, stress,") and _cs_body[_i + 6] == "}"
+            and sum("stress_sites.push(" in l for l in _cs_body) == 1):
+        raise SystemExit("U6-L1: the case solve's stress_sites changed; re-review")
+    _i = _cs_body.index("let bases = match reduced {")
+    if not (_cs_body[_i + 1] == "None => vec![(stress, None)],"
+            and _cs_body[_i + 2] == "Some(reduced) => vec![(stress, Some(pressure_exact::SectionBasis::Nominal)), (reduced, Some(pressure_exact::SectionBasis::Reduced))],"):
+        raise SystemExit("U6-L1: the stress-finding bases changed; re-review")
+    # U6-L2: push_basis_twins zips the rows one `push` call made on each basis (checked equal in length). Its two
+    # callers' closures append one stress site's rows through exactly one helper, each <= 4 rows: certified
+    # append_stress_mpa pushes once per entry of its 4-tuple array; append_endpoint_stress_results and
+    # append_station_stress_results push at most once per entry of their 4-tuple local_components.
+    _pbt = _fn_text("push_basis_twins", _LIB)
+    if not (_pbt.count("push(&mut nominal, SectionBasis::Nominal)?;") == 1 and _pbt.count("push(&mut reduced, SectionBasis::Reduced)?;") == 1
+            and "let twins = nominal.len() == reduced.len()" in _pbt):
+        raise SystemExit("U6-L2: push_basis_twins changed; re-review")
+    _pbt_calls = sum(_text_of(PP_ + _f).count("push_basis_twins(") for _f in ("lib.rs", "source_receipt/rows.rs"))
+    if _pbt_calls != 2 or _text_of(_ROWS).count("push_basis_twins(") != 1 or _text_of(_LIB).count("fn push_basis_twins<E>(") != 1:
+        raise SystemExit("U6-L2: push_basis_twins's callers changed; re-review")
+    for _h, _f, _push in (("append_stress_mpa", _CPUB, "results.push(ResultItem {"),
+                          ("append_endpoint_stress_results", _LIB, "append_endpoint_stress_result("),
+                          ("append_station_stress_results", _LIB, "append_station_stress_result(")):
+        _ht = _fn_text(_h, _f)
+        if len(_re.findall(r'"element_local_[a-z_]+_stress(?:_[yz])?"', _ht)) != 4 or _ht.count(_push) != 1:
+            raise SystemExit(f"U6-L2: {_h} no longer appends <= 4 rows; re-review")
+    # U6-L3: case_observables' headlines: the displacement headline plus one stress headline per entry of
+    # stress_bases, a slice literal of one (preview) or two (exact) entries.
+    _co = _fn_text("case_observables", _RPP)
+    if not ("&[Some(pressure_exact::SectionBasis::Nominal), Some(pressure_exact::SectionBasis::Reduced)]" in _co
+            and "&[None]" in _co and "let headlines = std::iter::once((view.headline(false,None)" in _co
+            and ".chain(stress_bases.iter().map(" in _co):
+        raise SystemExit("U6-L3: case_observables' headlines changed; re-review")
+    # U6-L4: section_basis::coverage returns [(Vec<&str>, bool); 2]; physics_evidence zips that array.
+    if "pub fn coverage(v: &Value) -> Result<[(Vec<&str>, bool); 2], String>" not in _text_of(_SBR):
+        raise SystemExit("U6-L4: section_basis::coverage's array changed; re-review")
+    # U6-L5: the rows of one case or combination entry, reduced twins included (retained_precision rows_all_for:
+    # list(results) filtered by the entry's basis_ref), are one block of the route's P rows, as rows_for's were
+    # (`for row in rows_for(source, c)` and `.. e` bound P); D-5's twins are inside P (row premise, U6-RP).
+    if "list(&source[\"results\"])\n        .iter()\n        .filter(|r| r[\"basis_ref\"] == case[\"basis_ref\"])\n        .collect()" not in _fn_text("rows_all_for", _RPX) \
+            or "rows_all_for(source, case).into_iter().filter(|r| !reduced_twin(r)).collect()" not in _fn_text("rows_for", _RPX) \
+            or "all_rows: rows_all_for(source, c)," not in _fn_text("numeric_owner", _RPX) \
+            or "let all = rows_all_for(source, c.case);" not in _fn_text("g5b_exact_evidence", _RPX):
+        raise SystemExit("U6-L5: a case's row lists changed; re-review")
+    # U6-L6: one B7a formed term carries one supplied primitive (attach_last); certified_loads::attach with more
+    # than one source runs only in push_exact_pressure_operands, over exact.assembled_operands (empty on D1:
+    # route E's LOOP_ZERO_RESTATE `exact\.assembled_operands`; no exact case on route L). The formed force's
+    # terms and the formation source's loads are <= q = 12*l (B7a, b7a_formation_model.lengths).
+    _lib_lines = _text_of(_LIB).split("\n")
+    _attach_owners = []
+    for _n, _l in enumerate(_lib_lines):
+        if "certified_loads::attach(" in _l:
+            _o = next(j for j in range(_n, -1, -1) if _re.match(r"\s*(pub(\([a-z]+\))?\s+)?fn\s", _lib_lines[j]))
+            _attach_owners.append("test" if _lib_lines[_o - 1].strip() == "#[test]" else _re.search(r"fn\s+(\w+)", _lib_lines[_o]).group(1))
+    if _text_of(PP_ + "certified_loads.rs").count("attach(ledger, ledger.term_count() - 1, vec![source]);") != 1 \
+            or sorted(set(_attach_owners) - {"test"}) != ["push_exact_pressure_operands"] or _attach_owners.count("push_exact_pressure_operands") != 1 \
+            or "certified_loads::attach(ledger, ledger.term_count() - 1, expected_sources);" not in _fn_text("push_exact_pressure_operands", _LIB):
+        raise SystemExit("U6-L6: the formed-term primitive attach changed; re-review")
+    O10_LOOPS_LAST += [
+        ("for &(location, _, _, stress, reduced) in &stress_sites", "5", O10 + "U6-L1: the two ends plus <= 3 stations", ["lib.rs:" + _CASE_FN]),
+        ("for &(location, index, endpoint, stress, reduced) in &stress_sites", "5", O10 + "U6-L1: the two ends plus <= 3 stations", ["lib.rs:" + _CASE_FN]),
+        ("for (n, r) in nominal.into_iter().zip(reduced)", "4", O10 + "U6-L2: one stress site's rows on one basis, <= 4", ["lib.rs:push_basis_twins"]),
+        ("for (headline, kind, basis) in headlines", "3", O10 + "U6-L3: the displacement headline and <= 2 stress headlines", ["retained_product.rs:case_observables"]),
+        ("for basis in PREPARED_SECTION_BASES", "2", O10 + "U6-L: PREPARED_SECTION_BASES is [&str; 2]",
+         ["retained_product.rs:prepared_sections", "retained_product.rs:apply_exact_section_overlay"]),
+        ("for (i,(r,bound)) in rows.iter().zip(bound_row_indices(route,rows)).enumerate()", "P",
+         O10 + "U6-L5: prepared_alias's rows are the frozen case's own rows (its scope's block, <= P), as before D-5", ["retained_product.rs:prepared_alias"]),
+        ("for (slot, key) in leaves.iter_mut().zip(ANNULUS_KEYS)", "6", O10 + "U6-L: ANNULUS_KEYS is [&str; 6]", ["section_basis.rs:annulus"]),
+        ("for ((entry, basis), slot) in entries.iter().zip(BASES).zip(out.iter_mut())", "2", O10 + "U6-L: BASES is [&str; 2]", ["section_basis.rs:coverage"]),
+        ("iter:BASES .into_iter().find", "2", O10 + "U6-L: BASES is [&str; 2]", ["section_basis.rs:id_basis"]),
+        ("for b in BASES", "2", O10 + "U6-L: BASES is [&str; 2]", ["section_basis.rs:twin_id"]),
+        ('iter:summary.get(" ").is_some_and(Value::is_null) && BASES.iter().all', "2", O10 + "U6-L: BASES is [&str; 2]", ["section_basis.rs:headlines"]),
+        ("for (basis, complete) in BASES.into_iter().zip(complete)", "2", O10 + "U6-L: BASES is [&str; 2]", ["section_basis.rs:headlines"]),
+        ("for basis in crate::section_basis::BASES", "2", O10 + "U6-L: BASES is [&str; 2]", ["physics_source.rs:maximum_link"]),
+        ("for (slot, ((unavailable, complete), done)) in coverage .iter() .zip(coverage_complete.iter_mut()) .enumerate()", "2",
+         O10 + "U6-L4: section_basis::coverage returns a [_; 2]", ["physics_evidence.rs:validate_physics_evidence_in"]),
+        ("for ((case, member, _, basis), values) in &lame", "Pall",
+         O10 + "U6-L: lame holds at most one entry per Lame row of the validated results, <= Pall", ["physics_evidence.rs:validate_physics_evidence_in"]),
+        ("for e in combos", "z", O10 + "U6-L: g3's body.combinations, one entry per model combination. D1.4 (B2-A): z <= 2", ["retained_precision.rs:g3"]),
+        ("iter:rows_all_for(source, case).into_iter().filter", "P", O10 + "U6-L5: one entry's rows, <= P", ["retained_precision.rs:rows_for"]),
+        ("for row in &c.all_rows", "P", O10 + "U6-L5: one selected case's rows, twins included, <= P", ["retained_precision.rs:g5c"]),
+        ("for (i, row) in all.iter().enumerate()", "P", O10 + "U6-L5: one selected case's rows, twins included, <= P", ["retained_precision.rs:g5b_exact_evidence"]),
+        ("for row in rows_all_for(source, c)", "P", O10 + "U6-L5: one case's rows, twins included, <= P", ["retained_precision.rs:gates_after_g0"]),
+        ("for row in rows_all_for(source, e)", "P", O10 + "U6-L5: one combination's rows, twins included, <= P",
+         ["retained_precision.rs:r_comb_1", "retained_precision.rs:gates_after_g0"]),
+        ('iter:list(&model[" "]).iter().any', "m", O10 + "U6-L: exact_mill_tolerances visits each captured pipe segment once (D1.9: pipes <= m)",
+         ["retained_precision.rs:exact_mill_tolerances"]),
+        ("iter:source .loads .iter().find", "12*l", O10 + "U6-L6: the formation source's load primitives, <= q = 12*l (B7a)",
+         ["structural/formation_check.rs:unbound_straight_primitive"]),
+        ("for (index, term) in force .terms() .iter() .enumerate() .filter(|(_, term)| term.dof == dof)", "12*l",
+         O10 + "U6-L6: the formed force's terms, <= q = 12*l (B7a)", ["structural/certified_recovery.rs:certify_support_reaction"]),
+        ("for primitive in source.loads.iter().filter(|p| p.term_index == index)", "1",
+         O10 + "U6-L6: the one supplied primitive of a formed term (B7a body1); the scan's predicate allocates nothing",
+         ["structural/certified_recovery.rs:certify_support_reaction"]),
+    ]
+    # U6-LF (placed first): three D-5 headers name pressure_exact::SectionBasis::BOTH, so D1.5's region zero rule
+    # (`pressure|region|aggregates`, which matches `pressure`) would capture them; they are not region loops. BOTH is
+    # [SectionBasis; 2]. Route E iterates both bases. On route L each of the case solve's three BOTH loops sits
+    # (checked) in an `is_exact(model)` arm (the two maxima) or in `if let Some(state) = exact_pressure ..
+    # .pipe_states.get(..)` (the wall action), and route L's model has no exact contract (D1.3 branch L): is_exact
+    # is false and build_pressure_case_with_members returns no exact case.
+    def _openers(lines, i):
+        """The block openers enclosing line i, innermost first (by indentation)."""
+        ind, out, j = len(lines[i]) - len(lines[i].lstrip()), [], i - 1
+        while j >= 0:
+            l = lines[j]
+            if l.strip() and len(l) - len(l.lstrip()) < ind:
+                ind = len(l) - len(l.lstrip())
+                if l.strip() == "{":   # a header broken over lines: its first line is the one above at this indent
+                    j = next(k for k in range(j - 1, -1, -1) if lines[k].strip() and len(lines[k]) - len(lines[k].lstrip()) == ind)
+                    l = lines[j]
+                out.append(l.strip())
+                if ind == 0:
+                    break
+            j -= 1
+        return out
+    _both = [i for i, l in enumerate(_cs_body) if l == "for basis in pressure_exact::SectionBasis::BOTH {"]
+    for _ln in _both:
+        if not any(_re.match(r"\} else if pressure_runtime::is_exact\(model\)( && selected_source\.is_some\(\))? \{$", o)
+                   or o == "if let Some(state) = exact_pressure" for o in _openers(_cs, _cs0 - 1 + _ln)):
+            raise SystemExit(f"U6-LF: a case-solve BOTH loop is not exact-only; re-review: line {_cs0 + _ln}")
+    if len(_both) != 3:
+        raise SystemExit("U6-LF: the case solve's BOTH loops changed; re-review")
+    O10_LOOPS_FIRST += [
+        ("for (record, basis) in coverage.iter().zip(pressure_exact::SectionBasis::BOTH)", "2",
+         O10 + "U6-LF: zipped with BOTH ([SectionBasis; 2])", ["retained_product.rs:exact_case_evidence"]),
+        ("for (pipe, basis) in model .pipe_segments .iter() .flat_map(|pipe| pressure_exact::SectionBasis::BOTH.map(|basis| (pipe, basis)))", "2*m",
+         O10 + "U6-LF: each pipe segment (<= m) on both bases", ["source_receipt/composite.rs:validate_physics_rows"]),
+    ]
+    # U6-L1 (route-specific): the stress-finding `bases` has two entries only when the member has a reduced
+    # stress, i.e. a reduced section: exact_basis_section of built.exact_sections, which build_model_for_members fills
+    # only under `if pressure_runtime::is_exact(model)` (checked). Route L has no exact contract: one entry.
+    _bm = _fn_text("build_model_for_members", _LIB)
+    if _bm.count("exact_sections.insert(") != 2 or "        if pressure_runtime::is_exact(model) {" not in _bm \
+            or "let reduced_section = exact_bases.map(|bases| exact_basis_section(bases, pressure_exact::SectionBasis::Reduced));" not in _cs_body \
+            or "let exact_bases = built.exact_sections.get(&pipe.element_id).copied();" not in _cs_body \
+            or "let reduced_stresses = match &reduced_section {" not in _cs_body:
+        raise SystemExit("U6-L1: the reduced section's exact-only source changed; re-review")
+    U6_LOOPS_E = [("for (stress, basis) in bases", "2", O10 + "U6-L1 (route E): one entry per section basis", ["lib.rs:" + _CASE_FN])]
+    U6_LOOPS_L = [("for (stress, basis) in bases", "1", O10 + "U6-L1 (route L): no reduced section without an exact contract", ["lib.rs:" + _CASE_FN])]
+    U6_BOTH_E = [("for basis in pressure_exact::SectionBasis::BOTH", "2", O10 + "U6-LF (route E): BOTH is [SectionBasis; 2]",
+                  ["lib.rs:" + _CASE_FN, "source_receipt/composite.rs:composite_exact"])]
+    U6_BOTH_L = [("for basis in pressure_exact::SectionBasis::BOTH", "0",
+                  O10 + "U6-LF (route L): both case-solve loops are in `is_exact(model)` arms (checked); route L has no exact contract",
+                  ["lib.rs:" + _CASE_FN])]
+
+    # ---- U6-A (T4-U6/U8): the identifier-bearing and unclassified arguments of the D-5/D-6 sites, by site. Static
+    # segments are bounded by their longest literal, read at the snapshot.
+    def _const_lit(f, name):
+        m = _re.findall(r"pub const " + name + r": &str = \"((?:[^\"\\]|\\.)*)\";", _text_of(f))
+        if len(m) != 1:
+            raise SystemExit(f"U6-A: {name} is not one &str const in {f}")
+        return len(m[0].encode())
+    def _st(n, why):
+        return {"bytes": n, "source": O10 + "U6-A: " + why}
+    _SEG = max(_literals(_fn_text("hyphen", _GEOM)) + _literals(_fn_text("token", _GEOM)))
+    _SUFFIX = max(_literals(_fn_text("basis_suffix", _GEOM)))
+    _B = max(_const_lit(_SBR, "NOMINAL"), _const_lit(_SBR, "REDUCED"))
+    _H = max(_literals(_fn_text("hyphenated", _SBR)))
+    _SEP = _const_lit(_SBR, "TOKEN_SEPARATOR")
+    if "fn other(basis: &str) -> &'static str {\n    if basis == NOMINAL {\n        REDUCED\n    } else {\n        NOMINAL\n    }" not in _text_of(_SBR):
+        raise SystemExit("U6-A: section_basis::other changed; re-review")
+    _SEGA = _st(_SEG, "SectionBasis::hyphen/token, the longest literal")
+    # The case solve's stress-finding id (lib.rs `let id = format!(`): 18 literal bytes, the IN128 pipe suffix, the
+    # historic STATIC 600 location class, two separators and finding.code's Debug (<= 64, its argument rule).
+    _DIAG_ID = 18 + 128 + 600 + 2 + 64
+    _OC = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "b7a_owner_choices.py"))
+    _EXPECTED = max(_OC["BOUNDS"].values())
+    _ea = _text_of(PP_ + "exact_admission.rs")
+    def _j4b(start, count):
+        i = _ea.index(start); j = _ea.index("\n    };", i)
+        lits = _literals(_ea[i:j])
+        if len(lits) != count or _ea.count(start) != 1:
+            raise SystemExit(f"U6-J4: {start!r} no longer selects exactly {count} literals; re-review")
+        return max(lits)
+    _sh = _production(FK_ + "shear.rs")
+    _sh_finite = [m for m in _re.findall(r"(?<![\w.])finite\(\"((?:[^\"\\]|\\.)*)\",", _sh)]
+    _sh_range = _re.findall(r"NumericalRange \{\s*name: \"((?:[^\"\\]|\\.)*)\",?\s*\}", _sh)
+    if len(_re.findall(r"(?<![\w.])finite\(", _sh)) != len(_sh_finite) + 1 or len(_re.findall(r"NumericalRange \{", _sh)) != len(_sh_range) + 2:
+        raise SystemExit("U6-A: shear.rs's &'static str names are not all literals; re-review")
+    _SHN = max(len(n.encode()) for n in _sh_finite + _sh_range)
+    _spl = _production("core/solver/straight_pipe/src/lib.rs")
+    _sp_names = _re.findall(r"UnsupportedLoadForBeamTheory \{\s*name: \"((?:[^\"\\]|\\.)*)\",?\s*\}", _spl)
+    if len(_re.findall(r"UnsupportedLoadForBeamTheory \{", _spl)) != len(_sp_names) + 2 or not _sp_names:
+        raise SystemExit("U6-A: straight_pipe's UnsupportedLoadForBeamTheory names are not all literals; re-review")
+    _F64 = _st(327, "an f64 in Display (the chain's f64_display class, 327)")
+    _BMF = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "b7a_domain_model.py"))["MEMBER_SOURCE"]
+    _CODES = _calls_with_literal_last_arg(_production(_SBR), "require")
+    # the second maximum branch's multi-line headline: its result_ref is the fourth line after the opener
+    _hl = int(site_is(_CASE_FN, _LIB, "*headline = Some(LocatedQuantity {").rsplit(":", 1)[1])
+    if _cs[_hl + 3].strip() != "result_ref: result_id.clone(),":
+        raise SystemExit("U6-A: the per-basis headline's result_ref moved; re-review")
+    _HL_REF = Resolved(f"{_LIB}:{_hl + 4}")
+    O10_ID_AUDIT += [
+        # the case solve (D-5): the stress-finding warning once per basis, and the two maxima once per basis
+        (site_after(_CASE_FN, _LIB, "for (stress, basis) in bases {", "let id = format!(", within=3), _STRESS_DIAG),
+        (site(_CASE_FN, _LIB, '&basis.map_or_else(|| id.clone(), |basis| format!("{id}:{}", basis.hyphen())),', full=True),
+         {"id": _st(_DIAG_ID, "the stress-finding id formatted just above (its four audited parts and 18 literal bytes)"), "basis.hyphen()": _SEGA}),
+        (site(_CASE_FN, _LIB, 'let row = section_basis_row(ResultItem { id: format!("result:elastic-maximum:{}:{}:{}:{}", load_case.id.len(), load_case.id, pipe.element_id.len(), pipe.element_id)', full=True), _MAX_ID),
+        (site(_CASE_FN, _LIB, '*headline = Some(LocatedQuantity { value, unit: "Pa".into(), location_ref: pipe.element_id.clone(), result_ref: result_id.clone() });', full=True),
+         {"pipe.element_id": IN, "result_id": _RID_D5}),
+        (site(_CASE_FN, _LIB, 'diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:{}:maximum:{}",load_case.id,pipe.element_id,basis.hyphen())', full=True),
+         {"load_case.id": IN, "pipe.element_id": IN, "basis.hyphen()": _SEGA}),
+        (site(_CASE_FN, _LIB, "let row = section_basis_row(ResultItem { id:format!(", full=True), _MAX_ID),
+        (site(_CASE_FN, _LIB, '),kind:"pipe_elastic_normal_stress_maximum_v2".to_string(),value,unit:"Pa".to_string(),entity_ref:pipe.element_id.clone(),', full=True),
+         {"pipe.element_id": IN}),
+        (_HL_REF, {"result_id": _RID_D5}),
+        (site_is(_CASE_FN, _LIB, "let result_id = row.id.clone();", nth=1, count=2), {"row.id": _RID_D5}),
+        (site_is(_CASE_FN, _LIB, "let result_id = row.id.clone();", nth=2, count=2), {"row.id": _RID_D5}),
+        (site_is(_CASE_FN, _LIB, "pressure_exact::SectionBasis::Nominal => unavailable_stress_maximum_members.push(pipe.element_id.clone()),", nth=1, count=2), {"pipe.element_id": IN}),
+        (site_is(_CASE_FN, _LIB, "pressure_exact::SectionBasis::Nominal => unavailable_stress_maximum_members.push(pipe.element_id.clone()),", nth=2, count=2), {"pipe.element_id": IN}),
+        (site_is(_CASE_FN, _LIB, "pressure_exact::SectionBasis::Reduced => unavailable_reduced_maximum_members.push(pipe.element_id.clone()),", nth=1, count=2), {"pipe.element_id": IN}),
+        (site_is(_CASE_FN, _LIB, "pressure_exact::SectionBasis::Reduced => unavailable_reduced_maximum_members.push(pipe.element_id.clone()),", nth=2, count=2), {"pipe.element_id": IN}),
+        (site(_CASE_FN, _LIB, 'diagnostics.push(diag(&id,"EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE","warning",', full=True),
+         {"load_case.id": IN, "pipe.element_id": IN}),
+        # RS g5c: a reduced twin's class takes the twin's own row id (a published result id, RES 1024, as the
+        # nominal rows' carried audit in the same function)
+        (site_after("g5c", _RPX, "let class = if reduced_twin(row) {", 'result_id: text(&row["id"]).into(),', within=4),
+         {'text(&row[""])': RS_}),
+        # section_basis_row: the id's segment and the recovery token's suffix
+        (site("section_basis_row", _LIB, "row.id.push_str(if hyphen_id { basis.hyphen() } else { basis.token() });", full=True),
+         {"ifhyphen_id{basis.hyphen()}else{basis.token()}": _SEGA}),
+        (site("section_basis_row", _LIB, "metadata.basis.push_str(basis.basis_suffix());", full=True),
+         {"basis.basis_suffix()": _st(_SUFFIX, "SectionBasis::basis_suffix, the longest literal")}),
+        # retained_product validate_final_metadata: the expected base recipe (B7a owner choices' max) and the segment
+        (site("validate_final_metadata", _RPP, '(Some(basis), k::ProductRecipe::Stress { .. }) => format!("{expected}:{}", basis.hyphen()),', full=True),
+         {"expected": _st(_EXPECTED, "the expected base recipe, max of B7a owner choices' BOUNDS"), "basis.hyphen()": _SEGA}),
+        (site("validate_final_metadata", _RPP, '(Some(basis), _) => format!("{expected}:{}", basis.token()),', full=True),
+         {"expected": _st(_EXPECTED, "the expected base recipe, max of B7a owner choices' BOUNDS"), "basis.token()": _SEGA}),
+        # RE section_basis: the basis names, the twin id, and the private require's codes (every call passes a literal)
+        (site("require", _SBR, 'Err(format!("SOURCE_PHYSICS_{code}"))', full=True),
+         {"code": _st(max(_CODES), "the longest literal code passed by any require() call in section_basis.rs (private)")}),
+        (site("id_basis", _SBR, ".find(|b| id.ends_with(&format!(\":{b}\")) || id.ends_with(&format!(\":{}\", hyphenated(b))))", full=True),
+         {"b": _st(_B, "a BASES literal"), "hyphenated(b)": _st(_H, "hyphenated's longest literal")}),
+        (site("twin_id", _SBR, '(format!(":{b}"), format!(":{}", other(b))),', full=True),
+         {"b": _st(_B, "a BASES literal"), "other(b)": _st(_B, "other() returns NOMINAL or REDUCED")}),
+        (site("twin_id", _SBR, '(format!(":{}", hyphenated(b)), format!(":{}", hyphenated(other(b)))),', full=True),
+         {"hyphenated(b)": _st(_H, "hyphenated's longest literal"), "hyphenated(other(b))": _st(_H, "hyphenated's longest literal")}),
+        (site("twin_id", _SBR, 'return Some(format!("{stem}{to}"));', full=True),
+         {"stem": _st(1024, "a prefix of the row id passed (RES, 1024)"), "to": _st(1 + max(_B, _H), "':' and one basis name")}),
+        (site("reduced_twin", _RPX, "b.ends_with(&format!(\"{}{}\", crate::section_basis::TOKEN_SEPARATOR, crate::section_basis::REDUCED))", full=True),
+         {"crate::section_basis::TOKEN_SEPARATOR": _st(_SEP, "the TOKEN_SEPARATOR literal"), "crate::section_basis::REDUCED": _st(_B, "a BASES literal")}),
+        # D-6 (U8): the Timoshenko shear factor's diagnostic, errors and section map; the reaction's frame binding
+        (site("build_model_for_members", _LIB, "exact_sections.insert(pipe.id.clone(), bases.with_timoshenko(kappa, shear_area));", full=True), {"pipe.id": IN}),
+        (site("build_model_for_members", _LIB, 'diagnostics.push(diag(&format!("diagnostic:exact-section:{}:shear", stable_suffix(&pipe.id)),', full=True),
+         {"stable_suffix(&pipe.id)": IN}),
+        (site("build_model_for_members", _LIB, 'format!("a timoshenko_annulus_energy_v1 member requires {missing}; no default shear factor is used"), vec![pipe.id.clone()]));', full=True),
+         {"pipe.id": IN}),
+        (site("fmt", FK_ + "shear.rs", 'Self::NonFiniteInput { name, value } => write!(f, "{name} must be finite, got {value}"),', full=True),
+         {"name": _st(_SHN, "a &'static str literal of shear.rs (finite() / NumericalRange)")}),
+        (site("fmt", FK_ + "shear.rs", '"inner radius must satisfy 0 <= ri < ro, got ri = {inner_radius}, ro = {outer_radius}"', full=True, row="write!("),
+         {"inner_radius": _F64, "outer_radius": _F64}),
+        (site("fmt", FK_ + "shear.rs", "Self::NumericalRange { name } => write!(", full=True),
+         {"name": _st(_SHN, "a &'static str literal of shear.rs (finite() / NumericalRange)")}),
+        (site("fmt", "core/solver/straight_pipe/src/lib.rs", 'write!(f, "unsupported load for the element\'s beam theory: {name}")', full=True),
+         {"name": _st(max(len(n.encode()) for n in _sp_names), "the UnsupportedLoadForBeamTheory name literal")}),
+        (site("straight_frames_bound", _FC, "p.identity.source", full=True, row="format!("),
+         {"p.identity.source": _st(_BMF, "a member_source identity (B7a MEMBER_SOURCE, 268); D1's formed primitives are attach_last's")}),
+    ]
+    # U6-J4: J4 at pressure_v3_formulation_basis_with_source (T4-U6 renamed it; `selected` is now a bool): identity
+    # and source each choose one of two whole static literals.
+    if fnkey("pressure_v3_formulation_basis_with_source", PP_ + "exact_admission.rs") and not fnkey("pressure_v3_formulation_basis_in", PP_ + "exact_admission.rs"):
+        _EAF = PP_ + "exact_admission.rs"
+        O10_ID_AUDIT += [
+            (site("pressure_v3_formulation_basis_with_source", _EAF, "identity.to_string(),", full=True),
+             {"identity": {"bytes": _j4b("let identity = if selected {", 2), "source": O10 + "U6-J4: the longer of the two static identity literals"}}),
+            (site("pressure_v3_formulation_basis_with_source", _EAF, "source.to_string(),", full=True),
+             {"source": {"bytes": _j4b("let source = if selected {", 2), "source": O10 + "U6-J4: the longer of the two static source literals"}}),
+        ]
+
+# U6-RB (T4-U6, DEL-05-03 Design section 9; route E only): the final aggregation clones each published row into
+# rows_by_base_id only `if preview.is_some()` (lib.rs run_linear_static_preview_observed_inner, checked), and
+# `preview = (!pressure_runtime::is_exact(&model)).then(..)` is None on route E (an exact contract). ordinary_caps'
+# "Final aggregation" then holds the results once, with no rows_by_base_id map nodes; the id_map stays.
+U6_RB_PATCHES = []
+_AGG = fnkey("run_linear_static_preview_observed_inner", _LIB)
+if _AGG:
+    _agg = _fn_text("run_linear_static_preview_observed_inner", _LIB)
+    _RB_GUARDED = ("            if preview.is_some() {\n                rows_by_base_id\n                    .entry(base_id)\n"
+                   "                    .or_default()\n                    .insert(load_case_id.clone(), result.clone());\n            }\n")
+    if _RB_GUARDED in _agg:
+        if _agg.count("rows_by_base_id") != 3 \
+                or "    let preview = (!pressure_runtime::is_exact(&model)).then(|| {\n" not in _agg or _agg.count("let preview =") != 1 \
+                or "        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, &mut results, &mut diagnostics),\n" not in _agg:
+            raise SystemExit("U6-RB: the guarded rows_by_base_id or the preview binding changed; re-review")
+        U6_RB_PATCHES = [("ordinary_caps.py",
+            '    (Xc("ResultItem", PA) + tx("row") * PA) * 2 + X({"Node(String,BTreeMap)": PA}) + X({"Node(String,ResultItem)": PA})\n',
+            '    (Xc("ResultItem", PA) + tx("row") * PA)   # U6-RB (route E): no rows_by_base_id clone or map without the preview\n',
+            "U6-RB: route E has no preview, so the final aggregation makes no rows_by_base_id clone or map nodes")]

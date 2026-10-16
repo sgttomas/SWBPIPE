@@ -7,9 +7,16 @@ no field is presumed fixed merely because a fixture showed it.
 """
 import hashlib, os, re
 
-PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '9b6c0a2a68029af3f190eaa905693d0ad7b9f2bfd62ba19671921f16d9fe9674', 'straight_stress_spans': 'ab6bb7b081a367e4782fdb07fb115e587184e7468b3a310e8dbf38c76fa0ba61', 'fallback_circular_maximum': 'fc6978a4f0f6b82e4348388f34715c311ecccdb7e8b01537711cbd282e207ff2', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'ac7bcd693cb6d4d4b41f8bbdc8f945b4e76fddc5362e74eb30b51c2785daf825'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': 'ec460ec2eb0e06a2e35fba545ad93656d16099974250a664397d63b7f27edae0'}}
+PINS = {'core/product_physics/src/certified_publication.rs': {'group': 'ec5db3c8e95c345590bf4472a4310f155259cb9ced56b58da3c0316b62b0f394', 'magnitude_group': '600d0d42c5dbb53c489b4bf86a1fba82fdcc8d00440e4f86a2cfb6e6d7bfd953', 'member_record': '201b9a9c9390794c15207731efe9f524d1c14f0c80a15afa02b1e3b601580547', 'support_record': '1b5b46b845578a05a14879b1bae657f832f48a5b2122b404350588490571fd44', 'unavailable_record': '79931f5662ae9277f7ddbc008799340757f0e581e29a053cbdd90ff7a0eaf1a6', 'connector_record': '9b6c0a2a68029af3f190eaa905693d0ad7b9f2bfd62ba19671921f16d9fe9674', 'straight_stress_spans': '224aa2a82dbae1bbc0ec77594eb34ffc5cbc6589a926eb309bdd4634ea33e490', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'fallback_product_up': '5476bd4c93f66d5aee68c465b7da0ee39ab1d123dc75825931f2502cf0b607bb'}, 'core/product_physics/src/formation_guard.rs': {'recovery_finding': 'c499ed59986310186a5825c2043363ca131a5b44d41755a7700e1f7d6c1f5f9b', 'member_group_decision': '76a37c824097b528c638214d913166d24ffa81698222ad9199a511f32f0d5e59'}, 'core/product_physics/src/preview_physics.rs': {'extrema_evidence': 'ac7bcd693cb6d4d4b41f8bbdc8f945b4e76fddc5362e74eb30b51c2785daf825'}, 'core/product_physics/src/lib.rs': {'solve_load_case_observed': '5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061', 'solve_prepared_load_case': '253021d2ab4b78a7b0237624c25264f37ae1b50a45703662725737bff3eca2fe'}}
+# T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): straight_stress_spans,
+# pressure_adjustment and arc_pressure_wall read the pressure bore from ExactSectionBases; fallback_circular_maximum
+# takes the basis with the state and binds that basis's area; certified_recovery gains the T4-U8 frame-binding
+# checks (no allocation beyond its static `shape(..)` refusal). PP binds member loads to the case's formation source
+# (`with_member_source`: a borrowed frame reference) and source() carries the frames' member identities (U8-FM).
+# The four record constructors, their labels and every owned workspace inventory are unchanged; the second basis's
+# coexisting spans and stresses are priced by U6-WS.
 
-PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': '965647cc57fbbc336dc380d0f942222c9c636bc62048d91a59dee740575bd9a9', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': '473277410897bbf21565d1a5e0134ea0be0f4b61c2c9a69d99b2e342f820c62c', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
+PRODUCTION_PINS = {'core/product_physics/src/certified_publication.rs': 'f89aecf841885f1579a99624aaa931d65bf510335f8c466afd23775b87551440', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'c9b8a050f89a81f5affe49fb6f8b23c4b147c551350b3f851845660f8fc79da1', 'core/solver/frame_kernel/src/exact_sum.rs': '35ae1c71195a95d88669c658965198e7dc2476cf32d948e4bfc62ef184e1051c'}
 
 def function_body(text, name):
     hits = list(re.finditer(r"^(?:pub(?:\([a-z]+\))?\s+)?fn\s+" + re.escape(name) + r"\b", text, re.M))
@@ -142,7 +149,8 @@ def inspect_directed_helpers(snapshot):
 # B7b: re-bound to the current lib.rs; v2's deletion and the 0.5.0 exact
 # fields add or remove no `.min(`/`.max(` call (the production lib.rs
 # callers are the same five functions as at B7a's 3e89c23ea1).
-B7A_PRIMITIVE_LIB_SOURCE_PIN = "650be7f49cd69e837caf641c925c801b4bf60fa4d2a7282c2e6edd9fd24492db"
+# T4-U6/U8: D-5's and PP's lib.rs diffs add or remove no `.min(`/`.max(` call.
+B7A_PRIMITIVE_LIB_SOURCE_PIN = "2f294e4e5adab56894bfc87a9e246edefd5aa1fa3ca75e0473e4a6927aa8e943"
 
 
 def primitive_lib_minmax_callers(snapshot):
@@ -180,8 +188,10 @@ FALLBACK_OUTSIDE_CALLERS = (
     ("annulus_geometry.rs", "source_wall_area_scaled", ("mul",), "19e9559e151064359ff00db6a27c90c64ec619ef465f6dc90d077795850821f7"),
     ("annulus_geometry.rs", "source_bore_area_scaled", ("mul",), "13e243a2122d8717d5741c8698206bf8dac7d6673e91a5ffa4052252649e8a61"),
     ("annulus_geometry.rs", "source_insulation_area_m2", ("mul",), "41ec087e427844f47f407ed550d9124e6cfe773e98ab61a99335e08a47a68b41"),
-    ("lib.rs", "exact_straight_summary_extrema", ("add",), "c1905b2780be30a7d74ef74e2f5826c02f01ed9b6c92908bfe0a5e36d3f120e1"),
-    ("lib.rs", "append_exact_pressure_results", ("divided",), "c65eecfd90235e5adf464f7149a377ac79ae9474cd99a2933405120b4b9d5f77"),
+    # T4-U6 (D-5): the pressure state names its basis; the sole `.add(` receiver is still the span intensity's
+    # ExactAccumulator, and the sole `.divided(` receiver frame_kernel's CertifiedRow (now once per basis).
+    ("lib.rs", "exact_straight_summary_extrema", ("add",), "1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0"),
+    ("lib.rs", "append_exact_pressure_results", ("divided",), "36242eef95d1026d77aa8107029a7423f6309e1a0665030f00b717f71fbde304"),
     ("pressure_exact.rs", "from_radii", ("mul",), "30bf50858d1c5a2223b5fa9c4f5a4d2643c87d26875e394770b6d69d89230340"),
     ("pressure_exact.rs", "eigenload_pair", ("mul",), "ce624c341c68c90e445856b617fe49fbcb81c7e5591c95e8e174f1d9a94413e9"),
     # B7a E14/C5: row slots and arc metadata changed; the sole divided
@@ -193,8 +203,11 @@ FALLBACK_OUTSIDE_CALLERS = (
     ("retained_memory.rs", "retained_error_text", ("add",), "9f62063575e9e1eb566d12bb66b0601b4a9f39fd37c552cb0ec721168082f3e9"),
     ("retained_memory.rs", "complete_observations", ("add",), "8f65af0bdd6c83d559966214eb77b308bea940f917ebb210e70d27e9bfef2fc2"),
     ("pressure_exact/source_geometry.rs", "from_od_wall", ("add", "mul"), "0c2ac197402cbbfb8ceae54cb1c18acaefbcb1a26f658c11f88b88d33e1e1df9"),
-    ("pressure_exact/source_geometry.rs", "pressure_group_value", ("mul",), "ed2e3f79a1b883da9a7b6e9ff6a5cf05c03937b6a89a77ec681c40594e6689e5"),
-    ("pressure_exact/source_geometry.rs", "surface_stresses", ("add",), "98a1e66fcdfeea1249ec0ed2d6aaaf28cacb8708761aa7a723500d67bf8765a9"),
+    # T4-U6 (D-5): ExactSectionBases also defines pressure_group_value and surface_stresses, each a delegation to
+    # its own SourceAnnulus with no add/mul/divided call; these keys name SourceAnnulus's unchanged definitions
+    # (`Impl::name`: the fn inside the one top-level `impl SourceAnnulus {` block).
+    ("pressure_exact/source_geometry.rs", "SourceAnnulus::pressure_group_value", ("mul",), "ed2e3f79a1b883da9a7b6e9ff6a5cf05c03937b6a89a77ec681c40594e6689e5"),
+    ("pressure_exact/source_geometry.rs", "SourceAnnulus::surface_stresses", ("add",), "98a1e66fcdfeea1249ec0ed2d6aaaf28cacb8708761aa7a723500d67bf8765a9"),
     ("case_state/temperature.rs", "exact_kelvin", ("mul",), "4b7c432e3c502bfd1fd0f32a43e73a93c1bed6710bd44e2958ee497d10afa02d"),
     # The join's J7 census (#[cfg(test)] only): both `.mul(` receivers are the
     # validation crate's exact rational `Exact` (`e`, and `r1_exact::tolerance`'s
@@ -206,8 +219,10 @@ FALLBACK_OUTSIDE_CALLERS = (
 # (`fluid.mul`, `Scaled::from_f64(..).mul`), never the private FallbackError.
 # Only a snapshot whose bend_pressure.rs defines the arc pressure rows has them.
 FALLBACK_OUTSIDE_CALLERS_U2 = (
-    ("bend_pressure.rs", "append_arc_pressure_results", ("divided",), "bbd3035a888811f15632e2c6bdaf72ba3ec2fcacecd33c1d07920a44f36cb280"),
-    ("pressure_exact/source_geometry.rs", "arc_pressure_strain", ("mul",), "db9c1caeb47d37a3864bfb926a41cc37c6a6a713ae1c7c99b3d823fdb30ffd4a"),
+    # T4-U6 (D-5): the arc membrane divides the CertifiedRow once per basis; arc_pressure_strain (now on
+    # ExactSectionBases) multiplies Scaled values of the pressure bore and the nominal wall. Receivers unchanged.
+    ("bend_pressure.rs", "append_arc_pressure_results", ("divided",), "6afc5a1b1a9a9c0a9dec6adbe21dfca6351b745c9b8255e0bcf1d05ff92f4e16"),
+    ("pressure_exact/source_geometry.rs", "arc_pressure_strain", ("mul",), "de358720835e9a5ae8afd39c4b9e7f4a86e3c77788473696d338e46907f63983"),
 )
 # B5C1: the new effective-area expression's receiver is Scaled. Only
 # subtract the unrelated private FallbackError::mul candidate, keeping
@@ -226,10 +241,29 @@ def _indented_function(text, name):
         raise ValueError(f"KD5C5: no same-indent end of fn {name}")
     return text[hit.start():hit.end() + end.end()], text.count("\n", 0, hit.start()) + 1
 
+
+def _caller_function(text, name):
+    """`_indented_function`; for `Impl::name`, the one fn `name` inside the one top-level `impl Impl {` block (T4-U6),
+    with its line in the whole file."""
+    if "::" not in name:
+        return _indented_function(text, name)
+    owner, fn = name.split("::")
+    blocks = list(re.finditer(r"^impl " + re.escape(owner) + r" \{\n", text, re.M))
+    if len(blocks) != 1:
+        raise ValueError(f"KD5C5: expected one impl {owner}, found {len(blocks)}")
+    close = re.search(r"^\}", text[blocks[0].end():], re.M)
+    if not close:
+        raise ValueError(f"KD5C5: no end of impl {owner}")
+    start = blocks[0].start()
+    body, line = _indented_function(text[start:blocks[0].end() + close.end()], fn)
+    return body, line + text.count("\n", 0, start)
+
 # E11 made only this constructor test-only. Bind the actual raw file and
 # its exact attribute, body and production projection before omitting a
 # now-unwitnessable exclusion; never skip an arbitrary missing caller.
-B7A_PRESSURE_EXACT_SOURCE_PIN = "19d1aa0893b1b71316fc35c8d243d8b5a8de26050f8d03db1ff62baa802c189e"
+# T4-U6: pressure_exact.rs only re-exports two more source_geometry items (ExactSectionBases, SectionBasis); from_radii
+# and its #[cfg(test)] attribute are unchanged.
+B7A_PRESSURE_EXACT_SOURCE_PIN = "d3ca1aea0867781b50bb21db6a360af98254bdc64f13316b9feb70e984abde6d"
 
 
 def test_only_from_radii(snapshot):
@@ -289,7 +323,8 @@ def inspect_fallback_boundary(snapshot):
         caller_file = "core/product_physics/src/" + relative
         with open(os.path.join(snapshot, caller_file), encoding="utf-8") as stream:
             text = stream.read()
-        body, line = _indented_function(text, name)
+        body, line = _caller_function(text, name)
+        name = name.split("::")[-1]
         if hashlib.sha256(body.encode()).hexdigest() != digest:
             raise ValueError(f"KD5C5: outside caller/receiver body changed: {caller_file}:{name}")
         if caller_file == file:

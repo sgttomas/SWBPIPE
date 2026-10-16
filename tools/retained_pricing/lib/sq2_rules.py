@@ -66,6 +66,11 @@ for h, (b, why) in D.get("NEW", {}).items():
     first.append({"re": "^" + re.escape(h) + "$", "bound": b, "why": "SQ2 G5: " + why})
 for h, (b, why) in D.get("PREFIX", {}).items():
     first.append({"re": "^" + re.escape(h), "bound": b, "why": "SQ2 G5: " + why})
+# T4-U6 (O-10, placed first): an exact header that an earlier broad rule would otherwise capture; o10_check.py
+# confines it to its listed functions exactly as an O10_LOOPS_LAST rule.
+for h, b, why, fns in D.get("O10_LOOPS_FIRST", []):
+    first.append({"re": "^" + re.escape(h) + "$", "bound": b, "why": "O-10 (placed first: a broader earlier rule would otherwise match): " + why})
+    LOG.setdefault("o10_loops_last", []).append({"header": h, "bound": b, "fns": fns, "placed": "first"})
 LOG["new_loop_rules"] = first
 LB["loops"][0:0] = first
 def add(fam, entry, key=None):
@@ -196,5 +201,8 @@ if D.get("CENSUS"):
     import importlib.util
     _spec = importlib.util.spec_from_file_location("census_patch", D["CENSUS"]["patcher"]); _cp = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_cp)
     LOG["census"] = _cp.apply(dst, json.load(open(D["CENSUS"]["json"])), patch)
+# T4-U6 (O-10): a route's typed-chain substitution, each by exact text with its argued reason (o10_rules.py).
+for fname, old, new, why in D.get("O10_TYPED_PATCHES", []):
+    patch(fname, old, new); LOG.setdefault("o10_typed_patches", []).append({"file": fname, "why": why})
 json.dump(LOG, open(os.path.join(dst, "SQ2_RULES.json"), "w"), indent=1)
 print(json.dumps({"removed": len(LOG["removed"]), "new_loop_rules": len(LOG["new_loop_rules"]), "other": len(LOG["other"])}))
