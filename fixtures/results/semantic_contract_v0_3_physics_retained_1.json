@@ -1,6 +1,6 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 88,
+  "source_signature_count": 106,
   "source_kind_count": 59,
   "canonical_metadata_vocabulary": {
     "component": {
@@ -110,7 +110,11 @@
         "rule_pack_evaluation",
         "TBD",
         "recovered_from_assembled_support_law",
-        "objective_connector_v1;symmetric_midpoint_small_rotation_v1"
+        "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
+        "recovered_from_local_element_stiffness; section_basis=nominal_section",
+        "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
       ]
     },
     "sign_convention": {
@@ -316,7 +320,7 @@
       "governing_ratio_eligible": false
     },
     {
-      "signature_id": "supported-source-015",
+      "signature_id": "supported-source-015-local-element-stiffness-nominal-section",
       "kind": "element_local_axial_normal_stress",
       "unit": "MPa",
       "component": "axial_normal_stress",
@@ -327,10 +331,56 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_local_element_stiffness; section_basis=nominal_section"
     },
     {
-      "signature_id": "supported-source-016",
+      "signature_id": "supported-source-015-local-element-stiffness-reduced-section",
+      "kind": "element_local_axial_normal_stress",
+      "unit": "MPa",
+      "component": "axial_normal_stress",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "stress",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_local_element_stiffness; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-015-open-mechanics-stress-components-nominal-section",
+      "kind": "element_local_axial_normal_stress",
+      "unit": "MPa",
+      "component": "axial_normal_stress",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "stress",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section"
+    },
+    {
+      "signature_id": "supported-source-015-open-mechanics-stress-components-reduced-section",
+      "kind": "element_local_axial_normal_stress",
+      "unit": "MPa",
+      "component": "axial_normal_stress",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "stress",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-016-local-element-stiffness-nominal-section",
       "kind": "element_local_bending_normal_stress_y",
       "unit": "MPa",
       "component": "bending_normal_stress_y",
@@ -341,10 +391,56 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_local_element_stiffness; section_basis=nominal_section"
     },
     {
-      "signature_id": "supported-source-017",
+      "signature_id": "supported-source-016-local-element-stiffness-reduced-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "unit": "MPa",
+      "component": "bending_normal_stress_y",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "stress",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_local_element_stiffness; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-016-open-mechanics-stress-components-nominal-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "unit": "MPa",
+      "component": "bending_normal_stress_y",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "stress",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section"
+    },
+    {
+      "signature_id": "supported-source-016-open-mechanics-stress-components-reduced-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "unit": "MPa",
+      "component": "bending_normal_stress_y",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "stress",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-017-local-element-stiffness-nominal-section",
       "kind": "element_local_bending_normal_stress_z",
       "unit": "MPa",
       "component": "bending_normal_stress_z",
@@ -355,10 +451,56 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_local_element_stiffness; section_basis=nominal_section"
     },
     {
-      "signature_id": "supported-source-018",
+      "signature_id": "supported-source-017-local-element-stiffness-reduced-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "unit": "MPa",
+      "component": "bending_normal_stress_z",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "stress",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_local_element_stiffness; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-017-open-mechanics-stress-components-nominal-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "unit": "MPa",
+      "component": "bending_normal_stress_z",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "stress",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section"
+    },
+    {
+      "signature_id": "supported-source-017-open-mechanics-stress-components-reduced-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "unit": "MPa",
+      "component": "bending_normal_stress_z",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "stress",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-018-local-element-stiffness-nominal-section",
       "kind": "element_local_torsional_shear_stress",
       "unit": "MPa",
       "component": "torsional_shear_stress",
@@ -369,7 +511,53 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_local_element_stiffness; section_basis=nominal_section"
+    },
+    {
+      "signature_id": "supported-source-018-local-element-stiffness-reduced-section",
+      "kind": "element_local_torsional_shear_stress",
+      "unit": "MPa",
+      "component": "torsional_shear_stress",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "stress",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_local_element_stiffness; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-018-open-mechanics-stress-components-nominal-section",
+      "kind": "element_local_torsional_shear_stress",
+      "unit": "MPa",
+      "component": "torsional_shear_stress",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "stress",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section"
+    },
+    {
+      "signature_id": "supported-source-018-open-mechanics-stress-components-reduced-section",
+      "kind": "element_local_torsional_shear_stress",
+      "unit": "MPa",
+      "component": "torsional_shear_stress",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": "stress",
+      "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
     },
     {
       "signature_id": "supported-source-019",
@@ -946,7 +1134,7 @@
       "governing_ratio_eligible": false
     },
     {
-      "signature_id": "supported-source-068",
+      "signature_id": "supported-source-068-open-mechanics-stress-components-nominal-section",
       "kind": "pipe_elastic_normal_stress_maximum_v2",
       "unit": "Pa",
       "component": "maximum_absolute_normal_stress",
@@ -957,7 +1145,23 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section"
+    },
+    {
+      "signature_id": "supported-source-068-open-mechanics-stress-components-reduced-section",
+      "kind": "pipe_elastic_normal_stress_maximum_v2",
+      "unit": "Pa",
+      "component": "maximum_absolute_normal_stress",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
     },
     {
       "signature_id": "supported-source-069",
@@ -1002,7 +1206,7 @@
       "governing_ratio_eligible": false
     },
     {
-      "signature_id": "supported-source-072",
+      "signature_id": "supported-source-072-open-mechanics-stress-components-nominal-section",
       "kind": "pipe_axial_membrane_stress_v2",
       "unit": "Pa",
       "component": "axial_membrane_stress",
@@ -1013,10 +1217,26 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section"
     },
     {
-      "signature_id": "supported-source-073",
+      "signature_id": "supported-source-072-open-mechanics-stress-components-reduced-section",
+      "kind": "pipe_axial_membrane_stress_v2",
+      "unit": "Pa",
+      "component": "axial_membrane_stress",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-073-open-mechanics-stress-components-nominal-section",
       "kind": "pipe_lame_radial_stress_v2",
       "unit": "Pa",
       "component": "lame_inner_radial_stress",
@@ -1027,10 +1247,26 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section"
     },
     {
-      "signature_id": "supported-source-074",
+      "signature_id": "supported-source-073-open-mechanics-stress-components-reduced-section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "unit": "Pa",
+      "component": "lame_inner_radial_stress",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-074-open-mechanics-stress-components-nominal-section",
       "kind": "pipe_lame_radial_stress_v2",
       "unit": "Pa",
       "component": "lame_outer_radial_stress",
@@ -1041,10 +1277,26 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section"
     },
     {
-      "signature_id": "supported-source-075",
+      "signature_id": "supported-source-074-open-mechanics-stress-components-reduced-section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "unit": "Pa",
+      "component": "lame_outer_radial_stress",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-075-open-mechanics-stress-components-nominal-section",
       "kind": "pipe_lame_hoop_stress_v2",
       "unit": "Pa",
       "component": "lame_inner_hoop_stress",
@@ -1055,10 +1307,26 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section"
     },
     {
-      "signature_id": "supported-source-076",
+      "signature_id": "supported-source-075-open-mechanics-stress-components-reduced-section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "unit": "Pa",
+      "component": "lame_inner_hoop_stress",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-076-open-mechanics-stress-components-nominal-section",
       "kind": "pipe_lame_hoop_stress_v2",
       "unit": "Pa",
       "component": "lame_outer_hoop_stress",
@@ -1069,7 +1337,23 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section"
+    },
+    {
+      "signature_id": "supported-source-076-open-mechanics-stress-components-reduced-section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "unit": "Pa",
+      "component": "lame_outer_hoop_stress",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
     },
     {
       "signature_id": "supported-source-077",
@@ -1400,7 +1684,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375",
+  "inherited_semantic_contract_sha256": "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e",
   "formulation_profile_id": "exact_straight_retained_w1a_v2",
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_v1",
   "supported_profile_limitations": [
@@ -1414,7 +1698,7 @@
   "product_formation_definitions": [
     {
       "id": "RP-PREPARED-EXACT-DUAL-v1",
-      "sha256": "ff28bea4ca9613d689edd1428b07e869a0a3ac824012b49382307b6293819def"
+      "sha256": "6c772d242ef47a354376f29f93fc69959ee2b4085b606af211da4b7f45c87f8e"
     }
   ],
   "accuracy_classification": {
@@ -1453,5 +1737,6 @@
       "invocation_limit": 60000000000
     },
     "work_policy": "W1-LME-20B-60B-v1"
-  }
+  },
+  "source_basis_signature_policy": "where_declared_require_exact_metadata_basis_in_addition_to_kind_unit_component"
 }

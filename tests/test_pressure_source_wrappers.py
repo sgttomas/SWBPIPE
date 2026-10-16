@@ -18,7 +18,9 @@ from core.analysis_runs import rust_reader
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 # B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables"): the current pressure-source-1
 # table, policy PRESSURE-SOURCE-1, 69 signatures (was 4a1873e7..., the table before its B7b re-issue).
-CONTRACT_SHA256 = "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435"
+# T4-U6 (D-5, §2.4): re-issued with one stress signature per (recovery token x section basis), 88
+# signatures (was dec4f4e7...).
+CONTRACT_SHA256 = "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53"
 assert CONTRACT_SHA256 == c.PRESSURE_SOURCE_CONTRACT_SHA256
 BINDING = {"id": CONTRACT_ID, "sha256": CONTRACT_SHA256}
 

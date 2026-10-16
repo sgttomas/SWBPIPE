@@ -162,15 +162,22 @@ def _imports(path: Path) -> set[str]:
     for node in ast.walk(ast.parse(path.read_text(), filename=str(path))):
         if isinstance(node, ast.Import):
             names.update(item.name for item in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module is None:
+            # `from . import name`: the imported sibling module is the name.
+            names.update("." * node.level + item.name for item in node.names)
         elif isinstance(node, ast.ImportFrom):
-            names.add("." * node.level + (node.module or ""))
+            names.add("." * node.level + node.module)
     return names
 
 
 def test_the_verifier_is_independent_and_test_only():
     # Standard library only: no product module and no producer bridge
     # (core/serialization/canonical_json/adapter.py, core/units/adapter.py).
-    assert _imports(VERIFIER) <= {"__future__", "collections.abc", "copy", "hashlib", "json", "math", "pathlib", "re", "struct", "typing"}
+    stdlib = {"__future__", "collections.abc", "copy", "hashlib", "json", "math", "pathlib", "re", "struct", "typing"}
+    # T4-U6 (D-5): the section-basis rules shared by the test-only verifiers live in the sibling
+    # tests/verifiers/section_basis.py, which is itself standard library only.
+    assert _imports(VERIFIER) <= stdlib | {".section_basis"}
+    assert _imports(VERIFIER.with_name("section_basis.py")) <= stdlib
     # No product module imports it (the VP-STATIC gate binds it by path and runs it isolated).
     for root in ("core", "apps", "tools"):
         for path in (PROJECT / root).rglob("*.py"):

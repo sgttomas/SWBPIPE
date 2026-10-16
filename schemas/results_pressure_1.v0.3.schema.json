@@ -134,54 +134,60 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
+            "description": "The member's case section (results.v0.3 PhysicsGeometry, D-5) and its traversal flag; a realized arc adds its kind and end tangents and is always Euler-Bernoulli.",
             "required": [
-              "outside_diameter_m",
-              "effective_wall_thickness_m",
-              "ri_m",
-              "ro_m",
-              "Ai_m2",
-              "As_m2",
-              "I_m4",
-              "J_m4",
-              "Z_m3",
               "pipe_id",
               "geometry_basis",
+              "outside_diameter_m",
+              "ro_m",
+              "wall_thickness_m",
+              "mill_tolerance_m",
+              "corrosion_allowance_m",
+              "nominal_section",
+              "reduced_section",
+              "pressure_bore",
+              "beam_theory",
               "traversal_forward"
             ],
             "properties": {
-              "outside_diameter_m": {
-                "type": "number"
-              },
-              "effective_wall_thickness_m": {
-                "type": "number"
-              },
-              "ri_m": {
-                "type": "number"
-              },
-              "ro_m": {
-                "type": "number"
-              },
-              "Ai_m2": {
-                "type": "number"
-              },
-              "As_m2": {
-                "type": "number"
-              },
-              "I_m4": {
-                "type": "number"
-              },
-              "J_m4": {
-                "type": "number"
-              },
-              "Z_m3": {
-                "type": "number"
-              },
               "pipe_id": {
                 "type": "string",
                 "minLength": 1
               },
               "geometry_basis": {
-                "const": "authored_normalized_od_wall_v1"
+                "const": "authored_od_wall_d5_sections_v1"
+              },
+              "outside_diameter_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "ro_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "wall_thickness_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "mill_tolerance_m": {
+                "type": "number",
+                "minimum": 0
+              },
+              "corrosion_allowance_m": {
+                "type": "number",
+                "minimum": 0
+              },
+              "nominal_section": {
+                "$ref": "results.v0.3.schema.yaml#/$defs/PhysicsSectionAnnulus"
+              },
+              "reduced_section": {
+                "$ref": "results.v0.3.schema.yaml#/$defs/PhysicsSectionAnnulus"
+              },
+              "pressure_bore": {
+                "$ref": "results.v0.3.schema.yaml#/$defs/PhysicsPressureBore"
+              },
+              "beam_theory": {
+                "$ref": "results.v0.3.schema.yaml#/$defs/PhysicsBeamTheory"
               },
               "traversal_forward": {
                 "type": "boolean"
@@ -210,6 +216,20 @@
               "arc_end_tangents_global": [
                 "member_kind"
               ]
+            },
+            "if": {
+              "required": [
+                "member_kind"
+              ]
+            },
+            "then": {
+              "properties": {
+                "beam_theory": {
+                  "const": {
+                    "model": "euler_bernoulli"
+                  }
+                }
+              }
             }
           }
         },
@@ -869,6 +889,7 @@
             "additionalProperties": false,
             "required": [
               "pipe_id",
+              "section_basis",
               "result_id",
               "station_fraction",
               "span_index",
@@ -886,6 +907,12 @@
               "pipe_id": {
                 "type": "string",
                 "minLength": 1
+              },
+              "section_basis": {
+                "enum": [
+                  "nominal_section",
+                  "reduced_section"
+                ]
               },
               "result_id": {
                 "type": "string",
@@ -931,24 +958,7 @@
           }
         },
         "stress_maximum_coverage": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "complete",
-            "unavailable_pipe_ids"
-          ],
-          "properties": {
-            "complete": {
-              "type": "boolean"
-            },
-            "unavailable_pipe_ids": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "minLength": 1
-              }
-            }
-          }
+          "$ref": "results.v0.3.schema.yaml#/$defs/PhysicsStressMaximumCoverage"
         },
         "pressure_rhs_assembly": {
           "type": "object",
@@ -1605,7 +1615,11 @@
             "rule_pack_evaluation",
             "TBD",
             "recovered_from_assembled_support_law",
-            "objective_connector_v1;symmetric_midpoint_small_rotation_v1"
+            "objective_connector_v1;symmetric_midpoint_small_rotation_v1",
+            "recovered_from_local_element_stiffness; section_basis=nominal_section",
+            "recovered_from_local_element_stiffness; section_basis=reduced_section",
+            "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+            "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
           ]
         },
         "sign_convention": {

@@ -20,6 +20,7 @@ import sys
 from typing import Any
 from .canonical_json import canonical_sha256 as canonical_sha256_checked_v1
 from .preview_physics_evidence import correctly_rounded_norm
+from . import section_basis as sb
 
 # Fixed recipe arithmetic bound, additional to the affine input bound.
 NORM_ARITHMETIC_BOUND = 64.0 * sys.float_info.epsilon
@@ -367,10 +368,13 @@ def _required_affine_rows(case: Mapping[str, Any], raw: dict[str, Any], model: M
         for location in ("end_i","end_j","quarter_1","midspan","quarter_3"):
             for component in components:
                 _require(sum(r["entity_ref"] == member and (r.get("metadata") or {}).get("component") == component and r["metadata"].get("location") == location for r in projected) == 1, "MEMBER_PRIMARY_COVERAGE")
+        # T4-U6 (§2.1): one source stress row and one maximum per basis.
         for location in ("end_i","end_j","quarter_1","midspan","quarter_3"):
             for kind in ("element_local_axial_normal_stress","element_local_bending_normal_stress_y","element_local_bending_normal_stress_z","element_local_torsional_shear_stress"):
-                _require(sum(r["entity_ref"] == member and r["kind"] == kind and (r.get("metadata") or {}).get("location") == location for r in case_rows) == 1, "MEMBER_STRESS_COVERAGE")
-        _require(sum(r["entity_ref"] == member and r["kind"] == "pipe_elastic_normal_stress_maximum_v2" for r in case_rows) == 1, "MEMBER_SUMMARY_COVERAGE")
+                for basis in sb.BASES:
+                    _require(sum(r["entity_ref"] == member and r["kind"] == kind and (r.get("metadata") or {}).get("location") == location and _row_section_basis(r) == basis for r in case_rows) == 1, "MEMBER_STRESS_COVERAGE")
+        for basis in sb.BASES:
+            _require(sum(r["entity_ref"] == member and r["kind"] == "pipe_elastic_normal_stress_maximum_v2" and _row_section_basis(r) == basis for r in case_rows) == 1, "MEMBER_SUMMARY_COVERAGE")
     for support in case["source"]["support_ids"]:
         _require(sum(r["entity_ref"] == support and r["kind"] == "support_reaction_force_magnitude_v2" for r in case_rows) == 1, "SUPPORT_MAGNITUDE_COVERAGE")
     if model is not None:
@@ -380,16 +384,29 @@ def _required_affine_rows(case: Mapping[str, Any], raw: dict[str, Any], model: M
                 _require(sum(r["entity_ref"] == node["id"] and r["kind"] == kind for r in projected) == 1, "NODAL_PRIMARY_COVERAGE")
 
 
+def _row_section_basis(row: Mapping[str, Any]) -> str | None:
+    """A stress row's section basis, named by its token and its id alike."""
+    try:
+        return sb.row_basis(row)[1]
+    except sb.BasisError:
+        return None
+
+
 def _summary(source: Mapping[str, Any], raw: dict[str, Any], model: Mapping[str, Any] | None, context: Any) -> None:
     summary = source["summary"]
     if model is not None:
         _require(all(summary.get(key) == len(model[field]) for key,field in [("node_count","nodes"),("segment_count","pipe_segments"),("support_count","supports"),("load_case_count","load_cases")]), "SUMMARY_MODEL_COUNTS")
-    for field,kind in [("max_displacement","displacement_magnitude"),("max_open_formula_stress","pipe_elastic_normal_stress_maximum_v2")]:
+    # T4-U6 (D-5, §2.2): the composite's stress headline is per basis, bound to its own basis's maxima.
+    _require("max_open_formula_stress" in summary and summary["max_open_formula_stress"] is None, "SUMMARY_HEADLINE")
+    stress = "pipe_elastic_normal_stress_maximum_v2"
+    for field, kind, basis in [("max_displacement", "displacement_magnitude", None),
+                               ("max_open_formula_stress_nominal_section", stress, sb.NOMINAL), ("max_open_formula_stress_reduced_section", stress, sb.REDUCED)]:
+        _require(basis is None or field in summary, "SUMMARY_HEADLINE")
         headline = summary.get(field)
-        candidates = [r for r in raw.values() if r["kind"] == kind]
+        candidates = [r for r in raw.values() if r["kind"] == kind and (basis is None or _row_section_basis(r) == basis)]
         if candidates:
             _require(type(headline) is dict and set(headline) == {"value","unit","location_ref","result_ref"}, "SUMMARY_HEADLINE")
             selected = raw.get(headline["result_ref"])
-            _require(selected is not None and selected["kind"] == kind and selected["unit"] == headline["unit"] and selected["entity_ref"] == headline["location_ref"] and _bits(selected["value"]) == _bits(headline["value"]) and headline["value"] == max(r["value"] for r in candidates), "SUMMARY_RESULT_BINDING")
+            _require(selected is not None and selected["kind"] == kind and (basis is None or _row_section_basis(selected) == basis) and selected["unit"] == headline["unit"] and selected["entity_ref"] == headline["location_ref"] and _bits(selected["value"]) == _bits(headline["value"]) and headline["value"] == max(r["value"] for r in candidates), "SUMMARY_RESULT_BINDING")
         else:
             _require(headline is None, "SUMMARY_UNSOURCED_HEADLINE")

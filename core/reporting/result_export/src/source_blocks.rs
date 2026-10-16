@@ -1243,28 +1243,34 @@ fn required_affine(
                 "element_local_bending_normal_stress_z",
                 "element_local_torsional_shear_stress",
             ] {
-                require!(
-                    case_rows
-                        .iter()
-                        .filter(|r| r["entity_ref"] == *member
-                            && r["kind"] == kind
-                            && r["metadata"]["location"] == location)
-                        .count()
-                        == 1,
-                    "MEMBER_STRESS_COVERAGE"
-                );
+                // T4-U6 (§2.1): one source stress row per basis.
+                for basis in crate::section_basis::BASES {
+                    require!(
+                        case_rows
+                            .iter()
+                            .filter(|r| r["entity_ref"] == *member
+                                && r["kind"] == kind
+                                && r["metadata"]["location"] == location
+                                && row_section_basis(r) == Some(basis))
+                            .count()
+                            == 1,
+                        "MEMBER_STRESS_COVERAGE"
+                    );
+                }
             }
         }
-        require!(
-            case_rows
-                .iter()
-                .filter(|r| r["entity_ref"] == *member
-                    && r["kind"]
-                        == "pipe_elastic_normal_stress_maximum_v2")
-                .count()
-                == 1,
-            "MEMBER_SUMMARY_COVERAGE"
-        );
+        for basis in crate::section_basis::BASES {
+            require!(
+                case_rows
+                    .iter()
+                    .filter(|r| r["entity_ref"] == *member
+                        && r["kind"] == "pipe_elastic_normal_stress_maximum_v2"
+                        && row_section_basis(r) == Some(basis))
+                    .count()
+                    == 1,
+                "MEMBER_SUMMARY_COVERAGE"
+            );
+        }
     }
     for support in array(&case["source"]["support_ids"])? {
         require!(
@@ -1311,6 +1317,10 @@ fn required_affine(
     Ok(())
 }
 
+/// A stress row's section basis, named by its token and its id alike.
+fn row_section_basis(row: &Value) -> Option<&'static str> {
+    crate::section_basis::row_basis(row).ok().map(|(_, basis)| basis)
+}
 fn summary(
     source: &Value,
     raw: &HashMap<&str, &Value>,
@@ -1330,17 +1340,30 @@ fn summary(
             );
         }
     }
-    for (field, kind) in [
-        ("max_displacement", "displacement_magnitude"),
+    // T4-U6 (D-5, §2.2): the composite's stress headline is per basis, bound to
+    // its own basis's maxima; no governing basis is chosen.
+    require!(
+        summary.get("max_open_formula_stress").is_some_and(Value::is_null),
+        "SUMMARY_HEADLINE"
+    );
+    for (field, kind, basis) in [
+        ("max_displacement", "displacement_magnitude", None),
         (
-            "max_open_formula_stress",
+            "max_open_formula_stress_nominal_section",
             "pipe_elastic_normal_stress_maximum_v2",
+            Some(crate::section_basis::NOMINAL),
+        ),
+        (
+            "max_open_formula_stress_reduced_section",
+            "pipe_elastic_normal_stress_maximum_v2",
+            Some(crate::section_basis::REDUCED),
         ),
     ] {
+        require!(basis.is_none() || summary.get(field).is_some(), "SUMMARY_HEADLINE");
         let headline = &summary[field];
         let candidates = raw
             .values()
-            .filter(|r| r["kind"] == kind)
+            .filter(|r| r["kind"] == kind && basis.is_none_or(|b| row_section_basis(r) == Some(b)))
             .collect::<Vec<_>>();
         if candidates.is_empty() {
             require!(headline.is_null(), "SUMMARY_UNSOURCED_HEADLINE");
@@ -1361,6 +1384,7 @@ fn summary(
             .fold(f64::NEG_INFINITY, f64::max);
         require!(
             selected["kind"] == kind
+                && basis.is_none_or(|b| row_section_basis(selected) == Some(b))
                 && selected["unit"] == headline["unit"]
                 && selected["entity_ref"] == headline["location_ref"]
                 && number(&selected["value"])?.to_bits() == number(&headline["value"])?.to_bits()

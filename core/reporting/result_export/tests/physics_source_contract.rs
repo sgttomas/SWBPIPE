@@ -3,7 +3,7 @@
 //! 0.5.0/3.0.0/exact_pressure_v3) over the v3 twins of the retired physics-source-1
 //! fixtures (same physical inputs), with the case-evidence domain
 //! `pressure_source_case_evidence_v1`.
-use open_pipe_stress_result_export::{physics_source, semantic_contract, source_blocks};
+use open_pipe_stress_result_export::{physics_source, section_basis, semantic_contract, source_blocks};
 use serde_json::{json, Value};
 use std::path::PathBuf;
 fn root() -> PathBuf {
@@ -118,14 +118,25 @@ fn maximum_signature_requires_explicit_basis_without_claiming_current() {
     let exact = semantic_contract::signature_in(table, &row)
         .unwrap()
         .unwrap();
-    assert_eq!(exact["source_basis"], physics_source::MAX_BASIS);
-    row["metadata"]["basis"] = json!("recovered_from_open_mechanics_stress_components");
+    // T4-U6 (D-5, §2.4): the source maximum names its section basis.
+    let basis = exact["source_basis"].as_str().unwrap();
+    let (token, section) = section_basis::split_token(basis).unwrap();
+    assert_eq!(token, physics_source::MAX_BASIS);
+    assert_eq!(row["metadata"]["basis"], json!(basis));
+    let other = format!("{token}; section_basis={}", section_basis::other(section));
+    row["metadata"]["basis"] = json!(other);
+    let twin = semantic_contract::signature_in(table, &row).unwrap().unwrap();
+    assert_ne!(exact["signature_id"], twin["signature_id"]);
+    row["metadata"]["basis"] = json!(format!("recovered_from_open_mechanics_stress_components; section_basis={section}"));
     let ordinary = semantic_contract::signature_in(table, &row)
         .unwrap()
         .unwrap();
     assert_ne!(exact["signature_id"], ordinary["signature_id"]);
-    row["metadata"]["basis"] = json!("invented");
-    assert!(semantic_contract::signature_in(table, &row).is_err());
+    // A basis-less token no longer names a signature of a stress kind.
+    for bare in [physics_source::MAX_BASIS, "recovered_from_open_mechanics_stress_components", "invented"] {
+        row["metadata"]["basis"] = json!(bare);
+        assert!(semantic_contract::signature_in(table, &row).is_err(), "{bare}");
+    }
     row["metadata"].as_object_mut().unwrap().remove("basis");
     assert!(semantic_contract::signature_in(table, &row).is_err());
 }

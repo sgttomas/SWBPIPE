@@ -372,8 +372,10 @@ def row_semantics(selector, semantic_rows):
     if metadata is not None:
         require(type(metadata) is dict and set(metadata) == set(gate.META), 'complete source metadata required')
         require(all(type(v) is str and v and v != 'TBD' for v in metadata.values()), 'unresolved source metadata')
+    # T4-U6 (D-5): a signature that declares a source basis also matches on it (never widening the match).
     signatures = [row for row in semantic_rows if row['kind'] == selector['kind'] and row['unit'] == selector['unit']
-                  and row['component'] == (metadata['component'] if metadata is not None else None)]
+                  and row['component'] == (metadata['component'] if metadata is not None else None)
+                  and ('source_basis' not in row or (metadata is not None and row['source_basis'] == metadata['basis']))]
     require(len(signatures) == 1 and signatures[0]['source_physical_semantic_dimension'] == selector['dimension'],
             'selector contradicts pinned pressure-1 semantics')
     return signatures[0]['family']

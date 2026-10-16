@@ -3,6 +3,7 @@
 //! `provenance` and `qualification` say so), and B1's reader-local n-case receipts derived
 //! from the synthetic bases. Reading them establishes no execution; no native Current evidence.
 use open_pipe_stress_result_export::retained_precision as rp;
+use open_pipe_stress_result_export::section_basis;
 use serde_json::Value;
 use std::sync::OnceLock;
 #[path = "support/retained_precision_corpus.rs"]
@@ -4994,6 +4995,88 @@ fn exact_limitations() -> Value {
 fn decode_bits(v: &Value) -> f64 {
     f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap())
 }
+/// T4-U6 (§2.5) ids: `result:elastic-maximum:…` and `result:pressure-exact:…`
+/// end in the underscore basis, the others in the hyphenated one.
+fn d5_id(id: &str, basis: &str) -> String {
+    if id.starts_with("result:elastic-maximum:") || id.starts_with("result:pressure-exact:") {
+        format!("{id}:{basis}")
+    } else {
+        format!("{id}:{}", basis.replace('_', "-"))
+    }
+}
+/// Each preview extremum on both coincident bases, nominal then reduced (§2.5).
+fn d5_extrema(extrema: &Value) -> Value {
+    let mut out = Vec::new();
+    for x in extrema.as_array().unwrap() {
+        for b in section_basis::BASES {
+            let mut e = x.clone();
+            e["section_basis"] = serde_json::json!(b);
+            e["result_id"] = serde_json::json!(d5_id(x["result_id"].as_str().unwrap(), b));
+            out.push(e);
+        }
+    }
+    Value::Array(out)
+}
+/// T4-U6 (D-5, §2.2 and §2.5) on a preview base re-stated on the exact route,
+/// as the Python reader's `d5_rows`: each stress row is published on the
+/// nominal section and immediately followed by its reduced twin with the same
+/// value (the bases coincide on this route); the receipt's references follow
+/// the nominal row (a reduced twin is outside the receipt's row universe, as
+/// W1-E stages it); the basis-free headline is null and each basis has its own.
+fn d5_rows(source: &mut Value) {
+    use serde_json::json;
+    use std::collections::HashMap;
+    fn rename(v: &mut Value, map: &HashMap<String, String>) {
+        match v {
+            Value::String(s) => {
+                if let Some(n) = map.get(s.as_str()) {
+                    *s = n.clone();
+                }
+            }
+            Value::Array(a) => a.iter_mut().for_each(|x| rename(x, map)),
+            Value::Object(o) => o.iter_mut().for_each(|(_, x)| rename(x, map)),
+            _ => {}
+        }
+    }
+    let mut renamed = HashMap::new();
+    let mut rows = Vec::new();
+    for row in source["results"].as_array().unwrap() {
+        if !section_basis::is_stress_kind(row["kind"].as_str().unwrap()) {
+            rows.push(row.clone());
+            continue;
+        }
+        let id = row["id"].as_str().unwrap();
+        for b in section_basis::BASES {
+            let mut twin = row.clone();
+            twin["id"] = json!(d5_id(id, b));
+            twin["metadata"]["basis"] = json!(format!(
+                "{}{}{b}",
+                row["metadata"]["basis"].as_str().unwrap(),
+                section_basis::TOKEN_SEPARATOR
+            ));
+            rows.push(twin);
+        }
+        renamed.insert(id.to_string(), d5_id(id, section_basis::NOMINAL));
+    }
+    source["results"] = Value::Array(rows);
+    rename(&mut source["retained_precision"]["body"], &renamed);
+    let mut summary = serde_json::Map::new();
+    for (key, value) in source["summary"].as_object().unwrap().clone() {
+        if key != "max_open_formula_stress" {
+            summary.insert(key, value);
+            continue;
+        }
+        summary.insert(key, Value::Null);
+        for b in section_basis::BASES {
+            let mut headline = value.clone();
+            if !headline.is_null() {
+                headline["result_ref"] = json!(d5_id(value["result_ref"].as_str().unwrap(), b));
+            }
+            summary.insert(format!("max_open_formula_stress_{b}"), headline);
+        }
+    }
+    source["summary"] = Value::Object(summary);
+}
 /// A reader-local synthetic exact successor (not producer output; lane P's
 /// `m3x` successors replace it as the witness): a shared preview base whose
 /// cases are all selected, re-stated on the exact route.
@@ -5049,11 +5132,15 @@ fn exact_successor(shared: &Value, base: &str) -> (Value, Value) {
             let g = &st["geometry"];
             let (od, wall) = (decode_bits(&g["normalized_od"]), decode_bits(&g["effective_wall"]));
             let ri = od * 0.5 - wall;
-            sections.push(json!({"pipe_id": p["id"], "geometry_basis": "authored_normalized_od_wall_v1",
-                "outside_diameter_m": od, "effective_wall_thickness_m": wall, "ri_m": ri,
-                "ro_m": decode_bits(&g["actual_radius"]), "Ai_m2": std::f64::consts::PI * ri * ri,
-                "As_m2": decode_bits(&st["area"]), "I_m4": decode_bits(&g["actual_second_moment"]),
-                "J_m4": decode_bits(&g["actual_polar_moment"]), "Z_m3": decode_bits(&st["section_modulus"])}));
+            // T4-U6 (D-5): one prepared section on both coincident bases.
+            let annulus = json!({"wall_m": wall, "ri_m": ri, "As_m2": decode_bits(&st["area"]),
+                "I_m4": decode_bits(&g["actual_second_moment"]), "J_m4": decode_bits(&g["actual_polar_moment"]),
+                "Z_m3": decode_bits(&st["section_modulus"])});
+            sections.push(json!({"pipe_id": p["id"], "geometry_basis": section_basis::GEOMETRY_BASIS,
+                "outside_diameter_m": od, "ro_m": decode_bits(&g["actual_radius"]), "wall_thickness_m": wall,
+                "mill_tolerance_m": 0.0, "corrosion_allowance_m": 0.0, "nominal_section": annulus.clone(),
+                "reduced_section": annulus, "pressure_bore": {"ri_m": ri, "Ai_m2": std::f64::consts::PI * ri * ri},
+                "beam_theory": {"model": section_basis::EULER_BERNOULLI}}));
             let m = mb["materials"].as_array().unwrap().iter().find(|m| m["id"] == p["material"]).unwrap();
             let e = decode_bits(&m["elastic_modulus"]);
             let g_hat = e / (2.0 * (1.0 + EXACT_NU));
@@ -5068,9 +5155,10 @@ fn exact_successor(shared: &Value, base: &str) -> (Value, Value) {
         let zeros = json!(vec![0.0; nodes.len() * 6]);
         exact_cases.push(json!({"load_case_id": id, "profile_mode": "exact_pressure_v3",
             "material_basis": "base_material_common_E_nu", "pipe_materials": materials, "pipe_sections": sections,
-            "pipe_stress_extrema": preview["pipe_stress_extrema"],
-            "stress_maximum_coverage": {"complete": preview["stress_maximum_coverage"]["complete"],
-                "unavailable_pipe_ids": preview["stress_maximum_coverage"]["unavailable_pipe_ids"]},
+            "pipe_stress_extrema": d5_extrema(&preview["pipe_stress_extrema"]),
+            "stress_maximum_coverage": section_basis::BASES.map(|b| json!({"section_basis": b,
+                "complete": preview["stress_maximum_coverage"]["complete"],
+                "unavailable_pipe_ids": preview["stress_maximum_coverage"]["unavailable_pipe_ids"]})),
             "pressure_rhs_assembly": {"method": "source_factor_grouped_pressure_rhs_v1", "load_case_id": id,
                 "node_order": nodes, "dof_order": ["Fx", "Fy", "Fz", "Mx", "My", "Mz"],
                 "dof_units": ["N", "N", "N", "N*m", "N*m", "N*m"], "assembled_pressure_rhs_global": zeros,
@@ -5083,6 +5171,7 @@ fn exact_successor(shared: &Value, base: &str) -> (Value, Value) {
     source["producer"]["semantic_contract_id"] = json!(rp::EXACT_CONTRACT_ID);
     source["formulation_basis"] = json!({"profile_id": rp::EXACT_PROFILE, "limitations": exact_limitations()});
     source["contract_evidence"] = json!({"pressure": [], "connector": [], "exact_cases": exact_cases});
+    d5_rows(&mut source);
     let b = &mut source["retained_precision"]["body"];
     for mb in b["material_bases"].as_array_mut().unwrap() {
         for m in mb["materials"].as_array_mut().unwrap() {
@@ -5314,8 +5403,9 @@ fn rv120_probes(shared: &Value) -> Vec<(ExactShape, Value)> {
     }
     let base = "two_case_synthetic";
     let (source, _) = exact_base(shared, base);
-    let as_m2 = json!(ulps(source["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]["As_m2"].as_f64().unwrap(), 1));
-    let evidence = set(json!(["contract_evidence", "exact_cases", 0, "pipe_sections", 0, "As_m2"]), as_m2);
+    // T4-U6 (D-5): the nominal section's As (the bases coincide).
+    let as_m2 = json!(ulps(source["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]["nominal_section"]["As_m2"].as_f64().unwrap(), 1));
+    let evidence = set(json!(["contract_evidence", "exact_cases", 0, "pipe_sections", 0, "nominal_section", "As_m2"]), as_m2);
     let force = set(rb(json!(["cases", 1, "selection", "body_scales", 0, "force"])), json!("0000000000000001"));
     let area = set(rb(json!(["cases", 1, "selection", "section_terms", 0, "area"])), json!("3f00000000000000"));
     for (name, edits, want) in [
@@ -5397,7 +5487,10 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// route (model 0.5.0, the complete v3 contract, a zero corrosion allowance, profile_mode
 /// exact_pressure_v3; W1's `retained_precision_rv120_b3_inputs.json` and m3x successors), so
 /// all eight digests moved; each equals the R1 record's input digest for the same RV120 key.
-const REPAIR03_N2B_INPUTS: [&str; 2] = ["cc862f389838ecbae57ae6baf5eb18dad750a5a6eb108bd83461f87a4ed9d9db", "961b962a1f20f166d04df1ee87fdea589e53dae3eded300b2c77650d1ea1fd7e"];
+/// T4-U6 re-stated the synthetic exact successor on D-5 (both section bases, per-basis
+/// stress rows, extrema, coverage and headlines), so the N2b digests moved again (were
+/// cc862f38... and 961b962a...); the R1 record and RV120's inputs follow at their re-statement.
+const REPAIR03_N2B_INPUTS: [&str; 2] = ["89e57eb901467bb5b8d589240295fa0459bdaf747026ce68e593965d99eafa66", "c2e661d09600b9799d6dff546793ca783612110d818b465a41317c2fb54dcee2"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
 const RV120_N2_INPUTS: [&str; 2] = ["5bcef58c872c70d7298ea2db2a3557a6e655779c86d7176e244e71872b1536dd", "f2d7bbea60651390cfe817e083d9215fbcb3c9cbca4b29c70807ab113b8df0ca"];
 fn sha256_canonical(v: &Value) -> String {
@@ -5450,7 +5543,13 @@ fn b3b_rows(shared: &Value, base_name: &'static str) -> Vec<(ExactShape, Value)>
     };
     let (base, base_invocation) = exact_base(shared, base_name);
     let entry = &base["contract_evidence"]["exact_cases"][0];
-    let section = |k: &str| entry["pipe_sections"][0][k].as_f64().unwrap();
+    // T4-U6 (D-5): a `/`-separated key names a nested section-basis leaf; the
+    // shapes keep their names across the readers. A base without the leaf
+    // reads NaN, so its shapes are reported as misses rather than aborting the table.
+    let section = |k: &str| k.split('/').fold(&entry["pipe_sections"][0], |v, key| &v[key]).as_f64().unwrap_or(f64::NAN);
+    let leaf = |k: &str| Value::Array(
+        std::iter::once(json!("pipe_sections")).chain(std::iter::once(json!(0))).chain(k.split('/').map(|key| json!(key))).collect(),
+    );
     let material = |k: &str| entry["pipe_materials"][0][k].as_f64().unwrap();
     let receipt_g = decode_bits(&base["retained_precision"]["body"]["material_bases"][0]["materials"][0]["shear_modulus"]);
     let receipt_e = decode_bits(&base["retained_precision"]["body"]["material_bases"][0]["materials"][0]["elastic_modulus"]);
@@ -5482,16 +5581,17 @@ fn b3b_rows(shared: &Value, base_name: &'static str) -> Vec<(ExactShape, Value)>
         ("08 work.invocation_limit changed", vec![set(rb(json!(["work", "invocation_limit"])), json!(60_000_000_001u64))], vec![], vec![], g0.clone()),
         ("08b receipt_version 2", vec![set(rb(json!(["receipt_version"])), json!(2))], vec![], vec![], g0.clone()),
         ("10 the exact successor relabelled preview (identity and profile)", vec![set(json!(["producer", "semantic_contract_id"]), json!(rp::CONTRACT_ID)), set(json!(["formulation_basis", "profile_id"]), json!(rp::PROFILE))], vec![], vec![], g0.clone()),
-        ("12 owner entry's As_m2 one ulp", vec![set(ce(json!(["pipe_sections", 0, "As_m2"])), json!(ulps(section("As_m2"), 1)))], vec![], vec![], sec.clone()),
-        ("13 owner entry's Z_m3 one ulp", vec![set(ce(json!(["pipe_sections", 0, "Z_m3"])), json!(ulps(section("Z_m3"), 1)))], vec![], vec![], sec.clone()),
-        ("14 owner entry's I_m4 one ulp", vec![set(ce(json!(["pipe_sections", 0, "I_m4"])), json!(ulps(section("I_m4"), 1)))], vec![], vec![], sec.clone()),
-        ("15 owner entry's ro_m one ulp", vec![set(ce(json!(["pipe_sections", 0, "ro_m"])), json!(ulps(section("ro_m"), 1)))], vec![], vec![], sec.clone()),
-        ("15b owner entry's J_m4 one ulp", vec![set(ce(json!(["pipe_sections", 0, "J_m4"])), json!(ulps(section("J_m4"), 1)))], vec![], vec![], sec.clone()),
-        ("15c owner entry's outside_diameter_m one ulp", vec![set(ce(json!(["pipe_sections", 0, "outside_diameter_m"])), json!(ulps(section("outside_diameter_m"), 1)))], vec![], vec![], sec.clone()),
-        ("15d owner entry's effective_wall_thickness_m one ulp", vec![set(ce(json!(["pipe_sections", 0, "effective_wall_thickness_m"])), json!(ulps(section("effective_wall_thickness_m"), 1)))], vec![], vec![], sec.clone()),
+        ("12 owner entry's As_m2 one ulp", vec![set(ce(leaf("nominal_section/As_m2")), json!(ulps(section("nominal_section/As_m2"), 1)))], vec![], vec![], sec.clone()),
+        ("13 owner entry's Z_m3 one ulp", vec![set(ce(leaf("nominal_section/Z_m3")), json!(ulps(section("nominal_section/Z_m3"), 1)))], vec![], vec![], sec.clone()),
+        ("14 owner entry's I_m4 one ulp", vec![set(ce(leaf("nominal_section/I_m4")), json!(ulps(section("nominal_section/I_m4"), 1)))], vec![], vec![], sec.clone()),
+        ("15 owner entry's ro_m one ulp", vec![set(ce(leaf("ro_m")), json!(ulps(section("ro_m"), 1)))], vec![], vec![], sec.clone()),
+        ("15b owner entry's J_m4 one ulp", vec![set(ce(leaf("nominal_section/J_m4")), json!(ulps(section("nominal_section/J_m4"), 1)))], vec![], vec![], sec.clone()),
+        ("15c owner entry's outside_diameter_m one ulp", vec![set(ce(leaf("outside_diameter_m")), json!(ulps(section("outside_diameter_m"), 1)))], vec![], vec![], sec.clone()),
+        // The effective wall (t - c_m, with zero allowance) is the reduced section's wall on this route.
+        ("15d owner entry's effective_wall_thickness_m one ulp", vec![set(ce(leaf("reduced_section/wall_m")), json!(ulps(section("reduced_section/wall_m"), 1)))], vec![], vec![], sec.clone()),
         ("15e the owner entry's load_case_id renamed (no entry for the selected case)", vec![set(ce(json!(["load_case_id"])), json!("case:other"))], vec![], vec![], sec.clone()),
         ("15f the owner entry's pipe section listed twice", vec![set(ce(json!(["pipe_sections"])), json!([entry["pipe_sections"][0], entry["pipe_sections"][0]]))], vec![], vec![], sec.clone()),
-        ("15g the owner entry's As_m2 a string", vec![set(ce(json!(["pipe_sections", 0, "As_m2"])), json!(format!("{}", section("As_m2"))))], vec![], vec![], sec.clone()),
+        ("15g the owner entry's As_m2 a string", vec![set(ce(leaf("nominal_section/As_m2")), json!(format!("{}", section("nominal_section/As_m2"))))], vec![], vec![], sec.clone()),
         ("15h the owner entry listed twice", vec![set(json!(["contract_evidence", "exact_cases"]), json!([entry, entry]))], vec![], vec![], sec.clone()),
         ("16b contract_evidence removed", vec![remove(json!(["contract_evidence"]))], vec![], vec![], sec.clone()),
         // B7b: pressure-1 (the exact successor's base, D4 (a)) admits connector evidence

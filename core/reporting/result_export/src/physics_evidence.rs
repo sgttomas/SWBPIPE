@@ -35,19 +35,6 @@ const EVIDENCE_KEYS: &[&str] = &["pressure", "connector", "exact_cases"];
 const RESOLVED_EVIDENCE_KEYS: &[&str] = &[
     "pressure", "connector", "exact_cases", "load_reference_states",
 ];
-const GEOMETRY_KEYS: &[&str] = &[
-    "pipe_id",
-    "geometry_basis",
-    "outside_diameter_m",
-    "effective_wall_thickness_m",
-    "ri_m",
-    "ro_m",
-    "Ai_m2",
-    "As_m2",
-    "I_m4",
-    "J_m4",
-    "Z_m3",
-];
 const STATIONS: &[&str] = &["end_i", "end_j", "quarter_1", "midspan", "quarter_3"];
 /// A straight pressure region's keys (an arc region adds `arc_evidence::REGION_KEYS`).
 pub(crate) const REGION_KEYS: &[&str] = &[
@@ -174,25 +161,10 @@ fn material_in(v: &Value, resolved: bool) -> Check {
     }
     Ok(())
 }
-fn geometry(v: &Value) -> Check {
-    require(keys(v, GEOMETRY_KEYS), "GEOMETRY_SHAPE")?;
-    text(&v["pipe_id"])?;
-    require(
-        v["geometry_basis"] == "authored_normalized_od_wall_v1",
-        "GEOMETRY_BASIS",
-    )?;
-    for k in &GEOMETRY_KEYS[2..] {
-        require(number(&v[*k])? > 0.0, "GEOMETRY_RANGE")?;
-    }
-    let od = number(&v["outside_diameter_m"])?;
-    let wall = number(&v["effective_wall_thickness_m"])?;
-    require(
-        wall < od * 0.5
-            && number(&v["ri_m"])? < number(&v["ro_m"])?
-            && number(&v["ro_m"])? == od * 0.5
-            && number(&v["ri_m"])? == od * 0.5 - wall,
-        "GEOMETRY_SOURCE_BINDING",
-    )
+/// T4-U6 (D-5): one `pipe_sections` entry, its three geometries rederived from
+/// its captured authored values (`section_basis::section`).
+fn geometry(v: &Value) -> Result<crate::section_basis::Sections, String> {
+    crate::section_basis::section(v)
 }
 fn temperature(v: &Value, case_basis: &str, material_id: &str) -> Check {
     match v["selection"].as_str() {
@@ -363,9 +335,17 @@ fn physical_row(
     } else {
         sign
     };
+    // T4-U6 (D-5, §2.1): a stress row's token is its recovery token followed by
+    // its section basis; the recovery token is the one its kind states.
+    let declared = md["basis"].as_str().unwrap_or_default();
+    let declared = if crate::section_basis::is_stress_kind(kind) {
+        crate::section_basis::split_token(declared).map_or("", |(token, _)| token)
+    } else {
+        declared
+    };
     require(
         md["coordinate_system"] == frame
-            && md["basis"] == basis
+            && declared == basis
             && location_ok
             && md["sign_convention"] == sign,
         "ROW_SEMANTICS",
@@ -470,8 +450,13 @@ pub(crate) fn validate_physics_evidence_in(
     }
     let mut case_members = HashMap::new();
     let mut extrema_ids = HashSet::new();
-    let mut coverage_complete = true;
+    // T4-U6 (D-5, §2.2): one coverage and one headline per section basis.
+    let mut coverage_complete = [true; 2];
     let mut all_members: Option<HashSet<&str>> = None;
+    // T4-U6/U8: each case's checked sections, and the document's one straight
+    // shear model (§3.6: the selection is per document; arcs stay Euler-Bernoulli).
+    let mut case_sections: HashMap<(&str, &str), crate::section_basis::Sections> = HashMap::new();
+    let mut straight_models: HashSet<&str> = HashSet::new();
     // N2b (RV120; WORKING_ITEMS' ruling): every loop of this validator runs in array order,
     // as TS's and PY's do, so its first failure (the code) never depends on a hash map's or
     // set's per-process order. The maps and sets only detect duplicates and answer lookups.
@@ -516,35 +501,56 @@ pub(crate) fn validate_physics_evidence_in(
             material_in(m, resolved)?;
         }
         for s in array(&case["pipe_sections"])? {
-            geometry(s)?;
+            let sections = geometry(s)?;
+            let pipe = text(&s["pipe_id"])?;
+            // §3.1: kappa_E from this case's nu (per resolved case on load-state documents).
+            let arc = arc_members.contains(&(case_id, pipe));
+            crate::section_basis::beam_theory(&sections, number(&materials[pipe]["nu"])?, arc)?;
+            if !arc {
+                straight_models.insert(crate::section_basis::model(&sections));
+            }
+            case_sections.insert((case_id, pipe), sections);
         }
-        let coverage = &case["stress_maximum_coverage"];
-        require(
-            keys(coverage, &["complete", "unavailable_pipe_ids"]),
-            "STRESS_COVERAGE_SHAPE",
-        )?;
-        let unavailable = strings(&coverage["unavailable_pipe_ids"])?;
-        require(
-            unavailable.is_subset(&members)
-                && coverage["complete"].as_bool() == Some(unavailable.is_empty()),
-            "STRESS_COVERAGE",
-        )?;
-        require(
-            arc_members
-                .iter()
-                .filter(|(c, _)| *c == case_id)
-                .all(|(_, pipe)| unavailable.contains(pipe)),
-            "ARC_WITHHELD",
-        )?;
-        coverage_complete &= unavailable.is_empty();
-        let extrema = indexed(&case["pipe_stress_extrema"], "pipe_id")?;
-        require(
-            extrema.keys().copied().collect::<HashSet<_>>()
-                == members.difference(&unavailable).copied().collect(),
-            "EXTREMA_MEMBER_COVERAGE",
-        )?;
+        require(straight_models.len() <= 1, "SHEAR_MODEL_CONSISTENCY")?;
+        let coverage = crate::section_basis::coverage(&case["stress_maximum_coverage"])?;
+        let mut unavailable_by_basis: [HashSet<&str>; 2] = [HashSet::new(), HashSet::new()];
+        for (slot, ((unavailable, complete), done)) in coverage
+            .iter()
+            .zip(coverage_complete.iter_mut())
+            .enumerate()
+        {
+            let unavailable: HashSet<&str> = unavailable.iter().copied().collect();
+            require(unavailable.is_subset(&members), "STRESS_COVERAGE")?;
+            require(
+                arc_members
+                    .iter()
+                    .filter(|(c, _)| *c == case_id)
+                    .all(|(_, pipe)| unavailable.contains(pipe)),
+                "ARC_WITHHELD",
+            )?;
+            *done &= *complete;
+            unavailable_by_basis[slot] = unavailable;
+        }
+        // §2.5: one extremum per (pipe, basis) available on that basis.
+        let mut extrema_by_basis: [HashMap<&str, &Value>; 2] = [HashMap::new(), HashMap::new()];
+        for ex in array(&case["pipe_stress_extrema"])? {
+            let basis = crate::section_basis::extremum_basis(ex)?;
+            let slot = usize::from(basis == crate::section_basis::REDUCED);
+            require(
+                extrema_by_basis[slot].insert(text(&ex["pipe_id"])?, ex).is_none(),
+                "DUPLICATE_ID",
+            )?;
+        }
+        for slot in 0..2 {
+            require(
+                extrema_by_basis[slot].keys().copied().collect::<HashSet<_>>()
+                    == members.difference(&unavailable_by_basis[slot]).copied().collect(),
+                "EXTREMA_MEMBER_COVERAGE",
+            )?;
+        }
         for ex in array(&case["pipe_stress_extrema"])? {
             let pipe = text(&ex["pipe_id"])?;
+            let basis = crate::section_basis::extremum_basis(ex)?;
             if composite && case["recovery_method"] == crate::physics_source::EXACT {
                 crate::physics_source::validate_maximum(source, case, ex, &rows)?;
                 require(
@@ -558,6 +564,7 @@ pub(crate) fn validate_physics_evidence_in(
                     ex,
                     &[
                         "pipe_id",
+                        "section_basis",
                         "result_id",
                         "station_fraction",
                         "span_index",
@@ -582,7 +589,10 @@ pub(crate) fn validate_physics_evidence_in(
             require(
                 row["kind"] == "pipe_elastic_normal_stress_maximum_v2"
                     && row["entity_ref"] == pipe
-                    && case_basis(row)? == case_id,
+                    && case_basis(row)? == case_id
+                    && crate::section_basis::split_token(row["metadata"]["basis"].as_str().unwrap_or_default())
+                        .map(|(_, b)| b)
+                        == Some(basis),
                 "EXTREMA_RESULT_BINDING",
             )?;
             for k in ["station_fraction", "local_fraction"] {
@@ -609,6 +619,15 @@ pub(crate) fn validate_physics_evidence_in(
                 "EXTREMA_BOUNDS",
             )?;
             require(ex["approximation"] == "piecewise_quadratic_straight_section_statics" && ex["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures" && ex["enclosure_scope"] == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate", "EXTREMA_BASIS")?;
+        }
+        // Each pipe's two maxima against its two sections, in array order.
+        for ex in array(&case["pipe_stress_extrema"])? {
+            let pipe = text(&ex["pipe_id"])?;
+            if crate::section_basis::extremum_basis(ex)? == crate::section_basis::NOMINAL {
+                if let Some(reduced) = extrema_by_basis[1].get(pipe) {
+                    crate::section_basis::extrema_twins(ex, reduced, &case_sections[&(case_id, pipe)])?;
+                }
+            }
         }
         case_members.insert(case_id, members);
     }
@@ -646,6 +665,20 @@ pub(crate) fn validate_physics_evidence_in(
             None if signature.is_some_and(|s| s["category"] == "review_evidence") => continue,
             None => row_case(row, &cases)?,
         };
+        // T4-U6 (§2.4): an inherited thin-wall row names no section basis and is
+        // refused on an exact envelope; every stress row names its basis (token
+        // and id) and belongs to a member whose sections the case states.
+        require(!crate::section_basis::is_thin_wall_kind(kind), "ROW_SECTION_BASIS")?;
+        let section_basis = if crate::section_basis::is_stress_kind(kind) {
+            let (_, basis) = crate::section_basis::row_basis(row)?;
+            require(
+                case_members[case].contains(text(&row["entity_ref"])?),
+                "ROW_MEMBER_UNRESOLVED",
+            )?;
+            basis
+        } else {
+            ""
+        };
         physical_row(
             row,
             kind,
@@ -665,6 +698,7 @@ pub(crate) fn validate_physics_evidence_in(
                     kind,
                     text(&row["metadata"]["component"])?,
                     text(&row["metadata"]["location"])?,
+                    section_basis,
                 )),
                 "ROW_SLOT_DUPLICATE",
             )?;
@@ -686,6 +720,57 @@ pub(crate) fn validate_physics_evidence_in(
             }
         }
     }
+    // T4-U6 (D-5, §2.1, §2.5): both families of every stress signature. Each
+    // nominal row's twin is the row of the same id with the reduced segment, the
+    // same recovery token and the same declared semantics; each pair is checked
+    // against its member's two sections (array order, as every loop here).
+    let mut lame: std::collections::BTreeMap<(&str, &str, &str, &str), HashMap<&str, f64>> =
+        std::collections::BTreeMap::new();
+    let (mut stress_rows, mut pairs) = (0usize, 0usize);
+    for row in array(&source["results"])? {
+        let kind = text(&row["kind"])?;
+        if !crate::section_basis::is_stress_kind(kind) {
+            continue;
+        }
+        let (token, basis) = crate::section_basis::row_basis(row)?;
+        let case = case_basis(row)?;
+        let entity = text(&row["entity_ref"])?;
+        let sections = case_sections
+            .get(&(case, entity))
+            .ok_or("SOURCE_PHYSICS_ROW_MEMBER_UNRESOLVED")?;
+        stress_rows += 1;
+        let md = &row["metadata"];
+        if matches!(kind, "pipe_lame_radial_stress_v2" | "pipe_lame_hoop_stress_v2") {
+            require(
+                lame.entry((case, entity, text(&md["location"])?, basis))
+                    .or_default()
+                    .insert(text(&md["component"])?, number(&row["value"])?)
+                    .is_none(),
+                "ROW_SLOT_DUPLICATE",
+            )?;
+        }
+        if basis != crate::section_basis::NOMINAL {
+            continue;
+        }
+        let twin = crate::section_basis::twin_id(text(&row["id"])?)
+            .and_then(|id| rows.get(id.as_str()).copied())
+            .ok_or("SOURCE_PHYSICS_ROW_BASIS_TWIN")?;
+        let tmd = &twin["metadata"];
+        require(
+            crate::section_basis::row_basis(twin)? == (token, crate::section_basis::REDUCED)
+                && twin["kind"] == row["kind"]
+                && twin["unit"] == row["unit"]
+                && twin["entity_ref"] == row["entity_ref"]
+                && twin["basis_ref"] == row["basis_ref"]
+                && ["component", "coordinate_system", "location", "sign_convention"]
+                    .iter()
+                    .all(|k| tmd[*k] == md[*k]),
+            "ROW_BASIS_TWIN",
+        )?;
+        crate::section_basis::twin_values(kind, number(&row["value"])?, number(&twin["value"])?, sections)?;
+        pairs += 1;
+    }
+    require(2 * pairs == stress_rows, "ROW_BASIS_TWIN")?;
     crate::connector_evidence::validate(
         &evidence["connector"],
         &evidence["pressure"],
@@ -716,6 +801,7 @@ pub(crate) fn validate_physics_evidence_in(
     let mut regions = HashMap::new();
     let mut owned_members = HashSet::new();
     let mut bound_results = HashSet::new();
+    let mut member_pressure: HashMap<(&str, &str), f64> = HashMap::new();
     for region in array(&evidence["pressure"])? {
         let case = text(&region["load_case_id"])?;
         let region_id = text(&region["region_id"])?;
@@ -899,13 +985,22 @@ pub(crate) fn validate_physics_evidence_in(
         }
         for member in array(&region["member_pipe_ids"])? {
             let member = text(member)?;
+            // T4-U6 (§2.1): a stress slot is published on both bases; a force
+            // slot once.
+            let covered = |kind: &str, component: &str, station: &str| {
+                if crate::section_basis::is_stress_kind(kind) {
+                    crate::section_basis::BASES
+                        .iter()
+                        .all(|basis| slots.contains(&(case, member, kind, component, station, *basis)))
+                } else {
+                    slots.contains(&(case, member, kind, component, station, ""))
+                }
+            };
+            member_pressure.insert((case, member), p);
             if arcs.contains(member) {
                 for (kind, component, stations) in crate::arc_evidence::ROWS {
                     for station in stations {
-                        require(
-                            slots.contains(&(case, member, kind, component, *station)),
-                            "PRESSURE_ROW_COVERAGE",
-                        )?;
+                        require(covered(kind, component, station), "PRESSURE_ROW_COVERAGE")?;
                     }
                 }
                 continue;
@@ -940,14 +1035,19 @@ pub(crate) fn validate_physics_evidence_in(
                 };
                 for component in components {
                     for station in stations {
-                        require(
-                            slots.contains(&(case, member, kind, *component, *station)),
-                            "PRESSURE_ROW_COVERAGE",
-                        )?;
+                        require(covered(kind, component, station), "PRESSURE_ROW_COVERAGE")?;
                     }
                 }
             }
         }
+    }
+    // T4-U6 (§2.1): each straight member's Lame rows on each basis against that
+    // basis's own annulus and its region's pressure.
+    for ((case, member, _, basis), values) in &lame {
+        let p = *member_pressure
+            .get(&(*case, *member))
+            .ok_or("SOURCE_PHYSICS_PRESSURE_ROW_UNBOUND")?;
+        crate::section_basis::lame_station(values, case_sections[&(*case, *member)].basis(basis), p)?;
     }
     for row in array(&source["results"])? {
         let id = text(&row["id"])?;
@@ -964,33 +1064,12 @@ pub(crate) fn validate_physics_evidence_in(
             &evidence["connector"],
         )?;
     }
-    let headline = &source["summary"]["max_open_formula_stress"];
-    if !headline.is_null() {
-        require(
-            coverage_complete && keys(headline, &["value", "unit", "location_ref", "result_ref"]),
-            "INCOMPLETE_STRESS_HEADLINE",
-        )?;
-        let row = rows
-            .get(text(&headline["result_ref"])?)
-            .ok_or("SOURCE_PHYSICS_HEADLINE_RESULT_MISSING")?;
-        require(
-            row["kind"] == "pipe_elastic_normal_stress_maximum_v2"
-                && headline["value"] == row["value"]
-                && headline["unit"] == row["unit"]
-                && headline["location_ref"] == row["entity_ref"],
-            "HEADLINE_RESULT_BINDING",
-        )?;
-        require(
-            rows.values()
-                .filter(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2")
-                .all(|r| {
-                    r["value"].as_f64().unwrap_or(f64::INFINITY)
-                        <= row["value"].as_f64().unwrap_or(f64::NEG_INFINITY)
-                }),
-            "HEADLINE_MAXIMUM",
-        )?;
-    }
-    Ok(())
+    // T4-U6 (D-5, §2.2): no governing basis; one headline per basis.
+    let maxima: Vec<&Value> = array(&source["results"])?
+        .iter()
+        .filter(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2")
+        .collect();
+    crate::section_basis::headlines(&source["summary"], &rows, &maxima, coverage_complete)
 }
 
 fn assembly(
@@ -1167,8 +1246,10 @@ fn assembly(
             let coefficient = number(&term["coefficient"])?;
             let geometries = indexed(&region["geometry"], "pipe_id")?;
             let geometry = geometries[pipe];
+            // T4-U6 (D-5): the pressure load path is on the pressure bore, the
+            // reduced wall's inner radius (`source_bore_key`).
             let a = number(&geometry["outside_diameter_m"])? * 0.5;
-            let b = number(&geometry["effective_wall_thickness_m"])?;
+            let b = number(&geometry["reduced_section"]["wall_m"])?;
             let hi = a - b;
             let b_virtual = a - hi;
             let a_virtual = hi + b_virtual;
@@ -1264,20 +1345,25 @@ pub fn validate_transport_metadata(source: &Value) -> Check {
         for value in array(&case["pipe_sections"])? {
             geometry(value)?;
         }
-        let missing = strings(&case["stress_maximum_coverage"]["unavailable_pipe_ids"])?;
+        // T4-U6 (§2.5): one coverage record and one maximum per pipe per basis.
         let members = sections.keys().copied().collect::<HashSet<_>>();
-        require(
-            missing.is_subset(&members)
-                && case["stress_maximum_coverage"]["complete"].as_bool()
-                    == Some(missing.is_empty()),
-            "TRANSPORT_MAXIMUM_COVERAGE",
-        )?;
-        let maxima = indexed(&case["pipe_stress_extrema"], "pipe_id")?;
-        require(
-            maxima.keys().copied().collect::<HashSet<_>>()
-                == members.difference(&missing).copied().collect(),
-            "TRANSPORT_MAXIMUM_MEMBERS",
-        )?;
+        let coverage = crate::section_basis::coverage(&case["stress_maximum_coverage"])
+            .map_err(|_| "SOURCE_PHYSICS_TRANSPORT_MAXIMUM_COVERAGE".to_string())?;
+        for (slot, (missing, _)) in coverage.iter().enumerate() {
+            let missing: HashSet<&str> = missing.iter().copied().collect();
+            require(missing.is_subset(&members), "TRANSPORT_MAXIMUM_COVERAGE")?;
+            let basis = crate::section_basis::BASES[slot];
+            let mut maxima = HashSet::new();
+            for ex in array(&case["pipe_stress_extrema"])? {
+                if crate::section_basis::extremum_basis(ex).map_err(|_| "SOURCE_PHYSICS_TRANSPORT_MAXIMUM_MEMBERS".to_string())? == basis {
+                    require(maxima.insert(text(&ex["pipe_id"])?), "TRANSPORT_MAXIMUM_MEMBERS")?;
+                }
+            }
+            require(
+                maxima == members.difference(&missing).copied().collect(),
+                "TRANSPORT_MAXIMUM_MEMBERS",
+            )?;
+        }
         for ex in array(&case["pipe_stress_extrema"])? {
             require(
                 ids.insert(text(&ex["result_id"])?),
@@ -1374,8 +1460,11 @@ mod b7b_exact_transport_tests {
             for (pointer, value, code) in [
                 ("/contract_evidence/exact_cases/0/profile_mode", json!("exact_straight_pressure_v2"), "SOURCE_PHYSICS_TRANSPORT_SHAPE"),
                 ("/contract_evidence/exact_cases/0/pipe_materials/0/G_pa", json!(1.0), "SOURCE_PHYSICS_MATERIAL_G_BINDING"),
-                ("/contract_evidence/exact_cases/0/pipe_sections/0/ri_m", json!(0.08), "SOURCE_PHYSICS_GEOMETRY_SOURCE_BINDING"),
-                ("/contract_evidence/exact_cases/0/stress_maximum_coverage/complete", json!(false), "SOURCE_PHYSICS_TRANSPORT_MAXIMUM_COVERAGE"),
+                // T4-U6 (§2.5): the D-5 section and the per-basis coverage records.
+                ("/contract_evidence/exact_cases/0/pipe_sections/0/nominal_section/ri_m", json!(0.08), "SOURCE_PHYSICS_GEOMETRY_SOURCE_BINDING"),
+                ("/contract_evidence/exact_cases/0/pipe_sections/0/reduced_section/ri_m", json!(0.08), "SOURCE_PHYSICS_GEOMETRY_SOURCE_BINDING"),
+                ("/contract_evidence/exact_cases/0/stress_maximum_coverage/0/complete", json!(false), "SOURCE_PHYSICS_TRANSPORT_MAXIMUM_COVERAGE"),
+                ("/contract_evidence/exact_cases/0/stress_maximum_coverage/1/complete", json!(false), "SOURCE_PHYSICS_TRANSPORT_MAXIMUM_COVERAGE"),
                 ("/contract_evidence/exact_cases/0/pipe_stress_extrema", json!([]), "SOURCE_PHYSICS_TRANSPORT_MAXIMUM_MEMBERS"),
                 ("/contract_evidence/exact_cases/0/pressure_rhs_assembly/assembled_pressure_rhs_global/3", json!(1.0), "SOURCE_PHYSICS_RHS_PRESSURE_MOMENT"),
             ] {

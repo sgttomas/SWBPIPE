@@ -1691,6 +1691,7 @@ pub mod load_reference_source;
 mod arc_evidence;
 mod connector_evidence;
 mod physics_evidence;
+pub mod section_basis;
 mod preview_physics_evidence;
 pub mod physics_source;
 pub mod source_blocks;

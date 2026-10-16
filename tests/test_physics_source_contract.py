@@ -12,6 +12,7 @@ import struct
 import sys
 import pytest
 from tests.verifiers import physics_source as composite
+from tests.verifiers import section_basis as sb
 from tests.verifiers.physics_evidence import validate_transport_metadata as physics_transport
 from tests.verifiers.pressure_1 import validate_pressure_evidence
 from tests.verifiers.source_blocks import domain_hash, _derived, _signature
@@ -76,11 +77,17 @@ def test_maximum_basis_is_a_signature_discriminator_only():
     source,_=actual()
     row=deepcopy(next(r for r in source["results"] if r["kind"]=="pipe_elastic_normal_stress_maximum_v2"))
     exact=_signature(row,composite.SourceContract.PRESSURE_V3)
-    assert exact["source_basis"]==composite.MAX_BASIS
-    row["metadata"]["basis"]="recovered_from_open_mechanics_stress_components"
+    # T4-U6 (D-5, §2.4): the source maximum names its section basis.
+    token,section=sb.split_token(exact["source_basis"])
+    assert token==composite.MAX_BASIS and row["metadata"]["basis"]==exact["source_basis"]
+    row["metadata"]["basis"]=f"{token}{sb.SEPARATOR}{sb.other(section)}"
+    twin=_signature(row,composite.SourceContract.PRESSURE_V3)
+    assert twin["signature_id"]!=exact["signature_id"]
+    row["metadata"]["basis"]=f"recovered_from_open_mechanics_stress_components{sb.SEPARATOR}{section}"
     ordinary=_signature(row,composite.SourceContract.PRESSURE_V3)
     assert ordinary["signature_id"]!=exact["signature_id"]
-    for basis in [None,"invented"]:
+    # A basis-less token no longer names a signature of a stress kind.
+    for basis in [None,"invented",composite.MAX_BASIS,"recovered_from_open_mechanics_stress_components"]:
         if basis is None:row["metadata"].pop("basis")
         else:row["metadata"]["basis"]=basis
         assert _signature(row,composite.SourceContract.PRESSURE_V3) is None
@@ -173,7 +180,9 @@ def isolated_torsion_recipe(action, radius, constant):
     station=member["stations"][["end_i","quarter_1","midspan","quarter_3","end_j"].index(row["metadata"]["location"])]
     station["actions"][3]={"value":action,"interval":[action,action]}
     check["action"]=station["actions"][3]
-    section.update(ro_m=radius,J_m4=constant)
+    section.update(ro_m=radius)
+    for basis in sb.BASES:  # T4-U6 (§2.3): the one source section binds both bases
+        section[basis]["J_m4"]=constant
     check["parameters"].update(torsion_radius_m=radius,torsion_constant_m4=constant)
     row["value"]=action*radius/constant/1e6
     return source,case,row

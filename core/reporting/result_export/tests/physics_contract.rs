@@ -325,7 +325,8 @@ fn pressure_table_declares_its_own_signature_counts() {
     // precision-1; B7b retired physics-1, whose 68 physical signatures it keeps,
     // E14's parity observation already gone), plus 18 connector and 2 U5 signatures.
     assert!(s::pressure_rows_contract().get("inherited_semantic_contract_sha256").is_none());
-    assert_eq!(s::pressure_rows_contract()["source_signature_count"], 88);
+    // T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis), 88 -> 106.
+    assert_eq!(s::pressure_rows_contract()["source_signature_count"], 106);
     assert_eq!(s::pressure_rows_contract()["source_kind_count"], 59);
 }
 

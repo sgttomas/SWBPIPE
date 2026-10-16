@@ -932,7 +932,7 @@
       ]
     },
     "PressureContract": {
-      "description": "Current exact pressure contract: a closed object with explicit version, mode and shear_model. Present null, scalars and arrays are invalid. Operative preview pipe sections require an explicit local corrosion_allowance; zero is authored, never defaulted. Only Euler–Bernoulli and zero allowance are admitted until U8/U6. Canonical Section.properties uses its separate code-neutral Quantity representation.",
+      "description": "Current exact pressure contract: a closed object with explicit version, mode and shear_model. Present null, scalars and arrays are invalid. Operative preview pipe sections require an explicit local corrosion_allowance; zero is authored, never defaulted, and a nonzero allowance is admitted with mill tolerance plus allowance below the wall. shear_model selects the straight members' shear deformation: euler_bernoulli, or timoshenko_annulus_energy_v1 (the energy-matched annular shear factor on the nominal section); realized arcs are Euler–Bernoulli under either. Stiffness and pipe metal mass use the nominal wall; contents mass and pressure end caps use the reduced bore; stresses are published on both the nominal and the reduced section (wall minus mill tolerance and corrosion allowance). Canonical Section.properties uses its separate code-neutral Quantity representation.",
       "type": "object",
       "additionalProperties": false,
       "required": [

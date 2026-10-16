@@ -102,13 +102,14 @@ CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered
 # B3b (B3-D §7): the exact successor `<physics-retained>`, whose carrier branches follow
 # the preview successor's. Both successors, and only they, carry a receipt.
 EXACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-EXACT_SHA = "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574"
+# T4-U6 (D-5, §2.4): follows pressure-1's per-basis table by its inherited hash (was 69581249...).
+EXACT_SHA = "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 SUCCESSORS = (SUCC, EXACT)
 # b7-plan's pressure-source join: a tenth run branch (no receipt); its contract
 # registry entry is appended after the exact successor's.
 PRESSURE_SOURCE = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PRESSURE_SOURCE_SHA = "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435"
+PRESSURE_SOURCE_SHA = "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53"
 # B7b: the composite source statement is pressure-source-1's (physics-source-1 is retired).
 SOURCE_RAW = "pressure_source/physics_source/n05-sparse_interactive.raw.json"
 MILESTONES = {

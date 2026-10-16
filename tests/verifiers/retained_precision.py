@@ -24,6 +24,7 @@ from typing import Any, NamedTuple
 
 from .compatibility import _source_contract
 from .physics_source import _actual_materials, _canonical_inputs
+from . import section_basis as sb
 from .canonical_json import canonical_sha256
 from .units import convert_quantities_to_canonical, to_canonical
 
@@ -46,8 +47,10 @@ METHOD = "contribution_preserving_multiprecision_v1"
 EXACT_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
-EXACT_DEFINITION_HASH = "ff28bea4ca9613d689edd1428b07e869a0a3ac824012b49382307b6293819def"
-EXACT_TABLE_HASH = "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574"
+# T4-U6: DEF-E states zero mill tolerance and lists the reduced-basis rows and both headlines; the table follows the
+# inherited pressure-1 table's per-basis rows.
+EXACT_DEFINITION_HASH = "6c772d242ef47a354376f29f93fc69959ee2b4085b606af211da4b7f45c87f8e"
+EXACT_TABLE_HASH = "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 FACADE_POLICY = "RP-FACADE-SI-v2"
 RECEIPT_BINDINGS = {"canonicalization": "openpipestress_jcs_ijson_v1", "method": METHOD, "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
@@ -1603,31 +1606,76 @@ def _g5a_coverage(body, case, source, s, need, data_sources=None):
             need(has_data[b["body"]])
 
 
-def _g5b_exact_evidence(evidence, case, source):
+def _g5b_exact_evidence(evidence, case, source, rows=()):
     """G5b on the exact branch (B3-D §1.4 and §6.2; D2 §4.9.3 G5b): the selected case's own exact_cases entry,
-    located by load_case_id, states the prepared section bit for bit. For each source member: As_m2 is the area,
-    Z_m3 the section modulus, I_m4 and J_m4 the actual second and polar moments, ro_m the actual radius, and
-    outside_diameter_m and effective_wall_thickness_m the normalized OD and effective wall."""
+    located by load_case_id, states the prepared section bit for bit. For each source member: ro_m is the actual
+    radius and outside_diameter_m the normalized OD, and on both section bases (T4-U6, D-5: the one receipt section
+    binds the nominal and the reduced section, which coincide on this route) As_m2 is the area, Z_m3 the section
+    modulus, I_m4 and J_m4 the actual second and polar moments and wall_m the effective wall. Each reduced stress row
+    of the case is its nominal twin's retained value, bit for bit (the successor overlays the twin)."""
     need = lambda ok: _need(ok, "G5b", "SECTION_MISMATCH")
     entries = evidence.get("exact_cases") if type(evidence) is dict else None
     need(type(entries) is list)
     owner = [e for e in entries if type(e) is dict and e.get("load_case_id") == case["basis_ref"]["ref_id"]]
     need(len(owner) == 1 and type(owner[0].get("pipe_sections")) is list)
+    number = lambda value: type(value) in (int, float) and math.isfinite(value)
     for term in source["section_terms"]:
         member = next(m for m in source["id_maps"]["members"] if m["kernel_member"] == term["member"])
         stated = [p for p in owner[0]["pipe_sections"] if type(p) is dict and p.get("pipe_id") == member["id"]]
         need(len(stated) == 1)
         geometry = term["geometry"]
-        for word, key in ((term["area"], "As_m2"), (term["section_modulus"], "Z_m3"), (geometry["actual_second_moment"], "I_m4"),
-                          (geometry["actual_polar_moment"], "J_m4"), (geometry["actual_radius"], "ro_m"),
-                          (geometry["normalized_od"], "outside_diameter_m"), (geometry["effective_wall"], "effective_wall_thickness_m")):
+        for word, key in ((geometry["actual_radius"], "ro_m"), (geometry["normalized_od"], "outside_diameter_m")):
             value = stated[0].get(key)
-            need(type(value) in (int, float) and math.isfinite(value) and bits(float(value)) == word)
+            need(number(value) and bits(float(value)) == word)
+        for basis in ("nominal_section", "reduced_section"):
+            annulus = stated[0].get(basis)
+            need(type(annulus) is dict)
+            for word, key in ((term["area"], "As_m2"), (term["section_modulus"], "Z_m3"), (geometry["actual_second_moment"], "I_m4"),
+                              (geometry["actual_polar_moment"], "J_m4"), (geometry["effective_wall"], "wall_m")):
+                value = annulus.get(key)
+                need(number(value) and bits(float(value)) == word)
+    # `rows` is every published row of the case: each reduced twin, outside the receipt's row universe, carries the
+    # retained value of its nominal twin, the bound row immediately before it (§2.5 row order).
+    rows = list(rows)
+    for i, row in enumerate(rows):
+        if not (_reduced_twin(row) or sb.id_basis(row.get("id")) == sb.REDUCED):
+            continue
+        nominal = rows[i - 1] if i > 0 else None
+        need(_reduced_twin(row) and nominal is not None and not _reduced_twin(nominal) and nominal.get("id") == sb.twin_id(row["id"])
+             and number(row.get("value")) and number(nominal.get("value")) and bits(float(row["value"])) == bits(float(nominal["value"])))
 
 
-def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None):
+def _reduced_twin(row):
+    """T4-U6 (D-5, §2.3/§5): a reduced-section twin row, which binds no receipt quantity (the producer's
+    `reduced_twin`): outside the receipt's row universe. No preview row names a section basis."""
+    basis = row.get("metadata", {}).get("basis") if type(row) is dict and type(row.get("metadata")) is dict else None
+    return isinstance(basis, str) and basis.endswith(sb.SEPARATOR + sb.REDUCED)
+
+
+def _bound_rows(rows):
+    """The receipt's row universe: the rows less the reduced twins."""
+    return [row for row in rows if not _reduced_twin(row)]
+
+
+def _with_twin_classes(bound_classes, all_rows):
+    """A reduced twin takes its nominal twin's class (its value is that row's; without one it would bind unchecked);
+    the classes then follow the published row order."""
+    out, it, last = [], iter(bound_classes), None
+    for row in all_rows:
+        if _reduced_twin(row):
+            _need(last is not None, "G5c", "CLASSIFICATION_MISMATCH")
+            cls = dict(last, result_id=row["id"], basis_ref=row["basis_ref"], normalized_bits=bits(_normalized(row)))
+        else:
+            cls = next(it, None)
+            _need(cls is not None, "G5c", "CLASSIFICATION_MISMATCH")
+        out.append(cls); last = cls
+    return out
+
+
+def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None, all_rows_by_case=None):
     """G5a, then G5b, then G5c, each across all cases in case order. On the exact branch `exact_evidence` is a
     one-tuple holding the envelope's contract_evidence (present or not), for G5b's evidence cross-check.
+    `rows_by_case` is the receipt's row universe; `all_rows_by_case` (default: the same) adds the reduced twins.
 
     C3_DELTA s4 keeps C1's gate order G0..G8 ("within a gate ... ascending attempt
     index; first failure wins") and C1 s6 has every reader execute G0->G8 in the same
@@ -1635,6 +1683,7 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None):
     """
     classes = []
     states = []
+    per_case = []  # each G5b case's slice of `classes`, its published rows and its bound row count
     # CONTRACT §10.1 G5a-G5c: a retained combination is one more numeric owner, after the cases, on its representative
     # source's maps and sections (REVISION_01 §3.3 N-9), with its own rows, Selection and prescribed DOFs.
     owners = [("case", c) for c in body["cases"]] + [("combination", c) for c in body.get("combinations") or [] if c["disposition"] in RETAINED_DISPOSITIONS]
@@ -1732,7 +1781,7 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None):
             member = next(m for m in source["id_maps"]["members"] if m["kernel_member"] == right["member"])
             # D18 (retained_product.rs `ScalarWork::operation`, `evaluate_operational`; endpoint_maximum.rs `endpoint_maximum`): each echoed term equals the source's and is positive.
             _need(left["member_id"] == member["id"] and all(left[k] == right[k] and from_bits(left[k]) > 0 for k in ["area", "section_modulus", "length", "axial_stiffness", "torsional_stiffness"]), "G5b", "SECTION_MISMATCH")
-        absolute = []; uncovered = []
+        absolute = []; uncovered = []; first = len(classes)
         for ri, row in enumerate(rows):
             kind, bi, member, n, inp = values[ri]; scale = None; bound = None
             if kind == "non_quantity": classification = "non_quantity"
@@ -1760,16 +1809,20 @@ def _g5_numeric(body, rows_by_case, phase=None, exact_evidence=None):
                     absolute.append({"result_id":row["id"],"bound":bits(bound)})
             classes.append({"result_id":row["id"],"basis_ref":row["basis_ref"],"normalized_bits":bits(n),"scale_bits":None if scale is None else bits(scale),"class":classification,"bound_bits":None if bound is None else bits(bound)})
         deferred_class_checks.append((s["absolute_verified"] == absolute and s["not_covered"] == uncovered, "CLASSIFICATION_MISMATCH"))
+        per_case.append((first, len(classes), (all_rows_by_case or rows_by_case)[case["basis_ref"]["ref_id"]], len(rows)))
     if exact_evidence is not None:
         # DESIGN §6.2's G5b row: the shared checks over every case first, then each selected case's exact evidence,
         # as RS's `g5b_exact_evidence` and TS run it (RV120 F1).
-        for case, source, *_ in states:
-            if "status" in case: _g5b_exact_evidence(exact_evidence[0], case, source)
+        for case, source, s, rows, *_ in states:
+            if "status" in case: _g5b_exact_evidence(exact_evidence[0], case, source, (all_rows_by_case or rows_by_case)[case["basis_ref"]["ref_id"]])
     if phase is not None: phase[0] = "G5c"
-    for *_, deferred_class_checks in states:
+    ordered = []
+    for (*_, deferred_class_checks), (start, end, everything, bound) in zip(states, per_case):
         for ok, code in deferred_class_checks:
             _need(ok, "G5c", code)
-    return classes + _r_comb_1(body, rows_by_case)
+        # T4-U6 (D-5): the reduced twins' classes, after the case's own G5c checks (as RS's `g5c`).
+        ordered += _with_twin_classes(classes[start:end], everything) if len(everything) != bound else classes[start:end]
+    return ordered + _r_comb_1(body, all_rows_by_case or rows_by_case)
 
 
 def _pressure_contract_is(model, expected):
@@ -1823,6 +1876,21 @@ def _exact_namespace(model):
             and _section_allowances(model, exact=True))
 
 
+# T4-U6 (§5, O4): the retained exact route has one section basis, so a nonzero mill tolerance is declined by name.
+MILL_TOLERANCE_DECLINE = "nonzero mill tolerance is not a retained-source section basis"
+
+
+def _exact_mill_tolerances(model):
+    """Rust `zero_mill_tolerances` on the exact route: every pipe section's mill tolerance is zero (absent or null is
+    zero, as the producer reads it); otherwise G8 refuses, naming the decline."""
+    pipes = model.get("pipe_segments")
+    for pipe in pipes if isinstance(pipes, list) else []:
+        section = pipe.get("section") if isinstance(pipe, dict) else None
+        quantity = section.get("mill_tolerance") if isinstance(section, dict) else None
+        if quantity is not None and not _zero_length(quantity):
+            _raise("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH", MILL_TOLERANCE_DECLINE)
+
+
 def _g8_exact_materials(body, source, invocation, case_bases):
     """G8 on the exact branch, after the material bases (B3-D §6.2; REVISION_01 §4.2 steps 5 and 6). S-C: physics-
     source-1's actual-material check over every exact_cases entry, through its own `_actual_materials` and
@@ -1865,6 +1933,9 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
     # being the invocation's in order, id and expression. The exact route still admits none (B3b; RR "PR-B1 cut …", 2).
     need((_exact_namespace(model) if exact else _preview_namespace(model)) and (model.get("combinations", []) == [] if exact else _model_combinations_match(body, model)), "INVOCATION_MISMATCH")
     need(model.get("components", []) == [] and "reference_configurations" not in model, "INVOCATION_MISMATCH")
+    # T4-U6 (§5, O4): after the namespace and scope, as Rust's `g8`; the decline is named.
+    if exact:
+        _exact_mill_tolerances(model)
     nodes, pipes, supports = model["nodes"], model["pipe_segments"], model["supports"]
     need(len({x["id"] for x in nodes}) == len(nodes) and len({x["id"] for x in pipes}) == len(pipes) and len({x["id"] for x in supports}) == len(supports))
     materials = request.get("materials") or model.get("materials", [])
@@ -2820,6 +2891,9 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             basis=row.get("basis_ref",{});owned=rows if basis.get("ref_type")=="load_case" else crows if basis.get("ref_type")=="combination" else {}
             _need(row["id"] not in seen and basis.get("ref_id") in owned,state["gate"],"COVERAGE_MISMATCH")
             seen.add(row["id"]);owned[basis["ref_id"]].append(row)
+        # T4-U6 (D-5): every published row (G5b's twin check, G5c's twin classes, G6) and the receipt's row universe,
+        # which leaves out the reduced twins (RS `rows_all_for` / `rows_for`).
+        all_rows={**rows,**crows};rows={k:_bound_rows(v) for k,v in rows.items()};crows={k:_bound_rows(v) for k,v in crows.items()}
         _need(len(body["ordinary_attempts"])==len(cases),state["gate"],"COVERAGE_MISMATCH")
         for s in body["sources"]:_need(s["owner"]["kind"]=="combination" or len(s["body_membership"])>0,state["gate"],"COVERAGE_MISMATCH")  # D29 (a CombinationSource has none)
         # The receipt's own references, bound and unbound (RR "RV113's three returns verified; ...; the three-reader
@@ -2890,13 +2964,13 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
         _g4_combinations(combos,diags)
         state["gate"]="G5";_g5_native(body);_g5_ordinary(body,cases,diags,quality,(snapshot.get("contract_evidence") or {}).get("combination_gates"));_g5_requested_mode(body,rows,diags,quality,snapshot["numerical_quality"].get("status"));_g5_products(body,rows,route)
         # B3-D §6.2: on the exact branch G5b also binds each selected case's own pressure-1 section evidence.
-        state["gate"]="G5a";phase=state["phase"];classes=_g5_numeric(body,rows,phase,(snapshot.get("contract_evidence"),) if route.exact else None)
+        state["gate"]="G5a";phase=state["phase"];classes=_g5_numeric(body,rows,phase,(snapshot.get("contract_evidence"),) if route.exact else None,all_rows)
         state["gate"]="G6"
         for c in cases:
-            for row in rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["status"]=="selected" else "recovery_method" not in row,state["gate"],"ROW_METHOD_MISMATCH")
+            for row in all_rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["status"]=="selected" else "recovery_method" not in row,state["gate"],"ROW_METHOD_MISMATCH")
         for c in body["combinations"]:
             # CONTRACT §10.1 G6: recovery_method exactly on a retained_selected combination's rows.
-            for row in rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["disposition"]=="retained_selected" else "recovery_method" not in row,state["gate"],"ROW_METHOD_MISMATCH")
+            for row in all_rows[c["basis_ref"]["ref_id"]]:_need(row.get("recovery_method")==METHOD if c["disposition"]=="retained_selected" else "recovery_method" not in row,state["gate"],"ROW_METHOD_MISMATCH")
         state["gate"]="G7";projected=_project(snapshot,route)
         try:_source_contract(projected)
         except ValueError as exc:

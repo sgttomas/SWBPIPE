@@ -385,7 +385,9 @@ def prepare_case(case: dict, base: Path, purpose: str, semantic_rows: list[dict]
         require(type(selector['basis_ref']) is dict and set(selector['basis_ref']) == {'ref_type', 'ref_id'}, 'explicit case/state basis required')
         require(selector['basis_ref']['ref_type'] in ('load_case', 'combination'), 'invalid case basis')
         _id(selector['basis_ref']['ref_id'], 'case basis ID')
-        signatures = [row for row in semantic_rows if row['kind'] == selector['kind'] and row['unit'] == selector['unit'] and row['component'] == (metadata['component'] if metadata is not None else None)]
+        # T4-U6 (D-5): a signature that declares a source basis also matches on it (never widening the match).
+        signatures = [row for row in semantic_rows if row['kind'] == selector['kind'] and row['unit'] == selector['unit'] and row['component'] == (metadata['component'] if metadata is not None else None)
+                      and ('source_basis' not in row or (metadata is not None and row['source_basis'] == metadata['basis']))]
         require(len(signatures) == 1 and signatures[0]['source_physical_semantic_dimension'] == selector['dimension'], 'selector contradicts pinned source semantics')
         rules_found = [rule for rule in rules if rule['rule_id'] == assertion['criterion_rule_id']]
         require(len(rules_found) == 1, 'criterion rule missing')

@@ -145,12 +145,17 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     assert_eq!(s::CONNECTOR_VOCABULARY_LOCATIONS, [LOCAL]);
     assert_eq!(s::CONNECTOR_ROW_BASIS, BASIS);
     // The vocabulary is the source family's (without its source-only maximum
-    // basis) plus the connector components, frame, location and basis.
+    // bases) plus the connector components, frame, location and basis. T4-U6
+    // (D-5, §2.4): the connector basis takes the source-only maximum basis's
+    // place, ahead of the per-section-basis tokens both tables append.
+    let max_basis = open_pipe_stress_result_export::physics_source::MAX_BASIS;
     let mut vocabulary = source["canonical_metadata_vocabulary"].clone();
-    vocabulary["basis"]["enum"]
-        .as_array_mut()
-        .unwrap()
-        .retain(|b| b != open_pipe_stress_result_export::physics_source::MAX_BASIS);
+    {
+        let bases = vocabulary["basis"]["enum"].as_array_mut().unwrap();
+        let slot = bases.iter().position(|b| b == max_basis).unwrap();
+        bases[slot] = json!(BASIS);
+        bases.retain(|b| !b.as_str().unwrap().starts_with(max_basis));
+    }
     let extend = |v: &mut Value, key: &str, extra: &[&str]| {
         let list = v[key]["enum"].as_array_mut().unwrap();
         list.extend(extra.iter().map(|x| json!(x)));
@@ -158,7 +163,6 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     extend(&mut vocabulary, "component", &current_components);
     extend(&mut vocabulary, "coordinate_system", &[LOCAL_FRAME]);
     extend(&mut vocabulary, "location", &[LOCAL]);
-    extend(&mut vocabulary, "basis", &[BASIS]);
     assert_eq!(pressure["canonical_metadata_vocabulary"], vocabulary);
     let schema: Value = serde_json::from_str(include_str!(
         "../../../../schemas/results_pressure_1.v0.3.schema.json"
@@ -169,11 +173,13 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
         json!(["component", "coordinate_system", "location", "basis", "sign_convention"]));
     assert_eq!(schema["$defs"]["PressureResultMetadata"]["additionalProperties"], false);
     // The two tables share their header members; the source table adds only its
-    // source-block and source-basis policies.
+    // source-block policy. T4-U6 (§2.4): pressure-1 now also declares the
+    // source-basis signature policy, with the same text.
     let (p, q) = (pressure.as_object().unwrap(), source.as_object().unwrap());
     let mut source_keys: Vec<&String> = q.keys().collect();
-    source_keys.retain(|k| !matches!(k.as_str(), "source_block_policy" | "source_basis_signature_policy"));
+    source_keys.retain(|k| k.as_str() != "source_block_policy");
     assert_eq!(p.keys().collect::<Vec<_>>(), source_keys);
+    assert_eq!(p["source_basis_signature_policy"], q["source_basis_signature_policy"]);
     for key in ["schema_version", "hash_vectors", "source_schema_version", "source_producer", "reserved_inactive_successors", "formulation_profile_id"] {
         assert_eq!(p[key], q[key], "{key}");
     }
@@ -181,17 +187,24 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     // connector (kind, unit, component), then the two U5 signatures.
     let rows = p["rows"].as_array().unwrap();
     let signature = |r: &Value| (r["kind"].as_str().unwrap().to_string(), r["unit"].as_str().unwrap().to_string(), r["component"].as_str().map(String::from));
-    // A source row may add its declared `source_basis` (the source table's
-    // source_basis_signature_policy); the ordinary row has none.
+    // T4-U6 (§2.4): a stress-family row declares its `source_basis` (recovery
+    // token and section basis), as the source table's same signature does; every
+    // other ordinary row has none. Each ordinary row is a source row but for its id.
     let without_id = |r: &Value| {
         let mut r = r.clone();
         r.as_object_mut().unwrap().remove("signature_id");
-        r.as_object_mut().unwrap().remove("source_basis");
         r
     };
     let split = rows.iter().position(|r| r["kind"].as_str().unwrap().starts_with("connector_")).unwrap();
     let (physical, connector) = rows.split_at(split);
-    assert!(physical.iter().all(|r| r.get("source_basis").is_none()));
+    for row in physical {
+        let declared = row.get("source_basis").map(|b| b.as_str().unwrap());
+        let stress = open_pipe_stress_result_export::section_basis::is_stress_kind(row["kind"].as_str().unwrap());
+        assert_eq!(declared.is_some(), stress, "{row}");
+        if let Some(basis) = declared {
+            assert!(open_pipe_stress_result_export::section_basis::split_token(basis).is_some(), "{row}");
+        }
+    }
     let source_rows = q["rows"].as_array().unwrap();
     let mut a: Vec<_> = physical.iter().map(signature).collect();
     let mut b: Vec<_> = source_rows.iter().map(signature).collect();
@@ -220,15 +233,32 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     expected.extend(U5_SIGNATURES.iter().map(|(k, u, c)| (k.to_string(), u.to_string(), c.to_string())));
     assert_eq!(connector, expected);
     assert_eq!(p["source_signature_count"], rows.len());
-    assert_eq!(rows.len(), 88);
+    // T4-U6 (§2.4): 88 + 18 (015-018 become four signatures each, 068 and
+    // 072-076 two each); the kinds are unchanged.
+    assert_eq!(rows.len(), 106);
     assert_eq!(p["source_kind_count"], 59);
     // Signature ids are identities, not positions: stable and ascending, and
     // removed rows are not renumbered: B3's three retired rows (008, 020, 021),
     // E14's retired parity signature (037) and H-4's joint and thrust rows (038-042).
-    let numbers: Vec<u32> = rows
-        .iter()
-        .map(|r| r["signature_id"].as_str().unwrap().strip_prefix("supported-source-").unwrap().parse().unwrap())
-        .collect();
+    // T4-U6: a stress signature split per (recovery token x section basis) keeps
+    // its number and adds `-<token>-<basis>` (its source_basis, hyphenated).
+    let mut numbers: Vec<u32> = Vec::new();
+    for row in rows {
+        let id = row["signature_id"].as_str().unwrap().strip_prefix("supported-source-").unwrap();
+        let (number, suffix) = id.split_at(3);
+        match row.get("source_basis").and_then(|b| b.as_str()) {
+            Some(basis) => {
+                let (token, section) = open_pipe_stress_result_export::section_basis::split_token(basis).unwrap();
+                let token = token.strip_prefix("recovered_from_").unwrap_or(token);
+                assert_eq!(suffix, format!("-{}-{}", token, section).replace('_', "-"), "{id}");
+            }
+            None => assert_eq!(suffix, "", "{id}"),
+        }
+        let number: u32 = number.parse().unwrap();
+        if numbers.last() != Some(&number) {
+            numbers.push(number);
+        }
+    }
     let removed = [8, 20, 21, 37, 38, 39, 40, 41, 42];
     let expected: Vec<u32> =
         (0..numbers.len() as u32 + removed.len() as u32).filter(|n| !removed.contains(n)).collect();

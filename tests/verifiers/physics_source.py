@@ -9,6 +9,13 @@ B7b (A4/A5): the retained-source composite has one current contract, `pressure-s
 `physics-source-1` (`2.0.0/exact_straight_pressure_v2`) is not read here; a stored v2 result is refused by name at
 the header (`compatibility.py`, `reader_verdict.py`). Actual numerical eligibility additionally requires the
 independently captured full invocation, a current model document 0.5.0 with the exact contract.
+
+T4-U6 (DEL-05-03 ``section-bases-and-timoshenko.md`` §2.3, §5): the retained-source route admits only
+euler_bernoulli documents with zero corrosion allowance and zero mill tolerance on every pipe section
+(``PHYSICS_SOURCE_ACTUAL_MILL_TOLERANCE``), where the two section bases coincide. The receipt keeps its one
+source section and binds it bit for bit to both ``nominal_section`` and ``reduced_section``; each reduced
+source stress row binds the same check as its nominal twin and is bit-equal to it; maxima, coverage and the
+composite headlines are per basis.
 """
 from __future__ import annotations
 
@@ -22,6 +29,7 @@ from pathlib import Path
 from typing import Any
 from collections.abc import Mapping
 from . import physics_evidence as physical
+from . import section_basis as sb
 from . import source_blocks as blocks
 from .preview_physics_evidence import correctly_rounded_norm
 
@@ -33,7 +41,8 @@ SUPPORT_SIGN = physical.SUPPORT_SIGN
 SCHEMA_PATH = ROOT / "schemas/physics_source_recovery.schema.json"
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRESSURE_PROFILE = "exact_pressure_v3"
-PRESSURE_TABLE_SHA256 = "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435"
+# T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); 88 signatures over 51 kinds.
+PRESSURE_TABLE_SHA256 = "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53"
 PRESSURE_TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
 # The current model document and the one exact contract a captured invocation must author
 # (b7-plan "Current model format"): 0.5.0, `pressure_contract` present, Euler-Bernoulli only.
@@ -85,6 +94,7 @@ class SourceContract(Enum):
     def check_invocation(self, invocation):
         SourceContract.from_invocation(invocation)
         _zero_corrosion_allowances(_get(_get(invocation, "request"), "model"))
+        _zero_mill_tolerances(_get(_get(invocation, "request"), "model"))
 
     def check_received(self, source):
         header = _get(_get(source, "producer"), "semantic_contract_id")
@@ -115,6 +125,26 @@ def _zero_corrosion_allowances(model):
         _require(zero, "ACTUAL_CORROSION_ALLOWANCE")
 
 
+def _zero_mill_tolerances(model):
+    """Rust `zero_mill_tolerances` (T4-U6 §5, O4): pressure-source-1's selected response has coincident bases, so every
+    pipe section's mill tolerance is zero (an absent or null mill tolerance is zero, as the producer reads it); a
+    present malformed, non-length or nonzero mill tolerance refuses the statement bound to that invocation."""
+    pipes = _get(model, "pipe_segments")
+    _require(isinstance(pipes, list), "ARRAY")
+    from .units import to_canonical
+    for pipe in pipes:
+        quantity = _get(_get(pipe, "section"), "mill_tolerance")
+        if quantity is None:
+            continue
+        value, unit = _get(quantity, "value"), _get(quantity, "unit")
+        try:
+            zero = (type(value) in (int, float) and math.isfinite(value) and isinstance(unit, str) and bool(unit)
+                    and to_canonical(value, unit, "length") == 0.0)
+        except (ValueError, OverflowError):
+            zero = False
+        _require(zero, "ACTUAL_MILL_TOLERANCE")
+
+
 def model_carries_load_state(model: Any) -> bool:
     """Authored presence selects the optional load/reference-state group (Rust `model_carries_load_state`):
     `reference_configurations`, any material's `expansion_laws` or any case's `analysis_state`. Null and
@@ -141,7 +171,7 @@ def verify_pressure_source_table(data):
     if not (isinstance(table, Mapping) and table.get("semantic_contract_id") == PRESSURE_CONTRACT_ID
             and table.get("formulation_profile_id") == PRESSURE_PROFILE
             and table.get("source_block_policy") == "PRESSURE-SOURCE-1"
-            and table.get("source_signature_count") == 69 and table.get("source_kind_count") == 51):
+            and table.get("source_signature_count") == 88 and table.get("source_kind_count") == 51):
         raise ValueError("SOURCE_PRESSURE_SOURCE_TABLE_IDENTITY")
     return table
 
@@ -212,6 +242,10 @@ def _validate_transport_metadata(source: Mapping[str, Any], source_contract: Sou
         cid = case["load_case_id"]
         pressure = [p for p in evidence["pressure"] if p["load_case_id"] == cid]
         _require(case["recovery_method"] == record["selected_method"], "RECOVERY_METHOD")
+        # T4-U6/U8 (§5, O4): a pressure-source-1 document is euler_bernoulli with zero mill tolerance and zero corrosion
+        # allowance on every pipe section (document facts), so its two bases coincide.
+        _require(all(s.get("mill_tolerance_m") == 0 and s.get("corrosion_allowance_m") == 0 and s.get("beam_theory") == {"model": sb.EULER_BERNOULLI}
+                     and s.get("nominal_section") == s.get("reduced_section") for s in case["pipe_sections"]), "SECTION_BASES")
         proof = {"exact_case": case, "pressure": pressure}
         if resolved:
             state = next((s for s in evidence["load_reference_states"] if s["load_case_id"] == cid), None)
@@ -222,8 +256,9 @@ def _validate_transport_metadata(source: Mapping[str, Any], source_contract: Sou
             _require(not pressure, "SOURCE_PRESSURE_INVENTORY")
             plan = record["source"]
             _require([p["pipe_id"] for p in case["pipe_sections"]] == plan["member_ids"] == [p["pipe_id"] for p in case["pipe_materials"]] == [p["pipe_id"] for p in plan["endpoint_sections"]], "PHYSICAL_MEMBER_ORDER")
-            _require(case["stress_maximum_coverage"] == {"complete": True, "unavailable_pipe_ids": []}, "MAXIMUM_COMPLETE")
-            _require({p["pipe_id"] for p in case["pipe_stress_extrema"]} == set(plan["member_ids"]), "MAXIMUM_COVERAGE")
+            _require(case["stress_maximum_coverage"] == [{"section_basis": b, "complete": True, "unavailable_pipe_ids": []} for b in sb.BASES], "MAXIMUM_COMPLETE")
+            # T4-U6 (§2.5): one retained maximum per member per basis.
+            _require(sorted((p["pipe_id"], p.get("section_basis")) for p in case["pipe_stress_extrema"]) == sorted((m, b) for m in plan["member_ids"] for b in sb.BASES), "MAXIMUM_COVERAGE")
             _section_functionals(record)
             for extremum in case["pipe_stress_extrema"]:
                 _maximum_link(case, extremum, record)
@@ -315,7 +350,9 @@ def _maximum_link(case: Mapping[str, Any], ex: Mapping[str, Any], receipt_case: 
     _require(ex["source_identity_sha256"] == plan["retained_identity_sha256"], "MAXIMUM_SOURCE_IDENTITY")
     section = next((s for s in case["pipe_sections"] if s["pipe_id"] == ex["pipe_id"]), None)
     endpoints = next((s for s in plan["endpoint_sections"] if s["pipe_id"] == ex["pipe_id"]), None)
-    _require(section is not None and endpoints is not None and _same(ex["area_m2"], section["As_m2"]) and _same(ex["section_modulus_m3"], section["Z_m3"]), "MAXIMUM_SECTION")
+    # T4-U6 (§2.3): the receipt's one source section binds both bases bit for bit.
+    _require(section is not None and endpoints is not None and ex.get("section_basis") in sb.BASES
+             and all(_same(ex["area_m2"], section[b]["As_m2"]) and _same(ex["section_modulus_m3"], section[b]["Z_m3"]) for b in sb.BASES), "MAXIMUM_SECTION")
     for index, endpoint in enumerate(ex["endpoints"]):
         _require({k: endpoint[k] for k in ("station_fraction", "functional_indices", "functional_ids", "actions")} == endpoints["endpoints"][index], "MAXIMUM_ENDPOINT_SOURCE")
         _require(endpoint["station_fraction"] == index, "MAXIMUM_ENDPOINT_ORDER")
@@ -331,7 +368,8 @@ def validate_maximum(source: Mapping[str, Any], case: Mapping[str, Any], ex: Map
     receipt_case = _case(source, case["load_case_id"])
     _maximum_link(case, ex, receipt_case)
     row = rows.get(ex["result_id"], {})
-    _require(row.get("kind") == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") == ex["pipe_id"] and row.get("basis_ref") == receipt_case["basis_ref"] and row.get("unit") == "Pa" and _same(row.get("value"), ex["value_pa"]), "MAXIMUM_ROW")
+    _require(row.get("kind") == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") == ex["pipe_id"] and row.get("basis_ref") == receipt_case["basis_ref"] and row.get("unit") == "Pa" and _same(row.get("value"), ex["value_pa"])
+             and sb.split_token((row.get("metadata") or {}).get("basis")) == (MAX_BASIS, ex["section_basis"]), "MAXIMUM_ROW")
     ends = ex["endpoints"]
     _require(ends[0]["actions"][0]["interval"][0] <= ends[1]["actions"][0]["interval"][1] and ends[1]["actions"][0]["interval"][0] <= ends[0]["actions"][0]["interval"][1], "CONSTANT_AXIAL_BOUND")
     for endpoint in ends:
@@ -428,7 +466,18 @@ def validate_stress(source: Mapping[str, Any], case: Mapping[str, Any], row: Map
     exact = next(c for c in source["contract_evidence"]["exact_cases"] if c["load_case_id"] == case["basis_ref"]["ref_id"])
     section = next(s for s in exact["pipe_sections"] if s["pipe_id"] == row["entity_ref"])
     params = check["parameters"]
-    _require(params == {"area_m2":section["As_m2"],"section_modulus_m3":section["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section["J_m4"],"pa_per_mpa":1e6}, "STRESS_SECTION_PARAMETERS")
+    # T4-U6 (§2.3): the receipt's one source section binds both bases bit for bit.
+    _require(all(params == {"area_m2":section[b]["As_m2"],"section_modulus_m3":section[b]["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section[b]["J_m4"],"pa_per_mpa":1e6} for b in sb.BASES), "STRESS_SECTION_PARAMETERS")
+    # T4-U6 (§5): a reduced row binds the same functional and section as its nominal twin and is bit-equal to it.
+    token = sb.split_token(row["metadata"].get("basis"))
+    _require(token is not None and sb.id_basis(row["id"]) == token[1], "STRESS_SECTION_BASIS")
+    if token[1] == sb.REDUCED:
+        twin_id = sb.twin_id(row["id"])
+        twin = next((r for r in source["results"] if r["id"] == twin_id), None)
+        twins = [c for c in case["section_stress_checks"] if c["result_id"] == twin_id]
+        _require(twin is not None and len(twins) == 1 and sb.split_token(twin["metadata"].get("basis")) == (token[0], sb.NOMINAL)
+                 and all(twins[0][k] == check[k] for k in ("recipe_id", "pipe_id", "location", "component", "functional_index", "functional_id", "action", "parameters"))
+                 and _same(row["value"], twin["value"]), "STRESS_BASIS_TWIN")
     action = check["action"]["value"]
     if component == 3 and action != 0:
         intermediate = action * params["torsion_radius_m"]
@@ -449,7 +498,8 @@ def validate_source_case(source: Mapping[str, Any], case: Mapping[str, Any], inv
     _require(len(checks) == len(expected) and {c["result_id"] for c in checks} == expected and len(checks) == 2 * len(case["source"]["support_ids"]), "DERIVED_CHECK_COVERAGE")
     stresses = case["section_stress_checks"]
     expected_stresses = {r["result_id"] for r in case["rows"] if r["recipe_id"] == "retained_source_straight_stress_v1"}
-    _require(len(stresses) == len(expected_stresses) == 20 * len(case["source"]["member_ids"]) and {c["result_id"] for c in stresses} == expected_stresses, "STRESS_CHECK_COVERAGE")
+    # T4-U6 (§2.1): twenty source stress rows per member on each basis.
+    _require(len(stresses) == len(expected_stresses) == 40 * len(case["source"]["member_ids"]) and {c["result_id"] for c in stresses} == expected_stresses, "STRESS_CHECK_COVERAGE")
     if invocation is not None:
         model = invocation["request"]["model"]
         try:
@@ -490,7 +540,7 @@ def _canonical_inputs(invocation: Mapping[str, Any], convert=None):
             for field,dimension in [("elastic_modulus","stress"),("shear_modulus","stress"),("thermal_expansion_coefficient","thermal_expansion_coefficient"),("temperature","temperature")]:
                 add(record.get(field),dimension)
     for pipe in model["pipe_segments"]:
-        for key in ["outside_diameter","wall_thickness","mill_tolerance"]:
+        for key in ["outside_diameter","wall_thickness","mill_tolerance","corrosion_allowance"]:
             add(pipe["section"].get(key),"length")
     for case in model["load_cases"]:
         add(case.get("modulus_basis_temperature"),"temperature")
@@ -577,7 +627,13 @@ def _actual_materials(invocation, actual, exact, canonical):
         _require(pipe["id"] == section["pipe_id"] == material["pipe_id"] and pipe["material"] == material["material_id"],"ACTUAL_MATERIAL_MEMBER")
         authored_section = pipe["section"]
         tolerance = canonical(authored_section["mill_tolerance"],"length") if authored_section.get("mill_tolerance") is not None else 0.0
-        _require(_same(canonical(authored_section["outside_diameter"],"length"),section["outside_diameter_m"]) and _same(canonical(authored_section["wall_thickness"],"length")-tolerance,section["effective_wall_thickness_m"]),"ACTUAL_SOURCE_GEOMETRY")
+        allowance = canonical(authored_section["corrosion_allowance"],"length") if authored_section.get("corrosion_allowance") is not None else None
+        # T4-U6 (D-5): the section's captured authored values are the invocation's (D, t, c_m, c_a); its three
+        # geometries were rederived from them by the pressure-1 checks. D and t bind bit for bit; c_m and c_a by value,
+        # so a signed zero (which leaves (t - c_m) - c_a = t bit for bit) is the zero it denotes.
+        by_value = lambda a, b: type(b) in (int, float) and math.isfinite(b) and a == b
+        _require(_same(canonical(authored_section["outside_diameter"],"length"),section["outside_diameter_m"]) and _same(canonical(authored_section["wall_thickness"],"length"),section["wall_thickness_m"])
+                 and by_value(tolerance,section["mill_tolerance_m"]) and allowance is not None and by_value(allowance,section["corrosion_allowance_m"]),"ACTUAL_SOURCE_GEOMETRY")
         authored = materials[pipe["material"]]
         _require(authored.get("constitutive_basis") == material["constitutive_basis"],"ACTUAL_CONSTITUTIVE_BASIS")
         e,nu,alpha = _selected_material(authored,actual,canonical)
