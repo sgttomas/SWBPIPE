@@ -1,7 +1,7 @@
 {
  "schema_version": "independent.section_bases_reference/1.0.0",
  "purpose": "Independent analytical references for T4-U6 (D-5 section bases) and the Timoshenko variant shared with T4-U8: one straight pipe, frozen before any product implementation; not product requests and not observed solver outputs.",
- "status": "frozen by the T4-U6/T4-U8 independent reference TASK; awaiting independent refutation before any product output is compared with it",
+ "status": "frozen by the T4-U6/T4-U8 independent reference TASK and refuted independently; the refutation's four findings were repaired in 6817b72ca9 without a value change, and an independent refuter confirmed all four repairs on 2026-10-16. Awaiting independent refutation: the generated-self-weight requests (request_self_weight) and the primitive-load id repair (every primitive-load id names its load case; U6-BASES-001-EB, U6-BASES-001-TIMO and U6-BASES-COINCIDENT had reused their tip load ids in case:pressure-tip and case:axial-tip, which the product refuses as DUPLICATE_ID; only ids and request hashes changed, no frozen value)",
  "basis": {
   "design": "DEL-05-03 Design section-bases-and-timoshenko.md sections 1, 2.1, 2.5, 3.1, 7 and 8, and section-and-shear-decisions.md (D-5, H4), at b3f4da7661",
   "shear": "SHEAR_REFERENCE CONTRACT.md sections 1, 3 and 4 and its reference arithmetic (archive f2211ecef6)",
@@ -219,7 +219,7 @@
     "euler_bernoulli": {
      "request": {
       "path": "requests/U6-BASES-001-EB.request.json",
-      "sha256": "e9077442a7d6a3caad986e9a2713c038c4609867525039ff2034a3d0a701d102",
+      "sha256": "2609a70248d3172fd3f5b8aa1a8693f7e6637fc063bbc462ba92e6e853054c16",
       "load_cases": [
        "case:pressure-tip",
        "case:axial-tip"
@@ -17717,7 +17717,7 @@
      },
      "request_self_weight": {
       "path": "requests/U6-BASES-001-EB-SELF-WEIGHT.request.json",
-      "sha256": "cc7a518268647cbf1c837f442b7163a88097118c297c1c911b8e1c00b0e5a7c1",
+      "sha256": "3943fc5e6075d36c313dfc54f7c5ea31aa7d0512886a446f40c29e314e3868f9",
       "load_cases": [
        "case:self-weight",
        "case:combined"
@@ -17738,7 +17738,7 @@
     "timoshenko_annulus_energy_v1": {
      "request": {
       "path": "requests/U6-BASES-001-TIMO.request.json",
-      "sha256": "55a8c948cd77dd99b7df7a9c27f2a30ce12dc7ca960a834fc23958c312599685",
+      "sha256": "5c680cce4b9edfba97f60b1280247c72b8cca9876ee7b5d4fd9f7c2506905d66",
       "load_cases": [
        "case:pressure-tip",
        "case:axial-tip"
@@ -35262,7 +35262,7 @@
      },
      "request_self_weight": {
       "path": "requests/U6-BASES-001-TIMO-SELF-WEIGHT.request.json",
-      "sha256": "b97cbdb26bdfe232debf65a1b386e51c329459f2f947c4d438a5abf835bca28a",
+      "sha256": "feb201e5c02897549f97834eb3b63ea025fd54b25b1265e1d0e3575b10b504f3",
       "load_cases": [
        "case:self-weight",
        "case:combined"
@@ -44359,7 +44359,7 @@
     "euler_bernoulli": {
      "request": {
       "path": "requests/U6-BASES-002.request.json",
-      "sha256": "0ae88f076066813211c3eafff811bba1c5d3140a7aa5f962019fc6e69996c850",
+      "sha256": "564d6fc271cae109e7d2415e7f8e0ed1f8382a8bc6c5b2535b7e071fbad66153",
       "load_cases": [
        "case:restrained-pressure",
        "case:restrained-pressure-thermal"
@@ -57689,7 +57689,7 @@
     "euler_bernoulli": {
      "request": {
       "path": "requests/U6-BASES-COINCIDENT.request.json",
-      "sha256": "5057e51ffdcffc58bc45196317962c9fe37da43de3a5069155590d6fa953d197",
+      "sha256": "579cbd1af4758f02f1ff69ebf39963efaaaa596c39cdbcbcf1b90785695b80f6",
       "load_cases": [
        "case:pressure-tip",
        "case:axial-tip"

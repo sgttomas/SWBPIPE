@@ -108,7 +108,7 @@
     "id": "case:pressure-tip",
     "primitive_loads": [
      {
-      "id": "load:tip-force:global_y",
+      "id": "load:tip-force:pressure-tip:global_y",
       "category": "concentrated_force",
       "target": {
        "type": "node",
@@ -123,7 +123,7 @@
       "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
      },
      {
-      "id": "load:tip-force:global_z",
+      "id": "load:tip-force:pressure-tip:global_z",
       "category": "concentrated_force",
       "target": {
        "type": "node",
@@ -138,7 +138,7 @@
       "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
      },
      {
-      "id": "load:tip-torque:rotation_x",
+      "id": "load:tip-torque:pressure-tip:rotation_x",
       "category": "concentrated_moment",
       "target": {
        "type": "node",
@@ -185,7 +185,7 @@
     "id": "case:axial-tip",
     "primitive_loads": [
      {
-      "id": "load:tip-force:global_x",
+      "id": "load:tip-force:axial-tip:global_x",
       "category": "concentrated_force",
       "target": {
        "type": "node",
@@ -200,7 +200,7 @@
       "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
      },
      {
-      "id": "load:tip-force:global_y",
+      "id": "load:tip-force:axial-tip:global_y",
       "category": "concentrated_force",
       "target": {
        "type": "node",
@@ -215,7 +215,7 @@
       "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
      },
      {
-      "id": "load:tip-force:global_z",
+      "id": "load:tip-force:axial-tip:global_z",
       "category": "concentrated_force",
       "target": {
        "type": "node",
@@ -230,7 +230,7 @@
       "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
      },
      {
-      "id": "load:tip-torque:rotation_x",
+      "id": "load:tip-torque:axial-tip:rotation_x",
       "category": "concentrated_moment",
       "target": {
        "type": "node",
