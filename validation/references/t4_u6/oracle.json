@@ -214,7 +214,7 @@
  },
  "cases": {
   "U6-BASES-001": {
-   "description": "A pressurized straight cantilever (anchored at A, free at B, L = 2 m) with mill tolerance 0.00125 m and corrosion allowance 0.002 m on OD 0.2 m, wall 0.01 m: the same model on each basis. Displacements on the nominal stiffness; reactions; the pressure thrust on the pressure bore; every stress row on the nominal and the reduced section with per-basis maxima. Euler-Bernoulli and Timoshenko (timoshenko_annulus_energy_v1, kappa_E from the nominal annulus) documents. The self-weight load cases are frozen, but their request entry is pending (README, open items).",
+   "description": "A pressurized straight cantilever (anchored at A, free at B, L = 2 m) with mill tolerance 0.00125 m and corrosion allowance 0.002 m on OD 0.2 m, wall 0.01 m: the same model on each basis. Displacements on the nominal stiffness; reactions; the pressure thrust on the pressure bore; every stress row on the nominal and the reduced section with per-basis maxima. Euler-Bernoulli and Timoshenko (timoshenko_annulus_energy_v1, kappa_E from the nominal annulus) documents. The self-weight load cases are in a second request per variant, whose section carries the pipe metal and contents densities and whose load cases carry the generated self-weight.",
    "variants": {
     "euler_bernoulli": {
      "request": {
@@ -8951,7 +8951,7 @@
       },
       "case:self-weight": {
        "description": "generated self-weight: pipe metal (7850 kg/m^3) on the nominal wall and contents (1000 kg/m^3) on the pressure bore, g = 9.80665 m/s^2 along -Z",
-       "request_status": "pending: the generated self-weight's input spelling (README, open items)",
+       "request_status": "authored in the generated-self-weight request (request_self_weight)",
        "absent_row_kinds": [
         "pipe_wall_axial_force_v2",
         "pipe_effective_axial_force_v2",
@@ -12198,7 +12198,7 @@
       },
       "case:combined": {
        "description": "case:pressure-tip plus the generated self-weight of case:self-weight",
-       "request_status": "pending: the generated self-weight's input spelling (README, open items)",
+       "request_status": "authored in the generated-self-weight request (request_self_weight)",
        "absent_row_kinds": [
         "element_local_axial_force",
         "element_local_axial_normal_stress",
@@ -17713,6 +17713,25 @@
         "scale_stress_maximum@nominal_section": "max |expected| over this load case's stress_maximum@nominal_section rows",
         "scale_stress_maximum@reduced_section": "max |expected| over this load case's stress_maximum@reduced_section rows"
        }
+      }
+     },
+     "request_self_weight": {
+      "path": "requests/U6-BASES-001-EB-SELF-WEIGHT.request.json",
+      "sha256": "cc7a518268647cbf1c837f442b7163a88097118c297c1c911b8e1c00b0e5a7c1",
+      "load_cases": [
+       "case:self-weight",
+       "case:combined"
+      ],
+      "note": "the variant's request with material_density and contents_density on the section and, in each load case, the generated self-weight as a distributed_force primitive whose provenance is the generation record; case:combined is case:pressure-tip plus that load",
+      "generated_self_weight": {
+       "method": "pipe_mass_per_length_times_explicit_axis_acceleration/v2",
+       "mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+       "binary64_order": "metal pi*t*(OD - t) on the nominal wall; contents pi*r_i,r*r_i,r on the pressure bore, r_i,r = OD/2 - ((t - c_m) - c_a); mass = rho_pipe*metal + rho_contents*contents; magnitude = mass*g, g = -9.80665 along global Z",
+       "mass_kg_per_m": 74.17476969712266,
+       "magnitude_n_per_m": -727.4060052502879,
+       "relative_difference_from_exact_w": "1.144e-16",
+       "source_model_hash": "all zeros, as in the prepared example document: the authored record binds no source model hash",
+       "spelling": "from a prepared exact 0.5.0 self-weight input document (README, generated self-weight)"
       }
      }
     },
@@ -26469,7 +26488,7 @@
       },
       "case:self-weight": {
        "description": "generated self-weight: pipe metal (7850 kg/m^3) on the nominal wall and contents (1000 kg/m^3) on the pressure bore, g = 9.80665 m/s^2 along -Z",
-       "request_status": "pending: the generated self-weight's input spelling (README, open items)",
+       "request_status": "authored in the generated-self-weight request (request_self_weight)",
        "absent_row_kinds": [
         "pipe_wall_axial_force_v2",
         "pipe_effective_axial_force_v2",
@@ -29716,7 +29735,7 @@
       },
       "case:combined": {
        "description": "case:pressure-tip plus the generated self-weight of case:self-weight",
-       "request_status": "pending: the generated self-weight's input spelling (README, open items)",
+       "request_status": "authored in the generated-self-weight request (request_self_weight)",
        "absent_row_kinds": [
         "element_local_axial_force",
         "element_local_axial_normal_stress",
@@ -35239,6 +35258,25 @@
        "hex": "0x1.012b0d1bc481ep-1",
        "from": "the Design section 3.1 operation order on the binary64 leaves r_i,n = OD/2 - t, r_o = OD/2, nu",
        "relative_difference_from_exact": "3.096e-16"
+      }
+     },
+     "request_self_weight": {
+      "path": "requests/U6-BASES-001-TIMO-SELF-WEIGHT.request.json",
+      "sha256": "b97cbdb26bdfe232debf65a1b386e51c329459f2f947c4d438a5abf835bca28a",
+      "load_cases": [
+       "case:self-weight",
+       "case:combined"
+      ],
+      "note": "the variant's request with material_density and contents_density on the section and, in each load case, the generated self-weight as a distributed_force primitive whose provenance is the generation record; case:combined is case:pressure-tip plus that load",
+      "generated_self_weight": {
+       "method": "pipe_mass_per_length_times_explicit_axis_acceleration/v2",
+       "mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+       "binary64_order": "metal pi*t*(OD - t) on the nominal wall; contents pi*r_i,r*r_i,r on the pressure bore, r_i,r = OD/2 - ((t - c_m) - c_a); mass = rho_pipe*metal + rho_contents*contents; magnitude = mass*g, g = -9.80665 along global Z",
+       "mass_kg_per_m": 74.17476969712266,
+       "magnitude_n_per_m": -727.4060052502879,
+       "relative_difference_from_exact_w": "1.144e-16",
+       "source_model_hash": "all zeros, as in the prepared example document: the authored record binds no source model hash",
+       "spelling": "from a prepared exact 0.5.0 self-weight input document (README, generated self-weight)"
       }
      }
     }

@@ -13,11 +13,13 @@ and runs no product code or output.
 | File | Role |
 |---|---|
 | `generators/u6_reference.py` | the generator: inputs, exact derivation, cross-checks, requests and oracle (standard library only) |
-| `requests/<id>.request.json` | five complete product documents: model 0.5.0 under `3.0.0/exact_pressure_v3` with explicit `pressure_contract.shear_model` and `section.corrosion_allowance` |
+| `requests/<id>.request.json` | seven complete product documents: model 0.5.0 under `3.0.0/exact_pressure_v3` with explicit `pressure_contract.shear_model` and `section.corrosion_allowance`; the two `-SELF-WEIGHT` documents also carry the section densities and the generated self-weight |
 | `oracle.json` | per case and shear-model variant: the rows, zero scales, terminal evidence, `pipe_sections` evidence and the wrong-result discriminators |
 | `SHA256SUMS` | the hashes of every file above |
 
-Each variant names its request and binds it by SHA-256.
+Each variant names its requests and binds each by SHA-256 with the load cases
+it carries: `request`, and where present `request_load_state_group` and
+`request_self_weight`.
 
 ## Cases
 
@@ -29,7 +31,7 @@ annulus of SHEAR_REFERENCE S-B), the reduced section t_r = (t − c_m) − c_a =
 
 | Case | Variants (request) | Load cases |
 |---|---|---|
-| `U6-BASES-001` (cantilever, anchored at A) | `euler_bernoulli` (`U6-BASES-001-EB`), `timoshenko_annulus_energy_v1` (`U6-BASES-001-TIMO`, κ_E from the nominal annulus) | `case:pressure-tip` (5 MPa, closures transferring; tip force (0, 1200, −900) N and torque 600 N·m); `case:axial-tip` (no pressure region; tip force (20000, 1200, −900) N and the torque); `case:self-weight` and `case:combined` (pipe metal 7850 kg/m³ on the nominal wall, contents 1000 kg/m³ on the pressure bore, g 9.80665 m/s² along −Z; frozen, request pending, see open items) |
+| `U6-BASES-001` (cantilever, anchored at A) | `euler_bernoulli` (`U6-BASES-001-EB`; self-weight cases in `U6-BASES-001-EB-SELF-WEIGHT`), `timoshenko_annulus_energy_v1` (`U6-BASES-001-TIMO`, κ_E from the nominal annulus; self-weight cases in `U6-BASES-001-TIMO-SELF-WEIGHT`) | `case:pressure-tip` (5 MPa, closures transferring; tip force (0, 1200, −900) N and torque 600 N·m); `case:axial-tip` (no pressure region; tip force (20000, 1200, −900) N and the torque); `case:self-weight` (no pressure region) and `case:combined` (`case:pressure-tip` plus the self-weight): pipe metal 7850 kg/m³ on the nominal wall, contents 1000 kg/m³ on the pressure bore, g 9.80665 m/s² along −Z, generated (see generated self-weight) |
 | `U6-BASES-002` (anchored at A and B) | `euler_bernoulli` (`U6-BASES-002`, thermal as a `thermal` primitive; and its twin `U6-BASES-002-GROUP` with the load/reference-state group, thermal as the element `thermal_state`, judged against the same rows); the rows are the same under Timoshenko | `case:restrained-pressure` (Nw = 2νP, independent of As because the As of ε_p is the stiffness As); `case:restrained-pressure-thermal` (+40 °C: Nw = 2νP − E·Aₙ·αΔT) |
 | `U6-BASES-COINCIDENT` | `euler_bernoulli` (`U6-BASES-COINCIDENT`): mill tolerance absent, allowance 0 | `case:pressure-tip`, `case:axial-tip`: both families published, one value per row (H4) |
 
@@ -74,7 +76,7 @@ rotations of A and B; support components and norms; the terminal cap thrust
   decimal inputs are exact rational targets; their binary64 rounding is
   absorbed by the criterion.
 
-## Checks inside the generator (1,640)
+## Checks inside the generator (1,708)
 
 Annulus identities; the pressure bore = OD/2 − t + c_m + c_a; κ_E in the
 cancellation-free form equals the CONTRACT form and S-B's value; an exact
@@ -90,7 +92,12 @@ pressure alone the stiffness-section mutants do not move the restrained wall
 force while the ε_p-area mutants do; the evidence object has exactly the
 Design's keys; the load/reference-state twin has the same geometry, supports
 and regions, and each thermal primitive becomes the same αΔT in its case's
-element state.
+element state; each self-weight request equals its variant's request apart
+from the two densities and its load cases, `case:combined` carries exactly
+`case:pressure-tip`'s loads and pressure region plus the generated load, the
+generation record is self-consistent (payload, mass inputs, dependencies,
+gravity, magnitude = mass·g in binary64), and its intensity is the frozen w
+within 2⁻⁵⁰ relative.
 
 ## Discriminators
 
@@ -131,25 +138,49 @@ bending/torsion, Lamé and maximum stresses), each the family's largest
 row passes when |obs − wrong| > max(absolute tolerance,
 1e-9·max(|obs|, |wrong|)). No new threshold.
 
+## Generated self-weight
+
+`case:self-weight` and `case:combined` were frozen first, with their operands
+(`self_weight`) and discriminators, and are now carried by
+`U6-BASES-001-EB-SELF-WEIGHT` and `U6-BASES-001-TIMO-SELF-WEIGHT`
+(`request_self_weight` in each variant). No frozen value changed. The
+spelling follows a prepared exact 0.5.0 self-weight input document read as
+data; `schemas/model.schema.yaml` constrains only `schema_version` and
+`pressure_contract` of these documents and defines none of the fields below:
+- the section carries `material_density` 7850 and `contents_density`
+  1000 kg/m^3 beside its explicit mill tolerance and allowance;
+- each load case carries one `distributed_force` primitive,
+  `load:self-weight:<len>:<case>:<len>:<pipe>`, along `global_z`, whose
+  `provenance` is the generation record: method
+  `pipe_mass_per_length_times_explicit_axis_acceleration/v2`, mass method
+  `source_od_nominal_wall_pressure_bore_areas/v1`, gravity −9.80665 m/s² on
+  `global_z`, the section's mass inputs and dependencies, `mass_kg_per_m`,
+  the generated payload and an all-zero `source_model_hash`, as in the
+  example.
+
+The authored binary64 operands are inputs, not frozen values: mass
+74.17476969712266 kg/m and magnitude −727.4060052502879 N/m, 1.1e-16
+relative from the exact w (`generated_self_weight` records the order). Other plausible
+binary64 orders of the same D-5 rule give 74.17476969712267 and
+−727.406005250288, one ulp away; the example document does not separate
+them. If the product rejects the generated load as modified or stale, the
+record is re-authored with the product's order or hash; the rows do not
+move. The request records the intensity the product uses, so the
+`contents_on_nominal_bore` and `metal_mass_on_reduced_wall` discriminators
+expose a wrong mass basis only where the product re-derives the intensity
+from the section inputs (the exact branch's re-formation or its consistency
+check) rather than taking the recorded magnitude.
+
 ## Open items
 
-1. **Generated self-weight input (not determinable without product files).**
-   The exact route's generated self-weight from pipe metal and contents
-   densities (the `stable_mass_per_length` / `MassPrimitive` exact branch,
-   Design §1) has no schema or reference document this author may read: the
-   preview-model fields for the pipe metal density, the contents density and
-   gravity are unknown. `case:self-weight` and `case:combined` are therefore
-   frozen with their operands (`self_weight`) and discriminators, but are not
-   in any request (`request_status` pending). Authoring them needs that
-   spelling; the expected values do not depend on it.
-2. **Unpressurized row identities (inferred).** `case:axial-tip` publishes
+1. **Unpressurized row identities (inferred).** `case:axial-tip` publishes
    `element_local_axial_force` (component `axial_force`, node-on-element at
    the ends, j-side cut at the stations) and
    `element_local_axial_normal_stress` (component `axial_normal_stress`, MPa,
    five locations), by the sibling kinds' pattern. Their spelling and
    locations are in the pressure-1 table, which this author did not read.
    A mismatch shows as an unresolved row, never as a changed value.
-3. **Thermal in both forms.** `U6-BASES-002`'s thermal load is a `thermal`
+2. **Thermal in both forms.** `U6-BASES-002`'s thermal load is a `thermal`
    primitive in the plain 0.5.0 document (as in the re-authored T4-I8 case 2)
    and the element `thermal_state` in `U6-BASES-002-GROUP`, so the thermal
    eigenload on the nominal A is checked in whichever form the product admits.
