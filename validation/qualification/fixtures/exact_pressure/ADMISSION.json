@@ -1,9 +1,0 @@
-{
-  "format": "openpipestress.exact_pressure_admission/1",
-  "status": "admitted",
-  "independent_review": {
-    "path": "validation/qualification/fixtures/exact_pressure/INDEPENDENT_REVIEW_T4-U4A.md",
-    "sha256": "a1d1c9fc85dbd7c628ed8423fe6672fee54847c990aefe3b9e757a6960a2b554"
-  },
-  "admitted_by": "T4 WORKING_ITEMS manager after TASK ADMIT of d253b5aea29e5737552363d74d938cc229f0f34a, generator sha256 9a730af63af17affe669a505a973380181865c647e733a910ae4b875c09d6a89, pending MANIFEST.json sha256 90529efd4453334fd285331fd2090d406a797403df0369aad1467405a22ac673; development comparison only"
-}

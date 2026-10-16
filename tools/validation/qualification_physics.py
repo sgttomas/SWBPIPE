@@ -157,6 +157,75 @@ REQUIRED_ASSERTION_IDS = (
 REQUIRED_SECTION_IDS = tuple('section.' + name for name in (
     'outside_diameter_m', 'effective_wall_thickness_m', 'ro_m', 'ri_m',
     'As_m2', 'Ai_m2', 'I_m4', 'J_m4', 'Z_m3'))
+# T4-U6 (D-5; DEL-05-03 section-bases-and-timoshenko.md §2.1, §2.5): every exact stress row is published on the
+# nominal and on the reduced section, each naming its basis. The frozen selectors (bare recovery tokens, basis-free
+# ids) are never edited; the gate derives a declared re-authored copy (``reauthor_selectors``): each stress selector
+# becomes its nominal twin and its reduced twin, with the same expected value and criterion. The frozen 'stress.*'
+# assertions are exactly the stress-kind selectors (checked when deriving).
+SECTION_BASES = ('nominal_section', 'reduced_section')
+SECTION_BASIS_SEPARATOR = '; section_basis='
+STRESS_KINDS = (
+    'element_local_axial_normal_stress', 'element_local_bending_normal_stress_y', 'element_local_bending_normal_stress_z',
+    'element_local_torsional_shear_stress', 'pipe_elastic_normal_stress_maximum_v2', 'pipe_axial_membrane_stress_v2',
+    'pipe_lame_radial_stress_v2', 'pipe_lame_hoop_stress_v2')
+# §2.5: these id families end in the underscore basis; the element-stress and source-derived families in the hyphenated one.
+UNDERSCORE_ID_FAMILIES = ('result:pressure-exact:', 'result:elastic-maximum:')
+SELECTOR_REAUTHORING = 'openpipestress.section_basis_selector_reauthoring/1'
+DERIVED_ASSERTION_IDS = tuple(name for aid in REQUIRED_ASSERTION_IDS
+                              for name in ((f'{aid}.{basis}' for basis in SECTION_BASES) if aid.startswith('stress.') else (aid,)))
+
+
+def section_basis_id(result_id: str, basis: str) -> str:
+    """§2.5's id segment for one basis of a stress row."""
+    return f'{result_id}:{basis}' if result_id.startswith(UNDERSCORE_ID_FAMILIES) else f"{result_id}:{basis.replace('_', '-')}"
+
+
+def _canonical(value) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False).encode()
+
+
+def reauthor_selectors(assertions: list, values: list) -> tuple[list, list, dict]:
+    """The declared re-authored copy of a frozen first-static selector list and its reference values.
+
+    Each stress-kind selector becomes two, nominal then reduced: assertion id ``<id>.<basis>``, selector id with
+    §2.5's basis segment, ``metadata.basis`` with ``; section_basis=<basis>``, and the same kind, unit, entity,
+    case basis, dimension, criterion and expected value. Every other selector is unchanged. The frozen lists are
+    not modified; the record carries both hashes."""
+    require(type(assertions) is list and type(values) is list, 'selectors and reference values must be lists')
+    by_id = {row.get('assertion_id'): row for row in values if type(row) is dict}
+    require(len(by_id) == len(values) and set(by_id) == {row.get('id') for row in assertions if type(row) is dict},
+            'reference assertion denominator mismatch')
+    derived, derived_values, twinned = [], [], []
+    for assertion in assertions:
+        selector = assertion['selector']
+        stress = selector.get('kind') in STRESS_KINDS
+        require(stress == assertion['id'].startswith('stress.'), 'stress selector inventory differs from the frozen stress assertions')
+        if not stress:
+            derived.append(deepcopy(assertion))
+            derived_values.append(deepcopy(by_id[assertion['id']]))
+            continue
+        metadata = selector.get('metadata')
+        require(type(metadata) is dict and type(metadata.get('basis')) is str and SECTION_BASIS_SEPARATOR not in metadata['basis'],
+                'frozen stress selector must name a basis-free recovery token')
+        twinned.append(assertion['id'])
+        for basis in SECTION_BASES:
+            twin = deepcopy(assertion)
+            twin['id'] = f"{assertion['id']}.{basis}"
+            twin['selector']['id'] = section_basis_id(selector['id'], basis)
+            twin['selector']['metadata']['basis'] = metadata['basis'] + SECTION_BASIS_SEPARATOR + basis
+            derived.append(twin)
+            value = deepcopy(by_id[assertion['id']])
+            value['assertion_id'] = twin['id']
+            derived_values.append(value)
+    record = {'rule': SELECTOR_REAUTHORING,
+              'frozen_selectors_sha256': sha256_bytes(_canonical(assertions)),
+              'derived_selectors_sha256': sha256_bytes(_canonical(derived)),
+              'frozen_reference_values_sha256': sha256_bytes(_canonical(values)),
+              'derived_reference_values_sha256': sha256_bytes(_canonical(derived_values)),
+              'assertion_counts': [len(assertions), len(derived)], 'twinned_assertion_ids': twinned,
+              'scope': 'declared re-authoring of a copy: each stress selector as its nominal and reduced twin with the same '
+                       'expected value and criterion; the frozen selectors, references and criteria are unchanged'}
+    return derived, derived_values, record
 
 def reauthor_model(model: dict) -> dict:
     """B7b's one re-authoring of a copied model document (Rust `tests/common/current_model.rs` `reauthor_model`):

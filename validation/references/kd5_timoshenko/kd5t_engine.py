@@ -537,23 +537,43 @@ class Reference:
                 k = [kk for (sid, gg, kk) in springs if sid == s["id"]][0]
                 comps[DIRS[st["dof"]]] = -k * u[g]
             out["reactions"][s["id"]] = comps
-        # global balance check: reactions + nodal loads + member loads = 0 (forces)
-        tot = [ZERO, ZERO, ZERO]
-        scale = ZERO
+        self._check_balance(out, nodal, feqs)
+        return out
+
+    def _check_balance(self, out, nodal, feqs):
+        """Whole-body force and moment balance (about the first node) of reactions, nodal loads and member loads.
+
+        Tolerances are relative to coupled scales SF = max(force terms, moment terms/L_b) and
+        SM = max(moment terms, L_b*force terms), so couple-only cases are checked too; if every term
+        is zero the sums must be exactly zero."""
+        r0 = self.nodes[self.node_order[0]]
+        F, M = [ZERO] * 3, [ZERO] * 3
+        sf, sm = ZERO, ZERO
+
+        def add(force, moment, at):
+            nonlocal F, M, sf, sm
+            arm = vsub(at, r0)
+            mom = vadd(moment, vcross(arm, force))
+            F, M = vadd(F, force), vadd(M, mom)
+            sf = max([sf] + [abs(x) for x in force])
+            sm = max([sm] + [abs(x) for x in moment] + [abs(x) for x in vcross(arm, force)])
+
         for s in self.supports:
             r = out["reactions"][s["id"]]
-            tot = vadd(tot, r[:3])
-            scale = max(scale, max(abs(x) for x in r[:3]))
-        for k in range(len(self.node_order)):
-            tot = vadd(tot, nodal[6 * k:6 * k + 3])
-            scale = max(scale, max(abs(x) for x in nodal[6 * k:6 * k + 3]))
+            add(r[:3], r[3:], self.nodes[s["node"]])
+        for k, nid in enumerate(self.node_order):
+            add(nodal[6 * k:6 * k + 3], nodal[6 * k + 3:6 * k + 6], self.nodes[nid])
         for m in self.members:
-            wl = m.to_global(feqs[m.id][1])
-            tot = vadd(tot, vscale(wl, m.L))
-            scale = max(scale, max(abs(x) for x in wl) * m.L)
-        if scale > 0 and max(abs(x) for x in tot) > scale * D(10) ** (-(PREC - 25)):
-            raise AssertionError(f"global force balance fails: {tot}")
-        return out
+            w = m.to_global(feqs[m.id][1])
+            mid = vscale(vadd(self.nodes[m.i], self.nodes[m.j]), D("0.5"))
+            add(vscale(w, m.L), [ZERO] * 3, mid)
+        pts = [self.nodes[n] for n in self.node_order]
+        Lb = vnorm([max(p[a] for p in pts) - min(p[a] for p in pts) for a in range(3)])
+        SF = max(sf, sm / Lb) if Lb else sf
+        SM = max(sm, Lb * sf) if Lb else sm
+        tol = D(10) ** (-(PREC - 25))
+        if max(abs(x) for x in F) > SF * tol or max(abs(x) for x in M) > SM * tol:
+            raise AssertionError(f"whole-body balance fails: F={F} M={M} (SF={SF}, SM={SM})")
 
     # ------------------------------------------------------------- recovery
     def cut(self, case_id, mid, frac):
@@ -755,6 +775,24 @@ def self_check(verbose=True):
         ok(f"S-B L={Lm} tip deflection within 1e-15 (binary64 section inputs)", rel < D("1e-15"))
         ok(f"S-B L={Lm} root reaction", abs(ref.cases["case:1"]["reactions"]["support:A"][1] + 100) < D("1e-90")
            and abs(ref.cases["case:1"]["reactions"]["support:A"][5] + 100 * Lm) < D("1e-88"))
+    # whole-body balance on a couple-only case, and its failure when a reaction moment is perturbed
+    req = _sb_request(2.0)
+    req["model"]["load_cases"][0]["primitive_loads"] = [{"id": "c", "category": "concentrated_moment", "target": {"type": "node", "node": "node:B"},
+                                                          "direction": "rotation_z", "magnitude": {"value": 250.0, "unit": "N*m"}, "dimension": "moment"}]
+    ref = Reference(req)
+    ok("couple-only case: root moment = -250 N*m and zero root force", abs(ref.cases["case:1"]["reactions"]["support:A"][5] + 250) < D("1e-90")
+       and max(abs(x) for x in ref.cases["case:1"]["reactions"]["support:A"][:3]) < D("1e-90"))
+    case = ref.cases["case:1"]
+    case["reactions"]["support:A"][5] += D("1e-20")
+    nodal = [ZERO] * 12
+    nodal[6 + 5] = D(250)
+    feqs = {"pipe:AB": ([ZERO] * 12, [ZERO, ZERO, ZERO])}
+    try:
+        ref._check_balance(case, nodal, feqs)
+        raised = False
+    except AssertionError:
+        raised = True
+    ok("couple-only case: a reaction moment off by 1e-20 fails the balance check", raised)
     # S-E physical companion through the full 3D engine: S-B section, L = 2 m, ground spring k = 1e6 N/m at a = 1 m,
     # tip force 100 N; SHEAR_REFERENCE's presentation decimals (12 significant digits)
     req = _sb_request(2.0)

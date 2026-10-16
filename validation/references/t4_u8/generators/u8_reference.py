@@ -2667,16 +2667,18 @@ def s_e():
         closed = [R, ua, ul, thl, -(Fv + R), -(Fv * L + R * a)]
         mine = [s["R"], s["u_a"], s["u_L"], s["theta_L"], s["root_F"], s["root_M"]]
         assert [Q.of(x) for x in closed] == mine
-        energy = ZERO
+        beam_energy = ZERO
         for (ke, fe, dofs, le), x0 in zip(s["chain"]["elems"], (F(0), a)):
             d = [s["chain"]["d"][g] for g in dofs]
-            energy = energy + span_energy(EI, Ks, span_solution(EI, Ks, L / 2, le, d)[2])
-        energy = energy + Q.of(k) * s["u_a"] * s["u_a"] / 2
-        assert energy == Q.of(Fv) * s["u_L"] / 2
+            beam_energy = beam_energy + span_energy(EI, Ks, span_solution(EI, Ks, L / 2, le, d)[2])
+        spring_energy = Q.of(k) * s["u_a"] * s["u_a"] / 2
+        work = Q.of(Fv) * s["u_L"] / 2
+        assert beam_energy + spring_energy == work
         entry = {"order": "[R, u(a), u(L), theta(L), root force, root moment]",
                  "values": [qexpr(x) for x in mine], "theta_a": qexpr(s["theta_a"]),
                  "assembly_equals_flexibility_closed_form": True, "energy_identity": "1/2 F u(L) = sum int (M^2/2EI + "
-                 "V^2/2Ks) + 1/2 k u(a)^2, exactly", "strain_energy": qexpr(energy)}
+                 "V^2/2Ks) + 1/2 k u(a)^2, exactly", "work_half_F_uL": qexpr(work),
+                 "beam_strain_energy": qexpr(beam_energy), "spring_energy_half_k_ua2": qexpr(spring_energy)}
         if Ks is not None:
             ke, fe, dofs, le = s["chain"]["elems"][0]
             d = [s["chain"]["d"][g] for g in dofs]
@@ -2688,6 +2690,8 @@ def s_e():
         out[label] = entry
     assert out["timoshenko"]["values"] == ["-7/8", "7/96", "37/128", "25/64", "-1/8", "-9/16"]
     assert out["euler_bernoulli"]["values"] == ["-5/6", "5/72", "71/288", "19/48", "-1/6", "-7/12"]
+    assert (out["timoshenko"]["beam_strain_energy"], out["euler_bernoulli"]["beam_strain_energy"]) == (
+        "173/1536", "163/1728")
     out["fixture"] = ("fixed-root cantilever EI = 1, L = 1, linear ground spring k = 12 at a = 1/2, tip force F = 1; "
                       "Timoshenko Ks = 12; two exact elements assembled and solved here")
     return out

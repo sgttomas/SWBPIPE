@@ -59,7 +59,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 > | Reproducibility scope | Required for practical piping models; exact reproducibility envelope is TBD |
 > | Solver numerical library | DEC-023: in-repo sparse skyline/profile direct solver; live-path/default policy follows DEC-050/053 |
 > | Tolerance policy | DEC-026 governs numerical verification; DEC-046 governs nonlinear convergence. Unmeasured values remain explicit; no threshold is invented here. |
-> | Physical formulation details | Current frame-kernel realization is the two-node Euler–Bernoulli frame described in `core/solver/frame_kernel/README.md`; lawful derivation and verification evidence remain required. |
+> | Physical formulation details | Current frame-kernel realization is the two-node frame described in `core/solver/frame_kernel/README.md`: Euler–Bernoulli, or per document for straight members the exact static Timoshenko element with the energy-matched annular shear factor (D-6); realized arcs are Euler–Bernoulli; lawful derivation and verification evidence remain required. |
 >
 
 ### CLM-005 — Conditions

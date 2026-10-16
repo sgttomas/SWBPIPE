@@ -215,9 +215,12 @@ class PackageTests(unittest.TestCase):
         valued = {key for key, case in i7.items() if case['expected'] is not None}
         self.assertEqual(len(valued), 79)
         expected = {f'{key}@{v}' for key in valued for v in generator.VERSIONS}
-        expected |= {f'{owner}@{v}' for owner in ('milltol_lame_membrane.free_transferring', 'milltol_lame_membrane.axially_restrained_transferring',
-                                                  'tp_phys_pressure_halves', 'pressure_membrane_thin_wall_limit',
+        expected |= {f'{owner}@{v}' for owner in ('tp_phys_pressure_halves', 'pressure_membrane_thin_wall_limit',
                                                   'v3_straight_twin_separate_closures') for v in generator.VERSIONS}
+        # T4-U6 (D-5): the re-authored MILLTOL owners carry their own 0.5.0 documents, without and with the group,
+        # each also under the declared Timoshenko variant.
+        expected |= {f'{owner}@{label}{suffix}' for owner in ('milltol_lame_membrane.free_transferring', 'milltol_lame_membrane.axially_restrained_transferring')
+                     for label, _ in generator.I8_CURRENT_DOCUMENTS for suffix in ('', '_timoshenko')}
         self.assertEqual(set(cases), expected)
         self.assertTrue(all(case['modes'] == list(ep.MODES) for case in cases.values()))
 
@@ -246,7 +249,8 @@ class PackageTests(unittest.TestCase):
         reference = json.loads((PROJECT / generator.I8).read_text())['cases']['tp_phys_pressure_halves']['load_cases']['case:combined']['expected']
         maximum = [v for a, v in self.i8_value('tp_phys_pressure_halves@0.3.0', 'pipe_elastic_normal_stress_maximum_v2', 'maximum_absolute_normal_stress')
                    if a['selector']['entity_ref'] == 'pipe:A-B' and a['selector']['basis_ref']['ref_id'] == 'case:combined']
-        self.assertEqual(maximum, [reference['A-B_maximum']['value']])
+        # D-5: the bases coincide (no mill tolerance, no allowance), so both families assert the one frozen value.
+        self.assertEqual(maximum, [reference['A-B_maximum']['value']] * 2)
         magnitude = [v for a, v in self.i8_value('tp_phys_pressure_halves@0.3.0', 'support_reaction_force_magnitude_v2', 'force_magnitude')
                      if a['selector']['entity_ref'] == 'support:A' and a['selector']['basis_ref']['ref_id'] == 'case:combined']
         self.assertEqual(magnitude, [reference['A_force_magnitude']['value']])
@@ -264,8 +268,107 @@ class PackageTests(unittest.TestCase):
         displacement = rules['criterion:displacement:length:mm:floor:displacement']
         self.assertEqual(displacement['relative_tolerance_value'], 1e-09)
         self.assertEqual(displacement['absolute_tolerance_value'], float(generator.Decimal('1e-9') * generator.Decimal(scale['displacement']['zero_scale']) * 1000))
-        stress = rules['criterion:stress:stress:MPa:floor:bending_torsion_stress']
-        self.assertEqual(stress['absolute_tolerance_value'], float(generator.Decimal('1e-9') * generator.Decimal(scale['bending_torsion_stress']['zero_scale']) / 1000000))
+        # D-5: a re-frozen case's stress zero-scale groups are per section basis.
+        for basis in generator.SECTION_BASES:
+            stress = rules[f'criterion:stress:stress:MPa:floor:bending_torsion_stress@{basis}']
+            self.assertEqual(stress['absolute_tolerance_value'],
+                             float(generator.Decimal('1e-9') * generator.Decimal(scale[f'bending_torsion_stress@{basis}']['zero_scale']) / 1000000))
+
+    def test_section_bases_twin_every_stress_row(self):
+        # T4-U6 (D-5, Design §2.1, §2.5, §7): each stress selector is followed by its reduced twin (id segment, basis token);
+        # a re-frozen case reads each basis's own value, a case whose bases coincide asserts its one value on both.
+        files, cases = generated(), manifest_cases()
+        references = {path: json.loads((PROJECT / path).read_text()) for path in (generator.I7, generator.I8)}
+        for case_id, distinct in (('U2-L-ANCH-PTW-K2@0.3.0', True), ('U2-L-FREE-SEPD-K1@0.3.0', True),
+                                  ('MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K1@0.4.0', False), ('tp_phys_pressure_halves@0.4.0', False),
+                                  ('milltol_lame_membrane.free_transferring@0.5.0', True)):
+            case = cases[case_id]
+            rows = json.loads(files[case['selectors']['path']])['assertions']
+            values = {v['assertion_id']: v['value'] for v in json.loads(files[case['reference']['path']])['values']}
+            bases = [row['selector'].get('metadata', {}).get('basis', '').partition('; section_basis=')[2] for row in rows]
+            nominal = [index for index, basis in enumerate(bases) if basis == 'nominal_section']
+            self.assertGreater(len(nominal), 0, case_id)
+            self.assertEqual([index + 1 for index in nominal], [index for index, basis in enumerate(bases) if basis == 'reduced_section'])
+            for index in nominal:
+                row, twin = rows[index], rows[index + 1]
+                head, segment = row['selector']['id'].rsplit(':', 1)
+                self.assertIn(segment, ('nominal_section', 'nominal-section'))
+                self.assertEqual(twin['selector']['id'], f'{head}:{segment.replace("nominal", "reduced")}')
+                self.assertEqual(twin['selector']['metadata']['basis'], row['selector']['metadata']['basis'].replace('nominal_section', 'reduced_section'))
+                self.assertEqual({k: v for k, v in twin['selector'].items() if k not in ('id', 'metadata')},
+                                 {k: v for k, v in row['selector'].items() if k not in ('id', 'metadata')})
+                origin, twin_origin = row['selector_origin']['pointer'], twin['selector_origin']['pointer']
+                if distinct:
+                    # Each basis's own value, or one zero under each basis's own zero scale.
+                    self.assertTrue(('nominal_section' in origin and 'reduced_section' in twin_origin)
+                                    or (origin == twin_origin and values[row['id']] == values[twin['id']] == 0.0
+                                        and row['criterion_rule_id'] != twin['criterion_rule_id']), origin)
+                else:
+                    self.assertEqual((origin, values[row['id']], row['criterion_rule_id']),
+                                     (twin_origin, values[twin['id']], twin['criterion_rule_id']))
+                generator.resolve(references[row['selector_origin']['reference']], origin.split('@')[0])
+
+    def test_milltol_discriminators_follow_the_d5_refreeze(self):
+        # The renamed controls carry their former ids, cap_area_on_nominal_bore is active, and every declared target is scored.
+        controls = json.loads((PROJECT / generator.I8).read_text())['cases']['milltol_lame_membrane']['wrong_result_discriminators']
+        self.assertEqual({c['id']: c['former_id'] for c in controls if 'former_id' in c}, generator.I8_FORMER_IDS)
+        self.assertEqual({c['id'] for c in controls}, set(generator.I8_DISCRIMINATORS['milltol_lame_membrane']))
+        files, cases = generated(), manifest_cases()
+        scored = set()
+        for variant in ('free_transferring', 'axially_restrained_transferring'):
+            for label, _ in generator.I8_CURRENT_DOCUMENTS:
+                case = cases[f'milltol_lame_membrane.{variant}@{label}']
+                selectors = json.loads(files[case['selectors']['path']])
+                self.assertEqual(selectors['gaps'], [])
+                scored |= {n['selector_origin']['control'] for n in selectors['negative_assertions']}
+                # The declared Timoshenko variant: the same document under that shear model, asserting the same rows.
+                timoshenko = cases[f'milltol_lame_membrane.{variant}@{label}_timoshenko']
+                eb_model = json.loads(files[case['product_request']['path']])['model']
+                tm_model = json.loads(files[timoshenko['product_request']['path']])['model']
+                self.assertEqual(tm_model['pressure_contract']['shear_model'], 'timoshenko_annulus_energy_v1')
+                self.assertEqual(dict(tm_model, pressure_contract=eb_model['pressure_contract']), eb_model)
+                for role in ('selectors', 'reference', 'criteria'):
+                    eb, tm = (json.loads(files[c[role]['path']]) for c in (case, timoshenko))
+                    for document in (eb, tm):
+                        document.pop('case_id', None)
+                        if role == 'criteria':
+                            document['tolerance_profile'].pop('profile_id')
+                        if role == 'selectors':
+                            document.pop('scoring_readiness')
+                    self.assertEqual(tm, eb, role)
+        self.assertEqual(scored, {c['id'] for c in controls})
+        self.assertIn('cap_area_on_nominal_bore', scored)
+
+    def test_a_current_package_document_is_submitted_unchanged(self):
+        # T4-U6: a 0.5.0 package document under the current contract is its own submitted input (identity re-authoring);
+        # a 0.5.0 document without an explicit corrosion allowance, or under another contract, is refused.
+        files, cases = generated(), manifest_cases()
+        rows = json.loads((PROJECT / ep.TABLE).read_text())['rows']
+        for case_id in ('milltol_lame_membrane.free_transferring@0.5.0', 'milltol_lame_membrane.axially_restrained_transferring@0.5.0_load_state_group_timoshenko'):
+            fixture = Fixture(self, 'sparse_interactive', [])
+            case = cases[case_id]
+            for role in ('runner_input', 'product_request', 'reference', 'selectors', 'criteria'):
+                fixture.write(case[role]['path'], files[case[role]['path']])
+            prepared = ep.prepare_case(case, fixture.candidate.resolve(), 'development_comparison', rows)
+            record = prepared['reauthoring']
+            self.assertEqual(prepared['runner_input'], files[case['runner_input']['path']])
+            self.assertEqual(record['frozen_input_sha256'], record['submitted_input_sha256'])
+            self.assertEqual(record['frozen_input_sha256'], case['runner_input']['sha256'])
+            self.assertEqual((record['model_schema_version'], record['explicit_zero_corrosion_allowance']), (['0.5.0', '0.5.0'], False))
+            self.assertEqual(record['pressure_contract'][0], record['pressure_contract'][1])
+            self.assertEqual(prepared['load_state'], case_id.endswith(('_load_state_group', '_load_state_group_timoshenko')))
+        model = json.loads(files[cases['milltol_lame_membrane.free_transferring@0.5.0']['product_request']['path']])['model']
+        self.assertEqual(ep.model_version(model), '0.5.0')
+        for mutate in (lambda m: m['pipe_segments'][0]['section'].pop('corrosion_allowance'),
+                       lambda m: m['pressure_contract'].pop('shear_model'),
+                       lambda m: m['pressure_contract'].update(shear_model='timoshenko'),
+                       lambda m: m.update(pressure_contract=dict(ep.FROZEN_PRESSURE_CONTRACT))):
+            changed = deepcopy(model)
+            mutate(changed)
+            with self.assertRaisesRegex(ValueError, 'a 0.5.0 package document requires the current'):
+                ep.model_version(changed)
+        frozen = json.loads(files[cases['tp_phys_pressure_halves@0.3.0']['product_request']['path']])['model']
+        self.assertEqual(ep.model_version(frozen), '0.3.0')
 
     def test_exact_forms_and_units_outside_the_closed_set_are_refused(self):
         pi = generator.Decimal('3.14159')

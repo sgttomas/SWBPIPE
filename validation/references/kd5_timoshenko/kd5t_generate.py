@@ -10,7 +10,11 @@ Usage (from this directory; heavy modes run under the host's slot wrapper):
   python3 -I -B kd5t_generate.py full <out_dir> [workers]   full set: set.jsonl, controls.jsonl, manifest.json
   python3 -I -B kd5t_generate.py freeze [workers]           rewrite frozen/kd5t_frozen_subset.jsonl
   python3 -I -B kd5t_generate.py check [workers]            engine self-check; regenerate the frozen subset in
-                                                            memory and compare it byte for byte; verify SHA256SUMS
+                                                            memory and compare it byte for byte; compare self-test;
+                                                            verify SHA256SUMS
+  python3 -I -B kd5t_generate.py split <set.jsonl> <dir> <hv|pending|stiffness_control|all> [per_chunk]
+Section variants per design: zero (every design); and, on every third design of a family, both mill
+tolerance and allowance ("mill"), mill tolerance only ("cm") and allowance only ("ca").
 Each set line: {"tag", "meta", "ref", "request"}. `ref.cases[case].rows` are
 [kind, entity_ref, location, component, section_basis, value] with values as
 45-significant-digit decimal strings in published units; `ref.cases[case].maxima`
@@ -526,9 +530,13 @@ def build_request(d, placement, theory, mill):
     for m in d.members:
         sec = d.member_sections.get(m["id"], d.sec)
         od, t = SECTIONS[sec]
-        cm, ca = mill_values(sec) if mill else (0.0, 0.0)
+        cm, ca = mill_values(sec) if mill in ("both", True) else (0.0, 0.0)
+        if mill == "mill_only":
+            cm, ca = mill_values(sec)[0], 0.0
+        elif mill == "allowance_only":
+            cm, ca = 0.0, mill_values(sec)[1]
         s = {"outside_diameter": q(od, "m"), "wall_thickness": q(t, "m"), "corrosion_allowance": q(ca, "m")}
-        if mill:
+        if cm != 0.0:
             s["mill_tolerance"] = q(cm, "m")
         y = rot(m["yref"], skew, frame)
         sect_of[m["id"]] = (od, t, cm, ca)
@@ -630,17 +638,20 @@ THEORIES = {"eb": "euler_bernoulli", "ts": "timoshenko_annulus_energy_v1"}
 def model_list():
     """Every (tag, meta, request) of the judged set, in a fixed order."""
     out = []
+    seg = {"zero": "m0", "both": "mill", "mill_only": "cm", "allowance_only": "ca"}
     for idx, d in enumerate(designs()):
-        variants = [False] + ([True] if wants_mill(d, idx) else [])
-        for mill in variants:
-            for placement in placements_for(d) if not mill else ["o", "utmskew"]:
+        variants = ["zero"] + (["both", "mill_only", "allowance_only"] if wants_mill(d, idx) else [])
+        for variant in variants:
+            places = {"zero": placements_for(d), "both": ["o", "utmskew"]}.get(variant, ["o"])
+            for placement in places:
                 for th in ("eb", "ts"):
-                    tag = f"m3t|{d.name}|{d.sec}{d.mat}|{placement}|{'mill' if mill else 'm0'}|{th}"
-                    twin = f"m3t|{d.name}|{d.sec}{d.mat}|{placement}|{'mill' if mill else 'm0'}|{'ts' if th == 'eb' else 'eb'}"
-                    req, weights = build_request(d, placement, THEORIES[th], mill)
+                    tag = f"m3t|{d.name}|{d.sec}{d.mat}|{placement}|{seg[variant]}|{th}"
+                    twin = f"m3t|{d.name}|{d.sec}{d.mat}|{placement}|{seg[variant]}|{'ts' if th == 'eb' else 'eb'}"
+                    req, weights = build_request(d, placement, THEORIES[th], variant)
                     meta = {"design": d.name, "family": d.family, "section": d.sec, "material": d.mat, "placement": placement,
-                            "theory": THEORIES[th], "mill_and_allowance": mill, "twin": twin, "load_state": d.load_state,
-                            "harness_validation": th == "eb" and not mill, "notes": d.notes,
+                            "theory": THEORIES[th], "mill_and_allowance": variant == "both", "section_variant": variant, "twin": twin,
+                            "load_state": d.load_state, "harness_validation": th == "eb" and variant == "zero",
+                            "stiffness_basis_control": th == "eb" and variant == "mill_only", "notes": d.notes,
                             "self_weight_N_per_m": {k: repr(v) for k, v in weights.items()}}
                     out.append((tag, meta, req))
     return out
@@ -691,7 +702,9 @@ def frozen_selection(items):
             ("PHI2S5+0", "o", "m0"), ("PHI2S5+1", "o", "m0"), ("PHI2S4FF", "o", "m0"), ("PHI2S5L", "utmskew", "m0"),
             ("PR00", "o", "m0"), ("PR01", "utmskew", "m0"), ("PR09", "o", "mill"), ("PR09", "utmskew", "m0"), ("PR11", "o", "m0"),
             ("SOFTRX03", "o", "m0"), ("SOFTUY01", "utmskew", "m0"), ("SHORT02", "o", "m0"), ("SHORTL01", "utmskew", "m0")}
-    return [x for x in items if (x[1]["design"], x[1]["placement"], "mill" if x[1]["mill_and_allowance"] else "m0") in want]
+    want |= {("FF06", "o", "cm"), ("PR09", "o", "ca")}
+    seg = {"zero": "m0", "both": "mill", "mill_only": "cm", "allowance_only": "ca"}
+    return [x for x in items if (x[1]["design"], x[1]["placement"], seg[x[1]["section_variant"]]) in want]
 
 
 def frozen_bytes(workers):
@@ -762,7 +775,10 @@ def main():
         for line in open(set_path):
             x = json.loads(line)
             hv = x["meta"]["harness_validation"]
-            if sel == "all" or (sel == "hv" and hv) or (sel == "pending" and not hv):
+            ctl = x["meta"].get("stiffness_basis_control", False)
+            th = x["meta"]["theory"]
+            if (sel == "all" or (sel == "hv" and hv) or (sel == "pending" and not hv) or (sel == "stiffness_control" and ctl)
+                    or (sel == "eb" and th == "euler_bernoulli") or (sel == "ts" and th == "timoshenko_annulus_energy_v1")):
                 chosen.append(json.dumps({"tag": x["tag"], "request": x["request"]}, sort_keys=True, separators=(",", ":")))
         for k in range(0, len(chosen), per):
             with open(os.path.join(out_dir, f"c.{k // per:03d}.in.jsonl"), "w") as f:
