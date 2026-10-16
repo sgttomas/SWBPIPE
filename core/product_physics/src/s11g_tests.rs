@@ -1697,6 +1697,9 @@ fn t12_accurate_small_moment_rows_below_the_floor_stay_passed() {
 /// entry and result row stayed byte-identical. The committed raw file, which
 /// result_export's suites and the base reader corpus consume, is regenerated
 /// from this producer, so the check is now byte identity with it.
+/// `T13_FALLBACK_UZ_WRITE=1` regenerates the two committed raw files from this
+/// producer (every other assertion still runs first); a rerun without it then
+/// checks the new bytes.
 #[test]
 fn t13_committed_fallback_uz_is_byte_identical() {
     // B7b: the result_export fixture's request is read through the shared
@@ -1742,6 +1745,14 @@ fn t13_committed_fallback_uz_is_byte_identical() {
                 .collect::<Vec<_>>(),
             "{mode:?}"
         );
+        if std::env::var("T13_FALLBACK_UZ_WRITE").as_deref() == Ok("1") {
+            let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
+                "../reporting/result_export/tests/fixtures/load_reference_fallback_uz-{}.raw.json",
+                mode.as_str()
+            ));
+            std::fs::write(path, &text).unwrap();
+            continue;
+        }
         assert!(text == committed, "{mode:?}: the producer's bytes differ from the committed raw file");
     }
 }

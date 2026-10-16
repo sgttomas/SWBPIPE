@@ -22,17 +22,36 @@
         ],
         "pipe_sections": [
           {
-            "Ai_m2": 0.02544690049407733,
-            "As_m2": 0.005969026041820607,
-            "I_m4": 0.000027009842839238257,
-            "J_m4": 0.000054019685678476514,
-            "Z_m3": 0.0002700984283923826,
-            "effective_wall_thickness_m": 0.01,
-            "geometry_basis": "authored_normalized_od_wall_v1",
+            "beam_theory": {
+              "model": "euler_bernoulli"
+            },
+            "corrosion_allowance_m": 0.0,
+            "geometry_basis": "authored_od_wall_d5_sections_v1",
+            "mill_tolerance_m": 0.0,
+            "nominal_section": {
+              "As_m2": 0.005969026041820607,
+              "I_m4": 0.000027009842839238257,
+              "J_m4": 0.000054019685678476514,
+              "Z_m3": 0.0002700984283923826,
+              "ri_m": 0.09000000000000001,
+              "wall_m": 0.01
+            },
             "outside_diameter_m": 0.2,
             "pipe_id": "pipe:first",
-            "ri_m": 0.09000000000000001,
-            "ro_m": 0.1
+            "pressure_bore": {
+              "Ai_m2": 0.02544690049407733,
+              "ri_m": 0.09000000000000001
+            },
+            "reduced_section": {
+              "As_m2": 0.005969026041820607,
+              "I_m4": 0.000027009842839238257,
+              "J_m4": 0.000054019685678476514,
+              "Z_m3": 0.0002700984283923826,
+              "ri_m": 0.09000000000000001,
+              "wall_m": 0.01
+            },
+            "ro_m": 0.1,
+            "wall_thickness_m": 0.01
           }
         ],
         "pipe_stress_extrema": [
@@ -44,7 +63,24 @@
             "global_upper_bound_pa": 5115789.473684215,
             "local_fraction": 0.0,
             "pipe_id": "pipe:first",
-            "result_id": "result:elastic-maximum:18:case:cold-pressure:10:pipe:first",
+            "result_id": "result:elastic-maximum:18:case:cold-pressure:10:pipe:first:nominal_section",
+            "section_basis": "nominal_section",
+            "span_index": 0,
+            "station_fraction": 0.0,
+            "subdivisions": 0,
+            "value_lower_pa": 5115789.473684206,
+            "value_upper_pa": 5115789.473684215
+          },
+          {
+            "approximation": "piecewise_quadratic_straight_section_statics",
+            "certified_gap_pa": 9.313225746154787e-9,
+            "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+            "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+            "global_upper_bound_pa": 5115789.473684215,
+            "local_fraction": 0.0,
+            "pipe_id": "pipe:first",
+            "result_id": "result:elastic-maximum:18:case:cold-pressure:10:pipe:first:reduced_section",
+            "section_basis": "reduced_section",
             "span_index": 0,
             "station_fraction": 0.0,
             "subdivisions": 0,
@@ -174,10 +210,18 @@
           "screen_roundoff_multiplier": 32
         },
         "profile_mode": "exact_pressure_v3",
-        "stress_maximum_coverage": {
-          "complete": true,
-          "unavailable_pipe_ids": []
-        }
+        "stress_maximum_coverage": [
+          {
+            "complete": true,
+            "section_basis": "nominal_section",
+            "unavailable_pipe_ids": []
+          },
+          {
+            "complete": true,
+            "section_basis": "reduced_section",
+            "unavailable_pipe_ids": []
+          }
+        ]
       },
       {
         "load_case_id": "case:hot-pressure",
@@ -199,17 +243,36 @@
         ],
         "pipe_sections": [
           {
-            "Ai_m2": 0.02544690049407733,
-            "As_m2": 0.005969026041820607,
-            "I_m4": 0.000027009842839238257,
-            "J_m4": 0.000054019685678476514,
-            "Z_m3": 0.0002700984283923826,
-            "effective_wall_thickness_m": 0.01,
-            "geometry_basis": "authored_normalized_od_wall_v1",
+            "beam_theory": {
+              "model": "euler_bernoulli"
+            },
+            "corrosion_allowance_m": 0.0,
+            "geometry_basis": "authored_od_wall_d5_sections_v1",
+            "mill_tolerance_m": 0.0,
+            "nominal_section": {
+              "As_m2": 0.005969026041820607,
+              "I_m4": 0.000027009842839238257,
+              "J_m4": 0.000054019685678476514,
+              "Z_m3": 0.0002700984283923826,
+              "ri_m": 0.09000000000000001,
+              "wall_m": 0.01
+            },
             "outside_diameter_m": 0.2,
             "pipe_id": "pipe:first",
-            "ri_m": 0.09000000000000001,
-            "ro_m": 0.1
+            "pressure_bore": {
+              "Ai_m2": 0.02544690049407733,
+              "ri_m": 0.09000000000000001
+            },
+            "reduced_section": {
+              "As_m2": 0.005969026041820607,
+              "I_m4": 0.000027009842839238257,
+              "J_m4": 0.000054019685678476514,
+              "Z_m3": 0.0002700984283923826,
+              "ri_m": 0.09000000000000001,
+              "wall_m": 0.01
+            },
+            "ro_m": 0.1,
+            "wall_thickness_m": 0.01
           }
         ],
         "pipe_stress_extrema": [
@@ -221,7 +284,24 @@
             "global_upper_bound_pa": 228884210.526316,
             "local_fraction": 0.0,
             "pipe_id": "pipe:first",
-            "result_id": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first",
+            "result_id": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:nominal_section",
+            "section_basis": "nominal_section",
+            "span_index": 0,
+            "station_fraction": 0.0,
+            "subdivisions": 0,
+            "value_lower_pa": 228884210.52631563,
+            "value_upper_pa": 228884210.526316
+          },
+          {
+            "approximation": "piecewise_quadratic_straight_section_statics",
+            "certified_gap_pa": 3.576278686523438e-7,
+            "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
+            "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+            "global_upper_bound_pa": 228884210.526316,
+            "local_fraction": 0.0,
+            "pipe_id": "pipe:first",
+            "result_id": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:reduced_section",
+            "section_basis": "reduced_section",
             "span_index": 0,
             "station_fraction": 0.0,
             "subdivisions": 0,
@@ -351,10 +431,18 @@
           "screen_roundoff_multiplier": 32
         },
         "profile_mode": "exact_pressure_v3",
-        "stress_maximum_coverage": {
-          "complete": true,
-          "unavailable_pipe_ids": []
-        }
+        "stress_maximum_coverage": [
+          {
+            "complete": true,
+            "section_basis": "nominal_section",
+            "unavailable_pipe_ids": []
+          },
+          {
+            "complete": true,
+            "section_basis": "reduced_section",
+            "unavailable_pipe_ids": []
+          }
+        ]
       }
     ],
     "load_reference_states": [
@@ -564,18 +652,37 @@
         "external_pressure_increment_pa": 0.0,
         "geometry": [
           {
-            "Ai_m2": 0.02544690049407733,
-            "As_m2": 0.005969026041820607,
-            "I_m4": 0.000027009842839238257,
-            "J_m4": 0.000054019685678476514,
-            "Z_m3": 0.0002700984283923826,
-            "effective_wall_thickness_m": 0.01,
-            "geometry_basis": "authored_normalized_od_wall_v1",
+            "beam_theory": {
+              "model": "euler_bernoulli"
+            },
+            "corrosion_allowance_m": 0.0,
+            "geometry_basis": "authored_od_wall_d5_sections_v1",
+            "mill_tolerance_m": 0.0,
+            "nominal_section": {
+              "As_m2": 0.005969026041820607,
+              "I_m4": 0.000027009842839238257,
+              "J_m4": 0.000054019685678476514,
+              "Z_m3": 0.0002700984283923826,
+              "ri_m": 0.09000000000000001,
+              "wall_m": 0.01
+            },
             "outside_diameter_m": 0.2,
             "pipe_id": "pipe:first",
-            "ri_m": 0.09000000000000001,
+            "pressure_bore": {
+              "Ai_m2": 0.02544690049407733,
+              "ri_m": 0.09000000000000001
+            },
+            "reduced_section": {
+              "As_m2": 0.005969026041820607,
+              "I_m4": 0.000027009842839238257,
+              "J_m4": 0.000054019685678476514,
+              "Z_m3": 0.0002700984283923826,
+              "ri_m": 0.09000000000000001,
+              "wall_m": 0.01
+            },
             "ro_m": 0.1,
-            "traversal_forward": true
+            "traversal_forward": true,
+            "wall_thickness_m": 0.01
           }
         ],
         "geometry_representation_guard": {
@@ -607,44 +714,70 @@
         "provenance": "invented_load_reference_fixture_not_library_data",
         "region_id": "region:closed",
         "result_ids": [
-          "result:elastic-maximum:18:case:cold-pressure:10:pipe:first",
+          "result:elastic-maximum:18:case:cold-pressure:10:pipe:first:nominal_section",
+          "result:elastic-maximum:18:case:cold-pressure:10:pipe:first:reduced_section",
           "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:wall_axial_end_action",
           "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:wall_axial_end_action",
           "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:wall_axial_force",
           "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:effective_axial_force",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:axial_membrane_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_radial_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_radial_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_hoop_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_hoop_stress",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:axial_membrane_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:axial_membrane_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_radial_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_radial_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_radial_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_radial_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_hoop_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_hoop_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_hoop_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_hoop_stress:reduced_section",
           "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:wall_axial_force",
           "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:effective_axial_force",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:axial_membrane_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_radial_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_radial_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_hoop_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_hoop_stress",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:axial_membrane_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:axial_membrane_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_radial_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_radial_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_radial_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_radial_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_hoop_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_hoop_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_hoop_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_hoop_stress:reduced_section",
           "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:wall_axial_force",
           "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:effective_axial_force",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:axial_membrane_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:axial_membrane_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:axial_membrane_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress:reduced_section",
           "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:wall_axial_force",
           "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:effective_axial_force",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:axial_membrane_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_radial_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_radial_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_hoop_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_hoop_stress",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:axial_membrane_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:axial_membrane_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_radial_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_radial_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_radial_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_radial_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_hoop_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_hoop_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_hoop_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_hoop_stress:reduced_section",
           "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:wall_axial_force",
           "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:effective_axial_force",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:axial_membrane_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress",
-          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress"
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:axial_membrane_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:axial_membrane_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress:reduced_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress:nominal_section",
+          "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress:reduced_section"
         ],
         "terminals": [
           {
@@ -707,18 +840,37 @@
         "external_pressure_increment_pa": 0.0,
         "geometry": [
           {
-            "Ai_m2": 0.02544690049407733,
-            "As_m2": 0.005969026041820607,
-            "I_m4": 0.000027009842839238257,
-            "J_m4": 0.000054019685678476514,
-            "Z_m3": 0.0002700984283923826,
-            "effective_wall_thickness_m": 0.01,
-            "geometry_basis": "authored_normalized_od_wall_v1",
+            "beam_theory": {
+              "model": "euler_bernoulli"
+            },
+            "corrosion_allowance_m": 0.0,
+            "geometry_basis": "authored_od_wall_d5_sections_v1",
+            "mill_tolerance_m": 0.0,
+            "nominal_section": {
+              "As_m2": 0.005969026041820607,
+              "I_m4": 0.000027009842839238257,
+              "J_m4": 0.000054019685678476514,
+              "Z_m3": 0.0002700984283923826,
+              "ri_m": 0.09000000000000001,
+              "wall_m": 0.01
+            },
             "outside_diameter_m": 0.2,
             "pipe_id": "pipe:first",
-            "ri_m": 0.09000000000000001,
+            "pressure_bore": {
+              "Ai_m2": 0.02544690049407733,
+              "ri_m": 0.09000000000000001
+            },
+            "reduced_section": {
+              "As_m2": 0.005969026041820607,
+              "I_m4": 0.000027009842839238257,
+              "J_m4": 0.000054019685678476514,
+              "Z_m3": 0.0002700984283923826,
+              "ri_m": 0.09000000000000001,
+              "wall_m": 0.01
+            },
             "ro_m": 0.1,
-            "traversal_forward": true
+            "traversal_forward": true,
+            "wall_thickness_m": 0.01
           }
         ],
         "geometry_representation_guard": {
@@ -750,44 +902,70 @@
         "provenance": "invented_load_reference_fixture_not_library_data",
         "region_id": "region:closed",
         "result_ids": [
-          "result:elastic-maximum:17:case:hot-pressure:10:pipe:first",
+          "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:nominal_section",
+          "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:reduced_section",
           "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:wall_axial_end_action",
           "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:wall_axial_end_action",
           "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:wall_axial_force",
           "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:effective_axial_force",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:axial_membrane_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_inner_radial_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_outer_radial_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_inner_hoop_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_outer_hoop_stress",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:axial_membrane_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:axial_membrane_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_inner_radial_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_inner_radial_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_outer_radial_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_outer_radial_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_inner_hoop_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_inner_hoop_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_outer_hoop_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_outer_hoop_stress:reduced_section",
           "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:wall_axial_force",
           "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:effective_axial_force",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:axial_membrane_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_inner_radial_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_outer_radial_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_inner_hoop_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_outer_hoop_stress",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:axial_membrane_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:axial_membrane_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_inner_radial_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_inner_radial_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_outer_radial_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_outer_radial_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_inner_hoop_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_inner_hoop_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_outer_hoop_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_outer_hoop_stress:reduced_section",
           "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:wall_axial_force",
           "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:effective_axial_force",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:axial_membrane_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:axial_membrane_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:axial_membrane_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress:reduced_section",
           "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:wall_axial_force",
           "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:effective_axial_force",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:axial_membrane_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_inner_radial_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_outer_radial_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_inner_hoop_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_outer_hoop_stress",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:axial_membrane_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:axial_membrane_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_inner_radial_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_inner_radial_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_outer_radial_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_outer_radial_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_inner_hoop_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_inner_hoop_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_outer_hoop_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_outer_hoop_stress:reduced_section",
           "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:wall_axial_force",
           "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:effective_axial_force",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:axial_membrane_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress",
-          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress"
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:axial_membrane_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:axial_membrane_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress:reduced_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress:nominal_section",
+          "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress:reduced_section"
         ],
         "terminals": [
           {
@@ -871,14 +1049,14 @@
   "formulation_basis": {
     "profile_id": "exact_pressure_v3",
     "limitations": [
-      "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (Euler-Bernoulli; source OD/effective wall define the single section basis; G is derived from E/nu) and linear restraints or springs; realized curved bends and expansion joints authored as objective connectors are admitted only as the bend and connector limitations state. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+      "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
       "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
       "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
       "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
       "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.",
       "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
       "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
-      "Every member section declares its corrosion allowance and the contract declares its shear model; only a zero allowance and the euler_bernoulli shear model are admitted. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
+      "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
       "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently.",
       "Thermal and fit reference strain compose as lambda_fit*lambda_thermal-1 and enter once as an axial eigenstrain; uniform member temperature only, no gradients, finite strain, inelasticity or fit-up joints.",
       "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.",
@@ -910,11 +1088,18 @@
       "location_ref": "node:middle",
       "result_ref": "result:disp:node-middle"
     },
-    "max_open_formula_stress": {
+    "max_open_formula_stress": null,
+    "max_open_formula_stress_nominal_section": {
       "value": 228884210.5263158,
       "unit": "Pa",
       "location_ref": "pipe:first",
-      "result_ref": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first"
+      "result_ref": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:nominal_section"
+    },
+    "max_open_formula_stress_reduced_section": {
+      "value": 228884210.5263158,
+      "unit": "Pa",
+      "location_ref": "pipe:first",
+      "result_ref": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:reduced_section"
     }
   },
   "results": [
@@ -1913,7 +2098,7 @@
       }
     },
     {
-      "id": "result:stress:pipe-first:end-i:bending-normal-y",
+      "id": "result:stress:pipe-first:end-i:bending-normal-y:nominal-section",
       "kind": "element_local_bending_normal_stress_y",
       "value": 0.0,
       "unit": "MPa",
@@ -1926,12 +2111,30 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_local_element_stiffness",
+        "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
-      "id": "result:stress:pipe-first:end-i:bending-normal-z",
+      "id": "result:stress:pipe-first:end-i:bending-normal-y:reduced-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:end-i:bending-normal-z:nominal-section",
       "kind": "element_local_bending_normal_stress_z",
       "value": 0.0,
       "unit": "MPa",
@@ -1944,12 +2147,30 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_local_element_stiffness",
+        "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
-      "id": "result:stress:pipe-first:end-i:torsional-shear",
+      "id": "result:stress:pipe-first:end-i:bending-normal-z:reduced-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:end-i:torsional-shear:nominal-section",
       "kind": "element_local_torsional_shear_stress",
       "value": 0.0,
       "unit": "MPa",
@@ -1962,12 +2183,30 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_local_element_stiffness",
+        "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
-      "id": "result:stress:pipe-first:end-j:bending-normal-y",
+      "id": "result:stress:pipe-first:end-i:torsional-shear:reduced-section",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:end-j:bending-normal-y:nominal-section",
       "kind": "element_local_bending_normal_stress_y",
       "value": 0.0,
       "unit": "MPa",
@@ -1980,12 +2219,30 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_local_element_stiffness",
+        "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
-      "id": "result:stress:pipe-first:end-j:bending-normal-z",
+      "id": "result:stress:pipe-first:end-j:bending-normal-y:reduced-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:end-j:bending-normal-z:nominal-section",
       "kind": "element_local_bending_normal_stress_z",
       "value": 0.0,
       "unit": "MPa",
@@ -1998,12 +2255,30 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_local_element_stiffness",
+        "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
-      "id": "result:stress:pipe-first:end-j:torsional-shear",
+      "id": "result:stress:pipe-first:end-j:bending-normal-z:reduced-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:end-j:torsional-shear:nominal-section",
       "kind": "element_local_torsional_shear_stress",
       "value": 0.0,
       "unit": "MPa",
@@ -2016,12 +2291,30 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_local_element_stiffness",
+        "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
-      "id": "result:stress:pipe-first:quarter-1:bending-normal-y",
+      "id": "result:stress:pipe-first:end-j:torsional-shear:reduced-section",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:quarter-1:bending-normal-y:nominal-section",
       "kind": "element_local_bending_normal_stress_y",
       "value": 0.0,
       "unit": "MPa",
@@ -2034,12 +2327,30 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:stress:pipe-first:quarter-1:bending-normal-z",
+      "id": "result:stress:pipe-first:quarter-1:bending-normal-y:reduced-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:quarter-1:bending-normal-z:nominal-section",
       "kind": "element_local_bending_normal_stress_z",
       "value": 0.0,
       "unit": "MPa",
@@ -2052,12 +2363,30 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:stress:pipe-first:quarter-1:torsional-shear",
+      "id": "result:stress:pipe-first:quarter-1:bending-normal-z:reduced-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:quarter-1:torsional-shear:nominal-section",
       "kind": "element_local_torsional_shear_stress",
       "value": 0.0,
       "unit": "MPa",
@@ -2070,12 +2399,30 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:stress:pipe-first:midspan:bending-normal-y",
+      "id": "result:stress:pipe-first:quarter-1:torsional-shear:reduced-section",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:midspan:bending-normal-y:nominal-section",
       "kind": "element_local_bending_normal_stress_y",
       "value": 0.0,
       "unit": "MPa",
@@ -2088,12 +2435,30 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:stress:pipe-first:midspan:bending-normal-z",
+      "id": "result:stress:pipe-first:midspan:bending-normal-y:reduced-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:midspan:bending-normal-z:nominal-section",
       "kind": "element_local_bending_normal_stress_z",
       "value": 0.0,
       "unit": "MPa",
@@ -2106,12 +2471,30 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:stress:pipe-first:midspan:torsional-shear",
+      "id": "result:stress:pipe-first:midspan:bending-normal-z:reduced-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:midspan:torsional-shear:nominal-section",
       "kind": "element_local_torsional_shear_stress",
       "value": 0.0,
       "unit": "MPa",
@@ -2124,12 +2507,30 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:stress:pipe-first:quarter-3:bending-normal-y",
+      "id": "result:stress:pipe-first:midspan:torsional-shear:reduced-section",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:quarter-3:bending-normal-y:nominal-section",
       "kind": "element_local_bending_normal_stress_y",
       "value": 0.0,
       "unit": "MPa",
@@ -2142,12 +2543,30 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:stress:pipe-first:quarter-3:bending-normal-z",
+      "id": "result:stress:pipe-first:quarter-3:bending-normal-y:reduced-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:quarter-3:bending-normal-z:nominal-section",
       "kind": "element_local_bending_normal_stress_z",
       "value": 0.0,
       "unit": "MPa",
@@ -2160,12 +2579,30 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:stress:pipe-first:quarter-3:torsional-shear",
+      "id": "result:stress:pipe-first:quarter-3:bending-normal-z:reduced-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:stress:pipe-first:quarter-3:torsional-shear:nominal-section",
       "kind": "element_local_torsional_shear_stress",
       "value": 0.0,
       "unit": "MPa",
@@ -2178,12 +2615,30 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:elastic-maximum:18:case:cold-pressure:10:pipe:first",
+      "id": "result:stress:pipe-first:quarter-3:torsional-shear:reduced-section",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:elastic-maximum:18:case:cold-pressure:10:pipe:first:nominal_section",
       "kind": "pipe_elastic_normal_stress_maximum_v2",
       "value": 5115789.47368421,
       "unit": "Pa",
@@ -2196,7 +2651,25 @@
         "component": "maximum_absolute_normal_stress",
         "coordinate_system": "pipe_section",
         "location": "governing_station",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
+      }
+    },
+    {
+      "id": "result:elastic-maximum:18:case:cold-pressure:10:pipe:first:reduced_section",
+      "kind": "pipe_elastic_normal_stress_maximum_v2",
+      "value": 5115789.47368421,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "maximum_absolute_normal_stress",
+        "coordinate_system": "pipe_section",
+        "location": "governing_station",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
       }
     },
@@ -2273,7 +2746,7 @@
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:axial_membrane_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:axial_membrane_stress:nominal_section",
       "kind": "pipe_axial_membrane_stress_v2",
       "value": 5115789.47368421,
       "unit": "Pa",
@@ -2286,12 +2759,30 @@
         "component": "axial_membrane_stress",
         "coordinate_system": "pipe_section",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_radial_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:axial_membrane_stress:reduced_section",
+      "kind": "pipe_axial_membrane_stress_v2",
+      "value": 5115789.47368421,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "axial_membrane_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": -2000000.0,
       "unit": "Pa",
@@ -2304,12 +2795,30 @@
         "component": "lame_inner_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_radial_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": -2000000.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": 0.0,
       "unit": "Pa",
@@ -2322,12 +2831,30 @@
         "component": "lame_outer_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_hoop_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": 0.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 19052631.578947373,
       "unit": "Pa",
@@ -2340,12 +2867,30 @@
         "component": "lame_inner_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_hoop_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_inner_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 19052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 17052631.578947373,
       "unit": "Pa",
@@ -2358,7 +2903,25 @@
         "component": "lame_outer_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_i:lame_outer_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 17052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
@@ -2399,7 +2962,7 @@
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:axial_membrane_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:axial_membrane_stress:nominal_section",
       "kind": "pipe_axial_membrane_stress_v2",
       "value": 5115789.47368421,
       "unit": "Pa",
@@ -2412,12 +2975,30 @@
         "component": "axial_membrane_stress",
         "coordinate_system": "pipe_section",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_radial_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:axial_membrane_stress:reduced_section",
+      "kind": "pipe_axial_membrane_stress_v2",
+      "value": 5115789.47368421,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "axial_membrane_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": -2000000.0,
       "unit": "Pa",
@@ -2430,12 +3011,30 @@
         "component": "lame_inner_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_radial_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": -2000000.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": 0.0,
       "unit": "Pa",
@@ -2448,12 +3047,30 @@
         "component": "lame_outer_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_hoop_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": 0.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 19052631.578947373,
       "unit": "Pa",
@@ -2466,12 +3083,30 @@
         "component": "lame_inner_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_hoop_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_inner_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 19052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 17052631.578947373,
       "unit": "Pa",
@@ -2484,7 +3119,25 @@
         "component": "lame_outer_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:end_j:lame_outer_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 17052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
@@ -2525,7 +3178,7 @@
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:axial_membrane_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:axial_membrane_stress:nominal_section",
       "kind": "pipe_axial_membrane_stress_v2",
       "value": 5115789.47368421,
       "unit": "Pa",
@@ -2538,12 +3191,30 @@
         "component": "axial_membrane_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:axial_membrane_stress:reduced_section",
+      "kind": "pipe_axial_membrane_stress_v2",
+      "value": 5115789.47368421,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "axial_membrane_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": -2000000.0,
       "unit": "Pa",
@@ -2556,12 +3227,30 @@
         "component": "lame_inner_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": -2000000.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": 0.0,
       "unit": "Pa",
@@ -2574,12 +3263,30 @@
         "component": "lame_outer_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": 0.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 19052631.578947373,
       "unit": "Pa",
@@ -2592,12 +3299,30 @@
         "component": "lame_inner_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 19052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 17052631.578947373,
       "unit": "Pa",
@@ -2610,7 +3335,25 @@
         "component": "lame_outer_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 17052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
@@ -2651,7 +3394,7 @@
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:axial_membrane_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:axial_membrane_stress:nominal_section",
       "kind": "pipe_axial_membrane_stress_v2",
       "value": 5115789.47368421,
       "unit": "Pa",
@@ -2664,12 +3407,30 @@
         "component": "axial_membrane_stress",
         "coordinate_system": "pipe_section",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_radial_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:axial_membrane_stress:reduced_section",
+      "kind": "pipe_axial_membrane_stress_v2",
+      "value": 5115789.47368421,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "axial_membrane_stress",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": -2000000.0,
       "unit": "Pa",
@@ -2682,12 +3443,30 @@
         "component": "lame_inner_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_radial_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": -2000000.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": 0.0,
       "unit": "Pa",
@@ -2700,12 +3479,30 @@
         "component": "lame_outer_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_hoop_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": 0.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 19052631.578947373,
       "unit": "Pa",
@@ -2718,12 +3515,30 @@
         "component": "lame_inner_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_hoop_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_inner_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 19052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 17052631.578947373,
       "unit": "Pa",
@@ -2736,7 +3551,25 @@
         "component": "lame_outer_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:midspan:lame_outer_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 17052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
@@ -2777,7 +3610,7 @@
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:axial_membrane_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:axial_membrane_stress:nominal_section",
       "kind": "pipe_axial_membrane_stress_v2",
       "value": 5115789.47368421,
       "unit": "Pa",
@@ -2790,12 +3623,30 @@
         "component": "axial_membrane_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:axial_membrane_stress:reduced_section",
+      "kind": "pipe_axial_membrane_stress_v2",
+      "value": 5115789.47368421,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "axial_membrane_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": -2000000.0,
       "unit": "Pa",
@@ -2808,12 +3659,30 @@
         "component": "lame_inner_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": -2000000.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": 0.0,
       "unit": "Pa",
@@ -2826,12 +3695,30 @@
         "component": "lame_outer_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": 0.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 19052631.578947373,
       "unit": "Pa",
@@ -2844,12 +3731,30 @@
         "component": "lame_inner_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress",
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 19052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 17052631.578947373,
       "unit": "Pa",
@@ -2862,7 +3767,25 @@
         "component": "lame_outer_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:18:case:cold-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 17052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:cold-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
@@ -3861,7 +4784,7 @@
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-i:bending-normal-y",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-i:bending-normal-y:nominal-section",
       "kind": "element_local_bending_normal_stress_y",
       "value": 0.0,
       "unit": "MPa",
@@ -3874,12 +4797,30 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_local_element_stiffness",
+        "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-i:bending-normal-z",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-i:bending-normal-y:reduced-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-i:bending-normal-z:nominal-section",
       "kind": "element_local_bending_normal_stress_z",
       "value": 0.0,
       "unit": "MPa",
@@ -3892,12 +4833,30 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_local_element_stiffness",
+        "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-i:torsional-shear",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-i:bending-normal-z:reduced-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-i:torsional-shear:nominal-section",
       "kind": "element_local_torsional_shear_stress",
       "value": 0.0,
       "unit": "MPa",
@@ -3910,12 +4869,30 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_local_element_stiffness",
+        "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-j:bending-normal-y",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-i:torsional-shear:reduced-section",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-j:bending-normal-y:nominal-section",
       "kind": "element_local_bending_normal_stress_y",
       "value": 0.0,
       "unit": "MPa",
@@ -3928,12 +4905,30 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_local_element_stiffness",
+        "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-j:bending-normal-z",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-j:bending-normal-y:reduced-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-j:bending-normal-z:nominal-section",
       "kind": "element_local_bending_normal_stress_z",
       "value": 0.0,
       "unit": "MPa",
@@ -3946,12 +4941,30 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_local_element_stiffness",
+        "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-j:torsional-shear",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-j:bending-normal-z:reduced-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-j:torsional-shear:nominal-section",
       "kind": "element_local_torsional_shear_stress",
       "value": 0.0,
       "unit": "MPa",
@@ -3964,12 +4977,30 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_local_element_stiffness",
+        "basis": "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-1:bending-normal-y",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:end-j:torsional-shear:reduced-section",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "basis": "recovered_from_local_element_stiffness; section_basis=reduced_section",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-1:bending-normal-y:nominal-section",
       "kind": "element_local_bending_normal_stress_y",
       "value": 0.0,
       "unit": "MPa",
@@ -3982,12 +5013,30 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-1:bending-normal-z",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-1:bending-normal-y:reduced-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-1:bending-normal-z:nominal-section",
       "kind": "element_local_bending_normal_stress_z",
       "value": 0.0,
       "unit": "MPa",
@@ -4000,12 +5049,30 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-1:torsional-shear",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-1:bending-normal-z:reduced-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-1:torsional-shear:nominal-section",
       "kind": "element_local_torsional_shear_stress",
       "value": 0.0,
       "unit": "MPa",
@@ -4018,12 +5085,30 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:midspan:bending-normal-y",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-1:torsional-shear:reduced-section",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:midspan:bending-normal-y:nominal-section",
       "kind": "element_local_bending_normal_stress_y",
       "value": 0.0,
       "unit": "MPa",
@@ -4036,12 +5121,30 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:midspan:bending-normal-z",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:midspan:bending-normal-y:reduced-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:midspan:bending-normal-z:nominal-section",
       "kind": "element_local_bending_normal_stress_z",
       "value": 0.0,
       "unit": "MPa",
@@ -4054,12 +5157,30 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:midspan:torsional-shear",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:midspan:bending-normal-z:reduced-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:midspan:torsional-shear:nominal-section",
       "kind": "element_local_torsional_shear_stress",
       "value": 0.0,
       "unit": "MPa",
@@ -4072,12 +5193,30 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-3:bending-normal-y",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:midspan:torsional-shear:reduced-section",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-3:bending-normal-y:nominal-section",
       "kind": "element_local_bending_normal_stress_y",
       "value": 0.0,
       "unit": "MPa",
@@ -4090,12 +5229,30 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-3:bending-normal-z",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-3:bending-normal-y:reduced-section",
+      "kind": "element_local_bending_normal_stress_y",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-3:bending-normal-z:nominal-section",
       "kind": "element_local_bending_normal_stress_z",
       "value": 0.0,
       "unit": "MPa",
@@ -4108,12 +5265,30 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-3:torsional-shear",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-3:bending-normal-z:reduced-section",
+      "kind": "element_local_bending_normal_stress_z",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-3:torsional-shear:nominal-section",
       "kind": "element_local_torsional_shear_stress",
       "value": 0.0,
       "unit": "MPa",
@@ -4126,12 +5301,30 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
       }
     },
     {
-      "id": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first",
+      "id": "result:loadcase:case-hot-pressure:stress:pipe-first:quarter-3:torsional-shear:reduced-section",
+      "kind": "element_local_torsional_shear_stress",
+      "value": 0.0,
+      "unit": "MPa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      }
+    },
+    {
+      "id": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:nominal_section",
       "kind": "pipe_elastic_normal_stress_maximum_v2",
       "value": 228884210.5263158,
       "unit": "Pa",
@@ -4144,7 +5337,25 @@
         "component": "maximum_absolute_normal_stress",
         "coordinate_system": "pipe_section",
         "location": "governing_station",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
+      }
+    },
+    {
+      "id": "result:elastic-maximum:17:case:hot-pressure:10:pipe:first:reduced_section",
+      "kind": "pipe_elastic_normal_stress_maximum_v2",
+      "value": 228884210.5263158,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "maximum_absolute_normal_stress",
+        "coordinate_system": "pipe_section",
+        "location": "governing_station",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
       }
     },
@@ -4221,7 +5432,7 @@
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:axial_membrane_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:axial_membrane_stress:nominal_section",
       "kind": "pipe_axial_membrane_stress_v2",
       "value": -228884210.5263158,
       "unit": "Pa",
@@ -4234,12 +5445,30 @@
         "component": "axial_membrane_stress",
         "coordinate_system": "pipe_section",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_inner_radial_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:axial_membrane_stress:reduced_section",
+      "kind": "pipe_axial_membrane_stress_v2",
+      "value": -228884210.5263158,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "axial_membrane_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_inner_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": -2000000.0,
       "unit": "Pa",
@@ -4252,12 +5481,30 @@
         "component": "lame_inner_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_outer_radial_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_inner_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": -2000000.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_outer_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": 0.0,
       "unit": "Pa",
@@ -4270,12 +5517,30 @@
         "component": "lame_outer_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_inner_hoop_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_outer_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": 0.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_inner_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 19052631.578947373,
       "unit": "Pa",
@@ -4288,12 +5553,30 @@
         "component": "lame_inner_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_outer_hoop_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_inner_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 19052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_outer_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 17052631.578947373,
       "unit": "Pa",
@@ -4306,7 +5589,25 @@
         "component": "lame_outer_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_i:lame_outer_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 17052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
@@ -4347,7 +5648,7 @@
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:axial_membrane_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:axial_membrane_stress:nominal_section",
       "kind": "pipe_axial_membrane_stress_v2",
       "value": -228884210.5263158,
       "unit": "Pa",
@@ -4360,12 +5661,30 @@
         "component": "axial_membrane_stress",
         "coordinate_system": "pipe_section",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_inner_radial_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:axial_membrane_stress:reduced_section",
+      "kind": "pipe_axial_membrane_stress_v2",
+      "value": -228884210.5263158,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "axial_membrane_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_inner_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": -2000000.0,
       "unit": "Pa",
@@ -4378,12 +5697,30 @@
         "component": "lame_inner_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_outer_radial_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_inner_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": -2000000.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_outer_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": 0.0,
       "unit": "Pa",
@@ -4396,12 +5733,30 @@
         "component": "lame_outer_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_inner_hoop_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_outer_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": 0.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_inner_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 19052631.578947373,
       "unit": "Pa",
@@ -4414,12 +5769,30 @@
         "component": "lame_inner_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_outer_hoop_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_inner_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 19052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_outer_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 17052631.578947373,
       "unit": "Pa",
@@ -4432,7 +5805,25 @@
         "component": "lame_outer_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:end_j:lame_outer_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 17052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
@@ -4473,7 +5864,7 @@
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:axial_membrane_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:axial_membrane_stress:nominal_section",
       "kind": "pipe_axial_membrane_stress_v2",
       "value": -228884210.5263158,
       "unit": "Pa",
@@ -4486,12 +5877,30 @@
         "component": "axial_membrane_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:axial_membrane_stress:reduced_section",
+      "kind": "pipe_axial_membrane_stress_v2",
+      "value": -228884210.5263158,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "axial_membrane_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": -2000000.0,
       "unit": "Pa",
@@ -4504,12 +5913,30 @@
         "component": "lame_inner_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_inner_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": -2000000.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": 0.0,
       "unit": "Pa",
@@ -4522,12 +5949,30 @@
         "component": "lame_outer_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_outer_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": 0.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 19052631.578947373,
       "unit": "Pa",
@@ -4540,12 +5985,30 @@
         "component": "lame_inner_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_inner_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 19052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 17052631.578947373,
       "unit": "Pa",
@@ -4558,7 +6021,25 @@
         "component": "lame_outer_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_1:lame_outer_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 17052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
@@ -4599,7 +6080,7 @@
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:axial_membrane_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:axial_membrane_stress:nominal_section",
       "kind": "pipe_axial_membrane_stress_v2",
       "value": -228884210.5263158,
       "unit": "Pa",
@@ -4612,12 +6093,30 @@
         "component": "axial_membrane_stress",
         "coordinate_system": "pipe_section",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_inner_radial_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:axial_membrane_stress:reduced_section",
+      "kind": "pipe_axial_membrane_stress_v2",
+      "value": -228884210.5263158,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "axial_membrane_stress",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_inner_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": -2000000.0,
       "unit": "Pa",
@@ -4630,12 +6129,30 @@
         "component": "lame_inner_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_outer_radial_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_inner_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": -2000000.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_outer_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": 0.0,
       "unit": "Pa",
@@ -4648,12 +6165,30 @@
         "component": "lame_outer_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_inner_hoop_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_outer_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": 0.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_inner_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 19052631.578947373,
       "unit": "Pa",
@@ -4666,12 +6201,30 @@
         "component": "lame_inner_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_outer_hoop_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_inner_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 19052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_outer_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 17052631.578947373,
       "unit": "Pa",
@@ -4684,7 +6237,25 @@
         "component": "lame_outer_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "midspan",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:midspan:lame_outer_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 17052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
@@ -4725,7 +6296,7 @@
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:axial_membrane_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:axial_membrane_stress:nominal_section",
       "kind": "pipe_axial_membrane_stress_v2",
       "value": -228884210.5263158,
       "unit": "Pa",
@@ -4738,12 +6309,30 @@
         "component": "axial_membrane_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:axial_membrane_stress:reduced_section",
+      "kind": "pipe_axial_membrane_stress_v2",
+      "value": -228884210.5263158,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "axial_membrane_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive axial wall membrane stress Nw/As; no added longitudinal pressure scalar"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": -2000000.0,
       "unit": "Pa",
@@ -4756,12 +6345,30 @@
         "component": "lame_inner_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_inner_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": -2000000.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress:nominal_section",
       "kind": "pipe_lame_radial_stress_v2",
       "value": 0.0,
       "unit": "Pa",
@@ -4774,12 +6381,30 @@
         "component": "lame_outer_radial_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_outer_radial_stress:reduced_section",
+      "kind": "pipe_lame_radial_stress_v2",
+      "value": 0.0,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_radial_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive radial stress at named surface, inner traction -p and zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 19052631.578947373,
       "unit": "Pa",
@@ -4792,12 +6417,30 @@
         "component": "lame_inner_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     },
     {
-      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress",
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_inner_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 19052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_inner_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress:nominal_section",
       "kind": "pipe_lame_hoop_stress_v2",
       "value": 17052631.578947373,
       "unit": "Pa",
@@ -4810,7 +6453,25 @@
         "component": "lame_outer_hoop_stress",
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
-        "basis": "recovered_from_open_mechanics_stress_components",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
+        "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
+      }
+    },
+    {
+      "id": "result:pressure-exact:17:case:hot-pressure:10:pipe:first:quarter_3:lame_outer_hoop_stress:reduced_section",
+      "kind": "pipe_lame_hoop_stress_v2",
+      "value": 17052631.578947373,
+      "unit": "Pa",
+      "entity_ref": "pipe:first",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:hot-pressure"
+      },
+      "metadata": {
+        "component": "lame_outer_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "sign_convention": "tension-positive circumferential stress at named surface for long straight annulus, zero external pressure increment"
       }
     }
