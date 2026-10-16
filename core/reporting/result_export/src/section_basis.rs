@@ -15,8 +15,13 @@
 //! successor overlays them with its prepared bits (DEF-E), so no reader
 //! recomputes them. Coincident bases (equal walls) carry bit-equal leaves.
 //!
-//! The beam theory each entry states is bound to the captured model where a
-//! reader has it (§5): a straight member states the contract's
+//! A realized arc's entry, and only an arc's, carries `member_kind =
+//! "realized_arc"` (§2.5, [`marked_section`]), so a reader without the model
+//! knows every arc, including one outside every pressure region: a marked
+//! entry is Euler-Bernoulli and the unmarked entries share one straight shear
+//! model. The beam theory each entry states is bound to the captured model
+//! where a reader has it (§5): the marked entries are the model's realized
+//! arcs, a straight member states the contract's
 //! `pressure_contract.shear_model`, a realized arc Euler-Bernoulli
 //! ([`bind_shear_model`], [`selected_model`]).
 //!
@@ -37,7 +42,11 @@ pub const REDUCED: &str = "reduced_section";
 pub const BASES: [&str; 2] = [NOMINAL, REDUCED];
 /// The D-5 `pipe_sections` basis (§2.3).
 pub const GEOMETRY_BASIS: &str = "authored_od_wall_d5_sections_v1";
-/// §2.5: a `pipe_sections` entry's keys.
+/// §2.5: the key and the one value of a realized arc's marker. A straight
+/// member's entry has no `member_kind`.
+pub const MEMBER_KIND: &str = "member_kind";
+pub const REALIZED_ARC: &str = "realized_arc";
+/// §2.5: a `pipe_sections` entry's keys (a realized arc's adds [`MEMBER_KIND`]).
 pub const SECTION_KEYS: [&str; 11] = [
     "pipe_id",
     "geometry_basis",
@@ -237,10 +246,38 @@ fn annulus(v: &Value, od: f64, wall: f64) -> Result<Annulus, String> {
     Ok(Annulus { wall: w, ri, area, second_moment, polar_moment, modulus })
 }
 
-/// One `pipe_sections` entry (§2.5), checked against its own captured authored
-/// values. `beam_theory` is parsed here and bound by [`beam_theory`].
+/// §2.5: an entry's realized-arc marker: `true` for `member_kind =
+/// "realized_arc"`, `false` without `member_kind`. Any other `member_kind` is
+/// refused by name.
+pub fn arc_marker(v: &Value) -> Result<bool, String> {
+    match v.get(MEMBER_KIND) {
+        None => Ok(false),
+        Some(kind) if kind == REALIZED_ARC => Ok(true),
+        Some(_) => Err("SOURCE_PHYSICS_MEMBER_KIND".into()),
+    }
+}
+/// One `pipe_sections` entry (§2.5) with exactly [`SECTION_KEYS`], checked
+/// against its own captured authored values. `beam_theory` is parsed here and
+/// bound by [`beam_theory`]. A marked entry is read by [`marked_section`].
 pub fn section(v: &Value) -> Result<Sections, String> {
-    require(keys(v, &SECTION_KEYS), "GEOMETRY_SHAPE")?;
+    section_in(v, false)
+}
+/// One `pipe_sections` entry (§2.5) and its realized-arc marker ([`arc_marker`]):
+/// a marked entry carries [`SECTION_KEYS`] and [`MEMBER_KIND`], an unmarked one
+/// exactly [`SECTION_KEYS`].
+pub fn marked_section(v: &Value) -> Result<(Sections, bool), String> {
+    let arc = arc_marker(v)?;
+    Ok((section_in(v, arc)?, arc))
+}
+fn section_in(v: &Value, marked: bool) -> Result<Sections, String> {
+    require(
+        v.as_object().is_some_and(|o| {
+            o.len() == SECTION_KEYS.len() + usize::from(marked)
+                && SECTION_KEYS.iter().all(|k| o.contains_key(*k))
+                && (!marked || o.contains_key(MEMBER_KIND))
+        }),
+        "GEOMETRY_SHAPE",
+    )?;
     require(v["pipe_id"].as_str().is_some_and(|s| !s.is_empty()), "GEOMETRY_SHAPE")?;
     require(v["geometry_basis"] == GEOMETRY_BASIS, "GEOMETRY_BASIS")?;
     let od = number(&v["outside_diameter_m"])?;
@@ -318,8 +355,8 @@ pub fn model(sections: &Sections) -> &'static str {
 /// §3.6: the realized arcs of a captured model document, as the producer
 /// realizes them: the pipes named by `geometry.bend_pipe_ref` of its `bend` or
 /// `elbow` components whose `mechanics_interface.solver_consumption` is
-/// `curved_bend_macro_element`. The model is the only place that names an arc
-/// outside every pressure region (the evidence marks arcs in region geometry).
+/// `curved_bend_macro_element`. The evidence marks each arc's `pipe_sections`
+/// entry and region geometry (§2.5); the model names which pipes those are.
 pub fn realized_arcs(model: &Value) -> std::collections::HashSet<&str> {
     items(&model["components"])
         .iter()
@@ -343,8 +380,12 @@ pub fn selected_model(shear_model: &str, arc: bool) -> &str {
 /// §5 (pressure-1, against the captured model): each exact case's
 /// `pipe_sections` entry and each pressure region's geometry entry states the
 /// beam theory the model's contract selects for that member
-/// ([`selected_model`]). Arcs are the model's realized arcs and the arcs the
-/// region geometry marks. An arc stating another model is refused by
+/// ([`selected_model`]). §2.5: the entries the evidence marks
+/// ([`arc_marker`]) are exactly the model's realized arcs: a realized arc's
+/// unmarked entry or a straight member's marked entry is refused by
+/// `SOURCE_PHYSICS_ARC_MARKER`, another `member_kind` by
+/// `SOURCE_PHYSICS_MEMBER_KIND`. Arcs are the model's realized arcs and the
+/// arcs the region geometry marks. An arc stating another model is refused by
 /// `SOURCE_PHYSICS_ARC_BEAM_THEORY`; a straight member stating a model other
 /// than the contract's, or a contract naming no admitted model, by
 /// `SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT`. κ and A_s are the evidence reader's
@@ -354,10 +395,11 @@ pub fn bind_shear_model(evidence: &Value, model: &Value) -> Check {
         .as_str()
         .filter(|m| [EULER_BERNOULLI, TIMOSHENKO].contains(m))
         .ok_or("SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT")?;
-    let mut arcs = realized_arcs(model);
+    let realized = realized_arcs(model);
+    let mut arcs = realized.clone();
     for region in items(&evidence["pressure"]) {
         for g in items(&region["geometry"]) {
-            if g.get("member_kind").is_some() {
+            if g.get(MEMBER_KIND).is_some() {
                 arcs.insert(g["pipe_id"].as_str().unwrap_or_default());
             }
         }
@@ -365,7 +407,9 @@ pub fn bind_shear_model(evidence: &Value, model: &Value) -> Check {
     let sections = items(&evidence["exact_cases"]).iter().flat_map(|case| items(&case["pipe_sections"]));
     let geometry = items(&evidence["pressure"]).iter().flat_map(|region| items(&region["geometry"]));
     for entry in sections.chain(geometry) {
-        let arc = arcs.contains(entry["pipe_id"].as_str().unwrap_or_default());
+        let pipe = entry["pipe_id"].as_str().unwrap_or_default();
+        require(arc_marker(entry)? == realized.contains(pipe), "ARC_MARKER")?;
+        let arc = arcs.contains(pipe);
         if entry["beam_theory"]["model"].as_str() != Some(selected_model(shear_model, arc)) {
             return Err(if arc { "SOURCE_PHYSICS_ARC_BEAM_THEORY" } else { "SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT" }.into());
         }

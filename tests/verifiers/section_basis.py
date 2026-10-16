@@ -13,7 +13,10 @@ nominal radii and the member's nu (this module's own implementation of §3.1's o
 Python floats never fuse a multiply-add). The section leaves stay leaves: the
 retained exact successor overlays them with its prepared bits (DEF-E).
 
-Where a reader has the captured model (§5), the beam theory each entry states is bound to it: a straight member
+A realized arc's entry, and only an arc's, carries ``member_kind = "realized_arc"`` (§2.5, ``marked_section``), so a
+reader without the model knows every arc, including one outside every pressure region: a marked entry is
+Euler-Bernoulli and the unmarked entries share one straight shear model. Where a reader has the captured model (§5),
+the beam theory each entry states is bound to it: the marked entries are the model's realized arcs, a straight member
 states the contract's ``pressure_contract.shear_model``, a realized arc Euler-Bernoulli (``bind_shear_model``,
 ``selected_model``).
 
@@ -33,6 +36,9 @@ NOMINAL = "nominal_section"
 REDUCED = "reduced_section"
 BASES = (NOMINAL, REDUCED)
 GEOMETRY_BASIS = "authored_od_wall_d5_sections_v1"
+# §2.5: the key and the one value of a realized arc's marker; a straight member's entry has no member_kind.
+MEMBER_KIND = "member_kind"
+REALIZED_ARC = "realized_arc"
 SECTION_KEYS = {"pipe_id", "geometry_basis", "outside_diameter_m", "ro_m", "wall_thickness_m", "mill_tolerance_m",
                 "corrosion_allowance_m", "nominal_section", "reduced_section", "pressure_bore", "beam_theory"}
 ANNULUS_KEYS = ("wall_m", "ri_m", "As_m2", "I_m4", "J_m4", "Z_m3")
@@ -130,9 +136,30 @@ def _annulus(value: Any, od: float, wall: float) -> dict[str, float]:
     return leaves
 
 
+def arc_marker(value: Any) -> bool:
+    """§2.5: an entry's realized-arc marker: True for ``member_kind = "realized_arc"``, False without
+    ``member_kind``; any other ``member_kind`` is refused by name (Rust ``SOURCE_PHYSICS_MEMBER_KIND``)."""
+    if not isinstance(value, Mapping) or MEMBER_KIND not in value:
+        return False
+    _require(value[MEMBER_KIND] == REALIZED_ARC, "member kind")
+    return True
+
+
 def section(value: Any) -> dict[str, Any]:
-    """One ``pipe_sections`` entry against its captured authored values."""
-    _require(isinstance(value, Mapping) and set(value) == SECTION_KEYS, "section shape")
+    """One ``pipe_sections`` entry with exactly ``SECTION_KEYS`` against its captured authored values; a marked entry
+    is read by ``marked_section``."""
+    return _section(value, False)
+
+
+def marked_section(value: Any) -> tuple[dict[str, Any], bool]:
+    """One ``pipe_sections`` entry and its realized-arc marker (``arc_marker``): a marked entry carries
+    ``SECTION_KEYS`` and ``member_kind``, an unmarked one exactly ``SECTION_KEYS``."""
+    arc = arc_marker(value)
+    return _section(value, arc), arc
+
+
+def _section(value: Any, marked: bool) -> dict[str, Any]:
+    _require(isinstance(value, Mapping) and set(value) == SECTION_KEYS | ({MEMBER_KIND} if marked else set()), "section shape")
     _require(isinstance(value["pipe_id"], str) and bool(value["pipe_id"]) and value["geometry_basis"] == GEOMETRY_BASIS, "section basis")
     od, ro, wall = (_number(value[k]) for k in ("outside_diameter_m", "ro_m", "wall_thickness_m"))
     mill, allowance = _number(value["mill_tolerance_m"]), _number(value["corrosion_allowance_m"])
@@ -178,7 +205,8 @@ def beam_theory(sections: Mapping[str, Any], nu: float, arc: bool) -> None:
 def realized_arcs(model: Any) -> set[str]:
     """§3.6: the realized arcs of a captured model document, as the producer realizes them: the pipes named by
     ``geometry.bend_pipe_ref`` of its ``bend`` or ``elbow`` components whose ``mechanics_interface.solver_consumption``
-    is ``curved_bend_macro_element``. The model is the only place that names an arc outside every pressure region."""
+    is ``curved_bend_macro_element``. The evidence marks each arc's ``pipe_sections`` entry and region geometry (§2.5);
+    the model names which pipes those are."""
     components = model.get("components") if isinstance(model, Mapping) else None
     arcs: set[str] = set()
     for component in components if isinstance(components, list) else []:
@@ -199,21 +227,26 @@ def selected_model(shear_model: Any, arc: bool) -> Any:
 
 def bind_shear_model(evidence: Any, model: Any) -> None:
     """§5 (pressure-1, against the captured model; Rust ``bind_shear_model``): each exact case's ``pipe_sections`` entry
-    and each pressure region's geometry entry states the beam theory the model's contract selects for that member. Arcs
-    are the model's realized arcs and the arcs the region geometry marks. Refusals carry the Rust codes:
-    ``SOURCE_PHYSICS_ARC_BEAM_THEORY`` for an arc, ``SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT`` for a straight member or a
-    contract naming no admitted model."""
+    and each pressure region's geometry entry states the beam theory the model's contract selects for that member.
+    §2.5: the entries the evidence marks are exactly the model's realized arcs. Arcs are the model's realized arcs and
+    the arcs the region geometry marks. Refusals carry the Rust codes: ``SOURCE_PHYSICS_ARC_MARKER`` for a realized
+    arc's unmarked entry or a straight member's marked entry, ``SOURCE_PHYSICS_MEMBER_KIND`` for another
+    ``member_kind``, ``SOURCE_PHYSICS_ARC_BEAM_THEORY`` for an arc, ``SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT`` for a
+    straight member or a contract naming no admitted model."""
     items = lambda value: value if isinstance(value, list) else []
     contract = model.get("pressure_contract") if isinstance(model, Mapping) else None
     shear_model = contract.get("shear_model") if isinstance(contract, Mapping) else None
     _require(shear_model in (EULER_BERNOULLI, TIMOSHENKO), "SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT")
     evidence = evidence if isinstance(evidence, Mapping) else {}
     regions = [region for region in items(evidence.get("pressure")) if isinstance(region, Mapping)]
-    arcs = realized_arcs(model) | {g.get("pipe_id") for region in regions for g in items(region.get("geometry")) if isinstance(g, Mapping) and "member_kind" in g}
+    realized = realized_arcs(model)
+    arcs = realized | {g.get("pipe_id") for region in regions for g in items(region.get("geometry")) if isinstance(g, Mapping) and MEMBER_KIND in g}
     entries = [s for case in items(evidence.get("exact_cases")) if isinstance(case, Mapping) for s in items(case.get("pipe_sections"))]
     entries += [g for region in regions for g in items(region.get("geometry"))]
     for entry in entries:
         entry = entry if isinstance(entry, Mapping) else {}
+        _require(MEMBER_KIND not in entry or entry[MEMBER_KIND] == REALIZED_ARC, "SOURCE_PHYSICS_MEMBER_KIND")
+        _require((MEMBER_KIND in entry) == (entry.get("pipe_id") in realized), "SOURCE_PHYSICS_ARC_MARKER")
         arc = entry.get("pipe_id") in arcs
         beam = entry.get("beam_theory")
         stated = beam.get("model") if isinstance(beam, Mapping) else None

@@ -38,8 +38,10 @@ pub(crate) const REGION_KEYS: [&str; 4] = [
     "bend_adjacent_junctions",
     "withheld_on_arcs",
 ];
-/// The geometry keys an arc member adds.
-pub(crate) const GEOMETRY_KEYS: [&str; 2] = ["member_kind", "arc_end_tangents_global"];
+/// The key an arc member's region geometry record adds to its case section
+/// (§2.5: the case section carries the `member_kind` marker; the region
+/// record adds the end tangents).
+pub(crate) const REGION_GEOMETRY_KEYS: [&str; 1] = ["arc_end_tangents_global"];
 const APPLIED_KEYS: [&str; 8] = [
     "pipe_id",
     "bend_term",
@@ -93,7 +95,9 @@ fn bits(a: [f64; 3]) -> [f64; 3] {
 }
 
 /// The arc members of one region, in geometry order. A `member_kind` other
-/// than `realized_arc`, or any arc under the v2 contract, is refused.
+/// than `realized_arc` is refused, and any arc where arcs are not `admitted`
+/// (the pressure-source-1 composite) is refused by name
+/// (`SOURCE_PHYSICS_ARC_UNSUPPORTED`).
 pub(crate) fn members<'a>(region: &'a Value, admitted: bool) -> Result<HashSet<&'a str>, String> {
     let mut arcs = HashSet::new();
     for g in region["geometry"].as_array().map(Vec::as_slice).unwrap_or(&[]) {

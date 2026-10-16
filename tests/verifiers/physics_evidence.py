@@ -17,8 +17,10 @@ rounded neighbouring rows or treating pressure arithmetic as a numerical pass.
 
 T4-U6/U8 (DEL-05-03 ``section-bases-and-timoshenko.md``): each ``pipe_sections`` entry is the D-5
 shape, rederived from its captured authored values by ``section_basis.py``, with its beam theory checked as
-pressure-1's reader checks it (a realized arc that its region marks is Euler-Bernoulli, ``pressure_1.arc_members``;
-one straight-member shear model per document). Every stress row names its
+pressure-1's reader checks it (one straight-member shear model per document). The composite never carries a
+realized arc (D7 declines every document with one): an arc region record or a ``pipe_sections`` entry marked
+``member_kind = "realized_arc"`` is refused by name ("realized arc unsupported"; Rust
+``SOURCE_PHYSICS_ARC_UNSUPPORTED``). Every stress row names its
 section basis and has its other-basis twin; the twins are compared with each other against the two
 sections' leaves (bit-equal where the bases coincide, else the same resultant within the 64-epsilon
 representation guard), and Lame rows against their own annulus. That is a relation between twin rows and
@@ -35,7 +37,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from . import section_basis as sb
-from .pressure_1 import arc_members
+from .pressure_1 import ARC_GEOMETRY_KEYS
 
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
@@ -128,11 +130,11 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
     _finite_tree(evidence)
     _require(evidence["connector"] == [] and isinstance(evidence["pressure"], list), "unsupported connector")
     cases = _indexed(evidence["exact_cases"], "load_case_id", "exact cases")
-    # T4-U8 (§2.5, §3.6): the realized-arc members each region's geometry marks, read as pressure-1's reader reads them
-    # (Rust `arc_evidence::members`, shared by both readings): an arc's geometry record states Euler-Bernoulli.
-    arcs_by_case: dict[Any, set[str]] = {}
+    # T4-U2/T4-U8: the composite carries no realized arc (D7). A region geometry record with an arc key is refused by
+    # name before anything else is read from it (Rust `arc_evidence::members` where arcs are not admitted).
     for region in evidence["pressure"]:
-        arcs_by_case.setdefault(region.get("load_case_id") if isinstance(region, Mapping) else None, set()).update(arc_members(region))
+        geometry = region.get("geometry") if isinstance(region, Mapping) else None
+        _require(not any(isinstance(g, Mapping) and ARC_GEOMETRY_KEYS & set(g) for g in (geometry if isinstance(geometry, list) else [])), "realized arc unsupported")
     rows = _indexed(source.get("results"), "id", "result IDs")
     quality = source.get("numerical_quality", {}).get("cases", [])
     numerical_ids = [case.get("basis_ref", {}).get("ref_id") for case in quality]
@@ -162,12 +164,11 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
             _require(type(material["thermal_consumed"]) is bool and (_number(material["alpha_per_kelvin"]) if material["thermal_consumed"] else material["alpha_per_kelvin"] is None), "thermal alpha")
         for pid, geometry in geometries[cid].items():
             # T4-U6 (D-5): the three geometries rederived from the captured authored values; T4-U8 (§3.1): kappa_E
-            # from this case's nu; a realized arc is Euler-Bernoulli; one straight shear model per document (§3.6).
-            parsed = _basis(sb.section, geometry)
-            arc = pid in arcs_by_case.get(cid, set())
-            _basis(sb.beam_theory, parsed, materials[cid][pid]["nu"], arc)
-            if not arc:
-                straight_models.add(parsed["beam"]["model"])
+            # from this case's nu; one straight shear model per document (§3.6). §2.5: a marked arc is refused by name.
+            parsed, arc = _basis(sb.marked_section, geometry)
+            _require(not arc, "realized arc unsupported")
+            _basis(sb.beam_theory, parsed, materials[cid][pid]["nu"], False)
+            straight_models.add(parsed["beam"]["model"])
             sections[cid, pid] = parsed
         _require(len(straight_models) <= 1, "one straight shear model per document")
         missing_by_basis: dict[str, set[str]] = {}
