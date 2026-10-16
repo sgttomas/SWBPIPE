@@ -1904,54 +1904,60 @@
                 "items": {
                   "type": "object",
                   "additionalProperties": false,
+                  "description": "The member's case section (PhysicsGeometry) and its traversal flag.",
                   "required": [
-                    "outside_diameter_m",
-                    "effective_wall_thickness_m",
-                    "ri_m",
-                    "ro_m",
-                    "Ai_m2",
-                    "As_m2",
-                    "I_m4",
-                    "J_m4",
-                    "Z_m3",
                     "pipe_id",
                     "geometry_basis",
+                    "outside_diameter_m",
+                    "ro_m",
+                    "wall_thickness_m",
+                    "mill_tolerance_m",
+                    "corrosion_allowance_m",
+                    "nominal_section",
+                    "reduced_section",
+                    "pressure_bore",
+                    "beam_theory",
                     "traversal_forward"
                   ],
                   "properties": {
-                    "outside_diameter_m": {
-                      "type": "number"
-                    },
-                    "effective_wall_thickness_m": {
-                      "type": "number"
-                    },
-                    "ri_m": {
-                      "type": "number"
-                    },
-                    "ro_m": {
-                      "type": "number"
-                    },
-                    "Ai_m2": {
-                      "type": "number"
-                    },
-                    "As_m2": {
-                      "type": "number"
-                    },
-                    "I_m4": {
-                      "type": "number"
-                    },
-                    "J_m4": {
-                      "type": "number"
-                    },
-                    "Z_m3": {
-                      "type": "number"
-                    },
                     "pipe_id": {
                       "type": "string",
                       "minLength": 1
                     },
                     "geometry_basis": {
-                      "const": "authored_normalized_od_wall_v1"
+                      "const": "authored_od_wall_d5_sections_v1"
+                    },
+                    "outside_diameter_m": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "ro_m": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "wall_thickness_m": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "mill_tolerance_m": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "corrosion_allowance_m": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "nominal_section": {
+                      "$ref": "#/$defs/PhysicsSectionAnnulus"
+                    },
+                    "reduced_section": {
+                      "$ref": "#/$defs/PhysicsSectionAnnulus"
+                    },
+                    "pressure_bore": {
+                      "$ref": "#/$defs/PhysicsPressureBore"
+                    },
+                    "beam_theory": {
+                      "$ref": "#/$defs/PhysicsBeamTheory"
                     },
                     "traversal_forward": {
                       "type": "boolean"
@@ -2254,6 +2260,7 @@
                   "additionalProperties": false,
                   "required": [
                     "pipe_id",
+                    "section_basis",
                     "result_id",
                     "station_fraction",
                     "span_index",
@@ -2271,6 +2278,9 @@
                     "pipe_id": {
                       "type": "string",
                       "minLength": 1
+                    },
+                    "section_basis": {
+                      "$ref": "#/$defs/SectionBasis"
                     },
                     "result_id": {
                       "type": "string",
@@ -2316,24 +2326,7 @@
                 }
               },
               "stress_maximum_coverage": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "complete",
-                  "unavailable_pipe_ids"
-                ],
-                "properties": {
-                  "complete": {
-                    "type": "boolean"
-                  },
-                  "unavailable_pipe_ids": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  }
-                }
+                "$ref": "#/$defs/PhysicsStressMaximumCoverage"
               },
               "pressure_rhs_assembly": {
                 "type": "object",
@@ -2516,53 +2509,195 @@
     "PhysicsGeometry": {
       "type": "object",
       "additionalProperties": false,
+      "description": "D-5 section bases (DEL-05-03 Design section-bases-and-timoshenko.md section 2.3): the authored OD, nominal wall, mill tolerance and corrosion allowance; the nominal section (stiffness, metal mass, nominal stress family), the reduced section (wall minus mill tolerance and corrosion allowance; reduced stress family), the pressure bore of the reduced wall, and the straight member's shear model. The readers rederive the walls, radii and the Timoshenko factor; the leaves are prepared values.",
       "required": [
-        "outside_diameter_m",
-        "effective_wall_thickness_m",
-        "ri_m",
-        "ro_m",
-        "Ai_m2",
-        "As_m2",
-        "I_m4",
-        "J_m4",
-        "Z_m3",
         "pipe_id",
-        "geometry_basis"
+        "geometry_basis",
+        "outside_diameter_m",
+        "ro_m",
+        "wall_thickness_m",
+        "mill_tolerance_m",
+        "corrosion_allowance_m",
+        "nominal_section",
+        "reduced_section",
+        "pressure_bore",
+        "beam_theory"
       ],
       "properties": {
-        "outside_diameter_m": {
-          "type": "number"
-        },
-        "effective_wall_thickness_m": {
-          "type": "number"
-        },
-        "ri_m": {
-          "type": "number"
-        },
-        "ro_m": {
-          "type": "number"
-        },
-        "Ai_m2": {
-          "type": "number"
-        },
-        "As_m2": {
-          "type": "number"
-        },
-        "I_m4": {
-          "type": "number"
-        },
-        "J_m4": {
-          "type": "number"
-        },
-        "Z_m3": {
-          "type": "number"
-        },
         "pipe_id": {
           "type": "string",
           "minLength": 1
         },
         "geometry_basis": {
-          "const": "authored_normalized_od_wall_v1"
+          "const": "authored_od_wall_d5_sections_v1"
+        },
+        "outside_diameter_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "ro_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "wall_thickness_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "mill_tolerance_m": {
+          "type": "number",
+          "minimum": 0
+        },
+        "corrosion_allowance_m": {
+          "type": "number",
+          "minimum": 0
+        },
+        "nominal_section": {
+          "$ref": "#/$defs/PhysicsSectionAnnulus"
+        },
+        "reduced_section": {
+          "$ref": "#/$defs/PhysicsSectionAnnulus"
+        },
+        "pressure_bore": {
+          "$ref": "#/$defs/PhysicsPressureBore"
+        },
+        "beam_theory": {
+          "$ref": "#/$defs/PhysicsBeamTheory"
+        }
+      }
+    },
+    "PhysicsSectionAnnulus": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One section basis's annulus: wall, inner radius and the prepared area, second moment, polar moment and section modulus leaves.",
+      "required": [
+        "wall_m",
+        "ri_m",
+        "As_m2",
+        "I_m4",
+        "J_m4",
+        "Z_m3"
+      ],
+      "properties": {
+        "wall_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "ri_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "As_m2": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "I_m4": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "J_m4": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "Z_m3": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "PhysicsPressureBore": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The pressure bore: the reduced wall's inner radius and bore area (pressure thrust and end caps; contents mass).",
+      "required": [
+        "ri_m",
+        "Ai_m2"
+      ],
+      "properties": {
+        "ri_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "Ai_m2": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "PhysicsBeamTheory": {
+      "description": "The straight member's shear model (section 3.1): Euler-Bernoulli, or the energy-matched annular Timoshenko factor kappa_E with its shear area A_s = kappa_E * A_n on the nominal section. A realized arc is always Euler-Bernoulli.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model"
+          ],
+          "properties": {
+            "model": {
+              "const": "euler_bernoulli"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model",
+            "shear_factor",
+            "shear_area_m2"
+          ],
+          "properties": {
+            "model": {
+              "const": "timoshenko_annulus_energy_v1"
+            },
+            "shear_factor": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "shear_area_m2": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        }
+      ]
+    },
+    "SectionBasis": {
+      "enum": [
+        "nominal_section",
+        "reduced_section"
+      ]
+    },
+    "PhysicsStressMaximumCoverage": {
+      "type": "array",
+      "description": "Per-basis stress-maximum coverage: the nominal entry, then the reduced entry (the order is bound by the readers).",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "$ref": "#/$defs/PhysicsStressMaximumCoverageEntry"
+      }
+    },
+    "PhysicsStressMaximumCoverageEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "section_basis",
+        "complete",
+        "unavailable_pipe_ids"
+      ],
+      "properties": {
+        "section_basis": {
+          "$ref": "#/$defs/SectionBasis"
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "unavailable_pipe_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
@@ -3422,7 +3557,7 @@
               "const": "openpipestress.result_semantics/0.3.0/pressure-source-1"
             },
             "sha256": {
-              "const": "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435"
+              "const": "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53"
             }
           }
         },
@@ -3623,7 +3758,7 @@
               "const": "openpipestress.result_semantics/0.3.0/pressure-1"
             },
             "sha256": {
-              "const": "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375"
+              "const": "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e"
             }
           }
         },
@@ -3821,7 +3956,7 @@
               "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
             },
             "sha256": {
-              "const": "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574"
+              "const": "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6"
             }
           }
         },
