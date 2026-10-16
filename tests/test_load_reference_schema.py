@@ -32,7 +32,8 @@ CARRIERS = ("results.v0.3.schema.yaml", PRESSURE_SCHEMA_NAME, "analysis_run.v0.3
 CONTRACT = "openpipestress.load_reference_state/1.0.0"
 RECORD_PROFILE = "resolved_straight_load_state_v1"
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
-PRESSURE_SHA = "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375"
+# T4-U6 (D-5, DEL-05-03 section-bases-and-timoshenko.md §2.4): the per-basis stress signatures (106).
+PRESSURE_SHA = "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PRESSURE_SOURCE_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"

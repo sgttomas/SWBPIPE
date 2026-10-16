@@ -196,12 +196,14 @@ def verify_analysis_run_record(envelope: Mapping[str, Any], hash_fn: Callable[[A
 # pressure-source-1: the retained-source composite (receipt required); its record carries source_block_recovery and
 # contract_evidence.
 PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PRESSURE_SOURCE_CONTRACT_SHA256 = "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435"
+# T4-U6 (D-5, §2.4): pressure-1, pressure-source-1 and physics-retained-1 carry one stress signature per (recovery
+# token x section basis); a record binding the former table hashes is refused (ANALYSIS_SEMANTIC_CONTRACT_MISMATCH).
+PRESSURE_SOURCE_CONTRACT_SHA256 = "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53"
 _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_source_1.json"
 # pressure-1: the ordinary exact route (a load/reference-state model publishes it with
 # contract_evidence.load_reference_states). Its record carries neither source_block_recovery nor contract_evidence.
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
-PRESSURE_CONTRACT_SHA256 = "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375"
+PRESSURE_CONTRACT_SHA256 = "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e"
 _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_1.json"
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
 PREVIEW_PHYSICS_CONTRACT_SHA256 = "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32"
@@ -216,7 +218,7 @@ _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6"
 _PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}
