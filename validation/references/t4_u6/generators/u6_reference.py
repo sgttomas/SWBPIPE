@@ -1242,12 +1242,18 @@ def header():
         "schema_version": "independent.section_bases_reference/1.0.0",
         "purpose": "Independent analytical references for T4-U6 (D-5 section bases) and the Timoshenko variant shared with T4-U8: one straight pipe, frozen before any product implementation; not product requests and not observed solver outputs.",
         "status": ("frozen by the T4-U6/T4-U8 independent reference TASK and refuted independently; the refutation's four findings were repaired "
-                   "in 6817b72ca9 without a value change, and an independent refuter confirmed all four repairs on 2026-10-16. Awaiting "
-                   "independent refutation: the generated-self-weight requests (request_self_weight); the primitive-load id repair (every "
-                   "primitive-load id names its load case; U6-BASES-001-EB, U6-BASES-001-TIMO and U6-BASES-COINCIDENT had reused their tip "
-                   "load ids in case:pressure-tip and case:axial-tip, which the product refuses as DUPLICATE_ID; only ids and request "
-                   "hashes changed, no frozen value); and U6-BASES-002-TIMO, which binds U6-BASES-002's frozen rows to a "
-                   "timoshenko_annulus_energy_v1 request without a new value"),
+                   "in 6817b72ca9 without a value change, and an independent refuter confirmed all four repairs on 2026-10-16. An "
+                   "independent refuter also confirmed the three later changes on 2026-10-16: (a) the primitive-load id repair "
+                   "a2d3f27020 (every primitive-load id names its load case; U6-BASES-001-EB, U6-BASES-001-TIMO and U6-BASES-COINCIDENT "
+                   "had reused their tip load ids in case:pressure-tip and case:axial-tip, which the product refuses as DUPLICATE_ID) is "
+                   "id-only: reverting the new ids gives the old request bytes exactly, and oracle.json changed only in its status and "
+                   "six request sha256 bindings; (b) U6-BASES-002-TIMO (2621c1c783), which binds U6-BASES-002's frozen rows to a "
+                   "timoshenko_annulus_energy_v1 request, repeats the euler_bernoulli variant's rows, zero scales, evidence rows and 17 "
+                   "discriminators, and the case is shear-model independent (both nodes fully anchored, axial loads only); (c) the two "
+                   "generated-self-weight requests (request_self_weight) are faithful to the frozen case:self-weight and case:combined "
+                   "definitions (densities, metal on the nominal wall, contents on the pressure bore, the authored binary64 order), and "
+                   "an independent recomputation of the support reactions, node B u_z and r_y, and root V_z and M_y matches the frozen "
+                   "rows to within 1.5e-40 relative. No primitive-load id is duplicated in any request"),
         "basis": {"design": "DEL-05-03 Design section-bases-and-timoshenko.md sections 1, 2.1, 2.5, 3.1, 7 and 8, and section-and-shear-decisions.md (D-5, H4), at b3f4da7661",
                   "shear": "SHEAR_REFERENCE CONTRACT.md sections 1, 3 and 4 and its reference arithmetic (archive f2211ecef6)",
                   "conventions": "validation/references/t4_i8 (the repaired T4-I8 freeze, 5b07d85cf3): row shape, stations, signs, criteria",
