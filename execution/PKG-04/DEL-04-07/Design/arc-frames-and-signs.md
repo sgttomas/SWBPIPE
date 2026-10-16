@@ -534,6 +534,17 @@ The values that ride the same wave are §5's stage 2.
 U4a supplies their frame: in the tangent frame, M_z is in-plane and M_y is
 out-of-plane at every arc section, ends included.
 
+**U4b's selected idealizations** (carried in the owner's 2026-10-14
+resumption steer). U4b discloses two idealizations:
+
+- the toroidal membrane hoop and radial values use
+  `bore_load_transferred_toroidal_membrane_v1`;
+- the Saint-Venant (SV) transverse shear uses `local_straight_annulus_on_arc`.
+
+Selection is not qualification: U4b still needs independent mechanics and
+reference qualification of both. It grants no arc-source admission; D7's
+decline of realized arcs in `prepare_sources` stands.
+
 **Open unit: directional k** (deferred by HELP_HUMAN, 2026-10-12; not yet
 numbered). Separate in-plane and out-of-plane flexibility factors replace the
 one k for both planes. Its blast radius:

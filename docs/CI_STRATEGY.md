@@ -25,6 +25,18 @@ full-fallback plans retain the broad Python cohort and directly edited tests.
 Edited tests are run directly; shared CI/input changes expand the selection. Full preview, schema and qualification
 suites remain available on dispatch, alongside the full Cargo suite.
 
+Hosted builds are unregistered. The retained-memory profile is registered only
+for the qualification host's exact build identity, so a hosted build reports
+`Stale` and takes the ordinary route. A test that depends on registration
+asserts both branches: the registered facts in the registered build, and `Stale`
+with the unchanged ordinary route otherwise, as `retained_facade_tests.rs`'s
+`registered()` does. The hosted numerical job stops at the first failing crate,
+so one failure hides the crates after it. Before pushing a change to retained
+sources or registration-dependent tests, run the selected numerical suite
+locally in the registered build and in an emulated unregistered build (a
+build-identity-changing flag such as `RUSTFLAGS=--cap-lints=warn`, in its own
+target directory).
+
 No automatic nightly or post-merge duplicate suite is required. Reuse passing
 hosted results rather than repeating the same suite locally without a change or
 unresolved concern. Failure diagnostics stay in CI artifacts. The optional

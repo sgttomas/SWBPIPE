@@ -1,10 +1,10 @@
 # Section bases and shear model
 
-The owner ruled D-5 and D-6 on 2026-10-10: "D-5 and D-6 as recommended". Both apply to `3.0.0/exact_pressure_v3` documents, the only exact contract since B7b deleted `2.0.0/exact_straight_pressure_v2`. Pressure-free documents keep their current single basis and Euler–Bernoulli model, byte-identical (H-1, DEL-04-07 Design). On 2026-10-12 the owner answered O1–O4 and HELP_HUMAN ruled H1, H4 and H5 (both relayed to T4's WORKING_ITEMS); O2–O4, H1, H4 and H5 are applied below where they govern. On PRD non-goal 19 the owner chose "Lift for tie rods only" (O1); SCA-012 and its PRD amendment are carried in this branch and are not yet on main.
+The owner ruled D-5 and D-6 on 2026-10-10: "D-5 and D-6 as recommended". Both apply to `3.0.0/exact_pressure_v3` documents, the only exact contract since B7b deleted `2.0.0/exact_straight_pressure_v2`. Pressure-free documents keep their current single basis and Euler–Bernoulli model, byte-identical (H-1, DEL-04-07 Design). On 2026-10-12 the owner answered O1–O4 and HELP_HUMAN ruled H1, H4 and H5 (both relayed to T4's WORKING_ITEMS); O2–O4, H1, H4 and H5 are applied below where they govern. On PRD non-goal 19 the owner chose "Lift for tie rods only" (O1), recorded by SCA-012 and its PRD amendment.
 
 ## The two fields (O2, O3, H1)
 
-Both fields are defined in T3's model format 0.5.0 (H1: "no 0.6.0" for these fields), which B7 defines ([DEL-05-02 Design, b7-plan.md](../../DEL-05-02/Design/b7-plan.md)). They are required on every exact-contract document from the start, and T4-U6 and T4-U8 then only widen what is admitted (H1). HELP_HUMAN's 2026-10-13 technical ruling selects model 0.6.0 for later U4b/U5b input additions, retiring and re-authoring 0.5.0 then; B7b defines no inactive future fields.
+Both fields are defined in T3's model format 0.5.0 (H1: "no 0.6.0" for these fields), which B7 defines ([DEL-05-02 Design, b7-plan.md](../../DEL-05-02/Design/b7-plan.md)). They are required on every exact-contract document from the start, and T4-U6 and T4-U8 then only widen what is admitted (H1). HELP_HUMAN's 2026-10-13 technical ruling selects model 0.6.0 for later U4b/U5b input additions, retiring and re-authoring 0.5.0 then; B7b defines no inactive future fields. The result formats and semantic identities that land with 0.6.0 are in DEL-04-07 Design `pressure-contract.md`.
 
 - **Corrosion allowance** (owner, O2: "Required; absent = refused"). `section.corrosion_allowance`, a length Quantity ≥ 0, is required on every member's pipe section when `pressure_contract` is present; zero is allowed. Absence is refused by name as incomplete (`EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED`); the field on a document without a pressure contract is refused (`CORROSION_ALLOWANCE_WITHOUT_PRESSURE_CONTRACT`); until T4-U6 lands, a nonzero value is refused by name as not yet supported (`EXACT_PRESSURE_CORROSION_ALLOWANCE_UNSUPPORTED`). Mill tolerance plus corrosion allowance must be less than the wall. The allowance is user data with no default; a missing value is never assumed.
 - **Shear model** (owner, O3: "Refuse by name"). The per-document selection is `pressure_contract.shear_model`, `euler_bernoulli` or `timoshenko_annulus_energy_v1`, required when that contract is present. The contract is an object, so B7's adopted field specification places the selection inside it; there is no top-level alias. Absence is refused by name (`EXACT_PRESSURE_SHEAR_MODEL_REQUIRED`); a shear-model field without a pressure contract is refused (`SHEAR_MODEL_WITHOUT_PRESSURE_CONTRACT`); until T4-U8 only `euler_bernoulli` is admitted (`EXACT_PRESSURE_SHEAR_MODEL_UNSUPPORTED`). When T4-U8 lands, authoring writes `timoshenko_annulus_energy_v1` by default, per D-6. Contract identity selectors compare `version` and `mode`, and validate the required shear member separately rather than comparing the whole object to a two-member literal.
@@ -13,7 +13,7 @@ Both fields are defined in T3's model format 0.5.0 (H1: "no 0.6.0" for these fie
 
 - **Stiffness and pipe metal mass** use the nominal wall. **Contents mass** uses the reduced (pressure-path) bore (H4).
 - **Stresses** are published on both the nominal section and the reduced section (nominal wall minus mill tolerance and the corrosion allowance). Each row names its basis. Each basis has its own maximum and headline; the product does not choose a governing basis, the user's rule pack does. Where the bases coincide, both families are still published (H4).
-- **Pressure load path:** the end-cap area Ai uses the bore of the reduced wall (internal corrosion enlarges it). The area As in ε_p = (1−2ν)pAi/(E·As) is the stiffness section, so the ledger stays self-consistent.
+- **Pressure load path:** the end-cap area Ai uses the bore of the reduced wall, r_i = OD/2 − wall + mill_tolerance + corrosion_allowance (both the mill tolerance and internal corrosion enlarge it). The area As in ε_p = (1−2ν)pAi/(E·As) is the stiffness section, so the ledger stays self-consistent.
 - MILLTOL and other references whose basis changes are re-frozen deliberately, never loosened.
 
 ## D-6: shear model (T4-U8)
@@ -22,6 +22,13 @@ Both fields are defined in T3's model format 0.5.0 (H1: "no 0.6.0" for these fie
 - Until T4-U8 the field admits only `euler_bernoulli`, and the formulation evidence names it.
 - **Implementation (H5).** The selection is per document. Whether Timoshenko is a new FK element type or a re-priced `s(FrameElement)` is the implementer's choice; either way it is priced positively. Realized arcs stay Euler–Bernoulli, with a disclosure.
 - References T4-RV4 marked as shear-affected are re-frozen deliberately.
+
+## Reference preparation (T4-U6, T4-U8)
+
+Carried in the owner's 2026-10-14 resumption steer:
+
+- The references are prepared from the vetted SHEAR reference snapshot at `f2211ece` ([SHEAR_REFERENCE](https://github.com/sgttomas/chirality/tree/f2211ecef6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE)) and the repaired T4-I8 freeze at `5b07d85c` (repair round 01, [T4-I8](https://github.com/sgttomas/chirality/tree/5b07d85cf3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/T4-I8)).
+- Older references that folded the mill tolerance into the wall value are re-authored with the true nominal wall plus explicit mill-tolerance and corrosion-allowance fields. Their reduced bore then follows D-5 above.
 
 ## Retained-source and W1-E publication (O4)
 
