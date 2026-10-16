@@ -617,6 +617,89 @@ fn pressure_profile_writes_only_the_current_contract() {
     }
 }
 
+const TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
+const EULER_BERNOULLI: &str = "euler_bernoulli";
+fn contract(shear_model: Value) -> Value {
+    json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": shear_model})
+}
+fn with_shear(model: &Value, shear_model: &str) -> Value {
+    let mut model = model.clone();
+    model["pressure_contract"] = contract(json!(shear_model));
+    model
+}
+fn pressure_free(model: &Value) -> Value {
+    let mut model = model.clone();
+    model.as_object_mut().unwrap().remove("pressure_contract");
+    model
+}
+
+/// T4-U8 (D-6/O3): the profile gate admits both shear models, and from U8 on the
+/// authoring default writes `timoshenko_annulus_energy_v1`; Euler-Bernoulli stays an
+/// explicit choice. Activation writes only the profile: every user section keeps
+/// its own authored allowance and no allowance is manufactured. An unknown,
+/// malformed or absent shear model is still refused by name.
+#[test]
+fn pressure_profile_admits_both_shear_models_and_refuses_an_unknown_one() {
+    let expected = fixture();
+    let free = pressure_free(&expected);
+    let id = expected["project"]["id"].as_str().unwrap().to_string();
+    let free_before = json!({"schema_version": "0.5.0"});
+    for shear_model in [TIMOSHENKO, EULER_BERNOULLI] {
+        let after = json!({"schema_version": "0.5.0", "pressure_contract": contract(json!(shear_model))});
+        let activated = apply(&free, &intent("Model", &id, "pressure_profile", Some(&free_before), &after));
+        assert_eq!(activated["pressure_contract"], contract(json!(shear_model)), "{shear_model}");
+        // Only the contract is written: the result is the fixture with this selection.
+        assert_eq!(canonical_json(&activated), canonical_json(&with_shear(&expected, shear_model)), "{shear_model}");
+        assert_eq!(activated["pipe_segments"], free["pipe_segments"], "{shear_model}");
+        // Activation never manufactures an allowance, whichever model is selected.
+        let mut missing = free.clone();
+        missing["pipe_segments"][0]["section"].as_object_mut().unwrap().remove("corrosion_allowance");
+        let outcome = apply_operation(&missing, &intent("Model", &id, "pressure_profile", Some(&free_before), &after), Some(&hash(&missing)));
+        assert!(outcome.applied_model.is_none(), "{shear_model}");
+        assert!(outcome.diagnostics.iter().any(|d| d.code == "EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED"), "{shear_model}: {:?}", outcome.diagnostics);
+        assert!(missing["pipe_segments"][0]["section"].get("corrosion_allowance").is_none());
+    }
+    // Unknown, misspelled, malformed and null values stay refused; so does an extra member.
+    for shear_model in [json!("timoshenko"), json!("timoshenko_annulus_energy_v2"), json!("Euler_Bernoulli"),
+        json!("cowper"), json!(""), json!(null), json!(5), json!({"model": TIMOSHENKO})] {
+        let after = json!({"schema_version": "0.5.0", "pressure_contract": contract(shear_model.clone())});
+        let outcome = apply_operation(&free, &intent("Model", &id, "pressure_profile", Some(&free_before), &after), Some(&hash(&free)));
+        assert!(outcome.applied_model.is_none(), "{shear_model}");
+        let codes: Vec<_> = outcome.diagnostics.iter().map(|d| d.code.as_str()).collect();
+        assert!(codes.contains(&"OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED"), "{shear_model}: {codes:?}");
+    }
+    let mut extra = json!({"schema_version": "0.5.0", "pressure_contract": contract(json!(TIMOSHENKO))});
+    extra["pressure_contract"]["shear_factor"] = json!(0.5);
+    let outcome = apply_operation(&free, &intent("Model", &id, "pressure_profile", Some(&free_before), &extra), Some(&hash(&free)));
+    assert!(outcome.diagnostics.iter().any(|d| d.code == "OP-PRESSURE-PROFILE-SUCCESSOR-REQUIRED"));
+    assert!(outcome.applied_model.is_none());
+}
+
+/// T4-U8: a document's selection is the user's. Changing it is an explicit edit
+/// that rewrites only the contract; re-queuing the profile with the document's own
+/// selection keeps it (the applier never substitutes the default).
+#[test]
+fn pressure_profile_changes_and_preserves_the_shear_selection_explicitly() {
+    let base = fixture();
+    let id = base["project"]["id"].as_str().unwrap().to_string();
+    let profile = |m: &Value| projection(m, &["schema_version", "pressure_contract"]);
+    for (from, to) in [(EULER_BERNOULLI, TIMOSHENKO), (TIMOSHENKO, EULER_BERNOULLI)] {
+        let model = with_shear(&base, from);
+        let target = with_shear(&base, to);
+        let changed = apply(&model, &intent("Model", &id, "pressure_profile", Some(&profile(&model)), &profile(&target)));
+        assert_eq!(canonical_json(&changed), canonical_json(&target), "{from} -> {to}");
+    }
+    for shear_model in [TIMOSHENKO, EULER_BERNOULLI] {
+        let model = with_shear(&base, shear_model);
+        // The identical edit is admitted and writes nothing: the document keeps its
+        // own selection and every other byte.
+        let requeue = intent("Model", &id, "pressure_profile", Some(&profile(&model)), &profile(&model));
+        let applied = apply(&model, &requeue);
+        assert_eq!(canonical_json(&applied), canonical_json(&model), "{shear_model}");
+        assert_eq!(applied["pressure_contract"]["shear_model"], shear_model);
+    }
+}
+
 /// O4: signed pressure is admitted under v3 only (the retired v2 contract is a
 /// refusal control).
 #[test]
