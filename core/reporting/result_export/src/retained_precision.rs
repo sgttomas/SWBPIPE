@@ -19,9 +19,10 @@ pub const COMBINATION_DEFINITION_HASH: &str =
 pub const EXACT_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-retained-1";
 pub const EXACT_PROFILE: &str = "exact_straight_retained_w1a_v2";
 pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
-/// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2).
+/// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2). T4-U6: DEF-E
+/// states zero mill tolerance and lists the reduced-basis rows and both headlines.
 pub const EXACT_DEFINITION_HASH: &str =
-    "ff28bea4ca9613d689edd1428b07e869a0a3ac824012b49382307b6293819def";
+    "6c772d242ef47a354376f29f93fc69959ee2b4085b606af211da4b7f45c87f8e";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 /// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): the requested-mode
 /// basis row of a case whose ordinary attempt genuinely failed. It replaces
@@ -586,7 +587,7 @@ const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json");
-const EXACT_TABLE_HASH: &str = "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574";
+const EXACT_TABLE_HASH: &str = "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
@@ -936,7 +937,22 @@ fn projection_matches_row(row: &Value, outcome: &Value) -> bool {
         v.to_bits() == (if published == 0.0 { 0.0 } else { published }).to_bits()
     })
 }
+/// T4-U6 (D-5, §2.3/§5): a reduced-section twin row. The exact successor
+/// overlays it with its nominal twin's retained value; it binds no receipt
+/// quantity (the producer's `reduced_twin`), so it is outside the receipt's row
+/// universe. No preview row names a section basis.
+fn reduced_twin(row: &Value) -> bool {
+    row["metadata"]["basis"].as_str().is_some_and(|b| {
+        b.ends_with(&format!("{}{}", crate::section_basis::TOKEN_SEPARATOR, crate::section_basis::REDUCED))
+    })
+}
+/// The receipt's row universe of a case or combination entry: its rows, less
+/// the reduced-section twins (`rows_all_for` keeps them).
 fn rows_for<'a>(source: &'a Value, case: &Value) -> Vec<&'a Value> {
+    rows_all_for(source, case).into_iter().filter(|r| !reduced_twin(r)).collect()
+}
+/// Every published row of a case or combination entry, reduced twins included.
+fn rows_all_for<'a>(source: &'a Value, case: &Value) -> Vec<&'a Value> {
     list(&source["results"])
         .iter()
         .filter(|r| r["basis_ref"] == case["basis_ref"])
@@ -3568,7 +3584,10 @@ struct NumericCase<'a> {
     data_sources: Vec<&'a Value>,
     /// The proof-owned summary coverage of this selected case's product attempt.
     coverage: &'a Value,
+    /// The receipt's row universe (`rows_for`).
     rows: Vec<&'a Value>,
+    /// Every published row, reduced twins included (`rows_all_for`).
+    all_rows: Vec<&'a Value>,
     extents: Vec<f64>,
     raw: Vec<[f64; 4]>,
     final_scales: Vec<[f64; 4]>,
@@ -3713,6 +3732,7 @@ fn numeric_owner<'a>(
             data_sources,
             coverage,
             rows,
+            all_rows: rows_all_for(source, c),
             extents,
             final_scales: raw.clone(),
             raw,
@@ -4287,11 +4307,14 @@ fn g5b(cases: &mut [NumericCase<'_>]) -> VResult {
 /// shared checks: for each selected case, its one `contract_evidence.exact_cases`
 /// entry (matched by the case's `load_case_id`) states the receipt's section
 /// bit for bit: for each member, its one `pipe_sections` entry (matched by
-/// `pipe_id`) has `As_m2` = `area`, `Z_m3` = `section_modulus`, and the
-/// source's geometry: `outside_diameter_m` = `normalized_od`,
-/// `effective_wall_thickness_m` = `effective_wall`, `ro_m` = `actual_radius`,
-/// `I_m4` = `actual_second_moment`, `J_m4` = `actual_polar_moment`. A missing
-/// or repeated entry, or a value that is not a JSON number, is a mismatch.
+/// `pipe_id`) has `outside_diameter_m` = `normalized_od` and `ro_m` =
+/// `actual_radius`, and on both section bases (T4-U6, D-5: the one receipt
+/// section binds the nominal and the reduced section, which coincide on this
+/// route) `As_m2` = `area`, `Z_m3` = `section_modulus`, `I_m4` =
+/// `actual_second_moment`, `J_m4` = `actual_polar_moment` and `wall_m` =
+/// `effective_wall`. Each reduced stress row of the case is its nominal twin's
+/// retained value bit for bit (the successor overlays the twin). A missing or
+/// repeated entry, or a value that is not a JSON number, is a mismatch.
 fn g5b_exact_evidence(source: &Value, cases: &[NumericCase<'_>]) -> VResult {
     let section = |ok| need(ok, "G5b", "SECTION_MISMATCH");
     let number_bits = |v: &Value| v.as_f64().map(bits);
@@ -4315,16 +4338,40 @@ fn g5b_exact_evidence(source: &Value, cases: &[NumericCase<'_>]) -> VResult {
             section(matched.len() == 1)?;
             let (p, g) = (matched[0], &st["geometry"]);
             for (evidence_key, receipt) in [
-                ("As_m2", &st["area"]),
-                ("Z_m3", &st["section_modulus"]),
                 ("outside_diameter_m", &g["normalized_od"]),
-                ("effective_wall_thickness_m", &g["effective_wall"]),
                 ("ro_m", &g["actual_radius"]),
-                ("I_m4", &g["actual_second_moment"]),
-                ("J_m4", &g["actual_polar_moment"]),
             ] {
                 section(number_bits(&p[evidence_key]).is_some_and(|b| b == *receipt))?;
             }
+            for basis in crate::section_basis::BASES {
+                for (evidence_key, receipt) in [
+                    ("As_m2", &st["area"]),
+                    ("Z_m3", &st["section_modulus"]),
+                    ("I_m4", &g["actual_second_moment"]),
+                    ("J_m4", &g["actual_polar_moment"]),
+                    ("wall_m", &g["effective_wall"]),
+                ] {
+                    section(number_bits(&p[basis][evidence_key]).is_some_and(|b| b == *receipt))?;
+                }
+            }
+        }
+        // The successor overlays each reduced twin, outside the receipt's row
+        // universe, with the retained value of its nominal twin, the bound row
+        // immediately before it (§2.5 row order).
+        let all = rows_all_for(source, c.case);
+        for (i, row) in all.iter().enumerate() {
+            let reduced = reduced_twin(row)
+                || crate::section_basis::id_basis(text(&row["id"])) == Some(crate::section_basis::REDUCED);
+            if !reduced {
+                continue;
+            }
+            let nominal = i.checked_sub(1).map(|j| all[j]);
+            section(reduced_twin(row) && nominal.is_some_and(|t| {
+                !reduced_twin(t)
+                    && crate::section_basis::twin_id(text(&row["id"])).is_some_and(|id| t["id"] == id.as_str())
+                    && row["value"].as_f64().is_some()
+                    && t["value"].as_f64().map(bits) == row["value"].as_f64().map(bits)
+            }))?;
         }
     }
     Ok(())
@@ -4383,6 +4430,7 @@ fn g5c(cases: &[NumericCase<'_>]) -> VResult<Vec<RowClassification>> {
         )?;
         let mut absolutes = Vec::new();
         let mut uncovered = Vec::new();
+        let first = classes.len();
         for row in &c.rows {
             let n = normalized(row);
             let k = row_kind(row);
@@ -4430,6 +4478,29 @@ fn g5c(cases: &[NumericCase<'_>]) -> VResult<Vec<RowClassification>> {
             "G5c",
             "CLASSIFICATION_MISMATCH",
         )?;
+        // T4-U6 (D-5): a reduced twin carries its nominal twin's retained value,
+        // so it takes that row's class (a twin without one would bind unchecked).
+        // The classes then follow the published row order.
+        if c.all_rows.len() != c.rows.len() {
+            let bound: Vec<RowClassification> = classes.drain(first..).collect();
+            let mut next = bound.into_iter();
+            let mut last: Option<RowClassification> = None;
+            for row in &c.all_rows {
+                let class = if reduced_twin(row) {
+                    let nominal = last.clone().ok_or_else(|| error("G5c", "CLASSIFICATION_MISMATCH"))?;
+                    RowClassification {
+                        result_id: text(&row["id"]).into(),
+                        basis_ref: row["basis_ref"].clone(),
+                        normalized_bits: normalized(row).to_bits(),
+                        ..nominal
+                    }
+                } else {
+                    next.next().ok_or_else(|| error("G5c", "CLASSIFICATION_MISMATCH"))?
+                };
+                last = Some(class.clone());
+                classes.push(class);
+            }
+        }
     }
     Ok(classes)
 }
@@ -4560,6 +4631,26 @@ fn exact_namespace(model: &Value) -> bool {
         && pressure_contract_is(&model["pressure_contract"], "3.0.0", "exact_pressure_v3")
         && section_allowances(model, true)
 }
+/// T4-U6 (§5, O4): the retained exact route has one section basis, so a
+/// nonzero mill tolerance is declined by name.
+pub const MILL_TOLERANCE_DECLINE: &str = "nonzero mill tolerance is not a retained-source section basis";
+/// G8 on the exact route: every pipe section's mill tolerance is zero (absent
+/// or null is zero, as the producer reads it); otherwise G8 refuses, naming
+/// the decline.
+fn exact_mill_tolerances(model: &Value) -> VResult {
+    let nonzero = list(&model["pipe_segments"]).iter().any(|pipe| {
+        let q = &pipe["section"]["mill_tolerance"];
+        !q.is_null() && !unit_value(q, Dimension::Length).is_ok_and(|v| v == 0.0)
+    });
+    if nonzero {
+        return Err(ValidationError {
+            gate: "G8",
+            code: "RETAINED_PRECISION_INVOCATION_MISMATCH".into(),
+            detail: Some(MILL_TOLERANCE_DECLINE.into()),
+        });
+    }
+    Ok(())
+}
 /// b7-plan "Exact-contract fields": an exact document declares an explicit
 /// length-valued zero `corrosion_allowance` on every pipe section (absent,
 /// null, malformed, non-length or nonzero allowances are outside the
@@ -4677,6 +4768,9 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
         "G8",
         "INVOCATION_MISMATCH",
     )?;
+    if route.exact {
+        exact_mill_tolerances(model)?;
+    }
     // B2-C §10.1 G8 invocation: the entries are the model's combinations, in
     // order and id, each expression equal to its model combination.
     let authored = list(&model["combinations"]);
@@ -5982,7 +6076,8 @@ fn r_comb_1(source: &Value) -> Vec<RowClassification> {
         if !withheld {
             continue;
         }
-        for row in rows_for(source, e) {
+        // Every published row of the entry, reduced twins included (T4-U6).
+        for row in rows_all_for(source, e) {
             out.push(RowClassification {
                 result_id: text(&row["id"]).into(),
                 basis_ref: row["basis_ref"].clone(),
@@ -6070,8 +6165,9 @@ fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Rou
     }
     let mut classifications = g5c(&cases)?;
     classifications.extend(r_comb_1(source));
+    // G6 binds every published row, reduced twins included (T4-U6).
     for c in list(&body["cases"]) {
-        for row in rows_for(source, c) {
+        for row in rows_all_for(source, c) {
             need(
                 if c["status"] == "selected" {
                     row["recovery_method"] == METHOD
@@ -6086,7 +6182,7 @@ fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Rou
     // B2-C §10.1 G6: `recovery_method` exactly on a `retained_selected`
     // combination's rows.
     for e in list(&body["combinations"]) {
-        for row in rows_for(source, e) {
+        for row in rows_all_for(source, e) {
             need(
                 if e["disposition"] == "retained_selected" {
                     row["recovery_method"] == METHOD
@@ -7300,6 +7396,40 @@ mod c7_prescribed_key_controls {
             println!("C7_ATOMS owned={owned} numeric_case={} set_header={} borrowed_pair={} value_ref={}",
                 std::mem::size_of::<NumericCase<'_>>(),std::mem::size_of::<BTreeSet<(&str,&str)>>(),
                 std::mem::size_of::<(&str,&str)>(),std::mem::size_of::<&Value>());
+        }
+    }
+}
+
+#[cfg(test)]
+mod t4_u6_g8_tests {
+    use super::*;
+
+    /// T4-U6 (§5, O4): physics-retained-1's G8 declines a nonzero mill
+    /// tolerance by name on the exact route; zero, absent and null are zero.
+    #[test]
+    fn g8_names_a_nonzero_mill_tolerance_on_the_exact_route() {
+        let request: Value = serde_json::from_str(include_str!(
+            "../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"
+        ))
+        .unwrap();
+        let model = &request["model"];
+        assert_eq!(exact_mill_tolerances(model), Ok(()));
+        for (value, declined) in [
+            (json!({"value": 0.5, "unit": "mm"}), true),
+            (json!({"value": 1, "unit": "N"}), true),
+            (json!({"value": 0, "unit": "mm"}), false),
+            (Value::Null, false),
+        ] {
+            let mut changed = model.clone();
+            changed["pipe_segments"][0]["section"]["mill_tolerance"] = value.clone();
+            let outcome = exact_mill_tolerances(&changed);
+            if declined {
+                let error = outcome.unwrap_err();
+                assert_eq!((error.gate, error.code.as_str(), error.detail.as_deref()),
+                    ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH", Some(MILL_TOLERANCE_DECLINE)), "{value}");
+            } else {
+                assert_eq!(outcome, Ok(()), "{value}");
+            }
         }
     }
 }

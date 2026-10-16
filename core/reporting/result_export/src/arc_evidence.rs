@@ -105,6 +105,12 @@ pub(crate) fn members<'a>(region: &'a Value, admitted: bool) -> Result<HashSet<&
             g["member_kind"] == MEMBER_KIND && pair3(&g["arc_end_tangents_global"]).is_some(),
             "GEOMETRY",
         )?;
+        // T4-U8 (D-6, §2.5, §3.6): a realized arc is Euler-Bernoulli under
+        // either shear model, and its geometry record says so.
+        require(
+            g["beam_theory"] == serde_json::json!({"model": crate::section_basis::EULER_BERNOULLI}),
+            "BEAM_THEORY",
+        )?;
         arcs.insert(g["pipe_id"].as_str().unwrap_or_default());
     }
     Ok(arcs)

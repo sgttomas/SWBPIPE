@@ -96,8 +96,16 @@ pub const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1"
 pub const PRESSURE_PROFILE: &str = "exact_pressure_v3";
 pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID;
 /// Independent current resident source-family table, with no ordinary alias.
-pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435";
-pub const PRESSURE_TABLE_SHA256: &str = "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375";
+/// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
+/// token × section basis), each with its `source_basis`.
+pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53";
+pub const PRESSURE_TABLE_SHA256: &str = "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e";
+/// The pinned counts, re-derived from the tables (T4-U6: pressure-1 106
+/// signatures over 59 kinds; pressure-source-1 88 over 51).
+pub const PRESSURE_SIGNATURE_COUNT: u64 = 106;
+pub const PRESSURE_KIND_COUNT: u64 = 59;
+pub const PRESSURE_SOURCE_SIGNATURE_COUNT: u64 = 88;
+pub const PRESSURE_SOURCE_KIND_COUNT: u64 = 51;
 /// B1 (b7-plan): precision-1 is no longer read. A stored precision-1 result is
 /// refused by name (re-run the analysis); no table, route or notice remains.
 pub const RETIRED_PRECISION_ID: &str = "openpipestress.result_semantics/0.3.0/precision-1";
@@ -119,8 +127,9 @@ pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
 /// route), and its standing comes only from that reader's verified receipt.
 pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_ID;
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
+/// T4-U6: its rows, vocabulary and counts follow the inherited pressure-1 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574";
+    "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -245,8 +254,8 @@ pub fn verify_pressure_table(bytes: &[u8]) -> Result<Value, String> {
         .map_err(|_| "SOURCE_PRESSURE_TABLE_HASH".to_string())?;
     if table["semantic_contract_id"] != PRESSURE_ID
         || table["formulation_profile_id"] != PRESSURE_PROFILE
-        || table["source_signature_count"] != 88
-        || table["source_kind_count"] != 59 {
+        || table["source_signature_count"] != PRESSURE_SIGNATURE_COUNT
+        || table["source_kind_count"] != PRESSURE_KIND_COUNT {
         return Err("SOURCE_PRESSURE_TABLE_IDENTITY".into());
     }
     Ok(table)
@@ -279,7 +288,7 @@ pub fn preview_physics_contract() -> &'static Value {
     })
 }
 /// Verify the independent current source table. Its full reviewed-byte digest
-/// binds the unchanged 69 signatures, vocabulary, bases and hash vectors.
+/// binds the 88 signatures, vocabulary, bases and hash vectors.
 pub fn verify_pressure_source_table(bytes: &[u8]) -> Result<Value, String> {
     use sha2::{Digest, Sha256};
     if format!("{:x}", Sha256::digest(bytes)) != PRESSURE_SOURCE_TABLE_SHA256 {
@@ -289,8 +298,8 @@ pub fn verify_pressure_source_table(bytes: &[u8]) -> Result<Value, String> {
     if table["semantic_contract_id"] != PRESSURE_SOURCE_ID
         || table["formulation_profile_id"] != PRESSURE_PROFILE
         || table["source_block_policy"] != crate::physics_source::SourceContract::PressureV3.policy()
-        || table["source_signature_count"] != 69
-        || table["source_kind_count"] != 51 {
+        || table["source_signature_count"] != PRESSURE_SOURCE_SIGNATURE_COUNT
+        || table["source_kind_count"] != PRESSURE_SOURCE_KIND_COUNT {
         return Err("SOURCE_PRESSURE_SOURCE_TABLE_IDENTITY".into());
     }
     Ok(table)
@@ -311,8 +320,8 @@ mod b7b_current_table_tests {
     fn b7b_current_tables_are_independent_and_bind_their_own_bytes() {
         let ordinary = pressure_rows_contract();
         let source = pressure_source_contract();
-        assert_eq!(ordinary["rows"].as_array().unwrap().len(), 88);
-        assert_eq!(source["rows"].as_array().unwrap().len(), 69);
+        assert_eq!(ordinary["rows"].as_array().unwrap().len(), 106);
+        assert_eq!(source["rows"].as_array().unwrap().len(), 88);
         assert_eq!(source["source_kind_count"], 51);
         assert!(ordinary.get("inherited_semantic_contract_sha256").is_none());
         assert!(source.get("inherited_semantic_contracts").is_none());
@@ -336,6 +345,61 @@ mod b7b_current_table_tests {
         ).to_vec();
         source_bytes.push(b' ');
         assert_eq!(verify_pressure_source_table(&source_bytes).unwrap_err(), "SOURCE_PRESSURE_SOURCE_TABLE_HASH");
+    }
+
+    /// T4-U6 (D-5, §2.4): every stress-family signature but the two thin-wall
+    /// kinds is one per (recovery token × section basis), with its
+    /// `source_basis`; the counts are re-derived from the rows; no
+    /// (kind, unit, component) group mixes declared and undeclared bases, so a
+    /// declared basis is always matched exactly and never widened.
+    #[test]
+    fn t4_u6_stress_signatures_are_per_basis_and_counts_are_derived() {
+        use std::collections::{BTreeMap, BTreeSet};
+        for table in [pressure_rows_contract(), pressure_source_contract(), physics_retained_contract()] {
+            let rows = table["rows"].as_array().unwrap();
+            let id = &table["semantic_contract_id"];
+            assert_eq!(table["source_signature_count"], rows.len(), "{id}");
+            let kinds: BTreeSet<_> = rows.iter().map(|r| r["kind"].as_str().unwrap()).collect();
+            assert_eq!(table["source_kind_count"], kinds.len(), "{id}");
+            assert_eq!(table["source_basis_signature_policy"],
+                "where_declared_require_exact_metadata_basis_in_addition_to_kind_unit_component", "{id}");
+            let vocabulary = table["canonical_metadata_vocabulary"]["basis"]["enum"].as_array().unwrap();
+            let mut groups: BTreeMap<(String, String, String), BTreeSet<bool>> = BTreeMap::new();
+            let mut identities = BTreeSet::new();
+            for row in rows {
+                let key = (row["kind"].to_string(), row["unit"].to_string(), row["component"].to_string());
+                groups.entry(key.clone()).or_default().insert(row.get("source_basis").is_some());
+                assert!(identities.insert((key, row["source_basis"].to_string())), "{id}: duplicate signature");
+                let stress = row["family"] == "stress";
+                let kind = row["kind"].as_str().unwrap();
+                if stress && !crate::section_basis::is_thin_wall_kind(kind) {
+                    let basis = row["source_basis"].as_str().unwrap_or_else(|| panic!("{id}: {kind} without basis"));
+                    assert!(crate::section_basis::split_token(basis).is_some(), "{id}: {basis}");
+                    assert!(vocabulary.contains(&row["source_basis"]), "{id}: {basis} not in vocabulary");
+                } else {
+                    assert!(row.get("source_basis").is_none_or(|b| crate::section_basis::split_token(b.as_str().unwrap()).is_none()), "{id}: {kind}");
+                }
+            }
+            assert!(groups.values().all(|g| g.len() == 1), "{id}: a group mixes declared and undeclared bases");
+            for kind in crate::section_basis::STRESS_KINDS {
+                if !kinds.contains(kind) { continue; }
+                for basis in crate::section_basis::BASES {
+                    assert!(rows.iter().any(|r| r["kind"] == kind
+                        && r["source_basis"].as_str().and_then(crate::section_basis::split_token).map(|t| t.1) == Some(basis)), "{id}: {kind} {basis}");
+                }
+            }
+        }
+        // A thin-wall row keeps its one basis-less signature: the readers refuse it on an exact envelope.
+        let thin = serde_json::json!({"kind":"pipe_section_pressure_hoop_stress","unit":"MPa","metadata":{"component":"pressure_hoop_stress","basis":"anything"}});
+        assert_eq!(signature_in(pressure_rows_contract(), &thin).unwrap().unwrap()["signature_id"], "supported-source-019");
+        // A stress row with a bare recovery token matches no signature.
+        let bare = serde_json::json!({"kind":"element_local_axial_normal_stress","unit":"MPa",
+            "metadata":{"component":"axial_normal_stress","basis":"recovered_from_local_element_stiffness"}});
+        assert_eq!(signature_in(pressure_rows_contract(), &bare).unwrap_err(), "SOURCE_BASIS_CONTRADICTION: element_local_axial_normal_stress");
+        let named = serde_json::json!({"kind":"element_local_axial_normal_stress","unit":"MPa",
+            "metadata":{"component":"axial_normal_stress","basis":"recovered_from_local_element_stiffness; section_basis=reduced_section"}});
+        assert_eq!(signature_in(pressure_rows_contract(), &named).unwrap().unwrap()["signature_id"],
+            "supported-source-015-local-element-stiffness-reduced-section");
     }
 }
 /// Header dispatch only; canonical envelopes have no raw rows. This does not

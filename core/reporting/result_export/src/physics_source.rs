@@ -33,7 +33,8 @@ impl SourceContract {
     }
     pub(crate) fn check_invocation(self, invocation: &Value) -> Result<(), String> {
         Self::from_invocation(invocation)?;
-        zero_corrosion_allowances(&invocation["request"]["model"])
+        zero_corrosion_allowances(&invocation["request"]["model"])?;
+        zero_mill_tolerances(&invocation["request"]["model"])
     }
     pub(crate) fn check_received(self, source: &Value) -> Result<(), String> {
         let header = &source["producer"]["semantic_contract_id"];
@@ -54,6 +55,22 @@ fn zero_corrosion_allowances(model: &Value) -> Result<(), String> {
             normalized_quantity(&pipe["section"]["corrosion_allowance"], Dimension::Length)
                 .is_ok_and(|value| value == 0.0),
             "ACTUAL_CORROSION_ALLOWANCE",
+        )?;
+    }
+    Ok(())
+}
+
+/// T4-U6 (§5, O4): pressure-source-1's selected response has coincident
+/// section bases, so every pipe section's mill tolerance is zero. An absent or
+/// null mill tolerance is zero, as the producer reads it; a present malformed,
+/// non-length or nonzero one refuses the statement bound to that invocation.
+pub(crate) fn zero_mill_tolerances(model: &Value) -> Result<(), String> {
+    for pipe in array(&model["pipe_segments"])? {
+        let quantity = &pipe["section"]["mill_tolerance"];
+        require(
+            quantity.is_null()
+                || normalized_quantity(quantity, Dimension::Length).is_ok_and(|value| value == 0.0),
+            "ACTUAL_MILL_TOLERANCE",
         )?;
     }
     Ok(())
@@ -189,6 +206,18 @@ pub fn validate_transport_metadata_in(source: &Value, contract: SourceContract) 
             exact["recovery_method"] == record["selected_method"],
             "RECOVERY_METHOD",
         )?;
+        // T4-U6/U8 (§5, O4): a pressure-source-1 document is euler_bernoulli
+        // with zero mill tolerance and zero corrosion allowance on every pipe
+        // section (document facts), so its two section bases coincide.
+        require(
+            array(&exact["pipe_sections"])?.iter().all(|s| {
+                s["mill_tolerance_m"].as_f64() == Some(0.0)
+                    && s["corrosion_allowance_m"].as_f64() == Some(0.0)
+                    && s["beam_theory"] == json!({"model": crate::section_basis::EULER_BERNOULLI})
+                    && s["nominal_section"] == s["reduced_section"]
+            }),
+            "SECTION_BASES",
+        )?;
         let mut proof = json!({"exact_case":exact,"pressure":pressure});
         if resolved {
             let state = array(&evidence["load_reference_states"])?
@@ -218,16 +247,24 @@ pub fn validate_transport_metadata_in(source: &Value, contract: SourceContract) 
             )?;
             require(
                 exact["stress_maximum_coverage"]
-                    == json!({"complete":true,"unavailable_pipe_ids":[]}),
+                    == json!(crate::section_basis::BASES
+                        .map(|b| json!({"section_basis":b,"complete":true,"unavailable_pipe_ids":[]}))),
                 "MAXIMUM_COMPLETE",
             )?;
+            // T4-U6 (§2.5): one retained maximum per member per basis.
             let maxima = array(&exact["pipe_stress_extrema"])?;
             let members = array(&plan["member_ids"])?;
             require(
-                maxima.len() == members.len()
-                    && members
-                        .iter()
-                        .all(|m| maxima.iter().filter(|x| x["pipe_id"] == *m).count() == 1),
+                maxima.len() == 2 * members.len()
+                    && members.iter().all(|m| {
+                        crate::section_basis::BASES.iter().all(|b| {
+                            maxima
+                                .iter()
+                                .filter(|x| x["pipe_id"] == *m && x["section_basis"] == *b)
+                                .count()
+                                == 1
+                        })
+                    }),
                 "MAXIMUM_COVERAGE",
             )?;
             section_functionals(record)?;
@@ -442,11 +479,13 @@ fn maximum_link(exact: &Value, ex: &Value, record: &Value) -> Result<(), String>
         .iter()
         .find(|s| s["pipe_id"] == ex["pipe_id"])
         .ok_or("PHYSICS_SOURCE_MAXIMUM_ENDPOINTS")?;
-    require(
-        same(&ex["area_m2"], num(&section["As_m2"])?)?
-            && same(&ex["section_modulus_m3"], num(&section["Z_m3"])?)?,
-        "MAXIMUM_SECTION",
-    )?;
+    // T4-U6 (§2.3): the receipt's one source section binds both bases bit for bit.
+    let mut bound = crate::section_basis::extremum_basis(ex).is_ok();
+    for basis in crate::section_basis::BASES {
+        bound &= same(&ex["area_m2"], num(&section[basis]["As_m2"])?)?
+            && same(&ex["section_modulus_m3"], num(&section[basis]["Z_m3"])?)?;
+    }
+    require(bound, "MAXIMUM_SECTION")?;
     let ends = array(&ex["endpoints"])?;
     let claimed = array(&source["endpoints"])?;
     require(
@@ -505,7 +544,9 @@ pub(crate) fn validate_maximum(
             && row["entity_ref"] == ex["pipe_id"]
             && row["basis_ref"] == record["basis_ref"]
             && row["unit"] == "Pa"
-            && same(&row["value"], num(&ex["value_pa"])?)?,
+            && same(&row["value"], num(&ex["value_pa"])?)?
+            && crate::section_basis::split_token(row["metadata"]["basis"].as_str().unwrap_or_default())
+                == Some((MAX_BASIS, crate::section_basis::extremum_basis(ex)?)),
         "MAXIMUM_ROW",
     )?;
     let ends = array(&ex["endpoints"])?;
@@ -722,9 +763,10 @@ pub(crate) fn validate_source_case_in(
         .filter(|r| r["recipe_id"] == "retained_source_straight_stress_v1")
         .map(|r| text(&r["result_id"]))
         .collect::<Result<HashSet<_>, _>>()?;
+    // T4-U6 (§2.1): twenty source stress rows per member on each basis.
     require(
         stresses.len() == expected_stress.len()
-            && stresses.len() == 20 * array(&record["source"]["member_ids"])?.len()
+            && stresses.len() == 40 * array(&record["source"]["member_ids"])?.len()
             && stresses
                 .iter()
                 .map(|r| text(&r["result_id"]))
@@ -1007,15 +1049,21 @@ pub(crate) fn actual_materials(invocation: &Value, actual: &Value, exact: &Value
         } else {
             normalized_quantity(&authored_section["mill_tolerance"], Dimension::Length)?
         };
+        // T4-U6 (D-5): the section's captured authored values are the
+        // invocation's (D, t, c_m, c_a); the pressure-1 checks rederived its
+        // three geometries from them. D and t bind bit for bit; c_m and c_a
+        // bind by value, so a signed zero (which leaves (t - c_m) - c_a = t bit
+        // for bit) is the zero it denotes.
+        let allowance = normalized_quantity(&authored_section["corrosion_allowance"], Dimension::Length)?;
         require(
             same(
                 &section["outside_diameter_m"],
                 normalized_quantity(&authored_section["outside_diameter"], Dimension::Length)?,
             )? && same(
-                &section["effective_wall_thickness_m"],
-                normalized_quantity(&authored_section["wall_thickness"], Dimension::Length)?
-                    - tolerance,
-            )?,
+                &section["wall_thickness_m"],
+                normalized_quantity(&authored_section["wall_thickness"], Dimension::Length)?,
+            )? && section["mill_tolerance_m"].as_f64() == Some(tolerance)
+                && section["corrosion_allowance_m"].as_f64() == Some(allowance),
             "ACTUAL_SOURCE_GEOMETRY",
         )?;
         let authored = array(materials)?
@@ -1180,13 +1228,42 @@ fn validate_stress(
         .find(|s| s["pipe_id"] == row["entity_ref"])
         .ok_or("PHYSICS_SOURCE_STRESS_SECTION")?;
     let params = &check["parameters"];
+    // T4-U6 (§2.3): the receipt's one source section binds both bases bit for bit.
     require(
-        crate::json_value_eq(
-            params,
-            &json!({"area_m2":section["As_m2"],"section_modulus_m3":section["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section["J_m4"],"pa_per_mpa":1e6}),
-        ),
+        crate::section_basis::BASES.iter().all(|b| {
+            crate::json_value_eq(
+                params,
+                &json!({"area_m2":section[*b]["As_m2"],"section_modulus_m3":section[*b]["Z_m3"],"torsion_radius_m":section["ro_m"],"torsion_constant_m4":section[*b]["J_m4"],"pa_per_mpa":1e6}),
+            )
+        }),
         "STRESS_SECTION_PARAMETERS",
     )?;
+    // T4-U6 (§5): a reduced row binds the same functional and section as its
+    // nominal twin and is bit-equal to it.
+    let (token, basis) = crate::section_basis::split_token(row["metadata"]["basis"].as_str().unwrap_or_default())
+        .filter(|(_, b)| row["id"].as_str().and_then(crate::section_basis::id_basis) == Some(*b))
+        .ok_or("PHYSICS_SOURCE_STRESS_SECTION_BASIS")?;
+    if basis == crate::section_basis::REDUCED {
+        let twin_id = row["id"].as_str().and_then(crate::section_basis::twin_id).unwrap_or_default();
+        let twin = array(&source["results"])?
+            .iter()
+            .find(|r| r["id"] == twin_id.as_str())
+            .ok_or("PHYSICS_SOURCE_STRESS_BASIS_TWIN")?;
+        let twins = array(&record["section_stress_checks"])?
+            .iter()
+            .filter(|c| c["result_id"] == twin_id.as_str())
+            .collect::<Vec<_>>();
+        require(
+            twins.len() == 1
+                && crate::section_basis::split_token(twin["metadata"]["basis"].as_str().unwrap_or_default())
+                    == Some((token, crate::section_basis::NOMINAL))
+                && ["recipe_id", "pipe_id", "location", "component", "functional_index", "functional_id", "action", "parameters"]
+                    .iter()
+                    .all(|k| twins[0][*k] == check[*k])
+                && same(&row["value"], num(&twin["value"])?)?,
+            "STRESS_BASIS_TWIN",
+        )?;
+    }
     let action = num(&check["action"]["value"])?;
     if component == 3 && action != 0.0 {
         require(
@@ -1290,7 +1367,9 @@ mod review_repair_tests {
             .find(|s| s["pipe_id"] == row["entity_ref"])
             .unwrap();
         section["ro_m"] = json!(1e-40);
-        section["J_m4"] = json!(1e-160);
+        // T4-U6 (§2.3): the one source section binds both bases.
+        section["nominal_section"]["J_m4"] = json!(1e-160);
+        section["reduced_section"]["J_m4"] = json!(1e-160);
         case["section_stress_checks"][index]["parameters"]["torsion_radius_m"] = json!(1e-40);
         case["section_stress_checks"][index]["parameters"]["torsion_constant_m4"] = json!(1e-160);
         row["value"] = json!(action * 1e-40 / 1e-160 / 1e6);
