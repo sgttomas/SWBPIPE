@@ -17924,12 +17924,6 @@
         },
         "decimal": "2.998131829123993955128069524660611592096e-3",
         "value": 0.002998131829123994
-       },
-       "shear_factor_binary64_exhibit": {
-        "value": 0.5022815796276097,
-        "hex": "0x1.012b0d1bc481ep-1",
-        "from": "the Design section 3.1 operation order on the binary64 leaves r_i,n = OD/2 - t, r_o = OD/2, nu",
-        "relative_difference_from_exact": "3.096e-16"
        }
       }
      },
@@ -35237,6 +35231,14 @@
         "scale_stress_maximum@nominal_section": "max |expected| over this load case's stress_maximum@nominal_section rows",
         "scale_stress_maximum@reduced_section": "max |expected| over this load case's stress_maximum@reduced_section rows"
        }
+      }
+     },
+     "binary64_exhibits": {
+      "shear_factor": {
+       "value": 0.5022815796276097,
+       "hex": "0x1.012b0d1bc481ep-1",
+       "from": "the Design section 3.1 operation order on the binary64 leaves r_i,n = OD/2 - t, r_o = OD/2, nu",
+       "relative_difference_from_exact": "3.096e-16"
       }
      }
     }
@@ -55404,6 +55406,15 @@
         "scale_stress_bending_torsion@reduced_section": "identically zero here: scale_stress_axial@reduced_section"
        }
       }
+     },
+     "request_load_state_group": {
+      "path": "requests/U6-BASES-002-GROUP.request.json",
+      "sha256": "457400cc70d0629ff8291274fe827f45e47e92c4024b58eee1e1d9806565b91b",
+      "load_cases": [
+       "case:restrained-pressure",
+       "case:restrained-pressure-thermal"
+      ],
+      "note": "the same physical inputs with the load/reference-state group (thermal as each case's element thermal_state); judged against the same rows"
      }
     }
    },

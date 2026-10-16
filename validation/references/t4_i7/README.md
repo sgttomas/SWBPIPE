@@ -54,6 +54,14 @@ valued and the mitre refusal) are re-frozen in every row:
   apply.
 - The negative controls and the polygon-limit control are recomputed on the
   same rules; every control keeps its listing rule (≥ 1e3 tolerances).
+- **Zero-scale floors.** The rule is unchanged: each group's floor is
+  1e-9 × that group's own largest |expected| in the case. Where the re-frozen
+  restraint forces and moments rose, so did the floors: 162 of the 894 groups
+  present before and after rose, by at most ×1.174
+  (`U2-L-ANCH-ALL-K2-SKEW-X5E6`, `elastic_end_force_chord_frame`), and the
+  reduced-section bending/torsion groups by at most ×1.112 against the former
+  single group. Displacement and nominal-section groups fell. This is not a
+  loosening: each floor stays tied to its group's own maximum.
 
 The re-freeze was derived without reading product code and awaits
 refutation by a separate TASK before any product output is compared with it.

@@ -13,7 +13,7 @@ and runs no product code or output.
 | File | Role |
 |---|---|
 | `generators/u6_reference.py` | the generator: inputs, exact derivation, cross-checks, requests and oracle (standard library only) |
-| `requests/<id>.request.json` | four complete product documents: model 0.5.0 under `3.0.0/exact_pressure_v3` with explicit `pressure_contract.shear_model` and `section.corrosion_allowance` |
+| `requests/<id>.request.json` | five complete product documents: model 0.5.0 under `3.0.0/exact_pressure_v3` with explicit `pressure_contract.shear_model` and `section.corrosion_allowance` |
 | `oracle.json` | per case and shear-model variant: the rows, zero scales, terminal evidence, `pipe_sections` evidence and the wrong-result discriminators |
 | `SHA256SUMS` | the hashes of every file above |
 
@@ -30,7 +30,7 @@ annulus of SHEAR_REFERENCE S-B), the reduced section t_r = (t − c_m) − c_a =
 | Case | Variants (request) | Load cases |
 |---|---|---|
 | `U6-BASES-001` (cantilever, anchored at A) | `euler_bernoulli` (`U6-BASES-001-EB`), `timoshenko_annulus_energy_v1` (`U6-BASES-001-TIMO`, κ_E from the nominal annulus) | `case:pressure-tip` (5 MPa, closures transferring; tip force (0, 1200, −900) N and torque 600 N·m); `case:axial-tip` (no pressure region; tip force (20000, 1200, −900) N and the torque); `case:self-weight` and `case:combined` (pipe metal 7850 kg/m³ on the nominal wall, contents 1000 kg/m³ on the pressure bore, g 9.80665 m/s² along −Z; frozen, request pending, see open items) |
-| `U6-BASES-002` (anchored at A and B) | `euler_bernoulli` (`U6-BASES-002`); the rows are the same under Timoshenko | `case:restrained-pressure` (Nw = 2νP, independent of As because the As of ε_p is the stiffness As); `case:restrained-pressure-thermal` (+40 °C: Nw = 2νP − E·Aₙ·αΔT) |
+| `U6-BASES-002` (anchored at A and B) | `euler_bernoulli` (`U6-BASES-002`, thermal as a `thermal` primitive; and its twin `U6-BASES-002-GROUP` with the load/reference-state group, thermal as the element `thermal_state`, judged against the same rows); the rows are the same under Timoshenko | `case:restrained-pressure` (Nw = 2νP, independent of As because the As of ε_p is the stiffness As); `case:restrained-pressure-thermal` (+40 °C: Nw = 2νP − E·Aₙ·αΔT) |
 | `U6-BASES-COINCIDENT` | `euler_bernoulli` (`U6-BASES-COINCIDENT`): mill tolerance absent, allowance 0 | `case:pressure-tip`, `case:axial-tip`: both families published, one value per row (H4) |
 
 Frozen per load case (1,449 rows in 12 load-case evaluations): the wall and
@@ -59,10 +59,11 @@ rotations of A and B; support components and norms; the terminal cap thrust
 - **Shear (Design §3.1; SHEAR_REFERENCE §§1, 3, 4).** κ_E =
   16609827/33068756 (S-B's 33.219654/66.137512), A_s = κ_E·Aₙ, Ks = G·A_s;
   tip deflection FL³/(3EI) + FL/Ks, uniform load wL⁴/(8EI) + wL²/(2Ks);
-  rotations are section rotations and do not change. `beam_theory` also
-  carries an exhibit of κ evaluated in binary64 in the Design's operation
-  order from the binary64 leaves (one ulp from the rounding of the exact
-  value), for the evidence readers.
+  rotations are section rotations and do not change. The frozen
+  `pipe_sections_evidence` object has exactly the Design §2.5 keys; beside it,
+  the Timoshenko variant's `binary64_exhibits.shear_factor` gives κ evaluated
+  in binary64 in the Design's operation order from the binary64 leaves (one
+  ulp from the rounding of the exact value), for the evidence readers.
 - **Conventions** are T4-I8's: element-local frame = global here; end rows
   node-on-element (end_i = −cut(0), end_j = +cut(L)); station rows and all
   stress rows from the j-side cut; element-local stresses in MPa, displacements
@@ -73,7 +74,7 @@ rotations of A and B; support components and norms; the terminal cap thrust
   decimal inputs are exact rational targets; their binary64 rounding is
   absorbed by the criterion.
 
-## Checks inside the generator (1,634)
+## Checks inside the generator (1,640)
 
 Annulus identities; the pressure bore = OD/2 − t + c_m + c_a; κ_E in the
 cancellation-free form equals the CONTRACT form and S-B's value; an exact
@@ -86,7 +87,10 @@ stiffness As; the restrained wall force 2νP − E·Aₙ·αΔT; unique row
 identities with both families on every stress kind and no basis elsewhere;
 every discriminator moves at least one row by ≥ 1e3 tolerances; under
 pressure alone the stiffness-section mutants do not move the restrained wall
-force while the ε_p-area mutants do.
+force while the ε_p-area mutants do; the evidence object has exactly the
+Design's keys; the load/reference-state twin has the same geometry, supports
+and regions, and each thermal primitive becomes the same αΔT in its case's
+element state.
 
 ## Discriminators
 
@@ -145,9 +149,10 @@ row passes when |obs − wrong| > max(absolute tolerance,
    five locations), by the sibling kinds' pattern. Their spelling and
    locations are in the pressure-1 table, which this author did not read.
    A mismatch shows as an unresolved row, never as a changed value.
-3. **Plain-form thermal primitive.** `U6-BASES-002`'s thermal load is a
-   `thermal` primitive in a 0.5.0 document without the load/reference-state
-   group, as in the re-authored T4-I8 case 2.
+3. **Thermal in both forms.** `U6-BASES-002`'s thermal load is a `thermal`
+   primitive in the plain 0.5.0 document (as in the re-authored T4-I8 case 2)
+   and the element `thermal_state` in `U6-BASES-002-GROUP`, so the thermal
+   eigenload on the nominal A is checked in whichever form the product admits.
 
 ## Reproduce
 

@@ -54,8 +54,10 @@ tolerance) and marked for re-freeze if D-5 changed its basis. It does, so:
   than resolved: the nominal radial Lamé rows (−p, 0) do not move, because
   they are basis-independent boundary tractions.
 - **Discriminators.** All eleven repair-01 controls are kept with their wrong
-  values. `cap_area_on_nominal_bore` is now active. Two are renamed because the
-  fold is gone (`allowance_not_folded` → `allowance_omitted_from_reduced_section`,
+  values. `cap_area_on_nominal_bore` is now active. Three are renamed because
+  the fold is gone (`allowance_not_folded` →
+  `allowance_omitted_from_reduced_section`, `allowance_not_folded_sigma_z_free`
+  → `allowance_omitted_from_reduced_section_sigma_z_free`,
   `cap_area_on_authored_bore` → `cap_area_on_bore_without_mill_tolerance`;
   `former_id` names the old id). New controls cover mill tolerance or
   allowance in stiffness, the retired single stiffness section, ε_p (and the
