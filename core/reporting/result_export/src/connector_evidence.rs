@@ -312,7 +312,9 @@ fn validate_pressure(records: &[Value], regions: &Value, rows: &HashMap<&str,&Va
                 require_connector(region["member_pipe_ids"].as_array().is_some_and(|members| members.iter().any(|member| member == pipe))
                     && !terminals.iter().any(|terminal| terminal["node_ref"] == edge[if end==0 {"node_i_ref"} else {"node_j_ref"}]), "PRESSURE_FACE_BINDING")?;
                 let geometry = region["geometry"].as_array().ok_or("SOURCE_PHYSICS_CONNECTOR_PRESSURE_GEOMETRY")?.iter().find(|geometry| geometry["pipe_id"] == pipe).ok_or("SOURCE_PHYSICS_CONNECTOR_PRESSURE_FACE")?;
-                let ai = number(&geometry["Ai_m2"])?;
+                // T4-U6 (D-5, §1, §2.3): the joint face p(Ae - Ai) acts on the
+                // pressure bore; the region geometry carries Ai only there.
+                let ai = number(&geometry["pressure_bore"]["Ai_m2"])?;
                 require_connector(geometry.get("member_kind").is_none() && edge["face_bore_area_m2"][end].as_f64()==Some(ai), "PRESSURE_FACE_AREA")?;
                 let pi = p*ai;
                 let magnitudes = [pe,pi];
@@ -357,5 +359,93 @@ mod projection_tests {
         let tiny=f64::from_bits(1);
         assert!(equal(0.0,tiny,[tiny,0.0],tiny));
         assert!(!equal(2.0*tiny,0.0,[tiny,0.0],tiny));
+    }
+}
+
+#[cfg(test)]
+mod d5_face_area_tests {
+    //! T4-U6 (D-5, §1, §2.3, §2.5): a joint face's bore area is the region
+    //! geometry's `pressure_bore.Ai_m2`, on distinct bases (a nonzero corrosion
+    //! allowance puts the pressure bore off the nominal bore).
+    use super::validate_pressure;
+    use serde_json::{json, Value};
+    use std::collections::{HashMap, HashSet};
+    use std::f64::consts::PI;
+
+    const P: f64 = 2.0e6;
+    const AE: f64 = 0.0125;
+    const OD: f64 = 0.1143;
+    const WALL: f64 = 0.006;
+    const ALLOWANCE: f64 = 0.0015;
+
+    fn annulus(wall: f64) -> Value {
+        let (ro, ri) = (OD * 0.5, OD * 0.5 - wall);
+        let area = (PI * wall) * (OD - wall);
+        let second = (area * ((ro * ro) + (ri * ri))) * 0.25;
+        json!({"wall_m": wall, "ri_m": ri, "As_m2": area, "I_m4": second, "J_m4": second * 2.0, "Z_m3": second / ro})
+    }
+    fn bore(wall: f64) -> f64 {
+        let ri = OD * 0.5 - wall;
+        (PI * ri) * ri
+    }
+    /// One region geometry entry in the D-5 shape (§2.5, plus `traversal_forward`).
+    fn geometry(pipe: &str) -> Value {
+        let reduced = (WALL - 0.0) - ALLOWANCE;
+        json!({"pipe_id": pipe, "geometry_basis": "authored_od_wall_d5_sections_v1", "outside_diameter_m": OD,
+            "ro_m": OD * 0.5, "wall_thickness_m": WALL, "mill_tolerance_m": 0.0, "corrosion_allowance_m": ALLOWANCE,
+            "nominal_section": annulus(WALL), "reduced_section": annulus(reduced),
+            "pressure_bore": {"ri_m": OD * 0.5 - reduced, "Ai_m2": bore(reduced)},
+            "beam_theory": {"model": "euler_bernoulli"}, "traversal_forward": true})
+    }
+    /// A joint region whose edge states `face` as both faces' bore area, with
+    /// the area difference and attachment pair projected from it.
+    fn region(geometry: [Value; 2], face: f64) -> Value {
+        let pe = P * AE;
+        let difference = pe - P * face;
+        json!([{"load_case_id": "case:A", "p_pa": P, "pressure_basis": "internal_differential_zero_external_v1",
+            "member_pipe_ids": ["pipe:A", "pipe:B"], "member_connector_ids": ["connector:J"],
+            "terminals": [{"node_ref": "node:0"}, {"node_ref": "node:3"}], "geometry": geometry,
+            "joint_edges": [{"connector_id": "connector:J", "node_i_ref": "node:1", "node_j_ref": "node:2",
+                "face_i_pipe_id": "pipe:A", "face_j_pipe_id": "pipe:B", "p_pa": P, "effective_area_m2": AE,
+                "face_bore_area_m2": [face, face], "joint_pressure_force_n": pe,
+                "area_difference_force_n": [difference, difference],
+                "attachment_pair_global_n": [[-difference, 0.0, 0.0], [difference, 0.0, 0.0]],
+                "representation": "B: p(Ae - Ai) at the attachments; joint_effective_area + joint_face_cap"}]}])
+    }
+    fn check(regions: &Value) -> Result<(), String> {
+        let record = json!({"component_id": "connector:J", "pressure_model": "constant_effective_area_reference_v1",
+            "effective_area_m2": AE, "node_i": "node:1", "node_j": "node:2",
+            "pressure_basis": "internal_differential_zero_external_v1",
+            "end_i_offset_local_m": [0.0, 0.0, 0.0], "end_j_offset_local_m": [0.0, 0.0, 0.0],
+            "connector_axes_global": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]});
+        validate_pressure(&[record], regions, &HashMap::new(), &HashSet::new(), false)
+    }
+
+    #[test]
+    fn u6_joint_face_area_is_the_d5_pressure_bore() {
+        let reduced = (WALL - 0.0) - ALLOWANCE;
+        assert_ne!(bore(reduced), bore(WALL));
+        // The D-5 region geometry is read: the face is the pressure bore.
+        assert_eq!(check(&region([geometry("pipe:A"), geometry("pipe:B")], bore(reduced))), Ok(()));
+        // A face on the nominal bore contradicts the pressure bore.
+        assert_eq!(check(&region([geometry("pipe:A"), geometry("pipe:B")], bore(WALL))),
+            Err("SOURCE_PHYSICS_CONNECTOR_PRESSURE_FACE_AREA".into()));
+        // A stray single-section `Ai_m2` beside the D-5 entry is not the face
+        // area: the pre-D-5 key, set to the nominal bore, does not bind it.
+        let stray = |pipe: &str| {
+            let mut entry = geometry(pipe);
+            entry["Ai_m2"] = json!(bore(WALL));
+            entry
+        };
+        assert_eq!(check(&region([stray("pipe:A"), stray("pipe:B")], bore(WALL))),
+            Err("SOURCE_PHYSICS_CONNECTOR_PRESSURE_FACE_AREA".into()));
+        // An entry without the pressure bore states no face area.
+        let bare = |pipe: &str| {
+            let mut entry = geometry(pipe);
+            entry.as_object_mut().unwrap().remove("pressure_bore");
+            entry
+        };
+        assert_eq!(check(&region([bare("pipe:A"), bare("pipe:B")], bore(reduced))),
+            Err("SOURCE_PHYSICS_CONNECTOR_PRESSURE_NUMBER".into()));
     }
 }

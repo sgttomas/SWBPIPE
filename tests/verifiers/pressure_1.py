@@ -765,7 +765,11 @@ def _joint_pressure_bindings(records: Any, regions: Any, rows: Mapping[str, Any]
             geometry = _indexed(region["geometry"], "pipe_id", "joint face geometry")
             for end, face in enumerate((edge["face_i_pipe_id"], edge["face_j_pipe_id"])):
                 _require(face in region["member_pipe_ids"] and face in geometry and "member_kind" not in geometry[face] and not any(terminal["node_ref"] == edge["node_i_ref" if end == 0 else "node_j_ref"] for terminal in region["terminals"]), "joint face binding")
-                ai = geometry[face]["Ai_m2"]
+                # T4-U6 (D-5, §1, §2.3): the joint face p(Ae - Ai) acts on the pressure bore; the region geometry
+                # carries Ai only there.
+                bore = geometry[face].get("pressure_bore")
+                ai = bore.get("Ai_m2") if isinstance(bore, Mapping) else None
+                _require(_number(ai), "joint face area")
                 _require(edge["face_bore_area_m2"][end] == ai, "joint face area")
                 pi = pressure * ai
                 _require(_joint_projection(edge["area_difference_force_n"][end], pe - pi, pe, pi, 2), "joint area difference")
