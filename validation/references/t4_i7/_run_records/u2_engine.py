@@ -6,6 +6,10 @@ unit-load (flexibility) method: section actions are the closed-form resultants o
 cut (arc wetted-wall load pAi/R along the outward normal, terminal caps, kink forces, self-weight), the
 axial eigenstrain alpha*dT - 2 nu pAi/(E As) enters as n*eps0, and an anchored end D is solved by its six
 redundants. No curved-element stiffness and no K*u_free is formed here.
+
+T4-U6 (D-5): D5Section supplies the stiffness As, I, J of the nominal wall (also the As of the Poisson
+eigenstrain) and Ai of the pressure bore; the generator recovers stresses on each section basis. Section
+is kept for the authored self-weight intensity's informative derivation, which predates D-5.
 """
 from decimal import Decimal as D, getcontext
 
@@ -265,6 +269,47 @@ class Section:
         self.I = p * (self.od ** 4 - self.idia ** 4) / 64
         self.J = 2 * self.I
         self.Z = self.I / self.ro
+
+
+class Annulus:
+    """One section basis: OD and its own wall t (same formulas and operation order as Section)."""
+
+    def __init__(self, od, t):
+        self.od = D(od)
+        self.t = D(t)
+        self.ro = self.od / 2
+        self.ri = self.ro - self.t
+        self.idia = self.od - 2 * self.t
+        p = pi()
+        self.As = p * (self.od ** 2 - self.idia ** 2) / 4
+        self.Ai = p * self.idia ** 2 / 4          # this annulus's own bore (its Lame solution)
+        self.I = p * (self.od ** 4 - self.idia ** 4) / 64
+        self.J = 2 * self.I
+        self.Z = self.I / self.ro
+
+
+class D5Section:
+    """D-5 (DEL-05-03 Design section 1): the nominal section on the wall t gives the stiffness As, I, J
+    (and the As of eps_p); the reduced section on t_r = (t - c_m) - c_a carries the reduced-basis stresses;
+    the pressure bore r_i,r = OD/2 - t_r gives Ai. The engine reads As, I, J and Ai; stresses use bases.
+    With c_m = c_a = 0 every value equals Section's bit for bit."""
+
+    BASES = ("nominal_section", "reduced_section")
+
+    def __init__(self, od, wall, mill="0", allowance="0"):
+        self.od = D(od)
+        self.wall = D(wall)
+        self.mill = D(mill)
+        self.allowance = D(allowance)
+        self.t_r = (self.wall - self.mill) - self.allowance
+        nominal = Annulus(self.od, self.wall)
+        reduced = Annulus(self.od, self.t_r)
+        self.bases = {"nominal_section": nominal, "reduced_section": reduced}
+        self.ro = nominal.ro
+        self.As, self.I, self.J, self.Z = nominal.As, nominal.I, nominal.J, nominal.Z   # stiffness section
+        self.ri_bore = reduced.ri
+        self.Ai = reduced.Ai                                                             # pressure bore
+        self.coincident = self.mill == 0 and self.allowance == 0
 
 
 class Material:
