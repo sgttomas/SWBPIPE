@@ -623,6 +623,11 @@ def _actual_materials(invocation, actual, exact, canonical):
     model = invocation["request"]["model"]
     materials = {m["id"]:m for m in (invocation["request"].get("materials") or model.get("materials", []))}
     _require(len(model["pipe_segments"]) == len(exact["pipe_sections"]) == len(exact["pipe_materials"]),"ACTUAL_MATERIAL_COVERAGE")
+    # T4-U8 (§3.6, §5): each section states the beam theory the captured contract selects for its member. Both callers
+    # admit only euler_bernoulli contracts (`SourceContract.from_invocation`, G8's exact namespace), which select
+    # Euler-Bernoulli for a realized arc and a straight member alike (`section_basis.selected_model`); any other
+    # contract fails closed.
+    shear_model = _get(_get(model, "pressure_contract"), "shear_model")
     for pipe,section,material in zip(model["pipe_segments"],exact["pipe_sections"],exact["pipe_materials"]):
         _require(pipe["id"] == section["pipe_id"] == material["pipe_id"] and pipe["material"] == material["material_id"],"ACTUAL_MATERIAL_MEMBER")
         authored_section = pipe["section"]
@@ -634,6 +639,7 @@ def _actual_materials(invocation, actual, exact, canonical):
         by_value = lambda a, b: type(b) in (int, float) and math.isfinite(b) and a == b
         _require(_same(canonical(authored_section["outside_diameter"],"length"),section["outside_diameter_m"]) and _same(canonical(authored_section["wall_thickness"],"length"),section["wall_thickness_m"])
                  and by_value(tolerance,section["mill_tolerance_m"]) and allowance is not None and by_value(allowance,section["corrosion_allowance_m"]),"ACTUAL_SOURCE_GEOMETRY")
+        _require(shear_model == sb.EULER_BERNOULLI and _get(section.get("beam_theory"), "model") == shear_model,"ACTUAL_SHEAR_MODEL")
         authored = materials[pipe["material"]]
         _require(authored.get("constitutive_basis") == material["constitutive_basis"],"ACTUAL_CONSTITUTIVE_BASIS")
         e,nu,alpha = _selected_material(authored,actual,canonical)

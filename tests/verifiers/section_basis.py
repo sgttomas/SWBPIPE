@@ -13,6 +13,10 @@ nominal radii and the member's nu (this module's own implementation of §3.1's o
 Python floats never fuse a multiply-add). The section leaves stay leaves: the
 retained exact successor overlays them with its prepared bits (DEF-E).
 
+Where a reader has the captured model (§5), the beam theory each entry states is bound to it: a straight member
+states the contract's ``pressure_contract.shear_model``, a realized arc Euler-Bernoulli (``bind_shear_model``,
+``selected_model``).
+
 Stress rows name their basis in their token and id; every stress row has its
 other-basis twin with the same declared semantics, checked against the two
 sections (bit-equal where the bases coincide, else the same resultant within the
@@ -169,6 +173,51 @@ def beam_theory(sections: Mapping[str, Any], nu: float, arc: bool) -> None:
     kappa = timoshenko_shear_factor(sections[NOMINAL]["ri_m"], sections["ro"], nu)
     _require(math.isfinite(kappa) and kappa > 0 and bits(beam["shear_factor"]) == bits(kappa)
              and bits(beam["shear_area_m2"]) == bits(kappa * sections[NOMINAL]["As_m2"]), "timoshenko shear factor")
+
+
+def realized_arcs(model: Any) -> set[str]:
+    """§3.6: the realized arcs of a captured model document, as the producer realizes them: the pipes named by
+    ``geometry.bend_pipe_ref`` of its ``bend`` or ``elbow`` components whose ``mechanics_interface.solver_consumption``
+    is ``curved_bend_macro_element``. The model is the only place that names an arc outside every pressure region."""
+    components = model.get("components") if isinstance(model, Mapping) else None
+    arcs: set[str] = set()
+    for component in components if isinstance(components, list) else []:
+        if not isinstance(component, Mapping) or component.get("kind") not in ("bend", "elbow"):
+            continue
+        interface, geometry = component.get("mechanics_interface"), component.get("geometry")
+        ref = geometry.get("bend_pipe_ref") if isinstance(geometry, Mapping) else None
+        if isinstance(interface, Mapping) and interface.get("solver_consumption") == "curved_bend_macro_element" and isinstance(ref, str) and ref.strip():
+            arcs.add(ref)
+    return arcs
+
+
+def selected_model(shear_model: Any, arc: bool) -> Any:
+    """§3.6, §5: a realized arc is Euler-Bernoulli whatever the document selects; a straight member takes the
+    contract's ``pressure_contract.shear_model``."""
+    return EULER_BERNOULLI if arc else shear_model
+
+
+def bind_shear_model(evidence: Any, model: Any) -> None:
+    """§5 (pressure-1, against the captured model; Rust ``bind_shear_model``): each exact case's ``pipe_sections`` entry
+    and each pressure region's geometry entry states the beam theory the model's contract selects for that member. Arcs
+    are the model's realized arcs and the arcs the region geometry marks. Refusals carry the Rust codes:
+    ``SOURCE_PHYSICS_ARC_BEAM_THEORY`` for an arc, ``SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT`` for a straight member or a
+    contract naming no admitted model."""
+    items = lambda value: value if isinstance(value, list) else []
+    contract = model.get("pressure_contract") if isinstance(model, Mapping) else None
+    shear_model = contract.get("shear_model") if isinstance(contract, Mapping) else None
+    _require(shear_model in (EULER_BERNOULLI, TIMOSHENKO), "SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT")
+    evidence = evidence if isinstance(evidence, Mapping) else {}
+    regions = [region for region in items(evidence.get("pressure")) if isinstance(region, Mapping)]
+    arcs = realized_arcs(model) | {g.get("pipe_id") for region in regions for g in items(region.get("geometry")) if isinstance(g, Mapping) and "member_kind" in g}
+    entries = [s for case in items(evidence.get("exact_cases")) if isinstance(case, Mapping) for s in items(case.get("pipe_sections"))]
+    entries += [g for region in regions for g in items(region.get("geometry"))]
+    for entry in entries:
+        entry = entry if isinstance(entry, Mapping) else {}
+        arc = entry.get("pipe_id") in arcs
+        beam = entry.get("beam_theory")
+        stated = beam.get("model") if isinstance(beam, Mapping) else None
+        _require(stated == selected_model(shear_model, arc), "SOURCE_PHYSICS_ARC_BEAM_THEORY" if arc else "SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT")
 
 
 def agree(a: float, b: float) -> bool:

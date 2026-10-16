@@ -10,7 +10,7 @@
 //! committed fixture is read as current §2.5 output, and none is written. The
 //! Python verifiers' twins of these mutations are
 //! `tests/test_section_bases_readers.py`.
-use open_pipe_stress_result_export::{physics_source, section_basis as sb, semantic_contract as s};
+use open_pipe_stress_result_export::{physics_source, reader_verdict, section_basis as sb, semantic_contract as s};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
@@ -343,6 +343,103 @@ fn pressure_1_reader_refuses_an_arc_claiming_timoshenko() {
         }
     }
     assert_eq!(refused(&claimed), "SOURCE_PHYSICS_ARC_BEAM_THEORY");
+}
+
+/// A model carrying only what G2's checks read here: the solved cases and the
+/// exact contract naming `shear_model`.
+fn contract_model(doc: &Value, shear_model: &str) -> Value {
+    let cases: Vec<Value> = doc["contract_evidence"]["exact_cases"].as_array().unwrap().iter()
+        .map(|c| json!({"id": c["load_case_id"]})).collect();
+    json!({"load_cases": cases, "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": shear_model}})
+}
+fn arc_corpus_entry(label: &str) -> Value {
+    let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/results/pressure_v3_arc_reader_corpus.json")).unwrap();
+    corpus["cases"].as_array().unwrap().iter().find(|c| c["label"].as_str().unwrap().starts_with(label)).unwrap().clone()
+}
+fn set_case_beam(doc: &mut Value, pipe: &str, beam: &Value) {
+    for case in doc["contract_evidence"]["exact_cases"].as_array_mut().unwrap() {
+        for s in case["pipe_sections"].as_array_mut().unwrap() {
+            if s["pipe_id"] == pipe { s["beam_theory"] = beam.clone(); }
+        }
+    }
+}
+
+#[test]
+fn pressure_1_reader_refuses_beam_theory_contradicting_the_contract() {
+    // §5: a straight member's beam theory is the captured contract's shear
+    // model (G2, against the model); kappa and A_s stay the evidence reader's.
+    let (n, eb, tim) = (sb::NOMINAL, sb::EULER_BERNOULLI, sb::TIMOSHENKO);
+    let euler = distinct(&base(), 0.001);
+    let timo = timoshenko(&euler, n, n, None);
+    let check = reader_verdict::physics_model_checks;
+    assert_eq!(check(&euler, &contract_model(&euler, eb)), Ok(()));
+    assert_eq!(check(&timo, &contract_model(&timo, tim)), Ok(()));
+    assert_eq!(check(&euler, &contract_model(&euler, tim)), Err("SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT".into()));
+    assert_eq!(check(&timo, &contract_model(&timo, eb)), Err("SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT".into()));
+    // A contract naming no admitted model selects nothing.
+    assert_eq!(check(&euler, &contract_model(&euler, "cowper")), Err("SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT".into()));
+    // A region geometry record contradicting the contract, its case section agreeing.
+    let mut region = timo.clone();
+    let geometry = region["contract_evidence"]["pressure"].as_array_mut().unwrap().iter_mut()
+        .flat_map(|r| r["geometry"].as_array_mut().unwrap().iter_mut()).next().expect("a pressure region");
+    geometry["beam_theory"] = json!({"model": eb});
+    assert_eq!(check(&region, &contract_model(&region, tim)), Err("SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT".into()));
+    // The pressure route: the evidence reader, then G2 against the model.
+    for (doc, model, refused) in [(&timo, eb, true), (&timo, tim, false), (&euler, tim, true), (&euler, eb, false)] {
+        let verdict = reader_verdict::validate("pressure", doc, Some(&contract_model(doc, model)), None);
+        if refused {
+            assert_eq!(verdict["error"]["code"], "SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT", "{verdict}");
+        } else {
+            assert_eq!(verdict, json!({"ok": true}));
+        }
+    }
+}
+
+#[test]
+fn pressure_1_model_checks_take_realized_arcs_from_the_model() {
+    // §3.6: a realized arc is Euler-Bernoulli under either contract. The model
+    // names the arcs, including one no pressure region marks (the L line with
+    // a connector has explicitly empty regions).
+    let (n, eb, tim) = (sb::NOMINAL, sb::EULER_BERNOULLI, sb::TIMOSHENKO);
+    let entry = arc_corpus_entry("L line with connector");
+    let doc = shape(&entry["envelope"]);
+    assert!(doc["contract_evidence"]["pressure"].as_array().unwrap().iter()
+        .all(|r| r["geometry"].as_array().unwrap().iter().all(|g| g.get("member_kind").is_none())));
+    let mut model = entry["document"]["model"].clone();
+    let arcs: Vec<String> = sb::realized_arcs(&model).into_iter().map(String::from).collect();
+    assert_eq!(arcs, ["pipe:BEND"]);
+    model["pressure_contract"]["shear_model"] = json!(tim);
+    let claimed = timoshenko(&doc, n, n, None);
+    let mut stated = claimed.clone();
+    set_case_beam(&mut stated, "pipe:BEND", &json!({"model": eb}));
+    assert_eq!(reader_verdict::physics_model_checks(&stated, &model), Ok(()));
+    // The arc claiming Timoshenko (its kappa and A_s consistent).
+    assert_eq!(reader_verdict::physics_model_checks(&claimed, &model), Err("SOURCE_PHYSICS_ARC_BEAM_THEORY".into()));
+    // A bend the model does not realize as an arc is a straight member.
+    let mut geometric = model.clone();
+    for c in geometric["components"].as_array_mut().unwrap() {
+        if c["kind"] == "bend" { c["mechanics_interface"]["solver_consumption"] = json!("mechanics_geometry_only"); }
+    }
+    assert!(sb::realized_arcs(&geometric).is_empty());
+    assert_eq!(reader_verdict::physics_model_checks(&stated, &geometric), Err("SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT".into()));
+    // Under Euler-Bernoulli every member states Euler-Bernoulli.
+    model["pressure_contract"]["shear_model"] = json!(eb);
+    assert_eq!(reader_verdict::physics_model_checks(&doc, &model), Ok(()));
+    assert_eq!(reader_verdict::physics_model_checks(&stated, &model), Err("SOURCE_PHYSICS_SHEAR_MODEL_CONTRACT".into()));
+    // An arc a region marks is an arc without the model's components.
+    let entry = arc_corpus_entry("U2-L-ANCH-PTW-K2 0.3.0");
+    let timo = timoshenko(&shape(&entry["envelope"]), n, n, None);
+    let mut model = entry["document"]["model"].clone();
+    model["pressure_contract"]["shear_model"] = json!(tim);
+    model.as_object_mut().unwrap().remove("components");
+    assert_eq!(reader_verdict::physics_model_checks(&timo, &model), Ok(()));
+    let mut claimed = timo.clone();
+    let bend = claimed["contract_evidence"]["pressure"][0]["geometry"].as_array().unwrap().iter()
+        .find(|g| g.get("member_kind").is_some()).unwrap()["pipe_id"].as_str().unwrap().to_string();
+    let straight = claimed["contract_evidence"]["exact_cases"][0]["pipe_sections"].as_array().unwrap().iter()
+        .find(|s| s["pipe_id"] != bend.as_str()).unwrap()["beam_theory"].clone();
+    set_case_beam(&mut claimed, &bend, &straight);
+    assert_eq!(reader_verdict::physics_model_checks(&claimed, &model), Err("SOURCE_PHYSICS_ARC_BEAM_THEORY".into()));
 }
 
 #[test]

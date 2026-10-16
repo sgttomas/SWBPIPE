@@ -153,7 +153,8 @@ fn assert_values(source: &Value, request: &Value, case: &Value, oracle: &Value, 
     let mut joint_edges=Vec::new();
     for region in source["contract_evidence"]["pressure"].as_array().unwrap() {
         for geometry in region["geometry"].as_array().unwrap() {
-            close(geometry["Ai_m2"].as_f64().unwrap(),&case["scalars"]["Ai_m2"],0.0,oracle,label);
+            // T4-U6 (D-5, §2.3): Ai is the pressure bore's.
+            close(geometry["pressure_bore"]["Ai_m2"].as_f64().unwrap(),&case["scalars"]["Ai_m2"],0.0,oracle,label);
         }
         for load in region["applied_loads"].as_array().unwrap() {
             // Both pairs are the member's applied local RHS at [end i, end j]
