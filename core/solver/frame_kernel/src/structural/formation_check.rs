@@ -1225,24 +1225,32 @@ fn straight_frames_bound(source: &FormationSource) -> Result<(), Failure> {
     }
 }
 /// The first straight primitive of `source` that `straight_frames_bound`
-/// refuses, if any. No heap: each search starts at the previous match and
-/// wraps, so a producer that lists a member's primitives together and its
-/// members in frame order is checked in about one pass over both lists.
+/// refuses, if any (`primitive_frame_bound` for each, with one cursor).
 pub(super) fn unbound_straight_primitive(source: &FormationSource) -> Option<&LoadPrimitive> {
-    let mut cursor = 0;
+    let mut cursor = FrameCursor::default();
     source
         .loads
         .iter()
         .find(|p| !primitive_frame_bound(source, p, &mut cursor))
 }
+/// Where `primitive_frame_bound` searches first, on the stack: the last few
+/// matched frames (a node's grouped pressure operands alternate between the
+/// members meeting it), then the frames from the last match on, wrapping, so
+/// a producer that lists its members in frame order is checked in about one
+/// pass over both lists. It never changes a result, only the search order.
+#[derive(Debug, Default)]
+pub(super) struct FrameCursor {
+    recent: [Option<usize>; 4],
+    slot: usize,
+    start: usize,
+}
 /// `p` is not a straight primitive, or its pair has no source frame, or one
 /// of the pair's source frames is bit-equal to its frame at its force
-/// exponent (`straight_frames_bound`). `cursor` is the frame index to search
-/// from; it is left at the match.
+/// exponent (`straight_frames_bound`).
 pub(super) fn primitive_frame_bound(
     source: &FormationSource,
     p: &LoadPrimitive,
-    cursor: &mut usize,
+    cursor: &mut FrameCursor,
 ) -> bool {
     let Some(frame) = straight_primitive_frame(&p.formula) else {
         return true;
@@ -1251,23 +1259,29 @@ pub(super) fn primitive_frame_bound(
         let (a, b) = (f.node_i.index, f.node_j.index);
         (a.min(b), a.max(b))
     };
-    let count = source.frames.len();
-    let start = if *cursor < count { *cursor } else { 0 };
     // E and G times 2^exponent, exactly (any exponent, as the ledger's).
-    let scaled = frame
-        .force_scaled(crate::ForceScale {
-            exponent: p.force_scale_exponent,
-        })
-        .ok();
+    let Ok(scaled) = frame.force_scaled(crate::ForceScale {
+        exponent: p.force_scale_exponent,
+    }) else {
+        // Unscalable leaves match no frame; bound only if the pair has none.
+        return !source.frames.iter().any(|f| pair(f) == pair(frame));
+    };
+    let bound = |k: usize| frames_bit_equal(&source.frames[k], &scaled);
+    if cursor.recent.iter().flatten().any(|&k| bound(k)) {
+        return true;
+    }
+    let count = source.frames.len();
+    let start = if cursor.start < count { cursor.start } else { 0 };
     let mut paired = false;
     for k in (start..count).chain(0..start) {
-        let f = &source.frames[k];
-        if pair(f) != pair(frame) {
+        if pair(&source.frames[k]) != pair(frame) {
             continue;
         }
         paired = true;
-        if scaled.is_some_and(|scaled| frames_bit_equal(f, &scaled)) {
-            *cursor = k;
+        if bound(k) {
+            cursor.start = k;
+            cursor.recent[cursor.slot] = Some(k);
+            cursor.slot = (cursor.slot + 1) % cursor.recent.len();
             return true;
         }
     }

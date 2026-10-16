@@ -1378,7 +1378,7 @@ pub fn certify_support_reaction(
             remainder = add_up(remainder, row.remainder);
         }
     }
-    let mut frame_cursor = 0;
+    let mut frame_cursor = super::formation_check::FrameCursor::default();
     for (index, term) in force
         .terms()
         .iter()
