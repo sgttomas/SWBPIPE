@@ -161,7 +161,7 @@
     "id": "case:restrained-pressure-thermal",
     "primitive_loads": [
      {
-      "id": "load:thermal:pipe:A-B",
+      "id": "load:thermal:restrained-pressure-thermal:pipe:A-B",
       "category": "thermal",
       "target": {
        "type": "element",

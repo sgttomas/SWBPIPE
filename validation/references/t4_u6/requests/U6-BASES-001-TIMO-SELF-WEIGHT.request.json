@@ -142,7 +142,7 @@
     "id": "case:combined",
     "primitive_loads": [
      {
-      "id": "load:tip-force:global_y",
+      "id": "load:tip-force:combined:global_y",
       "category": "concentrated_force",
       "target": {
        "type": "node",
@@ -157,7 +157,7 @@
       "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
      },
      {
-      "id": "load:tip-force:global_z",
+      "id": "load:tip-force:combined:global_z",
       "category": "concentrated_force",
       "target": {
        "type": "node",
@@ -172,7 +172,7 @@
       "provenance": "invented T4-U6 section-basis reference input; not library, catalog, manufacturer or code-rule data"
      },
      {
-      "id": "load:tip-torque:rotation_x",
+      "id": "load:tip-torque:combined:rotation_x",
       "category": "concentrated_moment",
       "target": {
        "type": "node",

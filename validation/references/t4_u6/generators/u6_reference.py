@@ -864,20 +864,27 @@ def self_weight_load(cid, coincident):
     return load
 
 
+def case_slug(cid):
+    return cid[len("case:"):]
+
+
 def load_case_doc(cid, lc, coincident=False):
+    """Every primitive-load id names its load case (load:<kind>:<case slug>:<axis or pipe>; the generated self-weight's
+    own spelling names it too), so the ids are unique across the whole model, as the product requires."""
     loads = []
+    slug = case_slug(cid)
     if lc["tip"]:
         comps = [(AXIAL_FORCE if lc["axial"] else F(0)), TIP_FORCE[1], TIP_FORCE[2]]
         for axis, v in zip(("global_x", "global_y", "global_z"), comps):
             if v != 0:
-                loads.append({"id": f"load:tip-force:{axis}", "category": "concentrated_force", "target": {"type": "node", "node": "node:B"},
+                loads.append({"id": f"load:tip-force:{slug}:{axis}", "category": "concentrated_force", "target": {"type": "node", "node": "node:B"},
                               "direction": axis, "magnitude": {"value": float(v), "unit": "N"}, "dimension": "force", "provenance": PROV})
-        loads.append({"id": "load:tip-torque:rotation_x", "category": "concentrated_moment", "target": {"type": "node", "node": "node:B"},
+        loads.append({"id": f"load:tip-torque:{slug}:rotation_x", "category": "concentrated_moment", "target": {"type": "node", "node": "node:B"},
                       "direction": "rotation_x", "magnitude": {"value": float(TIP_MOMENT[0]), "unit": "N*m"}, "dimension": "moment", "provenance": PROV})
     if lc["weight"]:
         loads.append(self_weight_load(cid, coincident))
     if lc["thermal"]:
-        loads.append({"id": f"load:thermal:{PIPE}", "category": "thermal", "target": {"type": "element", "pipe": PIPE}, "direction": "global_x",
+        loads.append({"id": f"load:thermal:{slug}:{PIPE}", "category": "thermal", "target": {"type": "element", "pipe": PIPE}, "direction": "global_x",
                       "magnitude": {"value": float(DELTA_T), "unit": "degC"}, "dimension": "temperature_interval", "provenance": PROV})
     regions = []
     if lc["pressure"]:
@@ -907,6 +914,25 @@ def request_doc(project, coincident, shear, restrained, thermal, cases, densitie
              "supports": supports, "components": [], "materials": [material],
              "load_cases": [load_case_doc(cid, LOAD_CASES[cid], coincident) for cid in cases], "combinations": []}
     return {"model": model, "materials": []}
+
+
+def without_ids(items):
+    return [{k: v for k, v in item.items() if k != "id"} for item in items]
+
+
+def check_primitive_load_ids(name, doc):
+    """The product requires primitive-load ids unique across the whole model; each authored id names its case."""
+    ids = [l["id"] for c in doc["model"]["load_cases"] for l in c["primitive_loads"]]
+    check(f"{name}: primitive-load ids unique across the whole model", len(ids) == len(set(ids)))
+    check(f"{name}: every primitive-load id names its load case",
+          all(l["id"].startswith(("load:tip-force:" + case_slug(c["id"]) + ":", "load:tip-torque:" + case_slug(c["id"]) + ":",
+                                  "load:thermal:" + case_slug(c["id"]) + ":",
+                                  f"load:self-weight:{len(c['id'])}:{c['id']}:"))
+              for c in doc["model"]["load_cases"] for l in c["primitive_loads"]))
+    sources = [s["source_ref"] for c in doc["model"]["load_cases"] for s in c.get("analysis_state", {}).get("load_sources", [])]
+    check(f"{name}: every load_sources entry names a primitive load of its own case",
+          all({s["source_ref"] for s in c.get("analysis_state", {}).get("load_sources", [])} <= {l["id"] for l in c["primitive_loads"]}
+              for c in doc["model"]["load_cases"]) and len(sources) == len(set(sources)))
 
 
 def check_self_weight_request(plain, weighted, coincident, w_exact):
@@ -951,10 +977,10 @@ def check_self_weight_request(plain, weighted, coincident, w_exact):
         rest = [l for l in case["primitive_loads"] if l is not load]
         if cid == "case:combined":
             ref = plain_cases.get("case:pressure-tip")
-            check("self-weight request case:combined: the tip loads and the pressure region of case:pressure-tip",
-                  ref is not None and rest == ref["primitive_loads"]
-                  and [{k: v for k, v in r.items() if k != "id"} for r in case["pressure_regions"]]
-                  == [{k: v for k, v in r.items() if k != "id"} for r in ref["pressure_regions"]])
+            check("self-weight request case:combined: the tip loads (each under its own case's id) and the pressure region of case:pressure-tip",
+                  ref is not None and without_ids(rest) == without_ids(ref["primitive_loads"])
+                  and [l["id"] for l in rest] == [l["id"].replace(":pressure-tip:", ":combined:", 1) for l in ref["primitive_loads"]]
+                  and without_ids(case["pressure_regions"]) == without_ids(ref["pressure_regions"]))
         else:
             check(f"self-weight request {cid}: the generated load alone, pressure regions explicitly empty",
                   rest == [] and case["pressure_regions"] == [])
@@ -1073,12 +1099,14 @@ def build():
             if request:
                 doc = request_doc(f"project:invented-t4-u6-{request.lower()}", coincident, shear, restrained,
                                   any(LOAD_CASES[c]["thermal"] for c in runnable), runnable)
+                check_primitive_load_ids(request, doc)
                 data = dump(doc)
                 files[f"requests/{request}.request.json"] = data
                 var["request"] = {"path": f"requests/{request}.request.json", "sha256": hashlib.sha256(data).hexdigest(), "load_cases": list(runnable)}
             if group_request:
                 gdoc = request_doc_load_state_group(doc)
                 gdoc["model"]["project"]["id"] = f"project:invented-t4-u6-{group_request.lower()}"
+                check_primitive_load_ids(group_request, gdoc)
                 gdata = dump(gdoc)
                 files[f"requests/{group_request}.request.json"] = gdata
                 var["request_load_state_group"] = {
@@ -1088,6 +1116,7 @@ def build():
                 wdoc = request_doc(f"project:invented-t4-u6-{weight_request.lower()}", coincident, shear, restrained,
                                    any(LOAD_CASES[c]["thermal"] for c in weighted), weighted, densities=True)
                 check_self_weight_request(doc, wdoc, coincident, phys["w"])
+                check_primitive_load_ids(weight_request, wdoc)
                 wdata = dump(wdoc)
                 files[f"requests/{weight_request}.request.json"] = wdata
                 mass, magnitude = self_weight_binary64(coincident)
@@ -1187,7 +1216,12 @@ def header():
     return {
         "schema_version": "independent.section_bases_reference/1.0.0",
         "purpose": "Independent analytical references for T4-U6 (D-5 section bases) and the Timoshenko variant shared with T4-U8: one straight pipe, frozen before any product implementation; not product requests and not observed solver outputs.",
-        "status": "frozen by the T4-U6/T4-U8 independent reference TASK; awaiting independent refutation before any product output is compared with it",
+        "status": ("frozen by the T4-U6/T4-U8 independent reference TASK and refuted independently; the refutation's four findings were repaired "
+                   "in 6817b72ca9 without a value change, and an independent refuter confirmed all four repairs on 2026-10-16. Awaiting "
+                   "independent refutation: the generated-self-weight requests (request_self_weight) and the primitive-load id repair (every "
+                   "primitive-load id names its load case; U6-BASES-001-EB, U6-BASES-001-TIMO and U6-BASES-COINCIDENT had reused their tip "
+                   "load ids in case:pressure-tip and case:axial-tip, which the product refuses as DUPLICATE_ID; only ids and request "
+                   "hashes changed, no frozen value)"),
         "basis": {"design": "DEL-05-03 Design section-bases-and-timoshenko.md sections 1, 2.1, 2.5, 3.1, 7 and 8, and section-and-shear-decisions.md (D-5, H4), at b3f4da7661",
                   "shear": "SHEAR_REFERENCE CONTRACT.md sections 1, 3 and 4 and its reference arithmetic (archive f2211ecef6)",
                   "conventions": "validation/references/t4_i8 (the repaired T4-I8 freeze, 5b07d85cf3): row shape, stations, signs, criteria",
