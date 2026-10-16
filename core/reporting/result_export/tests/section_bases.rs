@@ -195,6 +195,71 @@ fn pressure_1_reader_refuses_cross_basis_stress() {
 }
 
 #[test]
+fn pressure_1_reader_compares_basis_twins_by_bits() {
+    // A2: a twin pair's numbers compare by their binary64 bits, in Rust as in
+    // the Python verifier. An exact positive zero's twin written -0.0 is
+    // refused; written `0` it is the same binary64 number and is accepted.
+    let rows_at = |doc: &Value, kind: &str| -> Vec<usize> {
+        doc["results"].as_array().unwrap().iter().enumerate()
+            .filter(|(_, r)| r["kind"] == kind && sb::id_basis(r["id"].as_str().unwrap()) == Some(sb::REDUCED)
+                && r["value"].as_f64().map(f64::to_bits) == Some(0))
+            .map(|(i, _)| i).collect()
+    };
+    // Coincident bases: stress row twins (twin_values).
+    for kind in ["element_local_bending_normal_stress_y", "element_local_torsional_shear_stress"] {
+        let index = rows_at(&base(), kind)[0];
+        for (value, expected) in [(json!(-0.0), Err("SOURCE_PHYSICS_ROW_BASIS_SECTION".to_string())), (json!(0), Ok(()))] {
+            let mut doc = base();
+            doc["results"][index]["value"] = value.clone();
+            assert_eq!(s::validate_pressure_evidence(&doc), expected, "{kind} = {value}");
+        }
+    }
+    // Distinct bases: the Lame radial twins at the outer surface.
+    let doc = distinct(&base(), 0.001);
+    let radial = rows_at(&doc, "pipe_lame_radial_stress_v2");
+    assert!(!radial.is_empty());
+    for (value, expected) in [(json!(-0.0), Err("SOURCE_PHYSICS_ROW_BASIS_SECTION".to_string())), (json!(0), Ok(()))] {
+        let mut changed = doc.clone();
+        changed["results"][radial[0]]["value"] = value.clone();
+        assert_eq!(s::validate_pressure_evidence(&changed), expected, "radial = {value}");
+    }
+    // Coincident bases: the maximum records (extrema_twins).
+    let extremum = base()["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"].as_array().unwrap().iter()
+        .position(|e| e["section_basis"] == sb::REDUCED).unwrap();
+    for key in ["station_fraction", "local_fraction"] {
+        let pointer = format!("/contract_evidence/exact_cases/0/pipe_stress_extrema/{extremum}/{key}");
+        assert_eq!(base().pointer(&pointer).unwrap().as_f64().map(f64::to_bits), Some(0), "{key}");
+        for (value, expected) in [(json!(-0.0), Err("SOURCE_PHYSICS_ROW_BASIS_SECTION".to_string())), (json!(0), Ok(()))] {
+            let mut doc = base();
+            *doc.pointer_mut(&pointer).unwrap() = value.clone();
+            assert_eq!(s::validate_pressure_evidence(&doc), expected, "{key} = {value}");
+        }
+    }
+}
+
+#[test]
+fn basis_headlines_bind_their_maximum_rows_by_bits() {
+    // A2: a headline binds its maximum row's value bit for bit. On a zero
+    // maximum, the headline written -0.0 is refused and written `0` accepted.
+    let rows: Vec<Value> = sb::BASES.iter().map(|b| json!({"id": format!("result:elastic-maximum:case:a:pipe:a:{b}"),
+        "kind": "pipe_elastic_normal_stress_maximum_v2", "value": 0.0, "unit": "Pa", "entity_ref": "pipe:a",
+        "metadata": {"basis": format!("recovered_from_open_mechanics_stress_components{}{b}", sb::TOKEN_SEPARATOR)}})).collect();
+    let by_id: HashMap<&str, &Value> = rows.iter().map(|r| (r["id"].as_str().unwrap(), r)).collect();
+    let maxima: Vec<&Value> = rows.iter().collect();
+    let summary = |reduced: Value| {
+        let mut summary = json!({"max_open_formula_stress": null});
+        for (b, r) in sb::BASES.iter().zip(&rows) {
+            summary[format!("max_open_formula_stress_{b}")] = json!({"value": 0.0, "unit": "Pa", "location_ref": "pipe:a", "result_ref": r["id"]});
+        }
+        summary["max_open_formula_stress_reduced_section"]["value"] = reduced;
+        summary
+    };
+    for (value, expected) in [(json!(0.0), Ok(())), (json!(0), Ok(())), (json!(-0.0), Err("SOURCE_PHYSICS_HEADLINE_RESULT_BINDING".to_string()))] {
+        assert_eq!(sb::headlines(&summary(value.clone()), &by_id, &maxima, [true, true]), expected, "{value}");
+    }
+}
+
+#[test]
 fn pressure_1_reader_refuses_cross_basis_headline() {
     let mut doc = base();
     let reduced = &mut doc["summary"]["max_open_formula_stress_reduced_section"];

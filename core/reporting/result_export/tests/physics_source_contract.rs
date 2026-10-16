@@ -359,8 +359,11 @@ fn public_rehashed_copy_cannot_hide_an_invalid_interpolation_pair() {
 /// T4-U6 (D-5 §2.5, §5; b7-plan R2 A2): a reduced twin's section-stress check
 /// binds its nominal twin's action and parameters bit for bit. A signed zero
 /// equals zero by value but not by bits, so it is refused on either twin; the
-/// same binary64 number in another JSON form (JCS writes `1e6` as `1000000`)
-/// has the same bits, so it is accepted on either twin alone.
+/// same binary64 number in another JSON form (JCS writes `1e6` as `1000000`,
+/// and `0.0` as `0`) has the same bits, so it is accepted on either twin alone.
+/// Each twin's action is also its station's, bit for bit
+/// (`STRESS_FUNCTIONAL_LINK`, checked first), so a signed-zero action is
+/// refused there on either twin before the twin binding reads it.
 #[test]
 fn reduced_stress_check_binds_its_nominal_twin_bit_for_bit() {
     let (source, invocation) = actual("n05", "sparse_interactive");
@@ -397,18 +400,18 @@ fn reduced_stress_check_binds_its_nominal_twin_bit_for_bit() {
     };
     for index in [nominal, reduced] {
         for member in ["action/interval/0", "action/interval/1", "action/value"] {
-            // A nominal check is read first: its own recipe refuses a -0.0
-            // operand (its row publishes +0.0); its bounds reach the twin check.
-            let code = if index == nominal && member == "action/value" {
-                "PHYSICS_SOURCE_STRESS_RECIPE_VALUE"
-            } else {
-                "PHYSICS_SOURCE_STRESS_BASIS_TWIN"
-            };
+            // The station link reads the action before the recipe or the twin.
             let doc = mutated(index, member, json!(-0.0));
             assert_eq!(
                 physics_source::validate(&doc, Some(&invocation)),
-                Err(code.to_string()),
+                Err("PHYSICS_SOURCE_STRESS_FUNCTIONAL_LINK".to_string()),
                 "{index}/{member} = -0.0"
+            );
+            let doc = mutated(index, member, json!(0));
+            assert_eq!(
+                physics_source::validate(&doc, Some(&invocation)),
+                Ok(true),
+                "{index}/{member} = 0"
             );
         }
         let doc = mutated(index, "parameters/pa_per_mpa", json!(1_000_000));
@@ -417,5 +420,50 @@ fn reduced_stress_check_binds_its_nominal_twin_bit_for_bit() {
             Ok(true),
             "{index}/parameters/pa_per_mpa = 1000000"
         );
+    }
+}
+
+/// T4-U6 (A2): every link of the retained-source receipt compares its numbers
+/// by their binary64 bits, in Rust as in the Python verifier
+/// (`tests/test_physics_source_contract.py`): a station's action and its
+/// stress checks (`STRESS_FUNCTIONAL_LINK`), the end stations and the endpoint
+/// section (`ENDPOINT_SECTION_LINK`), the endpoint section and each maximum's
+/// endpoints (`MAXIMUM_ENDPOINT_SOURCE`), and a norm check's intervals and its
+/// projections (`NORM_PROJECTION_BINDING`). An exact positive zero on one side
+/// of a link written -0.0 is refused by name; written `0` it is the same
+/// binary64 number and is accepted.
+#[test]
+fn retained_source_links_compare_numbers_by_bits() {
+    let (source, invocation) = actual("n05", "sparse_interactive");
+    let record = &source["source_block_recovery"]["body"]["cases"][0];
+    let zero = |v: &Value| v.as_f64().map(f64::to_bits) == Some(0);
+    // A midspan station action of a stress component (axial 0, torsion 3,
+    // bending 4 and 5) with an exact positive zero: stress checks link it, no
+    // endpoint section does.
+    let station = &record["source"]["section_functionals"][0]["stations"][2];
+    let component = [0usize, 3, 4, 5].into_iter().find(|c| zero(&station["actions"][*c]["value"])).unwrap();
+    let linked = record["section_stress_checks"].as_array().unwrap().iter()
+        .filter(|c| c["functional_index"] == station["functional_indices"][component])
+        .count();
+    assert_eq!(linked, 2, "the nominal and reduced stress checks link it");
+    let receipt = "/source_block_recovery/body/cases/0";
+    let extremum = source["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"].as_array().unwrap().iter()
+        .position(|e| e["section_basis"] == section_basis::NOMINAL).unwrap();
+    let norm = record["derived_checks"].as_array().unwrap().iter()
+        .position(|c| c["intervals"][0].as_array().unwrap().iter().all(zero)).unwrap();
+    let sites = [
+        (format!("{receipt}/source/section_functionals/0/stations/2/actions/{component}/value"), "PHYSICS_SOURCE_STRESS_FUNCTIONAL_LINK"),
+        (format!("{receipt}/source/endpoint_sections/0/endpoints/0/actions/0/value"), "PHYSICS_SOURCE_ENDPOINT_SECTION_LINK"),
+        (format!("/contract_evidence/exact_cases/0/pipe_stress_extrema/{extremum}/endpoints/0/actions/0/value"), "PHYSICS_SOURCE_MAXIMUM_ENDPOINT_SOURCE"),
+        (format!("{receipt}/derived_checks/{norm}/intervals/0/0"), "PHYSICS_SOURCE_NORM_PROJECTION_BINDING"),
+    ];
+    for (pointer, code) in sites {
+        assert!(zero(source.pointer(&pointer).unwrap()), "{pointer} is an exact positive zero");
+        for (value, expected) in [(json!(-0.0), Err(code.to_string())), (json!(0), Ok(true))] {
+            let mut doc = source.clone();
+            *doc.pointer_mut(&pointer).unwrap() = value.clone();
+            reseal_negative(&mut doc, None);
+            assert_eq!(physics_source::validate(&doc, Some(&invocation)), expected, "{pointer} = {value}");
+        }
     }
 }

@@ -107,6 +107,24 @@ fn number(v: &Value) -> Result<f64, String> {
 fn items(v: &Value) -> &[Value] {
     v.as_array().map(Vec::as_slice).unwrap_or(&[])
 }
+/// T4-U6 (§2.5, A2): structural equality whose numbers compare by their
+/// binary64 bits, the one equality of twins and links in the Rust readers and
+/// the Python verifiers (`section_basis.bit_equal`): -0.0 is not 0.0, and the
+/// same binary64 number in another JSON form (`1e6` or `1000000`, `0` or
+/// `0.0`) is the same number. A non-finite or non-number leaf is unequal to a
+/// number.
+pub fn bit_equal(a: &Value, b: &Value) -> bool {
+    match (a, b) {
+        (Value::Number(_), Value::Number(_)) => {
+            matches!((number(a), number(b)), (Ok(x), Ok(y)) if x.to_bits() == y.to_bits())
+        }
+        (Value::Array(x), Value::Array(y)) => x.len() == y.len() && x.iter().zip(y).all(|(p, q)| bit_equal(p, q)),
+        (Value::Object(x), Value::Object(y)) => {
+            x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| bit_equal(v, w)))
+        }
+        _ => a == b,
+    }
+}
 
 pub fn is_stress_kind(kind: &str) -> bool {
     STRESS_KINDS.contains(&kind)
@@ -432,18 +450,19 @@ fn divisor(kind: &str, a: &Annulus) -> Option<f64> {
         _ => None,
     }
 }
-/// A twin pair against the two sections: bit-equal where the bases coincide;
-/// else the same resultant for the linear kinds and equal Lame radial values
-/// (the maximum and the Lame hoop are checked against their own sections).
+/// A twin pair against the two sections: bit-equal where the bases coincide
+/// (a signed zero is not its twin's zero); else the same resultant for the
+/// linear kinds and bit-equal Lame radial values (the maximum and the Lame
+/// hoop are checked against their own sections).
 pub fn twin_values(kind: &str, nominal: f64, reduced: f64, sections: &Sections) -> Check {
     if sections.coincide() {
-        return require(nominal == reduced, "ROW_BASIS_SECTION");
+        return require(nominal.to_bits() == reduced.to_bits(), "ROW_BASIS_SECTION");
     }
     if let (Some(n), Some(r)) = (divisor(kind, &sections.nominal), divisor(kind, &sections.reduced)) {
         return require(agree(nominal * n, reduced * r), "ROW_BASIS_SECTION");
     }
     if kind == "pipe_lame_radial_stress_v2" {
-        return require(nominal == reduced, "ROW_BASIS_SECTION");
+        return require(nominal.to_bits() == reduced.to_bits(), "ROW_BASIS_SECTION");
     }
     Ok(())
 }
@@ -495,8 +514,9 @@ pub fn extremum_basis(v: &Value) -> Result<&'static str, String> {
     v["section_basis"].as_str().and_then(basis_name).ok_or_else(|| "SOURCE_PHYSICS_EXTREMA_SHAPE".into())
 }
 /// Coincident bases: the reduced extremum is the nominal one but for its row
-/// and basis. Distinct bases with a reduced section no larger in A and Z: the
-/// reduced maximum's upper enclosure is not below the nominal lower enclosure.
+/// and basis, its numbers bit for bit ([`bit_equal`]). Distinct bases with a
+/// reduced section no larger in A and Z: the reduced maximum's upper enclosure
+/// is not below the nominal lower enclosure.
 pub fn extrema_twins(nominal: &Value, reduced: &Value, sections: &Sections) -> Check {
     if sections.coincide() {
         let strip = |v: &Value| {
@@ -507,7 +527,7 @@ pub fn extrema_twins(nominal: &Value, reduced: &Value, sections: &Sections) -> C
             }
             copy
         };
-        return require(strip(nominal) == strip(reduced), "ROW_BASIS_SECTION");
+        return require(bit_equal(&strip(nominal), &strip(reduced)), "ROW_BASIS_SECTION");
     }
     if sections.reduced.area <= sections.nominal.area && sections.reduced.modulus <= sections.nominal.modulus {
         return require(
@@ -520,8 +540,8 @@ pub fn extrema_twins(nominal: &Value, reduced: &Value, sections: &Sections) -> C
 
 /// §2.2: the summary's per-basis headlines. `max_open_formula_stress` is null,
 /// both basis keys are present, and each non-null headline needs its basis's
-/// complete coverage, binds a maximum row of its own basis and is not below
-/// any maximum of that basis.
+/// complete coverage, binds a maximum row of its own basis (its value bit for
+/// bit, [`bit_equal`]) and is not below any maximum of that basis.
 pub fn headlines(
     summary: &Value,
     rows: &HashMap<&str, &Value>,
@@ -548,7 +568,7 @@ pub fn headlines(
         require(
             row["kind"] == "pipe_elastic_normal_stress_maximum_v2"
                 && split_token(row["metadata"]["basis"].as_str().unwrap_or_default()).map(|t| t.1) == Some(basis)
-                && headline["value"] == row["value"]
+                && bit_equal(&headline["value"], &row["value"])
                 && headline["unit"] == row["unit"]
                 && headline["location_ref"] == row["entity_ref"],
             "HEADLINE_RESULT_BINDING",

@@ -271,19 +271,6 @@ def _same(a: Any, b: Any) -> bool:
     return blocks._bits(a) == blocks._bits(b)
 
 
-def _bit_equal(a: Any, b: Any) -> bool:
-    """T4-U6 (§2.5, A2): structural equality whose numbers compare by their binary64 bits (`_same`), as the twins'
-    values do: -0.0 is not 0.0, and a number's JSON form (`1e6` or `1000000`) does not matter."""
-    numbers = (int, float)
-    if type(a) in numbers and type(b) in numbers:
-        return math.isfinite(a) and math.isfinite(b) and _same(a, b)
-    if type(a) is list and type(b) is list:
-        return len(a) == len(b) and all(_bit_equal(x, y) for x, y in zip(a, b))
-    if isinstance(a, Mapping) and isinstance(b, Mapping):
-        return a.keys() == b.keys() and all(_bit_equal(a[k], b[k]) for k in a)
-    return type(a) is type(b) and a == b
-
-
 def _finite(value: float) -> float:
     _require(math.isfinite(value), "ARITHMETIC_RANGE")
     return value
@@ -367,7 +354,8 @@ def _maximum_link(case: Mapping[str, Any], ex: Mapping[str, Any], receipt_case: 
     _require(section is not None and endpoints is not None and ex.get("section_basis") in sb.BASES
              and all(_same(ex["area_m2"], section[b]["As_m2"]) and _same(ex["section_modulus_m3"], section[b]["Z_m3"]) for b in sb.BASES), "MAXIMUM_SECTION")
     for index, endpoint in enumerate(ex["endpoints"]):
-        _require({k: endpoint[k] for k in ("station_fraction", "functional_indices", "functional_ids", "actions")} == endpoints["endpoints"][index], "MAXIMUM_ENDPOINT_SOURCE")
+        # T4-U6 (A2): the maximum's endpoint is the endpoint section's, bit for bit.
+        _require(sb.bit_equal({k: endpoint[k] for k in ("station_fraction", "functional_indices", "functional_ids", "actions")}, endpoints["endpoints"][index]), "MAXIMUM_ENDPOINT_SOURCE")
         _require(endpoint["station_fraction"] == index, "MAXIMUM_ENDPOINT_ORDER")
         for i, fid, action in zip(endpoint["functional_indices"], endpoint["functional_ids"], endpoint["actions"]):
             cid = case["load_case_id"]
@@ -432,7 +420,8 @@ def validate_derived(source: Mapping[str, Any], case: Mapping[str, Any], treatme
         projections = [p for p in case["projections"] if p["result_id"] == input_row["id"]]
         _require(len(projections) == 1, "NORM_PROJECTION")
         projection = projections[0]
-        _require(check["functional_ids"][index] == projection["functional_id"] and _same(check["values"][index], projection["value"]) and check["intervals"][index] == projection["interval"], "NORM_PROJECTION_BINDING")
+        # T4-U6 (A2): the check's value and interval are its projection's, bit for bit.
+        _require(check["functional_ids"][index] == projection["functional_id"] and _same(check["values"][index], projection["value"]) and sb.bit_equal(check["intervals"][index], projection["interval"]), "NORM_PROJECTION_BINDING")
         cid = case["basis_ref"]["ref_id"]
         _require(check["functional_ids"][index] == f'source-functional:{len(cid.encode())}:{cid}:{check["functional_indices"][index]}', "NORM_FUNCTIONAL_INDEX")
     intervals = [_abs_interval(p) for p in check["intervals"]]
@@ -459,8 +448,9 @@ def _section_functionals(case: Mapping[str, Any]) -> None:
                     _require(lo == hi == 0, "SECTION_ZERO_CERTIFICATE")
                 else:
                     _require(((lo > 0 and hi > 0) or (lo < 0 and hi < 0)) and max(abs(action["value"]-lo),abs(hi-action["value"]))/min(abs(lo),abs(hi)) <= blocks.STRESS_INPUT_RELATIVE_LIMIT, "SECTION_FUNCTIONAL_CRITERION")
+        # T4-U6 (A2): the endpoint section is its stations', bit for bit.
         for i, station in enumerate((member["stations"][0],member["stations"][4])):
-            _require(endpoint["endpoints"][i] == {"station_fraction":station["station_fraction"],"functional_indices":[station["functional_indices"][c] for c in (0,4,5)],"functional_ids":[station["functional_ids"][c] for c in (0,4,5)],"actions":[station["actions"][c] for c in (0,4,5)]}, "ENDPOINT_SECTION_LINK")
+            _require(sb.bit_equal(endpoint["endpoints"][i], {"station_fraction":station["station_fraction"],"functional_indices":[station["functional_indices"][c] for c in (0,4,5)],"functional_ids":[station["functional_ids"][c] for c in (0,4,5)],"actions":[station["actions"][c] for c in (0,4,5)]}), "ENDPOINT_SECTION_LINK")
 
 
 def validate_stress(source: Mapping[str, Any], case: Mapping[str, Any], row: Mapping[str, Any], inputs: list[Mapping[str, Any]]) -> None:
@@ -475,7 +465,8 @@ def validate_stress(source: Mapping[str, Any], case: Mapping[str, Any], row: Map
     _require(location in locations and row["metadata"]["component"] == label and row["unit"] == "MPa" and check["pipe_id"] == row["entity_ref"] and check["location"] == location and check["component"] == label and check["recipe_id"] == "retained_source_straight_stress_v1", "STRESS_SIGNATURE")
     member = next(m for m in case["source"]["section_functionals"] if m["pipe_id"] == row["entity_ref"])
     station = member["stations"][locations.index(location)]
-    _require(check["functional_index"] == station["functional_indices"][component] and check["functional_id"] == station["functional_ids"][component] and check["action"] == station["actions"][component], "STRESS_FUNCTIONAL_LINK")
+    # T4-U6 (A2): the check's action is its station's, bit for bit.
+    _require(check["functional_index"] == station["functional_indices"][component] and check["functional_id"] == station["functional_ids"][component] and sb.bit_equal(check["action"], station["actions"][component]), "STRESS_FUNCTIONAL_LINK")
     exact = next(c for c in source["contract_evidence"]["exact_cases"] if c["load_case_id"] == case["basis_ref"]["ref_id"])
     section = next(s for s in exact["pipe_sections"] if s["pipe_id"] == row["entity_ref"])
     params = check["parameters"]
@@ -490,7 +481,7 @@ def validate_stress(source: Mapping[str, Any], case: Mapping[str, Any], row: Map
         twins = [c for c in case["section_stress_checks"] if c["result_id"] == twin_id]
         _require(twin is not None and len(twins) == 1 and sb.split_token(twin["metadata"].get("basis")) == (token[0], sb.NOMINAL)
                  and all(twins[0][k] == check[k] for k in ("recipe_id", "pipe_id", "location", "component", "functional_index", "functional_id"))
-                 and all(_bit_equal(twins[0][k], check[k]) for k in ("action", "parameters"))
+                 and all(sb.bit_equal(twins[0][k], check[k]) for k in ("action", "parameters"))
                  and _same(row["value"], twin["value"]), "STRESS_BASIS_TWIN")
     action = check["action"]["value"]
     if component == 3 and action != 0:

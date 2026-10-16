@@ -180,6 +180,60 @@ def test_pressure_1_reader_refuses_cross_basis_stress(base):
     _refused(doc, "stress row section basis")
 
 
+def _reduced_zero_rows(doc, kind):
+    return [i for i, r in enumerate(doc["results"]) if r["kind"] == kind and sb.id_basis(r["id"]) == sb.REDUCED
+            and type(r["value"]) is float and struct.pack(">d", r["value"]) == bytes(8)]
+
+
+@pytest.mark.parametrize("value", [-0.0, 0])
+def test_pressure_1_reader_compares_basis_twins_by_bits(base, value):
+    """A2: a twin pair's numbers compare by their binary64 bits, as the Rust reader does. An exact positive zero's twin
+    written -0.0 is refused; written ``0`` it is the same binary64 number and is accepted (Rust's twin is section_bases.rs's
+    test of the same name)."""
+    def read(doc):
+        if type(value) is int:
+            pressure_1.validate_pressure_evidence(doc)
+        else:
+            _refused(doc, "^SOURCE_PHYSICS_EVIDENCE_INVALID: stress basis section$")
+    # Coincident bases: stress row twins (twin_values).
+    for kind in ("element_local_bending_normal_stress_y", "element_local_torsional_shear_stress"):
+        doc = deepcopy(base)
+        doc["results"][_reduced_zero_rows(doc, kind)[0]]["value"] = value
+        read(doc)
+    # Distinct bases: the Lame radial twins at the outer surface.
+    doc = distinct(base)
+    doc["results"][_reduced_zero_rows(doc, "pipe_lame_radial_stress_v2")[0]]["value"] = value
+    read(doc)
+    # Coincident bases: the maximum records (extrema_twins).
+    for key in ("station_fraction", "local_fraction"):
+        doc = deepcopy(base)
+        extremum = next(e for e in doc["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"] if e["section_basis"] == sb.REDUCED)
+        assert struct.pack(">d", extremum[key]) == bytes(8), key
+        extremum[key] = value
+        read(doc)
+
+
+def test_basis_headlines_bind_their_maximum_rows_by_bits():
+    """A2: a headline binds its maximum row's value bit for bit. On a zero maximum, the headline written -0.0 is refused
+    and written ``0`` accepted (Rust's twin: basis_headlines_bind_their_maximum_rows_by_bits)."""
+    rows = {f"result:elastic-maximum:case:a:pipe:a:{b}": {"id": f"result:elastic-maximum:case:a:pipe:a:{b}", "kind": "pipe_elastic_normal_stress_maximum_v2",
+            "value": 0.0, "unit": "Pa", "entity_ref": "pipe:a", "metadata": {"basis": f"recovered_from_open_mechanics_stress_components{sb.SEPARATOR}{b}"}}
+            for b in sb.BASES}
+
+    def summary(reduced):
+        out = {"max_open_formula_stress": None}
+        for b, rid in zip(sb.BASES, rows):
+            out[f"max_open_formula_stress_{b}"] = {"value": 0.0, "unit": "Pa", "location_ref": "pipe:a", "result_ref": rid}
+        out["max_open_formula_stress_reduced_section"]["value"] = reduced
+        return out
+
+    complete = {b: True for b in sb.BASES}
+    for value in (0.0, 0):
+        sb.headlines(summary(value), rows, complete)
+    with pytest.raises(sb.BasisError, match="^stress maximum headline binding$"):
+        sb.headlines(summary(-0.0), rows, complete)
+
+
 def test_pressure_1_reader_refuses_cross_basis_headline(base):
     doc = deepcopy(base)
     reduced = doc["summary"]["max_open_formula_stress_reduced_section"]

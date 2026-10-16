@@ -192,6 +192,21 @@ def bits(value: float) -> int:
     return struct.unpack(">Q", struct.pack(">d", value))[0]
 
 
+def bit_equal(a: Any, b: Any) -> bool:
+    """T4-U6 (§2.5, A2): structural equality whose numbers compare by their binary64 bits, the one equality of twins
+    and links in the Python verifiers and the Rust readers (``section_basis::bit_equal``): -0.0 is not 0.0, and the
+    same binary64 number in another JSON form (``1e6`` or ``1000000``, ``0`` or ``0.0``) is the same number. A
+    non-finite or non-number leaf is unequal to a number."""
+    numbers = (int, float)
+    if type(a) in numbers and type(b) in numbers:
+        return math.isfinite(a) and math.isfinite(b) and bits(a) == bits(b)
+    if type(a) is list and type(b) is list:
+        return len(a) == len(b) and all(bit_equal(x, y) for x, y in zip(a, b))
+    if isinstance(a, Mapping) and isinstance(b, Mapping):
+        return a.keys() == b.keys() and all(bit_equal(a[k], b[k]) for k in a)
+    return type(a) is type(b) and a == b
+
+
 def beam_theory(sections: Mapping[str, Any], nu: float, arc: bool) -> None:
     beam = sections["beam"]
     if beam["model"] == EULER_BERNOULLI:
@@ -264,14 +279,16 @@ DIVISOR = {"element_local_axial_normal_stress": "As_m2", "pipe_axial_membrane_st
 
 
 def twin_values(kind: str, nominal: float, reduced: float, sections: Mapping[str, Any]) -> None:
+    """Rust ``twin_values``: bit-equal where the bases coincide (a signed zero is not its twin's zero); else the same
+    resultant for the linear kinds and bit-equal Lame radial values."""
     if coincide(sections):
-        _require(nominal == reduced, "stress basis section")
+        _require(bits(nominal) == bits(reduced), "stress basis section")
         return
     if kind in DIVISOR:
         key = DIVISOR[kind]
         _require(agree(nominal * sections[NOMINAL][key], reduced * sections[REDUCED][key]), "stress basis section")
     elif kind == "pipe_lame_radial_stress_v2":
-        _require(nominal == reduced, "stress basis section")
+        _require(bits(nominal) == bits(reduced), "stress basis section")
 
 
 def lame_station(values: Mapping[str, float], annulus: Mapping[str, float], p: float) -> None:
@@ -333,16 +350,19 @@ def extremum_basis(value: Mapping[str, Any]) -> str:
 
 
 def extrema_twins(nominal: Mapping[str, Any], reduced: Mapping[str, Any], sections: Mapping[str, Any]) -> None:
+    """Rust ``extrema_twins``: on coincident bases the reduced extremum is the nominal one but for its row and basis,
+    its numbers bit for bit (``bit_equal``)."""
     if coincide(sections):
         strip = lambda v: {k: x for k, x in v.items() if k not in ("result_id", "section_basis")}
-        _require(strip(nominal) == strip(reduced), "stress basis section")
+        _require(bit_equal(strip(nominal), strip(reduced)), "stress basis section")
     elif sections[REDUCED]["As_m2"] <= sections[NOMINAL]["As_m2"] and sections[REDUCED]["Z_m3"] <= sections[NOMINAL]["Z_m3"]:
         _require(reduced["value_upper_pa"] >= nominal["value_lower_pa"], "stress basis section")
 
 
 def headlines(summary: Any, rows: Mapping[str, Any], complete: Mapping[str, bool]) -> None:
     """§2.2: ``max_open_formula_stress`` null, both basis keys present, each non-null headline on complete coverage of
-    its basis, bound to a maximum row of its own basis and not below any maximum of that basis."""
+    its basis, bound to a maximum row of its own basis (its value bit for bit, ``bit_equal``) and not below any
+    maximum of that basis."""
     _require(isinstance(summary, Mapping) and "max_open_formula_stress" in summary and summary["max_open_formula_stress"] is None
              and all(f"max_open_formula_stress_{b}" in summary for b in BASES), "stress maximum headline bases")
     maxima = [row for row in rows.values() if row.get("kind") == "pipe_elastic_normal_stress_maximum_v2"]
@@ -356,5 +376,5 @@ def headlines(summary: Any, rows: Mapping[str, Any], complete: Mapping[str, bool
         _require(isinstance(headline, Mapping) and set(headline) == {"value", "unit", "location_ref", "result_ref"}, "stress maximum headline")
         own = [row for row in maxima if (split_token((row.get("metadata") or {}).get("basis")) or ("", ""))[1] == basis]
         selected = rows.get(headline.get("result_ref"), {})
-        _require(bool(own) and selected in own and headline.get("value") == selected["value"] == max(row["value"] for row in own)
+        _require(bool(own) and selected in own and bit_equal(headline.get("value"), selected["value"]) and selected["value"] == max(row["value"] for row in own)
                  and headline.get("unit") == selected["unit"] and headline.get("location_ref") == selected["entity_ref"], "stress maximum headline binding")
