@@ -38,4 +38,6 @@ The owner chose "Scope extension after B7b" (O4). Until then, named declines are
 
 SP-1's twin clause (a straight-only v3 case is bit-equal to its v2 twin; transitional until v2 retires) applies to v3 cases with zero mill tolerance, zero corrosion allowance and the Euler–Bernoulli formulation, where every basis and the element formulation coincide with v2. Other v3 cases are checked against their own independent references. Where T4-U6 and T4-U8 both change a reference, re-freeze it once.
 
+The technical design that implements these rulings in T4-U6 and T4-U8 is [section-bases-and-timoshenko.md](section-bases-and-timoshenko.md).
+
 Source for the options: [T4 frozen rulings: owner-held later and D-6 presentation](https://github.com/sgttomas/chirality/blob/f2211ecef6/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PRESSURE_STRESS_T4/T4_RULINGS.md); plan 01 §4.1 (same tag, `PLAN_01/PLAN.md`).
