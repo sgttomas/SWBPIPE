@@ -10,28 +10,35 @@ and runs no product code or output.
 
 **Status.** An independent refutation found four defects, repaired in
 `6817b72ca9` without a value change. On 2026-10-16 an independent refuter
-confirmed all four repairs. Three later changes await refutation:
-- the generated-self-weight requests (see generated self-weight);
-- `U6-BASES-002-TIMO`, which binds U6-BASES-002's frozen rows to a
-  `timoshenko_annulus_energy_v1` request without a new value (see Cases);
-- the primitive-load id repair. The product requires primitive-load ids to
-  be unique across the whole model and refuses a duplicate with
-  `DUPLICATE_ID`. `U6-BASES-001-EB`, `U6-BASES-001-TIMO` and
+confirmed all four repairs. On the same day an independent refuter also
+confirmed the three later changes:
+- **The primitive-load id repair (`a2d3f27020`).** The product requires
+  primitive-load ids to be unique across the whole model and refuses a
+  duplicate with `DUPLICATE_ID`. `U6-BASES-001-EB`, `U6-BASES-001-TIMO` and
   `U6-BASES-COINCIDENT` had reused `load:tip-force:global_y`,
   `load:tip-force:global_z` and `load:tip-torque:rotation_x` in both
   `case:pressure-tip` and `case:axial-tip`. The request was the defect. Every
   primitive-load id now names its load case:
   `load:tip-force:<case>:<axis>`, `load:tip-torque:<case>:rotation_x` and
   `load:thermal:<case>:<pipe>`, where `<case>` is the case id without
-  `case:`. The generated self-weight's id already named its case.
-
-A mechanical check compared the requests and oracle before and after the id
-repair. It applied the old→new id map to each old request, and the result
-equals the new request byte for byte. The oracle names no load id, and it
-changed only in this status and the request hash bindings. Apart from the
-additions for `U6-BASES-002-TIMO`, no frozen value changed, and those
-additions repeat values already frozen. The values-level refutation
-therefore stands.
+  `case:`. The generated self-weight's id already named its case. The
+  refuter confirmed that the repair is id-only: reverting the new ids gives
+  the old request bytes exactly, and `oracle.json` changed only in its status
+  and six request SHA-256 bindings. No primitive-load id is duplicated in any
+  reference request.
+- **`U6-BASES-002-TIMO` (`2621c1c783`).** It binds U6-BASES-002's frozen rows
+  to a `timoshenko_annulus_energy_v1` request without a new value (see
+  Cases). The refuter confirmed that it repeats the Euler–Bernoulli
+  variant's rows, zero scales, evidence rows and 17 discriminators. The case
+  is independent of the shear model: both nodes are fully anchored and the
+  loads are axial only.
+- **The two generated-self-weight requests** (see generated self-weight).
+  The refuter confirmed that they are faithful to the frozen
+  `case:self-weight` and `case:combined` definitions: the densities, metal
+  on the nominal wall, contents on the pressure bore and the authored
+  binary64 order. An independent recomputation of the support reactions,
+  node B u_z and r_y, and the root V_z and M_y matches the frozen rows to
+  within 1.5e-40 relative.
 
 ## Files
 
