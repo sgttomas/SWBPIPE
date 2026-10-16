@@ -560,33 +560,37 @@ fn complete_facts_on_route(raw: Value, mode: PreviewSolverMode) -> ([PhaseObserv
 
 /// T3 F1 (SQ2's G-C finding): route E's G-C bounds. Route L's bounds are `phase_caps()`, whose
 /// entries row is cut from C·553 = 1,659 to 1,654 so that objects + ⌊entries / 5⌋ stays within the
-/// 531 BTree nodes the profile prices; route E's differ only in the five contract-evidence rows, which are C times route E's
-/// per-case facts (the componentwise maximum of the preview tree and I95's exact-evidence census
-/// at the D1 caps), the facts the registered profile prices for the evidence owner. At
-/// (n, m, g) = (32, 32, 32) and C = 3, per case: arrays max(160, 1,900), objects max(67, 419),
-/// entries max(553, 2,073), string bytes max(66,816, 226,200), key bytes max(22,120, 21,561); the
-/// entries bound is cut to 6,214 so that objects + ⌊entries / 5⌋ ≤ 3·(419 + ⌊2,073 / 5⌋) = 2,499,
-/// the BTree nodes the profile prices.
+/// 531 BTree nodes the profile prices. Route E's differ in the result rows and their capacity,
+/// C_eq·P_final at route E's own P_final = 7n + 72m + 8g + 3 (T4-U6, D-5: 8,361 and 16,384 at the
+/// caps, against route L's 6,345 and 8,192), and in the five contract-evidence rows, which are C
+/// times route E's per-case facts (the componentwise maximum of the preview tree and the D-5
+/// evidence census at the D1 caps), the facts the registered profile prices for the evidence owner
+/// (retained-pricing-rules.md, "Gate bounds (registration)"). At (n, m, g) = (32, 32, 32) and
+/// C = 3, per case: arrays max(160, 3,118), objects max(67, 868), entries max(553, 4,029), string
+/// bytes max(66,816, 414,656), key bytes max(22,120, 41,647); the entries bound is cut to 12,079 so
+/// that objects + ⌊entries / 5⌋ ≤ 3·(868 + ⌊4,029 / 5⌋) = 5,019, the BTree nodes the profile prices.
 #[test]
 fn f1_g_c_contract_evidence_bounds_are_per_route() {
     use crate::retained_product::W1Route;
     let (l, e) = (phase_caps_on(W1Route::Preview), phase_caps_on(W1Route::Exact));
     assert_eq!((l.late, l.complete), (phase_caps().late, phase_caps().complete), "route L's bounds are phase_caps()");
+    assert_eq!(l.complete[..2], [6_345, 8_192], "route L: C_eq times route L's P_final, and its push capacity");
+    assert_eq!(e.complete[..2], [8_361, 16_384], "route E: C_eq times route E's P_final, and its push capacity");
     assert_eq!(l.complete[9..14], [480, 201, 1_654, 200_448, 66_360], "route L: C times the preview tree, entries cut to the priced nodes");
-    assert_eq!(e.complete[9..14], [5_700, 1_257, 6_214, 678_600, 66_360], "route E: C times max(preview tree, exact census)");
+    assert_eq!(e.complete[9..14], [9_354, 2_604, 12_079, 1_243_968, 124_941], "route E: C times max(preview tree, D-5 exact census)");
     assert_eq!(e.late, l.late, "G-B is route-independent");
-    for i in (0..COMPLETE_FACTS).filter(|i| !(9..14).contains(i)) {
+    for i in (0..COMPLETE_FACTS).filter(|i| !(0..2).contains(i) && !(9..14).contains(i)) {
         assert_eq!(e.complete[i], l.complete[i], "row {i} is route-independent");
     }
     // The node count the profile prices (`value_tree`: objects + ⌊entries / 5⌋ per case, times C),
-    // reached and not exceeded on each route: 531 on route L, 2,499 on route E.
-    for (caps, nodes) in [(l, 3 * (67 + 553 / 5)), (e, 3 * (419 + 2_073 / 5))] {
+    // reached and not exceeded on each route: 531 on route L, 5,019 on route E.
+    for (caps, nodes) in [(l, 3 * (67 + 553 / 5)), (e, 3 * (868 + 4_029 / 5))] {
         assert!(caps.complete[10] + caps.complete[11] / 5 == nodes && caps.complete[10] + (caps.complete[11] + 1) / 5 > nodes, "{nodes}");
     }
-    // The profile prices the evidence owner at these facts: route E's chain's
-    // "Preview tree final copy (envelope evidence)" family is 2,499·Node(String,Value) + 5,700·s(Value)
-    // + 744,960 B, and the arrays and bytes bounds sum to it.
-    assert_eq!((e.complete[9], e.complete[12] + e.complete[13]), (5_700, 744_960));
+    // The profile prices the evidence owner at these facts: route E's chain's "Final aggregation"
+    // and "Preview tree final copy (envelope evidence)" terms are 5,019·Node(String,Value)
+    // + 9,354·s(Value) + 1,368,909 B, and the arrays and bytes bounds sum to it.
+    assert_eq!((e.complete[9], e.complete[12] + e.complete[13]), (9_354, 1_368_909));
     // Each fact admits its bound and refuses one more on route E.
     let (facts, _, _) = complete_facts_on_route(inputs::exact_cap_maximal(), PreviewSolverMode::SparseInteractive);
     let mut at = facts;
@@ -601,9 +605,11 @@ fn f1_g_c_contract_evidence_bounds_are_per_route() {
     }
 }
 
-/// T3 F1: the cap-maximal exact input passes G-C on route E (route L's bounds refused it at the
-/// evidence's array elements), while an exact owner one array element over route E's bound is
-/// still refused there, and the milestone keeps route L's bounds.
+/// T3 F1: the cap-maximal exact input passes G-C on route E, while route L's bounds refuse it: at
+/// its result rows first (D-5: route E publishes 72m stress rows per case against route L's 51m,
+/// 8,355 results against 6,345), and, with route E's result rows, at the evidence's array
+/// elements. An exact owner one array element over route E's bound is still refused there, and
+/// the milestone keeps route L's bounds.
 #[test]
 fn f1_g_c_admits_the_cap_maximal_exact_input_and_refuses_over_cap_evidence() {
     use crate::retained_product::W1Route;
@@ -613,7 +619,12 @@ fn f1_g_c_admits_the_cap_maximal_exact_input_and_refuses_over_cap_evidence() {
         let caps = phase_caps_on(route);
         assert_eq!(check_phase(PhaseGate::Complete, &facts, &caps.complete), Ok(()), "{mode:?}: inside route E's bounds");
         let refusal = check_phase(PhaseGate::Complete, &facts, &phase_caps().complete).unwrap_err();
-        assert_eq!((refusal.fact, refusal.cap), (PhaseFact::ContractEvidenceArrayElements, 480), "{mode:?}: route L's bounds refuse it");
+        assert_eq!((refusal.fact, refusal.cap), (PhaseFact::EnvelopeResults, 6_345), "{mode:?}: route L's bounds refuse it");
+        assert!(refusal.observed > 6_345 && refusal.observed <= caps.complete[0], "{mode:?}: {}", refusal.observed);
+        let mut l_with_e_rows = phase_caps().complete;
+        l_with_e_rows[..2].copy_from_slice(&caps.complete[..2]);
+        let refusal = check_phase(PhaseGate::Complete, &facts, &l_with_e_rows).unwrap_err();
+        assert_eq!((refusal.fact, refusal.cap), (PhaseFact::ContractEvidenceArrayElements, 480), "{mode:?}: route L's evidence bounds refuse it");
         let arrays = facts.iter().find(|o| o.fact == PhaseFact::ContractEvidenceArrayElements).unwrap().observed;
         assert!(arrays > 480 && arrays <= caps.complete[9], "{mode:?}: {arrays}");
         // Over the bound: the same owner with array slots added up to route E's bound plus one.
@@ -642,8 +653,9 @@ fn f1_g_c_admits_the_cap_maximal_exact_input_and_refuses_over_cap_evidence() {
 /// T3 F1 (PR #1235 review R1): the permit's own G-C, `CapturePermit::check_complete`, selects the
 /// bounds of the observer's W1 route. One admitted cap-maximal exact invocation, one ordinary owner:
 /// with the Exact-route observer that `permitted_run` would build, G-C passes; with a Preview-route
-/// observer over the same owner, G-C refuses at the contract evidence's array elements against
-/// route L's 480. Ordinary runs only (no W1). In a Stale build there is no permit and nothing to drive.
+/// observer over the same owner, G-C refuses at the result rows against route L's 6,345 (D-5: the
+/// exact route's rows exceed route L's P_final). Ordinary runs only (no W1). In a Stale build there
+/// is no permit and nothing to drive.
 #[test]
 fn f1_check_complete_reads_the_observer_route() {
     use crate::retained_product::{ProductCapture, W1Route};
@@ -671,8 +683,8 @@ fn f1_check_complete_reads_the_observer_route() {
         let mut preview = ProductCapture::prepared_probe_on(W1Route::Preview);
         let _ = crate::run_linear_static_preview_observed(request, mode, Some(&capture), &mut crate::w1_budget(W1Route::Preview), Some(&mut preview));
         let refusal = permit.check_complete(&CompleteFacts { ordinary: &ordinary, capture: &preview, requested_cases }).unwrap_err();
-        assert_eq!((refusal.gate, refusal.fact, refusal.cap), (PhaseGate::Complete, PhaseFact::ContractEvidenceArrayElements, 480), "{mode:?}: route L's bounds");
-        assert!(refusal.observed > 480 && refusal.observed <= phase_caps_on(W1Route::Exact).complete[9], "{mode:?}: {}", refusal.observed);
+        assert_eq!((refusal.gate, refusal.fact, refusal.cap), (PhaseGate::Complete, PhaseFact::EnvelopeResults, 6_345), "{mode:?}: route L's bounds");
+        assert!(refusal.observed > 6_345 && refusal.observed <= phase_caps_on(W1Route::Exact).complete[0], "{mode:?}: {}", refusal.observed);
     }
 }
 
