@@ -10,32 +10,36 @@ independently refuted T4-U2 references, re-frozen on D-5 for T4-U6:
 - `validation/references/t4_i8/rebuilt_reference_cases.json` (T4-I8, the
   rebuilt straight cases; sha256 `6f305474…21e0`).
 
-**Status: pending independent review of the T4-U6 mapping delta; not admitted.**
-T4-I7 (the 72 cases with mill tolerance) and T4-I8 MILLTOL were re-frozen on
-D-5 (DEL-05-03 Design `section-bases-and-timoshenko.md` §7). That re-freeze was
-refuted independently on 2026-10-16, which found no wrong frozen value and no
-loosening. Earlier reviews: T4-RV3 and T4-RV4 refuted the references,
-`INDEPENDENT_REVIEW_T4-RV28.md` admitted the package, and
-`INDEPENDENT_REVIEW_T4-U4A.md` admitted the U4a tangent mapping. The committed
-`MANIFEST.json` is the unadmitted package of the T4-U6 generator. Its
-`ADMISSION.json` is withdrawn until the review of this delta is bound, so the
-old U4a review never binds the re-frozen values. Without `ADMISSION.json`,
-every generated reference is `pending_independent_review` and every profile is
-a draft, so the gate refuses the package. Admission changes statuses only,
-never a value or rule. It is a development-comparison admission, not
-engineering acceptance or a release criterion. Standard claim fence applies
-(F-PIP-2; claims taxonomy per DEC-081).
+**Status: admitted for development comparison after independent review of the
+T4-U6 section-basis mapping.** T4-I7 (the 72 cases with mill tolerance) and
+T4-I8 MILLTOL were re-frozen on D-5 (DEL-05-03 Design
+`section-bases-and-timoshenko.md` §7). That re-freeze was refuted independently
+on 2026-10-16, which found no wrong frozen value and no loosening.
+`INDEPENDENT_REVIEW_T4-U6.md` (verdict ADMIT) checked this package's mapping of
+the re-frozen references onto rows, evidence, criteria and absences. It reuses
+the unchanged warrants of `INDEPENDENT_REVIEW_T4-U4A.md` (the U4a tangent
+mapping) and `INDEPENDENT_REVIEW_T4-RV28.md`; T4-RV3 and T4-RV4 refuted the
+references. `ADMISSION.json` binds the T4-U6 review by SHA-256. Without
+`ADMISSION.json`, every generated reference is `pending_independent_review`
+and every profile is a draft, so the gate refuses the package. Admission
+changes statuses only, never a value or rule. It is a development-comparison
+admission, not engineering acceptance or a release criterion. Standard claim
+fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 **Zero-scale floors after the re-freeze.** The T4-I7 floors are
 `1e-9*zero_scale(group)`, and their rule is unchanged. A group's zero scale is
 still the largest |expected| in that group for the case, or its stated
 characteristic scale when the group is identically zero. The re-freeze moved
-the values, so the floors moved with them. Across 1,074 matched groups, 143
-rose (by at most a factor of 1.17), 467 fell (to at least 0.87) and 464 are
-unchanged. The stress groups are now split by basis (`<group>@<basis>`). A
-higher floor follows from a larger reference value under the same rule; it is
-not a relaxed criterion. T4-U4a's re-frozen floors follow the same rule; this
-package does not consume them.
+the values, so the floors moved with them. The stress groups are now split by
+basis (`<group>@<basis>`). The T4-U6 review (check 4, "Floor changes") counts
+the package floors that have a former floor (the 79 I7 cases on one version;
+both versions are identical): of 1,241, 173 rose, by at most ×1.1711
+(`effective_axial_force`, `U2-L-ANCH-PTW-K2-SKEW-X7P3E6`), 518 fell, to no
+less than ×0.8706, and 550 are unchanged. The per-basis stress groups rose by
+at most ×1.112 against the former group, and the MILLTOL floors are the same
+or tighter. A higher floor follows from a larger reference value under the
+same rule; it is not a relaxed criterion. T4-U4a's re-frozen floors follow the
+same rule; this package does not consume them.
 
 All inputs are invented test quantities from the references. None of them is
 material-library, component-library or code-rule data.
@@ -46,7 +50,8 @@ material-library, component-library or code-rule data.
 |---|---|---|
 | `generate_package.py` | yes | The generator. It reads the references and the pinned pressure-1 table only. |
 | `MANIFEST.json` | yes | `openpipestress.exact_pressure_qualification_manifest/1`: one entry per case, binding each case file by path and sha256. |
-| `ADMISSION.json` | absent while pending | `openpipestress.exact_pressure_admission/1`: the admission record, binding the review by path and sha256. |
+| `ADMISSION.json` | yes | `openpipestress.exact_pressure_admission/1`: the admission record, binding the T4-U6 review by path and sha256. |
+| `INDEPENDENT_REVIEW_T4-U6.md` | yes | The independent T4-U6 section-basis mapping review, bound by `ADMISSION.json`. |
 | `INDEPENDENT_REVIEW_T4-U4A.md` | yes | The independent U4a tangent-mapping review; it admitted the pre-D-5 package. |
 | `INDEPENDENT_REVIEW_T4-RV28.md` | yes | The preserved historical review of the unchanged basis. |
 | `cases/` | no (`.gitignore`) | Five files per case, written by `--write`: `runner_input`, `preview_request`, `selectors`, `reference`, `criteria`. |
@@ -255,8 +260,11 @@ with `max(absolute, relative*max(|observed|, |expected|))`.
    taken from the explicitly built `openpipestress-runner read pressure` named
    by `OPENPIPESTRESS_RUNNER_BIN`.
 3. Run once per mode.
-4. Set `--output-limit-bytes` to at least 16 MiB. The largest CLI output
-   observed is 12.8 MB, a 0.4.0 U-loop in dense mode.
+4. Set `--output-limit-bytes` to 32 MiB (33,554,432). Under D-5 six
+   U-ANCH-ALL-K2-SKEW cases (on 0.3.0 and 0.4.0) exceed 16 MiB in both modes,
+   and a run over the limit fails closed. The largest CLI output observed is
+   17,276,452 bytes (`U2-U-ANCH-ALL-K2-SKEW-X7P3E6@0.4.0`, dense). The
+   transport allows at most 64 MiB.
 
 `explicit_local_private_intent` must be `true`. Without it, the runner blocks
 the export of the evidence fields.

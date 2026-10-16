@@ -196,10 +196,10 @@ class PinTests(unittest.TestCase):
 
 class PackageTests(unittest.TestCase):
     def test_committed_manifest_is_current_and_binds_every_case_file(self):
-        # The technical fixture binding follows the independent U4a mapping review.
+        # The technical fixture binding follows the independent T4-U6 section-basis mapping review.
         admitted = generator.admission()
         self.assertIsNotNone(admitted)
-        self.assertEqual(admitted['independent_review']['path'], f'{PACKAGE}/INDEPENDENT_REVIEW_T4-U4A.md')
+        self.assertEqual(admitted['independent_review']['path'], f'{PACKAGE}/INDEPENDENT_REVIEW_T4-U6.md')
         files = generator.generate()
         manifest = f'{PACKAGE}/MANIFEST.json'
         self.assertEqual((PROJECT / manifest).read_bytes(), files[manifest], 'regenerate with generate_package.py --write')
