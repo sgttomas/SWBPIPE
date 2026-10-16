@@ -1990,7 +1990,8 @@ the run (exit 4).
   from `Vec::new()` across every case (checked: one `let mut results =
   Vec::new();`), so the rewrite prices it at its push capacity,
   `V("ResultItem", PA)`: 16,384 slots at PA = 8,361, not PA exact slots. Route
-  L's doubled term covers its own push capacity (8,192 ≤ 2 × 6,345). The first
+  L's term is unchanged: its 2·PA slots and PA map nodes (3,640 B each in-build)
+  cover both its push capacity (8,192 slots) and the clone's entries. The first
   rewrite was sufficient only while G-C still bounded route E's results by route
   L's 6,345 rows (capacity ≤ 8,192); route E's G-C now admits its own 8,361
   (below, "Gate bounds"). Cost: +8,023 × s(ResultItem) (296 B) = 2,374,808 B in

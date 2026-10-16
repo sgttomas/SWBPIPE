@@ -1447,8 +1447,8 @@ if _D5:
 # "Final aggregation" then holds the results once, with no rows_by_base_id map nodes; the id_map stays.
 # U6-RB-V (registration at addbdc030e): the one `results` Vec is push-built from `Vec::new()` across every case, so on
 # route E it is priced at its push capacity, V("ResultItem", PA) = pushcap(PA) slots (16,384 at PA = 8,361). Route L's
-# doubled term covers that capacity; the first U6-RB rewrite priced PA exact slots, which only route L's 51-row G-C
-# bound kept sufficient. The G-C bounds on route E admit route E's own P_final (retained_memory.rs `phase_caps_on`).
+# term (2·PA slots and PA map nodes) covers its push capacity and the clone; the first U6-RB rewrite priced PA exact
+# slots, which only route L's 51-row G-C bound kept sufficient. The G-C bounds on route E admit route E's own P_final (retained_memory.rs `phase_caps_on`).
 U6_RB_PATCHES = []
 _AGG = fnkey("run_linear_static_preview_observed_inner", _LIB)
 if _AGG:
