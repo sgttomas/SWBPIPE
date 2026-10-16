@@ -1848,7 +1848,8 @@ priced change is exactly the following.
   plain `mod` named like such a file, stops the run.
 
 No rule is pruned beyond the 31 below, and the tree differs from
-`433fc1f1e4`'s only in STATICS and route E's TEXT atoms above.
+`433fc1f1e4`'s only in STATICS and route E's TEXT atoms above and in U6-RB-V's
+results capacity (below).
 
 **Prunes.** The line map prunes 31 rules: B7b's 27 and four ID audits at basis
 `lib.rs` 5508, 5509, 5562 and 5563. Those four were the two maxima's `Err`
@@ -1985,6 +1986,15 @@ the run (exit 4).
   nodes (a new `O10_TYPED_PATCHES` family rewrites that one `ordinary_caps.py`
   line on E). The `id_map` stays. **Guard:** the guarded block, the binding and
   its one consumer are checked.
+- **U6-RB-V (route E, registration).** The one `results` Vec is push-built
+  from `Vec::new()` across every case (checked: one `let mut results =
+  Vec::new();`), so the rewrite prices it at its push capacity,
+  `V("ResultItem", PA)`: 16,384 slots at PA = 8,361, not PA exact slots. Route
+  L's doubled term covers its own push capacity (8,192 ≤ 2 × 6,345). The first
+  rewrite was sufficient only while G-C still bounded route E's results by route
+  L's 6,345 rows (capacity ≤ 8,192); route E's G-C now admits its own 8,361
+  (below, "Gate bounds"). Cost: +8,023 × s(ResultItem) (296 B) = 2,374,808 B in
+  every phase of the merged tree, where route E sets that coefficient.
 
 **D-5/D-6 owners (U6-ES, U6-WS, U6-RS, U8-FM).** Four resident owners sit
 outside the chain's TEXT inventory and are priced positively
@@ -2018,30 +2028,57 @@ half-changed form stops the run, and a snapshot without it adds nothing.
 
   The source-recovery assembly passes none.
 
+**Gate bounds (registration).** G-C (`retained_memory.rs phase_caps_on`) must
+admit what D1 produces and stay within what the profile prices. Before
+registration its route-E bounds were still route L's 51-row P_final and I95's
+pre-D-5 evidence census, so G-C refused the cap-maximal exact input in every
+build (8,355 results against 6,345; `witness_tests::f1_g_c_admits_...`). On
+route E the result rows and their capacity are now C_eq·P_final at route E's
+own P_final = 7n + 72m + 8g + 3 (8,361 and 16,384 at the caps; U6-RP, U6-RB-V),
+and the five contract-evidence bounds are C times the D-5 census at (n, m, g):
+arrays 14 + 78m + 19n, objects 4 + 27m, entries 29 + 125m, string bytes
+6080 + 12464m + 304n, key bytes 495 + 1286m (at the caps 9,354; 2,604; 12,079
+after the node cut, so objects + ⌊entries / 5⌋ = 5,019 nodes; 1,243,968;
+124,941). These equal route E's chain terms ("Final aggregation" and "Preview
+tree final copy (envelope evidence)": 5,019·Node(String,Value) + 9,354·s(Value)
++ 1,368,909 B). The rows' text bound stays route L's 2·C_eq·P_final·Text(row) on
+both routes: Text(row) bounds one row's text and route E's 8,361 rows stay below
+route L's 12,690. Route L's bounds are unchanged.
+
 **Current D3 binding.** At `addbdc030e` `run` exits 0: all four points are
 complete, with no unmapped header or unclassified argument, and both O-10
 checks pass. Against the registered tree the structure is equal: 1,128
 coefficients equal, 294 higher and 34 lower, so the block must be
 re-registered. `generate` gives 288 atoms, 98 forms and no Estimate (1,544
 lines), keeps `threshold_bytes` at M, and `generate --check` reproduces it. All
-70 evaluations pass at that source's in-build atoms (the law-test build of the
-generated block). Required = requested + moving + R and reserve =
-⌈TAV/20⌉ (TAV_W for W1–W5, TAV_X for X1/X2), against ⌊0.9 M⌋ = 11,596,411,699 B.
-The tightest headrooms:
+70 evaluations pass at the registered build's in-build atoms. Required =
+requested + moving + R and reserve = ⌈TAV/20⌉ (TAV_W for W1–W5, TAV_X for
+X1/X2), against ⌊0.9 M⌋ = 11,596,411,699 B. The tightest headrooms:
 
 | Tree | Mode | Phase | Headroom |
 |---|---|---|---|
-| merged | dense | W4 | 54,393,769 B |
-| merged | dense | X1 | 79,900,651 B |
-| merged | sparse | W4 | 113,525,113 B |
-| merged | sparse | X1 | 139,031,995 B |
+| merged | dense | W4 | 52,018,961 B |
+| merged | dense | X1 | 77,525,843 B |
+| merged | sparse | W4 | 111,150,305 B |
+| merged | sparse | X1 | 136,657,187 B |
 | L_30 | dense | W4 | 177,800,942 B |
 
 T07 (the live source attempt) is a row of the ordinary base that every phase
 holds, so every evaluation prices it; T25 (the receipt replay) is priced in X1
 only, whose tightest evaluation is the merged dense one above. Against
-`433fc1f1e4` the epoch's changes cost 6,308 B in every merged evaluation (the
-schema's STATICS; route E's +4,992 B of TEXT stays below route L's TAV_W).
+`433fc1f1e4` the epoch's source costs 6,308 B in every merged evaluation (the
+schema's STATICS; route E's +4,992 B of TEXT stays below route L's TAV_W), and
+U6-RB-V 2,374,808 B. W4 (the precommit reader with the successor and the
+invocation Value) is the in-build maximum in both modes (B7b's was W3).
 
-Registration (the generated block, the native law-test values and their
-independent review) binds the final integrated source and is not done here.
+**Registration.** `REGISTERED_PROFILES` keeps the build identity (rustc 1.97.1,
+aarch64-apple-darwin, debug, opt-level 0, debug assertions, unwind, no
+RUSTFLAGS, `open_pipe_stress_product_physics@0.2.0`), the four reader layouts
+(56, 64, 96 and 16 B, align 8) and `threshold_bytes` = M. Six of the twelve
+reviewed-input digests move with D-5's schemas and tables (#1, #7–#11). The law
+tests pin the in-build phase record, the text atoms (D_env 28,127,
+Text(diag_env) 262,735,773), the digests and the re-audited reader test
+suffixes (`retained_precision.rs`, `physics_source.rs` and
+`semantic_contract.rs` gain closed test code only). The block's basis line
+names `addbdc030e`; the merged branch head, with FX's fixtures, prices the same
+tree.

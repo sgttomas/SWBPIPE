@@ -338,7 +338,12 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited at B7b D3: only the closed `b7a_preview_namespace_tests`
             // module changed (a 0.5.0 null-contract expectation and the exact v3
             // namespace controls); the production after the resume is byte-identical.
-            complete_suffix_sha256: "ed3e8cceb1fff57333ca718b1f7ae98df816d74443335774c3d145b3c105201c",
+            // Re-audited at T4-U6/U8 D3 (addbdc030e): the suffix only gains the closed
+            // `t4_u6_g8_tests` module at the end of the file (G8's mill-tolerance
+            // decline; its one include is a request fixture, not a reviewed input), and
+            // it stays inspected with the production after the resume, which is
+            // byte-identical.
+            complete_suffix_sha256: "3441631b726908b52967119ffba1d0496688efd5da137d4f5dbcd14383115cdc",
             // Only the preceding closed test region is excluded. These two
             // trailing public functions are production and remain inspected.
             production_resume: Some("/// The reader's outcome as JSON, for callers outside Rust (the desktop's wasm"),
@@ -349,7 +354,11 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited at B7b D3 (033626030c): the closed test module's four
             // include paths moved under fixtures/product_preview/pressure_source/;
             // nothing else in the suffix changed and it holds no production.
-            complete_suffix_sha256: "179c3dbcddf5ac7f5a51f1b60c1e8a747d669298299e133adcc21c2e660f48c5",
+            // Re-audited at T4-U6/U8 D3 (addbdc030e): the closed module's
+            // torsion-constant control writes both D-5 section bases, and it gains
+            // the test `actual_materials_bind_each_section_beam_theory_to_the_euler_bernoulli_contract`
+            // (its include is a request fixture); the suffix still holds no production.
+            complete_suffix_sha256: "56fd8e51997255e667387c2f78ecb9d0fdac2c9657e56972a3b6d8bd8ca12757",
             production_resume: None,
             trailing_test: None,
         })),
@@ -360,8 +369,12 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // module to the end of the file (its table list changed, test-only).
             // Re-audited at ccb19ba0bf: only the inspected production between the
             // regions changed (current_header's load-state carrier guard).
+            // Re-audited at T4-U6/U8 D3 (addbdc030e): only the closed
+            // `b7b_current_table_tests` module changed (the D-5 tables' 106 and 88
+            // rows, and the per-basis signature test); the inspected production and
+            // E14 are byte-identical.
             first_item: SEMANTIC_B7B_TEST_ITEM,
-            complete_suffix_sha256: "78c770d4a5f38a9362e158ab95103d0ae135d7cf3b8aa0f832b347c702a6a9f5",
+            complete_suffix_sha256: "4f5a033b5bf54d9825f2048b506638ddd7b708d11c6d0f411fad95b9f886cc75",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -483,8 +496,17 @@ fn assert_reviewed_reader_input_bindings() {
         .split("pub fn pressure_source_contract(").next().unwrap();
     for required in ["Sha256::digest(bytes)", "PRESSURE_SOURCE_TABLE_SHA256",
         "serde_json::from_slice(bytes)", "table[\"semantic_contract_id\"] != PRESSURE_SOURCE_ID",
-        "table[\"source_signature_count\"] != 69", "table[\"source_kind_count\"] != 51"] {
+        "table[\"source_signature_count\"] != PRESSURE_SOURCE_SIGNATURE_COUNT",
+        "table[\"source_kind_count\"] != PRESSURE_SOURCE_KIND_COUNT"] {
         assert!(verifier.contains(required), "binding verifier must retain {required}");
+    }
+    // T4-U6 (D-5): the verifier's counts are named constants; the D-5 table has 88 signatures
+    // over the same 51 kinds (B7b: 69 and 51), and its digest is reviewed input #10.
+    {
+        use open_pipe_stress_result_export::semantic_contract as sc;
+        assert_eq!((sc::PRESSURE_SOURCE_SIGNATURE_COUNT, sc::PRESSURE_SOURCE_KIND_COUNT), (88, 51));
+        assert_eq!(sc::PRESSURE_SOURCE_TABLE_SHA256, COMPILED_REVIEWED_INPUTS.unwrap().split(';').nth(10).unwrap()
+            .strip_prefix("../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=").unwrap());
     }
     for forbidden in ["include_str!", "include_bytes!", "OnceLock", "get_or_init"] {
         assert!(!verifier.contains(forbidden), "binding verifier creates no resident table: {forbidden}");
@@ -660,8 +682,9 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     assert_eq!(&sc::verify_pressure_table(ordinary).unwrap(), sc::pressure_rows_contract());
     let schema_bytes = include_bytes!("../../../schemas/results_pressure_1.v0.3.schema.json");
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
-    // B7b A5: the result schema takes v3 only.
-    assert_eq!(schema_hash, "d1f4df38e32e603a4807afea332b8849142a7d587921f0e14554670b024b2901");
+    // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
+    // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
+    assert_eq!(schema_hash, "cdc1bb431d33ed4f942d60082a85a0df341dfa92ee66ebb6981591789f055fcb");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -701,24 +724,25 @@ fn pressure_schema_is_the_only_nonresident_binding() {
 #[test]
 fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     use sha2::{Digest, Sha256};
-    // Current assembled B7b inputs (D3 re-registration): the lock and resident
-    // obligations in their preserved order, then the resident pressure-source
-    // table, the nonresident pressure result schema and the resident ordinary
-    // pressure table. Every digest below checks actual bytes, and the
+    // Current assembled inputs (T4-U6/U8 D3 registration at addbdc030e): the
+    // lock and resident obligations in their preserved order, then the resident
+    // pressure-source table, the nonresident pressure result schema and the
+    // resident ordinary pressure table. #1 and #7-#11 carry D-5's section bases
+    // (DEL-05-03 Design §9). Every digest below checks actual bytes, and the
     // registered profile's reviewed-input text records exactly these.
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11",
-        "612c95f28a08dca3bdd0b31ebeb1711a496126bd6359458d31c1575b6e11d434",
+        "3d279795b9707af5c1d67e54da959d2139649e941efe2af87491beee31da46eb",
         "f961a56bdd386d26f10ee279b0c5926c7436760c18eee0e3c3c158bd474b42c9",
         "9be78bef3b340330f06b99966bcc9fd2fdf652f2a54506fc270f6b16588761c6",
         "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1",
         "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32",
         "8d00e0622777fe01d8886a90371393ee5189c18800adb6d203e60c35f9e2485a",
-        "c9a34a757e4ead7117a7bc3a37373164be190f79df73034aab31cdc608f1b269",
-        "695812491aec03b97def5013c5ea2461cb2a0e1f1f25b24c18ad1c9b6beee574",
-        "dec4f4e7af6f60cf5615facc1b1ff11c8d5df5b3907fc28d922d661672383435",
-        "d1f4df38e32e603a4807afea332b8849142a7d587921f0e14554670b024b2901",
-        "a4e3bf2cfb7e0b3fa84a564cde03545cefafda903c34f4dd6a526fa0be982375",
+        "461df8cb9cc989522cdba3a50124dab123e4e09af9912285b8ad111b6fdfea40",
+        "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6",
+        "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53",
+        "cdc1bb431d33ed4f942d60082a85a0df341dfa92ee66ebb6981591789f055fcb",
+        "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [
@@ -1398,13 +1422,20 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     }
     assert_eq!(caps.late[..9], [32, 32, 32, 32, 128, 384, 192, 192, 8], "D1's counts: n, m, m, g, l, L (B1 SA), k = min(6n, r), s, 4 + 4");
     assert_eq!(P_FINAL, 2_115);
+    // T4-U6 (D-5, U6-RP): route E publishes 72 rows per exact member; its G-C rows and their
+    // capacity are C·P_final at its own P_final, the chain's pushcap(C·P_final) results slots
+    // (U6-RB-V); the rows' text bound stays route L's.
+    assert_eq!(P_FINAL_EXACT, 2_787);
+    let exact = phase_caps_on(crate::retained_product::W1Route::Exact).complete;
+    assert_eq!((exact[0], exact[1], exact[2]), (3 * 2_787, 16_384, caps.complete[2]), "route E: C·P_final, PushCap, route L's text");
     // B1 SA (option S3, C = 3): the bounds that read the regenerated profile are asserted as
     // expressions (SF-4's back edge: SQ fixes their values; RV-Q round 1 reviews these).
     let c = caps::LOAD_CASES as u64;
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
-    // Current canonical B7b TEXT closure at source 7e63847, C_eq = 3, maximum over the L/E routes.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 264_366_429, "current text closure at C_eq = 3, maximum over routes");
+    // Current canonical T4-U6/U8 TEXT closure at the epoch source addbdc030e, C_eq = 3, maximum
+    // over the L/E routes (B7b's at 7e63847: 264,366,429).
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 262_735_773, "current text closure at C_eq = 3, maximum over routes");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
     assert!(caps.late[LATE_FACTS - 1] > 0 && caps.late[LATE_FACTS - 1] < caps.complete[15], "T11 without its late capture < T11");
@@ -1413,7 +1444,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
     // Current generated TEXT atoms; their backing and visit counts stay positive.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (6_139_118, 2_330, 16_384, 25_791, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
+        (6_139_118, 2_330, 16_384, 28_127, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1634,19 +1665,21 @@ fn profile_in_build_record() {
     for (m, phases) in [phases_sparse(&ATOM_VALUES), phases_dense(&ATOM_VALUES)].iter().enumerate() {
         assert_eq!(phases.map(|(req, mov)| req.unwrap() + mov.unwrap()), PINNED_RECORD[m], "mode {m}");
     }
-    assert_eq!((SPARSE, DENSE), (Some((PINNED_RECORD[0][2], 2)), Some((PINNED_RECORD[1][2], 2))), "W3 is the maximum in both modes");
+    // T4-U6/U8 (D-5): W4 (the precommit reader with the successor and the invocation Value) is
+    // the maximum in both modes; at B7b it was W3.
+    assert_eq!((SPARSE, DENSE), (Some((PINNED_RECORD[0][3], 3)), Some((PINNED_RECORD[1][3], 3))), "W4 is the maximum in both modes");
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// B7b D3 record for the actual source 837a04b770 (re-done after the
-/// 7e638477a8 and 1bcc55a80b registrations; the readers' corrosion-allowance
-/// namespace checks add W-phase TEXT). Requested + moving bytes, without R or
-/// the separately upward-rounded TEXT reserve, from the canonical 98-form union
-/// and measured 287-value layout. The unchanged identity/record assertions
-/// verify this candidate in-build.
+/// T4-U6/U8 D3 record for the epoch source addbdc030e (D-5 section bases, the
+/// D-6 Timoshenko member and the realized-arc marker; retained-pricing-rules.md
+/// "T4-U6/U8: actual-source D3"). Requested + moving bytes, without R or the
+/// separately upward-rounded TEXT reserve, from the canonical 98-form union and
+/// measured 288-value layout. The unchanged identity/record assertions verify
+/// this candidate in-build.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_328_954_531, 5_652_386_469, 11_249_651_680, 11_020_075_465, 6_263_153_871, 10_331_413_815, 6_069_093_276],
-    [5_388_085_875, 5_711_517_813, 11_308_783_024, 11_079_206_809, 6_322_285_215, 10_390_545_159, 6_128_224_620],
+    [5_467_690_890, 5_793_187_212, 11_003_557_089, 11_215_999_933, 6_428_431_651, 11_147_379_856, 6_623_610_478],
+    [5_526_822_234, 5_852_318_556, 11_062_688_433, 11_275_131_277, 6_487_562_995, 11_206_511_200, 6_682_741_822],
 ];
 
 #[test]
@@ -1765,7 +1798,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 25_791, "current canonical D_env at C_eq = 3 (B7b source 7e63847)");
+    assert_eq!(caps.complete[3], 28_127, "current canonical D_env at C_eq = 3 (T4-U6/U8 epoch source addbdc030e)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();
