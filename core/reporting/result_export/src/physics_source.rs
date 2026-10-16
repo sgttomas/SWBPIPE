@@ -1268,9 +1268,10 @@ fn validate_stress(
             twins.len() == 1
                 && crate::section_basis::split_token(twin["metadata"]["basis"].as_str().unwrap_or_default())
                     == Some((token, crate::section_basis::NOMINAL))
-                && ["recipe_id", "pipe_id", "location", "component", "functional_index", "functional_id", "action", "parameters"]
+                && ["recipe_id", "pipe_id", "location", "component", "functional_index", "functional_id"]
                     .iter()
                     .all(|k| twins[0][*k] == check[*k])
+                && ["action", "parameters"].iter().all(|k| bit_equal(&twins[0][*k], &check[*k]))
                 && same(&row["value"], num(&twin["value"])?)?,
             "STRESS_BASIS_TWIN",
         )?;
@@ -1332,6 +1333,19 @@ pub fn validate_in(source: &Value, actual_invocation: Option<&Value>, contract: 
     // T1 still holds: reading and binding the current resolved state does not
     // independently rederive it from the captured request (join standing ruling).
     Ok(eligible && !resolved)
+}
+/// T4-U6 (§2.5, A2): structural equality whose numbers compare by their
+/// binary64 bits ([`same`]), as the twins' values do: -0.0 is not 0.0, and a
+/// number's JSON form (`1e6` or `1000000`) does not matter.
+fn bit_equal(a: &Value, b: &Value) -> bool {
+    match (a, b) {
+        (Value::Number(_), Value::Number(_)) => num(b).and_then(|b| same(a, b)).unwrap_or(false),
+        (Value::Array(x), Value::Array(y)) => x.len() == y.len() && x.iter().zip(y).all(|(p, q)| bit_equal(p, q)),
+        (Value::Object(x), Value::Object(y)) => {
+            x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| bit_equal(v, w)))
+        }
+        _ => a == b,
+    }
 }
 
 #[cfg(test)]

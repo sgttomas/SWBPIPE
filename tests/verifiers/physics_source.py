@@ -271,6 +271,19 @@ def _same(a: Any, b: Any) -> bool:
     return blocks._bits(a) == blocks._bits(b)
 
 
+def _bit_equal(a: Any, b: Any) -> bool:
+    """T4-U6 (§2.5, A2): structural equality whose numbers compare by their binary64 bits (`_same`), as the twins'
+    values do: -0.0 is not 0.0, and a number's JSON form (`1e6` or `1000000`) does not matter."""
+    numbers = (int, float)
+    if type(a) in numbers and type(b) in numbers:
+        return math.isfinite(a) and math.isfinite(b) and _same(a, b)
+    if type(a) is list and type(b) is list:
+        return len(a) == len(b) and all(_bit_equal(x, y) for x, y in zip(a, b))
+    if isinstance(a, Mapping) and isinstance(b, Mapping):
+        return a.keys() == b.keys() and all(_bit_equal(a[k], b[k]) for k in a)
+    return type(a) is type(b) and a == b
+
+
 def _finite(value: float) -> float:
     _require(math.isfinite(value), "ARITHMETIC_RANGE")
     return value
@@ -476,7 +489,8 @@ def validate_stress(source: Mapping[str, Any], case: Mapping[str, Any], row: Map
         twin = next((r for r in source["results"] if r["id"] == twin_id), None)
         twins = [c for c in case["section_stress_checks"] if c["result_id"] == twin_id]
         _require(twin is not None and len(twins) == 1 and sb.split_token(twin["metadata"].get("basis")) == (token[0], sb.NOMINAL)
-                 and all(twins[0][k] == check[k] for k in ("recipe_id", "pipe_id", "location", "component", "functional_index", "functional_id", "action", "parameters"))
+                 and all(twins[0][k] == check[k] for k in ("recipe_id", "pipe_id", "location", "component", "functional_index", "functional_id"))
+                 and all(_bit_equal(twins[0][k], check[k]) for k in ("action", "parameters"))
                  and _same(row["value"], twin["value"]), "STRESS_BASIS_TWIN")
     action = check["action"]["value"]
     if component == 3 and action != 0:

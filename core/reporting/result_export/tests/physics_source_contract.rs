@@ -355,3 +355,67 @@ fn public_rehashed_copy_cannot_hide_an_invalid_interpolation_pair() {
         );
     }
 }
+
+/// T4-U6 (D-5 §2.5, §5; b7-plan R2 A2): a reduced twin's section-stress check
+/// binds its nominal twin's action and parameters bit for bit. A signed zero
+/// equals zero by value but not by bits, so it is refused on either twin; the
+/// same binary64 number in another JSON form (JCS writes `1e6` as `1000000`)
+/// has the same bits, so it is accepted on either twin alone.
+#[test]
+fn reduced_stress_check_binds_its_nominal_twin_bit_for_bit() {
+    let (source, invocation) = actual("n05", "sparse_interactive");
+    let checks = source["source_block_recovery"]["body"]["cases"][0]["section_stress_checks"]
+        .as_array()
+        .unwrap();
+    // A reduced check whose action is an exact positive zero, after its nominal twin.
+    let reduced = checks
+        .iter()
+        .position(|c| {
+            c["result_id"].as_str().unwrap().ends_with(":reduced-section")
+                && c["action"]["value"].as_f64().map(f64::to_bits) == Some(0)
+        })
+        .unwrap();
+    let nominal = reduced - 1;
+    assert_eq!(
+        checks[reduced]["result_id"].as_str().unwrap(),
+        checks[nominal]["result_id"]
+            .as_str()
+            .unwrap()
+            .replace(":nominal-section", ":reduced-section"),
+        "the check before a reduced check is its nominal twin's"
+    );
+    assert_eq!(checks[reduced]["action"], json!({"interval": [0.0, 0.0], "value": 0.0}));
+    assert_eq!(checks[reduced]["action"], checks[nominal]["action"]);
+    let mutated = |index: usize, member: &str, value: Value| {
+        let mut doc = source.clone();
+        *doc.pointer_mut(&format!(
+            "/source_block_recovery/body/cases/0/section_stress_checks/{index}/{member}"
+        ))
+        .unwrap() = value;
+        reseal_negative(&mut doc, None);
+        doc
+    };
+    for index in [nominal, reduced] {
+        for member in ["action/interval/0", "action/interval/1", "action/value"] {
+            // A nominal check is read first: its own recipe refuses a -0.0
+            // operand (its row publishes +0.0); its bounds reach the twin check.
+            let code = if index == nominal && member == "action/value" {
+                "PHYSICS_SOURCE_STRESS_RECIPE_VALUE"
+            } else {
+                "PHYSICS_SOURCE_STRESS_BASIS_TWIN"
+            };
+            let doc = mutated(index, member, json!(-0.0));
+            assert_eq!(
+                physics_source::validate(&doc, Some(&invocation)),
+                Err(code.to_string()),
+                "{index}/{member} = -0.0"
+            );
+        }
+        let doc = mutated(index, "parameters/pa_per_mpa", json!(1_000_000));
+        assert_eq!(
+            physics_source::validate(&doc, Some(&invocation)),
+            Ok(true),
+            "{index}/parameters/pa_per_mpa = 1000000"
+        );
+    }
+}

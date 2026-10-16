@@ -148,6 +148,44 @@ def test_rehashed_invalid_composite_claims_are_rejected(mutation):
     with pytest.raises(ValueError):composite.validate_physics_source(source,invocation)
 
 
+def _zero_action_twins(source):
+    """The first reduced section-stress check whose action is an exact positive zero, and its nominal twin before it."""
+    checks=source["source_block_recovery"]["body"]["cases"][0]["section_stress_checks"]
+    reduced=next(i for i,c in enumerate(checks) if c["result_id"].endswith(":reduced-section") and struct.pack(">d",c["action"]["value"])==bytes(8))
+    nominal=reduced-1
+    assert checks[reduced]["result_id"]==checks[nominal]["result_id"].replace(":nominal-section",":reduced-section")
+    assert checks[reduced]["action"]==checks[nominal]["action"]=={"interval":[0.0,0.0],"value":0.0}
+    return checks,nominal,reduced
+
+
+@pytest.mark.parametrize("twin", ["nominal", "reduced"])
+@pytest.mark.parametrize("member", ["interval0", "interval1", "value"])
+def test_reduced_stress_check_refuses_a_signed_zero_twin(twin, member):
+    # T4-U6 (D-5 §2.5, §5; b7-plan R2 A2): the reduced twin's check binds its nominal twin's action bit for bit;
+    # -0.0 equals 0.0 by value, not by bits. A nominal check is read first, so its own recipe refuses a -0.0
+    # operand (its row publishes +0.0); its bounds reach the twin check.
+    source,invocation=actual()
+    checks,nominal,reduced=_zero_action_twins(source)
+    action=checks[nominal if twin=="nominal" else reduced]["action"]
+    if member=="value":action["value"]=-0.0
+    else:action["interval"][int(member[-1])]=-0.0
+    reseal_negative(source)
+    code="STRESS_RECIPE_VALUE" if (twin,member)==("nominal","value") else "STRESS_BASIS_TWIN"
+    with pytest.raises(ValueError,match=f"^PHYSICS_SOURCE_{code}$"):composite.validate_physics_source(source,invocation)
+
+
+@pytest.mark.parametrize("twin", ["nominal", "reduced"])
+def test_reduced_stress_check_reads_its_twin_by_bits_not_form(twin):
+    # The same binary64 number in another JSON form (JCS writes 1e6 as 1000000) on either twin alone.
+    source,invocation=actual()
+    checks,nominal,reduced=_zero_action_twins(source)
+    parameters=checks[nominal if twin=="nominal" else reduced]["parameters"]
+    assert type(parameters["pa_per_mpa"]) is float
+    parameters["pa_per_mpa"]=1_000_000
+    reseal_negative(source)
+    assert composite.validate_physics_source(source,invocation)
+
+
 def test_physics_transport_uses_received_evidence_without_raw_reconstruction():
     # The exact successor's G7 transport check (results 0.3 ExactRetainedContractEvidence) over pressure-1 evidence.
     for name in ["pressure_connected_mechanics_sparse","pressure_thermal_ui_mechanics_sparse"]:
