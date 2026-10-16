@@ -132,10 +132,11 @@ if U6_D5:
     # U6-RP (T4-U6, D-5): route E's rows per member. Each exact member publishes 12 end-force, 18 station-resultant,
     # 8 endpoint-stress, 12 station-stress rows and one maximum (51); D-5 publishes the 20 element-local stress rows
     # through push_basis_twins and the maximum once per basis through section_basis_row (U6-L2, U6-LF), so 21 rows
-    # more: 72. The census (lib/census_exact.py: I95's method on the pressure-source-1 producer fixtures, regenerated
-    # at 20c6126a16 by their own writer) measures 7n + 72m + 8g rows on every empty-region exact case, and the D-5
-    # per-case evidence (pipe_stress_extrema one per member and basis; nested section bases; two coverage lists).
-    CENSUS["json"] = os.path.join(os.path.dirname(H), "data", "census_d5_20c6126a16.json")
+    # more: 72. The census (lib/census_exact.py: I95's method on the committed pressure-source-1 producer fixtures,
+    # regenerated on the D-5 producer by their own writer at 79bf8656dc) measures 7n + 72m + 8g rows on every
+    # empty-region exact case, and the D-5 per-case evidence (pipe_stress_extrema one per member and basis; nested
+    # section bases; two coverage lists).
+    CENSUS["json"] = os.path.join(os.path.dirname(H), "data", "census_d5_79bf8656dc.json")
     if json.load(open(CENSUS["json"]))["rows_per_member"] != 51 + 21:
         raise SystemExit("U6-RP: the D-5 census no longer measures 72 rows per member; re-review")
 # ---- route E batch 2: B3b's exact loops (PP W1, RS reader, RE physics-1 base validator) and the identifier audit

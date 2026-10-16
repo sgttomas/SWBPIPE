@@ -130,7 +130,7 @@ All outputs go to `--out`.
 **`data/`** holds three files.
 - `basis_text_rows.json` lists the (file, line) of the basis runs' TEXT rows. The line map uses it only to choose among files that a short key could name.
 - `census_c3cf.json` is I95's exact-evidence census, used for route E's per-case evidence forms before D-5.
-- `census_d5_20c6126a16.json` is the D-5 census (72 rows per member and the per-basis evidence), used on D-5 source.
+- `census_d5_79bf8656dc.json` is the D-5 census (72 rows per member and the per-basis evidence) on the committed pressure-source-1 fixtures as regenerated at `79bf8656dc`, used on D-5 source.
 
 ## Limits
 
