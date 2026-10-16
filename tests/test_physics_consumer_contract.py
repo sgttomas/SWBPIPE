@@ -78,16 +78,18 @@ def test_a_stored_physics_one_result_is_refused_by_name():
     lambda s: s["contract_evidence"]["pressure"].append(deepcopy(s["contract_evidence"]["pressure"][0])),
     lambda s: s["contract_evidence"]["pressure"][0]["result_ids"].pop(),
     lambda s: s["contract_evidence"]["pressure"][0].update(load_case_id="case:six-component-load"),
-    lambda s: s["contract_evidence"]["pressure"][0]["geometry"][0].update(As_m2=1),
+    # T4-U6 (D-5 §2.3): the section areas are the named sections' leaves.
+    lambda s: s["contract_evidence"]["pressure"][0]["geometry"][0]["nominal_section"].update(As_m2=1),
     lambda s: s["contract_evidence"]["pressure"][0]["materials"][0].update(nu=0.2),
     lambda s: s["contract_evidence"]["exact_cases"][1]["pipe_materials"].clear(),
     lambda s: s["contract_evidence"]["exact_cases"][0]["pipe_materials"][0].update(alpha_per_kelvin=0),
-    lambda s: s["contract_evidence"]["exact_cases"][0]["pipe_sections"][0].update(As_m2=float("inf")),
+    lambda s: s["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]["nominal_section"].update(As_m2=float("inf")),
     lambda s: s["contract_evidence"]["exact_cases"][0]["pipe_stress_extrema"][0].update(result_id="missing"),
     lambda s: s["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"].update(method="source_block_recovery_v1"),
     lambda s: s["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"][0]["terms"][0].update(region_id="missing"),
     lambda s: s["contract_evidence"].update(source_block_recovery={}),
-    lambda s: s["summary"]["max_open_formula_stress"].update(value=1),
+    # T4-U6 (D-5 §2.2): `max_open_formula_stress` is null on an exact document; each basis has its own headline.
+    lambda s: s["summary"]["max_open_formula_stress_nominal_section"].update(value=1),
     lambda s: s["numerical_quality"]["cases"][0].update(evidence_refs=s["numerical_quality"]["cases"][1]["evidence_refs"]),
     lambda s: s["contract_evidence"]["pressure"][0].update(p_pa=1),
     lambda s: s.update(source_block_recovery={}),
@@ -137,19 +139,33 @@ def test_physics_evidence_schema_is_closed_and_case_scoped():
 
 
 def test_unavailable_member_maximum_withholds_headline_but_keeps_signed_rows():
+    # T4-U6 (D-5 §2.2, §2.5): the member's maximum is withdrawn on both section bases (each basis has its own maximum
+    # record, coverage record and headline), so both headlines are withheld (null, the key kept).
     source = actual()
     case = source["contract_evidence"]["exact_cases"][0]
-    extremum = case["pipe_stress_extrema"].pop()
-    source["results"] = [row for row in source["results"] if row["id"] != extremum["result_id"]]
+    pipe = case["pipe_stress_extrema"][0]["pipe_id"]
+    removed = [x["result_id"] for x in case["pipe_stress_extrema"] if x["pipe_id"] == pipe]
+    assert len(removed) == 2, "one maximum per section basis"
+    case["pipe_stress_extrema"] = [x for x in case["pipe_stress_extrema"] if x["pipe_id"] != pipe]
+    source["results"] = [row for row in source["results"] if row["id"] not in removed]
     region = source["contract_evidence"]["pressure"][0]
-    region["result_ids"].remove(extremum["result_id"])
-    case["stress_maximum_coverage"] = {"complete": False, "unavailable_pipe_ids": [extremum["pipe_id"]]}
-    headline = source["summary"].pop("max_open_formula_stress")
+    region["result_ids"] = [rid for rid in region["result_ids"] if rid not in removed]
+    case["stress_maximum_coverage"] = [{"section_basis": basis, "complete": False, "unavailable_pipe_ids": [pipe]}
+                                       for basis in ("nominal_section", "reduced_section")]
+    assert source["summary"]["max_open_formula_stress"] is None
+    keys = ("max_open_formula_stress_nominal_section", "max_open_formula_stress_reduced_section")
+    headlines = {key: source["summary"][key] for key in keys}
+    assert all(isinstance(h, dict) for h in headlines.values())
+    for key in keys:
+        source["summary"][key] = None
     validate_physics_evidence(source)
     assert verify_analysis_run_record(build(source)) == "match"
-    source["summary"]["max_open_formula_stress"] = headline
-    with pytest.raises(ValueError, match="headline"):
-        validate_physics_evidence(source)
+    # Either basis's headline, kept over its incomplete coverage, is refused.
+    for key in keys:
+        bad = deepcopy(source)
+        bad["summary"][key] = headlines[key]
+        with pytest.raises(ValueError, match="headline"):
+            validate_physics_evidence(bad)
 
 
 def test_actual_headless_physics_derivative_and_analysis_share_the_full_source():
@@ -177,11 +193,15 @@ def test_actual_headless_physics_derivative_and_analysis_share_the_full_source()
 
 
 def _inject_unbound_maximum(source):
+    # T4-U6 (D-5 §2.2, §2.5): the unbound maximum is injected on both section bases (a nominal row and its reduced
+    # twin) and the nominal headline binds it.
     case_id = source["contract_evidence"]["exact_cases"][1]["load_case_id"]
-    row = deepcopy(next(row for row in source["results"] if row["kind"] == "pipe_elastic_normal_stress_maximum_v2" and row["basis_ref"]["ref_id"] == case_id))
-    row.update(id="unbound:maximum", value=100000000.25)
-    source["results"].append(row)
-    source["summary"]["max_open_formula_stress"] = {"value": row["value"], "unit": row["unit"], "location_ref": row["entity_ref"], "result_ref": row["id"]}
+    maxima = [row for row in source["results"] if row["kind"] == "pipe_elastic_normal_stress_maximum_v2" and row["basis_ref"]["ref_id"] == case_id]
+    for basis in ("nominal_section", "reduced_section"):
+        row = deepcopy(next(row for row in maxima if row["id"].endswith(f":{basis}")))
+        row.update(id=f"unbound:maximum:{basis}", value=100000000.25)
+        source["results"].append(row)
+    source["summary"]["max_open_formula_stress_nominal_section"] = {"value": 100000000.25, "unit": row["unit"], "location_ref": row["entity_ref"], "result_ref": "unbound:maximum:nominal_section"}
 
 
 def _cyclic_nonphysical_operand(source):

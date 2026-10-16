@@ -19,6 +19,17 @@ import { PRESSURE_SOURCE_OUTPUT_REFUSAL } from "./outputPolicy";
 import { analysisRowSemantics, analysisRecordProjection, validateAnalysisRunV03 } from '../../services/analysisRunCompatibility';
 import { readerRowSemantics, sourceContract } from './resultReader';
 const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
+/** T4-U6 (D-5 §2.4): pressure-source-1's maximum signature for a recovery token on one section basis. */
+const SECTION_BASES = ["nominal_section", "reduced_section"] as const;
+function maximumSignature(basis: string): string {
+  const [token, section] = basis.split("; section_basis=");
+  expect(SECTION_BASES).toContain(section);
+  const family = token === "retained_source_endpoint_normal_max_v1"
+    ? "physics-source-endpoint-normal-maximum-retained-source-endpoint-normal-max-v1"
+    : "supported-source-068-open-mechanics-stress-components";
+  expect(["retained_source_endpoint_normal_max_v1", "recovered_from_open_mechanics_stress_components"]).toContain(token);
+  return `${family}-${section.replace("_", "-")}`;
+}
 
 /** B7b: the v3 twin of the retired physics-source-1 integration suite. The joined
  * composite is pressure-source-1 (3.0.0/exact_pressure_v3): its committed producer pairs
@@ -130,8 +141,9 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
     expect(numericalResultStanding(source,model).eligible).toBe(true);
     expect(numericalResultStanding(structuredClone(source),model).eligible).toBe(false);
     expect(retainedSourceRecoveryInvocation(source,model)).toEqual({ request, solver_mode: mode });
+    // T4-U6 (D-5 §2.4): one signature per (recovery token x section basis).
     for (const row of source.results.filter(r=>r.kind==='pipe_elastic_normal_stress_maximum_v2')) {
-      const signature=row.metadata?.basis==='retained_source_endpoint_normal_max_v1'?'physics-source-endpoint-normal-maximum':'supported-source-068';
+      const signature=maximumSignature(row.metadata!.basis as string);
       expect(resultSemantics(row,source)?.signature_id).toBe(signature);
       expect(analysisRowSemantics(row,source).semantic?.signature_id).toBe(signature);
       expect(analysisRun.analysis_run.result_refs.find(r=>r.result_ref.ref===row.id)?.semantic_contract?.signature_id).toBe(signature);
@@ -172,11 +184,16 @@ describe("joined composite (pressure-source-1) native transport unit simulation"
 });
 it('rejects rehashed analysis signatures that substitute ordinary and retained maxima',async()=>{
   const {source,analysisRun}=await received('mixed','sparse_interactive');
-  for(const basis of ['retained_source_endpoint_normal_max_v1','recovered_from_open_mechanics_stress_components']) {
+  // T4-U6 (D-5 §2.4): each maximum names its section basis; the substituted signature is the
+  // other recovery token's on the same basis.
+  for(const basis of SECTION_BASES.flatMap(section=>['retained_source_endpoint_normal_max_v1','recovered_from_open_mechanics_stress_components'].map(token=>`${token}; section_basis=${section}`))) {
     const row=source.results.find(r=>r.kind==='pipe_elastic_normal_stress_maximum_v2'&&r.metadata?.basis===basis)!;
     expect(row).toBeDefined();
     const changed=structuredClone(analysisRun),reference=changed.analysis_run.result_refs.find(r=>r.result_ref.ref===row.id)!;
-    reference.semantic_contract!.signature_id=basis==='retained_source_endpoint_normal_max_v1'?'supported-source-068':'physics-source-endpoint-normal-maximum';
+    const [token,section]=basis.split('; section_basis=');
+    const other=token==='retained_source_endpoint_normal_max_v1'?'recovered_from_open_mechanics_stress_components':'retained_source_endpoint_normal_max_v1';
+    expect(maximumSignature(basis)).not.toBe(maximumSignature(`${other}; section_basis=${section}`));
+    reference.semantic_contract!.signature_id=maximumSignature(`${other}; section_basis=${section}`);
     changed.analysis_run.hashes.find(h=>h.payload_scope==='analysis_run_record')!.value=await canonicalSha256HexCheckedV1(analysisRecordProjection(changed));
     await expect(validateAnalysisRunV03(changed,source)).rejects.toThrow('ANALYSIS_ROW_SOURCE_BINDING_MISMATCH');
     for(const invalid of [undefined,'unrecognized_basis']) {

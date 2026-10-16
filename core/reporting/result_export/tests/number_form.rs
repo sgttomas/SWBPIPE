@@ -18,8 +18,14 @@ fn genuine() -> (Value, Value) {
 /// The first section-stress check's parameters set to `value`, the receipt resealed
 /// so that the check is reached.
 fn with_parameter(source: &Value, key: &str, value: Value) -> Value {
+    with_parameter_on(source, &[0], key, value)
+}
+/// The parameters of the listed section-stress checks set to `value`, resealed.
+fn with_parameter_on(source: &Value, checks: &[usize], key: &str, value: Value) -> Value {
     let mut doc = source.clone();
-    doc["source_block_recovery"]["body"]["cases"][0]["section_stress_checks"][0]["parameters"][key] = value;
+    for &index in checks {
+        doc["source_block_recovery"]["body"]["cases"][0]["section_stress_checks"][index]["parameters"][key] = value.clone();
+    }
     let mut publication = doc.clone();
     publication.as_object_mut().unwrap().remove("source_block_recovery");
     doc["source_block_recovery"]["body"]["publication_sha256"] =
@@ -39,7 +45,16 @@ fn section_parameters_compare_by_value() {
     let jcs: Value = serde_json::from_str(&open_pipe_stress_canonical_json::canonical_json(&source)).unwrap();
     assert!(jcs["source_block_recovery"]["body"]["cases"][0]["section_stress_checks"][0]["parameters"]["pa_per_mpa"].is_u64());
     assert_eq!(ps::validate(&jcs, Some(&invocation)), Ok(true));
-    let integer = with_parameter(&source, "pa_per_mpa", json!(1_000_000));
+    // T4-U6 (D-5 §2.5, §5): the member's check is followed by its reduced
+    // twin's, which binds the same parameters; the member is the pair, so its
+    // integer form is written on both, as a value-preserving re-serializer does.
+    let checks = &source["source_block_recovery"]["body"]["cases"][0]["section_stress_checks"];
+    assert_eq!(
+        checks[1]["result_id"].as_str().unwrap(),
+        checks[0]["result_id"].as_str().unwrap().replace(":nominal-section", ":reduced-section"),
+        "the second check is the first one's reduced twin"
+    );
+    let integer = with_parameter_on(&source, &[0, 1], "pa_per_mpa", json!(1_000_000));
     assert_eq!(ps::validate(&integer, Some(&invocation)), Ok(true));
     assert_eq!(rv::validate("pressure-source", &integer, None, Some(&invocation))["ok"], true);
     // Wrong values are refused as before.

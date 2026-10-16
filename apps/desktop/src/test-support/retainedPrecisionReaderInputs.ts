@@ -10,8 +10,9 @@ const PROJECT_ROOT = resolve(__dirname, "../../../../");
 const readJson = (path: string): Json => JSON.parse(readFileSync(resolve(PROJECT_ROOT, path), "utf8"));
 const DEF_O = "c4aebcef3ae3863f9576fb3a7e323e77a91687938f6605a83a2fdc958febb15f";
 /** DEF-E's H, as result_export's `retained_precision::EXACT_DEFINITION_HASH` (re-based on
- * pressure-1 by a43583c625, B7b D4 (a)); the rehash mirrors that constant, it states no result. */
-const DEF_E = "ff28bea4ca9613d689edd1428b07e869a0a3ac824012b49382307b6293819def";
+ * pressure-1 by a43583c625, B7b D4 (a); T4-U6's DEF-E states zero mill tolerance and lists the
+ * reduced-basis rows); the rehash mirrors that constant, it states no result. */
+const DEF_E = "6c772d242ef47a354376f29f93fc69959ee2b4085b606af211da4b7f45c87f8e";
 const EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1";
 /** The shared corpus's successor fixtures (`retained_precision_*_successor_*.json`). */
 export const SUCCESSOR_FIXTURES = [

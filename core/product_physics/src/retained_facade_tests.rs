@@ -2513,9 +2513,12 @@ fn b3b_witness_inputs_and_routes() {
 /// counter that follows the compared profile text, and the hashes that bind them changed
 /// (B7b evidence `w1/evidence-exact-successors.txt`); every physical and certificate value is
 /// bit-identical.
+/// T4-U6 re-pin (D-5, DEL-05-03 Design §2.6), read from the producer through the private
+/// driver: the reduced stress twins, basis tokens and id segments, per-basis headlines, extrema
+/// and coverage, the D-5 section evidence and limitations, and the hashes that bind them.
 const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "f6bb7e7fc74ebce71c67da5da81906fece54e412aa2697d5548eb13f50b67524", "25d5b9ca60401f844b0e50bbf8918ee38ff50e598603163a470faa94cc372d3e", "45e14e68249abbeafa358f9e7317e9060da8e59c83db948a8184b98b8859001c"),
-    ("dense_scrutiny", "0317aed643760641eec81708a0d5f506963e109a78c97a715617c081c28b7701", "d7caf7bb6362e66801857191c2823174d7c80f7b3f6cf1e4da104ea6e930a463", "0f490c22e7b2a25fa5dc1dd3d3a7ae7a701c744bfaac2fc2a2aa8f95f3451259"),
+    ("sparse_interactive", "d231b6ee48ed52f7accef419e25d631d4b4d0971940431aa2ca91f3eaeb1c75c", "bd632df2ecb5c1b0f8ae6c7e55cab0d61890d1036e4fdf67ecff01a1a1a8ad2b", "79d40f1a67c74efa911e408fca9c19c45ea9b6d9de7f60de97973fa66e798b1f"),
+    ("dense_scrutiny", "07742144211b669b283ee455afa739511b4ba0cd1ec4bdbcdadf47fe9ae0ae46", "d2b72e38c41120b427bc4e0d586f28bbabb2ac4ba4d41b28b16426142849ceae", "c9336f5155e654f67958d932d974cecb54423d80cd72c14fc868a15cb7791b3b"),
 ];
 /// The mixed exact base's pinned successor: (mode, receipt sha256, successor bytes sha256).
 /// Current B7a pins follow genuine public Direct outputs after H4/E14/E15 and
@@ -2709,7 +2712,12 @@ fn b3b_exact_successor_is_pinned_in_both_modes() {
         let successor = captured.unwrap_or_else(|| panic!("{name}: {retained:?}"));
         exact_outcome(name, &retained, &successor, &envelope, &plain, &["case"]);
         assert_exact_successor(name, &successor, &plain_value, &["selected"]);
-        assert_eq!(successor["results"].as_array().unwrap().len(), 98, "{name}: current rows after E14 observation retirement");
+        // T4-U6 (D-5 §2.1, §2.5): the 98 current rows after E14's observation retirement, plus
+        // the reduced twin of each of the member's 21 stress rows (20 element-local stress rows
+        // and its maximum).
+        let rows = successor["results"].as_array().unwrap();
+        let reduced = rows.iter().filter(|r| r["metadata"]["basis"].as_str().is_some_and(|b| b.ends_with("; section_basis=reduced_section"))).count();
+        assert_eq!((rows.len(), reduced), (98 + 21, 21), "{name}: current rows after E14 observation retirement, and the reduced twins");
         let bytes = serde_json::to_vec(&successor).unwrap();
         let document = exact_document(&raw, mode, &successor);
         println!("B3B_EXACT_PIN {name} {} {} {}", successor["retained_precision"]["receipt_sha256"].as_str().unwrap(), sha(&bytes), sha(document.as_bytes()));

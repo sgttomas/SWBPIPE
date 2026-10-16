@@ -163,6 +163,16 @@
      "op": "set",
      "path": "/summary/max_open_formula_stress",
      "value": null
+    },
+    {
+     "op": "set",
+     "path": "/summary/max_open_formula_stress_nominal_section",
+     "value": null
+    },
+    {
+     "op": "set",
+     "path": "/summary/max_open_formula_stress_reduced_section",
+     "value": null
     }
    ],
    "dispatch": "accept"
@@ -450,7 +460,7 @@
    "ops": [
     {
      "op": "set",
-     "path": "/contract_evidence/exact_cases/0/stress_maximum_coverage/unreviewed_extra",
+     "path": "/contract_evidence/exact_cases/0/stress_maximum_coverage/0/unreviewed_extra",
      "value": "x"
     }
    ],
@@ -2383,7 +2393,7 @@
    "ops": [
     {
      "op": "set",
-     "path": "/summary/max_open_formula_stress/value",
+     "path": "/summary/max_open_formula_stress_nominal_section/value",
      "value": 1.0
     }
    ],

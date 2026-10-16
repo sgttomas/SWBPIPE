@@ -5223,15 +5223,15 @@ const M3X: [(&str, &str, &str, &str, &str); 2] = [
         "m3x_sparse_interactive",
         "<s1:m3x_sparse_interactive>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "45e14e68249abbeafa358f9e7317e9060da8e59c83db948a8184b98b8859001c",
-        "f6bb7e7fc74ebce71c67da5da81906fece54e412aa2697d5548eb13f50b67524",
+        "79d40f1a67c74efa911e408fca9c19c45ea9b6d9de7f60de97973fa66e798b1f",
+        "d231b6ee48ed52f7accef419e25d631d4b4d0971940431aa2ca91f3eaeb1c75c",
     ),
     (
         "m3x_dense_scrutiny",
         "<s1:m3x_dense_scrutiny>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "0f490c22e7b2a25fa5dc1dd3d3a7ae7a701c744bfaac2fc2a2aa8f95f3451259",
-        "0317aed643760641eec81708a0d5f506963e109a78c97a715617c081c28b7701",
+        "c9336f5155e654f67958d932d974cecb54423d80cd72c14fc868a15cb7791b3b",
+        "07742144211b669b283ee455afa739511b4ba0cd1ec4bdbcdadf47fe9ae0ae46",
     ),
 ];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {

@@ -37,14 +37,22 @@ def member(items, pipe):
 
 
 def _arc_hoop_row(e):
-    hoop = deepcopy(row(e, "pipe_lame_hoop_stress_v2", "pipe:S1", "midspan"))
-    hoop["entity_ref"], hoop["id"] = "pipe:BEND", "result:arc-hoop"
-    e["results"].append(hoop)
+    # T4-U6 (D-5 §2.1, §2.5): the straight's hoop row is published on both section bases, each id ending in its
+    # basis; the arc copy keeps the pair.
+    twins = [r for r in e["results"] if r["kind"] == "pipe_lame_hoop_stress_v2" and r["entity_ref"] == "pipe:S1"
+             and r["metadata"]["location"] == "midspan"][:2]
+    for source in twins:
+        basis = source["id"].rsplit(":", 1)[1]
+        assert basis in ("nominal_section", "reduced_section"), basis
+        hoop = deepcopy(source)
+        hoop["entity_ref"], hoop["id"] = "pipe:BEND", f"result:arc-hoop:{basis}"
+        e["results"].append(hoop)
 
 
 def _maximum_not_withheld(e):
-    coverage = e["contract_evidence"]["exact_cases"][0]["stress_maximum_coverage"]
-    coverage["unavailable_pipe_ids"], coverage["complete"] = [], True
+    # T4-U6 (D-5 §2.5): one coverage record per section basis.
+    for coverage in e["contract_evidence"]["exact_cases"][0]["stress_maximum_coverage"]:
+        coverage["unavailable_pipe_ids"], coverage["complete"] = [], True
 
 
 def _strain_sign(e):

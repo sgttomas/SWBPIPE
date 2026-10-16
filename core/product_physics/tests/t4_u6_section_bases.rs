@@ -15,13 +15,14 @@ mod frozen_rows;
 use frozen_rows::*;
 
 const ORACLE: &str = include_str!("../../../validation/references/t4_u6/oracle.json");
-const REQUESTS: [(&str, &str); 7] = [
+const REQUESTS: [(&str, &str); 8] = [
     ("requests/U6-BASES-001-EB.request.json", include_str!("../../../validation/references/t4_u6/requests/U6-BASES-001-EB.request.json")),
     ("requests/U6-BASES-001-EB-SELF-WEIGHT.request.json", include_str!("../../../validation/references/t4_u6/requests/U6-BASES-001-EB-SELF-WEIGHT.request.json")),
     ("requests/U6-BASES-001-TIMO-SELF-WEIGHT.request.json", include_str!("../../../validation/references/t4_u6/requests/U6-BASES-001-TIMO-SELF-WEIGHT.request.json")),
     ("requests/U6-BASES-001-TIMO.request.json", include_str!("../../../validation/references/t4_u6/requests/U6-BASES-001-TIMO.request.json")),
     ("requests/U6-BASES-002.request.json", include_str!("../../../validation/references/t4_u6/requests/U6-BASES-002.request.json")),
     ("requests/U6-BASES-002-GROUP.request.json", include_str!("../../../validation/references/t4_u6/requests/U6-BASES-002-GROUP.request.json")),
+    ("requests/U6-BASES-002-TIMO.request.json", include_str!("../../../validation/references/t4_u6/requests/U6-BASES-002-TIMO.request.json")),
     ("requests/U6-BASES-COINCIDENT.request.json", include_str!("../../../validation/references/t4_u6/requests/U6-BASES-COINCIDENT.request.json")),
 ];
 const I8: &str = include_str!("../../../validation/references/t4_i8/rebuilt_reference_cases.json");

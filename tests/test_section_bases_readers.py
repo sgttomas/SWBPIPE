@@ -1,11 +1,12 @@
 """T4-U6/U8 (DEL-05-03 `section-bases-and-timoshenko.md` §1-§3.1, §5, §8): the test-only verifiers read the D-5
 section bases and the D-6 beam theory, and refuse each reader mutant.
 
-The documents are synthetic: a committed pressure-1 fixture (or arc corpus envelope) is shaped in memory to §2.5's
-interface (both stress families, basis tokens and id segments, the D-5 `pipe_sections` with each realized arc's
-marker, per-basis maximum records and headlines) with coincident bases, then given distinct bases (a nonzero corrosion
-allowance) or a Timoshenko selection, then mutated. No committed fixture is read as current §2.5 output, and none is
-written. The Rust reader's twins of these mutations are `core/reporting/result_export/tests/section_bases.rs`.
+The documents are the regenerated committed pressure-1 fixtures, which are the producer's §2.5 output (both stress
+families, basis tokens and id segments, the D-5 `pipe_sections` with each realized arc's marker, per-basis maximum
+records and headlines): `pressure_connected_mechanics_dense` (coincident bases) and the arc corpus's envelopes (their
+I7 sketches carry a mill tolerance, so their bases differ). Each is then given distinct bases (a nonzero corrosion
+allowance) or a Timoshenko selection, then mutated. No fixture is written. The Rust reader's twins of these mutations
+are `core/reporting/result_export/tests/section_bases.rs`.
 
 The arc-marker tests (§2.5's `member_kind = "realized_arc"` on an arc's case section) build their documents in memory
 in the current D-5 shape and read no committed fixture; their Rust twins are
@@ -32,69 +33,15 @@ from tests.verifiers import source_blocks
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / "fixtures/results/pressure_connected_mechanics_dense.json"
 ARC = ROOT / "fixtures/results/pressure_v3_arc_reader_corpus.json"
-UNDERSCORE_IDS = ("result:pressure-exact:", "result:elastic-maximum:")
 
 
-def _suffix(row_id: str, basis: str) -> str:
-    return f"{row_id}:{basis}" if row_id.startswith(UNDERSCORE_IDS) else f"{row_id}:{sb.hyphenated(basis)}"
-
-
-def _section(old: dict) -> dict:
-    """The D-5 entry of a committed single-section entry, its effective wall taken as the nominal wall (c_m = c_a = 0)."""
-    annulus = {"wall_m": old["effective_wall_thickness_m"], "ri_m": old["ri_m"], "As_m2": old["As_m2"], "I_m4": old["I_m4"], "J_m4": old["J_m4"], "Z_m3": old["Z_m3"]}
-    return {"pipe_id": old["pipe_id"], "geometry_basis": sb.GEOMETRY_BASIS, "outside_diameter_m": old["outside_diameter_m"], "ro_m": old["ro_m"],
-            "wall_thickness_m": old["effective_wall_thickness_m"], "mill_tolerance_m": 0.0, "corrosion_allowance_m": 0.0,
-            "nominal_section": dict(annulus), "reduced_section": dict(annulus), "pressure_bore": {"ri_m": old["ri_m"], "Ai_m2": old["Ai_m2"]},
-            "beam_theory": {"model": sb.EULER_BERNOULLI}}
-
-
-def shape(envelope: dict, arcs=()) -> dict:
-    """§2.5 with coincident bases: every stress row twice (the nominal row then its reduced twin), named by token and id;
-    the case sections of the arcs the region geometry marks, and of ``arcs`` (the model's arcs outside every region),
-    carry the realized-arc marker."""
+def _unmarked(envelope: dict, pipe: str) -> dict:
+    """``envelope`` with the realized-arc marker removed from ``pipe``'s case sections."""
     doc = deepcopy(envelope)
-    evidence = doc["contract_evidence"]
-    marked = set(arcs) | {g["pipe_id"] for region in evidence["pressure"] for g in region["geometry"] if "member_kind" in g}
-    renamed: dict[str, list[str]] = {}
-    rows = []
-    for row in doc["results"]:
-        if row["kind"] not in sb.STRESS_KINDS:
-            rows.append(row)
-            continue
-        twins = []
-        for basis in sb.BASES:
-            twin = deepcopy(row)
-            twin["id"] = _suffix(row["id"], basis)
-            twin["metadata"]["basis"] = f"{row['metadata']['basis']}; section_basis={basis}"
-            twins.append(twin)
-        renamed[row["id"]] = [t["id"] for t in twins]
-        rows.extend(twins)
-    doc["results"] = rows
-    for case in evidence["exact_cases"]:
-        case["pipe_sections"] = [{**_section(s), **({sb.MEMBER_KIND: sb.REALIZED_ARC} if s["pipe_id"] in marked else {})} for s in case["pipe_sections"]]
-        old = case["stress_maximum_coverage"]
-        case["stress_maximum_coverage"] = [{"section_basis": b, "complete": old["complete"], "unavailable_pipe_ids": list(old["unavailable_pipe_ids"])} for b in sb.BASES]
-        extrema = []
-        for ex in case["pipe_stress_extrema"]:
-            for basis in sb.BASES:
-                extrema.append({"pipe_id": ex["pipe_id"], "section_basis": basis, **{k: v for k, v in ex.items() if k != "pipe_id"}, "result_id": _suffix(ex["result_id"], basis)})
-        case["pipe_stress_extrema"] = extrema
-    for region in evidence["pressure"]:
-        geometry = []
-        for g in region["geometry"]:
-            arc = {k: g[k] for k in ("member_kind", "arc_end_tangents_global") if k in g}
-            geometry.append({**_section(g), "traversal_forward": g["traversal_forward"], **arc})
-        region["geometry"] = geometry
-        region["result_ids"] = [new for rid in region["result_ids"] for new in renamed.get(rid, [rid])]
-    summary = {}
-    for key, value in doc["summary"].items():
-        if key == "max_open_formula_stress":
-            summary[key] = None
-            for basis in sb.BASES:
-                summary[f"{key}_{basis}"] = None if value is None else {**value, "result_ref": _suffix(value["result_ref"], basis)}
-        else:
-            summary[key] = value
-    doc["summary"] = summary
+    for case in doc["contract_evidence"]["exact_cases"]:
+        for s in case["pipe_sections"]:
+            if s["pipe_id"] == pipe:
+                assert s.pop(sb.MEMBER_KIND) == sb.REALIZED_ARC, pipe
     return doc
 
 
@@ -172,12 +119,24 @@ def timoshenko(doc: dict, *, radius: str = "nominal_section", area: str = "nomin
 
 @pytest.fixture(scope="module")
 def base():
-    return shape(json.loads(BASE.read_text()))
+    return json.loads(BASE.read_text())
 
 
 @pytest.fixture(scope="module")
 def arc():
-    return shape(json.loads(ARC.read_text())["cases"][0]["envelope"])
+    return json.loads(ARC.read_text())["cases"][0]["envelope"]
+
+
+def test_the_fixtures_are_the_d5_interface_with_the_expected_bases(base, arc):
+    """The regenerated fixtures carry §2.5's interface; the connected fixture's bases coincide (no mill tolerance or
+    allowance), the arc's differ (its I7 sketch's mill tolerance)."""
+    for doc, coincident in ((base, True), (arc, False)):
+        assert doc["summary"]["max_open_formula_stress"] is None
+        for case in doc["contract_evidence"]["exact_cases"]:
+            assert len(case["stress_maximum_coverage"]) == 2
+            for s in case["pipe_sections"]:
+                assert s["geometry_basis"] == sb.GEOMETRY_BASIS
+                assert (s["nominal_section"] == s["reduced_section"]) == coincident, s["pipe_id"]
 
 
 def _refused(doc, detail):
@@ -343,14 +302,15 @@ def test_pressure_1_model_checks_take_realized_arcs_from_the_model():
     entry = _arc_corpus_entry("L line with connector")
     model = deepcopy(entry["document"]["model"])
     assert sb.realized_arcs(model) == {"pipe:BEND"}
-    doc = shape(entry["envelope"], arcs=("pipe:BEND",))
+    # The producer marks the arc outside every region on its case sections.
+    doc = deepcopy(entry["envelope"])
     assert all("member_kind" not in g for region in doc["contract_evidence"]["pressure"] for g in region["geometry"])
     model["pressure_contract"]["shear_model"] = tim
     # The arc's marked section stays Euler-Bernoulli; the straights take Timoshenko.
     stated = timoshenko(doc)
     rv.physics_model_checks(stated, model)
     # The arc claiming Timoshenko (its kappa and A_s consistent).
-    unmarked = timoshenko(shape(entry["envelope"]))
+    unmarked = timoshenko(_unmarked(doc, "pipe:BEND"))
     claim = next(s["beam_theory"] for s in unmarked["contract_evidence"]["exact_cases"][0]["pipe_sections"] if s["pipe_id"] == "pipe:BEND")
     assert claim["model"] == tim
     with pytest.raises(rv.Refused, match="^SOURCE_PHYSICS_ARC_BEAM_THEORY$"):
@@ -378,7 +338,7 @@ def test_pressure_1_model_checks_take_realized_arcs_from_the_model():
         rv.physics_model_checks(stated, model)
     # An arc a region marks: its marked section is the model's realized arc.
     entry = _arc_corpus_entry("U2-L-ANCH-PTW-K2 0.3.0")
-    timo = timoshenko(shape(entry["envelope"]))
+    timo = timoshenko(entry["envelope"])
     model = deepcopy(entry["document"]["model"])
     model["pressure_contract"]["shear_model"] = tim
     rv.physics_model_checks(timo, model)
