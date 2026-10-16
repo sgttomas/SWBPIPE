@@ -84,33 +84,47 @@ fn check_incomplete_domain(wire: Value, mode: PreviewSolverMode) {
         .diagnostics
         .iter()
         .any(|d| d.code == "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE"));
-    assert_eq!(
-        output
-            .results
-            .iter()
-            .filter(|r| r.kind == "pipe_elastic_normal_stress_maximum_v2")
-            .count(),
-        1,
-        "valid individual maximum must remain inspectable"
-    );
-    assert!(
-        output.summary.max_open_formula_stress.is_none(),
-        "incomplete domain must not publish an available-subset overall maximum"
-    );
+    // D-5 (DEL-05-03 Design §2.2, §2.5): the valid individual maximum is
+    // published on the nominal section and on the reduced one, each basis has
+    // its own coverage record and headline, and no basis-free headline exists.
+    let maxima: Vec<_> = output
+        .results
+        .iter()
+        .filter(|r| r.kind == "pipe_elastic_normal_stress_maximum_v2")
+        .collect();
+    assert_eq!(maxima.len(), 2, "valid individual maximum must remain inspectable");
+    assert!(maxima[0].id.ends_with(":nominal_section") && maxima[1].id.ends_with(":reduced_section"));
+    assert_eq!(maxima[0].value.to_bits(), maxima[1].value.to_bits(), "coincident bases");
+    assert!(output.summary.max_open_formula_stress.is_none());
+    for headline in [
+        &output.summary.max_open_formula_stress_nominal_section,
+        &output.summary.max_open_formula_stress_reduced_section,
+    ] {
+        assert!(
+            matches!(headline, Some(None)),
+            "incomplete domain must not publish an available-subset overall maximum"
+        );
+    }
     let cases = output.contract_evidence.as_ref().unwrap()["exact_cases"]
         .as_array()
         .unwrap();
+    let records = |case: &Value| case["stress_maximum_coverage"].as_array().unwrap().clone();
+    for case in cases {
+        let records = records(case);
+        assert_eq!(records.len(), 2);
+        assert_eq!(records[0]["section_basis"], "nominal_section");
+        assert_eq!(records[1]["section_basis"], "reduced_section");
+        assert_eq!(records[0]["complete"], records[1]["complete"], "coincident bases");
+    }
     assert!(cases
         .iter()
-        .any(|case| case["stress_maximum_coverage"]["complete"] == false));
-    for case in cases
+        .any(|case| records(case).iter().all(|record| record["complete"] == false)));
+    for record in cases
         .iter()
-        .filter(|case| case["stress_maximum_coverage"]["complete"] == false)
+        .flat_map(records)
+        .filter(|record| record["complete"] == false)
     {
-        assert!(!case["stress_maximum_coverage"]["unavailable_pipe_ids"]
-            .as_array()
-            .unwrap()
-            .is_empty());
+        assert!(!record["unavailable_pipe_ids"].as_array().unwrap().is_empty());
     }
 }
 #[test]
@@ -195,15 +209,17 @@ fn exact_zero_stress_ties_use_location_identity_not_member_order() {
             let request: LinearStaticPreviewRequest = serde_json::from_value(wire).unwrap();
             let output = run_linear_static_preview_with_mode(request, mode);
             assert_eq!(output.status.mechanics, "MECHANICS_SOLVED");
-            assert_eq!(
-                output
-                    .summary
-                    .max_open_formula_stress
-                    .as_ref()
-                    .unwrap()
-                    .location_ref,
-                "pipe:a-b"
-            );
+            // D-5: each section basis's headline breaks the tie the same way.
+            assert!(output.summary.max_open_formula_stress.is_none());
+            for headline in [
+                &output.summary.max_open_formula_stress_nominal_section,
+                &output.summary.max_open_formula_stress_reduced_section,
+            ] {
+                assert_eq!(
+                    headline.as_ref().unwrap().as_ref().unwrap().location_ref,
+                    "pipe:a-b"
+                );
+            }
         }
     }
 }

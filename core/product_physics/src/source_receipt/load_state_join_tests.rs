@@ -188,16 +188,29 @@ fn close(actual: f64, expected: f64, scale: f64) {
 }
 
 fn case_row(envelope: &MechanicsEnvelope, case: &str, id_suffix: &str) -> f64 {
+    let in_case = |r: &&ResultItem| {
+        r.basis_ref
+            .as_ref()
+            .is_some_and(|b| b.ref_type == "load_case" && b.ref_id == case)
+    };
     let matched: Vec<_> = envelope
         .results
         .iter()
-        .filter(|r| {
-            r.basis_ref
-                .as_ref()
-                .is_some_and(|b| b.ref_type == "load_case" && b.ref_id == case)
-                && r.id.ends_with(id_suffix)
-        })
+        .filter(in_case)
+        .filter(|r| r.id.ends_with(id_suffix))
         .collect();
+    if matched.is_empty() {
+        // D-5 (DEL-05-03 Design §2.1, §2.5): a stress row's id ends with its
+        // section basis, the nominal row immediately followed by its reduced
+        // twin; these documents' bases coincide, so the twins are bit-equal.
+        let nominal: Vec<_> = envelope.results.iter().filter(in_case)
+            .filter(|r| r.id.ends_with(&format!("{id_suffix}:nominal-section"))).collect();
+        let reduced: Vec<_> = envelope.results.iter().filter(in_case)
+            .filter(|r| r.id.ends_with(&format!("{id_suffix}:reduced-section"))).collect();
+        assert_eq!((nominal.len(), reduced.len()), (1, 1), "{case} {id_suffix}: {nominal:?} {reduced:?}");
+        assert_eq!(nominal[0].value.to_bits(), reduced[0].value.to_bits(), "{case} {id_suffix}: coincident bases");
+        return nominal[0].value;
+    }
     assert_eq!(matched.len(), 1, "{case} {id_suffix}: {matched:?}");
     matched[0].value
 }

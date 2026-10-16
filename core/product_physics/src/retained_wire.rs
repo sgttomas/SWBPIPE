@@ -229,8 +229,22 @@ fn sha_hex(bytes: &[u8]) -> String {
 }
 /// H(d,p) = sha256(UTF8(JCS_checked({"domain":d,"payload":p}))) (C1 §3).
 pub(super) fn domain_hash(domain: &str, payload: &Value) -> Option<String> {
-    let text = serde_json::to_string(&json!({"domain":domain,"payload":payload})).ok()?;
+    let text = domain_text(domain, payload)?;
     canonical_json_checked_v1_text(&text).ok().map(|canon| sha_hex(canon.as_bytes()))
+}
+/// The serialized `{"domain","payload"}` text that `domain_hash` canonicalizes.
+pub(super) fn domain_text(domain: &str, payload: &Value) -> Option<String> {
+    serde_json::to_string(&DomainPayload { domain, payload }).ok()
+}
+/// U6-DH (DEL-05-03 Design §9): the hashed `{"domain","payload"}` wrapper,
+/// serialized from borrows instead of a copy of the payload in a new `Value`.
+/// Its text is the former `json!` object's: serde_json's object map orders
+/// keys, and `domain` < `payload`, the field order here; each field serializes
+/// as the same string and the same borrowed `Value`.
+#[derive(serde::Serialize)]
+struct DomainPayload<'a> {
+    domain: &'a str,
+    payload: &'a Value,
 }
 fn fault_name(f: k::WorkFault) -> &'static str {
     match f {
@@ -1042,6 +1056,10 @@ fn case_source_at(e: &Enc, capture: &rp::ProductCapture, source: &k::PrimitiveSo
         // "I98's B2-W verified; …"); the array order stays kernel canonical.
         nodal_terms.push(json!({"constructor_ordinal":t.original,"source_id":l.source_id,"primitive_load_index":t.original,"dof":dof(l.dof),"value":e.bits(l.value,P)}));
     }
+    // D-5 (DEL-05-03 Design §2.3, §5): one section term per member on both routes. On route E
+    // W1-E admits only documents with zero mill tolerance and zero allowance, so the nominal
+    // and reduced sections coincide and this one term binds both `nominal_section` and
+    // `reduced_section` of the case evidence (`effective_wall` is the nominal wall t).
     let mut section_terms = Vec::with_capacity(capture.facts.len());
     for (i, f) in capture.facts.iter().enumerate() {
         let op = operational_new.get(i).and_then(|o| o.result.as_ref().ok()).ok_or(assoc("sources[].section_terms[]"))?;
@@ -2120,7 +2138,9 @@ fn serialize_attempt(e: &Enc, pc: &rp::ProductCapture, attempt: &rp::CaseAttempt
         let rows = pc.bind_rows_scoped(staged, case_scope, owner).map_err(|_| assoc("cases[].selection.absolute_verified"))?;
         let results = env["results"].as_array().ok_or(assoc("results"))?;
         let results = results.get(case_scope.row_range(results.len())).ok_or(assoc("results"))?;
-        let row_ids: Vec<String> = results.iter().map(|r| r["id"].as_str().map(str::to_owned)).collect::<Option<_>>().ok_or(assoc("results[].id"))?;
+        // D-5 on route E: a reduced-basis twin binds no kernel quantity (its value
+        // is its nominal row's), so the bound rows are the case's other rows.
+        let row_ids: Vec<String> = results.iter().filter(|r| !rp::reduced_twin_wire(pc.route(), r)).map(|r| r["id"].as_str().map(str::to_owned)).collect::<Option<_>>().ok_or(assoc("results[].id"))?;
         if rows.len() != row_ids.len() || rows.iter().zip(&row_ids).any(|(r, id)| r.id != id.as_str()) {
             return Err(assoc("cases[].selection.absolute_verified"));
         }

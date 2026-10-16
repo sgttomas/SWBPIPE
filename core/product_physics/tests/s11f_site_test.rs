@@ -755,6 +755,10 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     // B2-P's combination Call (lane P), met by B1 SQ's table at J0a's merge.
     ("PP/retained_product.rs", "combination_call", 1, "integer: the next attempt ordinal"),
     ("PP/retained_product.rs", "selected_attempts", 1, "integer: the selected attempts' bit set (T-12's detail)"),
+    // T4-U6 (D-5): W1-E binds nominal rows only; these count the reduced twins
+    // passed, mapping a published row to its bound row index.
+    ("PP/retained_product.rs", "bound_row_indices", 1, "integer: the reduced twins passed (D-5 published-to-bound row index)"),
+    ("PP/retained_product.rs", "apply_prepared_overlay", 1, "integer: the reduced twins passed (D-5 published-to-bound row index)"),
     // ---- PP/self_weight.rs
     ("PP/self_weight.rs", "stable_mass_per_length", 2, "declared formation: same-sign mass (section 2.2)"),
     // ---- PP/source_recovery.rs

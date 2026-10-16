@@ -2631,27 +2631,42 @@ fn assert_exact_successor(label: &str, successor: &Value, plain: &Value, statuse
         let attempt = &body["product_attempts"][case["product_attempt_ref"].as_u64().unwrap() as usize];
         let (sections, old) = (now["pipe_sections"].as_array().unwrap(), was["pipe_sections"].as_array().unwrap());
         assert_eq!(sections.len(), old.len(), "{label}");
+        // D-5 (DEL-05-03 Design §2.3, §2.5): W1-E's one section (its admitted documents have
+        // coincident bases) is written to both nested sections, nominal and reduced.
+        const BASES: [&str; 2] = ["nominal_section", "reduced_section"];
         for (s, o) in sections.iter().zip(old) {
-            for key in o.as_object().unwrap().keys().filter(|k| !["As_m2", "I_m4", "J_m4", "Z_m3"].contains(&k.as_str())) {
+            for key in o.as_object().unwrap().keys().filter(|k| !BASES.contains(&k.as_str())) {
                 assert_eq!(s[key], o[key], "{label} {id}: pipe_sections `{key}` unchanged");
+            }
+            for basis in BASES {
+                for key in o[basis].as_object().unwrap().keys().filter(|k| !["As_m2", "I_m4", "J_m4", "Z_m3"].contains(&k.as_str())) {
+                    assert_eq!(s[basis][key], o[basis][key], "{label} {id}: pipe_sections `{basis}.{key}` unchanged");
+                }
             }
             let member = source["id_maps"]["members"].as_array().unwrap().iter().find(|m| m["id"] == s["pipe_id"]).unwrap()["kernel_member"].as_u64().unwrap();
             let term = &source["section_terms"][member as usize];
             let prepared = &attempt["preparation"]["members"].as_array().unwrap().iter().find(|m| m["member"] == json!(member)).unwrap()["result"]["section"];
             let g = &term["geometry"];
-            for (key, bits) in [("As_m2", hex_bits(&term["area"])), ("Z_m3", hex_bits(&term["section_modulus"])), ("I_m4", hex_bits(&g["actual_second_moment"])),
-                ("J_m4", hex_bits(&g["actual_polar_moment"])), ("outside_diameter_m", hex_bits(&g["normalized_od"])),
-                ("effective_wall_thickness_m", hex_bits(&g["effective_wall"])), ("ro_m", hex_bits(&g["actual_radius"]))] {
+            for (key, bits) in [("outside_diameter_m", hex_bits(&g["normalized_od"])), ("wall_thickness_m", hex_bits(&g["effective_wall"])),
+                ("ro_m", hex_bits(&g["actual_radius"]))] {
                 assert_eq!(num_bits(&s[key]), bits, "{label} {id}: G5b `{key}`");
             }
-            for (k, key) in ["As_m2", "I_m4", "J_m4", "Z_m3"].into_iter().enumerate() {
-                assert_eq!(num_bits(&s[key]), hex_bits(&prepared[k]), "{label} {id}: `{key}` is the prepared value");
+            for basis in BASES {
+                for (key, bits) in [("As_m2", hex_bits(&term["area"])), ("Z_m3", hex_bits(&term["section_modulus"])), ("I_m4", hex_bits(&g["actual_second_moment"])),
+                    ("J_m4", hex_bits(&g["actual_polar_moment"])), ("wall_m", hex_bits(&g["effective_wall"]))] {
+                    assert_eq!(num_bits(&s[basis][key]), bits, "{label} {id}: G5b `{basis}.{key}`");
+                }
+                for (k, key) in ["As_m2", "I_m4", "J_m4", "Z_m3"].into_iter().enumerate() {
+                    assert_eq!(num_bits(&s[basis][key]), hex_bits(&prepared[k]), "{label} {id}: `{basis}.{key}` is the prepared value");
+                }
             }
+            let (o, n) = (&o["nominal_section"], &s["nominal_section"]);
             println!("B3B_SECTION {label} {id} {} old=[{:016x},{:016x},{:016x},{:016x}] prepared=[{:016x},{:016x},{:016x},{:016x}]", s["pipe_id"],
                 num_bits(&o["As_m2"]), num_bits(&o["I_m4"]), num_bits(&o["J_m4"]), num_bits(&o["Z_m3"]),
-                num_bits(&s["As_m2"]), num_bits(&s["I_m4"]), num_bits(&s["J_m4"]), num_bits(&s["Z_m3"]));
+                num_bits(&n["As_m2"]), num_bits(&n["I_m4"]), num_bits(&n["J_m4"]), num_bits(&n["Z_m3"]));
         }
-        // P-7: one extremum per member, its other keys unchanged; its row's value is the midpoint.
+        // P-7: one extremum per member and section basis (D-5), its other keys unchanged; its
+        // row's value is the midpoint.
         let (extrema, old) = (now["pipe_stress_extrema"].as_array().unwrap(), was["pipe_stress_extrema"].as_array().unwrap());
         assert_eq!(extrema.len(), old.len(), "{label}");
         for (x, o) in extrema.iter().zip(old) {
@@ -2971,23 +2986,30 @@ fn b3b_exact_observables_refuse_each_evidence_defect() {
         ("load case id", Box::new(|e: &mut Value| { e["exact_cases"][0]["load_case_id"] = json!("other"); }), "observable: evidence case"),
         ("profile mode", Box::new(|e: &mut Value| { e["exact_cases"][0]["profile_mode"] = json!("legacy_pressure_v1"); }), "observable: exact profile/material basis"),
         ("material basis", Box::new(|e: &mut Value| { e["exact_cases"][0]["material_basis"] = json!("resolved_per_member_load_reference_state_v1"); }), "observable: exact profile/material basis"),
-        ("incomplete coverage", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"]["complete"] = json!(false); }), "observable: maximum coverage"),
-        ("an unavailable pipe", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"]["unavailable_pipe_ids"] = json!(["M1"]); }), "observable: maximum coverage"),
-        ("a coverage member", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"]["outside_domain_pipe_ids"] = json!([]); }), "observable: stress coverage shape"),
+        // D-5 (§2.5): one coverage record per section basis, nominal then reduced.
+        ("incomplete coverage", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"][0]["complete"] = json!(false); }), "observable: maximum coverage"),
+        ("incomplete reduced coverage", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"][1]["complete"] = json!(false); }), "observable: maximum coverage"),
+        ("an unavailable pipe", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"][1]["unavailable_pipe_ids"] = json!(["M1"]); }), "observable: maximum coverage"),
+        ("a coverage member", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"][0]["outside_domain_pipe_ids"] = json!([]); }), "observable: stress coverage shape"),
+        ("swapped coverage bases", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"].as_array_mut().unwrap().swap(0, 1); }), "observable: maximum coverage"),
+        ("one coverage record", Box::new(|e: &mut Value| { e["exact_cases"][0]["stress_maximum_coverage"].as_array_mut().unwrap().pop(); }), "observable: stress coverage shape"),
         ("an assembly group", Box::new(|e: &mut Value| { e["exact_cases"][0]["pressure_rhs_assembly"]["groups"] = json!([{}]); }), "observable: exact pressure assembly groups"),
         ("a nonzero assembled entry", Box::new(|e: &mut Value| { e["exact_cases"][0]["pressure_rhs_assembly"]["assembled_pressure_rhs_global"][3] = json!(1.0); }), "observable: exact pressure assembly vector"),
         ("a nonzero cap entry", Box::new(|e: &mut Value| { e["exact_cases"][0]["pressure_rhs_assembly"]["rounded_cap_rhs_global"][0] = json!(-1e-300); }), "observable: exact pressure assembly vector"),
         ("a negative-zero Poisson entry", Box::new(|e: &mut Value| { e["exact_cases"][0]["pressure_rhs_assembly"]["rounded_poisson_rhs_global"][0] = json!(-0.0); }), "observable: exact pressure assembly vector"),
         ("a missing material record", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_materials"] = json!([]); }), "observable: exact section/material coverage"),
         ("the section's OD", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["outside_diameter_m"] = json!(0.25); }), "observable: exact section geometry"),
-        ("the section's wall", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["effective_wall_thickness_m"] = json!(0.0125); }), "observable: exact section geometry"),
+        ("the section's wall", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["wall_thickness_m"] = json!(0.0125); }), "observable: exact section geometry"),
+        ("the reduced section's wall", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["reduced_section"]["wall_m"] = json!(0.0125); }), "observable: exact section geometry"),
+        ("a nonzero allowance", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["corrosion_allowance_m"] = json!(0.001); }), "observable: exact section geometry"),
         ("the material's G", Box::new(|e: &mut Value| { let g = e["exact_cases"][0]["pipe_materials"][0]["G_pa"].as_f64().unwrap(); e["exact_cases"][0]["pipe_materials"][0]["G_pa"] = json!(f64::from_bits(g.to_bits() + 1)); }), "observable: exact material values"),
         ("the material's nu", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_materials"][0]["nu"] = json!(0.3); }), "observable: exact material values"),
         ("the material's E", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_materials"][0]["E_pa"] = json!(2.1e11); }), "observable: exact material values"),
         ("the material's pipe", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_materials"][0]["pipe_id"] = json!("M9"); }), "observable: exact material identity"),
         ("the section's pipe", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["pipe_id"] = json!("M9"); }), "abandoned: prepared section identity"),
         ("a missing section", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"] = json!([]); }), "abandoned: prepared section complete domain"),
-        ("a section's numeric slot", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["J_m4"] = json!("x"); }), "abandoned: prepared section numeric slot"),
+        ("a section's numeric slot", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["nominal_section"]["J_m4"] = json!("x"); }), "abandoned: prepared section numeric slot"),
+        ("a reduced section's numeric slot", Box::new(|e: &mut Value| { e["exact_cases"][0]["pipe_sections"][0]["reduced_section"]["Z_m3"] = json!("x"); }), "abandoned: prepared section numeric slot"),
     ];
     for (label, tamper, expected) in &cases {
         assert_eq!(freeze_with(tamper.as_ref()), *expected, "{label}");
@@ -3046,6 +3068,56 @@ fn b3b_refused_exact_requests_take_the_ordinary_route() {
             assert_eq!(published(output), plain, "{label} {mode:?}: the ordinary route's bytes");
         }
     }
+}
+
+/// O4 interim (DEL-05-03 Design `section-bases-and-timoshenko.md` §5): W1-E declines a
+/// Timoshenko document (`ShearModel`) and a section with nonzero mill tolerance or corrosion
+/// allowance (`SectionAllowance`) at G-A's D1.3, under those named facts rather than the generic
+/// `PressureContract`, so the published bytes are the ordinary route's: no W1, one run, in both
+/// modes. Explicit zeros stay inside D1 (the bases coincide), and route L, whose one section is
+/// t - c_m, keeps admitting a nonzero mill tolerance.
+#[test]
+fn o4_w1e_declines_at_admission() {
+    use super::retained_memory::{namespace_branch, AdmissionRefusal, D1Clause, FamilyFact, NamespaceBranch};
+    let section = |key: &'static str, value: f64| move |r: &mut Value| {
+        for pipe in r["model"]["pipe_segments"].as_array_mut().unwrap() {
+            pipe["section"][key] = json!({"value": value, "unit": "m"});
+        }
+    };
+    let variants: Vec<(&str, Box<dyn Fn(&mut Value)>, FamilyFact)> = vec![
+        ("timoshenko", Box::new(|r: &mut Value| r["model"]["pressure_contract"]["shear_model"] = json!("timoshenko_annulus_energy_v1")), FamilyFact::ShearModel),
+        ("mill tolerance", Box::new(section("mill_tolerance", 0.0005)), FamilyFact::SectionAllowance),
+        ("corrosion allowance", Box::new(section("corrosion_allowance", 0.001)), FamilyFact::SectionAllowance),
+    ];
+    for (label, change, fact) in &variants {
+        let mut raw = m3x();
+        change(&mut raw);
+        let request: LinearStaticPreviewRequest = serde_json::from_value(raw.clone()).unwrap();
+        let branch = namespace_branch(&request.model);
+        assert_eq!(branch, if *fact == FamilyFact::ShearModel { Err(FamilyFact::ShearModel) } else { Ok(NamespaceBranch::Exact) }, "{label}");
+        for mode in MODES {
+            let plain = plain(mode, &raw);
+            let (output, counts) = direct(&raw, mode);
+            let law = output.admission().unwrap().law();
+            assert_eq!(law.domain, Some(AdmissionRefusal::Family(D1Clause::Namespace, *fact)), "{label} {mode:?}: D1.3 declines by its fact");
+            assert!(law.refusal.is_some(), "{label} {mode:?}: G-A refuses");
+            assert!(output.retained().is_none() && output.successor().is_none(), "{label} {mode:?}: no W1");
+            assert_eq!(counts, ONE_RUN, "{label} {mode:?}");
+            assert_eq!(published(output), plain, "{label} {mode:?}: the ordinary route's bytes");
+        }
+    }
+    // Explicit zeros are inside D1 on branch E.
+    let mut zeros = m3x();
+    section("mill_tolerance", 0.0)(&mut zeros);
+    let (output, _) = direct(&zeros, MODES[0]);
+    assert_eq!(output.admission().unwrap().law().domain, None, "explicit zero mill tolerance and allowance");
+    // Route L: the pressure-free milestone with a nonzero mill tolerance stays inside D1.
+    let mut preview = raw();
+    section("mill_tolerance", 0.0005)(&mut preview);
+    let request: LinearStaticPreviewRequest = serde_json::from_value(preview.clone()).unwrap();
+    assert_eq!(namespace_branch(&request.model), Ok(NamespaceBranch::Preview));
+    let (output, _) = direct(&preview, MODES[0]);
+    assert_eq!(output.admission().unwrap().law().domain, None, "route L keeps its one t - c_m section");
 }
 
 /// B3b-P (B3-D P-5; D1.5-exact, DEF-E `scope.materials`): the exact route's capture admits the

@@ -2363,13 +2363,29 @@ impl ProductCapture {
             return Err("basis record capture presence".into());
         }
         let mut modulus_basis = false;
+        let route = view.scope.route;
         let mut out = self.adapter.reserve(view.case_rows().len())?;
+        // D-5 on route E: the nominal stress row awaiting its reduced twin.
+        let mut pending_nominal: Option<ProductRowView<'a>> = None;
         for observed in view.rows() {
             let r=observed.original;let final_value=observed.value;
             if !self.adapter.enter(AdapterEvent::RowVisit, 1)
                 || !self.adapter.enter(AdapterEvent::ValidationEntry, 1)
             {
                 self.adapter.require()?;
+            }
+            // A reduced twin binds no kernel quantity: it pairs with its nominal
+            // twin, the previous row, and carries that row's (retained) value.
+            if reduced_twin(route, r) {
+                let nominal = pending_nominal.take().ok_or("reduced twin pairing")?;
+                self.check_reduced_twin(nominal.original, r)?;
+                if final_value.to_bits() != nominal.value.to_bits() {
+                    return Err("reduced twin value".into());
+                }
+                continue;
+            }
+            if pending_nominal.is_some() {
+                return Err("reduced twin pairing".into());
             }
             let basis = r.basis_ref.as_ref().ok_or("final basis")?;
             let same_case = match combination {
@@ -2562,9 +2578,16 @@ impl ProductCapture {
                     }
                 }
             };
+            // D-5 on route E: every stress row is the nominal row of a twin pair.
+            let section_basis = (route == W1Route::Exact
+                && matches!(recipe, k::ProductRecipe::Stress { .. } | k::ProductRecipe::CircularMaximum { .. }))
+                .then_some(pressure_exact::SectionBasis::Nominal);
             if recipe != k::ProductRecipe::ModulusBasisRecord {
                 let subject=match combination {None=>RowSubject::Case{case:&self.case_id,qualified:view.scope.qualified},Some(id)=>RowSubject::Combination(id)};
-                validate_final_metadata(r, recipe, subject, &self.adapter)?;
+                validate_final_metadata(r, recipe, subject, &self.adapter, section_basis)?;
+            }
+            if section_basis.is_some() {
+                pending_nominal = Some(observed);
             }
             self.adapter.enter(AdapterEvent::MapWrite, 1);
             self.adapter.require()?;
@@ -2578,10 +2601,34 @@ impl ProductCapture {
             });
         }
         self.adapter.require()?;
+        if pending_nominal.is_some() {
+            return Err("reduced twin pairing".into());
+        }
         if modulus_basis != (self.basis_expected && combination.is_none()) {
             return Err("missing final modulus record".into());
         }
         Ok(out)
+    }
+    /// D-5 on route E: a reduced twin repeats its nominal twin in everything but
+    /// its basis: kind, unit, entity, case, metadata other than the basis token,
+    /// and its id and recovery token with the reduced segment and suffix.
+    fn check_reduced_twin(&self,nominal:&ResultItem,reduced:&ResultItem)->Result<(),CaptureError> {
+        use pressure_exact::SectionBasis as B;
+        let (Some(n),Some(m))=(nominal.metadata.as_ref(),reduced.metadata.as_ref()) else {return Err("reduced twin metadata".into())};
+        let hyphen=nominal.id.ends_with(B::Nominal.hyphen());
+        let segment=|b:B|if hyphen{b.hyphen()}else{b.token()};
+        let (Some(nominal_id),Some(reduced_id))=(nominal.id.strip_suffix(segment(B::Nominal)),reduced.id.strip_suffix(segment(B::Reduced))) else {return Err("reduced twin id".into())};
+        let (Some(nominal_basis),Some(reduced_basis))=(n.basis.strip_suffix(B::Nominal.basis_suffix()),m.basis.strip_suffix(B::Reduced.basis_suffix())) else {return Err("reduced twin basis".into())};
+        let same=self.adapter.same(&nominal.kind,&reduced.kind) && self.adapter.same(&nominal.unit,&reduced.unit)
+            && self.adapter.same(&nominal.entity_ref,&reduced.entity_ref) && self.adapter.same(nominal_id,reduced_id)
+            && self.adapter.same(nominal_basis,reduced_basis) && self.adapter.same(&n.component,&m.component)
+            && self.adapter.same(&n.coordinate_system,&m.coordinate_system) && self.adapter.same(&n.location,&m.location)
+            && self.adapter.same(&n.sign_convention,&m.sign_convention);
+        self.adapter.require()?;
+        if !same || nominal.basis_ref!=reduced.basis_ref || !nominal.source_result_refs.is_empty() || !reduced.source_result_refs.is_empty() {
+            return Err("reduced twin pairing".into());
+        }
+        Ok(())
     }
     pub(super) fn observables(&self, e: &MechanicsEnvelope) -> Result<(), CaptureError> {
         self.observables_view(ProductCaseView::of(e,&CaseScope::whole(self.route)))
@@ -2627,10 +2674,17 @@ impl ProductCapture {
             || !self.checked_same(c["material_basis"].as_str().ok_or("exact material basis")?, "base_material_common_E_nu")? {
             return Err("exact profile/material basis".into());
         }
-        self.adapter.closed_keys(&c["stress_maximum_coverage"], &["complete", "unavailable_pipe_ids"], "stress coverage shape")?;
-        if c["stress_maximum_coverage"]["complete"] != true
-            || c["stress_maximum_coverage"]["unavailable_pipe_ids"].as_array().is_none_or(|v| !v.is_empty()) {
-            return Err("maximum coverage".into());
+        // D-5: one complete coverage record per section basis, nominal then reduced.
+        let coverage = c["stress_maximum_coverage"].as_array().ok_or("stress coverage shape")?;
+        if coverage.len() != pressure_exact::SectionBasis::BOTH.len() {
+            return Err("stress coverage shape".into());
+        }
+        for (record, basis) in coverage.iter().zip(pressure_exact::SectionBasis::BOTH) {
+            self.adapter.closed_keys(record, &["section_basis", "complete", "unavailable_pipe_ids"], "stress coverage shape")?;
+            if record["section_basis"] != basis.token() || record["complete"] != true
+                || record["unavailable_pipe_ids"].as_array().is_none_or(|v| !v.is_empty()) {
+                return Err("maximum coverage".into());
+            }
         }
         // No pressure region (D1.5-exact): no assembly group, and every assembled vector +0.
         let assembly = &c["pressure_rhs_assembly"];
@@ -2665,8 +2719,13 @@ impl ProductCapture {
                 }
             }
             let s = section.ok_or("exact section identity")?;
-            let bits = |key: &str| s[key].as_f64().map(f64::to_bits);
-            if bits("outside_diameter_m") != Some(f.diameter.to_bits()) || bits("effective_wall_thickness_m") != Some(f.effective_wall.to_bits()) {
+            // D-5: W1-E's one section is bound to the authored wall and to both
+            // bases (its admitted documents have zero mill tolerance and allowance).
+            let bits = |value: &serde_json::Value| value.as_f64().map(f64::to_bits);
+            let wall = Some(f.effective_wall.to_bits());
+            if bits(&s["outside_diameter_m"]) != Some(f.diameter.to_bits()) || bits(&s["wall_thickness_m"]) != wall
+                || bits(&s["nominal_section"]["wall_m"]) != wall || bits(&s["reduced_section"]["wall_m"]) != wall
+                || s["mill_tolerance_m"].as_f64() != Some(0.0) || s["corrosion_allowance_m"].as_f64() != Some(0.0) {
                 return Err("exact section geometry".into());
             }
             let (_, e_pa, g_pa) = self.materials.get(member.material).ok_or("exact material")?;
@@ -2848,14 +2907,18 @@ impl ProductCapture {
         Ok(())
     }
     fn case_observables(&self,view:ProductCaseView<'_>,extrema:&[serde_json::Value])->Result<(),CaptureError> {
-        if extrema.len() != self.members.len() {
+        // D-5 on route E: one record per member and section basis, nominal then
+        // reduced, each naming its basis.
+        let exact = view.scope.route == W1Route::Exact;
+        let per_member = if exact { 2 } else { 1 };
+        if extrema.len() != self.members.len().checked_mul(per_member).ok_or(CaptureError::CountRange("extrema coverage"))? {
             return Err("extrema coverage".into());
         }
         for (index, x) in extrema.iter().enumerate() {
             self.adapter.enter(AdapterEvent::RowVisit, 1);
             self.adapter.enter(AdapterEvent::ValidationEntry, 1);
             self.adapter.require()?;
-            const KEYS: [&str; 13] = [
+            const KEYS: [&str; 14] = [
                 "pipe_id",
                 "result_id",
                 "station_fraction",
@@ -2869,10 +2932,16 @@ impl ProductCapture {
                 "approximation",
                 "coefficient_basis",
                 "enclosure_scope",
+                "section_basis",
             ];
+            let keys = &KEYS[..if exact { 14 } else { 13 }];
             let object = x.as_object().ok_or("extrema object")?;
-            if object.len() != KEYS.len() || object.keys().any(|k| !KEYS.contains(&k.as_str())) {
+            if object.len() != keys.len() || object.keys().any(|k| !keys.contains(&k.as_str())) {
                 return Err("extrema shape".into());
+            }
+            let basis = exact.then(|| pressure_exact::SectionBasis::BOTH[index % 2]);
+            if basis.is_some_and(|basis| x["section_basis"] != basis.token()) {
+                return Err("extrema section basis".into());
             }
             for key in ["station_fraction", "local_fraction"] {
                 let n = view.number(index,key,&self.adapter)?.ok_or("extrema fraction")?;
@@ -2900,9 +2969,13 @@ impl ProductCapture {
                 ||x["enclosure_scope"]!="supplied_binary64_polynomial_coefficient_enclosures; solution error is separate" {return Err("extrema scope".into());}
             if extrema[..index]
                 .iter()
-                .any(|a| a["pipe_id"] == x["pipe_id"] || a["result_id"] == x["result_id"])
+                .any(|a| (a["pipe_id"] == x["pipe_id"] && a["section_basis"] == x["section_basis"]) || a["result_id"] == x["result_id"])
             {
                 return Err("extrema duplicate".into());
+            }
+            // The nominal and reduced records of one member are adjacent.
+            if exact && index % 2 == 1 && extrema[index - 1]["pipe_id"] != x["pipe_id"] {
+                return Err("extrema twin".into());
             }
             let id = x["result_id"].as_str().ok_or("maximum ref")?;
             let row = view.rows().find(|r| r.id == id).ok_or("maximum row")?;
@@ -2916,21 +2989,29 @@ impl ProductCapture {
                 return Err("maximum midpoint".into());
             }
             if x["pipe_id"] != row.entity_ref || row.kind != "pipe_elastic_normal_stress_maximum_v2"
+                || basis.is_some_and(|basis| !row.metadata.as_ref().is_some_and(|m| m.basis.ends_with(basis.basis_suffix())))
             {
                 return Err("maximum binding".into());
             }
         }
         self.support_observables(view)?;
-        for (headline, kind) in [
-            (view.headline(false), "displacement_magnitude"),
-            (
-                view.headline(true),
-                "pipe_elastic_normal_stress_maximum_v2",
-            ),
-        ] {
+        // D-5 on route E: each section basis's own stress headline, bound to the
+        // greatest maximum row of that basis; the basis-free one is null.
+        if exact && view.payload.is_none() && view.ordinary.summary.max_open_formula_stress.is_some() {
+            return Err("headline basis".into());
+        }
+        let stress_bases: &[Option<pressure_exact::SectionBasis>] = if exact {
+            &[Some(pressure_exact::SectionBasis::Nominal), Some(pressure_exact::SectionBasis::Reduced)]
+        } else {
+            &[None]
+        };
+        let headlines = std::iter::once((view.headline(false,None), "displacement_magnitude", None))
+            .chain(stress_bases.iter().map(|basis| (view.headline(true,*basis), "pipe_elastic_normal_stress_maximum_v2", *basis)));
+        for (headline, kind, basis) in headlines {
             let h = headline.ok_or("headline")?;
             let best = view.rows()
                 .filter(|r| r.kind == kind)
+                .filter(|r| basis.is_none_or(|basis| r.metadata.as_ref().is_some_and(|m| m.basis.ends_with(basis.basis_suffix()))))
                 .max_by(|a, b| {
                     a.value
                         .total_cmp(&b.value)
@@ -2961,11 +3042,14 @@ enum RowSubject<'a> {
 const COMBINATION_METADATA_BASIS: &str = "explicit_user_linear_combination";
 const COMBINATION_SIGN_CONVENTION: &str = "positive value follows explicit user linear combination of matching source result sign conventions";
 
+/// `section_basis` (D-5, route E): a stress row's basis, whose suffix its
+/// recovery token and whose final segment its id carry.
 fn validate_final_metadata(
     row: &ResultItem,
     recipe: k::ProductRecipe,
     subject: RowSubject<'_>,
     work: &AdapterWork,
+    section_basis: Option<pressure_exact::SectionBasis>,
 ) -> Result<(), CaptureError> {
     work.require()?;
     work.enter(AdapterEvent::LibraryBoundary, 1); // Fixed expected-text construction, with formatting/allocator internals unqualified.
@@ -2995,10 +3079,15 @@ fn validate_final_metadata(
      -> Result<(), CaptureError> {
         let m = m.ok_or("missing final metadata")?;
         let (basis, sign) = if combination.is_some() { (COMBINATION_METADATA_BASIS, COMBINATION_SIGN_CONVENTION) } else { (basis, sign) };
+        // D-5: a route-E stress row's token is the recovery token plus its basis suffix.
+        let row_basis = match section_basis {
+            Some(section_basis) => m.basis.strip_suffix(section_basis.basis_suffix()).unwrap_or(""),
+            None => m.basis.as_str(),
+        };
         if !work.same(&m.component, component)
             || !work.same(&m.coordinate_system, coordinate)
             || !work.same(&m.location, location)
-            || !work.same(&m.basis, basis)
+            || !work.same(row_basis, basis)
             || !work.same(&m.sign_convention, sign)
         {
             work.require()?;
@@ -3208,6 +3297,13 @@ fn validate_final_metadata(
             )
         }
         _ => return Err("unsupported metadata recipe".into()),
+    };
+    // D-5 (§2.5): a route-E stress row's id ends in its basis segment (hyphen-style
+    // `result:stress:…`, underscore-style `result:elastic-maximum:…`).
+    let expected = match (section_basis, recipe) {
+        (Some(basis), k::ProductRecipe::Stress { .. }) => format!("{expected}:{}", basis.hyphen()),
+        (Some(basis), _) => format!("{expected}:{}", basis.token()),
+        (None, _) => expected,
     };
     // B1 SP (T-9): a case after the first carries the envelope's case-qualified id, except
     // for the `_v2` kinds, whose ids already name the case (lib.rs, the preview's rows).
@@ -5311,14 +5407,38 @@ const PREPARED_MAX_KEYS:[&str;8]=["station_fraction","span_index","local_fractio
 struct PreparedMaximumPatch { evidence_index:usize, #[cfg_attr(not(test), allow(dead_code))] row:usize,
     #[cfg_attr(not(test), allow(dead_code))] member:u32, numbers:[serde_json::Number;8] }
 /// B3b-P (B3-D §1.4, B3D-4): the exact route's regenerated section evidence of one member in
-/// the owner case's `exact_cases` entry: `pipe_sections[evidence_index]`'s four values.
+/// the owner case's `exact_cases` entry: `pipe_sections[evidence_index]`'s four values, which
+/// D-5 (§2.5) nests in both basis sections: W1-E's one section binds both.
 const PREPARED_SECTION_KEYS:[&str;4]=["As_m2","I_m4","J_m4","Z_m3"];
+const PREPARED_SECTION_BASES:[&str;2]=["nominal_section","reduced_section"];
 /// `member` is never read; the patch's layout is counted by the adapter (its capacity bytes are
 /// receipt facts), so the field stays.
 struct PreparedSectionPatch { evidence_index:usize, #[allow(dead_code)] member:u32, numbers:[serde_json::Number;4] }
 /// `sections` is empty on the preview route (no allocation, no event).
+/// D-5 on route E: `stress` is the nominal basis's alias and `stress_reduced`
+/// the reduced basis's (`None` on the preview route).
 struct PreparedPayload { values:k::FrozenProductValues, maxima:Vec<PreparedMaximumPatch>,
-    displacement:LocatedQuantity, stress:LocatedQuantity, sections:Vec<PreparedSectionPatch> }
+    displacement:LocatedQuantity, stress:LocatedQuantity, stress_reduced:Option<LocatedQuantity>, sections:Vec<PreparedSectionPatch> }
+/// D-5 (DEL-05-03 Design §2.2, §5) on route E: a reduced-basis stress row,
+/// published immediately after its nominal twin. W1-E's retained element has
+/// one section and its admitted documents have coincident bases (G-A declines
+/// nonzero mill tolerance and allowance), so the kernel binds the nominal row
+/// only and the successor overlays the reduced row with its nominal row's
+/// retained value.
+fn reduced_twin(route:W1Route,row:&ResultItem)->bool {
+    route==W1Route::Exact && row.metadata.as_ref().is_some_and(|m|m.basis.ends_with(pressure_exact::SectionBasis::Reduced.basis_suffix()))
+}
+/// [`reduced_twin`] over a serialized row (the receipt's view of the staged rows).
+pub(super) fn reduced_twin_wire(route:W1Route,row:&serde_json::Value)->bool {
+    route==W1Route::Exact && row["metadata"]["basis"].as_str().is_some_and(|b|b.ends_with(pressure_exact::SectionBasis::Reduced.basis_suffix()))
+}
+/// The bound (kernel) row index of each case row: a reduced twin takes its
+/// nominal twin's, which immediately precedes it (`bind_rows_subject` checks
+/// the pairing). The identity on the preview route.
+fn bound_row_indices<'r>(route:W1Route,rows:&'r [ResultItem])->impl Iterator<Item=usize>+'r {
+    let mut twins=0usize;
+    rows.iter().enumerate().map(move |(i,r)|{if reduced_twin(route,r){twins+=1;} i-twins})
+}
 #[derive(Clone,Copy)]
 struct ProductRowView<'a> { original:&'a ResultItem, value:&'a f64 }
 impl std::ops::Deref for ProductRowView<'_> {type Target=ResultItem;fn deref(&self)->&ResultItem{self.original}}
@@ -5358,7 +5478,8 @@ impl<'a> ProductCaseView<'a> {
     /// The case's rows of the envelope (none when the scope does not fit it).
     fn case_rows(self)->&'a [ResultItem] {self.scope.rows_of(&self.ordinary.results).unwrap_or(&[])}
     fn rows(self)->impl Iterator<Item=ProductRowView<'a>> {
-        self.case_rows().iter().enumerate().map(move |(i,r)|ProductRowView{original:r,value:match self.payload.map(|payload|&payload.values).or(self.frozen) {
+        // D-5 on route E: a reduced twin shows its nominal twin's overlaid value.
+        self.case_rows().iter().zip(bound_row_indices(self.scope.route,self.case_rows())).map(move |(r,i)|ProductRowView{original:r,value:match self.payload.map(|payload|&payload.values).or(self.frozen) {
             None=>&r.value,Some(values)=>values.value(i).expect("validated overlay length")}})
     }
     fn number(self,index:usize,key:&str,adapter:&AdapterWork)->Result<Option<f64>,CaptureError> {
@@ -5379,9 +5500,21 @@ impl<'a> ProductCaseView<'a> {
             Ok(None)
         },None=>Ok(self.ordinary.contract_evidence.as_ref().and_then(|e|e[self.scope.route.evidence_cases()][self.scope.evidence]["pipe_stress_extrema"][index][key].as_f64()))}
     }
-    fn headline(self,stress:bool)->Option<&'a LocatedQuantity> {match self.payload {
-        None=>if stress{self.ordinary.summary.max_open_formula_stress.as_ref()}else{self.ordinary.summary.max_displacement.as_ref()},
-        Some(payload)=>Some(if stress{&payload.stress}else{&payload.displacement})}}
+    /// The displacement headline, or the stress headline: the basis-free one on
+    /// the preview route (`basis` None), a section basis's own on route E (D-5).
+    fn headline(self,stress:bool,basis:Option<pressure_exact::SectionBasis>)->Option<&'a LocatedQuantity> {
+        use pressure_exact::SectionBasis as B;
+        let summary=&self.ordinary.summary;
+        match (self.payload,stress,basis) {
+            (None,false,_)=>summary.max_displacement.as_ref(),
+            (None,true,None)=>summary.max_open_formula_stress.as_ref(),
+            (None,true,Some(B::Nominal))=>summary.max_open_formula_stress_nominal_section.as_ref().and_then(Option::as_ref),
+            (None,true,Some(B::Reduced))=>summary.max_open_formula_stress_reduced_section.as_ref().and_then(Option::as_ref),
+            (Some(payload),false,_)=>Some(&payload.displacement),
+            (Some(payload),true,None|Some(B::Nominal))=>Some(&payload.stress),
+            (Some(payload),true,Some(B::Reduced))=>payload.stress_reduced.as_ref(),
+        }
+    }
 }
 #[derive(Debug)]
 pub(super) enum PreparedCandidateError {Capture(CaptureError),Proof(k::ProductProofFailure),
@@ -5456,8 +5589,12 @@ impl ProductCapture {
         let evidence=e.contract_evidence.as_ref().ok_or("prepared maximum evidence")?;
         // B3b-P (P-7): the route's per-case evidence entry (`exact_cases[c]` on the exact route).
         let extrema=evidence[scope.route.evidence_cases()][scope.evidence]["pipe_stress_extrema"].as_array().ok_or("prepared maximum records")?;
-        if extrema.len()!=self.members.len(){return Err("prepared maximum complete domain".into());}
-        let mut patches=self.adapter.reserve(self.members.len())?;
+        // D-5 on route E: a nominal and a reduced record per member; the reduced
+        // record takes the nominal maximum's retained numbers (coincident bases).
+        let exact=scope.route==W1Route::Exact;
+        let per_member=if exact{2}else{1};
+        if extrema.len()!=self.members.len().checked_mul(per_member).ok_or(CaptureError::CountRange("prepared maximum records"))?{return Err("prepared maximum complete domain".into());}
+        let mut patches=self.adapter.reserve(extrema.len())?;
         let mut outputs=self.adapter.reserve(self.members.len())?;
         for (mi,m) in owner.source().members().iter().enumerate() {
             self.capture_entry(AdapterEvent::SourceVisit)?;
@@ -5502,7 +5639,24 @@ impl ProductCapture {
                 nu(u64::try_from(maximum.subdivisions).map_err(|_|CaptureError::CountRange("maximum subdivisions"))?)?];
             let output=k::ProductMaximumValue::new(m.id,row,value).map_err(CaptureError::PreparedProof)?;
             self.capture_entry(AdapterEvent::MapWrite)?;outputs.push(output);
+            let reduced=if exact {
+                let mut reduced=None;
+                for (i,x) in extrema.iter().enumerate() {
+                    self.capture_entry(AdapterEvent::RowVisit)?;
+                    if self.checked_same(x["pipe_id"].as_str().ok_or("maximum pipe id")?,id)?
+                        && self.checked_same(x["section_basis"].as_str().ok_or("maximum section basis")?,pressure_exact::SectionBasis::Reduced.token())? {
+                        if reduced.is_some(){return Err("prepared maximum identity".into());}
+                        reduced=Some(i);
+                    }
+                }
+                let reduced=reduced.ok_or("prepared maximum identity")?;
+                for key in PREPARED_MAX_KEYS {self.capture_entry(AdapterEvent::ValidationEntry)?;if extrema[reduced][key].as_number().is_none(){return Err("prepared maximum numeric slot".into());}}
+                Some((reduced,numbers.clone()))
+            } else {None};
             self.capture_entry(AdapterEvent::MapWrite)?;patches.push(PreparedMaximumPatch{evidence_index:index,row,member:m.id,numbers});
+            if let Some((evidence_index,numbers))=reduced {
+                self.capture_entry(AdapterEvent::MapWrite)?;patches.push(PreparedMaximumPatch{evidence_index,row,member:m.id,numbers});
+            }
         }
         Ok((patches,outputs))
     }
@@ -5527,19 +5681,25 @@ impl ProductCapture {
                 }
             }
             let index=found.ok_or("prepared section identity")?;
-            for key in PREPARED_SECTION_KEYS {self.capture_entry(AdapterEvent::ValidationEntry)?;if sections[index][key].as_number().is_none(){return Err("prepared section numeric slot".into());}}
+            for basis in PREPARED_SECTION_BASES {
+                for key in PREPARED_SECTION_KEYS {self.capture_entry(AdapterEvent::ValidationEntry)?;if sections[index][basis][key].as_number().is_none(){return Err("prepared section numeric slot".into());}}
+            }
             let n=|v:f64|{self.capture_entry(AdapterEvent::MapWrite)?;serde_json::Number::from_f64(v).ok_or_else(||CaptureError::Association("section number range".into()))};
             let numbers=[n(f.area)?,n(f.second_moment)?,n(f.torsion_constant)?,n(f.section_modulus)?];
             self.capture_entry(AdapterEvent::MapWrite)?;patches.push(PreparedSectionPatch{evidence_index:index,member:f.member,numbers});
         }
         Ok(patches)
     }
-    fn prepared_alias(&self,rows:&[ResultItem],values:&k::FrozenProductValues,kind:&str)->Result<LocatedQuantity,CaptureError> {
+    /// The case's alias of `kind`: the greatest of its rows, on route E of one
+    /// section basis (D-5; a reduced twin carries its nominal twin's value).
+    fn prepared_alias(&self,route:W1Route,rows:&[ResultItem],values:&k::FrozenProductValues,kind:&str,
+        basis:Option<pressure_exact::SectionBasis>)->Result<LocatedQuantity,CaptureError> {
         let mut best=None;
-        for (i,r) in rows.iter().enumerate() {
+        for (i,(r,bound)) in rows.iter().zip(bound_row_indices(route,rows)).enumerate() {
             self.capture_entry(AdapterEvent::RowVisit)?;
             if r.kind!=kind {continue;}
-            let value=*values.value(i).ok_or("alias value")?;
+            if basis.is_some_and(|basis|!r.metadata.as_ref().is_some_and(|m|m.basis.ends_with(basis.basis_suffix()))) {continue;}
+            let value=*values.value(bound).ok_or("alias value")?;
             if best.is_none_or(|(j,v):(usize,f64)|value>v || (value==v && r.entity_ref<rows[j].entity_ref)) {best=Some((i,value));}
         }
         let (i,value)=best.ok_or("alias complete domain")?;let r=&rows[i];
@@ -5599,12 +5759,19 @@ impl ProductCapture {
             let (values,value_work)=match builder.complete_maxima(maxima_input).into_ready() {
                 Ok(v)=>v,Err(failure)=>return Err(PreparedCandidateError::Values{failure,proof:projected.abandon()})};
             trace.completed(trace::Stage::Values);trace.enter(trace::Stage::Aliases);
-            let displacement=match self.prepared_alias(ProductCaseView::of(ordinary,scope).case_rows(),&values,"displacement_magnitude") {
+            let displacement=match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope).case_rows(),&values,"displacement_magnitude",None) {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
-            let stress=match self.prepared_alias(ProductCaseView::of(ordinary,scope).case_rows(),&values,"pipe_elastic_normal_stress_maximum_v2") {
+            // D-5 on route E: one stress alias per section basis.
+            let nominal=(scope.route==W1Route::Exact).then_some(pressure_exact::SectionBasis::Nominal);
+            let stress=match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope).case_rows(),&values,"pipe_elastic_normal_stress_maximum_v2",nominal) {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
+            let stress_reduced=match scope.route {
+                W1Route::Preview=>None,
+                W1Route::Exact=>match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope).case_rows(),&values,"pipe_elastic_normal_stress_maximum_v2",Some(pressure_exact::SectionBasis::Reduced)) {
+                    Ok(v)=>Some(v),Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})},
+            };
             trace.completed(trace::Stage::Aliases);
-            let payload=PreparedPayload{values,maxima:patches,displacement,stress,sections};
+            let payload=PreparedPayload{values,maxima:patches,displacement,stress,stress_reduced,sections};
             let view=ProductCaseView{ordinary,payload:Some(&payload),scope,frozen:None};
             let rows=match self.bind_rows_view(view,owner) {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
@@ -5662,11 +5829,13 @@ impl ProductCapture {
                     else if self.g5a_error.is_some(){PreparedCandidateError::G5a}else{PreparedCandidateError::Numeric});
             }
             // The finite move plan is checked/charged before any ordinary mutation.
-            // B3b-P: the exact route's section patches move four values each (none on the preview route).
-            let section_moves=payload.sections.len().checked_mul(4).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit sections")))?;
-            let moves=payload.values.len().checked_add(payload.maxima.len().checked_mul(8).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit maxima")))?)
+            // B3b-P: the exact route's section patches move four values per basis section each
+            // (D-5: both nested bases; none on the preview route); every case row's value moves,
+            // a reduced twin's included.
+            let section_moves=payload.sections.len().checked_mul(4*PREPARED_SECTION_BASES.len()).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit sections")))?;
+            let moves=ProductCaseView::of(ordinary,scope).case_rows().len().checked_add(payload.maxima.len().checked_mul(8).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit maxima")))?)
                 .and_then(|v|v.checked_add(section_moves))
-                .and_then(|v|v.checked_add(2)).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit moves")))?;
+                .and_then(|v|v.checked_add(2+usize::from(payload.stress_reduced.is_some()))).ok_or_else(||PreparedCandidateError::Capture(CaptureError::CountRange("commit moves")))?;
             self.adapter.enter(AdapterEvent::MapWrite,u64::try_from(moves).map_err(|_|PreparedCandidateError::Capture(CaptureError::CountRange("commit count")))?);
             self.adapter.require().map_err(PreparedCandidateError::Capture)?;
             trace.costs.record::<bool>();trace.private_commit_precharged=true;
@@ -5712,7 +5881,13 @@ impl PreparedCase {
 /// with the untouched ordinary owner; nothing here panics.
 fn apply_prepared_overlay(envelope:&mut MechanicsEnvelope,payload:&PreparedPayload,scope:&CaseScope)->Result<(),StagingFault> {
     let rows=match &scope.rows {None=>&mut envelope.results[..],Some(rows)=>envelope.results.get_mut(rows.clone()).ok_or(StagingFault("results"))?};
-    for (i,row) in rows.iter_mut().enumerate(){row.value=*payload.values.value(i).ok_or(StagingFault("values"))?;}
+    // D-5 on route E: each reduced twin takes its nominal row's retained value
+    // (`bound_row_indices`, without a resident index list).
+    let mut twins=0usize;
+    for (i,row) in rows.iter_mut().enumerate(){
+        if reduced_twin(scope.route,row){twins+=1;}
+        row.value=*payload.values.value(i-twins).ok_or(StagingFault("values"))?;
+    }
     let key=scope.route.evidence_cases();
     let cases=envelope.contract_evidence.as_mut().and_then(|e|e.as_object_mut()).and_then(|e|e.get_mut(key))
         .and_then(|c|c.as_array_mut()).ok_or(StagingFault(key))?;
@@ -5730,7 +5905,15 @@ fn apply_prepared_overlay(envelope:&mut MechanicsEnvelope,payload:&PreparedPaylo
     // The one requested case's aliases are the headlines (B2-P T-11′: at c = 1 its scope is its
     // own block when a combination follows; headlines cover load cases only).
     if scope.cases==1 {
-        envelope.summary.max_displacement=Some(payload.displacement.clone());envelope.summary.max_open_formula_stress=Some(payload.stress.clone());
+        envelope.summary.max_displacement=Some(payload.displacement.clone());
+        match scope.route {
+            W1Route::Preview=>envelope.summary.max_open_formula_stress=Some(payload.stress.clone()),
+            // D-5 (§2.2): both basis headlines; the basis-free one stays null.
+            W1Route::Exact=>{
+                envelope.summary.max_open_formula_stress_nominal_section=Some(Some(payload.stress.clone()));
+                envelope.summary.max_open_formula_stress_reduced_section=Some(Some(payload.stress_reduced.clone().ok_or(StagingFault("summary"))?));
+            }
+        }
     }
     Ok(())
 }
@@ -5740,8 +5923,12 @@ fn apply_exact_section_overlay(case:&mut serde_json::Map<String,serde_json::Valu
     let sections=case.get_mut("pipe_sections").and_then(|x|x.as_array_mut()).ok_or(StagingFault("pipe_sections"))?;
     for patch in &payload.sections {
         let object=sections.get_mut(patch.evidence_index).and_then(|x|x.as_object_mut()).ok_or(StagingFault("pipe_sections[]"))?;
-        for (key,number) in PREPARED_SECTION_KEYS.into_iter().zip(patch.numbers.iter()){
-            *object.get_mut(key).ok_or(StagingFault("pipe_sections[].key"))?=serde_json::Value::Number(number.clone());
+        // D-5 (§2.5): the prepared section is written to both nested bases.
+        for basis in PREPARED_SECTION_BASES {
+            let section=object.get_mut(basis).and_then(|x|x.as_object_mut()).ok_or(StagingFault("pipe_sections[].basis"))?;
+            for (key,number) in PREPARED_SECTION_KEYS.into_iter().zip(patch.numbers.iter()){
+                *section.get_mut(key).ok_or(StagingFault("pipe_sections[].key"))?=serde_json::Value::Number(number.clone());
+            }
         }
     }
     Ok(())
@@ -5754,13 +5941,24 @@ fn apply_exact_section_overlay(case:&mut serde_json::Map<String,serde_json::Valu
 /// rows. Unless a frozen case's rows hold it, this is the ordinary headline's row. Its result
 /// reference is the row's own (case-qualified) id.
 fn stage_headlines(staged:&mut MechanicsEnvelope,ordinary:&MechanicsEnvelope)->Result<(),StagingFault> {
-    for (kind,stress) in [("displacement_magnitude",false),("pipe_elastic_normal_stress_maximum_v2",true)] {
-        let present=if stress{ordinary.summary.max_open_formula_stress.is_some()}else{ordinary.summary.max_displacement.is_some()};
+    use pressure_exact::SectionBasis as B;
+    const MAXIMUM:&str="pipe_elastic_normal_stress_maximum_v2";
+    // D-5 (§2.2): on route E each section basis has its own headline (over its
+    // own maximum rows); the basis-free stress headline stays null.
+    let present_basis=|headline:&Option<Option<LocatedQuantity>>|headline.as_ref().is_some_and(Option::is_some);
+    let summary=&ordinary.summary;
+    for (kind,slot,section_basis,present) in [
+        ("displacement_magnitude",0,None,summary.max_displacement.is_some()),
+        (MAXIMUM,1,None,summary.max_open_formula_stress.is_some()),
+        (MAXIMUM,2,Some(B::Nominal),present_basis(&summary.max_open_formula_stress_nominal_section)),
+        (MAXIMUM,3,Some(B::Reduced),present_basis(&summary.max_open_formula_stress_reduced_section)),
+    ] {
         if !present {continue;}
         let mut best:Option<(&ResultItem,&str)>=None;
         // B2-P (T-11′): load-case rows only, as `maximum_across_cases` and the base readers'
         // headline (a combination's magnitude is never a headline).
-        for row in staged.results.iter().filter(|row|row.kind==kind) {
+        for row in staged.results.iter().filter(|row|row.kind==kind)
+            .filter(|row|section_basis.is_none_or(|section_basis:B|row.metadata.as_ref().is_some_and(|m|m.basis.ends_with(section_basis.basis_suffix())))) {
             let basis=row.basis_ref.as_ref().ok_or(StagingFault("results[].basis_ref"))?;
             if basis.ref_type!="load_case" {continue;}
             let case=basis.ref_id.as_str();
@@ -5770,7 +5968,12 @@ fn stage_headlines(staged:&mut MechanicsEnvelope,ordinary:&MechanicsEnvelope)->R
         }
         let (row,_)=best.ok_or(StagingFault("summary"))?;
         let headline=LocatedQuantity{value:row.value,unit:row.unit.clone(),location_ref:row.entity_ref.clone(),result_ref:row.id.clone()};
-        if stress {staged.summary.max_open_formula_stress=Some(headline);} else {staged.summary.max_displacement=Some(headline);}
+        match slot {
+            0=>staged.summary.max_displacement=Some(headline),
+            1=>staged.summary.max_open_formula_stress=Some(headline),
+            2=>staged.summary.max_open_formula_stress_nominal_section=Some(Some(headline)),
+            _=>staged.summary.max_open_formula_stress_reduced_section=Some(Some(headline)),
+        }
     }
     Ok(())
 }

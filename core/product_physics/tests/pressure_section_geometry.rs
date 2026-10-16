@@ -130,6 +130,10 @@ fn solved(result: &MechanicsEnvelope) {
     assert!(result.results.iter().all(|r| r.value.is_finite()));
 }
 
+/// D-5 (DEL-05-03 Design §2.1): a stress row is published on the nominal and
+/// the reduced section; the lookup takes the basis as a key. These documents
+/// have zero mill tolerance and allowance, so the bases coincide and the
+/// reduced twin must equal the nominal row bit for bit.
 fn row<'a>(
     result: &'a MechanicsEnvelope,
     kind: &str,
@@ -137,20 +141,35 @@ fn row<'a>(
     component: &str,
     location: Option<&str>,
 ) -> &'a ResultItem {
-    let matching: Vec<_> = result
-        .results
-        .iter()
-        .filter(|r| {
-            r.kind == kind
-                && r.entity_ref == entity
-                && r.basis_ref
-                    .as_ref()
-                    .is_some_and(|b| b.ref_type == "load_case" && b.ref_id == CASE)
-                && r.metadata.as_ref().is_some_and(|m| {
-                    m.component == component && location.map_or(true, |l| m.location == l)
-                })
-        })
-        .collect();
+    let of_basis = |basis: Option<&str>| -> Vec<&'a ResultItem> {
+        result
+            .results
+            .iter()
+            .filter(|r| {
+                r.kind == kind
+                    && r.entity_ref == entity
+                    && r.basis_ref
+                        .as_ref()
+                        .is_some_and(|b| b.ref_type == "load_case" && b.ref_id == CASE)
+                    && r.metadata.as_ref().is_some_and(|m| {
+                        m.component == component
+                            && location.map_or(true, |l| m.location == l)
+                            && basis.map_or(!m.basis.contains("; section_basis="), |basis| {
+                                m.basis.ends_with(&format!("; section_basis={basis}"))
+                            })
+                    })
+            })
+            .collect()
+    };
+    if kind.contains("stress") {
+        let nominal = of_basis(Some("nominal_section"));
+        let reduced = of_basis(Some("reduced_section"));
+        assert_eq!(nominal.len(), 1, "missing/ambiguous nominal row: {kind} {entity} {component} {location:?}");
+        assert_eq!(reduced.len(), 1, "missing/ambiguous reduced row: {kind} {entity} {component} {location:?}");
+        assert_eq!(nominal[0].value.to_bits(), reduced[0].value.to_bits(), "coincident bases: {kind} {location:?}");
+        return nominal[0];
+    }
+    let matching = of_basis(None);
     assert_eq!(
         matching.len(),
         1,
@@ -202,17 +221,18 @@ fn geometry<'a>(result: &'a MechanicsEnvelope, pressurized: bool) -> &'a Value {
             .iter()
             .find(|p| p["pipe_id"] == PIPE)
             .unwrap();
+        // D-5 (§2.5): one section-evidence shape in the frame and pressure records.
         for key in [
             "geometry_basis",
             "outside_diameter_m",
-            "effective_wall_thickness_m",
-            "ri_m",
             "ro_m",
-            "Ai_m2",
-            "As_m2",
-            "I_m4",
-            "J_m4",
-            "Z_m3",
+            "wall_thickness_m",
+            "mill_tolerance_m",
+            "corrosion_allowance_m",
+            "nominal_section",
+            "reduced_section",
+            "pressure_bore",
+            "beam_theory",
         ] {
             assert_eq!(
                 counterpart[key], section[key],
@@ -229,35 +249,38 @@ fn geometry<'a>(result: &'a MechanicsEnvelope, pressurized: bool) -> &'a Value {
     section
 }
 
+/// D-5 (§2.3, §2.5): with zero mill tolerance and allowance the nominal and
+/// reduced sections are the one source section, and the pressure bore is its
+/// bore; each is checked against the same independent source reference.
 fn check_geometry(result: &MechanicsEnvelope, case: &Value, pressurized: bool) {
     let section = geometry(result, pressurized);
-    assert_eq!(section["geometry_basis"], "authored_normalized_od_wall_v1");
+    assert_eq!(section["geometry_basis"], "authored_od_wall_d5_sections_v1");
+    assert_eq!(section["beam_theory"], json!({"model":"euler_bernoulli"}));
     assert_eq!(
         section["outside_diameter_m"].as_f64().unwrap(),
         case["inputs"]["OD_m"].as_f64().unwrap()
     );
-    assert_eq!(
-        section["effective_wall_thickness_m"].as_f64().unwrap(),
-        case["inputs"]["wall_m"].as_f64().unwrap()
-    );
-    for key in ["ro", "ri"] {
-        let bits =
-            u64::from_str_radix(case[format!("{key}_bits_hex")].as_str().unwrap(), 16).unwrap();
-        assert_eq!(
-            section[format!("{key}_m")].as_f64().unwrap().to_bits(),
-            bits,
-            "derived rounded radius is distinct from source property basis"
-        );
-    }
+    let wall = case["inputs"]["wall_m"].as_f64().unwrap();
+    assert_eq!(section["wall_thickness_m"].as_f64().unwrap(), wall);
+    assert_eq!(section["mill_tolerance_m"].as_f64().unwrap(), 0.0);
+    assert_eq!(section["corrosion_allowance_m"].as_f64().unwrap(), 0.0);
+    let bits = |key: &str| u64::from_str_radix(case[format!("{key}_bits_hex")].as_str().unwrap(), 16).unwrap();
+    assert_eq!(section["ro_m"].as_f64().unwrap().to_bits(), bits("ro"),
+        "derived rounded radius is distinct from source property basis");
+    assert_eq!(section["pressure_bore"]["ri_m"].as_f64().unwrap().to_bits(), bits("ri"));
+    close(section["pressure_bore"]["Ai_m2"].as_f64().unwrap(), expected(case, "Ai_m2"), 0.0, "Ai_m2");
+    assert_eq!(section["nominal_section"], section["reduced_section"], "coincident bases");
+    let nominal = &section["nominal_section"];
+    assert_eq!(nominal["wall_m"].as_f64().unwrap(), wall);
+    assert_eq!(nominal["ri_m"].as_f64().unwrap().to_bits(), bits("ri"));
     for (field, reference) in [
-        ("Ai_m2", "Ai_m2"),
         ("As_m2", "A_m2"),
         ("I_m4", "I_m4"),
         ("J_m4", "J_m4"),
         ("Z_m3", "Z_m3"),
     ] {
         close(
-            section[field].as_f64().unwrap(),
+            nominal[field].as_f64().unwrap(),
             expected(case, reference),
             0.0,
             field,

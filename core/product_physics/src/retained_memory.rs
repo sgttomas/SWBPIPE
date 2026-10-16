@@ -635,6 +635,14 @@ pub(super) enum CensusPart {
 pub(super) enum FamilyFact {
     SchemaVersion,
     PressureContract,
+    /// O4 interim (DEL-05-03 Design §5): an exact v3 contract selecting
+    /// `timoshenko_annulus_energy_v1`, which W1-E's Euler-Bernoulli element
+    /// does not form.
+    ShearModel,
+    /// O4 interim (DEL-05-03 Design §5): an exact pipe section with nonzero
+    /// mill tolerance or corrosion allowance, a second (reduced) section basis
+    /// W1-E does not have.
+    SectionAllowance,
     ReferenceConfigurations,
     MaterialExpansionLaw,
     RequestExpansionLaws,
@@ -820,16 +828,27 @@ pub(super) enum NamespaceBranch {
 /// Identity plus the currently admitted required shear selection. The typed
 /// closed object decoder preserves malformed/unknown/duplicate refusals.
 fn contract_is(contract: &crate::PressureContractInput, version: &str, mode: &str) -> bool {
+    contract_identity_is(contract, version, mode) && contract.shear_model.as_deref() == Some("euler_bernoulli")
+}
+fn contract_identity_is(contract: &crate::PressureContractInput, version: &str, mode: &str) -> bool {
     contract.version.as_deref() == Some(version) && contract.mode.as_deref() == Some(mode)
-        && contract.shear_model.as_deref() == Some("euler_bernoulli")
 }
 /// D1.3's branch of `m`, or the fact that refuses it (B3-D §4.1's refusal map).
+/// O4 interim (DEL-05-03 Design §5): the exact v3 contract selecting
+/// `timoshenko_annulus_energy_v1` is declined under its own fact
+/// (`ShearModel`); an absent or unknown shear model stays `PressureContract`.
 pub(super) fn namespace_branch(m: &crate::PreviewModel) -> Result<NamespaceBranch, FamilyFact> {
     if crate::model_format::is_pressure_free(m) {
         return Ok(NamespaceBranch::Preview);
     }
     match (m.schema_version.as_str(), &m.pressure_contract) {
         (crate::MODEL_SCHEMA_VERSION, Some(c)) if contract_is(c, "3.0.0", "exact_pressure_v3") => Ok(NamespaceBranch::Exact),
+        (crate::MODEL_SCHEMA_VERSION, Some(c))
+            if contract_identity_is(c, "3.0.0", "exact_pressure_v3")
+                && c.shear_model.as_deref() == Some("timoshenko_annulus_energy_v1") =>
+        {
+            Err(FamilyFact::ShearModel)
+        }
         (crate::MODEL_SCHEMA_VERSION, _) => Err(FamilyFact::PressureContract),
         _ => Err(FamilyFact::SchemaVersion),
     }
@@ -877,6 +896,19 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
         Ok(branch) => branch == NamespaceBranch::Exact,
         Err(fact) => return refuse(C::Namespace, fact),
     };
+    // O4 interim (DEL-05-03 Design §5): on branch E a pipe section with a
+    // nonzero mill tolerance or corrosion allowance has a second (reduced)
+    // section basis that W1-E's one section does not represent; it is declined
+    // by its own fact, so the ordinary bytes are published unchanged.
+    if exact
+        && m.pipe_segments.iter().any(|pipe| {
+            [&pipe.section.mill_tolerance, &pipe.section.corrosion_allowance]
+                .into_iter()
+                .any(|q| q.as_ref().is_some_and(|q| q.value != 0.0))
+        })
+    {
+        return refuse(C::Namespace, F::SectionAllowance);
+    }
     if !matches!(m.reference_configurations, Authored::Absent) {
         return refuse(C::Namespace, F::ReferenceConfigurations);
     }

@@ -139,19 +139,28 @@ fn original_subnormal_wall_force_direct_publisher_preserves_membrane() {
                     && r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case" && b.ref_id == CASE)
                     && r.metadata.as_ref().is_some_and(|m| m.component == component && m.location == location)
             }).collect();
-            assert_eq!(matching.len(), 1, "{kind} {location}: {rows:?}");
-            let row = matching[0];
-            assert_eq!(row.unit, unit);
             if unit == "N" {
-                assert_eq!(row.value.to_bits(), 1, "{location}: independent projected force");
+                assert_eq!(matching.len(), 1, "{kind} {location}: {rows:?}");
+                assert_eq!(matching[0].unit, unit);
+                assert_eq!(matching[0].value.to_bits(), 1, "{location}: independent projected force");
             } else {
-                assert_original_reference(row.value, location);
+                // D-5 (DEL-05-03 Design §2.1): the membrane stress is a stress
+                // row, published on the nominal section and then on the reduced
+                // one; this section has no mill tolerance or allowance, so both
+                // divide the one wall force by the same area.
+                assert_eq!(matching.len(), 2, "{kind} {location}: {rows:?}");
+                for (row, basis) in matching.iter().zip(crate::pressure_exact::SectionBasis::BOTH) {
+                    assert_eq!(row.unit, unit);
+                    assert!(row.metadata.as_ref().unwrap().basis.ends_with(basis.basis_suffix()), "{location}: {row:?}");
+                    assert_original_reference(row.value, location);
+                }
+                assert_eq!(matching[0].value.to_bits(), matching[1].value.to_bits(), "{location}: coincident bases");
             }
         }
     }
     // The old redivision is deliberately outside the unchanged tolerance;
     // this establishes that the assertion is sensitive to the original defect.
-    let redivided = f64::from_bits(1) / state.annulus.wall_area_m2();
+    let redivided = f64::from_bits(1) / state.sections.nominal().wall_area_m2();
     assert!((redivided / EXPECTED_MEMBRANE_PA - 1.0).abs() > 0.67);
 }
 
@@ -161,7 +170,8 @@ fn original_subnormal_wall_force_direct_extrema_preserves_membrane() {
     let state = pressure.pipe_states.get(&0).unwrap();
     let mechanical_actions = [0.0; ELEMENT_DOF];
     let maximum = exact_straight_summary_extrema(
-        &built.pipes[0], &mechanical_actions, &[], built.sections.get(PIPE).unwrap(), Some(state),
+        &built.pipes[0], &mechanical_actions, &[], built.sections.get(PIPE).unwrap(),
+        Some((state, pressure_exact::SectionBasis::Nominal)),
     ).unwrap();
     // Invoke the actual corrected extrema coefficient path, not just the
     // constitutive helper. Constant pressure and zero bending make every
@@ -236,18 +246,20 @@ fn unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane() {
     let state = pressure.pipe_states.get(&0).unwrap();
     let mechanical_actions = [0.0; ELEMENT_DOF];
     let maximum = exact_straight_summary_extrema(
-        &built.pipes[0], &mechanical_actions, &[], built.sections.get(PIPE).unwrap(), Some(state),
+        &built.pipes[0], &mechanical_actions, &[], built.sections.get(PIPE).unwrap(),
+        Some((state, pressure_exact::SectionBasis::Nominal)),
     ).unwrap();
     let reference = UNCLAMPED_MEMBRANE_PA;
     // Preconditions (paths differ): the wall force is subnormal and its
     // redivision misses the reference by far more than the tolerance; the
     // enclosure is unclamped and narrow enough for its midpoint to decide.
-    let (wall, _, _) = state
-        .annulus
-        .recover_wall_effective_membrane(0.0, state.material, state.pressure)
-        .unwrap();
+    let wall = state
+        .sections
+        .recover_wall_effective(0.0, state.material, state.pressure)
+        .unwrap()
+        .wall_n;
     assert!(wall > 0.0 && wall < f64::MIN_POSITIVE, "{wall:e}");
-    let redivided = wall / state.annulus.wall_area_m2();
+    let redivided = wall / state.sections.nominal().wall_area_m2();
     assert!((redivided / reference - 1.0).abs() > 1e-7, "{redivided:e}");
     assert!(maximum.value_lower > 0.0, "{maximum:?}");
     assert!((maximum.upper_bound - maximum.value_lower) < 1e-3 * reference, "{maximum:?}");

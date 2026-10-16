@@ -11,7 +11,7 @@
 //! remainder +pAi(t_in − t_out) in the source groups; its K_b·u_free(ε_p) is
 //! pushed by the case ledger (`lib.rs`), and `bend_pressure` recovers it.
 
-use super::pressure_exact::{InternalDifferentialPressure, IsotropicENu, SourceAnnulus};
+use super::pressure_exact::{ExactSectionBases, InternalDifferentialPressure, IsotropicENu, SectionBasis};
 use super::{
     diag, has_blocking, is_temperature_change_dimension,
     normalize_quantity, stable_suffix, BuiltModel, Diagnostic, LoadTargetInput, MaterialInput,
@@ -95,7 +95,9 @@ pub(crate) struct ExactPressureCase {
 #[derive(Debug, Clone)]
 pub(crate) struct ExactPressurePipeState {
     pub region_id: String,
-    pub annulus: SourceAnnulus,
+    /// D-5: the member's nominal and reduced sections and its pressure bore;
+    /// every pressure load and the wall force use the bore, stresses each basis.
+    pub sections: ExactSectionBases,
     pub pressure: InternalDifferentialPressure,
     pub material: IsotropicENu,
     /// Pressure-only applied RHS pair in this pipe's authored local i/j frame
@@ -685,7 +687,7 @@ fn assemble_pressure_case(
                 );
                 continue;
             };
-            let Some(&annulus) = built.exact_sections.get(&pipe.element_id) else {
+            let Some(&sections) = built.exact_sections.get(&pipe.element_id) else {
                 problem(
                     diagnostics,
                     "PRESSURE_REGION_SECTION_MISSING",
@@ -694,15 +696,17 @@ fn assemble_pressure_case(
                 );
                 continue;
             };
+            // D-5: the equal-bore check compares pressure bores r_i,r.
+            let bore = sections.pressure_bore_radius_m();
             if let Some(reference) = first_bore {
-                let scale = reference.abs().max(annulus.inner_radius_m().abs());
-                if (reference - annulus.inner_radius_m()).abs() > REPRESENTATION_GUARD * scale {
+                let scale = reference.abs().max(bore.abs());
+                if (reference - bore).abs() > REPRESENTATION_GUARD * scale {
                     problem(diagnostics, "PRESSURE_REGION_BORE_MISMATCH", &[&case.id, id, &pipe.element_id],
                         format!("region requires equal normalized bore; radius difference exceeds 64*epsilon*radius_scale (scale={scale:e} m); this is a representation guard, not a physical reducer allowance"));
                     continue;
                 }
             } else {
-                first_bore = Some(annulus.inner_radius_m());
+                first_bore = Some(bore);
             }
             let resolved_pair = member_pairs.map(|pairs| pairs.get(&pipe.element_id));
             if resolved_pair == Some(None) {
@@ -769,11 +773,15 @@ fn assemble_pressure_case(
                     "thermal pressure-region composition requires finite alpha from the same selected material basis; absence is not zero");
                 continue;
             }
-            let loads = annulus
-                .eigenload_pair(material, pressure, 0.0)
-                .and_then(|eigen| annulus.cap_pair(pressure).map(|caps| (eigen, caps)))
+            // D-5: the Poisson pair and caps on the pressure bore; each
+            // basis's own surface stresses must be representable.
+            let loads = sections
+                .poisson_eigenload_pair(material, pressure)
+                .and_then(|eigen| sections.cap_pair(pressure).map(|caps| (eigen, caps)))
                 .and_then(|pairs| {
-                    annulus.surface_stresses(pressure)?;
+                    for basis in SectionBasis::BOTH {
+                        sections.surface_stresses(basis, pressure)?;
+                    }
                     Ok(pairs)
                 });
             let (eigen, caps) = match loads {
@@ -815,7 +823,7 @@ fn assemble_pressure_case(
                 None => None,
                 Some(bend) => match (
                     bend.macro_element.end_tangents(),
-                    annulus.arc_pressure_strain(material, pressure),
+                    sections.arc_pressure_strain(material, pressure),
                 ) {
                     (Ok(tangents), Ok(strain)) => Some(ArcPressure { tangents, strain }),
                     (Err(_), _) => {
@@ -831,7 +839,7 @@ fn assemble_pressure_case(
                 },
             };
             let end_directions = arc.map_or([direction, direction], |arc| arc.tangents);
-            let mut member_geometry = super::exact_section_evidence(&pipe.element_id, annulus);
+            let mut member_geometry = super::exact_section_evidence(&pipe.element_id, sections);
             member_geometry["traversal_forward"] = json!(step.forward);
             if let Some(arc) = &arc {
                 member_geometry["member_kind"] = json!("realized_arc");
@@ -856,7 +864,7 @@ fn assemble_pressure_case(
                 step,
                 ExactPressurePipeState {
                     region_id: id.to_string(),
-                    annulus,
+                    sections,
                     pressure,
                     material,
                     eigenload_pair: if arc.is_some() { [0.0, 0.0] } else { eigen },
@@ -1058,7 +1066,7 @@ fn assemble_pressure_case(
 enum FactorArea { Bore(u64, u64), Joint(u64) }
 type FactorKey = (usize, u64, FactorArea, u64);
 struct FactorGroup {
-    geometry: Option<SourceAnnulus>,
+    geometry: Option<ExactSectionBases>,
     pressure: InternalDifferentialPressure,
     direction: f64,
     terms: Vec<(f64, String, String, &'static str)>,
@@ -1116,8 +1124,8 @@ fn add_joint_terms(
             let direction = pipe.frame_element().expect("classified face frame").orientation().expect("classified face orientation").local_axes[0];
             let face_sign = if node == pipe.node_i.index { -1.0 } else { 1.0 };
             let source_zero = source_zero_axes(built, face_index);
-            bore[end] = state.annulus.internal_area_m2();
-            let cap = state.annulus.pressure_group_value(pressure, 1.0, 1.0).expect("validated face cap");
+            bore[end] = state.sections.pressure_bore_area_m2();
+            let cap = state.sections.pressure_group_value(pressure, 1.0, 1.0).expect("validated face cap");
             differences[end] = crate::pressure_sum::exact_sum([pe, -cap]).expect("finite area difference");
             for axis in 0..3 {
                 let dof = node * DOF_PER_NODE + axis;
@@ -1188,7 +1196,7 @@ fn add_factor_term(
     if source_zero && direction == 0.0 {
         return;
     } // Only a source-known zero is omitted (K-D5 "One ε"); a formed component whose binary64 fold is zero is kept.
-    let (hi, lo) = state.annulus.source_bore_key();
+    let (hi, lo) = state.sections.source_bore_key();
     let magnitude = direction.abs();
     let key = (
         dof,
@@ -1199,7 +1207,7 @@ fn add_factor_term(
     groups
         .entry(key)
         .or_insert_with(|| FactorGroup {
-            geometry: Some(state.annulus),
+            geometry: Some(state.sections),
             pressure: state.pressure,
             direction: magnitude,
             terms: Vec::new(),
@@ -1298,8 +1306,9 @@ fn closure_source(
         LoadFormula::PressureOperand {
             geometry,
             pressure: state.pressure.pressure_pa(),
-            outer_diameter: state.annulus.outside_diameter_m(),
-            wall_thickness: state.annulus.effective_wall_thickness_m(),
+            // D-5: Ai on the pressure bore, D/2 - t_r.
+            outer_diameter: state.sections.outside_diameter_m(),
+            wall_thickness: state.sections.pressure_wall_m(),
             coefficient,
             direction,
         },
@@ -1911,7 +1920,7 @@ mod tests {
         assert_close(result.cap_loads[12], 3.0 * PI, 3.0 * PI);
         assert_close(result.eigenloads[6], -0.9 * PI, 3.0 * PI);
         assert_close(
-            result.pipe_states[&1].annulus.wall_area_m2(),
+            result.pipe_states[&1].sections.nominal().wall_area_m2(),
             8.0 * PI,
             8.0 * PI,
         );
@@ -1963,7 +1972,7 @@ mod tests {
     fn pipe_state(region_id: &str) -> ExactPressurePipeState {
         ExactPressurePipeState {
             region_id: region_id.to_string(),
-            annulus: SourceAnnulus::from_od_wall(4.0, 1.0).unwrap(),
+            sections: ExactSectionBases::derive(4.0, 1.0, 0.0, 0.0).unwrap(),
             pressure: InternalDifferentialPressure::new(3.0).unwrap(),
             material: IsotropicENu::new(120.0, 0.25).unwrap(),
             eigenload_pair: [0.0, 0.0],
@@ -2298,6 +2307,7 @@ mod tests {
 #[cfg(test)]
 mod grouping_identity_tests {
     use super::*;
+    use crate::pressure_exact::SourceAnnulus;
     #[test]
     fn source_bore_identity_does_not_round_distinct_sources_to_match() {
         let a = SourceAnnulus::from_od_wall(5.0 / 32.0, 1.0 / 64.0).unwrap();
@@ -2311,15 +2321,15 @@ mod grouping_identity_tests {
     }
     #[test]
     fn either_source_known_zero_direction_sign_contributes_no_force_group() {
-        let annulus = SourceAnnulus::from_od_wall(0.12, 0.01).unwrap();
+        let sections = ExactSectionBases::derive(0.12, 0.01, 0.0, 0.0).unwrap();
         let material = IsotropicENu::new(200e9, 0.3).unwrap();
         let pressure = InternalDifferentialPressure::new(2e6).unwrap();
         let state = ExactPressurePipeState {
             region_id: "r".to_string(),
-            annulus,
+            sections,
             material,
             pressure,
-            eigenload_pair: annulus.eigenload_pair(material, pressure, 0.0).unwrap(),
+            eigenload_pair: sections.poisson_eigenload_pair(material, pressure).unwrap(),
             arc: None,
         };
         let mut groups = BTreeMap::new();
@@ -2333,12 +2343,13 @@ mod grouping_identity_tests {
     /// signed coefficients, and its group value is zero.
     #[test]
     fn a_formed_direction_folded_to_zero_keeps_its_force_group() {
-        let annulus = SourceAnnulus::from_od_wall(0.12, 0.01).unwrap();
+        let sections = ExactSectionBases::derive(0.12, 0.01, 0.0, 0.0).unwrap();
+        let annulus = sections.reduced();
         let material = IsotropicENu::new(200e9, 0.3).unwrap();
         let pressure = InternalDifferentialPressure::new(2e6).unwrap();
         let state = ExactPressurePipeState {
             region_id: "r".to_string(),
-            annulus,
+            sections,
             material,
             pressure,
             eigenload_pair: [0.0, 0.0],

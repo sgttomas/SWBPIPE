@@ -67,8 +67,8 @@ fn maximum_inner(
         .sections
         .get(member_id)
         .ok_or_else(|| bad("maximum recovery section"))?;
-    if !same(section.area, geometry.wall_area_m2())
-        || !same(section.section_modulus, geometry.section_modulus_m3())
+    if !same(section.area, geometry.nominal().wall_area_m2())
+        || !same(section.section_modulus, geometry.nominal().section_modulus_m3())
     {
         return Err(bad("maximum source section mismatch"));
     }
@@ -518,7 +518,8 @@ pub(super) fn physical_source_built(
             } else {
                 json!(record.unwrap_or("base_material_common_E_nu"))
             }
-        || evidence["stress_maximum_coverage"] != json!({"complete":true,"unavailable_pipe_ids":[]})
+        || evidence["stress_maximum_coverage"]
+            != json!(pressure_exact::SectionBasis::BOTH.map(|basis| json!({"section_basis":basis.token(),"complete":true,"unavailable_pipe_ids":[]})))
     {
         return Err(bad("physical case/method/material/coverage binding"));
     }
@@ -614,14 +615,19 @@ fn validate_physics_rows(
     let extrema = evidence["pipe_stress_extrema"]
         .as_array()
         .ok_or_else(|| bad("physical maxima"))?;
-    if extrema.len() != model.pipe_segments.len() {
+    // D-5 (§2.5): one record per pipe and section basis, nominal then reduced.
+    if extrema.len() != 2 * model.pipe_segments.len() {
         return Err(bad("physical member maximum coverage"));
     }
     let mut seen = BTreeSet::new();
-    for pipe in &model.pipe_segments {
+    for (pipe, basis) in model
+        .pipe_segments
+        .iter()
+        .flat_map(|pipe| pressure_exact::SectionBasis::BOTH.map(|basis| (pipe, basis)))
+    {
         let e = extrema
             .iter()
-            .find(|e| e["pipe_id"] == pipe.id)
+            .find(|e| e["pipe_id"] == pipe.id && e["section_basis"] == basis.token())
             .ok_or_else(|| bad("physical member maximum missing"))?;
         let id = e["result_id"]
             .as_str()
@@ -637,18 +643,19 @@ fn validate_physics_rows(
             .metadata
             .as_ref()
             .ok_or_else(|| bad("physical maximum metadata"))?;
+        let recovery = if source_selected {
+            MAX_BASIS
+        } else {
+            "recovered_from_open_mechanics_stress_components"
+        };
         if row.kind != "pipe_elastic_normal_stress_maximum_v2"
             || row.unit != "Pa"
             || row.entity_ref != pipe.id
             || metadata.component != "maximum_absolute_normal_stress"
             || metadata.coordinate_system != "pipe_section"
             || metadata.location != "governing_station"
-            || metadata.basis
-                != if source_selected {
-                    MAX_BASIS
-                } else {
-                    "recovered_from_open_mechanics_stress_components"
-                }
+            || metadata.basis.strip_suffix(basis.basis_suffix()) != Some(recovery)
+            || !id.ends_with(basis.token())
         {
             return Err(bad("physical maximum signature"));
         }
@@ -781,24 +788,35 @@ impl FinalizedSourceBlockCase {
                 .collect();
             for id in member_ids {
                 let maximum = composite_member_maximum(&input, &mut selected, &id)?;
-                let result_id = format!(
-                    "result:elastic-maximum:{}:{}:{}:{}",
-                    input.load_case.id.len(),
-                    input.load_case.id,
-                    id.len(),
-                    id
-                );
-                let expected = maximum.evidence(&result_id);
-                let found = evidence["pipe_stress_extrema"]
-                    .as_array()
-                    .unwrap()
-                    .iter()
-                    .find(|e| e["pipe_id"] == id)
-                    .ok_or_else(|| bad("source maximum evidence"))?;
-                if *found != expected {
-                    return Err(bad("source endpoint maximum evidence binding"));
+                // D-5 (§2.2): the maximum per basis. The selected case's bases
+                // coincide, so the reduced maximum is the nominal value and
+                // evidence bound to the reduced row.
+                let section = input.built.sections.get(&id).ok_or_else(|| bad("source maximum section"))?;
+                let bases = input.built.exact_sections.get(&id).copied().ok_or_else(|| bad("source maximum section bases"))?;
+                if !same_stress_section(&exact_basis_section(bases, pressure_exact::SectionBasis::Reduced), section) {
+                    return Err(bad("source maximum section bases differ"));
                 }
-                additional.push(rows::Derived { row:ResultItem{id:result_id,kind:"pipe_elastic_normal_stress_maximum_v2".into(),value:maximum.value_pa(),unit:"Pa".into(),entity_ref:id.clone(),basis_ref:Some(ResultBasisRef{ref_type:"load_case".into(),ref_id:input.load_case.id.clone()}),source_result_refs:vec![],metadata:Some(ResultMetadata{component:"maximum_absolute_normal_stress".into(),coordinate_system:"pipe_section".into(),location:"governing_station".into(),basis:MAX_BASIS.into(),sign_convention:"nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate".into()})},recipe:MAX_BASIS,inputs:vec![] });
+                for basis in pressure_exact::SectionBasis::BOTH {
+                    let row = section_basis_row(ResultItem{id:format!(
+                        "result:elastic-maximum:{}:{}:{}:{}",
+                        input.load_case.id.len(),
+                        input.load_case.id,
+                        id.len(),
+                        id
+                    ),kind:"pipe_elastic_normal_stress_maximum_v2".into(),value:maximum.value_pa(),unit:"Pa".into(),entity_ref:id.clone(),basis_ref:Some(ResultBasisRef{ref_type:"load_case".into(),ref_id:input.load_case.id.clone()}),source_result_refs:vec![],metadata:Some(ResultMetadata{component:"maximum_absolute_normal_stress".into(),coordinate_system:"pipe_section".into(),location:"governing_station".into(),basis:MAX_BASIS.into(),sign_convention:"nonnegative maximum absolute axial-plus-bending normal stress over an unloaded circular straight span; retained endpoint actions with projected-action and arithmetic bounds; endpoint witness does not imply uniqueness; torsional shear separate".into()})}, basis, false);
+                    let mut expected = maximum.evidence(&row.id);
+                    expected["section_basis"] = json!(basis.token());
+                    let found = evidence["pipe_stress_extrema"]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .find(|e| e["pipe_id"] == id && e["section_basis"] == basis.token())
+                        .ok_or_else(|| bad("source maximum evidence"))?;
+                    if *found != expected {
+                        return Err(bad("source endpoint maximum evidence binding"));
+                    }
+                    additional.push(rows::Derived { row, recipe:MAX_BASIS, inputs:vec![] });
+                }
             }
             for support in selected.support_actions() {
                 let (values, checks) = support_norm_checks(&input, &selected, &support.support_id)?;
@@ -841,6 +859,18 @@ impl FinalizedSourceBlockCase {
                     .sections
                     .get(&member.member_id)
                     .ok_or_else(|| bad("section stress geometry"))?;
+                // D-5: every stress row is checked on its own basis; the reduced
+                // twin binds the same functional and the same (coincident)
+                // section, bit for bit.
+                let bases = input
+                    .built
+                    .exact_sections
+                    .get(&member.member_id)
+                    .copied()
+                    .ok_or_else(|| bad("section stress bases"))?;
+                if !same_stress_section(&exact_basis_section(bases, pressure_exact::SectionBasis::Reduced), section) {
+                    return Err(bad("section stress bases differ"));
+                }
                 for row in actual.iter().filter(|r| r.entity_ref == member.member_id) {
                     let component = match row.kind.as_str() {
                         "element_local_axial_normal_stress" => 0usize,
@@ -917,7 +947,9 @@ impl FinalizedSourceBlockCase {
             source["retained_identity_sha256"] = json!(selected
                 .retained_identity_digest()
                 .map_err(|e| bad(format!("source digest finalization: {e:?}")))?);
-            source["endpoint_sections"]=json!(evidence["pipe_stress_extrema"].as_array().unwrap().iter().map(|e|json!({"pipe_id":e["pipe_id"],"endpoints":e["endpoints"].as_array().unwrap().iter().map(|p|json!({"station_fraction":p["station_fraction"],"functional_indices":p["functional_indices"],"functional_ids":p["functional_ids"],"actions":p["actions"]})).collect::<Vec<_>>()})).collect::<Vec<_>>());
+            // D-5: one endpoint-section record per pipe; both bases' maxima bind
+            // the same functionals (the reduced record repeats the nominal one).
+            source["endpoint_sections"]=json!(evidence["pipe_stress_extrema"].as_array().unwrap().iter().filter(|e|e["section_basis"]==pressure_exact::SectionBasis::Nominal.token()).map(|e|json!({"pipe_id":e["pipe_id"],"endpoints":e["endpoints"].as_array().unwrap().iter().map(|p|json!({"station_fraction":p["station_fraction"],"functional_indices":p["functional_indices"],"functional_ids":p["functional_ids"],"actions":p["actions"]})).collect::<Vec<_>>()})).collect::<Vec<_>>());
             source["section_functionals"]=json!(selected.members().iter().map(|m|json!({"pipe_id":m.member_id,"stations":source_recovery::STATIONS.iter().enumerate().map(|(s,f)|json!({"station_fraction":f,"functional_indices":m.section_functional_indices[s],"functional_ids":m.section_functional_indices[s].map(|i|source::functional_id(&input.load_case.id,i)),"actions":m.section_functional_indices[s].iter().map(|index|{let p=selected.retained().projections().iter().find(|p|p.index()==*index).expect("owned retained projection");json!({"value":p.value(),"interval":p.interval()})}).collect::<Vec<_>>()})).collect::<Vec<_>>()})).collect::<Vec<_>>());
             #[cfg(test)]
             trace("source_case_finalization_complete", &selected);
@@ -1098,34 +1130,41 @@ fn case_physical_evidence(
     }
     proof
 }
+/// D-5 (§2.2): a composite binds the displacement headline and both section
+/// bases' stress headlines, each to a row of its own basis that no row of that
+/// basis exceeds; the basis-free `max_open_formula_stress` is null.
 fn validate_composite_summary(envelope: &MechanicsEnvelope) -> Result<(), ReceiptError> {
-    for (headline, kind) in [
-        (&envelope.summary.max_displacement, "displacement_magnitude"),
-        (
-            &envelope.summary.max_open_formula_stress,
-            "pipe_elastic_normal_stress_maximum_v2",
-        ),
+    use pressure_exact::SectionBasis;
+    const MAXIMUM: &str = "pipe_elastic_normal_stress_maximum_v2";
+    let summary = &envelope.summary;
+    if summary.max_open_formula_stress.is_some() {
+        return Err(bad("composite basis-free stress headline"));
+    }
+    for (headline, kind, basis) in [
+        (summary.max_displacement.as_ref(), "displacement_magnitude", None),
+        (summary.max_open_formula_stress_nominal_section.as_ref().and_then(Option::as_ref), MAXIMUM, Some(SectionBasis::Nominal)),
+        (summary.max_open_formula_stress_reduced_section.as_ref().and_then(Option::as_ref), MAXIMUM, Some(SectionBasis::Reduced)),
     ] {
-        let h = headline
-            .as_ref()
-            .ok_or_else(|| bad("composite complete headline required"))?;
+        let of_basis = |r: &ResultItem| {
+            r.kind == kind
+                && basis.is_none_or(|basis| {
+                    r.metadata.as_ref().is_some_and(|m| m.basis.ends_with(basis.basis_suffix()))
+                })
+        };
+        let h = headline.ok_or_else(|| bad("composite complete headline required"))?;
         let row = envelope
             .results
             .iter()
             .find(|r| r.id == h.result_ref)
             .ok_or_else(|| bad("composite headline reference"))?;
-        if row.kind != kind
+        if !of_basis(row)
             || row.entity_ref != h.location_ref
             || row.unit != h.unit
             || !same(row.value, h.value)
         {
             return Err(bad("composite headline binding"));
         }
-        if envelope
-            .results
-            .iter()
-            .any(|r| r.kind == kind && r.value > h.value)
-        {
+        if envelope.results.iter().any(|r| of_basis(r) && r.value > h.value) {
             return Err(bad("composite headline maximum"));
         }
     }

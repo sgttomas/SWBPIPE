@@ -722,12 +722,17 @@ pub(crate) fn exclude_replaced_spans(evidence: &mut Value, replaced: &HashSet<&s
             items.retain(keep);
         }
     }
-    if let Some(ids) = evidence
-        .get_mut("stress_maximum_coverage")
-        .and_then(|c| c.get_mut("unavailable_pipe_ids"))
-        .and_then(Value::as_array_mut)
-    {
-        ids.retain(|id| id.as_str().map_or(true, |id| !replaced.contains(id)));
+    // D-5: the exact route's coverage is one record per section basis.
+    let coverage = evidence.get_mut("stress_maximum_coverage");
+    let records: Vec<&mut Value> = match coverage {
+        Some(Value::Array(records)) => records.iter_mut().collect(),
+        Some(record) => vec![record],
+        None => Vec::new(),
+    };
+    for record in records {
+        if let Some(ids) = record.get_mut("unavailable_pipe_ids").and_then(Value::as_array_mut) {
+            ids.retain(|id| id.as_str().map_or(true, |id| !replaced.contains(id)));
+        }
     }
     if let Some(items) = evidence.get_mut("contributions").and_then(Value::as_array_mut) {
         items.retain(|item| {

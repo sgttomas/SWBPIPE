@@ -158,13 +158,36 @@ fn row<'a>(
                 })
         })
         .collect();
-    assert_eq!(
-        matching.len(),
-        1,
-        "expected one real row kind={kind}, entity={entity}, component={component}, location={location:?}; candidates={:?}",
+    let label = format!("kind={kind}, entity={entity}, component={component}, location={location:?}");
+    basis_pair(matching, &label).unwrap_or_else(|| panic!(
+        "expected one real row {label}; candidates={:?}",
         result.results.iter().filter(|r| r.entity_ref == entity).collect::<Vec<_>>()
-    );
-    matching[0]
+    ))
+}
+
+/// D-5 (DEL-05-03 Design §2.1, §2.5): a stress row is published on the nominal
+/// section and is immediately followed by its reduced-section twin. These
+/// documents author no mill tolerance and a zero allowance, so the two bases
+/// coincide and the twins are bit-equal: the nominal row stands for both.
+/// Every other row is unique. `None` unless exactly one row or one such pair.
+fn basis_pair<'a>(matching: Vec<&'a ResultItem>, label: &str) -> Option<&'a ResultItem> {
+    let basis = |r: &ResultItem| r.metadata.as_ref().map(|m| m.basis.clone()).unwrap_or_default();
+    match matching.as_slice() {
+        [one] => {
+            assert!(!basis(one).contains("; section_basis="), "{label}: a lone basis-named row");
+            Some(one)
+        }
+        [nominal, reduced] => {
+            let (n, r) = (basis(nominal), basis(reduced));
+            let stem = n.strip_suffix("; section_basis=nominal_section")?;
+            assert_eq!(r.strip_suffix("; section_basis=reduced_section"), Some(stem), "{label}");
+            let id = nominal.id.strip_suffix(":nominal-section").or_else(|| nominal.id.strip_suffix(":nominal_section"))?;
+            assert!(reduced.id.strip_suffix(":reduced-section").or_else(|| reduced.id.strip_suffix(":reduced_section")) == Some(id), "{label}");
+            assert_eq!(nominal.value.to_bits(), reduced.value.to_bits(), "{label}: coincident bases");
+            Some(nominal)
+        }
+        _ => None,
+    }
 }
 
 fn displacement(result: &MechanicsEnvelope, node_id: &str, vector: [f64; 3], scale_m: f64) {
@@ -425,8 +448,8 @@ fn case_row<'a>(
                 })
         })
         .collect();
-    assert_eq!(matching.len(),1,"case-qualified real row missing/ambiguous: {case_id} {kind} {entity} {component} {location:?}");
-    matching[0]
+    let label = format!("{case_id} {kind} {entity} {component} {location:?}");
+    basis_pair(matching, &label).unwrap_or_else(|| panic!("case-qualified real row missing/ambiguous: {label}"))
 }
 
 #[test]

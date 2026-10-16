@@ -21,11 +21,11 @@
 //! Straight members are untouched: their ledger and recovery stay the
 //! pre-cancelled straight ones (SP-1).
 
-use super::pressure_exact::ARC_PRESSURE_STRAIN_ROUNDINGS;
+use super::pressure_exact::{SectionBasis, ARC_PRESSURE_STRAIN_ROUNDINGS};
 use super::pressure_runtime::{ExactPressureCase, ExactPressurePipeState};
 use super::{
-    diag, Diagnostic, PreviewLoadCase, ResultBasisRef, ResultItem, ResultMetadata,
-    StationResultants, UX,
+    diag, section_basis_row, Diagnostic, PreviewLoadCase, ResultBasisRef, ResultItem,
+    ResultMetadata, StationResultants, UX,
 };
 use open_pipe_stress_frame_kernel::load_ledger::{gamma, product_upward};
 use open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery;
@@ -119,6 +119,8 @@ pub(super) fn append_arc_pressure_results(
     let wanted = sections.len();
     let mut recovered = Vec::with_capacity(wanted);
     for (location, elastic) in sections {
+        // D-5: N_w = N_el + pAi once on the pressure bore; σ_m = N_w/A_b for
+        // the nominal and the reduced section.
         let values = match certified {
             Some((wall, effective)) => {
                 // Fail closed: an unknown location is never read as end_j.
@@ -133,11 +135,16 @@ pub(super) fn append_arc_pressure_results(
                     return;
                 };
                 let wall_row = wall.sections[index][0];
-                wall_row.divided(state.annulus.wall_area_m2()).ok().map(|membrane| {
-                    (wall_row.published, effective.sections[index][0].published, membrane.published)
+                let membrane = |basis: SectionBasis| wall_row.divided(state.sections.basis(basis).wall_area_m2()).ok().map(|row| row.published);
+                membrane(SectionBasis::Nominal).zip(membrane(SectionBasis::Reduced)).map(|(nominal, reduced)| {
+                    (wall_row.published, effective.sections[index][0].published, [nominal, reduced])
                 })
             }
-            None => state.annulus.recover_arc_wall_effective_membrane(elastic, state.pressure).ok(),
+            None => state.sections.recover_arc_wall_effective(elastic, state.pressure).ok().and_then(|forces| {
+                let nominal = state.sections.membrane(SectionBasis::Nominal, forces).ok()?;
+                let reduced = state.sections.membrane(SectionBasis::Reduced, forces).ok()?;
+                Some((forces.wall_n, forces.effective_n, [nominal, reduced]))
+            }),
         };
         let Some(values) = values else {
             break;
@@ -156,8 +163,10 @@ pub(super) fn append_arc_pressure_results(
         ));
         return;
     }
-    let mut append = |kind: &str, component: &str, location: &str, value: f64, stress: bool, sign: &str| {
-        results.push(ResultItem {
+    // `stress` names a stress row's section basis (D-5): each nominal row is
+    // immediately followed by its reduced twin; force rows are published once.
+    let mut append = |kind: &str, component: &str, location: &str, value: f64, stress: Option<SectionBasis>, sign: &str| {
+        let row = ResultItem {
             id: format!(
                 "result:pressure-exact:{}:{}:{}:{}:{}:{}",
                 case.id.len(),
@@ -169,7 +178,7 @@ pub(super) fn append_arc_pressure_results(
             ),
             kind: kind.to_string(),
             value,
-            unit: if stress { "Pa" } else { "N" }.to_string(),
+            unit: if stress.is_some() { "Pa" } else { "N" }.to_string(),
             entity_ref: pipe_id.to_string(),
             basis_ref: Some(ResultBasisRef {
                 ref_type: "load_case".to_string(),
@@ -178,9 +187,9 @@ pub(super) fn append_arc_pressure_results(
             source_result_refs: Vec::new(),
             metadata: Some(ResultMetadata {
                 component: component.to_string(),
-                coordinate_system: if stress { "pipe_section" } else { "element_local" }.to_string(),
+                coordinate_system: if stress.is_some() { "pipe_section" } else { "element_local" }.to_string(),
                 location: location.to_string(),
-                basis: if stress {
+                basis: if stress.is_some() {
                     "recovered_from_open_mechanics_stress_components"
                 } else {
                     "recovered_from_local_element_stiffness"
@@ -188,6 +197,10 @@ pub(super) fn append_arc_pressure_results(
                 .to_string(),
                 sign_convention: sign.to_string(),
             }),
+        };
+        results.push(match stress {
+            Some(basis) => section_basis_row(row, basis, false),
+            None => row,
         });
     };
     // The wall end actions: end_i = -N_w(0), end_j = +N_w(1), each along its
@@ -197,11 +210,13 @@ pub(super) fn append_arc_pressure_results(
             .iter()
             .find(|(name, _)| *name == location)
             .expect("both ends are recovered");
-        append("pipe_wall_endpoint_action_v2", "wall_axial_end_action", location, sign * wall, false, WALL_END_SIGN);
+        append("pipe_wall_endpoint_action_v2", "wall_axial_end_action", location, sign * wall, None, WALL_END_SIGN);
     }
-    for (location, (wall, effective, membrane)) in &recovered {
-        append("pipe_wall_axial_force_v2", "wall_axial_force", location, *wall, false, WALL_FORCE_SIGN);
-        append("pipe_effective_axial_force_v2", "effective_axial_force", location, *effective, false, EFFECTIVE_FORCE_SIGN);
-        append("pipe_axial_membrane_stress_v2", "axial_membrane_stress", location, *membrane, true, MEMBRANE_SIGN);
+    for (location, (wall, effective, membranes)) in &recovered {
+        append("pipe_wall_axial_force_v2", "wall_axial_force", location, *wall, None, WALL_FORCE_SIGN);
+        append("pipe_effective_axial_force_v2", "effective_axial_force", location, *effective, None, EFFECTIVE_FORCE_SIGN);
+        for (basis, membrane) in SectionBasis::BOTH.into_iter().zip(*membranes) {
+            append("pipe_axial_membrane_stress_v2", "axial_membrane_stress", location, membrane, Some(basis), MEMBRANE_SIGN);
+        }
     }
 }

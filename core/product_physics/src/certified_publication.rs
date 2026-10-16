@@ -65,7 +65,8 @@ pub(super) fn member(
     }
 }
 /// The current straight pressure model's wall increment is 2nu*pAi;
-/// its effective increment is (2nu-1)*pAi. Coefficients are formed at p.
+/// its effective increment is (2nu-1)*pAi. Coefficients are formed at p,
+/// with Ai on the pressure bore (D-5).
 pub(super) fn pressure_adjustment(
     recovery: &CertifiedMemberRecovery,
     state: &pressure_runtime::ExactPressurePipeState,
@@ -73,8 +74,8 @@ pub(super) fn pressure_adjustment(
 ) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
     let fluid = certified_pressure_area_product(
         state.pressure.pressure_pa(),
-        state.annulus.outside_diameter_m(),
-        state.annulus.effective_wall_thickness_m(),
+        state.sections.outside_diameter_m(),
+        state.sections.pressure_wall_m(),
     )?;
     let two_nu = CertifiedValue::exact(2.0)?
         .product(CertifiedValue::exact(state.material.poisson_ratio())?)?;
@@ -105,8 +106,8 @@ pub(super) fn arc_pressure_wall(
 ) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
     let fluid = certified_pressure_area_product(
         state.pressure.pressure_pa(),
-        state.annulus.outside_diameter_m(),
-        state.annulus.effective_wall_thickness_m(),
+        state.sections.outside_diameter_m(),
+        state.sections.pressure_wall_m(),
     )?;
     let mut out = recovery.clone();
     for section in &mut out.sections {
@@ -579,8 +580,8 @@ pub(super) fn straight_stress_spans(
         .map(|state| {
             let fluid = certified_pressure_area_product(
                 state.pressure.pressure_pa(),
-                state.annulus.outside_diameter_m(),
-                state.annulus.effective_wall_thickness_m(),
+                state.sections.outside_diameter_m(),
+                state.sections.pressure_wall_m(),
             )?;
             let coefficient = CertifiedValue::exact(2.0)?
                 .product(CertifiedValue::exact(state.material.poisson_ratio())?)?;
@@ -968,7 +969,7 @@ pub(super) fn fallback_circular_maximum(
     loads: &[SpannedUniformLocalLoad],
     length: f64,
     section: &DerivedSection,
-    pressure: Option<&pressure_runtime::ExactPressurePipeState>,
+    pressure: Option<(&pressure_runtime::ExactPressurePipeState, pressure_exact::SectionBasis)>,
 ) -> Result<open_pipe_stress_stress_recovery::elastic_extrema::CertifiedStressMaximum, String> {
     use open_pipe_stress_stress_recovery::elastic_extrema::{
         bound_piecewise_enclosed_elastic_maximum, EnclosedQuadraticStressSpan,
@@ -984,9 +985,11 @@ pub(super) fn fallback_circular_maximum(
         rows[5].divided(section.section_modulus)?,
     ];
     let mut pressure_extra = 0.0;
-    if let Some(state) = pressure {
-        let (ai, area) = state.annulus.area_dyadic_parts();
-        if state.annulus.wall_area_m2().to_bits() != section.area.to_bits() {
+    if let Some((state, basis)) = pressure {
+        // D-5: Ai is the pressure bore's, As the basis's own; the supplied
+        // section must be that basis's.
+        let (ai, area) = state.sections.area_dyadic_parts(basis);
+        if state.sections.basis(basis).wall_area_m2().to_bits() != section.area.to_bits() {
             return Err("fallback scaled section area binding".into());
         }
         let fluid = FallbackError::exact(state.pressure.pressure_pa())?
@@ -1218,22 +1221,26 @@ mod fallback_transport_tests {
 
     #[test]
     fn pressure_fallback_uses_actual_scaled_membrane_and_preserves_affine_loads() {
-        let annulus = pressure_exact::SourceAnnulus::from_od_wall(0.2, 0.01).unwrap();
+        // Zero mill tolerance and allowance: the bases and the bore coincide.
+        let sections = pressure_exact::ExactSectionBases::derive(0.2, 0.01, 0.0, 0.0).unwrap();
+        let annulus = sections.nominal();
         let material = pressure_exact::IsotropicENu::new(200e9, 0.25).unwrap();
         let pressure = pressure_exact::InternalDifferentialPressure::new(1024.0).unwrap();
         let state = pressure_runtime::ExactPressurePipeState {
             region_id: "independent:test".into(),
-            annulus,
+            sections,
             pressure,
             material,
             arc: None,
             eigenload_pair: [0.0, 0.0],
         };
+        let nominal = pressure_exact::SectionBasis::Nominal;
+        let membrane = |mechanical: f64| {
+            let forces = sections.recover_wall_effective(mechanical, material, pressure).unwrap();
+            sections.membrane(nominal, forces).unwrap()
+        };
         let area = annulus.wall_area_m2();
-        let c0 = annulus
-            .recover_wall_effective_membrane(0.125, material, pressure)
-            .unwrap()
-            .2;
+        let c0 = membrane(0.125);
         let slope = -0.0625 / area;
         let span = open_pipe_stress_stress_recovery::elastic_extrema::QuadraticStressSpan {
             start: 0.0,
@@ -1258,7 +1265,7 @@ mod fallback_transport_tests {
             SpannedUniformLocalLoad::new(LocalLoadDirection::X, 0.03125, UniformLoadSpan::full())
                 .unwrap();
         let maximum =
-            fallback_circular_maximum(&[span], &ends, &[load], 2.0, &section, Some(&state))
+            fallback_circular_maximum(&[span], &ends, &[load], 2.0, &section, Some((&state, nominal)))
                 .unwrap();
         // Exact held-area reference: max sigma=(1/8+512Ai)/As, attained
         // at x=0 because q=1/32 makes N decrease along this two-metre span.
@@ -1272,10 +1279,7 @@ mod fallback_transport_tests {
         assert!(maximum.upper_bound - maximum.value_lower <= 1e-12 + 1e-12 * maximum.value_lower);
         for fraction in [0.0, 0.25, 0.5, 0.75, 1.0] {
             let mechanical = 0.125 - 0.0625 * fraction;
-            let published = annulus
-                .recover_wall_effective_membrane(mechanical, material, pressure)
-                .unwrap()
-                .2;
+            let published = membrane(mechanical);
             assert!(published.abs() <= maximum.upper_bound);
         }
     }
