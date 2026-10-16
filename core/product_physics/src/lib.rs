@@ -4017,12 +4017,17 @@ fn assemble_case_stiffness(
 /// member whose open-formula summary is unavailable keeps its signed rows, its
 /// withheld summary row is named, and its case's stress maximum covers an
 /// incomplete member domain, so it is withheld (as on the exact route and in
-/// preview-physics), which also withholds the invocation's headline.
+/// preview-physics), which also withholds the invocation's headline. D-5
+/// (section-bases-and-timoshenko.md §2.2): the withholding applies per basis,
+/// so both case maxima (nominal `max_stress` and `max_stress_reduced`) are
+/// withheld, and with them both per-basis headlines; the invariant does not
+/// depend on withheld summaries arising only off the exact route.
 fn withhold_certified_summaries(solves: &mut [LoadCaseSolve], diagnostics: &mut Vec<Diagnostic>) {
     for solve in solves {
         if !solve.withheld_summaries.is_empty() {
             diagnostics.append(&mut solve.withheld_summaries);
             solve.max_stress = None;
+            solve.max_stress_reduced = None;
         }
     }
 }
@@ -14155,6 +14160,39 @@ mod kd5_withheld_summary_tests {
         let code = include_str!("lib.rs");
         assert!(code.contains("    if preview.is_none() {\n        withhold_certified_summaries(&mut load_case_solves, &mut diagnostics);\n    }"));
         assert!(code.contains("                    withheld_summaries.push(diag(\n"));
+    }
+
+    /// Final review FINAL-B (section-bases-and-timoshenko.md §2.2): the
+    /// withholding applies per basis, so an incomplete case withholds both
+    /// its nominal and its reduced maximum and both per-basis headlines,
+    /// whatever route produced the case.
+    #[test]
+    fn kd5_withheld_summary_withholds_both_basis_headlines() {
+        let reduced = |solve: &mut LoadCaseSolve, value: f64| {
+            let mut quantity = solve.max_stress.clone().unwrap();
+            quantity.value = value;
+            quantity.result_ref.push_str(":reduced");
+            solve.max_stress_reduced = Some(quantity);
+        };
+        let mut solves = vec![solve("case", "a", false), solve("case-b", "b", true)];
+        reduced(&mut solves[0], 2.0);
+        reduced(&mut solves[1], 3.0);
+        let nominal = |cases: &[LoadCaseSolve]| maximum_across_cases_of(cases, |case| case.max_stress.as_ref());
+        let reduced_headline =
+            |cases: &[LoadCaseSolve]| maximum_across_cases_of(cases, |case| case.max_stress_reduced.as_ref());
+        // Precondition: without the disposition each basis would publish the
+        // other members' maximum.
+        assert!(nominal(&solves).is_some());
+        assert_eq!(reduced_headline(&solves).map(|q| q.value), Some(3.0));
+        let mut diagnostics = Vec::new();
+        withhold_certified_summaries(&mut solves, &mut diagnostics);
+        assert_eq!(diagnostics.len(), 1);
+        assert_eq!(diagnostics[0].affected_refs, vec!["b".to_string()]);
+        assert!(solves[0].max_stress.is_some() && solves[0].max_stress_reduced.is_some(), "a complete case keeps both");
+        assert!(solves[1].max_stress.is_none(), "the incomplete case withholds its nominal maximum");
+        assert!(solves[1].max_stress_reduced.is_none(), "the incomplete case withholds its reduced maximum");
+        assert!(nominal(&solves).is_none(), "the nominal headline is withheld");
+        assert!(reduced_headline(&solves).is_none(), "the reduced headline is withheld");
     }
 }
 
