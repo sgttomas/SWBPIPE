@@ -21,17 +21,18 @@ SOURCES = {
 # 2811/2831/2850/6369).
 # The caller inventories are unchanged; D-5 calls exact_straight_summary_extrema once per basis from the case solve,
 # which the chain's own multiplicity counts. Epoch addbdc030e: the lib.rs owners and sites after
-# `straight_section_resultants` move +36 (the realized-arc marker's helpers), text unchanged.
+# `straight_section_resultants` move +36 (the realized-arc marker's helpers), text unchanged; at the final source
+# 588de796a4 every lib.rs key after withhold_certified_summaries moves +5 more (PP4), text unchanged.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 10846,
+    "line": 10851,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:10804:exact_straight_summary_extrema",
-    "short": "lib.rs:10846",
-    "from": "lib.rs:10804:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:10809:exact_straight_summary_extrema",
+    "short": "lib.rs:10851",
+    "from": "lib.rs:10809:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4500:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4505:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       "core/product_physics/src/retained_product.rs:5589:prepared_maxima"
@@ -39,13 +40,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 10852,
+    "line": 10857,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:10804:exact_straight_summary_extrema",
-    "short": "lib.rs:10852",
-    "from": "lib.rs:10804:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:10809:exact_straight_summary_extrema",
+    "short": "lib.rs:10857",
+    "from": "lib.rs:10809:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:4500:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:4505:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       "core/product_physics/src/retained_product.rs:5589:prepared_maxima"
@@ -53,13 +54,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 11507,
+    "line": 11512,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:11488:recover_curved_bend_local_forces",
-    "short": "lib.rs:11507",
-    "from": "lib.rs:11488:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:11493:recover_curved_bend_local_forces",
+    "short": "lib.rs:11512",
+    "from": "lib.rs:11493:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:4500:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:4505:solve_prepared_load_case"
     ]
   },
   {

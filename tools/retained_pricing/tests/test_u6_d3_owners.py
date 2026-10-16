@@ -116,3 +116,49 @@ def test_j5_t_a_product_inclusion_of_a_test_file_stops(tmp_path, old, new, extra
     root = result_export(tmp_path, old, new, extra)
     with pytest.raises(SystemExit, match="J5"):
         j5_block(root)
+
+
+SB = RE + "section_basis.rs"
+
+
+def u6_be_block(root):
+    """o10_rules.py's U6-BE block, as written, with its own fnkey/fn_lines/_fn_text, over a snapshot at `root`."""
+    import ast
+    import os
+    import re
+    module = ast.parse((PRICING / "rules/o10_rules.py").read_text())
+    helpers = [node for node in module.body if isinstance(node, ast.FunctionDef) and node.name in ("fnkey", "fn_lines", "_fn_text")]
+    assign = [node for node in module.body if isinstance(node, ast.Assign) and ast.unparse(node.targets[0]) == "_SBR_BE"]
+    blocks = [node for node in module.body if isinstance(node, ast.If) and 'fnkey("bit_equal"' in ast.unparse(node.test).replace("'", '"')]
+    assert len(helpers) == 3 and len(assign) == len(blocks) == 1
+    namespace = {"_SNAP": str(root), "_os": os, "_re": re, "Resolved": Resolved, "RE_": RE}
+    exec(compile(ast.Module(body=helpers + assign + blocks, type_ignores=[]), "o10 U6-BE", "exec"), namespace)
+    return namespace.get("O10_RECURSION_REVIEWED")
+
+
+def section_basis(tmp_path, old=None, new=None):
+    target = tmp_path / SB
+    target.parent.mkdir(parents=True, exist_ok=True)
+    text = (SOURCE / SB).read_text()
+    if old is not None:
+        assert text.count(old) == 1
+        text = text.replace(old, new)
+    target.write_text(text)
+    return tmp_path
+
+
+def test_u6_be_reviews_bit_equals_recursion(tmp_path):
+    """U6-BE: bit_equal's recursion is reviewed (its only text, number's static Err, counts once per external call)."""
+    import re
+    reviewed = u6_be_block(section_basis(tmp_path))
+    assert len(reviewed) == 1 and re.fullmatch(r"section_basis\.rs:\d+:bit_equal", reviewed[0][0])
+    assert reviewed[0][1].startswith("U6-BE:")
+
+
+@pytest.mark.parametrize("old,new", [
+    ("        _ => a == b,\n    }\n}\n", "        _ => a.to_string() == b.to_string(),\n    }\n}\n"),
+    ('.ok_or_else(|| "SOURCE_PHYSICS_NUMBER_INVALID".into())', '.ok_or_else(|| format!("SOURCE_PHYSICS_NUMBER_INVALID {v}"))'),
+])
+def test_u6_be_a_changed_bit_equal_or_number_stops(tmp_path, old, new):
+    with pytest.raises(SystemExit, match="U6-BE"):
+        u6_be_block(section_basis(tmp_path, old, new))

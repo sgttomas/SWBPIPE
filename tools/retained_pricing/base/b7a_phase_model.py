@@ -36,7 +36,7 @@ INVALIDATION = (
 FG_FILE = "core/product_physics/src/formation_guard.rs"
 FG = FG_FILE + ":304:load_row_finding"
 DECIDE = FG_FILE + ":223:decide_row"
-SOLVE = "core/product_physics/src/lib.rs:4500:solve_prepared_load_case"   # T4-U6/U8 PP snapshot line (B7b: 4427; B7a: 4442)
+SOLVE = "core/product_physics/src/lib.rs:4505:solve_prepared_load_case"   # final source 588de796a4 (PP: 4500; B7b: 4427; B7a: 4442)
 ROW_LOOP = "for row in &rows"
 LOOP_RULE = {
     "fn": "formation_guard.rs:304:load_row_finding",

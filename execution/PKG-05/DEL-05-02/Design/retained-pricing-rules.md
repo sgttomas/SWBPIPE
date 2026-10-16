@@ -1761,8 +1761,11 @@ section (D-5), and T4-U8 adds the Timoshenko straight member (D-6); DEL-05-03's
 2026-10-16: "Apply the borrowed {domain, payload} wrapper in source_receipt.rs
 hash, with its own adjudication rule, a source pin, a test pinning identical
 hash text, and an independent review") and the epoch's reader binding of each
-section's beam theory. Registration prices the epoch head `addbdc030e` (below,
-"Epoch source"). The tool's one-current-value pins hold `addbdc030e`.
+section's beam theory. Registration first priced the epoch head `addbdc030e`
+(below, "Epoch source") and now prices the final source `588de796a4` (below,
+"Final source"), which adds the readers' bit equality, PP4's per-basis
+withholding and the independent D3 review's repairs (U6-RS's capacities, R1;
+U6-RL, R2). The tool's one-current-value pins hold `588de796a4`.
 Line numbers are at `433fc1f1e4` unless stated. Each rule below is added only
 where its source exists, so the registered B7b source adds nothing. Nothing
 here changes M, the 0.9 M margin, R, the 5 % TEXT reserve, the budget model,
@@ -1846,6 +1849,47 @@ priced change is exactly the following.
   from every product build, so J5's caller inventory omits files the crate
   includes only that way. A `#[path]` module without `#[cfg(test)]`, or a
   plain `mod` named like such a file, stops the run.
+
+**Final source `588de796a4`.** The registration branch merges the epoch
+`1ef3487611` (RD3), PP4 (`b4a596b870`) and RD4 (`61b9115466`) over D3's
+repairs. The reviewed inputs and every schema and table the profile reads are
+unchanged since `addbdc030e`. Each product diff was read; the priced change is
+exactly the following.
+- **PP4.** `lib.rs withhold_certified_summaries` also sets `max_stress_reduced`
+  to None (a drop, no allocation) and gains a doc comment and a test. Re-bound:
+  the `lib.rs` full-file pins (`b7a_domain_model`, `kd5_text_model`'s
+  primitive pin; the diff adds no `.min(`/`.max(` call). Every snapshot key after
+  the function moves +5 with unchanged text and is re-keyed (B7a's ID audits and
+  owner choices, the returning-error sites and their parents, the scoped-TEXT
+  lines, `solve_prepared_load_case`); the tool's tests follow.
+- **RD3, RD4 (readers).** `physics_source.rs` compares its maximum, norm,
+  endpoint-section, stress-functional and twin links through
+  `section_basis::bit_equal` and makes `normalized_quantity` `pub(crate)`;
+  `section_basis.rs` adds `bit_equal` and compares twin values and headlines by
+  bits; `reader_verdict.rs` binds each case section's captured (D, t, c_m, c_a)
+  to the model inside `physics_model_checks`, in `reader_verdict::route()`'s
+  path, unreached from the retained roots (B7b-ZA). No `require` site is added or
+  removed. Re-bound: the `physics_source.rs` full-file pin; its scoped-TEXT
+  `require` line moves +1 (the import).
+- **U6-BE (`bit_equal`'s recursion).** `bit_equal` recurses into arrays and
+  objects, so the chain lists it as a self-recursive TEXT ancestor, which needs a
+  reviewed reason. Its only text is `number`'s Err, the static
+  `SOURCE_PHYSICS_NUMBER_INVALID` (29 B). `bit_equal` calls `number` only on two
+  `Value::Number` leaves, whose `as_f64` is always Some and finite, so the Err
+  never forms. Any formed Err is dropped inside the one `matches!`, so at most
+  two are alive at once at any depth. Nothing else allocates, so its text counts
+  once per external call, as for `guard_json`. The chain still prices that Err
+  at every call on route E: 1,730 `bit_equal` calls with two `number` calls
+  each, at max(8, 2·29) B, so +200,680 B of route E's TEXT. This stays below
+  route L's TAV_W, so no merged evaluation moves. **Guard:** the run stops unless
+  `bit_equal`'s and `number`'s exact texts are as reviewed.
+
+Against `addbdc030e`'s tree, the final source's merged tree is equal in
+structure: 1,400 coefficients equal, 56 higher and none lower. The higher ones
+are U6-RL's 39 nodes and 5,952 key bytes in every copy of the evidence owner
+(T25's first stage +47,808 B through its hash route) and U6-RS's 5,236 slots in
+the precommit reader's working sets. The prunes are `addbdc030e`'s 31, and the
+resolutions used are the same.
 
 No rule is pruned beyond the 31 below, and the tree differs from
 `433fc1f1e4`'s only in STATICS and route E's TEXT atoms above and in U6-RB-V's
@@ -2106,28 +2150,32 @@ composes a near-cap owner from a selected run's own tied entries: at m = 23 and
 n = 32 (C = 3) it is within route E's bounds with a complete census, and at
 m = 24 the census reaches its value limit.
 
-**Current D3 binding.** At `addbdc030e` `run` exits 0: all four points are
+**Current D3 binding.** At `588de796a4` `run` exits 0: all four points are
 complete, with no unmapped header or unclassified argument, and both O-10
-checks pass. Against the registered tree the structure is equal: 1,128
-coefficients equal, 294 higher and 34 lower, so the block must be
-re-registered. `generate` gives 288 atoms, 98 forms and no Estimate (1,544
+checks pass. Against the tree registered at `addbdc030e` the structure is equal
+(1,400 coefficients equal, 56 higher, none lower: "Final source"), so the block
+is re-registered. `generate` gives 288 atoms, 98 forms and no Estimate (1,544
 lines), keeps `threshold_bytes` at M, and `generate --check` reproduces it. All
-70 evaluations pass at the registered build's in-build atoms. Required =
+70 evaluations pass at the registered build's in-build atoms, and the merged
+tree's E + R equals the law test's in-build value in all 14 phases. Required =
 requested + moving + R and reserve = ⌈TAV/20⌉ (TAV_W for W1–W5, TAV_X for
 X1/X2), against ⌊0.9 M⌋ = 11,596,411,699 B. The tightest headrooms:
 
 | Tree | Mode | Phase | Headroom |
 |---|---|---|---|
-| merged | dense | W4 | 52,018,961 B |
-| merged | dense | X1 | 77,525,843 B |
-| merged | sparse | W4 | 111,150,305 B |
-| merged | sparse | X1 | 136,657,187 B |
+| merged | dense | W4 | 51,812,817 B |
+| merged | dense | X1 | 77,334,515 B |
+| merged | sparse | W4 | 110,944,161 B |
+| merged | sparse | X1 | 136,465,859 B |
 | L_30 | dense | W4 | 177,800,942 B |
 
 T07 (the live source attempt) is a row of the ordinary base that every phase
 holds, so every evaluation prices it; T25 (the receipt replay) is priced in X1
 only, whose tightest evaluation is the merged dense one above. Against
-`433fc1f1e4` the epoch's source costs 6,308 B in every merged evaluation (the
+`addbdc030e` the review's repairs cost 206,144 B in merged W4 and 191,328 B in
+merged X1 (both modes); the readers' and PP4's changes cost nothing in any
+merged evaluation (U6-BE's TEXT stays below route L's TAV_W). Against
+`433fc1f1e4` the epoch's source cost 6,308 B in every merged evaluation (the
 schema's STATICS; route E's +4,992 B of TEXT stays below route L's TAV_W), and
 U6-RB-V 2,374,808 B. W4 (the precommit reader with the successor and the
 invocation Value) is the in-build maximum in both modes (B7b's was W3).
@@ -2136,10 +2184,10 @@ invocation Value) is the in-build maximum in both modes (B7b's was W3).
 aarch64-apple-darwin, debug, opt-level 0, debug assertions, unwind, no
 RUSTFLAGS, `open_pipe_stress_product_physics@0.2.0`), the four reader layouts
 (56, 64, 96 and 16 B, align 8) and `threshold_bytes` = M. Six of the twelve
-reviewed-input digests move with D-5's schemas and tables (#1, #7–#11). The law
-tests pin the in-build phase record, the text atoms (D_env 28,127,
-Text(diag_env) 262,735,773), the digests and the re-audited reader test
-suffixes (`retained_precision.rs`, `physics_source.rs` and
-`semantic_contract.rs` gain closed test code only). The block's basis line
-names `addbdc030e`; the merged branch head, with FX's fixtures, prices the same
-tree.
+reviewed-input digests moved with D-5's schemas and tables at `addbdc030e` (#1,
+#7–#11); all twelve are unchanged at `588de796a4`. The law tests pin the
+in-build phase record, the text atoms (D_env 28,127, Text(diag_env)
+262,735,773, unchanged), the digests and the re-audited reader test suffixes
+(`retained_precision.rs`, `physics_source.rs` and `semantic_contract.rs` gain
+closed test code only). The block's basis line names `588de796a4`; the
+registration head prices the same tree.

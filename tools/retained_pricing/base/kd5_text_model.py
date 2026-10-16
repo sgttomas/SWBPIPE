@@ -152,8 +152,8 @@ def inspect_directed_helpers(snapshot):
 # fields add or remove no `.min(`/`.max(` call (the production lib.rs
 # callers are the same five functions as at B7a's 3e89c23ea1).
 # T4-U6/U8: D-5's and PP's lib.rs diffs add or remove no `.min(`/`.max(` call, nor does the epoch's realized-arc
-# marker (addbdc030e).
-B7A_PRIMITIVE_LIB_SOURCE_PIN = "f0785eb7d9decf288929d89a353bc2a7d677ee09df5bc820a7341635bc232cd9"
+# marker (addbdc030e), nor PP4's per-basis withholding (`max_stress_reduced = None`, 588de796a4).
+B7A_PRIMITIVE_LIB_SOURCE_PIN = "6c48546bbea452c7f26a3490892d4b441aff25ed7c1c1a9e2b10ac8eb4d91bb4"
 
 
 def primitive_lib_minmax_callers(snapshot):
