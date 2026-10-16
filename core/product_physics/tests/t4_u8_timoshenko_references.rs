@@ -15,30 +15,77 @@ use frozen_rows::*;
 
 const CASES: &str = include_str!("../../../validation/references/t4_u8/product_cases.json");
 const I8: &str = include_str!("../../../validation/references/t4_i8/rebuilt_reference_cases.json");
-macro_rules! requests {
-    ($($name:literal),* $(,)?) => {
-        [$((concat!("requests/", $name, ".request.json"),
-            include_str!(concat!("../../../validation/references/t4_u8/requests/", $name, ".request.json")))),*]
-    };
-}
-const REQUESTS: [(&str, &str); 17] = requests![
-    "I8-CASE2-TIMOSHENKO",
-    "I8-CASE2-TIMOSHENKO-LOAD-STATE",
-    "LOAD-STATE-PER-CASE-NU-EULER-BERNOULLI",
-    "LOAD-STATE-PER-CASE-NU-TIMOSHENKO",
-    "S-B-L1-DUALBASIS-EULER-BERNOULLI",
-    "S-B-L1-DUALBASIS-TIMOSHENKO",
-    "S-B-L1-EULER-BERNOULLI",
-    "S-B-L1-ROTATED-EULER-BERNOULLI",
-    "S-B-L1-ROTATED-TIMOSHENKO",
-    "S-B-L1-TIMOSHENKO",
-    "S-B-L10-EULER-BERNOULLI",
-    "S-B-L10-TIMOSHENKO",
-    "S-B-L2-EULER-BERNOULLI",
-    "S-B-L2-TIMOSHENKO",
-    "S-E-SPRING-EULER-BERNOULLI",
-    "S-E-SPRING-TIMOSHENKO",
-    "TWIN-A-TIMOSHENKO",
+// Literal include paths, which the hosted CI selector (tools/ci/numerical_ci.py)
+// resolves; each request is still bound by the SHA-256 its reference names.
+const REQUESTS: [(&str, &str); 17] = [
+    (
+        "requests/I8-CASE2-TIMOSHENKO.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/I8-CASE2-TIMOSHENKO.request.json"),
+    ),
+    (
+        "requests/I8-CASE2-TIMOSHENKO-LOAD-STATE.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/I8-CASE2-TIMOSHENKO-LOAD-STATE.request.json"),
+    ),
+    (
+        "requests/LOAD-STATE-PER-CASE-NU-EULER-BERNOULLI.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/LOAD-STATE-PER-CASE-NU-EULER-BERNOULLI.request.json"),
+    ),
+    (
+        "requests/LOAD-STATE-PER-CASE-NU-TIMOSHENKO.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/LOAD-STATE-PER-CASE-NU-TIMOSHENKO.request.json"),
+    ),
+    (
+        "requests/S-B-L1-DUALBASIS-EULER-BERNOULLI.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/S-B-L1-DUALBASIS-EULER-BERNOULLI.request.json"),
+    ),
+    (
+        "requests/S-B-L1-DUALBASIS-TIMOSHENKO.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/S-B-L1-DUALBASIS-TIMOSHENKO.request.json"),
+    ),
+    (
+        "requests/S-B-L1-EULER-BERNOULLI.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/S-B-L1-EULER-BERNOULLI.request.json"),
+    ),
+    (
+        "requests/S-B-L1-ROTATED-EULER-BERNOULLI.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/S-B-L1-ROTATED-EULER-BERNOULLI.request.json"),
+    ),
+    (
+        "requests/S-B-L1-ROTATED-TIMOSHENKO.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/S-B-L1-ROTATED-TIMOSHENKO.request.json"),
+    ),
+    (
+        "requests/S-B-L1-TIMOSHENKO.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/S-B-L1-TIMOSHENKO.request.json"),
+    ),
+    (
+        "requests/S-B-L10-EULER-BERNOULLI.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/S-B-L10-EULER-BERNOULLI.request.json"),
+    ),
+    (
+        "requests/S-B-L10-TIMOSHENKO.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/S-B-L10-TIMOSHENKO.request.json"),
+    ),
+    (
+        "requests/S-B-L2-EULER-BERNOULLI.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/S-B-L2-EULER-BERNOULLI.request.json"),
+    ),
+    (
+        "requests/S-B-L2-TIMOSHENKO.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/S-B-L2-TIMOSHENKO.request.json"),
+    ),
+    (
+        "requests/S-E-SPRING-EULER-BERNOULLI.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/S-E-SPRING-EULER-BERNOULLI.request.json"),
+    ),
+    (
+        "requests/S-E-SPRING-TIMOSHENKO.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/S-E-SPRING-TIMOSHENKO.request.json"),
+    ),
+    (
+        "requests/TWIN-A-TIMOSHENKO.request.json",
+        include_str!("../../../validation/references/t4_u8/requests/TWIN-A-TIMOSHENKO.request.json"),
+    ),
 ];
 
 fn cases() -> Value {
