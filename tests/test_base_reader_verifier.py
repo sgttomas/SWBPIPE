@@ -223,7 +223,16 @@ def _cases():
     blocks_request = corpus.read("fixtures/product_preview/pressure_source/physics_source/n05.request.json")
     combinations = deepcopy(blocks_request)
     combinations["model"]["combinations"] = [{"id": "combination:invented", "terms": []}]
-    return [
+    # T4-U6 (FINAL-B): G2 binds each case section's D, t, c_m and c_a to the model's section, bit for bit; each one
+    # ulp off in the model.
+    section = source["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]
+    off_by_one_ulp = []
+    for key, leaf in (("outside_diameter", "outside_diameter_m"), ("wall_thickness", "wall_thickness_m"),
+                      ("mill_tolerance", "mill_tolerance_m"), ("corrosion_allowance", "corrosion_allowance_m")):
+        changed = deepcopy(model)
+        changed["pipe_segments"][0]["section"][key] = {"value": math.nextafter(section[leaf], math.inf), "unit": "m"}
+        off_by_one_ulp.append((f"physics-model-section-{key}", source, changed, None, "SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY"))
+    return off_by_one_ulp + [
         ("physics-model-case-coverage", source, fewer_cases, None, "SOURCE_PHYSICS_MODEL_CASE_COVERAGE"),
         ("physics-model-member-coverage", source, extra_pipe, None, "SOURCE_PHYSICS_MODEL_MEMBER_COVERAGE"),
         ("physics-support-binding", source, foreign_support, None, "SOURCE_PHYSICS_SUPPORT_BINDING"),

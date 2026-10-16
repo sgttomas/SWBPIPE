@@ -234,6 +234,77 @@ def test_basis_headlines_bind_their_maximum_rows_by_bits():
         sb.headlines(summary(-0.0), rows, complete)
 
 
+def _set_model_section(model, pipe, key, value):
+    next(p for p in model["pipe_segments"] if p["id"] == pipe)["section"][key] = value
+
+
+def test_pressure_1_model_checks_bind_each_section_input_to_the_model(base):
+    """§1, §5 (FINAL-B): G2 binds each case section's captured D, t, c_m (0.0 when the model has none) and c_a to the
+    model's section of that pipe, bit for bit after the unit catalog: each one ulp off is refused by name, as is a
+    signed zero and a pipe's section swapped with another's (Rust's twin is section_bases.rs's test of the same name)."""
+    code = "^SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY$"
+    request = json.loads((ROOT / "core/product_physics/tests/fixtures/exact_pressure_connected_request.json").read_text())
+    connected = (deepcopy(base), request["model"])
+    entry = _arc_corpus_entry("U2-L-ANCH-PTW-K2 0.3.0")
+    milled = (entry["envelope"], entry["document"]["model"])
+    # An allowance on the arc document: the evidence's distinct bases and the model's 0.0005 m.
+    allowed = (distinct(entry["envelope"], 0.0005), deepcopy(entry["document"]["model"]))
+    for segment in allowed[1]["pipe_segments"]:
+        segment["section"]["corrosion_allowance"] = {"value": 0.0005, "unit": "m"}
+    leaves = (("outside_diameter", "outside_diameter_m"), ("wall_thickness", "wall_thickness_m"),
+              ("mill_tolerance", "mill_tolerance_m"), ("corrosion_allowance", "corrosion_allowance_m"))
+    for label, (doc, model) in (("connected", connected), ("milled arc", milled), ("allowance on the arc", allowed)):
+        assert rv.validate("pressure", doc, model) == {"ok": True}, label
+        section = doc["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]
+        for key, leaf in leaves:
+            changed = deepcopy(model)
+            _set_model_section(changed, section["pipe_id"], key, {"value": math.nextafter(section[leaf], math.inf), "unit": "m"})
+            assert rv.validate("pressure", doc, changed) == {"ok": False, "error": {"code": "SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY", "detail": None}}, (label, key)
+            with pytest.raises(rv.Refused, match=code):
+                rv.physics_model_checks(doc, changed)
+            # The same quantity in metres, bit for bit, is bound.
+            _set_model_section(changed, section["pipe_id"], key, {"value": section[leaf], "unit": "m"})
+            rv.physics_model_checks(doc, changed)
+    # The connected document has no mill tolerance and a zero allowance: an absent or null mill tolerance is 0.0; a
+    # signed zero is not.
+    doc, model = connected
+    pipe = doc["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]["pipe_id"]
+    assert "mill_tolerance" not in model["pipe_segments"][0]["section"]
+    for key, value, bound in (("mill_tolerance", None, True), ("mill_tolerance", {"value": 0, "unit": "mm"}, True),
+                              ("mill_tolerance", {"value": -0.0, "unit": "m"}, False), ("corrosion_allowance", {"value": -0.0, "unit": "m"}, False),
+                              ("corrosion_allowance", None, False), ("wall_thickness", {"value": 10.0, "unit": "mm"}, True),
+                              ("wall_thickness", {"value": 10.0, "unit": "N"}, False)):
+        changed = deepcopy(model)
+        _set_model_section(changed, pipe, key, value)
+        if bound:
+            rv.physics_model_checks(doc, changed)
+        else:
+            with pytest.raises(rv.Refused, match=code):
+                rv.physics_model_checks(doc, changed)
+    # A pipe whose section is another pipe's: the arc document's members with their own walls, then two of them
+    # swapped in the model.
+    doc, model = deepcopy(milled[0]), deepcopy(milled[1])
+    pipes = [s["pipe_id"] for s in doc["contract_evidence"]["exact_cases"][0]["pipe_sections"]]
+    assert len(pipes) >= 2
+    for i, pipe in enumerate(pipes):
+        _set_model_section(model, pipe, "wall_thickness", {"value": 0.004 + 0.001 * i, "unit": "m"})
+        for case in doc["contract_evidence"]["exact_cases"]:
+            for s in case["pipe_sections"]:
+                if s["pipe_id"] == pipe:
+                    s["wall_thickness_m"] = 0.004 + 0.001 * i
+    rv.physics_model_checks(doc, model)
+    reversed_model = deepcopy(model)
+    reversed_model["pipe_segments"].reverse()
+    rv.physics_model_checks(doc, reversed_model)  # bound by pipe id, not by order
+    swapped = deepcopy(model)
+    sections = {p["id"]: p["section"] for p in model["pipe_segments"]}
+    for segment in swapped["pipe_segments"]:
+        if segment["id"] in pipes[:2]:
+            segment["section"] = deepcopy(sections[pipes[1] if segment["id"] == pipes[0] else pipes[0]])
+    with pytest.raises(rv.Refused, match=code):
+        rv.physics_model_checks(doc, swapped)
+
+
 def test_pressure_1_reader_refuses_cross_basis_headline(base):
     doc = deepcopy(base)
     reduced = doc["summary"]["max_open_formula_stress_reduced_section"]

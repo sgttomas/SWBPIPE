@@ -844,7 +844,7 @@ pub(crate) fn validate_source_case_in(
     }
     Ok(())
 }
-fn normalized_quantity(quantity: &Value, dimension: Dimension) -> Result<f64, String> {
+pub(crate) fn normalized_quantity(quantity: &Value, dimension: Dimension) -> Result<f64, String> {
     // Exact producer normalize_quantity authority, including dimension resolution,
     // affine temperatures and the identity path; no local conversion catalog.
     let from = unit_by_symbol(text(&quantity["unit"])?, dimension)

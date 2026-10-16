@@ -259,6 +259,92 @@ fn basis_headlines_bind_their_maximum_rows_by_bits() {
     }
 }
 
+/// Sets one authored section quantity of `model`'s pipe `pipe`.
+fn set_model_section(model: &mut Value, pipe: &str, key: &str, value: Value) {
+    let segment = model["pipe_segments"].as_array_mut().unwrap().iter_mut().find(|p| p["id"] == pipe).unwrap();
+    segment["section"][key] = value;
+}
+
+#[test]
+fn pressure_1_model_checks_bind_each_section_input_to_the_model() {
+    // §1, §5 (FINAL-B): G2 binds each case section's captured D, t, c_m (0.0
+    // when the model has none) and c_a to the model's section of that pipe,
+    // bit for bit after the units authority: each one ulp off is refused by
+    // name, as is a signed zero and a pipe's section swapped with another's.
+    let request: Value = serde_json::from_str(include_str!("../../../../core/product_physics/tests/fixtures/exact_pressure_connected_request.json")).unwrap();
+    let connected = (base(), request["model"].clone());
+    let entry = arc_corpus_entry("U2-L-ANCH-PTW-K2 0.3.0");
+    let milled = (entry["envelope"].clone(), entry["document"]["model"].clone());
+    // An allowance on the arc document: the evidence's distinct bases and the model's 0.0005 m.
+    let mut allowed = (distinct(&entry["envelope"], 0.0005), entry["document"]["model"].clone());
+    for segment in allowed.1["pipe_segments"].as_array_mut().unwrap() {
+        segment["section"]["corrosion_allowance"] = json!({"value": 0.0005, "unit": "m"});
+    }
+    let code = "SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY";
+    let leaves = [("outside_diameter", "outside_diameter_m"), ("wall_thickness", "wall_thickness_m"),
+        ("mill_tolerance", "mill_tolerance_m"), ("corrosion_allowance", "corrosion_allowance_m")];
+    for (label, (doc, model)) in [("connected", &connected), ("milled arc", &milled), ("allowance on the arc", &allowed)] {
+        assert_eq!(reader_verdict::validate("pressure", doc, Some(model), None), json!({"ok": true}), "{label}");
+        let section = &doc["contract_evidence"]["exact_cases"][0]["pipe_sections"][0];
+        let pipe = section["pipe_id"].as_str().unwrap();
+        for (key, leaf) in leaves {
+            let mut changed = model.clone();
+            set_model_section(&mut changed, pipe, key, json!({"value": f(&section[leaf]).next_up(), "unit": "m"}));
+            let verdict = reader_verdict::validate("pressure", doc, Some(&changed), None);
+            assert_eq!(verdict["error"]["code"], code, "{label}: {key} one ulp up: {verdict}");
+            assert_eq!(reader_verdict::physics_model_checks(doc, &changed), Err(code.to_string()), "{label}: {key}");
+            // The same quantity in metres, bit for bit, is bound.
+            set_model_section(&mut changed, pipe, key, json!({"value": section[leaf], "unit": "m"}));
+            assert_eq!(reader_verdict::physics_model_checks(doc, &changed), Ok(()), "{label}: {key} restated");
+        }
+    }
+    // The connected document has no mill tolerance and a zero allowance: an
+    // absent or null mill tolerance is 0.0; a signed zero is not.
+    let (doc, model) = &connected;
+    let pipe = doc["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]["pipe_id"].as_str().unwrap();
+    assert!(model["pipe_segments"][0]["section"].get("mill_tolerance").is_none());
+    for (key, value, expected) in [
+        ("mill_tolerance", Value::Null, Ok(())),
+        ("mill_tolerance", json!({"value": 0, "unit": "mm"}), Ok(())),
+        ("mill_tolerance", json!({"value": -0.0, "unit": "m"}), Err(code.to_string())),
+        ("corrosion_allowance", json!({"value": -0.0, "unit": "m"}), Err(code.to_string())),
+        ("corrosion_allowance", Value::Null, Err(code.to_string())),
+        ("wall_thickness", json!({"value": 10.0, "unit": "mm"}), Ok(())),
+        ("wall_thickness", json!({"value": 10.0, "unit": "N"}), Err(code.to_string())),
+    ] {
+        let mut changed = model.clone();
+        set_model_section(&mut changed, pipe, key, value.clone());
+        assert_eq!(reader_verdict::physics_model_checks(doc, &changed), expected, "{key} = {value}");
+    }
+    // A pipe whose section is another pipe's: the arc document's members with
+    // their own walls, then two of them swapped in the model.
+    let (mut doc, mut model) = milled.clone();
+    let pipes: Vec<String> = doc["contract_evidence"]["exact_cases"][0]["pipe_sections"].as_array().unwrap().iter()
+        .map(|s| s["pipe_id"].as_str().unwrap().to_string()).collect();
+    assert!(pipes.len() >= 2);
+    let wall = |i: usize| 0.004 + 0.001 * i as f64;
+    for (i, pipe) in pipes.iter().enumerate() {
+        set_model_section(&mut model, pipe, "wall_thickness", json!({"value": wall(i), "unit": "m"}));
+        for case in doc["contract_evidence"]["exact_cases"].as_array_mut().unwrap() {
+            for s in case["pipe_sections"].as_array_mut().unwrap() {
+                if s["pipe_id"] == pipe.as_str() { s["wall_thickness_m"] = json!(wall(i)); }
+            }
+        }
+    }
+    assert_eq!(reader_verdict::physics_model_checks(&doc, &model), Ok(()));
+    let mut reversed = model.clone();
+    reversed["pipe_segments"].as_array_mut().unwrap().reverse();
+    assert_eq!(reader_verdict::physics_model_checks(&doc, &reversed), Ok(()), "bound by pipe id, not by order");
+    let (a, b) = (pipes[0].as_str(), pipes[1].as_str());
+    let section = |m: &Value, p: &str| m["pipe_segments"].as_array().unwrap().iter().find(|s| s["id"] == p).unwrap()["section"].clone();
+    let mut swapped = model.clone();
+    let (section_a, section_b) = (section(&model, a), section(&model, b));
+    swapped["pipe_segments"].as_array_mut().unwrap().iter_mut().for_each(|s| {
+        if s["id"] == a { s["section"] = section_b.clone(); } else if s["id"] == b { s["section"] = section_a.clone(); }
+    });
+    assert_eq!(reader_verdict::physics_model_checks(&doc, &swapped), Err(code.to_string()));
+}
+
 #[test]
 fn pressure_1_reader_refuses_cross_basis_headline() {
     let mut doc = base();
