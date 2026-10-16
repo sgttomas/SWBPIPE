@@ -863,11 +863,31 @@ if fnkey("validate_physics_evidence_in", _PE) and fnkey("prepass", RE_ + "load_r
             or _pe_txt.count("crate::load_reference::prepass(") != 1:
         raise SystemExit("J5: validate_physics_evidence_in's prepass call is no longer only under `resolved`; re-review")
     _j5_calls = []
+    # T4-U6/U8 (epoch addbdc030e): a file the crate includes only through `#[cfg(test)] #[path = ".."] mod ..;` is test
+    # code, absent from every product build, so its calls are not product callers (arc_marker_tests.rs, the realized-arc
+    # marker's reader tests, calls with composite = true). A `#[path]` module without `#[cfg(test)]`, or a plain `mod`
+    # named like such a file's stem, stops the run.
+    _j5_srcs = {}
     for _d, _, _fs in _os.walk(_os.path.join(_SNAP, RE_)):
         for _f in sorted(_fs):
             if _f.endswith(".rs"):
-                _src = open(_os.path.join(_d, _f), encoding="utf-8").read()
-                _j5_calls += [(_f, _m) for _m in _re.findall(r"validate_physics_evidence_in\(([^,]*),\s*(true|false)\b", _src)]
+                _j5_srcs[_os.path.normpath(_os.path.join(_d, _f))] = open(_os.path.join(_d, _f), encoding="utf-8").read()
+    _j5_test_only = set()
+    for _path, _src in _j5_srcs.items():
+        for _attrs, _p in _re.findall(r'((?:#\[[^\]]*\]\s*)*)#\[path\s*=\s*"([^"]+)"\]\s*mod\s+\w+\s*;', _src):
+            if "#[cfg(test)]" not in _attrs:
+                raise SystemExit(f"J5: {_p} is included as a module outside #[cfg(test)]; re-review")
+            _j5_test_only.add(_os.path.normpath(_os.path.join(_os.path.dirname(_path), _p)))
+    for _src in _j5_srcs.values():
+        for _t in _j5_test_only:
+            for _m in _re.finditer(r"\bmod\s+" + _re.escape(_os.path.basename(_t)[:-3]) + r"\s*;", _src):
+                if not _re.search(r'#\[path\s*=\s*"[^"]+"\]\s*$', _src[:_m.start()]):
+                    raise SystemExit(f"J5: {_t} is also a plain module; re-review")
+    for _path, _src in sorted(_j5_srcs.items()):
+        if _path in _j5_test_only:
+            continue
+        _j5_calls += [(_os.path.basename(_path), _m)
+                      for _m in _re.findall(r"validate_physics_evidence_in\(([^,]*),\s*(true|false)\b", _src)]
     # B7b-J5: v2's deletion removes validate_physics_evidence's call; validate_pressure_evidence's composite = false
     # call remains (route E's reached caller since D4 (a)), so the prepass edge stays untaken on both routes.
     if sorted((_f, _m[1]) for _f, _m in _j5_calls) != ([("load_reference.rs", "false"), ("physics_evidence.rs", "false"),

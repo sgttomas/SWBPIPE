@@ -14,8 +14,10 @@ PINS = {
     "core/product_physics/src/lib.rs": {
         "solve_load_case_observed": "5a70782515a2e66790c8d570cc13d49ead9d22614e0f99b288d2632e8fc4e061",
         # T4-U6/U8: D-5's stress rows, per-basis maxima, extrema and coverage (priced at their own sites and by the
-        # U6 rules); its carriers, staging and prepared-pressure calls are unchanged.
-        "solve_prepared_load_case": "253021d2ab4b78a7b0237624c25264f37ae1b50a45703662725737bff3eca2fe",
+        # U6 rules); its carriers, staging and prepared-pressure calls are unchanged. Epoch addbdc030e: the case
+        # evidence's `pipe_sections` is `exact_pipe_sections(built)`, the same entries plus the realized-arc marker
+        # (no realized arc on D1).
+        "solve_prepared_load_case": "e0da006706889873e7c442b3c6d551c2112a529d0c3c45581d6e035cefd003ae",
         "append_curved_bend_macro_element_results": "9ebc4f11d1a881b3310579118792190c4d4c9c81964a3a89eb04952f0312304c",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
@@ -36,7 +38,9 @@ PINS = {
 # pressure region (absent on L, explicitly empty on E). No carrier or staging changes.
 # PP: validate_profile admits both shear models (one fewer refusal arm), selects_timoshenko is a predicate, and
 # closure_source's straight operand identity begins with its member prefix (region path only).
-PRESSURE_PREFIX_PIN = "0dce739c193eca0a846aef13224b4c753eacdd5888994ae32e1fe26329c7a797"
+# Epoch addbdc030e: assemble_pressure_case's per-region member body calls `super::realized_arc` and
+# `super::mark_realized_arc` in place of the same inline expressions (region path only).
+PRESSURE_PREFIX_PIN = "6694a428a4a0c9e9796898083c520436a19baffb7fd494773ad842f85b5fab76"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 
