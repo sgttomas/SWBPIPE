@@ -1043,7 +1043,8 @@ CASES = [
     ("U6-BASES-001", False, False, [(EB, "U6-BASES-001-EB", None, "U6-BASES-001-EB-SELF-WEIGHT"),
                                     (TIMO, "U6-BASES-001-TIMO", None, "U6-BASES-001-TIMO-SELF-WEIGHT")],
      ["case:pressure-tip", "case:axial-tip"], ["case:self-weight", "case:combined"]),
-    ("U6-BASES-002", False, True, [(EB, "U6-BASES-002", "U6-BASES-002-GROUP", None)], ["case:restrained-pressure", "case:restrained-pressure-thermal"], []),
+    ("U6-BASES-002", False, True, [(EB, "U6-BASES-002", "U6-BASES-002-GROUP", None), (TIMO, "U6-BASES-002-TIMO", None, None)],
+     ["case:restrained-pressure", "case:restrained-pressure-thermal"], []),
     ("U6-BASES-COINCIDENT", True, False, [(EB, "U6-BASES-COINCIDENT", None, None)], ["case:pressure-tip", "case:axial-tip"], []),
 ]
 DESCRIPTION = {
@@ -1081,6 +1082,7 @@ EVIDENCE_KEYS = ["pipe_id", "geometry_basis", "outside_diameter_m", "ro_m", "wal
 
 def build():
     files = {}
+    docs = {}
     oracle_cases = {}
     disc_count = 0
     for case_id, coincident, restrained, variants, runnable, weighted in CASES:
@@ -1100,9 +1102,14 @@ def build():
                 doc = request_doc(f"project:invented-t4-u6-{request.lower()}", coincident, shear, restrained,
                                   any(LOAD_CASES[c]["thermal"] for c in runnable), runnable)
                 check_primitive_load_ids(request, doc)
+                docs[request] = doc
                 data = dump(doc)
                 files[f"requests/{request}.request.json"] = data
                 var["request"] = {"path": f"requests/{request}.request.json", "sha256": hashlib.sha256(data).hexdigest(), "load_cases": list(runnable)}
+                if restrained and shear == TIMO:
+                    var["request"]["note"] = ("the euler_bernoulli request with shear_model timoshenko_annulus_energy_v1 (see shear_model_note): "
+                                              "its rows, zero scales and discriminators equal the euler_bernoulli variant's, and its "
+                                              "pipe_sections evidence equals U6-BASES-001's timoshenko_annulus_energy_v1 evidence (checked)")
             if group_request:
                 gdoc = request_doc_load_state_group(doc)
                 gdoc["model"]["project"]["id"] = f"project:invented-t4-u6-{group_request.lower()}"
@@ -1190,6 +1197,24 @@ def build():
           {"eps_p_area_on_reduced_section", "poisson_eigenstrain_area_on_reduced_section"} <= {d["id"] for d in d002})
     check("U6 kappa_E of the nominal annulus is SHEAR_REFERENCE S-B's 33.219654/66.137512",
           physics(False, TIMO)["kappa"] == F("33.219654") / F("66.137512"))
+    # U6-BASES-002-TIMO binds the restrained case's frozen rows under Timoshenko: no new value
+    c002, c001 = oracle_cases["U6-BASES-002"], oracle_cases["U6-BASES-001"]
+    v_eb, v_timo = c002["variants"][EB], c002["variants"][TIMO]
+    eb_base, timo_base = f"/cases/U6-BASES-002/variants/{EB}/", f"/cases/U6-BASES-002/variants/{TIMO}/"
+    check("U6-BASES-002-TIMO: its load cases (rows, expected values, zero scales, terminal evidence) are the euler_bernoulli variant's",
+          json.dumps(v_timo["load_cases"]) == json.dumps(v_eb["load_cases"]).replace(eb_base, timo_base))
+    check("U6-BASES-002-TIMO: its pipe_sections evidence and binary64 exhibit are U6-BASES-001's timoshenko variant's",
+          v_timo["pipe_sections_evidence"] == c001["variants"][TIMO]["pipe_sections_evidence"]
+          and v_timo["binary64_exhibits"] == c001["variants"][TIMO]["binary64_exhibits"])
+    d_eb = [d for d in c002["wrong_result_discriminators"] if d["variant"] == EB]
+    d_timo = [d for d in c002["wrong_result_discriminators"] if d["variant"] == TIMO]
+    check("U6-BASES-002-TIMO: its discriminators are the euler_bernoulli variant's, entry for entry",
+          bool(d_eb) and [dict(d, variant=EB) for d in d_timo] == d_eb)
+    p_eb, p_timo = docs["U6-BASES-002"]["model"], docs["U6-BASES-002-TIMO"]["model"]
+    check("U6-BASES-002-TIMO: the U6-BASES-002 document apart from shear_model and the project id",
+          {k: v for k, v in p_timo.items() if k not in ("pressure_contract", "project")} == {k: v for k, v in p_eb.items() if k not in ("pressure_contract", "project")}
+          and dict(p_timo["pressure_contract"], shear_model=EB) == p_eb["pressure_contract"] and p_timo["pressure_contract"]["shear_model"] == TIMO
+          and dict(p_timo["project"], id=p_eb["project"]["id"]) == p_eb["project"])
     oracle = header()
     oracle["section_geometry"] = {
         "dual": geometry_block(False), "coincident": geometry_block(True)}
@@ -1218,10 +1243,11 @@ def header():
         "purpose": "Independent analytical references for T4-U6 (D-5 section bases) and the Timoshenko variant shared with T4-U8: one straight pipe, frozen before any product implementation; not product requests and not observed solver outputs.",
         "status": ("frozen by the T4-U6/T4-U8 independent reference TASK and refuted independently; the refutation's four findings were repaired "
                    "in 6817b72ca9 without a value change, and an independent refuter confirmed all four repairs on 2026-10-16. Awaiting "
-                   "independent refutation: the generated-self-weight requests (request_self_weight) and the primitive-load id repair (every "
+                   "independent refutation: the generated-self-weight requests (request_self_weight); the primitive-load id repair (every "
                    "primitive-load id names its load case; U6-BASES-001-EB, U6-BASES-001-TIMO and U6-BASES-COINCIDENT had reused their tip "
                    "load ids in case:pressure-tip and case:axial-tip, which the product refuses as DUPLICATE_ID; only ids and request "
-                   "hashes changed, no frozen value)"),
+                   "hashes changed, no frozen value); and U6-BASES-002-TIMO, which binds U6-BASES-002's frozen rows to a "
+                   "timoshenko_annulus_energy_v1 request without a new value"),
         "basis": {"design": "DEL-05-03 Design section-bases-and-timoshenko.md sections 1, 2.1, 2.5, 3.1, 7 and 8, and section-and-shear-decisions.md (D-5, H4), at b3f4da7661",
                   "shear": "SHEAR_REFERENCE CONTRACT.md sections 1, 3 and 4 and its reference arithmetic (archive f2211ecef6)",
                   "conventions": "validation/references/t4_i8 (the repaired T4-I8 freeze, 5b07d85cf3): row shape, stations, signs, criteria",

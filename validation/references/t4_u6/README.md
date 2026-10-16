@@ -10,8 +10,10 @@ and runs no product code or output.
 
 **Status.** An independent refutation found four defects, repaired in
 `6817b72ca9` without a value change. On 2026-10-16 an independent refuter
-confirmed all four repairs. Two later changes await refutation:
+confirmed all four repairs. Three later changes await refutation:
 - the generated-self-weight requests (see generated self-weight);
+- `U6-BASES-002-TIMO`, which binds U6-BASES-002's frozen rows to a
+  `timoshenko_annulus_energy_v1` request without a new value (see Cases);
 - the primitive-load id repair. The product requires primitive-load ids to
   be unique across the whole model and refuses a duplicate with
   `DUPLICATE_ID`. `U6-BASES-001-EB`, `U6-BASES-001-TIMO` and
@@ -26,15 +28,17 @@ confirmed all four repairs. Two later changes await refutation:
 A mechanical check compared the requests and oracle before and after the id
 repair. It applied the old→new id map to each old request, and the result
 equals the new request byte for byte. The oracle names no load id, and it
-changed only in this status and the request hash bindings. No frozen value
-changed, so the values-level refutation stands.
+changed only in this status and the request hash bindings. Apart from the
+additions for `U6-BASES-002-TIMO`, no frozen value changed, and those
+additions repeat values already frozen. The values-level refutation
+therefore stands.
 
 ## Files
 
 | File | Role |
 |---|---|
 | `generators/u6_reference.py` | the generator: inputs, exact derivation, cross-checks, requests and oracle (standard library only) |
-| `requests/<id>.request.json` | seven complete product documents: model 0.5.0 under `3.0.0/exact_pressure_v3` with explicit `pressure_contract.shear_model` and `section.corrosion_allowance`; the two `-SELF-WEIGHT` documents also carry the section densities and the generated self-weight |
+| `requests/<id>.request.json` | eight complete product documents: model 0.5.0 under `3.0.0/exact_pressure_v3` with explicit `pressure_contract.shear_model` and `section.corrosion_allowance`; the two `-SELF-WEIGHT` documents also carry the section densities and the generated self-weight |
 | `oracle.json` | per case and shear-model variant: the rows, zero scales, terminal evidence, `pipe_sections` evidence and the wrong-result discriminators |
 | `SHA256SUMS` | the hashes of every file above |
 
@@ -53,10 +57,11 @@ annulus of SHEAR_REFERENCE S-B), the reduced section t_r = (t − c_m) − c_a =
 | Case | Variants (request) | Load cases |
 |---|---|---|
 | `U6-BASES-001` (cantilever, anchored at A) | `euler_bernoulli` (`U6-BASES-001-EB`; self-weight cases in `U6-BASES-001-EB-SELF-WEIGHT`), `timoshenko_annulus_energy_v1` (`U6-BASES-001-TIMO`, κ_E from the nominal annulus; self-weight cases in `U6-BASES-001-TIMO-SELF-WEIGHT`) | `case:pressure-tip` (5 MPa, closures transferring; tip force (0, 1200, −900) N and torque 600 N·m); `case:axial-tip` (no pressure region; tip force (20000, 1200, −900) N and the torque); `case:self-weight` (no pressure region) and `case:combined` (`case:pressure-tip` plus the self-weight): pipe metal 7850 kg/m³ on the nominal wall, contents 1000 kg/m³ on the pressure bore, g 9.80665 m/s² along −Z, generated (see generated self-weight) |
-| `U6-BASES-002` (anchored at A and B) | `euler_bernoulli` (`U6-BASES-002`, thermal as a `thermal` primitive; and its twin `U6-BASES-002-GROUP` with the load/reference-state group, thermal as the element `thermal_state`, judged against the same rows); the rows are the same under Timoshenko | `case:restrained-pressure` (Nw = 2νP, independent of As because the As of ε_p is the stiffness As); `case:restrained-pressure-thermal` (+40 °C: Nw = 2νP − E·Aₙ·αΔT) |
+| `U6-BASES-002` (anchored at A and B) | `euler_bernoulli` (`U6-BASES-002`, thermal as a `thermal` primitive; and its twin `U6-BASES-002-GROUP` with the load/reference-state group, thermal as the element `thermal_state`, judged against the same rows); `timoshenko_annulus_energy_v1` (`U6-BASES-002-TIMO`: the same document with the other shear model). The rows are the same under Timoshenko, so this variant's load cases and discriminators repeat the `euler_bernoulli` variant's, and its `pipe_sections` evidence repeats U6-BASES-001's Timoshenko evidence; the generator checks both | `case:restrained-pressure` (Nw = 2νP, independent of As because the As of ε_p is the stiffness As); `case:restrained-pressure-thermal` (+40 °C: Nw = 2νP − E·Aₙ·αΔT) |
 | `U6-BASES-COINCIDENT` | `euler_bernoulli` (`U6-BASES-COINCIDENT`): mill tolerance absent, allowance 0 | `case:pressure-tip`, `case:axial-tip`: both families published, one value per row (H4) |
 
-Frozen per load case (1,449 rows in 12 load-case evaluations): the wall and
+Frozen per load case (1,743 rows in 14 load-case evaluations; 294 rows in 2
+of them are `U6-BASES-002-TIMO`'s repeat of `U6-BASES-002`): the wall and
 effective forces, wall end actions and element axial force; the five section
 actions at five stations; every stress row on both sections (axial membrane
 or axial normal, Lamé radial and hoop, bending y and z, torsional shear,
@@ -97,7 +102,7 @@ rotations of A and B; support components and norms; the terminal cap thrust
   decimal inputs are exact rational targets; their binary64 rounding is
   absorbed by the criterion.
 
-## Checks inside the generator (1,729)
+## Checks inside the generator (2,106)
 
 Annulus identities; the pressure bore = OD/2 − t + c_m + c_a; κ_E in the
 cancellation-free form equals the CONTRACT form and S-B's value; an exact
@@ -120,7 +125,12 @@ generated load, the generation record is self-consistent (payload, mass
 inputs, dependencies, gravity, magnitude = mass·g in binary64), and its
 intensity is the frozen w within 2⁻⁵⁰ relative; in every request the
 primitive-load ids are unique across the whole model, each names its load
-case, and each `load_sources` entry names a load of its own case.
+case, and each `load_sources` entry names a load of its own case;
+`U6-BASES-002-TIMO` is `U6-BASES-002` apart from the shear model and project
+id. Its variant's load cases (rows, expected values, zero scales, terminal
+evidence) and discriminators equal the `euler_bernoulli` variant's, and its
+`pipe_sections` evidence and binary64 exhibit equal U6-BASES-001's
+Timoshenko evidence.
 
 ## Discriminators
 
