@@ -24,9 +24,11 @@ PINS = {
     # component, region, section and load-state refusals that empty the carriers' children are unchanged.
     # T4-U6/U8 (O4): namespace_branch refuses the Timoshenko exact contract (ShearModel) and family_clauses a nonzero
     # mill tolerance or allowance on branch E (SectionAllowance); both narrow admission only.
+    # W1: family_clauses only refreshes its stage-1 comment to the implemented
+    # EB member-load route; executable refusals and carrier-child premises match.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "1f891b6c19c3ff9f7699c80fbc0c5417c97cd141d35f59db02e4d7951f62ceb7",
-        "family_clauses": "39dae5a7af4014c66631dbb8f5ecf6f12d9f88412d8983d6e7308d2e43c7d6a6",
+        "family_clauses": "41b97bbb844b8e25bee51b9252edd1e00565766bc435df1e38c08b0bd7ea7486",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure
