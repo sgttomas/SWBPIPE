@@ -10,6 +10,9 @@ generator imports, reads and runs no product code or output.
 
 **Status.** Frozen before any U4b product code. Refuted on 2026-10-17 by a separate TASK that shares no code with the generator, using independent statics, an independent Saint-Venant boundary-value solve and independently certified maxima; every derivation and value was confirmed (worst 4.4e-31 tolerances). Its 8 MINOR findings were repaired, and a second separate TASK confirmed every repair and refuted the new case U4B-RISE74-P-REV (worst 3.9e-31 tolerances; all 49 certifications reproduced). Its one finding, the missing location band on a straight interior maximum, is repaired additively in this revision with no value changed. These references do not establish acceptance.
 
+**Consumer.** T4-U4b, not yet implemented. No product test consumes these
+files yet; the U4b implementation binds them as "Binding" describes.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Files
