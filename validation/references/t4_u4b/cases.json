@@ -1,0 +1,1190 @@
+{
+ "schema_version": "u4b.cases/1.0.0",
+ "purpose": "Invented, statically determinate T4-U4b cases as request-agnostic case descriptions: every physical input a model 0.6.0 product request needs. Model 0.6.0, its directional SIF input fields and the U4b row kinds are not yet defined, so no product request is frozen here.",
+ "claim_fence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).",
+ "units": {
+  "length": "m",
+  "force": "N",
+  "moment": "N*m",
+  "force_per_length": "N/m",
+  "pressure": "Pa",
+  "stress": "Pa",
+  "angle": "rad",
+  "elastic_modulus": "Pa",
+  "thermal_expansion": "1/K"
+ },
+ "number_conventions": {
+  "binary64_exact": "node positions, y_reference components and load components are the binary64 values written here, taken as exact",
+  "decimal_targets": "outside diameter, wall, mill tolerance, corrosion allowance, E, nu, alpha, bend radius, pressure, k and SIF values are exact decimal targets (the shortest decimal of the written number); their binary64 rounding moves results by about 1e-16 relative, far inside the criterion",
+  "bend_angle": "each arc's arc.bend_angle_binary64_for_authoring (repeated in the oracle's derived.arc) is the binary64 nearest to the included angle formed from the chord and R, for the bend component that states it"
+ },
+ "fields": {
+  "route": "exact: a pressure_contract document (identity pressure-2 when defined); preview: a pressure-free document on the preview-physics route (identity preview-physics-2 when defined)",
+  "members.kind": "straight, or realized_arc (a span bend realized as curved_bend_macro_element)",
+  "members.y_reference": "on a straight the element-local y reference; on an arc the bow direction (the arc bows toward +y_reference projected normal to the chord)",
+  "members.arc": "bend_radius R; bend_angle_binary64_for_authoring; bend_component_attachment_node, the arc's authored from node (as in U4a); the bow rule; k",
+  "members.directional_sif_user_values": "invented i_ip (on M_z, in-plane) and i_op (on M_y, out-of-plane) in the arc's tangent frame",
+  "load_case.member_uniform_forces": "constant global force per unit length: per unit member length on a straight, per unit arc length on an arc (length_measure)",
+  "load_case.pressure_regions": "internal pressure p (signed; external zero) over the listed members, each terminal with its closure disposition",
+  "supports": "one full anchor; the other line end is free"
+ },
+ "binding_when_0_6_0_is_defined": ["a builder authors one product request per case from these descriptions (bend components, primitive loads per global component, pressure region and terminals, shear model, SIF fields);", "each realized arc becomes one bend component attached at arc.bend_component_attachment_node (the arc's authored from node, as in U4a), referencing the arc's pipe, with bend_radius R, bend angle arc.bend_angle_binary64_for_authoring, the user k and the SIF fields;", "the U4b design's row-kind table maps the oracle's agnostic quantity keys to row kinds;", "oracle values never move to match a product;", "the request SHA-256 values are added to the oracle when the requests exist."],
+ "cases": [
+  {
+   "case_id": "U4B-L90-P",
+   "description": "planar L line (straight, realized 90 deg left-turn arc R/r_o = 4.56, straight), anchored at A, free tip D; 4.2 MPa with transferring closures; tip force and moment, uniform loads on every member (out-of-plane and in-plane on the arc); distinct section bases",
+   "route": "exact",
+   "semantic_identity_when_defined": "pressure-2",
+   "model_version_when_defined": "0.6.0",
+   "pressure_contract": {
+    "version": "3.0.0",
+    "mode": "exact_pressure_v3",
+    "shear_model": "timoshenko_annulus_energy_v1",
+    "shear_model_note": "every frozen value is identical under euler_bernoulli and timoshenko_annulus_energy_v1: the line is statically determinate, and realized arcs are Euler-Bernoulli under either model"
+   },
+   "nodes": [
+    {
+     "id": "node:A",
+     "position": [0.0, 0.0, 0.0]
+    },
+    {
+     "id": "node:B",
+     "position": [2.5, 0.0, 0.0]
+    },
+    {
+     "id": "node:C",
+     "position": [3.0, 0.5, 0.0]
+    },
+    {
+     "id": "node:D",
+     "position": [3.0, 2.5, 0.0]
+    }
+   ],
+   "members": [
+    {
+     "id": "pipe:S1",
+     "from": "node:A",
+     "to": "node:B",
+     "kind": "straight",
+     "section": "section:main",
+     "material": "material:main",
+     "y_reference": [0.0, 0.0, 1.0]
+    },
+    {
+     "id": "pipe:BEND",
+     "from": "node:B",
+     "to": "node:C",
+     "kind": "realized_arc",
+     "section": "section:main",
+     "material": "material:main",
+     "y_reference": [1.0, -1.0, 0.0],
+     "arc": {
+      "bend_radius": 0.5,
+      "bend_angle_binary64_for_authoring": 1.5707963267948966,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:B",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
+      "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
+      "solver_consumption": "curved_bend_macro_element",
+      "flexibility_factor_user_value": 3.1,
+      "flexibility_factor_note": "invented user flexibility factor; no frozen value depends on it because the line is statically determinate (one anchor, free tip)"
+     },
+     "directional_sif_user_values": {
+      "i_ip": 2.4,
+      "i_op": 1.9,
+      "note": "invented user-supplied directional factors, not code or library data: i_ip multiplies the in-plane moment M_z and i_op the out-of-plane moment M_y of the arc's tangent frame"
+     }
+    },
+    {
+     "id": "pipe:S2",
+     "from": "node:C",
+     "to": "node:D",
+     "kind": "straight",
+     "section": "section:main",
+     "material": "material:main",
+     "y_reference": [0.0, 0.0, 1.0]
+    }
+   ],
+   "sections": [
+    {
+     "id": "section:main",
+     "outside_diameter": 0.2191,
+     "wall_thickness": 0.00818,
+     "mill_tolerance": 0.00102,
+     "corrosion_allowance": 0.0015
+    }
+   ],
+   "materials": [
+    {
+     "id": "material:main",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": 203000000000.0,
+     "poisson_ratio": 0.27,
+     "thermal_expansion_coefficient": 1.17e-05
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:A",
+     "node": "node:A",
+     "family": "anchor",
+     "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+    }
+   ],
+   "load_case": {
+    "id": "case:u4b",
+    "thermal_state": "unchanged_reference (no temperature change)",
+    "self_weight": "none (only the listed loads act)",
+    "nodal_forces": [
+     {
+      "id": "load:force:node:D",
+      "node": "node:D",
+      "global_components": [1800.0, -1100.0, 2400.0]
+     }
+    ],
+    "nodal_moments": [
+     {
+      "id": "load:moment:node:D",
+      "node": "node:D",
+      "global_components": [-500.0, 750.0, 900.0]
+     }
+    ],
+    "member_uniform_forces": [
+     {
+      "id": "load:line:pipe:S1",
+      "member": "pipe:S1",
+      "global_components_per_length": [0.0, 0.0, -420.0],
+      "length_measure": "member_length"
+     },
+     {
+      "id": "load:line:pipe:BEND",
+      "member": "pipe:BEND",
+      "global_components_per_length": [150.0, -90.0, -420.0],
+      "length_measure": "arc_length"
+     },
+     {
+      "id": "load:line:pipe:S2",
+      "member": "pipe:S2",
+      "global_components_per_length": [80.0, 0.0, -420.0],
+      "length_measure": "member_length"
+     }
+    ],
+    "pressure_regions": [
+     {
+      "id": "region:u4b",
+      "member_ids": ["pipe:S1", "pipe:BEND", "pipe:S2"],
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "pressure": 4200000.0,
+      "terminals": [
+       {
+        "node": "node:A",
+        "closure_transfer": "transfers_to_wall"
+       },
+       {
+        "node": "node:D",
+        "closure_transfer": "transfers_to_wall"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "U4B-L90-P-COINCIDENT",
+   "description": "U4B-L90-P with zero mill tolerance and zero corrosion allowance (the two bases coincide) and the euler_bernoulli shear model",
+   "route": "exact",
+   "semantic_identity_when_defined": "pressure-2",
+   "model_version_when_defined": "0.6.0",
+   "pressure_contract": {
+    "version": "3.0.0",
+    "mode": "exact_pressure_v3",
+    "shear_model": "euler_bernoulli",
+    "shear_model_note": "every frozen value is identical under euler_bernoulli and timoshenko_annulus_energy_v1: the line is statically determinate, and realized arcs are Euler-Bernoulli under either model"
+   },
+   "nodes": [
+    {
+     "id": "node:A",
+     "position": [0.0, 0.0, 0.0]
+    },
+    {
+     "id": "node:B",
+     "position": [2.5, 0.0, 0.0]
+    },
+    {
+     "id": "node:C",
+     "position": [3.0, 0.5, 0.0]
+    },
+    {
+     "id": "node:D",
+     "position": [3.0, 2.5, 0.0]
+    }
+   ],
+   "members": [
+    {
+     "id": "pipe:S1",
+     "from": "node:A",
+     "to": "node:B",
+     "kind": "straight",
+     "section": "section:main",
+     "material": "material:main",
+     "y_reference": [0.0, 0.0, 1.0]
+    },
+    {
+     "id": "pipe:BEND",
+     "from": "node:B",
+     "to": "node:C",
+     "kind": "realized_arc",
+     "section": "section:main",
+     "material": "material:main",
+     "y_reference": [1.0, -1.0, 0.0],
+     "arc": {
+      "bend_radius": 0.5,
+      "bend_angle_binary64_for_authoring": 1.5707963267948966,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:B",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
+      "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
+      "solver_consumption": "curved_bend_macro_element",
+      "flexibility_factor_user_value": 3.1,
+      "flexibility_factor_note": "invented user flexibility factor; no frozen value depends on it because the line is statically determinate (one anchor, free tip)"
+     },
+     "directional_sif_user_values": {
+      "i_ip": 2.4,
+      "i_op": 1.9,
+      "note": "invented user-supplied directional factors, not code or library data: i_ip multiplies the in-plane moment M_z and i_op the out-of-plane moment M_y of the arc's tangent frame"
+     }
+    },
+    {
+     "id": "pipe:S2",
+     "from": "node:C",
+     "to": "node:D",
+     "kind": "straight",
+     "section": "section:main",
+     "material": "material:main",
+     "y_reference": [0.0, 0.0, 1.0]
+    }
+   ],
+   "sections": [
+    {
+     "id": "section:main",
+     "outside_diameter": 0.2191,
+     "wall_thickness": 0.00818,
+     "mill_tolerance": 0.0,
+     "corrosion_allowance": 0.0
+    }
+   ],
+   "materials": [
+    {
+     "id": "material:main",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": 203000000000.0,
+     "poisson_ratio": 0.27,
+     "thermal_expansion_coefficient": 1.17e-05
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:A",
+     "node": "node:A",
+     "family": "anchor",
+     "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+    }
+   ],
+   "load_case": {
+    "id": "case:u4b",
+    "thermal_state": "unchanged_reference (no temperature change)",
+    "self_weight": "none (only the listed loads act)",
+    "nodal_forces": [
+     {
+      "id": "load:force:node:D",
+      "node": "node:D",
+      "global_components": [1800.0, -1100.0, 2400.0]
+     }
+    ],
+    "nodal_moments": [
+     {
+      "id": "load:moment:node:D",
+      "node": "node:D",
+      "global_components": [-500.0, 750.0, 900.0]
+     }
+    ],
+    "member_uniform_forces": [
+     {
+      "id": "load:line:pipe:S1",
+      "member": "pipe:S1",
+      "global_components_per_length": [0.0, 0.0, -420.0],
+      "length_measure": "member_length"
+     },
+     {
+      "id": "load:line:pipe:BEND",
+      "member": "pipe:BEND",
+      "global_components_per_length": [150.0, -90.0, -420.0],
+      "length_measure": "arc_length"
+     },
+     {
+      "id": "load:line:pipe:S2",
+      "member": "pipe:S2",
+      "global_components_per_length": [80.0, 0.0, -420.0],
+      "length_measure": "member_length"
+     }
+    ],
+    "pressure_regions": [
+     {
+      "id": "region:u4b",
+      "member_ids": ["pipe:S1", "pipe:BEND", "pipe:S2"],
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "pressure": 4200000.0,
+      "terminals": [
+       {
+        "node": "node:A",
+        "closure_transfer": "transfers_to_wall"
+       },
+       {
+        "node": "node:D",
+        "closure_transfer": "transfers_to_wall"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "U4B-L90-P-MOVED",
+   "description": "U4B-L90-P rigidly rotated (rational rotation, every axis skew) and translated, with its y_reference and loads rotated: every frame-local value equals U4B-L90-P's up to the binary64 rounding of the moved inputs",
+   "route": "exact",
+   "semantic_identity_when_defined": "pressure-2",
+   "model_version_when_defined": "0.6.0",
+   "pressure_contract": {
+    "version": "3.0.0",
+    "mode": "exact_pressure_v3",
+    "shear_model": "timoshenko_annulus_energy_v1",
+    "shear_model_note": "every frozen value is identical under euler_bernoulli and timoshenko_annulus_energy_v1: the line is statically determinate, and realized arcs are Euler-Bernoulli under either model"
+   },
+   "nodes": [
+    {
+     "id": "node:A",
+     "position": [1234.5, -567.25, 89.125]
+    },
+    {
+     "id": "node:B",
+     "position": [1235.3333333333333, -565.5833333333334, 90.79166666666667]
+    },
+    {
+     "id": "node:C",
+     "position": [1235.0641025641025, -565.0064102564103, 91.09935897435898]
+    },
+    {
+     "id": "node:D",
+     "position": [1233.320512820513, -564.0320512820513, 90.99679487179488]
+    }
+   ],
+   "members": [
+    {
+     "id": "pipe:S1",
+     "from": "node:A",
+     "to": "node:B",
+     "kind": "straight",
+     "section": "section:main",
+     "material": "material:main",
+     "y_reference": [-0.358974358974359, -0.5641025641025641, 0.7435897435897436]
+    },
+    {
+     "id": "pipe:BEND",
+     "from": "node:B",
+     "to": "node:C",
+     "kind": "realized_arc",
+     "section": "section:main",
+     "material": "material:main",
+     "y_reference": [1.205128205128205, 0.1794871794871795, 0.717948717948718],
+     "arc": {
+      "bend_radius": 0.5,
+      "bend_angle_binary64_for_authoring": 1.5707963267948792,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:B",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
+      "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
+      "solver_consumption": "curved_bend_macro_element",
+      "flexibility_factor_user_value": 3.1,
+      "flexibility_factor_note": "invented user flexibility factor; no frozen value depends on it because the line is statically determinate (one anchor, free tip)"
+     },
+     "directional_sif_user_values": {
+      "i_ip": 2.4,
+      "i_op": 1.9,
+      "note": "invented user-supplied directional factors, not code or library data: i_ip multiplies the in-plane moment M_z and i_op the out-of-plane moment M_y of the arc's tangent frame"
+     }
+    },
+    {
+     "id": "pipe:S2",
+     "from": "node:C",
+     "to": "node:D",
+     "kind": "straight",
+     "section": "section:main",
+     "material": "material:main",
+     "y_reference": [-0.358974358974359, -0.5641025641025641, 0.7435897435897436]
+    }
+   ],
+   "sections": [
+    {
+     "id": "section:main",
+     "outside_diameter": 0.2191,
+     "wall_thickness": 0.00818,
+     "mill_tolerance": 0.00102,
+     "corrosion_allowance": 0.0015
+    }
+   ],
+   "materials": [
+    {
+     "id": "material:main",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": 203000000000.0,
+     "poisson_ratio": 0.27,
+     "thermal_expansion_coefficient": 1.17e-05
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:A",
+     "node": "node:A",
+     "family": "anchor",
+     "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+    }
+   ],
+   "load_case": {
+    "id": "case:u4b",
+    "thermal_state": "unchanged_reference (no temperature change)",
+    "self_weight": "none (only the listed loads act)",
+    "nodal_forces": [
+     {
+      "id": "load:force:node:D",
+      "node": "node:D",
+      "global_components": [697.4358974358975, -689.7435897435897, 3041.025641025641]
+     }
+    ],
+    "nodal_moments": [
+     {
+      "id": "load:moment:node:D",
+      "node": "node:D",
+      "global_components": [-1143.5897435897436, -475.64102564102564, 297.43589743589746]
+     }
+    ],
+    "member_uniform_forces": [
+     {
+      "id": "load:line:pipe:S1",
+      "member": "pipe:S1",
+      "global_components_per_length": [150.76923076923077, 236.92307692307693, -312.3076923076923],
+      "length_measure": "member_length"
+     },
+     {
+      "id": "load:line:pipe:BEND",
+      "member": "pipe:BEND",
+      "global_components_per_length": [279.2307692307692, 293.0769230769231, -207.69230769230768],
+      "length_measure": "arc_length"
+     },
+     {
+      "id": "load:line:pipe:S2",
+      "member": "pipe:S2",
+      "global_components_per_length": [177.43589743589743, 290.2564102564103, -258.97435897435895],
+      "length_measure": "member_length"
+     }
+    ],
+    "pressure_regions": [
+     {
+      "id": "region:u4b",
+      "member_ids": ["pipe:S1", "pipe:BEND", "pipe:S2"],
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "pressure": 4200000.0,
+      "terminals": [
+       {
+        "node": "node:A",
+        "closure_transfer": "transfers_to_wall"
+       },
+       {
+        "node": "node:D",
+        "closure_transfer": "transfers_to_wall"
+       }
+      ]
+     }
+    ]
+   },
+   "rigid_motion_of": {
+    "case_id": "U4B-L90-P",
+    "rotation_rows": [
+     ["1/3", "-34/39", "-14/39"],
+     ["2/3", "19/39", "-22/39"],
+     ["2/3", "-2/39", "29/39"]
+    ],
+    "translation": ["2469/2", "-2269/4", "713/8"],
+    "rounding": "positions, y_reference and load components are the binary64 values nearest to the exactly rotated (and, for positions, translated) source values"
+   }
+  },
+  {
+   "case_id": "U4B-ARC106-RADIAL-NEGP",
+   "description": "single realized arc of 2*asin(4/5) (about 106.26 deg), long radius R/r_o = 18.57, anchored at A, free tip B; radial tip force toward the centre; signed pressure -0.6 MPa with transferring closures; the bending and maximum peak lies between the end_i and quarter_1 stations",
+   "route": "exact",
+   "semantic_identity_when_defined": "pressure-2",
+   "model_version_when_defined": "0.6.0",
+   "pressure_contract": {
+    "version": "3.0.0",
+    "mode": "exact_pressure_v3",
+    "shear_model": "timoshenko_annulus_energy_v1",
+    "shear_model_note": "every frozen value is identical under euler_bernoulli and timoshenko_annulus_energy_v1: the line is statically determinate, and realized arcs are Euler-Bernoulli under either model"
+   },
+   "nodes": [
+    {
+     "id": "node:A",
+     "position": [0.0, 0.0, 0.0]
+    },
+    {
+     "id": "node:B",
+     "position": [1.5, 2.0, 0.0]
+    }
+   ],
+   "members": [
+    {
+     "id": "pipe:BEND",
+     "from": "node:A",
+     "to": "node:B",
+     "kind": "realized_arc",
+     "section": "section:arc106",
+     "material": "material:arc106",
+     "y_reference": [4.0, -3.0, 0.0],
+     "arc": {
+      "bend_radius": 1.5625,
+      "bend_angle_binary64_for_authoring": 1.8545904360032244,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:A",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
+      "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
+      "solver_consumption": "curved_bend_macro_element",
+      "flexibility_factor_user_value": 1.6,
+      "flexibility_factor_note": "invented user flexibility factor; no frozen value depends on it because the line is statically determinate (one anchor, free tip)"
+     },
+     "directional_sif_user_values": {
+      "i_ip": 2.0,
+      "i_op": 1.5,
+      "note": "invented user-supplied directional factors, not code or library data: i_ip multiplies the in-plane moment M_z and i_op the out-of-plane moment M_y of the arc's tangent frame"
+     }
+    }
+   ],
+   "sections": [
+    {
+     "id": "section:arc106",
+     "outside_diameter": 0.1683,
+     "wall_thickness": 0.00711,
+     "mill_tolerance": 0.00089,
+     "corrosion_allowance": 0.0012
+    }
+   ],
+   "materials": [
+    {
+     "id": "material:arc106",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": 195000000000.0,
+     "poisson_ratio": 0.31,
+     "thermal_expansion_coefficient": 1.2e-05
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:A",
+     "node": "node:A",
+     "family": "anchor",
+     "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+    }
+   ],
+   "load_case": {
+    "id": "case:u4b",
+    "thermal_state": "unchanged_reference (no temperature change)",
+    "self_weight": "none (only the listed loads act)",
+    "nodal_forces": [
+     {
+      "id": "load:force:node:B",
+      "node": "node:B",
+      "global_components": [-7200.0, -2100.0, 0.0]
+     }
+    ],
+    "nodal_moments": [],
+    "member_uniform_forces": [],
+    "pressure_regions": [
+     {
+      "id": "region:u4b",
+      "member_ids": ["pipe:BEND"],
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "pressure": -600000.0,
+      "terminals": [
+       {
+        "node": "node:A",
+        "closure_transfer": "transfers_to_wall"
+       },
+       {
+        "node": "node:B",
+        "closure_transfer": "transfers_to_wall"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "U4B-ARC90-TIGHT-NSIGN-P",
+   "description": "single realized 90 deg arc with a tight radius R/r_o = 1.5, anchored at A, free tip B; tip force and moment; 0.8 MPa with transferring closures; the wall axial force N_w changes sign along the arc and the maximum lies at the anchored end",
+   "route": "exact",
+   "semantic_identity_when_defined": "pressure-2",
+   "model_version_when_defined": "0.6.0",
+   "pressure_contract": {
+    "version": "3.0.0",
+    "mode": "exact_pressure_v3",
+    "shear_model": "timoshenko_annulus_energy_v1",
+    "shear_model_note": "every frozen value is identical under euler_bernoulli and timoshenko_annulus_energy_v1: the line is statically determinate, and realized arcs are Euler-Bernoulli under either model"
+   },
+   "nodes": [
+    {
+     "id": "node:A",
+     "position": [0.0, 0.0, 0.0]
+    },
+    {
+     "id": "node:B",
+     "position": [0.1875, 0.1875, 0.0]
+    }
+   ],
+   "members": [
+    {
+     "id": "pipe:BEND",
+     "from": "node:A",
+     "to": "node:B",
+     "kind": "realized_arc",
+     "section": "section:tight",
+     "material": "material:tight",
+     "y_reference": [1.0, -1.0, 0.0],
+     "arc": {
+      "bend_radius": 0.1875,
+      "bend_angle_binary64_for_authoring": 1.5707963267948966,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:A",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
+      "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
+      "solver_consumption": "curved_bend_macro_element",
+      "flexibility_factor_user_value": 6.5,
+      "flexibility_factor_note": "invented user flexibility factor; no frozen value depends on it because the line is statically determinate (one anchor, free tip)"
+     },
+     "directional_sif_user_values": {
+      "i_ip": 2.6,
+      "i_op": 2.2,
+      "note": "invented user-supplied directional factors, not code or library data: i_ip multiplies the in-plane moment M_z and i_op the out-of-plane moment M_y of the arc's tangent frame"
+     }
+    }
+   ],
+   "sections": [
+    {
+     "id": "section:tight",
+     "outside_diameter": 0.25,
+     "wall_thickness": 0.0125,
+     "mill_tolerance": 0.001,
+     "corrosion_allowance": 0.002
+    }
+   ],
+   "materials": [
+    {
+     "id": "material:tight",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": 200000000000.0,
+     "poisson_ratio": 0.29,
+     "thermal_expansion_coefficient": 1.15e-05
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:A",
+     "node": "node:A",
+     "family": "anchor",
+     "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+    }
+   ],
+   "load_case": {
+    "id": "case:u4b",
+    "thermal_state": "unchanged_reference (no temperature change)",
+    "self_weight": "none (only the listed loads act)",
+    "nodal_forces": [
+     {
+      "id": "load:force:node:B",
+      "node": "node:B",
+      "global_components": [-20000.0, -60000.0, 5000.0]
+     }
+    ],
+    "nodal_moments": [
+     {
+      "id": "load:moment:node:B",
+      "node": "node:B",
+      "global_components": [300.0, -400.0, -2000.0]
+     }
+    ],
+    "member_uniform_forces": [],
+    "pressure_regions": [
+     {
+      "id": "region:u4b",
+      "member_ids": ["pipe:BEND"],
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "pressure": 800000.0,
+      "terminals": [
+       {
+        "node": "node:A",
+        "closure_transfer": "transfers_to_wall"
+       },
+       {
+        "node": "node:B",
+        "closure_transfer": "transfers_to_wall"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "U4B-ARC90-OOP-PREVIEW",
+   "description": "pressure-free preview-physics route: single realized 90 deg arc (R/r_o = 13.12), anchored at A, free tip B; tip force normal to the bend plane, tip moments about all three axes, and a uniform load per unit arc length with in-plane and out-of-plane components; one section, wall minus mill tolerance",
+   "route": "preview",
+   "semantic_identity_when_defined": "preview-physics-2",
+   "model_version_when_defined": "0.6.0",
+   "pressure_contract": null,
+   "nodes": [
+    {
+     "id": "node:A",
+     "position": [0.0, 0.0, 0.0]
+    },
+    {
+     "id": "node:B",
+     "position": [0.75, 0.75, 0.0]
+    }
+   ],
+   "members": [
+    {
+     "id": "pipe:BEND",
+     "from": "node:A",
+     "to": "node:B",
+     "kind": "realized_arc",
+     "section": "section:oop",
+     "material": "material:oop",
+     "y_reference": [1.0, -1.0, 0.0],
+     "arc": {
+      "bend_radius": 0.75,
+      "bend_angle_binary64_for_authoring": 1.5707963267948966,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:A",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
+      "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
+      "solver_consumption": "curved_bend_macro_element",
+      "flexibility_factor_user_value": 4.2,
+      "flexibility_factor_note": "invented user flexibility factor; no frozen value depends on it because the line is statically determinate (one anchor, free tip)"
+     },
+     "directional_sif_user_values": {
+      "i_ip": 1.8,
+      "i_op": 1.4,
+      "note": "invented user-supplied directional factors, not code or library data: i_ip multiplies the in-plane moment M_z and i_op the out-of-plane moment M_y of the arc's tangent frame"
+     }
+    }
+   ],
+   "sections": [
+    {
+     "id": "section:oop",
+     "outside_diameter": 0.1143,
+     "wall_thickness": 0.00602,
+     "mill_tolerance": 0.00075
+    }
+   ],
+   "materials": [
+    {
+     "id": "material:oop",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": 200000000000.0,
+     "poisson_ratio": 0.3,
+     "thermal_expansion_coefficient": 1.2e-05
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:A",
+     "node": "node:A",
+     "family": "anchor",
+     "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+    }
+   ],
+   "load_case": {
+    "id": "case:u4b",
+    "thermal_state": "unchanged_reference (no temperature change)",
+    "self_weight": "none (only the listed loads act)",
+    "nodal_forces": [
+     {
+      "id": "load:force:node:B",
+      "node": "node:B",
+      "global_components": [0.0, 0.0, 1500.0]
+     }
+    ],
+    "nodal_moments": [
+     {
+      "id": "load:moment:node:B",
+      "node": "node:B",
+      "global_components": [200.0, -350.0, 120.0]
+     }
+    ],
+    "member_uniform_forces": [
+     {
+      "id": "load:line:pipe:BEND",
+      "member": "pipe:BEND",
+      "global_components_per_length": [100.0, 50.0, -800.0],
+      "length_measure": "arc_length"
+     }
+    ],
+    "pressure_regions": []
+   }
+  },
+  {
+   "case_id": "U4B-Z-PREVIEW-REV",
+   "description": "pressure-free preview-physics route: planar Z line anchored at A, free tip F; a left-turn arc authored against the traversal (C to B), a right-turn arc authored along it, and the last straight authored against it; tip force and moment and uniform loads on every member",
+   "route": "preview",
+   "semantic_identity_when_defined": "preview-physics-2",
+   "model_version_when_defined": "0.6.0",
+   "pressure_contract": null,
+   "nodes": [
+    {
+     "id": "node:A",
+     "position": [0.0, 0.0, 0.0]
+    },
+    {
+     "id": "node:B",
+     "position": [2.0, 0.0, 0.0]
+    },
+    {
+     "id": "node:C",
+     "position": [2.5, 0.5, 0.0]
+    },
+    {
+     "id": "node:D",
+     "position": [2.5, 2.0, 0.0]
+    },
+    {
+     "id": "node:E",
+     "position": [3.0, 2.5, 0.0]
+    },
+    {
+     "id": "node:F",
+     "position": [4.5, 2.5, 0.0]
+    }
+   ],
+   "members": [
+    {
+     "id": "pipe:S1",
+     "from": "node:A",
+     "to": "node:B",
+     "kind": "straight",
+     "section": "section:z",
+     "material": "material:z",
+     "y_reference": [0.0, 0.0, 1.0]
+    },
+    {
+     "id": "pipe:BEND1",
+     "from": "node:C",
+     "to": "node:B",
+     "kind": "realized_arc",
+     "section": "section:z",
+     "material": "material:z",
+     "y_reference": [1.0, -1.0, 0.0],
+     "arc": {
+      "bend_radius": 0.5,
+      "bend_angle_binary64_for_authoring": 1.5707963267948966,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:C",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
+      "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
+      "solver_consumption": "curved_bend_macro_element",
+      "flexibility_factor_user_value": 2.8,
+      "flexibility_factor_note": "invented user flexibility factor; no frozen value depends on it because the line is statically determinate (one anchor, free tip)"
+     },
+     "directional_sif_user_values": {
+      "i_ip": 2.2,
+      "i_op": 1.6,
+      "note": "invented user-supplied directional factors, not code or library data: i_ip multiplies the in-plane moment M_z and i_op the out-of-plane moment M_y of the arc's tangent frame"
+     }
+    },
+    {
+     "id": "pipe:S2",
+     "from": "node:C",
+     "to": "node:D",
+     "kind": "straight",
+     "section": "section:z",
+     "material": "material:z",
+     "y_reference": [0.0, 0.0, 1.0]
+    },
+    {
+     "id": "pipe:BEND2",
+     "from": "node:D",
+     "to": "node:E",
+     "kind": "realized_arc",
+     "section": "section:z",
+     "material": "material:z",
+     "y_reference": [-1.0, 1.0, 0.0],
+     "arc": {
+      "bend_radius": 0.5,
+      "bend_angle_binary64_for_authoring": 1.5707963267948966,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:D",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
+      "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
+      "solver_consumption": "curved_bend_macro_element",
+      "flexibility_factor_user_value": 2.8,
+      "flexibility_factor_note": "invented user flexibility factor; no frozen value depends on it because the line is statically determinate (one anchor, free tip)"
+     },
+     "directional_sif_user_values": {
+      "i_ip": 1.7,
+      "i_op": 2.5,
+      "note": "invented user-supplied directional factors, not code or library data: i_ip multiplies the in-plane moment M_z and i_op the out-of-plane moment M_y of the arc's tangent frame"
+     }
+    },
+    {
+     "id": "pipe:S3",
+     "from": "node:F",
+     "to": "node:E",
+     "kind": "straight",
+     "section": "section:z",
+     "material": "material:z",
+     "y_reference": [0.0, 0.0, 1.0]
+    }
+   ],
+   "sections": [
+    {
+     "id": "section:z",
+     "outside_diameter": 0.1683,
+     "wall_thickness": 0.00711,
+     "mill_tolerance": 0.0009
+    }
+   ],
+   "materials": [
+    {
+     "id": "material:z",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": 198000000000.0,
+     "poisson_ratio": 0.26,
+     "thermal_expansion_coefficient": 1.25e-05
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:A",
+     "node": "node:A",
+     "family": "anchor",
+     "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+    }
+   ],
+   "load_case": {
+    "id": "case:u4b",
+    "thermal_state": "unchanged_reference (no temperature change)",
+    "self_weight": "none (only the listed loads act)",
+    "nodal_forces": [
+     {
+      "id": "load:force:node:F",
+      "node": "node:F",
+      "global_components": [-900.0, 1300.0, 2100.0]
+     }
+    ],
+    "nodal_moments": [
+     {
+      "id": "load:moment:node:F",
+      "node": "node:F",
+      "global_components": [400.0, -250.0, 650.0]
+     }
+    ],
+    "member_uniform_forces": [
+     {
+      "id": "load:line:pipe:S1",
+      "member": "pipe:S1",
+      "global_components_per_length": [0.0, 0.0, -300.0],
+      "length_measure": "member_length"
+     },
+     {
+      "id": "load:line:pipe:BEND1",
+      "member": "pipe:BEND1",
+      "global_components_per_length": [0.0, 0.0, -300.0],
+      "length_measure": "arc_length"
+     },
+     {
+      "id": "load:line:pipe:S2",
+      "member": "pipe:S2",
+      "global_components_per_length": [60.0, 0.0, -300.0],
+      "length_measure": "member_length"
+     },
+     {
+      "id": "load:line:pipe:BEND2",
+      "member": "pipe:BEND2",
+      "global_components_per_length": [-40.0, 70.0, -300.0],
+      "length_measure": "arc_length"
+     },
+     {
+      "id": "load:line:pipe:S3",
+      "member": "pipe:S3",
+      "global_components_per_length": [0.0, 0.0, -300.0],
+      "length_measure": "member_length"
+     }
+    ],
+    "pressure_regions": []
+   }
+  },
+  {
+   "case_id": "U4B-RISE74-P-REV",
+   "description": "line in the vertical x-z plane, anchored at A, free tip D: straight S1 along +x; a realized arc of 2*asin(3/5) (about 73.74 deg) rising toward +z, authored against the traversal (C to B), R/r_o = 11.06; straight S2 along the arc's end tangent; 3.6 MPa with transferring closures over the whole line; tip force and moment, uniform loads on every member (on S1 axial and in both transverse planes, on the arc in-plane and out-of-plane); distinct section bases; nu = 0.28; the maximum of S1 is interior (fraction about 0.4336), where the uniform load and the opposing beyond-shear give an interior bending peak",
+   "route": "exact",
+   "semantic_identity_when_defined": "pressure-2",
+   "model_version_when_defined": "0.6.0",
+   "pressure_contract": {
+    "version": "3.0.0",
+    "mode": "exact_pressure_v3",
+    "shear_model": "timoshenko_annulus_energy_v1",
+    "shear_model_note": "every frozen value is identical under euler_bernoulli and timoshenko_annulus_energy_v1: the line is statically determinate, and realized arcs are Euler-Bernoulli under either model"
+   },
+   "nodes": [
+    {
+     "id": "node:A",
+     "position": [0.0, 0.0, 0.0]
+    },
+    {
+     "id": "node:B",
+     "position": [2.0, 0.0, 0.0]
+    },
+    {
+     "id": "node:C",
+     "position": [2.75, 0.0, 0.5625]
+    },
+    {
+     "id": "node:D",
+     "position": [3.1875, 0.0, 2.0625]
+    }
+   ],
+   "members": [
+    {
+     "id": "pipe:S1",
+     "from": "node:A",
+     "to": "node:B",
+     "kind": "straight",
+     "section": "section:rise",
+     "material": "material:rise",
+     "y_reference": [0.0, 0.0, 1.0]
+    },
+    {
+     "id": "pipe:BEND",
+     "from": "node:C",
+     "to": "node:B",
+     "kind": "realized_arc",
+     "section": "section:rise",
+     "material": "material:rise",
+     "y_reference": [1.0, 0.0, -1.0],
+     "arc": {
+      "bend_radius": 0.78125,
+      "bend_angle_binary64_for_authoring": 1.2870022175865687,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:C",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
+      "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
+      "solver_consumption": "curved_bend_macro_element",
+      "flexibility_factor_user_value": 3.4,
+      "flexibility_factor_note": "invented user flexibility factor; no frozen value depends on it because the line is statically determinate (one anchor, free tip)"
+     },
+     "directional_sif_user_values": {
+      "i_ip": 2.1,
+      "i_op": 1.7,
+      "note": "invented user-supplied directional factors, not code or library data: i_ip multiplies the in-plane moment M_z and i_op the out-of-plane moment M_y of the arc's tangent frame"
+     }
+    },
+    {
+     "id": "pipe:S2",
+     "from": "node:C",
+     "to": "node:D",
+     "kind": "straight",
+     "section": "section:rise",
+     "material": "material:rise",
+     "y_reference": [0.0, 1.0, 0.0]
+    }
+   ],
+   "sections": [
+    {
+     "id": "section:rise",
+     "outside_diameter": 0.1413,
+     "wall_thickness": 0.00655,
+     "mill_tolerance": 0.00082,
+     "corrosion_allowance": 0.0013
+    }
+   ],
+   "materials": [
+    {
+     "id": "material:rise",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": 193000000000.0,
+     "poisson_ratio": 0.28,
+     "thermal_expansion_coefficient": 1.6e-05
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:A",
+     "node": "node:A",
+     "family": "anchor",
+     "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+    }
+   ],
+   "load_case": {
+    "id": "case:u4b",
+    "thermal_state": "unchanged_reference (no temperature change)",
+    "self_weight": "none (only the listed loads act)",
+    "nodal_forces": [
+     {
+      "id": "load:force:node:D",
+      "node": "node:D",
+      "global_components": [600.0, -800.0, 1850.0]
+     }
+    ],
+    "nodal_moments": [
+     {
+      "id": "load:moment:node:D",
+      "node": "node:D",
+      "global_components": [-250.0, 300.0, 180.0]
+     }
+    ],
+    "member_uniform_forces": [
+     {
+      "id": "load:line:pipe:S1",
+      "member": "pipe:S1",
+      "global_components_per_length": [150.0, 800.0, -1200.0],
+      "length_measure": "member_length"
+     },
+     {
+      "id": "load:line:pipe:BEND",
+      "member": "pipe:BEND",
+      "global_components_per_length": [120.0, -200.0, -350.0],
+      "length_measure": "arc_length"
+     },
+     {
+      "id": "load:line:pipe:S2",
+      "member": "pipe:S2",
+      "global_components_per_length": [0.0, 0.0, -250.0],
+      "length_measure": "member_length"
+     }
+    ],
+    "pressure_regions": [
+     {
+      "id": "region:u4b",
+      "member_ids": ["pipe:S1", "pipe:BEND", "pipe:S2"],
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "pressure": 3600000.0,
+      "terminals": [
+       {
+        "node": "node:A",
+        "closure_transfer": "transfers_to_wall"
+       },
+       {
+        "node": "node:D",
+        "closure_transfer": "transfers_to_wall"
+       }
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}
