@@ -73,7 +73,7 @@ def test_raw_formation_owners_crlf_and_missing_refuse(tmp_path, file):
     ("core/product_physics/src/formation_guard.rs", "for row in &rows"),
     ("core/product_physics/src/self_weight.rs", "if !recognized && !looks_generated"),
     ("core/product_physics/src/retained_memory.rs", "fn domain_clauses("),
-    ("core/solver/frame_kernel/src/structural/formation_check.rs", "for p in &source.loads"),
+    ("core/solver/frame_kernel/src/structural/formation_check.rs", "for p in source.loads.iter()"),
 ])
 def test_constructor_census_guard_and_current_owner_drift_refuses(tmp_path, file, fragment):
     snapshot = source_copy(tmp_path)
@@ -229,7 +229,8 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
     for header, _, _, _ in MODEL["O10_PREIMAGES"]:
         inner = header in ("for (j, expected) in manifest.iter().enumerate()",
                            "for p in source.loads.iter().filter(|p| p.term_index == i)")
-        assert first(header)["bound"] == ("1" if inner else "12*l"), (route, header, first(header))
+        current_header = "for p in source.loads.iter()" if header == "for p in &source.loads" else header
+        assert first(current_header)["bound"] == ("1" if inner else "12*l"), (route, current_header, first(current_header))
     for index, _, _, _, wanted in MODEL["BASE_LOOP_PREIMAGES"]:
         # Use actual representative headers, not a claim of rule presence.
         header = {211:"iter:terms.iter().map",225:"for t in &d.terms",
@@ -314,7 +315,21 @@ def test_retained_and_independent_value_copies_are_consumed_in_actual_models():
     assert 'finding_capture(_finding_cases, n, l, ID)' in producer
     g4 = (PRICING / "base/g4_caps.py").read_text()
     assert 'ORDINARY += FINDING_VALUE' in g4
-    assert 'FINDING_VALUE_BUILD = FINDING_VALUE.tree() * 2' in g4
+    # L3 removes only the independently built transient; the body owner and
+    # named form remain. Both source cohorts execute the actual expression.
+    import ast
+    from types import SimpleNamespace
+    import sys
+    sys.path.insert(0, str(PRICING / "base"))
+    from g3lib import X
+    assignment = next(node for node in ast.parse(g4).body if isinstance(node, ast.Assign)
+        and any(isinstance(t, ast.Name) and t.id == "FINDING_VALUE_BUILD" for t in node.targets))
+    for reduced, expected in [(False, {"1": 22}), (True, {})]:
+        scope = {"X": X, "SNAP": str(SOURCE),
+                 "_w1_reductions_model": SimpleNamespace(inspect=lambda _: reduced),
+                 "FINDING_VALUE": SimpleNamespace(tree=lambda: X({"1": 11}))}
+        exec(compile(ast.Module(body=[assignment], type_ignores=[]), "actual L3 owner", "exec"), scope)
+        assert scope["FINDING_VALUE_BUILD"] == expected
     assert 'form("FORMATION_VALUE_BUILD", FINDING_VALUE_BUILD)' in g4
     namespace = {}
     import ast
@@ -362,10 +377,10 @@ def test_newly_reached_identifier_audits_bind_exact_production_expressions():
         "pipe.len()":{"bytes":20,"source":"NUM"},
     }
     fc = "core/solver/frame_kernel/src/structural/formation_check.rs:"
-    for line in (508,514,524,574,587,594):
+    for line in (509,515,525,575,588,595):
         assert table[fc+str(line)] == {
             "terms[p.term_index].source":{"bytes":128,"source":"IN128"}}
-    for line in (626,636,642,648,MODEL["FIRST_RETURN_LINE"]):
+    for line in (627,637,643,649,MODEL["FIRST_RETURN_LINE"]):
         assert table[fc+str(line)] == {
             "term.source":{"bytes":128,"source":"IN128"}}
     # These are literal producer/source edges under the existing raw guards,

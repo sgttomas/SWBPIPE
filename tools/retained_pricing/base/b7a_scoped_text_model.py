@@ -15,16 +15,17 @@ RE = 'core/reporting/result_export/src/'
 # T4-U6/U8 (PP head 20c6126a16): every line moved with unchanged text (B7b values in brackets). Epoch addbdc030e:
 # lib.rs's suffix and diag lines +36 more (the realized-arc marker's helpers). Final source 588de796a4: lib.rs's
 # lines +5 more (PP4's withhold_certified_summaries), physics_source.rs's require +1 (RD3's `bit_equal` import).
+# W1-L5: the lib.rs aggregation changes shift these unchanged tail sites by +2.
 LN = {
     'problem': 162,       # pressure_runtime.rs fn problem (160) [148]
     'diag': 168,          # `let mut finding = diag(` (166) [154]
     'format': 169,        # `&format!(` (167) [155]
     'join': 171,          # `stable_suffix(&refs.join(":"))` (169) [157]
     'to_string': 176,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
-    'unit_message': 9398, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 14007,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 13956,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 14006,   # lib.rs fn stable_suffix (13613) [13618]
+    'unit_message': 9400, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 14009,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 13958,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 14008,   # lib.rs fn stable_suffix (13613) [13618]
     'require': 96,        # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'

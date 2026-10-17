@@ -28,3 +28,7 @@ O10_LOOPS_FIRST = list(O10_LOOPS_FIRST) + U6_BOTH_L
 O10_LOOPS_LAST = list(O10_LOOPS_LAST) + U6_LOOPS_L
 
 B7A_STAGE1_ROUTE = "L"
+
+# W1-L5: route L shares U6-RB's source-bound production guard.
+O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + W1_L5_PATCHES
+O10_SITE_FROM = list(O10_SITE_FROM) + W1_L5_SITE_FROM

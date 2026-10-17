@@ -36,7 +36,7 @@ INVALIDATION = (
 FG_FILE = "core/product_physics/src/formation_guard.rs"
 FG = FG_FILE + ":304:load_row_finding"
 DECIDE = FG_FILE + ":223:decide_row"
-SOLVE = "core/product_physics/src/lib.rs:4505:solve_prepared_load_case"   # final source 588de796a4 (PP: 4500; B7b: 4427; B7a: 4442)
+SOLVE = "core/product_physics/src/lib.rs:4507:solve_prepared_load_case"   # final source 588de796a4 (PP: 4500; B7b: 4427; B7a: 4442)
 ROW_LOOP = "for row in &rows"
 LOOP_RULE = {
     "fn": "formation_guard.rs:304:load_row_finding",
@@ -82,6 +82,10 @@ def inspect(snapshot):
     proof = adjacent("b7a_scoped_text_model.py")["inspect"](snapshot)
     proof["stage1_phase_model_sha256"] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     proof["stage1_phase_count_roles"] = deepcopy(COUNT_ROLES)
+    reduction = adjacent("w1_reductions_model.py")
+    reduced = reduction["inspect"](snapshot)
+    proof["w1_reductions"] = {"reduced": reduced,
+        "source_sha256": deepcopy(reduction["REDUCED_PINS"] if reduced else reduction["RF_PINS"])}
     return proof
 
 
@@ -329,15 +333,28 @@ def formed_owner(context, actual_cases, storage_cases, loads, ident, *, owner, b
     from g3lib import X, V, B
     wide = adjacent("b7a_domain_model.py")
     q = 12 * loads
+    # W1-L1a/b/L2: the source pin covers producer, comparison and consuming paths.
+    # Mathematical callers with no snapshot keep the historical owner factory;
+    # every production pricing invocation supplies RP_SNAPSHOT.
+    import os
+    snapshot = os.environ.get("RP_SNAPSHOT")
+    reduced = adjacent("w1_reductions_model.py")["inspect"](snapshot) if snapshot else False
     if owner == "assembled_children":
         value = wide["primitive_copy"](q) + wide["manifest_copy"](q) + wide["formation_children"](q)
-    elif owner in ("typed_source_children", "scaled_force_children"):
+    elif owner == "typed_source_children":
+        # L1a borrows primitives; L1b compares one temporary closure entry.
+        value = wide["manifest_copy"](1) if reduced and loads else (
+            X() if reduced else wide["primitive_copy"](q) + wide["manifest_copy"](q))
+    elif owner == "scaled_force_children":
         value = wide["primitive_copy"](q) + wide["manifest_copy"](q)
     elif owner == "recovery_source_children":
-        value = wide["primitive_copy"](q)
+        value = X() if reduced else wide["primitive_copy"](q)
     elif owner == "uniform_constructor":
         requested, _ = wide["formation_constructor"]()
-        value = wide["formed_constructor"](q) + requested * loads
+        # L2: one straight constructor call and one attach-last staging term
+        # coexist at most; moved returned rows remain separately resident.
+        value = (wide["formed_constructor"](1) + requested if loads else X()) if reduced else (
+            wide["formed_constructor"](q) + requested * loads)
     elif owner == "element_application":
         value = V("ElementUniformLoadContribution", loads) + B(loads * ident)
     else:

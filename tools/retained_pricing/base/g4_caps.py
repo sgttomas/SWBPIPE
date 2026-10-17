@@ -184,7 +184,10 @@ FINDING_VALUE = VF(**_formed_model.finding_value_facts(_finding_cases, n, l, ID,
 ORDINARY += FINDING_VALUE
 # ordinary_members owns finding and formation before ordinary_entry copies
 # formation into its entry. Keep both constructor originals independently.
-FINDING_VALUE_BUILD = FINDING_VALUE.tree() * 2
+import w1_reductions_model as _w1_reductions_model
+# W1-L3: formation Values move into the body; its positive owner already
+# includes them. There is no separate json!(&Value) transient tree.
+FINDING_VALUE_BUILD = X() if _w1_reductions_model.inspect(SNAP) else FINDING_VALUE.tree() * 2
 CALLS = rec(1, slots=4 * AA, obj=3, ent=11, strb=2 * TOK, nums=6) + rec(1, slots=2 * AA, obj=2, ent=7, strb=SHA + TOK, nums=4)
 BUILDS_V = rec(BUILDS, slots=1, obj=4, ent=31, strb=3 * TOK + 19 * 0, nums=26) + REASON.scale(BUILDS)
 MATERIAL = rec(1, slots=2, obj=2, ent=4, strb=TOK) + rec(8, slots=1, obj=3, ent=7, strb=ID + 2 * BITS + 2 * TOK, nums=1)

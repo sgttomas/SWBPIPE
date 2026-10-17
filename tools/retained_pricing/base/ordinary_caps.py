@@ -55,6 +55,8 @@ if _snapshot:
     import b7a_domain_model as _wide_model
     _wide_model.inspect(_snapshot)
     _wide = True
+import w1_reductions_model as _w1_reductions_model
+_w1_reduced = _w1_reductions_model.inspect(_snapshot) if _snapshot else False
 force_q = 12 * l if _wide else l
 # T4-U6/U8 D3 (retained-pricing-rules.md, "T4-U6/U8: actual-source D3"): the D-5/D-6 resident owners, each priced
 # positively where its source exists (u6_owners_model checks the source text): U6-ES (BuiltModel.exact_sections),
@@ -354,12 +356,18 @@ def w2(mode, core_total, report, fidelity):
     scaled_prims = A("FrameElement", m) + A("(usize,f64)", sp) + _FM   # U8-FM: each scaled copy's identities
     kbuild = K_resident() + pattern_build()
     evaluate = (kbuild + core_total + scaled_force + scaled_prims * 2 + B(N) + A("usize", F)) * 2
+    # W1-L1c: b=0 borrows f; the sole scaled force drops inside the second
+    # evaluation, before the caller tail. Keep the existing header allowance.
+    if _w1_reduced and _wide:
+        evaluate = evaluate + X({key: -value for key, value in scaled_children.items()})
+    tail_force = (scaled_force + X({key: -value for key, value in scaled_children.items()})
+                  if _w1_reduced and _wide else scaled_force)
     unscale = V("RecordOutcome", 6 * F) + B(4 * F + 8 * (d + 1))
     publication = (Xc("(usize,PublishedValue)", k) + A("PublishedValue", sp) + A("[PublishedValue;12]", m)
                    + Xc("String", m) + B(m * ID + 8 * sp) + Xc("RecordOutcome", 6 * F))
     qf = textcap(max(ID + 3, 31)) + textcap(max(14 + max(ID + 3, 31), 12 + ID, 8))
     tail = (K_resident() + B(8 * N) + report * 2 + fidelity * 2 + tx("formation_detail") * 2
-            + V("RecordOutcome", 6 * F) + publication + scaled_force + B(8 * N + 8 * k)
+            + V("RecordOutcome", 6 * F) + publication + tail_force + B(8 * N + 8 * k)
             + A("PublishedValue", k) + A("usize", F) + B(8 * F) + HashReq("&str", l) + B(qf))
     if KD5:
         # KD5O5: outcome.solution and its PreviewLinearSolve clone coexist.

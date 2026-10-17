@@ -88,7 +88,7 @@ All outputs go to `--out`.
      2. **Function:** by the same ordinal `fn` definition.
      3. **Text:** by the line's text.
      A key that none of these carries stops the run.
-   - **Prune.** A key is pruned only when the revision deleted its line, or deleted its function so that no `fn name` is left in the file. The key's rule is dropped, including list-form rules, and the drop is reported.
+   - **Prune.** A key is pruned only when the revision deleted its line, or deleted its function so that no `fn name` is left in the file. The key's rule is dropped, including list-form rules, and the drop is reported. Dictionary rules are discarded by their original key identity before insertion at mapped keys, so a deleted old key cannot overwrite or prune an unrelated live rule remapped to that spelling.
    - **Fewer definitions.** Sometimes a name's definition count falls but stays above zero, as when one of two `fn f` is removed. The count alone does not say which definition went, so the key is `fewer_definitions` and the run stops. A reviewed entry in `rules/linemap_resolutions.json` resolves it, keyed as written at the basis:
      - `{"as": "deleted", "why": …}` prunes it;
      - `{"as": n, "why": …}` maps it to the head's n-th definition.
@@ -158,3 +158,29 @@ Add a rule when a run stops or reports incomplete on a new head.
 5. Re-run the head and the preceding registered revision. The preceding tree must still reproduce exactly. The KD5 source pins in `base/kd5_text_model.py` and `base/kd5_first_error_model.py`, and the source-bound closure pin in `rules/o10_rules.py`, hold one current value each, so the committed tool stops (exit 4) on an earlier revision once a pin moves; reproduce it with a scratch copy of the tool whose pins are restored to that revision's values, with the new rules kept. Restore the original case consumer in place of the batch 5 wrapper/helper pair when reproducing that earlier source. Then compare against its registered tree as above. The B7a source models' full-file pins (`base/b7a_*.py`, `lib/b7a_retired_carry.py`, `base/batch5_model.py`) and C7's NumericCase pins (`base/prescribed_key_model.py`) work the same way.
 
    The current RF coefficient basis is `677f11b674`, registered in `ffe51350ab`. To reproduce the preceding T4-U6/U8 basis `588de796a4`, retain the RF rules in a scratch tool copy, restore only the `SOURCE_FILES` assignments in `base/b7a_domain_model.py`, `base/b7a_formation_model.py` and `lib/b7a_retired_carry.py` from `4971d62dc9`, and restore the two source-key models `base/b7a_owner_choices.py` and `base/b7a_phase_model.py` from that revision. The latter restore the audited +41/+2 source-key offsets; their formulas are unchanged. This reproduces all 1,456 preceding coefficients and the original 1,544-line generated block. For the earlier B7b reproduction at `837a04b770`, see retained-pricing-rules.md, "T4-U6/U8: actual-source D3".
+
+**W1 reductions (before member-load implementation).** `base/w1_reductions_model.py`
+explicitly pins the RF and reduced producer/consumer cohorts. The reduced cohort
+borrows typed primitives (L1a), keeps one closure-comparison transient (L1b),
+charges scaled-force children only in their call-local nonzero-scale evaluation
+(L1c), bounds uniform-constructor/attachment staging by one sequential call/term
+(L2), moves formation Values (L3), and guards the combination index and its
+callee by `combining` (L5). Stage-1 formed/success counts remain unchanged at
+this checkpoint. No stage-2 estimated owner is included.
+
+U6-RB uses the same pinned production guard and test-only shadow as L5. Missing,
+former or altered reduced-source guard text stops with exit 4; route E never
+silently regains the index clone. Route L at `z >= 1` separately prices the
+callee's sorted `base_ids` and cloned `case_rows`. Source/lifetime mutation tests
+and the actual driver exit-code controls are in `tests/test_w1_reductions.py`.
+They establish source/ownership warrants, not runtime allocation observations.
+
+The older B7a/KD5 bindings now name this reduced source and fail closed outside
+that reviewed cohort. Reproduce the RF registration with its historical
+committed tool and source revision `03f39bb49d9`; the RF baseline comparison was
+performed with that governing tool before the W1 rule changes. Merely restoring
+pins/keys in the new tool is insufficient: the current formation traversal
+warrant also names Cow's `.iter()` spelling. The explicit RF branch in the new
+reduction model preserves its local historical formulas, but does not establish
+whole-tool replay of an older registration. Helper absence alone earns no
+reduction.

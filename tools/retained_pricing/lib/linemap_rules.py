@@ -26,6 +26,7 @@ rows = load_rows(filter(None, os.environ.get("LINEMAP_ROWS", "").split(",")))
 M = Mapper(repo, old, new, crates, rows, load_resolutions(os.environ.get("LINEMAP_RESOLUTIONS")))
 KEY = re.compile(r"(?<![A-Za-z0-9_/])(W/)?((?:core/[a-z_/]+/src/)?(?:[a-z_0-9]+/)*[a-z_0-9]+\.rs):(\d+)(?::([A-Za-z_][A-Za-z_0-9]*))?")
 DELETED = []    # (ctx) of each deleted key
+DICT_PRUNED = set()  # deleted dictionary keys discarded before mapped-key insertion
 
 
 def fix(s, W, ctx):
@@ -51,7 +52,23 @@ def walk(v, W, ctx, descr=False):
     if isinstance(v, list):
         return [walk(x, W, f"{ctx}[{i}]") for i, x in enumerate(v)]
     if isinstance(v, dict):
-        return {fix(k, W, ctx + "/" + k + "/key"): walk(x, W, ctx + "/" + k, k in DESCR) for k, x in v.items()}
+        out = {}
+        for k, x in v.items():
+            key_ctx = ctx + "/" + k + "/key"
+            mapped = fix(k, W, key_ctx)
+            value = walk(x, W, ctx + "/" + k, k in DESCR)
+            if prune and ctx.count("/") == 1 and key_ctx in DELETED:
+                # Discard this *original* deleted rule before inserting any
+                # mapped key. Its old spelling can equal a different live
+                # rule's mapped key; pruning afterward would overwrite/drop
+                # that live rule (W1: old deleted lib.rs6382 vs live5811->6382).
+                base, family = ctx.split("/", 1)
+                pruned.append({"file": base, "family": family, "key": k,
+                               "ctx": key_ctx, "rule": value})
+                DICT_PRUNED.add(key_ctx)
+                continue
+            out[mapped] = value
+        return out
     return v
 
 
@@ -68,7 +85,7 @@ for src in srcs:
     W = data.get("W", "") if isinstance(data, dict) else ""
     out = walk(data, W, base)
     if prune and isinstance(out, dict):
-        mine = sorted({c for c in DELETED if c.startswith(base + "/")}, reverse=True)
+        mine = sorted({c for c in DELETED if c.startswith(base + "/") and c not in DICT_PRUNED}, reverse=True)
         for c in mine:
             m = re.match(re.escape(base) + r"/([^/\[]+)(?:\[(\d+)\]|/(.*?)/key$|/(.*))?", c)
             fam = m.group(1)

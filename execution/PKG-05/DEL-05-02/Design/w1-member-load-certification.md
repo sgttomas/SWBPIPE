@@ -619,6 +619,20 @@ Fixed throughout: M = 12 GiB = 12,884,901,888 B, floor(0.9M) = 11,596,411,699 B,
 
 **Implementation baseline (measured, merged RF).** Section 8's recheck supersedes the 8 MB RF estimate in the projections below. The merged-source tree is `/Users/ryan/dev/chirality-t3/scratch/w1-impl-price-baseline/tree_merged.json`; RF's reusable native atoms and 70-evaluation evidence are `/private/tmp/rf-impl-d3/profile3.log` and `evaluations70.json`, with final-source comparison against `/Users/ryan/dev/chirality-t3/scratch/rf-impl-price-final-source/tree_merged.json`. These ephemeral paths are evidence dependencies, not product or test inputs. Reduction and stage-2 implementation qualification still require their own source trees, native layout evidence and independent scrutiny.
 
+**Reduction checkpoint (measured source evaluation, before stage 2).** Source `f63a4877e14d92fcb95f6294674c98c879c2e583` implements L1a/L3/L5. L1b/L1c/L2 now have maintained source-pinned rules. The tool run at `/Users/ryan/dev/chirality-t3/scratch/w1-impl-price-reductions/` completes all four points with no unmapped headers or unclassified arguments and both O-10 checks passing. Evaluation at RF's reusable native atoms passes all 70 phases under the unchanged budget laws. The borrow retains the priced header size: a const Cow/Vec equality control passes natively and compiles in the wasm test build. This is not final W1 D3 registration; the stage-1 `max(lc-1,0)` counts remain, and member-load owners are not yet implemented in this source.
+
+| Phase | Dense headroom, B | Sparse headroom, B |
+|---|---|---|
+| W1 | +5,966,102,467 | +6,025,233,811 |
+| W2 | +5,640,606,145 | +5,699,737,489 |
+| W3 | +380,191,231 | +439,322,575 |
+| W4 | **+167,714,467** | +226,845,811 |
+| W5 | +4,955,368,861 | +5,014,500,205 |
+| X1 | +241,489,554 | +300,620,898 |
+| X2 | +4,765,364,148 | +4,824,495,492 |
+
+The measured merged W4 gain over RF is 132,263,455 B; X1 gains 180,516,844 B. The stage-1 counts and phase maxima account for the difference from the widened design runs below; they are not replaced to manufacture the widened gain. The 70-evaluation table and inputs are `/private/tmp/w1-impl-reductions-evaluations70.{json,log}`. The source/formula review repaired L3's temporary query-key allocation by using borrowed `Value::get_mut` assignments, confirmed by the complete Value/receipt byte control. L1c/L2 remain source-backed ownership warrants, not observed Drop/allocation measurements. The pricing run also required a maintained line-map repair: prune a deleted rule by its original identity before inserting remapped keys, so an old deleted key cannot overwrite or remove an unrelated live rule. A two-order collision regression covers that failure; re-carrying RF's saved inputs with the repaired pruner preserves all five carried files byte for byte. Final W1 qualification must replace this checkpoint with its own complete source/layout/reader inventory and independent audit.
+
 **What stage 2 falsifies (tool-evaluated).** Route L's credit `formed_cases = max(actual_cases − 1, 0)` and `success_findings = "max(lc-1,0)"` (`base/b7a_phase_model.py`) rest on stage 1 forcing at least one selected case to be nodal-only. Removing them in the scratch tool adds 76,293,661 B to W4 in both modes:
 
 | Component | Bytes |

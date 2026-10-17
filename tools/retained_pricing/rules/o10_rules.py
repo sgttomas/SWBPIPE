@@ -544,7 +544,7 @@ if fnkey("member_group_fires", _FG):
             "check": "d22bba23d1f09025f3ec267d9ea30b8aaa748e6294b5b34d0e4ea7f1f2616ef7",
             "check_at": "29c96900380beb699a6040a67ec13d7b665944cf47fb02d26b1b64d8de4251e4",
             "evaluate": "a422166f88cfa91bb6d5596111fc42f7d5df1757ad76890e40b30d4765d678d1",
-            "load_closure": "6bfe5799af60c5d13745d67a5828fe1d07b2b295dd51fd60be8371196ac8fb9b",
+            "load_closure": "255b53b63c220b8025603e032abf98b55a05cfb6d3ee26b1ecfeb19693f9f15e",
         }
         _detail_from = "check_at"
     _fc_lines = open(_os.path.join(_SNAP, _FC), encoding="utf-8").read().splitlines(keepends=True)
@@ -1478,32 +1478,60 @@ if _D5:
              {"source": {"bytes": _j4b("let source = if selected {", 2), "source": O10 + "U6-J4: the longer of the two static source literals"}}),
         ]
 
-# U6-RB (T4-U6, DEL-05-03 Design section 9; route E only): the final aggregation clones each published row into
-# rows_by_base_id only `if preview.is_some()` (lib.rs run_linear_static_preview_observed_inner, checked), and
-# `preview = (!pressure_runtime::is_exact(&model)).then(..)` is None on route E (an exact contract). ordinary_caps'
-# "Final aggregation" then holds the results once, with no rows_by_base_id map nodes; the id_map stays.
-# U6-RB-V (registration at addbdc030e): the one `results` Vec is push-built from `Vec::new()` across every case, so on
-# route E it is priced at its push capacity, V("ResultItem", PA) = pushcap(PA) slots (16,384 at PA = 8,361). Route L's
-# term (2·PA slots and PA map nodes) covers its push capacity and the clone; the first U6-RB rewrite priced PA exact
-# slots, which only route L's 51-row G-C bound kept sufficient. The G-C bounds on route E admit route E's own P_final (retained_memory.rs `phase_caps_on`).
-U6_RB_PATCHES = []
+# U6-RB/W1-L5: the guarded row index has one insertion and one reader. The
+# reduced cohort binds the production `combining` expression, both guards and
+# its cfg(test)-only byte-comparison shadow. Route E has no preview; route L
+# also omits the index and callee staging when z=0. Any missing/old guard in the
+# reduced source fails before the points instead of silently losing U6-RB.
+U6_RB_PATCHES, W1_L5_PATCHES, W1_L5_SITE_FROM = [], [], []
 _AGG = fnkey("run_linear_static_preview_observed_inner", _LIB)
 if _AGG:
+    _W1_MODEL = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.dirname(
+        _os.path.abspath(__file__))), "base", "w1_reductions_model.py"))
+    _W1_REDUCED = _W1_MODEL["inspect"](_SNAP)
     _agg = _fn_text("run_linear_static_preview_observed_inner", _LIB)
     _RB_GUARDED = ("            if preview.is_some() {\n                rows_by_base_id\n                    .entry(base_id)\n"
                    "                    .or_default()\n                    .insert(load_case_id.clone(), result.clone());\n            }\n")
-    if _RB_GUARDED in _agg:
-        if _agg.count("rows_by_base_id") != 3 \
-                or "    let preview = (!pressure_runtime::is_exact(&model)).then(|| {\n" not in _agg or _agg.count("let preview =") != 1 \
-                or "        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, &mut results, &mut diagnostics),\n" not in _agg \
-                or _agg.count("    let mut results = Vec::new();\n") != 1 or _agg.count("let mut results") != 1:
-            raise SystemExit("U6-RB: the guarded rows_by_base_id, the preview binding or the push-built results changed; re-review")
-        U6_RB_PATCHES = [("ordinary_caps.py",
-            '    (Xc("ResultItem", PA) + tx("row") * PA) * 2 + X({"Node(String,BTreeMap)": PA}) + X({"Node(String,ResultItem)": PA})\n',
-            '    V("ResultItem", PA) + tx("row") * PA   # U6-RB (route E): no rows_by_base_id clone or map without the preview;'
-            ' the push-built results at their push capacity (U6-RB-V)\n',
-            "U6-RB: route E has no preview, so the final aggregation makes no rows_by_base_id clone or map nodes; its push-built "
-            "results Vec is priced at its push capacity")]
+    _RB_CALL = ("        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, "
+                "&mut results, &mut diagnostics),\n")
+    if _W1_REDUCED:
+        _W1_MODEL["guard"](_agg)
+    elif _RB_GUARDED not in _agg or _RB_CALL not in _agg:
+        raise SystemExit("U6-RB: the RF guarded rows_by_base_id/call changed; re-review")
+    if (_agg.count("rows_by_base_id") != 3
+            or "    let preview = (!pressure_runtime::is_exact(&model)).then(|| {\n" not in _agg
+            or _agg.count("let preview =") != 1 or _agg.count("append_combination_results(") != 1
+            or _agg.count("    let mut results = Vec::new();\n") != 1 or _agg.count("let mut results") != 1):
+        raise SystemExit("U6-RB: preview/index uses or push-built results changed; re-review")
+    _AGG_ROW = ('    (Xc("ResultItem", PA) + tx("row") * PA) * 2 + X({"Node(String,BTreeMap)": PA}) '
+                '+ X({"Node(String,ResultItem)": PA})\n')
+    _NO_INDEX = '    V("ResultItem", PA) + tx("row") * PA'
+    U6_RB_PATCHES = [("ordinary_caps.py", _AGG_ROW,
+        _NO_INDEX + '   # U6-RB/W1-L5: route E has no preview/index; push-capacity results (U6-RB-V)\n',
+        "U6-RB: route E has no preview, so no row index clone or map; keep push-capacity results")]
+    if _W1_REDUCED:
+        # The full preview_physics.rs pin includes append_combination_results:
+        # base_ids and case_rows are its only pre-loop construction; results,
+        # diagnostics and gates are changed only in its combinations loop.
+        _L5_ANCHOR = '    + HashReq("(String,String)", PA) + B(2 * PA * ID))\n'
+        _L5_FAMILY = (
+            '# W1-L5: the combination callee owns sorted base_ids and filtered/cloned case_rows.\n'
+            '_l5_index = (Xc("String", PA) + B(PA * textcap(1024)) + Sort("String", PA) '
+            '+ V("ResultItem", PA) + tx("row") * PA)\n'
+            'if _mc.get("z", 0):\n'
+            '    add("Combination index clones (W1-L5 base_ids, case_rows)", "AggregationSuffix", _l5_index)\n')
+        W1_L5_PATCHES = [
+            ("ordinary_caps.py", _AGG_ROW,
+             '    ((Xc("ResultItem", PA) + tx("row") * PA) * 2 + X({"Node(String,BTreeMap)": PA}) '
+             '+ X({"Node(String,ResultItem)": PA}) if _mc.get("z", 0) else V("ResultItem", PA) + tx("row") * PA)'
+             '   # W1-L5: no combination index at z=0; keep push-capacity results\n',
+             "W1-L5: route L's no-combination path omits the row-index clone and map"),
+            ("ordinary_caps.py", _L5_ANCHOR, _L5_ANCHOR + _L5_FAMILY,
+             "W1-L5: positive callee index-clone family, reached only with combinations")]
+        W1_L5_SITE_FROM = [(site("run_linear_static_preview_observed_inner", _LIB,
+                ".insert(load_case_id.clone(), result.clone());"),
+            {"from": [_AGG], "per": "min(z, 1) * cases * P",
+             "why": O10 + "W1-L5: the guarded load_case_id clone forms once per row with combinations, never at z=0"})]
 
 # U6-BE (RD3/RD4, A2; the final source 588de796a4): section_basis.rs `bit_equal`, the readers' bit-for-bit equality of
 # twins and links, recurses into arrays and objects. Its only text is `number`'s Err String (one static literal, 29 B),

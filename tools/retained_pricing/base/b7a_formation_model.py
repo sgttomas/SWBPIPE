@@ -12,6 +12,7 @@ import os
 import re
 import runpy
 
+# W1-L1a: borrow/lifetime annotations only; source traversal bounds unchanged.
 SOURCE_FILES = {
     "core/product_physics/src/formation_guard.rs": "5c67a95ea2f1e8d6eab2eac3928fb65e1eb790bea32317b05ca4241637aa9c0c",
     # PP (D-5 mass): an exact-contract section's generated self-weight uses EXACT_MASS_METHOD (metal on the nominal
@@ -20,12 +21,12 @@ SOURCE_FILES = {
     "core/product_physics/src/self_weight.rs": "a1e523fd975b0b99720c3c229737cb00f35797c8f38202797b23ef205bb3f75c",
     "core/product_physics/src/source_receipt/source.rs": "911f49b43f41ae50009e6a13220d2c888cfb8e6ccf50d8cacf5b8dc089efd5a5",
     # T4-U8: one added re-export line in retained_api (retained::assemble's Timoshenko refusal).
-    "core/solver/frame_kernel/src/structural.rs": "a248c01a6b579cca839efc8e025dcc332f24e8ec017fb55354d7567ab71a230a",
+    "core/solver/frame_kernel/src/structural.rs": "c1c0b67a88479e0af42a9e43be77fc04e52f3e5b1bb0f1d1e17f90f3d4be83ef",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.
     "core/product_physics/src/source_recovery.rs": "b048aa0ea4bac2be30974fd99cb2cd0a0eca5ad245e378e1899051413d2112c6",
-    "core/solver/frame_kernel/src/structural/sparse.rs": "f0e774d2f105484fd43f393fd18ce459990aeb459222b5481ce70843b7acd0ff",
+    "core/solver/frame_kernel/src/structural/sparse.rs": "f5d37d5c4ef1e96b8df2e01df3362d95e76d36aa2e2f01c098441b3adbaf63fb",
 }
 RANGE_CONTENT = 59
 REASON = 165057
@@ -149,7 +150,8 @@ def rebind_o10(snapshot, rows):
         # outer walk and predicate scans still traverse q, not this body1.
         body_one = header in ("for (j, expected) in manifest.iter().enumerate()",
                               "for p in source.loads.iter().filter(|p| p.term_index == i)")
-        result[hits[0]] = (header, "1" if body_one else "12*l",
+        result[hits[0]] = ("for p in source.loads.iter()" if header == "for p in &source.loads" else header,
+                           "1" if body_one else "12*l",
                            "B7a source-bound formed traversal: q<=12*l; one manifest and matching primitive BODY per admitted uniform term; outer scans remain q",
                            list(owners))
     return result
@@ -186,11 +188,11 @@ def decisions(snapshot, resolved):
     fc = "core/solver/frame_kernel/src/structural/formation_check.rs:"
     # ForceTerm.source is the bare admitted load_id, not the separately
     # owned member_source identity in LoadPrimitive/manifest entries.
-    for line in (508, 514, 524, 574, 587, 594):
+    for line in (509, 515, 525, 575, 588, 595):
         audit.append((resolved(fc + str(line)), {
             "terms[p.term_index].source": {"bytes": 128, "source": "IN128"},
         }))
-    for line in (626, 636, 642, 648, FIRST_RETURN_LINE):
+    for line in (627, 637, 643, 649, FIRST_RETURN_LINE):
         audit.append((resolved(fc + str(line)), {
             "term.source": {"bytes": 128, "source": "IN128"},
         }))
@@ -335,15 +337,15 @@ def site_totals(snapshot, resolved):
 
 
 FIRST_RETURN_FILE = "core/solver/frame_kernel/src/structural/formation_check.rs"
-FIRST_RETURN_ROOT = FIRST_RETURN_FILE + ":863:evaluate"
-FIRST_RETURN_PARENT = FIRST_RETURN_FILE + ":454:check_at"
+FIRST_RETURN_ROOT = FIRST_RETURN_FILE + ":864:evaluate"
+FIRST_RETURN_PARENT = FIRST_RETURN_FILE + ":455:check_at"
 # T4-U8: evaluate's added `straight_frames_bound(source)?;` (the line after load_closure) moves the reformation
 # map_err site from 895 (B7b) to 896 with unchanged text; PP's member-identity binding moves evaluate (850),
 # check_at (441) and the site by 13 more (909), text unchanged.
-FIRST_RETURN_LINE = 909
+FIRST_RETURN_LINE = 910
 FIRST_RETURN_SITE = "structural/formation_check.rs:%d" % FIRST_RETURN_LINE
 FIRST_RETURN_WHY = "B7aFK895: map_err formats only on Err and immediate? returns evaluate; preserve full evaluate calls/content/capacity and every helper/loop/copy cost"
-FIRST_RETURN_RULE = {"from": ["structural/formation_check.rs:863:evaluate"],
+FIRST_RETURN_RULE = {"from": ["structural/formation_check.rs:864:evaluate"],
                      "per": "1", "why": FIRST_RETURN_WHY}
 
 
