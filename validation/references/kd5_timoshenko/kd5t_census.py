@@ -11,11 +11,13 @@ diagnostic. It does not publish est, ||K~_s||_1 or epsilon_E. Hence three modes:
   hager      <set.jsonl> <runs.jsonl>... --out <f>   Hager ratio from published values only:
              ||K~_s^-1||_1 / est = kappa_1(D K D) * r_hat, with the exact free-DOF stiffness of
              kd5t_engine (straight members). diag(D K D) in [1, 4) confirms the mapping.
-  probe      <dump.jsonl> [--requests <in.jsonl>...] --out <f>
+  probe      <dump.jsonl> [--workers N] [--requests <in.jsonl>...] --out <f>
              consumes the dump of an instrumented product build (format below): epsilon_E/||K~_s||_1
-             against 2^-40 and 2^-36, 2^10 est epsilon_E, and the Hager ratio ||K~_s^-1||_1/est with the
-             exact inverse of the dumped K~_s (binary64 entries taken exactly), or, without a dumped
-             matrix, of D K D from the engine for straight-only requests.
+             against 2^-40 and 2^-36, 2^10 est epsilon_E, and the Hager ratio ||K~_s^-1||_1/est and the A1
+             margin 2^10 est/||K~_s^-1||_1, with the inverse of the dumped K~_s (binary64 entries taken
+             exactly; one Gauss-Jordan elimination in 110-digit decimal, which the self-test checks against
+             the exact rational inverse), or, without a dumped matrix, of D K D from the engine for
+             straight-only requests.
   standings  <runs.jsonl>... [--out <f>]            Passed / Sensitive / fail-closed / refused counts per
              corpus and shear model, paired by tag stem (the "|reauth-eb" / "|reauth-ts" suffix or the
              set's twin tags).
@@ -73,6 +75,34 @@ def inverse_norm1(a):
     return best
 
 
+def inverse_norm1_gj(a):
+    """||a^-1||_1 by one Gauss-Jordan elimination with partial pivoting on [a | I], O(n^3) against the n
+    eliminations of inverse_norm1: exact for Fraction entries; for Decimal entries (each binary64 entry
+    converted exactly) the arithmetic carries kd5t_engine's decimal context (110 digits)."""
+    n = len(a)
+    zero, one = 0 * a[0][0], 1 + 0 * a[0][0]
+    m = [list(row) + [one if c == r else zero for c in range(n)] for r, row in enumerate(a)]
+    for col in range(n):
+        piv = max(range(col, n), key=lambda r: abs(m[r][col]))
+        if m[piv][col] == 0:
+            raise ZeroDivisionError("singular matrix")
+        m[col], m[piv] = m[piv], m[col]
+        pr = m[col]
+        inv = one / pr[col]
+        for c in range(col, 2 * n):
+            pr[c] = pr[c] * inv
+        for r in range(n):
+            if r == col:
+                continue
+            mr = m[r]
+            f = mr[col]
+            if f != 0:
+                for c in range(col, 2 * n):
+                    if pr[c] != 0:
+                        mr[c] -= f * pr[c]
+    return max(sum(abs(m[r][n + c]) for r in range(n)) for c in range(n))
+
+
 def norm1(a):
     n = len(a)
     return max(sum(abs(a[r][c]) for r in range(n)) for c in range(n))
@@ -121,11 +151,11 @@ def hager_record(gen, run, max_n=72):
     return rec
 
 
-def probe_record(line, requests):
-    rec = {k: line.get(k) for k in ("tag", "entry", "mode", "case", "attempt", "outcome")}
-    nK = Q(line["norm1_Ks"]) if line.get("norm1_Ks") is not None else None
-    eps = Q(line["epsilon_E"]) if line.get("epsilon_E") is not None else None
-    est = Q(line["est"]) if line.get("est") is not None else None
+def probe_record(line, requests, exact=False):
+    rec = {k: line.get(k) for k in ("tag", "entry", "mode", "case", "attempt", "outcome", "step7", "n_free", "r_hat")}
+    nK = Q(line["norm1_Ks"]) if isinstance(line.get("norm1_Ks"), (int, float)) else None
+    eps = Q(line["epsilon_E"]) if isinstance(line.get("epsilon_E"), (int, float)) else None
+    est = Q(line["est"]) if isinstance(line.get("est"), (int, float)) else None
     if nK and eps is not None:
         r = eps / nK
         rec["epsilon_E_over_norm"] = float(r)
@@ -139,8 +169,12 @@ def probe_record(line, requests):
             Ks = [[Q(v) for v in row] for row in line["Ks"]]
             if nK is not None and norm1(Ks) != nK:
                 rec["norm_mismatch"] = float(norm1(Ks) / nK)
-            inv = Q(inverse_norm1(Ks))
-            rec["hager_basis"] = "dumped K~_s (exact inverse of its binary64 entries)"
+            if exact:
+                inv = Q(inverse_norm1_gj(Ks))
+                rec["hager_basis"] = "dumped K~_s (exact rational inverse of its binary64 entries)"
+            else:
+                inv = Q(inverse_norm1_gj([[Decimal(v) for v in row] for row in line["Ks"]]))
+                rec["hager_basis"] = "dumped K~_s (binary64 entries taken exactly; inverse in 110-digit decimal)"
         elif line.get("scale_exponents") and line["tag"] in requests:
             _, Ks = engine_scaled(requests[line["tag"]], line["scale_exponents"])
             inv = Q(inverse_norm1(Ks))
@@ -148,7 +182,15 @@ def probe_record(line, requests):
         if inv is not None:
             rec["hager_ratio"] = float(inv / est)
             rec["A1"] = inv <= 1024 * est
+            rec["A1_margin"] = float(1024 * est / inv)
     return rec
+
+
+_REQUESTS = {}
+
+
+def _probe_job(line):
+    return probe_record(json.loads(line), _REQUESTS)
 
 
 def classify(run):
@@ -251,6 +293,16 @@ def selftest(set_path, runs_path):
         rec = probe_record(dump, {})
         if abs(rec["hager_ratio"] / h["hager_ratio"] - 1) > 1e-9:
             bad.append((run["tag"], "dumped-matrix hager ratio", rec["hager_ratio"], h["hager_ratio"]))
+        # the dumped matrix's 110-digit inverse norm agrees with its exact rational inverse norm, and the one
+        # Gauss-Jordan elimination agrees with the column-by-column eliminations
+        exact = Q(inverse_norm1_gj([[Q(float(v)) for v in row] for row in Ks]))
+        dec = Q(inverse_norm1_gj([[Decimal(float(v)) for v in row] for row in Ks]))
+        if abs(dec / exact - 1) > Q(1, 10 ** 80):
+            bad.append((run["tag"], "110-digit against exact inverse norm", float(dec / exact - 1)))
+        if probe_record(dump, {}, exact=True)["A1"] != rec["A1"]:
+            bad.append((run["tag"], "exact and 110-digit A1 differ"))
+        if abs(Q(inverse_norm1_gj(Ks)) / Q(inverse_norm1(Ks)) - 1) > Q(1, 10 ** 80):
+            bad.append((run["tag"], "Gauss-Jordan against column eliminations"))
     print(f"census self-test: {n} models, {len(bad)} failures {bad[:3]}")
     if bad or n == 0:
         raise SystemExit(1)
@@ -284,17 +336,22 @@ def main():
             for rec in pool.starmap(hager_record, jobs, chunksize=4):
                 f.write(json.dumps(rec) + "\n")
     elif mode == "probe":
-        requests = {}
+        workers = 6
+        if "--workers" in args:
+            i = args.index("--workers")
+            workers = int(args[i + 1])
+            del args[i:i + 2]
         if "--requests" in args:
             i = args.index("--requests")
             for p in args[i + 1:]:
                 for line in open(p):
                     x = json.loads(line)
-                    requests[x["tag"]] = x["request"]
+                    _REQUESTS[x["tag"]] = x["request"]
             del args[i:]
-        with open(out_path, "w") as f:
-            for line in open(args[0]):
-                f.write(json.dumps(probe_record(json.loads(line), requests)) + "\n")
+        import multiprocessing as mp
+        with mp.get_context("fork").Pool(workers) as pool, open(out_path, "w") as f:
+            for rec in pool.imap(_probe_job, open(args[0]), chunksize=8):
+                f.write(json.dumps(rec) + "\n")
     elif mode == "standings":
         c, moves = standings(args)
         for k in sorted(c):
