@@ -975,6 +975,95 @@ def cert_record(c, unit):
                          "the frozen location" % sci(CERT_FRACTION, 1)}
 
 
+def guaranteed_location_band(evaluate, slope, x, end, K2, value, zero_scale, arc=False):
+    """A finite-distance band from the same global f'' >= -K used above.
+
+    If g = f + K*x*x/2 is convex, a supporting slope s at c gives
+        f(c+d) >= f(c) + s*d - K*d*d/2.
+    Thus loss from a stationary maximum is <= K*d*d/2, even across the
+    upward kinks of the absolute value or norm. A pointwise f'' is insufficient.
+    The callers supply a supporting slope: at a zero norm, the zero vector is
+    an active member of its unit-ball supremum. No branch must stay nonzero
+    away from c. The global maximum itself is independently certified above.
+
+    Use 99% of the tolerance for the quadratic and residual-slope terms. Check
+    the remaining margin against both serialized centre/value representations,
+    both arc coordinates, and radius rounding. K is unrounded working precision,
+    not the six-digit informational K in the certification record.
+    """
+    require(0 < x < end and K2 >= 0, "location band needs an interior maximum and nonnegative K")
+
+    def written(v):
+        return (D(fmt(v)), D.from_float(float(v)))
+
+    centres = list(written(x))
+    if arc:
+        centres.extend(c * end for c in written(x / end))
+    require(all(0 < c < end for c in centres), "serialized interior maximum left the member")
+    expected = written(value)
+    t = min(tol(v, z) for v in expected for z in written(zero_scale))
+    E = max(abs(slope(c)) for c in centres)
+    require(E * end <= D("0.001") * t, "location band centre is not stationary at serialized precision")
+    budget = D("0.99") * t
+    if K2 == 0:
+        # A convex function with an interior global maximum is constant. With
+        # zero supporting slope the whole domain is safe; no division by K.
+        radius = end if E == 0 else min(end, budget / E)
+    else:
+        # Stable positive root of E*r + K*r*r/2 = budget (also valid for E=0).
+        radius = min(end, 2 * budget / ((E * E + 2 * K2 * budget).sqrt() + E))
+    radii = list(written(radius))
+    if arc:
+        radii.extend(r * end for r in written(radius / end))
+    rounded_radius = max(radii)
+    require(rounded_radius > 0, "location band underflow")
+    for c in centres:
+        deficit = max(D(0), max(expected) - evaluate(c))
+        require(deficit + abs(slope(c)) * rounded_radius + K2 * rounded_radius ** 2 / 2 <= t,
+                "serialized location band exceeds its finite-distance tolerance")
+        # These direct checks supplement the full-interval convexity proof.
+        # Comparison locations are the intersection with the member domain.
+        lo, hi = max(D(0), c - rounded_radius), min(end, c + rounded_radius)
+        for j in range(5):
+            observed = evaluate(lo + (hi - lo) * D(j) / 4)
+            require(all(abs(observed - v) <= t for v in expected), "location band endpoint/interior loss")
+    return radius
+
+
+def check_location_band_edge_cases():
+    """Exercise clipping, flat/degenerate curvature and an upward norm kink."""
+    one, half = D(1), D("0.5")
+    # The left edge is clipped at zero, while the centre remains interior.
+    c = D("0.000001")
+    radius = guaranteed_location_band(lambda x: one - (x - c) ** 2,
+                                     lambda x: -2 * (x - c), c, one, D(2), one, one)
+    require(radius > c, "location band clipping control")
+    # Zero K and an identically zero norm: the full member is safe.
+    require(guaranteed_location_band(lambda x: one, lambda x: D(0), half, one,
+                                    D(0), one, one) == one, "zero-curvature location band")
+    # f'' at the maximum can be zero although a global lower bound is positive.
+    guaranteed_location_band(lambda x: one - (x - half) ** 4,
+                             lambda x: -4 * (x - half) ** 3, half, one, D(3), one, one)
+    # An upward kink inside the band does not invalidate the lower bound.
+    a, w = D("0.00001"), D("0.000001")
+    def f(x):
+        u = x - half
+        return one - u * u + w * (abs(u - a) + u - a)
+    def fp(x):
+        u = x - half
+        return -2 * u + w * (sgn(u - a) + 1)
+    radius = guaranteed_location_band(f, fp, half, one, D(2), one, one)
+    require(radius > a, "location band kink control")
+    # End maxima have exact locations, never a stationary location band.
+    try:
+        guaranteed_location_band(lambda x: one - x, lambda x: -one,
+                                 D(0), one, D(0), one, one)
+    except Fail:
+        pass
+    else:
+        raise Fail("endpoint maximum incorrectly admitted to location-band comparison")
+
+
 def arc_second_derivative_check(line, k):
     """The closed-form second derivatives used for K against central differences of
     the exact first derivatives, at two interior angles."""
@@ -1994,11 +2083,17 @@ def emit_arc_max(line, k, m, mx, bp, pAi, z, objective):
     else:
         rec["governing_fibre"] = "not applicable (an intensified bending measure, not a fibre stress)"
     rec["resultants_at_maximum"] = {"N_effective": V(Ne), "M_y": V(r["M_y"]), "M_z": V(r["M_z"])}
-    if loc["kind"] == "interior" and "second_derivative" in mx and mx["second_derivative"] < 0:
-        band = (2 * D("1e-9") * max(mx["value"], z) / abs(mx["second_derivative"])).sqrt()
+    if loc["kind"] == "interior":
+        def slope(x):
+            rr = line.arc_resultants_psi(k, x)
+            return (obj_max_normal(rr, bp, pAi, m.R) if objective == "max_normal"
+                    else obj_intensified(rr, bp, m.sif, m.R))[1]
+        band = guaranteed_location_band(mx["evaluate"], slope, psi, m.phi, mx["K2"], mx["value"], z, arc=True)
         rec["location_band"] = {"psi_rad": V(band), "fraction": V(band / m.phi),
-                                "meaning": "a location within this distance of psi* has a value within the 1e-9 "
-                                           "criterion of the maximum (from the second derivative at psi*)"}
+                                "meaning": "within the member domain [0, phi], a location within this distance of "
+                                           "psi* stays within the 1e-9 value criterion; from the global lower-curvature "
+                                           "bound f'' >= -K, using 99% of the tolerance and checking serialized "
+                                           "centres, supporting-slope residuals and radius rounding"}
         rec["second_derivative_per_rad2"] = V(mx["second_derivative"])
     inside = mx["max_samples"] <= mx["value"] * (1 + D(10) ** -60) and mx["value"] <= mx["bracket_upper"]
     assert inside, ("analytic maximum outside the sampling bracket", line.id, m.id, objective)
@@ -2047,10 +2142,12 @@ def emit_straight_max(line, k, m, mx, bp, pAi, z):
 
     def fs(t):
         return abs(pval(a, t)) + (pval(b, t) ** 2 + pval(c, t) ** 2).sqrt()
+    b2 = b[2] if len(b) > 2 else D(0)
+    c2 = c[2] if len(c) > 2 else D(0)
+    K2 = 2 * (b2 * b2 + c2 * c2).sqrt()
     if loc["kind"] == "interior":
-        # location band of an interior straight maximum, as on arcs but in the fraction:
-        # within band of u* the value stays inside the criterion, from f'' at u*. End
-        # maxima are exact and carry no band.
+        # The pointwise second derivative remains diagnostic; the finite-distance
+        # guarantee uses the global lower-curvature bound, including norm kinks.
         f1, f2 = straight_derivatives(a, b, c, u)
         require(f2 < 0 and abs(f1) <= abs(f2) * D(10) ** -50,
                 "interior straight maximum is not a nondegenerate stationary maximum: %s %s" % (line.id, m.id))
@@ -2058,10 +2155,13 @@ def emit_straight_max(line, k, m, mx, bp, pAi, z):
         fd = (fs(u + hh) - 2 * fs(u) + fs(u - hh)) / (hh * hh)
         mx["d2_central_difference_error"] = abs(fd - f2) / abs(f2)
         require(mx["d2_central_difference_error"] < D(10) ** -30, "straight second derivative")
-        band = (2 * D("1e-9") * max(val, z) / abs(f2)).sqrt()
+        band = guaranteed_location_band(fs, lambda x: straight_derivatives(a, b, c, x)[0],
+                                        u, D(1), K2, val, z)
         rec["location_band"] = {"fraction": V(band),
-                                "meaning": "a location within this distance of the fraction u* has a value within "
-                                           "the 1e-9 criterion of the maximum (from the second derivative at u*)"}
+                                "meaning": "within the member domain [0, 1], a location within this distance of "
+                                           "the fraction u* stays within the 1e-9 value criterion; from the global "
+                                           "lower-curvature bound f'' >= -K, using 99% of the tolerance and checking "
+                                           "serialized centres, supporting-slope residuals and radius rounding"}
         rec["second_derivative_per_fraction2"] = V(f2)
     grid = [(D(i) / n, fs(D(i) / n)) for i in range(n + 1)]
     smax = max(g[1] for g in grid)
@@ -2074,9 +2174,7 @@ def emit_straight_max(line, k, m, mx, bp, pAi, z):
                                      "lipschitz_bound_per_unit_fraction": V(lip),
                                      "lower_max_of_samples": V(smax), "upper_max_plus_L_h_over_2": V(upper),
                                      "analytic_inside": inside}
-    b2 = b[2] if len(b) > 2 else D(0)
-    c2 = c[2] if len(c) > 2 else D(0)
-    mx["cert"] = certify_maximum(fs, grid, 2 * (b2 * b2 + c2 * c2).sqrt(), val, tol(val, z))
+    mx["cert"] = certify_maximum(fs, grid, K2, val, tol(val, z))
     rec["certification"] = cert_record(mx["cert"], "Pa per unit fraction^2")
     names = [st for st, fr in STATIONS]
     svals = [abs(pval(a, dq(fr))) + (pval(b, dq(fr)) ** 2 + pval(c, dq(fr)) ** 2).sqrt() for st, fr in STATIONS]
@@ -2795,12 +2893,14 @@ CRITERION = {
                         "shear rows); if zero, the normal_stress scale",
         "pressure_stress": "per arc and basis: max(|p|, |hoop| over the fibres) (hoop and radial rows)",
         "headline": "the case's largest station max_abs_normal for that basis"},
-    "locations": "an end maximum's location is exact; an interior maximum's psi is compared within its "
-                 "location_band (the distance over which the value stays inside the criterion); fibre "
+    "locations": "an end maximum's location is exact; an interior maximum's psi or fraction is compared within its "
+                 "location_band, intersected with the member domain (the distance over which the value stays inside the criterion); fibre "
                  "coordinates (y, z) are compared at the criterion with zero scale r_o; beta_deg is informational "
                  "and not compared; the two sv_transverse_shear_max fibres are matched as an unordered pair",
     "location_bands": "an interior psi (arcs) or fraction (straights) is compared within its location_band; end "
-                      "maxima are exact and carry no band; an interior headline carries its member's location_band",
+                      "maxima are exact and carry no band; an interior headline carries its member's location_band; "
+                      "the global f'' >= -K bound gives loss <= |s|*distance + K*distance^2/2 from a supporting "
+                      "slope s at the centre; 99% tolerance budget leaves serialization margin, checked explicitly",
     "maxima": "every member and intensified maximum is certified: a rigorous upper bound on the true maximum (from "
               "a second-derivative lower bound) lies within 1e-2 tolerance above the frozen value, which is attained "
               "at the frozen location; the dense-sampling bracket is a coarser consistency check",
@@ -2898,6 +2998,7 @@ def cases_file(docs):
 def build(check_time=False):
     t0 = time.time()
     set_precision(BASE_PREC)
+    check_location_band_edge_cases()
     docs = case_documents()
     cases_bytes = (emit_json(cases_file(docs)) + "\n").encode()
     rule = gauss_legendre(40)
@@ -3111,8 +3212,9 @@ def maxima_summary(emitted, analyses):
             "every_station_only_maximum_at_most_the_analytic_maximum": True,
             "straight_interior_second_derivative_worst_relative_error": sci(max(d2s)),
             "straight_interior_second_derivative_check": "the exact f'' in the fraction at each interior straight "
-                                                         "maximum (from the polynomial resultants), which sets its "
-                                                         "location_band, against a central second difference of f "
+                                                         "maximum (from the polynomial resultants), reported separately "
+                                                         "from the global lower-curvature bound that sets its location_band, "
+                                                         "against a central second difference of f "
                                                          "with step 1e-20"}
 
 

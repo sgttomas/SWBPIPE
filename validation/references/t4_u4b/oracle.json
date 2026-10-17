@@ -54,8 +54,8 @@
    "pressure_stress": "per arc and basis: max(|p|, |hoop| over the fibres) (hoop and radial rows)",
    "headline": "the case's largest station max_abs_normal for that basis"
   },
-  "locations": "an end maximum's location is exact; an interior maximum's psi is compared within its location_band (the distance over which the value stays inside the criterion); fibre coordinates (y, z) are compared at the criterion with zero scale r_o; beta_deg is informational and not compared; the two sv_transverse_shear_max fibres are matched as an unordered pair",
-  "location_bands": "an interior psi (arcs) or fraction (straights) is compared within its location_band; end maxima are exact and carry no band; an interior headline carries its member's location_band",
+  "locations": "an end maximum's location is exact; an interior maximum's psi or fraction is compared within its location_band, intersected with the member domain (the distance over which the value stays inside the criterion); fibre coordinates (y, z) are compared at the criterion with zero scale r_o; beta_deg is informational and not compared; the two sv_transverse_shear_max fibres are matched as an unordered pair",
+  "location_bands": "an interior psi (arcs) or fraction (straights) is compared within its location_band; end maxima are exact and carry no band; an interior headline carries its member's location_band; the global f'' >= -K bound gives loss <= |s|*distance + K*distance^2/2 from a supporting slope s at the centre; 99% tolerance budget leaves serialization margin, checked explicitly",
   "maxima": "every member and intensified maximum is certified: a rigorous upper bound on the true maximum (from a second-derivative lower bound) lies within 1e-2 tolerance above the frozen value, which is attained at the frozen location; the dense-sampling bracket is a coarser consistency check",
   "discriminators": "each listed row lies at least 1e3 tolerances from its expected value, so an observation that passes the criterion is more than 1e-9 max(|obs|, |wrong|) from the wrong value",
   "unit_transforms": "values are SI; compare a product's MPa or mm after exact conversion"
@@ -4579,9 +4579,9 @@
         "M_z": ["-3.274133073856963495832308196010399320051e+3", -3274.1330738569636]
        },
        "location_band": {
-        "psi_rad": ["1.252210193840046036122040970103998971762e-4", 0.00012522101938400461],
-        "fraction": ["7.971817685588150168501176996743360563695e-5", 7.97181768558815e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["4.765813588261088300733736730869772527478e-5", 4.7658135882610885e-05],
+        "fraction": ["3.034011161705100070105624766852578709074e-5", 3.0340111617051e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-5.466013620972437576444387505260605822716e+6", -5466013.620972438],
        "dense_sampling_bracket": {
@@ -4633,9 +4633,9 @@
         "M_z": ["-3.276133827772465078350004983431173737500e+3", -3276.133827772465]
        },
        "location_band": {
-        "psi_rad": ["1.263448324197431258803611416579400545054e-4", 0.00012634483241974313],
-        "fraction": ["8.043361845487708028802539088107634668530e-5", 8.043361845487708e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["4.798587757415190554122076649355039686447e-5", 4.7985877574151906e-05],
+        "fraction": ["3.054875845811521252638245632097127665531e-5", 3.0548758458115215e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-7.600588185872210751504312576627163315655e+6", -7600588.185872211],
        "dense_sampling_bracket": {
@@ -10054,9 +10054,9 @@
         "M_z": ["-3.274133073856963495832308196010399320051e+3", -3274.1330738569636]
        },
        "location_band": {
-        "psi_rad": ["1.233676540365143441724098100670473828430e-4", 0.00012336765403651433],
-        "fraction": ["7.853828783024828942458895799169664375177e-5", 7.85382878302483e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["4.695275959670196836374432683933408139455e-5", 4.6952759596701965e-05],
+        "fraction": ["2.989105512648217748533655352828168705401e-5", 2.9891055126482178e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-5.466013620972437576444387505260605822716e+6", -5466013.620972438],
        "dense_sampling_bracket": {
@@ -10108,9 +10108,9 @@
         "M_z": ["-3.274133073856963495832308196010399320051e+3", -3274.1330738569636]
        },
        "location_band": {
-        "psi_rad": ["1.233676540365143441724098100670473828430e-4", 0.00012336765403651433],
-        "fraction": ["7.853828783024828942458895799169664375177e-5", 7.85382878302483e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["4.695275959670196836374432683933408139455e-5", 4.6952759596701965e-05],
+        "fraction": ["2.989105512648217748533655352828168705401e-5", 2.9891055126482178e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-5.466013620972437576444387505260605822716e+6", -5466013.620972438],
        "dense_sampling_bracket": {
@@ -15477,9 +15477,9 @@
         "M_z": ["-3.274133073856720379193615631545639429397e+3", -3274.1330738567203]
        },
        "location_band": {
-        "psi_rad": ["1.252210193840082720388892606231664706386e-4", 0.00012522101938400827],
-        "fraction": ["7.971817685588472471275282411123238117878e-5", 7.971817685588473e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["4.765813588260399019944836488701882297037e-5", 4.765813588260399e-05],
+        "fraction": ["3.034011161704695043008836771079797193590e-5", 3.034011161704695e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-5.466013620971970968276318570459707514588e+6", -5466013.620971971],
        "dense_sampling_bracket": {
@@ -15531,9 +15531,9 @@
         "M_z": ["-3.276133827772222130697107975504426616416e+3", -3276.133827772222]
        },
        "location_band": {
-        "psi_rad": ["1.263448324197468813998544120469000480793e-4", 0.00012634483241974687],
-        "fraction": ["8.043361845488036672696893406717600558880e-5", 8.043361845488037e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["4.798587757415262291073517862634862908047e-5", 4.7985877574152624e-05],
+        "fraction": ["3.054875845811600936803241034993267009409e-5", 3.054875845811601e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-7.600588185871558346270815143283914243473e+6", -7600588.185871558],
        "dense_sampling_bracket": {
@@ -18010,9 +18010,9 @@
         "M_z": ["1.171875000000000000000000000000000000000e+4", 11718.75]
        },
        "location_band": {
-        "psi_rad": ["4.556329154209731442454752358794586553136e-5", 4.556329154209731e-05],
-        "fraction": ["2.456784563188489141421124929310418071176e-5", 2.456784563188489e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["2.342141728536081510348947228253613977300e-5", 2.3421417285360815e-05],
+        "fraction": ["1.262888928503031150852253904385070581420e-5", 1.2628889285030312e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-8.625116008900189774826432043460881871859e+7", -86251160.0890019],
        "dense_sampling_bracket": {
@@ -18064,9 +18064,9 @@
         "M_z": ["1.171875000000000000000000000000000000000e+4", 11718.75]
        },
        "location_band": {
-        "psi_rad": ["4.558368645249055542461081273737670968777e-5", 4.5583686452490554e-05],
-        "fraction": ["2.457884262076034010689453625202708421276e-5", 2.457884262076034e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["2.343710119470153208381082042469860295377e-5", 2.3437101194701533e-05],
+        "fraction": ["1.263734608985160506104218503761667276639e-5", 1.2637346089851604e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-1.177180109181758856126072137037265034631e+8", -117718010.91817589],
        "dense_sampling_bracket": {
@@ -18116,9 +18116,9 @@
         "M_z": ["1.171875000000000000000000000000000000000e+4", 11718.75]
        },
        "location_band": {
-        "psi_rad": ["4.472135954999579392818347337462552470881e-5", 4.4721359549995795e-05],
-        "fraction": ["2.411387370592373721798486880181944372989e-5", 2.411387370592374e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["2.278288076896056629146027743122716951578e-5", 2.2782880768960566e-05],
+        "fraction": ["1.228458873003751167129240334915570296260e-5", 1.2284588730037512e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-1.683361818054645525356471441693691120569e+8", -168336181.80546457],
        "dense_sampling_bracket": {
@@ -18161,9 +18161,9 @@
         "M_z": ["1.171875000000000000000000000000000000000e+4", 11718.75]
        },
        "location_band": {
-        "psi_rad": ["4.472135954999579392818347337462552470881e-5", 4.4721359549995795e-05],
-        "fraction": ["2.411387370592373721798486880181944372989e-5", 2.411387370592374e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["2.278288076896056629146027743122716951577e-5", 2.2782880768960566e-05],
+        "fraction": ["1.228458873003751167129240334915570296260e-5", 1.2284588730037512e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-2.296109045046535029642717784769923033649e+8", -229610904.5046535],
        "dense_sampling_bracket": {
@@ -18204,9 +18204,9 @@
        "psi_deg": ["1.626020470831195740628877488181317868482e+1", 16.260204708311957]
       },
       "location_band": {
-       "psi_rad": ["4.556329154209731442454752358794586553136e-5", 4.556329154209731e-05],
-       "fraction": ["2.456784563188489141421124929310418071176e-5", 2.456784563188489e-05],
-       "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+       "psi_rad": ["2.342141728536081510348947228253613977300e-5", 2.3421417285360815e-05],
+       "fraction": ["1.262888928503031150852253904385070581420e-5", 1.2628889285030312e-05],
+       "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
       },
       "governing_fibre": {
        "surface": "outer",
@@ -18227,9 +18227,9 @@
        "psi_deg": ["1.626020470831195740628877488181317868482e+1", 16.260204708311957]
       },
       "location_band": {
-       "psi_rad": ["4.558368645249055542461081273737670968777e-5", 4.5583686452490554e-05],
-       "fraction": ["2.457884262076034010689453625202708421276e-5", 2.457884262076034e-05],
-       "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+       "psi_rad": ["2.343710119470153208381082042469860295377e-5", 2.3437101194701533e-05],
+       "fraction": ["1.263734608985160506104218503761667276639e-5", 1.2637346089851604e-05],
+       "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
       },
       "governing_fibre": {
        "surface": "outer",
@@ -21889,9 +21889,9 @@
         "M_z": ["1.067119279591240704740307323258095386253e+2", 106.71192795912407]
        },
        "location_band": {
-        "psi_rad": ["3.822009477892486517549504067877692832972e-5", 3.8220094778924865e-05],
-        "fraction": ["2.433166803802653184446583972487724618367e-5", 2.4331668038026533e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["2.162667112723344911856140887503314941023e-5", 2.162667112723345e-05],
+        "fraction": ["1.376796645008790218783353194795280855911e-5", 1.3767966450087902e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-3.402990808355841165713927599255811980045e+7", -34029908.08355841],
        "dense_sampling_bracket": {
@@ -21941,9 +21941,9 @@
         "M_z": ["1.067077770441162437796706947620203878732e+2", 106.70777704411624]
        },
        "location_band": {
-        "psi_rad": ["3.836999207578770369549331985763879531026e-5", 3.83699920757877e-05],
-        "fraction": ["2.442709562103386786804419602642628450669e-5", 2.442709562103387e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["1.921721769981199094619223518535618842475e-5", 1.921721769981199e-05],
+        "fraction": ["1.223406075759256481130280107826239445180e-5", 1.2234060757592564e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-4.729695747411498390465948629307779092161e+7", -47296957.474114984],
        "dense_sampling_bracket": {
@@ -21984,9 +21984,9 @@
        "psi_deg": ["2.369674914030373251585154363123520048689e+1", 23.696749140303734]
       },
       "location_band": {
-       "psi_rad": ["3.822009477892486517549504067877692832972e-5", 3.8220094778924865e-05],
-       "fraction": ["2.433166803802653184446583972487724618367e-5", 2.4331668038026533e-05],
-       "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+       "psi_rad": ["2.162667112723344911856140887503314941023e-5", 2.162667112723345e-05],
+       "fraction": ["1.376796645008790218783353194795280855911e-5", 1.3767966450087902e-05],
+       "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
       },
       "governing_fibre": {
        "surface": "outer",
@@ -26477,9 +26477,9 @@
         "M_z": ["5.837227129344929920313721541030249617170e+3", 5837.22712934493]
        },
        "location_band": {
-        "psi_rad": ["6.870354797747876523839557468701968022114e-5", 6.870354797747876e-05],
-        "fraction": ["4.373803707426773510052502085480618742912e-5", 4.3738037074267735e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["3.947609428840770075098047128999798461925e-5", 3.94760942884077e-05],
+        "fraction": ["2.513126215984728845304277727633200004358e-5", 2.5131262159847288e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-2.660280690507200219868442429113574958387e+7", -26602806.905072004],
        "dense_sampling_bracket": {
@@ -26578,9 +26578,9 @@
         "M_z": ["-3.026083896946483714728591389532731162326e+3", -3026.0838969464835]
        },
        "location_band": {
-        "psi_rad": ["6.435739565253105390940637124254447062249e-5", 6.435739565253105e-05],
-        "fraction": ["4.097119057048468869352695818409573568511e-5", 4.097119057048469e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["3.163258755920837278968470668875305923725e-5", 3.163258755920837e-05],
+        "fraction": ["2.013793069134081980582835680427153878111e-5", 2.013793069134082e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-1.729085968588327424933750484557233772315e+7", -17290859.685883272],
        "dense_sampling_bracket": {
@@ -26675,9 +26675,9 @@
         "M_z": ["5.953848340354999499439471184955662648129e+3", 5953.848340355]
        },
        "location_band": {
-        "psi_rad": ["8.959430955138642597949128435854852106462e-5", 8.959430955138643e-05],
-        "fraction": ["5.703750895203424542778247906220656110867e-5", 5.703750895203425e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["3.750115026307107556322542089689765418022e-5", 3.7501150263071075e-05],
+        "fraction": ["2.387397374399877132543245968703165737216e-5", 2.387397374399877e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-3.076222252536353566360266649313211906492e+7", -30762222.525363535],
        "dense_sampling_bracket": {
@@ -26722,9 +26722,9 @@
         "M_z": ["-2.945513977748981581583480225336781647567e+3", -2945.5139777489817]
        },
        "location_band": {
-        "psi_rad": ["5.322946018707141449733709425360762798274e-5", 5.3229460187071414e-05],
-        "fraction": ["3.388692682754263771176166745119235996717e-5", 3.388692682754264e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["2.964826698820148387650952880113097881631e-5", 2.9648266988201483e-05],
+        "fraction": ["1.887467298112210515491032241196495934643e-5", 1.8874672981122106e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-5.483621446528050578649156691333109612596e+7", -54836214.4652805],
        "dense_sampling_bracket": {
@@ -31958,8 +31958,8 @@
         "M_z": ["5.878047020219469746105513399278217719961e+2", 587.8047020219469]
        },
        "location_band": {
-        "fraction": ["3.754220601871910567634844135369541931787e-5", 3.754220601871911e-05],
-        "meaning": "a location within this distance of the fraction u* has a value within the 1e-9 criterion of the maximum (from the second derivative at u*)"
+        "fraction": ["3.322800997238557731001393122738268281410e-5", 3.3228009972385576e-05],
+        "meaning": "within the member domain [0, 1], a location within this distance of the fraction u* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_fraction2": ["-5.112405272031369051928150896323631912652e+7", -51124052.72031369],
        "dense_sampling_bracket": {
@@ -32006,8 +32006,8 @@
         "M_z": ["5.877723328930562365911602340620232209306e+2", 587.7723328930563]
        },
        "location_band": {
-        "fraction": ["3.782999453913928531855467785063667204287e-5", 3.782999453913928e-05],
-        "meaning": "a location within this distance of the fraction u* has a value within the 1e-9 criterion of the maximum (from the second derivative at u*)"
+        "fraction": ["3.348194227428089320558997312710357516923e-5", 3.348194227428089e-05],
+        "meaning": "within the member domain [0, 1], a location within this distance of the fraction u* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_fraction2": ["-7.222278346887760699793236362214973705291e+7", -72222783.46887761],
        "dense_sampling_bracket": {
@@ -32058,9 +32058,9 @@
         "M_z": ["-4.388292945374179920278003163351334050108e+2", -438.829294537418]
        },
        "location_band": {
-        "psi_rad": ["6.884600560122863759878174055991987100175e-5", 6.884600560122864e-05],
-        "fraction": ["5.349330767302876660149936421186324448093e-5", 5.349330767302877e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["3.237409723005027218976235907129377465343e-5", 3.237409723005027e-05],
+        "fraction": ["2.515465535930412219731502016843125933517e-5", 2.515465535930412e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-1.336081829034933377597204820088414275905e+7", -13360818.290349334],
        "dense_sampling_bracket": {
@@ -32112,9 +32112,9 @@
         "M_z": ["-4.389579276195212083743199110351742856947e+2", -438.95792761952123]
        },
        "location_band": {
-        "psi_rad": ["6.941759077706653353197813297896458850637e-5", 6.941759077706654e-05],
-        "fraction": ["5.393742903352630505402037686694156367666e-5", 5.3937429033526305e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["3.264999009847783864844643837226182794579e-5", 3.264999009847784e-05],
+        "fraction": ["2.536902396306995745824495883807782489888e-5", 2.5369023963069956e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-1.889374245769303263255030912530210995701e+7", -18893742.457693033],
        "dense_sampling_bracket": {
@@ -32252,9 +32252,9 @@
         "M_z": ["-4.476141140936100283013172009211083256863e+2", -447.61411409361006]
        },
        "location_band": {
-        "psi_rad": ["5.085750977928785047352804992527621596260e-5", 5.085750977928785e-05],
-        "fraction": ["3.951625652569396338947155405383769606460e-5", 3.951625652569396e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["2.251220062708561574649358619293281286703e-5", 2.2512200627085617e-05],
+        "fraction": ["1.749196723942036066820320775526083483591e-5", 1.7491967239420362e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-2.443515642766577271774910827905028161237e+7", -24435156.427665774],
        "dense_sampling_bracket": {
@@ -32297,9 +32297,9 @@
         "M_z": ["-4.476141140936100283013172009211083256863e+2", -447.61411409361006]
        },
        "location_band": {
-        "psi_rad": ["5.130558390432683170785665345619007473896e-5", 5.130558390432683e-05],
-        "fraction": ["3.986440986911183673619111595562400433792e-5", 3.986440986911184e-05],
-        "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+        "psi_rad": ["2.271054173034569548277856925044112787949e-5", 2.2710541730345696e-05],
+        "fraction": ["1.764607816522126243894096682036101031399e-5", 1.764607816522126e-05],
+        "meaning": "within the member domain [0, phi], a location within this distance of psi* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
        },
        "second_derivative_per_rad2": ["-3.452108437786402969869005407565248771858e+7", -34521084.37786403],
        "dense_sampling_bracket": {
@@ -32338,8 +32338,8 @@
        "fraction": ["4.336338744127699796160778648321302751313e-1", 0.43363387441276996]
       },
       "location_band": {
-       "fraction": ["3.754220601871910567634844135369541931787e-5", 3.754220601871911e-05],
-       "meaning": "a location within this distance of the fraction u* has a value within the 1e-9 criterion of the maximum (from the second derivative at u*)"
+       "fraction": ["3.322800997238557731001393122738268281410e-5", 3.3228009972385576e-05],
+       "meaning": "within the member domain [0, 1], a location within this distance of the fraction u* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
       },
       "governing_fibre": {
        "surface": "outer",
@@ -32358,8 +32358,8 @@
        "fraction": ["4.335696232996336030817476373795566429513e-1", 0.4335696232996336]
       },
       "location_band": {
-       "fraction": ["3.782999453913928531855467785063667204287e-5", 3.782999453913928e-05],
-       "meaning": "a location within this distance of the fraction u* has a value within the 1e-9 criterion of the maximum (from the second derivative at u*)"
+       "fraction": ["3.348194227428089320558997312710357516923e-5", 3.348194227428089e-05],
+       "meaning": "within the member domain [0, 1], a location within this distance of the fraction u* stays within the 1e-9 value criterion; from the global lower-curvature bound f'' >= -K, using 99% of the tolerance and checking serialized centres, supporting-slope residuals and radius rounding"
       },
       "governing_fibre": {
        "surface": "outer",
@@ -34628,7 +34628,7 @@
    "arc_second_derivative_formulas_worst_relative_error": "1.337e-51",
    "every_station_only_maximum_at_most_the_analytic_maximum": true,
    "straight_interior_second_derivative_worst_relative_error": "4.299e-41",
-   "straight_interior_second_derivative_check": "the exact f'' in the fraction at each interior straight maximum (from the polynomial resultants), which sets its location_band, against a central second difference of f with step 1e-20"
+   "straight_interior_second_derivative_check": "the exact f'' in the fraction at each interior straight maximum (from the polynomial resultants), reported separately from the global lower-curvature bound that sets its location_band, against a central second difference of f with step 1e-20"
   },
   "precision_stability": {
    "recomputed_at_digits": 110,
