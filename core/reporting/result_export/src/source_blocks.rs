@@ -485,6 +485,21 @@ fn derived_in(
     Ok(())
 }
 
+/// A failed case's `block_order`, judged against the current producer (RF
+/// source-method extension §7): an `unsupported_block` refusal records an
+/// order above 4, since the producer solves exact blocks of order up to 4, and
+/// no source; every other code records no order. The receipt schema admits only
+/// qualified cases, so at every reader entry the receipt shape refuses a stored
+/// failure record first; this bound is therefore tested directly
+/// (`rf16_failure_block_order_tests`).
+fn failure_block_order(failure: &Value, case: &Value) -> Result<bool, String> {
+    Ok((failure["code"] == "unsupported_block"
+        && !failure["block_order"].is_null()
+        && integer(&failure["block_order"])? > 4
+        && case["source"].is_null())
+        || (failure["code"] != "unsupported_block" && failure["block_order"].is_null()))
+}
+
 /// `actual_invocation` is the independent original {request,solver_mode} Value.
 /// Without it, a supported consistent receipt returns false, never admission.
 /// Explicit method context; never alters received bytes to fit another contract.
@@ -758,14 +773,7 @@ pub(crate) fn validate_source_contract_in(
                     && diagnostics.contains_key(text(&failure["diagnostic_ref"])?),
                 "FAILED_OUTCOME"
             );
-            require!(
-                (failure["code"] == "unsupported_block"
-                    && !failure["block_order"].is_null()
-                    && integer(&failure["block_order"])? > 2
-                    && case["source"].is_null())
-                    || (failure["code"] != "unsupported_block" && failure["block_order"].is_null()),
-                "FAILURE_BLOCK_ORDER"
-            );
+            require!(failure_block_order(failure, case)?, "FAILURE_BLOCK_ORDER");
             require!(
                 (case["outcome"] == "unsupported")
                     == matches!(
@@ -1656,5 +1664,75 @@ mod explicit_resource_tests {
         assert!(!shape_in_resources(&nested_value, &nested, &root, &[]));
         let missing_nested = json!({"type":"array","items":missing});
         assert!(!shape_in_resources(&json!([value]), &missing_nested, &root, &[("load_reference_state.schema.json", &resource)]));
+    }
+}
+
+/// RF source-method extension (§7; §8 RF-16). The readers judge a receipt
+/// against the current producer, which solves exact blocks of order up to 4.
+/// The receipt schema admits only qualified cases (`failure` null), so a
+/// stored `unsupported_block` record of any order is refused at the receipt
+/// shape before `FAILURE_BLOCK_ORDER` at every reader entry (J2's
+/// `RF-unsupported-block-order-3/-4` statements). RF-16 (the bound kept at 2)
+/// is therefore killed here, on the check itself.
+#[cfg(test)]
+mod rf16_failure_block_order_tests {
+    use super::{failure_block_order, shape_in};
+    use serde_json::{json, Value};
+
+    fn schema() -> Value {
+        serde_json::from_str(include_str!("../../../../schemas/physics_source_recovery.schema.json")).unwrap()
+    }
+    fn failure(code: &str, order: Value) -> Value {
+        json!({"stage":"exact_solve","code":code,"diagnostic_ref":"diagnostic:source-recovery:case","block_order":order})
+    }
+
+    #[test]
+    fn unsupported_block_records_an_order_above_four_and_no_source() {
+        let unsourced = json!({"source": null});
+        let sourced = json!({"source": {"level": "complete_identified_represented_contributions"}});
+        for order in 0..=4u64 {
+            assert_eq!(failure_block_order(&failure("unsupported_block", json!(order)), &unsourced), Ok(false), "order {order}");
+        }
+        for order in [5u64, 6, 89, (1 << 53) - 1] {
+            assert_eq!(failure_block_order(&failure("unsupported_block", json!(order)), &unsourced), Ok(true), "order {order}");
+            assert_eq!(failure_block_order(&failure("unsupported_block", json!(order)), &sourced), Ok(false), "order {order} with a source");
+        }
+        assert_eq!(failure_block_order(&failure("unsupported_block", Value::Null), &unsourced), Ok(false));
+        assert_eq!(
+            failure_block_order(&failure("unsupported_block", json!(1u64 << 53)), &unsourced),
+            Err("SOURCE_BLOCKS_INTEGER".into())
+        );
+        for code in ["unsupported_source_closure", "budget", "not_positive_definite", "arithmetic_range"] {
+            assert_eq!(failure_block_order(&failure(code, Value::Null), &unsourced), Ok(true), "{code}");
+            for order in [3u64, 4, 5] {
+                assert_eq!(failure_block_order(&failure(code, json!(order)), &unsourced), Ok(false), "{code} {order}");
+            }
+        }
+    }
+
+    /// Block length and level are checked through the schema. A receipt case
+    /// admits no failure record, so the order bound above is masked by it.
+    #[test]
+    fn block_length_and_level_are_the_schemas_and_a_case_admits_no_failure_record() {
+        let schema = schema();
+        let source = &schema["$defs"]["source"]["properties"];
+        for n in 1..=4u64 {
+            let block: Vec<u64> = (0..n).collect();
+            assert!(shape_in(&json!([block]), &source["free_blocks"], &schema), "{n} DOFs");
+        }
+        assert!(!shape_in(&json!([[0, 1, 2, 3, 4]]), &source["free_blocks"], &schema));
+        assert!(!shape_in(&json!([[]]), &source["free_blocks"], &schema));
+        for level in ["complete_identified_represented_contributions", "complete_identified_declared_member_congruence"] {
+            assert!(shape_in(&json!(level), &source["level"], &schema), "{level}");
+        }
+        for level in [json!("complete_identified_unknown_member_basis"), json!(""), Value::Null] {
+            assert!(!shape_in(&level, &source["level"], &schema), "{level}");
+        }
+        let case = &schema["$defs"]["case"]["properties"];
+        for order in [3u64, 4, 5] {
+            assert!(!shape_in(&failure("unsupported_block", json!(order)), &case["failure"], &schema));
+        }
+        assert!(shape_in(&Value::Null, &case["failure"], &schema));
+        assert!(!shape_in(&json!("unsupported"), &case["outcome"], &schema));
     }
 }
