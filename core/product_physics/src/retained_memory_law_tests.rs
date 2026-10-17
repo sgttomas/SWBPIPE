@@ -1434,7 +1434,7 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!(caps.complete[2], 2 * c * P_FINAL * text_atoms::ROW, "2·C·P_final·Text(row)");
     assert_eq!(caps.complete[5], 2 * profile::TEXT_TEXT_DIAG_ENV, "2·Text(diag_env) at l ≤ 128 (API_G4.md, S-6(d))");
     // Current canonical T4-U6/U8 TEXT closure at the epoch source addbdc030e, C_eq = 3, maximum
-    // over the L/E routes (B7b's at 7e63847: 264,366,429).
+    // over the L/E routes (B7b's at 7e63847: 264,366,429); unchanged at the final source 588de796a4.
     assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 262_735_773, "current text closure at C_eq = 3, maximum over routes");
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_115, 8_192), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
@@ -1671,15 +1671,18 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// T4-U6/U8 D3 record for the epoch source addbdc030e (D-5 section bases, the
-/// D-6 Timoshenko member and the realized-arc marker; retained-pricing-rules.md
+/// T4-U6/U8 D3 record for the final source 588de796a4 (D-5 section bases, the
+/// D-6 Timoshenko member, the realized-arc marker, and the D3 review's repairs:
+/// R1's row-vector capacities and R2's `locations` maximum; retained-pricing-rules.md
 /// "T4-U6/U8: actual-source D3"). Requested + moving bytes, without R or the
 /// separately upward-rounded TEXT reserve, from the canonical 98-form union and
-/// measured 288-value layout. The unchanged identity/record assertions verify
-/// this candidate in-build.
+/// measured 288-value layout. Against addbdc030e's record every phase rises (R2: 39
+/// nodes and 5,952 key bytes per copy of the evidence owner; R1: 5,236 row slots in
+/// the precommit reader's working sets): W4 +206,144 B in both modes. The unchanged
+/// identity/record assertions verify this candidate in-build.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_467_690_890, 5_793_187_212, 11_003_557_089, 11_215_999_933, 6_428_431_651, 11_147_379_856, 6_623_610_478],
-    [5_526_822_234, 5_852_318_556, 11_062_688_433, 11_275_131_277, 6_487_562_995, 11_206_511_200, 6_682_741_822],
+    [5_467_777_002, 5_793_273_324, 11_003_729_313, 11_216_206_077, 6_428_551_683, 11_147_571_184, 6_623_696_590],
+    [5_526_908_346, 5_852_404_668, 11_062_860_657, 11_275_337_421, 6_487_683_027, 11_206_702_528, 6_682_827_934],
 ];
 
 #[test]
@@ -1798,7 +1801,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 28_127, "current canonical D_env at C_eq = 3 (T4-U6/U8 epoch source addbdc030e)");
+    assert_eq!(caps.complete[3], 28_127, "current canonical D_env at C_eq = 3 (T4-U6/U8 final source 588de796a4, as at addbdc030e)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();

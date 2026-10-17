@@ -13,18 +13,19 @@ RE = 'core/reporting/result_export/src/'
 # B7b: the snapshot lines of the bound sites (B7a 3e89c23ea1 values in comments).
 # The inherited full-file pins bind these files; each line keeps B7a's text.
 # T4-U6/U8 (PP head 20c6126a16): every line moved with unchanged text (B7b values in brackets). Epoch addbdc030e:
-# lib.rs's suffix and diag lines +36 more (the realized-arc marker's helpers).
+# lib.rs's suffix and diag lines +36 more (the realized-arc marker's helpers). Final source 588de796a4: lib.rs's
+# lines +5 more (PP4's withhold_certified_summaries), physics_source.rs's require +1 (RD3's `bit_equal` import).
 LN = {
     'problem': 162,       # pressure_runtime.rs fn problem (160) [148]
     'diag': 168,          # `let mut finding = diag(` (166) [154]
     'format': 169,        # `&format!(` (167) [155]
     'join': 171,          # `stable_suffix(&refs.join(":"))` (169) [157]
     'to_string': 176,     # `refs.iter().map(|value| value.to_string()).collect(),` (174) [162]
-    'unit_message': 9393, # lib.rs `message.into()` (9162) [9159]
-    'suffix': 14002,      # lib.rs `id.replace(':', "-")` (13614) [13619]
-    'diag_fn': 13951,     # lib.rs fn diag (13563) [13568]
-    'suffix_fn': 14001,   # lib.rs fn stable_suffix (13613) [13618]
-    'require': 95,        # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
+    'unit_message': 9398, # lib.rs `message.into()` (9162) [9159]
+    'suffix': 14007,      # lib.rs `id.replace(':', "-")` (13614) [13619]
+    'diag_fn': 13956,     # lib.rs fn diag (13563) [13568]
+    'suffix_fn': 14006,   # lib.rs fn stable_suffix (13613) [13618]
+    'require': 96,        # physics_source.rs `Err(format!("PHYSICS_SOURCE_{detail}"))` (89; 62 before ccb19ba0bf) [78]
 }
 PR = PP + 'pressure_runtime.rs:'
 PROBLEM = PR + '%d:problem' % LN['problem']

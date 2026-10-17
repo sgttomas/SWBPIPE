@@ -319,9 +319,11 @@ if _prescribed_keys.borrowed(SNAP):
 if _u6_model.inspect(SNAP)["all_rows"]:
     # U6-RS (T4-U6 D3; retained-pricing-rules.md "U6-RS"): NumericCase's tenth field `all_rows` (a Vec header per
     # numeric case and per Result carrier, beyond NumericCaseBorrowed's nine-field upper) holding every published row
-    # of its case (<= PA over all cases), rows_for's transient full vector (<= P) beside its filtered one, g5c's
-    # drained `bound` classes (<= P) beside the rebuilt classes, and the one `last` class clone (its id and basis_ref).
-    SETS = (SETS + s("&Value") * (PA + P) + s("Vec") * (pushcap(CC) + 2) + Xc("RowClassification", P)
+    # of its case, rows_for's transient full vector beside its filtered one, g5c's drained `bound` classes (<= P)
+    # beside the rebuilt classes, and the one `last` class clone (its id and basis_ref). Review R1: rows_all_for is a
+    # filter().collect() (size-hint lower bound 0), so each vector holds pushcap(h) slots for its h <= P rows: all_rows
+    # over the <= CC numeric owners CC * pushcap(P) (not PA), the one transient full vector pushcap(P) (not P).
+    SETS = (SETS + s("&Value") * (CC * pushcap(P) + pushcap(P)) + s("Vec") * (pushcap(CC) + 2) + Xc("RowClassification", P)
             + s("RowClassification") + B(RID + 2 * ID + 64) + X({"Node(String,Value)": 1}))
 # G5 part 2 (RV87 N-2): the walkers allocate per object: objects() (retained_precision.rs:1694) pushes a
 # reference per object of a work owner (<= BODY); located() (:1722) pushes (path.clone(), &Map) per object

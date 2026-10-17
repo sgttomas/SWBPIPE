@@ -1761,8 +1761,11 @@ section (D-5), and T4-U8 adds the Timoshenko straight member (D-6); DEL-05-03's
 2026-10-16: "Apply the borrowed {domain, payload} wrapper in source_receipt.rs
 hash, with its own adjudication rule, a source pin, a test pinning identical
 hash text, and an independent review") and the epoch's reader binding of each
-section's beam theory. Registration prices the epoch head `addbdc030e` (below,
-"Epoch source"). The tool's one-current-value pins hold `addbdc030e`.
+section's beam theory. Registration first priced the epoch head `addbdc030e`
+(below, "Epoch source") and now prices the final source `588de796a4` (below,
+"Final source"), which adds the readers' bit equality, PP4's per-basis
+withholding and the independent D3 review's repairs (U6-RS's capacities, R1;
+U6-RL, R2). The tool's one-current-value pins hold `588de796a4`.
 Line numbers are at `433fc1f1e4` unless stated. Each rule below is added only
 where its source exists, so the registered B7b source adds nothing. Nothing
 here changes M, the 0.9 M margin, R, the 5 % TEXT reserve, the budget model,
@@ -1846,6 +1849,47 @@ priced change is exactly the following.
   from every product build, so J5's caller inventory omits files the crate
   includes only that way. A `#[path]` module without `#[cfg(test)]`, or a
   plain `mod` named like such a file, stops the run.
+
+**Final source `588de796a4`.** The registration branch merges the epoch
+`1ef3487611` (RD3), PP4 (`b4a596b870`) and RD4 (`61b9115466`) over D3's
+repairs. The reviewed inputs and every schema and table the profile reads are
+unchanged since `addbdc030e`. Each product diff was read; the priced change is
+exactly the following.
+- **PP4.** `lib.rs withhold_certified_summaries` also sets `max_stress_reduced`
+  to None (a drop, no allocation) and gains a doc comment and a test. Re-bound:
+  the `lib.rs` full-file pins (`b7a_domain_model`, `kd5_text_model`'s
+  primitive pin; the diff adds no `.min(`/`.max(` call). Every snapshot key after
+  the function moves +5 with unchanged text and is re-keyed (B7a's ID audits and
+  owner choices, the returning-error sites and their parents, the scoped-TEXT
+  lines, `solve_prepared_load_case`); the tool's tests follow.
+- **RD3, RD4 (readers).** `physics_source.rs` compares its maximum, norm,
+  endpoint-section, stress-functional and twin links through
+  `section_basis::bit_equal` and makes `normalized_quantity` `pub(crate)`;
+  `section_basis.rs` adds `bit_equal` and compares twin values and headlines by
+  bits; `reader_verdict.rs` binds each case section's captured (D, t, c_m, c_a)
+  to the model inside `physics_model_checks`, in `reader_verdict::route()`'s
+  path, unreached from the retained roots (B7b-ZA). No `require` site is added or
+  removed. Re-bound: the `physics_source.rs` full-file pin; its scoped-TEXT
+  `require` line moves +1 (the import).
+- **U6-BE (`bit_equal`'s recursion).** `bit_equal` recurses into arrays and
+  objects, so the chain lists it as a self-recursive TEXT ancestor, which needs a
+  reviewed reason. Its only text is `number`'s Err, the static
+  `SOURCE_PHYSICS_NUMBER_INVALID` (29 B). `bit_equal` calls `number` only on two
+  `Value::Number` leaves, whose `as_f64` is always Some and finite, so the Err
+  never forms. Any formed Err is dropped inside the one `matches!`, so at most
+  two are alive at once at any depth. Nothing else allocates, so its text counts
+  once per external call, as for `guard_json`. The chain still prices that Err
+  at every call on route E: 1,730 `bit_equal` calls with two `number` calls
+  each, at max(8, 2·29) B, so +200,680 B of route E's TEXT. This stays below
+  route L's TAV_W, so no merged evaluation moves. **Guard:** the run stops unless
+  `bit_equal`'s and `number`'s exact texts are as reviewed.
+
+Against `addbdc030e`'s tree, the final source's merged tree is equal in
+structure: 1,400 coefficients equal, 56 higher and none lower. The higher ones
+are U6-RL's 39 nodes and 5,952 key bytes in every copy of the evidence owner
+(T25's first stage +47,808 B through its hash route) and U6-RS's 5,236 slots in
+the precommit reader's working sets. The prunes are `addbdc030e`'s 31, and the
+resolutions used are the same.
 
 No rule is pruned beyond the 31 below, and the tree differs from
 `433fc1f1e4`'s only in STATICS and route E's TEXT atoms above and in U6-RB-V's
@@ -1950,10 +1994,38 @@ at `79bf8656dc`; it equals, fact for fact, D3's census of fixtures regenerated
 at `20c6126a16` in a scratch tree. The census also gives
 the D-5 per-case evidence: `pipe_stress_extrema` once per member and basis, the
 nested section bases and two coverage lists. At the caps that is 3,118 array
-slots, 868 objects, 4,029 entries and 414,656 string bytes (STR_CAP 304: the
-elastic-maximum id 287 B plus ':' and a basis token).
+slots, 868 objects, 4,093 entries, 414,656 string bytes (STR_CAP 304: the
+elastic-maximum id 287 B plus ':' and a basis token) and 43,631 key bytes, with
+each extremum at its largest `locations` shape (U6-RL).
 `data/census_d5_79bf8656dc.json` holds it. **Guard:** route E stops unless the
 census states 51 + 21 rows per member.
+
+**U6-RL (`locations` shapes, review R2).** The census case's extrema are the
+source-selected maximum's (`source_receipt/composite.rs` `maximum_inner`), route
+E's larger extremum form in every fact; the certified or fallback form of the case
+solve has no `locations`. `maximum_inner` publishes `locations` in one of three
+shapes, one per variant of `Locations`: `strict_endpoint` (2 entries, the keys
+`kind` and `endpoint`, 12 B, two strings), `whole_span_constant` (1 entry, 4 B,
+one string) and `endpoint_candidates` (3 entries, `kind`, `exact_tie_proven` and
+`interior_equal_possible`, 43 B, one string and two booleans). The fixture shows
+`strict_endpoint`, but a lawful source-selected case with endpoint ties publishes
+`endpoint_candidates`, one entry and 31 key bytes more. The census therefore
+counts each extremum at the componentwise maximum over the three shapes: the
+strings of `strict_endpoint` (608 B at STR_CAP) and the entries and key bytes of
+`endpoint_candidates`. Per member (two extrema) that adds 2 entries and 62 key
+bytes: 127 entries and 1,348 key bytes in place of 125 and 1,286. Per case at
+the caps it adds 64 entries and 1,984 key bytes, and C = 3 cases add 192 and
+5,952. The chain prices these facts through `census_patch.py`'s `_exmax` (the
+evidence owner in `ordinary_caps.py`, `g4_caps.py` and `t25_g4.py`), so every
+copy of the evidence owner rises with them. This matters most on the X branch: a
+selected run finalizes its source-block receipt and W1 falls back
+(`Coexistence`) without consulting G-C, so only the a priori price bounds that
+evidence. `retained_memory_witness_tests.rs`'s
+`u6_rl_evidence_bounds_admit_source_selected_endpoint_ties` reads a selected run
+whose line members tie: a tied member's facts are exactly 127 entries and 1,348
+key bytes. **Guard:** the census stops unless `composite.rs` builds exactly these
+three shapes (`maximum::Locations::` occurs three times and each `json!` literal
+once), and unless every census extremum carries `locations`.
 
 **Byte-preserving source changes (U6-DH, U6-SH, U6-RB).** Each removes a
 resident copy without changing published bytes. Each is detected by its exact
@@ -2015,10 +2087,28 @@ half-changed form stops the run, and a snapshot without it adds nothing.
   reduced ones.
 - **U6-RS.** The reader's `NumericCase` gains `all_rows`, a tenth field beyond
   `NumericCaseBorrowed`'s nine-field upper: one Vec header per numeric case
-  and per Result carrier. It holds every published row of its case (≤ PA over
-  all cases). `rows_for`'s transient full vector (≤ P) sits beside its filtered
-  one, and `g5c`'s drained `bound` classes (≤ P) beside the rebuilt classes,
-  with one `last` class clone (its id and `basis_ref`).
+  and per Result carrier. It holds every published row of its case.
+  `rows_for`'s transient full vector sits beside its filtered one, and `g5c`'s
+  drained `bound` classes (≤ P) beside the rebuilt classes, with one `last`
+  class clone (its id and `basis_ref`).
+
+  The two row vectors are priced at their capacities (review R1). `rows_all_for`
+  is `list(..).iter().filter(..).collect()`: a filter's size hint has lower
+  bound 0, so the collected Vec takes 4 slots at its first row and doubles when
+  full, which is push capacity pushcap(h) for h rows. Each numeric owner (a
+  selected case or a `retained_selected` combination, at most C_eq) holds at most
+  P rows, so the `all_rows` vectors hold at most C_eq·pushcap(P) slots, not PA.
+  The one transient full vector (`rows_for`'s, or `g5b_exact_evidence`'s `all`,
+  one case at a time) holds at most pushcap(P), not P. On route E, P = 2,787 and
+  pushcap(P) = 4,096, so the term is 3·4,096 + 4,096 = 16,384 slots in place of
+  8,361 + 2,787 = 11,148: 5,236 more, +41,888 B at s(&Value) = 8. Route L
+  (P = 2,115, pushcap 4,096) rises by 7,924 slots, +63,392 B. The term is priced
+  here rather than taken from the pre-D-5 "rows_for vectors" term 8·PA, which
+  prices the filtered `rows` vectors and the other pre-D-5 row vectors: its
+  inventory is not re-derived here, and the tool takes no reuse credit. Whether or
+  not std collects `rows_for`'s filter in place, the filtered `rows` Vec has
+  capacity at most pushcap(h) over its entry's published rows, the bound that
+  term carried before D-5, at route E's P (U6-RP counts the twins).
 - **U8-FM.** `FormationSource.frame_members` holds one member prefix (U8-MP,
   ≤ 140 B, priced at `textcap`) per frame. It is filled from PP's
   `frame_member_identities` and copied wherever the frames are:
@@ -2037,37 +2127,55 @@ build (8,355 results against 6,345; `witness_tests::f1_g_c_admits_...`). On
 route E the result rows and their capacity are now C_eq·P_final at route E's
 own P_final = 7n + 72m + 8g + 3 (8,361 and 16,384 at the caps; U6-RP, U6-RB-V),
 and the five contract-evidence bounds are C times the D-5 census at (n, m, g):
-arrays 14 + 78m + 19n, objects 4 + 27m, entries 29 + 125m, string bytes
-6080 + 12464m + 304n, key bytes 495 + 1286m (at the caps 9,354; 2,604; 12,079
-after the node cut, so objects + ⌊entries / 5⌋ = 5,019 nodes; 1,243,968;
-124,941). These equal route E's chain terms ("Final aggregation" and "Preview
-tree final copy (envelope evidence)": 5,019·Node(String,Value) + 9,354·s(Value)
-+ 1,368,909 B). The rows' text bound stays route L's 2·C_eq·P_final·Text(row) on
+arrays 14 + 78m + 19n, objects 4 + 27m, entries 29 + 127m, string bytes
+6080 + 12464m + 304n, key bytes 495 + 1348m (U6-RL; at the caps 9,354; 2,604;
+12,274 after the node cut, so objects + ⌊entries / 5⌋ = 5,058 nodes; 1,243,968;
+130,893). These equal route E's chain terms ("Final aggregation" and "Preview
+tree final copy (envelope evidence)": 5,058·Node(String,Value) + 9,354·s(Value)
++ 1,374,861 B). The rows' text bound stays route L's 2·C_eq·P_final·Text(row) on
 both routes: Text(row) bounds one row's text and route E's 8,361 rows stay below
 route L's 12,690. Route L's bounds are unchanged.
 
-**Current D3 binding.** At `addbdc030e` `run` exits 0: all four points are
+Two limits keep these bounds fail-closed rather than reachable at the census
+maximum. The census counts each case, not the evidence wrapper (one object, its
+three keys `connector`, `exact_cases` and `pressure`, 28 B, and the cases'
+array slots), and the entries bound is cut to the priced nodes, so an owner at
+exactly C times the census maximum would be refused. G-C's borrowed census also
+stops at 16,384 values (`VALUE_LIMIT`), below the route-E bounds' 21,628 array
+slots and entries, and G-C refuses an incomplete census. Neither is reached by a
+lawful input: a source-selected run never consults G-C (`Coexistence`), and the
+retained-source method's per-case work budget keeps selected inputs to a few
+members (a three-case line of four members already exhausts it). The witness
+composes a near-cap owner from a selected run's own tied entries: at m = 23 and
+n = 32 (C = 3) it is within route E's bounds with a complete census, and at
+m = 24 the census reaches its value limit.
+
+**Current D3 binding.** At `588de796a4` `run` exits 0: all four points are
 complete, with no unmapped header or unclassified argument, and both O-10
-checks pass. Against the registered tree the structure is equal: 1,128
-coefficients equal, 294 higher and 34 lower, so the block must be
-re-registered. `generate` gives 288 atoms, 98 forms and no Estimate (1,544
+checks pass. Against the tree registered at `addbdc030e` the structure is equal
+(1,400 coefficients equal, 56 higher, none lower: "Final source"), so the block
+is re-registered. `generate` gives 288 atoms, 98 forms and no Estimate (1,544
 lines), keeps `threshold_bytes` at M, and `generate --check` reproduces it. All
-70 evaluations pass at the registered build's in-build atoms. Required =
+70 evaluations pass at the registered build's in-build atoms, and the merged
+tree's E + R equals the law test's in-build value in all 14 phases. Required =
 requested + moving + R and reserve = ⌈TAV/20⌉ (TAV_W for W1–W5, TAV_X for
 X1/X2), against ⌊0.9 M⌋ = 11,596,411,699 B. The tightest headrooms:
 
 | Tree | Mode | Phase | Headroom |
 |---|---|---|---|
-| merged | dense | W4 | 52,018,961 B |
-| merged | dense | X1 | 77,525,843 B |
-| merged | sparse | W4 | 111,150,305 B |
-| merged | sparse | X1 | 136,657,187 B |
+| merged | dense | W4 | 51,812,817 B |
+| merged | dense | X1 | 77,334,515 B |
+| merged | sparse | W4 | 110,944,161 B |
+| merged | sparse | X1 | 136,465,859 B |
 | L_30 | dense | W4 | 177,800,942 B |
 
 T07 (the live source attempt) is a row of the ordinary base that every phase
 holds, so every evaluation prices it; T25 (the receipt replay) is priced in X1
 only, whose tightest evaluation is the merged dense one above. Against
-`433fc1f1e4` the epoch's source costs 6,308 B in every merged evaluation (the
+`addbdc030e` the review's repairs cost 206,144 B in merged W4 and 191,328 B in
+merged X1 (both modes); the readers' and PP4's changes cost nothing in any
+merged evaluation (U6-BE's TEXT stays below route L's TAV_W). Against
+`433fc1f1e4` the epoch's source cost 6,308 B in every merged evaluation (the
 schema's STATICS; route E's +4,992 B of TEXT stays below route L's TAV_W), and
 U6-RB-V 2,374,808 B. W4 (the precommit reader with the successor and the
 invocation Value) is the in-build maximum in both modes (B7b's was W3).
@@ -2076,10 +2184,10 @@ invocation Value) is the in-build maximum in both modes (B7b's was W3).
 aarch64-apple-darwin, debug, opt-level 0, debug assertions, unwind, no
 RUSTFLAGS, `open_pipe_stress_product_physics@0.2.0`), the four reader layouts
 (56, 64, 96 and 16 B, align 8) and `threshold_bytes` = M. Six of the twelve
-reviewed-input digests move with D-5's schemas and tables (#1, #7–#11). The law
-tests pin the in-build phase record, the text atoms (D_env 28,127,
-Text(diag_env) 262,735,773), the digests and the re-audited reader test
-suffixes (`retained_precision.rs`, `physics_source.rs` and
-`semantic_contract.rs` gain closed test code only). The block's basis line
-names `addbdc030e`; the merged branch head, with FX's fixtures, prices the same
-tree.
+reviewed-input digests moved with D-5's schemas and tables at `addbdc030e` (#1,
+#7–#11); all twelve are unchanged at `588de796a4`. The law tests pin the
+in-build phase record, the text atoms (D_env 28,127, Text(diag_env)
+262,735,773, unchanged), the digests and the re-audited reader test suffixes
+(`retained_precision.rs`, `physics_source.rs` and `semantic_contract.rs` gain
+closed test code only). The block's basis line names `588de796a4`; the
+registration head prices the same tree.

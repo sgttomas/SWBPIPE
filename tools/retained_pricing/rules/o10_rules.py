@@ -1467,3 +1467,27 @@ if _AGG:
             ' the push-built results at their push capacity (U6-RB-V)\n',
             "U6-RB: route E has no preview, so the final aggregation makes no rows_by_base_id clone or map nodes; its push-built "
             "results Vec is priced at its push capacity")]
+
+# U6-BE (RD3/RD4, A2; the final source 588de796a4): section_basis.rs `bit_equal`, the readers' bit-for-bit equality of
+# twins and links, recurses into arrays and objects. Its only text is `number`'s Err String (one static literal, 29 B),
+# which it creates only for a leaf that is a Value::Number on both sides; a serde_json Number's as_f64 is always Some
+# and finite, so the Err never forms, and any formed Err is dropped inside the one `matches!` (at most two live at once,
+# whatever the depth). bit_equal allocates nothing else, so its text is counted once per external call, as guard_json's.
+# Guard: the function's exact text.
+_SBR_BE = RE_ + "section_basis.rs"
+if fnkey("bit_equal", _SBR_BE):
+    _BE_TEXT = ("pub fn bit_equal(a: &Value, b: &Value) -> bool {\n    match (a, b) {\n"
+                "        (Value::Number(_), Value::Number(_)) => {\n"
+                "            matches!((number(a), number(b)), (Ok(x), Ok(y)) if x.to_bits() == y.to_bits())\n        }\n"
+                "        (Value::Array(x), Value::Array(y)) => x.len() == y.len() && x.iter().zip(y).all(|(p, q)| bit_equal(p, q)),\n"
+                "        (Value::Object(x), Value::Object(y)) => {\n"
+                "            x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| bit_equal(v, w)))\n        }\n"
+                "        _ => a == b,\n    }\n}\n")
+    _be = _fn_text("bit_equal", _SBR_BE)
+    if not (_be.startswith(_BE_TEXT) and not _be[len(_BE_TEXT):].strip()) \
+            or "    v.as_f64()\n        .filter(|n| n.is_finite())\n        .ok_or_else(|| \"SOURCE_PHYSICS_NUMBER_INVALID\".into())\n" \
+            not in _fn_text("number", _SBR_BE):
+        raise SystemExit("U6-BE: section_basis.rs bit_equal or number changed; re-review its recursion")
+    O10_RECURSION_REVIEWED = list(globals().get("O10_RECURSION_REVIEWED", [])) + [(fnkey("bit_equal", _SBR_BE),
+        "U6-BE: bit_equal's only text is number's static Err (29 B), formed only for a Number leaf, whose as_f64 is always "
+        "Some and finite, and dropped inside the match; nothing else allocates: its text counts once per external call")]
