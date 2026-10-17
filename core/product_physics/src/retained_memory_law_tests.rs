@@ -383,7 +383,10 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // B4/D1 (b) and E15: the closed test suffix uses the shared
             // composite helpers and a test-only preview_magnitude_controls include.
             // The audited suffix contains no ungated production or resident include.
-            complete_suffix_sha256: "4351176434917f137997591b059e6c208eda9905c8c66fd953ba1836edd5b544",
+            // RF D3 re-audit: the old suffix is byte-identical and gains only the
+            // closed `rf16_failure_block_order_tests` module. Its sole include is
+            // the nonresident receipt schema; no production is excluded.
+            complete_suffix_sha256: "d78d6a148e963c3dc3f8662ec702093ec8aafd348b3437557968e14d079d0b1c",
             production_resume: None,
             trailing_test: None,
         })),
