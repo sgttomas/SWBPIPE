@@ -226,6 +226,16 @@
             "factor": 1.0,
             "owner_kind": "stored_primitive",
             "source_id": "extra:0"
+          },
+          {
+            "applied_magnitude": 0.0,
+            "authored_normalized_magnitude": 0.0,
+            "category": "distributed_force",
+            "classification": "ordinary_applied",
+            "dimension": "force_per_length",
+            "factor": 1.0,
+            "owner_kind": "stored_primitive",
+            "source_id": "uniform:0"
           }
         ],
         "excluded_sources": [],
@@ -2422,10 +2432,21 @@
       ]
     },
     {
+      "id": "diagnostic:load:uniform-0:category-mapping",
+      "code": "LOAD_CATEGORY_PREVIEW_MAPPED",
+      "severity": "warning",
+      "message": "authored load category distributed_force is applied under the equivalent-static preview category weight; the preview classification is not a user-selected engineering classification",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "uniform:0",
+        "case:join"
+      ]
+    },
+    {
       "id": "diagnostic:source-recovery:case:join",
       "code": "SOURCE_BLOCK_RECOVERY_UNAVAILABLE",
       "severity": "info",
-      "message": "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"captured replay reservation\", helper_stage: Replay, error: Exact(Budget), work: WorkReport { charged: 4061151, rejected: 4061151, limit: 8000000 } }",
+      "message": "The bounded retained-source method did not produce a selected response: RecoveryFailure { stage: \"source closure\", helper_stage: SourceClosure, error: Unsupported(\"non-nodal load producer present\"), work: WorkReport { charged: 37280, rejected: 0, limit: 8000000 } }",
       "source": "core/product_physics",
       "affected_refs": [
         "case:join"
