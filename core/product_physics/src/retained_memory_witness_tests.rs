@@ -26,6 +26,9 @@ use serde_json::{json, Value};
 mod b1_sq_inputs;
 use b1_sq_inputs as inputs;
 
+#[path = "../tests/common/w1_member_load_inputs.rs"]
+mod w1_member_load_inputs;
+
 /// The owner-adopted per-invocation default, 12 GiB: the registered profile's qualified M.
 const RETAINED_LIMIT: RetainedByteLimit = RetainedByteLimit::new(12_884_901_888);
 const WITNESS_STACK: usize = RESERVED_STACK_BYTES / STACK_WITNESS_DIVISOR;
@@ -462,6 +465,125 @@ per_mode! {
         assert_eq!((report.typed.load_cases.length, report.law().nested.total_loads), (3, 384), "C cases, Σ l_i = L");
         let ran = witness(&format!("i3 three-case {mode:?}"), WITNESS_STACK, move || permitted_work(raw, mode, |_| {}));
         assert_eq!(ran, Ran::Successor, "i3 three-case {mode:?}");
+    }
+}
+
+/// The literal member-only cap, with distinct named E/G custody on every case.
+/// These checks inspect the actual observed owners, not a relabeled nodal input.
+fn member_cap_capture(capture: &crate::retained_product::ProductCapture, moduli: [(f64, f64); 3]) {
+    use w1_member_load_inputs as member;
+    assert!(capture.error.is_none() && capture.basis_error.is_none());
+    assert_eq!(capture.bases.len(), member::CASES);
+    assert_eq!(capture.member_sources.as_ref().unwrap().len(), member::CASES);
+    for case in 0..member::CASES {
+        assert_eq!(capture.member_loads_basis_at(case), (true, true, Some(case)));
+        let source = capture.member_source_at(case).unwrap();
+        assert_eq!((source.case_index, source.terms.len(), source.loads.loads().len()), (case, 128, 128));
+        assert!(capture.source_terminal_at(case).0);
+        assert_eq!(capture.source_moduli_at(case), Some(vec![moduli[case]]));
+    }
+}
+
+per_mode! {
+    /// W1 stage 2: three cases, three named bases and exactly 128 member terms
+    /// per case, on the 4 MiB witness stack. Geometry is the narrow two-node,
+    /// one-member control; the separate law input retains all geometry caps.
+    /// Every case reaches the staged selected state and G5b then refuses this
+    /// input's scale mismatch. This does not claim a published successor.
+    witness_w1_member_load_three_case_three_basis_128, |mode| {
+        let raw = w1_member_load_inputs::narrow_three_basis_member_cases();
+        inside_d1("W1 member-only c=3/bases=3/l=128", &raw, mode, 3, 0, false);
+        let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
+        let report = super::assess(&capture, &request, super::Entry::Direct, RETAINED_LIMIT);
+        assert_eq!((report.typed.nodes.length, report.typed.members.length), (2, 1));
+        assert_eq!((report.typed.load_cases.length, report.law().nested.primitive_loads.length,
+            report.law().nested.total_loads), (3, 128, 384));
+        let ran = witness(&format!("W1 member-only c=3/bases=3/l=128 {mode:?}"), WITNESS_STACK, move || {
+            let (ran, _, staged) = crate::retained_tests_hooks::counted_with_successor(||
+                permitted_work(raw.clone(), mode, |capture| member_cap_capture(capture,
+                    std::array::from_fn(|case| (2.0e11 * w1_member_load_inputs::BASIS_SCALES[case],
+                        8.0e10 * w1_member_load_inputs::BASIS_SCALES[case])))));
+            let staged = staged.expect("all three member cases reach actual wire/precommit");
+            let body = &staged["retained_precision"]["body"];
+            assert_eq!(body["cases"].as_array().unwrap().len(), 3);
+            assert_eq!(body["sources"].as_array().unwrap().len(), 3);
+            assert_eq!(body["material_bases"].as_array().unwrap().len(), 3);
+            assert_eq!(body["product_attempts"].as_array().unwrap().len(), 3);
+            for case in 0..3 {
+                assert_eq!(body["cases"][case]["status"], "selected", "case {case} reaches selected native/proof/wire");
+                let source = body["sources"].as_array().unwrap().iter()
+                    .find(|source| source["owner"]["case_index"] == case).unwrap();
+                assert_eq!(source["member_load_terms"].as_array().unwrap().len(), 128);
+                let basis = source["material_basis_ref"].as_u64().unwrap() as usize;
+                assert_eq!(body["material_bases"][basis]["selector"],
+                    json!({"kind":"named", "id":w1_member_load_inputs::basis_id(case)}));
+                for term in 0..128 {
+                    let id = &raw["model"]["load_cases"][case]["primitive_loads"][term]["id"];
+                    assert!(source["member_load_terms"].as_array().unwrap().iter()
+                        .any(|declared| &declared["source_id"] == id && declared["intensity"] == json!([
+                            format!("{:016x}", raw["model"]["load_cases"][case]["primitive_loads"][term]["magnitude"]["value"].as_f64().unwrap().to_bits()),
+                            "0000000000000000", "0000000000000000"])));
+                }
+            }
+            println!("W1_MEMBER_CAP_STAGED {mode:?} selected=3 bases=3 terms=384 precommit_refuses=true");
+            ran
+        });
+        println!("W1_MEMBER_CAP_ACTUAL {mode:?} input_sha256={} ran={ran:?}", sha256_of(&w1_member_load_inputs::narrow_three_basis_member_cases()));
+        assert_eq!(ran, Ran::Fallback("Precommit { gate: \"G5b\", code: \"RETAINED_PRECISION_SCALE_MISMATCH\" }".into()),
+            "{mode:?}: the unchanged strict reader refuses this input's scale mismatch");
+    }
+}
+
+per_mode! {
+    /// The power-of-two axial variant exercises full G8 consumption of all
+    /// three member-only cases, still on the reserved 4 MiB stack.
+    witness_w1_member_load_three_case_three_basis_128_dyadic, |mode| {
+        let raw = w1_member_load_inputs::narrow_dyadic_three_basis_member_cases();
+        inside_d1("W1 dyadic member-only c=3/bases=3/l=128", &raw, mode, 3, 0, false);
+        let ran = witness(&format!("W1 dyadic member-only c=3/bases=3/l=128 {mode:?}"), WITNESS_STACK, move || {
+            let (ran, _, staged) = crate::retained_tests_hooks::counted_with_successor(||
+                permitted_work(raw.clone(), mode, |capture| member_cap_capture(capture,
+                    std::array::from_fn(|case| (2f64.powi(30 + case as i32), 2f64.powi(29 + case as i32))))));
+            let staged = staged.expect("all dyadic member cases reach actual wire/precommit");
+            let body = &staged["retained_precision"]["body"];
+            assert_eq!(body["cases"].as_array().unwrap().len(), 3);
+            assert_eq!(body["sources"].as_array().unwrap().len(), 3);
+            assert_eq!(body["material_bases"].as_array().unwrap().len(), 3);
+            assert_eq!(body["product_attempts"].as_array().unwrap().len(), 3);
+            for case in 0..3 {
+                assert_eq!(body["cases"][case]["status"], "selected");
+                let source = body["sources"].as_array().unwrap().iter()
+                    .find(|source| source["owner"]["case_index"] == case).unwrap();
+                assert_eq!(source["member_load_terms"].as_array().unwrap().len(), 128);
+                let basis = source["material_basis_ref"].as_u64().unwrap() as usize;
+                assert_eq!(body["material_bases"][basis]["selector"],
+                    json!({"kind":"named", "id":w1_member_load_inputs::basis_id(case)}));
+                for term in 0..128 {
+                    let authored = &raw["model"]["load_cases"][case]["primitive_loads"][term];
+                    assert!(source["member_load_terms"].as_array().unwrap().iter().any(|declared|
+                        declared["source_id"] == authored["id"] && declared["intensity"] == json!([
+                            format!("{:016x}", authored["magnitude"]["value"].as_f64().unwrap().to_bits()),
+                            "0000000000000000", "0000000000000000"])));
+                }
+            }
+            println!("W1_MEMBER_CAP_DYADIC_INPUT {mode:?} input_sha256={}", sha256_of(&raw));
+            let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+            let verdict = open_pipe_stress_result_export::retained_precision::validate(&staged, Some(&invocation))
+                .expect("actual Rust G0-G8 consumer of all 384 member terms");
+            assert!(verdict.invocation_bound && verdict.numerical_eligible);
+            assert_eq!(ran, Ran::Successor, "only a successful private witness is exported");
+            if let Some(root) = std::env::var_os("W1_MEMBER_CAP_OUT") {
+                let root = std::path::PathBuf::from(root);
+                std::fs::create_dir_all(&root).unwrap();
+                let id = format!("w1_member_cap_{}", mode.as_str());
+                let record = json!({"id":id, "source":staged, "invocation":invocation,
+                    "provenance":"private_w1_stack_witness"});
+                std::fs::write(root.join(format!("{id}.json")), serde_json::to_vec_pretty(&record).unwrap()).unwrap();
+            }
+            println!("W1_MEMBER_CAP_DYADIC {mode:?} selected=3 bases=3 terms=384 full_reader=true");
+            ran
+        });
+        assert_eq!(ran, Ran::Successor, "{mode:?}: dyadic member-only cap witness");
     }
 }
 

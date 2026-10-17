@@ -7,6 +7,9 @@ use crate::source_receipt::CapturedInvocation;
 use crate::PreviewSolverMode;
 use serde_json::json;
 
+#[path = "../tests/common/w1_member_load_inputs.rs"]
+mod w1_member_load_inputs;
+
 const MILESTONE: &str = include_str!("../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.request.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 /// The owner-selected current product budget: 12 GiB.
@@ -921,6 +924,51 @@ fn milestone_and_cap_maximal_inputs_are_inside_d1() {
             assert_eq!(headless.law().refusal, Some(AdmissionRefusal::Caller(RetainedCaller::Headless)), "D1.0 first: Headless is refused");
             assert_eq!(headless.law().refusal.unwrap().precondition().as_str(), "caller");
         }
+    }
+}
+
+/// Stage 2's widened count boundary: preserve the nodal cap helper and replace
+/// only this additive input's leaves. This is an admission-law control, not a
+/// claim that the fully restrained ring publishes a retained successor.
+#[test]
+fn w1_three_basis_member_cap_input_is_inside_d1_and_refuses_129th_term() {
+    use w1_member_load_inputs as member;
+    let raw = member::three_basis_member_cases(cap_maximal_cases(3));
+    for mode in MODES {
+        let (request, capture) = CapturedInvocation::parse(raw.clone(), mode).unwrap();
+        let report = assess(&capture, &request, Entry::Direct, RETAINED_LIMIT);
+        let law = report.law();
+        assert_eq!(law.domain, None, "{mode:?}: widened input is inside D1");
+        assert_eq!(law.refusal, d1_1_refusal(), "registration remains build-specific");
+        assert_eq!(report.profile, build_profile());
+        assert_eq!((request.model.nodes.len(), request.model.pipe_segments.len(), request.model.supports.len()), (32, 32, 32));
+        assert_eq!((request.model.materials.len(), request.materials.len()), (4, 4));
+        assert_eq!((law.nested.restraints, law.nested.springs, law.nested.max_temperature_points.length), (192, 32, 16));
+        assert_eq!((report.typed.load_cases.length, law.nested.primitive_loads.length,
+            law.nested.primitive_loads.capacity, law.nested.total_loads), (3, 128, 128, 384));
+        for (case, authored) in request.model.load_cases.iter().enumerate() {
+            assert_eq!(authored.modulus_basis_ref, Some(member::basis_id(case)));
+            assert_eq!(authored.primitive_loads.len(), 128);
+            assert!(authored.primitive_loads.iter().all(|load| matches!(load.target, crate::LoadTargetInput::Element { .. })));
+            for material in &request.model.materials {
+                let point = material.temperature_points.iter().find(|point| point.id == member::basis_id(case)).unwrap();
+                assert_eq!(point.elastic_modulus.as_ref().unwrap().value,
+                    material.elastic_modulus.value * member::BASIS_SCALES[case]);
+                assert_eq!(point.shear_modulus.as_ref().unwrap().value,
+                    material.shear_modulus.as_ref().unwrap().value * member::BASIS_SCALES[case]);
+            }
+        }
+        let mut over = raw.clone();
+        let mut extra = over["model"]["load_cases"][2]["primitive_loads"][127].clone();
+        extra["id"] = json!("w1-member:2:128");
+        over["model"]["load_cases"][2]["primitive_loads"].as_array_mut().unwrap().push(extra);
+        let (request, capture) = CapturedInvocation::parse(over, mode).unwrap();
+        let over = assess(&capture, &request, Entry::Direct, RETAINED_LIMIT);
+        assert_eq!(over.law().nested.total_loads, 385);
+        let expected = Some(AdmissionRefusal::Cap { fact: CapFact::Loads, observed: 129, cap: 128 });
+        assert_eq!(over.law().domain, expected, "{mode:?}: member and nodal terms share l=128");
+        assert_eq!(over.law().refusal, d1_1_refusal().or(expected));
+        println!("W1_MEMBER_CAP_LAW {mode:?} profile={:?} nodes=32 members=32 supports=32 bases=3 cases=3 terms=384 member_129_refused=true", report.profile);
     }
 }
 

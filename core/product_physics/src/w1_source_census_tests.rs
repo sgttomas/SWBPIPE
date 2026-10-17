@@ -569,6 +569,9 @@ fn b4_w1_covers_every_formerly_selected_source_block_case() {
         let source = successor.value();
         let validation = reader::validate(source, Some(&invocation)).unwrap_or_else(|e| panic!("{label}: reader: {e:?}"));
         assert!(validation.invocation_bound, "{label}");
+        if matches!(name, "F6/partial" | "T18" | "T19/pre-K-D5" | "T19") {
+            w1_partial_case_cause(name,mode,source);
+        }
         for basis in bases {
             cases += 1;
             let case = source["retained_precision"]["body"]["cases"].as_array().unwrap().iter()
@@ -585,6 +588,41 @@ fn b4_w1_covers_every_formerly_selected_source_block_case() {
         eprintln!("B4_W1_COVERAGE {}", json!({"control":name,"mode":mode_name,"cases":bases,"recorded":recorded,"w1_standing":standing}));
     }
     assert_eq!((trials, cases), (54, 62));
+}
+
+fn w1_partial_case_cause(name:&str,mode:PreviewSolverMode,source:&Value) {
+    let body=&source["retained_precision"]["body"];
+    assert_eq!(body["cases"][0]["status"],"selected","{name} {mode:?}");
+    let other=&body["cases"][1];
+    assert_eq!(other["status"],"unavailable","{name} {mode:?}");
+    assert_eq!(other["reason"],json!({"code":"facade_certificate","phase":"facade",
+        "cause":{"kind":"prepared_product_failure","product_attempt_ref":1}}),"{name} {mode:?}");
+    let attempt=body["product_attempts"].as_array().unwrap().iter()
+        .find(|a|a["owner_ref"]["index"]==1).unwrap();
+    assert_eq!(attempt["result"]["kind"],"unavailable");
+    assert_eq!(attempt["result"]["error"],json!({"kind":"proof",
+        "cause":{"kind":"association","detail":"loaded maximum search exhausted"}}),"{name} {mode:?}");
+    eprintln!("W1_MEMBER_CENSUS {}",json!({"control":name,"mode":mode.as_str(),
+        "status":other["status"],"reason":other["reason"],"error":attempt["result"]["error"]}));
+}
+
+/// The complete census above covers 54 trials; this subset isolates the other
+/// case's typed cause so a future change cannot hide it behind case 0's success.
+#[test]
+fn w1_partial_other_case_statuses_and_causes_are_pinned() {
+    let controls=controls();
+    for name in ["F6/partial","T18","T19/pre-K-D5","T19"] {
+        let c=controls.iter().find(|c|c.name==name).unwrap();
+        for mode in MODES {
+            let (capture,observer,mut ordinary)=early_observed(&c.raw,mode,true);
+            ordinary.diagnostics.shrink_to_fit();
+            let (_,successor)=retained_w1(observer,ordinary,&capture);
+            let successor=successor.unwrap_or_else(|f|panic!("{name} {mode:?}: {f:?}"));
+            w1_partial_case_cause(name,mode,successor.value());
+            let invocation=json!({"request":c.raw,"solver_mode":mode.as_str()});
+            assert!(reader::validate(successor.value(),Some(&invocation)).unwrap().invocation_bound);
+        }
+    }
 }
 
 /// The committed failed-ordinary successor fixture, the producer's published bytes, read by the
