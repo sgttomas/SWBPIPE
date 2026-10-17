@@ -209,7 +209,7 @@
               "type": "element",
               "pipe": "member"
             },
-            "provenance": "invented_load_reference_source_companion_not_library_data"
+            "provenance": "invented_fixture_control_not_a_modelling_input: this zero load exists only to force the retained-source method's named non-nodal decline, so the fixture stays an ordinary-only sensitive pressure-1 raw (RF source-method design section 5.5)"
           }
         ],
         "pressure_regions": [],

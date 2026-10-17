@@ -1703,10 +1703,13 @@ fn t12_accurate_small_moment_rows_below_the_floor_stay_passed() {
 ///
 /// RF §5.5: the case's source attempt used to decline at the 0.4 replay
 /// screen for work alone, which metered charging lifts. Its request now also
-/// carries a zero full-span uniform member load, so the attempt declines by
-/// name at source closure ("non-nodal load producer present"), independent of
-/// work, and the case keeps publishing its ordinary pressure-1 result (role
-/// precondition, asserted). Every mechanics row is unchanged by that load.
+/// carries a zero full-span uniform member load (`uniform:0`, 0 N/m). That
+/// load is a fixture control, not a modelling input: it exists only to force
+/// the retained-source method's named decline at source closure ("non-nodal
+/// load producer present"), independent of work, so the fixture stays an
+/// ordinary-only sensitive pressure-1 raw (role precondition, asserted).
+/// Every mechanics row is unchanged by that load. If a later unit lifts the
+/// non-nodal decline, the role assertion fails first and names this reason.
 #[test]
 fn t13_committed_fallback_uz_is_byte_identical() {
     // B7b: the result_export fixture's request is read through the shared
@@ -1726,7 +1729,10 @@ fn t13_committed_fallback_uz_is_byte_identical() {
         assert!(
             envelope.diagnostics.iter().any(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
                 && d.message.contains("helper_stage: SourceClosure, error: Unsupported(\"non-nodal load producer present\")")),
-            "{mode:?}: precondition, the source attempt declines by name at source closure"
+            "{mode:?}: precondition, the source attempt declines by name at source closure. The request's zero \
+             `uniform:0` load is a fixture control that exists only to force this non-nodal decline, so the \
+             fixture stays an ordinary-only sensitive pressure-1 raw (RF design §5.5); if the source method now \
+             admits it, choose another work-independent decline for this fixture rather than re-pinning it"
         );
         let sensitive: Vec<_> = envelope
             .diagnostics
