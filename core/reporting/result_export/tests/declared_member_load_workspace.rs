@@ -137,7 +137,7 @@ pub fn declared_vector_count()->usize {
 }
 #[test]
 fn independent_declared_ledger_vectors_on_the_consuming_reader() {
-    assert_eq!(declared_vector_count(),15);
+    assert_eq!(declared_vector_count(),16);
 }
 
 pub fn measured_full_g8(text:&str,load_cap:bool)->(usize,usize) {

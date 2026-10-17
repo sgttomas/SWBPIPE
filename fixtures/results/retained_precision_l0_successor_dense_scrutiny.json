@@ -3384,7 +3384,7 @@
               ],
               "verification_precision": 256
             },
-            "source_identity_sha256": "3ef403e4a6c912169b25bfe4a6b46cb39d09af1ee73e2b4c6c7276a6cc940751",
+            "source_identity_sha256": "f670b5532230060a9b6f6075632f0eaf158edb443e343a90f193d5a2d2682782",
             "source_ref": 0,
             "status": "selected"
           }
@@ -6060,7 +6060,7 @@
             },
             "preparation": {
               "attempt_ref": 0,
-              "sha256": "5d49905d3a0913f47809f38cb5e850c70504d82c637dd0e983b6cd1ee3878de8"
+              "sha256": "0cfa6c476282160b30d6c7178fc9aa38bc0982ecffd06302817621265569e0f4"
             },
             "section_terms": [
               {
@@ -6194,7 +6194,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "86e77dc6c1998d760f798997fd5942783f7182ce201a1e369b0171e3da71e5cd"
+      "receipt_sha256": "88c8de70b406f7e9cb7802185f317bbc15cd5eee599ebd3cec73a0946dda29de"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

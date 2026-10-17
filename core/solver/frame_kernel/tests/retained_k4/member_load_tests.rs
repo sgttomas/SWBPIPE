@@ -44,7 +44,7 @@ fn declared_loads_match_python_bit_for_bit() {
         assert_eq!(ledger.encoding(),f[1].as_bytes().chunks_exact(2).map(|b|u8::from_str_radix(std::str::from_utf8(b).unwrap(),16).unwrap()).collect::<Vec<_>>(),"{name}");
         at+=1;assert_eq!(lines[at],"end");at+=1;count+=1;
     }
-    assert_eq!(count,15);
+    assert_eq!(count,16);
 }
 
 #[test]

@@ -11391,7 +11391,7 @@
               ],
               "verification_precision": 256
             },
-            "source_identity_sha256": "37e6bd0006288ad7843c455719c3b5330c2e88a38e134cf2415573b489566d99",
+            "source_identity_sha256": "ed20e77a505e39953fcc4273fd15199362770b8b8524346c1fbf835ad7e0ba2e",
             "source_ref": 0,
             "status": "selected"
           },
@@ -16547,7 +16547,7 @@
             },
             "preparation": {
               "attempt_ref": 0,
-              "sha256": "104ce2cac1d5533f2ed5eb3cc9216eb6a92d769fc03e685d339ae7d409b96920"
+              "sha256": "7d821aa97633e951b413317de0baf6d5eb63747e6cd4c7b49eaccf1930ab3a8d"
             },
             "section_terms": [
               {
@@ -18310,7 +18310,7 @@
             },
             "preparation": {
               "attempt_ref": 1,
-              "sha256": "23eefbe565dfa84664155243e86a4142dc3dc55a3fb29930464a87905c63be35"
+              "sha256": "724f3cadb75171cef54e3bda404cc9d5b0585920a7b47a5ecc0b43a097620fff"
             },
             "section_terms": [
               {
@@ -18482,7 +18482,7 @@
         },
         "work_policy": "W1-LME-20B-60B-v1"
       },
-      "receipt_sha256": "52bec4cd76d819c4848fd773850f571aefa98f1e1cb55075bd29cfc705b72e38"
+      "receipt_sha256": "7a6fdcc4d300718e8ea7d91642977928d8e33bd27fc53746a0664cf8bb892122"
     },
     "run_id": "run:preview-linear-static-001",
     "schema_version": "0.2.0",

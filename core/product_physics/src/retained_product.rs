@@ -2202,11 +2202,11 @@ impl ProductCapture {
                     && p.category=="distributed_force" && p.dimension=="force_per_length"
                     && p.magnitude.value.to_bits()==load.magnitude.value.to_bits()
                     && matches!(&p.target,LoadTargetInput::Element{pipe:id} if id==&pipe.id)
-                    && parse_direction(&p.direction).is_ok_and(|d|d.dof_index()==axis))
+                    && matches!((p.direction.as_str(),axis),("global_x",0)|("global_y",1)|("global_z",2)))
                     .ok_or("member load occurrence not authored")?;
                 let member=u32::try_from(load.element_index).map_err(|_|CaptureError::CountRange("member load index"))?;
-                let id=self.adapter.copy(&load.load_id)?;
-                let source_id=self.adapter.copy(&load.load_id)?;
+                let id=self.adapter.copy_member_id(&load.load_id)?;
+                let source_id=self.adapter.copy_member_id(&load.load_id)?;
                 let mut intensity=[0.0;3];intensity[axis]=load.magnitude.value;
                 self.adapter.enter(AdapterEvent::MapWrite,3);self.adapter.require()?;
                 used[original]=true;
@@ -3974,7 +3974,28 @@ pub(super) struct AdapterWork {
     pub counts: std::cell::Cell<[u64; 10]>,
     pub fault: std::cell::Cell<Option<AdapterFault>>,
 }
+#[cfg(test)]
+#[test]
+fn member_identifier_copy_preserves_bytes_events_and_faults() {
+    AdapterWork::test_member_id_copy_equivalence();
+}
 impl AdapterWork {
+    #[cfg(test)]
+    fn test_member_id_copy_equivalence() {
+        for value in [String::new(),"a".repeat(128),"é".repeat(64),"load:case-2:member".into()] {
+            for fault in [None,Some(AdapterEvent::AllocationRequest),Some(AdapterEvent::RequestedCopyBytes),Some(AdapterEvent::RustCapacityBytes)] {
+                let old=Self::default();let member=Self::default();
+                if let Some(event)=fault {
+                    let mut counts=[0;10];counts[event as usize]=u64::MAX;
+                    old.counts.set(counts);member.counts.set(counts);
+                }
+                let a=old.copy(&value);let b=member.copy_member_id(&value);
+                assert_eq!(format!("{a:?}"),format!("{b:?}"));
+                assert_eq!(old.counts.get(),member.counts.get());
+                assert_eq!(old.fault.get(),member.fault.get());
+            }
+        }
+    }
     /// Closed borrowed key decoder. Charge each entered group, key visit and actual comparison.
     fn closed_keys(
         &self,
@@ -4065,6 +4086,26 @@ impl AdapterWork {
         Ok(out)
     }
     fn copy(&self, s: &str) -> Result<String, CaptureError> {
+        let n = u64::try_from(s.len()).map_err(|_| CaptureError::CountRange("identity bytes"))?;
+        if !self.enter(AdapterEvent::AllocationRequest, 1)
+            || !self.enter(AdapterEvent::RequestedCopyBytes, n)
+        {
+            return Err(CaptureError::Accounting(self.fault.get().unwrap()));
+        }
+        let mut out = String::new();
+        out.try_reserve_exact(s.len())
+            .map_err(|_| CaptureError::Storage("identity copy"))?;
+        out.push_str(s);
+        if !self.enter(AdapterEvent::RustCapacityBytes, out.capacity() as u64) {
+            return Err(CaptureError::Accounting(self.fault.get().unwrap()));
+        }
+        Ok(out)
+    }
+    /// Same allocation, bytes, events and failures as `copy`, for the new
+    /// member-load sites whose authored source IDs satisfy D1's 128-byte cap.
+    /// Keeping this source-bound family separate avoids assigning the generic
+    /// diagnostic-string maximum to every identifier copy in TEXT pricing.
+    fn copy_member_id(&self, s: &str) -> Result<String, CaptureError> {
         let n = u64::try_from(s.len()).map_err(|_| CaptureError::CountRange("identity bytes"))?;
         if !self.enter(AdapterEvent::AllocationRequest, 1)
             || !self.enter(AdapterEvent::RequestedCopyBytes, n)
@@ -5699,7 +5740,7 @@ impl ProductCapture {
                 || load.intensity.iter().enumerate().any(|(axis,value)|value.to_bits()!=if axis==term.axis as usize{term.bits}else{0}) {
                 return Err("maximum member occurrence identity".into());
             }
-            let load_id=self.adapter.copy(&load.source_id)?;
+            let load_id=self.adapter.copy_member_id(&load.source_id)?;
             self.capture_entry(AdapterEvent::MapWrite)?;
             inputs.push(open_pipe_stress_primitive_loads::ElementUniformLoadContribution{
                 load_id,element_index:member as usize,

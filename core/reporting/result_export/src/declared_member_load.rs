@@ -587,6 +587,6 @@ mod tests {
                 _ => panic!("unknown vector record"),
             }
         }
-        assert_eq!(cases, 15);
+        assert_eq!(cases, 16);
     }
 }

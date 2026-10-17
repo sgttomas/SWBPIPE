@@ -118,6 +118,9 @@ def apply_mutation(base, mutation):
     receipt = value.get("retained_precision")
     if isinstance(receipt, dict) and isinstance(receipt.get("body"), dict):
         body = receipt["body"]
+        # W1 stage2 adds byte-identical exact nodal baselines to isolate the
+        # exact route's member-load decline. Preview remains the default.
+        definition_hash = rp.EXACT_DEFINITION_HASH if value.get("producer", {}).get("semantic_contract_id") == rp.EXACT_CONTRACT_ID else rp.DEFINITION_HASH
         records = body.get("operand_preparations") if isinstance(body.get("operand_preparations"), list) else []
         # B2-C REVISION_01 §5.2 (S-6), steps 1 and 2: the CaseSource preparation hashes. A CombinationSource has no
         # `preparation`, and an operand-prepared CaseSource's names its record, so both reads are guarded.
@@ -128,8 +131,8 @@ def apply_mutation(base, mutation):
             # Step 1: through `attempt_ref`, when every member of that attempt is prepared.
             attempt = _rehash_ref(body["product_attempts"], preparation.get("attempt_ref"))
             if isinstance(attempt, dict) and isinstance(attempt.get("preparation"), dict) and all(m["result"]["kind"] == "prepared" for m in attempt["preparation"]["members"]):
-                # The shared corpus is on the preview route: DEF-O's H (S-1; the reader's payload has no default).
-                preparation["sha256"] = rp._hash("retained_precision_preparation_v1", rp._preparation_payload(attempt, rp.DEFINITION_HASH))
+                # S-1 binds the case's own route definition; the payload has no default.
+                preparation["sha256"] = rp._hash("retained_precision_preparation_v1", rp._preparation_payload(attempt, definition_hash))
             # Step 2: through `operand_preparation_ref`, when that record and every member are prepared: C3a-5's
             # payload (with `purpose`), under the same DEF-O H.
             record = _rehash_ref(records, preparation.get("operand_preparation_ref"))
@@ -200,8 +203,8 @@ def _corpus_entries():
 
 
 MILESTONE_PINS = {
-    "sparse_interactive": ("e3e0830d34d7403da45cc5900aa40cc42d090478d9c2d3ba57bcecf9b6070d2e", [25, 69, 3, 1]),
-    "dense_scrutiny": ("c24d4a1cbfb4668fe071fd1b9cc9abed35589c390992ebad33dd0a9159cf3316", [25, 69, 3, 1]),
+    "sparse_interactive": ("032630ba2f80a80361be3ce60e1d27821d47e1161cdf750566640552de3edd2e", [25, 69, 3, 1]),
+    "dense_scrutiny": ("0db162eb507060ec2a5bf6d78d7f1ab43fd868f2e085c9395832d7b282cbfda0", [25, 69, 3, 1]),
 }
 
 
@@ -909,10 +912,10 @@ def test_rv80_n2_integral_normalization_touches_only_the_receipt(monkeypatch):
 # PP's pinned L = 0 successor files (U8-1, `u8_l0_isolated_node_publishes_pinned_successor` at the U8
 # head): (file sha256, receipt sha256, class counts), the counts as all three readers observed them (I68).
 L0_PINS = {
-    "sparse_interactive": ("67e65da7cdc6c6a5e150505981fee087cfe6d7c9bf4bd6e0c545013d3e346d6d",
-                           "08af743f21c921308a69767ba91660ce361685828f524863efb9f6970fd3c254", [25, 78, 9, 1]),
-    "dense_scrutiny": ("08cf81a1f252e503c0b45c915caa573abe1263183c835b62bc4454cd8696eb64",
-                       "86e77dc6c1998d760f798997fd5942783f7182ce201a1e369b0171e3da71e5cd", [25, 78, 9, 1]),
+    "sparse_interactive": ("9892d97327d0e076ce06762a985fd7e1dc2a55ab51bbad8abee1a953c202ede0",
+                           "6f61dd02966787ed957081a49184c863c11ab3f8759480fa784aed9c0f7ada4a", [25, 78, 9, 1]),
+    "dense_scrutiny": ("d20a3d5af1a356f0d76ebe41c5e50d8d8579700325911e12dacbca23dbda3f33",
+                       "88c8de70b406f7e9cb7802185f317bbc15cd5eee599ebd3cec73a0946dda29de", [25, 78, 9, 1]),
 }
 # The registered dev/test build that published them (PP `REGISTERED_PROFILES` at the U8 head).
 L0_BUILD_IDENTITY = ("v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;"
@@ -1738,18 +1741,18 @@ def test_i4p_ruling5_kernel_reason_without_a_run_is_g5_attempt_in_the_reader():
 # (admitted, not eligible) or a gate and code. An admitted rewrite that changes the classes states its own
 # `expected_classifications`. Detail texts are not pinned.
 # ---------------------------------------------------------------------------------------------
-N07_W_C2 = {"sparse_interactive": ("1a9fee6115140a843cdca6ae78f50223421285126356fbc4a064ed6525288535", "52bec4cd76d819c4848fd773850f571aefa98f1e1cb55075bd29cfc705b72e38"),
-            "dense_scrutiny": ("12d6696340acb1a772e2b666365bdea329dc78aca45b40756ede820dc13ea4c8", "83cdc160c391fced072af2baf025ea4ab990c8ceeb58b75a442a358ed24901be")}
+N07_W_C2 = {"sparse_interactive": ("61d0b0a45492f6e73089dcbe96cac7e7ee0d2f4acc9d901ead79eeb48eef084c", "7a6fdcc4d300718e8ea7d91642977928d8e33bd27fc53746a0664cf8bb892122"),
+            "dense_scrutiny": ("491e836dfbe4356d831f611ae6ffefd984611cecf7f336ce49838537a1475e14", "7c5c7414b090c38f7a04cf129407db305cf4fcf21d872f4e5df1328e5a16f73d")}
 # PR-N (I109): the dense W-C2 and (C, B, A) successors re-pinned at the correctly rounded `rigid:N0`
 # support force magnitude (one ulp above macOS libm's hypot chain), one pin for every platform.
 # PP `retained_facade_tests.rs` REVERSED_PINNED, CBA_PINNED and AA2_PINNED: (receipt sha256, successor bytes sha256).
 N07_PP_PINNED = {
-    "cause_milestone_reversed_sparse_interactive": ("68b76cbf32b6b6b114d486fa94b952abe27999e55d811f1f3b2803cbe7b9ee01", "ae199588e10ec046916d3db9a66b907412be2fc1ae95badad507549e32d8457c"),
-    "cause_milestone_reversed_dense_scrutiny": ("754931b5c5639e92800c1344825b41773ed044e87137d944b3d4444695764be6", "c0513c0d6804f19ee2245a74f1342bcbff24082bdab0004c736fc53f4dae7f5b"),
-    "sf2_c_b_a_sparse_interactive": ("623bef4858f637a1505c65014b95dbb9189fe19ff2ae608d40f4f004016df562", "48f33043a8216f08171efbcabbf391ba81b3332ae9b0149a0a41604100899593"),
-    "sf2_c_b_a_dense_scrutiny": ("80ce2e742c09214194678065c17a1f99d0d0dcabf8679188adf49e5b3f02c6e9", "17b2f1e60618a89a0efae35646b30126f215eac98641760fbdc7430d7b5d718d"),
-    "sf2_a_a2_sparse_interactive": ("36dd81d88c83698f4c61249852c7f18006464dea7766326f2a01c51e6f853338", "fa5ee27d17c062baaa4b1c5a15505d29ff9e1e482fd9a1931830cc5cb2028547"),
-    "sf2_a_a2_dense_scrutiny": ("add882b91eae4004b3bcca26a34ccc0a7f038a50a450e010286d28b1e271466f", "46a25c19585342ae47dce33085c110da34aa59d6bedea7290955b67c8425feda"),
+    "cause_milestone_reversed_sparse_interactive": ("412b87a85ee73597bfc374aefb3f281e40a0355d611c4f5d25c2a1b08e3a5cab", "3b9a649c1e76b89253f80ee51d240ff9eb9f535575fb75708cfcbbb5ca6e85a4"),
+    "cause_milestone_reversed_dense_scrutiny": ("e61c6c98f69ac615c8cba42004bf122f2ca4bebb3fa532d6c4897a64d779c28f", "41988f39f892d0e566536f65368069efa2ed91924be342510620aa934edcd5e1"),
+    "sf2_c_b_a_sparse_interactive": ("b7510959e46f8dfc144dfc864127b395dc0c263d88d11ed137b823619aeb5002", "5060b69a6bc1ce4bec2099ae914a0d9999b41f5caae145ab0571d91dadf11066"),
+    "sf2_c_b_a_dense_scrutiny": ("278a438342408771436e95f9cbfbd44acb04d7f86245a4cfd8f80e39ba4c564b", "32c628235fe54e2135cb233cb29fdb180ce2a3c1f6fb11ed040ba32e01ef9c4b"),
+    "sf2_a_a2_sparse_interactive": ("8c6b058d4313dd35192cf2143127a496bdbc9ef4a41f53de43427e12cede73e4", "af7de55c636cd25e34c2f627e4fdb1456fdac7fa2293dfb32eaa396aa46ed55a"),
+    "sf2_a_a2_dense_scrutiny": ("002deb4e1efd6bf4ee61fd1e72bb952e201654b36c45ed2b6ecefe7014e7ab9a", "a8061555fc0477010cdd85f39325c6ed77e6c569a9a09cff1f36890f0e58e608"),
 }
 N07_BASES = ["w_c2_sparse_interactive", "w_c2_dense_scrutiny", "d38_beside_selected"] + list(N07_PP_PINNED)
 N07_KEYS = {"id", "base", "edits", "invocation_edits", "after_rehash", "rehash", "expected", "expected_by_reader", "expected_eligibility",

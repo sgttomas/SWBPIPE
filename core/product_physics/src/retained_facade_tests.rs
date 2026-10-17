@@ -17,8 +17,8 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "e3e0830d34d7403da45cc5900aa40cc42d090478d9c2d3ba57bcecf9b6070d2e", "bc1e36fac28680a6ad65901b021dbfeb9e3424349ede29ebd8358201839154d1"),
-    ("dense_scrutiny", "c24d4a1cbfb4668fe071fd1b9cc9abed35589c390992ebad33dd0a9159cf3316", "0712cc45083fddc20f4434ccdf887d2b9c3f46810c579b12c1a8fbde2c34ce79"),
+    ("sparse_interactive", "032630ba2f80a80361be3ce60e1d27821d47e1161cdf750566640552de3edd2e", "835205890be3f58565bdba65cb781040372af9bafc72ecf168e60fb360bb835c"),
+    ("dense_scrutiny", "0db162eb507060ec2a5bf6d78d7f1ab43fd868f2e085c9395832d7b282cbfda0", "6e5123ba864e319b8d07a1581e1d10b165ce208ac75e255d9c66e2640215dad0"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
@@ -992,9 +992,9 @@ fn u8_real_input_fallbacks_append_one_notice() {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const U8_L0_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "67e65da7cdc6c6a5e150505981fee087cfe6d7c9bf4bd6e0c545013d3e346d6d", "08af743f21c921308a69767ba91660ce361685828f524863efb9f6970fd3c254",
+    ("sparse_interactive", "9892d97327d0e076ce06762a985fd7e1dc2a55ab51bbad8abee1a953c202ede0", "6f61dd02966787ed957081a49184c863c11ab3f8759480fa784aed9c0f7ada4a",
         "b641590e40c50ce8bc3232773be00daedce13b13a39729b0fb6c66dea21ba1ad"),
-    ("dense_scrutiny", "08cf81a1f252e503c0b45c915caa573abe1263183c835b62bc4454cd8696eb64", "86e77dc6c1998d760f798997fd5942783f7182ce201a1e369b0171e3da71e5cd",
+    ("dense_scrutiny", "d20a3d5af1a356f0d76ebe41c5e50d8d8579700325911e12dacbca23dbda3f33", "88c8de70b406f7e9cb7802185f317bbc15cd5eee599ebd3cec73a0946dda29de",
         "8adb3ad3e1b80aaf5aff1b99d6e63d3b77fd2b691b61e777904762da47da28f0"),
 ];
 /// The milestone's pinned successor documents (U1; the U5-verified reference rows for body 0).
@@ -1898,8 +1898,8 @@ fn b1_sp_w_c2_through_retained_w1_publishes_t12() {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const W_C2_PINNED: [(&str, &str, &str, &str); 2] = [
-    ("sparse_interactive", "1a9fee6115140a843cdca6ae78f50223421285126356fbc4a064ed6525288535", "52bec4cd76d819c4848fd773850f571aefa98f1e1cb55075bd29cfc705b72e38", "5795508cf6ae7f521c01edd8d2546ddc2a7372b6334ffaca927f335ec72426dd"),
-    ("dense_scrutiny", "12d6696340acb1a772e2b666365bdea329dc78aca45b40756ede820dc13ea4c8", "83cdc160c391fced072af2baf025ea4ab990c8ceeb58b75a442a358ed24901be", "c33e73ac21b39ba902f07aa6acc3dfa6b97c994f6fdd5a1d7e443933718a612f"),
+    ("sparse_interactive", "61d0b0a45492f6e73089dcbe96cac7e7ee0d2f4acc9d901ead79eeb48eef084c", "7a6fdcc4d300718e8ea7d91642977928d8e33bd27fc53746a0664cf8bb892122", "5795508cf6ae7f521c01edd8d2546ddc2a7372b6334ffaca927f335ec72426dd"),
+    ("dense_scrutiny", "491e836dfbe4356d831f611ae6ffefd984611cecf7f336ce49838537a1475e14", "7c5c7414b090c38f7a04cf129407db305cf4fcf21d872f4e5df1328e5a16f73d", "c33e73ac21b39ba902f07aa6acc3dfa6b97c994f6fdd5a1d7e443933718a612f"),
 ];
 /// The W-C2 successor document, in U1's form.
 fn w_c2_document(name: &str, raw: &Value, successor: &Value) -> String {
@@ -2246,9 +2246,9 @@ fn w_c2_plus_a2(ids: &[&str]) -> Value {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const CBA_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "623bef4858f637a1505c65014b95dbb9189fe19ff2ae608d40f4f004016df562", "48f33043a8216f08171efbcabbf391ba81b3332ae9b0149a0a41604100899593"),
+    ("sparse_interactive", "b7510959e46f8dfc144dfc864127b395dc0c263d88d11ed137b823619aeb5002", "48f33043a8216f08171efbcabbf391ba81b3332ae9b0149a0a41604100899593"),
     // Re-pinned by I109 (PR-N): W-C2 case C's correctly rounded `rigid:N0` magnitude; every platform.
-    ("dense_scrutiny", "80ce2e742c09214194678065c17a1f99d0d0dcabf8679188adf49e5b3f02c6e9", "17b2f1e60618a89a0efae35646b30126f215eac98641760fbdc7430d7b5d718d"),
+    ("dense_scrutiny", "278a438342408771436e95f9cbfbd44acb04d7f86245a4cfd8f80e39ba4c564b", "17b2f1e60618a89a0efae35646b30126f215eac98641760fbdc7430d7b5d718d"),
 ];
 /// K-D5 re-pin (DEL-04-01 kd5-member-relative-bound.md §§3.2, 3.4, 5, 6): read from the producer
 /// at the K-D5 head; against main the successors differ only by the current maximum declaration
@@ -2256,8 +2256,8 @@ const CBA_PINNED: [(&str, &str, &str); 2] = [
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const AA2_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "36dd81d88c83698f4c61249852c7f18006464dea7766326f2a01c51e6f853338", "fa5ee27d17c062baaa4b1c5a15505d29ff9e1e482fd9a1931830cc5cb2028547"),
-    ("dense_scrutiny", "add882b91eae4004b3bcca26a34ccc0a7f038a50a450e010286d28b1e271466f", "46a25c19585342ae47dce33085c110da34aa59d6bedea7290955b67c8425feda"),
+    ("sparse_interactive", "8c6b058d4313dd35192cf2143127a496bdbc9ef4a41f53de43427e12cede73e4", "fa5ee27d17c062baaa4b1c5a15505d29ff9e1e482fd9a1931830cc5cb2028547"),
+    ("dense_scrutiny", "002deb4e1efd6bf4ee61fd1e72bb952e201654b36c45ed2b6ecefe7014e7ab9a", "46a25c19585342ae47dce33085c110da34aa59d6bedea7290955b67c8425feda"),
 ];
 
 /// RV109's SF-2 (RR "RV109 passes SP in RV-P round 2; …", ruling 2): two successors pinned in both
@@ -2357,8 +2357,8 @@ fn milestone_reversed() -> Value {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const REVERSED_PINNED: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "68b76cbf32b6b6b114d486fa94b952abe27999e55d811f1f3b2803cbe7b9ee01", "ae199588e10ec046916d3db9a66b907412be2fc1ae95badad507549e32d8457c"),
-    ("dense_scrutiny", "754931b5c5639e92800c1344825b41773ed044e87137d944b3d4444695764be6", "c0513c0d6804f19ee2245a74f1342bcbff24082bdab0004c736fc53f4dae7f5b"),
+    ("sparse_interactive", "412b87a85ee73597bfc374aefb3f281e40a0355d611c4f5d25c2a1b08e3a5cab", "ae199588e10ec046916d3db9a66b907412be2fc1ae95badad507549e32d8457c"),
+    ("dense_scrutiny", "e61c6c98f69ac615c8cba42004bf122f2ca4bebb3fa532d6c4897a64d779c28f", "c0513c0d6804f19ee2245a74f1342bcbff24082bdab0004c736fc53f4dae7f5b"),
 ];
 
 /// The nodal-term ordinal (C2 `CONTRACT_DELTA`:104; RR "I98's B2-W verified; …"): a CaseSource's
@@ -3922,37 +3922,37 @@ fn b2p_dispositions(name: &str) -> &'static [&'static str] {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 const B2P_PINNED: [(&str, &str, &str, &str); 20] = [
-    ("w_cb1", "sparse_interactive", "e8d0e8cdc9e577181f419bb5552ddd91cbd47dca27120f0ce116332b6d5bfdba",
+    ("w_cb1", "sparse_interactive", "6638b0109896b54fd2c300249068c8722de45ef58aee0b854b2d426ba4488a9c",
         "ebb4d095a13babadd98b147bfd5544a205f27c0040ede55711f03c69949f22e2"),
-    ("w_cb1", "dense_scrutiny", "a302b77907860981383db9eedb4e8aca33f350ac1c84be371f386a396bfcfd13",
+    ("w_cb1", "dense_scrutiny", "976f4e88d617a245f60d735058c4721674d109a89366f049dc5b2509158cec65",
         "a8f4e1c22a26b1951e83b4582a8218d35595548f0559993c9ec241df508a2011"),
-    ("w_cb1z", "sparse_interactive", "c196c146e3e0bc453df032668ebb4950142c80ccd186c11f3210e3682cd777f7",
+    ("w_cb1z", "sparse_interactive", "9ec64236db57eca7f5d5779c585c263964f2d5d728232708e29715a308f7877e",
         "f2fd5fbbe4266efaaa0fc01cece7423603b4731f0cbc19587e6a097ba240202f"),
     ("w_cb1z", "dense_scrutiny", "14756090b4d7a2e7686c6bb9eba415816ee07119278cd4f1ece80e692a92f837",
         "4ac518ac9b670447c5658ab1ba537848ea68506a6859a4fe8baaab3fd8024af5"),
-    ("w_cb2", "sparse_interactive", "73726c21bc3a242b625f853d16d473d65f5590e270457d00940742da25890401",
+    ("w_cb2", "sparse_interactive", "5844a5423fea57e8aa601acf43902b5b56c865feb66dc1833b499a53e1cc85ae",
         "00e07bdc6d944f5809e7c236c74a497d40a6187a9626c1ed3f880d1948feb259"),
-    ("w_cb2", "dense_scrutiny", "0bc43bab06757abbb0711e8f608f6cdf34e2d4a8836eb96dbc9ff3584c4aac40",
+    ("w_cb2", "dense_scrutiny", "7025183415e3551cc092d4a768990ccf27437dc5b5f8e04c391a8ae5827a3e3f",
         "057eeac9a792cadcde0ecbbeb03ad45f8155a3c95521fb3513e4cf3d7216fde4"),
-    ("w_cb3", "sparse_interactive", "6dc0f189837231daf6f1073a363723ac554729b1548ad52996f2c54bf3d202fb",
+    ("w_cb3", "sparse_interactive", "adc6b6c9412d877c52f5787d4c23bce0f791f0f401b89403d4401f6abdaad718",
         "5d4b65184e6974d78334e72a042b98f20532432f4464933dd4e3e475aa70feb6"),
-    ("w_cb3", "dense_scrutiny", "02388ca62986d3fe5fee32132904d439653601632174b45e7354b7f22f878b1a",
+    ("w_cb3", "dense_scrutiny", "7681bd8e6c1de7d753f06433081d97d45426cc1f72c738c8348e004a97d4ca04",
         "31012df46c7aa5cec4f4b1e9eabc0f5765e03a2ea50cfab9a9cc5a9e2d8702ca"),
-    ("w_cb4a", "sparse_interactive", "880329c1a154a6836fe2a2bc0c26213cfd7cb0c20bb19042666c24da0755b48f",
+    ("w_cb4a", "sparse_interactive", "e462e2a915270c602f9d49cdabe30aaf3358565efceec01b6c12b3cd03180f51",
         "4708f373cd2339db8cd887ab0bcd04a5a2a8e52eedd9953af5b61af68b8af26c"),
-    ("w_cb4a", "dense_scrutiny", "a80798f9a956cfcb869e912c913b05b018cece665cd51b7ae44334a6f3abdfcf",
+    ("w_cb4a", "dense_scrutiny", "fc499d4307ac70c891cc38057090b709b0757bfb4bfbf3b40af3beabc523628e",
         "08a6bee6e7d583df05c53a4484fbdd2c330f88ecba0c3bb6f088afb4616d0c61"),
-    ("w_cb4b", "sparse_interactive", "2427cd26592d26431e1283dbec3e9477c63ca734468ed2248d115c0ea54b8380",
+    ("w_cb4b", "sparse_interactive", "e57cae36051522fe6c53deafc4aac2d71d9cf259b8fced02eda5927a36e2b9fd",
         "dd2130d5c633e553862aaccff01f21984f5ea7a40a1518767d70435484939a1e"),
-    ("w_cb4b", "dense_scrutiny", "f0d0d8a66e077e1092bd4a1a4f3ba253e72ba738bdbb8dc5d2a6c5f30a608fb9",
+    ("w_cb4b", "dense_scrutiny", "3db9e480de67d3e0b2d85b0208f0999f277ca85f20de6f28904cf5061a1e81c8",
         "34ee24cbe5f50b629242e902088f3ca78e5e89dd772617bc6b8c72188b1e633d"),
-    ("w_cb5", "sparse_interactive", "a94cff180519518e770e5e2f0d24d4178713a8218cb077dc8ef05d305b917af3",
+    ("w_cb5", "sparse_interactive", "4b1c757fa2bed234e40da0e212af51a3db1422a726d0ae25ae0ec77d2393b82c",
         "9350cb64a9408b392b073d6b0daf43828132fe16b3d17d2723ccdaf631df77c9"),
-    ("w_cb5", "dense_scrutiny", "8aab700c9ffc7da14dbaba2b33860949f3d2e71312a26725349852d177ba6654",
+    ("w_cb5", "dense_scrutiny", "ff073003f7018e67c86b9f2b6810cde1bdd044d4fa1faf38ae597ac011817403",
         "7676558fc14737235340a113b37ab437b410797c0e043589a517100a2d4932b2"),
-    ("c1_range_mechanics", "sparse_interactive", "73ccdae75b710888668439b77eb56f348336dd24f8294f4dc840fc03dd38642e",
+    ("c1_range_mechanics", "sparse_interactive", "9a0666bcc94510eaf672ce10c37c74a470d2fadf781d8f3ae60c2f03405b1580",
         "bbc5e14430ef45ef25c0633db08a0fff438690873249ee775d2b62990d9ba9f9"),
-    ("c1_range_mechanics", "dense_scrutiny", "439567e11b0a73623e39e8bf6b35fd985554dc0fc6747efabc022dbf6611f2cd",
+    ("c1_range_mechanics", "dense_scrutiny", "ea264823fb6990ab958d9b2ec0a81c6f6baa3c3a22c846c22801a5210edf016f",
         "cc05b8d60166da722bdbf01c4ec9b498119ded48e441b69cfa532294917e4681"),
     ("rv123_w_cb3_ba", "sparse_interactive", "f06a81831041f76221a363177d4c41c054ec560d5414812250c67ffaa2d3975e",
         "797cf7afe74f950eb548c401f848b3374c45f57cadf89799b09611ef3dbd0413"),
@@ -4399,3 +4399,6 @@ fn b2p_ledger_unavailable_operand_has_no_source() {
 // B4/D1 maintained-source census; separate from the native G10 witness.
 #[path = "w1_source_census_tests.rs"]
 mod w1_source_census_tests;
+
+#[path = "w1_successor_census_tests.rs"]
+mod w1_successor_census_tests;

@@ -181,3 +181,23 @@ fn w1_loaded_maximum_rotating_and_axial_slope_within_capacity(){
         assert!(spent.loaded_search_bytes<=32*std::mem::size_of::<SearchNode>());
     }
 }
+
+#[test]
+fn w1_loaded_maximum_keeps_axial_and_bending_divisors_distinct(){
+    for(ends,q,value)in[([[4.,0.,0.],[8.,0.,0.]],[0.,0.],4.),([[0.;3];2],[8.,0.],0.5)]{
+        let mut spent=ProductCertificateSpent::new(&[]);
+        let hull=search(&mut spent,0,0,ends.map(|v|v.map(point)),q.map(point),point(2.),point(4.)).unwrap();
+        contains(hull,value,1.);
+    }
+    let mut spent=ProductCertificateSpent::new(&[]);
+    let hull=search(&mut spent,0,0,[[1.,1.,0.],[1.,0.,1.]].map(|v|v.map(point)),[1.,1.].map(point),point(2.),point(4.)).unwrap();
+    // Maximum =1/2 +sqrt(9/8)/4. Exact dyadic subtraction/scaling followed by
+    // an exact square compares the hull without a binary64 square-root oracle.
+    let mut ctx=WideContext::<16>::new(1024).unwrap();
+    for(v,negative)in[(hull.lo,false),(hull.hi,true)]{
+        let mut sum=ExactWideSum::new();sum.add_wide(&v,false).unwrap();sum.add_binary64(0.5,true).unwrap();
+        let bending=sum.round(&mut ctx).unwrap().mul_pow2(2).unwrap();
+        let mut difference=ExactWideSum::new();difference.add_product(&mut ctx,&bending,&bending,negative).unwrap();difference.add_binary64(1.125,!negative).unwrap();
+        assert!(difference.signum().unwrap()<=0);
+    }
+}

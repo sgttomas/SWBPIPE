@@ -177,3 +177,36 @@ fn w1_loaded_maximum_station_orientation(){
     assert_eq!(value(0).cmp_value(&value(1)),CmpOrdering::Greater,"peak lies at .59915, not its mirrored station");
     let gap=ctx.sub(&value(0),&value(1)).unwrap();assert_eq!(gap.cmp_value(&Wide::<4>::from_f64(0.03).unwrap()),CmpOrdering::Greater);
 }
+
+#[test]
+fn member_load_simply_supported_closed_controls(){
+    use super::super::{origins::{RecordedInvocation,OriginCapacity},recover::End};
+    let template=member_source(false,Vec::new());
+    let source=PrimitiveSource::new(SourceParts{nodes:template.nodes().to_vec(),members:template.members().to_vec(),
+        constraints:(0..12).filter(|g|g%6<4).map(|g|Constraint{dof:Dof::from_global(g),value:0.}).collect(),
+        stations:[0.,0.25,0.5,1.].into_iter().enumerate().map(|(i,t)|Station{id:i as u32,member:0,fraction:t}).collect(),..Default::default()}).unwrap();
+    let loads=MemberLoadSet::new(&source,vec![UniformMemberLoad{member:0,intensity:[0.,3.,0.],source_id:"uniform".into()}]).unwrap();
+    let mut invocation=RecordedInvocation::new(u64::MAX,OriginCapacity::for_calls(&[1],&[]).unwrap()).unwrap();
+    let cases=invocation.solve_member_cases(&[MemberSourceRef::new(&source,&loads).unwrap()],CaseLimit::new(u64::MAX)).unwrap();
+    let owner=match &cases[0].outcome{ExecutionOutcome::Selected(s)=>s,_=>panic!("simply supported source")};
+    let value=|id|owner.publish().rows.iter().find(|r|r.id==id).unwrap().value.value().unwrap();
+    for(g,v)in[(5,1.),(11,-1.)]{assert_eq!(value(QuantityId::Displacement(Dof::from_global(g))),v);}
+    for g in [1,7]{assert_eq!(value(QuantityId::Reaction(Dof::from_global(g))),-3.);}
+    for end in [End::I,End::J]{assert_eq!(value(QuantityId::EndAction{member:0,end,component:Component::Rz}),0.);}
+    for(station,shear,moment)in[(0,3.,0.),(1,1.5,-1.125),(2,0.,-1.5),(3,-3.,0.)]{
+        assert_eq!(value(QuantityId::StationAction{station,component:Component::Uy}),shear);
+        assert_eq!(value(QuantityId::StationAction{station,component:Component::Rz}),moment);
+    }
+}
+
+#[test]
+fn member_load_rhs_reads_the_declared_ledger(){
+    let source=member_source(false,vec![NodalLoad{dof:Dof::from_global(7),value:1.,source_id:"nodal".into()}]);
+    let prep=preparation(&source,&[[0.,3.,0.]]);let group=prepare_group(&source).unwrap();let guard=StageGuard::unlimited();
+    let shared=build_shared::<4,4>(128,192,&source,&group,guard).result.unwrap();let _=solve_case_at::<4,4>(&shared,&prep,&group,guard).result.unwrap();
+    let mut ctx=WideContext::<4>::new(128).unwrap();let mut sum=ExactWideSum::new();let prescribed=vec![Wide::<4>::ZERO;12];
+    let rhs=reduced_rhs(&mut ctx,&mut sum,&source,&group.structure,&shared.k,prep.ledger().unwrap(),&group.ordering.free,&prescribed).unwrap();
+    // Check the first solve's actual RHS, not only a final state which correct
+    // residual refinement could repair after an omitted initial load.
+    for(value,&g)in rhs.iter().zip(&group.ordering.free){let expected=match g{7=>4.,11=>-1.,_=>0.};assert_eq!(*value,Wide::<4>::from_f64(expected).unwrap(),"dof{g}");}
+}
