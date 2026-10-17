@@ -788,10 +788,10 @@ The retained-precision method establishes such bounds in two ways. For a retaine
 
 Where its retained-precision method establishes them, the engine shall publish verified bounds for nodal displacements and rotations, member end and station forces and moments, support reactions, and the stresses and stress maxima recovered from them. This applies to load cases and to mechanics combinations of solved cases, within the model domains the method supports. In addition:
 
-- A case whose bound cannot be established publishes its ordinary result with its values, standing and diagnostics unchanged, and a quantity without a bound is marked as not covered. No search, verification, tolerance or domain limit is relaxed to obtain a bound. An unsupported domain is declined and stated as a limitation.
+- A case whose bound cannot be established keeps its ordinary values, standing and diagnostics; at most one information notice is added. Within a published retained-precision result or source receipt, a quantity or case without a bound is identified as not covered, unavailable or ordinary. No search, verification, tolerance or domain limit is relaxed to obtain a bound. An unsupported domain is declined and stated as a limitation.
 - Each published verified result shall be checkable by consumers separate from its solver: the product result reader, whose native and WebAssembly builds give the same outcome for the same input, and a test verifier that shares no code with the producer. They check the published statement, its classes and the inputs they can rederive. They do not re-run the solve or replay its proof.
 - The method shall run within fixed resource limits. Each retained-precision invocation is admitted only within a memory budget qualified for the actual product build: 12 GiB on the 16 GiB base machine, under the existing qualification margins. These are accounting margins, not measured memory. Retained-source recovery runs within its stated size and work limits. A build that is not qualified publishes no retained-precision result, and its ordinary results stand.
-- Retained-precision results reach a product surface only once the owner activates the method there.
+- No product surface produces retained-precision results until the owner activates the method there.
 
 ---
 

@@ -64,7 +64,7 @@ These deliverables keep their scope. The code paths in `deliverable.yaml` indica
 ### CLM-003 — Current reach, as built
 
 - **Retained-source recovery.**
-  - It runs in solves through the captured value entry (`run_linear_static_preview_value_with_mode`). The desktop's native solve and `openpipestress-runner` both use that entry.
+  - It runs in solves that go through the captured dispatch: the value entry `run_linear_static_preview_value_with_mode`, used by the desktop's native solve and `openpipestress-runner`, and the ordinary route of the retained Direct and Headless entries.
   - The typed entry (`run_linear_static_preview_with_mode`, used by `headless_preview_runner`) has no captured invocation and never attempts it.
   - The Python AnalysisRun record and the stress-neutral export accept its results. The desktop shows them but offers no output for them (REQ-006 (c)).
 - **Retained-precision successors.**
@@ -100,7 +100,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - These rows are `not_covered` and keep their ordinary values: every other row kind; rows with no body scale; and, under R-COMB-1, each quantity row of an unavailable combination or of an ordinary combination that names a load case whose trigger is not `not_required`.
     - Intensified bending stresses carry no verified class: the reader refuses a successor that classifies one (G5b).
   - **Route L domain.**
-    - It covers straight Euler–Bernoulli members, nodal loads and full-span uniform member loads, rigid restraints and global scalar springs, and base, named-point or interpolated E and G.
+    - It covers straight Euler–Bernoulli members, nodal loads and full-span uniform member loads, rigid restraints and global scalar springs, and base or named-point E and G. DEF-O and DEF-C also define interpolated E and G, which D1 refuses at admission.
     - With member loads, the bound covers the declared-load problem. Each declared entry lies within 2^-1022 of its exact consistent value, relative to that value. That difference is disclosed but not bounded.
     - It also covers mechanics combinations under the B2-C contract. Each combination has its own solve on the combined exact ledger and at least one selected operand. It publishes exactly 7n + 50m + 8g rows (n nodes, m members, g attributed supports), of which constrained displacement components are `input_derived` +0.
     - Combination maxima, intensified rows, range envelopes, state differences and combinations with member-load operands are not covered.
@@ -141,8 +141,16 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 ### Fallback and fixed limits
 
 - **REQ-003** — The method falls back to ordinary results and relaxes no limit.
-  - **(a) No retained work ran.** Where no retained work ran, the ordinary bytes are published exactly, with no notice. This covers an admission refusal (caller, domain, build identity or byte limit), coexistence with retained-source recovery, a domain or notice-reservation fallback, and an invocation with no triggered case.
-  - **(b) Retained work ran but did not complete.** The case keeps its ordinary rows, standing and diagnostics byte for byte, and gains one `RETAINED_PRECISION_UNAVAILABLE` notice. That notice names a reason only for a receipt-encoding failure. Where a successor is published for other cases, its receipt records each case that has no selected proof, with that case's typed cause.
+  - **(a) No retained work ran.** Where no retained work ran, the ordinary bytes are published exactly, with no notice. This covers:
+    - an admission refusal (caller, domain, build identity or byte limit);
+    - a stack-reservation fallback;
+    - coexistence with retained-source recovery;
+    - the late-gate refusal;
+    - a domain or notice-reservation fallback;
+    - an invocation with no triggered case.
+  - **(b) Retained work ran but did not complete.** The case keeps its ordinary rows, standing and diagnostics byte for byte, and gains one `RETAINED_PRECISION_UNAVAILABLE` notice. That notice names a reason only for a receipt-encoding failure.
+    - A combination-custody, staging, serializer or precommit fault withdraws the whole successor, so every attempted case falls back with the notice.
+    - A preparation, native or candidate failure of one case can leave other cases selected. The published successor's receipt then records that case, with its typed cause.
   - **(c) Retained-source attempt declined or failed.** The case stays on its ordinary route, and the receipt records the failure stage and code (for example `unsupported_family`). If an invocation carries a load/reference-state group whose join cannot finalize, every case is republished on its ordinary route (`pressure-1`) without a receipt.
   - **(d) Ordinary attempt failed.** On route L only, for a single-case invocation without combinations, such a case publishes from the retained route only if its retained proof passes G0–G8. Its quality entry keeps the failed attempt's outcome and never reads `checks_passed`. Otherwise the blocked ordinary result stands, with no successor.
   - **(e) No relaxation.** No search, verification, tolerance or domain limit is relaxed to obtain a bound.
@@ -213,7 +221,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
   - **(b) W1's two fail-closed corners.** These are the first two corners of the W1 Design, §4.4.
     - The represented-Z input-width floor exhausts the loaded-maximum search ("loaded maximum search exhausted").
     - Binary64-halfway exact force and moment scale maxima fail G5b (`RETAINED_PRECISION_SCALE_MISMATCH`) before commit.
-    - Both are refused inside the method. The case publishes its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. Where a successor is published for other cases, the case appears as a receipt entry with its typed cause.
+    - Both are refused inside the method, and the case keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. A search exhaustion is a per-case failure: where other cases are selected, the published successor's receipt records the case with its typed cause. The G5b refusal is a precommit fault, so it withdraws the whole successor and every attempted case falls back.
   - **(c) No desktop outputs for the current exact identity.**
     - Exact-route results (`pressure-1`, `pressure-source-1`) solve and can be viewed on the desktop with the Rust reader's standing, but every desktop output surface refuses them (`PRESSURE-1-OUTPUT-NOT-YET-AVAILABLE`). The Python AnalysisRun record and the stress-neutral export accept them.
     - No desktop solve produces a retained-precision successor before B8. If one is opened on the desktop, every output surface refuses it (`RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE`), except the result JSON and stress-neutral exports, which admit it only at numerically eligible standing and with the live native capture of its exact bytes.
@@ -227,7 +235,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
   - **(a) O4: the Timoshenko and corrosion-allowance source extension.** This is the fifth shared epoch in the owner's order of 2026-10-14. It extends retained-source and W1-E publication to the documents REQ-006 (a) declines, including those with a nonzero mill tolerance. It keeps RF's closure, witness and charging rules.
   - **(b) The W1 coverage repair.** The owner said on 2026-10-17: "We will need to address that W1 coverage gap at some point." It is planned as the sixth shared epoch (PR #1401, open at drafting). The epoch starts with a census of how often current sections and maxima reach each REQ-006 (b) corner, then repairs the cause with every gate unchanged. Implementation follows O4 unless that design shows the two should merge.
   - **(c) Desktop outputs for the current exact identity.** This is a follow-on unit. The owner chose "Merge with the gap" on 2026-10-15 and has not yet placed the unit in the epoch order. T4-U4b/U5b replace `pressure-1` with `pressure-2`.
-- **AC-006** — Each decline in REQ-006 is exercised by a maintained test that asserts its refusal and the ordinary result. The desktop output policy refuses each named identity with its stated code. The headless retained entry refuses at D1.0. The tables' limitation texts are bound by the reviewed-input digests.
+- **AC-006** — Each decline in REQ-006 is exercised by a maintained test that asserts its refusal. The fallback tests and the W1 census tests assert the resulting ordinary result at the facade. The desktop output policy refuses each named identity with its stated code. The headless retained entry refuses at D1.0. The tables' limitation texts are bound by the reviewed-input digests.
 - **AC-007** — A duty in REQ-007 is discharged only when the conditions for it hold. Until then it remains listed here as open.
   - **(a) O4 and (b) the W1 repair:**
     - the cases they extend to publish verified results under REQ-001 or REQ-002;
@@ -241,10 +249,10 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 - **REQ-008** — A verified bound is a numerical statement about the problem the method records (PRD §12.8). PRD §21.2 governs the method's claims, and no product text of this deliverable may state or imply a claim it prohibits.
   - The method's product texts state the limit: "numerical integrity does not establish physical correctness" (route L), and "Source evidence and numerical standing do not authenticate a producer or grant engineering acceptance" (route E).
   - Identifiers that contain "certif" (for example `certified_gap_pa`, `certify_final` and `CertifiedRow`) are data contracts under §4 of the claims registry, and they keep their names.
-- **AC-008** — The product texts this deliverable emits are pinned: the notice and diagnostic constants by maintained tests and committed successor bytes, and the limitation texts by the reviewed-input digests. Any change to them is reviewed against `docs/claims_registry.md`. The claims-language lint (GEN-13) passes over the desktop sources that relay them.
+- **AC-008** — The product texts this deliverable emits are pinned: the notice and diagnostic constants by maintained tests and committed successor bytes, and the limitation texts by the reviewed-input digests. Any change to them is reviewed against `docs/claims_registry.md`. The claims-language lint (GEN-13) passes over the literal desktop policy texts of `outputPolicy.ts`.
 - **TBD-001** — *Terminology in product texts.*
   - **Where the words appear.**
-    - The selected-case diagnostics use "certified classes" (`SELECTED_MESSAGE`), "the certificate certifies that declared-load problem" (`SELECTED_MEMBER_LOAD_MESSAGE`) and "its own solve and certificate" (`COMBINATION_SELECTED_MESSAGE`).
+    - The selected-case diagnostics use "certified classes" (`SELECTED_MESSAGE`), "the certificate certifies that declared-load problem" (`SELECTED_MEMBER_LOAD_MESSAGE`) and "its own solve and certificate" and "certified classes" (`COMBINATION_SELECTED_MESSAGE`).
     - The `preview-physics-retained-1` table's member-load limitation says "Retained-precision certificates certify that declared-load problem". The `pressure-source-1` table's maxima limitation says "do not certify primitive geometry or material accuracy".
     - The formation definitions and the tables' formation warrants use "certificate" throughout, as the technical name of the numerical error proof.
   - **The choice.** The texts can keep these words, or the user-facing ones can adopt the nonlinear K-D5 ruling R5's wording ("established", "confirmed"). The choice is the owner's.
@@ -296,7 +304,7 @@ The registered checks are those in `software-workflow.json`.
     - `core/runner/headless/tests/reader_cli.rs`;
   - `desktop-test`: `apps/desktop/src/features/results/retainedPrecisionWasmEquivalence.test.ts`, `baseReaderWasmEquivalence.test.ts` and `apps/desktop/src/test-support/retainedPrecisionCorpus.test.ts`.
 - **VER-006** — For REQ-006:
-  - the VER-003 decline tests;
+  - the VER-003 decline and fallback tests, and the facade-level W1 census tests `core/product_physics/src/w1_source_census_tests.rs` and `w1_successor_census_tests.rs` (`macos-release-sweep`);
   - `desktop-test`: `apps/desktop/src/features/results/outputPolicy.test.ts` and `retainedPrecisionOutputRefusal.test.tsx`;
   - `macos-release-sweep`: `core/runner/headless/tests/retained_precision_admission.rs` and `core/product_physics/tests/retained_precision_admission.rs`.
 - **VER-007** — For REQ-007, on the head of each duty's own change:
