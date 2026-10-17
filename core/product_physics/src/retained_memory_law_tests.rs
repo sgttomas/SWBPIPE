@@ -1729,13 +1729,13 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// W1 actual-source candidate at 11b1dbfa69: requested + moving bytes, without R
+/// W1 actual-source candidate at 32bfb4d441: requested + moving bytes, without R
 /// or the separately upward-rounded TEXT reserve, from the canonical 100-form
 /// union. This record binds the unchanged build identity and actual native
 /// values; reviewed-input registration is a separate binding below.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_322_596_547, 5_653_987_365, 10_948_709_633, 11_154_058_845, 6_366_396_924, 10_991_385_601, 6_468_347_231],
-    [5_381_727_891, 5_713_118_709, 11_007_840_977, 11_213_190_189, 6_425_528_268, 11_050_516_945, 6_527_478_575],
+    [5_322_735_619, 5_654_126_437, 10_948_848_705, 11_154_197_917, 6_366_535_996, 10_991_385_601, 6_468_347_231],
+    [5_381_866_963, 5_713_257_781, 11_007_980_049, 11_213_329_261, 6_425_667_340, 11_050_516_945, 6_527_478_575],
 ];
 
 #[test]
