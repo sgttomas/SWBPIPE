@@ -2,7 +2,7 @@
 
 **Status: design, not implemented.** No product code, test, fixture, schema, table, generator or reference has changed. The basis is main `4971d62dc911f11c6d9867a9c2fe85e180d43006` (B7b, T4-U6/U8 merged as #1392). The RF source-method extension is designed ([rf-source-method-extension.md](rf-source-method-extension.md)) and being implemented on `codex/piping-rf-source-method-20261017`.
 
-This is the third post-T3 shared epoch in [b7-plan.md](b7-plan.md) ("After B7b", item 3). It lands after RF, from merged main, under its own independent review. Its implementation starts from RF's merged head and re-checks section 8 there. This file replaces b7-plan's four 2026-10-12 "Member loads" paragraphs and the stage-2 part of its "Size, tests and review". Section 1 re-checks each of their premises, and section 14 gives the blast radius.
+This is the design for the third post-T3 shared epoch in [b7-plan.md](b7-plan.md) ("After B7b", item 3). This documentation preparation may merge before RF. Product implementation waits for RF, starts from its merged head and re-checks section 8 there, under its own independent review. This file replaces b7-plan's four 2026-10-12 "Member loads" paragraphs and the stage-2 part of its "Size, tests and review". Section 1 re-checks each of their premises, and section 14 gives the blast radius.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
@@ -21,9 +21,9 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
   - A loaded member's published maximum is the kernel's RN64 projection of its certified enclosure, not PP's binary64 value, which fails the unchanged sharper predicate. Unloaded members keep PP's value and evidence byte for byte (sections 4.4 and 4.6).
   - The loaded-span search uses a quadratically convergent bound.
 - **Memory.** Stage 2 does not fit by itself.
-  - It falsifies a stage-1 pricing credit worth 76.3 MB in W4 (measured). With RF's stated ~8 MB, merged dense W4 then goes from +51.8 MB to −32.5 MB.
+  - It falsifies a stage-1 pricing credit worth 76.3 MB in W4 (tool-evaluated). With RF's estimated ~8 MB, merged dense W4 then goes from +51.8 MB to −32.5 MB (derived).
   - HELP_HUMAN adopted the full byte-preserving lever set. Real reductions come first (L4, L1a, L3, L5); then pricing-accuracy rules (L1b, L1c, L2), each on lifetimes that the code facts show.
-  - With them, merged dense W4 ends at +139.8 MB (tool-evaluated), against +43.8 MB today after RF. Section 9 gives the per-phase figures and their labels.
+  - With them, merged dense W4 ends at +139.8 MB in the scratch pricing evaluation, or +133.6 MB after the conservative estimated independent-reader surcharge, against +43.8 MB today after RF. Section 9 gives the per-phase figures and their labels. These are design-feasibility figures, not an actual-source D3 registration.
   - Decision 22 is unchanged: M, the 0.9M margin, R, the 5 % TEXT reserve and the budget model stay as they are.
 - **No change** to any reference, criterion, tolerance, D1 limit, work limit, frozen benchmark, DEF-E, route E, the model format or ordinary bytes.
 
@@ -35,7 +35,7 @@ Each premise is marked HOLDS, CHANGED or RETIRED, with its current evidence. Pat
 
 | # | 2026-10-12 premise | Verdict | Evidence on main | Consequence |
 |---|---|---|---|---|
-| P1 | `PrimitiveSource` gains `member_loads: Vec<UniformMemberLoad { member, intensity: [f64; 3], source_id }>` (global N/m), validated finite with the member present, sorted by member, source id and bits | HOLDS | `SourceParts` and `StraightMember` (`retained/source.rs` 81-93, 164-175, 270-287); load validation 596-604; nodal sort 605-611 | Section 2.1 |
+| P1 | `PrimitiveSource` gains `member_loads: Vec<UniformMemberLoad { member, intensity: [f64; 3], source_id }>` (global N/m), validated finite with the member present, sorted by member, source id and bits | CHANGED (representation); validation and order HOLD | `SourceParts` and `StraightMember` (`retained/source.rs` 81-93, 164-175, 270-287); load validation 596-604; nodal sort 605-611. Adapter reservations expose source and containing-slot sizes (section 6.2) | Member-only sidecars preserve existing source/capture layouts (section 2.1) |
 | P2 | Encoded in the K4SRC identity after the nodal loads; K4STF unchanged | CHANGED | K4SRC is header, stiffness part, loads, stations, supports (source.rs 777-808); K4STF is header and stiffness part (812-816). An always-written block would move `kernel_source_sha256` in every W1 receipt | The member block is appended after the supports **only when non-empty**. Nodal-only K4SRC bytes do not move |
 | P3 | K u = f_n + f_w, with f_w the consistent equivalent loads: node i (L/2)·w and (L/12)·(d × w), node j (L/2)·w and −(L/12)·(d × w) | HOLDS for the recipe; CHANGED for the equation (ruling B) | Signs verified exactly (section 2.3): the global form equals Tᵀ·f_eq(local), straight_pipe `spanned_uniform_equivalent_terms` (`core/solver/straight_pipe/src/lib.rs` 1484-1540) and FK `uniform_straight_balls` (`formation_check.rs` 2034-2098) | K u = f_n + f_d, f_d declared (section 2) |
 | P4 | f_w formed at the working precision (d and L by the frame's own formation; each cross-product component one exact expansion; every product and quotient rounded once), never rounded to binary64 | RETIRED (ruling B) | d is rounded at p (assemble.rs 298-304); L is re-formed at q, 2p and q_W (adaptive.rs 1488-1524; verify.rs 464-488). R7 has no term for an inexact load (P11) | Declared once at 1024 bits; d is never formed (section 2.2) |
@@ -117,7 +117,7 @@ A declared exact value meets that assumption without changing R7's law.
 - **Validation.** Finite intensity, the member present, and a length check that is already exact (source.rs refuses a zero-length member).
 - **Canonical order.** By member, source-id bytes, the three intensity bit patterns, then constructor ordinal, the same discipline as the nodal loads.
 - **K4SRC.** After the supports, a member block (count, then each term's member, intensity bits and source id) is appended only when the list is non-empty. K4STF is unchanged. A nodal-only source keeps its K4SRC bytes and `kernel_source_sha256`.
-- `source_counts` (source.rs 367-462) gains the member-load stride. The 29 `SourceParts { … }` literals take `member_loads: vec![]` (via `..Default::default()` where the literal allows), including the performance harness's k6 W1 adapter.
+- **Representation and API.** Keep `SourceParts` and `PrimitiveSource` unchanged in layout and nodal construction. A new validated `MemberLoadSet` owns the member vector, and `MemberSourceRef` borrows the primitive source plus that sidecar. Its constructor validates the member association against that source; its canonical identity is the base K4SRC followed by the nonempty member block. The composite's `source_counts` adds the member stride. Existing nodal APIs and all 29 `SourceParts` literals stay unchanged. A member-aware recorded-invocation entry accepts aligned source/optional-sidecar views, preserving shared stiffness groups and case indices; a missing or wrong-case sidecar is an association refusal. A case without member terms uses the original source path. Here, “source has member loads” refers to the validated composite view, not a new `PrimitiveSource` field.
 
 ### 2.2 The declared value
 
@@ -179,11 +179,11 @@ The scratch check (`declared.py` → `/private/tmp/w1-design-kernel/declared.log
 
 `ExactAccumulator` takes only binary64 values and binary64 products (exact_sum.rs 3-21), so it cannot hold declared entries. For a source with member loads, each loaded DOF's net is formed in an `ExactWideSum`: the nodal net through `add_integer`, then each declared entry through `add_wide`. One new accessor returns the result in `LedgerNet`'s canonical odd form, because `ExactWideSum::net` is private (wide_sum.rs 732). Each entry sets `nonzero[k] |= entry ≠ 0`. A nodal-only source keeps today's code path and today's K4LED bytes.
 
-**Confirmation (HELP_HUMAN's condition): 7a, Ŵ and E treat the declared entries exactly like the ledger.** This holds on two requirements:
+**HELP_HUMAN's condition, corrected after independent review.** Exact ledger inclusion establishes 7a's per-term data flags and Ŵ's omission on two requirements:
 - the entries are folded into `RetainedLedger`'s per-DOF nets and per-term flags;
 - `recover` reads every member-load term only through its `ledger` argument, never from `source`.
 
-Then `RetainedLedger::empty()` (Ŵ) and `ledger = None` (‖ā_q S‖₁) omit every member-load term by construction.
+Then `RetainedLedger::empty()` (Ŵ) and `ledger = None` (‖ā_q S‖₁) omit every member-load term by construction. **E is not established by inclusion alone.** The first independent review disproved section 4.2's former unamplified load terms using a near-parallel frame. HELP_HUMAN ruled the conditioning repair within the settled declared-load semantics (2026-10-17). Section 4.2 specifies it; its full recovery-DAG formation-error derivation and independent checks must establish the unchanged factor-69 bound. Until that confirmation, E remains pending, not a confirmed consequence of ledger inclusion.
 
 | Consumer | Today | With declared entries | Verdict |
 |---|---|---|---|
@@ -192,7 +192,7 @@ Then `RetainedLedger::empty()` (Ŵ) and `ledger = None` (‖ā_q S‖₁) omit e
 | d^b fallback | `bounded_fallback` (adaptive.rs 1786-1904; ledger 1829-1834) | same | same |
 | R7 r, r₂ at q_W | verify.rs 833, 890 (`add_to`) | same; never re-formed | same |
 | t₁ | verify.rs 1105-1122 (K's formation error only) | the declared problem's load is exact | no new term |
-| E | `formation_scale` (verify.rs 86-288): the ledger enters reactions as \|f_c\| (233) under `Some(ledger)`; ‖ā_q S‖₁ passes `None` (959) | reactions automatic; a loaded member's end-action and station rows gain absolute-operand load terms under the same `Option` switch (section 4.2) | same rule |
+| E | `formation_scale` (verify.rs 86-288): ledger reactions use \|f_c\| (233) under `Some(ledger)`; ‖ā_q S‖₁ passes `None` (959) | reactions automatic; local load recovery also needs conditioned absolute-operand bounds and g-check applicability (section 4.2) | independent formation-error confirmation required |
 | Ŵ | verify.rs 851-883, `RetainedLedger::empty()` at 864 | the empty ledger omits every member-load term | same, by construction |
 | 7a data flag | `data_blocks` (bound.rs 127-157); `fill_data_blocks` (162-197); `has_nonzero_term` (ledger.rs 141-165) | a nonzero declared entry sets the flag even if the net cancels | same |
 | uniqueness warrant | source_residual.rs 970-982; bridge.rs 486-492 | data from `fill_data_blocks` | same |
@@ -220,7 +220,13 @@ Then `RetainedLedger::empty()` (Ŵ) and `ledger = None` (‖ā_q S‖₁) omit e
   - the rounding-order control (RN(g·c) ≠ RN(RN(L̂·c)/12)) and the two d-rounding controls;
   - a nodal load on a declared DOF;
   - a cancelling pair of loads on one member.
-- **No receipt digest is added.** K4LED's existing hash binds the declared problem for a selected case, and K4SRC binds the source for every case. Neither reader recomputes K4LED today; it is attested (DEF-O `trust.attestation`). The Python verifier gains a **test**, outside the validation gates, that recomputes `cases[].selection.ledger_sha256` with Python integers for every selected preview case in the genuine bases and member-load fixtures. As a gate, it would split the Rust and Python verdicts on ledger mutations. The Rust reader does not rederive it: that would need an independent correctly rounded 1024-bit square root and a K4LED encoder in the product reader and wasm (about 400 lines and priced transients), or a dependency on the producer's arithmetic.
+- **Independent reader gates (HELP_HUMAN, 2026-10-17).** For each selected route-L case with member terms, the Rust reader and Python verifier independently recompute D1–D5, combine the declared entries with that case's normalized nodal terms exactly, and bind the result to `cases[].selection.ledger_sha256`. No receipt digest is added: K4LED's existing hash binds the declared problem, while K4SRC binds its source. Existing attempt/selection ledger-hash equality checks remain, so a selected attempt cannot attest a different declared problem. Nodal-only cases retain today's attestation path and verdict behavior.
+  - **Rust, including wasm.** A reader-owned bounded signed-integer/dyadic implementation performs RN1024 with guard, round and sticky information, exact quotient/remainder comparisons for division, and integer-square-root midpoint comparisons for square root. It implements D1–D5 directly, without depending on the producer, the retained kernel's arithmetic or the Python oracle. It needs no new Cargo dependency. Each arithmetic intermediate has an explicit limb/span bound; an exceeded bound or arithmetic inconsistency refuses validation, never truncates. The implementation must show the D1 domain fits those bounds.
+  - **Python.** The verifier implements its own integer/Fraction RN-even, square root and canonical ledger encoding. It neither calls Rust nor imports or executes `gen_k4_vectors.py`; the generator remains a third, test-only oracle. All three agree on the named controls above, including ties, exponent spread, cancellations, zero signs and rounding order.
+  - **K4LED.** Rebuild the complete ascending DOF list from nodal and member occurrences, including DOFs whose authored contributions are zero or cancel. Normalize each net to its odd magnitude, sign and exponent, with the existing canonical zero `(false, 0, empty)`; stream the existing `K4LED\x01` encoding into SHA-256. Nonzero-per-term flags are recomputed separately for the data checks; they are not K4LED fields. Both validators reject a selected member case whose recomputed digest differs, through G8 `PREPARATION_MISMATCH`, after the existing source/occurrence checks. Earlier gate precedence is unchanged.
+  - **Mutants.** Change every attested ledger hash together and refresh the outer receipt hash, so existing equality and G1 checks do not mask the new gate; both validators must reject. Also pin wrong RN ties, square-root rounding, D5 order/sign, omitted entries, cancelled nets and zero-occurrence DOFs against the bit vectors. Genuine loaded bases pass in native Rust, wasm and Python; existing nodal-only corpus verdicts stay unchanged.
+  - **Invocation-unbound result.** G8, including this recomputation, runs only with a captured invocation, as today (Rust retained_precision.rs 6204-6212; Python verifier 2980-2983). Without one, preserve `needs_recompute` standing; do not describe the result as having passed invocation-bound ledger validation.
+  - **Memory.** Per-case arithmetic, declared entries, net storage, canonical hashing and all call-stack/capacity staging have a design cap of 1 MiB, with a separate full moving allowance. Section 9 charges both positively at the existing three-case convention. This bound requires implementation layout/source pins and a cap-maximal native/wasm check; it is an estimated design bound, not an observed reader allocation.
 
 ## 3. Residual, verification and scales
 
@@ -236,7 +242,7 @@ R7's law, the gate, the stop rule, the classification thresholds and the case an
 - u and the reactions solve K u = f_n + f_d;
 - each loaded member's end actions are K_e·u_e − f_eq,local(T·w, L), and its stations add the exact span terms.
 
-f_eq is formed locally from the member's axes and w, not by rotating the declared global value. The stations need w_local and L anyway. All inputs at p are p-bit or binary64. Rotating the 1024-bit declared value would put spurious terms of about 2⁻¹⁰²² into the torsion rows. The member's free body is exact: station(0) = −A_i and station(1) = A_j hold bit for bit. Nodal equilibrium between the published end actions and the declared loads holds to within the disclosed 2⁻¹⁰²².
+f_eq is formed locally from the member's axes and w, not by rotating the declared global value. The stations need w_local and L anyway. All inputs at p are p-bit or binary64. Rotating the 1024-bit declared value would put spurious terms of about 2⁻¹⁰²² into the torsion rows. Before numerical stiffness/recovery error, the discrepancy between declared and consistent nodal loading is bounded by section 2.4's sum of per-entry absolute errors; it is not a relative bound on a cancelled net. Published finite-p end actions also have recovery error, bounded separately by R7 and the lanes. No 2⁻¹⁰²² total equilibrium-error claim is made for those published actions.
 
 `MemberOperators` gains `length`, which `form_member` already computes (assemble.rs 305) and discards. This is a priced layout change: 8 B per member.
 
@@ -263,17 +269,23 @@ The end actions are each one exact sum, rounded once:
 
 t² is exact (at most 106 bits). These equal A_j + w_loc·L(1 − t), then t·A10 + (t − 1)·A4 + w_z L² t(1 − t)/2, and t·A11 + (t − 1)·A5 − w_y L² t(1 − t)/2. On K-D5's base they are −F_i′ − w_local·tL, then M_y = −M_y,i′ − tL·V_z,i′ − w_z(tL)²/2 and M_z = −M_z,i′ + tL·V_y,i′ + w_y(tL)²/2, which are K-D5's own code signs.
 
-The force base matters: today's station forces come from the j-end action (recover.rs 392), which equals −F_i only for an unloaded member. For an unloaded member every load term is zero and the bits equal today's. Reactions are unchanged, because they already subtract the ledger net, which now includes the declared entries.
+The force base matters: today's station forces come from the j-end action (recover.rs 392), which equals −F_i only for an unloaded member. For a loaded interior station, expand the raw `(BᵀQ)_j` products into the station's single exact sum; do not first round a recovered j-end force and then add load terms. At t = 0 and t = 1, return the sign-adjusted corrected end action directly, with canonical +0, so station(0) = −A_i and station(1) = A_j are bit-identical even at rounding boundaries. The interior identities above are algebraic identities; separately rounded evaluations need not be bit-identical. Unloaded members keep today's path and bits. Reactions already subtract the ledger net, which now includes declared entries.
 
 ### 4.2 E for a loaded member
 
-E applies under `Some(ledger)`, mirroring recovery with absolute operands. B̄ puts 1 at every axis component, so one w̄ serves all three local axes:
+**Conditioning repair (HELP_HUMAN, 2026-10-17).** E applies under `Some(ledger)` only when that ledger carries the member contributions, mirroring recovery with absolute operands. B̄ puts 1 at every axis component, so one w̄ serves all three local axes. The member's existing g_m = 2^g_exp amplifies **every new frame-dependent load-recovery operand**, just as it amplifies the existing displacement-dependent member recovery:
 - w̄ = stage(Σ|w_ℓ,c|), w̄l = stage(w̄·L), w̄ll = stage(w̄l·L), h̄ = RN(w̄ll/12).
-- End rows: stage(raw·2^g + w̄l/2) on the six force rows and stage(raw·2^g + h̄) on the four bending rows; torsion rows are unchanged.
-- Station forces: stage(raw_j·2^g + w̄l/2 + w̄l·|t|).
-- Station moments: stage(old·2^g + h̄ + (w̄ll/2)|t| + (w̄ll/2)t²).
+- End rows: stage((raw + w̄l/2)·2^g) on the six force rows and stage((raw + h̄)·2^g) on the four bending rows; torsion rows are unchanged.
+- Station forces: stage((raw_j + w̄l/2 + w̄l·|t|)·2^g).
+- Station moments: stage((old + h̄ + (w̄ll/2)|t| + (w̄ll/2)t²)·2^g).
 
-Load terms are not scaled by g_m. Unloaded members, and the `None` case, keep today's bits.
+Here raw, raw_j and old denote the corresponding unamplified absolute recovery chain. Use the existing `StageRounding` discipline at each sum/product/division stage; exact power-of-two amplification is applied before combining with the returned E bound. Endpoint branches use the corresponding end bound. No new load term bypasses g_m. The source/ledger boundary prevents a source-side load from leaking into an omitted-ledger recovery. Unloaded members, all-zero member contributions, `None`, empty-ledger and nodal-only inputs retain the existing paths and bits.
+
+**Existing g-check, extended applicability only.** Preserve prior nodal-only applicability and the threshold g_exp ≤ P − 16. Additionally check any member whose ledger carries an authored member term with any exact binary64 intensity component ≠ 0. Determine this before local projection or netting: cancelling terms, an exactly vanishing local component, and fully fixed zero-prescription members cannot hide activity. All-zero contributions add no activity. Under `None` or an empty ledger no new member-load activity exists. Count the extra tests and any refusal work, without changing precision/domain/work limits or acceptance predicates.
+
+**Required error warrant.** The separate numerical review must trace the full corrected DAG: coordinate differences and length, Gram–Schmidt projection/subtraction/normalization, cross-product/normalization, w_loc's exact accumulation, wl/wll/h, corrected end sums, interior single-round station sums, endpoint dispatch and E's own rounding. It must derive |q_P − R*(u_P)| ≤ 69·2^-P·E_q under the existing g-check, including higher-order terms; magnitude domination E_q ≥ |q_P| is insufficient. The declared global ledger is exact data; this warrant concerns local frame-dependent affine recovery, not a new f_d formation-error term in R7. Factor 69, R7's equations and P−16 remain unchanged. If the derivation cannot justify them, return the concrete conflict to HELP_HUMAN.
+
+Independent exact/directed controls must test actual formation error, not merely E magnitude, at P = 128, 256, 512 and 1024: the failing chord (1,1,2^-80), y_ref = (1,1,0), global-x unit load and u = 0; ordinary aligned/skew frames; g_exp at P−16 and above; fully fixed members; zero and cancelling loads; and `None`/empty-ledger exclusions. Section 10 names the controls. This remains design work; no product evidence or actual-source D3 is asserted here.
 
 ### 4.3 The lanes (`source_residual::recover`, 1384-1520)
 
@@ -311,12 +323,16 @@ Both the predicates and G7 are unchanged.
    - Every committed byte reproduces (section 4.6).
 2. **Loaded member: the maximum can be interior**, where only the kernel's certified enclosure can certify it.
    - **Value.** n = RN64(H(hull(k, s))), DEF-O's projection H of the hull of the two lanes' search enclosures (below), as `project_hull` forms it for every other row. In `ProductProofDraft::project` (final_case.rs about 1795-1830), a loaded member's `CircularMaximum` row is projected there rather than skipped, so `complete_maxima` receives no value for it.
-   - **PP's bounder still runs**, with the member's local full-span loads in place of `&[]`. `straight_local_uniform_loads` (PP `lib.rs` 10605-10640) builds them from the captured global intensities and the rebuilt pipe's binary64 orientation. PP keeps `span_index`, `subdivisions`, `station_fraction` and `local_fraction` from its own search, as today, and its interval [L_pp, U_pp]. The shared engine (`RELATIVE_GAP`, `fallback_circular_maximum`, `exact_straight_summary_extrema`, `elastic_extrema`) does not change; only the retained call's argument does.
-   - **Evidence interval.** [lower, upper] = [n − δ, n + δ], the least exact symmetric binary64 interval about n that contains both the kernel's certified enclosure [lo, hi] and PP's [L_pp, U_pp]. It is searched over powers of two δ ≥ ulp(n), requiring n − δ and n + δ to be exact binary64 values and n − δ ≥ 0. Then `global_upper_bound_pa` = upper and `certified_gap_pa` = upper − lower = 2δ.
-   - **Near-zero form.** If no such δ keeps n − δ ≥ 0 (a maximum near zero, whose enclosure reaches 0), the value is upper/2 with evidence [0, upper]. Here upper is the least binary64 ≥ max(hi, U_pp) whose half is exact; it is RU64(max(hi, U_pp)) unless that is the smallest subnormal, which is then doubled. The gate judges this value as any other. A row whose enclosure reaches zero is absolute-class in practice and passes the absolute bound when hi/2 is within it; otherwise it fails closed.
+   - **PP's bounder still runs**, with the member's local full-span loads in place of `&[]`. `straight_local_uniform_loads` (PP `lib.rs` 10605-10640) builds them from captured global intensities and the rebuilt pipe's binary64 orientation. PP keeps `span_index`, `subdivisions`, `station_fraction` and `local_fraction`. Here **L_pp = maximum.value_lower** and **U_pp = maximum.upper_bound**, the interval containing the global maximum (`elastic_extrema.rs` 67-68, 319-320). `maximum.value_upper` is only the witness-value upper and must not substitute for the global upper. The shared ordinary engine does not change; only the retained call's argument and subsequent loaded-row evidence construction do.
+   - **Evidence interval.** [lower, upper] = [n − δ, n + δ], the least exact symmetric finite binary64 interval about n containing both the kernel's [lo, hi] and PP's [L_pp, U_pp], with δ ≥ ulp(n) and lower ≥ 0. Search all admissible endpoint grids as specified below; restricting δ to powers of two is unsound at binade edges. Then `global_upper_bound_pa` = upper and `certified_gap_pa` = upper − lower = 2δ.
+   - **Half-upper form, including near zero.** If no admissible symmetric interval exists, use evidence [0, upper] and value upper/2, where upper is the least finite binary64 ≥ max(hi, U_pp) whose half is exactly representable. Start at RU64 of that maximum and advance one binary64 step if its exact half is not representable. This applies to every odd subnormal and to odd low-normal significands whose half is subnormal, not just the smallest subnormal. If no finite upper exists, refuse by the named maximum-evidence cause. The unchanged gate judges the resulting value; a finite fallback is not an assurance of passage, even when the enclosure reaches zero.
+
+**Complete symmetric construction.** For n > 0 form exact dyadics L_req = min(lo, L_pp), U_req = max(hi, U_pp), then **upper = RU64(max(U_req, 2n − L_req, n + ulp(n)))**. If upper is finite and upper ≤ 2n, set lower = 2n − upper; otherwise no admissible symmetric interval exists. Form 2n and the threshold expressions exactly, never with potentially overflowing binary64 intermediates. The reflected lower is exactly representable by Sterbenz's lemma (its unbounded-exponent statement when 2n exceeds binary64 range); the result lies in binary64 range. The threshold ensures containment, δ ≥ ulp(n) and lower ≥ 0. Every feasible upper must exceed that threshold, so this is the least upper and least radius. For n = 0 use the half-upper form. This also finds the 3·2^-53 radius that the rejected power-of-two search misses at n = nextDown(1).
+
+Use bounded exponent/significand comparisons and sticky rounding, never an unchecked common-denominator shift; an arithmetic-capacity failure is a named refusal, never truncation. All exact construction work belongs to the existing product-certificate finalization owner (`NumericWork` and sum/visit counters), before completion is sealed. PP supplies its global bounder interval before that owner closes; a row cannot publish from an unmetered post-completion helper. Arithmetic and failure work are charged at actual cost under existing limits/checkpoints, with source pins and tests for the complete helper call chain. Independent exact checks covered 10,000 finite-exponent endpoint pairs (`/private/tmp/w1-design-review-num/symmetric_repair.log`); actual product controls remain implementation obligations.
 
 **Why G7 holds by construction** (HELP_HUMAN's condition):
-- *Symmetric form.* n − δ and n + δ are exact, so upper − lower = 2δ exactly, 0.5·2δ = δ exactly, and lower + δ = n exactly. So value = lower + 0.5·(upper − lower) bit for bit. lower = n − δ ≥ 0 by the choice of δ, and lower ≤ n ≤ upper. upper = `global_upper_bound_pa` by assignment. The interval contains PP's bounder interval, which encloses the maximum of the supplied binary64 polynomial coefficients, so the fixed basis strings remain true: the interval is an enclosure over the supplied coefficients, and the solution error is separate (it is certified by the kernel enclosure, which the interval also contains).
+- *Symmetric form.* Exact lower + upper = 2n and 0 ≤ lower ≤ n imply n ≤ upper ≤ 2n. Therefore δ = upper − n is exactly representable by Sterbenz's lemma; 2δ = upper − lower is finite and exactly representable, and lower + δ = n exactly. G7's binary64 midpoint identity follows bit for bit. lower ≥ 0 and containment follow from the grid constraints; upper = `global_upper_bound_pa` by assignment. Containing PP's interval preserves its supplied-coefficient enclosure statement and fixed basis strings; the kernel separately certifies solution error.
 - *Near-zero form.* lower = 0, and upper − 0 = upper exactly. 0.5·upper is exact because upper's half is exact by construction, and 0 + upper/2 = value. 0 ≤ value ≤ upper, and upper = `global_upper_bound_pa`.
 
 **Why the gate passes for a loaded member.** The value is the kernel projection that passed all four predicates in 252 of 252 end-to-end scratch trials (`/private/tmp/w1-design-maximum/exp8_recipe.log`); the evidence width does not enter the gate. PP's own value would fail. Its binary64 bounder stops at a 1e-12 relative gap (`elastic_extrema.rs` 113, 327), so its midpoint is off by about 1e-14 to 1e-13 relative for a non-dyadic interior maximum, by up to 1.1e-12 at small magnitudes, and biased upward by the axial widening when |N|/A is below the transport width. In a scratch re-implementation that reproduces the Rust unit expectations, PP's current value passes on only one loaded control (126 of 200 trials). Even an exact evaluation from PP's binary64 inputs passes only 37–94 % (`exp1_published.log`, `exp2_random.log`). These are simulations, not product runs.
@@ -332,7 +348,7 @@ Both the predicates and G7 are unchanged.
   - The box-corner bound (separate maxima of |N|, M_y and M_z) overestimates by O(h). It exhausts 256 nodes on the skew two-axis and axial-slope controls, and live nodes grow 4× for every 16× tighter tolerance. It is not used.
 - **Lower bound.** The search's best evaluated point, rounded down. The published governing station's value is not used: it would leave the enclosure 212 to 10,686 × 2^-53 wide.
 - **Stop.** When U − L ≤ 2^-64·L. A hull width ≤ 2^-63·|n| suffices for the RN projection to pass.
-- **Limits.** 256 live nodes, depth 64, and 1,024 splits per lane. Exhausting any limit returns [L, the maximum upper bound over the live nodes and the unexpanded parent]. That interval still contains the maximum and is wide, so the unchanged gate fails the row and the case publishes `unavailable` (fails closed), with a named kernel cause.
+- **Limits.** 256 live nodes, depth 64, and 1,024 splits per lane. Exhausting any limit preserves [L, the maximum upper bound over live nodes and the unexpanded parent] as an enclosing diagnostic, and **returns a named kernel exhaustion failure directly**, making the case unavailable. Width alone cannot guarantee failure of an absolute-class gate. Exhaustion prohibits publication even if that interval would satisfy the gate; limits, failure propagation and all spent work are retained.
 - **Scratch results** (`exp3_kernel_*`, `exp5*_degenerate`, `exp9_edges`):
   - the main controls certify in ≤ 33 splits, ≤ 18 live nodes and depth ≤ 33;
   - near-degenerate rotating moments down to e = 1e-8 certify in ≤ 26 splits and ≤ 13 live nodes;
@@ -384,14 +400,22 @@ There were 244 maximum rows, all on unloaded members and all AbsoluteVerified; t
 
 **Where it is counted.** The declared ledger is formed at the start of the case's first own-stage run (`solve_case_at`, adaptive.rs 1908-1954), in its `rhs` stage. It uses that function's existing 1024-bit context and accumulator. The work flows into the attempt's `work`, `k4_work` and `stages.rhs` once, and is charged once to the case limit and the invocation meter. `guard.test` runs after each member (all its loads) and after netting, the same checkpoint discipline as `form_members` (assemble.rs 521-534). The stage fields are published and closed in the schema (retained_wire.rs 283-286), so no stage is added.
 
-**Cost** (multi.rs 86-93 at L = 16, in limb-multiply equivalents):
+**Wide-arithmetic cost** (multi.rs 86-93 at L = 16, in limb-multiply equivalents; `SumWork` is added below):
 - per loaded member, at most 38,822: 2,880 for nine two-products, 32 for the rounding, 18,468 for the square root, 17,442 for the division;
 - per load, at most 7,776;
 - plus `SumWork`, so the formation is never zero;
-- at the D1 caps (32 members, 128 loads per case), about 2.24M per case, against the unchanged 20e9 case and 60e9 invocation limits.
+- these wide-only figures do not bound complete formation or checkpoint overrun.
+
+**Complete conservative formation/checkpoint bound, including `SumWork`** (independently derived in `/private/tmp/w1-design-review-num/checks.log`, with the new canonical-net accessor bounded here):
+- A nonzero `add_raw` touches at most 128 term/carry limbs plus 256 anchor-shift limbs: at most 384 LME (wide_sum.rs 405-506). One sum rounding adds at most 256 net limbs plus 128 rounded limbs: 384 LME.
+- Fixed per member: 38,822 + 9 × 384 + 384 = **42,662 LME**. Per load, a conservative 24 raw insertions and three roundings add 24 × 384 + 3 × 384 to 7,776: **18,144 LME**.
+- One member holding all 128 loads therefore costs at most **2,365,094 LME** between member checkpoints.
+- Final netting over at most 192 DOFs inserts at most 1,536 declared terms and 192 nodal nets, then nets each DOF: (1,536 + 192) × 384 + 192 × 256 = 712,704 LME through the existing sum API. The new canonical odd-net extraction adds at most three 128-limb scans/shifts per DOF, explicitly charged, or 73,728 LME. Total netting checkpoint: **786,432 LME**. Its source pin and test must bind the accessor to those scans; adding another pass requires updating this bound.
+- Across 32 members, 128 loads and final netting, complete declared formation is at most **4,474,048 LME per case**. This deliberately overstates mixed nodal/member input because D1's 128 authored loads cap is shared.
+- Maximum additional declared-formation work between two checkpoints is **2,365,094 LME**, hence a checkpoint may detect at most that much overrun (about 0.01183% of 20e9). The final netting checkpoint's bound is smaller. This is a conservative design bound for these operations, not a strict pre-execution cap or a bound on the whole solve/maximum search. Implementation must establish the prescribed operation schedule and bound against source; no unpriced/unmetered canonicalization is allowed.
 
 The loaded maximum's search counts through `NumericWork` plus its wide and sum work:
-- at most 14,498 directed entries per lane per loaded member (about 440 per split), about 29k for both lanes;
+- up to 14,498 directed entries per lane per loaded member in the observed controls (about 440 per split), about 29k for both lanes; this is not the split-budget maximum;
 - at least 238 with no split;
 - at most about 0.45M per lane under the split budget.
 
@@ -401,7 +425,7 @@ The loaded maximum's search counts through `NumericWork` plus its wide and sum w
 - nothing is counted as zero;
 - there is one rule, with no member-load regime.
 
-**Refusal timing.** W1's `StageGuard` refuses at checkpoints after a step (adaptive.rs 239-295). A refusal can therefore land up to one member's formation past the limit: about 39k plus 7.8k per load plus `SumWork`, at most about 1.04M against 20e9. Refusing before each step, as RF's Context does, would be a second regime if applied to this formation alone, and a new rule if applied to all of W1. It is not proposed (ruling R-1, section 11).
+**Refusal timing (R-1, HELP_HUMAN, 2026-10-17).** Preserve W1's actual-cost counters and `StageGuard` checkpoints after each member and after netting (adaptive.rs 239-295). RF's pre-step refusal belongs to `exact_boundary::Context`; it does not change W1's policy. These are checkpoint limits, not strict pre-execution caps. A checkpoint permits equality and refuses when used work exceeds case or invocation room. All executed work, including the member or netting that exhausts the room, remains counted once in the stage, attempt, case and invocation totals. Exhaustion stops the attempt before any subsequent formation, solve or publication; there is no unmetered continuation. The limits are unchanged. The preceding bounds include both `SumWork` and wide arithmetic.
 
 ## 6. Producer, definitions, receipt, schema and readers
 
@@ -410,10 +434,10 @@ The loaded maximum's search counts through `NumericWork` plus its wide and sum w
 Delete the following:
 - `MEMBER_LOAD_CAUSE` (retained_product.rs 43);
 - `capture_member_load_case` (1794-1834);
-- the `member_loads` flag (173, 295, 376);
 - the stage-1 skip of the captured-invocation check (4124-4125).
 
 Restore the check in `finish` (2253) that every captured case has a source. `MEMBER_LOAD_CAUSE`'s 86 B of TEXT leaves the profile.
+Keep the existing `member_loads` Boolean fields in their old layouts; they now bind sidecar presence instead of selecting the interim refusal. Removing or enlarging those fields is not part of this design.
 
 ### 6.2 Capture (`retained_product.rs`)
 
@@ -424,10 +448,11 @@ Restore the check in `finish` (2253) that every captured case has a source. `MEM
   - the raw value converted to N/m giving the same bits, with the normalized unit `N/m`;
   - no extent.
 - **Occurrence capture.** One capture of the case's terms with one shared "used" tracker (generalizing 2113-2225). Each member occurrence must match exactly one unused authored load with the same id and magnitude bits, the target pipe equal to the model's pipe at that index, and the same global direction. The member is the model pipe index as `u32`, which is the kernel member id. The intensity has only the load's axis set; the off-axis entries are +0.
-  - Then come the single unconsumed-load check, `PrimitiveSource::new`, and one canonical map per family.
+  - Then come the single unconsumed-load check, the unchanged `PrimitiveSource::new` for the nodal part and the validated member sidecar, and one canonical map per family.
   - New refusal texts: "member load occurrence not authored" and "canonical member term map".
-- **`MemberTermIdentity`** (about 64 B) has its own per-case vector, so `TermIdentity` and nodal-only layouts do not move.
-- **Gating.** Every new adapter event, reservation, capacity and kernel work charge happens only when the case has member loads. Adapter counts and `prepared_capacity_bytes` are receipt bytes, and the adapter records an allocation event even for an empty vector (3987-4006).
+- **`MemberTermIdentity`** (about 64 B) and the member loads live in a member-only per-case sidecar. `ProductCapture` owns optional invocation-level storage keyed by requested case index, outside `per_case_capture!`, `CaseSlot`, `EarlyCaseSource` and `PrimitiveSource`. It is created/reserved only for actual member cases, retains early/late occurrence custody and basis identity, and is borrowed with the matching case during `with_case` and submission. No sidecar state is swapped through old slots. Basis reuse never reuses another case's load sidecar.
+- **Layout preservation is required, not inferred from conditional events.** `Adapter::reserve` emits capacity × `size_of::<T>()` (3997-4004), including `Option<EarlyCaseSource>` (4097), `CaseSlot` (469) and multi-case `PrimitiveSource` submission (5196). Those types and the original nodal reservation calls remain unchanged. Member-aware submission uses an additional separately reserved aligned view vector only when member cases exist; every sidecar/vector allocation and move is counted truthfully there. No old nodal size substitutes for a larger allocated type. A nodal-only invocation, including route E, has neither new allocations nor new events. D3 prices the invocation-level header, sidecar and view staging positively; section 9's surrogates bound the proposed owners, and actual-source D3 replaces them.
+- **Gating.** New sidecar/view adapter events and reservations occur only on a member-aware invocation path; a wholly nodal invocation keeps its old submission path. New case-local formation charges occur only for member cases. Adapter counts and `prepared_capacity_bytes` are receipt bytes, and the adapter records an allocation event even for an empty vector (3987-4006).
 - **Preparation copy.** `prepare_active_case` (5274-5375) copies the source's member loads into prepared capacity slot 15 (unused today), with slot 10 for ids.
 - **Late check.** `check_early_occurrences` compares counts per family, and each member term's id, member, axis, bits and extent.
 - **Self-weight ids.** The D1 law (`GeneratedLoadIdentity`) refuses them, and the readers mirror that refusal.
@@ -464,11 +489,12 @@ The disclosure is placed in three places: the DEF-O/DEF-C wording; table #4's `s
 
 - **DEF-O** (`fixtures/results/retained_precision_prepared_ordinary_v1.json`, #3; keep its sorted-key compact form):
   - `scope.loads` becomes `"individual_normalized_nodal_terms_and_declared_full_span_uniform_member_terms"`.
-  - New `lanes.loads`: "the case's K4LED: each loaded DOF's exact net of its individual normalized nodal terms and its declared member-load entries; per full-span uniform member term (member i-j, global intensity w in N/m, binary64) six fixed binary1024 entries formed once: S=d.d exact from nine binary64 products with d never formed, L=RN1024(sqrt(S)), g=RN1024(L/12); force RN1024(L*w)/2 at i and at j; moment RN1024(g*(d x w)) at i and its negation at j, d x w exact; folded exactly into the same per-DOF nets and per-term data flags; residual, verification, reactions and Ŵ/E use them exactly as the ledger; member end actions and stations use the member-local consistent load from w and L".
+  - New `lanes.loads`: "the case's K4LED: each loaded DOF's exact net of its individual normalized nodal terms and its declared member-load entries; per full-span uniform member term (member i-j, global intensity w in N/m, binary64) six fixed binary1024 entries formed once: s=d.d exact from nine binary64 products with d never formed, S=RN1024(s), L=RN1024(sqrt(S)), g=RN1024(L/12); force RN1024(L*w)/2 at i and at j; moment RN1024(g*(d x w)) at i and its negation at j, d x w exact; folded exactly into the same per-DOF nets and per-term data flags; residual, verification, reactions and Ŵ/E use them exactly as the ledger; member end actions and stations use the member-local consistent load from w and L".
   - New `acceptance.declared_member_load`: "The certificate certifies the declared-load problem K u = f_n + f_d. Each declared entry differs from its exact consistent value ((L/2)w and ±(L/12)(d x w) at the exact length) by at most 2^-1022 of that value's magnitude; this difference is disclosed, not certified, and enters no published bound." The bound is stated per entry, because entries from different members can cancel at a node.
   - `rows.maximum` keeps its present text for an unloaded member, whose maximum is at an end, and adds the loaded case. The new text: "unloaded member (maximum at an end): existing binary64 span-statical coefficient bounder from final projected endpoint actions and prepared section, no loads/no pressure; regenerate all eight numeric evidence fields; output RN64(lo+RN64(0.5*RN64(hi-lo))); retain coefficient scope/location/tie/coverage and certify actual output against separate dual physical maximum. Loaded member (maximum may be interior): output H of hull(admitted_k, annular_source) directed branch-and-bound circular maxima of |N(t)|/A+‖M(t)‖/Z over t in [0,1] with the member's local full-span uniform loads; the bounder above runs with the same loads for span/station/subdivision evidence; value_lower/value_upper are the least exact symmetric binary64 interval about the output containing both the certified hull and the bounder interval, with lower >= 0, or, if none, output upper/2 with evidence [0, upper]; global_upper_bound = value_upper; certify actual output against separate dual physical maximum".
   - The meaning hash (now `c4aebcef…`) moves in the producer (retained_wire.rs 34-35), the Rust reader (9-11), the verifier (35), the table (line 1176) and desktop test support.
-- **DEF-C** (`retained_precision_prepared_combination_v1.json`, #6): `scope.excludes` appends `"operand_member_loads"`.
+  - Its trust wording distinguishes unchanged nodal-only ledger attestation from selected member cases' independent invocation-bound Rust/Python K4LED validation. That validation binds declared-load data; it does not rerun the solve or certify the disclosed physical-load discrepancy.
+- **DEF-C** (`retained_precision_prepared_combination_v1.json`, #6): `scope.excludes` appends `"operand_member_loads"`, and `inherits.operand_definition.sha256` binds the revised DEF-O. Its disclosure states: "A full-span uniform member load is represented by six declared binary1024 equivalent nodal entries per authored term, formed once from binary64 inputs; each entry differs from its exact consistent value by at most 2^-1022 of that value's magnitude. Retained certificates certify that declared-load problem. This combination definition excludes every operand carrying member terms, including zero or cancelling terms."
 - **DEF-E** (#7) is unchanged.
 - **Preview-retained table** (`semantic_contract_v0_3_preview_physics_retained_1.json`, #4):
   - the two hashes in `product_formation_definitions` (about line 1173) are updated;
@@ -488,12 +514,12 @@ The Rust reader is `core/reporting/result_export/src/retained_precision.rs`; the
 
   The member terms are sorted by member, source-id bytes, the three hex intensity words, then constructor ordinal. `member_load_terms` must be absent when there are none and exactly equal otherwise. That catches missing, extra, reordered, changed and duplicated terms.
 - **K4SRC** (Rust `native_bytes` 5542-5640; Python 366-410): after the supports, the member block is appended only when present, in the kernel's byte layout.
-- **Data flags** (Rust about 4022-4046; Python about 1600-1606): if intensity component k is nonzero and a node of the member has translation k free, that body must have data. A moment component j ≠ k also implies data when the coordinate difference along the third axis is nonzero. Both are exact comparisons.
+- **Data flags** (Rust about 4022-4046; Python about 1600-1606): derive member data from independently recomputed individual entries, before netting, at free DOFs. A nonzero declared force or moment contributes data only when its corresponding translation or rotation is free. Nonzero cancelling entries remain data; moments acting only on constrained rotations do not. Nodal-only checks remain unchanged.
 - **Combinations:** a `retained_selected` combination has no operand source carrying member terms, and an `operand_member_loads` reason requires one (extending the cause check at 3113-3121).
 - **Selected-case diagnostic:** the member-load message exactly when the case's source has member terms (section 6.4).
 - **Maximum evidence on route L:** G7's unchanged `EXTREMA_BOUNDS` judges the loaded member's evidence. It needs no reader change, because the evidence satisfies it by construction (section 4.4).
 - **Pins:** the DEF-O, DEF-C and table hashes. G0 needs no code change, and G1's source hash already covers the whole source object.
-- **K4LED** is not rederived by either reader (section 2.6); the Python test recomputes it.
+- **K4LED:** both validators independently recompute the selected member-load case's declared problem and digest, with matching G8 `PREPARATION_MISMATCH` behavior (section 2.6). Nodal-only cases keep the existing path. The independent Rust arithmetic also runs in wasm, and its transients are priced explicitly.
 - **Desktop.** Product TypeScript reads through the Rust reader in wasm, so no product TypeScript changes. Test support changes: the `DEF_O` constant (`retainedPrecisionReaderInputs.ts` 11), the successor-fixture list if a member-load fixture is added, and the pins in `retainedPrecisionResultExport.test.tsx` 51-52.
 
 ### 6.6 PP's preparation of the maximum
@@ -535,11 +561,11 @@ For a genuine Preparation input, the implementation probes an annulus-preparatio
 
 ## 8. RF interactions
 
-- **Metered charging.** Section 5. Stage 2 adds no `exact_boundary` work, so RF's rule does not reach it automatically. Its substance (actual executed cost, no precharge, never zero, one rule) holds through W1's counters. W1's checkpoint refusal timing is unchanged (ruling R-1).
+- **Metered charging.** Section 5. Stage 2 adds no `exact_boundary` work, so RF's pre-step refusal does not apply. R-1 (HELP_HUMAN, 2026-10-17) preserves W1's actual-cost counters and checkpoints after each member and netting: all executed work, including a refused checkpoint's work, is counted once in stage, case and invocation totals, and exhaustion permits no continuation or publication. No second member-load regime or W1-wide policy change is introduced; limits stay unchanged.
 - **The J7 RF census.** It does not interact. The census runs `run_linear_static_preview_value_with_mode`, which never selects a retained caller profile (PP `lib.rs` 2322-2328). It excludes its three member-load cases as `non_nodal_load` (`j7_rf_census.rs` 432, 444). Stage 2 cannot move the census pin, and RF cannot move stage 2's route-L controls.
 - **Stage 2 changes the W1 capture path, not the source method.** Stage 2 changes `retained_product::capture_case_source` and its successors (section 6.2), and the W1 kernel. It does not change `source_recovery::prepare_sources`, whose non-nodal decline (`Unsupported("non-nodal load producer present")`) stays.
 - **The `load_reference_fallback_uz` fixture depends on that decline** (`core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-*.raw.json`). RF's branch (at `8ca91fd01d`) keeps it an ordinary-only pressure-1 raw by adding a zero full-span uniform member load (`uniform:0`). `prepare_sources` declines that load by name, at 37,280 work. T13 (`s11g_tests.rs`) asserts the pressure-1 identity and the named decline.
-  - Stage 2 leaves the fixture's outcome unchanged. It is a 0.4 exact-route document, W1-E keeps refusing element loads at D1.7 (`LoadTarget`), and `prepare_sources` is untouched.
+  - Stage 2 leaves the fixture's outcome unchanged. At that RF revision its request is 0.5.0 with `3.0.0/exact_pressure_v3`; W1-E keeps refusing element loads at D1.7 (`LoadTarget`), and `prepare_sources` is untouched.
   - Any later unit that admits member loads in `prepare_sources` must re-handle this fixture and its consumers (T13, the reader-verdict and base-reader corpora, `loadReferenceReaderCases`, `load_reference_source_contract.rs`, the desktop load-reference tests and `test_ci_numerical.py`; RF §5.5).
 - **The retained corpus.** RF expects `fixtures/results/retained_precision_cases.json` unchanged for its own effect. Stage 2 lands second and regenerates the corpus on top of RF's bytes (section 6.4).
 - **Shared files.** Whichever unit lands second rebases onto the other's merged bytes. Stage 2 lands second.
@@ -570,7 +596,7 @@ Fixed throughout: M = 12 GiB = 12,884,901,888 B, floor(0.9M) = 11,596,411,699 B,
 
 **Basis (measured).** `price.py run 4971d62dc9` reproduces U6/U8's registered profile exactly: all 1,456 coefficients equal, `generate --check` differs only in the basis line, and all 70 evaluations equal the registered figures. Merged dense W4 is +51,812,817 B; merged dense X1 +77,334,515 B; merged sparse W4 +110,944,161 B. Atoms come from `/private/tmp/t4-u6u8-reg2-logs/native/N_profile.log`.
 
-**What stage 2 falsifies (measured).** Route L's credit `formed_cases = max(actual_cases − 1, 0)` and `success_findings = "max(lc-1,0)"` (`base/b7a_phase_model.py`) rest on stage 1 forcing at least one selected case to be nodal-only. Removing them adds 76,293,661 B to W4 in both modes:
+**What stage 2 falsifies (tool-evaluated).** Route L's credit `formed_cases = max(actual_cases − 1, 0)` and `success_findings = "max(lc-1,0)"` (`base/b7a_phase_model.py`) rest on stage 1 forcing at least one selected case to be nodal-only. Removing them in the scratch tool adds 76,293,661 B to W4 in both modes:
 
 | Component | Bytes |
 |---|---|
@@ -611,10 +637,10 @@ W3 also gains `T16_P2` +6,293,222 B. `MEMBER_LOAD_CAUSE` carried no credit: the 
 *Real reductions* (byte-preserving source or design changes):
 - **L4. Loaded-span workspace ≤ 1 MiB per attempted case, one member live.** Section 4.4: about 0.60 MiB per lane, with the lanes sequential. Saves 47,185,920 B against the 16 MiB cap.
 - **L1a. Borrow the typed primitive copy.**
-  - `FormationSource.loads` becomes a borrow (`Cow<'a, [LoadPrimitive]>` or equivalent), in place of `f.load_primitives().to_vec()` at PP `structural_adapter.rs` 298 (linear selected) and 567 (W2), and of the recovery copy at `certified_publication.rs` 16.
+  - `FormationSource.loads` becomes a borrow (`Cow<'a, [LoadPrimitive]>` or equivalent), in place of `f.load_primitives().to_vec()` at `core/solver/nonlinear_integration/src/structural_adapter.rs` 298 (linear selected) and 567 (W2), and of PP's recovery copy at `certified_publication.rs` 16. The adapter's other production assignments at 373, 910 and 1105 adopt the same representation; only the selected D1 sites supply the priced saving.
   - The elements and their order are the same, and `Cow`'s Debug prints the slice, so outputs are bit-identical.
   - Saves 30,720,000 B.
-  - Touches FK `formation_check.rs`, `structural.rs`, `structural/sparse.rs` and `certified_recovery.rs`; PP `structural_adapter.rs` and `certified_publication.rs`; the performance harness's `k6/staged.rs`; and about 30 kernel-test `FormationSource` constructions. The closure mutants use `to_mut()`.
+  - Touches FK `formation_check.rs`, `structural.rs`, `structural/sparse.rs` and `certified_recovery.rs`; nonlinear integration's `structural_adapter.rs`; PP `certified_publication.rs`; the performance harness's `k6/staged.rs`; and about 30 kernel-test `FormationSource` constructions. The closure mutants use `to_mut()`; focused nonlinear-integration verification covers all callers.
   - No reviewed input moves. The tool gains a source-bound check on the borrow sites.
 - **L3. Move the formation Value instead of copying it.**
   - serde_json 1.0.149's `json!` expands to `to_value(&expr)` (macros.rs 279), so `finding` in `ordinary_members` (retained_wire.rs 826) and `formation` in `ordinary_entry` (1574) are deep-copied.
@@ -633,7 +659,7 @@ W3 also gains `T16_P2` +6,293,222 B. `MEMBER_LOAD_CAUSE` carried no credit: the 
 
 *Pricing-accuracy rules.* Each states code facts on a lifetime and gets a source pin, independent review, and a lifetime test where one can be written:
 - **L1b.** The closure comparison builds one `p.closure_entry()` at a time (`formation_check.rs` 647), so one transient entry is charged, not q. Saves 18,014,760 B.
-- **L1c.** `AssembledForce::force_scaled` (`load_ledger.rs` 413, via `LoadPrimitive::force_scaled`, `formation_check.rs` 296) exists only in the b ≠ 0 evaluation and is dropped when that call returns. The b = 0 evaluation borrows `f`, and the return tail holds none. So the scaled children are charged once, not three times. Saves 27,377,664 B. Lifetime test: the scaled force is dropped before the b = 0 evaluation returns.
+- **L1c.** `AssembledForce::force_scaled` (`load_ledger.rs` 413, via `LoadPrimitive::force_scaled`, `formation_check.rs` 296) exists only in the b ≠ 0 evaluation and is dropped when that call returns. The b = 0 evaluation borrows `f` and runs first (`nonlinear_integration/src/structural_adapter.rs` 2197-2217); the return tail holds no scaled owner. So the scaled children are charged once, not three times. Saves 27,377,664 B. Lifetime test: no scaled owner exists in b = 0, and the b ≠ 0 owner and children are dropped when that evaluation returns, before the caller's return tail.
 - **L2.** Uniform-constructor staging is sequential.
   - `add_uniform_element_loads` (PP `lib.rs` 10975) calls `equivalent_global_nodal_loads_with_spans_formed(&[global])` once per load. Its staging (`exact_scaled_intended`, `monomial_bounds`, straight_pipe `lib.rs` 1900) is local and freed on return.
   - The returned `Vec<Formation>` is consumed by `.zip` into the ledger, which is already priced as resident.
@@ -645,9 +671,9 @@ W3 also gains `T16_P2` +6,293,222 B. `MEMBER_LOAD_CAUSE` carried no credit: the 
 - A shared force-scale exponent outside the primitive (about 13.7 MB) would change the K-D5 closure binding.
 - One maximum helper per invocation (about 96.5 MB) would narrow the per-case convention and need a ruling.
 
-**Per-phase headroom.** RF's 8,000,000 B is included in every phase. Merged dense W4 is the binding phase.
+**Per-phase headroom before the independent-reader surcharge.** RF's estimated 8,000,000 B is included in every phase. Merged dense W4 is the binding phase. These saved runs predate the reader repair in section 2.6; the additional estimated charge and resulting feasibility figures follow the table.
 
-| Tree / mode / phase | (a) U6/U8, measured | (b) + RF, derived | (c1) + credit removed, measured + RF | (d) + stage-2 owners at L4 | Real-only: L4 + L1a + L3 + L5 | **Full: + L1b + L1c + L2 (adopted)** |
+| Tree / mode / phase | (a) U6/U8, measured | (b) + RF, derived | (c1) + credit removed, tool-evaluated + RF | (d) + stage-2 owners at L4 | Real-only: L4 + L1a + L3 + L5 | **Full: + L1b + L1c + L2 (adopted)** |
 |---|---|---|---|---|---|---|
 | merged dense W4 | +51,812,817 | +43,812,817 | −32,480,844 | −42,379,181 | +39,585,383 | **+139,843,199** |
 | merged sparse W4 | +110,944,161 | +102,944,161 | +26,650,500 | +16,752,163 | +98,716,727 | **+198,974,543** |
@@ -662,7 +688,7 @@ W3 also gains `T16_P2` +6,293,222 B. `MEMBER_LOAD_CAUSE` carried no credit: the 
 | E_30 dense W4 | +509,292,997 | +501,292,997 | +501,292,997 | +491,394,659 | +491,394,659 | **+491,394,659** |
 
 **Labels.**
-- (a) is measured. (b) is derived. (c1) is measured with RF's figure added.
+- (a) is measured. (b) is derived using RF's estimate. (c1) is derived from the scratch tool's credit-removal evaluation with RF's estimate added.
 - (d) is tool-evaluated (scratch tool `/Users/ryan/dev/chirality-t3/scratch/w1-design-price-tool-s2b/`).
 - Real-only and Full are tool-evaluated single runs of `/Users/ryan/dev/chirality-t3/scratch/w1-design-price-tool-s2c/` on `4971d62dc9` at the registered atoms (runs `…/w1-design-price-runs/s2c_real` and `s2c_full`). Both exit 0, both o10 checks pass, and all 70 phases pass.
 - The levers add exactly. Full minus Real-only equals the earlier tool-evaluated sum of L1b, L1c and L2 in all 70 phases.
@@ -670,10 +696,26 @@ W3 also gains `T16_P2` +6,293,222 B. `MEMBER_LOAD_CAUSE` carried no credit: the 
 - Route E is unchanged by stage 2 except that the surrogates are also applied to it, which overstates it.
 - If L5's TEXT part (rebinding the `lib.rs` 2985 text site) were not accepted, the figures would be 1,705,536 B lower: real-only +37,879,847 and full +138,137,663 (derived).
 
-**Verdict.** Stage 2 fits at M = 12 GiB with the unchanged 0.9M margin, R and 5 % TEXT reserve, with the adopted levers:
-- **Stage 2's own need** in merged dense W4 is 86,191,998 B: the falsified credit (76,293,661 B, measured) plus its owners (9,898,337 B, tool-evaluated at L4).
-- **Real reductions only** recover 81,964,564 B (L1a 30,720,000 + L3 18,923,890 + L5 32,320,674). That leaves +39,585,383 B, 4,227,434 B less than today's post-RF +43,812,817 B.
-- **The adopted full set** recovers 182,222,380 B. That leaves **+139,843,199 B** in merged dense W4 and +198,974,543 B in merged sparse W4: 96,030,382 B more than today, about 3.2×.
+**Review repairs: additional estimated charge.** Section 2.6 adds reader-owned integer arithmetic and K4LED reconstruction, absent from the saved tool runs. It is not covered by `G8_BYTES`: those source-identity buffers coexist with it. The additional bounded inventory is capped at 1 MiB per case, plus an equal moving allowance, charged at c = 3 in every phase: **6,291,456 B**. It includes reader arithmetic, the sidecar/view header staging and section 4.2's extra conditioning-activity/bound scratch; these repair owners must fit together even if they coexist. No per-case lifetime credit or budget-model change is taken. Native and wasm layouts must independently fit the cap; Python is not part of the in-product D3 profile. Exact amplification adds no new retained numeric type; all new scale/g-check/evidence work is metered, and actual-source D3 must enumerate the repaired DAG's storage and TEXT rather than treating this estimate as a source rule.
+
+At D1's 32 nodes and 128 member terms per case, even storing all twelve 144 B declared node entries per term costs 221,184 B; at most 192 net magnitudes of 128 limbs cost 196,608 B. Remaining workspace covers indices/headers/flags and bounded arithmetic/hash scratch. Streaming K4LED hashing avoids a second full encoded ledger. The 1 MiB cap includes capacity growth and the complete call chain; precise layouts, stack owners and source pins are obligations of actual-source D3, not established measurements. The charge below deliberately applies even in phases/routes that cannot reach that reader. Member-only sidecar headers and aligned submission views (section 6.2) also fit this conservative additional allowance; actual-source D3 must enumerate them separately.
+
+**Expected merged headroom after the reader repair (estimated).** Each number is the saved tool-evaluated phase figure less 6,291,456 B; it includes RF's estimated 8 MB, the stage-2 surrogates and all adopted levers. These are design-feasibility estimates. No new 70-phase tool run or actual-source D3 registration is claimed for the reader repair.
+
+| Phase | Dense, B | Sparse, B |
+|---|---|---|
+| W1 | +5,965,480,431 | +6,024,611,775 |
+| W2 | +5,634,089,421 | +5,693,220,765 |
+| W3 | +338,425,493 | +397,556,837 |
+| W4 | **+133,551,743** | +192,683,087 |
+| W5 | +4,921,206,137 | +4,980,337,481 |
+| X1 | +240,867,517 | +299,998,861 |
+| X2 | +4,763,431,583 | +4,822,562,927 |
+
+**Verdict.** The design remains feasible at M = 12 GiB with the unchanged 0.9M margin, R and 5 % TEXT reserve, with the adopted levers and the additional reader estimate:
+- **Stage 2's own need** in merged dense W4 is 92,483,454 B (derived): the falsified credit (76,293,661 B, tool-evaluated), its former owners (9,898,337 B, tool-evaluated at L4), and the reader surcharge (6,291,456 B, estimated).
+- **Real reductions only** recover 81,964,564 B (L1a 30,720,000 + L3 18,923,890 + L5 32,320,674). After the reader surcharge that leaves +33,293,927 B (estimated).
+- **The adopted full set** recovers 182,222,380 B. After the reader surcharge that leaves **+133,551,743 B** in merged dense W4 and +192,683,087 B in merged sparse W4 (estimated), 89,738,926 B more than the assumed post-RF baseline.
 
 The follow-on epochs 4 (U4b/U5b) and 5 (O4) therefore start with more headroom than today rather than less. The implementation applies the real reductions first, then the rules, each with its pin, review and test (section 13).
 
@@ -718,17 +760,21 @@ Each is introduced into a scratch copy of the implementation and must be killed 
 | Fault | Killed by | Control |
 |---|---|---|
 | Recovery omits f_eq; station signs as on 2026-10-12; global w in local slots; t ↔ 1 − t; a load term in torsion | `member_load_station_signs_are_j_side`, plus end-action and torsion tests | simply supported at t = ¼ and ½; skew cantilever |
+| E omits frame-conditioning amplification; g-check skips an active fixed member | `member_load_recovery_error_is_bounded_by_69uE`; `member_load_g_check_covers_fixed_and_cancelling_sources` | independent exact/directed full-DAG error control at P = 128/256/512/1024; near-parallel counterexample, ordinary frames, g_exp = P−16 and above; fully fixed, zero/cancelling sources and None/empty-ledger cases |
+| Rounded j-end used as an interior force base; endpoint bit identity merely assumed | `member_station_single_round_and_endpoint_bits` | p = 128 rounding-boundary shear/load control; exact endpoint dispatch, interior single expansion; unloaded pins unchanged |
 | Two-end recipe on a loaded member; q dropped | `w1_loaded_maximum_interior_controls_certify` | simply supported (wL²/8)/Z; end moments with a non-dyadic argmax |
 | q sign or axis flipped | `w1_loaded_maximum_bubble_sign_and_axes` | non-dyadic argmax; skew with two load axes |
 | Station orientation reversed | `w1_loaded_maximum_station_orientation` | argmax 0.59915 against 0.40085 |
 | Lower endpoint above the true maximum | `w1_loaded_maximum_enclosure_contains_independent_reference` | exact rational check, plus 200 random members against a 2048-bit reference |
-| Exhaustion narrows instead of widening | `w1_loaded_maximum_exhaustion_widens_and_refuses` (capacity 4 / depth 6 hooks) | must contain the reference, fail the gate, and leave the case unavailable |
+| Exhaustion narrows or permits publication through a passing absolute gate | `w1_loaded_maximum_exhaustion_widens_and_refuses` (capacity 4 / depth 6 hooks) | diagnostic contains reference; named exhaustion makes case unavailable, including an absolute-class interval that would otherwise pass the gate |
 | Box-corner bound used; tangent bound dropped | `w1_loaded_maximum_rotating_and_axial_slope_within_capacity` (≤ 64 splits, ≤ 32 live); the near-degenerate control at e = 1e-5 | — |
 | PP's value used for a loaded member (it fails the sharper predicate) | `w1_loaded_maximum_is_the_kernel_projection` | non-dyadic argmax: row bits equal the kernel's RN64(H(hull)); PP's value substituted fails SharperExact |
 | Kernel projection applied to an unloaded member (moves census bytes) | `w1_unloaded_maxima_keep_the_prepared_value` | the section 4.6 census: all 43 committed byte strings and the 54 census-coverage trials' standing unchanged; milestone M1 stays 8.17e-92 Pa |
 | Asymmetric loaded evidence interval (for example RD64(lo)/RU64(hi)) | `w1_loaded_maximum_evidence_is_symmetric_and_g7_valid` | lower = n − δ, upper = n + δ exactly; G7 `EXTREMA_BOUNDS` and PP's midpoint check pass; the interval contains both the kernel hull and PP's bounder interval |
+| Symmetric search restricted to powers of two; overflowed 2n; half rounded at an odd subnormal | `w1_loaded_maximum_evidence_covers_binade_and_subnormal_edges` | n = 0x1.fffffffffffffp-1 needs δ = 3·2^-53; odd subnormals 1, 3, 5 ulps and odd low-normal halves; largest finite endpoint; exact integer grid oracle |
 | Near-zero form skipped | `w1_loaded_near_zero_maximum_takes_the_half_upper_form` | a loaded member whose enclosure reaches 0: value upper/2, evidence [0, upper], G7 valid, absolute gate decides |
 | PP's bounder run without the member's spans for a loaded member | `w1_loaded_maximum_bounder_receives_the_member_spans` | the bounder interval contains the interior maximum (simply supported span) |
+| PP witness upper mistaken for global maximum upper | `w1_loaded_evidence_contains_pp_global_upper` | non-dyadic interior maximum with `value_upper < upper_bound`; evidence must contain `upper_bound` |
 | Route E's maxima moved | `w1e_maxima_keep_the_prepared_value` (existing route-E successor pins byte-identical) | — |
 | Combination with a member-load operand selected | `combination_with_member_load_operand_is_refused_by_name`; ledger backstop test | — |
 
@@ -737,6 +783,9 @@ Each is introduced into a scratch copy of the implementation and must be killed 
 | Fault | Killed by | Control |
 |---|---|---|
 | Formation work zero, re-formed per attempt, or unguarded | `member_load_formation_is_charged_once_in_the_first_rhs`; `member_load_formation_refuses_by_budget_at_a_member_checkpoint` | a case limit set between the two totals |
+| Refused checkpoint work discarded, counted twice, or followed by a solve/publication | `member_load_checkpoint_equality_and_exhaustion_are_metered_once`; `member_load_netting_checkpoint_stops_before_solve` | case/invocation room at exact work and ±1; stage/case/invocation totals include refused member/netting; retry does not re-form; no later checkpoint or selected rows |
+| SumWork or canonical-net extraction omitted from overrun bound | `member_load_d1_cap_checkpoint_work_is_bounded` | maximal 128-load member and 192-DOF netting; prescribed three-scan canonical accessor; independently counted actual work ≤ 2,365,094 / 786,432 LME |
+| Maximum evidence built after finalization accounting closes | `loaded_maximum_evidence_work_is_counted_before_completion` | endpoint-grid success and failure; no unmetered helper; final certificate failure keeps its work |
 | Maximum search work zero | `w1_loaded_maximum_work_is_counted` | — |
 
 **Producer and readers (section 6).**
@@ -752,8 +801,14 @@ Each is introduced into a scratch copy of the implementation and must be killed 
 | Element load admitted on route E | `b7a_d1_exact_route_keeps_member_loads_and_selectors_out` (existing); `b3b_exact_capture_refuses_a_member_load`; Rust/Python `g8_exact_route_refuses_an_element_load` |
 | Rotational, non-force-per-length or non-global element load | the existing law test; corpus `invocation_member_load_{direction_ux,dimension_force,category_weight}` |
 | Nodal-only bytes moved (an empty-list event, `member_load_terms: []`, an empty K4SRC block, the member-load diagnostic on a nodal case) | re-pinned nodal successors with a field-masked diff; corpus `member_load_terms_{empty,on_nodal_source}`, `member_load_message_on_nodal_case` |
+| New vectors enlarge adapter-reserved nodal layouts | `member_sidecars_preserve_nodal_adapter_capacity_bytes` | size/layout pins and full capacity-counter bytes for single-case early capture, multi-case parking/submission, reused basis and route E; only DEF-O-bound hashes may be masked |
 | K4SRC member block omitted or wrong | genuine member-load must-pass bases; corpus `kernel_source_without_member_block` |
 | Data rule missing in a reader | corpus `member_load_body_has_data_false` |
+| Constrained rotations or cancelled nets misclassify member data | `member_reader_data_uses_free_individual_entries` | all induced moments constrained; cancelling nonzero member pair; mixed nodal/member cancellation |
+| Declared problem attested without independent recomputation | `selected_member_ledger_is_recomputed_in_rust_wasm_and_python`; corpus `member_ledger_hashes_changed_together` refreshes all equal hashes and the outer receipt hash and requires G8 `PREPARATION_MISMATCH` in all three validators |
+| Reader RN-even, square root, D5 order/sign, cancellation or zero-occurrence encoding wrong | `reader_declared_entries_match_independent_bit_vectors`; `reader_member_k4led_keeps_cancelled_and_zero_dofs`; genuine member-load bases pass native/wasm/Python, while nodal-only verdict pins stay unchanged |
+| Reader arithmetic allocation or stack bound omitted | `member_reader_workspace_fits_priced_cap_native_and_wasm`; layout/call-chain source pins and cap-maximal reader tests |
+| Unbound member result treated as invocation-validated; missing nodal term or arithmetic capacity silently truncated | `member_reader_unbound_keeps_needs_recompute`; corpus `member_ledger_nodal_term_omitted`, `member_ledger_zero_dof_dropped`; bounded arithmetic exhaustion hooks refuse in Rust/wasm/Python |
 | Combination selected with a member-load operand; spurious `operand_member_loads` | `b2p_member_load_operand_combination_is_unavailable_by_name`; corpus `combination_with_member_load_operand_selected`, `operand_member_loads_without_member_operand` |
 | Disclosure missing (DEF-O, DEF-C, table, diagnostic) | `def_o_def_c_and_table_state_the_declared_member_load` (Rust and Python); corpus `member_load_case_selected_message_missing`; the G0 hash pins |
 | Schema left open | corpus `member_term_extra_field` (G1) |
@@ -766,7 +821,7 @@ Each is introduced into a scratch copy of the implementation and must be killed 
 | L3 changes a receipt byte | `ordinary_formation_value_move_is_byte_identical` (text and hash against the former construction, as for U6-DH) |
 | L5 skips a clone that combinations read | `append_combination_results_guard_keeps_combination_bytes` (byte-identical invocations with combinations, without them, and multi-case without them) |
 | L5 changes the guard text without re-pinning U6-RB (route E silently charged the clone again, about −132 MB) | `u6_rb_and_l5_guard_pin_binds_the_current_text` (tool test: fails on the former text and on a missing guard); the tool exits 4 when the pinned text is absent; the re-pinned `u6_rb_rows_by_base_id_is_built_and_read_only_with_the_preview` |
-| A pricing rule's lifetime premise is false | the rules' source pins (the tool stops when a pinned function changes); lifetime tests where pinnable: for L1c, the scaled force is dropped before the b = 0 evaluation returns; for L2, at most one call's staging is live |
+| A pricing rule's lifetime premise is false | the rules' source pins (the tool stops when a pinned function changes); for L1c, `force_scaled_owner_drops_at_the_scaled_evaluation_return` proves none exists in b = 0 and the b ≠ 0 owner/children drop before the caller's return tail; for L2, at most one call's staging is live |
 
 **Census.** `w1_source_census_tests` pins the other case's status and cause for F6/partial, T18 and T19 in both modes. Case 0 stays selected.
 
@@ -781,6 +836,8 @@ Each is introduced into a scratch copy of the implementation and must be killed 
 - **The census:** section 4.6.
 - **The full lever set**, with the U6-RB re-pin to L5's guard text as an explicit, tested part of the change (section 9).
 - **RF's interface note:** `load_reference_fallback_uz`'s dependency on `prepare_sources`' non-nodal decline (section 8).
+- **R-1, W1 checkpoint timing** (HELP_HUMAN, 2026-10-17): preserve actual-cost counters and checks after each member and after netting; count refused work once in every containing total, stop on exhaustion, and keep limits unchanged (sections 5 and 8). RF's pre-step policy is specific to `exact_boundary::Context`.
+- **Frame-conditioning repair** (HELP_HUMAN, 2026-10-17): within the settled declared-load ruling, amplify new frame-dependent recovery operands and extend the existing g-check's applicability to exact nonzero member-source activity, including fully fixed members. Factor 69, P−16, prior nodal-only applicability and the verification law stay unchanged. Ledger inclusion proves 7a/Ŵ omission, not E's formation-error theorem; the separate full-DAG derivation/checks of section 4.2 must establish that theorem.
 
 **Decided in this design, for the independent review to check:**
 - per-load granularity of the declared entries (2.2);
@@ -789,13 +846,10 @@ Each is introduced into a scratch copy of the implementation and must be killed 
 - S* without a load term (3);
 - the min(paired, tangent) bound with exhaustion failing closed (4.4);
 - `member_load_terms` optional and K4SRC's block conditional (2.1, 6.3);
-- no K4LED rederivation in the Rust reader, and a Python test instead (2.6);
+- independent Rust-reader and Python-verifier recomputation and K4LED binding for selected member-load cases, with the nodal-only path preserved (2.6);
 - the combination refusal's position (4.5).
 
-**Needed:**
-- **R-1. What "RF's metered rule" requires of W1.**
-  - *Recommendation:* counting at actual executed cost through W1's existing counters, with no precharge, never zero, one rule, and W1's existing checkpoint refusal timing unchanged (section 5).
-  - *Consequence if refuse-before-each-step is required:* either a second regime inside W1 for this formation alone, or a new W1-wide rule changing at-limit refusal timing for every W1 attempt, which is itself a ruling. Work totals would not change either way.
+**Needed:** no further ruling is requested while the prescribed conditioning repair can establish the existing contract. E's full-DAG warrant remains pending independent confirmation. If factor 69 or P−16 cannot be justified after correction, return that concrete conflict to HELP_HUMAN; do not change either to obtain a pass. Implementation must establish bounds, recomputation and actual-source D3 before product integration.
 
 **Reserved and untouched:**
 - D1's limits and the domain;
@@ -815,7 +869,7 @@ Each is introduced into a scratch copy of the implementation and must be killed 
 |---|---|
 | Kernel: source, declared ledger, recovery, E, lanes, combination refusal | about 1,800–2,600 product |
 | Kernel: maximum search | about 400 product |
-| Producer, wire, readers, verifier and pricing tool | about 600–800 |
+| Producer, wire, readers, verifier and pricing tool | about 1,000–1,400, including independent reader arithmetic |
 | Levers L1a, L3, L5 | about 200 |
 | Tests | about 2,000 |
 | Corpus data | additional |
@@ -838,10 +892,10 @@ Each is introduced into a scratch copy of the implementation and must be killed 
 1. **The declared recipe D1–D5:**
    - its sign conventions (node i and j; the d × w orientation) against the closed forms;
    - the full specification of every rounding (to nearest, ties to even, at 1024 bits);
-   - the independence of the Python oracle from the producer.
+   - the independence of the Python oracle, Rust reader and Python verifier from the producer and from each other's arithmetic; their bit-exact entries, complete K4LED and selected-case digest binding; native/wasm/Python behavior on genuine and rehashed mutant member cases; the unchanged nodal-only path.
 2. **The disclosed bound.** That 2^-1022 per entry holds, and that DEF-O, DEF-C, the table limitation and the selected member-load diagnostic state it.
 3. **"Exactly like the ledger"** for rhs, the residual and m_i (not counted), d and d^b (|net|), R7's r and r₂ at q_W, t₁ (no term), E, Ŵ (the empty ledger omits every member-load term, and `recover` reads them only through the ledger), the 7a data flag (a nonzero entry sets the flag even when the net cancels), the uniqueness warrant, and the lanes' free rows and reactions. If any of 7a, Ŵ or E does not hold, the unit returns to HELP_HUMAN.
-4. **Recovery.** That the certified problem is self-consistent: u and the reactions come from f_d, and end actions and stations from the member-local load. Also the end-action formulas at p, the j-side station terms, E's absolute-operand load terms, the lanes' corrected ends and stations, and that unloaded members' bits are unchanged.
+4. **Recovery.** That u/reactions come from f_d and end actions/stations from the disclosed member-local affine recovery; check the corrected end and station DAG, frame-conditioned E load terms, exact-source g-check activity (fully fixed and cancelling terms included), unchanged factor-69 error theorem under P−16, endpoint branches and interior single rounding, lanes and unloaded/None/empty-ledger/nodal-only exclusions. A separate review derives the actual full-DAG error bound, not merely magnitude domination.
 5. **S* without a load term.** The free-body and coupling argument.
 6. **The maximum row on route L:**
    - the two cases defined by where the maximum is determined;
@@ -852,6 +906,7 @@ Each is introduced into a scratch copy of the implementation and must be killed 
    - the census of 4.6 on the implementation's head: all 43 committed byte strings reproduce, and the 54 census-coverage trials, including the 16 named there, keep their standing.
 7. **Combinations refused** in the kernel, the ledger backstop and both readers.
 8. **Work.** Counted once at actual cost in the first own `rhs`; guard checks per member; the maximum search in `NumericWork`; limits unchanged; nothing counted as zero.
+   - R-1's post-member and post-netting checkpoints, equality/exhaustion boundary controls, all refused work retained once in stage/case/invocation totals, no execution/publication after exhaustion, and an independently checked overrun bound including `SumWork`.
 9. **Ranges.** No refusal in formation or netting (span ≤ 7,325 < 8,128 bits); later `Span` refusals are the existing terminal refusal.
 10. **Custody.** Per-case custody under basis reuse with member loads.
 11. **Pricing:**
@@ -859,6 +914,7 @@ Each is introduced into a scratch copy of the implementation and must be killed 
     - L1a's, L3's and L5's byte preservation;
     - the U6-RB pin re-pinned to L5's guard text, with its test, so route E cannot silently be charged the clone;
     - the lifetime tests of L1c and L2;
+    - the independent reader's native/wasm arithmetic and complete call-chain transient cap, including capacity growth, canonical hashing and its moving allowance;
     - the credit removal;
     - the actual-source D3 registration.
 
@@ -867,9 +923,9 @@ Each is introduced into a scratch copy of the implementation and must be killed 
 **Order of work**, from merged main after RF:
 1. Re-check section 8 on RF's merged head, including RF's registered headroom against section 9's assumption.
 2. The real reductions L1a, L3 and L5 with their byte-identity tests, and the U6-RB re-pin with its tool test. Then the pricing rules L1b, L1c and L2 with pins and lifetime tests. Re-price without stage 2: the gain must match section 9.
-3. Kernel: source, declared ledger and Python oracle; recovery, E and lanes; the maximum search; the combination refusal.
+3. Kernel: source, declared ledger and Python oracle; recovery, E and lanes; the maximum search; the combination refusal; R-1's checkpoint and refused-work boundary controls.
 4. Product: capture, preparation, wire, DEF-O, DEF-C, table #4, SCHEMA, the loaded-member maximum (kernel value and symmetric or near-zero evidence), and the diagnostic. Re-run section 4.6's census.
-5. Readers and verifier; the corpus and successor regeneration by their own writers.
+5. Independent Rust-reader (native and wasm) and Python-verifier D1–D5/K4LED recomputation and matching member-case gates; price their complete transients; the corpus and successor regeneration by their own writers. Preserve nodal-only verdict behavior.
 6. The pricing rules for stage 2's owners, and the actual-source D3 re-registration at M = 12 GiB with the unchanged 0.9M margin, R and 5 % TEXT reserve.
 
 **Checks:**
@@ -887,6 +943,7 @@ Independent scrutiny is required because this changes numerical meaning: the che
 - Maximum: `/Users/ryan/dev/chirality-t3/scratch/w1-design-maximum/`, with logs in `/private/tmp/w1-design-maximum/` (`exp1`–`exp9`).
 - Maximum census: `/private/tmp/w1-design-maxcensus/` (`baseline/`, `design/`, `design_cxf/`, `sym/`, `controls_*`, `parts/run.log`, `corpus/cases_full.json`, `probe.diff`). The scratch build directory is `/Users/ryan/dev/chirality-t3/scratch/w1-design-maxcensus-target`.
 - Lever runs: `/private/tmp/w1-design-price/` (`s2c_tool.diff`, `price_s2c_{real,full}.log`, `eval70_s2c_{real,full}.log`, `table_s2c.txt`). The tool is `/Users/ryan/dev/chirality-t3/scratch/w1-design-price-tool-s2c/`, with runs `…/w1-design-price-runs/s2c_{real,full}`.
+- Independent numerical review: `/Users/ryan/dev/chirality-t3/scratch/w1-design-review-num/{checks,frame_e,symmetric_repair,census}.py`, with `/private/tmp/w1-design-review-num/{checks,frame_e,symmetric_repair,census}.log`. These establish the declared-entry checks, expose the former E failure, check the symmetric repair and re-aggregate the existing census. They do not yet establish the corrected E DAG.
 - Census of today's trial outcomes: `/private/tmp/w1-design-producer/` (extracted from the B7a/B7b logs).
 
 ## 14. Blast radius
@@ -902,19 +959,20 @@ Independent scrutiny is required because this changes numerical meaning: the che
   - `retained_wire.rs`: terms, the combination reason, the diagnostic, and L3;
   - `retained_memory.rs`: the D1 comment and the registered profile;
   - `lib.rs`: L5's caller guard;
-  - `structural_adapter.rs` and `certified_publication.rs` (L1a);
+  - `certified_publication.rs` (L1a);
   - the tests in `w1_domain_stage1_tests.rs`, `w1_source_census_tests.rs`, `retained_facade_tests.rs`, `retained_wire_tests.rs`, `retained_memory_law_tests.rs`, `s11f_site_test.rs` and `pressure_free_byte_identity.rs`.
-- **Readers (DEL-05-02):** `result_export/src/retained_precision.rs` and `semantic_contract.rs` (pins), `tests/verifiers/retained_precision.py` and `compatibility.py`, `core/analysis_runs/compatibility.py` (pins), and the Python contract and schema tests.
+- **Nonlinear integration:** `core/solver/nonlinear_integration/src/structural_adapter.rs` (all L1a assignments and its focused verification).
+- **Readers (DEL-05-02):** `result_export/src/retained_precision.rs` (including independent bounded integer/dyadic arithmetic and streaming K4LED encoder, shared by native/wasm) and `semantic_contract.rs` (pins), `tests/verifiers/retained_precision.py` (independent integer/Fraction recomputation) and `compatibility.py`, `core/analysis_runs/compatibility.py` (pins), and the Python contract and schema tests.
 - **Desktop:** test support only, as listed in section 6.5.
-- **Performance harness:** the k6 W1 adapter (`SourceParts` literals and L1a).
+- **Performance harness:** the k6 W1 adapter (L1a).
 
 **Reviewed inputs.**
 - Moving: #2 SCHEMA, #3 DEF-O, #4 the preview-retained table, and #6 DEF-C.
 - Unchanged: #0 `Cargo.lock` (no new dependency), #1 (RF's), #5 the preview-physics-1 table, #7 DEF-E, and #8–#11.
 
 **Priced layouts.**
-- New: `UniformMemberLoad`, `MemberTermIdentity`, and the loaded-maximum search workspace.
-- Changed: `SourceParts`/`PrimitiveSource` (member loads), `RetainedLedger` (declared entries in the nets), `CasePrep` (the formed-ledger slot), `MemberOperators` (+`length`), `ProductCapture`, `CaseSlot` and the early-capture slot, `FormationSource` (L1a's borrow), and the receipt and reader transients.
+- New: `UniformMemberLoad`, `MemberTermIdentity`, `MemberLoadSet`, the composite source/submission views and invocation-owned member sidecars, the loaded-maximum search workspace, and the reader's bounded integer/declared-entry/net/hash workspace with native/wasm layouts and moving allowance.
+- Changed: `RetainedLedger` (declared entries in the nets), `CasePrep` (the formed-ledger slot and member-sidecar association), `MemberOperators` (+`length`), invocation-level `ProductCapture`, `FormationSource` (L1a's borrow), and receipt/reader transients. `SourceParts`, `PrimitiveSource`, `CaseSlot`, `EarlyCaseSource` and their adapter-reserved option layouts stay unchanged.
 
 **TEXT.**
 - Added: the new capture refusal texts and member-term keys; the `operand_member_loads` tag; `SELECTED_MEMBER_LOAD_MESSAGE` (a typed delta); and the kernel's exhaustion and member-load causes.
