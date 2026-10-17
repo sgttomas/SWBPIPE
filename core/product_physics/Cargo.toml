@@ -30,3 +30,8 @@ serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["float_roundtrip"] }
 # U3 (decision 5): the accepted Rust reader validates the successor precommit.
 open_pipe_stress_result_export = { path = "../reporting/result_export" }
+
+[dev-dependencies]
+# RF source-method design §5.4: the J7 RF census's maintained control reads the
+# frame kernel's dev-only operation counter; test builds only, never the product.
+open_pipe_stress_frame_kernel = { path = "../solver/frame_kernel", features = ["exact-operation-count"] }
