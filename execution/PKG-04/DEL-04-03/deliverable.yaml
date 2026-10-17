@@ -101,7 +101,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-03/Guidance.md
 - from: DEL-02-01
   condition: 'DEL-04-03 needs DEL-02-01 as a predecessor: support/restraint data must be model entities
 
@@ -116,7 +115,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-03/Datasheet.md
 - from: DEL-02-02
   condition: 'DEL-04-03 needs DEL-02-02 as a predecessor: support stiffnesses and imposed displacements
     are unit-aware
@@ -132,10 +130,8 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-03/Specification.md
 code_paths:
-- core/solver/linear_supports
-- core/solver/linear_supports/Cargo.toml
-- core/solver/linear_supports/README.md
-- core/solver/linear_supports/src/lib.rs
+- core/solver/linear_supports/**
 - tools/validation/validate_dependencies_schema.py
+checks:
+- core/solver/linear_supports/src/lib.rs

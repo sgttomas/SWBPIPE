@@ -61,7 +61,7 @@ Both Design files name these supersessions with the same quotations.
 
 ### The closure rule (fail closed)
 
-FK's `FormationSource` gains `loads: Vec<LoadPrimitive>`. Each primitive names the ledger term it contributes to. **One ledger term may carry many primitives**, of different kinds and pipes: `push_exact_pressure_operands` pushes one operand per DOF that sums terminal caps, bend terms, kink remainders and straight Poisson pairs over every pipe meeting the node. Every ledger term falls into exactly one class:
+FK's `FormationSource` gains `loads`, the load primitives (an owned `Vec<LoadPrimitive>` as first built; since W1's lever L1a a borrowed `Cow<'_, [LoadPrimitive]>` with the same elements and order, DEL-05-02 Design `w1-member-load-certification.md`). Each primitive names the ledger term it contributes to. **One ledger term may carry many primitives**, of different kinds and pipes: `push_exact_pressure_operands` pushes one operand per DOF that sums terminal caps, bend terms, kink remainders and straight Poisson pairs over every pipe meeting the node. Every ledger term falls into exactly one class:
 
 - **Input term.** A term with no S11-G formation record: a nodal force or moment, a constant effort, a prescribed displacement value. It enters as its exact binary64 value, which is its intended value.
 - **Formed term.** A term with a formation record. It is replaced by the sum of its primitives' re-formations at p, each added to the row accumulators as the exact split of its Wide2 value. Enclosure radii are carried in ψ (§2).

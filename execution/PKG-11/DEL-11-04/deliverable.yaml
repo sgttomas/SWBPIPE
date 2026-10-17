@@ -99,7 +99,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-11/DEL-11-04/docs/_Registers/Deliverables.csv
 - from: DEL-09-01
   condition: 'DEL-11-04 needs DEL-09-01 as a predecessor: educational examples should align with mechanics
     benchmarks
@@ -118,7 +117,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-11/DEL-11-04/docs/_Registers/Deliverables.csv
 - from: DEL-09-02
   condition: 'DEL-11-04 needs DEL-09-02 as a predecessor: educational examples should align with stress
     benchmarks
@@ -137,7 +135,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-11/DEL-11-04/docs/_Registers/Deliverables.csv
 - from: DEL-08-05
   condition: 'DEL-11-04 needs DEL-08-05 as a predecessor: public examples should pass protected-content
     lint
@@ -156,7 +153,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-11/DEL-11-04/docs/_Registers/Deliverables.csv
 - from: DEL-01-02
   condition: 'DEL-11-04 needs DEL-01-02 as a predecessor: public examples must not embed protected examples/data
 
@@ -174,7 +170,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-11/DEL-11-04/docs/_Registers/Deliverables.csv
 - from: DEL-02-01
   condition: 'Future actual example model files require the canonical model/schema structure before materialization
     outside this setup folder.
@@ -187,7 +182,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-11/DEL-11-04/Specification.md
 - from: DEL-02-05
   condition: 'Future actual example model files require the persistence and round-trip format before materialization
     outside this setup folder.
@@ -200,7 +194,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-11/DEL-11-04/Specification.md
 - from: DEL-06-01
   condition: 'Future fake-rule-pack demonstration files require the rule-pack schema before materialization.
 
@@ -212,8 +205,11 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-11/DEL-11-04/Specification.md
 code_paths:
+- examples/models/invented/**
+- tests/test_invented_example_models.py
 - schemas/model.schema.yaml
 - schemas/rule_pack.schema.yaml
 - tools/validation/validate_dependencies_schema.py
+checks:
+- tests/test_invented_example_models.py

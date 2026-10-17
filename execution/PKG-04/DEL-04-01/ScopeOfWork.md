@@ -86,7 +86,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 > | Degree-of-freedom mapping | Stable six-DOF-per-node indexing contract; current `NODE_DOF_ORDER` is `[ux, uy, uz, rx, ry, rz]` |
 > | Coordinate transform handling | Validated local-axis direction-cosine transform contract; current 12-by-12 element transform is in the frame kernel |
 > | Boundary-condition handling | Interface for applying restraints/imposed conditions supplied by other deliverables, details TBD |
-> | Sparse assembly | Sparse global matrix assembly boundary; DEC-023 profile/skyline storage is implemented by `sparse_direct` |
+> | Sparse assembly | K1's one sparse representation of the global stiffness and its M03 gate (`structural/sparse.rs`); DEC-023 profile/skyline storage and LDLᵀ are implemented by `sparse_direct` |
 > | Sparse solve interface | Solver boundary under DEC-023; DEC-050/053 governs live-path/default use |
 > | Result envelope | Must fit architecture-basis command/query/job result and diagnostic envelope constraints |
 > | Verification | Deterministic unit tests are required before release use |
@@ -191,7 +191,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The 3D frame kernel, DOF contract, dense solution path, and DEC-023 sparse evidence now exist in the implemented slice. DEC-053 selects sparse interactive as the product default with dense scrutiny selectable. Broader performance/validation thresholds remain held where recorded; lifecycle remains `IN_PROGRESS`.
+> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The 3D frame kernel, its DOF contract, the dense scrutiny path and the DEC-023 sparse path (K1's sparse representation and M03 gate in `structural/sparse.rs`; the skyline LDLᵀ in `core/solver/sparse_direct`) exist. DEC-053 selects sparse interactive as the product default with dense scrutiny selectable. Straight members are Euler–Bernoulli or, per document, the exact static Timoshenko element (D-6); realized arcs use the curved-bend element in `core/solver/curved_bend`. The kernel also carries the objective connector element (T4-U3), the K-D5 formation check and certified recovery ([Design/kd5-member-relative-bound.md](Design/kd5-member-relative-bound.md)) and its nonlinear confirmation ([Design/kd5-nonlinear-active-set.md](Design/kd5-nonlinear-active-set.md)). Broader performance/validation thresholds remain held where recorded.
 
 - **AC-001** — The contract preserves the accepted frame-kernel requirements and current declarations, including unit and provenance boundaries, explicit missing-input and solver findings, rights-cleared verification data, and the accepted formulation and DEC-023/026/046/050/053 policies, with uncovered boundary/engineering-assessment items retained without inventing engineering values or approval.
 
@@ -264,7 +264,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The 3D frame kernel, DOF contract, dense solution path, and DEC-023 sparse evidence now exist in the implemented slice. DEC-053 selects sparse interactive as the product default with dense scrutiny selectable. Broader performance/validation thresholds remain held where recorded; lifecycle remains `IN_PROGRESS`.
+> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The 3D frame kernel, its DOF contract, the dense scrutiny path and the DEC-023 sparse path (K1's sparse representation and M03 gate in `structural/sparse.rs`; the skyline LDLᵀ in `core/solver/sparse_direct`) exist. DEC-053 selects sparse interactive as the product default with dense scrutiny selectable. Straight members are Euler–Bernoulli or, per document, the exact static Timoshenko element (D-6); realized arcs use the curved-bend element in `core/solver/curved_bend`. The kernel also carries the objective connector element (T4-U3), the K-D5 formation check and certified recovery ([Design/kd5-member-relative-bound.md](Design/kd5-member-relative-bound.md)) and its nonlinear confirmation ([Design/kd5-nonlinear-active-set.md](Design/kd5-nonlinear-active-set.md)). Broader performance/validation thresholds remain held where recorded.
 
 - **VER-001** — Validate the contract and review source parity, frame/DOF and assembly coverage, coordinate and boundary interfaces, sparse/reproducibility obligations, units and diagnostics, protected-content and professional boundaries, and every unresolved governed item.
 

@@ -36,7 +36,7 @@ The owner chose "Scope extension after B7b" (O4). Until then, named declines are
 
 ## SP-1 scope after D-5 and D-6
 
-SP-1's twin clause (a straight-only v3 case is bit-equal to its v2 twin; transitional until v2 retires) applies to v3 cases with zero mill tolerance, zero corrosion allowance and the Euler–Bernoulli formulation, where every basis and the element formulation coincide with v2. Other v3 cases are checked against their own independent references. Where T4-U6 and T4-U8 both change a reference, re-freeze it once.
+SP-1's twin clause (a straight-only v3 case is bit-equal to its v2 twin) was transitional until v2 retired, and it lapsed when B7b deleted v2, before T4-U6 and T4-U8 merged. Its scope after D-5 and D-6 was the v3 cases with zero mill tolerance, zero corrosion allowance and the Euler–Bernoulli formulation, where every basis and the element formulation coincide with v2; those cases keep their reference files and values. Other v3 cases are checked against their own independent references. Where T4-U6 and T4-U8 both change a reference, re-freeze it once.
 
 The technical design that implements these rulings in T4-U6 and T4-U8 is [section-bases-and-timoshenko.md](section-bases-and-timoshenko.md).
 

@@ -37,7 +37,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/Procedure.md
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
 - from: DEL-00-04
   condition: 'DEL-02-05 applies AB-00-04 as the direct persistence schema versioning canonicalization
     and round-trip prerequisite.
@@ -50,7 +50,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/Datasheet.md
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
 - from: DEL-00-06
   condition: 'DEL-02-05 applies AB-00-06 as an upstream prerequisite for persistence diagnostics and result-envelope
     coverage.
@@ -63,7 +63,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/Specification.md
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
 - from: DEL-00-07
   condition: 'DEL-02-05 applies AB-00-07 as an upstream prerequisite for adapter validation and public/private
     boundary constraints.
@@ -76,20 +76,13 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/Specification.md
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
 - from: DEL-00-08
-  condition: 'DEL-02-05 applies AB-00-08 as an upstream prerequisite for round-trip schema hash migration
-    and protected-content test obligations.
-
-
-    Notes: Normalized from prior aggregate DAG mirror; dependency type collapsed to canonical PREREQUISITE.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: 'DEL-02-05 applies AB-00-08 as an upstream prerequisite for its round-trip, schema, hash,
+    version-refusal and protected-content test obligations. There is no migration to test: older model
+    documents are refused by name (owner, 2026-10-10; ScopeOfWork CLM-003).'
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/Specification.md
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
 - from: DEL-02-01
   condition: 'DEL-02-05 interfaces with DEL-02-01 because persistence serializes and round-trips the canonical
     model and schema-backed objects.
@@ -102,7 +95,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/Datasheet.md
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
 - from: DEL-02-02
   condition: 'DEL-02-05 interfaces with DEL-02-02 because persistence must preserve explicit units and
     unit-system references for downstream dimensional checks.
@@ -116,7 +109,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/Specification.md
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
 - from: DEL-02-03
   condition: 'DEL-02-05 interfaces with DEL-02-03 because persisted statuses and optional review records
     must preserve the mechanics rule-check and human-review boundary.
@@ -130,6 +123,29 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-02/DEL-02-05/Specification.md
+  evidence: execution/PKG-02/DEL-02-05/ScopeOfWork.md
+- from: doc:execution/PKG-05/DEL-05-02/Design/b7-plan.md
+  condition: 'DEL-02-05''s one current model-document version is 0.5.0 as DEL-05-02 Design `b7-plan.md`
+    ("Current model format") defines it: `pressure_contract` optional, its absence making the document pressure-free,
+    and every other version refused by name with a re-author diagnostic and no migration. DEL-02-05''s version
+    check and persistence round trips follow that definition.'
+  gating: true
+  evidence: core/product_physics/src/model_format.rs
 code_paths:
 - schemas/project_persistence.schema.yaml
+- core/project_persistence/**
+- docs/architecture/persistence_contract.md
+- fixtures/persistence/**
+- core/product_physics/src/model_format.rs
+- apps/desktop/src-tauri/src/model_document_version.rs
+- apps/desktop/src/services/projectService.ts
+- tests/test_persistence_schema.py
+- tests/test_project_persistence_service.py
+- apps/desktop/src/services/projectService.test.ts
+- apps/desktop/src/services/blankLoadStateModel.test.ts
+- apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx
+checks:
+- tests/test_persistence_schema.py
+- tests/test_project_persistence_service.py
+- apps/desktop/src/services/projectService.test.ts
+- apps/desktop/src/services/blankLoadStateModel.test.ts

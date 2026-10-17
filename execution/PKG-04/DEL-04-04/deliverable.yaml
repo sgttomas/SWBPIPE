@@ -54,7 +54,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-04/Specification.md
 - from: DEL-00-08
   condition: 'DEL-04-04 nonlinear solver changes require deterministic verification coverage aligned with
     AB-00-08.
@@ -67,7 +66,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-04/Specification.md
 - from: DEL-04-03
   condition: 'DEL-04-04 depends on DEL-04-03 because nonlinear support behavior extends support and restraint
     mechanics defined for linear supports.
@@ -81,7 +79,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-04/Guidance.md
 - from: DEL-04-01
   condition: 'DEL-04-04 depends on DEL-04-01 because active-set iteration is solver mechanics over the
     global 3D centerline/frame stiffness model.
@@ -95,7 +92,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-04/Specification.md
 - from: DEL-04-06
   condition: 'DEL-04-04 depends on DEL-04-06 for convergence, active-set, and unresolved non-convergence
     diagnostic reporting semantics.
@@ -108,7 +104,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-04/Specification.md
 - from: DEL-02-02
   condition: 'DEL-04-04 depends on DEL-02-02 because unit-bearing nonlinear support, displacement, force,
     and friction-related quantities must be unit-aware and dimensionally checked.
@@ -121,7 +116,8 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-04/Specification.md
 code_paths:
-- core/solver/nonlinear_integration
+- core/solver/nonlinear_supports/**
 - tools/validation/validate_dependencies_schema.py
+checks:
+- core/solver/nonlinear_supports/src/lib.rs

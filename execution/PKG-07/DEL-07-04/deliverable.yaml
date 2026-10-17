@@ -38,7 +38,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-04/Specification.md
 - from: DEL-00-05
   condition: 'DEL-07-04 needs AB-00-05 GUI state and diagnostic-preservation architecture before implementation.
 
@@ -51,7 +50,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-04/Specification.md
 - from: DEL-00-06
   condition: 'DEL-07-04 needs AB-00-06 diagnostics and warning-class contract before implementation.
 
@@ -64,7 +62,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-04/Specification.md
 - from: DEL-00-07
   condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-07 from DEL-00-07 when executed.
 
@@ -101,7 +98,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-04/Specification.md
 - from: DEL-06-03
   condition: 'DEL-07-04 requires rule-pack required-input completeness signals for rule-check-blocking
     missing-data behavior.
@@ -114,7 +110,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-04/Specification.md
 - from: DEL-04-06
   condition: 'DEL-07-04 requires solver diagnostics for solve-blocking and nonlinear warning producers.
 
@@ -126,7 +121,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-04/Specification.md
 - from: DEL-06-02
   condition: 'DEL-07-04 consumes Sandboxed unit-aware expression evaluator from DEL-06-02: rule-check
     interaction preserves runner/required-input/status/unit-aware diagnostic contracts.
@@ -170,7 +164,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-04/core/gui/warnings/engine.py; tests/test_missing_data_warning_ux.py
+  evidence: core/gui/warnings/engine.py
 - from: DEL-07-02
   condition: 'DEL-07-02 exposes missing-data findings but leaves blocking UX ownership to DEL-07-04 unless
     a later brief changes the boundary
@@ -184,4 +178,13 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-02/Guidance.md
+code_paths:
+- core/gui/warnings/**
+- tests/test_missing_data_warning_ux.py
+- apps/desktop/src/features/rule-check/**
+- apps/desktop/src/services/ruleCheckService.ts
+- apps/desktop/src/services/ruleCheckService.test.ts
+checks:
+- tests/test_missing_data_warning_ux.py
+- apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx
+- apps/desktop/src/services/ruleCheckService.test.ts

@@ -152,3 +152,14 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
+code_paths:
+- core/serialization/canonical_json/**
+- fixtures/canonical_hash/**
+- tests/test_*canonical_json_adapter.py
+checks:
+- core/serialization/canonical_json/src/lib.rs
+- core/serialization/canonical_json/tests/checked_profile.rs
+- core/serialization/canonical_json/tests/binary64_profile.rs
+- core/serialization/canonical_json/tests/binary64_transport.rs
+- tests/test_checked_canonical_json_adapter.py
+- tests/test_binary64_canonical_json_adapter.py

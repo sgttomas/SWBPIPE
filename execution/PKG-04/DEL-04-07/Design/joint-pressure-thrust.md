@@ -2,7 +2,9 @@
 
 This governs T4-U5a, which admits pressure on an untied expansion joint authored as an objective connector (T4-U3). It runs in batch 5 with the nonlinear K-D5 unit and T4-U4a. T4-U5b (batch 7, with T4-U4b) adds elastic tie rods. This design is not an implementation claim; the code is another agent's work.
 
-## Status (2026-10-13, resumed batch 5)
+## Status
+
+**Active since B7b (2026-10-17).** B7b (#1387, merge `64c22d5510`) defined both items in model 0.5.0's contract-present form (§5) and refused 0.3.0/0.4.0 by name, so the engine is reachable from documents. The nineteen `t4_u5a` requests, re-authored to 0.5.0 with an explicit zero corrosion allowance and Euler–Bernoulli selection, and the seventeen refusal variants run through the typed, captured and headless entries in both modes, and each admitted case exports (`core/runner/headless/tests/untied_joint_pressure_references.rs`). The applier accepts the constant-effective-area model and `member_connector_ids` on 0.5.0 exact-contract documents only, and the desktop's joint pressure-model editor and region connector picker author them. Of the remaining-work list below, items 1 to 4 (§8's checks 1 to 3) are carried out; open question 2 (adding the `t4_u5a` cases to VP-STATIC) remains the manager's choice. The 0.3.0/0.4.0 branches and the "until U5a lands" clauses below are the staging record.
 
 The owner resumed T4-U5a on 2026-10-13. Batch 5 carries its engine, result readers and authoring validation while document admission remains inactive until B7b supplies the exact-contract 0.5.0 form. The existing 0.3.0/0.4.0 shapes and joint-with-pressure refusals remain in force during that staging.
 

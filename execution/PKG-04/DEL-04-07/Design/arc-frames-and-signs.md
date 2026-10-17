@@ -7,7 +7,15 @@ code by itself. The frozen independent references are in
 [`validation/references/t4_u4a/`](../../../../validation/references/t4_u4a/README.md).
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
-## Status (2026-10-13, resumed implementation)
+## Status
+
+**Both stages on main (2026-10-17).** Stage 1 (pressure-1) reached main in #1333. Stage 2, the
+preview-physics-1 flip with the O-13 adapter, reached main with B7a's H-4 C5 in #1387 (merge
+`64c22d5510`), after B7a's actual-source D3 registration and its one current-corpus refresh: preview-physics-1
+arc end rows are published in the tangent frame with §8's LIMITATIONS[3] sentence, `arc_chord_frame` is
+gone from both preview tables and `results.v0.3`, and `certify_arc_recovery` takes no end-frame
+parameter. B7b re-authored the pressure-1 invocations in model 0.5.0. The remaining-work list below is
+therefore complete; the paragraphs that follow record the 2026-10-13 state. What stays for U4b is §9.
 
 The owner resumed T4-U4a from the controlled pause. Stage 1 is implemented
 and checked; the independently reviewed stage-2 preview flip and O-13

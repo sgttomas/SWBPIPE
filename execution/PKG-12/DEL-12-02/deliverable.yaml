@@ -246,5 +246,6 @@ code_paths:
 - core/security/redaction/
 - schemas/redaction_export_controls.schema.yaml
 - tools/validation/validate_dependencies_schema.py
+- apps/desktop/src/features/redaction-controls/**
 checks:
 - tests/security/test_redaction_export_controls.py

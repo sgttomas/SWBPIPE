@@ -342,3 +342,4 @@ needs:
   evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 code_paths:
 - apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx
+- apps/desktop/src/features/comparison/ComparisonPanel.tsx

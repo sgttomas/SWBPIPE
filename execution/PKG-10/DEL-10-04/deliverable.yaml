@@ -97,9 +97,19 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-09/DEL-09-05/Guidance.md
 code_paths:
-- apps/desktop
+- package.json
+- apps/desktop/package.json
+- apps/desktop/src-tauri/Cargo.toml
+- apps/desktop/src-tauri/tauri.conf.json
 - apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx
-- core/product_preview
+- core/product_preview/**
+- tests/product_preview/**
+- tools/serialization/generate_product_preview_mechanics.mjs
+- tools/ci/**
+- tests/test_ci_*.py
 - tools/validation/validate_dependencies_schema.py
+checks:
+- tests/test_ci_python.py
+- tests/test_ci_numerical.py
+- tests/test_ci_apt_sources.py

@@ -91,7 +91,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-17/DEL-17-06/Procedure.md
 - from: DEL-17-02
   condition: 'DEL-17-06 consumes DEL-17-02 common export package profile stable-ID manifest and loss-report
     contracts.
@@ -145,7 +144,14 @@ needs:
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 code_paths:
-- core/handoff/stress_neutral/
-- core/handoff/stress_neutral/package.py
+- core/handoff/stress_neutral/**
 - schemas/stress_neutral_export.schema.json
 - schemas/stress_neutral_export.v0.3.schema.json
+- apps/desktop/src/features/stress-neutral/**
+- tests/test_stress_neutral_*.py
+checks:
+- tests/test_stress_neutral_export_package.py
+- tests/test_stress_neutral_physics_source.py
+- tests/test_stress_neutral_transport.py
+- apps/desktop/src/features/stress-neutral/nativeStressNeutralBuilder.test.tsx
+- apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx

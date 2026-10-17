@@ -58,7 +58,7 @@ This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW
 >
 > | Condition | Status |
 > |---|---|
-> | Exact CLI command names | Settled for the local runner surface: `openpipestress-runner` with verbs `solve`, `validate-input`, `export-results`, `run-benchmark`, and `run-regression` |
+> | Exact CLI command names | Settled for the local runner surface: `openpipestress-runner` with verbs `solve`, `validate-input`, `export-results`, `run-benchmark`, and `run-regression`. `solve` alone also takes `--solver-mode sparse_interactive|dense_scrutiny`. The binary further carries `read <reader>`, which returns the Rust result readers' verdicts to Python product callers (`core/runner/headless/src/reader_binding.rs`; DEL-05-02 Design `b7-plan.md`, R2); DEC-065's list does not name it. |
 > | Exact structured input schema fields | Use `schemas/headless_runner.schema.yaml` and the current CLI wrapper in `core/runner/headless/src/bin/openpipestress-runner.rs`; preserve source/result envelopes and explicit unsupported/missing-payload diagnostics. |
 > | Public API transport | TBD per SCA-001 remaining-TBD boundary |
 > | External import/export format list | SCA-004 and the accepted decomposition OI-004/PKG-17 allocation govern named export scope. Per-format interface/provenance guarantees and integration remain separately governed; this does not select a new public API transport or plugin runtime. |
