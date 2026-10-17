@@ -231,10 +231,18 @@ code_paths:
 - apps/desktop/src/features/results/*WasmEquivalence.test.ts
 - apps/desktop/src/features/results/pressureSourceCorpusParity.test.ts
 - apps/desktop/src/features/results/previewMagnitudeGuard.test.ts
+- apps/desktop/src/features/results/pressureSourceIntegration.test.tsx
+- apps/desktop/src/features/results/retainedPhysicsRoute.test.ts
+- apps/desktop/src/features/results/retainedPrecisionIntegration.test.tsx
+- apps/desktop/src/features/results/retainedPrecisionStanding.ts
+- apps/desktop/src/services/pressureSourceBridge.test.ts
 - apps/desktop/src/test-support/retainedPrecision*
 - apps/desktop/src/test-support/baseReaderInputs.ts
 - apps/desktop/src/test-support/receivedText.ts
 - apps/desktop/src/test-support/contractBindings.ts
+- apps/desktop/src/test-support/currentCarrierHeader.ts
+- apps/desktop/src/test-support/retiredMechanicsResult.ts
+- apps/desktop/src/test-support/retiredPrecision.ts
 checks:
 # Rust (hosted numerical selection).
 - core/loads/load_case_algebra/src/lib.rs
