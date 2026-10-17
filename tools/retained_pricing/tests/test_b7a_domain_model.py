@@ -96,6 +96,27 @@ def test_generated_record_bytes_are_not_a_circular_source_premise(tmp_path):
     MODEL["inspect"](snapshot)
 
 
+def test_reader_identifier_audits_bind_actual_format_sites():
+    # Derive coordinates from the real formats: a source move must not leave
+    # a seemingly valid audit at a stale line until the full pricing replay.
+    relative = "core/reporting/result_export/src/retained_precision.rs"
+    lines = (SOURCE / relative).read_text().splitlines()
+    _, audits, _ = MODEL["text_decisions"](SOURCE, lambda key: key)
+    actual = {key: value for key, value in audits if key.startswith(relative + ":")}
+    expected = {}
+    for needle, classification in (
+        ('format!("captured_requested_mode;', {"mode": {"bytes": 64, "source": "STATIC"}}),
+        ('let selected = json!(format!("diagnostic:retained-precision:{}:selected", text(cid)))',
+         {"text(cid)": {"bytes": 128, "source": "IN128"}}),
+        ('let lead = format!("Load case {}: ", text(cid))',
+         {"text(cid)": {"bytes": 128, "source": "IN128"}}),
+    ):
+        positions = [index + 1 for index, line in enumerate(lines) if needle in line]
+        assert len(positions) == 1
+        expected[f"{relative}:{positions[0]}"] = classification
+    assert actual == expected
+
+
 def test_prepare_preserves_all_unrelated_positive_rules_and_base_bytes(tmp_path):
     import json
     before = {name: (PRICING / "base" / name).read_bytes()

@@ -298,9 +298,10 @@ def text_decisions(snapshot, resolved):
         (pp + "lib.rs:6129", {"pipe.element_id": inp}),
         (pp + "model_format.rs:26", {"version": static}),
         # ccb19ba0bf: +17 lines (section_allowances), same text.
-        (re_ + 'retained_precision.rs:5842', {"mode": static}),
-        (re_ + 'retained_precision.rs:5924', {"text(cid)": inp}),
-        (re_ + 'retained_precision.rs:5948', {"text(cid)": inp}),
+        # W1 G8 scope: +6 lines before these unchanged requested-mode bodies.
+        (re_ + 'retained_precision.rs:5848', {"mode": static}),
+        (re_ + 'retained_precision.rs:5930', {"text(cid)": inp}),
+        (re_ + 'retained_precision.rs:5954', {"text(cid)": inp}),
     ]
     lex = [('retained_product.rs:4567', {"class": 64, "why": "source-bound mechanics schema literal"}),
            ('retained_product.rs:4569', {"class": 2914, "why": "positive formulation content upper; actual struct/Vec storage is separate"}),
