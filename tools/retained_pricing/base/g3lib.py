@@ -228,6 +228,11 @@ ASSUMED.update({
 import os as _pricing_os
 _pricing_snapshot = _pricing_os.environ.get("RP_SNAPSHOT")
 if _pricing_snapshot:
+    from rf_source_model import active as _rf_active
+    if _rf_active(_pricing_snapshot):
+        # Illustrative only; G5 uses the actual native types.
+        ASSUMED.update({"s(CongruenceMember)": 2416, "s(BlockWitness)": 168})
+if _pricing_snapshot:
     from batch5_model import active as _batch5_active
     if _batch5_active(_pricing_snapshot):
         ASSUMED.update({"s(ExactPressureCaseOption)": 272, "s(PressureRegionInput)": 192,

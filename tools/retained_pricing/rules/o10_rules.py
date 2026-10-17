@@ -57,6 +57,23 @@ def site(name, f, text, full=False, row=None):
 
 PP_ = "core/product_physics/src/"
 FK_ = "core/solver/frame_kernel/src/"
+if fnkey("member_descriptors", PP_ + "source_recovery.rs"):
+    # RF-ID: two formerly inline member-ID owners moved into this helper.
+    # Both are still full <=128-byte input clones with their full calls.
+    _rf_file = PP_ + "source_recovery.rs"
+    _rf_lines = open(_os.path.join(_SNAP, _rf_file), encoding="utf-8").read().splitlines()
+    _rf_id_sites = [i + 1 for i, line in enumerate(_rf_lines) if "member: member.to_owned()," in line]
+    if len(_rf_id_sites) != 2:
+        raise SystemExit("RF-ID: member_descriptors clone inventory changed")
+    O10_ID_AUDIT += [(Resolved(f"{_rf_file}:{line}"),
+                      {"member": {"bytes": 128, "source": O10 + "RF-ID: admitted pipe element_id"}})
+                     for line in _rf_id_sites]
+    # RF-EDGE: support_units passes the bound &CongruenceMember variable
+    # `member` to exact_entry_pairs. The by-name value scan mistakes that
+    # argument for certified_publication::member; there is no such call.
+    O10_EDGE_ZERO += [(fnkey("support_units", _rf_file),
+                      fnkey("member", PP_ + "certified_publication.rs"),
+                      O10 + "RF-EDGE: pattern-bound member is &CongruenceMember, passed to exact_entry_pairs; not the certified-publication function")]
 # B5K1: U5a extracts the mechanics body without deleting its priced sites.
 _CASE_FN = "solve_prepared_load_case" if fnkey("solve_prepared_load_case", PP_ + "lib.rs") else "solve_load_case_observed"
 _PRESSURE_FN = "assemble_pressure_case" if fnkey("assemble_pressure_case", PP_ + "pressure_runtime.rs") else "build_pressure_case_with_members"
@@ -79,6 +96,11 @@ if B7B_EXACT_BASE:
             "whose one call (build_model_for_members) iterates model.components, empty under P2 (" + D14 + ")")
 # O10_LOOPS_LAST: (exact loop header, bound, why, the only functions it may match: checked after the run by o10_check.py).
 O10_LOOPS_LAST = []
+if fnkey("member_descriptors", PP_ + "source_recovery.rs"):
+    O10_LOOPS_LAST += [(
+        "for (index, term) in contributions.iter().enumerate().filter(|(_, t)| t.row == dof)",
+        "cases*(144*m+s)", O10 + "RF-LU: support unit precheck visits only the complete frame/spring contribution list; per-case scope retained",
+        ["source_recovery.rs:support_units"])]
 if _PRESSURE_FN == "assemble_pressure_case":
     O10_LOOPS_LAST += [
         ("for ((dof, pbits, area, _), group) in groups", "0", O10 + "B5L1: both bore and joint factor groups are produced only inside D1.5's absent/empty pressure-region loop; retains the former factor-group zero on the new key shape", ["pressure_runtime.rs:finish_source_groups"]),
@@ -563,7 +585,8 @@ if fnkey("fallback_circular_maximum", _CP):
         "lib.rs": _labels_model["primitive_lib_minmax_callers"](_SNAP),
         "pressure_exact.rs": ["fused_mul_add"], "pressure_runtime.rs": ["finish_source_groups"],
         "retained_memory.rs": ["string", "material", "walk", "combination_census", "longest_string", "complete_observations"],
-        "retained_product.rs": ["g5a"], "source_recovery.rs": ["solve"],
+        "retained_product.rs": ["g5a"], "source_recovery.rs": ["solve"] + (
+            ["prepare_sources"] if fnkey("member_descriptors", PP_ + "source_recovery.rs") else []),
         "source_receipt/composite.rs": ["norm"],
         "source_receipt/endpoint_maximum.rs": ["absolute", "endpoint_maximum", "directed"],
         "source_receipt/rows.rs": ["derived_for"],
@@ -819,6 +842,20 @@ if _os.path.exists(_os.path.join(_SNAP, _J7C)):
          {"k": {"bytes": 1024, "source": O10 + "J3: a JSON object key of a produced public envelope (schema field names and "
                 "entity-keyed maps of D1-capped ids) or of the test's literals: RES"}}),
     )
+    if fnkey("member_descriptors", PP_ + "source_recovery.rs"):
+        # RF-J3: the census's class/member assertions construct only these
+        # two new label templates. Retain J3's measured multiplicity-zero
+        # guards, with honest finite classes for their literal-loop inputs.
+        _rf_cancel = 'format!("RF-CANCEL-{load}-G1e{exponent}-{pattern}")'
+        _rf_companion = 'format!("RF-CANCEL-{load}-G1e8-GnG-{companion}")'
+        _J3_SPECS += (("j7_rf_census_classification_and_pin", _rf_cancel, None),
+                      ("j7_rf_census_classification_and_pin", _rf_companion, None))
+        _J3_AUDITS += (("j7_rf_census_classification_and_pin", _rf_cancel,
+                        {"load": {"bytes": 1, "source": "STATIC: F or M"},
+                         "pattern": {"bytes": 3, "source": "STATIC: GnG, GGn or nGG"}}),
+                       ("j7_rf_census_classification_and_pin", _rf_companion,
+                        {"load": {"bytes": 1, "source": "STATIC: F or M"},
+                         "companion": {"bytes": 7, "source": "STATIC: ORTHO or INPLANE"}}))
     # B7b-J3: B7b's test-only census rewrite (2d0e2210c1) deletes leaf_diff; site() returns None for a function the
     # snapshot no longer defines, and such a rule bounds nothing. Only J3's own entries are filtered, and the dropped
     # set must be exactly the functions the snapshot no longer defines, of which only leaf_diff may be missing.

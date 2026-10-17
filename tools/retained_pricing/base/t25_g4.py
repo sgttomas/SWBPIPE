@@ -35,6 +35,9 @@ Usage: python3 t25_caps.py <caps|milestone> [eps]
 import json, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from g3lib import X, B, s, V, A, Xc, Mat, HashReq, pushcap, appendcap, total, ASSUMED, j3cap
+from rf_source_model import active as rf_active
+
+RF = rf_active(os.environ.get("RP_SNAPSHOT"))
 
 which = sys.argv[1] if len(sys.argv) > 1 else "caps"
 EPS = int(sys.argv[2]) if len(sys.argv) > 2 else 6
@@ -150,11 +153,11 @@ rows["T25.1d dense stiffness, loads, application, force, prescribed, free"] = (
     Mat(8, N, N) + A("PrimitiveLoad", l) + V("NodalLoadContribution", l) + B(2 * l * ID)
     + B(8 * N) + V("ForceTerm", l) + V("Option<FormationRecord>", l) + s("Vec<usize>") * N
     + B(8 * (4 * N + 2 * l) + 8 * pushcap(min(l, N)) + l * ID) + Xc("(usize,f64)", k) + B(8 * pushcap(F)))
-rows["T25.1e replay_against: Sources #2 and prepare_sources locals"] = t07("A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5", "B6", "B7")
+rows["T25.1e replay_against: Sources #2 and prepare_sources locals"] = t07("A1", "A2", "A3", "A4", "A5", "A6", "B1", "B2", "B3", "B4", "B5", "B6", "B7")
 rows["T25.1f replay: Context #2, Response #2, values #2, temporaries"] = (
-    t07("C1", "C2", "C3", "C4", "C5", "C6", "C7", "D1", "D2", "F1", "F2", "G2") + B(2 * 8 * Fn))
+    t07("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "D1", "D2", "F1", "F2", "G2") + B(2 * 8 * Fn))
 # (2) check_binding_against: Sources #3 and its locals
-rows["T25.2 check_binding_against: Sources #3"] = t07("A1", "A2", "A3", "A4", "A5", "B1", "B2", "B3", "B4", "B5", "B6", "B7") + B(8 * Fn)
+rows["T25.2 check_binding_against: Sources #3"] = t07("A1", "A2", "A3", "A4", "A5", "A6", "B1", "B2", "B3", "B4", "B5", "B6", "B7") + B(8 * Fn)
 # (3) rows::bind (rows.rs:562-700)
 R = P                                        # the case's rows <= P_final (one case)
 supports_vf = VF(arr=g * (6 + 12), obj=g * (1 + 6 + 12), ent=g * 4 + 6 * g * 4 + 12 * g * 3,
@@ -180,6 +183,10 @@ payload_vf = VF(arr=C * 0 + m * (12 + 6 + 3 * 144) + C + m + sp + k + l + Fn + u
 # S-4: source_identity (source.rs:376), stiffness_aggregate_bits (N x N in N + 1 arrays) and
 # force_aggregate_bits (N)
 payload_vf = payload_vf + VF(arr=N + N * N + N, ent=3, strb=L_ID_JSON + 16 * N * N + 16 * N, keyb=3 * 32)
+if RF:
+    # RF-RC: the optional congruence_members array in the normalized payload
+    # owns <=m ID strings and one key. Its hashes retain the same full model.
+    payload_vf = payload_vf + VF(arr=m, ent=1, strb=m * ID, keyb=32)
 functions_vf = VF(arr=Fn * 4, obj=Fn * 3, ent=Fn * 12, strb=Fn * (3 * RID + 256), keyb=Fn * 12 * 24,
                   nums=Fn * 4, depth=5)
 # S-4: one factor object {kind, source_path, bits} per atom (<= 16,384 units), in one array per product
@@ -191,6 +198,11 @@ rows["T25.4 source commitment: payload + hash, functions, plan + hash, blocks"] 
     payload_vf.tree() + hash_route(payload_vf, L_ID_JSON) + functions_vf.tree() + plan_vf.tree() + hash_route(plan_vf, L_ROW)
     + s("Vec<usize>") * F + B(16 * F) + X({"Node(usize,())": 2 * (F // 5 + 1)}) + B(8 * pushcap(F))
     + VF(obj=1, ent=12, strb=3 * 64 + 128, keyb=12 * 32, nums=6).tree())
+if RF:
+    # commitment's separate push-built borrowed ID vector, before json!.
+    rows["T25.4 source commitment: payload + hash, functions, plan + hash, blocks"] = (
+        rows["T25.4 source commitment: payload + hash, functions, plan + hash, blocks"]
+        + A("&str", m))
 # (5)-(7) serialized(rows) (I54 RowJSON law), work Value, the retained case
 rowjson = s("Value") * (2 * R) + X({"Node(String,Value)": 3 * R}) + B(128 * R) + B(R * ROW)
 rows["T25.5 actual_rows Value, work Value, retained FinalizedSourceBlockCase"] = (

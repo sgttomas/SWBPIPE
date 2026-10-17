@@ -106,6 +106,11 @@ def test_exact_copied_rule_transform_retains_every_unrelated_owner(tmp_path):
     old_text = json.loads(before["text_args.g4.json"])
     new_text = json.loads(Path(actual["text_args.g4.json"]).read_bytes())
     expected_text = deepcopy(old_text)
+    # RF-ID moves these two full owners to member_descriptors' independently
+    # name-qualified sites; the unchanged member_ids clone remains carried.
+    for key in ("core/product_physics/src/source_recovery.rs:1099",
+                "core/product_physics/src/source_recovery.rs:1124"):
+        assert expected_text["id_audit"].pop(key) == {"pipe.element_id": {"bytes": 128, "source": "IN128"}}
     for key in MODEL["ZERO_PREIMAGES"]:
         del expected_text["site_zero"][key]
     for key in MODEL["COPY_PREIMAGES"]:
@@ -125,7 +130,8 @@ def test_exact_copied_rule_transform_retains_every_unrelated_owner(tmp_path):
 
 
 @pytest.mark.parametrize("change", ["zero", "copy_bytes", "copy_reason", "loop_value", "loop_reason", "loop_order",
-                                     "source_clone", "source_clone_caller", "fidelity_aggregate", "fidelity_join"])
+                                     "source_clone", "source_clone_caller", "fidelity_aggregate", "fidelity_join",
+                                     "member_clone_removed", "member_clone_bytes"])
 def test_exact_preimages_refuse_drift(tmp_path, change):
     inherited = rules(tmp_path)
     family = "loop_bounds.g4.json" if change.startswith("loop") else "text_args.g4.json"
@@ -144,6 +150,10 @@ def test_exact_preimages_refuse_drift(tmp_path, change):
         data["site_aggregate"]["lib.rs:1273"]["bytes"] += "+1"
     elif change == "fidelity_join":
         next(r for r in data["join_rules"] if r["re"] == "^rows$")["bytes"] += "+1"
+    elif change == "member_clone_removed":
+        del data["id_audit"]["core/product_physics/src/source_recovery.rs:1099"]
+    elif change == "member_clone_bytes":
+        data["id_audit"]["core/product_physics/src/source_recovery.rs:1124"]["pipe.element_id"]["bytes"] = 1
     elif change == "loop_order":
         data["loops"][211], data["loops"][212] = data["loops"][212], data["loops"][211]
     else:

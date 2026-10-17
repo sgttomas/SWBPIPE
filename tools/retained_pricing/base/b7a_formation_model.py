@@ -18,13 +18,13 @@ SOURCE_FILES = {
     # wall, contents on the pressure bore, the allowance among its inputs); the added refusals are static `invalid`
     # messages and retained_basis checks one more input key. The formed-load and finding owners are unchanged.
     "core/product_physics/src/self_weight.rs": "a1e523fd975b0b99720c3c229737cb00f35797c8f38202797b23ef205bb3f75c",
-    "core/product_physics/src/source_receipt/source.rs": "26d29ae48b461ceb5cf945edfbef905944c693e763f837bbee217df8fedf518d",
+    "core/product_physics/src/source_receipt/source.rs": "911f49b43f41ae50009e6a13220d2c888cfb8e6ccf50d8cacf5b8dc089efd5a5",
     # T4-U8: one added re-export line in retained_api (retained::assemble's Timoshenko refusal).
-    "core/solver/frame_kernel/src/structural.rs": "d2157743e0aa5fe7a08ab44abc176653e55183af01919320c8d240f8f273ec40",
+    "core/solver/frame_kernel/src/structural.rs": "a248c01a6b579cca839efc8e025dcc332f24e8ec017fb55354d7567ab71a230a",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.
-    "core/product_physics/src/source_recovery.rs": "7c3963db8c93c7a6fd809b94b51db3cba4139c9a0064ca090804f67c7f866a53",
+    "core/product_physics/src/source_recovery.rs": "b048aa0ea4bac2be30974fd99cb2cd0a0eca5ad245e378e1899051413d2112c6",
     "core/solver/frame_kernel/src/structural/sparse.rs": "f0e774d2f105484fd43f393fd18ce459990aeb459222b5481ce70843b7acd0ff",
 }
 RANGE_CONTENT = 59
@@ -213,6 +213,16 @@ def prepare(snapshot, inherited, output):
            for name in ("loop_bounds.g4.json", "text_args.g4.json")}
     loops = json.loads(raw["loop_bounds.g4.json"])
     text = json.loads(raw["text_args.g4.json"])
+    rf_active = runpy.run_path(os.path.join(os.path.dirname(__file__), "rf_source_model.py"))["active"]
+    if rf_active(snapshot):
+        # RF-ID: the two member-row ID clones moved from prepare_sources
+        # into member_descriptors (with member, not pipe.element_id, as the
+        # parameter). Re-add both by name in o10_rules; retain the third,
+        # unchanged member_ids clone at basis line 1134.
+        for key in ("core/product_physics/src/source_recovery.rs:1099",
+                    "core/product_physics/src/source_recovery.rs:1124"):
+            if text["id_audit"].pop(key, None) != {"pipe.element_id": {"bytes": 128, "source": "IN128"}}:
+                raise ValueError("RF-ID member clone preimage changed: " + key)
     if "b7a_reformation_first_error" in text:
         raise ValueError("B7a first-return guard preimage already present")
     text["b7a_reformation_first_error"] = "FK895-v1"

@@ -732,7 +732,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // registered profile's reviewed-input text records exactly these.
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11",
-        "3d279795b9707af5c1d67e54da959d2139649e941efe2af87491beee31da46eb",
+        "6efefc4ff68fc516756ea52aeb9b96d293a570a28d591964a4994602ede51ac2",
         "f961a56bdd386d26f10ee279b0c5926c7436760c18eee0e3c3c158bd474b42c9",
         "9be78bef3b340330f06b99966bcc9fd2fdf652f2a54506fc270f6b16588761c6",
         "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1",
@@ -1671,18 +1671,15 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// T4-U6/U8 D3 record for the final source 588de796a4 (D-5 section bases, the
-/// D-6 Timoshenko member, the realized-arc marker, and the D3 review's repairs:
-/// R1's row-vector capacities and R2's `locations` maximum; retained-pricing-rules.md
-/// "T4-U6/U8: actual-source D3"). Requested + moving bytes, without R or the
-/// separately upward-rounded TEXT reserve, from the canonical 98-form union and
-/// measured 288-value layout. Against addbdc030e's record every phase rises (R2: 39
-/// nodes and 5,952 key bytes per copy of the evidence owner; R1: 5,236 row slots in
-/// the precommit reader's working sets): W4 +206,144 B in both modes. The unchanged
-/// identity/record assertions verify this candidate in-build.
+/// RF D3 record for source 677f11b674: requested + moving bytes, without R or
+/// the separately upward-rounded TEXT reserve, from the canonical 98-form
+/// union and 289 measured native/text values. The RF owned-memory bounds and
+/// enlarged native BlockWitness/retained carrier add 16,361,805 bytes in every
+/// phase against T4-U6/U8's 588de796a4 record. The unchanged identity/record
+/// assertions verify this candidate in-build (retained-pricing-rules.md, RF).
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_467_777_002, 5_793_273_324, 11_003_729_313, 11_216_206_077, 6_428_551_683, 11_147_571_184, 6_623_696_590],
-    [5_526_908_346, 5_852_404_668, 11_062_860_657, 11_275_337_421, 6_487_683_027, 11_206_702_528, 6_682_827_934],
+    [5_484_138_807, 5_809_635_129, 11_020_091_118, 11_232_567_882, 6_444_913_488, 11_163_932_989, 6_640_058_395],
+    [5_543_270_151, 5_868_766_473, 11_079_222_462, 11_291_699_226, 6_504_044_832, 11_223_064_333, 6_699_189_739],
 ];
 
 #[test]

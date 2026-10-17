@@ -110,6 +110,7 @@ BIND = {
     "s(SymmetricMatrixEntry)": sz("open_pipe_stress_sparse_direct::SymmetricMatrixEntry"),
     "s(StraightPipeElement)": sz("open_pipe_stress_straight_pipe::StraightPipeElement"),
     "s(FrameNode)": sz("open_pipe_stress_frame_kernel::FrameNode"), "s(FrameElement)": sz("open_pipe_stress_frame_kernel::FrameElement"),
+    "s(CongruenceMember)": sz("open_pipe_stress_frame_kernel::structural::exact_boundary::CongruenceMember"),
     "s((usize,usize,Matrix12))": sz("(usize, usize, open_pipe_stress_frame_kernel::Matrix12)"),
     "s(AnalysisStatus)": sz("open_pipe_stress_stress_recovery::AnalysisStatus"), "s(StressFinding)": sz("open_pipe_stress_stress_recovery::StressFinding"),
     "s((&str,StressRecoveryResult))": sz("(&'static str, open_pipe_stress_stress_recovery::StressRecoveryResult)"),

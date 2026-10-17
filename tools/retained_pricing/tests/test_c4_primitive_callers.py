@@ -31,12 +31,14 @@ def c4_rules(snapshot, override=None):
     return namespace["CG_RULES"]
 
 
-def test_only_retired_observation_caller_leaves_and_all_27_current_callers_stay():
+def test_only_retired_observation_caller_leaves_and_all_28_current_callers_stay():
     assert MODEL["primitive_lib_minmax_callers"](PIPING) == [
         "build_curved_bend_macro_elements", "straight_summary_extrema"]
     rules = c4_rules(PIPING)
-    assert len(rules) == 54
-    assert len({rule["caller"] for rule in rules}) == 27
+    # RF's upfront unit limit adds prepare_sources' intrinsic usize min.
+    assert len(rules) == 56
+    assert len({rule["caller"] for rule in rules}) == 28
+    assert any(rule["caller"].endswith(":prepare_sources") and rule["name"] == "min" for rule in rules)
     assert all("observation_lane_profile" not in rule["caller"] for rule in rules)
     assert all(rule["name"] in ("min", "max") for rule in rules)
     assert all("fallback_section_errors" not in rule["caller"] for rule in rules)

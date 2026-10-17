@@ -199,11 +199,11 @@ def selected_publication_context(snapshot, directory, graph):
     expected = {
         "core/product_physics/src/source_receipt/composite.rs:726:composite_exact": SOLVE,
         "core/product_physics/src/source_receipt/composite.rs:977:ordinary_physics": SOLVE,
-        "core/product_physics/src/source_receipt.rs:662:failed": SOLVE,
-        "core/product_physics/src/source_receipt.rs:748:finalize_composite":
+        "core/product_physics/src/source_receipt.rs:664:failed": SOLVE,
+        "core/product_physics/src/source_receipt.rs:750:finalize_composite":
             "core/product_physics/src/lib.rs:2553:run_linear_static_preview_observed_inner",
-        "core/product_physics/src/source_receipt.rs:764:finalize_for":
-            "core/product_physics/src/source_receipt.rs:748:finalize_composite",
+        "core/product_physics/src/source_receipt.rs:766:finalize_for":
+            "core/product_physics/src/source_receipt.rs:750:finalize_composite",
     }
     for target, caller in expected.items():
         parents = [key for key, values in graph["edges"].items() for value in values if value == target]

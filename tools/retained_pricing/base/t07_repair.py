@@ -22,6 +22,9 @@ Usage: python3 t07_repair.py <caps|milestone>
 import json, sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from g3lib import X, B, s, V, A, Xc, Mat, HashReq, HashMov, buckets, pushcap, j3cap, total, ASSUMED
+from rf_source_model import active as rf_active, coefficient_max
+
+RF = rf_active(os.environ.get("RP_SNAPSHOT"))
 
 which = sys.argv[1] if len(sys.argv) > 1 else "caps"
 if which == "caps":
@@ -86,6 +89,17 @@ assert length == Fn
 outer = s("FunctionalDescriptor") * cap
 mov_candidates["descriptors #1 outer old backing"] = s("FunctionalDescriptor") * prev
 rows["A3 descriptors #1 (construction law)"] = outer + per_member * m + nodal + springs + support
+if RF:
+    # RF-DU: with any congruence member, the structural precheck gates the
+    # FIRST descriptor generation at UNITS before construction. Keep the old
+    # signed-permutation construction law as the other branch. Factor two
+    # covers push/append slack; a one-product minimum-four Vec is paid by its
+    # product AND atom units. IDs are independent of the unit allowance.
+    rf_descriptors = (A("FunctionalDescriptor", Fn) + B(Fn * 2 * ID)
+                      + (s("AffineTerm") + s("Vec") + B(8)) * (2 * UNITS))
+    rows["A3 descriptors #1 (construction law)"] = coefficient_max(
+        rows["A3 descriptors #1 (construction law)"], rf_descriptors)
+    mov_candidates["RF descriptors #1 outer old backing"] = s("FunctionalDescriptor") * Fn
 units_member = 42 + 40 * 3 + 4 + 5 * (28 + 28 + 72 + 3)
 units_1 = m * units_member + (6 * n + sp) * 4 + rows_d + (C + sp) * 3 + 2 * ft
 # A4 identity: names/bits tallied from the identity.* call sites (G2 identity_sites.txt)
@@ -97,6 +111,11 @@ mov_candidates["identity JSON old backing"] = B(j3cap(e_id) // 2)
 # A5 id vectors (push-built; clones with capacity = length)
 rows["A5 member/spring/support id vectors"] = (V("String", m) + B(m * ID) + V("(String,usize)", sp)
                                               + B(sp * ID) + V("(String,usize)", g) + B(g * ID))
+if RF:
+    # RF-CG: Sources owns the push-built member operands/map/range vector.
+    # max(4,2m) also bounds Vec's smaller minimum for a >1024-byte element.
+    rows["A6 Sources.congruence"] = A("CongruenceMember", m)
+    mov_candidates["congruence old backing"] = s("CongruenceMember") * max(1, m)
 
 # ---------------- B. prepare_sources locals (drop at its return; summed conservatively) ---
 rows["B1 AssemblyEvidence construction stores (magnitudes, scatter_counts)"] = Mat(8, N, N) * 2
@@ -119,10 +138,22 @@ rows["B6 identity builder (names Vec + strings, bits Vec)"] = (V("String", names
 rows["B7 descriptor construction transients (one member's rows + one key clone)"] = (
     s("FunctionalDescriptor") * 16 + B(12 * 2 * ID) + s("AffineTerm") * (12 * 4)
     + (s("Vec") + B(8)) * 42 + B(2 * ID))
+if RF:
+    # RF-DU: 12 end rows, <=12 displacement terms each, <=3 two-atom
+    # products per term under blockdiag(R,R,R,R). Section outputs are in A3.
+    # The extracted helper also returns a <=64-slot descriptor vector;
+    # its backing remains until extend consumes it, beside Sources' backing.
+    rf_end_rows = (s("FunctionalDescriptor") * (16 + 64) + B(12 * 2 * ID)
+                   + s("AffineTerm") * (12 * 16) + s("Vec") * (12 * 12 * 4 + 8)
+                   + B(8 * 12 * 12 * 3 * 2 + 2 * ID))
+    rows["B7 descriptor construction transients (one member's rows + one key clone)"] = coefficient_max(
+        rows["B7 descriptor construction transients (one member's rows + one key clone)"], rf_end_rows)
 
 # ---------------- C. Context #1 (exact_boundary.rs:282-486) ------------------------------
 snapshot = (B(e_id) + Mat(8, N, N) + B(8 * N) + B(8 * F) + B(16 * N)
             + Xc("StiffnessContribution", C) + Xc("ForceContribution", ft) + B(ft * ID))
+if RF:
+    snapshot = snapshot + Xc("CongruenceMember", m)
 rows["C1 Context Snapshot #1 (identity copy 1 = length)"] = snapshot
 rows["C2 Context k"] = s("Vec") * N + s("Expansion") * (N * N) + B(8 * (4 * Z + 2 * C))
 rows["C3 Context f"] = s("Expansion") * N + B(8 * (4 * N + 2 * ft))
@@ -130,10 +161,40 @@ rows["C4 blocks"] = s("Vec<usize>") * pushcap(N) + B(N * 32)
 rows["C5 witnesses"] = V("BlockWitness", F) + B(F * (16 + 4 * EXP))
 rows["C6 new_charged transients"] = Mat(8, N, N) + B(2 * N + 8 * N) + B(6 * EXP)
 rows["C7 source_preflight and attempt token"] = B(16)
+if RF:
+    # RF-K: each replaced scalar global entry has <=9 triple products,
+    # each at most four terms: 36 source terms instead of one. Grow Vec
+    # capacities are bounded by 4Z+2*terms, as on the original branch.
+    rows["C2 Context k"] = rows["C2 Context k"] + B(8 * 2 * 35 * 144 * m)
+    # RF-O4: existing 4 EXP/DOF covers 14 expansions per four-DOF witness;
+    # explicitly add the upper/minors inner headers (<=80 bytes/DOF).
+    rows["C5 witnesses"] = rows["C5 witnesses"] + s("Vec") * (4 * F)
+    # At most 10 upper entries per four-DOF block, six per three-DOF block.
+    rows["C8 Context adjugates"] = (s("Vec") * pushcap(F)
+        + (s("Expansion") + B(EXP)) * ((5 * F + 1) // 2))
+    # RF-O4: 36 optional cache slots (<=18 populated), minors, products,
+    # sums and copies; the adjugate itself is already in C8. The optional
+    # slot's field-sum upper keeps its discriminant positive.
+    rows["C6 new_charged transients"] = (rows["C6 new_charged transients"]
+        + (s("Expansion") + s("usize")) * 36 + B(26 * EXP + 10 * 8))
+    # RF-CG: K*T (<=6 terms/entry) and T^T*(K*T) (<=36), simultaneously.
+    # The six arithmetic temporaries retain the existing E-term cap.
+    rows["C6 new_charged transients"] = (rows["C6 new_charged transients"]
+        + s("Vec") * 24 + s("Expansion") * 288
+        + B(144 * 8 * (pushcap(6) + pushcap(36)) + 6 * EXP))
+    rows["C7 source_preflight and attempt token"] = rows["C7 source_preflight and attempt token"] + B(8 * m)
 
 # ---------------- D. Response #1 (exact_boundary.rs:525-597) ----------------------------
 rows["D1 Response displacement and reactions"] = s("Ratio") * (2 * N) + B(4 * N * EXP)
 rows["D2 solve temporaries (11 Expansions, block phase)"] = B(11 * EXP)
+if RF:
+    # RF-O4: reaction grouping index, DOF->group map, optional block sums,
+    # and order-four h/product/ratio staging. <=F/3 grouped blocks.
+    groups = (F + 2) // 3
+    rows["D2 solve temporaries (11 Expansions, block phase)"] = (
+        rows["D2 solve temporaries (11 Expansions, block phase)"]
+        + B(8 * pushcap(groups) + 26 * EXP) + Xc("Option<usize>", N)
+        + (s("Expansion") + s("usize") + B(EXP)) * groups)
 
 # ---------------- E. FunctionalPlan (#2), only when descriptors_charge passes ------------
 # exact clone; units = descriptors + offset products + atoms + terms + term products + atoms
@@ -155,6 +216,9 @@ rows["H1 retained Snapshot #2 (identity copy 2 = length)"] = snapshot
 rows["H2 retained witnesses, displacement, reactions, projections"] = (
     Xc("BlockWitness", F) + B(F * (16 + 4 * EXP)) + s("Ratio") * (2 * N) + B(2 * N * 2 * EXP)
     + Xc("RetainedProjection", 2 * N) + B(3 * N))
+if RF:
+    rows["H2 retained witnesses, displacement, reactions, projections"] = (
+        rows["H2 retained witnesses, displacement, reactions, projections"] + s("Vec") * (4 * F))
 rows["H3 retained descriptors #3 (16,384-unit law)"] = desc_clone
 rows["H4 retained values and projections"] = s("Ratio") * Fn + B(Fn * 2 * EXP) + Xc("RetainedFunctionalProjection", Fn)
 
