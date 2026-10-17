@@ -1245,7 +1245,7 @@ def _g5_ordinary(body, cases, diags, quality, gates=None):
 
 
 def _g5_products(body, rows_by_case, route=None):
-    """`route` selects the lane correction limit (`_lane_correction_limit`); None keeps every lane at one."""
+    """`route` selects lane and member extensions; None keeps every lane at one and the route-neutral rules."""
     fail = lambda ok: _need(ok, "G5", "PRODUCT_ATTEMPT_MISMATCH")
     work_checks = []
     wf = work_checks.append
@@ -1288,7 +1288,7 @@ def _g5_products(body, rows_by_case, route=None):
             fail(indices==projected[:len(indices)] and (a["stages"]["projection"]!="completed" or len(indices)==len(projected)))
         _loaded_maximum_diagnostic(body,a,case,rows_by_case[case["basis_ref"]["ref_id"]],route)
         _g5_coverage(a, case, source, fail)
-        member_values=(not route.exact and source is not None
+        member_values=(route is not None and not route.exact and source is not None
                        and any(_exact_active_member(source,m["kernel_member"]) for m in source["id_maps"]["members"]))
         _g5_stages(a, case, fail, ai, member_values)
         for ok in _accounting_rules(a): wf(ok)
@@ -1468,7 +1468,7 @@ def _exact_active_member(source, member):
 
 
 def _owner_projected(owner,row,source=None,route=PREVIEW_ROUTE):
-    loaded=(not route.exact and owner["basis_ref"]["ref_type"] != "combination" and row["kind"]=="pipe_elastic_normal_stress_maximum_v2"
+    loaded=(route is not None and not route.exact and owner["basis_ref"]["ref_type"] != "combination" and row["kind"]=="pipe_elastic_normal_stress_maximum_v2"
             and source is not None and any(m["id"]==row["entity_ref"] and _exact_active_member(source,m["kernel_member"]) for m in source["id_maps"]["members"]))
     return (row["kind"] not in HULL_EXCLUDED or loaded) and not (owner["basis_ref"]["ref_type"]=="combination" and row["kind"]=="displacement_magnitude")
 

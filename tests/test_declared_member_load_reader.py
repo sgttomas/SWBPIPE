@@ -129,6 +129,7 @@ def test_loaded_maximum_projection_uses_exact_activity_and_si_publication():
     from copy import deepcopy
     rp,body,a,owner,rows=_exhausted_fixture();s=body['sources'][0];row=rows[0]
     assert rp._owner_projected(owner,row,s)
+    assert not rp._owner_projected(owner,row,s,None)  # no route-specific maximum without a route
     assert rp._projected_publication_value(row,{'kind':'normal','value':rp.bits(1_000_000.)})==1.0
     opposite=deepcopy(s['member_load_terms'][0]);opposite['intensity'][1]='c008000000000000';s['member_load_terms'].append(opposite)
     assert rp._owner_projected(owner,row,s)  # cancelling authored activity remains loaded
