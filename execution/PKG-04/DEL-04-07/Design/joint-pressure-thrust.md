@@ -119,7 +119,7 @@ The source-group evidence lists the new kinds. A `joint_effective_area` term car
 - **Elastic rows are unchanged.** g = K(q − q_ref), f = Bᵀg and the eight row families keep their recovery and certification. Pressure is never subtracted from g.
 - **Two new row families**, published only for a constant-effective-area connector, so an unpressurized connector's rows are unchanged byte for byte. Both are in the connector frame (`connector_local`, `connector_axes_q`), unit N, with the connector's stable basis:
   - `connector_pressure_force_v1`, component `pe_x`: Pe = p·Ae, the joint's dead generalized pressure force in the reference geometry, conjugate to qt_x (positive tends to open the joint). It is one binary64 product of the region's p and Ae, and 0 in a case where no region lists the connector.
-  - `connector_effective_axial_force_v1`, component `s_x`: S_joint = g_x + T_t − Pe, with T_t = 0 untied. It is certified from g_x's certified row minus the exact operand p·Ae, rounded once; its radius is g_x's plus that product's error. It is published exactly when g_x's row is, and otherwise unavailable with the same reason.
+  - `connector_effective_axial_force_v1`, component `s_x`: S_joint = g_x + T_t − Pe, with T_t = 0 untied (with T4-U5b's rods, T_t = Σ T_r·(n_r·Q_x); §9). It is certified from g_x's certified row minus the exact operand p·Ae, rounded once; its radius is g_x's plus that product's error. It is published exactly when g_x's row is, and otherwise unavailable with the same reason.
   - Row ids follow the scheme: `result:connector:{suffix}:connector-pressure-force:connector_local:pe_x` and `…:connector-effective-axial-force:connector_local:s_x`.
 - **Adjacent pipes.** The wall force comes from the pipe law, Nw = EA(ε − ε_T) + 2νpAi, and S_pipe = Nw − Pi. Nothing is added to it, and no joint quantity is published as a wall stress. At each face, S_pipe = S_joint (JR §4); the references check this exactly.
 - **Contract evidence.** The connector record of a constant-effective-area joint gains `effective_area_m2`, `pressure_basis` and `pressure_source_reference`; an unpressurized record is unchanged. The region evidence is in section 2.
@@ -280,12 +280,52 @@ They cover:
 ## 9. What T4-U5b adds (batch 7, under O1)
 
 - **Hardware.** `explicit_axial_rods_v1` with the `bilateral_linear` law only. Each rod has an id, attachments bᵢ and bⱼ with rigid offsets from its end nodes, a stiffness, a reference extension and a source. Its extension e = n·(v_bⱼ − v_bᵢ) = C·d has the correct infinitesimal rigid modes; its tension is T_r = k_r(e − e_ref), assembled as Cᵀk_rC with the reference load +Cᵀk_r·e_ref. `ideal_inextensible`, the collective axial constraint (they need an MPC, a later unit only on the owner's choice), tension-only or gapped rods, nuts and stops stay refused by name. No penalty stiffness.
-- **Publication.** A rod force row per rod. S_joint becomes Tb + ΣT_r − Pe. Rods are not connector member loads either: the connector's g stays elastic.
-- **References** (re-derived independently):
+- **Publication.**
+  - Each rod gets its own force row.
+  - S_joint becomes Tb + Σ T_r·(n_r·Q_x) − Pe. This is the face-equilibrium identity S_pipe = S_joint. For rods parallel to the connector axis, n_r·Q_x = 1 and it reduces to Tb + ΣT_r − Pe.
+  - Rods are not connector member loads either: the connector's g stays elastic.
+- **Rulings (HELP_HUMAN, 2026-10-17).**
+  1. **Non-parallel rods are admitted, with the projected rule above.**
+     - *Basis.* The hardware already defines a general rod direction: e = n·(v_bⱼ − v_bᵢ), assembled as Cᵀk_rC. The earlier unprojected sum held only when n·Q_x = 1. On a skewed rod it breaks the interface identity by 28800/1661 N; `t4_u5b` SK-F is the discriminating control. Refusing "non-parallel" rods would need a parallelism tolerance with no physical basis.
+     - *Left to the U5b design.* A rod nearly perpendicular to the joint axis. The U5b implementation design may refuse it by name if that is justified.
+  2. **Rods with p = 0 at the joint are admitted.** This covers rods on an unpressurized connector and rods on a constant-effective-area connector that no region lists. There Pe = 0, and the projected rule applies unchanged.
+     - *Basis.* Rods are hardware whose stiffness and reference extension act whatever the pressure. JR J-C's mechanical-only tied qualification is this case, and refusing it would leave a tied joint under thermal or mechanical load unsupported.
+     - *If the U5b design disagrees.* If it finds a route or certificate reason to refuse these cases, it brings that to HELP_HUMAN. The references cover both outcomes.
+- **References.** Each was re-derived independently:
   - JR's ideal-tie rows 2 and 4 as the finite-rod limit k_r → ∞, with exact finite-k_r forms and their limits;
   - row 5's split (Tb = 2e5·q, Tt = 2e7·q at J3-5U's q);
   - offset rod pairs at ±a (K_rz = 2k_r·a², with cancelling cross terms);
-  - JR's tied J4 control on the rod force: 800 + 75π instead of 800 − 50π anchored, Pe + Pi instead of Pe free, with q, Nw and the reactions unchanged in the anchored tied case.
+  - JR's tied J4 control on the rod force: 800 + 75π instead of 800 − 50π anchored, and Pe + Pi instead of Pe free, with q, Nw and the reactions unchanged in the anchored tied case.
+- **Qualified (2026-10-17).** [`validation/references/t4_u5b/`](../../../../validation/references/t4_u5b/README.md) covers each item, exact over Q(π) on the JR J3 fixture:
+  - **Rows 2 and 4.**
+    - Anchored: q = (800 − 50π)/(200000 + 13750000π + k_R). Free: q = 800/(200000 + k_R).
+    - As k_R → ∞ the forms reach JR's ideal-tie values. As k_R → 0 they reach t4_u5a's J3-1 and J3-3.
+    - A centreline rod and a ±a pair agree exactly.
+  - **Row 5.** q = 1/25250 (J3-5U), Tb = 800/101 and ΣT_r = 80000/101. The anchored case is checked against J3-5UA.
+  - **Offset pairs.**
+    - A ±a pair gives K_xx = 2k_r and K_rz = 2k_r·a², and the cross terms cancel. Four rods stiffen both bending rotations.
+    - A single offset rod is the only configuration where an offset-sign error shows. It acts through a series stiffness and does not make the joint axially rigid.
+  - **The tied J4 control.**
+    - ΣT_r → 800 + 75π anchored, and Pe + Pi free.
+    - At finite k_R, the differences in q, Nw and the reactions are given exactly. They vanish only in the anchored limit.
+  - **Other cases.**
+    - Pretension (e_ref), reversal and rigid rotation.
+    - The skewed rod SK-F.
+    - The p = 0 controls:
+      - MO-F, JR J-C's mechanical-only case;
+      - MO-T, anchored thermal with pretension;
+      - RR-U and RR-P, bound to J3-R and J3-RP.
+
+  Every case is solved twice, by a nodal stiffness solve and by a force method, and the two agree exactly. The pressure RHS includes the Poisson pairs, as t4_u5a's does. §8 binds that convention to the product's `assembled_pressure_rhs_global`.
+
+  A separate TASK refuted the set, using its own 100-digit nodal solve and hand free bodies, and confirmed every value. A second separate TASK confirmed the repairs and the new cases.
+
+  The cases stay request-agnostic until 0.6.0 defines `explicit_axial_rods_v1`. Their oracle values do not move.
+- **Open for the U5b design.**
+  - Refusal codes and patches for JR §5's input refusals: duplicate rods, zero length, missing offsets, contradictory hardware.
+  - Rods whose end nodes are not the connector's end nodes. The references' reduction and face identity assume they are.
+  - Whether `pe_x` and `s_x` are published for an unpressurized connector with rods.
+  - The ideal-inextensible rods and the collective constraint. These remain a later MPC unit, on the owner's choice only.
 
 ## Open questions
 

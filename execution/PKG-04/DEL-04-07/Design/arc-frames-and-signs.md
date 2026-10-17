@@ -535,15 +535,96 @@ U4a supplies their frame: in the tangent frame, M_z is in-plane and M_y is
 out-of-plane at every arc section, ends included.
 
 **U4b's selected idealizations** (carried in the owner's 2026-10-14
-resumption steer). U4b discloses two idealizations:
+resumption steer). U4b discloses two idealizations. HELP_HUMAN's ruling of
+2026-10-17 fixes how each is read.
 
-- the toroidal membrane hoop and radial values use
-  `bore_load_transferred_toroidal_membrane_v1`;
-- the Saint-Venant (SV) transverse shear uses `local_straight_annulus_on_arc`.
+- **`bore_load_transferred_toroidal_membrane_v1`** gives the toroidal
+  membrane hoop and the radial values on realized arcs.
+  - The hoop at section angle β is the area average of the hoop stress over
+    the wall cut at β. β is measured from +y (toward the bend centre) toward
+    +z: the intrados is at 0°, the crowns at ±90° and the extrados at 180°.
+  - The value comes from exact equilibrium of the pressure p on the bore,
+    transferred to that cut.
+  - The arc is idealized as a complete torus in an axisymmetric membrane
+    state: no transverse-shear resultant on the cuts, no tangent-end effects,
+    reference geometry and small strain.
+  - On each section basis b the bore is that basis's own bore r_i,b, with wall
+    t_b and r_o = D/2:
+    σ_h(β) = (p·r_i,b/t_b)·(2R − r_i,b·cos β)/(2R − (r_i,b + r_o)·cos β), for
+    R > r_o.
+  - The radial values are −p at that basis's bore and 0 at the outer surface.
+  - At the crowns σ_h = p·r_i,b/t_b, which is the straight member's Lamé wall
+    mean on the same basis. σ_h tends to that mean as R → ∞, and in the
+    thin-wall limit it reduces to the classical torus membrane hoop.
+  - The nominal basis uses its own bore r_i,n (ruling (a)). The basis for this
+    is D-5 as built on main: each basis's Lamé stresses are those of its own
+    annulus. Arcs and straights therefore agree at the crown on each basis.
+    Loading the nominal wall from the pressure bore r_i,r would break that
+    agreement, so the references carry it only as a discriminator.
+- **`local_straight_annulus_on_arc`** gives the Saint-Venant (SV) transverse
+  shear.
+  - It is the straight-annulus SV flexure field (SHEAR_REFERENCE refutation
+    §2) on each basis's own annulus.
+  - The tangent-frame V_y and V_z at each section drive it by superposition.
+    No curvature correction is applied.
+  - Its maximum, |V|·((3+2ν)·r_o² + (1+2ν)·r_i,b²)/(4(1+ν)·I_b), lies on the
+    inner surface at the two fibres normal to V.
+  - On straight members the same field is exact within Saint-Venant theory.
+  - Torsional shear stays a separate quantity.
 
-Selection is not qualification: U4b still needs independent mechanics and
-reference qualification of both. It grants no arc-source admission; D7's
-decline of realized arcs in `prepare_sources` stands.
+**Qualification (2026-10-17).** Selection was not qualification. The
+references in
+[`validation/references/t4_u4b/`](../../../../validation/references/t4_u4b/README.md)
+supply it for both definitions and for the other quantities above where a
+vetted basis exists. Their bases:
+- an independent derivation of both definitions, which the generator checks
+  by 3D quadrature of the bore load (hoop) and by quadrature, equilibrium and
+  compatibility checks of the field (shear);
+- STRESS_REFERENCE §§1 and 3–6 for fibre stresses, σ⁺/σ⁻, intensification and
+  maxima (S1, S2, I1, X1, C1, C2);
+- SHEAR_REFERENCE's refutation §2 for the field;
+- plan 01 §5's method for the arc maximum: an analytic extremum and a
+  dense-sampling bound. Each maximum is also certified at the criterion by a
+  second-derivative bound.
+
+A separate TASK refuted the set, using independent statics, an independent
+Saint-Venant boundary-value solve and independently certified maxima. It
+confirmed every derivation and value. A second separate TASK confirmed the
+repairs and the added case.
+
+The set has eight invented, statically determinate lines. Their resultants are
+pure statics, independent of k, the shear model and the solver. They cover,
+on both D-5 bases and on the preview single section:
+- the hoop and radial values;
+- SV shear on arcs and straights;
+- signed fibre stresses, with σ⁺/σ⁻ and their fibres;
+- the arc maximum and per-basis headlines;
+- directional-SIF intensified bending with invented user factors: in-plane on
+  M_z, out-of-plane on M_y, never combined.
+
+The cases are request-agnostic. Once model 0.6.0 is defined, a builder
+authors the requests and the U4b design maps the quantity keys to row kinds.
+Oracle values do not move.
+
+This qualifies each definition as the stated idealization only. It grants no
+arc-source admission; D7's decline of realized arcs in `prepare_sources`
+stands. Still open:
+- **No vetted error bound.** No vetted basis bounds either idealization's
+  error against shell or curved-beam theory: ovalization and the hoop bending
+  that moments cause, bending boundary layers, tangent-end effects, and the
+  curvature correction of the shear field. The references state this gap and
+  add no inferred bound.
+- **Markers.** Directional SIF at geometry-only markers has no vetted
+  in-plane axis. Only the component-frame control I1 is frozen, and the
+  marker mapping is the U4b design's.
+- **For the U4b design:**
+  - whether hoop and radial rows are published or omitted on an exact-route
+    arc outside every pressure region;
+  - the conventions the references' README lists as inferred: a uniform arc
+    load per unit arc length, station-independent hoop rows, fibre names and
+    the SIF input names;
+  - the algebra-class marks. These are a classification: STRESS_REFERENCE §5
+    never combines maxima or intensified measures.
 
 **Open unit: directional k** (deferred by HELP_HUMAN, 2026-10-12; not yet
 numbered). Separate in-plane and out-of-plane flexibility factors replace the
