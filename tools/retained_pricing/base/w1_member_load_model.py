@@ -16,7 +16,7 @@ SOURCE_FILES = {
     "core/product_physics/src/retained_wire.rs": "9d4fbf77f8c800dc0fc0800d3be417be49f1d95c678945b4b0a4557c6515bf13",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     "core/reporting/result_export/src/lib.rs": "6e3b91d7171483db3d9f88d736405afb581394de7e1d20a21ce4c357451f74da",
-    "core/reporting/result_export/src/retained_precision.rs": "e2c6de999d7de423fcf5331cc83948ec79b25955c86d0c6e4823b6667c9943aa",
+    "core/reporting/result_export/src/retained_precision.rs": "7772f539ff2a2a2d75805a1e1a1c634b23fa56fdc63b8596954c89b067d1533e",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "817de6a975e7a95a9bfe8bbe660cc40807f66e31d923db860615daaf61223909",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "2efa421b47fa147f3233dcdc236f414f0f80a9019b19b4d181782a90d4eb7d98",

@@ -770,6 +770,66 @@ def test_model_schema_versions_d31():
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.4.0")]), "G8", "INVOCATION_MISMATCH")
 
 
+def test_b3a_legacy_pressure_namespace_29_controls_match_existing_rust_controls():
+    """The unchanged Rust B3a table, including both N11 zero-pressure cases."""
+    legacy={"version":"1.0.0","mode":"legacy_pressure_v1"}
+    root=["request","model"]
+    version=lambda value:_set(root+["schema_version"],value)
+    contract=lambda value:_set(root+["pressure_contract"],value)
+    absent=lambda:{"path":root+["pressure_contract"],"op":"remove"}
+    changed=lambda key,value:dict(legacy,**{key:value})
+    def zero_pressure(base):
+        loads=deepcopy(_cases()[base]["invocation"]["request"]["model"]["load_cases"][0]["primitive_loads"])
+        loads.append({"id":"load:b3a-zero-pressure","category":"pressure","target":{"type":"element","pipe":"pipe:fixture-span"},
+                      "magnitude":{"value":0,"unit":"Pa"},"dimension":"pressure","provenance":"synthetic_integration_input_not_library_data"})
+        return _set(root+["load_cases",0,"primitive_loads"],loads)
+    entries=[(base,[version("0.3.0"),contract(legacy)],False) for base in
+             (O_BASE,"ordinary_prepared_dense_synthetic","two_case_synthetic","u8_l0_isolated_node_sparse_interactive","u8_l0_isolated_node_dense_scrutiny")]
+    entries.extend((O_BASE,edits,admitted) for edits,admitted in (
+        ([contract(None)],False),([version("0.5.0"),absent()],True),
+        ([version("0.3.0"),contract(changed("mode","exact_straight_pressure_v2"))],False),
+        ([version("0.3.0"),contract(changed("version","1.0.1"))],False),
+        ([version("0.3.0"),contract({"version":"2.0.0","mode":"exact_straight_pressure_v2"})],False),
+        ([version("0.3.0"),contract(None)],False),([version("0.3.0"),absent()],False),
+        ([version("0.3.0"),contract(changed("extra","x"))],False),([version("0.3.0"),contract(changed("extra",None))],False),
+        ([version("0.3.0"),contract({"version":"1.0.0"})],False),([version("0.3.0"),contract({"mode":"legacy_pressure_v1"})],False),
+        ([version("0.3.0"),contract(changed("version",1.0))],False),([version("0.3.0"),contract(changed("mode",None))],False),
+        ([version("0.3.0"),contract({})],False),([contract(legacy)],False),
+        ([version("0.1.0"),contract(legacy)],False),([version("0.4.0"),contract(legacy)],False),
+        ([contract({})],False),([contract(False)],False),([contract([])],False),([contract("")],False),([contract(0)],False),
+        ([version("0.3.0"),contract(legacy),zero_pressure(O_BASE)],False),
+    ))
+    dense="ordinary_prepared_dense_synthetic"
+    entries.append((dense,[version("0.3.0"),contract(legacy),zero_pressure(dense)],False))
+    assert len(entries)==29
+    for base,edits,admitted in entries:
+        # Rust's remove of an absent object key is a no-op; this Python edit
+        # grammar deletes an existing key. Preserve the same final invocation.
+        if "pressure_contract" not in _cases()[base]["invocation"]["request"]["model"]:
+            edits=[edit for edit in edits if edit["op"]!="remove"]
+        if admitted:assert _validate_entry(base,[],edits)["classifications"]==_cases()[base]["expected_classifications"]
+        else:_raises(lambda:_validate_entry(base,[],edits),"G8","INVOCATION_MISMATCH")
+
+
+def test_w1_guard_keeps_malformed_invocation_gate_precedence():
+    """Malformed rosters keep G3; later malformed leaves keep the old hash gate."""
+    for base in (O_BASE,"w1_member_load_sparse_interactive"):
+        fixture=_cases()[base]
+        for path,value,gate in (
+            ([],[],"G3"),(["request"],None,"G3"),(["request","model"],None,"G3"),
+            (["request","model","load_cases"],None,"G3"),(["request","model","load_cases"],[None],"G3"),
+            (["request","model","load_cases",0,"primitive_loads"],None,"G8"),
+            (["request","model","load_cases",0,"primitive_loads"],[None],"G8"),
+            (["request","model","load_cases",0,"primitive_loads",0,"target"],None,"G8"),
+            (["request","model","load_cases",0,"primitive_loads",0,"target"],[],"G8"),
+        ):
+            invocation=deepcopy(fixture["invocation"])
+            if path:_apply_edits(invocation,[_set(path,value)])
+            else:invocation=deepcopy(value)
+            code="COVERAGE_MISMATCH" if gate=="G3" else "INVOCATION_MISMATCH"
+            _raises(lambda:rp.validate_retained_precision(deepcopy(fixture["source"]),invocation),gate,code)
+
+
 def test_verification_estimate_names_force_or_moment_d33():
     """D33 (verify.rs `verify_state`): an estimate rejection naming a translation or rotation row fails G5 ATTEMPT."""
     reason = {"space": "attempt", "tag": "verification_estimate", "quantity": {"tag": "displacement", "dof": {"node": 1, "component": "UX"}}, "body": 0, "kind": "translation"}

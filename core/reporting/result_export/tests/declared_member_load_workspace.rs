@@ -197,18 +197,41 @@ fn genuine_member_product_full_reader_and_full_g8_allocations() {
 }
 #[test]
 fn full_g8_rejects_mixed_overcap_before_any_hash_or_json_staging() {
+    member_guard_scope_control();
+}
+/// Also run through the real wasm consumer; no test-only guard implementation.
+pub fn member_guard_scope_control() {
     let mut loads=vec![json!({"id":"n".repeat(1024),"target":{"type":"node"}});128];
-    loads.push(json!({"target":{"type":"element"}}));
-    let inv=json!({"request":{"model":{"load_cases":[{"id":"c","primitive_loads":loads}]}},"solver_mode":"sparse_interactive"});
+    loads.push(json!({"target":{"type":"element"},"category":"distributed_force","dimension":"force_per_length"}));
+    let inv=json!({"request":{"model":{"schema_version":"0.5.0","load_cases":[{"id":"c","primitive_loads":loads}]}},"solver_mode":"sparse_interactive"});
     let source=json!({"retained_precision":{"body":{"sources":[]}}});
     METER.with(|m|m.set((true,0,0)));
     let error=reader_logic::invocation_binding(&source,&inv).unwrap_err();
     let peak=METER.with(|m|{let (_,used,peak)=m.get();m.set((false,used,peak));peak});
     assert_eq!((error.gate,error.code.as_str()),("G8","RETAINED_PRECISION_PREPARATION_MISMATCH"));
     assert!(peak<1024,"entry guard must precede old G8 hash/JSON staging: {peak}");
+    let mut malformed=inv.clone();
+    malformed["request"]["model"]["load_cases"][0]["primitive_loads"][128]["direction"]=json!("ux");
+    malformed["request"]["model"]["load_cases"][0]["primitive_loads"][128]["extent"]=json!([0,1]);
+    malformed["request"]["model"]["load_cases"][0]["primitive_loads"][128]["magnitude"]=json!({"value":1,"unit":"wrong-unit"});
+    METER.with(|m|m.set((true,0,0)));
+    let error=reader_logic::invocation_binding(&source,&malformed).unwrap_err();
+    let peak=METER.with(|m|{let (_,used,peak)=m.get();m.set((false,used,peak));peak});
+    assert_eq!(error.code,"RETAINED_PRECISION_PREPARATION_MISMATCH");
+    assert!(peak<1024,"malformed new candidate must precede hash/JSON staging: {peak}");
     let mut nodal=inv.clone();nodal["request"]["model"]["load_cases"][0]["primitive_loads"][128]["target"]["type"]=json!("node");
     let error=reader_logic::invocation_binding(&source,&nodal).unwrap_err();
     assert_eq!(error.code,"RETAINED_PRECISION_INVOCATION_MISMATCH"); // unchanged old hash gate, not the new cap guard
+    // A forged source key must bound before hashing even outside the namespace.
+    nodal["request"]["model"]["schema_version"]=json!("0.3.0");
+    for marker in [Value::Null,json!([])] {
+        let mut forged=source.clone();forged["retained_precision"]["body"]["sources"]=json!([{"member_load_terms":marker}]);
+        METER.with(|m|m.set((true,0,0)));
+        let error=reader_logic::invocation_binding(&forged,&nodal).unwrap_err();
+        let peak=METER.with(|m|{let (_,used,peak)=m.get();m.set((false,used,peak));peak});
+        assert_eq!(error.code,"RETAINED_PRECISION_PREPARATION_MISMATCH");
+        assert!(peak<1024,"forged member source key must precede hash/JSON staging: {peak}");
+    }
 }
 
 pub fn actual_exhaustion_control(text:&str) {

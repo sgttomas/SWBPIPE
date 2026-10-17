@@ -4820,10 +4820,16 @@ fn preview_namespace(model: &Value) -> bool {
 }
 /// Member-only admission before G8 clones/hashes any invocation or builds
 /// shared maps. Borrowed bounded traversal uses no JSON or index staging.
-fn guard_member_g8(source:&Value,inv:&Value)->VResult {
+fn guard_member_g8(source:&Value,inv:&Value,exact:bool)->VResult {
     let model=&inv["request"]["model"];let cases=list(&model["load_cases"]);
+    // A source member key always guards, including a malformed/forged source.
+    // With that key omitted, only the newly admitted preview member family
+    // activates this guard. Legacy pressure, exact and nodal inputs keep their
+    // established hash/namespace precedence. These checks only borrow Values.
     let member=list(&source["retained_precision"]["body"]["sources"]).iter().any(|s|s.get("member_load_terms").is_some())
-        || cases.iter().any(|c|list(&c["primitive_loads"]).iter().any(|l|l["target"]["type"]=="element"));
+        || (!exact && preview_namespace(model)
+            && cases.iter().any(|c|list(&c["primitive_loads"]).iter().any(|l|
+                l["target"]["type"]=="element" && l["category"]=="distributed_force" && l["dimension"]=="force_per_length")));
     if !member{return Ok(());}
     let fail=|ok|need(ok,"G8","PREPARATION_MISMATCH");
     let materials=if list(&inv["request"]["materials"]).is_empty(){list(&model["materials"])}else{list(&inv["request"]["materials"])};
@@ -4847,7 +4853,7 @@ fn guard_member_g8(source:&Value,inv:&Value)->VResult {
     fail(bounded(inv,0,&mut [0;3]))
 }
 fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
-    guard_member_g8(source,inv)?;
+    guard_member_g8(source,inv,route.exact)?;
     let b = &source["retained_precision"]["body"];
     let fail = |ok| need(ok, "G8", "PREPARATION_MISMATCH");
     need(
@@ -7630,6 +7636,39 @@ mod t4_u6_g8_tests {
 #[cfg(test)]
 mod w1_member_reader_gate_tests {
     use super::*;
+    #[test]
+    fn member_early_guard_preserves_old_namespace_and_bounds_source_forgeries() {
+        let source=json!({"retained_precision":{"body":{"sources":[]}}});
+        let mut loads=vec![json!({"target":{"type":"node"}});128];
+        loads.push(json!({"target":{"type":"element"},"category":"distributed_force","dimension":"force_per_length"}));
+        let inv=json!({"request":{"model":{"schema_version":"0.5.0","load_cases":[{"id":"c","primitive_loads":loads}]}}});
+        let refuse=|s:&Value,i:&Value,exact| {
+            let e=guard_member_g8(s,i,exact).unwrap_err();
+            assert_eq!((e.gate,e.code.as_str()),("G8","RETAINED_PRECISION_PREPARATION_MISMATCH"));
+        };
+        refuse(&source,&inv,false); // source member terms omitted, valid new family
+        let mut malformed=inv.clone();
+        malformed["request"]["model"]["load_cases"][0]["primitive_loads"][128]["direction"]=json!("ux");
+        malformed["request"]["model"]["load_cases"][0]["primitive_loads"][128]["extent"]=json!([0,1]);
+        malformed["request"]["model"]["load_cases"][0]["primitive_loads"][128]["magnitude"]=json!({"value":1,"unit":"wrong-unit"});
+        refuse(&source,&malformed,false); // later declines cannot evade the bound
+        let mut legacy=inv.clone();legacy["request"]["model"]["schema_version"]=json!("0.3.0");
+        legacy["request"]["model"]["pressure_contract"]=json!({"version":"1.0.0","mode":"legacy_pressure_v1"});
+        guard_member_g8(&source,&legacy,false).unwrap();
+        guard_member_g8(&source,&inv,true).unwrap(); // source-key-absent exact route
+        let mut pressure=inv.clone();
+        pressure["request"]["model"]["load_cases"][0]["primitive_loads"][128]["category"]=json!("pressure");
+        pressure["request"]["model"]["load_cases"][0]["primitive_loads"][128]["dimension"]=json!("pressure");
+        guard_member_g8(&source,&pressure,false).unwrap();
+        let mut nodal=inv.clone();nodal["request"]["model"]["load_cases"][0]["primitive_loads"][128]["target"]["type"]=json!("node");
+        guard_member_g8(&source,&nodal,false).unwrap();
+        for marker in [Value::Null,json!([])] {
+            let forged=json!({"retained_precision":{"body":{"sources":[{"member_load_terms":marker}]}}});
+            refuse(&forged,&legacy,false);
+            refuse(&forged,&inv,true);
+            refuse(&forged,&nodal,false);
+        }
+    }
     fn fixture()->(Value,Value,Vec<Value>) {
         let source=json!({"id_maps":{"nodes":[{"coordinates":(["0000000000000000";3])},{"coordinates":["4000000000000000","0000000000000000","0000000000000000"]}],"members":[{"node_i":0,"node_j":1}]},"nodal_terms":[],"member_load_terms":[{"constructor_ordinal":0,"primitive_load_index":0,"source_id":"l","member":0,"intensity":["0000000000000000","4008000000000000","0000000000000000"]}]});
         let case=json!({"id":"c","primitive_loads":[{"id":"l","target":{"type":"element","pipe":"p"},"category":"distributed_force","dimension":"force_per_length","direction":"global_y","magnitude":{"value":3,"unit":"N/m"}}]});

@@ -186,6 +186,53 @@ def test_early_member_guard_precedes_hash_and_mixed_nodal_staging():
     rp._guard_member_g8(body,invocation)  # old nodal admission is unchanged
 
 
+def test_early_member_guard_scope_preserves_namespace_and_source_forgery_bounds(monkeypatch):
+    from copy import deepcopy
+    from tests.verifiers import retained_precision as rp
+    body={"sources":[],"invocation":{"value":"0"*64}}
+    invocation={"request":{"model":{"schema_version":"0.5.0","load_cases":[{"id":"c","primitive_loads":
+        [{"target":{"type":"node"}}]*128+[{"target":{"type":"element"},"category":"distributed_force","dimension":"force_per_length"}]}]}},"solver_mode":"sparse_interactive"}
+    def no_hash(*args,**kwargs):raise AssertionError("hash reached")
+    monkeypatch.setattr(rp,"_hash",no_hash)
+    def refuses_before_hash(b,inv,exact=False):
+        with pytest.raises(rp.RetainedPrecisionError) as error:rp._g8(b,{},inv,rp.EXACT_ROUTE if exact else rp.PREVIEW_ROUTE)
+        assert (error.value.gate,error.value.code)==("G8","RETAINED_PRECISION_PREPARATION_MISMATCH")
+    refuses_before_hash(body,invocation)  # source member key omitted
+    malformed=deepcopy(invocation)
+    malformed['request']['model']['load_cases'][0]['primitive_loads'][-1].update(direction='ux',extent=[0,1],magnitude={'value':1,'unit':'wrong-unit'})
+    refuses_before_hash(body,malformed)
+    legacy=deepcopy(invocation)
+    legacy['request']['model'].update(schema_version='0.3.0',pressure_contract={'version':'1.0.0','mode':'legacy_pressure_v1'})
+    pressure=deepcopy(invocation)
+    pressure['request']['model']['load_cases'][0]['primitive_loads'][-1].update(category='pressure',dimension='pressure')
+    nodal=deepcopy(invocation);nodal['request']['model']['load_cases'][0]['primitive_loads'][-1]['target']['type']='node'
+    for inv,exact in ((legacy,False),(pressure,False),(nodal,False),(invocation,True)):
+        with pytest.raises(AssertionError,match='hash reached'):rp._g8(body,{},inv,rp.EXACT_ROUTE if exact else rp.PREVIEW_ROUTE)
+    for marker in (None,[]):
+        forged={"sources":[{"member_load_terms":marker}],"invocation":{"value":"0"*64}}
+        refuses_before_hash(forged,legacy)
+        refuses_before_hash(forged,invocation,True)
+        refuses_before_hash(forged,nodal)
+
+
+def test_early_member_guard_borrowed_views_match_rust_json_types():
+    from copy import deepcopy
+    from tests.verifiers import retained_precision as rp
+    invocation={"request":{"model":{"schema_version":"0.5.0","load_cases":[{"id":"c","primitive_loads":[]}] }},"solver_mode":"sparse_interactive"}
+    variants=[[],{"request":None},{"request":{"model":None}}]
+    for key,value in (("load_cases",None),("load_cases",[None]),("pipe_segments",[None]),("pipe_segments",[{"id":[]}]),("materials",{})):
+        inv=deepcopy(invocation);inv['request']['model'][key]=value;variants.append(inv)
+    for key,value in (("id",[]),("primitive_loads",None),("primitive_loads",[None]),("primitive_loads",[{"target":None}])):
+        inv=deepcopy(invocation);inv['request']['model']['load_cases'][0][key]=value;variants.append(inv)
+    for sources in ([],[{"member_load_terms":None}],[{"member_load_terms":[]}]):
+        body={'sources':sources,'invocation':{'value':'0'*64}}
+        for inv in variants:
+            for exact in (False,True):
+                rp._guard_member_g8(body,inv,exact)
+                with pytest.raises(rp.RetainedPrecisionError) as error:rp._g8(body,{},inv,rp.EXACT_ROUTE if exact else rp.PREVIEW_ROUTE)
+                assert (error.value.gate,error.value.code)==('G8','RETAINED_PRECISION_INVOCATION_MISMATCH')
+
+
 def test_genuine_member_product_and_all_attested_hash_forgery():
     import os,json
     from copy import deepcopy

@@ -2013,36 +2013,57 @@ def _g8_member_terms(source, case, pipes, exact=False, selected_digest=None):
         need(selected_digest == digest)
 
 
-def _guard_member_g8(body,invocation):
-    model=invocation.get("request",{}).get("model",{});cases=model.get("load_cases",[])
-    member=any("member_load_terms" in s for s in body["sources"]) or any(l.get("target",{}).get("type")=="element" for c in cases for l in c.get("primitive_loads",[]))
+def _guard_member_g8(body,invocation,exact=False):
+    # Borrowed JSON views match Rust Value indexing/list/text: malformed types
+    # contribute null/empty views here and retain the existing later gate.
+    field=lambda value,key:value.get(key) if isinstance(value,dict) else None
+    items=lambda value:value if isinstance(value,list) else ()
+    def text_fits(value,limit):
+        return not isinstance(value,str) or (len(value)<=limit and len(value.encode())<=limit)
+    request=field(invocation,"request");model=field(request,"model")
+    cases=items(field(model,"load_cases"));pipes=items(field(model,"pipe_segments"))
+    # Source-key presence guards even a forged namespace. The authored fallback
+    # is only the new preview member family, preserving old hash/namespace gates.
+    # Do not call _preview_namespace here: its general allowance helper builds
+    # a sections list before this early bound. Iterate existing pipes instead.
+    member=any(isinstance(s,dict) and "member_load_terms" in s for s in items(field(body,"sources")))
+    if not member and not exact:
+        preview=(type(field(model,"schema_version")) is str and model["schema_version"]=="0.5.0" and "pressure_contract" not in model and "shear_model" not in model
+                 and all(not isinstance(field(pipe,"section"),dict) or "corrosion_allowance" not in pipe["section"] for pipe in pipes))
+        member=preview and any(field(field(load,"target"),"type")=="element" and field(load,"category")=="distributed_force"
+                               and field(load,"dimension")=="force_per_length" for case in cases for load in items(field(case,"primitive_loads")))
     if not member:return
     need=lambda ok:_need(ok,"G8","PREPARATION_MISMATCH")
-    materials=invocation["request"].get("materials") or model.get("materials",[])
-    need(len(cases)<=3 and len(model.get("nodes",[]))<=32 and len(model.get("pipe_segments",[]))<=32 and len(model.get("supports",[]))<=32 and len(materials)<=4
-         and len(model.get("combinations",[]))<=2 and len(cases)+len(model.get("combinations",[]))<=3
-         and all(len(c.get("primitive_loads",[]))<=128 and len(c["id"].encode())<=1024 for c in cases)
-         and all(len(p["id"].encode())<=1024 for p in model.get("pipe_segments",[])))
-    need(sum(len(s.get("restraints",[])) for s in model.get("supports",[]))<=192
-         and all(len(m.get("temperature_points",[]))<=16 for m in materials)
-         and all(len(c.get("terms",[]))<=3 and len(c.get("operand_ids",[]))<=3 for c in model.get("combinations",[])))
+    materials=items(field(request,"materials")) or items(field(model,"materials"))
+    combinations=items(field(model,"combinations"));supports=items(field(model,"supports"))
+    need(len(cases)<=3 and len(items(field(model,"nodes")))<=32 and len(pipes)<=32 and len(supports)<=32 and len(materials)<=4
+         and len(combinations)<=2 and len(cases)+len(combinations)<=3
+         and all(len(items(field(case,"primitive_loads")))<=128 and text_fits(field(case,"id"),1024) for case in cases)
+         and all(text_fits(field(pipe,"id"),1024) for pipe in pipes))
+    need(sum(len(items(field(s,"restraints"))) for s in supports)<=192
+         and all(len(items(field(m,"temperature_points")))<=16 for m in materials)
+         and all(len(items(field(c,"terms")))<=3 and len(items(field(c,"operand_ids")))<=3 for c in combinations))
     totals=[0,0,0]
     def bounded(value,depth):
         if depth>18:return False
         totals[0]+=1
         if totals[0]>16400:return False
-        if isinstance(value,str):totals[1]+=len(value.encode());return len(value.encode())<=128 and totals[1]<=67584
+        if isinstance(value,str):
+            if len(value)>128:return False
+            size=len(value.encode());totals[1]+=size
+            return size<=128 and totals[1]<=67584
         if isinstance(value,list):return all(bounded(v,depth+1) for v in value)
         if isinstance(value,dict):
             for k,v in value.items():
-                totals[2]+=len(k.encode())
-                if len(k.encode())>128 or totals[2]>67584 or not bounded(v,depth+1):return False
+                if not isinstance(k,str) or len(k)>128:return False
+                size=len(k.encode());totals[2]+=size
+                if size>128 or totals[2]>67584 or not bounded(v,depth+1):return False
         return True
     need(bounded(invocation,0))
 
 
 def _g8(body, source, invocation, route=PREVIEW_ROUTE):
-    _guard_member_g8(body,invocation)
+    _guard_member_g8(body,invocation,route.exact)
     need = lambda ok, code="PREPARATION_MISMATCH": _need(ok, "G8", code)
     exact = route.exact
     # The invocation is exactly {request, solver_mode} with a known solver mode (I91 repair 01, findings d1

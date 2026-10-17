@@ -4978,6 +4978,31 @@ fn b3a_legacy_pressure_contract_namespace_at_g8() {
     }
 }
 
+#[test]
+fn b3a_malformed_invocation_keeps_existing_gate_precedence() {
+    use serde_json::json;
+    let shared=corpus();
+    for id in [ORD,"w1_member_load_sparse_interactive"] {
+        let base=shared["cases"].as_array().unwrap().iter().find(|c|c["id"]==id).unwrap();
+        for (path,value,want) in [
+            (json!([]),json!([]),"G3"),(json!(["request"]),Value::Null,"G3"),
+            (json!(["request","model"]),Value::Null,"G3"),
+            (json!(["request","model","load_cases"]),Value::Null,"G3"),
+            (json!(["request","model","load_cases"]),json!([null]),"G3"),
+            (json!(["request","model","load_cases",0,"primitive_loads"]),Value::Null,"G8"),
+            (json!(["request","model","load_cases",0,"primitive_loads"]),json!([null]),"G8"),
+            (json!(["request","model","load_cases",0,"primitive_loads",0,"target"]),Value::Null,"G8"),
+            (json!(["request","model","load_cases",0,"primitive_loads",0,"target"]),json!([]),"G8"),
+        ] {
+            let mut invocation=base["invocation"].clone();
+            if path.as_array().unwrap().is_empty(){invocation=value;}else{edit(&mut invocation,&set(path.clone(),value));}
+            let error=rp::validate(&base["source"],Some(&invocation)).unwrap_err();
+            assert_eq!(error.gate,want,"{id} {path}");
+            assert_eq!(error.code,if want=="G3"{"RETAINED_PRECISION_COVERAGE_MISMATCH"}else{"RETAINED_PRECISION_INVOCATION_MISMATCH"},"{id} {path}");
+        }
+    }
+}
+
 // ---- B3b (I101): the exact successor `<physics-retained>` on reader-local synthetic receipts ----
 /// RN64(2e11 / (2 RN64(1 + nu))) is exactly the bases' G = 7.7e10 Pa, so the
 /// synthetic exact successor keeps every receipt number of its preview base.

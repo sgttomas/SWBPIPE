@@ -47,7 +47,9 @@ def test_production_encoding_warrant_follows_guard_and_exact_occurrence_binding(
     MODEL["inspect"](SOURCE)
     source = (SOURCE / "core/reporting/result_export/src/retained_precision.rs").read_text()
     g8 = source[source.index("fn g8("):source.index("struct MemberExpected")]
-    assert g8.index("guard_member_g8(source,inv)?;") < g8.index("verify_member_terms(s, case, pipes,")
+    guard = g8.index("guard_member_g8(source,inv,route.exact)?;")
+    assert guard < g8.index('"source_blocks_invocation_v1"')
+    assert guard < g8.index("verify_member_terms(s, case, pipes,")
     assert g8.index("verify_member_terms(s, case, pipes,") < g8.index("verify_native_source_hashes(s)?;")
 
 
