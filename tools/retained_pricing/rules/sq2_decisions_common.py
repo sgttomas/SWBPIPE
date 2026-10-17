@@ -426,6 +426,18 @@ SITE_FROM = list(globals().get("SITE_FROM", [])) + _formed_model["first_return_r
 _owned_returns = __import__("runpy").run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "b7a_returning_errors.py"))
 SITE_FROM = list(SITE_FROM) + _owned_returns["rules"](_SNAP, Resolved)
 
+# W1: positive member-only source, wire and independent-reader traversals.
+_w1_members = __import__("runpy").run_path(_os.path.join(_os.path.dirname(__file__), "..", "base", "w1_member_load_model.py"))
+_w1_member_loops, _w1_member_audits = _w1_members["text_decisions"](_SNAP, Resolved)
+O10_LOOPS_LAST = list(O10_LOOPS_LAST) + _w1_member_loops
+ID_AUDIT = list(ID_AUDIT) + _w1_member_audits
+LEX_SITE_SIZE = list(LEX_SITE_SIZE) + _w1_members["identifier_lex_sizes"](_SNAP, Resolved)
+# The tuple-bound numeric `gap` passed to n(gap) is not a function value.
+# Remove only this impossible target; real nonlinear constructors remain.
+O10_EDGE_ZERO = list(O10_EDGE_ZERO) + [(fnkey("prepared_maxima", PP_ + "retained_product.rs"),
+    fnkey("gap", "core/solver/nonlinear_supports/src/lib.rs"),
+    "W1-GAP: source-pinned prepared_maxima binds gap as an f64 tuple member and passes it to its number closure; no nonlinear support constructor is called")]
+
 
 # Exact current producer spellings, applied after ordinary decision carry.
 B7A_SCOPED_TEXT = {"model": _os.path.join(_os.path.dirname(__file__), "..", "base", "b7a_scoped_text_model.py"), "snapshot": _SNAP}

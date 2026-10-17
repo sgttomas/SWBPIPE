@@ -118,6 +118,11 @@ SUCC_DELTA = (VF(ent=PA, strb=PA * 41, keyb=PA * 15)
               + VF(arr=2, obj=1, ent=6, strb=(30 + ID + 9) + 26 + 4 + 300 + 20 + ID, keyb=6 * 16).scale(AA)
               + VF(strb=2 * TOK))
 ENV_S = ENV + SUCC_DELTA
+# W1-DISC: the selected member diagnostic's fixed text exceeds the original
+# 300-byte selected-message allowance. Keep the original diagnostic owner.
+import w1_member_load_model as _w1_member_model
+_w1_member_model.inspect(SNAP)
+ENV_S += VF(strb=AA * max(0, _w1_member_model.selected_message_bytes(SNAP) - 300))
 
 # =========================================================================== receipt body facts
 # Per member of finish()'s body (retained_wire.rs:1436-1458), at the caps: count x per-record
@@ -148,6 +153,8 @@ SOURCE = (rec(1, obj=4, ent=23, strb=TOK + ID + 3 * SHA, nums=3)
           + rec(k, slots=2, obj=2, ent=5, strb=TOK + BITS, nums=3)                    # constraints
           + rec(l, slots=1, obj=2, ent=7, strb=ID + TOK + BITS, nums=4)               # nodal_terms
           + rec(m, slots=1, obj=2, ent=13, strb=TOK + 10 * BITS, nums=1))             # section_terms
+SOURCE += rec(l, slots=4, ent=6, strb=ID + 3 * BITS, nums=3)  # W1-WIRE: optional nonempty member terms
+SOURCE += VF(ent=1, keyb=KB)                         # the optional member_load_terms parent key
 SOURCE = SOURCE.scale(AA)                            # I82: one prepared CaseSource per attempted case
 REASON = VF(obj=4, ent=16, strb=8 * TOK, keyb=16 * KB, nums=4)                       # an attempt reason subtree
 PHYSICAL = (rec(RECORDS, slots=1, obj=9, ent=81, strb=6 * TOK + 3 * BITS, nums=60)
@@ -166,6 +173,12 @@ CASE = rec(CC, obj=4, ent=16, strb=4 * TOK + ID + SHA, nums=4) + RUN.scale(AA) +
 PROOF = (rec(1, obj=12, ent=40, strb=8 * TOK, nums=30) + rec(2, slots=20, obj=37, ent=96, strb=12 * TOK, nums=40)  # lanes
          + rec(P, slots=1, obj=2, ent=4, strb=TOK + 2 * BITS, nums=1)                # projection_outcomes
          + rec(NB, slots=1, ent=3, nums=2) + VF(arr=16, nums=16))                    # coverage, capacities
+# W1-DIAG: one optional exhaustion diagnostic with two endpoints of 16 fixed
+# hex limbs; the full positive grammar is retained even on successful cases.
+PROOF += rec(1, slots=32, obj=3, ent=11, strb=32 * BITS, nums=4, depth=5)
+# The new curvature-capacity pair may appear once on each lane; the nodal
+# path still serializes only its original nine capacity entries.
+PROOF += rec(2, slots=3, ent=1, strb=TOK, nums=1)
 # G5 part 2 (RV87 N-1(d), RV87's corrected grammar): each member's work carries numeric() (one object,
 # 10 e.count objects of 2 entries, 7 entry slots; retained_wire.rs:249-252) and 4 work e.count objects
 # (:1264-1290); operational records carry 12 entries (:659-676).
@@ -444,6 +457,7 @@ for name_, x_ in (("STAGED", STAGED), ("SUCC", SUCC.tree()), ("INVOC", INVOC), (
     form(name_, x_)
 form("FAILED_MANIFEST_COPY", _FAILED_MANIFEST_COPY)
 form("FORMATION_VALUE_BUILD", FINDING_VALUE_BUILD)
+form("W1_MEMBER_READER", B(2 * CC * _w1_member_model.READER_CASE_CAP))
 for name_, c_ in (("TAV_X", TAV_X), ("TAV_W", TAV_W), ("TXT_moving", TXT_MOV), ("HELPER_moving", HELPER_MOV), ("T07_moving", T07_MOV)):
     form(name_, B(c_))
 exprs = {
@@ -455,7 +469,7 @@ exprs = {
 # G5 part 2 (RV84 C-N3(a), (b); ruled): T19's spawn heap is allocated before the observed run and the reader's
 # process-lifetime statics are live after the first permitted invocation, so both count in every phase.
 # The additional held source clone is conservatively resident in every phase.
-EVERY = ["T11", "T19", "STATICS", "FAILED_MANIFEST_COPY", "FORMATION_VALUE_BUILD"]
+EVERY = ["T11", "T19", "STATICS", "FAILED_MANIFEST_COPY", "FORMATION_VALUE_BUILD", "W1_MEMBER_READER"]
 def phases_of(mode):
     ob = f"O_base_{mode}"
     w2 = [ob, "TAV_W", "T12_T15", "NOTICE"] + EVERY

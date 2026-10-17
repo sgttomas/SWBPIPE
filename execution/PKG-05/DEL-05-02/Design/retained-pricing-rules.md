@@ -2219,3 +2219,59 @@ multi-member census cases take `Budget` before reaching their order-above-4
 refusal. The accepted census correction and those cases are named in the RF
 design §3.6. This is also the condition that justifies the first-generation
 unit bound; later order extensions cannot assume it disappears.
+
+## W1 member-load certification: actual owners
+
+Stage 2 retires the stage-1 preparation-refusal premise: a successful route-L
+case may now contain member loads. The successful formed-load and finding
+count is the full authored `lc`, including at `(lc,z)=(1,2)`; it is never
+`max(lc−1,0)`. Full ordinary/fallback ownership remains. The source-bound
+L1a/L1b/L1c/L2/L3/L5 reductions and U6-RB guards continue independently;
+member-only additions do not change the reserved nodal layouts.
+
+At committed source `11b1dbfa69957416a48220374f85b8851dce8920`, the complete
+100-form actual-source tree has all four points complete, no unmapped or
+unclassified arguments, and both O-10 route checks passing. All 70 evaluations
+pass at M=12 GiB, floor(0.9M), R=64 MiB and the upward 5% TEXT reserve. The
+native atoms come from the same W1 implementation's preceding collector;
+the intervening source changes alter no layout definition. Only the
+unmerged combination shapes additionally need the unchanged native
+`Node(String,BTreeMap)=648 B` atom from RF's same-build layout evidence.
+No illustrative layout fills a missing atom.
+
+The member-only copy specialization and actual parser-call removal below
+reduce merged W TEXT by 144,568,320 B and X TEXT by 76,099,584 B. All other
+1,486 coefficients remain equal to the preceding tree; owner expressions
+and phase structure are unchanged. The merged native-backed candidate
+headroom, including R and the upward TEXT reserve, is:
+
+| Phase | Dense headroom (B) | Sparse headroom (B) |
+|---|---:|---:|
+| W1 | 5,944,797,309 | 6,003,928,653 |
+| W2 | 5,613,406,491 | 5,672,537,835 |
+| W3 | 318,684,223 | 377,815,567 |
+| W4 | 113,335,011 | 172,466,355 |
+| W5 | 4,900,996,932 | 4,960,128,276 |
+| X1 | 233,445,316 | 292,576,660 |
+| X2 | 4,756,483,686 | 4,815,615,030 |
+
+This is a positive registration candidate. The final generated-profile/native
+collector match, ordered reviewed-input binding and independent pricing
+confirmation remain required; the existing Stale status is preserved until
+they agree.
+
+| Rule | Actual source owners and bound |
+|---|---|
+| **W1-MC** | `ProductCapture.member_sources` owns one optional sidecar vector. Each member case owns its copied case ID, `MemberTermIdentity` vector and separate `MemberLoadSet`; both term and load IDs are charged. Validation sort/used bitmaps, prepared/rebuilt sidecar clones and the submitted borrowed `MemberSourceRef` vector remain positive in their own rows. No vector is added to `SourceParts`, `PrimitiveSource`, `CaseSlot` or `EarlyCaseSource`. |
+| **W1-MID** | `copy_member_id` has the exact original `copy` allocation, requested-byte, reserve, push, capacity, event and error body. Its three productive callers copy the two captured load IDs and one prepared local-load ID. Capture binds each normalized ID to its authored occurrence, and later preparation binds the same captured member identity; D1's raw/typed census and enforcement bound every such ID to 128 bytes. Only this helper's `push_str` site takes the positive 128 B class. All calls, the TEXT capacity factor two, typed String/ID owners and moving storage remain; generic `copy` and nodal/diagnostic callers keep their previous classes. Full source pins, exact body/caller/test-shadow checks and D1 enforcement pins refuse drift. |
+| **W1-MP** | The member occurrence predicate directly matches `(global_x,0)`, `(global_y,1)` or `(global_z,2)`. D1 already requires exactly those member direction strings, and the normalized axis is checked below three before matching. The actual member-loop parser call is removed in source; no callgraph zero hides it. The nodal occurrence loop retains its original `parse_direction` call and the global parser is unchanged. Full source pins and an explicit predicate/nodal-parser inventory bind this specialization. |
+| **W1-ML** | `CasePrep` keeps its original nodal ledger beside the once-formed ledger. The latter therefore pays all declared six-entry records and every one of `N=6n` possible net DOFs, each with up to128 limbs; it takes no `N−v` credit against the old ledger. DOF discovery's requested/moving vectors are separate. The source encoding adds its conditional four-byte count and `32+ID` bytes per member entry. The complete ledger encoding uses all N rows. Old/new encoding overlap during construction stays positive. |
+| **W1-MR** | Recovery's local-load vector and E's scale vector pay their combined twelve Wide values and two tags per member, their headers and separate local arithmetic staging. Both lanes independently retain their new curvature vectors. Native `MemberOperators` includes the actual Wide length field at each width; the profile binds the actual resource atom rather than an eight-byte length estimate. |
+| **W1-MM** | One loaded-member search owns at most256 `SearchNode` records of2744B,702464B total. Its new helper/caller endpoint arrays, arithmetic buffers, moves and auxiliary records are conservatively bounded together below the separately charged1MiB search cap. PP's member-local input/ID copies and returned three-axis spans, the previous PP maximum helper, returned hulls, completion work, evidence and boxed exhaustion diagnostic remain independent positive owners. Searches are sequential across members and lanes; exhaustion does not enlarge the live-node backing. |
+| **W1-G8** | Every phase adds `2·C·1 MiB`, 6,291,456 B at C=3, for the complete new reader call chain and equal moving allowance. The original `G8_VALUES` and `G8_BYTES` owners remain. Independent recomputation retains all 128 declarations; each stored normalized entry has at most 1024 bits, and a conservative 32-limb capacity pays carry/normalization staging. An additional 64 complete 128-limb integers cover declaration locals, nested Nat/Dyad operands/results, net/hash staging and old/new allocations. Expected-term records are borrowed fixed records. In the actual G8 call chain, the invocation guard bounds IDs to 128 bytes and authored terms jointly to 128; exact nodal/member occurrence binding precedes native encoding/hash. A conservative encoded bound is 56,554 B, even allowing 192 references per support. General Vec growth gives final plus prior capacity below `3·56,554 = 169,662 B`; no power-of-two assumption is made. Adding 32,768 B auxiliary staging and 131,072 B stack gives 333,502 B for encoding. Arithmetic's 457,728 B bound dominates. Encoding/hash and recomputation have separate scopes. The standalone helper's looser 1024-byte/separate-count guards and its allocation controls are distinct from this production call-chain warrant. Native layouts dominate the independently checked wasm pairs. Requested-Layout and native/real-wasm stack controls exercise the proof; an observed peak is not its source bound. |
+
+The complete owner/call-chain pins and mutation controls are in
+`base/w1_member_load_model.py` and `tests/test_w1_member_load_model.py`.
+Registration remains unqualified until the committed actual-source tree,
+native atoms, all70 budget evaluations and independent source/pricing audit
+agree; design emulation is not allocation evidence.

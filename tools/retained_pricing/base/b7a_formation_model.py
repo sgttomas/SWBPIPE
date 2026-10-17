@@ -20,8 +20,9 @@ SOURCE_FILES = {
     # messages and retained_basis checks one more input key. The formed-load and finding owners are unchanged.
     "core/product_physics/src/self_weight.rs": "a1e523fd975b0b99720c3c229737cb00f35797c8f38202797b23ef205bb3f75c",
     "core/product_physics/src/source_receipt/source.rs": "911f49b43f41ae50009e6a13220d2c888cfb8e6ccf50d8cacf5b8dc089efd5a5",
-    # T4-U8: one added re-export line in retained_api (retained::assemble's Timoshenko refusal).
-    "core/solver/frame_kernel/src/structural.rs": "c1c0b67a88479e0af42a9e43be77fc04e52f3e5b1bb0f1d1e17f90f3d4be83ef",
+    # T4-U8: retained::assemble's Timoshenko refusal; W1 adds one retained_api
+    # export line for member-source types. Existing formation owners stay.
+    "core/solver/frame_kernel/src/structural.rs": "ab3fe19075f19e18d2ba174d9b3ca5353e98ecd9b428cf8bbc7746d4f9571d77",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.
@@ -205,7 +206,7 @@ def lex_sizes(snapshot, resolved):
     inspect(snapshot)
     return [(resolved("formation_guard.rs:330"),
              {"class": JOINED, "why": "B7a load-row finding only: six independently cloned fired items plus five separators"}),
-            (resolved("retained_product.rs:545"),
+            (resolved('retained_product.rs:611'),
              {"class": SENTENCE, "why": "B7a full load-row finding sentence copied into persistent FindingSeed; fired children paid separately"})]
 
 

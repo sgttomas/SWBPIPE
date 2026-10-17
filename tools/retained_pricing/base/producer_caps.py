@@ -49,6 +49,12 @@ E_src = 38 + 24 * n + 84 * m + 17 * sp + 13 * k + 17 * l + I_src + 16 * t + 22 *
 E_stf = 26 + 24 * n + 84 * m + 17 * sp + 5 * k
 LAMBDA = 68
 E_led = 10 + 18 * v + 8 * LAMBDA * v
+# W1-SRC/LED: the nodal declaration stays present, with the conditional member
+# block added. The formed ledger can contain every DOF and 128 limbs per net.
+import w1_member_load_model as _w1_member_model
+_w1_member_model.inspect(os.environ["RP_SNAPSHOT"])
+E_src += 4 + l * (32 + ID)
+E_led = 10 + (18 + 8 * 128) * N
 Tr = 512                                  # tracker_rows default (P3 section 4)
 O = 3 * Q                                 # offers <= Q + 2 Q_force, Q_force <= Q
 Kt = 8 * b                                # tracker keys <= 8b
@@ -182,7 +188,16 @@ rows["T15 C3 event storage and evidence completion"] = (
     V("PreparedMemberEvent", m) + V("ConversionEvent", 9 * m) + s("LaneTerminal") * 2 + V("FinalRowConversion", P_final)
     + V("OperationalSpent", 2 * m) + s("AdapterSnapshot") + s("RecordedInvocation") + s("RecordedCase") + B(4 * RID))
 
+# W1-CAP/LED/REC/L4: positive actual-source owners. Existing nodal owners,
+# reservations, the original nodal ledger and the PP maximum helper remain.
+rows.update(_w1_member_model.producer_additions(n, m, l, CC, ID))
+
 ASM = dict(ASSUMED)
+ASM.update({"s(UniformMemberLoad)": 56, "s(MemberTermIdentity)": 64,
+            "s(MemberCaseSource)": 88, "s(MemberSourceRef)": 16,
+            "s(DeclaredMemberLoad)": 904, "s(MemberValuesWork)": 4096,
+            "s(LoadedValue)": 312, "s(LoadedMaximumDiagnostic)": 304,
+            "s(ProductMaximumEvidence)": 32})  # illustrative only: G5 binds the actual types
 WIDE = {L_: 16 + 8 * L_ for L_ in (4, 8, 16)}
 for L_ in (4, 8, 16):
     ASM[f"s(Wide<{L_}>)"] = WIDE[L_]
@@ -190,7 +205,7 @@ for L_ in (4, 8, 16):
     for nm, f in [("Shared", 400), ("Solved", 120), ("VerifyShared", 240), ("VerificationReport", 400)]:
         ASM[f"s({nm}<{L_}>)"] = f
     for nm in ("MemberOperators", "BoundedCoefficients", "PivotScreen", "BlockBound", "BlockCertificate", "BlockNorms", "BodyReport"):
-        ASM[f"s({nm}<{L_}>)"] = {"MemberOperators": 144 * WIDE[L_], "BoundedCoefficients": 144 * WIDE[L_],
+        ASM[f"s({nm}<{L_}>)"] = {"MemberOperators": 145 * WIDE[L_], "BoundedCoefficients": 144 * WIDE[L_],
                                   "PivotScreen": 3 * WIDE[L_] + 16, "BlockBound": 4 * WIDE[L_],
                                   "BlockCertificate": 4 * WIDE[L_], "BlockNorms": 2 * WIDE[L_], "BodyReport": 8 * WIDE[L_]}[nm]
 for a, v_ in {"OrdinarySeed": 400, "(String,[f64;3])": 48, "(String,f64,f64)": 40, "MaterialSelection": 64,

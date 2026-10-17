@@ -36,7 +36,7 @@ SITES = [
       "core/product_physics/src/lib.rs:4507:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
-      "core/product_physics/src/retained_product.rs:5589:prepared_maxima"
+      'core/product_physics/src/retained_product.rs:5755:prepared_maxima'
     ]
   },
   {
@@ -50,7 +50,7 @@ SITES = [
       "core/product_physics/src/lib.rs:4507:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
-      "core/product_physics/src/retained_product.rs:5589:prepared_maxima"
+      'core/product_physics/src/retained_product.rs:5755:prepared_maxima'
     ]
   },
   {
@@ -66,26 +66,26 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/retained_product.rs",
-    "line": 1745,
+    "line": 1811,
     "kind": "into_text",
-    "owner": "core/product_physics/src/retained_product.rs:1705:check_support_maps",
-    "short": "retained_product.rs:1745",
-    "from": "retained_product.rs:1705:check_support_maps",
+    "owner": 'core/product_physics/src/retained_product.rs:1771:check_support_maps',
+    "short": 'retained_product.rs:1811',
+    "from": 'retained_product.rs:1771:check_support_maps',
     "parents": [
-      "core/product_physics/src/retained_product.rs:1702:check_support_source",
-      "core/product_physics/src/retained_product.rs:1835:capture_case_structure"
+      'core/product_physics/src/retained_product.rs:1768:check_support_source',
+      'core/product_physics/src/retained_product.rs:1854:capture_case_structure'
     ]
   },
   {
     "file": "core/product_physics/src/retained_product.rs",
-    "line": 2893,
+    "line": 2952,
     "kind": "into_text",
-    "owner": "core/product_physics/src/retained_product.rs:2873:support_observables",
-    "short": "retained_product.rs:2893",
-    "from": "retained_product.rs:2873:support_observables",
+    "owner": 'core/product_physics/src/retained_product.rs:2932:support_observables',
+    "short": 'retained_product.rs:2952',
+    "from": 'retained_product.rs:2932:support_observables',
     "parents": [
-      "core/product_physics/src/retained_product.rs:2912:case_observables",
-      "core/product_physics/src/retained_product.rs:6578:combination_observables"
+      'core/product_physics/src/retained_product.rs:2971:case_observables',
+      'core/product_physics/src/retained_product.rs:6755:combination_observables'
     ]
   }
 ]

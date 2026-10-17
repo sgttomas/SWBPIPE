@@ -71,8 +71,8 @@ AUDIT_CURRENT = {
     PP + 'formation_guard.rs:239': {'failure': {'bytes': 43, 'source': 'STATIC'}},
 }
 LEX_CURRENT = {
-    'retained_product.rs:3120': {'class': 46, 'why': WHY + '; requested mode literal'},   # [B7b 3028]
-    'retained_product.rs:3277': {'class': 167, 'why': WHY + '; straight endpoint sign literal'},   # [B7b 3185]
+    'retained_product.rs:3179': {'class': 46, 'why': WHY + '; requested mode literal'},   # [B7b 3028]
+    'retained_product.rs:3336': {'class': 167, 'why': WHY + '; straight endpoint sign literal'},   # [B7b 3185]
     'preview_physics.rs:598': {'class': 47, 'why': WHY + '; arc basis literal'},
     'lib.rs:%d' % LN['unit_message']: {'class': 600, 'why': WHY + '; unit-conversion owned message'},
     'pressure_runtime.rs:%d' % LN['join']: {'class': 644, 'why': WHY + '; complete five-ref joined spelling'},

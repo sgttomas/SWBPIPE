@@ -1,6 +1,7 @@
 """Source/admission drift, immutable positive transformations and owner closure."""
 from copy import deepcopy
 import hashlib
+import os
 from pathlib import Path
 import runpy
 import shutil
@@ -9,7 +10,7 @@ import sys
 import pytest
 
 PRICING = Path(__file__).resolve().parents[1]
-SOURCE = PRICING.parents[1]
+SOURCE = Path(os.environ.get("B7A_PHASE_TEST_SOURCE", str(PRICING.parents[1])))
 MODEL = runpy.run_path(str(PRICING / "base/b7a_domain_model.py"))
 RETIRED = runpy.run_path(str(PRICING / "lib/b7a_retired_carry.py"))
 
@@ -112,6 +113,7 @@ def test_prepare_preserves_all_unrelated_positive_rules_and_base_bytes(tmp_path)
     assert actual_loop == expected_loop
     actual_text = json.loads(Path(paths["text_args.g4.json"]).read_text())
     expected_text = deepcopy(old_text)
+    expected_text["id_audit"].pop("core/solver/frame_kernel/src/structural/retained/adaptive.rs:5082")
     expected_text["id_audit"]["core/product_physics/src/lib.rs:10230"]["basis_record"] = {"bytes": 2914, "source": "COMP"}
     old_join = MODEL["BASE_PREIMAGES"]["provenance_join"]
     expected_text["join_rules"][expected_text["join_rules"].index(old_join)] = next(

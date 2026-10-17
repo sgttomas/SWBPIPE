@@ -31,14 +31,18 @@ import runpy
 # a recursive comparison that allocates nothing; `number` errs only on a non-number) and exposes
 # `normalized_quantity` to reader_verdict.rs's pressure-1 model binding (unreached from the retained roots, B7b-ZA).
 # No owner this model prices changes; no require site is added or removed.
-SOURCE_FILES = {'core/product_physics/src/lib.rs': 'a5c5b09f31a996c19ff63ace14bd39a07b7a474d6b03556a19825057e90aed74', 'core/product_physics/src/certified_loads.rs': '56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f', 'core/product_physics/src/retained_product.rs': 'e556de37036a1e9c8454dc869764ce9763612e974bbd6dcbeabe2a569e213e01', 'core/product_physics/src/retained_wire.rs': 'd1f3ce7f03a7614e415d57495de07bfc61fa1cb42e915de0e320340a87ff09a0', 'core/product_physics/src/certified_publication.rs': '0008eb462f94640386194afb3659fdc3d74fb2e45ae690b7b2646db5feb8be57', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': '4e2b2aed3a155b3893d9bab353aad112248ca555b4016b59a075cb0ec719cdf2', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'e9a0bb4220482e9596e0e11ec698ae2291da5d223865d21ce9d7e2725594f7af', 'core/loads/primitive_loads/src/lib.rs': 'f0536b0c0bfdb0df69e7a8dd251dfb0b15607caf3ad693fa1adc3b912152f121', 'core/solver/straight_pipe/src/lib.rs': 'a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7', 'core/product_physics/src/preview_physics.rs': '61b2fb2f3f9bc3aa9803bf6bf5c95cf5e51c841289ef5c415bf86fe00f33b468', 'core/reporting/result_export/src/retained_precision.rs': '24d85a5b4d319975b76886f7f34cf52c052b6ce9f408301a54ba3f2790c83daa', 'core/product_physics/src/model_format.rs': '5b96cf74cbeb8c4a4fe11509e634525d3384c56cb9ff37b11a3c12d39a1df71f', 'core/product_physics/src/pressure_runtime.rs': 'e0897c0216eb1d774e15d44c1641bc33e2b3b5a01a1da7ec192ea722fc5b8de2', 'core/product_physics/src/source_receipt.rs': 'a74f58877c0fe80bc8b5e36f55af2524c366a85c97a0137e92711539cb23f8c9', 'core/product_physics/src/exact_admission.rs': '493e5876cdc5fbbe593a1435a6c8b235323a2a76f8b339f41fe14e8e541eec7b', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': 'c71d4acf1aa3f2d5c048eefe3d559b192d31c2d962083cf89bd4ef978347d9cd', 'core/solver/frame_kernel/src/lib.rs': '76d2b727e5ccaa051ffda7daad7ea0b299741a70b8388a54b310b5570f7cffa9', 'core/reporting/result_export/src/semantic_contract.rs': '38a51fdafa74d034dd79709713e8b94f07571846d7765d72fdf0351e8e28bb9e', 'core/reporting/result_export/src/physics_source.rs': 'cdf30d5ade495af00456612daec1a85dce6f5d83043174fefe31897484be92e9'}
+# W1 stage2: the reviewed member capture/wire/reader changes bind the current
+# cohort here; their additional owners are positive in w1_member_load_model.
+# Current site keys are carried by their unchanged text/function identity.
+# Historical BASE_PREIMAGES below remain keyed to the original basis.
+SOURCE_FILES = {'core/product_physics/src/lib.rs': 'a5c5b09f31a996c19ff63ace14bd39a07b7a474d6b03556a19825057e90aed74', 'core/product_physics/src/certified_loads.rs': '56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f', 'core/product_physics/src/retained_product.rs': '69a87004ff692dd577c2b4bd0f7a17e621cd5d4ea07b29d55ddc7618200ef025', 'core/product_physics/src/retained_wire.rs': '9d4fbf77f8c800dc0fc0800d3be417be49f1d95c678945b4b0a4557c6515bf13', 'core/product_physics/src/certified_publication.rs': '0008eb462f94640386194afb3659fdc3d74fb2e45ae690b7b2646db5feb8be57', 'core/solver/frame_kernel/src/load_ledger.rs': '8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f', 'core/solver/frame_kernel/src/structural/formation_check.rs': '4e2b2aed3a155b3893d9bab353aad112248ca555b4016b59a075cb0ec719cdf2', 'core/solver/frame_kernel/src/structural/certified_recovery.rs': 'e9a0bb4220482e9596e0e11ec698ae2291da5d223865d21ce9d7e2725594f7af', 'core/loads/primitive_loads/src/lib.rs': 'f0536b0c0bfdb0df69e7a8dd251dfb0b15607caf3ad693fa1adc3b912152f121', 'core/solver/straight_pipe/src/lib.rs': 'a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7', 'core/product_physics/src/preview_physics.rs': '61b2fb2f3f9bc3aa9803bf6bf5c95cf5e51c841289ef5c415bf86fe00f33b468', 'core/reporting/result_export/src/retained_precision.rs': 'e2c6de999d7de423fcf5331cc83948ec79b25955c86d0c6e4823b6667c9943aa', 'core/product_physics/src/model_format.rs': '5b96cf74cbeb8c4a4fe11509e634525d3384c56cb9ff37b11a3c12d39a1df71f', 'core/product_physics/src/pressure_runtime.rs': 'e0897c0216eb1d774e15d44c1641bc33e2b3b5a01a1da7ec192ea722fc5b8de2', 'core/product_physics/src/source_receipt.rs': 'a74f58877c0fe80bc8b5e36f55af2524c366a85c97a0137e92711539cb23f8c9', 'core/product_physics/src/exact_admission.rs': '493e5876cdc5fbbe593a1435a6c8b235323a2a76f8b339f41fe14e8e541eec7b', 'core/product_physics/src/case_state/mod.rs': '633b46de9fb4fdd5d213efbba1405e65afbc291ad8f9848096596fce27b06fab', 'core/solver/nonlinear_integration/src/structural_adapter.rs': 'c71d4acf1aa3f2d5c048eefe3d559b192d31c2d962083cf89bd4ef978347d9cd', 'core/solver/frame_kernel/src/lib.rs': '76d2b727e5ccaa051ffda7daad7ea0b299741a70b8388a54b310b5570f7cffa9', 'core/reporting/result_export/src/semantic_contract.rs': 'c19cdf808085d9a43ad985ad56146093b4124975a0d764969718f276e480db45', 'core/reporting/result_export/src/physics_source.rs': 'cdf30d5ade495af00456612daec1a85dce6f5d83043174fefe31897484be92e9'}
 CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # T4-U6/U8 (O4): family_clauses adds one refusal, a nonzero mill tolerance or corrosion allowance on branch E
 # (FamilyFact::SectionAllowance), and namespace_branch refuses the Timoshenko exact contract (FamilyFact::ShearModel).
 # Both only narrow admission; the caps, census and late admission bodies are unchanged.
-FAMILY_PIN = "39dae5a7af4014c66631dbb8f5ecf6f12d9f88412d8983d6e7308d2e43c7d6a6"
+FAMILY_PIN = "41b97bbb844b8e25bee51b9252edd1e00565766bc435df1e38c08b0bd7ea7486"
 ADMISSION_MARKER = "// ---- D-6: the build status --------------------------------------------------"
-ADMISSION_PREFIX_PIN = "e6a40f6e0b0e191de410c1cd8d43b08aaa67b27eec5cfac6ca75994c3efb4c2d"
+ADMISSION_PREFIX_PIN = "1b88ca84e9a98b811f867849e80c0e6ae360cd83dd7f1a4c2832b71da8907656"
 ADMISSION_LATE_PINS = {"law_order":"b0f9eae8c2d716f14cfda1ff895a65d7833b086383ec34154b501daa1ac344a3","admit":"67334c60ce1a606b5cd73e2715474cfc40150a11def9143752993af4c79904c8","admission":"7627646ef640f23a095bab2f355c7576e1ff79baeb2a9ea44be4550765f60003"}
 MATERIALS = 4
 OPERAND_WORDS = 26
@@ -279,28 +283,30 @@ def text_decisions(snapshot, resolved):
         (pp + "lib.rs:11147", {"load.load_id": inp, "load_case_id": inp}),
         (pp + "certified_loads.rs:236", {"case_id": inp}),
         (pp + "certified_loads.rs:259", {"case_id": inp}),
-        (pp + "retained_product.rs:4397", {"stable_suffix(id)": inp}),
-        (pp + "retained_product.rs:4398", {"id": inp}),
-        (pp + "retained_product.rs:4406", {"id": inp, "id.len()": inp, "component": static}),
-        (pp + "retained_product.rs:4408", {"id": inp}),
-        (pp + "retained_product.rs:4409", {"component": static}),
-        (pp + "retained_product.rs:4426", {"member.id": inp, "member.id.len()": inp}),
-        (pp + "retained_product.rs:4431", {"member.id": inp}),
-        (pp + "retained_product.rs:4457", {"ordinary.document_kind": static}),
-        (pp + "retained_product.rs:4458", {"ordinary.model_ref": inp}),
+        (pp + 'retained_product.rs:4509', {"stable_suffix(id)": inp}),
+        (pp + 'retained_product.rs:4510', {"id": inp}),
+        (pp + 'retained_product.rs:4518', {"id": inp, "id.len()": inp, "component": static}),
+        (pp + 'retained_product.rs:4520', {"id": inp}),
+        (pp + 'retained_product.rs:4521', {"component": static}),
+        (pp + 'retained_product.rs:4538', {"member.id": inp, "member.id.len()": inp}),
+        (pp + 'retained_product.rs:4543', {"member.id": inp}),
+        (pp + 'retained_product.rs:4569', {"ordinary.document_kind": static}),
+        (pp + 'retained_product.rs:4570', {"ordinary.model_ref": inp}),
         (pp + "lib.rs:1058", {"semantic_contract_id": static}),
         (pp + "lib.rs:3102", {"context.semantic_id()": static}),
         (pp + "lib.rs:5385", {"support.id": inp}),
         (pp + "lib.rs:6129", {"pipe.element_id": inp}),
         (pp + "model_format.rs:26", {"version": static}),
         # ccb19ba0bf: +17 lines (section_allowances), same text.
-        (re_ + "retained_precision.rs:5649", {"mode": static}),
-        (re_ + "retained_precision.rs:5731", {"text(cid)": inp}),
-        (re_ + "retained_precision.rs:5755", {"text(cid)": inp}),
+        (re_ + 'retained_precision.rs:5842', {"mode": static}),
+        (re_ + 'retained_precision.rs:5924', {"text(cid)": inp}),
+        (re_ + 'retained_precision.rs:5948', {"text(cid)": inp}),
     ]
-    lex = [("retained_product.rs:4455", {"class": 64, "why": "source-bound mechanics schema literal"}),
-           ("retained_product.rs:4457", {"class": 2914, "why": "positive formulation content upper; actual struct/Vec storage is separate"}),
-           ("retained_product.rs:4461", {"class": 2914, "why": "positive summary-owned text upper; inline header and LocatedQuantity children stay separate"})]
+    lex = [('retained_product.rs:4567', {"class": 64, "why": "source-bound mechanics schema literal"}),
+           ('retained_product.rs:4569', {"class": 2914, "why": "positive formulation content upper; actual struct/Vec storage is separate"}),
+           ('retained_product.rs:4573', {"class": 2914, "why": "positive summary-owned text upper; inline header and LocatedQuantity children stay separate"})]
+    member = runpy.run_path(os.path.join(os.path.dirname(__file__), "w1_member_load_model.py"))
+    audits.append(member["case_clone_audit"](snapshot))
     return loops, [(resolved(key), values) for key, values in audits], [(resolved(key), value) for key, value in lex]
 
 
@@ -341,6 +347,20 @@ def prepare(snapshot, base, output, inherited):
     text_path = inherited.get("text_args.g4.json", os.path.join(base, "text_args.g4.json"))
     text_raw = open(text_path, "rb").read()
     text = json.loads(text_raw)
+    # W1 extracts the submitted-source loop into solve_sources_projected.
+    # Keep the complete historical audit preimage, then re-install it at the
+    # actual clone statement after line carry. The existing sources.iter()
+    # rule still bounds the moved loop by att; no owner or visit is deleted.
+    member = runpy.run_path(os.path.join(os.path.dirname(__file__), "w1_member_load_model.py"))
+    member["inspect"](snapshot)
+    clone_key = "core/solver/frame_kernel/src/structural/retained/adaptive.rs:5082"
+    clone_audit = {"source": {"bytes": 128, "source": "STATIC"}}
+    if text["id_audit"].get(clone_key) != clone_audit:
+        raise ValueError("W1 stage2: historical source-clone audit preimage changed")
+    text["id_audit"].pop(clone_key)
+    alterations.append({"family": "id_audit", "key": clone_key,
+                        "after": member["case_clone_audit"](snapshot)[0],
+                        "why": "same source clone in the extracted batch body; full audit retained"})
     key = "core/product_physics/src/lib.rs:10230"
     if text["id_audit"][key]["basis_record"] != BASE_PREIMAGES["record_audit"]:
         raise ValueError("B7a positive-domain record audit preimage changed")

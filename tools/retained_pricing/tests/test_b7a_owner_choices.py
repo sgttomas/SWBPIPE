@@ -62,11 +62,11 @@ def test_complete_choice_once_and_all_auxiliaries_positive(actual):
 # T4-U6/U8: the same sites at the priced source's lines, unchanged text (B7b: structural.rs 1124; retained_product.rs
 # 3057, 3071, 3073, 3185, 3194, 3217, 3005, 3227; lib.rs helpers 13244/13619; 433fc1f1e4: 13587/13966; addbdc030e:
 # 13623/14002).
-@pytest.mark.parametrize("line",[MODEL["SOURCE_LINE"],3149,3163,3165,3277,3286,3316,13630,14009,3097,3326])
+@pytest.mark.parametrize("line",[MODEL["SOURCE_LINE"],3208,3222,3224,3336,3345,3375,13630,14009,3156,3385])
 def test_complete_group_source_error_and_auxiliary_alias_refusal(family,line):
     args=inputs();table=args[0]
     file=MODEL["FK"]+"structural.rs" if line==MODEL["SOURCE_LINE"] else MODEL["PP"]+("lib.rs" if line in (13630,14009) else "retained_product.rs")
-    kind={MODEL["SOURCE_LINE"]:"clone_text",3277:"to_string",14009:"replace"}.get(line,"format")
+    kind={MODEL["SOURCE_LINE"]:"clone_text",3336:"to_string",14009:"replace"}.get(line,"format")
     table.setdefault(family,{})[file+":"+str(line)+":"+kind]={"bytes":0}
     with pytest.raises(ValueError):MODEL["state"](SOURCE,*args)
 
@@ -84,7 +84,7 @@ def test_actual_current_inventory_priority_and_source_width_refuse(mutation):
     if mutation=="loop":loops["loops"][0]["bound"]="l"
     if mutation=="earlier_loop":loops["loops"].insert(0,{"re":"terms","bound":"0","why":"unknown"})
     if mutation=="function_cap":loops["fn_cap"]=[{"fn":target,"cap":"0"}]
-    if mutation=="contents":table[MODEL["MARKER"]]["base_contents"]["3255"]=1   # B7b: 3163
+    if mutation=="contents":table[MODEL["MARKER"]]["base_contents"]["3314"]=1   # B7b: 3163
     with pytest.raises(ValueError):MODEL["state"](SOURCE,*args)
 
 
@@ -120,7 +120,7 @@ def test_saved_rule_json_retains_exact_marker_and_preimages():
     assert MODEL["state"](SOURCE,*saved)==MODEL["state"](SOURCE,*args)
 
 
-@pytest.mark.parametrize("site",[2563,3097,3326])   # B7b: 2544, 3005, 3227
+@pytest.mark.parametrize("site",[2622,3156,3385])   # B7b: 2544, 3005, 3227
 def test_first_error_keeps_full_validator_and_whole_bind_owner_counts(site):
     context,_=active()
     counts={MODEL["VALIDATOR"]:21150,MODEL["ERROR_OWNER"]:10}

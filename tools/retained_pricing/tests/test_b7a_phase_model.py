@@ -37,7 +37,7 @@ def active(route="L", branch="ordinary"):
 
 @pytest.mark.parametrize("route,actual,branch,f", [
     ("L", 3, "ordinary", 3), ("L", 2, "ordinary", 2), ("L", 1, "ordinary", 1),
-    ("L", 3, "success", 2), ("L", 2, "success", 1), ("L", 1, "success", 0),
+    ("L", 3, "success", 3), ("L", 2, "success", 2), ("L", 1, "success", 1),
     ("E", 3, "ordinary", 0), ("E", 3, "success", 0),
 ])
 def test_actual_cases_separate_from_storage_and_effective_finding_count(route, actual, branch, f):
@@ -89,14 +89,14 @@ def test_actual_rule_and_caller_inventory_drift_refuses(mutation):
 def test_runtime_witness_refuses_unproved_count(mutation):
     context = active("L", "success")
     caps = dict(c=3, lc=3, n=32, l=128, ident=128)
-    counts = {MODEL["FG"]: 3, MODEL["DECIDE"]: 384}
-    mult, owner, stack = 384, MODEL["FG"], [MODEL["ROW_LOOP"]]
+    counts = {MODEL["FG"]: 3, MODEL["DECIDE"]: 576}
+    mult, owner, stack = 576, MODEL["FG"], [MODEL["ROW_LOOP"]]
     if mutation == "missing": del counts[MODEL["FG"]]
     if mutation == "zero": counts[MODEL["FG"]] = 0
     if mutation == "wrong_cases": counts[MODEL["FG"]] = 2
     if mutation == "wrong_rows": counts[MODEL["DECIDE"]] = 192
     if mutation == "zero_mult": mult = 0
-    if mutation == "wrong_mult": mult = 576
+    if mutation == "wrong_mult": mult = 384
     if mutation == "wrong_owner": owner = MODEL["DECIDE"]
     if mutation == "wrong_stack": stack = []
     with pytest.raises(ValueError):
@@ -108,7 +108,7 @@ def test_six_closed_requested_factories_round_up_each_native_coefficient(monkeyp
     monkeypatch.syspath_prepend(str(PRICING / "base"))
     context = active(route, "success")
     full = active("L", "ordinary")
-    owners = actual - 1 if route == "L" else 0
+    owners = actual if route == "L" else 0
     for owner in ("assembled_children", "typed_source_children", "scaled_force_children",
                   "recovery_source_children", "uniform_constructor", "element_application"):
         original = MODEL["formed_owner"](full, 3, 3, 128, 128, owner=owner, branch="ordinary")
@@ -131,7 +131,7 @@ def test_failed_preview_requires_its_actual_custody_and_route():
 
 def test_stage2_and_context_counterfactuals_fail_before_credit():
     loops, text = tables()
-    for name, value in [("stage2_invalidates", False), ("route", "unknown"), ("branch", "fallback_credit")]:
+    for name, value in [("member_loads_preparable", False), ("route", "unknown"), ("branch", "fallback_credit")]:
         bad_loop, bad_text = deepcopy(loops), deepcopy(text)
         bad_loop[MODEL["MARKER"]][name] = bad_text[MODEL["MARKER"]][name] = value
         with pytest.raises(ValueError): MODEL["state"](SOURCE, bad_loop, bad_text)
@@ -139,7 +139,7 @@ def test_stage2_and_context_counterfactuals_fail_before_credit():
 
 
 @pytest.mark.parametrize("file,fragment", [
-    ("core/product_physics/src/retained_product.rs", b"let active=if self.member_loads"),
+    ("core/product_physics/src/retained_product.rs", b"if self.case_has_member_loads(index)!=member.is_some()"),
     ("core/product_physics/src/retained_wire.rs", b"if !status.contains(&CaseStatus::Selected)"),
     ("core/product_physics/src/retained_memory.rs", b"fn domain_clauses("),
     ("core/product_physics/src/formation_guard.rs", b"if !force.has_formation_records()"),
@@ -148,7 +148,8 @@ def test_actual_stage2_admission_and_frozen_source_drift_refuses(tmp_path, file,
     domain = runpy.run_path(str(PRICING / "base/b7a_domain_model.py"))
     formed = runpy.run_path(str(PRICING / "base/b7a_formation_model.py"))
     scoped = runpy.run_path(str(PRICING / "base/b7a_scoped_text_model.py"))
-    owners = set(domain["SOURCE_FILES"]) | set(formed["SOURCE_FILES"]) | {
+    member = runpy.run_path(str(PRICING / "base/w1_member_load_model.py"))
+    owners = set(domain["SOURCE_FILES"]) | set(formed["SOURCE_FILES"]) | set(member["SOURCE_FILES"]) | {
         scoped["UNITS"], "core/product_physics/src/retained_memory.rs"}
     for owner in owners:
         destination = tmp_path / owner

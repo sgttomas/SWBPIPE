@@ -157,7 +157,7 @@ Add a rule when a run stops or reports incomplete on a new head.
 4. If a function the decisions name was renamed or deleted, change only the affected entry and leave its argument unchanged. Use `rs_any` for a rename, or a `KEYMAP_ALLOW` entry `("deleted", why)` for a deletion.
 5. Re-run the head and the preceding registered revision. The preceding tree must still reproduce exactly. The KD5 source pins in `base/kd5_text_model.py` and `base/kd5_first_error_model.py`, and the source-bound closure pin in `rules/o10_rules.py`, hold one current value each, so the committed tool stops (exit 4) on an earlier revision once a pin moves; reproduce it with a scratch copy of the tool whose pins are restored to that revision's values, with the new rules kept. Restore the original case consumer in place of the batch 5 wrapper/helper pair when reproducing that earlier source. Then compare against its registered tree as above. The B7a source models' full-file pins (`base/b7a_*.py`, `lib/b7a_retired_carry.py`, `base/batch5_model.py`) and C7's NumericCase pins (`base/prescribed_key_model.py`) work the same way.
 
-   The current RF coefficient basis is `677f11b674`, registered in `ffe51350ab`. To reproduce the preceding T4-U6/U8 basis `588de796a4`, retain the RF rules in a scratch tool copy, restore only the `SOURCE_FILES` assignments in `base/b7a_domain_model.py`, `base/b7a_formation_model.py` and `lib/b7a_retired_carry.py` from `4971d62dc9`, and restore the two source-key models `base/b7a_owner_choices.py` and `base/b7a_phase_model.py` from that revision. The latter restore the audited +41/+2 source-key offsets; their formulas are unchanged. This reproduces all 1,456 preceding coefficients and the original 1,544-line generated block. For the earlier B7b reproduction at `837a04b770`, see retained-pricing-rules.md, "T4-U6/U8: actual-source D3".
+   At RF qualification the coefficient basis was `677f11b674`, registered in `ffe51350ab`. Using the historical RF tool, the preceding T4-U6/U8 basis `588de796a4` was reproduced by retaining RF rules in a scratch copy, restoring the `SOURCE_FILES` assignments in `base/b7a_domain_model.py`, `base/b7a_formation_model.py` and `lib/b7a_retired_carry.py` from `4971d62dc9`, and restoring `base/b7a_owner_choices.py` and `base/b7a_phase_model.py` from that revision. This audited the +41/+2 source-key offsets and reproduced all 1,456 coefficients and the original 1,544-line block. That recipe names the historical RF tool; the current W1 tool fails closed outside its reviewed cohort and cannot replay RF by restoring only pins/keys. For the earlier B7b reproduction at `837a04b770`, see retained-pricing-rules.md, "T4-U6/U8: actual-source D3".
 
 **W1 reductions (before member-load implementation).** `base/w1_reductions_model.py`
 explicitly pins the RF and reduced producer/consumer cohorts. The reduced cohort
@@ -184,3 +184,28 @@ warrant also names Cow's `.iter()` spelling. The explicit RF branch in the new
 reduction model preserves its local historical formulas, but does not establish
 whole-tool replay of an older registration. Helper absence alone earns no
 reduction.
+
+### W1 stage 2 actual-source owners
+
+`base/w1_member_load_model.py` binds the complete member-load producer,
+declared ledger, recovery, maximum and independent-reader call chains. It adds
+positive member-only sidecars, the full formed ledger beside the existing
+nodal ledger, recovery/E and two-lane curvature vectors, loaded search and PP
+completion owners. All native strides come from the generated build bindings.
+The successful formation count is now all authored `lc` cases; stage 1's
+`lc−1` preparation-refusal credit is retired. Ordinary/fallback owners remain.
+
+The new reader cap is an additional 1 MiB per case plus an equal moving
+allowance, 6,291,456 B at three cases, in every phase. Existing `G8_VALUES`
+and `G8_BYTES` remain separate. The source inventory bounds complete encoding
+reallocation, independent integer recomputation, hashing and stack staging;
+native and real-wasm requested-allocation controls check its consuming path.
+The loaded search similarly retains a separate 1 MiB source-bound workspace,
+with returned hulls, diagnostics, PP spans and evidence charged independently.
+See the W1 section of the governing retained-pricing rules for the inventories.
+
+The current source pins fail closed outside the reviewed stage-2 cohort.
+Reproduce either RF or the pre-stage-2 reductions using its committed tool and
+source revision. A complete `run` is a pricing-completeness result; actual
+registration additionally requires native atoms, all 70 budget evaluations,
+reviewed inputs/layouts and independent source/pricing scrutiny.

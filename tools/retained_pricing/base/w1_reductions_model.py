@@ -1,10 +1,12 @@
-"""W1 reductions: source-bound allocation and lifetime premises, before stage 2.
+"""W1 reductions: source-bound allocation and lifetime premises through stage 2.
 
 The RF source and the reduced source are explicit cohorts. The full raw pins bind
 all producer/consumer paths for L1a/b/c, L2, L3 and L5, including the cfg(test)
 shadow of the aggregation guard. A half change or a changed lifetime stops;
 marker absence never silently selects historical prices. Pins are refreshed only
 after the source diff and its allocation/lifetime consequences are reviewed.
+Stage2's member wire/diagnostic additions preserve the L3 get_mut Value moves;
+their separate positive owners are bound by w1_member_load_model.
 """
 import hashlib
 from pathlib import Path
@@ -36,7 +38,7 @@ RF_PINS = {
 }
 REDUCED_PINS = {
     "core/product_physics/src/lib.rs": "a5c5b09f31a996c19ff63ace14bd39a07b7a474d6b03556a19825057e90aed74",
-    "core/product_physics/src/retained_wire.rs": "d1f3ce7f03a7614e415d57495de07bfc61fa1cb42e915de0e320340a87ff09a0",
+    "core/product_physics/src/retained_wire.rs": "9d4fbf77f8c800dc0fc0800d3be417be49f1d95c678945b4b0a4557c6515bf13",
     "core/product_physics/src/certified_publication.rs": "0008eb462f94640386194afb3659fdc3d74fb2e45ae690b7b2646db5feb8be57",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
     "core/product_physics/src/preview_physics.rs": "61b2fb2f3f9bc3aa9803bf6bf5c95cf5e51c841289ef5c415bf86fe00f33b468",

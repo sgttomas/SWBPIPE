@@ -738,11 +738,11 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11",
         "6efefc4ff68fc516756ea52aeb9b96d293a570a28d591964a4994602ede51ac2",
-        "f961a56bdd386d26f10ee279b0c5926c7436760c18eee0e3c3c158bd474b42c9",
-        "9be78bef3b340330f06b99966bcc9fd2fdf652f2a54506fc270f6b16588761c6",
-        "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1",
+        "8a4273dcd55e827aa0494c28f535bad01089af2e754448e99d1a18118482ef05",
+        "06e601884baf96c7573eaaafa3f998d5738c6e273fbb254a37a9a09f56ef146e",
+        "842a011601ea5049c6e89abbd73a24176966ca23c9a8cf9c89336341f608f3ad",
         "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32",
-        "8d00e0622777fe01d8886a90371393ee5189c18800adb6d203e60c35f9e2485a",
+        "2a2de90ff36dcfcaedbe47e77fb96c2a68f9991e17993440a9f7cfa60f80cd2a",
         "461df8cb9cc989522cdba3a50124dab123e4e09af9912285b8ad111b6fdfea40",
         "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6",
         "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53",
@@ -1676,15 +1676,13 @@ fn profile_in_build_record() {
 }
 /// The build identity of the pinned profile record (the qualified dev/test build of G6).
 pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// RF D3 record for source 677f11b674: requested + moving bytes, without R or
-/// the separately upward-rounded TEXT reserve, from the canonical 98-form
-/// union and 289 measured native/text values. The RF owned-memory bounds and
-/// enlarged native BlockWitness/retained carrier add 16,361,805 bytes in every
-/// phase against T4-U6/U8's 588de796a4 record. The unchanged identity/record
-/// assertions verify this candidate in-build (retained-pricing-rules.md, RF).
+/// W1 actual-source candidate at 11b1dbfa69: requested + moving bytes, without R
+/// or the separately upward-rounded TEXT reserve, from the canonical 100-form
+/// union. This record binds the unchanged build identity and actual native
+/// values; reviewed-input registration is a separate binding below.
 pub(super) const PINNED_RECORD: [[u64; 7]; 2] = [
-    [5_484_138_807, 5_809_635_129, 11_020_091_118, 11_232_567_882, 6_444_913_488, 11_163_932_989, 6_640_058_395],
-    [5_543_270_151, 5_868_766_473, 11_079_222_462, 11_291_699_226, 6_504_044_832, 11_223_064_333, 6_699_189_739],
+    [5_322_596_547, 5_653_987_365, 10_948_709_633, 11_154_058_845, 6_366_396_924, 10_991_385_601, 6_468_347_231],
+    [5_381_727_891, 5_713_118_709, 11_007_840_977, 11_213_190_189, 6_425_528_268, 11_050_516_945, 6_527_478_575],
 ];
 
 #[test]

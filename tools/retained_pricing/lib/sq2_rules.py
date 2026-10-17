@@ -184,7 +184,7 @@ if D.get("B7A_STAGE1_ROUTE"):
     _phase = runpy.run_path(os.path.join(dst, "b7a_phase_model.py"))
     LB, TA, _phase_proof = _phase["transform"](
         os.environ["SQ2_SNAP"], D["B7A_STAGE1_ROUTE"], LB, TA)
-    LOG["b7a_stage1_phase"] = _phase_proof
+    LOG["w1_stage2_phase"] = _phase_proof
     json.dump(LB, open(lbp, "w"), indent=1)
 json.dump(TA, open(tap, "w"), indent=1)
 cgp = os.path.join(dst, "callgraph_rules.g4.json"); CG = json.load(open(cgp))

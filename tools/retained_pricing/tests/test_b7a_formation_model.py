@@ -13,7 +13,7 @@ import sys
 import pytest
 
 PRICING = Path(__file__).resolve().parents[1]
-SOURCE = PRICING.parents[1]
+SOURCE = Path(os.environ.get("B7A_PHASE_TEST_SOURCE", str(PRICING.parents[1])))
 MODEL = runpy.run_path(str(PRICING / "base/b7a_formation_model.py"))
 DOMAIN = runpy.run_path(str(PRICING / "base/b7a_domain_model.py"))
 RETIRED = runpy.run_path(str(PRICING / "lib/b7a_retired_carry.py"))
@@ -187,8 +187,12 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
     prepared = inherited
     # Carry the actual base rules before SQ2, as the canonical driver does.
     # The source-local TEXT guards require current authoritative keys.
-    repo = SOURCE.parents[1]
-    target = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
+    repo = PRICING.parents[3]
+    revision = os.environ.get("B7A_PHASE_TEST_REV")
+    if SOURCE != PRICING.parents[1] and not revision:
+        raise ValueError("archived test source requires B7A_PHASE_TEST_REV")
+    target = subprocess.check_output(["git", "rev-parse", "--verify", (revision or "HEAD") + "^{commit}"],
+                                     cwd=repo, text=True).strip()
     rule_files = ("callgraph_rules.g4.json", "loop_bounds.g4.json",
                   "text_args.g4.json", "sens.py", "premise_pins.json")
     mapped_rules = tmp_path / "map"
@@ -252,7 +256,7 @@ def test_real_prepared_rule_priority_keeps_q_and_function_qualified_n(tmp_path, 
     for key in ("formation_guard.rs:239", "formation_guard.rs:241", "formation_guard.rs:251", "formation_guard.rs:322"):
         assert key in text["site_total"]
     assert text["lex_site_size"]["formation_guard.rs:330"]["class"] == 993964
-    assert text["lex_site_size"]["retained_product.rs:545"]["class"] == 994321
+    assert text["lex_site_size"]["retained_product.rs:611"]["class"] == 994321
     assert text["site_total"][current("load_ledger.rs:133")]["bytes"] == "5*cases*(12*l)*2*128"
     assert text["site_total"][current("load_ledger.rs:408")]["bytes"] == "4*cases*(12*l)*2*128"
     # Two independent lists are an occurrence multiplier; the final2 is
