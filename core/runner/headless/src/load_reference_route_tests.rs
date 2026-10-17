@@ -809,11 +809,15 @@ fn blocked_load_state_envelopes_keep_the_exact_identity_through_the_runner() {
 
 /// The CP3 reviewer's probe P9, as in
 /// `core/product_physics/src/source_receipt/load_state_fallback_tests.rs`:
-/// `extra` declared 1e-6 N tip forces (then a moment) added to the committed
-/// joined witness, raising the live join work past the reservation.
+/// `extra` declared tip loads added to the committed joined witness, cycling
+/// its three kinds (1e-6 N UZ and UY forces, a copy of the torque about RY),
+/// raising the live join work past the reservation. Under the metered
+/// charging rule (RF source-method design §5.5) P9's one to three loads no
+/// longer reach the cliff; 1,300 to 1,700 do (live joins 4,658,279 to
+/// 5,973,073 against half of the public 8M limit).
 fn with_extra_loads(mut request: Value, extra: usize) -> Value {
     let case = &mut request["model"]["load_cases"][0];
-    for (i, dir) in ["UZ", "UY", "RY"].iter().take(extra).enumerate() {
+    for (i, dir) in ["UZ", "UY", "RY"].iter().cycle().take(extra).enumerate() {
         let mut load = case["primitive_loads"][0].clone();
         let id = format!("extra:{i}");
         load["id"] = json!(id);
@@ -838,7 +842,7 @@ fn sf1_budget_cliff_request(extra: usize) -> Value {
 
 #[test]
 fn sf1_budget_cliff_publishes_the_ordinary_route_through_the_runner_not_a_blocked_result() {
-    for extra in 1..=3 {
+    for extra in [1_300, 1_500, 1_700] {
         let payload = sf1_budget_cliff_request(extra);
         for mode in MODES {
             let ctx = format!("SF-1 extra={extra}/{}", mode.as_str());

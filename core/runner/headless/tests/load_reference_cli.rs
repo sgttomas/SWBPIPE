@@ -519,10 +519,13 @@ fn cli_blocked_load_state_documents_keep_the_exact_identity() {
 }
 
 /// The CP3 reviewer's budget-cliff probe P9 (see
-/// `core/product_physics/src/source_receipt/load_state_fallback_tests.rs`).
+/// `core/product_physics/src/source_receipt/load_state_fallback_tests.rs`),
+/// re-derived for the metered charging rule (RF source-method design §5.5):
+/// `extra` tip loads cycling P9's three kinds; 1,300 to 1,700 put the live
+/// join past half of the public 8M limit.
 fn with_extra_loads(mut request: Value, extra: usize) -> Value {
     let case = &mut request["model"]["load_cases"][0];
-    for (i, dir) in ["UZ", "UY", "RY"].iter().take(extra).enumerate() {
+    for (i, dir) in ["UZ", "UY", "RY"].iter().cycle().take(extra).enumerate() {
         let mut load = case["primitive_loads"][0].clone();
         let id = format!("extra:{i}");
         load["id"] = json!(id);
@@ -543,7 +546,7 @@ fn with_extra_loads(mut request: Value, extra: usize) -> Value {
 
 #[test]
 fn cli_sf1_budget_cliff_publishes_the_ordinary_route_with_its_diagnostic() {
-    for extra in 1..=3 {
+    for extra in [1_300, 1_500, 1_700] {
         let payload = with_extra_loads(lrs_request("eigen_motion"), extra);
         for mode in MODES {
             let ctx = format!("cli SF-1 extra={extra}/{}", mode.as_str());

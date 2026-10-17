@@ -543,6 +543,71 @@ fn j7_rf_census_public_digests_flag_envelope_member_changes() {
     assert_eq!(changed["contract_evidence_sha256"], json!(member_digest(&Value::Null)));
 }
 
+/// RF source-method design §5.4's maintained control of the metered charging
+/// rule, over the census's exact work: every in-family case's direct exact
+/// attempt in both modes (the public route's attempts are the same typed
+/// declines, work included, which the family tests assert), and, for every
+/// selected attempt, the functional replay the receipt performs on the
+/// selection's own ledger. Through the frame kernel's dev-only operation
+/// counter (`exact-operation-count`, enabled by this crate's dev-dependency;
+/// thread-local, so everything runs on this thread): no `Work::mul` or
+/// `Work::add` call is charged less than the operations it executed, at least
+/// one metered multiplication ran, and each attempt and each replay charged at
+/// least the operations counted during it. The cases that make no attempt are
+/// exactly the pinned HASH-001 and axis-gate first causes.
+#[test]
+fn j7_rf_census_metered_charges_cover_counted_operations() {
+    use open_pipe_stress_frame_kernel::structural::exact_boundary::exact_operation_count as count;
+    count::reset();
+    let no_attempt: BTreeSet<&str> = expected()["entries"].as_array().unwrap().iter()
+        .filter(|e| matches!(e["first_cause"]["class"].as_str(), Some("hash001_unsafe_integral_float" | "ordinary_axis_gate")))
+        .map(|e| e["id"].as_str().unwrap()).collect();
+    let (mut attempts, mut replays, mut skipped) = (0usize, 0usize, 0usize);
+    let (mut attempt_charged, mut attempt_counted, mut replay_charged, mut replay_counted) = (0u64, 0u64, 0u64, 0u64);
+    for case in inputs()["cases"].as_array().unwrap() {
+        let id = case["id"].as_str().unwrap();
+        let request = current_request(case);
+        for mode in MODES {
+            let at = format!("{id} {}", mode.as_str());
+            let Ok(owned) = Owned::actual(&request, mode) else {
+                assert!(no_attempt.contains(id), "{at}: an in-family case without an attempt");
+                skipped += 1;
+                continue;
+            };
+            assert!(!no_attempt.contains(id), "{at}: a pinned no-attempt case reached the method");
+            let before = count::operations();
+            let result = solve_ordinary(owned.input(), exact::Limits { operations: PHYSICS_SOURCE_WORK_LIMIT, ..Default::default() }, ForceScale::UNSCALED);
+            let counted = count::operations() - before;
+            let charged = match &result { Ok(m) => m.summary().work.charged, Err(f) => f.work.charged } as u64;
+            assert!(charged >= counted, "{at}: attempt charged {charged} < {counted} counted operations");
+            attempts += 1;
+            attempt_charged += charged;
+            attempt_counted += counted;
+            if let Ok(mut m) = result {
+                let (before, ledger) = (count::operations(), m.summary().work.charged);
+                m.replay_against(owned.input()).unwrap_or_else(|f| panic!("{at}: replay on the selection's ledger: {f:?}"));
+                let counted = count::operations() - before;
+                let charged = (m.summary().work.charged - ledger) as u64;
+                assert!(charged >= counted, "{at}: replay charged {charged} < {counted} counted operations");
+                replays += 1;
+                replay_charged += charged;
+                replay_counted += counted;
+            }
+        }
+    }
+    let totals = count::totals();
+    eprintln!("j7_rf_census metered control: attempts={attempts} replays={replays} no_attempt={skipped} \
+               attempt_charged={attempt_charged} attempt_counted={attempt_counted} \
+               replay_charged={replay_charged} replay_counted={replay_counted} totals={totals:?}");
+    assert_eq!(attempts + skipped, 2 * inputs()["cases"].as_array().unwrap().len());
+    assert_eq!(skipped, 2 * no_attempt.len());
+    assert!(replays > 0, "no selected attempt was replayed");
+    assert_eq!(totals.shortfalls(), 0, "a Work call was charged less than it executed: {totals:?}");
+    assert!(totals.mul.calls > 0 && totals.pairs > 0, "no metered multiplication ran: {totals:?}");
+    assert!(totals.mul.min_slack.is_some_and(|s| s >= 0) && totals.add.min_slack.is_some_and(|s| s >= 0));
+    assert!(totals.min_pair_slack.is_some_and(|s| s >= 0), "{totals:?}");
+}
+
 /// Regeneration only (`SWBPIPE_J7_RF_CENSUS_WRITE=1`); otherwise a no-op whose
 /// counterpart checks are the family tests above.
 #[test]
