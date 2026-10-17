@@ -2550,7 +2550,7 @@ fn fault_owner<'a>(a: &'a Value, path: &[String]) -> Option<&'a Value> {
     } else if (p(0), p(1), p(2)) == (Some("result"), Some("error"), Some("cause"))
         && a["result"]["error"]["kind"] == "values"
     {
-        Some(&proof["completion"])
+        Some(if proof["completion"]["kind"]=="merged" {proof}else{&proof["completion"]})
     } else {
         Some(proof)
     };
@@ -3088,7 +3088,7 @@ fn combination_attempt(
             && u(&e["reason"]["cause"]["product_attempt_ref"]) == ai as u64)?;
     }
     g5_coverage(a, e, Some(s))?;
-    g5_stages_in(a, pf, &STAGE8[1..], false)?;
+    g5_stages_in(a, pf, &STAGE8[1..], false,false)?;
     for ok in accounting_rules(a) {
         wf(ok)?;
     }
@@ -3379,7 +3379,9 @@ fn g5_products(source: &Value) -> VResult {
                     && c["reason"]["cause"]["kind"] == "receipt_failure"))?;
         }
         g5_coverage(a, c, s)?;
-        g5_stages(a, &pf)?;
+        let member_values=!route(source).exact && s.is_some_and(|s|list(&s["id_maps"]["members"]).iter()
+            .any(|m|exact_active_member(s,u(&m["kernel_member"]))));
+        g5_stages(a, &pf,member_values)?;
         // R1'-R4 (checkpoint A, D8; C3:232-236): work-class rules, deferred with
         // the other C3 WORK equations until every attempt's association passed.
         for ok in accounting_rules(a) {
@@ -3479,12 +3481,12 @@ const STAGE8: [&str; 8] = [
 /// complete every later pipeline stage is not_entered; observables and G5a are
 /// entered together; a source exists iff preparation completed; and the
 /// completion kind follows the stages that entered it.
-fn g5_stages(a: &Value, pf: &dyn Fn(bool) -> VResult) -> VResult {
-    g5_stages_in(a, pf, &STAGE8, true)
+fn g5_stages(a: &Value, pf: &dyn Fn(bool) -> VResult,member_values:bool) -> VResult {
+    g5_stages_in(a, pf, &STAGE8, true,member_values)
 }
 /// `g5_stages` over a stage list: a case attempt's eight pipeline stages, or a
 /// combination attempt's seven (no preparation stage, so no source rule).
-fn g5_stages_in(a: &Value, pf: &dyn Fn(bool) -> VResult, stages: &[&str], preparation: bool) -> VResult {
+fn g5_stages_in(a: &Value, pf: &dyn Fn(bool) -> VResult, stages: &[&str], preparation: bool,member_values:bool) -> VResult {
     let st = &a["stages"];
     let mut seen_end = false;
     for k in stages {
@@ -3502,7 +3504,9 @@ fn g5_stages_in(a: &Value, pf: &dyn Fn(bool) -> VResult, stages: &[&str], prepar
     if !proof.is_null() {
         let completion = text(&proof["completion"]["kind"]);
         if st["values"] == "failed" {
-            pf(completion == "separate_failure")?;
+            // Only the new active-member completion owns arithmetic to merge.
+            // Reserved nodal and combination failures keep their separate owner.
+            pf(completion == if member_values {"merged"}else{"separate_failure"})?;
         } else if st["certificate"] != "not_entered"
             || st["maxima"] == "failed"
             || st["aliases"] != "not_entered"

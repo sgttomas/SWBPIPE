@@ -34,6 +34,8 @@ fn committed_vectors_match_their_recorded_sha256() {
         ("encodings.txt", include_str!("encodings.txt")),
         ("declared.txt", include_str!("declared.txt")),
         ("member_recovery.txt", include_str!("member_recovery.txt")),
+        ("member_maximum.txt", include_str!("member_maximum.txt")),
+        ("member_maximum_capacity.txt", include_str!("member_maximum_capacity.txt")),
     ];
     for (name, text) in files {
         let line = SHA256SUMS

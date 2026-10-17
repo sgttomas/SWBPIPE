@@ -144,6 +144,12 @@ pub struct NodalLoad {
 
 /// One authored full-span uniform member load, in global N/m. There is no
 /// extent: partial-span loads cannot be represented by this retained API.
+///
+/// ```compile_fail
+/// use open_pipe_stress_frame_kernel::structural::retained_api::UniformMemberLoad;
+/// let _ = UniformMemberLoad { member: 0, intensity: [1.0, 0.0, 0.0],
+///     source_id: "partial".into(), start: 0.25, end: 0.75 };
+/// ```
 #[derive(Debug, Clone, PartialEq)]
 pub struct UniformMemberLoad {
     pub member: u32,

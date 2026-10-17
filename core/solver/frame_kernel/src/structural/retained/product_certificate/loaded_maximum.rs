@@ -71,7 +71,8 @@ fn upper(w:&mut NumericWork,p:[[Enclosure;3];3],a:Enclosure,z:Enclosure)->Result
     // Taking both signs is sound when N crosses zero. N is elevated from
     // degree one to four jointly with Q, rather than using unmatched controls.
     for sign in [1i8,-1] {
-        if (sign_positive&&sign<0)||(sign_negative&&sign>0) {continue;}
+        // Identically zero N satisfies both signs; retain the positive branch.
+        if (sign_positive&&sign<0)||(!sign_positive&&sign_negative&&sign>0) {continue;}
         let mut bound=None;
         for k in 0..5 {
             let t=Enclosure::point(lift(k as f64/4.0)?);

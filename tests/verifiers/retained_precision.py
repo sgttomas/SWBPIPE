@@ -281,7 +281,7 @@ def _fault_owner(a, path):
     if path[:2] == ("proof", "lanes"):
         return proof["lanes"][path[2]]["work"]
     if path[:3] == ("result", "error", "cause") and a["result"]["error"]["kind"] == "values":
-        return None if proof is None else proof["completion"]
+        return None if proof is None else (proof if proof["completion"]["kind"]=="merged" else proof["completion"])
     return proof
 
 
@@ -943,7 +943,7 @@ def _d38_capture_before_run(a, case, ai):
             and a["source_ref"] is not None and a["source_ref"] == case.get("source_ref"))
 
 
-def _g5_stages(a, case, fail, ai):
+def _g5_stages(a, case, fail, ai, member_values=False):
     """Checklist P2, P6, P11 (C3:196-201, 253-257; retained_receipt.rs `PreparedTrace::enter` through `PreparedTrace::checked`, `project`)."""
     st, proof = a["stages"], a["proof"]
     pipeline = [st[k] for k in STAGE_ORDER[:8]]
@@ -967,10 +967,10 @@ def _g5_stages(a, case, fail, ai):
     else:
         fail(a["run_ref"] is not None and run is not None and (st["native"] == "completed") == (run["kernel_terminal"]["kind"] == "selected"))
     fail((st["preparation"] == "completed") == (a["source_ref"] is not None) or st["preparation"] == "not_entered" and a["source_ref"] is None)
-    _g5_proof_stages(st, proof, fail)
+    _g5_proof_stages(st, proof, fail, member_values)
 
 
-def _g5_proof_stages(st, proof, fail):
+def _g5_proof_stages(st, proof, fail, member_values=False):
     """The proof stages' rules, shared by case and combination attempts (C3:196-201, 253-257)."""
     if proof is None:
         fail(st["proof_start"] == "not_entered")
@@ -981,7 +981,7 @@ def _g5_proof_stages(st, proof, fail):
         fail({"not_entered": "not_entered", "completed": "passed", "failed": "failed"}[st[stage]] == checks[check]["kind"])
     completion = proof["completion"]["kind"]
     if st["values"] == "failed":
-        fail(completion == "separate_failure")
+        fail(completion == ("merged" if member_values else "separate_failure"))
     elif st["certificate"] != "not_entered" or "failed" in (st["maxima"], st["aliases"]) or (st["aliases"] == "completed"):
         fail(completion == "merged")
     elif st["projection"] != "completed":
@@ -1288,7 +1288,9 @@ def _g5_products(body, rows_by_case, route=None):
             fail(indices==projected[:len(indices)] and (a["stages"]["projection"]!="completed" or len(indices)==len(projected)))
         _loaded_maximum_diagnostic(body,a,case,rows_by_case[case["basis_ref"]["ref_id"]],route)
         _g5_coverage(a, case, source, fail)
-        _g5_stages(a, case, fail, ai)
+        member_values=(not route.exact and source is not None
+                       and any(_exact_active_member(source,m["kernel_member"]) for m in source["id_maps"]["members"]))
+        _g5_stages(a, case, fail, ai, member_values)
         for ok in _accounting_rules(a): wf(ok)
         if a["result"]["kind"] == "ready":
             fail(source is not None and a["run_ref"] is not None and case["run"]["kernel_terminal"]["kind"] == "selected")

@@ -14,6 +14,7 @@ VECTORS = PROJECT / "core/solver/frame_kernel/tests/retained_k4"
     [
         ("gen_k4_vectors.py", ["--only=declared", "--check"]),
         ("gen_member_recovery_vectors.py", ["--check"]),
+        ("gen_member_maximum_vectors.py", ["--check"]),
     ],
 )
 def test_member_load_reference_writer_reproduces_committed_data(writer, args):

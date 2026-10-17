@@ -302,10 +302,9 @@ fn w1_member_load_product_consuming_successor() {
     }
 }
 
-/// A real transverse case whose readout uncertainty prevents the search's
-/// tighter stopping enclosure. Exhaustion publishes no retained rows for that
-/// case; its exact diagnostic and all spent arithmetic survive beside a
-/// successfully retained nodal case.
+/// A real transverse case exercises the search's refusal at its unchanged
+/// limits. Its exact diagnostic and all spent arithmetic survive beside a
+/// successfully retained nodal case, without retained publication for the failure.
 #[test]
 fn w1_member_load_exhaustion_retains_typed_interval_work() {
     use crate::retained_tests_hooks as hooks;
@@ -342,5 +341,49 @@ fn w1_member_load_exhaustion_retains_typed_interval_work() {
             .filter(|r|r["basis_ref"]["ref_type"]=="load_case" && r["basis_ref"]["ref_id"]=="case-b").collect();
         assert!(!unavailable_rows.is_empty());
         assert!(unavailable_rows.iter().all(|r|r.get("recovery_method").is_none()));
+    }
+}
+
+/// A member-aware values failure transfers its numeric work into the proof
+/// exactly once. A second, unloaded member gives the existing completion fault
+/// a real maximum to omit; the adjacent nodal case remains selectable.
+#[test]
+fn w1_member_load_values_failure_keeps_merged_work() {
+    use crate::retained_tests_hooks as hooks;
+    let mut raw=two_torque_cases([None,None]);
+    for (id,x) in [("aux-root",3.0),("aux-tip",4.0)] {
+        let mut node=raw["model"]["nodes"][1].clone();node["id"]=json!(id);node["position"]["x"]=json!(x);
+        raw["model"]["nodes"].as_array_mut().unwrap().push(node);
+        raw["model"]["supports"].as_array_mut().unwrap().push(json!({"id":format!("fixed:{id}"),"node":id,
+            "family":"anchor","restraints":["UX","UY","UZ","RX","RY","RZ"],"provenance":INVENTED}));
+    }
+    let mut auxiliary=raw["model"]["pipe_segments"][0].clone();
+    auxiliary["id"]=json!("auxiliary");auxiliary["from"]=json!("aux-root");auxiliary["to"]=json!("aux-tip");
+    raw["model"]["pipe_segments"].as_array_mut().unwrap().push(auxiliary);
+    raw["model"]["load_cases"][1]["primitive_loads"].as_array_mut().unwrap().push(json!({
+        "id":"case-b:udl","category":"distributed_force","target":{"type":"element","pipe":"pipe"},
+        "direction":"global_x","magnitude":{"value":10.0,"unit":"N/m"},"dimension":"force_per_length","provenance":INVENTED}));
+    for mode in MODES {
+        let (capture,observer,mut ordinary)=early_observed(&raw,mode,true);
+        ordinary.diagnostics.shrink_to_fit();
+        hooks::fault_case(1,crate::retained_receipt::TraceFault::ValuesCompletion);
+        let ((_,retained),_,precommit)=hooks::counted_with_successor(||retained_w1(observer,ordinary,&capture));
+        if let (Some(dir),Some(candidate))=(std::env::var_os("I61_U1_OUT"),precommit.as_ref()) {
+            let name=format!("w1_member_values_failure_{}",mode.as_str());
+            let document=json!({"id":name,"source":candidate,"invocation":{"request":raw,"solver_mode":mode.as_str()}});
+            std::fs::write(std::path::Path::new(&dir).join(format!("{name}.json")),serde_json::to_string_pretty(&document).unwrap()+"\n").unwrap();
+        }
+        let successor=retained.unwrap_or_else(|fallback|panic!("{mode:?}: {fallback:?}")).value().clone();
+        let invocation=json!({"request":raw,"solver_mode":mode.as_str()});
+        let verdict=reader::validate(&successor,Some(&invocation)).unwrap();
+        assert!(verdict.invocation_bound && !verdict.numerical_eligible);
+        let b=&successor["retained_precision"]["body"];
+        assert_eq!(b["cases"][0]["status"],"selected");
+        assert_eq!(b["cases"][1]["status"],"unavailable");
+        let attempt=&b["product_attempts"][1];
+        assert_eq!(attempt["stages"]["values"],"failed");
+        assert_eq!(attempt["result"]["error"]["kind"],"values");
+        assert_eq!(attempt["proof"]["completion"]["kind"],"merged");
+        assert_eq!(attempt["stages"]["aliases"],"not_entered");
     }
 }

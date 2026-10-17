@@ -1612,3 +1612,7 @@ fn recover(
     }
     Ok((rows,curvatures))
 }
+
+#[cfg(test)]
+#[path = "../../../../tests/retained_k4/member_lane_tests.rs"]
+mod member_lane_tests;

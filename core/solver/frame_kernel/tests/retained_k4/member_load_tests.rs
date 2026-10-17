@@ -110,7 +110,7 @@ fn member_load_recovery_error_is_bounded_by_69uE() {
     use super::super::{assemble::{Structure,form_members}, recover::{recover,layout},
         verify::{formation_scale,StageRounding,member_g_scope}};
     let lines:Vec<_>=include_str!("member_recovery.txt").lines().collect();
-    let mut at=0;let mut cases=0;
+    let mut at=0;let mut cases=0;let mut error_rows=0;let mut above_rows=0;
     while at<lines.len() {
         let f:Vec<_>=lines[at].split_whitespace().collect();let name=f[1];let p:u32=f[2].parse().unwrap();
         let v:Vec<_>=f[3..].iter().map(|s|f64_bits(s)).collect();
@@ -149,18 +149,19 @@ fn member_load_recovery_error_is_bounded_by_69uE() {
             let f:Vec<_>=lines[at].split_whitespace().collect();assert_eq!(f[0],"row");assert_eq!(f[1].parse::<usize>().unwrap(),row);
             let index=14+row;let actual=recovered.values[index];let bound=e[index].unwrap().mul_pow2(-i64::from(p)).unwrap();
             if test_error {
+                error_rows+=1;
                 for endpoint in [f[2],f[3]] {let (neg,mag,exp)=dyad(endpoint);
                     for direction in [false,true] {
                         let terms=[(neg!=direction,mag.clone(),exp),wide_dyad(actual,!direction,1),wide_dyad(bound,true,69)];
                         assert!(exact_nonpositive(&terms),"actual formation error exceeded69uE: {name} row{row} endpoint{endpoint}");
                     }
                 }
-            }
+            } else {above_rows+=1;}
             at+=1;
         }
         assert_eq!(lines[at],"end");at+=1;cases+=1;
     }
-    assert_eq!(cases,40);
+    assert_eq!(cases,40);assert_eq!(error_rows,1512);assert_eq!(above_rows,168);
 }
 
 fn cantilever()->(PrimitiveSource,MemberLoadSet){

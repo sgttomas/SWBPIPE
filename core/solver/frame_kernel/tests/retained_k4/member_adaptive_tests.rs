@@ -158,3 +158,22 @@ fn member_load_fixed_fixed_reactions_and_correction_recovery_is_linear() {
     let e=super::super::verify::formation_scale(&mut ctx,&mut sum,&guard,&source,&prep.layout,&group.structure,&vs.abar,&shared.members,&[],Some(prep.ledger().unwrap()),&zero,StageRounding::Nearest).unwrap();
     for (r,e) in state.recovered.values.iter().zip(e){if let Some(e)=e{assert!(e.cmp_value(&r.abs())!=CmpOrdering::Less);}}
 }
+
+#[test]
+fn w1_loaded_maximum_station_orientation(){
+    let template=member_source(false,Vec::new());
+    let source=PrimitiveSource::new(SourceParts{nodes:template.nodes().to_vec(),members:template.members().to_vec(),constraints:template.constraints().to_vec(),
+        stations:[0.59915,0.40085].into_iter().enumerate().map(|(i,t)|Station{id:i as u32,member:0,fraction:t}).collect(),..Default::default()}).unwrap();
+    let prep=preparation(&source,&[[0.,-0.5,0.]]);let group=prepare_group(&source).unwrap();let guard=StageGuard::unlimited();
+    let shared=build_shared::<4,8>(256,320,&source,&group,guard).result.unwrap();let _=solve_case_at::<4,8>(&shared,&prep,&group,guard).result.unwrap();
+    let mut ctx=WideContext::<4>::new(256).unwrap();let mut sum=ExactWideSum::new();
+    let h=ctx.div(&Wide::<4>::from_f64(-1.).unwrap(),&Wide::<4>::from_f64(6.).unwrap()).unwrap();
+    let qi=ctx.sub(&h,&Wide::<4>::from_f64(-0.137).unwrap()).unwrap();
+    let qj=ctx.sub(&Wide::<4>::from_f64(0.0613).unwrap(),&h).unwrap();
+    let a=ctx.sub(&qi.mul_pow2(1).unwrap(),&qj).unwrap();let b=ctx.sub(&qj.mul_pow2(1).unwrap(),&qi).unwrap();
+    let mut u=vec![Wide::<4>::ZERO;12];u[5]=ctx.div(&a,&Wide::<4>::from_f64(3.).unwrap()).unwrap();u[11]=ctx.div(&b,&Wide::<4>::from_f64(3.).unwrap()).unwrap();
+    let recovered=recover(&mut ctx,&mut sum,&guard,&source,&prep.layout,&group.structure,&shared.k,&shared.members,&[],prep.ledger().unwrap(),&u).unwrap();
+    let value=|id|recovered.values[prep.layout.iter().position(|r|r.id==QuantityId::StationAction{station:id,component:Component::Rz}).unwrap()];
+    assert_eq!(value(0).cmp_value(&value(1)),CmpOrdering::Greater,"peak lies at .59915, not its mirrored station");
+    let gap=ctx.sub(&value(0),&value(1)).unwrap();assert_eq!(gap.cmp_value(&Wide::<4>::from_f64(0.03).unwrap()),CmpOrdering::Greater);
+}

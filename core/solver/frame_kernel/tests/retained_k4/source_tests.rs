@@ -241,3 +241,27 @@ fn the_source_encodings_do_not_depend_on_list_order() {
         "but not the stiffness identity"
     );
 }
+
+#[test]
+fn member_source_encoding_appends_canonical_terms_and_preserves_nodal_bytes(){
+    let source=PrimitiveSource::new(base()).unwrap();let ordinary=source.encoding();let stiffness=source.stiffness_encoding();
+    assert_eq!(source.encoded_len(),Some(ordinary.len()));
+    let empty=MemberLoadSet::new(&source,Vec::new()).unwrap();
+    assert_eq!(MemberSourceRef::nodal(&source).encoding(),ordinary);
+    assert_eq!(MemberSourceRef::new(&source,&empty).unwrap().encoding(),ordinary);
+    let a=UniformMemberLoad{member:2,intensity:[0.,-1.,2.],source_id:"z".into()};
+    let b=UniformMemberLoad{member:1,intensity:[-0.,1.,0.],source_id:"b".into()};
+    let c=UniformMemberLoad{member:1,intensity:[0.,1.,0.],source_id:"a".into()};
+    let set=MemberLoadSet::new(&source,vec![a.clone(),b.clone(),c.clone(),c.clone()]).unwrap();
+    let reverse=MemberLoadSet::new(&source,vec![c.clone(),c.clone(),b.clone(),a.clone()]).unwrap();
+    assert_eq!(set.loads(),&[c.clone(),c,b,a]);assert_eq!(set,reverse);
+    let encoded=MemberSourceRef::new(&source,&set).unwrap().encoding();assert_eq!(&encoded[..ordinary.len()],ordinary);
+    let mut suffix=Vec::new();suffix.extend_from_slice(&4u32.to_le_bytes());
+    for load in set.loads(){suffix.extend_from_slice(&load.member.to_le_bytes());for v in load.intensity{suffix.extend_from_slice(&v.to_bits().to_le_bytes());}
+        suffix.extend_from_slice(&(load.source_id.len() as u32).to_le_bytes());suffix.extend_from_slice(load.source_id.as_bytes());}
+    assert_eq!(&encoded[ordinary.len()..],suffix);assert_eq!(encoded,MemberSourceRef::new(&source,&reverse).unwrap().encoding());
+    assert_eq!(source.stiffness_encoding(),stiffness);
+    assert_eq!(MemberLoadSet::new(&source,vec![UniformMemberLoad{member:999,intensity:[0.;3],source_id:"bad".into()}]).unwrap_err(),MemberLoadError::UnknownMember(999));
+    assert_eq!(MemberLoadSet::new(&source,vec![UniformMemberLoad{member:1,intensity:[f64::NAN,0.,0.],source_id:"bad".into()}]).unwrap_err(),MemberLoadError::NonFiniteIntensity(1));
+    assert_eq!(MemberLoadSet::new(&source,vec![UniformMemberLoad{member:1,intensity:[0.;3],source_id:String::new()}]).unwrap_err(),MemberLoadError::EmptySource(1));
+}
