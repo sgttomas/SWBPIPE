@@ -183,8 +183,11 @@ pub(super) fn project<'a>(trace:&'a PreparedTrace,capture:&'a p::ProductCapture,
         if !work.owner_matches(owner) {return Err(TraceProjectionError::WorkAssociation);}
     }
     let proof=proof.map(|p|p.typed_trace(&mut costs.kernel));
-    let completion=if let Some(f)=values_failure {CompletionRef::SeparateFailure{visits:f.visits,capacity_bytes:f.capacity}}
-        else if proof.as_ref().is_some_and(|p|p.completion_merged){CompletionRef::Merged}else{CompletionRef::NotEntered};
+    // Member completion failures carry arithmetic and visits into the proof once.
+    // Nodal failures retain their established separate-failure accounting.
+    let completion=if proof.as_ref().is_some_and(|p|p.completion_merged){CompletionRef::Merged}
+        else if let Some(f)=values_failure {CompletionRef::SeparateFailure{visits:f.visits,capacity_bytes:f.capacity}}
+        else{CompletionRef::NotEntered};
     if !costs.kernel.status().is_exact() || proof.as_ref().is_some_and(|p|!p.trace_copy_work.status().is_exact()) {
         return Err(TraceProjectionError::LostTrace);
     }

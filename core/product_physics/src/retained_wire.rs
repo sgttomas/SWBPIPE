@@ -32,7 +32,7 @@ pub(super) const CANONICALIZATION: &str = "openpipestress_jcs_ijson_v1";
 /// definition fixture and to the semantic table's entry by tests.
 pub(super) const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub(super) const DEFINITION_SHA256: &str =
-    "c4aebcef3ae3863f9576fb3a7e323e77a91687938f6605a83a2fdc958febb15f";
+    "688639f2578d7764b6aa88fb5e650c6c9421f01c328a7362d6dfe0d78acd65f7";
 /// B3b-P (B3-D P-9): the exact successor's identity and profile (reserved 2026-10-03;
 /// `semantic_contract_v0_3_physics_retained_1.json`), and its formation definition DEF-E with
 /// its H("retained_precision_formation_v1", definition) (B3-D REVISION_01 §1.2). Bound to the
@@ -69,6 +69,7 @@ pub(super) const INVOCATION_LIMIT: u64 = 60_000_000_000;
 /// The fixed product text of the selected-case diagnostic (G-a).
 pub(super) const SELECTED_CODE: &str = "RETAINED_PRECISION_SELECTED";
 pub(super) const SELECTED_MESSAGE: &str = "Retained-precision recovery (contribution_preserving_multiprecision_v1) is selected for this load case. Its published rows carry recovery_method; the retained_precision receipt binds their certified classes, the native attempts and work, and the ordinary-attempt evidence.";
+pub(super) const SELECTED_MEMBER_LOAD_MESSAGE: &str = "Retained-precision recovery (contribution_preserving_multiprecision_v1) is selected for this load case. Its full-span uniform member loads are represented by declared equivalent nodal loads, each entry within 2^-1022 of its exact consistent value relative to that value; the certificate certifies that declared-load problem. Its published rows carry recovery_method; the retained_precision receipt binds their certified classes, the native attempts and work, and the ordinary-attempt evidence.";
 const MAX_SAFE: u64 = (1 << 53) - 1;
 /// The ordinary run's retained-source (composite) unavailability disclosure. Since B4/D1 (b)
 /// only route E's composites attempt the method, so only a route-E case can carry one.
@@ -462,10 +463,17 @@ fn refusal(e: &Enc, r: &k::Refusal) -> Value {
             json!({"space":"refusal","tag":"geometry_unavailable","body":body,"error":structural_error(e,error)})
         }
         k::Refusal::NegativeEnergy { i, j } => json!({"space":"refusal","tag":"negative_energy","i":i,"j":j}),
-        k::Refusal::LedgerUnavailable(k::LedgerRefusal::Accumulator(s)) => {
-            json!({"space":"refusal","tag":"ledger_unavailable","error":{"tag":"accumulator","error":sum_error(s)}})
+        k::Refusal::LedgerUnavailable(error) => {
+            json!({"space":"refusal","tag":"ledger_unavailable","error":ledger_error(error)})
         }
         k::Refusal::Structure => json!({"space":"refusal","tag":"structure"}),
+    }
+}
+fn ledger_error(error:&k::LedgerRefusal)->Value {
+    match error {
+        k::LedgerRefusal::Accumulator(error)=>json!({"tag":"accumulator","error":sum_error(error)}),
+        k::LedgerRefusal::MemberLoads=>json!({"tag":"member_loads"}),
+        k::LedgerRefusal::NotFormed=>json!({"tag":"not_formed"}),
     }
 }
 /// BlockRefusal (C1 §4): a per-block `usize::MAX` row is the `block_step` sentinel.
@@ -796,7 +804,7 @@ fn successor_identity(env: &mut Value, route: rp::W1Route) {
 /// One selected case's part of G-a with T1 (a): its rows' method token, its omitted
 /// retained-source unavailability disclosure (a route-E composite attempt's, at most one; B4/D1
 /// (b) removed its `legacy_source` record) and its selected-case diagnostic (appended).
-fn selected_case_envelope(env: &mut Value, case_id: &str) -> Result<String, ReceiptFailure> {
+fn selected_case_envelope(env: &mut Value, case_id: &str, member_loads:bool) -> Result<String, ReceiptFailure> {
     let assoc = |p| fail(ReceiptCheck::Association, p);
     for row in env["results"].as_array_mut().ok_or(assoc("results"))? {
         if row["basis_ref"]["ref_id"] == json!(case_id) {
@@ -817,7 +825,7 @@ fn selected_case_envelope(env: &mut Value, case_id: &str) -> Result<String, Rece
     if diags.iter().any(|d| d["id"] == json!(id)) {
         return Err(assoc("diagnostics[+selected].id"));
     }
-    diags.push(json!({"id":id,"code":SELECTED_CODE,"severity":"info","message":SELECTED_MESSAGE,
+    diags.push(json!({"id":id,"code":SELECTED_CODE,"severity":"info","message":if member_loads{SELECTED_MEMBER_LOAD_MESSAGE}else{SELECTED_MESSAGE},
         "source":"core/product_physics","affected_refs":[case_id]}));
     Ok(id)
 }
@@ -1069,11 +1077,25 @@ fn case_source_at(e: &Enc, capture: &rp::ProductCapture, source: &k::PrimitiveSo
             "geometry":{"route":route_wire(capture.route()).geometry_route,"normalized_od":e.bits(f.diameter,P),"effective_wall":e.bits(f.effective_wall,P),"actual_radius":e.bits(f.radius,P),
                 "actual_second_moment":e.bits(f.second_moment,P),"actual_polar_moment":e.bits(f.torsion_constant,P)}}));
     }
-    Ok(json!({"index":source_id,"owner":{"kind":"case","case_index":case_index,"case_id":case_id},"material_basis_ref":e.basis_ref(case_index),
+    let mut entry=json!({"index":source_id,"owner":{"kind":"case","case_index":case_index,"case_id":case_id},"material_basis_ref":e.basis_ref(case_index),
         "kernel_source_sha256":sha_hex(&origin.identity),"stiffness_sha256":sha_hex(&origin.stiffness),
         "id_maps":{"nodes":nodes,"members":members,"springs":springs,"support_ids":support_ids},"body_membership":body_membership,
         "layout":layout,"stations":stations,"supports":supports,"constraints":constraints,"nodal_terms":nodal_terms,"section_terms":section_terms,
-        "preparation":null}))
+        "preparation":null});
+    if capture.member_loads {
+        let member=capture.member_source_at(case_index).ok_or(assoc("sources[].member_load_terms"))?;
+        if member.case_id!=case_id || member.loads.is_empty() {return Err(assoc("sources[].member_load_terms"));}
+        let composite=k::MemberSourceRef::new(source,&member.loads).map_err(|_|assoc("sources[].member_load_terms"))?;
+        if composite.encoding()!=origin.identity {return Err(assoc("sources[].kernel_source_sha256"));}
+        let mut terms=Vec::with_capacity(member.loads.loads().len());
+        for (canonical,load) in member.loads.loads().iter().enumerate() {
+            let term=member.terms.iter().find(|term|term.canonical==canonical).ok_or(assoc("sources[].member_load_terms"))?;
+            terms.push(json!({"constructor_ordinal":term.original,"source_id":load.source_id,"primitive_load_index":term.original,
+                "member":load.member,"intensity":load.intensity.iter().map(|v|e.bits(*v,P)).collect::<Vec<_>>()}));
+        }
+        entry.as_object_mut().ok_or(assoc("sources[]"))?.insert("member_load_terms".into(),Value::Array(terms));
+    }
+    Ok(entry)
 }
 
 /// A physical record's work amounts, each read through its checked accessor
@@ -1360,12 +1382,28 @@ fn proof_trace(e: &Enc, view: &rr::PreparedAttemptView<'_>, capture: &rp::Produc
         _ => Value::Null,
     };
     let _ = P;
-    json!({"lanes":lanes,"numeric":numeric(e,&p.numeric),"comparisons_lme":e.count(p.comparisons_lme),"visits":e.count(p.visits),"scalar_operations":e.count(p.scalar_operations),
+    let mut value=json!({"lanes":lanes,"numeric":numeric(e,&p.numeric),"comparisons_lme":e.count(p.comparisons_lme),"visits":e.count(p.visits),"scalar_operations":e.count(p.scalar_operations),
         "projection_conversions":e.count(p.projection_conversions),
         // The definition binds MPa stress outcomes to SI; all other outcomes remain raw.
         "projection_outcomes":p.projection_outcomes.iter().map(|(r,o)|json!({"row_index":r,"outcome":conversion(e,o)})).collect::<Vec<_>>(),
         "capacities":p.capacities,"prepared_capacity_bytes":p.prepared_capacity_bytes,"completion":completion,
-        "checks":{"certificate":check(e,&view.checks[0],capture),"observables":check(e,&view.checks[1],capture),"g5a":check(e,&view.checks[2],capture)},"summary_coverage":coverage})
+        "checks":{"certificate":check(e,&view.checks[0],capture),"observables":check(e,&view.checks[1],capture),"g5a":check(e,&view.checks[2],capture)},"summary_coverage":coverage});
+    // Borrow the retained failure directly: no extra field changes the priced
+    // nodal attempt/trace layouts or their copy counters.
+    let diagnostic=match &view.result {
+        rr::ResultRef::Unavailable(rr::FailureRef::Candidate(rp::PreparedCandidateError::Proof(f)))=>f.work().loaded_maximum_diagnostic(),
+        rr::ResultRef::Unavailable(rr::FailureRef::Candidate(rp::PreparedCandidateError::Values{proof,..}
+            |rp::PreparedCandidateError::Abandoned{proof,..}))=>proof.work().loaded_maximum_diagnostic(),
+        _=>None,
+    };
+    if let Some(d)=diagnostic {
+        let endpoint=|(negative,exponent,limbs):&(bool,i64,[u64;16])|json!({
+            "negative":negative,"exponent":exponent,
+            "limbs":limbs.iter().map(|limb|format!("{limb:016x}")).collect::<Vec<_>>()});
+        value.as_object_mut().expect("proof literal").insert("loaded_maximum_diagnostic".into(),
+            json!({"row":d.row,"member":d.member,"lower":endpoint(&d.lower),"upper":endpoint(&d.upper)}));
+    }
+    value
 }
 #[allow(clippy::too_many_arguments)]
 fn product_attempt(e: &Enc, view: &rr::PreparedAttemptView<'_>, id: usize, case_index: usize, source_ref: Option<usize>, run_ref: Option<usize>,
@@ -1489,10 +1527,11 @@ fn combination_reason(e: &Enc, r: &k::CombinationReason) -> Value {
     match r {
         k::CombinationReason::NoOperands => json!({"space":"combination","tag":"no_operands"}),
         k::CombinationReason::NestedCombination => json!({"space":"combination","tag":"nested_combination"}),
+        k::CombinationReason::OperandMemberLoads => json!({"space":"combination","tag":"operand_member_loads"}),
         k::CombinationReason::OperandsDiffer => json!({"space":"combination","tag":"operands_differ"}),
         k::CombinationReason::NoSelectedOperand => json!({"space":"combination","tag":"no_selected_operand"}),
-        k::CombinationReason::LedgerUnavailable(k::LedgerRefusal::Accumulator(s)) => {
-            json!({"space":"combination","tag":"ledger_unavailable","error":{"tag":"accumulator","error":sum_error(s)}})
+        k::CombinationReason::LedgerUnavailable(error) => {
+            json!({"space":"combination","tag":"ledger_unavailable","error":ledger_error(error)})
         }
         k::CombinationReason::CountRange(name) => json!({"space":"combination","tag":"count_range","name":name}),
         _ => e.untranslated("calls[].result.reason"),
@@ -1763,7 +1802,7 @@ fn serialize_cases_with(pc: &mut rp::ProductCapture, attempts: &[rp::CaseAttempt
     let mut diagnostic_ids: Vec<Option<String>> = vec![None; count];
     for index in 0..count {
         if status[index] == CaseStatus::Selected {
-            diagnostic_ids[index] = Some(selected_case_envelope(&mut env, case_ids[index])?);
+            diagnostic_ids[index] = Some(selected_case_envelope(&mut env, case_ids[index],pc.member_source_at(index).is_some())?);
         }
     }
     for index in 0..count {
@@ -2504,7 +2543,7 @@ pub(super) fn test_kernel_terminal(outcome: &k::ExecutionOutcome) -> (usize, Val
 #[cfg(test)]
 pub(super) fn test_successor_envelope(env: &mut Value, case_id: &str) -> Result<String, ReceiptFailure> {
     successor_identity(env, rp::W1Route::Preview);
-    selected_case_envelope(env, case_id)
+    selected_case_envelope(env, case_id,false)
 }
 #[cfg(test)]
 pub(super) fn test_after_conserved(before: u64, increment: u64, after: u64) -> (bool, Vec<ReceiptFailure>) {

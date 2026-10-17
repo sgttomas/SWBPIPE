@@ -1006,12 +1006,13 @@ fn b4_early_normal_and_partial_controls_keep_ordinary_bytes_and_custody() {
                     observer.early_source_count(),
                     raw["model"]["load_cases"].as_array().unwrap().len()
                 );
-                // B7a (b), stage 1: a member-load case (F6/partial's case-b) builds no source.
+                // Stage 2 retains a nodal declaration plus a separate member-only sidecar.
                 for case in 0..observer.cases_seen() {
                     let member_loads = observer.member_loads_basis_at(case).0;
                     let loads = &raw["model"]["load_cases"][case]["primitive_loads"];
                     assert_eq!(member_loads, loads.as_array().unwrap().iter().any(|l| l["target"]["type"] == "element"));
-                    assert_eq!(observer.source_terminal_at(case).0, !member_loads);
+                    assert!(observer.source_terminal_at(case).0);
+                    assert_eq!(observer.member_source_at(case).is_some(), member_loads);
                 }
                 assert!(observer.error.is_none());
             } else {

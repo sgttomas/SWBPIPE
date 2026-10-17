@@ -29,6 +29,7 @@ pub(crate) mod combine;
 pub(crate) mod directed;
 pub(crate) mod factor;
 pub(crate) mod ledger;
+pub(crate) mod declared;
 pub(crate) mod recover;
 mod product_certificate;
 // V-K's seeded faults (T3 D1 §4.10, §7.3): compiled only for tests and under

@@ -14,7 +14,11 @@ use super::retained::assemble::{BoundedCoefficients, Contribution, MemberOperato
 use super::retained::origins::ProductOwnerStamp;
 use super::retained::bound::{BlockBound, BlockCertificate};
 use super::retained::factor::PivotScreen;
-use super::retained::ledger::LedgerNet;
+use super::retained::ledger::{LedgerNet,RetainedLedger};
+use super::retained::source::{UniformMemberLoad,MemberLoadSet,MemberSourceRef};
+use super::retained::declared::DeclaredMemberLoad;
+use super::retained::origins::{LoadedValue,MemberValuesWork};
+use super::retained_api::{LoadedMaximumDiagnostic,ProductMaximumEvidence};
 use super::retained::verify::{BlockNorms, BodyReport, VerificationReport, VerifyShared};
 use super::retained::wide::Wide;
 use super::retained::wide_sum::ExactWideSum;
@@ -54,6 +58,10 @@ sizes! {
     VERIFICATION_REPORT_4 = VerificationReport<4>; VERIFICATION_REPORT_8 = VerificationReport<8>; VERIFICATION_REPORT_16 = VerificationReport<16>;
     EXACT_WIDE_SUM = ExactWideSum; EXPANSION = Expansion; PRECISION_STATE = PrecisionState; LEDGER_NET = LedgerNet;
     CASE_PREP = CasePrep; GROUP_PREP = GroupPrep;
+    UNIFORM_MEMBER_LOAD = UniformMemberLoad; MEMBER_LOAD_SET = MemberLoadSet; MEMBER_SOURCE_REF = MemberSourceRef<'static>;
+    DECLARED_MEMBER_LOAD = DeclaredMemberLoad; RETAINED_LEDGER = RetainedLedger;
+    LOADED_MAXIMUM_VALUE = LoadedValue; LOADED_MAXIMUM_WORK = MemberValuesWork;
+    LOADED_MAXIMUM_DIAGNOSTIC = LoadedMaximumDiagnostic; PRODUCT_MAXIMUM_EVIDENCE = ProductMaximumEvidence;
     ATTEMPT_RECORD = AttemptRecord; BLOCK_REFUSAL = BlockRefusal; BLOCK_WITNESS = BlockWitness; BODY_GEOMETRY = BodyGeometry;
     BINARY64_OUTCOME = Binary64Outcome; AFFINE_TERM = AffineTerm; FUNCTIONAL_DESCRIPTOR = FunctionalDescriptor;
     QUALIFIED_FUNCTIONAL_PROJECTION = QualifiedFunctionalProjection<'static, 'static, 'static, 'static>;
@@ -86,6 +94,8 @@ sizes! {
     PRODUCT_MAXIMUM_VALUE = ProductMaximumValue; PRODUCT_CERTIFICATE_SPENT = ProductCertificateSpent<'static>;
     INDEXED_OUTCOME = (usize, Binary64Outcome);
 }
+pub const LOADED_MAXIMUM_SEARCH_NODE:usize=super::retained::origins::LOADED_SEARCH_NODE;
+pub const LOADED_MAXIMUM_SEARCH_HEAP_MAX:usize=super::retained::origins::LOADED_SEARCH_HEAP_MAX;
 /// The alignment of `load_ledger::Formation`, for the product's field-sum upper bound on the
 /// ledger's private `Option<FormationRecord>` slot (formation, an f64 and a bool).
 pub const FORMATION_ALIGN: usize = align_of::<Formation>();

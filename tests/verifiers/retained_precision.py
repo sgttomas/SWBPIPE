@@ -25,6 +25,7 @@ from typing import Any, NamedTuple
 from .compatibility import _source_contract
 from .physics_source import _actual_materials, _canonical_inputs
 from . import section_basis as sb
+from . import declared_member_load as dml
 from .canonical_json import canonical_sha256
 from .units import convert_quantities_to_canonical, to_canonical
 
@@ -32,12 +33,13 @@ ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PROFILE = "product_preview_retained_w1a_v2"
 DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
-DEFINITION_HASH = "c4aebcef3ae3863f9576fb3a7e323e77a91687938f6605a83a2fdc958febb15f"
-TABLE_HASH = "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1"
+DEFINITION_HASH = "688639f2578d7764b6aa88fb5e650c6c9421f01c328a7362d6dfe0d78acd65f7"
+TABLE_HASH = "842a011601ea5049c6e89abbd73a24176966ca23c9a8cf9c89336341f608f3ad"
 # B2-C (CONTRACT §8 row 4, REVISION_02 §0): DEF-C's id and H, the preview table's second formation definition.
 COMBINATION_DEFINITION_ID = "RP-PREPARED-COMBINATION-DUAL-v1"
-COMBINATION_DEFINITION_HASH = "34ce87e7ad6da457d81a5cbf25a077fb5d08f2960c5fd815e1163646de02d24a"
+COMBINATION_DEFINITION_HASH = "75b9414df919fb4e181aa06030249289b70f0518023afbe241f72e31b8b60f31"
 PREVIEW_DEFINITIONS = [{"id": DEFINITION_ID, "sha256": DEFINITION_HASH}, {"id": COMBINATION_DEFINITION_ID, "sha256": COMBINATION_DEFINITION_HASH}]
+SELECTED_MEMBER_LOAD_MESSAGE = 'Retained-precision recovery (contribution_preserving_multiprecision_v1) is selected for this load case. Its full-span uniform member loads are represented by declared equivalent nodal loads, each entry within 2^-1022 of its exact consistent value relative to that value; the certificate certifies that declared-load problem. Its published rows carry recovery_method; the retained_precision receipt binds their certified classes, the native attempts and work, and the ordinary-attempt evidence.'
 RETAINED_DISPOSITIONS = ("retained_selected", "retained_unavailable")
 METHOD = "contribution_preserving_multiprecision_v1"
 # B3b (B3-D, final for J1, with REVISION_01): the `<physics-retained>` route. Since B7b D4 (a) its base is pressure-1
@@ -226,6 +228,9 @@ def _encoding(value, spec):
     if "oneOf" in spec:
         return _encoding(value, next(s for s in spec["oneOf"] if _shape(value, s)))
     tag = spec.get("x-rp-encoding")
+    if tag == "safe_int":
+        _need(type(value) in (int,float) and math.isfinite(value) and int(value)==value and abs(value)<=SAFE and not (value==0 and math.copysign(1,value)<0),"G2","ENCODING_MISMATCH")
+    if tag == "limb64": _need(type(value) is str and re.fullmatch(r"[0-9a-f]{16}",value) is not None,"G2","ENCODING_MISMATCH")
     if tag in ("uint", "i32"):
         _need(type(value) in (int, float) and math.isfinite(value) and int(value) == value and spec["minimum"] <= value <= spec["maximum"] and not (value == 0 and math.copysign(1, value) < 0), "G2", "ENCODING_MISMATCH")
     if tag in ("bits", "nonnegative_bits"):
@@ -412,6 +417,14 @@ def _native_source_encoding(source, include_loads):
             if support["directional_springs"]:
                 raise ValueError("unsupported directional spring")
             uint(0)
+        member_terms = source.get("member_load_terms", [])
+        if member_terms:
+            uint(len(member_terms))
+            for term in member_terms:
+                uint(term["member"])
+                for word in term["intensity"]: value(word)
+                identity = term["source_id"].encode("utf-8")
+                uint(len(identity)); out.extend(identity)
     return bytes(out)
 
 
@@ -1269,6 +1282,11 @@ def _g5_products(body, rows_by_case, route=None):
         _g5_preparation_members(a, a["operational"]["old_coverage"] != "captured_prefix" or (not pm and not new and a["source_ref"] is None and a["run_ref"] is None and a["result"]["kind"] == "unavailable"), fail, wf)
         proof = a["proof"]
         _g5_proof_rows(a, rows_by_case[case["basis_ref"]["ref_id"]] if proof is not None else None, fail, wf, route)
+        if proof is not None and source is not None and source.get("member_load_terms"):
+            projected=[i for i,r in enumerate(rows_by_case[case["basis_ref"]["ref_id"]]) if _owner_projected(case,r,source,route)]
+            indices=[o["row_index"] for o in proof["projection_outcomes"]]
+            fail(indices==projected[:len(indices)] and (a["stages"]["projection"]!="completed" or len(indices)==len(projected)))
+        _loaded_maximum_diagnostic(body,a,case,rows_by_case[case["basis_ref"]["ref_id"]],route)
         _g5_coverage(a, case, source, fail)
         _g5_stages(a, case, fail, ai)
         for ok in _accounting_rules(a): wf(ok)
@@ -1279,7 +1297,7 @@ def _g5_products(body, rows_by_case, route=None):
             fail(a["operational"]["old_coverage"] == "complete" and proof is not None and all(v["kind"] == "passed" for v in proof["checks"].values()))
             fail(all(m["result"]["kind"] == "ready" for m in new))
             wf(_exact_work(proof) and all(_exact_work(m["work"]) for m in pm) and a["adapter"]["fault"] is None and not a["g5a_work"]["lost"] and not a["overlay_work"]["lost"])
-            expected = [i for i,r in enumerate(rows_by_case[case["basis_ref"]["ref_id"]]) if r["kind"] not in NONQUANTITY | {"support_reaction_force_magnitude_v2","support_reaction_moment_magnitude_v2","pipe_elastic_normal_stress_maximum_v2"}]
+            expected = [i for i,r in enumerate(rows_by_case[case["basis_ref"]["ref_id"]]) if _owner_projected(case,r,source,route)]
             fail([x["row_index"] for x in proof["projection_outcomes"]] == expected)
         if case["status"] == "selected": fail(a["result"]["kind"] == "ready")
         if case["status"] == "unavailable" and case["reason"]["cause"].get("kind") == "prepared_product_failure":
@@ -1338,6 +1356,40 @@ def _g5_preparation_members(a, prefix_ok, fail, wf):
                 fail(outcome["kind"] == "normal" and outcome["value"] == m["result"]["section"][idx] and from_bits(outcome["value"]) >= 2.0 ** -1022)
 
 
+def _diagnostic_endpoint(value):
+    need=lambda ok:_need(ok,"G5","PRODUCT_ATTEMPT_MISMATCH")
+    exponent=value["exponent"]
+    need(type(exponent) in (int,float) and math.isfinite(exponent) and int(exponent)==exponent and abs(exponent)<=SAFE)
+    words=value["limbs"]
+    need(len(words)==16 and all(type(w) is str and re.fullmatch(r"[0-9a-f]{16}",w) for w in words))
+    limbs=tuple(int(w,16) for w in words)
+    zero=not any(limbs)
+    need(value["negative"] is False and (exponent==0 if zero else bool(limbs[-1]>>63)))
+    return (zero,int(exponent),tuple(reversed(limbs)))
+
+
+def _loaded_maximum_diagnostic(body,attempt,owner,rows,route):
+    need=lambda ok:_need(ok,"G5","PRODUCT_ATTEMPT_MISMATCH")
+    error=attempt["result"].get("error",{})
+    named=error.get("kind")=="proof" and error.get("cause",{}).get("kind")=="association" and error.get("cause",{}).get("detail")=="loaded maximum search exhausted"
+    proof=attempt.get("proof") or {}
+    need(named==("loaded_maximum_diagnostic" in proof))
+    if not named:return
+    d=proof["loaded_maximum_diagnostic"]
+    need(route is not None and not route.exact and attempt["owner_ref"]["kind"]=="case" and owner["status"]=="unavailable" and attempt["result"]["kind"]=="unavailable"
+         and attempt["stages"]["proof_start"]=="completed" and attempt["stages"]["projection"]=="failed"
+         and all(attempt["stages"][k]=="not_entered" for k in ("maxima","values","aliases","certificate","observables","g5a")))
+    source=_at(body["sources"],attempt["source_ref"])
+    need(_exact_active_member(source,d["member"]))
+    row=_at(rows,d["row"])
+    need(row["kind"]=="pipe_elastic_normal_stress_maximum_v2" and any(m["kernel_member"]==d["member"] and m["id"]==row["entity_ref"] for m in source["id_maps"]["members"]))
+    projected=[i for i,r in enumerate(rows) if _owner_projected(owner,r,source,route)]
+    done=len(proof.get("projection_outcomes",[]))
+    need(done<len(projected) and projected[done]==d["row"])
+    lzero,le,limbs=_diagnostic_endpoint(d["lower"]);uzero,ue,upper=_diagnostic_endpoint(d["upper"])
+    need(lzero or (not uzero and (le,limbs)<=(ue,upper)))
+
+
 def _projected_publication_value(row, outcome):
     """Current H: an MPa stress outcome is SI; every other outcome stays raw."""
     if outcome["kind"] == "underflow":
@@ -1348,7 +1400,7 @@ def _projected_publication_value(row, outcome):
         return None
     if row["unit"] == "MPa" and row["kind"] in {
         "element_local_axial_normal_stress", "element_local_bending_normal_stress_y",
-        "element_local_bending_normal_stress_z", "element_local_torsional_shear_stress",
+        "element_local_bending_normal_stress_z", "element_local_torsional_shear_stress", "pipe_elastic_normal_stress_maximum_v2",
     }:
         value /= 1_000_000.0
     return (value if value != 0 else 0.0) if math.isfinite(value) else None
@@ -1406,6 +1458,17 @@ INPUT_KINDS = {"pipe_lame_hoop_stress_v2", "pipe_lame_radial_stress_v2", "pipe_s
 FORCE = {"element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2", "reaction_resultant", "support_reaction_force_magnitude_v2"}
 MOMENT = {"element_local_torsional_moment", "element_local_bending_moment_y", "element_local_bending_moment_z", "support_reaction_moment_magnitude_v2"}
 STRESS = {"element_local_axial_normal_stress", "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z", "element_local_torsional_shear_stress", "pipe_axial_membrane_stress_v2", "pipe_elastic_normal_stress_maximum_v2", "component_equal_factor_intensified_bending_stress_v1", "open_formula_stress_summary"}
+
+
+def _exact_active_member(source, member):
+    return source is not None and source.get("owner",{}).get("kind") != "combination" and any(
+        t["member"]==member and any(int(v,16)&0x7fffffffffffffff for v in t["intensity"]) for t in source.get("member_load_terms",[]))
+
+
+def _owner_projected(owner,row,source=None,route=PREVIEW_ROUTE):
+    loaded=(not route.exact and owner["basis_ref"]["ref_type"] != "combination" and row["kind"]=="pipe_elastic_normal_stress_maximum_v2"
+            and source is not None and any(m["id"]==row["entity_ref"] and _exact_active_member(source,m["kernel_member"]) for m in source["id_maps"]["members"]))
+    return (row["kind"] not in HULL_EXCLUDED or loaded) and not (owner["basis_ref"]["ref_type"]=="combination" and row["kind"]=="displacement_magnitude")
 
 
 def _normalized(row):
@@ -1597,12 +1660,15 @@ def _g5a_coverage(body, case, source, s, need, data_sources=None):
     need((verification["data_blocks"] == 0) == (true_count == 0) and verification["data_blocks"] >= true_count)
     # Directly derivable data facts from separate original contributions; a netted load
     # or a zero final row never implies has_data=false.
+    member_data = dml.recompute(source)[1] if source.get("member_load_terms") else set()
     for b in bodies:
         free = {(n, c) for n in b["nodes"] for c in COMPONENTS} - fixed
         if not free: need(not has_data[b["body"]])
         # A combination's data flags come from each operand term with a nonzero factor (DEF-C `lanes.loads`).
         if any(t["dof"]["node"] in b["nodes"] and (t["dof"]["node"], t["dof"]["component"]) in free and from_bits(t["value"]) != 0
                for d in (data_sources if data_sources is not None else [source]) for t in d["nodal_terms"]):
+            need(has_data[b["body"]])
+        if any(6*n + COMPONENTS.index(c) in member_data for n,c in free):
             need(has_data[b["body"]])
 
 
@@ -1914,7 +1980,67 @@ def _g8_exact_materials(body, source, invocation, case_bases):
                   and bits(float(published["G_pa"])) == receipt[0]["shear_modulus"], "G8", "PREPARATION_MISMATCH")
 
 
+def _g8_member_terms(source, case, pipes, exact=False, selected_digest=None):
+    """Invocation custody first, then the selected case's declared K4LED."""
+    need = lambda ok: _need(ok, "G8", "PREPARATION_MISMATCH")
+    def unit(q, dimension):
+        values = convert_quantities_to_canonical([{"id":"v","value":q["value"],"unit":q["unit"],"dimension":dimension}])
+        return float(values[0]["value"])
+    authored = case["primitive_loads"]
+    if not any(load["target"]["type"] == "element" for load in authored):
+        need("member_load_terms" not in source)
+        return
+    need(not exact and len(authored) <= 128 and len(pipes) <= 32 and len(case["id"].encode()) <= 1024)
+    expected = []
+    for ordinal, load in enumerate(authored):
+        if load["target"]["type"] != "element":
+            continue
+        pipe = next((j for j,p in enumerate(pipes) if p["id"] == load["target"]["pipe"]), None)
+        need(pipe is not None)
+        need(len(pipes[pipe]["id"].encode()) <= 1024 and len(load["magnitude"]["unit"].encode()) <= 1024)
+        generated = f'load:self-weight:{len(case["id"].encode())}:{case["id"]}:{len(pipes[pipe]["id"].encode())}:{pipes[pipe]["id"]}'
+        need(load.get("category") == "distributed_force" and load["dimension"] == "force_per_length"
+             and load["direction"] in ("global_x","global_y","global_z") and "extent" not in load and load["id"] != generated)
+        intensity = [bits(0.)]*3
+        intensity[("global_x","global_y","global_z").index(load["direction"])] = bits(unit(load["magnitude"],"force_per_length"))
+        expected.append({"constructor_ordinal":ordinal,"source_id":load["id"],"primitive_load_index":ordinal,"member":pipe,"intensity":intensity})
+    expected.sort(key=lambda t:(t["member"],t["source_id"].encode(),t["intensity"],t["constructor_ordinal"]))
+    need(source.get("member_load_terms") == expected)
+    if selected_digest is not None:
+        digest, _ = dml.recompute(source)
+        need(selected_digest == digest)
+
+
+def _guard_member_g8(body,invocation):
+    model=invocation.get("request",{}).get("model",{});cases=model.get("load_cases",[])
+    member=any("member_load_terms" in s for s in body["sources"]) or any(l.get("target",{}).get("type")=="element" for c in cases for l in c.get("primitive_loads",[]))
+    if not member:return
+    need=lambda ok:_need(ok,"G8","PREPARATION_MISMATCH")
+    materials=invocation["request"].get("materials") or model.get("materials",[])
+    need(len(cases)<=3 and len(model.get("nodes",[]))<=32 and len(model.get("pipe_segments",[]))<=32 and len(model.get("supports",[]))<=32 and len(materials)<=4
+         and len(model.get("combinations",[]))<=2 and len(cases)+len(model.get("combinations",[]))<=3
+         and all(len(c.get("primitive_loads",[]))<=128 and len(c["id"].encode())<=1024 for c in cases)
+         and all(len(p["id"].encode())<=1024 for p in model.get("pipe_segments",[])))
+    need(sum(len(s.get("restraints",[])) for s in model.get("supports",[]))<=192
+         and all(len(m.get("temperature_points",[]))<=16 for m in materials)
+         and all(len(c.get("terms",[]))<=3 and len(c.get("operand_ids",[]))<=3 for c in model.get("combinations",[])))
+    totals=[0,0,0]
+    def bounded(value,depth):
+        if depth>18:return False
+        totals[0]+=1
+        if totals[0]>16400:return False
+        if isinstance(value,str):totals[1]+=len(value.encode());return len(value.encode())<=128 and totals[1]<=67584
+        if isinstance(value,list):return all(bounded(v,depth+1) for v in value)
+        if isinstance(value,dict):
+            for k,v in value.items():
+                totals[2]+=len(k.encode())
+                if len(k.encode())>128 or totals[2]>67584 or not bounded(v,depth+1):return False
+        return True
+    need(bounded(invocation,0))
+
+
 def _g8(body, source, invocation, route=PREVIEW_ROUTE):
+    _guard_member_g8(body,invocation)
     need = lambda ok, code="PREPARATION_MISMATCH": _need(ok, "G8", code)
     exact = route.exact
     # The invocation is exactly {request, solver_mode} with a known solver mode (I91 repair 01, findings d1
@@ -2118,12 +2244,16 @@ def _g8(body, source, invocation, route=PREVIEW_ROUTE):
         need(s["stations"] == stations)
         terms=[];directions={**dict(zip(COMPONENTS,COMPONENTS)),**dict(zip(["global_x","global_y","global_z","rotation_x","rotation_y","rotation_z"],COMPONENTS))}
         for i,load in enumerate(case["primitive_loads"]):
+            if load["target"]["type"] == "element":
+                continue
             need(load["target"]["type"] == "node" and load.get("category") != "thermal" and load["dimension"] in ("force","moment"))
             node=next(j for j,n in enumerate(nodes) if n["id"]==load["target"]["node"]);component=directions[load["direction"]]
             need((COMPONENTS.index(component)<3)==(load["dimension"]=="force"))
             terms.append({"constructor_ordinal":i,"source_id":load["id"],"primitive_load_index":i,"dof":{"node":node,"component":component},"value":bits(unit(load["magnitude"],load["dimension"]))})
         terms.sort(key=lambda t:(t["dof"]["node"]*6+COMPONENTS.index(t["dof"]["component"]),t["source_id"].encode(),t["value"],t["constructor_ordinal"]))
         need(s["nodal_terms"] == terms)
+        _g8_member_terms(s, case, pipes, exact,
+                         body["cases"][ci]["selection"]["ledger_sha256"] if body["cases"][ci]["status"] == "selected" else None)
         def body_of(n):return next(b["body"] for b in expected if n in b["nodes"])
         layout=[]
         def add(q,k,n,inp=False):layout.append({"index":len(layout),"quantity":q,"kind":k,"body":body_of(n),"input_derived":inp})
@@ -2512,6 +2642,7 @@ def _g5_combination_attempt(body, a, ai, rows_by_case, fail, wf):
         fail(entry["reason"]["cause"] == {"kind": "prepared_product_failure", "product_attempt_ref": ai})
     rows = rows_by_case[entry["basis_ref"]["ref_id"]]
     _g5_proof_rows(a, rows, fail, wf)
+    _loaded_maximum_diagnostic(body,a,entry,rows,None)
     _g5_coverage(a, entry, source, fail)
     _g5_combination_stages(a, entry, fail)
     for ok in _accounting_rules(dict(a, preparation={"members": []}, operational={"old_coverage": "complete", "old": [], "new": []})): wf(ok)
@@ -2660,12 +2791,17 @@ def _g8_combinations(body, need):
     projected; the combination attempt's material basis is every operand case's. K4LED stays attested (C-12)."""
     sources = body["sources"]
     for entry in body["combinations"]:
+        if (entry.get("reason") or {}).get("cause", {}).get("tag") == "operand_member_loads":
+            need(any(s["owner"]["kind"] == "case" and s["owner"]["case_id"] == t["case_id"] and s.get("member_load_terms")
+                     for t in entry["expression"]["terms"] for s in body["sources"]))
+    for entry in body["combinations"]:
         if entry.get("source_ref") is None:
             continue
         combined = sources[int(entry["source_ref"])]
         operands = combined["operands"]
         encoding = bytearray(b"K4CMB\x01") + struct.pack("<I", len(operands))
         for operand in operands:
+            need(not sources[int(operand["source_ref"])].get("member_load_terms"))
             k4src = _native_source_encoding(sources[int(operand["source_ref"])], True)
             encoding += struct.pack("<Q", int(operand["factor"], 16)) + struct.pack("<I", len(k4src)) + k4src
         need(hashlib.sha256(bytes(encoding)).hexdigest() == combined["kernel_source_sha256"])
@@ -2931,7 +3067,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
                         if s["owner"]["kind"]=="case":_need(len(old)==len(s["id_maps"]["members"]),state["gate"],"COVERAGE_MISMATCH")
             if a["proof"] is not None:
                 indices=[x["row_index"] for x in a["proof"]["projection_outcomes"]];case_rows=rows[c["basis_ref"]["ref_id"]]
-                _need(indices==sorted(set(indices)) and all(x<len(case_rows) and case_rows[int(x)]["kind"] not in HULL_EXCLUDED for x in indices),state["gate"],"COVERAGE_MISMATCH")
+                _need(indices==sorted(set(indices)) and all(x<len(case_rows) and _owner_projected(c,case_rows[int(x)],_resolve(body["sources"],a["source_ref"]),route) for x in indices),state["gate"],"COVERAGE_MISMATCH")
                 # I57 s4 G3: a complete proof-owned roster lists the attempt's source bodies
                 # exactly once, ascending 0..body_count-1. A null/invalid source reference is
                 # left to the G5 association pass.
@@ -2957,6 +3093,10 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             _need(len(selected)==int(c["status"]=="selected") and len(unavailable)==int(c["status"]=="unavailable") and all(d["affected_refs"]==[cid] for d in selected+unavailable),state["gate"],"DIAGNOSTIC_MISMATCH")
             if c["status"]=="unavailable":_need(unavailable[0]["id"]==c["diagnostic_ref"],state["gate"],"DIAGNOSTIC_MISMATCH")
             if c["status"]=="selected":_need(not any(d["code"]=="SOURCE_BLOCK_RECOVERY_UNAVAILABLE" and cid in d.get("affected_refs",[]) for d in diags),state["gate"],"DIAGNOSTIC_MISMATCH")
+            if c["status"]=="selected":
+                si=_integral(c.get("source_ref"))
+                member_case=si is not None and 0<=si<len(body["sources"]) and bool(body["sources"][si].get("member_load_terms"))
+                _need((selected[0]["message"]==SELECTED_MEMBER_LOAD_MESSAGE)==member_case,state["gate"],"DIAGNOSTIC_MISMATCH")
         for d in diags:
             # D7 (C1 G4 row; C1:147): every retained diagnostic names exactly one requested case.
             # REVISION_01 §4.1 #6: one case or one combination.

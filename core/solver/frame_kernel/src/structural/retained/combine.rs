@@ -51,6 +51,7 @@ pub enum CombinationReason {
     NoOperands,
     /// An operand is itself a combination.
     NestedCombination,
+    OperandMemberLoads,
     /// The operands differ in stiffness identity, published layout, stations
     /// or support groups.
     OperandsDiffer,
@@ -236,6 +237,9 @@ pub(crate) fn validate_preps(operands: &[(f64, &CasePrep)]) -> Result<(), Combin
     }
     if operands.iter().any(|o| !o.1.factors.is_empty()) {
         return Err(CombinationReason::NestedCombination);
+    }
+    if operands.iter().any(|o| o.1.has_member_loads()) {
+        return Err(CombinationReason::OperandMemberLoads);
     }
     let first = operands[0].1;
     let identity = first.source.stiffness_encoding();

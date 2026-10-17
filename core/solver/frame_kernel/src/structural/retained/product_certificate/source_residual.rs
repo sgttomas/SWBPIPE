@@ -107,7 +107,7 @@ pub(crate) struct ResidualWork {
     pub(crate) d_products: WorkTotal,
     pub(crate) h_products: WorkTotal,
     /// Actual vector capacities, recorded by owner. No total byte/profile claim.
-    pub(crate) capacities: [(&'static str, usize); 9],
+    pub(crate) capacities: [(&'static str, usize); 10],
     capacity_entries: usize,
     pub(crate) data_capacity: usize,
 }
@@ -137,7 +137,7 @@ impl ResidualWork {
             b_products: WorkTotal::zero(),
             d_products: WorkTotal::zero(),
             h_products: WorkTotal::zero(),
-            capacities: [("", 0); 9],
+            capacities: [("", 0); 10],
             capacity_entries: 0,
             data_capacity: 0,
         }
@@ -297,6 +297,7 @@ struct Member {
     d: [Enclosure; 4],
     dd: [Endpoint; 4],
     lower_length: Endpoint,
+    length: Enclosure,
 }
 fn coefficients(
     view: &SourceBridgeView<'_>,
@@ -419,6 +420,7 @@ fn frame(
             d: [ZERO; 4],
             dd: [Endpoint::ZERO; 4],
             lower_length,
+            length,
         },
         length,
     ))
@@ -668,6 +670,13 @@ fn residual_recorded(
                 out[a] = w.add(out[a], point(load.value)?)?;
             }
         }
+        let ledger = view.owner().prep.ledger().map_err(NumericError::from)?;
+        for term in &ledger.declared {
+            for at in 0..12 { w.visit()?; let (g,value) = term.node_entry(at);
+                let a = view.group().ordering.position[g];
+                if a != usize::MAX { out[a] = w.add(out[a],Enclosure::point(value))?; }
+            }
+        }
     } else {
         combination_free_loads(view, &mut out, w)?;
     }
@@ -705,7 +714,7 @@ fn combination_free_loads(
         }
         return Ok(());
     }
-    let ledger = &view.owner().prep.ledger;
+    let ledger = view.owner().prep.ledger().map_err(NumericError::from)?;
     for (a, &g) in view.group().ordering.free.iter().enumerate() {
         w.visit()?;
         if ledger.net(g).is_some_and(|net| !net.is_zero()) {
@@ -736,7 +745,7 @@ fn combination_reaction_loads(
         }
         return Ok(());
     }
-    let ledger = &view.owner().prep.ledger;
+    let ledger = view.owner().prep.ledger().map_err(NumericError::from)?;
     for (ci, c) in source.constraints().iter().enumerate() {
         w.visit()?;
         let g = c.dof.global();
@@ -803,6 +812,7 @@ pub(crate) struct ConditionalSourceResidual<'a> {
     pub(crate) view: SourceBridgeView<'a>,
     pub(crate) proposed_laws: &'a [ProposedMemberLaw<'a>],
     pub(crate) rows: Vec<Enclosure>,
+    pub(crate) curvatures: Vec<(u32, [Enclosure; 2])>,
     pub(crate) alpha: Vec<Endpoint>,
     pub(crate) epsilon: Vec<Endpoint>,
     #[cfg(all(test))]
@@ -835,6 +845,7 @@ pub(crate) struct LaneReadouts {
     anchor: std::sync::Arc<super::final_case::ProofAnchor>,
     law: ReadoutLaw,
     pub(crate) rows: Vec<Enclosure>,
+    pub(crate) curvatures: Vec<(u32, [Enclosure; 2])>,
     pub(crate) data: Vec<bool>,
     pub(crate) alpha: Vec<Endpoint>,
     pub(crate) epsilon: Vec<Endpoint>,
@@ -850,7 +861,7 @@ impl ResidualSpent<'_> {
                         if anchor.matches_owner(native.view.owner()){Ok(())}else{Err(Error::MemberOwner)}
                     });
                     checked.and_then(|()|self.work.visit()).map(|()|LaneReadouts {anchor:std::sync::Arc::clone(anchor),law:self.work.readout_law,
-                        rows:native.rows,data:native.view.into_data(),alpha:native.alpha,epsilon:native.epsilon})
+                        rows:native.rows,curvatures:native.curvatures,data:native.view.into_data(),alpha:native.alpha,epsilon:native.epsilon})
                 },
             },
         };
@@ -1048,11 +1059,12 @@ fn run<'a>(
     radius(&view, &alpha, &rho, &mut epsilon, delta, w)?;
     #[cfg(not(test))]
     drop(rho);
-    let rows = recover(&view, laws, &center, &epsilon, w)?;
+    let (rows, curvatures) = recover(&view, laws, &center, &epsilon, w)?;
     Ok(ConditionalSourceResidual {
         view,
         proposed_laws: laws,
         rows,
+        curvatures,
         alpha,
         epsilon,
         #[cfg(all(test))]
@@ -1266,7 +1278,7 @@ pub(crate) fn test_at_center(
     let rho = residual(&native.view, native.proposed_laws, center, None, &mut w)?;
     let mut epsilon = buffer(native.alpha.len(), Endpoint::ZERO)?;
     radius(&native.view, &native.alpha, &rho, &mut epsilon, None, &mut w)?;
-    let rows = recover(&native.view, native.proposed_laws, center, &epsilon, &mut w)?;
+    let (rows, _) = recover(&native.view, native.proposed_laws, center, &epsilon, &mut w)?;
     Ok((rho, epsilon, rows, w))
 }
 /// Test-only diagnosis of the contraction condition at the published center:
@@ -1387,7 +1399,7 @@ fn recover(
     center: &[Endpoint],
     epsilon: &[Endpoint],
     w: &mut ResidualWork,
-) -> Result<Vec<Enclosure>, Error> {
+) -> Result<(Vec<Enclosure>, Vec<(u32, [Enclosure; 2])>), Error> {
     let source = view.source();
     let n = source.dof_count();
     let q = view.owner().publish().rows.len();
@@ -1403,6 +1415,9 @@ fn recover(
     w.capacity("rows", rows.capacity())?;
     let mut reaction = buffer(source.constraints().len(), ZERO)?;
     w.capacity("reaction", reaction.capacity())?;
+    let ledger = view.owner().prep.ledger().map_err(NumericError::from)?;
+    let mut curvatures = if ledger.declared.iter().any(|l| l.active()) { Vec::with_capacity(laws.len()) } else { Vec::new() };
+    if !ledger.declared.is_empty() { w.capacity("member_load_curvatures", curvatures.capacity())?; }
     for (i, law) in laws.iter().enumerate() {
         w.visit()?;
         let m = member(view, law, i, w)?;
@@ -1412,8 +1427,26 @@ fn recover(
             x[j] = gather(view, center, Some(epsilon), globals[j], w)?;
         }
         let basic = apply(&m, &x, w)?;
-        let local = transpose(&m, &basic, true, w)?;
+        let mut local = transpose(&m, &basic, true, w)?;
         let global = transpose(&m, &basic, false, w)?;
+        let loads = if ledger.member_is_loaded(law.member.id) {
+            let mut wl = [ZERO; 3]; let mut wll = [ZERO; 3];
+            for (r, axis) in [m.ex, m.ey, m.ez].iter().enumerate() {
+                let mut v = ZERO;
+                for term in ledger.declared.iter().filter(|d| d.member == law.member.id) {
+                    for c in 0..3 { w.visit()?; let p = w.mul(axis[c], point(f64::from_bits(term.intensity_bits[c]))?)?; v = w.add(v,p)?; }
+                }
+                wl[r] = w.mul(v, m.length)?;
+                wll[r] = w.mul(wl[r], m.length)?;
+            }
+            let h = [w.div(wll[0],point(12.0)?)?,w.div(wll[1],point(12.0)?)?,w.div(wll[2],point(12.0)?)?];
+            for c in 0..3 { let half = shift_interval(wl[c],-1)?;
+                local[c] = w.sub(local[c],half)?; local[6+c] = w.sub(local[6+c],half)?; }
+            local[4] = w.add(local[4],h[2])?; local[10] = w.sub(local[10],h[2])?;
+            local[5] = w.sub(local[5],h[1])?; local[11] = w.add(local[11],h[1])?;
+            curvatures.push((law.member.id,[shift_interval(wll[2],-1)?,neg(shift_interval(wll[1],-1)?)]));
+            Some((wl,wll))
+        } else { None };
         for j in 0..12 {
             set(
                 view,
@@ -1442,13 +1475,17 @@ fn recover(
             let t = point(station.fraction)?;
             let tm1 = w.sub(t, ONE)?;
             for c in 0..6 {
-                let v = if c < 4 {
-                    local[6 + c]
-                } else {
-                    let a = w.mul(t, local[6 + c])?;
-                    let b = w.mul(tm1, local[c])?;
-                    w.add(a, b)?
-                };
+                let v = if let Some((wl,wll)) = loads {
+                    if station.fraction == 0.0 { neg(local[c]) }
+                    else if station.fraction == 1.0 { local[6+c] }
+                    else if c < 3 { let omt = w.sub(ONE,t)?; let p = w.mul(wl[c],omt)?; w.add(local[6+c],p)? }
+                    else if c == 3 { local[9] }
+                    else { let a = w.mul(t,local[6+c])?; let b = w.mul(tm1,local[c])?; let base = w.add(a,b)?;
+                        let omt = w.sub(ONE,t)?; let t1 = w.mul(t,omt)?;
+                        let q = shift_interval(wll[if c == 4 {2} else {1}],-1)?; let q = if c == 5 { neg(q) } else { q };
+                        let p = w.mul(q,t1)?; w.add(base,p)? }
+                } else if c < 4 { local[6+c] }
+                else { let a = w.mul(t,local[6+c])?; let b = w.mul(tm1,local[c])?; w.add(a,b)? };
                 set(
                     view,
                     &mut rows,
@@ -1516,6 +1553,13 @@ fn recover(
                 reaction[ci] = w.sub(reaction[ci], point(load.value)?)?;
             }
         }
+        for term in &ledger.declared {
+            for at in 0..12 { w.visit()?; let (g,value) = term.node_entry(at);
+                if let Ok(ci) = source.constraints().binary_search_by_key(&g, |c| c.dof.global()) {
+                    reaction[ci] = w.sub(reaction[ci],Enclosure::point(value))?;
+                }
+            }
+        }
     } else {
         combination_reaction_loads(view, &mut reaction, w)?;
     }
@@ -1566,5 +1610,5 @@ fn recover(
             w,
         )?;
     }
-    Ok(rows)
+    Ok((rows,curvatures))
 }

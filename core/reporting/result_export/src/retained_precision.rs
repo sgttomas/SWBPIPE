@@ -8,12 +8,12 @@ pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/preview-phy
 pub const PROFILE: &str = "product_preview_retained_w1a_v2";
 pub const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub const DEFINITION_HASH: &str =
-    "c4aebcef3ae3863f9576fb3a7e323e77a91687938f6605a83a2fdc958febb15f";
+    "688639f2578d7764b6aa88fb5e650c6c9421f01c328a7362d6dfe0d78acd65f7";
 pub const METHOD: &str = "contribution_preserving_multiprecision_v1";
 /// B2-C §3 and §8 (REVISION_02): DEF-C's id and H(`retained_precision_formation_v1`, DEF-C).
 pub const COMBINATION_DEFINITION_ID: &str = "RP-PREPARED-COMBINATION-DUAL-v1";
 pub const COMBINATION_DEFINITION_HASH: &str =
-    "34ce87e7ad6da457d81a5cbf25a077fb5d08f2960c5fd815e1163646de02d24a";
+    "75b9414df919fb4e181aa06030249289b70f0518023afbe241f72e31b8b60f31";
 /// B3b (B3-D §6 with REVISION_01): the exact successor `<physics-retained>`,
 /// read on its own route (`EXACT`), whose base is pressure-1 (B7b D4 (a)).
 pub const EXACT_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-retained-1";
@@ -501,6 +501,8 @@ fn encoding(v: &Value, s: &Value) -> VResult {
     }
     let valid = match text(&s["x-rp-encoding"]) {
         "uint" => uint(v).is_some(),
+        "safe_int" => v.as_f64().is_some_and(|n| n.is_finite() && n.fract()==0.0 && n.abs()<=SAFE as f64 && !(n==0.0 && n.is_sign_negative())),
+        "limb64" => v.as_str().is_some_and(|s| s.len()==16 && s.bytes().all(|b|b.is_ascii_digit()||(b'a'..=b'f').contains(&b))),
         "i32" => v.as_f64().is_some_and(|n| {
             n.fract() == 0.0
                 && n >= i32::MIN as f64
@@ -580,7 +582,7 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json");
-const TABLE_HASH: &str = "930535a544aedb3c6eb5dea60c59e617dd609f41c1386d9cf9c7c401b9c531f1";
+const TABLE_HASH: &str = "842a011601ea5049c6e89abbd73a24176966ca23c9a8cf9c89336341f608f3ad";
 /// The exact successor's table (XTABLE) and its inherited pressure-1 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
@@ -931,7 +933,7 @@ fn projection_matches_row(row: &Value, outcome: &Value) -> bool {
     };
     let stress_mpa = row["unit"] == "MPa" && matches!(text(&row["kind"]),
         "element_local_axial_normal_stress" | "element_local_bending_normal_stress_y"
-        | "element_local_bending_normal_stress_z" | "element_local_torsional_shear_stress");
+        | "element_local_bending_normal_stress_z" | "element_local_torsional_shear_stress" | "pipe_elastic_normal_stress_maximum_v2");
     let published = if stress_mpa { value / 1_000_000.0 } else { value };
     published.is_finite() && row["value"].as_f64().is_some_and(|v| {
         v.to_bits() == (if published == 0.0 { 0.0 } else { published }).to_bits()
@@ -1331,7 +1333,7 @@ fn g3_attempt_rows(source: &Value, a: &Value, owner: &Value, inventory_source: V
         fail(
             idx < rows.len() as u64
                 && prior.is_none_or(|p| idx > p)
-                && owner_projected(owner, rows[idx as usize]),
+                && owner_projected(owner, rows[idx as usize], inventory_source.as_ref().ok().copied(), !route(source).exact),
         )?;
         prior = Some(idx);
     }
@@ -1358,6 +1360,7 @@ fn g3_attempt_rows(source: &Value, a: &Value, owner: &Value, inventory_source: V
     }
     Ok(())
 }
+const SELECTED_MEMBER_LOAD_MESSAGE: &str = "Retained-precision recovery (contribution_preserving_multiprecision_v1) is selected for this load case. Its full-span uniform member loads are represented by declared equivalent nodal loads, each entry within 2^-1022 of its exact consistent value relative to that value; the certificate certifies that declared-load problem. Its published rows carry recovery_method; the retained_precision receipt binds their certified classes, the native attempts and work, and the ordinary-attempt evidence.";
 fn g4(source: &Value) -> VResult {
     let cs = list(&source["retained_precision"]["body"]["cases"]);
     let combos = list(&source["retained_precision"]["body"]["combinations"]);
@@ -1407,6 +1410,9 @@ fn g4(source: &Value) -> VResult {
             fail(unavailable[0]["id"] == c["diagnostic_ref"])?;
         }
         if c["status"] == "selected" {
+            let member_case = uint(&c["source_ref"]).and_then(|i| list(&source["retained_precision"]["body"]["sources"]).get(i as usize))
+                .is_some_and(|s| !list(&s["member_load_terms"]).is_empty());
+            fail((selected[0]["message"] == SELECTED_MEMBER_LOAD_MESSAGE) == member_case)?;
             fail(!ds.iter().any(|d| {
                 d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
                     && list(&d["affected_refs"]).contains(id)
@@ -2390,6 +2396,36 @@ fn terminal_of(stop: &Value) -> Option<Value> {
 #[doc(hidden)]
 pub mod reader_logic {
     use super::*;
+    /// Reader-owned D1–D5/K4LED only; grants no validation or standing.
+    pub fn native_source_digest(source:&Value)->Result<String,ValidationError> {
+        use sha2::{Digest,Sha256};
+        Ok(format!("{:x}",Sha256::digest(super::native_bytes(source,true)?)))
+    }
+    pub fn invocation_binding(source:&Value,invocation:&Value)->Result<(),ValidationError> {
+        super::g8(source,invocation,super::route(source))
+    }
+    pub const fn declared_layout_pairs() -> [(usize,usize);5] {
+        let [integer,dyadic,declared]=crate::declared_member_load::layout_pairs();
+        [integer,dyadic,declared,
+         (std::mem::size_of::<super::MemberExpected>(),std::mem::align_of::<super::MemberExpected>()),
+         (std::mem::size_of::<crate::declared_member_load::Recomputed>(),std::mem::align_of::<crate::declared_member_load::Recomputed>())]
+    }
+    pub const fn declared_layouts() -> [usize;5] {
+        let [integer,dyadic,declared]=crate::declared_member_load::layouts();
+        [integer,dyadic,declared,std::mem::size_of::<super::MemberExpected>(),std::mem::size_of::<crate::declared_member_load::Recomputed>()]
+    }
+    pub fn declared_problem(source: &Value) -> Result<(String, [bool;192]), ValidationError> {
+        let result = crate::declared_member_load::recompute(source).map_err(|_| error("G8", "PREPARATION_MISMATCH"))?;
+        Ok((result.digest, result.nonzero))
+    }
+    /// Complete new-domain source encoding/hash and member G8 staging path.
+    /// Its borrowed pre-existing G8 maps are covered by the existing G8 owner.
+    pub fn declared_workspace(source:&Value, case:&Value, pipes:&[Value], digest:&Value)->Result<(),ValidationError> {
+        use sha2::{Digest,Sha256};
+        for include_loads in [true,false] { let _=Sha256::digest(super::native_bytes(source,include_loads)?); }
+        super::verify_member_terms(source,case,pipes,Some(digest),false)
+    }
+
     /// The G5 schedule replay for one Run (checklist N1-N10).
     pub fn schedule(run: &Value) -> Result<(), ValidationError> {
         g5_schedule(run, None)
@@ -2844,6 +2880,7 @@ fn proof_checks(
 ) -> VResult {
     let st = &a["stages"];
     let proof = &a["proof"];
+    loaded_maximum_diagnostic(source,a,c)?;
     if proof.is_null() {
         pf(st["proof_start"] == "not_entered"
             && [
@@ -2938,7 +2975,7 @@ fn proof_checks(
         let projected: Vec<_> = rows
             .iter()
             .enumerate()
-            .filter(|(_, r)| owner_projected(c, r))
+            .filter(|(_, r)| owner_projected(c, r, uint(&a["source_ref"]).and_then(|i|list(&source["retained_precision"]["body"]["sources"]).get(i as usize)), !route(source).exact))
             .map(|(i, _)| i as u64)
             .collect();
         pf(outcomes.len() <= projected.len()
@@ -2957,7 +2994,7 @@ fn proof_checks(
             let expected: Vec<_> = rows
                 .iter()
                 .enumerate()
-                .filter(|(_, r)| owner_projected(c, r))
+                .filter(|(_, r)| owner_projected(c, r, uint(&a["source_ref"]).and_then(|i|list(&source["retained_precision"]["body"]["sources"]).get(i as usize)), !route(source).exact))
                 .map(|(i, _)| i as u64)
                 .collect();
             pf(outcomes.iter().map(|v| u(&v["row_index"])).eq(expected))?;
@@ -2970,6 +3007,41 @@ fn proof_checks(
         }
     }
     Ok(())
+}
+/// Compare normalized binary1024 endpoints by leading exponent then limbs;
+/// no exponent-dependent shift or heap integer can be requested by the wire.
+fn diagnostic_endpoint(v:&Value)->VResult<(i64,[u64;16])> {
+    let fail=|ok|need(ok,"G5","PRODUCT_ATTEMPT_MISMATCH");
+    let e=v["exponent"].as_f64().filter(|n|n.is_finite()&&n.fract()==0.0&&n.abs()<=SAFE as f64).ok_or_else(||error("G5","PRODUCT_ATTEMPT_MISMATCH"))? as i64;
+    let mut limbs=[0u64;16];fail(list(&v["limbs"]).len()==16)?;
+    for (to,from) in limbs.iter_mut().zip(list(&v["limbs"])) {
+        let word=text(from);fail(word.len()==16 && word.bytes().all(|b|b.is_ascii_digit()||(b'a'..=b'f').contains(&b)))?;
+        *to=u64::from_str_radix(word,16).map_err(|_|error("G5","PRODUCT_ATTEMPT_MISMATCH"))?;
+    }
+    let zero=limbs.iter().all(|&x|x==0);
+    fail(v["negative"]==false && if zero {e==0} else {limbs[15]>>63==1})?;
+    Ok((e,limbs))
+}
+fn loaded_maximum_diagnostic(document:&Value,a:&Value,owner:&Value)->VResult {
+    let fail=|ok|need(ok,"G5","PRODUCT_ATTEMPT_MISMATCH");
+    let failure=&a["result"]["error"];
+    let named=failure["kind"]=="proof" && failure["cause"]["kind"]=="association" && failure["cause"]["detail"]=="loaded maximum search exhausted";
+    let diagnostic=a["proof"].get("loaded_maximum_diagnostic");
+    fail(named==diagnostic.is_some())?;
+    let Some(d)=diagnostic else{return Ok(());};
+    fail(!route(document).exact && a["owner_ref"]["kind"]=="case" && owner["status"]=="unavailable" && a["result"]["kind"]=="unavailable"
+        && a["stages"]["proof_start"]=="completed" && a["stages"]["projection"]=="failed"
+        && ["maxima","values","aliases","certificate","observables","g5a"].iter().all(|k|a["stages"][*k]=="not_entered"))?;
+    let s=at(&document["retained_precision"]["body"]["sources"],&a["source_ref"],"G5","PRODUCT_ATTEMPT_MISMATCH")?;
+    let member=u(&d["member"]);fail(exact_active_member(s,member))?;
+    let rows=rows_for(document,owner);
+    let row=uint(&d["row"]).and_then(|i|rows.get(i as usize)).ok_or_else(||error("G5","PRODUCT_ATTEMPT_MISMATCH"))?;
+    fail(row["kind"]=="pipe_elastic_normal_stress_maximum_v2" && list(&s["id_maps"]["members"]).iter().any(|m|u(&m["kernel_member"])==member && m["id"]==row["entity_ref"]))?;
+    let next=rows.iter().enumerate().filter(|(_,r)|owner_projected(owner,r,Some(s),true)).nth(list(&a["proof"]["projection_outcomes"]).len()).map(|(i,_)|i as u64);
+    fail(next==uint(&d["row"]))?;
+    let (le,l)=diagnostic_endpoint(&d["lower"])?;let (ue,u)=diagnostic_endpoint(&d["upper"])?;
+    let lzero=l.iter().all(|&x|x==0);let uzero=u.iter().all(|&x|x==0);
+    fail(lzero || (!uzero && (le<ue || (le==ue && l.iter().rev().cmp(u.iter().rev())!=std::cmp::Ordering::Greater))))
 }
 /// B2-C §10.1 G5 products for one CombinationAttempt (CONTRACT §4; REVISION_01
 /// N-3 branch point 11 and N-9): owned by its entry, on its Run and its
@@ -3518,8 +3590,17 @@ fn row_kind(r: &Value) -> &'static str {
 /// The rows an owner's projection hull-projects: a combination's
 /// `displacement_magnitude` rows are formed in the projection's second pass
 /// (DEF-C r2 `rows.displacement_magnitude`; REVISION_02 §2.2), not hull-projected.
-fn owner_projected(owner: &Value, r: &Value) -> bool {
-    hull_projected(r)
+fn exact_active_member(s:&Value, member:u64)->bool {
+    s["owner"]["kind"] != "combination" && list(&s["member_load_terms"]).iter().any(|t|
+        uint(&t["member"])==Some(member) && list(&t["intensity"]).iter().any(|v|raw_bits(v).is_some_and(|b|b&0x7fff_ffff_ffff_ffff!=0)))
+}
+fn loaded_maximum_row(owner:&Value,r:&Value,s:Option<&Value>,route_l:bool)->bool {
+    route_l && owner["basis_ref"]["ref_type"]!="combination" && r["kind"]=="pipe_elastic_normal_stress_maximum_v2"
+        && s.is_some_and(|s|list(&s["id_maps"]["members"]).iter().any(|m|
+            m["id"]==r["entity_ref"] && exact_active_member(s,u(&m["kernel_member"]))))
+}
+fn owner_projected(owner: &Value, r: &Value, s:Option<&Value>,route_l:bool) -> bool {
+    (hull_projected(r) || loaded_maximum_row(owner,r,s,route_l))
         && !(owner["basis_ref"]["ref_type"] == "combination" && r["kind"] == "displacement_magnitude")
 }
 fn hull_projected(r: &Value) -> bool {
@@ -4027,6 +4108,9 @@ fn coverage_g5a(
         .iter()
         .map(|d| (u(&d["dof"]["node"]), text(&d["dof"]["component"])))
         .collect();
+    let member_data = if list(&source["member_load_terms"]).is_empty() { None } else {
+        Some(crate::declared_member_load::recompute(source).map_err(|_| error("G5a", "SCALE_MISMATCH"))?)
+    };
     for bi in 0..nb {
         let nodes: Vec<u64> = list(&source["body_membership"][bi]["nodes"])
             .iter()
@@ -4039,6 +4123,10 @@ fn coverage_g5a(
         if data_sources.iter().flat_map(|s| list(&s["nodal_terms"])).any(|t| {
             free(u(&t["dof"]["node"]), text(&t["dof"]["component"])) && f(&t["value"]) != 0.0
         }) {
+            fail(has_data[bi])?;
+        }
+        if member_data.as_ref().is_some_and(|data| nodes.iter().any(|&node| DOFS.iter().enumerate().any(|(d, name)|
+            free(node, name) && data.nonzero.get(node as usize * 6 + d) == Some(&true)))) {
             fail(has_data[bi])?;
         }
     }
@@ -4726,7 +4814,36 @@ fn preview_namespace(model: &Value) -> bool {
             !object.contains_key("pressure_contract") && !object.contains_key("shear_model"))
         && section_allowances(model, false)
 }
+/// Member-only admission before G8 clones/hashes any invocation or builds
+/// shared maps. Borrowed bounded traversal uses no JSON or index staging.
+fn guard_member_g8(source:&Value,inv:&Value)->VResult {
+    let model=&inv["request"]["model"];let cases=list(&model["load_cases"]);
+    let member=list(&source["retained_precision"]["body"]["sources"]).iter().any(|s|s.get("member_load_terms").is_some())
+        || cases.iter().any(|c|list(&c["primitive_loads"]).iter().any(|l|l["target"]["type"]=="element"));
+    if !member{return Ok(());}
+    let fail=|ok|need(ok,"G8","PREPARATION_MISMATCH");
+    let materials=if list(&inv["request"]["materials"]).is_empty(){list(&model["materials"])}else{list(&inv["request"]["materials"])};
+    fail(cases.len()<=3 && list(&model["nodes"]).len()<=32 && list(&model["pipe_segments"]).len()<=32
+        && list(&model["supports"]).len()<=32 && materials.len()<=4 && list(&model["combinations"]).len()<=2
+        && cases.len()+list(&model["combinations"]).len()<=3
+        && cases.iter().all(|c|list(&c["primitive_loads"]).len()<=128 && text(&c["id"]).len()<=1024)
+        && list(&model["pipe_segments"]).iter().all(|p|text(&p["id"]).len()<=1024))?;
+    fail(list(&model["supports"]).iter().map(|s|list(&s["restraints"]).len()).sum::<usize>()<=192
+        && materials.iter().all(|m|list(&m["temperature_points"]).len()<=16)
+        && list(&model["combinations"]).iter().all(|c|list(&c["terms"]).len()<=3 && list(&c["operand_ids"]).len()<=3))?;
+    fn bounded(v:&Value,depth:usize,t:&mut [usize;3])->bool {
+        if depth>18{return false;}t[0]+=1;if t[0]>16400{return false;}
+        match v {
+            Value::String(s)=>{t[1]=t[1].saturating_add(s.len());s.len()<=128 && t[1]<=67584},
+            Value::Array(a)=>a.iter().all(|v|bounded(v,depth+1,t)),
+            Value::Object(o)=>o.iter().all(|(k,v)|{t[2]=t[2].saturating_add(k.len());k.len()<=128&&t[2]<=67584&&bounded(v,depth+1,t)}),
+            _=>true,
+        }
+    }
+    fail(bounded(inv,0,&mut [0;3]))
+}
 fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
+    guard_member_g8(source,inv)?;
     let b = &source["retained_precision"]["body"];
     let fail = |ok| need(ok, "G8", "PREPARATION_MISMATCH");
     need(
@@ -5138,6 +5255,7 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
         }
         let mut terms = Vec::new();
         for (i, l) in list(&case["primitive_loads"]).iter().enumerate() {
+            if l["target"]["type"] == "element" { continue; }
             fail(
                 l["target"]["type"] == "node"
                     && l["category"] != "thermal"
@@ -5181,6 +5299,7 @@ fn g8(source: &Value, inv: &Value, route: &Route) -> VResult {
                 ))
         });
         fail(s["nodal_terms"] == json!(terms))?;
+        verify_member_terms(s, case, pipes, if b["cases"][ci]["status"] == "selected" { Some(&b["cases"][ci]["selection"]["ledger_sha256"]) } else { None }, route.exact)?;
         let body_of = |n: usize| -> VResult<usize> {
             bodies
                 .iter()
@@ -5433,6 +5552,12 @@ fn expression_matches(e: &Value, m: &Value) -> bool {
 fn g8_combinations(b: &Value, case_bases: &[usize]) -> VResult {
     use sha2::{Digest, Sha256};
     let fail = |ok| need(ok, "G8", "PREPARATION_MISMATCH");
+    for entry in list(&b["combinations"]) {
+        if entry["reason"]["cause"]["tag"] == "operand_member_loads" {
+            fail(mechanics_terms(entry).iter().any(|id| list(&b["sources"]).iter().any(|source|
+                source["owner"]["kind"] == "case" && source["owner"]["case_id"] == **id && !list(&source["member_load_terms"]).is_empty())))?;
+        }
+    }
     for s in list(&b["sources"])
         .iter()
         .filter(|s| s["owner"]["kind"] == "combination")
@@ -5447,6 +5572,7 @@ fn g8_combinations(b: &Value, case_bases: &[usize]) -> VResult {
         );
         for o in operands {
             let case_source = at(&b["sources"], &o["source_ref"], "G8", "PREPARATION_MISMATCH")?;
+            fail(list(&case_source["member_load_terms"]).is_empty())?;
             let k4src = native_bytes(case_source, true)?;
             k4cmb.extend(
                 raw_bits(&o["factor"])
@@ -5527,19 +5653,71 @@ fn verify_new_operational(op: &Value) -> VResult {
             == json!({"kind":"ready","length":bits(length),"axial_stiffness":bits(axial),"torsional_stiffness":bits(torsion),"normalization":normalization.map(bits)}),
     )
 }
+/// New-domain-only staging is scoped to this call. The original nodal term
+/// builder and the existing G8 maps/layout retain their prior owners.
+struct MemberExpected { ordinal:usize, member:usize, intensity:[u64;3] }
+fn verify_member_terms(s:&Value, case:&Value, pipes:&[Value], selected_digest:Option<&Value>, exact:bool)->VResult {
+    let fail=|ok| need(ok,"G8","PREPARATION_MISMATCH");
+    let authored=list(&case["primitive_loads"]);
+    if !authored.iter().any(|l|l["target"]["type"]=="element") {
+        return fail(s.get("member_load_terms").is_none());
+    }
+    fail(!exact && authored.len()<=128 && pipes.len()<=32 && text(&case["id"]).len()<=1024)?;
+    // Fixed records borrow authored identities; no member JSON/id cloning.
+    let mut expected=Vec::with_capacity(authored.len());
+    for (ordinal,l) in authored.iter().enumerate().filter(|(_,l)| l["target"]["type"]=="element") {
+        let member=pipes.iter().position(|p|p["id"]==l["target"]["pipe"]).ok_or_else(||error("G8","PREPARATION_MISMATCH"))?;
+        fail(text(&pipes[member]["id"]).len()<=1024 && text(&l["magnitude"]["unit"]).len()<=1024)?;
+        let generated=format!("load:self-weight:{}:{}:{}:{}",text(&case["id"]).len(),text(&case["id"]),text(&pipes[member]["id"]).len(),text(&pipes[member]["id"]));
+        fail(l["category"]=="distributed_force" && l["dimension"]=="force_per_length" && l.get("extent").is_none() && l["id"]!=generated)?;
+        let axis=match text(&l["direction"]) {"global_x"=>0,"global_y"=>1,"global_z"=>2,_=>return Err(error("G8","PREPARATION_MISMATCH"))};
+        let mut intensity=[0u64;3];intensity[axis]=unit_value(&l["magnitude"],Dimension::ForcePerLength)?.to_bits();
+        expected.push(MemberExpected{ordinal,member,intensity});
+    }
+    expected.sort_unstable_by(|a,z| (a.member,text(&authored[a.ordinal]["id"]).as_bytes(),a.intensity,a.ordinal)
+        .cmp(&(z.member,text(&authored[z.ordinal]["id"]).as_bytes(),z.intensity,z.ordinal)));
+    let emitted=list(&s["member_load_terms"]);
+    fail(emitted.len()==expected.len() && emitted.iter().zip(&expected).all(|(a,e)|
+        u(&a["constructor_ordinal"])==e.ordinal as u64 && u(&a["primitive_load_index"])==e.ordinal as u64
+        && a["source_id"]==authored[e.ordinal]["id"] && u(&a["member"])==e.member as u64
+        && list(&a["intensity"]).len()==3 && list(&a["intensity"]).iter().zip(e.intensity).all(|(v,b)|raw_bits(v)==Some(b))))?;
+    if let Some(digest)=selected_digest {
+        let computed=crate::declared_member_load::recompute(s).map_err(|_|error("G8","PREPARATION_MISMATCH"))?;
+        fail(*digest==computed.digest)?;
+    }
+    Ok(())
+}
 fn verify_native_source_hashes(s: &Value) -> VResult {
     use sha2::{Digest, Sha256};
     for (source, expected) in [(true, "kernel_source_sha256"), (false, "stiffness_sha256")] {
-        need(
-            s[expected] == format!("{:x}", Sha256::digest(native_bytes(s, source)?)),
-            "G8",
-            "PREPARATION_MISMATCH",
-        )?;
+        // Encoding and hash staging end before member G8 arithmetic starts.
+        let matches = {
+            let encoded = native_bytes(s, source)?;
+            let digest = Sha256::digest(&encoded);
+            s[expected] == format!("{:x}", digest)
+        };
+        need(matches, "G8", "PREPARATION_MISMATCH")?;
     }
     Ok(())
 }
 /// A CaseSource's native K4SRC (`source`) or K4STF bytes, rebuilt from its maps.
 fn native_bytes(s: &Value, source: bool) -> VResult<Vec<u8>> {
+    if source && s.get("member_load_terms").is_some() {
+        // Bound the complete new-domain encoding before any buffer grows.
+        // These are conservative supersets of D1 (text up to1024 bytes,
+        // nodal/member counts separately128); nodal-only behavior is untouched.
+        let fail=|ok|need(ok,"G8","PREPARATION_MISMATCH");
+        let maps=&s["id_maps"];
+        fail(list(&maps["nodes"]).len()<=32 && list(&maps["members"]).len()<=32
+            && list(&maps["springs"]).len()<=192 && list(&s["constraints"]).len()<=192
+            && list(&s["nodal_terms"]).len()<=128 && list(&s["stations"]).len()<=96
+            && list(&s["supports"]).len()<=32 && s["member_load_terms"].as_array().is_some_and(|v|!v.is_empty()&&v.len()<=128))?;
+        fail(list(&maps["nodes"]).iter().all(|n|list(&n["coordinates"]).len()==3)
+            && list(&maps["members"]).iter().all(|m|list(&m["y_reference"]).len()==3)
+            && list(&s["supports"]).iter().all(|g|list(&g["restrained"]).len()==6 && list(&g["springs"]).len()<=192)
+            && list(&s["nodal_terms"]).iter().chain(list(&s["member_load_terms"])).all(|t|text(&t["source_id"]).len()<=1024)
+            && list(&s["member_load_terms"]).iter().all(|t|list(&t["intensity"]).len()==3))?;
+    }
     fn put(out: &mut Vec<u8>, n: u64) -> VResult {
         let n = u32::try_from(n).map_err(|_| error("G8", "PREPARATION_MISMATCH"))?;
         out.extend(n.to_le_bytes());
@@ -5627,6 +5805,17 @@ fn native_bytes(s: &Value, source: bool) -> VResult<Vec<u8>> {
                     put(&mut out, u(sp))?;
                 }
                 put(&mut out, 0)?;
+            }
+            let members = list(&s["member_load_terms"]);
+            if !members.is_empty() {
+                put(&mut out, members.len() as u64)?;
+                for term in members {
+                    put(&mut out, u(&term["member"]))?;
+                    for value in list(&term["intensity"]) { val(&mut out, value)?; }
+                    let id = text(&term["source_id"]);
+                    put(&mut out, id.len() as u64)?;
+                    out.extend(id.as_bytes());
+                }
             }
         }
         Ok(out)
@@ -7432,4 +7621,130 @@ mod t4_u6_g8_tests {
             }
         }
     }
+}
+
+#[cfg(test)]
+mod w1_member_reader_gate_tests {
+    use super::*;
+    fn fixture()->(Value,Value,Vec<Value>) {
+        let source=json!({"id_maps":{"nodes":[{"coordinates":(["0000000000000000";3])},{"coordinates":["4000000000000000","0000000000000000","0000000000000000"]}],"members":[{"node_i":0,"node_j":1}]},"nodal_terms":[],"member_load_terms":[{"constructor_ordinal":0,"primitive_load_index":0,"source_id":"l","member":0,"intensity":["0000000000000000","4008000000000000","0000000000000000"]}]});
+        let case=json!({"id":"c","primitive_loads":[{"id":"l","target":{"type":"element","pipe":"p"},"category":"distributed_force","dimension":"force_per_length","direction":"global_y","magnitude":{"value":3,"unit":"N/m"}}]});
+        (source,case,vec![json!({"id":"p"})])
+    }
+    #[test]
+    fn selected_member_case_binds_invocation_declared_problem_and_k4led() {
+        let (source,case,pipes)=fixture();
+        let digest=json!("5708a650839d856692fd6b9f50a2f43b66445a4886304becf9d1b1b21cc6e57e");
+        verify_member_terms(&source,&case,&pipes,Some(&digest),false).unwrap();
+        let error=verify_member_terms(&source,&case,&pipes,Some(&json!("0".repeat(64))),false).unwrap_err();
+        assert_eq!((error.gate,error.code.as_str()),("G8","RETAINED_PRECISION_PREPARATION_MISMATCH"));
+        let mut wrong_case=case.clone();wrong_case["primitive_loads"][0]["magnitude"]["value"]=json!(-3);
+        assert!(verify_member_terms(&source,&wrong_case,&pipes,Some(&digest),false).is_err());
+        for mutant in ["duplicate","omit","order","ordinal","intensity"] {
+            let mut altered=source.clone();
+            match mutant {
+                "duplicate"=>{let t=altered["member_load_terms"][0].clone();altered["member_load_terms"].as_array_mut().unwrap().push(t);}
+                "omit"=>{altered.as_object_mut().unwrap().remove("member_load_terms");}
+                "order"|"ordinal"=>altered["member_load_terms"][0]["constructor_ordinal"]=json!(1),
+                _=>altered["member_load_terms"][0]["intensity"][0]=json!("3ff0000000000000"),
+            }
+            assert!(verify_member_terms(&altered,&case,&pipes,Some(&digest),false).is_err(),"{mutant}");
+        }
+    }
+    #[test]
+    fn member_gates_keep_exact_route_extent_and_generated_load_declines() {
+        let (source,case,pipes)=fixture();
+        assert!(verify_member_terms(&source,&case,&pipes,None,true).is_err());
+        let mut partial=case.clone();partial["primitive_loads"][0]["extent"]=json!([0,1]);
+        assert!(verify_member_terms(&source,&partial,&pipes,None,false).is_err());
+        let mut generated=case.clone();generated["primitive_loads"][0]["id"]=json!("load:self-weight:1:c:1:p");
+        assert!(verify_member_terms(&source,&generated,&pipes,None,false).is_err());
+    }
+    #[test]
+    fn operand_member_loads_reason_requires_an_actual_operand_even_if_zero() {
+        let (mut source,_,_)=fixture();source["owner"]=json!({"kind":"case","case_id":"c"});
+        source["member_load_terms"][0]["intensity"]=json!((["0000000000000000";3]));
+        let mut body=json!({"sources":[source],"product_attempts":[],"combinations":[{"disposition":"retained_unavailable","expression":{"kind":"mechanics","terms":[{"case_id":"c"}]},"reason":{"cause":{"space":"combination","tag":"operand_member_loads"}}}]});
+        g8_combinations(&body,&[]).unwrap();
+        body["sources"][0].as_object_mut().unwrap().remove("member_load_terms");
+        assert!(g8_combinations(&body,&[]).is_err());
+    }
+    #[test]
+    fn selected_member_disclosure_is_required_exactly_on_member_cases() {
+        let (source,_,_)=fixture();
+        let mut document=json!({"retained_precision":{"body":{"sources":[source],"cases":[{"basis_ref":{"ref_id":"c"},"status":"selected","source_ref":0}],"combinations":[]}},"diagnostics":[{"id":"d","affected_refs":["c"],"code":"RETAINED_PRECISION_SELECTED","message":SELECTED_MEMBER_LOAD_MESSAGE}]});
+        g4(&document).unwrap();
+        document["diagnostics"][0]["message"]=json!("ordinary selected message");assert!(g4(&document).is_err());
+        document["retained_precision"]["body"]["sources"][0].as_object_mut().unwrap().remove("member_load_terms");g4(&document).unwrap();
+        document["diagnostics"][0]["message"]=json!(SELECTED_MEMBER_LOAD_MESSAGE);assert!(g4(&document).is_err());
+    }
+    #[test]
+    fn loaded_maximum_projection_is_source_aware_and_publishes_si_stress() {
+        let (mut s,_,_)=fixture();s["id_maps"]["members"][0]["id"]=json!("p");s["id_maps"]["members"][0]["kernel_member"]=json!(0);
+        let owner=json!({"basis_ref":{"ref_type":"load_case","ref_id":"c"}});
+        let row=json!({"kind":"pipe_elastic_normal_stress_maximum_v2","entity_ref":"p","unit":"MPa","value":2.0});
+        assert!(owner_projected(&owner,&row,Some(&s),true));
+        assert!(projection_matches_row(&row,&json!({"kind":"normal","value":bits(2_000_000.)})));
+        let opposite=s["member_load_terms"][0].clone();s["member_load_terms"].as_array_mut().unwrap().push(opposite);
+        s["member_load_terms"][1]["intensity"][1]=json!("c008000000000000");
+        assert!(owner_projected(&owner,&row,Some(&s),true));
+        assert!(!owner_projected(&owner,&row,Some(&s),false));
+        let combination=json!({"basis_ref":{"ref_type":"combination","ref_id":"c"}});
+        assert!(!owner_projected(&combination,&row,Some(&s),true));
+        for load in s["member_load_terms"].as_array_mut().unwrap(){load["intensity"]=json!(["8000000000000000","0000000000000000","0000000000000000"]);}
+        assert!(!owner_projected(&owner,&row,Some(&s),true));
+        assert!(!owner_projected(&owner,&row,None,true));
+    }
+    fn exhausted_fixture()->(Value,Value,Value) {
+        let (mut s,_,_)=fixture();s["owner"]=json!({"kind":"case"});s["id_maps"]["members"][0]["id"]=json!("p");s["id_maps"]["members"][0]["kernel_member"]=json!(0);
+        let owner=json!({"basis_ref":{"ref_type":"load_case","ref_id":"c"},"status":"unavailable"});
+        let mut upper=json!({"negative":false,"exponent":0,"limbs":vec!["0000000000000000";16]});upper["limbs"][15]=json!("8000000000000000");
+        let lower=json!({"negative":false,"exponent":0,"limbs":vec!["0000000000000000";16]});
+        let a=json!({"source_ref":0,"owner_ref":{"kind":"case"},"stages":{"proof_start":"completed","projection":"failed","maxima":"not_entered","values":"not_entered","aliases":"not_entered","certificate":"not_entered","observables":"not_entered","g5a":"not_entered"},"result":{"kind":"unavailable","error":{"kind":"proof","cause":{"kind":"association","detail":"loaded maximum search exhausted"}}},"proof":{"loaded_maximum_diagnostic":{"row":0,"member":0,"lower":lower,"upper":upper}}});
+        let doc=json!({"producer":{"semantic_contract_id":CONTRACT_ID},"retained_precision":{"body":{"sources":[s]}},"results":[{"basis_ref":owner["basis_ref"],"entity_ref":"p","kind":"pipe_elastic_normal_stress_maximum_v2","unit":"MPa","value":1.0}]});
+        (doc,a,owner)
+    }
+    #[test]
+    fn exhausted_loaded_maximum_diagnostic_is_required_and_associated() {
+        let (doc,a,owner)=exhausted_fixture();loaded_maximum_diagnostic(&doc,&a,&owner).unwrap();
+        for fault in ["missing","cause","ready","member","row","later","route","nodal","combination"] {
+            let(mut d,mut b)=(doc.clone(),a.clone());
+            match fault {
+                "missing"=>{b["proof"].as_object_mut().unwrap().remove("loaded_maximum_diagnostic");},
+                "cause"=>b["result"]["error"]["cause"]["detail"]=json!("other failure"),
+                "ready"=>b["result"]["kind"]=json!("ready"),
+                "member"=>b["proof"]["loaded_maximum_diagnostic"]["member"]=json!(1),
+                "row"=>b["proof"]["loaded_maximum_diagnostic"]["row"]=json!(1),
+                "later"=>b["stages"]["maxima"]=json!("completed"),
+                "route"=>d["producer"]["semantic_contract_id"]=json!(EXACT_CONTRACT_ID),
+                "nodal"=>{d["retained_precision"]["body"]["sources"][0].as_object_mut().unwrap().remove("member_load_terms");},
+                _=>b["owner_ref"]["kind"]=json!("combination"),
+            }
+            assert!(loaded_maximum_diagnostic(&d,&b,&owner).is_err(),"{fault}");
+        }
+    }
+    #[test]
+    fn diagnostic_endpoint_encoding_and_canonical_order_are_separate_gates() {
+        let (doc,a,owner)=exhausted_fixture();let original=a["proof"]["loaded_maximum_diagnostic"]["upper"].clone();
+        let spec=&schema()["$defs"]["LoadedMaximumEndpoint"];
+        for value in [json!(0.5),json!(9_007_199_254_740_992u64),json!(-0.0)] {
+            let mut v=original.clone();v["exponent"]=value;assert!(encoding(&v,spec).is_err());
+        }
+        for word in ["abcdef","FFFFFFFFFFFFFFFF","000000000000000g"] {
+            let mut v=original.clone();v["limbs"][0]=json!(word);assert!(encoding(&v,spec).is_err());
+        }
+        for fault in ["negative","zero_exp","unnormalized","reversed"] {
+            let mut b=a.clone();let d=&mut b["proof"]["loaded_maximum_diagnostic"];
+            match fault {
+                "negative"=>d["lower"]["negative"]=json!(true),
+                "zero_exp"=>d["lower"]["exponent"]=json!(1),
+                "unnormalized"=>d["upper"]["limbs"][15]=json!("4000000000000000"),
+                _=>{d["lower"]=original.clone();d["lower"]["exponent"]=json!(1);},
+            }
+            assert!(loaded_maximum_diagnostic(&doc,&b,&owner).is_err(),"{fault}");
+        }
+        let mut b=a.clone();b["proof"]["loaded_maximum_diagnostic"]["upper"]["exponent"]=json!(SAFE);
+        loaded_maximum_diagnostic(&doc,&b,&owner).unwrap(); // comparison is bounded even at safe-integer extremes
+    }
+
 }

@@ -363,7 +363,11 @@ fn canonical_encodings_equal_the_generators_independent_bytes() {
                     .zip(&sources)
                     .map(|((factor, _), s)| (*factor, s))
                     .collect();
-                RetainedLedger::combined(&operands).unwrap().encoding()
+                {
+                    let preps:Vec<_>=operands.iter().map(|(c,s)|(*c,super::super::adaptive::CasePrep::new((*s).clone()).unwrap())).collect();
+                    let preps:Vec<_>=preps.iter().map(|(c,p)|(*c,p)).collect();
+                    RetainedLedger::combined(&preps).unwrap().encoding()
+                }
             }
             other => panic!("{other}"),
         };

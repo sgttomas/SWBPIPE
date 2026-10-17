@@ -8,7 +8,7 @@ export type ReaderInput = { key: string; build: () => Promise<{ source: Json; in
 
 const PROJECT_ROOT = resolve(__dirname, "../../../../");
 const readJson = (path: string): Json => JSON.parse(readFileSync(resolve(PROJECT_ROOT, path), "utf8"));
-const DEF_O = "c4aebcef3ae3863f9576fb3a7e323e77a91687938f6605a83a2fdc958febb15f";
+const DEF_O = "688639f2578d7764b6aa88fb5e650c6c9421f01c328a7362d6dfe0d78acd65f7";
 /** DEF-E's H, as result_export's `retained_precision::EXACT_DEFINITION_HASH` (re-based on
  * pressure-1 by a43583c625, B7b D4 (a); T4-U6's DEF-E states zero mill tolerance and lists the
  * reduced-basis rows); the rehash mirrors that constant, it states no result. */

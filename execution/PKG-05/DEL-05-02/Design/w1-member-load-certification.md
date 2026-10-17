@@ -244,7 +244,7 @@ R7's law, the gate, the stop rule, the classification thresholds and the case an
 
 f_eq is formed locally from the member's axes and w, not by rotating the declared global value. The stations need w_local and L anyway. All inputs at p are p-bit or binary64. Rotating the 1024-bit declared value would put spurious terms of about 2⁻¹⁰²² into the torsion rows. Before numerical stiffness/recovery error, the discrepancy between declared and consistent nodal loading is bounded by section 2.4's sum of per-entry absolute errors; it is not a relative bound on a cancelled net. Published finite-p end actions also have recovery error, bounded separately by R7 and the lanes. No 2⁻¹⁰²² total equilibrium-error claim is made for those published actions.
 
-`MemberOperators` gains `length`, which `form_member` already computes (assemble.rs 305) and discards. This is a priced layout change: 8 B per member.
+`MemberOperators` gains `length`, which `form_member` already computes (assemble.rs 305) and discards. This is a `Wide<L>` field, 144 B at 1024 bits; the former 8 B design estimate was incorrect. Actual-source D3 must use each in-build operator stride, including this field, rather than that estimate.
 
 Per loaded member, with the existing local quantities Q and `inv` = 1/L:
 - w_loc[r] = RN_p(Σ_ℓ Σ_c ax[r][c]·w_ℓ,c)

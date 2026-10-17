@@ -116,15 +116,12 @@ fn b7a_selector_cases_bind_their_own_basis_custody() {
     }
 }
 
-/// B7a (b), stage 1: a case with a full-span uniform member load (T18's shape) is admitted; its
-/// capture builds no source, so it never refuses the invocation, and its attempt ends at
-/// preparation with the named cause while the nodal case freezes. With the member load on case 0
-/// the order is reversed. A member load on the exact route, a rotational or non-force_per_length
-/// element load, and a self-weight id stay outside D1 (the law tests pin each fact).
+/// Stage 2: authored full-span uniform loads keep per-case custody and use
+/// member-aware native formation while the adjacent nodal case stays unchanged.
 #[test]
-fn b7a_member_load_case_is_unavailable_by_its_named_cause() {
+fn w1_member_load_cases_form_and_freeze_in_both_case_orders() {
     let udl = |case: &str| json!({"id": format!("{case}:udl"), "category": "distributed_force", "target": {"type": "element", "pipe": "pipe"},
-        "direction": "global_y", "magnitude": {"value": 10.0, "unit": "N/m"}, "dimension": "force_per_length", "provenance": INVENTED});
+        "direction": "global_x", "magnitude": {"value": 10.0, "unit": "N/m"}, "dimension": "force_per_length", "provenance": INVENTED});
     for loaded in [1usize, 0] {
         let mut raw = two_torque_cases([None, None]);
         let id = raw["model"]["load_cases"][loaded]["id"].as_str().unwrap().to_owned();
@@ -133,14 +130,14 @@ fn b7a_member_load_case_is_unavailable_by_its_named_cause() {
             let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
             assert_eq!(retained_memory::assess(&capture, &request, retained_memory::Entry::Direct, DOMAIN_ONLY).law().domain, None);
             let (_, observer, _) = early_observed(&raw, mode, true);
-            assert!(observer.error.is_none() && observer.basis_error.is_none());
+            assert!(observer.error.is_none() && observer.basis_error.is_none(), "{:?}", observer.error);
             for case in 0..2 {
                 assert_eq!(observer.member_loads_basis_at(case).0, case == loaded, "case {case}");
-                assert_eq!(observer.source_terminal_at(case).0, case != loaded, "case {case}: only the nodal case has a source");
+                assert!(observer.source_terminal_at(case).0, "case {case}: nodal and member cases have a source");
+                assert_eq!(observer.member_source_at(case).is_some(), case==loaded);
             }
             let ends = stepped(&raw, mode, &|_| {});
-            assert_eq!(ends[1 - loaded], "Frozen", "loaded {loaded} {mode:?}");
-            assert_eq!(ends[loaded], format!("Preparation(Some(Association({:?})))", rp::MEMBER_LOAD_CAUSE), "loaded {loaded} {mode:?}");
+            assert_eq!(ends, ["Frozen", "Frozen"], "loaded {loaded} {mode:?}");
         }
     }
     // The early hook of a selector case is required: a named case whose basis-state capture never
@@ -239,26 +236,111 @@ fn b7a_three_cases_capture_and_serialize_their_own_bases() {
     }
 }
 
-/// B7a (b), stage 1 (review F3 d): a member-load case's late hook re-observes only that the
-/// actual application still carries its member loads, and that the case holds no source. The
-/// case's own application passes; one without the member load, or the case holding a source,
-/// refuses by the member-load coverage cause.
+/// Late re-observation binds the member sidecar's actual authored occurrence,
+/// including bits, target and count, before any preparation or publication.
 #[test]
-fn b7a_member_load_case_late_hook_re_observes_its_member_loads() {
+fn w1_member_load_late_hook_reobserves_exact_occurrences() {
     let mut raw = two_torque_cases([None, None]);
     raw["model"]["load_cases"][1]["primitive_loads"].as_array_mut().unwrap().push(json!({"id": "case-b:udl", "category": "distributed_force",
         "target": {"type": "element", "pipe": "pipe"}, "direction": "global_y", "magnitude": {"value": 10.0, "unit": "N/m"},
         "dimension": "force_per_length", "provenance": INVENTED}));
     let mut without = raw.clone();
     without["model"]["load_cases"][1]["primitive_loads"].as_array_mut().unwrap().pop();
-    let coverage = Err("early member-load case coverage".to_owned());
+    let mut changed=raw.clone();
+    changed["model"]["load_cases"][1]["primitive_loads"].as_array_mut().unwrap().last_mut().unwrap()["magnitude"]["value"]=json!(11.0);
     for mode in MODES {
         let (_, mut observer, _) = early_observed(&raw, mode, true);
-        assert_eq!(observer.member_loads_basis_at(1).0, true, "{mode:?}: case 1 is the capture's current case");
-        assert_eq!(observer.test_recheck_occurrences(&raw, 1).map_err(|e| e.to_string()), Ok(()), "{mode:?}");
-        assert_eq!(observer.test_recheck_occurrences(&without, 1).map_err(|e| e.to_string()), coverage, "{mode:?}: member load gone");
-        observer.source = observer.with_case(0, |c| c.source.take());
-        assert!(observer.source.is_some(), "{mode:?}: case 0's source");
-        assert_eq!(observer.test_recheck_occurrences(&raw, 1).map_err(|e| e.to_string()), coverage, "{mode:?}: a source");
+        assert!(observer.member_loads_basis_at(1).0);
+        assert!(observer.test_recheck_occurrences(&raw,1).is_ok());
+        assert!(observer.test_recheck_occurrences(&without,1).is_err());
+        assert_eq!(observer.test_recheck_occurrences(&changed,1).map_err(|e|e.to_string()),Err("early member occurrence identity/bits".to_owned()));
+        observer.member_sources.as_mut().unwrap().clear();
+        assert_eq!(observer.test_recheck_occurrences(&raw,1).map_err(|e|e.to_string()),Err("early member-load case coverage".to_owned()));
+    }
+}
+
+/// Maintained real product writer: capture -> preparation -> native solve ->
+/// corrected recovery/certificate -> serialized successor -> full native reader.
+/// Optional output is evidence for the Python and desktop wasm consumers.
+#[test]
+fn w1_member_load_product_consuming_successor() {
+    use crate::retained_tests_hooks as hooks;
+    let mut raw=two_torque_cases([None,Some("P1")]);
+    for (case,axis,value) in [(0,"global_x",10.0),(1,"global_x",-7.0)] {
+        let id=raw["model"]["load_cases"][case]["id"].as_str().unwrap().to_owned();
+        raw["model"]["load_cases"][case]["primitive_loads"].as_array_mut().unwrap().push(json!({
+            "id":format!("{id}:udl"),"category":"distributed_force","target":{"type":"element","pipe":"pipe"},
+            "direction":axis,"magnitude":{"value":value,"unit":"N/m"},"dimension":"force_per_length","provenance":INVENTED}));
+    }
+    for mode in MODES {
+        let (capture,observer,mut ordinary)=early_observed(&raw,mode,true);
+        ordinary.diagnostics.shrink_to_fit();
+        let ((_,retained),_,precommit)=hooks::counted_with_successor(||retained_w1(observer,ordinary,&capture));
+        if let (Some(dir),Some(candidate))=(std::env::var_os("I61_U1_OUT"),precommit.as_ref()) {
+            let name=format!("w1_member_load_{}",mode.as_str());
+            let document=json!({"id":name,"source":candidate,"invocation":{"request":raw,"solver_mode":mode.as_str()}});
+            std::fs::write(std::path::Path::new(&dir).join(format!("{name}.json")),serde_json::to_string_pretty(&document).unwrap()+"\n").unwrap();
+        }
+        let successor=retained.unwrap_or_else(|fallback|panic!("{mode:?}: {fallback:?}")).value().clone();
+        assert_eq!(precommit.as_ref(),Some(&successor));
+        let invocation=json!({"request":raw,"solver_mode":mode.as_str()});
+        let verdict=reader::validate(&successor,Some(&invocation)).unwrap_or_else(|e|panic!("{mode:?}: {e:?}"));
+        assert!(verdict.invocation_bound && verdict.numerical_eligible);
+        let b=&successor["retained_precision"]["body"];
+        for case in 0..2 {
+            assert_eq!(b["cases"][case]["status"],"selected");
+            let source=b["sources"].as_array().unwrap().iter().find(|s|s["owner"]["case_index"]==case).unwrap();
+            assert_eq!(source["member_load_terms"].as_array().unwrap().len(),1);
+        }
+        assert_eq!(successor["diagnostics"].as_array().unwrap().iter().filter(|d|d["code"]==super::retained_wire::SELECTED_CODE
+            && d["message"]==super::retained_wire::SELECTED_MEMBER_LOAD_MESSAGE).count(),2);
+        if let Some(dir)=std::env::var_os("I61_U1_OUT") {
+            let name=format!("w1_member_load_{}",mode.as_str());
+            let document=json!({"id":name,"source":successor,"invocation":invocation});
+            std::fs::write(std::path::Path::new(&dir).join(format!("{name}.json")),serde_json::to_string_pretty(&document).unwrap()+"\n").unwrap();
+        }
+    }
+}
+
+/// A real transverse case whose readout uncertainty prevents the search's
+/// tighter stopping enclosure. Exhaustion publishes no retained rows for that
+/// case; its exact diagnostic and all spent arithmetic survive beside a
+/// successfully retained nodal case.
+#[test]
+fn w1_member_load_exhaustion_retains_typed_interval_work() {
+    use crate::retained_tests_hooks as hooks;
+    let mut raw=two_torque_cases([None,None]);
+    raw["model"]["load_cases"][1]["primitive_loads"].as_array_mut().unwrap().push(json!({
+        "id":"case-b:udl","category":"distributed_force","target":{"type":"element","pipe":"pipe"},
+        "direction":"global_y","magnitude":{"value":10.0,"unit":"N/m"},"dimension":"force_per_length","provenance":INVENTED}));
+    for mode in MODES {
+        let (capture,observer,mut ordinary)=early_observed(&raw,mode,true);
+        ordinary.diagnostics.shrink_to_fit();
+        let ((_,retained),_,precommit)=hooks::counted_with_successor(||retained_w1(observer,ordinary,&capture));
+        if let (Some(dir),Some(candidate))=(std::env::var_os("I61_U1_OUT"),precommit.as_ref()) {
+            let name=format!("w1_member_exhaustion_{}",mode.as_str());
+            let document=json!({"id":name,"source":candidate,"invocation":{"request":raw,"solver_mode":mode.as_str()}});
+            std::fs::write(std::path::Path::new(&dir).join(format!("{name}.json")),serde_json::to_string_pretty(&document).unwrap()+"\n").unwrap();
+        }
+        let successor=retained.unwrap_or_else(|fallback|panic!("{mode:?}: {fallback:?}")).value().clone();
+        let invocation=json!({"request":raw,"solver_mode":mode.as_str()});
+        let verdict=reader::validate(&successor,Some(&invocation)).unwrap_or_else(|e|panic!("{mode:?}: {e:?}"));
+        assert!(verdict.invocation_bound);
+        assert!(!verdict.numerical_eligible,"the unavailable case keeps invocation-wide eligibility withheld");
+        let b=&successor["retained_precision"]["body"];
+        assert_eq!(b["cases"][0]["status"],"selected");
+        assert_eq!(b["cases"][1]["status"],"unavailable");
+        let attempt=&b["product_attempts"][1];
+        assert_eq!(attempt["stages"]["projection"],"failed");
+        for stage in ["maxima","values","aliases","certificate","observables","g5a"] {
+            assert_eq!(attempt["stages"][stage],"not_entered");
+        }
+        assert!(attempt["proof"]["loaded_maximum_diagnostic"].is_object());
+        assert_eq!(attempt["proof"]["numeric"]["wide_lme"]["kind"],"exact");
+        assert!(attempt["proof"]["numeric"]["wide_lme"]["value"].as_u64().unwrap()>0);
+        let unavailable_rows:Vec<_>=successor["results"].as_array().unwrap().iter()
+            .filter(|r|r["basis_ref"]["ref_type"]=="load_case" && r["basis_ref"]["ref_id"]=="case-b").collect();
+        assert!(!unavailable_rows.is_empty());
+        assert!(unavailable_rows.iter().all(|r|r.get("recovery_method").is_none()));
     }
 }

@@ -38,9 +38,22 @@ pub(super) struct BasisCustody {
     pub record: Option<BasisRecord>,
     pub record_calls: usize,
 }
-/// B7a (b) Widen domain, stage 1: the named cause of a case with full-span uniform member loads
-/// (its attempt ends at preparation; the W1 member-load certification unit is a follow-on).
-pub(super) const MEMBER_LOAD_CAUSE: &str = "source family: full-span uniform member loads await the W1 member-load certification unit";
+/// Member-only occurrence custody. The reserved nodal source/slot layouts stay unchanged.
+pub(super) struct MemberTermIdentity {
+    pub original: usize,
+    pub occurrence: usize,
+    pub canonical: usize,
+    pub id: String,
+    pub member: u32,
+    pub axis: u8,
+    pub bits: u64,
+}
+pub(super) struct MemberCaseSource {
+    pub case_index: usize,
+    pub case_id: String,
+    pub terms: Vec<MemberTermIdentity>,
+    pub loads: k::MemberLoadSet,
+}
 #[derive(Debug)]
 pub(super) struct TermIdentity {
     pub original: usize,
@@ -167,10 +180,11 @@ pub(super) struct ProductCapture {
     pub basis_expected: bool,
     /// Per case: the index in `bases` of the case's own basis custody (`None` for a base case).
     pub basis: Option<usize>,
-    /// Per case (B7a (b), stage 1): the case carries full-span uniform member loads, which wait
-    /// for the W1 member-load certification unit. Its source is not captured, its attempt ends at
-    /// preparation with `MEMBER_LOAD_CAUSE`, and its own capture never refuses the invocation.
+    /// Per-case presence binds invocation-owned member custody; this priced Boolean stays in place.
     pub member_loads: bool,
+    /// Member-only owners, outside per_case_capture!, CaseSlot and EarlyCaseSource.
+    /// A wholly nodal invocation allocates neither this vector nor any sidecar.
+    pub member_sources: Option<Vec<MemberCaseSource>>,
     pub members: Vec<MemberIdentity>,
     pub terms: Vec<TermIdentity>,
     pub supports: Vec<(String, usize)>,
@@ -440,6 +454,58 @@ impl ProductCapture {
             std::cmp::Ordering::Equal => self.source.as_ref(),
             std::cmp::Ordering::Greater => None,
         }
+    }
+    fn prepared_operand_source(&self,index:usize,site:&'static str)->Result<k::PreparedCaseSource,CombinationCustody> {
+        let source=self.case_prepared_source(index).ok_or(CombinationCustody(site))?;
+        let member=self.member_source_at(index);
+        if self.case_has_member_loads(index)!=member.is_some(){return Err(CombinationCustody("operand member coverage"));}
+        if let Some(member)=member {
+            let id=if index==self.parked.len(){&self.case_id}else{&self.parked[index].case_id};
+            if member.case_id!=*id{return Err(CombinationCustody("operand member association"));}
+            let view=k::MemberSourceRef::new(source,&member.loads).map_err(|_|CombinationCustody("operand member source"))?;
+            k::PreparedCaseSource::new_member(view).map_err(|_|CombinationCustody(site))
+        } else {k::PreparedCaseSource::new(source.clone()).map_err(|_|CombinationCustody(site))}
+    }
+    pub(super) fn member_source_at(&self,index:usize)->Option<&MemberCaseSource> {
+        self.member_sources.as_ref()?.iter().find(|source|source.case_index==index)
+    }
+    fn case_has_member_loads(&self,index:usize)->bool {
+        self.assert_not_lent(index);
+        match index.cmp(&self.parked.len()) {
+            std::cmp::Ordering::Less=>self.parked[index].member_loads,
+            std::cmp::Ordering::Equal=>self.member_loads,
+            std::cmp::Ordering::Greater=>false,
+        }
+    }
+    fn active_member_source(&self)->Option<&MemberCaseSource> {
+        self.member_sources.as_ref()?.iter().find(|source|source.case_id==self.case_id)
+    }
+    fn store_member_source(&mut self,model:&PreviewModel,case:&PreviewLoadCase,source:&k::PrimitiveSource,
+        loads:Vec<k::UniformMemberLoad>,mut terms:Vec<MemberTermIdentity>)->Result<(),CaptureError> {
+        let case_index=model.load_cases.iter().position(|c|self.adapter.same(&c.id,&case.id))
+            .ok_or("member case association")?;
+        if self.member_source_at(case_index).is_some(){return Err("duplicate member case association".into());}
+        self.capture_entry(AdapterEvent::LibraryBoundary)?;
+        let loads=k::MemberLoadSet::new(source,loads).map_err(|_|CaptureError::Association("member load source validation".into()))?;
+        let mut used=self.adapter.reserve(terms.len())?;used.resize(terms.len(),false);
+        for (canonical,load) in loads.loads().iter().enumerate() {
+            self.capture_entry(AdapterEvent::SourceVisit)?;
+            let index=terms.iter().enumerate().position(|(i,term)|!used[i] && term.member==load.member
+                && self.adapter.same(&term.id,&load.source_id)
+                && load.intensity.iter().enumerate().all(|(axis,value)|value.to_bits()==if axis==term.axis as usize{term.bits}else{0}))
+                .ok_or("canonical member term map")?;
+            self.adapter.enter(AdapterEvent::MapWrite,2);self.adapter.require()?;
+            used[index]=true;terms[index].canonical=canonical;
+        }
+        let case_id=self.adapter.copy(&case.id)?;
+        if self.member_sources.is_none() {
+            let sources=self.adapter.reserve(model.load_cases.len())?;
+            self.capture_entry(AdapterEvent::MapWrite)?;self.member_sources=Some(sources);
+        }
+        self.adapter.enter(AdapterEvent::MapWrite,2);self.adapter.require()?;
+        self.member_sources.as_mut().ok_or("member source storage")?.push(MemberCaseSource{case_index,case_id,terms,loads});
+        self.member_loads=true;
+        Ok(())
     }
     /// B1 SP (T-9, T-11): request case `index`'s scope of the envelope. One requested case owns
     /// every row and the one evidence case (`CaseScope::WHOLE`, the one-case scope); with
@@ -1780,57 +1846,10 @@ impl ProductCapture {
     fn capture_case_source(&mut self, model:&PreviewModel, built:&BuiltModel,
         materials:&[MaterialInput], case:&PreviewLoadCase, restrained:&[usize],
         springs:&[SpringEntry], application:&LoadApplication, thermal:&[ThermalElementLoad]) {
-        // B7a (b) Widen domain, stage 1: full-span uniform member loads on the preview route mark
-        // the case instead of refusing the invocation (DEF-O's nodal source family is unchanged).
-        if self.route == W1Route::Preview && !application.element_uniform_loads.is_empty()
-            && application.imposed_displacements.is_empty() {
-            self.capture_member_load_case(model,built,case,thermal);
-            return;
-        }
-        let unsupported=!application.element_uniform_loads.is_empty() || !application.imposed_displacements.is_empty();
+        let unsupported=(self.route == W1Route::Exact && !application.element_uniform_loads.is_empty())
+            || !application.imposed_displacements.is_empty();
         let Some(parts)=self.capture_case_structure(model,built,materials,case,restrained,springs,thermal,unsupported) else {return;};
         self.capture_case_nodal_terms(model,case,application,parts);
-    }
-    /// B7a (b) Widen domain, stage 1: a case with full-span uniform member loads. Its capture keeps
-    /// `capture_case_structure`'s scope checks and binds the case's own basis, then marks the case
-    /// (`member_loads`) and builds no source: its attempt ends at preparation with
-    /// `MEMBER_LOAD_CAUSE` until the W1 member-load certification unit.
-    fn capture_member_load_case(&mut self, model:&PreviewModel, built:&BuiltModel, case:&PreviewLoadCase,
-        thermal:&[ThermalElementLoad]) {
-        if self.error.is_some() {
-            return;
-        }
-        let Some(entries)=self.source_capture_entries.checked_add(1) else {self.fail_count("source capture entries");return;};
-        if let Err(e)=self.capture_entry(AdapterEvent::MapWrite) {self.error=Some(e);return;}
-        self.source_capture_entries=entries;
-        if self.case_calls != 1 || (model.load_cases.len() != 1 && !self.prepared_probe) {
-            self.fail("private witness has exactly one actual case");
-            return;
-        }
-        if let Err(e) = self.basis_source_case(case) {
-            self.error = Some(e);
-            return;
-        }
-        if !built.nonlinear_supports.is_empty() || !built.connectors.is_empty() || !built.curved_bend_elements.is_empty()
-            || !thermal.is_empty() || case.equivalent_static.is_some()
-            || case.pressure_regions.as_ref().is_some_and(|v| !v.is_empty())
-            || model.supports.iter().any(|s| s.hanger.is_some())
-        {
-            self.fail("unsupported producer present");
-            return;
-        }
-        match self.adapter.copy(&case.id) {
-            Ok(id) => self.case_id = id,
-            Err(e) => {
-                self.error = Some(e);
-                return;
-            }
-        }
-        if let Err(e) = self.capture_entry(AdapterEvent::MapWrite) {
-            self.error = Some(e);
-            return;
-        }
-        self.member_loads = true;
     }
     fn capture_case_structure(&mut self, model:&PreviewModel, built:&BuiltModel,
         materials:&[MaterialInput], case:&PreviewLoadCase, restrained:&[usize],
@@ -2112,9 +2131,15 @@ impl ProductCapture {
     }
     fn capture_case_nodal_terms(&mut self, model:&PreviewModel, case:&PreviewLoadCase,
         application:&LoadApplication, mut parts:k::SourceParts) {
+        let mut member_terms = Vec::new();
+        let mut member_loads = Vec::new();
         if let Err(error) = (|| -> Result<(), CaptureError> {
             parts.loads = self.adapter.reserve(application.nodal_loads.len())?;
             self.terms = self.adapter.reserve(application.nodal_loads.len())?;
+            if !application.element_uniform_loads.is_empty() {
+                member_terms = self.adapter.reserve(application.element_uniform_loads.len())?;
+                member_loads = self.adapter.reserve(application.element_uniform_loads.len())?;
+            }
             Ok(())
         })() { self.error=Some(error); return; }
         let mut used = match self.adapter.reserve(case.primitive_loads.len()) {
@@ -2160,6 +2185,35 @@ impl ProductCapture {
                 value: l.value,
                 source_id: l.load_id.clone(),
             });
+        }
+        // Both families consume one shared authored-occurrence tracker.
+        for (occurrence, load) in application.element_uniform_loads.iter().enumerate() {
+            if let Err(error) = (|| -> Result<(), CaptureError> {
+                self.capture_entry(AdapterEvent::SourceVisit)?;
+                self.capture_entry(AdapterEvent::ValidationEntry)?;
+                let axis=load.direction.dof_index();
+                if self.route!=W1Route::Preview || axis>=3 || load.extent.is_some()
+                    || load.magnitude.dimension!=LoadDimension::ForcePerLength {
+                    return Err("member load occurrence not authored".into());
+                }
+                let pipe=model.pipe_segments.get(load.element_index).ok_or("member load occurrence not authored")?;
+                let original=case.primitive_loads.iter().enumerate().position(|(i,p)| !used[i]
+                    && self.adapter.same(&p.id,&load.load_id)
+                    && p.category=="distributed_force" && p.dimension=="force_per_length"
+                    && p.magnitude.value.to_bits()==load.magnitude.value.to_bits()
+                    && matches!(&p.target,LoadTargetInput::Element{pipe:id} if id==&pipe.id)
+                    && parse_direction(&p.direction).is_ok_and(|d|d.dof_index()==axis))
+                    .ok_or("member load occurrence not authored")?;
+                let member=u32::try_from(load.element_index).map_err(|_|CaptureError::CountRange("member load index"))?;
+                let id=self.adapter.copy(&load.load_id)?;
+                let source_id=self.adapter.copy(&load.load_id)?;
+                let mut intensity=[0.0;3];intensity[axis]=load.magnitude.value;
+                self.adapter.enter(AdapterEvent::MapWrite,3);self.adapter.require()?;
+                used[original]=true;
+                member_terms.push(MemberTermIdentity{original,occurrence,canonical:usize::MAX,id,member,axis:axis as u8,bits:load.magnitude.value.to_bits()});
+                member_loads.push(k::UniformMemberLoad{member,intensity,source_id});
+                Ok(())
+            })() {self.error=Some(error);return;}
         }
         if used.iter().any(|u| !*u) {
             self.fail("unconsumed authored primitive");
@@ -2207,6 +2261,11 @@ impl ProductCapture {
                     self.error = Some(e);
                     return;
                 }
+                if !member_loads.is_empty() {
+                    if let Err(error)=self.store_member_source(model,case,&source,member_loads,member_terms) {
+                        self.error=Some(error);return;
+                    }
+                }
                 self.source = Some(source);
             }
             Err(e) => self.error = Some(CaptureError::Source(e)),
@@ -2250,9 +2309,9 @@ impl ProductCapture {
             // B1 SP (T-2): every case seen, parked or not, completed its own late hook.
             // B7a (b), stage 1: a member-load case has no source, and nothing else.
             if self.prepared_late_calls!=1 || !self.prepared_source_permit
-                || !self.prepared_one_case_seen || self.source_capture_entries!=1 || self.source.is_none()==!self.member_loads
+                || !self.prepared_one_case_seen || self.source_capture_entries!=1 || self.source.is_none()
                 || self.parked.iter().any(|slot|slot.prepared_late_calls!=1 || !slot.prepared_source_permit
-                    || !slot.prepared_one_case_seen || slot.source_capture_entries!=1 || slot.source.is_none()==!slot.member_loads) {
+                    || !slot.prepared_one_case_seen || slot.source_capture_entries!=1 || slot.source.is_none()) {
                 self.fail("missing successful prepared late source hook");return;
             }
             let bound=if self.parked.is_empty() {self.bind_observations(envelope)} else {self.bind_observations_by_case(envelope)};
@@ -4119,10 +4178,7 @@ impl ProductCapture {
         let loads=super::build_load_case_primitive_loads(model,case,&mut findings);
         let application=prepare_loads(built.nodes.len(),built.pipes.len(),&loads);
         self.case_calls=1; // one validated input capture; never an ordinary-attempt seed
-        // B7a (b), stage 1: a member-load case builds no source, so only a nodal-only case's
-        // leaves are bound to the captured invocation here.
-        let nodal_only=case.primitive_loads.iter().all(|load|matches!(load.target,LoadTargetInput::Node{..}));
-        if let Err(error)=if nodal_only {self.check_captured_nodal_leaves(model,case,index,invocation)} else {Ok(())} {
+        if let Err(error)=self.check_captured_nodal_leaves(model,case,index,invocation) {
             self.error=Some(error);
         } else if has_blocking(&findings) || !application.findings.is_empty() {
             self.fail("early source load validation");
@@ -4258,9 +4314,16 @@ impl ProductCapture {
         if leaves.len()!=case.primitive_loads.len() {return Err("early captured occurrence coverage".into());}
         for (ordinal,(raw,load)) in leaves.iter().zip(&case.primitive_loads).enumerate() {
             self.capture_entry(AdapterEvent::ValidationEntry)?;
-            let node=match &load.target {LoadTargetInput::Node{node}=>node,_=>return Err("early captured nodal target".into())};
+            let target_matches=match &load.target {
+                LoadTargetInput::Node{node}=>raw["target"]["type"]=="node" && raw["target"]["node"]==*node,
+                LoadTargetInput::Element{pipe}=>self.route==W1Route::Preview
+                    && raw["target"]["type"]=="element" && raw["target"]["pipe"]==*pipe
+                    && load.category=="distributed_force" && load.dimension=="force_per_length"
+                    && matches!(load.direction.as_str(),"global_x"|"global_y"|"global_z")
+                    && raw.get("extent").is_none(),
+            };
             if raw["id"]!=load.id || raw["category"]!=load.category || raw["direction"]!=load.direction
-                || raw["dimension"]!=load.dimension || raw["target"]["type"]!="node" || raw["target"]["node"]!=*node
+                || raw["dimension"]!=load.dimension || !target_matches
                 || model.load_cases[index].primitive_loads[ordinal].id!=load.id {
                 return Err("early captured nodal occurrence identity".into());
             }
@@ -4290,21 +4353,29 @@ impl ProductCapture {
     }
     fn check_early_occurrences(&self,case:&PreviewLoadCase,application:&LoadApplication)->Result<(),CaptureError> {
         self.adapter.require()?;
-        // B7a (b), stage 1: a member-load case built no source; its late hook re-observes only
-        // that the actual application still carries its member loads.
-        if self.member_loads {
-            if self.source.is_some() || application.element_uniform_loads.is_empty() {
-                return Err("early member-load case coverage".into());
-            }
-            return Ok(());
-        }
+        let member=self.active_member_source();
+        if self.member_loads!=member.is_some(){return Err("early member-load case coverage".into());}
+        let member_count=member.map_or(0,|source|source.terms.len());
         if self.source.is_none() || self.terms.len()!=application.nodal_loads.len()
-            || self.terms.len()!=case.primitive_loads.len() {return Err("early source occurrence coverage".into());}
+            || member_count!=application.element_uniform_loads.len()
+            || self.terms.len().checked_add(member_count)!=Some(case.primitive_loads.len()) {return Err("early source occurrence coverage".into());}
         for term in &self.terms {
             self.capture_entry(AdapterEvent::ValidationEntry)?;
             let load=application.nodal_loads.get(term.occurrence).ok_or("early source occurrence")?;
             if term.id!=load.load_id || term.bits!=load.value.to_bits() || term.dof!=load.global_dof {
                 return Err("early source occurrence identity/bits".into());
+            }
+        }
+        if let Some(member)=member {
+            if member.case_id!=case.id {return Err("early member case association".into());}
+            for term in &member.terms {
+                self.capture_entry(AdapterEvent::ValidationEntry)?;
+                let load=application.element_uniform_loads.get(term.occurrence).ok_or("early member occurrence")?;
+                if term.id!=load.load_id || term.bits!=load.magnitude.value.to_bits()
+                    || term.member as usize!=load.element_index || term.axis as usize!=load.direction.dof_index()
+                    || load.extent.is_some() || load.magnitude.dimension!=LoadDimension::ForcePerLength {
+                    return Err("early member occurrence identity/bits".into());
+                }
             }
         }
         Ok(())
@@ -5153,9 +5224,7 @@ impl ProductCapture {
         #[cfg(test)] let faulted=crate::retained_tests_hooks::before_case_preparation(self,request);
         let mut parts=AttemptParts::default();
         let mut trace=trace::PreparedTrace::default();trace.enter(trace::Stage::Preparation);
-        // B7a (b), stage 1: a member-load case ends at preparation by its named cause.
-        let active=if self.member_loads {Err(CaptureError::Association(MEMBER_LOAD_CAUSE.into()))}
-            else {self.prepare_active_case(&mut trace,&mut parts)};
+        let active=self.prepare_active_case(&mut trace,&mut parts);
         let (prepared,end)=match active {
             Ok(())=>(true,AttemptEnd::Prepared),
             Err(e)=>{trace.fail_entered();self.error=Some(e);trace.freeze(self);(false,AttemptEnd::Preparation)}
@@ -5187,7 +5256,23 @@ impl ProductCapture {
         let limit=k::CaseLimit::new(20_000_000_000);
         let cap=k::OriginCapacity::for_invocation(&[count],operands,prepared).map_err(CaptureError::Origin)?;
         let mut invocation=k::RecordedInvocation::new(60_000_000_000,cap).map_err(CaptureError::Origin)?;
-        let cases=match (submitted().next(),count) {
+        let member_aware=submitted().any(|request|self.case_has_member_loads(request) || self.member_source_at(request).is_some());
+        let cases=if member_aware {
+            let mut views=self.adapter.reserve::<k::MemberSourceRef<'_>>(count)?;
+            for request in submitted() {
+                let source=self.case_prepared_source(request).ok_or("prepared source")?;
+                let member=self.member_source_at(request);
+                if self.case_has_member_loads(request)!=member.is_some(){return Err("submitted member case coverage".into());}
+                let view=if let Some(member)=member {
+                    let id=if request==self.parked.len(){&self.case_id}else{&self.parked[request].case_id};
+                    if member.case_id!=*id {return Err("submitted member case association".into());}
+                    self.capture_entry(AdapterEvent::LibraryBoundary)?;
+                    k::MemberSourceRef::new(source,&member.loads).map_err(|_|CaptureError::Association("submitted member source validation".into()))?
+                } else {k::MemberSourceRef::nodal(source)};
+                self.capture_entry(AdapterEvent::MapWrite)?;views.push(view);
+            }
+            invocation.solve_member_cases(&views,limit).map_err(CaptureError::Origin)?
+        } else {match (submitted().next(),count) {
             (Some(only),1)=>{
                 let source=self.case_prepared_source(only).ok_or("prepared source")?;
                 invocation.solve_cases(std::slice::from_ref(source),limit).map_err(CaptureError::Origin)?
@@ -5207,7 +5292,7 @@ impl ProductCapture {
                 }
                 solved?
             }
-        };
+        }};
         if cases.len()!=count {
             return Err("native case count".into());
         }
@@ -5367,6 +5452,23 @@ impl ProductCapture {
         #[cfg(test)] if self.trace_fault==Some(trace::TraceFault::SourceConstruction){parts.members[0].area=0.0;}
         let new=k::PrimitiveSource::new(parts).map_err(CaptureError::Source)?;
         self.check_support_source(&new)?;
+        if self.member_loads {
+            let count=self.active_member_source().ok_or("prepared member case association")?.loads.loads().len();
+            let mut loads=prepared_reserve(&self.adapter,&mut self.prepared_capacity_bytes,15,count)?;
+            // Borrow only the invocation sidecar here; no new owner is placed in an old case slot.
+            let index=self.member_sources.as_ref().and_then(|sources|sources.iter().position(|source|source.case_id==self.case_id))
+                .ok_or("prepared member case association")?;
+            let source=&self.member_sources.as_ref().ok_or("prepared member source")?[index];
+            for load in source.loads.loads() {
+                let source_id=prepared_string(&self.adapter,&mut self.prepared_capacity_bytes,&load.source_id)?;
+                self.capture_entry(AdapterEvent::MapWrite)?;
+                loads.push(k::UniformMemberLoad{member:load.member,intensity:load.intensity,source_id});
+            }
+            self.capture_entry(AdapterEvent::LibraryBoundary)?;
+            let loads=k::MemberLoadSet::new(&new,loads).map_err(|_|CaptureError::Association("prepared member source validation".into()))?;
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            self.member_sources.as_mut().ok_or("prepared member source")?[index].loads=loads;
+        }
         self.capture_entry(AdapterEvent::MapWrite)?;
         self.source=Some(new);trace.costs.record::<bool>();trace.source_ready=true;
         trace.completed(trace::Stage::Preparation);
@@ -5585,6 +5687,29 @@ impl ProductCapture {
         for (i,r) in rows.iter().enumerate() {self.capture_entry(AdapterEvent::RowVisit)?;if r.recipe==recipe{return Ok(i);}}
         Err("prepared row identity".into())
     }
+    fn prepared_member_local_loads(&self,pipe:&StraightPipeElement,member:u32,owner:&k::RetainedSolve)
+        ->Result<Vec<SpannedUniformLocalLoad>,CaptureError> {
+        let sidecar=self.active_member_source().ok_or("maximum member source association")?;
+        let count=owner.member_loads().iter().filter(|load|load.member==member).count();
+        let mut inputs=self.adapter.reserve(count)?;
+        for (canonical,load) in owner.member_loads().iter().enumerate().filter(|(_,load)|load.member==member) {
+            self.capture_entry(AdapterEvent::SourceVisit)?;
+            let term=sidecar.terms.iter().find(|term|term.canonical==canonical).ok_or("maximum member occurrence")?;
+            if term.member!=member || term.axis>=3 || term.id!=load.source_id
+                || load.intensity.iter().enumerate().any(|(axis,value)|value.to_bits()!=if axis==term.axis as usize{term.bits}else{0}) {
+                return Err("maximum member occurrence identity".into());
+            }
+            let load_id=self.adapter.copy(&load.source_id)?;
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            inputs.push(open_pipe_stress_primitive_loads::ElementUniformLoadContribution{
+                load_id,element_index:member as usize,
+                direction:[LoadDirection::GlobalX,LoadDirection::GlobalY,LoadDirection::GlobalZ][term.axis as usize],
+                magnitude:open_pipe_stress_primitive_loads::LoadQuantity{value:load.intensity[term.axis as usize],dimension:LoadDimension::ForcePerLength},
+                extent:None});
+        }
+        self.capture_entry(AdapterEvent::LibraryBoundary)?;
+        straight_local_uniform_loads(pipe,member as usize,&inputs).map_err(|_|CaptureError::Association("maximum member local loads".into()))
+    }
     #[allow(clippy::too_many_arguments)]
     fn prepared_maxima(&self,e:&MechanicsEnvelope,scope:&CaseScope,owner:&k::RetainedSolve,rows:&[k::ProductFinalRow<'_>],
         values:&mut k::ProductValuesBuilder,work:&mut ScalarWork)->Result<(Vec<PreparedMaximumPatch>,Vec<k::ProductMaximumValue>),CaptureError> {
@@ -5634,17 +5759,27 @@ impl ProductCapture {
                 torsion_constant:f.torsion_constant,section_modulus:f.section_modulus,torsion_radius:f.radius,
                 wall_thickness:f.effective_wall};
             self.capture_entry(AdapterEvent::LibraryBoundary)?;
-            let maximum=exact_straight_summary_extrema(&pipe,&ends,&[],&section,None).map_err(CaptureError::Association)?;
-            let gap=work.op(ScalarOperation::Sub,maximum.value_upper,maximum.value_lower).map_err(CaptureError::PreparedArithmetic)?;
-            let half=work.op(ScalarOperation::Mul,0.5,gap).map_err(CaptureError::PreparedArithmetic)?;
-            let value=work.op(ScalarOperation::Add,maximum.value_lower,half).map_err(CaptureError::PreparedArithmetic)?;
+            let loaded=owner.member_is_loaded(m.id);
+            let loads=if loaded{self.prepared_member_local_loads(&pipe,m.id,owner)?}else{Vec::new()};
+            let maximum=exact_straight_summary_extrema(&pipe,&ends,&loads,&section,None).map_err(CaptureError::Association)?;
+            let (lower,upper,global_upper,gap,value)=if loaded {
+                let evidence=values.reconcile_loaded_maximum(row,m.id,maximum.value_lower,maximum.upper_bound).map_err(CaptureError::PreparedProof)?;
+                (evidence.lower(),evidence.upper(),evidence.upper(),evidence.gap(),evidence.value())
+            } else {
+                let gap=work.op(ScalarOperation::Sub,maximum.value_upper,maximum.value_lower).map_err(CaptureError::PreparedArithmetic)?;
+                let half=work.op(ScalarOperation::Mul,0.5,gap).map_err(CaptureError::PreparedArithmetic)?;
+                let value=work.op(ScalarOperation::Add,maximum.value_lower,half).map_err(CaptureError::PreparedArithmetic)?;
+                (maximum.value_lower,maximum.value_upper,maximum.upper_bound,maximum.certified_gap,value)
+            };
             let n=|v:f64|{self.capture_entry(AdapterEvent::MapWrite)?;serde_json::Number::from_f64(v).ok_or_else(||CaptureError::Association("maximum number range".into()))};
             let nu=|v:u64|->Result<serde_json::Number,CaptureError>{self.capture_entry(AdapterEvent::MapWrite)?;Ok(serde_json::Number::from(v))};
             let numbers=[n(maximum.station)?,nu(u64::try_from(maximum.span_index).map_err(|_|CaptureError::CountRange("maximum span index"))?)?,n(maximum.local_fraction)?,
-                n(maximum.value_lower)?,n(maximum.value_upper)?,n(maximum.upper_bound)?,n(maximum.certified_gap)?,
+                n(lower)?,n(upper)?,n(global_upper)?,n(gap)?,
                 nu(u64::try_from(maximum.subdivisions).map_err(|_|CaptureError::CountRange("maximum subdivisions"))?)?];
-            let output=k::ProductMaximumValue::new(m.id,row,value).map_err(CaptureError::PreparedProof)?;
-            self.capture_entry(AdapterEvent::MapWrite)?;outputs.push(output);
+            if !loaded {
+                let output=k::ProductMaximumValue::new(m.id,row,value).map_err(CaptureError::PreparedProof)?;
+                self.capture_entry(AdapterEvent::MapWrite)?;outputs.push(output);
+            }
             let reduced=if exact {
                 let mut reduced=None;
                 for (i,x) in extrema.iter().enumerate() {
@@ -5763,7 +5898,10 @@ impl ProductCapture {
             #[cfg(test)] let maxima_input=if self.trace_fault==Some(trace::TraceFault::ValuesCompletion){&maxima[..0]}else{&maxima[..]};
             #[cfg(not(test))] let maxima_input=&maxima[..];
             let (values,value_work)=match builder.complete_maxima(maxima_input).into_ready() {
-                Ok(v)=>v,Err(failure)=>return Err(PreparedCandidateError::Values{failure,proof:projected.abandon()})};
+                Ok(v)=>v,Err(mut failure)=>{
+                    let proof=match failure.take_work(){Some(work)=>projected.abandon_values(work),None=>projected.abandon()};
+                    return Err(PreparedCandidateError::Values{failure,proof});
+                }};
             trace.completed(trace::Stage::Values);trace.enter(trace::Stage::Aliases);
             let displacement=match self.prepared_alias(scope.route,ProductCaseView::of(ordinary,scope).case_rows(),&values,"displacement_magnitude",None) {
                 Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(value_work)})};
@@ -6279,8 +6417,7 @@ impl PreparedCases {
                         let prepared = match self.rebuilt.iter().position(|(owner, _)| *owner == case) {
                             Some(prepared) => prepared,
                             None => {
-                                let primitive = self.capture.case_prepared_source(case).ok_or(CombinationCustody("rebuild source"))?.clone();
-                                let rebuilt = k::PreparedCaseSource::new(primitive).map_err(|_| CombinationCustody("rebuild"))?;
+                                let rebuilt = self.capture.prepared_operand_source(case,"rebuild")?;
                                 self.rebuilt.push((case, rebuilt));
                                 self.rebuilt.len() - 1
                             }
@@ -6316,8 +6453,7 @@ impl PreparedCases {
             let id = self.operand_preparations.len();
             let mut preparation = self.capture.with_case(owner, |capture| capture.prepare_operand(id, owner, requested_by));
             if preparation.trace.source_ready {
-                let primitive = self.capture.case_prepared_source(owner).ok_or(CombinationCustody("operand source"))?.clone();
-                let prepared = k::PreparedCaseSource::new(primitive).map_err(|_| CombinationCustody("operand prep"))?;
+                let prepared = self.capture.prepared_operand_source(owner,"operand prep")?;
                 preparation.source = Some(invocation.register_prepared_source(&prepared).map_err(|_| CombinationCustody("registration"))?);
                 preparation.prepared = Some(prepared);
             }

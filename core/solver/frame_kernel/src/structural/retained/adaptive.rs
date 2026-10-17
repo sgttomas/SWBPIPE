@@ -40,7 +40,7 @@ use super::origins::{BatchRecording, OriginSlot, RunPhase, RunTrace, SlotSnapsho
 use super::recover::{
     layout, publish_value, recover, state_encoding, Kind, QuantityId, QuantityMeta, Recovered,
 };
-use super::source::{put_u32, put_u64, Dof, PrimitiveSource};
+use super::source::{put_u32, put_u64, Dof, PrimitiveSource, MemberSourceRef, MemberLoadSet, UniformMemberLoad};
 use super::verify::{
     build_verify_shared, e_hat, phi_512, verify_state, VerificationReport, VerifyShared,
 };
@@ -917,6 +917,8 @@ pub(crate) struct CasePrep {
     /// stiffness identity, layout and extents are its operands' own).
     pub(crate) source: PrimitiveSource,
     pub(crate) ledger: RetainedLedger,
+    pub(crate) member_loads: Option<MemberLoadSet>,
+    pub(crate) formed_ledger: std::sync::OnceLock<RetainedLedger>,
     /// Per constrained global DOF (ascending), the exact terms c·v of its
     /// value: [(1, v)] for a case, [(cᵢ, vᵢ)] for a combination. At p the
     /// value is their exact sum rounded once.
@@ -956,6 +958,9 @@ impl PreparedCaseSource {
     pub fn new(source: PrimitiveSource) -> Result<Self, LedgerRefusal> {
         Ok(Self { prep: Arc::new(CasePrep::new(source)?) })
     }
+    pub fn new_member(source: MemberSourceRef<'_>) -> Result<Self, LedgerRefusal> {
+        Ok(Self { prep: Arc::new(CasePrep::new_member(source)?) })
+    }
     pub fn source(&self) -> &PrimitiveSource {
         &self.prep.source
     }
@@ -969,6 +974,28 @@ impl PreparedCaseSource {
 }
 
 impl CasePrep {
+    pub(crate) fn new_member(source: MemberSourceRef<'_>) -> Result<Self, LedgerRefusal> {
+        let mut prep = Self::new(source.source().clone())?;
+        if !source.member_loads().is_empty() {
+            prep.member_loads = Some(MemberLoadSet::new(&prep.source, source.member_loads().to_vec())
+                .map_err(|_| LedgerRefusal::MemberLoads)?);
+            prep.identity = source.encoding();
+        }
+        Ok(prep)
+    }
+    pub(crate) fn member_loads(&self) -> &[UniformMemberLoad] {
+        self.member_loads.as_ref().map_or(&[], MemberLoadSet::loads)
+    }
+    pub(crate) fn has_member_loads(&self) -> bool { !self.member_loads().is_empty() }
+    pub(crate) fn try_ledger(&self) -> Result<&RetainedLedger, LedgerRefusal> {
+        if self.has_member_loads() { self.formed_ledger.get().ok_or(LedgerRefusal::NotFormed) }
+        else { Ok(&self.ledger) }
+    }
+    pub(crate) fn ledger(&self) -> Result<&RetainedLedger, AttemptStop> {
+        self.try_ledger().map_err(|_| AttemptStop::PublicationCertificate {
+                index: None, issue: CertificateIssue::PairIdentity,
+            })
+    }
     pub(crate) fn new(source: PrimitiveSource) -> Result<Self, LedgerRefusal> {
         let ledger = RetainedLedger::from_source(&source)?;
         let prescribed = source
@@ -1010,7 +1037,7 @@ impl CasePrep {
         std::alloc::Layout::array::<(f64, f64)>(pairs).map_err(|_| fail())?;
         let sources: Vec<(f64, &PrimitiveSource)> =
             operands.iter().map(|(c, p)| (*c, &p.source)).collect();
-        let ledger = RetainedLedger::combined(&sources)?;
+        let ledger = RetainedLedger::combined(operands)?;
         let first = &operands[0].1.source;
         let prescribed = first
             .constraints()
@@ -1057,6 +1084,8 @@ impl CasePrep {
         Ok(Self {
             source,
             ledger,
+            member_loads: None,
+            formed_ledger: std::sync::OnceLock::new(),
             prescribed,
             factors,
             identity,
@@ -1826,8 +1855,8 @@ where
         for &i in free {
             let mut r = ExactWideSum::new();
             let mut d = ExactWideSum::new();
-            prep.ledger.add_to(i, &mut r, false)?;
-            if let Some(net) = prep.ledger.net(i) {
+            prep.ledger()?.add_to(i, &mut r, false)?;
+            if let Some(net) = prep.ledger()?.net(i) {
                 if !net.is_zero() {
                     d.add_integer(false, &net.magnitude, net.exponent)?;
                 }
@@ -1936,6 +1965,14 @@ where
             lme(ctx) + lme(ctx_q) + lme(ctx16) + lme(ctx64) + sum.work().checked_lme()
         };
         let t0 = stream.snapshot(total(&ctx, &ctx_q, &ctx16, &ctx64, &sum))?;
+        if prep.has_member_loads() && prep.formed_ledger.get().is_none() {
+            let base = lme(&ctx) + lme(&ctx_q) + lme(&ctx64);
+            let declared = super::declared::form(source, prep.member_loads(), &mut ctx16, &mut sum,
+                |c, s| guard.test(base.add(lme(c)).add(s.work().checked_lme())))?;
+            let ledger = RetainedLedger::with_declared(&prep.ledger, declared, &mut sum)?;
+            guard.test(total(&ctx, &ctx_q, &ctx16, &ctx64, &sum))?;
+            prep.formed_ledger.set(ledger).map_err(|_| AttemptStop::Structure)?;
+        }
         // The prescribed values at p (exact for a case's binary64 values; a
         // combination's exact sum, rounded once).
         let mut u = vec![Wide::<L>::ZERO; source.dof_count()];
@@ -1946,7 +1983,7 @@ where
             source,
             &group.structure,
             &shared.k,
-            &prep.ledger,
+            prep.ledger()?,
             free,
             &u,
         )?;
@@ -1979,7 +2016,7 @@ where
                 p,
                 &group.structure,
                 &shared.k_q,
-                &prep.ledger,
+                prep.ledger()?,
                 free,
                 &u,
                 &mut tracker,
@@ -2062,7 +2099,7 @@ where
             &shared.k,
             &shared.members,
             &shared.directional,
-            &prep.ledger,
+            prep.ledger()?,
             &u,
         )?;
         let t4 = stream.snapshot(total(&ctx, &ctx_q, &ctx16, &ctx64, &sum))?;
@@ -3743,6 +3780,12 @@ impl RetainedSolve {
     pub fn source(&self) -> &PrimitiveSource {
         &self.prep.source
     }
+    pub fn member_loads(&self) -> &[UniformMemberLoad] { self.prep.member_loads() }
+    pub fn has_member_loads(&self) -> bool { self.prep.has_member_loads() }
+    pub fn member_is_loaded(&self, member: u32) -> bool {
+        self.member_loads().iter().any(|l| l.member == member && l.intensity.iter().any(|w| *w != 0.0))
+    }
+
     pub fn selected_precision(&self) -> u32 {
         self.selected
     }
@@ -4865,6 +4908,7 @@ fn finish_selected(
         .iter()
         .find(|a| a.precision == selected.precision() && a.outcome == AttemptOutcome::Accepted)
         .cloned();
+    let ledger_encoding = match prep.ledger() { Ok(l) => l.encoding(), Err(stop) => return finish_terminal(&stop, attempts, geometry) };
     let evidence = RetainedEvidence {
         method: METHOD_TOKEN,
         policy: POLICY,
@@ -4905,7 +4949,7 @@ fn finish_selected(
         corrections: selected.corrections(),
         geometry,
         source_encoding: prep.identity.clone(),
-        ledger_encoding: prep.ledger.encoding(),
+        ledger_encoding,
         retained_state_encoding: selected.encoding(),
         attempts,
         resolution_scale: verification
@@ -5001,16 +5045,32 @@ pub(crate) fn solve_cases_projected<T>(
     sources: &[PrimitiveSource],
     case_limit: CaseLimit,
     meter: &mut InvocationMeter,
-    mut recording: Option<BatchRecording<'_>>,
-    mut out: Vec<T>,
-    mut project: impl FnMut(CoreRun, Option<usize>) -> T,
+    recording: Option<BatchRecording<'_>>,
+    out: Vec<T>,
+    project: impl FnMut(CoreRun, Option<usize>) -> T,
+) -> Vec<T> {
+    solve_sources_projected(sources, case_limit, meter, recording, out, project, |s| MemberSourceRef::nodal(s))
+}
+
+pub(crate) fn solve_member_cases_projected<T>(
+    sources: &[MemberSourceRef<'_>], case_limit: CaseLimit, meter: &mut InvocationMeter,
+    recording: Option<BatchRecording<'_>>, out: Vec<T>, project: impl FnMut(CoreRun, Option<usize>) -> T,
+) -> Vec<T> {
+    solve_sources_projected(sources, case_limit, meter, recording, out, project, |s| *s)
+}
+fn solve_sources_projected<'a, S, T>(
+    sources: &'a [S], case_limit: CaseLimit, meter: &mut InvocationMeter,
+    mut recording: Option<BatchRecording<'_>>, mut out: Vec<T>, mut project: impl FnMut(CoreRun, Option<usize>) -> T,
+    source_ref: impl Fn(&'a S) -> MemberSourceRef<'a>,
 ) -> Vec<T> {
     let mut groups: Vec<(
         Vec<u8>,
         Result<Arc<GroupPrep>, (Refusal, Vec<BodyGeometry>)>,
         GroupCache,
     )> = Vec::new();
-    for (position, source) in sources.iter().enumerate() {
+    for (position, input) in sources.iter().enumerate() {
+        let composite = source_ref(input);
+        let source = composite.source();
         let before = meter.checked_charged();
         let early = if let Some(fault) = before.status().fault() {
             Some(UnresolvedReason::WorkAccounting { fault, prior: None })
@@ -5071,7 +5131,9 @@ pub(crate) fn solve_cases_projected<T>(
                 continue;
             }
         };
-        let prep = match CasePrep::new(source.clone()) {
+        let prepared = if composite.member_loads().is_empty() { CasePrep::new(source.clone()) }
+            else { CasePrep::new_member(composite) };
+        let prep = match prepared {
             Ok(p) => Arc::new(p),
             Err(e) => {
                 let run = CoreRun::idle(
@@ -5408,7 +5470,7 @@ impl RetainedSolve {
         }
         let (ledger_matches, spent) = self
             .prep
-            .ledger
+            .ledger().map_err(|_| CertificateIssue::PairIdentity)?
             .encoding_matches(&self.evidence.ledger_encoding);
         work.visits = work.visits.add(spent);
         work.visit(0)?;
@@ -5583,7 +5645,7 @@ impl RetainedSolve {
                     blocks,
                     ordering,
                     &self.group.structure,
-                    &self.prep.ledger,
+                    self.prep.ledger().map_err(|_| CertificateIssue::PairIdentity)?,
                     &prescribed,
                     &state.u,
                     &mut data,
@@ -5833,3 +5895,7 @@ impl SourceBridgeView<'_> {
 #[cfg(test)]
 #[path = "../../../tests/retained_k4/source_residual_tests.rs"]
 mod source_residual_tests;
+
+#[cfg(test)]
+#[path = "../../../tests/retained_k4/member_adaptive_tests.rs"]
+mod member_adaptive_tests;

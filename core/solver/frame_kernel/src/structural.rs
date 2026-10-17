@@ -14,7 +14,7 @@ pub mod retained_api {
         ReadoutLaw,RadiusLaw,ViewFailure,BridgeFailure,LaneWorkTrace,ProductFailureView,HelperFailure,LaneTrace,ProductProofTrace};
     pub use super::retained::origins::{ProductRowSpec, ProductProofStartSpent,
         ProductProofDraft, ProductProofFailure, ProductProjectionSpent, ProjectedProofDraft,
-        ProductValuesBuilder, FrozenProductValues, ProductMaximumValue, ProductValuesSpent,
+        ProductValuesBuilder, FrozenProductValues, ProductMaximumValue, ProductMaximumEvidence, LoadedMaximumDiagnostic, ProductValuesSpent,
         ValuesCompletionWork, ProductValuesFailure, CertifiedProductProof, ProductFinalSpent};
     pub use super::retained::origins::{prepare_product_annulus, PreparedAnnulus, PreparedSectionBits, AnnulusPreparationVersion, AnnulusPreparationSpent, SectionPreparationError, SectionPreparationWork};
     pub use super::retained::origins::{
@@ -53,6 +53,7 @@ pub mod retained_api {
     pub use super::retained::source::{
         Component, Constraint, DirectionalSpring, Dof, MemberProperty, NodalLoad, PrimitiveSource,
         SourceError, SourceParts, Spring, SpringKind, Station, StraightMember, SupportGroup,
+        UniformMemberLoad, MemberLoadSet, MemberLoadError, MemberSourceRef,
     };
     pub use super::retained::verify::{e_hat, phi_512, resolution_hats, PHI_SCALE_BITS};
     pub use super::retained::wide::multi::{AttemptWork, Binary64Outcome, WidthWork};

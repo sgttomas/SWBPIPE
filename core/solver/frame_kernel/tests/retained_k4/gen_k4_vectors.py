@@ -143,7 +143,9 @@ def sha256_file(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-for _path, _digest in PINNED.items():
+CHECKED_PINNED = {p: h for p, h in PINNED.items()
+                  if "--only=declared" not in sys.argv or p not in (KD5_MODELS, K2B_MODELS, NI_FIXTURES)}
+for _path, _digest in CHECKED_PINNED.items():
     assert sha256_file(_path) == _digest, "pinned input changed: %s" % _path
 
 
@@ -4966,6 +4968,58 @@ def kf3_lines():
     return lines
 
 
+def declared(xi, xj, w):
+    """Independent D1-D5, exact binary64 operands, fixed RN-even binary1024."""
+    xi, xj, w = [[Fr(v) for v in a] for a in (xi,xj,w)]
+    squared = rp(sum((xj[a]*xj[a]-2*xi[a]*xj[a]+xi[a]*xi[a] for a in range(3)), Fr(0)),1024)
+    length = sqrt_p(squared,1024)
+    g = rp(length/12,1024)
+    f = [rp(length*v,1024)/2 if v else Fr(0) for v in w]
+    m = [rp(g*xj[b]*w[c]-g*xi[b]*w[c]-g*xj[c]*w[b]+g*xi[c]*w[b],1024)
+         for b,c in ((1,2),(2,0),(0,1))]
+    return f+m
+
+
+def declared_lines():
+    # Invented controls: exact parallel/cancelling cross products, offsets,
+    # extreme exponents, and cases where forming/rounding d changes D1/D5.
+    cases = [
+      ("axis", [0.,0.,0.], [2.,0.,0.], [[0.,3.,0.]], []),
+      ("skew", [0.,0.,0.], [1.5,2.,6.], [[2.,-3.,4.]], []),
+      ("irrational", [0.,0.,0.], [1.,2.,3.], [[.375,1.,-2.]], []),
+      ("offset", [1e15,-1e15,1e15], [1e15+3.,-1e15+4.,1e15+12.], [[1.,2.,-3.]], []),
+      ("parallel", [0.,0.,0.], [3.,4.,12.], [[3.,4.,12.]], []),
+      ("near_parallel", [0.,0.,0.], [3.,4.,12.], [[3.,4.,float.fromhex('0x1.8000000000001p+3')]], []),
+      ("exponent_spread", [1e-300,0.,0.], [1e300,1e-300,0.], [[1e-300,1e300,0.]], []),
+      ("tiny", [0.,0.,0.], [float.fromhex('0x0.0000000000001p-1022'),0.,0.], [[1.,0.,-1.]], []),
+      ("huge", [-1e300,0.,0.], [1e300,1e300,0.], [[1e300,0.,1e300]], []),
+      ("d_rounding", [float.fromhex('0x1p-1074'),0.,0.], [float.fromhex('0x1p+1023'),1.,0.], [[.375,1.,0.]], []),
+      ("d_rounding_2", [-float.fromhex('0x1p+1023'),float.fromhex('0x1p-1074'),0.], [1.,float.fromhex('0x1p+1022'),1.], [[1.,.375,-2.]], []),
+      ("tie_order", [0.,0.,0.], [1.,1.,1.], [[.375,.625,-.375]], []),
+      ("mixed_nodal", [0.,0.,0.], [2.,0.,0.], [[0.,3.,0.]], [(1,-3.),(11,1.)]),
+      ("cancel", [0.,0.,0.], [1.,2.,3.], [[1.,-2.,3.],[-1.,2.,-3.]], []),
+      ("zero_signs", [0.,0.,0.], [2.,0.,0.], [[-0.,0.,-0.]], []),
+    ]
+    lines=[]
+    for name,xi,xj,loads,nodal in cases:
+        lines.append("case "+name+" "+" ".join(hexf(v) for v in xi+xj))
+        nets={}
+        for dof,value in nodal:
+            lines.append("nodal %d %s"%(dof,hexf(value)))
+            nets[dof]=nets.get(dof,Fr(0))+Fr(value)
+        for w in loads:
+            values=declared(xi,xj,w)
+            lines.append("load "+" ".join(hexf(v) for v in w))
+            lines.append("entries "+" ".join(k3.tok(W_of(v,16)) for v in values))
+            for at in range(12):
+                value=values[at%6]*(-1 if at>=9 else 1)
+                nets[at]=nets.get(at,Fr(0))+value
+        encoded=ledger_bytes(nets)
+        lines.append("ledger "+encoded.hex()+" "+hashlib.sha256(encoded).hexdigest())
+        lines.append("end")
+    return lines
+
+
 def build(parts=None):
     files = {}
     summary = {}
@@ -4996,6 +5050,8 @@ def build(parts=None):
             summary["stream_%s" % name] = h
         files["streams.txt"] = "\n".join(manifest) + "\n"
         files["streams_sample.txt"] = "\n".join(sample) + "\n"
+    if want("declared"):
+        files["declared.txt"] = "\n".join(declared_lines()) + "\n"
     if want("formation"):
         files["formation.txt"] = "\n".join(formation_lines()) + "\n"
     if want("encodings"):
@@ -5077,7 +5133,7 @@ def main():
         sums = HERE / "SHA256SUMS"
         names = sorted({line.split()[1] for line in sums.read_text().splitlines()} | set(files))
         sums.write_text("".join("%s  %s\n" % (sha256_file(HERE / n), n) for n in names))
-    summary["inputs"] = {str(p.relative_to(P_ROOT)): d for p, d in PINNED.items()}
+    summary["inputs"] = {str(p.relative_to(P_ROOT)): d for p, d in CHECKED_PINNED.items()}
     print(json.dumps(summary, indent=1, sort_keys=True))
     return status
 

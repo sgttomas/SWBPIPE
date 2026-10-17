@@ -7,6 +7,8 @@ use super::super::{
 };
 use super::source_residual::ResidualWork;
 use super::*;
+#[path = "loaded_maximum.rs"]
+mod loaded_maximum;
 
 #[derive(Clone, Copy)]
 enum Scalar64 {
@@ -333,6 +335,13 @@ impl<'a> ProductProofTrace<'a> {
     }
 }
 #[derive(Debug)]
+pub struct LoadedMaximumDiagnostic {
+    pub row:usize,
+    pub member:u32,
+    pub lower:(bool,i64,[u64;16]),
+    pub upper:(bool,i64,[u64;16]),
+}
+#[derive(Debug)]
 pub struct ProductCertificateSpent<'a> {
     rows: &'a [ProductFinalRow<'a>],
     verdicts: Vec<ProductRowVerdict>,
@@ -355,6 +364,8 @@ pub struct ProductCertificateSpent<'a> {
     /// RV77-N4 (I61 U2, failure path): the proof's anchor once it exists, so the
     /// work of a refused proof stays structurally bound to its selected owner.
     anchor:Option<std::sync::Arc<ProofAnchor>>,
+    loaded_diagnostic:Option<Box<LoadedMaximumDiagnostic>>,
+    loaded_search_bytes:usize,
 }
 impl<'a> ProductCertificateSpent<'a> {
     fn new(rows: &'a [ProductFinalRow<'a>]) -> Self {
@@ -373,11 +384,13 @@ impl<'a> ProductCertificateSpent<'a> {
             prepared_capacities: [0; 6],
             projection_outcomes:Vec::new(),projection_conversions:WorkTotal::zero(),
             lane_errors:[None,None],completion_merged:false,trace_copy_work:TraceCopyWork::default(),
-            anchor:None,
+            anchor:None,loaded_diagnostic:None,loaded_search_bytes:0,
         }
     }
     /// RV77-N4 (I61 U2): whether this work belongs to a proof started on `owner`'s
     /// own prepared solve. False before the anchor exists (a refused proof start).
+    pub fn loaded_maximum_diagnostic(&self)->Option<&LoadedMaximumDiagnostic> { self.loaded_diagnostic.as_deref() }
+    pub fn loaded_maximum_workspace_bytes(&self)->usize { self.loaded_search_bytes }
     pub fn owner_matches(&self,owner:&adaptive::RetainedSolve)->bool {
         self.anchor.as_ref().is_some_and(|anchor|anchor.matches_owner(owner))
     }
@@ -445,7 +458,8 @@ impl<'a> ProductCertificateSpent<'a> {
             numeric:self.numeric, comparisons:self.comparisons, visits:self.visits,
             scalar_operations:self.scalar_operations, capacities:self.capacities, prepared_capacities:self.prepared_capacities,
             projection_outcomes:self.projection_outcomes,projection_conversions:self.projection_conversions,
-            lane_errors:self.lane_errors,completion_merged:self.completion_merged,trace_copy_work:self.trace_copy_work,anchor:self.anchor }
+            lane_errors:self.lane_errors,completion_merged:self.completion_merged,trace_copy_work:self.trace_copy_work,anchor:self.anchor,
+            loaded_diagnostic:self.loaded_diagnostic,loaded_search_bytes:self.loaded_search_bytes }
     }
     fn retain_lane(&mut self,result:Result<source_residual::LaneReadouts,bridge::BridgeError>,work:ResidualWork)
         ->Result<source_residual::LaneReadouts,ProductFailure> {
@@ -734,6 +748,8 @@ fn recipe(
     section: Option<&MemberEnclosures>,
     facts: &[ProductMemberFacts],
     represented: bool,
+    curvatures: &[(u32,[Enclosure;2])],
+    row:usize,
 ) -> Result<Enclosure, ProductFailure> {
     if let ProductRecipe::Native(id) = r {
         return Ok(values[native_index(owner, id)?]);
@@ -781,6 +797,16 @@ fn recipe(
             })
         }
         ProductRecipe::CircularMaximum { .. } => {
+            if owner.member_is_loaded(member) {
+                let curvature = curvatures.iter().find(|c| c.0 == member).ok_or_else(|| bad("loaded maximum curvature"))?.1;
+                let mut ends = [[Enclosure::point(Endpoint::ZERO);3];2];
+                for (e,end) in [End::I,End::J].into_iter().enumerate() {
+                    for (c,component) in [Component::Ux,Component::Ry,Component::Rz].into_iter().enumerate() {
+                        ends[e][c] = action(owner,values,member,ProductSite::End(end),component)?;
+                    }
+                }
+                return loaded_maximum::search(spent,row,member,ends,curvature,a,z);
+            }
             let mut best = None;
             for end in [End::I, End::J] {
                 let site = ProductSite::End(end);
@@ -1101,7 +1127,7 @@ fn run_case(
                 }
             });
         }
-        check_intervals(owner,facts,&k,&native.rows,native.view.data(),spent)?;
+        check_intervals(owner,facts,&k,&native.rows,native.view.data(),spent,&native.curvatures,&native.curvatures)?;
         Ok(())
     })();
     spent.native = Some(residual.work);
@@ -1289,7 +1315,8 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
 }
 
 fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts],
-    k:&[Enclosure], source_values:&[Enclosure], data:&[bool], spent:&mut ProductCertificateSpent<'_>)
+    k:&[Enclosure], source_values:&[Enclosure], data:&[bool], spent:&mut ProductCertificateSpent<'_>,
+    k_curvatures:&[(u32,[Enclosure;2])], s_curvatures:&[(u32,[Enclosure;2])])
     -> Result<(),ProductFailure> {
     let source=owner.source();
         spent.coverage = summary_coverage_data(owner, data, spent)?;
@@ -1403,6 +1430,8 @@ fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts],
                 section.as_ref(),
                 facts,
                 true,
+                k_curvatures,
+                i,
             )?;
             let geometric = recipe(
                 owner,
@@ -1412,6 +1441,8 @@ fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts],
                 section.as_ref(),
                 facts,
                 false,
+                s_curvatures,
+                i,
             )?;
             let v = gate(spent, i, hull(represented, geometric), scale, input)?;
             spent.verdicts.push(v);
@@ -1733,20 +1764,48 @@ fn project_hull(interval:Enclosure,unit:ProductUnit,row:usize,work:&mut ProductC
     work.numeric.wide.record(&ctx);
     result
 }
+pub(crate) struct LoadedValue { row:usize, member:u32, hull:Enclosure, reconciled:bool }
+pub(crate) struct MemberValuesWork { hulls:Vec<LoadedValue>, numeric:NumericWork, failure:Option<ProductFailure> }
+pub(crate) const LOADED_SEARCH_NODE:usize=std::mem::size_of::<loaded_maximum::SearchNode>();
+pub(crate) const LOADED_SEARCH_HEAP_MAX:usize=loaded_maximum::LIVE*LOADED_SEARCH_NODE;
+#[derive(Debug,Clone,Copy)]
+pub struct ProductMaximumEvidence { value:f64, lower:f64, upper:f64, gap:f64 }
+impl ProductMaximumEvidence {
+    pub fn value(&self)->f64{self.value} pub fn lower(&self)->f64{self.lower}
+    pub fn upper(&self)->f64{self.upper} pub fn gap(&self)->f64{self.gap}
+}
 pub struct ProductValuesBuilder {
+    member:Option<Box<MemberValuesWork>>,
     values:Vec<f64>, maxima:Vec<(usize,u32)>, anchor:std::sync::Arc<ProofAnchor>, visits:WorkTotal,
 }
 impl ProductValuesBuilder {
     pub fn value(&mut self,row:usize)->Result<Option<f64>,ProductFailure> {
+        if let Some(f)=self.member.as_ref().and_then(|m|m.failure.as_ref()){return Err(f.clone());}
         for m in &self.maxima {values_visit(&mut self.visits)?;if m.0==row{return Ok(None);}}
         values_visit(&mut self.visits)?;
         Ok(self.values.get(row).copied())
     }
-    pub fn abandon(self)->ValuesCompletionWork {ValuesCompletionWork{visits:self.visits,capacity:0,anchor:self.anchor}}
+    pub fn abandon(self)->ValuesCompletionWork {ValuesCompletionWork{visits:self.visits,capacity:0,anchor:self.anchor,member:self.member}}
+    pub fn reconcile_loaded_maximum(&mut self,row:usize,member:u32,pp_lower:f64,pp_upper:f64)->Result<ProductMaximumEvidence,ProductFailure> {
+        values_visit(&mut self.visits)?;
+        let state=self.member.as_mut().ok_or_else(||bad("loaded maximum owner"))?;
+        if let Some(f)=&state.failure{return Err(f.clone());}
+        let result=(|| {
+            let entry=state.hulls.iter_mut().find(|h|h.row==row&&h.member==member).ok_or_else(||bad("loaded maximum identity"))?;
+            if entry.reconciled{return Err(bad("loaded maximum repeated evidence"));}
+            let evidence=loaded_maximum::evidence(&mut state.numeric,self.values[row],entry.hull,pp_lower,pp_upper,&mut self.visits)?;
+            self.values[row]=evidence.value;entry.reconciled=true;Ok(evidence)
+        })();
+        if let Err(f)=&result{state.failure=Some(f.clone());} result
+    }
     pub fn complete_maxima(mut self,maxima:&[ProductMaximumValue])->ProductValuesSpent {
         let mut visits=self.visits;let mut capacity=0;
         let result=(|| {
             values_visit(&mut visits)?;
+            if let Some(state)=&self.member {
+                if let Some(f)=&state.failure{return Err(f.clone());}
+                for h in &state.hulls{values_visit(&mut visits)?;if !h.reconciled{return Err(bad("loaded maximum evidence incomplete"));}}
+            }
             let mut seen=reserve::<bool>(self.maxima.len())?;capacity=seen.capacity();
             for _ in &self.maxima {values_visit(&mut visits)?;seen.push(false);}
             if maxima.len()!=self.maxima.len() {return Err(bad("maximum completion count"));}
@@ -1764,13 +1823,18 @@ impl ProductValuesBuilder {
         })();
         let result=result.and_then(|()|values_visit(&mut visits));
         match result {
-            Err(e)=>ProductValuesSpent{result:Err(e),work:ValuesCompletionWork{visits,capacity,anchor:self.anchor}},
+            Err(e)=>ProductValuesSpent{result:Err(e),work:ValuesCompletionWork{visits,capacity,anchor:self.anchor,member:self.member}},
             Ok(())=>{
-                let work=ValuesCompletionWork{visits,capacity,anchor:std::sync::Arc::clone(&self.anchor)};
+                let work=ValuesCompletionWork{visits,capacity,anchor:std::sync::Arc::clone(&self.anchor),member:self.member};
                 ProductValuesSpent{result:Ok(FrozenProductValues{values:self.values,anchor:self.anchor}),work}
             }
         }
     }
+}
+fn merge_numeric(into:&mut NumericWork,other:NumericWork) {
+    into.wide.merge(&other.wide);into.sums.merge(&other.sums);
+    for i in 0..7{into.entries[i]=into.entries[i].add(other.entries[i]);}
+    into.f64_arithmetic=into.f64_arithmetic.add(other.f64_arithmetic);into.status=into.status.join(other.status);
 }
 fn values_visit(visits:&mut WorkTotal)->Result<(),ProductFailure> {
     *visits=visits.add(WorkTotal::exact_count(1));
@@ -1782,14 +1846,21 @@ impl ProductMaximumValue { pub fn new(member:u32,row:usize,value:f64)->Result<Se
 }}
 pub struct FrozenProductValues {values:Vec<f64>,anchor:std::sync::Arc<ProofAnchor>}
 impl FrozenProductValues {pub fn value(&self,row:usize)->Option<&f64>{self.values.get(row)} pub fn len(&self)->usize{self.values.len()}}
-pub struct ValuesCompletionWork {visits:WorkTotal,capacity:usize,anchor:std::sync::Arc<ProofAnchor>}
+pub struct ValuesCompletionWork {visits:WorkTotal,capacity:usize,anchor:std::sync::Arc<ProofAnchor>,member:Option<Box<MemberValuesWork>>}
 pub struct ProductValuesSpent {result:Result<FrozenProductValues,ProductFailure>,work:ValuesCompletionWork}
-pub struct ProductValuesFailure {pub failure:ProductFailure, pub visits:WorkTotal,pub capacity:usize}
+pub struct ProductValuesFailure {pub failure:ProductFailure, pub visits:WorkTotal,pub capacity:usize, work:Option<ValuesCompletionWork>}
+impl ProductValuesFailure {
+    /// Take the member-only helper owner exactly once on a refused completion.
+    /// Nodal failures preserve the established attestation/trace behavior.
+    pub fn take_work(&mut self)->Option<ValuesCompletionWork>{self.work.take()}
+}
 impl std::fmt::Debug for ProductValuesFailure {fn fmt(&self,f:&mut std::fmt::Formatter<'_>)->std::fmt::Result {
     f.debug_struct("ProductValuesFailure").field("failure",&self.failure).field("visits",&self.visits).field("capacity",&self.capacity).finish()
 }}
 impl ProductValuesSpent {pub fn into_ready(self)->Result<(FrozenProductValues,ValuesCompletionWork),ProductValuesFailure> {
-    match self.result {Ok(v)=>Ok((v,self.work)),Err(failure)=>Err(ProductValuesFailure{failure,visits:self.work.visits,capacity:self.work.capacity})}
+    match self.result {Ok(v)=>Ok((v,self.work)),Err(failure)=>{let visits=self.work.visits;let capacity=self.work.capacity;
+            let work=if self.work.member.is_some(){Some(self.work)}else{None};
+            Err(ProductValuesFailure{failure,visits,capacity,work})}}
 }}
 pub struct ProjectedProofDraft<'s,'m> {data:ProofData<'s,'m>,work:ProductCertificateSpent<'static>}
 pub struct ProductProjectionSpent<'s,'m> {result:Result<(ProofData<'s,'m>,ProductValuesBuilder),ProductFailure>,work:ProductCertificateSpent<'static>}
@@ -1805,20 +1876,26 @@ impl<'s,'m> ProductProofDraft<'s,'m> {
         let combination=!self.data.owner.prep.factors.is_empty();
         let result=(|| {
             let mut maxima=self.work.prepared_reserve(2,self.data.facts.len())?;
+            let mut loaded=if self.data.owner.member_loads().iter().any(|l|l.intensity.iter().any(|w|*w!=0.0)) {
+                reserve::<LoadedValue>(self.data.facts.len())? } else {Vec::new()};
             self.work.projection_outcomes=self.work.prepared_reserve(5,self.data.specs.len())?;
             for (i,spec) in self.data.specs.iter().enumerate() {
                 self.work.visit()?;
                 if let Some(bits)=spec.observed {self.work.visit()?;self.data.values[i]=f64::from_bits(bits);continue;}
-                if let ProductRecipe::CircularMaximum{member}=spec.recipe {self.work.visit()?;maxima.push((i,member));continue;}
+                if let ProductRecipe::CircularMaximum{member}=spec.recipe {
+                    if !self.data.owner.member_is_loaded(member){self.work.visit()?;maxima.push((i,member));continue;}
+                }
                 if matches!(spec.recipe,ProductRecipe::Native(QuantityId::SupportForceMagnitude(_)|QuantityId::SupportMomentMagnitude(_))){continue;}
                 // B2-K (DEF-C r2, A-1): a combination's displacement magnitude is
                 // formed from its frozen components in the second pass.
                 if combination && matches!(spec.recipe,ProductRecipe::Native(QuantityId::DisplacementMagnitude(_))){continue;}
                 let section=section_for(self.data.owner,self.data.facts,spec.recipe,&mut self.work)?;
-                let k=recipe(self.data.owner,&mut self.work,&self.data.k.rows,spec.recipe,section.as_ref(),self.data.facts,true)?;
-                let s=recipe(self.data.owner,&mut self.work,&self.data.source.rows,spec.recipe,section.as_ref(),self.data.facts,false)?;
+                let k=recipe(self.data.owner,&mut self.work,&self.data.k.rows,spec.recipe,section.as_ref(),self.data.facts,true,&self.data.k.curvatures,i)?;
+                let s=recipe(self.data.owner,&mut self.work,&self.data.source.rows,spec.recipe,section.as_ref(),self.data.facts,false,&self.data.source.curvatures,i)?;
                 self.work.visit()?;
-                let value=project_hull(hull(k,s),spec.unit,i,&mut self.work)?;
+                let interval=hull(k,s);
+                let value=project_hull(interval,spec.unit,i,&mut self.work)?;
+                if let ProductRecipe::CircularMaximum{member}=spec.recipe {loaded.push(LoadedValue{row:i,member,hull:interval,reconciled:false});}
                 self.work.visit()?;self.data.values[i]=value;
             }
             for (i,spec) in self.data.specs.iter().enumerate() {
@@ -1837,7 +1914,8 @@ impl<'s,'m> ProductProofDraft<'s,'m> {
                 }
             }
             self.work.visit()?;
-            let values=ProductValuesBuilder{values:std::mem::take(&mut self.data.values),maxima,
+            let member=(!loaded.is_empty()).then(||Box::new(MemberValuesWork{hulls:loaded,numeric:NumericWork::new(),failure:None}));
+            let values=ProductValuesBuilder{member,values:std::mem::take(&mut self.data.values),maxima,
                 anchor:std::sync::Arc::clone(&self.data.anchor),visits:WorkTotal::zero()};
             Ok(values)
         })();
@@ -2002,6 +2080,7 @@ impl<'s,'m> ProjectedProofDraft<'s,'m> {
         self.work.completion_merged=true;self.work.trace_copy_work.record::<bool>();
         self.work.visits=self.work.visits.add(values_work.visits);
         self.work.prepared_capacities[3]=values_work.capacity;
+        if let Some(member)=values_work.member {merge_numeric(&mut self.work.numeric,member.numeric);}
         ProductProofFailure{failure:bad("PP abandoned completed values"),work:self.work}
     }
     pub fn certify_final(self,values:&FrozenProductValues,rows:&[ProductFinalRow<'_>],values_work:ValuesCompletionWork)->ProductFinalSpent {
@@ -2009,6 +2088,7 @@ impl<'s,'m> ProjectedProofDraft<'s,'m> {
         work.completion_merged=true;work.trace_copy_work.record::<bool>();
         work.visits=work.visits.add(values_work.visits);
         work.prepared_capacities[3]=values_work.capacity;
+        if let Some(member)=values_work.member {merge_numeric(&mut work.numeric,member.numeric);}
         let result=(|| {
             if !std::sync::Arc::ptr_eq(&self.data.anchor,&values.anchor)
                 || !std::sync::Arc::ptr_eq(&self.data.anchor,&values_work.anchor)
@@ -2020,7 +2100,7 @@ impl<'s,'m> ProjectedProofDraft<'s,'m> {
                 if !spec.matches(r,&mut work)? || r.value.to_bits()!=y.to_bits()
                     || spec.observed.is_some_and(|b|b!=y.to_bits()) {return Err(bad("frozen descriptor/value"));}
             }
-            check_intervals(self.data.owner,self.data.facts,&self.data.k.rows,&self.data.source.rows,&self.data.k.data,&mut work)?;
+            check_intervals(self.data.owner,self.data.facts,&self.data.k.rows,&self.data.source.rows,&self.data.k.data,&mut work,&self.data.k.curvatures,&self.data.source.curvatures)?;
             if let Some(v)=work.verdicts.iter().find(|v|!v.passed) {
                 return Err(ProductFailure{cause:Cause::Predicate{row:v.row,predicate:v.failed.unwrap_or(ProductPredicate::SharperExact)}});
             }

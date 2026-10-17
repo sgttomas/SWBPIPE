@@ -79,6 +79,29 @@ where
     }
 }
 
+fn load_scale<const L: usize>(ctx: &mut WideContext<L>, sum: &mut ExactWideSum,
+    ledger: Option<&RetainedLedger>, member: u32, m: &MemberOperators<L>, rounding: StageRounding)
+    -> Result<Option<[Wide<L>; 3]>, AttemptStop> where Wide<L>: SupportedWidth {
+    let Some(ledger) = ledger.filter(|l| l.member_is_loaded(member)) else { return Ok(None); };
+    sum.clear();
+    for term in ledger.declared.iter().filter(|d| d.member == member) {
+        for bits in term.intensity_bits { sum.add_binary64(f64::from_bits(bits).abs(), false)?; }
+    }
+    let wb = stage(ctx, sum, rounding)?;
+    sum.add_product(ctx, &wb, &m.length, false)?;
+    let wbl = stage(ctx, sum, rounding)?;
+    sum.add_product(ctx, &wbl, &m.length, false)?;
+    let wbll = stage(ctx, sum, rounding)?;
+    let twelve = Wide::<L>::from_f64(12.0)?;
+    let hb = match rounding { StageRounding::Nearest => ctx.div(&wbll, &twelve)?,
+        StageRounding::Up => super::directed::div_toward(ctx, sum, &wbll, &twelve, Toward::Up)? };
+    Ok(Some([wbl, wbll, hb]))
+}
+
+pub(crate) fn member_g_scope(ledger:Option<&RetainedLedger>,member:u32,prior:bool)->bool {
+    prior || ledger.is_some_and(|l|l.member_is_loaded(member))
+}
+
 /// E_q for every force or moment row of `layout` (None for the other rows),
 /// with the nonnegative operand w at every DOF (module documentation). The
 /// ledger enters the reactions when given.
@@ -107,7 +130,9 @@ where
     // Members: the end actions.
     let mut q_all: Vec<[Wide<L>; 6]> = Vec::with_capacity(members.len());
     let mut actions_all: Vec<[Wide<L>; 12]> = Vec::with_capacity(members.len());
-    for m in members {
+    let mut load_scales = if ledger.is_some_and(|l| !l.declared.is_empty()) { Vec::with_capacity(members.len()) } else { Vec::new() };
+    for (mi, m) in members.iter().enumerate() {
+        let load = load_scale(ctx, sum, ledger, source.members()[mi].id, m, rounding)?;
         let dofs = m.dofs();
         // d̄ per block (tr_i, rot_i, tr_j, rot_j).
         let mut block = [zero; 4];
@@ -170,9 +195,15 @@ where
             q[0], vy, vz, q[1], q[4], q[2], q[0], vy, vz, q[1], q[5], q[3],
         ];
         let mut actions = [zero; 12];
-        for (a, r) in actions.iter_mut().zip(raw) {
-            *a = r.mul_pow2(g)?;
+        for (index, (a, r)) in actions.iter_mut().zip(raw).enumerate() {
+            *a = if let Some(load) = load.filter(|_| index % 6 != 3) {
+                sum.clear(); sum.add_wide(&r, false)?;
+                let extra = if index % 6 < 3 { load[0].mul_pow2(-1)? } else { load[2] };
+                sum.add_wide(&extra, false)?;
+                stage(ctx, sum, rounding)?.mul_pow2(g)?
+            } else { r.mul_pow2(g)? };
         }
+        if ledger.is_some_and(|l| !l.declared.is_empty()) { load_scales.push(load); }
         q_all.push(q);
         actions_all.push(actions);
         guard.check(ctx, sum)?;
@@ -186,6 +217,40 @@ where
         let q = &q_all[index];
         let actions = &actions_all[index];
         let g = i64::from(members[index].g_exp);
+        if let Some(load) = load_scales.get(index).copied().flatten() {
+            if s.fraction == 0.0 || s.fraction == 1.0 {
+                let start = if s.fraction == 0.0 { 0 } else { 6 };
+                for c in 0..6 { out.push(Some(actions[start + c])); }
+                continue;
+            }
+            let t = Wide::<L>::from_f64(s.fraction)?.abs();
+            let t2 = ctx.mul(&t, &t)?;
+            for c in 0..3 {
+                sum.clear();
+                if c == 0 { sum.add_wide(&q[0], false)?; }
+                else { let (a,b) = if c == 1 { (2,3) } else { (4,5) };
+                    sum.add_product(ctx, &members[index].inv_length.abs(), &q[a], false)?;
+                    sum.add_product(ctx, &members[index].inv_length.abs(), &q[b], false)?;
+                    let raw=stage(ctx,sum,rounding)?;sum.add_wide(&raw,false)?; }
+                sum.add_wide(&load[0].mul_pow2(-1)?, false)?;
+                sum.add_product(ctx, &load[0], &t, false)?;
+                out.push(Some(stage(ctx, sum, rounding)?.mul_pow2(g)?));
+            }
+            out.push(Some(actions[9]));
+            for (a,b) in [(5usize,4usize),(3,2)] {
+                sum.clear();
+                sum.add_product(ctx, &t, &q[a], false)?;
+                sum.add_product(ctx, &t, &q[b], false)?;
+                sum.add_wide(&q[b], false)?;
+                let old=stage(ctx,sum,rounding)?;sum.add_wide(&old,false)?;
+                sum.add_wide(&load[2], false)?;
+                let half = load[1].mul_pow2(-1)?;
+                sum.add_product(ctx, &half, &t, false)?;
+                sum.add_product(ctx, &half, &t2, false)?;
+                out.push(Some(stage(ctx, sum, rounding)?.mul_pow2(g)?));
+            }
+            continue;
+        }
         let t = Wide::<L>::from_f64(s.fraction)?.abs();
         let mut moment = |at_j: &Wide<L>, at_i: &Wide<L>| -> Result<Wide<L>, AttemptStop> {
             sum.clear();
@@ -774,7 +839,7 @@ where
             &vs.abar,
             &shared.members,
             &shared.directional,
-            Some(&prep.ledger),
+            Some(prep.ledger()?),
             &w_abs,
             StageRounding::Nearest,
         )?;
@@ -830,7 +895,7 @@ where
         let mut sr_row = vec![zero; nf];
         for (a, &g) in free.iter().enumerate() {
             let mut r = ExactWideSum::new();
-            prep.ledger.add_to(g, &mut r, false)?;
+            prep.ledger()?.add_to(g, &mut r, false)?;
             contribution_products(
                 &mut ctx_w,
                 &mut r,
@@ -887,7 +952,7 @@ where
         let mut sr2_row = vec![zero; nf];
         for (a, &g) in free.iter().enumerate() {
             let mut r = ExactWideSum::new();
-            prep.ledger.add_to(g, &mut r, false)?;
+            prep.ledger()?.add_to(g, &mut r, false)?;
             contribution_products(
                 &mut ctx_w,
                 &mut r,
@@ -978,7 +1043,7 @@ where
             blocks,
             ordering,
             structure,
-            &prep.ledger,
+            prep.ledger()?,
             &prescribed_nonzero,
             u,
         );
@@ -1065,7 +1130,7 @@ where
         let limit = p - 16;
         for (m, op) in source.members().iter().zip(&shared.members) {
             let dofs = op.dofs();
-            let in_scope = dofs.iter().any(|&d| {
+            let prior = dofs.iter().any(|&d| {
                 let b = ordering.position[d];
                 if b == usize::MAX {
                     prescribed_nonzero[d]
@@ -1073,6 +1138,7 @@ where
                     data[blocks.of[b] as usize]
                 }
             });
+            let in_scope = member_g_scope(Some(prep.ledger()?),m.id,prior);
             if in_scope {
                 g_max = g_max.max(op.g_exp);
                 if op.g_exp > limit && g_violation.is_none() {

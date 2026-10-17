@@ -279,9 +279,11 @@ fn bindings_need_witnesses_inputs_and_reader_layouts() {
     assert!(!bindings_hold(false, Some("v1;x"), "v1;x", &layouts, &layouts), "a false layout witness");
     assert!(!bindings_hold(true, None, "v1;x", &layouts, &layouts), "no reviewed-input record");
     assert!(!bindings_hold(true, Some("v1;y"), "v1;x", &layouts, &layouts), "a changed lock or static");
-    let mut moved = layouts;
-    moved[2].size += 8;
-    assert!(!bindings_hold(true, Some("v1;x"), "v1;x", &layouts, &moved), "a changed reader layout");
+    for index in 0..layouts.len() {
+        let mut moved = layouts;
+        moved[index].size += 8;
+        assert!(!bindings_hold(true, Some("v1;x"), "v1;x", &layouts, &moved), "changed reader layout {}",READER_LAYOUT_NAMES[index]);
+    }
     assert!(LAYOUT_WITNESSES, "this build's std and serde_json layouts are the ones the formulas assume");
     for (name, layout) in READER_LAYOUT_NAMES.iter().zip(READER_LAYOUTS) {
         println!("I65_G5_READER_LAYOUT {name} size={} align={}", layout.size, layout.align);

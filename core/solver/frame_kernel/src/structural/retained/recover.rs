@@ -217,6 +217,32 @@ where
     Ok(Wide::<L>::from_f64(x)?)
 }
 
+#[derive(Clone, Copy)]
+struct LocalLoad<const L: usize> where Wide<L>: SupportedWidth {
+    wl: [Wide<L>; 3], wll: [Wide<L>; 3], h: [Wide<L>; 3],
+}
+fn local_load<const L: usize>(ctx: &mut WideContext<L>, sum: &mut ExactWideSum,
+    ledger: &RetainedLedger, member: u32, op: &MemberOperators<L>) -> Result<Option<LocalLoad<L>>, AttemptStop>
+where Wide<L>: SupportedWidth {
+    if !ledger.member_is_loaded(member) { return Ok(None); }
+    let mut wl = [Wide::<L>::ZERO; 3];
+    let mut wll = wl; let mut h = wl;
+    for r in 0..3 {
+        sum.clear();
+        for term in ledger.declared.iter().filter(|d| d.member == member) {
+            for c in 0..3 { sum.add_product(ctx, &op.axes[r][c], &lift::<L>(f64::from_bits(term.intensity_bits[c]))?, false)?; }
+        }
+        let w = sum.round(ctx)?;
+        wl[r] = ctx.mul(&w, &op.length)?;
+        wll[r] = ctx.mul(&wl[r], &op.length)?;
+        h[r] = ctx.div(&wll[r], &lift::<L>(12.0)?)?;
+    }
+    Ok(Some(LocalLoad { wl, wll, h }))
+}
+fn canonical<const L: usize>(x: Wide<L>) -> Wide<L> where Wide<L>: SupportedWidth {
+    if x.is_zero() { Wide::<L>::ZERO } else { x }
+}
+
 /// fl_p(√(fl_p(Σ v_k²))), v the given values (exact sum, rounded once, then √).
 fn magnitude<const L: usize>(
     ctx: &mut WideContext<L>,
@@ -277,7 +303,9 @@ where
     // Members.
     let mut q_all = Vec::with_capacity(members.len());
     let mut end_actions: Vec<[Wide<L>; 12]> = Vec::with_capacity(members.len());
-    for m in members {
+    let mut local_loads = if ledger.declared.is_empty() { Vec::new() } else { Vec::with_capacity(members.len()) };
+    for (mi, m) in members.iter().enumerate() {
+        let load = local_load(ctx, sum, ledger, source.members()[mi].id, m)?;
         let dofs = m.dofs();
         // d_local = T u: block b (tr_i, rot_i, tr_j, rot_j), local axis r.
         let mut d = [zero; 12];
@@ -349,7 +377,7 @@ where
         };
         let vy_i = shear(ctx, sum, &q[2], &q[3], false)?;
         let vz_i = shear(ctx, sum, &q[4], &q[5], true)?;
-        let actions = [
+        let mut actions = [
             q[0].neg(),
             vy_i,
             vz_i,
@@ -363,6 +391,24 @@ where
             q[5],
             q[3],
         ];
+        if let Some(load) = load {
+            for a in [0usize, 1, 2, 4, 5, 6, 7, 8, 10, 11] {
+                sum.clear();
+                match a {
+                    0 => sum.add_wide(&q[0], true)?,
+                    6 => sum.add_wide(&q[0], false)?,
+                    1 | 7 => { sum.add_product(ctx, inv, &q[2], a == 7)?; sum.add_product(ctx, inv, &q[3], a == 7)?; }
+                    2 | 8 => { sum.add_product(ctx, inv, &q[4], a == 2)?; sum.add_product(ctx, inv, &q[5], a == 2)?; }
+                    4 => sum.add_wide(&q[4], false)?, 10 => sum.add_wide(&q[5], false)?,
+                    5 => sum.add_wide(&q[2], false)?, 11 => sum.add_wide(&q[3], false)?, _ => unreachable!(),
+                }
+                if a % 6 < 3 { sum.add_wide(&load.wl[a % 6].mul_pow2(-1)?, true)?; }
+                else { let axis = if a % 6 == 4 { 2 } else { 1 };
+                    sum.add_wide(&load.h[axis], matches!(a, 5 | 10))?; }
+                actions[a] = canonical(sum.round(ctx)?);
+            }
+        }
+        if !ledger.declared.is_empty() { local_loads.push(load); }
         end_actions.push(actions);
         q_all.push(q);
         guard.check(ctx, sum)?;
@@ -375,6 +421,38 @@ where
         let index = source.member_index(s.member).unwrap();
         let q = &q_all[index];
         let actions = &end_actions[index];
+        if let Some(load) = local_loads.get(index).copied().flatten() {
+            if s.fraction == 0.0 || s.fraction == 1.0 {
+                let start = if s.fraction == 0.0 { 0 } else { 6 };
+                for c in 0..6 { values.push(canonical(if start == 0 { actions[c].neg() } else { actions[6 + c] })); }
+                continue;
+            }
+            let t = lift::<L>(s.fraction)?;
+            let t2 = ctx.mul(&t, &t)?; // exact: a binary64 square has <=106 bits.
+            for c in 0..3 {
+                sum.clear();
+                if c == 0 { sum.add_wide(&q[0], false)?; }
+                else { let pair = if c == 1 { (2,3,true) } else { (4,5,false) };
+                    sum.add_product(ctx, &members[index].inv_length, &q[pair.0], pair.2)?;
+                    sum.add_product(ctx, &members[index].inv_length, &q[pair.1], pair.2)?; }
+                sum.add_wide(&load.wl[c].mul_pow2(-1)?, false)?;
+                sum.add_product(ctx, &load.wl[c], &t, true)?;
+                values.push(canonical(sum.round(ctx)?));
+            }
+            values.push(canonical(q[1]));
+            for (a,b,c,negative) in [(5usize,4usize,2usize,false),(3,2,1,true)] {
+                sum.clear();
+                sum.add_product(ctx, &t, &q[a], false)?;
+                sum.add_product(ctx, &t, &q[b], false)?;
+                sum.add_wide(&q[b], true)?;
+                sum.add_wide(&load.h[c], !negative)?;
+                let half = load.wll[c].mul_pow2(-1)?;
+                sum.add_product(ctx, &half, &t, negative)?;
+                sum.add_product(ctx, &half, &t2, !negative)?;
+                values.push(canonical(sum.round(ctx)?));
+            }
+            continue;
+        }
         let t = lift::<L>(s.fraction)?;
         let moment = |ctx: &mut WideContext<L>,
                       sum: &mut ExactWideSum,

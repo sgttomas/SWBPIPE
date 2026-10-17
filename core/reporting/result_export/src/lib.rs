@@ -6,6 +6,8 @@
 //! workflows, implement adapters, access host resources, or emit professional
 //! or code-compliance claims.
 
+mod declared_member_load;
+
 use serde_json::{json, Value};
 
 /// b7-plan R2 A2: two JSON values equal by value. Numbers compare by binary64

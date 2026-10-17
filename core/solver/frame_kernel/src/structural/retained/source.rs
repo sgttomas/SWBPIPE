@@ -142,6 +142,91 @@ pub struct NodalLoad {
     pub source_id: String,
 }
 
+/// One authored full-span uniform member load, in global N/m. There is no
+/// extent: partial-span loads cannot be represented by this retained API.
+#[derive(Debug, Clone, PartialEq)]
+pub struct UniformMemberLoad {
+    pub member: u32,
+    pub intensity: [f64; 3],
+    pub source_id: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum MemberLoadError {
+    CountRange,
+    UnknownMember(u32),
+    NonFiniteIntensity(u32),
+    EmptySource(u32),
+}
+
+/// Member-only storage. The reserved nodal source layouts do not grow.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct MemberLoadSet {
+    loads: Vec<UniformMemberLoad>,
+}
+impl MemberLoadSet {
+    pub fn new(source: &PrimitiveSource, mut loads: Vec<UniformMemberLoad>) -> Result<Self, MemberLoadError> {
+        validate_member_loads(source, &loads)?;
+        // Stable sorting preserves constructor ordinal among identical terms.
+        loads.sort_by(|a, b| a.member.cmp(&b.member)
+            .then_with(|| a.source_id.as_bytes().cmp(b.source_id.as_bytes()))
+            .then_with(|| a.intensity.map(f64::to_bits).cmp(&b.intensity.map(f64::to_bits))));
+        Ok(Self { loads })
+    }
+    pub fn loads(&self) -> &[UniformMemberLoad] { &self.loads }
+    pub fn is_empty(&self) -> bool { self.loads.is_empty() }
+}
+fn validate_member_loads(source: &PrimitiveSource, loads: &[UniformMemberLoad]) -> Result<(), MemberLoadError> {
+    let fail = || MemberLoadError::CountRange;
+    u32::try_from(loads.len()).map_err(|_| fail())?;
+    std::alloc::Layout::array::<UniformMemberLoad>(loads.len()).map_err(|_| fail())?;
+    let mut bytes = source.encoded_len().ok_or_else(fail)?;
+    if !loads.is_empty() { bytes = bytes.checked_add(4).ok_or_else(fail)?; }
+    for load in loads {
+        if source.member_index(load.member).is_none() { return Err(MemberLoadError::UnknownMember(load.member)); }
+        if load.intensity.iter().any(|v| !v.is_finite()) { return Err(MemberLoadError::NonFiniteIntensity(load.member)); }
+        if load.source_id.is_empty() { return Err(MemberLoadError::EmptySource(load.member)); }
+        u32::try_from(load.source_id.len()).map_err(|_| fail())?;
+        bytes = bytes.checked_add(32).and_then(|n| n.checked_add(load.source_id.len())).ok_or_else(fail)?;
+    }
+    std::alloc::Layout::array::<u8>(bytes).map_err(|_| fail())?;
+    Ok(())
+}
+
+/// An aligned case submission borrowing its nodal declaration and optional
+/// member-only sidecar. Construction revalidates association after preparation.
+#[derive(Debug, Clone, Copy)]
+pub struct MemberSourceRef<'a> {
+    source: &'a PrimitiveSource,
+    member: Option<&'a MemberLoadSet>,
+}
+impl<'a> MemberSourceRef<'a> {
+    pub fn new(source: &'a PrimitiveSource, member: &'a MemberLoadSet) -> Result<Self, MemberLoadError> {
+        validate_member_loads(source, member.loads())?;
+        Ok(Self { source, member: (!member.is_empty()).then_some(member) })
+    }
+    pub fn nodal(source: &'a PrimitiveSource) -> Self { Self { source, member: None } }
+    pub fn source(self) -> &'a PrimitiveSource { self.source }
+    pub fn member_loads(self) -> &'a [UniformMemberLoad] { self.member.map_or(&[], MemberLoadSet::loads) }
+    pub fn encoding(self) -> Vec<u8> {
+        let mut out = self.source.encoding();
+        let loads = self.member_loads();
+        if !loads.is_empty() {
+            let mut extra=4usize;
+            for load in loads {extra=extra.checked_add(32).and_then(|n|n.checked_add(load.source_id.len())).expect("validated member encoding");}
+            out.reserve_exact(extra);
+            put_u32(&mut out, loads.len() as u32);
+            for load in loads {
+                put_u32(&mut out, load.member);
+                for value in load.intensity { put_f64(&mut out, value); }
+                put_u32(&mut out, load.source_id.len() as u32);
+                out.extend_from_slice(load.source_id.as_bytes());
+            }
+        }
+        out
+    }
+}
+
 /// A station on a member at a binary64 fraction of its chord (0 at node i).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Station {
@@ -462,6 +547,21 @@ fn source_counts(
 }
 
 impl PrimitiveSource {
+    /// Exact K4SRC length without constructing a second encoded source during
+    /// member-only association checks. Its strides match `source_counts`.
+    fn encoded_len(&self)->Option<usize> {
+        let mut bytes=38usize;
+        for (len,stride) in [(self.nodes.len(),24usize),(self.members.len(),84),
+            (self.springs.len(),17),(self.directional_springs.len(),41),
+            (self.constraints.len(),13),(self.loads.len(),17),(self.stations.len(),16),(self.supports.len(),22)] {
+            bytes=bytes.checked_add(len.checked_mul(stride)?)?;
+        }
+        for load in &self.loads {bytes=bytes.checked_add(load.source_id.len())?;}
+        for group in &self.supports {for children in [&group.springs,&group.directional_springs] {
+            bytes=bytes.checked_add(children.len().checked_mul(4)?)?;
+        }}
+        Some(bytes)
+    }
     pub fn new(parts: SourceParts) -> Result<Self, SourceError> {
         let SourceParts {
             nodes,

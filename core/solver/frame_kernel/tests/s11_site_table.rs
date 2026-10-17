@@ -38,6 +38,14 @@ struct Source {
 
 const SOURCES: &[Source] = &[
     Source {
+        name: "FK/structural/retained/declared.rs",
+        text: include_str!("../src/structural/retained/declared.rs"),
+    },
+    Source {
+        name: "FK/structural/retained/product_certificate/loaded_maximum.rs",
+        text: include_str!("../src/structural/retained/product_certificate/loaded_maximum.rs"),
+    },
+    Source {
         name: "FK/structural/retained/product_certificate/final_case.rs",
         text: include_str!("../src/structural/retained/product_certificate/final_case.rs"),
     },
@@ -189,6 +197,10 @@ const SOURCES: &[Source] = &[
 
 /// (file, function, exact match count, disposition of each match).
 const TABLE: &[(&str, &str, usize, &str)] = &[
+    ("FK/structural/retained/declared.rs", "form", 1, "integer: canonical authored term cursor; every D1-D5 product and sum uses actual wide/sum work"),
+    ("FK/structural/retained/product_certificate/loaded_maximum.rs", "search", 1, "integer: bounded split count; every objective/control/tangent arithmetic operation is directed and metered"),
+    ("FK/structural/retained/wide_sum.rs", "canonical_net", 1, "integer: top limb scan; each low/top/shift limb is charged explicitly, at most three used-limb passes"),
+    ("FK/structural/retained/product_certificate/loaded_maximum.rs", "evidence", 0, "exact dyadic symmetric/half-upper evidence with actual helper arithmetic collected before completion"),
     ("FK/structural/retained/product_certificate/final_case.rs", "corners", 0, "fixed four-corner signed product/quotient; directed arithmetic with producing work"),
     ("FK/structural/retained/product_certificate/final_case.rs", "exact_test", 0, "exact final allowance/decimal comparison; producing sum collected on every exit"),
     ("FK/structural/retained/product_certificate/final_case.rs", "gate", 0, "fixed raw/SI endpoint distances and unchanged final predicates"),

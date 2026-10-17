@@ -1174,14 +1174,21 @@ const fn layout_of<T>() -> TypeLayout {
     TypeLayout { size: std::mem::size_of::<T>(), align: std::mem::align_of::<T>() }
 }
 #[cfg_attr(not(test), allow(dead_code))]
-pub(super) const READER_LAYOUT_NAMES: [&str; 4] = ["Validation", "ValidationError", "RowClassification", "AccuracyClass"];
-pub(super) const READER_LAYOUTS: [TypeLayout; 4] = {
+pub(super) const READER_LAYOUT_NAMES: [&str; 9] = ["Validation", "ValidationError", "RowClassification", "AccuracyClass",
+    "DeclaredNat", "DeclaredDyad", "DeclaredLoad", "MemberExpected", "RecomputedMemberLedger"];
+pub(super) const READER_LAYOUTS: [TypeLayout; 9] = {
     use open_pipe_stress_result_export::retained_precision as rx;
+    let declared=rx::reader_logic::declared_layout_pairs();
     [
         layout_of::<rx::Validation>(),
         layout_of::<rx::ValidationError>(),
         layout_of::<rx::RowClassification>(),
         layout_of::<rx::AccuracyClass>(),
+        TypeLayout{size:declared[0].0,align:declared[0].1},
+        TypeLayout{size:declared[1].0,align:declared[1].1},
+        TypeLayout{size:declared[2].0,align:declared[2].1},
+        TypeLayout{size:declared[3].0,align:declared[3].1},
+        TypeLayout{size:declared[4].0,align:declared[4].1},
     ]
 };
 
@@ -1194,7 +1201,7 @@ pub(super) struct RegisteredProfile {
     /// The exact reviewed-input text of the qualified build.
     reviewed_inputs: &'static str,
     /// `READER_LAYOUTS` as qualified.
-    reader_layouts: [TypeLayout; 4],
+    reader_layouts: [TypeLayout; 9],
     /// M (D-7): the per-invocation admission threshold on requested and moving
     /// heap bytes plus R, selected by ROOT at G6.
     threshold_bytes: u64,
@@ -1220,6 +1227,11 @@ static REGISTERED_PROFILES: &[RegisteredProfile] = &[RegisteredProfile {
         TypeLayout { size: 64, align: 8 },
         TypeLayout { size: 96, align: 8 },
         TypeLayout { size: 16, align: 8 },
+        TypeLayout { size: 24, align: 8 },
+        TypeLayout { size: 32, align: 8 },
+        TypeLayout { size: 208, align: 8 },
+        TypeLayout { size: 40, align: 8 },
+        TypeLayout { size: 216, align: 8 },
     ],
     // Owner-selected current product budget: 12 GiB. The 0.9 margin and
     // 5% TEXT reserve remain unchanged; W4 is the native maximum in both modes.

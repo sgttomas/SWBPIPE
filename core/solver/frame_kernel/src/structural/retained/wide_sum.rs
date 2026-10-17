@@ -751,6 +751,35 @@ impl ExactWideSum {
         Ok((negative, out, used))
     }
 
+    /// Canonical exact odd integer net. Apart from `net`'s existing two passes,
+    /// this executes at most three `used`-limb scans/shifts. Every visited limb
+    /// is charged, including the zero scan; no floating projection occurs.
+    pub(crate) fn canonical_net(&mut self) -> Result<(bool, Vec<u64>, i64), SumRefusal> {
+        if self.empty { self.ready()?; return Ok((false, Vec::new(), 0)); }
+        let (negative, magnitude, used) = self.net()?;
+        let mut low = None;
+        for (i, limb) in magnitude[..used].iter().enumerate() {
+            self.work.charge(SumCharge::Net, 1, 0)?;
+            if *limb != 0 { low = Some((i, limb.trailing_zeros() as usize)); break; }
+        }
+        let Some((word, bit)) = low else { return Ok((false, Vec::new(), 0)); };
+        let shift = word * 64 + bit;
+        let mut top = used;
+        while top > word {
+            self.work.charge(SumCharge::Net, 1, 0)?;
+            if magnitude[top - 1] != 0 { break; }
+            top -= 1;
+        }
+        let bits = (top - 1) * 64 + 64 - magnitude[top - 1].leading_zeros() as usize - shift;
+        let mut out = Vec::with_capacity(bits.div_ceil(64));
+        for i in 0..bits.div_ceil(64) {
+            self.work.charge(SumCharge::Net, 1, 0)?;
+            out.push(window(&magnitude[..top], shift + i * 64));
+        }
+        let exponent = self.anchor.checked_add(shift as i128).and_then(|e| i64::try_from(e).ok()).ok_or(SumRefusal::Exponent)?;
+        Ok((negative, out, exponent))
+    }
+
     /// The exact value rounded once to the context's precision (nearest, ties
     /// to even); an exact zero is +0.
     pub(crate) fn round<const L: usize>(

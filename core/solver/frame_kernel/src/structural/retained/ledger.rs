@@ -72,6 +72,8 @@ impl LedgerNet {
 pub enum LedgerRefusal {
     /// The accumulator refused a term (`SumError`).
     Accumulator(SumError),
+    MemberLoads,
+    NotFormed,
 }
 
 /// The exact per-DOF nets of a case (DOFs with at least one term, ascending).
@@ -81,9 +83,44 @@ pub(crate) struct RetainedLedger {
     /// Per entry: whether any of its terms is nonzero (D1 revision 5a.3,
     /// R7 §4.1.6.3 item 7a: "a nonzero ledger term", even when the net is 0).
     nonzero: Vec<bool>,
+    pub(crate) declared: Vec<super::declared::DeclaredMemberLoad>,
 }
 
 impl RetainedLedger {
+    /// Netted declared entries and the existing nodal nets, without projecting
+    /// either family. Zero occurrences stay in the ascending DOF inventory.
+    pub(crate) fn with_declared(
+        nodal: &Self, declared: Vec<super::declared::DeclaredMemberLoad>,
+        sum: &mut ExactWideSum,
+    ) -> Result<Self, SumRefusal> {
+        let mut dofs: Vec<usize> = nodal.entries.iter().map(|e| e.0).collect();
+        for load in &declared {
+            for at in 0..12 {
+                let (dof, _) = load.node_entry(at);
+                if let Err(k) = dofs.binary_search(&dof) { dofs.insert(k, dof); }
+            }
+        }
+        let mut entries = Vec::with_capacity(dofs.len());
+        let mut nonzero = Vec::with_capacity(dofs.len());
+        for dof in dofs {
+            sum.clear();
+            let mut active = nodal.has_nonzero_term(dof);
+            if let Some(net) = nodal.net(dof) { sum.add_integer(net.negative, &net.magnitude, net.exponent)?; }
+            for load in &declared {
+                for at in 0..12 {
+                    let (g, value) = load.node_entry(at);
+                    if g == dof { active |= !value.is_zero(); sum.add_wide(&value, false)?; }
+                }
+            }
+            let (negative, magnitude, exponent) = sum.canonical_net()?;
+            entries.push((dof, LedgerNet { negative, magnitude, exponent }));
+            nonzero.push(active);
+        }
+        Ok(Self { entries, nonzero, declared })
+    }
+    pub(crate) fn member_is_loaded(&self, member: u32) -> bool {
+        self.declared.iter().any(|d| d.member == member && d.active())
+    }
     /// One `ExactAccumulator` per loaded DOF, one `add` per nodal load.
     pub(crate) fn from_source(source: &PrimitiveSource) -> Result<Self, LedgerRefusal> {
         // V-K seeded fault VK-F13 (§7.3-13): the loads folded at p = 128 in
@@ -126,6 +163,7 @@ impl RetainedLedger {
                 .map(|(dof, acc, _)| (*dof, LedgerNet::from_accumulator(acc)))
                 .collect(),
             nonzero: entries.iter().map(|e| e.2).collect(),
+            declared: Vec::new(),
         }
     }
 
@@ -135,6 +173,7 @@ impl RetainedLedger {
         Self {
             entries: Vec::new(),
             nonzero: Vec::new(),
+            declared: Vec::new(),
         }
     }
 
@@ -206,10 +245,11 @@ impl RetainedLedger {
 
     /// The ledger of a combination Σ cᵢ·(case i): per DOF, the exact products
     /// cᵢ·v of every load term of every operand (`add_product`, exact).
-    pub(crate) fn combined(operands: &[(f64, &PrimitiveSource)]) -> Result<Self, LedgerRefusal> {
+    pub(crate) fn combined(operands: &[(f64, &super::adaptive::CasePrep)]) -> Result<Self, LedgerRefusal> {
+        if operands.iter().any(|(_,p)|p.has_member_loads()){return Err(LedgerRefusal::MemberLoads);}
         let mut entries: Vec<(usize, ExactAccumulator, bool)> = Vec::new();
-        for &(factor, source) in operands {
-            for load in source.loads() {
+        for &(factor, prep) in operands {
+            for load in prep.source.loads() {
                 let dof = load.dof.global();
                 let index = match entries.binary_search_by_key(&dof, |e| e.0) {
                     Ok(k) => k,

@@ -465,6 +465,76 @@ impl RecordedInvocation {
         Ok(out)
     }
 
+    pub fn solve_member_cases(
+        &mut self,
+        sources: &[super::source::MemberSourceRef<'_>],
+        limit: CaseLimit,
+    ) -> Result<Vec<RecordedCase>, OriginError> {
+        let next = self
+            .used_cases
+            .checked_add(sources.len())
+            .ok_or(OriginError::CountRange("case ordinal"))?;
+        if self.store.calls.len() >= self.capacity.calls
+            || next > self.capacity.cases
+            || !self.runs_fit(sources.len())
+        {
+            return Err(OriginError::Capacity);
+        }
+        // Reserve per-call reference arrays before any source preparation or work.
+        let mut owners = reserved(sources.len())?;
+        let mut source_refs = reserved(sources.len())?;
+        let run_refs = reserved(sources.len())?;
+        let out = reserved(sources.len())?;
+        let source_base = self.store.sources.len();
+        for (position, source) in sources.iter().enumerate() {
+            let owner = NativeOwner::Case(self.used_cases + position);
+            let id = self.store.sources.len();
+            self.store.sources.push(SourceOrigin {
+                id,
+                owner,
+                identity: source.encoding(),
+                stiffness: source.source().stiffness_encoding(),
+                combination_ledger: None,
+            });
+            owners.push(owner);
+            source_refs.push(id);
+        }
+        self.used_cases = next;
+        let call = self.store.calls.len();
+        let before = self.meter.checked_charged();
+        self.store.calls.push(CallOrigin {
+            id: call,
+            kind: CallKind::CaseBatch,
+            owners,
+            requested_operands: Vec::new(),
+            sources: source_refs,
+            runs: run_refs,
+            invocation_before: before,
+            invocation_after: before,
+            result: CallResult::Runs,
+        });
+        let group_base = self.store.groups.len();
+        let recording = BatchRecording {
+            store: &mut self.store,
+            call,
+            source_base,
+            group_base,
+        };
+        let out = adaptive::solve_member_cases_projected(
+            sources,
+            limit,
+            &mut self.meter,
+            Some(recording),
+            out,
+            |core, run| RecordedCase {
+                outcome: core.outcome,
+                run: run.expect("recorded case has actual run"),
+            },
+        );
+        self.store.calls[call].invocation_after = self.meter.checked_charged();
+        Ok(out)
+    }
+
     /// SF-1: a case batch of `n` keeps one Run for every remaining declared
     /// combination: runs.len() + n + (combinations - used) <= runs. Dormant
     /// under `for_calls`; under `for_invocation` it stops a batch spending a
@@ -981,7 +1051,7 @@ impl RecordedInvocation {
 
 pub use super::product_certificate::final_case::{ProductRowSpec, ProductProofStartSpent,
     ProductProofDraft, ProductProofFailure, ProductProjectionSpent, ProjectedProofDraft,
-    ProductValuesBuilder, FrozenProductValues, ProductMaximumValue, ProductValuesSpent,
+    ProductValuesBuilder, FrozenProductValues, ProductMaximumValue, ProductMaximumEvidence, LoadedMaximumDiagnostic, ProductValuesSpent,
     ValuesCompletionWork, ProductValuesFailure, CertifiedProductProof, ProductFinalSpent};
 impl RecordedInvocation {
     pub fn begin_prepared_product<'s,'m>(&self,run:usize,owner:&'s RetainedSolve,
@@ -1001,3 +1071,5 @@ impl RecordedInvocation {
 pub use super::product_certificate::{NumericTrace, NumericError, TraceCopyWork, PreparationEndpoint, PreparationConversion};
 pub use super::product_certificate::source_residual::{ReadoutLaw,RadiusLaw,ViewFailure,BridgeFailure,LaneWorkTrace};
 pub use super::product_certificate::final_case::{ProductFailureView,HelperFailure,LaneTrace,ProductProofTrace};
+
+pub(crate) use super::product_certificate::final_case::{LoadedValue,MemberValuesWork,LOADED_SEARCH_NODE,LOADED_SEARCH_HEAP_MAX};

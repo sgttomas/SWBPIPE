@@ -320,7 +320,7 @@ fn i51_seed_is_same_draft_bound_and_prescriptions_are_never_seeded() {
     let foreign_cases=foreign_inv.solve_cases(&[i51_seed_source()],CaseLimit::new(u64::MAX)).unwrap();
     let foreign_owner=match &foreign_cases[0].outcome{ExecutionOutcome::Selected(v)=>v,_=>panic!()};
     let foreign_anchor=std::sync::Arc::new(ProofAnchor{owner:foreign_inv.product_owner_stamp(foreign_cases[0].run,foreign_owner).unwrap()});
-    let mut builder=ProductValuesBuilder{values:vec![2.0,3.0],maxima:vec![(0,7)],anchor:std::sync::Arc::clone(&anchor),visits:WorkTotal::zero()};
+    let mut builder=ProductValuesBuilder{member:None,values:vec![2.0,3.0],maxima:vec![(0,7)],anchor:std::sync::Arc::clone(&anchor),visits:WorkTotal::zero()};
     assert_eq!(builder.value(0).unwrap(),None);assert_eq!(builder.value(1).unwrap(),Some(3.0));assert_eq!(builder.visits.exact(),Ok(3));
     builder.visits=WorkTotal::exact_count(u64::MAX);assert_eq!(builder.value(1).unwrap_err().category(),"work_accounting");
     assert!(builder.abandon().visits.status().fault().is_some());
@@ -801,8 +801,8 @@ fn b3k_maxima(p: &ProjectedProofDraft<'_, '_>) -> Result<Vec<ProductMaximumValue
         let mut w = ProductCertificateSpent::new(&[]);
         w.projection_outcomes = w.prepared_reserve(5, 1)?;
         let section = section_for(p.data.owner, p.data.facts, spec.recipe, &mut w)?;
-        let k = recipe(p.data.owner, &mut w, &p.data.k.rows, spec.recipe, section.as_ref(), p.data.facts, true)?;
-        let s = recipe(p.data.owner, &mut w, &p.data.source.rows, spec.recipe, section.as_ref(), p.data.facts, false)?;
+        let k = recipe(p.data.owner, &mut w, &p.data.k.rows, spec.recipe, section.as_ref(), p.data.facts, true, &p.data.k.curvatures, i)?;
+        let s = recipe(p.data.owner, &mut w, &p.data.source.rows, spec.recipe, section.as_ref(), p.data.facts, false, &p.data.source.curvatures, i)?;
         out.push(ProductMaximumValue::new(member, i, project_hull(hull(k, s), ProductUnit::Pascal, i, &mut w)?)?);
     }
     Ok(out)
@@ -947,8 +947,8 @@ fn b3k_restored_material_gate_fails_stress_and_maximum_rows_with_represented_z()
             super::super::hooks::set_material_gate(gate);
             let mut w = ProductCertificateSpent::new(&[]);
             let section = section_for(owner, &facts, r.3, &mut w).unwrap();
-            let k = recipe(owner, &mut w, &projected.data.k.rows, r.3, section.as_ref(), &facts, true);
-            let s = recipe(owner, &mut w, &projected.data.source.rows, r.3, section.as_ref(), &facts, false);
+            let k = recipe(owner, &mut w, &projected.data.k.rows, r.3, section.as_ref(), &facts, true, &projected.data.k.curvatures, 0);
+            let s = recipe(owner, &mut w, &projected.data.source.rows, r.3, section.as_ref(), &facts, false, &projected.data.source.curvatures, 0);
             super::super::hooks::set_material_gate(false);
             assert!(s.is_ok(), "{} geometric", r.0);
             if gate { assert_eq!(association(&k.unwrap_err()), "represented Z", "{} row {i}", r.0); }
@@ -1212,6 +1212,7 @@ fn b2k_k07_view_admits_p2_refuses_corruption_and_keeps_native_data_flags() {
         let mut prescribed = p.prescribed.clone();
         f(&mut prescribed);
         changed.prep = std::sync::Arc::new(adaptive::CasePrep { source: p.source.clone(), ledger: p.ledger.clone(),
+            member_loads: None, formed_ledger: std::sync::OnceLock::new(),
             prescribed, factors: p.factors.clone(), identity: p.identity.clone(), layout: p.layout.clone(),
             extents: p.extents.clone() });
         let spent = changed.source_bridge_view(changed.source(), &changed.evidence().source_encoding, changed.selected_precision());
@@ -1412,8 +1413,8 @@ fn b2k_k09_full_prepared_proof_certifies_combinations_and_prints_the_diagnose_ro
         for spec in specs.iter() {
             let mut w = ProductCertificateSpent::new(&[]);
             let section = section_for(owner, &facts, spec.recipe, &mut w).unwrap();
-            let k = recipe(owner, &mut w, &projected.data.k.rows, spec.recipe, section.as_ref(), &facts, true).unwrap();
-            let g = recipe(owner, &mut w, &projected.data.source.rows, spec.recipe, section.as_ref(), &facts, false).unwrap();
+            let k = recipe(owner, &mut w, &projected.data.k.rows, spec.recipe, section.as_ref(), &facts, true, &projected.data.k.curvatures, 0).unwrap();
+            let g = recipe(owner, &mut w, &projected.data.source.rows, spec.recipe, section.as_ref(), &facts, false, &projected.data.source.curvatures, 0).unwrap();
             let [tk, tg] = b2k_truth(name, &b2k_recipe_key(spec.recipe));
             assert!(b2k_contains(&k, &tk) && b2k_contains(&g, &tg), "{name} {}: truth outside a lane", spec.id);
             lanes.push((k, g));
@@ -1540,8 +1541,8 @@ fn b2k_k13_a_case_owner_keeps_its_hull_projected_displacement_magnitude() {
             let mut w = ProductCertificateSpent::new(&[]);
             w.projection_outcomes = w.prepared_reserve(5, 1).unwrap();
             let section = section_for(owner, &facts, spec.recipe, &mut w).unwrap();
-            let k = recipe(owner, &mut w, &projected.data.k.rows, spec.recipe, section.as_ref(), &facts, true).unwrap();
-            let g = recipe(owner, &mut w, &projected.data.source.rows, spec.recipe, section.as_ref(), &facts, false).unwrap();
+            let k = recipe(owner, &mut w, &projected.data.k.rows, spec.recipe, section.as_ref(), &facts, true, &projected.data.k.curvatures, 0).unwrap();
+            let g = recipe(owner, &mut w, &projected.data.source.rows, spec.recipe, section.as_ref(), &facts, false, &projected.data.source.curvatures, 0).unwrap();
             let hulled = project_hull(hull(k, g), spec.unit, i, &mut w).unwrap();
             assert_eq!(frozen[i].to_bits(), hulled.to_bits(), "{name} m{node}: the hull projection");
             // (ii) of the frozen components, which a case does not publish.

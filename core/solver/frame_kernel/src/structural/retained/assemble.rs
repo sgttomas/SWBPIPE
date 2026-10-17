@@ -71,6 +71,7 @@ where
     /// Rows: e_x, e_y, e_z.
     pub(crate) axes: [[Wide<L>; 3]; 3],
     pub(crate) inv_length: Wide<L>,
+    pub(crate) length: Wide<L>,
     /// EA/L, GJ/L, EI_z/L, EI_y/L.
     pub(crate) axial: Wide<L>,
     pub(crate) torsion: Wide<L>,
@@ -410,6 +411,7 @@ where
         node_j: m.node_j,
         axes: [ex, ey, ez],
         inv_length,
+        length,
         axial,
         torsion,
         bend_z,

@@ -357,20 +357,39 @@
       ]
     },
     "LedgerError": {
-      "type": "object",
-      "properties": {
-        "tag": {
-          "const": "accumulator"
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "tag": {
+              "const": "accumulator"
+            },
+            "error": {
+              "$ref": "#/$defs/SumError"
+            }
+          },
+          "required": [
+            "tag",
+            "error"
+          ],
+          "additionalProperties": false
         },
-        "error": {
-          "$ref": "#/$defs/SumError"
+        {
+          "type": "object",
+          "properties": {
+            "tag": {
+              "enum": [
+                "member_loads",
+                "not_formed"
+              ]
+            }
+          },
+          "required": [
+            "tag"
+          ],
+          "additionalProperties": false
         }
-      },
-      "required": [
-        "tag",
-        "error"
-      ],
-      "additionalProperties": false
+      ]
     },
     "Stop": {
       "oneOf": [
@@ -2719,7 +2738,8 @@
                   "epsilon",
                   "midpoint",
                   "rows",
-                  "reaction"
+                  "reaction",
+                  "member_load_curvatures"
                 ]
               },
               "capacity": {
@@ -2975,6 +2995,9 @@
               }
             }
           ]
+        },
+        "loaded_maximum_diagnostic": {
+          "$ref": "#/$defs/LoadedMaximumDiagnostic"
         }
       },
       "required": [
@@ -4237,6 +4260,43 @@
               "additionalProperties": false
             }
           ]
+        },
+        "member_load_terms": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "constructor_ordinal": {
+                "$ref": "#/$defs/U"
+              },
+              "source_id": {
+                "$ref": "#/$defs/Text"
+              },
+              "primitive_load_index": {
+                "$ref": "#/$defs/U"
+              },
+              "member": {
+                "$ref": "#/$defs/U"
+              },
+              "intensity": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/Bits"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "constructor_ordinal",
+              "source_id",
+              "primitive_load_index",
+              "member",
+              "intensity"
+            ],
+            "additionalProperties": false
+          }
         }
       },
       "required": [
@@ -7841,6 +7901,7 @@
               "enum": [
                 "no_operands",
                 "nested_combination",
+                "operand_member_loads",
                 "operands_differ",
                 "no_selected_operand"
               ]
@@ -8703,6 +8764,60 @@
         "preparation",
         "adapter",
         "operational"
+      ],
+      "additionalProperties": false
+    },
+    "LoadedMaximumEndpoint": {
+      "type": "object",
+      "properties": {
+        "negative": {
+          "type": "boolean"
+        },
+        "exponent": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991,
+          "x-rp-encoding": "safe_int"
+        },
+        "limbs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{16}$",
+            "x-rp-encoding": "limb64"
+          },
+          "minItems": 16,
+          "maxItems": 16
+        }
+      },
+      "required": [
+        "negative",
+        "exponent",
+        "limbs"
+      ],
+      "additionalProperties": false
+    },
+    "LoadedMaximumDiagnostic": {
+      "type": "object",
+      "properties": {
+        "row": {
+          "$ref": "#/$defs/U"
+        },
+        "member": {
+          "$ref": "#/$defs/U"
+        },
+        "lower": {
+          "$ref": "#/$defs/LoadedMaximumEndpoint"
+        },
+        "upper": {
+          "$ref": "#/$defs/LoadedMaximumEndpoint"
+        }
+      },
+      "required": [
+        "row",
+        "member",
+        "lower",
+        "upper"
       ],
       "additionalProperties": false
     }

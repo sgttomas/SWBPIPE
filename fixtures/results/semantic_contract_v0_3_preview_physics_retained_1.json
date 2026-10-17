@@ -1166,18 +1166,19 @@
     "On arcs: signed tangent-frame resultants and nominal stress components; endpoint force rows are node-on-element actions in the tangent frame at their end. No maximum, and no stress headline for a model containing an arc.",
     "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
     "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
-    "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance."
+    "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
+    "A full-span uniform member load is represented by its declared equivalent nodal load: six binary1024 entries per load, formed once from the binary64 inputs, each within 2^-1022 of its exact consistent value relative to that value. Retained-precision certificates certify that declared-load problem. A mechanics combination with an operand that carries member loads is not retained."
   ],
   "receipt_policy": "M03-INTEGRITY-MP-v2",
   "receipt_schema": "retained_precision_mp_v2.schema.json",
   "product_formation_definitions": [
     {
       "id": "RP-PREPARED-ORDINARY-DUAL-v1",
-      "sha256": "c4aebcef3ae3863f9576fb3a7e323e77a91687938f6605a83a2fdc958febb15f"
+      "sha256": "688639f2578d7764b6aa88fb5e650c6c9421f01c328a7362d6dfe0d78acd65f7"
     },
     {
       "id": "RP-PREPARED-COMBINATION-DUAL-v1",
-      "sha256": "34ce87e7ad6da457d81a5cbf25a077fb5d08f2960c5fd815e1163646de02d24a"
+      "sha256": "75b9414df919fb4e181aa06030249289b70f0518023afbe241f72e31b8b60f31"
     }
   ],
   "accuracy_classification": {
