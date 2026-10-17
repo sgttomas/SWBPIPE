@@ -8,6 +8,8 @@ use super::retained::work::WorkTotal;
 use super::{Expansion, StiffnessContribution, StructuralError, StructuralSystem};
 
 pub mod functionals;
+#[cfg(any(test, feature = "exact-operation-count"))]
+pub mod exact_operation_count;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Sign {
@@ -71,6 +73,22 @@ impl Default for Limits {
         }
     }
 }
+/// The per-pair constant C₂ of the metered `Work::mul` (RF source-method
+/// design §5.3). It covers one two-product of `add_product_charged` under the
+/// declared cost model, whose unit is one floating-point +, −, ×, fused
+/// multiply-add or `powi` (comparisons, clamps and integer exponent arithmetic
+/// are free): two exponent reads (0); four `exact_radix` scalings, at most 3
+/// iterations each for the operands (|ea|, |eb| ≤ 1074) and at most 5 each for
+/// lo and hi (|ea + eb| ≤ 2148), 4 per iteration; and the product with its
+/// fused residual (2). That is at most 66, leaving a margin of 30.
+const PAIR_CHARGE: usize = 96;
+/// `Work::add`'s grow-expansion charge on the current length `len`: `len`
+/// two-sum steps of 6 operations, plus the final term.
+fn grow_charge(len: usize) -> Result<usize, Error> {
+    len.checked_mul(6)
+        .and_then(|n| n.checked_add(1))
+        .ok_or(Error::Budget)
+}
 #[derive(Debug)]
 struct Work {
     limits: Limits,
@@ -83,23 +101,33 @@ impl Work {
         let next = self.used.checked_add(n);
         if next.is_none() || next.is_some_and(|x| x > self.limits.operations) {
             self.rejected = self.rejected.add(WorkTotal::exact_count(n as u64));
+            #[cfg(test)]
+            metered_tests::trace::charge(n, false);
             return Err(Error::Budget);
         }
         self.used = next.unwrap();
+        #[cfg(test)]
+        metered_tests::trace::charge(n, true);
         Ok(())
     }
     fn add(&mut self, a: &mut Expansion, b: f64) -> Result<(), Error> {
+        #[cfg(any(test, feature = "exact-operation-count"))]
+        let probe = exact_operation_count::Probe::start(self.used);
+        #[cfg(test)]
+        let trace = metered_tests::trace::begin_add(self, a);
+        let result = self.grow(a, b);
+        #[cfg(test)]
+        metered_tests::trace::end_add(trace, self, &result);
+        #[cfg(any(test, feature = "exact-operation-count"))]
+        probe.finish_add(self.used);
+        result
+    }
+    fn grow(&mut self, a: &mut Expansion, b: f64) -> Result<(), Error> {
         // Bound the worst next expansion size and operation count before work.
         if a.terms.len() >= self.limits.expansion_terms {
             return Err(Error::Budget);
         }
-        self.charge(
-            a.terms
-                .len()
-                .checked_mul(6)
-                .and_then(|n| n.checked_add(1))
-                .ok_or(Error::Budget)?,
-        )?;
+        self.charge(grow_charge(a.terms.len())?)?;
         a.add(b)?;
         Ok(())
     }
@@ -115,18 +143,44 @@ impl Work {
         self.add(&mut x, v)?;
         Ok(x)
     }
+    /// Metered multiplication, the single work-charging rule of every exact
+    /// attempt (RF source-method design §5; HELP_HUMAN ruling 2026-10-16).
+    /// Both Context entries, every `Response` and `RetainedResponse` method and
+    /// the functional set multiply here: there is no flag and no second regime.
+    ///
+    /// For each term pair, in order: refuse with `Budget` if the output could
+    /// pass `expansion_terms` (E); charge `PAIR_CHARGE` (C₂ = 96) for the
+    /// two-product; then run `add_product`'s sequence unreordered, charging
+    /// `grow_charge` (6·len + 1, `Work::add`'s formula) on the output's current
+    /// length immediately before each of its two grow-expansion adds.
+    ///
+    /// Soundness (§5.2). Every step is charged before it executes, by at least
+    /// its operations under §5.3's model, and `charge` refuses before the total
+    /// would pass the limit, so executed work never exceeds the charged total
+    /// and the charged total never exceeds the limit. A refusal records its
+    /// amount in `rejected` and returns `Budget`; the partial product is a
+    /// dropped local, so nothing partial escapes. A pair proceeds only at
+    /// len ≤ E − 2, so it charges at most C₂ + (6(E − 2) + 1) + (6(E − 1) + 1)
+    /// = 12E + 80, below the 12E + 128 per pair the replaced up-front precharge
+    /// took (at E = 256: 2·(6·256 + 1) + 96 = 3,170 ≤ 3,200). The arithmetic is
+    /// unchanged, so within one attempt the running total never exceeds the
+    /// replaced rule's for the same executed prefix: a `Budget` refusal can
+    /// only disappear. Across attempts sharing one ledger, an earlier attempt
+    /// that now runs further can leave a later one less; that fails closed, as
+    /// a typed `Budget` decline.
     fn mul(&mut self, a: &Expansion, b: &Expansion) -> Result<Expansion, Error> {
-        let pairs = a
-            .terms
-            .len()
-            .checked_mul(b.terms.len())
-            .ok_or(Error::Budget)?;
-        // Reserve a conservative full product workload before any product.
-        self.charge(
-            pairs
-                .checked_mul(12 * self.limits.expansion_terms + 128)
-                .ok_or(Error::Budget)?,
-        )?;
+        #[cfg(any(test, feature = "exact-operation-count"))]
+        let probe = exact_operation_count::Probe::start(self.used);
+        #[cfg(test)]
+        let trace = metered_tests::trace::begin_mul(self, a, b);
+        let result = self.metered_product(a, b);
+        #[cfg(test)]
+        metered_tests::trace::end_mul(trace, self, &result);
+        #[cfg(any(test, feature = "exact-operation-count"))]
+        probe.finish_mul(self.used);
+        result
+    }
+    fn metered_product(&mut self, a: &Expansion, b: &Expansion) -> Result<Expansion, Error> {
         let mut out = Expansion::default();
         for &x in &a.terms {
             for &y in &b.terms {
@@ -135,7 +189,15 @@ impl Work {
                 {
                     return Err(Error::Budget);
                 }
-                out.add_product(x, y, 0)?;
+                #[cfg(any(test, feature = "exact-operation-count"))]
+                let pair = exact_operation_count::Probe::start(self.used);
+                self.charge(PAIR_CHARGE)?;
+                let step = out.add_product_charged(x, y, 0, |len| -> Result<(), Error> {
+                    self.charge(grow_charge(len)?)
+                });
+                #[cfg(any(test, feature = "exact-operation-count"))]
+                pair.finish_pair(self.used);
+                step?;
             }
         }
         Ok(out)
@@ -617,7 +679,7 @@ pub struct Response<'a> {
 /// counts. Charges include bounded scalar checks, loops and exact arithmetic.
 /// `rejected` is the checked total of attempted budget reservations that were
 /// NOT executed (D6: unavailable on overflow, never saturated). A range
-/// failure retains its accepted precharge, even if arithmetic stopped early.
+/// failure retains the charges it accepted, even if arithmetic stopped early.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct WorkReport {
     pub charged: usize,
@@ -1670,6 +1732,8 @@ impl RetainedResponse {
 
 #[cfg(test)]
 mod s11k_tests;
+#[cfg(test)]
+mod metered_tests;
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -16,3 +16,10 @@ open_pipe_stress_correct_norm = { path = "../../numerics/correct_norm" }
 # enables this, through its own `seeded-faults` feature; no product manifest
 # may name it (numerical_robustness's feature-guard test).
 mutation-controls = []
+# RF source-method design §5.4's maintained control: a dev-only, thread-local
+# counter of the exact operations `exact_boundary`'s `Work::mul` and
+# `Work::add` execute, against what they charge. Test builds only: the frame
+# kernel's own tests compile it unconditionally, and a consumer's tests enable
+# it through a dev-dependency only, never a product dependency. It adds no
+# field to any type.
+exact-operation-count = []

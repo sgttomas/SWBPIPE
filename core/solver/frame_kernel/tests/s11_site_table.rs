@@ -219,6 +219,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural.rs", "radix_scale", 1, "integer: exponent step"),
     ("FK/structural.rs", "add", 1, "integer: expansion operation count"),
     ("FK/structural.rs", "add_product", 1, "integer: expansion operation count"),
+    ("FK/structural.rs", "add_product_charged", 1, "integer: expansion operation count (RF §5.1: add_product's sequence for the metered exact Work::mul)"),
     ("FK/structural.rs", "exact_radix", 1, "integer: exponent step"),
     ("FK/structural.rs", "audit_contributions", 7, "exempt: two descriptive ContributionRounding low-part sums of stiffness expansions and one delta-norm of stiffness differences (section 2.5 contribution_differences); RV1-N1: the column magnitude/delta norms and the rhs magnitude norms (self-assignment), stiffness and |rhs| norms of the perturbation estimate, not load sums"),
     ("FK/structural.rs", "audit_intended_action", 2, "integer: denominator operation count (the audit itself is exact, section 4.3 rule 6); RV1-N1: the same-sign denominator |f|+sum|K||u| (a magnitude bound, not a load sum)"),

@@ -765,6 +765,8 @@ impl Expansion {
             let sum = q + e;
             let z = sum - q;
             let low = (q - (sum - z)) + (e - z);
+            #[cfg(any(test, feature = "exact-operation-count"))]
+            exact_boundary::exact_operation_count::two_sum_step();
             if !sum.is_finite() || !z.is_finite() || !low.is_finite() {
                 return Err(StructuralError::Range("expansion addition"));
             }
@@ -803,6 +805,43 @@ impl Expansion {
         self.add(exact_radix(hi, ea + eb + exponent)?)?;
         Ok(())
     }
+    /// `add_product`'s sequence, unchanged and unreordered, for the metered
+    /// `exact_boundary` multiplication only (RF source-method design §5.1).
+    /// `before_add` receives the current length immediately before each of
+    /// the two `add` calls, after that part's radix scaling, and may refuse;
+    /// a refusal returns before the add runs. Values, lengths and the `Range`
+    /// error raised are exactly `add_product`'s. Other callers keep
+    /// `add_product`.
+    pub(crate) fn add_product_charged<E: From<StructuralError>>(
+        &mut self,
+        a: f64,
+        b: f64,
+        exponent: i32,
+        mut before_add: impl FnMut(usize) -> Result<(), E>,
+    ) -> Result<(), E> {
+        if a == 0.0 || b == 0.0 {
+            return Ok(());
+        }
+        if !a.is_finite() || !b.is_finite() {
+            return Err(StructuralError::Range("expansion product input").into());
+        }
+        let ea = binary_exponent(a);
+        let eb = binary_exponent(b);
+        let ma = exact_radix(a, -ea)?;
+        let mb = exact_radix(b, -eb)?;
+        let hi = ma * mb;
+        let lo = ma.mul_add(mb, -hi);
+        self.operations += 2;
+        #[cfg(any(test, feature = "exact-operation-count"))]
+        exact_boundary::exact_operation_count::two_product();
+        let lo = exact_radix(lo, ea + eb + exponent)?;
+        before_add(self.terms.len())?;
+        self.add(lo)?;
+        let hi = exact_radix(hi, ea + eb + exponent)?;
+        before_add(self.terms.len())?;
+        self.add(hi)?;
+        Ok(())
+    }
     pub(crate) fn is_zero(&self) -> bool {
         self.terms.is_empty()
     }
@@ -833,6 +872,8 @@ pub(crate) fn exact_radix(mut value: f64, mut exponent: i32) -> Result<f64, Stru
         return Err(StructuralError::Range("exact radix input"));
     }
     while exponent != 0 && value != 0.0 {
+        #[cfg(any(test, feature = "exact-operation-count"))]
+        exact_boundary::exact_operation_count::radix_iteration();
         let step = exponent.clamp(-512, 512);
         let next = value * 2.0_f64.powi(step);
         if !next.is_finite() || next == 0.0 || next * 2.0_f64.powi(-step) != value {
