@@ -1,5 +1,6 @@
 //! Explicit composite validation of untouched physical and retained-source records.
 //! Hash/recipe consistency is not custody; numerical use needs captured invocation.
+use crate::section_basis::bit_equal;
 use crate::source_blocks::{domain_hash, shape_in, shape_in_resources};
 use open_pipe_stress_correct_norm::norm3;
 use open_pipe_stress_units::{canonical_unit, convert_for_dimension, unit_by_symbol, Dimension};
@@ -501,7 +502,8 @@ fn maximum_link(exact: &Value, ex: &Value, record: &Value) -> Result<(), String>
             "functional_ids",
             "actions",
         ] {
-            require(end[key] == claim[key], "MAXIMUM_ENDPOINT_SOURCE")?;
+            // T4-U6 (A2): the maximum's endpoint is the endpoint section's, bit for bit.
+            require(bit_equal(&end[key], &claim[key]), "MAXIMUM_ENDPOINT_SOURCE")?;
         }
         require(
             num(&end["station_fraction"])? == endpoint as f64,
@@ -699,10 +701,11 @@ pub(crate) fn validate_derived(
             .collect::<Vec<_>>();
         require(p.len() == 1, "NORM_PROJECTION")?;
         let p = p[0];
+        // T4-U6 (A2): the check's value and interval are its projection's, bit for bit.
         require(
             check["functional_ids"][i] == p["functional_id"]
                 && same(&check["values"][i], num(&p["value"])?)?
-                && check["intervals"][i] == p["interval"],
+                && bit_equal(&check["intervals"][i], &p["interval"]),
             "NORM_PROJECTION_BINDING",
         )?;
         let index = check["functional_indices"][i]
@@ -841,7 +844,7 @@ pub(crate) fn validate_source_case_in(
     }
     Ok(())
 }
-fn normalized_quantity(quantity: &Value, dimension: Dimension) -> Result<f64, String> {
+pub(crate) fn normalized_quantity(quantity: &Value, dimension: Dimension) -> Result<f64, String> {
     // Exact producer normalize_quantity authority, including dimension resolution,
     // affine temperatures and the identity path; no local conversion catalog.
     let from = unit_by_symbol(text(&quantity["unit"])?, dimension)
@@ -1177,9 +1180,12 @@ fn section_functionals(record: &Value) -> Result<(), String> {
                     .map(|c| station[key][c].clone())
                     .collect::<Vec<_>>()
             };
+            // T4-U6 (A2): the endpoint section is its stations', bit for bit.
             require(
-                endpoint["endpoints"][i]
-                    == json!({"station_fraction":station["station_fraction"],"functional_indices":pick("functional_indices"),"functional_ids":pick("functional_ids"),"actions":pick("actions")}),
+                bit_equal(
+                    &endpoint["endpoints"][i],
+                    &json!({"station_fraction":station["station_fraction"],"functional_indices":pick("functional_indices"),"functional_ids":pick("functional_ids"),"actions":pick("actions")}),
+                ),
                 "ENDPOINT_SECTION_LINK",
             )?;
         }
@@ -1224,10 +1230,11 @@ fn validate_stress(
         .find(|m| m["pipe_id"] == row["entity_ref"])
         .ok_or("PHYSICS_SOURCE_STRESS_MEMBER")?;
     let station = &member["stations"][index];
+    // T4-U6 (A2): the check's action is its station's, bit for bit.
     require(
         check["functional_index"] == station["functional_indices"][component]
             && check["functional_id"] == station["functional_ids"][component]
-            && check["action"] == station["actions"][component],
+            && bit_equal(&check["action"], &station["actions"][component]),
         "STRESS_FUNCTIONAL_LINK",
     )?;
     let exact = array(&source["contract_evidence"]["exact_cases"])?
@@ -1333,19 +1340,6 @@ pub fn validate_in(source: &Value, actual_invocation: Option<&Value>, contract: 
     // T1 still holds: reading and binding the current resolved state does not
     // independently rederive it from the captured request (join standing ruling).
     Ok(eligible && !resolved)
-}
-/// T4-U6 (§2.5, A2): structural equality whose numbers compare by their
-/// binary64 bits ([`same`]), as the twins' values do: -0.0 is not 0.0, and a
-/// number's JSON form (`1e6` or `1000000`) does not matter.
-fn bit_equal(a: &Value, b: &Value) -> bool {
-    match (a, b) {
-        (Value::Number(_), Value::Number(_)) => num(b).and_then(|b| same(a, b)).unwrap_or(false),
-        (Value::Array(x), Value::Array(y)) => x.len() == y.len() && x.iter().zip(y).all(|(p, q)| bit_equal(p, q)),
-        (Value::Object(x), Value::Object(y)) => {
-            x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| bit_equal(v, w)))
-        }
-        _ => a == b,
-    }
 }
 
 #[cfg(test)]
