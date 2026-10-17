@@ -348,7 +348,11 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // decline; its one include is a request fixture, not a reviewed input), and
             // it stays inspected with the production after the resume, which is
             // byte-identical.
-            complete_suffix_sha256: "3441631b726908b52967119ffba1d0496688efd5da137d4f5dbcd14383115cdc",
+            // W1 independent re-audit: the complete RF suffix is byte-identical,
+            // followed only by the closed `w1_member_reader_gate_tests` module
+            // (no includes, path modules or statics). It stays inspected after
+            // the unchanged production resume; no exclusion boundary changes.
+            complete_suffix_sha256: "ca7dbac4a7374237af76409f681036e83b323c79cc03f4a3ccf49e1c871a965f",
             // Only the preceding closed test region is excluded. These two
             // trailing public functions are production and remain inspected.
             production_resume: Some("/// The reader's outcome as JSON, for callers outside Rust (the desktop's wasm"),
