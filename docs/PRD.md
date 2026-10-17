@@ -784,7 +784,7 @@ The analytical engine shall:
 
 A verified bound states that a published value lies within a stated distance of the exact solution of the problem the method records. For a retained-precision result that problem is the declared linear problem formed from the recorded inputs; for retained-source recovery it is the represented source problem. The bound covers arithmetic and solution error only, and any difference between that problem and the authored inputs is disclosed, not bounded. A verified bound says nothing about modelling idealizations, input data or physical behavior, and it is not a professional, standards-body or code-compliance determination (§21.2).
 
-The retained-precision method establishes such bounds in two ways. A retained-precision result re-solves a case at extended precision and bounds each covered row it publishes. Retained-source recovery solves an exact-route case exactly from its retained source terms and publishes each covered quantity as an enclosing interval.
+The retained-precision method establishes such bounds in two ways. For a retained-precision result it re-solves a case at extended precision and bounds each covered row it publishes. For retained-source recovery it solves an exact-route case exactly from its retained source terms and publishes each covered quantity as an enclosing interval.
 
 Where its retained-precision method establishes them, the engine shall publish verified bounds for nodal displacements and rotations, member end and station forces and moments, support reactions, and the stresses and stress maxima recovered from them. This applies to load cases and to mechanics combinations of solved cases, within the model domains the method supports. In addition:
 
