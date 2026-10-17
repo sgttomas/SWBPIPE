@@ -689,6 +689,76 @@ fn f1_check_complete_reads_the_observer_route() {
     }
 }
 
+// ---- U6-RP (T4-U6/U8): route E's G-C bounds are the priced D-5 census premise -------------------
+
+/// U6-RP and "Gate bounds (registration)" (retained-pricing-rules.md): `P_FINAL_EXACT` and
+/// `evidence_caps` are written by hand outside the generated block, so they are tied here to the
+/// committed census the pricing tool charges (`tools/retained_pricing/data/census_d5_79bf8656dc.json`).
+/// The tool's chain (`lib/census_patch.py`) charges route E's P_final = 7n + R·m + 8g + 3, with R the
+/// census's `rows_per_member` in place of route L's 51, and each case's evidence owner at `_exmax`:
+/// per fact, the maximum of the preview tree and rest + (per pipe + per unavailable pipe)·m
+/// + (6·per DOF + per node)·n, priced for C cases as s(Value) array slots, objects + ⌊entries / 5⌋
+/// Node(String,Value) nodes, and string and key bytes. A change to either side alone fails here;
+/// the tool's own premise is tied to the same census by `tests/test_u6_rp_route_e_premise.py`.
+/// No solve.
+#[test]
+fn u6_rp_route_e_gate_caps_are_the_priced_census() {
+    use crate::retained_product::W1Route;
+    let census: Value = serde_json::from_str(include_str!("../../../tools/retained_pricing/data/census_d5_79bf8656dc.json")).unwrap();
+    let (n, m, g) = (caps::NODES as u64, caps::MEMBERS as u64, caps::SUPPORTS as u64);
+    let (c, ceq) = (caps::LOAD_CASES as u64, caps::CASE_EQUIVALENTS as u64);
+    assert_eq!(census["caps"], json!({"n": n, "m": m, "g": g}), "the census is taken at D1's count caps");
+    // P_final: route E's per-member coefficient is the census's rows per member; the other rows are route L's.
+    let rpm = census["rows_per_member"].as_u64().unwrap();
+    let rest = 7 * n + 8 * g + 3;
+    assert_eq!(P_FINAL, rest + 51 * m, "route L's P_final");
+    assert_eq!(P_FINAL_EXACT - rest, rpm * m, "route E's per-member coefficient is the census's rows_per_member ({rpm})");
+    // The census's measurement: every empty-region exact case publishes 7n + R·m + 8g rows.
+    let measured = census["rows"].as_array().unwrap();
+    assert!(!measured.is_empty());
+    for row in measured {
+        let f = |k: &str| row[k].as_u64().unwrap();
+        for case in row["empty_region_cases"].as_array().unwrap() {
+            let rows = row["rows_by_basis_ref"][case.as_str().unwrap()].as_u64().unwrap();
+            assert_eq!(rows, 7 * f("n") + rpm * f("m") + 8 * f("g"), "{} {}", row["fixture"], row["mode"]);
+        }
+    }
+    // G-C's result rows and their capacity: C_eq·P_final at the push capacity the chain prices (U6-RB-V).
+    let e = phase_caps_on(W1Route::Exact);
+    assert_eq!(e.complete[..2], [ceq * P_FINAL_EXACT, push_capacity(ceq * P_FINAL_EXACT)]);
+    // The chain's per-case evidence coefficients (census_patch.py `coef`), from the census's parts.
+    const FACTS: [&str; 5] = ["arr", "obj", "ent", "strb", "keyb"];
+    let parts = &census["exact_evidence_case_parts"];
+    let coef = |k: &str| {
+        let p = |part: &str| parts[part][k].as_u64().unwrap();
+        (p("rest"), p("per_pipe") + p("per_unavailable_pipe"), 6 * p("per_dof") + p("per_node"))
+    };
+    // `evidence_caps` is the chain's `_exmax` at every (n, m, g) within D1's caps.
+    for nn in 0..=n {
+        for mm in 0..=m {
+            for gg in 0..=g {
+                let (preview, exact) = (evidence_caps(W1Route::Preview, nn, mm, gg), evidence_caps(W1Route::Exact, nn, mm, gg));
+                for (i, k) in FACTS.iter().enumerate() {
+                    let (r, per_member, per_node) = coef(k);
+                    assert_eq!(exact[i], preview[i].max(r + per_member * mm + per_node * nn), "{k} at (n, m, g) = ({nn}, {mm}, {gg})");
+                }
+            }
+        }
+    }
+    // At the caps: the census's preview-tree facts and its componentwise maximum.
+    let (preview, exact) = (evidence_caps(W1Route::Preview, n, m, g), evidence_caps(W1Route::Exact, n, m, g));
+    let x = |k: &str| census["componentwise_max"][k].as_u64().unwrap();
+    for (i, k) in FACTS.iter().enumerate() {
+        assert_eq!(preview[i], census["preview_tree_per_case_at_caps"][k].as_u64().unwrap(), "preview {k}");
+        assert_eq!(exact[i], x(k), "exact {k}");
+    }
+    // G-C's five evidence rows are what the chain charges for C cases.
+    assert_eq!([e.complete[9], e.complete[10], e.complete[12], e.complete[13]], [c * x("arr"), c * x("obj"), c * x("strb"), c * x("keyb")]);
+    let nodes = c * (x("obj") + x("ent") / 5);
+    assert_eq!(e.complete[10] + e.complete[11] / 5, nodes, "the Node(String,Value) count the chain prices");
+    assert!(e.complete[10] + (e.complete[11] + 1) / 5 > nodes, "one more entry is a node more than the chain prices");
+}
+
 // ---- U6-RL (T4-U6/U8 D3 review R2): source-selected endpoint ties under route E's G-C ----------
 
 /// An exact input whose three cases select the retained source (the separate body S's soft
