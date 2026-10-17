@@ -285,14 +285,14 @@ fn end_result<T>(obs: &mut dyn StageObserver, stage: Stage, result: &Result<T, S
 /// `loads` are the ledger's closure primitives (K-D5 closure, DEL-04-01
 /// kd5-member-relative-bound.md §1); the K6 ledger holds only nodal input
 /// terms, so the list is empty and the closure checks it against the ledger.
-pub fn frames_formation_source(
+pub fn frames_formation_source<'a>(
     node_count: usize,
     frames: &[FrameElement],
-    loads: &[LoadPrimitive],
-) -> FormationSource {
+    loads: &'a [LoadPrimitive],
+) -> FormationSource<'a> {
     FormationSource {
         node_count,
-        loads: loads.to_vec(),
+        loads: loads.into(),
         frames: frames.to_vec(),
         frame_members: Vec::new(),
         connectors: Vec::new(),

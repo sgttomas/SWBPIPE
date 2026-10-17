@@ -603,7 +603,7 @@ For a genuine Preparation input, the implementation probes an annulus-preparatio
   | `b7-plan.md` | its RF row, Status and J7 paragraph | the member-load pointer (this change) |
   | `fixtures/product_preview/*_generation.json` | if regenerated | if regenerated |
 
-- **D3.** Stage 2 re-registers from RF's registered profile. Section 9 uses RF's stated ~8 MB (derived, RF §9). At implementation start, RF's actual registered headroom replaces that figure. If RF's real delta exceeds 8 MB, section 9's lever set must still leave positive headroom, or the shortfall returns to HELP_HUMAN.
+- **D3 (merged RF recheck, 2026-10-17).** Stage 2 re-registers from RF's registered profile. RF merged as `03f39bb49d9cd9edacd605702c3b4abf3771e8f9` after exact head `f16fac0c8244b1cf935b1252b499e8ac2aa077d0` passed hosted run `39025750857`. Its actual native delta is 16,361,805 B per phase, replacing the design's estimated 8 MB. The fresh pricing run on the merged revision has all four points complete and both O-10 checks passing; all 1,466 coefficients equal RF's final-source tree (only the basis label differs). Its registered dense headroom is W4 +35,451,012 B and X1 +60,972,710 B, with all 70 evaluations passing. Subtracting the extra 8,361,805 B from section 9's projection gives +125,189,938 B minimum; this is derived feasibility, not actual-source W1 qualification. The source-method decline and J2/J7 pins remain unchanged.
 
 ## 9. Memory (D3) feasibility
 
@@ -616,6 +616,8 @@ Fixed throughout: M = 12 GiB = 12,884,901,888 B, floor(0.9M) = 11,596,411,699 B,
 - *Estimated* means a hand estimate.
 
 **Basis (measured).** `price.py run 4971d62dc9` reproduces U6/U8's registered profile exactly: all 1,456 coefficients equal, `generate --check` differs only in the basis line, and all 70 evaluations equal the registered figures. Merged dense W4 is +51,812,817 B; merged dense X1 +77,334,515 B; merged sparse W4 +110,944,161 B. Atoms come from `/private/tmp/t4-u6u8-reg2-logs/native/N_profile.log`.
+
+**Implementation baseline (measured, merged RF).** Section 8's recheck supersedes the 8 MB RF estimate in the projections below. The merged-source tree is `/Users/ryan/dev/chirality-t3/scratch/w1-impl-price-baseline/tree_merged.json`; RF's reusable native atoms and 70-evaluation evidence are `/private/tmp/rf-impl-d3/profile3.log` and `evaluations70.json`, with final-source comparison against `/Users/ryan/dev/chirality-t3/scratch/rf-impl-price-final-source/tree_merged.json`. These ephemeral paths are evidence dependencies, not product or test inputs. Reduction and stage-2 implementation qualification still require their own source trees, native layout evidence and independent scrutiny.
 
 **What stage 2 falsifies (tool-evaluated).** Route L's credit `formed_cases = max(actual_cases − 1, 0)` and `success_findings = "max(lc-1,0)"` (`base/b7a_phase_model.py`) rest on stage 1 forcing at least one selected case to be nodal-only. Removing them in the scratch tool adds 76,293,661 B to W4 in both modes:
 
@@ -680,13 +682,13 @@ W3 also gains `T16_P2` +6,293,222 B. `MEMBER_LOAD_CAUSE` carried no credit: the 
 
 *Pricing-accuracy rules.* Each states code facts on a lifetime and gets a source pin, independent review, and a lifetime test where one can be written:
 - **L1b.** The closure comparison builds one `p.closure_entry()` at a time (`formation_check.rs` 647), so one transient entry is charged, not q. Saves 18,014,760 B.
-- **L1c.** `AssembledForce::force_scaled` (`load_ledger.rs` 413, via `LoadPrimitive::force_scaled`, `formation_check.rs` 296) exists only in the b ≠ 0 evaluation and is dropped when that call returns. The b = 0 evaluation borrows `f` and runs first (`nonlinear_integration/src/structural_adapter.rs` 2197-2217); the return tail holds no scaled owner. So the scaled children are charged once, not three times. Saves 27,377,664 B. Lifetime test: no scaled owner exists in b = 0, and the b ≠ 0 owner and children are dropped when that evaluation returns, before the caller's return tail.
+- **L1c.** `AssembledForce::force_scaled` (`load_ledger.rs` 413, via `LoadPrimitive::force_scaled`, `formation_check.rs` 296) exists only in the b ≠ 0 evaluation and is dropped when that call returns. The b = 0 evaluation borrows `f` and runs first (`nonlinear_integration/src/structural_adapter.rs` 2197-2217); the return tail holds no scaled owner. So the scaled children are charged once, not three times. Saves 27,377,664 B in the design run. The implementation control `force_scaled_owner_is_call_local_and_unscaled_borrows` checks the source's branch, call-local owner, return types and evaluation order. It is a lexical/ownership warrant, not a runtime Drop or allocation observation; the priced rule also pins the complete relevant source.
 - **L2.** Uniform-constructor staging is sequential.
   - `add_uniform_element_loads` (PP `lib.rs` 10975) calls `equivalent_global_nodal_loads_with_spans_formed(&[global])` once per load. Its staging (`exact_scaled_intended`, `monomial_bounds`, straight_pipe `lib.rs` 1900) is local and freed on return.
   - The returned `Vec<Formation>` is consumed by `.zip` into the ledger, which is already priced as resident.
   - `certified_loads::attach_last` (`certified_loads.rs` 122-160) stages one term at a time.
   - The bound per case is one call's owners plus one term's attach staging (95,408 B), keeping the ×c convention and the moving allowance. D1 has one single-threaded call per case, and D1.4 refuses arcs, so only the straight branch is reached.
-  - Saves 54,865,392 B. Lifetime test: at most one call's staging is live.
+  - Saves 54,865,392 B in the design run. The implementation control `uniform_constructor_and_attach_staging_is_sequential` checks the synchronous single-load call, consumption and sequential attachment. This source-backed control and the pricing pins establish the lifetime warrant; it is not a runtime allocation observation.
 
 *Not used.* Two levers need more than this unit carries:
 - A shared force-scale exponent outside the primitive (about 13.7 MB) would change the K-D5 closure binding.

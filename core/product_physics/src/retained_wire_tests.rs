@@ -407,6 +407,39 @@ fn u6_dh_borrowed_wrapper_text_and_hash_are_the_former_objects() {
     assert_eq!(wire::domain_hash("retained_precision_formation_v1", &payloads[0]).as_deref(), Some(wire::DEFINITION_SHA256));
 }
 
+/// L3: exercise both moved Values through the real entry serializer and
+/// compare compact/pretty text and receipt-domain hashes with the former json! copies.
+#[test]
+fn ordinary_formation_value_move_is_byte_identical() {
+    for mode in MODES {
+        for raw in [milestone_raw(), crate::f1a_tests::udl_w1e8_with_soft_branch()] {
+            let (request, capture) = source_receipt::CapturedInvocation::parse(raw, mode).unwrap();
+            let mut observer = rp::ProductCapture::prepared_probe();
+            let observed = run_linear_static_preview_observed(request, mode, Some(&capture), &mut SourceRecoveryBudget::default(), Some(&mut observer));
+            let env = serde_json::to_value(&observed).unwrap();
+            let [captured] = &observer.ordinary[..] else { panic!("one ordinary seed") };
+            let mut adversarial = captured.clone();
+            adversarial.load_row_finding = Some(rp::FindingSeed {
+                sentence: "quote \" slash \\ newline\n é 😀".into(),
+                fired: vec!["z".into(), "a".into(), "\u{0}".into()], diagnostic_ref: None,
+            });
+            for seed in [captured, &adversarial] {
+                let actual = wire::test_ordinary_value(&env, &seed.case, seed).unwrap();
+                let ((initial, w2, _), failures) = wire::test_ordinary_members(seed);
+                assert!(failures.is_empty(), "{failures:?}");
+                let finding = seed.load_row_finding.as_ref().map(|f| json!({
+                    "guard":"load_row","sentence":f.sentence,"fired":f.fired,"diagnostic_ref":f.diagnostic_ref}));
+                let formation = json!({"load_row_finding":finding,"d5_diagnostic_ref":seed.d5_diagnostic_ref});
+                let former = json!({"case_index":0,"case_id":seed.case,"material_basis_ref":0,"requested_mode":"sparse_interactive",
+                    "initial":initial,"w2":w2,"formation":formation,"diagnostic_refs":actual["diagnostic_refs"]});
+                assert_eq!(serde_json::to_vec(&actual).unwrap(), serde_json::to_vec(&former).unwrap());
+                assert_eq!(pretty(&actual), pretty(&former));
+                assert_eq!(wire::domain_hash("retained_precision_receipt_mp_v2", &actual), wire::domain_hash("retained_precision_receipt_mp_v2", &former));
+            }
+        }
+    }
+}
+
 /// The in-tree fixtures bind the serializer's constants (A4 closed by the fan-in).
 #[test]
 fn u1_constants_bound_to_in_tree_fixtures() {

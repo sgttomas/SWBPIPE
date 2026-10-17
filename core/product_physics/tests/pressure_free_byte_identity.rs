@@ -82,8 +82,8 @@ fn desktop_milestone_copies_are_byte_identical() {
 }
 
 /// U6-RB (DEL-05-03 Design §9): the per-base-id row index is built only when the preview
-/// exists, and its one reader, `append_combination_results`, runs only then; with no preview
-/// (the exact route, or a source-selected case) there are no combinations to append. So the
+/// exists and has combinations, and its one reader, `append_combination_results`, runs only then;
+/// with no preview or no combinations there are no combinations to append. So the
 /// clones are skipped exactly where nothing reads them, and the published rows are unchanged
 /// (the preview fixtures above carry combinations and are byte-identical).
 #[test]
@@ -92,8 +92,12 @@ fn u6_rb_rows_by_base_id_is_built_and_read_only_with_the_preview() {
     let uses: Vec<_> = lib.match_indices("rows_by_base_id").map(|(at, _)| at).collect();
     assert_eq!(uses.len(), 3, "the declaration, the guarded insert and the one read");
     let guarded = &lib[..uses[1]];
-    let guard = guarded.rfind("if preview.is_some() {").expect("the insert is guarded");
+    assert!(guarded.contains("let combining = preview.is_some() && !model.combinations.is_empty();"));
+    let guard = guarded.rfind("if combining {").expect("the insert is guarded");
     assert!(!guarded[guard..].contains('}'), "the insert is inside the preview guard");
-    let read = &lib[lib[..uses[2]].rfind('\n').unwrap()..uses[2]];
-    assert!(read.contains("Some(rendered) => preview_physics::append_combination_results("), "{read}");
+    let call_guard = lib[..uses[2]].rfind("let preview_gates = if combining {").expect("the one reader is guarded");
+    let read = &lib[call_guard..uses[2]];
+    assert!(read.contains("preview_physics::append_combination_results("), "{read}");
+    assert!(!read.contains('}'), "the call is inside the combination guard");
+    assert!(lib[uses[2]..].starts_with("rows_by_base_id, &mut results, &mut diagnostics)\n    } else {\n        Vec::new()"));
 }

@@ -970,7 +970,7 @@ impl<'a> SparseStructuralSystem<'a> {
     /// Attaches the formation source the D-5 check re-forms from (K-D5).
     pub fn with_formation_source(
         self,
-        source: &'a FormationSource,
+        source: &'a FormationSource<'a>,
     ) -> FormationCheckedSparseSystem<'a> {
         FormationCheckedSparseSystem {
             system: self,
@@ -1023,7 +1023,7 @@ impl<'a> AssembledSparseStructuralSystem<'a> {
     /// Typed sibling of `SparseStructuralSystem::with_formation_source`.
     pub fn with_formation_source(
         self,
-        source: &'a FormationSource,
+        source: &'a FormationSource<'a>,
     ) -> FormationCheckedSparseSystem<'a> {
         FormationCheckedSparseSystem {
             system: self.system,
@@ -1038,14 +1038,14 @@ impl<'a> AssembledSparseStructuralSystem<'a> {
 pub struct FormationCheckedSparseSystem<'a> {
     system: SparseStructuralSystem<'a>,
     force: Option<&'a AssembledForce>,
-    source: &'a FormationSource,
+    source: &'a FormationSource<'a>,
 }
 
 impl<'a> FormationCheckedSparseSystem<'a> {
     pub fn system(&self) -> &SparseStructuralSystem<'a> {
         &self.system
     }
-    pub fn source(&self) -> &'a FormationSource {
+    pub fn source(&self) -> &'a FormationSource<'a> {
         self.source
     }
     fn binding(&self) -> ForceBinding<'a> {
@@ -1185,7 +1185,7 @@ impl Represented for SparseStructuralSystem<'_> {
     }
     fn formation_check<F>(
         &self,
-        source: &FormationSource,
+        source: &FormationSource<'_>,
         ledger: Option<&AssembledForce>,
         condition:(f64,f64,f64),
         projected:&impl Fn(usize,usize)->f64,
@@ -1254,7 +1254,7 @@ fn sparse_contribution_sums(
 pub struct SparsePreparedSystem<'s> {
     source: &'s SparseStructuralSystem<'s>,
     force_binding: ForceBinding<'s>,
-    formation: Option<&'s FormationSource>,
+    formation: Option<&'s FormationSource<'s>>,
     row_starts: Vec<usize>,
     columns: Vec<usize>,
     values: Vec<f64>,
@@ -1735,7 +1735,7 @@ impl PreparedGate for SparsePreparedSystem<'_> {
     fn gate_binding(&self) -> ForceBinding<'_> {
         self.force_binding
     }
-    fn gate_formation(&self) -> Option<&FormationSource> {
+    fn gate_formation(&self) -> Option<&FormationSource<'_>> {
         self.formation
     }
     fn gate_assembly(&self) -> (f64, f64) {

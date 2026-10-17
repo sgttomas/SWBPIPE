@@ -295,7 +295,7 @@ impl AssemblyEvidence {
         self.constrained_geometry(prescribed, curved_sources)?;
         let symmetry_basis = self.symmetry_basis();
         let mut source = self.formation_source(curved_sources);
-        source.loads = f.load_primitives().to_vec();
+        source.loads = f.load_primitives().into();
         let system = StructuralSystem::assembled(
             k,
             f,
@@ -368,13 +368,9 @@ impl AssemblyEvidence {
             }
         };
         let (solution, attempt) = structural::finish_confirmation(&factor)?;
-        let source_for = |force: &AssembledForce| {
-            let mut source = formation_source(&self.formation, curved_sources);
-            source.loads = force.load_primitives().to_vec();
-            source
-        };
         let evaluate_at = |force: &AssembledForce, u: &[f64], judged: bool| {
-            let source = source_for(force);
+            let mut source = formation_source(&self.formation, curved_sources);
+            source.loads = force.load_primitives().into();
             let system = StructuralSystem::assembled(
                 k,
                 force,
@@ -387,7 +383,9 @@ impl AssemblyEvidence {
             attempt.evaluate_at(&system, u, judged)
         };
         let reaction = |force: &AssembledForce, dof: usize, u: &[f64], bound: &structural::MemberBoundInputs| {
-            structural::certify_support_reaction(&source_for(force), force, dof, u, bound)
+            let mut source = formation_source(&self.formation, curved_sources);
+            source.loads = force.load_primitives().into();
+            structural::certify_support_reaction(&source, force, dof, u, bound)
         };
         let context = ConfirmationContext {
             evaluate_at: &evaluate_at,
@@ -398,7 +396,7 @@ impl AssemblyEvidence {
 
     /// The formation source for this assembly, with each curved slot matched
     /// to its macro element (or named as not re-formable).
-    fn formation_source(&self, curved_sources: &[CurvedBendMacroElement]) -> FormationSource {
+    fn formation_source<'a>(&self, curved_sources: &[CurvedBendMacroElement]) -> FormationSource<'a> {
         formation_source(&self.formation, curved_sources)
     }
 
@@ -564,7 +562,7 @@ impl AssemblyEvidence {
             let symmetry_basis = self.symmetry_basis();
             let mut source =
                 force_scaled_formation_source(&self.formation, curved_sources, self.force_scale);
-            source.loads = force.load_primitives().to_vec();
+            source.loads = force.load_primitives().into();
             let system = StructuralSystem::assembled(
                 k,
                 force,
@@ -907,7 +905,7 @@ impl SparseAssemblyEvidence {
         self.constrained_geometry(prescribed, curved_sources)?;
         let symmetry_basis = symmetry_basis(&self.edges);
         let mut source = formation_source(&self.formation, curved_sources);
-        source.loads = f.load_primitives().to_vec();
+        source.loads = f.load_primitives().into();
         match mode {
             LinearSolveMode::DenseScrutiny => {
                 let dense = k.to_dense();
@@ -1102,7 +1100,7 @@ impl SparseAssemblyEvidence {
                     curved_sources,
                     self.force_scale,
                 );
-                source.loads = force.load_primitives().to_vec();
+                source.loads = force.load_primitives().into();
                 match mode {
                     LinearSolveMode::DenseScrutiny => {
                         let dense = k.to_dense();
@@ -1763,13 +1761,13 @@ fn symmetry_basis(edges: &[(usize, usize, bool)]) -> String {
 
 /// The formation source for an assembly, with each curved slot matched to
 /// its macro element (or named as not re-formable).
-fn formation_source(
+fn formation_source<'a>(
     primitives: &FormationPrimitives,
     curved_sources: &[CurvedBendMacroElement],
-) -> FormationSource {
+) -> FormationSource<'a> {
     let mut source = FormationSource {
         node_count: primitives.node_count,
-        loads: Vec::new(),
+        loads: Default::default(),
         frames: primitives.frames.clone(),
         frame_members: primitives.frame_members.clone(),
         connectors: primitives.connectors.clone(),
@@ -1899,17 +1897,17 @@ fn force_scaled_primitives(
 /// match, an explicit slot, or a matched element whose E or G cannot be
 /// scaled normally is named as not re-formable (fail closed). With
 /// `UNSCALED` it is `formation_source`.
-fn force_scaled_formation_source(
+fn force_scaled_formation_source<'a>(
     primitives: &FormationPrimitives,
     curved_sources: &[CurvedBendMacroElement],
     force_scale: ForceScale,
-) -> FormationSource {
+) -> FormationSource<'a> {
     if force_scale.is_unscaled() {
         return formation_source(primitives, curved_sources);
     }
     let mut source = FormationSource {
         node_count: primitives.node_count,
-        loads: Vec::new(),
+        loads: Default::default(),
         frames: primitives.frames.clone(),
         frame_members: primitives.frame_members.clone(),
         connectors: primitives.connectors.clone(),

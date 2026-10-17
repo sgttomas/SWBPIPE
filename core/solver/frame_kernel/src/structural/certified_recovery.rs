@@ -524,7 +524,7 @@ impl<'a> CertifiedMemberLoads<'a> {
     /// recovery frame bit-equal to that member's source frame, beam-theory
     /// leaf included; a member with no frame there, an empty identity, or a
     /// source without complete member identities fails closed.
-    pub fn with_member_source(mut self, source: &'a FormationSource, member: &str) -> Self {
+    pub fn with_member_source(mut self, source: &'a FormationSource<'a>, member: &str) -> Self {
         self.member_frame = MemberFrame::Source(
             super::formation_check::member_frame_index(source, member).map(|k| &source.frames[k]),
         );
@@ -1347,7 +1347,7 @@ pub fn certify_connector_recovery(
 /// The remainder uses the upward triangle upper bound obtained by summing
 /// each contribution's free-column ||A_e D||1; prescribed columns are absent.
 pub fn certify_support_reaction(
-    source: &FormationSource,
+    source: &FormationSource<'_>,
     force: &AssembledForce,
     dof: usize,
     u: &[f64],

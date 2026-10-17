@@ -31,7 +31,7 @@ fn frame() -> FrameElement {
 /// T4-U8 (Design §4 item 2): a certified straight recovery is bound to its
 /// member's formation-source frame. These controls' one member is `MEMBER`.
 const MEMBER: &str = "member:1:m:";
-fn member_source(frame: &FrameElement) -> FormationSource {
+fn member_source(frame: &FrameElement) -> FormationSource<'static> {
     FormationSource {
         node_count: 2,
         frames: vec![*frame],

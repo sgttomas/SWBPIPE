@@ -2931,6 +2931,9 @@ fn run_linear_static_preview_observed_inner(
     let mut exact_cases = Vec::new();
     let mut load_reference_states = Vec::new();
     let mut rows_by_base_id: HashMap<String, HashMap<String, ResultItem>> = HashMap::new();
+    let combining = preview.is_some() && !model.combinations.is_empty();
+    #[cfg(test)]
+    let combining = combining || (l5_tests::former_aggregation() && preview.is_some());
     for (index, solve) in load_case_solves.into_iter().enumerate() {
         pressure_evidence.extend(solve.pressure_evidence.iter().cloned());
         load_reference_states.extend(solve.load_state_evidence.clone());
@@ -2974,11 +2977,9 @@ fn run_linear_static_preview_observed_inner(
                     *source_ref = qualified.clone();
                 }
             }
-            // U6-RB (DEL-05-03 Design §9): the combination index is read only by
-            // `append_combination_results`, which runs only with the preview
-            // (below), so its row clones are made only then; the published rows
-            // are the same either way.
-            if preview.is_some() {
+            // L5/U6-RB: the combination index has one reader, below, and
+            // neither it nor that reader's staging is needed without combinations.
+            if combining {
                 rows_by_base_id
                     .entry(base_id)
                     .or_default()
@@ -2989,9 +2990,10 @@ fn run_linear_static_preview_observed_inner(
     }
     // With `preview` None the model is exact (validate_profile refuses its combinations) or a case is
     // source-selected (source_eligible requires no combinations): there are no combinations to append.
-    let preview_gates = match &preview {
-        Some(rendered) => preview_physics::append_combination_results(&model, rendered, &rows_by_base_id, &mut results, &mut diagnostics),
-        None => Vec::new(),
+    let preview_gates = if combining {
+        preview_physics::append_combination_results(&model, preview.as_ref().expect("combining requires preview"), &rows_by_base_id, &mut results, &mut diagnostics)
+    } else {
+        Vec::new()
     };
     append_combination_modulus_basis_records(&model, &mut results);
     let curved_bend_macro_element_count =
@@ -14225,6 +14227,62 @@ mod kd5_maximum_witness_tests {
                 seen.iter().any(|(_, witness, global)| witness < global),
                 "{mode:?}: precondition, a witness upper lies below its global upper: {seen:?}"
             );
+        }
+    }
+}
+
+#[cfg(test)]
+mod l5_tests {
+    use super::*;
+    use std::cell::Cell;
+
+    thread_local! { static FORMER_AGGREGATION: Cell<bool> = const { Cell::new(false) }; }
+
+    pub(super) fn former_aggregation() -> bool {
+        FORMER_AGGREGATION.with(Cell::get)
+    }
+
+    struct FormerAggregation(bool);
+    impl FormerAggregation {
+        fn enter() -> Self { Self(FORMER_AGGREGATION.with(|flag| flag.replace(true))) }
+    }
+    impl Drop for FormerAggregation {
+        fn drop(&mut self) { FORMER_AGGREGATION.with(|flag| flag.set(self.0)); }
+    }
+
+    /// L5: the same complete invocation through the former preview-only guard
+    /// and the new combination guard, including the caller's entire return tail.
+    #[test]
+    fn append_combination_results_guard_keeps_combination_bytes() {
+        let request = |text: &str| serde_json::json!({"model":serde_json::from_str::<serde_json::Value>(text).unwrap(),"materials":[]});
+        let without = request(include_str!("../../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.desktop_model.json"));
+        let mut multi = without.clone();
+        let mut second = multi["model"]["load_cases"][0].clone();
+        second["id"] = serde_json::json!("case-2");
+        for load in second["primitive_loads"].as_array_mut().unwrap() {
+            load["id"] = serde_json::json!(format!("{}:2", load["id"].as_str().unwrap()));
+        }
+        multi["model"]["load_cases"].as_array_mut().unwrap().push(second);
+        let samples = [
+            ("demo combinations", request(include_str!("../../../fixtures/product_preview/invented_demo_model.json")), true, "MECHANICS_SOLVED"),
+            // This committed fixture is intentionally incomplete; its blocked bytes also stay unchanged.
+            ("preview combinations", request(include_str!("../../../fixtures/product_preview/invented_preview_model.json")), true, "MODEL_INCOMPLETE"),
+            ("no combinations", without, false, "MECHANICS_SOLVED"),
+            ("multiple cases without combinations", multi, false, "MECHANICS_SOLVED"),
+        ];
+        for (name, raw, has_combinations, mechanics) in samples {
+            assert_eq!(!raw["model"]["combinations"].as_array().unwrap().is_empty(), has_combinations);
+            for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+                let current = run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap();
+                assert_eq!(current.status.mechanics, mechanics, "{name} {mode:?}");
+                let former = {
+                    let _scope = FormerAggregation::enter();
+                    run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()
+                };
+                assert!(!former_aggregation(), "the former guard is scoped to this thread's call");
+                assert_eq!(serde_json::to_vec(&current).unwrap(), serde_json::to_vec(&former).unwrap(), "{name} {mode:?}");
+                assert_eq!(serde_json::to_string_pretty(&current).unwrap(), serde_json::to_string_pretty(&former).unwrap(), "{name} {mode:?}");
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ use super::{binary_exponent, StructuralError, StructuralSystem};
 use crate::connector::ObjectiveConnector;
 use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::{element_dof_map, BeamTheory, FrameElement, DOF_PER_NODE, ELEMENT_DOF};
+use std::borrow::Cow;
 
 /// Precision of the re-formation (D1 §4.3.1 step 1).
 pub const FORMATION_PRECISION: u32 = 128;
@@ -313,9 +314,9 @@ pub struct MemberBoundInputs {
 /// for the formation check (the "typed optional formation source", carried
 /// by `FormationCheckedSystem`). Node `k` owns global DOFs 6k..6k+5.
 #[derive(Debug, Clone, Default, PartialEq)]
-pub struct FormationSource {
+pub struct FormationSource<'a> {
     pub node_count: usize,
-    pub loads: Vec<LoadPrimitive>,
+    pub loads: Cow<'a, [LoadPrimitive]>,
     pub frames: Vec<FrameElement>,
     /// T4-U8 (Design §4 item 2): each frame's member identity, parallel to
     /// `frames`: the source prefix its member's load primitives carry (the
@@ -498,7 +499,7 @@ fn load_closure(
     if records.len() != terms.len() {
         return Err(Failure::Closure("record shape".into()));
     }
-    for p in &source.loads {
+    for p in source.loads.iter() {
         if p.term_index >= terms.len() {
             return Err(Failure::Closure(
                 "extra or mismatched-term primitive".into(),
@@ -1248,7 +1249,7 @@ fn straight_frames_bound(source: &FormationSource) -> Result<(), Failure> {
 }
 /// The first straight primitive of `source` that `straight_frames_bound`
 /// refuses, if any (`primitive_frame_bound` for each, with one cursor).
-pub(super) fn unbound_straight_primitive(source: &FormationSource) -> Option<&LoadPrimitive> {
+pub(super) fn unbound_straight_primitive<'a>(source: &'a FormationSource<'_>) -> Option<&'a LoadPrimitive> {
     let mut cursor = FrameCursor::default();
     source
         .loads

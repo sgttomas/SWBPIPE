@@ -239,7 +239,7 @@ fn kd5_reformed_elements_have_the_rigid_body_null_space() {
 }
 
 /// One node, DOF 0 free on a spring of 2; DOFs 1–5 prescribed at zero.
-fn spring_system(force: &[f64]) -> (Vec<Vec<f64>>, FormationSource) {
+fn spring_system(force: &[f64]) -> (Vec<Vec<f64>>, FormationSource<'static>) {
     let mut k = vec![vec![0.0; 6]; 6];
     k[0][0] = 2.0;
     let source = FormationSource {
@@ -870,6 +870,62 @@ fn primitive(formula: LoadFormula, row: usize, ordinal: usize) -> LoadPrimitive 
         force_scale_exponent: 0,
     }
 }
+
+/// L1a: compare the actual closure and formation-checked solve with the former
+/// owned primitive copy. The derived source Debug must still print Vec's bytes.
+#[test]
+fn formation_source_borrow_is_byte_identical() {
+    // L1a retains the priced vector header. This const assertion also runs
+    // when the tests are compiled for wasm; no ABI equality is assumed.
+    const { assert!(std::mem::size_of::<Cow<'_, [LoadPrimitive]>>() == std::mem::size_of::<Vec<LoadPrimitive>>()); }
+    let mut ledger = crate::load_ledger::LoadLedger::new();
+    for (index, (dof, magnitude, factor)) in [(0, 3.0, 2.0), (4, -4.0, 0.5)].into_iter().enumerate() {
+        let mut p = primitive(LoadFormula::NodalProduct { global_dof: dof, magnitude, factor }, dof, index);
+        p.term_index = index;
+        ledger.push_formed("member", dof, magnitude * factor,
+            crate::load_ledger::Formation::RoundedProduct { k: 1.0, a: magnitude, b: factor }, 0.0, false);
+        assert!(ledger.set_closure_manifest(index, vec![p.closure_entry()]));
+        ledger.attach_load_primitive(p);
+    }
+    let force = ledger.finish(6).unwrap();
+    let source = FormationSource {
+        node_count: 1,
+        loads: force.load_primitives().into(),
+        springs: (0..6).map(|dof| (dof, 3.0)).collect(),
+        ..FormationSource::default()
+    };
+    assert!(matches!(source.loads, Cow::Borrowed(_)));
+    assert!(std::ptr::eq(source.loads.as_ptr(), force.load_primitives().as_ptr()));
+    let former_loads = force.load_primitives().to_vec();
+    let former = FormationSource { loads: Cow::Owned(former_loads.clone()), ..source.clone() };
+    let former_debug = format!(
+        "FormationSource {{ node_count: {:?}, loads: {:?}, frames: {:?}, frame_members: {:?}, connectors: {:?}, curved: {:?}, springs: {:?}, unavailable: {:?} }}",
+        source.node_count, former_loads, source.frames, source.frame_members, source.connectors, source.curved, source.springs, source.unavailable);
+    assert_eq!(format!("{source:?}").as_bytes(), former_debug.as_bytes());
+    assert_eq!(format!("{source:?}"), format!("{former:?}"));
+    let closure: Vec<_> = source.loads.iter().map(LoadPrimitive::closure_entry).collect();
+    // Pre-lever closure representation: formula tag, DOF, operand bits, local row, b.
+    assert_eq!(closure, vec![
+        LoadClosureEntry { identity: LoadSummandIdentity { family: "family".into(), source: "member".into(), ordinal: 0 },
+            operand_bits: vec![7, 0, 4613937818241073152, 4611686018427387904, 0, 0] },
+        LoadClosureEntry { identity: LoadSummandIdentity { family: "family".into(), source: "member".into(), ordinal: 1 },
+            operand_bits: vec![7, 4, 13839561654909534208, 4602678819172646912, 4, 0] },
+    ]);
+    for s in [&source, &former] { load_closure(s, &force).unwrap(); }
+    let k: Vec<Vec<f64>> = (0..6).map(|r| (0..6).map(|c| if r == c { 3.0 } else { 0.0 }).collect()).collect();
+    let free: Vec<_> = (0..6).collect();
+    let contributions: Vec<_> = source.springs.iter().map(|&(dof, value)| super::super::StiffnessContribution { row: dof, col: dof, value }).collect();
+    let solve = |s| {
+        let system = StructuralSystem::assembled(&k, &force, &free, &[], Some(&contributions), None).with_formation_source(s);
+        super::super::solve_formation_checked_structural_dense(&system).unwrap()
+    };
+    let borrowed = solve(&source);
+    let owned = solve(&former);
+    assert_eq!(borrowed.report.quality, SolveQuality::Passed);
+    assert!(borrowed.member_bound.is_some());
+    assert_eq!(format!("{borrowed:?}").as_bytes(), format!("{owned:?}").as_bytes());
+}
+
 #[test]
 fn kd5_closed_manifest_kills_missing_duplicate_extra_wrong_binding_and_input_on_ordinary_and_w2() {
     let recipe = LoadFormula::UniformStraight {
@@ -903,31 +959,32 @@ fn kd5_closed_manifest_kills_missing_duplicate_extra_wrong_binding_and_input_on_
         assert!(!scaled.has_formation_records() || exponent == 0); // numeric records are deliberately omitted.
         let source = FormationSource {
             node_count: 2,
-            loads: scaled.load_primitives().to_vec(),
+            loads: scaled.load_primitives().into(),
             ..FormationSource::default()
         };
         load_closure(&source, &scaled).unwrap();
         let mut mutants = Vec::new();
         let mut p = source.clone();
-        p.loads.pop();
+        p.loads.to_mut().pop();
         mutants.push(p);
         let mut p = source.clone();
-        p.loads[1] = p.loads[0].clone();
+        p.loads.to_mut()[1] = p.loads[0].clone();
         mutants.push(p);
         let mut p = source.clone();
-        p.loads.push(p.loads[0].clone());
+        let extra = p.loads[0].clone();
+        p.loads.to_mut().push(extra);
         mutants.push(p);
         let mut p = source.clone();
-        p.loads[0].local_row = 1;
+        p.loads.to_mut()[0].local_row = 1;
         mutants.push(p);
         let mut p = source.clone();
-        p.loads[0].term_index = 1;
+        p.loads.to_mut()[0].term_index = 1;
         mutants.push(p);
         let mut p = source.clone();
-        p.loads[0].force_scale_exponent += 1;
+        p.loads.to_mut()[0].force_scale_exponent += 1;
         mutants.push(p);
         let mut p = source.clone();
-        if let LoadFormula::UniformStraight { intensity, .. } = &mut p.loads[0].formula {
+        if let LoadFormula::UniformStraight { intensity, .. } = &mut p.loads.to_mut()[0].formula {
             *intensity = IntensityPrimitive::Authored([2.0, 0.0, 0.0]);
         }
         mutants.push(p);
@@ -941,7 +998,7 @@ fn kd5_closed_manifest_kills_missing_duplicate_extra_wrong_binding_and_input_on_
     let input = input_ledger(&[0.0; 12]);
     let source = FormationSource {
         node_count: 2,
-        loads: force.load_primitives().to_vec(),
+        loads: force.load_primitives().into(),
         ..FormationSource::default()
     };
     assert!(matches!(
@@ -1653,7 +1710,7 @@ fn kd5_load_radius_is_not_a_shift_and_all_prescribed_rows_still_reform() {
     let force = ledger.finish(12).unwrap();
     let source = FormationSource {
         node_count: 2,
-        loads: force.load_primitives().to_vec(),
+        loads: force.load_primitives().into(),
         springs: vec![(0, 2.0)],
         ..FormationSource::default()
     };
@@ -1758,7 +1815,7 @@ fn kd5_full_attempt_bound_keeps_w2_physical_remainder_invariant() {
         }];
         let source = FormationSource {
             node_count: 2,
-            loads: force.load_primitives().to_vec(),
+            loads: force.load_primitives().into(),
             springs: vec![(0, stiffness)],
             ..FormationSource::default()
         };
@@ -1906,12 +1963,12 @@ fn kd5_sparse_and_dense_closed_source_and_drop_one_use_the_same_boundary() {
     for drop_one in [false, true] {
         let mut source = FormationSource {
             node_count: 2,
-            loads: force.load_primitives().to_vec(),
+            loads: force.load_primitives().into(),
             springs: vec![(0, 2.0)],
             ..FormationSource::default()
         };
         if drop_one {
-            source.loads.pop();
+            source.loads.to_mut().pop();
         }
         let checked = StructuralSystem::assembled(
             &dense,
@@ -2068,7 +2125,7 @@ fn kd5_all_prescribed_formed_load_reformation_failure_is_named() {
     let force = ledger.finish(12).unwrap();
     let source = FormationSource {
         node_count: 2,
-        loads: force.load_primitives().to_vec(),
+        loads: force.load_primitives().into(),
         ..FormationSource::default()
     };
     let prescribed: Vec<_> = (0..12).map(|i| (i, 0.0)).collect();
@@ -2241,11 +2298,11 @@ fn kd5_fit_wrong_raw_geometry_binding_refuses_on_ordinary_and_w2() {
                 .unwrap();
             let mut source = FormationSource {
                 node_count: 2,
-                loads: force.load_primitives().to_vec(),
+                loads: force.load_primitives().into(),
                 ..FormationSource::default()
             };
             load_closure(&source, &force).unwrap();
-            let strain = match &mut source.loads[0].formula {
+            let strain = match &mut source.loads.to_mut()[0].formula {
                 LoadFormula::FreeStrainStraight { strain, .. }
                 | LoadFormula::FreeStrainCurved { strain, .. } => strain,
                 _ => unreachable!(),
@@ -2373,7 +2430,7 @@ fn kd5_nodal_source_factor_reforms_exact_product_and_binds_its_source_and_dof() 
             .unwrap();
         let source = FormationSource {
             node_count: 2,
-            loads: force.load_primitives().to_vec(),
+            loads: force.load_primitives().into(),
             ..FormationSource::default()
         };
         load_closure(&source, &force).unwrap();
@@ -2381,7 +2438,7 @@ fn kd5_nodal_source_factor_reforms_exact_product_and_binds_its_source_and_dof() 
             let mut mutant = source.clone();
             if let LoadFormula::NodalProduct {
                 global_dof, factor, ..
-            } = &mut mutant.loads[0].formula
+            } = &mut mutant.loads.to_mut()[0].formula
             {
                 if wrong_dof {
                     *global_dof = 9;

@@ -6,14 +6,14 @@ use open_pipe_stress_frame_kernel::structural::{
     CertifiedValue, FormationSource, RecoveryFailure,
 };
 
-pub(super) fn source(
+pub(super) fn source<'a>(
     built: &BuiltModel,
-    force: &AssembledForce,
+    force: &'a AssembledForce,
     springs: &[SpringEntry],
-) -> FormationSource {
+) -> FormationSource<'a> {
     FormationSource {
         node_count: built.nodes.len(),
-        loads: force.load_primitives().to_vec(),
+        loads: force.load_primitives().into(),
         frames: built.frame_elements.clone(),
         // T4-U8 (DEL-05-03 Design §4 item 2): each frame's member identity.
         frame_members: super::frame_member_identities(built),
@@ -37,7 +37,7 @@ pub(super) fn member(
     pipe: &StraightPipeElement,
     bend: Option<&CurvedBendMacroBuild>,
     force: &AssembledForce,
-    source: &FormationSource,
+    source: &FormationSource<'_>,
     u: &[f64],
     bound: &MemberBoundInputs,
 ) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
@@ -314,7 +314,7 @@ pub(super) fn support(
     support: &PreviewSupport,
     built: &BuiltModel,
     springs: &[SpringEntry],
-    source: &FormationSource,
+    source: &FormationSource<'_>,
     force: &AssembledForce,
     u: &[f64],
     bound: &MemberBoundInputs,
@@ -560,7 +560,7 @@ fn public_mpa_magnitude_in_pa_upper(value: f64) -> Result<f64, String> {
 pub(super) fn straight_stress_spans(
     pipe: &StraightPipeElement,
     force: &AssembledForce,
-    source: &FormationSource,
+    source: &FormationSource<'_>,
     u: &[f64],
     bound: &MemberBoundInputs,
     section: &DerivedSection,

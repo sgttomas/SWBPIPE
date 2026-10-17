@@ -200,13 +200,13 @@ impl Model {
             sparse_counts,
         }
     }
-    fn formation_source(&self) -> FormationSource {
+    fn formation_source(&self) -> FormationSource<'static> {
         FormationSource {
             node_count: self.node_count,
             // K-D5 closure (DEL-04-01 kd5-member-relative-bound.md §1): this
             // model's ledger holds only authored nodal input terms, which carry
             // no closure primitive; the ledger's own (empty) list is supplied.
-            loads: self.ledger().load_primitives().to_vec(),
+            loads: self.ledger().load_primitives().to_vec().into(),
             frames: self.frames.clone(),
             frame_members: Vec::new(),
             connectors: self.connectors.clone(),

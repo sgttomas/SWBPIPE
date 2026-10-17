@@ -90,7 +90,7 @@ fn formed(formula: &LoadFormula) -> [f64; 12] {
 /// primitives' sources begin with it (`member:1:T:w`).
 const MEMBER_T: &str = "member:1:T:";
 /// The one-member formation source of `frame` under `MEMBER_T`.
-fn member_t_source(frame: &FrameElement) -> FormationSource {
+fn member_t_source(frame: &FrameElement) -> FormationSource<'static> {
     FormationSource {
         node_count: 2,
         frames: vec![*frame],
@@ -119,7 +119,7 @@ fn checked_cantilever(
     }
     let source = FormationSource {
         node_count: 2,
-        loads: force.load_primitives().to_vec(),
+        loads: force.load_primitives().into(),
         frames: vec![*stiffness_frame],
         frame_members: vec![MEMBER_T.into()],
         ..FormationSource::default()
@@ -341,7 +341,7 @@ fn kd5_straight_frames_are_bound_to_the_formation_source() {
     // Each frame's member identity, parallel to the frames.
     let source = |loads: Vec<LoadPrimitive>, frames: Vec<FrameElement>, members: &[&str]| FormationSource {
         node_count: 2,
-        loads,
+        loads: loads.into(),
         frames,
         frame_members: members.iter().map(|m| m.to_string()).collect(),
         ..FormationSource::default()

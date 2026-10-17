@@ -178,11 +178,11 @@ pub struct FormationCheckedSystem<'a> {
     system: StructuralSystem<'a>,
     /// The ledger force of a typed system (S11-K); `None` for a legacy vector.
     force: Option<&'a AssembledForce>,
-    source: &'a FormationSource,
+    source: &'a FormationSource<'a>,
 }
 impl<'a> StructuralSystem<'a> {
     /// Attaches the formation source the D-5 check re-forms from.
-    pub fn with_formation_source(self, source: &'a FormationSource) -> FormationCheckedSystem<'a> {
+    pub fn with_formation_source(self, source: &'a FormationSource<'a>) -> FormationCheckedSystem<'a> {
         FormationCheckedSystem {
             system: self,
             force: None,
@@ -193,7 +193,7 @@ impl<'a> StructuralSystem<'a> {
 impl<'a> AssembledStructuralSystem<'a> {
     /// Typed sibling of `StructuralSystem::with_formation_source`: KS1, KS3,
     /// the load audit and the check's ρ use the ledger terms.
-    pub fn with_formation_source(self, source: &'a FormationSource) -> FormationCheckedSystem<'a> {
+    pub fn with_formation_source(self, source: &'a FormationSource<'a>) -> FormationCheckedSystem<'a> {
         FormationCheckedSystem {
             system: self.system,
             force: Some(self.force),
@@ -205,7 +205,7 @@ impl<'a> FormationCheckedSystem<'a> {
     pub fn system(&self) -> &StructuralSystem<'a> {
         &self.system
     }
-    pub fn source(&self) -> &'a FormationSource {
+    pub fn source(&self) -> &'a FormationSource<'a> {
         self.source
     }
     fn binding(&self) -> ForceBinding<'a> {
@@ -400,7 +400,7 @@ pub struct PreparedSystem<'s> {
     source: &'s StructuralSystem<'s>,
     force_binding: ForceBinding<'s>,
     /// K-D5: present only for a `FormationCheckedSystem`.
-    formation: Option<&'s FormationSource>,
+    formation: Option<&'s FormationSource<'s>>,
     matrix: Vec<Vec<f64>>,
     rhs: Vec<f64>,
     scale_exponents: Vec<i32>,
@@ -458,7 +458,7 @@ trait Represented {
     /// K-D5's formation check on these equations.
     fn formation_check<F>(
         &self,
-        source: &FormationSource,
+        source: &FormationSource<'_>,
         ledger: Option<&AssembledForce>,
         condition: (f64,f64,f64),
         projected: &impl Fn(usize,usize)->f64,
@@ -521,7 +521,7 @@ impl Represented for StructuralSystem<'_> {
     }
     fn formation_check<F>(
         &self,
-        source: &FormationSource,
+        source: &FormationSource<'_>,
         ledger: Option<&AssembledForce>,
         condition: (f64,f64,f64),
         projected: &impl Fn(usize,usize)->f64,
@@ -548,7 +548,7 @@ trait PreparedGate {
     fn gate_rhs(&self) -> &[f64];
     fn gate_scale_exponents(&self) -> &[i32];
     fn gate_binding(&self) -> ForceBinding<'_>;
-    fn gate_formation(&self) -> Option<&FormationSource>;
+    fn gate_formation(&self) -> Option<&FormationSource<'_>>;
     /// (assembly relative perturbation, assembly load perturbation).
     fn gate_assembly(&self) -> (f64, f64);
     fn gate_contribution_rounding(&self) -> &[ContributionRounding];
@@ -575,7 +575,7 @@ impl PreparedGate for PreparedSystem<'_> {
     fn gate_binding(&self) -> ForceBinding<'_> {
         self.force_binding
     }
-    fn gate_formation(&self) -> Option<&FormationSource> {
+    fn gate_formation(&self) -> Option<&FormationSource<'_>> {
         self.formation
     }
     fn gate_assembly(&self) -> (f64, f64) {

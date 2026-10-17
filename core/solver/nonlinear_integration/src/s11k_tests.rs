@@ -1301,9 +1301,9 @@ fn kd5_nonlinear_sources_name_no_formation_check_entry_point() {
     assert!(compact.contains("letcertified_source=member_bound.map(|_|certified_publication::source(built,certified_force,spring_entries));"));
     assert_eq!(product.iter().map(|(_,code)|code.matches("certified_publication::source(").count()).sum::<usize>(),1);
     let (_,recovery)=product.iter().find(|(name,_)|name=="certified_publication.rs").unwrap();
-    let view=function_body(recovery,"fn source(").split_whitespace().collect::<String>();
+    let view=function_body(recovery,"fn source<'a>(").split_whitespace().collect::<String>();
     assert!(view.contains("FormationSource{"));
-    assert!(view.contains("force.load_primitives().to_vec("));
+    assert!(view.contains("force.load_primitives().into("));
     for entry in FORMATION_ENTRY_POINTS.iter().filter(|entry|**entry!="FormationSource") {
         assert!(!recovery.contains(entry),"pure recovery view invoked {entry}");
     }
@@ -1665,6 +1665,79 @@ fn k2b_blank_formation_siblings(code: &str) -> String {
         code.replace_range(range, "{");
     }
     code
+}
+
+/// L1a's complete adapter blast radius, including both confirmation views.
+#[test]
+fn formation_sources_borrow_each_evaluated_force() {
+    let code = strip_cfg_test(&lex(include_str!("structural_adapter.rs")));
+    for header in ADAPTER_IMPLS {
+        let adapter = function_body(&code, header);
+        for (name, force) in [("fn solve_assembled_with_formation_check(", "f"),
+            ("fn solve_force_scaled_with_formation_check(", "force")] {
+            let body = function_body(adapter, name).split_whitespace().collect::<String>();
+            assert!(body.contains(&format!("source.loads={force}.load_primitives().into();")), "{header} {name}");
+            assert!(!body.contains("load_primitives().to_vec()"), "{header} {name}");
+        }
+    }
+    let confirmation = function_body(&code, "fn confirm_with_formation_check(").split_whitespace().collect::<String>();
+    assert_eq!(confirmation.matches("source.loads=force.load_primitives().into();").count(), 2,
+        "the evaluated displacement and restrained-row recovery each borrow their evaluated force");
+}
+
+/// L1c's source warrant: Rust's local-drop semantics apply to the real owned
+/// force and its Vec/String children. This is a source control, not runtime Drop instrumentation.
+#[test]
+fn force_scaled_owner_is_call_local_and_unscaled_borrows() {
+    let code = strip_cfg_test(&lex(include_str!("structural_adapter.rs")));
+    let selected = "letowned;letforce=ifself.force_scale.is_unscaled(){f}else{owned=f.force_scaled(self.force_scale).map_err(ForceScaledError::refused)?;&owned};";
+    for header in ADAPTER_IMPLS {
+        let adapter = function_body(&code, header);
+        for name in ["fn solve_force_scaled(", "fn solve_force_scaled_with_formation_check("] {
+            let body = function_body(adapter, name).split_whitespace().collect::<String>();
+            assert_eq!(body.matches(selected).count(), 1, "{header} {name}: b=0 borrows; only b!=0 initializes the local owner");
+            assert!(body.ends_with("force_scaled_outcome(solved,self.force_scale,f)"), "{header} {name}: the owner does not escape the return tail");
+            for escape in ["forget(", "ManuallyDrop", "Box::leak", "thread::", ".await"] {
+                assert!(!body.contains(escape), "{header} {name}: {escape}");
+            }
+        }
+    }
+    let caller = function_body(&code, "fn solve_with_force_scaling(").split_whitespace().collect::<String>();
+    assert!(caller.find("evaluate_force_scaled(case,ForceScale::UNSCALED)").unwrap()
+        < caller.find("evaluate_force_scaled(case,force_scale)").unwrap());
+    assert_eq!(caller.matches("evaluate_force_scaled(").count(), 2);
+    let returned = function_body(&code, "pub struct ForceScalingOutcome").split_whitespace().collect::<String>();
+    assert_eq!(returned, "{pubsolution:ForceScaledSolution,pubstiffness:SparseStiffness,");
+}
+
+/// L2's source warrant: one synchronous single-load constructor returns before
+/// the per-term attachment loop, and each attachment returns before the next.
+#[test]
+fn uniform_constructor_and_attach_staging_is_sequential() {
+    let core = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let read = |path: &str| strip_cfg_test(&lex(&std::fs::read_to_string(core.join(path)).unwrap()));
+    let product = read("product_physics/src/lib.rs");
+    let caller = function_body(&product, "fn add_uniform_element_loads(").split_whitespace().collect::<String>();
+    assert_eq!(caller.matches("forloadinloads{").count(), 1);
+    let construct = "letequivalent=straight_global_uniform_load(load).and_then(|global|pipe.equivalent_global_nodal_loads_with_spans_formed(&[global]));";
+    let attach = "for((slot,global),formation)inelement_dof_map(pipe.node_i.index,pipe.node_j.index).iter().enumerate().zip(formations)";
+    assert!(caller.find(construct).unwrap() < caller.find(attach).unwrap());
+    assert_eq!(caller.matches("equivalent_global_nodal_loads_with_spans_formed(").count(), 1);
+    for concurrent in ["thread::", "spawn(", ".await", "par_iter("] { assert!(!caller.contains(concurrent)); }
+    let straight = read("solver/straight_pipe/src/lib.rs");
+    let constructor = function_body(&straight, "fn equivalent_global_nodal_loads_with_spans_formed(").split_whitespace().collect::<String>();
+    assert!(constructor.contains("letformations=matchexact_scaled_intended(&orientation,length,uniform_loads){"));
+    assert!(constructor.contains("None=>monomial_bounds(&orientation,length,uniform_loads)"));
+    assert!(constructor.ends_with("Ok((values,formations))"));
+    let staging = function_body(&straight, "fn exact_scaled_intended(").split_whitespace().collect::<String>();
+    assert!(staging.contains("letmutslot_accumulators:Vec<ExactAccumulator>="));
+    assert!(staging.ends_with("Some(rows)"));
+    let certified = read("product_physics/src/certified_loads.rs");
+    let last = function_body(&certified, "fn attach_last(").split_whitespace().collect::<String>();
+    assert!(last.contains("attach(ledger,ledger.term_count()-1,vec![source]);"));
+    let attach = function_body(&certified, "fn attach(").split_whitespace().collect::<String>();
+    assert!(attach.find("letexpected=").unwrap() < attach.find("letmutsupplied:").unwrap());
+    assert!(attach.ends_with("forprimitiveinsupplied{ledger.attach_load_primitive(primitive);}"));
 }
 
 /// R2 (DEL-04-01 kd5-nonlinear-active-set.md, HELP_HUMAN 2026-10-12): the

@@ -872,7 +872,8 @@ fn ordinary_members(e: &Enc, seed: &rp::OrdinarySeed, case_index: usize) -> (Val
     let finding = seed.load_row_finding.as_ref().map(|f| {
         json!({"guard":"load_row","sentence":f.sentence,"fired":f.fired,"diagnostic_ref":f.diagnostic_ref})
     });
-    let formation = json!({"load_row_finding":finding,"d5_diagnostic_ref":seed.d5_diagnostic_ref});
+    let mut formation = json!({"load_row_finding":null,"d5_diagnostic_ref":seed.d5_diagnostic_ref});
+    *formation.get_mut("load_row_finding").expect("literal field") = finding.unwrap_or(Value::Null);
     (initial, w2, formation)
 }
 
@@ -1583,8 +1584,10 @@ fn ordinary_entry(e: &Enc, env: &Value, case_id: &str, case_index: usize, mode: 
     if initial["kind"] == "report" && env["numerical_quality"]["cases"][quality_index]["solve_quality"] != initial["outcome"] {
         return Err(assoc("ordinary_attempts[].initial.outcome"));
     }
-    Ok((json!({"case_index":case_index,"case_id":case_id,"material_basis_ref":e.basis_ref(case_index),"requested_mode":mode.as_str(),
-        "initial":initial,"w2":w2,"formation":formation,"diagnostic_refs":diagnostic_refs}), quality_index))
+    let mut entry = json!({"case_index":case_index,"case_id":case_id,"material_basis_ref":e.basis_ref(case_index),"requested_mode":mode.as_str(),
+        "initial":initial,"w2":w2,"formation":null,"diagnostic_refs":diagnostic_refs});
+    *entry.get_mut("formation").expect("literal field") = formation;
+    Ok((entry, quality_index))
 }
 fn case_diagnostic_refs_into(env: &Value, case_ids: &[&str], refs: &mut [Vec<Value>]) -> Result<(), ReceiptFailure> {
     for d in env["diagnostics"].as_array().ok_or(fail(ReceiptCheck::Association, "diagnostics"))? {
