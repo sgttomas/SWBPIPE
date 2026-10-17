@@ -5,6 +5,15 @@
 //! reviewer's (budget cliff; composite with a sensitive pressure case). All
 //! inputs are invented. Expected ordinary rows come from the uncaptured typed
 //! route, which never attempts retained source.
+//!
+//! RF source-method design §5.5: the budget cliffs were tuned to the legacy
+//! `Work::mul` precharge. Under the metered charging rule (HELP_HUMAN,
+//! 2026-10-16) each scenario is re-derived from measured charges so that it
+//! reaches the same path: public-limit scenarios are scaled (more declared
+//! loads, more copies) within D1's limits, a private limit takes a new
+//! private value, and N-3, which no longer reaches its cliff at the public
+//! limit, is stated with a private limit beside a public-limit positive
+//! control. The SF-1/SF-1R paths themselves are unchanged.
 use super::*;
 
 const CASE: &str = "case:join";
@@ -16,12 +25,16 @@ fn witness() -> Value {
     .unwrap()
 }
 
-/// The reviewer's probe P9: `extra` declared 1e-6 N tip forces (then a moment)
-/// added to the committed witness. They raise the live join work past half of
-/// the 8M per-case limit.
+/// The reviewer's probe P9: `extra` declared tip loads added to the committed
+/// witness, cycling its three kinds (a 1e-6 N UZ force, a 1e-6 N UY force, a
+/// copy of the witness's torque about RY). P9 used one to three; under the
+/// metered rule a load adds about 3,300 to the live join (310,217 without
+/// any), so the scenario takes over 1,200 to pass half of the 8M per-case
+/// limit (measured: 1,300 loads 4,658,279; 1,500 5,316,953; 1,700 5,973,073,
+/// both modes).
 fn with_extra_loads(mut request: Value, extra: usize) -> Value {
     let case = &mut request["model"]["load_cases"][0];
-    for (i, dir) in ["UZ", "UY", "RY"].iter().take(extra).enumerate() {
+    for (i, dir) in ["UZ", "UY", "RY"].iter().cycle().take(extra).enumerate() {
         let mut load = case["primitive_loads"][0].clone();
         let id = format!("extra:{i}");
         load["id"] = json!(id);
@@ -173,7 +186,10 @@ fn assert_ordinary_publication(
 
 #[test]
 fn reviewer_scenario_a_budget_cliff_publishes_the_ordinary_route_instead_of_blocking() {
-    for extra in 1..=3 {
+    // Re-derived for the metered rule: scaled from P9's 1..=3 extra loads to
+    // 1,300/1,500/1,700, which put the live join past half of the public 8M
+    // limit as P9's did under the legacy charges.
+    for extra in [1_300, 1_500, 1_700] {
         for mode in [
             PreviewSolverMode::SparseInteractive,
             PreviewSolverMode::DenseScrutiny,
@@ -191,6 +207,7 @@ fn reviewer_scenario_a_budget_cliff_publishes_the_ordinary_route_instead_of_bloc
                 "{unavailable}"
             );
             assert!(unavailable.contains("Exact(Budget)"), "{unavailable}");
+            assert!(unavailable.contains("limit: 8000000 }"), "the public per-case limit: {unavailable}");
             assert!(!unavailable.contains("could not finalize"), "{unavailable}");
         }
     }
@@ -231,10 +248,12 @@ fn reviewer_scenario_b_composite_with_sensitive_pressure_case_publishes_the_ordi
 
 #[test]
 fn a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back() {
-    // With a private 7.0M case limit the committed witness's live join
-    // (about 3.36M) passes the replay reservation, but its complete
-    // finalization (about 7.34M) does not fit. Private limit only: it is not
-    // public policy and never changes a numerical criterion.
+    // With a private 1.0M case limit the committed witness's live join
+    // (310,217 under the metered rule) passes the replay reservation, but its
+    // complete finalization (1,264,873) does not fit. Private limit only: it
+    // is not public policy and never changes a numerical criterion. (Under
+    // the legacy charges the limit was 7.0M: join about 3.36M, finalization
+    // about 7.34M.)
     for mode in [
         PreviewSolverMode::SparseInteractive,
         PreviewSolverMode::DenseScrutiny,
@@ -242,7 +261,7 @@ fn a_selected_case_whose_own_finalization_fails_after_the_reservation_falls_back
         let request = witness();
         let (typed, capture) = CapturedInvocation::parse(request.clone(), mode).unwrap();
         let mut budget = SourceRecoveryBudget {
-            per_case_limit: 7_000_000,
+            per_case_limit: 1_000_000,
             ..Default::default()
         };
         let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
@@ -358,16 +377,22 @@ fn copy_case(request: &mut Value, id: &str) {
 
 #[test]
 fn a_join_that_passes_the_replay_screen_but_cannot_finalize_falls_back_at_the_public_limit() {
-    // CP4 review SF-1R: one declared 1e-6 N*m tip RY moment gives a live charge
-    // (about 3.99M) that passes the c <= L - c screen at the public 8M limit;
-    // the stages charged before replay then leave replay short. ROOT's ruling
-    // (b): the screen is not a guarantee; the fallback is.
+    // CP4 review SF-1R: declared 1e-6 N*m tip RY moments give a live charge
+    // that passes the c <= L - c screen at the public 8M limit; the stages
+    // charged before replay then leave replay short. ROOT's ruling (b): the
+    // screen is not a guarantee; the fallback is. Re-derived for the metered
+    // rule: one moment (live charge about 3.99M under the legacy charges) now
+    // finalizes; 280 moments give a live charge of 1,306,279, and the
+    // finalization stages before replay, which grow with the request, leave
+    // replay short (measured: 260 to 300 moments reach this path).
     for mode in [
         PreviewSolverMode::SparseInteractive,
         PreviewSolverMode::DenseScrutiny,
     ] {
         let mut request = witness();
-        add_load(&mut request, 0, "extra:ry", "RY", 1.0e-6);
+        for i in 0..280 {
+            add_load(&mut request, 0, &format!("extra:ry:{i}"), "RY", 1.0e-6);
+        }
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode)
             .unwrap_or_else(|e| panic!("{mode:?}: {e}"));
         assert_ordinary_publication(&envelope, &request, mode, &[CASE]);
@@ -387,43 +412,105 @@ fn a_join_that_passes_the_replay_screen_but_cannot_finalize_falls_back_at_the_pu
 
 #[test]
 fn a_republication_reports_a_case_s_own_replay_screen_refusal() {
-    // CP4 review N-3: case:join is selectable; case:heavy (one extra tip UZ
-    // force) fails its own screen, so the composite receipt cannot finalize.
-    // In the republication case:join is withheld, while case:heavy still
-    // reports its own screen refusal.
+    // CP4 review N-3: in a republication case:join is withheld, while
+    // case:heavy (one extra tip UZ force) still reports its own screen
+    // refusal. Re-derived for the metered rule with a private 660,000 case
+    // limit, between twice case:join's live charge (2 x 310,217) and twice
+    // case:heavy's (2 x 348,916): case:join passes its screen, case:heavy
+    // fails its own. Under the legacy charges this ran at the public limit
+    // (join about 3.36M, heavy just over 4M), case:join finalized and the
+    // composite receipt failed on case:heavy ("invocation receipt:"). Now
+    // case:heavy's cliff is out of reach at the public limit within D1's
+    // limits (adding loads grows case:join's finalization reservation, which
+    // binds the whole request, faster than case:heavy's live charge), and at
+    // 660,000 case:join's own finalization does not fit, so the recorded cause
+    // is case:join's. Private limit only. The public-limit positive control is
+    // `the_republication_scenario_selects_both_cases_at_the_public_limit`.
     for mode in [
         PreviewSolverMode::SparseInteractive,
         PreviewSolverMode::DenseScrutiny,
     ] {
-        let mut request = witness();
-        copy_case(&mut request, "case:heavy");
-        add_load(&mut request, 1, "extra:heavy", "UZ", 1.0e-6);
-        let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode)
-            .unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        let request = heavy_request();
+        let (typed, capture) = CapturedInvocation::parse(request.clone(), mode).unwrap();
+        let mut budget = SourceRecoveryBudget {
+            per_case_limit: 660_000,
+            ..Default::default()
+        };
+        let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
         assert_ordinary_publication(&envelope, &request, mode, &[CASE, "case:heavy"]);
+        let cause = budget
+            .load_state_join_withheld
+            .clone()
+            .expect("fallback ran");
+        assert!(cause.starts_with("case case:join: "), "{cause}");
         let joined =
             &diagnostics_for(&envelope, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE", CASE)[0].message;
         assert!(joined.contains("invocation join withheld"), "{joined}");
-        assert!(joined.contains("invocation receipt:"), "{joined}");
+        assert!(joined.contains(&format!("could not finalize: {cause}")), "{joined}");
         let heavy = &diagnostics_for(&envelope, "SOURCE_BLOCK_RECOVERY_UNAVAILABLE", "case:heavy")
             [0]
         .message;
         assert!(heavy.contains("captured replay reservation"), "{heavy}");
         assert!(!heavy.contains("invocation join withheld"), "{heavy}");
+        assert!(budget.charged <= budget.invocation_limit);
+    }
+}
+
+/// N-3's request: the witness plus case:heavy, a copy with one extra tip UZ
+/// force.
+fn heavy_request() -> Value {
+    let mut request = witness();
+    copy_case(&mut request, "case:heavy");
+    add_load(&mut request, 1, "extra:heavy", "UZ", 1.0e-6);
+    request
+}
+
+/// N-3's positive control (RF design §5.5): at the public limit both cases of
+/// the republication scenario now select and the composite receipt finalizes.
+#[test]
+fn the_republication_scenario_selects_both_cases_at_the_public_limit() {
+    for mode in [
+        PreviewSolverMode::SparseInteractive,
+        PreviewSolverMode::DenseScrutiny,
+    ] {
+        let envelope = run_linear_static_preview_value_with_mode(heavy_request(), mode).unwrap();
+        assert_eq!(
+            envelope.producer.semantic_contract_id,
+            exact_admission::PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID
+        );
+        let receipt = envelope.source_block_recovery.as_ref().unwrap();
+        assert_eq!(receipt["body"]["status"], "qualified");
+        assert_eq!(receipt["body"]["cases"].as_array().unwrap().len(), 2);
+        assert!(!envelope
+            .diagnostics
+            .iter()
+            .any(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"));
+        for case in [CASE, "case:heavy"] {
+            assert_eq!(
+                diagnostics_for(&envelope, "SOURCE_BLOCK_RECOVERY_SELECTED", case).len(),
+                1,
+                "{case}"
+            );
+        }
     }
 }
 
 #[test]
 fn a_fallback_after_invocation_limit_exhaustion_stays_within_the_invocation_limit() {
-    // CP4 review N-2: ten selectable copies exhaust the 64M invocation limit
+    // CP4 review N-2: selectable copies exhaust the 64M invocation limit
     // during the first run. The republication continues the same ledger, so
-    // total executed work never exceeds that one limit.
+    // total executed work never exceeds that one limit. Re-derived for the
+    // metered rule: N-2's ten copies (about 7.36M each under the legacy
+    // charges) now fit; each copy charges about 1.64M plus its share of the
+    // publication, so forty copies exhaust the limit (measured: the first run
+    // fails at case:copy22's finalization with a budget refusal).
+    const COPIES: usize = 40;
     let mut request = witness();
-    for index in 1..10 {
+    for index in 1..COPIES {
         copy_case(&mut request, &format!("case:copy{index}"));
     }
     let cases: Vec<String> = std::iter::once(CASE.to_string())
-        .chain((1..10).map(|index| format!("case:copy{index}")))
+        .chain((1..COPIES).map(|index| format!("case:copy{index}")))
         .collect();
     let case_refs: Vec<&str> = cases.iter().map(String::as_str).collect();
     let mode = PreviewSolverMode::DenseScrutiny;
@@ -434,9 +521,14 @@ fn a_fallback_after_invocation_limit_exhaustion_stays_within_the_invocation_limi
     };
     let envelope = run_linear_static_preview_captured(typed, mode, Some(&capture), &mut budget);
     assert_ordinary_publication(&envelope, &request, mode, &case_refs);
-    assert!(budget.load_state_join_withheld.is_some(), "fallback ran");
-    // Ten attempts in each run, counted in the one continued ledger.
-    assert_eq!(budget.attempts, 20);
+    let cause = budget.load_state_join_withheld.clone().expect("fallback ran");
+    assert!(cause.contains("Exact(Budget)"), "{cause}");
+    // The first run attempts the cases up to the one whose finalization the
+    // exhausted ledger refuses; the republication attempts every case (each
+    // reports its own decline above). All are counted in the one continued
+    // ledger, which ends within one per-case limit of the invocation limit.
+    assert!(budget.attempts > COPIES && budget.attempts <= 2 * COPIES, "{}", budget.attempts);
     assert!(budget.charged <= budget.invocation_limit);
+    assert!(budget.charged > budget.invocation_limit - budget.per_case_limit, "{}", budget.charged);
     assert_eq!(budget.invocation_limit, SOURCE_BLOCKS_INVOCATION_WORK_LIMIT);
 }
