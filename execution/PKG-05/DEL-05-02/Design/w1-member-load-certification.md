@@ -183,7 +183,7 @@ The scratch check (`declared.py` → `/private/tmp/w1-design-kernel/declared.log
 - the entries are folded into `RetainedLedger`'s per-DOF nets and per-term flags;
 - `recover` reads every member-load term only through its `ledger` argument, never from `source`.
 
-Then `RetainedLedger::empty()` (Ŵ) and `ledger = None` (‖ā_q S‖₁) omit every member-load term by construction. **E is not established by inclusion alone.** The first independent review disproved section 4.2's former unamplified load terms using a near-parallel frame. HELP_HUMAN ruled the conditioning repair within the settled declared-load semantics (2026-10-17). Section 4.2 specifies it; its full recovery-DAG formation-error derivation and independent checks must establish the unchanged factor-69 bound. Until that confirmation, E remains pending, not a confirmed consequence of ledger inclusion.
+Then `RetainedLedger::empty()` (Ŵ) and `ledger = None` (‖ā_q S‖₁) omit every member-load term by construction. **E is not established by inclusion alone.** The first independent review disproved section 4.2's former unamplified load terms using a near-parallel frame. HELP_HUMAN ruled the conditioning repair within the settled declared-load semantics (2026-10-17). A separate review derived the full corrected recovery-DAG bound and checked actual formation errors (section 4.2). This establishes E's design warrant separately from ledger inclusion; implementation must preserve that reviewed DAG.
 
 | Consumer | Today | With declared entries | Verdict |
 |---|---|---|---|
@@ -192,7 +192,7 @@ Then `RetainedLedger::empty()` (Ŵ) and `ledger = None` (‖ā_q S‖₁) omit e
 | d^b fallback | `bounded_fallback` (adaptive.rs 1786-1904; ledger 1829-1834) | same | same |
 | R7 r, r₂ at q_W | verify.rs 833, 890 (`add_to`) | same; never re-formed | same |
 | t₁ | verify.rs 1105-1122 (K's formation error only) | the declared problem's load is exact | no new term |
-| E | `formation_scale` (verify.rs 86-288): ledger reactions use \|f_c\| (233) under `Some(ledger)`; ‖ā_q S‖₁ passes `None` (959) | reactions automatic; local load recovery also needs conditioned absolute-operand bounds and g-check applicability (section 4.2) | independent formation-error confirmation required |
+| E | `formation_scale` (verify.rs 86-288): ledger reactions use \|f_c\| (233) under `Some(ledger)`; ‖ā_q S‖₁ passes `None` (959) | reactions automatic; local recovery needs conditioned absolute-operand bounds and g-check applicability (section 4.2) | confirmed for the specified DAG by separate error derivation |
 | Ŵ | verify.rs 851-883, `RetainedLedger::empty()` at 864 | the empty ledger omits every member-load term | same, by construction |
 | 7a data flag | `data_blocks` (bound.rs 127-157); `fill_data_blocks` (162-197); `has_nonzero_term` (ledger.rs 141-165) | a nonzero declared entry sets the flag even if the net cancels | same |
 | uniqueness warrant | source_residual.rs 970-982; bridge.rs 486-492 | data from `fill_data_blocks` | same |
@@ -286,6 +286,27 @@ Here raw, raw_j and old denote the corresponding unamplified absolute recovery c
 **Required error warrant.** The separate numerical review must trace the full corrected DAG: coordinate differences and length, Gram–Schmidt projection/subtraction/normalization, cross-product/normalization, w_loc's exact accumulation, wl/wll/h, corrected end sums, interior single-round station sums, endpoint dispatch and E's own rounding. It must derive |q_P − R*(u_P)| ≤ 69·2^-P·E_q under the existing g-check, including higher-order terms; magnitude domination E_q ≥ |q_P| is insufficient. The declared global ledger is exact data; this warrant concerns local frame-dependent affine recovery, not a new f_d formation-error term in R7. Factor 69, R7's equations and P−16 remain unchanged. If the derivation cannot justify them, return the concrete conflict to HELP_HUMAN.
 
 Independent exact/directed controls must test actual formation error, not merely E magnitude, at P = 128, 256, 512 and 1024: the failing chord (1,1,2^-80), y_ref = (1,1,0), global-x unit load and u = 0; ordinary aligned/skew frames; g_exp at P−16 and above; fully fixed members; zero and cancelling loads; and `None`/empty-ledger exclusions. Section 10 names the controls. This remains design work; no product evidence or actual-source D3 is asserted here.
+
+**Independent design confirmation (2026-10-17, repaired design `77bc6b5f99`).** The separate numerical reviewer derived the following majorant, including higher-order terms and E's own formation, from the specified DAG and current source. Let ε = 2^-P and η = g_m ε ≤ 2^-16. Coordinate/norm/square-root error gives |L̂/L − 1| < 3ε. For the Gram–Schmidt residual v, with R = ‖y_ref‖, |v̂ − v| ≤ C_v εR where C_v = 12 + 34ε + 38ε² + 15ε³. The exact g comparison gives R/‖v̂‖ ≤ g_m; normalization bounds the y-axis error by C_v η/(1 − C_v η) + 3ε < 15.003g_m ε. The rounded cross product and normalization give z-axis error < 24.009g_m ε. Thus 25g_m ε bounds each axis's absolute error.
+
+For each computed nonnegative E stage B, propagate |X̂| ≤ MB and |X̂ − X*| ≤ dηB. If a coefficient obeys |C* − C| ≤ cε|C|, a rounded sum-of-products stage has the conservative recurrence
+
+`M' = (1+ε)M/(1−ε)` and `d' = [d + (c/g_m)(M+dη) + M/g_m]/(1−ε)`.
+
+The denominator covers E's own rounding, and the c·dη term retains coefficient/error cross terms. Positive sums take the largest incoming count with absolute-operand weights. Reverse coefficient counts are 4 for L, 5 for 1/L and 6 for section terms. Evaluating exact rational bounds at ε ≤ 2^-128, η ≤ 2^-16 and 1/g_m ≤ 1 gives:
+
+| DAG stage | Error count in units of ε times its amplified E majorant, upper bound |
+|---|---|
+| Local displacement/load projection | 26.001 |
+| Strain; Q; raw shear | 32.002; 39.005; 45.008 |
+| Corrected ends, including a conservative extra E combining stage | 47.008 |
+| Displacement-dependent interior station moments | 41.005 |
+| wl; wll; h | 31.002; 36.004; 37.004 |
+| Load contribution at ends/stations, including E staging | 39.004 |
+
+Exact t, t², half-scalings and g_m scalings add no rounding; endpoint dispatch inherits the end bound. Therefore **|q_P − R*(u_P)| < 47.1·2^-P·E_q** for the full corrected member recovery. Reactions/support groups retain R7's existing paths; their higher-order and E-formation bound is `68/(1−68·2^-16)^2/(1−256·2^-128) < 68.142 < 69`. The unchanged factor 69 and P−16 therefore cover the combined DAG. This is a derived design bound, not an observed maximum or a new verification law.
+
+The independent integer/Fraction emulation used 4,352-bit outward-rounded reference intervals. **80 controls passed** over 12 end rows and stations at 0, ¼, binary64 ⅓, 1−2^-52 and 1. For the original near-parallel counterexample, approximate actual-error/(2^-P E_q) ratios at P = 128/256/512/1024 were 0.162607/0.808403/0.052281/0.756320, all below 69. Exact g-boundary exponents 112/240/496/1008 were admitted; the next exponents were refused for active sources, even when their observed error was small. Fully fixed cancelling sources stayed active; zero and omitted-ledger sources added no activity; prior nodal applicability remained. These are design-emulation checks, not compiled product tests. Script and complete bounds/results: `/Users/ryan/dev/chirality-t3/scratch/w1-design-review-num-r2/review.py` and `/private/tmp/w1-design-review-num-r2/review.log`.
 
 ### 4.3 The lanes (`source_residual::recover`, 1384-1520)
 
@@ -514,7 +535,7 @@ The Rust reader is `core/reporting/result_export/src/retained_precision.rs`; the
 
   The member terms are sorted by member, source-id bytes, the three hex intensity words, then constructor ordinal. `member_load_terms` must be absent when there are none and exactly equal otherwise. That catches missing, extra, reordered, changed and duplicated terms.
 - **K4SRC** (Rust `native_bytes` 5542-5640; Python 366-410): after the supports, the member block is appended only when present, in the kernel's byte layout.
-- **Data flags** (Rust about 4022-4046; Python about 1600-1606): derive member data from independently recomputed individual entries, before netting, at free DOFs. A nonzero declared force or moment contributes data only when its corresponding translation or rotation is free. Nonzero cancelling entries remain data; moments acting only on constrained rotations do not. Nodal-only checks remain unchanged.
+- **Data flags** (Rust about 4022-4046; Python about 1600-1606): derive member data from independently recomputed individual entries, before netting, at free DOFs. A nonzero declared force or moment contributes data only when its corresponding translation or rotation is free. Nonzero cancelling entries remain data; moments acting only on constrained rotations do not. Nodal-only checks remain unchanged. The broader g-check activity of section 4.2 is a separate predicate: nonzero member-source recovery may require conditioning checks even without a free-DOF data flag.
 - **Combinations:** a `retained_selected` combination has no operand source carrying member terms, and an `operand_member_loads` reason requires one (extending the cause check at 3113-3121).
 - **Selected-case diagnostic:** the member-load message exactly when the case's source has member terms (section 6.4).
 - **Maximum evidence on route L:** G7's unchanged `EXTREMA_BOUNDS` judges the loaded member's evidence. It needs no reader change, because the evidence satisfies it by construction (section 4.4).
@@ -849,7 +870,7 @@ Each is introduced into a scratch copy of the implementation and must be killed 
 - independent Rust-reader and Python-verifier recomputation and K4LED binding for selected member-load cases, with the nodal-only path preserved (2.6);
 - the combination refusal's position (4.5).
 
-**Needed:** no further ruling is requested while the prescribed conditioning repair can establish the existing contract. E's full-DAG warrant remains pending independent confirmation. If factor 69 or P−16 cannot be justified after correction, return that concrete conflict to HELP_HUMAN; do not change either to obtain a pass. Implementation must establish bounds, recomputation and actual-source D3 before product integration.
+**Needed:** no further design ruling is requested. The separate review established the corrected E DAG's warrant under unchanged factor 69 and P−16 (section 4.2). If implementation cannot preserve that derivation, return the concrete conflict to HELP_HUMAN; do not change the law to obtain a pass. Implementation must establish source-based bounds, recomputation, byte preservation and actual-source D3 before product integration.
 
 **Reserved and untouched:**
 - D1's limits and the domain;
@@ -944,6 +965,7 @@ Independent scrutiny is required because this changes numerical meaning: the che
 - Maximum census: `/private/tmp/w1-design-maxcensus/` (`baseline/`, `design/`, `design_cxf/`, `sym/`, `controls_*`, `parts/run.log`, `corpus/cases_full.json`, `probe.diff`). The scratch build directory is `/Users/ryan/dev/chirality-t3/scratch/w1-design-maxcensus-target`.
 - Lever runs: `/private/tmp/w1-design-price/` (`s2c_tool.diff`, `price_s2c_{real,full}.log`, `eval70_s2c_{real,full}.log`, `table_s2c.txt`). The tool is `/Users/ryan/dev/chirality-t3/scratch/w1-design-price-tool-s2c/`, with runs `…/w1-design-price-runs/s2c_{real,full}`.
 - Independent numerical review: `/Users/ryan/dev/chirality-t3/scratch/w1-design-review-num/{checks,frame_e,symmetric_repair,census}.py`, with `/private/tmp/w1-design-review-num/{checks,frame_e,symmetric_repair,census}.log`. These establish the declared-entry checks, expose the former E failure, check the symmetric repair and re-aggregate the existing census. They do not yet establish the corrected E DAG.
+- Independent numerical repair confirmation at `77bc6b5f99`: `/Users/ryan/dev/chirality-t3/scratch/w1-design-review-num-r2/review.py` and `/private/tmp/w1-design-review-num-r2/review.log`. Exact rational majorants establish the corrected full-DAG error bound; 80 actual-error/applicability controls and 10,012 maximum endpoint grids pass, and the complete prescribed work bounds are checked. This reuses the earlier declared-entry/census evidence and supplies no product or allocation measurement.
 - Census of today's trial outcomes: `/private/tmp/w1-design-producer/` (extracted from the B7a/B7b logs).
 
 ## 14. Blast radius
