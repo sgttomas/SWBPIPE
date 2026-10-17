@@ -55,6 +55,7 @@
    "headline": "the case's largest station max_abs_normal for that basis"
   },
   "locations": "an end maximum's location is exact; an interior maximum's psi is compared within its location_band (the distance over which the value stays inside the criterion); fibre coordinates (y, z) are compared at the criterion with zero scale r_o; beta_deg is informational and not compared; the two sv_transverse_shear_max fibres are matched as an unordered pair",
+  "location_bands": "an interior psi (arcs) or fraction (straights) is compared within its location_band; end maxima are exact and carry no band; an interior headline carries its member's location_band",
   "maxima": "every member and intensified maximum is certified: a rigorous upper bound on the true maximum (from a second-derivative lower bound) lies within 1e-2 tolerance above the frozen value, which is attained at the frozen location; the dense-sampling bracket is a coarser consistency check",
   "discriminators": "each listed row lies at least 1e3 tolerances from its expected value, so an observation that passes the criterion is more than 1e-9 max(|obs|, |wrong|) from the wrong value",
   "unit_transforms": "values are SI; compare a product's MPa or mm after exact conversion"
@@ -4506,8 +4507,10 @@
        },
        "station_only_maximum": {
         "value": ["5.406266019836726587194429385749575919415e+7", 54062660.19836727],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       },
       "reduced_section": {
        "value": ["7.632231502460791819515167974190948422670e+7", 76322315.02460791],
@@ -4547,8 +4550,10 @@
        },
        "station_only_maximum": {
         "value": ["7.632231502460791819515167974190948422670e+7", 76322315.02460791],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       }
      },
      "pipe:BEND": {
@@ -4700,8 +4705,10 @@
        },
        "station_only_maximum": {
         "value": ["4.236187510778496626501936706754307411344e+7", 42361875.107784964],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       },
       "reduced_section": {
        "value": ["5.997184902394606481006343378822458788565e+7", 59971849.02394606],
@@ -4741,8 +4748,10 @@
        },
        "station_only_maximum": {
         "value": ["5.997184902394606481006343378822458788565e+7", 59971849.02394606],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       }
      }
     },
@@ -9973,8 +9982,10 @@
        },
        "station_only_maximum": {
         "value": ["5.280349390534987831332927069896846440411e+7", 52803493.90534988],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       },
       "reduced_section": {
        "value": ["5.280349390534987831332927069896846440411e+7", 52803493.90534988],
@@ -10014,8 +10025,10 @@
        },
        "station_only_maximum": {
         "value": ["5.280349390534987831332927069896846440411e+7", 52803493.90534988],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       }
      },
      "pipe:BEND": {
@@ -10167,8 +10180,10 @@
        },
        "station_only_maximum": {
         "value": ["4.110270881476757870640434390901577932341e+7", 41102708.81476758],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       },
       "reduced_section": {
        "value": ["4.110270881476757870640434390901577932341e+7", 41102708.81476758],
@@ -10208,8 +10223,10 @@
        },
        "station_only_maximum": {
         "value": ["4.110270881476757870640434390901577932341e+7", 41102708.81476758],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       }
      }
     },
@@ -15388,8 +15405,10 @@
        },
        "station_only_maximum": {
         "value": ["5.406266019836747087537135299875249930505e+7", 54062660.19836747],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       },
       "reduced_section": {
        "value": ["7.632231502460820416475071887691116758094e+7", 76322315.02460821],
@@ -15429,8 +15448,10 @@
        },
        "station_only_maximum": {
         "value": ["7.632231502460820416475071887691116758094e+7", 76322315.02460821],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       }
      },
      "pipe:BEND": {
@@ -15582,8 +15603,10 @@
        },
        "station_only_maximum": {
         "value": ["4.236187510778390735728111516046355436976e+7", 42361875.107783906],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       },
       "reduced_section": {
        "value": ["5.997184902394458691208405462117055401566e+7", 59971849.02394459],
@@ -15623,8 +15646,10 @@
        },
        "station_only_maximum": {
         "value": ["5.997184902394458691208405462117055401566e+7", 59971849.02394459],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       }
      }
     },
@@ -18178,6 +18203,11 @@
        "fraction": ["1.530225238408564886372816027942817746956e-1", 0.1530225238408565],
        "psi_deg": ["1.626020470831195740628877488181317868482e+1", 16.260204708311957]
       },
+      "location_band": {
+       "psi_rad": ["4.556329154209731442454752358794586553136e-5", 4.556329154209731e-05],
+       "fraction": ["2.456784563188489141421124929310418071176e-5", 2.456784563188489e-05],
+       "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
+      },
       "governing_fibre": {
        "surface": "outer",
        "sign": "sigma_minus",
@@ -18195,6 +18225,11 @@
        "psi_rad": ["2.837941092083278456257032342051061660156e-1", 0.28379410920832787],
        "fraction": ["1.530225238408564886372816027942817746956e-1", 0.1530225238408565],
        "psi_deg": ["1.626020470831195740628877488181317868482e+1", 16.260204708311957]
+      },
+      "location_band": {
+       "psi_rad": ["4.558368645249055542461081273737670968777e-5", 4.5583686452490554e-05],
+       "fraction": ["2.457884262076034010689453625202708421276e-5", 2.457884262076034e-05],
+       "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
       },
       "governing_fibre": {
        "surface": "outer",
@@ -21947,6 +21982,11 @@
        "psi_rad": ["4.135862945174358593154056356089065866646e-1", 0.41358629451743584],
        "fraction": ["2.632972126700414723983504847915022276321e-1", 0.26329721267004147],
        "psi_deg": ["2.369674914030373251585154363123520048689e+1", 23.696749140303734]
+      },
+      "location_band": {
+       "psi_rad": ["3.822009477892486517549504067877692832972e-5", 3.8220094778924865e-05],
+       "fraction": ["2.433166803802653184446583972487724618367e-5", 2.4331668038026533e-05],
+       "meaning": "a location within this distance of psi* has a value within the 1e-9 criterion of the maximum (from the second derivative at psi*)"
       },
       "governing_fibre": {
        "surface": "outer",
@@ -26408,8 +26448,10 @@
        },
        "station_only_maximum": {
         "value": ["8.300164435474328137265740459763109999933e+7", 83001644.35474329],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       }
      },
      "pipe:BEND1": {
@@ -26507,8 +26549,10 @@
        },
        "station_only_maximum": {
         "value": ["4.768057502044827531646735730405006471295e+7", 47680575.020448275],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       }
      },
      "pipe:BEND2": {
@@ -26606,8 +26650,10 @@
        },
        "station_only_maximum": {
         "value": ["3.278839783748110690718688084100321003970e+7", 32788397.837481108],
-        "station": "end_j"
-       }
+        "station": "end_j",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       }
      }
     },
@@ -31911,6 +31957,11 @@
         "M_y": ["-1.478629253423225941332706966923307862645e+3", -1478.629253423226],
         "M_z": ["5.878047020219469746105513399278217719961e+2", 587.8047020219469]
        },
+       "location_band": {
+        "fraction": ["3.754220601871910567634844135369541931787e-5", 3.754220601871911e-05],
+        "meaning": "a location within this distance of the fraction u* has a value within the 1e-9 criterion of the maximum (from the second derivative at u*)"
+       },
+       "second_derivative_per_fraction2": ["-5.112405272031369051928150896323631912652e+7", -51124052.72031369],
        "dense_sampling_bracket": {
         "samples": 4097,
         "h_fraction": ["2.441406250000000000000000000000000000000e-4", 0.000244140625],
@@ -31930,8 +31981,10 @@
        },
        "station_only_maximum": {
         "value": ["3.591335957832523987221040257191151311960e+7", 35913359.57832524],
-        "station": "midspan"
-       }
+        "station": "midspan",
+        "shortfall_tolerances": "3.170e+6"
+       },
+       "interior_peak_missed_by_stations": true
       },
       "reduced_section": {
        "value": ["5.167931918244532432679559504774992055513e+7", 51679319.182445325],
@@ -31952,6 +32005,11 @@
         "M_y": ["-1.478641442745368076786846855933923950454e+3", -1478.641442745368],
         "M_z": ["5.877723328930562365911602340620232209306e+2", 587.7723328930563]
        },
+       "location_band": {
+        "fraction": ["3.782999453913928531855467785063667204287e-5", 3.782999453913928e-05],
+        "meaning": "a location within this distance of the fraction u* has a value within the 1e-9 criterion of the maximum (from the second derivative at u*)"
+       },
+       "second_derivative_per_fraction2": ["-7.222278346887760699793236362214973705291e+7", -72222783.46887761],
        "dense_sampling_bracket": {
         "samples": 4097,
         "h_fraction": ["2.441406250000000000000000000000000000000e-4", 0.000244140625],
@@ -31971,8 +32029,10 @@
        },
        "station_only_maximum": {
         "value": ["5.151767228896627529658369046399354525038e+7", 51517672.288966276],
-        "station": "midspan"
-       }
+        "station": "midspan",
+        "shortfall_tolerances": "3.128e+6"
+       },
+       "interior_peak_missed_by_stations": true
       }
      },
      "pipe:BEND": {
@@ -32124,8 +32184,10 @@
        },
        "station_only_maximum": {
         "value": ["3.044873493953047303451809334950135998565e+7", 30448734.939530473],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       },
       "reduced_section": {
        "value": ["4.380825512488533948424636086704197864657e+7", 43808255.12488534],
@@ -32165,8 +32227,10 @@
        },
        "station_only_maximum": {
         "value": ["4.380825512488533948424636086704197864657e+7", 43808255.12488534],
-        "station": "end_i"
-       }
+        "station": "end_i",
+        "shortfall_tolerances": "0"
+       },
+       "interior_peak_missed_by_stations": false
       }
      }
     },
@@ -32273,6 +32337,10 @@
        "kind": "interior",
        "fraction": ["4.336338744127699796160778648321302751313e-1", 0.43363387441276996]
       },
+      "location_band": {
+       "fraction": ["3.754220601871910567634844135369541931787e-5", 3.754220601871911e-05],
+       "meaning": "a location within this distance of the fraction u* has a value within the 1e-9 criterion of the maximum (from the second derivative at u*)"
+      },
       "governing_fibre": {
        "surface": "outer",
        "sign": "sigma_plus",
@@ -32288,6 +32356,10 @@
       "location": {
        "kind": "interior",
        "fraction": ["4.335696232996336030817476373795566429513e-1", 0.4335696232996336]
+      },
+      "location_band": {
+       "fraction": ["3.782999453913928531855467785063667204287e-5", 3.782999453913928e-05],
+       "meaning": "a location within this distance of the fraction u* has a value within the 1e-9 criterion of the maximum (from the second derivative at u*)"
       },
       "governing_fibre": {
        "surface": "outer",
@@ -34554,12 +34626,15 @@
    "certification_total_bisections": 534,
    "certification_meaning": "for every member and intensified maximum, a rigorous upper bound from f'' >= -K (K from the closed-form second derivatives) lies within 1e-2 tolerance of the frozen value, and no sample exceeds it; so the sign-change search missed no higher peak",
    "arc_second_derivative_formulas_worst_relative_error": "1.337e-51",
-   "every_station_only_maximum_at_most_the_analytic_maximum": true
+   "every_station_only_maximum_at_most_the_analytic_maximum": true,
+   "straight_interior_second_derivative_worst_relative_error": "4.299e-41",
+   "straight_interior_second_derivative_check": "the exact f'' in the fraction at each interior straight maximum (from the polynomial resultants), which sets its location_band, against a central second difference of f with step 1e-20"
   },
   "precision_stability": {
    "recomputed_at_digits": 110,
    "parts_compared": ["derived", "zero_scales", "quantities", "effective_axial_force_zeros_on_arcs"],
    "values_compared": 13936,
+   "values_compared_added_by_the_location_band_repair": 12,
    "exact_zeros_equal_at_both_precisions": 2867,
    "worst_relative_difference": "0",
    "residues_written_as_zero": 28,

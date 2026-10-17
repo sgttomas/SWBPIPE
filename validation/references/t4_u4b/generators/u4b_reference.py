@@ -1928,9 +1928,16 @@ def emit_case(an, doc):
         val, mid, rec = case_best[basis]
         co = [m.id for m, f in line.order
               if abs(an.mmax[(m.id, basis)]["value"] - val) <= val * D(10) ** -50]
-        head[basis] = {"value": V(val), "member": mid, "co_governing_members": co,
-                       "location": rec["location"], "governing_fibre": rec["governing_fibre"]}
         zc = an.case_normal[basis]
+        hd = {"value": V(val), "member": mid, "co_governing_members": co, "location": rec["location"]}
+        if "location_band" in rec:
+            # an interior headline carries its member's band: the value is at least every
+            # station value of the case, so 1e-9 max(value, zero scale) is the same tolerance
+            # under the member's and the headline's zero scale
+            require(val >= zc and val >= zs[mid][basis]["normal_stress"], "headline band tolerance")
+            hd["location_band"] = rec["location_band"]
+        hd["governing_fibre"] = rec["governing_fibre"]
+        head[basis] = hd
         disc.append(("max_station_only", "headline/%s" % basis, val, case_station_best[basis], zc))
         if distinct:
             disc.append(("rows_other_basis_section", "headline/%s" % basis, val, case_best[other[basis]][0], zc))
@@ -2040,6 +2047,22 @@ def emit_straight_max(line, k, m, mx, bp, pAi, z):
 
     def fs(t):
         return abs(pval(a, t)) + (pval(b, t) ** 2 + pval(c, t) ** 2).sqrt()
+    if loc["kind"] == "interior":
+        # location band of an interior straight maximum, as on arcs but in the fraction:
+        # within band of u* the value stays inside the criterion, from f'' at u*. End
+        # maxima are exact and carry no band.
+        f1, f2 = straight_derivatives(a, b, c, u)
+        require(f2 < 0 and abs(f1) <= abs(f2) * D(10) ** -50,
+                "interior straight maximum is not a nondegenerate stationary maximum: %s %s" % (line.id, m.id))
+        hh = D(10) ** -20
+        fd = (fs(u + hh) - 2 * fs(u) + fs(u - hh)) / (hh * hh)
+        mx["d2_central_difference_error"] = abs(fd - f2) / abs(f2)
+        require(mx["d2_central_difference_error"] < D(10) ** -30, "straight second derivative")
+        band = (2 * D("1e-9") * max(val, z) / abs(f2)).sqrt()
+        rec["location_band"] = {"fraction": V(band),
+                                "meaning": "a location within this distance of the fraction u* has a value within "
+                                           "the 1e-9 criterion of the maximum (from the second derivative at u*)"}
+        rec["second_derivative_per_fraction2"] = V(f2)
     grid = [(D(i) / n, fs(D(i) / n)) for i in range(n + 1)]
     smax = max(g[1] for g in grid)
     Fmax = mx["F0"] + mx["wn"] * mx["L"]
@@ -2057,8 +2080,31 @@ def emit_straight_max(line, k, m, mx, bp, pAi, z):
     rec["certification"] = cert_record(mx["cert"], "Pa per unit fraction^2")
     names = [st for st, fr in STATIONS]
     svals = [abs(pval(a, dq(fr))) + (pval(b, dq(fr)) ** 2 + pval(c, dq(fr)) ** 2).sqrt() for st, fr in STATIONS]
-    rec["station_only_maximum"] = {"value": V(max(svals)), "station": names[svals.index(max(svals))]}
+    stmax = max(svals)
+    rec["station_only_maximum"] = {"value": V(stmax), "station": names[svals.index(stmax)],
+                                   "shortfall_tolerances": sci((val - stmax) / tol(val, z))}
+    rec["interior_peak_missed_by_stations"] = bool(val - stmax > tol(val, z))
+    assert stmax <= val * (1 + D(10) ** -60)
     return rec
+
+
+def straight_derivatives(a, b, c, u):
+    """Exact f'(u) and f''(u) in the fraction for f = |a| + hypot(b, c) on a straight,
+    from its polynomial resultants (a linear, b and c quadratic). Valid where a(u) != 0
+    and hypot(b, c) > 0, which holds at an interior maximum: f' jumps upward at a kink
+    of |a| or of the hypot, so a kink is never a maximum (README item 4)."""
+    def d(p):
+        return pder(p) or [D(0)]
+    a0, a1, a2 = pval(a, u), pval(d(a), u), pval(d(d(a)), u)
+    b0, b1, b2 = pval(b, u), pval(d(b), u), pval(d(d(b)), u)
+    c0, c1, c2 = pval(c, u), pval(d(c), u), pval(d(d(c)), u)
+    h = (b0 * b0 + c0 * c0).sqrt()
+    require(a0 != 0 and h > 0, "straight derivatives at a kink")
+    s = sgn(a0)
+    e = b0 * b1 + c0 * c1
+    f1 = s * a1 + e / h
+    f2 = s * a2 + (b1 * b1 + c1 * c1 + b0 * b2 + c0 * c2) / h - e * e / (h * h * h)
+    return f1, f2
 
 
 def summarize_discriminators(disc):
@@ -2753,6 +2799,8 @@ CRITERION = {
                  "location_band (the distance over which the value stays inside the criterion); fibre "
                  "coordinates (y, z) are compared at the criterion with zero scale r_o; beta_deg is informational "
                  "and not compared; the two sv_transverse_shear_max fibres are matched as an unordered pair",
+    "location_bands": "an interior psi (arcs) or fraction (straights) is compared within its location_band; end "
+                      "maxima are exact and carry no band; an interior headline carries its member's location_band",
     "maxima": "every member and intensified maximum is certified: a rigorous upper bound on the true maximum (from "
               "a second-derivative lower bound) lies within 1e-2 tolerance above the frozen value, which is attained "
               "at the frozen location; the dense-sampling bracket is a coarser consistency check",
@@ -3042,6 +3090,9 @@ def maxima_summary(emitted, analyses):
             bis += c["bisections"]
     require(worst_excess <= CERT_FRACTION, "certification")
     d2 = max(v for an in analyses.values() for v in an.d2check.values())
+    d2s = [mx["d2_central_difference_error"] for an in analyses.values() for mx in an.mmax.values()
+           if "d2_central_difference_error" in mx]
+    require(len(d2s) == n_str_interior, "every interior straight maximum has a checked second derivative")
     return {"arc_member_maxima": n_arc, "straight_member_maxima": n_str,
             "straight_member_maxima_interior": n_str_interior, "arc_intensified_maxima": n_int,
             "every_analytic_value_inside_its_dense_sampling_bracket": True,
@@ -3057,7 +3108,12 @@ def maxima_summary(emitted, analyses):
                                      "frozen value, and no sample exceeds it; so the sign-change search missed no "
                                      "higher peak" % sci(CERT_FRACTION, 1),
             "arc_second_derivative_formulas_worst_relative_error": sci(d2),
-            "every_station_only_maximum_at_most_the_analytic_maximum": True}
+            "every_station_only_maximum_at_most_the_analytic_maximum": True,
+            "straight_interior_second_derivative_worst_relative_error": sci(max(d2s)),
+            "straight_interior_second_derivative_check": "the exact f'' in the fraction at each interior straight "
+                                                         "maximum (from the polynomial resultants), which sets its "
+                                                         "location_band, against a central second difference of f "
+                                                         "with step 1e-20"}
 
 
 VECTOR_KEYS = {"x", "y", "z", "point", "centre", "bend_plane_normal_z"}
@@ -3081,6 +3137,27 @@ def value_leaves(obj, path=""):
                 yield from value_leaves(v, path + "/%d" % i)
 
 
+def location_band_repair_leaves(em):
+    """Paths of the values the location-band repair added (README, Status): the band and
+    second derivative of each interior straight maximum, and the band an interior headline
+    carries. precision_stability compares them like every other value and counts them
+    separately, so the count confirmed before the repair is unchanged."""
+    q = em["quantities"]
+    out = set()
+    for mid, bb in q["member_maximum"].items():
+        for b, rec in bb.items():
+            if "psi_rad" in rec["location"]:
+                continue
+            for key in ("location_band", "second_derivative_per_fraction2"):
+                if key in rec:
+                    out |= {p for p, v in value_leaves(rec[key], "quantities/member_maximum/%s/%s/%s"
+                                                       % (mid, b, key))}
+    for b, h in q["headline"].items():
+        if "location_band" in h:
+            out |= {p for p, v in value_leaves(h["location_band"], "quantities/headline/%s/location_band" % b)}
+    return out
+
+
 def precision_stability(docs, emitted, case_snaps):
     """Recompute every case at BASE_PREC + 20 digits and compare every written value
     of its derived geometry, zero scales, quantities and N_w zeros. An exact zero
@@ -3090,11 +3167,12 @@ def precision_stability(docs, emitted, case_snaps):
     set_precision(hi)
     SnapLog.reset()
     worst = D(0)
-    count = zeros = 0
+    count = zeros = added = 0
     try:
         for doc in docs:
             an = analyse(line_from_doc(doc))
             em, _ = emit_case(an, doc)
+            band_paths = location_band_repair_leaves(emitted[doc["case_id"]])
             for part in STABILITY_PARTS:
                 require((part in em) == (part in emitted[doc["case_id"]]), "precision stability parts")
                 if part not in em:
@@ -3104,7 +3182,10 @@ def precision_stability(docs, emitted, case_snaps):
                 require(a.keys() == b.keys(), "precision stability keys")
                 for k in a:
                     x, y = D(a[k]), D(b[k])
-                    count += 1
+                    if k in band_paths:
+                        added += 1
+                    else:
+                        count += 1
                     if x == y:
                         zeros += x == 0
                         continue
@@ -3118,6 +3199,7 @@ def precision_stability(docs, emitted, case_snaps):
     require(hi_snaps == case_snaps and hi_largest < RESIDUE_AT_HIGH_PREC and not hi_floor,
             "residue rule: %d/%d snaps, largest %s at %d digits" % (hi_snaps, case_snaps, sci(hi_largest), hi))
     return {"recomputed_at_digits": hi, "parts_compared": list(STABILITY_PARTS), "values_compared": count,
+            "values_compared_added_by_the_location_band_repair": added,
             "exact_zeros_equal_at_both_precisions": zeros, "worst_relative_difference": sci(worst),
             "residues_written_as_zero": case_snaps,
             "largest_such_residue_at_recomputation": sci(hi_largest),
