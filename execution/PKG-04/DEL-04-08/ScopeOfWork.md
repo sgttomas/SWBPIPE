@@ -145,11 +145,11 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - an admission refusal (caller, domain, build identity or byte limit);
     - a stack-reservation fallback;
     - coexistence with retained-source recovery;
-    - the late-gate refusal;
+    - the late-gate and completion-gate refusals;
     - a domain or notice-reservation fallback;
     - an invocation with no triggered case.
   - **(b) Retained work ran but did not complete.** The case keeps its ordinary rows, standing and diagnostics byte for byte, and gains one `RETAINED_PRECISION_UNAVAILABLE` notice. That notice names a reason only for a receipt-encoding failure.
-    - A combination-custody, staging, serializer or precommit fault withdraws the whole successor, so every attempted case falls back with the notice.
+    - An invocation-level custody failure in preparation, or a combination-custody, staging, serializer or precommit fault, withdraws the whole successor, so every attempted case falls back with the notice.
     - A preparation, native or candidate failure of one case can leave other cases selected. The published successor's receipt then records that case, with its typed cause.
   - **(c) Retained-source attempt declined or failed.** The case stays on its ordinary route, and the receipt records the failure stage and code (for example `unsupported_family`). If an invocation carries a load/reference-state group whose join cannot finalize, every case is republished on its ordinary route (`pressure-1`) without a receipt.
   - **(d) Ordinary attempt failed.** On route L only, for a single-case invocation without combinations, such a case publishes from the retained route only if its retained proof passes G0–G8. Its quality entry keeps the failed attempt's outcome and never reads `checks_passed`. Otherwise the blocked ordinary result stands, with no successor.
