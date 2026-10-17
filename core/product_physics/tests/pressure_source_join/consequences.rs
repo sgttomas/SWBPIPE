@@ -202,6 +202,9 @@ enum DispatchDisposition<'a> {
     HeaderRefused(&'a str),
     /// A retired v2 identity, refused by name at header dispatch.
     HeaderRetiredV2,
+    /// A current-identity statement whose receipt the header's shape check
+    /// refuses: unsupported, under the generic finding.
+    HeaderShapeRefused(&'a str),
 }
 const RETIRED_V2_DETAIL: &str = "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis";
 fn checked_dispatch(
@@ -247,6 +250,13 @@ fn checked_dispatch(
             "unsupported",
             json!(["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"]),
             json!({"code":"SOURCE_EXACT_PRESSURE_V2_RETIRED","detail":RETIRED_V2_DETAIL}),
+        ),
+        DispatchDisposition::HeaderShapeRefused(code) => (
+            "unsupported",
+            Value::Null,
+            "unsupported",
+            json!(["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"]),
+            json!({"code":code,"detail":null}),
         ),
     };
     let eligible = findings.as_array().unwrap().is_empty();
@@ -514,6 +524,83 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
     }
     check_export_binds_the_received_receipt(source, &invocation["request"]["model"], &prefix);
 }
+/// RF source-method extension §7 (readers judge a receipt against the current
+/// producer, which solves exact blocks of order up to 4). On a genuine
+/// control, each receipt resealed so that only the named statement is wrong:
+/// - a free block of 5 DOFs (blocks merged, the partition kept) and an unknown
+///   source `level` are refused by the receipt schema;
+/// - a stored `unsupported_block` refusal of order 3 and of order 4 on the
+///   ordinary-selected case is unreadable. The schema admits only qualified
+///   cases (`failure` null), so the receipt shape refuses it before
+///   `FAILURE_BLOCK_ORDER`, whose bound (RF-16) both readers test directly
+///   (`source_blocks.rs` `rf16_failure_block_order_tests`;
+///   `tests/test_pressure_source_corpus.py`).
+///
+/// No positive is fabricated: a 4-DOF block or the congruence level reads as
+/// valid only on a genuine producer output, which a later producer change adds.
+fn add_rf_receipt_entries(control: &Control, entries: &mut Vec<Value>) {
+    const SHAPE: &str = "PHYSICS_SOURCE_RECEIPT_SHAPE";
+    const EXACT: &str = "retained_source_blocks_exact_v1";
+    let prefix = format!(
+        "{}:{}:{}",
+        control.family.name(),
+        control.name,
+        control.mode.as_str()
+    );
+    let source = &control.joined.source;
+    let index = |method_is_exact: bool| {
+        source["source_block_recovery"]["body"]["cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .position(|c| (c["selected_method"] == EXACT) == method_is_exact)
+            .unwrap()
+    };
+    let (exact, ordinary) = (index(true), index(false));
+    let mut refused = |id: String, mutated: &Value| {
+        entries.push(corpus_entry(
+            format!("{prefix}:{id}"),
+            mutated,
+            &control.invocation,
+            "pressure-source",
+            Some(SHAPE),
+            Some(SHAPE),
+            DispatchDisposition::HeaderShapeRefused(SHAPE),
+        ));
+    };
+    let mut five = source.clone();
+    let plan = &mut five["source_block_recovery"]["body"]["cases"][exact]["source"];
+    let (mut merged, mut rest) = (Vec::new(), Vec::new());
+    for block in plan["free_blocks"].as_array().unwrap() {
+        if merged.len() < 5 {
+            merged.extend(block.as_array().unwrap().iter().map(|d| d.as_u64().unwrap()));
+        } else {
+            rest.push(block.clone());
+        }
+    }
+    assert_eq!(merged.len(), 5, "{prefix}: leading blocks merge to exactly 5 DOFs");
+    merged.sort_unstable();
+    rest.insert(0, json!(merged));
+    plan["free_blocks"] = json!(rest);
+    reseal_receipt(&mut five);
+    refused("RF-free-block-5-dofs".into(), &five);
+    let mut level = source.clone();
+    level["source_block_recovery"]["body"]["cases"][exact]["source"]["level"] =
+        json!("complete_identified_unknown_member_basis");
+    reseal_receipt(&mut level);
+    refused("RF-unknown-source-level".into(), &level);
+    for order in [3, 4] {
+        let mut stored = source.clone();
+        let case = &mut stored["source_block_recovery"]["body"]["cases"][ordinary];
+        assert!(case["source"].is_null() && case["failure"].is_null());
+        let diagnostic = case["ordinary_attempt"]["structural_report_diagnostic_ref"].clone();
+        case["outcome"] = json!("unsupported");
+        case["selected_method"] = Value::Null;
+        case["failure"] = json!({"stage":"exact_solve","code":"unsupported_block","diagnostic_ref":diagnostic,"block_order":order});
+        reseal_receipt(&mut stored);
+        refused(format!("RF-unsupported-block-order-{order}"), &stored);
+    }
+}
 fn add_context_entry(
     id: String,
     source: &Value,
@@ -650,6 +737,9 @@ fn pressure_source_controls_keep_exact_work_and_current_bytes() {
     assert_eq!(controls.len(), 24);
     for control in &controls {
         add_control_entries(control, &mut entries);
+        if control.name == "mixed" {
+            add_rf_receipt_entries(control, &mut entries);
+        }
         // This consuming kill avoids changing an unrelated resolved-state
         // inventory before testing the selected pressure inventory gate.
         if !control.family.resolved() && control.name == "n06" {
@@ -820,13 +910,13 @@ fn pressure_source_raw_fixture_path_guard_refuses_before_read() {
 #[test]
 fn pressure_source_corpus_cache_shares_one_strict_expansion() {
     let corpus = read_corpus();
-    assert_eq!(corpus["entries"].as_array().unwrap().len(), 342);
+    assert_eq!(corpus["entries"].as_array().unwrap().len(), 358);
     for _ in 0..8 { assert!(std::ptr::eq(corpus, read_corpus())); }
     std::thread::scope(|scope| {
         let readers: Vec<_> = (0..8).map(|_| scope.spawn(read_corpus)).collect();
         for reader in readers { assert!(std::ptr::eq(corpus, reader.join().unwrap())); }
     });
-    println!("pressure_source_corpus_cache=one_shared_immutable_value,342entries");
+    println!("pressure_source_corpus_cache=one_shared_immutable_value,358entries");
 }
 fn check_corpus_entry(entry: &Value) {
     let source = &entry["source"];

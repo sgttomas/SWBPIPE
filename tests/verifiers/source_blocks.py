@@ -183,6 +183,13 @@ def _normal_or_exact_zero(value: float, logical_zero: bool) -> bool:
     return math.isfinite(value) and (value == 0.0 if logical_zero else abs(value) >= sys.float_info.min)
 
 
+def _failure_block_order(failure: Mapping[str, Any], case: Mapping[str, Any]) -> bool:
+    """Rust `failure_block_order` (RF source-method extension §7): the current producer solves exact blocks of order
+    up to 4, so an unsupported_block refusal records a larger order and no source; other codes record none. The
+    receipt schema admits only qualified cases, so the shape refuses a stored failure record first at every entry."""
+    return (failure["code"] == "unsupported_block" and failure["block_order"] is not None and failure["block_order"] > 4 and case["source"] is None) or (failure["code"] != "unsupported_block" and failure["block_order"] is None)
+
+
 def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mapping[str, Any] | None, *, context: Any) -> bool:
     """Return numerical eligibility; raise ValueError for malformed statements.
 
@@ -251,7 +258,7 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
         else:
             failure = case["failure"]
             _require(method is None and failure is not None and failure["diagnostic_ref"] in diagnostics, "FAILED_OUTCOME")
-            _require((failure["code"] == "unsupported_block" and failure["block_order"] is not None and failure["block_order"] > 2 and case["source"] is None) or (failure["code"] != "unsupported_block" and failure["block_order"] is None), "FAILURE_BLOCK_ORDER")
+            _require(_failure_block_order(failure, case), "FAILURE_BLOCK_ORDER")
             _require((case["outcome"] == "unsupported") == (failure["code"] in {"unsupported_family","unsupported_block","unsupported_source_closure","unsupported_derived_quantity","support_attribution_ambiguous"}), "FAILURE_CATEGORY")
         if case["source"] is not None:
             _source_plan(case["source"], case["projections"], model)
