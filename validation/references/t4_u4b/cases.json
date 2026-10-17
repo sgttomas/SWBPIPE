@@ -16,18 +16,19 @@
  "number_conventions": {
   "binary64_exact": "node positions, y_reference components and load components are the binary64 values written here, taken as exact",
   "decimal_targets": "outside diameter, wall, mill tolerance, corrosion allowance, E, nu, alpha, bend radius, pressure, k and SIF values are exact decimal targets (the shortest decimal of the written number); their binary64 rounding moves results by about 1e-16 relative, far inside the criterion",
-  "bend_angle": "the oracle's derived.arc.bend_angle_binary64_for_authoring is the binary64 nearest to the included angle formed from the chord and R, for a bend component that states it"
+  "bend_angle": "each arc's arc.bend_angle_binary64_for_authoring (repeated in the oracle's derived.arc) is the binary64 nearest to the included angle formed from the chord and R, for the bend component that states it"
  },
  "fields": {
   "route": "exact: a pressure_contract document (identity pressure-2 when defined); preview: a pressure-free document on the preview-physics route (identity preview-physics-2 when defined)",
   "members.kind": "straight, or realized_arc (a span bend realized as curved_bend_macro_element)",
   "members.y_reference": "on a straight the element-local y reference; on an arc the bow direction (the arc bows toward +y_reference projected normal to the chord)",
+  "members.arc": "bend_radius R; bend_angle_binary64_for_authoring; bend_component_attachment_node, the arc's authored from node (as in U4a); the bow rule; k",
   "members.directional_sif_user_values": "invented i_ip (on M_z, in-plane) and i_op (on M_y, out-of-plane) in the arc's tangent frame",
   "load_case.member_uniform_forces": "constant global force per unit length: per unit member length on a straight, per unit arc length on an arc (length_measure)",
   "load_case.pressure_regions": "internal pressure p (signed; external zero) over the listed members, each terminal with its closure disposition",
   "supports": "one full anchor; the other line end is free"
  },
- "binding_when_0_6_0_is_defined": ["a builder authors one product request per case from these descriptions (bend components, primitive loads per global component, pressure region and terminals, shear model, SIF fields);", "the U4b design's row-kind table maps the oracle's agnostic quantity keys to row kinds;", "oracle values never move to match a product;", "the request SHA-256 values are added to the oracle when the requests exist."],
+ "binding_when_0_6_0_is_defined": ["a builder authors one product request per case from these descriptions (bend components, primitive loads per global component, pressure region and terminals, shear model, SIF fields);", "each realized arc becomes one bend component attached at arc.bend_component_attachment_node (the arc's authored from node, as in U4a), referencing the arc's pipe, with bend_radius R, bend angle arc.bend_angle_binary64_for_authoring, the user k and the SIF fields;", "the U4b design's row-kind table maps the oracle's agnostic quantity keys to row kinds;", "oracle values never move to match a product;", "the request SHA-256 values are added to the oracle when the requests exist."],
  "cases": [
   {
    "case_id": "U4B-L90-P",
@@ -79,6 +80,10 @@
      "y_reference": [1.0, -1.0, 0.0],
      "arc": {
       "bend_radius": 0.5,
+      "bend_angle_binary64_for_authoring": 1.5707963267948966,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:B",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
       "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
       "solver_consumption": "curved_bend_macro_element",
       "flexibility_factor_user_value": 3.1,
@@ -234,6 +239,10 @@
      "y_reference": [1.0, -1.0, 0.0],
      "arc": {
       "bend_radius": 0.5,
+      "bend_angle_binary64_for_authoring": 1.5707963267948966,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:B",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
       "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
       "solver_consumption": "curved_bend_macro_element",
       "flexibility_factor_user_value": 3.1,
@@ -389,6 +398,10 @@
      "y_reference": [1.205128205128205, 0.1794871794871795, 0.717948717948718],
      "arc": {
       "bend_radius": 0.5,
+      "bend_angle_binary64_for_authoring": 1.5707963267948792,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:B",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
       "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
       "solver_consumption": "curved_bend_macro_element",
       "flexibility_factor_user_value": 3.1,
@@ -537,6 +550,10 @@
      "y_reference": [4.0, -3.0, 0.0],
      "arc": {
       "bend_radius": 1.5625,
+      "bend_angle_binary64_for_authoring": 1.8545904360032244,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:A",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
       "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
       "solver_consumption": "curved_bend_macro_element",
       "flexibility_factor_user_value": 1.6,
@@ -641,6 +658,10 @@
      "y_reference": [1.0, -1.0, 0.0],
      "arc": {
       "bend_radius": 0.1875,
+      "bend_angle_binary64_for_authoring": 1.5707963267948966,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:A",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
       "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
       "solver_consumption": "curved_bend_macro_element",
       "flexibility_factor_user_value": 6.5,
@@ -746,6 +767,10 @@
      "y_reference": [1.0, -1.0, 0.0],
      "arc": {
       "bend_radius": 0.75,
+      "bend_angle_binary64_for_authoring": 1.5707963267948966,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:A",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
       "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
       "solver_consumption": "curved_bend_macro_element",
       "flexibility_factor_user_value": 4.2,
@@ -865,6 +890,10 @@
      "y_reference": [1.0, -1.0, 0.0],
      "arc": {
       "bend_radius": 0.5,
+      "bend_angle_binary64_for_authoring": 1.5707963267948966,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:C",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
       "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
       "solver_consumption": "curved_bend_macro_element",
       "flexibility_factor_user_value": 2.8,
@@ -895,6 +924,10 @@
      "y_reference": [-1.0, 1.0, 0.0],
      "arc": {
       "bend_radius": 0.5,
+      "bend_angle_binary64_for_authoring": 1.5707963267948966,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:D",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
       "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
       "solver_consumption": "curved_bend_macro_element",
       "flexibility_factor_user_value": 2.8,
@@ -992,6 +1025,165 @@
      }
     ],
     "pressure_regions": []
+   }
+  },
+  {
+   "case_id": "U4B-RISE74-P-REV",
+   "description": "line in the vertical x-z plane, anchored at A, free tip D: straight S1 along +x; a realized arc of 2*asin(3/5) (about 73.74 deg) rising toward +z, authored against the traversal (C to B), R/r_o = 11.06; straight S2 along the arc's end tangent; 3.6 MPa with transferring closures over the whole line; tip force and moment, uniform loads on every member (on S1 axial and in both transverse planes, on the arc in-plane and out-of-plane); distinct section bases; nu = 0.28; the maximum of S1 is interior (fraction about 0.4336), where the uniform load and the opposing beyond-shear give an interior bending peak",
+   "route": "exact",
+   "semantic_identity_when_defined": "pressure-2",
+   "model_version_when_defined": "0.6.0",
+   "pressure_contract": {
+    "version": "3.0.0",
+    "mode": "exact_pressure_v3",
+    "shear_model": "timoshenko_annulus_energy_v1",
+    "shear_model_note": "every frozen value is identical under euler_bernoulli and timoshenko_annulus_energy_v1: the line is statically determinate, and realized arcs are Euler-Bernoulli under either model"
+   },
+   "nodes": [
+    {
+     "id": "node:A",
+     "position": [0.0, 0.0, 0.0]
+    },
+    {
+     "id": "node:B",
+     "position": [2.0, 0.0, 0.0]
+    },
+    {
+     "id": "node:C",
+     "position": [2.75, 0.0, 0.5625]
+    },
+    {
+     "id": "node:D",
+     "position": [3.1875, 0.0, 2.0625]
+    }
+   ],
+   "members": [
+    {
+     "id": "pipe:S1",
+     "from": "node:A",
+     "to": "node:B",
+     "kind": "straight",
+     "section": "section:rise",
+     "material": "material:rise",
+     "y_reference": [0.0, 0.0, 1.0]
+    },
+    {
+     "id": "pipe:BEND",
+     "from": "node:C",
+     "to": "node:B",
+     "kind": "realized_arc",
+     "section": "section:rise",
+     "material": "material:rise",
+     "y_reference": [1.0, 0.0, -1.0],
+     "arc": {
+      "bend_radius": 0.78125,
+      "bend_angle_binary64_for_authoring": 1.2870022175865687,
+      "bend_angle_note": "the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), formed from the binary64 node positions and the decimal R (filled by the generator); the bend component states it",
+      "bend_component_attachment_node": "node:C",
+      "attachment_note": "the bend component is attached at the arc's authored from node, as in U4a",
+      "bow_rule": "the arc bows toward +y_reference projected normal to the chord (the centre lies on the opposite side)",
+      "solver_consumption": "curved_bend_macro_element",
+      "flexibility_factor_user_value": 3.4,
+      "flexibility_factor_note": "invented user flexibility factor; no frozen value depends on it because the line is statically determinate (one anchor, free tip)"
+     },
+     "directional_sif_user_values": {
+      "i_ip": 2.1,
+      "i_op": 1.7,
+      "note": "invented user-supplied directional factors, not code or library data: i_ip multiplies the in-plane moment M_z and i_op the out-of-plane moment M_y of the arc's tangent frame"
+     }
+    },
+    {
+     "id": "pipe:S2",
+     "from": "node:C",
+     "to": "node:D",
+     "kind": "straight",
+     "section": "section:rise",
+     "material": "material:rise",
+     "y_reference": [0.0, 1.0, 0.0]
+    }
+   ],
+   "sections": [
+    {
+     "id": "section:rise",
+     "outside_diameter": 0.1413,
+     "wall_thickness": 0.00655,
+     "mill_tolerance": 0.00082,
+     "corrosion_allowance": 0.0013
+    }
+   ],
+   "materials": [
+    {
+     "id": "material:rise",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": 193000000000.0,
+     "poisson_ratio": 0.28,
+     "thermal_expansion_coefficient": 1.6e-05
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:A",
+     "node": "node:A",
+     "family": "anchor",
+     "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]
+    }
+   ],
+   "load_case": {
+    "id": "case:u4b",
+    "thermal_state": "unchanged_reference (no temperature change)",
+    "self_weight": "none (only the listed loads act)",
+    "nodal_forces": [
+     {
+      "id": "load:force:node:D",
+      "node": "node:D",
+      "global_components": [600.0, -800.0, 1850.0]
+     }
+    ],
+    "nodal_moments": [
+     {
+      "id": "load:moment:node:D",
+      "node": "node:D",
+      "global_components": [-250.0, 300.0, 180.0]
+     }
+    ],
+    "member_uniform_forces": [
+     {
+      "id": "load:line:pipe:S1",
+      "member": "pipe:S1",
+      "global_components_per_length": [150.0, 800.0, -1200.0],
+      "length_measure": "member_length"
+     },
+     {
+      "id": "load:line:pipe:BEND",
+      "member": "pipe:BEND",
+      "global_components_per_length": [120.0, -200.0, -350.0],
+      "length_measure": "arc_length"
+     },
+     {
+      "id": "load:line:pipe:S2",
+      "member": "pipe:S2",
+      "global_components_per_length": [0.0, 0.0, -250.0],
+      "length_measure": "member_length"
+     }
+    ],
+    "pressure_regions": [
+     {
+      "id": "region:u4b",
+      "member_ids": ["pipe:S1", "pipe:BEND", "pipe:S2"],
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "pressure": 3600000.0,
+      "terminals": [
+       {
+        "node": "node:A",
+        "closure_transfer": "transfers_to_wall"
+       },
+       {
+        "node": "node:D",
+        "closure_transfer": "transfers_to_wall"
+       }
+      ]
+     }
+    ]
    }
   }
  ]

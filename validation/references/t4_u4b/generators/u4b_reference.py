@@ -259,8 +259,45 @@ def fmt(x):
     return format(x, ".%de" % (OUT_DIGITS - 1))
 
 
-def V(x):
+# Exact zeros. A value that is zero exactly is computed as an exact zero where
+# its zero is known structurally (fibre coordinates are formed from the defining
+# vector, so a component that is exactly zero stays exactly zero). Otherwise a
+# written value below SNAP_BELOW in SI units is an arithmetic residue of the
+# working precision (about 1e-90 here) and is written as "0". Two assertions keep
+# the rule honest: no written nonzero value lies below LEGIT_FLOOR (a gap of 30
+# orders above the snap), and every value snapped when the cases are recomputed
+# at BASE_PREC + 20 digits lies below RESIDUE_AT_HIGH_PREC, so it shrinks with
+# the working precision (precision_stability).
+SNAP_BELOW = D("1e-60")
+LEGIT_FLOOR = D("1e-30")
+RESIDUE_AT_HIGH_PREC = D("1e-80")
+
+
+class SnapLog:
+    count = 0
+    largest = D(0)
+    floor_violations = []
+
+    @classmethod
+    def reset(cls):
+        cls.count, cls.largest, cls.floor_violations = 0, D(0), []
+
+
+def snap(x):
     x = +x
+    if x == 0:
+        return D(0)                 # also turns a signed zero into +0
+    if abs(x) < SNAP_BELOW:
+        SnapLog.count += 1
+        SnapLog.largest = max(SnapLog.largest, abs(x))
+        return D(0)
+    if abs(x) < LEGIT_FLOOR:
+        SnapLog.floor_violations.append(x)
+    return x
+
+
+def V(x):
+    x = snap(x)
     return [fmt(x), float(x)]
 
 
@@ -552,7 +589,9 @@ class Line:
         w = self.ml.get(m.id)
         return {"N": vdot(F, ex), "V_y": vdot(F, ey), "V_z": vdot(F, ez),
                 "T": vdot(M, ex), "M_y": vdot(M, ey), "M_z": vdot(M, ez),
-                "wx": vdot(w, ex) if w is not None else D(0), "_F": F, "_M": M}
+                "wx": vdot(w, ex) if w is not None else D(0),
+                "wy": vdot(w, ey) if w is not None else D(0),
+                "wz": vdot(w, ez) if w is not None else D(0), "_F": F, "_M": M}
 
 
 # ---------------------------------------------------------------------------
@@ -572,7 +611,7 @@ def normal_extremes(N, My, Mz, A, Z, ro):
     else:
         out["tied"] = False
         out["plus_yz"] = (-Mz * ro / B, My * ro / B)
-        out["plus_beta"] = atan2(My, -Mz)
+        out["plus_dir"] = (-Mz, My)         # sigma_plus fibre direction; sigma_minus is its opposite
     return out
 
 
@@ -864,15 +903,106 @@ def arc_analytic_max(line, k, prof, h, objective, lip):
         hh = D(10) ** -22
         f2 = (at(best[0] + hh)[1] - at(best[0] - hh)[1]) / (2 * hh)
         out["second_derivative"] = f2
+    out["grid"] = [(psi, v[0]) for (psi, r), v in zip(prof, vals)]
+    out["evaluate"] = lambda psi: at(psi)[0]
     return out
 
 
-def fibre_of_max(Ne, My, Mz, ro):
-    B = (My * My + Mz * Mz).sqrt()
-    if B == 0:
+# Certification of a maximum at the criterion ------------------------------------
+#
+# Both maximized measures are sums of terms sup_e (e . u(x)) over unit vectors e:
+# |N_eff| (u = N_eff, e = +/-1), hypot(M_y, M_z) and hypot(i_op M_y, i_ip M_z).
+# Each e . u has second derivative e . u'' >= -|u''|, and a supremum of functions
+# whose second derivative is at least -K is one: f + K x^2/2 is convex as a
+# supremum of convex functions, kinks of |.| and of the hypot included. So with
+# f'' >= -K on a cell [a, b] of width h,
+#     f(x) <= linear interpolant + K (x - a)(b - x)/2 <= max(f(a), f(b)) + K h^2/8.
+# Starting from the dense grid, every cell whose bound exceeds value + CERT_FRACTION
+# tolerances is bisected until all close. The result bounds the true maximum from
+# above; the frozen value is attained at its location, so it bounds it from below.
+#
+# K on an arc, from dF/ds = -w, dM/ds = -e_x x F, de_x/ds = e_y/R, de_y/ds = -e_x/R:
+#     N''   = -2 R w_y - N
+#     M_y'' = -R^2 w_z - M_y
+#     M_z'' =  R^2 w_y + R N
+# so |N''| <= 2 R |w| + F_max and |(M_y, M_z)''| <= R^2 |w| + M_max + R F_max, with
+# F_max = |F(0)| + |w| R phi and M_max = |M(0)| + R phi F_max (the Lipschitz bounds).
+# On a straight in the fraction t, N_eff is linear and (M_y, M_z)/Z = (b, c) is
+# quadratic, so K = 2 hypot(b_2, c_2) exactly.
+
+CERT_FRACTION = D("0.01")          # each maximum is certified to 1/100 of its tolerance
+CERT_MAX_BISECTIONS = 200000
+
+
+def certify_maximum(f, grid, K, value, t):
+    target = value + CERT_FRACTION * t
+    stack = [(grid[i][0], grid[i + 1][0], grid[i][1], grid[i + 1][1]) for i in range(len(grid) - 1)]
+    ub = None
+    sample_max = max(g[1] for g in grid)
+    bisections = 0
+    finest = grid[1][0] - grid[0][0]
+    while stack:
+        a, b, fa, fb = stack.pop()
+        w = b - a
+        bound = max(fa, fb) + K * w * w / 8
+        if bound <= target:
+            ub = bound if ub is None or bound > ub else ub
+            continue
+        bisections += 1
+        require(bisections <= CERT_MAX_BISECTIONS, "maximum certification did not close")
+        mid = (a + b) / 2
+        fm = f(mid)
+        sample_max = max(sample_max, fm)
+        finest = min(finest, w / 2)
+        stack.append((mid, b, fm, fb))
+        stack.append((a, mid, fa, fm))
+    require(ub is not None and ub <= target, "maximum certification")
+    require(sample_max <= value + abs(value) * D(10) ** -60, "a sample exceeds the analytic maximum")
+    return {"upper_bound": ub, "bisections": bisections, "finest_cell": finest, "initial_cells": len(grid) - 1,
+            "K": K, "excess_tolerances": (ub - value) / t}
+
+
+def cert_record(c, unit):
+    return {"method": "rigorous upper bound from f'' >= -K (kinks of |N_eff| and of the hypot included): on a "
+                      "cell of width h, max f <= max(endpoint values) + K h^2/8; starting from the dense grid, "
+                      "cells whose bound exceeds the value + %s tolerance are bisected until every cell closes"
+                      % sci(CERT_FRACTION, 1),
+            "K_second_derivative_bound": sci(c["K"], 6) + " " + unit,
+            "initial_cells": c["initial_cells"], "bisections": c["bisections"],
+            "finest_cell": sci(c["finest_cell"]) + (" rad" if unit.endswith("rad^2") else " fraction"),
+            "upper_bound_minus_value_tolerances": sci(c["excess_tolerances"]),
+            "certified": "the true maximum lies within %s tolerance above the frozen value, which is attained at "
+                         "the frozen location" % sci(CERT_FRACTION, 1)}
+
+
+def arc_second_derivative_check(line, k):
+    """The closed-form second derivatives used for K against central differences of
+    the exact first derivatives, at two interior angles."""
+    m, fwd = line.order[k]
+    worst = D(0)
+    hh = D(10) ** -25
+    for frac in (D(1) / 3, D(2) / 3):
+        psi = frac * m.phi
+        r = line.arc_resultants_psi(k, psi)
+        rp, rm = line.arc_resultants_psi(k, psi + hh), line.arc_resultants_psi(k, psi - hh)
+
+        def d1(q):
+            return (-m.R * q["wx"] + q["V_y"], m.R * q["V_z"] - q["T"], -m.R * q["V_y"])
+        fd = [(a - b) / (2 * hh) for a, b in zip(d1(rp), d1(rm))]
+        cf = (-2 * m.R * r["wy"] - r["N"], -m.R * m.R * r["wz"] - r["M_y"], m.R * m.R * r["wy"] + m.R * r["N"])
+        scale = (vnorm(r["_F"]) * (1 + m.R) + vnorm(r["_M"]) + m.R * m.R * (vnorm(line.ml[m.id])
+                                                                             if m.id in line.ml else 0))
+        worst = max(worst, max(abs(a - b) for a, b in zip(fd, cf)) / scale)
+    require(worst < D(10) ** -30, "arc second-derivative formulas")
+    return worst
+
+
+def fibre_of_max(Ne, My, Mz):
+    """Direction (a, b) of the outer fibre governing |N_eff|/A + hypot(M_y, M_z)/Z:
+    the sigma_plus fibre (-M_z, M_y) when N_eff >= 0, else the sigma_minus fibre."""
+    if My == 0 and Mz == 0:
         return None
-    beta = atan2(My, -Mz) if Ne >= 0 else atan2(-My, Mz)
-    return beta
+    return (-Mz, My) if Ne >= 0 else (Mz, -My)
 
 
 def straight_polys(line, k, bp, pAi):
@@ -948,8 +1078,8 @@ def station_quantities(m, r, bp, pAi, nu):
     if Vm == 0:
         aux["sv_fibres"] = None
     else:
-        # the two inner fibres normal to V: directions +/-(-V_z, V_y)/|V|
-        aux["sv_fibres"] = sorted([atan2(Vy, -Vz), atan2(-Vy, Vz)])
+        # the two inner fibres normal to V: directions +/-(-V_z, V_y)/|V| (an unordered pair)
+        aux["sv_fibres"] = [(-Vz, Vy), (Vz, -Vy)]
     for surf, rr in (("outer", ro), ("inner", ri)):
         for name, ang in FIBRES:
             cb, sb = fibre_cs(ang)
@@ -995,7 +1125,7 @@ def analyse(line, profile_samples=SAMPLES):
     an.line = line
     an.res, an.q, an.mut, an.aux = {}, {}, {}, {}
     an.mmax, an.imax, an.hoop, an.prof = {}, {}, {}, {}
-    an.nsign = {}
+    an.nsign, an.d2check = {}, {}
     for k, (m, fwd) in enumerate(line.order):
         mid = m.id
         pAi = line.pAi(mid)
@@ -1021,16 +1151,21 @@ def analyse(line, profile_samples=SAMPLES):
                                     prof[i][0], prof[i + 1][0], nvals[i], nvals[i + 1], iters=170)
                     zeros.append(z)
             an.nsign[mid] = zeros
+            an.d2check[mid] = arc_second_derivative_check(line, k)
+            Kn = 2 * m.R * wn + Fmax                       # >= |N''| over the arc
+            Km = m.R * m.R * wn + Mmax + m.R * Fmax        # >= |(M_y, M_z)''| over the arc
             for basis in line.bases:
                 bp = line.basis_props[mid][basis]
                 lip_f = (m.R * wn + Fmax) / bp["A"] + (m.R * Fmax + Mmax) / bp["Z"]
                 an.mmax[(mid, basis)] = arc_analytic_max(
-                    line, k, prof, h, lambda r, bp=bp: obj_max_normal(r, bp, pAi, m.R), lip_f)
+                    line, k, prof, h, lambda r, bp=bp, pAi=pAi, R=m.R: obj_max_normal(r, bp, pAi, R), lip_f)
                 an.mmax[(mid, basis)]["bp"] = bp
+                an.mmax[(mid, basis)]["K2"] = Kn / bp["A"] + Km / bp["Z"]
                 if m.sif is not None:
                     lip_g = max(m.sif) * (m.R * Fmax + Mmax) / bp["Z"]
                     an.imax[(mid, basis)] = arc_analytic_max(
-                        line, k, prof, h, lambda r, bp=bp: obj_intensified(r, bp, m.sif, m.R), lip_g)
+                        line, k, prof, h, lambda r, bp=bp, sif=m.sif, R=m.R: obj_intensified(r, bp, sif, R), lip_g)
+                    an.imax[(mid, basis)]["K2"] = max(m.sif) * Km / bp["Z"]
         else:
             for basis in line.bases:
                 bp = line.basis_props[mid][basis]
@@ -1117,12 +1252,33 @@ def straight(mid, a, b, yref, sec, mat):
             "y_reference": yref}
 
 
+BEND_ANGLE_NOTE = ("the binary64 nearest to the included angle 2 atan2(s, c), s = chord/(2R), c = sqrt(1 - s^2), "
+                   "formed from the binary64 node positions and the decimal R (filled by the generator); the bend "
+                   "component states it")
+ATTACH_NOTE = "the bend component is attached at the arc's authored from node, as in U4a"
+
+
 def bend(mid, a, b, yref, sec, mat, R, k, ip, op):
     return {"id": mid, "from": a, "to": b, "kind": "realized_arc", "section": sec, "material": mat,
             "y_reference": yref,
-            "arc": {"bend_radius": R, "bow_rule": BOW_RULE, "solver_consumption": "curved_bend_macro_element",
+            "arc": {"bend_radius": R, "bend_angle_binary64_for_authoring": None, "bend_angle_note": BEND_ANGLE_NOTE,
+                    "bend_component_attachment_node": a, "attachment_note": ATTACH_NOTE,
+                    "bow_rule": BOW_RULE, "solver_consumption": "curved_bend_macro_element",
                     "flexibility_factor_user_value": k, "flexibility_factor_note": K_NOTE},
             "directional_sif_user_values": {"i_ip": ip, "i_op": op, "note": SIF_NOTE}}
+
+
+def fill_bend_angles(doc):
+    """Write each arc's bend angle from its own geometry (after any rigid motion)."""
+    nodes = {n["id"]: tuple(b64(x) for x in n["position"]) for n in doc["nodes"]}
+    for mm in doc["members"]:
+        if mm["kind"] != "realized_arc":
+            continue
+        m = Member(mm["id"], mm["from"], mm["to"], "arc", tuple(b64(x) for x in mm["y_reference"]), None, None,
+                   R=dtarget(mm["arc"]["bend_radius"]))
+        m.setup(nodes)
+        mm["arc"]["bend_angle_binary64_for_authoring"] = float(m.phi)
+        mm["arc"]["bend_component_attachment_node"] = mm["from"]
 
 
 def section_doc(sid, od, wall, cm, ca):
@@ -1312,6 +1468,38 @@ def doc_z_preview():
     return d
 
 
+def doc_rise_rev():
+    """Added in the repair revision (refutation finding 8): a pressurized arc authored against the traversal,
+    and a straight whose maximum is interior. sin(phi/2) = 3/5 and R = 25/32 make every node dyadic."""
+    d = base_doc("U4B-RISE74-P-REV", "exact",
+                 "line in the vertical x-z plane, anchored at A, free tip D: straight S1 along +x; a realized arc of "
+                 "2*asin(3/5) (about 73.74 deg) rising toward +z, authored against the traversal (C to B), R/r_o = "
+                 "11.06; straight S2 along the arc's end tangent; 3.6 MPa with transferring closures over the whole "
+                 "line; tip force and moment, uniform loads on every member (on S1 axial and in both transverse "
+                 "planes, on the arc in-plane and out-of-plane); distinct section bases; nu = 0.28; the maximum of "
+                 "S1 is interior (fraction about 0.4336), where the uniform load and the opposing beyond-shear give "
+                 "an interior bending peak")
+    d["pressure_contract"] = {"version": "3.0.0", "mode": "exact_pressure_v3",
+                              "shear_model": "timoshenko_annulus_energy_v1", "shear_model_note": SHEAR_NOTE}
+    d["nodes"] = [{"id": "node:A", "position": [0.0, 0.0, 0.0]},
+                  {"id": "node:B", "position": [2.0, 0.0, 0.0]},
+                  {"id": "node:C", "position": [2.75, 0.0, 0.5625]},
+                  {"id": "node:D", "position": [3.1875, 0.0, 2.0625]}]
+    d["members"] = [straight("pipe:S1", "node:A", "node:B", [0.0, 0.0, 1.0], "section:rise", "material:rise"),
+                    bend("pipe:BEND", "node:C", "node:B", [1.0, 0.0, -1.0], "section:rise", "material:rise",
+                         0.78125, 3.4, 2.1, 1.7),
+                    straight("pipe:S2", "node:C", "node:D", [0.0, 1.0, 0.0], "section:rise", "material:rise")]
+    d["sections"] = [section_doc("section:rise", 0.1413, 0.00655, 0.00082, 0.0013)]
+    d["materials"] = [material_doc("material:rise", 1.93e11, 0.28, 1.6e-05)]
+    d["supports"] = [{"id": "support:A", "node": "node:A", "family": "anchor", "restraints": ANCHOR}]
+    d["load_case"] = loads_block(
+        [("node:D", (600.0, -800.0, 1850.0))], [("node:D", (-250.0, 300.0, 180.0))],
+        [("pipe:S1", (150.0, 800.0, -1200.0), "member_length"), ("pipe:BEND", (120.0, -200.0, -350.0), "arc_length"),
+         ("pipe:S2", (0.0, 0.0, -250.0), "member_length")],
+        (3600000.0, ["pipe:S1", "pipe:BEND", "pipe:S2"], "node:A", "node:D"))
+    return d
+
+
 def case_documents():
     l90 = doc_L90("U4B-L90-P", 0.00102, 0.0015, "timoshenko_annulus_energy_v1",
                   "planar L line (straight, realized 90 deg left-turn arc R/r_o = 4.56, straight), anchored at A, "
@@ -1324,7 +1512,9 @@ def case_documents():
                       "U4B-L90-P rigidly rotated (rational rotation, every axis skew) and translated, with its "
                       "y_reference and loads rotated: every frame-local value equals U4B-L90-P's up to the "
                       "binary64 rounding of the moved inputs")
-    docs = [l90, twin, moved, doc_arc106(), doc_tight(), doc_oop_preview(), doc_z_preview()]
+    docs = [l90, twin, moved, doc_arc106(), doc_tight(), doc_oop_preview(), doc_z_preview(), doc_rise_rev()]
+    for d in docs:
+        fill_bend_angles(d)
     return json.loads(json.dumps(docs))   # exactly what cases.json holds
 
 
@@ -1365,6 +1555,10 @@ def line_from_doc(doc):
                     "terminals": {t["node"]: t["closure_transfer"] for t in reg["terminals"]}}
     line = Line(doc["case_id"], doc["route"], nodes, members, secs, mats, sup[0]["node"], nf, nm, ml, pressure,
                 doc.get("description", ""))
+    for mm in doc["members"]:
+        if mm["kind"] == "realized_arc":
+            require(mm["arc"]["bend_angle_binary64_for_authoring"] == float(line.mby[mm["id"]].phi)
+                    and mm["arc"]["bend_component_attachment_node"] == mm["from"], "bend authoring fields " + mm["id"])
     check_pressure_premise(line)
     return line
 
@@ -1449,11 +1643,29 @@ def u4a_free_tip(req):
 # ---------------------------------------------------------------------------
 
 def vec_str(v):
-    return [fmt(x) for x in v]
+    return [fmt(snap(x)) for x in v]
 
 
-def fibre_obj(beta, ro):
-    return {"beta_deg": V(deg(beta)), "y": V(ro * sincos(beta)[1]), "z": V(ro * sincos(beta)[0])}
+def fibre_at(a, b, r):
+    """The section fibre at radius r in the direction (a, b) of the (y, z) plane:
+    (beta_deg, y, z) with (y, z) = r (a, b) / hypot(a, b), formed from the vector
+    so that a component that is exactly zero stays exactly zero. beta_deg is
+    informational, in (-180, 180]: exactly 0, 90, 180 or -90 on an axis, so a
+    fibre on the -y axis (z = 0, y < 0) is +180, never -180."""
+    h = (a * a + b * b).sqrt()
+    y, z = snap(r * a / h), snap(r * b / h)
+    if z == 0:
+        bdeg = D(0) if y > 0 else D(180)
+    elif y == 0:
+        bdeg = D(90) if z > 0 else D(-90)
+    else:
+        bdeg = deg(atan2(z, y))
+    return bdeg, y, z
+
+
+def fibre_obj(a, b, r):
+    bdeg, y, z = fibre_at(a, b, r)
+    return {"beta_deg": V(bdeg), "y": V(y), "z": V(z)}
 
 
 def sample_refine_max(line, k, prof, value_of_r):
@@ -1558,22 +1770,22 @@ def emit_case(an, doc):
                     fj[surf][name] = V(qq[(qn, surf, name)])
                 fibre_j.setdefault(m.id, {}).setdefault(st, {})[basis] = fj
                 ext = aux["ext"]
-                qq_my, qq_mz = an.res[m.id][st]["M_y"], an.res[m.id][st]["M_z"]
                 e = {"sigma_plus": V(qq[("sigma_plus",)]), "sigma_minus": V(qq[("sigma_minus",)]),
                      "max_abs_normal": V(qq[("max_abs_normal",)])}
                 if ext["tied"]:
                     e["fibres"] = "tied: bending is zero, every outer fibre carries N/A"
                 else:
-                    bplus = ext["plus_beta"]
-                    e["sigma_plus_fibre"] = fibre_obj(bplus, bp["ro"])
-                    e["sigma_minus_fibre"] = fibre_obj(atan2(-qq_my, qq_mz), bp["ro"])
+                    pa, pb = ext["plus_dir"]
+                    e["sigma_plus_fibre"] = fibre_obj(pa, pb, bp["ro"])
+                    e["sigma_minus_fibre"] = fibre_obj(-pa, -pb, bp["ro"])
                 ext_j.setdefault(m.id, {}).setdefault(st, {})[basis] = e
                 s = {"value": V(qq[("sv_max",)]), "surface": "inner"}
                 if aux["sv_fibres"] is None:
                     s["fibres"] = "tied: V_y = V_z = 0, the flexure field vanishes"
                 else:
-                    s["fibres"] = [{"beta_deg": V(deg(b)), "y": V(bp["ri"] * sincos(b)[1]),
-                                    "z": V(bp["ri"] * sincos(b)[0])} for b in aux["sv_fibres"]]
+                    # an unordered pair, listed by ascending beta_deg
+                    fl = sorted((fibre_at(a_, b_, bp["ri"]) for a_, b_ in aux["sv_fibres"]), key=lambda t_: t_[0])
+                    s["fibres"] = [{"beta_deg": V(bd), "y": V(y_), "z": V(z_)} for bd, y_, z_ in fl]
                 svmax_j.setdefault(m.id, {}).setdefault(st, {})[basis] = s
                 sj = {"outer": {}, "inner": {}}
                 for surf in ("outer", "inner"):
@@ -1769,9 +1981,9 @@ def emit_arc_max(line, k, m, mx, bp, pAi, z, objective):
                      "(sign change + to - on the dense grid, refined by bisection to the working precision)",
            "location": loc}
     if objective == "max_normal":
-        beta = fibre_of_max(Ne, r["M_y"], r["M_z"], bp["ro"])
+        gd = fibre_of_max(Ne, r["M_y"], r["M_z"])
         rec["governing_fibre"] = ({"surface": "outer", "sign": "sigma_plus" if Ne >= 0 else "sigma_minus",
-                                   **fibre_obj(beta, bp["ro"])} if beta is not None else "tied: zero bending")
+                                   **fibre_obj(gd[0], gd[1], bp["ro"])} if gd is not None else "tied: zero bending")
     else:
         rec["governing_fibre"] = "not applicable (an intensified bending measure, not a fibre stress)"
     rec["resultants_at_maximum"] = {"N_effective": V(Ne), "M_y": V(r["M_y"]), "M_z": V(r["M_z"])}
@@ -1788,6 +2000,8 @@ def emit_arc_max(line, k, m, mx, bp, pAi, z, objective):
                                      "lower_max_of_samples": V(mx["max_samples"]),
                                      "upper_max_plus_L_h_over_2": V(mx["bracket_upper"]),
                                      "analytic_inside": inside}
+    mx["cert"] = certify_maximum(mx["evaluate"], mx["grid"], mx["K2"], mx["value"], tol(mx["value"], z))
+    rec["certification"] = cert_record(mx["cert"], "Pa/rad^2")
     names = [st for st, fr in STATIONS]
     sv = mx["station_values"]
     smax = max(sv)
@@ -1814,16 +2028,20 @@ def emit_straight_max(line, k, m, mx, bp, pAi, z):
         loc = {"kind": "end_i" if u == 0 else "end_j", "fraction": V(u)}
     else:
         loc = {"kind": "interior", "fraction": V(u)}
-    beta = fibre_of_max(Ne, My, Mz, bp["ro"])
+    gd = fibre_of_max(Ne, My, Mz)
     rec = {"value": V(val), "method": "STRESS_REFERENCE section 6 (exact polynomial resultants, all real roots "
                                       "of H, zeros of a, common zeros of b and c, ends)",
            "location": loc,
            "governing_fibre": ({"surface": "outer", "sign": "sigma_plus" if Ne >= 0 else "sigma_minus",
-                                **fibre_obj(beta, bp["ro"])} if beta is not None else "tied: zero bending"),
+                                **fibre_obj(gd[0], gd[1], bp["ro"])} if gd is not None else "tied: zero bending"),
            "resultants_at_maximum": {"N_effective": V(Ne), "M_y": V(My), "M_z": V(Mz)}}
     # dense sampling with a Lipschitz bound (|f'| <= L|w|/A + L F_max / Z per unit fraction)
     n = 4096
-    smax = straight_sample_max(lambda t: abs(pval(a, t)) + (pval(b, t) ** 2 + pval(c, t) ** 2).sqrt(), n)
+
+    def fs(t):
+        return abs(pval(a, t)) + (pval(b, t) ** 2 + pval(c, t) ** 2).sqrt()
+    grid = [(D(i) / n, fs(D(i) / n)) for i in range(n + 1)]
+    smax = max(g[1] for g in grid)
     Fmax = mx["F0"] + mx["wn"] * mx["L"]
     lip = mx["L"] * mx["wn"] / bp["A"] + mx["L"] * Fmax / bp["Z"]
     upper = smax + lip / n / 2
@@ -1833,6 +2051,10 @@ def emit_straight_max(line, k, m, mx, bp, pAi, z):
                                      "lipschitz_bound_per_unit_fraction": V(lip),
                                      "lower_max_of_samples": V(smax), "upper_max_plus_L_h_over_2": V(upper),
                                      "analytic_inside": inside}
+    b2 = b[2] if len(b) > 2 else D(0)
+    c2 = c[2] if len(c) > 2 else D(0)
+    mx["cert"] = certify_maximum(fs, grid, 2 * (b2 * b2 + c2 * c2).sqrt(), val, tol(val, z))
+    rec["certification"] = cert_record(mx["cert"], "Pa per unit fraction^2")
     names = [st for st, fr in STATIONS]
     svals = [abs(pval(a, dq(fr))) + (pval(b, dq(fr)) ** 2 + pval(c, dq(fr)) ** 2).sqrt() for st, fr in STATIONS]
     rec["station_only_maximum"] = {"value": V(max(svals)), "station": names[svals.index(max(svals))]}
@@ -2460,6 +2682,14 @@ CONVENTIONS = {
                        "intensified_bending = hypot(i_ip M_z, i_op M_y)/Z_b",
     "maximum_location": "psi (rad from authored i) and fraction psi/phi on an arc; fraction u on a straight",
     "angles": "degrees in (-180, 180]",
+    "fibre_coordinates": "the compared quantities of a named fibre (sigma_plus_fibre, sigma_minus_fibre, "
+                         "governing_fibre, the sv_transverse_shear_max fibres) are its coordinates (y, z), at the "
+                         "criterion with zero scale r_o; they are formed from the defining vector, so a component "
+                         "that is exactly zero is written as an exact \"0\"",
+    "beta_deg": "informational, never compared: a fibre's angle in (-180, 180], exactly 0, 90, 180 or -90 on an "
+                "axis, so a fibre on the -y axis (z = 0, y < 0) is +180, never -180",
+    "sv_maximum_fibres": "the two inner fibres of sv_transverse_shear_max (normal to V) are an unordered pair; the "
+                         "oracle lists them by ascending beta_deg and a consumer matches them as a set",
 }
 
 DEFINITIONS = {
@@ -2489,7 +2719,7 @@ DEFINITIONS = {
                  "r_o^2)(r^2 - r_i^2)/r^2 (V . e_r), tau_beta = C g(r) (V . e_beta), g(r) = c (r_o^2 + r_i^2 + "
                  "r_o^2 r_i^2 / r^2) - (1-2nu) r^2 / 4",
         "maximum": "tau_max = |V| ((3+2nu) r_o^2 + (1+2nu) r_i^2) / (4 (1+nu) I_b), on the inner surface at the "
-                   "two fibres normal to V (beta = atan2(V_z, V_y) +/- 90 deg), directed along V",
+                   "two fibres normal to V (beta = atan2(V_z, V_y) +/- 90 deg; an unordered pair), directed along V",
         "domain": "every isotropic -1 < nu < 1/2 with 0 < r_i < r_o (proof in the README: at r = r_i, B0 < 0 < "
                   "B2; g = B2 - B0 decreases strictly in r and exceeds |B0 + B2| <= c (r_o - r_i)^2 elsewhere); "
                   "the location is unique up to the two fibres",
@@ -2501,6 +2731,9 @@ DEFINITIONS = {
     "intensified_bending": "hypot(i_ip M_z, i_op M_y)/Z_b on arcs, per station and basis, never combined with "
                            "anything; axial_plus_intensified_bending = |N_eff|/A_b + intensified_bending is the "
                            "explicitly declared measure of STRESS_REFERENCE I1",
+    "intensified_bending_maximum": "the along-arc maximum of the pure intensified bending measure hypot(i_ip M_z, "
+                                   "i_op M_y)/Z_b, per arc and basis; no along-arc maximum of "
+                                   "axial_plus_intensified_bending is frozen",
 }
 
 CRITERION = {
@@ -2518,7 +2751,11 @@ CRITERION = {
         "headline": "the case's largest station max_abs_normal for that basis"},
     "locations": "an end maximum's location is exact; an interior maximum's psi is compared within its "
                  "location_band (the distance over which the value stays inside the criterion); fibre "
-                 "coordinates (y, z) are compared at the criterion with zero scale r_o",
+                 "coordinates (y, z) are compared at the criterion with zero scale r_o; beta_deg is informational "
+                 "and not compared; the two sv_transverse_shear_max fibres are matched as an unordered pair",
+    "maxima": "every member and intensified maximum is certified: a rigorous upper bound on the true maximum (from "
+              "a second-derivative lower bound) lies within 1e-2 tolerance above the frozen value, which is attained "
+              "at the frozen location; the dense-sampling bracket is a coarser consistency check",
     "discriminators": "each listed row lies at least 1e3 tolerances from its expected value, so an observation "
                       "that passes the criterion is more than 1e-9 max(|obs|, |wrong|) from the wrong value",
     "unit_transforms": "values are SI; compare a product's MPa or mm after exact conversion",
@@ -2579,8 +2816,9 @@ def cases_file(docs):
                                "radius, pressure, k and SIF values are exact decimal targets (the shortest decimal "
                                "of the written number); their binary64 rounding moves results by about 1e-16 "
                                "relative, far inside the criterion",
-            "bend_angle": "the oracle's derived.arc.bend_angle_binary64_for_authoring is the binary64 nearest to "
-                          "the included angle formed from the chord and R, for a bend component that states it"},
+            "bend_angle": "each arc's arc.bend_angle_binary64_for_authoring (repeated in the oracle's "
+                          "derived.arc) is the binary64 nearest to the included angle formed from the chord and R, "
+                          "for the bend component that states it"},
         "fields": {
             "route": "exact: a pressure_contract document (identity pressure-2 when defined); preview: a "
                      "pressure-free document on the preview-physics route (identity preview-physics-2 when "
@@ -2588,6 +2826,8 @@ def cases_file(docs):
             "members.kind": "straight, or realized_arc (a span bend realized as curved_bend_macro_element)",
             "members.y_reference": "on a straight the element-local y reference; on an arc the bow direction "
                                    "(the arc bows toward +y_reference projected normal to the chord)",
+            "members.arc": "bend_radius R; bend_angle_binary64_for_authoring; bend_component_attachment_node, the "
+                           "arc's authored from node (as in U4a); the bow rule; k",
             "members.directional_sif_user_values": "invented i_ip (on M_z, in-plane) and i_op (on M_y, "
                                                    "out-of-plane) in the arc's tangent frame",
             "load_case.member_uniform_forces": "constant global force per unit length: per unit member length on a "
@@ -2598,6 +2838,9 @@ def cases_file(docs):
         "binding_when_0_6_0_is_defined": [
             "a builder authors one product request per case from these descriptions (bend components, primitive "
             "loads per global component, pressure region and terminals, shear model, SIF fields);",
+            "each realized arc becomes one bend component attached at arc.bend_component_attachment_node (the "
+            "arc's authored from node, as in U4a), referencing the arc's pipe, with bend_radius R, bend angle "
+            "arc.bend_angle_binary64_for_authoring, the user k and the SIF fields;",
             "the U4b design's row-kind table maps the oracle's agnostic quantity keys to row kinds;",
             "oracle values never move to match a product;",
             "the request SHA-256 values are added to the oracle when the requests exist."],
@@ -2615,11 +2858,15 @@ def build(check_time=False):
     timing = {}
     analyses, emitted, statics = {}, {}, {}
     all_disc = {}
+    SnapLog.reset()
+    case_snaps = 0
     for doc in docs:
         t1 = time.time()
         line = line_from_doc(doc)
         an = analyse(line)
+        before = SnapLog.count
         em, disc = emit_case(an, doc)
+        case_snaps += SnapLog.count - before
         analyses[line.id] = an
         emitted[line.id] = em
         all_disc[line.id] = em["discriminators"]
@@ -2667,15 +2914,21 @@ def build(check_time=False):
                        "each basis; variant (b) (pressure bore r_i,r loading the nominal wall) breaks that equality"}
     obj = check_objectivity(analyses["U4B-L90-P"], analyses["U4B-L90-P-MOVED"])
     closed = arc106_closed_form(analyses["U4B-ARC106-RADIAL-NEGP"])
-    maxima = maxima_summary(emitted)
-    stability = precision_stability(docs, emitted)
+    maxima = maxima_summary(emitted, analyses)
     u4a = u4a_cross_check()
     sref = stress_reference_reproduction()
-    # discriminator summary
+    require(SnapLog.count == case_snaps, "a value outside the cases' emission was written as a residue zero")
+    require(not SnapLog.floor_violations, "a written nonzero value lies below the legitimate floor: %s"
+            % SnapLog.floor_violations[:3])
+    stability = precision_stability(docs, emitted, case_snaps)
+    # discriminator summary: a mutant is not formed in a case that has no row it
+    # could apply to (for example a hoop mutant on an unpressurized case, or the
+    # nu = 0.3 mutant where nu is 0.3); a formed mutant may still not be
+    # discriminable (it moves no row by 1e3 tolerances)
     summary = {}
     for cid, dd in all_disc.items():
         for mutant, rec in dd.items():
-            s = summary.setdefault(mutant, {"discriminable_in": [], "not_discriminable_in": [],
+            s = summary.setdefault(mutant, {"discriminable_in": [], "not_discriminable_in": [], "not_formed_in": [],
                                             "smallest_listed_separation_tolerances": None})
             if rec["discriminable_in_this_case"]:
                 s["discriminable_in"].append(cid)
@@ -2686,6 +2939,9 @@ def build(check_time=False):
             else:
                 s["not_discriminable_in"].append(cid)
     for mutant, s in summary.items():
+        s["not_formed_in"] = [cid for cid in all_disc if mutant not in all_disc[cid]]
+        require(len(s["discriminable_in"]) + len(s["not_discriminable_in"]) + len(s["not_formed_in"])
+                == len(all_disc), "discriminator summary partition: " + mutant)
         require(s["discriminable_in"], "mutant never discriminable: " + mutant)
     oracle = {
         "schema_version": "u4b.oracle/1.0.0",
@@ -2698,8 +2954,13 @@ def build(check_time=False):
         "request_sha256": "none yet: model 0.6.0 requests are authored from cases.json when defined",
         "generator": "generators/u4b_reference.py (standard library; decimal at %d significant digits)" % BASE_PREC,
         "value_format": "every value is [decimal with %d significant digits, binary64 nearest]; \"0\" is exact "
-                        "zero; vectors under derived.*.tangent_frames_global_components are informational "
-                        "decimals" % OUT_DIGITS,
+                        "zero: either known exactly (a fibre coordinate formed from a vector component that is "
+                        "exactly zero) or an arithmetic residue of the %d-digit working precision below %s in SI "
+                        "units; the generator asserts that no written nonzero value is below %s and that every such "
+                        "residue shrinks below %s at %d digits; vectors under "
+                        "derived.*.tangent_frames_global_components are informational decimals"
+                        % (OUT_DIGITS, BASE_PREC, sci(SNAP_BELOW, 1), sci(LEGIT_FLOOR, 1),
+                           sci(RESIDUE_AT_HIGH_PREC, 1), BASE_PREC + 20),
         "conventions": CONVENTIONS,
         "definitions": DEFINITIONS,
         "criterion": CRITERION,
@@ -2749,66 +3010,123 @@ def arc106_closed_form(an):
     return out
 
 
-def maxima_summary(emitted):
+def maxima_summary(emitted, analyses):
     n_arc = n_str = n_int = 0
+    n_str_interior = 0
+    worst_excess = D(0)
+    rel_w = []
+    bis = 0
     for cid, em in emitted.items():
         q = em["quantities"]
+        an = analyses[cid]
+        recs = []
         for mid, bb in q["member_maximum"].items():
             for b, rec in bb.items():
-                require(rec["dense_sampling_bracket"]["analytic_inside"], "bracket")
+                recs.append((rec, an.mmax[(mid, b)]))
                 if "psi_rad" in rec["location"]:
                     n_arc += 1
                 else:
                     n_str += 1
+                    n_str_interior += rec["location"]["kind"] == "interior"
         for mid, bb in q.get("intensified_bending_maximum", {}).items():
             for b, rec in bb.items():
-                require(rec["dense_sampling_bracket"]["analytic_inside"], "bracket")
+                recs.append((rec, an.imax[(mid, b)]))
                 n_int += 1
-    return {"arc_member_maxima": n_arc, "straight_member_maxima": n_str, "arc_intensified_maxima": n_int,
+        for rec, mx in recs:
+            br = rec["dense_sampling_bracket"]
+            require(br["analytic_inside"], "bracket")
+            v = D(rec["value"][0])
+            rel_w.append((D(br["upper_max_plus_L_h_over_2"][0]) - D(br["lower_max_of_samples"][0])) / v)
+            c = mx["cert"]
+            worst_excess = max(worst_excess, c["excess_tolerances"])
+            bis += c["bisections"]
+    require(worst_excess <= CERT_FRACTION, "certification")
+    d2 = max(v for an in analyses.values() for v in an.d2check.values())
+    return {"arc_member_maxima": n_arc, "straight_member_maxima": n_str,
+            "straight_member_maxima_interior": n_str_interior, "arc_intensified_maxima": n_int,
             "every_analytic_value_inside_its_dense_sampling_bracket": True,
+            "dense_sampling_bracket_relative_width_range": [sci(min(rel_w)), sci(max(rel_w))],
+            "dense_sampling_bracket_role": "a coarse consistency check of the analytic value against 4,097 samples "
+                                          "and a rigorous Lipschitz bound; its width is far wider than the criterion, "
+                                          "so it does not by itself certify the maximum",
+            "every_maximum_certified_at_the_criterion": True,
+            "certification_worst_upper_bound_minus_value_tolerances": sci(worst_excess),
+            "certification_total_bisections": bis,
+            "certification_meaning": "for every member and intensified maximum, a rigorous upper bound from f'' >= -K "
+                                     "(K from the closed-form second derivatives) lies within %s tolerance of the "
+                                     "frozen value, and no sample exceeds it; so the sign-change search missed no "
+                                     "higher peak" % sci(CERT_FRACTION, 1),
+            "arc_second_derivative_formulas_worst_relative_error": sci(d2),
             "every_station_only_maximum_at_most_the_analytic_maximum": True}
 
 
-def leaves(obj, path=""):
+VECTOR_KEYS = {"x", "y", "z", "point", "centre", "bend_plane_normal_z"}
+STABILITY_PARTS = ("derived", "zero_scales", "quantities", "effective_axial_force_zeros_on_arcs")
+
+
+def value_leaves(obj, path=""):
+    """Every written value: [decimal, binary64] pairs, and the decimal strings of
+    the derived vectors."""
     if isinstance(obj, dict):
         for k, v in obj.items():
-            yield from leaves(v, path + "/" + k)
+            yield from value_leaves(v, path + "/" + k)
     elif isinstance(obj, list):
         if len(obj) == 2 and isinstance(obj[0], str) and isinstance(obj[1], float):
             yield path, obj[0]
+        elif obj and all(isinstance(x, str) for x in obj) and path.split("/")[-1] in VECTOR_KEYS:
+            for i, v in enumerate(obj):
+                yield path + "/%d" % i, v
         else:
             for i, v in enumerate(obj):
-                yield from leaves(v, path + "/%d" % i)
+                yield from value_leaves(v, path + "/%d" % i)
 
 
-def precision_stability(docs, emitted):
-    """Recompute every case at BASE_PREC + 20 digits and compare every value."""
+def precision_stability(docs, emitted, case_snaps):
+    """Recompute every case at BASE_PREC + 20 digits and compare every written value
+    of its derived geometry, zero scales, quantities and N_w zeros. An exact zero
+    must be an exact zero at both precisions, and every residue written as zero
+    must shrink with the precision (README, exact zeros)."""
     hi = BASE_PREC + 20
     set_precision(hi)
+    SnapLog.reset()
     worst = D(0)
-    count = 0
+    count = zeros = 0
     try:
         for doc in docs:
             an = analyse(line_from_doc(doc))
             em, _ = emit_case(an, doc)
-            a = dict(leaves(emitted[doc["case_id"]]["quantities"]))
-            b = dict(leaves(em["quantities"]))
-            require(a.keys() == b.keys(), "precision stability keys")
-            for k in a:
-                x, y = D(a[k]), D(b[k])
-                count += 1
-                if x == y:
+            for part in STABILITY_PARTS:
+                require((part in em) == (part in emitted[doc["case_id"]]), "precision stability parts")
+                if part not in em:
                     continue
-                big = max(abs(x), abs(y))
-                if big < D(10) ** -60:
-                    continue
-                worst = max(worst, abs(x - y) / big)
+                a = dict(value_leaves(emitted[doc["case_id"]][part], part))
+                b = dict(value_leaves(em[part], part))
+                require(a.keys() == b.keys(), "precision stability keys")
+                for k in a:
+                    x, y = D(a[k]), D(b[k])
+                    count += 1
+                    if x == y:
+                        zeros += x == 0
+                        continue
+                    require(x != 0 and y != 0, "a zero at one precision is nonzero at the other: %s %s"
+                            % (doc["case_id"], k))
+                    worst = max(worst, abs(x - y) / max(abs(x), abs(y)))
+        hi_snaps, hi_largest, hi_floor = SnapLog.count, SnapLog.largest, list(SnapLog.floor_violations)
     finally:
         set_precision(BASE_PREC)
     require(worst < D(10) ** -38, "precision stability")
-    return {"recomputed_at_digits": hi, "values_compared": count, "worst_relative_difference": sci(worst),
-            "meaning": "every written %d-digit value is stable against 20 more working digits (values below 1e-60 "
-                       "in SI units are treated as zero residue)" % OUT_DIGITS}
+    require(hi_snaps == case_snaps and hi_largest < RESIDUE_AT_HIGH_PREC and not hi_floor,
+            "residue rule: %d/%d snaps, largest %s at %d digits" % (hi_snaps, case_snaps, sci(hi_largest), hi))
+    return {"recomputed_at_digits": hi, "parts_compared": list(STABILITY_PARTS), "values_compared": count,
+            "exact_zeros_equal_at_both_precisions": zeros, "worst_relative_difference": sci(worst),
+            "residues_written_as_zero": case_snaps,
+            "largest_such_residue_at_recomputation": sci(hi_largest),
+            "meaning": "every written %d-digit value of the cases is stable against 20 more working digits; an "
+                       "exact zero is exactly zero at both precisions; every residue written as zero (below %s "
+                       "in SI units at %d digits) is below %s at %d digits, so it shrinks with the working "
+                       "precision; no written nonzero value is below %s"
+                       % (OUT_DIGITS, sci(SNAP_BELOW, 1), BASE_PREC, sci(RESIDUE_AT_HIGH_PREC, 1), hi,
+                          sci(LEGIT_FLOOR, 1))}
 
 
 EXPECTED_FILES = ["README.md", "SHA256SUMS", "cases.json", "oracle.json", "generators/u4b_reference.py"]

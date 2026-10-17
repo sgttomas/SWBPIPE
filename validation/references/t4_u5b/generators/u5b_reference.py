@@ -4,7 +4,7 @@ expansion joint authored as an objective connector.
 
 Standard-library Python 3 only. This generator never imports, reads or runs
 product code or product output. Besides its own fixture it reads, as data
-bound by SHA-256, t4_u5a's oracle.json and six of its request documents.
+bound by SHA-256, t4_u5a's oracle.json and nine of its request documents.
 
 Every value is exact over Q(pi): a rational function of pi with rational
 coefficients, held in lowest terms (integer coefficients, no common content,
@@ -13,28 +13,32 @@ rounded from the exact forms at 40 significant digits, binary64 values from
 those.
 
 Physics source: the Joint Reference contract (JR, archived at 11718e61a2^,
-CORRECTNESS_DESIGN/JOINT_REFERENCE/CONTRACT.md sections 2, 4, 5 and 6) and
+CORRECTNESS_DESIGN/JOINT_REFERENCE/CONTRACT.md sections 2, 4, 5, 6 and 7) and
 its independent refutation (sections 2 to 4), and DEL-04-07 Design
-joint-pressure-thrust.md section 9. Re-derived here; no equation is taken
+joint-pressure-thrust.md section 9, with HELP_HUMAN's two rulings of
+2026-10-17 (non-parallel rods admitted, S_joint by the projected rule; rods
+admitted with p = 0 at the joint). Re-derived here; no equation is taken
 from an extracted equation artifact (DEC-043).
 
 Two solvers, sharing only the fixture and this file's exact arithmetic:
   * a nodal stiffness solve: 3D Euler-Bernoulli frame members, the
     connector's B^T K B from JR's midpoint kinematics, each rod's C^T k C
     with C evaluated from e = n.(v_bj - v_bi), the representation-B ledger
-    as nodal loads, the Poisson pair as an equivalent eigenload pair and the
-    rod reference load +C^T k e_ref; fraction-free (Bareiss) elimination over
-    Z[pi];
+    as nodal loads, the Poisson and thermal strains as equivalent eigenload
+    pairs and the rod reference load +C^T k e_ref; fraction-free (Bareiss)
+    elimination over Z[pi];
   * a force method: the chain is a cantilever from A (with the six actions at
-    D as redundants when D is anchored); section actions from statics,
-    displacements by the unit-load method (axial, torsion and EB bending
-    integrals, the Poisson strain as an initial strain), the connector and
+    the far anchor as redundants when it is anchored); section actions from
+    statics, displacements by the unit-load method (axial, torsion and EB
+    bending integrals, the Poisson and thermal strains as initial strains), the connector and
     its rods as one generalized spring K + sum k c c^T in the connector's
     midpoint basis with the rod reference as an initial generalized
     deformation, and the connector's end actions from JR's end-action
     formulas.
 Closed forms (rows 2 and 4 as functions of the total rod stiffness, J4,
-e_ref, the offset pairs and the asymmetric free chain) are a third check.
+e_ref, the offset pairs, the asymmetric free chain, and the p = 0 controls:
+the mechanical-only free chain, the thermal anchored relation extended with
+the rods and J3-R's remote-region chain) are a third check.
 
 Modes:
   python3 -I u5b_reference.py            check: rebuild every file in memory,
@@ -65,6 +69,9 @@ U5A_PINNED = {
     "requests/J3-5UA.request.json": "8cabf999bf9ab5a7e7602af73c6e900b381ea2414499f205d2ec308923908960",
     "requests/J3-1R.request.json": "c72059741eff1d0d63cbae3add491099cfa0e62b97656d33a59d1d96b3623dd4",
     "requests/J3-1V.request.json": "bba8f7b4650c9258edd6670b2a09c711b15a866d102c10050a9a491e9bc6344f",
+    "requests/J3-1T.request.json": "829fc390290b7b0ed392f50078c01a9f7f8a4e56f23c13ee067309c05f36307d",
+    "requests/J3-R.request.json": "481bf60266f064655fdd4a439b7e269d5f114610c320d638d6a70b4f11a1dd80",
+    "requests/J3-RP.request.json": "c3267c0e631126cfb2afc0efdb4df06fb8eca083435c1d8da9687c23cc20acca",
 }
 
 CHECKS = []  # (name, passed) records of every cross-check
@@ -624,8 +631,16 @@ check(KP == Qp.make([0, 27500000]), "kp = 27500000 pi")
 check(A_S == Qp.make([0, 11], [40000]), "As = 11 pi/40000")
 
 NODES = ["node:A", "node:B", "node:C", "node:D"]
-BASE_POS = {"node:A": (0, 0, 0), "node:B": (2, 0, 0), "node:C": (F(23, 10), 0, 0), "node:D": (F(43, 10), 0, 0)}
+NODES_R = NODES + ["node:E"]   # J3-R's chain: a remote region over pipe:X beyond D
+BASE_POS = {"node:A": (0, 0, 0), "node:B": (2, 0, 0), "node:C": (F(23, 10), 0, 0), "node:D": (F(43, 10), 0, 0),
+            "node:E": (F(63, 10), 0, 0)}
 PIPES = [("pipe:L", "node:A", "node:B"), ("pipe:R", "node:C", "node:D")]
+PIPES_R = PIPES + [("pipe:X", "node:D", "node:E")]
+DT_STUBS = F(10)               # MO-T: J3-1T's uniform stub temperature change (degC)
+F_MO = F(1010)                 # MO-F: axial force at D (N)
+M_MO = F(100)                  # MO-F: moment about z at D (N*m)
+MODEL_CONST = "constant_effective_area_reference_v1"
+MODEL_UNPR = "unpressurized"
 I3 = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 ROT = [[F(-3, 5), 0, F(4, 5)], [F(16, 25), F(-3, 5), F(12, 25)], [F(12, 25), F(4, 5), F(9, 25)]]
 TRANS = (10, 20, 5)
@@ -665,10 +680,13 @@ EXTRA_K = [F(0), F(2 * 10 ** 13), F(2 * 10 ** 15), F(2 * 10 ** 17), F(2 * 10 ** 
 
 
 def config(cid, chain, rods, description, family, base, loads=(), rotated=False, reversed_=False, total_k=None,
-           realization=None):
+           realization=None, pressure="listed", model=MODEL_CONST, dT=F(0)):
+    """pressure: 'listed' (J3's region over pipes L and R lists the connector), 'remote' (J3-R's region over
+    pipe:X only; the connector is in no region) or 'none' (no pressure region). model: the connector's
+    pressure model. dT: uniform temperature change of pipes L and R (degC)."""
     return {"id": cid, "chain": chain, "rods": rods, "loads": list(loads), "rotated": rotated,
             "reversed": reversed_, "description": description, "family": family, "base": base,
-            "total_k": total_k, "realization": realization}
+            "total_k": total_k, "realization": realization, "pressure": pressure, "model": model, "dT": F(dT)}
 
 
 def build_configs():
@@ -716,16 +734,40 @@ def build_configs():
                            "reference_extension", base, total_k=2 * K_ROD_PAIR))
     cfgs.append(config("SK-F", "free",
                        [rod("rod:sk", (-S_OFF, A_OFF, 0), (S_OFF, A_OFF, F(3, 10)), K_ROD_PAIR)],
-                       "conditional control: free pressurized chain with one rod not parallel to the connector axis "
-                       "(direction (0.8, 0, 0.6)); binds only if U5b admits non-parallel rods",
-                       "non_parallel_conditional", "J3-3"))
+                       "free pressurized chain with one rod not parallel to the connector axis (direction "
+                       "(0.8, 0, 0.6)); admitted by HELP_HUMAN's ruling 1 of 2026-10-17, S_joint by the projected rule",
+                       "non_parallel", "J3-3"))
+    # p = 0 at the joint (HELP_HUMAN's ruling 2 of 2026-10-17)
+    fm = [{"id": "load:mech-D", "node": "node:D", "force": (F_MO, 0, 0), "moment": (0, 0, M_MO)}]
+    cfgs.append(config("MO-F", "free", pair_y(K_ROD_PAIR, axial=True),
+                       "mechanical-only tied control (JR J-C): free chain, no pressure region, unpressurized "
+                       "connector, rod pair at +/-0.1 m along connector y (1e7 N/m each), force 1010 N along x and "
+                       "moment 100 N*m about z at D",
+                       "mechanical_only_free", "J3-3", loads=fm, total_k=2 * K_ROD_PAIR, pressure="none", model=MODEL_UNPR))
+    cfgs.append(config("MO-T", "anchored", pair_y(K_ROD_PAIR, axial=True, e_ref=E_REF),
+                       "mechanical-only tied thermal control: anchored chain, no pressure region, unpressurized "
+                       "connector, stubs +10 degC (J3-1T's thermal loads), rod pair at +/-0.1 m along connector y "
+                       "(1e7 N/m each) pretensioned, e_ref = -2.5e-5 m each",
+                       "mechanical_only_thermal", "J3-1", total_k=2 * K_ROD_PAIR, pressure="none", model=MODEL_UNPR,
+                       dT=DT_STUBS))
+    cfgs.append(config("RR-U", "anchored", pair_y(K_ROD_PAIR, axial=True),
+                       "J3-R with rods: unpressurized connector beside the remote region over pipe:X (p = 0 at the "
+                       "joint), rod pair at +/-0.1 m along connector y (1e7 N/m each)",
+                       "remote_region", "J3-R", total_k=2 * K_ROD_PAIR, pressure="remote", model=MODEL_UNPR))
+    cfgs.append(config("RR-P", "anchored", pair_y(K_ROD_PAIR, axial=True),
+                       "J3-RP with rods: constant-effective-area connector that no region lists (Pe = 0) beside the "
+                       "remote region over pipe:X, rod pair at +/-0.1 m along connector y (1e7 N/m each)",
+                       "remote_region", "J3-RP", total_k=2 * K_ROD_PAIR, pressure="remote", model=MODEL_CONST))
     return cfgs
 
 
 def realize(c):
     R = qmat(ROT if c["rotated"] else I3)
     t = V(*(TRANS if c["rotated"] else (0, 0, 0)))
-    pos = {n: vadd(mvec(R, V(*BASE_POS[n])), t) for n in NODES}
+    remote = c["pressure"] == "remote"
+    nodes = NODES_R if remote else NODES
+    pipes = PIPES_R if remote else PIPES
+    pos = {n: vadd(mvec(R, V(*BASE_POS[n])), t) for n in nodes}
     frame = mmul(R, qmat(FLIP)) if c["reversed"] else R
     ci, cj = ("node:C", "node:B") if c["reversed"] else ("node:B", "node:C")
     rods = []
@@ -740,11 +782,23 @@ def realize(c):
                      "e_ref": Qp.of(r["e_ref"])})
     loads = [{"id": ld["id"], "node": ld["node"], "force": mvec(R, V(*ld["force"])),
               "moment": mvec(R, V(*ld["moment"]))} for ld in c["loads"]]
+    last = nodes[-1]
     supports = {"support:A": "node:A"}
     if c["chain"] == "anchored":
-        supports["support:D"] = "node:D"
+        supports["support:" + last[len("node:"):]] = last
+    # pressure: which pipes a region pressurizes, its transferring terminals, and whether it lists the joint
+    pressurized = {"listed": ("pipe:L", "pipe:R"), "remote": ("pipe:X",), "none": ()}[c["pressure"]]
+    terminals = {"listed": ("node:A", "node:D"), "remote": ("node:D", "node:E"), "none": ()}[c["pressure"]]
+    listed = c["pressure"] == "listed"
+    check(c["model"] in (MODEL_CONST, MODEL_UNPR) and (c["model"] == MODEL_CONST or not listed),
+          "%s: only a constant-effective-area connector is listed by a region" % c["id"])
+    Pi = {pid: (P_I if pid in pressurized else ZERO) for pid, _, _ in pipes}
+    H = {pid: (H_P if pid in pressurized else ZERO) for pid, _, _ in pipes}
+    epsT = {pid: Qp.of(ALPHA * c["dT"] if pid in ("pipe:L", "pipe:R") else 0) for pid, _, _ in pipes}
     return {"cfg": c, "R": R, "pos": pos, "frame": frame, "ci": ci, "cj": cj, "rods": rods, "loads": loads,
-            "supports": supports, "yref": mvec(R, V(0, 1, 0)), "axis": mvec(R, V(1, 0, 0))}
+            "supports": supports, "yref": mvec(R, V(0, 1, 0)), "axis": mvec(R, V(1, 0, 0)),
+            "nodes": nodes, "pipes": pipes, "last": last, "terminals": terminals, "listed": listed,
+            "Pi": Pi, "H": H, "epsT": epsT, "Pe": P_E if listed else ZERO}
 
 
 # ---------------------------------------------------------------------------
@@ -752,7 +806,7 @@ def realize(c):
 
 
 def dof(node, k):
-    return NODES.index(node) * 6 + k
+    return NODES_R.index(node) * 6 + k
 
 
 def connector_q(xi, xj, ai, aj, frame, d):
@@ -881,39 +935,51 @@ def blockdiag4(lam):
 
 
 def ledger_B(g, double_count=False):
-    """Representation B: physical caps at transferring terminals and the joint pair
-    -/+ p(Ae - Ai) along the connector axis (double count: -/+ p Ae)."""
+    """Representation B without the Poisson pairs: physical caps at the region's transferring
+    terminals and, at a joint the region lists, the pair -/+ p(Ae - Ai) along the connector axis
+    (double count: -/+ p Ae). The Poisson pairs are added to form the pressure RHS."""
     pos = g["pos"]
-    out = {n: [V(0, 0, 0), V(0, 0, 0)] for n in NODES}
-    for pid, ni, nj in PIPES:
+    out = {n: [V(0, 0, 0), V(0, 0, 0)] for n in g["nodes"]}
+    for pid, ni, nj in g["pipes"]:
+        if g["Pi"][pid].is_zero():
+            continue
         d = vsc(1 / norm(vsub(pos[nj], pos[ni])), vsub(pos[nj], pos[ni]))
-        if ni == "node:A":
-            out[ni][0] = vadd(out[ni][0], vsc(-P_I, d))
-        if nj == "node:D":
-            out[nj][0] = vadd(out[nj][0], vsc(P_I, d))
-    qx = [g["frame"][r][0] for r in range(3)]
-    pair = P_E if double_count else P_E - P_I
-    out[g["ci"]][0] = vadd(out[g["ci"]][0], vsc(-pair, qx))
-    out[g["cj"]][0] = vadd(out[g["cj"]][0], vsc(pair, qx))
+        if ni in g["terminals"]:
+            out[ni][0] = vadd(out[ni][0], vsc(-g["Pi"][pid], d))
+        if nj in g["terminals"]:
+            out[nj][0] = vadd(out[nj][0], vsc(g["Pi"][pid], d))
+    if g["listed"]:
+        qx = [g["frame"][r][0] for r in range(3)]
+        pair = P_E if double_count else P_E - P_I
+        out[g["ci"]][0] = vadd(out[g["ci"]][0], vsc(-pair, qx))
+        out[g["cj"]][0] = vadd(out[g["cj"]][0], vsc(pair, qx))
     return out
 
 
 def ledger_A(g):
-    """Representation A: every pipe's full cap pair and the joint's B^T g_p."""
+    """Representation A: every pressurized pipe's full cap pair, its Poisson pair (separately,
+    second element of the return) and, at a listed joint, the joint's B^T g_p."""
     pos = g["pos"]
-    out = {n: [V(0, 0, 0), V(0, 0, 0)] for n in NODES}
-    for pid, ni, nj in PIPES:
+    out = {n: [V(0, 0, 0), V(0, 0, 0)] for n in g["nodes"]}
+    poisson = {n: V(0, 0, 0) for n in g["nodes"]}
+    for pid, ni, nj in g["pipes"]:
+        if g["Pi"][pid].is_zero():
+            continue
         d = vsc(1 / norm(vsub(pos[nj], pos[ni])), vsub(pos[nj], pos[ni]))
-        out[ni][0] = vadd(out[ni][0], vsc(-P_I, d))
-        out[nj][0] = vadd(out[nj][0], vsc(P_I, d))
-    zero = V(0, 0, 0)
-    Bm = connector_B(pos[g["ci"]], pos[g["cj"]], zero, zero, g["frame"])
-    gp = [P_E] + [ZERO] * 5
-    f = mtvec(Bm, gp)
-    for blk, node in ((0, g["ci"]), (1, g["cj"])):
-        out[node][0] = vadd(out[node][0], f[6 * blk:6 * blk + 3])
-        out[node][1] = vadd(out[node][1], f[6 * blk + 3:6 * blk + 6])
-    return out
+        out[ni][0] = vadd(out[ni][0], vsc(-g["Pi"][pid], d))
+        out[nj][0] = vadd(out[nj][0], vsc(g["Pi"][pid], d))
+        # Poisson pair: the pipe law Nw = EA eps + 2 nu Pi as an eigenload, +h d at node i, -h d at node j
+        poisson[ni] = vadd(poisson[ni], vsc(g["H"][pid], d))
+        poisson[nj] = vadd(poisson[nj], vsc(-g["H"][pid], d))
+    if g["listed"]:
+        zero = V(0, 0, 0)
+        Bm = connector_B(pos[g["ci"]], pos[g["cj"]], zero, zero, g["frame"])
+        gp = [P_E] + [ZERO] * 5
+        f = mtvec(Bm, gp)
+        for blk, node in ((0, g["ci"]), (1, g["cj"])):
+            out[node][0] = vadd(out[node][0], f[6 * blk:6 * blk + 3])
+            out[node][1] = vadd(out[node][1], f[6 * blk + 3:6 * blk + 6])
+    return out, poisson
 
 
 def sm_solve(g, mut=None):
@@ -922,8 +988,10 @@ def sm_solve(g, mut=None):
     'load_sign', 'load_omitted')."""
     mut = mut or {}
     pos = g["pos"]
-    K = zeros(24, 24)
-    f = [ZERO] * 24
+    nodes = g["nodes"]
+    ndof = 6 * len(nodes)
+    K = zeros(ndof, ndof)
+    f = [ZERO] * ndof
 
     def assemble(nodes, ke):
         idx = [dof(n, k) for n in nodes for k in range(6)]
@@ -933,14 +1001,18 @@ def sm_solve(g, mut=None):
                     K[ia][ib] = K[ia][ib] + ke[a][b]
 
     pipes = {}
-    for pid, ni, nj in PIPES:
+    for pid, ni, nj in g["pipes"]:
         L, lam, kg = pipe_global(tuple(pos[ni]), tuple(pos[nj]), tuple(g["yref"]))
         assemble((ni, nj), kg)
         dvec = lam[0]
-        feq = vsc(H_P, dvec) + V(0, 0, 0) + vsc(-H_P, dvec) + V(0, 0, 0)
+        h = g["H"][pid]
+        th = EA * g["epsT"][pid]
+        # Poisson eigenload pair (pressure RHS) and the thermal eigenload pair (not pressure)
+        feq_p = vsc(h, dvec) + V(0, 0, 0) + vsc(-h, dvec) + V(0, 0, 0)
+        feq = vadd(feq_p, vsc(-th, dvec) + V(0, 0, 0) + vsc(th, dvec) + V(0, 0, 0))
         for a, ia in enumerate([dof(ni, k) for k in range(6)] + [dof(nj, k) for k in range(6)]):
             f[ia] = f[ia] + feq[a]
-        pipes[pid] = (ni, nj, L, lam, kg, feq)
+        pipes[pid] = (ni, nj, L, lam, kg, feq, feq_p)
     zero = V(0, 0, 0)
     ci, cj = g["ci"], g["cj"]
     Bm = connector_B(pos[ci], pos[cj], zero, zero, g["frame"])
@@ -961,7 +1033,7 @@ def sm_solve(g, mut=None):
             f[ia] = f[ia] + C[a] * r["k"] * e_ref * load_scale
         rods.append((r, C, n, e_ref))
     led = ledger_B(g, mut.get("ledger") == "double_count")
-    for node in NODES:
+    for node in nodes:
         for k in range(3):
             f[dof(node, k)] = f[dof(node, k)] + led[node][0][k]
             f[dof(node, 3 + k)] = f[dof(node, 3 + k)] + led[node][1][k]
@@ -972,15 +1044,15 @@ def sm_solve(g, mut=None):
     fixed = set()
     for sid, node in g["supports"].items():
         fixed.update(dof(node, k) for k in range(6))
-    free = [i for i in range(24) if i not in fixed]
+    free = [i for i in range(ndof) if i not in fixed]
     Kff = [[K[i][j] for j in free] for i in free]
     ff = [f[i] for i in free]
     x = qsolve(Kff, [ff])[0]
-    u = [ZERO] * 24
+    u = [ZERO] * ndof
     for i, xi in zip(free, x):
         u[i] = xi
-    res = {"u": {n: (u[dof(n, 0):dof(n, 3)], u[dof(n, 3):dof(n, 6)]) for n in NODES}}
-    Ku = [dot(K[i], u) for i in range(24)]
+    res = {"u": {n: (u[dof(n, 0):dof(n, 3)], u[dof(n, 3):dof(n, 6)]) for n in nodes}}
+    Ku = [dot(K[i], u) for i in range(ndof)]
     res["reactions"] = {sid: ([Ku[dof(node, k)] - f[dof(node, k)] for k in range(3)],
                               [Ku[dof(node, 3 + k)] - f[dof(node, 3 + k)] for k in range(3)])
                         for sid, node in g["supports"].items()}
@@ -1008,9 +1080,11 @@ def sm_solve(g, mut=None):
     res["sumT"] = sumT
     res["sumT_axial"] = sumT_axial
     res["Tb"] = gq[0]
-    res["S_joint"] = gq[0] + sumT_axial - P_E
+    # HELP_HUMAN ruling 1 (2026-10-17): the projected rule in every case (= Tb + sum T_r - Pe for parallel rods)
+    res["S_joint"] = gq[0] + sumT_axial - g["Pe"]
     res["pipes"] = {}
-    for pid, (ni, nj, L, lam, kg, feq) in pipes.items():
+    poisson = {n: V(0, 0, 0) for n in nodes}
+    for pid, (ni, nj, L, lam, kg, feq, feq_p) in pipes.items():
         d = u[dof(ni, 0):dof(ni, 6)] + u[dof(nj, 0):dof(nj, 6)]
         fe = [dot(kg[a], d) - feq[a] for a in range(12)]
         loc = []
@@ -1019,10 +1093,16 @@ def sm_solve(g, mut=None):
         Nw = loc[6]
         check(Nw == -loc[0], "pipe axial end forces balance (%s)" % pid)
         elong = dot(lam[0], vsub(d[6:9], d[0:3]))
-        res["pipes"][pid] = {"Nw": Nw, "S": Nw - P_I, "elong": elong,
+        res["pipes"][pid] = {"Nw": Nw, "S": Nw - g["Pi"][pid], "elong": elong,
                              "end_i": (ni, fe[0:3], fe[3:6], loc[0:3], loc[3:6]),
                              "end_j": (nj, fe[6:9], fe[9:12], loc[6:9], loc[9:12])}
+        check(all(x.is_zero() for x in feq_p[3:6] + feq_p[9:12]), "Poisson pair carries no moment (%s)" % pid)
+        poisson[ni] = vadd(poisson[ni], feq_p[0:3])
+        poisson[nj] = vadd(poisson[nj], feq_p[6:9])
     res["ledger"] = led
+    # the pressure RHS in t4_u5a's convention (its pressure_rhs.global_n, the product's
+    # assembled_pressure_rhs_global): caps, joint pair and Poisson pairs; rod reference and thermal loads excluded
+    res["pressure_rhs"] = {n: vadd(led[n][0], poisson[n]) for n in nodes}
     return res
 
 
@@ -1033,20 +1113,35 @@ def sm_solve(g, mut=None):
 def fm_solve(g):
     pos = g["pos"]
     frame = g["frame"]
-    idx = {n: i for i, n in enumerate(NODES)}
-    xA, xD = pos["node:A"], pos["node:D"]
-    tch = vsc(1 / norm(vsub(xD, xA)), vsub(xD, xA))
-    # physical loads (representation B along the chain direction)
-    base_loads = {n: [V(0, 0, 0), V(0, 0, 0)] for n in NODES}
-    base_loads["node:A"][0] = vsc(-P_I, tch)
-    base_loads["node:D"][0] = vsc(P_I, tch)
-    base_loads["node:B"][0] = vsc(-(P_E - P_I), tch)
-    base_loads["node:C"][0] = vsc(P_E - P_I, tch)
+    nodes = g["nodes"]
+    last = g["last"]
+    idx = {n: i for i, n in enumerate(nodes)}
+    xA, xZ = pos["node:A"], pos[last]
+    tch = vsc(1 / norm(vsub(xZ, xA)), vsub(xZ, xA))
+    # physical loads from the free body along the chain direction: the region's closed ends at its two
+    # terminals (outward caps Pi) and, at a listed joint, the face pair -/+(Pe - Pi)
+    base_loads = {n: [V(0, 0, 0), V(0, 0, 0)] for n in nodes}
+    if g["terminals"]:
+        t0, t1 = g["terminals"]
+        base_loads[t0][0] = vsc(-P_I, tch)
+        base_loads[t1][0] = vsc(P_I, tch)
+    if g["listed"]:
+        base_loads["node:B"][0] = vsc(-(P_E - P_I), tch)
+        base_loads["node:C"][0] = vsc(P_E - P_I, tch)
     press = {n: [list(v[0]), list(v[1])] for n, v in base_loads.items()}
     for ld in g["loads"]:
         base_loads[ld["node"]][0] = vadd(base_loads[ld["node"]][0], ld["force"])
         base_loads[ld["node"]][1] = vadd(base_loads[ld["node"]][1], ld["moment"])
-    eps0 = -H_P / EA
+    members = [("node:A", "node:B"), ("node:C", "node:D")] + ([("node:D", "node:E")] if "node:E" in nodes else [])
+    # initial strain of each member: thermal minus the Poisson term (Nw = EA(eps - eps_T) + 2 nu Pi)
+    eps0 = {}
+    rhs = {n: list(v[0]) for n, v in press.items()}
+    for (pid, ni, nj), (n0, n1) in zip(g["pipes"], members):
+        check(ni == n0 and nj == n1, "force method: pipes authored from the A side")
+        eps0[(n0, n1)] = g["epsT"][pid] - g["H"][pid] / EA
+        t = vsc(1 / norm(vsub(pos[n1], pos[n0])), vsub(pos[n1], pos[n0]))
+        rhs[n0] = vadd(rhs[n0], vsc(g["H"][pid], t))
+        rhs[n1] = vadd(rhs[n1], vsc(-g["H"][pid], t))
     # connector plus rods as one generalized spring in the connector basis
     toD = "j" if g["cj"] == "node:C" else "i"
     xi_c, xj_c = pos[g["ci"]], pos[g["cj"]]
@@ -1091,8 +1186,6 @@ def fm_solve(g):
             gr = mtvec(frame, Mv)
         return gt + gr
 
-    members = [("node:A", "node:B"), ("node:C", "node:D")]
-
     def vw(real, virt, initial):
         total = ZERO
         for n0, n1 in members:
@@ -1108,7 +1201,8 @@ def fm_solve(g):
                 RF, RM = resultant(real, idx[n1], xs)
                 Nr, nv = dot(RF, t), dot(vF, t)
                 Tr, tv = dot(RM, t), dot(vM, t)
-                fval = nv * (Nr / EA + (eps0 if initial else ZERO)) + tv * Tr / GJ + (dot(vM, RM) - tv * Tr) / EI
+                fval = (nv * (Nr / EA + (eps0[(n0, n1)] if initial else ZERO)) + tv * Tr / GJ
+                        + (dot(vM, RM) - tv * Tr) / EI)
                 acc = acc + fval * w
             total = total + acc * L / 6
         gv = gen_action(virt)
@@ -1121,32 +1215,33 @@ def fm_solve(g):
         return total
 
     def unit_load(node, k):
-        ld = {n: [V(0, 0, 0), V(0, 0, 0)] for n in NODES}
+        ld = {n: [V(0, 0, 0), V(0, 0, 0)] for n in nodes}
         ld[node][0 if k < 3 else 1] = unit(k % 3, 3)
         return ld
 
     loads = {n: [list(v[0]), list(v[1])] for n, v in base_loads.items()}
     X = None
     if g["cfg"]["chain"] == "anchored":
-        Fm = [[vw(unit_load("node:D", l), unit_load("node:D", k), False) for l in range(6)] for k in range(6)]
-        d0 = [vw(loads, unit_load("node:D", k), True) for k in range(6)]
+        Fm = [[vw(unit_load(last, l), unit_load(last, k), False) for l in range(6)] for k in range(6)]
+        d0 = [vw(loads, unit_load(last, k), True) for k in range(6)]
         X = qsolve(Fm, [[-x for x in d0]])[0]
-        loads["node:D"][0] = vadd(loads["node:D"][0], X[0:3])
-        loads["node:D"][1] = vadd(loads["node:D"][1], X[3:6])
+        loads[last][0] = vadd(loads[last][0], X[0:3])
+        loads[last][1] = vadd(loads[last][1], X[3:6])
     res = {"u": {"node:A": (V(0, 0, 0), V(0, 0, 0))}}
-    for node in ("node:B", "node:C", "node:D"):
+    for node in nodes[1:]:
         vals = [vw(loads, unit_load(node, k), True) for k in range(6)]
         res["u"][node] = (vals[0:3], vals[3:6])
     if X is not None:
-        check(all(x.is_zero() for x in res["u"]["node:D"][0] + res["u"]["node:D"][1]),
-              "force method: anchored D has zero displacement after the redundants")
+        check(all(x.is_zero() for x in res["u"][last][0] + res["u"][last][1]),
+              "force method: the anchored far end has zero displacement after the redundants")
     totF, totM = V(0, 0, 0), V(0, 0, 0)
     for node, (Fv, Mv) in loads.items():
         totF = vadd(totF, Fv)
         totM = vadd(totM, vadd(Mv, cross(vsub(pos[node], xA), Fv)))
     res["reactions"] = {"support:A": (vsc(-1, totF), vsc(-1, totM))}
     if X is not None:
-        res["reactions"]["support:D"] = (X[0:3], X[3:6])
+        sid = [s for s, n in g["supports"].items() if n == last][0]
+        res["reactions"][sid] = (X[0:3], X[3:6])
     gprime = gen_action(loads)
     q = mvec(Kinv, vadd(gprime, ref_gen))
     gq = [q[k] * K_DIAG[k] for k in range(6)]
@@ -1170,10 +1265,9 @@ def fm_solve(g):
         sumT = sumT + T
         sumT_axial = sumT_axial + T * dot(n, qx)
     res["sumT"] = sumT
-    res["S_joint"] = gq[0] + sumT_axial - P_E
+    res["S_joint"] = gq[0] + sumT_axial - g["Pe"]
     res["pipes"] = {}
-    for (pid, ni, nj), (n0, n1) in zip(PIPES, members):
-        check(ni == n0 and nj == n1, "force method: pipes authored from the A side")
+    for (pid, ni, nj), (n0, n1) in zip(g["pipes"], members):
         L = norm(vsub(pos[n1], pos[n0]))
         t = vsc(1 / L, vsub(pos[n1], pos[n0]))
         RFj, RMj = resultant(loads, idx[n1], pos[n1])
@@ -1183,11 +1277,12 @@ def fm_solve(g):
         # shear force in the member (EB vs Timoshenko dependence)
         res["pipes"][pid]["shear_zero"] = all(x.is_zero() for x in vsub(RFj, vsc(dot(RFj, t), t)))
     res["ledger"] = press
+    res["pressure_rhs"] = rhs
     return res
 
 
 def compare_sm_fm(cid, sm, fm):
-    for node in NODES:
+    for node in sm["u"]:
         for a in range(2):
             check(sm["u"][node][a] == fm["u"][node][a], "%s: node %s %s, stiffness = force method" %
                   (cid, node, "translation" if a == 0 else "rotation"))
@@ -1209,8 +1304,12 @@ def compare_sm_fm(cid, sm, fm):
         check(a["Nw"] == b["Nw"], "%s: %s Nw, stiffness = force method" % (cid, pid))
         check(a["end_i"][:3] == b["end_i"] and a["end_j"][:3] == b["end_j"],
               "%s: %s end actions, stiffness = force method" % (cid, pid))
-    for node in NODES:
+    check(set(sm["u"]) == set(fm["u"]) and set(sm["ledger"]) == set(fm["ledger"]) == set(sm["u"]),
+          "%s: both methods cover the same nodes" % cid)
+    for node in sm["ledger"]:
         check(sm["ledger"][node] == fm["ledger"][node], "%s: ledger at %s, stiffness = force method" % (cid, node))
+        check(sm["pressure_rhs"][node] == fm["pressure_rhs"][node],
+              "%s: pressure RHS (caps, joint pair and Poisson pairs) at %s, stiffness = force method" % (cid, node))
 
 
 # ---------------------------------------------------------------------------
@@ -1278,36 +1377,41 @@ def cf_const(c, den):
     return ([Qp.of(c) * d for d in den], den)
 
 
-def axial_forms(chain, eps=F(0), double_count=False):
+def axial_forms(chain, eps=F(0), double_count=False, eps_T=F(0), pressurized=True):
     """Rows 2/4 as functions of the total rod stiffness k_R (equal e_ref = eps on every rod).
     Derived from the axial free bodies: node B equilibrium, the pipe law
-    Nw = EA eps + 2 nu Pi and symmetry (anchored) or the free end (free)."""
+    Nw = EA(eps - eps_T) + 2 nu Pi and symmetry (anchored) or the free end (free).
+    Anchored, this is t4_u5a's thermal relation extended with the rods:
+    (k + k_R + kp/2) q = Pe - (1 - 2 nu) Pi - EA eps_T + k_R e_ref (q_ref = 0).
+    pressurized=False: no pressure anywhere (p = 0: Pi = h = Pe = 0)."""
     k = K_AX
     eps = Qp.of(eps)
-    load = P_E if double_count else P_E - P_I
+    p_i, h_p, p_e = (P_I, H_P, P_E) if pressurized else (ZERO, ZERO, ZERO)
+    load = p_e if double_count else p_e - p_i
     forms = {}
     if chain == "anchored":
-        N0 = H_P + load
+        N0 = h_p + load - EA * Qp.of(eps_T)
         den = [D0_ANCH, ONE]
         q = ([N0, eps], den)
         forms["q_m"] = q
         forms["Tb_n"] = cf_scale(k, q)
         forms["sum_rod_tension_n"] = ([ZERO, N0 - eps * D0_ANCH], den)
-        S_joint = cf_add(cf_add(forms["Tb_n"], forms["sum_rod_tension_n"]), cf_const(-P_E, den))
+        S_joint = cf_add(cf_add(forms["Tb_n"], forms["sum_rod_tension_n"]), cf_const(-p_e, den))
         forms["S_joint_n"] = S_joint
         if double_count:
             Nw = S_joint                      # node B: Nw - (Tb + sum T) = -Pe
         else:
-            Nw = cf_add(S_joint, cf_const(P_I, den))
+            Nw = cf_add(S_joint, cf_const(p_i, den))
         forms["Nw_n"] = Nw
-        forms["S_pipe_n"] = cf_add(Nw, cf_const(-P_I, den))
-        forms["reaction_A_axial_n"] = cf_add(cf_const(P_I, den), cf_scale(-1, Nw))
+        forms["S_pipe_n"] = cf_add(Nw, cf_const(-p_i, den))
+        forms["reaction_A_axial_n"] = cf_add(cf_const(p_i, den), cf_scale(-1, Nw))
         forms["reaction_D_axial_n"] = cf_scale(-1, forms["reaction_A_axial_n"])
         forms["interface_identity_S_pipe_minus_S_joint_n"] = cf_add(forms["S_pipe_n"], cf_scale(-1, S_joint))
         forms["u_B_axial_m"] = cf_scale(F(-1, 2), q)
         forms["u_C_axial_m"] = cf_scale(F(1, 2), q)
         forms["u_D_axial_m"] = ([ZERO], den)
     else:
+        check(eps_T == 0 and pressurized, "free-chain axial forms: pressurized, no thermal strain")
         load_free = P_E + (P_I if double_count else ZERO)
         den = [K_AX, ONE]
         q = ([load_free, eps], den)
@@ -1325,6 +1429,68 @@ def axial_forms(chain, eps=F(0), double_count=False):
         forms["outer_end_separation_change_m"] = forms["u_D_axial_m"]
         forms["interface_identity_S_pipe_minus_S_joint_n"] = cf_add(forms["S_pipe_n"], cf_scale(-1, forms["S_joint_n"]))
     return forms
+
+
+def mo_free_forms(Fx):
+    """MO-F (no pressure, free chain, axial force F_x at D on the axis), as functions of k_R: the joint
+    and its rods carry F_x in parallel, (k + k_R) q = F_x."""
+    den = [K_AX, ONE]
+    q = ([Qp.of(Fx)], den)
+    return {"q_m": q, "Tb_n": cf_scale(K_AX, q), "sum_rod_tension_n": ([ZERO, Qp.of(Fx)], den)}
+
+
+def remote_forms(eps=F(0)):
+    """J3-R's chain with rods, as functions of k_R (equal e_ref = eps on every rod): A - L - B - joint - C - R
+    - D - X - E, A and E anchored, a region over pipe:X only (caps at D and E), p = 0 at the joint (Pe = 0)
+    and in pipes L and R. Free bodies: one axial force N in L, the joint (Tb + sum T_r) and R; node D gives
+    Nw_X = N + Pi; the pipe laws give elongations N/kp (L, R) and (N + (1 - 2 nu) Pi)/kp (X); anchored ends
+    give zero total elongation: 3N + kp q = -(1 - 2 nu) Pi with N = (k + k_R) q - k_R eps, so
+    (3k + kp + 3k_R) q = -(1 - 2 nu) Pi + 3 k_R eps."""
+    k = K_AX
+    eps = Qp.of(eps)
+    lame = P_I - H_P                      # pipe X's net Lame term (1 - 2 nu) Pi
+    d0 = k * 3 + KP
+    den = [d0, Qp.of(3)]
+    forms = {}
+    q = ([-lame, eps * 3], den)
+    forms["q_m"] = q
+    forms["Tb_n"] = cf_scale(k, q)
+    forms["sum_rod_tension_n"] = ([ZERO, -lame - eps * d0], den)
+    S = cf_add(forms["Tb_n"], forms["sum_rod_tension_n"])
+    forms["S_joint_n"] = S                # Pe = 0
+    for p in ("L", "R"):
+        forms["pipe_%s_Nw_n" % p] = S
+        forms["pipe_%s_S_n" % p] = S
+        forms["pipe_%s_elongation_m" % p] = cf_scale(1 / KP, S)
+    forms["pipe_X_Nw_n"] = cf_add(S, cf_const(P_I, den))
+    forms["pipe_X_S_n"] = S
+    forms["pipe_X_elongation_m"] = cf_scale(1 / KP, cf_add(S, cf_const(lame, den)))
+    forms["u_B_axial_m"] = forms["pipe_L_elongation_m"]
+    forms["u_C_axial_m"] = cf_add(forms["u_B_axial_m"], q)
+    forms["u_D_axial_m"] = cf_add(forms["u_C_axial_m"], forms["pipe_R_elongation_m"])
+    forms["u_E_axial_m"] = ([ZERO], den)
+    forms["reaction_A_axial_n"] = cf_scale(-1, S)
+    forms["reaction_E_axial_n"] = S
+    forms["interface_identity_S_pipe_minus_S_joint_n"] = ([ZERO], den)
+    return forms
+
+
+def remote_vals(g, sm):
+    p = sm["pipes"]
+    vals = {"q_m": sm["q"][0], "Tb_n": sm["Tb"], "sum_rod_tension_n": sm["sumT"], "S_joint_n": sm["S_joint"],
+            "u_B_axial_m": axial_disp(g, sm, "node:B"), "u_C_axial_m": axial_disp(g, sm, "node:C"),
+            "u_D_axial_m": axial_disp(g, sm, "node:D"), "u_E_axial_m": axial_disp(g, sm, "node:E"),
+            "reaction_A_axial_n": dot(sm["reactions"]["support:A"][0], g["axis"]),
+            "reaction_E_axial_n": dot(sm["reactions"]["support:E"][0], g["axis"]),
+            "interface_identity_S_pipe_minus_S_joint_n": p["pipe:L"]["S"] - sm["S_joint"]}
+    check(p["pipe:R"]["S"] == p["pipe:L"]["S"], "remote chain: both face pipes carry the same S")
+    for x in ("L", "R", "X"):
+        pv = p["pipe:" + x]
+        vals["pipe_%s_Nw_n" % x] = pv["Nw"]
+        vals["pipe_%s_S_n" % x] = pv["S"]
+        vals["pipe_%s_elongation_m" % x] = pv["elong"]
+    check(set(vals) == set(remote_forms()), "every remote-chain closed form has a solved counterpart")
+    return vals
 
 
 def asym_free_forms(a, eps=F(0)):
@@ -1420,7 +1586,7 @@ def observables(g, res):
     out.append(("S_joint", res["S_joint"], "force"))
     for pid, pv in res["pipes"].items():
         out.append(("pipe.%s.Nw" % pid, pv["Nw"], "force"))
-        out.append(("pipe.%s.S" % pid, pv["Nw"] - P_I, "force"))
+        out.append(("pipe.%s.S" % pid, pv["Nw"] - g["Pi"][pid], "force"))
         for end in ("end_i", "end_j"):
             for k in range(3):
                 out.append(("pipe.%s.%s.force.%s" % (pid, end, ax[k]), pv[end][1][k], "force"))
@@ -1428,8 +1594,9 @@ def observables(g, res):
                 out.append(("pipe.%s.%s.moment.%s" % (pid, end, ax[k]), pv[end][2][k], "moment"))
     for face, node in (("face_i", g["ci"]), ("face_j", g["cj"])):
         pid = face_pipe(node)
-        out.append(("identity.%s.S_pipe_minus_S_joint" % face, res["pipes"][pid]["Nw"] - P_I - res["S_joint"], "force"))
-    for node in NODES:
+        out.append(("identity.%s.S_pipe_minus_S_joint" % face,
+                    res["pipes"][pid]["Nw"] - g["Pi"][pid] - res["S_joint"], "force"))
+    for node in g["nodes"]:
         for k in range(3):
             out.append(("node.%s.translation.%s" % (node, ax[k]), res["u"][node][0][k], "length"))
         for k in range(3):
@@ -1461,16 +1628,26 @@ def evaluate(c):
     fm = fm_solve(g)
     compare_sm_fm(c["id"], sm, fm)
     # ledger representations A and B are equal (H-2) and rods carry no pressure load
-    la, lb = ledger_A(g), sm["ledger"]
-    check(all(la[n] == lb[n] for n in NODES), "%s: representation A = representation B exactly" % c["id"])
+    (la, poisson_a), lb = ledger_A(g), sm["ledger"]
+    check(all(la[n] == lb[n] for n in g["nodes"]), "%s: representation A = representation B exactly" % c["id"])
+    check(all(x.is_zero() for n in g["nodes"] for x in la[n][1]),
+          "%s: the pressure RHS carries no nodal moment (coaxial, zero-offset joint)" % c["id"])
+    check(all(vadd(la[n][0], poisson_a[n]) == sm["pressure_rhs"][n] for n in g["nodes"]),
+          "%s: pressure RHS with the Poisson pairs, representation A = the stiffness solve's" % c["id"])
     # interface identity at both faces
     for node in (g["ci"], g["cj"]):
         pid = face_pipe(node)
-        check(sm["pipes"][pid]["Nw"] - P_I == sm["S_joint"],
+        check(sm["pipes"][pid]["Nw"] - g["Pi"][pid] == sm["S_joint"],
               "%s: interface identity S_pipe = Tb + sum T_r (n.Qx) - Pe at %s" % (c["id"], node))
+    # ruling 1: the projected rule reduces to section 9's literal Tb + sum T_r - Pe exactly when every rod is parallel
+    literal = sm["Tb"] + sm["sumT"] - g["Pe"]
+    if all(rv["n_axial"] == ONE for rv in sm["rods"].values()):
+        check(literal == sm["S_joint"], "%s: parallel rods: projected S_joint = section 9's literal form" % c["id"])
+    else:
+        check(literal != sm["S_joint"], "%s: non-parallel rod: the literal form differs from the projected" % c["id"])
     # global equilibrium of the physical loads and reactions
     totF, totM = V(0, 0, 0), V(0, 0, 0)
-    for node in NODES:
+    for node in g["nodes"]:
         Fv, Mv = sm["ledger"][node]
         totF = vadd(totF, Fv)
         totM = vadd(totM, vadd(Mv, cross(g["pos"][node], Fv)))
@@ -1506,23 +1683,26 @@ def case_entry(c, g, sm, fm, case_sha):
         "connector_axis_x_global": nums([g["frame"][r][0] for r in range(3)]),
         "connector_end_i_node": g["ci"],
         "connector_end_j_node": g["cj"],
+        "connector_pressure_model": c["model"],
+        "connector_listed_by_region": g["listed"],
         "generalized": {"q_translation_m": nums(sm["q"][0:3]), "q_rotation_rad": nums(sm["q"][3:6]),
                         "g_force_n": nums(sm["g"][0:3]), "g_moment_nm": nums(sm["g"][3:6])},
         "Tb_gx_n": num(sm["Tb"]),
         "rods": {},
         "sum_rod_tension_n": num(sm["sumT"]),
-        "Pe_n": num(P_E),
+        "Pe_n": num(g["Pe"]),
         "S_joint_n": num(sm["S_joint"]),
         "pipes": {},
         "interface_identity": {},
         "nodes": {},
         "reactions_support_on_model": {},
         "connector_endpoint_elastic_node_on_element": {},
-        "pressure_rhs_global_n": {n: nums(sm["ledger"][n][0]) for n in NODES},
+        "pressure_rhs_global_n": {n: nums(sm["pressure_rhs"][n]) for n in g["nodes"]},
+        "pressure_rhs_without_poisson_pairs_global_n": {n: nums(sm["ledger"][n][0]) for n in g["nodes"]},
     }
     if any(rv["n_axial"] != ONE for rv in sm["rods"].values()):
-        ent["S_joint_rule"] = "Tb + sum T_r (n_r . Q_x) - Pe (non-parallel rod; equals section 9's Tb + sum T_r - Pe only for parallel rods)"
-        ent["S_joint_section9_literal_n"] = num(sm["Tb"] + sm["sumT"] - P_E)
+        ent["S_joint_rule"] = ("Tb + sum T_r (n_r . Q_x) - Pe, the projected rule (HELP_HUMAN ruling 1, 2026-10-17); "
+                               "section 9's former literal Tb + sum T_r - Pe is the discriminator s_joint_section9_literal")
     for rid, rv in sm["rods"].items():
         ent["rods"][rid] = {
             "extension_m": num(rv["e"]), "tension_n": num(rv["T"]),
@@ -1540,7 +1720,7 @@ def case_entry(c, g, sm, fm, case_sha):
         pid = face_pipe(node)
         ent["interface_identity"][face] = {"node": node, "pipe": pid, "S_pipe_n": num(sm["pipes"][pid]["S"]),
                                            "S_joint_n": num(sm["S_joint"]), "holds_exactly": True}
-    for node in NODES:
+    for node in g["nodes"]:
         ent["nodes"][node] = {"translation_global_m": nums(sm["u"][node][0]),
                               "rotation_global_rad": nums(sm["u"][node][1]),
                               "axial_displacement_m": num(axial_disp(g, sm, node))}
@@ -1595,7 +1775,8 @@ def closed_form_entries(c, g, sm):
                         + ("; e_ref = %s m on every rod" % Qp.of(eps).text() if eps else ""),
                         "form": kr_text(form, "k_R"), "value": num(v),
                         "limit_k_R_to_infinity": num(kr_lim_inf(form)), "limit_k_R_to_zero": num(kr_lim_zero(form))})
-    if fam == "offset_pair":
+    if fam in ("offset_pair", "mechanical_only_free"):
+        mo = fam == "mechanical_only_free"
         Kp = [Qp.of(K_DIAG[k]) for k in range(6)]
         Ksum = ZERO
         for r in c["rods"]:
@@ -1604,14 +1785,27 @@ def closed_form_entries(c, g, sm):
             Kp[4] = Kp[4] + r["k"] * z * z
             Kp[5] = Kp[5] + r["k"] * y * y
             Ksum = Ksum + r["k"]
-        M = V(*c["loads"][0]["moment"])
-        gprime = [P_E, ZERO, ZERO] + M
+        ld = c["loads"][0]
+        M = V(*ld["moment"])
+        # the axial resultant beyond the joint, on the axis: Pe (pressurized free chain) or the applied F_x
+        check(all(x == 0 for x in ld["force"][1:]) and (mo or ld["force"][0] == 0),
+              "%s: the applied force, if any, is axial" % c["id"])
+        Fx = Qp.of(ld["force"][0]) if mo else P_E
+        gprime = [Fx, ZERO, ZERO] + M
         qcf = [gprime[k] / Kp[k] for k in range(6)]
-        check(sm["q"] == qcf, "%s: q = diag(K + sum k c c^T)^-1 (Pe, 0, 0, M): cross terms cancel" % c["id"])
+        check(sm["q"] == qcf, "%s: q = diag(K + sum k c c^T)^-1 (%s, 0, 0, M): cross terms cancel" %
+              (c["id"], "F_x" if mo else "Pe"))
+        for r in c["rods"]:
+            y, z = Qp.of(r["o_B"][1]), Qp.of(r["o_B"][2])
+            check(sm["rods"][r["id"]]["e"] == qcf[0] + z * qcf[4] - y * qcf[5] and
+                  sm["rods"][r["id"]]["T"] == r["k"] * (qcf[0] + z * qcf[4] - y * qcf[5] - r["e_ref"]),
+                  "%s: %s e = qt_x + z qr_y - y qr_z and T = k_r (e - e_ref)" % (c["id"], r["id"]))
         # node kinematics of the free chain: pipe end-moment cantilevers and the midpoint basis
         L = Qp.of(L_STUB)
         Lj = Qp.of(L_JOINT)
-        delta = (P_I - H_P) / KP
+        Nw_free = Fx if mo else P_I          # free end D: the wall carries the axial resultant (and the cap Pi)
+        check(all(sm["pipes"][p]["Nw"] == Nw_free for p in sm["pipes"]), "%s: free chain Nw from statics" % c["id"])
+        delta = (Nw_free - (ZERO if mo else H_P)) / KP
         ex = V(1, 0, 0)
 
         def pipe_tip(M):
@@ -1643,12 +1837,36 @@ def closed_form_entries(c, g, sm):
                         "value": num(kr_eval(form, kr)), "limit_k_r_to_infinity": num(kr_lim_inf(form)),
                         "limit_k_r_to_zero": num(kr_lim_zero(form)),
                         "meaning": "relative rotation uses K_connector + sum k_r o^2 (= 2 k_r a^2 per pair)"})
-        axial = axial_forms("free")
-        check(kr_eval(axial["q_m"], Ksum) == sm["q"][0] and kr_eval(axial["sum_rod_tension_n"], Ksum) == sm["sumT"],
-              "%s: axial result equals row 4 at the same total rod stiffness (moment does not couple)" % c["id"])
-        out.append({"quantity": "q_m", "variable": "k_R = total rod stiffness (N/m)",
-                    "form": kr_text(axial["q_m"], "k_R"), "value": num(sm["q"][0]),
-                    "meaning": "unaffected by the moment: row 4's q at the same k_R"})
+        if not mo:
+            axial = axial_forms("free")
+            check(kr_eval(axial["q_m"], Ksum) == sm["q"][0] and kr_eval(axial["sum_rod_tension_n"], Ksum) == sm["sumT"],
+                  "%s: axial result equals row 4 at the same total rod stiffness (moment does not couple)" % c["id"])
+            out.append({"quantity": "q_m", "variable": "k_R = total rod stiffness (N/m)",
+                        "form": kr_text(axial["q_m"], "k_R"), "value": num(sm["q"][0]),
+                        "meaning": "unaffected by the moment: row 4's q at the same k_R"})
+        else:
+            forms = mo_free_forms(Fx)
+            check(kr_eval(forms["q_m"], Ksum) == sm["q"][0] and kr_eval(forms["Tb_n"], Ksum) == sm["Tb"] and
+                  kr_eval(forms["sum_rod_tension_n"], Ksum) == sm["sumT"],
+                  "%s: axial closed forms at k_R (the moment does not couple)" % c["id"])
+            check(sm["S_joint"] == Fx and sm["Tb"] + sm["sumT"] == Fx and g["Pe"].is_zero(),
+                  "%s: S_joint = Tb + sum T_r = F_x (Pe = 0)" % c["id"])
+            check(sm["reactions"]["support:A"] == (vsc(-1, [Fx, ZERO, ZERO]), vsc(-1, M)),
+                  "%s: support A reacts -F_x and -M (the force acts on the axis through A)" % c["id"])
+            check(axial_disp(g, sm, "node:D") - axial_disp(g, sm, "node:A") == sm["q"][0] + Fx * 2 / KP,
+                  "%s: separation = q + 2 F_x/kp" % c["id"])
+            for key in ("q_m", "Tb_n", "sum_rod_tension_n"):
+                out.append({"quantity": key, "variable": "k_R = total rod stiffness (N/m)",
+                            "form": kr_text(forms[key], "k_R"), "value": num(kr_eval(forms[key], Ksum)),
+                            "limit_k_R_to_infinity": num(kr_lim_inf(forms[key])),
+                            "limit_k_R_to_zero": num(kr_lim_zero(forms[key]))})
+            out.append({"quantity": "statics",
+                        "form": "Nw = S_pipe = S_joint = Tb + sum T_r = F_x (p = 0 everywhere, Pe = 0); support A "
+                                "reacts (-F_x, 0, 0) and -M; each rod T = k_r (qt_x - y qr_z) with y = +/-a; "
+                                "separation = q + F_x (2 L)/(E A_s)",
+                        "value": num(Fx),
+                        "meaning": "JR J-C's mechanical-only tied case: the rods and bellows share F_x in proportion "
+                                   "to stiffness; as k_r -> infinity qt_x -> 0 and qr_z -> 0 (two ideal rods fix both)"})
     if fam in ("asymmetric", "asymmetric_reference_extension") and c["chain"] == "free":
         r = c["rods"][0]
         forms = asym_free_forms(r["o_B"][1], r["e_ref"])
@@ -1666,6 +1884,43 @@ def closed_form_entries(c, g, sm):
                     "T = k_s (qt_x - e_ref); qr_z = a T/K_rz (connector-axis components; reversed: q' = T q)",
                     "meaning": "an offset rod acts on the axis through the connector's rotational stiffness at lever a; "
                     "as k_r -> infinity the joint is not axially rigid"})
+    if fam in ("mechanical_only_thermal", "remote_region"):
+        eps = c["rods"][0]["e_ref"]
+        check(all(r["e_ref"] == eps for r in c["rods"]), "%s: equal e_ref on every rod" % c["id"])
+        if fam == "mechanical_only_thermal":
+            epsT = ALPHA * c["dT"]
+            forms = axial_forms("anchored", eps, eps_T=epsT, pressurized=False)
+            vals = axial_vals("anchored", g, sm)
+            var = "k_R = total rod stiffness (N/m); e_ref = %s m on every rod; eps_T = %s" % (
+                Qp.of(eps).text(), Qp.of(epsT).text())
+        else:
+            forms = remote_forms(eps)
+            vals = remote_vals(g, sm)
+            var = "k_R = total rod stiffness (N/m)" + ("; e_ref = %s m on every rod" % Qp.of(eps).text() if eps else "")
+        K = c["total_k"]
+        for rid, rv in sm["rods"].items():
+            check(rv["e"] == sm["q"][0], "%s: symmetric rods: each rod's extension equals qt_x" % c["id"])
+            check(rv["T"] * len(c["rods"]) == sm["sumT"], "%s: equal rods share the tension equally" % c["id"])
+        check(all(x.is_zero() for x in sm["q"][1:]) and all(x.is_zero() for n in g["nodes"] for x in sm["u"][n][1]),
+              "%s: no non-axial response" % c["id"])
+        for key, form in forms.items():
+            v = kr_eval(form, K)
+            check(v == vals[key], "%s: closed form %s at k_R" % (c["id"], key))
+            out.append({"quantity": key, "variable": var, "form": kr_text(form, "k_R"), "value": num(v),
+                        "limit_k_R_to_infinity": num(kr_lim_inf(form)), "limit_k_R_to_zero": num(kr_lim_zero(form))})
+        if fam == "mechanical_only_thermal":
+            out.append({"quantity": "relation",
+                        "form": "(k + k_R + kp/2) q = Pe - (1 - 2 nu) Pi - EA eps_T + k q_ref + k_R e_ref: t4_u5a's "
+                                "thermal anchored relation extended with the rods; here p = 0 (Pi = Pe = 0) and q_ref = 0",
+                        "meaning": "positive eps_T closes the joint; the rods add k_R to the joint's stiffness and "
+                                   "k_R e_ref to its load (pretension e_ref < 0 also closes it)"})
+        else:
+            out.append({"quantity": "relation",
+                        "form": "(3k + kp + 3 k_R) q = -(1 - 2 nu) Pi + 3 k_R e_ref; N = (k + k_R) q - k_R e_ref is "
+                                "the axial force of L, the joint and R; Nw_X = N + Pi",
+                        "meaning": "p = 0 at the joint (Pe = 0); its only load is pipe X's net Lame elongation "
+                                   "(1 - 2 nu) Pi/kp carried through the anchored chain; as k_R -> 0 every form "
+                                   "equals t4_u5a's %s" % c["base"]})
     return out
 
 
@@ -1861,6 +2116,43 @@ def bind_fixture(u5a):
           r1v["end_i"]["node_ref"] == "node:C", "J3-1V reversal: end_i at C, Q' = Q J")
     r5u = u5a["requests/J3-5U.request.json"]["model"]["components"][0]["objective_connector"]["stiffness"]["upper_triangle"]
     check(r5u[0] == 20200000.0, "J3-5U axial stiffness is k + k_rod = 2.02e7")
+    # J3-1T: the thermal pattern of MO-T
+    r1t = u5a["requests/J3-1T.request.json"]["model"]
+    th = r1t["load_cases"][0]["primitive_loads"]
+    check(sorted((x["id"], x["category"], x["target"]["pipe"], x["magnitude"]["value"], x["magnitude"]["unit"])
+                 for x in th) == [("load:T-L", "thermal", "pipe:L", float(DT_STUBS), "degC"),
+                                  ("load:T-R", "thermal", "pipe:R", float(DT_STUBS), "degC")],
+          "J3-1T thermal loads: +10 degC on pipe:L and pipe:R")
+    check(r1t["materials"][0]["thermal_expansion_coefficient"]["value"] == float(ALPHA), "J3-1T alpha equals the fixture")
+    # J3-R and J3-RP: the remote-region chain of RR-U and RR-P
+    gr = realize(config("x", "anchored", [], "", "", "", pressure="remote"))
+    for rel, model in (("requests/J3-R.request.json", MODEL_UNPR), ("requests/J3-RP.request.json", MODEL_CONST)):
+        m = u5a[rel]["model"]
+        check([(n["id"], (n["position"]["x"], n["position"]["y"], n["position"]["z"])) for n in m["nodes"]] ==
+              [(n, tuple(float(x.dec()) for x in gr["pos"][n])) for n in NODES_R], "%s nodes equal the fixture" % rel)
+        check([(p["id"], p["from"], p["to"]) for p in m["pipe_segments"]] ==
+              [("pipe:L", "node:A", "node:B"), ("pipe:J", "node:B", "node:C"), ("pipe:R", "node:C", "node:D"),
+               ("pipe:X", "node:D", "node:E")] and
+              all(p["section"]["outside_diameter"]["value"] == float(OD) and
+                  p["section"]["wall_thickness"]["value"] == float(WALL) for p in m["pipe_segments"]),
+              "%s pipes and sections equal the fixture" % rel)
+        check(sorted((s["id"], s["node"], s["family"]) for s in m["supports"]) ==
+              [("support:A", "node:A", "anchor"), ("support:E", "node:E", "anchor")], "%s anchors A and E" % rel)
+        reg = m["load_cases"][0]["pressure_regions"]
+        check(len(reg) == 1 and reg[0]["member_pipe_ids"] == ["pipe:X"] and not reg[0].get("member_connector_ids") and
+              reg[0]["pressure"]["value"] == float(P_PA) and
+              [(t["node_ref"], t["closure_transfer"]) for t in reg[0]["terminals"]] ==
+              [("node:D", "transfers_to_wall"), ("node:E", "transfers_to_wall")] and
+              not m["load_cases"][0]["primitive_loads"],
+              "%s: one region over pipe:X only, terminals D and E transferring, not listing the connector" % rel)
+        oc = m["components"][0]["objective_connector"]
+        check(oc["pressure_model"]["kind"] == model and oc["hardware"]["kind"] == "untied" and
+              oc["end_i"]["node_ref"] == "node:B" and oc["end_j"]["node_ref"] == "node:C" and
+              oc["connector_axes_global"] == [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]] and
+              [oc["stiffness"]["upper_triangle"][i] for i in (0, 6, 11, 15, 18, 20)] == [float(x) for x in K_DIAG],
+              "%s connector: %s, untied, B to C, the fixture 6x6" % (rel, model))
+        if model == MODEL_CONST:
+            check(oc["pressure_model"]["effective_area"]["value"] == float(AE), "%s effective area" % rel)
 
 
 def u5a_compare(u5a, label, case, res, g, combined_tb=False):
@@ -1876,13 +2168,19 @@ def u5a_compare(u5a, label, case, res, g, combined_tb=False):
     eq(sc["q_m"]["exact"], res["q"][0], "q")
     tb = res["Tb"] + res["sumT"] if combined_tb else res["Tb"]
     eq(sc["Tb_gt_x_n"]["exact"], tb, "Tb (U5a's untied g_x)" + (" = Tb + sum T_r" if combined_tb else ""))
-    eq(sc["S_joint_n"]["exact"], res["S_joint"], "S_joint")
-    eq(sc["Pe_n"]["exact"], P_E, "Pe")
-    for pid in ("pipe:L", "pipe:R"):
+    # an unpressurized connector (J3-R) publishes neither Pe nor S_joint in t4_u5a
+    check(("S_joint_n" in sc) == ("Pe_n" in sc) == (o["connector_pressure_model"] == MODEL_CONST),
+          "t4_u5a %s publishes Pe and S_joint exactly for a constant-effective-area connector" % case)
+    if "S_joint_n" in sc:
+        eq(sc["S_joint_n"]["exact"], res["S_joint"], "S_joint")
+        eq(sc["Pe_n"]["exact"], g["Pe"], "Pe")
+    check(list(o["pipes"]) == [p for p, _, _ in g["pipes"]] and list(o["nodes"]) == g["nodes"] and
+          set(o["reactions_support_on_model"]) == set(g["supports"]), "%s vs t4_u5a %s: same members" % (label, case))
+    for pid in o["pipes"]:
         eq(o["pipes"][pid]["Nw_n"]["exact"], res["pipes"][pid]["Nw"], pid + " Nw")
         eq(o["pipes"][pid]["S_n"]["exact"], res["pipes"][pid]["S"], pid + " S")
         eq(o["pipes"][pid]["elongation_m"]["exact"], res["pipes"][pid]["elong"], pid + " elongation")
-    for node in NODES:
+    for node in o["nodes"]:
         eq(o["nodes"][node]["axial_displacement_m"]["exact"], axial_disp(g, res, node), node + " axial displacement")
         for k in range(3):
             eq(o["nodes"][node]["displacement_global_m"][k]["exact"], res["u"][node][0][k], node + " translation")
@@ -1897,6 +2195,18 @@ def u5a_compare(u5a, label, case, res, g, combined_tb=False):
     return n
 
 
+def u5a_rhs_compare(u5a, label, case, rhs, R):
+    """Compare a pressure RHS (caps, joint pair and Poisson pairs) with R times t4_u5a's pressure_rhs.global_n."""
+    o = u5a["oracle.json"]["cases"][case]["pressure_rhs"]["global_n"]
+    check(list(o) == list(rhs), "%s vs t4_u5a %s: pressure RHS covers the same nodes" % (label, case))
+    n = 0
+    for node, vec in o.items():
+        exp = mvec(R, [parse_exact(x["exact"]) for x in vec])
+        check(rhs[node] == exp, "%s vs t4_u5a %s: pressure RHS at %s" % (label, case, node))
+        n += 3
+    return n
+
+
 # ---------------------------------------------------------------------------
 # Case descriptions (request-agnostic)
 
@@ -1905,12 +2215,17 @@ def inp(x):
     return num(Qp.of(x))
 
 
-BASE_REQUEST = {"J3-1": "requests/J3-1.request.json", "J3-3": "requests/J3-3.request.json"}
+BASE_REQUEST = {"J3-1": "requests/J3-1.request.json", "J3-3": "requests/J3-3.request.json",
+                "J3-R": "requests/J3-R.request.json", "J3-RP": "requests/J3-RP.request.json"}
+PRESSURE_MODEL_CONST = {"kind": "constant_effective_area_reference_v1", "effective_area_m2": None,
+                        "pressure_basis": "internal_differential_zero_external_v1",
+                        "source_reference": "invented effective area (JR J3); not manufacturer data"}
 
 
 def case_description(c):
     g = realize(c)
     base = c["base"]
+    pres = c["pressure"]
     pattern = None
     if c["reversed"]:
         pattern = {"request": "requests/J3-1V.request.json", "request_sha256": U5A_PINNED["requests/J3-1V.request.json"],
@@ -1922,9 +2237,15 @@ def case_description(c):
                               "position, axis, y_reference, rod offset and load"}
     changes = ["connector hardware: untied -> explicit_axial_rods_v1, bilateral_linear (%d rod%s, below)" %
                (len(c["rods"]), "" if len(c["rods"]) == 1 else "s")]
+    if pres == "none":
+        changes.append("connector pressure_model: constant_effective_area_reference_v1 -> unpressurized")
+        changes.append("pressure region region:U5A removed: the load case has no pressure region (p = 0 everywhere)")
+    if c["dT"]:
+        changes.append("added thermal loads (below): J3-1T's load:T-L and load:T-R, +10 degC on pipe:L and pipe:R")
     if c["loads"]:
-        changes.append("added nodal loads (below), in the same load case as the pressure region")
-    else:
+        changes.append("added nodal loads (below), in the same load case as the pressure region" if pres != "none"
+                       else "added nodal loads (below), in load case load:U5A")
+    elif not c["dT"]:
         changes.append("no added loads")
     changes.append("supports unchanged from the base")
     if pattern:
@@ -1952,34 +2273,64 @@ def case_description(c):
               "moment_global_nm": nums(ld["moment"])} for ld in g["loads"]]
     supports = [{"id": sid, "node": node, "family": "anchor", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"]}
                 for sid, node in g["supports"].items()]
+    face = {"listed": "pressurized member", "none": "unpressurized member (no pressure region)",
+            "remote": "unpressurized member (outside the region)"}[pres]
+    spans = [("pipe:L", "node:A", "node:B", "%s; face pipe at node:B" % face),
+             ("pipe:J", "node:B", "node:C", "replaced span (connector replaces_span); no stiffness, load or result"),
+             ("pipe:R", "node:C", "node:D", "%s; face pipe at node:C" % face)]
+    if pres == "remote":
+        spans.append(("pipe:X", "node:D", "node:E", "pressurized member of region:U5A (closed ends at node:D and node:E)"))
     pipes = []
-    for pid, ni, nj, role in (("pipe:L", "node:A", "node:B", "pressurized member; face pipe at node:B"),
-                              ("pipe:J", "node:B", "node:C", "replaced span (connector replaces_span); no stiffness, load or result"),
-                              ("pipe:R", "node:C", "node:D", "pressurized member; face pipe at node:C")):
+    for pid, ni, nj, role in spans:
         pipes.append({"id": pid, "from": ni, "to": nj, "outside_diameter_m": inp(OD), "wall_thickness_m": inp(WALL),
                       "mill_tolerance_m": inp(0), "corrosion_allowance_m": inp(0), "material": "material:invented-steel",
                       "y_reference": nums(g["yref"]), "role": role})
+    if c["model"] == MODEL_CONST:
+        pmodel = dict(PRESSURE_MODEL_CONST, effective_area_m2=inp(AE))
+    else:
+        pmodel = {"kind": "unpressurized"}
+    if pres == "listed":
+        region = {"id": "region:U5A", "member_pipe_ids": ["pipe:L", "pipe:R"],
+                  "member_connector_ids": ["component:C-J"], "pressure_pa": inp(P_PA),
+                  "pressure_basis": "internal_differential_zero_external_v1",
+                  "terminals": [{"node_ref": "node:A", "closure_transfer": "transfers_to_wall"},
+                                {"node_ref": "node:D", "closure_transfer": "transfers_to_wall"}]}
+    elif pres == "remote":
+        region = {"id": "region:U5A", "member_pipe_ids": ["pipe:X"], "member_connector_ids": [],
+                  "pressure_pa": inp(P_PA), "pressure_basis": "internal_differential_zero_external_v1",
+                  "terminals": [{"node_ref": "node:D", "closure_transfer": "transfers_to_wall"},
+                                {"node_ref": "node:E", "closure_transfer": "transfers_to_wall"}]}
+    else:
+        region = None
+    derives = {"reference": "validation/references/t4_u5a", "request": BASE_REQUEST[base],
+               "request_sha256": U5A_PINNED[BASE_REQUEST[base]], "oracle_case": base,
+               "orientation_pattern": pattern}
+    if c["dT"]:
+        derives["thermal_pattern"] = {
+            "request": "requests/J3-1T.request.json", "request_sha256": U5A_PINNED["requests/J3-1T.request.json"],
+            "applied": "J3-1T's thermal loads load:T-L and load:T-R (+10 degC on pipe:L and pipe:R) only; its "
+                       "pressure region is not applied"}
     doc = {
         "schema": "openpipestress.t4_u5b_case_description/1",
         "id": c["id"],
         "status": ("request-agnostic case description for T4-U5b; not a model document of any version. A builder "
                    "authors the model 0.6.0 request from it once 0.6.0 defines explicit_axial_rods_v1"),
         "description": c["description"],
-        "derives_from": {"reference": "validation/references/t4_u5a", "request": BASE_REQUEST[base],
-                         "request_sha256": U5A_PINNED[BASE_REQUEST[base]], "oracle_case": base,
-                         "orientation_pattern": pattern},
+        "derives_from": derives,
         "changes_from_base": changes,
         "unchanged_from_base": [
             "model 0.5.0 project fields re-expressed in the 0.6.0 form by the builder (project id renamed per case)",
             "connector installed_reference_temperature, temperature_applicability, reference_state and stiffness provenance",
-            "load case id load:U5A and region id region:U5A, no other primitive loads",
+            ("load case id load:U5A and region id region:U5A, no other primitive loads" if pres != "none" else
+             "load case id load:U5A (no pressure region); no primitive loads other than those added here"),
             "every id other than the rods' and the added loads'"],
         "physical_inputs": {
             "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa"},
             "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
             "material": {"id": "material:invented-steel", "elastic_modulus_pa": inp(E_PA), "poisson_ratio": inp(NU),
-                         "thermal_expansion_per_degC": inp(ALPHA), "note": "no thermal load; alpha unused"},
-            "nodes": [{"id": n, "position_m": nums(pos[n])} for n in NODES],
+                         "thermal_expansion_per_degC": inp(ALPHA),
+                         "note": "alpha used by the thermal loads" if c["dT"] else "no thermal load; alpha unused"},
+            "nodes": [{"id": n, "position_m": nums(pos[n])} for n in g["nodes"]],
             "pipes": pipes,
             "connector": {
                 "id": "component:C-J", "kind": "expansion_joint", "objective_connector_version": "1.0.0",
@@ -1997,28 +2348,32 @@ def case_description(c):
                 "q_ref": "zero (stress_free)",
                 "topology": {"type": "replaces_span", "span_ref": "pipe:J"},
                 "calibration": "constant_structural_elasticity_v1, includes_pressure_dependent_tangent false (as the base)",
-                "pressure_model": {"kind": "constant_effective_area_reference_v1", "effective_area_m2": inp(AE),
-                                   "pressure_basis": "internal_differential_zero_external_v1",
-                                   "source_reference": "invented effective area (JR J3); not manufacturer data"},
+                "pressure_model": pmodel,
                 "hardware": {
                     "kind": "explicit_axial_rods_v1",
                     "shape_note": "neutral description in JR's proposed vocabulary (CONTRACT.md section 5); not the fixed 0.6.0 shape",
                     "rods": rods}},
-            "pressure_region": {"id": "region:U5A", "member_pipe_ids": ["pipe:L", "pipe:R"],
-                                "member_connector_ids": ["component:C-J"], "pressure_pa": inp(P_PA),
-                                "pressure_basis": "internal_differential_zero_external_v1",
-                                "terminals": [{"node_ref": "node:A", "closure_transfer": "transfers_to_wall"},
-                                              {"node_ref": "node:D", "closure_transfer": "transfers_to_wall"}]},
+            "pressure_region": region,
             "supports": supports,
             "loads": loads},
         "provenance": PROVENANCE,
     }
+    if c["dT"]:
+        doc["physical_inputs"]["thermal_loads"] = [
+            {"id": "load:T-%s" % p[-1], "pipe": p, "temperature_change_degC": inp(c["dT"]),
+             "uniform_strain": num(Qp.of(ALPHA * c["dT"]))} for p in ("pipe:L", "pipe:R")]
     if c["rotated"]:
         doc["physical_inputs"]["rotation_applied"] = [nums(row) for row in qmat(ROT)]
         doc["physical_inputs"]["translation_applied_m"] = nums(V(*TRANS))
-    if c["family"] == "non_parallel_conditional":
-        doc["conditional"] = ("binds only if U5b admits rods not parallel to the connector axis; section 9 states "
-                              "S_joint = Tb + sum T_r - Pe, which presumes parallel rods (see README)")
+    if c["family"] == "non_parallel":
+        doc["admitted"] = ("HELP_HUMAN ruling 1 (2026-10-17): rods not parallel to the connector axis are admitted, "
+                           "S_joint = Tb + sum T_r (n_r . Q_x) - Pe; a rod nearly perpendicular to the joint axis is "
+                           "for the U5b implementation design (a named refusal if justified)")
+    if not g["listed"]:
+        doc["admitted"] = ("HELP_HUMAN ruling 2 (2026-10-17): rods are admitted with p = 0 at the joint (%s), so "
+                           "Pe = 0 and S_joint = Tb + sum T_r (n_r . Q_x)" %
+                           ("an unpressurized connector" if c["model"] == MODEL_UNPR
+                            else "a constant-effective-area connector that no region lists"))
     return doc
 
 
@@ -2068,7 +2423,7 @@ def folded(sm, g):
     w["g"] = gf
     w["Tb"] = gf[0]
     w["endpoint"] = {"end_i": (g["ci"], fend[0:3], fend[3:6]), "end_j": (g["cj"], fend[6:9], fend[9:12])}
-    w["S_joint"] = gf[0] + sm["sumT_axial"] - P_E
+    w["S_joint"] = gf[0] + sm["sumT_axial"] - g["Pe"]     # the projected rule, on the folded g'_x
     return w
 
 
@@ -2097,17 +2452,29 @@ def apply_ideal(sm, g, c):
 
 MUTANTS = {
     "j4_double_count": "JR J4: the joint face caps dropped, so the attachments carry -/+ p Ae instead of -/+ p(Ae - Ai) "
-                       "(terminal caps plus the full joint pair)",
-    "rods_lumped_on_centreline": "rod offsets ignored: every rod placed on the connector centreline (no moment arm)",
+                       "(terminal caps plus the full joint pair); formed only where a region lists the joint",
+    "rods_lumped_on_centreline": "rod offsets ignored: each rod's attachments moved onto the connector centreline at its "
+                                 "end nodes (o_i = o_j = 0), so the rod has no moment arm and its direction becomes "
+                                 "(x_j - x_i)/|x_j - x_i| = Q_x; SK-F's rod direction (0.8, 0, 0.6) becomes Q_x = "
+                                 "(1, 0, 0) and n . Q_x becomes 1",
     "offset_sign_error": "the rod offset arm with the wrong sign at both ends (v_b = u - theta x o): a mirror of every rod",
     "arm_sign_end_i_only": "the rod offset arm with the wrong sign at end i only (breaks the rigid modes)",
     "e_ref_ignored": "the reference extension ignored in both the reference load and the recovery (T = k e)",
     "reference_load_sign_flipped": "the reference load assembled as -C^T k e_ref; recovery T = k(e - e_ref) kept",
     "reference_load_omitted": "the reference load omitted; recovery T = k(e - e_ref) kept",
-    "rod_force_folded_into_g": "rod forces folded into the connector's generalized action g (g + sum c T_r) and so into "
-                               "its elastic rows; S_joint then formed as g_x + sum T_r - Pe",
+    "rod_force_folded_into_g": "rod forces folded into the connector's generalized action, g' = g + sum c_r T_r, and so "
+                               "into its elastic rows (g, Tb = g'_x and the endpoint rows B^T g'); S_joint then formed "
+                               "by the projected rule g'_x + sum T_r (n_r . Q_x) - Pe, which is g'_x + sum T_r - Pe for "
+                               "parallel rods and uses n . Q_x = 4/5 on SK-F",
     "s_joint_without_rods": "S_joint published as Tb - Pe (sum T_r left out)",
-    "ideal_in_place_of_finite": "the k_R -> infinity (ideal tie) values published in place of the finite-rod values",
+    "ideal_in_place_of_finite": "the k_R -> infinity (ideal tie) values published in place of the finite-rod values; "
+                                "scored only on q_x, g_x, Tb, sum T_r, S_joint, each rod's e and T_r, each pipe's Nw "
+                                "and S, the identity at both faces, every node translation and every reaction force "
+                                "(31 observables in L2-CL, 33 in L2-PR, 28 in L4-CL, 30 in L4-PR; per case "
+                                "scored_count); unmoved_count counts only those (16 anchored, 20 free)",
+    "s_joint_section9_literal": "section 9's former literal rule S_joint = Tb + sum T_r - Pe (no projection) in place of "
+                                "the projected Tb + sum T_r (n_r . Q_x) - Pe (HELP_HUMAN ruling 1, 2026-10-17); "
+                                "identical for parallel rods, so formed only where a rod is not parallel (SK-F)",
 }
 
 
@@ -2128,7 +2495,7 @@ def IDEAL_KEYS(k):
 def run_discriminators(results):
     out = {name: {"mutant": desc, "cases": {}} for name, desc in MUTANTS.items()}
     for cid, (c, g, sm, fm) in results.items():
-        applicable = ["j4_double_count", "rod_force_folded_into_g", "s_joint_without_rods"]
+        applicable = (["j4_double_count"] if g["listed"] else []) + ["rod_force_folded_into_g", "s_joint_without_rods"]
         offs = any(any(x != 0 for x in r["o_B"][1:]) or any(x != 0 for x in r["o_C"][1:]) for r in c["rods"])
         if offs:
             applicable += ["rods_lumped_on_centreline", "offset_sign_error", "arm_sign_end_i_only"]
@@ -2136,6 +2503,8 @@ def run_discriminators(results):
             applicable += ["e_ref_ignored", "reference_load_sign_flipped", "reference_load_omitted"]
         if c["family"] in ("row2_ladder", "row4_ladder"):
             applicable.append("ideal_in_place_of_finite")
+        if any(rv["n_axial"] != ONE for rv in sm["rods"].values()):
+            applicable.append("s_joint_section9_literal")
         for name in applicable:
             if name == "j4_double_count":
                 wrong = sm_solve(g, {"ledger": "double_count"})
@@ -2154,7 +2523,9 @@ def run_discriminators(results):
             elif name == "rod_force_folded_into_g":
                 wrong = folded(sm, g)
             elif name == "s_joint_without_rods":
-                wrong = dict(sm, S_joint=sm["Tb"] - P_E)
+                wrong = dict(sm, S_joint=sm["Tb"] - g["Pe"])
+            elif name == "s_joint_section9_literal":
+                wrong = dict(sm, S_joint=sm["Tb"] + sm["sumT"] - g["Pe"])
             else:
                 wrong = apply_ideal(sm, g, c)
             moved, unmoved, within = mutant_record(g, sm, wrong,
@@ -2166,6 +2537,9 @@ def run_discriminators(results):
                                        "unmoved_count": len(unmoved),
                                        "smallest_distance_tolerances": dist_text(dmin) if dmin is not None else None,
                                        "moved_within_criterion": within}
+            if name == "ideal_in_place_of_finite":
+                out[name]["cases"][cid]["scored_count"] = len(moved) + len(unmoved)
+            check(not within, "%s: %s moves no observable by less than the criterion" % (cid, name))
             # closed-form confirmation of the J4 values
             if name == "j4_double_count" and c["family"] in ("row2_ladder", "row4_ladder", "reference_extension"):
                 forms = axial_forms(c["chain"], c["rods"][0]["e_ref"], double_count=True)
@@ -2188,6 +2562,22 @@ def run_discriminators(results):
 
 # ---------------------------------------------------------------------------
 # Oracle assembly
+
+
+def flat_entry(v, path=""):
+    """Flatten an oracle entry to {path: exact text or scalar}."""
+    out = {}
+    if isinstance(v, dict) and "exact" in v:
+        out[path] = v["exact"]
+    elif isinstance(v, dict):
+        for k, x in v.items():
+            out.update(flat_entry(x, path + "/" + k))
+    elif isinstance(v, list):
+        for i, x in enumerate(v):
+            out.update(flat_entry(x, path + "/" + str(i)))
+    else:
+        out[path] = v
+    return out
 
 
 def build(u5a):
@@ -2223,6 +2613,29 @@ def build(u5a):
         check(all(v_sm["rods"][k]["e"] == b_sm["rods"][k]["e"] and v_sm["rods"][k]["T"] == b_sm["rods"][k]["T"]
                   for k in b_sm["rods"]), "AS-%s-V: rod e and T identical" % chain)
         check(v_sm["S_joint"] == b_sm["S_joint"] and v_sm["Tb"] == b_sm["Tb"], "AS-%s-V: Tb and S_joint identical" % chain)
+        for k in b_sm["rods"]:
+            bv, vv = b_sm["rods"][k], v_sm["rods"][k]
+            check(vv["n"] == vsc(-1, bv["n"]), "AS-%s-V: rod %s direction negated" % (chain, k))
+            check(vv["end_i"] == bv["end_j"] and vv["end_j"] == bv["end_i"],
+                  "AS-%s-V: rod %s end labels swapped; each node's action on the rod unchanged" % (chain, k))
+        # literal: every published difference between the reversed copy and its base is one of these
+        fb, fv = flat_entry(entries["AS-%s" % chain]), flat_entry(entries["AS-%s-V" % chain])
+        check(set(fb) == set(fv), "AS-%s-V: the same published keys as AS-%s" % (chain, chain))
+        allowed = ("/description", "/case_description", "/case_sha256", "/orientation", "/connector_end_i_node",
+                   "/connector_end_j_node", "/connector_axis_x_global/", "/connector_endpoint_elastic_node_on_element/",
+                   "/interface_identity/face_i/node", "/interface_identity/face_i/pipe",
+                   "/interface_identity/face_j/node", "/interface_identity/face_j/pipe",
+                   "/generalized/q_translation_m/1", "/generalized/q_rotation_rad/1",
+                   "/generalized/g_force_n/1", "/generalized/g_moment_nm/1")
+        diff = [k for k in fb if fb[k] != fv[k]]
+        check(all(k.startswith(allowed) or (k.startswith("/rods/") and ("/direction_global/" in k or
+                                                                       "/nodal_action_node_on_rod/" in k))
+                  for k in diff), "AS-%s-V: differs from AS-%s only by the named exceptions" % (chain, chain))
+        check(any("/direction_global/" in k for k in diff) and any("/nodal_action_node_on_rod/" in k for k in diff),
+              "AS-%s-V: the rod direction and nodal-action labels do differ" % chain)
+        check(all(fv[k] == ("-" + fb[k] if not fb[k].startswith("-") else fb[k][1:]) or fb[k] == "0"
+                  for k in diff if "/direction_global/" in k or "/connector_axis_x_global/" in k),
+              "AS-%s-V: the rod direction and Q_x are negated" % chain)
         check(r_sm["q"] == b_sm["q"] and r_sm["g"] == b_sm["g"] and r_sm["S_joint"] == b_sm["S_joint"],
               "AS-%s-R: local q, g, S_joint identical" % chain)
         check(all(r_sm["rods"][k]["T"] == b_sm["rods"][k]["T"] for k in b_sm["rods"]), "AS-%s-R: rod T identical" % chain)
@@ -2239,7 +2652,10 @@ def build(u5a):
                   "AS-%s-R: %s local end actions identical" % (chain, pid))
         entries["AS-%s-V" % chain]["local_equivalence"] = (
             "checked exactly against AS-%s: q' = T q and g' = T g with T = diag(1, -1, 1, 1, -1, 1); node results, "
-            "reactions, rod e and T, Tb and S_joint identical; connector endpoint blocks exchanged" % chain)
+            "reactions, rod e and T, Tb and S_joint identical; connector endpoint blocks exchanged. Every other "
+            "published difference is one of: Q_x (connector_axis_x_global) negated and the connector's end nodes "
+            "swapped; each rod's direction_global negated; each rod's end labels swapped (end_i at node:C, carrying "
+            "the base's end_j action unchanged); the interface identity's face labels swapped" % chain)
         entries["AS-%s-R" % chain]["local_equivalence"] = (
             "checked exactly against AS-%s: q, g, rod e and T, Tb, S_joint, Nw and pipe local end actions identical; "
             "global translations, rotations and reactions are R times AS-%s's" % (chain, chain))
@@ -2489,12 +2905,53 @@ def closed_form_identity_block():
             check(sm["q"][0] == kr_eval(axial_forms("free")["q_m"], kr * len(rods)),
                   "%s k_r=%s: axial result is row 4's at the same total stiffness" % (layout, kr))
             n += 1
+    # p = 0 at the joint (ruling 2): MO-F's forms at seven k_r values for its pair
+    fm_ = [{"id": "m", "node": "node:D", "force": (F_MO, 0, 0), "moment": (0, 0, M_MO)}]
+    mo = mo_free_forms(F_MO)
+    for kr in krs:
+        rods = pair_y(kr, axial=True)
+        g = realize(config("cfid", "free", rods, "", "", "J3-3", loads=fm_, pressure="none", model=MODEL_UNPR))
+        sm = sm_solve(g)
+        for key in ("q_m", "Tb_n", "sum_rod_tension_n"):
+            v = {"q_m": sm["q"][0], "Tb_n": sm["Tb"], "sum_rod_tension_n": sm["sumT"]}[key]
+            check(v == kr_eval(mo[key], kr * 2), "MO-F pair k_r=%s: %s closed form" % (kr, key))
+            n += 1
+        form = ([Qp.of(M_MO)], [Qp.of(K_DIAG[5]), Qp.of(A_OFF) ** 2 * 2])
+        check(sm["q"][5] == kr_eval(form, kr), "MO-F pair k_r=%s: qr_z closed form" % kr)
+        check(sm["S_joint"] == Qp.of(F_MO) and all(sm["pipes"][p]["Nw"] == Qp.of(F_MO) for p in sm["pipes"]),
+              "MO-F pair k_r=%s: S_joint = Nw = F_x" % kr)
+        n += 2
+    # MO-T's forms (no pressure, stubs +10 degC, with and without e_ref) and the remote-region forms (both
+    # connector models) at nine k_R values for the pair
+    for eps in (F(0), E_REF):
+        forms = axial_forms("anchored", eps, eps_T=ALPHA * DT_STUBS, pressurized=False)
+        for K in Ks:
+            g = realize(config("cfid", "anchored", pair_y(K / 2, axial=True, e_ref=eps), "", "", "J3-1",
+                               pressure="none", model=MODEL_UNPR, dT=DT_STUBS))
+            sm = sm_solve(g)
+            vals = axial_vals("anchored", g, sm)
+            for key, form in forms.items():
+                check(vals[key] == kr_eval(form, K), "MO-T e_ref=%s k_R=%s: closed form %s" % (eps, K, key))
+                n += 1
+    forms = remote_forms()
+    for model in (MODEL_UNPR, MODEL_CONST):
+        for K in Ks:
+            g = realize(config("cfid", "anchored", pair_y(K / 2, axial=True), "", "", "J3-R", pressure="remote",
+                               model=model))
+            sm = sm_solve(g)
+            vals = remote_vals(g, sm)
+            for key, form in forms.items():
+                check(vals[key] == kr_eval(form, K), "remote %s k_R=%s: closed form %s" % (model, K, key))
+                n += 1
     return {"rule": "every closed form above is checked against exact 3D stiffness solves at enough stiffness "
                     "values to prove it an identity in the stiffness (the solves are rational with numerator "
                     "degree <= rods + 1 and denominator degree <= rods; agreement at rods + 3 distinct values "
                     "suffices): rows 2 and 4, with and without e_ref, correct and J4, at nine k_R values for the "
                     "centreline rod and the pair; the single offset rod (with and without e_ref) and the "
-                    "offset-pair and four-rod relative rotations at seven k_r values",
+                    "offset-pair and four-rod relative rotations at seven k_r values; for p = 0 at the joint, "
+                    "MO-F's axial forms and relative rotation at seven k_r values for its pair, MO-T's forms (with "
+                    "and without e_ref) and the remote-region forms (unpressurized and unlisted "
+                    "constant-effective-area connector) at nine k_R values for the pair",
             "values_checked": n}
 
 
@@ -2513,7 +2970,97 @@ def u5a_block(u5a):
               "k_R -> 0 closed-form limits equal t4_u5a %s" % case)
         out["comparisons"].append({"t4_u5a_case": case, "against": "k_R -> 0: the closed-form limit and an exact solve "
                                    "with no rods", "values_compared_exactly": n + 4, "result": "all equal"})
+    # p = 0 at the joint (ruling 2): J3-1T binds MO-T's thermal path and relation; J3-R and J3-RP are the
+    # k_R -> 0 limits of RR-U and RR-P
+    R0 = qmat(I3)
+    rhs_rows = []
+    for chain, case in (("anchored", "J3-1"), ("free", "J3-3")):
+        g = realize(config("k0", chain, [], "", "", case))
+        rhs_rows.append({"t4_u5a_case": case, "against": "an exact solve with no rods",
+                         "values_compared_exactly": u5a_rhs_compare(u5a, "k_R = 0 solve", case,
+                                                                    sm_solve(g)["pressure_rhs"], R0)})
+    g = realize(config("k0T", "anchored", [], "", "", "J3-1", dT=DT_STUBS))
+    sm = sm_solve(g)
+    compare_sm_fm("J3-1T k_R = 0", sm, fm_solve(g))
+    n = u5a_compare(u5a, "k_R = 0 thermal solve", "J3-1T", sm, g)
+    rel = axial_forms("anchored", eps_T=ALPHA * DT_STUBS)
+    o = u5a["oracle.json"]["cases"]["J3-1T"]
+    check(parse_exact(o["scalars"]["q_m"]["exact"]) == kr_lim_zero(rel["q_m"]) and
+          parse_exact(o["scalars"]["S_joint_n"]["exact"]) == kr_lim_zero(rel["S_joint_n"]) and
+          parse_exact(o["pipes"]["pipe:L"]["Nw_n"]["exact"]) == kr_lim_zero(rel["Nw_n"]),
+          "the rod-extended thermal relation at k_R -> 0 and J3-1T's inputs equals t4_u5a J3-1T")
+    mot = axial_forms("anchored", eps_T=ALPHA * DT_STUBS, pressurized=False)
+    j31 = axial_forms("anchored")
+    check(kr_lim_zero(mot["q_m"]) + kr_lim_zero(j31["q_m"]) == parse_exact(o["scalars"]["q_m"]["exact"]),
+          "superposition: MO-T's k_R -> 0 q (p = 0) + J3-1's q = t4_u5a J3-1T's q")
+    out["comparisons"].append({
+        "t4_u5a_case": "J3-1T", "for": "MO-T",
+        "against": "an exact solve of J3-1T (pressurized, stubs +10 degC, no rods) by both methods; the rod-extended "
+                   "thermal relation at k_R -> 0 with J3-1T's inputs (q, S_joint, Nw); superposition: MO-T's "
+                   "k_R -> 0 q at p = 0 plus J3-1's q equals J3-1T's q",
+        "values_compared_exactly": n + 4, "result": "all equal"})
+    rhs_rows.append({"t4_u5a_case": "J3-1T", "against": "an exact solve with no rods",
+                     "values_compared_exactly": u5a_rhs_compare(u5a, "k_R = 0 thermal solve", "J3-1T",
+                                                                sm["pressure_rhs"], R0)})
+    forms = remote_forms()
+    for case, model, cid in (("J3-R", MODEL_UNPR, "RR-U"), ("J3-RP", MODEL_CONST, "RR-P")):
+        g = realize(config("k0", "anchored", [], "", "", case, pressure="remote", model=model))
+        sm = sm_solve(g)
+        compare_sm_fm("%s k_R = 0" % case, sm, fm_solve(g))
+        n = u5a_compare(u5a, "k_R = 0 solve", case, sm, g)
+        o = u5a["oracle.json"]["cases"][case]
+        lim = {k: kr_lim_zero(f) for k, f in forms.items()}
+        pairs = [(o["scalars"]["q_m"], lim["q_m"]), (o["scalars"]["Tb_gt_x_n"], lim["Tb_n"])]
+        if "S_joint_n" in o["scalars"]:
+            pairs.append((o["scalars"]["S_joint_n"], lim["S_joint_n"]))
+        for x in ("L", "R", "X"):
+            pv = o["pipes"]["pipe:" + x]
+            pairs += [(pv["Nw_n"], lim["pipe_%s_Nw_n" % x]), (pv["S_n"], lim["pipe_%s_S_n" % x]),
+                      (pv["elongation_m"], lim["pipe_%s_elongation_m" % x])]
+        for nd in ("B", "C", "D", "E"):
+            pairs.append((o["nodes"]["node:" + nd]["axial_displacement_m"], lim["u_%s_axial_m" % nd]))
+        for s in ("A", "E"):
+            pairs.append((o["reactions_support_on_model"]["support:" + s]["force_global_n"][0],
+                          lim["reaction_%s_axial_n" % s]))
+        for exp_, val in pairs:
+            check(parse_exact(exp_["exact"]) == val, "%s: remote closed-form limit k_R -> 0 equals t4_u5a" % case)
+        out["comparisons"].append({
+            "t4_u5a_case": case, "for": cid,
+            "against": "k_R -> 0: the remote-region closed-form limits and an exact solve with no rods (both methods)",
+            "values_compared_exactly": n + len(pairs), "result": "all equal"})
+        rhs_rows.append({"t4_u5a_case": case, "against": "an exact solve with no rods",
+                         "values_compared_exactly": u5a_rhs_compare(u5a, "k_R = 0 solve", case, sm["pressure_rhs"], R0)})
+    out["pressure_rhs_comparisons"] = rhs_rows
     return out
+
+
+def pressure_rhs_binding_block(u5a, results):
+    """Finding 1: every case's pressure RHS (caps, joint pair and Poisson pairs) equals t4_u5a's pressure_rhs.global_n
+    of its base, rotated with the case; rods never change it."""
+    rows = []
+    for cid, (c, g, sm, fm) in results.items():
+        rhs = sm["pressure_rhs"]
+        if c["pressure"] == "none":
+            check(all(x.is_zero() for n in g["nodes"] for x in rhs[n]), "%s: no pressure region: pressure RHS zero" % cid)
+            rows.append({"case": cid, "t4_u5a_case": None, "values_compared_exactly": 3 * len(g["nodes"]),
+                         "result": "no pressure region: every entry exactly zero"})
+            continue
+        n = u5a_rhs_compare(u5a, cid, c["base"], rhs, g["R"])
+        row = {"case": cid, "t4_u5a_case": c["base"], "transform": "R" if c["rotated"] else "identity",
+               "values_compared_exactly": n, "result": "all equal"}
+        direct = "J3-1R" if (c["rotated"] and c["chain"] == "anchored") else (
+            "J3-1V" if (c["reversed"] and c["chain"] == "anchored") else None)
+        if direct:
+            row["also_equal_to"] = direct
+            row["values_compared_exactly"] += u5a_rhs_compare(u5a, cid, direct, rhs, qmat(I3))
+        rows.append(row)
+    return {"rule": "pressure_rhs_global_n is t4_u5a's convention (its pressure_rhs.global_n, which Design section 8 "
+                    "binds to the product's assembled_pressure_rhs_global): the caps at the region's transferring "
+                    "terminals, the joint pair -/+ p(Ae - Ai) along Q_x at a joint the region lists, and every "
+                    "pressurized pipe's Poisson pair +/- 2 nu Pi along the member; rod reference loads, thermal "
+                    "eigenloads and applied loads are not pressure terms. Every case equals its t4_u5a base's vector "
+                    "(rotated with the case), so rods never change it; AS-A-R and AS-A-V also equal J3-1R's and "
+                    "J3-1V's directly", "cases": rows}
 
 
 def row5_block(u5a, results):
@@ -2540,17 +3087,40 @@ def build_oracle(u5a):
     oracle = {
         "schema": "openpipestress.t4_u5b_reference/1",
         "unit": "T4-U5b (explicit elastic tie rods, explicit_axial_rods_v1 with bilateral_linear)",
-        "status": "Frozen; independent refutation pending",
+        "status": ("Refuted on 2026-10-17 by a separate TASK that shares no code with the generator (a 100-digit 3D "
+                   "nodal solve with its own B and C, and hand free bodies in reduced coordinates), which confirmed "
+                   "every value. Its one MAJOR and four MINOR findings and HELP_HUMAN's two rulings of 2026-10-17 "
+                   "are applied in this revision. Confirmation of the repairs and the new cases is pending."),
         "consumer": "T4-U5b, not implemented",
         "claim_fence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).",
         "basis": ("exact arithmetic over Q(pi) (rational functions of pi with rational coefficients, canonical); "
                   "decimals are rounded from the exact forms at 40 significant digits, binary64 values from those; "
                   "mill tolerance = corrosion allowance = 0; shear_model = euler_bernoulli"),
         "independence": ("generators/u5b_reference.py imports, reads and runs no product code or output; it reads "
-                         "t4_u5a's oracle.json and six of its requests as data, bound by SHA-256"),
-        "physics_source": ("JR CONTRACT.md sections 2, 4, 5, 6 and its independent refutation sections 2-4 "
-                           "(archived at 11718e61a2^); DEL-04-07 Design joint-pressure-thrust.md sections 1, 2, 4 "
-                           "and 9; re-derived here"),
+                         "t4_u5a's oracle.json and nine of its requests as data, bound by SHA-256"),
+        "physics_source": ("JR CONTRACT.md sections 2, 4, 5, 6 and 7 (J-C) and its independent refutation sections "
+                           "2-4 (archived at 11718e61a2^); DEL-04-07 Design joint-pressure-thrust.md sections 1, 2, 4 "
+                           "and 9; HELP_HUMAN's rulings of 2026-10-17; re-derived here"),
+        "rulings": {
+            "1_non_parallel_rods": {
+                "ruling": "HELP_HUMAN, 2026-10-17: non-parallel rods are admitted; S_joint = Tb + sum T_r (n_r . Q_x) - Pe "
+                          "in every case; SK-F is an admitted reference case; section 9's former literal form "
+                          "Tb + sum T_r - Pe is the discriminator s_joint_section9_literal",
+                "basis": "section 9's hardware defines a general rod direction, e = n . (v_bj - v_bi); the literal form "
+                         "holds only when n . Q_x = 1 and breaks SK-F's interface identity by 28800/1661 N; the "
+                         "projected form is the face equilibrium and reduces to the literal form for parallel rods; "
+                         "refusing non-parallel rods would need a parallelism tolerance with no physical basis",
+                "applied": "every case's S_joint uses the projected rule; on every parallel case it equals the literal "
+                           "form exactly (checked); no value moved (SK-F's S_joint was already the projected 0)",
+                "open": "a rod nearly perpendicular to the joint axis (n . Q_x -> 0) is for the U5b implementation "
+                        "design to handle, with a named refusal if justified"},
+            "2_p_zero_at_the_joint": {
+                "ruling": "HELP_HUMAN, 2026-10-17: rods are admitted on an unpressurized connector and on a "
+                          "constant-effective-area connector that no region lists; with p = 0 at the joint, Pe = 0 "
+                          "and the projected rule applies unchanged",
+                "basis": "rods are hardware whose stiffness and reference extension act whatever the pressure; JR "
+                         "J-C's mechanical-only tied qualification is exactly this case",
+                "applied": "controls MO-F, MO-T, RR-U and RR-P"}},
         "fixture": {
             "E_pa": inp(E_PA), "nu": inp(NU), "outside_diameter_m": inp(OD), "wall_thickness_m": inp(WALL),
             "inner_radius_m": inp(RI), "Ai_m2": num(A_I), "As_m2": num(A_S), "I_m4": num(I_B), "J_m4": num(J_T),
@@ -2559,7 +3129,10 @@ def build_oracle(u5a):
             "stub_axial_stiffness_n_per_m": num(KP), "connector_diagonal": [inp(x) for x in K_DIAG],
             "stub_length_m": inp(L_STUB), "joint_length_m": inp(L_JOINT), "rod_transverse_offset_a_m": inp(A_OFF),
             "rod_axial_attachment_offset_m": inp(S_OFF), "rod_reference_extension_m": inp(E_REF),
-            "rotation_for_R_cases": [nums(row) for row in qmat(ROT)], "translation_for_R_cases_m": nums(V(*TRANS))},
+            "rotation_for_R_cases": [nums(row) for row in qmat(ROT)], "translation_for_R_cases_m": nums(V(*TRANS)),
+            "thermal_expansion_per_degC": inp(ALPHA), "MO_T_stub_temperature_change_degC": inp(DT_STUBS),
+            "MO_T_stub_thermal_strain": num(Qp.of(ALPHA * DT_STUBS)), "MO_F_force_x_n": inp(F_MO),
+            "MO_F_moment_z_nm": inp(M_MO), "remote_pipe_X_length_m": inp(2)},
         "criterion": {
             "rule": "an entry passes when |obs - exp| <= 1e-9 * max(|exp|, F), F the floor of its family; both solver modes",
             "relative": 1e-09,
@@ -2575,14 +3148,23 @@ def build_oracle(u5a):
             "rod_nodal_action": "C^T T_r: the action of each node on the rod (node on element), global, moments about the node",
             "connector_endpoint": "B^T g, node on element, global (as t4_u5a's endpoint rows)",
             "pipe_end_actions": "K_e d - f_eq, node on element, global and member-local (x along the member, y = y_reference)",
-            "S_joint": "Tb + sum T_r - Pe (parallel rods); SK-F: Tb + sum T_r (n_r . Q_x) - Pe",
-            "Nw": "pipe wall tension EA eps + 2 nu Pi",
-            "S_pipe": "Nw - Pi",
+            "S_joint": "Tb + sum T_r (n_r . Q_x) - Pe in every case (HELP_HUMAN ruling 1, 2026-10-17); equal to "
+                       "Tb + sum T_r - Pe for parallel rods; Pe = 0 where the joint has p = 0 (ruling 2)",
+            "Pe": "p Ae at a joint a region lists; 0 for an unpressurized connector and for a constant-effective-area "
+                  "connector that no region lists",
+            "Nw": "pipe wall tension EA (eps - eps_T) + 2 nu Pi (Pi = 0 outside every region; eps_T only in MO-T)",
+            "S_pipe": "Nw - Pi of that pipe",
             "interface_identity": "S_pipe = S_joint at both connector faces",
             "reactions": "support on model, R = K u - f, moments about the support node",
-            "pressure_rhs": "representation B: physical caps at the transferring terminals and -/+ p(Ae - Ai) along "
-                            "Q_x at the connector's end_i/end_j attachments; rods carry no pressure load; Poisson "
-                            "pairs not included in pressure_rhs_global_n"},
+            "pressure_rhs": "pressure_rhs_global_n, t4_u5a's convention (its pressure_rhs.global_n; Design section 8 "
+                            "binds it to the product's assembled_pressure_rhs_global): representation B's physical caps "
+                            "at the region's transferring terminals, -/+ p(Ae - Ai) along Q_x at the end_i/end_j "
+                            "attachments of a joint the region lists, and every pressurized pipe's Poisson pair "
+                            "(+2 nu Pi at its node i, -2 nu Pi at its node j, along the member); rods, thermal "
+                            "eigenloads and applied loads are not pressure terms",
+            "pressure_rhs_without_poisson_pairs": "pressure_rhs_without_poisson_pairs_global_n: the same vector without "
+                                                  "the Poisson pairs (caps and joint pair only); the first freeze's "
+                                                  "pressure_rhs_global_n, kept under this name; no product field"},
         "element_controls": element_controls(),
         "cases": entries,
         "closed_forms_rows_2_and_4": closed_form_block(),
@@ -2592,6 +3174,7 @@ def build_oracle(u5a):
         "invariance_control_centreline_vs_pair": invariance_block(results),
         "j4_tied_control": j4_block(),
         "t4_u5a_binding": u5a_block(u5a),
+        "pressure_rhs_binding": pressure_rhs_binding_block(u5a, results),
         "jr_literal_checks": lits,
         "discriminators": disc,
     }

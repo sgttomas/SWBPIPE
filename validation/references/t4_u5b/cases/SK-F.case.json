@@ -2,7 +2,7 @@
  "schema": "openpipestress.t4_u5b_case_description/1",
  "id": "SK-F",
  "status": "request-agnostic case description for T4-U5b; not a model document of any version. A builder authors the model 0.6.0 request from it once 0.6.0 defines explicit_axial_rods_v1",
- "description": "conditional control: free pressurized chain with one rod not parallel to the connector axis (direction (0.8, 0, 0.6)); binds only if U5b admits non-parallel rods",
+ "description": "free pressurized chain with one rod not parallel to the connector axis (direction (0.8, 0, 0.6)); admitted by HELP_HUMAN's ruling 1 of 2026-10-17, S_joint by the projected rule",
  "derives_from": {
   "reference": "validation/references/t4_u5a",
   "request": "requests/J3-3.request.json",
@@ -618,5 +618,5 @@
   "loads": []
  },
  "provenance": "invented T4-U5b reference fixture (JR J3 values and invented tie rods); not library, catalog, manufacturer or code-rule data",
- "conditional": "binds only if U5b admits rods not parallel to the connector axis; section 9 states S_joint = Tb + sum T_r - Pe, which presumes parallel rods (see README)"
+ "admitted": "HELP_HUMAN ruling 1 (2026-10-17): rods not parallel to the connector axis are admitted, S_joint = Tb + sum T_r (n_r . Q_x) - Pe; a rod nearly perpendicular to the joint axis is for the U5b implementation design (a named refusal if justified)"
 }
