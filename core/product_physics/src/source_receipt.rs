@@ -10,6 +10,8 @@ use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
 mod composite;
+#[cfg(test)]
+pub(crate) use source::take_observed_congruence_members;
 mod endpoint_maximum;
 mod rows;
 mod source;

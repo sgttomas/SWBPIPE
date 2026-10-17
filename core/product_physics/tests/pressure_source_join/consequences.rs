@@ -711,6 +711,46 @@ fn current_fixture(control: &Control) {
         control.invocation["request"]
     );
 }
+/// RF design §7: genuine public bases for both new congruence publications
+/// and the invented sensitive order-4 request. The census requests use the
+/// same current-document re-authoring as the lib census; no result is edited.
+fn add_rf_source_method_bases(entries: &mut Vec<Value>) {
+    let inputs = corpus_storage::expand(serde_json::from_str(include_str!(
+        "../../../../fixtures/results/j7_rf_census_inputs.json"
+    )).unwrap());
+    let mut requests: Vec<(String, Value)> = [
+        "RF-SKEW-T-PIN-OFF-345-r1e-08",
+        "RF-SKEW-T-PIN-OFF-345-r1e-12",
+    ]
+    .into_iter()
+    .map(|id| {
+        let case = inputs["cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap();
+        (id.to_owned(), current_model::reauthor_request(case["request"].clone()))
+    })
+    .collect();
+    requests.push((
+        "order_four_sensitive".into(),
+        serde_json::from_str(include_str!("../fixtures/rf_source_method/order_four_sensitive.request.json")).unwrap(),
+    ));
+    for (id, request) in requests {
+        current_model::assert_current_exact_request(&request, &id);
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let joined = produce(&request, mode);
+            assert_eq!(joined.source["producer"]["semantic_contract_id"], ps::PRESSURE_CONTRACT_ID, "{id}");
+            assert_eq!(joined.source["source_block_recovery"]["body"]["status"], "qualified", "{id}");
+            let invocation = json!({"request":request,"solver_mode":mode.as_str()});
+            entries.push(corpus_entry(
+                format!("rf_source_method:{id}:{}:genuine", mode.as_str()),
+                &joined.source,
+                &invocation,
+                "pressure-source",
+                None,
+                None,
+                DispatchDisposition::PressureHealthy(false),
+            ));
+        }
+    }
+}
 /// MJ9's kill (B7b meaning): every current control (twelve requests x two
 /// modes) keeps its exact work arithmetic, checked as exact integers
 /// (`check_publication_accounting`; counters are never ignored or compared
@@ -754,6 +794,7 @@ fn pressure_source_controls_keep_exact_work_and_current_bytes() {
             add_selected_pressure_entries(control, mixed, &mut entries);
         }
     }
+    add_rf_source_method_bases(&mut entries);
     let corpus = json!({"artifact":"pressure-source-reader-corpus","schema_version":"1.0.0","entries":entries});
     if let Some(path) = std::env::var_os("SWBPIPE_PRESSURE_SOURCE_CORPUS_FULL_OUT") {
         std::fs::write(
@@ -910,13 +951,13 @@ fn pressure_source_raw_fixture_path_guard_refuses_before_read() {
 #[test]
 fn pressure_source_corpus_cache_shares_one_strict_expansion() {
     let corpus = read_corpus();
-    assert_eq!(corpus["entries"].as_array().unwrap().len(), 358);
+    assert_eq!(corpus["entries"].as_array().unwrap().len(), 364);
     for _ in 0..8 { assert!(std::ptr::eq(corpus, read_corpus())); }
     std::thread::scope(|scope| {
         let readers: Vec<_> = (0..8).map(|_| scope.spawn(read_corpus)).collect();
         for reader in readers { assert!(std::ptr::eq(corpus, reader.join().unwrap())); }
     });
-    println!("pressure_source_corpus_cache=one_shared_immutable_value,358entries");
+    println!("pressure_source_corpus_cache=one_shared_immutable_value,364entries");
 }
 fn check_corpus_entry(entry: &Value) {
     let source = &entry["source"];

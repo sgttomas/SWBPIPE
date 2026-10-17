@@ -595,3 +595,30 @@ fn retired_legacy_pressure_label_is_refused_on_the_retained_entry() {
     }
     }
 }
+
+/// RF-18 (RF source-method design §3.2 (1), §7): the congruence closure's
+/// transform decline keeps the receipt code `unsupported_source_closure`, in
+/// every stage it can be reported from, and `Budget` (the unit precheck)
+/// keeps `budget`.
+#[test]
+fn transform_declines_map_to_unsupported_source_closure() {
+    use exact::functionals::AttemptStage;
+    use source_recovery::{RecoveryError, RecoveryFailure, BLOCK_ROTATION_DECLINE};
+    assert!(BLOCK_ROTATION_DECLINE.contains("transform") && !BLOCK_ROTATION_DECLINE.contains("coincident"));
+    let failure = |error: RecoveryError, helper_stage: AttemptStage| RecoveryFailure {
+        stage: "source closure",
+        helper_stage,
+        error,
+        work: exact::WorkReport::new(0, 0, 0),
+    };
+    for stage in [AttemptStage::SourceClosure, AttemptStage::Preparation] {
+        assert_eq!(
+            source::failure_fields(&failure(RecoveryError::Unsupported(BLOCK_ROTATION_DECLINE), stage)),
+            ("source_validation", "unsupported_source_closure", None)
+        );
+        assert_eq!(
+            source::failure_fields(&failure(RecoveryError::Exact(exact::Error::Budget), stage)),
+            ("source_validation", "budget", None)
+        );
+    }
+}

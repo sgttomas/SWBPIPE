@@ -3272,8 +3272,14 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// same route and value classes as `EXACT_PINNED`.
 /// T4-U6 re-pin (D-5): read from the producer through the private driver, on the same D-5
 /// classes as `EXACT_PINNED`'s T4-U6 re-pin.
-const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "d42ac63c35a116c86dcdb0b7e022aa4b1f65a5a22a002b684afefd4e3e40e1b0"),
-    ("dense_scrutiny", "2705bb8a7c799fd695db9fae233d0847e8e69a313d6743cdd86029fd2bede32c")];
+/// RF re-pin (DEL-05-02 `rf-source-method-extension.md` §5.5, §9): read from this test's
+/// writer line. The W1 route-E successor's case-2 source decline now reaches the exact
+/// context as a congruence member: its first cause is `UnsupportedBlock { order: 9 }` in place
+/// of "actual transform is not a signed permutation", with its work. That diagnostic message
+/// and the two hashes binding it (`publication_sha256`, `receipt_sha256`) are the only
+/// changed leaves, in both modes.
+const UNAVAILABLE_EXACT_PINNED: [(&str, &str); 2] = [("sparse_interactive", "094fdd40b831c4ff791040f17ed6b7294c1db1db95f2a730f483e536dd937292"),
+    ("dense_scrutiny", "e35d0c45dc23a3c2f0d0c9d212d600ff78fc8d7767e39eaa09c06f0baa852c8e")];
 /// RV123 S-2: an exact successor with an `unavailable` prepared case, at the n-case serializer's
 /// unavailable branch: the two-case exact input with case-2's freeze refused after its selected
 /// Run (`fail_freeze_of_case`). Case-2 is `unavailable` (`facade_certificate`, phase `facade`),

@@ -14,10 +14,16 @@
 //! `fixtures/results/j7_rf_census_expected.json`. Live, for every case and mode:
 //! - the direct method call (the committed `j7_t4_consequences.rs` input sequence
 //!   over the actual normalized/built/boundary/load-owned source) is recorded;
-//! - any public source attempt declines with exactly that typed failure;
-//! - no envelope publishes a source-recovery identity or `source_block_recovery`;
-//! - a directly selected case (only RF-ZERO-TINY) meets
+//! - any public decline has exactly the direct method's typed failure;
+//! - exactly PIN-OFF-345-r1e-08/-12 publish `pressure-source-1`, in both modes,
+//!   with the congruence level, Rust reader acceptance, exact J2 base bytes and
+//!   every published source row bit-equal to its direct projection;
+//! - all 33 directly selected cases (31 method-only and 2 published) meet
 //!   `|obs - exp| <= 1e-9 * max(|exp|, scale)` exactly on every reference row.
+//! The other first causes are 84 blocks above order 4, 5 upfront descriptor-unit
+//! Budget declines, 4 checked ranges, 29 HASH-001 refusals and 6 axis gates.
+//! The five rotated LARGE/INVARIANCE models reach the unchanged 16,384-unit
+//! precheck before their order-above-4 blocks (owner's RF correction).
 //! B7b deleted the v2 twin (`2.0.0/exact_straight_pressure_v2`) that this census
 //! compared against D5's closed exclusions before v2's deletion.
 //! The 216-case classification is recomputed here from the frozen file.
@@ -40,16 +46,17 @@ const REFERENCES_SHA256: &str = "7b176dbbf2296be02d8bca19c698ee56d0d5753751150a9
 const INPUTS: &str = include_str!("../../../../fixtures/results/j7_rf_census_inputs.json");
 const EXPECTED: &str = include_str!("../../../../fixtures/results/j7_rf_census_expected.json");
 const EXPECTED_PATH: &str = "../../fixtures/results/j7_rf_census_expected.json";
+const J2: &str = include_str!("../../../../fixtures/results/pressure_source_reader_corpus.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const FAMILIES: [&str; 10] = ["RF-CHAIN", "RF-SKEW", "RF-WEAK", "RF-LARGE", "RF-INVARIANCE", "RF-RANGE", "RF-ZERO", "RF-FINITE", "RF-MECH", "RF-CANCEL"];
 const PRESSURE_1: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
-/// Every source-recovery identity (the current one and the two retired v2
-/// ones): none may be published by a frozen RF case.
+/// Every source-recovery identity (the current one and the two retired v2 ones).
 const SOURCE_IDENTITIES: [&str; 3] = [
     "openpipestress.result_semantics/0.3.0/pressure-source-1",
     "openpipestress.result_semantics/0.3.0/physics-source-1",
     "openpipestress.result_semantics/0.3.0/load-reference-source-1",
 ];
+const PUBLISHED: [&str; 2] = ["RF-SKEW-T-PIN-OFF-345-r1e-08", "RF-SKEW-T-PIN-OFF-345-r1e-12"];
 
 fn sha(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
@@ -61,7 +68,7 @@ fn references() -> &'static Value {
         serde_json::from_slice(REFERENCES).unwrap()
     })
 }
-fn inputs() -> &'static Value {
+pub(super) fn inputs() -> &'static Value {
     static VALUE: std::sync::OnceLock<Value> = std::sync::OnceLock::new();
     VALUE.get_or_init(|| {
         let inputs = corpus_storage::expand(serde_json::from_str(INPUTS).unwrap());
@@ -77,7 +84,7 @@ fn expected() -> &'static Value {
 
 /// The actual normalized/built/boundary/load-owned method input (the committed
 /// `j7_t4_consequences.rs` sequence).
-struct Owned {
+pub(super) struct Owned {
     model: PreviewModel,
     built: BuiltModel,
     stiffness: Vec<Vec<f64>>,
@@ -88,7 +95,7 @@ struct Owned {
     loads: open_pipe_stress_primitive_loads::LoadApplication,
 }
 impl Owned {
-    fn actual(raw: &Value, mode: PreviewSolverMode) -> Result<Self, String> {
+    pub(super) fn actual(raw: &Value, mode: PreviewSolverMode) -> Result<Self, String> {
         let (request, _captured) = source_receipt::CapturedInvocation::parse(raw.clone(), mode)
             .map_err(|e| format!("captured parsing: {e:?}"))?;
         let mut model = request.model;
@@ -132,7 +139,7 @@ impl Owned {
         let free = (0..force.len()).filter(|d| !prescribed.iter().any(|(p, _)| p == d)).collect();
         Ok(Self { model, built, stiffness, force, free, prescribed, springs, loads })
     }
-    fn input(&self) -> Input<'_> {
+    pub(super) fn input(&self) -> Input<'_> {
         Input {
             model: &self.model,
             built: &self.built,
@@ -280,15 +287,23 @@ fn first_cause(run: &Run) -> Value {
         "selected" => {
             let mut cause = method.clone();
             cause.as_object_mut().unwrap().remove("outcome");
-            cause["class"] = json!("selected_method_only");
+            cause["class"] = json!(if run.public.as_ref().unwrap()["producer"]["semantic_contract_id"] == SOURCE_IDENTITIES[0] {
+                "selected_published"
+            } else {
+                "selected_method_only"
+            });
             cause
         }
         _ => {
             let error = method["error"].as_str().unwrap();
             let class = if error.starts_with("Exact(UnsupportedBlock { order: ") {
-                "exact_block_order_above_2"
-            } else if error == "Unsupported(\"actual transform is not a signed permutation\")" {
-                "transform_not_signed_permutation"
+                let order = error.strip_prefix("Exact(UnsupportedBlock { order: ").unwrap().strip_suffix(" })").unwrap().parse::<usize>().unwrap();
+                assert!(order > 4, "an admitted block was refused: {error}");
+                "exact_block_order_above_4"
+            } else if error == "Unsupported(\"actual transform is not a block rotation\")" {
+                "transform_not_block_rotation"
+            } else if error == "Exact(Budget)" {
+                "budget"
             } else if error == "Exact(Arithmetic(Range(\"arithmetic outside normal range\")))" {
                 "checked_value_range"
             } else {
@@ -310,11 +325,11 @@ fn public_value(public: &Result<Value, String>) -> Value {
                 .map(|d| format!("{}: {}", d["code"].as_str().unwrap(), d["message"].as_str().unwrap())).collect();
             let rows = env["results"].as_array().map_or(0, Vec::len);
             json!({
-                "outcome": if !blocking.is_empty() && rows == 0 { "refused_blocking" } else { "ordinary_published" },
+                "outcome": if env["producer"]["semantic_contract_id"] == SOURCE_IDENTITIES[0] { "source_published" } else if !blocking.is_empty() && rows == 0 { "refused_blocking" } else { "ordinary_published" },
                 "identity": env["producer"]["semantic_contract_id"],
                 "numerical_quality": env["numerical_quality"]["status"],
                 "blocking": blocking,
-                "source_attempt": if diags.iter().any(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE") { "declined" } else { "not_attempted" },
+                "source_attempt": if diags.iter().any(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_SELECTED") { "selected" } else if diags.iter().any(|d| d["code"] == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE") { "declined" } else { "not_attempted" },
                 "results_sha256": member_digest(&env["results"]),
                 "diagnostics_sha256": member_digest(&env["diagnostics"]),
                 // B7b F2: the whole published envelope, and the members a change
@@ -331,7 +346,7 @@ fn public_value(public: &Result<Value, String>) -> Value {
 
 /// One case's request: the committed input's copy, re-authored once to the
 /// current 0.5.0 exact document (B7b); the committed inputs stay 0.3.0.
-fn current_request(case: &Value) -> Value {
+pub(super) fn current_request(case: &Value) -> Value {
     let input = &case["request"];
     assert_eq!(input["model"]["pressure_contract"], json!({"version": "3.0.0", "mode": "exact_pressure_v3"}));
     let current = crate::b7b_admission_tests::reauthor_current_request(input.clone());
@@ -339,16 +354,71 @@ fn current_request(case: &Value) -> Value {
     current
 }
 
-/// One case and mode: decline-text and no-publication checks; returns the pinned entry.
+/// RF design §6: bind all four public envelopes to genuine J2 bases and to
+/// their direct method, and read them with their captured invocation. Receipt
+/// qualification and both ledgers establish that finalization fitted; the
+/// implementation probe separately measures its two reservations (§2.9).
+fn check_public_source(id: &str, request: &Value, mode: PreviewSolverMode, env: &Value, direct: &SelectedSourceRecovery) {
+    use open_pipe_stress_result_export::physics_source as ps;
+    let at = format!("{id} {}", mode.as_str());
+    assert_eq!(env["producer"]["semantic_contract_id"], SOURCE_IDENTITIES[0], "{at}");
+    let body = &env["source_block_recovery"]["body"];
+    assert_eq!(body["status"], "qualified", "{at}");
+    let cases = body["cases"].as_array().unwrap();
+    assert_eq!(cases.len(), 1, "{at}");
+    let case = &cases[0];
+    assert_eq!(case["outcome"], "qualified", "{at}");
+    assert_eq!(case["source"]["level"], "complete_identified_declared_member_congruence", "{at}");
+    let orders: Vec<_> = case["source"]["free_blocks"].as_array().unwrap().iter().map(|b| b.as_array().unwrap().len()).collect();
+    assert_eq!(orders, [4, 2], "{at}");
+    let invocation = json!({"request":request,"solver_mode":mode.as_str()});
+    assert_eq!(ps::validate_in(env, Some(&invocation), ps::SourceContract::PressureV3), Ok(true), "{at}");
+    assert_eq!(ps::validate_transport_metadata_in(env, ps::SourceContract::PressureV3), Ok(()), "{at}");
+    static CORPUS: std::sync::OnceLock<Value> = std::sync::OnceLock::new();
+    let corpus = CORPUS.get_or_init(|| corpus_storage::expand(serde_json::from_str(J2).unwrap()));
+    let base_id = format!("rf_source_method:{id}:{}:genuine", mode.as_str());
+    let bases: Vec<_> = corpus["entries"].as_array().unwrap().iter().filter(|e| e["id"] == base_id).collect();
+    assert_eq!(bases.len(), 1, "{at}: one genuine J2 base");
+    assert_eq!(bases[0]["invocation"], invocation, "{at}: same captured request");
+    assert_eq!(serde_json::to_vec(&bases[0]["source"]).unwrap(), serde_json::to_vec(env).unwrap(), "{at}: exact J2 envelope bytes");
+    let projections = direct.retained().projections();
+    let mut rows = 0;
+    for p in case["projections"].as_array().unwrap() {
+        let fid = p["functional_id"].as_str().unwrap();
+        let index: usize = fid.rsplit(':').next().unwrap().parse().unwrap();
+        let value = projections[index].value();
+        assert_eq!(p["value_bits"], format!("{:016x}", value.to_bits()), "{at}: {fid}");
+        if let Some(rid) = p["result_id"].as_str() {
+            let row = env["results"].as_array().unwrap().iter().find(|r| r["id"] == rid).unwrap();
+            assert_eq!(row["value"].as_f64().unwrap().to_bits(), value.to_bits(), "{at}: row {rid}");
+            rows += 1;
+        }
+    }
+    assert_eq!(rows, 60, "{at}: all published source rows");
+    let work = &case["work"];
+    let charged = work["charged"].as_u64().unwrap();
+    assert_eq!(work["reserved_unobserved_failure"], 0, "{at}");
+    assert_eq!(work["rejected_reservation"]["amount"], 0, "{at}");
+    assert!(charged <= work["limit"].as_u64().unwrap() && work["limit"].as_u64().unwrap() <= 8_000_000, "{at}");
+    let total = &body["invocation_work"];
+    assert_eq!(total["charged"].as_u64().unwrap(), charged + total["publication_charged"].as_u64().unwrap(), "{at}");
+    assert!(total["charged"].as_u64().unwrap() <= total["limit"].as_u64().unwrap() && total["limit"].as_u64().unwrap() <= 64_000_000, "{at}");
+}
+
+/// One case and mode: public bindings and decline-text checks; returns the pinned entry.
 fn census_entry(case: &Value, mode: PreviewSolverMode) -> Value {
     let id = case["id"].as_str().unwrap();
-    let v3 = run(&current_request(case), mode);
+    let request = current_request(case);
+    let v3 = run(&request, mode);
     let at = format!("{id} {}", mode.as_str());
-    // No frozen RF case publishes a source-recovery identity.
     if let Ok(env) = &v3.public {
-        assert!(env.get("source_block_recovery").is_none(), "{at}: source publication");
-        assert!(!SOURCE_IDENTITIES.iter().any(|s| env["producer"]["semantic_contract_id"] == *s), "{at}: source identity");
-        assert_eq!(env["producer"]["semantic_contract_id"], PRESSURE_1, "{at}");
+        if PUBLISHED.contains(&id) {
+            check_public_source(id, &request, mode, env, v3.method.as_ref().unwrap().as_ref().unwrap());
+        } else {
+            assert!(env.get("source_block_recovery").is_none(), "{at}: source publication");
+            assert!(!SOURCE_IDENTITIES.iter().any(|s| env["producer"]["semantic_contract_id"] == *s), "{at}: source identity");
+            assert_eq!(env["producer"]["semantic_contract_id"], PRESSURE_1, "{at}");
+        }
     }
     // A public attempt declines with exactly the direct method's typed failure.
     let declines: Vec<String> = v3.public.as_ref().map(|env| env["diagnostics"].as_array().unwrap().iter()
@@ -466,17 +536,43 @@ fn j7_rf_census_classification_and_pin() {
         let id = e["id"].as_str().unwrap();
         per_case.entry(id).or_default().insert(e["first_cause"]["class"].as_str().unwrap());
         classes.entry(e["first_cause"]["class"].as_str().unwrap().into()).or_default().insert(id.into());
-        assert!(!SOURCE_IDENTITIES.iter().any(|s| e["public"]["identity"] == *s));
+        if PUBLISHED.contains(&id) {
+            assert_eq!(e["first_cause"]["class"], "selected_published");
+            assert_eq!(e["public"]["identity"], SOURCE_IDENTITIES[0]);
+            assert_eq!(e["public"]["source_attempt"], "selected");
+            assert_eq!(e["method_only_comparison"], json!({"rows":28,"pass":28}));
+        } else {
+            assert!(!SOURCE_IDENTITIES.iter().any(|s| e["public"]["identity"] == *s));
+        }
         assert!(e["public"].get("twin_identity").is_none(), "B7b: no v2 twin is run");
     }
     assert_eq!(per_case.keys().map(|k| k.to_string()).collect::<BTreeSet<_>>(), family);
     assert!(per_case.values().all(|c| c.len() == 1), "a case's first cause is mode-independent");
     let counts: BTreeMap<_, _> = classes.iter().map(|(k, v)| (k.as_str(), v.len())).collect();
     assert_eq!(counts, BTreeMap::from([
-        ("exact_block_order_above_2", 94), ("transform_not_signed_permutation", 27), ("checked_value_range", 4),
-        ("hash001_unsafe_integral_float", 29), ("ordinary_axis_gate", 6), ("selected_method_only", 1),
+        ("exact_block_order_above_4", 84), ("budget", 5), ("checked_value_range", 4),
+        ("hash001_unsafe_integral_float", 29), ("ordinary_axis_gate", 6), ("selected_method_only", 31),
+        ("selected_published", 2),
     ]));
-    assert_eq!(classes["selected_method_only"], BTreeSet::from(["RF-ZERO-TINY".to_owned()]));
+    let mut method_only = BTreeSet::new();
+    for load in ["F", "M"] {
+        for exponent in [5, 6, 7, 8] {
+            for pattern in ["GnG", "GGn", "nGG"] {
+                method_only.insert(format!("RF-CANCEL-{load}-G1e{exponent}-{pattern}"));
+            }
+        }
+        for companion in ["ORTHO", "INPLANE"] {
+            method_only.insert(format!("RF-CANCEL-{load}-G1e8-GnG-{companion}"));
+        }
+    }
+    assert_eq!(method_only.len(), 28);
+    method_only.extend(["RF-ZERO-TINY", "RF-SKEW-T-PIN-OFF-345-r1e-04", "RF-MECH-LINE345-RX-COMPANION"].map(String::from));
+    assert_eq!(classes["selected_method_only"], method_only);
+    assert_eq!(classes["selected_published"], BTreeSet::from(PUBLISHED.map(String::from)));
+    assert_eq!(classes["budget"], BTreeSet::from([
+        "RF-LARGE-CHAIN-n00010-ROT", "RF-LARGE-TREE-n00010-ROT", "RF-LARGE-CONT-n00010-ROT",
+        "RF-INVARIANCE-CONT4-ROT-Q3", "RF-INVARIANCE-CONT4-ROT-Q9",
+    ].map(String::from)));
     assert_eq!(classes["checked_value_range"], BTreeSet::from(["RF-RANGE-CHAIN-E-1000", "RF-RANGE-CONT-E-1000", "RF-RANGE-SKEW-E-1000", "RF-RANGE-THIN-B"].map(String::from)));
     let tiny: Vec<_> = entries.iter().filter(|e| e["id"] == "RF-ZERO-TINY").collect();
     assert_eq!(tiny.len(), 2);

@@ -272,6 +272,10 @@ pub(super) fn commitment(
     let mut stiffness = Vec::new();
     let mut cursor = 0;
     let mut frames = Vec::new();
+    // RF design §3.3 and §7: the retained source's congruence members, in member
+    // order; each is named by its frame's element id.
+    let congruence = response.congruence_members();
+    let mut congruence_ids = Vec::new();
     for (frame, pipe) in input.built.frame_elements.iter().zip(&input.built.pipes) {
         let map = element_dof_map(frame.node_i.index, frame.node_j.index);
         let global = frame.global_stiffness().map_err(|e| bad(e.to_string()))?;
@@ -280,6 +284,21 @@ pub(super) fn commitment(
             .orientation()
             .map_err(|e| bad(e.to_string()))?
             .transformation_matrix();
+        if let Some(member) = congruence
+            .get(congruence_ids.len())
+            .filter(|m| m.contributions.start == cursor)
+        {
+            let operands = |a: &Matrix12, b: &Matrix12| {
+                a.iter().flatten().zip(b.iter().flatten()).all(|(x, y)| same(*x, *y))
+            };
+            if member.dofs != map
+                || !operands(&member.local_stiffness, &local)
+                || !operands(&member.transform, &transform)
+            {
+                return Err(bad("congruence member owner mismatch"));
+            }
+            congruence_ids.push(&pipe.element_id);
+        }
         for i in 0..12 {
             for j in 0..12 {
                 let term = &terms[cursor];
@@ -296,6 +315,9 @@ pub(super) fn commitment(
             .get(&pipe.element_id)
             .ok_or_else(|| bad("section source"))?;
         frames.push(json!({"element_id":pipe.element_id,"node_i_id":input.model.nodes[frame.node_i.index].id,"node_j_id":input.model.nodes[frame.node_j.index].id,"scatter":map,"formation_inputs":{"coordinates_bits":[frame.node_i.coordinates.map(bits),frame.node_j.coordinates.map(bits)],"young_modulus_bits":bits(frame.section.elastic_modulus),"shear_modulus_bits":bits(frame.section.shear_modulus),"area_bits":bits(frame.section.area),"iy_bits":bits(frame.section.second_moment_y),"iz_bits":bits(frame.section.second_moment_z),"torsion_constant_bits":bits(frame.section.torsion_constant),"length_bits":bits(frame.length().map_err(|e|bad(e.to_string()))?)},"local_matrix_bits":matrix12(&local),"transform_bits":matrix12(&transform),"global_matrix_bits":matrix12(&global),"recovery_section":{"section_modulus_bits":bits(section.section_modulus),"torsion_radius_bits":bits(section.torsion_radius)}}));
+    }
+    if congruence_ids.len() != congruence.len() {
+        return Err(bad("congruence member owner"));
     }
     let mut springs = Vec::new();
     for s in input.spring_entries {
@@ -377,6 +399,13 @@ pub(super) fn commitment(
     if !load_reference_state.is_null() {
         payload["load_reference_state"] = load_reference_state;
     }
+    // RF design §7: only a source with a congruence member names them; without
+    // one, the payload and its hash keep their structure and bytes.
+    if !congruence_ids.is_empty() {
+        payload["congruence_members"] = json!(congruence_ids);
+    }
+    #[cfg(test)]
+    OBSERVED_CONGRUENCE_MEMBERS.with(|o| o.borrow_mut().push(payload.get("congruence_members").cloned()));
     let normalized = hash("source_blocks_normalized_source_v1", &payload)?;
     let functions: Vec<_> = retained
         .descriptors()
@@ -395,14 +424,20 @@ pub(super) fn commitment(
     let flat: Vec<_> = blocks.iter().flatten().copied().collect();
     if system.force.len() > 256
         || terms.len() + forces.len() > 16_384
-        || blocks.iter().any(|b| b.is_empty() || b.len() > 2)
+        || blocks.iter().any(|b| b.is_empty() || b.len() > 4)
         || flat.len() != all.len()
         || flat.iter().copied().collect::<BTreeSet<_>>() != all
     {
         return Err(bad("source block coverage"));
     }
+    // RF design §7: the level states the source basis.
+    let level = if congruence.is_empty() {
+        "complete_identified_represented_contributions"
+    } else {
+        "complete_identified_declared_member_congruence"
+    };
     Ok(
-        json!({"level":"complete_identified_represented_contributions","normalized_source_sha256":normalized,"functional_plan_sha256":plan_hash,"dof_count":system.force.len(),"stiffness_term_count":terms.len(),"force_term_count":forces.len(),"functional_count":retained.descriptors().len(),"free_dofs":system.free_dofs,"prescribed_dofs":system.prescribed.iter().map(|x|x.0).collect::<Vec<_>>(),"free_blocks":blocks,"member_ids":selected.members().iter().map(|m|&m.member_id).collect::<Vec<_>>(),"support_ids":selected.support_actions().iter().map(|s|&s.support_id).collect::<Vec<_>>() }),
+        json!({"level":level,"normalized_source_sha256":normalized,"functional_plan_sha256":plan_hash,"dof_count":system.force.len(),"stiffness_term_count":terms.len(),"force_term_count":forces.len(),"functional_count":retained.descriptors().len(),"free_dofs":system.free_dofs,"prescribed_dofs":system.prescribed.iter().map(|x|x.0).collect::<Vec<_>>(),"free_blocks":blocks,"member_ids":selected.members().iter().map(|m|&m.member_id).collect::<Vec<_>>(),"support_ids":selected.support_actions().iter().map(|s|&s.support_id).collect::<Vec<_>>() }),
     )
 }
 pub(super) fn failure_fields(
@@ -430,4 +465,15 @@ pub(super) fn failure_fields(
         _ => ("invalid_source", None),
     };
     (stage, code, block)
+}
+
+#[cfg(test)]
+thread_local! {
+    static OBSERVED_CONGRUENCE_MEMBERS: std::cell::RefCell<Vec<Option<Value>>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+/// RF-17: each normalized-source payload's `congruence_members` (absent: `None`)
+/// committed on this thread since the last call, in order.
+#[cfg(test)]
+pub(crate) fn take_observed_congruence_members() -> Vec<Option<Value>> {
+    OBSERVED_CONGRUENCE_MEMBERS.with(|o| std::mem::take(&mut *o.borrow_mut()))
 }
