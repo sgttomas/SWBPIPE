@@ -341,7 +341,7 @@ Both the predicates and G7 are unchanged.
    - The published value and evidence are PP's: `prepared_maxima` (retained_product.rs 5589-5640) evaluates |N|/A + ‖M‖/Z at the published binary64 end rows. The value is `value_lower + RN(0.5·RN(value_upper − value_lower))` from `certified_publication::fallback_circular_maximum`, delivered through `complete_maxima`, and its eight evidence fields are as today.
    - The kernel's enclosure stays the two-end recipe (final_case.rs 783-800), and the gate judges PP's value against it, as today.
    - This statement is derivable from the published end rows and tighter than the kernel's for a near-zero end action. The kernel's enclosure of a straddling end action has range [0, hi], whose midpoint (2.5e-24 on the milestone) is not derivable from rows of about 1e-96.
-   - Every committed byte reproduces (section 4.6).
+   - Every committed maximum byte reproduces; section 4.6 distinguishes this recipe check from the authorized definition-hash re-pins.
 2. **Loaded member: the maximum can be interior**, where only the kernel's certified enclosure can certify it.
    - **Value.** n = RN64(H(hull(k, s))), DEF-O's projection H of the hull of the two lanes' search enclosures (below), as `project_hull` forms it for every other row. In `ProductProofDraft::project` (final_case.rs about 1795-1830), a loaded member's `CircularMaximum` row is projected there rather than skipped, so `complete_maxima` receives no value for it.
    - **PP's bounder still runs**, with the member's local full-span loads in place of `&[]`. `straight_local_uniform_loads` (PP `lib.rs` 10605-10640) builds them from captured global intensities and the rebuilt pipe's binary64 orientation. PP keeps `span_index`, `subdivisions`, `station_fraction` and `local_fraction`. Here **L_pp = maximum.value_lower** and **U_pp = maximum.upper_bound**, the interval containing the global maximum (`elastic_extrema.rs` 67-68, 319-320). `maximum.value_upper` is only the witness-value upper and must not substitute for the global upper. The shared ordinary engine does not change; only the retained call's argument and subsequent loaded-row evidence construction do.
@@ -396,7 +396,7 @@ Use bounded exponent/significand comparisons and sticky rounding, never an unche
 
 There were 244 maximum rows, all on unloaded members and all AbsoluteVerified; the controls add 6 relative rows. The two exact successors were byte-identical in every mode.
 
-**Under the adopted recipe, nothing moves.** Every committed maximum is on an unloaded member, so case 1 applies and keeps PP's value and evidence. With PP's value kept, all 43 committed byte strings reproduced exactly. No maximum, verdict, standing, receipt or publication byte moves, and the 16 control trials keep their standing. A loaded member appears in no committed successor or corpus base today. Stage 2's new member-load bases and fixtures establish their maxima under case 2.
+**Under the adopted maximum recipe, nothing moves in this experiment.** Every committed maximum is on an unloaded member, so case 1 keeps PP's value and evidence. With PP's value kept, all 43 committed byte strings reproduced exactly. The maximum recipe alone moves no maximum, verdict, standing, receipt or publication byte, and the 16 control trials keep their standing. The complete stage-2 implementation separately re-pins the authorized DEF-O-bound receipt hashes (section 6.4); that is not an exclusion from maximum/publication byte preservation. No committed successor or corpus base currently has a loaded member; new member-load bases establish their maxima under case 2.
 
 **Why the rejected alternative (case 2 for every member) would have moved bytes.** This is recorded for the review:
 - *Values.* 74 distinct maxima would change, in 33 publications:
@@ -415,7 +415,7 @@ There were 244 maximum rows, all on unloaded members and all AbsoluteVerified; t
 - `corpus/cases_full.json`;
 - the probe diff, `probe.diff`.
 
-**Implementation checks.** The implementation re-runs this census on its own head: every committed byte string reproduces, the 54 trials keep their standing, and each new loaded maximum passes G7 and the gate.
+**Implementation checks.** Re-run the census on the implementation head. The 43 committed inputs keep maximum, publication, ordinary and all other nodal-only bytes; only the specifically authorized definition-bound receipt hashes of section 6.4 are re-pinned. Do not mask capacity counters, numeric evidence or verdicts. The 54 trials keep their standing, and each new loaded maximum passes G7 and the gate.
 
 ## 5. Work
 
@@ -790,7 +790,7 @@ Each is introduced into a scratch copy of the implementation and must be killed 
 | Exhaustion narrows or permits publication through a passing absolute gate | `w1_loaded_maximum_exhaustion_widens_and_refuses` (capacity 4 / depth 6 hooks) | diagnostic contains reference; named exhaustion makes case unavailable, including an absolute-class interval that would otherwise pass the gate |
 | Box-corner bound used; tangent bound dropped | `w1_loaded_maximum_rotating_and_axial_slope_within_capacity` (≤ 64 splits, ≤ 32 live); the near-degenerate control at e = 1e-5 | — |
 | PP's value used for a loaded member (it fails the sharper predicate) | `w1_loaded_maximum_is_the_kernel_projection` | non-dyadic argmax: row bits equal the kernel's RN64(H(hull)); PP's value substituted fails SharperExact |
-| Kernel projection applied to an unloaded member (moves census bytes) | `w1_unloaded_maxima_keep_the_prepared_value` | the section 4.6 census: all 43 committed byte strings and the 54 census-coverage trials' standing unchanged; milestone M1 stays 8.17e-92 Pa |
+| Kernel projection applied to an unloaded member (moves census bytes) | `w1_unloaded_maxima_keep_the_prepared_value` | section 4.6 census: all 43 inputs' maxima/publications unchanged with only authorized definition-bound receipt hashes re-pinned; 54 trials' standing unchanged; milestone M1 stays 8.17e-92 Pa |
 | Asymmetric loaded evidence interval (for example RD64(lo)/RU64(hi)) | `w1_loaded_maximum_evidence_is_symmetric_and_g7_valid` | lower = n − δ, upper = n + δ exactly; G7 `EXTREMA_BOUNDS` and PP's midpoint check pass; the interval contains both the kernel hull and PP's bounder interval |
 | Symmetric search restricted to powers of two; overflowed 2n; half rounded at an odd subnormal | `w1_loaded_maximum_evidence_covers_binade_and_subnormal_edges` | n = 0x1.fffffffffffffp-1 needs δ = 3·2^-53; odd subnormals 1, 3, 5 ulps and odd low-normal halves; largest finite endpoint; exact integer grid oracle |
 | Near-zero form skipped | `w1_loaded_near_zero_maximum_takes_the_half_upper_form` | a loaded member whose enclosure reaches 0: value upper/2, evidence [0, upper], G7 valid, absolute gate decides |
@@ -924,7 +924,7 @@ Each is introduced into a scratch copy of the implementation and must be killed 
    - the evidence construction: the least exact symmetric interval containing the kernel hull and PP's bounder interval, and the near-zero form, with G7's unchanged identity, basis strings and lower ≥ 0 holding by construction (HELP_HUMAN's condition);
    - for an unloaded member, PP's value and evidence unchanged;
    - route E's bytes unchanged;
-   - the census of 4.6 on the implementation's head: all 43 committed byte strings reproduce, and the 54 census-coverage trials, including the 16 named there, keep their standing.
+   - the census of 4.6 on the implementation's head: all 43 committed inputs' maximum/publication/ordinary bytes reproduce, only authorized definition-bound receipt hashes are re-pinned, and the 54 trials, including the 16 named there, keep their standing.
 7. **Combinations refused** in the kernel, the ledger backstop and both readers.
 8. **Work.** Counted once at actual cost in the first own `rhs`; guard checks per member; the maximum search in `NumericWork`; limits unchanged; nothing counted as zero.
    - R-1's post-member and post-netting checkpoints, equality/exhaustion boundary controls, all refused work retained once in stage/case/invocation totals, no execution/publication after exhaustion, and an independently checked overrun bound including `SumWork`.
