@@ -2793,7 +2793,9 @@ def _g8_combinations(body, need):
     projected; the combination attempt's material basis is every operand case's. K4LED stays attested (C-12)."""
     sources = body["sources"]
     for entry in body["combinations"]:
-        if (entry.get("reason") or {}).get("cause", {}).get("tag") == "operand_member_loads":
+        reason = entry.get("reason")
+        cause = reason.get("cause") if isinstance(reason, dict) else None
+        if isinstance(cause, dict) and cause.get("tag") == "operand_member_loads":
             need(any(s["owner"]["kind"] == "case" and s["owner"]["case_id"] == t["case_id"] and s.get("member_load_terms")
                      for t in entry["expression"]["terms"] for s in body["sources"]))
     for entry in body["combinations"]:

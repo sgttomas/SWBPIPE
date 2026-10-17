@@ -60,8 +60,8 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
 ];
 /// The committed goldens' file sha256 (= the documents' canonical digests).
 const GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "25aaf1e4f287993d0f153b535fb4c29b8cc61733c80915b76926b363f737d7f9"),
-    ("dense_scrutiny", "7a03587151737440110b4a326b6d13dc67530037d155edb40fa6a459bbb6a066"),
+    ("sparse_interactive", "4924102a011b5919a86214df597d880064b26011f793cfeaa70f3a9d00d3b818"),
+    ("dense_scrutiny", "1508aaab91cf9b8b8794b527ec827da345ef898558cc71657ed877edde6c206d"),
 ];
 /// The milestone's validated class counts (as retained_precision_carriers.rs
 /// `CLASSES`): relative, absolute, input-derived, non-quantity. No validated

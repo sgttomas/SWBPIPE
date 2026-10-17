@@ -48,8 +48,8 @@ const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
 
 /** Current B7a goldens from the maintained I76 recipe and its fixed base/origin stand-ins. */
 const GOLDEN: Record<PreviewSolverMode, { path: string; sha256: string; base: string; origin: string; rows: number; nonQuantity: number }> = {
-  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "25aaf1e4f287993d0f153b535fb4c29b8cc61733c80915b76926b363f737d7f9", base: "d795f854f3e6094ceb8ff6a66c558f01a05ed795d471f04a60c44db64d809477", origin: "0a8b9a303aedbd61af5bce058e1e6f4d6b443051932a6b559f14fa748c3fd1ba", rows: 98, nonQuantity: 1 },
-  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "7a03587151737440110b4a326b6d13dc67530037d155edb40fa6a459bbb6a066", base: "088d666e55f9e3f8b0a63c288e2c158ce39f7803f1604d03e59449d145b291cb", origin: "ddd0b0597d583533f1dc8be28bb8adb5ba17f9dad6c5737311186efa3b85c3f9", rows: 98, nonQuantity: 1 },
+  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "4924102a011b5919a86214df597d880064b26011f793cfeaa70f3a9d00d3b818", base: "d795f854f3e6094ceb8ff6a66c558f01a05ed795d471f04a60c44db64d809477", origin: "a86ed32ac4b09b5df60d1b6ff48c4140360c5b6fd0d64ace866e35d4581149f2", rows: 98, nonQuantity: 1 },
+  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "1508aaab91cf9b8b8794b527ec827da345ef898558cc71657ed877edde6c206d", base: "088d666e55f9e3f8b0a63c288e2c158ce39f7803f1604d03e59449d145b291cb", origin: "fd8403edc6e11af8b087984272219d19f69f252d7becc0b9fb7f1872107f9071", rows: 98, nonQuantity: 1 },
 };
 /** I76's fixed stand-ins (its CHECKPOINT_1 section 2): test values, not a qualified manifest or build. */
 const MANIFEST_REF = "test:t6s-golden-reference-only-manifest";

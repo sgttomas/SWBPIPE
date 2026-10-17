@@ -141,7 +141,7 @@ def milestone(mode):
 
 
 def successors():
-    """Every successor statement on hand: the 15 shared-corpus bases and both milestones."""
+    """Every current shared-corpus successor and both preview milestones."""
     sources = [(case["id"], case["source"]) for case in CORPUS["cases"]]
     return sources + [(f"milestone_{mode}", milestone(mode)) for mode in sorted(MILESTONES)]
 
@@ -158,8 +158,9 @@ def projected(source):
     """The reader's G7 projection: the same statement under the base identity."""
     base = deepcopy(source)
     del base["retained_precision"]
-    base["producer"]["semantic_contract_id"] = PREVIEW
-    base["formulation_basis"]["profile_id"] = "product_preview_mechanics_v1"
+    exact = source["producer"]["semantic_contract_id"] == EXACT
+    base["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-1" if exact else PREVIEW
+    base["formulation_basis"]["profile_id"] = "exact_pressure_v3" if exact else "product_preview_mechanics_v1"
     for row in base["results"]:
         row.pop("recovery_method", None)
     return base

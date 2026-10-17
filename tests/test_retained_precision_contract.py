@@ -933,7 +933,7 @@ def test_producer_solved_bases_are_the_pinned_live_successors_d_u6_5():
     the class counts all three readers observed; without, it is not."""
     import hashlib
     c = corpus()
-    assert c["provenance"] == {"kind": "synthetic_control", "claim": "18 synthetic reader controls, 25 current public Direct publications and two declared hook-produced precommit refusal controls; no native Current evidence.", "producer_source": "1b24b01bd32fbaac1eeeac1487feee5da483ff69"}
+    assert c["provenance"] == {"kind": "synthetic_control", "claim": "The historical original 45 bases comprise 18 synthetic reader controls, 25 public Direct publications and two declared hook-produced precommit refusal controls. Appended bases have their own provenance and qualification; fixture reads establish no new execution or native Current evidence.", "producer_source": "1b24b01bd32fbaac1eeeac1487feee5da483ff69"}
     assert [f["id"] for f in c["cases"][:17] if f["provenance"] != SYNTHETIC_PROVENANCE] == [f"u8_l0_isolated_node_{mode}" for mode in L0_PINS]
     for mode, (file_sha, receipt_sha, counts) in L0_PINS.items():
         base = _cases()[f"u8_l0_isolated_node_{mode}"]
@@ -959,24 +959,54 @@ def test_producer_solved_bases_are_the_pinned_live_successors_d_u6_5():
         assert [sum(1 for x in public["classifications"] if x["class"] == k) for k in ("relative_verified", "absolute_verified", "input_derived", "non_quantity")] == counts
 
 
+EXACT_FIXTURE_ALIASES = {
+    f"w1_member_route_e_baseline_{mode}": (
+        f"fixtures/results/retained_precision_exact_successor_{mode}.json", f"b3b_m3x_{mode}")
+    for mode in ("sparse_interactive", "dense_scrutiny")
+}
+
+
+def _check_corpus_fixture_provenance(base):
+    import hashlib
+    provenance = base["provenance"]
+    path = (ROOT / provenance["fixture"]).resolve()
+    assert path.is_relative_to(ROOT.resolve()), base["id"]
+    raw = path.read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == provenance["fixture_sha256"], base["id"]
+    doc = json.loads(raw)
+    assert set(doc) == {"id", "source", "invocation"}
+    alias = EXACT_FIXTURE_ALIASES.get(base["id"])
+    if alias is None:
+        assert "fixture_case_id" not in provenance
+        assert doc["id"] == base["id"]
+    else:
+        assert (provenance["fixture"], provenance["fixture_case_id"]) == alias
+        assert doc["id"] == provenance["fixture_case_id"]
+    for key in ("source", "invocation"):
+        assert json.dumps(doc[key]) == json.dumps(base[key]), (base["id"], key)
+
+
 def test_current_corpus_fixture_provenance_links():
     """Every corpus file link names the actual bytes and the same source/invocation.
 
     This checks stored provenance, not new producer execution or native standing.
     """
-    import hashlib
     for base in corpus()["cases"]:
         provenance = base["provenance"]
         if not isinstance(provenance, dict) or "fixture" not in provenance:
             continue
-        path = (ROOT / provenance["fixture"]).resolve()
-        assert path.is_relative_to(ROOT.resolve()), base["id"]
-        raw = path.read_bytes()
-        assert hashlib.sha256(raw).hexdigest() == provenance["fixture_sha256"], base["id"]
-        doc = json.loads(raw)
-        assert set(doc) == {"id", "source", "invocation"} and doc["id"] == base["id"]
-        for key in ("source", "invocation"):
-            assert json.dumps(doc[key]) == json.dumps(base[key]), (base["id"], key)
+        _check_corpus_fixture_provenance(base)
+
+
+def test_exact_baseline_fixture_alias_is_explicit_and_rejects_a_changed_id():
+    for ident in EXACT_FIXTURE_ALIASES:
+        original = next(case for case in corpus()["cases"] if case["id"] == ident)
+        _check_corpus_fixture_provenance(original)
+        altered = deepcopy(original)
+        altered["provenance"]["fixture_case_id"] = "unrelated:fixture"
+        with pytest.raises(AssertionError):
+            _check_corpus_fixture_provenance(altered)
+        assert altered["source"] == original["source"] and altered["invocation"] == original["invocation"]
 
 
 # ---------------------------------------------------------------------------------------------
@@ -1927,6 +1957,75 @@ def test_current_shared_corpus_contract():
                           classes=classes if kind == "must_pass" else None)
             _current_read(source, None, transport, entry["id"] + ":transport",
                           transport=True)
+
+
+def test_w1_interior_corpus_controls_bind_actual_span_maxima():
+    """Consume the four current writer outputs without repeating the old cohort."""
+    data = corpus()
+    cases = [case for case in data["cases"] if case["id"].startswith("w1_member_interior_")]
+    assert len(cases) == 4
+    for case in cases:
+        assert case["provenance"]["generation_profile"] == "registered_direct"
+        maxima = [row for row in case["source"]["results"]
+                  if row.get("kind") == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") == "ss:pipe"]
+        assert len(maxima) == 1
+        assert rp.bits(maxima[0]["value"]) == ("400d555555555555" if "_asymmetric_" in case["id"] else "3ff8000000000000")
+        entry = next(entry for entry in data["must_pass"] if entry["base"] == case["id"])
+        for label, source, invocation in [(case["id"], case["source"], case["invocation"]),
+                                           (entry["id"], *apply_entry(case, entry))]:
+            _current_read(source, invocation, "pass", label, classes=case["expected_classifications"], eligibility=case["expected"])
+            _current_read(source, None, "pass", label + ":unbound", classes=case["expected_classifications"], eligibility=NOT_ELIGIBLE)
+            _current_read(source, None, "pass", label + ":transport", eligibility=NOT_ELIGIBLE, transport=True)
+
+
+def test_member_data_corpus_pair_is_synthetic_and_decisive(monkeypatch):
+    """Only declared member entries establish data in the zeroed-nodal pair.
+
+    This is a resealed reader-attestation control, not another genuine solve.
+    Removing just the independent member-data fact must make its false flag
+    survive; both native and wasm consume the same explicit corpus pair.
+    """
+    data = corpus()
+    positive = next(e for e in data["must_pass"] if e["id"] == "member_load_data_from_declared_entries")
+    negative = next(e for e in data["mutations"] if e["id"] == "member_load_body_has_data_false")
+    assert positive["base"] == negative["base"]
+    assert positive["provenance"] == negative["provenance"]
+    assert positive["provenance"]["kind"] == "synthetic_reader_attestation_only"
+    assert positive["provenance"]["not_a_genuine_solve"] and positive["provenance"]["not_a_physics_reference"]
+    base = next(c for c in data["cases"] if c["id"] == positive["base"])
+    valid, invocation = apply_entry(base, positive)
+    false_data, false_invocation = apply_entry(base, negative)
+    assert rp.validate_retained_precision(valid, invocation)["numerical_eligible"]
+    with pytest.raises(rp.RetainedPrecisionError) as error:
+        rp.validate_retained_precision(false_data, false_invocation)
+    assert (error.value.gate, error.value.code) == ("G5a", "RETAINED_PRECISION_SCALE_MISMATCH")
+    independent = rp.dml.recompute
+    monkeypatch.setattr(rp.dml, "recompute", lambda source: (independent(source)[0], set()))
+    # The complete independent digest remains intact; only the new data fact
+    # is disabled. This verifies that no earlier parity check masks the rule.
+    assert rp.validate_retained_precision(false_data, false_invocation)["numerical_eligible"]
+
+
+def test_member_combination_witness_preserves_old_string_reasons():
+    """A new dictionary cause must not reinterpret nodal base-withheld strings."""
+    data = corpus()
+    for mode in ("sparse_interactive", "dense_scrutiny"):
+        base = next(c for c in data["cases"] if c["id"] == f"w_cb4a_{mode}")
+        assert any(isinstance(c.get("reason"), str) for c in base["source"]["retained_precision"]["body"]["combinations"])
+        result = rp.validate_retained_precision(deepcopy(base["source"]), deepcopy(base["invocation"]))
+        assert {k: result[k] for k in ("invocation_bound", "numerical_eligible", "standing")} == base["expected"]
+    for ident, section in (("w1_member_combination_sparse_interactive", "cases"),
+                           ("operand_member_loads_without_member_operand", "mutations"),
+                           ("combination_with_member_load_operand_selected", "mutations")):
+        entry = next(e for e in data[section] if e["id"] == ident)
+        if section == "cases":
+            assert rp.validate_retained_precision(deepcopy(entry["source"]), deepcopy(entry["invocation"]))["numerical_eligible"]
+        else:
+            base = next(c for c in data["cases"] if c["id"] == entry["base"])
+            source, invocation = apply_entry(base, entry)
+            with pytest.raises(rp.RetainedPrecisionError) as error:
+                rp.validate_retained_precision(source, invocation)
+            assert (error.value.gate, error.value.code) == ("G8", "RETAINED_PRECISION_PREPARATION_MISMATCH")
 
 
 def test_current_corpus_requires_bound_and_must_pass_declarations():

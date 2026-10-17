@@ -1,6 +1,6 @@
-//! B7a (b) Widen domain, stage 1: per-case basis custody (RV125 N-2) and member-load cases,
-//! stepped through the actual W1 stages (prepare, native, freeze) and, at c = 3, published and
-//! read by the full Rust reader (b7-plan ruling (6) moved the G0 table pins).
+//! W1 basis custody (B7a stage 1, RV125 N-2) and declared member loads (stage 2),
+//! through actual preparation, native solve, freeze, publication and the full
+//! Rust reader, including c = 3 and the registered/unregistered public entries.
 //! Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 use super::*;
 
@@ -233,6 +233,318 @@ fn b7a_three_cases_capture_and_serialize_their_own_bases() {
                 assert_eq!(source["material_basis_ref"], json!(refs[case]), "{label}: source of case {case}");
             }
         }
+    }
+}
+
+/// At c=3 each member sidecar follows its own selector, including reuse around
+/// a base case, while distinct intensities keep the declared ledgers distinct.
+#[test]
+fn w1_three_member_cases_keep_distinct_and_reused_basis_custody() {
+    use crate::retained_tests_hooks as hooks;
+    let scale = |id: &str| if id == "P1" { 1.25 } else { 0.8 };
+    for selectors in [[None, Some("P2"), Some("P1")], [Some("P1"), None, Some("P1")]] {
+        let mut raw = torque_cases(&selectors, &scale);
+        for case in 0..3 {
+            let id = raw["model"]["load_cases"][case]["id"].as_str().unwrap().to_owned();
+            let intensity=[10.0,-7.0,3.0][case];
+            raw["model"]["load_cases"][case]["primitive_loads"].as_array_mut().unwrap().push(json!({
+                "id":format!("{id}:distinct-member-load"),"category":"distributed_force",
+                "target":{"type":"element","pipe":"pipe"},"direction":"global_x",
+                "magnitude":{"value":intensity,"unit":"N/m"},
+                "dimension":"force_per_length","provenance":INVENTED}));
+        }
+        for mode in MODES {
+            let (capture,observer,mut ordinary)=early_observed(&raw,mode,true);
+            ordinary.diagnostics.shrink_to_fit();
+            let ((_,retained),_,precommit)=hooks::counted_with_successor(||retained_w1(observer,ordinary,&capture));
+            let successor=retained.unwrap_or_else(|e|panic!("{selectors:?} {mode:?}: {e:?}")).value().clone();
+            assert_eq!(precommit.as_ref(),Some(&successor));
+            let invocation=json!({"request":raw,"solver_mode":mode.as_str()});
+            let verdict=reader::validate(&successor,Some(&invocation)).unwrap();
+            assert!(verdict.invocation_bound && verdict.numerical_eligible);
+            let body=&successor["retained_precision"]["body"];
+            for case in 0..3 {
+                assert_eq!(body["cases"][case]["status"],"selected");
+                let source=body["sources"].as_array().unwrap().iter()
+                    .find(|s|s["owner"]["case_index"]==case).unwrap();
+                let basis=source["material_basis_ref"].as_u64().unwrap() as usize;
+                let expected=match selectors[case] {
+                    None=>json!({"kind":"base"}),
+                    Some(id)=>json!({"kind":"named","id":id}),
+                };
+                assert_eq!(body["material_bases"][basis]["selector"],expected);
+                assert_eq!(body["ordinary_attempts"][case]["material_basis_ref"],basis);
+                assert_eq!(source["member_load_terms"].as_array().unwrap().len(),1);
+                assert_eq!(source["member_load_terms"][0]["source_id"],
+                    raw["model"]["load_cases"][case]["primitive_loads"].as_array().unwrap().last().unwrap()["id"]);
+                assert_eq!(source["member_load_terms"][0]["intensity"],
+                    json!([format!("{:016x}",[10.0_f64,-7.0,3.0][case].to_bits()),
+                        "0000000000000000","0000000000000000"]));
+            }
+            if selectors[0]==selectors[2] {
+                assert_eq!(body["sources"][0]["material_basis_ref"],body["sources"][2]["material_basis_ref"]);
+                assert_ne!(body["cases"][0]["selection"]["ledger_sha256"],body["cases"][2]["selection"]["ledger_sha256"]);
+            }
+        }
+    }
+}
+
+/// Invented numerical input for exact section/transport controls; it is not an
+/// engineering example or an external physics reference.
+fn w1_interior_member_request(asymmetric:bool)->Value {
+        let mut raw=n05_request(vec![n05_torques()]);
+        let provenance=INVENTED;
+        // This invented numerical control makes the represented Z hull a
+        // point and keeps source I rounding below 4.159e-22 relative. Scaling
+        // by Z gives dyadic component stresses, independently of MPa transport.
+        let z_control=f64::from_bits(0x3f3c82e3dc7ef90c);
+        let w=3.0*z_control;
+        assert_eq!(w.to_bits(),0x3f55622ae55f3ac9);
+        raw["model"]["pipe_segments"][0]["section"]["outside_diameter"]["value"]=json!(0.25);
+        raw["model"]["pipe_segments"][0]["section"]["wall_thickness"]["value"]=json!(f64::from_bits(0x3f847ae147ad8ea5));
+        raw["model"]["supports"]=json!([
+            {"id":"root-pin","family":"anchor","node":"root","restraints":["UX","UY","UZ","RX"],"provenance":provenance},
+            {"id":"tip-pin","family":"anchor","node":"tip","restraints":["UX","UY","UZ","RX"],"provenance":provenance}]);
+        raw["model"]["load_cases"][0]["primitive_loads"]=json!([
+            {"id":"member:transverse","category":"distributed_force","target":{"type":"element","pipe":"pipe"},
+                "direction":"global_y","magnitude":{"value":w,"unit":"N/m"},"dimension":"force_per_length","provenance":provenance}]);
+        if asymmetric {
+            for (id,node,value) in [("root:moment","root",z_control),("tip:moment","tip",-2.0*z_control)] {
+                raw["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(json!({
+                    "id":id,"category":"concentrated_moment","target":{"type":"node","node":node},
+                    "direction":"RZ","magnitude":{"value":value,"unit":"N*m"},"dimension":"moment","provenance":provenance}));
+            }
+        }
+        raw
+}
+
+/// Exercise the real preparation/native/freeze/overlay path on a simply
+/// supported beam, entering the existing private proof driver directly.
+#[test]
+fn w1_loaded_maximum_is_the_kernel_projection_with_member_spans() {
+    for asymmetric in [false,true] {
+        let raw=w1_interior_member_request(asymmetric);
+        let z_control=f64::from_bits(0x3f3c82e3dc7ef90c);
+        for mode in MODES {
+            let (request,capture)=source_receipt::CapturedInvocation::parse(raw.clone(),mode).unwrap();
+            let mut prepared=rp::PreparedCase::prepare_observed(request,mode,&capture)
+                .unwrap_or_else(|f|panic!("preparation: {:?}",f.capture.error));
+            let ordinary=serde_json::to_vec(prepared.ordinary()).unwrap();
+            prepared.solve_native().unwrap();
+            let candidate=prepared.project_candidate().unwrap_or_else(|f| {
+                if let rp::PreparedCandidateError::Proof(p)=&f.error {
+                    if let Some(d)=p.work().loaded_maximum_diagnostic() {
+                        println!("W1_PP_INTERVAL_DIAGNOSTIC {}",json!({"row":d.row,"member":d.member,"lower":d.lower,"upper":d.upper}));
+                    }
+                }
+                panic!("asymmetric={asymmetric} {mode:?}: {} rows8={:?} row75={:?}",
+                    format!("{:?}",f.error).split(", work:").next().unwrap(),
+                    f.ordinary.results.get(8).map(|r|(&r.id,&r.kind,&r.unit,r.value)),
+                    f.ordinary.results.get(75).map(|r|(&r.id,&r.kind,&r.unit,r.value)))
+            });
+            assert!(candidate.certificate().passed());
+            let e=candidate.envelope();
+            let maximum=e.results.iter().find(|r|r.kind=="pipe_elastic_normal_stress_maximum_v2").unwrap();
+            let evidence=&e.contract_evidence.as_ref().unwrap()["preview_cases"][0]["pipe_stress_extrema"][0];
+            let lower=evidence["value_lower_pa"].as_f64().unwrap();
+            let upper=evidence["value_upper_pa"].as_f64().unwrap();
+            assert_eq!((lower+0.5*(upper-lower)).to_bits(),maximum.value.to_bits());
+            assert_eq!(evidence["global_upper_bound_pa"],evidence["value_upper_pa"]);
+            let z=candidate.capture().facts[0].section_modulus;
+            assert_eq!(z.to_bits(),z_control.to_bits());
+            // Re-run the existing bounder with independently assembled source
+            // arguments. Its witness upper can be below the global upper.
+            let source=candidate.capture().source.as_ref().unwrap();
+            let m=&source.members()[0];let f=&candidate.capture().facts[0];
+            let pipe=StraightPipeElement{element_id:"pipe".into(),
+                node_i:FrameNode{index:m.node_i as usize,coordinates:source.nodes()[m.node_i as usize]},
+                node_j:FrameNode{index:m.node_j as usize,coordinates:source.nodes()[m.node_j as usize]},
+                section:StraightPipeSectionProperties{elastic_modulus:m.elastic_modulus,shear_modulus:m.shear_modulus,
+                    area:m.area,second_moment_y:m.second_moment_y,second_moment_z:m.second_moment_z,
+                    torsion_constant:m.torsion_constant,mass_per_length:None,
+                    beam_theory:open_pipe_stress_frame_kernel::BeamTheory::EulerBernoulli},y_reference:m.y_reference};
+            let section=DerivedSection{area:f.area,internal_area:0.0,second_moment:f.second_moment,
+                torsion_constant:f.torsion_constant,section_modulus:f.section_modulus,torsion_radius:f.radius,
+                wall_thickness:f.effective_wall};
+            let names=["force:pipe:axial","force:pipe:shear-y","force:pipe:shear-z",
+                "moment:pipe:torsion","moment:pipe:bending-y","moment:pipe:bending-z"];
+            let ends:[f64;12]=std::array::from_fn(|j| {
+                let id=format!("result:{}{}",names[j%6],if j<6{""}else{":end-j"});
+                e.results.iter().find(|r|r.id==id).unwrap().value
+            });
+            let loads=straight_local_uniform_loads(&pipe,0,&[
+                open_pipe_stress_primitive_loads::ElementUniformLoadContribution{
+                    load_id:"member:transverse".into(),element_index:0,
+                    direction:open_pipe_stress_primitive_loads::LoadDirection::GlobalY,
+                    magnitude:open_pipe_stress_primitive_loads::LoadQuantity{value:3.0*z_control,
+                        dimension:open_pipe_stress_primitive_loads::LoadDimension::ForcePerLength},extent:None}
+            ]).unwrap();
+            let pp=exact_straight_summary_extrema(&pipe,&ends,&loads,&section,None).unwrap();
+            assert!(lower<=pp.value_lower&&upper>=pp.upper_bound,"evidence must contain the complete PP global interval");
+            if asymmetric {assert!(pp.value_upper<pp.upper_bound,"the witness/global upper distinction is active");}
+            let a=candidate.capture().facts[0].area;
+            let end_max=[("result:force:pipe:axial","result:moment:pipe:bending-z"),
+                ("result:force:pipe:axial:end-j","result:moment:pipe:bending-z:end-j")].into_iter()
+                .map(|(n,m)|e.results.iter().find(|r|r.id==n).unwrap().value.abs()/a
+                    +e.results.iter().find(|r|r.id==m).unwrap().value.abs()/z).fold(0.0_f64,f64::max);
+            assert!(maximum.value>end_max,"the active interior maximum must exceed both published end values");
+            assert_eq!(maximum.value.to_bits(),if asymmetric{0x4008555555555555}else{0x3ff8000000000000},
+                "independent true-annulus/represented-lane midpoint reference");
+            if !asymmetric {
+                assert_eq!(evidence["station_fraction"],0.5);
+            }
+            println!("W1_LOADED_PP {}",json!({"asymmetric":asymmetric,"mode":mode.as_str(),
+                "value":maximum.value,"lower":lower,"upper":upper,"station":evidence["station_fraction"],
+                "ordinary_sha256":sha(&ordinary)}));
+        }
+    }
+}
+
+/// Add the loaded beam without changing the sensitive ordinary member.
+fn w1_interior_publication_request(asymmetric:bool,tip_scale:f64)->Value {
+        let mut beam=w1_interior_member_request(asymmetric);
+        if asymmetric {
+            // At tip_scale=-3 the independent stress polynomial is
+            // -1-8t+6t²: absolute maximum 11/3 at t=2/3, exact reaction 4Z.
+            // The -2 control instead keeps the prototype's 73/24 maximum and
+            // the exact (7/2)Z scale halfway used by the negative G5b check.
+            let tip=beam["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap()
+                .iter_mut().find(|l|l["id"]=="tip:moment").unwrap();
+            tip["magnitude"]["value"]=json!(tip_scale*f64::from_bits(0x3f3c82e3dc7ef90c));
+        }
+        // The original torque case supplies the genuine ordinary sensitivity
+        // trigger. Its independent, unloaded member retains the original path.
+        let mut raw=n05_request(vec![n05_torques()]);
+        for node in beam["model"]["nodes"].as_array().unwrap() {
+            let mut node=node.clone();
+            node["id"]=json!(format!("ss:{}",node["id"].as_str().unwrap()));
+            node["position"]["x"]=json!(node["position"]["x"].as_f64().unwrap()+4.0);
+            raw["model"]["nodes"].as_array_mut().unwrap().push(node);
+        }
+        for pipe in beam["model"]["pipe_segments"].as_array().unwrap() {
+            let mut pipe=pipe.clone();
+            for key in ["id","from","to"] {pipe[key]=json!(format!("ss:{}",pipe[key].as_str().unwrap()));}
+            raw["model"]["pipe_segments"].as_array_mut().unwrap().push(pipe);
+        }
+        for support in beam["model"]["supports"].as_array().unwrap() {
+            let mut support=support.clone();
+            for key in ["id","node"] {support[key]=json!(format!("ss:{}",support[key].as_str().unwrap()));}
+            raw["model"]["supports"].as_array_mut().unwrap().push(support);
+        }
+        for load in beam["model"]["load_cases"][0]["primitive_loads"].as_array().unwrap() {
+            let mut load=load.clone();
+            load["id"]=json!(format!("ss:{}",load["id"].as_str().unwrap()));
+            let key=if load["target"]["type"]=="element"{"pipe"}else{"node"};
+            load["target"][key]=json!(format!("ss:{}",load["target"][key].as_str().unwrap()));
+            raw["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(load);
+        }
+        raw
+}
+
+/// An independent sensitive member supplies a genuine W1 trigger while the
+/// loaded beam exercises complete private/public publication and G8 binding.
+#[test]
+fn w1_member_interior_publications_bind_the_actual_direct_entry() {
+    for asymmetric in [false,true] {
+        let raw=w1_interior_publication_request(asymmetric,-3.0);
+        for mode in MODES {
+            let (capture,observer,mut ordinary)=early_observed(&raw,mode,true);
+            ordinary.diagnostics.shrink_to_fit();
+            let plain_bytes=serde_json::to_vec(&ordinary).unwrap();
+            let ((envelope,retained),_,captured)=hooks::counted_with_successor(||retained_w1(observer,ordinary,&capture));
+            if retained.is_err() {
+                if let (Some(dir),Some(candidate))=(std::env::var_os("W1_MEMBER_INTERIOR_OUT"),captured.as_ref()) {
+                    std::fs::write(std::path::Path::new(&dir).join(format!("FAILED_precommit_{asymmetric}_{}.json",mode.as_str())),
+                        serde_json::to_string_pretty(&json!({"source":candidate,"invocation":{"request":raw,"solver_mode":mode.as_str()},
+                            "status":"unreviewed_precommit_failure"})).unwrap()).unwrap();
+                }
+            }
+            let successor=retained.unwrap_or_else(|e| {
+                let (_,observer,ordinary)=early_observed(&raw,mode,true);
+                let mut p=observer.prepare_cases(ordinary,1,&[0]).unwrap_or_else(|f|panic!("{:?}",f.error));
+                p.native();p.freeze();
+                let failures:Vec<_>=p.attempts.iter().map(|a|match &a.end {
+                    rp::AttemptEnd::Candidate(f)=>format!("{}",format!("{:?}",f.error).split(", work:").next().unwrap()),
+                    rp::AttemptEnd::Frozen(_)=>"Frozen".into(),
+                    _=>"Other".into(),
+                }).collect();
+                panic!("{asymmetric} {mode:?}: {e:?}: {failures:?}")
+            }).value().clone();
+            assert!(serde_json::to_vec(&envelope).unwrap()==plain_bytes,"ordinary owner changed on a successful W1 transfer");
+            assert_eq!(captured,Some(successor.clone()));
+            let invocation=json!({"request":raw,"solver_mode":mode.as_str()});
+            let verdict=reader::validate(&successor,Some(&invocation)).unwrap();
+            assert!(verdict.invocation_bound&&verdict.numerical_eligible);
+            assert_eq!(successor["retained_precision"]["body"]["cases"][0]["status"],"selected");
+            let maximum=successor["results"].as_array().unwrap().iter()
+                .find(|r|r["kind"]=="pipe_elastic_normal_stress_maximum_v2"&&r["entity_ref"]=="ss:pipe").unwrap();
+            assert_eq!(maximum["value"].as_f64().unwrap().to_bits(),
+                if asymmetric{0x400d555555555555}else{0x3ff8000000000000});
+            let direct_raw=raw.clone();
+            let (direct,_,precommit)=hooks::counted_with_successor(||
+                run_linear_static_preview_value_with_retained_direct(direct_raw,mode,RETAINED_LIMIT).unwrap());
+            if registered() {
+                assert_eq!(direct.admission().unwrap().profile,ProfileStatus::Registered);
+                assert_eq!(precommit,Some(successor.clone()));
+                assert_eq!(published(direct),serde_json::to_vec(&successor).unwrap());
+            } else {
+                assert_eq!(direct.admission().unwrap().profile,ProfileStatus::Stale);
+                assert!(precommit.is_none()&&direct.successor().is_none());
+                assert_eq!(published(direct),plain_bytes);
+            }
+            if let Some(dir)=std::env::var_os("W1_MEMBER_INTERIOR_OUT") {
+                let shape=if asymmetric{"asymmetric"}else{"symmetric"};
+                let id=format!("w1_member_interior_{shape}_{}",mode.as_str());
+                std::fs::write(std::path::Path::new(&dir).join(format!("{id}.json")),
+                    serde_json::to_string_pretty(&json!({"id":id,"source":successor,"invocation":invocation,
+                        "generation_profile":if registered(){"registered_direct"}else{"stale_private_driver"}})).unwrap()+"\n").unwrap();
+            }
+        }
+    }
+}
+
+/// Native quantity scales and published-row maxima straddle an exact binary64
+/// halfway in this distinct input. Preserve the existing strict G5b refusal.
+#[test]
+fn w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal() {
+    let raw=w1_interior_publication_request(true,-2.0);
+    for mode in MODES {
+        let (capture,observer,mut ordinary)=early_observed(&raw,mode,true);
+        ordinary.diagnostics.shrink_to_fit();
+        let bytes=serde_json::to_vec(&ordinary).unwrap();
+        let ((envelope,retained),_,candidate)=hooks::counted_with_successor(||retained_w1(observer,ordinary,&capture));
+        assert_eq!(retained.err(),Some(W1Fallback::Precommit{gate:"G5b",code:"RETAINED_PRECISION_SCALE_MISMATCH".into()}));
+        let expected=with_notice(&bytes,raw["model"]["load_cases"][0]["id"].as_str().unwrap(),None);
+        assert!(serde_json::to_vec(&envelope).unwrap()==expected,"the ordinary bytes keep only the existing R2 fallback notice");
+        let candidate=candidate.unwrap();
+        let invocation=json!({"request":raw,"solver_mode":mode.as_str()});
+        let failure=reader::validate(&candidate,Some(&invocation)).unwrap_err();
+        assert_eq!((failure.gate,failure.code.as_str()),("G5b","RETAINED_PRECISION_SCALE_MISMATCH"));
+    }
+}
+
+/// Preserve the real input-width refusal beside the selected interior controls.
+#[test]
+fn w1_loaded_maximum_refuses_irreducible_represented_section_width() {
+    let mut raw=w1_interior_member_request(false);
+    raw["model"]["pipe_segments"][0]["section"]["outside_diameter"]["value"]=json!(0.2);
+    raw["model"]["pipe_segments"][0]["section"]["wall_thickness"]["value"]=json!(0.01);
+    raw["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"]=json!(3.5);
+    // I-hat/c and Z-hat differ exactly. Their relative hull width is
+    // 5.3348979419179844e-18, above2^-64; subdivision cannot close that floor.
+    for mode in MODES {
+        let (request,capture)=source_receipt::CapturedInvocation::parse(raw.clone(),mode).unwrap();
+        let mut prepared=rp::PreparedCase::prepare_observed(request,mode,&capture)
+            .unwrap_or_else(|f|panic!("{:?}",f.capture.error));
+        prepared.solve_native().unwrap();
+        let failure=match prepared.project_candidate(){Ok(_)=>panic!("unresolved section width published"),Err(f)=>f};
+        let rp::PreparedCandidateError::Proof(proof)=failure.error else{panic!("wrong refusal stage")};
+        let mut copies=k::TraceCopyWork::default();
+        assert!(matches!(proof.failure().typed_cause(&mut copies),k::ProductFailureView::Association("loaded maximum search exhausted")));
+        let diagnostic=proof.work().loaded_maximum_diagnostic().unwrap();
+        assert_eq!(diagnostic.member,0);
+        assert_ne!(diagnostic.lower,diagnostic.upper);
+        assert!(proof.work().status().is_exact());
     }
 }
 
