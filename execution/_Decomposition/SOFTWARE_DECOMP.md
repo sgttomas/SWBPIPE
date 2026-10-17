@@ -3,7 +3,7 @@ doc_id: OPS-SOFTWARE-DECOMP
 package_role: working_surface
 doc_kind: decomposition.software
 status: current_basis
-revision: 0.14
+revision: 0.15
 created: 2026-04-30
 refs:
   - rel: depends_on
@@ -51,6 +51,8 @@ release, professional, live-binding, or app-dev package-consumption claim.
 Revision v0.13 applies the exact SCA-011 Group 2 ownership amendment under its recorded approval. It adds DEL-04-07, DEL-07-11, DEL-07-12 and DEL-16-06 and scope SOW-078/079; clarifies DEC-094 coverage versus editor implementation; and applies the already-ruled DEC-044, DEC-020 and DEC-103 assignments without ruling them again. Its audited poststate was accepted at the recorded SCA-011 checkpoint Group 3. No lifecycle, numerical criterion, provider, privacy, release or engineering-acceptance hold is changed.
 
 Revision v0.14 records the owner's ruling `D-77` (`DEC-115`, 2026-09-26), which adopts Root D-GOV-48 (every scope item has exactly one Package home) for this decomposition. Five items that named two Packages each keep one home: SOW-030 → PKG-10, SOW-046 → PKG-08, SOW-052 → PKG-05, SOW-074 → PKG-15 and SOW-075 → PKG-15. Their Deliverables in PKG-04 and PKG-17 stay mapped as supporting contributions, and §6 labels those items "(supporting)" under the non-home Package. Revision v0.14 is the first revision of this decomposition not recorded by an SCA: `D-77` is an owner-ruled allocation, not a scope-change amendment, and departs from the proposal's SCA-012 recommendation because no Piping or Root instrument requires scope-change for an allocation change to non-`ISSUED` items and the owner's answers did not select an instrument. It changes no scope statement, Deliverable mapping, objective, dependency edge, DAG version, lifecycle state or count, and it changes no file of an `ISSUED` deliverable.
+
+Revision v0.15 gives the retained-precision result method a home. On 2026-10-17 the owner accepted HELP_HUMAN's recommendation of a new PKG-04 deliverable for it ("Proceed as recommended in this matter and those other items from your previous set of findings"). The method had no PRD clause, scope item or ScopeOfWork; it was documented only in Design files of DEL-05-02, DEL-04-01, DEL-04-07, DEL-05-03 and DEL-07-11. The revision adds scope item SOW-080, traced to the PRD §12.8 requirement for verified result bounds and to OBJ-003, and Deliverable DEL-04-08 "Retained-precision result verification" (BACKEND_FEATURE_SLICE, context envelope L). DEL-04-08 owns the receipts, the publication and classification law, the product reader and test verifier, their native/wasm comparison and the memory-pricing law. The kernel, stress-recovery, load, combination and solve-integration Deliverables keep their scope and appear as DEL-04-08's declared inputs. Like v0.14, this revision is not an SCA and moves no `_ScopeChange/_LATEST.md` pointer. It changes no existing scope statement, Deliverable mapping, dependency edge or lifecycle state. The text of SOW-080, of the PRD requirement and of DEL-04-08's commitments and acceptance criteria is pending the owner's approval.
 
 This decomposition intentionally separates:
 
@@ -189,6 +191,7 @@ This decomposition intentionally separates:
 |SOW-077|IN|The GUI shall provide a ratified interactive model-building operation vocabulary and a governing tool-palette contract that organizes the human command surface for building and modifying the piping model, with every palette command routed through structured model operations.|PRD v0.3 §14; SCA-009 owner request 2026-08-20|Vocabulary classes NORMATIVE-NOW / ROADMAP per SCA-009 D3 (Vocabulary_Annex); binds to the implemented operation taxonomy; single palette owner DEL-07-09; no second mutation route.|
 |SOW-078|IN|The desktop shall provide a coherent workspace shell and native-host boundary for project/session navigation, shared selection/history coordination, panel mounting, jobs and explicit file operations; it shall preserve durable/transient separation, owned service routes, user-controlled private-data boundaries and recoverable session behavior.|SCA-011 DEC-111|DEL-07-11; finite boundary in §7.|
 |SOW-079|IN|The desktop shall let users inspect, prepare and explicitly hand off the already-scoped interoperability packages and review their validation/provenance evidence, preserving the owning schema, identity, unit, diagnostic, privacy and professional-boundary contracts and visibly distinguishing illustrative previews from actual generated records.|SCA-011 DEC-111|DEL-07-12; finite boundary in §7.|
+|SOW-080|IN|The solver shall publish verified numerical error bounds for result quantities where its retained-precision method establishes them, and keep the ordinary values and standing wherever it cannot, relaxing no search, verification, tolerance or domain limit. It shall make each published verified result checkable by the product reader and by a test verifier that shares no code with the producer, and admit each retained-precision invocation only within the owner-qualified memory budget.|PRD §12.8 (verified result bounds); owner direction 2026-10-17|DEL-04-08. A verified bound is a numerical statement about the problem the method records (PRD §12.8). Desktop activation (B8) remains owner-held.|
 
 ## 5. Objectives
 
@@ -197,7 +200,7 @@ This decomposition intentionally separates:
 |---|---|---|---|
 |OBJ-001|Deliver an open, auditable piping stress analysis platform that engineers can inspect and extend.|SOW-001, SOW-002, SOW-024, SOW-033, SOW-041, SOW-050|DEL-01-01, DEL-02-01, DEL-02-02, DEL-02-03, DEL-02-05, DEL-11-01, DEL-11-02, DEL-11-03, DEL-11-04, DEL-11-05|
 |OBJ-002|Protect standards-body and vendor intellectual property by separating open mechanics from user-supplied code/data.|SOW-003, SOW-004, SOW-016, SOW-028, SOW-042, SOW-048|DEL-01-01, DEL-01-02, DEL-01-03, DEL-03-07, DEL-06-03, DEL-06-04, DEL-08-05, DEL-11-02, DEL-11-05|
-|OBJ-003|Implement a robust global centerline/frame solver for practical piping flexibility analysis.|SOW-005, SOW-006, SOW-011, SOW-012, SOW-013, SOW-014, SOW-015, SOW-035, SOW-052, SOW-053|DEL-04-01, DEL-04-02, DEL-04-03, DEL-04-04, DEL-04-05, DEL-04-06, DEL-05-01, DEL-05-02, DEL-05-03, DEL-05-05, DEL-11-03, DEL-04-07|
+|OBJ-003|Implement a robust global centerline/frame solver for practical piping flexibility analysis.|SOW-005, SOW-006, SOW-011, SOW-012, SOW-013, SOW-014, SOW-015, SOW-035, SOW-052, SOW-053, SOW-080|DEL-04-01, DEL-04-02, DEL-04-03, DEL-04-04, DEL-04-05, DEL-04-06, DEL-05-01, DEL-05-02, DEL-05-03, DEL-05-05, DEL-11-03, DEL-04-07, DEL-04-08|
 |OBJ-004|Support piping-specific components and private libraries without bundling protected data.|SOW-007, SOW-008, SOW-009, SOW-010, SOW-017, SOW-018, SOW-019, SOW-044, SOW-051|DEL-03-01, DEL-03-02, DEL-03-03, DEL-03-04, DEL-03-05, DEL-03-06, DEL-03-07, DEL-03-08|
 |OBJ-005|Provide user-defined rule packs that evaluate solver results against user-owned design bases.|SOW-004, SOW-014, SOW-016, SOW-042, SOW-045, SOW-047|DEL-05-02, DEL-05-04, DEL-06-01, DEL-06-02, DEL-06-03, DEL-06-04, DEL-06-05|
 |OBJ-006|Provide a GUI workflow that makes model creation, missing data, results, and assumptions visible.|SOW-020, SOW-021, SOW-022, SOW-023, SOW-036, SOW-055, SOW-077, SOW-078, SOW-079|DEL-07-01, DEL-07-02, DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-06, DEL-07-07, DEL-07-09, DEL-07-11, DEL-07-12|
@@ -223,7 +226,7 @@ This decomposition intentionally separates:
 |PKG-01|Governance, IP Boundary, and Professional Responsibility|Defines the product’s legal, governance, contribution, and professional-boundary rules.|SOW-001, SOW-003, SOW-028, SOW-034, SOW-048, SOW-064|Does not implement solver or GUI behavior except through requirements and policies.|
 |PKG-02|Domain Model, Units, and Core Schemas|Defines the canonical software entities, unit system, persistence/serialization contracts, and extensibility boundaries.|SOW-002, SOW-025, SOW-038, SOW-041, SOW-050, SOW-065|Does not implement numerical solving or GUI views.|
 |PKG-03|Piping Components, Materials, and Library Data Model|Defines material/component/section/library models and public/private data governance at the data-object level.|SOW-007, SOW-008, SOW-009, SOW-010, SOW-017, SOW-018, SOW-019, SOW-044, SOW-051|Does not implement the rule evaluator or global solver.|
-|PKG-04|Solver Core and Numerical Methods|Implements global 3D centerline/frame mechanics, straight pipe behavior, supports, nonlinear support logic, diagnostics, and performance harnesses.|SOW-005, SOW-006, SOW-011, SOW-012, SOW-035, SOW-053, SOW-052 (supporting)|Does not decide code compliance; produces mechanical results.|
+|PKG-04|Solver Core and Numerical Methods|Implements global 3D centerline/frame mechanics, straight pipe behavior, supports, nonlinear support logic, diagnostics, performance harnesses, and retained-precision result verification.|SOW-005, SOW-006, SOW-011, SOW-012, SOW-035, SOW-053, SOW-080, SOW-052 (supporting)|Does not decide code compliance; produces mechanical results.|
 |PKG-05|Loads, Load Cases, and Stress Recovery|Implements primitive loads, concentrated/distributed user loads, load-case algebra, mechanical stress recovery, and analysis-status semantics.|SOW-013, SOW-014, SOW-015, SOW-047, SOW-052|Does not contain proprietary code load combinations or allowables.|
 |PKG-06|Rule Packs and User-Supplied Code Check Engine|Implements the schema, sandboxed evaluator, required-input checks, and private lifecycle for rule packs.|SOW-004, SOW-016, SOW-042, SOW-045|Does not ship ASME or other proprietary rule content.|
 |PKG-07|Graphical User Interface and Engineering Workflow|Implements the interactive modeler, editors, warning UX, solve-execution UX, and results views.|SOW-020, SOW-021, SOW-022, SOW-023, SOW-036, SOW-055, SOW-076, SOW-077, SOW-078, SOW-079|Does not silently supply missing code data.|
@@ -299,6 +302,7 @@ This decomposition intentionally separates:
 |DEL-04-05|Sparse solver performance harness|TEST_SUITE|SOW-035|OBJ-003,OBJ-008|M|Performance harness separate from solver logic.|
 |DEL-04-06|Solver diagnostics and singularity detection|BACKEND_FEATURE_SLICE|SOW-053,SOW-035|OBJ-003,OBJ-008,OBJ-012|M|Focused diagnostic layer separate from the stiffness kernel.|
 |DEL-04-07|Product solve integration and nonlinear orchestration|BACKEND_FEATURE_SLICE|SOW-005,SOW-011,SOW-012,SOW-052,SOW-053|OBJ-003,OBJ-012|L|Finite integration boundary; mathematical primitives, convergence policy and engineering acceptance remain with their owners.|
+|DEL-04-08|Retained-precision result verification|BACKEND_FEATURE_SLICE|SOW-080|OBJ-003|L|Owns the retained-precision and retained-source receipts, publication and classification law, product reader, test verifier, native/wasm comparison and memory-pricing law. Kernel lanes, stress recovery, loads, combinations and solve integration stay with their owners as declared inputs.|
 
 ### PKG-05 — Loads, Load Cases, and Stress Recovery
 
@@ -474,7 +478,7 @@ If a downstream deliverable needs to depart from an applicable architecture basi
 
 ## 9. Scope ledger summary
 
-The authoritative companion register is `_Registers/ScopeLedger.csv`.
+This table is the scope ledger. The companion register files (`docs/_Registers/ScopeLedger.csv`, `Deliverables.csv` and `ContextBudgetQA.csv`) were retired on 2026-10-10 and remain in Git history.
 
 
 |ScopeItemID|Status|Statement|SourceRef|PackageID|DeliverableID(s)|ObjectiveID(s)|OpenIssue|Notes|
@@ -558,22 +562,23 @@ The authoritative companion register is `_Registers/ScopeLedger.csv`.
 |SOW-077|IN|The GUI shall provide a ratified interactive model-building operation vocabulary and a governing tool-palette contract that organizes the human command surface for building and modifying the piping model, with every palette command routed through structured model operations.|PRD v0.3 §14; SCA-009 owner request 2026-08-20|PKG-07|DEL-07-09, DEL-07-01, DEL-07-02, DEL-07-03|OBJ-006, OBJ-015|FALSE|DEL-07-09 owns vocabulary coverage and single-palette organization; DEL-07-01 implements palette rendering/routing, DEL-07-02 generic/support editing, DEL-07-03 load/combination/material/library editing. No dedicated support-editor slice.|
 |SOW-078|IN|The desktop shall provide a coherent workspace shell and native-host boundary for project/session navigation, shared selection/history coordination, panel mounting, jobs and explicit file operations; it shall preserve durable/transient separation, owned service routes, user-controlled private-data boundaries and recoverable session behavior.|SCA-011 ownership amendment; P-OWN-02|PKG-07|DEL-07-11|OBJ-006, OBJ-010, OBJ-015|FALSE|Candidate scope allocation only; no implementation, engineering, release or lifecycle acceptance.|
 |SOW-079|IN|The desktop shall let users inspect, prepare and explicitly hand off the already-scoped interoperability packages and review their validation/provenance evidence, preserving the owning schema, identity, unit, diagnostic, privacy and professional-boundary contracts and visibly distinguishing illustrative previews from actual generated records.|SCA-011 ownership amendment; P-OWN-05|PKG-07|DEL-07-12|OBJ-006, OBJ-007, OBJ-018|FALSE|Candidate scope allocation only; no implementation, engineering, release or lifecycle acceptance.|
+|SOW-080|IN|The solver shall publish verified numerical error bounds for result quantities where its retained-precision method establishes them, and keep the ordinary values and standing wherever it cannot, relaxing no search, verification, tolerance or domain limit. It shall make each published verified result checkable by the product reader and by a test verifier that shares no code with the producer, and admit each retained-precision invocation only within the owner-qualified memory budget.|PRD §12.8 (verified result bounds); owner direction 2026-10-17|PKG-04|DEL-04-08|OBJ-003|FALSE|Revision 0.15. Kernel, stress-recovery, load, combination and solve-integration Deliverables remain owners of their scope and are DEL-04-08's declared inputs.|
 
 ## 10. Coverage and telemetry
 
 
 |Metric|Value|
 |---|---|
-|ScopeItemCount|79|
+|ScopeItemCount|80|
 |PackageCount|18|
-|DeliverableCount|106|
+|DeliverableCount|107|
 |ObjectiveCount|18|
 |UnassignedScopeItems|0|
 |ScopeItemsWithoutDeliverableMapping|0|
 |UnmappedObjectives|0|
-|ContextEnvelopeCounts|S=9, M=70, L=27, XL=0|
+|ContextEnvelopeCounts|S=9, M=70, L=28, XL=0|
 |OpenIssues|17|
-|Revision|0.14 — D-77 Package homes (DEC-115)|
+|Revision|0.15 — DEL-04-08 retained-precision result verification (SOW-080)|
 
 ## 11. Open issues
 
@@ -721,6 +726,6 @@ The authoritative companion register is `_Registers/ScopeLedger.csv`.
 
 ## 13. Gate posture
 
-This v0.14 decomposition is the accepted current basis: the SCA-011 poststate accepted at the recorded Group 3 act, with the owner-ruled `D-77` Package homes (`DEC-115`) applied. The active amendment snapshot and derivative handoff are bound in the SCA-011 closure record; `D-77` is not a scope-change amendment and moves no `_ScopeChange/_LATEST.md` pointer.
+The accepted current basis is the SCA-011 poststate accepted at the recorded Group 3 act, with the owner-ruled `D-77` Package homes (`DEC-115`) applied. Revision 0.15 adds DEL-04-08 and SOW-080 to it, pending the owner's approval of their text. The active amendment snapshot and derivative handoff are bound in the SCA-011 closure record; neither `D-77` nor v0.15 is a scope-change amendment, and neither moves the `_ScopeChange/_LATEST.md` pointer.
 
 PREPARATION may scaffold package and deliverable folders from this decomposition and the companion registers after ORCHESTRATOR plans the accepted downstream refreshes. `PKG-00` is retained architecture-basis reference context per HUMAN-STEER-PKG00-EXCLUSION-001 and `D-43`, not a production package awaiting issuance, and its SCA-001 architecture basis as amended through SCA-008 may be injected into `PKG-01` through `PKG-17` sealed contexts and future TASK briefs. Type 2 execution still requires one sealed deliverable context, explicit write scope, applicable invariants, and acceptance criteria. Existing DEV-001 dispatch, immutable DAG snapshots, lifecycle history, implementation evidence, schemas, docs, and code may predate revision 0.11 until refreshed by their owning workflows; SCA-008 does not itself approve a DAG successor, adopt an automation mechanism or client status, change lifecycle, create implementation authority, or make release/professional claims. `D-30`, `D-31`, `D-58`, `DEC-041`, and `DEC-063` remain historical records; `D-58` and `DEC-091` govern current effect.

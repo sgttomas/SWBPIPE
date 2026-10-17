@@ -5,8 +5,8 @@
 **Product type:** Analysis-grade piping design engine and stress-model authoring environment  
 **Document version:** 0.4 Draft  
 **Date:** 2026-05-02  
-**Amended:** 2026-07-16; 2026-09-18; 2026-10-12  
-**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only) and by SCA-012 (2026-10-12, elastic tie rods)  
+**Amended:** 2026-07-16; 2026-09-18; 2026-10-12; 2026-10-17 (§12.8, pending the owner's approval of its text)  
+**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only) and by SCA-012 (2026-10-12, elastic tie rods); the 2026-10-17 §12.8 amendment (verified result bounds) is pending the owner's approval of its text  
 **Intended audience:** Piping designers, piping stress engineers, software architects, numerical-method developers, open-source contributors, owner-operators, EPC engineering managers, and technical reviewers
 
 ---
@@ -76,6 +76,8 @@ This PRD retains and depends on the project governance boundaries defined by the
 This PRD was amended on 2026-07-16 under D-47 Option O-A (codified as DEC-080, executed as SCA-007): the §24 R6 reproduction exit criterion became actor-neutral; §22.5 was retitled and re-weighted to name external-prover correlation the principal validation posture; §22.1 gained a verification-philosophy paragraph; and independent third-party reproduction was re-homed as a publication-era objective. The document was relocated to `docs/PRD.md`.
 
 This PRD was amended on 2026-10-12 by SCA-012 on the owner's choice "Lift for tie rods only": elastic tie rods on expansion joints, as explicit rod elements, left the §7 non-goals (item 19) and joined the §12.3 expansion-joint requirements; hinge and gimbal hardware remain non-goals.
+
+This PRD was amended on 2026-10-17, pending the owner's approval of the text: §12.8 gained a requirement for verified result bounds (decomposition revision 0.15, SOW-080). The owner directed the work on 2026-10-17: "Proceed as recommended in this matter and those other items from your previous set of findings".
 
 ---
 
@@ -775,7 +777,21 @@ The analytical engine shall:
 - detect missing physical data required for solve;
 - report solver residuals and convergence diagnostics;
 - store inputs and outputs with sufficient precision for engineering review;
-- produce reproducible results for a fixed model state and solver version.
+- produce reproducible results for a fixed model state and solver version;
+- publish verified numerical error bounds where its retained-precision method establishes them, as set out below.
+
+#### Verified result bounds
+
+A verified bound states that a published value lies within a stated distance of the exact solution of the problem the method records. For a retained-precision result that problem is the declared linear problem formed from the recorded inputs; for retained-source recovery it is the represented source problem. The bound covers arithmetic and solution error only, and any difference between that problem and the authored inputs is disclosed, not bounded. A verified bound says nothing about modelling idealizations, input data or physical behavior, and it is not a professional, standards-body or code-compliance determination (§21.2).
+
+The retained-precision method establishes such bounds in two ways. A retained-precision result re-solves a case at extended precision and bounds each covered row it publishes. Retained-source recovery solves an exact-route case exactly from its retained source terms and publishes each covered quantity as an enclosing interval.
+
+Where its retained-precision method establishes them, the engine shall publish verified bounds for nodal displacements and rotations, member end and station forces and moments, support reactions, and the stresses and stress maxima recovered from them. This applies to load cases and to mechanics combinations of solved cases, within the model domains the method supports. In addition:
+
+- A case whose bound cannot be established publishes its ordinary result with its values, standing and diagnostics unchanged, and a quantity without a bound is marked as not covered. No search, verification, tolerance or domain limit is relaxed to obtain a bound. An unsupported domain is declined and stated as a limitation.
+- Each published verified result shall be checkable by consumers separate from its solver: the product result reader, whose native and WebAssembly builds give the same outcome for the same input, and a test verifier that shares no code with the producer. They check the published statement, its classes and the inputs they can rederive. They do not re-run the solve or replay its proof.
+- The method shall run within fixed resource limits. Each retained-precision invocation is admitted only within a memory budget qualified for the actual product build: 12 GiB on the 16 GiB base machine, under the existing qualification margins. These are accounting margins, not measured memory. Retained-source recovery runs within its stated size and work limits. A build that is not qualified publishes no retained-precision result, and its ordinary results stand.
+- Retained-precision results reach a product surface only once the owner activates the method there.
 
 ---
 
