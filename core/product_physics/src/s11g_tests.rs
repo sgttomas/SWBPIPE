@@ -1700,6 +1700,13 @@ fn t12_accurate_small_moment_rows_below_the_floor_stay_passed() {
 /// `T13_FALLBACK_UZ_WRITE=1` regenerates the two committed raw files from this
 /// producer (every other assertion still runs first); a rerun without it then
 /// checks the new bytes.
+///
+/// RF §5.5: the case's source attempt used to decline at the 0.4 replay
+/// screen for work alone, which metered charging lifts. Its request now also
+/// carries a zero full-span uniform member load, so the attempt declines by
+/// name at source closure ("non-nodal load producer present"), independent of
+/// work, and the case keeps publishing its ordinary pressure-1 result (role
+/// precondition, asserted). Every mechanics row is unchanged by that load.
 #[test]
 fn t13_committed_fallback_uz_is_byte_identical() {
     // B7b: the result_export fixture's request is read through the shared
@@ -1713,6 +1720,14 @@ fn t13_committed_fallback_uz_is_byte_identical() {
         (PreviewSolverMode::DenseScrutiny, include_str!("../../reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json")),
     ] {
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
+        // The role (RF §5.5): an ordinary pressure-1 publication whose source
+        // attempt declines by name, not by work.
+        assert_eq!(envelope.producer.semantic_contract_id, "openpipestress.result_semantics/0.3.0/pressure-1", "{mode:?}");
+        assert!(
+            envelope.diagnostics.iter().any(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
+                && d.message.contains("helper_stage: SourceClosure, error: Unsupported(\"non-nodal load producer present\")")),
+            "{mode:?}: precondition, the source attempt declines by name at source closure"
+        );
         let sensitive: Vec<_> = envelope
             .diagnostics
             .iter()

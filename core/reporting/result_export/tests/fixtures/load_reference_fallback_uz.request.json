@@ -195,6 +195,21 @@
               "node": "tip"
             },
             "provenance": "invented_load_reference_source_companion_not_library_data"
+          },
+          {
+            "id": "uniform:0",
+            "category": "distributed_force",
+            "dimension": "force_per_length",
+            "direction": "global_z",
+            "magnitude": {
+              "value": 0.0,
+              "unit": "N/m"
+            },
+            "target": {
+              "type": "element",
+              "pipe": "member"
+            },
+            "provenance": "invented_load_reference_source_companion_not_library_data"
           }
         ],
         "pressure_regions": [],
@@ -275,6 +290,10 @@
             },
             {
               "source_ref": "extra:0",
+              "factor": 1.0
+            },
+            {
+              "source_ref": "uniform:0",
               "factor": 1.0
             }
           ],
