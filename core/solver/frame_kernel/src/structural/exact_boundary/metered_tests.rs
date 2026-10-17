@@ -522,9 +522,8 @@ fn work(limit: usize, terms: usize, used: usize) -> Work {
 
 const ID: &str = "metered source";
 const GAP: f64 = 0.125;
-/// A three-DOF source whose exact entries and loads carry tails, so that
-/// products have several terms: DOF 0 prescribed (with a tail bit), DOFs 1
-/// and 2 one coupled block.
+/// A source whose exact entries and loads carry tails, so that products have
+/// several terms.
 struct Source {
     stiffness: Vec<Vec<f64>>,
     force: Vec<f64>,
@@ -532,8 +531,12 @@ struct Source {
     terms: Vec<ForceContribution>,
     free: Vec<usize>,
     fixed: Vec<(usize, f64)>,
+    /// The gap proof the functional chain retains and replays.
+    gap: (usize, f64),
 }
 impl Source {
+    /// Three DOFs: DOF 0 prescribed (with a tail bit), DOFs 1 and 2 one
+    /// coupled block of order 2.
     fn new() -> Self {
         let entries: [((usize, usize), Vec<f64>); 7] = [
             ((0, 0), vec![300.0, p2(-47)]),
@@ -544,16 +547,62 @@ impl Source {
             ((2, 1), vec![-100.0, p2(-55)]),
             ((2, 2), vec![100.0, -p2(-53)]),
         ];
-        let mut stiffness = vec![vec![0.0; 3]; 3];
-        let mut contributions = Vec::new();
-        for ((row, col), values) in entries {
-            for value in values {
-                contributions.push(StiffnessContribution { row, col, value });
-                stiffness[row][col] += value;
+        let loads = [(0, 1.0), (1, -0.75), (2, 12.5), (2, p2(-58))];
+        Self::build(3, &entries, &loads, vec![1, 2], (0, 0.0625 + p2(-40)), (2, GAP))
+    }
+    /// RF design §2 (orders 3 and 4) through the oracle: eight DOFs, DOF 0
+    /// prescribed (with a tail bit) and coupled to DOFs 1 and 4, DOFs 1 to 3
+    /// one block of order 3 and DOFs 4 to 7 one block of order 4, every
+    /// entry with a tail. Strictly diagonally dominant, hence SPD.
+    fn higher() -> Self {
+        let upper: [((usize, usize), Vec<f64>); 18] = [
+            ((0, 0), vec![500.0, p2(-45)]),
+            ((0, 1), vec![-50.0, -p2(-48)]),
+            ((0, 4), vec![-40.0, p2(-50)]),
+            ((1, 1), vec![200.0, 3.0 * p2(-50)]),
+            ((1, 2), vec![-60.0, p2(-52)]),
+            ((1, 3), vec![25.0, -p2(-51)]),
+            ((2, 2), vec![180.0, -p2(-49)]),
+            ((2, 3), vec![-45.0, p2(-53)]),
+            ((3, 3), vec![150.0, p2(-47)]),
+            ((4, 4), vec![260.0, -p2(-46)]),
+            ((4, 5), vec![-70.0, p2(-51)]),
+            ((4, 6), vec![15.0, -p2(-55)]),
+            ((5, 5), vec![210.0, p2(-48)]),
+            ((5, 6), vec![-55.0, -p2(-50)]),
+            ((5, 7), vec![30.0, p2(-54)]),
+            ((6, 6), vec![190.0, 3.0 * p2(-51)]),
+            ((6, 7), vec![-65.0, p2(-49)]),
+            ((7, 7), vec![170.0, -p2(-47)]),
+        ];
+        let mut entries = Vec::new();
+        for ((row, col), values) in upper {
+            entries.push(((row, col), values.clone()));
+            if row != col {
+                entries.push(((col, row), values));
             }
         }
-        let mut force = vec![0.0; 3];
-        let terms = [(0, 1.0), (1, -0.75), (2, 12.5), (2, p2(-58))]
+        let loads = [(0, 1.0), (1, -0.75), (2, 12.5), (2, p2(-58)), (5, 3.25), (7, -2.0), (7, p2(-60))];
+        Self::build(8, &entries, &loads, (1..8).collect(), (0, 0.0625 + p2(-40)), (6, GAP))
+    }
+    fn build(
+        n: usize,
+        entries: &[((usize, usize), Vec<f64>)],
+        loads: &[(usize, f64)],
+        free: Vec<usize>,
+        fixed: (usize, f64),
+        gap: (usize, f64),
+    ) -> Self {
+        let mut stiffness = vec![vec![0.0; n]; n];
+        let mut contributions = Vec::new();
+        for ((row, col), values) in entries {
+            for &value in values {
+                contributions.push(StiffnessContribution { row: *row, col: *col, value });
+                stiffness[*row][*col] += value;
+            }
+        }
+        let mut force = vec![0.0; n];
+        let terms = loads
             .iter()
             .enumerate()
             .map(|(i, &(dof, value))| {
@@ -570,9 +619,13 @@ impl Source {
             force,
             contributions,
             terms,
-            free: vec![1, 2],
-            fixed: vec![(0, 0.0625 + p2(-40))],
+            free,
+            fixed: vec![fixed],
+            gap,
         }
+    }
+    fn dofs(&self) -> usize {
+        self.force.len()
     }
     fn system(&self) -> StructuralSystem<'_> {
         StructuralSystem {
@@ -587,6 +640,46 @@ impl Source {
     fn basis(&self) -> ForceBasis<'_> {
         ForceBasis::IdentifiedContributions(&self.terms)
     }
+}
+/// `descriptors()`'s three recipes over the higher-order source: an affine
+/// form over both blocks, a displacement in the order-4 block and DOF 0's
+/// source reaction.
+fn higher_descriptors() -> Vec<FunctionalDescriptor> {
+    let mut ds = descriptors();
+    ds[0].terms.extend([
+        AffineTerm {
+            dof: 3,
+            products: vec![vec![7.5, 1.0 - p2(-50)]],
+        },
+        AffineTerm {
+            dof: 5,
+            products: vec![vec![-2.0], vec![p2(-48), 5.0]],
+        },
+        AffineTerm {
+            dof: 7,
+            products: vec![vec![0.25, 3.0 + p2(-49)]],
+        },
+    ]);
+    ds[1].key.quantity = FunctionalQuantity::NodeDisplacement {
+        node: "n6".into(),
+        dof: 6,
+    };
+    ds[1].terms[0].dof = 6;
+    ds[2].terms = vec![
+        AffineTerm {
+            dof: 0,
+            products: vec![vec![500.0], vec![p2(-45)]],
+        },
+        AffineTerm {
+            dof: 1,
+            products: vec![vec![-50.0], vec![-p2(-48)]],
+        },
+        AffineTerm {
+            dof: 4,
+            products: vec![vec![-40.0], vec![p2(-50)]],
+        },
+    ];
+    ds
 }
 fn descriptors() -> Vec<FunctionalDescriptor> {
     let key = |quantity, unit, convention| FunctionalKey {
@@ -654,9 +747,14 @@ fn descriptors() -> Vec<FunctionalDescriptor> {
 
 /// The functional entry, preparation through its same-ledger replay, on one
 /// ledger of `limit`; every stage settled. Stops at the first failing stage.
-fn functional_chain(limit: usize, check: &mut Checker) -> Result<(), Error> {
-    let s = Source::new();
-    let ds = descriptors();
+/// Returns the prepared Context's block orders.
+fn functional_chain(
+    s: &Source,
+    ds: &[FunctionalDescriptor],
+    limit: usize,
+    check: &mut Checker,
+) -> Result<Vec<usize>, Error> {
+    let (gap_dof, gap) = s.gap;
     let system = s.system();
     let mut budget = AttemptBudget::new(Limits {
         operations: limit,
@@ -669,20 +767,22 @@ fn functional_chain(limit: usize, check: &mut Checker) -> Result<(), Error> {
     let (a, t) = traced(|| c.solve_with_budget(&mut budget));
     check.stage("Context::solve_with_budget", t, &mut last, budget.report(), a.result.is_ok());
     let r = a.result?;
-    let (a, t) = traced(|| FunctionalPlan::new(&c, &ds, &mut budget));
+    let (a, t) = traced(|| FunctionalPlan::new(&c, ds, &mut budget));
     check.stage("FunctionalPlan::new", t, &mut last, budget.report(), false);
     let plan = a.result?;
     let (a, t) = traced(|| r.evaluate_functionals(&plan, &mut budget));
     check.stage("Response::evaluate_functionals", t, &mut last, budget.report(), a.result.is_ok());
     let set = a.result?;
-    let (a, t) = traced(|| r.gap_proof_with_budget(2, 1, GAP, &mut budget));
+    let (a, t) = traced(|| r.gap_proof_with_budget(gap_dof, 1, gap, &mut budget));
     check.stage("Response::gap_proof_with_budget", t, &mut last, budget.report(), a.result.is_ok());
     let proof = a.result?;
     let mut leaves = Vec::new();
-    for dof in 0..3 {
+    for dof in 0..s.dofs() {
         for quantity in [Quantity::Displacement, Quantity::Reaction] {
             let (a, t) = traced(|| r.project_with_budget(quantity, dof, 1e-9, &mut budget));
-            let multiplies = a.result.is_ok() && (quantity == Quantity::Displacement || dof == 0);
+            // Every projection multiplies except an exact zero's (the free rows'
+            // reactions here).
+            let multiplies = a.result.as_ref().is_ok_and(|p| p.basis() != ProjectionBasis::ExactZero);
             check.stage("Response::project_with_budget", t, &mut last, budget.report(), multiplies);
             leaves.push(a.result?);
         }
@@ -696,15 +796,15 @@ fn functional_chain(limit: usize, check: &mut Checker) -> Result<(), Error> {
     let (a, t) = traced(|| set.retain(&[proof], &leaves, &projections, &mut budget));
     check.stage("FunctionalSet::retain", t, &mut last, budget.report(), false);
     let retained = a.result?;
-    let (a, t) = traced(|| retained.check_binding_with_budget(&system, ID, s.basis(), &ds, &mut budget));
+    let (a, t) = traced(|| retained.check_binding_with_budget(&system, ID, s.basis(), ds, &mut budget));
     check.stage("RetainedFunctionalSet::check_binding_with_budget", t, &mut last, budget.report(), false);
     a.result?;
     let (a, t) = traced(|| {
-        retained.replay_against(&system, ID, s.basis(), &ds, &[(2, 1, GAP)], 1e-9, &mut budget)
+        retained.replay_against(&system, ID, s.basis(), ds, &[(gap_dof, 1, gap)], 1e-9, &mut budget)
     });
     check.stage("RetainedFunctionalSet::replay_against", t, &mut last, budget.report(), a.result.is_ok());
-    assert_eq!(a.result?.functionals(), 3);
-    Ok(())
+    assert_eq!(a.result?.functionals(), ds.len());
+    Ok(c.blocks.iter().map(Vec::len).collect())
 }
 
 /// Every limit just below and at each accepted step of the traced
@@ -756,7 +856,20 @@ fn sweep(
 /// method and the legacy `RetainedResponse` replay; with refusal sweeps when
 /// `sweeps` is set.
 fn every_entry(check: &mut Checker, sweeps: bool) {
-    functional_chain(Limits::default().operations, check).unwrap();
+    functional_chain(&Source::new(), &descriptors(), Limits::default().operations, check).unwrap();
+    // RF design §2: the order-3 and order-4 arithmetic (preparation, solve,
+    // reactions, evaluation and replay) through the same oracle.
+    let higher = Source::higher();
+    let mut blocks = Checker::default();
+    let orders = functional_chain(&higher, &higher_descriptors(), Limits::default().operations, &mut blocks);
+    assert_eq!(orders.unwrap(), [3, 4]);
+    check.tally.charged += blocks.tally.charged;
+    check.tally.rejected += blocks.tally.rejected;
+    check.tally.counted += blocks.tally.counted;
+    check.tally.muls += blocks.tally.muls;
+    check.tally.adds += blocks.tally.adds;
+    check.tally.ranges += blocks.tally.ranges;
+    check.stages.extend(blocks.stages);
     let s = Source::new();
     let system = s.system();
     let (c, t) = traced(|| Context::new(&system, ID, s.basis(), Limits::default()));
@@ -820,26 +933,51 @@ fn every_entry(check: &mut Checker, sweeps: bool) {
     });
     sweep(check, "RetainedResponse::replay_against", 7, |l| report(replay(l).map_unit()));
     // The functional entry: refusals in preparation and in the replay, on the
-    // attempt's one ledger (every earlier stage fits below these limits).
-    for (entry, stride) in [
-        ("Context::prepare_with_budget", 1),
-        ("RetainedFunctionalSet::replay_against", 9),
+    // attempt's one ledger (every earlier stage fits below these limits), for
+    // the order-2 source and the order-3/4 source.
+    for (source, ds, strides) in [
+        (Source::new(), descriptors(), [1, 9]),
+        (Source::higher(), higher_descriptors(), HIGHER_STRIDES),
     ] {
-        let full = check.events(entry).to_vec();
-        for limit in step_limits(&full, stride) {
-            let mut fresh = Checker::default();
-            let refused = functional_chain(limit, &mut fresh);
-            let (last, events) = fresh.stages.last().unwrap();
-            assert_eq!(*last, entry, "limit {limit} stopped in {last}");
-            if refused.is_ok() {
-                assert_eq!(*last, "RetainedFunctionalSet::replay_against");
-            } else {
-                assert_eq!(refused, Err(Error::Budget), "{entry} at limit {limit}");
-                assert!(!events.is_empty());
-            }
-            check.tally.muls += fresh.tally.muls;
-            check.tally.adds += fresh.tally.adds;
+        let mut full = Checker::default();
+        functional_chain(&source, &ds, Limits::default().operations, &mut full).unwrap();
+        for (entry, stride) in [
+            ("Context::prepare_with_budget", strides[0]),
+            ("RetainedFunctionalSet::replay_against", strides[1]),
+        ] {
+            sweep_functional(check, &source, &ds, entry, &full.events(entry).to_vec(), stride);
         }
+    }
+}
+/// The order-3/4 source's sweep strides: every step of every multiplication
+/// of its preparation (the block arithmetic), and of every 29th of its replay
+/// (stride 1 there costs about a minute).
+const HIGHER_STRIDES: [usize; 2] = [1, 29];
+/// Reruns the functional chain at every step limit of `entry`'s traced
+/// multiplications: each refusal stops in `entry` with `Budget`.
+fn sweep_functional(
+    check: &mut Checker,
+    source: &Source,
+    ds: &[FunctionalDescriptor],
+    entry: &'static str,
+    full: &[Event],
+    stride: usize,
+) {
+    let limits = step_limits(full, stride);
+    assert!(!limits.is_empty(), "{entry}: no multiplication to sweep");
+    for limit in limits {
+        let mut fresh = Checker::default();
+        let refused = functional_chain(source, ds, limit, &mut fresh);
+        let (last, events) = fresh.stages.last().unwrap();
+        assert_eq!(*last, entry, "limit {limit} stopped in {last}");
+        if refused.is_ok() {
+            assert_eq!(*last, "RetainedFunctionalSet::replay_against");
+        } else {
+            assert_eq!(refused, Err(Error::Budget), "{entry} at limit {limit}");
+            assert!(!events.is_empty());
+        }
+        check.tally.muls += fresh.tally.muls;
+        check.tally.adds += fresh.tally.adds;
     }
 }
 impl<T> Attempt<T> {

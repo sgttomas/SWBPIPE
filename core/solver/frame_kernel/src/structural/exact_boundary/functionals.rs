@@ -80,6 +80,7 @@ fn binding(context: &Context, token: &Arc<()>, w: &mut Work) -> Result<(), Error
         .as_ref()
         .is_some_and(|t| Arc::ptr_eq(t, token))
         || context.limits != w.limits
+        || context.order_cap != FUNCTIONAL_ORDER_CAP
     {
         return Err(Error::Invalid("functional attempt/source binding"));
     }
@@ -175,7 +176,8 @@ fn prepare(
     w: &mut Work,
 ) -> Result<Context, Error> {
     source_preflight(system, identity, force, w)?;
-    let mut c = Context::new_charged(system, identity, force, w.limits, w)?;
+    // RF design §2.1: the functional entry and its replay admit order 4.
+    let mut c = Context::new_charged(system, identity, force, w.limits, w, FUNCTIONAL_ORDER_CAP)?;
     c.functional_attempt = Some(Arc::clone(token));
     Ok(c)
 }
@@ -558,6 +560,18 @@ fn evaluate(
         ds.len()
             .saturating_mul(n.saturating_mul(4).saturating_add(8)),
     )?;
+    // RF design §2.4: a block's numerators are combined below over its first
+    // DOF's denominator, which is sound only if every DOF of the block carries
+    // the bit-identical denominator. Checked, and charged, for every block of
+    // order 3 or 4; blocks of order 1 or 2 keep today's path.
+    for block in c.blocks.iter().filter(|block| block.len() > 2) {
+        let denominators = block.iter().map(|&i| &response.displacement[i].denominator.terms);
+        w.charge(denominators.clone().fold(0usize, |n, d| n.saturating_add(d.len())))?;
+        let first = &response.displacement[block[0]].denominator.terms;
+        if denominators.into_iter().any(|d| !same_terms(first, d)) {
+            return Err(Error::Invalid("functional block denominators"));
+        }
+    }
     let mut values = Vec::with_capacity(ds.len());
     for d in ds {
         let mut coefficients = vec![Expansion::default(); n];
@@ -587,8 +601,9 @@ fn evaluate(
             if numerator.is_zero() {
                 continue;
             }
-            // Context's two-DOF solve constructs the SAME positive denominator
-            // for both coordinates. Combine their numerators before any ratio sum.
+            // Context's block solve constructs the SAME positive denominator for
+            // every coordinate of a block (checked above for orders 3 and 4).
+            // Combine their numerators before any ratio sum.
             let denominator = copy_exp(&response.displacement[block[0]].denominator, w)?;
             q = combine(
                 q,
@@ -1065,9 +1080,10 @@ fn retained_charge(r: &RetainedResponse, n: usize, w: &mut Work) -> Result<(), E
     }
     for b in &r.witnesses {
         w.charge(8)?;
+        // RF design §2.6: blocks of up to 4 DOFs, each within its order's bound.
         if b.dofs.is_empty()
-            || b.dofs.len() > 2
-            || b.scalar_count() > 4 * w.limits.expansion_terms + 2
+            || b.dofs.len() > FUNCTIONAL_ORDER_CAP
+            || b.scalar_count() > BlockWitness::size_bound(b.dofs.len(), w.limits.expansion_terms)
         {
             return Err(Error::Invalid("functional retained witness dimensions"));
         }
@@ -1136,3 +1152,5 @@ fn replay_leaves(
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod block_order_tests;
