@@ -262,6 +262,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural/exact_boundary.rs", "ensure", 1, "exempt: exact expansion sum (Context::sum): an order-3/4 block's 2x2 minor (RF §2.4)"),
     ("FK/structural/exact_boundary.rs", "det3", 1, "exempt: exact expansion sum (Context::sum): a 3x3 cofactor expansion over exact minors (RF §2.4)"),
     ("FK/structural/exact_boundary.rs", "det4", 1, "exempt: exact expansion sum (Context::sum): Δ4's Laplace expansion over exact minors (RF §2.4)"),
+    ("FK/structural/exact_boundary.rs", "congruence_entries", 2, "exempt: exact expansion sums (Context::sum): a congruence member's two-stage Tᵀ·(K·T) over exact products (RF §3.3)"),
     ("FK/structural/exact_boundary.rs", "project", 3, "exempt: exact expansion sums (Context::sum)"),
     ("FK/structural/exact_boundary.rs", "gap_sign_with_work", 2, "exempt: exact expansion sums (Context::sum)"),
     ("FK/structural/exact_boundary.rs", "verify_candidate_charged", 2, "exempt: min/max folds of interval corners"),

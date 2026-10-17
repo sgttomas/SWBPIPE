@@ -97,10 +97,16 @@ fn response_binding(response: &Response<'_>, token: &Arc<()>, w: &mut Work) -> R
     }
     Ok(())
 }
+/// Sizes and charges a functional source before it is inspected or copied.
+/// RF design §3.3: a congruence member counts its 288 operand values as
+/// source terms, beside its 144 rounded contributions (which stay counted),
+/// and reserves 8 per scalar (operands, map and range), as a contribution
+/// reserves 8 for its three.
 fn source_preflight(
     system: &StructuralSystem<'_>,
     identity: &str,
     force: ForceBasis<'_>,
+    congruence: &[CongruenceMember],
     w: &mut Work,
 ) -> Result<(), Error> {
     w.charge(16)?;
@@ -112,25 +118,15 @@ fn source_preflight(
         ForceBasis::DeclaredVector => &[][..],
         ForceBasis::IdentifiedContributions(t) => t,
     };
-    if n > 256
-        || n > w.limits.dofs
-        || cs
-            .len()
-            .saturating_add(if matches!(force, ForceBasis::DeclaredVector) {
-                n
-            } else {
-                fs.len()
-            })
-            > 16_384
-        || cs
-            .len()
-            .saturating_add(if matches!(force, ForceBasis::DeclaredVector) {
-                n
-            } else {
-                fs.len()
-            })
-            > w.limits.source_terms
-    {
+    let count = cs
+        .len()
+        .saturating_add(if matches!(force, ForceBasis::DeclaredVector) {
+            n
+        } else {
+            fs.len()
+        })
+        .saturating_add(congruence.len().saturating_mul(CONGRUENCE_VALUES));
+    if n > 256 || n > w.limits.dofs || count > 16_384 || count > w.limits.source_terms {
         return Err(Error::Budget);
     }
     if system.stiffness.len() != n || system.free_dofs.len() > n || system.prescribed.len() > n {
@@ -143,6 +139,7 @@ fn source_preflight(
             .saturating_add(n.saturating_mul(24))
             .saturating_add(cs.len().saturating_mul(8))
             .saturating_add(fs.len().saturating_mul(8))
+            .saturating_add(congruence.len().saturating_mul(CONGRUENCE_SCALARS * 8))
             .saturating_add(identity.len()),
     )?;
     if system.stiffness.iter().any(|row| row.len() != n) {
@@ -172,24 +169,38 @@ fn prepare(
     system: &StructuralSystem<'_>,
     identity: &str,
     force: ForceBasis<'_>,
+    congruence: &[CongruenceMember],
     token: &Arc<()>,
     w: &mut Work,
 ) -> Result<Context, Error> {
-    source_preflight(system, identity, force, w)?;
+    source_preflight(system, identity, force, congruence, w)?;
     // RF design §2.1: the functional entry and its replay admit order 4.
-    let mut c = Context::new_charged(system, identity, force, w.limits, w, FUNCTIONAL_ORDER_CAP)?;
+    let mut c = Context::new_charged(
+        system,
+        identity,
+        force,
+        congruence,
+        w.limits,
+        w,
+        FUNCTIONAL_ORDER_CAP,
+    )?;
     c.functional_attempt = Some(Arc::clone(token));
     Ok(c)
 }
 impl Context {
+    /// The functional entry. `congruence` lists the members whose exact
+    /// entries are their exact congruence Tᵀ·K_local·T, formed in stage
+    /// Preparation, in place of their rounded contributions (RF design §3.3);
+    /// empty when every member's transform is a signed permutation.
     pub fn prepare_with_budget(
         system: &StructuralSystem<'_>,
         identity: &str,
         force: ForceBasis<'_>,
+        congruence: &[CongruenceMember],
         budget: &mut AttemptBudget,
     ) -> Attempt<Self> {
         budget.run(AttemptStage::Preparation, |w, token| {
-            prepare(system, identity, force, token, w)
+            prepare(system, identity, force, congruence, token, w)
         })
     }
     pub fn solve_with_budget(&self, budget: &mut AttemptBudget) -> Attempt<Response<'_>> {
@@ -936,15 +947,19 @@ impl RetainedFunctionalSet {
         expected: &StructuralSystem<'_>,
         identity: &str,
         force_basis: ForceBasis<'_>,
+        expected_congruence: &[CongruenceMember],
         expected_descriptors: &[FunctionalDescriptor],
         budget: &mut AttemptBudget,
     ) -> Attempt<()> {
         budget.run(AttemptStage::Replay, |w, token| {
-            source_preflight(expected, identity, force_basis, w)?;
+            source_preflight(expected, identity, force_basis, expected_congruence, w)?;
             descriptors_charge(expected_descriptors, expected.force.len(), w)?;
             if !Arc::ptr_eq(&self.token, token)
                 || self.response.limits != w.limits
-                || !self.response.source.matches(expected, identity, force_basis)
+                || !self
+                    .response
+                    .source
+                    .matches(expected, identity, force_basis, expected_congruence)
                 || !same_descriptors(&self.descriptors, expected_descriptors)
             {
                 return Err(Error::Invalid("functional complete expected source/plan binding"));
@@ -956,11 +971,15 @@ impl RetainedFunctionalSet {
     /// Independently supply current source AND ordered current recovery recipes.
     /// Rebuild once under this same ledger; compare retained bytes only after
     /// bounded sizing, and never use an unvalidated retained expansion's sign.
+    /// The expected congruence list is part of the expected source: the
+    /// rebuild re-forms its members' exact entries (RF design §3.3).
+    #[allow(clippy::too_many_arguments)]
     pub fn replay_against(
         &self,
         expected: &StructuralSystem<'_>,
         identity: &str,
         force_basis: ForceBasis<'_>,
+        expected_congruence: &[CongruenceMember],
         expected_descriptors: &[FunctionalDescriptor],
         expected_contacts: &[(usize, i8, f64)],
         relative_limit: f64,
@@ -994,11 +1013,12 @@ impl RetainedFunctionalSet {
                 ratio_preflight(r, w)?;
             }
             w.charge(self.projections.len().saturating_mul(16))?;
-            let context = prepare(expected, identity, force_basis, token, w)?;
-            if !context.matches(
+            let context = prepare(expected, identity, force_basis, expected_congruence, token, w)?;
+            if !context.source.matches(
                 &self.response.source.system(),
                 &self.response.source.identity,
                 self.response.source.force_basis(),
+                &self.response.source.congruence,
             ) {
                 return Err(Error::Invalid("functional expected source binding"));
             }
@@ -1073,6 +1093,7 @@ fn retained_charge(r: &RetainedResponse, n: usize, w: &mut Work) -> Result<(), E
         &r.source.system(),
         &r.source.identity,
         r.source.force_basis(),
+        &r.source.congruence,
         w,
     )?;
     for value in r.displacement.iter().chain(&r.reactions) {
@@ -1154,3 +1175,5 @@ fn replay_leaves(
 mod tests;
 #[cfg(test)]
 mod block_order_tests;
+#[cfg(test)]
+pub(super) mod congruence_tests;

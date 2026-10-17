@@ -494,6 +494,16 @@ impl Checker {
         );
         *last = now;
     }
+    /// Adds another checker's tallies and traced stages to this one's.
+    fn absorb(&mut self, other: Checker) {
+        self.tally.charged += other.tally.charged;
+        self.tally.rejected += other.tally.rejected;
+        self.tally.counted += other.tally.counted;
+        self.tally.muls += other.tally.muls;
+        self.tally.adds += other.tally.adds;
+        self.tally.ranges += other.tally.ranges;
+        self.stages.extend(other.stages);
+    }
     fn events(&self, entry: &str) -> &[Event] {
         &self.stages.iter().rev().find(|(e, _)| *e == entry).unwrap().1
     }
@@ -533,6 +543,8 @@ struct Source {
     fixed: Vec<(usize, f64)>,
     /// The gap proof the functional chain retains and replays.
     gap: (usize, f64),
+    /// RF design §3.3: the functional entry's congruence members.
+    congruence: Vec<CongruenceMember>,
 }
 impl Source {
     /// Three DOFs: DOF 0 prescribed (with a tail bit), DOFs 1 and 2 one
@@ -585,6 +597,31 @@ impl Source {
         let loads = [(0, 1.0), (1, -0.75), (2, 12.5), (2, p2(-58)), (5, 3.25), (7, -2.0), (7, p2(-60))];
         Self::build(8, &entries, &loads, (1..8).collect(), (0, 0.0625 + p2(-40)), (6, GAP))
     }
+    /// RF design §3.3 through the oracle: the census's (3,4,0) member
+    /// (RF-SKEW-T-PIN-OFF-345) as twelve DOFs, its 144 rounded contributions
+    /// then the soft rotational spring, with the member's exact congruence on
+    /// the functional entry; every translation prescribed (one at a tail
+    /// value), identified loads with a tail; free blocks [4, 2].
+    fn congruence() -> Self {
+        use super::functionals::congruence_tests::{member, OFF_345};
+        let (member, rounded) = member(OFF_345);
+        let mut entries = Vec::new();
+        for (p, row) in rounded.iter().enumerate() {
+            for (q, &value) in row.iter().enumerate() {
+                entries.push(((p, q), vec![value]));
+            }
+        }
+        entries.push(((3, 3), vec![f64::from_bits(0x3f81_b1d9_2b7f_e08b)]));
+        let loads = [
+            (9, f64::from_bits(0x3ea1_6505_a7da_8610)),
+            (10, f64::from_bits(0x3ea7_315c_dfce_0816)),
+            (10, p2(-80)),
+        ];
+        let mut s = Self::build(12, &entries, &loads, vec![3, 4, 5, 9, 10, 11], (0, p2(-40)), (9, GAP));
+        s.fixed.extend([(1, 0.0), (2, 0.0), (6, 0.0), (7, 0.0), (8, 0.0)]);
+        s.congruence = vec![member];
+        s
+    }
     fn build(
         n: usize,
         entries: &[((usize, usize), Vec<f64>)],
@@ -622,6 +659,7 @@ impl Source {
             free,
             fixed: vec![fixed],
             gap,
+            congruence: Vec::new(),
         }
     }
     fn dofs(&self) -> usize {
@@ -679,6 +717,25 @@ fn higher_descriptors() -> Vec<FunctionalDescriptor> {
             products: vec![vec![-40.0], vec![p2(-50)]],
         },
     ];
+    ds
+}
+/// `descriptors()`'s three recipes over the congruence source: an affine
+/// form over both blocks, a displacement in the order-4 block and the
+/// prescribed DOF 0's source reaction.
+fn congruence_descriptors() -> Vec<FunctionalDescriptor> {
+    let mut ds = descriptors();
+    ds[0].terms[0].dof = 4;
+    ds[0].terms[1].dof = 10;
+    ds[0].terms.push(AffineTerm {
+        dof: 5,
+        products: vec![vec![0.25, 3.0 + p2(-49)]],
+    });
+    ds[1].key.quantity = FunctionalQuantity::NodeDisplacement {
+        node: "n10".into(),
+        dof: 10,
+    };
+    ds[1].terms[0].dof = 10;
+    ds[2].terms[1].dof = 3;
     ds
 }
 fn descriptors() -> Vec<FunctionalDescriptor> {
@@ -761,7 +818,7 @@ fn functional_chain(
         ..Limits::default()
     });
     let mut last = budget.report();
-    let (a, t) = traced(|| Context::prepare_with_budget(&system, ID, s.basis(), &mut budget));
+    let (a, t) = traced(|| Context::prepare_with_budget(&system, ID, s.basis(), &s.congruence, &mut budget));
     check.stage("Context::prepare_with_budget", t, &mut last, budget.report(), a.result.is_ok());
     let c = a.result?;
     let (a, t) = traced(|| c.solve_with_budget(&mut budget));
@@ -796,11 +853,11 @@ fn functional_chain(
     let (a, t) = traced(|| set.retain(&[proof], &leaves, &projections, &mut budget));
     check.stage("FunctionalSet::retain", t, &mut last, budget.report(), false);
     let retained = a.result?;
-    let (a, t) = traced(|| retained.check_binding_with_budget(&system, ID, s.basis(), ds, &mut budget));
+    let (a, t) = traced(|| retained.check_binding_with_budget(&system, ID, s.basis(), &s.congruence, ds, &mut budget));
     check.stage("RetainedFunctionalSet::check_binding_with_budget", t, &mut last, budget.report(), false);
     a.result?;
     let (a, t) = traced(|| {
-        retained.replay_against(&system, ID, s.basis(), ds, &[(gap_dof, 1, gap)], 1e-9, &mut budget)
+        retained.replay_against(&system, ID, s.basis(), &s.congruence, ds, &[(gap_dof, 1, gap)], 1e-9, &mut budget)
     });
     check.stage("RetainedFunctionalSet::replay_against", t, &mut last, budget.report(), a.result.is_ok());
     assert_eq!(a.result?.functionals(), ds.len());
@@ -863,13 +920,14 @@ fn every_entry(check: &mut Checker, sweeps: bool) {
     let mut blocks = Checker::default();
     let orders = functional_chain(&higher, &higher_descriptors(), Limits::default().operations, &mut blocks);
     assert_eq!(orders.unwrap(), [3, 4]);
-    check.tally.charged += blocks.tally.charged;
-    check.tally.rejected += blocks.tally.rejected;
-    check.tally.counted += blocks.tally.counted;
-    check.tally.muls += blocks.tally.muls;
-    check.tally.adds += blocks.tally.adds;
-    check.tally.ranges += blocks.tally.ranges;
-    check.stages.extend(blocks.stages);
+    check.absorb(blocks);
+    // RF design §3.3: a congruence member's exact formation, in the
+    // functional entry's preparation and again in its replay, through the
+    // same oracle.
+    let mut members = Checker::default();
+    let orders = functional_chain(&Source::congruence(), &congruence_descriptors(), CONGRUENCE_LEDGER, &mut members);
+    assert_eq!(orders.unwrap(), [4, 2]);
+    check.absorb(members);
     let s = Source::new();
     let system = s.system();
     let (c, t) = traced(|| Context::new(&system, ID, s.basis(), Limits::default()));
@@ -935,12 +993,13 @@ fn every_entry(check: &mut Checker, sweeps: bool) {
     // The functional entry: refusals in preparation and in the replay, on the
     // attempt's one ledger (every earlier stage fits below these limits), for
     // the order-2 source and the order-3/4 source.
-    for (source, ds, strides) in [
-        (Source::new(), descriptors(), [1, 9]),
-        (Source::higher(), higher_descriptors(), HIGHER_STRIDES),
+    for (source, ds, strides, ledger) in [
+        (Source::new(), descriptors(), [1, 9], Limits::default().operations),
+        (Source::higher(), higher_descriptors(), HIGHER_STRIDES, Limits::default().operations),
+        (Source::congruence(), congruence_descriptors(), CONGRUENCE_STRIDES, CONGRUENCE_LEDGER),
     ] {
         let mut full = Checker::default();
-        functional_chain(&source, &ds, Limits::default().operations, &mut full).unwrap();
+        functional_chain(&source, &ds, ledger, &mut full).unwrap();
         for (entry, stride) in [
             ("Context::prepare_with_budget", strides[0]),
             ("RetainedFunctionalSet::replay_against", strides[1]),
@@ -953,6 +1012,14 @@ fn every_entry(check: &mut Checker, sweeps: bool) {
 /// of its preparation (the block arithmetic), and of every 29th of its replay
 /// (stride 1 there costs about a minute).
 const HIGHER_STRIDES: [usize; 2] = [1, 29];
+/// The congruence source's sweep strides: every 5th multiplication of its
+/// preparation and every 61st of its replay, both of which form the member's
+/// exact congruence (stride 1 there would rerun the chain about 52,000 times).
+const CONGRUENCE_STRIDES: [usize; 2] = [5, 61];
+/// The congruence source's ledger: its chain (preparation through replay,
+/// with identified loads and a prescribed tail) needs more than the default
+/// 2,000,000; this is the product's per-case source limit.
+const CONGRUENCE_LEDGER: usize = 8_000_000;
 /// Reruns the functional chain at every step limit of `entry`'s traced
 /// multiplications: each refusal stops in `entry` with `Budget`.
 fn sweep_functional(

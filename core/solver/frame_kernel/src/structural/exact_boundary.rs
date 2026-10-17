@@ -3,11 +3,15 @@
 //! This is not the ordinary structural gate, a primitive-engineering certificate,
 //! or a replacement for it. Every free connected component must have order at
 //! most its entry's cap: 4 on the functional entry and its replay, 2 on the
-//! legacy entries (RF source-method design §2.1).
+//! legacy entries (RF source-method design §2.1). On the functional entry, a
+//! declared congruence member's exact entries are Tᵀ·K_local·T, formed exactly
+//! from its declared binary64 operands, in place of its rounded global
+//! contributions (RF design §3.3, [`CongruenceMember`]).
 //! Private owned source and private response construction prevent caller-supplied
 //! reports from serving as proofs. Projection is explicitly distinct from proof.
 use super::retained::work::WorkTotal;
 use super::{Expansion, StiffnessContribution, StructuralError, StructuralSystem};
+use crate::Matrix12;
 
 pub mod functionals;
 #[cfg(any(test, feature = "exact-operation-count"))]
@@ -57,6 +61,168 @@ pub enum ForceBasis<'a> {
 pub enum ForceLevel {
     DeclaredVector,
     IdentifiedRepresentedContributions,
+}
+/// RF source-method design §3.1 and §3.3: one member of the functional
+/// entry's exact-congruence list. A member whose transform is not a signed
+/// permutation has no exactly declared global entries: its rounded global
+/// contributions fl(Tᵀ·fl(K_local·T)) stay in `StructuralSystem::contributions`,
+/// where the coverage check binds them to the aggregate (through its ordered
+/// fold, which is how the aggregate was formed), but they do not enter the
+/// exact matrix. Its exact entries are instead G = Tᵀ·K_local·T, formed exactly
+/// from these declared binary64 operands and scattered at `dofs`. The legacy
+/// entries take no such list.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CongruenceMember {
+    /// The member's 12 global DOFs, in local order (its element DOF map).
+    pub dofs: [usize; 12],
+    /// The declared binary64 K_local (`FrameElement::local_stiffness`).
+    pub local_stiffness: Matrix12,
+    /// The declared binary64 T (`FrameOrientation::transformation_matrix`).
+    pub transform: Matrix12,
+    /// The index range of the member's 144 rounded contributions in
+    /// `StructuralSystem::contributions`: contribution `start + 12·p + q` is
+    /// at (`dofs[p]`, `dofs[q]`).
+    pub contributions: std::ops::Range<usize>,
+}
+impl CongruenceMember {
+    fn operands(&self) -> impl Iterator<Item = &f64> {
+        self.local_stiffness.iter().chain(&self.transform).flatten()
+    }
+    fn same_bits(&self, other: &Self) -> bool {
+        self.dofs == other.dofs
+            && self.contributions == other.contributions
+            && self
+                .operands()
+                .zip(other.operands())
+                .all(|(a, b)| a.to_bits() == b.to_bits())
+    }
+}
+/// The source terms one congruence member adds to the source count, beside its
+/// 144 rounded contributions (which stay counted): K_local's and T's values.
+const CONGRUENCE_VALUES: usize = 288;
+/// The scalars inspected and copied per congruence member: its 288 operand
+/// values, its 12 DOF map entries and its contribution range's 2 bounds.
+const CONGRUENCE_SCALARS: usize = 302;
+/// RF design §3.3: refuses a malformed congruence list (`Invalid`) before any
+/// formation: a DOF map entry outside the source, a non-finite operand, a
+/// contribution range that is out of bounds, not 144 long, overlapping
+/// another's or not at its map's (row, column) pairs in local row-major
+/// order. Returns the members' indices in contribution order. Charged per
+/// member before inspection: at most two checks per scalar, and the members'
+/// pairwise count for the ordering and disjointness scan. An empty list is
+/// free.
+fn congruence_order(
+    members: &[CongruenceMember],
+    contributions: &[StiffnessContribution],
+    n: usize,
+    w: &mut Work,
+) -> Result<Vec<usize>, Error> {
+    let m = members.len();
+    if m == 0 {
+        return Ok(Vec::new());
+    }
+    w.charge(
+        m.saturating_mul(2 * CONGRUENCE_SCALARS)
+            .saturating_add(m.saturating_mul(m)),
+    )?;
+    for member in members {
+        if member.dofs.iter().any(|&d| d >= n) {
+            return Err(Error::Invalid("congruence member map"));
+        }
+        if member.operands().any(|x| !x.is_finite()) {
+            return Err(Error::Invalid("congruence member operands"));
+        }
+        let range = &member.contributions;
+        if range.len() != 144
+            || range.end > contributions.len()
+            || contributions[range.clone()].iter().enumerate().any(|(e, c)| {
+                c.row != member.dofs[e / 12] || c.col != member.dofs[e % 12]
+            })
+        {
+            return Err(Error::Invalid("congruence member contributions"));
+        }
+    }
+    let mut order: Vec<usize> = (0..m).collect();
+    order.sort_unstable_by_key(|&i| members[i].contributions.start);
+    if order
+        .windows(2)
+        .any(|p| members[p[0]].contributions.end > members[p[1]].contributions.start)
+    {
+        return Err(Error::Invalid("congruence member contributions"));
+    }
+    Ok(order)
+}
+/// RF source-method design §3.3 and §3.5: the exact congruence
+/// G[i][j] = Σ_k Σ_l T[k][i]·K[k][l]·T[l][j] of the declared binary64 K and T,
+/// through `Work` (metered), in the two-stage order Tᵀ·(K·T): first
+/// KT[k][j] = Σ_l K[k][l]·T[l][j], then G[i][j] = Σ_k T[k][i]·KT[k][j]. Every
+/// product with a zero factor is skipped, each sum runs in ascending index
+/// order and starts from its first product. Values equal the direct triple
+/// sum's (§3.5); the work is the specified form's. G is exactly symmetric
+/// when K is (the Context's exact symmetry check decides).
+fn congruence_entries(
+    k: &Matrix12,
+    t: &Matrix12,
+    w: &mut Work,
+) -> Result<Vec<Vec<Expansion>>, Error> {
+    // The K·T and G buffers.
+    w.charge(2 * 144)?;
+    let mut kt = vec![vec![Expansion::default(); 12]; 12];
+    for (r, row) in kt.iter_mut().enumerate() {
+        for (j, entry) in row.iter_mut().enumerate() {
+            let mut sum: Option<Expansion> = None;
+            for l in 0..12 {
+                if k[r][l] == 0.0 || t[l][j] == 0.0 {
+                    continue;
+                }
+                let a = w.scalar(k[r][l])?;
+                let b = w.scalar(t[l][j])?;
+                let product = w.mul(&a, &b)?;
+                sum = Some(match sum {
+                    None => product,
+                    Some(s) => w.sum(&s, &product, 1.0)?,
+                });
+            }
+            *entry = sum.unwrap_or_default();
+        }
+    }
+    let mut g = vec![vec![Expansion::default(); 12]; 12];
+    for (i, row) in g.iter_mut().enumerate() {
+        for (j, entry) in row.iter_mut().enumerate() {
+            let mut sum: Option<Expansion> = None;
+            for r in 0..12 {
+                if t[r][i] == 0.0 || kt[r][j].is_zero() {
+                    continue;
+                }
+                let a = w.scalar(t[r][i])?;
+                let product = w.mul(&a, &kt[r][j])?;
+                sum = Some(match sum {
+                    None => product,
+                    Some(s) => w.sum(&s, &product, 1.0)?,
+                });
+            }
+            *entry = sum.unwrap_or_default();
+        }
+    }
+    Ok(g)
+}
+/// RF design §3.3: adds a congruence member's exact entries into k at its DOF
+/// map, entry by entry in local row-major order (its contributions' order).
+fn add_congruence(
+    k: &mut [Vec<Expansion>],
+    member: &CongruenceMember,
+    w: &mut Work,
+) -> Result<(), Error> {
+    let g = congruence_entries(&member.local_stiffness, &member.transform, w)?;
+    for (p, row) in g.iter().enumerate() {
+        for (q, entry) in row.iter().enumerate() {
+            let target = &mut k[member.dofs[p]][member.dofs[q]];
+            for &term in &entry.terms {
+                w.add(target, term)?;
+            }
+        }
+    }
+    Ok(())
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Limits {
@@ -507,6 +673,9 @@ struct Snapshot {
     free: Vec<usize>,
     prescribed: Vec<(usize, f64)>,
     contributions: Vec<StiffnessContribution>,
+    /// RF design §3.3: the functional entry's congruence members (their
+    /// operands, maps and contribution ranges); empty on the legacy entries.
+    congruence: Vec<CongruenceMember>,
     force_terms: Option<Vec<ForceContribution>>,
     symmetry: Option<(Vec<Vec<f64>>, Vec<Vec<usize>>, String)>,
 }
@@ -542,14 +711,17 @@ impl Context {
             used: 0,
             rejected: WorkTotal::zero(),
         };
-        Self::new_charged(system, identity, force_basis, limits, &mut w, LEGACY_ORDER_CAP)
+        Self::new_charged(system, identity, force_basis, &[], limits, &mut w, LEGACY_ORDER_CAP)
     }
     /// `order_cap` is the entry's block-order cap (RF design §2.1): the first
-    /// free component above it is refused as `UnsupportedBlock`.
+    /// free component above it is refused as `UnsupportedBlock`. `congruence`
+    /// is the functional entry's congruence list (RF design §3.3); the legacy
+    /// entries pass none.
     fn new_charged(
         system: &StructuralSystem<'_>,
         identity: &str,
         force_basis: ForceBasis<'_>,
+        congruence: &[CongruenceMember],
         limits: Limits,
         w: &mut Work,
         order_cap: usize,
@@ -605,18 +777,32 @@ impl Context {
         let count = contributions
             .len()
             .checked_add(force_terms.map_or(n, |t| t.len()))
+            .and_then(|c| c.checked_add(congruence.len().checked_mul(CONGRUENCE_VALUES)?))
             .ok_or(Error::Budget)?;
         if count > 16_384 || count > limits.source_terms {
             return Err(Error::Budget);
         }
+        let order = congruence_order(congruence, contributions, n, w)?;
         w.charge(n.checked_mul(n).ok_or(Error::Budget)?)?;
         let mut k = vec![vec![Expansion::default(); n]; n];
         let mut ordered_k = vec![vec![0.0_f64; n]; n];
-        for c in contributions {
+        let mut members = order.iter().map(|&m| &congruence[m]).peekable();
+        let mut exact_from = 0;
+        for (index, c) in contributions.iter().enumerate() {
             if c.row >= n || c.col >= n || !c.value.is_finite() {
                 return Err(Error::Invalid("stiffness contribution"));
             }
-            w.add(&mut k[c.row][c.col], c.value)?;
+            // RF design §3.3: a congruence member's rounded contributions stay
+            // in the ordered fold, which the coverage check below compares
+            // with the aggregate, but not in k: its exact entries enter k at
+            // the position of its first contribution instead.
+            if let Some(member) = members.next_if(|m| m.contributions.start == index) {
+                add_congruence(&mut k, member, w)?;
+                exact_from = member.contributions.end;
+            }
+            if index >= exact_from {
+                w.add(&mut k[c.row][c.col], c.value)?;
+            }
             ordered_k[c.row][c.col] += c.value;
             if !ordered_k[c.row][c.col].is_finite() {
                 return Err(Error::Invalid("nonfinite ordered assembly"));
@@ -758,6 +944,7 @@ impl Context {
                 free: system.free_dofs.to_vec(),
                 prescribed: system.prescribed.to_vec(),
                 contributions: contributions.to_vec(),
+                congruence: congruence.to_vec(),
                 force_terms: force_terms.map(|x| x.to_vec()),
                 symmetry: system.symmetry.as_ref().map(|s| {
                     (
@@ -799,13 +986,15 @@ impl Context {
     }
     /// Ordered identity check: any changed stiffness/source spring, load, map,
     /// contribution order, or caller source identity invalidates this context.
+    /// The legacy expected source has no congruence member, so a Context
+    /// prepared with one never matches here.
     pub fn matches(
         &self,
         system: &StructuralSystem<'_>,
         identity: &str,
         force_basis: ForceBasis<'_>,
     ) -> bool {
-        self.source.matches(system, identity, force_basis)
+        self.source.matches(system, identity, force_basis, &[])
     }
     pub fn solve(&self) -> Result<Response<'_>, Error> {
         let mut w = Work {
@@ -1547,11 +1736,14 @@ impl ReplayCheck {
     }
 }
 impl Snapshot {
+    /// Bit-for-bit equality with an expected source, including the congruence
+    /// members' operands, maps and contribution ranges, in order (RF §3.3).
     fn matches(
         &self,
         system: &StructuralSystem<'_>,
         identity: &str,
         force_basis: ForceBasis<'_>,
+        congruence: &[CongruenceMember],
     ) -> bool {
         let same = |a: f64, b: f64| a.to_bits() == b.to_bits();
         self.identity == identity
@@ -1581,6 +1773,12 @@ impl Snapshot {
                         .zip(&self.contributions)
                         .all(|(a, b)| a.row == b.row && a.col == b.col && same(a.value, b.value))
             })
+            && self.congruence.len() == congruence.len()
+            && self
+                .congruence
+                .iter()
+                .zip(congruence)
+                .all(|(a, b)| a.same_bits(b))
             && match (&self.symmetry, &system.symmetry) {
                 (None, None) => true,
                 (Some((a, counts, basis)), Some(b)) => {
@@ -1640,6 +1838,8 @@ impl Snapshot {
             n = n.saturating_add(row.len());
         }
         n = n.saturating_add(self.contributions.len().saturating_mul(3));
+        // RF design §3.3: each congruence member's operands, map and range.
+        n = n.saturating_add(self.congruence.len().saturating_mul(CONGRUENCE_SCALARS));
         if let Some(t) = &self.force_terms {
             for x in t {
                 n = n.saturating_add(x.source.len()).saturating_add(2);
@@ -1817,6 +2017,12 @@ impl RetainedResponse {
     pub fn force_basis(&self) -> ForceBasis<'_> {
         self.source.force_basis()
     }
+    /// RF design §3.3: the congruence members of the retained source, whose
+    /// exact entries replaced their rounded contributions; empty unless the
+    /// functional entry was given some.
+    pub fn congruence_members(&self) -> &[CongruenceMember] {
+        &self.source.congruence
+    }
     pub fn limits(&self) -> Limits {
         self.limits
     }
@@ -1882,6 +2088,12 @@ impl RetainedResponse {
                     .is_some_and(|t| t.len() > 16_384)
             {
                 return Err(Error::Invalid("retained source count"));
+            }
+            // RF design §3.3: the legacy entries take no congruence list, so a
+            // source retained with congruence members cannot bind to the
+            // legacy expected source. Refused before any copy or arithmetic.
+            if !self.source.congruence.is_empty() {
+                return Err(Error::Invalid("retained expected-source binding"));
             }
             w.charge(
                 n.saturating_mul(n)
@@ -1958,6 +2170,7 @@ impl RetainedResponse {
                 &source,
                 &self.source.identity,
                 self.source.force_basis(),
+                &[],
                 self.limits,
                 w,
                 LEGACY_ORDER_CAP,

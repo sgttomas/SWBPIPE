@@ -189,7 +189,7 @@ fn budget() -> AttemptBudget {
     })
 }
 fn functional(case: &Case, budget: &mut AttemptBudget) -> Result<Context, Error> {
-    Context::prepare_with_budget(&case.system(), ID, ForceBasis::DeclaredVector, budget).result
+    Context::prepare_with_budget(&case.system(), ID, ForceBasis::DeclaredVector, &[], budget).result
 }
 fn legacy(case: &Case) -> Result<Context, Error> {
     Context::new(&case.system(), ID, ForceBasis::DeclaredVector, Limits::default())
@@ -251,18 +251,19 @@ fn replay(
     ds: &[FunctionalDescriptor],
     budget: &mut AttemptBudget,
 ) -> Result<FunctionalReplayCheck, Error> {
-    set.replay_against(&case.system(), ID, ForceBasis::DeclaredVector, ds, &[], 1e-9, budget)
+    set.replay_against(&case.system(), ID, ForceBasis::DeclaredVector, &[], ds, &[], 1e-9, budget)
         .result
 }
 
 /// The independent oracle: arbitrary-precision integers and exact rationals.
-mod oracle {
+/// Shared with `congruence_tests` (RF design §3.3).
+pub(crate) mod oracle {
     use std::cmp::Ordering;
 
     /// A signed integer, little-endian base-2^32 limbs, normalized: no high
     /// zero limb, and zero is non-negative.
     #[derive(Debug, Clone, PartialEq, Eq)]
-    pub(super) struct Int {
+    pub(crate) struct Int {
         negative: bool,
         limbs: Vec<u32>,
     }
@@ -327,20 +328,20 @@ mod oracle {
                 limbs,
             }
         }
-        pub(super) fn zero() -> Self {
+        pub(crate) fn zero() -> Self {
             Self::signed(false, Vec::new())
         }
-        pub(super) fn from_i64(v: i64) -> Self {
+        pub(crate) fn from_i64(v: i64) -> Self {
             let m = v.unsigned_abs();
             Self::signed(v < 0, vec![m as u32, (m >> 32) as u32])
         }
-        pub(super) fn is_zero(&self) -> bool {
+        pub(crate) fn is_zero(&self) -> bool {
             self.limbs.is_empty()
         }
-        pub(super) fn neg(&self) -> Self {
+        pub(crate) fn neg(&self) -> Self {
             Self::signed(!self.negative, self.limbs.clone())
         }
-        pub(super) fn add(&self, o: &Self) -> Self {
+        pub(crate) fn add(&self, o: &Self) -> Self {
             if self.negative == o.negative {
                 return Self::signed(self.negative, add(&self.limbs, &o.limbs));
             }
@@ -350,14 +351,14 @@ mod oracle {
                 Ordering::Less => Self::signed(o.negative, subtract(&o.limbs, &self.limbs)),
             }
         }
-        pub(super) fn sub(&self, o: &Self) -> Self {
+        pub(crate) fn sub(&self, o: &Self) -> Self {
             self.add(&o.neg())
         }
-        pub(super) fn mul(&self, o: &Self) -> Self {
+        pub(crate) fn mul(&self, o: &Self) -> Self {
             Self::signed(self.negative != o.negative, multiply(&self.limbs, &o.limbs))
         }
         /// self·2^bits.
-        pub(super) fn shl(&self, bits: u32) -> Self {
+        pub(crate) fn shl(&self, bits: u32) -> Self {
             let (words, rest) = ((bits / 32) as usize, bits % 32);
             let mut out = vec![0u32; words];
             let mut carry = 0u32;
@@ -393,11 +394,11 @@ mod oracle {
         (if bits >> 63 == 1 { -m } else { m }, e + tz as i32)
     }
     /// The smallest s >= 0 with x·2^s an integer.
-    pub(super) fn shift(x: f64) -> u32 {
+    pub(crate) fn shift(x: f64) -> u32 {
         (-decompose(x).1).max(0) as u32
     }
     /// x·2^s, which must be an integer.
-    pub(super) fn scaled(x: f64, s: u32) -> Int {
+    pub(crate) fn scaled(x: f64, s: u32) -> Int {
         let (m, e) = decompose(x);
         if m == 0 {
             return Int::zero();
@@ -406,12 +407,12 @@ mod oracle {
         assert!(up >= 0, "{x:e}·2^{s} is not an integer");
         Int::from_i64(m).shl(up as u32)
     }
-    pub(super) fn sum_scaled(terms: &[f64], s: u32) -> Int {
+    pub(crate) fn sum_scaled(terms: &[f64], s: u32) -> Int {
         terms.iter().fold(Int::zero(), |acc, &t| acc.add(&scaled(t, s)))
     }
     /// The determinant by the Leibniz formula: the signed sum over every
     /// permutation σ of Π m[i][σ(i)] (1 for order 0).
-    pub(super) fn det(m: &[Vec<Int>]) -> Int {
+    pub(crate) fn det(m: &[Vec<Int>]) -> Int {
         fn permutations(n: usize) -> Vec<Vec<usize>> {
             if n == 0 {
                 return vec![Vec::new()];
@@ -529,7 +530,7 @@ fn exact(case: &Case) -> Exact {
     Exact { u, r }
 }
 /// The producer's ratio equals the exact (numerator, denominator) pair.
-fn equals(r: &Ratio, (num, den): &(Int, Int)) -> bool {
+pub(super) fn equals(r: &Ratio, (num, den): &(Int, Int)) -> bool {
     let t = r
         .numerator_terms()
         .iter()

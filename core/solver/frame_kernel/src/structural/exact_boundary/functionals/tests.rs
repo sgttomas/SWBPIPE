@@ -50,6 +50,7 @@ fn context(
         },
         "source",
         ForceBasis::DeclaredVector,
+        &[],
         budget,
     )
     .result
@@ -356,13 +357,13 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
     // Replay is charged to the SAME attempt here, after every construction step.
     let mut fresh = AttemptBudget::new(Limits::default());
     assert!(retained.check_binding_with_budget(
-        &system, "source", ForceBasis::DeclaredVector, &ds, &mut fresh
+        &system, "source", ForceBasis::DeclaredVector, &[], &ds, &mut fresh
     ).result.is_err());
     assert!(retained.clone().replay_against(
-        &system, "source", ForceBasis::DeclaredVector, &ds, &[], 1e-9, &mut fresh
+        &system, "source", ForceBasis::DeclaredVector, &[], &ds, &[], 1e-9, &mut fresh
     ).result.is_err());
     assert!(retained.clone().check_binding_with_budget(
-        &system, "source", ForceBasis::DeclaredVector, &ds, &mut b
+        &system, "source", ForceBasis::DeclaredVector, &[], &ds, &mut b
     ).result.is_ok());
     assert_eq!(
         retained
@@ -370,6 +371,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
                 &system,
                 "source",
                 ForceBasis::DeclaredVector,
+                &[],
                 &ds,
                 &[],
                 1e-9,
@@ -400,6 +402,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
                 &system,
                 "source",
                 ForceBasis::DeclaredVector,
+                &[],
                 &altered,
                 &[],
                 1e-9,
@@ -421,6 +424,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
             &wrong_source,
             "source",
             ForceBasis::DeclaredVector,
+            &[],
             &ds,
             &[],
             1e-9,
@@ -436,6 +440,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
             &system,
             "source",
             ForceBasis::DeclaredVector,
+            &[],
             &ds,
             &[],
             1e-9,
@@ -450,6 +455,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
             &system,
             "source",
             ForceBasis::DeclaredVector,
+            &[],
             &ds,
             &[],
             1e-9,
@@ -464,6 +470,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
             &system,
             "source",
             ForceBasis::DeclaredVector,
+            &[],
             &ds,
             &[],
             1e-9,
@@ -476,6 +483,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
             &system,
             "source",
             ForceBasis::DeclaredVector,
+            &[],
             &ds,
             &[],
             1e-8,
@@ -580,7 +588,7 @@ fn denied_reservations_long_ids_range_failures_and_retries_keep_the_ledger() {
         symmetry: None,
     };
     let failure =
-        Context::prepare_with_budget(&system, "source", ForceBasis::DeclaredVector, &mut tiny);
+        Context::prepare_with_budget(&system, "source", ForceBasis::DeclaredVector, &[], &mut tiny);
     assert_eq!(failure.result.unwrap_err(), Error::Budget);
     assert_eq!(failure.work.charged, 0);
     assert!(failure.work.rejected.exact().unwrap() > 0);

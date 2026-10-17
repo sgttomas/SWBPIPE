@@ -320,6 +320,7 @@ impl SelectedSourceRecovery {
                     &source.system(&input),
                     &source.identity,
                     exact::ForceBasis::IdentifiedContributions(&source.force_terms),
+                    &[],
                     &source.descriptors,
                     &mut self.budget,
                 )
@@ -342,6 +343,7 @@ impl SelectedSourceRecovery {
                     &source.system(&input),
                     &source.identity,
                     exact::ForceBasis::IdentifiedContributions(&source.force_terms),
+                    &[],
                     &source.descriptors,
                     &[],
                     RELATIVE_LIMIT,
@@ -1462,6 +1464,7 @@ pub(super) fn solve(
             &source.system(&input),
             &source.identity,
             exact::ForceBasis::IdentifiedContributions(&source.force_terms),
+            &[],
             &mut budget,
         )
         .result?;
