@@ -330,9 +330,10 @@ impl Work {
     /// `grow_charge` (6·len + 1, `Work::add`'s formula) on the output's current
     /// length immediately before each of its two grow-expansion adds.
     ///
-    /// Soundness (§5.2). Every step is charged before it executes, by at least
-    /// its operations under §5.3's model, and `charge` refuses before the total
-    /// would pass the limit, so executed work never exceeds the charged total
+    /// Soundness (§5.2), scoped to arithmetic performed through `Work`:
+    /// every Work step is charged before it executes, by at least its
+    /// operations under §5.3's model, and `charge` refuses before the total
+    /// would pass the limit, so those operations never exceed the charged total
     /// and the charged total never exceeds the limit. A refusal records its
     /// amount in `rejected` and returns `Budget`; the partial product is a
     /// dropped local, so nothing partial escapes. A pair proceeds only at
@@ -342,8 +343,11 @@ impl Work {
     /// unchanged, so within one attempt the running total never exceeds the
     /// replaced rule's for the same executed prefix: a `Budget` refusal can
     /// only disappear. Across attempts sharing one ledger, an earlier attempt
-    /// that now runs further can leave a later one less; that fails closed, as
-    /// a typed `Budget` decline.
+    /// that now runs further can leave a later one less. This fails closed as
+    /// a typed `Budget` decline and ordinary publication, or at the composite's
+    /// `reserve_publication`: the pre-0.4 blocking
+    /// `SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED` refusal (the 0.4 route
+    /// republishes ordinarily). Strict-gap budget exhaustion is `Unsupported`.
     fn mul(&mut self, a: &Expansion, b: &Expansion) -> Result<Expansion, Error> {
         #[cfg(any(test, feature = "exact-operation-count"))]
         let probe = exact_operation_count::Probe::start(self.used);

@@ -8,6 +8,14 @@
 //! `exact_radix`, and states the rule itself: 96 per term pair, then
 //! 6·len + 1 before each of the pair's two adds on the length at that moment.
 //! Zero elimination depends on the values, so it replays the arithmetic.
+//! `explicit` independently derives the non-arithmetic charge sequences for
+//! each exercised entry; these are also checked on every refusal prefix.
+//!
+//! Charge equality uses no producer operation counters. Execution order needs
+//! additional evidence: `metered_refusal_precedes_the_refused_step` and the
+//! counted-operation comparisons below assert that a refused step did not run.
+//! In particular, moving a charge after an add can preserve charge equality.
+mod explicit;
 use super::exact_operation_count as count;
 use super::functionals::{
     AffineTerm, AttemptBudget, FunctionalConvention, FunctionalDescriptor, FunctionalKey,
@@ -18,7 +26,8 @@ use std::collections::BTreeSet;
 use trace::{Event, Ledger, Outcome};
 
 /// A test-only trace of one thread's `Work` events: the operands of every
-/// `Work::mul` and `Work::add`, and every explicit `Work::charge` (taken as-is).
+/// `Work::mul` and `Work::add`, and every explicit `Work::charge` (validated
+/// against `explicit`'s sequences).
 pub(super) mod trace {
     use super::*;
     use std::cell::{Cell, RefCell};
@@ -232,11 +241,19 @@ mod oracle {
         let ((ah, al), (bh, bl)) = (split(a), split(b));
         (hi, al * bl - (((hi - ah * bh) - al * bh) - ah * bl))
     }
-    /// Fast two-sum, larger magnitude first: s + err = a + b exactly.
-    fn two_sum(a: f64, b: f64) -> (f64, f64) {
-        let s = a + b;
-        let (big, small) = if a.abs() >= b.abs() { (a, b) } else { (b, a) };
-        (s, small - (s - big))
+    /// Six-operation TwoSum, written independently of Expansion::add. Its
+    /// virtual operand must also be finite: near MAX, it can overflow even
+    /// when a+b is finite. Fast2Sum would incorrectly accept that producer
+    /// Range case, so retaining the six-operation decomposition matters.
+    fn two_sum(a: f64, b: f64) -> Option<(f64, f64)> {
+        let rounded = a + b;
+        let b_virtual = rounded - a;
+        let a_virtual = rounded - b_virtual;
+        let b_roundoff = b - b_virtual;
+        let a_roundoff = a - a_virtual;
+        let residual = a_roundoff + b_roundoff;
+        (rounded.is_finite() && b_virtual.is_finite() && residual.is_finite())
+            .then_some((rounded, residual))
     }
     /// Grow-expansion with zero elimination. `Err` carries the two-sum steps
     /// executed before an overflow.
@@ -244,10 +261,9 @@ mod oracle {
         let mut q = x;
         let mut out = Vec::with_capacity(terms.len() + 1);
         for (i, &e) in terms.iter().enumerate() {
-            let (s, err) = two_sum(q, e);
-            if !s.is_finite() || !err.is_finite() {
+            let Some((s, err)) = two_sum(q, e) else {
                 return Err(i + 1);
-            }
+            };
             if err != 0.0 {
                 out.push(err);
             }
@@ -374,9 +390,13 @@ struct Tally {
 fn same_bits(a: &[f64], b: &[f64]) -> bool {
     a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x.to_bits() == y.to_bits())
 }
-/// Recomputes every arithmetic charge of a trace from its operands; explicit
-/// charges are taken as-is. Each `Work::mul` must equal the oracle exactly.
+/// Recomputes every arithmetic charge of a trace from its operands. Entry
+/// schedules independently validate explicit charges before ledger equality
+/// is considered evidence for the whole entry. Each mul equals the oracle.
 fn verify(events: &[Event], entry: &str) -> Tally {
+    if entry == "Work::mul" {
+        explicit::verify(events, &[], entry);
+    }
     let mut t = Tally::default();
     for (i, event) in events.iter().enumerate() {
         match event {
@@ -459,16 +479,28 @@ struct Checker {
     tally: Tally,
     entries: BTreeSet<&'static str>,
     stages: Vec<(&'static str, Vec<Event>)>,
+    schedules: Vec<explicit::Schedule>,
+    /// Full, independently derived schedules for a refusal sweep. Successful
+    /// fixtures derive theirs from their inputs/results, never their traces.
+    expected: Option<Vec<explicit::Schedule>>,
 }
 impl Checker {
     fn settle(&mut self, entry: &'static str, traced: Traced, charged: usize, rejected: u64, multiplies: bool) {
+        if let Some(expected) = &self.expected {
+            let (expected_entry, charges) = &expected[self.stages.len()];
+            assert_eq!(*expected_entry, entry);
+            explicit::verify(&traced.events, charges, entry);
+        }
         let t = verify(&traced.events, entry);
         assert_eq!(t.charged, charged, "{entry}: oracle-recomputed charges against the ledger");
         assert_eq!(t.rejected, rejected, "{entry}: refused amounts against the ledger");
         if multiplies {
             assert!(t.muls > 0, "{entry}: no Work::mul in its trace");
         }
-        // Every exact operation the entry executed ran inside a charged call.
+        // Additional temporal/coverage evidence, using producer instrumentation:
+        // charge equality alone cannot detect an add executed before refusal or
+        // one multiplication bypassing Work among several traced calls. Range
+        // adds may stop partway, so this aggregate comparison excludes them.
         if t.ranges == 0 {
             assert_eq!(t.counted, traced.operations, "{entry}: counted operations");
         }
@@ -494,6 +526,18 @@ impl Checker {
         );
         *last = now;
     }
+    fn expect_stages(&mut self, start: usize, expected: Vec<explicit::Schedule>) {
+        assert_eq!(self.stages.len() - start, expected.len());
+        assert_eq!(self.schedules.len(), start);
+        for ((entry, events), (expected_entry, charges)) in self.stages[start..].iter().zip(&expected) {
+            assert_eq!(entry, expected_entry);
+            explicit::verify(events, charges, entry);
+        }
+        self.schedules.extend(expected);
+    }
+    fn schedule(&self, entry: &str) -> &[usize] {
+        &self.schedules.iter().rev().find(|(e, _)| *e == entry).unwrap().1
+    }
     /// Adds another checker's tallies and traced stages to this one's.
     fn absorb(&mut self, other: Checker) {
         self.tally.charged += other.tally.charged;
@@ -503,6 +547,7 @@ impl Checker {
         self.tally.adds += other.tally.adds;
         self.tally.ranges += other.tally.ranges;
         self.stages.extend(other.stages);
+        self.schedules.extend(other.schedules);
     }
     fn events(&self, entry: &str) -> &[Event] {
         &self.stages.iter().rev().find(|(e, _)| *e == entry).unwrap().1
@@ -811,6 +856,7 @@ fn functional_chain(
     limit: usize,
     check: &mut Checker,
 ) -> Result<Vec<usize>, Error> {
+    let start = check.stages.len();
     let (gap_dof, gap) = s.gap;
     let system = s.system();
     let mut budget = AttemptBudget::new(Limits {
@@ -861,6 +907,7 @@ fn functional_chain(
     });
     check.stage("RetainedFunctionalSet::replay_against", t, &mut last, budget.report(), a.result.is_ok());
     assert_eq!(a.result?.functionals(), ds.len());
+    check.expect_stages(start, explicit::functional(s, &r, &retained));
     Ok(c.blocks.iter().map(Vec::len).collect())
 }
 
@@ -896,6 +943,8 @@ fn sweep(
     let ((outcome, full), t) = traced(|| run(usize::MAX));
     assert_eq!(outcome, Outcome::Ok, "{entry}");
     let limits = step_limits(&t.events, stride);
+    let expected = check.schedule(entry).to_vec();
+    explicit::verify(&t.events, &expected, entry);
     assert!(!limits.is_empty(), "{entry}: no multiplication to sweep");
     for limit in limits {
         let ((outcome, work), t) = traced(|| run(limit));
@@ -905,7 +954,9 @@ fn sweep(
             limit < full.charged,
             "{entry} at limit {limit}: {outcome:?}"
         );
+        let start = check.stages.len();
         check.attempt(entry, t, &work, false);
+        check.expect_stages(start, vec![(entry, expected.clone())]);
     }
 }
 
@@ -928,6 +979,7 @@ fn every_entry(check: &mut Checker, sweeps: bool) {
     let orders = functional_chain(&Source::congruence(), &congruence_descriptors(), CONGRUENCE_LEDGER, &mut members);
     assert_eq!(orders.unwrap(), [4, 2]);
     check.absorb(members);
+    let start = check.stages.len();
     let s = Source::new();
     let system = s.system();
     let (c, t) = traced(|| Context::new(&system, ID, s.basis(), Limits::default()));
@@ -970,6 +1022,7 @@ fn every_entry(check: &mut Checker, sweeps: bool) {
     let (a, t) = traced(|| replay(usize::MAX));
     check.attempt("RetainedResponse::replay_against", t, &a.work, true);
     assert_eq!(a.result.unwrap().dofs(), 3);
+    check.expect_stages(start, explicit::legacy(&s, &r, &retained));
     if !sweeps {
         return;
     }
@@ -1004,7 +1057,7 @@ fn every_entry(check: &mut Checker, sweeps: bool) {
             ("Context::prepare_with_budget", strides[0]),
             ("RetainedFunctionalSet::replay_against", strides[1]),
         ] {
-            sweep_functional(check, &source, &ds, entry, &full.events(entry).to_vec(), stride);
+            sweep_functional(check, &source, &ds, entry, &full, stride);
         }
     }
 }
@@ -1027,13 +1080,13 @@ fn sweep_functional(
     source: &Source,
     ds: &[FunctionalDescriptor],
     entry: &'static str,
-    full: &[Event],
+    full: &Checker,
     stride: usize,
 ) {
-    let limits = step_limits(full, stride);
+    let limits = step_limits(full.events(entry), stride);
     assert!(!limits.is_empty(), "{entry}: no multiplication to sweep");
     for limit in limits {
-        let mut fresh = Checker::default();
+        let mut fresh = Checker { expected: Some(full.schedules.clone()), ..Checker::default() };
         let refused = functional_chain(source, ds, limit, &mut fresh);
         let (last, events) = fresh.stages.last().unwrap();
         assert_eq!(*last, entry, "limit {limit} stopped in {last}");
@@ -1086,6 +1139,9 @@ fn metered_mul_charges_match_the_independent_oracle() {
         (vec![-p2(-60), 1.0], vec![p2(-60), 1.0]),
         (vec![p2(-80), -p2(-30), 1.0 + p2(-52)], vec![3.0 * p2(-70), 1.0 + p2(-51)]),
         (vec![f64::MAX], vec![2.0]),
+        // The third pair reaches a near-MAX grow whose virtual operand
+        // overflows before the final (overflowing) pair could be processed.
+        (vec![1.0, p2(60)], vec![-3.0 * p2(910), f64::MAX]),
         (vec![f64::from_bits(1)], vec![0.5]),
         (vec![f64::from_bits(5)], vec![f64::MAX]),
     ];
@@ -1129,6 +1185,7 @@ fn metered_mul_charges_match_the_independent_oracle() {
     // Through every entry, with refusal sweeps.
     let mut check = Checker::default();
     every_entry(&mut check, true);
+    assert_eq!(check.schedules.len(), check.stages.len(), "every traced entry has an explicit-charge schedule");
     for entry in [
         "Context::prepare_with_budget",
         "Context::solve_with_budget",
@@ -1162,6 +1219,23 @@ fn metered_mul_charges_match_the_independent_oracle() {
 }
 
 #[test]
+fn metered_oracle_reproduces_near_overflow_two_sum_refusal() {
+    for sign in [1.0, -1.0] {
+        let (existing, incoming) = (sign * f64::MAX, sign * (-3.0 * p2(970)));
+        let sum = existing + incoming;
+        assert!(sum.is_finite());
+        assert!((sum - incoming).is_infinite());
+        assert_eq!(oracle::grow(&[existing], incoming), Err(1));
+        let mut out = expansion(&[existing]);
+        let mut w = work(usize::MAX, 256, 0);
+        assert!(matches!(w.add(&mut out, incoming), Err(Error::Arithmetic(_))));
+        assert_eq!(w.used, 7); // reserve the one six-operation TwoSum + final term
+        assert_eq!(exact(w.rejected), 0);
+        assert!(same_bits(&out.terms, &[existing]));
+    }
+}
+
+#[test]
 fn metered_refusal_precedes_the_refused_step() {
     let a = [p2(-70), -p2(-30), 1.5];
     let b = [3.0 * p2(-80), 1.25 + p2(-50)];
@@ -1182,7 +1256,9 @@ fn metered_refusal_precedes_the_refused_step() {
         assert_eq!(w.used, previous, "limit {limit}: only the earlier steps were charged");
         assert_eq!(exact(w.rejected), step as u64, "limit {limit}: the refused amount");
         assert_eq!((prefix.charged, prefix.rejected), (previous, step as u64));
-        // The refused step did not execute: no operation past the prefix ran.
+        // Temporal refusal enforcement needs the executed-operation counter
+        // as well as independent charge equality: an add run before its
+        // refused charge would leave the same ledger but exceed this prefix.
         assert_eq!(count::operations(), prefix.counted, "limit {limit}: executed operations");
         assert_eq!(count::totals().shortfalls(), 0);
         refused_adds += usize::from(step != oracle::PAIR && step > 1);
@@ -1211,6 +1287,7 @@ fn metered_refusal_precedes_the_refused_step() {
         assert_eq!(refused.result, Err(Error::Budget));
         assert_eq!(refused.work.charged, previous);
         assert_eq!(exact(refused.work.rejected), (boundary - previous) as u64);
+        explicit::verify(&t.events, &[12], "Response::gap_sign_with_work");
         let tally = verify(&t.events, "Response::gap_sign_with_work");
         assert_eq!((tally.charged, tally.rejected), (previous, (boundary - previous) as u64));
         assert_eq!(count::operations(), tally.counted);
