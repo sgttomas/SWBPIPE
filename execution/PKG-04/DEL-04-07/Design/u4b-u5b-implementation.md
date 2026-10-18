@@ -198,8 +198,11 @@ on (§2.3).
   - No oracle, `SHA256SUMS` or t4_u5b base pin moves.
   - The helpers re-author 0.5.0 by version alone. Older versions keep their existing contract
     and allowance rules.
-- **The U4b and U5b builders add 0.6.0 requests.** Only the t4_u4b and t4_u5b builders add
-  request bytes and request SHA-256 values, as their READMEs allow. No oracle value moves.
+- **The U4b and U5b builders add 0.6.0 requests outside the frozen trees.** The t4_u4b and
+  t4_u5b builders author 0.6.0 requests, as their READMEs allow, and the requests are bound to
+  each case's `case_sha256` by a pinned hash in the consuming test (t4_u4b) or a committed
+  bindings file beside it (t4_u5b). Nothing is added under `validation/references`, so each
+  reference tree, its `SHA256SUMS` and its generator's own check are unchanged.
 - **The four owner-confirmed 0.5.0 re-authorings** (b7-plan, "Decisions applied") become 0.6.0
   edits of the same files. `tests/test_model_schema.py::check_domain_fixtures` expects 0.6.0.
 - **The frozen UI benchmark is unchanged.** Its four 0.2.0 models remain under the pending owner
@@ -807,7 +810,11 @@ recovery is T_r = k_r(C d − e_ref).
 
 - **A rod nearly perpendicular to the joint axis is admitted, with no refusal.** Ruling 1 lets
   this design refuse it by name only if that is justified, and nothing justifies it:
-  - the rod element's assembly and certificate do not depend on n·Q_x;
+  - the rod element's assembly and certificate do not depend on n·Q_x. As built, the kernel's
+    assembly-absorption refusal applies per element: it fires only when every positive
+    diagonal contribution of one element is absorbed by rounding. A rank-1 rod with tiny
+    entries along some global axis (near-perpendicular, or a parallel rod with coordinate
+    noise) is therefore not refused, while a series-absorbed member keeps its refusal (F1b);
   - its stiffness, extension and force are well defined at every direction;
   - S_joint's projected term only becomes small.
 
