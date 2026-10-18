@@ -73,8 +73,8 @@
       "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
       "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
       "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
-      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). On such a load case each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; on any other load case the published displacements are the solve's own. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
     ]
   },
   "document_kind": "openpipestress.product_preview.mechanics_result",
@@ -94,7 +94,7 @@
     "curved_bend_macro_element_count": 0,
     "spring_hanger_user_input_count": 0,
     "max_displacement": {
-      "value": 1.1608090399600843,
+      "value": 1.1608090399600846,
       "unit": "mm",
       "location_ref": "node:fixture-tip",
       "result_ref": "result:disp:node-fixture-tip"
@@ -139,7 +139,7 @@
     {
       "id": "result:disp:node-fixture-tip",
       "kind": "displacement_magnitude",
-      "value": 1.1608090399600843,
+      "value": 1.1608090399600846,
       "unit": "mm",
       "entity_ref": "node:fixture-tip",
       "basis_ref": {
@@ -258,7 +258,7 @@
     {
       "id": "result:disp:node-fixture-tip:ux",
       "kind": "global_nodal_displacement_x",
-      "value": 0.0014468631190172302,
+      "value": 0.00144686311901723,
       "unit": "mm",
       "entity_ref": "node:fixture-tip",
       "basis_ref": {
@@ -276,7 +276,7 @@
     {
       "id": "result:disp:node-fixture-tip:uy",
       "kind": "global_nodal_displacement_y",
-      "value": 0.9171372776284079,
+      "value": 0.917137277628408,
       "unit": "mm",
       "entity_ref": "node:fixture-tip",
       "basis_ref": {
@@ -294,7 +294,7 @@
     {
       "id": "result:disp:node-fixture-tip:uz",
       "kind": "global_nodal_displacement_z",
-      "value": -0.7115720257461785,
+      "value": -0.7115720257461787,
       "unit": "mm",
       "entity_ref": "node:fixture-tip",
       "basis_ref": {
@@ -330,7 +330,7 @@
     {
       "id": "result:disp:node-fixture-tip:ry",
       "kind": "global_nodal_rotation_y",
-      "value": 0.0009487627009949046,
+      "value": 0.0009487627009949048,
       "unit": "rad",
       "entity_ref": "node:fixture-tip",
       "basis_ref": {
@@ -348,7 +348,7 @@
     {
       "id": "result:disp:node-fixture-tip:rz",
       "kind": "global_nodal_rotation_z",
-      "value": 0.0015180203215918475,
+      "value": 0.0015180203215918477,
       "unit": "rad",
       "entity_ref": "node:fixture-tip",
       "basis_ref": {

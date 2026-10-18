@@ -1348,8 +1348,8 @@
             "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
             "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
             "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware or explicit bilateral linear elastic tie rods (explicit_axial_rods_v1) between the connector's end nodes with rigid offsets, each with its own stiffness and reference extension. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces and joints at region terminals or beside realized arcs are refused. Ideal inextensible rods, collective constraints, tension-only or gapped rods, nuts and stops are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with each tie-rod force, the joint pressure force pAe and the effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe published separately; they are outside the straight-member recovery coverage.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). On such a load case each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; on any other load case the published displacements are the solve's own. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -1452,7 +1452,7 @@
             "id": "result:disp:node-N-110",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.025901554134982144
+            "value": 0.025901554134984395
           },
           {
             "basis_ref": {
@@ -1474,7 +1474,7 @@
             "id": "result:disp:node-N-130",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 6.151719633370352
+            "value": 6.151719633370318
           },
           {
             "basis_ref": {
@@ -1485,7 +1485,7 @@
             "id": "result:disp:node-N-140",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 9.284701543190193
+            "value": 9.284701543190158
           },
           {
             "basis_ref": {
@@ -1647,7 +1647,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.025901554134982144
+            "value": 0.025901554134984395
           },
           {
             "basis_ref": {
@@ -1665,7 +1665,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.00010332517190801626
+            "value": 0.00010332517190801529
           },
           {
             "basis_ref": {
@@ -1683,7 +1683,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.00023967432721019584
+            "value": 0.00023967432721019389
           },
           {
             "basis_ref": {
@@ -1773,7 +1773,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.00026883262453514944
+            "value": -0.0002688326245351501
           },
           {
             "basis_ref": {
@@ -1791,7 +1791,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0012217554819829739
+            "value": 0.0012217554819829682
           },
           {
             "basis_ref": {
@@ -1827,7 +1827,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.66
+            "value": 0.6599999999999999
           },
           {
             "basis_ref": {
@@ -1863,7 +1863,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -6.116212426624361
+            "value": -6.116212426624327
           },
           {
             "basis_ref": {
@@ -1881,7 +1881,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.002184856898954429
+            "value": -0.0021848568989544263
           },
           {
             "basis_ref": {
@@ -1899,7 +1899,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.001327510034921833
+            "value": 0.0013275100349218242
           },
           {
             "basis_ref": {
@@ -1935,7 +1935,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 3.5805220768280335
+            "value": 3.580522076828013
           },
           {
             "basis_ref": {
@@ -1953,7 +1953,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 6.077865733255301
+            "value": 6.077865733255293
           },
           {
             "basis_ref": {
@@ -1971,7 +1971,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -6.036977102158531
+            "value": -6.036977102158498
           },
           {
             "basis_ref": {
@@ -1989,7 +1989,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.0029869402322877632
+            "value": -0.0029869402322877593
           },
           {
             "basis_ref": {
@@ -2007,7 +2007,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.001327510034921833
+            "value": 0.0013275100349218242
           },
           {
             "basis_ref": {
@@ -8581,7 +8581,7 @@
             "id": "result:loadcase:load-L-200:disp:node-N-110",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.1277057951729083
+            "value": 0.12770579517290703
           },
           {
             "basis_ref": {
@@ -8603,7 +8603,7 @@
             "id": "result:loadcase:load-L-200:disp:node-N-130",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 3.1588113791295083
+            "value": 3.158811379129491
           },
           {
             "basis_ref": {
@@ -8614,7 +8614,7 @@
             "id": "result:loadcase:load-L-200:disp:node-N-140",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 4.0131808737022325
+            "value": 4.013180873702214
           },
           {
             "basis_ref": {
@@ -8776,7 +8776,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.1277057951729083
+            "value": -0.12770579517290703
           },
           {
             "basis_ref": {
@@ -8794,7 +8794,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.00008476293724104102
+            "value": 0.00008476293724104054
           },
           {
             "basis_ref": {
@@ -8812,7 +8812,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.00017937707582022107
+            "value": 0.00017937707582022007
           },
           {
             "basis_ref": {
@@ -8902,7 +8902,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.00003434447779701621
+            "value": -0.00003434447779701666
           },
           {
             "basis_ref": {
@@ -8920,7 +8920,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0006454855147186105
+            "value": 0.0006454855147186077
           },
           {
             "basis_ref": {
@@ -8992,7 +8992,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -3.1588113791295083
+            "value": -3.158811379129491
           },
           {
             "basis_ref": {
@@ -9010,7 +9010,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.0007186388615181873
+            "value": -0.0007186388615181866
           },
           {
             "basis_ref": {
@@ -9028,7 +9028,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.000680782437125989
+            "value": 0.0006807824371259846
           },
           {
             "basis_ref": {
@@ -9064,7 +9064,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 1.4977213616771763
+            "value": 1.497721361677166
           },
           {
             "basis_ref": {
@@ -9082,7 +9082,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 2.034998550895568
+            "value": 2.0349985508955664
           },
           {
             "basis_ref": {
@@ -9100,7 +9100,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -3.117889084890323
+            "value": -3.117889084890306
           },
           {
             "basis_ref": {
@@ -9118,7 +9118,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.0010050971948515207
+            "value": -0.00100509719485152
           },
           {
             "basis_ref": {
@@ -9136,7 +9136,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.000680782437125989
+            "value": 0.0006807824371259846
           },
           {
             "basis_ref": {
@@ -15710,7 +15710,7 @@
             "id": "result:loadcase:load-L-300:disp:node-N-110",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.14403887361235634
+            "value": 0.14403887361235562
           },
           {
             "basis_ref": {
@@ -15721,7 +15721,7 @@
             "id": "result:loadcase:load-L-300:disp:node-N-120",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.0738375671105262
+            "value": 0.0738375671105264
           },
           {
             "basis_ref": {
@@ -15732,7 +15732,7 @@
             "id": "result:loadcase:load-L-300:disp:node-N-130",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 1.5525339156614764
+            "value": 1.552533915661467
           },
           {
             "basis_ref": {
@@ -15743,7 +15743,7 @@
             "id": "result:loadcase:load-L-300:disp:node-N-140",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 2.428370070766054
+            "value": 2.428370070766044
           },
           {
             "basis_ref": {
@@ -15869,7 +15869,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.00019212988161132285
+            "value": -0.00019212988161132312
           },
           {
             "basis_ref": {
@@ -15887,7 +15887,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.07368965519497529
+            "value": -0.0736896551949755
           },
           {
             "basis_ref": {
@@ -15905,7 +15905,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.12376184757376002
+            "value": -0.12376184757375905
           },
           {
             "basis_ref": {
@@ -15923,7 +15923,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.000043250108023088176
+            "value": 0.000043250108023087844
           },
           {
             "basis_ref": {
@@ -15941,7 +15941,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.00008474433559224757
+            "value": 0.00008474433559224689
           },
           {
             "basis_ref": {
@@ -15959,7 +15959,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.000013655015901870885
+            "value": -0.000013655015901870934
           },
           {
             "basis_ref": {
@@ -15995,7 +15995,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.0738375671105262
+            "value": -0.0738375671105264
           },
           {
             "basis_ref": {
@@ -16031,7 +16031,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.00005572610072205592
+            "value": 0.00005572610072205549
           },
           {
             "basis_ref": {
@@ -16049,7 +16049,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0001889951168062331
+            "value": 0.00018899511680623153
           },
           {
             "basis_ref": {
@@ -16067,7 +16067,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -4.260645504433053e-6
+            "value": -4.260645504433026e-6
           },
           {
             "basis_ref": {
@@ -16085,7 +16085,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.0012427360241425724
+            "value": 0.0012427360241425722
           },
           {
             "basis_ref": {
@@ -16121,7 +16121,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -1.5525334182832686
+            "value": -1.5525334182832593
           },
           {
             "basis_ref": {
@@ -16139,7 +16139,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.000055726100722055995
+            "value": 0.00005572610072205549
           },
           {
             "basis_ref": {
@@ -16157,7 +16157,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0006070451126127679
+            "value": 0.0006070451126127655
           },
           {
             "basis_ref": {
@@ -16175,7 +16175,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.00009908135179036828
+            "value": 0.00009908135179036834
           },
           {
             "basis_ref": {
@@ -16193,7 +16193,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 1.8797975393277881
+            "value": 1.8797975393277824
           },
           {
             "basis_ref": {
@@ -16211,7 +16211,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.12259742158852321
+            "value": -0.12259742158852208
           },
           {
             "basis_ref": {
@@ -16229,7 +16229,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -1.53242040052636
+            "value": -1.5324204005263509
           },
           {
             "basis_ref": {
@@ -16247,7 +16247,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.000055726100722055995
+            "value": 0.00005572610072205549
           },
           {
             "basis_ref": {
@@ -16265,7 +16265,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0008987117792794346
+            "value": 0.0008987117792794322
           },
           {
             "basis_ref": {
@@ -22887,7 +22887,7 @@
             "location_ref": "node:N-140",
             "result_ref": "result:disp:node-N-140",
             "unit": "mm",
-            "value": 9.284701543190193
+            "value": 9.284701543190158
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
@@ -24888,8 +24888,8 @@
             "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.",
             "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented.",
             "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware or explicit bilateral linear elastic tie rods (explicit_axial_rods_v1) between the connector's end nodes with rigid offsets, each with its own stiffness and reference extension. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces and joints at region terminals or beside realized arcs are refused. Ideal inextensible rods, collective constraints, tension-only or gapped rods, nuts and stops are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with each tie-rod force, the joint pressure force pAe and the effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe published separately; they are outside the straight-member recovery coverage.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). On such a load case each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; on any other load case the published displacements are the solve's own. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -24992,7 +24992,7 @@
             "id": "result:disp:node-N-110",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.02590155413498746
+            "value": 0.025901554134984395
           },
           {
             "basis_ref": {
@@ -25014,7 +25014,7 @@
             "id": "result:disp:node-N-130",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 6.151719633370305
+            "value": 6.151719633370318
           },
           {
             "basis_ref": {
@@ -25025,7 +25025,7 @@
             "id": "result:disp:node-N-140",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 9.284701543190153
+            "value": 9.284701543190158
           },
           {
             "basis_ref": {
@@ -25187,7 +25187,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.02590155413498746
+            "value": 0.025901554134984395
           },
           {
             "basis_ref": {
@@ -25205,7 +25205,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.00010332517190801434
+            "value": 0.00010332517190801529
           },
           {
             "basis_ref": {
@@ -25223,7 +25223,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.00023967432721019202
+            "value": 0.00023967432721019389
           },
           {
             "basis_ref": {
@@ -25313,7 +25313,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.0002688326245351517
+            "value": -0.0002688326245351501
           },
           {
             "basis_ref": {
@@ -25331,7 +25331,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0012217554819829652
+            "value": 0.0012217554819829682
           },
           {
             "basis_ref": {
@@ -25367,7 +25367,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.66
+            "value": 0.6599999999999999
           },
           {
             "basis_ref": {
@@ -25403,7 +25403,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -6.116212426624314
+            "value": -6.116212426624327
           },
           {
             "basis_ref": {
@@ -25421,7 +25421,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.0021848568989544298
+            "value": -0.0021848568989544263
           },
           {
             "basis_ref": {
@@ -25439,7 +25439,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0013275100349218214
+            "value": 0.0013275100349218242
           },
           {
             "basis_ref": {
@@ -25475,7 +25475,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 3.5805220768280073
+            "value": 3.580522076828013
           },
           {
             "basis_ref": {
@@ -25493,7 +25493,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 6.077865733255303
+            "value": 6.077865733255293
           },
           {
             "basis_ref": {
@@ -25511,7 +25511,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -6.036977102158484
+            "value": -6.036977102158498
           },
           {
             "basis_ref": {
@@ -25529,7 +25529,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.0029869402322877632
+            "value": -0.0029869402322877593
           },
           {
             "basis_ref": {
@@ -25547,7 +25547,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0013275100349218211
+            "value": 0.0013275100349218242
           },
           {
             "basis_ref": {
@@ -32121,7 +32121,7 @@
             "id": "result:loadcase:load-L-200:disp:node-N-110",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.12770579517290567
+            "value": 0.12770579517290703
           },
           {
             "basis_ref": {
@@ -32143,7 +32143,7 @@
             "id": "result:loadcase:load-L-200:disp:node-N-130",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 3.158811379129483
+            "value": 3.158811379129491
           },
           {
             "basis_ref": {
@@ -32154,7 +32154,7 @@
             "id": "result:loadcase:load-L-200:disp:node-N-140",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 4.0131808737022086
+            "value": 4.013180873702214
           },
           {
             "basis_ref": {
@@ -32316,7 +32316,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.12770579517290567
+            "value": -0.12770579517290703
           },
           {
             "basis_ref": {
@@ -32334,7 +32334,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.0000847629372410401
+            "value": 0.00008476293724104054
           },
           {
             "basis_ref": {
@@ -32352,7 +32352,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.00017937707582021923
+            "value": 0.00017937707582022007
           },
           {
             "basis_ref": {
@@ -32442,7 +32442,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.00003434447779701735
+            "value": -0.00003434447779701666
           },
           {
             "basis_ref": {
@@ -32460,7 +32460,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0006454855147186062
+            "value": 0.0006454855147186077
           },
           {
             "basis_ref": {
@@ -32496,7 +32496,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 1.0908969226365316e-18
+            "value": -3.3409558876152446e-49
           },
           {
             "basis_ref": {
@@ -32532,7 +32532,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -3.158811379129483
+            "value": -3.158811379129491
           },
           {
             "basis_ref": {
@@ -32550,7 +32550,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.0007186388615181879
+            "value": -0.0007186388615181866
           },
           {
             "basis_ref": {
@@ -32568,7 +32568,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0006807824371259828
+            "value": 0.0006807824371259846
           },
           {
             "basis_ref": {
@@ -32604,7 +32604,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 1.4977213616771623
+            "value": 1.497721361677166
           },
           {
             "basis_ref": {
@@ -32622,7 +32622,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 2.03499855089557
+            "value": 2.0349985508955664
           },
           {
             "basis_ref": {
@@ -32640,7 +32640,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -3.1178890848902983
+            "value": -3.117889084890306
           },
           {
             "basis_ref": {
@@ -32658,7 +32658,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.0010050971948515216
+            "value": -0.00100509719485152
           },
           {
             "basis_ref": {
@@ -32676,7 +32676,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0006807824371259828
+            "value": 0.0006807824371259846
           },
           {
             "basis_ref": {
@@ -39250,7 +39250,7 @@
             "id": "result:loadcase:load-L-300:disp:node-N-110",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.14403887361235373
+            "value": 0.14403887361235562
           },
           {
             "basis_ref": {
@@ -39261,7 +39261,7 @@
             "id": "result:loadcase:load-L-300:disp:node-N-120",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.07383756711052386
+            "value": 0.0738375671105264
           },
           {
             "basis_ref": {
@@ -39272,7 +39272,7 @@
             "id": "result:loadcase:load-L-300:disp:node-N-130",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 1.5525339156614633
+            "value": 1.552533915661467
           },
           {
             "basis_ref": {
@@ -39283,7 +39283,7 @@
             "id": "result:loadcase:load-L-300:disp:node-N-140",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 2.42837007076604
+            "value": 2.428370070766044
           },
           {
             "basis_ref": {
@@ -39409,7 +39409,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.00019212988161132052
+            "value": -0.00019212988161132312
           },
           {
             "basis_ref": {
@@ -39427,7 +39427,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.07368965519497293
+            "value": -0.0736896551949755
           },
           {
             "basis_ref": {
@@ -39445,7 +39445,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.1237618475737584
+            "value": -0.12376184757375905
           },
           {
             "basis_ref": {
@@ -39463,7 +39463,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.000043250108023087594
+            "value": 0.000043250108023087844
           },
           {
             "basis_ref": {
@@ -39481,7 +39481,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.00008474433559224644
+            "value": 0.00008474433559224689
           },
           {
             "basis_ref": {
@@ -39499,7 +39499,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.00001365501590187031
+            "value": -0.000013655015901870934
           },
           {
             "basis_ref": {
@@ -39535,7 +39535,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.07383756711052386
+            "value": -0.0738375671105264
           },
           {
             "basis_ref": {
@@ -39571,7 +39571,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.000055726100722055196
+            "value": 0.00005572610072205549
           },
           {
             "basis_ref": {
@@ -39589,7 +39589,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0001889951168062307
+            "value": 0.00018899511680623153
           },
           {
             "basis_ref": {
@@ -39607,7 +39607,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -4.260645504433408e-6
+            "value": -4.260645504433026e-6
           },
           {
             "basis_ref": {
@@ -39625,7 +39625,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.0012427360241425713
+            "value": 0.0012427360241425722
           },
           {
             "basis_ref": {
@@ -39661,7 +39661,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -1.5525334182832555
+            "value": -1.5525334182832593
           },
           {
             "basis_ref": {
@@ -39679,7 +39679,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.00005572610072205528
+            "value": 0.00005572610072205549
           },
           {
             "basis_ref": {
@@ -39697,7 +39697,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0006070451126127647
+            "value": 0.0006070451126127655
           },
           {
             "basis_ref": {
@@ -39715,7 +39715,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.00009908135179036764
+            "value": 0.00009908135179036834
           },
           {
             "basis_ref": {
@@ -39733,7 +39733,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 1.8797975393277802
+            "value": 1.8797975393277824
           },
           {
             "basis_ref": {
@@ -39751,7 +39751,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.12259742158852162
+            "value": -0.12259742158852208
           },
           {
             "basis_ref": {
@@ -39769,7 +39769,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -1.5324204005263473
+            "value": -1.5324204005263509
           },
           {
             "basis_ref": {
@@ -39787,7 +39787,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.00005572610072205525
+            "value": 0.00005572610072205549
           },
           {
             "basis_ref": {
@@ -39805,7 +39805,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0008987117792794312
+            "value": 0.0008987117792794322
           },
           {
             "basis_ref": {
@@ -39823,7 +39823,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.00034101683566133535
+            "value": 0.00034101683566133606
           },
           {
             "basis_ref": {
@@ -46427,7 +46427,7 @@
             "location_ref": "node:N-140",
             "result_ref": "result:disp:node-N-140",
             "unit": "mm",
-            "value": 9.284701543190153
+            "value": 9.284701543190158
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
@@ -47438,8 +47438,8 @@
             "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
             "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
             "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware or explicit bilateral linear elastic tie rods (explicit_axial_rods_v1) between the connector's end nodes with rigid offsets, each with its own stiffness and reference extension. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces and joints at region terminals or beside realized arcs are refused. Ideal inextensible rods, collective constraints, tension-only or gapped rods, nuts and stops are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with each tie-rod force, the joint pressure force pAe and the effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe published separately; they are outside the straight-member recovery coverage.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). On such a load case each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; on any other load case the published displacements are the solve's own. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -47516,7 +47516,7 @@
             "id": "result:disp:node-B",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.0018181818181815105
+            "value": 0.001818181818181818
           },
           {
             "basis_ref": {
@@ -47527,7 +47527,7 @@
             "id": "result:disp:node-C",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 4.957241076974638
+            "value": 4.957241076974775
           },
           {
             "basis_ref": {
@@ -47538,7 +47538,7 @@
             "id": "result:disp:node-D",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 59.00952844169928
+            "value": 59.00952844170111
           },
           {
             "basis_ref": {
@@ -47664,7 +47664,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.0018181818181815105
+            "value": 0.001818181818181818
           },
           {
             "basis_ref": {
@@ -47682,7 +47682,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 2.157310277089035e-14
+            "value": 2.207045081311587e-41
           },
           {
             "basis_ref": {
@@ -47754,7 +47754,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 1.9554359061980864e-17
+            "value": 1.9968503116628643e-44
           },
           {
             "basis_ref": {
@@ -47772,7 +47772,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 2.7680964546076736
+            "value": 2.768096454607764
           },
           {
             "basis_ref": {
@@ -47790,7 +47790,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 4.112405757367954
+            "value": 4.112405757368058
           },
           {
             "basis_ref": {
@@ -47862,7 +47862,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.027416038382452868
+            "value": 0.027416038382453736
           },
           {
             "basis_ref": {
@@ -47880,7 +47880,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 2.7699146364258556
+            "value": 2.7699146364259457
           },
           {
             "basis_ref": {
@@ -47898,7 +47898,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 58.9444825222737
+            "value": 58.94448252227553
           },
           {
             "basis_ref": {
@@ -47970,7 +47970,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.027416038382452882
+            "value": 0.027416038382453736
           },
           {
             "basis_ref": {
@@ -53982,7 +53982,7 @@
             "location_ref": "node:D",
             "result_ref": "result:disp:node-D",
             "unit": "mm",
-            "value": 59.00952844169928
+            "value": 59.00952844170111
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
@@ -54551,8 +54551,8 @@
             "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
             "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
             "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware or explicit bilateral linear elastic tie rods (explicit_axial_rods_v1) between the connector's end nodes with rigid offsets, each with its own stiffness and reference extension. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces and joints at region terminals or beside realized arcs are refused. Ideal inextensible rods, collective constraints, tension-only or gapped rods, nuts and stops are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with each tie-rod force, the joint pressure force pAe and the effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe published separately; they are outside the straight-member recovery coverage.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). On such a load case each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; on any other load case the published displacements are the solve's own. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -54629,7 +54629,7 @@
             "id": "result:disp:node-B",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 3.036063151262562
+            "value": 3.036063151262546
           },
           {
             "basis_ref": {
@@ -54640,7 +54640,7 @@
             "id": "result:disp:node-C",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 4.0219899920590585
+            "value": 4.021989992059035
           },
           {
             "basis_ref": {
@@ -54651,7 +54651,7 @@
             "id": "result:disp:node-D",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 14.125349546457215
+            "value": 14.12534954645715
           },
           {
             "basis_ref": {
@@ -54777,7 +54777,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.01169065400165923
+            "value": 0.01169065400165922
           },
           {
             "basis_ref": {
@@ -54795,7 +54795,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 3.036040643183713
+            "value": 3.036040643183697
           },
           {
             "basis_ref": {
@@ -54867,7 +54867,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.0030360406431837123
+            "value": 0.0030360406431836967
           },
           {
             "basis_ref": {
@@ -54885,7 +54885,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.06169065400165928
+            "value": 0.061690654001659226
           },
           {
             "basis_ref": {
@@ -54903,7 +54903,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 4.02151684808507
+            "value": 4.021516848085047
           },
           {
             "basis_ref": {
@@ -54975,7 +54975,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.0035338007228253275
+            "value": 0.0035338007228253093
           },
           {
             "basis_ref": {
@@ -54993,7 +54993,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.07338130800331849
+            "value": 0.07338130800331844
           },
           {
             "basis_ref": {
@@ -55011,7 +55011,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 14.125158936919428
+            "value": 14.125158936919362
           },
           {
             "basis_ref": {
@@ -55083,7 +55083,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.0065698413660090285
+            "value": 0.006569841366009006
           },
           {
             "basis_ref": {
@@ -59403,7 +59403,7 @@
             "location_ref": "node:D",
             "result_ref": "result:disp:node-D",
             "unit": "mm",
-            "value": 14.125349546457215
+            "value": 14.12534954645715
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
@@ -59939,8 +59939,8 @@
             "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
             "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
             "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware or explicit bilateral linear elastic tie rods (explicit_axial_rods_v1) between the connector's end nodes with rigid offsets, each with its own stiffness and reference extension. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces and joints at region terminals or beside realized arcs are refused. Ideal inextensible rods, collective constraints, tension-only or gapped rods, nuts and stops are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with each tie-rod force, the joint pressure force pAe and the effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe published separately; they are outside the straight-member recovery coverage.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). On such a load case each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; on any other load case the published displacements are the solve's own. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -60017,7 +60017,7 @@
             "id": "result:disp:node-B",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 3.9707402063221026e-16
+            "value": 1.5980894857329452e-38
           },
           {
             "basis_ref": {
@@ -60028,7 +60028,7 @@
             "id": "result:disp:node-C",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.10263261110708548
+            "value": 0.10263261110708599
           },
           {
             "basis_ref": {
@@ -60039,7 +60039,7 @@
             "id": "result:disp:node-D",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.6124452936813357
+            "value": 0.6124452936813374
           },
           {
             "basis_ref": {
@@ -60165,7 +60165,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 1.0587911840678754e-19
+            "value": -2.5057169157114334e-49
           },
           {
             "basis_ref": {
@@ -60183,7 +60183,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 3.9707400651596577e-16
+            "value": -1.5980894857329452e-38
           },
           {
             "basis_ref": {
@@ -60255,7 +60255,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 4.112232315427444e-19
+            "value": -1.5981053598171114e-41
           },
           {
             "basis_ref": {
@@ -60273,7 +60273,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.0251185596013182
+            "value": 0.02511855960131822
           },
           {
             "basis_ref": {
@@ -60291,7 +60291,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.09951136028722184
+            "value": -0.09951136028722236
           },
           {
             "basis_ref": {
@@ -60363,7 +60363,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.0002562093079334452
+            "value": -0.0002562093079334458
           },
           {
             "basis_ref": {
@@ -60381,7 +60381,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.0251185596013182
+            "value": 0.02511855960131822
           },
           {
             "basis_ref": {
@@ -60399,7 +60399,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.6119299761541124
+            "value": -0.611929976154114
           },
           {
             "basis_ref": {
@@ -60471,7 +60471,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.0002562093079334453
+            "value": -0.0002562093079334458
           },
           {
             "basis_ref": {
@@ -64791,7 +64791,7 @@
             "location_ref": "node:D",
             "result_ref": "result:disp:node-D",
             "unit": "mm",
-            "value": 0.6124452936813357
+            "value": 0.6124452936813374
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
@@ -65301,8 +65301,8 @@
             "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
             "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
             "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware or explicit bilateral linear elastic tie rods (explicit_axial_rods_v1) between the connector's end nodes with rigid offsets, each with its own stiffness and reference extension. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces and joints at region terminals or beside realized arcs are refused. Ideal inextensible rods, collective constraints, tension-only or gapped rods, nuts and stops are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with each tie-rod force, the joint pressure force pAe and the effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe published separately; they are outside the straight-member recovery coverage.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). On such a load case each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; on any other load case the published displacements are the solve's own. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -65379,7 +65379,7 @@
             "id": "result:disp:node-B",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 2.8877977095956655e-13
+            "value": 3.890692042220103e-35
           },
           {
             "basis_ref": {
@@ -65390,7 +65390,7 @@
             "id": "result:disp:node-C",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.09973404255342591
+            "value": 0.09973404255319152
           },
           {
             "basis_ref": {
@@ -65401,7 +65401,7 @@
             "id": "result:disp:node-D",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.9862588652547216
+            "value": 0.9862588652482251
           },
           {
             "basis_ref": {
@@ -65527,7 +65527,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": -1.8376693785619166e-13
+            "value": -2.0615633957841558e-35
           },
           {
             "basis_ref": {
@@ -65545,7 +65545,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -5.286606168464333e-15
+            "value": 5.119290812197709e-36
           },
           {
             "basis_ref": {
@@ -65563,7 +65563,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.2270051742561772e-13
+            "value": -3.259657888239074e-35
           },
           {
             "basis_ref": {
@@ -65581,7 +65581,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -1.4998110521931257e-16
+            "value": -2.3154383201240401e-38
           },
           {
             "basis_ref": {
@@ -65599,7 +65599,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": -2.1347386006829264e-16
+            "value": -2.7622036596363927e-38
           },
           {
             "basis_ref": {
@@ -65617,7 +65617,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 9.818697095880153e-17
+            "value": 7.987546981691747e-39
           },
           {
             "basis_ref": {
@@ -65635,7 +65635,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": -8.107374666462885e-13
+            "value": 2.83183642020479e-16
           },
           {
             "basis_ref": {
@@ -65653,7 +65653,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.05984042553156047
+            "value": 0.05984042553191507
           },
           {
             "basis_ref": {
@@ -65671,7 +65671,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.07978723404311204
+            "value": -0.07978723404255308
           },
           {
             "basis_ref": {
@@ -65689,7 +65689,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.00035460992908046776
+            "value": -0.00035460992907801616
           },
           {
             "basis_ref": {
@@ -65707,7 +65707,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": -0.00021276595745118335
+            "value": -0.00021276595744680482
           },
           {
             "basis_ref": {
@@ -65725,7 +65725,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.00015957446808230046
+            "value": -0.00015957446808510556
           },
           {
             "basis_ref": {
@@ -65743,7 +65743,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": -8.665008474467403e-12
+            "value": 2.399693918752692e-15
           },
           {
             "basis_ref": {
@@ -65761,7 +65761,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.591755319147626
+            "value": 0.5917553191489371
           },
           {
             "basis_ref": {
@@ -65779,7 +65779,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.7890070922076825
+            "value": -0.7890070921985787
           },
           {
             "basis_ref": {
@@ -65797,7 +65797,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": -0.0003546099290805615
+            "value": -0.00035460992907801616
           },
           {
             "basis_ref": {
@@ -65815,7 +65815,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": -0.00021276595745127434
+            "value": -0.00021276595744680482
           },
           {
             "basis_ref": {
@@ -65833,7 +65833,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.00015957446808229563
+            "value": -0.00015957446808510556
           },
           {
             "basis_ref": {
@@ -70135,7 +70135,7 @@
             "location_ref": "node:D",
             "result_ref": "result:disp:node-D",
             "unit": "mm",
-            "value": 0.9862588652547216
+            "value": 0.9862588652482251
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
@@ -71135,8 +71135,8 @@
             "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
             "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
             "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware or explicit bilateral linear elastic tie rods (explicit_axial_rods_v1) between the connector's end nodes with rigid offsets, each with its own stiffness and reference extension. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces and joints at region terminals or beside realized arcs are refused. Ideal inextensible rods, collective constraints, tension-only or gapped rods, nuts and stops are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with each tie-rod force, the joint pressure force pAe and the effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe published separately; they are outside the straight-member recovery coverage.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). On such a load case each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; on any other load case the published displacements are the solve's own. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -71213,7 +71213,7 @@
             "id": "result:disp:node-B",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.0018181818181811937
+            "value": 0.001818181818181818
           },
           {
             "basis_ref": {
@@ -71224,7 +71224,7 @@
             "id": "result:disp:node-C",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 4.003921610601496
+            "value": 4.003921610601769
           },
           {
             "basis_ref": {
@@ -71235,7 +71235,7 @@
             "id": "result:disp:node-D",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 4.667577866847752
+            "value": 4.6675778668483705
           },
           {
             "basis_ref": {
@@ -71361,7 +71361,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.0018181818181811937
+            "value": 0.001818181818181818
           },
           {
             "basis_ref": {
@@ -71379,7 +71379,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -3.502674317160453e-13
+            "value": -8.514693043195314e-36
           },
           {
             "basis_ref": {
@@ -71397,7 +71397,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -3.218176973572126e-13
+            "value": 8.474963429134777e-36
           },
           {
             "basis_ref": {
@@ -71415,7 +71415,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 2.908825127745617e-25
+            "value": 1.1831888899953927e-43
           },
           {
             "basis_ref": {
@@ -71433,7 +71433,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 3.217704988010458e-16
+            "value": -8.47572573549937e-39
           },
           {
             "basis_ref": {
@@ -71451,7 +71451,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -3.5032263758415944e-16
+            "value": -8.51451367699188e-39
           },
           {
             "basis_ref": {
@@ -71469,7 +71469,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 4.000413790242318
+            "value": 4.000413790242582
           },
           {
             "basis_ref": {
@@ -71487,7 +71487,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.15214242307768094
+            "value": 0.1521424230787319
           },
           {
             "basis_ref": {
@@ -71505,7 +71505,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.07021719006638205
+            "value": -0.0702171900646994
           },
           {
             "basis_ref": {
@@ -71523,7 +71523,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 6.251032454621933e-9
+            "value": 6.251032454565298e-9
           },
           {
             "basis_ref": {
@@ -71541,7 +71541,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.00046811469656544427
+            "value": 0.0004681146965566941
           },
           {
             "basis_ref": {
@@ -71559,7 +71559,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.0010142828204244333
+            "value": 0.0010142828204287545
           },
           {
             "basis_ref": {
@@ -71577,7 +71577,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 4.0022319720605
+            "value": 4.0022319720607635
           },
           {
             "basis_ref": {
@@ -71595,7 +71595,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 2.180708063926548
+            "value": 2.180708063936241
           },
           {
             "basis_ref": {
@@ -71613,7 +71613,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -1.0064465831972709
+            "value": -1.0064465831780878
           },
           {
             "basis_ref": {
@@ -71631,7 +71631,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 6.251032454621933e-9
+            "value": 6.251032454565298e-9
           },
           {
             "basis_ref": {
@@ -71649,7 +71649,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.00046811469656544443
+            "value": 0.0004681146965566941
           },
           {
             "basis_ref": {
@@ -71667,7 +71667,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.0010142828204244337
+            "value": 0.0010142828204287545
           },
           {
             "basis_ref": {
@@ -77679,7 +77679,7 @@
             "location_ref": "node:D",
             "result_ref": "result:disp:node-D",
             "unit": "mm",
-            "value": 4.667577866847752
+            "value": 4.6675778668483705
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {

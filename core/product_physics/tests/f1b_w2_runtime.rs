@@ -1229,7 +1229,10 @@ fn f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope() {
                 // blocked envelope is otherwise unchanged; was e28754ea...).
                 // T4-U4b: the preview LIMITATIONS[2..4] texts (§2.8) move it again;
                 // the blocked envelope publishes no rows.
-                "caa8d5beeb2f2f0966862002b013e52325ddd19d923f2107da9d1b111043efce",
+                // T4-U5b item 6: the two K-D5 limitation sentences now state the
+                // published corrected displacement; restoring their former text
+                // recovers caa8d5be..., exactly.
+                "fc935fbf385155af4ef5c877dc1eae4e12b3d9e38407fb7f522dfeb9536b6f6f",
                 "{ctx}"
             );
         }
