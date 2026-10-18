@@ -330,9 +330,10 @@ fn pressure_table_declares_its_own_signature_counts() {
     // E14's parity observation already gone), plus 18 connector and 2 U5 signatures.
     assert!(s::pressure_rows_contract().get("inherited_semantic_contract_sha256").is_none());
     // T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis), 88 -> 106;
-    // T4-U4b (§2.2): the new per-basis kinds, 106 -> 128 signatures and 59 -> 65 kinds.
-    assert_eq!(s::pressure_rows_contract()["source_signature_count"], 128);
-    assert_eq!(s::pressure_rows_contract()["source_kind_count"], 65);
+    // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §3.3): the tie-rod force, 107 over 60 kinds;
+    // T4-U4b (§2.2): the new per-basis kinds, 129 signatures over 66 kinds.
+    assert_eq!(s::pressure_rows_contract()["source_signature_count"], 129);
+    assert_eq!(s::pressure_rows_contract()["source_kind_count"], 66);
 }
 
 #[test]

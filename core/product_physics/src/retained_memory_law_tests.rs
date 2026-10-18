@@ -394,11 +394,16 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // pressure-1/preview-physics-1 refusals and the 0.6.0 re-author text;
             // E14 is byte-identical. The S1 repair restores two comments in the
             // inspected production to their historical pressure-1 wording; no code changed.
-            // Re-audited for T4-U4b (S2): only the closed `b7b_current_table_tests`
-            // module changed (pressure-2's 106 -> 128 rows, with its comment); the
-            // inspected production after the resume and E14 are byte-identical.
+            // Re-audited for T4-U5b (S3), on the merged bytes: only the closed
+            // `b7b_current_table_tests` module's pressure-2 row count changed
+            // (106 -> 107, the tie-rod force signature); the inspected production
+            // and E14 are byte-identical to the S1 repair's.
+            // Re-audited for T4-U4b (S2), on the bytes merged with S3: only the closed
+            // `b7b_current_table_tests` module changed (pressure-2's 107 -> 129 rows,
+            // with its comment); the inspected production after the resume and E14
+            // are byte-identical to S3's.
             first_item: SEMANTIC_B7B_TEST_ITEM,
-            complete_suffix_sha256: "c5536d32f2ebc3494209e4ad6388fd2cc7059267cb0c037bf085ff7c0bdcc743",
+            complete_suffix_sha256: "bc1783bb8748476157d135ad1bc36f8cc8761b77b90e5e4950c4f0a886b273cf",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -711,7 +716,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "401dae3ca5f41f4c770b22689d20d02ba9713e8b061d40a89877338bd46cd14f");
+    assert_eq!(schema_hash, "3ffd94d5da8a99d44cd75c385ecdbf73f19bbd9bf724fcbe1aef835adbfa3b52");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -769,10 +774,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017",
         "79a3a76a56dd2ff1c347306137340a8bacb5eddeb828ebc5ef55eaa5986fc663",
         "91ca026e19337251c5a124f3ee1cbd648845f335e6da09edfbdfb16e7dedc7e9",
-        "5fc371a9d76b09364986f99db5bd25c29bb79b14baa4fab238aa209fadb028f1",
+        "a4b868f4df6fbfca7f7c70e3bfb5b8972f1cdb513a3c1c6e93a97db57dd44855",
         "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b",
-        "401dae3ca5f41f4c770b22689d20d02ba9713e8b061d40a89877338bd46cd14f",
-        "2937dfd7c6b5ff8264f656b45136ecb6555921bdd59b2871eebb95c728edd461",
+        "3ffd94d5da8a99d44cd75c385ecdbf73f19bbd9bf724fcbe1aef835adbfa3b52",
+        "e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [

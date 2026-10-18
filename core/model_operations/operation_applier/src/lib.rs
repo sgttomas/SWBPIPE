@@ -1405,7 +1405,7 @@ fn run_with_context(
         ("Model", "pressure_profile") | ("Material", "constitutive_properties" | "temperature_points") => Some("set_field"),
         ("Load", "pressure_regions") => Some("update_load"),
         ("Component", "bend_realization") => Some("set_field"),
-        ("Component", "objective_connector.pressure_model") => Some("set_field"),
+        ("Component", "objective_connector.pressure_model" | "objective_connector.hardware") => Some("set_field"),
         ("Model", "reference_configurations") | ("Material", "expansion_laws") => Some("set_field"),
         ("Load", "analysis_state") => Some("update_load"),
         ("Load", "equivalent_static.wind.exposure" | "generated_self_weight") => Some("update_load"),
@@ -2680,9 +2680,17 @@ fn resolve_expansion_joint_creation(
         // U5a does not activate a document version. T3 owns the v3 selector
         // above; this new-kind validation becomes reachable when B7b adds0.5.
         if let Some(connector) = connector {
-            if connector.pointer("/pressure_model/kind").and_then(Value::as_str) == Some("constant_effective_area_reference_v1") {
+            // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.2): connector
+            // creation validates its hardware as the solver classifies it, as it
+            // validates a constant-effective-area pressure model.
+            let pressure = connector.pointer("/pressure_model/kind").and_then(Value::as_str) == Some("constant_effective_area_reference_v1");
+            // Authored hardware other than plain untied (absent hardware stays
+            // the solver's JOINT_HARDWARE_NOT_DEFINED, as before).
+            let hardware = connector.get("hardware").is_some_and(|h| h != &serde_json::json!({"kind": "untied"}));
+            if pressure || hardware {
                 if schema != "0.6.0" {
-                    checker.push("JOINT_PRESSURE_INTERFACE_UNRESOLVED","blocking","constant_effective_area_reference_v1 is defined only on model 0.6.0".into(),"Use the current model format before authoring a joint pressure model.",vec![target_ref.into()]);
+                    let (code, what) = if pressure { ("JOINT_PRESSURE_INTERFACE_UNRESOLVED", "constant_effective_area_reference_v1 is") } else { ("JOINT_TIE_ROD_INPUT_INVALID", "connector hardware other than untied is") };
+                    checker.push(code,"blocking",format!("{what} defined only on model 0.6.0"),"Use the current model format before authoring a joint pressure model or tie rods.",vec![target_ref.into()]);
                     return None;
                 }
                 let mut candidate=model.clone();
@@ -2691,7 +2699,7 @@ fn resolve_expansion_joint_creation(
                     Ok(findings) if findings.is_empty()=>{},
                     findings=>{
                         let message=match findings {Ok(findings)=>findings.iter().map(|finding|format!("{}: {}",finding.code,finding.message)).collect::<Vec<_>>().join("; "),Err(message)=>message};
-                        checker.push("OP-CREATE-EXPANSION-JOINT-CONNECTOR-INVALID","blocking",message,"Review the explicitly authored joint pressure fields and participation.",vec![target_ref.into()]);
+                        checker.push("OP-CREATE-EXPANSION-JOINT-CONNECTOR-INVALID","blocking",message,"Review the explicitly authored joint pressure fields, tie-rod hardware and participation.",vec![target_ref.into()]);
                         return None;
                     }
                 }

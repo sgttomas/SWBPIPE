@@ -1,43 +1,92 @@
-"""T4-U4b result-semantics tables and schemas (DEL-04-07 Design ``u4b-u5b-implementation.md`` §2.2-§2.8, §5.1).
+#!/usr/bin/env python3
+"""Mechanical regeneration of the current semantic-contract tables and their pins.
 
-Applies the U4b contract to the committed tables and result schemas, idempotently, on top of whatever else they
-already carry (for example another unit's connector rows):
+The pressure-2 table (`semantic_contract_v0_3_pressure_2.json`) is authored by hand:
+its rows, vocabulary and limitation sentences are the reviewed content. Everything
+derived from it is regenerated here, never edited by hand:
 
-* tables (``fixtures/results/semantic_contract_v0_3_*.json``):
-  - pressure-2 and preview-physics-2 gain the U4b signatures: sigma+/sigma-, the transverse shear maximum (straight
-    and arc tokens), the directional intensified station and maximum rows and, on pressure-2, the toroidal hoop and
-    radial rows. Ids follow the tables' identity convention: one number per (kind, unit, component) after the
-    table's highest; a pressure-2 stress signature adds ``-<token>-<basis>`` (its source_basis, hyphenated); a
-    preview arc variant is ``preview-physics-arc-<number>``. Existing U4b rows are removed first, so a re-run on a
-    table that gained other rows renumbers U4b after them.
-  - every row of pressure-2, preview-physics-2 and the two inheriting tables carries ``combination_algebra`` (§2.7);
-  - the canonical vocabularies gain the U4b components and basis tokens; the limitation texts take §2.5/§2.8;
-  - the inheriting tables re-inherit their base by hash.
-* schemas: ``results.v0.3`` (metadata enums, the preview limitation consts of the preview-physics-2 and
-  preview-physics-retained-1 branches, preview extrema and intensified records), ``stress_neutral_export.v0.3``
-  (preview extrema and intensified records), ``results_pressure_2.v0.3`` (region statement and bend radius, extrema
-  and intensified records, enums) and ``component`` (the directional pair in the field catalog). A maximum record
-  takes the straight or the arc token triple together (a ``oneOf`` of closed variants).
+  apply-u4b  the T4-U4b contract (signatures numbered after each table's highest id,
+          algebra marks, vocabularies, limitation texts, result-schema records) on
+          pressure-2, preview-physics-2, the inheriting tables and the result schemas,
+          idempotently; `--check` reports a difference instead of writing.
+  derive  pressure-2's `source_signature_count` and `source_kind_count` from its rows;
+          physics-retained-1's inherited members (rows, vocabulary, counts, policies,
+          hash vectors) copied from pressure-2, and its
+          `inherited_semantic_contract_sha256` set to pressure-2's actual SHA-256.
+          `--check` reports a difference instead of writing.
+  repin   every tracked literal pin of an old table or result-schema SHA-256 (PINNED)
+          replaced by the current file's SHA-256. The old values are read from the
+          given revisions (`--from-rev`, repeatable; after a merge pass both parents).
+          Carrier fixtures whose bytes embed a checksum are never edited here; their
+          writers are printed instead.
 
-Consumers that pin the resulting bytes by hash are re-pinned separately from the printed hashes.
+Typical sequence after editing pressure-2 (or merging another edit of it):
 
-From ``projects/chirality-piping``::
+  python3 tools/serialization/semantic_contract_tables.py apply-u4b
+  python3 tools/serialization/semantic_contract_tables.py derive
+  python3 tools/serialization/semantic_contract_tables.py repin --from-rev HEAD [--from-rev MERGE_HEAD]
+  # then run the printed carrier writers and the audited-suffix and generation-record
+  # refreshes the change requires (those bind source text, not these tables).
 
-    python3 tools/fixtures/u4b_contract_tables.py --write   # rewrite the files, print their sha256
-    python3 tools/fixtures/u4b_contract_tables.py --check   # exit 1 unless every file is already current
+Standard library only. Run from the project root (projects/chirality-piping).
 """
 from __future__ import annotations
 
 import argparse
-import collections
+import re
 import copy
+import collections
 import hashlib
 import json
-import re
+import subprocess
 import sys
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parents[2]
+PRESSURE = "fixtures/results/semantic_contract_v0_3_pressure_2.json"
+RETAINED = "fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
+SCHEMA = "schemas/results_pressure_2.v0.3.schema.json"
+# The members physics-retained-1 inherits unchanged from pressure-2. The retained
+# table's own members (identity, profile, limitations, receipt and formation
+# definitions, accuracy classification, evidence policy) are authored there.
+INHERITED = (
+    "canonical_metadata_vocabulary",
+    "hash_vectors",
+    "metadata_policy",
+    "reserved_inactive_successors",
+    "rows",
+    "schema_version",
+    "source_basis_signature_policy",
+    "source_kind_count",
+    "source_producer",
+    "source_schema_version",
+    "source_signature_count",
+)
+# Carriers that embed checksums over their own bytes: regenerated by their writers.
+CARRIER_WRITERS = {
+    "fixtures/results/pressure_load_state_": (
+        "LOAD_REFERENCE_WRITE_FIXTURES=1 pytest tests/test_load_reference_readers.py "
+        "-k analysis_run_carrier_fixture_is_reproduced_byte_for_byte; "
+        "LOAD_REFERENCE_WRITE_FIXTURES=1 cargo test (result_export) --test load_reference_contract; "
+        "STRESS_NEUTRAL_WRITE_FIXTURES=1 pytest tests/test_stress_neutral_physics_source.py "
+        "-k current_native_builder_matches_committed_package_file_bytes"
+    ),
+}
+
+
+# ---------------------------------------------------------------- apply-u4b
+# T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §2.2-§2.8, §5.1): the U4b contract, applied
+# idempotently on top of whatever else the tables carry. pressure-2 and preview-physics-2 gain
+# the U4b signatures (sigma+/sigma-, the transverse shear maximum on its straight and arc tokens,
+# the directional intensified station and maximum rows and, on pressure-2, the toroidal hoop and
+# radial rows), numbered after each table's highest id: one number per (kind, unit, component); a
+# pressure-2 stress signature adds `-<token>-<basis>`, a preview arc variant is
+# `preview-physics-arc-<number>`. Existing U4b rows are removed first, so a re-run on a table that
+# gained other rows renumbers U4b after them. Every row of the four marked tables carries
+# `combination_algebra` (§2.7); vocabularies, limitation texts (§2.5, §2.8) and the result
+# schemas (closed arc and directional records, the extrema token triples as a oneOf, the region
+# statement, the preview limitation consts, the component field catalog) follow.
+
 TABLE = "fixtures/results/semantic_contract_v0_3_%s.json"
 
 EXT = "section_extremes_from_published_stress_rows_v1"
@@ -166,7 +215,7 @@ def table_text(table) -> str:
     return json.dumps(table, indent=2, ensure_ascii=True) + "\n"
 
 
-def tables(files: dict) -> None:
+def u4b_tables(files: dict) -> None:
     """Edits the four table documents in ``files`` (name -> text) in place."""
     hashes = {}
     for name, exact in (("pressure_2", True), ("preview_physics_2", False)):
@@ -309,7 +358,7 @@ def schema_text(schema, original: str) -> str:
     return json.dumps(schema, indent=2, ensure_ascii=escaped) + "\n"
 
 
-def schemas(files: dict) -> None:
+def u4b_schemas(files: dict) -> None:
     preview = json.loads(files[TABLE % "preview_physics_2"])["supported_profile_limitations"]
     for path, edit in (("schemas/results.v0.3.schema.yaml", lambda s: results_schema(s, preview)),
                        ("schemas/stress_neutral_export.v0.3.schema.json", lambda s: preview_evidence(s["$defs"])),
@@ -320,39 +369,133 @@ def schemas(files: dict) -> None:
         files[path] = schema_text(schema, files[path])
 
 
-# ---------------------------------------------------------------- entry
 
-PATHS = [TABLE % n for n in ("pressure_2", "preview_physics_2", "physics_retained_1", "preview_physics_retained_1")] + [
+
+U4B_PATHS = [TABLE % n for n in ("pressure_2", "preview_physics_2", "physics_retained_1", "preview_physics_retained_1")] + [
     "schemas/results.v0.3.schema.yaml", "schemas/stress_neutral_export.v0.3.schema.json",
     "schemas/results_pressure_2.v0.3.schema.json", "schemas/component.schema.yaml"]
 
 
-def generate() -> tuple[dict, dict]:
-    current = {p: (PROJECT / p).read_text(encoding="utf-8") for p in PATHS}
+def apply_u4b(check: bool) -> int:
+    current = {p: (PROJECT / p).read_text(encoding="utf-8") for p in U4B_PATHS}
     files = dict(current)
-    tables(files)
-    schemas(files)
-    return current, files
+    u4b_tables(files)
+    u4b_schemas(files)
+    stale = [p for p in U4B_PATHS if files[p] != current[p]]
+    for path in U4B_PATHS:
+        state = "unchanged" if path not in stale else ("differs" if check else "written")
+        if path in stale and not check:
+            (PROJECT / path).write_text(files[path], encoding="utf-8")
+        print(f"{path}: {state}; sha256 {hashlib.sha256(files[path].encode('utf-8')).hexdigest()}")
+    return 1 if check and stale else 0
 
 
-def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--write", action="store_true", help="rewrite the tables and schemas and print their sha256")
-    mode.add_argument("--check", action="store_true", help="exit 1 unless every file is already current")
-    args = parser.parse_args(argv)
-    current, files = generate()
-    stale = [p for p in PATHS if files[p] != current[p]]
-    if args.check:
-        for path in stale:
-            print(f"stale: {path}", file=sys.stderr)
-        return 1 if stale else 0
-    for path in stale:
-        (PROJECT / path).write_text(files[path], encoding="utf-8")
-    for path in PATHS:
-        print(f"{hashlib.sha256(files[path].encode('utf-8')).hexdigest()}  {path}{'  (rewritten)' if path in stale else ''}")
+def dumps(value: object) -> bytes:
+    """The tables' committed form: two-space indent, ASCII escapes, final newline."""
+    return (json.dumps(value, indent=2, ensure_ascii=True) + "\n").encode("ascii")
+
+
+def sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def derived_tables() -> dict[str, bytes]:
+    pressure = json.loads((PROJECT / PRESSURE).read_bytes())
+    rows = pressure["rows"]
+    pressure["source_signature_count"] = len(rows)
+    pressure["source_kind_count"] = len({row["kind"] for row in rows})
+    pressure_bytes = dumps(pressure)
+    retained = json.loads((PROJECT / RETAINED).read_bytes())
+    for key in INHERITED:
+        if key not in retained:
+            raise SystemExit(f"{RETAINED}: inherited member {key} missing")
+        retained[key] = pressure[key]
+    retained["inherited_semantic_contract_sha256"] = sha256(pressure_bytes)
+    return {PRESSURE: pressure_bytes, RETAINED: dumps(retained)}
+
+
+def derive(check: bool) -> int:
+    changed = 0
+    for path, data in derived_tables().items():
+        current = (PROJECT / path).read_bytes()
+        state = "unchanged" if current == data else ("differs" if check else "written")
+        if current != data:
+            changed += 1
+            if not check:
+                (PROJECT / path).write_bytes(data)
+        print(f"{path}: {state}; sha256 {sha256(data)}")
+    return 1 if check and changed else 0
+
+
+def git(*args: str) -> str:
+    return subprocess.run(["git", *args], cwd=PROJECT, check=True, capture_output=True, text=True).stdout
+
+
+# The pinned files, tables before the schemas that embed their hashes: pressure-2, the
+# inheriting and preview tables (T4-U4b), the result schemas and the analysis-run schema.
+PINNED = (PRESSURE, RETAINED, TABLE % "preview_physics_2", TABLE % "preview_physics_retained_1", SCHEMA,
+          "schemas/results.v0.3.schema.yaml", "schemas/stress_neutral_export.v0.3.schema.json",
+          "schemas/component.schema.yaml", "schemas/analysis_run.v0.3.schema.json")
+
+
+def repin(revisions: list[str]) -> int:
+    """Repins to a fixed point: a file whose pins were rewritten may itself be pinned (a schema
+    embedding a table hash), so passes repeat until none edits, and every value written for a
+    path in an earlier pass counts as an old value of that path."""
+    edits = 0
+    carriers: set[str] = set()
+    written: dict[str, set[str]] = {path: set() for path in PINNED}
+    while True:
+        pass_edits = 0
+        for path in PINNED:
+            new = sha256((PROJECT / path).read_bytes())
+            olds = set(written[path])
+            for revision in revisions:
+                try:
+                    olds.add(sha256(subprocess.run(["git", "show", f"{revision}:./{path}"], cwd=PROJECT, check=True,
+                                                   capture_output=True).stdout))
+                except subprocess.CalledProcessError:
+                    continue
+            for old in sorted(olds - {new}):
+                listed = subprocess.run(["git", "grep", "-l", old, "--", "."], cwd=PROJECT, capture_output=True, text=True)
+                for consumer in filter(None, listed.stdout.splitlines()):
+                    if any(consumer.startswith(prefix) for prefix in CARRIER_WRITERS):
+                        carriers.add(consumer)
+                        continue
+                    file = PROJECT / consumer
+                    text = file.read_text(encoding="utf-8")
+                    file.write_text(text.replace(old, new), encoding="utf-8")
+                    pass_edits += 1
+                    print(f"{consumer}: {path} {old[:12]}... -> {new[:12]}...")
+            written[path].add(new)
+        edits += pass_edits
+        if not pass_edits:
+            break
+    for consumer in sorted(carriers):
+        print(f"{consumer}: carrier; regenerate through its writer")
+    for prefix, writer in CARRIER_WRITERS.items():
+        if any(c.startswith(prefix) for c in carriers):
+            print(f"writers for {prefix}*: {writer}")
+    print(f"{edits} file edit(s)")
     return 0
 
 
+def main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = parser.add_subparsers(dest="command", required=True)
+    apply_parser = sub.add_parser("apply-u4b")
+    apply_parser.add_argument("--check", action="store_true")
+    derive_parser = sub.add_parser("derive")
+    derive_parser.add_argument("--check", action="store_true")
+    repin_parser = sub.add_parser("repin")
+    repin_parser.add_argument("--from-rev", action="append", required=True)
+    args = parser.parse_args(argv)
+    if args.command == "apply-u4b":
+        return apply_u4b(args.check)
+    if args.command == "derive":
+        return derive(args.check)
+    return repin(args.from_rev)
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

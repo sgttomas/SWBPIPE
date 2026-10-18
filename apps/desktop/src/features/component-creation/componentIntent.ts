@@ -65,6 +65,10 @@ export type ConnectorDraft = {
   validityStatement: string;
   installedGeometry: string;
   hardwareKind: string;
+  /** T4-U5b: the explicit tie rods of `explicit_axial_rods_v1`, one
+   * `TieRodDraft` per row, held as the JSON text of that row list ("" when
+   * none) so the draft stays a record of strings. */
+  tieRods: string;
   pressureModel: string;
   effectiveArea: string;
   effectiveAreaUnit: string;
@@ -72,8 +76,50 @@ export type ConnectorDraft = {
   pressureSourceReference: string;
 };
 export const CONNECTOR_REFERENCE_STATES = ["stress_free", "prestressed"] as const;
-/** The only hardware and pressure model the connector admits until T4-U5. */
+/** The hardware a connector admits: untied, and on model 0.6.0 (T4-U5b,
+ * DEL-04-07 Design u4b-u5b-implementation.md §3.1) explicit bilateral linear
+ * elastic tie rods. Ideal, tension-only and gapped rods, nuts, stops and
+ * collective constraints are not offered. */
 export const CONNECTOR_HARDWARE_KINDS = ["untied"] as const;
+export const CURRENT_CONNECTOR_HARDWARE_KINDS = ["untied", "explicit_axial_rods_v1"] as const;
+export function connectorHardwareKinds(model: PreviewModel): readonly string[] {
+  return model.schema_version === "0.6.0" ? CURRENT_CONNECTOR_HARDWARE_KINDS : CONNECTOR_HARDWARE_KINDS;
+}
+/** One tie rod of the table. Offsets are in the connector axes from the
+ * connector's end nodes i and j; every value is the user's. */
+export type TieRodDraft = {
+  id: string;
+  offsetI: string;
+  offsetJ: string;
+  offsetUnit: string;
+  stiffness: string;
+  stiffnessUnit: string;
+  referenceExtension: string;
+  referenceExtensionUnit: string;
+  sourceReference: string;
+};
+export const TIE_ROD_LAW = "bilateral_linear";
+export function emptyTieRodDraft(): TieRodDraft {
+  return { id: "", offsetI: "", offsetJ: "", offsetUnit: "", stiffness: "", stiffnessUnit: "", referenceExtension: "", referenceExtensionUnit: "", sourceReference: "" };
+}
+/** The rows of a draft's tie-rod table (none when absent or unreadable). */
+export function tieRodDrafts(text: string): TieRodDraft[] {
+  if (!text.trim()) return [];
+  try {
+    const rows = JSON.parse(text);
+    return Array.isArray(rows) ? rows.map((row) => ({ ...emptyTieRodDraft(), ...(row as Partial<TieRodDraft>) })) : [];
+  } catch {
+    return [];
+  }
+}
+function tieRodsValid(text: string): boolean {
+  const rows = tieRodDrafts(text);
+  const ids = rows.map((row) => row.id.trim());
+  return rows.length > 0 && new Set(ids).size === ids.length && rows.every((row) =>
+    row.id.trim() && vector3(row.offsetI) && vector3(row.offsetJ) && validUnit(row.offsetUnit) &&
+    positiveFinite(row.stiffness) && validUnit(row.stiffnessUnit) &&
+    finiteNumber(row.referenceExtension) && validUnit(row.referenceExtensionUnit) && row.sourceReference.trim());
+}
 export const CONNECTOR_PRESSURE_MODELS = ["unpressurized"] as const;
 export const CURRENT_CONNECTOR_PRESSURE_MODELS = ["unpressurized", "constant_effective_area_reference_v1"] as const;
 export function connectorPressureModels(model: PreviewModel): readonly string[] {
@@ -85,7 +131,7 @@ export function emptyConnectorDraft(): ConnectorDraft {
     qRefTranslation: "", qRefTranslationUnit: "", qRefRotation: "", qRefRotationUnit: "", referenceState: "",
     installedTemperature: "", installedTemperatureUnit: "", translationScale: "", translationScaleUnit: "",
     workMatrixUpperTriangle: "", stiffnessSourceReference: "", measurementRestraints: "", basisTransformReference: "",
-    validityStatement: "", installedGeometry: "", hardwareKind: "", pressureModel: "",
+    validityStatement: "", installedGeometry: "", hardwareKind: "", tieRods: "", pressureModel: "",
     effectiveArea: "", effectiveAreaUnit: "", pressureBasis: "", pressureSourceReference: ""
   };
 }
@@ -93,7 +139,7 @@ export function emptyConnectorDraft(): ConnectorDraft {
 export function connectorCreationAvailable(model: PreviewModel): boolean {
   return isPressureV3(model);
 }
-export const CONNECTOR_CONTRACT_NOTICE = "An expansion joint is created as an objective connector, which needs a 3.0.0/exact_pressure_v3 document: select that pressure profile first. It replaces the selected span and is solved unpressurized and untied until T4-U5.";
+export const CONNECTOR_CONTRACT_NOTICE = "An expansion joint is created as an objective connector, which needs a 3.0.0/exact_pressure_v3 document: select that pressure profile first. It replaces the selected span; its hardware is untied or explicit bilateral linear elastic tie rods.";
 function numbers(text: string): number[] | null {
   const parts = text.split(/[\s,]+/).filter(Boolean);
   const values = parts.map(Number);
@@ -122,7 +168,8 @@ function connectorDraftValid(model: PreviewModel, draft: ConnectorDraft): boolea
     positiveFinite(draft.translationScale) && validUnit(draft.translationScaleUnit) &&
     upperTriangle(draft.workMatrixUpperTriangle) &&
     [draft.stiffnessSourceReference, draft.measurementRestraints, draft.basisTransformReference, draft.validityStatement, draft.installedGeometry].every(text => text.trim()) &&
-    (CONNECTOR_HARDWARE_KINDS as readonly string[]).includes(draft.hardwareKind) &&
+    connectorHardwareKinds(model).includes(draft.hardwareKind) &&
+    (draft.hardwareKind !== "explicit_axial_rods_v1" || tieRodsValid(draft.tieRods)) &&
     connectorPressureModels(model).includes(draft.pressureModel) &&
     (draft.pressureModel !== "constant_effective_area_reference_v1" ||
       (positiveFinite(draft.effectiveArea) && validUnit(draft.effectiveAreaUnit) && draft.pressureBasis === "internal_differential_zero_external_v1" && draft.pressureSourceReference.trim()))
@@ -160,7 +207,27 @@ function objectiveConnector(model: PreviewModel, draft: ConnectorDraft & { prima
     },
     topology: { type: "replaces_span", span_ref: span.id },
     calibration: { kind: "constant_structural_elasticity_v1", includes_pressure_dependent_tangent: false, installed_geometry: draft.installedGeometry.trim() },
-    hardware: { kind: draft.hardwareKind },
+    hardware: draft.hardwareKind === "explicit_axial_rods_v1"
+      ? {
+          kind: draft.hardwareKind,
+          rods: tieRodDrafts(draft.tieRods).map((row) => {
+            const offset = (text: string) => {
+              const [x, y, z] = vector3(text)!;
+              const unit = row.offsetUnit.trim();
+              return { x: { value: x, unit }, y: { value: y, unit }, z: { value: z, unit } };
+            };
+            return {
+              id: row.id.trim(),
+              law: TIE_ROD_LAW,
+              offset_i: offset(row.offsetI),
+              offset_j: offset(row.offsetJ),
+              stiffness: { value: Number(row.stiffness), unit: row.stiffnessUnit.trim() },
+              reference_extension: { value: Number(row.referenceExtension), unit: row.referenceExtensionUnit.trim() },
+              source_reference: row.sourceReference.trim()
+            };
+          })
+        }
+      : { kind: draft.hardwareKind },
     pressure_model: draft.pressureModel === "constant_effective_area_reference_v1"
       ? { kind: draft.pressureModel, effective_area: { value: Number(draft.effectiveArea), unit: draft.effectiveAreaUnit.trim() }, pressure_basis: draft.pressureBasis, source_reference: draft.pressureSourceReference.trim() }
       : { kind: draft.pressureModel },

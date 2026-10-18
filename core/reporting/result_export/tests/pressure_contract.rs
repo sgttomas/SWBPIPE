@@ -149,17 +149,25 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
         ("connector_pressure_force_v1", "N", "pe_x"),
         ("connector_effective_axial_force_v1", "N", "s_x"),
     ];
+    // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §3.3): one more
+    // signature, the tie-rod force, at its own location and basis; its frame
+    // `element_local` is already in the straight vocabulary.
+    const U5B_SIGNATURE: (&str, &str, &str) = ("connector_tie_rod_force_v1", "N", "t_r");
+    const ROD_LOCATION: &str = "tie_rod";
+    const ROD_BASIS: &str = "recovered_from_tie_rod_extension_v1";
     let mut current_kinds = LEGACY_KINDS.to_vec();
     for (kind, unit, component) in U5_SIGNATURES {
         current_kinds.push((kind, unit, [component; 3], &[LOCAL]));
     }
+    current_kinds.push((U5B_SIGNATURE.0, U5B_SIGNATURE.1, [U5B_SIGNATURE.2; 3], &[ROD_LOCATION]));
     assert_eq!(s::CONNECTOR_ROW_KINDS.as_slice(), current_kinds.as_slice());
     let mut current_components = LEGACY_COMPONENTS.to_vec();
-    current_components.extend(["pe_x", "s_x"]);
+    current_components.extend(["pe_x", "s_x", "t_r"]);
     assert_eq!(s::CONNECTOR_VOCABULARY_COMPONENTS.as_slice(), current_components.as_slice());
     assert_eq!(s::CONNECTOR_VOCABULARY_COORDINATE_SYSTEMS, [LOCAL_FRAME]);
-    assert_eq!(s::CONNECTOR_VOCABULARY_LOCATIONS, [LOCAL]);
+    assert_eq!(s::CONNECTOR_VOCABULARY_LOCATIONS, [LOCAL, ROD_LOCATION]);
     assert_eq!(s::CONNECTOR_ROW_BASIS, BASIS);
+    assert_eq!(s::CONNECTOR_VOCABULARY_BASES, [BASIS, ROD_BASIS]);
     // The vocabulary is the source family's (without its source-only maximum
     // bases) plus the connector components, frame, location and basis. T4-U6
     // (D-5, §2.4): the connector basis takes the source-only maximum basis's
@@ -178,7 +186,8 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     };
     extend(&mut vocabulary, "component", &current_components);
     extend(&mut vocabulary, "coordinate_system", &[LOCAL_FRAME]);
-    extend(&mut vocabulary, "location", &[LOCAL]);
+    extend(&mut vocabulary, "location", &[LOCAL, ROD_LOCATION]);
+    extend(&mut vocabulary, "basis", &[ROD_BASIS]);
     // T4-U4b (§2.2): pressure-2's own section stress, toroidal and directional
     // tokens (both section bases), which the source family does not carry.
     extend(&mut vocabulary, "component", &["sigma_plus", "sigma_minus", "tau_v_max", "intensified_bending",
@@ -275,13 +284,15 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
         })
         .collect();
     expected.extend(U5_SIGNATURES.iter().map(|(k, u, c)| (k.to_string(), u.to_string(), c.to_string())));
+    expected.push((U5B_SIGNATURE.0.into(), U5B_SIGNATURE.1.into(), U5B_SIGNATURE.2.into()));
     assert_eq!(connector, expected);
     assert_eq!(p["source_signature_count"], rows.len());
     // T4-U6 (§2.4): 88 + 18 (015-018 become four signatures each, 068 and
     // 072-076 two each); the kinds are unchanged.
-    // T4-U4b (§2.2): + 22 (six kinds, both section bases) -> 128 rows over 65 kinds.
-    assert_eq!(rows.len(), 128);
-    assert_eq!(p["source_kind_count"], 65);
+    // T4-U5b: + the tie-rod force (097), a new kind; T4-U4b (§2.2): + 22 (six kinds,
+    // both section bases, 098-107) -> 129 rows over 66 kinds.
+    assert_eq!(rows.len(), 129);
+    assert_eq!(p["source_kind_count"], 66);
     // Signature ids are identities, not positions: stable and ascending, and
     // removed rows are not renumbered: B3's three retired rows (008, 020, 021),
     // E14's retired parity signature (037) and H-4's joint and thrust rows (038-042).

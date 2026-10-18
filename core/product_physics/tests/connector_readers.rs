@@ -8,12 +8,20 @@
 //! unchanged; B7b re-authors each copy to the current 0.6.0 exact document
 //! (`common/current_model.rs`). Under pressure-2 the variable spring hanger's input review rows
 //! are model scoped (no load case), so the readers admit them (T4-U2).
+//!
+//! T4-U5b: the corpus also carries two connectors with explicit elastic tie
+//! rods, authored in 0.6.0 from the frozen t4_u5b case descriptions by the
+//! shared builder (`common/t4_u5b.rs`): AS-F (a listed constant-effective-area
+//! joint with one offset rod) and MO-F (an unpressurized connector with two
+//! rods, no region).
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use open_pipe_stress_result_export::semantic_contract;
 use serde_json::{json, Value};
 
 #[path = "common/current_model.rs"]
 mod current_model;
+#[path = "common/t4_u5b.rs"]
+mod t4_u5b;
 
 const REFERENCES: &str =
     include_str!("../../../validation/references/t4_i12/u3_reference_cases.json");
@@ -80,9 +88,16 @@ fn a_model_without_a_connector_has_no_record_or_disclosure() {
     assert!(!envelope["results"].to_string().contains("connector_"));
 }
 
+/// T4-U5b's tied corpus entries: (t4_u5b case, mode, mode name).
+const TIED_INPUTS: [(&str, PreviewSolverMode, &str); 2] = [
+    ("AS-F", PreviewSolverMode::SparseInteractive, "sparse_interactive"),
+    ("MO-F", PreviewSolverMode::DenseScrutiny, "dense_scrutiny"),
+];
+
 /// The shared connector reader corpus (RE, Python): the 0.3.0
 /// system document in sparse mode and the 0.4.0 one in dense mode, each
-/// re-authored to 0.6.0, captured entry. Regenerate with `T4_U3_WRITE_CORPUS=1`; otherwise the committed
+/// re-authored to 0.6.0, then (T4-U5b) the two tied requests built from
+/// t4_u5b, captured entry. Regenerate with `T4_U3_WRITE_CORPUS=1`; otherwise the committed
 /// bytes must be current.
 #[test]
 fn shared_connector_reader_corpus_is_current() {
@@ -95,10 +110,20 @@ fn shared_connector_reader_corpus_is_current() {
         cases.push(json!({"label": format!("{case} {name}"),
             "document_schema_version": document["model"]["schema_version"], "solver_mode": name, "envelope": envelope}));
     }
+    let oracle = t4_u5b::oracle();
+    for (case, mode, name) in TIED_INPUTS {
+        let document = t4_u5b::request(case, &oracle["cases"][case]);
+        let envelope = run(&document, mode);
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{case}");
+        semantic_contract::validate_pressure_evidence(&envelope).unwrap_or_else(|e| panic!("{case}: {e}"));
+        cases.push(json!({"label": format!("T4-U5b {case} {name}"),
+            "document_schema_version": document["model"]["schema_version"], "solver_mode": name, "envelope": envelope}));
+    }
     let corpus = json!({
         "corpus": "T4-U3 pressure-1 objective connector reader corpus",
         "generator": "core/product_physics/tests/connector_readers.rs::shared_connector_reader_corpus_is_current",
-        "inputs": ["validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, bytes unchanged; each copy re-authored to model document 0.6.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time"],
+        "inputs": ["validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, bytes unchanged; each copy re-authored to model document 0.6.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time",
+            "validation/references/t4_u5b cases AS-F and MO-F (SHA-bound case descriptions over their t4_u5a base requests), authored as model document 0.6.0 requests with explicit_axial_rods_v1 hardware at test time (core/product_physics/tests/common/t4_u5b.rs)"],
         "cases": cases,
     });
     let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";

@@ -674,6 +674,8 @@ fn fresh_semantics_metadata(metadata: &ResultMetadataDto) -> bool {
             | "local_straight_annulus_on_arc"
             | "bore_load_transferred_toroidal_membrane_v1"
             | "user_directional_sif_times_tangent_frame_bending_stress_v1"
+            // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.2): the tie-rod force basis.
+            | "recovered_from_tie_rod_extension_v1"
     ) || matches!(
         metadata.component.as_str(),
         "Fx" | "Fy" | "Fz" | "Mx" | "My" | "Mz"
@@ -691,7 +693,14 @@ fn fresh_semantics_metadata(metadata: &ResultMetadataDto) -> bool {
             | "toroidal_extrados_hoop_stress"
             | "toroidal_inner_radial_stress"
             | "toroidal_outer_radial_stress"
-    ) || metadata.location == "governing_station"
+            // T4-U5b: the tie-rod force component.
+            | "t_r"
+    ) || matches!(
+        metadata.location.as_str(),
+        "governing_station"
+            // T4-U5b: the tie-rod force location.
+            | "tie_rod"
+    )
 }
 
 pub fn assemble_wire_request(
@@ -927,6 +936,10 @@ mod tests {
             ("component", "toroidal_extrados_hoop_stress"),
             ("component", "toroidal_inner_radial_stress"),
             ("component", "toroidal_outer_radial_stress"),
+            // T4-U5b: the tie-rod force row's tokens.
+            ("basis", "recovered_from_tie_rod_extension_v1"),
+            ("component", "t_r"),
+            ("location", "tie_rod"),
         ] {
             let mut fresh = witness.clone();
             let value = fresh.pointer_mut("/result_envelopes/0/result_sets/0/values/0").unwrap();

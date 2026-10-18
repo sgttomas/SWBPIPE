@@ -1295,18 +1295,6 @@ impl<S: EvidenceStore> EvidenceParts<S> {
         force_scale: ForceScale,
         store: S,
     ) -> Result<Self, StructuralError> {
-        // T4-U5b (K1 repair 3): the kernel assembles each connector's tie
-        // rods after the connectors and K-D5 walks them in that order
-        // (formation_check's intended stiffness pass), but this evidence does
-        // not yet carry their contributions. Until PP integration (S3) inserts
-        // them after the connectors and before the curved elements, a
-        // connector with rods refuses here by name, on the dense and sparse
-        // evidence alike.
-        if connectors.iter().any(|c| !c.tie_rods().is_empty()) {
-            return Err(StructuralError::InvalidInput(
-                "tie-rod assembly evidence is not yet bound",
-            ));
-        }
         let range = |_: FrameKernelError| {
             StructuralError::Range("force-scaled formation outside the normal range")
         };
@@ -1374,6 +1362,25 @@ impl<S: EvidenceStore> EvidenceParts<S> {
             result.node(i.index, i.coordinates)?;
             result.node(j.index, j.coordinates)?;
             // A connector is no objective frame: its edge is unqualified (S4).
+            result.element(i.index, j.index, &formed, &bounds, &counts, false)?;
+        }
+        // T4-U5b (S3): each connector's tie rods, after every connector and
+        // before the curved elements, in connector then rod order: the order
+        // in which the kernel assembles them and K-D5's intended-stiffness
+        // pass walks them. Each is its own element: Ke formed at b = 0 times
+        // 2^b, as the assembly adds it, with its formation allowance
+        // (`TieRod::formation_roundoff`) times 2^b. A rod is no objective
+        // frame: its edge, beside its connector's, is unqualified.
+        for rod in connectors.iter().flat_map(|c| c.tie_rods()) {
+            let (i, j) = (rod.node_i(), rod.node_j());
+            let formed = rod.force_scaled_global_stiffness(force_scale).map_err(range)?;
+            let (bounds, counts) = rod
+                .formation_roundoff()
+                .map_err(|_| StructuralError::Range("tie rod formation allowance"))?;
+            let bounds = force_scaled_matrix("tie rod allowance*2^b", &bounds, force_scale)
+                .map_err(range)?;
+            result.node(i.index, i.coordinates)?;
+            result.node(j.index, j.coordinates)?;
             result.element(i.index, j.index, &formed, &bounds, &counts, false)?;
         }
         for element in curved {
@@ -1648,6 +1655,14 @@ impl W4Context<'_> {
         let local = |global: usize| nodes.binary_search(&global).ok();
         let frames = self.formation.frames.len();
         let connectors = frames + self.formation.connectors.len();
+        // T4-U5b (S3): the connectors' tie rods' edges follow the connectors.
+        let rods = connectors
+            + self
+                .formation
+                .connectors
+                .iter()
+                .map(|c| c.tie_rods().len())
+                .sum::<usize>();
         let mut curved_points: Vec<Option<[f64; 3]>> = vec![None; nodes.len()];
         let mut links = Vec::new();
         // T4-U3 (W4): the tie reduction stays; no element produces a tie now
@@ -1673,8 +1688,14 @@ impl W4Context<'_> {
                         })
                     }
                 }
+            } else if index < rods {
+                // T4-U5b: a tie rod lies between its connector's end nodes,
+                // which a positive definite connector already links; a
+                // semidefinite connector has already left the body to the
+                // matrix gate. The rod adds no link.
+                continue;
             } else {
-                let slot = &self.formation.curved[index - connectors];
+                let slot = &self.formation.curved[index - rods];
                 let element_id = slot.element_id.clone();
                 if slot.explicit {
                     return W4Body::Unqualified(W4Unqualified::CurvedExplicit { element_id });

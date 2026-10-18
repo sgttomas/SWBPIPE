@@ -50,6 +50,8 @@ mod u4a_tests;
 mod u4b_tests;
 #[cfg(test)]
 mod b7b_admission_tests;
+#[cfg(test)]
+mod tie_rod_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame, TANGENCY_TOLERANCE_RAD};
@@ -3066,7 +3068,7 @@ fn run_linear_static_preview_observed_inner(
     let source_formulation = composite_context.map(|_| formulation_basis_for_model_with_source(&model, true));
     let mut envelope = MechanicsEnvelope {
         contract_evidence: pressure_runtime::is_exact(&model).then(|| {
-            let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": joint::connector_evidence(&model), "exact_cases": exact_cases});
+            let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": joint::connector_evidence(&model, &built.connectors, &built.connector_records), "exact_cases": exact_cases});
             if case_state::is_load_state(&model) {
                 evidence["load_reference_states"] = serde_json::json!(load_reference_states);
             }
@@ -4251,21 +4253,61 @@ fn append_connector_results(
                 continue;
             }
         };
+        // T4-U5b (§3.2): each tie rod's binary64 recovery T_r = k(C d − e_ref).
+        let mut rod_recoveries = Vec::with_capacity(connector.tie_rods().len());
+        for (rod, meta) in connector.tie_rods().iter().zip(&record.tie_rods) {
+            let recovered = rod
+                .element_displacements(displacements)
+                .ok_or(FrameKernelError::NonFiniteInput { name: "tie rod displacements", value: f64::NAN })
+                .and_then(|d| rod.recover(&d));
+            match recovered {
+                Ok(recovery) => rod_recoveries.push(recovery),
+                Err(error) => {
+                    diagnostics.push(diag(
+                        &format!("diagnostic:joint:{}:{}:{}:recovery", stable_suffix(load_case_id), stable_suffix(&record.component_id), stable_suffix(&meta.id)),
+                        "ELEMENT_FORCE_RECOVERY_FAILED",
+                        "blocking",
+                        format!("objective connector {} tie rod {} cannot be recovered: {error}", record.component_id, meta.id),
+                        vec![record.component_id.clone(), meta.id.clone(), load_case_id.to_string()],
+                    ));
+                }
+            }
+        }
+        if rod_recoveries.len() != connector.tie_rods().len() {
+            continue;
+        }
+        // Pe = p·Ae, the exact operand of a constant-effective-area joint
+        // (0 when no region lists it); `None` on an unpressurized connector.
+        let joint_pressure = record.pressure.as_ref().map(|model| {
+            let p = pressure.and_then(|case| case.joint_pressures.get(&record.component_id)).copied().unwrap_or(0.0);
+            (p, model.effective_area)
+        });
+        // T4-U5b (§3.3): s_x is published for every constant-effective-area
+        // connector and for every connector with rods.
+        let publishes_effective = joint_pressure.is_some() || !connector.tie_rods().is_empty();
         let certificate = bound.and_then(|bound| {
-            use open_pipe_stress_frame_kernel::structural::{CertifiedMemberLoads,certify_connector_recovery};
+            use open_pipe_stress_frame_kernel::structural::{CertifiedMemberLoads,certify_connector_recovery,certify_tie_rod_recovery};
             let prefix = format!("member:{}:{}:", record.component_id.len(),record.component_id);
-            match CertifiedMemberLoads::from_member_primitives(connector.node_i().index,connector.node_j().index,force.load_primitives(),&prefix).and_then(|loads| certify_connector_recovery(connector,&loads,displacements,bound)) {
-                Ok(certificate) => {
-                    let effective = record.pressure.as_ref().map(|model| {
-                        use open_pipe_stress_frame_kernel::structural::CertifiedValue;
-                        let p = pressure.and_then(|case| case.joint_pressures.get(&record.component_id)).copied().unwrap_or(0.0);
-                        certificate.g[0].add_value(CertifiedValue::exact(-p)?.product(CertifiedValue::exact(model.effective_area)?)?)
+            // The connector's rows and every rod's rows come from this one
+            // certified attempt (the same u and bound), so S_joint may sum them.
+            let attempt = CertifiedMemberLoads::from_member_primitives(connector.node_i().index,connector.node_j().index,force.load_primitives(),&prefix)
+                .and_then(|loads| certify_connector_recovery(connector,&loads,displacements,bound))
+                .and_then(|certificate| {
+                    let rods = (0..connector.tie_rods().len()).map(|rod| certify_tie_rod_recovery(connector,rod,displacements,bound)).collect::<Result<Vec<_>,_>>()?;
+                    Ok((certificate, rods))
+                });
+            match attempt {
+                Ok((certificate, rods)) => {
+                    let effective = publishes_effective.then(|| {
+                        let terms = rods.iter().map(|rod| (rod.tension, rod.axial_share)).collect::<Vec<_>>();
+                        effective_axial_row(certificate.g[0], &terms, joint_pressure)
                     }).transpose();
-                    match effective.and_then(|effective| certified_publication::connector_record(&record.component_id,bodies.body_of_node(connector.node_i().index),&certificate,effective.as_ref())) {
+                    let rod_rows = record.tie_rods.iter().zip(&rods).map(|(meta, rod)| (meta.id.as_str(), rod.tension)).collect::<Vec<_>>();
+                    match effective.and_then(|effective| certified_publication::connector_record(&record.component_id,bodies.body_of_node(connector.node_i().index),&certificate,effective.as_ref(),&rod_rows)) {
                         Ok(record) => recovery_records.push(record),
                         Err(error) => recovery_records.push(certified_publication::unavailable_record(&record.component_id,bodies.body_of_node(connector.node_i().index),format!("{error:?}"))),
                     }
-                    Some(certificate)
+                    Some((certificate, rods))
                 }
                 Err(error) => { recovery_records.push(certified_publication::unavailable_record(&record.component_id,bodies.body_of_node(connector.node_i().index),format!("{error:?}"))); None }
             }
@@ -4274,7 +4316,7 @@ fn append_connector_results(
         for row in 0..8 {
             let (kind, components, unit, values, location) = rows[row];
             for axis in 0..3 {
-                let value = certificate.as_ref().map_or(values[axis],|certificate| {
+                let value = certificate.as_ref().map_or(values[axis],|(certificate, _)| {
                     match row {
                         0 => certificate.deformation[axis].published, 1 => certificate.deformation[3+axis].published,
                         2 => certificate.g[axis].published, 3 => certificate.g[3+axis].published,
@@ -4313,30 +4355,81 @@ fn append_connector_results(
                 });
             }
         }
-        if let Some(model) = &record.pressure {
+        // T4-U5b (§3.3): one force row per rod, certified on the certified
+        // route and binary64 otherwise, identified by its row ID and its
+        // `tie_rods` evidence entry.
+        for (index, meta) in record.tie_rods.iter().enumerate() {
+            let value = certificate.as_ref().map_or(rod_recoveries[index].tension, |(_, rods)| rods[index].tension.published);
+            results.push(ResultItem {
+                id: joint::tie_rod_row_id(&record.component_id, &meta.id),
+                kind: joint::TIE_ROD_FORCE_KIND.into(),
+                value,
+                unit: "N".into(),
+                entity_ref: record.component_id.clone(),
+                basis_ref: None,
+                source_result_refs: Vec::new(),
+                metadata: Some(ResultMetadata {
+                    component: joint::TIE_ROD_COMPONENT.into(),
+                    coordinate_system: joint::TIE_ROD_FRAME.into(),
+                    location: joint::TIE_ROD_LOCATION.into(),
+                    basis: joint::TIE_ROD_BASIS.into(),
+                    sign_convention: joint::TIE_ROD_SIGN.into(),
+                }),
+            });
+        }
+        if publishes_effective {
             use open_pipe_stress_frame_kernel::structural::{CertifiedValue, CertifiedRow};
-            let p = pressure.and_then(|case| case.joint_pressures.get(&record.component_id)).copied().unwrap_or(0.0);
             let quantities = (|| {
-                let pe = CertifiedValue::exact(p)?.product(CertifiedValue::exact(model.effective_area)?)?;
-                let gx = match &certificate { Some(certificate) => certificate.g[0], None => CertifiedValue::exact(recovery.g[0])?.into_row()? };
-                let s = gx.add_value(pe.product(CertifiedValue::exact(-1.0)?)?)?;
-                Ok::<[CertifiedRow;2],open_pipe_stress_frame_kernel::structural::RecoveryFailure>([pe.into_row()?, s])
+                let pe = joint_pressure.map(|(p, area)| CertifiedValue::exact(p)?.product(CertifiedValue::exact(area)?)).transpose()?;
+                let s = match &certificate {
+                    Some((certificate, rods)) => {
+                        let terms = rods.iter().map(|rod| (rod.tension, rod.axial_share)).collect::<Vec<_>>();
+                        effective_axial_row(certificate.g[0], &terms, joint_pressure)?
+                    }
+                    None => {
+                        let terms = connector.tie_rods().iter().zip(&rod_recoveries)
+                            .map(|(rod, recovery)| Ok((CertifiedValue::exact(recovery.tension)?.into_row()?, CertifiedValue::exact(rod.axial_share())?)))
+                            .collect::<Result<Vec<_>, open_pipe_stress_frame_kernel::structural::RecoveryFailure>>()?;
+                        effective_axial_row(CertifiedValue::exact(recovery.g[0])?.into_row()?, &terms, joint_pressure)?
+                    }
+                };
+                Ok::<(Option<CertifiedRow>, CertifiedRow),open_pipe_stress_frame_kernel::structural::RecoveryFailure>((pe.map(CertifiedValue::into_row).transpose()?, s))
             })();
             match quantities {
-                Ok(rows) => for (kind, component, row) in [
-                    ("connector_pressure_force_v1", "pe_x", rows[0]),
-                    ("connector_effective_axial_force_v1", "s_x", rows[1]),
-                ] {
+                Ok((pe, s)) => for (kind, component, row) in pe.map(|pe| ("connector_pressure_force_v1", "pe_x", pe)).into_iter().chain([
+                    ("connector_effective_axial_force_v1", "s_x", s),
+                ]) {
                     results.push(ResultItem {
                         id: format!("result:connector:{}:{}:connector_local:{component}", stable_suffix(&record.component_id),kind.trim_end_matches("_v1").replace('_',"-")),
                         kind: kind.into(), value: row.published, unit: "N".into(), entity_ref: record.component_id.clone(), basis_ref: None, source_result_refs: Vec::new(),
                         metadata: Some(ResultMetadata { component: component.into(), coordinate_system: "connector_axes_q".into(), location: "connector_local".into(), basis: "objective_connector_v1;symmetric_midpoint_small_rotation_v1".into(), sign_convention: "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes".into() }),
                     });
                 },
-                Err(error) => diagnostics.push(diag(&format!("diagnostic:joint:{}:pressure-recovery",stable_suffix(&record.component_id)),"OBJECTIVE_CONNECTOR_RECOVERY_UNAVAILABLE","blocking",format!("joint pressure recovery failed: {error:?}"),vec![record.component_id.clone()])),
+                Err(error) => diagnostics.push(diag(&format!("diagnostic:joint:{}:pressure-recovery",stable_suffix(&record.component_id)),"OBJECTIVE_CONNECTOR_RECOVERY_UNAVAILABLE","blocking",format!("joint effective axial force recovery failed: {error:?}"),vec![record.component_id.clone()])),
             }
         }
     }
+}
+
+/// T4-U5b (§3.3): S_joint = g_x + Σ_r T_r·(n_r·Q_x) − Pe as one certified
+/// row: each rod's tension row times its axial share (a ball formed at p on
+/// the certified route), summed with g_x's row (`add_row`: the rows must come
+/// from one certified attempt), then the exact operand −p·Ae. Untied and
+/// unpressurized it is g_x itself; with no rods it is U5a's g_x − p·Ae.
+fn effective_axial_row(
+    gx: open_pipe_stress_frame_kernel::structural::CertifiedRow,
+    rods: &[(open_pipe_stress_frame_kernel::structural::CertifiedRow, open_pipe_stress_frame_kernel::structural::CertifiedValue)],
+    joint_pressure: Option<(f64, f64)>,
+) -> Result<open_pipe_stress_frame_kernel::structural::CertifiedRow, open_pipe_stress_frame_kernel::structural::RecoveryFailure> {
+    use open_pipe_stress_frame_kernel::structural::CertifiedValue;
+    let mut s = gx;
+    for (tension, share) in rods {
+        s = s.add_row(tension.product_value(*share)?)?;
+    }
+    if let Some((p, area)) = joint_pressure {
+        s = s.add_value(CertifiedValue::exact(-p)?.product(CertifiedValue::exact(area)?)?)?;
+    }
+    Ok(s)
 }
 
 /// T4-U3 (S13): each connector's installed-state assembly load +BᵀK q_ref,
@@ -4386,6 +4479,55 @@ fn add_connector_reference_loads(
                 true,
             );
             certified_loads::attach_last(ledger, certified_loads::summand("connector_reference", &certified_loads::member_source(&record.component_id,"reference"), index, index, LoadFormula::ConnectorReference { connector: connector.clone() }));
+        }
+    }
+    add_tie_rod_reference_loads(ledger, built, load_case_id, diagnostics);
+}
+
+/// T4-U5b (DEL-04-07 Design `u4b-u5b-implementation.md` §3.2): each tie
+/// rod's reference load +Cᵀ k e_ref, after every connector, in connector
+/// then rod order: one formed term per DOF with K-D5's own bound, family
+/// `tie_rod_reference`, source `{connector}:{rod}` and the formula
+/// `TieRodReference` naming the source connector and rod by index. The rod's
+/// own element action, never a connector member load (its source is not a
+/// `member:` source). "One ε": a rod with e_ref exactly 0 has no term.
+fn add_tie_rod_reference_loads(
+    ledger: &mut LoadLedger,
+    built: &BuiltModel,
+    load_case_id: &str,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    use open_pipe_stress_frame_kernel::tie_rod::TIE_ROD_REFERENCE_FAMILY;
+    for (connector_index, (connector, record)) in built.connectors.iter().zip(&built.connector_records).enumerate() {
+        for (rod_index, (rod, meta)) in connector.tie_rods().iter().zip(&record.tie_rods).enumerate() {
+            let load = match rod.reference_load() {
+                Ok(Some(load)) => load,
+                Ok(None) => continue,
+                Err(error) => {
+                    diagnostics.push(diag(
+                        &format!("diagnostic:joint:{}:{}:{}:tie-rod-reference-load", stable_suffix(load_case_id), stable_suffix(&record.component_id), stable_suffix(&meta.id)),
+                        joint::TIE_ROD_INPUT_INVALID,
+                        "blocking",
+                        format!("objective connector {} tie rod {}'s reference load cannot be formed: {error}", record.component_id, meta.id),
+                        vec![record.component_id.clone(), meta.id.clone(), load_case_id.to_string()],
+                    ));
+                    continue;
+                }
+            };
+            let source = format!("{}:{}", record.component_id, meta.id);
+            let dofs = element_dof_map(rod.node_i().index, rod.node_j().index);
+            for index in 0..12 {
+                // A zero folded entry keeps its term: only e_ref = 0 omits.
+                ledger.push_formed(
+                    format!("{TIE_ROD_REFERENCE_FAMILY}:{source}"),
+                    dofs[index],
+                    load.values[index],
+                    Formation::Bounded { bound: load.bounds[index] },
+                    0.0,
+                    true,
+                );
+                certified_loads::attach_last(ledger, certified_loads::summand(TIE_ROD_REFERENCE_FAMILY, &source, index, index, LoadFormula::TieRodReference { connector: connector_index, rod: rod_index, tie_rod: *rod }));
+            }
         }
     }
 }
