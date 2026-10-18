@@ -3,8 +3,10 @@ name: Load-case algebra engine
 needs:
 - from: DEL-04-07
   condition: >-
-    DEL-05-02 needs DEL-04-07's ordinary preview-physics-1 and pressure-1 product
-    publications for its base readers and conformance corpus, and the evaluation
+    DEL-05-02 needs DEL-04-07's ordinary preview-physics-2 and pressure-2 product
+    publications (pressure-1 and preview-physics-1 are refused by name since T4-U4b/U5b),
+    including the T4-U4b section quantities, arc maxima and T4-U5b tie-rod rows, for
+    its base readers and conformance corpus, and the evaluation
     of model-authored combinations through this deliverable's algebra crate.
     The exact pressure contract remains DEL-04-07's Design/pressure-contract.md.
     DEL-04-08 declares the retained producer and memory-qualification inputs.
@@ -33,8 +35,10 @@ needs:
     DEL-05-02's base readers need DEL-05-03's D-5 section bases and D-6 Timoshenko
     straight-member contract (Design/section-bases-and-timoshenko.md sections 1 to 3;
     Design/section-and-shear-decisions.md). They interpret the section bases and
-    shear model from captured section inputs. DEL-04-08 retains the separate O4
-    retained-source and W1-E publication duty.
+    shear model from captured section inputs. They also recompute the T4-U4b section
+    quantities bit for bit, independently of the producer, by the normative sequences of
+    DEL-05-03's `stress_recovery::section_stress_quantities`. DEL-04-08 retains the
+    separate O4 retained-source and W1-E publication duty.
   gating: true
   evidence: execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md
 - from: DEL-05-01
@@ -115,6 +119,8 @@ code_paths:
 - core/reporting/result_export/src/source_blocks.rs
 - core/reporting/result_export/src/semantic_contract.rs
 - core/reporting/result_export/src/reader_verdict.rs
+- core/reporting/result_export/src/u4b_evidence.rs
+- core/reporting/result_export/tests/combination_algebra.rs
 - core/reporting/result_export/tests/retained_precision_*.rs
 - core/reporting/result_export/tests/base_reader_outcomes.rs
 - core/reporting/result_export/tests/reader_verdict.rs
@@ -184,6 +190,7 @@ code_paths:
 - fixtures/product_preview/pressure/load_reference/**
 # Tools: retained pricing, corpus storage and the J7 census input generator.
 - tools/retained_pricing/**
+- tools/serialization/semantic_contract_tables.py
 - tools/fixtures/retained_precision_corpus.py
 - tools/fixtures/j7_rf_census_inputs.py
 # Python: the product's Rust-reader bridge, the test-only verifiers and the reader tests.
@@ -207,6 +214,8 @@ code_paths:
 - tests/test_rust_reader.py
 - tests/test_verifier_independence.py
 - tests/test_j7_rf_census_inputs.py
+- tests/test_semantic_contract_tables.py
+- tests/test_u4b_review_tampers.py
 # Desktop: the wasm reader modules, the route vocabulary over them and reader conformance tests.
 - apps/desktop/src/features/results/resultReader.ts
 - apps/desktop/src/features/results/resultReader.test.ts
@@ -239,6 +248,7 @@ checks:
 - core/reporting/result_export/tests/retained_precision_carriers.rs
 - core/reporting/result_export/tests/base_reader_outcomes.rs
 - core/reporting/result_export/tests/reader_verdict.rs
+- core/reporting/result_export/tests/combination_algebra.rs
 - core/reporting/result_export/tests/pressure_source_contract.rs
 - core/reporting/result_export/tests/declared_member_load_workspace.rs
 - core/runner/headless/tests/reader_cli.rs
@@ -256,6 +266,8 @@ checks:
 - tests/test_rust_reader.py
 - tests/test_verifier_independence.py
 - tests/test_retained_pricing_tool.py
+- tests/test_semantic_contract_tables.py
+- tests/test_u4b_review_tampers.py
 # Desktop (desktop-test).
 - apps/desktop/src/features/results/retainedPrecisionWasmEquivalence.test.ts
 - apps/desktop/src/features/results/baseReaderWasmEquivalence.test.ts

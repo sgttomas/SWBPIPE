@@ -189,7 +189,7 @@ needs:
 code_paths:
 - schemas/results.schema.yaml
 - schemas/results.v0.3.schema.yaml
-- schemas/results_pressure_1.v0.3.schema.json
+- schemas/results_pressure_2.v0.3.schema.json
 - core/reporting/result_export/src/lib.rs
 - core/reporting/result_export/src/derivative.rs
 - core/reporting/result_export/tests/derivative_contract.rs
