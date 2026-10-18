@@ -8,6 +8,7 @@
 
 pub mod elastic_extrema;
 pub mod elastic_section;
+pub mod section_stress_quantities;
 
 use open_pipe_stress_primitive_loads::{
     BoundaryMetadataError, BoundaryQuantityRecord, BoundaryRecordRef, CanonicalDimension,
