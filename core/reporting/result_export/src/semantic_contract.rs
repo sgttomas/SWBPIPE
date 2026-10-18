@@ -591,7 +591,7 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
             }
             let f = &source["formulation_basis"];
             let profile = match p["semantic_contract_id"].as_str() {
-                // T4-U2a: the only profile of pressure-2, on 0.3.0 and 0.4.0.
+                // T4-U2a: the only profile of pressure-1, on 0.3.0 and 0.4.0.
                 Some(PRESSURE_ID | PRESSURE_SOURCE_ID) => PRESSURE_PROFILE,
                 _ => "product_preview_mechanics_v1",
             };
@@ -653,7 +653,7 @@ pub use crate::preview_physics_evidence::validate_preview_physics_evidence;
 pub const FRESH_IDENTITIES: &[&str] = &[
     PREVIEW_PHYSICS_ID,
     PRESSURE_SOURCE_ID,
-    // T4-U2: pressure-2 (`3.0.0/exact_pressure_v3`) on 0.3.0 and 0.4.0.
+    // T4-U2: pressure-1 (`3.0.0/exact_pressure_v3`) on 0.3.0 and 0.4.0.
     PRESSURE_ID,
     // U6a (D-U6-6; D2 4.7 S-1): membership is not standing. The successor's
     // standing comes only from the accepted reader's verified receipt.

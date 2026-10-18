@@ -91,7 +91,7 @@ def test_results_successor_branch_is_explicit_and_old_branches_reject_receipt():
 
 SUCC = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PREVIEW = "openpipestress.result_semantics/0.3.0/preview-physics-2"
-# B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables") re-issued the tables: pressure-2
+# B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables") re-issued the tables: pressure-1
 # left preview-physics-2's reserved successors (36064ef3... and f675693b... before), the preview successor inherits
 # the new preview hash, the exact successor (D4 (a)) inherits pressure-2's, and pressure-source-1 is the current
 # PRESSURE-SOURCE-1 table (4a1873e7... before).
@@ -336,7 +336,7 @@ def test_every_existing_analysis_run_branch_refuses_a_receipt():
         refused = {"required": ["retained_precision"]} in branch.get("not", {}).get("anyOf", [])
         assert refused is (sid not in SUCCESSORS), sid
         assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
-    # T4-U2 added pressure-2; the pressure-source join added pressure-source-1;
+    # T4-U2 added pressure-1; the pressure-source join added pressure-source-1;
     # B1 removed precision-1 and B4/D1 (b) source-blocks-1; B7b the four exact v2 identities.
     assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 5
     contract = schema["$defs"]["SemanticContract"]
@@ -416,7 +416,7 @@ def test_every_existing_stress_neutral_branch_refuses_a_receipt():
         ids.append(sid)
         assert ({"required": ["retained_precision"]} in branch.get("not", {}).get("anyOf", [])) is (sid not in SUCCESSORS), sid
         assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
-    # T4-U2 added pressure-2; B1 removed precision-1 and B4/D1 (b) source-blocks-1; B7b the four exact v2
+    # T4-U2 added pressure-1; B1 removed precision-1 and B4/D1 (b) source-blocks-1; B7b the four exact v2
     # identities and added pressure-source-1's branch.
     assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 5
 

@@ -124,6 +124,13 @@ def test_unknown_identities_are_refused(label, envelope):
     with pytest.raises(ValueError, match=message):
         _source_contract(retired)
     assert rust_reader.dispatch(retired)["error"]["code"] == "SOURCE_PRESSURE_1_RETIRED"
+    # The retired preview-physics-1 identity is refused by name the same way (re-run).
+    retired_preview = deepcopy(envelope)
+    retired_preview["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+    message = "^SOURCE_PREVIEW_PHYSICS_1_RETIRED: preview-physics-1 results are no longer read; re-run the analysis$"
+    with pytest.raises(ValueError, match=message):
+        _source_contract(retired_preview)
+    assert rust_reader.dispatch(retired_preview)["error"]["code"] == "SOURCE_PREVIEW_PHYSICS_1_RETIRED"
     profile = deepcopy(envelope)
     profile["formulation_basis"]["profile_id"] = "exact_straight_pressure_v2"
     with pytest.raises(ValueError, match="pressure-2 formulation profile"):
