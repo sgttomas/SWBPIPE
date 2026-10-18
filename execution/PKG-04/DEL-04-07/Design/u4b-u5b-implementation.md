@@ -313,7 +313,8 @@ N_eff = S + pA_i, and pA_i is constant along the member, so N_eff″ = S″.
 - **The operands.** The arc maximum's problem is the section function formed from the
   published end_j force rows, taken through the transpose of the end-j frame, and the arc's
   `uniform_intensities` list with its load-state scales, generated self-weight included. It also
-  uses R, φ and the basis section.
+  uses R, φ and the basis section. On a pressurized arc it uses the same binary64 pA_i that the
+  wall and membrane rows use.
   - On the binary64 route these are exactly the station rows' operands
     (`curved_bend_section_resultants`, `lib.rs` around :11636–11664).
   - On the certified route the station rows come instead from the certified sections, recovered
@@ -335,7 +336,8 @@ N_eff = S + pA_i, and pA_i is constant along the member, so N_eff″ = S″.
 **Resultants.** They follow the closed forms of t4_u4b item 4, carried from end j, in the
 tangent frame at ψ: F(ψ) = F_beyond + w R Δψ, M(ψ), and their exact derivatives. The bound terms
 are F_max = |F(0)| + |w|Rφ and M_max = |M(0)| + RφF_max, with F the pressure-free statics force (S
-on pressurized arcs). Taking the end at which they start does not change the bound.
+on pressurized arcs). |w| is an upward bound of the norm of Σ_k w_k over `uniform_intensities`,
+for example Σ_k |w_k| rounded upward. Taking the end at which they start does not change the bound.
 
 **Arithmetic and where it lives.** Every evaluation of f or f′ at a point is an enclosure, in
 the frame kernel's existing ball arithmetic (`Balls`/`Wide2`, now `pub(super)` in
@@ -371,10 +373,9 @@ the frame kernel's existing ball arithmetic (`Balls`/`Wide2`, now `pub(super)` i
      against rounding.
    - This differs from the straight `maximum_cover` (`certified_publication.rs` around
      :512–535), which refuses on violation and checks each stress component.
-   - Straight maxima are unchanged. A published straight σ± and the straight maximum come from
-     different arithmetic, so a station's max(|σ⁺|, |σ⁻|) may exceed the published maximum by at
-     most the rounding of its operand rows. The readers check that relation within the existing
-     64ε comparison rule, rather than altering a straight maximum.
+   - Straight maxima, and their reader checks, are unchanged. A straight σ± and the straight
+     maximum come from different arithmetic, and the published maximum is a midpoint, so no
+     reader relation between them is imposed.
 6. **Location.**
    - *End maxima.* If the governing evaluation (the largest directed lower value) is an
      endpoint, and the derivative enclosure there points out of the member (f′(0) < 0 at ψ = 0,
@@ -384,9 +385,9 @@ the frame kernel's existing ball arithmetic (`Balls`/`Wide2`, now `pub(super)` i
         directed lower value at an endpoint is within the gap of the global lower. That is
         evidence the cell attains the maximum within the gap; an upper bound alone does not
         qualify a cell.
-     2. **A bracket.** Among the candidates, the smallest-ψ pair of trial points whose
-        derivative enclosures are strictly positive at the left and strictly negative at the
-        right.
+     2. **A bracket.** Within one candidate cell, or one contiguous run of candidate cells, the
+        smallest-ψ pair of trial points whose derivative enclosures are strictly positive at the
+        left and strictly negative at the right. A bracket never spans a non-candidate gap.
      3. **Bisection.** Evaluate the f′ enclosure at the midpoint. A strictly positive enclosure
         moves the left end, and a strictly negative one moves the right end. An enclosure that
         contains zero at the midpoint is an unresolved sign: it stops the refinement there. The
@@ -452,8 +453,11 @@ t4_u4b is a comparison rule for the test, not a publication.
     `homogeneous_isotropic_E_nu_v1` and checks −1 < ν < 1/2 (`pressure_material.rs`), and the
     named-point pair supplies ν where a basis is selected.
   - *preview-physics-2* uses ν = RN(RN(E/RN(2·G)) − 1), from the E and G the solve itself uses
-    for that member and case. For a selected named point those are the point's moduli; for a
-    base case, the base moduli.
+    for that member and case:
+    - for a selected named point, the point's moduli;
+    - for a base case, the base moduli;
+    - for a case with `modulus_basis_temperature`, the linearly interpolated moduli the solve
+      forms (`lib.rs` around :10166–10310).
     - An authored `poisson_ratio` is not consulted on this route. The preview route neither
       validates it nor pairs it with point moduli: the named-point resolver keeps the base ν
       (`lib.rs` around :10386).
@@ -494,6 +498,11 @@ t4_u4b is a comparison rule for the test, not a publication.
   A reader without the model, such as G7's model-free base read or a preview read without a
   model, checks custody, coverage, non-negativity and the unit only. That is the existing reach
   of model checks (b7-plan G2).
+  - Interpolated preview moduli are a second exception. No reader reproduces the temperature
+    interpolation, and adding two independent interpolation implementations is out of scope.
+    So for a case with `modulus_basis_temperature`, the model-holding readers apply the same
+    model-free checks to τ. W1 refuses such a case at D1 already.
+  - Tests include an interpolated preview control.
 
 ### 2.5 Toroidal hoop and radial values (pressure-2)
 
@@ -883,7 +892,7 @@ publication's published rows (§4.1, Q2).
 - **What is added.** The receipt gains one treatment, `derived_not_qualified`, which carries no
   REQ-002 guarantee:
   - it names the formula recipe `section_extremes_from_published_stress_rows_v1` or
-    `transverse_shear_from_published_section_rows_v1`, with the station row ids as inputs;
+    `transverse_shear_from_published_shear_rows_v1`, with the station row ids as inputs;
   - `bind_for` assigns it to exactly the two kinds;
   - composite finalization admits it for those two kinds only, and still refuses every other
     `inspection_only` physical row;
@@ -960,7 +969,8 @@ clause changes, and only for derived kinds formed from published operands.
   > R-COMB-1, each quantity row of an unavailable combination or of an ordinary combination that
   > names a load case whose trigger is not `not_required`. They keep their ordinary values, except
   > the section normal-stress extremes and transverse-shear maxima, which are formed in binary64
-  > from the successor's own published stress and section-action rows and its basis section.
+  > from the successor's own published stress, section-action and end-force rows and its captured
+> section and material.
 
 ## 5. Readers, verifier and consumers
 
@@ -977,7 +987,7 @@ on its route, independently of the producer. The verifier shares no code with it
 | directional intensified rows | Present exactly on arcs whose captured model has the directional pair. Each is bound to its `intensified_measures` record. Recomputed bit for bit from the station's bending stress rows and the record's factors (§2.6). The maximum's record follows the arc maximum's checks, with cover by the station intensified rows. |
 | toroidal hoop and radial | Present exactly on pressurized arcs with R > r_o, at every station and basis. Recomputed under the existing Lamé comparison rule from p and the basis bore, wall, r_o and R in the region evidence. |
 | `connector_tie_rod_force_v1` | One row per authored rod, bound to its `tie_rods` entry by row id. Finite and in N. The value is not rederived from the published displacements. The published displacements are the solve's own, and the certified T_r comes from the corrected displacement, so an exact relation does not hold between them. This is the existing connector practice for g. |
-| `s_x` | \|s_x − Σ\| ≤ 64ε(\|g_x\| + \|Pe\| + Σ\|t_r·axial_share\|) + (n_r + 2)·2^-1074. Σ = g_x − Pe + Σ_r RN(t_r·axial_share_r) is accumulated exactly, rounded once: `ExactAccumulator` in Rust, exact rationals in the verifier. So the reader adds no addition error for any rod count, and the 64ε comparison covers the producer's at-p rounding and the published operands. This extends today's rule, 64ε\|g\| + 64ε\|Pe\| plus a least-subnormal reserve (`connector_evidence.rs` around :271–280 and :345), to the rod terms. Pe is the published `pe_x`, or 0 on an unpressurized connector. The rule applies to every connector with rods or a constant-effective-area model. The current `UNPRESSURIZED_ROWS` rule, which forbids s_x on an unpressurized connector (around :336–339), becomes keyed on hardware: s_x is required with rods and forbidden without them. Tests cover cancellation, subnormal edges, and a many-rod control (for example 1,024 parallel rods each contributing 2^-54 beside g_x = 1). |
+| `s_x` | \|s_x − Σ\| ≤ (64 + n_r)ε(\|g_x\| + \|Pe\| + Σ\|t_r·axial_share\|) + (n_r + 2)·2^-1074. Σ = g_x − Pe + Σ_r RN(t_r·axial_share_r) is accumulated exactly, rounded once: `ExactAccumulator` in Rust, exact rationals in the verifier. So the reader adds no addition error for any rod count. The (64 + n_r)ε coefficient covers the producer's at-p rounding and the n_r rounded published products, so no rod cap is needed. This extends today's rule, 64ε\|g\| + 64ε\|Pe\| plus a least-subnormal reserve (`connector_evidence.rs` around :271–280 and :345), to the rod terms. Pe is the published `pe_x`, or 0 on an unpressurized connector. The rule applies to every connector with rods or a constant-effective-area model. The current `UNPRESSURIZED_ROWS` rule, which forbids s_x on an unpressurized connector (around :336–339), becomes keyed on hardware: s_x is required with rods and forbidden without them. Tests cover cancellation, subnormal edges, and a many-rod control (for example 1,024 parallel rods each contributing 2^-54 beside g_x = 1). |
 
 - **Arc evidence.** `arc_evidence.rs` and `tests/verifiers/pressure_1.py` (renamed
   `pressure_2.py`) drop `withheld_on_arcs`. They require the two definition ids and the new
@@ -1004,6 +1014,9 @@ on its route, independently of the producer. The verifier shares no code with it
   - The desktop's connector form offers `explicit_axial_rods_v1` with a rod table. Its bend form
     offers the directional pair.
   - The live path is part of the unit, as JR J-B requires for U5a.
+- **The report package's fresh-result check.** `core/reporting/report_package/src/wire.rs`
+  (`fresh_semantics_metadata`, around :660–674) recognizes fresh results by tokens only they
+  carry. It gains the new component, location and basis tokens, so the check stays complete.
 - **Python product paths** read through Rust and change only their pinned identities and
   tables: `compatibility.py`'s `CURRENT_RECORD_CONTRACT_IDS` and table pins, and
   `stress_neutral/package.py`'s method sets.
@@ -1044,7 +1057,9 @@ persistence (AGENTS.md). Both solver modes run throughout.
 1. **t4_u4b.**
    - A builder test authors the eight requests in 0.6.0 from `cases.json`, following its
      "Binding" rules (bend components attached at the from node, with R, the binary64 bend angle,
-     k and the directional pair). It adds the request SHA-256 values to the oracle by the
+     k and the directional pair). For the two preview cases, which give E and ν but no G, the
+     builder authors G = RN(E/RN(2·RN(1+ν))), so the route's derived ν matches the oracle's within
+     a few ulps, inside the criterion. It adds the request SHA-256 values to the oracle by the
      generator's `--write`, which changes bindings only.
    - The PP test runs every case through the typed and captured entries in both modes and
      compares every mapped row (§2.2) at the README criterion and zero scales:
@@ -1180,7 +1195,7 @@ branch.
 - every corpus, outcome file and successor that carries those bytes;
 - the ten reviewed inputs (§1.3);
 - the registered profile;
-- the desktop route vocabulary and pins;
+- the desktop route vocabulary and pins, and the report package's fresh-token list (`wire.rs`);
 - the analysis-run and stress-neutral schemas and packages.
 
 **Unchanged:**
