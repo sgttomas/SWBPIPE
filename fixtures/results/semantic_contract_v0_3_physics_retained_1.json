@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 106,
-  "source_kind_count": 59,
+  "source_signature_count": 107,
+  "source_kind_count": 60,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -66,7 +66,8 @@
         "gr_y",
         "gr_z",
         "pe_x",
-        "s_x"
+        "s_x",
+        "t_r"
       ]
     },
     "coordinate_system": {
@@ -91,7 +92,8 @@
         "summary",
         "TBD",
         "governing_station",
-        "connector_local"
+        "connector_local",
+        "tie_rod"
       ]
     },
     "basis": {
@@ -114,7 +116,8 @@
         "recovered_from_local_element_stiffness; section_basis=nominal_section",
         "recovered_from_local_element_stiffness; section_basis=reduced_section",
         "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
-        "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
+        "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+        "recovered_from_tie_rod_extension_v1"
       ]
     },
     "sign_convention": {
@@ -1634,6 +1637,20 @@
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
       "governing_ratio_eligible": false
+    },
+    {
+      "signature_id": "supported-source-097",
+      "kind": "connector_tie_rod_force_v1",
+      "unit": "N",
+      "component": "t_r",
+      "source_physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false
     }
   ],
   "hash_vectors": [
@@ -1684,7 +1701,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f",
+  "inherited_semantic_contract_sha256": "ac763579b94de43a2f9806a3209121fc3cf65a4ae0c74d494d58d8efe42f4422",
   "formulation_profile_id": "exact_straight_retained_w1a_v2",
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_v1",
   "supported_profile_limitations": [

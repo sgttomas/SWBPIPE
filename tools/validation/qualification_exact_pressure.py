@@ -84,7 +84,7 @@ TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
 # B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables"; O-10): pressure-2's own reviewed
 # resident table; the former pin 07a6a308... named the table before its re-issue. T4-U6 (D-5, §2.4) re-issued it
 # with one stress signature per (recovery token x section basis): 106 signatures, 59 kinds (B7b's was a4e3bf2c...).
-TABLE_SHA256 = 'b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f'
+TABLE_SHA256 = 'ac763579b94de43a2f9806a3209121fc3cf65a4ae0c74d494d58d8efe42f4422'
 # The owned reader is the Rust product reader of pressure-2 (owner, 2026-10-10:
 # "move to one product reader in Rust"): `validate_pressure_evidence` (an envelope
 # carrying the load/reference-state group takes its pre-pass), reached through

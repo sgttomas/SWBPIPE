@@ -393,8 +393,11 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // inspected production between the regions gains current_header's
             // pressure-1/preview-physics-1 refusals and the 0.6.0 re-author text;
             // E14 is byte-identical.
+            // Re-audited for T4-U5b (S3): only the closed `b7b_current_table_tests`
+            // module's pressure-2 row count changed (106 -> 107, the tie-rod force
+            // signature); the inspected production and E14 are byte-identical.
             first_item: SEMANTIC_B7B_TEST_ITEM,
-            complete_suffix_sha256: "17b12f333c7ced9b56a7cf73615f7db9a49c25222b83a4073c925cb9f524aed7",
+            complete_suffix_sha256: "cca1fdddc55174133c8c6810e9fa2989211898f9aafc30dfa9684b4a5636830f",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -707,7 +710,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "e7583810e9f25719137620a4586a2a038c7dcef65b6e8e91f1287fc87a1788a3");
+    assert_eq!(schema_hash, "ad068ed5f3c9abef49da0041ba95e4ba210dd3fabed7de0918a211b66394eb6c");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -765,10 +768,10 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "97af5a7a7b3fb1d39515a23bff29bf11a11f3b6c203f02d14d7662c23eaa66e5",
         "79a3a76a56dd2ff1c347306137340a8bacb5eddeb828ebc5ef55eaa5986fc663",
         "26cff36b8d306fa9e7dc48bb64853ff96d3896768c016e0da139133f9d2eb818",
-        "4110187031037e47b9a79e8c7acf35615fde32ea36ac2e608893828823aaa35a",
+        "e321c5db4e51770f00a2ecdd3d536cde452b41f0c6386c4e94936bb675e12ffd",
         "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b",
-        "e7583810e9f25719137620a4586a2a038c7dcef65b6e8e91f1287fc87a1788a3",
-        "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f",
+        "ad068ed5f3c9abef49da0041ba95e4ba210dd3fabed7de0918a211b66394eb6c",
+        "ac763579b94de43a2f9806a3209121fc3cf65a4ae0c74d494d58d8efe42f4422",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [

@@ -256,6 +256,7 @@ const PRODUCERS: &[(&str, &str, &str)] = &[
     ("PP/lib.rs", "push_exact_pressure_operands", "exact pressure: each source group's operand"),
     ("PP/lib.rs", "add_constant_effort_support_loads", "constant effort: one term per application"),
     ("PP/lib.rs", "add_connector_reference_loads", "T4-U3 (S13): each connector's +B^T K q_ref, one formed term per nonzero DOF"),
+    ("PP/lib.rs", "add_tie_rod_reference_loads", "T4-U5b (DEL-04-07 u4b-u5b-implementation.md §3.2): each tie rod's +C^T k e_ref, one formed term per DOF (none when e_ref = 0)"),
     ("PP/source_recovery.rs", "prepare_sources", "T1 site (section 4.5): the retained nodal terms, in a ledger compared with the actual force"),
     ("PP/source_recovery.rs", "close_load_state", "T1 site (section 4.5): the retained eigen terms, the same terms the product pushes"),
     // K-D5 (DEL-04-01 kd5-member-relative-bound.md §1): the live nodal
@@ -2027,6 +2028,12 @@ const FORMATION_SITES: &[(&str, &str, &[&str], Option<&[&str]>)] = &[
         "add_connector_reference_loads",
         "formed: T4-U3 connector +B^T K q_ref, Bounded from the held operands (S13), self-equilibrated",
         &["Formation::Bounded", "connector_reference_load_bound("],
+        Some(&["true"]),
+    ),
+    (
+        "add_tie_rod_reference_loads",
+        "formed: T4-U5b tie rod +C^T k e_ref, Bounded by K-D5's own enclosure of the authored operands (TieRod::reference_load), self-equilibrated",
+        &["Formation::Bounded", "load.bounds[index]"],
         Some(&["true"]),
     ),
 ];

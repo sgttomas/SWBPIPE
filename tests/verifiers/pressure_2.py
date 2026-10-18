@@ -38,7 +38,7 @@ numerical accuracy or model freshness):
   ``bend_cap_removed``, ``kink_remainder``), with signed ``p_pa``;
 - realized arcs: region and member keys, the bend term, junctions, withheld
   rows and arc signs;
-- objective connector records and their 24 rows per case;
+- objective connector records and their 24 rows per case, plus pe_x/s_x and (T4-U5b) one force row per tie rod;
 - model-scoped review rows, the evidence keys and the load/reference-state
   pre-pass of an envelope that carries the group;
 - B7b (A4/A5): the retired ``2.0.0/exact_straight_pressure_v2`` identities
@@ -50,6 +50,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from copy import deepcopy
+from fractions import Fraction
 import hashlib
 import json
 import math
@@ -66,10 +67,11 @@ PROFILE = "exact_pressure_v3"
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": CONTRACT_ID}
 TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
-# T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); 106 signatures over 59 kinds.
-TABLE_SHA256 = "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f"
-TABLE_SIGNATURE_COUNT = 106
-TABLE_KIND_COUNT = 59
+# T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force:
+# 107 signatures over 60 kinds.
+TABLE_SHA256 = "ac763579b94de43a2f9806a3209121fc3cf65a4ae0c74d494d58d8efe42f4422"
+TABLE_SIGNATURE_COUNT = 107
+TABLE_KIND_COUNT = 60
 
 # Refusals by name.
 CONTRACT_UNKNOWN = "SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"
@@ -121,6 +123,8 @@ CONNECTOR_KINDS = {
     "connector_endpoint_moment_v1": ("N*m", ("Mx", "My", "Mz"), ("end_i", "end_j")),
     "connector_pressure_force_v1": ("N", ("pe_x",), ("connector_local",)),
     "connector_effective_axial_force_v1": ("N", ("s_x",), ("connector_local",)),
+    # T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §3.3): one force row per tie rod, bound by row ID.
+    "connector_tie_rod_force_v1": ("N", ("t_r",), ("tie_rod",)),
 }
 CONNECTOR_ROWS_PER_CASE = 24
 CONNECTOR_ROW_BASIS = "objective_connector_v1;symmetric_midpoint_small_rotation_v1"
@@ -128,6 +132,10 @@ CONNECTOR_LOCAL_SIGN = "generalized coordinates of the connector frame Q: q - q_
 CONNECTOR_END_SIGN = "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
 CONNECTOR_RECORD = {"component_id", "topology", "replaced_pipe_id", "node_i", "node_j", "motion_basis", "connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global", "end_i_offset_local_m", "end_j_offset_local_m", "q_ref", "reference_state", "work_matrix", "calibration", "hardware", "pressure_model", "temperature_applicability", "installed_reference_temperature_k", "provenance"}
 CONNECTOR_MATRIX = {"representation", "coordinate_order", "translation_scale_m", "rotation_scale_rad", "coefficient_unit", "upper_triangle", "source_reference"}
+TIE_ROD_KIND = "connector_tie_rod_force_v1"
+TIE_ROD_BASIS = "recovered_from_tie_rod_extension_v1"
+TIE_ROD_SIGN = "tension positive along the rod axis: T_r = k_r(e - e_ref), e = n.(v_bj - v_bi) with n from the end-i attachment to the end-j attachment; e_ref < 0 is pretension"
+TIE_ROD_RECORD = {"id", "law", "offset_global_m", "stiffness_n_per_m", "reference_extension_m", "length_m", "direction_global", "axial_share", "source_reference"}
 
 # Realized-arc members of a pressure region. A region with an arc adds
 # ARC_REGION_KEYS; an arc member adds ARC_GEOMETRY_KEYS and its own applied-load
@@ -224,7 +232,7 @@ def validate_pressure_transport_metadata(source: Mapping[str, Any]) -> None:
 
 def verify_pressure_table(data: bytes) -> dict[str, Any]:
     """The reviewed ordinary pressure table (Rust `semantic_contract::verify_pressure_table`): its bytes, then its
-    identity, profile and counts (106 signatures, 59 kinds)."""
+    identity, profile and counts (107 signatures, 60 kinds)."""
     if hashlib.sha256(data).hexdigest() != TABLE_SHA256:
         raise ValueError("SOURCE_PRESSURE_TABLE_HASH")
     table = json.loads(data)
@@ -707,18 +715,76 @@ def _connector_matrix3(value: Any) -> bool:
     return isinstance(value, list) and len(value) == 3 and all(_vector(row, 3) for row in value)
 
 
+def _stable_suffix(value: str) -> str:
+    return value.replace(":", "-")
+
+
+def _tie_rod_tail(component: str, rod: str) -> str:
+    """A rod force row's base ID without ``result:`` (the producer's form)."""
+    return f"connector:{_stable_suffix(component)}:tie-rod-force:tie_rod:{_stable_suffix(rod)}:t_r"
+
+
+def _is_tie_rod_row_id(row_id: Any, case: str, tail: str) -> bool:
+    """The first case's row carries ``result:{tail}``; any other case's ``result:loadcase:{case}:{tail}``."""
+    return isinstance(row_id, str) and row_id in (f"result:{tail}", f"result:loadcase:{_stable_suffix(case)}:{tail}")
+
+
+def _tie_rods(record: Mapping[str, Any]) -> list[tuple[str, float]]:
+    """T4-U5b (§3.3, §5.1): a record's closed ``tie_rods`` entries, as (id, axial share). The axial share is
+    RN(n.Q_x), recomputed here from the published direction and the record's Q as an exact rational."""
+    rods = record.get("tie_rods")
+    _require(isinstance(rods, list) and rods, "connector tie-rod record")
+    ids: set[str] = set()
+    encoded: set[str] = set()
+    out = []
+    for rod in rods:
+        _shape(rod, TIE_ROD_RECORD, "connector tie-rod record")
+        _require(_text(rod["id"]) and rod["id"] not in ids and _stable_suffix(rod["id"]) not in encoded, "connector tie-rod duplicate")
+        ids.add(rod["id"])
+        encoded.add(_stable_suffix(rod["id"]))
+        offsets = rod["offset_global_m"]
+        _require(rod["law"] == "bilateral_linear" and isinstance(offsets, list) and len(offsets) == 2 and all(_vector(o, 3) for o in offsets)
+                 and _number(rod["stiffness_n_per_m"]) and rod["stiffness_n_per_m"] > 0 and _number(rod["reference_extension_m"])
+                 and _number(rod["length_m"]) and rod["length_m"] > 0 and _vector(rod["direction_global"], 3) and _text(rod["source_reference"]),
+                 "connector tie-rod record")
+        n = rod["direction_global"]
+        _require(abs(sum(v * v for v in n) - 1.0) <= 16 * math.ulp(1.0), "connector tie-rod direction")
+        axis = [record["connector_axes_global"][k][0] for k in range(3)]
+        share = rod["axial_share"]
+        _require(_number(share) and float(sum(Fraction(n[k]) * Fraction(axis[k]) for k in range(3))) == share, "connector tie-rod axial share")
+        out.append((rod["id"], share))
+    return out
+
+
+def _effective_axial_binding(s: float, g: float, pe: float, rods: list[tuple[float, float]]) -> bool:
+    """§5.1: |s_x - Sigma| <= (64 + n_r)eps(|g_x| + |Pe| + sum|t_r*share|) + (n_r + 2)*2^-1074, with
+    Sigma = g_x - Pe + sum_r RN(t_r*share_r) summed as exact rationals and rounded once."""
+    products = [t * share for t, share in rods]
+    if not all(math.isfinite(v) for v in [s, g, pe, *products]):
+        return False
+    try:
+        expected = float(Fraction(g) - Fraction(pe) + sum((Fraction(p) for p in products), Fraction(0)))
+    except OverflowError:
+        return False
+    coefficient = (64 + len(rods)) * math.ulp(1.0)
+    tolerance = coefficient * abs(g) + coefficient * abs(pe) + sum(coefficient * abs(p) for p in products) + (len(rods) + 2) * math.ulp(0.0)
+    return math.isfinite(tolerance) and abs(s - expected) <= tolerance
+
+
 def _validate_connectors(records: Any, regions: Any, rows: Mapping[str, Any], members: set[str], cases: set[str], solved: bool) -> None:
     """``contract_evidence.connector`` records and the rows bound to them."""
     _require(isinstance(records, list), "unsupported connector")
     spans: dict[str, str] = {}
     for record in records:
         constant = record.get("pressure_model") == "constant_effective_area_reference_v1"
-        _shape(record, CONNECTOR_RECORD | ({"effective_area_m2", "pressure_basis", "pressure_source_reference"} if constant else set()), "connector record shape")
+        tied = record.get("hardware") == "explicit_axial_rods_v1"
+        _require(not (record.get("hardware") == "untied" and "tie_rods" in record), "connector untied record with tie rods")
+        _shape(record, CONNECTOR_RECORD | ({"effective_area_m2", "pressure_basis", "pressure_source_reference"} if constant else set()) | ({"tie_rods"} if tied else set()), "connector record shape")
         if constant:
             _require(_number(record["effective_area_m2"]) and record["effective_area_m2"] > 0 and record["pressure_basis"] == "internal_differential_zero_external_v1" and _text(record["pressure_source_reference"]), "connector pressure model")
         _require(all(_text(record[k]) for k in ("component_id", "replaced_pipe_id", "node_i", "node_j", "provenance")) and record["node_i"] != record["node_j"], "connector record identity")
         _require(record["topology"] == "replaces_span" and record["motion_basis"] == "symmetric_midpoint_small_rotation_v1" and record["calibration"] == "constant_structural_elasticity_v1"
-                 and record["hardware"] == "untied" and record["pressure_model"] in {"unpressurized", "constant_effective_area_reference_v1"} and record["temperature_applicability"] == "fixed_installed_parameters_v1"
+                 and record["hardware"] in {"untied", "explicit_axial_rods_v1"} and record["pressure_model"] in {"unpressurized", "constant_effective_area_reference_v1"} and record["temperature_applicability"] == "fixed_installed_parameters_v1"
                  and record["reference_state"] in {"stress_free", "prestressed"}, "connector record law")
         _require(all(_connector_matrix3(record[k]) for k in ("connector_axes_global", "end_i_node_axes_global", "end_j_node_axes_global"))
                  and _vector(record["end_i_offset_local_m"], 3) and _vector(record["end_j_offset_local_m"], 3) and _vector(record["q_ref"], 6)
@@ -728,12 +794,15 @@ def _validate_connectors(records: Any, regions: Any, rows: Mapping[str, Any], me
                  and matrix["coordinate_order"] == ["tx", "ty", "tz", "rx", "ry", "rz"] and _number(matrix["translation_scale_m"]) and matrix["translation_scale_m"] > 0
                  and _number(matrix["rotation_scale_rad"]) and matrix["rotation_scale_rad"] == 1 and matrix["coefficient_unit"] == "N*m"
                  and _vector(matrix["upper_triangle"], 21) and _text(matrix["source_reference"]), "connector work matrix")
+        if tied:
+            _tie_rods(record)
         _require(record["component_id"] not in spans, "duplicate connector record")
         _require(record["replaced_pipe_id"] not in spans.values(), "duplicate connector replaced span")
         _require(record["replaced_pipe_id"] not in members, "connector replaced span published")
         spans[record["component_id"]] = record["replaced_pipe_id"]
     replaced = set(spans.values())
-    slots: set[tuple[str, str, str, str, str]] = set()
+    by_id = {record["component_id"]: record for record in records}
+    slots: set[tuple[str, str, str, str, str, str]] = set()
     counts: dict[tuple[str, str], int] = {}
     for row in rows.values():
         _require(row.get("entity_ref") not in replaced, "connector replaced span published")
@@ -746,18 +815,32 @@ def _validate_connectors(records: Any, regions: Any, rows: Mapping[str, Any], me
         metadata = row.get("metadata")
         _shape(metadata, {"component", "coordinate_system", "location", "basis", "sign_convention"}, "connector metadata shape")
         local = metadata["location"] == "connector_local"
+        rod = kind == TIE_ROD_KIND
         _require(row.get("unit") == unit and metadata["component"] in components and metadata["location"] in locations
-                 and metadata["coordinate_system"] == ("connector_axes_q" if local else "global")
-                 and metadata["basis"] == CONNECTOR_ROW_BASIS
-                 and metadata["sign_convention"] == (CONNECTOR_LOCAL_SIGN if local else CONNECTOR_END_SIGN), "connector row semantics")
+                 and metadata["coordinate_system"] == ("element_local" if rod else "connector_axes_q" if local else "global")
+                 and metadata["basis"] == (TIE_ROD_BASIS if rod else CONNECTOR_ROW_BASIS)
+                 and metadata["sign_convention"] == (TIE_ROD_SIGN if rod else CONNECTOR_LOCAL_SIGN if local else CONNECTOR_END_SIGN), "connector row semantics")
         case = row["basis_ref"]["ref_id"]
         _require(case in cases, "connector row case")
-        slot = (case, row["entity_ref"], kind, metadata["component"], metadata["location"])
+        rod_id = ""
+        if rod:
+            entries = by_id[row["entity_ref"]].get("tie_rods") or []
+            bound = [entry["id"] for entry in entries if isinstance(entry, Mapping) and _is_tie_rod_row_id(row.get("id"), case, _tie_rod_tail(row["entity_ref"], entry["id"]))]
+            _require(len(bound) == 1, "connector tie-rod row unbound")
+            rod_id = bound[0]
+        slot = (case, row["entity_ref"], kind, metadata["component"], metadata["location"], rod_id)
         _require(slot not in slots, "duplicate connector row")
         slots.add(slot)
         counts[(case, row["entity_ref"])] = counts.get((case, row["entity_ref"]), 0) + 1
     if solved:
-        _require(all(counts.get((case, record["component_id"])) == CONNECTOR_ROWS_PER_CASE + (2 if record["pressure_model"] == "constant_effective_area_reference_v1" else 0) for case in cases for record in records), "connector row coverage")
+        for record in records:
+            constant = record["pressure_model"] == "constant_effective_area_reference_v1"
+            rod_ids = [entry["id"] for entry in record.get("tie_rods") or []]
+            for case in cases:
+                # A rod record without its rows is refused by name (§5.1).
+                _require(all((case, record["component_id"], TIE_ROD_KIND, "t_r", "tie_rod", rid) in slots for rid in rod_ids), "connector tie-rod rows missing")
+                expected = CONNECTOR_ROWS_PER_CASE + int(constant) + int(constant or bool(rod_ids)) + len(rod_ids)
+                _require(counts.get((case, record["component_id"])) == expected, "connector row coverage")
     _joint_pressure_bindings(records, regions, rows, cases, solved)
 
 
@@ -806,15 +889,28 @@ def _joint_pressure_bindings(records: Any, regions: Any, rows: Mapping[str, Any]
             for case in cases:
                 lookup = lambda kind, component: next((row for row in rows.values() if row["entity_ref"] == record["component_id"] and row["kind"] == kind and row["metadata"]["component"] == component and row["basis_ref"]["ref_id"] == case), None)
                 pe_row, s_row = lookup("connector_pressure_force_v1", "pe_x"), lookup("connector_effective_axial_force_v1", "s_x")
+                rods = _tie_rods(record) if record["hardware"] == "explicit_axial_rods_v1" else []
                 if record["pressure_model"] == "unpressurized":
-                    _require(pe_row is None and s_row is None, "unpressurized joint pressure rows")
-                    continue
-                edge = participation.get((case, record["component_id"]))
-                pe = edge["joint_pressure_force_n"] if edge else 0.0
+                    # T4-U5b: keyed on hardware; with rods s_x is the face axial force (Pe = 0), never pe_x.
+                    _require(pe_row is None and (s_row is not None) == bool(rods), "unpressurized joint pressure rows")
+                    if not rods:
+                        continue
+                    pe = 0.0
+                else:
+                    edge = participation.get((case, record["component_id"]))
+                    pe = edge["joint_pressure_force_n"] if edge else 0.0
+                    _require(pe_row is not None, "joint pressure rows missing")
+                    _require(pe_row["value"] == pe, "joint pressure row binding")
                 gx = lookup("connector_generalized_force_v1", "gt_x")
-                _require(pe_row is not None and s_row is not None and gx is not None, "joint pressure rows missing")
-                _require(pe_row["value"] == pe, "joint pressure row binding")
-                _require(_joint_projection(s_row["value"], gx["value"] - pe, gx["value"], pe, 1), "joint effective row binding")
+                _require(s_row is not None and gx is not None, "joint pressure rows missing")
+                terms = []
+                for rid, share in rods:
+                    tail = _tie_rod_tail(record["component_id"], rid)
+                    t_row = next((row for row in rows.values() if row["kind"] == TIE_ROD_KIND and row["entity_ref"] == record["component_id"]
+                                  and row["basis_ref"]["ref_id"] == case and _is_tie_rod_row_id(row.get("id"), case, tail)), None)
+                    _require(t_row is not None and _number(t_row["value"]), "connector tie-rod rows missing")
+                    terms.append((t_row["value"], share))
+                _require(_effective_axial_binding(s_row["value"], gx["value"], pe, terms), "joint effective row binding")
 
 
 def _temperature_basis(basis: Any, case_basis: str, material_id: str) -> None:
