@@ -52,6 +52,8 @@ mod u4b_tests;
 mod b7b_admission_tests;
 #[cfg(test)]
 mod tie_rod_tests;
+#[cfg(test)]
+mod corrected_displacement_tests;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 pub use open_pipe_stress_curved_bend::{arc_geometry, kink, ArcFrame, TANGENCY_TOLERANCE_RAD};
@@ -1105,8 +1107,8 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
         preview_formulation_basis()
     };
     basis.limitations.extend([
-        "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).".to_string(),
-        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
+        "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).".to_string(),
+        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). On such a load case each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; on any other load case the published displacements are the solve's own. Support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
     ]);
     basis
 }
@@ -5354,13 +5356,27 @@ fn solve_prepared_load_case(
     let certified_source = member_bound.map(|_| certified_publication::source(built, certified_force, spring_entries));
     let mut recovery_records = Vec::new();
     require_finite_mechanics(displacements.iter().copied())?;
+    let published_displacements = published_nodal_displacements(&displacements, member_bound);
+    // The nonlinear supports' final-displacement rows state the node's
+    // displacement at the support DOF: with the bound they carry the same
+    // published (corrected) value as the nodal row.
+    if member_bound.is_some() {
+        for support in &built.nonlinear_supports {
+            let global = support.node_index * DOF_PER_NODE + dof_index(support.dof);
+            let id = format!("result:nonlinear-support:{}:{}-displacement", stable_suffix(&support.support_id), support.dof.as_str());
+            let scale = if support.dof.is_translational() { 1000.0 } else { 1.0 };
+            if let Some(row) = results.iter_mut().find(|row| row.id == id) {
+                row.value = published_displacements[global] * scale;
+            }
+        }
+    }
     let mut max_displacement = None;
     for node in &model.nodes {
         let node_index = node_index(&model, &node.id).unwrap();
         let magnitude_mm = selected_source.as_ref().map(|recovery| {
             let values = &recovery.published_nodal_components()[node_index * DOF_PER_NODE..];
             norm3(values[0], values[1], values[2])
-        }).unwrap_or_else(|| displacement_magnitude_mm(&displacements, node_index));
+        }).unwrap_or_else(|| displacement_magnitude_mm(&published_displacements, node_index));
         let result_id = format!("result:disp:{}", stable_suffix(&node.id));
         if max_displacement
             .as_ref()
@@ -5396,7 +5412,7 @@ fn solve_prepared_load_case(
         append_node_displacement_component_results(
             &mut results,
             &node.id,
-            &displacements,
+            &published_displacements,
             node_index,
         );
         if let Some(recovery) = &selected_source {
@@ -5567,7 +5583,7 @@ fn solve_prepared_load_case(
         &mut results,
         diagnostics,
         model,
-        &displacements,
+        &published_displacements,
         load_case,
     );
 
@@ -14009,6 +14025,28 @@ fn solver_blocked(
         vec!["model".to_string()],
     ));
     blocked_envelope(model, diagnostics)
+}
+
+/// T4-U5b item 6 (HELP_HUMAN ruling (A), 2026-10-18): the published nodal
+/// displacement. When the load case's certified member bound exists (the
+/// linear route's Passed formation check after every prior guard with no
+/// load-row finding, no nonlinear supports and no selected retained source,
+/// or a confirmed nonlinear state), each component is the formation check's
+/// corrected displacement u + w + w2, summed exactly and rounded once
+/// (`certify_displacement`'s published value). Otherwise, and for every
+/// component if any of them cannot be formed, it is the solve's own u.
+/// Member, support and connector recoveries already use u + w + w2.
+fn published_nodal_displacements(displacements: &[f64], member_bound: Option<&MemberBoundInputs>) -> Vec<f64> {
+    use open_pipe_stress_frame_kernel::structural::certify_displacement;
+    member_bound
+        .and_then(|bound| {
+            (0..displacements.len())
+                .map(|dof| certify_displacement(dof, displacements, bound).map(|row| row.published))
+                .collect::<Result<Vec<_>, _>>()
+                .ok()
+        })
+        .filter(|corrected| corrected.iter().all(|v| v.is_finite()))
+        .unwrap_or_else(|| displacements.to_vec())
 }
 
 /// E15: the correctly rounded norm of the node's published mm components
