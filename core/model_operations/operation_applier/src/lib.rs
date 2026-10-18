@@ -1492,8 +1492,22 @@ fn run_with_context(
                         for (segments, value) in &edit.writes {
                             if let Some(value) = value {
                                 written &= write_value_creating_path(target, segments, value);
-                            } else if segments.len() == 1 {
-                                target.as_object_mut().unwrap().remove(&segments[0]);
+                            } else if let Some((last, parents)) = segments.split_last() {
+                                // Removal: an absent parent has nothing to remove;
+                                // a non-object on the way is malformed.
+                                let mut parent = Some(&mut *target);
+                                for segment in parents {
+                                    parent = match parent {
+                                        Some(Value::Object(map)) => map.get_mut(segment),
+                                        Some(_) => { written = false; None }
+                                        None => None,
+                                    };
+                                }
+                                match parent {
+                                    Some(Value::Object(map)) => { map.remove(last); }
+                                    Some(_) => written = false,
+                                    None => {}
+                                }
                             } else {
                                 written = false;
                             }
