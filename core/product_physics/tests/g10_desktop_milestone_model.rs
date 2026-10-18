@@ -32,8 +32,8 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// desktop crate's `solves_hand_the_desktop_the_producers_exact_bytes` with
 /// `G10_DESKTOP_RESULT_OUT`).
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 80786, "705d55de6746acc2efc96e7e9f21e7f2d6542a485e33bbaaa4081699bb3d7dfa"),
-    ("dense_scrutiny", 80810, "ee8ebcbe96ed597fadf5c9d36aebc5c2bfde11527006970f4f08d1ac5232ca0f"),
+    ("sparse_interactive", 80884, "d599dd9a3f6482743acc9076de157796ec41e3c86335884835b9c56f42cafae3"),
+    ("dense_scrutiny", 80908, "cd9812a90e8f85ad050456aa26621bf17cf7b0ca9c64c4d2e215292b115137a2"),
 ];
 /// Fields of the request's model entries that receive a `label` equal to their `id`.
 const LABELLED: [&str; 4] = ["materials", "nodes", "pipe_segments", "supports"];

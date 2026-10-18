@@ -191,3 +191,45 @@ fn an_unformable_component_falls_back_for_the_whole_case() {
     assert_eq!(published_nodal_displacements(&[1.0, 2.0], Some(&short)), [1.0, 2.0]);
     assert_eq!(published_nodal_displacements(&u, None), u);
 }
+
+/// Codex's item-6 round-2 scrutiny: the as-built rule through the product's
+/// output writers, on its counterexample u = 1 m, w = 2^-53, w2 = 2^-130 at
+/// UX. The corrected displacement is rounded once in SI (1 + 2^-52 m), then
+/// the nodal row and the nonlinear support's displacement row convert it to
+/// mm as every row is: RN(1000 * RN_SI(u + w + w2)) = 1000.0000000000002 mm,
+/// not the single rounding of the converted exact sum (1000.0000000000001 mm).
+/// The magnitude is the correctly rounded norm of the three published mm rows.
+#[test]
+fn published_mm_rows_convert_the_si_corrected_displacement() {
+    let mut u = vec![0.0; DOF_PER_NODE];
+    u[UX] = 1.0;
+    let mut bound = MemberBoundInputs { w: vec![0.0; DOF_PER_NODE], w2: vec![0.0; DOF_PER_NODE], exponents: vec![0; DOF_PER_NODE], lambda_sigma: 0.0 };
+    bound.w[UX] = 2.0_f64.powi(-53);
+    bound.w2[UX] = 2.0_f64.powi(-130);
+    let published = published_nodal_displacements(&u, Some(&bound));
+    assert_eq!(published[UX].to_bits(), (1.0 + 2.0_f64.powi(-52)).to_bits(), "rounded once in SI");
+    let as_built = 1000.0 * published[UX];
+    let single = {
+        let mut sum = ExactAccumulator::new();
+        for v in [1000.0, 1000.0 * 2.0_f64.powi(-53), 1000.0 * 2.0_f64.powi(-130)] { sum.add(v).unwrap(); }
+        sum.round().unwrap()
+    };
+    assert_eq!((as_built, single), (1000.0000000000002, 1000.0000000000001), "the two roundings differ here");
+    let mut results = Vec::new();
+    append_node_displacement_component_results(&mut results, "node:N", &published, 0);
+    let row = |id: &str| results.iter().find(|r| r.id == id).unwrap().value;
+    assert_eq!(row("result:disp:node-N:ux").to_bits(), as_built.to_bits(), "nodal row");
+    assert_eq!(displacement_magnitude_mm(&published, 0).to_bits(), norm3(row("result:disp:node-N:ux"), row("result:disp:node-N:uy"), row("result:disp:node-N:uz")).to_bits());
+    let support = NonlinearSupport {
+        support_id: "support:NL".to_string(),
+        node_index: 0,
+        dof: FrameDof::Ux,
+        behavior: NonlinearSupportBehavior::OneWay { active_when: ActivationSense::PositiveReaction },
+        gap: None,
+        friction_coefficient: None,
+    };
+    let id = format!("result:nonlinear-support:{}:{}-displacement", stable_suffix("support:NL"), FrameDof::Ux.as_str());
+    let mut support_rows = vec![ResultItem { id: id.clone(), value: 0.0, ..results[0].clone() }];
+    restate_nonlinear_support_displacements(&mut support_rows, &[support], &published);
+    assert_eq!(support_rows[0].value.to_bits(), as_built.to_bits(), "nonlinear support row");
+}

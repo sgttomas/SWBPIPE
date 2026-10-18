@@ -1108,7 +1108,7 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
     };
     basis.limitations.extend([
         "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).".to_string(),
-        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
+        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
     ]);
     basis
 }
@@ -5373,14 +5373,7 @@ fn solve_prepared_load_case(
     // displacement at the support DOF: with the bound they carry the same
     // published (corrected) value as the nodal row.
     if member_bound.is_some() {
-        for support in &built.nonlinear_supports {
-            let global = support.node_index * DOF_PER_NODE + dof_index(support.dof);
-            let id = format!("result:nonlinear-support:{}:{}-displacement", stable_suffix(&support.support_id), support.dof.as_str());
-            let scale = if support.dof.is_translational() { 1000.0 } else { 1.0 };
-            if let Some(row) = results.iter_mut().find(|row| row.id == id) {
-                row.value = published_displacements[global] * scale;
-            }
-        }
+        restate_nonlinear_support_displacements(&mut results, &built.nonlinear_supports, &published_displacements);
     }
     let mut max_displacement = None;
     for node in &model.nodes {
@@ -14045,7 +14038,9 @@ fn solver_blocked(
 /// finding, no nonlinear supports and no selected retained source, or a
 /// confirmed nonlinear state), each component is the formation check's
 /// corrected displacement u + w + w2, summed exactly and rounded once
-/// (`certify_displacement`'s published value). That holds also when the
+/// (`certify_displacement`'s published value), in SI units; each row then
+/// converts it to its unit as every row is (mm translations round once more).
+/// That holds also when the
 /// later member recovery predicate (R-b') reports the case Sensitive: the
 /// bound existed. Otherwise, and for every component if any of them cannot
 /// be formed, it is the solve's own u. A selected retained source publishes
@@ -14062,6 +14057,21 @@ fn published_nodal_displacements(displacements: &[f64], member_bound: Option<&Me
         })
         .filter(|corrected| corrected.iter().all(|v| v.is_finite()))
         .unwrap_or_else(|| displacements.to_vec())
+}
+
+/// T4-U5b item 6: each nonlinear support's final-displacement row restates
+/// the node's published SI displacement at the support DOF, converted to the
+/// row's unit as every row is (`* 1000` for a translation in mm, one more
+/// rounding; rotations in rad are unscaled).
+fn restate_nonlinear_support_displacements(results: &mut [ResultItem], supports: &[NonlinearSupport], published: &[f64]) {
+    for support in supports {
+        let global = support.node_index * DOF_PER_NODE + dof_index(support.dof);
+        let id = format!("result:nonlinear-support:{}:{}-displacement", stable_suffix(&support.support_id), support.dof.as_str());
+        let scale = if support.dof.is_translational() { 1000.0 } else { 1.0 };
+        if let Some(row) = results.iter_mut().find(|row| row.id == id) {
+            row.value = published[global] * scale;
+        }
+    }
 }
 
 /// E15: the correctly rounded norm of the node's published mm components
