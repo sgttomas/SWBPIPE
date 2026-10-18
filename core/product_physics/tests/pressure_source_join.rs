@@ -445,7 +445,16 @@ fn v3_rescued_cases_publish_pressure_source() {
 /// Design `u4b-u5b-implementation.md` §1.4): against the previous pins exactly
 /// four leaves of each publication changed, all digests of the captured 0.6.0
 /// invocation: the invocation value, the normalized-source and functional-plan
-/// hashes and the receipt hash; every length is unchanged.
+/// hashes and the receipt hash; every length is unchanged. Re-pinned for
+/// T4-U4b S4 (DEL-04-07 Design `u4b-u5b-implementation.md` §4.3): every case
+/// of a source publication publishes its straight members' σ⁺, σ⁻ and τ_v,max
+/// (fifteen rows per member on each basis, formed from its published rows),
+/// treated `derived_not_qualified` on the selected case and
+/// `ordinary_physics_checked` on an ordinary-method case. Against the previous
+/// pins every earlier row and treatment is unchanged and exactly five other
+/// leaves of each publication changed: the selected case's, the invocation's
+/// and the publication's charges (the new rows' work) and the receipt and
+/// publication hashes; every length grows by the new rows and treatments.
 const CURRENT_SOURCE_BASIS: [(Family, &str, &str, PreviewSolverMode, usize, &str); 24] = [
     (Family::Physics, "n05", "90c1edab9cbf5c7caa2d2072cea6484be1681eabac8c8f48d053342dcc7f4efb", PreviewSolverMode::SparseInteractive, 188795, "42b418d3ed51f6b5733ce5b6340115230564a357bf43dd285ee45988e3ad3ebe"),
     (Family::Physics, "n05", "90c1edab9cbf5c7caa2d2072cea6484be1681eabac8c8f48d053342dcc7f4efb", PreviewSolverMode::DenseScrutiny, 188796, "850d8d0055319f8bff828e166aa76abc7d0b350a613f3b0f17798d32642fe092"),

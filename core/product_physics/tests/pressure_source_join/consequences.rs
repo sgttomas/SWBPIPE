@@ -524,6 +524,102 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
     }
     check_export_binds_the_received_receipt(source, &invocation["request"]["model"], &prefix);
 }
+/// T4-U4b S4 round 2 (§4.3, §5.1): the composite reader recomputes every
+/// straight member's derived rows on every case, so each statement below is
+/// refused by name though its publication and receipt are resealed. Each
+/// change is made on both bases at once (end i), so the bit-equal twin rule of
+/// these coincident sections passes and the derived-row checks are reached:
+/// - τ one ulp up on the selected (source-recovered) case;
+/// - σ⁺, and separately τ, one ulp up on an ordinary-method case;
+/// - the station's σ⁺, σ⁻ and τ deleted on the selected case together with
+///   their receipt treatments (coverage, not the receipt, finds the hole).
+fn add_u4b_entries(control: &Control, entries: &mut Vec<Value>) {
+    const EXACT: &str = "retained_source_blocks_exact_v1";
+    const EXTREME: &str = "element_local_normal_stress_extreme";
+    const SHEAR_MAX: &str = "element_local_transverse_shear_stress_maximum";
+    const BASES: [&str; 2] = ["nominal_section", "reduced_section"];
+    let prefix = format!("{}:{}:{}", control.family.name(), control.name, control.mode.as_str());
+    let source = &control.joined.source;
+    let cases = source["source_block_recovery"]["body"]["cases"].as_array().unwrap();
+    let case_of = |exact: bool| {
+        cases.iter().find(|c| (c["selected_method"] == EXACT) == exact).map(|c| c["basis_ref"]["ref_id"].as_str().unwrap().to_owned())
+    };
+    let rows_at = |doc: &Value, case: &str, kind: &str, component: &str| -> Vec<usize> {
+        BASES.iter().map(|basis| doc["results"].as_array().unwrap().iter().position(|r| {
+            r["basis_ref"]["ref_id"] == case && r["kind"] == kind && r["metadata"]["component"] == component
+                && r["metadata"]["location"] == "end_i" && r["metadata"]["basis"].as_str().unwrap().ends_with(&format!("; section_basis={basis}"))
+        }).unwrap_or_else(|| panic!("{prefix}: {case} {kind} {component} {basis}"))).collect()
+    };
+    let mut refused = |id: &str, doc: &Value, code: &str| {
+        entries.push(corpus_entry(format!("{prefix}:{id}"), doc, &control.invocation, "pressure-source", Some(code), None,
+            DispatchDisposition::PressureFinding(code)));
+    };
+    let tamper = |case: &str, kind: &str, component: &str| {
+        let mut doc = source.clone();
+        for at in rows_at(&doc, case, kind, component) {
+            let value = doc["results"][at]["value"].as_f64().unwrap();
+            doc["results"][at]["value"] = json!(value.next_up());
+        }
+        reseal_publication(&mut doc);
+        doc
+    };
+    let selected = case_of(true).unwrap();
+    refused("U4B-selected-tau-both-bases", &tamper(&selected, SHEAR_MAX, "tau_v_max"), "SOURCE_PHYSICS_SHEAR_VALUE");
+    if let Some(ordinary) = case_of(false) {
+        refused("U4B-ordinary-sigma-plus-both-bases", &tamper(&ordinary, EXTREME, "sigma_plus"), "SOURCE_PHYSICS_EXTREME_VALUE");
+        refused("U4B-ordinary-tau-both-bases", &tamper(&ordinary, SHEAR_MAX, "tau_v_max"), "SOURCE_PHYSICS_SHEAR_VALUE");
+    }
+    let mut deleted = source.clone();
+    let ids: Vec<Value> = [(EXTREME, "sigma_plus"), (EXTREME, "sigma_minus"), (SHEAR_MAX, "tau_v_max")]
+        .iter()
+        .flat_map(|(kind, component)| rows_at(&deleted, &selected, kind, component))
+        .map(|at| deleted["results"][at]["id"].clone())
+        .collect();
+    deleted["results"].as_array_mut().unwrap().retain(|r| !ids.contains(&r["id"]));
+    let mut removed = 0;
+    for case in deleted["source_block_recovery"]["body"]["cases"].as_array_mut().unwrap() {
+        let rows = case["rows"].as_array_mut().unwrap();
+        let before = rows.len();
+        rows.retain(|t| !ids.contains(&t["result_id"]));
+        removed += before - rows.len();
+    }
+    assert_eq!(removed, 6, "{prefix}: the six treatments go with their rows");
+    reseal_publication(&mut deleted);
+    refused("U4B-derived-rows-and-treatments-deleted", &deleted, "SOURCE_PHYSICS_EXTREME_COVERAGE");
+    // S4 round 3: a false `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN` (the composite's ν is always
+    // in domain) appended for one member, whose ten τ rows (five stations, both bases) are deleted
+    // with their treatments, on each recovery method's case: the warning is refused by name
+    // rather than exempting the member's τ coverage.
+    let mut false_warning = |label: &str, case: &str| {
+        let mut doc = source.clone();
+        let member = doc["results"].as_array().unwrap().iter().find(|r| r["basis_ref"]["ref_id"] == case && r["kind"] == SHEAR_MAX)
+            .map(|r| r["entity_ref"].as_str().unwrap().to_owned()).unwrap_or_else(|| panic!("{prefix}: {case} τ"));
+        let ids: Vec<Value> = doc["results"].as_array().unwrap().iter()
+            .filter(|r| r["basis_ref"]["ref_id"] == case && r["kind"] == SHEAR_MAX && r["entity_ref"] == member.as_str())
+            .map(|r| r["id"].clone()).collect();
+        assert_eq!(ids.len(), 10, "{prefix}: {case} {member}: five stations on both bases");
+        doc["results"].as_array_mut().unwrap().retain(|r| !ids.contains(&r["id"]));
+        let mut removed = 0;
+        for c in doc["source_block_recovery"]["body"]["cases"].as_array_mut().unwrap() {
+            let rows = c["rows"].as_array_mut().unwrap();
+            let before = rows.len();
+            rows.retain(|t| !ids.contains(&t["result_id"]));
+            removed += before - rows.len();
+        }
+        assert_eq!(removed, 10, "{prefix}: the ten treatments go with their rows");
+        doc["diagnostics"].as_array_mut().unwrap().push(json!({
+            "id": format!("diagnostic:transverse-shear:{case}:{member}:poisson"),
+            "code": "TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN", "severity": "warning",
+            "message": format!("member {member} has nu = 0.75 outside -1 < nu < 1/2, where the Saint-Venant transverse-shear field is defined; no transverse-shear maximum is published for it in {case}"),
+            "source": "core/product_physics", "affected_refs": [case, member]}));
+        reseal_publication(&mut doc);
+        refused(&format!("U4B-false-poisson-warning-tau-deleted-{label}"), &doc, "SOURCE_PHYSICS_POISSON_DOMAIN_WARNING");
+    };
+    false_warning("selected", &selected);
+    if let Some(ordinary) = case_of(false) {
+        false_warning("ordinary-method", &ordinary);
+    }
+}
 /// RF source-method extension §7 (readers judge a receipt against the current
 /// producer, which solves exact blocks of order up to 4). On a genuine
 /// control, each receipt resealed so that only the named statement is wrong:
@@ -777,6 +873,7 @@ fn pressure_source_controls_keep_exact_work_and_current_bytes() {
     assert_eq!(controls.len(), 24);
     for control in &controls {
         add_control_entries(control, &mut entries);
+        add_u4b_entries(control, &mut entries);
         if control.name == "mixed" {
             add_rf_receipt_entries(control, &mut entries);
         }
@@ -951,13 +1048,13 @@ fn pressure_source_raw_fixture_path_guard_refuses_before_read() {
 #[test]
 fn pressure_source_corpus_cache_shares_one_strict_expansion() {
     let corpus = read_corpus();
-    assert_eq!(corpus["entries"].as_array().unwrap().len(), 364);
+    assert_eq!(corpus["entries"].as_array().unwrap().len(), 454);
     for _ in 0..8 { assert!(std::ptr::eq(corpus, read_corpus())); }
     std::thread::scope(|scope| {
         let readers: Vec<_> = (0..8).map(|_| scope.spawn(read_corpus)).collect();
         for reader in readers { assert!(std::ptr::eq(corpus, reader.join().unwrap())); }
     });
-    println!("pressure_source_corpus_cache=one_shared_immutable_value,364entries");
+    println!("pressure_source_corpus_cache=one_shared_immutable_value,454entries");
 }
 fn check_corpus_entry(entry: &Value) {
     let source = &entry["source"];

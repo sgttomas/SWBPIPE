@@ -1115,9 +1115,11 @@ pub(crate) fn validate_physics_evidence_in(
             require(bound_results.contains(id), "PRESSURE_ROW_UNBOUND")?;
         }
     }
-    if !composite {
-        u4b_cases(source, evidence, &rows, &case_sections, &marked_arcs, &arc_extrema)?;
-    }
+    // T4-U4b (§5.1; S4 round 2): the station checks run on the pressure-source-1
+    // composite too (straight members only: σ±, τ from the case's ν and basis
+    // sections, and station × basis coverage), for exact-recovered and
+    // ordinary-method cases alike.
+    u4b_cases(source, evidence, &rows, &case_sections, &marked_arcs, &arc_extrema, composite)?;
     for case in array(&evidence["exact_cases"])? {
         assembly(
             &case["pressure_rhs_assembly"],
@@ -1146,16 +1148,24 @@ fn u4b_cases(
     case_sections: &HashMap<(&str, &str), crate::section_basis::Sections>,
     marked_arcs: &HashSet<&str>,
     arc_extrema: &[(&str, &str, &str, &Value, &Value)],
+    composite: bool,
 ) -> Check {
     use crate::u4b_evidence as u;
     let route = u::Route::Exact;
     let results = array(&source["results"])?;
     let index = u::Index::new(results, route)?;
     let diagnostics = array(&source["diagnostics"])?;
+    // S4 round 3: a pressure-source-1 composite's materials require -1 < ν < 1/2
+    // (`material_in`), so `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN` can never
+    // name one of its members: on the composite the warning is refused by name
+    // and exempts nothing, so every member's τ coverage is checked.
+    if composite {
+        require(!diagnostics.iter().any(|d| d["code"] == u::POISSON_OUT_OF_DOMAIN), "POISSON_DOMAIN_WARNING")?;
+    }
     let mut covers: HashMap<(&str, &str, String), Vec<f64>> = HashMap::new();
     for case in array(&evidence["exact_cases"])? {
         let case_id = text(&case["load_case_id"])?;
-        let exempt = u::poisson_exempt(diagnostics, case_id);
+        let exempt = if composite { HashSet::new() } else { u::poisson_exempt(diagnostics, case_id) };
         let materials = indexed(&case["pipe_materials"], "pipe_id")?;
         // The case's pressurized arcs: (p, R) from their region.
         let mut pressurized: HashMap<&str, (f64, f64)> = HashMap::new();

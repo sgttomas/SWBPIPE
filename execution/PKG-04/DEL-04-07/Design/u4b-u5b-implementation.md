@@ -892,6 +892,15 @@ passthrough, not a numerical recovery recipe:
   own published rows, by the same binary64 formula as on the ordinary route
   (§§2.3–2.4; the owner's Q2 decision, below). Nothing is recovered, and nothing is bound to a
   certificate.
+- **Binding (as built, S4).** Each derived row binds its `NotCovered` recipe at its own
+  position, so the passthrough does not depend on row order. Derived rows are not paired as
+  basis twins, are not hull-projected and do not enter the G5b overlay; the readers exclude
+  them by kind, and a relabelled row still meets the signature and metadata checks. Route L
+  forms c_b from the model section (d = D − 2t, I = π(D⁴ − d⁴)/64, r_o = D/2), which reproduces
+  the ordinary route's section bit for bit. Route E forms it from the captured evidence.
+- **Reading (as built, S4).** On route L the retained readers run the preview model checks on
+  the projection with the captured invocation's model, at G7, so τ is recomputed inside the
+  shipped retained entry. Route E's G7 base read already recomputes it from the evidence.
 - **Receipt.** The receipt lists the rows under `not_covered` exactly as other `not_covered`
   rows, with no bound. The reader checks their custody (identity, unit, metadata, member and
   basis coverage) and, under (ii), recomputes them from the successor's published operands
@@ -913,7 +922,9 @@ failed-ordinary successor has no ordinary rows (`retained_product.rs` around :44
 
 **The failed-ordinary path (N06 and CX-F).** `failed_manifest` gains the derived rows in the
 row order of preview-physics-2, as placeholders. Its fixed per-member count `FAILED_MEMBER_ROWS`
-goes from 51 to 66 (15 per member: σ⁺, σ⁻ and τ at five stations; `retained_product.rs` around
+goes from 51 to 66 (15 per member: σ⁺, σ⁻ and τ at five stations; a member whose preview ν is
+out of domain omits τ and carries `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN`, as the ordinary
+path does; `retained_product.rs` around
 :275–278 and :4500), and the change is priced. The freeze replaces them, after projection, with
 values formed from the projected resultants. They are `not_covered` there too. The maintained
 N06 and CX-F successors are regenerated and stay selected, bound and eligible
@@ -965,6 +976,10 @@ publication's published rows (§4.1, Q2).
     `inspection_only` physical row;
   - the Rust reader and the verifier admit it for those kinds only. They leave `usable` unchanged
     by it: such a row neither qualifies the case nor disqualifies it. They recompute it (§5.1).
+  - As built (S4): the composite readers run the straight-member U4b checks on every published
+    case, exact-recovered and ordinary-method alike, recomputing σ± and τ and checking station ×
+    basis coverage. Derived rows on an ordinary-method case keep that case's
+    `ordinary_physics_checked` treatment.
 - **Its exact shape.** `projection_id` is null. `recipe_id` is one of the two formula recipes.
   `input_result_ids` are exactly the station rows the formula reads.
   The two recipes are not `derived_recipes` and carry no REQ-002 check.

@@ -42,8 +42,10 @@ DEPENDENCIES = {
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
     # then model 0.6.0: the reader's comments name pressure-2 (comment text only; was f91e678e...);
     # then T4-U4b: the section stress, toroidal, arc maximum and directional rows (was 8a79bfcf...);
-    # then T4-U4b S4 (§4.3): the composite admits the straight σ±/τ signatures of a selected source case (was 79ec35b3...).
-    MODULE: '4bc56deaa3f4956e427709f3250e9dd8fe6b2581f405e56db41d095f57ce7779',
+    # then T4-U4b S4 (§4.3): the composite admits the straight σ±/τ signatures of a selected source case (was 79ec35b3...);
+    # then S4 round 2: the composite recomputes every straight member's σ±/τ and their coverage (was 4bc56dea...);
+    # then S4 round 3: the composite refuses TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN by name (was 52a15bec...).
+    MODULE: '20337f1c1bd456bbc9661ce72b007bdc2cc1e9749d78cc9f8e3099dd6c66257b',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
