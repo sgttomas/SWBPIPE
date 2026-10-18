@@ -76,8 +76,9 @@ TABLE_SHA256 = physics.TABLE_SHA256
 # load/reference-state pre-pass is `load_reference::validate_pressure_load_reference_evidence`. Re-pin
 # deliberately whenever the owned reader source changes (B7b: was ce039fc8..., the retired reader's source).
 MODULE = 'core/reporting/result_export/src/load_reference.rs'
-# Model 0.6.0 re-pin: the reader's comments name pressure-2 (comment text only; was c0c75a5d...).
-MODULE_SHA256 = '110bb76fe3633f8e01612c55ecc545907bfd4eacd45f4b502b23e5ef6bdc92c0'
+# Model 0.6.0 re-pin: the reader's comments name pressure-2 (comment text only; was c0c75a5d...); T4-U4b re-pin:
+# the case shape admits `intensified_measures` (was 110bb76f...).
+MODULE_SHA256 = '7045c5b03be81bb78831a1bb80e538ea7bf7fe6764b49b6146f04c63848af6fe'
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: MODULE_SHA256,

@@ -83,7 +83,8 @@ IDENTITY_SCOPE = 'identity: the package document is already current and is submi
 TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
 # B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables"; O-10): pressure-2's own reviewed
 # resident table; the former pin 07a6a308... named the table before its re-issue. T4-U6 (D-5, §2.4) re-issued it
-# with one stress signature per (recovery token x section basis): 106 signatures, 59 kinds (B7b's was a4e3bf2c...).
+# with one stress signature per (recovery token x section basis): 106 signatures, 59 kinds (B7b's was a4e3bf2c...);
+# T4-U4b (§2.2) added the new per-basis kinds: 128 signatures, 65 kinds.
 TABLE_SHA256 = '1c2bd8cbd6d6bef017e0bedc7c5d98cad4c49530d862481c6d3b53b1234f9ff0'
 # The owned reader is the Rust product reader of pressure-2 (owner, 2026-10-10:
 # "move to one product reader in Rust"): `validate_pressure_evidence` (an envelope

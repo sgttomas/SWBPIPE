@@ -191,11 +191,15 @@ absence. The gate's `declared_absences` obligation checks both.
     end force, replaced by the pressure family.
 - **Lamé values.** Straights only, at all five stations. In a re-frozen case
   `lame_surface` is keyed by basis.
-- **Arc absences.** Five kinds are withheld on every arc, each a declared
+- **Arc absences.** Four kinds are withheld on every arc, each a declared
   absence:
   - the Lamé radial and hoop rows;
-  - the straight-statics maximum;
   - `element_local_axial_force` and `element_local_axial_normal_stress`.
+
+  T4-U4b: an arc publishes its certified maximum, so the maximum is no
+  longer a declared absence. The T4-I7 reference states no arc maximum, so
+  it is not scored. The regenerated cases need an independent re-review
+  before admission statuses rely on them.
 - **Terminals.** Each non-null vector is asserted by component. Each null one
   is a declared absence.
 - **Negative controls.** Every listed row of every

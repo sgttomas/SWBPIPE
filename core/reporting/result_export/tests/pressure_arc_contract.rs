@@ -1,10 +1,12 @@
 //! T4-U2: the pressure-2 reader admits realized-arc envelopes over the shared
 //! arc corpus (also read by the Python reader): N_w = N_el +
 //! pAi and S = N_el in the arc's own sign conventions, end rows along the end
-//! tangents, and the straight Lame rows and maximum withheld with the named
-//! reason. Each broken arc binding is refused by name; a model whose only pipe
-//! is a replaced span is covered by its connector (T4-RV23 NOTE-4). (B7b
-//! deleted the v2 contract and its arc-refusal check with it.)
+//! tangents, and the straight Lame rows withheld. T4-U4b: the section stress
+//! rows, the toroidal hoop and radial rows, the certified arc maximum and the
+//! directional intensified rows are recomputed from the evidence. Each broken
+//! arc binding is refused by name; a model whose only pipe is a replaced span
+//! is covered by its connector (T4-RV23 NOTE-4). (B7b deleted the v2 contract
+//! and its arc-refusal check with it.)
 use open_pipe_stress_result_export::semantic_contract as s;
 use serde_json::{json, Value};
 
@@ -44,6 +46,25 @@ fn region(e: &mut Value) -> &mut Value {
 fn member<'a>(list: &'a mut Value, pipe: &str) -> &'a mut Value {
     list.as_array_mut().unwrap().iter_mut().find(|g| g["pipe_id"] == pipe).unwrap()
 }
+fn bend_rows<'a>(e: &'a mut Value, kind: &'a str, location: &'a str, component: Option<&'a str>) -> impl Iterator<Item = &'a mut Value> + 'a {
+    rows(e).iter_mut().filter(move |r| {
+        r["kind"] == kind
+            && r["entity_ref"] == "pipe:BEND"
+            && r["metadata"]["location"] == location
+            && component.is_none_or(|c| r["metadata"]["component"] == c)
+    })
+}
+/// Scales the first matching pipe:BEND row's value (T4-U4b tampers).
+fn scale(e: &mut Value, kind: &str, location: &str, component: Option<&str>, factor: f64) {
+    let row = bend_rows(e, kind, location, component).next().unwrap();
+    row["value"] = json!(row["value"].as_f64().unwrap() * factor);
+}
+/// Drops the first (or every) matching pipe:BEND row.
+fn drop_rows(e: &mut Value, kind: &str, location: &str, component: Option<&str>, every: bool) {
+    let ids: Vec<Value> = bend_rows(e, kind, location, component).map(|r| r["id"].clone()).collect();
+    let ids = if every { ids } else { ids[..1].to_vec() };
+    rows(e).retain(|r| !ids.contains(&r["id"]));
+}
 
 /// (label, mutation, the pressure-2 reader's error suffix); arc-region cases.
 #[allow(clippy::type_complexity)]
@@ -70,22 +91,36 @@ pub fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)>
                 rows(e).push(hoop);
             }
         }), "ARC_WITHHELD"),
-        // T4-U6 (D-5 §2.5): one coverage record per section basis.
-        ("arc maximum not withheld", Box::new(|e: &mut Value| {
-            for coverage in e["contract_evidence"]["exact_cases"][0]["stress_maximum_coverage"].as_array_mut().unwrap() {
-                coverage["unavailable_pipe_ids"] = json!([]);
-                coverage["complete"] = json!(true);
-            }
-        }), "ARC_WITHHELD"),
         ("arc region key removed", Box::new(|e: &mut Value| {
             region(e).as_object_mut().unwrap().remove("tangency_rule");
         }), "REGION_SHAPE"),
         ("arc approximation", Box::new(|e: &mut Value| {
             region(e)["approximation"] = json!("long_straight_annulus_small_strain_v2");
         }), "ARC_REGION_PROFILE"),
-        ("arc withheld reason", Box::new(|e: &mut Value| {
-            region(e)["withheld_on_arcs"]["reason"] = json!("withheld");
+        ("arc stress definitions", Box::new(|e: &mut Value| {
+            region(e)["arc_stress_definitions"][0] = json!("changed");
         }), "ARC_REGION_PROFILE"),
+        // T4-U4b (§2.1): arcs no longer withhold their maximum.
+        ("arc withholding revived", Box::new(|e: &mut Value| {
+            region(e)["withheld_on_arcs"] = json!({"reason": "withheld", "kinds": ["pipe_elastic_normal_stress_maximum_v2"]});
+        }), "REGION_SHAPE"),
+        ("arc coverage stale", Box::new(|e: &mut Value| {
+            for coverage in e["contract_evidence"]["exact_cases"][0]["stress_maximum_coverage"].as_array_mut().unwrap() {
+                coverage["unavailable_pipe_ids"] = json!(["pipe:BEND"]);
+                coverage["complete"] = json!(false);
+            }
+        }), "EXTREMA_MEMBER_COVERAGE"),
+        ("arc sigma plus", Box::new(|e: &mut Value| scale(e, "element_local_normal_stress_extreme", "midspan", Some("sigma_plus"), 1.001)), "EXTREME_VALUE"),
+        ("arc sigma minus missing", Box::new(|e: &mut Value| drop_rows(e, "element_local_normal_stress_extreme", "midspan", Some("sigma_minus"), false)), "ROW_BASIS_TWIN"),
+        ("arc transverse shear", Box::new(|e: &mut Value| scale(e, "element_local_transverse_shear_stress_maximum", "midspan", None, 1.001)), "SHEAR_VALUE"),
+        ("arc toroidal hoop", Box::new(|e: &mut Value| scale(e, "pipe_toroidal_membrane_hoop_stress_v1", "midspan", None, 1.001)), "TOROIDAL_VALUE"),
+        ("arc radial", Box::new(|e: &mut Value| scale(e, "pipe_toroidal_radial_surface_stress_v1", "midspan", None, 1.001)), "TOROIDAL_VALUE"),
+        ("arc maximum value", Box::new(|e: &mut Value| scale(e, "pipe_elastic_normal_stress_maximum_v2", "governing_station", None, 0.9)), "EXTREMA_BOUNDS"),
+        ("arc maximum removed", Box::new(|e: &mut Value| drop_rows(e, "pipe_elastic_normal_stress_maximum_v2", "governing_station", None, true)), "EXTREMA_RESULT_MISSING"),
+        ("arc bend radius", Box::new(|e: &mut Value| {
+            let g = member(&mut region(e)["geometry"], "pipe:BEND");
+            g["bend_radius_m"] = json!(g["bend_radius_m"].as_f64().unwrap() * 1.01);
+        }), "TOROIDAL_VALUE"),
         ("arc member kind", Box::new(|e: &mut Value| {
             member(&mut region(e)["geometry"], "pipe:BEND")["member_kind"] = json!("realized_mitre");
         }), "ARC_GEOMETRY"),
@@ -134,8 +169,8 @@ pub fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)>
 #[test]
 fn the_arc_corpus_is_admitted_by_the_pressure_1_reader_and_dispatch() {
     let cases = corpus();
-    assert_eq!(cases.len(), 5);
-    assert_eq!(cases.iter().filter(|(_, e)| has_arc_region(e)).count(), 3);
+    assert_eq!(cases.len(), 6);
+    assert_eq!(cases.iter().filter(|(_, e)| has_arc_region(e)).count(), 4);
     for (label, envelope) in &cases {
         assert_eq!(envelope["producer"]["semantic_contract_id"], s::PRESSURE_ID, "{label}");
         s::validate_pressure_evidence(envelope).unwrap_or_else(|e| panic!("{label}: {e}"));
@@ -150,8 +185,48 @@ fn broken_arc_bindings_are_refused_by_name() {
             let mut broken = envelope.clone();
             mutate(&mut broken);
             let error = s::validate_pressure_evidence(&broken).unwrap_err();
-            assert!(error.ends_with(code), "{label} / {what}: {error}");
+        assert!(error.ends_with(code), "{label} / {what}: {error}");
         }
+    }
+}
+
+const DIRECTIONAL: &str = "curved_bend_directional_intensified_bending_stress_v1";
+const DIRECTIONAL_MAXIMUM: &str = "curved_bend_directional_intensified_bending_maximum_v1";
+fn measures(e: &mut Value) -> &mut Vec<Value> {
+    e["contract_evidence"]["exact_cases"][0]["intensified_measures"].as_array_mut().unwrap()
+}
+
+/// T4-U4b (§2.4): directional intensified rows on the directional-SIF arc case.
+#[allow(clippy::type_complexity)]
+pub fn directional_mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {
+    vec![
+        ("directional value", Box::new(|e: &mut Value| scale(e, DIRECTIONAL, "midspan", None, 1.001)), "INTENSIFIED_VALUE"),
+        ("directional maximum value", Box::new(|e: &mut Value| scale(e, DIRECTIONAL_MAXIMUM, "governing_station", None, 0.9)), "EXTREMA_BOUNDS"),
+        ("directional factor", Box::new(|e: &mut Value| measures(e)[0]["i_in_plane"] = json!(2.4)), "INTENSIFIED_VALUE"),
+        ("directional pair swapped", Box::new(|e: &mut Value| {
+            for m in measures(e) {
+                let (a, b) = (m["i_in_plane"].clone(), m["i_out_of_plane"].clone());
+                m["i_in_plane"] = b;
+                m["i_out_of_plane"] = a;
+            }
+        }), "INTENSIFIED_VALUE"),
+        ("directional record dropped", Box::new(|e: &mut Value| {
+            measures(e).pop();
+        }), "INTENSIFIED_ROW_UNBOUND"),
+        ("directional row dropped", Box::new(|e: &mut Value| drop_rows(e, DIRECTIONAL, "midspan", None, false)), "ROW_BASIS_TWIN"),
+        ("directional maximum dropped", Box::new(|e: &mut Value| drop_rows(e, DIRECTIONAL_MAXIMUM, "governing_station", None, true)), "INTENSIFIED_RESULT_MISSING"),
+        ("directional record on a straight", Box::new(|e: &mut Value| measures(e)[0]["pipe_id"] = json!("pipe:S1")), "ARC_ROW_ON_STRAIGHT"),
+    ]
+}
+
+#[test]
+fn broken_directional_bindings_are_refused_by_name() {
+    let (label, envelope) = corpus().into_iter().find(|(l, _)| l.contains("directional SIF")).unwrap();
+    for (what, mutate, code) in directional_mutations() {
+        let mut broken = envelope.clone();
+        mutate(&mut broken);
+        let error = s::validate_pressure_evidence(&broken).unwrap_err();
+        assert!(error.ends_with(code), "{label} / {what}: {error}");
     }
 }
 

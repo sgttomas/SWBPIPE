@@ -655,11 +655,24 @@ def test_preview_station_metadata_matches_complete_canonical_contract():
         "axial_normal_stress", "bending_normal_stress_y",
         "bending_normal_stress_z", "torsional_shear_stress",
     }
-    rows = [
+    # T4-U4b (§2.2): every station also publishes the section extremes and the transverse shear maximum, in the
+    # section frame under their own basis tokens and sign texts.
+    u4b = {"sigma_plus": "section_extremes_from_published_stress_rows_v1",
+           "sigma_minus": "section_extremes_from_published_stress_rows_v1",
+           "tau_v_max": "saint_venant_annulus_flexure_v1"}
+    station_rows = [
         row for row in load_product_preview_result()["results"]
         if row.get("basis_ref", {}).get("ref_type") == "load_case"
         and row.get("metadata", {}).get("location") in locations
     ]
+    derived = [row for row in station_rows if row["metadata"]["component"] in u4b]
+    assert {(row["metadata"]["component"], row["metadata"]["location"]) for row in derived} == {
+        (component, location) for component in u4b for location in locations}
+    for row in derived:
+        metadata = row["metadata"]
+        assert (metadata["coordinate_system"], metadata["basis"], row["unit"]) == ("pipe_section", u4b[metadata["component"]], "MPa"), row["id"]
+        assert metadata["sign_convention"].startswith(("signed section normal-stress extreme", "nonnegative Saint-Venant transverse shear maximum")), row["id"]
+    rows = [row for row in station_rows if row["metadata"]["component"] not in u4b]
     assert rows
     seen = set()
     for row in rows:

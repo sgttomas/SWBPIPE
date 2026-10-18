@@ -34,13 +34,15 @@ TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
 # whenever the reader changes. B7b re-pinned all three: physics-1's reader and table (a6681f69...) are retired.
 MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
-# T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds).
+# T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds); T4-U4b (§2.2): the new
+# per-basis kinds (128 signatures, 65 kinds).
 TABLE_SHA256 = '1c2bd8cbd6d6bef017e0bedc7c5d98cad4c49530d862481c6d3b53b1234f9ff0'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
-    # then model 0.6.0: the reader's comments name pressure-2 (comment text only; was f91e678e...).
-    MODULE: '8a79bfcf58d91195e4726bb8e340179a131d80038977cc7e6fdce17f39eba8e2',
+    # then model 0.6.0: the reader's comments name pressure-2 (comment text only; was f91e678e...);
+    # then T4-U4b: the section stress, toroidal, arc maximum and directional rows (was 8a79bfcf...).
+    MODULE: '79ec35b30aa7208b5455e9ad713acebd76f6284f6880f075878e920628807f7f',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }

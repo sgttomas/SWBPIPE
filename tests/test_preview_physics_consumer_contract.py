@@ -835,9 +835,10 @@ def test_preview_stress_neutral_package_roundtrips_without_new_fields(tmp_path):
     from core.handoff.stress_neutral import package as sn
     from test_stress_neutral_physics_source import arguments
     source = envelope()
-    # One arc member row exercises the arc vocabulary in the packaged annotations.
-    source["results"].append({"id": "result:force:pipe:P1:end-i:axial-arc", "kind": "element_local_shear_force_y", "value": 2.5, "unit": "N", "entity_ref": "pipe:P1", "basis_ref": lc("load:A"), "metadata": meta("shear_force_y", "element_local", "end_i", "recovered_from_local_element_stiffness")})
-    source["results"].append({"id": "result:stress:pipe:P1:end-i:axial-arc", "kind": "element_local_axial_normal_stress", "value": 0.5, "unit": "MPa", "entity_ref": "pipe:P1", "basis_ref": lc("load:A"), "metadata": meta("axial_normal_stress", "pipe_section", "end_i", "nominal_straight_beam_formula_on_arc_resultants")})
+    # One arc member row exercises the arc vocabulary in the packaged annotations. T4-U4b: the arc-basis row marks its
+    # member a preview arc, whose maximum takes the arc's convention, so the rows sit on a member of their own.
+    source["results"].append({"id": "result:force:pipe:ARC:end-i:axial-arc", "kind": "element_local_shear_force_y", "value": 2.5, "unit": "N", "entity_ref": "pipe:ARC", "basis_ref": lc("load:A"), "metadata": meta("shear_force_y", "element_local", "end_i", "recovered_from_local_element_stiffness")})
+    source["results"].append({"id": "result:stress:pipe:ARC:end-i:axial-arc", "kind": "element_local_axial_normal_stress", "value": 0.5, "unit": "MPa", "entity_ref": "pipe:ARC", "basis_ref": lc("load:A"), "metadata": meta("axial_normal_stress", "pipe_section", "end_i", "nominal_straight_beam_formula_on_arc_resultants")})
     validate_preview_physics_evidence(source)
     analysis = build(source)
     packet = sn.build_stress_neutral_export_package(source_envelope=source, analysis_record=analysis, **arguments(source, analysis))
@@ -854,10 +855,10 @@ def test_preview_stress_neutral_package_roundtrips_without_new_fields(tmp_path):
     written = sn.write_materialized_members(packet, tmp_path)
     assert len(written) == 9
     assert sn.read_materialized_members(tmp_path, source_envelope=source, analysis_record=analysis) == packet
-    arc = next(item for item in packet["source_annotations"] if item["source_result_id"] == "result:stress:pipe:P1:end-i:axial-arc")
+    arc = next(item for item in packet["source_annotations"] if item["source_result_id"] == "result:stress:pipe:ARC:end-i:axial-arc")
     assert arc["source_row"]["metadata"]["basis"] == "nominal_straight_beam_formula_on_arc_resultants"
     witness = {row["result_id"] for row in packet["unit_preservation_witnesses"]}
-    assert "result:stress:pipe:P1:end-i:axial-arc" in witness
+    assert "result:stress:pipe:ARC:end-i:axial-arc" in witness
     tampered = deepcopy(packet); tampered["contract_evidence"]["combination_gates"][0]["withheld"] = True
     with pytest.raises(ValueError):
         sn.validate_stress_neutral_export_package(tampered)

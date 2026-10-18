@@ -287,7 +287,8 @@ def test_cr02_actual_mixed_signed_zeros_survive_materialize_reopen_and_bind_orig
     negative_ids = {identity for identity, bits in original_bits.items() if bits == "8000000000000000"}
     positive_ids = {identity for identity, bits in original_bits.items() if bits == "0000000000000000"}
     assert negative_ids and positive_ids, "Actual mixed source must exercise both received zero signs"
-    assert len(negative_ids) == 52, "the capture's received -0 population"
+    # T4-U4b adds the five sigma- rows of the unloaded member's stations: RN(-0 - 0) = -0 (sigma+ = -0 + 0 = +0).
+    assert len(negative_ids) == 57, "the capture's received -0 population"
     sn.write_materialized_members(packet, tmp_path)
     reread = sn.read_materialized_members(tmp_path, source_envelope=raw, analysis_record=analysis)
     validate_instance(json.loads(SCHEMA.read_text()), reread, instance_label=f"CR02 {mode}")
