@@ -7,8 +7,11 @@ import type { PreviewComponent, PreviewModel } from "../../types";
  * realized bend carries the user's flexibility factor k; k is never suggested
  * or defaulted, and k = 1 means no extra flexibility beyond the curved beam.
  * A bend at a corner is inserted with exact tangent points (Insert bend at
- * corner); a bend with an arc span is realized in place. */
+ * corner); a bend with an arc span is realized in place. T4-U4b: a realized
+ * bend may carry the user's directional SIF pair (both or neither, under the
+ * same source); none is suggested. */
 export const K_HINT = "k multiplies the bend's bending flexibility; k = 1 means no extra flexibility beyond the curved beam. Enter your own value; none is suggested.";
+export const SIF_HINT = "Optional directional SIFs: i_ip multiplies the in-plane bending moment M_z and i_op the out-of-plane M_y of the arc's tangent frame (intensified bending rows only; never k). Enter both or neither, with their source above; none is suggested.";
 export const GEOMETRY_ONLY_BANNER = "Geometry-only bend: analysed as a straight chord with no flexibility. The exact pressure contract refuses it. Realize this bend.";
 const CURVED = "curved_bend_macro_element";
 
@@ -21,6 +24,8 @@ export function realizationProjection(component: PreviewComponent): DraftRecord 
   if (component.mechanics_interface?.solver_consumption !== undefined) out.solver_consumption = component.mechanics_interface.solver_consumption;
   if (component.modifiers?.flexibility_factor_user_value !== undefined) out.flexibility_factor_user_value = component.modifiers.flexibility_factor_user_value;
   if (component.modifiers?.source_reference !== undefined) out.source_reference = component.modifiers.source_reference;
+  if (component.modifiers?.sif_in_plane_user_value !== undefined) out.sif_in_plane_user_value = component.modifiers.sif_in_plane_user_value;
+  if (component.modifiers?.sif_out_of_plane_user_value !== undefined) out.sif_out_of_plane_user_value = component.modifiers.sif_out_of_plane_user_value;
   return Object.keys(out).length ? out : undefined;
 }
 
@@ -39,22 +44,38 @@ function flexibilityValue(text: string): number {
   return k;
 }
 
+/** The directional SIF pair as entered: both blank is none; otherwise both finite and positive. */
+export function directionalPair(inPlane: string, outOfPlane: string): DraftRecord {
+  if (inPlane.trim() === "" && outOfPlane.trim() === "") return {};
+  const factor = (text: string) => {
+    const value = Number(text);
+    if (text.trim() === "" || !Number.isFinite(value) || value <= 0) throw new Error("Enter both directional SIFs (finite and positive), or neither.");
+    return { value, unit: "1" };
+  };
+  return { sif_in_plane_user_value: factor(inPlane), sif_out_of_plane_user_value: factor(outOfPlane) };
+}
+
 export function BendRealizationForm(props: RichFormProps & { component: PreviewComponent }) {
   const { component } = props;
   const [k, setK] = useState(() => String(component.modifiers?.flexibility_factor_user_value?.value ?? ""));
   const [source, setSource] = useState(() => component.modifiers?.source_reference ?? "");
-  useEffect(() => { setK(String(component.modifiers?.flexibility_factor_user_value?.value ?? "")); setSource(component.modifiers?.source_reference ?? ""); }, [component]);
+  const [ip, setIp] = useState(() => String(component.modifiers?.sif_in_plane_user_value?.value ?? ""));
+  const [op, setOp] = useState(() => String(component.modifiers?.sif_out_of_plane_user_value?.value ?? ""));
+  useEffect(() => {
+    setK(String(component.modifiers?.flexibility_factor_user_value?.value ?? "")); setSource(component.modifiers?.source_reference ?? "");
+    setIp(String(component.modifiers?.sif_in_plane_user_value?.value ?? "")); setOp(String(component.modifiers?.sif_out_of_plane_user_value?.value ?? ""));
+  }, [component]);
   const state = useRichQueue(props);
   const before = realizationProjection(component);
   const queue = (after: DraftRecord, label: string) => state.queue({ object_type: "Component", ref: component.id }, "set_field", "bend_realization", before, after, label, before === undefined);
   async function realize() { try {
-    await queue({ solver_consumption: CURVED, flexibility_factor_user_value: { value: flexibilityValue(k), unit: "none" }, source_reference: requireText(source, "Source of k") }, "Bend realization");
+    await queue({ solver_consumption: CURVED, flexibility_factor_user_value: { value: flexibilityValue(k), unit: "none" }, source_reference: requireText(source, "Source of k"), ...directionalPair(ip, op) }, "Bend realization");
   } catch (e) { state.setError(e instanceof Error ? e.message : String(e)); } }
   const isRealized = realized(component);
   return <section aria-label="Bend realization" data-testid="bend-realization-form"><h3>Bend realization</h3>
     {!isRealized && isPressureV3(props.model) && <p role="note" data-testid="bend-geometry-only-banner">{GEOMETRY_ONLY_BANNER}</p>}
     <p data-testid="bend-realization-state">{isRealized
-      ? `Realized curved bend over ${component.geometry?.bend_pipe_ref ?? "(no span)"}: k = ${component.modifiers?.flexibility_factor_user_value?.value ?? "not entered"} (${component.modifiers?.source_reference ?? "no source"}). k is in the stiffness.`
+      ? `Realized curved bend over ${component.geometry?.bend_pipe_ref ?? "(no span)"}: k = ${component.modifiers?.flexibility_factor_user_value?.value ?? "not entered"} (${component.modifiers?.source_reference ?? "no source"}). k is in the stiffness.${component.modifiers?.sif_in_plane_user_value ? ` Directional SIFs i_ip = ${component.modifiers.sif_in_plane_user_value.value}, i_op = ${component.modifiers.sif_out_of_plane_user_value?.value ?? "not entered"}.` : ""}`
       : component.geometry?.bend_pipe_ref
         ? `Geometry-only bend over ${component.geometry.bend_pipe_ref}. Realizing it forms the arc from the span's chord, the radius and the span's y_reference; both ends must be tangent to their neighbours.`
         : "This bend names no arc span: it marks a corner. Select its node and use Insert bend at corner, which places the tangent points."}</p>
@@ -62,6 +83,9 @@ export function BendRealizationForm(props: RichFormProps & { component: PreviewC
       <label>Flexibility factor k<input aria-label="Bend flexibility factor k" inputMode="decimal" value={k} onChange={e => setK(e.target.value)} /></label>
       <p>{K_HINT}</p>
       <TextField label="Source of k" value={source} onChange={setSource} />
+      <label>In-plane SIF i_ip<input aria-label="Bend in-plane SIF i_ip" inputMode="decimal" value={ip} onChange={e => setIp(e.target.value)} /></label>
+      <label>Out-of-plane SIF i_op<input aria-label="Bend out-of-plane SIF i_op" inputMode="decimal" value={op} onChange={e => setOp(e.target.value)} /></label>
+      <p>{SIF_HINT}</p>
       <button type="button" onClick={() => void realize()}>{isRealized ? "Queue bend realization update" : "Queue realize bend"}</button>
       {isRealized && <button type="button" onClick={() => void queue({ solver_consumption: "mechanics_geometry_only" }, "Bend realization")}>Queue return to geometry-only</button>}
     </fieldset><QueueFeedback {...state} />
