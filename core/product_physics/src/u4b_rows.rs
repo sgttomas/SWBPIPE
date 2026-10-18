@@ -207,16 +207,32 @@ fn on_basis(row: ResultItem, basis: Option<SectionBasis>, hyphen: bool) -> Resul
 /// T4-U4b §4.1 (W1's failed-ordinary manifest): one straight preview member's 15 derived
 /// rows, σ⁺, σ⁻ and τ_v,max at the five stations in `append_station_quantities`' order, with
 /// their ordinary ids and metadata and placeholder values that the freeze forms from the
-/// projected rows.
-pub(crate) fn preview_straight_derived_placeholders(results: &mut Vec<ResultItem>, pipe_id: &str) {
+/// projected rows. `transverse_shear` is false for a member whose ν is out of domain: its
+/// τ rows are absent and the manifest carries `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN`, as the
+/// ordinary rows do.
+pub(crate) fn preview_straight_derived_placeholders(results: &mut Vec<ResultItem>, pipe_id: &str, transverse_shear: bool) {
     let suffix = stable_suffix(pipe_id);
     for location in STATIONS {
         let loc = id_location(location);
         for (component, sign, tail) in [("sigma_plus", SIGMA_PLUS_SIGN, "sigma-plus"), ("sigma_minus", SIGMA_MINUS_SIGN, "sigma-minus")] {
             results.push(row(format!("result:stress:{suffix}:{loc}:{tail}"), EXTREME_KIND, 0.0, "MPa", pipe_id, component, location, EXTREMES_BASIS, sign));
         }
-        results.push(row(format!("result:stress:{suffix}:{loc}:transverse-shear-max"), SHEAR_MAX_KIND, 0.0, "MPa", pipe_id, "tau_v_max", location, SHEAR_STRAIGHT_BASIS, SHEAR_SIGN_PREVIEW));
+        if transverse_shear {
+            results.push(row(format!("result:stress:{suffix}:{loc}:transverse-shear-max"), SHEAR_MAX_KIND, 0.0, "MPa", pipe_id, "tau_v_max", location, SHEAR_STRAIGHT_BASIS, SHEAR_SIGN_PREVIEW));
+        }
     }
+}
+
+/// §2.4: the named warning of a member whose ν is outside -1 < ν < 1/2 (no τ_v,max is
+/// published for it in the case); shared by the ordinary rows and W1's failed-ordinary manifest.
+pub(crate) fn poisson_out_of_domain(case_id: &str, pipe_id: &str, nu: f64) -> Diagnostic {
+    diag(
+        &format!("diagnostic:transverse-shear:{}:{}:poisson", stable_suffix(case_id), stable_suffix(pipe_id)),
+        POISSON_OUT_OF_DOMAIN,
+        "warning",
+        format!("member {} has nu = {} outside -1 < nu < 1/2, where the Saint-Venant transverse-shear field is defined; no transverse-shear maximum is published for it in {}", pipe_id, scalar_string(nu), case_id),
+        vec![case_id.to_string(), pipe_id.to_string()],
+    )
 }
 
 /// Inputs of one member's station quantities.
@@ -278,13 +294,7 @@ pub(crate) fn append_station_quantities(
         .map(|b| q::saint_venant_shear_factor(m.poisson_ratio, b.outer_radius, b.inner_radius, b.inertia))
         .collect();
     if let Some(Err(q::SectionQuantityError::PoissonOutOfDomain { nu })) = factors.first() {
-        diagnostics.push(diag(
-            &format!("diagnostic:transverse-shear:{}:{}:poisson", stable_suffix(m.case_id), suffix),
-            POISSON_OUT_OF_DOMAIN,
-            "warning",
-            format!("member {} has nu = {} outside -1 < nu < 1/2, where the Saint-Venant transverse-shear field is defined; no transverse-shear maximum is published for it in {}", m.pipe_id, scalar_string(*nu), m.case_id),
-            vec![m.case_id.to_string(), m.pipe_id.to_string()],
-        ));
+        diagnostics.push(poisson_out_of_domain(m.case_id, m.pipe_id, *nu));
     }
     let shear_sign = format!(
         "{}{}",

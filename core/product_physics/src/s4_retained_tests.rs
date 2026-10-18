@@ -98,6 +98,27 @@ pub(super) fn receipt_and_reader_classify(label: &str, successor: &Value, raw: &
     validation
 }
 
+/// S4 round 2 (§4.1, §5.1): the shipped reader entry recomputes route L's τ with the invocation.
+/// One τ row one ulp up, its publication and receipt resealed, is refused at G7 with the base's
+/// code; without the invocation (no model, so no c_b) the read admits it but is never eligible.
+pub(super) fn tau_tamper_is_refused_by_the_reader(label: &str, successor: &Value, raw: &Value, mode: PreviewSolverMode) {
+    let mut doc = successor.clone();
+    let at = doc["results"].as_array().unwrap().iter().position(|r| r["kind"] == DERIVED[1])
+        .unwrap_or_else(|| panic!("{label}: a τ row"));
+    let value = doc["results"][at]["value"].as_f64().unwrap();
+    doc["results"][at]["value"] = json!(value.next_up());
+    let mut publication = doc.clone();
+    publication.as_object_mut().unwrap().remove("retained_precision");
+    doc["retained_precision"]["body"]["publication_sha256"] = json!(crate::retained_wire::domain_hash("retained_precision_publication_mp_v2", &publication).unwrap());
+    doc["retained_precision"]["receipt_sha256"] = json!(crate::retained_wire::domain_hash("retained_precision_receipt_mp_v2", &doc["retained_precision"]["body"]).unwrap());
+    let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+    let error = reader::validate(&doc, Some(&invocation)).err().unwrap_or_else(|| panic!("{label}: the tampered τ is refused"));
+    assert_eq!((error.gate, error.code.as_str()), ("G7", "SOURCE_PREVIEW_PHYSICS_SHEAR_VALUE"), "{label}: {error:?}");
+    let unbound = reader::validate(&doc, None).unwrap_or_else(|e| panic!("{label}: unbound {e:?}"));
+    assert!(!unbound.numerical_eligible, "{label}: unbound is never eligible");
+    reader::validate(successor, Some(&invocation)).unwrap_or_else(|e| panic!("{label}: the genuine successor {e:?}"));
+}
+
 /// W1-L (milestone, both modes): the passthrough through the whole transaction: capture,
 /// NotCovered final rows (class-None verdicts), the receipt's `not_covered` entries, the reader's
 /// classes and the values formed from the successor's own rows.
@@ -114,6 +135,7 @@ fn s4_w1l_derived_rows_are_a_not_covered_passthrough_formed_from_own_rows() {
         base_read_with_model(&label, &successor, &raw);
         let validation = receipt_and_reader_classify(&label, &successor, &raw, mode);
         assert!(validation.numerical_eligible, "{label}: eligible with the invocation");
+        tau_tamper_is_refused_by_the_reader(&label, &successor, &raw, mode);
     }
 }
 
