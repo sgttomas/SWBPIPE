@@ -34,7 +34,7 @@ CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PROFILE = "product_preview_retained_w1a_v2"
 DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
 DEFINITION_HASH = "66c5bf48533b9e5a8f4edeb4fdf6ab4ef845c1a9882eea0bb4afdc0e20771eab"
-TABLE_HASH = "618c824851e2228c14b7b8fa2f64c43102ad560f7efe4e20f2d77802ae4c2f09"
+TABLE_HASH = "8aaa25df8dfb0a46d8e70e591c0edd8b8fcc1474364b1d73abdb049af287dcf4"
 # B2-C (CONTRACT §8 row 4, REVISION_02 §0): DEF-C's id and H, the preview table's second formation definition.
 COMBINATION_DEFINITION_ID = "RP-PREPARED-COMBINATION-DUAL-v1"
 COMBINATION_DEFINITION_HASH = "1d72a9dbb6d55a291fd87d3254230240e9e49ef0aa77eb5d46cc6a30e6580ea3"
@@ -52,7 +52,7 @@ EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
 # T4-U6: DEF-E states zero mill tolerance and lists the reduced-basis rows and both headlines; the table follows the
 # inherited pressure-2 table's per-basis rows.
 EXACT_DEFINITION_HASH = "d1fa7b45a314d0f3284fafc716524da5889986f25ffe5c588d9ef197bb9a3def"
-EXACT_TABLE_HASH = "6a08c373bde187911fcdedf97265efd5f5b504d6e2b4710fd5a1a8801fd15ab8"
+EXACT_TABLE_HASH = "c3fb1b68ce2b7799aa71a6525c6807120a43cf736e4d39177e4d7787e506be66"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 FACADE_POLICY = "RP-FACADE-SI-v2"
 RECEIPT_BINDINGS = {"canonicalization": "openpipestress_jcs_ijson_v1", "method": METHOD, "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",

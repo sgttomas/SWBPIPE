@@ -284,6 +284,41 @@
         }
       ],
       "expect": "accepted"
+    },
+    {
+      "id": "U4B-sigma-plus-changed",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/results/81/value",
+          "value": 11.396537565350796
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "U4B-sigma-minus-missing",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/results/82"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "U4B-transverse-shear-negative",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/results/83/value",
+          "value": -0.6188852080335594
+        }
+      ],
+      "expect": "refused"
     }
   ]
 }

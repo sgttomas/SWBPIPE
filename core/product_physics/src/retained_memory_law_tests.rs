@@ -761,14 +761,14 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "6efefc4ff68fc516756ea52aeb9b96d293a570a28d591964a4994602ede51ac2",
         "8a4273dcd55e827aa0494c28f535bad01089af2e754448e99d1a18118482ef05",
         "b7b64b831c3e31d16f29e08596eddd1c74f49442001a594b0916b5a312b1060b",
-        "618c824851e2228c14b7b8fa2f64c43102ad560f7efe4e20f2d77802ae4c2f09",
-        "9bf5fb5d4c3ae32d891c406640c9532b73f7edc860489eb7ac77b27fe2e8e845",
+        "8aaa25df8dfb0a46d8e70e591c0edd8b8fcc1474364b1d73abdb049af287dcf4",
+        "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017",
         "79a3a76a56dd2ff1c347306137340a8bacb5eddeb828ebc5ef55eaa5986fc663",
         "26cff36b8d306fa9e7dc48bb64853ff96d3896768c016e0da139133f9d2eb818",
-        "6a08c373bde187911fcdedf97265efd5f5b504d6e2b4710fd5a1a8801fd15ab8",
+        "c3fb1b68ce2b7799aa71a6525c6807120a43cf736e4d39177e4d7787e506be66",
         "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b",
         "401dae3ca5f41f4c770b22689d20d02ba9713e8b061d40a89877338bd46cd14f",
-        "1c2bd8cbd6d6bef017e0bedc7c5d98cad4c49530d862481c6d3b53b1234f9ff0",
+        "2937dfd7c6b5ff8264f656b45136ecb6555921bdd59b2871eebb95c728edd461",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.
     let files: [&[u8]; build_identity::REVIEWED_INPUT_COUNT] = [

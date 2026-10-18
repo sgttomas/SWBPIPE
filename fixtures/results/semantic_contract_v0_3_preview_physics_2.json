@@ -1118,7 +1118,7 @@
       "combination_algebra": "never_combined"
     },
     {
-      "signature_id": "u4b-normal-extreme-sigma-plus",
+      "signature_id": "supported-source-069",
       "kind": "element_local_normal_stress_extreme",
       "unit": "MPa",
       "component": "sigma_plus",
@@ -1134,7 +1134,7 @@
       "combination_algebra": "never_combined"
     },
     {
-      "signature_id": "u4b-normal-extreme-sigma-minus",
+      "signature_id": "supported-source-070",
       "kind": "element_local_normal_stress_extreme",
       "unit": "MPa",
       "component": "sigma_minus",
@@ -1150,7 +1150,7 @@
       "combination_algebra": "never_combined"
     },
     {
-      "signature_id": "u4b-transverse-shear-maximum-straight",
+      "signature_id": "supported-source-071",
       "kind": "element_local_transverse_shear_stress_maximum",
       "unit": "MPa",
       "component": "tau_v_max",
@@ -1166,7 +1166,7 @@
       "combination_algebra": "never_combined"
     },
     {
-      "signature_id": "u4b-transverse-shear-maximum-arc",
+      "signature_id": "preview-physics-arc-071",
       "kind": "element_local_transverse_shear_stress_maximum",
       "unit": "MPa",
       "component": "tau_v_max",
@@ -1182,7 +1182,7 @@
       "combination_algebra": "never_combined"
     },
     {
-      "signature_id": "u4b-directional-intensified-bending",
+      "signature_id": "supported-source-072",
       "kind": "curved_bend_directional_intensified_bending_stress_v1",
       "unit": "Pa",
       "component": "intensified_bending",
@@ -1198,7 +1198,7 @@
       "combination_algebra": "never_combined"
     },
     {
-      "signature_id": "u4b-directional-intensified-bending-maximum",
+      "signature_id": "supported-source-073",
       "kind": "curved_bend_directional_intensified_bending_maximum_v1",
       "unit": "Pa",
       "component": "intensified_bending_maximum",
