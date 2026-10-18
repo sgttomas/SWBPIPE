@@ -12,9 +12,8 @@
 //! intensities as (global force per unit arc length, scale) pairs, an
 //! optional constant pA_i, and the basis A and Z. The represented problem is
 //! the exact real function of ψ ∈ [0, φ] (ψ from the authored node i) that
-//! these values define, with w = Σ_k scale_k·(E_j g_k) in the end-j frame E_j
-//! taken as exact real products. With Δ = φ − ψ, c = cos Δ, s = sin Δ, in
-//! end-j components:
+//! these values define through the chain below. With Δ = φ − ψ, c = cos Δ,
+//! s = sin Δ, in the coordinates of the end-j frame E (rows x, y, z):
 //!
 //! - F(ψ) = F_j + RΔ w;
 //! - M(ψ) = M_j + d × F_j + R² b × w, with d = (R s, −R(1 − c), 0) and
@@ -32,7 +31,57 @@
 //! K = (2R|w| + F_max)/A + (R²|w| + M_max + R F_max)/Z, or
 //! max(i_ip, i_op)(R²|w| + M_max + R F_max)/Z for g, F_max = |F_j| + |w|Rφ and
 //! M_max = |M_j| + RφF_max (both bound the whole arc, because |dF/dψ| = R|w|
-//! and |dM/dψ| = R|F|). K is formed upward in binary64.
+//! and |dM/dψ| = R|F|). K is formed upward in binary64, with |F_j|, |M_j|
+//! and |w| bounded from the enclosed chained operands.
+//!
+//! # The operand chain (K2 review, option A)
+//!
+//! Design §2.3 forms the problem from the published end_j rows taken through
+//! the transpose of the end-j frame, and PP's station function evaluates that
+//! global action in the coordinates of its rounded arc frame, with an exact
+//! rotation giving the tangent frame at ψ. The certificate encloses exactly
+//! that chain. The global end-j force and moment are g_F = Eᵀ f_F and
+//! g_M = Eᵀ f_M, formed exactly from the rows; they are expressed in the
+//! coordinates of the same rounded frame, F_j = E g_F = E Eᵀ f_F and
+//! M_j = E Eᵀ f_M, and w = E Σ_k scale_k g_k; the closed form above then runs
+//! in those coordinates. Every product is an exact real product enclosed in
+//! balls. Rounded direction-cosine rows are not exactly orthogonal, so
+//! E Eᵀ ≠ I, and the round trip is enclosed rather than dropped: Codex's
+//! rotated small-angle torsion control differs from the direct-local function
+//! by 2.8e-9 Pa, more than the gap, and is a test here.
+//!
+//! Option A (enclose the specified chain) is chosen over option B (keep the
+//! direct-local function and widen every evaluation by a frame-defect bound)
+//! because it certifies the specified function itself: the gap keeps its
+//! meaning, no extra bound is introduced, and it costs 60 ball operations per
+//! call. PP's coordinate frame is the macro element's centre frame C rather
+//! than E. If C were an exact rotation of E about the bend-plane normal, the
+//! two real functions would coincide, because the tangent frame at ψ is that
+//! same rotation; C and E are both roundings of one exact geometry, so their
+//! difference is part of the station rows' binary64 formation, which the
+//! station allowance below covers.
+//!
+//! # Station witnesses (§2.3 step 5, two-sided)
+//!
+//! Each published station value of this arc and basis is passed with its
+//! fraction (ψ/φ = 0, 0.25, 0.5, 0.75 or 1; any fraction whose product with
+//! 2⁶⁰ is an integer). The represented problem is enclosed at that fraction,
+//! and the witness must lie in that enclosure widened by
+//! a = 64u·S + 1e-12 Pa + (the witness's own stated allowance), u = 2⁻⁵³,
+//! with S = (|pA_i| + F_max)/A + (M_max + R F_max)/Z for the elastic measure
+//! and S = max(i_ip, i_op)(M_max + R F_max)/Z for the intensified one (both
+//! upward). S bounds every term of the station rows' formation; 64u covers
+//! their binary64 formation (the transpose, the frame rotation, libm sine and
+//! cosine within one ulp, the term sums, the divisions by A and Z, norm2,
+//! the MPa conversions, the rounded station angle, about 25 roundings of
+//! terms bounded by S) and the C-versus-E rounding, with margin. A route
+//! whose station rows carry more than binary64 formation error (the
+//! certified route's rows come from the corrected-displacement functional)
+//! states that extra allowance per witness. A witness outside is refused as
+//! `arc_maximum_station_inconsistent`: for example, N_w passed as the end-j
+//! axial together with pA_i counts the pressure term twice. Then, as
+//! designed, the upper bound is raised to cover every witness value and the
+//! gap is checked again.
 //!
 //! # Arithmetic
 //!
@@ -52,8 +101,15 @@
 //! A uniform grid of 4,096 cells; branch and bound on the cell bound above
 //! with `elastic_extrema`'s gap rule (gap ≤ 1e-12 Pa + 1e-12·lower) and
 //! limits (131,072 subdivisions, depth 48), refused by name when a limit is
-//! reached first; the station cover; the location rule; and the binary64
-//! midpoint of [value_lower, upper_bound].
+//! reached first; the station witnesses; the location rule in the design's
+//! order; and the binary64 midpoint of [value_lower, upper_bound].
+//!
+//! The published fraction is k/2⁶⁰ rounded to the nearest binary64. It is
+//! exact at the ends and whenever k has at most 53 significant bits, which
+//! holds for every grid point and for cells to depth 41 below the grid;
+//! deeper bracket midpoints can carry up to 60 significant bits, and the
+//! fraction is then within half an ulp (2⁻⁵⁴ relative) of k/2⁶⁰, far inside
+//! the 2⁻⁴⁰ location width.
 
 use super::arc_certificate::{abs_up, add_up, div_up, mul_up, ArcCertificateFailure, Ball, Balls};
 use super::retained::wide::{Wide2, WideArith, WideError};
@@ -91,6 +147,20 @@ pub struct ArcUniformIntensity {
     pub scale: f64,
 }
 
+/// One published station value of this arc and basis (Pa, rounded upward by
+/// the caller) at its fraction ψ/φ, with any allowance beyond binary64
+/// formation that the station rows' route carries (0 on the binary64 route).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ArcStationWitness {
+    pub fraction: f64,
+    pub value_pa: f64,
+    pub allowance_pa: f64,
+}
+
+/// The stated binary64 formation allowance of a station witness, in units of
+/// u = 2⁻⁵³ of the station scale S (module documentation).
+pub const ARC_MAXIMUM_STATION_ALLOWANCE_ULPS: f64 = 64.0;
+
 /// The binary64 operands of one arc and basis (module documentation).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ArcStressMaximumProblem<'a> {
@@ -99,7 +169,9 @@ pub struct ArcStressMaximumProblem<'a> {
     /// φ ∈ (0, π] (rad), the binary64 included angle the station rows use.
     pub included_angle: f64,
     /// Rows x (tangent toward j), y (toward the centre) and z (bend-plane
-    /// normal) of the end-j tangent frame, in global components.
+    /// normal) of the end-j tangent frame, in global components: the frame
+    /// whose transpose carries the end-j rows to global, and whose
+    /// coordinates the closed form runs in (module documentation).
     pub end_j_axes: [[f64; 3]; 3],
     /// [N, V_y, V_z, T, M_y, M_z] at end j in the end-j tangent frame (N, N m):
     /// the node-on-element force at j, equal to the j-side section action at
@@ -190,6 +262,15 @@ pub enum ArcMaximumFailure {
     DepthLimit(ArcMaximumDiagnostic),
     /// The station cover raised the upper bound beyond the gap rule.
     StationCoverNotClosed(ArcMaximumDiagnostic),
+    /// A station witness lies outside the represented problem's enclosure at
+    /// its fraction, widened by the stated allowance.
+    StationInconsistent {
+        index: usize,
+        witness_pa: f64,
+        lower: f64,
+        upper: f64,
+        allowance: f64,
+    },
 }
 
 impl ArcMaximumFailure {
@@ -204,6 +285,7 @@ impl ArcMaximumFailure {
             Self::SubdivisionLimit(_) => "arc_maximum_subdivision_limit",
             Self::DepthLimit(_) => "arc_maximum_depth_limit",
             Self::StationCoverNotClosed(_) => "arc_maximum_station_cover_not_closed",
+            Self::StationInconsistent { .. } => "arc_maximum_station_inconsistent",
         }
     }
 }
@@ -224,19 +306,20 @@ type Failure = ArcMaximumFailure;
 
 /// Certify the along-arc maximum of `measure` for one arc and basis (§2.3).
 ///
-/// `station_cover_pa` holds the published station values of this arc and
-/// basis (max(|σ⁺|, |σ⁻|), or the intensified rows), converted to Pa and
-/// rounded upward by the caller. The upper bound is raised to cover them and
-/// the gap is checked again (step 5).
+/// `station_witnesses` are the published station values of this arc and
+/// basis (max(|σ⁺|, |σ⁻|), or the intensified rows) at their fractions,
+/// converted to Pa and rounded upward by the caller. Each is checked against
+/// the represented problem at its fraction; then the upper bound is raised
+/// to cover them and the gap is checked again (step 5; module documentation).
 pub fn certify_arc_stress_maximum(
     problem: &ArcStressMaximumProblem<'_>,
     measure: ArcStressMeasure,
-    station_cover_pa: &[f64],
+    station_witnesses: &[ArcStationWitness],
 ) -> Result<CertifiedArcStressMaximum, ArcMaximumFailure> {
     certify_with_limits(
         problem,
         measure,
-        station_cover_pa,
+        station_witnesses,
         ARC_MAXIMUM_SUBDIVISION_LIMIT,
         ARC_MAXIMUM_DEPTH_LIMIT,
     )
@@ -245,20 +328,48 @@ pub fn certify_arc_stress_maximum(
 pub(super) fn certify_with_limits(
     problem: &ArcStressMaximumProblem<'_>,
     measure: ArcStressMeasure,
-    station_cover_pa: &[f64],
+    station_witnesses: &[ArcStationWitness],
     split_limit: usize,
     depth_limit: u32,
 ) -> Result<CertifiedArcStressMaximum, Failure> {
-    for &value in station_cover_pa {
-        if !value.is_finite() {
+    let mut stations = Vec::with_capacity(station_witnesses.len());
+    for witness in station_witnesses {
+        let k = station_k(witness.fraction).ok_or(Failure::InvalidOperand {
+            name: "station_fraction",
+        })?;
+        if !witness.value_pa.is_finite() {
             return Err(Failure::InvalidOperand {
-                name: "station_cover_pa",
+                name: "station_value_pa",
             });
         }
+        if !(witness.allowance_pa.is_finite() && witness.allowance_pa >= 0.0) {
+            return Err(Failure::InvalidOperand {
+                name: "station_allowance_pa",
+            });
+        }
+        stations.push(k);
     }
     let mut evaluator = Evaluator::new(problem, measure)?;
     let curvature = evaluator.curvature_bound()?;
     let phi = problem.included_angle;
+
+    // Step 5, first half: every witness agrees with the represented problem.
+    let formation = evaluator.station_allowance()?;
+    for (index, (witness, &k)) in station_witnesses.iter().zip(&stations).enumerate() {
+        let value = evaluator.value(k)?;
+        let allowance = add_up(formation, witness.allowance_pa);
+        let lower = (value.lo - allowance).next_down();
+        let upper = (value.hi + allowance).next_up();
+        if !(witness.value_pa >= lower && witness.value_pa <= upper) {
+            return Err(Failure::StationInconsistent {
+                index,
+                witness_pa: witness.value_pa,
+                lower: value.lo,
+                upper: value.hi,
+                allowance,
+            });
+        }
+    }
 
     // Steps 1–3: the grid, its endpoint values and cell bounds.
     let mut best = Best::default();
@@ -332,10 +443,10 @@ pub(super) fn certify_with_limits(
         subdivisions += 1;
     };
 
-    // Step 5: the station cover.
+    // Step 5, second half: the station cover.
     let mut upper_bound = upper;
-    for &value in station_cover_pa {
-        upper_bound = upper_bound.max(value);
+    for witness in station_witnesses {
+        upper_bound = upper_bound.max(witness.value_pa);
     }
     if upper_bound > upper && gap(best.lower, upper_bound) > tolerance(best.lower) {
         return Err(Failure::StationCoverNotClosed(ArcMaximumDiagnostic {
@@ -471,8 +582,22 @@ fn tolerance(lower: f64) -> f64 {
         .max(0.0)
 }
 
+/// k/2⁶⁰ rounded to the nearest binary64 (module documentation, "Method").
 fn fraction_of(k: u64) -> f64 {
     k as f64 * TWO_POW_MINUS_60
+}
+
+/// The k of a station fraction in [0, 1] whose product with 2⁶⁰ is an integer.
+fn station_k(fraction: f64) -> Option<u64> {
+    if !(fraction.is_finite() && (0.0..=1.0).contains(&fraction)) {
+        return None;
+    }
+    let scaled = fraction * (FULL as f64);
+    if scaled.fract() == 0.0 {
+        Some(scaled as u64)
+    } else {
+        None
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -496,19 +621,30 @@ fn sign_of(slope: Interval) -> Sign {
     }
 }
 
-/// Candidate cells are the surviving cells (upper ≥ the global lower) with
-/// an endpoint whose own lower value is within the gap of the global lower.
-/// Runs of contiguous candidates are taken in increasing ψ (ties to the
-/// smallest ψ). In each run, in order: the end-i rule at ψ = 0; the bracket
-/// whose right point is the first trial point with a strictly negative f′
-/// preceded by one with a strictly positive f′, its left point the last such
-/// positive point, refined by bisection; the end-j rule at ψ = φ. Otherwise
-/// the governing evaluation point.
+/// The design's order (§2.3 step 6):
+/// (a) the end rule: if the governing evaluation (the largest directed lower
+///     value, ties to the smallest ψ) is an endpoint and the derivative
+///     enclosure there points out of the member (f′(0) < 0 at ψ = 0,
+///     f′(φ) > 0 at ψ = φ), the location is exactly 0 or 1;
+/// (b) otherwise the interior candidate rule: candidate cells are the
+///     surviving cells (upper ≥ the global lower) with an endpoint whose own
+///     lower value is within the gap of the global lower; runs of contiguous
+///     candidates are taken in increasing ψ (among candidates the smallest ψ
+///     governs); in a run, the bracket's right point is the first trial point
+///     with a strictly negative f′ preceded by one with a strictly positive
+///     f′, its left point the last such positive point, refined by bisection;
+/// (c) otherwise the governing evaluation point.
 fn locate(
     evaluator: &mut Evaluator,
     best: &Best,
     cells: Vec<Cell>,
 ) -> Result<(u64, ArcMaximumLocation), Failure> {
+    if best.k == 0 && sign_of(evaluator.slope(0)?) == Sign::Negative {
+        return Ok((0, ArcMaximumLocation::EndI));
+    }
+    if best.k == FULL && sign_of(evaluator.slope(FULL)?) == Sign::Positive {
+        return Ok((FULL, ArcMaximumLocation::EndJ));
+    }
     let lower = best.lower;
     let tol = tolerance(lower);
     let within = |value: f64| value >= lower || (lower - value).next_up() <= tol;
@@ -525,13 +661,8 @@ fn locate(
         }
     }
     for run in &runs {
-        let first = run[0];
-        if first.lo == 0 && within(first.left.lo) && sign_of(evaluator.slope(0)?) == Sign::Negative
-        {
-            return Ok((0, ArcMaximumLocation::EndI));
-        }
         let mut points = Vec::with_capacity(run.len() + 1);
-        points.push(first.lo);
+        points.push(run[0].lo);
         points.extend(run.iter().map(|c| c.hi));
         let mut positive: Option<u64> = None;
         for &k in &points {
@@ -544,13 +675,6 @@ fn locate(
                 }
                 Sign::Unresolved => {}
             }
-        }
-        let last = run[run.len() - 1];
-        if last.hi == FULL
-            && within(last.right.lo)
-            && sign_of(evaluator.slope(FULL)?) == Sign::Positive
-        {
-            return Ok((FULL, ArcMaximumLocation::EndJ));
         }
     }
     Ok((best.k, ArcMaximumLocation::GoverningEvaluation))
@@ -610,8 +734,10 @@ pub(super) struct Evaluator {
     area: f64,
     z: f64,
     measure: Measure,
-    /// Upward |F_j|, |M_j| and |w|, and R, φ, for K.
+    /// Upward |F_j|, |M_j| and |w| of the chained operands, and R, φ, for K.
     norms: [f64; 3],
+    /// Upward |pA_i|, for the station scale.
+    pa_abs: f64,
     r: f64,
     phi_f: f64,
 }
@@ -683,9 +809,31 @@ impl Evaluator {
         };
         let radius = b.lift(r)?;
         let radius_sq = b.mul(radius, radius)?;
+        // The chain (module documentation): F_j = E (Eᵀ f_F), M_j = E (Eᵀ f_M).
+        let mut axes = [[Ball::ZERO; 3]; 3];
+        for (a, row) in axes.iter_mut().enumerate() {
+            for (i, slot) in row.iter_mut().enumerate() {
+                *slot = b.lift(problem.end_j_axes[a][i])?;
+            }
+        }
         let force = problem.end_j_force;
-        let fj = [b.lift(force[0])?, b.lift(force[1])?, b.lift(force[2])?];
-        let mj = [b.lift(force[3])?, b.lift(force[4])?, b.lift(force[5])?];
+        let mut fj = [Ball::ZERO; 3];
+        let mut mj = [Ball::ZERO; 3];
+        for (block, out) in [(0usize, &mut fj), (3usize, &mut mj)] {
+            let local = [
+                b.lift(force[block])?,
+                b.lift(force[block + 1])?,
+                b.lift(force[block + 2])?,
+            ];
+            let mut global = [Ball::ZERO; 3];
+            for (i, slot) in global.iter_mut().enumerate() {
+                let column = [axes[0][i], axes[1][i], axes[2][i]];
+                *slot = b.dot(&column, &local)?;
+            }
+            for (a, slot) in out.iter_mut().enumerate() {
+                *slot = b.dot(&axes[a], &global)?;
+            }
+        }
         // w = Σ_k scale_k·(E_j g_k) in the end-j frame, as exact real values.
         let mut w = [Ball::ZERO; 3];
         for intensity in problem.uniform_intensities {
@@ -696,32 +844,22 @@ impl Evaluator {
             ];
             let scale = b.lift(intensity.scale)?;
             for (a, slot) in w.iter_mut().enumerate() {
-                let row = [
-                    b.lift(problem.end_j_axes[a][0])?,
-                    b.lift(problem.end_j_axes[a][1])?,
-                    b.lift(problem.end_j_axes[a][2])?,
-                ];
-                let along = b.dot(&row, &g)?;
+                let along = b.dot(&axes[a], &g)?;
                 let scaled = b.mul(scale, along)?;
                 *slot = b.add(*slot, scaled)?;
             }
         }
-        let magnitude = |x: f64| x.abs();
-        let force_norm = norm3_up(
-            magnitude(force[0]),
-            magnitude(force[1]),
-            magnitude(force[2]),
-        );
-        let moment_norm = norm3_up(
-            magnitude(force[3]),
-            magnitude(force[4]),
-            magnitude(force[5]),
-        );
-        let w_norm = norm3_up(
-            magnitude_interval(bounds(&w[0])?).hi,
-            magnitude_interval(bounds(&w[1])?).hi,
-            magnitude_interval(bounds(&w[2])?).hi,
-        );
+        let norm_up = |v: &[Ball; 3]| -> Result<f64, Failure> {
+            Ok(norm3_up(
+                magnitude_interval(bounds(&v[0])?).hi,
+                magnitude_interval(bounds(&v[1])?).hi,
+                magnitude_interval(bounds(&v[2])?).hi,
+            ))
+        };
+        let force_norm = norm_up(&fj)?;
+        let moment_norm = norm_up(&mj)?;
+        let w_norm = norm_up(&w)?;
+        let pa_abs = problem.pressure_area_product.map_or(0.0, f64::abs);
         Ok(Self {
             b,
             exact: WideArith::new(128)?,
@@ -737,18 +875,45 @@ impl Evaluator {
             z,
             measure,
             norms: [force_norm, moment_norm, w_norm],
+            pa_abs,
             r,
             phi_f: phi,
         })
     }
 
+    /// Upward F_max = |F_j| + |w|Rφ and M_max = |M_j| + RφF_max.
+    fn maxima(&self) -> (f64, f64) {
+        let [force_norm, moment_norm, w_norm] = self.norms;
+        let r_phi = mul_up(self.r, self.phi_f);
+        let f_max = add_up(force_norm, mul_up(w_norm, r_phi));
+        (f_max, add_up(moment_norm, mul_up(r_phi, f_max)))
+    }
+
+    /// 64u·S + 1e-12 Pa, upward (module documentation, "Station witnesses").
+    pub(super) fn station_allowance(&self) -> Result<f64, Failure> {
+        let (f_max, m_max) = self.maxima();
+        let bending = div_up(add_up(m_max, mul_up(self.r, f_max)), self.z);
+        let scale = match self.measure {
+            Measure::Elastic => add_up(div_up(add_up(self.pa_abs, f_max), self.area), bending),
+            Measure::Intensified { larger, .. } => mul_up(larger, bending),
+        };
+        let unit = f64::EPSILON * 0.5;
+        let allowance = add_up(
+            mul_up(mul_up(ARC_MAXIMUM_STATION_ALLOWANCE_ULPS, unit), scale),
+            ABSOLUTE_GAP_PA,
+        );
+        if allowance.is_finite() {
+            Ok(allowance)
+        } else {
+            Err(Failure::CurvatureBoundNotFinite)
+        }
+    }
+
     /// K, formed upward (module documentation).
     pub(super) fn curvature_bound(&self) -> Result<f64, Failure> {
-        let [force_norm, moment_norm, w_norm] = self.norms;
+        let [_, _, w_norm] = self.norms;
         let r = self.r;
-        let r_phi = mul_up(r, self.phi_f);
-        let f_max = add_up(force_norm, mul_up(w_norm, r_phi));
-        let m_max = add_up(moment_norm, mul_up(r_phi, f_max));
+        let (f_max, m_max) = self.maxima();
         let moment = add_up(
             add_up(mul_up(mul_up(r, r), w_norm), m_max),
             mul_up(r, f_max),

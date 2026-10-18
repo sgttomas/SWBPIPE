@@ -25,10 +25,19 @@ Writes, beside this script:
                   the 4,096-cell grid, and two variants perturbed by an
                   asymmetric end moment so that one peak is higher by about
                   1e-9 relative, with each variant's peak location and value.
+  end_controls.txt  two arcs for the design's location order, tuned by
+                  Newton in (M_x, M_z) at end j: a governing end j whose
+                  interior peak, on the grid, is 1e-14 lower; and a governing
+                  interior peak, on the grid, with end i 1e-14 lower.
   directed.txt    the measure and its derivative at nine exact points of every
                   t4_u4b arc and basis (both measures) and of the two-peak
                   variants, and the maximum of each represented problem, as the
-                  binary64 floor and ceiling of the 110-digit value.
+                  binary64 floor and ceiling of the 110-digit value; and
+                  Codex's rotated small-angle torsion control (the maximum of
+                  the transposed chain and of the direct-local function).
+The generator also checks its decimal model against the oracle's 40-digit
+station resultants at all five stations of every arc and basis (within 1e-13
+of the zero scale; the worst is printed).
   SHA256SUMS      sha256 of the three files above.
 With --check, nothing is written; the files are regenerated in memory and
 compared byte for byte with the committed ones.
@@ -259,8 +268,14 @@ class Problem:
     def __init__(self, R, phi, axes, force, intensities, pa, area, z):
         self.R = D(R)
         self.phi = D(phi)
-        self.Fj = [D(x) for x in force[:3]]
-        self.Mj = [D(x) for x in force[3:]]
+        # The chain of design section 2.3: the end-j rows through the frame
+        # transpose to global, then into the same rounded frame's coordinates.
+        E = [[D(x) for x in row] for row in axes]
+        def chained(local):
+            g = [sum(E[a][i] * D(local[a]) for a in range(3)) for i in range(3)]
+            return [sum(E[a][i] * g[i] for i in range(3)) for a in range(3)]
+        self.Fj = chained(force[:3])
+        self.Mj = chained(force[3:])
         self.w = [D(0)] * 3
         for g, scale in intensities:
             for a in range(3):
@@ -289,6 +304,21 @@ class Problem:
 
     def measure_at(self, u, intensified):
         return self._measure_k(u * D(FULL), intensified)
+
+    def section_k(self, k):
+        """[N_eff, V_y, V_z, T, M_y, M_z] at psi = (k/2^60) phi, k a Decimal."""
+        delta = (D(FULL) - k) * self.phi / D(FULL)
+        s, c = sincos(delta)
+        R = self.R
+        omc = 1 - c
+        F = [self.Fj[i] + R * delta * self.w[i] for i in range(3)]
+        d = [R * s, -R * omc, D(0)]
+        b = [delta * s - omc, delta * c - s, D(0)]
+        dF = cross(d, self.Fj)
+        bw = cross(b, self.w)
+        M = [self.Mj[i] + dF[i] + R * R * bw[i] for i in range(3)]
+        return [c * F[0] - s * F[1] + self.pa, s * F[0] + c * F[1], F[2],
+                c * M[0] - s * M[1], s * M[0] + c * M[1], M[2]]
 
     def _measure_k(self, k, intensified):
         """(value, slope in psi) at psi = (k/2^60) phi, k a Decimal."""
@@ -334,6 +364,26 @@ class Problem:
 # Oracle arcs
 # ---------------------------------------------------------------------------
 
+STATION_FRACTIONS = (("end_i", 0), ("quarter_1", 1), ("midspan", 2), ("quarter_3", 3), ("end_j", 4))
+WORST_STATION_RESULTANT = [D(0)]
+
+
+def check_station_resultants(case, member, problem):
+    """The decimal model against the oracle's 40-digit station resultants:
+    within 1e-13 of the force or moment zero scale (the operands are the
+    oracle's binary64 values, so about 1e-16 is expected)."""
+    scales = case["zero_scales"][member]
+    keys = ("V_y", "V_z", "T", "M_y", "M_z")
+    for station, quarter in STATION_FRACTIONS:
+        r = case["quantities"]["resultants_tangent_frame_j_side"][member][station]
+        expected = [D((r["N_w"] if "N_w" in r else r["N"])[0])] + [D(r[k][0]) for k in keys]
+        got = problem.section_k(D(quarter * (FULL // 4)))
+        for i, (g, e) in enumerate(zip(got, expected)):
+            scale = D(scales["force" if i < 3 else "moment"][0])
+            err = abs(g - e) / max(abs(e), scale)
+            WORST_STATION_RESULTANT[0] = max(WORST_STATION_RESULTANT[0], err)
+            assert err < D(10) ** -13, (case["case_id"], member, station, i, err)
+
 def oracle_arcs():
     oracle = json.loads((REFS / "oracle.json").read_text())
     cases = {c["case_id"]: c for c in json.loads((REFS / "cases.json").read_text())["cases"]}
@@ -365,6 +415,7 @@ def oracle_arcs():
                     axes, force, intensities, pa,
                     section["A"][1], section["Z"][1],
                 )
+                check_station_resultants(case, mid, problem)
                 q = case["quantities"]
                 for measure, key, inten in (
                     ("elastic", "member_maximum", None),
@@ -455,6 +506,140 @@ def two_peak_lines():
 
 
 # ---------------------------------------------------------------------------
+# Codex's rotated small-angle torsion control (K2 review)
+# ---------------------------------------------------------------------------
+
+CODEX_FRAME = [
+    [0.7816391739070251, -0.4829292842142122, 0.3947397981737998],
+    [-0.5501172307043584, -0.8320301337746346, 0.07139249941787586],
+    [0.29395787843858057, -0.2729563388883143, -0.9160150668873173],
+]
+
+
+def represented_maximum(problem, intensified=None, n=256):
+    """The maximum of a represented problem: the best of n + 1 points, refined
+    by the secant on the slope when interior."""
+    best = max((problem._measure_k(D(j * (FULL // n)), intensified)[0], j) for j in range(n + 1))
+    if best[1] in (0, n):
+        return D(best[1]) / n, best[0]
+    return problem.peak(best[1] * (FULL // n), intensified)
+
+
+def codex_lines():
+    force = [0.0, 0.0, 0.0, 1.0e8, 0.0, 0.0]
+    chained = Problem(1.0, 1e-5, CODEX_FRAME, force, [], None, 1.0, 1.0)
+    direct = Problem(1.0, 1e-5, [[1.0, 0, 0], [0, 1.0, 0], [0, 0, 1.0]], force, [], None, 1.0, 1.0)
+    u, v = represented_maximum(chained)
+    ud, vd = represented_maximum(direct)
+    # Codex's figures: 999.999999980514384... and 999.999999983333415...
+    assert abs(v - D("999.999999980514384")) < D(10) ** -15, v
+    assert abs(vd - D("999.999999983333415")) < D(10) ** -15, vd
+    out = []
+    lo, hi = floor_ceil64(v)
+    out.append(" ".join(["codex", "transposed_chain", f64hex(float(u)), f64hex(lo), f64hex(hi)]))
+    lo, hi = floor_ceil64(vd)
+    out.append(" ".join(["codex", "direct_local", f64hex(float(ud)), f64hex(lo), f64hex(hi)]))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# end_controls.txt: the design's location order
+# ---------------------------------------------------------------------------
+
+END_BASES = {
+    # A governing end j (f'(phi) > 0) with an interior peak 1e-14 lower.
+    "end_j_governs": dict(
+        force=[-1187.5279061990345, -1625.7677763103652, 1044.7702996564012,
+               210.34051754725851, -789.0080039458173, 1568.616112410351],
+        w=[615.3633628910527, 66.3571634702912, 781.4929415006511],
+        R=1.0, phi=2.4829425449852236, pa=2015.7797600477497, peak=1432, end="j"),
+    # A governing interior peak with end i (f'(0) < 0) 1e-14 lower.
+    "interior_governs_over_end_i": dict(
+        force=[-1170.3589391669382, 917.5522148115087, -1993.350818531865,
+               577.9170482784316, 1264.5180475014668, -1039.81846768052],
+        w=[-567.5169258943125, -355.4631254699995, 136.81989992541105],
+        R=0.5, phi=2.4995316041719082, pa=1747.280593977035, peak=2488, end="i"),
+}
+IDENTITY = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+END_SPLIT = D(10) ** -14
+
+
+def end_problem(base, mx, mz):
+    force = list(base["force"])
+    force[3], force[5] = mx, mz
+    return Problem(base["R"], base["phi"], IDENTITY, force, [(base["w"], 1.0)], base["pa"], 0.01, 1e-4), force
+
+
+def end_residual(base, mx, mz):
+    problem, _ = end_problem(base, mx, mz)
+    kp = D(base["peak"] * GRID)
+    value, slope = problem._measure_k(kp, None)
+    end_value = problem._measure_k(D(FULL) if base["end"] == "j" else D(0), None)[0]
+    if base["end"] == "j":
+        return [slope, end_value - (1 + END_SPLIT) * value]
+    return [slope, value - (1 + END_SPLIT) * end_value]
+
+
+def tune_end_control(base):
+    """Newton on (M_x, M_z) at end j: the slope is zero at the grid point
+    `peak`/4096 and the value split is 1e-14 relative; then binary64."""
+    p = [D(base["force"][3]), D(base["force"][5])]
+    for _ in range(60):
+        r = end_residual(base, *p)
+        jac = []
+        for i in range(2):
+            h = abs(p[i]) * D(10) ** -40 + D(10) ** -40
+            q = list(p)
+            q[i] += h
+            rq = end_residual(base, *q)
+            jac.append([(rq[j] - r[j]) / h for j in range(2)])
+        # Solve J^T-layout: jac[i][j] = d r_j / d p_i.
+        det = jac[0][0] * jac[1][1] - jac[1][0] * jac[0][1]
+        dp0 = (-r[0] * jac[1][1] + r[1] * jac[1][0]) / det
+        dp1 = (-r[1] * jac[0][0] + r[0] * jac[0][1]) / det
+        p = [p[0] + dp0, p[1] + dp1]
+        if abs(dp0) + abs(dp1) < D(10) ** -60:
+            break
+    return float(p[0]), float(p[1])
+
+
+def end_control_lines():
+    out = [
+        "# T4-U4b arc maximum location order controls (design section 2.3 step 6)",
+        "# generated by gen_arc_maximum_vectors.py; operands in the end-j frame (identity axes)",
+        "# variant name; operand name hex...; expect kind fraction_hex",
+    ]
+    for name, base in END_BASES.items():
+        mx, mz = tune_end_control(base)
+        problem, force = end_problem(base, mx, mz)
+        kp = D(base["peak"] * GRID)
+        value, slope = problem._measure_k(kp, None)
+        end_k = D(FULL) if base["end"] == "j" else D(0)
+        end_value, end_slope = problem._measure_k(end_k, None)
+        split = (end_value - value) / value if base["end"] == "j" else (value - end_value) / end_value
+        assert D("0.5e-14") < split < D("2e-14"), (name, split)
+        assert abs(slope) < D(10) ** -6, (name, slope)
+        assert (end_slope > 0) if base["end"] == "j" else (end_slope < 0), name
+        top = max(value, end_value)
+        for j in range(4097):
+            if j * GRID not in (int(kp), int(end_k)):
+                assert problem._measure_k(D(j * GRID), None)[0] < top, (name, j)
+        out.append(f"variant {name}")
+        out.append("operand R " + f64hex(base["R"]))
+        out.append("operand phi " + f64hex(base["phi"]))
+        out.append("operand w " + " ".join(f64hex(x) for x in base["w"]))
+        out.append("operand force " + " ".join(f64hex(x) for x in force))
+        out.append("operand pa " + f64hex(base["pa"]))
+        out.append("operand area " + f64hex(0.01))
+        out.append("operand z " + f64hex(1e-4))
+        if base["end"] == "j":
+            out.append("expect end_j " + f64hex(1.0))
+        else:
+            out.append("expect interior " + f64hex(base["peak"] / 4096))
+    return out
+
+
+# ---------------------------------------------------------------------------
 # directed.txt
 # ---------------------------------------------------------------------------
 
@@ -491,6 +676,7 @@ def directed_lines(variants):
         out.append(" ".join(["maximum", cid, mid, basis, measure, f64hex(float(u)), f64hex(lo), f64hex(hi)]))
     for name, problem, peaks in variants:
         emit("TWO-PEAKS", name, "synthetic", "elastic", None, problem)
+    out.extend(codex_lines())
     return out
 
 
@@ -500,6 +686,8 @@ def generate():
     peaks, variants = two_peak_lines()
     files["two_peaks.txt"] = "\n".join(peaks) + "\n"
     files["directed.txt"] = "\n".join(directed_lines(variants)) + "\n"
+    files["end_controls.txt"] = "\n".join(end_control_lines()) + "\n"
+    print(f"decimal model vs oracle 40-digit station resultants: worst {float(WORST_STATION_RESULTANT[0]):.3e} of the zero scale")
     sums = "".join(f"{hashlib.sha256(files[n].encode()).hexdigest()}  {n}\n" for n in sorted(files))
     files["SHA256SUMS"] = sums
     return files

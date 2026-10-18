@@ -18,6 +18,22 @@ const CASES: &str = include_str!("../../../../../validation/references/t4_u4b/ca
 const TRIG: &str = include_str!("../../tests/arc_maximum/trig.txt");
 const TWO_PEAKS: &str = include_str!("../../tests/arc_maximum/two_peaks.txt");
 const DIRECTED: &str = include_str!("../../tests/arc_maximum/directed.txt");
+const END_CONTROLS: &str = include_str!("../../tests/arc_maximum/end_controls.txt");
+
+/// The five station witnesses (fractions 0, 0.25, 0.5, 0.75, 1) with no
+/// allowance beyond binary64 formation.
+fn witnesses(values: &[f64]) -> Vec<ArcStationWitness> {
+    assert_eq!(values.len(), 5);
+    values
+        .iter()
+        .enumerate()
+        .map(|(i, &value_pa)| ArcStationWitness {
+            fraction: i as f64 * 0.25,
+            value_pa,
+            allowance_pa: 0.0,
+        })
+        .collect()
+}
 
 /// A minimal JSON reader for the frozen reference files (test-only; no new
 /// dependency). Numbers are parsed with Rust's correctly rounded `f64` parser.
@@ -448,10 +464,11 @@ fn oracle_arc_maxima_at_the_criterion() {
             ("intensified", &arc.intensified, &arc.intensified_stations),
         ] {
             // The station cover with the oracle's own station values (Pa).
-            let result = certify_arc_stress_maximum(&arc.problem(), arc.measure(name), stations)
-                .unwrap_or_else(|e| {
-                    panic!("{} {} {} {name}: {e:?}", arc.case, arc.member, arc.basis)
-                });
+            let result =
+                certify_arc_stress_maximum(&arc.problem(), arc.measure(name), &witnesses(stations))
+                    .unwrap_or_else(|e| {
+                        panic!("{} {} {} {name}: {e:?}", arc.case, arc.member, arc.basis)
+                    });
             let label = format!("{} {} {} {name}", arc.case, arc.member, arc.basis);
             // The gap rule and the publication.
             assert!(result.value_lower <= result.upper_bound, "{label}");
@@ -580,9 +597,10 @@ fn every_evaluation_is_directed() {
             value.lo <= hex(f[6]) && value.hi >= hex(f[7]),
             "{line}: {value:?}"
         );
-        // The enclosure is tight: within 1e-12 relative of the value.
+        // The enclosure is tight: within 1e-12 relative of the value (1e-60 Pa
+        // absolute where the value is an exact zero).
         assert!(
-            value.hi - value.lo <= 1e-12 * value.hi.max(1e-300),
+            value.hi - value.lo <= 1e-12 * value.hi + 1e-60,
             "{line}: {value:?}"
         );
         if f[8] != "none" {
@@ -953,37 +971,182 @@ fn limits_refuse_by_name() {
 }
 
 #[test]
-fn station_cover_raises_the_bound_and_rechecks_the_gap() {
+fn station_witnesses_are_checked_on_both_sides_then_cover() {
     let arc = arc106_nominal();
     let measure = ArcStressMeasure::ElasticNormal;
-    let plain = certify_arc_stress_maximum(&arc.problem(), measure, &[]).unwrap();
-    // Below the bound: unchanged.
-    let below =
-        certify_arc_stress_maximum(&arc.problem(), measure, &[plain.value_lower, 1.0]).unwrap();
-    assert_eq!(below, plain);
-    // Above the bound but within the gap: raised, still certified.
+    let problem = arc.problem();
+    let plain = certify_arc_stress_maximum(&problem, measure, &[]).unwrap();
+    // The oracle's own station values agree, and lie below the bound.
+    let stations = witnesses(&arc.elastic_stations);
+    assert_eq!(
+        certify_arc_stress_maximum(&problem, measure, &stations).unwrap(),
+        plain
+    );
+    // A witness at the published location, above the bound within the gap by
+    // its stated allowance: the bound is raised and still closes.
     let tol = tolerance(plain.value_lower);
+    let at_maximum = |value_pa: f64, allowance_pa: f64| ArcStationWitness {
+        fraction: plain.fraction,
+        value_pa,
+        allowance_pa,
+    };
     let raised_value = plain.value_lower + 0.5 * tol;
     assert!(raised_value > plain.upper_bound);
-    let raised = certify_arc_stress_maximum(&arc.problem(), measure, &[raised_value]).unwrap();
+    let raised =
+        certify_arc_stress_maximum(&problem, measure, &[at_maximum(raised_value, tol)]).unwrap();
     assert_eq!(raised.upper_bound, raised_value);
     assert!(raised.certified_gap <= tol);
-    // Beyond the gap: unavailable by name.
+    // The same witness without its allowance is inconsistent.
+    let error = certify_arc_stress_maximum(&problem, measure, &[at_maximum(raised_value, 0.0)])
+        .unwrap_err();
+    assert!(
+        matches!(
+            error,
+            ArcMaximumFailure::StationInconsistent { index: 0, .. }
+        ),
+        "{error:?}"
+    );
+    assert_eq!(error.reason(), "arc_maximum_station_inconsistent");
+    // Raised beyond the gap: unavailable by name.
+    let far = plain.value_lower * (1.0 + 1e-9);
     let error =
-        certify_arc_stress_maximum(&arc.problem(), measure, &[plain.value_lower * (1.0 + 1e-9)])
-            .unwrap_err();
+        certify_arc_stress_maximum(&problem, measure, &[at_maximum(far, 1e-8 * far)]).unwrap_err();
     assert!(
         matches!(error, ArcMaximumFailure::StationCoverNotClosed(_)),
         "{error:?}"
     );
     assert_eq!(error.reason(), "arc_maximum_station_cover_not_closed");
-    let error = certify_arc_stress_maximum(&arc.problem(), measure, &[f64::NAN]).unwrap_err();
-    assert_eq!(
-        error,
-        ArcMaximumFailure::InvalidOperand {
-            name: "station_cover_pa"
-        }
+    // An underestimate is caught as well (the old cover could not see it).
+    let mut low = stations.clone();
+    low[2].value_pa *= 1.0 - 1e-9;
+    let error = certify_arc_stress_maximum(&problem, measure, &low).unwrap_err();
+    assert!(
+        matches!(
+            error,
+            ArcMaximumFailure::StationInconsistent { index: 2, .. }
+        ),
+        "{error:?}"
     );
+    // Invalid witnesses are refused by name.
+    for (witness, name) in [
+        (
+            ArcStationWitness {
+                fraction: 1.5,
+                ..stations[0]
+            },
+            "station_fraction",
+        ),
+        (
+            ArcStationWitness {
+                fraction: 1e-30,
+                ..stations[0]
+            },
+            "station_fraction",
+        ),
+        (
+            ArcStationWitness {
+                value_pa: f64::NAN,
+                ..stations[0]
+            },
+            "station_value_pa",
+        ),
+        (
+            ArcStationWitness {
+                allowance_pa: -1.0,
+                ..stations[0]
+            },
+            "station_allowance_pa",
+        ),
+    ] {
+        let error = certify_arc_stress_maximum(&problem, measure, &[witness]).unwrap_err();
+        assert_eq!(error, ArcMaximumFailure::InvalidOperand { name });
+    }
+}
+
+#[test]
+fn pressure_counted_twice_is_refused_by_the_station_check() {
+    // N_w passed as the end-j axial together with pA_i counts the pressure
+    // term twice; the published stations (formed with N_w once) disagree.
+    for arc in oracle_arcs().into_iter().filter(|a| a.pa.is_some()) {
+        let pa = arc.pa.unwrap();
+        let mut force = arc.force;
+        force[0] += pa;
+        let doubled = ArcStressMaximumProblem {
+            end_j_force: force,
+            ..arc.problem()
+        };
+        let error = certify_arc_stress_maximum(
+            &doubled,
+            ArcStressMeasure::ElasticNormal,
+            &witnesses(&arc.elastic_stations),
+        )
+        .unwrap_err();
+        assert!(
+            matches!(error, ArcMaximumFailure::StationInconsistent { .. }),
+            "{} {}: {error:?}",
+            arc.case,
+            arc.basis
+        );
+        // The correct operands agree with the same witnesses.
+        assert!(certify_arc_stress_maximum(
+            &arc.problem(),
+            ArcStressMeasure::ElasticNormal,
+            &witnesses(&arc.elastic_stations)
+        )
+        .is_ok());
+    }
+}
+
+#[test]
+fn codex_rotated_torsion_encloses_the_transposed_chain() {
+    // R = A = Z = 1, φ = 1e-5, no loads, end-j action [0, 0, 0, 1e8, 0, 0] in
+    // a rounded rotated frame: the maximum of the specified chain (E Eᵀ) is
+    // 2.8e-9 below the direct-local one, more than the gap.
+    let frame = [
+        [0.7816391739070251, -0.4829292842142122, 0.3947397981737998],
+        [
+            -0.5501172307043584,
+            -0.8320301337746346,
+            0.07139249941787586,
+        ],
+        [
+            0.29395787843858057,
+            -0.2729563388883143,
+            -0.9160150668873173,
+        ],
+    ];
+    let problem = ArcStressMaximumProblem {
+        bend_radius: 1.0,
+        included_angle: 1e-5,
+        end_j_axes: frame,
+        end_j_force: [0.0, 0.0, 0.0, 1.0e8, 0.0, 0.0],
+        uniform_intensities: &[],
+        pressure_area_product: None,
+        area: 1.0,
+        section_modulus: 1.0,
+    };
+    let line = |kind: &str| -> (f64, f64, f64) {
+        let f: Vec<&str> = DIRECTED
+            .lines()
+            .map(|l| l.split_whitespace().collect::<Vec<_>>())
+            .find(|f| f.first() == Some(&"codex") && f[1] == kind)
+            .unwrap();
+        (hex(f[2]), hex(f[3]), hex(f[4]))
+    };
+    let (fraction, floor, ceil) = line("transposed_chain");
+    let (_, direct_floor, _) = line("direct_local");
+    let result =
+        certify_arc_stress_maximum(&problem, ArcStressMeasure::ElasticNormal, &[]).unwrap();
+    assert!(
+        result.value_lower <= floor && result.upper_bound >= ceil,
+        "{result:?} vs [{floor}, {ceil}]"
+    );
+    assert!(
+        result.upper_bound < direct_floor,
+        "{result:?} must exclude the direct-local {direct_floor}"
+    );
+    assert_eq!(result.fraction, fraction);
+    assert_eq!(result.location, ArcMaximumLocation::EndI);
 }
 
 #[test]
@@ -1126,5 +1289,175 @@ fn curvature_bound_is_the_designed_formula() {
     assert!(
         intensified >= exact && intensified <= exact * (1.0 + 1e-14),
         "{intensified} vs {exact}"
+    );
+}
+
+struct EndControl {
+    variant: Variant,
+    kind: String,
+    fraction: f64,
+}
+
+fn end_controls() -> Vec<EndControl> {
+    let mut controls: Vec<EndControl> = Vec::new();
+    for line in END_CONTROLS.lines().filter(|l| !l.starts_with('#')) {
+        let f: Vec<&str> = line.split_whitespace().collect();
+        if f[0] == "variant" {
+            controls.push(EndControl {
+                variant: Variant {
+                    name: f[1].to_string(),
+                    radius: 0.0,
+                    phi: 0.0,
+                    w: Vec::new(),
+                    force: [0.0; 6],
+                    pa: 0.0,
+                    area: 0.0,
+                    z: 0.0,
+                    peaks: Vec::new(),
+                },
+                kind: String::new(),
+                fraction: 0.0,
+            });
+            continue;
+        }
+        let c = controls.last_mut().unwrap();
+        let v = &mut c.variant;
+        if f[0] == "expect" {
+            c.kind = f[1].to_string();
+            c.fraction = hex(f[2]);
+            continue;
+        }
+        let values: Vec<f64> = f[2..].iter().map(|t| hex(t)).collect();
+        match f[1] {
+            "R" => v.radius = values[0],
+            "phi" => v.phi = values[0],
+            "w" => {
+                v.w = vec![ArcUniformIntensity {
+                    global: [values[0], values[1], values[2]],
+                    scale: 1.0,
+                }]
+            }
+            "force" => v.force.copy_from_slice(&values),
+            "pa" => v.pa = values[0],
+            "area" => v.area = values[0],
+            "z" => v.z = values[0],
+            other => panic!("{other}"),
+        }
+    }
+    assert_eq!(controls.len(), 2);
+    controls
+}
+
+#[test]
+fn location_follows_the_designed_order() {
+    // (a) A governing end j pointing out publishes exactly 1, although an
+    //     interior bracketed peak lies within the gap (1e-14 lower).
+    // (b) A governing interior peak publishes its bracket, although end i,
+    //     pointing out, lies within the gap (1e-14 lower).
+    for control in end_controls() {
+        let v = &control.variant;
+        let result =
+            certify_arc_stress_maximum(&v.problem(), ArcStressMeasure::ElasticNormal, &[]).unwrap();
+        match control.kind.as_str() {
+            "end_j" => {
+                assert_eq!(
+                    result.location,
+                    ArcMaximumLocation::EndJ,
+                    "{}: {result:?}",
+                    v.name
+                );
+                assert_eq!(result.fraction, 1.0);
+            }
+            "interior" => {
+                assert!(
+                    matches!(
+                        result.location,
+                        ArcMaximumLocation::Bracket | ArcMaximumLocation::UnresolvedSign
+                    ),
+                    "{}: {result:?}",
+                    v.name
+                );
+                assert!(
+                    (result.fraction - control.fraction).abs() * v.phi <= 1e-11,
+                    "{}: {result:?}",
+                    v.name
+                );
+            }
+            other => panic!("{other}"),
+        }
+        println!(
+            "{}: {:?} at {:.15}",
+            v.name, result.location, result.fraction
+        );
+    }
+}
+
+#[test]
+fn slope_fallbacks_at_exact_zeros() {
+    // An exact zero of a slope term's argument can only be structural: sine
+    // and cosine of a nonzero rational Δ are irrational, so binary64 operands
+    // cannot place an isolated zero of N_eff or of the bending norm at an
+    // interior evaluation point. The two structural cases:
+    //
+    // (1) N_eff ≡ 0 on the whole arc (an out-of-plane end moment only): the
+    //     |N_eff| fallback is taken at every slope evaluation, including every
+    //     bracket and bisection point, and the bending peak at Δ = π/2 is
+    //     still bracketed.
+    let problem = ArcStressMaximumProblem {
+        bend_radius: 1.0,
+        included_angle: 2.0,
+        end_j_axes: IDENTITY,
+        end_j_force: [0.0, 0.0, 0.0, 1000.0, 0.0, 0.0],
+        uniform_intensities: &[],
+        pressure_area_product: None,
+        area: 1e-3,
+        section_modulus: 1e-4,
+    };
+    let result =
+        certify_arc_stress_maximum(&problem, ArcStressMeasure::ElasticNormal, &[]).unwrap();
+    assert_eq!(result.location, ArcMaximumLocation::Bracket);
+    let psi = 2.0 - std::f64::consts::FRAC_PI_2;
+    assert!((result.fraction * 2.0 - psi).abs() <= 1e-11, "{result:?}");
+    assert!(
+        result.value_lower <= 1.0e7 && result.upper_bound >= 1.0e7,
+        "{result:?}"
+    );
+    let mut evaluator = Evaluator::new(&problem, ArcStressMeasure::ElasticNormal).unwrap();
+    let k = (result.fraction * (FULL as f64)) as u64;
+    let section = evaluator.section(k).unwrap();
+    assert_eq!(
+        bounds(&section.n_eff).unwrap(),
+        Interval { lo: 0.0, hi: 0.0 }
+    );
+    // (2) The bending norm is exactly zero at end j (M_j = 0); the hypot
+    //     fallback ±|M′|/Z is taken there, and the axial slope still resolves
+    //     f′(φ) > 0, so the governing end j publishes 1.
+    let problem = ArcStressMaximumProblem {
+        bend_radius: 1.0,
+        included_angle: 1.5,
+        end_j_axes: IDENTITY,
+        end_j_force: [0.0, 100.0, 0.0, 0.0, 0.0, 0.0],
+        uniform_intensities: &[],
+        pressure_area_product: Some(1000.0),
+        area: 1e-5,
+        section_modulus: 1e-4,
+    };
+    let result =
+        certify_arc_stress_maximum(&problem, ArcStressMeasure::ElasticNormal, &[]).unwrap();
+    assert_eq!(result.location, ArcMaximumLocation::EndJ);
+    assert_eq!(result.fraction, 1.0);
+    assert!(
+        result.value_lower <= 1.0e8 && result.upper_bound >= 1.0e8,
+        "{result:?}"
+    );
+    let mut evaluator = Evaluator::new(&problem, ArcStressMeasure::ElasticNormal).unwrap();
+    let section = evaluator.section(FULL).unwrap();
+    assert_eq!(bounds(&section.m_y).unwrap(), Interval { lo: 0.0, hi: 0.0 });
+    assert_eq!(bounds(&section.m_z).unwrap(), Interval { lo: 0.0, hi: 0.0 });
+    let slope = evaluator.slope(FULL).unwrap();
+    // Axial 100/1e-5 = 1e7 with the fallback ±R·100/1e-4 = ±1e6.
+    assert!(
+        slope.lo > 8.9e6 && slope.lo < 9.1e6 && slope.hi > 1.09e7 && slope.hi < 1.11e7,
+        "{slope:?}"
     );
 }
