@@ -1231,8 +1231,10 @@ fn f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope() {
                 // the blocked envelope publishes no rows.
                 // T4-U5b item 6: the two K-D5 limitation sentences now state the
                 // published corrected displacement; restoring their former text
-                // recovers caa8d5be..., exactly.
-                "fc935fbf385155af4ef5c877dc1eae4e12b3d9e38407fb7f522dfeb9536b6f6f",
+                // recovers caa8d5be..., exactly. The item-6 repair then states the
+                // sentence's true gate (the formation check's member bound; was
+                // fc935fbf...).
+                "c9c78c4173f7ccc701e7ee238f1fdd2ed68a45df8cb67dc303790a5e97712b3c",
                 "{ctx}"
             );
         }
