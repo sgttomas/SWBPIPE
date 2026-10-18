@@ -2,14 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-04-08
 package_id: PKG-04
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:072e7e99a95857b3d520b096810a331b689fd37a613ff003bb1b424324c2866a
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:6fde28820074361ec81d6bd4a22b514e88fffda868d2591bc83e37eb728a4e89
 project_scope_refs: [SOW-080]
 package_objective_refs: [OBJ-003]
 ---
 
 # Scope of Work — DEL-04-08 Retained-precision result verification
 
-**Basis:** decomposition revision 0.15 (SOW-080, OBJ-003) and PRD §12.8, "Verified result bounds". On 2026-10-17 the owner directed this home for the method: "Proceed as recommended in this matter and those other items from your previous set of findings". The commitments and acceptance criteria below await the owner's approval of their text. They state what is built on `main` and what has been ruled; they assert no completion, acceptance or release. Paths are relative to `projects/chirality-piping/`. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+**Basis:** decomposition revision 0.15 (SOW-080, OBJ-003) and PRD §12.8, "Verified result bounds". On 2026-10-17 the owner approved these commitments and acceptance criteria: "I approve #1405 as required." They state what is built on `main` and what has been ruled; they assert no completion, acceptance or release. Paths are relative to `projects/chirality-piping/`. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Purpose and Objective Traceability
 
@@ -233,7 +233,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - **Retained-source recovery:** admits only straight circular members with linear restraints or springs. It declines present pressure regions (zero pressure included), components, nonlinear supports and non-nodal ordinary applied loads, and excludes combinations and models above 256 degrees of freedom.
 - **REQ-007** — These delivery duties are open. Each is delivered under its own design and independent review, keeps every gate unchanged, and is re-registered under D3 wherever it changes a priced source or a reviewed input.
   - **(a) O4: the Timoshenko and corrosion-allowance source extension.** This is the fifth shared epoch in the owner's order of 2026-10-14. It extends retained-source and W1-E publication to the documents REQ-006 (a) declines, including those with a nonzero mill tolerance. It keeps RF's closure, witness and charging rules.
-  - **(b) The W1 coverage repair.** The owner said on 2026-10-17: "We will need to address that W1 coverage gap at some point." It is planned as the sixth shared epoch (PR #1401, open at drafting). The epoch starts with a census of how often current sections and maxima reach each REQ-006 (b) corner, then repairs the cause with every gate unchanged. Implementation follows O4 unless that design shows the two should merge.
+  - **(b) The W1 coverage repair.** The owner said on 2026-10-17: "We will need to address that W1 coverage gap at some point." It is planned as the sixth shared epoch in DEL-05-02's `Design/b7-plan.md` ("After B7b"). The epoch starts with a census of how often current sections and maxima reach each REQ-006 (b) corner, then repairs the cause with every gate unchanged. Implementation follows O4 unless that design shows the two should merge.
   - **(c) Desktop outputs for the current exact identity.** This is a follow-on unit. The owner chose "Merge with the gap" on 2026-10-15 and has not yet placed the unit in the epoch order. T4-U4b/U5b replace `pressure-1` with `pressure-2`.
 - **AC-006** — Each decline in REQ-006 is exercised by a maintained test that asserts its refusal. The fallback tests and the W1 census tests assert the resulting ordinary result at the facade. The desktop output policy refuses each named identity with its stated code. The headless retained entry refuses at D1.0. The tables' limitation texts are bound by the reviewed-input digests.
 - **AC-007** — A duty in REQ-007 is discharged only when the conditions for it hold. Until then it remains listed here as open.

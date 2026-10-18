@@ -5,8 +5,8 @@
 **Product type:** Analysis-grade piping design engine and stress-model authoring environment  
 **Document version:** 0.4 Draft  
 **Date:** 2026-05-02  
-**Amended:** 2026-07-16; 2026-09-18; 2026-10-12; 2026-10-17 (§12.8, pending the owner's approval of its text)  
-**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only) and by SCA-012 (2026-10-12, elastic tie rods); the 2026-10-17 §12.8 amendment (verified result bounds) is pending the owner's approval of its text  
+**Amended:** 2026-07-16; 2026-09-18; 2026-10-12; 2026-10-17 (§12.8, verified result bounds)  
+**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only), by SCA-012 (2026-10-12, elastic tie rods) and by the owner-approved 2026-10-17 §12.8 amendment (verified result bounds)  
 **Intended audience:** Piping designers, piping stress engineers, software architects, numerical-method developers, open-source contributors, owner-operators, EPC engineering managers, and technical reviewers
 
 ---
@@ -77,7 +77,7 @@ This PRD was amended on 2026-07-16 under D-47 Option O-A (codified as DEC-080, e
 
 This PRD was amended on 2026-10-12 by SCA-012 on the owner's choice "Lift for tie rods only": elastic tie rods on expansion joints, as explicit rod elements, left the §7 non-goals (item 19) and joined the §12.3 expansion-joint requirements; hinge and gimbal hardware remain non-goals.
 
-This PRD was amended on 2026-10-17, pending the owner's approval of the text: §12.8 gained a requirement for verified result bounds (decomposition revision 0.15, SOW-080). The owner directed the work on 2026-10-17: "Proceed as recommended in this matter and those other items from your previous set of findings".
+This PRD was amended on 2026-10-17: §12.8 gained a requirement for verified result bounds (decomposition revision 0.15, SOW-080). The owner approved its text in PR #1405: "I approve #1405 as required."
 
 ---
 
