@@ -225,14 +225,28 @@ fn rod_mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)>
 fn broken_tie_rod_bindings_are_refused_by_name() {
     let tied_cases: Vec<_> = corpus().into_iter().filter(|(_, e)| tied(e)).collect();
     assert_eq!(tied_cases.len(), 5);
-    for (label, envelope) in tied_cases {
+    let mut shareless = 0;
+    for (label, mut envelope) in tied_cases {
+        // Codex's single-rod control: its only rod's axial_share is exactly 0,
+        // so the rod adds nothing to s_x and s_x's binding cannot see that
+        // rod's force or share scaled (the tampers below are accepted there).
+        // Its s_x operand is discriminated by product_physics
+        // connector_readers.rs `s_x_formed_with_the_share_at_p_fails_the_binding`.
+        let all_zero = record(&mut envelope)["tie_rods"].as_array().unwrap().iter().all(|r| r["axial_share"].as_f64() == Some(0.0));
+        shareless += usize::from(all_zero);
         for (what, mutate, code) in rod_mutations() {
             let mut broken = envelope.clone();
             mutate(&mut broken);
+            if all_zero && matches!(what, "rod axial share" | "rod force changed") {
+                assert!(label.contains("single-rod control"), "{label}");
+                assert_eq!(s::validate_pressure_evidence(&broken), Ok(()), "{label} {what}: invisible to s_x");
+                continue;
+            }
             let error = s::validate_pressure_evidence(&broken).unwrap_err();
             assert!(error.ends_with(code), "{label} {what}: {error}");
         }
     }
+    assert_eq!(shareless, 1, "exactly the single-rod control has no share in s_x");
 }
 
 /// T4-U5b: an unpressurized connector with rods publishes s_x (the face axial

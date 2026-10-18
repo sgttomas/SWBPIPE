@@ -149,6 +149,8 @@ MUTATIONS = [
 
 def test_corpus_shape():
     assert len(CASES) == 7 and len(UNTIED_CASES) == 2 and len(TIED_CASES) == 5
+    assert [label for label, e in TIED_CASES if all(r["axial_share"] == 0.0 for r in record(e)["tie_rods"])] == [
+        "T4-U5b MO-F single-rod control, Q = I, 1e-17 skew sparse_interactive"]
     assert {load_state(e) for _, e in UNTIED_CASES} == {True, False}
     assert all(len(e["contract_evidence"]["connector"]) == 1 for _, e in CASES)
     assert {record(e)["pressure_model"] for _, e in TIED_CASES} == {"unpressurized", "constant_effective_area_reference_v1"}
@@ -266,6 +268,13 @@ def test_tied_entries_match_the_result_schema_and_the_hardware_rows(label, envel
 def test_broken_tie_rod_bindings_are_refused_by_name(label, envelope, what, mutate, detail):
     broken = deepcopy(envelope)
     mutate(broken)
+    if what in ("rod axial share", "rod force changed") and all(r["axial_share"] == 0.0 for r in record(envelope)["tie_rods"]):
+        # Codex's single-rod control: its only rod's axial_share is exactly 0, so the rod adds nothing to s_x and s_x's
+        # binding cannot see its force or share scaled. Its s_x operand is discriminated by product_physics
+        # connector_readers.rs `s_x_formed_with_the_share_at_p_fails_the_binding`.
+        assert "single-rod control" in label
+        validate_pressure_evidence(broken)
+        return
     with pytest.raises(ValueError) as refused:
         validate_pressure_evidence(broken)
     assert str(refused.value).endswith(f"SOURCE_PHYSICS_EVIDENCE_INVALID: {detail}"), str(refused.value)

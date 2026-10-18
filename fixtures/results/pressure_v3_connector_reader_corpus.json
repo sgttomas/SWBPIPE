@@ -59525,48 +59525,22 @@
                   ],
                   "id": "rod:yp",
                   "law": "bilateral_linear",
-                  "length_m": 0.30000000000000004,
+                  "length_m": 1.0,
                   "offset_global_m": [
                     [
-                      0.2999999999999998,
-                      0.1,
+                      1.0,
+                      0.0,
                       0.0
                     ],
                     [
                       1e-17,
-                      0.4,
+                      1.0,
                       0.0
                     ]
                   ],
-                  "reference_extension_m": -0.0001,
+                  "reference_extension_m": -1.0,
                   "source_reference": "invented T4-U5b tie rod (analytical control); not manufacturer data",
-                  "stiffness_n_per_m": 10000000.0
-                },
-                {
-                  "axial_share": 1.0,
-                  "direction_global": [
-                    1.0,
-                    0.0,
-                    0.0
-                  ],
-                  "id": "rod:ym",
-                  "law": "bilateral_linear",
-                  "length_m": 0.3999999999999998,
-                  "offset_global_m": [
-                    [
-                      -0.05,
-                      -0.1,
-                      0.0
-                    ],
-                    [
-                      0.05,
-                      -0.1,
-                      0.0
-                    ]
-                  ],
-                  "reference_extension_m": 0.0,
-                  "source_reference": "invented T4-U5b tie rod (analytical control); not manufacturer data",
-                  "stiffness_n_per_m": 10000000.0
+                  "stiffness_n_per_m": 1.0
                 }
               ],
               "topology": "replaces_span",
@@ -59707,42 +59681,42 @@
               "pipe_stress_extrema": [
                 {
                   "approximation": "piecewise_quadratic_straight_section_statics",
-                  "certified_gap_pa": 7.663350976776344e-47,
+                  "certified_gap_pa": 2.004573532569147e-51,
                   "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
                   "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
-                  "global_upper_bound_pa": 4.79445894871455e-32,
-                  "local_fraction": 1.0,
+                  "global_upper_bound_pa": 1.7899398352899044e-36,
+                  "local_fraction": 0.0,
                   "pipe_id": "pipe:L",
                   "result_id": "result:elastic-maximum:8:load:U5A:6:pipe:L:nominal_section",
                   "section_basis": "nominal_section",
                   "span_index": 0,
-                  "station_fraction": 1.0,
+                  "station_fraction": 0.0,
                   "subdivisions": 0,
-                  "value_lower_pa": 4.7944589487145424e-32,
-                  "value_upper_pa": 4.79445894871455e-32
+                  "value_lower_pa": 1.7899398352899024e-36,
+                  "value_upper_pa": 1.7899398352899044e-36
                 },
                 {
                   "approximation": "piecewise_quadratic_straight_section_statics",
-                  "certified_gap_pa": 7.663350976776344e-47,
+                  "certified_gap_pa": 2.004573532569147e-51,
                   "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
                   "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
-                  "global_upper_bound_pa": 4.79445894871455e-32,
-                  "local_fraction": 1.0,
+                  "global_upper_bound_pa": 1.7899398352899044e-36,
+                  "local_fraction": 0.0,
                   "pipe_id": "pipe:L",
                   "result_id": "result:elastic-maximum:8:load:U5A:6:pipe:L:reduced_section",
                   "section_basis": "reduced_section",
                   "span_index": 0,
-                  "station_fraction": 1.0,
+                  "station_fraction": 0.0,
                   "subdivisions": 0,
-                  "value_lower_pa": 4.7944589487145424e-32,
-                  "value_upper_pa": 4.79445894871455e-32
+                  "value_lower_pa": 1.7899398352899024e-36,
+                  "value_upper_pa": 1.7899398352899044e-36
                 },
                 {
                   "approximation": "piecewise_quadratic_straight_section_statics",
-                  "certified_gap_pa": 2.658561977242573e-30,
+                  "certified_gap_pa": 5.138334329332886e-30,
                   "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
                   "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
-                  "global_upper_bound_pa": 2.6585619772425727e-30,
+                  "global_upper_bound_pa": 5.138334329332885e-30,
                   "local_fraction": 0.0,
                   "pipe_id": "pipe:R",
                   "result_id": "result:elastic-maximum:8:load:U5A:6:pipe:R:nominal_section",
@@ -59751,14 +59725,14 @@
                   "station_fraction": 0.0,
                   "subdivisions": 0,
                   "value_lower_pa": 0.0,
-                  "value_upper_pa": 2.6585619772425727e-30
+                  "value_upper_pa": 5.138334329332885e-30
                 },
                 {
                   "approximation": "piecewise_quadratic_straight_section_statics",
-                  "certified_gap_pa": 2.658561977242573e-30,
+                  "certified_gap_pa": 5.138334329332886e-30,
                   "coefficient_basis": "j_side_section_equilibrium_binary64_enclosures",
                   "enclosure_scope": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
-                  "global_upper_bound_pa": 2.6585619772425727e-30,
+                  "global_upper_bound_pa": 5.138334329332885e-30,
                   "local_fraction": 0.0,
                   "pipe_id": "pipe:R",
                   "result_id": "result:elastic-maximum:8:load:U5A:6:pipe:R:reduced_section",
@@ -59767,7 +59741,7 @@
                   "station_fraction": 0.0,
                   "subdivisions": 0,
                   "value_lower_pa": 0.0,
-                  "value_upper_pa": 2.6585619772425727e-30
+                  "value_upper_pa": 5.138334329332885e-30
                 }
               ],
               "pressure_rhs_assembly": {
@@ -59915,7 +59889,7 @@
             ],
             "code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
             "id": "diagnostic:numerical-integrity:load:U5A",
-            "message": "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load:U5A: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [-13, -11, -8, -7, -8, -10, -13, -11, -8, -7, -8, -8, -13, -8, -8, -7, -8, -8], pivots: [PivotEvidence { ordered_index: 0, global_dof: 21, pivot: 1.5464259445181268, cancellation_scale: 1.5464259445181268, operation_count: 2, screen: 2.197603442536614e-14 }, PivotEvidence { ordered_index: 1, global_dof: 15, pivot: 0.03662109375, cancellation_scale: 3.1294729827862535, operation_count: 4, screen: 8.894497178705066e-14 }, PivotEvidence { ordered_index: 2, global_dof: 9, pivot: 1.5464259445181268, cancellation_scale: 1.6196681320181268, operation_count: 4, screen: 4.6033737021904455e-14 }, PivotEvidence { ordered_index: 3, global_dof: 22, pivot: 2.010353727873565, cancellation_scale: 2.010353727873565, operation_count: 2, screen: 2.856884475297598e-14 }, PivotEvidence { ordered_index: 4, global_dof: 20, pivot: 0.3769413239762933, cancellation_scale: 2.638589267834054, operation_count: 4, screen: 7.499321747656198e-14 }, PivotEvidence { ordered_index: 5, global_dof: 16, pivot: 0.041198730468749556, cancellation_scale: 4.0619061862158805, operation_count: 6, screen: 1.7316947603728253e-13 }, PivotEvidence { ordered_index: 6, global_dof: 14, pivot: 0.40690104166665786, cancellation_scale: 5.050035800143689, operation_count: 8, screen: 2.8706130024964374e-13 }, PivotEvidence { ordered_index: 7, global_dof: 10, pivot: 2.0103537278735644, cancellation_scale: 2.0927511888110653, operation_count: 6, screen: 8.921934929778104e-14 }, PivotEvidence { ordered_index: 8, global_dof: 8, pivot: 0.3769413239762933, cancellation_scale: 5.079995517834054, operation_count: 8, screen: 2.887643130312687e-13 }, PivotEvidence { ordered_index: 9, global_dof: 23, pivot: 2.010353727873565, cancellation_scale: 2.010353727873565, operation_count: 2, screen: 2.856884475297598e-14 }, PivotEvidence { ordered_index: 10, global_dof: 19, pivot: 0.3769413239762933, cancellation_scale: 2.638589267834054, operation_count: 4, screen: 7.499321747656198e-14 }, PivotEvidence { ordered_index: 11, global_dof: 13, pivot: 2.40325927734375, cancellation_scale: 2.450376942840787, operation_count: 6, screen: 1.0446585219657389e-13 }, PivotEvidence { ordered_index: 12, global_dof: 7, pivot: 0.023558832748518554, cancellation_scale: 4.8300773874360186, operation_count: 4, screen: 1.372790560320715e-13 }, PivotEvidence { ordered_index: 13, global_dof: 17, pivot: 1.5668596540178572, cancellation_scale: 5.588003075166774, operation_count: 10, screen: 3.9705149924648563e-13 }, PivotEvidence { ordered_index: 14, global_dof: 11, pivot: 0.03141177699802547, cancellation_scale: 2.1323809131072617, operation_count: 8, screen: 1.2121182141454844e-13 }, PivotEvidence { ordered_index: 15, global_dof: 6, pivot: 1.2942454963406196, cancellation_scale: 1.584474011524074, operation_count: 6, screen: 6.755018993334581e-14 }, PivotEvidence { ordered_index: 16, global_dof: 12, pivot: 1.2942089490260837, cancellation_scale: 1.58451055883861, operation_count: 8, screen: 9.006899738543616e-14 }, PivotEvidence { ordered_index: 17, global_dof: 18, pivot: 0.006804878326228003, cancellation_scale: 2.5679309411839735, operation_count: 4, screen: 7.298498704767482e-14 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 0.00015994466862159342, residual_rows: [ResidualRow { global_dof: 6, residual: -5.684341886080802e-14, denominator: 512.4186158668913, row_scale_exponent: 8, normalized_residual: -2.220446049250313e-16, normalized_denominator: 2.001635218230044, normalized_evaluation_allowance: 2.666713807415521e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 12, evaluation_allowance: 6.826787346983733e-13, guarded_ratio: 1.443199233322322e-15, target: 8.526512829121214e-14, passed: true }, ResidualRow { global_dof: 7, residual: 2.0738966099997924e-13, denominator: 2006.149023390403, row_scale_exponent: 10, normalized_residual: 2.0252896582029223e-16, normalized_denominator: 1.9591299056546905, normalized_evaluation_allowance: 3.0450995812853765e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 3.1181819712362255e-12, guarded_ratio: 1.6576892311898037e-15, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 8, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 9, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 8, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 5.684341886080807e-14, passed: true }, ResidualRow { global_dof: 10, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 11, residual: 1.0658141036401503e-14, denominator: 650.237119202636, row_scale_exponent: 8, normalized_residual: 4.163336342344337e-17, normalized_denominator: 2.539988746885297, normalized_evaluation_allowance: 5.07591718034556e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 18, evaluation_allowance: 1.2994347981684634e-12, guarded_ratio: 2.0147926049060254e-15, target: 1.2789769243681829e-13, passed: true }, ResidualRow { global_dof: 12, residual: -4.547473508864641e-13, denominator: 4852.594143041117, row_scale_exponent: 11, normalized_residual: -2.220446049250313e-16, normalized_denominator: 2.3694307339067953, normalized_evaluation_allowance: 3.1567158672453767e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 12, evaluation_allowance: 6.4649540961185315e-12, guarded_ratio: 1.425979845631277e-15, target: 8.526512829121214e-14, passed: true }, ResidualRow { global_dof: 13, residual: -1.7408297026122455e-13, denominator: 2120.933158953845, row_scale_exponent: 10, normalized_residual: -1.700029006457271e-16, normalized_denominator: 2.0712237880408644, normalized_evaluation_allowance: 3.2193284740880335e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 3.2965923574661463e-12, guarded_ratio: 1.6363907146603796e-15, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 14, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 15, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 8, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 5.684341886080807e-14, passed: true }, ResidualRow { global_dof: 16, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 17, residual: 7.105427357601002e-15, denominator: 171.17027815648132, row_scale_exponent: 6, normalized_residual: 1.1102230246251565e-16, normalized_denominator: 2.6745355961950206, normalized_evaluation_allowance: 5.344795798335529e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 18, evaluation_allowance: 3.4206693109347386e-13, guarded_ratio: 2.0399123154538995e-15, target: 1.2789769243681829e-13, passed: true }, ResidualRow { global_dof: 18, residual: 0.0, denominator: 4340.175527174225, row_scale_exponent: 11, normalized_residual: 0.0, normalized_denominator: 2.1192263316280395, normalized_evaluation_allowance: 1.4116883206592163e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 2.891137680710075e-12, guarded_ratio: 6.66133814775096e-16, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 19, residual: -3.552713678800501e-15, denominator: 120.93315895384488, row_scale_exponent: 6, normalized_residual: -5.551115123125783e-17, normalized_denominator: 1.8895806086538263, normalized_evaluation_allowance: 2.0978558986127e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 1.342627775112128e-13, guarded_ratio: 1.139600522984866e-15, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 20, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 21, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 22, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 23, residual: 7.105427357601002e-15, denominator: 120.9331589538449, row_scale_exponent: 6, normalized_residual: 1.1102230246251565e-16, normalized_denominator: 1.8895806086538265, normalized_evaluation_allowance: 2.0978558986127002e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 1.3426277751121281e-13, guarded_ratio: 1.1689780213445709e-15, target: 7.10542735760101e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [ContributionRounding { row: 7, col: 7, accumulated_high: 10178812.906432442, accumulated_low: -9.022187441587448e-10, stored_difference_high: -9.022187441587448e-10, stored_difference_low: -0.0, accumulated_expansion: [-9.022187441587448e-10, 10178812.906432442], difference_expansion: [-9.022187441587448e-10] }, ContributionRounding { row: 7, col: 11, accumulated_high: 2913187.0935675567, accumulated_low: -3.637978807091713e-11, stored_difference_high: -3.637978807091713e-11, stored_difference_low: -0.0, accumulated_expansion: [-3.637978807091713e-11, 2913187.0935675567], difference_expansion: [-3.637978807091713e-11] }, ContributionRounding { row: 7, col: 17, accumulated_high: 11999.999999999893, accumulated_low: 4.441719502210253e-14, stored_difference_high: 4.441719502210253e-14, stored_difference_low: -0.0, accumulated_expansion: [4.441719502210253e-14, 11999.999999999893], difference_expansion: [4.441719502210253e-14] }, ContributionRounding { row: 8, col: 10, accumulated_high: 86812.90643244146, accumulated_low: 7.275957614183426e-12, stored_difference_high: 7.275957614183426e-12, stored_difference_low: -0.0, accumulated_expansion: [7.275957614183426e-12, 86812.90643244146], difference_expansion: [7.275957614183426e-12] }, ContributionRounding { row: 10, col: 8, accumulated_high: 86812.90643244146, accumulated_low: 7.275957614183426e-12, stored_difference_high: 7.275957614183426e-12, stored_difference_low: -0.0, accumulated_expansion: [7.275957614183426e-12, 86812.90643244146], difference_expansion: [7.275957614183426e-12] }, ContributionRounding { row: 10, col: 10, accumulated_high: 134450.54190992194, accumulated_low: -2.2737367544323206e-12, stored_difference_high: -2.2737367544323206e-12, stored_difference_low: -0.0, accumulated_expansion: [-2.2737367544323206e-12, 134450.54190992194], difference_expansion: [-2.2737367544323206e-12] }, ContributionRounding { row: 11, col: 7, accumulated_high: 2913187.0935675567, accumulated_low: -3.637978807091713e-11, stored_difference_high: -3.637978807091713e-11, stored_difference_low: -0.0, accumulated_expansion: [-3.637978807091713e-11, 2913187.0935675567], difference_expansion: [-3.637978807091713e-11] }, ContributionRounding { row: 11, col: 11, accumulated_high: 1134450.541909921, accumulated_low: -7.503331289626658e-11, stored_difference_high: -7.275957614183426e-11, stored_difference_low: -2.2737367544323206e-12, accumulated_expansion: [-2.2737367544323206e-12, -7.275957614183426e-11, 1134450.541909921], difference_expansion: [-2.2737367544323206e-12, -7.275957614183426e-11] }, ContributionRounding { row: 11, col: 13, accumulated_high: -3011999.999999998, accumulated_low: 7.275957614183426e-12, stored_difference_high: 7.275957614183426e-12, stored_difference_low: -0.0, accumulated_expansion: [7.275957614183426e-12, -3011999.999999998], difference_expansion: [7.275957614183426e-12] }, ContributionRounding { row: 11, col: 17, accumulated_high: -99100.00000000004, accumulated_low: -3.056219459976988e-12, stored_difference_high: -3.069544618483633e-12, stored_difference_low: 1.3325158506644975e-14, accumulated_expansion: [1.3325158506644975e-14, -3.069544618483633e-12, -99100.00000000004], difference_expansion: [1.3325158506644975e-14, -3.069544618483633e-12] }, ContributionRounding { row: 13, col: 11, accumulated_high: -3011999.999999998, accumulated_low: 7.275957614183426e-12, stored_difference_high: 7.275957614183426e-12, stored_difference_low: -0.0, accumulated_expansion: [7.275957614183426e-12, -3011999.999999998], difference_expansion: [7.275957614183426e-12] }, ContributionRounding { row: 13, col: 13, accumulated_high: 10178812.906432442, accumulated_low: -9.022187441587448e-10, stored_difference_high: -9.022187441587448e-10, stored_difference_low: -0.0, accumulated_expansion: [-9.022187441587448e-10, 10178812.906432442], difference_expansion: [-9.022187441587448e-10] }, ContributionRounding { row: 13, col: 17, accumulated_high: 86812.90643244157, accumulated_low: 5.412551015615467e-12, stored_difference_high: 5.412551015615467e-12, stored_difference_low: -0.0, accumulated_expansion: [5.412551015615467e-12, 86812.90643244157], difference_expansion: [5.412551015615467e-12] }, ContributionRounding { row: 14, col: 16, accumulated_high: -86812.90643244146, accumulated_low: -7.275957614183426e-12, stored_difference_high: -7.275957614183426e-12, stored_difference_low: -0.0, accumulated_expansion: [-7.275957614183426e-12, -86812.90643244146], difference_expansion: [-7.275957614183426e-12] }, ContributionRounding { row: 16, col: 14, accumulated_high: -86812.90643244146, accumulated_low: -7.275957614183426e-12, stored_difference_high: -7.275957614183426e-12, stored_difference_low: -0.0, accumulated_expansion: [-7.275957614183426e-12, -86812.90643244146], difference_expansion: [-7.275957614183426e-12] }, ContributionRounding { row: 16, col: 16, accumulated_high: 134450.54190992194, accumulated_low: -2.2737367544323206e-12, stored_difference_high: -2.2737367544323206e-12, stored_difference_low: -0.0, accumulated_expansion: [-2.2737367544323206e-12, 134450.54190992194], difference_expansion: [-2.2737367544323206e-12] }, ContributionRounding { row: 17, col: 7, accumulated_high: 11999.999999999893, accumulated_low: 4.441719502210253e-14, stored_difference_high: 4.441719502210253e-14, stored_difference_low: -0.0, accumulated_expansion: [4.441719502210253e-14, 11999.999999999893], difference_expansion: [4.441719502210253e-14] }, ContributionRounding { row: 17, col: 11, accumulated_high: -99100.00000000004, accumulated_low: -3.056219459976988e-12, stored_difference_high: -3.069544618483633e-12, stored_difference_low: 1.3325158506644975e-14, accumulated_expansion: [1.3325158506644975e-14, -3.069544618483633e-12, -99100.00000000004], difference_expansion: [1.3325158506644975e-14, -3.069544618483633e-12] }, ContributionRounding { row: 17, col: 13, accumulated_high: 86812.90643244157, accumulated_low: 5.412551015615467e-12, stored_difference_high: 5.412551015615467e-12, stored_difference_low: -0.0, accumulated_expansion: [5.412551015615467e-12, 86812.90643244157], difference_expansion: [5.412551015615467e-12] }, ContributionRounding { row: 17, col: 17, accumulated_high: 234450.54190992197, accumulated_low: -1.6825651982799172e-11, stored_difference_high: -1.4551915228366852e-11, stored_difference_low: -2.2737367544323198e-12, accumulated_expansion: [1.9220643305368413e-28, -2.2737367544323198e-12, -1.4551915228366852e-11, 234450.54190992197], difference_expansion: [1.9220643305368413e-28, -2.2737367544323198e-12, -1.4551915228366852e-11] }], assembly_relative_perturbation_estimate: 3.291929209455815e-17, assembly_amplification_estimate: 2.0581675136944117e-13, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 6, residual: 1.0808924886880332e-14, denominator: 512.4186158668913, row_scale_exponent: 8, normalized_residual: 4.22223628393763e-17, normalized_denominator: 2.001635218230044, normalized_evaluation_allowance: 2.5778233471683962e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 116, evaluation_allowance: 6.599227768751094e-12, guarded_ratio: 1.2899681020478627e-14, target: 8.242295734817268e-13, passed: true }, ResidualRow { global_dof: 7, residual: 7.126684047771378e-14, denominator: 2006.149023390403, row_scale_exponent: 10, normalized_residual: 6.959652390401736e-17, normalized_denominator: 1.9591299056546905, normalized_evaluation_allowance: 7.525746108034414e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 346, evaluation_allowance: 7.70636401462724e-11, guarded_ratio: 3.844924085270332e-14, target: 2.458477865730041e-12, passed: true }, ResidualRow { global_dof: 8, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 16, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.1368683772161623e-13, passed: true }, ResidualRow { global_dof: 9, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 8, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 5.684341886080807e-14, passed: true }, ResidualRow { global_dof: 10, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 18, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.2789769243681829e-13, passed: true }, ResidualRow { global_dof: 11, residual: 2.3886842022238478e-14, denominator: 650.237119202636, row_scale_exponent: 8, normalized_residual: 9.330797664936906e-17, normalized_denominator: 2.539988746885297, normalized_evaluation_allowance: 1.8950090806626175e-13, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 672, evaluation_allowance: 4.851223246496301e-11, guarded_ratio: 7.464372284145686e-14, target: 4.7748471843082295e-12, passed: true }, ResidualRow { global_dof: 12, residual: -1.6616257216088216e-15, denominator: 4852.594143041117, row_scale_exponent: 11, normalized_residual: -8.113406843793074e-19, normalized_denominator: 2.3694307339067953, normalized_evaluation_allowance: 5.4716408365588905e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 208, evaluation_allowance: 1.1205920433272608e-10, guarded_ratio: 2.309298133229455e-14, target: 1.4779288903810425e-12, passed: true }, ResidualRow { global_dof: 13, residual: -6.998663733078491e-14, denominator: 2120.933158953845, row_scale_exponent: 10, normalized_residual: -6.834632551834464e-17, normalized_denominator: 2.0712237880408644, normalized_evaluation_allowance: 9.290062168083416e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 404, evaluation_allowance: 9.513023660117418e-11, guarded_ratio: 4.4886008234916294e-14, target: 2.8705926524709336e-12, passed: true }, ResidualRow { global_dof: 14, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 16, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.1368683772161623e-13, passed: true }, ResidualRow { global_dof: 15, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 8, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 5.684341886080807e-14, passed: true }, ResidualRow { global_dof: 16, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 18, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 1.2789769243681829e-13, passed: true }, ResidualRow { global_dof: 17, residual: 7.186679941490135e-15, denominator: 171.17027815648132, row_scale_exponent: 6, normalized_residual: 1.1229187408578336e-16, normalized_denominator: 2.6745355961950206, normalized_evaluation_allowance: 2.3220168412772734e-13, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 782, evaluation_allowance: 1.486090778417455e-11, guarded_ratio: 8.6861426085463e-14, target: 5.556444193644466e-12, passed: true }, ResidualRow { global_dof: 18, residual: -0.0, denominator: 4340.175527174225, row_scale_exponent: 11, normalized_residual: -0.0, normalized_denominator: 2.1192263316280395, normalized_evaluation_allowance: 7.999567150402275e-15, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 34, evaluation_allowance: 1.6383113524023858e-11, guarded_ratio: 3.774758283725578e-15, target: 2.4158453015843497e-13, passed: true }, ResidualRow { global_dof: 19, residual: -2.6783291955914978e-15, denominator: 120.93315895384488, row_scale_exponent: 6, normalized_residual: -4.184889368111715e-17, normalized_denominator: 1.8895806086538263, normalized_evaluation_allowance: 2.1398130165849976e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 102, evaluation_allowance: 1.3694803306143985e-12, guarded_ratio: 1.1346422037430627e-14, target: 7.247535904753104e-13, passed: true }, ResidualRow { global_dof: 20, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 21, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 6, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 22, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 23, residual: 2.835559731235535e-15, denominator: 120.9331589538449, row_scale_exponent: 6, normalized_residual: 4.430562080055524e-17, normalized_denominator: 1.8895806086538265, normalized_evaluation_allowance: 2.139813016584998e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 102, evaluation_allowance: 1.3694803306143987e-12, guarded_ratio: 1.1347722181551595e-14, target: 7.247535904753104e-13, passed: true }], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing curved elements or connectors; matrix positivity remains mandatory\") }; global_dof_map=[\"node:A:UX\", \"node:A:UY\", \"node:A:UZ\", \"node:A:RX\", \"node:A:RY\", \"node:A:RZ\", \"node:B:UX\", \"node:B:UY\", \"node:B:UZ\", \"node:B:RX\", \"node:B:RY\", \"node:B:RZ\", \"node:C:UX\", \"node:C:UY\", \"node:C:UZ\", \"node:C:RX\", \"node:C:RY\", \"node:C:RZ\", \"node:D:UX\", \"node:D:UY\", \"node:D:UZ\", \"node:D:RX\", \"node:D:RY\", \"node:D:RZ\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
+            "message": "M03-INTEGRITY-v1 represented original-equation structural evidence for load case load:U5A: StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: Passed, factorization: \"positive skyline LDL\", scale_exponents: [-13, -8, -8, -7, -8, -8, -13, -8, -8, -7, -8, -8, -13, -8, -8, -7, -8, -8], pivots: [PivotEvidence { ordered_index: 0, global_dof: 21, pivot: 1.5464259445181268, cancellation_scale: 1.5464259445181268, operation_count: 2, screen: 2.197603442536614e-14 }, PivotEvidence { ordered_index: 1, global_dof: 15, pivot: 0.03662109375, cancellation_scale: 3.1294729827862535, operation_count: 4, screen: 8.894497178705066e-14 }, PivotEvidence { ordered_index: 2, global_dof: 9, pivot: 1.5464259445181268, cancellation_scale: 1.6196681320181268, operation_count: 4, screen: 4.6033737021904455e-14 }, PivotEvidence { ordered_index: 3, global_dof: 22, pivot: 2.010353727873565, cancellation_scale: 2.010353727873565, operation_count: 2, screen: 2.856884475297598e-14 }, PivotEvidence { ordered_index: 4, global_dof: 20, pivot: 0.3769413239762933, cancellation_scale: 2.638589267834054, operation_count: 4, screen: 7.499321747656198e-14 }, PivotEvidence { ordered_index: 5, global_dof: 16, pivot: 0.31890869140624956, cancellation_scale: 4.3396161471533805, operation_count: 6, screen: 1.8500896376082424e-13 }, PivotEvidence { ordered_index: 6, global_dof: 14, pivot: 0.05256616327751029, cancellation_scale: 5.404370678532837, operation_count: 8, screen: 3.0720290615891154e-13 }, PivotEvidence { ordered_index: 7, global_dof: 10, pivot: 2.0103537278735644, cancellation_scale: 2.6481711106860653, operation_count: 6, screen: 1.1289832474486448e-13 }, PivotEvidence { ordered_index: 8, global_dof: 8, pivot: 0.3769413239762931, cancellation_scale: 5.079995517834054, operation_count: 8, screen: 2.887643130312687e-13 }, PivotEvidence { ordered_index: 9, global_dof: 23, pivot: 2.010353727873565, cancellation_scale: 2.010353727873565, operation_count: 2, screen: 2.856884475297598e-14 }, PivotEvidence { ordered_index: 10, global_dof: 19, pivot: 0.3769413239762933, cancellation_scale: 2.638589267834054, operation_count: 4, screen: 7.499321747656198e-14 }, PivotEvidence { ordered_index: 11, global_dof: 17, pivot: 0.31890869140624956, cancellation_scale: 4.3396161471533805, operation_count: 6, screen: 1.8500896376082424e-13 }, PivotEvidence { ordered_index: 12, global_dof: 13, pivot: 0.05258142206657279, cancellation_scale: 5.4043859373219, operation_count: 8, screen: 3.072037735206495e-13 }, PivotEvidence { ordered_index: 13, global_dof: 11, pivot: 2.0103537278735644, cancellation_scale: 2.6482016282641903, operation_count: 6, screen: 1.1289962578747146e-13 }, PivotEvidence { ordered_index: 14, global_dof: 7, pivot: 0.3769413239762931, cancellation_scale: 5.080026035412179, operation_count: 8, screen: 2.887660477547447e-13 }, PivotEvidence { ordered_index: 15, global_dof: 18, pivot: 1.2873679097551007, cancellation_scale: 1.2873679097551007, operation_count: 2, screen: 1.8294598330543024e-14 }, PivotEvidence { ordered_index: 16, global_dof: 12, pivot: 0.0029802322387695313, cancellation_scale: 2.577716051748971, operation_count: 4, screen: 7.326309661689755e-14 }, PivotEvidence { ordered_index: 17, global_dof: 6, pivot: 1.2873679097551007, cancellation_scale: 1.2933283742326398, operation_count: 4, screen: 3.675860325053692e-14 }], condition_estimator: \"Hager-Higham inverse-1-norm iteration with alternating-vector safeguard\", reciprocal_condition_estimate: 0.00011825567302196124, residual_rows: [ResidualRow { global_dof: 6, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 8, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 5.684341886080807e-14, passed: true }, ResidualRow { global_dof: 7, residual: -3.552713678800501e-15, denominator: 46.43154695373318, row_scale_exponent: 5, normalized_residual: -1.1102230246251565e-16, normalized_denominator: 1.450985842304162, normalized_evaluation_allowance: 2.255285046743697e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 7.216912149579831e-14, guarded_ratio: 1.6308273176866619e-15, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 8, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 9, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 8, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 5.684341886080807e-14, passed: true }, ResidualRow { global_dof: 10, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 11, residual: -1.7763568394002505e-15, denominator: 23.216063670407664, row_scale_exponent: 4, normalized_residual: -1.1102230246251565e-16, normalized_denominator: 1.451003979400479, normalized_evaluation_allowance: 2.2553132374544005e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 3.608501179927041e-14, guarded_ratio: 1.630826361272032e-15, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 12, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 8, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 5.684341886080807e-14, passed: true }, ResidualRow { global_dof: 13, residual: 0.0, denominator: 278.87024902587143, row_scale_exponent: 7, normalized_residual: 0.0, normalized_denominator: 2.1786738205146206, normalized_evaluation_allowance: 3.386339374156753e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 4.3345143989206437e-13, guarded_ratio: 1.5543122344752276e-15, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 14, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 15, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 8, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 5.684341886080807e-14, passed: true }, ResidualRow { global_dof: 16, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 17, residual: 0.0, denominator: 276.8702490258713, row_scale_exponent: 7, normalized_residual: 0.0, normalized_denominator: 2.1630488205146197, normalized_evaluation_allowance: 3.362053245493076e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 14, evaluation_allowance: 4.3034281542311373e-13, guarded_ratio: 1.5543122344752276e-15, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 18, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 19, residual: 0.0, denominator: 276.8702490258713, row_scale_exponent: 7, normalized_residual: 0.0, normalized_denominator: 2.1630488205146197, normalized_evaluation_allowance: 2.4014666039236235e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 3.073877253022238e-13, guarded_ratio: 1.110223024625161e-15, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 20, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 21, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 6, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 22, residual: 0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: 0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 23, residual: 1.4210854715202004e-14, denominator: 276.8702490258713, row_scale_exponent: 7, normalized_residual: 1.1102230246251565e-16, normalized_denominator: 2.1630488205146197, normalized_evaluation_allowance: 2.4014666039236235e-15, normalization_basis: \"radix mantissas; one multiply/add per term; physical records descriptive\", operation_count: 10, evaluation_allowance: 3.073877253022238e-13, guarded_ratio: 1.16154979145981e-15, target: 7.10542735760101e-14, passed: true }], refinement_attempts: 0, contribution_audit_performed: true, contribution_rounding: [ContributionRounding { row: 7, col: 17, accumulated_high: 40000.0, accumulated_low: -1e-17, stored_difference_high: -1e-17, stored_difference_low: -0.0, accumulated_expansion: [-1e-17, 40000.0], difference_expansion: [-1e-17] }, ContributionRounding { row: 11, col: 17, accumulated_high: 19100.0, accumulated_low: -1e-17, stored_difference_high: -1e-17, stored_difference_low: -0.0, accumulated_expansion: [-1e-17, 19100.0], difference_expansion: [-1e-17] }, ContributionRounding { row: 13, col: 17, accumulated_high: 58812.906432441465, accumulated_low: 1e-17, stored_difference_high: 1e-17, stored_difference_low: -0.0, accumulated_expansion: [1e-17, 58812.906432441465], difference_expansion: [1e-17] }, ContributionRounding { row: 17, col: 7, accumulated_high: 40000.0, accumulated_low: -1e-17, stored_difference_high: -1e-17, stored_difference_low: -0.0, accumulated_expansion: [-1e-17, 40000.0], difference_expansion: [-1e-17] }, ContributionRounding { row: 17, col: 11, accumulated_high: 19100.0, accumulated_low: -1e-17, stored_difference_high: -1e-17, stored_difference_low: -0.0, accumulated_expansion: [-1e-17, 19100.0], difference_expansion: [-1e-17] }, ContributionRounding { row: 17, col: 13, accumulated_high: 58812.906432441465, accumulated_low: 1e-17, stored_difference_high: 1e-17, stored_difference_low: -0.0, accumulated_expansion: [1e-17, 58812.906432441465], difference_expansion: [1e-17] }, ContributionRounding { row: 17, col: 17, accumulated_high: 152650.54190992194, accumulated_low: 1.0000000000000001e-34, stored_difference_high: 1.0000000000000001e-34, stored_difference_low: -0.0, accumulated_expansion: [1.0000000000000001e-34, 152650.54190992194], difference_expansion: [1.0000000000000001e-34] }], assembly_relative_perturbation_estimate: 5.402926623181444e-23, assembly_amplification_estimate: 4.5688519502807e-19, assembly_load_perturbation_estimate: 0.0, intended_residual_rows: [ResidualRow { global_dof: 6, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 8, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 5.684341886080807e-14, passed: true }, ResidualRow { global_dof: 7, residual: -2.6243964340352894e-15, denominator: 46.43154695373318, row_scale_exponent: 5, normalized_residual: -8.20123885636028e-17, normalized_denominator: 1.450985842304162, normalized_evaluation_allowance: 3.8017662216538484e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 236, evaluation_allowance: 1.2165651909292315e-12, guarded_ratio: 2.625778522042705e-14, target: 1.6768808563938805e-12, passed: true }, ResidualRow { global_dof: 8, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 14, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 9, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 8, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 5.684341886080807e-14, passed: true }, ResidualRow { global_dof: 10, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 14, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 11, residual: -1.6018626476721001e-15, denominator: 23.216063670407664, row_scale_exponent: 4, normalized_residual: -1.0011641547950626e-16, normalized_denominator: 1.451003979400479, normalized_evaluation_allowance: 3.9951263063480024e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 248, evaluation_allowance: 6.392202090156804e-13, guarded_ratio: 2.7602529040278004e-14, target: 1.762145984685097e-12, passed: true }, ResidualRow { global_dof: 12, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 8, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 5.684341886080807e-14, passed: true }, ResidualRow { global_dof: 13, residual: 2.6243964340352894e-15, denominator: 278.87024902587143, row_scale_exponent: 7, normalized_residual: 2.05030971409007e-17, normalized_denominator: 2.1786738205146206, normalized_evaluation_allowance: 9.288245140545e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 384, evaluation_allowance: 1.18889537798976e-11, guarded_ratio: 4.264197496101115e-14, target: 2.728484105318901e-12, passed: true }, ResidualRow { global_dof: 14, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 14, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 15, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 8, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 5.684341886080807e-14, passed: true }, ResidualRow { global_dof: 16, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 14, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 9.947598300641418e-14, passed: true }, ResidualRow { global_dof: 17, residual: -2.6636641651579477e-15, denominator: 276.8702490258713, row_scale_exponent: 7, normalized_residual: -2.0809876290296467e-17, normalized_denominator: 2.1630488205146197, normalized_evaluation_allowance: 1.7866911533194674e-13, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 744, evaluation_allowance: 2.2869646762489182e-11, guarded_ratio: 8.26102136546965e-14, target: 5.286437954055582e-12, passed: true }, ResidualRow { global_dof: 18, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 6, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 19, residual: -0.0, denominator: 276.8702490258713, row_scale_exponent: 7, normalized_residual: -0.0, normalized_denominator: 2.1630488205146197, normalized_evaluation_allowance: 2.305407939766723e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 96, evaluation_allowance: 2.9509221629014053e-12, guarded_ratio: 1.0658141036401853e-14, target: 6.821210263297034e-13, passed: true }, ResidualRow { global_dof: 20, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 21, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 6, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 4.263256414560604e-14, passed: true }, ResidualRow { global_dof: 22, residual: -0.0, denominator: 0.0, row_scale_exponent: 0, normalized_residual: -0.0, normalized_denominator: 0.0, normalized_evaluation_allowance: 0.0, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 10, evaluation_allowance: 0.0, guarded_ratio: 0.0, target: 7.10542735760101e-14, passed: true }, ResidualRow { global_dof: 23, residual: 9.398401209550588e-16, denominator: 276.8702490258713, row_scale_exponent: 7, normalized_residual: 7.342500944961397e-18, normalized_denominator: 2.1630488205146197, normalized_evaluation_allowance: 2.4494959360021462e-14, normalization_basis: \"exact contribution expansions and full intended free action including prescribed DOFs\", operation_count: 102, evaluation_allowance: 3.135354798082747e-12, guarded_ratio: 1.1327669365843197e-14, target: 7.247535904753104e-13, passed: true }], symmetry_projection_performed: false, maximum_scaled_skew: 0.0, symmetry_basis: Some(\"represented local matrices; two-stage 12-term frame transforms plus directed scatter; curved H*K and (H*K)*H^T six-term stages when traced; inverse accuracy not claimed; mixed or explicit-matrix family: physical rigid-null witness unqualified for bodies containing curved elements or connectors; matrix positivity remains mandatory\") }; global_dof_map=[\"node:A:UX\", \"node:A:UY\", \"node:A:UZ\", \"node:A:RX\", \"node:A:RY\", \"node:A:RZ\", \"node:B:UX\", \"node:B:UY\", \"node:B:UZ\", \"node:B:RX\", \"node:B:RY\", \"node:B:RZ\", \"node:C:UX\", \"node:C:UY\", \"node:C:UZ\", \"node:C:RX\", \"node:C:RY\", \"node:C:RZ\", \"node:D:UX\", \"node:D:UY\", \"node:D:UZ\", \"node:D:RX\", \"node:D:RY\", \"node:D:RZ\"]. The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable. No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.",
             "severity": "info",
             "source": "core/product_physics"
           },
@@ -60017,7 +59991,7 @@
             "id": "result:disp:node-B",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 1.5980894857329452e-38
+            "value": 5.96646611763301e-43
           },
           {
             "basis_ref": {
@@ -60028,7 +60002,7 @@
             "id": "result:disp:node-C",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.10263261110708599
+            "value": 0.29019354104155876
           },
           {
             "basis_ref": {
@@ -60039,7 +60013,7 @@
             "id": "result:disp:node-D",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.6124452936813374
+            "value": 1.4009822148848459
           },
           {
             "basis_ref": {
@@ -60165,7 +60139,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.5057169157114334e-49
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -60183,7 +60157,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -1.5980894857329452e-38
+            "value": -5.96646611763301e-43
           },
           {
             "basis_ref": {
@@ -60255,7 +60229,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -1.5981053598171114e-41
+            "value": -5.96646611763301e-46
           },
           {
             "basis_ref": {
@@ -60273,7 +60247,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.02511855960131822
+            "value": -4.9985490322947924e-20
           },
           {
             "basis_ref": {
@@ -60291,7 +60265,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.09951136028722236
+            "value": -0.29019354104155876
           },
           {
             "basis_ref": {
@@ -60363,7 +60337,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.0002562093079334458
+            "value": -0.0005553943369216435
           },
           {
             "basis_ref": {
@@ -60381,7 +60355,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.02511855960131822
+            "value": -4.9985490322947924e-20
           },
           {
             "basis_ref": {
@@ -60399,7 +60373,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.611929976154114
+            "value": -1.4009822148848459
           },
           {
             "basis_ref": {
@@ -60471,7 +60445,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.0002562093079334458
+            "value": -0.0005553943369216435
           },
           {
             "basis_ref": {
@@ -60489,7 +60463,7 @@
               "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
             },
             "unit": "N",
-            "value": 2.1647840099530466e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -60507,7 +60481,7 @@
               "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
             },
             "unit": "N",
-            "value": -1.5685643934134023e-41
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -60579,7 +60553,7 @@
               "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
             },
             "unit": "N*m",
-            "value": 5.263624323187039e-37
+            "value": 1.965212860713343e-41
           },
           {
             "basis_ref": {
@@ -60597,7 +60571,7 @@
               "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
             },
             "unit": "N",
-            "value": 1.568565887227618e-41
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -60615,7 +60589,7 @@
               "sign_convention": "support-on-pipe; positive global force and right-hand couple about attached node; force and moment norms remain separate"
             },
             "unit": "N*m",
-            "value": 5.263624323187039e-37
+            "value": 1.965212860713343e-41
           },
           {
             "basis_ref": {
@@ -60633,7 +60607,7 @@
               "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
             },
             "unit": "N",
-            "value": 2.1647840099530466e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -60651,7 +60625,7 @@
               "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
             },
             "unit": "N",
-            "value": -2.1647840099530466e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -60669,7 +60643,7 @@
               "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
             },
             "unit": "N",
-            "value": -1.5685643934134023e-41
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -60687,7 +60661,7 @@
               "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
             },
             "unit": "N",
-            "value": 1.5685643934134023e-41
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -60813,7 +60787,7 @@
               "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
             },
             "unit": "N*m",
-            "value": 5.263624323187039e-37
+            "value": 1.965212860713343e-41
           },
           {
             "basis_ref": {
@@ -60831,7 +60805,7 @@
               "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
             },
             "unit": "N*m",
-            "value": -5.263938036065722e-37
+            "value": -1.965212860713343e-41
           },
           {
             "basis_ref": {
@@ -60849,7 +60823,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N",
-            "value": -2.1647840099530466e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -60867,7 +60841,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N",
-            "value": 1.5685643934134023e-41
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -60939,7 +60913,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N*m",
-            "value": -5.26370275140671e-37
+            "value": -1.965212860713343e-41
           },
           {
             "basis_ref": {
@@ -60957,7 +60931,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N",
-            "value": -2.1647840099530466e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -60975,7 +60949,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N",
-            "value": 1.5685643934134023e-41
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61047,7 +61021,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N*m",
-            "value": -5.263781179626381e-37
+            "value": -1.965212860713343e-41
           },
           {
             "basis_ref": {
@@ -61065,7 +61039,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N",
-            "value": -2.1647840099530466e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61083,7 +61057,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N",
-            "value": 1.5685643934134023e-41
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61155,7 +61129,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N*m",
-            "value": -5.263859607846051e-37
+            "value": -1.965212860713343e-41
           },
           {
             "basis_ref": {
@@ -61173,7 +61147,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": -2.5057169157114334e-47
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61191,7 +61165,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": -2.5057169157114334e-47
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61245,7 +61219,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": -4.794173212693837e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61263,7 +61237,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": -4.794173212693837e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61317,7 +61291,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": -2.5057169157114334e-47
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61335,7 +61309,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": -2.5057169157114334e-47
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61389,7 +61363,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": -4.794458946208829e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61407,7 +61381,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": -4.794458946208829e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61461,7 +61435,7 @@
               "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -2.5057169157114334e-47
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61479,7 +61453,7 @@
               "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -2.5057169157114334e-47
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61533,7 +61507,7 @@
               "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -4.794244646072585e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61551,7 +61525,7 @@
               "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -4.794244646072585e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61605,7 +61579,7 @@
               "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -2.5057169157114334e-47
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61623,7 +61597,7 @@
               "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -2.5057169157114334e-47
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61677,7 +61651,7 @@
               "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -4.794316079451333e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61695,7 +61669,7 @@
               "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -4.794316079451333e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61749,7 +61723,7 @@
               "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -2.5057169157114334e-47
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61767,7 +61741,7 @@
               "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -2.5057169157114334e-47
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -61821,7 +61795,7 @@
               "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -4.794387512830081e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61839,7 +61813,7 @@
               "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -4.794387512830081e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61893,7 +61867,7 @@
               "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
             },
             "unit": "Pa",
-            "value": 4.794458948714546e-32
+            "value": 1.7899398352899034e-36
           },
           {
             "basis_ref": {
@@ -61911,7 +61885,7 @@
               "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
             },
             "unit": "Pa",
-            "value": 4.794458948714546e-32
+            "value": 1.7899398352899034e-36
           },
           {
             "basis_ref": {
@@ -61929,7 +61903,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 4.79417321018812e-38
+            "value": 1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61947,7 +61921,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -4.794173215199554e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61965,7 +61939,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 4.79417321018812e-38
+            "value": 1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -61983,7 +61957,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -4.794173215199554e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62001,7 +61975,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 3.883045203727002e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62019,7 +61993,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 3.883045203727002e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62037,7 +62011,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 4.794458943703112e-38
+            "value": 1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62055,7 +62029,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -4.794458948714546e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62073,7 +62047,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 4.794458943703112e-38
+            "value": 1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62091,7 +62065,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -4.794458948714546e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62109,7 +62083,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 3.883045203727002e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62127,7 +62101,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 3.883045203727002e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62145,7 +62119,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 4.794244643566868e-38
+            "value": 1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62163,7 +62137,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -4.794244648578302e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62181,7 +62155,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 4.794244643566868e-38
+            "value": 1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62199,7 +62173,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -4.794244648578302e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62217,7 +62191,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 3.883045203727002e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62235,7 +62209,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 3.883045203727002e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62253,7 +62227,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 4.794316076945616e-38
+            "value": 1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62271,7 +62245,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -4.79431608195705e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62289,7 +62263,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 4.794316076945616e-38
+            "value": 1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62307,7 +62281,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -4.79431608195705e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62325,7 +62299,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 3.883045203727002e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62343,7 +62317,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 3.883045203727002e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62361,7 +62335,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 4.794387510324364e-38
+            "value": 1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62379,7 +62353,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -4.794387515335798e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62397,7 +62371,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 4.794387510324364e-38
+            "value": 1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62415,7 +62389,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -4.794387515335798e-38
+            "value": -1.7899398352899027e-42
           },
           {
             "basis_ref": {
@@ -62433,7 +62407,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 3.883045203727002e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62451,7 +62425,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 3.883045203727002e-44
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62469,7 +62443,7 @@
               "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
             },
             "unit": "N",
-            "value": -9.236411775799666e-43
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62487,7 +62461,7 @@
               "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
             },
             "unit": "N",
-            "value": 9.236411775799666e-43
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62505,7 +62479,7 @@
               "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
             },
             "unit": "N",
-            "value": 0.0
+            "value": 8.654148377453254e-42
           },
           {
             "basis_ref": {
@@ -62523,7 +62497,7 @@
               "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
             },
             "unit": "N",
-            "value": 0.0
+            "value": -8.654148377453254e-42
           },
           {
             "basis_ref": {
@@ -62649,7 +62623,7 @@
               "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
             },
             "unit": "N*m",
-            "value": 2.704421367954142e-43
+            "value": 2.307772900654201e-41
           },
           {
             "basis_ref": {
@@ -62667,7 +62641,7 @@
               "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
             },
             "unit": "N*m",
-            "value": -2.704421367954142e-43
+            "value": -5.769432251635502e-42
           },
           {
             "basis_ref": {
@@ -62685,7 +62659,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N",
-            "value": 9.236411775799666e-43
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62703,7 +62677,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N",
-            "value": 0.0
+            "value": -8.654148377453254e-42
           },
           {
             "basis_ref": {
@@ -62775,7 +62749,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N*m",
-            "value": -2.704421367954142e-43
+            "value": -1.8750654817815383e-41
           },
           {
             "basis_ref": {
@@ -62793,7 +62767,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N",
-            "value": 9.236411775799666e-43
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62811,7 +62785,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N",
-            "value": 0.0
+            "value": -8.654148377453254e-42
           },
           {
             "basis_ref": {
@@ -62883,7 +62857,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N*m",
-            "value": -2.704421367954142e-43
+            "value": -1.4423580629088755e-41
           },
           {
             "basis_ref": {
@@ -62901,7 +62875,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N",
-            "value": 9.236411775799666e-43
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -62919,7 +62893,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N",
-            "value": 0.0
+            "value": -8.654148377453254e-42
           },
           {
             "basis_ref": {
@@ -62991,7 +62965,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "N*m",
-            "value": -2.704421367954142e-43
+            "value": -1.0096506440362129e-41
           },
           {
             "basis_ref": {
@@ -63009,7 +62983,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": 1.0691058840368783e-45
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -63027,7 +63001,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": 1.0691058840368783e-45
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -63081,7 +63055,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": -2.463219956820967e-44
+            "value": -2.1019476964872253e-42
           },
           {
             "basis_ref": {
@@ -63099,7 +63073,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": -2.463219956820967e-44
+            "value": -2.1019476964872253e-42
           },
           {
             "basis_ref": {
@@ -63153,7 +63127,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": 1.0691058840368783e-45
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -63171,7 +63145,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": 1.0691058840368783e-45
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -63225,7 +63199,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": -2.463219956820967e-44
+            "value": -5.254869241218063e-43
           },
           {
             "basis_ref": {
@@ -63243,7 +63217,7 @@
               "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
             },
             "unit": "MPa",
-            "value": -2.463219956820967e-44
+            "value": -5.254869241218063e-43
           },
           {
             "basis_ref": {
@@ -63297,7 +63271,7 @@
               "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": 1.0691058840368783e-45
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -63315,7 +63289,7 @@
               "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": 1.0691058840368783e-45
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -63369,7 +63343,7 @@
               "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -2.463219956820967e-44
+            "value": -1.7078325033958705e-42
           },
           {
             "basis_ref": {
@@ -63387,7 +63361,7 @@
               "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -2.463219956820967e-44
+            "value": -1.7078325033958705e-42
           },
           {
             "basis_ref": {
@@ -63441,7 +63415,7 @@
               "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": 1.0691058840368783e-45
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -63459,7 +63433,7 @@
               "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": 1.0691058840368783e-45
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -63513,7 +63487,7 @@
               "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -2.463219956820967e-44
+            "value": -1.3137173103045158e-42
           },
           {
             "basis_ref": {
@@ -63531,7 +63505,7 @@
               "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -2.463219956820967e-44
+            "value": -1.3137173103045158e-42
           },
           {
             "basis_ref": {
@@ -63585,7 +63559,7 @@
               "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": 1.0691058840368783e-45
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -63603,7 +63577,7 @@
               "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": 1.0691058840368783e-45
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -63657,7 +63631,7 @@
               "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -2.463219956820967e-44
+            "value": -9.19602117213161e-43
           },
           {
             "basis_ref": {
@@ -63675,7 +63649,7 @@
               "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
             },
             "unit": "MPa",
-            "value": -2.463219956820967e-44
+            "value": -9.19602117213161e-43
           },
           {
             "basis_ref": {
@@ -63729,7 +63703,7 @@
               "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
             },
             "unit": "Pa",
-            "value": 1.3292809886212863e-30
+            "value": 2.5691671646664425e-30
           },
           {
             "basis_ref": {
@@ -63747,7 +63721,7 @@
               "sign_convention": "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim"
             },
             "unit": "Pa",
-            "value": 1.3292809886212863e-30
+            "value": 2.5691671646664425e-30
           },
           {
             "basis_ref": {
@@ -63765,7 +63739,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 2.570130545224655e-44
+            "value": 2.1019476964872253e-42
           },
           {
             "basis_ref": {
@@ -63783,7 +63757,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -2.356309368417279e-44
+            "value": -2.1019476964872253e-42
           },
           {
             "basis_ref": {
@@ -63801,7 +63775,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 2.570130545224655e-44
+            "value": 2.1019476964872253e-42
           },
           {
             "basis_ref": {
@@ -63819,7 +63793,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -2.356309368417279e-44
+            "value": -2.1019476964872253e-42
           },
           {
             "basis_ref": {
@@ -63837,7 +63811,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 0.0
+            "value": 2.1423697675735184e-44
           },
           {
             "basis_ref": {
@@ -63855,7 +63829,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 0.0
+            "value": 2.1423697675735184e-44
           },
           {
             "basis_ref": {
@@ -63873,7 +63847,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 2.570130545224655e-44
+            "value": 5.254869241218063e-43
           },
           {
             "basis_ref": {
@@ -63891,7 +63865,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -2.356309368417279e-44
+            "value": -5.254869241218063e-43
           },
           {
             "basis_ref": {
@@ -63909,7 +63883,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 2.570130545224655e-44
+            "value": 5.254869241218063e-43
           },
           {
             "basis_ref": {
@@ -63927,7 +63901,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -2.356309368417279e-44
+            "value": -5.254869241218063e-43
           },
           {
             "basis_ref": {
@@ -63945,7 +63919,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 0.0
+            "value": 2.1423697675735184e-44
           },
           {
             "basis_ref": {
@@ -63963,7 +63937,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 0.0
+            "value": 2.1423697675735184e-44
           },
           {
             "basis_ref": {
@@ -63981,7 +63955,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 2.570130545224655e-44
+            "value": 1.7078325033958705e-42
           },
           {
             "basis_ref": {
@@ -63999,7 +63973,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -2.356309368417279e-44
+            "value": -1.7078325033958705e-42
           },
           {
             "basis_ref": {
@@ -64017,7 +63991,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 2.570130545224655e-44
+            "value": 1.7078325033958705e-42
           },
           {
             "basis_ref": {
@@ -64035,7 +64009,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -2.356309368417279e-44
+            "value": -1.7078325033958705e-42
           },
           {
             "basis_ref": {
@@ -64053,7 +64027,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 0.0
+            "value": 2.1423697675735184e-44
           },
           {
             "basis_ref": {
@@ -64071,7 +64045,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 0.0
+            "value": 2.1423697675735184e-44
           },
           {
             "basis_ref": {
@@ -64089,7 +64063,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 2.570130545224655e-44
+            "value": 1.3137173103045158e-42
           },
           {
             "basis_ref": {
@@ -64107,7 +64081,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -2.356309368417279e-44
+            "value": -1.3137173103045158e-42
           },
           {
             "basis_ref": {
@@ -64125,7 +64099,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 2.570130545224655e-44
+            "value": 1.3137173103045158e-42
           },
           {
             "basis_ref": {
@@ -64143,7 +64117,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -2.356309368417279e-44
+            "value": -1.3137173103045158e-42
           },
           {
             "basis_ref": {
@@ -64161,7 +64135,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 0.0
+            "value": 2.1423697675735184e-44
           },
           {
             "basis_ref": {
@@ -64179,7 +64153,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 0.0
+            "value": 2.1423697675735184e-44
           },
           {
             "basis_ref": {
@@ -64197,7 +64171,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 2.570130545224655e-44
+            "value": 9.19602117213161e-43
           },
           {
             "basis_ref": {
@@ -64215,7 +64189,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -2.356309368417279e-44
+            "value": -9.19602117213161e-43
           },
           {
             "basis_ref": {
@@ -64233,7 +64207,7 @@
               "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": 2.570130545224655e-44
+            "value": 9.19602117213161e-43
           },
           {
             "basis_ref": {
@@ -64251,7 +64225,7 @@
               "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
             },
             "unit": "MPa",
-            "value": -2.356309368417279e-44
+            "value": -9.19602117213161e-43
           },
           {
             "basis_ref": {
@@ -64269,7 +64243,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 0.0
+            "value": 2.1423697675735184e-44
           },
           {
             "basis_ref": {
@@ -64287,7 +64261,7 @@
               "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
             },
             "unit": "MPa",
-            "value": 0.0
+            "value": 2.1423697675735184e-44
           },
           {
             "basis_ref": {
@@ -64305,7 +64279,7 @@
               "sign_convention": "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
             },
             "unit": "m",
-            "value": 0.000025118559601318218
+            "value": -4.9985490322947923e-23
           },
           {
             "basis_ref": {
@@ -64323,7 +64297,7 @@
               "sign_convention": "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
             },
             "unit": "m",
-            "value": -0.00006107996409720551
+            "value": -0.000012496372580736981
           },
           {
             "basis_ref": {
@@ -64395,7 +64369,7 @@
               "sign_convention": "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
             },
             "unit": "rad",
-            "value": -0.0002562093079334458
+            "value": -0.0005553943369216435
           },
           {
             "basis_ref": {
@@ -64413,7 +64387,7 @@
               "sign_convention": "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
             },
             "unit": "N",
-            "value": 5.0237119202636435
+            "value": -9.997098064589586e-18
           },
           {
             "basis_ref": {
@@ -64431,7 +64405,7 @@
               "sign_convention": "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
             },
             "unit": "N",
-            "value": -4.886397127776441
+            "value": -0.9997098064589585
           },
           {
             "basis_ref": {
@@ -64503,7 +64477,7 @@
               "sign_convention": "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
             },
             "unit": "N*m",
-            "value": -0.23058837714010125
+            "value": -0.49985490322947923
           },
           {
             "basis_ref": {
@@ -64521,7 +64495,7 @@
               "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
-            "value": -5.0237119202636435
+            "value": 9.997098064589586e-18
           },
           {
             "basis_ref": {
@@ -64539,7 +64513,7 @@
               "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
-            "value": 4.886397127776441
+            "value": 0.9997098064589585
           },
           {
             "basis_ref": {
@@ -64611,7 +64585,7 @@
               "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
-            "value": 0.9635479463065669
+            "value": 0.9997098064589585
           },
           {
             "basis_ref": {
@@ -64629,7 +64603,7 @@
               "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
-            "value": 5.0237119202636435
+            "value": -9.997098064589586e-18
           },
           {
             "basis_ref": {
@@ -64647,7 +64621,7 @@
               "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N",
-            "value": -4.886397127776441
+            "value": -0.9997098064589585
           },
           {
             "basis_ref": {
@@ -64719,7 +64693,7 @@
               "sign_convention": "global end action on the connector at its node (node on element), f = B^T g; the connector acts on its node with -f"
             },
             "unit": "N*m",
-            "value": 0.5023711920263645
+            "value": -1.9505965146958928e-41
           },
           {
             "basis_ref": {
@@ -64737,25 +64711,7 @@
               "sign_convention": "tension positive along the rod axis: T_r = k_r(e - e_ref), e = n.(v_bj - v_bi) with n from the end-i attachment to the end-j attachment; e_ref < 0 is pretension"
             },
             "unit": "N",
-            "value": 4.886397127776441
-          },
-          {
-            "basis_ref": {
-              "ref_id": "load:U5A",
-              "ref_type": "load_case"
-            },
-            "entity_ref": "component:C-J",
-            "id": "result:connector:component-C-J:tie-rod-force:tie_rod:rod-ym:t_r",
-            "kind": "connector_tie_rod_force_v1",
-            "metadata": {
-              "basis": "recovered_from_tie_rod_extension_v1",
-              "component": "t_r",
-              "coordinate_system": "element_local",
-              "location": "tie_rod",
-              "sign_convention": "tension positive along the rod axis: T_r = k_r(e - e_ref), e = n.(v_bj - v_bi) with n from the end-i attachment to the end-j attachment; e_ref < 0 is pretension"
-            },
-            "unit": "N",
-            "value": -5.023711920263644
+            "value": 0.9997098064589585
           },
           {
             "basis_ref": {
@@ -64773,7 +64729,7 @@
               "sign_convention": "generalized coordinates of the connector frame Q: q - q_ref and g = K(q - q_ref); positive along the connector axes"
             },
             "unit": "N",
-            "value": -1.628799042592147e-16
+            "value": -9.997098064589586e-18
           }
         ],
         "run_id": "run:preview-linear-static-001",
@@ -64791,20 +64747,20 @@
             "location_ref": "node:D",
             "result_ref": "result:disp:node-D",
             "unit": "mm",
-            "value": 0.6124452936813374
+            "value": 1.4009822148848459
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
             "location_ref": "pipe:R",
             "result_ref": "result:elastic-maximum:8:load:U5A:6:pipe:R:nominal_section",
             "unit": "Pa",
-            "value": 1.3292809886212863e-30
+            "value": 2.5691671646664425e-30
           },
           "max_open_formula_stress_reduced_section": {
             "location_ref": "pipe:R",
             "result_ref": "result:elastic-maximum:8:load:U5A:6:pipe:R:reduced_section",
             "unit": "Pa",
-            "value": 1.3292809886212863e-30
+            "value": 2.5691671646664425e-30
           },
           "node_count": 4,
           "segment_count": 3,
@@ -64812,7 +64768,7 @@
           "support_count": 1
         }
       },
-      "label": "T4-U5b MO-F perpendicular 1e-17 skew, pretension only sparse_interactive",
+      "label": "T4-U5b MO-F single-rod control, Q = I, 1e-17 skew sparse_interactive",
       "solver_mode": "sparse_interactive"
     },
     {
@@ -77709,6 +77665,6 @@
   "inputs": [
     "validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, bytes unchanged; each copy re-authored to model document 0.6.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time",
     "validation/references/t4_u5b cases AS-F and MO-F (SHA-bound case descriptions over their t4_u5a base requests), authored as model document 0.6.0 requests with explicit_axial_rods_v1 hardware at test time (core/product_physics/tests/common/t4_u5b.rs)",
-    "three requests derived at test time from t4_u5b MO-F, AS-F-R and AS-F (connector_readers.rs derived_tied): near-perpendicular or skewed rods, two with Pe = 0 and pretension only; invented controls, not references"
+    "three requests derived at test time from t4_u5b MO-F, AS-F-R and AS-F (connector_readers.rs derived_tied): MO-F re-placed as a single-rod Q = I control, AS-F-R with a perpendicular rod, AS-F with a skewed one, the first two unpressurized and unloaded; invented controls, not references"
   ]
 }
