@@ -72,6 +72,59 @@ def helper_consumers(project, helper):
     return consumers
 
 
+def _module_name(local):
+    """Dotted name of a project-relative Python file (a package's `__init__.py` names the package)."""
+    parts = list(Path(local).with_suffix('').parts)
+    return '.'.join(parts[:-1] if parts[-1] == '__init__' else parts)
+
+
+def _imported_names(source, name, is_package):
+    """Every module name one test-tree file may import, as written and as resolved from `tests/` on sys.path."""
+    package = name.split('.') if is_package else name.split('.')[:-1]
+    found = set()
+    for node in ast.walk(ast.parse(source.read_text(), filename=str(source))):
+        if isinstance(node, ast.Import):
+            modules = [alias.name for alias in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            if node.level:
+                anchor = package[:len(package) - node.level + 1]
+                base = '.'.join(anchor + ([node.module] if node.module else []))
+            else:
+                base = node.module or ''
+            modules = [base] + [f'{base}.{alias.name}' for alias in node.names]
+        else:
+            continue
+        for module in filter(None, modules):
+            for written in (module, 'tests.' + module):
+                parts = written.split('.')
+                found.update('.'.join(parts[:end]) for end in range(1, len(parts) + 1))
+    return found
+
+
+def test_tree_importers(project, changed):
+    """Test files that import a changed test-tree module (test-only support code, such as a package of
+    test-only verifiers), directly or through other test-tree modules, read from the tests' own import
+    statements: no module here names, imports or loads that support code."""
+    tests = project / 'tests'
+    files = {_module_name(path.relative_to(project).as_posix()): path
+             for path in tests.rglob('*.py') if '__pycache__' not in path.parts}
+    imports = {name: _imported_names(path, name, path.name == '__init__.py') for name, path in files.items()}
+    targets = {_module_name(local) for local in changed}
+    importers = []
+    for name, path in sorted(files.items()):
+        if not path.name.startswith('test_'):
+            continue
+        seen, stack = {name}, [name]
+        while stack:
+            for imported in imports.get(stack.pop(), ()):
+                if imported not in seen:
+                    seen.add(imported)
+                    stack.append(imported)
+        if seen & targets - {name}:
+            importers.append(path.relative_to(project).as_posix())
+    return importers
+
+
 def select(project, plan):
     paths = plan.get('paths', [])
     if plan.get('event') != 'pull_request' or not paths:
@@ -110,6 +163,10 @@ def select(project, plan):
             if (local.startswith(('core/serialization/', 'fixtures/canonical_hash/'))
                     or fnmatchcase(local, 'tests/*canonical*.py')):
                 patterns.extend(FAMILIES['canonical'])
+        support = [path[len(PREFIX):] for path in paths if path.startswith(PREFIX + 'tests/') and path.endswith('.py')
+                   and not Path(path).name.startswith('test_')]
+        if support:
+            patterns.extend(test_tree_importers(project, support))
     if plan.get('piping_numerical_selection', {}).get('classification') == 'full-fallback':
         patterns.extend(BROAD)
     # Resolve globs here so shell expansion cannot silently change selection.
