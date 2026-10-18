@@ -228,7 +228,19 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     };
     assert!(rows.iter().all(|r| r["combination_algebra"].is_string()));
     let split = rows.iter().position(|r| r["kind"].as_str().unwrap().starts_with("connector_")).unwrap();
-    let (physical, connector) = rows.split_at(split);
+    let (physical, rest) = rows.split_at(split);
+    // T4-U4b (§2.2): pressure-2's own section stress, toroidal and directional
+    // signatures follow the connector rows; each is a stress signature naming its
+    // recovery token and section basis (the source family does not carry them).
+    let u4b_split = rest.iter().position(|r| !r["kind"].as_str().unwrap().starts_with("connector_")).unwrap_or(rest.len());
+    let (connector, u4b) = rest.split_at(u4b_split);
+    assert_eq!(u4b.len(), 22);
+    for row in u4b {
+        let kind = row["kind"].as_str().unwrap();
+        assert!(open_pipe_stress_result_export::section_basis::is_stress_kind(kind), "{row}");
+        assert!(open_pipe_stress_result_export::section_basis::split_token(row["source_basis"].as_str().unwrap()).is_some(), "{row}");
+        assert!(!source_rows_kinds(&q).contains(&kind.to_string()), "{row}");
+    }
     for row in physical {
         let declared = row.get("source_basis").map(|b| b.as_str().unwrap());
         let stress = open_pipe_stress_result_export::section_basis::is_stress_kind(row["kind"].as_str().unwrap());
@@ -267,8 +279,9 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     assert_eq!(p["source_signature_count"], rows.len());
     // T4-U6 (§2.4): 88 + 18 (015-018 become four signatures each, 068 and
     // 072-076 two each); the kinds are unchanged.
-    assert_eq!(rows.len(), 106);
-    assert_eq!(p["source_kind_count"], 59);
+    // T4-U4b (§2.2): + 22 (six kinds, both section bases) -> 128 rows over 65 kinds.
+    assert_eq!(rows.len(), 128);
+    assert_eq!(p["source_kind_count"], 65);
     // Signature ids are identities, not positions: stable and ascending, and
     // removed rows are not renumbered: B3's three retired rows (008, 020, 021),
     // E14's retired parity signature (037) and H-4's joint and thrust rows (038-042).
@@ -295,4 +308,9 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     let expected: Vec<u32> =
         (0..numbers.len() as u32 + removed.len() as u32).filter(|n| !removed.contains(n)).collect();
     assert_eq!(numbers, expected);
+}
+
+/// The kinds of a table's rows.
+fn source_rows_kinds(table: &serde_json::Map<String, Value>) -> Vec<String> {
+    table["rows"].as_array().unwrap().iter().map(|r| r["kind"].as_str().unwrap().to_string()).collect()
 }
