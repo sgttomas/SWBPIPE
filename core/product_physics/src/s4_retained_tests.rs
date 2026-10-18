@@ -80,10 +80,14 @@ pub(super) fn receipt_and_reader_classify(label: &str, successor: &Value, raw: &
     let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
     let validation = reader::validate(successor, Some(&invocation)).unwrap_or_else(|e| panic!("{label}: reader {e:?}"));
     assert!(validation.invocation_bound, "{label}: bound");
-    let not_covered: Vec<Value> = successor["retained_precision"]["body"]["cases"].as_array().unwrap().iter()
-        .flat_map(|c| c["selection"]["not_covered"].as_array().cloned().unwrap_or_default()).collect();
-    let derived: Vec<&Value> = successor["results"].as_array().unwrap().iter().filter(|r| DERIVED.contains(&r["kind"].as_str().unwrap())).collect();
+    let cases = successor["retained_precision"]["body"]["cases"].as_array().unwrap();
+    let not_covered: Vec<Value> = cases.iter().flat_map(|c| c["selection"]["not_covered"].as_array().cloned().unwrap_or_default()).collect();
+    // A `not_required` case has no retained selection; its rows stay ordinary.
+    let selected: Vec<&Value> = cases.iter().filter(|c| c["status"] == "selected").map(|c| &c["basis_ref"]).collect();
+    let derived: Vec<&Value> = successor["results"].as_array().unwrap().iter()
+        .filter(|r| DERIVED.contains(&r["kind"].as_str().unwrap()) && selected.contains(&&r["basis_ref"])).collect();
     assert!(!derived.is_empty(), "{label}: derived rows carried");
+    assert_eq!(not_covered.len(), derived.len(), "{label}: not_covered lists the selected cases' derived rows and nothing else");
     for row in &derived {
         assert!(not_covered.contains(&row["id"]), "{label}: {} listed not_covered", row["id"]);
         let class = validation.classifications.iter().find(|c| c.result_id == row["id"].as_str().unwrap())
@@ -219,5 +223,80 @@ fn s4_w1e_derived_rows_of_both_bases_are_not_covered_and_formed_from_own_rows() 
         base_read_with_model(&label, &successor, &raw);
         let validation = receipt_and_reader_classify(&label, &successor, &raw, mode);
         assert!(validation.numerical_eligible, "{label}: eligible with the invocation");
+    }
+}
+
+/// W1-E binds each derived row at its own position whatever the producer's σ order: the S2 order
+/// (nominal σ⁺, nominal σ⁻, reduced σ⁺, reduced σ⁻) and the D-5 twin-adjacent order (nominal σ⁺,
+/// reduced σ⁺, nominal σ⁻, reduced σ⁻) freeze to the same values, each formed from its own basis's
+/// rows; neither order is a twin pairing.
+#[test]
+fn s4_w1e_derived_rows_bind_in_either_sigma_order() {
+    let raw = m3x();
+    for mode in MODES {
+        let label = format!("W1-E order {}", mode.as_str());
+        let run = |adjacent: bool| {
+            let (request, capture) = source_receipt::CapturedInvocation::parse(raw.clone(), mode).unwrap();
+            let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
+            if adjacent {
+                let rows = &mut prepared.ordinary_mut().results;
+                let mut i = 0;
+                let mut swapped = 0;
+                while i + 3 < rows.len() {
+                    let is = |r: &ResultItem, c: &str, b: &str| r.kind == DERIVED[0] && r.metadata.as_ref().is_some_and(|m| m.component == c && m.basis.ends_with(b));
+                    if is(&rows[i], "sigma_plus", "nominal_section") && is(&rows[i + 1], "sigma_minus", "nominal_section")
+                        && is(&rows[i + 2], "sigma_plus", "reduced_section") && is(&rows[i + 3], "sigma_minus", "reduced_section") {
+                        rows.swap(i + 1, i + 2);
+                        swapped += 1;
+                        i += 4;
+                    } else {
+                        i += 1;
+                    }
+                }
+                assert_eq!(swapped, 5 * raw["model"]["pipe_segments"].as_array().unwrap().len(), "{label}: every station reordered");
+            }
+            prepared.solve_native().unwrap();
+            let candidate = match prepared.project_candidate() { Ok(c) => c, Err(e) => panic!("{label}: {:?}", e.error) };
+            assert!(candidate.certificate().passed(), "{label}");
+            serde_json::to_value(candidate.envelope()).unwrap()
+        };
+        let (s2, adjacent) = (run(false), run(true));
+        derived_rows_follow_own_rows(&label, &s2);
+        derived_rows_follow_own_rows(&label, &adjacent);
+        let by_id = |doc: &Value| doc["results"].as_array().unwrap().iter().map(|r| (r["id"].as_str().unwrap().to_owned(), r["value"].as_f64().unwrap().to_bits()))
+            .collect::<std::collections::BTreeMap<_, _>>();
+        assert_eq!(by_id(&s2), by_id(&adjacent), "{label}: the same values in either order");
+    }
+}
+
+/// §4.2: a retained-selected mechanics combination publishes no never_combined derived row, and
+/// REQ-001's 7n + 50m + 8g rows per combination stay exact; its operand cases carry theirs.
+#[test]
+fn s4_combinations_publish_no_derived_rows_and_keep_7n_50m_8g() {
+    let raw = w_cb3();
+    let n = raw["model"]["nodes"].as_array().unwrap().len();
+    let m = raw["model"]["pipe_segments"].as_array().unwrap().len();
+    for mode in MODES {
+        let label = format!("W-CB3 {}", mode.as_str());
+        let (capture, observer, ordinary) = observed(mode, &raw);
+        let ((_, retained), _, captured) = hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+        let successor = captured.unwrap_or_else(|| panic!("{label}: {retained:?}"));
+        let rows = successor["results"].as_array().unwrap();
+        let mut selected = 0;
+        for combination in successor["retained_precision"]["body"]["combinations"].as_array().unwrap() {
+            if combination["disposition"] != "retained_selected" {
+                continue;
+            }
+            selected += 1;
+            let id = combination["basis_ref"]["ref_id"].as_str().unwrap();
+            let block: Vec<&Value> = rows.iter().filter(|r| r["basis_ref"]["ref_type"] == "combination" && r["basis_ref"]["ref_id"] == id).collect();
+            assert!(block.iter().all(|r| !DERIVED.contains(&r["kind"].as_str().unwrap())), "{label}: {id} publishes no derived row");
+            let g = block.iter().filter(|r| r["kind"] == "support_reaction_component_v2").count() / 6;
+            assert_eq!(block.len(), 7 * n + 50 * m + 8 * g, "{label}: {id} has 7n + 50m + 8g rows");
+            assert_eq!(combination["result_ids"].as_array().unwrap().len(), block.len(), "{label}: {id} owner lists its block");
+        }
+        assert!(selected > 0, "{label}: a retained-selected combination");
+        assert_eq!(derived_rows_follow_own_rows(&label, &successor) % 15, 0, "{label}: the cases carry their derived rows");
+        receipt_and_reader_classify(&label, &successor, &raw, mode);
     }
 }
