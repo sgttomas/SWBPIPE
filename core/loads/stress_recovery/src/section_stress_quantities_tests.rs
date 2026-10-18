@@ -7,6 +7,7 @@ use super::*;
 use std::collections::HashMap;
 
 const ORACLE: &str = include_str!("../../../../validation/references/t4_u4b/oracle.json");
+const BITS: &str = include_str!("../tests/u4b_section_bits/section_quantity_bits.json");
 
 /// A minimal JSON reader for the frozen reference file (test-only; no new
 /// dependency). Numbers are parsed with Rust's correctly rounded `f64` parser.
@@ -770,4 +771,103 @@ fn extremes_and_intensified_follow_the_fixed_sequences() {
     // Swapping the factors is a different value (sif_factors_swapped).
     assert!((directional_intensified_bending_pa(3.0, 2.0, 4.0, 3.0) - value).abs() > 1.0);
     assert_eq!(pa_to_mpa(4.2e6), 4.2);
+}
+
+fn bits_value(token: &str) -> f64 {
+    f64::from_bits(u64::from_str_radix(token, 16).expect(token))
+}
+
+#[test]
+fn every_sequence_matches_the_independent_expected_bits() {
+    // tests/u4b_section_bits/section_quantity_bits.json: exact rational
+    // evaluation of each normative sequence (gen_section_quantity_bits.py).
+    let document = json::parse(BITS);
+    assert_eq!(document.at("schema").text(), "u4b.section_quantity_bits/1");
+    let mut counts: HashMap<String, usize> = HashMap::new();
+    for vector in document.at("vectors").items() {
+        let id = vector.at("id").text();
+        let quantity = vector.at("quantity").text();
+        let input = |key: &str| bits_value(vector.at("inputs").at(key).text());
+        let expected = |key: &str| vector.at("expected").at(key).text().to_string();
+        let check = |key: &str, got: f64| {
+            assert_eq!(
+                format!("{:016x}", got.to_bits()),
+                expected(key),
+                "{id} {key}"
+            );
+        };
+        match quantity {
+            "saint_venant_shear_factor" => check(
+                "c_b",
+                saint_venant_shear_factor(
+                    input("nu"),
+                    input("outer_radius"),
+                    input("inner_radius"),
+                    input("second_moment"),
+                )
+                .unwrap(),
+            ),
+            "transverse_shear_maximum_mpa" => check(
+                "tau_v_max",
+                transverse_shear_maximum_mpa(input("shear_y"), input("shear_z"), input("c_b")),
+            ),
+            "normal_stress_extremes" => {
+                let e =
+                    normal_stress_extremes(input("sigma_n"), input("sigma_y"), input("sigma_z"));
+                check("sigma_plus", e.sigma_plus);
+                check("sigma_minus", e.sigma_minus);
+            }
+            "normal_stress_extremes_membrane" => {
+                let sigma_n = pa_to_mpa(input("membrane_pa"));
+                check("sigma_n", sigma_n);
+                let e = normal_stress_extremes(sigma_n, input("sigma_y"), input("sigma_z"));
+                check("sigma_plus", e.sigma_plus);
+                check("sigma_minus", e.sigma_minus);
+            }
+            "directional_intensified_bending_pa" => check(
+                "intensified",
+                directional_intensified_bending_pa(
+                    input("in_plane_factor"),
+                    input("out_of_plane_factor"),
+                    input("sigma_y"),
+                    input("sigma_z"),
+                ),
+            ),
+            "toroidal_membrane_hoop" => {
+                let args = (
+                    input("pressure"),
+                    input("inner_radius"),
+                    input("wall"),
+                    input("outer_radius"),
+                    input("bend_radius"),
+                );
+                let hoop = toroidal_membrane_hoop(args.0, args.1, args.2, args.3, args.4).unwrap();
+                check("intrados", hoop.intrados);
+                check("crown", hoop.crown);
+                check("extrados", hoop.extrados);
+                let (inner, outer) = toroidal_radial_surface(args.0, args.3, args.4).unwrap();
+                check("radial_inner", inner);
+                check("radial_outer", outer);
+            }
+            other => panic!("{id}: unknown quantity {other}"),
+        }
+        *counts.entry(quantity.to_string()).or_default() += 1;
+    }
+    // Codex's rounding-sensitive case (K2 review).
+    let codex = document
+        .at("vectors")
+        .items()
+        .iter()
+        .find(|v| v.at("id").text() == "c_b/U4B-L90-P/pipe:S1/reduced_section")
+        .unwrap();
+    assert_eq!(codex.at("expected").at("c_b").text(), "4080cfbe845b9c73");
+    let near_edge = document
+        .at("vectors")
+        .items()
+        .iter()
+        .filter(|v| v.at("id").text().starts_with("hoop/near_edge/"))
+        .count();
+    assert_eq!(near_edge, 27);
+    assert_eq!(counts.values().sum::<usize>(), 908);
+    println!("bit vectors: {counts:?}");
 }

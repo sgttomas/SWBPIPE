@@ -15,6 +15,17 @@
 //!   values (Pa), guarded by the torus domain R > r_o (§2.5).
 //! - The directional intensified bending station value (Pa), §2.6.
 //!
+//! **The sequences are normative.** Each function documents its sequence of
+//! correctly rounded operations; a reader recomputes the published value bit
+//! for bit with exactly that sequence, never with a tolerance. This matters
+//! most for the toroidal intrados: near R = r_o the quotient
+//! (2R − r_i)/(2R − (r_i + r_o)) amplifies rounding by about 2R/t (about 80ε
+//! at D = 1.2192 m, t = 6.35 mm, R one ulp above r_o), so an equivalent but
+//! reassociated sequence can differ by many ulps. The expected bits of every
+//! sequence, near-edge hoops included, are frozen in
+//! `tests/u4b_section_bits/section_quantity_bits.json`, computed independently
+//! in exact rational arithmetic by `gen_section_quantity_bits.py`.
+//!
 //! These are code-neutral mechanics quantities; no code stress, allowable,
 //! SIF table or flexibility formula is implied. The directional factors are
 //! user inputs.
