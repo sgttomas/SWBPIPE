@@ -6416,6 +6416,14 @@ fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Rou
     // (exact: pressure-2's `validate_pressure_evidence`); any text
     // after the code is detail.
     crate::semantic_contract::for_source(&projected).map_err(base_error)?;
+    // T4-U4b (§4.1, §5.1; S4 round 2): on route L the base read above is
+    // model-free, so with the invocation the projection's τ rows are
+    // recomputed bit for bit with c_b from the captured model (the
+    // preview-physics-2 reader's G2 model checks), reported at G7 with the
+    // base's code. Route E's base read already forms c_b from its evidence.
+    if let (Some(inv), false) = (actual_invocation, route.exact) {
+        crate::u4b_evidence::preview_model_checks(&projected, &inv["request"]["model"]).map_err(base_error)?;
+    }
     if let Some(inv) = actual_invocation {
         g8(source, inv, route)?;
     }

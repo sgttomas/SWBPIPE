@@ -1271,6 +1271,7 @@ fn s4_failed_ordinary_manifest_carries_derived_rows_formed_after_projection() {
             s4::base_read_with_model(&label, &s, raw);
             let validation = s4::receipt_and_reader_classify(&label, &s, raw, mode);
             assert!(validation.numerical_eligible, "{label}: bound and eligible");
+            s4::tau_tamper_is_refused_by_the_reader(&label, &s, raw, mode);
         }
     }
 }
