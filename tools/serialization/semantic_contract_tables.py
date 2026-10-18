@@ -23,7 +23,13 @@ derived from it is regenerated here, never edited by hand:
           (validation/references/**, execution/**) are never edited; an old value
           found only there is refused, since its pins are not this tool's to move.
           Carrier fixtures whose bytes embed a checksum are never edited here; their
-          writers are printed instead.
+          writers are printed instead. Protected records inside an editable file are
+          never edited either (PROTECTED: the registered retained-memory profile's
+          reviewed_inputs string in retained_memory.rs, which S5's D3 registration owns).
+          Repin from a clean HEAD: the old values are read only from the named revisions
+          and from this run's own writes, so a digest written by an earlier run is not
+          recognized. After a partial or repeated edit of a pinned file, restore the
+          consumers to HEAD and run repin once, after every pinned file is final.
 
 Typical sequence after editing pressure-2 (or merging another edit of it):
 
@@ -490,6 +496,29 @@ def git(*args: str) -> str:
     return subprocess.run(["git", *args], cwd=PROJECT, check=True, capture_output=True, text=True).stdout
 
 
+# Records inside editable files that repin never edits, by path. The registered retained-memory
+# profile records the reviewed inputs it was registered on; S5's D3 re-registration owns it.
+PROTECTED = {
+    "core/product_physics/src/retained_memory.rs": re.compile(r'reviewed_inputs: "v1;[^"]*"'),
+}
+
+
+def replace_unprotected(consumer: str, text: str, old: str, new: str) -> tuple[str, int]:
+    """``text`` with ``old`` replaced by ``new`` outside the consumer's protected records, and the
+    number of occurrences left inside them."""
+    pattern = PROTECTED.get(consumer)
+    if pattern is None:
+        return text.replace(old, new), 0
+    parts, last, kept = [], 0, 0
+    for match in pattern.finditer(text):
+        parts.append(text[last:match.start()].replace(old, new))
+        parts.append(match.group(0))
+        kept += match.group(0).count(old)
+        last = match.end()
+    parts.append(text[last:].replace(old, new))
+    return "".join(parts), kept
+
+
 def classify(consumers: list[str]) -> tuple[list[str], list[str], list[str]]:
     """(editable, carriers, excluded) consumers of one old value, by path."""
     editable, carriers, excluded = [], [], []
@@ -550,10 +579,15 @@ def repin(revisions: list[str], dry_run: bool = False) -> int:
                     print(f"{consumer}: {path} {old[:12]}... left unchanged (frozen or historical tree)")
                 carriers.update(found_carriers)
                 for consumer in editable:
+                    file = PROJECT / consumer
+                    text = file.read_text(encoding="utf-8")
+                    updated, kept = replace_unprotected(consumer, text, old, new)
+                    if kept:
+                        print(f"{consumer}: {path} {old[:12]}... left unchanged in its protected record")
+                    if updated == text:
+                        continue
                     if not dry_run:
-                        file = PROJECT / consumer
-                        text = file.read_text(encoding="utf-8")
-                        file.write_text(text.replace(old, new), encoding="utf-8")
+                        file.write_text(updated, encoding="utf-8")
                     pass_edits += 1
                     print(f"{consumer}: {path} {old[:12]}... -> {new[:12]}...{' (dry run)' if dry_run else ''}")
             written[path].add(new)
@@ -578,7 +612,11 @@ def main(argv: list[str]) -> int:
     apply_parser.add_argument("--check", action="store_true")
     derive_parser = sub.add_parser("derive")
     derive_parser.add_argument("--check", action="store_true")
-    repin_parser = sub.add_parser("repin")
+    repin_parser = sub.add_parser("repin", description=(
+        "Replace literal pins of old table and schema SHA-256s (read from the --from-rev revisions) by the "
+        "current ones. Repin from a clean HEAD: run it once, after every pinned file is final, on consumers "
+        "that no earlier repin run has edited (restore them to HEAD first). The registered retained-memory "
+        "profile's reviewed_inputs record is never edited."))
     repin_parser.add_argument("--from-rev", action="append", required=True)
     repin_parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)

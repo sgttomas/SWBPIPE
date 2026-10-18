@@ -1,5 +1,6 @@
 """tools/serialization/semantic_contract_tables.py: the derived table members are current, and `repin` scopes its
-edits (frozen references and historical records are never edited; an old value found only there is refused)."""
+edits (frozen references and historical records are never edited; an old value found only there is refused; the
+registered retained-memory profile's reviewed_inputs record is never edited)."""
 import importlib.util
 import sys
 from pathlib import Path
@@ -35,3 +36,16 @@ def test_repin_never_edits_frozen_or_historical_trees():
 def test_repin_dry_run_at_head_lists_nothing(capsys):
     assert _tool().repin(["HEAD"], dry_run=True) == 0
     assert "0 file edit(s) listed, none written" in capsys.readouterr().out
+
+
+def test_repin_leaves_the_registered_profile_record_unchanged():
+    tool = _tool()
+    old, new = "a" * 64, "b" * 64
+    text = f'pin: "{old}",\n    reviewed_inputs: "v1;Cargo.lock={old};x={old}",\n    other: "{old}"\n'
+    updated, kept = tool.replace_unprotected("core/product_physics/src/retained_memory.rs", text, old, new)
+    assert kept == 2
+    assert updated == f'pin: "{new}",\n    reviewed_inputs: "v1;Cargo.lock={old};x={old}",\n    other: "{new}"\n'
+    assert tool.replace_unprotected("core/product_physics/src/lib.rs", text, old, new) == (text.replace(old, new), 0)
+    # The actual record is matched exactly once.
+    source = (PROJECT / "core/product_physics/src/retained_memory.rs").read_text(encoding="utf-8")
+    assert len(tool.PROTECTED["core/product_physics/src/retained_memory.rs"].findall(source)) == 1
