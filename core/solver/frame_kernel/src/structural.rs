@@ -92,6 +92,14 @@ pub use sparse::{
 // T4-I29: the curved element's included angle without libm (K3a's arctangent).
 mod arc_angle;
 pub use arc_angle::twice_atan2_nonnegative;
+// T4-U4b: the certified along-arc stress maximum (u4b-u5b-implementation.md §2.3, §2.6).
+mod arc_maximum;
+pub use arc_maximum::{
+    certify_arc_stress_maximum, ArcMaximumDiagnostic, ArcMaximumFailure, ArcMaximumLocation,
+    ArcStationWitness, ArcStressMaximumProblem, ArcStressMeasure, ArcUniformIntensity,
+    CertifiedArcStressMaximum, ARC_MAXIMUM_DEPTH_LIMIT, ARC_MAXIMUM_INITIAL_CELLS,
+    ARC_MAXIMUM_STATION_ALLOWANCE_ULPS, ARC_MAXIMUM_SUBDIVISION_LIMIT,
+};
 
 use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::load_ledger::{AssembledForce, ForceTerm, ForceTermKind};
