@@ -165,7 +165,7 @@ The D5/MJ9 law (b7-plan, "D5/MJ9's accounting clarification") governs. No chargi
     - The identity string is `serde_json::to_string(&(names, bits))` (`source_recovery.rs` about 747–757), with every scalar written as its decimal u64 bit pattern, so its length depends on values. A nonzero allowance or mill tolerance serializes to about 19–21 characters where zero serializes to 1. A mill-tolerance quantity enters only when present. A Timoshenko K_local's entries have other digit counts, and an exact zero at φ = 2 shortens it.
     - Descriptor product lengths change wherever a structural zero drops a term.
     - So ΔF_k = 2·12·Δ(identity length) + Δ(descriptor-length terms). For example, an explicitly present mill tolerance changing from 0.0 to 0.001 adds 18 identity bytes, and so 432 to F_k. The test derives ΔF_k from the actual serialized identity and inputs and asserts equality, not zero. Published rows and their metadata lengths do not change.
-  - ΔQ_k includes the first `retained_identity_digest` reservation, which charges a separate 12 × identity length: 216 more in the same example. It also includes the second basis's endpoint maximum. `composite_member_maximum` charges `RECIPE_WORK` per call (`composite.rs` about 172), and the second basis is a second call. Each later call also reads the cached identity digest, which charges `charge_finalization(128)` (`source_recovery.rs` about 233–234). The maximum is computed at two sites, and each gains a reduced-basis call: the publication loop (`lib.rs` about 5960) and the composite receipt's expected-rows pass (`source_receipt/composite.rs` about 785). So ΔQ_k = 2 × (RECIPE_WORK + 128) = 8,448 per member whose sections differ, plus each call's own metered work in `maximum_inner`. The test counts the calls at both sites rather than assuming one. Composite-exact wrapper terms depend on row counts, and none moves.
+  - ΔQ_k includes the first `retained_identity_digest` reservation, which charges a separate 12 × identity length: 216 more in the same example. It also includes the second basis's endpoint maximum. `composite_member_maximum` charges `RECIPE_WORK` per call (`composite.rs` about 172), and the second basis is a second call. Each later call also reads the cached identity digest, which charges `charge_finalization(128)` (`source_recovery.rs` about 233–234). The maximum is computed at two sites, and each gains a reduced-basis call: the publication loop (`lib.rs` about 5960) and the composite receipt's expected-rows pass (`source_receipt/composite.rs` about 785). So ΔQ_k = 2 × (RECIPE_WORK + 128) = 8,448 per member whose sections differ, plus each call's own metered work in `maximum_inner`. The test counts the calls at both sites rather than assuming one. `composite_member_maximum(input, selected, member_id)` (`composite.rs` about 165–170) has no basis argument today, and `maximum_inner` reads the built nominal section. So the reduced-basis call takes the reduced section explicitly, and the test asserts that the second call's evidence is bound to the reduced section's bits. Calling twice on the nominal section cannot satisfy it. Composite-exact wrapper terms depend on row counts, and none moves.
   - ΔP = 0, because no published row or diagnostic is added.
 
 An independent test derives every term from the actual inputs and sites, as the MJ9 test does, and reconciles their sum with the counters exactly; it asserts ΔP = 0. MJ6's and MJ9's twelve Euler–Bernoulli requests keep their work counters in both modes; their bytes move only in the limitation strings and the hashes binding them (4.9). The 8,000,000 and 64,000,000 limits are unchanged, and an input at the limit still refuses by name.
@@ -280,29 +280,33 @@ Every other stage is the same code for both theories:
 
 None of those reads D except through (i) and (ii).
 
-**Notation.** Exact quantities are starred (c\*, c_s\*, d₁\*, d₂\*, formed from the exact leaves and the exact length L); computed ones carry a hat. θ_k denotes any quantity with |θ_k| ≤ γ_k = kε/(1 − kε) (Higham, Lemma 3.1). R7's Lemma B states its first-order counts in this exact form; at the counts used here, kε ≤ 2^-9.9 holds at every formation precision.
+**Notation.** Exact quantities are starred (c\*, c_s\*, d₁\*, d₂\*, formed from the exact leaves and the exact length L); computed ones carry a hat. x̂ = x\*·π_k means that the ratio π_k lies in [(1 − ε)^k, (1 − ε)^-k], for a count k that may be fractional. Each rounding contributes one, as (1 + δ) or 1/(1 + δ) with |δ| ≤ ε; a correctly rounded square root halves its argument's count. Ratios multiply and divide by adding counts. |π_k − 1| ≤ ρ_k = (1 − ε)^-k − 1 = kε + O(ε²). This form is exact for fractional counts, which Higham's γ_k is not. It is at least as strong as R7's Lemma B factor form (first-order count × at most 1 + 2^-8.8).
 
-**The coefficient counts of the two derivations.** Both form c as `over_length` does (`assemble.rs` about 340–355): ĉ = RN(RN(E·I)/L̂), one rounding for the product, one for the quotient, plus the length's error ℓ. So c's count is c_D = ℓ + 2.
-- R7 §3.3: "1/L; the section terms | 3.5; 4.5", so ℓ = 2.5 and c_D = 4.5.
-- Stage 2 §4.2: "Reverse coefficient counts are 4 for L, 5 for 1/L and 6 for section terms", so ℓ = 4 and c_D = 6.
+**The coefficient counts of the two derivations.** Both form c as `over_length` does (`assemble.rs` about 340–355): ĉ = RN(RN(E·I)/L̂), one rounding for the product, one for the quotient, plus the length's count ℓ. So c's count is c_D = ℓ + 2.
+- **The length, from the code.** `form_member` (`assemble.rs` about 296–306) rounds each coordinate difference once from exact binary64 sums. `normalize` and `dot` (about 190–224) accumulate the three products exactly in `ExactWideSum` and round once, then take one correctly rounded square root. So L̂/L lies in [(1 − ε)^2.5, (1 + ε)^2.5]: the squared differences carry 2, the sum's rounding 1, the root halves those 3, and its own rounding adds 1. This is ℓ = 2.5 in the exact form above, not only at first order. Obligation 3 confirms this DAG, and it is load-bearing for R7's margin.
+- R7 §3.3: "1/L; the section terms | 3.5; 4.5", so ℓ = 2.5 and c_D = 4.5, matching the code.
+- Stage 2 §4.2: "Reverse coefficient counts are 4 for L, 5 for 1/L and 6 for section terms", so ℓ = 4 and c_D = 6. Taking ℓ = 4 is conservative against the code's 2.5.
 
-**Timoshenko D entries, finitely.** Let ĉ = c\*(1 + θ_{c_D}) and L̂ = L(1 + θ_ℓ).
-- t̂₃ = 3c\*·r, with r = 1 + θ_{c_D+1}.
-- ŝl = s\*·L·(1 + θ_{ℓ+2}): G·A_s rounded once, L̂, and the product rounded once.
-- φ̂ = φ\*·r·u⁻¹, with u = (1 + θ_{ℓ+2})/(1 + ρ) for φ's own rounding ρ.
-- The ratio of computed to exact before c_s's last two roundings is f = r(1 + φ\*)/(1 + φ\*·r·u⁻¹) = (r + r·φ\*)/(1 + r·φ\*·u⁻¹). That is the mediant of r/1 and (r·φ\*)/(r·φ\*·u⁻¹), so f lies between r and u exactly, at every φ\*. Hence f = 1 + θ_m with m = max(c_D + 1, ℓ + 3) = ℓ + 3, since c_D = ℓ + 2. This is the exact form of the convex-combination remark, and it is why the bound does not grow with φ.
-- ĉ_s = c_s\*·f·(1 + κ)/(1 + ω) = c_s\*(1 + θ_{ℓ+5}).
+**Timoshenko D entries, finitely.** ĉ = c\*·π_{c_D} and L̂ = L·π_ℓ.
+- t̂₃ = 3c\*·r, with r = π_{c_D+1}.
+- ŝl = s\*·L·π_{ℓ+2}: G·A_s rounded once, L̂, and the product rounded once.
+- φ̂ = φ\*·r·u⁻¹, with u = π_{ℓ+2}/(1 + ρ_φ) = π_{ℓ+3}, where ρ_φ is φ's own rounding.
+- The ratio of computed to exact before c_s's last two roundings is f = r(1 + φ\*)/(1 + φ\*·r·u⁻¹) = (r + r·φ\*)/(1 + r·φ\*·u⁻¹). That is the mediant of r/1 and (r·φ\*)/(r·φ\*·u⁻¹) = u, so f lies between r and u exactly, at every φ\* > 0. Hence f = π_m with m = max(c_D + 1, ℓ + 3) = ℓ + 3, since c_D = ℓ + 2. This is the exact form of the convex-combination remark, and it is why the bound does not grow with φ.
+- ĉ_s = c_s\*·f·(1 + κ)/(1 + ω) = c_s\*·π_{ℓ+5}, with κ and ω the roundings of c_s and op.
 
 So, with k = ℓ + 5 (7.5 in R7, 9 in stage 2):
-- **d₁** = RN(ĉ + ĉ_s), both positive: d̂₁ = (c\* + c_s\*)(1 + θ_{k+1});
-- **d₂** = RN(ĉ_s − ĉ): |d̂₂ − d₂\*| ≤ γ_k(c\* + c_s\*)(1 + ε) + ε|d₂\*| ≤ γ_{k+1}(c\* + c_s\*), because |d₂\*| ≤ c\* + c_s\*;
-- **the operand** d̄ = RU(2(ĉ + ĉ_s)) ≥ 2(ĉ + ĉ_s) ≥ 2(1 − γ_k)(c\* + c_s\*). It is formed from the computed operands and rounded upward, so it dominates.
+- **d₁** = RN(ĉ + ĉ_s), both positive: d̂₁ = (c\* + c_s\*)·π_{k+1};
+- **d₂** = RN(ĉ_s − ĉ): |d̂₂ − d₂\*| ≤ ρ_k(c\* + c_s\*)(1 + ε) + ε|d₂\*| ≤ ρ_{k+1}(c\* + c_s\*), because |d₂\*| ≤ c\* + c_s\* and (1 + ε)(1 − ε)^-k ≤ (1 − ε)^-(k+1);
+- **the operand** d̄ = RU(2(ĉ + ĉ_s)) ≥ 2(ĉ + ĉ_s) ≥ 2(1 − ε)^k·(c\* + c_s\*). It is formed from the computed operands and rounded upward, so it dominates.
 
 **The entrywise bound in each derivation's own units.** For every Timoshenko D entry,
-|d̂ − d\*| ≤ γ_{k+1}·(c\* + c_s\*) ≤ [γ_{k+1} / (2(1 − γ_k))]·d̄ ≤ c_D·ε·d̄, and |d̂|, |d\*| ≤ d̄.
-The bound is against the computed, upward-rounded operand d̄. That is the form stage 2's recurrence requires ("If a coefficient obeys |C\* − C| ≤ cε|C|", with C the computed coefficient; §4.2), and it implies R7's γ form, since c_D·ε ≤ γ_{c_D}. The last inequality was checked in exact rational arithmetic at ε = 2^-53 and 2^-128 for both chains, and it holds for every smaller ε. Its left side is about (k + 1)/2 = (ℓ + 6)/2, which is below c_D = ℓ + 2 whenever ℓ > 2:
-- R7: γ_{8.5}/(2(1 − γ_{7.5})) ≈ 4.25ε ≤ 4.5ε;
-- stage 2: γ_{10}/(2(1 − γ_9)) ≈ 5ε ≤ 6ε. Stage 2's counts are reverse counts against the computed value, and its forward length error is < 3ε. So ℓ = 4 is conservative there.
+|d̂ − d\*| ≤ ρ_{k+1}·(c\* + c_s\*) ≤ [ρ_{k+1} / (2(1 − ε)^k)]·d̄ ≤ c_D·ε·d̄, and |d̂|, |d\*| ≤ (1 − ε)^-(k+1)·(c\* + c_s\*) ≤ d̄.
+- **Against the computed operand.** The bound is against the computed, upward-rounded d̄. That is the form stage 2's recurrence requires ("If a coefficient obeys |C\* − C| ≤ cε|C|", with C the computed coefficient; §4.2). It also gives R7's Lemma B form, since c_D·ε is no larger than the first-order count times 1 + 2^-8.8.
+- **Checked.** Both inequalities were evaluated with 400-digit decimal arithmetic at ε = 2^-53, 2^-64, 2^-113 and 2^-128, for both chains. Both sides scale so that a smaller ε only helps.
+- **The margin.** The left side is about (k + 1)/2 = (ℓ + 6)/2, which is below c_D = ℓ + 2 whenever ℓ > 2:
+  - R7: ρ_{8.5}/(2(1 − ε)^7.5) = 4.25ε(1 + O(ε)) ≤ 4.5ε;
+  - stage 2: ρ_{10}/(2(1 − ε)^9) = 5ε(1 + O(ε)) ≤ 6ε.
+- **The case it depends on.** At ℓ = 2 the left side's first order equals c_D, and the higher-order excess would break the inequality. So R7's margin rests on ℓ = 2.5 being the exact count, as derived from the code above.
 
 In words: with λ = 2, each derivation's own section-term count, c_D, bounds every formed Timoshenko entry relative to the absolute operand D̄. It bounds an Euler–Bernoulli entry relative to |D| in the same way. No count changes.
 
@@ -316,7 +320,7 @@ The D count is supplied in the same exact form the derivations already assume fo
 - stage 2's 47.1 and the reaction and support 68.142 hold;
 - factor 69, P − 16 and 2^7 are unchanged.
 
-**The choice of λ.** **λ = 2** is derived, not provisional. It needs (ℓ + 6)/2 < ℓ + 2, which holds with a γ-margin for both chains as stated. A derivation with ℓ ≤ 2 would need λ = (ℓ + 6)/(ℓ + 2) plus margin. Neither existing derivation has one: each forms c from L̂ with ℓ ≥ 2.5. A larger λ is more conservative still (4.2's note on D̄).
+**The choice of λ.** **λ = 2** is derived, not provisional. It needs (ℓ + 6)/2 < ℓ + 2 with the exact remainder, which holds for both chains as stated. A derivation with ℓ ≤ 2 would need λ > (ℓ + 6)/(ℓ + 2). Neither existing derivation has one: the code's length count is 2.5, and stage 2 uses 4. A larger λ is more conservative still (4.2's note on D̄).
 
 **A sanity reconstruction, not the warrant.** Counting `assemble.rs` directly puts an Euler–Bernoulli member's formed K entries within about 67–68ε·Ā: B within 30gε, DB within 36gε, BᵀDB within 67gε, assembly rounding ε. That is comfortably inside t₁'s 2^7. It is not offered as the reaction and support count; that warrant's later stages (reaction and support rounding, magnitudes, E's rounding) are covered by the substitution argument above, not by this count.
 
@@ -325,9 +329,9 @@ The D count is supplied in the same exact form the derivations already assume fo
    - that it reads D only through (i) and (ii);
    - that it uses the D error entrywise against its absolute operand, and does not use the Euler–Bernoulli fact that both D entries share c's single relative error. That fact correlates the Q₂ and Q₃ errors; Timoshenko errors are not proportional across d₁ and d₂;
    - that its total is non-decreasing in its absolute operand;
-   - that its length count ℓ and section count c_D are those quoted above (2.5 and 4.5 for R7; 4 and 6 for stage 2), and that c_D = ℓ + 2 at the code's `over_length`.
+   - that its length count ℓ and section count c_D are those quoted above (2.5 and 4.5 for R7; 4 and 6 for stage 2), and that c_D = ℓ + 2 at the code's `over_length`. The length DAG at `form_member`, `dot` and `normalize` is load-bearing for R7's margin: one rounding per coordinate difference, exact products with one rounding of the sum, and one correctly rounded square root.
    
-   Also recheck the finite D-entry derivation and the exact-rational check of γ_{k+1}/(2(1 − γ_k)) ≤ c_D·ε.
+   Also recheck the finite D-entry derivation and the high-precision check of ρ_{k+1}/(2(1 − ε)^k) ≤ c_D·ε.
 4. The alpha law with D-entry gaps at the exact length (4.3): its premise, the triangle inequality and the outward rounding of |Δd|.
 5. κ_E's enclosure contains the exact κ_E of the exact annulus for every admitted ν in (−1, ½). Every intermediate stays within the lane's `Wide` range, or refuses by `ExponentRange`.
 6. K4STF's Timoshenko block and the sidecar bind every leaf that enters formation, so no attempt, group or replay can certify a member whose formation differs from its declared leaves.
