@@ -3238,24 +3238,6 @@
       }
     },
     {
-      "id": "result:stress:pipe-fixture-span:end-i:sigma-minus:nominal-section",
-      "kind": "element_local_normal_stress_extreme",
-      "value": 4.545454545454545,
-      "unit": "MPa",
-      "entity_ref": "pipe:fixture-span",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "case:closed-pressure"
-      },
-      "metadata": {
-        "component": "sigma_minus",
-        "coordinate_system": "pipe_section",
-        "location": "end_i",
-        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
-        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
-      }
-    },
-    {
       "id": "result:stress:pipe-fixture-span:end-i:sigma-plus:reduced-section",
       "kind": "element_local_normal_stress_extreme",
       "value": 4.545454545454545,
@@ -3271,6 +3253,24 @@
         "location": "end_i",
         "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
         "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+      }
+    },
+    {
+      "id": "result:stress:pipe-fixture-span:end-i:sigma-minus:nominal-section",
+      "kind": "element_local_normal_stress_extreme",
+      "value": 4.545454545454545,
+      "unit": "MPa",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "sigma_minus",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
       }
     },
     {
@@ -3346,24 +3346,6 @@
       }
     },
     {
-      "id": "result:stress:pipe-fixture-span:end-j:sigma-minus:nominal-section",
-      "kind": "element_local_normal_stress_extreme",
-      "value": 4.545454545454545,
-      "unit": "MPa",
-      "entity_ref": "pipe:fixture-span",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "case:closed-pressure"
-      },
-      "metadata": {
-        "component": "sigma_minus",
-        "coordinate_system": "pipe_section",
-        "location": "end_j",
-        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
-        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
-      }
-    },
-    {
       "id": "result:stress:pipe-fixture-span:end-j:sigma-plus:reduced-section",
       "kind": "element_local_normal_stress_extreme",
       "value": 4.545454545454545,
@@ -3379,6 +3361,24 @@
         "location": "end_j",
         "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
         "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+      }
+    },
+    {
+      "id": "result:stress:pipe-fixture-span:end-j:sigma-minus:nominal-section",
+      "kind": "element_local_normal_stress_extreme",
+      "value": 4.545454545454545,
+      "unit": "MPa",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "sigma_minus",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
       }
     },
     {
@@ -3454,24 +3454,6 @@
       }
     },
     {
-      "id": "result:stress:pipe-fixture-span:quarter-1:sigma-minus:nominal-section",
-      "kind": "element_local_normal_stress_extreme",
-      "value": 4.545454545454545,
-      "unit": "MPa",
-      "entity_ref": "pipe:fixture-span",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "case:closed-pressure"
-      },
-      "metadata": {
-        "component": "sigma_minus",
-        "coordinate_system": "pipe_section",
-        "location": "quarter_1",
-        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
-        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
-      }
-    },
-    {
       "id": "result:stress:pipe-fixture-span:quarter-1:sigma-plus:reduced-section",
       "kind": "element_local_normal_stress_extreme",
       "value": 4.545454545454545,
@@ -3487,6 +3469,24 @@
         "location": "quarter_1",
         "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
         "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+      }
+    },
+    {
+      "id": "result:stress:pipe-fixture-span:quarter-1:sigma-minus:nominal-section",
+      "kind": "element_local_normal_stress_extreme",
+      "value": 4.545454545454545,
+      "unit": "MPa",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "sigma_minus",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
       }
     },
     {
@@ -3562,24 +3562,6 @@
       }
     },
     {
-      "id": "result:stress:pipe-fixture-span:midspan:sigma-minus:nominal-section",
-      "kind": "element_local_normal_stress_extreme",
-      "value": 4.545454545454545,
-      "unit": "MPa",
-      "entity_ref": "pipe:fixture-span",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "case:closed-pressure"
-      },
-      "metadata": {
-        "component": "sigma_minus",
-        "coordinate_system": "pipe_section",
-        "location": "midspan",
-        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
-        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
-      }
-    },
-    {
       "id": "result:stress:pipe-fixture-span:midspan:sigma-plus:reduced-section",
       "kind": "element_local_normal_stress_extreme",
       "value": 4.545454545454545,
@@ -3595,6 +3577,24 @@
         "location": "midspan",
         "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
         "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+      }
+    },
+    {
+      "id": "result:stress:pipe-fixture-span:midspan:sigma-minus:nominal-section",
+      "kind": "element_local_normal_stress_extreme",
+      "value": 4.545454545454545,
+      "unit": "MPa",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "sigma_minus",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
       }
     },
     {
@@ -3670,24 +3670,6 @@
       }
     },
     {
-      "id": "result:stress:pipe-fixture-span:quarter-3:sigma-minus:nominal-section",
-      "kind": "element_local_normal_stress_extreme",
-      "value": 4.545454545454545,
-      "unit": "MPa",
-      "entity_ref": "pipe:fixture-span",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "case:closed-pressure"
-      },
-      "metadata": {
-        "component": "sigma_minus",
-        "coordinate_system": "pipe_section",
-        "location": "quarter_3",
-        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
-        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
-      }
-    },
-    {
       "id": "result:stress:pipe-fixture-span:quarter-3:sigma-plus:reduced-section",
       "kind": "element_local_normal_stress_extreme",
       "value": 4.545454545454545,
@@ -3703,6 +3685,24 @@
         "location": "quarter_3",
         "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
         "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+      }
+    },
+    {
+      "id": "result:stress:pipe-fixture-span:quarter-3:sigma-minus:nominal-section",
+      "kind": "element_local_normal_stress_extreme",
+      "value": 4.545454545454545,
+      "unit": "MPa",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:closed-pressure"
+      },
+      "metadata": {
+        "component": "sigma_minus",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
       }
     },
     {
@@ -5474,24 +5474,6 @@
       }
     },
     {
-      "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:end-i:sigma-minus:nominal-section",
-      "kind": "element_local_normal_stress_extreme",
-      "value": -40.77616350705007,
-      "unit": "MPa",
-      "entity_ref": "pipe:fixture-span",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "case:six-component-load"
-      },
-      "metadata": {
-        "component": "sigma_minus",
-        "coordinate_system": "pipe_section",
-        "location": "end_i",
-        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
-        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
-      }
-    },
-    {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:end-i:sigma-plus:reduced-section",
       "kind": "element_local_normal_stress_extreme",
       "value": 41.35490875465696,
@@ -5507,6 +5489,24 @@
         "location": "end_i",
         "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
         "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:end-i:sigma-minus:nominal-section",
+      "kind": "element_local_normal_stress_extreme",
+      "value": -40.77616350705007,
+      "unit": "MPa",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "sigma_minus",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
       }
     },
     {
@@ -5582,24 +5582,6 @@
       }
     },
     {
-      "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:end-j:sigma-minus:nominal-section",
-      "kind": "element_local_normal_stress_extreme",
-      "value": -8.602715669745889,
-      "unit": "MPa",
-      "entity_ref": "pipe:fixture-span",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "case:six-component-load"
-      },
-      "metadata": {
-        "component": "sigma_minus",
-        "coordinate_system": "pipe_section",
-        "location": "end_j",
-        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
-        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
-      }
-    },
-    {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:end-j:sigma-plus:reduced-section",
       "kind": "element_local_normal_stress_extreme",
       "value": 9.181460917352782,
@@ -5615,6 +5597,24 @@
         "location": "end_j",
         "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
         "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:end-j:sigma-minus:nominal-section",
+      "kind": "element_local_normal_stress_extreme",
+      "value": -8.602715669745889,
+      "unit": "MPa",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "sigma_minus",
+        "coordinate_system": "pipe_section",
+        "location": "end_j",
+        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
       }
     },
     {
@@ -5690,24 +5690,6 @@
       }
     },
     {
-      "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:quarter-1:sigma-minus:nominal-section",
-      "kind": "element_local_normal_stress_extreme",
-      "value": -30.83293640361923,
-      "unit": "MPa",
-      "entity_ref": "pipe:fixture-span",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "case:six-component-load"
-      },
-      "metadata": {
-        "component": "sigma_minus",
-        "coordinate_system": "pipe_section",
-        "location": "quarter_1",
-        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
-        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
-      }
-    },
-    {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:quarter-1:sigma-plus:reduced-section",
       "kind": "element_local_normal_stress_extreme",
       "value": 31.411681651226118,
@@ -5723,6 +5705,24 @@
         "location": "quarter_1",
         "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
         "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:quarter-1:sigma-minus:nominal-section",
+      "kind": "element_local_normal_stress_extreme",
+      "value": -30.83293640361923,
+      "unit": "MPa",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "sigma_minus",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_1",
+        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
       }
     },
     {
@@ -5798,24 +5798,6 @@
       }
     },
     {
-      "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:midspan:sigma-minus:nominal-section",
-      "kind": "element_local_normal_stress_extreme",
-      "value": -21.192089984160546,
-      "unit": "MPa",
-      "entity_ref": "pipe:fixture-span",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "case:six-component-load"
-      },
-      "metadata": {
-        "component": "sigma_minus",
-        "coordinate_system": "pipe_section",
-        "location": "midspan",
-        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
-        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
-      }
-    },
-    {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:midspan:sigma-plus:reduced-section",
       "kind": "element_local_normal_stress_extreme",
       "value": 21.770835231767435,
@@ -5831,6 +5813,24 @@
         "location": "midspan",
         "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
         "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:midspan:sigma-minus:nominal-section",
+      "kind": "element_local_normal_stress_extreme",
+      "value": -21.192089984160546,
+      "unit": "MPa",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "sigma_minus",
+        "coordinate_system": "pipe_section",
+        "location": "midspan",
+        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
       }
     },
     {
@@ -5906,24 +5906,6 @@
       }
     },
     {
-      "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:quarter-3:sigma-minus:nominal-section",
-      "kind": "element_local_normal_stress_extreme",
-      "value": -12.553664690294642,
-      "unit": "MPa",
-      "entity_ref": "pipe:fixture-span",
-      "basis_ref": {
-        "ref_type": "load_case",
-        "ref_id": "case:six-component-load"
-      },
-      "metadata": {
-        "component": "sigma_minus",
-        "coordinate_system": "pipe_section",
-        "location": "quarter_3",
-        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
-        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
-      }
-    },
-    {
       "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:quarter-3:sigma-plus:reduced-section",
       "kind": "element_local_normal_stress_extreme",
       "value": 13.132409937901535,
@@ -5939,6 +5921,24 @@
         "location": "quarter_3",
         "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
         "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+      }
+    },
+    {
+      "id": "result:loadcase:case-six-component-load:stress:pipe-fixture-span:quarter-3:sigma-minus:nominal-section",
+      "kind": "element_local_normal_stress_extreme",
+      "value": -12.553664690294642,
+      "unit": "MPa",
+      "entity_ref": "pipe:fixture-span",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "case:six-component-load"
+      },
+      "metadata": {
+        "component": "sigma_minus",
+        "coordinate_system": "pipe_section",
+        "location": "quarter_3",
+        "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+        "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
       }
     },
     {

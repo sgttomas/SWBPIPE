@@ -320,6 +320,9 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
             pressure_2.validate_pressure_evidence(source)
             if model is not None:
                 physics_model_checks(source, model)
+                # T4-U4b review item 1: the directional binding (the pressure-2 reader only).
+                from . import u4b
+                u4b.directional_model_checks(source, model, True)
             return {"ok": True}
         if reader == "pressure-source":
             eligible = _source_validate(source, invocation)

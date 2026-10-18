@@ -305,6 +305,81 @@ def directional_records(case: str, records: list[Mapping[str, Any]], rows_by_id:
     return bound
 
 
+def twin_order(results: list[Mapping[str, Any]], arcs: set[str]) -> None:
+    """D-5 row order (section-bases-and-timoshenko.md §2.5) for the U4b families and the arc maxima on pressure-2:
+    each nominal row is immediately followed by its reduced twin (same case, entity, kind, component and location)."""
+    for position, row in enumerate(results):
+        kind = row.get("kind")
+        if not (kind in KINDS or (kind == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") in arcs)):
+            continue
+        if _basis(row) != "nominal_section":
+            continue
+        following = results[position + 1] if position + 1 < len(results) else None
+        metadata = row.get("metadata") or {}
+        twin = isinstance(following, Mapping) and _basis(following) == "reduced_section" and _case(following) == _case(row) and all(
+            following.get(k) == row.get(k) for k in ("kind", "entity_ref")) and all(
+            (following.get("metadata") or {}).get(k) == metadata.get(k) for k in ("component", "location"))
+        _require(twin, "basis twin order")
+
+
+DIRECTIONAL_MAX_UNAVAILABLE = "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE"
+
+
+def directional_arcs(model: Mapping[str, Any]) -> dict[str, tuple[float, float]]:
+    """The model's realized arcs with the directional pair (§2.6): a bend or elbow consumed as
+    curved_bend_macro_element with a nonempty bend_pipe_ref, both factors dimensionless ("1" or "none"), finite and
+    above zero; the pair as authored. Any other placement of the pair is refused (the producer blocks it)."""
+    arcs: dict[str, tuple[float, float]] = {}
+    for component in model.get("components") or []:
+        modifiers = component.get("modifiers") or {}
+        ip, op = modifiers.get("sif_in_plane_user_value"), modifiers.get("sif_out_of_plane_user_value")
+        if ip is None and op is None:
+            continue
+        def factor(q: Any) -> float | None:
+            value = q.get("value") if isinstance(q, Mapping) else None
+            ok = isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and value > 0 and q.get("unit") in ("1", "none")
+            return float(value) if ok else None
+        realized = component.get("kind") in ("bend", "elbow") and (component.get("mechanics_interface") or {}).get("solver_consumption") == "curved_bend_macro_element"
+        pipe = (component.get("geometry") or {}).get("bend_pipe_ref")
+        pair = (factor(ip), factor(op))
+        _require(realized and isinstance(pipe, str) and pipe.strip() and None not in pair and pipe not in arcs, "directional pair outside a realized arc")
+        arcs[pipe] = pair  # type: ignore[assignment]
+    return arcs
+
+
+def directional_model_checks(source: Mapping[str, Any], model: Mapping[str, Any], exact: bool) -> None:
+    """Review item 1: in every case every realized arc with the model's pair has its five station rows on every basis,
+    records with the model's factors bit for bit, and the maximum row or its named unavailable outcome; directional
+    rows or records on any other member are refused."""
+    if model.get("components") is None:
+        return  # G2's convention: a model without components states nothing about the directional pair
+    results = source.get("results") or []
+    diagnostics = source.get("diagnostics") or []
+    solved = (source.get("status") or {}).get("mechanics") == "MECHANICS_SOLVED"
+    arcs = directional_arcs(model) if solved else {}
+    for row in results:
+        if row.get("kind") in (DIRECTIONAL, DIRECTIONAL_MAX):
+            _require(row.get("entity_ref") in arcs, "directional row outside the model's arcs with the pair")
+    rows = Rows(results)
+    bases = ("nominal_section", "reduced_section") if exact else ("",)
+    suffix = {"nominal_section": ":maximum:nominal-section", "reduced_section": ":maximum:reduced-section", "": ":maximum"}
+    for case in (source.get("contract_evidence") or {}).get("exact_cases" if exact else "preview_cases") or []:
+        cid = case["load_case_id"]
+        for record in case.get("intensified_measures") or []:
+            if "i_in_plane" not in record and "i_out_of_plane" not in record:
+                continue
+            pair = arcs.get(record.get("pipe_id"))
+            _require(pair is not None, "directional record outside the model's arcs with the pair")
+            _require(bits(record["i_in_plane"]) == bits(pair[0]) and bits(record["i_out_of_plane"]) == bits(pair[1]), "directional factors differ from the model")
+        for pipe in arcs:
+            for basis in bases:
+                _require(all(rows.value(cid, pipe, DIRECTIONAL, "intensified_bending", s, basis) is not None for s in STATIONS), "directional station coverage")
+                maximum = rows.value(cid, pipe, DIRECTIONAL_MAX, "intensified_bending_maximum", "governing_station", basis) is not None
+                unavailable = any(d.get("code") == DIRECTIONAL_MAX_UNAVAILABLE and (d.get("affected_refs") or [None, None])[:2] == [cid, pipe]
+                                  and str(d.get("id", "")).endswith(suffix[basis]) for d in diagnostics)
+                _require(maximum or unavailable, "directional maximum or its unavailable outcome")
+
+
 def poisson_exempt(diagnostics: list[Mapping[str, Any]], case: str) -> set[str]:
     return {d["affected_refs"][1] for d in diagnostics if d.get("code") == POISSON_OUT_OF_DOMAIN
             and isinstance(d.get("affected_refs"), list) and len(d["affected_refs"]) >= 2 and d["affected_refs"][0] == case}

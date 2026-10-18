@@ -785,7 +785,8 @@ pub(crate) fn validate_physics_evidence_in(
     let mut lame: std::collections::BTreeMap<(&str, &str, &str, &str), HashMap<&str, f64>> =
         std::collections::BTreeMap::new();
     let (mut stress_rows, mut pairs) = (0usize, 0usize);
-    for row in array(&source["results"])? {
+    let published = array(&source["results"])?;
+    for (position, row) in published.iter().enumerate() {
         let kind = text(&row["kind"])?;
         if !crate::section_basis::is_stress_kind(kind) {
             continue;
@@ -825,6 +826,12 @@ pub(crate) fn validate_physics_evidence_in(
                     .all(|k| tmd[*k] == md[*k]),
             "ROW_BASIS_TWIN",
         )?;
+        // T4-U4b: D-5's row order (section-bases-and-timoshenko.md §2.5) for the
+        // U4b families and the arc maxima: the reduced twin immediately follows
+        // its nominal row.
+        if crate::u4b_evidence::KINDS.contains(&kind) || (kind == "pipe_elastic_normal_stress_maximum_v2" && marked_arcs.contains(entity)) {
+            require(published.get(position + 1).is_some_and(|next| std::ptr::eq(next, twin)), "ROW_BASIS_TWIN_ORDER")?;
+        }
         crate::section_basis::twin_values(kind, number(&row["value"])?, number(&twin["value"])?, sections)?;
         pairs += 1;
     }
@@ -1163,9 +1170,13 @@ fn u4b_cases(
         require(!diagnostics.iter().any(|d| d["code"] == u::POISSON_OUT_OF_DOMAIN), "POISSON_DOMAIN_WARNING")?;
     }
     let mut covers: HashMap<(&str, &str, String), Vec<f64>> = HashMap::new();
+    // Review item 3: the exact route admits only -1 < nu < 1/2 (the validated
+    // homogeneous_isotropic_E_nu_v1 pair), so no member is exempt from τ
+    // coverage and the warning is refused on ordinary pressure-2 too (the
+    // composite has refused it by its own name above); every basis forms its c_b.
+    require(!diagnostics.iter().any(|d| d["code"] == u::POISSON_OUT_OF_DOMAIN), "SHEAR_POISSON_EXEMPTION")?;
     for case in array(&evidence["exact_cases"])? {
         let case_id = text(&case["load_case_id"])?;
-        let exempt = if composite { HashSet::new() } else { u::poisson_exempt(diagnostics, case_id) };
         let materials = indexed(&case["pipe_materials"], "pipe_id")?;
         // The case's pressurized arcs: (p, R) from their region.
         let mut pressurized: HashMap<&str, (f64, f64)> = HashMap::new();
@@ -1190,7 +1201,7 @@ fn u4b_cases(
                     let a = sections.basis(b);
                     (*b, u::shear_factor(nu, sections.ro, a.ri, a.second_moment))
                 }).collect(),
-                poisson_out_of_domain: exempt.contains(pipe),
+                poisson_out_of_domain: false,
                 toroidal: match pressurized.get(pipe) {
                     Some(&(p, r)) if arc => bases.iter().map(|b| {
                         let a = sections.basis(b);
@@ -1207,6 +1218,7 @@ fn u4b_cases(
                     require(diagnostics.iter().any(|d| d["code"] == u::TOROIDAL_DOMAIN && d["affected_refs"][0] == case_id && d["affected_refs"][1] == pipe), "TOROIDAL_DOMAIN_WARNING")?;
                 }
             }
+            require(facts.shear_factors.iter().all(|(_, factor)| factor.is_some()), "SHEAR_POISSON_DOMAIN")?;
             for (basis, cover) in u::member_stations(&index, route, &facts)? {
                 covers.insert((case_id, pipe, basis), cover);
             }

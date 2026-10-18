@@ -738,8 +738,11 @@ fn a2_shared_tamper_vector() {
     };
     let vector = read("fixtures/results/preview_physics_tamper_vector.json");
     let variants = vector["variants"].as_array().unwrap();
-    // T4-U4b (§5.1): three tampers of the new kinds.
-    assert_eq!(variants.len(), 25);
+    // T4-U4b (§5.1): three tampers of the new kinds; review 6: the arc
+    // withholding revived through outside_domain_pipe_ids; review 5: the arc
+    // maximum's station cover; Codex round 2: nine malformed directional
+    // records, refused raw and on transport (as the revival is on transport).
+    assert_eq!(variants.len(), 36);
     for variant in variants {
         let id = variant["id"].as_str().unwrap();
         let base = vector["bases"][variant["base"].as_str().unwrap()]
@@ -796,6 +799,11 @@ fn a2_shared_tamper_vector() {
             }
             "refused" => assert!(s::for_source(&source).is_err(), "{id} was accepted"),
             other => panic!("{id}: unknown expectation {other}"),
+        }
+        // Codex round 2: the metadata-only transport check gives its own outcome.
+        if let Some(expect) = variant.get("transport") {
+            let got = open_pipe_stress_result_export::retained_precision::validate_preview_physics_transport_metadata(&source);
+            assert_eq!(got.is_ok(), expect == "accepted", "{id} transport: {got:?}");
         }
     }
 }
