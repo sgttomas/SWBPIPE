@@ -374,9 +374,11 @@ the frame kernel's existing ball arithmetic (`Balls`/`Wide2`, now `pub(super)` i
      against rounding.
    - The cover only raises the bound; a station value below the lower bound is not refused,
      because no allowance both admits every genuine binary64 station row and bounds the
-     arc (load-cancellation and short-arc counterexamples). Operand mismatches such as
-     passing N_w with pA_i, which double-counts pressure, are caught by a product test
-     binding each arc maximum to its station rows.
+     arc (load-cancellation and short-arc counterexamples). Operand mismatches are caught by
+     tests. Passing N_w with pA_i double-counts pressure: it raises the maximum above every
+     station row, or, where N_w changes sign, leaves the cover unclosed and the maximum
+     refused. A kernel test asserts both outcomes, and a product test binds each arc maximum
+     to its own station rows.
    - This differs from the straight `maximum_cover` (`certified_publication.rs` around
      :512–535), which refuses on violation and checks each stress component.
    - Straight maxima, and their reader checks, are unchanged. A straight σ± and the straight
