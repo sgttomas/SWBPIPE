@@ -128,6 +128,7 @@ fn c3_detect(terms: &[ForceTerm]) -> StructuralSolution {
         free_dofs: &c.free,
         prescribed: &c.fixed,
         contributions: None,
+        contribution_groups: None,
         symmetry: None,
     };
     solve_structural_dense_with_force_terms(&system, terms).unwrap()
@@ -211,6 +212,7 @@ fn k7_audit_flags_v1_check_l_and_passes_every_control() {
             free_dofs: &c.free,
             prescribed: &c.fixed,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         })
         .unwrap();
@@ -259,6 +261,7 @@ fn k7_typed_route_report_is_byte_identical_to_legacy_when_forces_agree() {
         free_dofs: &c.free,
         prescribed: &c.fixed,
         contributions: None,
+        contribution_groups: None,
         symmetry: None,
     })
     .unwrap();
@@ -285,6 +288,7 @@ fn k7_zero_witness_at_the_intended_action_residual() {
         free_dofs: &[0],
         prescribed: &[],
         contributions: Some(&cs),
+        contribution_groups: None,
         symmetry: None,
     };
     let solution = solve_structural_dense(&system).unwrap();
@@ -447,6 +451,7 @@ fn k11_dense_profile_and_typed_structural_paths_are_exact() {
             free_dofs: &p.free,
             prescribed: &p.prescribed,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         let dense = solve_structural_dense(&system).unwrap();
@@ -495,6 +500,7 @@ fn k11_forced_refinement_step_stays_exact() {
             free_dofs: &p.free,
             prescribed: &p.prescribed,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         let prepared = prepare_structural(&system).unwrap();
@@ -546,6 +552,7 @@ fn legacy_all_zero_prescribed_rows_keep_todays_zero_sign() {
             free_dofs: &[0],
             prescribed: &fixed,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         let prepared = prepare_structural(&system).unwrap();
@@ -588,6 +595,7 @@ fn option_c_binary64_variants_keep_todays_fold_on_probe_p() {
             free_dofs: &p.free,
             prescribed: &p.prescribed,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         let prepared = prepare_structural_binary64(&system).unwrap();
@@ -622,6 +630,7 @@ fn option_c_public_original_residual_stays_binary64_on_coupled_rows() {
             free_dofs: &p.free,
             prescribed: &p.prescribed,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         // A displacement vector with the prescribed values and the free RZ

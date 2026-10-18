@@ -1814,6 +1814,7 @@ impl Snapshot {
             free_dofs: &self.free,
             prescribed: &self.prescribed,
             contributions: Some(&self.contributions),
+            contribution_groups: None,
             symmetry: self
                 .symmetry
                 .as_ref()
@@ -2284,6 +2285,7 @@ mod tests {
             free_dofs: &[2],
             prescribed: &fixed,
             contributions: Some(&cs),
+            contribution_groups: None,
             symmetry: None,
         };
         let replay = retained.replay_against(
@@ -2439,6 +2441,7 @@ mod tests {
             free_dofs: &[],
             prescribed: &fixed,
             contributions: Some(&cs),
+            contribution_groups: None,
             symmetry: None,
         };
         let terms = [
@@ -2738,6 +2741,7 @@ mod tests {
                 free_dofs: free,
                 prescribed: fixed,
                 contributions: Some(&c),
+                contribution_groups: None,
                 symmetry: None,
             },
             "independent-rational-control",
@@ -2808,6 +2812,7 @@ mod tests {
             free_dofs: &[],
             prescribed: &fixed,
             contributions: Some(&c),
+            contribution_groups: None,
             symmetry: None,
         };
         let tail = 2.0_f64.powi(-60);
@@ -2890,6 +2895,7 @@ mod tests {
             free_dofs: &[0, 1],
             prescribed: &[],
             contributions: Some(&c),
+            contribution_groups: None,
             symmetry: None,
         };
         let context = Context::new(
@@ -2989,6 +2995,7 @@ mod tests {
             free_dofs: &[0],
             prescribed: &[],
             contributions: Some(&c),
+            contribution_groups: None,
             symmetry: None,
         };
         assert!(matches!(
@@ -3024,6 +3031,7 @@ mod tests {
             free_dofs: &[0, 1, 2],
             prescribed: &[],
             contributions: Some(&cs),
+            contribution_groups: None,
             symmetry: None,
         };
         assert!(matches!(
@@ -3063,6 +3071,7 @@ mod tests {
             free_dofs: &[0, 1],
             prescribed: &[],
             contributions: Some(&cs),
+            contribution_groups: None,
             symmetry: None,
         };
         let a = Context::new(
@@ -3117,6 +3126,7 @@ mod tests {
             free_dofs: &[0, 1, 2],
             prescribed: &[],
             contributions: Some(&cs),
+            contribution_groups: None,
             symmetry: None,
         };
         let c = Context::new(

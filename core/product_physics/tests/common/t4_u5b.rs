@@ -13,10 +13,11 @@
 //! loads from J3-1T. Every physical input is then checked against the case
 //! description. Every input is compiled in (`include_str!`) and checked by
 //! SHA-256; no frozen byte is written. As the README allows, the builder's
-//! bytes for each case (`request_bytes`) are committed under the reference's
-//! `requests/`, with their SHA-256 beside the case's `case_sha256` in
-//! `requests/bindings.json` and added `SHA256SUMS` lines; the headless
-//! t4_u5b test checks them (`T4_U5B_WRITE_REQUESTS=1` rewrites them).
+//! bytes for each case (`request_bytes`) are committed beside the headless
+//! t4_u5b test (`core/runner/headless/tests/t4_u5b_requests/`), outside the
+//! frozen reference tree, with each SHA-256 beside the case's `case_sha256`
+//! in `bindings.json`; that test checks them (`T4_U5B_WRITE_REQUESTS=1`
+//! rewrites them).
 //!
 //! The including crate or test module declares `current_model` (`#[path]`) beside this module.
 #![allow(dead_code)]

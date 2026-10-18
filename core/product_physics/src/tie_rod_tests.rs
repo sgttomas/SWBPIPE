@@ -365,3 +365,60 @@ fn u5b_untied_unpressurized_connectors_publish_no_rod_rows_or_s_x() {
         !matches!(r["kind"].as_str(), Some("connector_tie_rod_force_v1" | "connector_effective_axial_force_v1" | "connector_pressure_force_v1"))));
     assert_eq!(source["results"].as_array().unwrap().iter().filter(|r| r["kind"].as_str().unwrap().starts_with("connector_")).count(), 24);
 }
+
+/// T4-U5b round 3 (absorption per element, §3.4): a rank-1 rod whose diagonal
+/// contribution vanishes against the pipes' along one global axis is not
+/// refused, because its other candidates are represented. Each control solves
+/// and certifies (NUMERICAL_INTEGRITY_CHECKS_PASSED; ordinary and W2 checked
+/// solves Passed with the member bound) in both modes, and the two modes agree
+/// on the rod's force and s_x within 1e-9 relative and on its evidence exactly.
+#[test]
+fn round3_near_perpendicular_and_skewed_rods_solve_and_certify_in_both_modes() {
+    let chord = 2.3f64 - 2.0;
+    let perpendicular = |dx: f64| move |rod: &mut Value| {
+        rod["offset_i"]["x"] = json!({"value": chord, "unit": "m"});
+        rod["offset_j"]["x"] = json!({"value": dx, "unit": "m"});
+        rod["offset_j"]["y"] = json!({"value": 0.4, "unit": "m"});
+    };
+    let base = request("AS-F");
+    let controls: Vec<(&str, Value, f64)> = vec![
+        ("axial share 0", with_rod(&base, perpendicular(0.0)), 0.0),
+        ("axial share 1e-16", with_rod(&base, perpendicular(3e-17)), 1e-16),
+        ("axial share 1e-8", with_rod(&base, perpendicular(3e-9)), 1e-8),
+        ("parallel, 2.5e-12 global-y skew", with_rod(&base, |rod: &mut Value| {
+            let y = rod["offset_j"]["y"]["value"].as_f64().unwrap();
+            rod["offset_j"]["y"] = json!({"value": y + 1e-12, "unit": "m"});
+        }), 1.0),
+    ];
+    for (label, request, share) in &controls {
+        let mut published = Vec::new();
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let source = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
+            assert_eq!(source["status"]["mechanics"], "MECHANICS_SOLVED", "{label} {mode:?}: {}", source["diagnostics"]);
+            assert!(blocking(&source).is_empty(), "{label} {mode:?}");
+            assert!(source["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "NUMERICAL_INTEGRITY_CHECKS_PASSED"), "{label} {mode:?}: {}", source["diagnostics"]);
+            let rod = source["contract_evidence"]["connector"][0]["tie_rods"][0].clone();
+            let axial = rod["axial_share"].as_f64().unwrap();
+            // The represented chord carries its own roundoff (about 2e-16 of
+            // the rod length): the noise-level control is checked by order.
+            let expected = match *share {
+                s if s == 0.0 => axial == 0.0,
+                s if s < 1e-15 => axial > 0.0 && axial < 1e-15,
+                s => (axial - s).abs() <= 1e-6 * s,
+            };
+            assert!(expected, "{label}: axial share {axial:e}");
+            let row = |kind: &str| source["results"].as_array().unwrap().iter()
+                .find(|r| r["kind"] == kind).unwrap_or_else(|| panic!("{label}: {kind}"))["value"].as_f64().unwrap();
+            published.push((rod, row("connector_tie_rod_force_v1"), row("connector_effective_axial_force_v1")));
+        }
+        let ((sparse_rod, t_s, s_s), (dense_rod, t_d, s_d)) = (&published[0], &published[1]);
+        assert_eq!(sparse_rod, dense_rod, "{label}: rod evidence parity");
+        for (a, b, what) in [(t_s, t_d, "t_r"), (s_s, s_d, "s_x")] {
+            assert!((a - b).abs() <= 1e-9 * a.abs().max(b.abs()).max(1.0), "{label}: {what} {a:e} vs {b:e}");
+        }
+        for (route, quality, check, bound) in checked_solves(&case(request), 4) {
+            assert_eq!(quality, SolveQuality::Passed, "{label} {route}: {check}");
+            assert!(bound, "{label} {route}: member bound");
+        }
+    }
+}

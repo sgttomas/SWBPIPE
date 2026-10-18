@@ -931,6 +931,8 @@ pub struct SparseStructuralSystem<'a> {
     free_dofs: &'a [usize],
     prescribed: &'a [(usize, f64)],
     contributions: Option<&'a [StiffnessContribution]>,
+    /// As `StructuralSystem::contribution_groups`.
+    contribution_groups: Option<&'a [usize]>,
     symmetry: Option<SparseSymmetryEvidence<'a>>,
     /// Position in `prescribed` of each global DOF (`usize::MAX` if none).
     prescribed_position: Vec<usize>,
@@ -963,6 +965,7 @@ impl<'a> SparseStructuralSystem<'a> {
             free_dofs,
             prescribed,
             contributions,
+            contribution_groups: None,
             symmetry,
             prescribed_position,
             negative_prescribed,
@@ -988,6 +991,12 @@ impl<'a> SparseStructuralSystem<'a> {
             ),
             force,
         }
+    }
+    /// The element grouping of `contributions` (see
+    /// `StructuralSystem::contribution_groups`).
+    pub fn with_contribution_groups(mut self, groups: &'a [usize]) -> Self {
+        self.contribution_groups = Some(groups);
+        self
     }
     /// Attaches the formation source the D-5 check re-forms from (K-D5).
     pub fn with_formation_source(
@@ -1033,6 +1042,14 @@ impl<'a> SparseStructuralSystem<'a> {
 pub struct AssembledSparseStructuralSystem<'a> {
     system: SparseStructuralSystem<'a>,
     force: &'a AssembledForce,
+}
+impl<'a> AssembledSparseStructuralSystem<'a> {
+    /// The element grouping of `contributions` (see
+    /// `StructuralSystem::contribution_groups`).
+    pub fn with_contribution_groups(mut self, groups: &'a [usize]) -> Self {
+        self.system.contribution_groups = Some(groups);
+        self
+    }
 }
 
 impl<'a> AssembledSparseStructuralSystem<'a> {
@@ -1228,6 +1245,7 @@ impl Represented for SparseStructuralSystem<'_> {
             free_dofs: self.free_dofs,
             prescribed: self.prescribed,
             contributions: self.contributions,
+            contribution_groups: self.contribution_groups,
             symmetry: None,
         };
         formation_check::check(&view, source, ledger, scale_exponents, u, condition, &|i,j|self.stiffness.get(i,j), projected, solve)
@@ -1236,7 +1254,7 @@ impl Represented for SparseStructuralSystem<'_> {
 
 /// `contribution_sums` per pattern entry (O(nnz) memory), with the same
 /// absorbed-diagonal refusal, in contribution order.
-fn sparse_contribution_sums(
+pub(super) fn sparse_contribution_sums(
     system: &SparseStructuralSystem<'_>,
 ) -> Result<Option<Vec<Expansion>>, StructuralError> {
     let Some(entries) = system.contributions else {
@@ -1245,7 +1263,9 @@ fn sparse_contribution_sums(
     let n = system.force.len();
     let pattern = &system.stiffness.pattern;
     let mut sums = vec![Expansion::default(); pattern.entry_count()];
-    for entry in entries {
+    // The dense path's per-element absorption rule (`ElementAbsorption`).
+    let mut absorption = super::ElementAbsorption::new(system.contribution_groups, entries.len(), system.free_dofs, n)?;
+    for (position, entry) in entries.iter().enumerate() {
         if entry.row >= n || entry.col >= n || !entry.value.is_finite() {
             return Err(StructuralError::InvalidInput("contribution"));
         }
@@ -1257,12 +1277,9 @@ fn sparse_contribution_sums(
         let sum = &mut sums[index];
         let old = sum.round()?;
         sum.add(entry.value)?;
-        if entry.row == entry.col && entry.value > 0.0 && old != 0.0 && sum.round()? == old {
-            return Err(unresolved(
-                "positive diagonal contribution absorbed by assembly; stabilization unresolved",
-                Some(entry.row),
-            ));
-        }
+        let on_nonzero = entry.row == entry.col && entry.value > 0.0 && old != 0.0;
+        let absorbed = on_nonzero && sum.round()? == old;
+        absorption.record(position, on_nonzero, absorbed, entry.row)?;
     }
     Ok(Some(sums))
 }

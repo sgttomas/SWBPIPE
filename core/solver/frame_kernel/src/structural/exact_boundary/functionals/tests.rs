@@ -46,6 +46,7 @@ fn context(
             free_dofs: free,
             prescribed: fixed,
             contributions: Some(cs),
+            contribution_groups: None,
             symmetry: None,
         },
         "source",
@@ -352,6 +353,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
         free_dofs: &[0, 1],
         prescribed: &[],
         contributions: Some(&cs),
+        contribution_groups: None,
         symmetry: None,
     };
     // Replay is charged to the SAME attempt here, after every construction step.
@@ -417,6 +419,7 @@ fn retention_replays_expected_plan_and_rejects_corruption_order_and_source_chang
         free_dofs: &[0, 1],
         prescribed: &[],
         contributions: Some(&cs),
+        contribution_groups: None,
         symmetry: None,
     };
     assert!(retained
@@ -585,6 +588,7 @@ fn denied_reservations_long_ids_range_failures_and_retries_keep_the_ledger() {
         free_dofs: &[0],
         prescribed: &[],
         contributions: Some(&cs),
+        contribution_groups: None,
         symmetry: None,
     };
     let failure =

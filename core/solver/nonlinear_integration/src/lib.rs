@@ -2008,6 +2008,7 @@ fn solve_linearized_system_evidence(
             free_dofs: &reduced.free_dofs,
             prescribed: &prescribed,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         match linear_solve_mode {
@@ -2028,6 +2029,7 @@ fn solve_linearized_system_evidence(
         free_dofs: &reduced.free_dofs,
         prescribed: &prescribed,
         contributions: assembly.map(|a| a.contributions.as_slice()),
+        contribution_groups: assembly.map(|a| a.contribution_groups.as_slice()),
         symmetry: assembly.map(
             |a| open_pipe_stress_frame_kernel::structural::SymmetryEvidence {
                 absolute_roundoff: &a.absolute_roundoff,

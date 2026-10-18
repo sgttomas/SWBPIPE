@@ -1677,3 +1677,28 @@ fn tie_rod_connectors_bind_their_contributions_after_the_connectors_in_both_evid
         assert_eq!(bits(&d.displacements), bits(&p.displacements), "{mode:?}");
     }
 }
+
+/// T4-U5b round 3 (absorption per element): a frame whose every candidate
+/// diagonal (those landing on node 1, already stiffened by the first frame)
+/// is absorbed is still refused, at its first absorbed DOF, by both
+/// representations: its entries on the anchored node 2 open new diagonals and
+/// are no candidates. The adapter supplies the exact element groups.
+#[test]
+fn round3_a_fully_absorbed_frame_is_still_refused_in_both_representations() {
+    let stiff = n_section();
+    let soft = FrameSection::new(200e9 * 2f64.powi(-60), 80e9 * 2f64.powi(-60), stiff.area, stiff.second_moment_y, stiff.second_moment_z, stiff.torsion_constant).unwrap();
+    let frames = vec![
+        frame(0, [0.0, 0.0, 0.0], 1, [1.0, 0.0, 0.0], stiff, [0.0, 1.0, 0.0]),
+        frame(1, [1.0, 0.0, 0.0], 2, [2.0, 0.0, 0.0], soft, [0.0, 1.0, 0.0]),
+    ];
+    let rigid: Vec<usize> = (0..6).chain(12..18).collect();
+    let case = simple_case(3, frames, Vec::new(), &rigid, vec![(7, 1.0e3)]);
+    let evidence = case.dense_evidence();
+    assert_eq!(evidence.contribution_groups, vec![144, 288]);
+    for mode in MODES {
+        let result = solve_checked(&case, mode);
+        let rendered = render(&result);
+        assert!(rendered.contains("positive diagonal contribution absorbed by assembly; stabilization unresolved")
+            && rendered.contains("global_dof: Some(6)"), "{mode:?}: {rendered}");
+    }
+}

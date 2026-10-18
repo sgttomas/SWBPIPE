@@ -553,6 +553,7 @@ impl Pair {
             free_dofs: &self.free,
             prescribed: &self.prescribed,
             contributions: contributions.then_some(self.contributions.as_slice()),
+            contribution_groups: None,
             symmetry: Some(self.dense_evidence()),
         }
     }
@@ -756,6 +757,7 @@ fn k1_s11k_audit_and_ks1_ks3_have_identical_outcomes_in_both_representations() {
         free_dofs: &pair.free,
         prescribed: &pair.prescribed,
         contributions: Some(&pair.contributions),
+        contribution_groups: None,
         symmetry: Some(pair.dense_evidence()),
     };
     let ss = SparseStructuralSystem::new(
@@ -843,6 +845,7 @@ fn k1_legacy_zero_product_rows_keep_the_dense_zero_sign_and_range_refusal() {
                     free_dofs: &free,
                     prescribed: &prescribed,
                     contributions: None,
+                    contribution_groups: None,
                     symmetry: None,
                 };
                 let ss =
@@ -1009,6 +1012,7 @@ fn krev02_on_sparse_prescribed_contribution_error_is_not_zero_fidelity() {
             free_dofs: &free,
             prescribed: &bc,
             contributions: Some(&entries),
+            contribution_groups: None,
             symmetry: None,
         };
         let ss = SparseStructuralSystem::new(&sparse, &force, &free, &bc, Some(&entries), None);
@@ -1082,6 +1086,7 @@ fn krev03_on_sparse_offdiagonal_expansion_retains_lost_low_tail() {
         free_dofs: &free,
         prescribed: &[],
         contributions: Some(&entries),
+        contribution_groups: None,
         symmetry: None,
     };
     solve_both(
@@ -1189,6 +1194,7 @@ fn k1_negative_witness_matches_the_dense_search_and_verification() {
             free_dofs: &free,
             prescribed: &[],
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         let ss = SparseStructuralSystem::new(&sparse, &force, &free, &[], None, None);
@@ -1365,6 +1371,7 @@ fn k1_matrix_references_have_the_same_outcome_class_in_both_representations() {
             free_dofs: free,
             prescribed,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         let ss = SparseStructuralSystem::new(&sparse, f, free, prescribed, None, None);
@@ -1426,6 +1433,7 @@ fn k1_matrix_references_have_the_same_outcome_class_in_both_representations() {
             free_dofs: &[0],
             prescribed: &[],
             contributions: Some(&entries),
+            contribution_groups: None,
             symmetry: None,
         };
         let ss = SparseStructuralSystem::new(&sparse, &force, &[0], &[], Some(&entries), None);
@@ -1450,6 +1458,7 @@ fn k1_matrix_references_have_the_same_outcome_class_in_both_representations() {
         free_dofs: &[0],
         prescribed: &[],
         contributions: None,
+        contribution_groups: None,
         symmetry: None,
     };
     let ss = SparseStructuralSystem::new(&sparse, &zero, &[0], &[], None, None);
@@ -1489,6 +1498,7 @@ fn k1_matrix_references_have_the_same_outcome_class_in_both_representations() {
         free_dofs: &[0],
         prescribed: &[],
         contributions: Some(&entries),
+        contribution_groups: None,
         symmetry: None,
     };
     let ss = SparseStructuralSystem::new(&coalesced, &one, &[0], &[], Some(&entries), None);
