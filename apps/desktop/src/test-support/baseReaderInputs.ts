@@ -288,6 +288,9 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
     ["pressure_connected_ui_mechanics_dense", "fixtures/model_operations/exact_pressure_authoring_model.json"],
     ["pressure_thermal_ui_mechanics_sparse", "fixtures/model_operations/physics_thermal_ui_model.json"],
     ["pressure_thermal_ui_mechanics_dense", "fixtures/model_operations/physics_thermal_ui_model.json"],
+    // T4-U4b review item 5: a directional pressure-2 arc and a preview arc envelope.
+    ["pressure_u4b_arc_sparse", "core/product_physics/tests/fixtures/u4b_l90_p_model.json"],
+    ["preview_physics_u4b_arc_sparse", "core/product_physics/tests/fixtures/u4b_z_preview_rev_model.json"],
     ["../product_preview/invented_mechanics_result_preview_physics_1_sparse", null],
     ["../product_preview/invented_mechanics_result_preview_physics_1_dense", null],
     ["../product_preview/invented_demo_result_preview_physics_1_sparse", null],

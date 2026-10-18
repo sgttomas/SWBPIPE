@@ -351,6 +351,38 @@
         }
       ],
       "expect": "refused"
+    },
+    {
+      "id": "U4B-arc-station-cover",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3/value_lower_pa",
+          "value": 35620986.99546099
+        },
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3/value_upper_pa",
+          "value": 35620986.99546099
+        },
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3/global_upper_bound_pa",
+          "value": 35620986.99546099
+        },
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3/certified_gap_pa",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/results/305/value",
+          "value": 35620986.99546099
+        }
+      ],
+      "expect": "refused"
     }
   ]
 }

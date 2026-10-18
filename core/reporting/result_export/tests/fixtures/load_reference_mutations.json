@@ -5,7 +5,8 @@
   "connected-dense": "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json",
   "pressure-sparse": "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json",
   "pressure-dense": "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json",
-  "physics-sparse": "fixtures/results/pressure_connected_mechanics_sparse.json"
+  "physics-sparse": "fixtures/results/pressure_connected_mechanics_sparse.json",
+  "u4b-arc": "fixtures/results/pressure_u4b_arc_sparse.json"
  },
  "cases": [
   {
@@ -3077,6 +3078,133 @@
    ],
    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
    "note": "T4-U4b (review 2): sigma+ reduced and sigma- nominal exchanged, every value intact; D-5's row order (section-bases-and-timoshenko.md section 2.5) puts each nominal row immediately before its reduced twin."
+  },
+  {
+   "id": "U4B-shear-coverage",
+   "source": "u4b-arc",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/results/179"
+    },
+    {
+     "op": "remove",
+     "path": "/results/178"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 5): both basis twins of pipe:S1's midspan transverse-shear maximum removed beside its shear rows (SHEAR_COVERAGE)."
+  },
+  {
+   "id": "U4B-hoop-changed",
+   "source": "u4b-arc",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/results/325/value",
+     "value": 59333420.80539647
+    },
+    {
+     "op": "set",
+     "path": "/results/326/value",
+     "value": 87916451.33498515
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 5): the arc's midspan intrados toroidal hoop changed on both bases; it is recomputed from p, the basis bore, wall, r_o and R (TOROIDAL_VALUE)."
+  },
+  {
+   "id": "U4B-toroidal-coverage",
+   "source": "u4b-arc",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/geometry/1/bend_radius_m",
+     "value": 0.10955
+    },
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:toroidal-hoop:forged:domain",
+      "code": "ARC_TOROIDAL_HOOP_DOMAIN",
+      "severity": "warning",
+      "message": "forged",
+      "affected_refs": [
+       "case:u4b",
+       "pipe:BEND"
+      ]
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 5): the region states R = r_o (with the domain warning) while the hoop and radial rows stay; they are present exactly when R > r_o (TOROIDAL_COVERAGE)."
+  },
+  {
+   "id": "U4B-arc-tokens-on-straight",
+   "source": "u4b-arc",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema/0/approximation",
+     "value": "arc_closed_form_section_statics"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema/0/coefficient_basis",
+     "value": "arc_end_j_force_and_uniform_intensities_binary64_enclosures"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema/0/enclosure_scope",
+     "value": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 5): the arc record's token triple on a straight member's nominal maximum record (EXTREMA_BASIS)."
+  },
+  {
+   "id": "U4B-arc-record-15th-key",
+   "source": "u4b-arc",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema/2/extra",
+     "value": 0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 5): the arc maximum's closed fourteen-key record with a fifteenth key (EXTREMA_SHAPE)."
+  },
+  {
+   "id": "U4B-forged-poisson-warning",
+   "source": "u4b-arc",
+   "ops": [
+    {
+     "op": "remove_where",
+     "path": "/results",
+     "match": {
+      "kind": "element_local_transverse_shear_stress_maximum",
+      "entity_ref": "pipe:S1"
+     }
+    },
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:transverse-shear:forged:poisson",
+      "code": "TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN",
+      "severity": "warning",
+      "message": "forged",
+      "affected_refs": [
+       "case:u4b",
+       "pipe:S1"
+      ]
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 3): a forged Poisson warning with pipe:S1's transverse-shear rows deleted; the exact route admits only -1 < nu < 1/2 and refuses the exemption (SHEAR_POISSON_EXEMPTION)."
   },
   {
    "id": "U4B-arc-withholding-revived",

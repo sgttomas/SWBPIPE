@@ -6593,13 +6593,24 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
         )?;
         for x in list(&c["pipe_stress_extrema"]) {
             demand(shape(x, &EXTREMA), "extrema shape")?;
+            // T4-U4b (§2.3): the straight token triple or the arc record's (the raw
+            // reader binds an arc's record to its rows; transport has no rows).
+            let tokens = (x["approximation"].as_str(), x["coefficient_basis"].as_str(), x["enclosure_scope"].as_str());
             demand(
                 nonempty(&x["pipe_id"])
                     && nonempty(&x["result_id"])
-                    && x["approximation"] == "piecewise_quadratic_straight_section_statics"
-                    && x["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures"
-                    && x["enclosure_scope"]
-                        == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+                    && (tokens
+                        == (
+                            Some("piecewise_quadratic_straight_section_statics"),
+                            Some("j_side_section_equilibrium_binary64_enclosures"),
+                            Some("supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"),
+                        )
+                        || tokens
+                            == (
+                                Some(crate::u4b_evidence::ARC_APPROXIMATION),
+                                Some(crate::u4b_evidence::ARC_COEFFICIENT_BASIS),
+                                Some(crate::u4b_evidence::ARC_ENCLOSURE_SCOPE),
+                            )),
                 "extrema identity or basis",
             )?;
             // Ruling 2 (RR "I4 made at `30f3d1b24a`; …"): PY's extrema-number demand, at
@@ -6646,6 +6657,12 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             "extrema member partition",
         )?;
         for m in list(&c["intensified_measures"]) {
+            // T4-U4b (§2.6): a directional record is told apart by its own key set
+            // (the raw reader binds it to its row); its result id stays bound once.
+            if !shape(m, &MEASURE) && m.get("i_in_plane").is_some() && m.get("i_out_of_plane").is_some() {
+                measure_ids.push(text(&m["result_id"]));
+                continue;
+            }
             demand(shape(m, &MEASURE), "intensified measure shape")?;
             demand(
                 nonempty(&m["result_id"])
