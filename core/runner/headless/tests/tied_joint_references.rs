@@ -483,3 +483,163 @@ fn u5b_discriminator_wrong_values_are_separated_from_the_product_in_both_modes()
         println!("t4_u5b discriminator {mutant}: separated on {} case(s), smallest {smallest:.2e} tolerances, {unpublished} unpublished observable comparisons", separated_cases.len());
     }
 }
+
+/// The committed builder outputs (README "Binding to model 0.6.0").
+const COMMITTED: [(&str, &str); 40] = [
+    ("requests/AS-A.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-A.request.json")),
+    ("requests/AS-A-ER.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-A-ER.request.json")),
+    ("requests/AS-A-R.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-A-R.request.json")),
+    ("requests/AS-A-V.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-A-V.request.json")),
+    ("requests/AS-F.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-F.request.json")),
+    ("requests/AS-F-ER.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-F-ER.request.json")),
+    ("requests/AS-F-R.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-F-R.request.json")),
+    ("requests/AS-F-V.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-F-V.request.json")),
+    ("requests/ER-A.request.json", include_str!("../../../../validation/references/t4_u5b/requests/ER-A.request.json")),
+    ("requests/ER-F.request.json", include_str!("../../../../validation/references/t4_u5b/requests/ER-F.request.json")),
+    ("requests/L2-CL-2E11.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-CL-2E11.request.json")),
+    ("requests/L2-CL-2E3.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-CL-2E3.request.json")),
+    ("requests/L2-CL-2E5.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-CL-2E5.request.json")),
+    ("requests/L2-CL-2E7.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-CL-2E7.request.json")),
+    ("requests/L2-CL-2E9.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-CL-2E9.request.json")),
+    ("requests/L2-PR-2E11.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-PR-2E11.request.json")),
+    ("requests/L2-PR-2E3.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-PR-2E3.request.json")),
+    ("requests/L2-PR-2E5.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-PR-2E5.request.json")),
+    ("requests/L2-PR-2E7.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-PR-2E7.request.json")),
+    ("requests/L2-PR-2E9.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-PR-2E9.request.json")),
+    ("requests/L4-CL-2E11.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-CL-2E11.request.json")),
+    ("requests/L4-CL-2E3.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-CL-2E3.request.json")),
+    ("requests/L4-CL-2E5.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-CL-2E5.request.json")),
+    ("requests/L4-CL-2E7.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-CL-2E7.request.json")),
+    ("requests/L4-CL-2E9.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-CL-2E9.request.json")),
+    ("requests/L4-PR-2E11.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-PR-2E11.request.json")),
+    ("requests/L4-PR-2E3.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-PR-2E3.request.json")),
+    ("requests/L4-PR-2E5.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-PR-2E5.request.json")),
+    ("requests/L4-PR-2E7.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-PR-2E7.request.json")),
+    ("requests/L4-PR-2E9.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-PR-2E9.request.json")),
+    ("requests/MO-F.request.json", include_str!("../../../../validation/references/t4_u5b/requests/MO-F.request.json")),
+    ("requests/MO-T.request.json", include_str!("../../../../validation/references/t4_u5b/requests/MO-T.request.json")),
+    ("requests/OP-4.request.json", include_str!("../../../../validation/references/t4_u5b/requests/OP-4.request.json")),
+    ("requests/OP-Y.request.json", include_str!("../../../../validation/references/t4_u5b/requests/OP-Y.request.json")),
+    ("requests/OP-Z.request.json", include_str!("../../../../validation/references/t4_u5b/requests/OP-Z.request.json")),
+    ("requests/RR-P.request.json", include_str!("../../../../validation/references/t4_u5b/requests/RR-P.request.json")),
+    ("requests/RR-U.request.json", include_str!("../../../../validation/references/t4_u5b/requests/RR-U.request.json")),
+    ("requests/SK-F.request.json", include_str!("../../../../validation/references/t4_u5b/requests/SK-F.request.json")),
+    ("requests/bindings.json", include_str!("../../../../validation/references/t4_u5b/requests/bindings.json")),
+    ("SHA256SUMS", include_str!("../../../../validation/references/t4_u5b/SHA256SUMS")),
+];
+const CASE_NAMES: [&str; 38] = ["AS-A", "AS-A-ER", "AS-A-R", "AS-A-V", "AS-F", "AS-F-ER", "AS-F-R", "AS-F-V", "ER-A", "ER-F", "L2-CL-2E11", "L2-CL-2E3", "L2-CL-2E5", "L2-CL-2E7", "L2-CL-2E9", "L2-PR-2E11", "L2-PR-2E3", "L2-PR-2E5", "L2-PR-2E7", "L2-PR-2E9", "L4-CL-2E11", "L4-CL-2E3", "L4-CL-2E5", "L4-CL-2E7", "L4-CL-2E9", "L4-PR-2E11", "L4-PR-2E3", "L4-PR-2E5", "L4-PR-2E7", "L4-PR-2E9", "MO-F", "MO-T", "OP-4", "OP-Y", "OP-Z", "RR-P", "RR-U", "SK-F"];
+
+/// The builder's request files, `requests/bindings.json` (each request's
+/// SHA-256 beside its case's `case_sha256`) and `SHA256SUMS`: every existing
+/// line unchanged, then one added line per added file. No frozen byte moves.
+fn request_files() -> BTreeMap<String, Vec<u8>> {
+    use sha2::{Digest, Sha256};
+    let oracle = t4_u5b::oracle();
+    let mut files = BTreeMap::new();
+    let mut bindings = serde_json::Map::new();
+    for name in CASE_NAMES {
+        let case = &oracle["cases"][name];
+        let path = format!("requests/{name}.request.json");
+        let bytes = t4_u5b::request_bytes(&t4_u5b::request(name, case));
+        bindings.insert(name.to_string(), serde_json::json!({
+            "case_description": case["case_description"], "case_sha256": case["case_sha256"],
+            "request": path, "request_sha256": format!("{:x}", Sha256::digest(&bytes)),
+        }));
+        files.insert(path, bytes);
+    }
+    let record = serde_json::json!({
+        "binding": "README \"Binding to model 0.6.0\": one model 0.6.0 request per case, authored by the shared builder (core/product_physics/tests/common/t4_u5b.rs) from the SHA-bound case description and its t4_u5a base; only request bytes and hashes are added, and no oracle value, case description or existing pin moves",
+        "cases": bindings,
+    });
+    files.insert("requests/bindings.json".into(), t4_u5b::request_bytes(&record));
+    let committed = COMMITTED.iter().find(|(p, _)| *p == "SHA256SUMS").unwrap().1;
+    let mut sums: String = committed.lines().filter(|line| !line.contains("  requests/")).map(|line| format!("{line}\n")).collect();
+    for (path, bytes) in &files {
+        sums.push_str(&format!("{:x}  {path}\n", Sha256::digest(bytes)));
+    }
+    files.insert("SHA256SUMS".into(), sums.into_bytes());
+    files
+}
+
+#[test]
+fn u5b_committed_requests_are_the_builders_bytes() {
+    let files = request_files();
+    assert_eq!(files.len(), COMMITTED.len());
+    // The frozen part of SHA256SUMS is a prefix: lines are only added.
+    let frozen = COMMITTED.iter().find(|(p, _)| *p == "SHA256SUMS").unwrap().1.lines().filter(|l| !l.contains("  requests/")).count();
+    assert_eq!(frozen, 41, "t4_u5b's frozen SHA256SUMS lines");
+    if std::env::var("T4_U5B_WRITE_REQUESTS").as_deref() == Ok("1") {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../validation/references/t4_u5b");
+        for (path, bytes) in &files {
+            std::fs::write(root.join(path), bytes).unwrap();
+        }
+        return;
+    }
+    for (path, committed) in COMMITTED {
+        assert!(files[path] == committed.as_bytes(), "{path}: committed bytes differ from the builder's (T4_U5B_WRITE_REQUESTS=1)");
+    }
+}
+
+/// C99 hexadecimal form of a binary64 (`float.fromhex` reads it exactly).
+fn hex_float(v: f64) -> String {
+    let bits = v.to_bits();
+    let sign = if bits >> 63 == 1 { "-" } else { "" };
+    let exponent = ((bits >> 52) & 0x7ff) as i64;
+    let fraction = bits & ((1u64 << 52) - 1);
+    match (exponent, fraction) {
+        (0, 0) => format!("{sign}0x0p+0"),
+        (0, f) => format!("{sign}0x0.{f:013x}p-1022"),
+        (e, f) => format!("{sign}0x1.{f:013x}p{:+}", e - 1023),
+    }
+}
+
+/// Evidence for an independent reproduction (not a check): with
+/// `T4_U5B_DUMP_DIR` set, writes AS-F-R's and AS-F's request bytes and every
+/// scored observation of both modes, with the expected value and criterion.
+#[test]
+fn u5b_writes_case_observations_when_asked() {
+    use sha2::{Digest, Sha256};
+    let Some(dir) = std::env::var_os("T4_U5B_DUMP_DIR") else { return };
+    let dir = std::path::PathBuf::from(dir);
+    let oracle = t4_u5b::oracle();
+    for (name, file) in [("AS-F-R", "as_f_r_observations.json"), ("AS-F", "as_f_observations.json")] {
+        let case_oracle = oracle["cases"][name].clone();
+        let request = t4_u5b::request(name, &case_oracle);
+        let bytes = t4_u5b::request_bytes(&request);
+        let request_file = format!("{name}.request.json");
+        std::fs::write(dir.join(&request_file), &bytes).unwrap();
+        let case = Case { name, oracle: &case_oracle, request: &request };
+        let mut modes = serde_json::Map::new();
+        for mode in MODES {
+            let (sources, _) = run(&request, mode);
+            let source = &sources[0];
+            let observables: Vec<Value> = case.keys().into_iter().map(|key| {
+                let expected = case.expected(&key).unwrap();
+                let observed = case.observed(source, &key).unwrap();
+                let (family, floor) = floor(&key);
+                let tolerance = RELATIVE * expected.abs().max(floor);
+                serde_json::json!({
+                    "key": key, "family": family,
+                    "observed_hex": hex_float(observed), "observed_bits": format!("{:#018x}", observed.to_bits()),
+                    "observed_decimal": format!("{observed:e}"),
+                    "expected_hex": hex_float(expected), "expected_decimal": format!("{expected:e}"),
+                    "criterion": {"relative": RELATIVE, "floor": floor, "tolerance": tolerance},
+                    "fraction_of_criterion": (observed - expected).abs() / tolerance,
+                    "pending_reference_disagreement": PENDING_REFERENCE_DISAGREEMENT.contains(&(name, key.as_str())),
+                })
+            }).collect();
+            modes.insert(format!("{mode:?}"), serde_json::json!({
+                "mechanics": source["status"]["mechanics"], "semantic_contract_id": source["producer"]["semantic_contract_id"],
+                "observables": observables,
+            }));
+        }
+        let record = serde_json::json!({
+            "case": name, "case_sha256": case_oracle["case_sha256"],
+            "request_file": request_file, "request_sha256": format!("{:x}", Sha256::digest(&bytes)),
+            "criterion": "|observed - expected| <= relative * max(|expected|, floor) (t4_u5b README Criterion)",
+            "source": "captured envelope (typed and headless results asserted identical)",
+            "modes": modes,
+        });
+        std::fs::write(dir.join(file), serde_json::to_string_pretty(&record).unwrap() + "\n").unwrap();
+    }
+}

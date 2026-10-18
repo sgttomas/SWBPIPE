@@ -11,13 +11,17 @@
 //! end attachments and node positions of the named t4_u5a request), and for
 //! MO-* the removed region, the unpressurized connector and MO-T's thermal
 //! loads from J3-1T. Every physical input is then checked against the case
-//! description. No frozen byte is written: the requests exist in memory only.
+//! description. Every input is compiled in (`include_str!`) and checked by
+//! SHA-256; no frozen byte is written. As the README allows, the builder's
+//! bytes for each case (`request_bytes`) are committed under the reference's
+//! `requests/`, with their SHA-256 beside the case's `case_sha256` in
+//! `requests/bindings.json` and added `SHA256SUMS` lines; the headless
+//! t4_u5b test checks them (`T4_U5B_WRITE_REQUESTS=1` rewrites them).
 //!
 //! The including crate or test module declares `current_model` (`#[path]`) beside this module.
 #![allow(dead_code)]
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
-use std::path::PathBuf;
 
 pub const ORACLE: &str = include_str!("../../../../validation/references/t4_u5b/oracle.json");
 const PROVENANCE: &str =
@@ -27,24 +31,75 @@ pub fn oracle() -> Value {
     serde_json::from_str(ORACLE).unwrap()
 }
 
-fn references() -> PathBuf {
-    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../validation/references")
+/// Every file the builder reads, compiled in: t4_u5b's case descriptions and
+/// the t4_u5a base and pattern requests they name (keys relative to
+/// `validation/references`). Each is still checked against its recorded SHA-256.
+const FILES: [(&str, &str); 45] = [
+    ("t4_u5b/cases/AS-A-ER.case.json", include_str!("../../../../validation/references/t4_u5b/cases/AS-A-ER.case.json")),
+    ("t4_u5b/cases/AS-A-R.case.json", include_str!("../../../../validation/references/t4_u5b/cases/AS-A-R.case.json")),
+    ("t4_u5b/cases/AS-A-V.case.json", include_str!("../../../../validation/references/t4_u5b/cases/AS-A-V.case.json")),
+    ("t4_u5b/cases/AS-A.case.json", include_str!("../../../../validation/references/t4_u5b/cases/AS-A.case.json")),
+    ("t4_u5b/cases/AS-F-ER.case.json", include_str!("../../../../validation/references/t4_u5b/cases/AS-F-ER.case.json")),
+    ("t4_u5b/cases/AS-F-R.case.json", include_str!("../../../../validation/references/t4_u5b/cases/AS-F-R.case.json")),
+    ("t4_u5b/cases/AS-F-V.case.json", include_str!("../../../../validation/references/t4_u5b/cases/AS-F-V.case.json")),
+    ("t4_u5b/cases/AS-F.case.json", include_str!("../../../../validation/references/t4_u5b/cases/AS-F.case.json")),
+    ("t4_u5b/cases/ER-A.case.json", include_str!("../../../../validation/references/t4_u5b/cases/ER-A.case.json")),
+    ("t4_u5b/cases/ER-F.case.json", include_str!("../../../../validation/references/t4_u5b/cases/ER-F.case.json")),
+    ("t4_u5b/cases/L2-CL-2E11.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L2-CL-2E11.case.json")),
+    ("t4_u5b/cases/L2-CL-2E3.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L2-CL-2E3.case.json")),
+    ("t4_u5b/cases/L2-CL-2E5.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L2-CL-2E5.case.json")),
+    ("t4_u5b/cases/L2-CL-2E7.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L2-CL-2E7.case.json")),
+    ("t4_u5b/cases/L2-CL-2E9.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L2-CL-2E9.case.json")),
+    ("t4_u5b/cases/L2-PR-2E11.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L2-PR-2E11.case.json")),
+    ("t4_u5b/cases/L2-PR-2E3.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L2-PR-2E3.case.json")),
+    ("t4_u5b/cases/L2-PR-2E5.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L2-PR-2E5.case.json")),
+    ("t4_u5b/cases/L2-PR-2E7.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L2-PR-2E7.case.json")),
+    ("t4_u5b/cases/L2-PR-2E9.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L2-PR-2E9.case.json")),
+    ("t4_u5b/cases/L4-CL-2E11.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L4-CL-2E11.case.json")),
+    ("t4_u5b/cases/L4-CL-2E3.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L4-CL-2E3.case.json")),
+    ("t4_u5b/cases/L4-CL-2E5.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L4-CL-2E5.case.json")),
+    ("t4_u5b/cases/L4-CL-2E7.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L4-CL-2E7.case.json")),
+    ("t4_u5b/cases/L4-CL-2E9.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L4-CL-2E9.case.json")),
+    ("t4_u5b/cases/L4-PR-2E11.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L4-PR-2E11.case.json")),
+    ("t4_u5b/cases/L4-PR-2E3.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L4-PR-2E3.case.json")),
+    ("t4_u5b/cases/L4-PR-2E5.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L4-PR-2E5.case.json")),
+    ("t4_u5b/cases/L4-PR-2E7.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L4-PR-2E7.case.json")),
+    ("t4_u5b/cases/L4-PR-2E9.case.json", include_str!("../../../../validation/references/t4_u5b/cases/L4-PR-2E9.case.json")),
+    ("t4_u5b/cases/MO-F.case.json", include_str!("../../../../validation/references/t4_u5b/cases/MO-F.case.json")),
+    ("t4_u5b/cases/MO-T.case.json", include_str!("../../../../validation/references/t4_u5b/cases/MO-T.case.json")),
+    ("t4_u5b/cases/OP-4.case.json", include_str!("../../../../validation/references/t4_u5b/cases/OP-4.case.json")),
+    ("t4_u5b/cases/OP-Y.case.json", include_str!("../../../../validation/references/t4_u5b/cases/OP-Y.case.json")),
+    ("t4_u5b/cases/OP-Z.case.json", include_str!("../../../../validation/references/t4_u5b/cases/OP-Z.case.json")),
+    ("t4_u5b/cases/RR-P.case.json", include_str!("../../../../validation/references/t4_u5b/cases/RR-P.case.json")),
+    ("t4_u5b/cases/RR-U.case.json", include_str!("../../../../validation/references/t4_u5b/cases/RR-U.case.json")),
+    ("t4_u5b/cases/SK-F.case.json", include_str!("../../../../validation/references/t4_u5b/cases/SK-F.case.json")),
+    ("t4_u5a/requests/J3-1.request.json", include_str!("../../../../validation/references/t4_u5a/requests/J3-1.request.json")),
+    ("t4_u5a/requests/J3-1R.request.json", include_str!("../../../../validation/references/t4_u5a/requests/J3-1R.request.json")),
+    ("t4_u5a/requests/J3-1T.request.json", include_str!("../../../../validation/references/t4_u5a/requests/J3-1T.request.json")),
+    ("t4_u5a/requests/J3-1V.request.json", include_str!("../../../../validation/references/t4_u5a/requests/J3-1V.request.json")),
+    ("t4_u5a/requests/J3-3.request.json", include_str!("../../../../validation/references/t4_u5a/requests/J3-3.request.json")),
+    ("t4_u5a/requests/J3-R.request.json", include_str!("../../../../validation/references/t4_u5a/requests/J3-R.request.json")),
+    ("t4_u5a/requests/J3-RP.request.json", include_str!("../../../../validation/references/t4_u5a/requests/J3-RP.request.json")),
+];
+
+fn read_bound(path: &str, sha256: &str) -> Value {
+    let bytes = FILES.iter().find(|(key, _)| *key == path).unwrap_or_else(|| panic!("{path}: not a builder input")).1;
+    assert_eq!(format!("{:x}", Sha256::digest(bytes.as_bytes())), sha256, "{path}: SHA-256 pin");
+    serde_json::from_str(bytes).unwrap()
 }
 
-/// The project root relative to the including crate (`core/product_physics`
-/// or `core/runner/headless`): the references sit under it either way.
-fn reference_root() -> PathBuf {
-    let direct = references();
-    if direct.join("t4_u5b").exists() {
-        return direct;
-    }
-    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../validation/references")
-}
-
-fn read_bound(path: PathBuf, sha256: &str) -> Value {
-    let bytes = std::fs::read(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
-    assert_eq!(format!("{:x}", Sha256::digest(&bytes)), sha256, "{}: SHA-256 pin", path.display());
-    serde_json::from_slice(&bytes).unwrap()
+/// The committed form of a built request: one-space pretty JSON (object keys
+/// in serde_json's sorted order) and a final newline. It parses back to the
+/// exact request the tests feed the product.
+#[allow(dead_code)]
+pub fn request_bytes(request: &Value) -> Vec<u8> {
+    use serde::Serialize;
+    let mut bytes = Vec::new();
+    let mut serializer = serde_json::Serializer::with_formatter(&mut bytes, serde_json::ser::PrettyFormatter::with_indent(b" "));
+    request.serialize(&mut serializer).unwrap();
+    bytes.push(b'\n');
+    assert_eq!(&serde_json::from_slice::<Value>(&bytes).unwrap(), request, "request bytes round-trip");
+    bytes
 }
 
 /// The exact binary64 `value` of an `{exact, decimal, value}` number.
@@ -59,7 +114,7 @@ fn vector(v: &Value) -> [f64; 3] {
 /// The case description of `case` (the oracle entry), SHA-checked.
 pub fn description(case: &Value) -> Value {
     read_bound(
-        reference_root().join("t4_u5b").join(case["case_description"].as_str().unwrap()),
+        &format!("t4_u5b/{}", case["case_description"].as_str().unwrap()),
         case["case_sha256"].as_str().unwrap(),
     )
 }
@@ -100,13 +155,12 @@ pub fn request(name: &str, case: &Value) -> Value {
     let description = description(case);
     assert_eq!(description["id"], name);
     let derives = &description["derives_from"];
-    let u5a = reference_root().join("t4_u5a");
-    let base = read_bound(u5a.join(derives["request"].as_str().unwrap()), derives["request_sha256"].as_str().unwrap());
+    let base = read_bound(&format!("t4_u5a/{}", derives["request"].as_str().unwrap()), derives["request_sha256"].as_str().unwrap());
     let mut request = super::current_model::reauthor_request(base);
     let model = &mut request["model"];
     model["project"]["id"] = json!(format!("project:invented-t4-u5b-{}", name.to_ascii_lowercase()));
     if let Some(pattern) = derives.get("orientation_pattern").filter(|p| !p.is_null()) {
-        let source = read_bound(u5a.join(pattern["request"].as_str().unwrap()), pattern["request_sha256"].as_str().unwrap());
+        let source = read_bound(&format!("t4_u5a/{}", pattern["request"].as_str().unwrap()), pattern["request_sha256"].as_str().unwrap());
         let source = &source["model"];
         model["components"][0]["node"] = source["components"][0]["node"].clone();
         for key in ["connector_axes_global", "end_i", "end_j"] {
@@ -131,7 +185,7 @@ pub fn request(name: &str, case: &Value) -> Value {
         case["pressure_regions"] = json!([]);
     }
     if let Some(pattern) = derives.get("thermal_pattern").filter(|p| !p.is_null()) {
-        let source = read_bound(u5a.join(pattern["request"].as_str().unwrap()), pattern["request_sha256"].as_str().unwrap());
+        let source = read_bound(&format!("t4_u5a/{}", pattern["request"].as_str().unwrap()), pattern["request_sha256"].as_str().unwrap());
         for thermal in inputs["thermal_loads"].as_array().unwrap() {
             let load = source["model"]["load_cases"][0]["primitive_loads"].as_array().unwrap().iter()
                 .find(|load| load["id"] == thermal["id"]).unwrap().clone();
