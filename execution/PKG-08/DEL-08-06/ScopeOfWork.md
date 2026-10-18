@@ -115,6 +115,8 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 > | Authority boundary | No human-acceptance, validation, or release inference. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Held scope | External/non-JSON payload partitioning, rendered layout, concrete adapter/runtime hooks, and broader workflow integration |
 
+Desktop report-package request (current, after B7b). `apps/desktop/src/features/report/reportPackageRequest.ts` assembles the state/run and comparison sections (`stateComparisonHandoffSections.ts`, kept equal to the Python assembler `core/reporting/state_comparison_handoff_sections/engine.py` by a shared parity fixture) only below its availability gate. The gate refuses preview-physics-1 and its retained successor with T0R's `REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE`, and pressure-1 and pressure-source-1 with the desktop output policy's `PRESSURE-1-OUTPUT-NOT-YET-AVAILABLE` (owner, 2026-10-15: "Merge with the gap"). Below the gate, which only its test seam reaches directly, assembly accepts only a preview-physics-1 source with a 0.3.0 analysis record, so no current result yields a desktop report package. B7b removed the physics-1 and source-blocks reasons with their retired identities.
+
 ## Completion and Reliance Basis — Epistemology
 
 ### CLM-009 — Specification: DEL-08-06 State, comparison, and handoff report sections

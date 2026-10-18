@@ -24,13 +24,16 @@ export use their existing routes unchanged.
   - `MODEL-FILE-DOCUMENT-KIND` (`openpipestress.product_preview.model` only, so a
     solve request `{model, materials}` is refused);
   - `MODEL-FILE-SCHEMA-REFUSED`, for the statuses that project open and save
-    also refuse: `retired_schema` (an older version, with the
-    `MODEL_SCHEMA_VERSION_RETIRED` re-author diagnostic for 0.1.0 and 0.2.0),
-    `newer_than_supported` and `unsupported_schema` from the one version check,
-    `evaluate_model_document` (`src-tauri/src/model_document_version.rs`;
-    DEL-02-05 CLM-003). Model document 0.5.0 is current; until B7b re-authors
-    them, 0.3.0 and 0.4.0 are also current. This path adds no migration or
-    compatibility code.
+    also refuse: `retired_schema` (any version below 0.5.0, including 0.1.0
+    through 0.4.0, with the `MODEL_SCHEMA_VERSION_RETIRED` re-author
+    diagnostic), `newer_than_supported` and `unsupported_schema` from the one
+    version check, `evaluate_model_document`
+    (`src-tauri/src/model_document_version.rs`; DEL-02-05 CLM-003). Model
+    document 0.5.0 is the one current version; B7b retired 0.3.0 and 0.4.0. The
+    version check reads the version only: a 0.5.0 document that declares a
+    retired pressure contract passes it unchanged, and its solve publishes no
+    rows, with the blocking diagnostic `PRESSURE_MODEL_REAUTHOR_REQUIRED`. This
+    path adds no migration or compatibility code.
 - **Shape check (webview).** `MODEL-FILE-SHAPE` with the JSON path of each
   missing or mistyped member that the desktop's `PreviewModel` requires, the
   desktop dereferences, and the desktop always writes:

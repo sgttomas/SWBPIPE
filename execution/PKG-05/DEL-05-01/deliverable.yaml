@@ -67,9 +67,14 @@ needs:
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 code_paths:
-- core/loads/primitive_loads
-- core/loads/primitive_loads/Cargo.toml
-- core/loads/primitive_loads/README.md
-- core/loads/primitive_loads/src/lib.rs
+- core/loads/primitive_loads/**
+- core/loads/self_weight_wasm/**
+- core/product_physics/src/self_weight.rs
+- core/product_physics/src/certified_loads.rs
+- core/model_operations/operation_applier/tests/generated_self_weight.rs
 - schemas/model.schema.yaml
 - validation/hand_calcs/mechanics/tp_pmm_p3_subspan_wind_exposure.md
+checks:
+- core/loads/primitive_loads/src/lib.rs
+- core/model_operations/operation_applier/tests/generated_self_weight.rs
+- core/loads/self_weight_wasm/tests/applied_self_weight.rs

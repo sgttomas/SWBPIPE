@@ -80,8 +80,9 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-05/DEL-05-04/Specification.md; schemas/analysis_status.schema.yaml; docs/architecture/analysis_status_semantics.md
+  evidence: docs/architecture/analysis_status_semantics.md
 code_paths:
+- tests/test_analysis_status_schema.py
 - core/rules/completeness_checker/src/lib.rs
 - core/solver/diagnostics/src/lib.rs
 - schemas/analysis_boundary.schema.yaml

@@ -77,43 +77,43 @@ needs:
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-04-01
-  condition: 'DEL-04-05 needs DEL-04-01 as a predecessor: performance harness targets the sparse frame
-    solver
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; original DAG-002 type SOLVER_PREDECESSOR normalized to v3.1
-    DependencyType=PREREQUISITE; original explicitness INFERRED_DIRECT normalized to v3.1 Explicitness=IMPLICIT;
-    original satisfaction UNKNOWN normalized to v3.1 SatisfactionStatus=TBD; carried forward from DAG-001-E0444
-    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    DEL-04-05 observes DEL-04-01's solve boundary without changing it: the frame kernel's assembly,
+    reduction and dense path, K1's sparse representation, and the in-repo sparse skyline solver
+    (`sparse_direct`, DEC-023) that it measures beside the dense parity path. It needs those public
+    interfaces and their deterministic ordering and storage.
   gating: true
-  evidence: execution/PKG-04/DEL-04-05/docs/_Registers/Deliverables.csv
+  evidence: core/solver/performance_harness/README.md
 - from: DEL-04-06
-  condition: 'DEL-04-05 needs DEL-04-06 as a predecessor: performance/regression harness records solver
-    conditioning diagnostics
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; original DAG-002 type DIAGNOSTICS_CONTRACT normalized to v3.1
-    DependencyType=INTERFACE; original explicitness INFERRED_DIRECT normalized to v3.1 Explicitness=IMPLICIT;
-    original satisfaction UNKNOWN normalized to v3.1 SatisfactionStatus=TBD; carried forward from DAG-001-E0445
-    into DAG-002 revision 0.5 proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md;
-    not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    DEL-04-05 records solver conditioning and failure diagnostics through DEL-04-06's diagnostic records
+    (`solver/diagnostics`: condition-ratio classification, frame and sparse failure mapping, factorization
+    reports and the tolerance-policy and sparse-solver status diagnostics) in a fixed order.
   gating: true
-  evidence: execution/PKG-04/DEL-04-05/docs/_Registers/Deliverables.csv
+  evidence: core/solver/performance_harness/README.md
+- from: DEL-04-07
+  when: K6 kernel observations
+  condition: >-
+    K6 stages the product's linear entry, `SparseAssemblyEvidence::solve_assembled_with_formation_check`
+    in `nonlinear_integration`'s structural adapter, at its public-API boundaries and pins the staged
+    result bit for bit to the adapter's own entries. DEL-04-05 needs DEL-04-07 to keep those boundaries
+    public; it observes them and changes nothing.
+  gating: true
+  evidence: core/solver/performance_harness/src/k6/staged.rs
+- from: DEL-04-01
+  when: K6b W1 observations
+  condition: >-
+    K6b runs DEL-04-01's retained kernel through `structural::retained_api`
+    (`SourceParts`, `solve_case`) and records its work by stage. DEL-04-05 needs
+    that public surface and its work accounting; it asserts no time or memory bound.
+  gating: true
+  evidence: core/solver/performance_harness/src/k6/w1/adapter.rs
 code_paths:
-- core/solver/performance_harness/
-- core/solver/performance_harness/README.md
+- core/solver/performance_harness/**
+- validation/benchmarks/sparse_*.json
+checks:
 - core/solver/performance_harness/src/lib.rs
-- tools/validation/validate_dependencies_schema.py
+- core/solver/performance_harness/tests/k6*.rs
+- tests/test_performance_harness_runner.py
+- tests/test_sparse_suitability_observation.py
+- tests/test_sparse_default_promotion_observation.py

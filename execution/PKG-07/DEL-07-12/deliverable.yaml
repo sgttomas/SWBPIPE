@@ -327,6 +327,9 @@ needs:
   gating: true
   evidence: execution/PKG-07/DEL-07-12/ScopeOfWork.md
 code_paths:
-- apps/desktop/src/features/native-package/
-- apps/desktop/src/features/stress-neutral/
-- apps/desktop/src/features/validation-evidence/
+- apps/desktop/src/features/native-package/**
+- apps/desktop/src/features/stress-neutral/**
+- apps/desktop/src/features/validation-evidence/**
+- apps/desktop/src/features/handoff/**
+- apps/desktop/src/features/headless-runner/**
+- apps/desktop/src/features/local-fea-handoff/**

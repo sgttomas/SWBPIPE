@@ -91,7 +91,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-01/_STATUS.md; core/solver/straight_pipe/src/lib.rs
+  evidence: core/solver/straight_pipe/src/lib.rs
 - from: DEL-03-08
   condition: 'DEL-04-02 needs DEL-03-08 as a predecessor because straight pipe section-property integration
     and weight hooks require governed section and mass-property calculations from user-entered or lawful
@@ -107,7 +107,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-03/DEL-03-08/_STATUS.md; core/solver/straight_pipe/src/lib.rs
+  evidence: core/solver/straight_pipe/src/lib.rs
 - from: DEL-02-02
   condition: 'DEL-04-02 needs DEL-02-02 as a predecessor because straight pipe stiffness, section-property
     integration, weight hooks, and force recovery require unit-aware dimensional checks.
@@ -122,13 +122,12 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-02/core/solver/straight_pipe/README.md; core/solver/straight_pipe/src/lib.rs
+  evidence: core/solver/straight_pipe/README.md
 code_paths:
-- core/loads/primitive_loads/
-- core/product_physics/
-- core/solver/frame_kernel/
-- core/solver/straight_pipe
-- core/solver/straight_pipe/
-- core/solver/straight_pipe/README.md
-- core/solver/straight_pipe/src/lib.rs
+- core/solver/straight_pipe/**
+- core/solver/frame_kernel/src/lib.rs
+- core/loads/primitive_loads/src/lib.rs
+- core/product_physics/src/lib.rs
 - tools/validation/validate_dependencies_schema.py
+checks:
+- core/solver/straight_pipe/src/lib.rs

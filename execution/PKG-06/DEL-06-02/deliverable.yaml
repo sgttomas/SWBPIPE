@@ -104,7 +104,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-06/DEL-06-02/Procedure.md
 - from: DEL-02-02
   condition: 'DEL-06-02 has an upstream interface dependency on the unit-system contract because expression
     operands comparisons and outputs must be dimensionally checked.
@@ -117,8 +116,14 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-06/DEL-06-02/Procedure.md
 code_paths:
-- core/rules/expression_evaluator/
-- core/rules/rule_check_runner/
+- core/rules/expression_evaluator/**
+- core/rules/rule_check_runner/**
+- core/analysis_runs/rule_interval.py
+- tests/test_rule_interval.py
 - tools/validation/validate_dependencies_schema.py
+checks:
+- core/rules/expression_evaluator/tests/conformance_corpus.rs
+- core/rules/rule_check_runner/src/lib.rs
+- core/rules/rule_check_runner/tests/*.rs
+- tests/test_rule_interval.py

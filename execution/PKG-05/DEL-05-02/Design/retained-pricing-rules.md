@@ -1,2277 +1,641 @@
 # Retained pricing: the reasons for the name-keyed rules
 
-The registered memory profile (`core/product_physics/src/retained_memory.rs`, its GENERATED PROFILE block) is produced by the retained pricing tool, [`tools/retained_pricing`](../../../../tools/retained_pricing/README.md). That tool is SQ2's TEXT + cap-priced chain. This text gives the argument for each rule the tool adds by name: `rules/o10_rules.py` and the later adaptations in `rules/sq2_decisions_*.py`. Each rule is cited here by its label in the code. A rule whose function is absent at a revision is not added, because there is nothing for it to bound.
+The registered memory profile (`core/product_physics/src/retained_memory.rs`, its GENERATED PROFILE block) is produced by the retained pricing tool, [`tools/retained_pricing`](../../../../tools/retained_pricing/README.md). That tool is SQ2's TEXT + cap-priced chain under the O-10 rules. This text gives the argument for each rule the tool adds by name: `rules/o10_rules.py`, the later adaptations in `rules/sq2_decisions_*.py`, and the source models in `base/` and `lib/` that bind, bound or price an owner. Each rule is cited here by its label in the code or, for an unlabelled code rule, by the label this text gives it and is stated once, in its current form, with its reason. A rule whose function is absent at a revision is not added, because there is nothing for it to bound.
 
-Line numbers are those at the head named in each section. The tool resolves every key by name, or by the site's own text inside a named function, at the snapshot it prices.
+The tool resolves every key by name, or by the site's own text inside a named function, at the snapshot it prices. A line number below appears only where it is part of a key the tool uses: a basis key written at `2243be380b`, or a snapshot key held by a source model (which re-keys it when its pinned source moves with unchanged text).
+
+SQ2's own route tables carry their written argument in each entry: the entries whose reason begins "SQ2 G5" in `rules/sq2_decisions_*.py`, and route E's I95 B3-S loops in `rules/i95_new_loops.json`. This text restates one only where a later rule changes it. T07, T16, T17, T25 and the T11–T19 rows name the base chain's families; they are not rules of this text.
 
 **Current qualification budget.** The owner selected M = 12 GiB (12,884,901,888 B). Keep the 0.9 M margin and require at least 5 % of the phase's applicable TAV_W or TAV_X as remaining TEXT reserve, rounded upward to whole bytes. Existing model counts, all positive owner/backing charges and source refusal guards remain in force. Qualification binds the K-D5/C8 profile to its actual source and native values; the old 10.5 GiB declaration is superseded for this registration. The 64 GiB testing-host ceiling is not a product threshold. Machine-dependent scaling needs its separate resource/concurrency design before implementation.
 
-## A. Rulings applied to T4's batch 1 heads
+**Evaluation.** A phase requires requested + moving + R, with R = 64 MiB (67,108,864 B). After its reserve ⌈TAV/20⌉ (TAV_W for W1–W5, TAV_X for X1/X2) it must fit ⌊0.9 M⌋ = 11,596,411,699 B. There are 70 evaluations: the seven phases in both native modes, for the merged tree and for each of the four points. A complete `run` establishes pricing completeness only. Qualification also needs the in-build atoms, all 70 evaluations, the reviewed inputs and layouts, and independent source and pricing scrutiny (§9). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
-These are Agent 0's rulings. Heads: `c2f1db4814`, `8388da7a8c`, `666cb30520`.
+Sections 1 and 2 hold the shared machinery and premises. Sections 3 to 8 are arranged by the owner each rule bounds, and each rule states the routes (L, E) and phases (W1–W5, X1, X2) it applies to. Section 9 holds the memory-profile gates and registration, and section 10 the reproduction of registered revisions. The last table maps the section names cited elsewhere to their sections here.
 
-- **R1.** `O10_EDGE_ZERO`: the edge from `semantic_contract.rs for_source` to `physics_evidence.rs validate_pressure_evidence` is zero.
-  - Why: the precommit reader validates `project(successor)`. The Rust reader's `project()` sets `producer.semantic_contract_id` to the route's base id: preview-physics-1 on route L, physics-1 on route E. It is never pressure-1, so `for_source` never takes the `PRESSURE_ID` arm.
-  - This is the argument of the registered G4 (T17) sibling edges.
-  - Without R1, `8388da7a8c` is incomplete: 26 unmapped headers and 5 unclassified arguments, all behind this edge.
-- **The v3 identity text is priced.** No rule.
-  - TAV rises by exactly 23,920 B on both routes and in every variant.
-  - The increase is `exact_admission.rs pressure_v3_formulation_basis` (+17,648) plus `lib.rs mechanics_producer_for_model` (+6,272).
-- **The rule whose callee `UserStiffnessElement::orientation` was deleted is dropped.** The line map's prune drops `loop_bounds` `edge_zero` {caller `build_pressure_case_with_members`, callee `lib.rs:675:orientation` at the basis}.
-  - The frame kernel's `lib.rs` defined `fn orientation` twice: in `impl FrameElement` (604) and in `impl UserStiffnessElement` (675).
-  - a601e3706d deletes `UserStiffnessElement`, so at `666cb30520` only `FrameElement`'s definition remains, and the dropped rule's callee is the deleted one. `FrameElement`'s own zero edge is kept.
-  - The definition count falls from 2 to 1, and that alone does not say which definition went. The prune therefore happens only through the reviewed entry for this key in the tool's `rules/linemap_resolutions.json`; without it the run stops.
-  - Route E's `EDGE_ZERO_REMOVE_CALLER` count (51 at the basis) is reduced by exactly the pruned edges, and the reduction is logged.
+## 1. Keys, carry and guards
 
-## B. Connector rules (L, E, A, J), at `666cb30520`
+### 1.1 Rule families
 
-These rules rest on three premises.
-
-**P1 (D1.3).** `retained_memory.rs namespace_branch` admits only two forms:
-- `("0.1.0"|"0.2.0", None)`;
-- `("0.3.0", Some(2.0.0 / exact_straight_pressure_v2))`.
-
-Everything else is refused. So no admitted model has `exact_contract(model) == PressureV3`.
-
-**P2 (D1.4).** `retained_memory.rs` refuses any model whose `components` is not empty (`C::Invocation`, `F::Components`). The registered rule `model.components → 0` encodes this.
-
-**P3 (connector origin).**
-- `ObjectiveConnector`'s fields are private. `ObjectiveConnector::new` is called only by `joint::build_connector`.
-- `build_connector` is called only inside `build_model_for_members`, under `exact_contract(model) == Some(PressureV3)` and in a loop over `model.components`.
-- So under D1 (by P1, and independently by P2), `built.connectors` and `built.connector_records` are empty.
-- Every other connector collection on the D1 graph is a borrow or clone of these, or `Vec::new()`.
-
-| Label | Rule | Argument |
+| Family | What it adds | Guard |
 |---|---|---|
-| **L1** | `for (connector, record) in built.connectors.iter().zip(&built.connector_records)` → 0, in `append_connector_results` and `add_connector_reference_loads` only | Both slices are empty (P3). |
-| **L2** | `for c in &source.connectors` → 0, in `structural/formation_check.rs body_scales` only | `source.connectors` holds the built model's connectors (P3). |
-| **L3** | `iter:connectors .iter().map` → 0, in the nonlinear integration `structural_adapter.rs new` only | Those connectors are the built model's clone or empty (P3). |
-| **E1** (route E) | `for r in records` → 0, in `connector_evidence.rs validate` | **Guard.** `require_connector(admitted \|\| records.is_empty(), "UNSUPPORTED")?` runs before the loop, with `admitted = (contract == PressureV3)`.<br>**Callers on route E** pass `StraightV2` (`validate_physics_evidence` → `validate_physics_evidence_in(…, StraightV2)`).<br>**PressureV3 callers** are `validate_pressure_evidence` and its load-state arm `load_reference::validate_pressure_load_reference_evidence`. Both are behind R1's edge.<br>**Result:** a non-empty `records` returns Err before the loop, and an empty one iterates 0 times. |
-| **E2** (route E) | `for component in spans.keys()` → 0, in `validate` | `spans` is filled only inside E1's loop. |
-| **E3** (route E) | `for row in rows.values()` → `Pall`, in `validate` | This is a true count, not a zero: one pass over the validated envelope's result rows, at most C · P_final. |
-| **E4** (route E) | `validate` → `row_basis` edge is zero | `row_basis` is reached only after `require_connector(admitted, …)?`. That call returns Err when not admitted (E1). |
-| **E5** (route E) | `site_from` for `require_connector`'s `Err(format!("SOURCE_PHYSICS_CONNECTOR_{code}"))`, from `validate_physics_evidence`, per 1 (+306 B) | `require_connector` allocates only on Err. All 16 calls are `require_connector(…)?` with a literal code, and the error propagates with `?`. This is the registered rule for `physics_evidence.rs require()`. |
-| **A1** | `id_audit`: `connector.rs` `ConnectorError` Display's `name` at its three `write!` sites → STATIC (128) | The `name` fields are `&'static str`. The longest literal is "connector displacements" (23 B). The Display rows stay priced. |
-| **A2** | `id_audit`: `require_connector`'s `code` → STATIC (128) | All 16 calls pass a literal. The longest is "REPLACED_SPAN_PUBLISHED" (23 B). |
-| **A3** | `id_audit`: `row_basis`'s `span` → IN128 | `span` is a replaced pipe id, at most 128 B under D1's text cap. The row has multiplicity 0 by E4, but its argument is still classified. |
-| **J** | `site_size` 0 at six `joint.rs` format sites: `refuse_legacy_joints` (`what`), `decode_fields`, `model_findings` (`problem`), `classify_connectors` (`problems`) | **Why 0:** every path to these sites iterates `model.components`, so they have multiplicity 0 on both routes before any O-10 rule (P2).<br>**No `site_zero`:** the chain still computes each site's true multiplicity.<br>**Guard:** `o10_check` fails a run if any J site has a positive multiplicity or is not found. A negative control, which priced `refuse_legacy_joints`'s loop, made the guard fire. |
-| **J'** | Bounds for J's composed arguments: `problem` ≤ 512 B; `problems` ≤ 8,222 B | **`problem`:** a literal of at most 60 B with up to two 128 B ids.<br>**`problems`:** up to 16 findings × 512 B, joined by "; ".<br>Unused at multiplicity 0; they keep the class honest if J's guard ever trips. |
-
-`o10_check` also confirms that each appended header rule (L1–L3, E1–E2) matched only its listed `file:fn` functions.
-
-## C. T4 batch 2's final head `e9cc7e3f5f`
-
-This head adds two diagnostic functions and a test module, and no new loop. Each production site stays priced; only its arguments are classed.
-
-| Label | Site | Class and argument |
-|---|---|---|
-| **N1** | `lib.rs append_retained_source_not_joined`: the id `format!("diagnostic:source-recovery:{}:not-joined", stable_suffix(case_id))` and `vec![case_id.to_string()]` | `stable_suffix(case_id)` and `case_id` are IN128.<br>A load-case id is at most 128 B. `stable_suffix` replaces `:` with `-`, so the length does not change.<br>This is the registered class for these arguments. |
-| **N2** (`O10_ARGS_FIRST`) | That diagnostic's message `exact_admission::RETAINED_SOURCE_NOT_JOINED_TEXT` | The literal's length (233 B at this head), read from `exact_admission.rs` on every run. An edit of the text is priced as written. |
-| **N3** | `lib.rs append_short_bend_refusal`: id, message and refs | `stable_suffix(case_id)`, `case_id`, `bend.component_id` and `bend.pipe_id` are IN128.<br>D1.4 makes the function return before allocating: its bends come only from `model.components`. It is priced anyway (+28,086 B, conservative). |
-| **T** | `s11g_tests/short_bend.rs` test labels | `mode\|?` is 17 B (`SparseInteractive`); `phi` is 327 B (f64 Display).<br>Test-only (`#[cfg(test)] mod s11g_tests`): these sites are not reached and have multiplicity 0. The classes are honest, with no size override. |
-
-D rises by 6 (two diagnostic sites at multiplicity 3): route L goes from 41,773 to 41,779 and route E from 51,938 to 51,944.
-
-## D. Adaptations for later heads
-
-- **`preview_namespace` (#1251).**
-  - #1251 renamed the Rust reader's `legacy_namespace` to `preview_namespace`.
-  - Route E's zero for it resolves whichever name the snapshot defines (`rs_any`).
-  - The argument is unchanged: `if route.exact {…} else { preview_namespace }`, and route E is exact.
-- **E13 (#1251): `append_combination_results` deleted.**
-  - The combination engine's `append_combination_results` is deleted. `EDGE_ZERO[0]`, which zeroed its only call edge, now names nothing.
-  - Its key may stay uncarried (`KEYMAP_ALLOW`). Any other uncarried decision key stops the run.
-- **The pressure-source join (33218f87c4).**
-  - The join deletes `append_retained_source_not_joined` and `RETAINED_SOURCE_NOT_JOINED_TEXT`. N1 and N2 are guarded by that function's name, so they add nothing at join heads; KD5A3's `route` class no longer assumes N2 created `O10_ARGS_FIRST`.
-  - The join removes stress_recovery's `#[path]` `correct_norm` module (four lines). The basis key `lib.rs:179:new` named both load_case_algebra's `AlgebraFinding::new` and a stress_recovery line, and the shift makes it ambiguous. The five `AlgebraFinding::new` per-call bounds now resolve that function by name in load_case_algebra (unchanged there); their counts and arguments are unchanged.
-  - The join's re-reviewed source pins, its eighteenth KD5C5 caller and its rules on batch 4 are in §J.
-- **`g5_native_combinations`' operand loop (99cb958e85).**
-  - 99cb958e85 zipped the loop with the combination's terms. Both header forms are bound at 3, one per term.
-  - The pre-99cb958e85 form is kept so that the registered tree's revision (`f78f52b7e2`) still prices.
-
-
-## E. T4 batch 4: U2 and O-13 at `98dba87714`
-
-These additions close the new header and argument inventory. They do not
-zero a newly reached branch. D1 still admits no components and no pressure-v3
-namespace (§B P1–P3); true array and collection bounds are used even when the
-chain conservatively reaches an arc helper. One exception: the chain charges a
-named closure's body sites once per enclosing call, so the text rows of the
-`append` closure in `append_arc_pressure_results` (called 2 + 3·|sections| ≤ 17
-times per call) are charged at the call's multiplicity, not up to 17 times it.
-This is safe on D1, which forms no realized bend and no exact-pressure state, so
-the closure is unreachable; a domain that admits them must charge the closure
-per call first.
-
-| Label | Rule and code argument |
-|---|---|
-| **U2L1** | `exact.pipe_states` in `add_curved_bend_pressure_equivalent_load` has one entry per built pipe, at most m. |
-| **U2L2/U2L3** | The thermal and pressure free-expansion helpers walk `element_dof_map` and `free_expansion`, each a 12-element array (`ELEMENT_DOF`). Both headers are bounded at 12. |
-| **U2E1** | RE `arc_evidence::ROWS` is a four-element array, so its coverage header is bounded at 4. |
-| **U2E2** | `build_pressure_case_with_members` constructs one junction for each adjacent checked traversal pair. The traversal has at most m pipes, so the junction list is bounded at m. |
-| **U2A** | The `bend_pressure::append_arc_pressure_results` case and pipe ids are IN128. Their `.len()` spellings are integers (20 B upper). Its row kind, location and component are static tokens (each <128 B). The new exact-stress diagnostic suffixes preserve the case and pipe id lengths; the arc recovery record's member is a pipe id. The test observation's project is the D1-capped project id. `pressure_treatment` selects one of two static literals (<128 B). The newly conservatively reached `LoadLedger::push_product` source is the capped pressure region/source id. The arc guard endpoint `name` (i or j), group label and `unit` are static tokens. |
-| **U2C** | `component_solver_consumption` copies a component's authored text or the static default. D1.4 excludes components, but the chain conservatively reaches this helper at a positive multiplicity. It stays priced at that computed multiplicity. Its lexical receiver is audited as IN128: the authored field is within D1's text cap, and the static defaults also fit 128 B. No edge or site multiplicity is overridden. |
-| **O13L1** | `ArcRowGroup::ALL` is `[Self;4]`. The guard walks all four groups, bounded at 4. |
-| **O13A1** | A fired item is bounded by the existing F_len = max(id+34+3·24, id+41+8192): numeric items fit the first/unavailable upper, and an unavailable certificate carries the 8192 B error class. Each finding has at most six named items. A sentence is bounded by 600 literal B + id (128) + count (20) + 6·F_len + 10 separator B + 31 suffix B = 50,955 B at D1. The merge receives at most the straight, arc and short-bend findings, in that order, so any prefix and the whole are at most 3·50,955 + 2 B. `composite_text.py` uses this whole-sentence bound for `evidence_line`; the per-site `merged.sentence` is classed by the same bound. The old formula remains on revisions without the arc finding, preserving the registered tree. |
-| **O13T** | `s11g_tests/arc_recovery.rs` is included only with `#[cfg(test)]`; no test function is on the product graph. These arguments nevertheless receive honest bounds: mode Debug ≤17 B, f64 Display ≤327 B, project/member ids IN128, each sentence ≤50,955 B, and a copied source line no longer than the total included source bytes measured at the snapshot. No test site is assigned a fabricated zero. |
-
-Batch 4 on K-D5 (`9b128d5ed0`) adds:
-
-| Label | Rule and code argument |
-|---|---|
-| **U2A2** | Review M-2 gives `append_arc_pressure_results` a second blocking diagnostic (an unknown section location is refused, never read as end_j) whose affected-ref line equals the unrepresentable-section diagnostic's. Each `vec![case.id.clone(), pipe_id.to_string()]` is keyed by its own unique preceding line and checked; both keep U2A's IN128 classes and both sites stay priced. |
-| **U2A3** | That refusal's `{location:?}` is one of `sections`' locations: the literals end_i/end_j or a `StationResultants.location`, a `&'static str` (quarter_1, midspan, quarter_3). STATIC (128). |
-| **U2L4** | The per-section recovery loop `for (location, elastic) in sections` runs over the two ends plus the caller's station rows; every `solve_load_case_observed` branch forms at most three (two fixed arrays of three, `curved_bend_station_resultants -> [_; 3]`, or none; KD5L7). Bounded at 5. |
-| **O13T2** | O-13's arc predicate is gone (the O13 rows above stay for historical snapshots), but `s11g_tests/arc_recovery.rs` remains, rewritten, inside the cfg(test) `s11g_tests`. The chain reaches some of its helpers through conservative name candidates, so its arguments keep honest classes: the test `group`'s kind (callers pass only axial/shear/torsion/bending) STATIC, the P2/P5 tags' project ids (fixed `invented:o13:*` ids, longest 42 B) IN128, mode Debug ≤17 B, f64 Display ≤327 B and a copied source line ≤ the included lib.rs + formation_guard.rs bytes at the snapshot. No zero. |
-| **KD5A9** | `certified_loads::member_source` formats `member:{len}:{member}:{source}`. Batch 4's pressure closure binding (the arc pressure free strain keyed by region id) gives the site a positive multiplicity. `member` is a pipe or connector component id (IN128). `source` is an authored load or region id, the static `reference`, or on the 0.4.0 route `source_recovery::eigen_source_id` (≤ 23 + 20 + 1 + 128 B), so it takes the existing 600-B composite class. The full multiplicity stays. |
-
-U2 deletes `connector_evidence::row_basis`; its E4 edge and A3 audit are added
-only when that function is present. This avoids a null stale key without
-weakening a surviving function's rule. The registered revision still carries
-the original E4/A3 entries.
-
-
-## J. The pressure-source join on current main
-
-The join (b7-plan) incorporates T4 batch 4, nonlinear K-D5 (#1327) and
-batch 5 (#1333, `f01d1a32d2`) by merge commit. The current source basis is
-`20ad730689`. Each rule applies only where the join's code exists, so earlier
-revisions price as before except for JP1's exact current source pins. Every
-zero below is a dead edge or a guarded multiplicity-0 site; no reached branch
-is zeroed and no bound is unbounded.
-
-| Label | Rule | Code argument and guard |
-|---|---|---|
-| **JN1** | `price.py` scans `core/numerics/correct_norm` where the snapshot has it and adds each dependent crate's edge. The seven crate-qualified `open_pipe_stress_correct_norm::norm2/norm3(` calls in frame_kernel are bound to that crate's functions: `rigid_body.rs assess_rigid_body` (norm3, norm2), `certified_recovery.rs norm_up` (norm2) and `certified_group` (norm2, norm3, norm2), `final_case.rs support_hypot` (norm3). | frame_kernel's `correct_norm` module moved byte-identical into the crate. A crate-qualified call keeps only its last qualifier, so by name it would also reach the same-crate private `final_case.rs:norm2` and `formation_check.rs:norm3`, which those paths do not name. Before the move, `crate::correct_norm::normN(` resolved the same way. **Guard:** the run stops unless frame_kernel's non-test files hold exactly these seven calls, each found once in its caller. |
-| **J1** | `EDGE_ZERO` `semantic_contract.rs for_source` → `physics_source.rs validate_in` (its `PRESSURE_SOURCE_ID` arm) | for_source's only D1 caller is `retained_precision::validate`'s G7 on `project(source)`. project() sets `producer.semantic_contract_id` to `route.base_id`, either preview-physics-1 (route L) or physics-1 (route E). So the arm is never taken; this is R1's argument. **Guard:** the run stops unless `retained_precision.rs` holds exactly those two `base_id` literals and the projection line, and the arm text is found once. |
-| **J2** | `EDGE_ZERO` `lib.rs CaseSet::attempted` → `source_recovery/j7_t4_consequences.rs request` | `attempted.push(request, id)` passes the loop's pattern binding `(&request, &id)`. The function-as-value scan picks the J7 test module's private `fn request()` by name. That module is declared only under `#[cfg(test)]`, so lib.rs cannot name it. Only this edge is zeroed. A callgraph exclusion cannot remove it, because the value scan's edges bypass exclusions. **Guard:** the call is found once, and `source_recovery.rs` declares the module under `#[cfg(test)]`. |
-| **J3** | `site_size` 0 at twelve `source_recovery/j7_rf_census.rs` format sites: five in `actual` (Debug of `blocking(&diagnostics)` and `boundary.findings`), `method_row_holds` (`ordinal`), `leaf_diff` (`k`), two in `method_value` (Debug of `f.helper_stage`, `f.error`), `public_value` (`d["code"]`, `d["message"]`), `census_entry` (Debug of `f`), and the expected-file writer (`sha(..)`, `lines.join(..)`) | The J7 RF census is a child module that `source_recovery.rs` declares only under `#[cfg(test)]`. The template inventory's file-name filter does not see it as test code. None of its rows is reached on either route. Across both J7 test modules, the one reached row (`j7_t4_consequences.rs sha`, a by-name candidate) has multiplicity 0. This is O-10 J's form: **no `site_zero`**, so the chain still computes each multiplicity. **Guard:** `o10_check` fails the run if any J3 site has a positive multiplicity or is no longer found, and the run stops if the module is no longer `#[cfg(test)]`. Unlike O13T, the Debug vectors and the joined census have no finite type class, so these sites take J's guarded size rather than per-argument classes. |
-| **J3'** | Classes for J3's composed arguments at the two sites that also hold an identifier placeholder (`node`, `path`), which the chain still evaluates: `ordinal` ≤ 13 B; `k` ≤ 1,024 B (RES) | **`ordinal`:** a '.'-separated part of a reference key `r[0]` from `references.json`. The census pins that file by sha `7b176dbb…` and asserts the pin. Its longest key is 13 B. **Guard:** the run stops if the census's pin changes.<br>**`k`:** a JSON object key of the twin's produced public envelope, or of the test's own literals. These are schema field names or entity-keyed maps of D1-capped ids, so the class is RES. The longest key in the committed raw fixtures is 47 B.<br>Both classes are unused at multiplicity 0 and keep the class honest if the J3 guard ever trips. |
-| **J4** | `ID_AUDIT` `exact_admission.rs pressure_v3_formulation_basis_in`: `identity.to_string()` ≤ the longer of 2 literals; `source.to_string()` ≤ the longest of 3 literals | The two limitations are whole `&'static str` selections. `identity` is chosen by `selected == Some(true)` between the pressure-source-1 and pressure-1 texts. `source` is chosen by `match selected` among None, Some(false) and Some(true). Each bound is the raw literal length read at the snapshot (≥ the decoded length). **Guard:** the run stops unless each `let` selects exactly that number of literals. |
-| **J5** | `EDGE_ZERO` `physics_evidence.rs validate_physics_evidence_in` → `load_reference.rs prepass` | `prepass(source, true, Method::PressureJoined)` runs only under `if resolved`, where `resolved = composite && contract == PressureV3 && evidence has load_reference_states`. The one call passing `composite = true` is `physics_source::validate_in`. It is unreached on both routes: its only reached caller's edge is J1's zero, and its PhysicsV2 sibling is covered by G4 (T17). Every other call passes `false`: `validate_physics_evidence` (route E's reached caller, StraightV2), `validate_pressure_evidence` and `load_reference::validate`. Zeroing the edge removes route E's reach into `prepass`/`validate_record`, along with their `shape_in_resources` recursion, nine load-reference loop headers and the `support_state`/`member_state` id arguments. None of these is reachable on D1. **Guard:** the run stops unless the call sits under that `resolved` test and is the file's only prepass call, and unless the `validate_physics_evidence_in(` call inventory is exactly three `false` calls and physics_source.rs's one `true` call. |
-| **J6** | `recursion_reviewed` (via the new `O10_RECURSION_REVIEWED` family in `sq2_rules.py`): `source_blocks.rs shape_in_resources` | The join moved `shape_in`'s body into `shape_in_resources`. The only change is an explicit `resources` list, consulted for a non-local `$ref`; an unknown name or missing fragment fails closed. `shape_in` now only delegates with no resources. The registered review of `shape_in`'s bounded self-recursion applies to the function that now recurses: multiplicity 0 on D1, because the source-block shape check is not on the D1 path, and text only on its error path. Its graph callers are `shape_in`, whose D1 reach was only through `prepass` (J5), and physics_source's receipt and transport-metadata checks, which are unreached. **Guard:** `shape_in`'s delegation and the self-call are each found once. |
-| **JP1** | K-D5 and batch 5 pins bind the actual merged production prefixes and case wrapper/prepared helper. `JOIN_REVIEWED` and its alternative-acceptance helper remain removed. | Against batch 5, `certified_recovery.rs` differs only in its four correct-norm crate paths (JN1), and stress recovery only by the removed local correct-norm module. Batch 5's wrapper and complete certified-publication production prefix are unchanged. The prepared helper removes the obsolete not-joined diagnostic call; the composite-context refusal contributes one diagnostic allocation, giving a net decrease of two in D and D_env under the unchanged TEXT recipes. Route strings, record labels and C6's attempt/clone consumers remain bound. The batch 5 pressure carrier, private preparation, directed helpers and positive workspace/TEXT charges all remain. Exact pins stop pricing on unreviewed source. Registration binds the actual join source and inputs under D3. |
-| **JC5** | KD5C5's outside-caller inventory is the fixed current union of 21 pairs in 20 callers: batch 5's 20 pairs and the J7 census's `method_row_holds` `.mul(`. `JOIN_ONLY_CALLER_FILES` remains removed. | The census calls `.mul(` only on the validation crate's exact rational `Exact`, its own `Exact::mul`, never `FallbackError::mul`. All outside caller bodies remain digest-pinned, including batch 5's conditional pressure descriptor callers. |
-
-
-**Current D3 binding.** The immutable assembled source `20ad730689` prices
-completely at all four points, with no unmapped header or unclassified
-argument, both O-10 checks passing and the same six inherited prunes. Against
-batch 5's registered source tree, the 701 union coefficients are 643 equal,
-20 higher and 38 lower; JP1 explains the diagnostic reductions, and all
-native phase totals increase. The generated block is exactly the tool's
-1,382-line output, with 277 atoms, 47 forms and no Estimate. The original
-17 reviewed-input positions (the PP lock and 16 reader statics) remain,
-pressure-source-1's table stays
-at index 17, and the pressure result schema is appended at index 18, giving
-19 actual digest bindings. The latter two are nonresident definitions: the
-closed guard requires their exact full paths and positions, zero production
-includes for each, and all original resident include obligations. Removing
-or changing either named token, or an unavailable input, fails the full
-binding. Similar paths/names and production hidden in a test region are
-refused by the maintained include-auditor controls.
-
-At M = 12 GiB (12,884,901,888 B), R = 67,108,864 B and the unchanged
-floor(0.9 M) = 11,596,411,699 B, native W3 is 10,295,522,396 B sparse and
-10,354,653,740 B dense including R. The upward-rounded applicable W/X
-TEXT reserves are 220,037,296/241,963,980 B; dense W3 leaves the least
-headroom, 1,021,720,663 B after its reserve. Reader size/alignment pairs stay
-56/8, 64/8, 96/8 and 16/8. The bound public/law suite passes 65 tests;
-all 67 maintained native witnesses and the allocator challenge pass in
-separate measured processes. Maximum process RSS is 182,517,760 B, and the
-allocator's four positive successor controls peak at 8,399,636 B, below the
-current sparse/dense profile bounds. Both non-maximal SQ2 shapes stay below
-L(3,0) in all fourteen native phases. Independent source, generated-block,
-native-atom, exact-input, margin/reserve and measured-process scrutiny finds
-no blocking D3 defect. This registers the join build; the join, B7a and B7b
-still integrate to main as one batch.
-
-
-## F. K-D5 actual owned layouts (KD5O1–KD5O6)
-
-These model additions apply only when the priced source defines
-`MemberBoundInputs`. Pricing an older registered revision keeps its original
-formula. The tool's snapshot path is passed to `ordinary_caps.py`; this is
-history pricing, with no product format compatibility path.
-
-- **KD5O1/O2 (ordinary formation peak).** `evaluate` reuses its rho backing for
-  s and s₂, then drops it before `epsilon_e` allocates one reusable F-row of
-  exact accumulators. The conservative three-row allowance in §6 is retained:
-  +2·Xc(ExactAccumulator,F) over the old row and +8·5F bytes for psi, the
-  correction right-hand side/solve scratch and epsilon's row/column sums. The
-  old per-row list allowance also remains conservative. Every element/load
-  re-formation and certified recovery remains stack-only; the matrix-cache
-  row stays zero, subject to the source/T06 checks.
-- **KD5O3 (closure owners and their children).** Every nodal term now retains
-  a `LoadClosureRecord` (formed=false, manifest=None) beside its ordinary
-  formation record: add V(LoadClosureRecord,l), and its exact-count scaled
-  clone in W2. The empty primitive Vec inline owners in AssembledForce, FormationSource and the scaled force remain positive (`s(Vec)`); manifest headers are already inside each closure-record stride. D1.3 admits only the preview/straight-pressure namespace and excludes 0.4.0, v3, expansion laws and load-state references; `lib.rs w1_route` also returns None when `case_state::is_load_state(model)`. D1.7 admits only nodal force/moment input loads; D1.5 excludes
-  analysis states, equivalent-static generation and every pressure region
-  (also its spare capacity); D1.4 excludes components and D1.6 hanger and
-  nonlinear supports. At `e9296aae32` the new nodal producer first queries
-  `certified_loads::source_factor`, which returns None unless
-  `case_state::is_load_state(model)` (the exact 0.4.0 namespace). Thus every
-  admitted D1 nodal load takes `ledger.push` of its normalized exact leaf,
-  never `push_formed` or `attach_last`. Unit normalization precedes this
-  intended-input boundary and installs no closure metadata. `NodalProduct`
-  is positively stored on admitted 0.4 source-factor routes in the general
-  product, but those routes are outside D1/W1. This re-audited seam, together
-  with the exclusions above, establishes that no supplied LoadPrimitive,
-  expected LoadClosureEntry, operand-bits Vec, intensity-product factors or
-  thermal-table clone exists on the current D1 route. Their backing children, including the per-primitive temporary binding operand Vec, are priced
-  at zero by these domain predicates, independently of typical fixtures.
-  The positive closure-record vector remains priced. Adding one of these
-  families to D1 (including B7 namespace/domain extension) requires re-auditing these guards and a new count law for both independent expected
-  manifests and supplied primitives, including all identity strings,
-  operand vectors and cloned thermal tables, before the profile can bind it.
-- **KD5O4 (solution payload).** `MemberBoundInputs` retains f64[N] w and w₂,
-  i32[N] global exponents and the inline owner: B(20N)+s(MemberBoundInputs),
-  through completion and recovery. W2's evaluate includes the larger core
-  twice as before.
-- **KD5O5 (W2 tail).** `force_scaling_recovery` clones the complete payload into
-  PreviewLinearSolve while the outcome's solution still lives. Both payloads
-  are included at that peak: 2·(B(20N)+s(MemberBoundInputs)). The unscaled
-  exponent vector is counted as well as w/w₂.
-- **KD5O6 (recovery records and groups).** At D1, m straight members each own
-  up to 7 locations ×4 groups and g supports 4 evaluands (force/moment
-  vectors and their separately published magnitudes). Price
-  V(RecoveryRecord,m+g), each record's separately grown group backing
-  (m·PushCap(28)+g·PushCap(4))·s(RecoveryGroup), every member/support id, two
-  owned labels per group at 128 B each, and the error child at
-  TextCap(8192) for every group. Group allocation headers are in the actual
-  in-build `RecoveryRecord`; all group fields are in the in-build
-  `RecoveryGroup`. The fired-items Vec also gets V(String,28m+4g) for its separately grown backing; its formatted String children remain in TAV. No unavailable reason's storage is silently omitted.
-  `member_scales` collects its paired maxima map into a second paired map.
-  Both `(usize,(f64,f64))` bucket maps are priced concurrently, with no
-  allocator-reuse assumption. Older snapshots retain the original paired
-  map plus scalar map formula.
-
-Every weighted layout atom binds to actual in-build sizes or an explicit
-source upper over those types. Workspace unions are source uppers, not
-compiler-frame measurements. Python ASSUMED strides are not budget evidence.
-Final completeness and budget claims require the implementing commit's full
-pricing run and in-build atom evaluation.
-
-
-- **KD5T1/T2 (unified fixed text).** Final source basis 9b128d5ed0, T4 batch 4
-  merged onto K-D5 (re-reviewed from 3903ab6f28 and before it from
-  c62d759f1556cb7c0380aea9f4146a0c8412ddce; the moved pins are reviewed below)
-  has source-pinned record constructors, group/magnitude_group helpers,
-  member_group_decision, the D1 case consumer and both maximum evidence
-  producers. Production-prefix pins protect the certified-publication,
-  certified-recovery and exact-sum source/slot inventories as well.
-  Every produced group label comes from the exhaustive constructor list:
-  all, axial, bending, connector_local, cut_i, cut_j, end_i, end_j, force,
-  midspan, moment, node, pipe_wall, quarter_1, quarter_3, recovery, shear,
-  support_force, support_force_magnitude, support_moment,
-  support_moment_magnitude, torsion, wall_cut_i, wall_cut_j, wall_end_i,
-  wall_end_j, wall_midspan, wall_quarter_1 and wall_quarter_3. The maximum
-  is24 UTF8 B; non-D1 wall/connector labels remain conservatively included.
-  Numeric/bound-unavailable/comparison-unavailable item literals are
-  10/38/36 B; the unified sentence literal is234 B. The pinned comparison
-  producer's longest reason is35 B (nonfinite certified group magnitude).
-  Bound-unavailable reason content remains8192 B, member ids IN128 and
-  f64 exponent spelling24 B. Thus F_len=max(234,8406,247)=8406 B and
-  the six-item sentence bound is50859 B. Fixed route tokens are at most30 B.
-  One unified recovery sentence has no three-sentence merge factor.
-  Current maximum coefficient_basis/enclosure_scope literals are46/79 B,
-  present in both pinned producers and within the existing120-B ordinary
-  evidence allowance; the evidence object field count remains within15.
-  Changed producer/consumer/inventory source fails closed for renewed
-  review. Historical registered snapshots retain their original formula.
-  Pins re-reviewed at 3903ab6f28:
-  - certified_recovery.rs production prefix ab2a378f…: c85d346213 maps an
-    underflowing midpoint to 0.0 (scalar match); 9ef0cbc78a's RowLoad is a
-    stack value (one ExactAccumulator and two f64), and straight section rows
-    are formed one at a time with one live load sum moved into the row's
-    evaluation, within the eight-accumulator census; arc rows (a = 0 at D1)
-    and the envelope's addend counts are stack arrays; 8ac8c57ade forms an
-    element block only when it is adjacent to the reaction DOF. These changes
-    add no allocation, String, format site or error literal, and no owned
-    layout or caller/workspace union changes.
-  - lib.rs solve_load_case_observed 4b96ef49… (both models): six early
-    returns add an empty withheld_summaries Vec (no allocation); one new
-    per-member warning in the certified summary-error arm (KD5A8, KD5O14).
-    It adds no route string or maximum literal, and no CPP first-return
-    allocation site; its {error} copy is priced as a TEXT site.
-  - preview_physics.rs render eb43e10b…: a cfg(test) witness hook only,
-    with no `divided` call.
-  Pins re-reviewed at 9b128d5ed0 (batch 4: U2 arc pressure, O-13's arc
-  predicate and short-bend rule removed, review repairs):
-  - certified_publication.rs production prefix ea24eab4… (text model,
-    KD5C5 and KD5C6) and whole file b54ebf46… (KD5C6): one new function,
-    `arc_pressure_wall`, adds pAi to each section's axial row of a cloned
-    CertifiedMemberRecovery (fixed `[CertifiedRow; 12]` and `[[_; 6]; 5]`
-    arrays) and negates/copies the two wall end rows. It is stack-only, its
-    errors are FK's static RecoveryFailure, and it adds no String, format
-    site, label literal, FallbackError use or first-return allocation; the
-    test module adds `arc: None` to a fixture. The KD5T2 inventory and the
-    KD5C6 site rules are unchanged apart from line numbers (checked by
-    evaluating both models at 3903ab6f28 and 9b128d5ed0).
-  - formation_guard.rs recovery_finding c499ed59…: the scales map's value
-    type is O-13's `ActionScales { force, moment }` instead of a tuple
-    (`unwrap_or_default`, `.force`/`.moment`); its three format templates
-    and their arguments are unchanged.
-  - lib.rs solve_load_case_observed 435591f5… (both models): the realized
-    arc branches of U2 (arc free expansion with the pressure strain, the
-    certified arc wall rows, `append_arc_pressure_results`), the
-    case-qualified arc extrema id (already audited, §E U2A) and the removal
-    of the short-bend finding. It adds no route string or maximum literal
-    and no CPP first-return allocation site; `wall.clone()` and the new
-    `Option<CertifiedMemberRecovery>` are stack values.
-- **KD5A8 (withheld summary ids).** The certified summary-error arm's
-  warning copies only the pipe's own authored id: the stable_suffix id
-  suffix, the message's member id and the affected ref (IN128). Its
-  `{error}` operand keeps the chain's own TEXT cap, and the site keeps its
-  full m-per-case multiplicity in D. The rule needs the
-  `withhold_certified_summaries` consumer and the exact affected-ref line;
-  otherwise it stops.
-- **KD5O14 (withheld summary backing).** Each case's LoadCaseSolve owns a
-  separately push-grown Vec<Diagnostic> of at most one warning per member.
-  An append into the envelope leaves its capacity, and a rendered preview
-  never appends, so each case's backing lives beside the envelope's vector
-  until the solves drop. Price C·PushCap(m)·s(Diagnostic) in the
-  Diagnostics family. The strings and the count are already in TAV and D.
-  Snapshots without the field keep their formula.
-- **KD5L1/L2 (group census).** The surviving `record in records` header is
-  re-bound to m+g on the unified record shape; the separate per-record
-  `group` header is bounded at 28 (supports have four evaluands). This protects
-  every new support record instead of retaining the former member-only m
-  census. The new-header rule is limited to the two actual guard functions.
-
-- **KD5A1 (publication identity and labels).** `certified_publication::member`
-  forms a prefix from the pipe id (IN128) and its integer length. Its record
-  constructors own a member/support/entity id, each taken directly from the
-  D1-capped model id. `group` copies the static location and kind tokens from
-  those constructors; all are shorter than 128 B. Each copy remains priced
-  at its computed multiplicity. The removed `arc_recovery_record` audit is
-  retained only on snapshots that still define that function.
-
-
-- **KD5C1 (surviving condition-estimator call).** K-D5 renames the trait body
-  `ConditionMatrix::estimate_rcond` to `estimate_condition`, returning the
-  gate's rcond, inverse estimate and norm. The public `estimate_rcond` still
-  delegates to that body and returns its first value. Its original basis
-  callgraph rule moves to a named rule that requires exactly one public
-  wrapper and one new trait method, or the original two old definitions.
-  No edge or bound is pruned; the historical wrapper/trait edge is preserved.
-- **KD5C2 (source-replaced identifier audit sites).** The two old recovery
-  end-message sites become the unified group-message sites with the same
-  IN128 member id and fixed ≤128 B location/kind labels. The old inline
-  `RecoveryRecord` member copy moves to certified-publication constructors
-  (KD5A1). `check` still copies its unavailable family at the existing static
-  class (128 B). These four audits move from the basis line table to named
-  sites; historical snapshots receive the original arguments/classes exactly.
-
-
-- **KD5O7 (certified support norms).** `preview_physics::CaseRecord` now
-  retains one `(String,[f64;2])` per support with certified rows. Add its
-  separately grown backing V((String,[f64;2]),g), g capped support-id byte
-  strings and the vector header. The inline `MemberRecord` also grew two
-  certified bending rows; its existing in-build stride covers those fields.
-- **KD5A2/A3 (new owned text).** The lexicon explicitly recognizes the
-  certified-publication record constructors' &str-to-String conversions
-  (`member`, `support`, `entity`). Their ids are IN128; kind/location tokens
-  are static ≤128. The finite-a notice copies a capped case id. Summand
-  family is a static token, source is at most the existing 600-B composite
-  class (two capped ids and a length or pressure source tuple). Pressure
-  closure identities use capped region/pipe ids and a fixed kind token;
-  batch 4 moves that `format!("{}:{}:{}", term.1, term.2, term.3)` site,
-  unchanged, from finish_source_groups' map closure into its new callee
-  `closure_source`, and the audit follows it there by name.
-  Unavailable-route text selects one of two ≤128-B literals. The earlier
-  `formation_entity_bodies` map is no longer called on the unified graph;
-  its three copy audits remain on historical snapshots where the old guard
-  consumes it. A future reached copy again requires classification.
-- **KD5C3 (scaling call binding).** `AssembledForce::force_scaled` maps its
-  `Vec<LoadPrimitive>` with `p.force_scaled`, calling `LoadPrimitive`'s method.
-  The callgraph is bound to that exact method. It never recursively calls
-  the ledger method; adding a fictitious recursion allowance would conceal
-  the callgraph error.
-- **KD5L3–L12 (new header bounds).** Supplied primitives and per-term manifests
-  are 0 on the re-audited D1 producer seam in KD5O3; trusted term/record walks
-  are l. Member locations are exactly 2 ends +5 sections, station recovery
-  has 3 interior stations, and section summary walks 5 sections. The notice's
-  diagnostic-position scan is bounded by D. Exact-pressure closure groups
-  are absent/empty under D1.5. Every appended rule names only its actual
-  function, checked by O-10 after the full run.
-
-- **KD5O8 (recovery FormationSource).** On exact `e9296aae32`,
-  `certified_publication::source` clones m FrameElements and collects sp
-  spring pairs for support recovery. Price this source positively and
-  separately: Xc(FrameElement,m)+Xc((usize,f64),sp)+6·s(Vec), preserving
-  the existing assembly/check-source allowances. Its primitive, connector,
-  curved and unavailable backings are empty under the current D1 guards.
-  This formula does not rely on old sources dropping or allocation reuse.
-  The proposed NI recovery-view API is absent on this head; its actual
-  constructor must be rechecked if it replaces this source.
-- **KD5A4 (closure details).** The three pre-manifest error messages copy
-  `term.source`, the D1-capped nodal load id (IN128). Those sites remain
-  conservatively priced even though trusted input records continue before
-  those formed-term branches on admitted D1 cases.
-
-- **KD5L13 (pressure source-term map).** `finish_source_groups` receives only
-  factor groups produced by pressure-region traversal. D1.5 admits no such
-  region (absent on L, present and empty on E), so its mapped term list is
-  empty. This zero rests on the producer/admission seam, not fixture counts.
-
-- **KD5A5 (text-typed failure operands).** The inherited bare `s` rule is
-  f64 Display (327 B). The new Shape, Closure and Second enum bindings are
-  text and receive explicit site classes. Shape is a fixed ≤128-B literal.
-  Closure's source cases are bounded by max(128+40,128+14+8192): a capped
-  D1 load id with the longest ordinary suffix40, or the reformation
-  prefix14 and existing 8192-B error class. The conservative site cap8352
-  retains both cases. Second holds an inner subtraction/correction
-  failure detail (error8192 + longest inner prefix21 =8213); those helpers
-  do not produce nested Second. With each outer literal, the maximum
-  returned formation detail is 8366 B; T08 prices its capacity at16732 B.
-  These are positive, honest text bounds, with no changed multiplicity.
-
-- **KD5M1 (failure detail multiplicity).** On the reviewed and source-pinned
-  `formation_check::{check,evaluate,Failure::detail}` bodies, each check
-  invokes evaluate once. An error either reaches the outer detail directly
-  or creates one inner detail for Second and then the outer detail; the
-  inner `?` exits prevent a second inner allocation. There are at most two
-  detail allocations across all alternatives per actual check invocation.
-  Existing positive `site_from` rules conservatively charge each of the
-  seven exclusive allocation sites at two per check, retaining the full
-  reached ordinary/W2/case/replay multiplicity. This is a sum-of-alternatives
-  allowance, not a global cap on the function's run count.
-- **KD5M2 (first closure error).** Every one of the 15 reviewed, source-pinned
-  load_closure error allocation sites returns Err directly or propagates
-  through `?`; success allocates none. At most one error allocation occurs
-  across those sites per actual closure invocation. The positive site_from
-  rules charge every exclusive site at one per closure call, preserving
-  all ordinary/W2/case/replay invocation multipliers. Loop counts are still
-  audited and retained; this bound applies only to the returning allocation.
-  A changed producer or error-control-flow body stops for renewed review.
-
-- **KD5A6 (unavailable detail copy).** Failure::Unavailable carries a
-  private fixed &str and copies it through `(*s).into()`. The lexicon now
-  includes this actual String allocation on implementing snapshots. The
-  pinned evaluate body constructs only contraction, Neumann and non-finite
-  Lambda sigma literals, all within a positive 128-B allowance. This site
-  also retains KD5M1's per-check invocation multiplier.
-
-- **KD5O9 (support magnitude evaluands).** A snapshot whose actual support
-  constructor emits support_force_magnitude also retains four support
-  groups: the force vector and its separately published magnitude, plus
-  the moment vector and its magnitude. Price four group children, their
-  labels/error allowances and four possible fired strings per support,
-  retaining per-record PushCap(4) backing. The two physical scale families
-  remain force and moment. Exact e929 predates that constructor and uses
-  its actual two-group model; proposed constructors are never charged as
-  already implemented. Source-pinned final constructor inventory governs
-  this detection and must be reviewed when those bodies change.
-
-- **KD5O10 (same-source coefficient vectors).** On snapshots whose actual
-  certified-publication constructor calls certify_straight_stress_spans,
-  retain the conservative S=2l+1 allowance. On current D1, KD5O3's
-  admission/producer guards make source_count=0, so the actual constructor
-  has only 0/1 and one interval, even when the nodal count l is positive.
-  Thus S remains an honest positive upper without assuming a general
-  primitive/source count law. FK owns an exact-capacity
-  Vec<CertifiedStraightStressSpan>; PP maps it into the engine's
-  Vec<EnclosedQuadraticStressSpan>. Price their simultaneous backing
-  as s(FK span)·S+s(engine span)·PushCap(S), plus both vector headers.
-  Result collect receives a conservative push-growth allowance; no
-  allocation reuse is assumed. Add the earlier FK boundary backing
-  8·(2l+2) and its header conservatively over the constructor/mapping
-  peaks. Both maximum laws borrow this one PP vector sequentially. The
-  existing per-case maximum family also preserves the exact-span fallback
-  and Node subdivision allowance. The new span atoms are in-build sizes
-  (observed 168/160 B); the engine Node stride stays the actual existing
-  atom (observed 184 B). Add the kernel's source-owned typed workspace
-  upper from certified_stress_control_sizes().workspace_upper as a
-  SourceUpper atom. It retains constructor/evaluation contexts, nested
-  matrix/section/row/accumulator arrays and return/move slots. This is
-  a conservative model of the declared kernel workspace, not a compiler
-  frame or allocator/system-library stack measurement. Primitive/source
-  exclusion and span-bound premises must be re-audited with any B7
-  admission-domain extension.
-
-- **KD5O11 (product caller certificates).** The kernel workspace is
-  kernel-only. Product recovery retains certified_member and
-  certified_effective, each Option<CertifiedMemberRecovery>, while the
-  maxima borrow the coefficient vector. Each member payload has 12 end
-  rows and 5×6 section rows. Add both actual in-build Option strides.
-  Conservatively sum the source-owned transient carriers too: two
-  Result<Member,RecoveryFailure> slots (FK→PP and PP→and_then returns),
-  four Member slots (mechanical parameter, its clone, and the effective/
-  published match bindings), and two Result<(Member,Member),RecoveryFailure>
-  slots (closure return and certificate binding). This sum retains return
-  and move staging without claiming compiler slot reuse.
-  The support loop adds two [CertifiedRow;6] arrays (builder rows and
-  Ok binding), its Result return and its retained Option. Private
-  stress/summary/group helpers retain up to three named Row operands,
-  their chained scalar/return staging and two group-value staging slots;
-  a positive 16·s(CertifiedRow)+2·s(CertifiedGroup) allowance preserves
-  that fixed nonrecursive caller union. Kernel arithmetic frames remain
-  in KD5O10; none is discounted against this separate caller allowance.
-  All strides, including enum/Option padding, bind to actual size_of.
-  The allowance joins the existing per-case ordinary-recovery family,
-  preserving every case multiplier and the other positive owners.
-
-- **KD5T3 (one fixed subject copy).** Only the lexical allocation
-  StressFinding::new's subject_id.into() receives a positive 128-B cap,
-  replacing the unrelated snapshot-wide STATIC maximum at that site.
-  The stress-recovery production prefix before cfg(test) is hash-pinned:
-  4526e43a3dca37a265516ad5556a07efb9f25693fca6ee8e065a8211637c47c1.
-  Thirteen private constructor calls and their private forwarding helpers
-  resolve to exactly 17 source-literal subjects: analysis_status, area,
-  axial_force, axial_normal_range, bending_moment_y, bending_moment_z,
-  bending_normal_y_range, bending_normal_z_range, first_state, second_state,
-  section_modulus_y, section_modulus_z, torsion_constant, torsion_radius,
-  torsional_moment, torsional_shear and torsional_shear_range. All are ASCII;
-  the maximum UTF8 length is 22 B. The literal seed callers are
-  recover_stresses, validate_stress_input_unit_metadata, torsional_shear
-  and recover_stress_range; subject/numerator_name/denominator_name
-  forwarding does not admit an external value. Independent T3 scrutiny
-  confirmed this closed boundary. The existing identifier audit stays128,
-  message stays2173, all authored/derived ids and full case/replay counts
-  stay governed by their original caps. The public field remains externally
-  authorable; this creates no global subject_id or type-wide rule. Historical
-  registered snapshots retain their original formula, and changed production
-  source fails closed for renewed caller review. Final native pricing decides
-  the resulting budget margin; this rule alone establishes no passing claim.
-
-- **KD5O12 (fallback arithmetic replay workspace).** The current fallback
-  preserves the supplied QuadraticStressSpan vector and builds a separate
-  exact-capacity engine enclosure vector. Their backing and headers are
-  positively covered by the summed exact-span fallback and KD5O10 vector
-  allowances; no simultaneous allocation is removed. FallbackError has
-  only magnitude/error f64 fields, checked before the ordinary model runs.
-  Its fixed replay inventory retains the former256 pair-value slots:
-  six section values plus l/distance/start/end/active_end/active/lever/q;
-  six returned rows, three samples/intensities, nine powers, component/
-  control values and helper argument/return staging. Scaled constituents
-  use fixed mantissa/exponent pairs and iterative power transport, with
-  no new heap array or recursive fallback-product call. The pressure
-  branch adds fixed fluid/coefficient/wall/generic/reference-law operands.
-
-  fallback_product_up has nine positive call sites, executed sequentially
-  by mul/rounded, power transport, reference-law transport, uniform-slope
-  and unit transport. Its one owned ExactAccumulator (actual1088 B)
-  remains live through add_product, round, add(-rounded), then signum.
-  The source call tree is add_product→decompose/add_shifted→add_word;
-  round→round_scaled→compare/subtract→project→window/bit/any_below;
-  then add→decompose/add_shifted→add_word and signum→compare. None
-  recurses or creates another nested fallback_product_up. Each array
-  size is the fixed68-u64 magnitude grid, checked by the model.
-
-  Conservatively sum two actual accumulator strides (product owner and
-  new Self return/move staging) and eight68-u64 buffers: two initializer
-  arrays, plus both exclusive round_scaled branches' subtract output,
-  returned-array staging and project-call temporary. The scalar/index
-  census adds256 slots for decompose/product/shifted-word, compare/net
-  subtraction and projection helper parameters, locals and return staging
-  to the previous128 replay slots. This retains all alternatives and
-  integer/u128 argument/move staging without compiler reuse assumptions.
-  The resulting SourceUpper is
-  256·size_of((f64,f64))+384·max(size_of(usize),size_of(f64))
-  +2·actual ExactAccumulator stride+8·size_of([u64;68])
-  (13696 B on the current64-bit build). Scalar slot width remains at
-  least f64 width. These charges are additional to the kernel workspace,
-  product certificates, simultaneous vectors and String allocations.
-
-  Current D1 has no member uniform source, so load iterators are empty;
-  all positive fixed arrays, values and exact-product call-depth buffers
-  remain priced independent of that emptiness. Any extended source/grid
-  domain or changed replay layout needs source review before binding.
-  This establishes a source upper bound, not a compiler-frame measurement.
-
-- **KD5O13 (FK directed-helper scalar staging).** Exact source checkpoint
-  d0fe28ce8209921489174b1a75114b0660d4d132 changes load_ledger's
-  upward/downward product and downward quotient to a bounded integer
-  comparator. The complete source file SHA256 is
-  84772047aee55e330ab4f7723a81cb8a0ebf255f8ee2b7a8f5fef547ef97f115;
-  the model separately pins all five actual helper bodies. The call chain
-  is one of product_upward/product_downward/quotient_downward→
-  compare_nonnegative_product→nonnegative_parts. It is nonrecursive;
-  the three decomposition calls are sequential, with no heap or persistent
-  layout. Stack-only is not used as a zero premise.
-
-  Add a separate positive SourceUpper:
-  8·size_of(u128)+6·size_of((u64,i32))
-  +48·max(size_of(u64),size_of(f64),size_of(usize))
-  (608 B on the current64-bit layout). Eight u128 slots conservatively
-  retain the product/reference values, three integer conversion results
-  and two shifted comparands plus staging. Six dyadic tuple slots retain
-  the three decomposition bindings and each return's staging, even though
-  the calls run sequentially. Forty-eight scalar-width slots cover the
-  wrapper's operands/rounded result, comparator operands and ep/hp/hr/
-  common/sp/sr/order, leading-zero and conversion/shift temporaries, plus
-  the decomposition's value/bits/biased/fraction and scalar return/argument
-  staging. The sum retains exclusive alternatives and return/move slots
-  without inferring compiler reuse or a measured native frame.
-
-  Charge the atom explicitly in the typed-core family (therefore in both
-  W2 evaluations through the existing core multiplier) and again in late
-  formation-guard recovery. This conservative separate charge covers
-  S11-G/formation and late guard consumers without relying on PP fallback
-  KD5O12 or certificate-caller KD5O11 allowances. Existing case/replay
-  multipliers, M/text limits and all earlier positives remain unchanged.
-  Historical helper bodies receive no new charge only after all three
-  wrapper bodies match their pinned originals (identical at basis2243be380b,
-  registered B3 and U2 snapshots), and no new nonnegative_parts helper
-  remains. Comparator-name absence alone never selects historical pricing.
-  Renaming or removing the new comparator changes the wrapper bodies and
-  fails closed; a changed original wrapper is also rejected. All five new
-  helper bodies remain individually pinned for the positive608-B branch.
-  A changed source stops for a renewed source/slot review. Native profile
-  and whole-stack claims remain pending final immutable source evaluation.
-
-- **KD5C4 (primitive min/max call targets).** New private
-  certified_publication::FallbackError min/max methods made the heuristic
-  graph incorrectly fan primitive-number calls into their error-returning
-  bodies. The type is private, has no escaping producer/return, and every
-  named outside caller's receiver is a primitive number or its numeric
-  iterator. These calls use the standard intrinsic, with no repository
-  method body or String allocation. Explicit caller/name bindings remove
-  that false target; all real FallbackError min/max calls in
-  fallback_section_errors remain. The one included CP caller,
-  fallback_denominator_relative_error, has f64 lower/ratio operands only.
-  The current production-prefix pin protects that typed boundary.
-  Existing true visits and R2 call paths remain; this is a type binding,
-  not a fixture-derived multiplicity or an unpriced-site waiver.
-  Batch 4 renames formation_guard `moment_scales` to `action_scales`
-  (O-13's coupled ActionScales); the binding follows the name. Its min/max
-  receivers are still the f64 scales (`entry.*.max(value)`,
-  `force.max(moment / extent)`, `moment.max(extent * force)`).
-  B7a E14 removes observation_lane_profile and its sole caller
-  observation_lane_guard with the DEC-050/053 lane. The former helper's
-  only max receiver was its Iterator<usize> half-bandwidth, and it has no
-  current successor. A raw full-file lib.rs fingerprint plus explicit
-  absence of the retired definition binds this one inventory removal.
-  All 27 current caller bindings, their strict uniqueness refusals and
-  the real CP fallback_section_errors min/max remain. Any lib.rs byte
-  edit, including a test-only addition, requires re-audit of this source
-  binding before pricing is reused; this is not a generic missing-name
-  exemption.
-  E13's deleted support-vector reaction arm also uses this exact full-file
-  source binding. Its one complete decision preimage, basis lib.rs:13085
-  row.id RES1024, is removed before ordinary strict decision carry. The
-  component/operand/reference/qualified displacement-source audits remain.
-  A changed or duplicated preimage refuses; no replaced-key waiver is added.
-- **KD5C5 (private add/mul/divided target subtraction).** On b3a2c739's
-  source, the heuristic graph adds private FallbackError methods to outside
-  callers whose actual receivers are Scaled, Bytes, ExactAccumulator,
-  CertifiedRow or CertifiedValue. FallbackError, its impl and these three
-  methods are private within certified_publication. The entire production
-  prefix has no trait, public return, function-pointer or macro escape of
-  that type. The production-prefix SHA256 822cf28ac85c9a41856f7b1c8d8bace246d913044a7c3cbe8ce344186120e3a8,
-  three private method bodies and all 16 caller bodies are guarded by
-  `kd5_text_model.py::inspect_fallback_boundary`. A changed receiver,
-  visibility, escape path, body, or missing/duplicate function stops pricing.
-  The exact 17 caller/name pairs are in FALLBACK_OUTSIDE_CALLERS: annulus
-  source_wall_area_scaled, source_bore_area_scaled and source_insulation_area_m2
-  (mul); lib exact_straight_summary_extrema (add) and
-  append_exact_pressure_results (divided); pressure_exact from_radii,
-  lame_at_radius and eigenload_pair (mul); preview render (divided);
-  retained_memory strings, retained_error_text and complete_observations
-  (add); pressure_exact/source_geometry from_od_wall (add and mul),
-  pressure_group_value (mul) and surface_stresses (add); and
-  case_state/temperature exact_kelvin (mul).
-  KD5C5b (batch 4): on a snapshot whose bend_pressure.rs defines
-  `append_arc_pressure_results`, two more outside callers join the
-  inventory (17 + 2 pairs, FALLBACK_OUTSIDE_CALLERS_U2, body-pinned):
-  bend_pressure `append_arc_pressure_results` (divided; receiver
-  `wall.sections[index][0]`, FK's CertifiedRow) and source_geometry
-  `arc_pressure_strain` (mul; receivers Scaled). At 9b128d5ed0 the
-  production prefix is ea24eab4… (the new `arc_pressure_wall` uses no
-  FallbackError). Without the two exclusions KD5C6's cutset check stops,
-  because the name resolver adds these false private candidates.
-  The new `exclude_targets` mechanism subtracts only the qualified CPP
-  add/mul/divided target from each existing candidate list after any existing
-  replacement rule. Every other candidate and every inside-CPP caller is
-  preserved, including conservative inside candidates. Both the inventory
-  and an actual removed-candidate encounter must hold; an absent target or
-  quiet no-op refuses. Historical revisions without the fallback function
-  add no C5 exclusions and retain their original graph. This changes no
-  rows, cases, counts, source/workspace owners, D1 premise or memory/text
-  limit. The failed b3a2c739 tree remains evidence; corrected contributions
-  and native budget outcomes require the subsequent immutable-head run.
-- **KD5C6 (conditional first-return String allocation).** Exactly14
-  returning allocation alternatives in certified_publication receive per1
-  site_from bounds: checked/divided use fallback_circular_maximum,
-  summary_row, stress_mpa and maximum_summary_mpa; the six transport errors
-  use both fallback_circular_maximum and straight_stress_spans; the two
-  maximum_cover errors and three public-MPa errors use maximum_cover;
-  direct fallback transport failure uses fallback_circular_maximum.
-  Each genuine inner Err propagates immediately from that complete attempt,
-  including Result<Vec<_>,String> collection's first-error stop. Preserved
-  conservative CertifiedRow/Value receiver candidates retain positive root
-  allowances. Every outer attempt/member/case/replay count remains, along
-  with all graph/function/loop counts, 4194304 arithmetic visits and2l+1
-  span capacity/traversal. Inner returned Strings, outer formatted Strings
-  and stored certified_spans error clones are distinct positive owners;
-  solve_load_case_observed may catch and continue, so no bound spans those
-  attempts. Sites731/765/816/872/931/943, engine formatters, outer clones
-  and all other String sites remain unchanged. The whole CPP file/prefix,
-  all12 private helpers, roots and solve/exactStraight consumers are pinned.
-  ALL fully qualified incoming graph edges must match the reviewed five
-  entry functions and exact shared-helper parents; exact kind+site inventory
-  and positive root witnesses must hold. Every consumer lookup spelling
-  (short, qualified, kind-qualified and lexical fallback) refuses count,
-  size, zero, aggregate or total overrides outside the14 canonical per1
-  records. The actual post-rebind multiplicity must equal its positive
-  source-root sum. Catch/continue/retry, swallowed
-  Err, collection, parent or allocation changes refuse for re-review.
-  Historical no-cap behavior requires CPP absence plus pinned original
-  directed wrappers; current marker removal alone never selects history.
-  Limits, criteria and positive-path arithmetic are unchanged. This source
-  proof confers no budget pass; final immutable pricing/native evaluation
-  remains required before registration.
-- **KD5L14–L16 (new fixed/span headers).** The mapped certificate/fallback
-  span walk retains positive2l+1 under KD5O10's current-D1 one-interval
-  producer. Section maximum coverage walks exactly5 sections. Coefficient
-  controls, stress components, sample values and local intensities are
-  arrays of3; section-force/moment walks have6 entries. Rules are limited
-  to their named actual functions and retain all case/replay multipliers.
-  False primitive min/max ancestors no longer create fictitious TEXT
-  visits on Bodies coordinates/edges, g5a rows or notice group scans.
-- **KD5L17/L18 (power-transport error).** Each i32 remaining/exponent moves
-  toward zero in signed steps of512, except its final smaller step. The
-  positive universal loop bound is ceil(2^31/512)=4194304; no pressure
-  namespace inference is used. fallback_power_up's sole error copy returns
-  Err immediately, so it allocates at most once per actual invocation.
-  Its existing positive site_from family preserves the full function's
-  case/replay count while bounding only the returning allocation.
-- **KD5A7 (MPa copies and identities).** stable_suffix replaces each colon
-  by one hyphen, preserving the capped pipe-id byte length. pipe_id and
-  record.member remain IN128; pipe.element_id.len() remains numeric20.
-  Endpoint/station location rewriting uses fixed tokens; kind/component/
-  label/basis and the three stress-name alternatives use existing128-B
-  fixed-token caps. The pinned caller supplies only current code constants.
-  The lexicon additionally inventories the actual sign.map(str::to_string)
-  copy at append_stress_mpa, which a method-only pattern missed. Its two
-  caller constants measure167/179 UTF8 B; use the measured179-B bound and
-  retain the fallback format allocation separately as an alternative sum.
-  No global identifier/message cap is narrowed. Historical snapshots
-  without this producer do not gain this lexical row or these rules.
-
-
-## G. Nonlinear K-D5 at `ba5dddd098`
-
-The nonlinear K-D5 confirmation (DEL-04-01
-[kd5-nonlinear-active-set.md](../../../PKG-04/DEL-04-01/Design/kd5-nonlinear-active-set.md)
-§1.5, §3, §4) adds a confirmation attempt behind the nonlinear helper's early
-return, two friction load formulas, a supplied-u K-D5 evaluation and the
-nonlinear support slot in certified publication. No count, owner, margin,
-reserve or policy changes. The rules and re-reviewed pins:
-
-| Label | Rule and code argument |
-|---|---|
-| **KD5A3 (re-key)** | The unavailable-family label `family.clone()` moved, unchanged, from `formation_check::check` into its callee `check_at`; its STATIC class is kept and keyed by whichever function holds it. |
-| **KD5M1 (re-review)** | `check` is now a pure delegation to `check_at(…, judged = true, epsilon_cache = None)`; `check_at` holds the former `check` body, calls `evaluate` once and `Failure::detail` at most once on its Err arm. The KD5M1 cap (two detail allocations per invocation, each of the seven exclusive sites charged) moves from `check` to `check_at` invocations, which also counts the confirmation's `evaluate_at` calls. `evaluate` gained only the judged filter (D5C-1 and body scales skipped when unjudged) and the per-attempt ε_E cache: no allocation, error or detail call. `detail` is byte-identical. Pins: `detail` ae006b02…, `check` d22bba23…, `check_at` 29c96900…, `evaluate` 89c4ab51…, `load_closure` 179a7dcf…. |
-| **KD5M2 (re-review)** | `load_closure` gained only the two friction formulas in the existing nodal DOF-binding arm; its 15 error allocation sites are unchanged. |
-| **KD5T2 pins (re-review)** | `certified_publication.rs` production prefix 5e440b80… and whole file 5824b14d…: `support` gains an optional map of confirmed nonlinear rows and copies one row into its slot; both refusals are static `WideError::CountRange` literals; no String, format site, label literal or first-return allocation. `certified_recovery.rs` production prefix 45e90a6e…: `certify_displacement`, `certify_load_primitive`, the exact sign helper (one stack `ExactAccumulator`, as the eight-accumulator census) and `CertifiedRow` decision methods; the friction formulas return `None` from the member pair. No String, format site or owned layout change. `lib.rs` `solve_load_case_observed` 273d31e0… (both models): the confirmed state's `member_bound`, Stage-B force and nonlinear rows, the route literal now the single "on this route" (KD5A3's two literals become one; the route bound is the text model's measured maximum), and the evidence-line site below. |
-| **NLKD5L1** | The Passed evidence line finds the case's one integrity diagnostic by id: `iter:diagnostics.iter_mut().find` is one scan of the case's diagnostic Vec, bounded by D (as KD5L8). The id is formed once before the scan (`ba5dddd098`); at `fb3609f8e1` it was formed inside the closure, one String per scanned diagnostic (62.1 MB of TAV on route E), which was a real per-diagnostic allocation and was removed in code rather than bounded. |
-| **NLKD5A1** | The gate-refusal reason prints the gate's reciprocal condition estimate with Debug. It is an `f64` (FK `StructuralReport.reciprocal_condition_estimate`), whose Debug is at most 24 B (for example "-2.2250738585072014e-308"); the 30 B cap is kept and is sound. |
-
-**What the chain charges.** The confirmation's functions are reached
-through `append_nonlinear_support_loop_results`; their text sites carry the
-computed multiplicity of that helper's body after its early return (0 under
-D1.6, which admits no nonlinear support), with their honest classes (support
-ids IN128, kd5 details and structural errors the existing 8192-B class). No
-zero rule is added for them. The evidence-line site in
-`solve_load_case_observed` (`format!("{} {NONLINEAR_CONFIRMED_EVIDENCE_LINE}",
-record.message)`) is charged positively at the chain's computed multiplicity
-with the integrity message's class, although under D1.6 it is never entered
-(it needs a confirmed state); this is a conservative charge, not a claimed
-zero.
-
-**A spurious edge removed at the source.** A binding named `standing` in
-`solve_load_case_observed` matched `reader_verdict::standing` by name, so the
-chain's function-value resolution reached the whole RE reader graph (43
-unmapped loop headers). `fb3609f8e1` renames the binding; no rule hides the
-edge.
-
-**Compare and registration.** `run ba5dddd098` is complete on all four points (no unmapped header, no unclassified argument; both o10 checks 0; the six pruned rules are main's). Against the registered tree (main `745f55f918`, the committed block at `9b128d5ed0`), 685 coefficients are equal and 4 are higher: TAV_text_requested 6,715,665,264 → 6,730,974,564 and TAV_text_moving, TAV_W and TAV_X each by the same 15,309,300 B, which is the evidence-line site's conservative charge. With these rules and the KD5 source pins restored to the registered revision's values (a scratch copy of the tool), `745f55f918` still reproduces the registered tree exactly (689 of 689 coefficients). The block is regenerated from the new tree; the pinned in-build record and the challenge binary's W1 and maximum phase literals move by the same 15,309,300 B in every phase and both modes (W3 sparse 10,206,071,081 B, dense 10,265,202,425 B, without R). The 17 reviewed inputs and the reader layouts are unchanged. Qualification at the owner's M = 12 GiB with the existing 0.9 margin and 5 % reserve passes: the nine library filters of the batch-4 qualification (`profile_` included) and the challenge binary's `retained_direct_peak_is_within_the_profiles_bounds` are green at `ba5dddd098` plus the regenerated block.
-
-**Re-registration on the merge with main (`e0ec460bf3`).** The merge brings main's memory pool and memory ingress: the caller's limit L (`RetainedByteLimit`, `limited_bound`, `qualified_required`, `retained_profile`) in `retained_memory.rs` and `lib.rs`, and the desktop host's pool and capped worker. Main's memory lane added no pricing rule and did not re-register; its registered tree is still `745f55f918`'s. No rule or pin is added or changed here. `run e0ec460bf3` is complete on all four points (no stale pin, no unmapped header, no unclassified argument; both o10 checks 0), and its six pruned rules are the same six as at `ba5dddd098`. Against this section's registered tree (`ba5dddd098`) all 689 coefficients are equal (only the basis differs): L's checks add nothing that the chain charges on D1's graph. Against main's registered tree the comparison is the one above (685 equal, the same four higher by 15,309,300 B). The block is regenerated for the basis line only; the 17 reviewed inputs hash to their bound values, the reader layouts and the in-build record are unchanged, and the pinned record and challenge literals stay as above. Qualification at M = 12 GiB with the 0.9 margin and 5 % reserve passes with main's limit tests included; the least headroom after the reserve is dense W3's 1,045,167,427 B below ⌊0.9 M⌋.
-
-**Re-run on the implementation review's repairs (`be03ccfb0e`).** The repairs change priced NI source (`confirmation.rs`: the named prescribed-row precondition, an unformed ball's per-kind name, and Stage A's influence evaluation ahead of β) and NLKD5A1's wording above (the estimate is an `f64`; the 30 B cap is unchanged). No other rule or pin is added or changed. After the merge with main at `3c95a9de85`, which touches no piping file, `run be03ccfb0e` is complete on all four points (no unmapped header, no unclassified argument; both o10 checks 0) with the same six pruned rules. Against the registered tree (`e0ec460bf3`) all 689 coefficients are equal and only the basis differs, so the block is not regenerated and keeps its `e0ec460bf3` basis line. The 17 reviewed inputs hash to their bound values, and the qualification at M = 12 GiB (the twelve library filters with `profile_` and main's limit tests, the challenge peak test and both admission suites) passes at `be03ccfb0e` with the in-build record unchanged (W3 sparse 10,206,071,081 B, dense 10,265,202,425 B, without R).
-
-## C7. Borrowed prescribed keys, positive overlapping owners
-
-The released retained_precision NumericCase prescribed field and its four
-constructor/query regions use borrowed str pairs. Ordering, duplicate tests,
-row visits, classifications and failure paths remain. References point into
-integral_receipt's live normalized Value (Cow Borrowed or Owned); no backing
-Value/String/JSON BTree allocation is removed. g5b only changes final_scales;
-no key reference escapes g5c. The exact struct/numeric_cases/numeric_owner/g5c source pins
-in prescribed_key_model guard the new owner count and lifetime. numeric_cases
-constructs one numeric owner per selected case or retained-selected combination;
-its unchanged body9342fa881a9a15724197456be1dab39570904d2e4120a5185b366a19e9163cd9
-is required in both known owned and borrowed branches. Duplicating either push
-refuses rather than silently exceeding C; old owned source keeps all original pricing.
-
-Add to SETS, without removing its existing owned-key node/backing allowance:
-(C*tree_nodes(k)+tree_nodes(Q))*Node((&str,&str),())
-+pushcap(C)*NumericCaseBorrowed +(C+1)*BTreeSetBorrowed
-+3*VecHeader +(2*pushcap(Q)+4)*PairBorrowed
-+2*NumericCaseResultBorrowed.
-C<=3 covers all retained NumericCase sets; k<=192 is each constraint domain.
-The simultaneous sequential actual selection set is bounded at Q=1472 before
-equality/duplicate rejection. Two positive Q tuple buffers cover FromIterator's
-input Vec and stable-sort scratch; count them with the entire Q tree and all
-retained sets, without allocation reuse. Three Vec headers cover the NumericCase
-Vec and both temporary buffers; set headers are explicit in addition to the
-conservative complete NumericCase stride. Four tuple slots cover the four
-released source constructions/queries; two complete Result carriers conservatively
-cover the numeric_owner return and caller staging (variant-sum over the full
-record, public ValidationError and a word tag). Existing reader stack allowances
-stay. Resident additions remain in V4/V5/V6 through G7/G8; both temporary
-selection buffers and the Q tree remain charged there conservatively as well.
-All global owned StringPair20480 and existing SETS/Cow/backing charges stay.
-This is a T17 working-owner addition (V4/V5/V6), used by W4's precommit maximum;
-old full/W source allocation volume remains431376384B attribution only.
-No E+R, margin or5% pass follows from that volume.
-
-The focused native allocator/type probe on rustc1.97.1/8bab26f4, aarch64,
-observes borrowed pair32B align8 and set header24B. Inserted leaf/internal
-blocks are368/464B align8; FromIterator at Q1472 additionally allocates two
-47104B buffers. The existing btree_node_upper helper at the measured borrowed
-key layout gives472B; its11key/12edge bound agrees with the exact toolchain
-[standard-library node source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/collections/btree/node.rs).
-The input/sort path is confirmed in the exact-toolchain
-[FromIterator source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/collections/btree/map.rs).
-The472B charge is a source/layout upper bound driven by in-build sizes,
-not a node-size subtraction from the existing648B owned-key atom. The private
-NumericCase field-sum is SourceUpper, with the isolated168B witness. Current
-source still requires independent proposal scrutiny and immutable full pricing
-and fresh native confirmation before any registration.
-
-C7A1 migrates exactly the five replaced basis audit keys3635/3644/4329/4330/4346
-from text_args.g4.json to function-qualified O10_ID_AUDIT sites. The reviewed
-owned/borrowed source distinction selects exact constructor/query text under
-the existing owner/count pins. Both representations retain original IN128
-constraint/selection node IDs, STATIC128 selection components and RES1024
-result entity IDs. Current borrowed lines resolve these same source-bound
-input metadata definitions, without placing nonallocating sites in the G6
-allocation id_audit inventory. Only exact pinned owned syntax emits the five
-allocation audits. Actual template/LEX inventory and the unchanged G6 consumer
-check this distinction; no fake allocation or zero rule is added. This migration
-changes no multiplicity, visit,
-byte class, source backing, arithmetic or positive owner. Known-owned audit
-tables remain equivalent; line replacement is neither deletion nor a zero rule.
-
-
-## C8. Borrowed member comparison, positive caller staging
-
-The composite_exact MemberSection check borrows the descriptor quantity and
-member/station/component fields, preserving ordered byte/bit/variant comparisons,
-convention/case checks and every error. Its exact old993146b2/new8f9f963b body
-pins include the enclosing loops, later JSON/projection work and non-escape
-boundary. B7a's additional exact b2507ed6 body differs from reviewed8f9f963b
-only by removing the obsolete non-composite selector true arguments from
-rows::expected_primary_for and rows::bind_for (B4/D1 retirement). The borrowed comparison's bindings, branches, staging and lifetime stay
-unchanged. Retain its entire 640 B per-case and 1,920 B at CC=3 source-frame
-allowance together with every existing positive owner charge. The model hashes the UTF-8 body from raw bytes, so CRLF drift refuses.
-The old body is identical at the basis, f78/2c5/e9cc, batch3ff5347,
-U2 98dba, e929 and936; changed/renamed/duplicated bodies refuse.
-
-Charge a positive MemberComparisonWorkspace SourceUpper to every T25 case and
-invocation stage, at CC copies (<=3), in addition to all prior owners. The
-source-union inventory is16 thin reference/pointer slots,8 borrowed byte-slice
-views,16 usize/index/length/size slots,4 u64 station-bit slots,4 f64 station/bitcast
-slots,4 u8 component/cast slots,16 bool pattern/guard/short-circuit/return slots,
-and4 i32 byte-comparison result slots. Charge every slot rounded to the maximum
-alignment across these actual types, retaining argument/return/move staging and
-no reuse between alternatives or source frames. The references include the
-quantity view, three pattern bindings, expected member/array cell, lifted
-reference comparison and String/Vec equality interfaces/raw pointer staging;
-byte views include returns and arguments; lengths include equality/byte-size
-and array-index/cast staging. Numeric operands, comparisons, stored
-quantity_matches, negation and outer condition remain positive. The standard
-String representation and comparison path are documented in the exact-toolchain
-[String source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/string.rs)
-and [slice comparison source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/slice/cmp.rs).
-Current native widths/alignments give640B per union and1920B at CC3. This is a
-source-slot bound, not a compiler-stack measurement; existing library/helper
-allowances and R stay positive. The one guard is nonrecursive; its references
-and boolean do not escape the sequential row loop. Charging CC complete copies
-at every S/I stage conservatively covers overlap with all carried/resident
-member/descriptor enums, Strings, JSON, section checks, projections and collectors,
-even after these temporary slots drop; no old owner is credited or replaced.
-
-Only route E's basis audit869 migrates. Its original member.member_id IN128
-class remains in source-resolved C8_INPUT_METADATA for both representations.
-Exact known-owned syntax emits its allocation audit; the nonallocating borrowed
-guard emits none. Route L and every sibling audit (including maximum97) remain.
-Actual G6 allocation inventory must accept this distinction without a fake row,
-zero rule or waiver. The old155934720B site volume is attribution, not an actual
-phase/peak saving. All counts, visits, criteria and failed936 evidence remain;
-immutable-source/full pricing/native confirmation is still required before any
-registration or budget claim.
-
-## H. T4 batch 5: pressure-only U4a stage 1 and dormant U5a
-
-The source basis is `15d75d7e143b00b8759714c5bd08f3bfb8e9ea72`.
-The retained domain remains D1: at most three case owners, no components,
-and absent pressure regions on L or an explicitly empty region list with
-capacity zero on E. This does not admit the 0.5.0 document seam. Pressure-1
-uses tangent end frames; preview retains chord end frames until C5. The
-pricing below retains existing positive counts, owners, library allowances,
-kernel and product workspaces, R, the 0.9 margin and the upward-rounded
-5% applicable-TAV reserve. Pricing completeness does not qualify a build.
-
-**B5K1 (extracted bodies).** `solve_load_case_observed` now prepares pressure
-and calls `solve_prepared_load_case` once. The former mechanics body, its
-site audits, KD5L7–L9 and NLKD5L1 bounds, and the E-route exact/ordinary
-publication edges follow that helper. The wrapper's cases cap remains;
-the helper has the actual incoming call count. `build_pressure_case_with_members`
-retains classification and its early refusal and delegates once to
-`assemble_pressure_case`. U2E2 and the E-route materials-error per-call
-bound follow the extracted body. After E's original exact-count removal,
-L's surviving historical pressure-body zero edges move to the new body.
-No extracted-function bound is pruned. Both wrapper and mechanics helper
-are hash-pinned; the pressure production prefix is separately pinned.
-
-**B5O1 (positive carriers and overlapping staging).** Add a separate
-CasePrefix family, multiplied by the full CC case-owner count:
-
-`5*s(Option<ExactPressureCase>) + 2*s(PressureRegionInput)`
-`+ 2*s(LoadFormula) + 2*s(Result<LoadCaseSolve,FrameKernelError>)`
-`+ s(PreparedCaseWorkspace) + s(BTreeMapHeader)`
-`+ HashReq((&str,&T),mats) + 24*N + (3*N+8)*s(Vec)`.
-
-All carrier strides bind to actual in-build types. Five complete pressure
-Option carriers conservatively cover the assembly output/Some return,
-public preparation wrapper return, solve-wrapper assignment and prepared
-argument, without move elision or compiler slot reuse. Two complete solve
-Result carriers cover the extra wrapper return/staging. Two complete input
-and LoadFormula carriers retain the added serde-skipped connector-id Vec
-owner and new JointEffectiveArea variant positively, including alignment
-and padding; this is an additional conservative charge, not a replacement
-of typed request or existing primitive owners. The pressure Option includes
-the new assembled_operand_bounds Vec and joint_pressures map headers.
-
-The three N-element f64 backings are eigenloads, cap_loads and
-assembled_loads. cap_terms and eigen_terms each allocate N empty Vec
-headers and remain in scope while finish_source_groups allocates by_dof,
-the third N-header backing. Eight more Vec headers cover those three root
-vectors and evidence/local return staging conservatively. The separately
-built material_map is charged at mats; the empty factor_groups map retains
-its actual standard map header. No early drop or allocation reuse is assumed.
-
-PreparedCaseWorkspace is a source upper of 64 usize-width scalar/reference/
-index/return slots, 16 borrowed-slice views, 16 Option-reference slots and
-four u8 bytes retaining the historical ArcEndFrame-slot allowance after
-B7a C5 retires the selector and its API. The qualified batch-5 native witness
-reports SourceUpper PreparedCaseWorkspace 900 and estimate 1028: 64*usize8 +
-16*slice16 + 16*Option-reference8 = 896, plus four one-byte enum slots. Four
-u8 bytes preserve the same native 900 and the unchanged estimate 1028,
-conservatively retaining the complete positive allowance; no other slot,
-coefficient, R, M or margin changes. The two wrapper/helper signatures together
-contain 16 thin references (model, built, stiffness, case, budget and
-diagnostics), eight material/restraint/spring slices, eight optional
-capture/load-state/product references and two optional string views. Their
-argument/move copies fit the stated slice/optional union; the remaining
-thin/scalar allowance covers the current pressure call's references,
-indices, flag/comparison and return staging. Complete owned returns are
-charged separately. This is a conservative source union, not a measured
-compiler frame, and leaves the prior R and helper allowances in place.
-
-Only backing children forced empty by the actual D1 guards are zero:
-components and region lists (also capacity), therefore connector records,
-joint pressures, factor groups, assembled operand bounds and supplied
-joint primitives. No whole pressure-producer zero follows on E; its three
-node vectors, nested headers, materials map and evidence construction
-remain priced. `batch5_model.py` pins the whole pressure production prefix
-(including both input/output declarations, assembly and finish-source
-producers), the wrapper/helper bodies and namespace/family refusal bodies.
-The no-feature branch requires the exact reviewed old pressure prefix and
-case body, not merely helper-name absence. Changed producers, declarations,
-allocations or refusal predicates stop for renewed review.
-
-**B5C1 (actual multiplication receiver).** The joint-area branch in
-finish_source_groups calls Scaled::mul. The heuristic graph also adds the
-unrelated private FallbackError::mul; the exact caller body is hash-pinned
-and joins KD5C5's outside-receiver inventory. Subtract only that qualified
-private candidate, preserving the actual Scaled target and all other
-conservative candidates. KD5C6's complete incoming cutset still must hold.
-
-**B5M2 (first closure error).** load_closure adds two static, immediately
-returning joint end/DOF binding errors. Its source pin is re-reviewed to
-`6bfe5799…`; all 17 exclusive allocations keep a positive per-invocation
-bound of one. The source-loop and full case/replay counts remain. The
-new joint closure label has the same authored region/connector ID bounds
-and static kind class as the existing pressure label; both sites are audited.
-
-**B5L1/L2 and B5A1 (changed inventories).** The bore/joint FactorArea key
-changes the factor-group loop header; its zero follows the same D1.5
-region producer, and both new group families require such a region. The
-reader's `for edge in edges` walks connector edges emitted only for a
-pressure region with built connectors. D1.4/5 exclude both; the actual
-projected E source retains empty pressure evidence. This child loop is zero
-under those predicates, while the outer reader scans and owners remain.
-Each rule is checked against its one named function. pressure_finding's
-connector operand is the authored component ID (IN128). B7a C5 removes
-the recovery selector and embeds the unconditional 73-byte tangent label
-directly in the descriptor's basis format template. The template's literal
-charge is 631 bytes, replacing the former 558 literal bytes plus the
-73-byte maximum borrowed recovery operand; all other seven operands remain
-priced. The whole descriptor body and its one exact inline label are
-source-bound, with missing, changed and duplicate-label refusals. The
-existing literal TEXT accounting charges the same 73 output bytes once;
-no obsolete operand or empty alternative is credited.
-
-The CPP whole/prefix and FK certified-recovery prefix pins are re-reviewed:
-the optional effective-axial group retains its real label/record ownership;
-the closed label maximum stays 24 bytes. The new tangent kernels operate
-on fixed arrays, with the pressure-only frame parameter passed into both
-binary64 and certified publication. Existing kernel/PP workspace charges
-remain. The mid-file U4 test module is moved unchanged after all production
-so the production-prefix pin includes every later constructor and helper.
-The wrapper and prepared mechanics helper are both guarded by KD5T2/KD5C6;
-the route and maximum literal inventory is read from the prepared body.
-
-Registration adds the pressure result schema as input 18, after the old 17
-positions. This is a governed contract definition, distinct from the reader's
-include_str inputs. Its actual bytes and all original inputs must bind, and
-actual reader layouts and native phase values must be checked before the
-new record qualifies. The previous record is stale while these differ.
-
-**Comparison and native law evaluation.** All four source-basis points are
-complete (including all TEXT variants and the diagnostic fixed point), with
-no unmapped header or unclassified argument; both O-10 checks pass. The six
-prunes are the same inherited deleted rules as nonlinear main. Restoring
-only reviewed KD5/text/C6/closure source pins in a scratch tool reproduces
-the registered e0ec460bf3 tree byte for byte, all 689 coefficients unchanged.
-Against it, the batch 5 tree has 679 equal and 22 higher union coefficients,
-none lower: 12 entries introduce six positive carrier atoms in the two
-O_base forms, and ten existing coefficients increase. TAV requested/moving
-each rise 22,081,536 bytes, and TAV_W/X each rise 22,020,096 bytes.
-
-The one generated profile has 277 atoms, 47 forms and no Estimate. Its actual
-native additional carriers are 248/176/744/1744/900/24 bytes for pressure
-Option/input/LoadFormula/solve Result/prepared workspace/map header.
-B5O1 is 26,539 bytes per case, 79,617 bytes at CC=3. Every native phase's
-requested-plus-moving value rises 22,099,713 bytes; the actual maxima without
-R remain W3, sparse 10,228,170,794 and dense 10,287,302,138 bytes. Dense W3's
-E+R is 10,354,411,002 and its upward-rounded 5% reserve is 220,033,988 bytes,
-leaving 1,021,966,709 bytes below floor(0.9 M), the least of all fourteen
-phase/mode headrooms. The original 17 input hashes are unchanged; input 18
-is `774dad290e17ece0292b7a6021c59c8067e13aa4267c6bdbb25bb3fb17da75c5`.
-The actual reader size/alignment pairs remain 56/8, 64/8, 96/8 and 16/8.
-
-
-## B7a: carry of retired preview source rules
-
-B4/D1 (b) removes the non-composite preview source receipt and its support
-resultant, straight-stress input vector and stress-summary recipes. Before
-the ordinary line carry, lib/b7a_retired_carry.py transforms copies of two
-canonical base files only on exact full-file fingerprints of the current
-source_receipt/rows.rs and source_receipt.rs. It verifies the complete
-preimages and removes ID-audit keys 390/396/518/529, whose four owned
-allocation sites no longer exist, and only the deleted exact/finalize
-tokens from the ZW sensitivity CSV. finalize_composite and finalize_for
-remain. A partial retirement, changed source or changed preimage refuses
-the transformation. Missing source and original exact/finalize constructors
-send the untouched original rules to the same strict line carry; neither
-branch exempts a replaced current key. The full-file fingerprints hash
-raw bytes, including newline representation.
-
-Current positive nodal, functional-binding, projected/derived row-ID,
-missing-derived-row format and source functional-ID audits remain intact.
-No current owner, loop, call count, cap, numerical criterion, M or margin
-is narrowed. The D3 report records each retirement, both full-file source
-fingerprints, the adapter hash and input/output rule hashes. The canonical
-base files remain unchanged and every replay derives the same two copies.
-These full-file guards are part of the pricing tool's dependency: an edit
-to either guarded file, including a test-only suffix, requires this source
-binding to be re-audited before pricing is reused. The currently planned
-public corpus and D8 fixture paths are outside these two guarded files;
-any actual helper or test-suffix edit in either file requires re-audit.
-
-Route E's three historical EDGE_ZERO entries at indices 13–15 name the
-deleted preview constructors exact, ordinary and finalize. Before ordinary
-decision-key carry, the same raw source fingerprints and the complete
-caller/callee/reason tuples permit only these keys' deleted status through
-KEYMAP_ALLOW. A changed tuple, order, duplicate, source byte or restored
-constructor refuses. Replaced or fewer-definition statuses remain errors
-under the unchanged generic mapper. Current composite_exact,
-ordinary_physics, finalize_composite and finalize_for ownership stays priced;
-no surviving edge, cap or classification is removed.
-
-E11's from_radii constructor remains source-bound at its existing body
-fingerprint, but its exact cfg(test) attribute makes it absent from the
-callgraph's existing R1k production projection. C5 verifies the whole raw
-pressure_exact.rs file, the attached attribute and that projection before
-omitting only the constructor's private-CPP mul exclusion. Current source
-has 19 exclusion pairs from 18 callers; source_geometry::from_od_wall and
-the production methods following from_radii remain, and all three private
-CPP methods retain their positive owner charges. A restored production
-constructor, changed body, attribute, raw newline or resumed production
-method refuses; the callgraph's generic missing/witness checks stay strict.
-This full-file source binding also requires re-audit for later test edits.
-
-## B7a stage-1 positive ordinary domain costs
-
-The existing B4/D1 domain admits named-point material selectors and branch-L
-full-span uniform straight member inputs. The old nodal-only zero premise
-does not price that domain. The canonical b7a_domain_model binds twenty-one full
-raw owner-source files plus the unique raw nongenerated admission prefix before D6 and late law_order,
-admit and sole-permit admission bodies. Actual census, capacities and
-cap enforcement are bound; generated registry bytes are excluded. Before
-ordinary strict carry, it transforms copies of exact base-rule preimages:
-uniform-load execution and formed-row decisions become positive; force
-terms are bounded by 12*l and uniform spans by l; material bases by cases.
-Every other base rule remains. Calls stay 1+z; basis groups are at most
-cases+z, and the existing C_eq=3 bounds build/storage families.
-
-Each straight uniform input emits all twelve DOFs, including zero values.
-q=12*l safely covers mixed nodal/member inputs without a target-ID discount.
-Every formed term retains one LoadPrimitive and a distinct closure entry
-whose Uniform/Authored binding has26 u64 words. Child backings use the
-existing 4q+2x and push-cap laws; identity strings have family16 and
-member-source268 byte bounds. Separate source/supplied/temporary constructor,
-typed FormationSource/comparison, scaled force per existing two-evaluation
-allowance, and recovery-source copies remain positive. Original formed-force
-records additionally retain their moved scaled_intended f64 children:
-each can push80components (128capacity). Single-call construction charges
-all63 expansion outputs plus2initial variable children conservatively;
-these children are not copied by FormationSource or W2's None formations. No intensity-table
-heap is imported: D1's absent analysis state selects Authored intensity.
-One row0 per prepared input proves physical source_count<=l, even with
-duplicate targets/IDs; full-span boundaries are0/1. The larger old2l+1 span
-and coefficient-workspace allowances remain.
-
-Ordinary retains the base and up to3 named material/BuiltModel/stiffness
-states through rendering. Original working/base material copies remain;
-new states add their independent children plus the exact private tuple
-backing and owned key/record strings. Sequential resolver scratch includes
-the all-pipe HashSet iterator bound, provenance strings/vector and join;
-no three-way scratch overlap is presumed or credited. The invocation's
-named BasisCustody objects retain selections/record children independently
-of CaseSlot swaps. Exact-growth old backing uses n-1, not a geometric half.
-Fresh in-build atoms bind LoadPrimitive, LoadClosureEntry, CertifiedSummand,
-BasisCustody and the actual BasisState tuple; illustrative values never
-establish ABI or qualification.
-
-With ID128 and four used materials, one provenance record is161+4ID=673,
-its joined text is4*673+9=2701, and aggregate record is85+ID+2701=2914.
-Formatted cached records use the existing2*length capacity bound; adapter
-copy and row clones preserve their existing length-capacity law. The
-previous600/1024 basis/copy classes and2648 join are raised at their actual
-source sites. Existing11474-byte row and both aggregation-copy charges
-cover modulus rows (3755-byte case/3745-byte combination bounds); they are
-retained. The separate combination record map is priced even when
-combinations are empty. Existing T11/T07, legacy/parity reserves, every
-positive B5/J/nonlinear charge, M12GiB, .9 margin and5% TEXT requirement
-remain. Additional failed Preview manifest envelope headers, limitation
-Vec/string children and transient LocatedQuantity strings are priced beside
-the retained original. A separate FAILED_MANIFEST_COPY form includes the complete
-additional typed envelope clone and its quality-case/reference children in every
-phase conservatively; the old STAGED family is kept separately. Source-bound
-site classes and exact O10 owner lists close the14new headers/24arguments,
-without a zero or generic uncapped waiver. These source/model changes require actual four-point/native15-input
-D3; no diagnostic tree or historical profile qualifies them. Any actual
-guarded-file edit requires re-audit before reuse.
-
-The first full positive replay additionally reaches four uniform-load loop
-headers and twenty-two previously unclassified identifier operands. The two
-PP array/formation walks use the exact twelve-element DOF map; the SP
-constructor receives the single [global] input from the sole production
-formed-load caller, and its powers map sees the two literal span endpoints.
-The FK crate root is also bound by an exact full raw-file guard, including
-ELEMENT_DOF, DOF_PER_NODE and element_dof_map. The exact O10 headers retain
-only those source-qualified owners. The source
-guards also bind all authored case/load/member identifiers and stable_suffix
-(which only replaces ':' with '-', preserving byte length) to the enforced
-128-byte input bound at these exact sites. The call graph also reaches curved
-arms statically: the guarded retained domain refuses components before
-dispatch, so no new curved admission is implied. Their authored identifier
-operands receive the same conservative positive input bound; no branch or
-allocation is assigned a new zero. Generated-intensity prefix diagnostics
-likewise keep positive site-local case-ID classes, without admitting generated
-loads or weakening their retained-domain refusal. The historical base and
-every other positive rule remain unchanged.
-
-The static-tree inventory follows actual reader ownership. Three retired inputs
-(v0.2, source-blocks-1 and its schema) leave the historical twelve-file list;
-all nine surviving inputs keep their order and positive parsing costs. The
-combination and exact prepared definitions and physics-retained table enter
-positively. These are twelve distinct resident JSON inputs, independently
-confirmed by their production includes/loaders, not merely by registry names.
-Two retained tables each have two independent OnceLock<Value> owners: preview
-table()/preview_physics_retained_contract() and exact_table()/
-physics_retained_contract(). All fourteen allocations are priced; their equal
-input bytes do not imply shared parsed storage. Exact full raw guards cover
-the three loader files (retained_precision, semantic_contract, physics_source).
-The closed inventory requires its exact historical preimage and g4's unchanged
-static_tree() still refuses an absent input. The actual pressure-source table
-and results-pressure schema are reviewed nonresident inputs; neither becomes
-a cached tree here. Their production include absence and pressure-source
-verification/vocabulary obligations retain the existing closed guards.
-All surviving shape, owned-string, array-growth, hashing/validation, TEXT,
-moving and phase duties remain, and actual new static facts are recounted on
-each immutable canonical replay. No static cut selects a new budget policy.
-
-
-### B7a formed-load traversal and finding ownership
-
-The earlier 717871 four-point run is algorithmically complete but does not
-establish source-complete pricing: two load-row String sites and the Element
-self-weight identity formatter still carried historical nodal-only zeros.
-The five KD5 source/ledger/manifest loop rows, seven force-term BASE loop rows plus the expansion-component premise,
-and three aggregate ledger-copy totals also retained 0 or the input count l.
-The tracked b7a_formation_model replays only their exact preimages before the
-ordinary strict carry; historical BASE files and generic refusal checks remain.
-
-Current D1 census/enforcement, the sole private prepared case body, Ledger.finish
-and the formation guard bind the replacement premises. One case has <=l authored
-inputs and <=q=12l force terms, including the twelve zero-component terms from
-each admitted full-span straight uniform input. Each term sits on one DOF;
-Ledger.finish constructs exactly built.nodes.len()*6 by_dof slots and rejects
-out-of-range terms. formation_rows returns <=N=6n rows. The existing
-function-qualified LOOP_TOTAL seam supplies cases*N only to load_row_finding's
-row loop, so unrelated published-row loops retain P. All five KD5 traversals
-remain positive: outer supplied and complete term walks are q. The two inner
-manifest and matching-primitive BODY traversals are1: attach_last creates one
-Summand for a new term and attach installs one entry/primitive for that index;
-plain nodal records have no formed manifest. D1 rejects all other formed
-constructors, and force_scaled/NI copies preserve indices/cardinalities.
-The outer predicates/count/matching scans still traverse q; foreign/preclosure
-refusal costs do not inherit the admitted-domain condition. Descriptor/row-offset loops retain
-their old stiffness and spring allowances plus q. Rule256 is split: old.loads()
-remains the authored l bound, while the force traversal is q. The scaled-intended
-child walk retains max(l,80), preserving l128 at the current cap while its source
-premise is the expansion constructor's 80-push ceiling. Genuine authored-input/nodal
-PrimitiveSource loops retain l. Full prepared L/E first-match and function-total
-controls establish that a later historical rule cannot shadow these premises.
-
-The two source lists independently deduplicate bare load IDs within each row;
-their aggregate entry counts are each <=q. Every admitted load ID is <=128
-bytes; member_source's separately charged 268-byte identity is unchanged.
-For either independent Debug generation, G=2N+(10*128+4)q includes every row's
-brackets and each ID's quotes, separator and existing 10-byte escape allowance.
-The three decide_row format recipes retain their separate positive capacities:
-2*cases*N*8208; 2*cases*(87N+G); 2*cases*(321N+G). No branch receives a zero.
-The returned reason selects one recipe, giving aggregate fired content
-H=N*(600+2+8208)+G; fired construction pays 2*cases*H independently.
-Individual maxima remain R165057, F165659, six-item join J993964, sentence
-S994321. Every full list keeps N String headers; first-six clones own their
-backing and copied payload independently. Native FormationRow and the actual
-(usize,[f64;4]) map key/value tuple are size_of bindings, not guessed strides.
-The six full raw owner files are added to the existing source/admission guard
-chain; source, CRLF, preimage and constructor/enforcement drift refuse pricing.
-
-ordinary_finding copies the full fired Vec and sentence into the persistent
-FindingSeed. ordinary_members creates independent finding and formation Values,
-and ordinary_entry copies formation again. The producer family, two constructor
-Value originals and final ORDINARY/BODY all pay these owners independently;
-all old observation, row, diagnostic, STAGED, failed-manifest and reserve
-allowances remain. The sentence's actual source class is propagated to the
-integrity message amendment, evidence/retained diagnostic envelope and L_PUB,
-preserving the old recovery/range terms. Existing escaping/hash/copy/moving laws
-and every phase remain. Naming only six items never reduces the retained list.
-
-The load-fidelity row_sources copy override is positively rebound from the
-historical2*l to q=12*l. Each full audit partitions every force term into one
-DOF list. Its successful LoadFidelityRow and terminal Range fallback are
-exclusive: the successful source clone occurs after the last fallible
-operation. Both complete audit caller multiplicities, the128-byte String
-class and capacity2 remain; there is no row-local deduplication credit. Its two aggregate row format rules and the first matched ^rows$ join now price q source occurrences with10-byte Debug escaping; every fixed row/scalar/bracket term remains. The individual sources_debug class keeps its valid per-row l bound. Source-qualified structural/sparse/source-recovery guards and controls exercise actual text_budget site_from/site_total/aggregate precedence as well as full prepared L/E loop priority. No later cap can hide the positive owner.
-
-Self-weight's Element identity formatter executes before the continue and is
-positive. Its downstream 17 function and later site zeros retain their actual
-guarded warrant: nonobject provenance and the deterministic generated-ID refusal
-make recognized/looks_generated false before continue825. The old Node-only
-explanation is historical, not the current warrant. Current ordinary fallback
-for inputs refused by D1 is outside these conditional bounds. The registration
-remains UNREGISTERED until source-complete pricing, actual native/M12/.9/5% TEXT
-evaluation and genuine G0/witness/allocator/RSS checks pass; no diagnostic output
-confers qualification or permits a public W1 writer.
-
-
-The first replay of this correction at dd870 stops at the unchanged identifier
-audit gate on sixteen newly reached expressions. Their follow-up audits are
-site-specific: load-row dof_label is the guarded integrity_dof_label callback
-(node ID128 plus three bytes, or global_dof plus usize20), retaining the old600
-upper; guard case_id, self-weight case.id/pipe and every LoadLedger ForceTerm
-source are admitted bare IDs128. Self-weight byte-length displays retain
-usize20. Uniform assembly and plain nodal construction pass load.load_id to
-the ledger; force scaling clones it unchanged. The separately owned
-member_source268 identity is unchanged. Existing27 full raw source guards and
-admission/cap laws bind these constructors; foreign/preclosure and refusal
-costs do not inherit an admitted-domain alias. No generic fallback classifier,
-audit-gate relaxation or qualification claim is added.
-
-
-The FK895 first-return count preserves full evaluate multiplicity: the four
-dd870 graphs bind check_at's sole evaluate edge and672/448/224/672 evaluator
-calls. Only the reformation error String at895 is rebound to one allocation per
-evaluate call: map_err runs on Err and immediate? returns it, with no catch,
-retry or continuation in the guarded function. Its8334 content and capacity2
-remain; no visit, q traversal, graph/function call count, source/manifest owner,
-foreign/preclosure failure or downstream detail/unavailable/Preview/W2 copy is
-removed. Existing C6 positive/post-rebound and override-alias refusal semantics
-are reused for this one site, with an exact separate marker, source/rule,
-qualified caller/graph, inventory and pre/post witness. Every unknown source,
-changed rule, conflicting override or erased current owner stops pricing.
-This source-bound allocation correction is not an acceptance/budget change or
-a fit/D3/public-writer claim.
-
-
-The shared illustrative layout inventory carries FormationRow at the existing
-helper estimate 3*s(ExactAccumulator)+128 (3440 in its illustrative64-bit
-table), and (usize,[f64;4]) at5*s(usize) (40 in that table). The ordinary
-constructor and final G4 evaluator run in separate processes; a helper-local
-ASSUMED update cannot populate the final evaluator. Declaring these same two
-positive values in g3lib makes every process use the same illustrative
-inventory. Symbolic coefficients and actual G5 InBuild bindings are unchanged:
-FormationRow and the tuple still require their own actual native observation
-before qualification. Missing or unknown atoms continue to stop evaluation;
-no fallback size, qualified stride, reserve, cap or fit claim is introduced.
-
-
-Route E retains the complete common SITE_FROM list before adding its four
-existing physics-evidence first-return entries, in their original order with
-unchanged caller/per/why values. Its former replacement assignment dropped
-the new common FK895 entry; the exact rule guard correctly stopped pricing.
-The consuming assignment now accumulates both lists and refuses duplicate or
-conflicting keys. Actual full E preparation must preserve every inherited
-rule and add the sole common FK895 clause at its resolved source key; L is
-unchanged. No downstream injection, marker relaxation, caller-count cut or
-qualified fit claim is used.
-
-
-Five further owned error allocations are bounded at one allocation per full
-enclosing function invocation: lib10470/10476 in exact_straight_summary_extrema,
-lib11141 in recover_curved_bend_local_forces, and retained_product1745/2831 in
-check_support_maps/support_observables. The first three immediately propagate
-through the outer Result with ?; the latter two directly return their owned
-Association String. The actual five allocation kinds, full caller inventories,
-source/type bodies, rule aliases and pre/post counts are checked before pricing
-and around the actual format/lexical SITE_FROM override. The common rules reach
-both L/E without replacing the E entries. Existing content/capacity bounds,
-numeric and scan work, successful equivalents and every downstream detail,
-display, clone and capture owner remain positive and unchanged. This candidate
-uses count-only precision; it does not use the optional typed55-byte span bound.
-Additional full raw exact_sum and curved_bend source bindings preserve the
-independently reviewed receiver/error closure. No M, margin, TEXT reserve,
-admission, oracle, sample count or qualification change is introduced.
-
-The envelope-only diagnostic projection retains its exact existing ENVZERO
-source declaration, run helper and tb emitter. Only its two excluded
-retained_product allocation sites have zero counts in this mode; their zero
-multiplicity and absent owner counts are required. The three lib sites keep
-positive witnesses there, and all five keep positive witnesses in base/X/W.
-Unknown/partial/extra exclusions, changed emitter code and arbitrary default
-zeros refuse. Every source/rule/caller/site inventory check still runs.
-
-
-Three ordinary diagnostic scans form their desired integrity ID once per
-scan, including an empty scan. The local String remains within that lookup;
-the notice lookup returns its first index after dropping the desired ID and
-before inserting the notice. The assessed quality and publication standing
-still use the first matching diagnostic, including duplicate IDs. No ID is
-shared across cases or whole solves. All diagnostic scans and resulting
-messages, row order and status are unchanged; canonical pricing must derive
-the new call multiplicity and retain each hoisted allocation. The actual
-full lib binding and sole prepared body bindings follow these source bytes.
-The five first-error owner/site/caller boundaries retain their line identities
-and content; their raw source warrant is re-anchored through the same lib pin.
-The generated unregistered carrier, native bindings and approved memory policy
-are unchanged. A measured combined canonical result remains required.
-
-
-Current producer spellings are bounded at their exact sites. The private
-pressure problem retains all calls and owned copies: message453, five refs
-with760 collection bytes,644 joined bytes and718 complete ID bytes. Its
-converted ref loop is qualified to this owner; the existing global four-ref
-rule and every other helper call remain. stable_suffix keeps its original
-128-byte allowance for all callers and adds the private problem's516-byte
-delta with both capacity units. Source-local unit message600 updates the
-authoritative audit and lexical rule together; its existing702-byte format
-is unchanged. Reader require keeps its89 call sites and both formatted detail
-temporaries, with40 detail bytes and15 prefix bytes. Mode/sign/arc clones
-retain all calls and positive46/167/47-byte literal storage.
-
-Formation range reasons come from the exact ten static ledger origins;
-the longest43-byte origin plus16-byte wrapper gives59. Individual reason,
-fired, joined and sentence maxima are unchanged. The same updated aggregate
-H reaches every independent finding, capture, JSON, ordinary body and staged
-copy. No formation site or owner is removed. Admitted copied envelope and
-receipt ref slots remain governed by the unchanged components-empty domain:
-the only five-ref calls require an arc, and the sole arc builder consumes
-those excluded components. Raw/shared/refused/headless five-ref conversions
-and spellings remain positive. No broader phase refinement or policy change
-is used. Actual combined canonical pricing and native evaluation are pending.
-
-
-The current stage-1 route and phase model separates actual authored cases
-(`lc`) from the unchanged typed storage ceiling (`C_eq`, caps key `c`). On
-admitted E, the components/element/named-basis refusals and empty pressure
-regions bind plain nodal force terms (`q<=l`), one base state and no formed
-primitive, manifest, expansion or load-row finding producer. Generic force,
-closure-record/Option, vector, wrapper/null, reader, raw census and unrelated
-ordinary owners stay positive. Refused or foreign ordinary calls do not use
-this admitted pricing warrant. The first measured variant deliberately keeps
-the effective TEXT force/source q bounds conservative at12*l where unchanged.
-
-A separate successful-publication context retains all actual ordinary calls
-and authored lc*l inputs. Same-request custody and stage-1 member preparation
-refusal prove at least one Frozen case is nodal, so formed/finding cases are
-at most max(lc-1,0). Every member case retains its full12*l force bound; no
-per-case or nested-loop q is averaged. Only six closed formed-only requested
-factories and the isolated finding children use this occurrence count.
-Each factory rounds every nonnegative integer atom coefficient upward before
-the existing C_eq multiplication. Moving/peak owners, common nodal work,
-generic ORDINARY and formation parent wrappers, named L states and all other
-storage/copy charges remain at their full bounds. The failed-manifest branch
-and simultaneous original/manifest/staged and PreparedCases holdings retain
-their existing conservative positive charges in this first variant.
-
-The four formation formats239/241/251/322 use only their guarded row/finding
-generations. Exact dual markers, source/admission bindings, qualified caller
-and loop stacks, format/lexical inventory and canonical total preimages guard
-them. Competing zero/from/size/aggregate/total aliases, erased or changed
-M(load_row_finding)=lc, and incorrect effective pre/post row counts refuse.
-The capacity factor2 is independent of loop iteration count. Individual
-reason/fired/join/sentence maxima and all full capture/JSON copies remain.
-
-The driver runs the canonical base/env/X/W consumers and downstream cost
-chain independently in the success context. Only W3/W4/W5 select its forms;
-W1/W2 and X1/X2 keep the full ordinary/fallback forms. Both native modes and
-all fourteen phase identities and report fields are preserved, as are the
-coefficientwise route union and shared native bindings/atom values. Full
-ordinary TAV_W/TAV_X forms and text atoms remain unchanged: the existing
-runtime law and actual evaluator therefore keep the full upward5% TEXT
-reserve. No illustrative ASSUMED value is replaced with a success scalar.
-
-Making member cases preparable or Frozen in W1 stage2 invalidates the
-successful case-count premise. The raw source guard then refuses reuse;
-actual repricing and re-registration are required. This model changes no
-budget, margin, reserve, admission, criterion or expectation. Actual complete
-canonical pricing and native all-phase evaluation remain required before
-qualification or a public corpus writer can proceed.
-
-
-T25's selected invocation publication hash has a route-qualified producer.
-source_eligible1244 requires exact captured recovery; the per-case gate6136
-requires exact capture for all finalized case constructors; and the invocation
-gate3077/3081 requires selected exact context before finalize_composite and
-finalize_for. The latter obtains policy from the same capture's context,
-not an envelope label. Admitted pressure-free L has none of these selected
-producers. The model binds the existing source/admission/capture bytes and
-the complete qualified constructor/finalizer caller and stack inventory.
-
-Only the extra hash(publication) term inside T25 I1 and its corresponding
-row10 representation is absent on L. Every other S/I form, invocation/body,
-carried case, C8, header, initial raw/typed parse/hash, moving and W1/T16/T17
-owner stays positive at its existing bound. E's actual hash and foreign or
-ordinary product paths are unchanged. G4 consumes the stage_forms directly;
-the ordinary T25 row alone cannot change that profile. Full TAV_X, both X
-phase names, all fourteen phase identities, native bindings, coefficientwise
-union and upward reserve remain. Actual complete pricing/evaluation is still
-required; this producer distinction supplies no fit or qualification claim.
-
-
-Metadata validation selects one complete expected-base-ID String from ten
-mutually exclusive recipe constructors, including the exclusive support
-combination/case alternatives. Their source-qualified content bounds are
-46,37,140,143,158,162,188,338,169,322 bytes. The largest complete base is338;
-the allocation volume uses one capacity2 generation per full validator call,
-without changing its physical visits or any numerical, row or scan work.
-The report preserves every potential site's standalone bound and names the
-nonnegative allocation group that replaces their mutually exclusive sum.
-
-The prematch owned stable_suffix, displacement/stress signs, postmatch
-combination wrapper, qualified-case helper and their owned suffixes remain
-independent positive generations. Errors, RefusedCase and receipt failures,
-public_error/capture_error detail copies, STAGED/failed and JSON owners also
-remain. Exact current source/cap/custody/helper/enum, full caller/stack and
-allocation inventories, authoritative audit preimages and competing override
-checks bind this local group; no global STATIC/RID/error/default changes.
-Envelope-only exclusion is restricted to the existing canonical emitter.
-All current native, phase, union, budget and reserve conditions remain.
-
-The metadata errors at2544/3005/3227 retain their full149/1049/1046-byte content
-and capacity2. Their Err propagates immediately through2567? out of the whole
-bind_rows_subject invocation; each site allocates at most once per full
-owner call. All freeze, serializer and combination callers remain, including
-later failures beside other Frozen cases. Association/detail/JSON/RefusedCase
-and receipt failures keep their independent owned generations and copies.
-This is a positive per-invocation bound, never a prepared-custody zero.
-
-## B7b: actual-source D3 at `837a04b770`
-
-B7b deletes the `2.0.0/exact_straight_pressure_v2` contract with its four
-tables and readers (A4/A5), rebases route E's successor on pressure-1 (D4 (a)),
-makes the current pressure-source table and the ordinary pressure table
-independently resident (O-10), adds model 0.5.0's exact half (`shear_model`,
-an explicit per-section `corrosion_allowance`) and keys the load/reference-state
-selector on presence. D3 was first done at `7e638477a8`, re-done at
-`1bcc55a80b` and again at the final source `837a04b770` (below, "Re-done at
-..."). Line numbers are at `7e638477a8` unless stated. Each stop of the tool is
-resolved here; nothing below changes M, the 0.9 M margin, R, the 5 % TEXT
-reserve, the numerical domain or an acceptance criterion.
-
-**Reproduction.** The committed tool's one-current-value pins (B7a's source
-models, re-bound here) hold the registered revision's bytes, so the committed
-tool reproduces the registered tree at that revision (`837a04b770`), not at an
-earlier one: an earlier B7b revision stops at a result_export pin (exit 4). Reproduce one with a scratch copy of the tool
-whose pins are restored to that revision's values, as README step 5 describes.
-
-**Prunes.** Five rules are pruned beyond B7a's 22, each because its subject no
-longer exists anywhere in the crate (not moved): the `for_source` zero edges to
-`load_reference.rs validate_load_reference_evidence`,
-`load_reference_source.rs validate_load_reference_source_evidence`,
-`physics_evidence.rs validate_physics_evidence` and `semantic_contract.rs
-forbid_load_reference_evidence` (`edge_zero` 52, 53, 54, 57), and the ID audit
-`load_reference_source.rs:47` inside the deleted private `fn code`. Zero edges
-to deleted callees bound nothing; the audited site no longer allocates.
-
-**Site-key resolution (`lib/linemap_lib.py`).** A line-keyed site whose hunk
-replaced its line was always an unmapped stop. It is now `deleted` only through
-a reviewed `linemap_resolutions.json` entry `{"as": "deleted", "fn": name}`,
-and only when `name` is the OLD enclosing function and the NEW file defines no
-`fn name`. A moved function still stops. The one entry is
-`load_reference_source.rs:47` (`fn code`; the file is the 16-line pre-pass).
-
-**Full-file and body pins.** Every B7a source pin that changed was re-audited
-against B7b's diff and re-bound to the current bytes: `b7a_retired_carry`
-(`source_receipt.rs`: exact/ordinary/finalize constructors still absent,
-`finalize_composite` and `finalize_for` unique); `b7a_domain_model` (twelve
-owner files, the admission prefix and `family_clauses`; `pressure_runtime.rs`
-again for a later `mod tests`-only edit, production prefix byte-identical);
-`b7a_formation_model` (`source_recovery.rs`, `mod tests` only); `kd5_text_model`
-(`lib.rs`: the same five production `.min(`/`.max(` callers); `batch5_model`
-(`namespace_branch`, `family_clauses` and the pressure prefix: v2's declaration,
-refusal and negative-pressure gate deleted, the 0.5.0 contract/shear/corrosion
-refusals are diagnostics only, `member_connector_ids` decodes, and admitted
-regions stay empty on E or absent on L, so no carrier child is populated);
-`b7a_returning_errors` (the canonical emitter's transport hash: its only change
-is the carried `retained_w1` key). Line-keyed preimages that moved with
-unchanged text were re-keyed to their B7b lines (`b7a_domain_model` audits,
-`b7a_owner_choices` helper rows, `b7a_phase_model` T25 callers and SOLVE,
-`b7a_returning_errors` sites and parents, `b7a_scoped_text_model` LN table).
-The route-E keymap allowance resolves its solve caller by name.
-
-**Static inventory (`b7a_domain_model.STATIC_OWNERS`).** The four deleted
-`OnceLock<Value>` owners (physics-1, load-reference-1, load-reference-source-1,
-physics-source-1) leave; `pressure_source_contract()` and
-`pressure_rows_contract()` are distinct resident owners over their reviewed
-bytes and are priced positively in their own right. `load_reference::
-transport_schema()`'s `OnceLock<Result<Value, String>>` over the pinned
-`schemas/load_reference_state.schema.json` is a surviving independent
-process-lifetime owner too (b7-plan D2): although its one caller,
-`validate_transport_metadata_in`'s resolved branch, is unreached on the D1
-graph, any earlier use in the same process leaves it resident, so it is priced
-as its Ok Value exactly like the other tables (the Err String is smaller).
-Thirteen allocations over eleven inputs; a test fails if result_export gains a
-cached owner that is not listed (the one `#[cfg(test)] shared_test_corpus`
-excepted). The pressure result schema stays nonresident.
-
-**B7b-B (`o10_rules.py`).** The route-E rules select B7a's or B7b's argument
-from retained_precision's two route base ids: {physics-1, preview-physics-1}
-(B7a) or {pressure-1, preview-physics-1} (B7b). Any other pair stops the run.
-
-**B7b-R1.** Since D4 (a) route E's successor carries base id pressure-1, so
-`for_source` takes the `PRESSURE_ID` arm on E. R1's zero edge to
-`validate_pressure_evidence` remains on route L (base preview-physics-1) and is
-removed on route E, where that validator is priced at its multiplicity.
-
-**B7b-J1.** J1's guard accepts B7b's pair; either pair excludes
-pressure-source-1, so `for_source` never takes the `PRESSURE_SOURCE_ID` arm.
-
-**B7b-J5.** v2's deletion removes `validate_physics_evidence`'s call of
-`validate_physics_evidence_in`; the remaining inventory (load_reference false,
-physics_evidence false from `validate_pressure_evidence`, physics_source true)
-keeps the prepass edge untaken on both routes.
-
-**B7b-F, B7b-E5.** Route E's reached physics-evidence entry is
-`validate_pressure_evidence`, whose physics arm returns
-`validate_physics_evidence_in`'s Result unchanged. The `require()`/`text()`/
-`number()`/`array()` and `require_connector` sites keep their `<= 1 per call`
-bounds, now per `validate_pressure_evidence` call.
-
-**B7b-P1.** Section B's premise P1 ("no admitted model has
-`exact_contract(model) == PressureV3`") and `o10_rules.py`'s `NOV3` text no
-longer hold: route E is `3.0.0/exact_pressure_v3`. `build_model_for_members`
-calls `build_connector` only in its loop over `model.components`, and
-`connector_specs` reads only `model.components`, so P3's empty built connector
-collections, and with them L1–L3 and J, rest on P2 (D1.4: no components) alone.
-On B7b sources `NOV3` states this.
-
-**B7b-E1, B7b-E4.** On route E every reached caller of
-`connector_evidence::validate` now passes PressureV3, so `admitted` is true and
-the old StraightV2 refusal premise is gone. E1's zero now rests on D1.4: the
-records are `project(successor)`'s `contract_evidence.connector`, which the
-producer builds one per objective-connector component, and an admitted model has
-no components. E4 and A3 are inert at B7b: `connector_evidence.rs` no longer
-defines `row_basis`, so neither rule is added (both are guarded by its name).
-
-**B7b-LS.** `case_state::is_load_state` is an exact contract plus an authored
-load/reference-state field. D1.3 refuses every such field (reference
-configurations, model and request expansion laws, analysis state) on every
-branch, so it is false on admitted E. This premise replaces I95's version-based
-one in the existing route-E zeros (`captured_load_state_case`,
-`check_load_state_input`).
-
-**B7b-LR.** `validate_pressure_evidence` takes its load/reference-state arm
-only when the successor carries `contract_evidence.load_reference_states`; the
-producer inserts that member only under `is_load_state` (false, B7b-LS) and
-`project()` copies `contract_evidence` unchanged. The edge to
-`validate_pressure_load_reference_evidence` is zero on route E.
-
-**B7b-K1.** `KEYMAP_ALLOW` admits `load_reference_source.rs:46:code` as deleted:
-the function-as-value zero edge's callee left with the v2-era readers.
-
-**B7b-J3.** B7b's test-only census rewrite deletes `leaf_diff`; J3's size-0
-rule and ID audit for it resolve to nothing and are dropped. The filter applies
-only to J3's own entries, and the run stops unless the dropped functions are
-exactly ones the census no longer defines, of which only `leaf_diff` may be
-missing. Every other J3 site keeps its rule; no production site is affected.
-
-**B7b-VP.** On a 0.5.0 document `validate_profile` adds one per-pipe match on
-(contract, corrosion allowance): at most one `problem()` per pipe. The base
-rule's per-load bound L is rebound to L+m. The contract/shear/version arms
-cannot fire on an admitted document (L has no contract; E requires the exact v3
-contract; every admitted document is 0.5.0).
-
-**B7b-CA.** The corrosion-allowance identifiers are audited as admitted pipe IDs
-(IN128): the unit-conversion diagnostic ID and refs in `normalize_model_units`
-and the two section diagnostics' IDs and refs in `derive_pipe_section`, as their
-mill-tolerance siblings. Each site keeps the chain's own multiplicity.
-
-**Scoped TEXT (`b7a_scoped_text_model`).** `problem()` keeps its nine callers.
-B7b's new `validate_profile` messages are at most 327 B with at most two refs,
-inside the unchanged 453/760 bounds; physics_source's longest `require` detail
-literal is 37 B, inside 40 (`1bcc55a80b`'s two new details are 25 and 29 B).
-
-**B7b-DPS and B7b-DX (exclusive diagnostics).** B7b changed `derive_pipe_section`
-(two corrosion-allowance refusals beside the dimension and mill-tolerance ones).
-The premise, exactly as `o10_rules.py` checks it on the source: (a) every
-`diag(` in the body is a `diagnostics.push(diag(..));` statement; (b) each such
-statement is immediately followed by `return None;`; (c) after the signature,
-the `diagnostics` parameter appears only in those statements, so no other push
-and no callee receives it. One call therefore pushes at most one diagnostic.
-Pushes by other functions, including this function's callers, are their own
-sites and are priced separately. The four sites are one exclusive group; a fifth
-site, a missing `return None;`, any other push or use of `diagnostics`, or a
-bare `diag(` stops the run.
-`text_budget.py` then adds the owner's call count to D once and the largest
-member's diagnostic bytes once per call. It refuses (unclassified) unless every
-member is a reached diag site of that owner, outside any loop, with exactly the
-owner's multiplicity. Each site's own TEXT request, ID format and refs stay
-priced at every site, as in B7a's mutually exclusive allocation groups. The
-rule also bounds B7a's two pre-existing sites at one per call instead of two.
-It is load-bearing: without it, the merged dense W3 phase exceeds ⌊0.9 M⌋
-after the 5 % reserve. With it, all point and merged phase evaluations pass.
-
-**Re-done at `1bcc55a80b`.** After the first registration two priced files
-changed; each diff was audited to be exactly the following, and the
-`physics_source.rs` full-file pin was re-bound.
-- **`physics_source.rs` (`033626030c`).** `validate_transport_metadata_in`'s
-  resolved branch gains two bindings, `require(..., "LOAD_REFERENCE_CASE_ORDER")`
-  and, per receipt case, `require(..., "LOAD_REFERENCE_REQUESTED_MODE")`; its
-  closed test module's include paths move (test only). On the D1 graph the
-  function is unreached: its one reached-caller path, `for_source` →
-  `validate_in`, is J1's zero (the precommit reader's projected base id is never
-  pressure-source-1), and the branch also needs `load_reference_states`, absent
-  by B7b-LS. The new sites stay positively priced if ever reached: each call
-  allocates only in `require`'s own `Err(format!(...))` (detail ≤ 40 B STATIC)
-  or `array()`'s Err, both priced per call, and the new `zip` loop has no rule,
-  so a reached path stops the run as an unmapped header.
-- **`joint.rs` (`b4447b7212`), B7b-JR.** `pressure_finding` may add a fourth ref,
-  the listed replaced span (an admitted pipe ID, ≤ 128 B), through
-  `refs.extend(extra.map(str::to_string))`. Its refs Vec then holds ≤ 4 Strings
-  in capacity ≤ 6 (6·24 + 4·128 = 656 B), beyond the generic `refs` class
-  (4·(24 + 128) = 608 B). Its multiplicity is 0: `classify_connectors` calls it
-  in the loop over each case's `pressure_regions` and their
-  `member_connector_ids` (regions absent on L, explicitly empty on E, D1.5), and
-  `classify_pressure_participation` is reached only inside the loop over
-  `model.components` (P2). The zero is guarded rather than assumed: the new
-  `O10_MULT0_SITES` family lists the site, and `o10_check` fails the run if its
-  own multiplicity is ever positive (a positive price would then need the
-  656 B class).
-Both stay at multiplicity 0, so the only coefficient change at `1bcc55a80b` is
-STATICS, from the transport schema owner above.
-
-**Re-done at `837a04b770`, B7b-ZA.** `ccb19ba0bf` makes the readers require the
-exact contract's zero corrosion allowance; `837a04b770` changes only test code
-(the `#[cfg(test)]` census, the J2 join test and their fixtures; no new
-`format!` site; J3's texts still resolve), and the later B7b commits through
-`2b47627e66` change no Rust source. The census's sites stay at multiplicity 0
-under `o10_check`, and with those test-only changes reverted the tool prices
-the identical tree. Each
-priced diff was audited to be exactly the following, and the `retained_precision.rs`,
-`physics_source.rs` and `semantic_contract.rs` full-file pins were re-bound.
-Moved line keys with unchanged text were re-keyed: `b7a_domain_model`'s three
-`retained_precision.rs` audits (+17 lines) and the scoped model's `require`
-line (`physics_source.rs:78`).
-- **`retained_precision.rs` `section_allowances`**, called by `exact_namespace`
-  and `preview_namespace`. Those are G8's two namespace predicates, each reached
-  once per invocation on its route. Its one loop,
-  `list(&model["pipe_segments"]).iter().all(..)`, visits each captured pipe
-  segment at most once: bound `m` (D1.9), keyed to this function only and
-  `o10_check`-confined. On the exact route each visit runs one `unit_value(..,
-  Length)`; the `unit_by_symbol` lookup is priced at its own site per call.
-  `unit_value`'s `error(..)` sites stay under their SITE_FROM cap (769 per
-  validate), whose premise is that no reader caller swallows an `Err` except
-  `g5_native`'s `tw()`; `section_allowances` also swallows one
-  (`.is_ok_and`), and `all()` stops at the first failure, so it adds at most one
-  uncharged error value per validate, under 1 KB. On the D1 graph it adds none:
-  the producer refuses a missing, invalid or nonzero allowance before any
-  successor exists (`pressure_runtime.rs` and `derive_pipe_section`), so every
-  captured allowance the reader converts is a valid zero length. (Independent
-  D3 review, 2026-10-15; adding `section_allowances` to the premise's list or
-  charging +1 in the formula is left for the next re-registration.) The call graph carries the
-  conversion on both routes (32 more `unit_value`/`unit_by_symbol` calls each),
-  an overcount on the preview route, which only reads a key. This is the only
-  pricing change: TAV_W and the TEXT atoms rise by 139,144 B, which is
-  `unit_by_symbol`'s per-call TEXT ×32 plus 72 B below. A guard stops the run if
-  the function gains a loop or a second conversion.
-- **`physics_source.rs` `zero_corrosion_allowances`**, from
-  `SourceContract::check_invocation`. Its callers, `validate_in` and
-  `source_blocks::validate_source_contract_in`, are unreached on the D1 graph:
-  `for_source` → `validate_in` is J1's zero, and no reached function calls the
-  other. Each pipe's `require` Err would be priced at `require`'s site (the
-  detail `ACTUAL_CORROSION_ALLOWANCE` is 26 B ≤ 40), and its `for` loop has no
-  rule, so a reached path stops the run.
-- **`semantic_contract.rs` `current_header` guard** (load/reference states with
-  `carrier_evidence`). It is on the reached `for_source_metadata` path, once per
-  call, and its `Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into())` is priced
-  positively there (+72 B TEXT).
-- **`reader_verdict.rs` `route()`** pressure-source arm's evidence-object guard.
-  Its callers (`source_recovery`, `standing`, `dispatch`, `row_semantics`) are not
-  reached from the retained route's roots. The guard's one allocation, the
-  constant code's `.into()`, sits in that unreached function and would be priced
-  per call there if it were reached.
-
-**B7a reproduction.** With B7a's nine source-bound model files restored from
-`3e89c23ea1` and every other current tool file kept, the tool reproduces B7a's
-registered tree at `3e89c23ea1` coefficient for coefficient (1,450), and
-`generate --check` matches the block committed at `1b24b01bd3`. The B7b rules
-above apply only where their B7b source exists.
-
-
-## T4-U6/U8: actual-source D3
-
-T4-U6 publishes every exact-route stress row on the nominal and the reduced
-section (D-5), and T4-U8 adds the Timoshenko straight member (D-6); DEL-05-03's
-[section-bases-and-timoshenko.md](../../DEL-05-03/Design/section-bases-and-timoshenko.md)
-§9 sets the budget work. D3 priced PP's source at `20c6126a16` and then at
-`433fc1f1e4`, which adds U6-SH below (option A, which HELP_HUMAN accepted on
-2026-10-16: "Apply the borrowed {domain, payload} wrapper in source_receipt.rs
-hash, with its own adjudication rule, a source pin, a test pinning identical
-hash text, and an independent review") and the epoch's reader binding of each
-section's beam theory. Registration first priced the epoch head `addbdc030e`
-(below, "Epoch source") and now prices the final source `588de796a4` (below,
-"Final source"), which adds the readers' bit equality, PP4's per-basis
-withholding and the independent D3 review's repairs (U6-RS's capacities, R1;
-U6-RL, R2). The tool's one-current-value pins hold `588de796a4`.
-Line numbers are at `433fc1f1e4` unless stated. Each rule below is added only
-where its source exists, so the registered B7b source adds nothing. Nothing
-here changes M, the 0.9 M margin, R, the 5 % TEXT reserve, the budget model,
-the numerical domain or an acceptance criterion.
-
-**Reproduction.** A scratch copy of the tool whose pin-bearing files (the
-B7a/B7b source models, `kd5_*`, `batch5_model`, `b7a_retired_carry`, KD5's
-`evaluate` pin in `o10_rules.py` and C7's NumericCase pins) are restored to the
-registered values, with every new rule kept, prices `837a04b770` with exit 0.
-`generate --check` of that tree matches the block committed since `e70c115764`
-(and unchanged at `433fc1f1e4` and `addbdc030e`) exactly; re-checked with the
-tool that prices `addbdc030e` (1,450 coefficients identical).
-
-**Pins and moved keys.** Each moved pin was re-bound after its diff was read:
-- **Full-file pins** (`b7a_domain_model`, `b7a_formation_model`,
-  `b7a_retired_carry`): the D-5 geometry, rows and evidence; the Timoshenko
-  admission, frame and K-D5 member-identity binding; the D-5 exact mass branch
-  (`self_weight.rs`); `prepare_sources`' three O4 declines (static
-  `unsupported(..)` texts after the existing declines); `rows.rs`'s
-  `derived_for` basis twins; `source_receipt.rs`'s U6-SH (nothing else; its
-  exact/ordinary/finalize constructors stay absent); `physics_source.rs`'s one
-  Err-only `require(.., "ACTUAL_SHEAR_MODEL")` per pipe in `actual_materials`'
-  existing loop (18 B, inside the 40 B detail class). No owner these models
-  price is added or removed.
-- **Body pins** (`batch5_model`, `kd5_text_model`, `kd5_first_error_model`,
-  C7, C8): `family_clauses` adds one refusal (a nonzero mill tolerance or
-  allowance on branch E, `FamilyFact::SectionAllowance`) and `namespace_branch`
-  refuses the Timoshenko contract (`FamilyFact::ShearModel`); both only narrow
-  admission. The pressure prefix's changed lines are the per-region member body,
-  the joint terms and `closure_source`, reached only through a pressure region
-  (absent on L, explicitly empty on E). `fallback_circular_maximum` takes the
-  basis and binds its area; `straight_stress_spans` and the two pressure helpers
-  read the pressure bore from `ExactSectionBases`. The outside-caller inventory
-  keeps every receiver (`.add(` on the span intensity's `ExactAccumulator`,
-  `.divided(` on `CertifiedRow`, `.mul(` on `Scaled`). `ExactSectionBases` also
-  defines `pressure_group_value` and `surface_stresses` as delegations, so those
-  two keys name `SourceAnnulus::`'s unchanged definitions.
-- **Moved lines with unchanged text** were re-keyed: the B7a/B7b audit, owner,
-  error and helper lines; `formation_check.rs`'s reformation site
-  (`FIRST_RETURN_LINE` 909); `retained_w1` (lib.rs 3474 → 3510); the T25
-  callers (`source_receipt.rs` 646/732/748 → 662/748/764). The tool's own tests
-  follow the same lines.
-
-**Epoch source `addbdc030e`.** Beyond `433fc1f1e4` the epoch adds PP's
-realized-arc marker and RD2's reader binding of it; each diff was read and the
-priced change is exactly the following.
-- **The marker (PP).** `lib.rs` gains `exact_pipe_sections`, `realized_arc` and
-  `mark_realized_arc` after `straight_section_resultants`. The case solve's
-  `pipe_sections`, `assemble_pressure_case`'s region geometry
-  (`pressure_runtime.rs`) and T25's `physical_source_built` (`composite.rs`)
-  call them in place of the same inline expressions. The marker
-  (`member_kind = "realized_arc"`) is set only on a pipe that
-  `built.curved_bend_elements` realizes, and `build_curved_bend_macro_elements`
-  builds those only from `model.components` (P2: none on D1), so
-  `realized_arc`'s `find` allocates nothing and no marker is set. Re-bound:
-  the `lib.rs` and `pressure_runtime.rs` full-file pins, the
-  `solve_prepared_load_case` body pins (`batch5_model`, `kd5_text_model`,
-  `kd5_first_error_model`) and the pressure prefix. The diff adds no
-  `.min(`/`.max(` call. Moved with unchanged text and re-keyed: `lib.rs` lines
-  after the helpers (+36), `pressure_runtime.rs` after the arc lookup (−3) and
-  `composite.rs`'s two T25 callers (731/982 → 726/977).
-- **The readers (RD2).** `validate_physics_evidence_in`, reached on route E
-  through `validate_pressure_evidence`, adds three sets: `region_members` (each
-  region geometry entry), `case_arcs` (each marked section) and `marked_arcs`
-  (one clone of the first case's `case_arcs`). Route E's regions are
-  explicitly empty (D1.5) and no section is marked (above), so all three stay
-  empty; an empty std `HashSet` and its clone hold no table. The new geometry
-  loop sits in the region loop, which D1.5's region rule already zeroes. The
-  new `require(..)?` checks (`ARC_UNSUPPORTED`, `ARC_MARKER`) fall under
-  B7b-E5's at most one error per call. `section_basis::marked_section` reads
-  the marker through `arc_marker`, whose Err (`"SOURCE_PHYSICS_MEMBER_KIND"`,
-  26 B) is priced at its own site per call: 96 calls on route E, +4,992 B of
-  TEXT. `bind_shear_model`'s new check is in `reader_verdict::route()`'s path,
-  unreached from the retained roots (B7b-ZA). Reviewed input #1
-  (`physics_source_recovery.schema.json`, +454 B: the marker's `member_kind`
-  and its `if`/`then`) is a priced static input: STATICS rises by 228 B of
-  text, 8 map nodes and 6 Value slots.
-- **J5-T (test-only modules).** RD2's `arc_marker_tests.rs`, included by
-  `physics_evidence.rs` only through `#[cfg(test)] #[path = ..] mod ..;`, calls
-  `validate_physics_evidence_in` with `composite = true`. Test code is absent
-  from every product build, so J5's caller inventory omits files the crate
-  includes only that way. A `#[path]` module without `#[cfg(test)]`, or a
-  plain `mod` named like such a file, stops the run.
-
-**Final source `588de796a4`.** The registration branch merges the epoch
-`1ef3487611` (RD3), PP4 (`b4a596b870`) and RD4 (`61b9115466`) over D3's
-repairs. The reviewed inputs and every schema and table the profile reads are
-unchanged since `addbdc030e`. Each product diff was read; the priced change is
-exactly the following.
-- **PP4.** `lib.rs withhold_certified_summaries` also sets `max_stress_reduced`
-  to None (a drop, no allocation) and gains a doc comment and a test. Re-bound:
-  the `lib.rs` full-file pins (`b7a_domain_model`, `kd5_text_model`'s
-  primitive pin; the diff adds no `.min(`/`.max(` call). Every snapshot key after
-  the function moves +5 with unchanged text and is re-keyed (B7a's ID audits and
-  owner choices, the returning-error sites and their parents, the scoped-TEXT
-  lines, `solve_prepared_load_case`); the tool's tests follow.
-- **RD3, RD4 (readers).** `physics_source.rs` compares its maximum, norm,
-  endpoint-section, stress-functional and twin links through
-  `section_basis::bit_equal` and makes `normalized_quantity` `pub(crate)`;
-  `section_basis.rs` adds `bit_equal` and compares twin values and headlines by
-  bits; `reader_verdict.rs` binds each case section's captured (D, t, c_m, c_a)
-  to the model inside `physics_model_checks`, in `reader_verdict::route()`'s
-  path, unreached from the retained roots (B7b-ZA). No `require` site is added or
-  removed. Re-bound: the `physics_source.rs` full-file pin; its scoped-TEXT
-  `require` line moves +1 (the import).
-- **U6-BE (`bit_equal`'s recursion).** `bit_equal` recurses into arrays and
-  objects, so the chain lists it as a self-recursive TEXT ancestor, which needs a
-  reviewed reason. Its only text is `number`'s Err, the static
-  `SOURCE_PHYSICS_NUMBER_INVALID` (29 B). `bit_equal` calls `number` only on two
-  `Value::Number` leaves, whose `as_f64` is always Some and finite, so the Err
-  never forms. Any formed Err is dropped inside the one `matches!`, so at most
-  two are alive at once at any depth. Nothing else allocates, so its text counts
-  once per external call, as for `guard_json`. The chain still prices that Err
-  at every call on route E: 1,730 `bit_equal` calls with two `number` calls
-  each, at max(8, 2·29) B, so +200,680 B of route E's TEXT. This stays below
-  route L's TAV_W, so no merged evaluation moves. **Guard:** the run stops unless
-  `bit_equal`'s and `number`'s exact texts are as reviewed.
-
-Against `addbdc030e`'s tree, the final source's merged tree is equal in
-structure: 1,400 coefficients equal, 56 higher and none lower. The higher ones
-are U6-RL's 39 nodes and 5,952 key bytes in every copy of the evidence owner
-(T25's first stage +47,808 B through its hash route) and U6-RS's 5,236 slots in
-the precommit reader's working sets. The prunes are `addbdc030e`'s 31, and the
-resolutions used are the same.
-
-No rule is pruned beyond the 31 below, and the tree differs from
-`433fc1f1e4`'s only in STATICS and route E's TEXT atoms above and in U6-RB-V's
-results capacity (below).
-
-**Prunes.** The line map prunes 31 rules: B7b's 27 and four ID audits at basis
-`lib.rs` 5508, 5509, 5562 and 5563. Those four were the two maxima's `Err`
-arms (`unavailable_stress_maximum_members.push`, the source-recovery and
-exact-stress maximum diagnostics). D-5 deleted them; their per-basis
-replacements carry the same IN128 classes under U6-A and U6-K. No `site_from`,
-`site_total`, `edge_per_call` or `loop_total` rule is pruned.
-
-**U6-K (re-expressed basis keys).** D-5 replaced eight basis-keyed audit lines
-of the case solve (lib.rs 5387, 5403, 5412, 5497, 5498, 5503, 5529, 5536 at
-`2243be380b`: the two stress-finding loops and the two maximum rows) and
-`composite_exact`'s 781/798. They leave `text_args.g4.json` and are added by
-name: on earlier source with their original classes (the registered tree
-reproduces), on D-5 source at the replacing sites with the same classes. The
-arc branch's case-qualified exact-stress id is formatted once per basis; both
-spellings end in the basis's static hyphen segment.
-
-**U6-DPS.** D-5 admits a nonzero allowance, so `derive_pipe_section` loses the
-nonzero refusal. B7b-DPS's checked premise (every `diag(` is a pushed
-statement followed by `return None;`, and `diagnostics` is used nowhere else)
-holds for the three remaining sites, so they stay one exclusive group: at most
-one diagnostic per call. The corrosion-allowance ID audit keeps one format and
-one refs site. Only D-5 source (`section_basis_row` present) may drop the
-refusal; anything else stops the run.
-
-**U8-MP.** `lib.rs member_prefix` is the one `format!("member:{}:{member}:",
-member.len())`. `certified_publication`'s member records, `straight_stress_spans`,
-`frame_member_identities` and `closure_source`'s straight operand label all use
-it. Every caller passes a pipe's admitted id, so `member` is IN128 and its
-length NUM; the prefix is at most 7 + 3 + 1 + 128 + 1 = 140 B.
-`closure_source`'s arc label keeps KD5A3's spelling. Both labels are inside
-the region path (KD5L10).
-
-**U8-FB.** `formation_check.rs evaluate` adds one `straight_frames_bound(source)?;`
-after `load_closure(..)?`. Its only allocation is one returned
-`Failure::Closure(format!("{}: straight primitive frame is not its
-formation-source frame", p.identity.source))`, which `detail` formats in its
-existing Closure arm. The source is a `member_source` identity (≤ 268 B,
-B7a's `MEMBER_SOURCE`). KD5's per-invocation caps are unchanged; the
-`evaluate` pin is re-bound.
-
-**Loops (U6-L1–U6-L6, U6-L, U6-LF, U6-EX).** Each bound is read from the code
-it names, and each header is confined by `o10_check` to the functions listed in
-`o10_rules.py`. Every constant's declared length is checked.
-
-| Label | Header and bound | Code argument and guard |
-|---|---|---|
-| **U6-L1** | The case solve's two `for … in &stress_sites` loops: 5. Its `for (stress, basis) in bases`: 2 on E, 1 on L | `stress_sites` is a `vec!` of the two ends plus one push per station (at most 3, KD5L7). `bases` has one entry without a reduced stress and two with one. The reduced stress exists only for a member with an `exact_sections` entry, which `build_model_for_members` inserts only under `is_exact(model)`. Route L has no exact contract (D1.3). **Guard:** the run stops unless the `vec!`, the one push, the `bases` match and the exact-only insert are as written. |
-| **U6-L2** | `push_basis_twins`' zip: 4 | It zips the rows one `push` call made on each basis, refusing unequal lengths. Its two callers (the case solve and `rows.rs`) append one stress site's rows through one helper: `append_stress_mpa`, `append_endpoint_stress_results` or `append_station_stress_results`, each pushing at most once for each of its four element-local stress kinds. |
-| **U6-L3** | `case_observables`' headlines: 3 | The displacement headline plus one stress headline per entry of `stress_bases`, a slice literal of one (preview) or two (exact) entries. |
-| **U6-L4** | `validate_physics_evidence_in`'s coverage zip: 2 | `section_basis::coverage` returns `[(Vec<&str>, bool); 2]`. |
-| **U6-L5** | One case's or combination's rows (`rows_for`, `rows_all_for`, `g5c`, `g5b_exact_evidence`, `gates_after_g0`, `r_comb_1`, `prepared_alias`): P | `rows_all_for` filters `results` by the entry's `basis_ref`, so it is one block of the route's P rows, as `rows_for`'s was. The reduced twins are inside P (U6-RP). |
-| **U6-L6** | `unbound_straight_primitive`'s scan and `certify_support_reaction`'s term loop: 12·l; its primitive filter: 1 | A formation source's loads and a formed force's terms are at most q = 12·l (B7a). One formed term carries one supplied primitive: `certified_loads::attach` with more than one source runs only in `push_exact_pressure_operands`, over `exact.assembled_operands`, which is empty on D1. **Guard:** the attach inventory is checked. |
-| **U6-L** | Constant arrays: `PREPARED_SECTION_BASES`, `BASES`, `BOTH` (2), `ANNULUS_KEYS` (6); `lame`: Pall; `g3`'s combinations: z; `exact_mill_tolerances`: m | Each is the array's declared length, or one entry per validated Lamé row, per model combination (D1.4: z ≤ 2) or per captured pipe segment (D1.9). |
-| **U6-LF** (placed first, `O10_LOOPS_FIRST`) | The case solve's three `for basis in pressure_exact::SectionBasis::BOTH`: 2 on E, 0 on L; `composite_exact`'s: 2; `exact_case_evidence`'s zip with `BOTH`: 2; `validate_physics_rows`' pipes × `BOTH`: 2·m | These headers name `pressure`, so D1.5's region zero rule (`pressure\|region\|aggregates`), which comes first, would zero them; they are not region loops. A new placed-first family in `sq2_rules.py` puts these exact headers before it, and `o10_check` confines them like `O10_LOOPS_LAST`. On L each of the three case-solve loops sits in an `is_exact(model)` arm (the two maxima) or under `exact_pressure`'s per-pipe state (the wall action), and route L has no exact contract. **Guard:** the run stops unless all three loops are in those arms. |
-| **U6-EX** (route E) | `for ex in array(&case["pipe_stress_extrema"])?`: 2·m | The case solve pushes one extremum per basis in each maximum branch, and the reader refuses a repeated (pipe, basis) (`DUPLICATE_ID`). |
-
-**U6-A (argument classes).** The D-5/D-6 sites' identifier-bearing arguments
-take their classes by site. Static segments are bounded by their longest
-literal, read at the snapshot:
-- **Case solve.** The stress-finding warning id is formatted once per basis:
-  the base id is at most 18 + 128 + 600 + 2 + 64 = 812 B (its audited parts),
-  plus the segment. The maxima's ids keep B7b's classes. A row id that
-  `section_basis_row` extends by ':' and a basis token (15 B) is TPLSITE
-  322 + 16 = 338 B, for the headline `result_ref` and `row.id.clone()`. The
-  per-basis unavailable pushes and diagnostic refs are IN128.
-- **`section_basis_row`.** The id segment (`hyphen`/`token`) is ≤ 15 B, and
-  the recovery-token suffix (`basis_suffix`) ≤ 31 B.
-- **`validate_final_metadata`.** The expected recipe is at most the largest of
-  B7a owner choices' bounds (338 B), plus the segment.
-- **RE `section_basis`.** The private `require` codes are literals. A basis
-  name or its hyphenated spelling is ≤ 15 B. A twin id's stem is a prefix of
-  the row id (RES, 1,024 B).
-- **RS `g5c`.** A reduced twin's class takes the twin's own published id (RES).
-- **D-6.** The `exact_sections` key and the shear diagnostic's id and refs are
-  IN128. FK `shear.rs`'s and `straight_pipe`'s error names are `&'static str`
-  literals, each bounded by the longest; their f64s are Display (327 B).
-  `straight_frames_bound`'s source is U8-FB's.
-
-**U6-J4.** T4-U6 renamed J4's function to
-`pressure_v3_formulation_basis_with_source`, with a `bool` `selected`. `identity`
-and `source` each choose between two whole static literals and are bounded by
-the longer, read at the snapshot. **Guard:** each `let` selects exactly two
-literals.
-
-**U6-RP (rows per member, route E).** Before D-5 an exact member publishes 12
-end-force, 18 station-resultant, 8 endpoint-stress and 12 station-stress rows
-and one maximum: 51. D-5 publishes the 20 element-local stress rows through
-`push_basis_twins` and the maximum once per basis through `section_basis_row`:
-72. Route E's premise becomes P_final = 7n + 72m + 8g + 3 and
-R0 = 7n + 72m + g + 3, in place of 51m. Route L publishes no reduced row,
-because its model has no exact contract, and keeps 51. The census (`lib/census_exact.py`, I95's B3-S method) measured
-exactly 7n + 72m + 8g rows on every empty-region exact case of the 7
-pressure-source-1 fixtures in both modes (for example `fields`: 102 =
-14 + 72 + 16). The census is taken on the committed fixtures, regenerated on
-the D-5 producer by their own writer (`SWBPIPE_PRESSURE_SOURCE_FIXTURES_WRITE`)
-at `79bf8656dc`; it equals, fact for fact, D3's census of fixtures regenerated
-at `20c6126a16` in a scratch tree. The census also gives
-the D-5 per-case evidence: `pipe_stress_extrema` once per member and basis, the
-nested section bases and two coverage lists. At the caps that is 3,118 array
-slots, 868 objects, 4,093 entries, 414,656 string bytes (STR_CAP 304: the
-elastic-maximum id 287 B plus ':' and a basis token) and 43,631 key bytes, with
-each extremum at its largest `locations` shape (U6-RL).
-`data/census_d5_79bf8656dc.json` holds it. **Guard:** route E stops unless the
-census states 51 + 21 rows per member.
-
-**U6-RL (`locations` shapes, review R2).** The census case's extrema are the
-source-selected maximum's (`source_receipt/composite.rs` `maximum_inner`), route
-E's larger extremum form in every fact; the certified or fallback form of the case
-solve has no `locations`. `maximum_inner` publishes `locations` in one of three
-shapes, one per variant of `Locations`: `strict_endpoint` (2 entries, the keys
-`kind` and `endpoint`, 12 B, two strings), `whole_span_constant` (1 entry, 4 B,
-one string) and `endpoint_candidates` (3 entries, `kind`, `exact_tie_proven` and
-`interior_equal_possible`, 43 B, one string and two booleans). The fixture shows
-`strict_endpoint`, but a lawful source-selected case with endpoint ties publishes
-`endpoint_candidates`, one entry and 31 key bytes more. The census therefore
-counts each extremum at the componentwise maximum over the three shapes: the
-strings of `strict_endpoint` (608 B at STR_CAP) and the entries and key bytes of
-`endpoint_candidates`. Per member (two extrema) that adds 2 entries and 62 key
-bytes: 127 entries and 1,348 key bytes in place of 125 and 1,286. Per case at
-the caps it adds 64 entries and 1,984 key bytes, and C = 3 cases add 192 and
-5,952. The chain prices these facts through `census_patch.py`'s `_exmax` (the
-evidence owner in `ordinary_caps.py`, `g4_caps.py` and `t25_g4.py`), so every
-copy of the evidence owner rises with them. This matters most on the X branch: a
-selected run finalizes its source-block receipt and W1 falls back
-(`Coexistence`) without consulting G-C, so only the a priori price bounds that
-evidence. `retained_memory_witness_tests.rs`'s
-`u6_rl_evidence_bounds_admit_source_selected_endpoint_ties` reads a selected run
-whose line members tie: a tied member's facts are exactly 127 entries and 1,348
-key bytes. **Guard:** the census stops unless `composite.rs` builds exactly these
-three shapes (`maximum::Locations::` occurs three times and each `json!` literal
-once), and unless every census extremum carries `locations`.
-
-**Byte-preserving source changes (U6-DH, U6-SH, U6-RB).** Each removes a
-resident copy without changing published bytes. Each is detected by its exact
-source text; the earlier form keeps its earlier price, and any other form stops
-the run (exit 4).
-- **U6-DH.** `retained_wire.rs domain_hash` serializes the borrowed
-  `DomainPayload { domain, payload }` through `domain_text` instead of copying
-  the payload into a new `json!` Value. serde_json's object map orders keys,
-  `domain` < `payload` is the field order, and each field serializes as the same
-  string and the same borrowed Value, so the text and hash are unchanged.
-  T16's three hashes (source identity, publication, receipt) price no wrapper
-  copy. T17's reader (`source_blocks::domain_hash`) still copies.
-- **U6-SH.** `source_receipt.rs hash` (its only definition in the crate;
-  `source.rs` and `composite.rs` reach it through `use super::*`) serializes
-  the same borrowed wrapper through `hash_text`. `hash_text` is `checked`'s
-  body on the wrapper: the `to_string` text, the checked parse and the
-  canonical output are unchanged and stay priced. Only T25's payload copy
-  goes, at every T25 hash route: payload, plan, publication and body.
-  `source_receipt/tests.rs`'s
-  `receipt_hash_borrowed_wrapper_text_and_hash_are_the_former_objects`
-  compares the text and hash with the former construction over every receipt
-  domain, and reproduces a committed fixture's `receipt_sha256`. The new Err-only
-  `e.to_string()` in `hash_text` keeps the chain's own multiplicity (15 calls at
-  8,192 B on E).
-  **Pin:** `u6_owners_model.receipt_hash_copies`.
-- **U6-RB (route E).** The final aggregation clones each published row into
-  `rows_by_base_id` only `if preview.is_some()`. `preview =
-  (!pressure_runtime::is_exact(&model)).then(..)` is None on route E, so E's
-  "Final aggregation" holds the results once, with no `rows_by_base_id` map
-  nodes (a new `O10_TYPED_PATCHES` family rewrites that one `ordinary_caps.py`
-  line on E). The `id_map` stays. **Guard:** the guarded block, the binding and
-  its one consumer are checked.
-- **U6-RB-V (route E, registration).** The one `results` Vec is push-built
-  from `Vec::new()` across every case (checked: one `let mut results =
-  Vec::new();`), so the rewrite prices it at its push capacity,
-  `V("ResultItem", PA)`: 16,384 slots at PA = 8,361, not PA exact slots. Route
-  L's term is unchanged: its 2·PA slots and PA map nodes (3,640 B each in-build)
-  cover both its push capacity (8,192 slots) and the clone's entries. The first
-  rewrite was sufficient only while G-C still bounded route E's results by route
-  L's 6,345 rows (capacity ≤ 8,192); route E's G-C now admits its own 8,361
-  (below, "Gate bounds"). Cost: +8,023 × s(ResultItem) (296 B) = 2,374,808 B in
-  every phase of the merged tree, where route E sets that coefficient.
-
-**D-5/D-6 owners (U6-ES, U6-WS, U6-RS, U8-FM).** Four resident owners sit
-outside the chain's TEXT inventory and are priced positively
-(`base/u6_owners_model.py`). Each is found by its exact source text; a
-half-changed form stops the run, and a snapshot without it adds nothing.
-- **U6-ES.** `BuiltModel.exact_sections` holds one (pipe id,
-  `ExactSectionBases`) entry per built pipe; `build_model_for_members` inserts it
-  in its pipe loop. It is priced as a hash table of m entries plus the keys,
-  beside the `DerivedSection` map, in the built resident and in T25's rebuilt
-  model. The new in-build atom `s((String,ExactSectionBases))` is 272 B.
-- **U6-WS.** For one member at a time, the case solve holds: the reduced end
-  and station stresses with their children; the stations' Vec; the
-  `stress_sites` Vec (pushcap(5) entries of ≤ 48 B); the stress-finding `bases`
-  (≤ 2 × 16 B); and, on the exact maximum's reduced basis, a second span output
-  (2l + 1 `EnclosedQuadraticStressSpan`) beside the held nominal spans. These
-  are priced on both routes: conservative on L, which forms none of the
-  reduced ones.
-- **U6-RS.** The reader's `NumericCase` gains `all_rows`, a tenth field beyond
-  `NumericCaseBorrowed`'s nine-field upper: one Vec header per numeric case
-  and per Result carrier. It holds every published row of its case.
-  `rows_for`'s transient full vector sits beside its filtered one, and `g5c`'s
-  drained `bound` classes (≤ P) beside the rebuilt classes, with one `last`
-  class clone (its id and `basis_ref`).
-
-  The two row vectors are priced at their capacities (review R1). `rows_all_for`
-  is `list(..).iter().filter(..).collect()`: a filter's size hint has lower
-  bound 0, so the collected Vec takes 4 slots at its first row and doubles when
-  full, which is push capacity pushcap(h) for h rows. Each numeric owner (a
-  selected case or a `retained_selected` combination, at most C_eq) holds at most
-  P rows, so the `all_rows` vectors hold at most C_eq·pushcap(P) slots, not PA.
-  The one transient full vector (`rows_for`'s, or `g5b_exact_evidence`'s `all`,
-  one case at a time) holds at most pushcap(P), not P. On route E, P = 2,787 and
-  pushcap(P) = 4,096, so the term is 3·4,096 + 4,096 = 16,384 slots in place of
-  8,361 + 2,787 = 11,148: 5,236 more, +41,888 B at s(&Value) = 8. Route L
-  (P = 2,115, pushcap 4,096) rises by 7,924 slots, +63,392 B. The term is priced
-  here rather than taken from the pre-D-5 "rows_for vectors" term 8·PA, which
-  prices the filtered `rows` vectors and the other pre-D-5 row vectors: its
-  inventory is not re-derived here, and the tool takes no reuse credit. Whether or
-  not std collects `rows_for`'s filter in place, the filtered `rows` Vec has
-  capacity at most pushcap(h) over its entry's published rows, the bound that
-  term carried before D-5, at route E's P (U6-RP counts the twins).
-- **U8-FM.** `FormationSource.frame_members` holds one member prefix (U8-MP,
-  ≤ 140 B, priced at `textcap`) per frame. It is filled from PP's
-  `frame_member_identities` and copied wherever the frames are:
-  - each assembly evidence: PP's Vec, `with_frame_members`' `to_vec` and
-    `formation_source`'s clone;
-  - each scaled copy;
-  - `certified_publication`'s recovery source.
-
-  The source-recovery assembly passes none.
-
-**Gate bounds (registration).** G-C (`retained_memory.rs phase_caps_on`) must
-admit what D1 produces and stay within what the profile prices. Before
-registration its route-E bounds were still route L's 51-row P_final and I95's
-pre-D-5 evidence census, so G-C refused the cap-maximal exact input in every
-build (8,355 results against 6,345; `witness_tests::f1_g_c_admits_...`). On
-route E the result rows and their capacity are now C_eq·P_final at route E's
-own P_final = 7n + 72m + 8g + 3 (8,361 and 16,384 at the caps; U6-RP, U6-RB-V),
-and the five contract-evidence bounds are C times the D-5 census at (n, m, g):
-arrays 14 + 78m + 19n, objects 4 + 27m, entries 29 + 127m, string bytes
-6080 + 12464m + 304n, key bytes 495 + 1348m (U6-RL; at the caps 9,354; 2,604;
-12,274 after the node cut, so objects + ⌊entries / 5⌋ = 5,058 nodes; 1,243,968;
-130,893). These equal route E's chain terms ("Final aggregation" and "Preview
-tree final copy (envelope evidence)": 5,058·Node(String,Value) + 9,354·s(Value)
-+ 1,374,861 B). The rows' text bound stays route L's 2·C_eq·P_final·Text(row) on
-both routes: Text(row) bounds one row's text and route E's 8,361 rows stay below
-route L's 12,690. Route L's bounds are unchanged.
-
-Two limits keep these bounds fail-closed rather than reachable at the census
-maximum. The census counts each case, not the evidence wrapper (one object, its
-three keys `connector`, `exact_cases` and `pressure`, 28 B, and the cases'
-array slots), and the entries bound is cut to the priced nodes, so an owner at
-exactly C times the census maximum would be refused. G-C's borrowed census also
-stops at 16,384 values (`VALUE_LIMIT`), below the route-E bounds' 21,628 array
-slots and entries, and G-C refuses an incomplete census. Neither is reached by a
-lawful input: a source-selected run never consults G-C (`Coexistence`), and the
-retained-source method's per-case work budget keeps selected inputs to a few
-members (a three-case line of four members already exhausts it). The witness
-composes a near-cap owner from a selected run's own tied entries: at m = 23 and
-n = 32 (C = 3) it is within route E's bounds with a complete census, and at
-m = 24 the census reaches its value limit.
-
-**Current D3 binding.** At `588de796a4` `run` exits 0: all four points are
-complete, with no unmapped header or unclassified argument, and both O-10
-checks pass. Against the tree registered at `addbdc030e` the structure is equal
-(1,400 coefficients equal, 56 higher, none lower: "Final source"), so the block
-is re-registered. `generate` gives 288 atoms, 98 forms and no Estimate (1,544
-lines), keeps `threshold_bytes` at M, and `generate --check` reproduces it. All
-70 evaluations pass at the registered build's in-build atoms, and the merged
-tree's E + R equals the law test's in-build value in all 14 phases. Required =
-requested + moving + R and reserve = ⌈TAV/20⌉ (TAV_W for W1–W5, TAV_X for
-X1/X2), against ⌊0.9 M⌋ = 11,596,411,699 B. The tightest headrooms:
-
-| Tree | Mode | Phase | Headroom |
-|---|---|---|---|
-| merged | dense | W4 | 51,812,817 B |
-| merged | dense | X1 | 77,334,515 B |
-| merged | sparse | W4 | 110,944,161 B |
-| merged | sparse | X1 | 136,465,859 B |
-| L_30 | dense | W4 | 177,800,942 B |
-
-T07 (the live source attempt) is a row of the ordinary base that every phase
-holds, so every evaluation prices it; T25 (the receipt replay) is priced in X1
-only, whose tightest evaluation is the merged dense one above. Against
-`addbdc030e` the review's repairs cost 206,144 B in merged W4 and 191,328 B in
-merged X1 (both modes); the readers' and PP4's changes cost nothing in any
-merged evaluation (U6-BE's TEXT stays below route L's TAV_W). Against
-`433fc1f1e4` the epoch's source cost 6,308 B in every merged evaluation (the
-schema's STATICS; route E's +4,992 B of TEXT stays below route L's TAV_W), and
-U6-RB-V 2,374,808 B. W4 (the precommit reader with the successor and the
-invocation Value) is the in-build maximum in both modes (B7b's was W3).
-
-**Registration.** `REGISTERED_PROFILES` keeps the build identity (rustc 1.97.1,
-aarch64-apple-darwin, debug, opt-level 0, debug assertions, unwind, no
-RUSTFLAGS, `open_pipe_stress_product_physics@0.2.0`), the four reader layouts
-(56, 64, 96 and 16 B, align 8) and `threshold_bytes` = M. Six of the twelve
-reviewed-input digests moved with D-5's schemas and tables at `addbdc030e` (#1,
-#7–#11); all twelve are unchanged at `588de796a4`. The law tests pin the
-in-build phase record, the text atoms (D_env 28,127, Text(diag_env)
-262,735,773, unchanged), the digests and the re-audited reader test suffixes
-(`retained_precision.rs`, `physics_source.rs` and `semantic_contract.rs` gain
-closed test code only). The block's basis line names `588de796a4`; the
-registration head prices the same tree.
-
-## RF source-method extension: owned memory and moved TEXT sites
-
-These rules implement the memory portion of
-[rf-source-method-extension.md](rf-source-method-extension.md) §9 on top of
-T4-U6/U8. They retain M = 12 GiB, R = 64 MiB, the 0.9 M margin, the upward
-rounded 5% TEXT reserve, and all D1 limits. `rf_source_model.active` selects
-the extra owners only for the declared-congruence source, checking its
-288-value member, order-4 cap, optional witness fields and adjugate/Snapshot
-owners. Historical sources keep the old formulas. The existing full-file
-source guards and the complete loop/TEXT inventory remain independent gates.
+| `O10_LOOPS_LAST` | An exact loop header and its bound, appended after every earlier rule, with the only `file:fn` functions it may match | `lib/o10_check.py` fails the run (exit 3, no tree) if the header matched any other function |
+| `O10_LOOPS_FIRST` (U6-LF) | The same, placed before the earlier broad rules, for an exact header one of them would otherwise capture | As `O10_LOOPS_LAST` |
+| `O10_EDGE_ZERO` | A call edge the D1 graph never takes | Its premise, usually with a source check |
+| `O10_SITE_FROM` | Allocations at a site per call of named roots (`per`) | The roots' full multiplicities are kept |
+| `O10_SITE_SIZE` | A site's size; size 0 for a site claimed at multiplicity 0 | `o10_check` fails the run if the site's multiplicity is positive or the site is no longer found |
+| `O10_ID_AUDIT`, `O10_ARGS_FIRST` | An argument's class at one site, or for an argument expression, placed before the inherited classes | — |
+| `O10_DIAG_EXCLUSIVE` (B7b-DX) | The diagnostic sites of one function of which a call pushes at most one (§4.2) | `text_budget.py` leaves the run incomplete unless every member qualifies |
+| `O10_MULT0_SITES` (B7b-JR) | A site whose own multiplicity must stay 0, with no size or zero rule | `o10_check` fails the run otherwise |
+| `O10_TYPED_PATCHES` (U6-RB) | A route's exact-text substitution in one chain file, with its reason | The patch stops unless its old text occurs exactly once |
+| `O10_RECURSION_REVIEWED` (J6, U6-BE) | A reviewed bounded self-recursion | A duplicate entry stops |
+| `CG_RULES` | Call-graph bindings: named `targets`, or `exclude_targets` subtracted after any replacement rule | — |
+| `REBIND`, `LOOP_TOTAL`, `SITE_TOTAL`, `SITE_FROM`, `ID_AUDIT`, `LEX_SITE_SIZE` | SQ2 families that the source models extend | Each source model checks its preimages first |
+
+A zero needs a premise, not an observation. For a site claimed at multiplicity 0, `O10_SITE_SIZE` 0, which `o10_check` guards, is preferred over a zero. `O10_SITE_ZERO` exists and is empty.
+
+### 1.2 Basis keys and the line map
+
+Rules and decision keys written at the basis are carried to the revision by `lib/linemap_lib.py` (by offset, then by function, then by the line's text). A key that cannot be carried stops the run (exit 4). The prune drops a rule only when the revision deleted its line or its function, and reports it in `summary.json`'s `linemap.pruned`. Each pruned rule must belong to code the head really deleted.
+
+**Orientation prune** (`rules/linemap_resolutions.json`, `lib.rs:675:orientation`, `as: deleted`; a section A ruling). The frame kernel's `lib.rs` defined `fn orientation` twice at the basis: in `impl FrameElement` (604) and in `impl UserStiffnessElement` (675). `a601e3706d` (T4-U3) deletes `UserStiffnessElement`, so where the definition count falls to 1 the definition left is `FrameElement`'s. The count alone does not say which definition went, so the prune of the `loop_bounds` `edge_zero` {caller `build_pressure_case_with_members`, callee `lib.rs:675:orientation`} happens only through this reviewed entry; without it the run stops. `FrameElement`'s own zero edge is kept. Route E's `EDGE_ZERO_REMOVE_CALLER` count for `build_pressure_case_with_members` (51 at the basis) is reduced by exactly the pruned edges, and the reduction is logged.
+
+**Replaced site in a deleted function** (`core/reporting/result_export/src/load_reference_source.rs:47`, `as: deleted`, `fn: code`). A line-keyed site whose hunk replaced its line stops the run. A reviewed entry prunes it only when `fn` names the key's enclosing function at the basis and the revision's file no longer defines that function; a moved function still stops. B7b reduced `load_reference_source.rs` to its 16-line pre-pass (`validate_pressure_source_evidence`) and deleted the private `fn code` with the v2-era readers, so this ID-audit site no longer exists.
+
+**Prunes argued here.** B7b deleted, everywhere in the crate rather than moving them, the callees of the `for_source` zero edges to `load_reference.rs validate_load_reference_evidence`, `load_reference_source.rs validate_load_reference_source_evidence`, `physics_evidence.rs validate_physics_evidence` and `semantic_contract.rs forbid_load_reference_evidence` (`edge_zero` 52, 53, 54 and 57), and the ID-audit site above. D-5 deleted the two maxima's `Err` arms (`unavailable_stress_maximum_members.push`, the source-recovery and exact-stress maximum diagnostics), whose ID audits are the basis keys `lib.rs` 5508, 5509, 5562 and 5563; their per-basis replacements carry the same IN128 classes (U6-A, U6-K). Zero edges to deleted callees bound nothing, and the audited sites no longer allocate. None of these prunes removes a `site_from`, `site_total`, `edge_per_call` or `loop_total` rule.
+
+**Decision keys allowed as deleted** (`KEYMAP_ALLOW`). An uncarried decision key stops the run unless `KEYMAP_ALLOW` lists it as `("deleted", why)` and the map reported it deleted; `lib/rule_ops.py` never allows a replaced key.
+- **E13** (#1251): `lib.rs:13102:append_combination_results`. The combination engine's `append_combination_results` is deleted, so `EDGE_ZERO[0]`, which zeroed its only call edge, names nothing.
+- **B7b-K1**: `load_reference_source.rs:46:code`. The callee of `preview_case_evidence`'s function-as-value zero edge was deleted with the v2-era readers.
+- **Retired preview constructors** (B4/D1 (b); route E; `lib/b7a_retired_carry.py route_e_keymap_allow`). Route E's `EDGE_ZERO` entries at indices 13–15 name the deleted preview constructors `exact`, `ordinary` and `finalize`. Before ordinary decision-key carry, the full-file source fingerprints of `source_receipt/rows.rs` and `source_receipt.rs` (§7.1) and the complete caller/callee/reason tuples permit only these keys' deleted status. The solve-case caller is resolved by name to the one current `solve_prepared_load_case`. A changed tuple, order, duplicate, source byte, restored constructor or overlap with an inherited allowance refuses. Replaced or fewer-definition statuses remain errors under the unchanged mapper. Current `composite_exact`, `ordinary_physics`, `finalize_composite` and `finalize_for` ownership stays priced; no surviving edge, cap or classification is removed.
+
+**Keys re-expressed by name.**
+- **`AlgebraFinding::new`** (`sq2_decisions_common.py _algebra_finding_new`). The basis short key `lib.rs:179:new` named both load_case_algebra's `AlgebraFinding::new` and a stress_recovery line. The join removed stress_recovery's four-line `#[path]` `correct_norm` module, so that basis key became ambiguous between the two `lib.rs` files. The five `AlgebraFinding::new` per-call bounds resolve that function by its exact signature in load_case_algebra, unchanged there; their counts and arguments are unchanged.
+- **`preview_namespace`** (#1251; route E). #1251 renamed the Rust reader's `legacy_namespace` to `preview_namespace`, and route E's zero resolves whichever name the snapshot defines (`rs_any`). The argument is unchanged: RS g8's `if route.exact {…} else { preview_namespace }`, and route E is exact.
+- **`g5_native_combinations`' operand loop** (route L, z ≥ 1). `99cb958e85` zipped the loop with the combination's terms. Both header forms are bound at 3, one per term; the earlier form is kept so that the registered tree's revision `f78f52b7e2` still prices.
+
+### 1.3 Source pins, premise pins and route bases
+
+**Source pins.** The source models (`base/kd5_text_model.py`, `base/kd5_first_error_model.py`, `base/batch5_model.py`, `base/b7a_*.py`, `lib/b7a_retired_carry.py`, `base/prescribed_key_model.py`, `base/member_comparison_model.py`, `base/u6_owners_model.py`, `base/w1_reductions_model.py`, `base/w1_member_load_model.py`) and the per-invocation body pins in `rules/o10_rules.py` each hold one current value. A changed file, prefix or body stops pricing (exit 4) for renewed review. The absence of a newer helper name never selects historical pricing by itself: each historical branch requires the exact reviewed older bodies. A full-file pin hashes raw bytes, so a newline change, a test-only edit or a test suffix in a guarded file also requires re-audit before pricing is reused. §10 describes how to reproduce an earlier revision.
+
+**Premise pins** (`base/premise_pins.json`, G7 Pass B; basis keys `retained_precision.rs:5775` and `:5860`). These two lines are the warrant of the dead `is_retained` branches. `project()`'s `projected["producer"]["semantic_contract_id"] = json!(route.base_id);` makes the projection's producer id the route's base id, so `semantic_contract::is_retained` is false on it; and `crate::semantic_contract::for_source(&projected).map_err(base_error)?;` is `validate`'s one call into semantic_contract. The line map stops if an edit touches either line, and the premise gate checks their text (exit 4). If the branch were ever live, dense W4 would exceed 0.9 M (RV89 N-2).
+
+**B7b-B** (route bases). `o10_rules.py` reads retained_precision's two `base_id` literals: {physics-1, preview-physics-1} (B7a's source) or {pressure-1, preview-physics-1} (B7b's: route E rebased on pressure-1 by D4 (a)). Any other pair stops the run for re-review of R1, J1 and route E. `B7B_EXACT_BASE` selects the B7b arguments wherever a rule below names two forms.
+
+## 2. D1 premises
+
+The retained domain D1 is enforced by `retained_memory.rs`'s admission: its census, caps and refusals, pinned by `b7a_domain_model` and `batch5_model` (§8.1, §5.2).
+
+- **P1 (D1.3), on the B7a base pair.** `namespace_branch` admitted only `("0.1.0"|"0.2.0", None)` and `("0.3.0", Some(2.0.0 / exact_straight_pressure_v2))`, so no admitted model had `exact_contract(model) == PressureV3`. **B7b-P1:** on B7b sources P1 and `o10_rules.py`'s original `NOV3` text no longer hold, because route E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}. On B7b sources `NOV3` states that P3's empty connector collections, and with them L1–L3 and J, rest on P2 alone.
+- **P2 (D1.4).** `retained_memory.rs` refuses any model whose `components` is not empty (`C::Invocation`, `F::Components`). The registered rule `model.components → 0` encodes this.
+- **P3 (connector origin).** `ObjectiveConnector`'s fields are private, and `ObjectiveConnector::new` is called only by `joint::build_connector`. `build_connector` is called only inside `build_model_for_members`, in its loop over `model.components` (on the B7a pair also under `exact_contract(model) == Some(PressureV3)`), and `connector_specs` reads only `model.components`. So under D1 `built.connectors` and `built.connector_records` are empty. Every other connector collection on the D1 graph is a borrow or clone of these, or `Vec::new()`.
+- **B7b-LS** (route E). `case_state::is_load_state` is an exact contract plus an authored load/reference-state field. D1.3's namespace clause (`family_clauses`) refuses every such field (reference configurations, model and request expansion laws, analysis state) on every branch, so `is_load_state` is false on admitted E. This replaces I95's version-based premise in route E's zeros of `captured_load_state_case` and `check_load_state_input` and of the edge `physical_source → captured_load_state_case`.
+- **D1.3, sections (T4-U6/U8 O4).** `namespace_branch` refuses the Timoshenko exact contract (`FamilyFact::ShearModel`), and `family_clauses` refuses a nonzero mill tolerance or corrosion allowance on branch E (`FamilyFact::SectionAllowance`). Both only narrow admission; the caps, census and late admission bodies are unchanged.
+- **D1.5.** Pressure regions are absent on route L and explicitly `Some([])` with capacity zero on route E.
+- **D1.6.** No nonlinear support is admitted.
+- **D1.9 caps.** The text cap is l ≤ 128 B (TEXT_BYTES); there are at most C_eq = 3 typed case slots; route L admits z ≤ 2 model combinations (D1.4, B2-A), each with at most 3 terms and 3 range operands, and route E refuses every combination; the model caps n, m and g are 32 each. The tool prices route L at (lc, z) = (3,0), (2,1) and (1,2) and route E at 3. The profile tree is the coefficient-wise maximum of route L at (3,0) and route E.
+
+## 3. The precommit reader (result_export)
+
+The precommit reader (`retained_precision::validate` with semantic_contract, physics_evidence, connector_evidence, physics_source, load_reference, source_blocks and section_basis) validates the producer's own staged successor. Its working sets are priced in phase W4 (T17); its statics are resident in every phase.
+
+### 3.1 Dispatch: arms the D1 graph never takes
+
+**R1** (Agent 0's ruling, accepted; route L, and route E on the B7a pair). `O10_EDGE_ZERO` `semantic_contract.rs for_source` → `physics_evidence.rs validate_pressure_evidence`. The precommit reader validates `project(successor)`, and `project()` sets `producer.semantic_contract_id` to the route's base id (`Route.base_id`; premise pins, §1.3). `for_source` takes the `PRESSURE_ID` arm only for a pressure-1 base; route L's base is preview-physics-1, and route E's was physics-1 on the B7a pair. This is the argument of the registered G4 (T17) sibling edges.
+
+**B7b-R1** (route E). Since D4 (a) route E's successor carries base id pressure-1, so `for_source` takes the `PRESSURE_ID` arm on E. `sq2_decisions_E.py` removes R1's zero there, and `validate_pressure_evidence` is priced at its multiplicity. Route E's SQ2 zero of `for_source → preview_physics_evidence.rs validate_preview_physics_evidence` keeps its argument on the pressure-1 base: for_source takes the `PRESSURE_ID` arm, never the preview arm.
+
+**J1 / B7b-J1** (both routes). `O10_EDGE_ZERO` `semantic_contract.rs for_source` → `physics_source.rs validate_in` (the `PRESSURE_SOURCE_ID` arm). for_source's only D1 caller is `retained_precision::validate`'s G7 on `project(source)`, and project() sets `producer.semantic_contract_id` to `route.base_id`: preview-physics-1 on route L, and physics-1 (B7a pair) or pressure-1 (B7b pair; B7b-J1) on route E. Neither pair contains pressure-source-1, so the arm is never taken: R1's argument. **Guard:** the run stops unless `retained_precision.rs` holds exactly the expected pair of `base_id` literals and the projection line, and the arm text `Some(PRESSURE_SOURCE_ID) =>` is found once in `for_source`.
+
+**J5 / B7b-J5 / J5-T** (both routes). `O10_EDGE_ZERO` `physics_evidence.rs validate_physics_evidence_in` → `load_reference.rs prepass`. `prepass(source, true, Method::PressureJoined)` runs only under `if resolved`, where `resolved = composite && contract == PressureV3 && evidence has load_reference_states`. The one product call passing `composite = true` is `physics_source::validate_in`, unreached on both routes: its only reached caller's edge is J1's zero, and its PhysicsV2 sibling is covered by G4 (T17). Every other call passes `false`. On B7b sources these are `physics_evidence.rs validate_pressure_evidence` (route E's reached caller) and `load_reference.rs validate`; B7b-J5: v2's deletion removed `validate_physics_evidence`'s call, which the B7a pair's inventory also held. Zeroing the edge removes route E's reach into `prepass` and `validate_record`, with their `shape_in_resources` recursion, the load-reference loop headers and the `support_state`/`member_state` id arguments; none of these is reachable on D1. **J5-T:** a file the crate includes only through `#[cfg(test)] #[path = ".."] mod ..;` is test code, absent from every product build, so its calls are not product callers. RD2's `arc_marker_tests.rs`, included that way by `physics_evidence.rs`, calls `validate_physics_evidence_in` with `composite = true`. **Guard:** the run stops unless the `prepass` call sits under that `resolved` test and is the file's only prepass call; unless the product calls of `validate_physics_evidence_in(` are exactly `load_reference.rs false`, `physics_evidence.rs false` and `physics_source.rs true` (with a second `physics_evidence.rs false` on the B7a pair); and unless physics_source's `validate_in` holds the one `true` call. A `#[path]` module without `#[cfg(test)]`, or a plain `mod` named like such a file, stops the run.
+
+**J6** (both routes). `O10_RECURSION_REVIEWED` `source_blocks.rs shape_in_resources`. The join moved `shape_in`'s body into `shape_in_resources`. The only change is an explicit `resources` list, consulted for a non-local `$ref`; an unknown name or missing fragment fails closed. `shape_in` now only delegates with no resources. The registered review of `shape_in`'s bounded self-recursion applies to the function that now recurses: multiplicity 0 on D1, because the source-block shape check is not on the D1 path, and text only on its error path. Its graph callers are `shape_in`, whose D1 reach was only through `prepass` (J5), and physics_source's receipt and transport-metadata checks, which are unreached. **Guard:** `shape_in`'s delegation and the self-call are each found once.
+
+**B7b-LR** (route E). `EDGE_ZERO` `physics_evidence.rs validate_pressure_evidence` → `load_reference.rs validate_pressure_load_reference_evidence`. `validate_pressure_evidence` takes its load/reference-state arm only when the successor carries `contract_evidence.load_reference_states`. The producer inserts that member only under `is_load_state` (false, B7b-LS), and `project()` copies `contract_evidence` unchanged. So it takes its physics arm, `validate_physics_evidence_in(.., false, PressureV3)`.
+
+### 3.2 Connector evidence (route E)
+
+These rules rest on P3: an admitted model has no connector. `o10_check` confirms that each loop rule here matched only `connector_evidence.rs validate` (or `validate_pressure` for B5L2).
+
+**E1 / B7b-E1.** `O10_LOOPS_LAST` `for r in records` → 0. On B7b sources (B7b-E1) every reached caller of `connector_evidence::validate` passes PressureV3 (`validate_pressure_evidence → validate_physics_evidence_in(.., false, PressureV3)`), so `admitted` is true and `require_connector(admitted || records.is_empty(), ..)` passes. The zero rests on D1.4: `records` is `project(successor)`'s `contract_evidence.connector`, which the producer sets to `joint::connector_evidence(model)`, one record per objective-connector component (`filter_map` over `model.components`), and an admitted model has no components. On the B7a pair the zero rests on the guard instead: `require_connector(admitted || records.is_empty(), "UNSUPPORTED")?` runs before the loop with `admitted = (contract == PressureV3)`; the reached caller passes StraightV2; and the PressureV3 callers, `validate_pressure_evidence` and its load-state arm `load_reference::validate_pressure_load_reference_evidence`, are behind R1's edge. A non-empty `records` then returns Err before the loop, and an empty one iterates 0 times.
+
+**E2.** `for component in spans.keys()` → 0: `spans` is filled only inside E1's loop.
+
+**E3.** `for row in rows.values()` → `Pall`. This is a true count, not a zero: one pass over the validated envelope's result rows (physics_evidence `rows`, indexed by id), at most C · P_final.
+
+**E4 / B7b-E4 and A3.** Both are added only where `connector_evidence.rs` defines `row_basis`; U2 deleted it, so neither is added at B7b or later source. Guarding each by the function's name avoids a null stale key without weakening a surviving function's rule. E4 zeroes the edge `validate → row_basis`. On B7b sources (B7b-E4) `row_basis` is called only for a connector-kind row after the kind check, and the producer publishes connector rows only for built connectors (`append_connector_results` iterates `built.connectors`; L1), so `project(successor)` has no connector row. On the B7a pair `row_basis` is reached only after `require_connector(admitted, …)?`, which returns Err when not admitted (E1). A3 audits `row_basis`'s `span` as IN128: a replaced pipe id, at most 128 B under D1's text cap. The row has multiplicity 0 by E4, but its argument is still classified.
+
+**E5 / B7b-E5.** `O10_SITE_FROM` at `require_connector`'s `Err(format!("SOURCE_PHYSICS_CONNECTOR_{code}"))`, at most 1 per call of `validate_pressure_evidence` (`validate_physics_evidence` on the B7a pair). `require_connector` allocates only on Err. All 31 current calls in `connector_evidence.rs` are `require_connector(…)?` with a literal code, and `validate`'s caller `validate_physics_evidence_in` propagates with `?`. This is the registered rule for `physics_evidence.rs require()`. B7b-E5: route E's reached entry is `validate_pressure_evidence` (D4 (a)), whose physics arm returns `validate_physics_evidence_in`'s Result unchanged.
+
+**A2.** `O10_ID_AUDIT` `require_connector`'s `code` → STATIC (128). All 31 current calls pass a literal; the longest is "REPLACED_SPAN_PUBLISHED" (23 B).
+
+**B5L2.** `O10_LOOPS_LAST` `for edge in edges` → 0, in `connector_evidence.rs validate_pressure`. The reader walks connector edges, which are emitted only for a pressure region with built connectors. D1.4 and D1.5 exclude both, and the projected E source retains empty pressure evidence. The child loop is zero under those predicates, while the outer reader scans and every reader owner remain.
+
+### 3.3 Physics evidence and section bases
+
+**B7b-F** (route E). Route E's four physics-evidence first-return bounds (`SITE_FROM` at the basis keys `physics_evidence.rs` 38, 48, 53 and 57; I95's argument, as G4's preview_physics_evidence.rs:90/:100) charge at most 1 allocation per call: `require()`/`text()`/`number()`/`array()` allocate only on failure, every failure returns through `?`, and the one swallowing `.ok()` is inside the region loop, which is empty. B7b-F: the entry is `validate_pressure_evidence` (`validate_physics_evidence` was deleted with v2), which returns `validate_physics_evidence_in`'s Result unchanged on its physics arm. Route E accumulates the common `SITE_FROM` list (with FK895, §8.2) and these four entries, in their original order with unchanged caller, `per` and `why` values, and refuses a duplicate or conflicting key.
+
+Priced without a new rule on route E: `validate_physics_evidence_in`'s sets `region_members` (each region geometry entry), `case_arcs` (each marked section) and `marked_arcs` (a clone of the first case's `case_arcs`) stay empty, because route E's regions are explicitly empty (D1.5) and no section is marked (the realized-arc marker, §4.3); an empty std `HashSet` and its clone hold no table. The geometry loop sits in the region loop, which D1.5's region rule already zeroes. The `require(..)?` checks `ARC_UNSUPPORTED` and `ARC_MARKER` fall under the at-most-one-error bound above. `section_basis::marked_section` reads the marker through `arc_marker`, whose Err (`"SOURCE_PHYSICS_MEMBER_KIND"`, 26 B) is priced at its own site per call.
+
+**U2E1** (both routes). `O10_LOOPS_LAST` `for (kind, component, stations) in crate::arc_evidence::ROWS` → 4, in `physics_evidence.rs validate_physics_evidence_in`: RE `arc_evidence::ROWS` is a four-element array.
+
+**U6-L4.** `O10_LOOPS_LAST` `for (slot, ((unavailable, complete), done)) in coverage .iter() .zip(coverage_complete.iter_mut()) .enumerate()` → 2, in `validate_physics_evidence_in`: `section_basis::coverage` returns `[(Vec<&str>, bool); 2]`. **Guard:** that signature is checked.
+
+**U6-L (reader).** Each bound is read from the code it names. `for ((case, member, _, basis), values) in &lame` → `Pall` in `validate_physics_evidence_in`: at most one entry per validated Lamé row. In section_basis.rs, `annulus`'s zip with `ANNULUS_KEYS` → 6, and `coverage`'s zip with `BASES`, `id_basis`'s `BASES .into_iter().find`, `twin_id`'s `for b in BASES` and the two `BASES` walks of `headlines` → 2. physics_source.rs `maximum_link`'s `for basis in crate::section_basis::BASES` → 2. In retained_precision.rs, `g3`'s `for e in combos` → z (one entry per model combination; D1.4: z ≤ 2), and `exact_mill_tolerances`' `iter:list(&model[" "]).iter().any` → m (each captured pipe segment once; D1.9). **Guard:** `BASES` must be `[&str; 2]` and `ANNULUS_KEYS` `[&str; 6]`, as PP's `BOTH` and `PREPARED_SECTION_BASES` must be `[_; 2]` (§4.3).
+
+**U6-EX** (route E). SQ2's `for ex in array(&case[" "])?` over an exact case's `pipe_stress_extrema` is rebound from m to 2·m. The case solve pushes one extremum per basis in each maximum branch, and the reader refuses a repeated (pipe, basis) (`DUPLICATE_ID`).
+
+**U6-A (section_basis and reduced twins).** The private `require`'s codes are literals: every `require()` call in section_basis.rs passes one string literal last (checked), and the class is the longest. A basis name or its hyphenated spelling is bounded by its literal (`NOMINAL`/`REDUCED` and `hyphenated`'s literals, at most 15 B), and `other()` returns NOMINAL or REDUCED (its text is checked). A twin id's stem is a prefix of the row id (RES, 1,024 B), and its suffix is ':' and one basis name. `retained_precision.rs reduced_twin` formats `TOKEN_SEPARATOR` and `REDUCED`, each bounded by its literal. RS `g5c`: a reduced twin's class takes the twin's own published row id (RES, 1,024 B), as the nominal rows' carried audit in the same function does.
+
+**U6-BE** (both routes). `O10_RECURSION_REVIEWED` section_basis.rs `bit_equal`, the readers' bit-for-bit equality of twins and links, which recurses into arrays and objects. Its only text is `number`'s Err, the static `SOURCE_PHYSICS_NUMBER_INVALID` (29 B). `bit_equal` calls `number` only on two `Value::Number` leaves, whose `as_f64` is always Some and finite, so the Err never forms. Any formed Err is dropped inside the one `matches!`, so at most two are alive at once at any depth. Nothing else allocates, so its text counts once per external call, as for `guard_json`. The chain still prices that Err at every call on route E. **Guard:** the run stops unless `bit_equal`'s and `number`'s exact texts are as reviewed.
+
+### 3.4 retained_precision: namespaces, row lists and numeric cases
+
+**B7b-ZA** (both routes). `O10_LOOPS_LAST` `iter:list(&model[" "]).iter().all` → m, in `retained_precision.rs section_allowances`, which `ccb19ba0bf` added when it made the readers require the exact contract's zero corrosion allowance. `section_allowances` is called by `exact_namespace` and `preview_namespace`, G8's two namespace predicates, each reached once per invocation on its route. Its one loop visits each captured pipe segment at most once (`list(..).iter().all(..)`, short-circuiting): bound m (D1.9). On the exact route each visit runs one `unit_value(.., Length)`, whose Ok and Err paths and `unit_by_symbol` lookup are priced at their own sites per call; on the preview route it reads a key only. The call graph carries the conversion on both routes, an overcount on the preview route. `unit_value`'s `error(..)` sites stay under their SITE_FROM cap of 1 + 4·64·(att + z) per validate (769 at the caps), whose premise is that no reader caller swallows an `Err` except `g5_native`'s `tw()`. `section_allowances` also swallows one (`.is_ok_and`), and `all()` stops at the first failure, so it adds at most one uncharged error value per validate, under 1 KB. On the admitted producer path it adds none: D1 admission refuses a nonzero mill tolerance or allowance on branch E (`family_clauses`, `FamilyFact::SectionAllowance`). The producer refuses an allowance without a pressure contract on branch L or a missing one on branch E (`validate_profile`, B7b-VP), and an invalid one (`derive_pipe_section`), all before any successor exists. So every captured allowance the reader converts is a valid zero length. Adding `section_allowances` to that premise's list, or charging +1 in the formula, remains open (independent D3 review, 2026-10-15). **Guard:** the run stops unless the function has exactly one such `all(` walk, exactly one `unit_value(` conversion and no `for` loop.
+
+**U6-L5** (rows of one case or combination; both routes). Each bound is P: `rows_for`'s `iter:rows_all_for(source, case).into_iter().filter`, `g5c`'s `for row in &c.all_rows`, `g5b_exact_evidence`'s `for (i, row) in all.iter().enumerate()`, `gates_after_g0`'s `for row in rows_all_for(source, c)`, the `for row in rows_all_for(source, e)` of `r_comb_1` and `gates_after_g0`, and PP `retained_product.rs prepared_alias`'s zip over the frozen case's own rows. `rows_all_for` filters `results` by the entry's `basis_ref`, so it is one block of the route's P rows, as `rows_for`'s was; D-5's reduced twins are inside P (U6-RP, §4.7). **Guard:** `rows_all_for`'s filter, `rows_for`'s twin filter, `numeric_owner`'s `all_rows` and `g5b_exact_evidence`'s `all` are checked as written.
+
+**C7** (borrowed prescribed keys; positive overlapping owners; both routes, W4). The NumericCase prescribed field and its four constructor/query regions use borrowed `str` pairs. Ordering, duplicate tests, row visits, classifications and failure paths remain. References point into integral_receipt's live normalized Value (Cow Borrowed or Owned); no backing Value, String or JSON BTree allocation is removed. g5b changes only final_scales, and no key reference escapes g5c. `g4_caps.py` adds to SETS, without removing its existing owned-key node/backing allowance:
+
+`(C·tree_nodes(k) + tree_nodes(Q))·Node((&str,&str),()) + pushcap(C)·NumericCaseBorrowed + (C+1)·BTreeSetBorrowed + 3·VecHeader + (2·pushcap(Q)+4)·PairBorrowed + 2·NumericCaseResultBorrowed`.
+
+- **Counts.** C ≤ 3 covers all retained NumericCase sets, and k ≤ 192 is each constraint domain. The simultaneous sequential actual selection set is bounded at Q = 1472 before equality and duplicate rejection.
+- **Owners.** Two positive Q tuple buffers cover FromIterator's input Vec and stable-sort scratch; they are counted with the entire Q tree and all retained sets, without allocation reuse. Three Vec headers cover the NumericCase Vec and both temporary buffers; set headers are explicit in addition to the conservative complete NumericCase stride. Four tuple slots cover the four source constructions/queries. Two complete Result carriers cover the numeric_owner return and caller staging, as a variant sum over the full record, the public ValidationError and a word tag. Existing reader stack allowances stay.
+- **Phases.** The resident additions remain in V4/V5/V6 through G7/G8, and both temporary selection buffers and the Q tree remain charged there conservatively. All global owned StringPair20480 and existing SETS/Cow/backing charges stay. This is a T17 working-owner addition, used by W4's precommit maximum. The old source's measured allocation volume is attribution only; no E+R, margin or 5 % pass follows from it.
+- **Layout premises.** On rustc 1.97.1/8bab26f4 (aarch64) the borrowed pair is 32 B align 8 and the set header 24 B; inserted leaf/internal blocks measure 368/464 B align 8, and FromIterator at Q = 1472 allocates two 47,104 B buffers (Q pairs each). The existing `btree_node_upper` helper at the borrowed key layout gives 472 B; its 11-key/12-edge bound agrees with the exact toolchain [standard-library node source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/collections/btree/node.rs), and the input/sort path with the exact-toolchain [FromIterator source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/collections/btree/map.rs). The 472 B charge is a source/layout upper driven by in-build sizes, not a node-size subtraction from the existing 648 B owned-key atom. The private NumericCase nine-field sum is a SourceUpper, witnessed at 168 B in isolated native controls.
+- **Source binding.** `prescribed_key_model.py` pins the exact struct and the `numeric_cases`, `numeric_owner` and `g5c` bodies, which guard the owner count and lifetime. `numeric_cases` constructs one numeric owner per selected case or retained-selected combination; its unchanged body `9342fa881a9a15724197456be1dab39570904d2e4120a5185b366a19e9163cd9` is required in both the known owned and the borrowed branches. Duplicating either push refuses rather than silently exceeding C. Known owned source keeps all original pricing.
+
+**C7A1.** Migrates exactly the five replaced basis audit keys 3635, 3644, 4329, 4330 and 4346 of `retained_precision.rs` out of `text_args.g4.json` into function-qualified `O10_ID_AUDIT` sites in `numeric_owner` and `g5c`. The reviewed owned/borrowed distinction selects exact constructor/query text under the existing owner/count pins. Both representations keep the original IN128 constraint/selection node ids, STATIC128 selection components and RES1024 result entity ids. Borrowed lines resolve these same source-bound input metadata definitions (`C7_INPUT_METADATA`) without placing nonallocating sites in the G6 allocation `id_audit` inventory; only exact pinned owned syntax emits the five allocation audits. The actual template/LEX inventory and the unchanged G6 consumer check this distinction; no fake allocation or zero rule is added. The migration changes no multiplicity, visit, byte class, source backing, arithmetic or positive owner. Known-owned audit tables remain equivalent, and line replacement is neither deletion nor a zero rule.
+
+The reader's NumericCase `all_rows` field and its row vectors are priced by U6-RS (§5.3).
+
+### 3.5 Reader code priced without a new rule
+
+Each of these is either unreached from the retained roots or positively priced at its own site, and none needs a rule. A new loop in an unreached function has no rule, so a path that ever reached it would stop the run as an unmapped header.
+- **physics_source.rs `validate_transport_metadata_in`**: its resolved branch's `require(..., "LOAD_REFERENCE_CASE_ORDER")` and, per receipt case, `require(..., "LOAD_REFERENCE_REQUESTED_MODE")` (`033626030c`). It is unreached on the D1 graph: its one reached-caller path, `for_source → validate_in`, is J1's zero, and the branch also needs `load_reference_states`, absent by B7b-LS. Each call would allocate only in `require`'s own `Err(format!(...))` (detail ≤ 40 B, §8.4) or `array()`'s Err, both priced per call, and its `zip` loop has no rule.
+- **physics_source.rs `zero_corrosion_allowances`** (B7b-ZA), from `SourceContract::check_invocation`. Its callers, `validate_in` and `source_blocks::validate_source_contract_in`, are unreached: `for_source → validate_in` is J1's zero, and no reached function calls the other. Each pipe's `require` Err would be priced at `require`'s site (detail `ACTUAL_CORROSION_ALLOWANCE`, 26 B ≤ 40), and its `for` loop has no rule.
+- **physics_source.rs `actual_materials`**: one Err-only `require(.., "ACTUAL_SHEAR_MODEL")` per pipe in its existing loop (18 B, inside the 40 B detail class).
+- **semantic_contract.rs `current_header`** guard for load/reference states with `carrier_evidence` (B7b-ZA). It is on the reached `for_source_metadata` path once per call, and its `Err("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED".into())` is priced positively there.
+- **reader_verdict.rs `route()`**: its pressure-source arm's evidence-object guard (B7b-ZA), `bind_shear_model`, and `physics_model_checks`' binding of each case section's captured (D, t, c_m, c_a). Its callers (`source_recovery`, `standing`, `dispatch`, `row_semantics`) are not reached from the retained route's roots; an allocation there would be priced per call if it were reached.
+- **Bit equality.** physics_source.rs compares its maximum, norm, endpoint-section, stress-functional and twin links through `section_basis::bit_equal` (U6-BE), and section_basis.rs compares twin values and headlines by bits. No `require` site is added or removed.
+
+### 3.6 Reader statics
+
+**Static inventory** (`b7a_domain_model.STATIC_OWNERS` and `reader_static_files`; T17.0, every phase). The reader's process-lifetime caches are priced as resident in every phase: one parsed tree per actual `OnceLock` owner, thirteen allocations over eleven inputs.
+- **Owners.** physics_source `schema`; retained_precision `schema`, `definition`, `combination_definition`, `exact_definition`, `table` and `exact_table`; semantic_contract `preview_physics_contract`, `preview_physics_retained_contract`, `physics_retained_contract`, `pressure_source_contract` and `pressure_rows_contract`; and load_reference `transport_schema`.
+- **Duplicates.** Two retained tables each have two independent `OnceLock<Value>` owners: the preview table through `table()` and `preview_physics_retained_contract()`, and the exact table through `exact_table()` and `physics_retained_contract()`. Equal input bytes do not imply shared parsed storage, so every allocation is priced.
+- **Pressure tables.** `pressure_source_contract()` (the pressure-source-1 table) and `pressure_rows_contract()` (the ordinary pressure-1 table) are distinct resident owners over their reviewed bytes and are priced in their own right.
+- **Transport schema.** `load_reference::transport_schema()`'s `OnceLock<Result<Value, String>>` over the pinned `schemas/load_reference_state.schema.json` is a surviving independent process-lifetime owner (b7-plan D2). Its one caller, `validate_transport_metadata_in`'s resolved branch, is unreached on the D1 graph, but any earlier use in the same process leaves it resident, so it is priced as its Ok Value like the other tables (the Err String is smaller).
+- **Nonresident.** The pressure result schema is a reviewed nonresident input; it becomes no cached tree here. Its production include absence and the pressure-source verification/vocabulary obligations keep their closed guards.
+- **Guard.** The inventory requires its exact historical preimage (the twelve-file list of `STATIC_PREIMAGE`) and never deduplicates by path or skips an absent file; g4's unchanged `static_tree()` parser accounts every listed allocation positively and refuses an absent input. The three loader files (retained_precision, semantic_contract, physics_source) are bound by full raw guards (§8.1). A test fails if result_export gains a cached owner that is not listed (the one `#[cfg(test)] shared_test_corpus` excepted). All surviving shape, owned-string, array-growth, hashing/validation, TEXT, moving and phase duties remain, and the static facts are recounted on each canonical replay. No static cut selects a new budget policy.
+
+The W1 member reader's call-chain allowance is W1-G8 (§8.7).
+
+## 4. The product_physics producer
+
+The producer's sites (PP: the case solve in `lib.rs`, `joint.rs`, `pressure_runtime.rs`, `bend_pressure.rs`, `certified_publication.rs`, `certified_loads.rs`, `formation_guard.rs`, `retained_product.rs`, `retained_wire.rs`) run in the ordinary span of every phase, and their TEXT enters TAV_W and TAV_X. Owners priced outside the TEXT inventory are in §5.
+
+### 4.1 Connectors and joints (both routes)
+
+**L1, L2, L3** (connector loops; added only where `lib.rs` defines `append_connector_results`). Each is an `O10_LOOPS_LAST` zero resting on P3.
+- **L1.** `for (connector, record) in built.connectors.iter().zip(&built.connector_records)` → 0, only in `lib.rs append_connector_results` and `add_connector_reference_loads`: both slices are empty.
+- **L2.** `for c in &source.connectors` → 0, only in FK `structural/formation_check.rs body_scales`: `source.connectors` holds the built model's connectors (PP `build_model_for_members`; NI adapter copies of them, or empty).
+- **L3.** `iter:connectors .iter().map` → 0, only in NI `structural_adapter.rs new`: those connectors are the built model's clone (PP `connectors: built.connectors.clone()`) or empty.
+
+**J** (added where `joint.rs` defines `classify_connectors`). `O10_SITE_SIZE` 0 at six `joint.rs` format sites: `refuse_legacy_joints` (`what`), `decode_fields`, `model_findings` (two: `problem`, and the topology type), and `classify_connectors` (two: `extra`, and `problems`).
+- **Why 0:** every path to these sites iterates `model.components`, so they have multiplicity 0 on both routes before any O-10 rule (P2).
+- **No `site_zero`:** the chain still computes each site's true multiplicity.
+- **Guard:** `o10_check` fails the run if any J site has a positive multiplicity or is not found. A negative control, which priced `refuse_legacy_joints`'s loop, made the guard fire.
+
+**J'** (the audits inside J). Two J sites also carry an identifier placeholder (the connector's id), so the chain evaluates their format despite the size; their composed arguments get audited bounds: `problem` ≤ 512 B (one topology finding: a literal of at most 60 B with up to two 128 B model ids, or a static literal) and `problems` ≤ 8,222 B (`decode_fields`' findings joined by "; ": at most 16 findings of 512 B, 16·512 + 15·2). They are unused at multiplicity 0 and keep the class honest if J's guard ever trips.
+
+**B7b-JR** (`joint::pressure_finding`, `b4447b7212`; added where `classify_pressure_participation` exists and the source holds `refs.extend(extra.map(str::to_string));`). `O10_MULT0_SITES` at its `diagnostics.push(diag(` site. `pressure_finding` may add a fourth ref, the listed replaced span (an admitted pipe id, ≤ 128 B). Its refs Vec then holds ≤ 4 Strings in capacity ≤ 6 (6·24 + 4·128 = 656 B), beyond the generic `refs` class (4·(24 + 128) = 608 B). Its multiplicity is 0: `classify_connectors` calls it in the loop over each case's `pressure_regions` and their `member_connector_ids` (regions absent on L, explicitly empty on E; D1.5), and `classify_pressure_participation` is reached only inside the loop over `model.components` (P2). The zero is guarded rather than assumed: `o10_check` fails the run if the site's own multiplicity is ever positive, and a positive price would then need the 656 B class.
+
+**B5A1** (and B7a C5's descriptor literal; added on batch 5 source). `pressure_finding`'s `connector` operand is the authored component id (IN128). B7a C5 removes the recovery selector and embeds the unconditional 73-byte tangent label `node_on_element_end_actions_from_assembled_stiffness_in_end_tangent_frame` directly in `append_curved_bend_macro_element_results`' descriptor basis template. The template's literal charge is 631 B, in place of the former 558 literal bytes plus the 73-byte maximum borrowed recovery operand; all other seven operands remain priced. Existing literal TEXT accounting charges those 73 output bytes once; no obsolete operand or empty alternative is credited. **Guard:** `batch5_model.descriptor_recovery_bytes` pins the whole descriptor body and its one inline label and refuses a missing, changed or duplicated label or a changed literal inventory.
+
+### 4.2 Model build, pipe sections and the corrosion allowance (both routes)
+
+**B7b-CA** (model 0.5.0's exact half; added where `lib.rs` names `corrosion_allowance`). The corrosion-allowance identifiers are audited as admitted pipe ids (IN128): the unit-conversion diagnostic id and refs in `normalize_model_units`, and in `derive_pipe_section` the corrosion-allowance diagnostics' ids and refs (one diagnostic on D-5 source, the invalid-value refusal; two on earlier B7b source, invalid and nonzero), as their mill-tolerance siblings' carried audits are. `stable_suffix` replaces ':' with '-' and keeps the byte length. Each site keeps the chain's own multiplicity (per pipe and call). **Guard:** the corrosion-allowance diagnostic count must be one (D-5) or two.
+
+**B7b-DPS, B7b-DX and U6-DPS** (exclusive diagnostics). `O10_DIAG_EXCLUSIVE` group of `lib.rs derive_pipe_section`. The premise, exactly as `o10_rules.py` checks it on the source: (a) every `diag(` in the body is a `diagnostics.push(diag(..));` statement; (b) each such statement is immediately followed by `return None;`; (c) after the signature, the `diagnostics` parameter appears only in those statements, so no other push and no callee receives it. One call therefore pushes at most one diagnostic. Pushes by other functions, including this function's callers, are their own sites and are priced separately. On D-5 source (U6-DPS) the group is the three remaining sites: section dimensions, mill tolerance and corrosion allowance invalid; D-5 admits a nonzero allowance, so the nonzero refusal is gone, and only D-5 source (`section_basis_row` present) may drop it. On earlier B7b source the group is four sites, with the nonzero refusal. A different site count, a missing `return None;`, any other push or use of `diagnostics`, or a bare `diag(` stops the run. **B7b-DX** (`text_budget.py`): the group adds the owner's call count to D once and the largest member's diagnostic bytes once per call. It leaves the run incomplete unless every member is a reached diag site of that owner, outside any loop, with exactly the owner's multiplicity. Each site's own TEXT request, id format and refs stay priced at every site, as in B7a's mutually exclusive allocation groups. The rule also bounds the function's pre-B7b dimension and mill-tolerance sites at one per call instead of two.
+
+**B7b-VP** (`pressure_runtime.rs validate_profile`; both routes). On a 0.5.0 document `validate_profile` adds one per-pipe match on (`pressure_contract`, `corrosion_allowance`): at most one `problem()` per pipe (`EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED` on E, `CORROSION_ALLOWANCE_WITHOUT_PRESSURE_CONTRACT` on L). The base `EDGE_PER_CALL` `validate_profile → problem` bound L, from the per-load arm, is rebound to L + m. The contract, shear and version arms cannot fire on an admitted document: L has no contract, E's namespace requires the exact contract, and every admitted document is 0.5.0. **Guard:** the per-pipe loop `for pipe in &model.pipe_segments {` occurs once.
+
+**U6-A (D-6 model build).** In `build_model_for_members` the `exact_sections` key `pipe.id` and the Timoshenko shear-factor diagnostic's id and refs are IN128. The `exact_sections` owner itself is U6-ES (§5.3).
+
+### 4.3 The case solve (`solve_prepared_load_case`)
+
+**B5K1** (extracted bodies). `solve_load_case_observed` prepares pressure and calls `solve_prepared_load_case` once, and `build_pressure_case_with_members` keeps classification and its early refusal and delegates once to `assemble_pressure_case`. The rules key the case solve by the extracted name where it exists (`_CASE_FN`, `_PRESSURE_FN`). The former mechanics body's site audits, KD5L7–L9 and NLKD5L1 bounds, and route E's exact/ordinary publication edges follow `solve_prepared_load_case`; U2E2 and route E's materials-error per-call bound follow `assemble_pressure_case`. The wrapper's cases cap remains, and the helper has the actual incoming call count. After route E's exact-count removal (`EDGE_ZERO_REMOVE_CALLER`), route L's surviving historical pressure-body zero edges move to the extracted body (`B5_FUNCTION_REKEY`). No extracted-function bound is pruned. Both wrapper and mechanics helper are hash-pinned (KD5T2, KD5C6, `batch5_model`), and the pressure production prefix is pinned separately.
+
+**KD5L7, KD5L8, KD5L9** (`O10_LOOPS_LAST`, in the case solve). `iter:station_resultants.iter().enumerate().map` → 3: the quarter_1, midspan and quarter_3 station rows. `iter:diagnostics.iter().position` → D: one scan of the case's diagnostic Vec, bounded by the full diagnostic fixpoint D. `for rows in &member.sections` → 5: `CertifiedMemberRecovery`'s sections is `[..; 5]`.
+
+**NLKD5L1** (nonlinear K-D5 confirmation; added where NI `confirmation.rs` defines `confirm_with_applied`). `O10_LOOPS_LAST` `iter:diagnostics.iter_mut().find` → D in the case solve: the Passed evidence line finds the case's one integrity diagnostic by id in one scan of the case's diagnostic Vec, as KD5L8. The id is formed once before the scan, so the scan allocates nothing per diagnostic. The confirmation's functions are reached through `append_nonlinear_support_loop_results`; their text sites carry the computed multiplicity of that helper's body after its early return (0 under D1.6), with their honest classes (support ids IN128, kd5 details and structural errors the existing 8192 B class); no zero rule is added for them. The evidence-line site, `format!("{} {NONLINEAR_CONFIRMED_EVIDENCE_LINE}", record.message)`, is charged positively at the chain's computed multiplicity with the integrity message's class, although under D1.6 it is never entered (it needs a confirmed state): a conservative charge, not a claimed zero. The design is DEL-04-01 [kd5-nonlinear-active-set.md](../../../PKG-04/DEL-04-01/Design/kd5-nonlinear-active-set.md) §1.5, §3 and §4.
+
+**KD5A8** (withheld summary ids; added where `lib.rs` defines `withhold_certified_summaries`). The certified summary-error arm's warning copies only the pipe's own authored id: the `stable_suffix` id suffix, the message's member id and the affected ref (IN128). Its `{error}` operand keeps the chain's own TEXT cap, and the site keeps its full m-per-case multiplicity in D. **Guard:** the affected-ref line after the message must be `vec![pipe.element_id.clone()],`; otherwise the run stops. `withhold_certified_summaries` also sets `max_stress_reduced` to None, a drop with no allocation. The withheld diagnostics' backing is KD5O14 (§5.1).
+
+**U6-K** (re-expressed basis keys; both routes, and `composite_exact` on route E). D-5 replaced eight basis-keyed audit lines of the case solve (`lib.rs` 5387, 5403, 5412, 5497, 5498, 5503, 5529 and 5536 at `2243be380b`: the two stress-finding loops and the two maximum rows) and `composite_exact`'s 781 and 798 (the source maximum's id format and row literal). They leave `text_args.g4.json` and are added by name: on earlier source with their original classes, so the registered trees reproduce, and on D-5 source at the replacing sites with the same classes (the case and member ids IN128, their lengths NUM; the stress-finding location class STATIC 600). The arc branch's case-qualified exact-stress id is formatted once per basis, and both spellings end in the basis's static hyphen segment (`SectionBasis::hyphen`, ≤ 15 B).
+
+**U6-L1** (both routes). The case solve's two `for … in &stress_sites` loops → 5: `stress_sites` is a `vec!` of the two ends plus one push per station (at most 3, KD5L7). `for (stress, basis) in bases` → 2 on route E and 1 on route L: `bases` has one entry without a reduced stress and two with one. The reduced stress exists only for a member with an `exact_sections` entry, which `build_model_for_members` inserts only under `is_exact(model)`, and route L has no exact contract (D1.3). **Guard:** the run stops unless the `vec!`, the one push, the `bases` match, the exact-only insert and the reduced-section bindings are as written.
+
+**U6-LF** (placed first, `O10_LOOPS_FIRST`). The case solve's three `for basis in pressure_exact::SectionBasis::BOTH` → 2 on route E and 0 on route L; on route E also `source_receipt/composite.rs composite_exact`'s → 2; on both routes `retained_product.rs exact_case_evidence`'s zip with `BOTH` → 2 and `composite.rs validate_physics_rows`' pipes × `BOTH` → 2·m. These headers name `pressure`, so D1.5's region zero rule (`pressure|region|aggregates`), which comes first, would zero them; they are not region loops. The placed-first family in `sq2_rules.py` puts these exact headers before it, and `o10_check` confines them like `O10_LOOPS_LAST`. On route L each of the three case-solve loops sits in an `is_exact(model)` arm (the two maxima) or under `exact_pressure`'s per-pipe state (the wall action), and route L has no exact contract. **Guard:** the run stops unless all three loops are in those arms and there are exactly three.
+
+**U6-L2** (both routes). `push_basis_twins`' `for (n, r) in nominal.into_iter().zip(reduced)` → 4. It zips the rows one `push` call made on each basis and refuses unequal lengths. Its two callers (the case solve and `source_receipt/rows.rs`) append one stress site's rows through one helper, `append_stress_mpa`, `append_endpoint_stress_results` or `append_station_stress_results`, each pushing at most once for each of its four element-local stress kinds. **Guard:** the two `push` calls and the length check, the two callers, and each helper's four kinds and one push are checked.
+
+**U6-L3 and U6-L (PP).** `retained_product.rs case_observables`' `for (headline, kind, basis) in headlines` → 3: the displacement headline plus one stress headline per entry of `stress_bases`, a slice literal of one (preview) or two (exact) entries; its text is checked. `for basis in PREPARED_SECTION_BASES` → 2 in `prepared_sections` and `apply_exact_section_overlay`. The constants `BOTH`, `BASES`, `ANNULUS_KEYS` and `PREPARED_SECTION_BASES` must have lengths 2, 2, 6 and 2.
+
+**U6-A (case solve and metadata).** Static segments are bounded by their longest literal, read at the snapshot.
+- **Case solve.** The stress-finding warning id is formatted once per basis: the base id is at most 18 + 128 + 600 + 2 + 64 = 812 B (its audited parts and 18 literal bytes), plus the segment. The maxima's ids keep their classes (`load_case.id` and `pipe.element_id` IN128, their lengths NUM). A row id that `section_basis_row` extends by ':' and a basis token (≤ 15 B) is TPLSITE 322 + 16 = 338 B, for the headline `result_ref` and `row.id.clone()`. The per-basis unavailable pushes, the source-recovery maximum diagnostic's ids and the governing-maximum-unavailable diagnostic's ids are IN128.
+- **`section_basis_row`.** The id segment (`hyphen`/`token`) is ≤ 15 B, and the recovery-token suffix (`basis_suffix`) ≤ 31 B.
+- **`retained_product.rs validate_final_metadata`.** The expected recipe is at most the largest of B7a owner choices' `BOUNDS` (338 B, §8.3), plus the segment.
+
+**U6-J4** (`exact_admission.rs pressure_v3_formulation_basis_with_source`). T4-U6 renamed J4's function and made `selected` a `bool`. Its first and selection limitations, `identity.to_string()` and `source.to_string()`, each choose between two whole static literals and are bounded by the longer, read at the snapshot. **Guard:** each `let` selects exactly two literals.
+
+**N3** (`lib.rs append_short_bend_refusal`; unlabelled audits in `o10_rules.py`'s batch-2 block). The id, message and refs: `stable_suffix(case_id)`, `case_id`, `bend.component_id` and `bend.pipe_id` are IN128. D1.4 makes the function return before allocating, because its bends come only from `model.components`; it is priced anyway, conservatively.
+
+**U2 sites in the case solve** (added where `lib.rs` defines `add_curved_bend_pressure_equivalent_load`). True array and collection bounds are used even where the chain conservatively reaches an arc helper; no newly reached branch is zeroed.
+- **U2L1.** `for (pipe_index, state) in &exact.pipe_states` → m in `add_curved_bend_pressure_equivalent_load`: one entry per built pipe.
+- **U2L2, U2L3.** The thermal and pressure free-expansion helpers walk `element_dof_map` and `free_expansion`, each a 12-element array (`ELEMENT_DOF`): both headers → 12, in `add_curved_bend_thermal_equivalent_load` and `add_curved_bend_pressure_equivalent_load`.
+- **U2C.** `component_solver_consumption` copies a component's authored text or the static default. D1.4 excludes components, but the chain conservatively reaches this helper at a positive multiplicity, and it stays priced at that computed multiplicity. Its lexical receiver is audited as IN128: the authored field is within D1's text cap, and the static defaults also fit 128 B. No edge or site multiplicity is overridden.
+- **U2A.** `pressure_treatment` (in `append_curved_bend_macro_element_results`) selects one of two static ASCII literals, each < 128 B. The conservatively reached FK `load_ledger.rs push_product` `source` is the capped pressure region/source id (IN128). The case-qualified exact-stress diagnostic ids preserve the case and pipe id lengths (U6-K on D-5 source). The arc pressure results' classes are in §4.4.
+
+**Realized-arc marker** (no rule; epoch `addbdc030e`). `lib.rs`'s `exact_pipe_sections`, `realized_arc` and `mark_realized_arc` replace inline expressions in the case solve's `pipe_sections`, `assemble_pressure_case`'s region geometry and T25's `physical_source_built`. The marker (`member_kind = "realized_arc"`) is set only on a pipe that `built.curved_bend_elements` realizes, and `build_curved_bend_macro_elements` builds those only from `model.components` (P2), so `realized_arc`'s `find` allocates nothing and no marker is set on D1.
+
+**Integrity-id scans** (no rule). Three ordinary diagnostic scans form their desired integrity id once per scan, including an empty scan. The local String stays within that lookup, and the notice lookup returns its first index after dropping the desired id and before inserting the notice. The assessed quality and publication standing still use the first matching diagnostic, including duplicate ids; no id is shared across cases or whole solves. The chain derives the call multiplicity and prices each hoisted allocation; the full lib.rs binding and the prepared-body pins follow these source bytes.
+
+### 4.4 Pressure runtime and bends
+
+**U2E2** (`pressure_runtime.rs assemble_pressure_case`). `O10_LOOPS_LAST` `for junction in &junctions` → m. The checked traversal's junction list has one entry per adjacent checked traversal pair, and the traversal has at most m pipes.
+
+**KD5L10** (`lib.rs push_exact_pressure_operands`). `iter:exact.closure_sources[group_index].iter().enumerate().map` → 0: D1.5 requires absent or empty pressure regions, so there is no assembled pressure group or `closure_source` summand.
+
+**KD5L13** (`pressure_runtime.rs finish_source_groups`). `iter:group.terms.iter().map` → 0. `finish_source_groups` receives only the factor groups produced by pressure-region traversal. D1.5 admits no such region (absent on L, present and empty on E), so its mapped term list is empty. This zero rests on the producer/admission seam, not on fixture counts.
+
+**B5L1** (`finish_source_groups`). `for ((dof, pbits, area, _), group) in groups` → 0. The bore/joint FactorArea key changed the factor-group loop header; its zero follows the same D1.5 region producer, and both group families require such a region.
+
+**Named closures in the arc pressure results** (a limitation of the chain). The chain charges a named closure's body sites once per enclosing call, so the text rows of the `append` closure in `append_arc_pressure_results`, called 2 + 3·|sections| ≤ 17 times per call, are charged at the call's multiplicity, not up to 17 times it. This is safe on D1, which forms no realized bend and no exact-pressure state, so the closure is unreachable. A domain that admits them must charge the closure per call first.
+
+**U2A (arc pressure results), U2A2, U2A3, U2L4** (`bend_pressure.rs append_arc_pressure_results`). The case and pipe ids are IN128 and their `.len()` spellings NUM (20 B). The row kind, location and component are static tokens (each < 128 B), and the `entity_ref` and `ref_id` copies are the pipe and case ids.
+- **U2A2.** The function holds two blocking diagnostics with the same affected-ref line: the unknown section location is refused, never read as end_j, and the unrepresentable-section diagnostic. Each `vec![case.id.clone(), pipe_id.to_string()]` is keyed by its own unique preceding line and checked; both keep U2A's IN128 classes, and both sites stay priced.
+- **U2A3.** That refusal's `{location:?}` is one of `sections`' locations: the literals end_i/end_j or a `StationResultants.location`, a `&'static str` (quarter_1, midspan, quarter_3). STATIC (128).
+- **U2L4.** `for (location, elastic) in sections` → 5: the per-section recovery loop runs over the two ends plus the caller's station rows, of which every case-solve branch forms at most three (two fixed arrays of three, `curved_bend_station_resultants -> [_; 3]`, or none; KD5L7).
+
+### 4.5 Certified publication, recovery records and maxima
+
+**KD5A1** (publication identity and labels; added where `certified_publication.rs` defines `member`). The member prefix comes from the pipe id (IN128) and its integer length (U8-MP on current source). The record constructors `member_record`, `support_record`, `unavailable_record` and `connector_record` own a member, support or entity id, each taken directly from the D1-capped model id (IN128). `group` copies the static location and kind tokens from those constructors, all shorter than 128 B. Each copy remains priced at its computed multiplicity. Where the snapshot has no `member_record`, the case solve's inline `member: pipe.element_id.clone()` keeps its IN128 audit.
+
+**U8-MP** (`lib.rs member_prefix`). `member_prefix` is the one `format!("member:{}:{member}:", member.len())`. `certified_publication`'s member records, `straight_stress_spans`, `frame_member_identities` and `closure_source`'s straight operand label all use it. Every caller passes a pipe's admitted id, so `member` is IN128 and its length NUM; the prefix is at most 7 + 3 + 1 + 128 + 1 = 140 B. `closure_source`'s straight label is audited with the prefix at 140 B and its other operands IN128 and STATIC; its arc label keeps KD5A3's spelling. Both labels are inside the region path (KD5L10).
+
+**KD5A2 and KD5A3** (owned text in publication and closure).
+- **KD5A2.** The lexicon (`text_lexicon.py`) recognizes the record constructors' `&str`-to-String conversions (`member`, `support`, `entity`) as owned text; their ids are IN128 and kind/location tokens static ≤ 128. The finite-a notice (`formation_guard.rs stress_free_notice`) copies a capped case id at three sites. A summand's `family` (`certified_loads.rs summand`) is a static token, and its `source` is at most the existing 600 B composite class (two capped ids and a length, or a pressure source tuple). The case solve's `record.certified_support_norms.push` copies a support id (IN128).
+- **KD5A3.** Pressure closure identities use capped region and pipe ids and a fixed kind token: `format!("{}:{}:{}", term.1, term.2, term.3)` moved, unchanged, from `finish_source_groups`' map closure into its callee `closure_source`, and the audit follows it there by name, together with `closure_source`'s returning copy and U8-MP's straight label. The unavailable-route text selects between static literals; `O10_ARGS_FIRST` `route` keeps 128 B, after KD5T2's measured bound.
+- The earlier `formation_entity_bodies` map is no longer called on the unified graph; its three copy audits remain only on snapshots where the old guard consumes it. A future reached copy again requires classification.
+
+**KD5A9** (ledger source label; `O10_ID_AUDIT` at `certified_loads.rs member_source`, added where it and `pressure_runtime.rs closure_source` exist). `member_source` formats `member:{len}:{member}:{source}`. Batch 4's pressure closure binding (the arc pressure free strain keyed by region id) gives the site a positive multiplicity. `member` is a pipe or connector component's authored id (IN128). `source` is an authored load or region id, the static `reference`, or on the 0.4.0 route `source_recovery::eigen_source_id` (`load_state_eigenstrain:{len}:{pipe_id}`, ≤ 23 + 20 + 1 + 128 B), so the existing 600 B composite class covers every caller. The site keeps its full multiplicity.
+
+**KD5T1 and KD5T2** (unified fixed text; added where `formation_guard.rs` defines `member_group_fires`). `kd5_text_model.py` pins the record constructors, the `group` and `magnitude_group` helpers, `member_group_decision`, `recovery_finding`, both maximum evidence producers (`preview_physics.rs extrema_evidence` and the case solve) and the case wrapper and prepared helper, and production-prefix pins protect the certified-publication, certified-recovery and exact-sum source/slot inventories. A changed producer, consumer or inventory stops for renewed review.
+- **Labels.** Every produced group label comes from the four constructors' literals: all, axial, bending, connector_local, cut_i, cut_j, effective_axial_force, end_i, end_j, force, midspan, moment, node, pipe_wall, quarter_1, quarter_3, recovery, shear, support_force, support_force_magnitude, support_moment, support_moment_magnitude, torsion, wall_cut_i, wall_cut_j, wall_end_i, wall_end_j, wall_midspan, wall_quarter_1 and wall_quarter_3. The maximum is 24 UTF-8 B, which classes `group`'s and `magnitude_group`'s location and kind copies and `recovery_finding`'s group location and kind; the non-D1 wall, connector and effective-axial labels remain conservatively included.
+- **Literals and classes.** The numeric, bound-unavailable and comparison-unavailable item literals are 10, 38 and 36 B; the unified sentence literal is 234 B. The pinned comparison producer's longest reason is 35 B (nonfinite certified group magnitude). Bound-unavailable reason content remains 8192 B, member ids IN128 and the f64 exponent spelling 24 B. The fixed route strings ("on … route") take their measured maximum.
+- **KD5T1** (`composite_text.py`): F_len = max(id + 2·label + 10 + 2·24, id + 2·label + 38 + 8192, id + 2·label + 36 + 35) = max(234, 8406, 247) = 8406 B, and the six-item sentence bound is 234 + 128 + 20 + (6·8406 + 10) + 31 = 50,859 B. One unified recovery sentence has no three-sentence merge factor.
+- **Maximum literals.** The current `coefficient_basis` and `enclosure_scope` literals are 46 and 79 B, present in both pinned producers and within the existing 120 B ordinary evidence allowance; the evidence object's field count remains within 15.
+- **Pinned production prefixes** (premises of these classes): `certified_recovery.rs` forms straight section rows one at a time with one live load sum moved into the row's evaluation, within the eight-accumulator census (its RowLoad, `9ef0cbc78a`, is a stack value of one ExactAccumulator and two f64); arc rows (a = 0 at D1) and the envelope's addend counts are stack arrays; an element block is formed only when it is adjacent to the reaction DOF; and `certify_displacement`, `certify_load_primitive`, the exact sign helper and the `CertifiedRow` decision methods add no String, format site or owned layout. `certified_publication.rs arc_pressure_wall` adds pAi to each section's axial row of a cloned `CertifiedMemberRecovery` (fixed `[CertifiedRow; 12]` and `[[_; 6]; 5]` arrays) and negates/copies the two wall end rows: stack-only, with FK's static RecoveryFailure errors and no String, format site, label literal, FallbackError use or first-return allocation. `support` copies one confirmed nonlinear row into its slot, and both its refusals are static `WideError::CountRange` literals. In `formation_guard.rs recovery_finding` (pin `c499ed59…`) the scales map's value type is O-13's `ActionScales { force, moment }`, and its three format templates and their arguments are those classed above. The case solve's early returns add only an empty `withheld_summaries` Vec (no allocation), and its arc branches' `wall.clone()` and `Option<CertifiedMemberRecovery>` are stack values; it adds no route string, maximum literal or CPP first-return allocation site beyond those priced here. The tangent end-frame kernels operate on fixed arrays, with the pressure-only frame parameter passed into both binary64 and certified publication, and the existing kernel and PP workspace charges remain. The mid-file U4 test module sits after all production code, so the production-prefix pin includes every later constructor and helper. Since B5K1 the route and maximum literal inventory is read from the prepared helper's body. These premises are bound by the current pins, not by the observation that a fixture showed them.
+
+**KD5A7** (MPa copies and identities; added where `certified_publication.rs` defines `append_stress_mpa`). `stable_suffix` replaces each colon by one hyphen, preserving the capped pipe-id byte length. `pipe_id` and `record.member` remain IN128, and `pipe.element_id.len()` NUM (20 B). Endpoint/station location rewriting uses fixed tokens (`O10_ARGS_FIRST` `located` ≤ 128 B); kind, component, label, basis and the three stress-name alternatives use the existing 128 B fixed-token caps. The pinned caller supplies only current code constants. The lexicon additionally inventories the actual `sign.map(str::to_string)` copy at `append_stress_mpa`, which a method-only pattern missed. Its two caller constants (`STRAIGHT_ENDPOINT_SECTION_SIGN_CONVENTION`, `CURVED_BEND_SECTION_SIGN_CONVENTION`) measure 167 and 179 UTF-8 B; the measured 179 B bound is used, and the fallback format allocation is retained separately as an alternative sum. `recovery_finding`'s comparison-unavailable message copies `record.member` (IN128). No global identifier or message cap is narrowed. On source without `member_prefix`, `straight_stress_spans`' own `member:` prefix keeps the pipe id IN128 and its length NUM.
+
+**KD5L6** (`certified_publication.rs member_record`). The location loop over the two end rows chained with the five fixed `CertifiedMemberRecovery` sections → 7.
+
+**KD5C4** (primitive min/max call targets; added where `certified_publication.rs` defines `fallback_circular_maximum`). Private `certified_publication::FallbackError` min/max methods made the heuristic graph fan primitive-number calls into their error-returning bodies. The type is private, has no escaping producer or return, and every named outside caller's receiver is a primitive number (usize, f64, i32) or its numeric iterator. These calls use the standard intrinsic, with no repository method body or String allocation. Explicit caller/name bindings (`CG_RULES`) remove that false target; all real FallbackError min/max calls in `fallback_section_errors` remain. The bindings cover 28 callers in formation_guard.rs (`new`, `decide_row`, `row_scales`, `member_scales`, `action_scales`, `stress_free_notice`), lib.rs (the callers `primitive_lib_minmax_callers` returns: `build_curved_bend_macro_elements`, `straight_summary_extrema`), pressure_exact.rs, pressure_runtime.rs, retained_memory.rs (six), retained_product.rs (`g5a`), source_recovery.rs (`solve`, and RF's `prepare_sources`, RF-EDGE), source_receipt's composite.rs, endpoint_maximum.rs and rows.rs, case_state/thermal.rs (three) and certified_publication.rs's one included caller, `fallback_denominator_relative_error`, whose operands are f64 lower/ratio values only. The non-TEXT `max` targets of `longest_string` and `solve` are kept. Batch 4's rename of `moment_scales` to `action_scales` (O-13's coupled `ActionScales`) is followed by name; its receivers are still the f64 scales. Existing true visits and R2 call paths remain; this is a type binding, not a fixture-derived multiplicity or an unpriced-site waiver. Each caller must be unique, or the run stops.
+- **B7a E14.** E14 removes `observation_lane_profile` and its sole caller `observation_lane_guard` with the DEC-050/053 lane; the former helper's only max receiver was its `Iterator<usize>` half-bandwidth, and it has no successor. A raw full-file `lib.rs` fingerprint plus the explicit absence of the retired definition binds this inventory removal. Any `lib.rs` byte edit, including a test-only addition, requires re-audit of this source binding before pricing is reused; this is not a generic missing-name exemption.
+- **B7a E13.** E13's deleted support-vector reaction arm uses the same full-file source binding: its one complete decision preimage, basis `lib.rs:13085` `row.id` RES1024, is removed before ordinary strict decision carry. The component, operand, reference and qualified displacement-source audits remain. A changed or duplicated preimage refuses, and no replaced-key waiver is added.
+
+**KD5C5** (private add/mul/divided target subtraction; with KD5C5b, B5C1 and E11). The heuristic graph adds private FallbackError methods to outside callers whose actual receivers are Scaled, Bytes, ExactAccumulator, CertifiedRow, CertifiedValue or the validation crate's exact rational `Exact`. FallbackError, its impl and these three methods are private within certified_publication, and the entire production prefix has no trait, public return, function-pointer or macro escape of that type. `kd5_text_model.py inspect_fallback_boundary` guards the production prefix, the three private method bodies and every outside caller body; a changed receiver, visibility, escape path or body, or a missing or duplicate function, stops pricing. The `exclude_targets` mechanism subtracts only the qualified add/mul/divided target from each listed candidate list after any replacement rule. Every other candidate and every inside caller is preserved, including conservative inside candidates. Both the inventory and an actual removed-candidate encounter must hold; an absent target or a quiet no-op refuses. Historical revisions without the fallback function add no exclusions and keep their original graph. The rule changes no rows, cases, counts, source/workspace owners, D1 premise or memory/text limit. The current inventory is 19 caller/method pairs from 18 callers:
+- **K-D5** (`FALLBACK_OUTSIDE_CALLERS`): annulus `source_wall_area_scaled`, `source_bore_area_scaled` and `source_insulation_area_m2` (mul); lib `exact_straight_summary_extrema` (add: the span intensity's ExactAccumulator) and `append_exact_pressure_results` (divided: FK's CertifiedRow, once per basis); pressure_exact `eigenload_pair` (mul); preview `render` (divided: CertifiedRow); retained_memory `strings`, `retained_error_text` and `complete_observations` (add: the module's Bytes accumulator); source_geometry `from_od_wall` (add and mul), `SourceAnnulus::pressure_group_value` (mul) and `SourceAnnulus::surface_stresses` (add), named inside the one top-level `impl SourceAnnulus` because `ExactSectionBases` also defines both names as delegations; and case_state/temperature `exact_kelvin` (mul).
+- **The J7 census** (`source_recovery/j7_rf_census.rs method_row_holds`, `#[cfg(test)]` only): both `.mul(` receivers are the exact rational `Exact`, whose own `Exact::mul` is called, never `FallbackError::mul`.
+- **KD5C5b** (`FALLBACK_OUTSIDE_CALLERS_U2`, where `bend_pressure.rs` defines `append_arc_pressure_results`): bend_pressure `append_arc_pressure_results` (divided; receiver `wall.sections[index][0]`, FK's CertifiedRow) and source_geometry `arc_pressure_strain` (mul; Scaled receivers). Without these exclusions KD5C6's cutset check stops, because the name resolver adds false private candidates.
+- **B5C1** (`FALLBACK_OUTSIDE_CALLERS_B5`, where `pressure_runtime.rs` defines `assemble_pressure_case`): the joint-area branch of `finish_source_groups` calls `Scaled::mul`; only the unrelated private `FallbackError::mul` candidate is subtracted, keeping the actual Scaled target and all other conservative candidates. KD5C6's complete incoming cutset must still hold.
+- **E11** (`test_only_from_radii`): `pressure_exact::from_radii` remains source-bound at its existing body fingerprint, but its exact `#[cfg(test)]` attribute makes it absent from the call graph's existing R1k production projection. The check verifies the whole raw `pressure_exact.rs` file, the attached attribute and that projection before omitting only this constructor's mul exclusion. `source_geometry::from_od_wall` and the production methods following `from_radii` remain, and all three private methods keep their positive owner charges. A restored production constructor, a changed body or attribute, a raw newline change or a resumed production method refuses; the call graph's generic missing/witness checks stay strict. This full-file binding also requires re-audit for later test edits.
+
+**KD5C6** (conditional first-return String allocation; `kd5_first_error_model.py`, `FIRST_ERROR_GUARD`). Exactly 14 returning allocation alternatives in certified_publication receive `per 1` `site_from` bounds (`SITE_DEFS`, offsets from each freshly resolved function header): `checked` and `divided` use the roots `fallback_circular_maximum`, `summary_row`, `stress_mpa` and `maximum_summary_mpa`; the six `directed_transport_sum` errors use `fallback_circular_maximum` and `straight_stress_spans`; the two `maximum_cover` errors and three `public_mpa_magnitude_in_pa_upper` errors use `maximum_cover`; and the direct fallback transport failure uses `fallback_circular_maximum`. Each genuine inner Err propagates immediately from that complete attempt, including `Result<Vec<_>,String>` collection's first-error stop. Preserved conservative CertifiedRow/Value receiver candidates keep positive root allowances.
+- **Kept.** Every outer attempt, member, case and replay count remains, with all graph, function and loop counts, 4,194,304 arithmetic visits (KD5L17) and 2l+1 span capacity/traversal. Inner returned Strings, outer formatted Strings and stored `certified_spans` error clones are distinct positive owners; the case solve may catch and continue, so no bound spans those attempts. The three nearby alternatives of `fallback_circular_maximum` (`UNTOUCHED`), engine formatters, outer clones and all other String sites are inventoried and never capped.
+- **Guards.** The whole CPP file and prefix, the 12 private helpers, the roots and the solve/exact-straight consumers are pinned. All fully qualified incoming graph edges into the private helpers must come from exactly the five entry functions, with the exact shared-helper parents; the exact kind + site inventory and positive root witnesses must hold. Every consumer lookup spelling (short, qualified, kind-qualified and lexical fallback) refuses count, size, zero, aggregate or total overrides outside the 14 canonical `per 1` records. The actual post-rebind multiplicity must equal its positive source-root sum. A catch, continue, retry, swallowed Err, collection, parent or allocation change refuses for re-review. The historical no-cap branch requires CPP absence plus the pinned original directed wrappers; marker removal alone never selects history.
+- Limits, criteria and positive-path arithmetic are unchanged. This source proof confers no budget pass.
+
+**KD5L14–KD5L18** (fixed arrays, span census and the power-transport error; `O10_LOOPS_LAST` in certified_publication.rs). Rules are limited to their named functions and keep all case and replay multipliers.
+- **KD5L14.** `fallback_circular_maximum`'s `for span in spans` and `straight_stress_spans`' `iter:spans .into_iter().map` → 2l+1: the positive span allowance of KD5O10's one-interval current-D1 producer.
+- **KD5L15.** `for component in powers`, both `axial` coefficient zips, `for value in &mut intensity` and `for value in sample` → 3 (degree-2 axial controls, stress components, local axial/y/z intensities and sample values are arrays of 3); `maximum_cover`'s `for (station, rows) in member.sections.iter().enumerate()` → 5.
+- **KD5L16.** `fallback_section_errors`' two section walks → 6: the force/moment section array has 6 components.
+- **KD5L17.** `fallback_denominator_relative_error`'s `while remaining != 0` and `fallback_power_up`'s `while value != 0.0 && exponent != 0` → 4,194,304. Each i32 remaining/exponent moves toward zero in signed steps of 512, except its final smaller step, so ceil(2^31/512) = 4,194,304 bounds all operands; no pressure-namespace inference is used.
+- **KD5L18.** `fallback_power_up`'s sole error copy, `return Err("fallback scaled constituent range".into())`, returns immediately, so it allocates at most once per actual invocation (`site_from` per 1); the full function's case/replay count is kept.
+- False primitive min/max ancestors (KD5C4) no longer create fictitious TEXT visits on Bodies coordinates/edges, g5a rows or notice group scans.
+
+### 4.6 Formation guard and recovery finding
+
+**KD5L1, KD5L2** (group census; added where `formation_guard.rs` defines `member_group_fires`). The surviving `record in records` header is rebound (`REBIND`) to m + g on the unified record shape: one record per admitted straight member and support, with arcs and connectors excluded by D1.4. The per-record `for group in &record.groups` → 28, only in `member_scales` and `recovery_finding`: each member has at most seven locations × four groups, and a support fewer. This protects every support record instead of keeping the former member-only m census.
+
+**KD5C2** (source-replaced identifier audit sites). Four audits move from the basis line table to named sites; historical snapshots receive the original arguments and classes exactly. On the unified graph the two recovery end-message sites become `recovery_finding`'s group-message sites (`q=` and member-bound-unavailable), with the same IN128 member id and fixed ≤ 128 B location/kind labels. The old inline `RecoveryRecord` member copy moves to the certified-publication constructors (KD5A1). FK `formation_check.rs` still copies its unavailable family (`family.clone()`) at the existing static class (128 B); the copy moved, unchanged, from `check` into its callee `check_at` (nonlinear K-D5), and the audit is keyed by whichever function holds it.
+
+**O13T2** (`s11g_tests/arc_recovery.rs`; added where the file exists and `formation_guard.rs` no longer defines `arc_recovery_finding`). O-13's arc predicate is gone, but the rewritten test module remains inside the `#[cfg(test)]` `s11g_tests`, and the chain reaches some of its helpers through conservative name candidates. Its arguments keep honest classes, never a guessed zero size: the test `group`'s kind STATIC (callers pass only axial, shear, torsion and bending), the P2/P5 tags' project ids IN128 (fixed `invented:o13:*` ids, the longest 42 B), mode Debug ≤ 17 B, f64 Display ≤ 327 B, and a copied source line ≤ the included `lib.rs` + `formation_guard.rs` bytes at the snapshot.
+
+**T** (`s11g_tests/short_bend.rs`, test code). `short_bend.rs` is a module of `s11g_tests`, which `lib.rs` declares only under `#[cfg(test)]`; the chain reaches none of its functions (multiplicity 0). Its label arguments get honest classes, with no size override: `mode|?` 17 B (`SparseInteractive`) and `phi` 327 B (f64 Display).
+
+### 4.7 Aggregation, rows per member and the route-E evidence census
+
+**U6-RB, U6-RB-V and W1-L5** (byte-preserving source change; `O10_TYPED_PATCHES` on `ordinary_caps.py`'s "Final aggregation" row). The final aggregation (`lib.rs run_linear_static_preview_observed_inner`) clones each published row into `rows_by_base_id` only `if combining`, where `combining = preview.is_some() && !model.combinations.is_empty()`, and calls `append_combination_results` only then. `preview = (!pressure_runtime::is_exact(&model)).then(..)` is None on route E.
+- **U6-RB** (route E). E's final aggregation holds the results once, with no `rows_by_base_id` map nodes; the `id_map` stays.
+- **U6-RB-V** (route E). The one `results` Vec is push-built from `Vec::new()` across every case (checked: one `let mut results = Vec::new();`), so the rewrite prices it at its push capacity, `V("ResultItem", PA)`: 16,384 slots at PA = 8,361, not PA exact slots. Route L's term is unchanged: its 2·PA slots and PA map nodes cover both its push capacity and the clone's entries. Route E's G-C admits its own 8,361 rows (§9).
+- **W1-L5** (route L). With no combinations (z = 0) the aggregation omits the row-index clone and map and keeps push-capacity results; with combinations it keeps the original term and adds a positive family for the callee's sorted `base_ids` and filtered/cloned `case_rows`. The guarded `load_case_id` clone in the insertion is bounded at min(z, 1)·cases·P per call (`site_from`).
+- **Guard.** `w1_reductions_model.guard` binds the production `combining` expression, both guards (the insertion and the call) and its `#[cfg(test)]`-only byte-comparison shadow; `rows_by_base_id` must occur three times, `let preview =` and `append_combination_results(` once each, and `results` must be push-built once. A missing, former or altered guard stops with exit 4, so route E never silently regains the index clone.
+
+**U6-RP** (rows per member; route E). Before D-5 an exact member publishes 12 end-force, 18 station-resultant, 8 endpoint-stress and 12 station-stress rows and one maximum: 51. D-5 publishes the 20 element-local stress rows through `push_basis_twins` and the maximum once per basis through `section_basis_row`: 72. Route E's premise becomes P_final = 7n + 72m + 8g + 3 and R0 = 7n + 72m + g + 3, in place of 51m; `census_patch.py` applies it to the chain's P and R0. Route L publishes no reduced row, because its model has no exact contract, and keeps 51.
+- **Census** (`lib/census_exact.py`, I95's B3-S method; `data/census_d5_79bf8656dc.json`). It measures exactly 7n + 72m + 8g rows on every empty-region exact case of the committed pressure-source-1 fixtures in both modes (for example `fields`: 102 = 14 + 72 + 16). The fixtures are regenerated on the D-5 producer by their own writer (`SWBPIPE_PRESSURE_SOURCE_FIXTURES_WRITE`) at `79bf8656dc`; the census equals, fact for fact, one taken on fixtures regenerated at `20c6126a16`, and `census_exact.py` reproduces the committed census byte for byte (`tests/test_census_exact.py`).
+- **Evidence.** The census also gives the D-5 per-case evidence: `pipe_stress_extrema` once per member and basis, the nested section bases and two coverage lists. At the caps that is 3,118 array slots, 868 objects, 4,093 entries, 414,656 string bytes (STR_CAP 304: the elastic-maximum id, at most 23 + 2·(3 + 1 + 128) = 287 B, plus ':' and a basis token) and 43,631 key bytes, with each extremum at its largest `locations` shape (U6-RL).
+- **Guard.** Route E stops unless the census states 51 + 21 rows per member.
+
+**U6-RL** (`locations` shapes; route E, every copy of the evidence owner). The census case's extrema are the source-selected maximum's (`source_receipt/composite.rs maximum_inner`), route E's larger extremum form in every fact; the certified or fallback form of the case solve has no `locations`. `maximum_inner` publishes `locations` in one of three shapes, one per variant of `Locations`: `strict_endpoint` (2 entries, the keys `kind` and `endpoint`, 12 B, two strings), `whole_span_constant` (1 entry, 4 B, one string) and `endpoint_candidates` (3 entries, `kind`, `exact_tie_proven` and `interior_equal_possible`, 43 B, one string and two booleans). A fixture shows one shape, but a lawful source-selected case with endpoint ties publishes `endpoint_candidates`, one entry and 31 key bytes more than `strict_endpoint`. The census therefore counts each extremum at the componentwise maximum over the three shapes: the strings of `strict_endpoint` (608 B at STR_CAP) and the entries and key bytes of `endpoint_candidates`. Per member (two extrema) that is 127 entries and 1,348 key bytes in place of 125 and 1,286; per case at the caps 64 entries and 1,984 key bytes more. The chain prices these facts through `census_patch.py`'s `_exmax` (the evidence owner in `ordinary_caps.py`, `g4_caps.py` and `t25_g4.py`), so every copy of the evidence owner rises with them. This matters most on the X branch: a selected run finalizes its source-block receipt and W1 falls back (`Coexistence`) without consulting G-C, so only the a priori price bounds that evidence. `retained_memory_witness_tests.rs`'s `u6_rl_evidence_bounds_admit_source_selected_endpoint_ties` reads a selected run whose line members tie: a tied member's facts are exactly 127 entries and 1,348 key bytes. **Guard:** the census stops unless `composite.rs` builds exactly these three shapes (`maximum::Locations::` occurs three times and each `json!` literal once) and unless every census extremum carries `locations`.
+
+### 4.8 Publication hashes (T16, phase W3)
+
+**U6-DH** (byte-preserving source change; `u6_owners_model.domain_hash_copies`, priced in `g4_caps.py`). `retained_wire.rs domain_hash` serializes the borrowed `DomainPayload { domain, payload }` through `domain_text` instead of copying the payload into a new `json!` Value. serde_json's object map orders keys, `domain` < `payload` is the field order, and each field serializes as the same string and the same borrowed Value, so the text and hash are unchanged. T16's three hashes (source identity, publication, receipt) therefore price no wrapper copy; the rest of the hash route is unchanged. T17's reader (`source_blocks::domain_hash`) still copies. The earlier form keeps its earlier price, and any other form stops the run (exit 4).
+
+### 4.9 Rules for earlier revisions
+
+These rules remain in the tool, guarded by the name of a function that the current source no longer defines, so they add nothing at current source and keep earlier revisions priced as registered.
+- **N1** (`lib.rs append_retained_source_not_joined`, deleted by the pressure-source join; unlabelled audits in the batch-2 block). The id `format!("diagnostic:source-recovery:{}:not-joined", stable_suffix(case_id))` and `vec![case_id.to_string()]`: `stable_suffix(case_id)` and `case_id` are IN128. A load-case id is at most 128 B, and `stable_suffix` replaces `:` with `-`, so the length does not change.
+- **N2** (code label N; `O10_ARGS_FIRST`). That diagnostic's message `exact_admission::RETAINED_SOURCE_NOT_JOINED_TEXT` takes the literal's length, read from `exact_admission.rs` on every run, so an edit of the text is priced as written.
+- **J4** (`exact_admission.rs pressure_v3_formulation_basis_in`; U6-J4 is its current form). `identity.to_string()` is bounded by the longer of two literals (chosen by `selected == Some(true)` between the pressure-source-1 and pressure-1 texts), and `source.to_string()` by the longest of three (chosen by `match selected` among None, Some(false) and Some(true)). Each bound is the raw literal length read at the snapshot (≥ the decoded length). **Guard:** each `let` selects exactly that number of literals.
+- **O-13** (`formation_guard.rs arc_recovery_finding`; removed in batch 4). **O13L1**: `ArcRowGroup::ALL` is `[Self; 4]`, so the guard walk is bounded at 4. **O13A1**: a fired item is bounded by the existing F_len = max(id + 34 + 3·24, id + 41 + 8192); each finding has at most six named items; a sentence is at most 600 literal B + id (128) + count (20) + 6·F_len + 10 separator B + 31 suffix B = 50,955 B at D1; `merge` receives at most the straight, arc and short-bend findings, in that order, so any prefix and the whole are at most 3·50,955 + 2 B (`composite_text.py` uses this whole-sentence bound for `evidence_line` on those revisions, and the per-site `merged.sentence` takes the same bound). The short-bend finding's case id is IN128. The guard's member, case id, group label, endpoint name and unit are IN128 or static tokens, the test observation's project is the capped project id, and `arc_recovery_record`'s member is a pipe id. **O13T**: `s11g_tests/arc_recovery.rs` is included only under `#[cfg(test)]`; its arguments receive honest bounds (mode Debug ≤ 17 B, f64 Display ≤ 327 B, project/member ids IN128, each sentence ≤ 50,955 B, and a copied source line no longer than the included source bytes measured at the snapshot), and no test site is assigned a fabricated zero.
+- **Formation entity bodies.** On snapshots without `member_group_fires`, the three `formation_entity_bodies` map-insert copies keep their IN128 audits (KD5A3).
+
+## 5. Owned layouts, carriers and workspaces (positive owners)
+
+These owners sit outside the chain's TEXT inventory and are priced positively in `base/ordinary_caps.py`, `g4_caps.py`, `t25_g4.py` and `t07_repair.py`. Every weighted layout atom binds to actual in-build sizes or an explicit source upper over those types. Workspace unions are source uppers, not compiler-frame measurements. Python ASSUMED strides are illustrative and are not budget evidence.
+
+### 5.1 K-D5 owned layouts (KD5O1–KD5O14)
+
+These additions apply only when the priced source defines `MemberBoundInputs` (`ordinary_caps.py`'s `KD5`); pricing an older registered revision keeps its original formula. The tool's snapshot path is passed to `ordinary_caps.py`; this is history pricing, with no product format compatibility path.
+
+- **KD5O1, KD5O2** (ordinary formation peak). `evaluate` reuses its rho backing for s and s₂, then drops it before `epsilon_e` allocates one reusable F-row of exact accumulators. The conservative three-row allowance of DEL-04-01 [kd5-member-relative-bound.md](../../../PKG-04/DEL-04-01/Design/kd5-member-relative-bound.md) §6 is retained: +2·Xc(ExactAccumulator, F) over the old row and +8·5F bytes for ψ, the correction right-hand side/solve scratch and ε's row/column sums. The old per-row list allowance also remains conservative. Every element/load re-formation and certified recovery remains stack-only; the matrix-cache row stays zero, subject to the source/T06 checks.
+- **KD5O3** (closure owners and their children). Every force term retains a `LoadClosureRecord` beside its ordinary formation record: V(LoadClosureRecord, q), and its exact-count scaled clone in W2, with q the route's force terms per case (12·l on L, l on E; §8.5). The primitive Vec inline owners in AssembledForce, FormationSource and the scaled force remain positive (`s(Vec)`); manifest headers are already inside each closure-record stride. The children of supplied LoadPrimitives, expected LoadClosureEntries, operand-bits Vecs, intensity-product factors and cloned thermal tables are zero only where the admitted domain forbids them. On route E the components, element and named-basis refusals, the empty regions and `is_load_state` false (B7b-LS) leave only plain nodal force terms: `certified_loads::source_factor` returns None unless `is_load_state`, so every admitted nodal load takes `ledger.push` of its normalized exact leaf, never `push_formed` or `attach_last`, and unit normalization installs no closure metadata. On route L the admitted full-span uniform member inputs carry formed terms, whose children are priced by B7a's formed-only owners (§8.1, §8.5), reduced only by W1's L1a/L1b (§8.6). Adding another of these families to D1 requires re-auditing these guards and a new count law for both independent expected manifests and supplied primitives, including all identity strings, operand vectors and cloned thermal tables, before the profile can bind it.
+- **KD5O4** (solution payload). `MemberBoundInputs` retains f64[N] w and w₂, i32[N] global exponents and the inline owner: B(20N) + s(MemberBoundInputs), through completion and recovery. W2's evaluate includes the larger core twice.
+- **KD5O5** (W2 tail). `force_scaling_recovery` clones the complete payload into PreviewLinearSolve while the outcome's solution still lives, so both payloads are included at that peak: 2·(B(20N) + s(MemberBoundInputs)). The unscaled exponent vector is counted as well as w and w₂.
+- **KD5O6, KD5O9** (recovery records and groups). At D1, m straight members each own up to 7 locations × 4 groups, and g supports 4 evaluands. Price V(RecoveryRecord, m + g), each record's separately grown group backing (m·PushCap(28) + g·PushCap(4))·s(RecoveryGroup), every member/support id, two owned labels per group at 128 B each, and the error child at TextCap(8192) for every group. Group allocation headers are in the actual in-build `RecoveryRecord`, and all group fields in the in-build `RecoveryGroup`. The fired-items Vec also gets V(String, 28m + 4g) for its separately grown backing; its formatted String children remain in TAV. No unavailable reason's storage is silently omitted. `member_scales` collects its paired maxima map into a second paired map; both `(usize,(f64,f64))` bucket maps are priced concurrently, with no allocator-reuse assumption, and older snapshots keep the original paired map plus scalar map. **KD5O9**: a snapshot whose actual support constructor emits `support_force_magnitude` retains four support groups (the force vector and its separately published magnitude, and the moment vector and its magnitude), so four group children, their label/error allowances and four possible fired strings per support are priced with the per-record PushCap(4) backing; the two physical scale families remain force and moment. A snapshot without that constructor uses its actual two-group model; proposed constructors are never charged as already implemented. The pinned constructor inventory (KD5T2) governs this detection.
+- **KD5O7** (certified support norms; inside `ordinary_caps.py`'s KD5O6 recovery-group term). `preview_physics::CaseRecord` retains one `(String,[f64;2])` per support with certified rows: its separately grown backing V((String,[f64;2]), g), g capped support-id strings and the vector header. The inline `MemberRecord` also holds two certified bending rows, within its existing in-build stride.
+- **KD5O8** (recovery FormationSource). `certified_publication::source` clones m FrameElements and collects sp spring pairs for support recovery. This source is priced positively and separately: Xc(FrameElement, m) + Xc((usize,f64), sp) + 6·s(Vec), keeping the existing assembly/check-source allowances, plus its frame member identities (U8-FM) and, on route L, B7a's recovery-source children (§8.1; borrowed under W1's L1a). Its primitive, connector, curved and unavailable backings are otherwise empty under the current D1 guards. The formula does not rely on old sources dropping or on allocation reuse. If a recovery-view API replaces this source, its actual constructor must be rechecked.
+- **KD5O10** (same-source coefficient vectors; where the certified-publication constructor calls `certify_straight_stress_spans`). The conservative S = 2l + 1 allowance is kept. On current D1 every admitted uniform input emits one row-0 physical source occurrence and twelve terms, even for repeated targets or ids, so source_count ≤ l without a uniqueness discount, and full-span inputs deduplicate to the boundaries 0/1; S remains an honest positive upper without a general primitive/source count law. FK owns an exact-capacity `Vec<CertifiedStraightStressSpan>`, and PP maps it into the engine's `Vec<EnclosedQuadraticStressSpan>`. Their simultaneous backing is priced as s(FK span)·S + s(engine span)·PushCap(S) plus both vector headers: result collect gets a conservative push-growth allowance, and no allocation reuse is assumed. The earlier FK boundary backing 8·(2l + 2) and its header are added conservatively over the constructor/mapping peaks. Both maximum laws borrow this one PP vector sequentially. The per-case maximum family also keeps the exact-span fallback and Node subdivision allowance. The span atoms are in-build sizes, and the engine Node stride is the actual existing atom. The kernel's source-owned typed workspace upper, `certified_stress_control_sizes().workspace_upper`, is a SourceUpper atom (`CertifiedStressControlWorkspace`) covering constructor/evaluation contexts, nested matrix/section/row/accumulator arrays and return/move slots; it is a conservative model of the declared kernel workspace, not a compiler-frame or allocator/system-library stack measurement. The primitive/source exclusion and span-bound premises must be re-audited with any admission-domain extension. U6-WS adds the reduced basis's second span output (§5.3).
+- **KD5O11** (product caller certificates). The kernel workspace is kernel-only. Product recovery retains `certified_member` and `certified_effective`, each `Option<CertifiedMemberRecovery>`, while the maxima borrow the coefficient vector; each member payload has 12 end rows and 5×6 section rows. Both actual in-build Option strides are added. The source-owned transient carriers are summed conservatively too: two `Result<Member,RecoveryFailure>` slots (the FK→PP and PP→and_then returns), four Member slots (the mechanical parameter, its clone, and the effective/published match bindings) and two `Result<(Member,Member),RecoveryFailure>` slots (closure return and certificate binding). This sum keeps return and move staging without claiming compiler slot reuse. The support loop adds two `[CertifiedRow;6]` arrays (builder rows and Ok binding), its Result return and its retained Option. Private stress/summary/group helpers retain up to three named Row operands, their chained scalar/return staging and two group-value staging slots: a positive 16·s(CertifiedRow) + 2·s(CertifiedGroup) allowance covers that fixed nonrecursive caller union. Kernel arithmetic frames remain in KD5O10, and none is discounted against this caller allowance. All strides, including enum/Option padding, bind to actual size_of. The allowance joins the per-case ordinary-recovery family, keeping every case multiplier and the other positive owners.
+- **KD5O12** (fallback arithmetic replay workspace; where `certified_publication.rs` defines `fallback_circular_maximum`). The fallback keeps the supplied QuadraticStressSpan vector and builds a separate exact-capacity engine enclosure vector; their backing and headers are covered by the summed exact-span fallback and KD5O10 vector allowances, and no simultaneous allocation is removed. FallbackError has only `magnitude`/`error` f64 fields (checked), and the exact-product grid is `LIMBS = 68` (checked in `exact_sum.rs`). The fixed replay inventory keeps the 256 pair-value slots: six section values plus l/distance/start/end/active_end/active/lever/q; six returned rows, three samples/intensities, nine powers, component/control values and helper argument/return staging. Scaled constituents use fixed mantissa/exponent pairs and iterative power transport, with no new heap array or recursive fallback-product call. The pressure branch adds fixed fluid/coefficient/wall/generic/reference-law operands. `fallback_product_up` has nine positive call sites, executed sequentially by mul/rounded, power transport, reference-law transport, uniform-slope and unit transport. Its one owned ExactAccumulator stays live through add_product, round, add(−rounded) and signum. The source call tree is add_product → decompose/add_shifted → add_word; round → round_scaled → compare/subtract → project → window/bit/any_below; then add → decompose/add_shifted → add_word and signum → compare. None recurses or creates another nested `fallback_product_up`. Each array is the fixed 68-u64 magnitude grid. Two actual accumulator strides (the product owner and new Self return/move staging) and eight 68-u64 buffers are summed: two initializer arrays, plus both exclusive `round_scaled` branches' subtract output, returned-array staging and project-call temporary. The scalar/index census adds 256 slots for decompose/product/shifted-word, compare/net subtraction and projection helper parameters, locals and return staging to the 128 replay slots. This keeps all alternatives and integer/u128 argument/move staging without compiler reuse assumptions. The SourceUpper `FallbackReplayWorkspace` is 256·size_of((f64,f64)) + 384·max(size_of(usize), size_of(f64)) + 2·actual ExactAccumulator stride + 8·size_of([u64;68]) (13,696 B on the current 64-bit build); the scalar slot width is at least f64 width. These charges are additional to the kernel workspace, product certificates, simultaneous vectors and String allocations. All positive fixed arrays, values and exact-product call-depth buffers are priced independent of whether the fallback's load iterators are empty. An extended source/grid domain or a changed replay layout needs source review before binding. This is a source upper bound, not a compiler-frame measurement.
+- **KD5O13** (FK directed-helper scalar staging; `kd5_text_model.inspect_directed_helpers`). `load_ledger.rs`'s upward/downward product and downward quotient use a bounded integer comparator. The model pins all five helper bodies (`DIRECTED_HELPER_PINS`: `nonnegative_parts`, `compare_nonnegative_product`, `product_upward`, `product_downward`, `quotient_downward`); `load_ledger.rs` as a whole is bound by the B7a and W1 full-file pins. The call chain is one of product_upward/product_downward/quotient_downward → compare_nonnegative_product → nonnegative_parts. It is nonrecursive, the three decomposition calls are sequential, and there is no heap or persistent layout; stack-only is not used as a zero premise. A separate positive SourceUpper `DirectedHelperWorkspace` is added: 8·size_of(u128) + 6·size_of((u64,i32)) + 48·max(size_of(u64), size_of(f64), size_of(usize)) (608 B on the current 64-bit layout). Eight u128 slots retain the product/reference values, three integer conversion results and two shifted comparands plus staging. Six dyadic tuple slots retain the three decomposition bindings and each return's staging, although the calls run sequentially. Forty-eight scalar-width slots cover the wrapper's operands and rounded result, comparator operands and ep/hp/hr/common/sp/sr/order, leading-zero and conversion/shift temporaries, plus the decomposition's value/bits/biased/fraction and scalar return/argument staging. The sum keeps exclusive alternatives and return/move slots without inferring compiler reuse or a measured native frame. The atom is charged in the typed-core family (so in both W2 evaluations through the existing core multiplier) and again in late formation-guard recovery. This separate charge covers S11-G/formation and late guard consumers without relying on KD5O12's or KD5O11's allowances; existing case/replay multipliers, M/text limits and all earlier positives remain. Historical helper bodies receive no new charge only after all three wrapper bodies match their pinned originals (`LEGACY_DIRECTED_WRAPPER_PINS`, identical at basis `2243be380b` and the registered B3 and U2 snapshots) and no `nonnegative_parts` helper remains; comparator-name absence alone never selects historical pricing. Renaming or removing the comparator changes the wrapper bodies and fails closed, and a changed original wrapper is also rejected.
+- **KD5O14** (withheld summary backing; where `LoadCaseSolve` has `withheld_summaries`). Each case's LoadCaseSolve owns a separately push-grown `Vec<Diagnostic>` of at most one warning per member. An append into the envelope leaves its capacity, and a rendered preview never appends, so each case's backing lives beside the envelope's vector until the solves drop: C·PushCap(m)·s(Diagnostic) in the Diagnostics family. The strings and the count are already in TAV and D.
+
+### 5.2 Batch 5 carriers (B5O1)
+
+**B5O1** (positive carriers and overlapping staging; `batch5_model.active`). The retained domain is D1: at most three case owners, no components, and absent pressure regions on L or an explicitly empty region list with capacity zero on E. A separate CasePrefix family, multiplied by the full CC case-owner count, adds:
+
+`5·s(Option<ExactPressureCase>) + 2·s(PressureRegionInput) + 2·s(LoadFormula) + 2·s(Result<LoadCaseSolve,FrameKernelError>) + s(PreparedCaseWorkspace) + s(BTreeMapHeader) + HashReq((&str,&T), mats) + 24·N + (3·N + 8)·s(Vec)`.
+
+- **Carriers.** All carrier strides bind to actual in-build types. Five complete pressure Option carriers cover the assembly output/Some return, the public preparation wrapper return, the solve-wrapper assignment and the prepared argument, without move elision or compiler slot reuse. Two complete solve Result carriers cover the extra wrapper return/staging. Two complete input and LoadFormula carriers keep the serde-skipped connector-id Vec owner and the JointEffectiveArea variant positively, including alignment and padding; this is an additional conservative charge, not a replacement of typed request or existing primitive owners. The pressure Option includes the `assembled_operand_bounds` Vec and `joint_pressures` map headers.
+- **Backings.** The three N-element f64 backings are eigenloads, cap_loads and assembled_loads. cap_terms and eigen_terms each allocate N empty Vec headers and remain in scope while `finish_source_groups` allocates by_dof, the third N-header backing. Eight more Vec headers cover those three root vectors and evidence/local return staging conservatively. The separately built material_map is charged at mats, and the empty factor_groups map keeps its actual standard map header. No early drop or allocation reuse is assumed.
+- **PreparedCaseWorkspace** is a source upper of 64 usize-width scalar/reference/index/return slots, 16 borrowed-slice views, 16 Option-reference slots and four u8 bytes, which keep the historical ArcEndFrame-slot allowance after B7a C5 retired the selector and its API. On the current 64-bit build that is 64·8 + 16·16 + 16·8 + 4 = 900 B (the illustrative estimate is 1028). The two wrapper/helper signatures together contain 16 thin references (model, built, stiffness, case, budget and diagnostics), eight material/restraint/spring slices, eight optional capture/load-state/product references and two optional string views. Their argument/move copies fit the slice/optional union, and the remaining thin/scalar allowance covers the pressure call's references, indices, flag/comparison and return staging. Complete owned returns are charged separately. This is a conservative source union, not a measured compiler frame, and it leaves R and the helper allowances in place.
+- **Empty children.** Only backing children forced empty by the actual D1 guards are zero: components and region lists (with capacity), and therefore connector records, joint pressures, factor groups, assembled operand bounds and supplied joint primitives. No whole pressure-producer zero follows on E: its three node vectors, nested headers, materials map and evidence construction remain priced.
+- **Source binding.** `batch5_model.py` pins the whole pressure production prefix (both input/output declarations, assembly and finish-source producers), the case wrapper and prepared helper bodies, the descriptor body, and the `namespace_branch` and `family_clauses` refusal bodies. The no-feature branch requires the exact reviewed older pressure prefix and case body (`LEGACY_PRESSURE_PREFIX_PIN`, `LEGACY_CASE_PIN` 273d31e0…), not merely helper-name absence. Changed producers, declarations, allocations or refusal predicates stop for renewed review. Batch 5's six illustrative atom entries are added only on its source branch.
+
+### 5.3 D-5/D-6 resident owners (U6-ES, U6-WS, U6-RS, U8-FM)
+
+These four owners are priced positively by `base/u6_owners_model.py` with `ordinary_caps.py`, `t25_g4.py` and `g4_caps.py`. Each is found by its exact source text; a half-changed form stops the run, and a snapshot without it adds nothing, so earlier registered trees keep their coefficients. No zero and no reuse credit is taken. The design is DEL-05-03 [section-bases-and-timoshenko.md](../../DEL-05-03/Design/section-bases-and-timoshenko.md) §9.
+
+- **U6-ES** (both routes). `BuiltModel.exact_sections` holds one (pipe id, `ExactSectionBases`) entry per built pipe; `build_model_for_members` inserts it in its pipe loop under `is_exact` (two inserts, checked). It is priced as a hash table of m entries plus the keys, beside the `DerivedSection` map, in the built resident and in T25's rebuilt model, with the in-build atom `s((String,ExactSectionBases))`.
+- **U6-WS** (both routes). For one member at a time, the case solve holds the reduced end and station stresses with their children (2 ends + ≤ 3 stations, KD5L7), the stations' Vec, the `stress_sites` Vec (pushcap(5) entries of ≤ 48 B), the stress-finding `bases` (≤ 2 × 16 B) and, on the exact maximum's reduced basis, a second span output (2l + 1 `EnclosedQuadraticStressSpan`) beside the held nominal spans. These are priced on both routes: conservative on L, which forms none of the reduced ones.
+- **U6-RS** (both routes; T17's working sets, W4). The reader's `NumericCase` gains `all_rows`, a tenth field beyond C7's nine-field `NumericCaseBorrowed` upper: one Vec header per numeric case and per Result carrier. It holds every published row of its case. `rows_for`'s transient full vector sits beside its filtered one, and `g5c`'s drained `bound` classes (≤ P) beside the rebuilt classes, with one `last` class clone (its id and `basis_ref`). The two row vectors are priced at their capacities: `rows_all_for` is `list(..).iter().filter(..).collect()`, and a filter's size hint has lower bound 0, so the collected Vec takes 4 slots at its first row and doubles when full, which is push capacity pushcap(h) for h rows. Each numeric owner (a selected case or a `retained_selected` combination, at most C_eq) holds at most P rows, so the `all_rows` vectors hold at most C_eq·pushcap(P) slots, not PA. The one transient full vector (`rows_for`'s, or `g5b_exact_evidence`'s `all`, one case at a time) holds at most pushcap(P), not P. On route E, P = 2,787 and pushcap(P) = 4,096, so the term is 3·4,096 + 4,096 = 16,384 slots; route L has P = 2,115 and the same pushcap. The term is priced here rather than taken from the pre-D-5 "rows_for vectors" term 8·PA, which prices the filtered `rows` vectors and the other pre-D-5 row vectors: that inventory is not re-derived here, and the tool takes no reuse credit. Whether or not std collects `rows_for`'s filter in place, the filtered `rows` Vec has capacity at most pushcap(h) over its entry's published rows, the bound that term carried before D-5, at route E's P (U6-RP counts the twins). **Guard:** `prescribed_key_model.all_rows_field` and C7's borrowed pins bind the struct, and g5c's drain and `last` clone must each occur once.
+- **U8-FM** (both routes). `FormationSource.frame_members` holds one member prefix (U8-MP, ≤ 140 B, priced at `textcap`) per frame. It is filled from PP's `frame_member_identities` and copied wherever the frames are: in each assembly evidence (PP's Vec, `with_frame_members`' `to_vec` and `formation_source`'s clone), in each scaled copy, and in `certified_publication`'s recovery source. The source-recovery assembly passes none. **Guard:** `frame_member_identities`, its one `member_prefix` push and its capacity, and `member_prefix`'s format are checked.
+
+## 6. Frame kernel, stress recovery and nonlinear integration
+
+### 6.1 Formation check and load closure (FK `structural/formation_check.rs`)
+
+**KD5M1** (failure detail multiplicity; added where `member_group_fires` exists). On the pinned `formation_check` bodies (`_invocation_pins` in `o10_rules.py`: `detail` ae006b02…, `check` d22bba23…, `check_at` 29c96900…, `evaluate` a422166f…, `load_closure` 255b53b6…), `check` is a pure delegation to `check_at(…, judged = true, epsilon_cache = None)`. `check_at` holds the check body, calls `evaluate` once and `Failure::detail` at most once on its Err arm. An error either reaches the outer detail directly or creates one inner detail for Second and then the outer detail; the inner `?` exits prevent a second inner allocation. There are at most two detail allocations across all alternatives per `check_at` invocation, which also counts the nonlinear confirmation's `evaluate_at` calls. The positive `site_from` rules charge each of the seven exclusive allocation sites in `detail` at 2 per `check_at` call, keeping the full reached ordinary/W2/case/replay multiplicity. This is a sum-of-alternatives allowance, not a global cap on the function's run count. `evaluate`'s judged filter (D5C-1 and body scales skipped when unjudged) and per-attempt ε_E cache add no allocation, error or detail call. **Guard:** each pinned body and the seven-site inventory must match, or the run stops for review of the per-invocation control flow.
+
+**KD5M2 and B5M2** (first closure error). Every one of `load_closure`'s error allocation sites returns Err directly or propagates through `?`, and success allocates none. So at most one error allocation occurs across those sites per actual closure invocation, and the positive `site_from` rules charge every exclusive site at 1 per `load_closure` call, keeping all ordinary/W2/case/replay invocation multipliers. Loop counts are still audited and kept; this bound applies only to the returning allocation. The inventory is 15 sites, or 17 on batch 5 source (B5M2: two static, immediately returning joint end/DOF binding errors). The nonlinear K-D5 friction formulas in the existing nodal DOF-binding arm add no site. The new joint closure label has the same authored region/connector id bounds and static kind class as the existing pressure label, and both sites are audited. A changed producer or error-control-flow body stops for renewed review.
+
+**KD5A4** (closure details; unlabelled audits in `o10_rules.py`'s `member_group_fires` block). The three pre-manifest error messages (`absent manifest`, `missing summands`, `missing, duplicate or extra summand`) copy `term.source`, the D1-capped load id (IN128). They stay conservatively priced even though trusted input records continue before those formed-term branches on admitted D1 cases.
+
+**KD5A5** (text-typed failure operands). The inherited bare `s` rule is f64 Display (327 B); the Shape, Closure and Second enum bindings are text and receive explicit site classes in `detail`. Shape is a fixed literal ≤ 128 B. Closure's source cases are bounded by max(128 + 40, 128 + 14 + 8192): a capped D1 load id with the longest ordinary suffix (40 B), or the reformation prefix (14 B) and the existing 8192 B error class; the conservative site cap 8352 keeps both (U8-FB's member_source identity also fits). Second holds an inner subtraction/correction failure detail (error 8192 + longest inner prefix 21 = 8213 B); those helpers do not produce a nested Second. With each outer literal, the maximum returned formation detail is 8366 B, and T08 prices its capacity at 16,732 B. These are positive, honest text bounds, with no changed multiplicity.
+
+**KD5A6** (unavailable detail copy). `Failure::Unavailable` carries a private fixed `&str` and copies it through `(*s).into()`; the lexicon includes this actual String allocation. The pinned `evaluate` body constructs only contraction, Neumann and non-finite Lambda sigma literals, all within a positive 128 B allowance. The site keeps KD5M1's per-check invocation multiplier.
+
+**KD5L3–KD5L5, KD5L11, KD5L12** (formation traversal headers; `O10_LOOPS_LAST` in `load_closure` and `evaluate`). The K-D5 rules wrote the nodal-only bounds: `for p in &source.loads` → 0 (KD5L3: D1/W1 excluded load-state, and nodal input used push and no load primitive), `for (i, (term, record)) in terms.iter().zip(records).enumerate()` → l (KD5L4: one trusted closure record per nodal ledger term), `for (j, expected) in manifest.iter().enumerate()` → 0 (KD5L5: every nodal record is input, formed = false, with no manifest), `for (i, term) in ledger.terms().iter().enumerate()` → l (KD5L11: one input term per nodal primitive) and `for p in source.loads.iter().filter(|p| p.term_index == i)` → 0 (KD5L12: supplied load primitives empty by KD5L3). These are the exact preimages that `b7a_formation_model.rebind_o10` replaces at every source the committed tool prices, because B7a stage 1 admits formed full-span uniform terms: the supplied walk (`for p in source.loads.iter()`, Cow's spelling) and the term/record walks are bounded by q = 12·l, and the inner manifest and matching-primitive BODY traversals by 1 (attach_last creates one Summand for a new term, and attach installs one manifest entry and one primitive at that index; plain nodal records have no manifest). The outer predicate, count and matching scans still traverse q. A changed preimage stops the run (§8.2).
+
+**U8-FB** (`formation_check.rs evaluate`). `evaluate` calls `straight_frames_bound(source)?;` after `load_closure(..)?`. Its only allocation is one returned `Failure::Closure(format!("{}: straight primitive frame is not its formation-source frame", p.identity.source))`, which `detail` formats in its existing Closure arm. The source is a `member_source` identity (≤ 268 B, B7a's `MEMBER_SOURCE`), audited at that class (U6-A). KD5M1's per-invocation caps are unchanged; the `evaluate` pin binds this body.
+
+**FK895** is the reformation first-return bound in `evaluate` (§8.2).
+
+### 6.2 Call-graph bindings
+
+**KD5C1** (surviving condition-estimator call; FK `structural.rs`). K-D5 renamed the trait body `ConditionMatrix::estimate_rcond` to `estimate_condition`, returning the gate's rcond, inverse estimate and norm; the public `estimate_rcond` still delegates to that body and returns its first value. Its basis call-graph rule moves to a named `CG_RULES` binding that requires exactly one public wrapper and one trait method, or the original two old definitions. No edge or bound is pruned; the wrapper/trait edge is preserved.
+
+**KD5C3** (scaling call binding; FK `load_ledger.rs`). `AssembledForce::force_scaled` maps its `Vec<LoadPrimitive>` with `p.force_scaled`, calling `LoadPrimitive`'s method in `formation_check.rs`. The call graph is bound to that exact method. It never recursively calls the ledger method; a fictitious recursion allowance would conceal the call-graph error.
+
+**JN1** (correct_norm crate). `price.py` scans `core/numerics/correct_norm` where the snapshot has it and adds each dependent crate's dependency edge. The seven crate-qualified `open_pipe_stress_correct_norm::norm2/norm3(` calls in frame_kernel are bound to that crate's functions: `rigid_body.rs assess_rigid_body` (norm3, norm2), `certified_recovery.rs norm_up` (norm2) and `certified_group` (norm2, norm3, norm2), and `retained/product_certificate/final_case.rs support_hypot` (norm3). frame_kernel's `correct_norm` module moved byte-identical into the crate. A crate-qualified call keeps only its last qualifier, so by name it would also reach the same-crate private `final_case.rs:norm2` and `formation_check.rs:norm3`, which those paths do not name; before the move, `crate::correct_norm::normN(` resolved the same way. Every other candidate keeps its by-name resolution. **Guard:** the run stops unless frame_kernel's non-test files hold exactly these seven calls, each found once in its caller.
+
+### 6.3 Argument classes in FK, stress recovery and NI
+
+**A1** (FK `connector.rs`). `ConnectorError` Display's `name` at its three `write!` sites → STATIC (128). The `name` fields are `&'static str`; the longest literal is "connector displacements" (23 B). The Display rows stay priced.
+
+**U6-A (D-6 kernels).** FK `shear.rs`'s error names are `&'static str` literals (every `finite(` and `NumericalRange` name is a literal, checked), bounded by the longest; its inner/outer radius f64s are Display (327 B). `straight_pipe`'s `UnsupportedLoadForBeamTheory` name is a literal (checked), bounded by the longest. `straight_frames_bound`'s source is U8-FB's.
+
+**KD5T3** (one fixed subject copy; `stress_recovery` crate). Only the lexical allocation at `StressFinding::new`'s `subject_id.into()` receives a positive 128 B cap (`LEX_SITE_SIZE`), replacing the unrelated snapshot-wide STATIC maximum at that site. The stress-recovery production prefix before `#[cfg(test)]` is hash-pinned (`STRESS_SUBJECT_SOURCE_PIN`). Thirteen private constructor calls and their private forwarding helpers resolve to exactly 17 source-literal subjects: analysis_status, area, axial_force, axial_normal_range, bending_moment_y, bending_moment_z, bending_normal_y_range, bending_normal_z_range, first_state, second_state, section_modulus_y, section_modulus_z, torsion_constant, torsion_radius, torsional_moment, torsional_shear and torsional_shear_range. All are ASCII; the maximum UTF-8 length is 22 B. The literal seed callers are `recover_stresses`, `validate_stress_input_unit_metadata`, `torsional_shear` and `recover_stress_range`, and the subject/numerator_name/denominator_name forwarding admits no external value. The existing identifier audit stays 128 and the message 2173, and all authored/derived ids and full case/replay counts stay governed by their original caps. The public field remains externally authorable; this creates no global subject_id or type-wide rule. Changed production source fails closed for renewed caller review. This rule alone establishes no budget pass.
+
+**NLKD5A1** (NI `confirmation.rs`; where `confirm_with_applied` exists). `O10_ARGS_FIRST` `gate.report.reciprocal_condition_estimate` → 30 B. The gate-refusal reason prints the gate's reciprocal condition estimate with Debug. It is an `f64` (FK `StructuralReport.reciprocal_condition_estimate`), whose Debug is at most 24 B (for example "-2.2250738585072014e-308"); the 30 B cap is kept and is sound.
+
+### 6.4 Recovery and reactions
+
+**U6-L6** (FK). `formation_check.rs unbound_straight_primitive`'s `iter:source .loads .iter().find` and `certified_recovery.rs certify_support_reaction`'s term loop `for (index, term) in force .terms() .iter() .enumerate() .filter(|(_, term)| term.dof == dof)` → 12·l; `certify_support_reaction`'s primitive filter `for primitive in source.loads.iter().filter(|p| p.term_index == index)` → 1. A formation source's loads and a formed force's terms are at most q = 12·l (B7a). One formed term carries one supplied primitive: `certified_loads::attach` with more than one source runs only in `push_exact_pressure_operands`, over `exact.assembled_operands`, which is empty on D1 (route E's `exact\.assembled_operands` zero; no exact case on route L); the scan's predicate allocates nothing. **Guard:** the attach inventory is checked (one `attach_last`-form attach in `certified_loads.rs`, and `push_exact_pressure_operands` the only product attach owner).
+
+## 7. Source receipt and recovery (T07, T25; the X phases)
+
+T07 (the live source attempt) is a row of the ordinary base that every phase holds. T25 (the receipt replay, selected finalization) is priced in X1 only.
+
+### 7.1 Retired preview source rules (B4/D1 (b))
+
+**Retired carry** (`lib/b7a_retired_carry.py prepare`). B4/D1 (b) removes the non-composite preview source receipt and its support resultant, straight-stress input vector and stress-summary recipes. Before the ordinary line carry, the adapter transforms copies of two canonical base files only on exact full-file fingerprints of the current `source_receipt/rows.rs` and `source_receipt.rs`. It verifies the complete preimages and removes the ID-audit keys `rows.rs` 390, 396, 518 and 529, whose four owned allocation sites no longer exist, and only the deleted `exact`/`finalize` tokens from the ZW sensitivity list; `finalize_composite` and `finalize_for` remain and must each be unique. A partial retirement, changed source or changed preimage refuses the transformation. Missing source, or the original exact/finalize constructors, send the untouched original rules to the same strict line carry; neither branch exempts a replaced current key. The fingerprints hash raw bytes, including the newline representation. The current positive nodal, functional-binding, projected/derived row-id, missing-derived-row format and source functional-id audits remain intact, and no current owner, loop, call count, cap, numerical criterion, M or margin is narrowed. The D3 report records each retirement, both full-file fingerprints, the adapter hash and the input/output rule hashes. The canonical base files remain unchanged, and every replay derives the same two copies. These full-file guards are part of the pricing tool's dependency: an edit to either guarded file, including a test-only suffix, requires this source binding to be re-audited before pricing is reused. The route-E keys of the retired constructors are in §1.2.
+
+### 7.2 The receipt hash and the selected publication hash
+
+**U6-SH** (byte-preserving source change; `u6_owners_model.receipt_hash_copies`, priced in `t25_g4.py`). U6-SH is option A, first priced at `433fc1f1e4`, which HELP_HUMAN accepted on 2026-10-16: "Apply the borrowed {domain, payload} wrapper in source_receipt.rs hash, with its own adjudication rule, a source pin, a test pinning identical hash text, and an independent review". `source_receipt.rs hash` (its only definition in the crate; `source.rs` and `composite.rs` reach it through `use super::*`) serializes the borrowed `DomainPayload` wrapper through `hash_text`. `hash_text` is `checked`'s body on the wrapper: the `to_string` text, the checked parse and the canonical output are unchanged and stay priced. Only T25's payload copy goes, at every T25 hash route: payload, plan, publication and body. `source_receipt/tests.rs`'s `receipt_hash_borrowed_wrapper_text_and_hash_are_the_former_objects` compares the text and hash with the former construction over every receipt domain and reproduces a committed fixture's `receipt_sha256`. The new Err-only `e.to_string()` in `hash_text` keeps the chain's own multiplicity at the 8192 B error class. The earlier form keeps its earlier price, and any other form stops the run (exit 4).
+
+**Selected publication hash** (B7a; `b7a_phase_model.selected_publication_context`, `t25_g4.py`). T25's selected invocation publication hash has a route-qualified producer. `source_eligible` requires exact captured recovery, the per-case gate requires exact capture for all finalized case constructors, and the invocation gate requires selected exact context before `finalize_composite` and `finalize_for`, which obtain policy from the same capture's context, not from an envelope label. Admitted pressure-free route L has none of these selected producers. Only the extra `hash(publication)` term inside T25's I1 stage and its row-10 representation (body json! with hash(publication) inside) is absent on route L. Every other S/I form, invocation/body, carried case, C8, header, initial raw/typed parse/hash, moving and W1/T16/T17 owner stays positive at its bound, and route E's actual hash and foreign or ordinary product paths are unchanged. G4 consumes the stage forms directly, so the ordinary T25 row alone cannot change that profile. Full TAV_X, both X phases, all fourteen phase identities, native bindings, the coefficient-wise union and the upward reserve remain. **Guard:** the model binds the source, admission and capture bytes and the complete qualified constructor/finalizer caller and stack inventory (`composite_exact`, `ordinary_physics`, `failed`, `finalize_composite`, `finalize_for`).
+
+### 7.3 composite_exact's MemberSection comparison (C8)
+
+**C8** (borrowed member comparison, positive caller staging; T25 stages). The `composite_exact` MemberSection check borrows the descriptor quantity and member/station/component fields, keeping ordered byte/bit/variant comparisons, convention/case checks and every error. `member_comparison_model.py` accepts only the exact old owned body (`993146b2…`) or a reviewed borrowed body: `8f9f963b…`, B7a's `b2507ed6…` (which differs from it only by removing the obsolete non-composite selector `true` arguments from `rows::expected_primary_for` and `rows::bind_for`) and T4-U6's current body (which publishes the source maximum once per section basis, each after a coincident-section check, and binds each basis's evidence; the borrowed comparison, its descriptor binding and the staging frame are unchanged). The pins include the enclosing loops, later JSON/projection work and non-escape boundary. The model hashes the UTF-8 body from raw bytes, so CRLF drift refuses, and a changed, renamed or duplicated body refuses.
+- **Staging.** A positive `MemberComparisonWorkspace` SourceUpper is charged to every T25 case and invocation stage, at CC copies (≤ 3), in addition to all prior owners. The source-union inventory is 16 thin reference/pointer slots, 8 borrowed byte-slice views, 16 usize/index/length/size slots, 4 u64 station-bit slots, 4 f64 station/bitcast slots, 4 u8 component/cast slots, 16 bool pattern/guard/short-circuit/return slots and 4 i32 byte-comparison result slots. Every slot is rounded to the maximum alignment across these actual types, keeping argument/return/move staging and no reuse between alternatives or source frames. The references include the quantity view, three pattern bindings, the expected member/array cell, the lifted reference comparison and the String/Vec equality interfaces' raw-pointer staging; byte views include returns and arguments; lengths include equality/byte-size and array-index/cast staging. Numeric operands, comparisons, the stored `quantity_matches`, its negation and the outer condition remain positive. The standard String representation and comparison path are documented in the exact-toolchain [String source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/alloc/src/string.rs) and [slice comparison source](https://github.com/rust-lang/rust/blob/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/slice/cmp.rs). Current native widths and alignments give 640 B per union and 1,920 B at CC = 3. This is a source-slot bound, not a compiler-stack measurement; existing library/helper allowances and R stay positive. The one guard is nonrecursive, and its references and boolean do not escape the sequential row loop. Charging CC complete copies at every S/I stage conservatively covers overlap with all carried/resident member/descriptor enums, Strings, JSON, section checks, projections and collectors, even after these temporary slots drop; no old owner is credited or replaced.
+- **Audit.** Only route E's basis audit 869 migrates. Its original `member.member_id` IN128 class remains in source-resolved `C8_INPUT_METADATA` for both representations: exact known-owned syntax emits its allocation audit, and the nonallocating borrowed guard emits none. Route L and every sibling audit (including maximum 97) remain. The actual G6 allocation inventory must accept this distinction without a fake row, zero rule or waiver. The old owned site volume is attribution, not an actual phase/peak saving, and all counts, visits and criteria remain.
+
+### 7.4 RF source-method owners
+
+These rules implement the memory portion of [rf-source-method-extension.md](rf-source-method-extension.md) §9. They keep M = 12 GiB, R = 64 MiB, the 0.9 M margin, the upward-rounded 5 % TEXT reserve, and all D1 limits. `rf_source_model.active` selects the extra owners only for the declared-congruence source, checking its 288-value member, order-4 cap, optional witness fields and adjugate/Snapshot owners. Historical sources keep the old formulas. The existing full-file source guards and the complete loop/TEXT inventory remain independent gates.
 
 | Rule | Source facts and bound |
 |---|---|
 | **RF-O4** | `BlockWitness`'s native atom includes its two optional vectors. For a four-DOF block its children contain at most 14 expansions (a, ten upper entries, three minors), below the existing four expansions per DOF; the three-DOF case is smaller. C5 and H2 additionally pay four Vec headers per DOF, covering the upper/minors inner headers. Context's C8 pays a push-built outer adjugate vector and at most ⌈2.5 N⌉ entries, each one native Expansion plus its E-term child backing. C6 adds 36 optional cache slots by a positive field-sum upper, 26 E-term arithmetic buffers and ten upper-entry references. D2 adds the grouped-block index, the N-entry optional group map, at most ⌈N/3⌉ optional expansion accumulators, and 26 further E-term solve/reaction buffers. Its original eleven buffers stay. All new loops are bounded by order four or the existing N/E limits. |
-| **RF-CG** | Sources' A6 pays a push-built vector of the actual native `CongruenceMember`, including both 144-value matrices, its 12-entry DOF map and contribution range. Each exact-cloned Snapshot pays m such records; T07 holds its Context and retained copies and T25 also carries the rebuilt Context. The ordering vector pays m indices. The 144-entry K·T buffer has at most six terms per entry and Tᵀ·(K·T) at most 36: block rotation gives at most three factors per transform column, hence nine triple products, each at most four terms. C6 pays both matrices' row/Expansion headers and PushCap(6)/PushCap(36) children together, plus six E-term arithmetic buffers. C2 keeps the old 4Z + 2C capacity bound and adds 2·35·144m slots, so a replaced rounded scalar can contribute 36 exact terms. The old term's allowance remains. |
-| **RF-DU** | If a congruence member exists, `prepare_sources` counts all descriptor units before constructing descriptor #1 and refuses above 16,384. Its equality with `descriptors_charge` is checked across the congruence census and constructed mixed models. A3 takes the coefficient-wise maximum of the original signed-permutation construction law and the new unit-law bound. The latter pays the outer descriptor Vec and both ID strings independently, then 2·16,384·(s(AffineTerm)+s(Vec)+8): term/product/atom units together cover minimum-four and doubling capacities, while factor atoms pay their own bytes. A single product carries at least one atom, so its minimum-four product-header backing is covered by twice their combined units. Original descriptors #2/#3 retain their exact-clone unit law. B7 pays twelve end rows with at most twelve terms each, at most three two-atom products per term, and their push capacities; the extracted helper's separate 64-slot return backing also stays paid until `extend` consumes it. The descriptor outer old backing and the congruence vector's old backing enter the moving maximum. A model with no congruence member retains the original ungated first-generation law. |
-| **RF-RC** | `source::commitment` adds the normalized payload's `congruence_members` only for a nonempty list. T25 pays its at-most-m array slots, m independent ID strings and key, preserving the full hash/parse/render model, and separately pays the push-built borrowed-ID vector. The receipt's 46-byte congruence level fits its unchanged 128-byte literal allowance. Without congruence members, both the payload and its hash retain their old structure. T25's Sources/replay row selections include A6 and C8, so the new owners propagate into finalization. |
-| **RF-ID** | The end and section member-ID allocations move from `prepare_sources` to `member_descriptors`. The two original 128-byte ID audits (basis lines 1099 and 1124) are replaced by the two source-qualified `member.to_owned()` sites, preserving both full multiplicities. The unchanged `member_ids` clone remains. Metering inserts 41 lines before the unchanged `row_sources`/load-fidelity sites in `structural.rs`; their owner, caller and loop-stack keys move by that offset, with no changed formula or exclusivity premise. The two test-only re-export lines in `source_receipt.rs` likewise move its three T25 constructor/finalizer keys by two, without changing the constructor, caller or stack inventories. |
+| **RF-CG** | T07 row A6 pays a push-built vector of the actual native `CongruenceMember`, including both 144-value matrices, its 12-entry DOF map and contribution range. Each exact-cloned Snapshot pays m such records; T07 holds its Context and retained copies and T25 also carries the rebuilt Context. The ordering vector pays m indices. The 144-entry K·T buffer has at most six terms per entry and Tᵀ·(K·T) at most 36: block rotation gives at most three factors per transform column, hence nine triple products, each at most four terms. C6 pays both matrices' row/Expansion headers and PushCap(6)/PushCap(36) children together, plus six E-term arithmetic buffers. |
+| **RF-K** | Context's C2 (`t07_repair.py`) keeps the old 4Z + 2C capacity bound and adds 2·35·144m slots: each replaced scalar global entry has at most nine triple products of at most four terms, so a replaced rounded scalar can contribute 36 exact terms in place of one. The old term's allowance remains. |
+| **RF-DU** | If a congruence member exists, `prepare_sources` counts all descriptor units before constructing descriptor #1 and refuses above 16,384. Its equality with `descriptors_charge` is checked across the congruence census and constructed mixed models. T07 row A3 takes the coefficient-wise maximum of the original signed-permutation construction law and the new unit-law bound. The latter pays the outer descriptor Vec and both id strings independently, then 2·16,384·(s(AffineTerm)+s(Vec)+8): term/product/atom units together cover minimum-four and doubling capacities, while factor atoms pay their own bytes. A single product carries at least one atom, so its minimum-four product-header backing is covered by twice their combined units. Original descriptors #2/#3 keep their exact-clone unit law. B7 pays twelve end rows with at most twelve terms each, at most three two-atom products per term, and their push capacities; the extracted helper's separate 64-slot return backing also stays paid until `extend` consumes it. The descriptor outer old backing and the congruence vector's old backing enter the moving maximum. A model with no congruence member keeps the original ungated first-generation law. |
+| **RF-RC** | `source::commitment` adds the normalized payload's `congruence_members` only for a nonempty list. T25 pays its at-most-m array slots, m independent id strings and key, keeping the full hash/parse/render model, and separately pays the push-built borrowed-id vector. The receipt's 46-byte congruence level fits its unchanged 128-byte literal allowance. Without congruence members, both the payload and its hash keep their old structure. T25's Sources/replay row selections include T07 rows A6 and C8, so the new owners propagate into finalization. |
+| **RF-ID** | The end and section member-id allocations move from `prepare_sources` to `member_descriptors`. The two original 128-byte id audits (basis lines 1099 and 1124 of `source_recovery.rs`) are replaced by the two source-qualified `member: member.to_owned(),` sites, keeping both full multiplicities. The unchanged `member_ids` clone remains. **Guard:** `member_descriptors` holds exactly two such sites, and both basis preimages must match. |
 | **RF-EDGE** | `support_units` passes its pattern-bound `&CongruenceMember` named `member` to `exact_entry_pairs`. The function-as-value scan mistakes the argument for `certified_publication::member`. Only that impossible caller/target edge is zeroed, in the same form as J2; both real certified-publication callers stay. The new `prepare_sources` `limits.source_terms.min(16_384)` is a usize intrinsic, so KD5C4 excludes the private fallback min/max candidate for this additional source-pinned caller. No actual arithmetic, allocation, visit or error alternative is removed. |
-| **RF-LU** | The exact new support-unit precheck header scans only the complete contribution list, at most 144m+s entries per scan. Its loop rule retains the existing per-case multiplier, cases·(144m+s), and O-10 allows it only in `source_recovery.rs:support_units`. The enclosing support/component loops retain their bounds. |
-| **RF-J3** | J7's classification assertion adds two RF-CANCEL label templates, fed only by the literal load, pattern and companion lists. They enter J3 as two additional guarded multiplicity-zero sites (13 current sites after the historical `leaf_diff` deletion), with honest 1/3/7-byte literal argument classes. The module's existing `#[cfg(test)]` guard and the post-run check of each site's zero multiplicity remain. |
+| **RF-LU** | The exact support-unit precheck header scans only the complete contribution list, at most 144m+s entries per scan. Its loop rule keeps the per-case multiplier, cases·(144m+s), and O-10 allows it only in `source_recovery.rs:support_units`. The enclosing support/component loops keep their bounds. |
+| **RF-J3** | J7's classification assertion adds two RF-CANCEL label templates, fed only by the literal load, pattern and companion lists. They enter J3 as two additional guarded multiplicity-zero sites, with honest 1/3/7-byte literal argument classes (load F or M; pattern GnG, GGn or nGG; companion ORTHO or INPLANE). The module's `#[cfg(test)]` guard and the post-run check of each site's zero multiplicity remain. |
 
-The upfront unit gate deliberately precedes Context formation: five rotated
-multi-member census cases take `Budget` before reaching their order-above-4
-refusal. The accepted census correction and those cases are named in the RF
-design §3.6. This is also the condition that justifies the first-generation
-unit bound; later order extensions cannot assume it disappears.
+The upfront unit gate deliberately precedes Context formation: five rotated multi-member census cases take `Budget` before reaching their order-above-4 refusal. The census correction and those cases are named in the RF design §3.6. This is also the condition that justifies the first-generation unit bound; later order extensions cannot assume it disappears.
 
-## W1 member-load certification: actual owners
+### 7.5 J7 test modules (`source_recovery`)
 
-Stage 2 retires the stage-1 preparation-refusal premise: a successful route-L
-case may now contain member loads. The successful formed-load and finding
-count is the full authored `lc`, including at `(lc,z)=(1,2)`; it is never
-`max(lc−1,0)`. Full ordinary/fallback ownership remains. The source-bound
-L1a/L1b/L1c/L2/L3/L5 reductions and U6-RB guards continue independently;
-member-only additions do not change the reserved nodal layouts.
+**J2** (`O10_EDGE_ZERO` `lib.rs CaseSet::attempted` → `source_recovery/j7_t4_consequences.rs request`). `attempted.push(request, id)` passes the loop's pattern binding `(&request, &id)`. The function-as-value scan picks the J7 test module's private `fn request()` by name. That module is declared only under `#[cfg(test)]`, so lib.rs cannot name it. Only this edge is zeroed; a call-graph exclusion cannot remove it, because the value scan's edges bypass exclusions. **Guard:** the call is found once, and `source_recovery.rs` declares the module under `#[cfg(test)]`.
 
-At committed source `11b1dbfa69957416a48220374f85b8851dce8920`, the complete
-100-form actual-source tree has all four points complete, no unmapped or
-unclassified arguments, and both O-10 route checks passing. All 70 evaluations
-pass at M=12 GiB, floor(0.9M), R=64 MiB and the upward 5% TEXT reserve. The
-native atoms come from the same W1 implementation's preceding collector;
-the intervening source changes alter no layout definition. Only the
-unmerged combination shapes additionally need the unchanged native
-`Node(String,BTreeMap)=648 B` atom from RF's same-build layout evidence.
-No illustrative layout fills a missing atom.
+**J3 and B7b-J3** (`O10_SITE_SIZE` 0 at the format sites of `source_recovery/j7_rf_census.rs`). The J7 RF census is a child module that `source_recovery.rs` declares only under `#[cfg(test)]`; the template inventory's file-name filter does not see it as test code. None of its rows is reached on either route. The sites are: five in `actual` (Debug of `blocking(&diagnostics)` and `boundary.findings`), `method_row_holds` (`ordinal`), two in `method_value` (Debug of `f.helper_stage` and `f.error`), `public_value` (`d["code"]`, `d["message"]`), `census_entry` (Debug of `f`), the expected-file writer (`sha(..)`, `lines.join(..)`), and RF-J3's two RF-CANCEL templates. Across both J7 test modules, the one reached row (`j7_t4_consequences.rs sha`, a by-name candidate) has multiplicity 0. This is O-10 J's form: no `site_zero`, so the chain still computes each multiplicity. Unlike O13T, the Debug vectors and the joined census have no finite type class, so these sites take J's guarded size rather than per-argument classes. **B7b-J3:** the census rewrite deleted `leaf_diff`; J3's size-0 rule and ID audit for it resolve to nothing and are dropped. The filter applies only to J3's own entries, and the run stops unless the dropped functions are exactly ones the census no longer defines, of which only `leaf_diff` may be missing. Every other J3 site keeps its rule; no production site is affected. **Guard:** `o10_check` fails the run if any J3 site has a positive multiplicity or is no longer found, and the run stops if the module is no longer `#[cfg(test)]`.
 
-The member-only copy specialization and actual parser-call removal below
-reduce merged W TEXT by 144,568,320 B and X TEXT by 76,099,584 B. All other
-1,486 coefficients remain equal to the preceding tree; owner expressions
-and phase structure are unchanged. The merged native-backed candidate
-headroom, including R and the upward TEXT reserve, is:
+**J3'** (the audits inside J3). The site that also holds an identifier placeholder (`node`) is still evaluated by the chain, so its other argument gets an honest class: `ordinal` ≤ 13 B, a '.'-separated part of a reference key `r[0]` from `references.json`, which the census pins by sha `7b176dbb…` and asserts. Its longest key is 13 B. While `leaf_diff` existed, its `k` was a JSON object key of the twin's produced public envelope or of the test's own literals (schema field names or entity-keyed maps of D1-capped ids), class RES. Both classes are unused at multiplicity 0 and keep the class honest if the J3 guard ever trips. **Guard:** the run stops if the census's pin changes.
 
-| Phase | Dense headroom (B) | Sparse headroom (B) |
-|---|---:|---:|
-| W1 | 5,944,797,309 | 6,003,928,653 |
-| W2 | 5,613,406,491 | 5,672,537,835 |
-| W3 | 318,684,223 | 377,815,567 |
-| W4 | 113,335,011 | 172,466,355 |
-| W5 | 4,900,996,932 | 4,960,128,276 |
-| X1 | 233,445,316 | 292,576,660 |
-| X2 | 4,756,483,686 | 4,815,615,030 |
+## 8. The ordinary member-load domain on route L (B7a stage 1 and W1)
 
-This is a positive registration candidate. The final generated-profile/native
-collector match, ordered reviewed-input binding and independent pricing
-confirmation remain required; the existing Stale status is preserved until
-they agree.
+The B4/D1 domain admits named-point material selectors and branch-L full-span uniform straight member inputs, and W1 stage 2 makes those member cases preparable and successful. These source models qualify the admitted D1 paths, not ordinary fallback on refused inputs. They change no M, margin, R, reserve, admission, numerical criterion or expectation.
+
+### 8.1 Domain owners (`b7a_domain_model`)
+
+**Source binding.** The model binds twenty-one full raw owner-source files (`SOURCE_FILES`), the unique raw nongenerated admission prefix of `retained_memory.rs` before its D-6 marker, the admission `caps` module, `family_clauses`, and the late `law_order`, `admit` and sole-permit `admission` bodies. The actual census, capacities and cap enforcement are bound; generated registry bytes are excluded.
+
+**Base-rule transformations** (before ordinary strict carry, on copies of exact base-rule preimages; the historical base is never edited). Uniform-load execution and formed-row decisions become positive: the function zero of `add_uniform_element_loads` and the edge zero `load_row_finding → decide_row` are removed. Loop row 218 (force terms) is rebound to 12·l, row 313 (uniform spans) to l, and row 116 (material bases) to cases. The aggregate basis record class becomes 2,914 B (the `basis_record` audit, the adapter-copy lexical class and an `ARGS_FIRST` rule for `basis_record`, `metadata.basis` and `basis_label`), and the provenance join 2,701 B. Every other base rule remains. Calls stay 1 + z; basis groups are at most cases + z (`iter:inv.groups().iter().map`); and the existing C_eq = 3 bounds the build/storage families.
+
+**Formed terms.** Each straight uniform input emits all twelve DOFs, including zero values, so q = 12·l safely covers mixed nodal/member inputs without a target-id discount. Every formed term retains one LoadPrimitive and a distinct closure entry whose Uniform/Authored binding has 26 u64 words. Child backings use the existing 4q + 2x and push-cap laws; identity strings have family 16 and member-source 268 byte bounds. The constructor staging, the typed FormationSource and comparison children, the scaled force (per the two-evaluation allowance) and the recovery-source copy are separate positive owners, reduced only where W1's reductions bind a borrow or one-at-a-time staging (§8.6). Original formed-force records additionally retain their moved `scaled_intended` f64 children: each can push 80 components (128 capacity). Single-call construction charges all 63 expansion outputs plus 2 initial variable children conservatively; these children are not copied by FormationSource or by W2's None formations. No intensity-table heap is imported: D1's absent analysis state selects Authored intensity. One row 0 per prepared input proves physical source_count ≤ l, even with duplicate targets/ids, and full-span boundaries are 0/1. The larger old 2l+1 span and coefficient-workspace allowances remain.
+
+**Named states and custody.** Ordinary retains the base and up to 3 named material/BuiltModel/stiffness states through rendering. Original working/base material copies remain; new states add their independent children plus the exact private tuple backing and owned key/record strings. Sequential resolver scratch includes the all-pipe HashSet iterator bound, provenance strings/vector and join; no three-way scratch overlap is presumed or credited. The invocation's named BasisCustody objects retain selections and record children independently of CaseSlot swaps. Exact-growth old backing uses n − 1, not a geometric half. In-build atoms bind LoadPrimitive, LoadClosureEntry, CertifiedSummand, BasisCustody and the actual BasisState tuple; illustrative values never establish ABI or qualification.
+
+**Lengths.** With id 128 and four used materials, one provenance record is 161 + 4·id = 673 B, its joined text 4·673 + 9 = 2,701 B, and the aggregate record 85 + id + 2,701 = 2,914 B. Formatted cached records use the existing 2·length capacity bound, and the adapter copy and row clones keep their length-capacity law. The previous 600/1024 basis/copy classes and 2,648 B join are raised at their actual source sites. The existing 11,474-byte row and both aggregation-copy charges cover modulus rows (3,755-byte case and 3,745-byte combination bounds) and are kept. The separate combination record map is priced even when combinations are empty. The existing T11/T07, legacy/parity reserves and every positive B5, J and nonlinear charge remain.
+
+**Failed Preview manifest.** Additional failed Preview manifest envelope headers, limitation Vec/string children and transient LocatedQuantity strings are priced beside the retained original: per case, the envelope plus nine Strings plus the 2,035-byte PF9-limit union (rather than the tighter 1,649-byte blocked8-limit) plus 2·(2·id + 1024). A separate `FAILED_MANIFEST_COPY` form includes the complete additional typed envelope clone and its quality-case/reference children in every phase conservatively; the old STAGED family is kept separately.
+
+**Headers and identifier classes** (`TEXT_LOOPS`, `text_decisions`). Eighteen exact O-10 headers, each confined to its source-qualified owner, and site-local identifier classes close the stage-1 inventory without a zero or generic uncapped waiver. The two PP array/formation walks in `add_uniform_element_loads` use the exact twelve-element DOF map (12); `exact_scaled_intended` receives the single `[global]` input from the sole production formed-load caller (1), and its powers map sees the two literal span endpoints (2). The FK crate root is bound by an exact full raw-file guard, including `ELEMENT_DOF`, `DOF_PER_NODE` and `element_dof_map`. The remaining headers are bounded by cases, the used materials (4), `FAILED_STATIONS` (3), Pall, l, D, the custody selections (4) and P, each at its named function. The source guards bind all authored case/load/member identifiers and `stable_suffix` (which only replaces ':' with '-', preserving byte length) to the enforced 128-byte input bound at these exact sites. The call graph also reaches curved arms statically: the guarded retained domain refuses components before dispatch, so no curved admission is implied; their authored identifier operands receive the same conservative positive input bound, and no branch or allocation is assigned a zero. Generated-intensity prefix diagnostics likewise keep positive site-local case-id classes, without admitting generated loads or weakening their retained-domain refusal. The mechanics schema literal is 64 B, and the formulation and summary text uppers 2,914 B.
+
+The reader's static inventory (`STATIC_OWNERS`) is in §3.6.
+
+### 8.2 Formed-load traversal and finding ownership (`b7a_formation_model`)
+
+**Source binding.** Six further full raw owner files (`formation_guard.rs`, `self_weight.rs`, `source_receipt/source.rs`, FK `structural.rs`, `source_recovery.rs` and FK `structural/sparse.rs`) join the 21 domain files, together with the domain model's admission binding. Source, CRLF, preimage and constructor/enforcement drift refuse pricing. Historical BASE files and generic refusal checks remain; every replaced premise is checked before the copied rules are transformed.
+
+**Premises.** The D1 census/enforcement, the sole private prepared case body, `Ledger.finish` and the formation guard bind the replacement premises. One case has ≤ l authored inputs and ≤ q = 12·l force terms, including the twelve zero-component terms of each admitted full-span straight uniform input. Each term sits on one DOF; `Ledger.finish` constructs exactly `built.nodes.len()·6` by_dof slots and rejects out-of-range terms, and `formation_rows` returns ≤ N = 6n rows. D1 rejects all other formed constructors, and `force_scaled`/NI copies preserve indices and cardinalities. Foreign and preclosure refusal costs do not inherit the admitted-domain condition.
+
+**Traversals.** The function-qualified `LOOP_TOTAL` supplies cases·N only to `load_row_finding`'s `for row in &rows`, so unrelated published-row loops keep P. All five KD5 traversals remain positive (KD5L3–L5, L11, L12; §6.1). Descriptor/row-offset loops keep their stiffness and spring allowances plus q (base rows 225, 265, 226: 144m + s + 12·l). Row 256 is split: `old.loads()` keeps the authored l bound, while `for f in forces` is q. The force-term rows 211, 276 and 222 become 12·l. The scaled-intended child walk (row 219) keeps max(l, 80), preserving l = 128 at the current cap while its source premise is the expansion constructor's 80-push ceiling. Genuine authored-input/nodal PrimitiveSource loops keep l. Full prepared L/E first-match and function-total controls establish that a later historical rule cannot shadow these premises.
+
+**Site zeros removed.** The two `load_row_finding` site zeros after its `has_formation_records()` early return and the self-weight Element identity formatter's zero are removed: the load-row String sites and the Element identity formatter, which runs before the `continue`, are positive. The 17 downstream self-weight function zeros keep their actual guarded warrant: nonobject provenance and the deterministic generated-id refusal make `recognized`/`looks_generated` false before the `continue` at 825. Current ordinary fallback for inputs refused by D1 is outside these conditional bounds.
+
+**Ledger copies.** The three aggregate ledger-copy totals (FK `load_ledger.rs` push, `force_scaled_term` and `push_unique`) are rebound from l to q: 5·cases·(12l)·2·128, 4·cases·(12l)·2·128 and 10·cases·(12l)·2·128 B. They keep the historical ledger/evaluation counts, and `push_unique` pays both its formed and its cannot-bound source-list generations independently.
+
+**Source lists and formats.** The two source lists independently deduplicate bare load ids within each row; their aggregate entry counts are each ≤ q. Every admitted load id is ≤ 128 B; member_source's separately charged 268-byte identity is unchanged. For either independent Debug generation, G = 2N + (10·128 + 4)·q includes every row's brackets and each id's quotes, separator and the existing 10-byte escape allowance. The three `decide_row` format recipes keep their separate positive capacities (`SITE_TOTAL` at `formation_guard.rs` 239, 241 and 251): 2·cases·N·59, 2·cases·(87N + G) and 2·cases·(321N + G); no branch receives a zero. The returned reason selects one recipe, giving the aggregate fired content H = N·(600 + 2 + 321) + G; fired construction pays 2·cases·H independently (`formation_guard.rs` 322). The individual maxima remain reason 165,057, fired item 165,659, six-item join 993,964 and sentence 994,321 B. Every full list keeps N String headers, and the first-six clones own their backing and copied payload independently (lexical classes 993,964 at the join and 994,321 at the FindingSeed sentence copy). Native FormationRow and the actual `(usize,[f64;4])` map key/value tuple are size_of bindings, not guessed strides.
+
+**Finding owners.** `ordinary_finding` copies the full fired Vec and sentence into the persistent FindingSeed. `ordinary_members` creates independent finding and formation Values, and `ordinary_entry` copies formation again. The producer family, two constructor Value originals and final ORDINARY/BODY all pay these owners independently; all old observation, row, diagnostic, STAGED, failed-manifest and reserve allowances remain. The sentence's source class is propagated to the integrity message amendment, the evidence/retained diagnostic envelope and L_PUB, keeping the old recovery/range terms. Existing escaping/hash/copy/moving laws and every phase remain. Naming only six items never reduces the retained list.
+
+**Load-fidelity sources.** The `row_sources` copy override (`site_from` at FK `structural.rs`) is rebound from the historical 2·l. The formation model first writes 2·q = 24·l per audit call (both audited callers' complete copy upper before row-local deduplication), and that is the preimage of the exclusive row-source choice (§8.3), which sets q = 12·l per full audit. Each full audit partitions every force term into one DOF list. Its successful LoadFidelityRow and terminal Range fallback are exclusive: the successful source clone occurs after the last fallible operation. Both complete audit caller multiplicities, the 128-byte String class and capacity 2 remain; there is no row-local deduplication credit. The two aggregate row format rules and the first matched `^rows$` join price q source occurrences with 10-byte Debug escaping, and every fixed row/scalar/bracket term remains. The individual `sources_debug` class keeps its valid per-row l bound. Source-qualified structural/sparse/source-recovery guards and controls exercise the actual `text_budget` site_from/site_total/aggregate precedence as well as full prepared L/E loop priority, so no later cap can hide the positive owner.
+
+**Identifier classes.** Load-row `dof_label` is the guarded `integrity_dof_label` callback (a node id ≤ 128 B plus three bytes, or a global DOF plus usize 20 B), keeping the old 600 B upper; the guard's `case_id`, self-weight `case.id`/`pipe` and every LoadLedger ForceTerm source are admitted bare ids (IN128); self-weight byte-length displays keep usize 20 B. Uniform assembly and plain nodal construction pass `load.load_id` to the ledger, and force scaling clones it unchanged; the separately owned member_source 268 identity is unchanged. No generic fallback classifier or audit-gate relaxation is added.
+
+**FK895** (reformation first error; `first_return_rules`, marker `FK895-v1`). The reformation error String in FK `formation_check.rs evaluate` (snapshot key `structural/formation_check.rs:910`, root `structural/formation_check.rs:864:evaluate`) is bounded at one allocation per `evaluate` call: `map_err` runs on Err and the immediate `?` returns it, with no catch, retry or continuation in the guarded function. The full evaluate multiplicity is kept: the graph must bind `check_at`'s sole `evaluate` edge (parent `structural/formation_check.rs:455:check_at`). Its 8334 B content and capacity 2 remain; no visit, q traversal, graph/function call count, source/manifest owner, foreign/preclosure failure or downstream detail/unavailable/Preview/W2 copy is removed. KD5C6's positive/post-rebound and override-alias refusal semantics are reused for this one site, with an exact separate marker, source/rule, qualified caller/graph, inventory and pre/post witness. Every unknown source, changed rule, conflicting override or erased current owner stops pricing.
+
+**Shared illustrative layouts** (`g3lib.py`). FormationRow is carried at the existing helper estimate 3·s(ExactAccumulator) + 128 (3,440 B in the illustrative 64-bit table) and `(usize,[f64;4])` at 5·s(usize) (40 B). The ordinary constructor and the final G4 evaluator run in separate processes, so a helper-local ASSUMED update cannot populate the final evaluator; declaring these two values in `g3lib` makes every process use the same illustrative inventory. Symbolic coefficients and the actual G5 in-build bindings are unchanged: FormationRow and the tuple require their own native observation before qualification, and missing or unknown atoms still stop evaluation.
+
+### 8.3 Exclusive allocation choices and owned first errors
+
+**Row-source ownership** (`b7a_owner_choices`, FK `structural.rs row_sources`). The audited success and the terminal Range fallback are exclusive per DOF, and partitioned force terms are cloned at most q per full audit, so the `site_from` is q = 12·l per call of `audit_load_fidelity` and `audit_sparse_load_fidelity`; it replaces §8.2's exact 24·l preimage. Both caller counts, the 128-byte String class and capacity 2 remain.
+
+**Metadata base recipes** (`retained_product.rs validate_final_metadata`). Metadata validation selects one complete expected-base-id String from ten mutually exclusive recipe constructors, including the exclusive support combination/case alternatives. Their source-qualified content bounds are 46, 37, 140, 143, 158, 162, 188, 338, 169 and 322 B (`BOUNDS`); the largest complete base is 338 B. The allocation volume uses one capacity-2 generation per full validator call, without changing its physical visits or any numerical, row or scan work. The report keeps every potential site's standalone bound and names the nonnegative allocation group that replaces their mutually exclusive sum. The prematch owned `stable_suffix`, displacement/stress signs, postmatch combination wrapper, qualified-case helper and their owned suffixes remain independent positive generations. Errors, RefusedCase and receipt failures, `public_error`/`capture_error` detail copies, STAGED/failed and JSON owners also remain. The exact current source/cap/custody/helper/enum, full caller/stack and allocation inventories, authoritative audit preimages and competing override checks bind this local group; no global STATIC, RID, error or default class changes. The envelope-only exclusion is restricted to the existing canonical emitter.
+
+**Metadata first errors** (`ERROR_SITES` in `bind_rows_subject`'s path). The three metadata errors keep their full 149, 1,049 and 1,046-byte content and capacity 2. Each Err propagates immediately through `?` out of the whole `bind_rows_subject` invocation, so each site allocates at most once per full owner call. All freeze, serializer and combination callers remain, including later failures beside other Frozen cases. Association/detail/JSON/RefusedCase and receipt failures keep their independent owned generations and copies. This is a positive per-invocation bound, never a prepared-custody zero.
+
+**Five owned first errors** (`b7a_returning_errors`, marker `b7a_owned_first_errors`). Five owned error allocations are bounded at one allocation per full enclosing function invocation: two format sites in `lib.rs exact_straight_summary_extrema`, one in `recover_curved_bend_local_forces`, and one each in `retained_product.rs check_support_maps` and `support_observables`. The first three immediately propagate through the outer Result with `?`; the latter two directly return their owned Association String. The five allocation kinds, full caller inventories, source/type bodies, rule aliases and pre/post counts are checked before pricing and around the format/lexical `SITE_FROM` override. The common rules reach both routes without replacing route E's entries. Existing content/capacity bounds, numeric and scan work, successful equivalents and every downstream detail, display, clone and capture owner remain positive. The rule uses count-only precision; it does not use the optional typed 55-byte span bound. Full raw `exact_sum.rs` and `curved_bend` bindings keep the reviewed receiver/error closure.
+
+**Envelope-only projection** (`ENVZERO`). The envelope-only diagnostic projection keeps its exact `ENVZERO` source declaration, run helper and `tb` emitter (pinned in `MODE_SOURCE`). Only its two excluded retained_product allocation sites have zero counts in this mode, and their zero multiplicity and absent owner counts are required. The three lib.rs sites keep positive witnesses there, and all five keep positive witnesses in base/X/W. Unknown, partial or extra exclusions, changed emitter code and arbitrary default zeros refuse; every source/rule/caller/site inventory check still runs.
+
+### 8.4 Scoped TEXT (`b7a_scoped_text_model`)
+
+Current producer spellings are bounded at their exact sites (`LN` keys), with no global message or error class change. Each replacement checks its authoritative audit preimage first.
+- **`pressure_runtime.rs problem`.** The private pressure problem keeps all calls and owned copies: message 453 B, five refs with 760 collection bytes, 644 joined bytes and 718 complete id bytes. Its converted ref loop (`iter:refs.iter().map`, 5 per call) is qualified to this owner; the global four-ref rule and every other helper call remain. `problem()` keeps its nine callers (`PROBLEM_PARENTS`). B7b's `validate_profile` messages are at most 327 B with at most two refs, inside the 453/760 bounds.
+- **`stable_suffix`** keeps its 128-byte allowance for all callers and adds the private problem's 516-byte delta with both capacity units.
+- **Unit message.** The source-local unit message (lib.rs) is 600 B; the authoritative audit and the lexical rule change together, and its 702-byte format is unchanged.
+- **Reader `require`.** physics_source.rs `require` keeps all its call sites (96 in the current source) and both formatted detail temporaries, with 40 detail bytes and 15 prefix bytes. Of the 96 calls, 94 pass a literal detail, the longest 37 B (`ACTUAL_MATERIAL_DUPLICATE_TEMPERATURE`); the two formatted details are `ACTUAL_PAIR_INPUT_RANGE:{stage}` and `ACTUAL_DERIVED_SHEAR_RANGE:{stage}`.
+- **Literals.** Mode, sign and arc clones keep all calls and positive 46/167/47-byte literal storage.
+- **Formation range reasons** come from the exact ten static ledger origins in `load_ledger.rs add_defect` and `formation_row` (`RANGE_ORIGINS`, checked ASCII); the longest 43-byte origin plus the 16-byte wrapper gives 59 B (`formation_guard.rs` 239's `failure`, STATIC 43). The individual reason, fired, joined and sentence maxima are unchanged, and the same aggregate H reaches every independent finding, capture, JSON, ordinary body and staged copy. No formation site or owner is removed.
+- **Admitted ref slots.** Admitted copied envelope and receipt ref slots stay governed by the components-empty domain: the only five-ref calls require an arc, and the sole arc builder consumes the excluded components. Raw, shared, refused and headless five-ref conversions and spellings remain positive.
+- **Guard.** The units source (`UNITS_SHA`), the range-origin inventory and the inherited formation pins bind these spellings.
+
+### 8.5 Route and phase model (`b7a_phase_model`)
+
+**Counts** (`COUNTS`, `COUNT_ROLES`). The model separates actual authored cases (lc) from the typed storage ceiling (C_eq, caps key c), the combination slots z and the per-case inputs l. On admitted route E the components, element and named-basis refusals and the empty pressure regions bind plain nodal force terms (q ≤ l per case), one base state and no formed primitive, manifest, expansion or load-row finding producer: force l, formed 0, named 0, states 1, findings 0. Route L has force and formed 12·l per case, C_eq named states (1 + C_eq states) and C_eq ordinary findings. Generic force, closure-record/Option, vector, wrapper/null, reader, raw census and unrelated ordinary owners stay positive. Refused or foreign ordinary calls do not use this admitted pricing warrant. The effective TEXT force/source q bounds stay conservative at 12·l on both routes.
+
+**Successful publication context** (W1 stage 2). Stage 2 retires the stage-1 preparation-refusal premise (`INVALIDATION`): a successful route-L case may contain member loads, so the successful formed-load and finding count is the full authored lc, including at (lc, z) = (1, 2); it is never max(lc − 1, 0). Full ordinary/fallback ownership remains. A separate successful-publication context (`run_success_branch`) keeps all actual ordinary calls and authored lc·l inputs, and runs the canonical base/env/X/W consumers and the downstream cost chain independently. Only six closed formed-only factories (`formed_owner`: assembled children, typed source children, scaled-force children, recovery-source children, uniform constructor and element application) and the isolated finding children use this occurrence count. Each factory rounds every nonnegative integer atom coefficient upward before the existing C_eq multiplication, so C_eq·result ≥ owners·value for every atom. Moving/peak owners, common nodal work, generic ORDINARY and formation parent wrappers, named L states and all other storage/copy charges stay at their full bounds. The failed-manifest branch (one Preview/base/nodal case on route L; `FAILED`) and the simultaneous original/manifest/staged and PreparedCases holdings keep their conservative positive charges.
+
+**Phase selection** (`merge_success_tree`). Only W3, W4 and W5 select the success context's forms; W1, W2, X1 and X2 keep the full ordinary/fallback forms. Both native modes and all fourteen phase identities and report fields are preserved, as are the coefficient-wise route union and the shared native bindings and atom values. Full ordinary TAV_W/TAV_X forms and text atoms remain unchanged, so the runtime law and the evaluator keep the full upward 5 % TEXT reserve. No illustrative ASSUMED value is replaced with a success scalar. **Guard:** the branch's policy, text binder, illustrative atoms, spelling maxima and phase inventory must equal the ordinary run's.
+
+**Formation formats** (`TOTALS`, `FORMAT_ROWS` at `formation_guard.rs` 239, 241, 251 and 322). The four formation formats use only their guarded row/finding generations. Exact dual markers, source/admission bindings, the qualified caller and loop stacks (`solve_prepared_load_case → load_row_finding → decide_row`), the format/lexical inventory and the canonical total preimages guard them. Competing zero, from, size, aggregate or total aliases, an erased or changed M(`load_row_finding`) = lc, and incorrect effective pre/post row counts refuse. The capacity factor 2 is independent of the loop iteration count, and the individual reason/fired/join/sentence maxima and all full capture/JSON copies remain.
+
+### 8.6 W1 reductions (`w1_reductions_model`)
+
+`w1_reductions_model.py` pins the RF and the reduced producer/consumer cohorts explicitly (`RF_PINS`, `REDUCED_PINS`; `FormationSource.loads` selects the cohort). A half change or a changed lifetime stops, and marker absence never silently selects historical prices. The reductions establish source and ownership warrants, not runtime allocation observations; stage-2 member additions do not change the reserved nodal layouts.
+- **L1a** (W1-L1a). The reduced cohort borrows typed primitives: `FormationSource.loads` is a `Cow<'a, [LoadPrimitive]>`, so the typed source children and the recovery-source primitive copy are not separate owners.
+- **L1b.** The typed formation keeps one closure-comparison transient (one manifest copy) instead of q.
+- **L1c** (W1-L1c). Scaled-force children are charged only in their call-local nonzero-scale evaluation: with b = 0 the evaluation borrows f, and the sole scaled force drops inside the second evaluation, before the caller tail. The existing header allowance is kept.
+- **L2.** Uniform-constructor and attachment staging is bounded by one sequential call and one attach-last term; moved returned rows stay separately resident.
+- **L3** (W1-L3). Formation Values move into the receipt body, whose positive owner already includes them; there is no separate `json!(&Value)` transient tree (`FORMATION_VALUE_BUILD` is empty on the reduced cohort).
+- **L5** (W1-L5) guards the combination index and its callee by `combining` (§4.7, with U6-RB's shared guard). Route L at z ≥ 1 separately prices the callee's sorted `base_ids` and cloned `case_rows`.
+
+Source/lifetime mutation tests and the actual driver exit-code controls are in `tests/test_w1_reductions.py`.
+
+### 8.7 W1 stage-2 owners (`w1_member_load_model`)
+
+The complete source cohort (`SOURCE_FILES`) binds member-only custody, the once-formed exact ledger, recovery/conditioning, both lanes, the loaded maxima and the independent reader call chains. The model's constants are source capacity bounds, never measured RSS or allocator usable bytes. All native strides come from the generated build bindings. Ordinary and fallback owners remain. **Guard:** a changed pinned file, the return of the retired preparation refusal, or changed member-only invocation custody stops the run.
 
 | Rule | Actual source owners and bound |
 |---|---|
-| **W1-MC** | `ProductCapture.member_sources` owns one optional sidecar vector. Each member case owns its copied case ID, `MemberTermIdentity` vector and separate `MemberLoadSet`; both term and load IDs are charged. Validation sort/used bitmaps, prepared/rebuilt sidecar clones and the submitted borrowed `MemberSourceRef` vector remain positive in their own rows. No vector is added to `SourceParts`, `PrimitiveSource`, `CaseSlot` or `EarlyCaseSource`. |
-| **W1-MID** | `copy_member_id` has the exact original `copy` allocation, requested-byte, reserve, push, capacity, event and error body. Its three productive callers copy the two captured load IDs and one prepared local-load ID. Capture binds each normalized ID to its authored occurrence, and later preparation binds the same captured member identity; D1's raw/typed census and enforcement bound every such ID to 128 bytes. Only this helper's `push_str` site takes the positive 128 B class. All calls, the TEXT capacity factor two, typed String/ID owners and moving storage remain; generic `copy` and nodal/diagnostic callers keep their previous classes. Full source pins, exact body/caller/test-shadow checks and D1 enforcement pins refuse drift. |
-| **W1-MP** | The member occurrence predicate directly matches `(global_x,0)`, `(global_y,1)` or `(global_z,2)`. D1 already requires exactly those member direction strings, and the normalized axis is checked below three before matching. The actual member-loop parser call is removed in source; no callgraph zero hides it. The nodal occurrence loop retains its original `parse_direction` call and the global parser is unchanged. Full source pins and an explicit predicate/nodal-parser inventory bind this specialization. |
-| **W1-ML** | `CasePrep` keeps its original nodal ledger beside the once-formed ledger. The latter therefore pays all declared six-entry records and every one of `N=6n` possible net DOFs, each with up to128 limbs; it takes no `N−v` credit against the old ledger. DOF discovery's requested/moving vectors are separate. The source encoding adds its conditional four-byte count and `32+ID` bytes per member entry. The complete ledger encoding uses all N rows. Old/new encoding overlap during construction stays positive. |
-| **W1-MR** | Recovery's local-load vector and E's scale vector pay their combined twelve Wide values and two tags per member, their headers and separate local arithmetic staging. Both lanes independently retain their new curvature vectors. Native `MemberOperators` includes the actual Wide length field at each width; the profile binds the actual resource atom rather than an eight-byte length estimate. |
-| **W1-MM** | One loaded-member search owns at most256 `SearchNode` records of2744B,702464B total. Its new helper/caller endpoint arrays, arithmetic buffers, moves and auxiliary records are conservatively bounded together below the separately charged1MiB search cap. PP's member-local input/ID copies and returned three-axis spans, the previous PP maximum helper, returned hulls, completion work, evidence and boxed exhaustion diagnostic remain independent positive owners. Searches are sequential across members and lanes; exhaustion does not enlarge the live-node backing. |
-| **W1-G8** | Every phase adds `2·C·1 MiB`, 6,291,456 B at C=3, for the complete new reader call chain and equal moving allowance. The original `G8_VALUES` and `G8_BYTES` owners remain. Independent recomputation retains all 128 declarations; each stored normalized entry has at most 1024 bits, and a conservative 32-limb capacity pays carry/normalization staging. An additional 64 complete 128-limb integers cover declaration locals, nested Nat/Dyad operands/results, net/hash staging and old/new allocations. Expected-term records are borrowed fixed records. In the actual G8 call chain, the invocation guard bounds IDs to 128 bytes and authored terms jointly to 128; exact nodal/member occurrence binding precedes native encoding/hash. A conservative encoded bound is 56,554 B, even allowing 192 references per support. General Vec growth gives final plus prior capacity below `3·56,554 = 169,662 B`; no power-of-two assumption is made. Adding 32,768 B auxiliary staging and 131,072 B stack gives 333,502 B for encoding. Arithmetic's 457,728 B bound dominates. Encoding/hash and recomputation have separate scopes. The standalone helper's looser 1024-byte/separate-count guards and its allocation controls are distinct from this production call-chain warrant. Native layouts dominate the independently checked wasm pairs. Requested-Layout and native/real-wasm stack controls exercise the proof; an observed peak is not its source bound. |
+| **W1-MC** (code comment `W1-CAP/LED/REC/L4` in `producer_caps.py`; `producer_additions` T11.12, T12.11, T12.12, T13.4) | `ProductCapture.member_sources` owns one optional sidecar vector. Each member case owns its copied case id, `MemberTermIdentity` vector and separate `MemberLoadSet`; both term and load ids are charged. Validation sort/used bitmaps, prepared/rebuilt sidecar clones and the submitted borrowed `MemberSourceRef` vector remain positive in their own rows. No vector is added to `SourceParts`, `PrimitiveSource`, `CaseSlot` or `EarlyCaseSource`. |
+| **W1-MID** | `copy_member_id` has the exact original `copy` allocation, requested-byte, reserve, push, capacity, event and error body. Its three productive callers copy the two captured load ids and one prepared local-load id. Capture binds each normalized id to its authored occurrence, and later preparation binds the same captured member identity; D1's raw/typed census and enforcement bound every such id to 128 bytes. Only this helper's `push_str` site takes the positive 128 B class. All calls, the TEXT capacity factor two, typed String/ID owners and moving storage remain; generic `copy` and nodal/diagnostic callers keep their previous classes. Full source pins, exact body/caller/test-shadow checks and D1 enforcement pins refuse drift. |
+| **W1-MP** | The member occurrence predicate directly matches `(global_x,0)`, `(global_y,1)` or `(global_z,2)`. D1 already requires exactly those member direction strings, and the normalized axis is checked below three before matching. The member-loop parser call is removed in source; no call-graph zero hides it. The nodal occurrence loop keeps its original `parse_direction` call and the global parser is unchanged. Full source pins and an explicit predicate/nodal-parser inventory bind this specialization. |
+| **W1-ML** (code comments `W1-SRC/LED` for `E_src`/`E_led` and `W1-CAP/LED/REC/L4`; T12.13) | `CasePrep` keeps its original nodal ledger beside the once-formed ledger. The latter therefore pays all declared six-entry records and every one of N = 6n possible net DOFs, each with up to 128 limbs; it takes no N − v credit against the old ledger. DOF discovery's requested/moving vectors are separate. The source encoding adds its conditional four-byte count and 32 + id bytes per member entry. The complete ledger encoding uses all N rows. Old/new encoding overlap during construction stays positive. |
+| **W1-MR** (code comment `W1-CAP/LED/REC/L4`; T13.5, T14.4) | Recovery's local-load vector and E's scale vector pay their combined twelve Wide values and two tags per member, their headers and separate local arithmetic staging. Both lanes independently retain their new curvature vectors. Native `MemberOperators` includes the actual Wide length field at each width; the profile binds the actual resource atom rather than an eight-byte length estimate. |
+| **W1-MM** (code comment `W1-CAP/LED/REC/L4`; T14.5) | One loaded-member search owns at most 256 `SearchNode` records of 2,744 B, 702,464 B total. Its helper/caller endpoint arrays, arithmetic buffers, moves and auxiliary records are conservatively bounded together below the separately charged 1 MiB search cap (`loaded_inventory`). PP's member-local input/id copies and returned three-axis spans, the previous PP maximum helper, returned hulls, completion work, evidence and boxed exhaustion diagnostic remain independent positive owners. Searches are sequential across members and lanes; exhaustion does not enlarge the live-node backing. |
+| **W1-G8** (form `W1_MEMBER_READER`, every phase) | Every phase adds 2·C·1 MiB, 6,291,456 B at C = 3, for the complete new reader call chain and equal moving allowance. The original `G8_VALUES` and `G8_BYTES` owners remain. Independent recomputation keeps all 128 declarations; each stored normalized entry has at most 1024 bits, and a conservative 32-limb capacity pays carry/normalization staging. An additional 64 complete 128-limb integers cover declaration locals, nested Nat/Dyad operands/results, net/hash staging and old/new allocations. Expected-term records are borrowed fixed records. In the actual G8 call chain, the invocation guard bounds ids to 128 bytes and authored terms jointly to 128; exact nodal/member occurrence binding precedes native encoding/hash. A conservative encoded bound is 56,554 B, even allowing 192 references per support. General Vec growth gives final plus prior capacity below 3·56,554 = 169,662 B; no power-of-two assumption is made. Adding 32,768 B auxiliary staging and 131,072 B stack gives 333,502 B for encoding. Recomputation's 457,728 B bound dominates. Encoding/hash and recomputation have separate scopes. The standalone helper's looser 1024-byte/separate-count guards and its allocation controls are distinct from this production call-chain warrant. Native layouts dominate the independently checked wasm pairs. Requested-Layout and native/real-wasm stack controls exercise the proof; an observed peak is not its source bound. **Guard:** the run stops if the reader or loaded-search inventory exceeds its 1 MiB cap. |
+| **W1-DISC** (`g4_caps.py`) | The selected member diagnostic's fixed text (`SELECTED_MEMBER_LOAD_MESSAGE`, read at the snapshot) exceeds the original 300-byte selected-message allowance, so the successor's diagnostic strings add its excess per attempted case; the original diagnostic owner is kept. |
+| **W1-WIRE** (`g4_caps.py`) | The receipt source adds the optional nonempty member terms, one record of four slots and six entries per authored load per attempted case, and the optional `member_load_terms` parent key. |
+| **W1-DIAG** (`g4_caps.py`) | The proof trace adds one optional exhaustion diagnostic with two endpoints of 16 fixed hex limbs, with its full positive grammar retained even on successful cases, and the curvature-capacity pair once on each lane; the nodal path still serializes only its original nine capacity entries. |
+| **W1-GAP** (`O10_EDGE_ZERO` `retained_product.rs prepared_maxima` → NI `nonlinear_supports gap`) | The source-pinned `prepared_maxima` binds `gap` as an f64 tuple member and passes it to its number closure; the by-name value scan reads it as the nonlinear support constructor, which is never called. Only this impossible target is removed; real nonlinear constructors remain. |
 
-The complete owner/call-chain pins and mutation controls are in
-`base/w1_member_load_model.py` and `tests/test_w1_member_load_model.py`.
-Registration remains unqualified until the committed actual-source tree,
-native atoms, all70 budget evaluations and independent source/pricing audit
-agree; design emulation is not allocation evidence.
+The member path's exact new headers (`text_decisions`) are bounded by l, the three intensity components and the 16 diagnostic/proof limbs, each confined to its function, with unchanged identifier laws (`source` STATIC 128 at the two prepared-source clones; the generated self-weight id's case and pipe ids IN128 and their lengths NUM). W1 extracts the submitted-source loop into `solve_sources_projected`: the complete historical source-clone audit preimage (`retained/adaptive.rs:5082`) is re-installed at the actual clone statement after line carry, and the existing `sources.iter()` rule still bounds the moved loop by att; no owner or visit is deleted. The complete owner/call-chain pins and mutation controls are in `base/w1_member_load_model.py` and `tests/test_w1_member_load_model.py`; design emulation is not allocation evidence.
+
+## 9. Memory-profile gates and registration
+
+### Gate bounds (registration)
+
+G-C (`retained_memory.rs phase_caps_on`) must admit what D1 produces and stay within what the profile prices. Route L's 51-row P_final and I95's pre-D-5 evidence census give route E only 6,345 results at the caps, below the 8,355 results of the cap-maximal exact input (`witness_tests::f1_g_c_admits_...`), so route E needs its own bounds.
+- **Route E.** The result rows and their capacity are C_eq·P_final at route E's own P_final = 7n + 72m + 8g + 3 (8,361 and 16,384 at the caps; U6-RP, U6-RB-V). The five contract-evidence bounds are C times the D-5 census at (n, m, g): arrays 14 + 78m + 19n, objects 4 + 27m, entries 29 + 127m, string bytes 6080 + 12464m + 304n, key bytes 495 + 1348m (U6-RL). At the caps these are 9,354 array slots; 2,604 objects and 12,274 entries after the node cut, so objects + ⌊entries / 5⌋ = 5,058 nodes; 1,243,968 string bytes; and 130,893 key bytes. They equal route E's chain terms ("Final aggregation" and "Preview tree final copy (envelope evidence)": 5,058·Node(String,Value) + 9,354·s(Value) + 1,374,861 B).
+- **Row text.** The rows' text bound stays route L's 2·C_eq·P_final·Text(row) on both routes: Text(row) bounds one row's text, and route E's 8,361 rows stay below route L's 12,690.
+- **Route L.** Its bounds are unchanged.
+
+Two limits keep these bounds fail-closed rather than reachable at the census maximum. The census counts each case, not the evidence wrapper (one object, its three keys `connector`, `exact_cases` and `pressure`, 28 B, and the cases' array slots), and the entries bound is cut to the priced nodes, so an owner at exactly C times the census maximum would be refused. G-C's borrowed census also stops at 16,384 values (`VALUE_LIMIT`), below the route-E bounds' 21,628 array slots and entries, and G-C refuses an incomplete census. Neither is reached by a lawful input: a source-selected run never consults G-C (`Coexistence`), and the retained-source method's per-case work budget keeps selected inputs to a few members (a three-case line of four members already exhausts it). The witness composes a near-cap owner from a selected run's own tied entries: at m = 23 and n = 32 (C = 3) it is within route E's bounds with a complete census, and at m = 24 the census reaches its value limit.
+
+### Registration and qualification
+
+- **Generated block.** `generate` replaces only the GENERATED PROFILE block and keeps `REGISTERED_PROFILES.threshold_bytes`; it does not select or register M. `generate --check` confirms that a committed block is the generator's output for a tree. The law tests pin the in-build phase record, so the merged tree's E + R is checked against the in-build value in all 14 phase/mode identities.
+- **Registered profile.** `REGISTERED_PROFILES` binds the exact build identity (rustc 1.97.1, aarch64-apple-darwin, debug, opt-level 0, debug assertions, unwind, no RUSTFLAGS, `open_pipe_stress_product_physics@0.2.0`), the reviewed-input record, the reader layouts (`READER_LAYOUTS`) and `threshold_bytes` = M. The reviewed inputs are the PP lock, the reader statics in their preserved order, the resident pressure-source table, the nonresident pressure result schema and the resident ordinary pressure table (twelve inputs); duplicate parsed caches remain priced. A build whose identity, inputs or layouts differ is Stale.
+- **Law tests.** The law tests (`cargo test --lib profile_` in `core/product_physics`) pin the in-build phase record, the text atoms (for example D_env 28,127 and Text(diag_env) 262,735,773), M and ⌊0.9 M⌋, R, and the digests. Their `I65_G5_ATOM` lines feed `eval`.
+- **Atoms.** Native atoms come from the same implementation's in-build collector. Evaluating route L's unmerged combination shapes additionally needs the native `Node(String,BTreeMap)` atom (648 B in RF's same-build layout evidence). No illustrative layout fills a missing atom.
+- **Qualification.** A complete `run` is a pricing-completeness result. Registration additionally requires the native atoms, all 70 budget evaluations, the reviewed inputs and layouts, and independent source and pricing scrutiny; a source proof in this text alone confers no budget pass.
+
+## 10. Reproducing a registered revision
+
+The committed tool's source pins hold one current value each, so the committed tool reproduces only the revision those pins bind; at an earlier revision a pin stops it (exit 4). Historical replays must use their complete historical tool cohort and source basis, recovered through Git, rather than selectively restoring pins in today's tool. The current `ordinary_caps.py` and `g4_caps.py` require W1 reduction and stage-2 member models whose premises do not hold on the older trees below.
+
+The following are historical replay results, not procedures for the current tool. In their pre-W1 tool cohort, the replay restored the B7a/B7b source models (`base/b7a_*.py`, `lib/b7a_retired_carry.py`), `kd5_text_model.py`, `kd5_first_error_model.py`, `batch5_model.py`, the per-invocation pins in `o10_rules.py`, and C7's NumericCase pins in `prescribed_key_model.py`; source before batch 5 also used the original case consumer instead of the wrapper/helper pair.
+- **B7b at `837a04b770`.** With that historical cohort and its restored pins, the scratch tool priced `837a04b770` with exit 0, and `generate --check` of that tree matched the block committed at `e70c115764`. An earlier B7b revision stopped at a result_export pin (exit 4).
+- **B7a at `3e89c23ea1`.** With B7a's nine source-bound model files restored from `3e89c23ea1` in the historical cohort, the tool reproduced B7a's registered tree coefficient for coefficient, and `generate --check` matched the block committed at `1b24b01bd3`.
+- **Batch 5 and nonlinear K-D5.** Restoring the reviewed KD5, text, C6 and closure source pins in that historical cohort reproduced the registered `e0ec460bf3` tree; with its KD5 source pins restored, `745f55f918` reproduced too.
+- **O-10.** With the orientation resolution (§1.2), the historical tool reproduced O-10's tree at `666cb30520`.
+- **T4-U6/U8 at `588de796a4`.** The T4-U6/U8 registration's final source was reproduced with the historical RF tool, by retaining RF rules in a scratch copy and restoring the B7a source models' pins; the tool README's step 5 names the files and the revision they come from.
+- **RF and W1.** The current W1 tool fails closed outside its reviewed cohort and cannot replay RF by restoring only pins and keys, because the current formation traversal warrant also names Cow's `.iter()` spelling. Reproduce RF (source `03f39bb49d9`) or the pre-stage-2 reductions with their own committed tool and source revision (tool README, "Adding an adjudication rule").
+
+## Section names cited elsewhere
+
+Code, tools and other designs cite this text by these earlier section names and labels. Labels are kept verbatim.
+
+| Cited name | Where it is now |
+|---|---|
+| "section A", "§A" (R1; the orientation prune) | R1: §3.1; orientation prune: §1.2 |
+| "§B" (connector rules L, E, A, J; premises P1–P3) | P1–P3: §2; L1–L3, J, J': §4.1; E1–E5, A2, A3: §3.2; A1: §6.3 |
+| "section C", "§C" (T4 batch 2's final head `e9cc7e3f5f`: classifications N1–N3, T) | N1, N2: §4.9; N3: §4.3; T: §4.6 |
+| "§D" (adaptations: preview_namespace, E13, the join's re-keys, 99cb958e85) | §1.2 |
+| "§E" (U2 and O-13 at `98dba87714`; KD5A9, U2A2, U2A3, U2L4, O13T2) | U2 case-solve sites, U6-K: §4.3; U2E1: §3.3; U2E2, U2A–U2A3, U2L4, named closures: §4.4; KD5A9: §4.5; O13T2: §4.6; O13L1, O13A1, O13T: §4.9 |
+| "§J" (the pressure-source join: JN1, J1–J6, JP1, JC5) | JN1: §6.2; J1, J5, J6: §3.1; J2, J3, J3': §7.5; J4: §4.9 (U6-J4: §4.3); JP1, JC5: folded into KD5T2 and KD5C5, §4.5 |
+| "§F" (K-D5 actual owned layouts KD5O1–KD5O14, and K-D5's TEXT, loop and call-graph rules) | KD5O1–KD5O14: §5.1; KD5T1, KD5T2, KD5A1–KD5A3, KD5A7, KD5A9, KD5C4–KD5C6, KD5L6, KD5L14–KD5L18: §4.5; KD5L7–KD5L10, KD5L13, KD5A8: §4.3, §4.4; KD5L1, KD5L2, KD5C2: §4.6; KD5M1, KD5M2, KD5A4–KD5A6, KD5L3–KD5L5, KD5L11, KD5L12: §6.1; KD5C1, KD5C3: §6.2; KD5T3: §6.3 |
+| "§G" (nonlinear K-D5: NLKD5L1, NLKD5A1, the KD5A3/KD5M1/KD5M2/KD5T2 re-reviews) | NLKD5L1: §4.3; NLKD5A1: §6.3; KD5M1, KD5M2: §6.1; KD5C2 (the `check_at` re-key): §4.6; KD5T2: §4.5 |
+| "C7" (borrowed prescribed keys), "C8" (borrowed member comparison) | C7, C7A1: §3.4; C8: §7.3 |
+| "§H" (batch 5: B5K1, B5O1, B5C1, B5M2, B5L1, B5L2, B5A1) | B5K1: §4.3; B5O1: §5.2; B5C1: §4.5; B5M2: §6.1; B5L1: §4.4; B5L2: §3.2; B5A1: §4.1 |
+| "B7a" sections (retired carry; stage-1 positive ordinary domain costs; formed-load traversal and finding ownership) | Retired carry: §7.1 and §1.2; domain: §8.1; statics: §3.6; traversal, FK895: §8.2; owner choices and first errors: §8.3; scoped TEXT: §8.4; phase model: §8.5; T25 producer: §7.2; E11, E13, E14: §4.5 |
+| "B7b section", "B7b: actual-source D3" | B7b-B, B7b-K1, prunes: §1.2, §1.3; B7b-P1, B7b-LS: §2; B7b-R1, B7b-J1, B7b-J5, B7b-LR: §3.1; B7b-E1, B7b-E4, B7b-E5: §3.2; B7b-F: §3.3; B7b-ZA: §3.4, §3.5; static inventory: §3.6; B7b-JR: §4.1; B7b-CA, B7b-DPS, B7b-DX, B7b-VP: §4.2; B7b-J3: §7.5; reproduction at `837a04b770`: §10 |
+| "T4-U6/U8: actual-source D3" | U6 loops and classes: §3.3, §3.4, §4.3; U6-K, U6-J4: §4.3; U6-DPS and U6-A model-build entries: §4.2; U6-A kernel entries: §6.3; U8-MP: §4.5; U8-FB: §6.1; U6-L6: §6.4; U6-RB, U6-RB-V, U6-RP, U6-RL: §4.7; U6-DH: §4.8; U6-SH: §7.2; U6-ES, U6-WS, U6-RS, U8-FM: §5.3; U6-BE: §3.3; source pins: §1.3; reproduction: §10 |
+| "Gate bounds (registration)" | §9, "Gate bounds (registration)" |
+| "RF source-method extension" (RF-O4/CG/DU/RC/ID/EDGE/LU/J3) | §7.4 |
+| "W1 member-load certification", "the W1 section" | W1 reductions: §8.6; W1-L5: §4.7; stage-2 owners: §8.7; successful count: §8.5 |

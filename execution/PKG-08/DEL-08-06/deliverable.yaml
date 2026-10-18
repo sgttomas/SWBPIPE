@@ -113,7 +113,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-08-01
   condition: 'DEL-08-06 needs DEL-08-01 as a predecessor: State/comparison/handoff sections integrate
     with report generator.
@@ -128,7 +127,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-08-02
   condition: 'DEL-08-06 needs DEL-08-02 as a predecessor: State/comparison/handoff sections consume audit
     manifest conventions.
@@ -143,7 +141,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-08-03
   condition: 'DEL-08-06 needs DEL-08-03 as a predecessor: State/comparison/handoff sections extend assumptions/provenance
     sections.
@@ -158,7 +155,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-08-04
   condition: 'DEL-08-06 needs DEL-08-04 as a predecessor: State/comparison/handoff sections consume result
     export envelopes.
@@ -173,7 +169,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-08-05
   condition: 'DEL-08-06 needs DEL-08-05 as a predecessor: State/comparison/handoff sections need protected-content
     linter controls.
@@ -188,7 +183,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-12-02
   condition: 'DEL-08-06 needs DEL-12-02 as a predecessor: State/comparison/handoff sections need redaction/export
     controls.
@@ -203,7 +197,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-14-01
   condition: 'DEL-08-06 needs DEL-14-01 as a predecessor: State/comparison/handoff sections consume immutable
     model states.
@@ -218,7 +211,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-14-02
   condition: 'DEL-08-06 needs DEL-14-02 as a predecessor: State/comparison/handoff sections consume analysis
     runs.
@@ -233,7 +225,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-14-03
   condition: 'DEL-08-06 needs DEL-14-03 as a predecessor: State/comparison/handoff sections consume state
     comparison.
@@ -248,7 +239,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-14-04
   condition: 'DEL-08-06 needs DEL-14-04 as a predecessor: State/comparison/handoff sections consume run
     comparison.
@@ -263,7 +253,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-14-05
   condition: 'DEL-08-06 needs DEL-14-05 as a predecessor: State/comparison/handoff sections consume comparison
     export contracts.
@@ -278,7 +267,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-15-01
   condition: 'DEL-08-06 needs DEL-15-01 as a predecessor: State/comparison/handoff sections consume handoff
     package manifest.
@@ -293,7 +281,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-15-03
   condition: 'DEL-08-06 needs DEL-15-03 as a predecessor: State/comparison/handoff sections consume export
     workflow records.
@@ -308,7 +295,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-15-04
   condition: 'DEL-08-06 needs DEL-15-04 as a predecessor: State/comparison/handoff sections consume external-prover
     metadata boundaries.
@@ -323,9 +309,15 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 code_paths:
 - apps/desktop/src/features/report/reportPackageRequest.ts
-- core/reporting/report_package/
-- core/reporting/report_package/src/lib.rs
+- apps/desktop/src/features/report/reportPackageRequest.test.ts
+- apps/desktop/src/features/report/stateComparisonHandoffSections.ts
+- apps/desktop/src/features/report/stateComparisonHandoffSections.test.ts
+- core/reporting/report_package/**
+- core/reporting/state_comparison_handoff_sections/**
+checks:
+- tests/test_state_comparison_handoff_report_sections.py
 - core/reporting/report_package/tests/container.rs
+- apps/desktop/src/features/report/stateComparisonHandoffSections.test.ts
+- apps/desktop/src/features/report/reportPackageRequest.test.ts

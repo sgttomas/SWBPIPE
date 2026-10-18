@@ -105,7 +105,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-02/DEL-02-02/docs/_Registers/Deliverables.csv
 - from: external:HUMAN-REVIEW-GATE
   condition: 'Human review is required before open unit catalog dimension basis conversion storage diagnostic-code
     schema-location and special-quantity decisions can be treated as accepted.
@@ -120,7 +119,6 @@ needs:
 
 
     Target description — TargetName: Human decision owner or review gate; TargetRefID: HUMAN-REVIEW-GATE'
-  evidence: execution/PKG-02/DEL-02-02/Procedure.md
 - from: doc:docs/IP_AND_DATA_BOUNDARY.md
   condition: 'Public/protected data policy constrains unit and conversion data sources and protected-content
     handling for DEL-02-02.
@@ -136,7 +134,6 @@ needs:
 
     Target description — TargetName: IP and Data Boundary Policy; TargetRefID: docs/IP_AND_DATA_BOUNDARY.md;
     TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
-  evidence: execution/PKG-02/DEL-02-02/Procedure.md
 - from: doc:docs/VALIDATION_STRATEGY.md
   condition: 'Unit and schema test obligations depend on the project validation strategy available to
     the deliverable.
@@ -153,7 +150,6 @@ needs:
 
     Target description — TargetName: Validation strategy; TargetRefID: docs/VALIDATION_STRATEGY.md; TargetLocation:
     docs/VALIDATION_STRATEGY.md'
-  evidence: execution/PKG-02/DEL-02-02/Procedure.md
 - from: unknown
   condition: 'DEL-02-02 provides a conservative unit contract for downstream solver schema rule evaluator
     adapter persistence and reporting surfaces.
@@ -172,7 +168,6 @@ needs:
     reporting unit consumers; TargetRefID: DOWNSTREAM-UNIT-CONSUMERS'
   direction: downstream
   gating: false
-  evidence: execution/PKG-02/DEL-02-02/Guidance.md
 - from: doc:core/units module contract
   condition: 'DEL-02-02 must produce a core/units module contract documenting quantity shape dimension
     signature conversion API operation rules diagnostics and storage hooks.
@@ -190,7 +185,6 @@ needs:
     Target description — TargetName: core/units module contract; TargetRefID: core/units module contract'
   direction: downstream
   gating: false
-  evidence: execution/PKG-02/DEL-02-02/Specification.md
 - from: doc:docs/SPEC.md
   condition: 'DEL-02-02 must hand off a unit-system section or equivalent linked technical specification
     update for docs/SPEC.md.
@@ -208,10 +202,11 @@ needs:
     section; TargetLocation: docs/SPEC.md'
   direction: downstream
   gating: false
-  evidence: execution/PKG-02/DEL-02-02/Specification.md
 code_paths:
-- core/units
-- core/units/README.md
-- core/units/schema_vocabulary.py
-- core/units/src/lib.rs
+- core/units/**
 - schemas/units.schema.yaml
+- apps/desktop/src/services/displayQuantityService.ts
+- apps/desktop/src/services/displayQuantityPrecision.test.ts
+checks:
+- core/units/src/lib.rs
+- apps/desktop/src/services/displayQuantityPrecision.test.ts

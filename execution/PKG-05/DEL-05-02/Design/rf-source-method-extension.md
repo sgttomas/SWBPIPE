@@ -1,12 +1,12 @@
 # RF source-method extension: exact blocks of order up to 4, exact-congruence member transforms and metered work
 
-**Status: as built (2026-10-17).** The implementation starts from merged T4-U6/U8 `4971d62dc9`; its numerical source and coverage are committed through `677f11b674`, and its initial actual-source D3 registration is `ffe51350ab`. The design basis was `dff1ff2a086ad681a8174b46b4d31833327452dd`. The PR carries the final verification and exact-head hosted result; product acceptance and merge remain with the owner.
+**Status: as built (2026-10-17).** The implementation builds on merged T4-U6/U8 `4971d62dc9`. Its numerical source is `677f11b674`, the coefficient basis of its actual-source D3 registration `ffe51350ab` (section 9). The design probes (section 1.1) were measured on the design basis `dff1ff2a08`; their facts hold on `4971d62dc9` (section 10).
 
-This is the second post-T3 shared epoch in [b7-plan.md](b7-plan.md) ("After B7b", item 2). Independent review covers the order-3/4 arithmetic, metering, congruence source, recovery rows and consuming checks. Section 10 records the completed U6/U8 re-check; section 12 names the verification scope.
+This is the second post-T3 shared epoch in [b7-plan.md](b7-plan.md) ("After B7b", item 2). Section 10 states the T4-U6/U8 interfaces; section 12 names the verification scope and the independent scrutiny it needs.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
-**Commission** (b7-plan, B7b table, HELP_HUMAN 2026-10-12): "Extend the retained-source exact method's coverage under its own design, taken before any code: exact blocks of order up to 4 and non-axis-aligned member transforms first; a subnormal final reserve only with a sound outward-rounded recipe and underflow/overflow controls. Work and memory are accounted positively and priced. D1's limits (exact-boundary limits, `PHYSICS_SOURCE_WORK_LIMIT`, 256 DOFs) stay unchanged unless separately ruled. The J7 RF census is its consuming check: every newly selected case must meet the frozen criterion, and no reference or tolerance changes."
+**Commission** (b7-plan, B7b, HELP_HUMAN 2026-10-12): "Extend the retained-source exact method's coverage under its own design, taken before any code: exact blocks of order up to 4 and non-axis-aligned member transforms first; a subnormal final reserve only with a sound outward-rounded recipe and underflow/overflow controls. Work and memory are accounted positively and priced. D1's limits (exact-boundary limits, `PHYSICS_SOURCE_WORK_LIMIT`, 256 DOFs) stay unchanged unless separately ruled. The J7 RF census is its consuming check: every newly selected case must meet the frozen criterion, and no reference or tolerance changes."
 
 ## Summary
 
@@ -28,49 +28,27 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
   - The original `load_reference_fallback_uz` request passes its old replay cliff under the new rule. The accepted implementation keeps the fixture's ordinary pressure-1 role with a deliberately zero `uniform:0` member load and the named non-nodal decline (HELP_HUMAN, 2026-10-17; section 5.5).
   - No strict-gap outcome changes in any committed suite (measured).
 - **No change** to a reference, criterion, tolerance, expected case, exclusion, D1 limit, semantic table or model format.
-- **D3** adds 16,361,805 B in each native phase against U6/U8's registered source. All 70 evaluations fit at the unchanged M = 12 GiB; merged dense W4 has 35,451,012 B headroom after the required TEXT reserve, and merged dense X1 has 60,972,710 B (section 9).
+- **RF registration D3** added 16,361,805 B in each native phase against U6/U8's registered source. All 70 evaluations fit at the unchanged M = 12 GiB; RF's merged dense W4 had 35,451,012 B headroom after the required TEXT reserve, and merged dense X1 had 60,972,710 B (section 9). The later W1 registration supersedes those current-build figures ([w1-member-load-certification.md](w1-member-load-certification.md), section 9).
 - **No ruling is outstanding.** Section 11 lists what stays reserved.
 
 ## 1. The census facts
 
 ### 1.1 How they were measured
 
-Three throwaway probes ran in the scratch worktree `/Users/ryan/dev/chirality-t3/scratch/rf-design-probe`, a detached checkout of `dff1ff2a08`. Every build ran through `tools/t3_cargo.sh` with `CARGO_TARGET_DIR=/Users/ryan/dev/chirality-t3/targets/rf-design-probe`, from `projects/chirality-piping/core/product_physics` or `core/solver/frame_kernel`. Every Python step ran through `tools/t3_slot.sh python3 -I`. The evidence lives outside the repository and may not survive a reboot.
+Three design probes were measured on `dff1ff2a08`. Sections 1 to 5 label their facts with the probe that measured them.
 
-- **P1, operands and exact analysis** (`/private/tmp/rf-design-probe/`).
-  - A scratch test appended to `j7_rf_census.rs`, run as `RF_DESIGN_PROBE_OUT=/private/tmp/rf-design-probe/operands.jsonl test --lib rf_design_probe_dump`, dumps the census's own `Owned::actual` operands for all 161 in-family cases. It records the partition, springs and identified loads, and per member the binary64 `local_stiffness()`, `transformation_matrix()` and `global_stiffness()`. It also records the output of a mirror of `transform_roundoff` that keeps every final reserve.
-  - An independent Python analysis (`rf_probe/analyze.py`; standard library and exact rationals only, no producer code) rebuilds the exact free-DOF graph, classifies the transforms and solves every case exactly.
-  - Outputs: `operands.jsonl`, `analysis.json`, `tables.txt` and `mirror_check.txt`.
-- **P2, prototype** (`/private/tmp/rf-design-proto/`, source diff `prototype.diff`).
-  - A scratch implementation of sections 2 and 3, under the legacy charges, runs the census's direct method on all 161 cases (`RF_PROTO_OUT=/private/tmp/rf-design-proto/measure.jsonl test --lib rf_proto_measure`).
-  - Section 3.6 describes the shortcut it takes for the Context's congruence source.
-  - Outputs: `measure.jsonl`, `summary.json`, `census_diff.jsonl` and the logs.
-- **P3, metered charging.** P2's prototype with metered `Work::mul` (section 5), run twice:
-  - `/private/tmp/rf-design-proto/metered/`: for "extended" attempts only (`RF_PROTO_METERED=1`), with a per-pair constant of 4. This was an intermediate step, superseded by the ruling.
-  - `/private/tmp/rf-design-proto/uniform/`: the ruled rule. It applies to every exact attempt with the per-pair constant 96 (`RF_PROTO_UNIFORM=1`). The order cap is scoped per entry (section 2.1), and a scratch counter records operations and radix iterations.
-  - The uniform run covers the census measurement (`measure.jsonl`, `compare.json`, `summary.json`), the leaf diff of the 24 source controls (`controls_leafdiff.json`), strict-gap endings under both rules (`strictgap_*.json`) and these suites under both rules: frame kernel lib, nonlinear lib and integration, product-physics lib, and the product-physics integration targets `kd5_preview_maximum_enclosure`, `physics_source_runtime`, `pressure_source_join`, `s11f_site_test` and `source_block_recovery` (`suite_*.log`).
-  - The extended-only run's source is `metered/prototype.diff`. The uniform run's source was saved from the scratch tree after the run, as `uniform/prototype.diff` (tracked files) and `uniform/prototype-untracked.tar` (the probe scripts).
-  - The "baseline" logs are the same scratch tree run with main's behaviour. The `result_export` suite was not run, because it reads committed fixtures, which no probe changes.
-  - Every measured run ended normally. The last job's rc=101 (10:13:53Z) is its own test failures, classified in section 5.5; it was not an interruption.
+- **P1, operands and exact analysis.**
+  - A probe of `j7_rf_census.rs` dumps the census's own `Owned::actual` operands for all 161 in-family cases. It records the partition, springs and identified loads, and per member the binary64 `local_stiffness()`, `transformation_matrix()` and `global_stiffness()`. It also records the output of a mirror of `transform_roundoff` that keeps every final reserve.
+  - An independent analysis (standard library and exact rationals only, no producer code) rebuilds the exact free-DOF graph, classifies the transforms and solves every case exactly.
+- **P2, prototype.** A prototype implementation of sections 2 and 3, under the legacy charges, runs the census's direct method on all 161 cases. Section 3.6 describes the shortcut it takes for the Context's congruence source.
+- **P3, metered charging.** P2's prototype with the ruled metered `Work::mul` (section 5): it applies to every exact attempt with the per-pair constant 96, the order cap is scoped per entry (section 2.1), and a counter records operations and radix iterations. P3 covers the census, the leaf diff of the 24 source controls, strict-gap endings under both rules, and these suites under both rules: frame kernel lib, nonlinear lib and integration, product-physics lib, and the product-physics integration targets `kd5_preview_maximum_enclosure`, `physics_source_runtime`, `pressure_source_join`, `s11f_site_test` and `source_block_recovery`. Its baseline is the same source with main's behaviour.
 
-Controls that passed (measured):
-- **P1.**
-  - The live first cause equals the pin in 161/161 cases.
-  - The mirror of `transform_roundoff` agrees with the original on Ok/Err for 535/535 members, and on every reserve bit of the 518 accepted members. RF-RANGE-CHAIN-E-1000's row 1/column 1 reserve is `0002e5d8f51c523b`, as b7-plan states.
-  - The independently rebuilt graph gives the pinned first order above 2 in 94/94 cases.
-  - RF-ZERO-TINY passes 25/25 rows, and all 72 of its exactly computed quantities, rounded once, equal the product's dumped values bit for bit.
-  - Every exact solve has zero residual on every free row.
-- **P2, under the legacy charges.**
-  - Orders 1 and 2 are byte-preserved: `tests/pressure_source_join.rs`'s `join_preserves_every_source_publication_byte` and `pressure_source_controls_keep_exact_work_and_current_bytes` pass unchanged.
-  - RF-ZERO-TINY still charges 742,625 with an identical response digest.
-  - The 52 block cases whose first component is above 4 keep identical errors and work.
-  - `source_recovery::tests` pass 10/10.
-- **P2 and P3, for every selected case.** Every published displacement and member end action contains P1's exact value inside its certified interval, and lies within 2 ulps of the correctly rounded value.
-- **Mode independence.** `dense_scrutiny` spot checks (six in P2, three in P3) equal `sparse_interactive` in outcome, work and response digest.
-- **P3 (uniform).**
-  - The frame-kernel lib passes 611/611, with the legacy-entry tests unchanged.
-  - The nonlinear lib (151) and its integration tests (4) pass identically under both rules.
-  - No multiplication anywhere in the census or its replays is charged below its counted operations (section 5.4).
+What the probes establish about their own basis (measured):
+- **P1 agrees with the product.** Its live first cause equals the census pin in every case. Its mirror of `transform_roundoff` agrees with the original on Ok/Err for all 535 members and on every reserve bit of the 518 accepted members; RF-RANGE-CHAIN-E-1000's row 1/column 1 reserve is `0002e5d8f51c523b`, as b7-plan states. The independently rebuilt graph gives the pinned first order above 2 in all 94 cases. RF-ZERO-TINY's 72 exactly computed quantities, rounded once, equal the product's values bit for bit. Every exact solve has zero residual on every free row.
+- **Under the legacy charges (P2)**, orders 1 and 2 are byte-preserved (`tests/pressure_source_join.rs`'s `join_preserves_every_source_publication_byte` and `pressure_source_controls_keep_exact_work_and_current_bytes` hold unchanged), and the 52 block cases whose first component is above 4 keep identical errors and work.
+- **For every selected case (P2 and P3)**, every published displacement and member end action contains P1's exact value inside its certified interval, and lies within 2 ulps of the correctly rounded value.
+- **Mode independence in the probes' spot checks (six in P2, three in P3).** `dense_scrutiny` equals `sparse_interactive` in outcome, work and response digest.
+- **Metering (P3).** The legacy-entry frame-kernel tests and the nonlinear suites are unchanged under both rules, and no multiplication anywhere in the census or its replays is charged below its counted operations (section 5.4).
 
 ### 1.2 The 94 exact-block cases
 
@@ -324,7 +302,7 @@ The two forms gave value-equal entries in every member. The same members charge 
 Descriptor units grow, derived from `descriptors_charge`'s counting rule and K_local's sparsity:
 - A congruence member's end rows carry up to 12 terms, each with a two-atom product, where today they carry 2 to 4 single-atom terms. Its section rows add the [sign, fraction, length] atoms to those terms.
 - That comes to about 2,900 units per member, against about 820 today.
-- Each rigid support the member touches adds about 800 to 950 units. Each of its 6 support rows has at most 12 terms, each with at most 3 triple products of 3 atoms (1 + 3·4 = 13 units), so at most about 160 units per row (derived; the independent review counted about 800 per support).
+- Each rigid support the member touches adds about 800 to 950 units. Each of its 6 support rows has at most 12 terms, each with at most 3 triple products of 3 atoms (1 + 3·4 = 13 units), so at most about 160 units per row (derived; an independent count gives about 800 per support).
 - The unchanged 16,384-unit law therefore admits roughly four or five congruence members per model.
 - Section 3.2's unit precheck declines a larger model by `Budget`, before descriptor #1 is built, so its memory stays within the unit law (section 9).
 
@@ -334,7 +312,7 @@ This is a coverage limit of the unchanged D1 limits, not a new rule.
 
 The prototype implemented 3.3 with a shortcut. It replaced each congruence member's rounded contributions by the exact terms of its G_ij, and bypassed the coverage check only on the entries those members touch. That was 8 to 10 entries per single-member case and 34 to 258 per multi-member case; no other entry was bypassed. All 27 transform cases passed both closure checks of 3.2.
 
-The shortcut does not build a receipt, so the public publication path for a congruence member was not exercised. The implementation verifies it (sections 6 and 12).
+The shortcut does not build a receipt, so P2 and P3 do not exercise the public publication path for a congruence member. The census binds that path (section 6).
 
 Measured at the unchanged 8,000,000:
 
@@ -362,7 +340,7 @@ The independent implementation count is 25,462 for CHAIN and TREE, 28,246 for CO
 - No reference, criterion or guard changes; `structural.rs::checked_value` and `transform_roundoff` are untouched.
 - RF-RANGE-THIN-B, which would need a sound reserve recipe *and* new power-of-two-scaled exact arithmetic, may become a later unit under its own design. It is not scheduled.
 
-**Basis** (P1, measured on `dff1ff2a08`; evidence in `/private/tmp/rf-design-probe/`):
+**Basis** (P1, measured on `dff1ff2a08`):
 - **A sound reserve recipe alone selects none of the four.** Each block's exact products underflow below 2⁻¹⁰⁷⁴. The smallest are 2⁻¹⁹⁶⁰ for RANGE-CHAIN-E-1000, RANGE-CONT-E-1000 and RANGE-SKEW-E-1000; RANGE-THIN-B's 2×2 determinant terms are 2⁻²⁰³⁵. `Expansion::add_product` and `exact_radix` refuse any product that loses bits (derived from the code).
 - **RANGE-CHAIN-E-1000 and RANGE-CONT-E-1000** also have blocks of order 10 and 15 (profiles [6,5,10,10] and [10,15,15,1,1,1,1,1]).
 - **RANGE-SKEW-E-1000** has one (1,2,2) member and an order-9 block, and its exact solve misses the frozen criterion (explained below).
@@ -391,7 +369,7 @@ The independent implementation count is 25,462 for CHAIN and TREE, 28,246 for CO
 - **Strict-gap outcomes.** Strict-gap qualifications that the rule newly allows are "capability gained under the same sound rule". They are listed with evidence, and DEL-04-01 is named.
 - **Independent replay.** The independent replay of the rule is a test-side oracle, not the readers: "the readers check the ledger's structure and limits, and they don't redo the solve."
 
-**Basis:** P2 and P3 (section 1.1), measured in `/Users/ryan/dev/chirality-t3/scratch/rf-design-probe` at `dff1ff2a08`, with evidence in `/private/tmp/rf-design-proto/`, `…/metered/` and `…/uniform/`.
+**Basis:** P2 and P3 (section 1.1), measured at `dff1ff2a08`.
 
 ### 5.1 The rule
 
@@ -458,17 +436,17 @@ A stricter model also fits: P3's counter charged 6 per two-sum step, 2 per expon
 - **The independent oracle.** A frame-kernel test reimplements grow-expansion and the two-product on binary64, including zero elimination, independently of the producer's `Expansion`. With that implementation it replays each product's actual output-length sequence, recomputes the charge of each `mul`, `add` and `sum`, and compares the totals exactly with the producer's `WorkReport`, in MJ9's style and without the producer's counters.
   - The cases cover varied operand lengths, cancellations that shorten expansions, the expansion-length refusal, and a limit set between two steps.
   - Operand lengths alone do not determine the charge, because zero elimination depends on the values. That is why the oracle replays the arithmetic.
-  - Independent review exposed a kept explicit precharge outside `mul` that this equality alone did not constrain. The as-built oracle independently derives and checks every exercised entry's legitimate explicit-charge sequence and refusal prefix. Extra legacy precharges in gap-sign and retained replay are killed with operation-count comparisons disabled. Its independent six-operation TwoSum also reproduces the producer's near-overflow `Range` refusal. Temporal evidence that a refused add did not execute additionally uses the executed-operation counter; charge equality alone does not establish that ordering.
+  - Total equality alone does not constrain an explicit precharge kept outside `mul`. The oracle therefore independently derives and checks every exercised entry's legitimate explicit-charge sequence and refusal prefix. Extra legacy precharges in gap-sign and retained replay are killed with operation-count comparisons disabled. Its independent six-operation TwoSum also reproduces the producer's near-overflow `Range` refusal. Temporal evidence that a refused add did not execute additionally uses the executed-operation counter; charge equality alone does not establish that ordering.
 - **The readers.** The Rust reader and the Python verifier keep their work checks, which are the ledger's structure and limits: per case, charged plus reserved at most the limit at most 8,000,000; the invocation sums at most 64,000,000 and consistent with the publication charge. They do not redo the solve, and they cannot recompute arithmetic charges.
 
 ### 5.5 Consequences
 
-All measured on P3's uniform run, against main's behaviour in the same scratch tree.
+All measured on P3's uniform run, against main's behaviour on the same source.
 
 **Census.**
 - **Categories:** 32 newly selected; RF-ZERO-TINY selected as before; 14 order reclassifications and 23 transform reclassifications (section 6); 56 with an unchanged error; and 35 that make no attempt (HASH-001 and the axis gate).
 - **Exceptions: none.** On these single-case invocations, no previously selected case loses selection. No first cause changes beyond those classes. Every non-selected case's error is unchanged apart from its work numbers. Section 5.2 (6) covers multi-case invocations.
-- **RF-ZERO-TINY** now charges 126,845, with 253,699 including replay, against 742,625 today. Its response digest and rows (25/25) are unchanged.
+- **RF-ZERO-TINY** now charges 126,845, with 253,699 including replay, against 742,625 under the legacy charges. Its response digest and rows (25/25) are unchanged.
 
 **Strict-gap qualification.** The strict-gap path ends identically under both rules: 1,943 exact attempts in the nonlinear suites and 40 in the product-physics lib.
 - Neither rule ends any attempt in `Budget`.
@@ -476,18 +454,16 @@ All measured on P3's uniform run, against main's behaviour in the same scratch t
 - Nothing is newly qualified, so no DEL-04-01 K-D5 outcome changes (`kd5-nonlinear-active-set.md`).
 - The rule does widen what the strict-gap helper can complete within its 2,000,000 per-call limit, for models that today exhaust it.
 
-**Suites.**
-- **Frame kernel lib:** 611/611 pass.
-- **Nonlinear:** lib 151 and integration 4 pass, identically under both rules.
-- **Product-physics lib:** 20 failures, each explained:
+**Pins that move.** Under the uniform rule, the existing frame-kernel lib tests and the nonlinear lib and integration tests pass unchanged. These pins move, each for a stated reason:
+- **Product-physics lib:**
   - the 10 census family tests: coverage and work;
-  - the 2 registration law tests (`retained_memory::law_tests`): any priced-source change stales the registered profile, and they fail in main-behaviour mode of the same tree too. They are D3's re-registration (section 9);
+  - the 2 registration law tests (`retained_memory::law_tests`): any priced-source change stales the registered profile, whatever the charging rule. They are D3's re-registration (section 9);
   - `cached_source_context_preserves_current_public_serializations`: work digits;
   - `retained_facade_tests::b3b_rv123_s2_unavailable_exact_case_binds_def_e`: its W1 route-E successor carries a source decline whose first cause becomes `UnsupportedBlock` instead of "not a signed permutation". This is section 3's reclassification, together with the hashes that bind it, in both modes;
   - five `source_receipt::load_state_fallback_tests`, and `s11g_tests::t13_committed_fallback_uz_is_byte_identical`: below.
 - **Product-physics integration:**
   - `pressure_source_join`'s two control tests: work counters, in the 6 leaves below;
-  - `s11f_site_test`'s `rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites`: a source-audit list of frame-kernel functions, which the prototype changed by renaming one. The implementation keeps that list current.
+  - `s11f_site_test`'s `rule_6_kernel_functions_that_touch_the_force_are_the_listed_sites`: a source-audit list of frame-kernel functions, kept current with the frame-kernel changes (section 9).
 
 **Outcomes that change for work alone.** Both cases below lose a `Budget` refusal under the lower charges, as 5.2 (5) predicts.
 - **The five fallback tests** (`source_receipt/load_state_fallback_tests.rs`). Each constructs a "budget cliff": extra loads or copied cases at the public 8,000,000 and 64,000,000 limits, or a private `SourceRecoveryBudget` limit such as 7,000,000. Those cliffs were tuned to the legacy charges. Under the uniform rule the cliff is not reached and the selected join finalizes (`pressure-source-1` in place of the expected `pressure-1`). The SF-1 and SF-1R fallback paths themselves are unchanged.
@@ -495,10 +471,9 @@ All measured on P3's uniform run, against main's behaviour in the same scratch t
   - A scenario that uses a private limit sets a new private limit.
   - A scenario defined at a public limit is first scaled: more extra loads or copies, within D1's caps.
   - If the cliff cannot be reached within those caps (the uniform charges are about 5 to 8 times lower), the scenario is re-stated with a private limit. It is then paired with a positive control showing that the public limit now admits the case.
-  - The implementing PR lists every such change to what a test establishes.
 - **The committed `core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-*.raw.json`** (0.4 load-reference route, both modes).
-  - Today its source attempt is declined at the replay screen ("captured replay reservation", `Budget`, charged 4,061,151 against the 4,000,000 threshold), and it publishes its ordinary result.
-  - Under the uniform rule it passes the screen and publishes the selected resolved `pressure-source-1`. Its retained maximum then takes the retained-source basis (`retained_section_functionals_binary64` in place of `j_side_section_equilibrium_binary64_enclosures`). The published values would be the source method's certified projections (relative bound ≤ 1e-9), the existing 0.4 boundary keeps the evidence numerically ineligible, and no reference covers the case.
+  - Under the legacy charges, its original request's source attempt is declined at the replay screen ("captured replay reservation", `Budget`, charged 4,061,151 against the 4,000,000 threshold), and it publishes its ordinary result.
+  - Under the uniform rule, that original request passes the screen and would publish the selected resolved `pressure-source-1`. Its retained maximum then takes the retained-source basis (`retained_section_functionals_binary64` in place of `j_side_section_equilibrium_binary64_enclosures`). The published values would be the source method's certified projections (relative bound ≤ 1e-9), the existing 0.4 boundary keeps the evidence numerically ineligible, and no reference covers the case.
   - **The fixture's role.** It is the committed *sensitive ordinary pressure-1* raw of a 0.4 case, and several consumers depend on that role:
     - T13 (`s11g_tests.rs`), which concerns the K-D5 ordinary maximum declaration on a Sensitive case;
     - `result_export/tests/reader_verdict.rs` (route `"pressure"`), `base_reader_outcomes.rs`, `tests/base_reader_corpus.py`, `fixtures/results/base_reader_outcomes.json`, `fixtures/results/loadReferenceReaderCases.cases.json` and `load_reference_source_contract.rs` (`lr-fallback`);
@@ -506,11 +481,7 @@ All measured on P3's uniform run, against main's behaviour in the same scratch t
     - `test_ci_numerical.py`.
   - **Applied repair** (HELP_HUMAN, 2026-10-17). The request adds the deliberately zero full-span member load `uniform:0`. It contributes no force but enforces `prepare_sources`' named non-nodal decline, independently of work. The fixture stays Sensitive ordinary pressure-1 with R-b at end i; its rationale is next to the fixture and in T13. All existing consumers keep their role. A future source extension admitting member loads must preserve that role by another work-independent decline or explicitly revisit those consumers; W1's stage-2 design records the dependency.
 
-**Not run under the uniform rule.** These suites were not run, so their evidence is still to come at implementation:
-- `result_export`, the Python verifiers, the desktop and headless;
-- six product-physics integration targets that touch source recovery: `exact_admission_seam`, `formation_check_runtime`, `f1b_w2_runtime`, `load_reference_state_runtime`, `load_reference_state_runtime_extension` and `retained_precision_admission`.
-
-**Committed bytes.** Each of the 24 raw source controls differs in exactly 6 leaves, out of 2,948 to 5,067: 3 work counters, 2 hashes binding them and 1 decline text embedding work (`controls_leafdiff.json`). Their 30 derived documents and J2's bases follow from them. The retained corpus `retained_precision_cases.json` is expected to be unchanged (derived, not run): its two decline messages are source-closure refusals (the excluded subnormal reserve), which perform no multiplication, so their work counters do not move. Its pack step regenerates it at implementation, and any byte difference must be explained.
+**Committed bytes.** Each of the 24 raw source controls differs in exactly 6 leaves, out of 2,948 to 5,067: 3 work counters, 2 hashes binding them and 1 decline text embedding work. Their 30 derived documents and J2's bases follow from them. The retained corpus `retained_precision_cases.json` is expected to be unchanged (derived): its two decline messages are source-closure refusals (the excluded subnormal reserve), which perform no multiplication, so their work counters do not move. Its pack step regenerates it, and any byte difference must be explained.
 
 ## 6. The consuming check: the J7 RF census
 
@@ -539,7 +510,7 @@ Any other decline still panics as unclassified. `exact_block_order_above_2` and 
 | `budget` | 5: the rotated multi-member cases listed in section 3.6 |
 | `transform_not_block_rotation` | 0 |
 
-The implementation measures the split and every class through the actual source and public paths. All four congruence envelopes publish with the required level and [4,2] block profile, are accepted by the Rust reader with captured inputs, match their J2 bases byte-for-byte, and bind every one of their 60 published source rows to the direct projections. Native, wasm and Python read J2's six new genuine bases and its reader mutations. Section 3.6 describes the earlier prototype's narrower evidence.
+The census measures the split and every class through the actual source and public paths. All four congruence envelopes publish with the required level and [4,2] block profile, are accepted by the Rust reader with captured inputs, match their J2 bases byte-for-byte, and bind every one of their 60 published source rows to the direct projections. Native, wasm and Python read J2's six new genuine bases and its reader mutations. Section 3.6 describes the earlier prototype's narrower evidence.
 
 `j7_rf_census_classification_and_pin` pins both selected classes and their exact members.
 
@@ -559,15 +530,9 @@ The implementation measures the split and every class through the actual source 
 No `results_sha256`, identity, source attempt or numerical quality changes except in the four new publications.
 - *Measured* on P2, under legacy charges: 37 entries (19 cases) differ, only in `diagnostics_sha256` and `envelope_sha256`.
 - *Derived* for section 5's rule: every public decline's message also changes in its work numbers. P3 did not re-measure the public envelopes.
-- *Not measured:* P2's congruence shortcut builds no receipt, so the four new publications are first produced by the implementation, which must establish them as above.
+- *Not measured:* P2's congruence shortcut builds no receipt, so the four new publications were first produced by the implementation; the census establishes them as above.
 
-**Re-pinning.** The pin is regenerated once, deliberately (`SWBPIPE_J7_RF_CENSUS_WRITE=1`). The review compares it with the previous pin entry by entry, and every difference must fall in a class stated here.
-
-**Current consuming text:**
-- b7-plan's J7 census paragraph (a Design condition naming "an exact block of order above 2 … 94 cases" and "Public RF selected-source coverage is zero");
-- the census module's doc comment (`j7_rf_census.rs`, which names RF-ZERO-TINY as the only directly selected case).
-
-Both now state the implementation's counts and public coverage.
+**Re-pinning.** The pin is regenerated only deliberately (`SWBPIPE_J7_RF_CENSUS_WRITE=1`). The review compares it with the previous pin entry by entry, and every difference must fall in a class stated here.
 
 ## 7. Receipt, Rust reader and Python verifier (v3 only)
 
@@ -588,14 +553,14 @@ The changes apply to the current `PRESSURE-SOURCE-1` receipt only; v2 is gone.
 
   **Stored receipts.** A stored pressure-source-1 result that recorded an `unsupported_block` refusal of order 3 or 4 becomes unreadable: the receipt carries no version that would set it apart, and `FAILURE_BLOCK_ORDER` refuses it.
   - This applies the owner's direction of 2026-10-10 (one current version; "nothing needs to be preserved for backwards compatibility"): the current reader judges a receipt against the current producer's contract, and such a result is re-run.
-  - No committed fixture or corpus carries such a receipt (checked by the independent review).
+  - No committed fixture or corpus carries such a receipt.
   - The alternative is to keep the readers at `> 2` and rely on the producer never to emit an order of 3 or 4. That would leave a receipt the current producer cannot produce readable as valid, so it is not taken.
 
   Neither reader can re-derive the exact solve, the transform closure or the charges, and neither does today. They check structure, partition, projections, hash bindings and the work ledger, and they gain nothing that would share producer code. The Python verifier stays independent and reads the J2 corpus unmodified.
 - **J2** (`fixtures/results/pressure_source_reader_corpus.json`, generated by its PP test):
   - three genuine bases are added, in both modes:
     - the census's RF-SKEW-T-PIN-OFF-345-r1e-08 and -r1e-12 requests, re-authored as the census re-authors them (congruence publications; section 6 binds its four envelopes to them);
-    - an invented order-4 model whose ordinary route is sensitive, which the implementation chooses and pins. It is authored with an explicit `euler_bernoulli` shear model and zero mill tolerance and corrosion allowance, which the readers require after U6/U8 (section 10);
+    - an invented order-4 model whose ordinary route is sensitive (`order_four_sensitive`, request `core/product_physics/tests/fixtures/rf_source_method/order_four_sensitive.request.json`). It is authored with an explicit `euler_bernoulli` shear model and zero mill tolerance and corrosion allowance, which the readers require after U6/U8 (section 10);
   - reader mutations are added: a 5-DOF block (schema), `unsupported_block` with `block_order` 3 or 4 (`FAILURE_BLOCK_ORDER`), and an unknown `level`. Native Rust, wasm and the Python verifier read all of them. The desktop reads through the Rust reader (wasm), so no TypeScript changes.
 - **Tables.** No semantic table changes. Limitation 1 of pressure-source-1 names "the existing bounded source adapter load, transform, block and 256-DOF limits" without giving their values, and the receipt's `level` carries the source basis.
 
@@ -608,7 +573,7 @@ Each mutant is introduced into a scratch copy of the implementation and must be 
 | RF-1 | Functional-entry order cap of 3 or 5 instead of 4 | `order_four_blocks_select_and_order_five_declines` (FK: tridiag(−1,2,−1) of order 4 gives u = (4,3,2,1)/5 exactly; order 5 gives `UnsupportedBlock{5}`); the census pin (RF-CANCEL selected, CHAIN-n03 reports 6) |
 | RF-2 | Legacy entry admits order 3 | the existing FK tests `unsupported_singular_negative_asymmetric_range_and_budget_are_explicit` and `original_exact_graph_does_not_use_absorbed_stored_coupling`, and nonlinear `strict_gap_unsupported_blocks_and_mixed_families_do_not_gain_qualification` |
 | RF-3 | Warrant checks only det A > 0, or skips Δ3 | `order_four_warrant_checks_every_leading_minor` (a symmetric 4×4 with Δ1, Δ2, Δ4 > 0 and Δ3 < 0 is `NotPositiveDefinite`) |
-| RF-4 | A cofactor sign flipped | `order_three_and_four_solutions_are_exact` (SPD blocks with distinct entries, compared with independently computed rationals); the Context's zero-reaction check. Transposing the adjugate preserves exact values because the admitted matrix is symmetric; independent review confirmed that it can still change order-4 expansion bits and work. It is not a value-fault mutant. |
+| RF-4 | A cofactor sign flipped | `order_three_and_four_solutions_are_exact` (SPD blocks with distinct entries, compared with independently computed rationals); the Context's zero-reaction check. Transposing the adjugate preserves exact values because the admitted matrix is symmetric, although it can still change order-4 expansion bits and work. It is not a value-fault mutant. |
 | RF-5 | A block's DOFs get distinct denominator expansions (which `evaluate` would otherwise turn into wrong values) | `order_four_block_dofs_share_one_denominator` (bit-identical denominators); `evaluate_refuses_a_block_with_mixed_denominators` (the 2.4 check refuses a mutated denominator with `Invalid`) |
 | RF-6 | Reaction grouping applied to order ≤ 2 blocks | the re-pinned source controls (`pressure_source_controls_keep_exact_work_and_current_bytes`) and RF-ZERO-TINY's re-pinned work |
 | RF-7 | `upper` or `minors` left out of `same_bits` | `order_four_replay_refuses_a_mutated_minor` |
@@ -678,14 +643,14 @@ Each mutant is introduced into a scratch copy of the implementation and must be 
 The new loops also need rules, or the run stops: the block arithmetic (bounded by order 4), the congruence formation (144 entries × 9 products), the reaction grouping (bounded by blocks) and the unit precheck.
 
 **Fixtures, corpora and pins.**
-- *From coverage:* the census pin; J2 (three new bases in both modes, and mutations); the four new public envelopes, pinned in the census and byte-equal to J2's PIN-OFF-345 bases; and, at implementation, b7-plan's J7 census paragraph and the census module doc (section 6).
+- *From coverage:* the census pin; J2 (three new bases in both modes, and mutations); the four new public envelopes, pinned in the census and byte-equal to J2's PIN-OFF-345 bases; and the census counts and public coverage that b7-plan's J7 census paragraph and the census module doc state (section 6).
 - *From section 3's reclassification:* the W1 route-E successor pinned by `retained_facade_tests::b3b_rv123_s2_unavailable_exact_case_binds_def_e`. Its decline text and the hashes binding it move, in both modes.
 - *From the uniform rule:* every committed artifact that carries a source attempt's work counters, or a decline message containing them:
   - the 24 raw source controls (`fixtures/product_preview/pressure_source/**`; measured: 6 leaves each, all work-derived) and their 30 derived documents (`fixtures/results/pressure_source_load_state_*`);
   - J2's existing bases;
   - MJ6/MJ9's captured bases (`tests/pressure_source_join.rs`);
   - the public-serialization pin in `source_receipt/pressure_source_context_tests.rs`;
-  - `core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-*.raw.json`, whose outcome changes for work alone. It is either replaced by a work-independent sensitive 0.4 request, or becomes the selected publication with its consumers re-stated: T13, the reader-verdict and base-reader corpora, `loadReferenceReaderCases`, `load_reference_source_contract.rs`, the desktop load-reference tests and `test_ci_numerical.py` (section 5.5);
+  - `core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-*.raw.json`, whose original request's outcome would change for work alone. The applied repair's zero `uniform:0` member load keeps it Sensitive ordinary pressure-1 through a work-independent decline, so its consumers keep their role: T13, the reader-verdict and base-reader corpora, `loadReferenceReaderCases`, `load_reference_source_contract.rs`, the desktop load-reference tests and `test_ci_numerical.py` (section 5.5);
   - the five `load_state_fallback_tests` scenarios, whose limits are re-derived.
 - Every regenerated byte difference must be a work counter, a hash binding one, a decline text embedding one, or one of the outcome changes listed in section 5.5. Each file is regenerated by its own writer.
 - *Expected unchanged:*
@@ -695,18 +660,7 @@ The new loops also need rules, or the run stops: the block arithmetic (bounded b
 
 **Unchanged:** references, criteria, tolerances, tables, D1 limits, the model format, the 0.4 eligibility boundary and the desktop's code. The desktop's load-reference tests are affected only through `load_reference_fallback_uz`, as above.
 
-**Pre-implementation D3 estimate** (derived; superseded by the actual-source registration below). In the phases that price the live source attempt (T07) and its receipt replay (T25), at the D1 caps (32 nodes, so N = 192, and m = 32 members):
-- **Order 4: about +2.1 MB.** The adjugate cache is about 0.98 MB in each of two live Contexts. The witnesses, transients and accumulators add about 0.1 MB.
-- **Congruence: about +5.5 MB.**
-  - The exact k-children are bounded at 36 terms per member contribution, with doubling capacity: about +2.4 MB in each of two Contexts.
-  - The operand copies in three snapshots add about +0.2 MB.
-  - Descriptor #1 is now bounded by the unit law through the precheck, at most about +0.5 MB above its construction-law bound.
-- **TEXT: negligible** (under 1 KB per invocation).
-- **Total: about 8 MB.** The charging rule does not affect memory.
-
-At B7b's registration, the tight merged dense W3 phase had 24,554,418 B of headroom. U6/U8 is re-registering. Its design reports merged dense W3 at +390.6 MB with its levers ("measured", on scratch pricing of `dff1ff2a08`). It estimates X1 as then the tight phase, at about +53 MB; that figure is not measured. Both figures exclude several items its design lists as not yet priced.
-
-**Actual-source D3.** The canonical 98-form union now binds 289 actual native/text values, including the native 2,416-byte `CongruenceMember` and enlarged `BlockWitness`/retained carrier. The positive owners and capacity bounds are in [retained-pricing-rules.md](retained-pricing-rules.md), RF-O4/CG/DU/RC/ID/EDGE/LU/J3. Against U6/U8's registered `588de796a4`, the native increase is 16,361,805 B in each phase. All four pricing points are complete, both O-10 checks pass, and all 70 route/mode/phase evaluations pass at M = 12,884,901,888 B, R = 67,108,864 B, and floor(0.9 M) = 11,596,411,699 B:
+**Actual-source D3 at the RF registration.** The canonical 98-form union binds 289 actual native/text values, including the native 2,416-byte `CongruenceMember` and enlarged `BlockWitness`/retained carrier. The positive owners and capacity bounds are in [retained-pricing-rules.md](retained-pricing-rules.md), RF-O4/CG/DU/RC/ID/EDGE/LU/J3. In the phases that price the live source attempt (T07) and its receipt replay (T25), the order-4 adjugate cache, the congruence k-children and operand copies, and descriptor #1, which the unit precheck bounds by the unit law, are priced at the D1 caps. The charging rule does not affect memory. Against U6/U8's registered `588de796a4`, the native increase is 16,361,805 B in each phase. All 70 route/mode/phase evaluations fit at M = 12,884,901,888 B, R = 67,108,864 B, and floor(0.9 M) = 11,596,411,699 B:
 
 | Tree / mode / phase | Requested + moving + R | Upward 5% TEXT reserve | Headroom |
 |---|---|---|---|
@@ -715,21 +669,21 @@ At B7b's registration, the tight merged dense W3 phase had 24,554,418 B of headr
 | merged / sparse / W4 | 11,299,676,746 B | 202,152,597 B | 94,582,356 B |
 | merged / sparse / X1 | 11,231,041,853 B | 245,265,792 B | 120,104,054 B |
 
-The larger measured delta replaces the prototype's approximate 8 MB estimate; the implemented first-generation descriptor union, full operand records, temporaries and native layouts are priced positively. The old registration reproduces exactly with RF rules retained and only its source-pin/key values restored: 1,456 coefficients and its original generated block match. Reviewed input #1 alone moves with the receipt schema; the other eleven inputs, compiled build identity and four reader layouts stay. No adjugate recomputation lever or Decision 22 change is needed.
+These figures describe the RF registration; the later W1 registration is in [w1-member-load-certification.md](w1-member-load-certification.md), section 9. The implemented first-generation descriptor union, full operand records, temporaries and native layouts are priced positively. Reviewed input #1 alone moves with the receipt schema; the other eleven inputs, compiled build identity and four reader layouts stay. No adjugate recomputation lever or Decision 22 change is needed.
 
 ## 10. Interactions with T4-U6/U8
 
-The design originally compared U6/U8 (`codex/piping-t4-u6u8-20261016`, head `334dda5eb0`) with `dff1ff2a08`. The complete 11-item re-check ran on merged main `4971d62dc9` before implementation. Every census case's original first cause agrees (161/161); all declared local matrices, transforms and global matrices agree bit-for-bit for 535/535 members. P3's strict-gap comparison agrees on 1,943 nonlinear attempts and 40 product-physics attempts, with no new qualification and the same two Budget replays. U6/U8's actual registered native headroom was dense W4 +51,812,817 B and X1 +77,334,515 B. The schema/readers/fixtures adopt its merged bytes and the 152-byte FrameElement atom. The following list states the checked interfaces and retained constraints; it is not a new re-check duty after documentation or base merges.
+The design probes' measurements (section 1.1) were taken on `dff1ff2a08` and hold on merged main `4971d62dc9`: every census case's first cause, and every member's declared local matrix, transform and global matrix, agree bit for bit, and P3's strict-gap comparison is unchanged, with no new qualification and the same two Budget replays. U6/U8's registered native headroom, RF's D3 basis, is dense W4 +51,812,817 B and X1 +77,334,515 B. The schema/readers/fixtures adopt U6/U8's merged bytes and the 152-byte FrameElement atom. The following list states the interfaces and retained constraints; it is not a re-check duty after documentation or base merges.
 
-1. **`prepare_sources`.** U6/U8 adds the O4 interim declines (Timoshenko, nonzero mill tolerance, nonzero corrosion allowance) after the D7 declines and before the dimension closure. RF's congruence closure and unit precheck sit in the member loop, after them. A Timoshenko member therefore never reaches the congruence. The census re-authors every case to Euler–Bernoulli with zero allowance, and the census inputs carry no mill tolerance. *Re-check:* on merged main, every census case's first cause and P1's operand dump are unchanged.
-2. **FK layouts.** `FrameSection` gains `beam_theory`, and `FrameElement` grows from 136 to 152 B (re-priced by U6/U8). RF reads `local_stiffness()`, `orientation()` and `global_stiffness()`, which U6/U8 states are bit-for-bit unchanged for Euler–Bernoulli. *Re-check:* the census operands are bit-identical, and T07's `Xc("FrameElement", m)` uses U6/U8's atom.
+1. **`prepare_sources`.** U6/U8 adds the O4 interim declines (Timoshenko, nonzero mill tolerance, nonzero corrosion allowance) after the D7 declines and before the dimension closure. RF's congruence closure and unit precheck sit in the member loop, after them. A Timoshenko member therefore never reaches the congruence. The census re-authors every case to Euler–Bernoulli with zero allowance, and the census inputs carry no mill tolerance.
+2. **FK layouts.** `FrameSection` gains `beam_theory`, and `FrameElement` grows from 136 to 152 B (re-priced by U6/U8). RF reads `local_stiffness()`, `orientation()` and `global_stiffness()`, which U6/U8 states are bit-for-bit unchanged for Euler–Bernoulli. The census operands are bit-identical, and T07's `Xc("FrameElement", m)` uses U6/U8's atom.
 3. **Reviewed input #1.** U6/U8 changes `PhysicsGeometry` and adds geometry definitions. RF changes `source.free_blocks` and `source.level`. The definitions are disjoint (measured: `source`, `failure`, `case`, `work` and `projection` are byte-identical on both branches), and RF's re-registration binds the merged bytes.
 4. **Tables.** U6/U8 revises the pressure-source-1, pressure-1 and physics-retained-1 tables. RF changes none.
 5. **Readers.** U6/U8 edits `source_blocks.rs` and `source_blocks.py` for per-basis row coverage. RF edits their `FAILURE_BLOCK_ORDER` lines. The hunks are disjoint.
-6. **The census pin.** U6/U8 regenerates it, because its public digests move with the dual-basis stress rows. RF's regeneration is applied on top of U6/U8's pin, and its diff must stay within section 6's classes. RF's direct-method outcomes do not depend on U6/U8: the source is Euler–Bernoulli with zero allowance. *Re-check:* repeat P3's measurement on merged main. The four new public envelopes then carry U6/U8's dual-basis rows and its geometry shape, and their receipts must read valid under U6/U8's readers.
+6. **The census pin.** U6/U8 regenerates it, because its public digests move with the dual-basis stress rows. RF's regeneration is applied on top of U6/U8's pin, and its diff must stay within section 6's classes. RF's direct-method outcomes do not depend on U6/U8: the source is Euler–Bernoulli with zero allowance. The four new public envelopes carry U6/U8's dual-basis rows and its geometry shape, and their receipts must read valid under U6/U8's readers.
 7. **The uniform rule's regenerated families** (section 9) are the same families U6/U8 regenerates. Their bases move with U6/U8 first.
-8. **D3.** U6/U8 adds U6-DH, U6-RB and the route-specific row premise, and re-prices the FK layouts. RF's delta adds to whatever headroom U6/U8 registers (section 9). *Re-check:* U6/U8's registered per-phase headroom against RF's estimate, before RF's implementation begins.
-9. **b7-plan.** U6/U8 edits "Current model format". RF adds only the two link lines (the B7b table row and "After B7b" item 2). The hunks are disjoint.
+8. **D3.** U6/U8 adds U6-DH, U6-RB and the route-specific row premise, and re-prices the FK layouts. RF's delta adds to U6/U8's registered headroom (section 9).
+9. **b7-plan.** U6/U8 edits "Current model format". RF adds only the two link lines (the B7b RF bullet and "After B7b" item 2). The hunks are disjoint.
 10. **Readers and authoring after U6/U8.**
     - After U6/U8 the pressure-source-1 readers require `euler_bernoulli` and zero allowances. J2's new invented order-4 base is authored that way (section 7).
     - With Timoshenko as the authoring default (U8), default-authored documents are declined by name before they reach RF's paths, until the O4 epoch.
@@ -743,7 +697,7 @@ The design originally compared U6/U8 (`codex/piping-t4-u6u8-20261016`, head `334
 - metered charging is the single work-charging rule, with the per-pair constant 96, an independent test-side oracle and a maintained control;
 - strict-gap qualifications the rule newly allows are accepted, with evidence.
 
-**Decided in this design, for the independent review to check:**
+**Decided in this design**, for the independent review (section 12) to check:
 - the exact source of a non-axis-aligned member is its exact congruence (3.1);
 - the order cap is scoped per entry (2.1);
 - no new publication rule; the pre-0.4 path keeps its named refusal (2.9);
@@ -758,29 +712,18 @@ The design originally compared U6/U8 (`codex/piping-t4-u6u8-20261016`, head `334
 - Decision 22 (M, the 0.9 M margin, the 5 % reserve, the budget model);
 - G10, B8 and everything under b7-plan's "Held by the owner".
 
-None is needed. If U6/U8's registered headroom leaves RF short, the shortfall returns to HELP_HUMAN (section 9).
+None is needed.
 
 **For a later unit, not this epoch:**
 - extending above order 4 meets the 8 criterion failures of section 1.5;
 - RF-RANGE-THIN-B needs a sound reserve and scaled exact arithmetic.
 
-## 12. Implementation and verification
-
-**Order of work,** from merged main after U6/U8:
-1. Re-check section 10's points.
-2. Frame kernel: the charging rule, its oracle and its control. Re-pin every work counter it moves (section 5.5), and nothing else.
-3. Orders 3 and 4.
-4. The congruence source.
-
-   After steps 3 and 4, every order-1/2, signed-permutation control must be byte-identical to its step-2 re-pin. Otherwise the rule's own work changes would mask RF-6.
-5. Product physics: closure, descriptors, unit precheck and receipt.
-6. The readers, J2 and the census.
-7. The regenerated families.
-8. The pricing rules and the actual-source D3 re-registration at M = 12 GiB, with the unchanged 0.9 M margin and 5 % TEXT reserve.
+## 12. Verification
 
 **Checks.**
 - The mutants of section 8, each killed by its named test.
-- The suites `select_affected_checks.py` selects for the changed paths, including `frame_kernel`, `nonlinear_integration`, `product_physics` (with `pressure_source_join`, the census and the six integration targets section 5.5 lists as not yet run), `result_export`, headless, the desktop's load-reference tests, and the Python verifier tests.
+- Every order-1/2, signed-permutation control stays byte-identical to its metered-rule pin; the order-3/4 and congruence code may not move it. Otherwise the rule's own work changes would mask RF-6.
+- The suites `select_affected_checks.py` selects for the changed paths, including `frame_kernel`, `nonlinear_integration`, `product_physics` (with `pressure_source_join`, the census and the integration targets that touch source recovery: `exact_admission_seam`, `formation_check_runtime`, `f1b_w2_runtime`, `load_reference_state_runtime`, `load_reference_state_runtime_extension` and `retained_precision_admission`), `result_export`, headless, the desktop's load-reference tests, and the Python verifier tests.
 - The census and J2 in native Rust, wasm and Python.
 - The hosted `harness` on the exact head.
 

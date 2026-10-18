@@ -122,9 +122,7 @@ needs:
   gating: true
   evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 code_paths:
-- core/model_operations/operation_applier/
 - core/model_operations/operation_applier/src/lib.rs
-- core/product_physics/
 - core/product_physics/src/lib.rs
 - schemas/component.schema.yaml
 checks:

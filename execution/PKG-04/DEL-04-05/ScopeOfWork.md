@@ -71,7 +71,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 >
 > | Construction item | Status |
 > |---|---|
-> | Performance tests | Current crate tests in `core/solver/performance_harness/src/lib.rs`; results remain candidate-bound. |
+> | Performance tests | Current crate tests in `core/solver/performance_harness/src/lib.rs` and, for the K6/K6b kernel and W1 observations, the crate's `tests/k6*.rs` and `runner/test_k6_runner.py`; results remain candidate-bound. |
 > | Benchmark harness | Current carrier is `core/solver/performance_harness/`; invocation and observation format belong to bound implementation evidence. |
 > | Conditioning cases | Required conceptually by SOW-035; concrete matrices/models and acceptable ranges are `TBD`. |
 > | Regression records | Required conceptually for OBJ-008; retention format and comparison policy are `TBD`. |

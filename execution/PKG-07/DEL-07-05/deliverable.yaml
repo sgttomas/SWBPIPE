@@ -146,7 +146,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-05/core/gui/results_viewer/engine.py; tests/test_results_viewer_contract.py
+  evidence: core/gui/results_viewer/engine.py; tests/test_results_viewer_contract.py
 - from: DEL-02-03
   condition: 'DEL-07-05 directly depends on DEL-02-03 because result views display canonical software
     statuses and external human-acceptance references without emitting human approval status.
@@ -159,7 +159,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-05/core/gui/results_viewer/engine.py; tests/test_results_viewer_contract.py
+  evidence: core/gui/results_viewer/engine.py; tests/test_results_viewer_contract.py
 - from: DEL-02-05
   condition: 'DEL-07-05 directly depends on DEL-02-05 because result review handoff requires hash and
     provenance evidence for available result records.
@@ -172,7 +172,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-07/DEL-07-05/core/gui/results_viewer/engine.py; tests/test_results_viewer_contract.py
+  evidence: core/gui/results_viewer/engine.py; tests/test_results_viewer_contract.py
 - from: DEL-08-04
   condition: 'DEL-08-04 enables GUI results review to consume governed result envelopes without losing
     status and diagnostic distinctions.
@@ -185,11 +185,51 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/Specification.md
+- from: DEL-05-02
+  condition: >-
+    The results viewer takes base dispatch, ordinary preview/pressure readings,
+    row semantics and base standing from DEL-05-02's Rust product reader through
+    `resultReader.ts` and `resultStanding.ts` (wasm engine or native host).
+    A result the reader does not admit is unsupported, historical values only.
+    The output policy keys each surface's decision on the reader's returned route.
+  gating: true
+  evidence: execution/PKG-05/DEL-05-02/Design/b7-plan.md
+- from: DEL-04-08
+  condition: >-
+    The results viewer takes retained-source and retained-successor validation,
+    classification, invocation-bound standing and published limitations from
+    DEL-04-08 through the existing Rust-reader bindings, including
+    `retainedPrecisionReader.ts`. It re-derives no verified verdict and does not
+    activate a held output surface.
+  gating: true
+  evidence: apps/desktop/src/features/results/retainedPrecisionReader.ts
 code_paths:
 - apps/desktop/package.json
 - apps/desktop/src/App.test.tsx
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/features/results/ResultsPanel.tsx
+- apps/desktop/src/features/results/resultInterpretation.ts
+- apps/desktop/src/features/results/HistoricalRunContext.tsx
+- apps/desktop/src/features/results/HistoricalRunContext.test.tsx
+- apps/desktop/src/features/results/KnownSemanticNotices.tsx
+- apps/desktop/src/features/results/KnownSemanticNotices.test.tsx
+- apps/desktop/src/features/results/knownSemanticLimitations.ts
+- apps/desktop/src/features/results/knownSemanticLimitations.test.ts
+- apps/desktop/src/features/results/PhysicsSourceEvidencePanel.tsx
+- apps/desktop/src/features/results/PhysicsSourceEvidencePanel.test.tsx
+- apps/desktop/src/features/results/outputPolicy.ts
+- apps/desktop/src/features/results/outputPolicy.test.ts
+- apps/desktop/src/features/results/LoadReferenceOutputGate.tsx
+- apps/desktop/src/features/results/loadReferenceOutputAvailability.ts
+- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
+- apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+- apps/desktop/src/features/display-units/rendererIntegration.test.tsx
+- core/gui/results_viewer/**
 - schemas/results.schema.yaml
-- tools/validation/validate_dependencies_schema.py
+checks:
+- apps/desktop/src/features/results/ResultsPanel.test.tsx
+- apps/desktop/src/features/results/outputPolicy.test.ts
+- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
+- apps/desktop/src/features/results/HistoricalRunContext.test.tsx
+- apps/desktop/src/features/results/KnownSemanticNotices.test.tsx
+- tests/test_results_viewer_contract.py

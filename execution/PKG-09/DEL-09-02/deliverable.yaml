@@ -64,7 +64,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-09/DEL-09-02/Procedure.md
 - from: DEL-03-08
   condition: 'DEL-09-02 benchmark planning depends on unit-aware section-property behavior used by stress
     recovery comparisons.
@@ -78,7 +77,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-09/DEL-09-02/Specification.md
 - from: DEL-01-02
   condition: 'DEL-09-02 requires protected-content review before accepting future source fixtures or hand-calc
     notes.
@@ -92,11 +90,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-09/DEL-09-02/Procedure.md
 code_paths:
-- core/loads/stress_recovery/
-- validation/benchmarks/stress
-- validation/benchmarks/stress/
-- validation/benchmarks/stress/README.md
-- validation/benchmarks/stress/src/lib.rs
-- validation/hand_calcs/stress/
+- core/loads/stress_recovery/src/lib.rs
+- validation/benchmarks/stress/**
+- validation/hand_calcs/stress/**

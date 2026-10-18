@@ -35,7 +35,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/Procedure.md
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
 - from: DEL-00-04
   condition: 'DEL-08-04 must preserve canonical JSON and reproducibility metadata compatibility from AB-00-04
     where JSON payloads are hashed.
@@ -59,7 +59,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/Specification.md
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
 - from: DEL-00-07
   condition: 'DEL-08-04 must preserve the no-bypass API and adapter constraints from AB-00-07.
 
@@ -71,7 +71,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/Specification.md
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
 - from: DEL-00-08
   condition: 'DEL-08-04 implementation must preserve applicable validation, protected-content, and regression
     gates from AB-00-08.
@@ -96,7 +96,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/Procedure.md
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
 - from: DEL-02-02
   condition: 'DEL-08-04 requires the unit system and dimensional-analysis core contract because result
     exports need unit-aware values and dimensional checks.
@@ -109,7 +109,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/Procedure.md
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
 - from: doc:execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md
   condition: 'The general exporter maps the common comparison schema owned by DEL-14-05; that comparison
     schema first consumes the existing DEL-08-04 base result-envelope contract.
@@ -146,7 +146,7 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/Procedure.md
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
 - from: DEL-06-04
   condition: 'DEL-08-04 needs rule-pack identity, version, and checksum handling without copying private
     or protected payloads.
@@ -159,36 +159,46 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/Procedure.md
-- from: package:PKG-04
-  condition: 'DEL-08-04 must consume solver result producers from PKG-04 without redefining solver behavior.
-
-
-    Notes: Package-level edge retained because source explicitly names PKG-04 but not a specific deliverable.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=PACKAGE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Solver Core and Numerical Methods; TargetRefID: PKG-04'
-  evidence: execution/PKG-08/DEL-08-04/Procedure.md
-- from: package:PKG-05
-  condition: 'DEL-08-04 must consume load and stress result producers from PKG-05 without redefining their
-    behavior.
-
-
-    Notes: Package-level edge retained because source explicitly names PKG-05 but not a specific active
-    deliverable.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=PACKAGE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Loads, Load Cases, and Stress Recovery; TargetRefID: PKG-05'
-  evidence: execution/PKG-08/DEL-08-04/Procedure.md
+  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
+- from: DEL-04-07
+  condition: 'DEL-08-04 consumes the PKG-04 solver result producers without redefining solver behaviour.
+    Its envelope and derivative documents copy the product''s current result statement (raw source, rows,
+    model, request) as received and identify each copied member by the sha256 of its canonical JSON value;
+    DEL-04-07''s product solve supplies those statements under the current preview and exact identities,
+    with stable row identities.'
+  evidence: core/reporting/result_export/src/derivative.rs
+- from: DEL-05-02
+  condition: >-
+    DEL-08-04 classifies derivative rows by DEL-05-02's base semantic-table
+    signatures (category, target dimension, disposition), preserving the reader
+    verdict's kind, unit, component and basis and disclosing unmapped source rows.
+    It consumes the load/stress producers without redefining their behaviour.
+  evidence: core/reporting/result_export/src/derivative.rs
+- from: DEL-04-08
+  condition: >-
+    DEL-08-04 consumes DEL-04-08's retained tables, verified row classes and receipt
+    bindings when copying retained-source or retained-successor results into
+    derivative documents. It preserves those classes and receipts rather than
+    re-deriving verification or granting an output surface.
+  evidence: core/reporting/result_export/src/derivative.rs
+- from: DEL-05-03
+  condition: 'DEL-08-04''s result-export schema carries DEL-05-03''s stress-row conventions: the D-5 section-basis
+    tokens of stress rows and the D-5 `pipe_sections` geometry in `PhysicsGeometry` (DEL-05-03 Design `section-bases-and-timoshenko.md`
+    §2.4).'
+  evidence: schemas/results.v0.3.schema.yaml
 code_paths:
 - schemas/results.schema.yaml
+- schemas/results.v0.3.schema.yaml
+- schemas/results_pressure_1.v0.3.schema.json
+- core/reporting/result_export/src/lib.rs
+- core/reporting/result_export/src/derivative.rs
+- core/reporting/result_export/tests/derivative_contract.rs
+- apps/desktop/src/features/result-export/**
+- tests/test_results_schema.py
+- tests/test_results_dispatcher_v0_3.py
+checks:
+- tests/test_results_schema.py
+- tests/test_results_dispatcher_v0_3.py
+- core/reporting/result_export/tests/derivative_contract.rs
+- apps/desktop/src/features/result-export/resultExportAdapter.test.ts
+- apps/desktop/src/features/result-export/ResultExportPanel.test.tsx

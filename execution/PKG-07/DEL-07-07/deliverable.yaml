@@ -226,3 +226,4 @@ needs:
   evidence: execution/PKG-07/DEL-07-07/core/gui/solve_execution/engine.py; tests/test_solve_execution_ux.py
 code_paths:
 - core/gui/solve_execution/engine.py
+- apps/desktop/src/features/solve/**

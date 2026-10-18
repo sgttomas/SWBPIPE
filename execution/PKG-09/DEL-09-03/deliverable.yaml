@@ -66,7 +66,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-09/DEL-09-03/Datasheet.md
 - from: DEL-04-06
   condition: 'DEL-09-03 requires diagnostics and result-envelope information for convergence active state
     gap lift-off friction iteration tolerance and non-convergence warnings.
@@ -80,10 +79,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-09/DEL-09-03/Datasheet.md
 code_paths:
-- validation/benchmarks/nonlinear
-- validation/benchmarks/nonlinear/
-- validation/benchmarks/nonlinear/README.md
-- validation/hand_calcs/nonlinear/
-- validation/hand_calcs/nonlinear/README.md
+- validation/benchmarks/nonlinear/**
+- validation/hand_calcs/nonlinear/**

@@ -133,4 +133,13 @@ needs:
   evidence: execution/PKG-16/DEL-16-06/ScopeOfWork.md
 code_paths:
 - apps/desktop/src/services/operationService.ts
-- core/model_operations/operation_applier/src/lib.rs
+- core/model_operations/operation_applier/**
+- fixtures/model_operations/contract_corpus/**
+checks:
+- apps/desktop/src/services/operationService.test.ts
+- apps/desktop/src/services/operationContractCorpus.test.ts
+- core/model_operations/operation_applier/tests/contract_corpus.rs
+- core/model_operations/operation_applier/tests/create_pipe_section_inputs.rs
+- core/model_operations/operation_applier/tests/load_state_authoring.rs
+- core/model_operations/operation_applier/tests/load_state_delete_control.rs
+- core/model_operations/operation_applier/tests/support_authoring_conflicts.rs

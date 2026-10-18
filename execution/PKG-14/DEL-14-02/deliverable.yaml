@@ -113,7 +113,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-05-04
   condition: 'DEL-14-02 needs DEL-05-04 as a predecessor: Analysis run records need solve status semantics.
 
@@ -127,7 +126,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-08-02
   condition: 'DEL-14-02 needs DEL-08-02 as a predecessor: Analysis run records need audit manifest/hash
     conventions.
@@ -142,7 +140,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-08-04
   condition: 'DEL-14-02 needs DEL-08-04 as a predecessor: Analysis run records need structured result
     export contract.
@@ -157,7 +154,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
 - from: DEL-02-05
   condition: 'DEL-14-02 needs DEL-02-05 as a predecessor: Analysis run records need persistence and round-trip
     support.
@@ -172,11 +168,42 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/_DAG/DAG-002/DAG-002_EdgeDispositionReview.md
+- from: DEL-05-02
+  condition: >-
+    The 0.3.0 record builder and validator take ordinary/base dispatch, reading,
+    semantic-table binding and standing from DEL-05-02's Rust product reader
+    (owner, 2026-10-10: "move to one product reader in Rust"). Python uses
+    `core/analysis_runs/rust_reader.py`; the desktop uses `resultReader.ts`.
+    A refused source, including a stored retired-v2 identity
+    (`SOURCE_EXACT_PRESSURE_V2_RETIRED`), is never recorded.
+  gating: true
+  evidence: execution/PKG-05/DEL-05-02/Design/b7-plan.md
+- from: DEL-04-08
+  condition: >-
+    The record builder and validator consume DEL-04-08's retained-source and
+    retained-successor receipts, tables, row classifications and Rust reader
+    verdicts through those same bindings. Their classification summary and rule
+    binding preserve the method's standing; recording a result grants no output
+    activation and does not re-derive its verification.
+  gating: true
+  evidence: core/analysis_runs/compatibility.py
 code_paths:
+- core/analysis_runs/__init__.py
 - core/analysis_runs/compatibility.py
+- tests/test_analysis_run_compatibility.py
+- tests/test_analysis_run_schema.py
 - schemas/analysis_run.schema.json
+- schemas/analysis_run.v0.3.schema.json
 - schemas/results.schema.yaml
+- apps/desktop/src/services/analysisRunCompatibility.ts
+- apps/desktop/src/services/analysisRunCompatibility.test.ts
+- apps/desktop/src/services/loadReferenceAnalysisRun.test.ts
+- apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
+- apps/desktop/src/features/results/analysisResultHashScope.ts
+- apps/desktop/src/features/results/analysisResultHashScope.test.ts
 checks:
 - tests/test_analysis_run_compatibility.py
 - tests/test_analysis_run_schema.py
+- apps/desktop/src/services/analysisRunCompatibility.test.ts
+- apps/desktop/src/services/loadReferenceAnalysisRun.test.ts
+- apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts

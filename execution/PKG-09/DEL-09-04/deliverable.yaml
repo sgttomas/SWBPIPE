@@ -125,6 +125,6 @@ needs:
 code_paths:
 - core/runner/headless/src/bin/openpipestress-runner.rs
 - tools/validation/validate_dependencies_schema.py
-- validation/evidence/reproduction/
-- validation/evidence/reproduction/REPRO_DEL0904_20260719T202023Z_23eeaabc9040/
-- validation/evidence/reproduction/REPRO_DEL0904_20260720T074714Z_a5235340aae3/
+- docs/validation_manual/**
+- validation/evidence/reproduction/**
+- validation/witness/inputs/**

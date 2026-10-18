@@ -85,7 +85,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-06/Specification.md
 - from: DEL-02-03
   condition: 'DEL-04-06 depends on the code-neutral analysis boundary because solver diagnostics must
     report mechanics status without claiming certification approval or code compliance.
@@ -99,7 +98,6 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-06/Specification.md
 - from: DEL-02-02
   condition: 'DEL-04-06 depends on the unit system because unit-bearing diagnostic context must preserve
     unit awareness and dimensional checks.
@@ -113,10 +111,8 @@ needs:
 
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
-  evidence: execution/PKG-04/DEL-04-06/Specification.md
 code_paths:
-- core/solver/diagnostics
-- core/solver/diagnostics/Cargo.toml
-- core/solver/diagnostics/README.md
-- core/solver/diagnostics/src/lib.rs
+- core/solver/diagnostics/**
 - tools/validation/validate_dependencies_schema.py
+checks:
+- core/solver/diagnostics/src/lib.rs
