@@ -116,3 +116,73 @@ def test_the_neutral_standing_is_for_the_two_kinds_only(mode):
     doc = mutated(source, other, lambda t: t.update(treatment="derived_not_qualified", projection_id=None, recipe_id=None))
     assert "SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY" in verdict.source_findings(doc, invocation)
     assert verdict.source_findings(source, invocation) == []
+
+
+# S4 round 2 (§4.3, §5.1): the composite reader recomputes every straight member's derived rows on every case. Each
+# change below is made on both bases (end i), so the bit-equal twin rule of these coincident sections passes and the
+# derived-row checks are reached; the publication and receipt are resealed.
+def reseal_publication(source):
+    publication = {key: value for key, value in source.items() if key != "source_block_recovery"}
+    source["source_block_recovery"]["body"]["publication_sha256"] = domain_hash("source_blocks_publication_v1", publication)
+    reseal(source)
+
+
+def end_i(source, case, kind, component):
+    found = [i for i, row in enumerate(source["results"])
+             if row["basis_ref"]["ref_id"] == case and row["kind"] == kind and row["metadata"]["component"] == component
+             and row["metadata"]["location"] == "end_i"]
+    assert len(found) == 2 and {source["results"][i]["metadata"]["basis"].rsplit("=", 1)[1] for i in found} == {"nominal_section", "reduced_section"}
+    return found
+
+
+def case_ids(source):
+    cases = source["source_block_recovery"]["body"]["cases"]
+    selected = next(c["basis_ref"]["ref_id"] for c in cases if c["selected_method"] == "retained_source_blocks_exact_v1")
+    ordinary = next(c["basis_ref"]["ref_id"] for c in cases if c["selected_method"] != "retained_source_blocks_exact_v1")
+    return selected, ordinary
+
+
+def nudged(source, case, kind, component):
+    import math
+    doc = deepcopy(source)
+    for i in end_i(doc, case, kind, component):
+        doc["results"][i]["value"] = math.nextafter(doc["results"][i]["value"], math.inf)
+    reseal_publication(doc)
+    return doc
+
+
+@pytest.mark.parametrize("family", FAMILIES)
+@pytest.mark.parametrize("mode", MODES)
+def test_composite_recomputes_derived_rows_on_selected_and_ordinary_cases(family, mode):
+    source, invocation = actual(family, mode, "mixed")
+    selected, ordinary = case_ids(source)
+    for doc, code in [
+        (nudged(source, selected, DERIVED[1], "tau_v_max"), "SOURCE_PHYSICS_SHEAR_VALUE"),
+        (nudged(source, ordinary, DERIVED[0], "sigma_plus"), "SOURCE_PHYSICS_EXTREME_VALUE"),
+        (nudged(source, ordinary, DERIVED[0], "sigma_minus"), "SOURCE_PHYSICS_EXTREME_VALUE"),
+        (nudged(source, ordinary, DERIVED[1], "tau_v_max"), "SOURCE_PHYSICS_SHEAR_VALUE"),
+    ]:
+        with pytest.raises(ValueError, match=f"^{code}$"):
+            composite.validate_physics_source(doc, invocation)
+        assert verdict.validate("pressure-source", doc, invocation["request"]["model"], invocation)["error"]["code"] == code
+
+
+@pytest.mark.parametrize("family", FAMILIES)
+@pytest.mark.parametrize("mode", MODES)
+def test_deleting_derived_rows_with_their_treatments_is_a_coverage_refusal(family, mode):
+    source, invocation = actual(family, mode, "mixed")
+    selected, ordinary = case_ids(source)
+    for case in (selected, ordinary):
+        doc = deepcopy(source)
+        ids = {doc["results"][i]["id"] for kind, component in ((DERIVED[0], "sigma_plus"), (DERIVED[0], "sigma_minus"), (DERIVED[1], "tau_v_max"))
+               for i in end_i(doc, case, kind, component)}
+        doc["results"] = [row for row in doc["results"] if row["id"] not in ids]
+        removed = 0
+        for receipt_case in doc["source_block_recovery"]["body"]["cases"]:
+            before = len(receipt_case["rows"])
+            receipt_case["rows"] = [t for t in receipt_case["rows"] if t["result_id"] not in ids]
+            removed += before - len(receipt_case["rows"])
+        assert removed == 6
+        reseal_publication(doc)
+        with pytest.raises(ValueError, match="^SOURCE_PHYSICS_EXTREME_COVERAGE$"):
+            composite.validate_physics_source(doc, invocation)
