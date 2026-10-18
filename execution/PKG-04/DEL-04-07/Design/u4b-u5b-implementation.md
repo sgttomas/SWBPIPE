@@ -804,8 +804,12 @@ recovery is T_r = k_r(C d − e_ref).
   `result:connector:{suffix}:tie-rod-force:tie_rod:{encoded rod id}:t_r`. Tension is positive,
   T_r = k_r(e − e_ref). It is certified on the certified route and binary64 otherwise.
 - **`s_x`** (`connector_effective_axial_force_v1`) becomes S_joint = g_x + Σ T_r (n_r·Q_x) − Pe
-  (ruling 1). On the certified route it is formed from the certified g_x and T_r rows and
-  n_r·Q_x formed at p, rounded once, with the radii summed. It is published:
+  (ruling 1). On the certified route it is formed at p from the certified g_x and T_r and each
+  rod's published binary64 `axial_share` taken as an exact operand, then rounded once, with the
+  radii summed. Both routes thus use the share the evidence publishes. The share formed at p
+  differs from the published one by about 1e-17 absolute, independent of the share's size, so
+  a share formed at p would leave near-perpendicular rods outside the reader rule (S3 dual
+  review). It is published:
   - for every constant-effective-area connector, as today (Pe = 0 when no region lists it,
     ruling 2);
   - and for every connector with rods, whatever its pressure model. For an unpressurized
@@ -829,7 +833,8 @@ recovery is T_r = k_r(C d − e_ref).
   - the rod element's assembly and certificate do not depend on n·Q_x. As built, the kernel's
     assembly-absorption refusal applies per element: it fires only when an element has a
     positive diagonal contribution at a free DOF and every such contribution is absorbed by
-    rounding (prescribed DOFs never enter the solved system). Elements are grouped from the
+    rounding (prescribed DOFs never enter the solved system). A contribution that opens a zero
+    diagonal is represented, not absorbed. Elements are grouped from the
     adapter's element walk; callers without groups keep the per-entry rule. A rank-1 rod with tiny
     entries along some global axis (near-perpendicular, or a parallel rod with coordinate
     noise) is therefore not refused, while a series-absorbed member keeps its refusal (F1b);
