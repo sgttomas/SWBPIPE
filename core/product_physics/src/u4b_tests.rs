@@ -691,6 +691,34 @@ fn u4b_torus_domain_guard() {
     }
 }
 
+/// §2.5 (review item 9): only R <= r_o is the named domain warning, with no
+/// hoop or radial row. Any other failure from finite inputs, here an
+/// overflowing hoop (p = f64::MAX), takes its own blocking path,
+/// `ARC_TOROIDAL_HOOP_EVALUATION_FAILED`, which withholds the whole run.
+#[test]
+fn u4b_toroidal_evaluation_failure_blocks_by_name() {
+    let (cases, _) = inputs();
+    let case = cases["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == "U4B-ARC90-TIGHT-NSIGN-P").unwrap();
+    let model: PreviewModel = serde_json::from_value(build_request(case)["model"].clone()).unwrap();
+    let basis = |basis| u4b_rows::BasisSection { basis: Some(basis), outer_radius: 0.05, inner_radius: 0.045, wall: 0.005, inertia: 1e-6, area: 1e-3, modulus: 2e-5 };
+    let bases = vec![basis(pressure_exact::SectionBasis::Nominal), basis(pressure_exact::SectionBasis::Reduced)];
+    for (pressure, bend_radius, code, severity) in [
+        (f64::MAX, 1.0, u4b_rows::TOROIDAL_EVALUATION_FAILED, "blocking"),
+        (1e6, 0.04, u4b_rows::TOROIDAL_DOMAIN, "warning"),
+    ] {
+        let (mut results, mut diagnostics) = (Vec::new(), Vec::new());
+        u4b_rows::append_station_quantities(&model, &mut results, &mut diagnostics, &u4b_rows::MemberQuantities {
+            case_id: "case:x", pipe_id: "pipe:BEND", arc: true, exact: true, bases: bases.clone(), poisson_ratio: 0.3,
+            directional: None, toroidal: Some((pressure, bend_radius)),
+        });
+        assert!(!results.iter().any(|r| r.kind == u4b_rows::HOOP_KIND || r.kind == u4b_rows::RADIAL_KIND), "{code}");
+        assert_eq!(diagnostics.len(), 1, "{code}: {diagnostics:?}");
+        assert_eq!((diagnostics[0].code.as_str(), diagnostics[0].severity.as_str()), (code, severity));
+        assert_eq!(diagnostics[0].affected_refs, vec!["case:x".to_string(), "pipe:BEND".to_string()]);
+        assert_eq!(has_blocking(&diagnostics), severity == "blocking", "a blocking diagnostic withholds the run (`blocked_envelope`)");
+    }
+}
+
 /// §2.6: the directional SIF pair's named refusals (MODEL_INCOMPLETE, no rows).
 #[test]
 fn u4b_directional_sif_refusals() {

@@ -781,7 +781,8 @@ pub(crate) fn validate_physics_evidence_in(
     let mut lame: std::collections::BTreeMap<(&str, &str, &str, &str), HashMap<&str, f64>> =
         std::collections::BTreeMap::new();
     let (mut stress_rows, mut pairs) = (0usize, 0usize);
-    for row in array(&source["results"])? {
+    let published = array(&source["results"])?;
+    for (position, row) in published.iter().enumerate() {
         let kind = text(&row["kind"])?;
         if !crate::section_basis::is_stress_kind(kind) {
             continue;
@@ -821,6 +822,12 @@ pub(crate) fn validate_physics_evidence_in(
                     .all(|k| tmd[*k] == md[*k]),
             "ROW_BASIS_TWIN",
         )?;
+        // T4-U4b: D-5's row order (section-bases-and-timoshenko.md §2.5) for the
+        // U4b families and the arc maxima: the reduced twin immediately follows
+        // its nominal row.
+        if crate::u4b_evidence::KINDS.contains(&kind) || (kind == "pipe_elastic_normal_stress_maximum_v2" && marked_arcs.contains(entity)) {
+            require(published.get(position + 1).is_some_and(|next| std::ptr::eq(next, twin)), "ROW_BASIS_TWIN_ORDER")?;
+        }
         crate::section_basis::twin_values(kind, number(&row["value"])?, number(&twin["value"])?, sections)?;
         pairs += 1;
     }

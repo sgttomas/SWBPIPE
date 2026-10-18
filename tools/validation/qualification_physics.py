@@ -41,8 +41,9 @@ DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
     # then model 0.6.0: the reader's comments name pressure-2 (comment text only; was f91e678e...);
-    # then T4-U4b: the section stress, toroidal, arc maximum and directional rows (was 8a79bfcf...).
-    MODULE: '79ec35b30aa7208b5455e9ad713acebd76f6284f6880f075878e920628807f7f',
+    # then T4-U4b: the section stress, toroidal, arc maximum and directional rows (was 8a79bfcf...);
+    # then the T4-U4b review repairs: basis-twin order and no transverse-shear Poisson exemption (was 79ec35b3...).
+    MODULE: '1a02404acaa712125cd41ad9881e0cfd6eb84cdfbbba8e790ca00bb939d6db2f',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }

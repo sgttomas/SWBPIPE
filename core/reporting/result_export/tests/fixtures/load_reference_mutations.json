@@ -3024,7 +3024,7 @@
     },
     {
      "op": "set",
-     "path": "/results/130/value",
+     "path": "/results/129/value",
      "value": 75.07499999999999
     }
    ],
@@ -3059,11 +3059,24 @@
     },
     {
      "op": "remove",
-     "path": "/results/129"
+     "path": "/results/130"
     }
    ],
    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
    "note": "T4-U4b (§5.1): the new kinds are recomputed from the published rows and evidence; both basis twins change, so the recomputation (not the twin rule) refuses."
+  },
+  {
+   "id": "U4B-twin-order-swapped",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/results/129",
+     "with": "/results/130"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 2): sigma+ reduced and sigma- nominal exchanged, every value intact; D-5's row order (section-bases-and-timoshenko.md section 2.5) puts each nominal row immediately before its reduced twin."
   },
   {
    "id": "U4B-arc-withholding-revived",

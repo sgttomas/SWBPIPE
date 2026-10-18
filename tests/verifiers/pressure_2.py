@@ -728,6 +728,7 @@ def _u4b(source: Mapping[str, Any], evidence: Mapping[str, Any], rows: Mapping[s
     (bit-equal from the region's p and R); the arc maxima with their station cover; the directional records."""
     results = source.get("results", [])
     index = u4b.Rows(results)
+    u4b.twin_order(results, marked)
     diagnostics = source.get("diagnostics", [])
     covers: dict[tuple[str, str, str], list[float]] = {}
     for case in evidence["exact_cases"]:

@@ -305,6 +305,23 @@ def directional_records(case: str, records: list[Mapping[str, Any]], rows_by_id:
     return bound
 
 
+def twin_order(results: list[Mapping[str, Any]], arcs: set[str]) -> None:
+    """D-5 row order (section-bases-and-timoshenko.md §2.5) for the U4b families and the arc maxima on pressure-2:
+    each nominal row is immediately followed by its reduced twin (same case, entity, kind, component and location)."""
+    for position, row in enumerate(results):
+        kind = row.get("kind")
+        if not (kind in KINDS or (kind == "pipe_elastic_normal_stress_maximum_v2" and row.get("entity_ref") in arcs)):
+            continue
+        if _basis(row) != "nominal_section":
+            continue
+        following = results[position + 1] if position + 1 < len(results) else None
+        metadata = row.get("metadata") or {}
+        twin = isinstance(following, Mapping) and _basis(following) == "reduced_section" and _case(following) == _case(row) and all(
+            following.get(k) == row.get(k) for k in ("kind", "entity_ref")) and all(
+            (following.get("metadata") or {}).get(k) == metadata.get(k) for k in ("component", "location"))
+        _require(twin, "basis twin order")
+
+
 def poisson_exempt(diagnostics: list[Mapping[str, Any]], case: str) -> set[str]:
     return {d["affected_refs"][1] for d in diagnostics if d.get("code") == POISSON_OUT_OF_DOMAIN
             and isinstance(d.get("affected_refs"), list) and len(d["affected_refs"]) >= 2 and d["affected_refs"][0] == case}

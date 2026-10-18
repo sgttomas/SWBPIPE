@@ -49,7 +49,7 @@ DECLARED_VALIDATE = {
         "PROFILE-exact-case-mode-inherited", "INHERITED-maximum-unit", "INHERITED-extrema-gap", "INHERITED-rhs-method",
         "INHERITED-headline", "INHERITED-section-diameter", "INHERITED-region-pressure-rhs",
         "MISSING-load-reference-states", "MISSING-contract-evidence", "CLOSED-connector",
-        "U4B-sigma-plus-changed", "U4B-transverse-shear-changed", "U4B-sigma-minus-missing")} | {"lr-reader/CONNECTOR_NOT_ARRAY"},
+        "U4B-sigma-plus-changed", "U4B-transverse-shear-changed", "U4B-sigma-minus-missing", "U4B-twin-order-swapped")} | {"lr-reader/CONNECTOR_NOT_ARRAY"},
     # B7b: one source reader (pressure-source-1) reads the composite ledger cases and the joined statements.
     "pressure-source": {"lrs/NUM-unsafe-integer-in-publication"} | {f"ledger/{name}" for name in (
         "EVIDENCE_IDS", "VALUE_NONFINITE", "ROW_FIELDS", "ORDINARY_REPORT_KIND", "EXACT_SOURCE_REQUIRED",
@@ -98,8 +98,8 @@ def _strict_json(text):
 def test_the_corpus_is_the_committed_corpus():
     built, committed = inputs(), corpus.committed()
     # B7b: 543 less the 14 load-reference transport cases retired with the v2 transport reader.
-    # T4-U4b (§5.1): seven tampers of the new kinds (529 -> 536).
-    assert [item.id for item in built] == list(committed) and len(built) == 536
+    # T4-U4b (§5.1): seven tampers of the new kinds (529 -> 536); review 2: the twin-order swap (537).
+    assert [item.id for item in built] == list(committed) and len(built) == 537
     for item in built:
         entry = committed[item.id]
         if item.source is None:
@@ -162,8 +162,8 @@ def test_the_verifier_gives_every_committed_outcome_but_the_declared_class():
         if item.rows:
             assert ours["rows"] == theirs["rows"], item.id
     # B7b: 580 reader and transport readings of the parsed statements (fewer than before: one source reader);
-    # T4-U4b adds the seven tampers' readings (587).
-    assert compared == 587
+    # T4-U4b adds the seven tampers' readings (587); review 2, the twin-order swap (588).
+    assert compared == 588
     assert validate_differences == DECLARED_VALIDATE
     assert standing_differences == DECLARED_STANDING
 
