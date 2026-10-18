@@ -1,8 +1,8 @@
-"""Independent test-only verifier of pressure-1 publications (3.0.0/exact_pressure_v3).
+"""Independent test-only verifier of pressure-2 publications (3.0.0/exact_pressure_v3).
 
 The Rust reader (``core/reporting/result_export``: ``physics_evidence``,
 ``arc_evidence``, ``connector_evidence``, ``load_reference``) is the only
-product reader of ``openpipestress.result_semantics/0.3.0/pressure-1`` (owner,
+product reader of ``openpipestress.result_semantics/0.3.0/pressure-2`` (owner,
 2026-10-10: "move to one product reader in Rust"; "All readers."). The
 desktop, Python product paths and the VP-STATIC ``exact_pressure_1`` gate take
 that reader's verdict (``reader_verdict``'s ``pressure`` route, through
@@ -15,7 +15,7 @@ Independence: standard-library imports only, and its sibling test-only
 no producer crate, neither directly nor through the subprocess bridges
 (``core/serialization/canonical_json/adapter.py``, ``core/units/adapter.py``):
 it needs neither canonical JSON nor unit conversion. It reads the pinned
-pressure-1 table and, for transported statements only, the results 0.3 and
+pressure-2 table and, for transported statements only, the results 0.3 and
 load/reference-state schemas, by path relative to the project root.
 
 T4-U6/U8 (D-5, D-6): every ``pipe_sections`` entry states the nominal section,
@@ -61,13 +61,13 @@ from . import section_basis as sb
 
 PROJECT = Path(__file__).resolve().parents[2]
 
-CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
+CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 PROFILE = "exact_pressure_v3"
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": CONTRACT_ID}
-TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_1.json"
+TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); 106 signatures over 59 kinds.
-TABLE_SHA256 = "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e"
+TABLE_SHA256 = "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f"
 TABLE_SIGNATURE_COUNT = 106
 TABLE_KIND_COUNT = 59
 
@@ -82,7 +82,11 @@ RETIRED_EXACT_V2_IDS = (
 )
 SOURCE_EXACT_PRESSURE_V2_RETIRED = "SOURCE_EXACT_PRESSURE_V2_RETIRED"
 V2_RETIRED_TEXT = (f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
-                   "re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis")
+                   "re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis")
+# Model 0.6.0 (DEL-04-07 Design u4b-u5b-implementation.md §1.2): the retired pressure-1 identity, refused by name.
+RETIRED_PRESSURE_1_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
+SOURCE_PRESSURE_1_RETIRED = "SOURCE_PRESSURE_1_RETIRED"
+PRESSURE_1_RETIRED_TEXT = f"{SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are no longer read; re-run the analysis"
 RETAINED_METHOD = "contribution_preserving_multiprecision_v1"
 RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
 
@@ -165,7 +169,7 @@ EVIDENCE_KEYS_0_4_0 = EVIDENCE_KEYS_0_3_0 | {"load_reference_states"}
 # --------------------------------------------------------------------------
 
 def verify_source(source: Mapping[str, Any], *, raw: bool = True) -> None:
-    """The whole pressure-1 publication: header, then the raw evidence (or, for
+    """The whole pressure-2 publication: header, then the raw evidence (or, for
     transported statements without raw rows, the closed transport shape)."""
     _header(source, raw=raw)
     if raw:
@@ -175,7 +179,7 @@ def verify_source(source: Mapping[str, Any], *, raw: bool = True) -> None:
 
 
 def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
-    """Raw pressure-1 evidence. An envelope that carries ``load_reference_states``
+    """Raw pressure-2 evidence. An envelope that carries ``load_reference_states``
     takes the load/reference-state pre-pass first; any other takes the physics
     checks directly."""
     evidence = source.get("contract_evidence") if isinstance(source, Mapping) else None
@@ -189,24 +193,27 @@ def validate_pressure_evidence(source: Mapping[str, Any]) -> None:
 
 
 def validate_exact_pressure_evidence(source: Mapping[str, Any]) -> None:
-    """Identity dispatch. pressure-1 is verified; a retired v2 identity is
-    refused by name (``SOURCE_EXACT_PRESSURE_V2_RETIRED``); any other identity
-    is refused as unknown."""
+    """Identity dispatch. pressure-2 is verified; a retired v2 identity is
+    refused by name (``SOURCE_EXACT_PRESSURE_V2_RETIRED``), and so is the retired
+    pressure-1 (``SOURCE_PRESSURE_1_RETIRED``); any other identity is refused as
+    unknown."""
     producer = source.get("producer") if isinstance(source, Mapping) else None
     identity = producer.get("semantic_contract_id") if isinstance(producer, Mapping) else None
     if identity == CONTRACT_ID:
         basis = source.get("formulation_basis")
-        _require(isinstance(basis, Mapping) and basis.get("profile_id") == PROFILE, "pressure-1 formulation profile")
+        _require(isinstance(basis, Mapping) and basis.get("profile_id") == PROFILE, "pressure-2 formulation profile")
         validate_pressure_evidence(source)
     elif identity in RETIRED_EXACT_V2_IDS:
         raise ValueError(V2_RETIRED_TEXT)
+    elif identity == RETIRED_PRESSURE_1_ID:
+        raise ValueError(PRESSURE_1_RETIRED_TEXT)
     else:
         raise ValueError(f"{CONTRACT_UNKNOWN}: {identity!r}")
 
 
 def validate_pressure_transport_metadata(source: Mapping[str, Any]) -> None:
-    """pressure-1 statements without raw rows: closed shape against the results
-    0.3 ``PressureContractEvidence`` (held in ``results_pressure_1.v0.3``; load/reference-state
+    """pressure-2 statements without raw rows: closed shape against the results
+    0.3 ``PressureContractEvidence`` (held in ``results_pressure_2.v0.3``; load/reference-state
     records against the frozen load/reference-state schema) and internal joins
     only; never raw row evidence."""
     try:
@@ -395,7 +402,7 @@ def _arc_applied(load: Any, tangents: list[list[float]], p: float) -> None:
 
 
 def _model_scoped_review(row: Mapping[str, Any], table: Mapping[str, Any]) -> bool:
-    """An input review row without ``basis_ref`` whose pressure-1 signature is
+    """An input review row without ``basis_ref`` whose pressure-2 signature is
     ``review_evidence`` is model scoped; every other row is case scoped."""
     if "basis_ref" in row:
         return False
@@ -918,8 +925,8 @@ def _schema_shape(value: Any, schema: Mapping[str, Any], root: Mapping[str, Any]
 
 def _transport(source: Mapping[str, Any]) -> None:
     results = json.loads((PROJECT / "schemas/results.v0.3.schema.yaml").read_text())
-    pressure = json.loads((PROJECT / "schemas/results_pressure_1.v0.3.schema.json").read_text())
-    # The pressure-1 definitions name the shared ones as `results.v0.3.schema.yaml#/$defs/<name>`;
+    pressure = json.loads((PROJECT / "schemas/results_pressure_2.v0.3.schema.json").read_text())
+    # The pressure-2 definitions name the shared ones as `results.v0.3.schema.yaml#/$defs/<name>`;
     # every definition name is unique across the two files.
     root = {"$defs": {**results["$defs"], **pressure["$defs"]}}
     evidence = source.get("contract_evidence")
@@ -1168,7 +1175,7 @@ def _ls_positive(value: float | None) -> bool:
 
 def _ls_prepass(source: Mapping[str, Any]) -> None:
     """Steps S1-S13 of the not-joined load/reference-state pre-pass, with
-    connector records and realized-arc region keys admitted (pressure-1)."""
+    connector records and realized-arc region keys admitted (pressure-2)."""
     # S1 foreign method namespaces.
     _ls_require(not isinstance(source, Mapping) or ("source_block_recovery" not in source and "carrier_evidence" not in source), "FOREIGN_METHOD_EVIDENCE")
     # S2 finite numbers everywhere.

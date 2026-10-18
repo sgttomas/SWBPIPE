@@ -800,7 +800,7 @@ fn prepare_sources(
     // Euler-Bernoulli section, so a Timoshenko document and a pipe section with
     // a second (reduced) basis are declined by name, after the D7 declines and
     // the budget refusal above. These are document facts: such a document
-    // publishes ordinary pressure-1 rows and never becomes a composite. They
+    // publishes ordinary pressure-2 rows and never becomes a composite. They
     // apply to exact-contract documents only, the documents D-5 gives two
     // bases: the pressure-free preview route keeps its one (t - c_m) section
     // and its source recovery unchanged.
@@ -2202,7 +2202,7 @@ mod tests {
             "../../../validation/references/t4_i7/u2_document_sketches.json"
         ))
         .unwrap();
-        // B7b: the frozen sketch's copy is re-authored to the current 0.5.0 form.
+        // B7b: the frozen sketch's copy is re-authored to the current 0.6.0 form.
         let mut sketch = documents["sketches"]["U2-L-ANCH-PTW-K2"]["0.3.0"]["document"]["model"].clone();
         crate::b7b_admission_tests::reauthor_current_model(&mut sketch);
         let mut model: PreviewModel = serde_json::from_value(sketch).unwrap();
@@ -2367,7 +2367,7 @@ mod tests {
         assert_eq!(failure.error, RecoveryError::Exact(exact::Error::Budget));
     }
 
-    /// The committed current (0.5.0, v3) n05 source control.
+    /// The committed current (0.6.0, v3) n05 source control.
     fn pressure_source_fixture() -> Fixture {
         let raw: Value = serde_json::from_str(include_str!(
             "../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json"

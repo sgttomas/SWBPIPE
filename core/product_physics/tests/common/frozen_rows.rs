@@ -13,10 +13,13 @@ use std::collections::BTreeMap;
 
 pub const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 
-/// The captured entry on a current (0.5.0) request, used as frozen.
+/// The captured entry on a frozen request, re-authored in memory to the current
+/// version by the shared rule (`common/current_model.rs`; a 0.5.0 request by its
+/// version alone); the frozen bytes are never edited.
 pub fn solve(request: &Value, mode: PreviewSolverMode) -> Value {
+    let request = crate::current_model::reauthor_request(request.clone());
     serde_json::to_value(
-        run_linear_static_preview_value_with_mode(request.clone(), mode).expect("the captured entry accepts the request"),
+        run_linear_static_preview_value_with_mode(request, mode).expect("the captured entry accepts the request"),
     )
     .unwrap()
 }
@@ -162,8 +165,8 @@ pub fn sha256_hex(bytes: &[u8]) -> String {
 
 const MILLTOL: &str = "milltol_lame_membrane";
 
-/// T4-I8's MILLTOL variants, re-frozen on D-5: each document form (the 0.5.0
-/// document and its load/reference-state twin, each also under the
+/// T4-I8's MILLTOL variants, re-frozen on D-5: each document form (the frozen 0.5.0
+/// document, re-authored in memory by [`solve`], and its load/reference-state twin, each also under the
 /// reference's own `shear_model_variant` patch, which leaves every row) solved
 /// in both modes and published Passed: (variant, form, mode, envelope).
 pub fn milltol_runs(i8: &Value) -> Vec<(String, String, PreviewSolverMode, Value)> {
@@ -174,7 +177,7 @@ pub fn milltol_runs(i8: &Value) -> Vec<(String, String, PreviewSolverMode, Value
         assert_eq!((patch["op"].as_str(), patch["path"].as_str()), (Some("replace"), Some("/model/pressure_contract/shear_model")));
         for form in ["v3_model_0.5.0", "v3_model_0.5.0_load_state_group"] {
             let document = documents[form].clone();
-            assert_eq!(document["model"]["schema_version"], json!("0.5.0"), "{variant} {form}");
+            assert_eq!(document["model"]["schema_version"], json!("0.5.0"), "{variant} {form}: the frozen document");
             let mut patched = document.clone();
             patched["model"]["pressure_contract"]["shear_model"] = patch["value"].clone();
             for (label, request) in [(form.to_owned(), document), (format!("{form} + shear_model_variant"), patched)] {

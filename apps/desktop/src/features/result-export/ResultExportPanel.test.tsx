@@ -12,7 +12,7 @@ afterEach(()=>{delete (window as any).__TAURI_INTERNALS__;vi.mocked(invoke).mock
 
 // Scoped IPC simulation of a genuine supported input/output pair, not a native
 // product witness. Registration goes through the production invocation path.
-// B7b: the exportable pair is preview-physics-1's; the exact route's pressure-1 (the
+// B7b: the exportable pair is preview-physics-2's; the exact route's pressure-2 (the
 // v3 twin of the retired physics-1) is recorded but has no desktop export.
 async function currentProps(){
  const {model}=nativeMechanicsReplayPair('sparse_interactive',{profile:'preview'});
@@ -62,7 +62,7 @@ it('a bundled record stays unavailable even with a correctly bound reference ana
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'reference-only',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
  render(<ResultExportPanel model={model} result={result} analysisRun={analysisRun} inputManifest={inputManifest}/>);
- // The bundled reference is the demo's preview-physics-1 output: its numerical evidence passes
+ // The bundled reference is the demo's preview-physics-2 output: its numerical evidence passes
  // (its nonlinear cases are confirmed, DEL-04-01 kd5-nonlinear-active-set.md §5),
  // so the invocation gate refuses it (no native solve produced it).
  await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('CURRENT_NATIVE_INVOCATION_REQUIRED'));

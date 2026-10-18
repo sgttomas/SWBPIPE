@@ -8,7 +8,7 @@ B7b (A4/A5): the retained-source composite has one current contract, `pressure-s
 `3.0.0/exact_pressure_v3` (policy PRESSURE-SOURCE-1, case domain `pressure_source_case_evidence_v1`). The retired
 `physics-source-1` (`2.0.0/exact_straight_pressure_v2`) is not read here; a stored v2 result is refused by name at
 the header (`compatibility.py`, `reader_verdict.py`). Actual numerical eligibility additionally requires the
-independently captured full invocation, a current model document 0.5.0 with the exact contract.
+independently captured full invocation, a current model document 0.6.0 with the exact contract.
 
 T4-U6 (DEL-05-03 ``section-bases-and-timoshenko.md`` §2.3, §5): the retained-source route admits only
 euler_bernoulli documents with zero corrosion allowance and zero mill tolerance on every pipe section
@@ -42,11 +42,11 @@ SCHEMA_PATH = ROOT / "schemas/physics_source_recovery.schema.json"
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRESSURE_PROFILE = "exact_pressure_v3"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); 88 signatures over 51 kinds.
-PRESSURE_TABLE_SHA256 = "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53"
+PRESSURE_TABLE_SHA256 = "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b"
 PRESSURE_TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
 # The current model document and the one exact contract a captured invocation must author
-# (b7-plan "Current model format"): 0.5.0, `pressure_contract` present, Euler-Bernoulli only.
-MODEL_VERSION = "0.5.0"
+# (b7-plan "Current model format"): 0.6.0, `pressure_contract` present, Euler-Bernoulli only.
+MODEL_VERSION = "0.6.0"
 EXACT_PRESSURE_CONTRACT = {"version": "3.0.0", "mode": PRESSURE_PROFILE, "shear_model": "euler_bernoulli"}
 
 
@@ -83,7 +83,7 @@ class SourceContract(Enum):
 
     @classmethod
     def from_invocation(cls, invocation):
-        """The captured model's contract: a current 0.5.0 document with the exact v3 contract and no outer
+        """The captured model's contract: a current 0.6.0 document with the exact v3 contract and no outer
         shear key, as Rust's `from_invocation`; anything else is refused."""
         model = _get(_get(invocation, "request"), "model")
         if (_get(model, "schema_version") == MODEL_VERSION and isinstance(model, Mapping) and "shear_model" not in model
@@ -639,7 +639,7 @@ def _actual_materials(invocation, actual, exact, canonical):
         tolerance = canonical(authored_section["mill_tolerance"],"length") if authored_section.get("mill_tolerance") is not None else 0.0
         allowance = canonical(authored_section["corrosion_allowance"],"length") if authored_section.get("corrosion_allowance") is not None else None
         # T4-U6 (D-5): the section's captured authored values are the invocation's (D, t, c_m, c_a); its three
-        # geometries were rederived from them by the pressure-1 checks. D and t bind bit for bit; c_m and c_a by value,
+        # geometries were rederived from them by the pressure-2 checks. D and t bind bit for bit; c_m and c_a by value,
         # so a signed zero (which leaves (t - c_m) - c_a = t bit for bit) is the zero it denotes.
         by_value = lambda a, b: type(b) in (int, float) and math.isfinite(b) and a == b
         _require(_same(canonical(authored_section["outside_diameter"],"length"),section["outside_diameter_m"]) and _same(canonical(authored_section["wall_thickness"],"length"),section["wall_thickness_m"])

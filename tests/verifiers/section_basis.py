@@ -241,7 +241,7 @@ def selected_model(shear_model: Any, arc: bool) -> Any:
 
 
 def bind_shear_model(evidence: Any, model: Any) -> None:
-    """§5 (pressure-1, against the captured model; Rust ``bind_shear_model``): each exact case's ``pipe_sections`` entry
+    """§5 (pressure-2, against the captured model; Rust ``bind_shear_model``): each exact case's ``pipe_sections`` entry
     and each pressure region's geometry entry states the beam theory the model's contract selects for that member.
     §2.5: the entries the evidence marks are exactly the model's realized arcs. Arcs are the model's realized arcs and
     the arcs the region geometry marks. Refusals carry the Rust codes: ``SOURCE_PHYSICS_ARC_MARKER`` for a realized

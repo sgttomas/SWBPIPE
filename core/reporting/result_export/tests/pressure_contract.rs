@@ -1,5 +1,5 @@
 //! T4-U2a: reader dispatch on the exact pressure contract identity, over the
-//! shared generated pressure-1 corpus (also read by the Python
+//! shared generated pressure-2 corpus (also read by the Python
 //! reader). v3 admits straight families with signed p_pa; B7b retired the v2
 //! contract, so a statement labelled with a retired v2 identity is refused by
 //! name and v2 profile labels are refused by the current reader; unknown
@@ -46,7 +46,7 @@ fn the_shared_corpus_is_admitted_by_the_pressure_1_reader_and_dispatch() {
         assert_eq!(envelope["producer"]["semantic_contract_id"], s::PRESSURE_ID, "{label}");
         s::validate_pressure_evidence(envelope).unwrap_or_else(|e| panic!("{label}: {e}"));
         let (table, version) = s::for_source(envelope).unwrap_or_else(|e| panic!("{label}: {e}"));
-        // pressure-1 rows resolve against its own reviewed resident table (B7b, O-10).
+        // pressure-2 rows resolve against its own reviewed resident table (B7b, O-10).
         assert!(std::ptr::eq(table, s::pressure_rows_contract()) && version == "0.3.0", "{label}");
         let (meta, meta_version) = s::for_source_metadata(envelope).unwrap();
         assert!(std::ptr::eq(meta, table) && meta_version == "0.3.0", "{label}");
@@ -73,7 +73,7 @@ fn retired_v2_labels_are_refused() {
             relabelled["producer"]["semantic_contract_id"] = json!(id);
             for refusal in [s::for_source(&relabelled).unwrap_err(), s::for_source_metadata(&relabelled).unwrap_err()] {
                 assert!(refusal.starts_with(&format!("{}: ", s::SOURCE_EXACT_PRESSURE_V2_RETIRED)), "{label} {id}: {refusal}");
-                assert!(refusal.contains("re-author the model as 0.5.0"), "{label} {id}: {refusal}");
+                assert!(refusal.contains("re-author the model as 0.6.0"), "{label} {id}: {refusal}");
             }
         }
     }
@@ -83,8 +83,13 @@ fn retired_v2_labels_are_refused() {
 fn unknown_identities_and_profiles_are_refused() {
     for (label, envelope) in corpus() {
         let mut unknown = envelope.clone();
-        unknown["producer"]["semantic_contract_id"] = json!("openpipestress.result_semantics/0.3.0/pressure-2");
+        unknown["producer"]["semantic_contract_id"] = json!("openpipestress.result_semantics/0.3.0/pressure-3");
         assert_eq!(s::for_source(&unknown).unwrap_err(), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", "{label}");
+        // Model 0.6.0: the retired pressure-1 identity is refused by name (re-run).
+        let mut retired = envelope.clone();
+        retired["producer"]["semantic_contract_id"] = json!(s::RETIRED_PRESSURE_1_ID);
+        let refusal = s::for_source(&retired).unwrap_err();
+        assert!(refusal.starts_with(&format!("{}: ", s::SOURCE_PRESSURE_1_RETIRED)) && refusal.contains("re-run"), "{label}: {refusal}");
         let mut profile = envelope.clone();
         profile["formulation_basis"]["profile_id"] = json!("exact_straight_pressure_v2");
         assert_eq!(s::for_source(&profile).unwrap_err(), "SOURCE_FORMULATION_BASIS_UNSUPPORTED", "{label}");
@@ -95,14 +100,14 @@ fn unknown_identities_and_profiles_are_refused() {
     }
 }
 
-/// B7b (O-10): pressure-1 has its own reviewed resident table. Its physical rows
+/// B7b (O-10): pressure-2 has its own reviewed resident table. Its physical rows
 /// are the exact source family's (the independent pressure-source-1 table, less
 /// its source-basis signatures), followed by one signature per legacy connector
 /// (kind, unit, component) and exactly the two U5 scalar signatures.
 #[test]
 fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     let pressure: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json"
+        "../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json"
     ))
     .unwrap();
     let source = s::pressure_source_contract();
@@ -165,7 +170,7 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     extend(&mut vocabulary, "location", &[LOCAL]);
     assert_eq!(pressure["canonical_metadata_vocabulary"], vocabulary);
     let schema: Value = serde_json::from_str(include_str!(
-        "../../../../schemas/results_pressure_1.v0.3.schema.json"
+        "../../../../schemas/results_pressure_2.v0.3.schema.json"
     ))
     .unwrap();
     assert_eq!(schema["$defs"]["PressureResultMetadata"]["properties"], vocabulary);
@@ -173,7 +178,7 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
         json!(["component", "coordinate_system", "location", "basis", "sign_convention"]));
     assert_eq!(schema["$defs"]["PressureResultMetadata"]["additionalProperties"], false);
     // The two tables share their header members; the source table adds only its
-    // source-block policy. T4-U6 (§2.4): pressure-1 now also declares the
+    // source-block policy. T4-U6 (§2.4): pressure-2 now also declares the
     // source-basis signature policy, with the same text.
     let (p, q) = (pressure.as_object().unwrap(), source.as_object().unwrap());
     let mut source_keys: Vec<&String> = q.keys().collect();

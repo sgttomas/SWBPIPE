@@ -1,4 +1,4 @@
-"""T4-U3 (S14): the test-only pressure-1 verifier admits objective connector
+"""T4-U3 (S14): the test-only pressure-2 verifier admits objective connector
 records and rows over the shared connector corpus (the Rust reader's
 ``tests/connector_contract.rs`` reads the same bytes; the Rust reader is the
 only product reader), refuses each broken binding by name, and the retained-source
@@ -13,7 +13,7 @@ import pytest
 from core.analysis_runs import rust_reader
 from tests.verifiers import physics_source
 from tests.verifiers.source_blocks import domain_hash
-from tests.verifiers.pressure_1 import (
+from tests.verifiers.pressure_2 import (
     CONTRACT_ID as PRESSURE_ID, validate_exact_pressure_evidence, validate_pressure_evidence, verify_source,
 )
 
@@ -62,7 +62,7 @@ def test_u5a_remote_reader_control_and_zero_pressure_tamper():
 
 def test_u5a_projection_guard_stays_finite_and_does_not_widen_direct_product():
     import math
-    from tests.verifiers.pressure_1 import _joint_projection
+    from tests.verifiers.pressure_2 import _joint_projection
     assert _joint_projection(0.0, 0.0, 1e308, 1e308, 0)
     assert not _joint_projection(1e300, 0.0, 1e308, 1e308, 0)
     tiny = math.ulp(0.0)
@@ -73,7 +73,7 @@ def test_u5a_projection_guard_stays_finite_and_does_not_widen_direct_product():
 def test_u5a_participating_producer_control_and_tampered_edges_and_groups():
     envelope = json.loads((PROJECT / "fixtures/results/pressure_v3_joint_reader_control.json").read_text())["envelope"]
     from tests.schema_validation import schema_for_definition, validate_instance, validate_schema_document
-    schema = json.loads((PROJECT / "schemas/results_pressure_1.v0.3.schema.json").read_text())
+    schema = json.loads((PROJECT / "schemas/results_pressure_2.v0.3.schema.json").read_text())
     validate_schema_document(schema)
     validate_instance(schema_for_definition(schema, "PressureContractEvidence"), envelope["contract_evidence"])
     validate_pressure_evidence(envelope)

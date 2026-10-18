@@ -4,17 +4,19 @@
 Mirrors the load/reference-state adapter: an explicitly selected foreground
 ``openpipestress-runner solve --input - --solver-mode <mode>`` process, the
 ControlledExport/CLI1.0 wrapper and a raw0.2 mechanics envelope whose producer
-is exactly ``openpipestress.result_semantics/0.3.0/pressure-1`` with profile
-``exact_pressure_v3`` on a model document 0.5.0 under the current exact contract
+is exactly ``openpipestress.result_semantics/0.3.0/pressure-2`` with profile
+``exact_pressure_v3`` on a model document 0.6.0 under the current exact contract
 (with its load/reference-state records when the document carries that group).
 B7b retired the 0.3.0/0.4.0 documents: the package's frozen, hash-bound case
 inputs (0.3.0, or 0.4.0 with the group) are never edited; each run submits their
 declared re-authored copy (``qualification_physics.reauthor_runner_input``, the
 product tests' one re-authoring rule), against which the raw is read. A package
-document already current (T4-U6: model 0.5.0 under 3.0.0/exact_pressure_v3 with
-an explicit shear model and an explicit corrosion allowance on every section) is
-submitted unchanged; its ledger records the identity re-authoring, with the same
-hash on both sides. Cases come from a hash-locked
+document authored on model 0.5.0 (T4-U6's MILLTOL owners: 0.5.0 under
+3.0.0/exact_pressure_v3 with an explicit shear model and an explicit corrosion
+allowance on every section) is likewise kept as bound and submitted as its copy
+re-authored by its version alone (model 0.6.0). A package document already current
+(0.6.0) would be submitted unchanged; its ledger records the identity re-authoring,
+with the same hash on both sides. Cases come from a hash-locked
 case manifest (``openpipestress.exact_pressure_qualification_manifest/1``)
 named by a run selection record. Every required selector, including the
 terminal fields of ``contract_evidence.pressure``, resolves exactly once; every
@@ -64,24 +66,26 @@ REFERENCE_FORMAT = gate.REFERENCE_FORMAT
 BINDING_FORMAT = 'openpipestress.exact_pressure_consistency_binding/2'
 READER = 'pressure'
 ENTRYPOINT = 'validate_pressure_evidence'
-CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-1'
+CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-2'
 PROFILE = 'exact_pressure_v3'
-# B7b: the submitted (re-authored) document is model 0.5.0 under the current contract; the package's frozen
-# documents keep their 0.3.0/0.4.0 spelling under the former v3 contract object.
+# The submitted (re-authored) document is model 0.6.0 under the current contract; the package's frozen
+# documents keep their 0.3.0/0.4.0 spelling under the former v3 contract object, or their 0.5.0 spelling (the
+# MILLTOL owners, re-authored by their version alone, DEL-04-07 Design u4b-u5b-implementation.md §1.4).
 MODEL_VERSION = physics.MODEL_VERSION
 PRESSURE_CONTRACT = physics.PRESSURE_CONTRACT
 FROZEN_PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': 'exact_pressure_v3'}
 FROZEN_VERSIONS = ('0.3.0', '0.4.0')
+PREVIOUS_VERSION = physics.PREVIOUS_MODEL_VERSION
 # T4-U6 (manager ruling, 2026-10-16): a package document authored current (the D-5 re-authored T4-I8 MILLTOL) is
 # submitted unchanged. Its contract names its shear model explicitly: Euler-Bernoulli or the T4-U8 Timoshenko model.
 SHEAR_MODELS = ('euler_bernoulli', 'timoshenko_annulus_energy_v1')
 IDENTITY_SCOPE = 'identity: the package document is already current and is submitted unchanged; the frozen input, references and criteria are unchanged'
-TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_1.json'
-# B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables"; O-10): pressure-1's own reviewed
+TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
+# B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables"; O-10): pressure-2's own reviewed
 # resident table; the former pin 07a6a308... named the table before its re-issue. T4-U6 (D-5, §2.4) re-issued it
 # with one stress signature per (recovery token x section basis): 106 signatures, 59 kinds (B7b's was a4e3bf2c...).
-TABLE_SHA256 = '4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e'
-# The owned reader is the Rust product reader of pressure-1 (owner, 2026-10-10:
+TABLE_SHA256 = 'b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f'
+# The owned reader is the Rust product reader of pressure-2 (owner, 2026-10-10:
 # "move to one product reader in Rust"): `validate_pressure_evidence` (an envelope
 # carrying the load/reference-state group takes its pre-pass), reached through
 # `reader_verdict`'s pressure route. The binding selects its source with the
@@ -172,7 +176,7 @@ def project_root(source_root: Path) -> Path:
     if (source_root / MODULE).is_file():
         return source_root.resolve()
     candidate = source_root / 'projects/chirality-piping'
-    require((candidate / MODULE).is_file(), 'owned pressure-1 reader not available in selected candidate')
+    require((candidate / MODULE).is_file(), 'owned pressure-2 reader not available in selected candidate')
     return candidate.resolve()
 
 
@@ -360,7 +364,7 @@ def row_semantics(selector, semantic_rows):
                   and row['component'] == metadata['component']
                   and ('source_basis' not in row or row['source_basis'] == metadata['basis'])]
     require(len(signatures) == 1 and signatures[0]['source_physical_semantic_dimension'] == selector['dimension'],
-            'selector contradicts pinned pressure-1 semantics')
+            'selector contradicts pinned pressure-2 semantics')
     return signatures[0]['family']
 
 
@@ -382,7 +386,7 @@ def evidence_semantics(selector):
 def basis_of(selector):
     basis = selector.get('basis_ref')
     require(type(basis) is dict and set(basis) == {'ref_type', 'ref_id'}, 'explicit case basis required')
-    require(basis['ref_type'] == 'load_case', 'pressure-1 selectors bind a load case')
+    require(basis['ref_type'] == 'load_case', 'pressure-2 selectors bind a load case')
     return _text(basis['ref_id'], 'case basis ID')
 
 
@@ -400,20 +404,23 @@ def current_contract(contract) -> bool:
             and all(contract[key] == PRESSURE_CONTRACT[key] for key in ('version', 'mode')) and contract['shear_model'] in SHEAR_MODELS)
 
 
-def current_package_document(model) -> bool:
-    """A package document authored current: model 0.5.0, the current contract and an explicit corrosion_allowance on every section."""
+def current_package_document(model, version: str = MODEL_VERSION) -> bool:
+    """A package document authored complete on ``version`` (current 0.6.0, or 0.5.0 before 0.6.0): the current
+    contract and an explicit corrosion_allowance on every section."""
     sections = [pipe.get('section') if type(pipe) is dict else None for pipe in model.get('pipe_segments') or []] if type(model) is dict else []
-    return (type(model) is dict and model.get('schema_version') == MODEL_VERSION and current_contract(model.get('pressure_contract'))
+    return (type(model) is dict and model.get('schema_version') == version and current_contract(model.get('pressure_contract'))
             and bool(sections) and all(type(section) is dict and 'corrosion_allowance' in section for section in sections))
 
 
 def model_version(model) -> str:
     """The package document's version: a frozen 0.3.0 (or 0.4.0 with the load/reference-state group) under the former
-    contract, or a document authored current (0.5.0), which is submitted unchanged."""
-    if type(model) is dict and model.get('schema_version') == MODEL_VERSION:
-        require(current_package_document(model), 'a 0.5.0 package document requires the current 3.0.0/exact_pressure_v3 contract with '
-                'an explicit shear_model and an explicit corrosion_allowance on every section')
-        return MODEL_VERSION
+    contract; a 0.5.0 document authored complete, re-authored by its version alone; or a document authored current
+    (0.6.0), which is submitted unchanged."""
+    for version in (MODEL_VERSION, PREVIOUS_VERSION):
+        if type(model) is dict and model.get('schema_version') == version:
+            require(current_package_document(model, version), f'a {version} package document requires the current 3.0.0/exact_pressure_v3 '
+                    'contract with an explicit shear_model and an explicit corrosion_allowance on every section')
+            return version
     require(type(model) is dict and model.get('schema_version') in FROZEN_VERSIONS and model.get('pressure_contract') == FROZEN_PRESSURE_CONTRACT,
             'frozen 0.3.0/0.4.0 package document under 3.0.0/exact_pressure_v3 required')
     require(physics.model_carries_load_state(model) == (model['schema_version'] == '0.4.0'),
@@ -433,9 +440,9 @@ def submitted_input(data: bytes, model: dict, version: str) -> tuple[bytes, dict
 
 
 def current_model(model) -> bool:
-    """The submitted document: model 0.5.0 under the current contract. Returns the load/reference-state group's presence."""
+    """The submitted document: model 0.6.0 under the current contract. Returns the load/reference-state group's presence."""
     require(type(model) is dict and model.get('schema_version') == MODEL_VERSION and current_contract(model.get('pressure_contract')),
-            'actual 0.5.0 model under the current 3.0.0/exact_pressure_v3 contract required')
+            'actual 0.6.0 model under the current 3.0.0/exact_pressure_v3 contract required')
     return physics.model_carries_load_state(model)
 
 
@@ -466,7 +473,7 @@ def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[di
     runner_input, reauthoring = submitted_input(files['runner_input'], model, version)
     request = gate.strict_json(runner_input)
     load_state = current_model(request['solve']['preview_model']['model'])
-    require(load_state == (version == '0.4.0' or (version == MODEL_VERSION and physics.model_carries_load_state(model))),
+    require(load_state == (version == '0.4.0' or (version in (MODEL_VERSION, PREVIOUS_VERSION) and physics.model_carries_load_state(model))),
             're-authoring changed the load/reference-state group')
     request_cases = load_case_ids(request)
     require(type(reference) is dict and reference.get('format') == REFERENCE_FORMAT and reference.get('case_id') == case['case_id'],
@@ -521,7 +528,7 @@ def prepare_case(case: dict, project: Path, purpose: str, semantic_rows: list[di
 # --------------------------------------------------------------------------
 
 def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple[dict, list[dict]]:
-    """Controlled wrapper and exact pressure-1 raw0.2 envelope; anything else is refused."""
+    """Controlled wrapper and exact pressure-2 raw0.2 envelope; anything else is refused."""
     require(mode in MODES, 'unsupported actual mode')
     doc = strict_json_limited(raw, limit)
     require(type(doc) is dict and set(doc) == {'payload', 'decisions', 'findings', 'blocked', 'summary'}, 'unsupported controlled wrapper')
@@ -546,7 +553,7 @@ def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple
     gate._diagnostics(runner.get('diagnostics'), 'runner')
     mechanics = payload.get('mechanics_envelope')
     require(type(mechanics) is dict and mechanics.get('document_kind') == 'openpipestress.product_preview.mechanics_result', 'unsupported raw mechanics document')
-    require(mechanics.get('schema_version') == '0.2.0' and mechanics.get('producer') == PRODUCER, 'pressure-1 raw/producer identity required')
+    require(mechanics.get('schema_version') == '0.2.0' and mechanics.get('producer') == PRODUCER, 'pressure-2 raw/producer identity required')
     require('source_block_recovery' not in mechanics and 'carrier_evidence' not in mechanics, 'source/composite namespace refused')
     formulation = mechanics.get('formulation_basis')
     require(type(formulation) is dict and set(formulation) == {'profile_id', 'limitations'} and formulation['profile_id'] == PROFILE
@@ -567,7 +574,7 @@ def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT) -> tuple
     require(type(quality['cases']) is list and all(type(c) is dict and set(c) == {'basis_ref', 'structural_status', 'solve_quality',
             'model_matrix_fidelity', 'accuracy_evidence', 'evidence_refs'} for c in quality['cases']), 'numerical standing missing or malformed')
     evidence = mechanics.get('contract_evidence')
-    require(type(evidence) is dict and set(evidence) == EVIDENCE_KEYS[load_state], 'pressure-1 evidence namespace for the document required')
+    require(type(evidence) is dict and set(evidence) == EVIDENCE_KEYS[load_state], 'pressure-2 evidence namespace for the document required')
     rows = mechanics.get('results')
     require(type(rows) is list and rows and all(type(row) is dict for row in rows), 'result rows missing')
     ids = [row.get('id') for row in rows]
@@ -705,7 +712,7 @@ def structural_checks(mechanics: dict, prepared: dict, mode: str, standing: dict
         details = {}
         try:
             operation(details)
-            state, reason = 'matched', 'required pressure-1 predicate satisfied'
+            state, reason = 'matched', 'required pressure-2 predicate satisfied'
         except (ValueError, KeyError, TypeError, AttributeError, OverflowError, IndexError) as exc:
             state, reason = failure_state, str(exc)
         output.append({'id': check_id, 'state': state, 'reason': reason, 'details': details})
@@ -724,7 +731,7 @@ def structural_checks(mechanics: dict, prepared: dict, mode: str, standing: dict
         details.update(model_ref=mechanics['model_ref'], request_id=request['request']['request_id'], load_cases=wanted)
 
     def contract(details):
-        require(sha256_bytes((PROJECT / TABLE).read_bytes()) == TABLE_SHA256, 'pinned pressure-1 table changed')
+        require(sha256_bytes((PROJECT / TABLE).read_bytes()) == TABLE_SHA256, 'pinned pressure-2 table changed')
         require(mechanics['producer'] == PRODUCER and mechanics['formulation_basis']['profile_id'] == PROFILE, 'contract/profile differs')
         details.update(semantic_contract_id=CONTRACT, profile_id=PROFILE, table_sha256=TABLE_SHA256)
 
@@ -757,7 +764,7 @@ def structural_checks(mechanics: dict, prepared: dict, mode: str, standing: dict
             solve = record.get('solve')
             require(type(solve) is dict and solve.get('requested_mode') == mode and solve.get('recovery_method') == RECOVERY_METHODS[mode],
                     'record mode/recovery method differs')
-            require(record.get('source_recovery') == NOT_JOINED, 'joined source recovery is not pressure-1')
+            require(record.get('source_recovery') == NOT_JOINED, 'joined source recovery is not pressure-2')
         details['records'] = sorted(by_case)
 
     def absences(details):
@@ -846,7 +853,7 @@ def consistency_observation(raw: dict, binding: dict, directory: Path, *, input_
     refusal is a genuine owned-reader verdict, reported as a failed obligation. The
     reader executable is identified by its digest only, not as built from the bound sources.
     """
-    require(raw.get('schema_version') == '0.2.0' and raw.get('producer') == PRODUCER, 'pressure-1 raw/producer dispatch mismatch')
+    require(raw.get('schema_version') == '0.2.0' and raw.get('producer') == PRODUCER, 'pressure-2 raw/producer dispatch mismatch')
     request_bytes = json.dumps({'source': raw}, ensure_ascii=True, separators=(',', ':'), allow_nan=False).encode()
     require(type(input_limit) is int and 0 < input_limit <= MAX_OUTPUT_LIMIT and len(request_bytes) <= input_limit, 'reader input limit')
     require(bounded(binding['binding_path'], binding['binding_sha256']) == binding['binding_bytes'], 'binding changed before reader')
@@ -991,7 +998,7 @@ def run_selection(run_path: Path, executable: Path, source_root: Path, output_di
         actual_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=source_root, text=True).strip()
         require(actual_commit == runner['candidate_commit'], 'candidate revision mismatch')
         status = subprocess.check_output(['git', 'status', '--porcelain=v1'], cwd=source_root, text=True)
-        require(sha256_bytes((PROJECT / TABLE).read_bytes()) == TABLE_SHA256, 'pinned pressure-1 table changed')
+        require(sha256_bytes((PROJECT / TABLE).read_bytes()) == TABLE_SHA256, 'pinned pressure-2 table changed')
         require(sha256_bytes(gate.CLASSIFIER.read_bytes()) == gate.CLASSIFIER_SHA256, 'existing comparison predicate changed')
         binding_bytes, binding_path = gate.read_bound(run['reader_binding'], run_path.parent)
         reader_binding = load_binding(project, binding_path, sha256_bytes(binding_bytes))
@@ -1026,7 +1033,7 @@ def run_selection(run_path: Path, executable: Path, source_root: Path, output_di
             'process_supervisor_sha256': file_sha256(Path(__file__).with_name('qualification_process.py')),
             'python': sys.version, 'platform': platform.platform(),
             'source_artifact_association': 'selected checkout and executable identities; not independent build-source attestation',
-            'producer_precision': 'pressure-1 raw0.2 finite binary64 without publication quantization'}
+            'producer_precision': 'pressure-2 raw0.2 finite binary64 without publication quantization'}
     except (ValueError, KeyError, TypeError, AttributeError, OSError, subprocess.SubprocessError) as exc:
         ledger['diagnostics'].append(str(exc))
         for case in ledger['cases']:

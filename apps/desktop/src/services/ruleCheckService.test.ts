@@ -318,7 +318,7 @@ describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display on
     const force = source.results.find((r) => r.kind === "element_local_axial_force")!;
     expect(ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack(maximum.id)), [{ input_id: "manual", result_id: force.id }])).toEqual([]);
   });
-  it("gives a preview-physics-1 binding to a retired id no special finding (B3: a missing result); the new rows bind", () => {
+  it("gives a preview-physics-2 binding to a retired id no special finding (B3: a missing result); the new rows bind", () => {
     const source = structuredClone(previewInvented) as unknown as MechanicsResult;
     const findings = ruleBindingPrecheck(source, deriveRuleCheckBindingPlan(solverPack("result:reaction:support-S-100")), [{ input_id: "manual", result_id: "result:stress:pipe-P-120" }]);
     expect(findings).toEqual([]);
@@ -333,15 +333,15 @@ describe("T0R rule-binding pre-check (mirror of rule_binding_refusal; display on
     await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model: pair.model, solvedEnvelope: source })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
     expect(invokeMock).not.toHaveBeenCalled();
   });
-  it("refuses a pressure-1 source before invoking the rule backend: the desktop's fresh set excludes it (b7-plan R2)", async () => {
-    // T4-U2: the L line's pressure-1 result (invented data).
+  it("refuses a pressure-2 source before invoking the rule backend: the desktop's fresh set excludes it (b7-plan R2)", async () => {
+    // T4-U2: the L line's pressure-2 result (invented data).
     const source = structuredClone(lLine.sparse_result) as unknown as MechanicsResult;
     const model = structuredClone(lLine.authored_model) as unknown as PreviewModel;
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "x" } }, model, solvedEnvelope: source })).rejects.toThrow(/^RULE_/);
     expect(invokeMock).not.toHaveBeenCalled();
   });
-  it("refuses a transient pressure-1 native solve as not fresh and releases it without invoking the rule backend", async () => {
+  it("refuses a transient pressure-2 native solve as not fresh and releases it without invoking the rule backend", async () => {
     const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" }), replay = createNativeMechanicsReplay({ profile: "pressure" });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     invokeMock.mockImplementation(replay.invoke);

@@ -74,7 +74,7 @@ fn rhs(case: &str) -> Value {
         "screen_is_not_numerical_qualification": true})
 }
 
-/// A pressure-1 document under `shear_model` with explicitly empty pressure
+/// A pressure-2 document under `shear_model` with explicitly empty pressure
 /// regions: the straight member states the contract's model; with `arc`, the
 /// realized arc's entry is marked and Euler-Bernoulli and its maximum is
 /// withheld on both bases (so both headlines are null). Without the arc both
@@ -250,7 +250,7 @@ fn the_pressure_source_1_composite_refuses_a_realized_arc_by_name() {
     // A marked arc section, outside every pressure region.
     assert_eq!(composite(&document(sb::EULER_BERNOULLI, true)), Err("SOURCE_PHYSICS_ARC_UNSUPPORTED".into()));
     // An arc region record, refused before anything else is read from it; the
-    // pressure-1 reading of the same evidence does not refuse it by that name.
+    // pressure-2 reading of the same evidence does not refuse it by that name.
     let mut region = straight.clone();
     let mut geometry = section(ARC, euler_bernoulli(), true);
     geometry["traversal_forward"] = json!(true);

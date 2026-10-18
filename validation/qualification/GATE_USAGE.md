@@ -18,11 +18,11 @@ Main's six-decimal output remains that producer; this adapter cannot upgrade it.
 The explicit successor `ordinary_pressure_1_cli_1.0_raw0.2` covers only the two
 selected original static cases, using the actual CLI `solve --input -
 --solver-mode sparse_interactive|dense_scrutiny` interface. It requires ordinary
-`openpipestress.result_semantics/0.3.0/pressure-1` (`exact_pressure_v3`), finite
+`openpipestress.result_semantics/0.3.0/pressure-2` (`exact_pressure_v3`), finite
 binary64 publication and passing numerical standing. B7b retired physics-1
 (`2.0.0/exact_straight_pressure_v2`) and the 0.1.0-0.4.0 model documents: the two
 frozen, hash-bound runner inputs are never edited; the gate checks their bytes and
-submits a declared re-authored copy (model 0.5.0, the current
+submits a declared re-authored copy (model 0.6.0, the current
 `3.0.0/exact_pressure_v3` contract with `shear_model: euler_bernoulli`, and an
 explicit zero `corrosion_allowance` on the section; nothing else changes), records
 both hashes in the case ledger, and reads the raw against the copy.
@@ -171,13 +171,13 @@ remains required for that claim. This matters especially while the engine is bei
 integrated. Model/request/mode identity and process capture are necessary evidence,
 not an engineering acceptance certificate.
 
-The ordinary adapter takes the owned pressure-1 reader's verdict
+The ordinary adapter takes the owned pressure-2 reader's verdict
 (`validate_pressure_evidence`) from the Rust product reader, the only product
 reader (b7-plan R2): an explicitly built `openpipestress-runner read pressure`
 named by `OPENPIPESTRESS_RUNNER_BIN`, captured as a supervised process. The
 binding (`openpipestress.ordinary_physics_consistency_binding/3`; versions 1 and 2,
 which named the former Python and the retired physics-1 readers, are refused) selects the
-reader's source, the current pressure-1 semantic table and unit authority by hash; they are checked in
+reader's source, the current pressure-2 semantic table and unit authority by hash; they are checked in
 the candidate before and after each reading and copied to the run's retained
 basis. The reader executable is recorded by digest only; it is not proof of a
 build from those sources. The unit authority is bound read-only, without unit
@@ -185,23 +185,24 @@ conversion/build/network fallback. Review records and finite admission records
 are also byte-bound and retained. The reader input is a derived parsed snapshot,
 distinct from the original runner stdout bytes. Its verdict establishes internal
 physical consistency only; actual process provenance and analytical comparisons
-remain separate evidence. The load/reference-state adapter (B7b: pressure-1 with
+remain separate evidence. The load/reference-state adapter (B7b: pressure-2 with
 that group, transport `pressure_1_load_state_cli_1.0_raw0.2`, binding version 3)
-and the exact_pressure_1 adapter take `read pressure`, the Rust reader's pressure-1
+and the exact_pressure_1 adapter take `read pressure`, the Rust reader's pressure-2
 route (`validate_pressure_evidence`; `openpipestress.exact_pressure_consistency_binding/2`),
 the same way; both submit the declared re-authored copy of each frozen case input.
 
-T4-U6 (manager ruling, 2026-10-16) adds one exact_pressure_1 case: a package
-document authored current is submitted unchanged. This covers the D-5
-re-authored T4-I8 MILLTOL documents and their declared Timoshenko variant. Such
-a document is model 0.5.0 under `3.0.0/exact_pressure_v3`, with an explicit
-`shear_model` (`euler_bernoulli` or `timoshenko_annulus_energy_v1`) and an
-explicit `corrosion_allowance` on every section. Its `runner_input_reauthoring`
-record is the identity: the same rule name, the same frozen and submitted
-sha256, the same version and contract on both sides, and
-`explicit_zero_corrosion_allowance: false`. Every other package document must
-still be a frozen 0.3.0/0.4.0 document under the former `3.0.0/exact_pressure_v3`
-contract object, submitted as its re-authored copy.
+T4-U6 (manager ruling, 2026-10-16) adds one exact_pressure_1 case: the D-5
+re-authored T4-I8 MILLTOL documents and their declared Timoshenko variant,
+authored complete on model 0.5.0 under `3.0.0/exact_pressure_v3`, with an
+explicit `shear_model` (`euler_bernoulli` or `timoshenko_annulus_energy_v1`) and
+an explicit `corrosion_allowance` on every section. Since model 0.6.0 such a
+document is kept as bound and submitted as its copy re-authored by its version
+alone: its `runner_input_reauthoring` record names the same rule, the frozen and
+submitted sha256, versions 0.5.0 and 0.6.0, the same contract on both sides, and
+`explicit_zero_corrosion_allowance: false`. A package document authored on 0.6.0
+would be submitted unchanged under the identity record. Every other package
+document must still be a frozen 0.3.0/0.4.0 document under the former
+`3.0.0/exact_pressure_v3` contract object, submitted as its re-authored copy.
 
 The ten structural checks cover transport/mode, input binding, ordinary contract,
 case/material/section, numerical standing, complete unique scalar coverage,

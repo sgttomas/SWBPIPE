@@ -77,7 +77,7 @@ export const CONNECTOR_HARDWARE_KINDS = ["untied"] as const;
 export const CONNECTOR_PRESSURE_MODELS = ["unpressurized"] as const;
 export const CURRENT_CONNECTOR_PRESSURE_MODELS = ["unpressurized", "constant_effective_area_reference_v1"] as const;
 export function connectorPressureModels(model: PreviewModel): readonly string[] {
-  return model.schema_version === "0.5.0" ? CURRENT_CONNECTOR_PRESSURE_MODELS : CONNECTOR_PRESSURE_MODELS;
+  return model.schema_version === "0.6.0" ? CURRENT_CONNECTOR_PRESSURE_MODELS : CONNECTOR_PRESSURE_MODELS;
 }
 export function emptyConnectorDraft(): ConnectorDraft {
   return {

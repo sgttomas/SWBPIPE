@@ -94,8 +94,8 @@ pub(super) struct SolverObservations {
 }
 /// B3b-P (B3-D P-1): the invocation's W1 route, decided once (`lib.rs` `w1_route`, in
 /// `permitted_run` and the private driver) from the admitted model's namespace branch: the
-/// preview successor over preview-physics-1, or the exact successor (`physics-retained-1`,
-/// DEF-E) over pressure-1 (schema 0.5.0, `exact_pressure_v3`, explicitly empty
+/// preview successor over preview-physics-2, or the exact successor (`physics-retained-1`,
+/// DEF-E) over pressure-2 (schema 0.6.0, `exact_pressure_v3`, explicitly empty
 /// pressure regions). The route-specific steps (capture, observables, maxima, overlay and
 /// the wire's identity) each call their own named function (I95's ruling 1).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -2704,7 +2704,7 @@ impl ProductCapture {
         };
         self.case_observables(view, extrema)
     }
-    /// B3b-P (B3-D P-6), rebased by B7b D4: the exact route's closed pressure-1 evidence and the case's entry:
+    /// B3b-P (B3-D P-6), rebased by B7b D4: the exact route's closed pressure-2 evidence and the case's entry:
     /// `{pressure: [], connector: [], exact_cases}`; the entry's eight keys (no
     /// `recovery_method`), its case, `profile_mode`, the base common E/ν basis, complete
     /// `stress_maximum_coverage`, `pressure_rhs_assembly` with no groups and all-zero vectors,
@@ -2810,7 +2810,7 @@ impl ProductCapture {
         }
         Ok(c["pipe_stress_extrema"].as_array().ok_or("extrema")?)
     }
-    /// The preview route's closed preview-physics-1 evidence and the case's entry. Returns the
+    /// The preview route's closed preview-physics-2 evidence and the case's entry. Returns the
     /// entry's `pipe_stress_extrema`.
     fn preview_case_evidence<'a>(&self,view:ProductCaseView<'a>)->Result<&'a [serde_json::Value],CaptureError> {
         let e=view.ordinary();
@@ -4483,7 +4483,7 @@ impl ProductCapture {
         Ok(())
     }
     /// B4/D1: the typed row manifest of a failed ordinary case, from the captured maps only
-    /// (normalized nodes, members, supports and their three stations), in preview-physics-1's
+    /// (normalized nodes, members, supports and their three stations), in preview-physics-2's
     /// row order and with its ids, units and metadata (`validate_final_metadata` binds each
     /// row to a captured identity). Every quantity value is a placeholder that the freeze
     /// replaces from the selected retained owner; the maxima evidence's eight numbers are
@@ -5105,8 +5105,8 @@ impl ProductCapture {
     /// any attempt.
     /// - A prior capture error of any case, the first in request order, is the cause: the parked
     ///   cases' (0 to c − 2), then the last case's, in the capture's own fields (RV109 R3P-3).
-    /// - The ordinary preconditions: one final hook, the route's base contract (preview-physics-1,
-    ///   or pressure-1 on the exact route: B7b D4), `MECHANICS_SOLVED`,
+    /// - The ordinary preconditions: one final hook, the route's base contract (preview-physics-2,
+    ///   or pressure-2 on the exact route: B7b D4), `MECHANICS_SOLVED`,
     ///   no exact-block selection, and no native work yet.
     /// - One complete late capture per requested case.
     /// - Each case's observations bound to the envelope (`bind_observations`, per case), and,

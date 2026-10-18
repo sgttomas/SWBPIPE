@@ -26,9 +26,11 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// retired parity observation row. C5 re-pinned both for the adopted arc
 /// end-tangent limitation sentence: restoring the former sentence recovers the
 /// previous bytes exactly.
+/// Model 0.6.0 re-pinned both for the preview-physics-2 identity (same length);
+/// restoring the -1 identity recovers the previous bytes exactly.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 68215, "262350431963ec51fe025007f4381fdfc84326f68b80a7c13f73bed768c1a580"),
-    ("dense_scrutiny", 68236, "9fc0332eaf7798ed96f2013beb3cca2f7f429830b1e5719bdf535da8c02aad3d"),
+    ("sparse_interactive", 68215, "47a490465d9a3c30a92943eca331afd5c5321bd7e9fe1a48ffc96889480f2f91"),
+    ("dense_scrutiny", 68236, "6b171925c508cd9c9b2b165cc55768fd3a9b909a3a8a3dee22c8f36fe3be8df7"),
 ];
 /// Fields of the request's model entries that receive a `label` equal to their `id`.
 const LABELLED: [&str; 4] = ["materials", "nodes", "pipe_segments", "supports"];

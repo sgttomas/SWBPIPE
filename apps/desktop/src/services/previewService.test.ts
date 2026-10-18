@@ -55,7 +55,7 @@ function cloneModel(model: PreviewModel): PreviewModel {
 // Minimal solved envelope whose plain solve leaves rule_check incomplete (the
 // solve runs no user rule checks), so the aggregate-threading behavior is
 // isolated from any fixture content.
-// B1: the minimal preview-physics-1 statement (no rows) replaces the retired precision-1 header.
+// B1: the minimal preview-physics-2 statement (no rows) replaces the retired precision-1 header.
 const solvedResultStub = minimalPreviewStatement({ run_id: "run:appagg-test", model_ref: "project:appagg-test", rows: [], cases: [] });
 
 async function manifestFor(
@@ -477,7 +477,7 @@ describe("reference analysis-run input-manifest and source-dimension binding", (
     );
     expect(target).toBeDefined();
     target!.unit = "MPa";
-    // The bundled reference is preview-physics-1, so its reader refuses the
+    // The bundled reference is preview-physics-2, so its reader refuses the
     // changed unit before the kind-semantics check.
     // R2: the Rust reader's code (TS: SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID).
     await expect(buildAnalysisRunPreview(result, {
@@ -1024,7 +1024,7 @@ describe("native invocation provenance under bounded unit transport replay", () 
 });
 
 
-it.each(["sparse_interactive", "dense_scrutiny"] as const)("preview-physics-1 replay registers its %s source only when the closed reader checks pass", async mode => {
+it.each(["sparse_interactive", "dense_scrutiny"] as const)("preview-physics-2 replay registers its %s source only when the closed reader checks pass", async mode => {
   const pair = nativeMechanicsReplayPair(mode, { profile: "preview" });
   expect(pair.provenance.source_fixture_ref).toBe(`fixtures/results/preview_physics_connected_${mode === "sparse_interactive" ? "sparse" : "dense"}.json`);
   expect(sourceContract(pair.source)).toBe("preview_physics");

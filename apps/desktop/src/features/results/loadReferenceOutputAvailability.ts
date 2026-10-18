@@ -4,7 +4,7 @@
  * (T1_WAVE1_RULINGS.md section 12): no file, package, handoff or external
  * request may carry their result data yet. B7b retired load-reference-1 and
  * load-reference-source-1 with the v2 contract: a load/reference-state result is
- * now published under pressure-1 or pressure-source-1, both of which refuse on
+ * now published under pressure-2 or pressure-source-1, both of which refuse on
  * every surface, each with its own reason. Every such surface calls this one
  * function and shows the route's one reason; the report package keeps T0R's own
  * fresh-result refusal (REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE). The statement
@@ -26,12 +26,12 @@ import { routeOutputRefusal } from "./outputPolicy";
 import type { MechanicsResult } from "../../types";
 
 export {
-  PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL,
+  PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL,
   RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE, N_RETAINED_PRECISION_OUTPUT, RETAINED_PRECISION_OUTPUT_REFUSAL,
   N_RETAINED_PHYSICS_OUTPUT, RETAINED_PHYSICS_OUTPUT_REFUSAL,
 } from "./outputPolicy";
 
-/** The shared output refusal: the reason for a gated route's result (pressure-1,
+/** The shared output refusal: the reason for a gated route's result (pressure-2,
  * pressure-source-1 or a retained-precision successor), else null. */
 export function loadReferenceOutputRefusal(source: MechanicsResult | null | undefined): string | null {
   return routeOutputRefusal(source);

@@ -1,5 +1,5 @@
 /** B1 (b7-plan): precision-1 is retired. A stored precision-1 statement for tests:
- * the connected preview-physics-1 producer output relabelled precision-1, its
+ * the connected preview-physics-2 producer output relabelled precision-1, its
  * preview evidence namespace removed. The Rust reader refuses it by name
  * (`SOURCE_PRECISION_1_RETIRED`), so the desktop reads it as unsupported. */
 import connectedSparse from "../../../../fixtures/results/preview_physics_connected_sparse.json";
@@ -15,10 +15,10 @@ export function retiredPrecisionStatement(): MechanicsResult {
   return source;
 }
 
-import previewTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json";
+import previewTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json";
 
 /** The readable statement the precision-1 synthetic header used to provide for
- * transport tests: a solved preview-physics-1 statement with invented rows, the
+ * transport tests: a solved preview-physics-2 statement with invented rows, the
  * table's profile limitations, one empty complete preview case per numerical
  * case and no headline (no displacement-magnitude rows). The Rust preview reader
  * admits it; it makes no solver, physics or accuracy claim. */
@@ -29,7 +29,7 @@ export function minimalPreviewStatement(args: {
   const { cases } = args;
   return {
     schema_version: "0.2.0", document_kind: "openpipestress.product_preview.mechanics_result", run_id: args.run_id, model_ref: args.model_ref,
-    producer: { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: "openpipestress.result_semantics/0.3.0/preview-physics-1" },
+    producer: { component_name: "open_pipe_stress_product_physics", component_version: "0.2.0", semantic_contract_id: "openpipestress.result_semantics/0.3.0/preview-physics-2" },
     numerical_quality: { value_representation: "finite_binary64", publication_quantization: "none", integrity_policy: "M03-INTEGRITY-v1",
       status: cases.length && cases.every(c => c.solve_quality === "checks_passed") ? "checks_passed" : "not_assessed", cases },
     formulation_basis: { profile_id: "product_preview_mechanics_v1", limitations: [...previewTable.supported_profile_limitations] },

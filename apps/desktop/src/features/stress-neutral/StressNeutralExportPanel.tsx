@@ -419,7 +419,7 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
   const version = STRESS_NEUTRAL_EXPORT_VERSION;
   const profile = STRESS_NEUTRAL_EXPORT_PROFILE;
   // Pure packet projection; Current export stays gated by the panel's live binding,
-  // which requires full eligibility. (B7b: the exact routes, pressure-1 and
+  // which requires full eligibility. (B7b: the exact routes, pressure-2 and
   // pressure-source-1, are refused above; the retired physics-source-1 arm went with v2.)
   if (numericalResultStanding(args.result, args.model).findings.length > 0) throw new Error("SN-NUMERICAL-INTEGRITY-NEEDS-RECOMPUTE");
   if (args.analysisRun.schema_version !== "0.3.0" || args.analysisRun.analysis_run.run_id !== args.result.run_id || args.model.project.id !== args.result.model_ref
@@ -847,10 +847,10 @@ function safeFileToken(value: string): string {
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
 
 /** Every route has a deliberate entry (tsc-checked); null names no table here, and
- * such a route refuses (the exact routes, pressure-1 and pressure-source-1, with or
+ * such a route refuses (the exact routes, pressure-2 and pressure-source-1, with or
  * without load/reference states, refuse earlier by the policy). */
 const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported">, string | null>> = Object.freeze({
-  preview_physics: "semantic_contract_v0_3_preview_physics_1.json", retained_preview_physics: "semantic_contract_v0_3_preview_physics_retained_1.json",
+  preview_physics: "semantic_contract_v0_3_preview_physics_2.json", retained_preview_physics: "semantic_contract_v0_3_preview_physics_retained_1.json",
   retained_physics: "semantic_contract_v0_3_physics_retained_1.json",
   pressure_source: null, pressure: null,
 });

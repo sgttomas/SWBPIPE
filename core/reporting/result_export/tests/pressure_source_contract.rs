@@ -1,5 +1,5 @@
 //! Join reader contracts over the current pressure-source-1 producer bytes
-//! (0.5.0/3.0.0/exact_pressure_v3). B7b deleted the v2 contract, its reader and
+//! (0.6.0/3.0.0/exact_pressure_v3). B7b deleted the v2 contract, its reader and
 //! the directional cross-read codes; no relabelled fixture is treated as a valid
 //! pressure-source publication.
 use open_pipe_stress_result_export::{derivative, physics_source as ps, reader_verdict, semantic_contract as sc};
@@ -329,7 +329,7 @@ fn captured_allowance_is_required_on_every_pipe_section() {
 }
 
 /// B7b (ccb19ba0bf), header parity with the retired load-reference routes:
-/// (1) the load/reference-state group owns no carrier namespace, so a pressure-1 or
+/// (1) the load/reference-state group owns no carrier namespace, so a pressure-2 or
 /// pressure-source-1 statement carrying the group and `carrier_evidence` is refused at
 /// the header (SOURCE_PRODUCER_CONTRACT_UNSUPPORTED; the reader-verdict dispatch's own
 /// carrier guard gives SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED); (2) the pressure-source
@@ -342,7 +342,7 @@ fn header_guards_refuse_a_carrier_on_the_group_and_a_source_without_evidence() {
     ))
     .unwrap();
     let (resolved, _) = load_state();
-    for (label, statement) in [("pressure-1 with the group", pressure_group), ("pressure-source-1 with the group", resolved.clone())] {
+    for (label, statement) in [("pressure-2 with the group", pressure_group), ("pressure-source-1 with the group", resolved.clone())] {
         assert!(sc::for_source(&statement).is_ok(), "{label}: control");
         let mut carrier = statement.clone();
         carrier["carrier_evidence"] = json!({});

@@ -22,12 +22,12 @@ pub(crate) fn resolve(
         code: "OP-JOINT-PRESSURE-PAYLOAD-INVALID",
         message,
     };
-    if model["schema_version"] != "0.5.0"
+    if model["schema_version"] != "0.6.0"
         || model["pressure_contract"]["version"] != "3.0.0"
         || model["pressure_contract"]["mode"] != "exact_pressure_v3"
     {
         return Err(error(
-            "Joint pressure authoring requires model 0.5.0 with 3.0.0/exact_pressure_v3".into(),
+            "Joint pressure authoring requires model 0.6.0 with 3.0.0/exact_pressure_v3".into(),
         ));
     }
     if unit != "none" || dimension != "dimensionless" {
@@ -97,7 +97,7 @@ mod tests {
         let before =
             crate::canonical_json(&model["components"][0]["objective_connector"]["pressure_model"]);
         let payload = json!({"kind":"constant_effective_area_reference_v1","effective_area":{"value":0.004,"unit":"m^2"},"pressure_basis":"internal_differential_zero_external_v1","source_reference":"invented authoring control"});
-        for version in ["0.3.0", "0.4.0"] {
+        for version in ["0.3.0", "0.4.0", "0.5.0"] {
             model["schema_version"] = json!(version);
             assert!(resolve(
                 &model,
@@ -113,7 +113,7 @@ mod tests {
         }
         // This direct helper checks the authored joint slice; general 0.5
         // document activation and its required fields are B7b's responsibility.
-        model["schema_version"] = json!("0.5.0");
+        model["schema_version"] = json!("0.6.0");
         let edit = resolve(
             &model,
             "Component",

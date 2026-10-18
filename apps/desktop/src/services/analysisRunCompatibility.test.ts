@@ -55,7 +55,7 @@ describe("analysis record versions", () => {
 });
 
 // B1 retired precision-1, the header these record tests used over a synthetic row;
-// they use the minimal preview-physics-1 transport statement (a signed rotation row, so no headline).
+// they use the minimal preview-physics-2 transport statement (a signed rotation row, so no headline).
 function syntheticPreview() {
   return minimalPreviewStatement({ run_id: "run:test", model_ref: "model:test", cases: [],
     rows: [{ id: "result:test", entity_ref: "node:test", kind: "global_nodal_rotation_x", value: 1, unit: "rad",

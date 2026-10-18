@@ -1684,7 +1684,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e",
+  "inherited_semantic_contract_sha256": "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f",
   "formulation_profile_id": "exact_straight_retained_w1a_v2",
   "contract_evidence_policy": "closed_finite_case_member_material_geometry_region_result_and_extrema_binding_v1",
   "supported_profile_limitations": [
@@ -1698,7 +1698,7 @@
   "product_formation_definitions": [
     {
       "id": "RP-PREPARED-EXACT-DUAL-v1",
-      "sha256": "6c772d242ef47a354376f29f93fc69959ee2b4085b606af211da4b7f45c87f8e"
+      "sha256": "d1fa7b45a314d0f3284fafc716524da5889986f25ffe5c588d9ef197bb9a3def"
     }
   ],
   "accuracy_classification": {

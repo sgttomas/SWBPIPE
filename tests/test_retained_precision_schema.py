@@ -90,26 +90,26 @@ def test_results_successor_branch_is_explicit_and_old_branches_reject_receipt():
 # stress-neutral branch does not lift the T6 export refusal.
 
 SUCC = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-# B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables") re-issued the tables: pressure-1
-# left preview-physics-1's reserved successors (36064ef3... and f675693b... before), the preview successor inherits
-# the new preview hash, the exact successor (D4 (a)) inherits pressure-1's, and pressure-source-1 is the current
+PREVIEW = "openpipestress.result_semantics/0.3.0/preview-physics-2"
+# B7b (a43583c625, "Rebase retained exact evidence onto current pressure tables") re-issued the tables: pressure-2
+# left preview-physics-2's reserved successors (36064ef3... and f675693b... before), the preview successor inherits
+# the new preview hash, the exact successor (D4 (a)) inherits pressure-2's, and pressure-source-1 is the current
 # PRESSURE-SOURCE-1 table (4a1873e7... before).
-SUCC_SHA = "842a011601ea5049c6e89abbd73a24176966ca23c9a8cf9c89336341f608f3ad"
-PREVIEW_SHA = "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32"
+SUCC_SHA = "db52ad8274c2a7544db7e30ce693608f1d6570c49c72fa7bfb5e1c8e124cf02e"
+PREVIEW_SHA = "97af5a7a7b3fb1d39515a23bff29bf11a11f3b6c203f02d14d7662c23eaa66e5"
 PROFILE = "product_preview_retained_w1a_v2"
 CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered"]
 # B3b (B3-D §7): the exact successor `<physics-retained>`, whose carrier branches follow
 # the preview successor's. Both successors, and only they, carry a receipt.
 EXACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-# T4-U6 (D-5, §2.4): follows pressure-1's per-basis table by its inherited hash (was 69581249...).
-EXACT_SHA = "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6"
+# T4-U6 (D-5, §2.4): follows pressure-2's per-basis table by its inherited hash (was 69581249...).
+EXACT_SHA = "4110187031037e47b9a79e8c7acf35615fde32ea36ac2e608893828823aaa35a"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 SUCCESSORS = (SUCC, EXACT)
 # b7-plan's pressure-source join: a tenth run branch (no receipt); its contract
 # registry entry is appended after the exact successor's.
 PRESSURE_SOURCE = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PRESSURE_SOURCE_SHA = "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53"
+PRESSURE_SOURCE_SHA = "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b"
 # B7b: the composite source statement is pressure-source-1's (physics-source-1 is retired).
 SOURCE_RAW = "pressure_source/physics_source/n05-sparse_interactive.raw.json"
 MILESTONES = {
@@ -159,7 +159,7 @@ def projected(source):
     base = deepcopy(source)
     del base["retained_precision"]
     exact = source["producer"]["semantic_contract_id"] == EXACT
-    base["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-1" if exact else PREVIEW
+    base["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-2" if exact else PREVIEW
     base["formulation_basis"]["profile_id"] = "exact_pressure_v3" if exact else "product_preview_mechanics_v1"
     for row in base["results"]:
         row.pop("recovery_method", None)
@@ -191,7 +191,7 @@ def foreign_source_block_recovery():
 
 
 def real_value_row(document):
-    """A real derivative value row (the pressure-1 load/reference-state document's first displacement, B7b's twin
+    """A real derivative value row (the pressure-2 load/reference-state document's first displacement, B7b's twin
     of load-reference-1's), on the document's own basis, so Y11's token is the only change (RV88 U6c N-1)."""
     source = json.loads((ROOT / "fixtures/results/pressure_load_state_connected_sparse.document.json").read_text())
     row = deepcopy(source["result_envelope"]["result_sets"][0]["values"][0])
@@ -254,7 +254,7 @@ def test_d_u6_2_class_codes_are_admitted_only_in_the_successor_branch():
     assert enum[-2:] == CODES and len(set(enum)) == len(enum)
     clause = {"properties": {"row_disclosures": {"items": {"properties": {"reason_code": {"not": {"enum": CODES}}}}}}}
     from tests.schema_validation import envelope_branches
-    branches = envelope_branches(schema)  # pressure-1's branch is held in results_pressure_1.v0.3
+    branches = envelope_branches(schema)  # pressure-2's branch is held in results_pressure_2.v0.3
     for branch in branches:
         sid = branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
         if sid in SUCCESSORS:
@@ -336,7 +336,7 @@ def test_every_existing_analysis_run_branch_refuses_a_receipt():
         refused = {"required": ["retained_precision"]} in branch.get("not", {}).get("anyOf", [])
         assert refused is (sid not in SUCCESSORS), sid
         assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
-    # T4-U2 added pressure-1; the pressure-source join added pressure-source-1;
+    # T4-U2 added pressure-2; the pressure-source join added pressure-source-1;
     # B1 removed precision-1 and B4/D1 (b) source-blocks-1; B7b the four exact v2 identities.
     assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 5
     contract = schema["$defs"]["SemanticContract"]
@@ -416,24 +416,24 @@ def test_every_existing_stress_neutral_branch_refuses_a_receipt():
         ids.append(sid)
         assert ({"required": ["retained_precision"]} in branch.get("not", {}).get("anyOf", [])) is (sid not in SUCCESSORS), sid
         assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
-    # T4-U2 added pressure-1; B1 removed precision-1 and B4/D1 (b) source-blocks-1; B7b the four exact v2
+    # T4-U2 added pressure-2; B1 removed precision-1 and B4/D1 (b) source-blocks-1; B7b the four exact v2
     # identities and added pressure-source-1's branch.
     assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 5
 
 
 # ---- B3b (I101, lane T): the exact successor's carrier branches (B3-D §7; REVISION_01 §6).
-# Shape checks only, on a pressure-1 fixture (B7b, D4 (a): the exact successor's G7 projection is
-# pressure-1/exact_pressure_v3) re-stated under the exact identity with a shape-valid receipt:
+# Shape checks only, on a pressure-2 fixture (B7b, D4 (a): the exact successor's G7 projection is
+# pressure-2/exact_pressure_v3) re-stated under the exact identity with a shape-valid receipt:
 # schema validity creates no standing.
 
 PLAIN = "fixtures/results/pressure_connected_mechanics_sparse.json"
 
 
 def exact_source():
-    """A pressure-1 statement under the exact successor's identity and profile (its limitations are pressure-1's,
+    """A pressure-2 statement under the exact successor's identity and profile (its limitations are pressure-2's,
     the branch's const), carrying the shared corpus's first receipt (shape only; no reader runs here)."""
     source = json.loads((ROOT / PLAIN).read_text())
-    assert source["producer"]["semantic_contract_id"] == "openpipestress.result_semantics/0.3.0/pressure-1"
+    assert source["producer"]["semantic_contract_id"] == "openpipestress.result_semantics/0.3.0/pressure-2"
     source = deepcopy(source)
     source["producer"]["semantic_contract_id"] = EXACT
     source["formulation_basis"]["profile_id"] = EXACT_PROFILE
@@ -446,7 +446,7 @@ def test_exact_successor_results_branch():
     branch = schema["$defs"]["ResultEnvelope"]["oneOf"][-1]
     assert branch["properties"]["producer"]["properties"]["semantic_contract_id"] == {"const": EXACT}
     assert branch["properties"]["formulation_basis"]["properties"]["profile_id"] == {"const": EXACT_PROFILE}
-    # D4 (a): the exact successor's evidence is the G7 transport shape over pressure-1's evidence.
+    # D4 (a): the exact successor's evidence is the G7 transport shape over pressure-2's evidence.
     assert branch["properties"]["contract_evidence"] == {"$ref": "#/$defs/ExactRetainedContractEvidence"}
     assert branch["properties"]["result_sets"] == {"items": {"$ref": "#/$defs/ResultSet"}}
     assert branch["properties"]["retained_precision"] == {"$ref": "retained_precision_mp_v2.schema.json"}
@@ -475,7 +475,7 @@ def test_exact_successor_results_branch():
 def test_exact_successor_analysis_run_branch():
     plain = json.loads((ROOT / PLAIN).read_text())
     base = analysis_record(plain)
-    check("analysis_run.schema.json", base, True, "base pressure-1 record")
+    check("analysis_run.schema.json", base, True, "base pressure-2 record")
     record = deepcopy(base)
     run = record["analysis_run"]
     run["reproducibility"]["semantic_contract"] = {"id": EXACT, "sha256": EXACT_SHA}
@@ -501,7 +501,7 @@ def test_exact_successor_analysis_run_branch():
 def test_exact_successor_stress_neutral_branch():
     plain = json.loads((ROOT / PLAIN).read_text())
     base = stress_neutral_package(plain)
-    check("stress_neutral_export.v0.3.schema.json", base, True, "base pressure-1 package")
+    check("stress_neutral_export.v0.3.schema.json", base, True, "base pressure-2 package")
     packet = deepcopy(base)
     packet["producer"]["semantic_contract_id"] = EXACT
     packet["semantic_contract_ref"]["ref_id"] = EXACT

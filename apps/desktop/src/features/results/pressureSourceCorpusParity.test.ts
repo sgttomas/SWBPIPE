@@ -33,7 +33,7 @@ describe("J2 pressure-source corpus, unchanged native outcomes through real wasm
     expect(ENTRIES.filter(entry => entry.raw_fixture)).toHaveLength(24);
     expect(new Set(ENTRIES.map(entry => entry.id)).size).toBe(ENTRIES.length);
     // B7b: MJ5's v3-offered-to-v2 family went with the v2 reader; the regenerated J2
-    // corpus names the retired v2 identity, the pressure-1 cross-offer and a captured v2 context. The RF
+    // corpus names the retired v2 identity, the pressure-2 cross-offer and a captured v2 context. The RF
     // source-method extension adds receipt statements the current producer cannot make (a 5-DOF block, an unknown
     // level, a stored unsupported_block of order 3 or 4), each refused at the receipt shape.
     for (const name of ["MJ2-wrong-domain", "MJ4-stale-receipt", "MJ4-publication-binding", "MJ5-retired-v2-identity", "MJ5-pressure-source-offered-to-pressure-1", "MJ5-captured-v2-context", "MJ5-relabelled-shape", "MJ7-downgrade", "MJ3-selected-pressure-", "RF-free-block-5-dofs", "RF-unknown-source-level", "RF-unsupported-block-order-3", "RF-unsupported-block-order-4"]) {

@@ -10,6 +10,8 @@ use open_pipe_stress_product_physics::PreviewSolverMode;
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 
+#[path = "common/current_model.rs"]
+mod current_model;
 #[path = "common/frozen_rows.rs"]
 mod frozen_rows;
 use frozen_rows::*;
@@ -352,7 +354,7 @@ fn u6_bases_mass_metal_nominal_contents_pressure_bore() {
     // method, Fresh against the request's section.
     for body in oracle["cases"]["U6-BASES-001"]["variants"].as_object().unwrap().values() {
         let path = body["request_self_weight"]["path"].as_str().unwrap();
-        let request: Value = serde_json::from_str(REQUESTS.iter().find(|(p, _)| *p == path).unwrap().1).unwrap();
+        let request = current_model::reauthor_request(serde_json::from_str(REQUESTS.iter().find(|(p, _)| *p == path).unwrap().1).unwrap());
         let model: open_pipe_stress_product_physics::PreviewModel = serde_json::from_value(request["model"].clone()).unwrap();
         let states = open_pipe_stress_product_physics::self_weight::inspect_applied_self_weight(&model, None);
         assert_eq!(states.len(), 2, "{path}");

@@ -1,4 +1,4 @@
-//! T4-U2: realized-arc members of a `pressure-1` (`3.0.0/exact_pressure_v3`)
+//! T4-U2: realized-arc members of a `pressure-2` (`3.0.0/exact_pressure_v3`)
 //! pressure region. A region with a realized arc carries the tangency rule,
 //! the bend-adjacent junctions and the withheld-on-arcs statement beyond a
 //! straight region's keys; each arc member carries `member_kind` and its end
@@ -9,9 +9,9 @@
 //!
 //! These are code constants shared in meaning with the producer
 //! (`product_physics` `pressure_runtime.rs`, `bend_pressure.rs`) and with the
-//! test-only Python verifier (`tests/verifiers/pressure_1.py`). This Rust
-//! reader is pressure-1's only product reader; the desktop and Python product
-//! paths refuse pressure-1 by name. The reader checks bindings and declared
+//! test-only Python verifier (`tests/verifiers/pressure_2.py`). This Rust
+//! reader is pressure-2's only product reader; the desktop and Python product
+//! paths refuse pressure-2 by name. The reader checks bindings and declared
 //! semantics, never values: no table and no static is added (T4-RV14 F1).
 use serde_json::Value;
 use std::collections::HashSet;

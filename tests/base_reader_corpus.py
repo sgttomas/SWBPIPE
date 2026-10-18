@@ -7,7 +7,7 @@ the same files with the same mutation grammar, so the Python verifier and the pr
 paths can be compared with those outcomes entry by entry. Test support only.
 
 B7b: the corpus is built from the current fixtures only (the Rust test's B7b construction): the exact-route
-statements are the v3 twins read by the pressure-1 and pressure-source-1 readers, with and without the
+statements are the v3 twins read by the pressure-2 and pressure-source-1 readers, with and without the
 load/reference-state group; the ledger cases apply to the received joined statements directly (the v2
 projection is gone); the retired v2 identities appear only as named refusals.
 """

@@ -1,18 +1,18 @@
 //! T4-U3 through the headless runner, in both solver modes, on the frozen
 //! T4-I12 system documents (`validation/references/t4_i12/`, bytes
 //! unchanged): an admitted unpressurized v3 objective connector solves under
-//! `pressure-1` with its connector record, rows and temperature-law
-//! disclosure, and is exported under pressure-1 (T4-U2 phase 2: the connector
+//! `pressure-2` with its connector record, rows and temperature-law
+//! disclosure, and is exported under pressure-2 (T4-U2 phase 2: the connector
 //! rows are exported quantities with a stable basis); a legacy joint
 //! on the same document is refused with `LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED`;
 //! a case with a pressure region away from the joint was refused with
 //! `JOINT_PRESSURE_INTERFACE_UNRESOLVED` "until T4-U5" (the variant's own
-//! `expected_round_02.until`); B7b: on the current 0.5.0 copy T4-U5a's region
-//! classifier admits it, so it solves and exports under pressure-1 (as in PP's
+//! `expected_round_02.until`); B7b: on the current 0.6.0 copy T4-U5a's region
+//! classifier admits it, so it solves and exports under pressure-2 (as in PP's
 //! `tests/connector_system_references.rs`).
 //!
 //! B7b: the frozen documents (0.3.0 and 0.4.0, after any variant patch) are
-//! unchanged; each copy is re-authored to the current 0.5.0 exact document by
+//! unchanged; each copy is re-authored to the current 0.6.0 exact document by
 //! the one shared rule (`core/product_physics/tests/common/current_model.rs`)
 //! before it runs.
 use open_pipe_stress_headless_runner::{
@@ -32,7 +32,7 @@ const MODES: [PreviewSolverMode; 2] = [
     PreviewSolverMode::SparseInteractive,
     PreviewSolverMode::DenseScrutiny,
 ];
-const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
+const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 
 fn references() -> Value {
     serde_json::from_str(REFERENCES).unwrap()
@@ -140,9 +140,9 @@ fn an_admitted_v3_connector_solves_and_exports_under_pressure_1_in_both_modes() 
                 && d["severity"] == "info"
                 && d["affected_refs"] == json!(["component:C-150", "pipe:P-130"])));
             assert!(blocking_codes(&raw).is_empty(), "{case} {mode:?}");
-            // T4-U2: exported under pressure-1, from the 0.3.0 and 0.4.0 frozen
-            // documents alike (each re-authored to 0.5.0, B7b). The
-            // spring hanger's input review rows are model scoped (pressure-1),
+            // T4-U2: exported under pressure-2, from the 0.3.0 and 0.4.0 frozen
+            // documents alike (each re-authored to 0.6.0, B7b). The
+            // spring hanger's input review rows are model scoped (pressure-2),
             // so the reader admits them; the numerical standing gate was never
             // the cause (it read the reader's refusal as "unsupported").
             assert!(unavailability.is_none(), "{case} {mode:?}: {unavailability:?}");

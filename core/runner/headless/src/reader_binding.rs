@@ -150,7 +150,7 @@ pub const READERS: &[Reader] = &[
     base!("pressure-source", &["invocation"]),
     base!("source-recovery", &[]),
     base!("pressure", &["model"]),
-    // `reader_verdict::transport`: `{"source": <statement>}`. pressure-1 has no
+    // `reader_verdict::transport`: `{"source": <statement>}`. pressure-2 has no
     // transport reader; its entry refuses by name (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED).
     transport!("preview-physics"),
     transport!("pressure-source"),

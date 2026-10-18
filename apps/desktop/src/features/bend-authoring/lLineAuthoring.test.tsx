@@ -4,8 +4,8 @@
  * wasm operation engine, and the result equals the document the Rust applier
  * authors (`fixtures/model_operations/pressure_v3_l_line_authoring.json`,
  * pinned by `operation_applier/tests/l_line_authoring.rs`). Its solve through
- * the native job path returns pressure-1. The desktop reads results only through
- * the Rust reader's verdict (b7-plan R2): pressure-1 has its own route there,
+ * the native job path returns pressure-2. The desktop reads results only through
+ * the Rust reader's verdict (b7-plan R2): pressure-2 has its own route there,
  * read by the product reader with the ordinary standing, and every output
  * surface refuses it by name. All data are invented. */
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -24,7 +24,7 @@ import { awaitBackendSolveJob } from "../workspace/solveJobAudit";
 import { ResultsPanel } from "../results/ResultsPanel";
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { readerDispatch, sourceContract } from "../results/resultReader";
-import { OUTPUT_SURFACES, PRESSURE_1_OUTPUT_REFUSAL, surfaceRouteRefusal } from "../results/outputPolicy";
+import { OUTPUT_SURFACES, PRESSURE_2_OUTPUT_REFUSAL, surfaceRouteRefusal } from "../results/outputPolicy";
 import { numericalResultStanding } from "../results/resultStanding";
 import type { EditorOperationIntent, MechanicsResult, PreviewModel } from "../../types";
 
@@ -98,7 +98,7 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     change("Pressure profile", "exact_pressure_v3");
     change("Shear model", "euler_bernoulli");
     const profile = await queued(() => fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" })), queue);
-    expect(JSON.parse(profile.change.after)).toEqual({ schema_version: "0.5.0", pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } });
+    expect(JSON.parse(profile.change.after)).toEqual({ schema_version: "0.6.0", pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } });
     model = await apply(model, profile);
     cleanup();
 
@@ -109,7 +109,7 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     }
     expect(model).toEqual(expected);
 
-    // Solve through the native job path: the producer returns pressure-1.
+    // Solve through the native job path: the producer returns pressure-2.
     (window as Json).__TAURI_INTERNALS__ = {};
     // The native job contract: raw model bytes in, the producer's bytes taken once (DEL-04-07).
     const transport = createSolveJobTransport(({ model, mode }) => {
@@ -126,14 +126,14 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     expect(await takePreviewMechanicsJobResult(receipt.job_id)).toEqual(pressure1);
   });
 
-  it("reads a pressure-1 result through the Rust reader's pressure route, with its standing and no output (b7-plan R2)", () => {
+  it("reads a pressure-2 result through the Rust reader's pressure route, with its standing and no output (b7-plan R2)", () => {
     expect(sourceContract(pressure1)).toBe("pressure");
     const dispatch = readerDispatch(pressure1, expected);
-    expect(dispatch.binding?.id).toBe("openpipestress.result_semantics/0.3.0/pressure-1");
+    expect(dispatch.binding?.id).toBe("openpipestress.result_semantics/0.3.0/pressure-2");
     const standing = numericalResultStanding(pressure1, expected);
     expect({ eligible: standing.eligible, findings: standing.findings }).toStrictEqual({ eligible: dispatch.standing.eligible, findings: [...dispatch.standing.findings] });
     expect(standing.eligible).toBe(true);
-    for (const surface of OUTPUT_SURFACES) expect(surfaceRouteRefusal(pressure1, surface)).toBe(PRESSURE_1_OUTPUT_REFUSAL);
+    for (const surface of OUTPUT_SURFACES) expect(surfaceRouteRefusal(pressure1, surface)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
     render(<ResultsPanel result={pressure1} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={vi.fn()} />);
     expect(screen.getByTestId("numerical-result-standing")).not.toHaveTextContent("Unsupported numerical contract");
     cleanup();

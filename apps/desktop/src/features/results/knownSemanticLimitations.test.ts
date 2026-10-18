@@ -28,11 +28,11 @@ describe("frozen T0R texts (S1 §10), verbatim", () => {
 });
 
 describe("static fresh-identity set and standing reasons", () => {
-  it("admits only preview-physics-1 and U6's preview-physics-retained-1 (D-U6-6); B7b retired the v2 identities", () => {
+  it("admits only preview-physics-2 and U6's preview-physics-retained-1 (D-U6-6); B7b retired the v2 identities", () => {
     expect([...FRESH_SEMANTIC_CONTRACT_IDS].sort()).toEqual([
-      "openpipestress.result_semantics/0.3.0/preview-physics-1", "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"]);
+      "openpipestress.result_semantics/0.3.0/preview-physics-2", "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"]);
     expect(isFreshSemanticResult(clone(connectedSparse))).toBe(true);
-    // pressure-1 and pressure-source-1 are read (their own routes) but never desktop-fresh: every output of theirs is refused.
+    // pressure-2 and pressure-source-1 are read (their own routes) but never desktop-fresh: every output of theirs is refused.
     expect(sourceContract(clone(pressureSparse))).toBe("pressure");
     expect(isFreshSemanticResult(clone(pressureSparse))).toBe(false);
     expect(sourceContract(clone(pressureSourceMixed))).toBe("pressure_source");
@@ -57,7 +57,7 @@ describe("static fresh-identity set and standing reasons", () => {
     expect(sourceContract(retired)).toBe("unsupported");
     expect(standingReason(retired)).toBeNull();
     expect(numericalResultStanding(retired, { load_cases: [] }).eligible).toBe(false);
-    // pressure-source-1 legitimately carries ordinary cases under pressure-1 semantics.
+    // pressure-source-1 legitimately carries ordinary cases under pressure-2 semantics.
     const composite = clone(pressureSourceMixed);
     expect(sourceContract(composite)).toBe("pressure_source");
     expect((composite.source_block_recovery as any).body.cases.some((c: any) => c.selected_method !== "retained_source_blocks_exact_v1")).toBe(true);
@@ -92,7 +92,7 @@ describe("text-only notices", () => {
     source.summary.max_open_formula_stress = null;
     expect(knownSemanticNotices(source)).toEqual([{ id: "headline-withheld", text: N_HEADLINE_WITHHELD }]);
   });
-  it("shows no notice on a retired precision-1 statement, pressure-1 or a composite", () => {
+  it("shows no notice on a retired precision-1 statement, pressure-2 or a composite", () => {
     expect(knownSemanticNotices(retiredPrecisionStatement())).toEqual([]);
     expect(knownSemanticNotices(clone(pressureSparse))).toEqual([]);
     expect(knownSemanticNotices(clone(pressureSourceMixed))).toEqual([]);

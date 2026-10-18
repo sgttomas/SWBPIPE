@@ -461,7 +461,7 @@ fn model_findings(
             "objective connector {}: hardware {} is not supported; only untied is (ties come with T4-U5)",
             spec.component_id, kind.unwrap_or("(no kind)")))),
     }
-    // Only current 0.5.0 exact documents reach the classifier (`ExactContract::of`).
+    // Only current 0.6.0 exact documents reach the classifier (`ExactContract::of`).
     if let Err(finding) = pressure_model(connector) {
         findings.push(finding);
     }
@@ -582,7 +582,7 @@ pub fn authoring_findings(value: &Value) -> Result<Vec<Diagnostic>, String> {
     let model: PreviewModel = serde_json::from_value(value.clone()).map_err(|error| error.to_string())?;
     if model.schema_version != crate::MODEL_SCHEMA_VERSION
         || super::exact_admission::ExactContract::of(&model).is_none() {
-        return Err("JOINT_PRESSURE_INTERFACE_UNRESOLVED: joint pressure authoring requires current model 0.5.0 with 3.0.0/exact_pressure_v3".into());
+        return Err("JOINT_PRESSURE_INTERFACE_UNRESOLVED: joint pressure authoring requires current model 0.6.0 with 3.0.0/exact_pressure_v3".into());
     }
     let mut diagnostics = Vec::new();
     classify_connectors(&model, &mut diagnostics);

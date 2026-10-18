@@ -17,7 +17,7 @@ import {canonicalJsonString,canonicalSha256HexCheckedV1} from '../../services/ha
 import {analysisRecordProjection,verifyAnalysisRunRecord} from '../../services/analysisRunCompatibility';
 import {minimalPreviewStatement} from '../../test-support/retiredPrecision';
 // B1 retired precision-1, whose synthetic header gave the demo carrier's legacy rows a
-// current record. A reference session is now the connected preview-physics-1 producer
+// current record. A reference session is now the connected preview-physics-2 producer
 // output and its model, read from its bytes; it is never replayed as native output.
 function previewReference(): MechanicsResult { return JSON.parse(previewText) as MechanicsResult; }
 async function referenceSession(){
@@ -27,7 +27,7 @@ async function referenceSession(){
 }
 // Actual captured input/output pair through explicitly simulated IPC; this is a
 // unit premise for Current gates, never an actual native UI qualification.
-// B7b: the Current pair is preview-physics-1's; the exact route's pressure-1 (the v3
+// B7b: the Current pair is preview-physics-2's; the exact route's pressure-2 (the v3
 // twin of the retired physics-1) is recorded but has no desktop export.
 async function current(){
  const {model}=nativeMechanicsReplayPair('sparse_interactive',{profile:'preview'});
@@ -53,7 +53,7 @@ async function referenceProjection({model,result}:{model:PreviewModel;result:Mec
  return deriveResultDocument(base,model,result,origin);
 }
 async function projectionBasis(row:any){
- // B1 and E2: the projected row's source is a current preview-physics-1 statement
+ // B1 and E2: the projected row's source is a current preview-physics-2 statement
  // (the retired precision-1 header and the 0.1.0 carrier are refused by name).
  const model={project:{id:'project:synthetic'}} as PreviewModel,source=minimalPreviewStatement({run_id:'synthetic',model_ref:'project:synthetic',rows:[row],cases:[]});
  const origin={origin_id:'synthetic-projection-unattested',origin_class:'received_current_dimension_absent',qualification_ref:ref('synthetic_fixture','not-Current'),authentic_producer_available:false,received_carrier_checksum:{algorithm:'sha256',canonicalization:'openpipestress_jcs_ijson_v1',payload_scope:'received_current_dimension_absent_carrier',payload_ref:ref('synthetic_received_carrier','fixture'),value:await resultDigest(source)},original_producer_checksum:null,origin_limit:'pure projection not authenticated Current',actual_model_ref:ref('model_payload','project:synthetic'),mechanics_run_ref:ref('mechanics_run','synthetic'),request_model_ref:null,request_run_ref:null,request_alias_disclosure:null};
@@ -163,7 +163,7 @@ it('requires the registered exact source object for Current export in a native t
  await expect(buildCurrentResultExport(reference)).rejects.toThrow('CURRENT_NATIVE_INVOCATION_REQUIRED');
 });
 
-it('exports a registered preview-physics-1 Current result with its contract evidence',async()=>{
+it('exports a registered preview-physics-2 Current result with its contract evidence',async()=>{
  for(const profile of ['preview'] as const){
   const {model}=nativeMechanicsReplayPair('sparse_interactive',{profile});
   (window as unknown as Record<string,unknown>).__TAURI_INTERNALS__={};
@@ -174,7 +174,7 @@ it('exports a registered preview-physics-1 Current result with its contract evid
   const doc=await buildCurrentResultExport({model,result,inputManifest,analysisRun});
   expect(doc.schema_version).toBe('0.3.0');
   expect(doc.result_envelope.contract_evidence).toEqual(result.contract_evidence);
-  expect(doc.result_envelope.semantic_contract_ref.ref_id).toBe('openpipestress.result_semantics/0.3.0/preview-physics-1');
+  expect(doc.result_envelope.semantic_contract_ref.ref_id).toBe('openpipestress.result_semantics/0.3.0/preview-physics-2');
   // N-A: no notice text is written into the exported document.
   expect(JSON.stringify(doc)).not.toContain('Rule checks cannot bind');
   await validateResultDocument(doc,result);

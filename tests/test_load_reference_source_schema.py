@@ -44,12 +44,12 @@ LRSCHEMA = "load_reference_state.schema.json"
 
 PRS_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 # T4-U6 (D-5, DEL-05-03 section-bases-and-timoshenko.md §2.4): the per-basis stress signatures (88).
-PRS_SHA = "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53"
+PRS_SHA = "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b"
 PRS_POLICY = "PRESSURE-SOURCE-1"
 PROFILE = "exact_pressure_v3"
-PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
-PRESSURE_SHA = "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e"
-PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
+PRESSURE_SHA = "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f"
+PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 SUCCESSOR_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 RETAINED = "retained_source_blocks_exact_v1"
@@ -381,9 +381,9 @@ def test_ordinary_and_resolved_evidence_are_disjoint():
     valid(definition("pressure_source_ordinary_evidence", PSR), ordinary, "ordinary evidence")
     invalid(definition("pressure_source_resolved_evidence", PSR), ordinary, "ordinary evidence as resolved")
     invalid(definition("pressure_source_ordinary_evidence", PSR), resolved, "resolved evidence as ordinary")
-    # The ordinary pressure-1 load/reference-state evidence (no recovery method) is not pressure-source-1's.
+    # The ordinary pressure-2 load/reference-state evidence (no recovery method) is not pressure-source-1's.
     load_state = strict_json(LOAD_STATE / "connected-sparse_interactive.raw.json")["contract_evidence"]
-    invalid(definition("pressure_source_physical_evidence", PSR), load_state, "pressure-1 load-state evidence as pressure-source-1")
+    invalid(definition("pressure_source_physical_evidence", PSR), load_state, "pressure-2 load-state evidence as pressure-source-1")
 
 
 @pytest.mark.parametrize("policy", ("PHYSICS-SOURCE-1", "SOURCE-BLOCKS-1", "LOAD-REFERENCE-SOURCE-1", None))

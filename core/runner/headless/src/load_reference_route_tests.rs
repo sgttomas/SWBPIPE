@@ -1,8 +1,8 @@
-//! T1 WP4, re-pointed by B7b: the load/reference-state group (model 0.5.0 with
+//! T1 WP4, re-pointed by B7b: the load/reference-state group (model 0.6.0 with
 //! the exact contract 3.0.0/exact_pressure_v3) through the headless value runner,
 //! in both solver modes. Tests only; no product semantics change.
 //!
-//! - `pressure-1` with the group: the actual solve of the committed requests
+//! - `pressure-2` with the group: the actual solve of the committed requests
 //!   mints the opaque `QualifiedPreviewEvidence` and a canonical 0.3.0 results
 //!   document bound to it.
 //! - `pressure-source-1` with the group (joined): the actual solve of the
@@ -35,12 +35,12 @@ use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 
 /// The current exact identities carry the group (B7b); one profile for both.
-const LR_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
+const LR_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 const LR_PROFILE: &str = "exact_pressure_v3";
 const LRS_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 const LRS_PROFILE: &str = "exact_pressure_v3";
 const LRS_POLICY: &str = "PRESSURE-SOURCE-1";
-const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 const NEEDS_RECOMPUTE_UNAVAILABLE: &str =
     "result-envelope production failed structurally: CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE";
 const MODES: [PreviewSolverMode; 2] = [
@@ -184,7 +184,7 @@ fn write_artifacts(var: &str, name: &str, files: &[(&str, &Value)]) {
     .unwrap();
 }
 
-// ---------------------------------------------------------------- (1) pressure-1 with the group
+// ---------------------------------------------------------------- (1) pressure-2 with the group
 
 #[test]
 fn pressure_load_state_actual_solve_mints_bound_evidence_and_canonical_document_both_modes() {
@@ -395,13 +395,13 @@ fn pressure_load_state_actual_solve_mints_bound_evidence_and_canonical_document_
                 .is_err(),
                 "{ctx}"
             );
-            // Characterization, not extension: pressure-1 carries no receipt, so
+            // Characterization, not extension: pressure-2 carries no receipt, so
             // no received byte binds the invocation. The evidence's only custody
             // is its opacity (crate-private fields, no constructor or Deserialize).
             // A crate-internal forgery that re-digests a relabelled mode is not
             // detected by the binding, unlike the source-block receipt route; the
             // document it yields differs only in the qualification reference.
-            // Observed behaviour, not a requirement: preview-physics-1 shares it
+            // Observed behaviour, not a requirement: preview-physics-2 shares it
             // (the binding is identity-agnostic). ROOT routed it to T6 (reader and
             // proof hardening); a T6 binding flips this assertion.
             mode_tamper.invocation_digest = digest(&mode_tamper.actual_invocation).unwrap();
@@ -765,7 +765,7 @@ fn contract_free_or_retired_documents_carrying_load_state_keys_block() {
 #[test]
 fn blocked_load_state_envelopes_keep_the_exact_identity_through_the_runner() {
     // An exact-contract document carrying the group whose solve is blocked keeps
-    // pressure-1's identity, profile and the empty evidence namespace.
+    // pressure-2's identity, profile and the empty evidence namespace.
     let mut no_shear = lr_request("connected");
     no_shear["model"]["pressure_contract"]
         .as_object_mut()

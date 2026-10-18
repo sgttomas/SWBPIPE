@@ -1,7 +1,7 @@
 """T4-U6/U8 (DEL-05-03 `section-bases-and-timoshenko.md` §1-§3.1, §5, §8): the test-only verifiers read the D-5
 section bases and the D-6 beam theory, and refuse each reader mutant.
 
-The documents are the regenerated committed pressure-1 fixtures, which are the producer's §2.5 output (both stress
+The documents are the regenerated committed pressure-2 fixtures, which are the producer's §2.5 output (both stress
 families, basis tokens and id segments, the D-5 `pipe_sections` with each realized arc's marker, per-basis maximum
 records and headlines): `pressure_connected_mechanics_dense` (coincident bases) and the arc corpus's envelopes (their
 I7 sketches carry a mill tolerance, so their bases differ). Each is then given distinct bases (a nonzero corrosion
@@ -24,7 +24,7 @@ import pytest
 
 from tests.verifiers import physics_evidence as physical
 from tests.verifiers import physics_source as ps
-from tests.verifiers import pressure_1
+from tests.verifiers import pressure_2
 from tests.verifiers import reader_verdict as rv
 from tests.verifiers import retained_precision as rp
 from tests.verifiers import section_basis as sb
@@ -141,12 +141,12 @@ def test_the_fixtures_are_the_d5_interface_with_the_expected_bases(base, arc):
 
 def _refused(doc, detail):
     with pytest.raises(ValueError, match=detail):
-        pressure_1.validate_pressure_evidence(doc)
+        pressure_2.validate_pressure_evidence(doc)
 
 
 def test_the_shaped_interface_is_read_on_coincident_and_distinct_bases_under_both_shear_models(base, arc):
     for doc in (base, distinct(base), timoshenko(base), timoshenko(distinct(base)), arc, timoshenko(arc), distinct(arc)):
-        pressure_1.validate_pressure_evidence(doc)
+        pressure_2.validate_pressure_evidence(doc)
     # Coincident bases: every twin pair is bit-equal; distinct bases move every reduced linear stress.
     rows = _rows(distinct(base))
     moved = [r for r in rows.values() if r["kind"] == "element_local_bending_normal_stress_y" and r["id"].endswith("reduced-section") and r["value"] != 0]
@@ -222,7 +222,7 @@ def test_pressure_1_reader_compares_basis_twins_by_bits(base, value):
     test of the same name)."""
     def read(doc):
         if type(value) is int:
-            pressure_1.validate_pressure_evidence(doc)
+            pressure_2.validate_pressure_evidence(doc)
         else:
             _refused(doc, "^SOURCE_PHYSICS_EVIDENCE_INVALID: stress basis section$")
     # Coincident bases: stress row twins (twin_values).
@@ -379,7 +379,7 @@ def test_pressure_1_reader_refuses_a_missing_reduced_twin(base):
 
 def test_pressure_1_reader_refuses_a_wrong_kappa_a_cowper_kappa_or_kappa_on_the_reduced_section(base):
     good = timoshenko(distinct(base))
-    pressure_1.validate_pressure_evidence(good)
+    pressure_2.validate_pressure_evidence(good)
     section = good["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]
     nu = good["contract_evidence"]["exact_cases"][0]["pipe_materials"][0]["nu"]
     m = section["nominal_section"]["ri_m"] / section["ro_m"]
@@ -510,7 +510,7 @@ def test_pressure_1_model_checks_take_realized_arcs_from_the_model():
 def test_pressure_1_reader_binds_the_case_section_marker_to_the_region_arc(arc):
     """§2.5: the region marks exactly the members the case sections mark (Rust's twin is section_bases.rs's test of the
     same name)."""
-    pressure_1.validate_pressure_evidence(arc)
+    pressure_2.validate_pressure_evidence(arc)
     region = next(r for r in arc["contract_evidence"]["pressure"] if any("member_kind" in g for g in r["geometry"]))
     bend = next(g["pipe_id"] for g in region["geometry"] if "member_kind" in g)
     straight = next(g["pipe_id"] for g in region["geometry"] if "member_kind" not in g)
@@ -533,7 +533,7 @@ def test_pressure_1_reader_binds_the_case_section_marker_to_the_region_arc(arc):
 
 def test_pressure_source_1_composite_refuses_arcs_by_name_and_reads_one_straight_shear_model(base, arc):
     """§3.6: the pressure-source-1 composite reading (``physics_evidence.py``) checks each section's beam theory as
-    ``pressure_1.py`` and Rust's shared reader do, with one straight-member shear model per document. It never carries a
+    ``pressure_2.py`` and Rust's shared reader do, with one straight-member shear model per document. It never carries a
     realized arc (D7), so an arc region or a marked case section is refused by name (Rust
     ``SOURCE_PHYSICS_ARC_UNSUPPORTED``)."""
     def composite(doc):
@@ -669,7 +669,7 @@ def test_u6_joint_face_area_is_the_d5_pressure_bore():
     record = {"component_id": "connector:J", "pressure_model": "constant_effective_area_reference_v1", "effective_area_m2": ae, "node_i": "node:1",
               "node_j": "node:2", "pressure_basis": "internal_differential_zero_external_v1", "end_i_offset_local_m": [0.0, 0.0, 0.0],
               "end_j_offset_local_m": [0.0, 0.0, 0.0], "connector_axes_global": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]}
-    check = lambda regions: pressure_1._joint_pressure_bindings([record], regions, {}, set(), False)
+    check = lambda regions: pressure_2._joint_pressure_bindings([record], regions, {}, set(), False)
     assert bore(reduced) != bore(wall)
     # The D-5 region geometry is read: the face is the pressure bore.
     check(region([geometry("pipe:A"), geometry("pipe:B")], bore(reduced)))
@@ -751,7 +751,7 @@ def _entry(pipe, beam, marked):
 
 
 def _marker_document(shear_model, arc=True):
-    """A pressure-1 document under ``shear_model`` with explicitly empty pressure regions (Rust ``arc_marker_tests::document``)."""
+    """A pressure-2 document under ``shear_model`` with explicitly empty pressure regions (Rust ``arc_marker_tests::document``)."""
     straight_beam = _timoshenko_beam() if shear_model == sb.TIMOSHENKO else {"model": sb.EULER_BERNOULLI}
     scale = _annulus(WALL)["Z_m3"] / _annulus(_reduced_wall())["Z_m3"]
     members = [(STRAIGHT, 12.5), (BEND, 7.25)] if arc else [(STRAIGHT, 12.5)]
@@ -825,8 +825,8 @@ def test_an_arc_outside_every_pressure_region_is_known_by_its_marker():
     eb, tim = sb.EULER_BERNOULLI, sb.TIMOSHENKO
     # The arc outside every region in a Timoshenko document is admitted, as under Euler-Bernoulli.
     for shear_model in (eb, tim):
-        pressure_1.validate_pressure_evidence(_marker_document(shear_model))
-        pressure_1.validate_pressure_evidence(_marker_document(shear_model, arc=False))
+        pressure_2.validate_pressure_evidence(_marker_document(shear_model))
+        pressure_2.validate_pressure_evidence(_marker_document(shear_model, arc=False))
     timo = _marker_document(tim)
     # Without its marker the arc's Euler-Bernoulli entry reads as a second straight model.
     _refused(_edit_sections(timo, BEND, _unmark), "one straight shear model per document")
@@ -859,7 +859,7 @@ def test_the_marked_entries_are_the_models_realized_arcs():
     # The marker missing on the arc: an Euler-Bernoulli document the evidence reader admits (the arc reads as a straight
     # member), refused against the model.
     unmarked = _edit_sections(_marker_document(eb), BEND, _unmark)
-    pressure_1.validate_pressure_evidence(unmarked)
+    pressure_2.validate_pressure_evidence(unmarked)
     refused(unmarked, _marker_model(eb), "SOURCE_PHYSICS_ARC_MARKER")
     assert rv.validate("pressure", unmarked, _marker_model(eb))["error"]["code"] == "SOURCE_PHYSICS_ARC_MARKER"
     # The marker on a straight member; any other member_kind.
@@ -886,7 +886,7 @@ def test_the_pressure_source_1_composite_refuses_a_realized_arc_by_name():
     # A marked arc section, outside every pressure region.
     with pytest.raises(ValueError, match="realized arc unsupported"):
         composite(_marker_document(sb.EULER_BERNOULLI))
-    # An arc region record, refused before anything else is read from it; the pressure-1 reading of the same evidence
+    # An arc region record, refused before anything else is read from it; the pressure-2 reading of the same evidence
     # does not refuse it by that name.
     region = deepcopy(straight)
     geometry = {**_entry(BEND, {"model": sb.EULER_BERNOULLI}, True), "traversal_forward": True, "arc_end_tangents_global": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]}
@@ -894,5 +894,5 @@ def test_the_pressure_source_1_composite_refuses_a_realized_arc_by_name():
     with pytest.raises(ValueError, match="realized arc unsupported"):
         composite(region)
     with pytest.raises(ValueError) as ordinary:
-        pressure_1.validate_pressure_evidence(region)
+        pressure_2.validate_pressure_evidence(region)
     assert "realized arc unsupported" not in str(ordinary.value)

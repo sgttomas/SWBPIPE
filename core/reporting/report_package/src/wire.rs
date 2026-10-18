@@ -658,7 +658,7 @@ pub struct LinkedSolverIdentity<'a> {
 /// again, from content, because the wire carries no semantic identity.
 pub const FRESH_RESULT_UNAVAILABLE: &str = "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: The report package is unavailable for fresh results.";
 
-/// Metadata tokens that only fresh result semantics (preview-physics-1,
+/// Metadata tokens that only fresh result semantics (preview-physics-2,
 /// physics-1 and their source forms) publish; historical rows never carry them.
 fn fresh_semantics_metadata(metadata: &ResultMetadataDto) -> bool {
     matches!(

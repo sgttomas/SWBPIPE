@@ -52,7 +52,7 @@ export async function deriveResultDocument(base:JsonObject,model:PreviewModel,so
   // T6S-4 (D-U6-2; Rust `retained_row_classes`): the successor's validated classes, from the
   // accepted reader run on these bytes without an invocation; null for every other identity.
   const classes=await retainedRowClassesFromReader(source);
-  // B7b: the exact routes (pressure-1, pressure-source-1) are refused above by the
+  // B7b: the exact routes (pressure-2, pressure-source-1) are refused above by the
   // surface policy; the retired v2 arms (physics-1, physics-source-1) went with v2.
   if(route==='preview_physics')readerValidate('preview-physics',source,model);
   const doc=structuredClone(base);doc.schema_version=version;const e=doc.result_envelope;

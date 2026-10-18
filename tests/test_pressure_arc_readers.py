@@ -1,4 +1,4 @@
-"""T4-U2: the test-only pressure-1 verifier admits realized-arc envelopes over
+"""T4-U2: the test-only pressure-2 verifier admits realized-arc envelopes over
 the shared arc corpus (the Rust reader's ``tests/pressure_arc_contract.rs``
 reads the same bytes; the Rust reader is the only product reader), refuses
 each broken arc binding by name, and covers a model whose only pipe is a
@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 
 import pytest
-from tests.verifiers.pressure_1 import (
+from tests.verifiers.pressure_2 import (
     CONTRACT_ID as PRESSURE_ID, validate_exact_pressure_evidence, validate_pressure_evidence, verify_source,
 )
 

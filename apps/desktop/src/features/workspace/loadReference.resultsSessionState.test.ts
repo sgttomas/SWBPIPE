@@ -1,5 +1,5 @@
 /** Load/reference-state session standing (T1 WP2), on the current exact identities
- * (B7b: pressure-1 ordinary and pressure-source-1 joined, the v3 twins of the retired
+ * (B7b: pressure-2 ordinary and pressure-source-1 joined, the v3 twins of the retired
  * load-reference-1 and load-reference-source-1): native registration and its
  * invalidation by a load/reference-state edit, standing, and the rule-check boundary.
  * Neither identity is ever Current on the desktop: neither is in its fresh set and
@@ -47,12 +47,12 @@ async function solve(rawPath: string, requestPath: string, mode: Mode) {
 const ORDINARY = "fixtures/product_preview/pressure/load_reference";
 const JOINED = "fixtures/product_preview/pressure_source/load_reference_source";
 
-describe("ordinary pressure-1 load/reference-state registration and its invalidation by a load/reference-state edit", () => {
+describe("ordinary pressure-2 load/reference-state registration and its invalidation by a load/reference-state edit", () => {
   it.each(["sparse_interactive", "dense_scrutiny"] as Mode[])("%s: registered for the actual model only, readable, eligible standing, recorded as Python records it, and never Current", async mode => {
     const { source, model, manifest } = await solve(`${ORDINARY}/connected-${mode}.raw.json`, `${ORDINARY}/connected.request.json`, mode);
     expect(hasNativeMechanicsInvocation(source, model, mode)).toBe(true);
     expect(numericalResultStanding(source, model)).toMatchObject({ contract: "pressure", eligible: true, findings: [] });
-    // B7b: the session records it (the record binds pressure-1's table, as Python's carrier
+    // B7b: the session records it (the record binds pressure-2's table, as Python's carrier
     // does); the desktop session never makes it Current.
     const analysis = await buildAnalysisRunPreview(source, { inputManifest: manifest });
     const python = json(`fixtures/results/pressure_load_state_connected_${mode === "sparse_interactive" ? "sparse" : "dense"}.analysis_run.json`) as AnalysisRunEnvelope;
@@ -76,7 +76,7 @@ describe("ordinary pressure-1 load/reference-state registration and its invalida
     expect(hasNativeMechanicsInvocation(structuredClone(source), model, mode)).toBe(false);
   });
 
-  it("a pressure-1 source that its reader refuses is never registered", async () => {
+  it("a pressure-2 source that its reader refuses is never registered", async () => {
     const request = json(`${ORDINARY}/connected.request.json`);
     const model = structuredClone(request.model) as PreviewModel;
     for (const loadCase of model.load_cases) Object.assign(loadCase, { label: loadCase.id, kind: "invented_test_case", status: "invented_test_status" });
@@ -89,7 +89,7 @@ describe("ordinary pressure-1 load/reference-state registration and its invalida
     expect(hasNativeMechanicsInvocation(source, model, "sparse_interactive")).toBe(false);
   });
 
-  it("a sensitive ordinary pressure-1 load/reference-state result is readable and never Current", async () => {
+  it("a sensitive ordinary pressure-2 load/reference-state result is readable and never Current", async () => {
     const { source, model, manifest } = await solve("core/reporting/result_export/tests/fixtures/load_reference_fallback_uz-sparse_interactive.raw.json", "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json", "sparse_interactive");
     expect(numericalResultStanding(source, model).findings).toContain("NUMERICAL_INTEGRITY_NOT_QUALIFIED");
     const { result } = renderHook(() => useResultsSessionState());
@@ -100,7 +100,7 @@ describe("ordinary pressure-1 load/reference-state registration and its invalida
 });
 
 describe("rule binding on the reachable desktop path", () => {
-  it("an ordinary checks_passed pressure-1 load/reference-state result never reaches the rule backend", async () => {
+  it("an ordinary checks_passed pressure-2 load/reference-state result never reaches the rule backend", async () => {
     const { source, model } = await solve(`${ORDINARY}/pressure-sparse_interactive.raw.json`, `${ORDINARY}/pressure.request.json`, "sparse_interactive");
     expect(hasNativeMechanicsInvocation(source, model, "sparse_interactive")).toBe(true);
     invokeMock.mockReset();

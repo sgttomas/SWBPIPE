@@ -12,9 +12,9 @@ SCOPE = "supplied_binary64_polynomial_coefficient_enclosures; solution error is 
 OLD_BASIS = "j_side_section_equilibrium_binary64"
 OLD_SCOPE = "supplied_binary64_polynomial_coefficients; solution and coefficient formation error are separate"
 # B7b: the load/reference-state evidence (and its maximum) moved from load_reference_state.schema.json, which
-# keeps only the authored definitions and the state record, to pressure-1's PressureContractEvidence in
-# results_pressure_1.v0.3; the ordinary maximum transport check moves with it.
-SCHEMAS = ("results.v0.3.schema.yaml", "results_pressure_1.v0.3.schema.json",
+# keeps only the authored definitions and the state record, to pressure-2's PressureContractEvidence in
+# results_pressure_2.v0.3; the ordinary maximum transport check moves with it.
+SCHEMAS = ("results.v0.3.schema.yaml", "results_pressure_2.v0.3.schema.json",
            "physics_source_recovery.schema.json", "stress_neutral_export.v0.3.schema.json")
 
 

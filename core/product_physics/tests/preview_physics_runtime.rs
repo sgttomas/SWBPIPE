@@ -1,4 +1,4 @@
-//! T0R preview-physics-1 runtime evidence. Every expectation is read from the
+//! T0R preview-physics-2 runtime evidence. Every expectation is read from the
 //! frozen hand-statics references: a byte-identical copy of
 //! DEFAULT_ROUTE_DESIGN/_run_records/references.stdout.txt, kept in this crate's
 //! fixtures so the numerical CI path policy selects this suite, and pinned to
@@ -13,7 +13,7 @@ use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode
 use serde_json::{json, Value};
 use std::collections::HashSet;
 
-const PREVIEW: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+const PREVIEW: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const SQRT1_2: f64 = std::f64::consts::FRAC_1_SQRT_2;
 
@@ -66,7 +66,7 @@ fn vec3(v: &Value) -> Vec<f64> {
 
 // ------------------------------------------------------------------ model builders
 fn base(nodes: Value, pipes: Value, supports: Value, components: Value, cases: Value, combinations: Value) -> Value {
-    json!({"model":{"schema_version":"0.5.0","document_kind":"openpipestress.product_preview.model",
+    json!({"model":{"schema_version":"0.6.0","document_kind":"openpipestress.product_preview.model",
         "project":{"id":"project:t0r","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
         "nodes":nodes,"pipe_segments":pipes,"supports":supports,"components":components,

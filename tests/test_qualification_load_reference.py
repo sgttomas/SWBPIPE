@@ -1,7 +1,7 @@
-"""pressure-1 load/reference-state VP-HARNESS adapter checks: synthetic controls, not solver evidence.
+"""pressure-2 load/reference-state VP-HARNESS adapter checks: synthetic controls, not solver evidence.
 
-B7b retired load-reference-1; pressure-1 publishes the load/reference-state group. The fake runner replays the
-committed pressure-1 producer raws (``fixtures/product_preview/pressure/load_reference/*.raw.json``) inside a
+B7b retired load-reference-1; pressure-2 publishes the load/reference-state group. The fake runner replays the
+committed pressure-2 producer raws (``fixtures/product_preview/pressure/load_reference/*.raw.json``) inside a
 synthetic ControlledExport wrapper. Reference values are synthetic harness controls
 copied from those raws (``reference_kind: harness_synthetic``); they are not
 analytical targets, criteria or production policy, and no product solver is
@@ -268,11 +268,11 @@ class PinTests(unittest.TestCase):
         for path, digest in lr.DEPENDENCIES.items():
             if path != lr.MODULE:
                 self.assertEqual(sha256_bytes((PROJECT / path).read_bytes()), digest, path)
-        # b7-plan R2: the owned reader is Rust's; B7b: its pinned source is the pressure-1 reader's load/reference-state
-        # pre-pass over the pressure reader, against the pressure-1 table (the retired load-reference-1 table is gone).
+        # b7-plan R2: the owned reader is Rust's; B7b: its pinned source is the pressure-2 reader's load/reference-state
+        # pre-pass over the pressure reader, against the pressure-2 table (the retired load-reference-1 table is gone).
         self.assertEqual((lr.MODULE, lr.BINDING_FORMAT), ('core/reporting/result_export/src/load_reference.rs',
                                                           'openpipestress.load_reference_consistency_binding/3'))
-        self.assertEqual((lr.CONTRACT, lr.READER, lr.ENTRYPOINT), ('openpipestress.result_semantics/0.3.0/pressure-1', 'pressure', 'validate_pressure_evidence'))
+        self.assertEqual((lr.CONTRACT, lr.READER, lr.ENTRYPOINT), ('openpipestress.result_semantics/0.3.0/pressure-2', 'pressure', 'validate_pressure_evidence'))
         self.assertEqual(lr.TRANSPORT, 'pressure_1_load_state_cli_1.0_raw0.2')
         self.assertFalse((PROJECT / 'fixtures/results/semantic_contract_v0_3_load_reference_1.json').exists())
         self.assertNotIn('source', lr.CONTRACT.rsplit('/', 1)[-1])
@@ -886,8 +886,8 @@ class AdmissionTests(unittest.TestCase):
         row_index = next(i for i, a in enumerate(selectors['assertions']) if 'namespace' not in a['selector'] and a['selector']['metadata'])
         evidence_index = next(i for i, a in enumerate(selectors['assertions']) if a['selector'].get('record') == 'member')
         mutations = [
-            (lambda s: s['assertions'][row_index]['selector'].update(dimension='angle'), 'contradicts pinned pressure-1 semantics'),
-            (lambda s: s['assertions'][row_index]['selector'].update(kind='invented_kind'), 'contradicts pinned pressure-1 semantics'),
+            (lambda s: s['assertions'][row_index]['selector'].update(dimension='angle'), 'contradicts pinned pressure-2 semantics'),
+            (lambda s: s['assertions'][row_index]['selector'].update(kind='invented_kind'), 'contradicts pinned pressure-2 semantics'),
             (lambda s: s['assertions'][row_index]['selector']['metadata'].update(location='TBD'), 'unresolved source metadata'),
             (lambda s: s['assertions'][row_index]['selector'].pop('dimension'), 'complete explicit row selector required'),
             (lambda s: s['assertions'][row_index]['selector'].update(basis_ref={'ref_type': 'combination', 'ref_id': 'combo'}), 'bind a load case'),

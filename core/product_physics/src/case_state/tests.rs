@@ -78,7 +78,7 @@ fn model(
         })
         .collect::<Vec<_>>();
     json!({"model": {
-        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
         "project": {"id": "project:load-state-smoke", "units": {"length": "m"}},
         "analysis_status": {"mechanics": "ready", "rule_check": "not_performed", "professional_acceptance": "not_provided"},
@@ -165,7 +165,7 @@ fn prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_r
             "{:?}",
             envelope.diagnostics
         );
-        // B7b: a load/reference-state model publishes the ordinary pressure-1
+        // B7b: a load/reference-state model publishes the ordinary pressure-2
         // identity under exact_pressure_v3 (records keep their own profile).
         assert_eq!(
             envelope.producer.semantic_contract_id,
@@ -335,7 +335,7 @@ fn declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not() {
 
 /// T1 routing of blocked load/reference-state envelopes (S6 §6, DESIGN 10.3),
 /// keyed since B7b on the contract and the group, never the version: a blocked
-/// document with the current exact contract and the group keeps pressure-1, its
+/// document with the current exact contract and the group keeps pressure-2, its
 /// profile and the empty load/reference namespace; it never gets the preview id.
 /// Without the exact contract the document is not on the exact route at all:
 /// the group is refused by name (`LOAD_STATE_CONTRACT_VERSION_MISMATCH`) and no

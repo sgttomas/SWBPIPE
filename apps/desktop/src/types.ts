@@ -107,7 +107,7 @@ export type EquivalentStaticGenerationInput = {
 export type PressureRegionInput = {
   id: string;
   member_pipe_ids: string[];
-  /** Defined only in model 0.5.0; old documents never author this member. */
+  /** Defined only in model 0.6.0; old documents never author this member. */
   member_connector_ids?: string[];
   pressure_basis: string;
   pressure: QuantityValue;
@@ -220,10 +220,10 @@ export type AnalysisStateInput = {
   provenance: string;
 };
 
-/* Published result evidence: the `load_reference_states` records of a pressure-1 or
+/* Published result evidence: the `load_reference_states` records of a pressure-2 or
  * pressure-source-1 statement whose model carries the load/reference-state group
  * (schemas/load_reference_state.schema.json LoadReferenceStateRecord). Readers: the
- * Rust pressure-1 and pressure-source-1 readers, through
+ * Rust pressure-2 and pressure-source-1 readers, through
  * features/results/resultReader.ts. */
 export type LoadReferenceConsumedMaterialPoint = { point_id: string; temperature_k: number | null; E_pa: number; nu: number; retained_G_ignored: boolean };
 export type LoadReferenceLawSegment = { use: "interpolation_sample" | "integration_interval"; lower_index: number; upper_index: number; start_k: number; end_k: number };
@@ -289,8 +289,8 @@ export type LoadReferenceStateRecord = {
   contributions: LoadReferenceContribution[];
   excluded_sources: LoadReferenceExcludedSource[];
 };
-/** The exact evidence namespace of a load/reference-state statement: pressure-1's
- * (schemas/results_pressure_1.v0.3.schema.json PressureContractEvidence) or
+/** The exact evidence namespace of a load/reference-state statement: pressure-2's
+ * (schemas/results_pressure_2.v0.3.schema.json PressureContractEvidence) or
  * pressure-source-1's (schemas/physics_source_recovery.schema.json
  * pressure_source_resolved_evidence), each with its `load_reference_states`. */
 export type LoadStateContractEvidence = {

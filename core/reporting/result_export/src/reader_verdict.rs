@@ -15,7 +15,7 @@
 //! - G5: one header dispatch, the superset of both languages' (`route`): the
 //!   TypeScript header's receipt-shape, evidence-presence and namespace checks
 //!   around `for_source_metadata`, whose retained transport reading stays.
-//! - pressure-1 (DEL-04-07 `pressure-contract.md`, "Reading pressure-1"): its
+//! - pressure-2 (DEL-04-07 `pressure-contract.md`, "Reading pressure-2"): its
 //!   own route, `pressure`, read by `validate_pressure_evidence` (the only
 //!   product reader of `3.0.0/exact_pressure_v3`), with G2's model checks and
 //!   the ordinary standing, so the desktop, Python product paths and the
@@ -47,8 +47,8 @@ pub const LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE: &str =
     "LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1";
 pub const RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE: &str =
     "RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE";
-/// pressure-1 has no transport (metadata-only) reader: a transported
-/// pressure-1 statement is refused by this name, never admitted unchecked.
+/// pressure-2 has no transport (metadata-only) reader: a transported
+/// pressure-2 statement is refused by this name, never admitted unchecked.
 pub const PRESSURE_TRANSPORT_UNSUPPORTED: &str = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED";
 
 /// Each route's pinned table binding `{id, sha256}` (the table file's sha256;
@@ -247,7 +247,7 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
     match reader {
         "source-recovery" => checked(source_recovery(source)),
         "preview-physics" => checked(sc::validate_preview_physics_evidence(source)),
-        // Current pressure-1 reader, then G2's model checks,
+        // Current pressure-2 reader, then G2's model checks,
         // which read only the cases, members, connectors and support rows.
         "pressure" => checked(sc::validate_pressure_evidence(source).and_then(|()| {
             model.map_or(Ok(()), |m| physics_model_checks(source, m))

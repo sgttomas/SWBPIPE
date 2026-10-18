@@ -2,9 +2,9 @@
  * through the desktop (T1 WP2): session clone, browser persistence, input manifest,
  * native IPC capture, the wasm operation route and saved results. Absent keys stay
  * absent, explicit nulls stay null, and a key the desktop does not model survives
- * byte-exactly. B7b: the documents are current 0.5.0 exact-contract models with the
+ * byte-exactly. B7b: the documents are current 0.6.0 exact-contract models with the
  * load/reference-state group (0.4.0 is retired by name), and the results are their
- * pressure-1 (ordinary) and pressure-source-1 (joined) twins. All values are invented. */
+ * pressure-2 (ordinary) and pressure-source-1 (joined) twins. All values are invented. */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createSolveJobTransport, solveBytes } from "../test/nativeMechanicsReplay";
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -41,13 +41,13 @@ function loadStateModel(): PreviewModel {
 const loadStateKeys = (model: PreviewModel) => text({ references: model.reference_configurations, laws: model.materials?.map(m => m.expansion_laws), states: model.load_cases.map(c => c.analysis_state) });
 
 describe("load/reference-state documents in the browser persistence mirror", () => {
-  it("mirrors native: the 0.5.0 document is current and retained as authored; 0.3.0, 0.4.0 and 0.4.1 are refused by name and 0.5.1 is newer", () => {
+  it("mirrors native: the 0.6.0 document is current and retained as authored; 0.3.0, 0.4.0, 0.4.1 and 0.5.0 are refused by name and 0.6.1 is newer", () => {
     const status = evaluateModelDocumentLocal(loadStateModel());
-    expect(status).toMatchObject({ status: "current", source_schema_version: "0.5.0", target_schema_version: "0.5.0" });
-    expect(status.detail).toBe("Model document 0.5.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately.");
+    expect(status).toMatchObject({ status: "current", source_schema_version: "0.6.0", target_schema_version: "0.6.0" });
+    expect(status.detail).toBe("Model document 0.6.0 is the current version; a pressure contract, when present, and solve eligibility are validated separately.");
     expect(modelDocumentVersionCheckStatus(loadStateModel())).toBe("current");
-    for (const version of ["0.3.0", "0.4.0", "0.4.1"]) expect(evaluateModelDocumentLocal({ ...loadStateModel(), schema_version: version }).status, version).toBe("retired_schema");
-    expect(evaluateModelDocumentLocal({ ...loadStateModel(), schema_version: "0.5.1" }).status).toBe("newer_than_supported");
+    for (const version of ["0.3.0", "0.4.0", "0.4.1", "0.5.0"]) expect(evaluateModelDocumentLocal({ ...loadStateModel(), schema_version: version }).status, version).toBe("retired_schema");
+    expect(evaluateModelDocumentLocal({ ...loadStateModel(), schema_version: "0.6.1" }).status).toBe("newer_than_supported");
   });
 
   it("round-trips the model, the raw result and its AnalysisRun byte-exactly through create, save and open", async () => {
@@ -119,14 +119,14 @@ describe("load/reference-state documents through session state, manifests, IPC a
     expect(applied.reference_configurations).toEqual(model.reference_configurations);
     expect(applied.load_cases.map(c => c.analysis_state)).toEqual(model.load_cases.map(c => c.analysis_state));
     expect(Object.hasOwn(applied.reference_configurations![0], "label")).toBe(true);
-    expect(applied.schema_version).toBe("0.5.0");
+    expect(applied.schema_version).toBe("0.6.0");
     expect((applied.materials![0] as Record<string, unknown>).unmodeled_material_key).toBe("kept");
   });
 });
 
 describe("saved load/reference-state results keep the raw hash and the resolved evidence", () => {
   // Both are recorded by the desktop as Python records them (B7b): the joined
-  // (pressure-source-1) record embeds the resolved evidence; the ordinary (pressure-1)
+  // (pressure-source-1) record embeds the resolved evidence; the ordinary (pressure-2)
   // record embeds none, and its desktop and committed Python records bind the same raw hash.
   it("fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json", async () => {
     const path = "fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json";

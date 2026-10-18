@@ -23,7 +23,7 @@ from tools.validation.qualification_physics_structure import check_first_static_
 from test_qualification_physics_structure import synthetic_case
 from qualification_fixture_support import fixture_package
 
-# B7b: the selectors resolve against the current pressure-1 table, the binding's own (the retired physics-1 table
+# B7b: the selectors resolve against the current pressure-2 table, the binding's own (the retired physics-1 table
 # and its qualification mirror are not read).
 TABLE = json.loads((PROJECT/physics.TABLE).read_text())
 

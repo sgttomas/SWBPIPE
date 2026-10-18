@@ -1,5 +1,5 @@
 """Readable source → analysis 0.3 → neutral 0.3 transport tests, on the minimal
-preview-physics-1 transport source (B1 retired the precision-1 vehicle)."""
+preview-physics-2 transport source (B1 retired the precision-1 vehicle)."""
 from copy import deepcopy
 import json
 from pathlib import Path

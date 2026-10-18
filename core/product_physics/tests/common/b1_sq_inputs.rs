@@ -25,15 +25,15 @@ pub const MILESTONE: &str = include_str!("../../../../fixtures/product_preview/r
 const PROV: &str = "invented_t3_b1_sw_probe_input_no_library_data";
 
 /// I86's `input_sha` pins (sha256 of `serde_json::to_vec(&value)`).
-pub const W2B_SHA256: &str = "c7bbf1727f1a73927c47a9ae15af1aeb60813476ffabf6f01e81e046a346f79a";
-pub const B2_K1E3_SHA256: &str = "2fab880567fcdf5f73cc78f56fe37ed5bc1a25c3bfda693362c3596df6b5d0c5";
-pub const C1_SHA256: &str = "74a8faca515f1cfb29611dd9ebbdefa741c4a49cf54cd3bcc511231287beed13";
+pub const W2B_SHA256: &str = "1b2fe2e0cf5b080d4d54e8b3e80ac721fb51564dd68711b662977fab8f1ce326";
+pub const B2_K1E3_SHA256: &str = "4a0b788840fbd93f5f73459400b7e0ea3ade54bfbae6cf65ceaa7f2f3dc08e26";
+pub const C1_SHA256: &str = "8f184995b0601c869eca84966f41dc2c0ef1f215b9e7cb158f5b0fdf7200f331";
 pub const I3_CASE_SHA256: [(&str, &str); 3] = [
-    ("case:a", "ff6cb511c3d999e42eecfe5fb684326e42692febea461b261523df92eb78c20d"),
-    ("case:b", "5eaaa15c44dafa777dd729a067a488f5d5b0a5d24792fb7392d0d1a53386dfea"),
-    ("case:c", "b1addc0e3e2b4bcf0b8588b7f3d421603ef7bd7ecdf75419abd60d0bac16d08d"),
+    ("case:a", "dc1b86985dccdfde03548bba7756c41facd1ec6045196be5e0ac4eb33e6a658f"),
+    ("case:b", "7069b6f9b630dde37c8edebd75a307be69b5c8e1b4c2b93a2a1e643ae1b0116a"),
+    ("case:c", "2d8ae6dcd1777fcd10d387ea0b44d04c536ad8474b4a539c08d48dd68503bb25"),
 ];
-pub const I3_THREE_CASE_SHA256: &str = "d63de8d34cbf798c9afcc36df18259ba72484dba90af3caab81a4fd1054f7e32";
+pub const I3_THREE_CASE_SHA256: &str = "9fb58cb60d43fd839289e540de9d962f792dfb1f51ddb72a9ffc2beb4895d21f";
 
 pub fn milestone() -> Value {
     serde_json::from_str(MILESTONE).unwrap()
@@ -100,7 +100,7 @@ pub fn law_cap_maximal() -> Value {
         .collect();
     json!({
         "model": {
-            "schema_version": "0.5.0",
+            "schema_version": "0.6.0",
             "document_kind": "openpipestress.product_preview.model",
             "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
             "project": {"id": text("project:", 128), "units": {"length": "m", "force": "N"}},
@@ -431,7 +431,7 @@ pub fn b2_c1_range_mechanics() -> Value {
 /// Euler-Bernoulli and an explicit zero corrosion allowance on every pipe section.
 pub fn exact3(mut raw: Value) -> Value {
     let m = &mut raw["model"];
-    m["schema_version"] = json!("0.5.0");
+    m["schema_version"] = json!("0.6.0");
     m["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
     for material in m["materials"].as_array_mut().unwrap() {
         material.as_object_mut().unwrap().remove("shear_modulus");

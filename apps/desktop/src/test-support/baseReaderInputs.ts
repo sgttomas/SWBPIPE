@@ -10,8 +10,8 @@
  * module reads nothing about a statement.
  *
  * B7b: the corpus is built from the current fixtures only, as the Rust test builds it.
- * The exact-route statements are the v3 twins (0.5.0/3.0.0/exact_pressure_v3) read by the
- * pressure-1 and pressure-source-1 readers, with and without the load/reference-state
+ * The exact-route statements are the v3 twins (0.6.0/3.0.0/exact_pressure_v3) read by the
+ * pressure-2 and pressure-source-1 readers, with and without the load/reference-state
  * group; the joined statements take their invocation; the mutation files' `ps` reader
  * is folded into `joined`; the ledger cases apply to the received joined statements
  * directly (the v2 physics-source-1 projection is gone); `reseal` hashes the current

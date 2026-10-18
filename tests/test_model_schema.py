@@ -522,7 +522,7 @@ def check_domain_fixtures():
     physical = load_json(PHYSICAL_MODEL_FIXTURE)
 
     assert set(minimal) == {"schema_version", "project"}
-    assert minimal["schema_version"] == "0.5.0"
+    assert minimal["schema_version"] == "0.6.0"
     project = minimal["project"]
     assert_required_fields(schema, "Project", project)
     assert project["privacy_class"] == "public"

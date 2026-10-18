@@ -1,4 +1,4 @@
-//! preview-physics-1: the ordinary route's repaired and withheld quantities.
+//! preview-physics-2: the ordinary route's repaired and withheld quantities.
 //!
 //! The case loop produces the current rows plus a side record that marks where
 //! the support and maximum rows go. Once every case has solved and no case was
@@ -11,7 +11,7 @@
 use super::*;
 use open_pipe_stress_stress_recovery::elastic_extrema::CertifiedStressMaximum;
 
-pub(crate) const ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+pub(crate) const ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 pub(crate) const INTENSIFIED_KIND: &str = "component_equal_factor_intensified_bending_stress_v1";
 const ARC_BASIS: &str = "nominal_straight_beam_formula_on_arc_resultants";
 const MAXIMUM_SIGN: &str = "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim";
@@ -843,7 +843,7 @@ fn evaluate_values(
     algebra.quantity.map(|q| q.value)
 }
 
-/// Combination rows for preview-physics-1 (S1 §7). Returns the evidence gates.
+/// Combination rows for preview-physics-2 (S1 §7). Returns the evidence gates.
 pub(crate) fn append_combination_results(
     model: &PreviewModel,
     rendered: &Rendered,
@@ -1117,7 +1117,7 @@ mod tests {
     #[test]
     fn limitations_match_the_frozen_table() {
         let table: serde_json::Value = serde_json::from_str(include_str!(
-            "../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json"
+            "../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
         ))
         .unwrap();
         assert_eq!(table["semantic_contract_id"], ID);

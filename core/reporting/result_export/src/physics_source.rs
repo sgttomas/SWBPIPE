@@ -23,7 +23,7 @@ impl SourceContract {
     }
     pub fn from_invocation(invocation: &Value) -> Result<Self, String> {
         let model = &invocation["request"]["model"];
-        if model["schema_version"] == "0.5.0"
+        if model["schema_version"] == "0.6.0"
             && model.get("shear_model").is_none()
             && model["pressure_contract"] == json!({"version":"3.0.0", "mode":PRESSURE_PROFILE, "shear_model":"euler_bernoulli"})
         {
@@ -804,7 +804,7 @@ pub(crate) fn validate_source_case_in(
     if let Some(invocation) = invocation {
         let model = &invocation["request"]["model"];
         require(
-            model["schema_version"] == "0.5.0"
+            model["schema_version"] == "0.6.0"
                 && SourceContract::from_invocation(invocation).ok() == Some(contract),
             "ACTUAL_EXACT_PROFILE",
         )?;
@@ -1059,7 +1059,7 @@ pub(crate) fn actual_materials(invocation: &Value, actual: &Value, exact: &Value
             normalized_quantity(&authored_section["mill_tolerance"], Dimension::Length)?
         };
         // T4-U6 (D-5): the section's captured authored values are the
-        // invocation's (D, t, c_m, c_a); the pressure-1 checks rederived its
+        // invocation's (D, t, c_m, c_a); the pressure-2 checks rederived its
         // three geometries from them. D and t bind bit for bit; c_m and c_a
         // bind by value, so a signed zero (which leaves (t - c_m) - c_a = t bit
         // for bit) is the zero it denotes.
@@ -1320,7 +1320,7 @@ pub fn validate_in(source: &Value, actual_invocation: Option<&Value>, contract: 
     if contract == SourceContract::PressureV3 {
         if let Some(invocation) = actual_invocation {
             let model = &invocation["request"]["model"];
-            require(model["schema_version"] == "0.5.0", "ACTUAL_MODEL_SCHEMA")?;
+            require(model["schema_version"] == "0.6.0", "ACTUAL_MODEL_SCHEMA")?;
             require(resolved == model_carries_load_state(model), "ACTUAL_LOAD_REFERENCE_CONTEXT")?;
         }
     }

@@ -1,13 +1,13 @@
-//! T4-U2 phase 2: pressure-1 (`3.0.0/exact_pressure_v3`) through the headless
+//! T4-U2 phase 2: pressure-2 (`3.0.0/exact_pressure_v3`) through the headless
 //! runner's export chain, in both solver modes: every document of the shared
-//! arc reader corpus (realized arcs, B7b: all on the current 0.5.0 document,
+//! arc reader corpus (realized arcs, B7b: all on the current 0.6.0 document,
 //! the admitted kink, an arc beside a connector, a replaced-span-only model)
 //! and the frozen T4-I12 connector system documents (with their variable
-//! spring hanger; B7b: each frozen 0.3.0/0.4.0 copy re-authored to 0.5.0 by the
+//! spring hanger; B7b: each frozen 0.3.0/0.4.0 copy re-authored to 0.6.0 by the
 //! shared rule in `core/product_physics/tests/common/current_model.rs`), and the L
 //! line authored from its corner through the operation applier (T4-U2 phase 3,
 //! `fixtures/model_operations/pressure_v3_l_line_authoring.json`) produce a
-//! pressure-1 export document that the exporter's independent check admits,
+//! pressure-2 export document that the exporter's independent check admits,
 //! with its contract evidence copied whole.
 //!
 //! With `HEADLESS_PRESSURE_OUTPUT_DIR` set, each case writes
@@ -52,7 +52,7 @@ fn request(model: &Value) -> RunnerRequest {
         requested_outputs: vec!["result_envelope".into(), "audit_manifest".into(), "diagnostics".into()],
         privacy: PrivacyContext::local_first_public_metadata(),
         provenance: Provenance {
-            source_name: "invented T4-U2 pressure-1 export cases".into(),
+            source_name: "invented T4-U2 pressure-2 export cases".into(),
             source_location: "fixtures/results; validation/references/t4_i12".into(),
             source_license: "project invented".into(),
             contributor: "OpenPipeStress".into(),

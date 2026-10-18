@@ -500,7 +500,7 @@ fn u3_capture_permit_is_linear() {
     assert!(product.contains("if let Some(permit)=self.permit.as_ref() {"), "G-B borrows the observer's permit");
 }
 
-/// R-2's condition (ROOT, NUM efde9ca2d1): result_export's base preview-physics-1
+/// R-2's condition (ROOT, NUM efde9ca2d1): result_export's base preview-physics-2
 /// readers accept a base publication carrying one info RETAINED_PRECISION_UNAVAILABLE
 /// diagnostic as N1 specifies (case refs only, fixed text, no receipt reference),
 /// and its classification and standing are unchanged: on the Sensitive milestone and
@@ -532,7 +532,7 @@ fn u3_r2_base_readers_accept_the_unavailable_notice() {
         for mode in MODES {
             let base = serde_json::to_value(run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();
             let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
-            assert_eq!(base["producer"]["semantic_contract_id"], json!("openpipestress.result_semantics/0.3.0/preview-physics-1"), "{label}");
+            assert_eq!(base["producer"]["semantic_contract_id"], json!("openpipestress.result_semantics/0.3.0/preview-physics-2"), "{label}");
             assert!(sc::for_source(&base).is_ok(), "precondition: the base publication is admitted");
             let receipt = format!("{PLAIN} Reason: receipt_encoding; detail: work_counter_inconsistent.");
             for message in [PLAIN, receipt.as_str()] {
@@ -938,8 +938,8 @@ pub(super) fn w_c2_case_c() -> Value {
     raw
 }
 /// PROBE §4's input sha256 of case C, and PROBE §2.3's of two-body case B (`serde_json::to_vec`).
-pub(super) const W_C2_CASE_C_INPUT_SHA256: &str = "9389f2367470eb005618aed46918490f38d458d00959e3e2b3b8ba97cc5cacd5";
-const TWO_BODY_B_INPUT_SHA256: &str = "e14a8278ce227c2ce68ef662218f38755d5e8682d9c2fca8e1d5b5a10506d973";
+pub(super) const W_C2_CASE_C_INPUT_SHA256: &str = "959d0a6f8b43db1ff273fb0b8e521c2b1130c4ec81ecd24115558e158655a702";
+const TWO_BODY_B_INPUT_SHA256: &str = "6e076b72c85341122b1ceb30f48c02866071f0ae274bd0b8c2d1f5b6e49fa04a";
 /// The L = 0 base (PLAN §1.2): the milestone plus node N2 at (3, 0, 0), which no member
 /// references, with one rigid support restraining all six DOFs (the milestone's rigid-support
 /// shape, no family). Body 1 is a single node: extent 0.
@@ -2419,7 +2419,7 @@ fn b1_sp_constructor_ordinal_is_the_authored_index() {
 /// case. On the milestone this is B3-W's `m3x`. `tests/common/b1_sq_inputs.rs` transcribes it.
 fn exact3(mut raw: Value) -> Value {
     let m = &mut raw["model"];
-    m["schema_version"] = json!("0.5.0");
+    m["schema_version"] = json!("0.6.0");
     m["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
     for material in m["materials"].as_array_mut().unwrap() {
         material.as_object_mut().unwrap().remove("shear_modulus");
@@ -2458,7 +2458,7 @@ fn m3l() -> Value {
 }
 /// The committed physics-source requests: B3b's coexistence pins n05 and n06, and P-2's
 /// selection discriminator `fields` (RR "I99's B3-W verified; …", rulings 1 and 2).
-/// B7b: the current (0.5.0, v3) twins of the deleted v2 originals.
+/// B7b: the current (0.6.0, v3) twins of the deleted v2 originals.
 const N05_EXACT: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
 const N06_EXACT: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n06.request.json");
 const FIELDS_EXACT: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/fields.request.json");
@@ -2477,12 +2477,12 @@ fn b3b_witness_inputs_and_routes() {
     // B7b re-pinned the exact witnesses after their one re-authoring to 0.5.0
     // (v3, Euler-Bernoulli, zero corrosion allowance); `m3l` is a refusal
     // control in its retired form and keeps its pin.
-    assert_eq!(value_sha(&m3x()), "71be3e9c0d05c7a5e050e63a285b5239769274dfe418002ac28df15299eb9c46", "m3x");
-    assert_eq!(value_sha(&m3x_mix_anchor()), "b91da678f65cc5809072fc699055b9dab053bc42c9a5cb494aa6a65814a1467d", "m3x_mix_anchor");
+    assert_eq!(value_sha(&m3x()), "557617840931932af602728ef5b53f67ce12cd1941e50ac874d9ad81247cd456", "m3x");
+    assert_eq!(value_sha(&m3x_mix_anchor()), "00377c2d2070bbfbf50ccb60d283a4575c963b2d0ba69c65e97069348bbb04e2", "m3x_mix_anchor");
     assert_eq!(value_sha(&m3l()), "2f5ff465bfa97005a581d88e02c0a5478ea24da3bdc1c2eb9fcda491803fc0c3", "m3l");
-    for (name, text, file_sha) in [("n05", N05_EXACT, "e01b5880a62454cc7dc295fe231b61e5c97e10367962fe18ac3cd5298887124b"),
-        ("n06", N06_EXACT, "35c17e4497ed98dbdd44f656fd886a9d98dc609ed646684ac1c05652dbdda6d1"),
-        ("fields", FIELDS_EXACT, "67ac4067d5b98063f591138af4d2e220e1f34c366b61bc4acd09c90acd41b199")] {
+    for (name, text, file_sha) in [("n05", N05_EXACT, "90c1edab9cbf5c7caa2d2072cea6484be1681eabac8c8f48d053342dcc7f4efb"),
+        ("n06", N06_EXACT, "d9e3ede6542ce6d73832d6205d45bed185986295ea192357b2d884048cc3a217"),
+        ("fields", FIELDS_EXACT, "b0b8ce054f06382dc15916b436a6a8bad704135884878aa047120eb0071d8852")] {
         assert_eq!(sha(text.as_bytes()), file_sha, "{name}");
         assert_eq!(w1_route(&model_of(&serde_json::from_str(text).unwrap())), Some(R::Exact), "{name}");
     }
@@ -2494,12 +2494,12 @@ fn b3b_witness_inputs_and_routes() {
     four["model"]["schema_version"] = json!("0.4.0");
     assert_eq!(w1_route(&model_of(&four)), None, "retired 0.4.0: no W1 route");
     // B7b: a present null contract fails decoding, so the contract-absent control omits the
-    // key. Model 0.5.0 keys on what the document carries: without a contract it is
+    // key. Model 0.6.0 keys on what the document carries: without a contract it is
     // pressure-free (`model_format::is_pressure_free`), so its namespace branch is L; the
     // retired 0.3.0 form keeps HEAD's "no branch".
     let mut contractless = m3x();
     contractless["model"].as_object_mut().unwrap().remove("pressure_contract");
-    assert_eq!(w1_route(&model_of(&contractless)), Some(R::Preview), "0.5.0 without a contract: pressure-free, branch L");
+    assert_eq!(w1_route(&model_of(&contractless)), Some(R::Preview), "0.6.0 without a contract: pressure-free, branch L");
     contractless["model"]["schema_version"] = json!("0.3.0");
     assert_eq!(w1_route(&model_of(&contractless)), None, "retired 0.3.0 without a contract: no branch");
     // P-2: the exact route's budget is the ordinary route's.
@@ -2517,7 +2517,7 @@ fn b3b_witness_inputs_and_routes() {
 /// cases' certified rows (exactly-zero rows publish +0), the nonlinear-route fail-closed sentence,
 /// and the receipt and publication hashes that bind them. No verdict changes otherwise.
 /// B7b re-pin (D4 (a)/A6, registered at D3 3ce082a9bb): against the pre-B7b fixtures only the
-/// re-authored request (0.5.0, v3, Euler-Bernoulli, CA 0 m), the pressure-1 base's
+/// re-authored request (0.6.0, v3, Euler-Bernoulli, CA 0 m), the pressure-2 base's
 /// limitations and `profile_mode`, DEF-E's H in the preparation hash, the identity-byte
 /// counter that follows the compared profile text, and the hashes that bind them changed
 /// (B7b evidence `w1/evidence-exact-successors.txt`); every physical and certificate value is
@@ -2717,7 +2717,7 @@ fn b3b_exact_successor_is_pinned_in_both_modes() {
         let raw = m3x();
         let plain = plain(mode, &raw);
         let plain_value: Value = serde_json::from_slice(&plain).unwrap();
-        assert_eq!(plain_value["producer"]["semantic_contract_id"], json!(exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID), "{name}: the pressure-1 base (B7b D4 (a))");
+        assert_eq!(plain_value["producer"]["semantic_contract_id"], json!(exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID), "{name}: the pressure-2 base (B7b D4 (a))");
         assert!(plain_value["source_block_recovery"].is_null(), "{name}: no exact-block selection (T-3 (c) does not fire)");
         let (envelope, retained, captured) = exact_w1(&raw, mode);
         let successor = captured.unwrap_or_else(|| panic!("{name}: {retained:?}"));
@@ -3039,13 +3039,13 @@ fn b3b_exact_observables_refuse_each_evidence_defect() {
 /// …"): `m3l`, B3a's former witness, is now its refusal witness. G-A refuses it at D1.3 with
 /// `PressureContract`, so it takes the ordinary route: the plain bytes, no W1, one run, in both
 /// modes and every build. B7b: model document 0.3.0 is retired, so the label is carried by
-/// `m3l`'s copy re-authored to 0.5.0 (the legacy label kept; it is not an exact contract, so no
+/// `m3l`'s copy re-authored to 0.6.0 (the legacy label kept; it is not an exact contract, so no
 /// allowance is added); the frozen 0.3.0 `m3l` itself is refused earlier, by `SchemaVersion`.
 #[test]
 fn b3a_dropped_m3l_takes_the_ordinary_route() {
     use super::retained_memory::{AdmissionRefusal, D1Clause, FamilyFact};
     let current = crate::b7b_admission_tests::reauthor_current_request(m3l());
-    assert_eq!(current["model"]["schema_version"], json!("0.5.0"));
+    assert_eq!(current["model"]["schema_version"], json!("0.6.0"));
     assert_eq!(current["model"]["pressure_contract"], json!({"version": "1.0.0", "mode": "legacy_pressure_v1"}));
     for (raw, fact) in [(current, FamilyFact::PressureContract), (m3l(), FamilyFact::SchemaVersion)] {
         for mode in MODES {
@@ -3993,9 +3993,9 @@ fn combination_document(raw: &Value, mode: PreviewSolverMode, successor: &Value)
 }
 /// W-CB1's and W-CB1z's request Value sha256s (`w_cb1`, `w_cb1z`; JSON-equal to I98's
 /// `r7_cb1_halfb` and `r7_cb1`, checked on the records, apart from the model version: B7a
-/// re-authored the witnesses' model to 0.5.0, which moved all four input pins).
-const W_CB1_INPUT_SHA256: &str = "1fbcb0d606901d123ddac189483203a6598175281a4fae058d0aac80af0dd2ae";
-const W_CB1Z_INPUT_SHA256: &str = "7aa1a3273940d5cc694a0faaf1d0f4a1a3619b202741fbd6b1594495e6ae261d";
+/// re-authored the witnesses' model to 0.6.0, which moved all four input pins).
+const W_CB1_INPUT_SHA256: &str = "ebf3b84a0e4abde5c6283accbd3d8363441ddf3fd13d419655bee997f8907f38";
+const W_CB1Z_INPUT_SHA256: &str = "85b7ddf2b5ca3aad877a6b453a1a3a5408a293cc43bcde714533d66437c00019";
 /// The B2-P witnesses' inputs: W-CB2 and W-CB3 are I98's `r7_cb2` and `r7_cb3_v1`, W-CB1 and
 /// W-CB1z its `r7_cb1_halfb` and `r7_cb1` (JSON-equal, checked on the records); their Value
 /// sha256s. With `I105_B2P_OUT` set, W-CB1's and W-CB1z's requests are written there.
@@ -4004,8 +4004,8 @@ fn b2p_witness_inputs() {
     let out = std::env::var("I105_B2P_OUT").ok();
     let mut got = Vec::new();
     for (name, raw, expected) in [("w_cb1", w_cb1(), W_CB1_INPUT_SHA256), ("w_cb1z", w_cb1z(), W_CB1Z_INPUT_SHA256),
-        ("w_cb2", w_cb2(), "8638db6e126abd7da0f0449f5993879a803e91c08af5fa9806e58b101f916622"),
-        ("w_cb3", w_cb3(), "4e0fc2363b3f9a11af5830ba896c773d1e26ca65f95d9549b60805dab5fbd994")] {
+        ("w_cb2", w_cb2(), "0e4de9974acc43973695fd36dfb743eb7749be91cd49407742cd421ff189a690"),
+        ("w_cb3", w_cb3(), "e6185240919d765ff5e97e4781ebc0d5e4281b79a45688d04900cc5cfd641dc9")] {
         let value_sha = sha(&serde_json::to_vec(&raw).unwrap());
         println!("B2P_INPUT {name} value_sha={value_sha}");
         if let (Some(dir), true) = (&out, name.starts_with("w_cb1")) {
@@ -4030,7 +4030,7 @@ fn b2p_constants_bound_to_in_tree_fixtures() {
     let table: Value = serde_json::from_str(include_str!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json")).unwrap();
     let h = wire::domain_hash("retained_precision_formation_v1", &definition).unwrap();
     assert_eq!(definition["id"], json!(wire::COMBINATION_DEFINITION_ID));
-    assert_eq!(h, "75b9414df919fb4e181aa06030249289b70f0518023afbe241f72e31b8b60f31");
+    assert_eq!(h, "1d72a9dbb6d55a291fd87d3254230240e9e49ef0aa77eb5d46cc6a30e6580ea3");
     assert!(table["product_formation_definitions"].as_array().unwrap().contains(&json!({"id": wire::COMBINATION_DEFINITION_ID, "sha256": h})));
 }
 

@@ -26,14 +26,14 @@ from schema_validation import (  # noqa: E402
 
 # b7-plan E2: one result-export version (0.3.0); the dispatcher has its own focused tests.
 SCHEMA_PATH = ROOT / "schemas" / "results.v0.3.schema.yaml"
-# The bundled demo's preview-physics-1 output (the current mechanics-result carrier).
+# The bundled demo's preview-physics-2 output (the current mechanics-result carrier).
 PRODUCT_PREVIEW_RESULT_PATH = (
     ROOT / "fixtures" / "product_preview" / "invented_demo_result_preview_physics_1_sparse.json"
 )
 # Committed 0.3.0 result-export documents, as derive_document writes them.
 CURRENT_EXPORT_PATHS = tuple(
     ROOT / "fixtures" / "results" / name
-    # B7b: the pressure-1 and pressure-source-1 twins of the retired load-reference documents.
+    # B7b: the pressure-2 and pressure-source-1 twins of the retired load-reference documents.
     for name in ("pressure_load_state_connected_sparse.document.json", "pressure_source_load_state_n05_sparse.document.json")
 )
 TP_PHYS_015_RESULT_ENVELOPE_PATH = (

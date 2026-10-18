@@ -678,7 +678,7 @@ def test_private_seams_have_no_product_callers():
 @pytest.mark.parametrize("mode", MODES)
 def test_r2_noticed_ordinary_envelope_keeps_its_base_behaviour(mode):
     """R-2: a base publication carrying the unavailable notice is an ordinary
-    preview-physics-1 envelope; its carriers and standing equal the plain base."""
+    preview-physics-2 envelope; its carriers and standing equal the plain base."""
     source, invocation = milestone(mode)
     plain = projected(source)
     case_id = invocation["request"]["model"]["load_cases"][0]["id"]
@@ -728,7 +728,7 @@ def value_error_only(fn, *args):
 
 @pytest.mark.parametrize("mode", MODES)
 def test_rv108_n1_base_header_refuses_a_non_string_enum_with_its_code(mode):
-    """The base dispatch on the reader's projection (a preview-physics-1 envelope), raw and transport:
+    """The base dispatch on the reader's projection (a preview-physics-2 envelope), raw and transport:
     each unhashable enum value gives the base header code. Hashable non-strings and strings outside
     the vocabulary read as before (the same codes); the unedited envelope is admitted."""
     source, _ = milestone(mode)
@@ -762,7 +762,7 @@ def test_rv108_n1_retained_reader_reports_the_base_header_code_at_g7(mode):
 
 @pytest.mark.parametrize("mode", MODES)
 def test_rv108_n1_stress_neutral_packager_validator_refuses_with_a_value_error(mode):
-    """The ValueError-only caller RV108 named: the v0.3 packager's validator on a preview-physics-1
+    """The ValueError-only caller RV108 named: the v0.3 packager's validator on a preview-physics-2
     package view. An unhashable enum is refused with the base header code, a ValueError; before, a
     TypeError escaped it."""
     from core.handoff.stress_neutral import package as sn

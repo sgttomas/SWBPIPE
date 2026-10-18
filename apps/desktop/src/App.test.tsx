@@ -229,7 +229,7 @@ async function installPreviewReplay() {
   // scoped native transport simulation; never invent storage capabilities.
   const storage = await getLocalStorageCapability();
   const knowledge = await loadDesignKnowledge();
-  // T0R: the fresh ordinary route is preview-physics-1.
+  // T0R: the fresh ordinary route is preview-physics-2.
   const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
   const mechanics = createNativeMechanicsReplay({ profile: "preview" });
   const invoke = (command: string, args?: unknown, options?: unknown) => {
@@ -250,7 +250,7 @@ async function installPreviewReplay() {
 // availability gate. To keep the save sequencer (handleSaveReportPackage: busy
 // state, generation/basis checks, stale completion) under test, these helpers
 // (a) assert the gate refusal first, then (b) lift the gate in the test only and
-// route assembly below it with the registered preview-physics-1 session as data
+// route assembly below it with the registered preview-physics-2 session as data
 // (B1 retired the precision-1 session used before). Production behaviour is
 // unchanged; nothing here is a native witness.
 async function registeredPreviewReportData() {
@@ -3863,7 +3863,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-schema")
         .textContent,
-    ).toContain("schema_version=0.5.0");
+    ).toContain("schema_version=0.6.0");
     expect(
       within(projectValidation).getByTestId("project-validation-round-trip")
         .textContent,
@@ -8976,14 +8976,14 @@ describe("SWBPIPE desktop preview", () => {
     expect(validationPacket.store_migration.migration_scope).toBe(
       "local_store_schema_ddl_only_model_document_schema_tracked_separately_per_dec_019",
     );
-    // DEL-02-05 CLM-003: the bundled preview model is the current 0.5.0
+    // DEL-02-05 CLM-003: the bundled preview model is the current 0.6.0
     // document; the browser preview stores its bytes unchanged.
     expect(validationPacket.model_document_version.status).toBe("current");
     expect(validationPacket.model_document_version.evidence_source).toBe(
       "persistence_operation_envelope",
     );
     expect(validationPacket.model_document_version.source_schema_version).toBe(
-      "0.5.0",
+      "0.6.0",
     );
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual(
       [],
@@ -10688,7 +10688,7 @@ describe("SWBPIPE desktop preview", () => {
     render(<ReportPanel model={model} knowledge={knowledge} result={result} analysisRun={analysisRun} comparison={comparison} editorIntents={[]} projectOperation="reference_inspection" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);
     expect(observed).toBeDefined();
     const exportPacket = observed;
-    // The demo's output is preview-physics-1: component SIFs act through the
+    // The demo's output is preview-physics-2: component SIFs act through the
     // intensified measure, so there are no historical SIF×k review rows.
     expect(exportPacket.component_stress_modifier_count).toBe(0);
     expect(exportPacket.component_stress_modifier_evidence).toEqual([]);
@@ -11140,14 +11140,14 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     // DEL-02-05 CLM-003 evidence: the saved (edited) model document is the
-    // current 0.5.0 version, with the in-document version authority; nothing
+    // current 0.6.0 version, with the in-document version authority; nothing
     // is migrated.
     const documentVersionLine = within(
       openWorkspaceSection("project"),
     ).getByTestId("project-validation-model-document-version");
     expect(documentVersionLine.textContent).toContain("status=current");
-    expect(documentVersionLine.textContent).toContain("source=0.5.0");
-    expect(documentVersionLine.textContent).toContain("target=0.5.0");
+    expect(documentVersionLine.textContent).toContain("source=0.6.0");
+    expect(documentVersionLine.textContent).toContain("target=0.6.0");
   });
 
   it("queues and applies explicit material creation through the structured operation seam", async () => {
@@ -14210,7 +14210,7 @@ describe("persistent modeling workspace", () => {
 async function workflowStoredEnvelope() {
   const model = await loadPreviewModel();
   const envelope = inventedOpenEnvelope(model);
-  // A saved run with a current (0.3.0) record: the demo's preview-physics-1 producer
+  // A saved run with a current (0.3.0) record: the demo's preview-physics-2 producer
   // output, as saved history only (B1 retired the synthetic precision-1 header).
   const result = structuredClone(demoPreviewFixture) as unknown as MechanicsResult;
   result.model_ref = envelope.model.project.id;
@@ -14425,7 +14425,7 @@ describe("workflow current and historical result boundaries", () => {
   });
 
   // T0R: (a) the gate refuses the fresh Current result; (b) the save sequencer runs
-  // below the gate with a registered preview-physics-1 session as assembly data.
+  // below the gate with a registered preview-physics-2 session as assembly data.
   it("does not start an obsolete report-package save or publish stale build state", async () => {
     const previewData = await registeredPreviewReportData();
     const { model, replay } = await installPreviewReplay();

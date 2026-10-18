@@ -4,13 +4,13 @@ import { SolvePanel } from "./SolvePanel";
 import { INTEGRITY_CHECKED, NEEDS_RECOMPUTE_NOT_CURRENT } from "./LoadReferenceStatesBlock";
 import { initialSolveJob } from "../workspace/solveJobAudit";
 import { LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE, SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED, numericalResultStanding, registerSourceRecovery } from "../results/resultStanding";
-import { PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL } from "../results/loadReferenceOutputAvailability";
+import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL } from "../results/loadReferenceOutputAvailability";
 import type { LoadStateContractEvidence, MechanicsResult, PreviewModel } from "../../types";
 import type { PreviewSolverMode } from "../../services/previewService";
 import { receivedFromText } from "../../test-support/receivedText";
 
 // B7b: a load/reference-state result is published under the current exact identities,
-// pressure-1 (ordinary; fixtures/product_preview/pressure/load_reference/) and
+// pressure-2 (ordinary; fixtures/product_preview/pressure/load_reference/) and
 // pressure-source-1 (joined; fixtures/product_preview/pressure_source/load_reference_source/),
 // the v3 twins of the retired load-reference-1 and load-reference-source-1. Committed
 // producer raws and the committed sensitive ordinary raw; all values are invented
@@ -79,7 +79,7 @@ function expectReadOnly(reason: string) {
 }
 afterEach(cleanup);
 
-describe("resolved-state block: ordinary pressure-1 with load/reference states", () => {
+describe("resolved-state block: ordinary pressure-2 with load/reference states", () => {
   for (const mode of MODES) for (const name of ["connected", "pressure"]) {
     it(`${name} ${mode}: admitted by the reader, labelled from Rust's standing, published values only`, () => {
       const { model, result } = pair("load_reference", name, mode);
@@ -87,7 +87,7 @@ describe("resolved-state block: ordinary pressure-1 with load/reference states",
       renderSolve(model, result, mode);
       const standing = numericalResultStanding(result, model);
       expect(standing).toMatchObject({ contract: "pressure", status: "integrity_checked", eligible: true });
-      expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-1");
+      expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-2");
       expect(screen.getByTestId("load-reference-states-standing")).toHaveTextContent("Result standing: integrity_checked");
       for (const record of records(result)) {
         expect(screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`)).toHaveTextContent(`Numerical standing: ${INTEGRITY_CHECKED} (published solve quality: checks_passed).`);
@@ -95,7 +95,7 @@ describe("resolved-state block: ordinary pressure-1 with load/reference states",
       }
       expect(screen.getByTestId("load-reference-states-block")).not.toHaveTextContent(NEEDS_RECOMPUTE_NOT_CURRENT);
       expectPublishedValues(result);
-      expectReadOnly(PRESSURE_1_OUTPUT_REFUSAL);
+      expectReadOnly(PRESSURE_2_OUTPUT_REFUSAL);
       expect(JSON.stringify(result)).toBe(before);
     });
   }
@@ -107,13 +107,13 @@ describe("resolved-state block: ordinary pressure-1 with load/reference states",
     const standing = numericalResultStanding(result, model);
     expect(standing.status).toBe("needs_recompute");
     expect(standing.findings).toContain("NUMERICAL_INTEGRITY_NOT_QUALIFIED");
-    expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-1");
+    expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-2");
     expect(screen.getByTestId("load-reference-states-standing")).toHaveTextContent("NUMERICAL_INTEGRITY_NOT_QUALIFIED");
     for (const record of records(result))
       expect(screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`)).toHaveTextContent(`Numerical standing: ${NEEDS_RECOMPUTE_NOT_CURRENT}`);
     expect(screen.getByTestId("load-reference-states-block")).not.toHaveTextContent(INTEGRITY_CHECKED);
     expectPublishedValues(result);
-    expectReadOnly(PRESSURE_1_OUTPUT_REFUSAL);
+    expectReadOnly(PRESSURE_2_OUTPUT_REFUSAL);
   });
 
   it("shows no value when the reader refuses a tampered publication", () => {

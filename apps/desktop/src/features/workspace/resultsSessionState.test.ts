@@ -33,7 +33,7 @@ it("keeps solved historical and unassessed carriers out of Current without chang
 
 it("requires actual native invocation plus joined preview-physics analysis and manifest identities before Current", async () => {
  // Explicit unit transport simulation over the unchanged, genuinely emitted
- // current ordinary pair (preview-physics-1 since T0R; a stored precision-1
+ // current ordinary pair (preview-physics-2 since T0R; a stored precision-1
  // statement is refused, the next test). This is not a native UI/host qualification witness.
  const pair = nativeMechanicsReplayPair("sparse_interactive", {profile:"preview"});
  const replay = createNativeMechanicsReplay({profile:"preview"});
@@ -81,18 +81,18 @@ it("never admits a stored precision-1 statement as Current (B1: refused by name,
 // received fixture bytes, not a live invocation or a Current-session manifest.
 const fixtureRoot = resolve(__dirname, "../../../../../");
 const readFixture = (path: string) => JSON.parse(readFileSync(resolve(fixtureRoot, path), "utf8"));
-// B7b: the exact route's received statement is pressure-1, the v3 twin of the retired physics-1.
+// B7b: the exact route's received statement is pressure-2, the v3 twin of the retired physics-1.
 const pressureSource = (mode = "sparse") => readFixture(`fixtures/results/pressure_connected_mechanics_${mode}.json`) as MechanicsResult;
 const pressureModel = () => readFixture("core/product_physics/tests/fixtures/exact_pressure_connected_request.json").model as PreviewModel;
 
-it.each(["sparse", "dense"])("recognizes actual %s pressure-1 semantics without turning received history into Current", async mode => {
+it.each(["sparse", "dense"])("recognizes actual %s pressure-2 semantics without turning received history into Current", async mode => {
  const source = pressureSource(mode), model = pressureModel(), before = JSON.stringify(source);
  const binding = {id:PRESSURE_CONTRACT_ID,sha256:PRESSURE_CONTRACT_SHA256};
  expect(hasCurrentSourceContract(source)).toBe(true);
  expect(currentSemanticContract(source)).toEqual(binding);
  expect(numericalResultStanding(source,model).eligible).toBe(true); // numerical/source scope only
  const solver = {solver_name:source.producer!.component_name,solver_version:source.producer!.component_version,solver_build_ref:"test:received-source-no-live-invocation",solver_mode:mode === "sparse" ? "sparse_interactive" : "dense_scrutiny",settings:{}};
- // An independently hashed reference-only basis: the desktop records pressure-1 as Python
+ // An independently hashed reference-only basis: the desktop records pressure-2 as Python
  // does (B7b), and a held record still does not make a received statement Current.
  const manifest = {model_basis:{model_ref:model.project.id,model_payload:model},solver_basis:solver};
  const referenceBasis = {manifest,manifest_ref:{object_type:"InputManifest",ref:"test:reference-only-pressure-state"},manifest_sha256:await canonicalSha256HexCheckedV1(manifest)};

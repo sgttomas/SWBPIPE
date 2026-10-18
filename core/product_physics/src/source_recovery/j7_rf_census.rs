@@ -4,7 +4,7 @@
 //! genuine request under `3.0.0/exact_pressure_v3` with explicitly empty
 //! `pressure_regions`. Inputs are `fixtures/results/j7_rf_census_inputs.json`
 //! (`tools/fixtures/j7_rf_census_inputs.py` over the frozen references, authored
-//! as 0.3.0); B7b re-authors each copy once, at run time, to the current 0.5.0
+//! as 0.3.0); B7b re-authors each copy once, at run time, to the current 0.6.0
 //! document (`shear_model` Euler-Bernoulli, an explicit zero corrosion allowance
 //! on every pipe section) and changes nothing else. Each case/mode's public
 //! outcome (identity, quality, blocking findings, source attempt, and the digests
@@ -49,7 +49,7 @@ const EXPECTED_PATH: &str = "../../fixtures/results/j7_rf_census_expected.json";
 const J2: &str = include_str!("../../../../fixtures/results/pressure_source_reader_corpus.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const FAMILIES: [&str; 10] = ["RF-CHAIN", "RF-SKEW", "RF-WEAK", "RF-LARGE", "RF-INVARIANCE", "RF-RANGE", "RF-ZERO", "RF-FINITE", "RF-MECH", "RF-CANCEL"];
-const PRESSURE_1: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
+const PRESSURE_1: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 /// Every source-recovery identity (the current one and the two retired v2 ones).
 const SOURCE_IDENTITIES: [&str; 3] = [
     "openpipestress.result_semantics/0.3.0/pressure-source-1",
@@ -345,7 +345,7 @@ fn public_value(public: &Result<Value, String>) -> Value {
 }
 
 /// One case's request: the committed input's copy, re-authored once to the
-/// current 0.5.0 exact document (B7b); the committed inputs stay 0.3.0.
+/// current 0.6.0 exact document (B7b); the committed inputs stay 0.3.0.
 pub(super) fn current_request(case: &Value) -> Value {
     let input = &case["request"];
     assert_eq!(input["model"]["pressure_contract"], json!({"version": "3.0.0", "mode": "exact_pressure_v3"}));

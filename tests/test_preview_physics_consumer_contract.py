@@ -1,4 +1,4 @@
-"""preview-physics-1 Python reader, standing and packaging (T0R S1 §9-§10).
+"""preview-physics-2 Python reader, standing and packaging (T0R S1 §9-§10).
 
 Hand-built envelopes follow the frozen S1 interface exactly; they are reader
 controls, not producer output. Tests over the actual producer fixtures are at
@@ -160,14 +160,14 @@ def results_schema():
 
 
 def test_table_identity_and_registry():
-    table = PROJECT / "fixtures/results/semantic_contract_v0_3_preview_physics_1.json"
+    table = PROJECT / "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
     assert hashlib.sha256(table.read_bytes()).hexdigest() == PREVIEW_PHYSICS_CONTRACT_SHA256
     assert json.loads(table.read_text())["semantic_contract_id"] == PREVIEW_PHYSICS_CONTRACT_ID
     # T1 activation (DESIGN 10.3): T0R's four plus T1's two 0.4.0 exact-route identities.
     # U6b (D-U6-6): plus the F2a preview successor; membership is not standing.
     # b7-plan's pressure-source join: plus pressure-source-1.
     # B4/D1 (b): minus the retired source-blocks-1.
-    # B7b: minus the four retired exact v2 identities, plus the exact successor pressure-1.
+    # B7b: minus the four retired exact v2 identities, plus the exact successor pressure-2.
     assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PRESSURE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID}
     assert not is_fresh_contract_id(RETIRED_PRECISION_CONTRACT_ID) and is_fresh_contract_id(PREVIEW_PHYSICS_CONTRACT_ID)
     assert not any(is_fresh_contract_id(identity) for identity in (RETIRED_PHYSICS_ID, RETIRED_LOAD_REFERENCE_ID))
@@ -455,7 +455,7 @@ def test_transport_metadata_checks_statement_without_rows():
             _source_contract(bad, check_receipt=False)
 
 
-@pytest.mark.parametrize("identity", [RETIRED_PRECISION_CONTRACT_ID, RETIRED_PHYSICS_ID, RETIRED_LOAD_REFERENCE_ID, PRESSURE_CONTRACT_ID, RETIRED_SOURCE_BLOCKS_ID, "openpipestress.result_semantics/0.3.0/preview-physics-2"])
+@pytest.mark.parametrize("identity", [RETIRED_PRECISION_CONTRACT_ID, RETIRED_PHYSICS_ID, RETIRED_LOAD_REFERENCE_ID, PRESSURE_CONTRACT_ID, RETIRED_SOURCE_BLOCKS_ID, "openpipestress.result_semantics/0.3.0/preview-physics-1", "openpipestress.result_semantics/0.3.0/preview-physics-3"])
 def test_preview_never_falls_back_to_another_contract(identity):
     source = envelope()
     source["producer"]["semantic_contract_id"] = identity
@@ -870,7 +870,7 @@ ACTUAL = [PROJECT / f"fixtures/results/preview_physics_{name}_{mode}.json" for n
 
 def actual(path):
     # R2 N8: the producer fixtures are committed; absence is a failure, not a skip.
-    assert path.exists(), f"missing actual preview-physics-1 fixture: {path}"
+    assert path.exists(), f"missing actual preview-physics-2 fixture: {path}"
     return json.loads(path.read_text())
 
 
@@ -983,7 +983,7 @@ def test_generated_unchanged_demo_output_is_recorded_truthfully(mode):
 @pytest.mark.parametrize("mode", ["sparse", "dense"])
 def test_generated_bundled_demo_output_is_recorded_truthfully(mode):
     """The recipe's default mode captures the valid demo model (no joint, no legacy
-    pressure): a solved preview-physics-1 result per mode, read as is."""
+    pressure): a solved preview-physics-2 result per mode, read as is."""
     source = actual(PROJECT / f"fixtures/product_preview/invented_demo_result_preview_physics_1_{mode}.json")
     record = json.loads((PROJECT / "fixtures/product_preview/demo_fixture_generation.json").read_text())
     output = next(item for item in record["outputs"] if item["path"].endswith(f"_{mode}.json"))

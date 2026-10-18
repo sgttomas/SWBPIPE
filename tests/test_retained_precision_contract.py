@@ -754,17 +754,17 @@ def test_integers_by_value_at_every_site_d32():
 
 
 def test_model_schema_versions_d31():
-    """D31, as B7a keys it: G8's preview namespace is the current model version 0.5.0 without a pressure contract; the
+    """D31, as B7a keys it: G8's preview namespace is the current model version 0.6.0 without a pressure contract; the
     retired 0.1.0 and 0.2.0 are refused, and 0.4.0 stays excluded. B3D-10, as ruled: 0.3.0 without a contract is
-    refused. B3a is dropped, so 0.3.0 with the retired legacy_pressure_v1 contract is refused too, and so is 0.5.0 with
+    refused. B3a is dropped, so 0.3.0 with the retired legacy_pressure_v1 contract is refused too, and so is 0.6.0 with
     any contract."""
     expected = _cases()[O_BASE]["expected_classifications"]
     version_edit = lambda version: {"path": ["request", "model", "schema_version"], "op": "set", "value": version}
     legacy = {"path": ["request", "model", "pressure_contract"], "op": "set", "value": {"version": "1.0.0", "mode": "legacy_pressure_v1"}}
-    assert _validate_entry(O_BASE, [], [version_edit("0.5.0")])["classifications"] == expected
+    assert _validate_entry(O_BASE, [], [version_edit("0.6.0")])["classifications"] == expected
     for version in ("0.1.0", "0.2.0"):
         _raises(lambda: _validate_entry(O_BASE, [], [version_edit(version)]), "G8", "INVOCATION_MISMATCH")
-    _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.5.0"), legacy]), "G8", "INVOCATION_MISMATCH")
+    _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.6.0"), legacy]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.3.0"), legacy]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.3.0")]), "G8", "INVOCATION_MISMATCH")
     _raises(lambda: _validate_entry(O_BASE, [], [version_edit("0.4.0")]), "G8", "INVOCATION_MISMATCH")
@@ -786,7 +786,7 @@ def test_b3a_legacy_pressure_namespace_29_controls_match_existing_rust_controls(
     entries=[(base,[version("0.3.0"),contract(legacy)],False) for base in
              (O_BASE,"ordinary_prepared_dense_synthetic","two_case_synthetic","u8_l0_isolated_node_sparse_interactive","u8_l0_isolated_node_dense_scrutiny")]
     entries.extend((O_BASE,edits,admitted) for edits,admitted in (
-        ([contract(None)],False),([version("0.5.0"),absent()],True),
+        ([contract(None)],False),([version("0.6.0"),absent()],True),
         ([version("0.3.0"),contract(changed("mode","exact_straight_pressure_v2"))],False),
         ([version("0.3.0"),contract(changed("version","1.0.1"))],False),
         ([version("0.3.0"),contract({"version":"2.0.0","mode":"exact_straight_pressure_v2"})],False),
@@ -1690,10 +1690,10 @@ def _i4p_three(base, edits):
 
 
 def _i4p_projected(source):
-    """The reader's projection: the same statement under the preview-physics-1 identity (no receipt)."""
+    """The reader's projection: the same statement under the preview-physics-2 identity (no receipt)."""
     base = deepcopy(source)
     del base["retained_precision"]
-    base["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+    base["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/preview-physics-2"
     base["formulation_basis"]["profile_id"] = "product_preview_mechanics_v1"
     for row in base["results"]:
         row.pop("recovery_method", None)
@@ -1738,7 +1738,7 @@ def test_i4p_ruling1_transport_header_takes_rusts_order_and_codes():
     pair, _ = apply_entry(_cases()[O_BASE], {"edits": [I4P_RECOVERY, I4P_EVIDENCE_NULL], "rehash": "all"})
     assert dispatch(carrier) == "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: unsupported source namespace"
     assert dispatch(pair) == "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"
-    # A preview-physics-1 statement's own transport dispatch: the verifier keeps Python's order; the product
+    # A preview-physics-2 statement's own transport dispatch: the verifier keeps Python's order; the product
     # takes the Rust reader's (b7-plan R2's declared class): G5's carrier refusal, and Rust's header order.
     from tests.verifiers import compatibility as verifier
     def verified(s):
@@ -1759,7 +1759,7 @@ def test_i4p_ruling2_transport_metadata_compares_withheld_records_as_multisets()
     cases (`r2:t_withheld_duplicate_multiset`) is refused at G7 SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: PY now
     compares the records as multisets (it compared sets and admitted it). Equal multisets, in any order, are
     admitted, as in RS and TS. The extrema-number demand stays (`r2:t_extrema_global_upper_string`,
-    `r2:t_extrema_certified_gap_null`). The same check serves a preview-physics-1 statement's transport
+    `r2:t_extrema_certified_gap_null`). The same check serves a preview-physics-2 statement's transport
     dispatch, with the same result. Raw reads are unchanged."""
     from core.analysis_runs import compatibility as c
     from tests.verifiers.preview_physics_evidence import validate_transport_metadata

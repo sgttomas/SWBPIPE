@@ -3,7 +3,7 @@ import {it,expect} from 'vitest';
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {ResultsPanel} from './ResultsPanel';
-import {OUTPUT_SURFACES,PRESSURE_1_OUTPUT_REFUSAL,surfaceRouteRefusal} from './outputPolicy';
+import {OUTPUT_SURFACES,PRESSURE_2_OUTPUT_REFUSAL,surfaceRouteRefusal} from './outputPolicy';
 import type {MechanicsResult} from '../../types';
 import {currentCarrierHeader} from '../../test-support/currentCarrierHeader';
 import unicodeSparse from '../../../../../fixtures/results/preview_physics_unicode_ids_sparse.json';
@@ -22,16 +22,16 @@ it('shows exact signed tiny scientific values and historical recompute qualifica
 });
 
 // DEL-07-04: a mechanics display shows its diagnostics and limitations. The published
-// limitations of every route that shows rows with them (pressure-1 and pressure-source-1,
-// each with and without the load/reference-state group, preview-physics-1, and both
+// limitations of every route that shows rows with them (pressure-2 and pressure-source-1,
+// each with and without the load/reference-state group, preview-physics-2, and both
 // retained successors, whose statements carry the fixture's `source` member) appear in
 // the standing line once, joined in published order.
 it.each([
- ['pressure-1','fixtures/results/pressure_connected_mechanics_sparse.json',null],
- ['pressure-1 with load/reference states','fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json',null],
+ ['pressure-2','fixtures/results/pressure_connected_mechanics_sparse.json',null],
+ ['pressure-2 with load/reference states','fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json',null],
  ['pressure-source-1','fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json',null],
  ['pressure-source-1 with load/reference states','fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json',null],
- ['preview-physics-1','fixtures/results/preview_physics_unicode_ids_sparse.json',null],
+ ['preview-physics-2','fixtures/results/preview_physics_unicode_ids_sparse.json',null],
  ['physics-retained-1','fixtures/results/retained_precision_exact_successor_dense_scrutiny.json','source'],
  ['preview-physics-retained-1','fixtures/results/retained_precision_milestone_successor_sparse_interactive.json','source'],
 ] as const)('shows every formulation limitation of a %s result, once and in order',(_,path,member)=>{
@@ -45,8 +45,8 @@ it.each([
  cleanup();
 });
 
-it('details a preview-physics-1 combination row with its recovery basis and every source result',()=>{
- // The product's actual preview-physics-1 output for the unicode-ids vector, whose
+it('details a preview-physics-2 combination row with its recovery basis and every source result',()=>{
+ // The product's actual preview-physics-2 output for the unicode-ids vector, whose
  // linear combination combination:Σ is published (the demo's is withheld).
  const result=structuredClone(unicodeSparse) as unknown as MechanicsResult;
  const before=JSON.stringify(result);
@@ -65,7 +65,7 @@ it('details a preview-physics-1 combination row with its recovery basis and ever
 // T4-U6 (D-5, design section 2.2): an exact-contract result carries one stress headline per
 // section basis and a null max_open_formula_stress. The session results view shows both,
 // labelled by basis, and never picks a governing one; it is a view, so every output
-// surface still refuses the identity. The committed pressure-1 envelope is the producer's
+// surface still refuses the identity. The committed pressure-2 envelope is the producer's
 // D-5 output (coincident bases); the reduced headline's value is changed here (an invented
 // value) so the two shown headlines differ.
 it('shows both per-basis stress headlines of an exact result, labelled by basis, and chooses no governing basis',()=>{
@@ -90,7 +90,7 @@ it('shows both per-basis stress headlines of an exact result, labelled by basis,
  expect(block.textContent).toContain('no governing basis is chosen');
  expect(block.textContent).not.toMatch(/\bgoverning (basis|headline):/i);
  expect(JSON.stringify(result)).toBe(before);
- for(const surface of OUTPUT_SURFACES) expect(surfaceRouteRefusal(result,surface)).toBe(PRESSURE_1_OUTPUT_REFUSAL);
+ for(const surface of OUTPUT_SURFACES) expect(surfaceRouteRefusal(result,surface)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
  cleanup();
  // A basis whose coverage is incomplete is shown withheld; the other keeps its headline.
  result.summary.max_open_formula_stress_reduced_section=null;

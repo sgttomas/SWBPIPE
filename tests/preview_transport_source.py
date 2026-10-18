@@ -1,4 +1,4 @@
-"""A minimal solved preview-physics-1 statement for transport and record tests.
+"""A minimal solved preview-physics-2 statement for transport and record tests.
 
 B1 (b7-plan) retired precision-1, the identity these tests used as a readable
 statement with invented rows. This one carries the current ordinary identity,
@@ -14,14 +14,14 @@ from pathlib import Path
 from typing import Any
 
 PROJECT = Path(__file__).resolve().parents[1]
-PREVIEW_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+PREVIEW_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 RETIRED_PRECISION_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/precision-1"
 BASIS = {"ref_type": "load_case", "ref_id": "load:transport"}
 # The preview table's signatures for the two row kinds these statements carry.
 ROTATION_X_METADATA = {"component": "nodal_rotation_x", "coordinate_system": "global", "location": "node", "basis": "solved_from_global_linear_system", "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"}
 DISPLACEMENT_X_METADATA = {"component": "nodal_displacement_x", "coordinate_system": "global", "location": "node", "basis": "solved_from_global_linear_system", "sign_convention": "positive value follows the global cartesian X axis displacement of the node"}
 WORK_RESIDUAL_METADATA = {"component": "free_dof_work_residual", "coordinate_system": "solver_iteration", "location": "final_iteration", "basis": "invented transport fixture", "sign_convention": "nonnegative max absolute free-DOF residual work product in the final linearized solve"}
-_LIMITATIONS = json.loads((PROJECT / "fixtures/results/semantic_contract_v0_3_preview_physics_1.json").read_text())["supported_profile_limitations"]
+_LIMITATIONS = json.loads((PROJECT / "fixtures/results/semantic_contract_v0_3_preview_physics_2.json").read_text())["supported_profile_limitations"]
 
 
 def source(value: float = 1.2345678901234567e-7) -> dict[str, Any]:

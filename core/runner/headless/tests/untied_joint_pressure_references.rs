@@ -1,6 +1,8 @@
 //! Current U5a references through actual typed, captured and headless consumers.
-//! Reference mathematics and criteria are frozen; requests are re-authored .5.
-//! These controls grant no retained permit or qualification.
+//! Reference mathematics and criteria are frozen; each SHA-bound frozen request is
+//! re-authored in memory to the current model version by the shared rule
+//! (`core/product_physics/tests/common/current_model.rs`; a 0.5.0 request by its
+//! version alone). These controls grant no retained permit or qualification.
 use open_pipe_stress_headless_runner::{
     run_preview_model_value_with_mode, PrivacyContext, ProfessionalBoundary, Provenance,
     RedistributionStatus, Reference, RunnerOperation, RunnerRequest, TbdDecisions,
@@ -13,11 +15,14 @@ use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 use std::path::Path;
 
+#[path = "../../../product_physics/tests/common/current_model.rs"]
+mod current_model;
+
 const MODES: [PreviewSolverMode; 2] = [
     PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny,
 ];
 const ORACLE: &str = include_str!("../../../../validation/references/t4_u5a/oracle.json");
-const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
+const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 
 fn references() -> Value { serde_json::from_str(ORACLE).unwrap() }
 fn payload(case: &Value) -> Value {
@@ -25,7 +30,7 @@ fn payload(case: &Value) -> Value {
         .join("../../../validation/references/t4_u5a").join(case["request"].as_str().unwrap());
     let bytes = std::fs::read(path).unwrap();
     assert_eq!(format!("{:x}", Sha256::digest(&bytes)), case["request_sha256"].as_str().unwrap());
-    serde_json::from_slice(&bytes).unwrap()
+    current_model::reauthor_request(serde_json::from_slice(&bytes).unwrap())
 }
 fn runner_request(model: &Value) -> RunnerRequest {
     RunnerRequest {

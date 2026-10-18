@@ -9,6 +9,8 @@
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 
+#[path = "common/current_model.rs"]
+mod current_model;
 #[path = "common/frozen_rows.rs"]
 mod frozen_rows;
 use frozen_rows::*;

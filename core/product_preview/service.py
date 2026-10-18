@@ -63,7 +63,7 @@ def run_preview_mechanics(model: Mapping[str, Any] | None = None) -> dict[str, A
 
     The current technical preview returns a frozen invented result fixture,
     ``invented_demo_result_preview_physics_1_sparse.json``: the product's own
-    preview-physics-1 output for the demo model (one current mechanics-result
+    preview-physics-2 output for the demo model (one current mechanics-result
     version, b7-plan E2). It is not a solve of the given model, and it does not
     perform external solver/prover execution or rule-pack checking.
     """
@@ -82,7 +82,7 @@ def build_analysis_run_preview(model: Mapping[str, Any] | None = None) -> dict[s
     """Build the current (0.3.0) analysis-run record of the bundled demo's result.
 
     Analysis runs keep one current version, so the record binds the product's
-    verbatim preview-physics-1 output for the bundled demo model
+    verbatim preview-physics-2 output for the bundled demo model
     (``invented_demo_result_preview_physics_1_sparse.json``), the statement
     ``run_preview_mechanics`` returns. Like that result, it is frozen and not a
     solve of the given model. Its input manifest states the demo
