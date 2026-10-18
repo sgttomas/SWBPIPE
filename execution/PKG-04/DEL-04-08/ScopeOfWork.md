@@ -97,7 +97,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - The bound holds for both of the formation's stiffness readouts: the admitted binary64 section products and the exact annulus geometry.
   - **Rows without a verified class.**
     - Prescribed degrees of freedom are `input_derived` with value +0, as are the Lamé and section-pressure stresses and the user-input reviews. They are formed from the inputs and carry no solve bound.
-    - These rows are `not_covered` and keep their ordinary values: every other row kind; rows with no body scale; and, under R-COMB-1, each quantity row of an unavailable combination or of an ordinary combination that names a load case whose trigger is not `not_required`.
+    - These rows are `not_covered`: every other row kind; rows with no body scale; and, under R-COMB-1, each quantity row of an unavailable combination or of an ordinary combination that names a load case whose trigger is not `not_required`. They keep their ordinary values, except the section normal-stress extremes and transverse-shear maxima, which are formed in binary64 from the successor's own published stress, section-action and end-force rows and its captured section and material.
     - Intensified bending stresses carry no verified class: the reader refuses a successor that classifies one (G5b).
   - **Route L domain.**
     - It covers straight Euler–Bernoulli members, nodal loads and full-span uniform member loads, rigid restraints and global scalar springs, and base or named-point E and G. DEF-O and DEF-C also define interpolated E and G, which D1 refuses at admission.
@@ -105,7 +105,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - It also covers mechanics combinations under the B2-C contract. Each combination has its own solve on the combined exact ledger and at least one selected operand. It publishes exactly 7n + 50m + 8g rows (n nodes, m members, g attributed supports), of which constrained displacement components are `input_derived` +0.
     - Combination maxima, intensified rows, range envelopes, state differences and combinations with member-load operands are not covered.
   - **Route E domain.** It covers direct load cases with nodal loads only, under these conditions:
-    - current model 0.5.0 with the explicit `3.0.0/exact_pressure_v3` contract;
+    - current model 0.6.0 with the explicit `3.0.0/exact_pressure_v3` contract;
     - explicitly empty pressure regions;
     - straight members;
     - base common E and ν;
@@ -120,7 +120,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 
   **Eligibility.** All of these must hold:
   - the solve captured its invocation;
-  - current model 0.5.0 with the `3.0.0/exact_pressure_v3` contract;
+  - current model 0.6.0 with the `3.0.0/exact_pressure_v3` contract;
   - no nonlinear supports and no combinations;
   - an explicitly empty pressure-region inventory;
   - at most 256 degrees of freedom;
@@ -257,7 +257,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - The formation definitions and the tables' formation warrants use "certificate" throughout, as the technical name of the numerical error proof.
   - **The choice.** The texts can keep these words, or the user-facing ones can adopt the nonlinear K-D5 ruling R5's wording ("established", "confirmed"). The choice is the owner's.
   - **Consequences of a change.** The tables and definitions are reviewed inputs: changing their text changes their digests and requires a D3 re-registration. The messages are pinned in committed successor bytes, which would need to be regenerated.
-- **TBD-002** — *A stale reviewed-input sentence.* The `physics-retained-1` table's `accuracy_classification.scope` still reads "model 0.3.0 with the 2.0.0/exact_straight_pressure_v2 contract". DEF-E and the code admit current model 0.5.0 with `3.0.0/exact_pressure_v3`. Correcting the sentence changes a reviewed input and requires D3.
+- **TBD-002** — *A stale reviewed-input sentence.* The `physics-retained-1` table's `accuracy_classification.scope` still reads "model 0.3.0 with the 2.0.0/exact_straight_pressure_v2 contract". DEF-E and the code admit current model 0.6.0 with `3.0.0/exact_pressure_v3`. Correcting the sentence changes a reviewed input and requires D3.
 
 ## Production and Verification Method — Praxeology
 
