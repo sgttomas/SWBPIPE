@@ -1006,8 +1006,10 @@ persistence (AGENTS.md). Both solver modes run throughout.
      - *Not formed in the product*, because their observables are not published:
        `sif_applied_to_whole_max_normal` and `sif_applied_to_axial`, on
        `axial_plus_intensified_bending`.
-     - *An added producer mutant.* A fibre-location mirror, (M_z, −M_y) in place of (−M_z, M_y),
-       must be killed by the derived-fibre comparison.
+     - *The fibre convention.* The fibres are not a producer output (§2.3). Their sign is a
+       property of the published bending rows, which U4a's references already discriminate. The
+       derived-fibre comparison confirms the convention end to end, and a test-side mirror,
+       (σ_z, −σ_y) in place of (−σ_z, σ_y), must fail against the oracle.
    - The stress_recovery unit tests compare the SV field at the six fibres and both surfaces,
      and the hoop at all six oracle fibres, with the oracle at the criterion.
    - The arc maximum function has its own tests:
