@@ -667,6 +667,8 @@ fn fresh_semantics_metadata(metadata: &ResultMetadataDto) -> bool {
             | "nominal_straight_beam_formula_on_arc_resultants"
             | "user_sif_times_member_section_bending_stress_v1"
             | "retained_source_endpoint_normal_max_v1"
+            // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.2): the tie-rod force basis.
+            | "recovered_from_tie_rod_extension_v1"
     ) || matches!(
         metadata.component.as_str(),
         "Fx" | "Fy" | "Fz" | "Mx" | "My" | "Mz"
@@ -674,7 +676,14 @@ fn fresh_semantics_metadata(metadata: &ResultMetadataDto) -> bool {
             | "moment_magnitude"
             | "maximum_absolute_normal_stress"
             | "equal_factor_intensified_bending_stress"
-    ) || metadata.location == "governing_station"
+            // T4-U5b: the tie-rod force component.
+            | "t_r"
+    ) || matches!(
+        metadata.location.as_str(),
+        "governing_station"
+            // T4-U5b: the tie-rod force location.
+            | "tie_rod"
+    )
 }
 
 pub fn assemble_wire_request(
@@ -895,6 +904,10 @@ mod tests {
             ("component", "maximum_absolute_normal_stress"),
             ("component", "equal_factor_intensified_bending_stress"),
             ("location", "governing_station"),
+            // T4-U5b: the tie-rod force row's tokens.
+            ("basis", "recovered_from_tie_rod_extension_v1"),
+            ("component", "t_r"),
+            ("location", "tie_rod"),
         ] {
             let mut fresh = witness.clone();
             let value = fresh.pointer_mut("/result_envelopes/0/result_sets/0/values/0").unwrap();

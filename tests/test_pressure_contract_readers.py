@@ -189,7 +189,8 @@ def _imports(path: Path) -> set[str]:
 def test_the_verifier_is_independent_and_test_only():
     # Standard library only: no product module and no producer bridge
     # (core/serialization/canonical_json/adapter.py, core/units/adapter.py).
-    stdlib = {"__future__", "collections.abc", "copy", "hashlib", "json", "math", "pathlib", "re", "struct", "typing"}
+    # T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.1): the s_x binding sums exact rationals (fractions).
+    stdlib = {"__future__", "collections.abc", "copy", "fractions", "hashlib", "json", "math", "pathlib", "re", "struct", "typing"}
     # T4-U6 (D-5): the section-basis rules shared by the test-only verifiers live in the sibling
     # tests/verifiers/section_basis.py, which is itself standard library only.
     assert _imports(VERIFIER) <= stdlib | {".section_basis"}

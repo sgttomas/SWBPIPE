@@ -1388,7 +1388,10 @@
           "const": "constant_structural_elasticity_v1"
         },
         "hardware": {
-          "const": "untied"
+          "enum": [
+            "untied",
+            "explicit_axial_rods_v1"
+          ]
         },
         "pressure_model": {
           "enum": [
@@ -1417,6 +1420,76 @@
         "pressure_source_reference": {
           "type": "string",
           "minLength": 1
+        },
+        "tie_rods": {
+          "type": "array",
+          "minItems": 1,
+          "description": "T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md section 3.3): one entry per explicit elastic tie rod, in authored order. Closed shape only; uniqueness, the axial share and row binding are executable reader validation.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "law",
+              "offset_global_m",
+              "stiffness_n_per_m",
+              "reference_extension_m",
+              "length_m",
+              "direction_global",
+              "axial_share",
+              "source_reference"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "law": {
+                "const": "bilateral_linear"
+              },
+              "offset_global_m": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              },
+              "stiffness_n_per_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "reference_extension_m": {
+                "type": "number"
+              },
+              "length_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "direction_global": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "axial_share": {
+                "type": "number",
+                "minimum": -1,
+                "maximum": 1
+              },
+              "source_reference": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
         }
       },
       "oneOf": [
@@ -1457,6 +1530,32 @@
             "pressure_basis",
             "pressure_source_reference"
           ]
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "hardware": {
+                "const": "explicit_axial_rods_v1"
+              }
+            },
+            "required": [
+              "hardware"
+            ]
+          },
+          "then": {
+            "required": [
+              "tie_rods"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "tie_rods"
+              ]
+            }
+          }
         }
       ]
     },
@@ -1571,7 +1670,8 @@
             "gr_y",
             "gr_z",
             "pe_x",
-            "s_x"
+            "s_x",
+            "t_r"
           ]
         },
         "coordinate_system": {
@@ -1596,7 +1696,8 @@
             "summary",
             "TBD",
             "governing_station",
-            "connector_local"
+            "connector_local",
+            "tie_rod"
           ]
         },
         "basis": {
@@ -1619,7 +1720,8 @@
             "recovered_from_local_element_stiffness; section_basis=nominal_section",
             "recovered_from_local_element_stiffness; section_basis=reduced_section",
             "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
-            "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
+            "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+            "recovered_from_tie_rod_extension_v1"
           ]
         },
         "sign_convention": {

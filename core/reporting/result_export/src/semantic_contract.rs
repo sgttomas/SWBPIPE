@@ -100,11 +100,12 @@ pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID
 /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
 /// token × section basis), each with its `source_basis`.
 pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b";
-pub const PRESSURE_TABLE_SHA256: &str = "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f";
+pub const PRESSURE_TABLE_SHA256: &str = "ac763579b94de43a2f9806a3209121fc3cf65a4ae0c74d494d58d8efe42f4422";
 /// The pinned counts, re-derived from the tables (T4-U6: pressure-2 106
-/// signatures over 59 kinds; pressure-source-1 88 over 51).
-pub const PRESSURE_SIGNATURE_COUNT: u64 = 106;
-pub const PRESSURE_KIND_COUNT: u64 = 59;
+/// signatures over 59 kinds, T4-U5b: plus the tie-rod force, 107 over 60;
+/// pressure-source-1 88 over 51).
+pub const PRESSURE_SIGNATURE_COUNT: u64 = 107;
+pub const PRESSURE_KIND_COUNT: u64 = 60;
 pub const PRESSURE_SOURCE_SIGNATURE_COUNT: u64 = 88;
 pub const PRESSURE_SOURCE_KIND_COUNT: u64 = 51;
 /// B1 (b7-plan): precision-1 is no longer read. A stored precision-1 result is
@@ -137,7 +138,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "580ea6f318970f327301ae88ab6bb93e8929daaa2dd9cb8eceaff5aa40c61290";
+    "a59ef69dc3c6c21e96d90b139cb8c82f9f67e7361d4accb321b219575e68179f";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -282,7 +283,8 @@ pub use crate::connector_evidence::KINDS as CONNECTOR_ROW_KINDS;
 /// T4-U2: the connector rows' stable basis and the canonical metadata
 /// vocabulary they add to the straight-member vocabulary under pressure-2.
 pub use crate::connector_evidence::{
-    ROW_BASIS as CONNECTOR_ROW_BASIS, VOCABULARY_COMPONENTS as CONNECTOR_VOCABULARY_COMPONENTS,
+    ROW_BASIS as CONNECTOR_ROW_BASIS, VOCABULARY_BASES as CONNECTOR_VOCABULARY_BASES,
+    VOCABULARY_COMPONENTS as CONNECTOR_VOCABULARY_COMPONENTS,
     VOCABULARY_COORDINATE_SYSTEMS as CONNECTOR_VOCABULARY_COORDINATE_SYSTEMS,
     VOCABULARY_LOCATIONS as CONNECTOR_VOCABULARY_LOCATIONS,
 };
@@ -328,7 +330,7 @@ mod b7b_current_table_tests {
     fn b7b_current_tables_are_independent_and_bind_their_own_bytes() {
         let ordinary = pressure_rows_contract();
         let source = pressure_source_contract();
-        assert_eq!(ordinary["rows"].as_array().unwrap().len(), 106);
+        assert_eq!(ordinary["rows"].as_array().unwrap().len(), 107);
         assert_eq!(source["rows"].as_array().unwrap().len(), 88);
         assert_eq!(source["source_kind_count"], 51);
         assert!(ordinary.get("inherited_semantic_contract_sha256").is_none());

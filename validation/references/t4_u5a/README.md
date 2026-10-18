@@ -168,6 +168,17 @@ historical; B7b verifies the current behavior against these 19 oracles and 17
 refusal variants in both solver modes. This paragraph claims no product pass.
 Any other change to a value needs a substantive reason recorded in the Design.
 
+**RV-11 supersession (T4-U5b).** RV-11's frozen patch sets
+`{"kind": "explicit_axial_rods_v1", "rods": []}` on a pressurized joint and
+expects `JOINT_HARDWARE_LAW_UNSUPPORTED`; its description reads "explicit axial
+rods with a pressurized joint (until U5b)". T4-U5b defines that hardware kind
+in model 0.6.0 (DEL-04-07 Design `u4b-u5b-implementation.md` §3.1), and an
+empty `rods` list is refused as `JOINT_TIE_ROD_INPUT_INVALID`. The consuming
+test runs RV-11 and asserts the superseding code by name; the other sixteen
+variants keep their frozen expectations. No request byte, oracle value or
+generator byte changes; only this README's line of `SHA256SUMS` is
+regenerated. This paragraph claims no product pass.
+
 These references are independent derivations; before code relies on them, a
 second TASK that did not write them refutes them (plan 01 section 5). No
 product check is claimed here.

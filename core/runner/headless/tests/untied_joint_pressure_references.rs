@@ -277,8 +277,17 @@ fn u5_seventeen_refusal_variants_keep_exact_codes_refs_and_no_export_in_both_mod
     assert_eq!(oracle["refusals"].as_object().unwrap().len(),17);
     for (name,variant) in oracle["refusals"].as_object().unwrap() {
         let request=patched(&base,&variant["operations"]);
-        let expected:BTreeSet<String>=variant["expected"]["blocking_codes_exactly"].as_array().unwrap()
+        let mut expected:BTreeSet<String>=variant["expected"]["blocking_codes_exactly"].as_array().unwrap()
             .iter().map(|v|v.as_str().unwrap().into()).collect();
+        // T4-U5b supersedes RV-11 by name (validation/references/t4_u5a/README.md,
+        // "RV-11 supersession"; DEL-04-07 Design u4b-u5b-implementation.md §3.1):
+        // explicit_axial_rods_v1 is defined, and its empty rods list is refused
+        // as JOINT_TIE_ROD_INPUT_INVALID. The frozen patch and expectation are
+        // unchanged; every other variant keeps its frozen code set.
+        if name=="RV-11" {
+            assert_eq!(expected,BTreeSet::from(["JOINT_HARDWARE_LAW_UNSUPPORTED".to_string()]),"RV-11's frozen expectation");
+            expected=BTreeSet::from(["JOINT_TIE_ROD_INPUT_INVALID".to_string()]);
+        }
         for mode in MODES {
             let (sources,document)=run(&request,mode);
             for source in sources {

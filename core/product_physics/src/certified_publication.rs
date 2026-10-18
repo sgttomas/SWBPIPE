@@ -381,6 +381,7 @@ pub(super) fn connector_record(
     body: Option<usize>,
     certificate: &open_pipe_stress_frame_kernel::structural::CertifiedConnectorRecovery,
     effective_axial: Option<&CertifiedRow>,
+    tie_rods: &[(&str, CertifiedRow)],
 ) -> Result<formation_guard::RecoveryRecord, RecoveryFailure> {
     let mut groups = Vec::new();
     for (location, rows) in [
@@ -393,6 +394,10 @@ pub(super) fn connector_record(
     }
     if let Some(row) = effective_axial {
         groups.push(group("connector_local", "effective_axial_force", false, std::slice::from_ref(row), false)?);
+    }
+    // T4-U5b: each tie rod's certified force, a published force row.
+    for (rod, row) in tie_rods {
+        groups.push(group(&format!("tie_rod:{rod}"), "tie_rod_force", false, std::slice::from_ref(row), false)?);
     }
     Ok(formation_guard::RecoveryRecord {
         member: entity.into(),

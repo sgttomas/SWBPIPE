@@ -374,7 +374,7 @@ fn reader_control_for(mode: PreviewSolverMode, anchored: bool) -> Value {
     }
     let envelope = MechanicsEnvelope {
         contract_evidence: Some(
-            json!({"connector":joint::connector_evidence(&case.model),"pressure":solve.pressure_evidence,"exact_cases":[solve.exact_case_evidence.unwrap()]}),
+            json!({"connector":joint::connector_evidence(&case.model, &case.built.connectors, &case.built.connector_records),"pressure":solve.pressure_evidence,"exact_cases":[solve.exact_case_evidence.unwrap()]}),
         ),
         schema_version: MECHANICS_SCHEMA_VERSION.into(),
         producer: mechanics_producer_for_model(&case.model),
