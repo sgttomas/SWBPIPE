@@ -982,6 +982,13 @@ changes, 0.5.0 → 0.6.0. Requirements and criteria are unchanged.
 - DEL-04-08 REQ-001 "Route E domain" ("current model 0.5.0 …") and REQ-002 "Eligibility"
   ("current model 0.5.0 …"). The owner, 2026-10-17: "Confirm both (Recommended)". Only the version
   token changes.
+- DEL-04-08 REQ-003 (c), REQ-006 and REQ-007 (c): `pressure-1` → `pressure-2`,
+  `PRESSURE-1-OUTPUT-NOT-YET-AVAILABLE` → `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`, and "replace" →
+  "replaced" in REQ-007 (c). The owner, 2026-10-17: "Confirm token edits (Recommended)". "Merge
+  with the gap" stands.
+- Status and evidence prose naming the old tokens is reconciled under the same token-only rule
+  (HELP_HUMAN, 2026-10-17): DEL-03-01, DEL-05-02, DEL-05-03, DEL-07-05, DEL-08-06, DEL-14-02 and
+  DEL-17-06.
 
 **REQ-001's value clause** (owner, 2026-10-17: "Form from own resultants (Recommended)"). Only that
 clause changes, and only for derived kinds formed from published operands.
