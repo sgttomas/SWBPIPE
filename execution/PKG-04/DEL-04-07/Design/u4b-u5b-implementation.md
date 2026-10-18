@@ -80,6 +80,22 @@ The owner decided Q2 (option (ii)) and the 0.6.0 status sentences on 2026-10-17.
   - *No objection* to the W1 not-covered passthrough, to keeping row metadata unchanged, to the
     arc maximum's existing gap rule with a defined evidence record, to the t4_u5a RV-11
     supersession note, or to the full source-work law.
+- **HELP_HUMAN, 2026-10-18, on the t4_u5b AS-F-R disagreement: "take (A)."** The product
+  publishes the corrected displacement fl(u + w + w2) wherever the formation check's certified
+  bound exists. AS-F-R's node-B displacements had missed the frozen criterion by up to 1.97×. An
+  independent exact solve of the represented request showed the cause was the published binary64
+  solve, not input representation.
+  - No ScopeOfWork or PRD sentence commits to publishing the solve's own displacement. The
+    change revises DEL-04-01 Design (`kd5-member-relative-bound.md` §2.2 and §3) and the published
+    FormulationBasis limitation text.
+  - The test carve-out is removed. All 38 t4_u5b cases pass the unchanged criterion in both
+    modes, and t4_u5a stays green.
+  - Only rows with a certified bound are corrected: nodal displacements, their magnitudes and the
+    displacement headline. Which cases keep the solve's own displacement is stated where the rule
+    is built, and both paths are tested.
+  - The S11-F bit-identity under W2 force scaling is restated only if it is shown that it cannot
+    hold.
+  - The change gets its own independent scrutiny, as well as the epoch's dual review.
 
 ## 1. Formats and identities
 
