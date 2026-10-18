@@ -95,7 +95,7 @@ pub(crate) fn station_fraction(location: &str) -> f64 {
         _ => 1.0,
     }
 }
-fn id_location(location: &str) -> &str {
+pub(crate) fn id_location(location: &str) -> &str {
     match location {
         "end_i" => "end-i",
         "end_j" => "end-j",
@@ -209,6 +209,21 @@ fn on_basis(row: ResultItem, basis: Option<SectionBasis>, hyphen: bool) -> Resul
     match basis {
         Some(basis) => section_basis_row(row, basis, hyphen),
         None => row,
+    }
+}
+
+/// T4-U4b §4.1 (W1's failed-ordinary manifest): one straight preview member's 15 derived
+/// rows, σ⁺, σ⁻ and τ_v,max at the five stations in `append_station_quantities`' order, with
+/// their ordinary ids and metadata and placeholder values that the freeze forms from the
+/// projected rows.
+pub(crate) fn preview_straight_derived_placeholders(results: &mut Vec<ResultItem>, pipe_id: &str) {
+    let suffix = stable_suffix(pipe_id);
+    for location in STATIONS {
+        let loc = id_location(location);
+        for (component, sign, tail) in [("sigma_plus", SIGMA_PLUS_SIGN, "sigma-plus"), ("sigma_minus", SIGMA_MINUS_SIGN, "sigma-minus")] {
+            results.push(row(format!("result:stress:{suffix}:{loc}:{tail}"), EXTREME_KIND, 0.0, "MPa", pipe_id, component, location, EXTREMES_BASIS, sign));
+        }
+        results.push(row(format!("result:stress:{suffix}:{loc}:transverse-shear-max"), SHEAR_MAX_KIND, 0.0, "MPa", pipe_id, "tau_v_max", location, SHEAR_STRAIGHT_BASIS, SHEAR_SIGN_PREVIEW));
     }
 }
 

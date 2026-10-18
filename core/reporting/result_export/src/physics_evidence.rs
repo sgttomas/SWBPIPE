@@ -735,9 +735,13 @@ pub(crate) fn validate_physics_evidence_in(
             marked_arcs.contains(text(&row["entity_ref"])?),
         )?;
         // T4-U4b (§5.1): the new kinds' signatures and declared semantics; the
-        // pressure-source-1 composite carries none of them (S4).
+        // pressure-source-1 composite carries the straight-member derived kinds
+        // only (§4.3: no arc reaches its source family).
         if crate::u4b_evidence::KINDS.contains(&kind) {
-            require(!composite && signature.is_some(), "ROW_SIGNATURE")?;
+            require(
+                signature.is_some() && (!composite || [crate::u4b_evidence::EXTREME, crate::u4b_evidence::SHEAR_MAX].contains(&kind)),
+                "ROW_SIGNATURE",
+            )?;
             crate::u4b_evidence::row_semantics(row, crate::u4b_evidence::Route::Exact, marked_arcs.contains(text(&row["entity_ref"])?))?;
         }
         if pipe_kind(kind) {

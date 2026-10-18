@@ -273,8 +273,9 @@ pub(super) fn requested_mode_basis(mode: PreviewSolverMode, case_index: usize) -
     format!("captured_requested_mode; solver_mode={}; ordinary_attempt=failed_without_observation; owner_ref=case:{case_index}; certificate=retained_precision.body.cases[{case_index}].selection", mode.as_str())
 }
 /// The failed manifest's per-member rows: 12 end actions, 18 station actions, 8 endpoint and
-/// 12 station stresses, and the circular maximum.
-const FAILED_MEMBER_ROWS: usize = 51;
+/// 12 station stresses, the circular maximum and (T4-U4b, §4.1) the 15 not-covered derived
+/// rows: σ⁺, σ⁻ and τ_v,max at the five stations.
+const FAILED_MEMBER_ROWS: usize = 66;
 const FAILED_STATIONS: [&str; 3] = ["quarter_1", "midspan", "quarter_3"];
 /// The solved preview run's fixed identifier (lib.rs's solved envelope).
 const FAILED_SUCCESSOR_RUN_ID: &str = "run:preview-linear-static-001";
@@ -2556,6 +2557,22 @@ impl ProductCapture {
                     owner.source().body_of_node(self.supports[s].1 as u32),
                     unit,
                 )
+            } else if derived_kind(&r.kind) {
+                // §4.1/§4.2: a recipe-free not-covered row at its own position; a mechanics
+                // combination publishes none (never_combined).
+                if combination.is_some() {
+                    return Err("combination derived row".into());
+                }
+                let m = member.ok_or("derived row member")?;
+                if r.unit != "MPa" {
+                    return Err("derived unit".into());
+                }
+                let row = u32::try_from(out.len()).map_err(|_| CaptureError::CountRange("derived row position"))?;
+                (
+                    k::ProductRecipe::NotCovered { row },
+                    owner.source().body_of_node(self.members[m].nodes[0] as u32),
+                    k::ProductUnit::Megapascal,
+                )
             } else {
                 let m = member.ok_or("row member")?;
                 let id = self.members[m].model as u32;
@@ -2644,9 +2661,14 @@ impl ProductCapture {
             let section_basis = (route == W1Route::Exact
                 && matches!(recipe, k::ProductRecipe::Stress { .. } | k::ProductRecipe::CircularMaximum { .. }))
                 .then_some(pressure_exact::SectionBasis::Nominal);
+            // §4.1: a route-E derived row names its own basis (no twin pairing).
+            let derived_basis = match (route, recipe) {
+                (W1Route::Exact, k::ProductRecipe::NotCovered { .. }) => Some(derived_section_basis(r)?),
+                _ => None,
+            };
             if recipe != k::ProductRecipe::ModulusBasisRecord {
                 let subject=match combination {None=>RowSubject::Case{case:&self.case_id,qualified:view.scope.qualified},Some(id)=>RowSubject::Combination(id)};
-                validate_final_metadata(r, recipe, subject, &self.adapter, section_basis)?;
+                validate_final_metadata(r, recipe, subject, &self.adapter, section_basis.or(derived_basis))?;
             }
             if section_basis.is_some() {
                 pending_nominal = Some(observed);
@@ -3347,6 +3369,29 @@ fn validate_final_metadata(
             meta(component, "element_local", loc, basis, &sign)?;
             format!("result:stress:{suffix}:{idloc}:{tail}")
         }
+        // §4.1: a derived row's identity, unit and metadata are its ordinary row's (straight
+        // members only: arcs never reach W1); its τ sign names the route's ν rule.
+        k::ProductRecipe::NotCovered { .. } => {
+            let md = m.ok_or("derived metadata")?;
+            let loc = md.location.as_str();
+            if !u4b_rows::STATIONS.contains(&loc) {
+                return Err("derived row site".into());
+            }
+            let (component, tail, basis, sign) = if row.kind == u4b_rows::EXTREME_KIND {
+                if md.component == "sigma_plus" {
+                    ("sigma_plus", "sigma-plus", u4b_rows::EXTREMES_BASIS, u4b_rows::SIGMA_PLUS_SIGN)
+                } else {
+                    ("sigma_minus", "sigma-minus", u4b_rows::EXTREMES_BASIS, u4b_rows::SIGMA_MINUS_SIGN)
+                }
+            } else if row.kind == u4b_rows::SHEAR_MAX_KIND {
+                let sign = if section_basis.is_some() { u4b_rows::SHEAR_SIGN_EXACT } else { u4b_rows::SHEAR_SIGN_PREVIEW };
+                ("tau_v_max", "transverse-shear-max", u4b_rows::SHEAR_STRAIGHT_BASIS, sign)
+            } else {
+                return Err("derived kind".into());
+            };
+            meta(component, "pipe_section", loc, basis, sign)?;
+            format!("result:stress:{suffix}:{}:{tail}", u4b_rows::id_location(loc))
+        }
         k::ProductRecipe::CircularMaximum { .. } => {
             meta("maximum_absolute_normal_stress","pipe_section","governing_station","recovered_from_open_mechanics_stress_components",
                 "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim")?;
@@ -3363,7 +3408,7 @@ fn validate_final_metadata(
     // D-5 (§2.5): a route-E stress row's id ends in its basis segment (hyphen-style
     // `result:stress:…`, underscore-style `result:elastic-maximum:…`).
     let expected = match (section_basis, recipe) {
-        (Some(basis), k::ProductRecipe::Stress { .. }) => format!("{expected}:{}", basis.hyphen()),
+        (Some(basis), k::ProductRecipe::Stress { .. } | k::ProductRecipe::NotCovered { .. }) => format!("{expected}:{}", basis.hyphen()),
         (Some(basis), _) => format!("{expected}:{}", basis.token()),
         (None, _) => expected,
     };
@@ -4544,6 +4589,9 @@ impl ProductCapture {
                 basis_ref:None,source_result_refs:Vec::new(),metadata:Some(ResultMetadata{component:"maximum_absolute_normal_stress".into(),
                     coordinate_system:"pipe_section".into(),location:"governing_station".into(),basis:"recovered_from_open_mechanics_stress_components".into(),
                     sign_convention:MAXIMUM_SIGN.into()})});
+            // §4.1: the derived rows in preview-physics-2's order, as placeholders the freeze
+            // forms from the projected rows (`prepared_not_covered`).
+            u4b_rows::preview_straight_derived_placeholders(&mut rows,&member.id);
         }
         if rows.len()!=count {
             return Err("failed manifest row count".into());
@@ -5529,6 +5577,10 @@ impl PreparedCase {
         observer.prepare_owned_case(ordinary)
     }
     pub(super) fn ordinary(&self)->&MechanicsEnvelope {self.ordinary.as_ref().expect("owned ordinary before attempt")}
+    /// Test access (T4-U4b §4.1's divergence control): the owned ordinary envelope before the
+    /// freeze, so a test can make its resultants deliberately diverge from the retained owner's.
+    #[cfg(test)]
+    pub(super) fn ordinary_mut(&mut self)->&mut MechanicsEnvelope {self.ordinary.as_mut().expect("owned ordinary before attempt")}
     pub(super) fn solve_native(&mut self) -> Result<(),&CaptureError> {
         if self.trace.stages[trace::Stage::Native as usize]!=trace::StageState::NotEntered {
             return Err(&CaptureError::PreparedAttemptConsumed);
@@ -5572,11 +5624,26 @@ struct PreparedPayload { values:k::FrozenProductValues, maxima:Vec<PreparedMaxim
 /// only and the successor overlays the reduced row with its nominal row's
 /// retained value.
 fn reduced_twin(route:W1Route,row:&ResultItem)->bool {
-    route==W1Route::Exact && row.metadata.as_ref().is_some_and(|m|m.basis.ends_with(pressure_exact::SectionBasis::Reduced.basis_suffix()))
+    route==W1Route::Exact && !derived_kind(&row.kind)
+        && row.metadata.as_ref().is_some_and(|m|m.basis.ends_with(pressure_exact::SectionBasis::Reduced.basis_suffix()))
 }
 /// [`reduced_twin`] over a serialized row (the receipt's view of the staged rows).
 pub(super) fn reduced_twin_wire(route:W1Route,row:&serde_json::Value)->bool {
-    route==W1Route::Exact && row["metadata"]["basis"].as_str().is_some_and(|b|b.ends_with(pressure_exact::SectionBasis::Reduced.basis_suffix()))
+    route==W1Route::Exact && !row["kind"].as_str().is_some_and(derived_kind)
+        && row["metadata"]["basis"].as_str().is_some_and(|b|b.ends_with(pressure_exact::SectionBasis::Reduced.basis_suffix()))
+}
+/// T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §4.1): the two straight-member derived
+/// kinds W1 carries as recipe-free `not_covered` rows (`k::ProductRecipe::NotCovered`). Each row,
+/// a reduced-basis row included, binds its own position: the producer publishes σ⁺ and σ⁻ of
+/// both bases before their reduced twins (no adjacent twin pairs), and every value is formed
+/// after projection from the successor's own rows of its basis.
+pub(super) fn derived_kind(kind:&str)->bool {
+    kind==u4b_rows::EXTREME_KIND || kind==u4b_rows::SHEAR_MAX_KIND
+}
+/// The section basis a route-E derived row names by its token suffix.
+fn derived_section_basis(row:&ResultItem)->Result<pressure_exact::SectionBasis,CaptureError> {
+    let basis=&row.metadata.as_ref().ok_or("derived metadata")?.basis;
+    pressure_exact::SectionBasis::BOTH.into_iter().find(|b|basis.ends_with(b.basis_suffix())).ok_or_else(||"derived section basis".into())
 }
 /// The bound (kernel) row index of each case row: a reduced twin takes its
 /// nominal twin's, which immediately precedes it (`bind_rows_subject` checks
@@ -5842,6 +5909,110 @@ impl ProductCapture {
         }
         Ok((patches,outputs))
     }
+    /// T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §4.1; the owner's Q2, "Form from own
+    /// resultants"): each not-covered derived row's value, formed after projection from the
+    /// successor's own projected rows by the ordinary route's binary64 sequence (§2.3, §2.4):
+    /// σ⁺/σ⁻ from the same station's axial and bending stress rows, τ_v,max from its shear
+    /// rows (section rows inside, end-force rows at the ends) with c_b from the captured section
+    /// and material by the route's ν rule (W1-L: ν = E/(2G) − 1 of the source member's moduli;
+    /// W1-E: the member's captured ν). A route-E row of either basis reads the bound nominal
+    /// rows (its reduced stress twin carries the nominal value; the bases coincide). Nothing is
+    /// recovered and nothing is bound to a certificate.
+    fn prepared_not_covered(&self,view:ProductCaseView<'_>,rows:&[k::ProductFinalRow<'_>],owner:&k::RetainedSolve,
+        values:&mut k::ProductValuesBuilder)->Result<(),CaptureError> {
+        const AXIAL:usize=0;const BENDING_Y:usize=1;const BENDING_Z:usize=2;const SHEAR_Y:usize=3;const SHEAR_Z:usize=4;
+        let route=view.scope.route;
+        let source=owner.source();
+        let site_slot=|member:u32,site:k::ProductSite|->Option<usize> {match site {
+            k::ProductSite::End(k::End::I)=>Some(0),k::ProductSite::End(k::End::J)=>Some(1),
+            k::ProductSite::Station(id)=>id.checked_sub(member.checked_mul(3)?).filter(|k|*k<3).map(|k|k as usize+2)}};
+        // One pass: each member's operand rows (five sites, five operands) by bound position.
+        let mut operands=self.adapter.reserve::<[[Option<usize>;5];5]>(self.members.len())?;
+        for _ in 0..self.members.len() {self.capture_entry(AdapterEvent::MapWrite)?;operands.push([[None;5];5]);}
+        let mut pending=0usize;
+        for (i,r) in rows.iter().enumerate() {
+            self.capture_entry(AdapterEvent::RowVisit)?;
+            let (member,site,slot)=match r.recipe {
+                k::ProductRecipe::Stress{member,site,stress}=>(member,site,match stress {
+                    k::ProductStress::Axial=>AXIAL,k::ProductStress::BendingY=>BENDING_Y,k::ProductStress::BendingZ=>BENDING_Z,
+                    k::ProductStress::Torsion=>continue}),
+                k::ProductRecipe::Native(k::QuantityId::EndAction{member,end,component}) if matches!(component,k::Component::Uy|k::Component::Uz)=>
+                    (member,k::ProductSite::End(end),if component==k::Component::Uy{SHEAR_Y}else{SHEAR_Z}),
+                k::ProductRecipe::Native(k::QuantityId::StationAction{station,component}) if matches!(component,k::Component::Uy|k::Component::Uz)=>{
+                    let member=source.stations().iter().find(|s|s.id==station).map(|s|s.member).ok_or("derived station")?;
+                    (member,k::ProductSite::Station(station),if component==k::Component::Uy{SHEAR_Y}else{SHEAR_Z})
+                }
+                k::ProductRecipe::NotCovered{..}=>{pending+=1;continue}
+                _=>continue,
+            };
+            let mi=source.member_index(member).ok_or("derived operand member")?;
+            let s=site_slot(member,site).ok_or("derived operand site")?;
+            let cell=&mut operands[mi][s][slot];
+            if cell.is_some() {return Err("derived operand identity".into());}
+            self.capture_entry(AdapterEvent::MapWrite)?;
+            *cell=Some(i);
+        }
+        if pending==0 {return Ok(());}
+        let mut bound=0usize;
+        for r in view.case_rows() {
+            self.capture_entry(AdapterEvent::RowVisit)?;
+            if reduced_twin(route,r) {continue;}
+            let i=bound;bound+=1;
+            if !matches!(rows.get(i).ok_or("derived row binding")?.recipe,k::ProductRecipe::NotCovered{..}) {continue;}
+            self.capture_entry(AdapterEvent::ValidationEntry)?;
+            let mi=self.members.iter().position(|m|m.id==r.entity_ref).ok_or("derived member")?;
+            let model=self.members[mi].model as u32;
+            let md=r.metadata.as_ref().ok_or("derived metadata")?;
+            let site=match md.location.as_str() {
+                "end_i"=>k::ProductSite::End(k::End::I),"end_j"=>k::ProductSite::End(k::End::J),
+                "quarter_1"=>k::ProductSite::Station(model*3),"midspan"=>k::ProductSite::Station(model*3+1),
+                "quarter_3"=>k::ProductSite::Station(model*3+2),_=>return Err("derived row site".into()),
+            };
+            let s=site_slot(model,site).ok_or("derived row site")?;
+            self.capture_entry(AdapterEvent::LibraryBoundary)?; // The shared stress_recovery formulas.
+            let value={
+            let mut operand=|slot:usize|->Result<f64,CaptureError> {
+                let at=operands[mi][s][slot].ok_or("derived operand row")?;
+                values.value(at).map_err(CaptureError::PreparedProof)?.ok_or_else(||"unprojected derived operand".into())
+            };
+            if r.kind==u4b_rows::EXTREME_KIND {
+                let e=open_pipe_stress_stress_recovery::section_stress_quantities::normal_stress_extremes(
+                    operand(AXIAL)?,operand(BENDING_Y)?,operand(BENDING_Z)?);
+                if md.component=="sigma_plus" {e.sigma_plus} else {e.sigma_minus}
+            } else {
+                let (vy,vz)=(operand(SHEAR_Y)?,operand(SHEAR_Z)?);
+                let f=self.facts.get(mi).ok_or("derived section facts")?;
+                let m=source.members().get(mi).ok_or("derived source member")?;
+                let nu=match route {
+                    W1Route::Preview=>u4b_rows::preview_poisson_ratio(m.elastic_modulus,m.shear_modulus),
+                    W1Route::Exact=>self.material_nu.get(self.members[mi].material).copied().flatten().ok_or("derived material Poisson ratio")?,
+                };
+                // The captured section's annulus, as the successor's own evidence states it.
+                // Route E: r_o = D/2, r_i = D/2 − t and the regenerated I (the prepared facts',
+                // which the successor's `pipe_sections` carry). Route L: the preview section the
+                // model defines (`derive_pipe_section`): d = D − 2t, r_i = d/2 and
+                // I = π(D⁴ − d⁴)/64, not the prepared facts' (no preview evidence carries them).
+                let (inner,inertia)=match route {
+                    W1Route::Preview=>{let id=f.diameter-2.0*f.effective_wall;
+                        (id/2.0,std::f64::consts::PI*(f.diameter.powi(4)-id.powi(4))/64.0)}
+                    W1Route::Exact=>(f.diameter*0.5-f.effective_wall,f.second_moment),
+                };
+                let factor=open_pipe_stress_stress_recovery::section_stress_quantities::saint_venant_shear_factor(nu,f.radius,inner,inertia)
+                    .map_err(|_|CaptureError::Association("derived transverse-shear factor".into()))?;
+                open_pipe_stress_stress_recovery::section_stress_quantities::transverse_shear_maximum_mpa(vy,vz,factor)
+            }
+            };
+            values.complete_not_covered(i,value).map_err(CaptureError::PreparedProof)?;
+        }
+        Ok(())
+    }
+    /// Test access (§4.1): the not-covered derived rows of `ordinary`'s whole case completed on a
+    /// manually driven kernel builder, as `freeze_case` completes them.
+    #[cfg(test)]
+    pub(super) fn complete_not_covered_for_test(&self,ordinary:&MechanicsEnvelope,rows:&[k::ProductFinalRow<'_>],owner:&k::RetainedSolve,
+        values:&mut k::ProductValuesBuilder)->Result<(),CaptureError> {
+        self.prepared_not_covered(ProductCaseView::of(ordinary,CaseScope::whole_ref(self.route)),rows,owner,values)
+    }
     /// B3b-P (B3-D P-8, §1.4): the exact route's section evidence regenerated for the owner case:
     /// for each member, its `pipe_sections` entry in the case's `exact_cases` entry (matched by
     /// `pipe_id`) takes the prepared A, I, J and Z (the facts after preparation). OD, wall, the
@@ -5935,6 +6106,10 @@ impl ProductCapture {
                 W1Route::Exact=>match self.prepared_sections(ordinary,scope) {
                     Ok(v)=>v,Err(cause)=>return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())})},
             };
+            // §4.1 (owner's Q2): the not-covered derived rows, formed from the projected rows.
+            if let Err(cause)=self.prepared_not_covered(ProductCaseView::of(ordinary,scope),&base_rows,owner,&mut builder) {
+                return Err(PreparedCandidateError::Abandoned{cause,proof:projected.abandon_values(builder.abandon())});
+            }
             trace.completed(trace::Stage::Maxima);trace.enter(trace::Stage::Values);
             #[cfg(test)] let maxima_input=if self.trace_fault==Some(trace::TraceFault::ValuesCompletion){&maxima[..0]}else{&maxima[..]};
             #[cfg(not(test))] let maxima_input=&maxima[..];

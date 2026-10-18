@@ -40,6 +40,8 @@ fn source_text(name: &str) -> &'static str {
         "physics-sparse" => {
             include_str!("../../../../fixtures/results/pressure_connected_mechanics_sparse.json")
         }
+        // T4-U4b review: the directional pressurized arc envelope of the base corpus.
+        "u4b-arc" => include_str!("../../../../fixtures/results/pressure_u4b_arc_sparse.json"),
         _ => panic!("unknown source {name}"),
     }
 }

@@ -120,6 +120,13 @@ pub enum ProductRecipe {
     NonQuantity,
     /// Selected-material presence record; PP owns its exact source/text binding.
     ModulusBasisRecord,
+    /// T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §4.1): a recipe-free
+    /// `not_covered` passthrough row at final-row position `row`. It enters no
+    /// lane, functional, certificate, scale, bound or coverage set; PP supplies
+    /// its value after projection (`ProductValuesBuilder::complete_not_covered`)
+    /// from the successor's own published rows, and its verdict takes the
+    /// class-`None` path.
+    NotCovered { row: u32 },
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProductUnit {
@@ -1188,8 +1195,10 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
             if r.case_id != spent.rows[0].case_id {
                 return Err(bad("case association"));
             }
+            // §2.7/§4.2: a combination publishes no never_combined (not-covered derived) row.
             if combination && matches!(r.recipe, ProductRecipe::NonQuantity
-                | ProductRecipe::ModulusBasisRecord | ProductRecipe::CircularMaximum { .. }) {
+                | ProductRecipe::ModulusBasisRecord | ProductRecipe::CircularMaximum { .. }
+                | ProductRecipe::NotCovered { .. }) {
                 return Err(bad("combination row family"));
             }
             match r.recipe {
@@ -1204,6 +1213,13 @@ fn row_scales(owner:&adaptive::RetainedSolve,facts:&[ProductMemberFacts],spent:&
                         return Err(bad("modulus basis coverage"));
                     }
                     modulus_basis = true;
+                }
+                // §4.1: position-bound, a quantity unit, and nothing else: no
+                // scale, coverage slot or verified count.
+                ProductRecipe::NotCovered { row } => {
+                    if row as usize != i || r.unit == ProductUnit::Record {
+                        return Err(bad("not-covered row"));
+                    }
                 }
                 ProductRecipe::SupportComponent { support, component } => {
                     let (si, contributor) = support_component(owner, support, component, spent)?;
@@ -1342,7 +1358,7 @@ fn check_intervals(owner:&adaptive::RetainedSolve, facts:&[ProductMemberFacts],
             let recipe_id = r.recipe;
             if matches!(
                 recipe_id,
-                ProductRecipe::NonQuantity | ProductRecipe::ModulusBasisRecord
+                ProductRecipe::NonQuantity | ProductRecipe::ModulusBasisRecord | ProductRecipe::NotCovered { .. }
             ) {
                 spent.verdicts.push(ProductRowVerdict {
                     row: i,
@@ -1673,6 +1689,8 @@ pub(crate) fn begin_prepared_product<'s,'m>(invocation:&RecordedInvocation,run:u
                     Kind::Force=>ProductUnit::Newton,Kind::Moment=>ProductUnit::NewtonMetre},
                 ProductRecipe::SupportComponent{component,..}=>if component.index()<3{ProductUnit::Newton}else{ProductUnit::NewtonMetre},
                 ProductRecipe::Stress{..}=>ProductUnit::Megapascal,ProductRecipe::CircularMaximum{..}=>ProductUnit::Pascal,
+                // `mechanical` admits a not-covered row with any quantity unit, never Record.
+                ProductRecipe::NotCovered{..}=>spec.unit,
                 _=>ProductUnit::Record,
             };
             if spec.unit!=expected {return Err(bad("prepared descriptor unit"));}
@@ -1777,13 +1795,29 @@ impl ProductMaximumEvidence {
 pub struct ProductValuesBuilder {
     member:Option<Box<MemberValuesWork>>,
     values:Vec<f64>, maxima:Vec<(usize,u32)>, anchor:std::sync::Arc<ProofAnchor>, visits:WorkTotal,
+    /// §4.1: not-covered rows still awaiting their PP value (their slots hold NaN).
+    pending_not_covered:usize,
 }
 impl ProductValuesBuilder {
     pub fn value(&mut self,row:usize)->Result<Option<f64>,ProductFailure> {
         if let Some(f)=self.member.as_ref().and_then(|m|m.failure.as_ref()){return Err(f.clone());}
         for m in &self.maxima {values_visit(&mut self.visits)?;if m.0==row{return Ok(None);}}
         values_visit(&mut self.visits)?;
-        Ok(self.values.get(row).copied())
+        // A not-covered row's slot is NaN until PP completes it: it has no projected value.
+        Ok(self.values.get(row).copied().filter(|v|!v.is_nan()))
+    }
+    /// §4.1: PP's value of a not-covered row, formed after projection from the
+    /// successor's own published rows. Each pending row exactly once, finite.
+    pub fn complete_not_covered(&mut self,row:usize,value:f64)->Result<(),ProductFailure> {
+        values_visit(&mut self.visits)?;
+        if let Some(f)=self.member.as_ref().and_then(|m|m.failure.as_ref()){return Err(f.clone());}
+        let slot=self.values.get_mut(row).ok_or_else(||bad("not-covered completion identity"))?;
+        if !slot.is_nan() || self.pending_not_covered==0 {return Err(bad("not-covered completion identity"));}
+        if !value.is_finite() {return Err(bad("not-covered completion value"));}
+        values_visit(&mut self.visits)?;
+        *slot=if value==0.0 {0.0} else {value};
+        self.pending_not_covered-=1;
+        Ok(())
     }
     pub fn abandon(self)->ValuesCompletionWork {ValuesCompletionWork{visits:self.visits,capacity:0,anchor:self.anchor,member:self.member}}
     pub fn reconcile_loaded_maximum(&mut self,row:usize,member:u32,pp_lower:f64,pp_upper:f64)->Result<ProductMaximumEvidence,ProductFailure> {
@@ -1809,6 +1843,7 @@ impl ProductValuesBuilder {
             let mut seen=reserve::<bool>(self.maxima.len())?;capacity=seen.capacity();
             for _ in &self.maxima {values_visit(&mut visits)?;seen.push(false);}
             if maxima.len()!=self.maxima.len() {return Err(bad("maximum completion count"));}
+            if self.pending_not_covered!=0 {return Err(bad("not-covered completion incomplete"));}
             for m in maxima {
                 values_visit(&mut visits)?;
                 let mut found=None;
@@ -1879,9 +1914,12 @@ impl<'s,'m> ProductProofDraft<'s,'m> {
             let mut loaded=if self.data.owner.member_loads().iter().any(|l|l.intensity.iter().any(|w|*w!=0.0)) {
                 reserve::<LoadedValue>(self.data.facts.len())? } else {Vec::new()};
             self.work.projection_outcomes=self.work.prepared_reserve(5,self.data.specs.len())?;
+            let mut not_covered=0usize;
             for (i,spec) in self.data.specs.iter().enumerate() {
                 self.work.visit()?;
                 if let Some(bits)=spec.observed {self.work.visit()?;self.data.values[i]=f64::from_bits(bits);continue;}
+                // §4.1: no projection; PP completes the value after projection.
+                if let ProductRecipe::NotCovered{..}=spec.recipe {self.work.visit()?;self.data.values[i]=f64::NAN;not_covered+=1;continue;}
                 if let ProductRecipe::CircularMaximum{member}=spec.recipe {
                     if !self.data.owner.member_is_loaded(member){self.work.visit()?;maxima.push((i,member));continue;}
                 }
@@ -1916,7 +1954,7 @@ impl<'s,'m> ProductProofDraft<'s,'m> {
             self.work.visit()?;
             let member=(!loaded.is_empty()).then(||Box::new(MemberValuesWork{hulls:loaded,numeric:NumericWork::new(),failure:None}));
             let values=ProductValuesBuilder{member,values:std::mem::take(&mut self.data.values),maxima,
-                anchor:std::sync::Arc::clone(&self.data.anchor),visits:WorkTotal::zero()};
+                anchor:std::sync::Arc::clone(&self.data.anchor),visits:WorkTotal::zero(),pending_not_covered:not_covered};
             Ok(values)
         })();
         ProductProjectionSpent{result:result.map(|v|(self.data,v)),work:self.work}

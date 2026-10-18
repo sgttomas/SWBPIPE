@@ -255,7 +255,7 @@ describe("a reopened exact (pressure-2) record", () => {
     expect(JSON.stringify(saved)).toBe(before);
   });
   it.each([
-    ["its table switched to pressure-source-1's", (run: Json) => { run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
+    ["its table switched to pressure-source-1's", (run: Json) => { run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
     ["the source's evidence embedded", (run: Json, source: MechanicsResult) => { run.contract_evidence = structuredClone(source.contract_evidence); }, "ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN"],
     ["a retained-precision receipt embedded", (run: Json) => { run.retained_precision = { receipt_sha256: "0".repeat(64) }; }, "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"],
   ] as const)("names a forged record with %s, displays it, and changes nothing", async (_name, edit, code) => {

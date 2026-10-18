@@ -99,7 +99,7 @@ pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID
 /// Independent current resident source-family table, with no ordinary alias.
 /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
 /// token × section basis), each with its `source_basis`.
-pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b";
+pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86";
 pub const PRESSURE_TABLE_SHA256: &str = "e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788";
 /// The pinned counts, re-derived from the tables (T4-U6: pressure-2 106
 /// signatures over 59 kinds, T4-U5b: plus the tie-rod force, 107 over 60, T4-U4b:
@@ -107,8 +107,10 @@ pub const PRESSURE_TABLE_SHA256: &str = "e661d9d5ba21332a49152eb6aaa0f34a76d3a21
 /// pressure-source-1 88 over 51).
 pub const PRESSURE_SIGNATURE_COUNT: u64 = 129;
 pub const PRESSURE_KIND_COUNT: u64 = 66;
-pub const PRESSURE_SOURCE_SIGNATURE_COUNT: u64 = 88;
-pub const PRESSURE_SOURCE_KIND_COUNT: u64 = 51;
+/// T4-U4b §4.3 (S4): + the straight derived signatures (sigma+, sigma-, tau on both bases), 88 -> 94
+/// over 51 -> 53 kinds.
+pub const PRESSURE_SOURCE_SIGNATURE_COUNT: u64 = 94;
+pub const PRESSURE_SOURCE_KIND_COUNT: u64 = 53;
 /// B1 (b7-plan): precision-1 is no longer read. A stored precision-1 result is
 /// refused by name (re-run the analysis); no table, route or notice remains.
 pub const RETIRED_PRECISION_ID: &str = "openpipestress.result_semantics/0.3.0/precision-1";
@@ -130,7 +132,7 @@ pub const PREVIEW_PHYSICS_SHA256: &str =
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "8aaa25df8dfb0a46d8e70e591c0edd8b8fcc1474364b1d73abdb049af287dcf4";
+    "ab1c9ff767f6818b3be894dcbe56058f85ea3abba5affed3ecb74bccaa3ade85";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// pressure-2 since B7b D4 (a). Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact
@@ -139,7 +141,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "a4b868f4df6fbfca7f7c70e3bfb5b8972f1cdb513a3c1c6e93a97db57dd44855";
+    "ee1144c7302339accb61d51197d8f95b574c56c434895aa194d63b82f99be186";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -299,7 +301,7 @@ pub fn preview_physics_contract() -> &'static Value {
     })
 }
 /// Verify the independent current source table. Its full reviewed-byte digest
-/// binds the 88 signatures, vocabulary, bases and hash vectors.
+/// binds the 94 signatures, vocabulary, bases and hash vectors.
 pub fn verify_pressure_source_table(bytes: &[u8]) -> Result<Value, String> {
     use sha2::{Digest, Sha256};
     if format!("{:x}", Sha256::digest(bytes)) != PRESSURE_SOURCE_TABLE_SHA256 {
@@ -333,8 +335,9 @@ mod b7b_current_table_tests {
         let source = pressure_source_contract();
         // T4-U5b's tie-rod force (107), then T4-U4b's 22 per-basis signatures (129).
         assert_eq!(ordinary["rows"].as_array().unwrap().len(), 129);
-        assert_eq!(source["rows"].as_array().unwrap().len(), 88);
-        assert_eq!(source["source_kind_count"], 51);
+        // T4-U4b §4.3: + six straight derived signatures over two kinds.
+        assert_eq!(source["rows"].as_array().unwrap().len(), 94);
+        assert_eq!(source["source_kind_count"], 53);
         assert!(ordinary.get("inherited_semantic_contract_sha256").is_none());
         assert!(source.get("inherited_semantic_contracts").is_none());
         let scalar: Vec<_> = ordinary["rows"].as_array().unwrap().iter()

@@ -42,7 +42,8 @@ SCHEMA_PATH = ROOT / "schemas/physics_source_recovery.schema.json"
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRESSURE_PROFILE = "exact_pressure_v3"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); 88 signatures over 51 kinds.
-PRESSURE_TABLE_SHA256 = "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b"
+# T4-U4b §4.3: + the straight derived signatures (sigma+, sigma-, tau on both bases): 94 over 53.
+PRESSURE_TABLE_SHA256 = "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86"
 PRESSURE_TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
 # The current model document and the one exact contract a captured invocation must author
 # (b7-plan "Current model format"): 0.6.0, `pressure_contract` present, Euler-Bernoulli only.
@@ -171,7 +172,7 @@ def verify_pressure_source_table(data):
     if not (isinstance(table, Mapping) and table.get("semantic_contract_id") == PRESSURE_CONTRACT_ID
             and table.get("formulation_profile_id") == PRESSURE_PROFILE
             and table.get("source_block_policy") == "PRESSURE-SOURCE-1"
-            and table.get("source_signature_count") == 88 and table.get("source_kind_count") == 51):
+            and table.get("source_signature_count") == 94 and table.get("source_kind_count") == 53):
         raise ValueError("SOURCE_PRESSURE_SOURCE_TABLE_IDENTITY")
     return table
 

@@ -453,7 +453,8 @@
             "qualified_projection",
             "checked_derived",
             "ordinary_physics_checked",
-            "inspection_only"
+            "inspection_only",
+            "derived_not_qualified"
           ]
         },
         "projection_id": {
@@ -475,7 +476,9 @@
                 "retained_source_straight_stress_v1",
                 "retained_source_endpoint_normal_max_v1",
                 "support_force_norm_scaled_checked_v1",
-                "support_moment_norm_scaled_checked_v1"
+                "support_moment_norm_scaled_checked_v1",
+                "section_extremes_from_published_stress_rows_v1",
+                "transverse_shear_from_published_shear_rows_v1"
               ]
             },
             {

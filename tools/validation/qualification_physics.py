@@ -42,8 +42,10 @@ DEPENDENCIES = {
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
     # then model 0.6.0: the reader's comments name pressure-2 (comment text only; was f91e678e...);
     # then T4-U4b: the section stress, toroidal, arc maximum and directional rows (was 8a79bfcf...);
-    # then the T4-U4b review repairs: basis-twin order and no transverse-shear Poisson exemption (was 79ec35b3...).
-    MODULE: 'c7699864716718b2b1ae13d8237989eb276276a038085b47362997fa273de73d',
+    # then T4-U4b S4 (§4.3): the composite admits the straight σ±/τ signatures of a selected source case (was 79ec35b3...);
+    # then the T4-U4b review repairs: basis-twin order and no transverse-shear Poisson exemption (merged with S4;
+    # was c7699864... and 4bc56dea...).
+    MODULE: '56f18624ecbf639318ae9aaad14dbab05532037547b9259515f1d1a3316fc1d5',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }

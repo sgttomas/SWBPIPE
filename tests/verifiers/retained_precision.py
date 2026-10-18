@@ -33,11 +33,11 @@ ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PROFILE = "product_preview_retained_w1a_v2"
 DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
-DEFINITION_HASH = "66c5bf48533b9e5a8f4edeb4fdf6ab4ef845c1a9882eea0bb4afdc0e20771eab"
-TABLE_HASH = "8aaa25df8dfb0a46d8e70e591c0edd8b8fcc1474364b1d73abdb049af287dcf4"
+DEFINITION_HASH = "64ec69b842d6278323aa2ab2e140e999db52eb28e4a9965a567a90b04e228b41"
+TABLE_HASH = "ab1c9ff767f6818b3be894dcbe56058f85ea3abba5affed3ecb74bccaa3ade85"
 # B2-C (CONTRACT §8 row 4, REVISION_02 §0): DEF-C's id and H, the preview table's second formation definition.
 COMBINATION_DEFINITION_ID = "RP-PREPARED-COMBINATION-DUAL-v1"
-COMBINATION_DEFINITION_HASH = "1d72a9dbb6d55a291fd87d3254230240e9e49ef0aa77eb5d46cc6a30e6580ea3"
+COMBINATION_DEFINITION_HASH = "a9219849d4dfecfc4e9529c6b648eb21cdf2e9872f2d681cc0c26cdfd2bdf6f1"
 PREVIEW_DEFINITIONS = [{"id": DEFINITION_ID, "sha256": DEFINITION_HASH}, {"id": COMBINATION_DEFINITION_ID, "sha256": COMBINATION_DEFINITION_HASH}]
 SELECTED_MEMBER_LOAD_MESSAGE = 'Retained-precision recovery (contribution_preserving_multiprecision_v1) is selected for this load case. Its full-span uniform member loads are represented by declared equivalent nodal loads, each entry within 2^-1022 of its exact consistent value relative to that value; the certificate certifies that declared-load problem. Its published rows carry recovery_method; the retained_precision receipt binds their certified classes, the native attempts and work, and the ordinary-attempt evidence.'
 RETAINED_DISPOSITIONS = ("retained_selected", "retained_unavailable")
@@ -51,8 +51,8 @@ EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
 # T4-U6: DEF-E states zero mill tolerance and lists the reduced-basis rows and both headlines; the table follows the
 # inherited pressure-2 table's per-basis rows.
-EXACT_DEFINITION_HASH = "b464eb5b88f2930774ad3ffc4aaa9bdee002f1c798864694146f95c95f60a60a"
-EXACT_TABLE_HASH = "a4b868f4df6fbfca7f7c70e3bfb5b8972f1cdb513a3c1c6e93a97db57dd44855"
+EXACT_DEFINITION_HASH = "87907c619777945ba76b045fcd425c81022f282f5d6a71239388217be98d9948"
+EXACT_TABLE_HASH = "ee1144c7302339accb61d51197d8f95b574c56c434895aa194d63b82f99be186"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 FACADE_POLICY = "RP-FACADE-SI-v2"
 RECEIPT_BINDINGS = {"canonicalization": "openpipestress_jcs_ijson_v1", "method": METHOD, "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
@@ -1454,7 +1454,9 @@ REQUESTED_MODE_SIGN = ("mode_code 1=sparse_interactive, 2=dense_scrutiny; the ca
                        "ordinary attempt, not an ordinary solve observation")
 NONQUANTITY_KINDS = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "modulus_basis_record", "combination_modulus_basis_record"}
 # C3:178-181: hull projection covers quantity rows except observed ancillary rows, support norms and maxima.
-HULL_EXCLUDED = NONQUANTITY_KINDS | {"support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2", "pipe_elastic_normal_stress_maximum_v2"}
+# T4-U4b §4.1: the not-covered derived kinds are never hull-projected (no projection outcome).
+HULL_EXCLUDED = NONQUANTITY_KINDS | {"support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2", "pipe_elastic_normal_stress_maximum_v2",
+                                     "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"}
 NONQUANTITY = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "modulus_basis_record", "combination_modulus_basis_record"}
 INPUT_KINDS = {"pipe_lame_hoop_stress_v2", "pipe_lame_radial_stress_v2", "pipe_section_pressure_hoop_stress", "pipe_section_pressure_longitudinal_stress", "constant_effort_support_applied_load", "component_user_stress_multiplier_review", "constant_effort_user_input_review", "spring_hanger_user_input_review"}
 FORCE = {"element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2", "reaction_resultant", "support_reaction_force_magnitude_v2"}
@@ -1493,6 +1495,8 @@ def _row_kind(row):
         if u in ("N", "kN"): return "force"
         if u in ("N*m", "kN*m"): return "moment"
     if k in STRESS and u in ("Pa", "MPa"): return "stress"
+    # T4-U4b §4.1 (REQ-001 "every other row kind"): the derived kinds are explicitly not covered.
+    if k in DERIVED_KINDS: return "not_covered"
     return "not_covered"
 
 
@@ -1706,6 +1710,9 @@ def _g5b_exact_evidence(evidence, case, source, rows=()):
     # retained value of its nominal twin, the bound row immediately before it (§2.5 row order).
     rows = list(rows)
     for i, row in enumerate(rows):
+        # T4-U4b §4.1: a derived row of either basis is its own not-covered row (G7's base read), never a twin.
+        if type(row) is dict and row.get("kind") in DERIVED_KINDS:
+            continue
         if not (_reduced_twin(row) or sb.id_basis(row.get("id")) == sb.REDUCED):
             continue
         nominal = rows[i - 1] if i > 0 else None
@@ -1713,9 +1720,15 @@ def _g5b_exact_evidence(evidence, case, source, rows=()):
              and number(row.get("value")) and number(nominal.get("value")) and bits(float(row["value"])) == bits(float(nominal["value"])))
 
 
+DERIVED_KINDS = frozenset({"element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"})
+
+
 def _reduced_twin(row):
     """T4-U6 (D-5, §2.3/§5): a reduced-section twin row, which binds no receipt quantity (the producer's
-    `reduced_twin`): outside the receipt's row universe. No preview row names a section basis."""
+    `reduced_twin`): outside the receipt's row universe. No preview row names a section basis. T4-U4b (§4.1):
+    a derived row (sigma+/sigma-, tau_v,max) of either basis is a not-covered row at its own position."""
+    if type(row) is dict and row.get("kind") in DERIVED_KINDS:
+        return False
     basis = row.get("metadata", {}).get("basis") if type(row) is dict and type(row.get("metadata")) is dict else None
     return isinstance(basis, str) and basis.endswith(sb.SEPARATOR + sb.REDUCED)
 

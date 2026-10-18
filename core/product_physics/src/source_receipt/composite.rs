@@ -930,6 +930,19 @@ impl FinalizedSourceBlockCase {
             }) {
                 return Err(bad("unqualified composite physical row"));
             }
+            // T4-U4b §4.3: `derived_not_qualified` is admitted for the two
+            // derived kinds only, each with one of its two formula recipes.
+            if ledger.rows.iter().any(|t| {
+                (t.treatment == rows::NOT_QUALIFIED)
+                    != actual.iter().find(|r| r.id == t.result_id).is_some_and(|r| {
+                        r.kind == u4b_rows::EXTREME_KIND || r.kind == u4b_rows::SHEAR_MAX_KIND
+                    })
+                    || (t.treatment == rows::NOT_QUALIFIED
+                        && (t.projection_id.is_some()
+                            || !matches!(t.recipe_id, Some(rows::EXTREMES_RECIPE | rows::SHEAR_RECIPE))))
+            }) {
+                return Err(bad("derived_not_qualified composite row"));
+            }
             let mut source = source::commitment(
                 &input,
                 &selected,

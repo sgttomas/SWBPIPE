@@ -8,12 +8,12 @@ pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/preview-phy
 pub const PROFILE: &str = "product_preview_retained_w1a_v2";
 pub const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub const DEFINITION_HASH: &str =
-    "66c5bf48533b9e5a8f4edeb4fdf6ab4ef845c1a9882eea0bb4afdc0e20771eab";
+    "64ec69b842d6278323aa2ab2e140e999db52eb28e4a9965a567a90b04e228b41";
 pub const METHOD: &str = "contribution_preserving_multiprecision_v1";
 /// B2-C §3 and §8 (REVISION_02): DEF-C's id and H(`retained_precision_formation_v1`, DEF-C).
 pub const COMBINATION_DEFINITION_ID: &str = "RP-PREPARED-COMBINATION-DUAL-v1";
 pub const COMBINATION_DEFINITION_HASH: &str =
-    "1d72a9dbb6d55a291fd87d3254230240e9e49ef0aa77eb5d46cc6a30e6580ea3";
+    "a9219849d4dfecfc4e9529c6b648eb21cdf2e9872f2d681cc0c26cdfd2bdf6f1";
 /// B3b (B3-D §6 with REVISION_01): the exact successor `<physics-retained>`,
 /// read on its own route (`EXACT`), whose base is pressure-2 (B7b D4 (a)).
 pub const EXACT_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-retained-1";
@@ -22,7 +22,7 @@ pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 /// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2). T4-U6: DEF-E
 /// states zero mill tolerance and lists the reduced-basis rows and both headlines.
 pub const EXACT_DEFINITION_HASH: &str =
-    "b464eb5b88f2930774ad3ffc4aaa9bdee002f1c798864694146f95c95f60a60a";
+    "87907c619777945ba76b045fcd425c81022f282f5d6a71239388217be98d9948";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 /// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): the requested-mode
 /// basis row of a case whose ordinary attempt genuinely failed. It replaces
@@ -582,14 +582,14 @@ const TABLE_BYTES: &[u8] = include_bytes!(
 );
 const INHERITED_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json");
-const TABLE_HASH: &str = "8aaa25df8dfb0a46d8e70e591c0edd8b8fcc1474364b1d73abdb049af287dcf4";
+const TABLE_HASH: &str = "ab1c9ff767f6818b3be894dcbe56058f85ea3abba5affed3ecb74bccaa3ade85";
 /// The exact successor's table (XTABLE) and its inherited pressure-2 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
     include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
-const EXACT_TABLE_HASH: &str = "a4b868f4df6fbfca7f7c70e3bfb5b8972f1cdb513a3c1c6e93a97db57dd44855";
+const EXACT_TABLE_HASH: &str = "ee1144c7302339accb61d51197d8f95b574c56c434895aa194d63b82f99be186";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
@@ -942,11 +942,21 @@ fn projection_matches_row(row: &Value, outcome: &Value) -> bool {
 /// T4-U6 (D-5, §2.3/§5): a reduced-section twin row. The exact successor
 /// overlays it with its nominal twin's retained value; it binds no receipt
 /// quantity (the producer's `reduced_twin`), so it is outside the receipt's row
-/// universe. No preview row names a section basis.
+/// universe. No preview row names a section basis. T4-U4b (§4.1): a
+/// derived row (σ⁺/σ⁻, τ_v,max) of either basis is a not-covered row at its
+/// own position, never a twin.
 fn reduced_twin(row: &Value) -> bool {
-    row["metadata"]["basis"].as_str().is_some_and(|b| {
-        b.ends_with(&format!("{}{}", crate::section_basis::TOKEN_SEPARATOR, crate::section_basis::REDUCED))
-    })
+    !derived_kind(row)
+        && row["metadata"]["basis"].as_str().is_some_and(|b| {
+            b.ends_with(&format!("{}{}", crate::section_basis::TOKEN_SEPARATOR, crate::section_basis::REDUCED))
+        })
+}
+/// T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §4.1): the two
+/// straight-member derived kinds a W1 successor carries as recipe-free
+/// `not_covered` rows, formed from its own published rows (the base read of
+/// G7 recomputes them); never projected, never verified.
+fn derived_kind(row: &Value) -> bool {
+    matches!(row["kind"].as_str(), Some("element_local_normal_stress_extreme" | "element_local_transverse_shear_stress_maximum"))
 }
 /// The receipt's row universe of a case or combination entry: its rows, less
 /// the reduced-section twins (`rows_all_for` keeps them).
@@ -3588,6 +3598,8 @@ fn row_kind(r: &Value) -> &'static str {
         {
             "stress"
         }
+        // T4-U4b §4.1 (REQ-001 "every other row kind"): explicitly not covered.
+        "element_local_normal_stress_extreme" | "element_local_transverse_shear_stress_maximum" => "not_covered",
         _ => "not_covered",
     }
 }
@@ -3609,6 +3621,7 @@ fn owner_projected(owner: &Value, r: &Value, s:Option<&Value>,route_l:bool) -> b
 }
 fn hull_projected(r: &Value) -> bool {
     row_kind(r) != "non_quantity"
+        && !derived_kind(r)
         && !matches!(
             text(&r["kind"]),
             "support_reaction_force_magnitude_v2"
@@ -4452,8 +4465,11 @@ fn g5b_exact_evidence(source: &Value, cases: &[NumericCase<'_>]) -> VResult {
         // immediately before it (§2.5 row order).
         let all = rows_all_for(source, c.case);
         for (i, row) in all.iter().enumerate() {
-            let reduced = reduced_twin(row)
-                || crate::section_basis::id_basis(text(&row["id"])) == Some(crate::section_basis::REDUCED);
+            // T4-U4b §4.1: a derived row of either basis is its own not-covered
+            // row, formed from its basis's rows (G7's base read), never a twin.
+            let reduced = !derived_kind(row)
+                && (reduced_twin(row)
+                    || crate::section_basis::id_basis(text(&row["id"])) == Some(crate::section_basis::REDUCED));
             if !reduced {
                 continue;
             }

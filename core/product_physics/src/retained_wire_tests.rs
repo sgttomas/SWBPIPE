@@ -212,6 +212,9 @@ fn u1_milestone_successor_both_modes() {
                 Some(k::RowClass::AbsoluteVerified { bound_bits }) => reader::AccuracyClass::AbsoluteVerified { bound_bits },
                 Some(k::RowClass::InputDerived) => reader::AccuracyClass::InputDerived,
                 Some(k::RowClass::Unpublishable) => panic!("unpublishable"),
+                // T4-U4b §4.1: a class-None verdict is a record's (non_quantity) or a
+                // not-covered derived row's (its recipe is NotCovered).
+                None if rp::derived_kind(successor["results"][v.row]["kind"].as_str().unwrap()) => reader::AccuracyClass::NotCovered,
                 None => reader::AccuracyClass::NonQuantity,
             };
             assert_eq!(c.class, expected, "{name}: {}", c.result_id);
@@ -446,7 +449,7 @@ fn u1_constants_bound_to_in_tree_fixtures() {
     let definition: Value = serde_json::from_str(DEFINITION).unwrap();
     let table: Value = serde_json::from_str(TABLE).unwrap();
     assert_eq!(wire::domain_hash("retained_precision_formation_v1", &definition).as_deref(), Some(wire::DEFINITION_SHA256));
-    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::DEFINITION_ID,"sha256":wire::DEFINITION_SHA256},{"id":"RP-PREPARED-COMBINATION-DUAL-v1","sha256":"1d72a9dbb6d55a291fd87d3254230240e9e49ef0aa77eb5d46cc6a30e6580ea3"}]));
+    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::DEFINITION_ID,"sha256":wire::DEFINITION_SHA256},{"id":"RP-PREPARED-COMBINATION-DUAL-v1","sha256":"a9219849d4dfecfc4e9529c6b648eb21cdf2e9872f2d681cc0c26cdfd2bdf6f1"}]));
     assert_eq!(table["semantic_contract_id"], json!(wire::RETAINED_SEMANTIC_ID));
     assert_eq!(table["formulation_profile_id"], json!(wire::RETAINED_PROFILE_ID));
     assert_eq!(table["receipt_policy"], json!(wire::POLICY));

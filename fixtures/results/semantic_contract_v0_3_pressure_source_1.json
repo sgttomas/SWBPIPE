@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 88,
-  "source_kind_count": 51,
+  "source_signature_count": 94,
+  "source_kind_count": 53,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -52,7 +52,10 @@
         "lame_inner_radial_stress",
         "lame_outer_radial_stress",
         "lame_inner_hoop_stress",
-        "lame_outer_hoop_stress"
+        "lame_outer_hoop_stress",
+        "sigma_plus",
+        "sigma_minus",
+        "tau_v_max"
       ]
     },
     "coordinate_system": {
@@ -100,7 +103,11 @@
         "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
         "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
         "retained_source_endpoint_normal_max_v1; section_basis=nominal_section",
-        "retained_source_endpoint_normal_max_v1; section_basis=reduced_section"
+        "retained_source_endpoint_normal_max_v1; section_basis=reduced_section",
+        "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+        "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+        "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+        "saint_venant_annulus_flexure_v1; section_basis=reduced_section"
       ]
     },
     "sign_convention": {
@@ -1370,6 +1377,96 @@
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
       "governing_ratio_eligible": false,
       "source_basis": "retained_source_endpoint_normal_max_v1; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-077-section-extremes-from-published-stress-rows-v1-nominal-section",
+      "kind": "element_local_normal_stress_extreme",
+      "unit": "MPa",
+      "component": "sigma_plus",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section"
+    },
+    {
+      "signature_id": "supported-source-077-section-extremes-from-published-stress-rows-v1-reduced-section",
+      "kind": "element_local_normal_stress_extreme",
+      "unit": "MPa",
+      "component": "sigma_plus",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-078-section-extremes-from-published-stress-rows-v1-nominal-section",
+      "kind": "element_local_normal_stress_extreme",
+      "unit": "MPa",
+      "component": "sigma_minus",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section"
+    },
+    {
+      "signature_id": "supported-source-078-section-extremes-from-published-stress-rows-v1-reduced-section",
+      "kind": "element_local_normal_stress_extreme",
+      "unit": "MPa",
+      "component": "sigma_minus",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section"
+    },
+    {
+      "signature_id": "supported-source-079-saint-venant-annulus-flexure-v1-nominal-section",
+      "kind": "element_local_transverse_shear_stress_maximum",
+      "unit": "MPa",
+      "component": "tau_v_max",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section"
+    },
+    {
+      "signature_id": "supported-source-079-saint-venant-annulus-flexure-v1-reduced-section",
+      "kind": "element_local_transverse_shear_stress_maximum",
+      "unit": "MPa",
+      "component": "tau_v_max",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section"
     }
   ],
   "hash_vectors": [
@@ -1378,12 +1475,12 @@
       "input": {
         "2": 2,
         "10": 10,
-        "𐀀": "supplementary",
-        "": "bmp",
-        "é": "accent",
+        "\ud800\udc00": "supplementary",
+        "\ue000": "bmp",
+        "\u00e9": "accent",
         "zero": -0.0
       },
-      "expected_canonical_json": "{\"10\":10,\"2\":2,\"zero\":0,\"é\":\"accent\",\"𐀀\":\"supplementary\",\"\":\"bmp\"}",
+      "expected_canonical_json": "{\"10\":10,\"2\":2,\"zero\":0,\"\u00e9\":\"accent\",\"\ud800\udc00\":\"supplementary\",\"\ue000\":\"bmp\"}",
       "expected_sha256": "d4f93403ef979f898ab63d64af7da7886e4b5e2b6d27d2dc412b9ddac7c7dde2"
     },
     {
@@ -1401,14 +1498,14 @@
         ],
         "raw_annotations": {
           "extra": {
-            "é": [
-              "𐀀",
+            "\u00e9": [
+              "\ud800\udc00",
               1
             ]
           }
         }
       },
-      "expected_canonical_json": "{\"array\":[true,null,10,1.5],\"nested\":{\"20\":1e-7,\"3\":0.000001},\"raw_annotations\":{\"extra\":{\"é\":[\"𐀀\",1]}}}",
+      "expected_canonical_json": "{\"array\":[true,null,10,1.5],\"nested\":{\"20\":1e-7,\"3\":0.000001},\"raw_annotations\":{\"extra\":{\"\u00e9\":[\"\ud800\udc00\",1]}}}",
       "expected_sha256": "99b9faeb10cab02302cc0e6975e38ff4574b2ef02d5f485d2a05859bca1ccbe1"
     }
   ],
@@ -1427,6 +1524,7 @@
     "Retained-source recovery applies only to individually admitted cases with explicitly empty pressure-region inventories and the existing bounded source adapter load, transform, block and 256-DOF limits.",
     "Ordinary and retained-source cases keep separate selected methods and complete case/row/evidence coverage; every ordinary case must pass its checks, and one case cannot promote another.",
     "Retained endpoint maxima bound source-action projection and ordered binary64 arithmetic using represented section operands; they are bounded elastic normal stress, not code or equivalent stress, and do not certify primitive geometry or material accuracy.",
+    "Section normal-stress extremes and transverse-shear maxima are published beside the qualified rows, formed from them, and are not qualified.",
     "Every present pressure region, including zero pressure, components, nonlinear supports and non-nodal ordinary applied loads is declined by name. The existing 0.4.0 resolved eigen-load and prescribed-motion source family adds no pressure, nonlinear, history or combination capability.",
     "Source receipt, plan/hash binding and physical evidence never replace actual invocation custody or responsible engineering review. Valid 0.4.0 evidence remains numerically ineligible because resolved state is not independently rederived; qualified captured 0.3.0 evidence retains its existing separate eligibility checks."
   ],
