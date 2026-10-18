@@ -41,11 +41,11 @@ CASES = json.loads(CASES_PATH.read_text())
 FROZEN = {
     "fixtures/product_preview/pressure/load_reference/connected.request.json": "785b1af7d23ec6bbb3519ac955411b0682360abee4446827a11aa6f481a359e0",
     # T4-U6 (D-5): the regenerated producer envelopes (both section-basis families).
-    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "2c830c848df23430f1cc9f468df14ffbd74a8ae336374a913632fe977b89ee7a",
-    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "a3147c0110d0c3f7e159743f1ef72b80ba2ebd4bffeda6e7f172a8b6b56c1065",
+    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "d442e31684933a7b9b73ebab51a156bc4774c4a60ded7dc1e1a56fb21709d4a9",
+    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "029bf4d3b9e1c9574ad766329bb6f6f895035c0f576ae5e27db356d9db15c329",
     "fixtures/product_preview/pressure/load_reference/pressure.request.json": "a223889792cca7c0839045cc24a0ac36785acb63589e50af4edc27cf99cfa92f",
-    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "b9e57a34a9f2c1025af794ff4b80df13898f48b89fc1bfc9c4dba8a6f3404724",
-    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "de33d7d58641b47d8419da473d588530232225e30b2cc0ababa1a0d9fb35ea0f",
+    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "1c507182ae386606804953be0da7081d071171de57173d962c907198a2700813",
+    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "961566335b396d2b13d559554079dc2eebf1cae28980c3d2a60538c8be7ac8e5",
     "fixtures/results/semantic_contract_v0_3_pressure_2.json": PRESSURE_CONTRACT_SHA256,
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }
