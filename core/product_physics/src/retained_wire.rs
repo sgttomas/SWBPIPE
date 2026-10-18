@@ -32,7 +32,7 @@ pub(super) const CANONICALIZATION: &str = "openpipestress_jcs_ijson_v1";
 /// definition fixture and to the semantic table's entry by tests.
 pub(super) const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub(super) const DEFINITION_SHA256: &str =
-    "66c5bf48533b9e5a8f4edeb4fdf6ab4ef845c1a9882eea0bb4afdc0e20771eab";
+    "64ec69b842d6278323aa2ab2e140e999db52eb28e4a9965a567a90b04e228b41";
 /// B3b-P (B3-D P-9): the exact successor's identity and profile (reserved 2026-10-03;
 /// `semantic_contract_v0_3_physics_retained_1.json`), and its formation definition DEF-E with
 /// its H("retained_precision_formation_v1", definition) (B3-D REVISION_01 §1.2). Bound to the
@@ -41,7 +41,7 @@ pub(super) const EXACT_SEMANTIC_ID: &str = "openpipestress.result_semantics/0.3.
 pub(super) const EXACT_PROFILE_ID: &str = "exact_straight_retained_w1a_v2";
 pub(super) const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 pub(super) const EXACT_DEFINITION_SHA256: &str =
-    "b464eb5b88f2930774ad3ffc4aaa9bdee002f1c798864694146f95c95f60a60a";
+    "87907c619777945ba76b045fcd425c81022f282f5d6a71239388217be98d9948";
 /// B3b-P (B3-D P-9; REVISION_01 §2, S-1): the route descriptor the serializer takes its
 /// route-specific members from, never a module constant: the successor's identity and profile,
 /// every product attempt's `definition_id`, the preparation payload's `definition_sha256` (C3

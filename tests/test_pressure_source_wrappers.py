@@ -20,7 +20,7 @@ CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 # table, policy PRESSURE-SOURCE-1, 69 signatures (was 4a1873e7..., the table before its B7b re-issue).
 # T4-U6 (D-5, §2.4): re-issued with one stress signature per (recovery token x section basis), 88
 # signatures (was dec4f4e7...).
-CONTRACT_SHA256 = "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b"
+CONTRACT_SHA256 = "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86"
 assert CONTRACT_SHA256 == c.PRESSURE_SOURCE_CONTRACT_SHA256
 BINDING = {"id": CONTRACT_ID, "sha256": CONTRACT_SHA256}
 

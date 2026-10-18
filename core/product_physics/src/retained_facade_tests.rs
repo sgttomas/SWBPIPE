@@ -4030,7 +4030,7 @@ fn b2p_constants_bound_to_in_tree_fixtures() {
     let table: Value = serde_json::from_str(include_str!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json")).unwrap();
     let h = wire::domain_hash("retained_precision_formation_v1", &definition).unwrap();
     assert_eq!(definition["id"], json!(wire::COMBINATION_DEFINITION_ID));
-    assert_eq!(h, "1d72a9dbb6d55a291fd87d3254230240e9e49ef0aa77eb5d46cc6a30e6580ea3");
+    assert_eq!(h, "a9219849d4dfecfc4e9529c6b648eb21cdf2e9872f2d681cc0c26cdfd2bdf6f1");
     assert!(table["product_formation_definitions"].as_array().unwrap().contains(&json!({"id": wire::COMBINATION_DEFINITION_ID, "sha256": h})));
 }
 
@@ -4408,6 +4408,8 @@ fn b2p_ledger_unavailable_operand_has_no_source() {
 // B4/D1 maintained-source census; separate from the native G10 witness.
 #[path = "w1_source_census_tests.rs"]
 mod w1_source_census_tests;
+#[path = "s4_retained_tests.rs"]
+mod s4_retained_tests;
 
 #[path = "w1_successor_census_tests.rs"]
 mod w1_successor_census_tests;

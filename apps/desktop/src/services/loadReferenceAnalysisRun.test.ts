@@ -125,7 +125,7 @@ function pythonValidatorText(): string {
 describe("records bound to other evidence are refused", () => {
   it.each([
     ["ordinary carrying contract_evidence", (r: Json, raw: Json) => { r.analysis_run.contract_evidence = structuredClone(raw.contract_evidence); }, "ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN"],
-    ["ordinary bound to pressure-source-1's table", (r: Json) => { r.analysis_run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
+    ["ordinary bound to pressure-source-1's table", (r: Json) => { r.analysis_run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
     ["ordinary with another row binding", (r: Json) => { r.analysis_run.result_refs[0].semantic_contract.sha256 = "0".repeat(64); }, "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"],
     ["ordinary carrying a retained-precision receipt", (r: Json) => { r.analysis_run.retained_precision = { receipt_sha256: "0".repeat(64) }; }, "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"],
   ])("%s (the same code as Python's validator)", async (_name, edit, code) => {

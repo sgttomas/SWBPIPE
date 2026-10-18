@@ -375,6 +375,10 @@ def source_findings(source: Mapping[str, Any], invocation: Mapping[str, Any]) ->
             if treatment.get("treatment") in ("qualified_projection", ordinary, "checked_derived"):
                 continue
             row = rows.get(treatment.get("result_id"))
+            # T4-U4b §4.3: `derived_not_qualified` is neutral for the two derived kinds only.
+            if treatment.get("treatment") == "derived_not_qualified" and row is not None and row.get("kind") in (
+                    "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"):
+                continue
             if row is not None and physical(row):
                 findings.append("SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY")
     combinations = invocation["request"]["model"].get("combinations")

@@ -618,3 +618,189 @@ fn cached_source_context_preserves_current_public_serializations() {
     assert_eq!(controls,24);
     println!("cache_serialization_controls={controls}");
 }
+
+/// T4-U4b §4.3 (S4): the pre-U4b work counters of every current control, as the S1 producer
+/// committed them (f468da4651, `fixtures/product_preview/pressure_source/*/*.raw.json`): (family,
+/// name, mode, selected case id, its `work.charged`,
+/// `invocation_work.publication_charged`). No case then published a derived row.
+const PRE_U4B_WORK: [(&str, &str, &str, &str, u64, u64); 24] = [
+    ("physics_source","n05","sparse_interactive","case",797059,264800),
+    ("physics_source","n05","dense_scrutiny","case",797059,264908),
+    ("physics_source","n06","sparse_interactive","case",791447,164276),
+    ("physics_source","n06","dense_scrutiny","case",791447,164228),
+    ("physics_source","n05_unicode","sparse_interactive","case:温度:α",833105,265448),
+    ("physics_source","n05_unicode","dense_scrutiny","case:温度:α",833105,265556),
+    ("physics_source","n05_units","sparse_interactive","case",797257,264608),
+    ("physics_source","n05_units","dense_scrutiny","case",797257,264716),
+    ("physics_source","fields","sparse_interactive","case",1045422,325524),
+    ("physics_source","fields","dense_scrutiny","case",1045422,327792),
+    ("physics_source","mixed","sparse_interactive","case",820709,535952),
+    ("physics_source","mixed","dense_scrutiny","case",820709,536156),
+    ("physics_source","mixed_units","sparse_interactive","case",825683,540536),
+    ("physics_source","mixed_units","dense_scrutiny","case",825683,540740),
+    ("load_reference_source","n05","sparse_interactive","case",979590,291012),
+    ("load_reference_source","n05","dense_scrutiny","case",979590,291120),
+    ("load_reference_source","n06","sparse_interactive","case",974108,190488),
+    ("load_reference_source","n06","dense_scrutiny","case",974108,190440),
+    ("load_reference_source","eigen_motion","sparse_interactive","case:join",1264873,284580),
+    ("load_reference_source","eigen_motion","dense_scrutiny","case:join",1264873,284664),
+    ("load_reference_source","fields","sparse_interactive","case",1316705,357808),
+    ("load_reference_source","fields","dense_scrutiny","case",1316705,360076),
+    ("load_reference_source","mixed","sparse_interactive","case",1019368,581884),
+    ("load_reference_source","mixed","dense_scrutiny","case",1019368,582040),
+];
+const DERIVED_KINDS: [&str; 2] = ["element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"];
+/// One row's identity and metadata bytes as `finalization_size` counts them, derived here from
+/// the row alone.
+fn row_bytes(row: &ResultItem) -> u64 {
+    let mut n = row.id.len() + row.kind.len() + row.entity_ref.len() + row.unit.len();
+    if let Some(m) = &row.metadata {
+        n += m.component.len() + m.coordinate_system.len() + m.location.len() + m.basis.len() + m.sign_convention.len();
+    }
+    n as u64
+}
+
+/// T4-U4b §4.3's complete work law, checked independently on every current control (twelve
+/// requests x two modes) against the pre-U4b counters: for each selected case,
+/// `work.charged` changes by exactly 24ΔE + ΔF_k + ΔQ_k, and `publication_charged` by 24ΔE + ΔP.
+/// - ΔE: the encoded request delta (the committed requests are unchanged: 0).
+/// - ΔF_k: twice the new rows' identity and metadata bytes (`finalization_size`'s 2(12E + B_k)).
+/// - ΔQ_k: the composite wrapper's own 64 per new row; the new treatment reserves no recipe
+///   work (no `derived_recipe_entry`, no 4096 per row), so its per-recipe charge is zero.
+/// - ΔP: the publication's 32 per new row and 256 per new row per load case.
+/// Each term is derived from the actual rows; finalization, the wrapper-only terms, the other
+/// local charges (unchanged) and publication are checked separately, then reconciled with the
+/// counters exactly. Every control still selects under the unchanged 8,000,000 case limit; each
+/// new charge is printed.
+#[test]
+fn u4b_source_work_law_reconciles_every_control_with_its_pre_u4b_counters() {
+    let mut maximum = 0u64;
+    for (family, name, mode_name, case_id, old_charged, old_publication) in PRE_U4B_WORK {
+        let mode = if mode_name == "sparse_interactive" { PreviewSolverMode::SparseInteractive } else { PreviewSolverMode::DenseScrutiny };
+        let label = format!("{family}/{name} {mode_name}");
+        let snapshot = snapshot(family, name, mode);
+        check_snapshot_inputs(&snapshot);
+        // ΔE = 0: the encoded request the counters were formed from is the committed one.
+        let e = encoded_request(&snapshot.raw);
+        assert_eq!(e, encoded_request(&fixture_request(family, name)), "{label}");
+        let observed = snapshot.reservations.iter().find(|r| r.case_id == case_id).unwrap_or_else(|| panic!("{label}: selected case"));
+        let new_rows: Vec<&ResultItem> = observed.actual_rows.iter().filter(|r| DERIVED_KINDS.contains(&r.kind.as_str())).collect();
+        let members = snapshot.raw["model"]["pipe_segments"].as_array().unwrap().len();
+        assert_eq!(new_rows.len(), 30 * members, "{label}: σ⁺, σ⁻ and τ at five stations on both bases per member");
+        // Finalization: the new rows' bytes, charged twice; checked against the actual site.
+        let delta_f: u64 = 2 * new_rows.iter().map(|r| row_bytes(r)).sum::<u64>();
+        let without: Vec<ResultItem> = observed.actual_rows.iter().filter(|r| !DERIVED_KINDS.contains(&r.kind.as_str())).cloned().collect();
+        let mut stripped = observed.inputs.clone();
+        stripped.rows = reservation_inputs(snapshot.cases.iter().find(|c| c.case_id == case_id).unwrap()._selected.as_ref().unwrap(), &without).rows;
+        assert_eq!((independent_finalization(e, &observed.inputs) - independent_finalization(e, &stripped)) as u64, delta_f, "{label}: ΔF_k");
+        // Wrapper-only terms: 64 per new row; no recipe work for the new treatment.
+        let delta_q = 64 * new_rows.len() as u64;
+        assert_eq!((independent_wrapper(e, &observed.inputs) - independent_wrapper(e, &stripped)) as u64, delta_f + delta_q, "{label}: ΔF_k + ΔQ_k");
+        let recipes = snapshot.stages.iter().filter(|s| s["stage"] == "derived_recipe_entry").count();
+        let supports = snapshot.cases.iter().find(|c| c.case_id == case_id).unwrap()._selected.as_ref().unwrap().support_actions().len();
+        // The maximum is reserved at publication and again at finalization; each support norm once.
+        assert_eq!(recipes, 2 * members + supports, "{label}: recipe reservations per maximum and support norm, none per derived row");
+        // Publication.
+        let all_new = snapshot.envelope.results.iter().filter(|r| DERIVED_KINDS.contains(&r.kind.as_str())).count() as u64;
+        let load_cases = snapshot.raw["model"]["load_cases"].as_array().unwrap().len() as u64;
+        let delta_p = (32 + 256 * load_cases) * all_new;
+        // Reconcile with the actual counters.
+        let (_, capture) = CapturedInvocation::parse(snapshot.raw.clone(), snapshot.mode).unwrap();
+        let envelope = snapshot.envelope;
+        let mut budget = snapshot.budget;
+        let receipt = FinalizedSourceBlockReceipt::finalize_composite(&capture, &envelope, snapshot.cases, &mut budget)
+            .unwrap_or_else(|e| panic!("{label}: {e:?}")).into_wire();
+        let body = &receipt["body"];
+        let case = body["cases"].as_array().unwrap().iter().find(|c| c["basis_ref"]["ref_id"] == case_id).unwrap();
+        assert_eq!(case["outcome"], "qualified", "{label}: still selects");
+        assert_eq!(case["selected_method"], "retained_source_blocks_exact_v1", "{label}");
+        let charged = case["work"]["charged"].as_u64().unwrap();
+        assert_eq!(charged, old_charged + delta_f + delta_q, "{label}: work.charged = old + 24ΔE + ΔF_k + ΔQ_k");
+        let publication = body["invocation_work"]["publication_charged"].as_u64().unwrap();
+        assert_eq!(publication, old_publication + delta_p, "{label}: publication_charged = old + 24ΔE + ΔP");
+        let cases: u64 = body["cases"].as_array().unwrap().iter()
+            .map(|c| c["work"]["charged"].as_u64().unwrap() + c["work"]["reserved_unobserved_failure"].as_u64().unwrap()).sum();
+        assert_eq!(body["invocation_work"]["charged"].as_u64().unwrap(), cases + publication, "{label}: invocation work");
+        assert!(charged <= case["work"]["limit"].as_u64().unwrap() && case["work"]["limit"].as_u64().unwrap() <= 8_000_000, "{label}");
+        maximum = maximum.max(charged);
+        println!("U4B_SOURCE_WORK {label} case={case_id} charged={charged} (pre-U4b {old_charged}; +{delta_f} finalization +{delta_q} wrapper) publication={publication} (+{delta_p})");
+    }
+    println!("U4B_SOURCE_WORK maximum per-case charge {maximum} of 8000000");
+}
+
+/// T4-U4b §4.3 (S4): genuine `derived_not_qualified` receipts on both families and modes, and
+/// their named refusals. Each selected case's σ⁺/σ⁻ and τ rows carry the treatment with no
+/// projection, their own formula recipe and exactly the station rows the formula reads; the
+/// Rust reader admits it neutrally (no finding, eligibility unchanged) for the two kinds only.
+/// Mutations, each resealed so the treatment checks are reached: a wrong recipe, a wrong
+/// treatment (the derived row as `checked_derived` or `inspection_only`), a wrong kind (the
+/// treatment on another row) and wrong inputs (reordered, foreign basis, missing).
+#[test]
+fn u4b_derived_not_qualified_receipts_are_genuine_and_their_mutations_refuse_by_name() {
+    use open_pipe_stress_result_export::{physics_source as ps, reader_verdict, source_blocks::domain_hash};
+    let reseal = |doc: &mut Value| {
+        doc["source_block_recovery"]["receipt_sha256"] =
+            json!(domain_hash("source_blocks_receipt_v1", &doc["source_block_recovery"]["body"]).unwrap());
+    };
+    for family in ["physics_source", "load_reference_source"] {
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let raw = fixture_request(family, "n05");
+            let label = format!("{family} {}", mode.as_str());
+            let doc = crate::run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap();
+            let doc = serde_json::to_value(&doc).unwrap();
+            let invocation = json!({"request": raw, "solver_mode": mode.as_str()});
+            let read = |d: &Value| ps::validate_in(d, Some(&invocation), ps::SourceContract::PressureV3);
+            assert_eq!(read(&doc), Ok(family == "physics_source"), "{label}: genuine (0.4.0 evidence stays ineligible)");
+            if family == "physics_source" {
+                let standing = reader_verdict::standing(&doc, Some(&raw["model"]), Some(&invocation));
+                assert_eq!(standing["findings"], json!([]), "{label}: neutral: {standing}");
+                assert_eq!(standing["eligible"], json!(true), "{label}");
+            }
+            let rows = doc["source_block_recovery"]["body"]["cases"][0]["rows"].as_array().unwrap().clone();
+            let results = doc["results"].as_array().unwrap();
+            let kind = |id: &Value| results.iter().find(|r| r["id"] == *id).unwrap()["kind"].as_str().unwrap().to_owned();
+            let derived: Vec<usize> = (0..rows.len()).filter(|&i| DERIVED_KINDS.contains(&kind(&rows[i]["result_id"]).as_str())).collect();
+            assert_eq!(derived.len(), 30 * raw["model"]["pipe_segments"].as_array().unwrap().len(), "{label}");
+            let (mut sigma, mut tau) = (None, None);
+            for &i in &derived {
+                let t = &rows[i];
+                assert_eq!((t["treatment"].as_str(), t["projection_id"].is_null()), (Some("derived_not_qualified"), true), "{label}");
+                if kind(&t["result_id"]) == DERIVED_KINDS[0] {
+                    assert_eq!(t["recipe_id"], "section_extremes_from_published_stress_rows_v1");
+                    let inputs: Vec<String> = t["input_result_ids"].as_array().unwrap().iter().map(kind).collect();
+                    assert_eq!(inputs, ["element_local_axial_normal_stress", "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z"]);
+                    sigma.get_or_insert(i);
+                } else {
+                    assert_eq!(t["recipe_id"], "transverse_shear_from_published_shear_rows_v1");
+                    let inputs: Vec<String> = t["input_result_ids"].as_array().unwrap().iter().map(kind).collect();
+                    assert_eq!(inputs, ["element_local_shear_force_y", "element_local_shear_force_z"]);
+                    tau.get_or_insert(i);
+                }
+            }
+            let (sigma, tau) = (sigma.unwrap(), tau.unwrap());
+            let other = (0..rows.len()).find(|&i| kind(&rows[i]["result_id"]) == "support_reaction_component_v2").unwrap();
+            let mutate = |at: usize, edit: &dyn Fn(&mut Value)| {
+                let mut d = doc.clone();
+                edit(&mut d["source_block_recovery"]["body"]["cases"][0]["rows"][at]);
+                reseal(&mut d);
+                read(&d).unwrap_err()
+            };
+            let reversed = |t: &mut Value| { let mut ids = t["input_result_ids"].as_array().unwrap().clone(); ids.reverse(); t["input_result_ids"] = json!(ids); };
+            let tau_inputs = rows[tau]["input_result_ids"].clone();
+            for (name, at, edit, code) in [
+                ("wrong recipe", sigma, Box::new(|t: &mut Value| t["recipe_id"] = json!("transverse_shear_from_published_shear_rows_v1")) as Box<dyn Fn(&mut Value)>, "SOURCE_BLOCKS_NOT_QUALIFIED_RECIPE"),
+                ("unregistered recipe", tau, Box::new(|t: &mut Value| t["recipe_id"] = json!("retained_source_straight_stress_v1")), "SOURCE_BLOCKS_NOT_QUALIFIED_RECIPE"),
+                ("treatment checked_derived", sigma, Box::new(|t: &mut Value| t["treatment"] = json!("checked_derived")), "SOURCE_BLOCKS_NOT_QUALIFIED_TREATMENT"),
+                ("treatment inspection_only", tau, Box::new(|t: &mut Value| { t["treatment"] = json!("inspection_only"); t["recipe_id"] = Value::Null; t["input_result_ids"] = json!([]); }), "SOURCE_BLOCKS_NOT_QUALIFIED_TREATMENT"),
+                ("projection named", sigma, Box::new(|t: &mut Value| t["projection_id"] = json!("projection:none")), "SOURCE_BLOCKS_NOT_QUALIFIED_ROW"),
+                ("wrong kind", other, Box::new(|t: &mut Value| { t["treatment"] = json!("derived_not_qualified"); t["projection_id"] = Value::Null;
+                    t["recipe_id"] = json!("section_extremes_from_published_stress_rows_v1"); }), "SOURCE_BLOCKS_NOT_QUALIFIED_KIND"),
+                ("inputs reordered", sigma, Box::new(reversed), "SOURCE_BLOCKS_NOT_QUALIFIED_INPUTS"),
+                ("inputs of τ on σ", sigma, Box::new(move |t: &mut Value| t["input_result_ids"] = tau_inputs.clone()), "SOURCE_BLOCKS_NOT_QUALIFIED_INPUTS"),
+                ("input missing", tau, Box::new(|t: &mut Value| { let ids = t["input_result_ids"].as_array().unwrap()[..1].to_vec(); t["input_result_ids"] = json!(ids); }), "SOURCE_BLOCKS_NOT_QUALIFIED_INPUTS"),
+            ] {
+                assert_eq!(mutate(at, edit.as_ref()), code, "{label}: {name}");
+            }
+        }
+    }
+}

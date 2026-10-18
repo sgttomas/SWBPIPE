@@ -768,6 +768,8 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     // passed, mapping a published row to its bound row index.
     ("PP/retained_product.rs", "bound_row_indices", 1, "integer: the reduced twins passed (D-5 published-to-bound row index)"),
     ("PP/retained_product.rs", "apply_prepared_overlay", 1, "integer: the reduced twins passed (D-5 published-to-bound row index)"),
+    // T4-U4b S4 (§4.1): the not-covered derived rows' formation; no f64 accumulation.
+    ("PP/retained_product.rs", "prepared_not_covered", 2, "integer: the pending not-covered rows' count and the published-to-bound row index"),
     // ---- PP/self_weight.rs
     ("PP/self_weight.rs", "stable_mass_per_length", 2, "declared formation: same-sign mass (section 2.2)"),
     // ---- PP/source_recovery.rs

@@ -61,7 +61,7 @@ def test_composite_schema_is_the_only_source_block_receipt_schema():
         text = (PROJECT / "schemas" / name).read_text()
         assert RETIRED_SOURCE_BLOCKS_ID not in text and "source_block_recovery.schema.json" not in text, name
         assert not any(identity in text for identity in RETIRED_V2_IDS), name
-    assert COMPOSITE_SHA256 == "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b"
+    assert COMPOSITE_SHA256 == "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86"
     assert hashlib.sha256((PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json").read_bytes()).hexdigest() == COMPOSITE_SHA256
     for retired in ("physics_1", "physics_source_1", "load_reference_1", "load_reference_source_1"):
         assert not (PROJECT / f"fixtures/results/semantic_contract_v0_3_{retired}.json").exists(), retired

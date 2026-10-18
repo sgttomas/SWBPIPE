@@ -194,8 +194,9 @@ fn pressure_source_binding_uses_the_reviewed_resident_table() {
     let bytes = include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json");
     let table = sc::verify_pressure_source_table(bytes).unwrap();
     assert_eq!(&table, sc::pressure_source_contract());
-    // T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis), 69 -> 88.
-    assert_eq!(table["rows"].as_array().unwrap().len(), 88);
+    // T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis), 69 -> 88;
+    // T4-U4b §4.3: + the straight derived signatures on both bases, 88 -> 94.
+    assert_eq!(table["rows"].as_array().unwrap().len(), 94);
     assert_eq!(reader_verdict::binding("pressure_source"), json!({"id":ps::PRESSURE_CONTRACT_ID, "sha256":sc::PRESSURE_SOURCE_TABLE_SHA256}));
     let mut edited = bytes.to_vec(); edited.push(b'\n');
     assert_eq!(sc::verify_pressure_source_table(&edited).unwrap_err(), "SOURCE_PRESSURE_SOURCE_TABLE_HASH");

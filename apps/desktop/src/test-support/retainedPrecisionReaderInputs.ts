@@ -8,11 +8,11 @@ export type ReaderInput = { key: string; build: () => Promise<{ source: Json; in
 
 const PROJECT_ROOT = resolve(__dirname, "../../../../");
 const readJson = (path: string): Json => JSON.parse(readFileSync(resolve(PROJECT_ROOT, path), "utf8"));
-const DEF_O = "66c5bf48533b9e5a8f4edeb4fdf6ab4ef845c1a9882eea0bb4afdc0e20771eab";
+const DEF_O = "64ec69b842d6278323aa2ab2e140e999db52eb28e4a9965a567a90b04e228b41";
 /** DEF-E's H, as result_export's `retained_precision::EXACT_DEFINITION_HASH` (re-based on
  * pressure-1 by a43583c625, B7b D4 (a); T4-U6's DEF-E states zero mill tolerance and lists the
  * reduced-basis rows); the rehash mirrors that constant, it states no result. */
-const DEF_E = "b464eb5b88f2930774ad3ffc4aaa9bdee002f1c798864694146f95c95f60a60a";
+const DEF_E = "87907c619777945ba76b045fcd425c81022f282f5d6a71239388217be98d9948";
 const EXACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1";
 /** The shared corpus's successor fixtures (`retained_precision_*_successor_*.json`). */
 export const SUCCESSOR_FIXTURES = [
