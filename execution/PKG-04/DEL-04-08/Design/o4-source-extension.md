@@ -27,7 +27,7 @@ AC-007 (a) gives the discharge conditions: the extended cases publish verified r
 - **Retained-source recovery (sections 3).** The source method's declared operand is already the built frame's binary64 local matrix. A Timoshenko frame supplies its own Timoshenko local matrix, and the signed-permutation path and RF's exact congruence carry it unchanged. The dual-basis work is in the stress publication: each basis has its own recovery section, stress checks and endpoint maximum, all formed from the same retained endpoint functionals. `SOURCE_MAXIMUM_BASES_DISTINCT` and the three `prepare_sources` declines are retired.
 - **W1-E (section 4).**
   - The retained kernel gains a Timoshenko straight member. The shear leaf lives in a member-only sidecar, so every layout a receipt records stays unchanged.
-  - The D block is written in natural-mode form per bending plane, (EI/L)·P_a + 3(EI/L)/(1+φ)·P_s, with a fixed formation recipe at the working precision. Its absolute operand is D̄ = λ(c + c_s)·[[1,1],[1,1]], with λ = 2 unless the review requires more. With that operand, every term of every existing Euler–Bernoulli derivation bounds its Timoshenko counterpart, so R7's t₁ and E's factor 69, including the reaction and support warrant, transfer unchanged (section 4.4).
+  - The D block is written in natural-mode form per bending plane, (EI/L)·P_a + 3(EI/L)/(1+φ)·P_s, with a fixed formation recipe at the working precision. Its absolute operand is D̄ = λ(c + c_s)·[[1,1],[1,1]] with λ = 2, rounded upward. Section 4.4 derives λ = 2 finitely from the existing derivations' own coefficient counts. With that operand, every term of every existing Euler–Bernoulli derivation bounds its Timoshenko counterpart, so R7's t₁ and E's factor 69, including the reaction and support warrant, transfer unchanged (section 4.4).
   - Each lane forms the shear rigidity from its own readout. The admitted lane uses the prepared binary64 shear-area leaf; the annular lane uses an enclosure of κ_E from the exact annulus.
   - Wherever the kernel bounds D by coefficient gaps and fixed patterns, a Timoshenko member is bounded by D-entry gaps formed at the exact length. Euler–Bernoulli members keep today's code and bits.
   - A member whose reduced stress section differs from its nominal one gets a reduced section term, and its reduced stress rows are certified on that section as receipt rows. A member whose sections are bit-equal keeps today's overlay of the reduced twin.
@@ -165,7 +165,7 @@ The D5/MJ9 law (b7-plan, "D5/MJ9's accounting clarification") governs. No chargi
     - The identity string is `serde_json::to_string(&(names, bits))` (`source_recovery.rs` about 747–757), with every scalar written as its decimal u64 bit pattern, so its length depends on values. A nonzero allowance or mill tolerance serializes to about 19–21 characters where zero serializes to 1. A mill-tolerance quantity enters only when present. A Timoshenko K_local's entries have other digit counts, and an exact zero at φ = 2 shortens it.
     - Descriptor product lengths change wherever a structural zero drops a term.
     - So ΔF_k = 2·12·Δ(identity length) + Δ(descriptor-length terms). For example, an explicitly present mill tolerance changing from 0.0 to 0.001 adds 18 identity bytes, and so 432 to F_k. The test derives ΔF_k from the actual serialized identity and inputs and asserts equality, not zero. Published rows and their metadata lengths do not change.
-  - ΔQ_k includes the first `retained_identity_digest` reservation, which charges a separate 12 × identity length: 216 more in the same example. It also includes the second basis's endpoint maximum. `composite_member_maximum` charges `RECIPE_WORK` per call (`composite.rs` about 172), and the second basis is a second call, so ΔQ_k = RECIPE_WORK per member whose sections differ, plus that call's own metered work. Composite-exact wrapper terms depend on row counts, and none moves.
+  - ΔQ_k includes the first `retained_identity_digest` reservation, which charges a separate 12 × identity length: 216 more in the same example. It also includes the second basis's endpoint maximum. `composite_member_maximum` charges `RECIPE_WORK` per call (`composite.rs` about 172), and the second basis is a second call. Each later call also reads the cached identity digest, which charges `charge_finalization(128)` (`source_recovery.rs` about 233–234). The maximum is computed at two sites, and each gains a reduced-basis call: the publication loop (`lib.rs` about 5960) and the composite receipt's expected-rows pass (`source_receipt/composite.rs` about 785). So ΔQ_k = 2 × (RECIPE_WORK + 128) = 8,448 per member whose sections differ, plus each call's own metered work in `maximum_inner`. The test counts the calls at both sites rather than assuming one. Composite-exact wrapper terms depend on row counts, and none moves.
   - ΔP = 0, because no published row or diagnostic is added.
 
 An independent test derives every term from the actual inputs and sites, as the MJ9 test does, and reconciles their sum with the counters exactly; it asserts ΔP = 0. MJ6's and MJ9's twelve Euler–Bernoulli requests keep their work counters in both modes; their bytes move only in the limitation strings and the hashes binding them (4.9). The 8,000,000 and 64,000,000 limits are unchanged, and an input at the limit still refuses by name.
@@ -196,7 +196,8 @@ An independent test derives every term from the actual inputs and sites, as the 
 - Kernel-internal layouts that no receipt records may grow; `MemberOperators` and `BoundedCoefficients` (its `bounded()` and `widen` copies) gain the per-plane Timoshenko entries.
 - **Receipt-recorded layouts stay as they are.** These include:
   - the adapter's `RequestedCopyBytes` and `RustCapacityBytes` types (`StraightMember`, `PreparedAssociation`, `ProductMemberFacts`, the case slots);
-  - the kernel structs recorded through `TraceCopyWork::record` (`LaneWorkTrace`, `ProductProofTrace`, `CoverageFacts`, `ProductFailureView`; `final_case.rs` about 198–398, `source_residual.rs` about 116);
+  - the proof's serialized `capacities` arrays;
+  - the kernel structs recorded through `TraceCopyWork::record` (`LaneWorkTrace`, `ProductProofTrace`, `CoverageFacts`, `ProductFailureView`; `final_case.rs` about 198–398, `source_residual.rs` about 116). These bytes appear to be checked for exactness without being serialized (`retained_receipt.rs` about 23–27). Pinning them is conservative; the review may drop the constraint if it confirms they never reach a receipt;
   - `SectionPreparationWork.layout_bytes` (`SectionPrepFrame`, `PreparedAnnulus`; serialized at `retained_wire.rs` about 1453);
   - `ProductRecipe`.
   
@@ -224,7 +225,7 @@ D's bending rows become [(2, d₁), (3, d₂)], [(2, d₂), (3, d₁)] per plane
 - **φ = 0 is not this recipe.** t₃ = RN(3c) is inexact. An Euler–Bernoulli member keeps today's exact `4c`/`2c` scalings, code path and bits; the branch is taken from the sidecar.
 - **d₂ may be zero or negative** (φ ≥ 2). It is a signed entry, and no range check treats an exact zero as underflow (U8 §3.3).
 
-**The absolute operand D̄.** For a Timoshenko member, the absolute D operand is **D̄ = d̄·[[1,1],[1,1]] per plane, with d̄ = RU(λ·(c + c_s))** and λ = 2, unless the review of section 4.4 fixes a larger λ. The factor is what makes section 4.4's dominance lemma hold.
+**The absolute operand D̄.** For a Timoshenko member, the absolute D operand is **D̄ = d̄·[[1,1],[1,1]] per plane, with d̄ = RU(λ·(ĉ + ĉ_s))** and λ = 2, formed from the computed operands. The factor is what makes section 4.4's dominance lemma hold, and section 4.4 derives it.
 - D̄ replaces |D| in every consumer of the absolute bending block:
   - `assemble.rs` `bounded_block` (Ā, which feeds N_u and t₁, and reactions in E);
   - `verify.rs` `formation_scale` (about 164);
@@ -279,33 +280,54 @@ Every other stage is the same code for both theories:
 
 None of those reads D except through (i) and (ii).
 
-**Timoshenko D entries.** c = RN(RN(E·I)/L̂) is today's coefficient, with relative error δc ≤ 5ε (two roundings, plus |L̂/L − 1| < 3ε from stage 2 §4.2). sl is within 5ε (s: ε; L̂: 3ε; its rounding: ε). With the roundings τ (t₃), ρ (φ), ω (op) and κ (c_s), first-order sensitivity gives
-log(c_s/c_s*) = (δc + τ)(1 − w) + w(δsl − ρ) − ω + κ, with w = φ/(1+φ) ∈ [0, 1).
-So |rel err c_s| ≤ 6(1 − w) + 6w + 2 = 8ε. The c and sl errors enter as a convex combination, which is why the bound does not grow with φ. Then:
-- d₁ = RN(c + c_s), both positive: within 8ε·(c + c_s) + ε·d₁ ≤ 9ε·(c + c_s);
-- d₂ = RN(c_s − c): within 8ε·c_s + 5ε·c + ε·|d₂| ≤ 9ε·(c + c_s);
-- |d₁| and |d₂| are each at most c + c_s.
+**Notation.** Exact quantities are starred (c\*, c_s\*, d₁\*, d₂\*, formed from the exact leaves and the exact length L); computed ones carry a hat. θ_k denotes any quantity with |θ_k| ≤ γ_k = kε/(1 − kε) (Higham, Lemma 3.1). R7's Lemma B states its first-order counts in this exact form; at the counts used here, kε ≤ 2^-9.9 holds at every formation precision.
 
-**The lemma.** Let D̄ = λ·(c + c_s)·[[1,1],[1,1]] with λ ≥ 1. Then every D entry is within (9/λ)·ε·D̄ of exact, and every |D| entry is at most D̄/λ ≤ D̄. Substitute D̄ for |D| in (i) and in (ii)'s right-hand side. Each term of each derivation is then bounded by the corresponding Euler–Bernoulli term with |D| replaced by D̄, provided 9/λ ≤ c_D:
-- a D-error term is at most (9/λ)ε·D̄ ≤ c_D·ε·D̄;
+**The coefficient counts of the two derivations.** Both form c as `over_length` does (`assemble.rs` about 340–355): ĉ = RN(RN(E·I)/L̂), one rounding for the product, one for the quotient, plus the length's error ℓ. So c's count is c_D = ℓ + 2.
+- R7 §3.3: "1/L; the section terms | 3.5; 4.5", so ℓ = 2.5 and c_D = 4.5.
+- Stage 2 §4.2: "Reverse coefficient counts are 4 for L, 5 for 1/L and 6 for section terms", so ℓ = 4 and c_D = 6.
+
+**Timoshenko D entries, finitely.** Let ĉ = c\*(1 + θ_{c_D}) and L̂ = L(1 + θ_ℓ).
+- t̂₃ = 3c\*·r, with r = 1 + θ_{c_D+1}.
+- ŝl = s\*·L·(1 + θ_{ℓ+2}): G·A_s rounded once, L̂, and the product rounded once.
+- φ̂ = φ\*·r·u⁻¹, with u = (1 + θ_{ℓ+2})/(1 + ρ) for φ's own rounding ρ.
+- The ratio of computed to exact before c_s's last two roundings is f = r(1 + φ\*)/(1 + φ\*·r·u⁻¹) = (r + r·φ\*)/(1 + r·φ\*·u⁻¹). That is the mediant of r/1 and (r·φ\*)/(r·φ\*·u⁻¹), so f lies between r and u exactly, at every φ\*. Hence f = 1 + θ_m with m = max(c_D + 1, ℓ + 3) = ℓ + 3, since c_D = ℓ + 2. This is the exact form of the convex-combination remark, and it is why the bound does not grow with φ.
+- ĉ_s = c_s\*·f·(1 + κ)/(1 + ω) = c_s\*(1 + θ_{ℓ+5}).
+
+So, with k = ℓ + 5 (7.5 in R7, 9 in stage 2):
+- **d₁** = RN(ĉ + ĉ_s), both positive: d̂₁ = (c\* + c_s\*)(1 + θ_{k+1});
+- **d₂** = RN(ĉ_s − ĉ): |d̂₂ − d₂\*| ≤ γ_k(c\* + c_s\*)(1 + ε) + ε|d₂\*| ≤ γ_{k+1}(c\* + c_s\*), because |d₂\*| ≤ c\* + c_s\*;
+- **the operand** d̄ = RU(2(ĉ + ĉ_s)) ≥ 2(ĉ + ĉ_s) ≥ 2(1 − γ_k)(c\* + c_s\*). It is formed from the computed operands and rounded upward, so it dominates.
+
+**The entrywise bound in each derivation's own units.** For every Timoshenko D entry,
+|d̂ − d\*| ≤ γ_{k+1}·(c\* + c_s\*) ≤ [γ_{k+1} / (2(1 − γ_k))]·d̄ ≤ c_D·ε·d̄, and |d̂|, |d\*| ≤ d̄.
+The bound is against the computed, upward-rounded operand d̄. That is the form stage 2's recurrence requires ("If a coefficient obeys |C\* − C| ≤ cε|C|", with C the computed coefficient; §4.2), and it implies R7's γ form, since c_D·ε ≤ γ_{c_D}. The last inequality was checked in exact rational arithmetic at ε = 2^-53 and 2^-128 for both chains, and it holds for every smaller ε. Its left side is about (k + 1)/2 = (ℓ + 6)/2, which is below c_D = ℓ + 2 whenever ℓ > 2:
+- R7: γ_{8.5}/(2(1 − γ_{7.5})) ≈ 4.25ε ≤ 4.5ε;
+- stage 2: γ_{10}/(2(1 − γ_9)) ≈ 5ε ≤ 6ε. Stage 2's counts are reverse counts against the computed value, and its forward length error is < 3ε. So ℓ = 4 is conservative there.
+
+In words: with λ = 2, each derivation's own section-term count, c_D, bounds every formed Timoshenko entry relative to the absolute operand D̄. It bounds an Euler–Bernoulli entry relative to |D| in the same way. No count changes.
+
+**The lemma.** Each derivation reads D only through (i) its absolute operand and (ii) the entrywise error bound |D̂ − D\*| ≤ c_D·ε·(absolute operand), in its own exact form (obligation 3 confirms this). Replace |D| by D̄ in (i), and use the bound just derived for (ii). Then every term of every derivation is bounded by the same term of its Euler–Bernoulli form with |D| replaced by D̄:
+- a D-error term is at most c_D·ε·D̄, which is the term the derivation already carries;
 - a term multiplying |D| by another stage's error is at most that error times D̄;
-- the rounding terms are unchanged.
+- the rounding terms do not involve D.
 
-The higher-order terms are products of first-order terms that are each no larger, so each derivation's own higher-order factor carries over unchanged. Every total, and so every law's constant, holds for Timoshenko members with Ā, E and Q̄ formed from D̄. In particular:
+The D count is supplied in the same exact form the derivations already assume for their stage counts. So each derivation's own remainder treatment applies unchanged: R7's Lemma B factor 1 + 2^-8.8 under g ≤ 2^(P−16), and stage 2's (1 − 68·2^-16)^-2. Every total, and so every law's constant, holds for Timoshenko members with Ā, E and Q̄ formed from D̄. In particular:
 - R7's t₁ holds with N_u from Ā_T = g·B̄ᵀD̄B̄;
 - stage 2's 47.1 and the reaction and support 68.142 hold;
 - factor 69, P − 16 and 2^7 are unchanged.
 
-**The choice of λ.** The design takes **λ = 2**, so D̄ = 2(c + c_s), which needs c_D ≥ 4.5 in every derivation.
-- Stage 2's member-recovery derivation uses c_D = 6.
-- R7's t₁ and reaction and support derivations must account for the formed c's actual error, which is at least its two roundings plus the length error. A sound derivation therefore uses c_D ≥ 5 at first order.
-- The independent review confirms the c_D each derivation actually states. If one states c_D < 4.5, the design takes λ = max(2, 9/c_D,min) instead. That is a different definition of this design's operand, not a change to any law.
-- A larger λ is more conservative still (4.2's note on D̄).
+**The choice of λ.** **λ = 2** is derived, not provisional. It needs (ℓ + 6)/2 < ℓ + 2, which holds with a γ-margin for both chains as stated. A derivation with ℓ ≤ 2 would need λ = (ℓ + 6)/(ℓ + 2) plus margin. Neither existing derivation has one: each forms c from L̂ with ℓ ≥ 2.5. A larger λ is more conservative still (4.2's note on D̄).
 
 **A sanity reconstruction, not the warrant.** Counting `assemble.rs` directly puts an Euler–Bernoulli member's formed K entries within about 67–68ε·Ā: B within 30gε, DB within 36gε, BᵀDB within 67gε, assembly rounding ε. That is comfortably inside t₁'s 2^7. It is not offered as the reaction and support count; that warrant's later stages (reaction and support rounding, magnitudes, E's rounding) are covered by the substitution argument above, not by this count.
 
 **Remaining obligations** for the independent numerical review, before implementation code:
-3. Confirm each existing derivation's c_D (stage 2 §4.2's 6; R7's t₁ and its reaction and support derivations), and the claim that those derivations read D only through (i) and (ii). Confirm the c_s sensitivity, including its higher-order terms. Fix λ.
+3. Confirm, for each existing derivation (stage 2 §4.2; R7's t₁; the reaction and support derivation):
+   - that it reads D only through (i) and (ii);
+   - that it uses the D error entrywise against its absolute operand, and does not use the Euler–Bernoulli fact that both D entries share c's single relative error. That fact correlates the Q₂ and Q₃ errors; Timoshenko errors are not proportional across d₁ and d₂;
+   - that its total is non-decreasing in its absolute operand;
+   - that its length count ℓ and section count c_D are those quoted above (2.5 and 4.5 for R7; 4 and 6 for stage 2), and that c_D = ℓ + 2 at the code's `over_length`.
+   
+   Also recheck the finite D-entry derivation and the exact-rational check of γ_{k+1}/(2(1 − γ_k)) ≤ c_D·ε.
 4. The alpha law with D-entry gaps at the exact length (4.3): its premise, the triangle inequality and the outward rounding of |Δd|.
 5. κ_E's enclosure contains the exact κ_E of the exact annulus for every admitted ν in (−1, ½). Every intermediate stays within the lane's `Wide` range, or refuses by `ExponentRange`.
 6. K4STF's Timoshenko block and the sidecar bind every leaf that enters formation, so no attempt, group or replay can certify a member whose formation differs from its declared leaves.
@@ -316,6 +338,12 @@ The higher-order terms are products of first-order terms that are each no larger
 - **Section facts (a sidecar too).** Capture reserves `facts` through the adapter (`retained_product.rs` about 1910), which records capacity × `size_of::<T>()` (about 4077–4083). So `k::ProductMemberFacts` (`final_case.rs` about 84–94) must not grow. The reduced section lives in a `ReducedSectionSet` sidecar, reserved and counted only where a member's bases differ, beside `TimoshenkoLeafSet`, with no tag added to `ProductRecipe`. Each member has a reduced section exactly when the member's reduced stress section differs from the nominal one in any of **{As, Z, I, J, effective wall}**. The wall is in the set because the annular lane reads t_r: two sections whose binary64 A, Z, I and J agree can still differ as exact annuli.
   - The reduced facts are binary64 A_r, Î_r, Ẑ_r and J_r, prepared by `prepare_product_annulus(D, t_r)`; for the annular lane, the exact annulus of D and the binary64 t_r = (t − c_m) − c_a.
   - The nominal facts are today's, with the nominal wall t. With a nonzero mill tolerance the stiffness, κ_E and the nominal stresses use t; today's route E, which admits only zero mill tolerance, already uses t.
+- **How the kernel identifies a reduced row.** `ProductRecipe::Stress { member, site, stress }` has no basis field, and `row_scales` sizes stress coverage as `facts.len() × 21` (`final_case.rs` about 1146–1160). Its capacity (`capacities[4]`) is serialized (`retained_wire.rs` about 1389). So:
+  - `ReducedSectionSet` carries, for each member whose bases differ, its reduced section and the final-row indices of its reduced stress and maximum rows.
+  - The kernel reads a row's basis from that map, and uses that member's reduced section for it.
+  - Reduced rows are covered in a separate reduced-coverage vector, allocated only when the set is non-empty.
+  - `ProductRecipe`, the 21-slot coverage vector and `capacities[4]` are unchanged for bit-equal documents. A const size assertion pins `ProductRecipe`.
+  - A reduced row whose index is not in the map, or a mapped index whose row is not a reduced stress or maximum row of that member, is refused by its kernel cause.
 - **Reduced stress rows.** Each reduced stress row is certified by the same recipes as its nominal twin: DEF-E's directed signed-corner N/A, M_y/Z, M_z/Z and T·c/J, with the admitted lane's represented Z = hull(Ẑ_r, Î_r/c). The two-end maximum recipe is likewise applied with A_r and Z_r. Each row gets its own enclosure, class and bound under the unchanged gate. Its body scale is its body's force and moment scales divided by its own section (the reader's `row_scale`).
 - **The overlay stays for bit-equal sections.** Where all five agree, the reduced twin is today's overlay: excluded from the receipt row universe and carrying its nominal twin's retained value. Two such sections give the same recipe and the same operands in both lanes, so the twin is the same certified quantity.
   - The rule is decided per member from the data, not by a document flag. A mixed document certifies distinct-basis members' twins and overlays the rest.
@@ -434,7 +462,7 @@ Each is introduced into a scratch copy, run, reverted and recorded in the PR; no
 | A nonzero mill tolerance or allowance still declined | `o4_dual_basis_source_case_selects`, `o4_w1e_dual_basis_case_is_admitted` |
 | Retained member formed Euler–Bernoulli for a Timoshenko leaf; Timoshenko recipe applied to a Euler–Bernoulli leaf | `retained_timoshenko_formation_matches_exact_element` (P = 128/256/512/1024 against the exact element); the existing K4 vectors unchanged |
 | φ with A instead of A_s, or with Iy/Iz swapped; factor 3 or 4 wrong; d₂ sign flipped | the same, plus the judged set's discriminators |
-| Ā, E or Q̄ using \|D\| or c + c_s instead of D̄ = λ(c + c_s) (cancellation at φ ≈ 2) | `retained_timoshenko_formation_error_is_within_68uA` and `..._recovery_error_is_bounded_by_69uE` (the section 4.4 item 7 controls) |
+| Ā, E or Q̄ using \|D\| or c + c_s instead of D̄ = λ(c + c_s) (cancellation at φ ≈ 2) | `retained_timoshenko_formation_error_is_within_t1` and `..._recovery_error_is_bounded_by_69uE` (the section 4.4 item 7 controls, asserted against each warrant's allowance) |
 | Annular lane reuses κ̂ or Â_s (no exact κ_E) | `annular_timoshenko_lane_uses_the_exact_kappa` (enclosure contains exact κ_E; κ̂ excluded on a section where they differ) |
 | Coefficient-gap pattern used for a Timoshenko member's η | `timoshenko_eta_uses_d_entry_gaps` (a member where the pattern bound underestimates \|ΔK\|) |
 | K4STF/K4SRC Timoshenko block missing, or present for an all-Euler–Bernoulli source | encoding tests; the existing K4 vectors unchanged; corpus `section_terms_shear_area_on_euler_bernoulli` |
@@ -516,7 +544,7 @@ The registered branch runs on the qualification host's registered build, and the
 
 **Independent numerical review checklist** (separate agents; AGENTS.md):
 1. The Timoshenko recipe (4.2): its identity with U8's element, φ's and c_s's rounding schedule, and the Euler–Bernoulli branch's byte preservation.
-2. Section 4.4: that each existing derivation reads D only through its absolute operand and its coefficient c_D, the c_D values and λ, the c_s sensitivity bound, the substitution lemma, the alpha law with D-entry gaps at the exact length, κ_E's enclosure and range, and the K4STF and sidecar binding. This review precedes implementation code.
+2. Section 4.4: that each existing derivation reads D only through its absolute operand and its coefficient c_D, the counts ℓ and c_D, the finite D-entry bound against the upward-rounded D̄ and λ = 2, the substitution lemma, the alpha law with D-entry gaps at the exact length, κ_E's enclosure and range, and the K4STF and sidecar binding. This review precedes implementation code.
 3. The two readouts (4.3): the admitted lane's prepared Â_s,prep (and G7's equality with it), and the annular lane's exact κ_E on the nominal annulus.
 4. The dual basis on both routes (3.2, 4.5): each reduced row on its own section, the bit-equal overlay rule, the per-basis maxima and headlines, and the reader bindings.
 5. The source route (3.1): that the declared Timoshenko K_local passes every RF closure unchanged, and the declared-problem oracle's verdicts.

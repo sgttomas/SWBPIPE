@@ -29,7 +29,7 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 - **What does not change:**
   - the G5b check, every gate predicate, the stop rule's value 2^-64·L, the 256-live, depth-64 and 1,024-split limits, R7, DEF-O's text, D1 and the work limits;
   - every reviewed input. The repair moves priced source only, so it still needs its actual-source D3.
-- **What does move** (1.4): the committed loaded members on interval-hull sections (their proof work and anything binding it); the genuine-exhaustion control and its 13 corpus mutations, whose basis this repair removes; and the formerly refused controls, which now publish.
+- **What does move** (1.4): the committed loaded members on interval-hull sections (their proof work and anything binding it; where their bending lower bound is nonzero, also U, n and the maximum evidence, with every gate verdict and work-limit outcome held by a regression condition, 3.3); the genuine-exhaustion control and its 13 corpus mutations, whose basis this repair removes; and the formerly refused controls, which now publish.
 - **What remains after the repair.** A loaded maximum whose two-lane hull is too wide for the unchanged gate still falls back. That widening comes from the admitted-against-annular section difference, which every stress row inherits (stage 2 §4.4, last corner). It is outside REQ-006 (b), and the census measures it.
 - **Merge with O4: no.** The corners share no law or code path with O4's Timoshenko and section-basis extension (section 8). The census runs as soon as epoch 4 merges; the repair is implemented after O4.
 
@@ -128,7 +128,7 @@ The corner is a provenance inconsistency in one receipt field. The gate, the cla
 
 ### 2.2 The repair
 
-- The product certificate keeps the final per-body scales it computed in `check_intervals`, coupled and floored, as part of its proof, and exposes them with the verdicts.
+- The product certificate keeps the final per-body scales it computed in `check_intervals`, coupled and floored, as part of its proof, and exposes them with the verdicts. Following O4's layout discipline (o4-source-extension.md §4.2), the exposure leaves every serialized proof structure and capacity unchanged, including `capacities[6]` (the scales buffer). It reuses the existing scales buffer, or else a separately owned copy that no receipt counter records. A pin test asserts it.
 - `selection` writes `body_scales` from those final scales, for selected cases and for combinations alike. Both call `selection` with the product certificate in hand.
 - The native evidence's scales stay native evidence. They still feed the native publication certificate unchanged, and no other receipt field changes source.
 
@@ -179,7 +179,8 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
   - the governing bending share b = (‖M‖/Z)/(|N|/A + ‖M‖/Z) at the lane's best point;
   - today's admitted- and annular-lane search outcomes, with splits, live nodes and depth;
   - with the corner-1 switch: both lanes' enclosures, the hull width relative to |n|, n, the gate outcome and, on failure, the failing predicate;
-  - the two counterfactual gate outcomes, (a) and (b), defined under the decision rules (3.3);
+  - on a post-repair gate failure, the counterfactual gate outcomes defined under the decision rules (3.3): (a), (b) and (c) individually, and the combined runs (a)+(b) and (a)+(c). Together these distinguish *joint* from *other*;
+  - for a member that converges today, its before-and-after verdicts, status and counted work, for the regression condition (3.3);
   - the case's resulting status and cause.
 - **C2, per case:**
   - the native, final and readers' scales per body and kind, and their equalities;
@@ -231,7 +232,8 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 
 ### 3.3 Decision rules (pre-registered)
 
-**Implementing corner 1's repair.** Today every member that reaches corner 1 is unavailable. After the repair each is either gate-decided or still exhausted. The repair therefore cannot remove a capability, and the census does not gate implementation on a pass rate. Implementation waits only for the owner's reading of REQ-003 (e) (section 11). Then:
+**Implementing corner 1's repair.** Today every member that reaches corner 1 is unavailable. After the repair each such member is either gate-decided or still exhausted, so for those members the repair cannot remove a capability, and the census does not gate implementation on their pass rate. That argument does not cover members that converge today on interval-hull sections. They take the driven path too (1.4): their work rises, and where the bending lower bound is nonzero, U, n and the maximum evidence can change. So implementation waits for the owner's reading of REQ-003 (e) (section 11) and for the regression condition below. Then:
+- **Regression condition for already-converging members.** For every C1-a member that converges today, the census reports before and after: the gate verdict of each certified row, the case's selection and status, the counted work against the 8,000,000 and 64,000,000 limits, and the 4 MiB stack witnesses' outcomes. A row that passes today and fails after the repair, a case that changes from publishing to withdrawn, or a work-limit refusal that does not occur today stops the repair for diagnosis. It does not proceed under a changed gate. Numerical moves that leave every verdict and refusal unchanged are listed in the implementation PR with their reason (1.4).
 - A post-repair exhaustion on an ordinary section (w > 0) is classified. A near-degenerate maximum is the stage-2 theoretical case. Anything else is unexplained and stops the repair for diagnosis.
 - **Attribution of each post-repair gate failure.** Counterfactual re-runs of the same gate under test switches, with no product effect:
   - (a) the admitted lane's Z set to the single value Ẑ;
@@ -397,11 +399,14 @@ These edit commitments, so they are proposals. The owner decides them. They are 
 
 **Fixtures:**
 - new corpus bases (the repaired controls, in both modes), with their R1 outcomes and desktop wasm inputs;
-- section 1.4's moves: the work counters and binding hashes of committed loaded members on interval-hull sections, and the genuine-exhaustion control with its 13 mutations rebased;
+- section 1.4's moves:
+  - the work counters and binding hashes of committed loaded members on interval-hull sections;
+  - where such a member's bending lower bound is nonzero at an evaluated point, its U, n and maximum evidence, under the unchanged gate and the regression condition (3.3);
+  - the genuine-exhaustion control with its 13 mutations rebased;
 - the census sweep inputs only as generated test inputs, not as committed records.
 
 **Must stay byte-identical:**
-- every other committed successor, corpus base and R1 or R2 record (corner 2 moves none, given the gating check);
+- every other committed successor, corpus base and R1 or R2 record (corner 2 moves none, given the gating check). Every gate verdict, selection and work-limit outcome of an already-converging committed member stays the same, or the repair stops (3.3);
 - every ordinary and pressure-free byte;
 - route E, J2 and the J7 pin;
 - every reviewed input;
