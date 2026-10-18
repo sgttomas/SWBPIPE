@@ -524,7 +524,8 @@ pub(crate) mod witness_hook {
             return;
         }
         let mut seen = SEEN.lock().unwrap();
-        for member in members {
+        // The straight piecewise witness only (T4-U4b: an arc's maximum has no witness interval).
+        for member in members.iter().filter(|m| !m.arc) {
             if let Some(Ok(maximum)) = &member.maximum {
                 seen.push((project.to_string(), member.pipe_id.clone(), maximum.value_upper, maximum.upper_bound));
             }

@@ -422,6 +422,8 @@ fn pipe_sections_and_region_geometry_mark_the_same_realized_arcs() {
                     let object = part.as_object_mut().unwrap();
                     object.remove("traversal_forward").expect("a region geometry record");
                     object.remove("arc_end_tangents_global");
+                    // T4-U4b (§2.5): an arc's region record also states its bend radius.
+                    object.remove("bend_radius_m");
                     assert_eq!(&part, sections[id], "{label} {id}: region geometry section part is the pipe_sections entry");
                 }
                 assert_eq!(region_arcs, arcs, "{label}: the region marks exactly the realized arcs");

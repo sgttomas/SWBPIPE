@@ -313,8 +313,8 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
             preview_physics_evidence.validate_preview_physics_evidence(source)
             if model is not None:
                 # T4-U4b (§5.1): τ bit for bit with the captured model (G2).
-                from . import u4b
-                u4b.preview_model_checks(source, model)
+                from . import u4b_model
+                u4b_model.preview_model_checks(source, model)
             return {"ok": True}
         if reader == "pressure":
             pressure_2.validate_pressure_evidence(source)

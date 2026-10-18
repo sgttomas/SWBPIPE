@@ -192,7 +192,24 @@ fn assert_binary64_rows_near_certified_net_answer(
     label: &str,
 ) -> usize {
     let rows: BTreeMap<&str, &ResultItem> = case_rows(envelope, "case").map(|r| (r.id.as_str(), r)).collect();
-    let expected: BTreeMap<&str, &ResultItem> = case_rows(reference, "case").map(|r| (r.id.as_str(), r)).collect();
+    let mut expected: BTreeMap<&str, &ResultItem> = case_rows(reference, "case").map(|r| (r.id.as_str(), r)).collect();
+    // T4-U4b (§2.3): the cancelling loads' uniform intensities enter the arc
+    // maximum's problem one by one, and at G = 1e80 their enclosures cannot
+    // bound it; that maximum is withheld with PREVIEW_STRESS_MAXIMUM_UNAVAILABLE
+    // naming the arc, while the single net load's is published.
+    let withheld: Vec<&str> = expected
+        .iter()
+        .filter(|(id, r)| r.kind == "pipe_elastic_normal_stress_maximum_v2" && !rows.contains_key(*id))
+        .map(|(id, _)| *id)
+        .collect();
+    for id in withheld {
+        let pipe = &expected[id].entity_ref;
+        assert!(
+            envelope.diagnostics.iter().any(|d| d.code == "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE" && d.affected_refs.iter().any(|r| r == pipe)),
+            "{label}: {id} withheld without its diagnostic"
+        );
+        expected.remove(id);
+    }
     assert_eq!(rows.keys().collect::<Vec<_>>(), expected.keys().collect::<Vec<_>>(), "{label}: row ids");
     let mut scale: BTreeMap<&str, f64> = BTreeMap::new();
     for r in expected.values() {

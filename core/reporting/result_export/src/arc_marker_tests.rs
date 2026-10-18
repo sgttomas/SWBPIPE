@@ -187,13 +187,14 @@ fn an_arc_outside_every_pressure_region_is_known_by_its_marker() {
         assert_eq!(read(&unknown), Err("SOURCE_PHYSICS_MEMBER_KIND".into()), "{pipe}");
     }
     // The marker on a straight member: an arc stating Timoshenko, or (stating
-    // Euler-Bernoulli) an arc whose maximum is not withheld.
+    // Euler-Bernoulli) an arc whose rows keep the straight sign conventions
+    // (T4-U4b: arcs publish their maximum, under the arc's own convention).
     let mut marked = timo.clone();
     edit_sections(&mut marked, STRAIGHT, &CASES, mark);
     assert_eq!(read(&marked), Err("SOURCE_PHYSICS_ARC_BEAM_THEORY".into()));
     let mut marked = document(eb, true);
     edit_sections(&mut marked, STRAIGHT, &CASES, mark);
-    assert_eq!(read(&marked), Err("SOURCE_PHYSICS_ARC_WITHHELD".into()));
+    assert_eq!(read(&marked), Err("SOURCE_PHYSICS_ROW_SEMANTICS".into()));
     // Realized arcs are a model fact: every case marks the same members.
     let mut one_case = document(eb, true);
     edit_sections(&mut one_case, ARC, &CASES[1..], unmark);

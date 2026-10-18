@@ -168,6 +168,18 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     extend(&mut vocabulary, "component", &current_components);
     extend(&mut vocabulary, "coordinate_system", &[LOCAL_FRAME]);
     extend(&mut vocabulary, "location", &[LOCAL]);
+    // T4-U4b (§2.2): pressure-2's own section stress, toroidal and directional
+    // tokens (both section bases), which the source family does not carry.
+    extend(&mut vocabulary, "component", &["sigma_plus", "sigma_minus", "tau_v_max", "intensified_bending",
+        "intensified_bending_maximum", "toroidal_intrados_hoop_stress", "toroidal_crown_hoop_stress",
+        "toroidal_extrados_hoop_stress", "toroidal_inner_radial_stress", "toroidal_outer_radial_stress"]);
+    let u4b_bases: Vec<String> = ["section_extremes_from_published_stress_rows_v1", "saint_venant_annulus_flexure_v1",
+        "local_straight_annulus_on_arc", "user_directional_sif_times_tangent_frame_bending_stress_v1",
+        "bore_load_transferred_toroidal_membrane_v1"]
+        .iter()
+        .flat_map(|t| ["nominal_section", "reduced_section"].map(|b| format!("{t}; section_basis={b}")))
+        .collect();
+    extend(&mut vocabulary, "basis", &u4b_bases.iter().map(String::as_str).collect::<Vec<_>>());
     assert_eq!(pressure["canonical_metadata_vocabulary"], vocabulary);
     let schema: Value = serde_json::from_str(include_str!(
         "../../../../schemas/results_pressure_2.v0.3.schema.json"
@@ -195,11 +207,15 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     // T4-U6 (§2.4): a stress-family row declares its `source_basis` (recovery
     // token and section basis), as the source table's same signature does; every
     // other ordinary row has none. Each ordinary row is a source row but for its id.
+    // T4-U4b (§2.7): pressure-2 marks every row with its algebra class; the
+    // source table keeps its own rows (its new kinds are §4.3's).
     let without_id = |r: &Value| {
         let mut r = r.clone();
         r.as_object_mut().unwrap().remove("signature_id");
+        r.as_object_mut().unwrap().remove("combination_algebra");
         r
     };
+    assert!(rows.iter().all(|r| r["combination_algebra"].is_string()));
     let split = rows.iter().position(|r| r["kind"].as_str().unwrap().starts_with("connector_")).unwrap();
     let (physical, connector) = rows.split_at(split);
     for row in physical {
