@@ -97,7 +97,8 @@ So the corner's cause is not the search's tolerance or capacity. A convergence r
 
 - **Loaded members on interval-hull sections that converge today.** `w1_member_load_product_consuming_successor` uses the D = 0.2 m, t = 0.01 m pipe with an axial global-x load. Its bending share is zero, so the hull adds no width and the search converges today. Under the repair its admitted lane takes the driven path, and the extra hull-valid evaluations change its metered proof work.
   - Its receipts' work counters, and the hashes binding them, move: the `w1_member_load_*` corpus entries, and any multi-member or values-failure entry built on the same pipe.
-  - Every number, class, selection and maximum value must stay the same. A check over the regenerated entries enforces it (`w1_hull_repair_moves_only_work_on_converging_members`).
+  - When the bending lower bound is zero at every evaluated point (an axial load), the driving and hull lowers coincide and the search follows today's path. Then every number, class, selection and maximum value stays the same, and a check over the regenerated entries enforces it (`w1_hull_repair_moves_only_work_on_converging_members`).
+  - A converging member whose bending lower bound is nonzero at some evaluated point may stop at another point, so U, n and the maximum evidence can change. The census classifies each committed member (C1-a), and any such move is listed with its reason.
   - The census lists every such committed member (section 3.2, input C1-a).
 - **The genuine-exhaustion control.**
   - `w1_domain_stage1_tests.rs` `w1_member_load_exhaustion_retains_typed_interval_work` produces `w1_member_exhaustion_{sparse_interactive,dense_scrutiny}`. The corpus describes them as "ACTUAL MAINTAINED PRODUCER OUTPUT … whose span-maximum search exhausts".
@@ -105,7 +106,7 @@ So the corner's cause is not the search's tolerance or capacity. A convergence r
   - Its model (`fixtures/product_preview/numerical_sensitive_torsion_model.json`) is the D = 0.2 m section with a global-y UDL, exactly the corner this repair removes, so it is expected to stop exhausting.
   - The replacement, in order of preference:
     1. **A genuine input.** One that still exhausts under the unchanged limits on a point-hull section: a near-degenerate rotating moment with varying axial force, the theoretical case stage 2 §4.4 names. The census's C1 sweep includes candidates (section 3.2).
-    2. **A hook-driven input.** If no genuine input is found, the existing test capacity hook (`loaded_maximum::hooks::with`), exposed through a dev-only feature as RF's operation counter is, drives a real member to exhaustion at reduced limits. The corpus entry then says so, and does not claim production limits.
+    2. **A hook-driven input.** If no genuine input is found, the existing test capacity hook (`loaded_maximum::hooks::with`), exposed through a dev-only feature as RF's operation counter is, drives a real member to exhaustion at reduced limits. The corpus entry then says so, and does not claim production limits. The feature stays out of the registered compiled identity, as `mutation-controls` does.
   - Either way the 13 mutations are rebased on the new base by the corpus writer, and the readers' expected outcomes are unchanged in kind.
 - **The two corner controls** in VER-003 change from refusals to publications (section 5). Their new successors join the corpus.
 - **Nothing else moves for corner 1.** Point-hull sections, which include the four `w1_member_interior_*` records, the annular lane, route E, the source route and every nodal-only successor keep their bytes.
@@ -210,10 +211,11 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
   - N06 and CX-F;
   - RV120 and the route-E successors;
   - C1-a.
-- **C2-b: a generated sweep.** 64 single-member route-L invocations per mode:
-  - 32 dyadic: cantilever and simply supported members of length 2^k m (k ∈ {0, 1, 2, 3}), nodal tip forces in {3, 5, 7, 11}·2^-1 N, and the stage-2 point-hull invented section;
-  - 32 decimal: the same shapes with lengths in {1.5, 2.5, 3.7, 6.1} m, forces in {1.1, 2.3, 4.7, 9.9} kN, and the committed 0.168 m, t = 0.007 m section;
-  - plus the 73/24 Pa control and the cap witness.
+- **C2-b: a generated sweep.** 64 route-L invocations per mode, each with an independent soft-spring member that makes the ordinary result Sensitive, so that W1 is reached (an ordinary `checks_passed` case is `NotRequired`; PP `lib.rs` about 3471).
+  - **32 constructed halfways,** following the maintained Z-scaled control. Statically determinate cantilevers and simply supported members with long-significand section operands (the stage-2 point-hull section's Ẑ). Their nodal forces and end moments are chosen as (2k + 1)/2 multiples of Ẑ-scaled values, so that the exact force or moment body maximum is a binary64 halfway. The census generator verifies each by exact rational evaluation before the run, and keeps only those it confirms.
+  - **32 decimal controls:** the same shapes with lengths in {1.5, 2.5, 3.7, 6.1} m, forces in {1.1, 2.3, 4.7, 9.9} kN and the committed 0.168 m, t = 0.007 m section.
+  - **Plus** the 73/24 Pa control and the cap witness.
+  - **Pre-registered coverage:** at least 24 confirmed halfway cases per mode must reach the native-versus-final scale stage. Otherwise the sweep is extended by the same rule before any conclusion is drawn.
 
 **Report** (in the repair's implementation PR, and as one revision of this design's section 3; no separate run record):
 - **C1:** with the denominators stated (members reaching the search):
@@ -233,11 +235,22 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 - A post-repair exhaustion on an ordinary section (w > 0) is classified. A near-degenerate maximum is the stage-2 theoretical case. Anything else is unexplained and stops the repair for diagnosis.
 - **Attribution of each post-repair gate failure.** Counterfactual re-runs of the same gate under test switches, with no product effect:
   - (a) the admitted lane's Z set to the single value Ẑ;
-  - (b) both lanes given the same section, the admitted lane's, so the lane difference vanishes.
+  - (b) both lanes given the same section, the admitted lane's;
+  - (c) both lanes given the same whole readout (section and material, Ĝ against the exact E/ν form), so the lanes' solution enclosures differ only by their own arithmetic.
   
-  A failure that (a) alone clears is *Z-hull*. One that (b) alone clears is *lane*. One that only (a) and (b) together clear is *joint*. One that neither clears is *other*, and is unexplained.
+  Write A for "(a) clears", B for "(b) or (c) clears" and AB for "(a) together with (b) or (c) clears". Each failure falls in exactly one class:
+
+  | Class | A | B | AB | Enters the escalation numerator |
+  |---|---|---|---|---|
+  | *Z-hull only* | yes | no | — | yes |
+  | *either* (each change alone suffices) | yes | yes | — | yes |
+  | *lane only* (recorded as section or material) | no | yes | — | no |
+  | *joint* | no | no | yes | yes |
+  | *other* | no | no | no | stops the repair for diagnosis |
+
+  The numerator counts the failures the Ẑ narrowing would clear, alone or together with the lane change.
   - A *Z-hull* failure is possible on its own. The gate's half-width is the hull's half-width plus the projection's rounding |n − mid| ≤ ulp(n)/2, which is itself up to 2^-53·|n|. So a hull half-width of up to about 1,669 × 2^-64 can fail when the rounding is near its maximum. The counterfactual measures how often.
-- **Escalation, pre-registered.** If *Z-hull* plus *joint* failures exceed 5 % of converged C1-b members on sections with w > 0, the design returns to HELP_HUMAN with the table. The next lever would narrow DEF-O's admitted Z to the single Ẑ, which changes a reviewed definition's meaning and the verified claim, so it needs a ruling. Below 5 % that lever is not raised. Any *other* failure stops the repair for diagnosis.
+- **Escalation, pre-registered.** If *Z-hull only* plus *either* plus *joint* failures are at least 5 % of converged C1-b members on sections with w > 0 (the boundary itself escalates), the design returns to HELP_HUMAN with the table. The next lever would narrow DEF-O's admitted Z to the single Ẑ, which changes a reviewed definition's meaning and the verified claim, so it needs a ruling. Below 5 % that lever is not raised. Any *other* failure stops the repair for diagnosis.
 
 **Implementing corner 2's repair.** It cannot remove a capability (2.2). It is implemented once the census shows final = readers on every C2 input (the gating check). Any native ≠ final instance on a committed successor contradicts section 2.2's premise and stops the repair for diagnosis.
 

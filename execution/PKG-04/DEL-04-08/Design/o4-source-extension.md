@@ -27,7 +27,7 @@ AC-007 (a) gives the discharge conditions: the extended cases publish verified r
 - **Retained-source recovery (sections 3).** The source method's declared operand is already the built frame's binary64 local matrix. A Timoshenko frame supplies its own Timoshenko local matrix, and the signed-permutation path and RF's exact congruence carry it unchanged. The dual-basis work is in the stress publication: each basis has its own recovery section, stress checks and endpoint maximum, all formed from the same retained endpoint functionals. `SOURCE_MAXIMUM_BASES_DISTINCT` and the three `prepare_sources` declines are retired.
 - **W1-E (section 4).**
   - The retained kernel gains a Timoshenko straight member. The shear leaf lives in a member-only sidecar, so every layout a receipt records stays unchanged.
-  - The D block is written in natural-mode form per bending plane, (EI/L)·P_a + 3(EI/L)/(1+φ)·P_s, with a fixed formation recipe at the working precision. Its absolute operand is D̄ = 2(c + c_s)·[[1,1],[1,1]]. With that operand, every formation and recovery error count is at most the Euler–Bernoulli count, so R7's t₁ and E's factor 69 transfer unchanged (section 4.4).
+  - The D block is written in natural-mode form per bending plane, (EI/L)·P_a + 3(EI/L)/(1+φ)·P_s, with a fixed formation recipe at the working precision. Its absolute operand is D̄ = λ(c + c_s)·[[1,1],[1,1]], with λ = 2 unless the review requires more. With that operand, every term of every existing Euler–Bernoulli derivation bounds its Timoshenko counterpart, so R7's t₁ and E's factor 69, including the reaction and support warrant, transfer unchanged (section 4.4).
   - Each lane forms the shear rigidity from its own readout. The admitted lane uses the prepared binary64 shear-area leaf; the annular lane uses an enclosure of κ_E from the exact annulus.
   - Wherever the kernel bounds D by coefficient gaps and fixed patterns, a Timoshenko member is bounded by D-entry gaps formed at the exact length. Euler–Bernoulli members keep today's code and bits.
   - A member whose reduced stress section differs from its nominal one gets a reduced section term, and its reduced stress rows are certified on that section as receipt rows. A member whose sections are bit-equal keeps today's overlay of the reduced twin.
@@ -161,11 +161,14 @@ The D5/MJ9 law (b7-plan, "D5/MJ9's accounting clarification") governs. No chargi
 - **Method work** (`prepare_sources`, the exact Context, the solve, the functionals, replay) runs under RF's metered `Work::mul` law unchanged. It changes wherever the declared matrices change, because a Timoshenko K_local has other values, and metered charges follow the actual expansion lengths. These deltas are measured, not predicted, and the oracle of RF §5.4 (`metered_mul_charges_match_the_independent_oracle`) and the charged ≥ counted control cover Timoshenko attempts too.
 - **Finalization and publication work** follows from the actual sites:
   - ΔE is the encoded request's byte delta. The shear-model token and nonzero allowance values change the request bytes.
-  - ΔF_k comes from `finalization_size` (`source_receipt.rs` about 418–470), which counts the source-identity length, the source dimensions, descriptor lengths and row identity, kind, entity, unit and metadata lengths. It does not count the serialized normalized-source payload. O4 adds no identity name and no published row, and stress-row metadata keeps its length, so ΔF_k = 0 by construction. The test asserts it.
-  - ΔQ_k is the second endpoint-maximum evaluation, at the charge its existing site makes per evaluation, plus any composite-exact wrapper term that depends on row counts (none moves).
+  - ΔF_k comes from `finalization_size` (`source_receipt.rs` about 418–470). That function counts 12 × the source-identity string length, the source dimensions, descriptor lengths and row identity, kind, entity, unit and metadata lengths. It does not count the serialized normalized-source payload.
+    - The identity string is `serde_json::to_string(&(names, bits))` (`source_recovery.rs` about 747–757), with every scalar written as its decimal u64 bit pattern, so its length depends on values. A nonzero allowance or mill tolerance serializes to about 19–21 characters where zero serializes to 1. A mill-tolerance quantity enters only when present. A Timoshenko K_local's entries have other digit counts, and an exact zero at φ = 2 shortens it.
+    - Descriptor product lengths change wherever a structural zero drops a term.
+    - So ΔF_k = 2·12·Δ(identity length) + Δ(descriptor-length terms). For example, an explicitly present mill tolerance changing from 0.0 to 0.001 adds 18 identity bytes, and so 432 to F_k. The test derives ΔF_k from the actual serialized identity and inputs and asserts equality, not zero. Published rows and their metadata lengths do not change.
+  - ΔQ_k includes the first `retained_identity_digest` reservation, which charges a separate 12 × identity length: 216 more in the same example. It also includes the second basis's endpoint maximum. `composite_member_maximum` charges `RECIPE_WORK` per call (`composite.rs` about 172), and the second basis is a second call, so ΔQ_k = RECIPE_WORK per member whose sections differ, plus that call's own metered work. Composite-exact wrapper terms depend on row counts, and none moves.
   - ΔP = 0, because no published row or diagnostic is added.
 
-An independent test derives every term from the actual inputs and sites, as the MJ9 test does, and reconciles their sum with the counters exactly. MJ6's and MJ9's twelve Euler–Bernoulli requests keep their work counters in both modes; their bytes move only in the limitation strings and the hashes binding them (4.9). The 8,000,000 and 64,000,000 limits are unchanged, and an input at the limit still refuses by name.
+An independent test derives every term from the actual inputs and sites, as the MJ9 test does, and reconciles their sum with the counters exactly; it asserts ΔP = 0. MJ6's and MJ9's twelve Euler–Bernoulli requests keep their work counters in both modes; their bytes move only in the limitation strings and the hashes binding them (4.9). The 8,000,000 and 64,000,000 limits are unchanged, and an input at the limit still refuses by name.
 
 ### 3.6 What stays
 
@@ -190,7 +193,14 @@ An independent test derives every term from the actual inputs and sites, as the 
   - An all-Euler–Bernoulli invocation has no new allocation and no new adapter event.
 - `StraightMember::from_frame` keeps refusing a Timoshenko leaf. A new constructor builds the member together with its sidecar entry from a Timoshenko frame. The retained assembler refuses a Timoshenko document's member that has no sidecar entry, and a sidecar entry without its member, as an association error.
 - `RETAINED_TIMOSHENKO_REFUSAL` stays as the text of that association path. It no longer declines a document.
-- Kernel-internal layouts that no receipt records may grow; `MemberOperators` and `BoundedCoefficients` (its `bounded()` and `widen` copies) gain the per-plane Timoshenko entries. The implementation lists every layout a receipt records and pins it (`timoshenko_sidecar_preserves_receipt_layouts`, stage 2's `member_sidecars_preserve_nodal_adapter_capacity_bytes` precedent).
+- Kernel-internal layouts that no receipt records may grow; `MemberOperators` and `BoundedCoefficients` (its `bounded()` and `widen` copies) gain the per-plane Timoshenko entries.
+- **Receipt-recorded layouts stay as they are.** These include:
+  - the adapter's `RequestedCopyBytes` and `RustCapacityBytes` types (`StraightMember`, `PreparedAssociation`, `ProductMemberFacts`, the case slots);
+  - the kernel structs recorded through `TraceCopyWork::record` (`LaneWorkTrace`, `ProductProofTrace`, `CoverageFacts`, `ProductFailureView`; `final_case.rs` about 198–398, `source_residual.rs` about 116);
+  - `SectionPreparationWork.layout_bytes` (`SectionPrepFrame`, `PreparedAnnulus`; serialized at `retained_wire.rs` about 1453);
+  - `ProductRecipe`.
+  
+  The implementation lists every layout a receipt records and pins each one (`timoshenko_sidecar_preserves_receipt_layouts`; stage 2's `member_sidecars_preserve_nodal_adapter_capacity_bytes` precedent). Any O4 data that would grow one goes into a sidecar instead.
 
 **The prepared shear-area law.** W1 preparation replaces each member's area, second moments and torsion constant with the prepared, correctly rounded annulus values (`retained_product.rs` about 5444–5490). `apply_exact_section_overlay` then writes those prepared values into the evidence. G7's pressure-2 base reader requires `shear_area == κ × nominal.area` bit for bit (`section_basis.rs` `beam_theory`, about 349–362).
 - The ordinary leaf A_s = RN(κ̂·A_ordinary) (PP `lib.rs` about 7683) can differ from RN(κ̂·A_prepared) by an ulp. Codex's round-1 check found such a pair at D = 0.168 m, t = 0.007 m, ν = 0.3.
@@ -214,7 +224,7 @@ D's bending rows become [(2, d₁), (3, d₂)], [(2, d₂), (3, d₁)] per plane
 - **φ = 0 is not this recipe.** t₃ = RN(3c) is inexact. An Euler–Bernoulli member keeps today's exact `4c`/`2c` scalings, code path and bits; the branch is taken from the sidecar.
 - **d₂ may be zero or negative** (φ ≥ 2). It is a signed entry, and no range check treats an exact zero as underflow (U8 §3.3).
 
-**The absolute operand D̄.** For a Timoshenko member, the absolute D operand is **D̄ = d̄·[[1,1],[1,1]] per plane, with d̄ = RU(2·(c + c_s))**. The factor 2 is what makes section 4.4's dominance lemma hold.
+**The absolute operand D̄.** For a Timoshenko member, the absolute D operand is **D̄ = d̄·[[1,1],[1,1]] per plane, with d̄ = RU(λ·(c + c_s))** and λ = 2, unless the review of section 4.4 fixes a larger λ. The factor is what makes section 4.4's dominance lemma hold.
 - D̄ replaces |D| in every consumer of the absolute bending block:
   - `assemble.rs` `bounded_block` (Ā, which feeds N_u and t₁, and reactions in E);
   - `verify.rs` `formation_scale` (about 164);
@@ -222,7 +232,10 @@ D's bending rows become [(2, d₁), (3, d₂)], [(2, d₂), (3, d₁)] per plane
   - native `recover.rs` (about 344), which forms Q = D·e with the signed d₁ and d₂;
   - the product certificate's lanes (4.3).
 - Euler–Bernoulli members keep [[4c,2c],[2c,4c]] everywhere.
-- D̄ is conservative: near φ = 0 it is about four times Euler–Bernoulli's off-diagonal and twice its diagonal. More Timoshenko cases may fail closed in R7 or the gate. That is sound, and section 5's premise census measures it. A tighter entrywise operand would need its own derivation and is not adopted here.
+- D̄ is conservative: near φ = 0 it is about four times Euler–Bernoulli's off-diagonal and twice its diagonal. More Timoshenko cases may fail closed in R7 or the gate.
+  - It also reaches the p = 512 floor: E → `resolution_scale` → ê → Φ = 2^-438·ê (`verify.rs` about 432) → the scale floor in `check_intervals`. For a near-zero body the published scale S can grow up to about fourfold. That gives fewer relative rows, larger absolute bounds RU(2^-64·S), and a looser S term in the gate's allowance.
+  - All of this is sound under the unchanged laws. Section 5's premise census counts the bodies where the floor is active against their Euler–Bernoulli twins.
+  - A tighter entrywise operand would need its own derivation and is not adopted here.
 
 ### 4.3 The product certificate's lanes
 
@@ -246,42 +259,61 @@ Each lane forms φ, d₁ and d₂ from its own enclosures with directed arithmet
 
 ### 4.4 The dominance lemma and the remaining obligations
 
-These are derivations under unchanged laws. If one fails, the epoch returns to HELP_HUMAN with the concrete conflict (AX-005: "do not change the law to obtain a pass"). Let ε = 2^-q at the formation precision, g = g_m ≥ 1 the member's Gram amplification under the existing g-check (gε ≤ 2^-16), and first-order counts throughout. The higher-order terms carry a factor below (1 + 2^-14), as in stage 2 §4.2.
+These are derivations under unchanged laws. If one fails, the epoch returns to HELP_HUMAN with the concrete conflict (AX-005: "do not change the law to obtain a pass"). Let ε = 2^-q at the formation precision, and g = g_m ≥ 1 the member's Gram amplification under the existing g-check (gε ≤ 2^-16).
 
-**Euler–Bernoulli baseline, from `assemble.rs`:**
-- **Frame and B.** Stage 2 §4.2 derived from this code that each axis component's absolute error is below 25gε, and that |L̂/L − 1| < 3ε. So 1/L̂ is within 4ε, iy = RN(inv·ey) and iz are within (25g + 4 + 1)ε·(1/L) ≤ 30gε·(1/L), and each B entry is within 30gε of its B̄ entry (1 or 1/L).
-- **c.** c = RN(RN(E·I)/L̂) is within 5ε relative, so the EB D entries 4c and 2c are within 5ε·|D|.
-- **DB.** DB = RN(Σ D·B) is within (5 + 30g + 1)ε·(|D|B̄) ≤ 36gε·(|D|B̄).
-- **ke.** ke = RN(Σ B·DB) is within (30 + 36 + 1)gε·(B̄ᵀ|D|B̄) = 67ε·Ā, with Ā = g·B̄ᵀ|D|B̄ as `bounded_block` forms it.
-- **Assembly.** Assembly rounding adds ε, so each assembled entry is within 68ε·Ā. That matches the 68 of stage 2's reaction and support warrant (68/(1 − 68·2^-16)² < 68.142 < 69) and sits well inside t₁'s 2^7. The baseline therefore reproduces the existing counts from source.
+**What the lemma does.** It does not re-derive the existing warrants' totals. It shows that every existing Euler–Bernoulli derivation holds unchanged, term by term, when a Timoshenko member's D replaces Euler–Bernoulli's D. The derivations in question:
+- R7's t₁ = 2^(7−q_W)·B_b·N_u;
+- stage 2 §4.2's member-recovery bound (47.1);
+- the reaction, support-component and support-magnitude bound (68/(1 − 68·2^-16)² < 68.142 < 69, with E's own rounding and the higher-order terms);
+- E's factor 69 under P − 16.
 
-**Timoshenko D entries.** With δc ≤ 5ε (as for EB), sl within 5ε (s: ε; L̂: 3ε; rounding: ε), and the roundings τ (t₃), ρ (φ), ω (op) and κ (c_s), first-order sensitivity gives
+**How each derivation uses D.** It uses D only through two things:
+- **(i) an absolute operand built from |D|:** Ā = g·B̄ᵀ|D|B̄ (`bounded_block`), E's Q̄ = |D|·ē (`verify.rs` `formation_scale`), and the |D| terms in the recovery recurrences;
+- **(ii) an error coefficient c_D:** the derivation's bound |D̃ − D| ≤ c_D·ε·|D| entrywise for the formed D. Stage 2 §4.2 states its value for section terms: "Reverse coefficient counts are 4 for L, 5 for 1/L and 6 for section terms", so c_D = 6 there.
+
+Every other stage is the same code for both theories:
+- the frame, B and its g-amplified axis errors;
+- the DB and BᵀDB sums, assembly, recovery of e, Q's products;
+- end actions, stations, reactions (K·u − f), support components and magnitudes;
+- E's staging and the higher-order recurrences.
+
+None of those reads D except through (i) and (ii).
+
+**Timoshenko D entries.** c = RN(RN(E·I)/L̂) is today's coefficient, with relative error δc ≤ 5ε (two roundings, plus |L̂/L − 1| < 3ε from stage 2 §4.2). sl is within 5ε (s: ε; L̂: 3ε; its rounding: ε). With the roundings τ (t₃), ρ (φ), ω (op) and κ (c_s), first-order sensitivity gives
 log(c_s/c_s*) = (δc + τ)(1 − w) + w(δsl − ρ) − ω + κ, with w = φ/(1+φ) ∈ [0, 1).
 So |rel err c_s| ≤ 6(1 − w) + 6w + 2 = 8ε. The c and sl errors enter as a convex combination, which is why the bound does not grow with φ. Then:
 - d₁ = RN(c + c_s), both positive: within 8ε·(c + c_s) + ε·d₁ ≤ 9ε·(c + c_s);
-- d₂ = RN(c_s − c): within 8ε·c_s + 5ε·c + ε·|d₂| ≤ 9ε·(c + c_s).
+- d₂ = RN(c_s − c): within 8ε·c_s + 5ε·c + ε·|d₂| ≤ 9ε·(c + c_s);
+- |d₁| and |d₂| are each at most c + c_s.
 
-With D̄ = 2(c + c_s)·[[1,1],[1,1]], each D entry is within 4.5ε·D̄ ≤ 5ε·D̄ of exact. Each |D| entry is at most (c + c_s) = D̄/2.
-
-**The lemma.** Replace |D| by D̄ everywhere in the Euler–Bernoulli derivation (for Ā, E and Q̄ alike). Each stage's error is then at most the Euler–Bernoulli stage's count, measured in ε times the corresponding absolute operand:
-- the D error is at most 5ε·D̄, the EB bound with |D| replaced by D̄;
-- every B-error term multiplies |D| ≤ D̄/2 ≤ D̄;
+**The lemma.** Let D̄ = λ·(c + c_s)·[[1,1],[1,1]] with λ ≥ 1. Then every D entry is within (9/λ)·ε·D̄ of exact, and every |D| entry is at most D̄/λ ≤ D̄. Substitute D̄ for |D| in (i) and in (ii)'s right-hand side. Each term of each derivation is then bounded by the corresponding Euler–Bernoulli term with |D| replaced by D̄, provided 9/λ ≤ c_D:
+- a D-error term is at most (9/λ)ε·D̄ ≤ c_D·ε·D̄;
+- a term multiplying |D| by another stage's error is at most that error times D̄;
 - the rounding terms are unchanged.
 
-So:
-1. **R7's t₁.** Timoshenko K formation is within 68ε·Ā_T, with Ā_T = g·B̄ᵀD̄B̄, which is within t₁ = 2^(7−q_W)·B_b·N_u with N_u formed from Ā_T. t₁'s law and constant are unchanged.
-2. **E's factor 69 under P − 16.** Member recovery and the reaction and support groups have counts at most stage 2's (47.1 for members; 68.142 for reactions and supports), with E formed from D̄. Factor 69 and P − 16 are unchanged. Route E has no member-load terms, so stage 2's member-load stages do not arise.
+The higher-order terms are products of first-order terms that are each no larger, so each derivation's own higher-order factor carries over unchanged. Every total, and so every law's constant, holds for Timoshenko members with Ā, E and Q̄ formed from D̄. In particular:
+- R7's t₁ holds with N_u from Ā_T = g·B̄ᵀD̄B̄;
+- stage 2's 47.1 and the reaction and support 68.142 hold;
+- factor 69, P − 16 and 2^7 are unchanged.
+
+**The choice of λ.** The design takes **λ = 2**, so D̄ = 2(c + c_s), which needs c_D ≥ 4.5 in every derivation.
+- Stage 2's member-recovery derivation uses c_D = 6.
+- R7's t₁ and reaction and support derivations must account for the formed c's actual error, which is at least its two roundings plus the length error. A sound derivation therefore uses c_D ≥ 5 at first order.
+- The independent review confirms the c_D each derivation actually states. If one states c_D < 4.5, the design takes λ = max(2, 9/c_D,min) instead. That is a different definition of this design's operand, not a change to any law.
+- A larger λ is more conservative still (4.2's note on D̄).
+
+**A sanity reconstruction, not the warrant.** Counting `assemble.rs` directly puts an Euler–Bernoulli member's formed K entries within about 67–68ε·Ā: B within 30gε, DB within 36gε, BᵀDB within 67gε, assembly rounding ε. That is comfortably inside t₁'s 2^7. It is not offered as the reaction and support count; that warrant's later stages (reaction and support rounding, magnitudes, E's rounding) are covered by the substitution argument above, not by this count.
 
 **Remaining obligations** for the independent numerical review, before implementation code:
-3. Check the baseline counts against `assemble.rs`, `recover.rs` and `verify.rs`, and the c_s sensitivity, including higher-order terms and E's own rounding (the recurrence of stage 2 §4.2).
+3. Confirm each existing derivation's c_D (stage 2 §4.2's 6; R7's t₁ and its reaction and support derivations), and the claim that those derivations read D only through (i) and (ii). Confirm the c_s sensitivity, including its higher-order terms. Fix λ.
 4. The alpha law with D-entry gaps at the exact length (4.3): its premise, the triangle inequality and the outward rounding of |Δd|.
 5. κ_E's enclosure contains the exact κ_E of the exact annulus for every admitted ν in (−1, ½). Every intermediate stays within the lane's `Wide` range, or refuses by `ExponentRange`.
 6. K4STF's Timoshenko block and the sidecar bind every leaf that enters formation, so no attempt, group or replay can certify a member whose formation differs from its declared leaves.
-7. Exact or directed controls measure the actual formation and recovery error against 68ε·Ā_T and 69·2^-P·E_q at P = 128, 256, 512 and 1024. They cover φ = 2 − 2^-40, 2 and 2 + 2^-40, φ ≈ 1e-6 and φ > 10, skew members, and g at P − 16 and above.
+7. Exact or directed controls measure the actual error against each warrant at P = 128, 256, 512 and 1024: formed K against t₁'s allowance, member recovery and reactions, support components and magnitudes against 69·2^-P·E_q. They cover φ = 2 − 2^-40, 2 and 2 + 2^-40, φ ≈ 1e-6 and φ > 10, skew members, and g at P − 16 and above. The D̄-inflated path through E, the p = 512 Φ floor, body scales, classes and absolute bounds is exercised explicitly.
 
 ### 4.5 Two section bases on route E
 
-- **Section facts.** Each member's product facts gain an optional reduced section, present exactly when the member's reduced stress section differs from the nominal one in any of **{As, Z, I, J, effective wall}**. The wall is in the set because the annular lane reads t_r: two sections whose binary64 A, Z, I and J agree can still differ as exact annuli.
+- **Section facts (a sidecar too).** Capture reserves `facts` through the adapter (`retained_product.rs` about 1910), which records capacity × `size_of::<T>()` (about 4077–4083). So `k::ProductMemberFacts` (`final_case.rs` about 84–94) must not grow. The reduced section lives in a `ReducedSectionSet` sidecar, reserved and counted only where a member's bases differ, beside `TimoshenkoLeafSet`, with no tag added to `ProductRecipe`. Each member has a reduced section exactly when the member's reduced stress section differs from the nominal one in any of **{As, Z, I, J, effective wall}**. The wall is in the set because the annular lane reads t_r: two sections whose binary64 A, Z, I and J agree can still differ as exact annuli.
   - The reduced facts are binary64 A_r, Î_r, Ẑ_r and J_r, prepared by `prepare_product_annulus(D, t_r)`; for the annular lane, the exact annulus of D and the binary64 t_r = (t − c_m) − c_a.
   - The nominal facts are today's, with the nominal wall t. With a nonzero mill tolerance the stiffness, κ_E and the nominal stresses use t; today's route E, which admits only zero mill tolerance, already uses t.
 - **Reduced stress rows.** Each reduced stress row is certified by the same recipes as its nominal twin: DEF-E's directed signed-corner N/A, M_y/Z, M_z/Z and T·c/J, with the admitted lane's represented Z = hull(Ẑ_r, Î_r/c). The two-end maximum recipe is likewise applied with A_r and Z_r. Each row gets its own enclosure, class and bound under the unchanged gate. Its body scale is its body's force and moment scales divided by its own section (the reader's `row_scale`).
@@ -309,6 +341,7 @@ So:
 - **New refusals and where they sit.** A `reduced` present where the evidence's sections agree, or absent where they differ, cannot be decided before the evidence is read at G5b. So:
   - G3 refuses, with its existing coverage code, a universe whose rows and indices do not match the receipt's row lists. That catches a dropped or duplicated reduced row.
   - G5b refuses `SECTION_MISMATCH` where `reduced`'s presence or values disagree with the evidence's sections, or where source and selection terms disagree.
+  - Route L: a receipt carrying `reduced` or `shear_area` in either section shape is refused at G5b `SECTION_MISMATCH`, since route L has one section and no shear model (H-1).
   - Every existing refusal keeps its gate and order. The only new outcomes are on statements that carry the new key or new rows. Precedence mutations (section 6) pin both.
 - **G8.**
   - `exact_namespace` admits either shear model (4.1). It keeps the three-member contract, no top-level `shear_model`, and an explicit, finite, length-valued allowance ≥ 0 with c_m + c_a < t on every section (the producer's own refusals). `section_allowances(model, true)` stops requiring zero.
@@ -347,11 +380,12 @@ So:
   - MJ6 and MJ9's captured bases;
   - J7's published envelopes and consequence digests;
   - the route-E successors and RV120's exact inputs, whose projected statements carry the unselected limitation 7;
+  - the retained corpus `retained_precision_cases.json`, through its route-E entries (`w1_member_route_e_baseline_*`) and the limitation string they carry;
   - the R2 records and the desktop parity inputs.
   
   Each is regenerated by its own writer. A check (`o4_text_only_envelope_diff`) requires every such regenerated envelope to differ from its pre-O4 bytes only in those strings and the hashes that bind them: no number token, row, class, first cause, selection or work counter.
 - **DEF-E-bound hashes** of every route-E successor move under the E14 precedent (HELP_HUMAN, 2026-10-17: "The DEF-O hash moves under the E14 precedent are fine").
-- **Nothing else moves** for Euler–Bernoulli, zero-allowance documents: the sidecar keeps receipt layouts (4.2), the overlay rule keeps row universes (4.5), and work is unchanged (3.5). Route L, its successors and the retained corpus (which has no exact base) do not move at all.
+- **Nothing else moves** for Euler–Bernoulli, zero-allowance documents: the sidecars keep receipt layouts (4.2, 4.5), the overlay rule keeps row universes (4.5), and work is unchanged (3.5). Route L and its successors do not move at all. The retained corpus moves only in its route-E entries.
 - **New bytes:** the Timoshenko and dual-basis J2 bases and route-E controls, with their mutations.
 
 ## 5. Independent references and judging (a later, separate reference unit)
@@ -388,7 +422,7 @@ The certificate certifies the problem the retained kernel forms. It cannot see a
 - Zero strict coverage failures.
 - The Euler–Bernoulli zero-allowance twins reproduce today's numbers, which validates the harness.
 
-**Premise census.** On the judged set, the census reports R7 outcomes, alpha_b, t₁'s share of the verification budget and fail-closed counts against the Euler–Bernoulli twins. Fail-closed outcomes are acceptable. A judged breach on a published row that a sound repair cannot remove stops the epoch, and the epoch returns to HELP_HUMAN.
+**Premise census.** On the judged set, the census reports R7 outcomes, alpha_b, t₁'s share of the verification budget, bodies where the p = 512 floor is active, and fail-closed counts, each against the Euler–Bernoulli twins. Fail-closed outcomes are acceptable. A judged breach on a published row that a sound repair cannot remove stops the epoch, and the epoch returns to HELP_HUMAN.
 
 ## 6. Mutants and killing tests
 
@@ -400,7 +434,7 @@ Each is introduced into a scratch copy, run, reverted and recorded in the PR; no
 | A nonzero mill tolerance or allowance still declined | `o4_dual_basis_source_case_selects`, `o4_w1e_dual_basis_case_is_admitted` |
 | Retained member formed Euler–Bernoulli for a Timoshenko leaf; Timoshenko recipe applied to a Euler–Bernoulli leaf | `retained_timoshenko_formation_matches_exact_element` (P = 128/256/512/1024 against the exact element); the existing K4 vectors unchanged |
 | φ with A instead of A_s, or with Iy/Iz swapped; factor 3 or 4 wrong; d₂ sign flipped | the same, plus the judged set's discriminators |
-| Ā, E or Q̄ using \|D\| or d̄ = c + c_s instead of D̄ = 2(c + c_s) (cancellation at φ ≈ 2) | `retained_timoshenko_formation_error_is_within_68uA` and `..._recovery_error_is_bounded_by_69uE` (the section 4.4 item 7 controls) |
+| Ā, E or Q̄ using \|D\| or c + c_s instead of D̄ = λ(c + c_s) (cancellation at φ ≈ 2) | `retained_timoshenko_formation_error_is_within_68uA` and `..._recovery_error_is_bounded_by_69uE` (the section 4.4 item 7 controls) |
 | Annular lane reuses κ̂ or Â_s (no exact κ_E) | `annular_timoshenko_lane_uses_the_exact_kappa` (enclosure contains exact κ_E; κ̂ excluded on a section where they differ) |
 | Coefficient-gap pattern used for a Timoshenko member's η | `timoshenko_eta_uses_d_entry_gaps` (a member where the pattern bound underestimates \|ΔK\|) |
 | K4STF/K4SRC Timoshenko block missing, or present for an all-Euler–Bernoulli source | encoding tests; the existing K4 vectors unchanged; corpus `section_terms_shear_area_on_euler_bernoulli` |
@@ -411,7 +445,7 @@ Each is introduced into a scratch copy, run, reverted and recorded in the PR; no
 | Reader admits an unknown shear model, a negative or over-wall allowance, or an absent allowance | reader unit tests in Rust, wasm and Python (`PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED`, `PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE`, G8 `RETAINED_PRECISION_INVOCATION_MISMATCH`) |
 | Reader accepts a `beam_theory` or `shear_area` that is not the rederived κ and A_s | corpus and J2 mutations `shear_area_changed`, `kappa_changed` (resealed) |
 | Limitation text left stating the O4 declines | `o4_limitations_state_the_extension` (pinned bytes; claims review) |
-| Work delta misaccounted | `o4_source_work_deltas_follow_the_d5_law` (independent derivation, as MJ9; asserts ΔF_k = ΔP = 0) |
+| Work delta misaccounted | `o4_source_work_deltas_follow_the_d5_law` (independent derivation from the serialized identity and the actual sites, as MJ9; asserts ΔP = 0) |
 | Timoshenko D-entry gap formed at `lower_length`/`ell` | `timoshenko_gap_is_formed_at_the_exact_length` (a skew member at φ ≈ 1 whose gap at ℓ < L underestimates the exact gap) |
 | `StraightMember` or another receipt-counted layout grown | `timoshenko_sidecar_preserves_receipt_layouts` (size and layout pins; full adapter counters of every committed route-L and route-E receipt unchanged) |
 | Shear leaf from the ordinary area after preparation | `prepared_shear_area_follows_the_prepared_area` (the D = 0.168 m, t = 0.007 m, ν = 0.3 control, where the two differ by an ulp; G7 accepts only the prepared leaf) |
@@ -482,7 +516,7 @@ The registered branch runs on the qualification host's registered build, and the
 
 **Independent numerical review checklist** (separate agents; AGENTS.md):
 1. The Timoshenko recipe (4.2): its identity with U8's element, φ's and c_s's rounding schedule, and the Euler–Bernoulli branch's byte preservation.
-2. Section 4.4: the Euler–Bernoulli baseline counts against source, the c_s sensitivity bound, the dominance lemma with D̄ = 2(c + c_s), the alpha law with D-entry gaps at the exact length, κ_E's enclosure and range, and the K4STF and sidecar binding. This review precedes implementation code.
+2. Section 4.4: that each existing derivation reads D only through its absolute operand and its coefficient c_D, the c_D values and λ, the c_s sensitivity bound, the substitution lemma, the alpha law with D-entry gaps at the exact length, κ_E's enclosure and range, and the K4STF and sidecar binding. This review precedes implementation code.
 3. The two readouts (4.3): the admitted lane's prepared Â_s,prep (and G7's equality with it), and the annular lane's exact κ_E on the nominal annulus.
 4. The dual basis on both routes (3.2, 4.5): each reduced row on its own section, the bit-equal overlay rule, the per-basis maxima and headlines, and the reader bindings.
 5. The source route (3.1): that the declared Timoshenko K_local passes every RF closure unchanged, and the declared-problem oracle's verdicts.
@@ -529,7 +563,7 @@ These edit commitments or declared conditions, so they are proposals. The owner 
 - the source operand is the frame's own Timoshenko K_local (3.1);
 - the conditional private payload members, K4STF block and receipt members, and the sidecar that keeps receipt layouts (3.1, 4.2, 4.6);
 - the prepared shear-area law (4.2);
-- the natural-mode Timoshenko recipe and D̄ = 2(c + c_s), with the dominance lemma (4.2, 4.4);
+- the natural-mode Timoshenko recipe and D̄ = λ(c + c_s), with the substitution lemma (4.2, 4.4);
 - exact κ_E in the annular lane (4.3);
 - D-entry gaps for Timoshenko members, at the exact length (4.3);
 - the data-determined overlay rule, per member, on {As, Z, I, J, wall} (4.5);
@@ -539,7 +573,7 @@ These edit commitments or declared conditions, so they are proposals. The owner 
 - sequence, not merge (8).
 
 **Reserved, for the owner through Agent 0:**
-- **AC-002's reading.** O4's limitation-text change moves J7's four published envelope digests and its consequence digests, with every classification, count, first cause, selection and frozen-row verdict unchanged. If "the RF census classification and its pins are unchanged" covers those digests, O4 (like U6 and epoch 4) needs either the owner's reading or the AC-002 wording proposed in section 10.
+- **AC-002's reading** (one reading should cover epoch 4 as well, which moves the same envelopes for its identity rename and does not raise AC-002 itself). O4's limitation-text change moves J7's four published envelope digests and its consequence digests, with every classification, count, first cause, selection and frozen-row verdict unchanged. If "the RF census classification and its pins are unchanged" covers those digests, O4 (like U6 and epoch 4) needs either the owner's reading or the AC-002 wording proposed in section 10.
   - *Consequence if neither:* the limitation text cannot change. It would then keep stating the O4 declines after O4 removes them, which is false product text, so O4 could not land.
 
 **Reserved and untouched:**
@@ -569,7 +603,7 @@ These edit commitments or declared conditions, so they are proposals. The owner 
 
 **Must stay byte-identical:**
 - every pressure-free byte;
-- every route-L successor and the retained corpus;
+- every route-L successor, and the retained corpus's route-L entries;
 - every receipt-recorded layout and adapter counter;
 - `validation/references/**` and the frozen UI benchmark.
 
