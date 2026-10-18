@@ -1122,9 +1122,11 @@ pub(crate) fn validate_physics_evidence_in(
             require(bound_results.contains(id), "PRESSURE_ROW_UNBOUND")?;
         }
     }
-    if !composite {
-        u4b_cases(source, evidence, &rows, &case_sections, &marked_arcs, &arc_extrema)?;
-    }
+    // T4-U4b (§5.1; S4 round 2): the station checks run on the pressure-source-1
+    // composite too (straight members only: σ±, τ from the case's ν and basis
+    // sections, and station × basis coverage), for exact-recovered and
+    // ordinary-method cases alike.
+    u4b_cases(source, evidence, &rows, &case_sections, &marked_arcs, &arc_extrema)?;
     for case in array(&evidence["exact_cases"])? {
         assembly(
             &case["pressure_rhs_assembly"],

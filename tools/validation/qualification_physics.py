@@ -43,9 +43,10 @@ DEPENDENCIES = {
     # then model 0.6.0: the reader's comments name pressure-2 (comment text only; was f91e678e...);
     # then T4-U4b: the section stress, toroidal, arc maximum and directional rows (was 8a79bfcf...);
     # then T4-U4b S4 (§4.3): the composite admits the straight σ±/τ signatures of a selected source case (was 79ec35b3...);
+    # then S4 round 2: the composite recomputes every straight member's σ±/τ and their coverage (was 4bc56dea...);
     # then the T4-U4b review repairs: basis-twin order and no transverse-shear Poisson exemption (merged with S4;
-    # was c7699864... and 4bc56dea...).
-    MODULE: '56f18624ecbf639318ae9aaad14dbab05532037547b9259515f1d1a3316fc1d5',
+    # was c7699864..., 56f18624... and 52a15bec...).
+    MODULE: '58491ca8f049e4a1ec76c6a300e3756f934a71219d5601622880be0c6967b03f',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }

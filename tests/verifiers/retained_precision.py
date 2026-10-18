@@ -3155,6 +3155,16 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
             error=RetainedPrecisionError("G7",match.group(0) if match else route.base_invalid);error.detail=text
             raise error from exc
+        # T4-U4b (§4.1, §5.1; S4 round 2): route L's base read is model-free, so with the invocation the projection's
+        # τ rows are recomputed bit for bit with c_b from the captured model (the preview reader's model checks), at G7
+        # with this language's base code. Route E's base read already forms c_b from its evidence.
+        if invocation is not None and not route.exact:
+            from . import u4b_model
+            try:u4b_model.preview_model_checks(projected,invocation["request"]["model"])
+            except ValueError as exc:
+                text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
+                error=RetainedPrecisionError("G7",match.group(0) if match else route.base_invalid);error.detail=text
+                raise error from exc
         state["gate"]="G8"
         if invocation is not None:_g8(body,snapshot,invocation,route)
         eligible=_IMPLEMENTATION_COMPLETE and invocation is not None and snapshot["status"]["mechanics"]=="MECHANICS_SOLVED" and all(c["status"] in ("selected","not_required") for c in cases)
