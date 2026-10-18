@@ -14,6 +14,7 @@
 use super::retained::wide::{Wide2, WideArith, WideError};
 use super::{binary_exponent, StructuralError, StructuralSystem};
 use crate::connector::ObjectiveConnector;
+use crate::tie_rod::TieRod;
 use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::{element_dof_map, BeamTheory, FrameElement, DOF_PER_NODE, ELEMENT_DOF};
 use std::borrow::Cow;
@@ -241,6 +242,18 @@ pub enum LoadFormula {
     ConnectorReference {
         connector: ObjectiveConnector,
     },
+    /// T4-U5b: tie rod `rod` (an index into `connector.tie_rods()`) of
+    /// `connector`: its reference load +Cᵀ k e_ref, re-formed at p from the
+    /// authored operands (node coordinates, Q, the rod's offsets in Q, k and
+    /// e_ref) with n and l in ball arithmetic. Summand identity
+    /// `{connector}:{rod}:tie_rod_reference` (family
+    /// `tie_rod::TIE_ROD_REFERENCE_FAMILY`); omitted only when e_ref is
+    /// exactly 0. Never a connector member load: the connector's certified
+    /// member loads keep only its q_ref reference.
+    TieRodReference {
+        connector: ObjectiveConnector,
+        rod: usize,
+    },
     /// T4-U5a: dead generalized joint thrust, from authored binary64 operands.
     JointEffectiveArea {
         connector: ObjectiveConnector,
@@ -328,6 +341,9 @@ pub struct FormationSource<'a> {
     pub frame_members: Vec<String>,
     /// T4-U3 (S10): objective connectors, re-formed by `connector_matrix`
     /// (at 2^b, K-D5's scaled source holds `ObjectiveConnector::force_scaled`).
+    /// T4-U5b: each connector's tie rods are re-formed by `tie_rod_matrix`
+    /// as their own elements, after every connector and before the curved
+    /// elements (the assembly's slot order).
     pub connectors: Vec<ObjectiveConnector>,
     pub curved: Vec<CurvedFormation>,
     /// Ground springs (global DOF, stiffness), exact binary64 values.
@@ -539,6 +555,29 @@ fn load_closure(
             LoadFormula::ConnectorReference { connector } => {
                 Some((connector.node_i().index, connector.node_j().index))
             }
+            LoadFormula::TieRodReference { connector, rod } => {
+                if *rod >= connector.tie_rods().len() {
+                    return Err(Failure::Closure(format!(
+                        "{}: tie-rod binding",
+                        terms[p.term_index].source
+                    )));
+                }
+                // One intended system: the reference's connector, its rods
+                // included, is a connector of the source at the primitive's
+                // force exponent (a W2 source holds `force_scaled`).
+                let held = connector
+                    .force_scaled(crate::ForceScale {
+                        exponent: p.force_scale_exponent,
+                    })
+                    .ok();
+                if !held.is_some_and(|held| source.connectors.contains(&held)) {
+                    return Err(Failure::Closure(format!(
+                        "{}: tie-rod source binding",
+                        terms[p.term_index].source
+                    )));
+                }
+                Some((connector.node_i().index, connector.node_j().index))
+            }
             LoadFormula::JointEffectiveArea { connector, end, axis, sign, .. } => {
                 let node = match end {
                     0 => connector.node_i().index,
@@ -666,6 +705,11 @@ where
     }
     for e in &source.connectors {
         let k = connector_matrix(&mut arith, e)?;
+        consume(e.node_i().index, e.node_j().index, &k)?;
+    }
+    // T4-U5b: each connector's tie rods, after every connector.
+    for e in source.connectors.iter().flat_map(|c| c.tie_rods()) {
+        let k = tie_rod_matrix(&mut arith, e)?;
         consume(e.node_i().index, e.node_j().index, &k)?;
     }
     for e in &source.curved {
@@ -1510,6 +1554,39 @@ fn strain_binding(out: &mut Vec<u64>, v: &EigenstrainPrimitive) {
         }
     }
 }
+/// The `ConnectorReference` binding (tag 6, then the connector's operands),
+/// which `JointEffectiveArea` and `TieRodReference` also carry. A
+/// connector's tie rods are not part of it.
+fn connector_binding(out: &mut Vec<u64>, c: &ObjectiveConnector) {
+    out.push(6);
+    out.extend([c.node_i().index as u64, c.node_j().index as u64]);
+    bits(out, c.node_i().coordinates);
+    bits(out, c.node_j().coordinates);
+    let (i, j) = c.offsets();
+    bits(out, i);
+    bits(out, j);
+    for r in c.axes() {
+        bits(out, r);
+    }
+    for r in c.stiffness() {
+        bits(out, r);
+    }
+    bits(out, c.q_ref());
+}
+/// T4-U5b: a tie rod's authored operands: its end nodes and coordinates, Q,
+/// its offsets in Q, k and e_ref.
+fn tie_rod_binding(out: &mut Vec<u64>, r: &TieRod) {
+    out.extend([r.node_i().index as u64, r.node_j().index as u64]);
+    bits(out, r.node_i().coordinates);
+    bits(out, r.node_j().coordinates);
+    for row in r.axes() {
+        bits(out, row);
+    }
+    let (i, j) = r.local_offsets();
+    bits(out, i);
+    bits(out, j);
+    bits(out, [r.stiffness(), r.reference_extension()]);
+}
 impl LoadFormula {
     fn binding(&self, out: &mut Vec<u64>) {
         match self {
@@ -1608,25 +1685,20 @@ impl LoadFormula {
                 );
                 out.push(column.map_or(u64::MAX, |c| c as u64));
             }
-            Self::ConnectorReference { connector: c } => {
-                out.push(6);
-                out.extend([c.node_i().index as u64, c.node_j().index as u64]);
-                bits(out, c.node_i().coordinates);
-                bits(out, c.node_j().coordinates);
-                let (i, j) = c.offsets();
-                bits(out, i);
-                bits(out, j);
-                for r in c.axes() {
-                    bits(out, r);
+            Self::ConnectorReference { connector: c } => connector_binding(out, c),
+            Self::TieRodReference { connector, rod } => {
+                out.push(11);
+                connector_binding(out, connector);
+                out.push(*rod as u64);
+                match connector.tie_rods().get(*rod) {
+                    Some(r) => tie_rod_binding(out, r),
+                    // Never a valid rod: the closure refuses it by name.
+                    None => out.push(u64::MAX),
                 }
-                for r in c.stiffness() {
-                    bits(out, r);
-                }
-                bits(out, c.q_ref());
             }
             Self::JointEffectiveArea { connector, end, pressure, effective_area, axis, sign } => {
                 out.push(10);
-                Self::ConnectorReference { connector: connector.clone() }.binding(out);
+                connector_binding(out, connector);
                 out.extend([*end as u64, *axis as u64]);
                 bits(out, [*pressure, *effective_area, *sign]);
             }
@@ -2306,6 +2378,13 @@ pub(super) fn load_reformation(p: &LoadPrimitive) -> Result<([Wide2; 12], [f64; 
             }
             out
         }
+        LoadFormula::TieRodReference { connector, rod } => {
+            let rod = connector
+                .tie_rods()
+                .get(*rod)
+                .ok_or_else(|| bad_load("tie-rod reference rod"))?;
+            tie_rod_reference_balls(&mut b, rod)?
+        }
         LoadFormula::SlidingFrictionExplicit {
             coefficient,
             normal,
@@ -2716,6 +2795,157 @@ fn connector_b(
     Ok(b)
 }
 
+/// T4-U5b: a tie rod's C (1 × 12) at p from its authored operands: each
+/// global offset o = Q·offset at p (never the binary64 fl(Q·offset)), the
+/// difference d = (x_j − x_i) + (o_j − o_i) (never x + o), l = |d|, n = d/l,
+/// C = [−n, −(o_i × n), n, (o_j × n)]. A zero length fails (division).
+fn tie_rod_c(a: &mut WideArith, r: &TieRod) -> Result<[Wide2; ELEMENT_DOF], WideError> {
+    let axes = r.axes();
+    let (local_i, local_j) = r.local_offsets();
+    let mut rows = [[Wide2::ZERO; 3]; 3];
+    for k in 0..3 {
+        rows[k] = lift3(axes[k])?;
+    }
+    let (local_i, local_j) = (lift3(local_i)?, lift3(local_j)?);
+    let mut oi = [Wide2::ZERO; 3];
+    let mut oj = [Wide2::ZERO; 3];
+    for k in 0..3 {
+        oi[k] = dot3(a, &rows[k], &local_i)?;
+        oj[k] = dot3(a, &rows[k], &local_j)?;
+    }
+    let x = sub3(a, &lift3(r.node_j().coordinates)?, &lift3(r.node_i().coordinates)?)?;
+    let o = sub3(a, &oj, &oi)?;
+    let d = [a.add(&x[0], &o[0])?, a.add(&x[1], &o[1])?, a.add(&x[2], &o[2])?];
+    let length = norm3(a, &d)?;
+    let n = scale3(a, &d, &length)?;
+    let arm_i = cross3(a, &oi, &n)?;
+    let arm_j = cross3(a, &oj, &n)?;
+    let mut c = [Wide2::ZERO; ELEMENT_DOF];
+    for k in 0..3 {
+        c[k] = n[k].neg();
+        c[3 + k] = arm_i[k].neg();
+        c[6 + k] = n[k];
+        c[9 + k] = arm_j[k];
+    }
+    Ok(c)
+}
+
+/// T4-U5b (S10's sibling): a tie rod's Cᵀ k C re-formed at p from its
+/// authored operands (`tie_rod_c`), sharing no arithmetic with
+/// `TieRod::c` or `global_stiffness`. Each entry C_a·(k·C_b) is formed once
+/// for a ≤ b and mirrored.
+pub(super) fn tie_rod_matrix(a: &mut WideArith, r: &TieRod) -> Result<Element, WideError> {
+    let c = tie_rod_c(a, r)?;
+    let k = lift(r.stiffness())?;
+    let mut out = [[Wide2::ZERO; ELEMENT_DOF]; ELEMENT_DOF];
+    for j in 0..ELEMENT_DOF {
+        if c[j].is_zero() {
+            continue;
+        }
+        let kc = a.mul(&k, &c[j])?;
+        for i in 0..=j {
+            if c[i].is_zero() {
+                continue;
+            }
+            let value = a.mul(&c[i], &kc)?;
+            out[i][j] = value;
+            out[j][i] = value;
+        }
+    }
+    Ok(out)
+}
+
+/// T4-U5b: a tie rod's geometry in ball arithmetic from its authored
+/// operands: C, n and l, each ball containing the exact value.
+pub(super) struct TieRodBalls {
+    pub(super) c: [Ball; ELEMENT_DOF],
+    pub(super) direction: [Ball; 3],
+}
+pub(super) fn tie_rod_balls(b: &mut Balls, r: &TieRod) -> Result<TieRodBalls, LoadFailure> {
+    let axes = r.axes();
+    let (local_i, local_j) = r.local_offsets();
+    let (local_i, local_j) = (ball_lift3(b, local_i)?, ball_lift3(b, local_j)?);
+    let mut oi = [Ball::ZERO; 3];
+    let mut oj = [Ball::ZERO; 3];
+    for k in 0..3 {
+        let row = ball_lift3(b, axes[k])?;
+        oi[k] = b.dot(&row, &local_i)?;
+        oj[k] = b.dot(&row, &local_j)?;
+    }
+    let xi = ball_lift3(b, r.node_i().coordinates)?;
+    let xj = ball_lift3(b, r.node_j().coordinates)?;
+    let mut d = [Ball::ZERO; 3];
+    for k in 0..3 {
+        let x = b.sub(xj[k], xi[k])?;
+        let o = b.sub(oj[k], oi[k])?;
+        d[k] = b.add(x, o)?;
+    }
+    let square = b.dot(&d, &d)?;
+    let length = b.sqrt(square, "tie rod length")?;
+    let mut n = [Ball::ZERO; 3];
+    for k in 0..3 {
+        n[k] = b.div(d[k], length, "tie rod direction")?;
+    }
+    let arm_i = b.cross(&oi, &n)?;
+    let arm_j = b.cross(&oj, &n)?;
+    let mut c = [Ball::ZERO; ELEMENT_DOF];
+    for k in 0..3 {
+        c[k] = n[k].neg();
+        c[3 + k] = arm_i[k].neg();
+        c[6 + k] = n[k];
+        c[9 + k] = arm_j[k];
+    }
+    Ok(TieRodBalls { c, direction: n })
+}
+/// T4-U5b: +Cᵀ k e_ref in ball arithmetic (`LoadFormula::TieRodReference`).
+fn tie_rod_reference_balls(b: &mut Balls, r: &TieRod) -> Result<[Ball; ELEMENT_DOF], LoadFailure> {
+    let geometry = tie_rod_balls(b, r)?;
+    let k = b.lift(r.stiffness())?;
+    let e = b.lift(r.reference_extension())?;
+    let effort = b.mul(k, e)?;
+    let mut out = [Ball::ZERO; ELEMENT_DOF];
+    for (slot, c) in out.iter_mut().zip(geometry.c) {
+        *slot = b.mul(c, effort)?;
+    }
+    Ok(out)
+}
+/// T4-U5b: the bound on |v_a − t_a| for the binary64 reference load v
+/// (`TieRod::reference_load`) and the exact t = +Cᵀ k e_ref of the authored
+/// operands: |v_a − m_a| (formed at p, plus its own rounding) + r_a from
+/// K-D5's own enclosure, every step rounded upward.
+pub(crate) fn tie_rod_reference_load_bounds(
+    r: &TieRod,
+    values: &[f64; ELEMENT_DOF],
+) -> Result<[f64; ELEMENT_DOF], crate::FrameKernelError> {
+    const U128: f64 = f64::from_bits(895_u64 << 52); // 2^-128
+    let range = |_| crate::FrameKernelError::NumericalRange {
+        name: "tie rod reference load bound",
+    };
+    let mut b = Balls::new().map_err(range)?;
+    let balls = tie_rod_reference_balls(&mut b, r).map_err(range)?;
+    let mut a = WideArith::new(FORMATION_PRECISION).map_err(|_| crate::FrameKernelError::NumericalRange {
+        name: "tie rod reference load bound",
+    })?;
+    let mut bounds = [0.0; ELEMENT_DOF];
+    for (slot, (ball, &value)) in bounds.iter_mut().zip(balls.iter().zip(values)) {
+        let held = Wide2::from_f64(value).map_err(|_| crate::FrameKernelError::NumericalRange {
+            name: "tie rod reference load bound",
+        })?;
+        let gap = a.sub(&held, &ball.m).map_err(|_| crate::FrameKernelError::NumericalRange {
+            name: "tie rod reference load bound",
+        })?;
+        let gap = abs_up(&gap).map_err(range)?;
+        let bound = add_up(add_up(gap, mul_up(U128, gap)), ball.r);
+        if !bound.is_finite() {
+            return Err(crate::FrameKernelError::NumericalRange {
+                name: "tie rod reference load bound",
+            });
+        }
+        *slot = bound;
+    }
+    Ok(bounds)
+}
+
 struct IntendedCurvedGeometry {
     d: Vec3,
     radius: Wide2,
@@ -3001,3 +3231,6 @@ mod tests;
 #[cfg(test)]
 #[path = "formation_check_timoshenko_tests.rs"]
 mod timoshenko_tests;
+#[cfg(test)]
+#[path = "tie_rod_kd5_tests.rs"]
+mod tie_rod_tests;

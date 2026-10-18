@@ -65,6 +65,8 @@ mod sparse;
 // U4 G5 part 2: the kernel's in-build strides for the product's retained-memory profile.
 pub mod retained_resource;
 
+// T4-U5b: `TieRod::reference_load`'s bound, from K-D5's own enclosure.
+pub(crate) use formation_check::tie_rod_reference_load_bounds;
 pub use formation_check::{
     CurvedFormation, FormationCheck, FormationCheckReason, FormationSource, MemberBoundInputs,
     LoadPrimitive, LoadFormula, LoadSummandIdentity, LoadClosureEntry, IntensityPrimitive, MassPrimitive,
@@ -73,7 +75,7 @@ pub use formation_check::{
     FORMATION_FACTOR, FORMATION_PRECISION,
 };
 pub use arc_certificate::{certify_curved_uniform_load, ArcCertificateFailure, CertifiedLoadTerm, CertifiedLoadVector};
-pub use certified_recovery::{CertifiedStressControlSizes, certified_stress_control_sizes, CertifiedCoefficientBounds, CertifiedStraightStressSpan, certify_straight_section, certify_straight_stress_spans, CertifiedValue, CertifiedRow, CertifiedGroup, CertifiedUniformLoad, CertifiedMemberLoads, CertifiedMemberRecovery, CertifiedConnectorRecovery, certified_pressure_area_product, RecoveryFailure, CERTIFIED_SECTION_FRACTIONS, certified_magnitude, certified_group, certify_straight_recovery, certify_arc_recovery, certify_connector_recovery, certify_support_reaction, certify_spring_reaction, certify_displacement, certify_load_primitive};
+pub use certified_recovery::{CertifiedStressControlSizes, certified_stress_control_sizes, CertifiedCoefficientBounds, CertifiedStraightStressSpan, certify_straight_section, certify_straight_stress_spans, CertifiedValue, CertifiedRow, CertifiedGroup, CertifiedUniformLoad, CertifiedMemberLoads, CertifiedMemberRecovery, CertifiedConnectorRecovery, CertifiedTieRodRecovery, certified_pressure_area_product, RecoveryFailure, CERTIFIED_SECTION_FRACTIONS, certified_magnitude, certified_group, certify_straight_recovery, certify_arc_recovery, certify_connector_recovery, certify_tie_rod_recovery, certify_support_reaction, certify_spring_reaction, certify_displacement, certify_load_primitive};
 // O-13: the prerequisite arc recovery certificate, adapted by the K-D5 unit.
 pub use arc_certificate::{certify_curved_recovery, ArcEndBounds, ArcGroupBound, ArcRowGroup, CertifiedArcRecovery};
 pub use sparse::{

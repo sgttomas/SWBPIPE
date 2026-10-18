@@ -853,7 +853,7 @@ fn k1_connector_case_22_formation_check_on_the_pattern() {
         let assembled = assemble_sparse_stiffness(
             2,
             &[],
-            &[connector],
+            &[connector.clone()],
             &[],
             &[],
             &SparseAssemblyOptions::new(),

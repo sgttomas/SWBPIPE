@@ -4,6 +4,7 @@
 //! code compliance checks, protected standards content, or private project data.
 
 pub mod connector;
+pub mod tie_rod;
 pub mod exact_sum;
 pub mod load_ledger;
 pub mod structural;
@@ -1450,7 +1451,8 @@ impl ForceScaleCensus {
     }
 
     /// T4-U3 (S8): an objective connector's K entries and its formed Ke
-    /// entries (the values the assembly scales by 2^b).
+    /// entries (the values the assembly scales by 2^b); T4-U5b: and each of
+    /// its tie rods' k and formed Ke entries.
     pub fn connector(
         &mut self,
         connector: &connector::ObjectiveConnector,
@@ -1461,6 +1463,11 @@ impl ForceScaleCensus {
             }
         }
         self.matrix(&connector.global_stiffness()?);
+        // T4-U5b: each tie rod's k and formed Ke entries.
+        for rod in connector.tie_rods() {
+            self.value(rod.stiffness());
+            self.matrix(&rod.global_stiffness()?);
+        }
         Ok(())
     }
 
@@ -1589,9 +1596,12 @@ pub fn assemble_global_stiffness(
 }
 
 /// T4-U3 (S1): the frames, then each objective connector's Ke = fl(BᵀKB)
-/// (`ObjectiveConnector::global_stiffness`), in the order given, then the
-/// finiteness check. With no connector it is `assemble_global_stiffness`,
-/// bit for bit.
+/// (`ObjectiveConnector::global_stiffness`), in the order given, then
+/// (T4-U5b) each connector's tie rods' Ke = fl(Cᵀ k C)
+/// (`TieRod::global_stiffness`, `ObjectiveConnector::tie_rods`), in
+/// connector then rod order, then the finiteness check. With no connector it
+/// is `assemble_global_stiffness`, and with no rod the T4-U3 assembly, bit
+/// for bit.
 pub fn assemble_global_stiffness_with_connectors(
     node_count: usize,
     elements: &[FrameElement],
@@ -1600,7 +1610,7 @@ pub fn assemble_global_stiffness_with_connectors(
     assemble_dense(node_count, elements, connectors)
 }
 
-/// The dense assembly in the slot order frames, connectors.
+/// The dense assembly in the slot order frames, connectors, tie rods.
 fn assemble_dense(
     node_count: usize,
     elements: &[FrameElement],
@@ -1631,6 +1641,18 @@ fn assemble_dense(
             &mut global,
             element.node_i().index,
             element.node_j().index,
+            &element_stiffness,
+        );
+    }
+
+    // T4-U5b: each connector's tie rods, after every connector, in connector
+    // then rod order, each its own Ke = fl(Cᵀ k C). None: unchanged.
+    for rod in connectors.iter().flat_map(|c| c.tie_rods()) {
+        let element_stiffness = rod.global_stiffness()?;
+        assemble_element_contribution(
+            &mut global,
+            rod.node_i().index,
+            rod.node_j().index,
             &element_stiffness,
         );
     }

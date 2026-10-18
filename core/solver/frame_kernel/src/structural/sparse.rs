@@ -480,7 +480,8 @@ pub struct SparseAssemblyOptions {
     force_scale: ForceScale,
     /// T4-U3 (K2b N-5): set only by the K2b retry of `assemble_sparse_stiffness`
     /// (never by a caller): the connectors' end nodes and Ke formed at b = 0
-    /// times 2^b, in order, used in place of forming them.
+    /// times 2^b, in order, then the connectors' tie rods' (T4-U5b), used in
+    /// place of forming them.
     formed_connectors: Option<Vec<(usize, usize, Matrix12)>>,
 }
 
@@ -588,6 +589,11 @@ fn check_node(node_index: usize, node_count: usize) -> Result<(), FrameKernelErr
 /// T4-U3 (S2, K2b N-5): at 2^b each connector adds its Ke formed at b = 0
 /// times 2^b (`force_scaled_matrix`), as a realized curved bend does.
 ///
+/// T4-U5b: each connector's tie rods (`ObjectiveConnector::tie_rods`) follow
+/// all connectors, in connector then rod order, each its own Ke = fl(CᵀkC)
+/// (at 2^b, formed at b = 0 times 2^b), as the dense assembly adds them.
+/// Without rods the assembly is unchanged, bit for bit.
+///
 /// A block or spring outside the model is refused as `InvalidNodeIndex`
 /// (the dense additions would index out of bounds).
 pub fn assemble_sparse_stiffness(
@@ -608,7 +614,7 @@ pub fn assemble_sparse_stiffness(
         // connector's Ke formed at b = 0 times 2^b.
         let (frames, blocks, springs) =
             force_scaled_inputs(frames, blocks, springs, *force_scale)?;
-        let formed = connectors
+        let mut formed = connectors
             .iter()
             .map(|connector| {
                 Ok((
@@ -618,6 +624,14 @@ pub fn assemble_sparse_stiffness(
                 ))
             })
             .collect::<Result<Vec<_>, FrameKernelError>>()?;
+        // T4-U5b: then each connector's tie rods, Ke formed at b = 0 times 2^b.
+        for rod in connectors.iter().flat_map(|c| c.tie_rods()) {
+            formed.push((
+                rod.node_i().index,
+                rod.node_j().index,
+                rod.force_scaled_global_stiffness(*force_scale)?,
+            ));
+        }
         return assemble_sparse_stiffness(
             node_count,
             &frames,
@@ -658,6 +672,14 @@ pub fn assemble_sparse_stiffness(
                     element.node_i().index,
                     element.node_j().index,
                     element.global_stiffness()?,
+                ));
+            }
+            // T4-U5b: each connector's tie rods, after every connector.
+            for rod in connectors.iter().flat_map(|c| c.tie_rods()) {
+                formed.push((
+                    rod.node_i().index,
+                    rod.node_j().index,
+                    rod.global_stiffness()?,
                 ));
             }
         }
