@@ -374,6 +374,104 @@ pub(crate) fn directional_records<'a>(
     Ok(bound)
 }
 
+/// The named outcome of a directional maximum the producer could not certify.
+pub(crate) const DIRECTIONAL_MAX_UNAVAILABLE: &str = "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE";
+
+/// The captured model's realized arcs with the directional pair (§2.6), by the
+/// producer's realized-arc rule (`is_curved_bend_macro_component`): a `bend`
+/// or `elbow` consumed as `curved_bend_macro_element`, with a nonempty
+/// `geometry.bend_pipe_ref`, and both `modifiers.sif_in_plane_user_value` and
+/// `modifiers.sif_out_of_plane_user_value`, each dimensionless (unit `1` or
+/// `none`), finite and above zero. A dimensionless quantity normalizes to its
+/// authored binary64 value, so the pair is `(i_ip, i_op)` as authored. Any
+/// other placement of the pair is refused (the producer blocks such a model).
+pub(crate) fn directional_arcs(model: &Value, route: Route) -> Result<HashMap<&str, (f64, f64)>, String> {
+    let mut arcs = HashMap::new();
+    for component in model["components"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
+        let modifiers = &component["modifiers"];
+        let (ip, op) = (&modifiers["sif_in_plane_user_value"], &modifiers["sif_out_of_plane_user_value"]);
+        if ip.is_null() && op.is_null() {
+            continue;
+        }
+        let realized = matches!(component["kind"].as_str(), Some("bend" | "elbow"))
+            && component["mechanics_interface"]["solver_consumption"] == "curved_bend_macro_element";
+        let pipe = component["geometry"]["bend_pipe_ref"].as_str().filter(|p| !p.trim().is_empty());
+        let factor = |q: &Value| {
+            q["value"].as_f64().filter(|v| v.is_finite() && *v > 0.0 && matches!(q["unit"].as_str(), Some("1" | "none")))
+        };
+        match (realized, pipe, factor(ip), factor(op)) {
+            (true, Some(pipe), Some(i_ip), Some(i_op)) => {
+                route.require(arcs.insert(pipe, (i_ip, i_op)).is_none(), "INTENSIFIED_MODEL")?;
+            }
+            _ => return Err(route.fail("INTENSIFIED_MODEL")),
+        }
+    }
+    Ok(arcs)
+}
+
+/// Review item 1 (§2.6, §5.1): the directional rows and records bound to the
+/// captured model, on both routes. In every case, every realized arc with the
+/// pair in the model has its five station rows on every basis, the factors of
+/// each of its records are the model's bit for bit, and it has the along-arc
+/// maximum row or the named unavailable outcome
+/// (`DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE` for that case, arc and, on
+/// pressure-2, basis). Directional rows or records on any other member are
+/// refused. The envelope readers have bound every row to one record and
+/// recomputed it from the record's factors already.
+pub(crate) fn directional_model_checks(source: &Value, model: &Value, route: Route) -> Check {
+    let rows = source["results"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let diagnostics = source["diagnostics"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let solved = source["status"]["mechanics"] == "MECHANICS_SOLVED";
+    let arcs = if solved { directional_arcs(model, route)? } else { HashMap::new() };
+    for row in rows {
+        if matches!(row["kind"].as_str(), Some(DIRECTIONAL | DIRECTIONAL_MAX)) {
+            route.require(row["entity_ref"].as_str().is_some_and(|pipe| arcs.contains_key(pipe)), "INTENSIFIED_MODEL")?;
+        }
+    }
+    let index = Index::new(rows, route)?;
+    let (key, bases): (&str, &[&str]) = match route {
+        Route::Exact => ("exact_cases", &["nominal_section", "reduced_section"]),
+        Route::Preview => ("preview_cases", &[""]),
+    };
+    for case in source["contract_evidence"][key].as_array().map(Vec::as_slice).unwrap_or(&[]) {
+        let case_id = case["load_case_id"].as_str().ok_or_else(|| route.fail("INTENSIFIED_MODEL"))?;
+        for record in case["intensified_measures"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
+            if record.get("i_in_plane").is_none() && record.get("i_out_of_plane").is_none() {
+                continue; // a marker record (the preview reader's own key set)
+            }
+            let pair = record["pipe_id"].as_str().and_then(|pipe| arcs.get(pipe)).ok_or_else(|| route.fail("INTENSIFIED_MODEL"))?;
+            let bits = |k: &str| record[k].as_f64().map(f64::to_bits);
+            route.require(bits("i_in_plane") == Some(pair.0.to_bits()) && bits("i_out_of_plane") == Some(pair.1.to_bits()), "INTENSIFIED_MODEL_FACTORS")?;
+        }
+        for &pipe in arcs.keys() {
+            for &basis in bases {
+                for location in STATIONS {
+                    route.require(index.value(case_id, pipe, DIRECTIONAL, "intensified_bending", location, basis).is_some(), "INTENSIFIED_MODEL_COVERAGE")?;
+                }
+                let maximum = index.value(case_id, pipe, DIRECTIONAL_MAX, "intensified_bending_maximum", "governing_station", basis).is_some();
+                let suffix = match basis {
+                    "nominal_section" => ":maximum:nominal-section",
+                    "reduced_section" => ":maximum:reduced-section",
+                    _ => ":maximum",
+                };
+                let unavailable = diagnostics.iter().any(|d| {
+                    d["code"] == DIRECTIONAL_MAX_UNAVAILABLE && d["affected_refs"][0] == case_id && d["affected_refs"][1] == pipe
+                        && d["id"].as_str().is_some_and(|id| id.ends_with(suffix))
+                });
+                route.require(maximum || unavailable, "INTENSIFIED_MODEL_COVERAGE")?;
+            }
+        }
+    }
+    Ok(())
+}
+
+/// The exact route's model-bound U4b checks (§5.1, G2), beside
+/// `reader_verdict::physics_model_checks` on the pressure-2 reader only: the
+/// directional binding (review item 1).
+pub(crate) fn exact_model_checks(source: &Value, model: &Value) -> Check {
+    directional_model_checks(source, model, Route::Exact)
+}
+
 /// The members a case's `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN` warnings name.
 pub(crate) fn poisson_exempt<'a>(diagnostics: &'a [Value], case: &str) -> HashSet<&'a str> {
     diagnostics
@@ -429,13 +527,6 @@ pub(crate) fn preview_model_checks(source: &Value, model: &Value) -> Check {
         let vz = index.any(case_id, pipe_id, "element_local_shear_force_z", location, "").ok_or_else(|| route.fail("SHEAR_COVERAGE"))?;
         route.require(row["value"].as_f64().map(f64::to_bits) == Some((norm2(vy, vz) * factor / 1e6).to_bits()), "SHEAR_VALUE")?;
     }
-    // Directional rows exist exactly on the model's realized arcs with the pair,
-    // and their records state the model's factors.
-    for row in rows.iter().filter(|r| r["kind"] == DIRECTIONAL) {
-        let pipe_id = row["entity_ref"].as_str().unwrap_or("");
-        let component = items(&model["components"]).into_iter().find(|c| c["geometry"]["bend_pipe_ref"] == pipe_id
-            && c["mechanics_interface"]["solver_consumption"] == "curved_bend_macro_element");
-        route.require(component.is_some_and(|c| c["modifiers"]["sif_in_plane_user_value"].is_object()), "INTENSIFIED_MODEL")?;
-    }
-    Ok(())
+    // Directional rows and records bound to the model (review item 1).
+    directional_model_checks(source, model, route)
 }

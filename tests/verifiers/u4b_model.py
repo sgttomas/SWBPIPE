@@ -7,7 +7,7 @@ from __future__ import annotations
 import math
 from typing import Any, Mapping
 
-from .u4b import DIRECTIONAL, SHEAR_MAX, Rows, _case, _require, bits, shear_factor, shear_maximum
+from .u4b import SHEAR_MAX, Rows, _case, _require, bits, directional_model_checks, shear_factor, shear_maximum
 from .units import to_canonical
 
 
@@ -48,8 +48,5 @@ def preview_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
         vy = rows.any(cid, row["entity_ref"], "element_local_shear_force_y", location)
         vz = rows.any(cid, row["entity_ref"], "element_local_shear_force_z", location)
         _require(vy is not None and vz is not None and bits(row["value"]) == bits(shear_maximum(vy, vz, factor)), "model-bound transverse shear value")
-    for row in results:
-        if row.get("kind") == DIRECTIONAL:
-            component = next((c for c in model.get("components", []) if (c.get("geometry") or {}).get("bend_pipe_ref") == row.get("entity_ref")
-                              and (c.get("mechanics_interface") or {}).get("solver_consumption") == "curved_bend_macro_element"), None)
-            _require(component is not None and isinstance((component.get("modifiers") or {}).get("sif_in_plane_user_value"), Mapping), "directional row without the model's pair")
+    # Review item 1: the directional rows and records bound to the model.
+    directional_model_checks(source, model, False)

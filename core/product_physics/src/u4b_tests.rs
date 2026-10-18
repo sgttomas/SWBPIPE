@@ -408,6 +408,31 @@ fn discriminators(out: &MechanicsEnvelope, case: &Value, label: &str) {
     }
 }
 
+/// Review item 5: the two arc models of the shared base reader corpus, built
+/// from `cases.json` by the binding rules (the frozen tree stays unchanged;
+/// the requests' SHA-256 stay pinned in [`REQUEST_SHA256`]): a pressurized
+/// pressure-2 L line with a directional arc and a preview line with two
+/// directional arcs. `U4B_WRITE_CORPUS_MODELS=1` rewrites them; the producer's
+/// envelopes of them are written by the `exact_pressure_connected` and
+/// `preview_physics_capture` examples (`fixtures/results/*_u4b_arc_sparse.json`).
+pub(crate) const CORPUS_MODELS: [(&str, &str); 2] = [
+    ("U4B-L90-P", "tests/fixtures/u4b_l90_p_model.json"),
+    ("U4B-Z-PREVIEW-REV", "tests/fixtures/u4b_z_preview_rev_model.json"),
+];
+#[test]
+fn u4b_corpus_models_are_current() {
+    let requests = requests();
+    for (case_id, path) in CORPUS_MODELS {
+        let request = &requests.iter().find(|(id, _)| id == case_id).expect("a reference case").1;
+        let bytes = serde_json::to_string_pretty(&request["model"]).unwrap() + "\n";
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(path);
+        if std::env::var_os("U4B_WRITE_CORPUS_MODELS").is_some() {
+            std::fs::write(&path, &bytes).unwrap();
+        }
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), bytes, "{}: regenerate with U4B_WRITE_CORPUS_MODELS=1", path.display());
+    }
+}
+
 #[test]
 fn u4b_requests_follow_the_binding_rules() {
     let (cases, _) = inputs();
@@ -688,6 +713,84 @@ fn u4b_torus_domain_guard() {
             let refused = crate::result_export::reader_verdict::validate("pressure", &stripped, None, None);
             assert!(refused["error"]["detail"].as_str().is_some_and(|d| d.contains("SOURCE_PHYSICS_TOROIDAL_DOMAIN_WARNING")), "{label}: {refused}");
         }
+    }
+}
+
+/// Review item 1 (§2.6, §5.1): the directional rows and records are bound to the
+/// captured model on both routes. Model-free reads cannot see a whole dropped
+/// family or consistently changed factors; the model-holding readers refuse
+/// both. One dropped basis is refused either way (the twin rule).
+#[test]
+fn u4b_directional_rows_bind_to_the_captured_model() {
+    let (cases, _) = inputs();
+    for (id, reader, exact) in [("U4B-L90-P", "pressure", true), ("U4B-ARC90-OOP-PREVIEW", "preview-physics", false)] {
+        let case = cases["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == id).unwrap();
+        let request = build_request(case);
+        let model = model_with_materials(&request);
+        let out = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), PreviewSolverMode::SparseInteractive).unwrap()).unwrap();
+        let read = |doc: &Value, model: Option<&Value>| crate::result_export::reader_verdict::validate(reader, doc, model, None);
+        assert_eq!(read(&out, Some(&model))["ok"], true, "{id}: {}", read(&out, Some(&model)));
+        let cases_key = if exact { "exact_cases" } else { "preview_cases" };
+        let directional = |r: &Value| matches!(r["kind"].as_str(), Some(u4b_rows::DIRECTIONAL_KIND | u4b_rows::DIRECTIONAL_MAX_KIND));
+        let code = |v: &Value| v["error"]["detail"].as_str().or(v["error"]["code"].as_str()).unwrap_or("").to_string();
+        // (a) The whole family dropped: rows, records and unavailable outcomes.
+        let mut dropped = out.clone();
+        dropped["results"].as_array_mut().unwrap().retain(|r| !directional(r));
+        dropped["diagnostics"].as_array_mut().unwrap().retain(|d| d["code"] != "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE");
+        for c in dropped["contract_evidence"][cases_key].as_array_mut().unwrap() {
+            c["intensified_measures"].as_array_mut().unwrap().retain(|r| r.get("i_in_plane").is_none());
+            // A pressure-2 case carries the list only when it has a record.
+            if exact && c["intensified_measures"].as_array().unwrap().is_empty() {
+                c.as_object_mut().unwrap().remove("intensified_measures");
+            }
+        }
+        assert_eq!(read(&dropped, None)["ok"], true, "{id}: a model-free read cannot see the dropped family: {}", read(&dropped, None));
+        assert!(code(&read(&dropped, Some(&model))).contains("INTENSIFIED_MODEL_COVERAGE"), "{id}: {}", read(&dropped, Some(&model)));
+        // (b) One basis dropped (pressure-2 has two).
+        if exact {
+            let mut one = out.clone();
+            let reduced = |v: &Value| v["section_basis"] == "reduced_section"
+                || v["metadata"]["basis"].as_str().is_some_and(|b| b.ends_with("; section_basis=reduced_section"));
+            one["results"].as_array_mut().unwrap().retain(|r| !(directional(r) && reduced(r)));
+            for c in one["contract_evidence"][cases_key].as_array_mut().unwrap() {
+                c["intensified_measures"].as_array_mut().unwrap().retain(|r| !(r.get("i_in_plane").is_some() && reduced(r)));
+            }
+            assert_eq!(read(&one, None)["ok"], false, "{id}: one basis dropped breaks the twin rule");
+            assert_eq!(read(&one, Some(&model))["ok"], false, "{id}");
+        }
+        // (c) The factors halved in every record, the station rows recomputed from
+        // them (the maxima's upper bounds still cover the smaller stations).
+        let mut halved = out.clone();
+        let mut factors = HashMap::new();
+        for c in halved["contract_evidence"][cases_key].as_array_mut().unwrap() {
+            for r in c["intensified_measures"].as_array_mut().unwrap().iter_mut().filter(|r| r.get("i_in_plane").is_some()) {
+                for k in ["i_in_plane", "i_out_of_plane"] {
+                    r[k] = json!(r[k].as_f64().unwrap() / 2.0);
+                }
+                factors.insert(r["result_id"].as_str().unwrap().to_string(), (n(&r["i_in_plane"]), n(&r["i_out_of_plane"])));
+            }
+        }
+        let rows = halved["results"].as_array().unwrap().clone();
+        let bending = |row: &Value, axis: &str| rows.iter().find(|r| r["kind"] == format!("element_local_bending_normal_stress_{axis}") && r["entity_ref"] == row["entity_ref"]
+            && r["basis_ref"] == row["basis_ref"] && r["metadata"]["location"] == row["metadata"]["location"]
+            && r["metadata"]["basis"].as_str().unwrap().rsplit_once("; section_basis=").map(|x| x.1) == row["metadata"]["basis"].as_str().unwrap().rsplit_once("; section_basis=").map(|x| x.1)).unwrap()["value"].as_f64().unwrap();
+        let mut recomputed = 0;
+        for row in halved["results"].as_array_mut().unwrap().iter_mut().filter(|r| r["kind"] == u4b_rows::DIRECTIONAL_KIND) {
+            let (i_ip, i_op) = factors[row["id"].as_str().unwrap()];
+            row["value"] = json!(1e6 * norm2(i_ip * bending(row, "z"), i_op * bending(row, "y")));
+            recomputed += 1;
+        }
+        assert_eq!(recomputed, 5 * if exact { 2 } else { 1 } * case["members"].as_array().unwrap().iter().filter(|m| m["directional_sif_user_values"].is_object()).count());
+        assert_eq!(read(&halved, None)["ok"], true, "{id}: {}", read(&halved, None));
+        assert!(code(&read(&halved, Some(&model))).contains("INTENSIFIED_MODEL_FACTORS"), "{id}: {}", read(&halved, Some(&model)));
+        // A directional row on a member without the model's pair.
+        let mut stripped = model.clone();
+        for component in stripped["components"].as_array_mut().unwrap() {
+            let m = component["modifiers"].as_object_mut().unwrap();
+            m.remove("sif_in_plane_user_value");
+            m.remove("sif_out_of_plane_user_value");
+        }
+        assert!(code(&read(&out, Some(&stripped))).contains("INTENSIFIED_MODEL"), "{id}");
     }
 }
 
