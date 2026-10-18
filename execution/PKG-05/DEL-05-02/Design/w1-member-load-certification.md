@@ -385,6 +385,8 @@ Use bounded exponent/significand comparisons and sticky rounding, never an unche
 - Near-degenerate loaded maxima with a varying axial force could exhaust even min(paired, tangent). This is theoretical and was not observed; a Taylor bound with an f″ enclosure would close it at higher cost.
 - The two lanes use different sections (binary64 A and the Z hull against geometric A and Z), which widens every stress row's hull, maxima included. In a rough model it alone fails a perfect projection in 296 of 4,000 trials. This is inherited by all stress rows and not created here; the implementation measures it on real cases.
 
+The first two corners decline ordinary cases. Their repair is planned as shared epoch 6 in [b7-plan.md](b7-plan.md) ("After B7b"); until then they keep their named refusals and ordinary fallback.
+
 ### 4.5 Combinations
 
 `combine.rs::validate_preps` (233-252) refuses, after `NestedCombination` (238) and before `OperandsDiffer`, any operand whose source has member loads, as a new `CombinationReason::OperandMemberLoads`. This matches DEF-C's `operand_member_loads`. As a backstop, `RetainedLedger::combined` (ledger.rs 209-229), which reads only nodal loads, refuses such a source with a new `LedgerRefusal`, mapped in `CasePrep::combination` (adaptive.rs 985).
