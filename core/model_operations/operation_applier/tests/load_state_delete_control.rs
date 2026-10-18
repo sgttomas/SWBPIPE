@@ -285,7 +285,7 @@ fn delete_outcomes_without_load_state_records_match_the_golden() {
 
 // ---------------------------------------------------------------------------
 // Addendum 2 (review B F1, F2, F9): temperature-point authoring on the models
-// without the load/reference-state group (B7b: re-blessed on the 0.6.0 inputs).
+// without the load/reference-state group (re-blessed on the 0.5.0 inputs at B7b and on the 0.6.0 inputs at T4-S1).
 // ---------------------------------------------------------------------------
 
 const AUTHORING_GOLDEN: &str =

@@ -41,7 +41,7 @@ pub(super) const EXACT_SEMANTIC_ID: &str = "openpipestress.result_semantics/0.3.
 pub(super) const EXACT_PROFILE_ID: &str = "exact_straight_retained_w1a_v2";
 pub(super) const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 pub(super) const EXACT_DEFINITION_SHA256: &str =
-    "d1fa7b45a314d0f3284fafc716524da5889986f25ffe5c588d9ef197bb9a3def";
+    "b464eb5b88f2930774ad3ffc4aaa9bdee002f1c798864694146f95c95f60a60a";
 /// B3b-P (B3-D P-9; REVISION_01 §2, S-1): the route descriptor the serializer takes its
 /// route-specific members from, never a module constant: the successor's identity and profile,
 /// every product attempt's `definition_id`, the preparation payload's `definition_sha256` (C3

@@ -1425,7 +1425,7 @@
     }
    ],
    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
-   "note": "B7b: pressure-2 admits the group by presence (physics-1 forbade it); the grafted records fail the pre-pass at the ordinary material basis."
+   "note": "B7b: pressure-1 admits the group by presence (physics-1 forbade it); the grafted records fail the pre-pass at the ordinary material basis."
   },
   {
    "id": "PHYSICS1-with-empty-load-reference-states",
@@ -1438,7 +1438,7 @@
     }
    ],
    "dispatch": "SOURCE_LOAD_REFERENCE_MATERIAL_BASIS",
-   "note": "B7b: pressure-2 admits the group by presence (physics-1 forbade it); the empty group fails the pre-pass at the ordinary material basis."
+   "note": "B7b: pressure-1 admits the group by presence (physics-1 forbade it); the empty group fails the pre-pass at the ordinary material basis."
   },
   {
    "id": "DUPLICATE-stored-contribution",
@@ -2283,7 +2283,7 @@
     }
    ],
    "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE: SOURCE_PHYSICS_CONNECTOR_RECORD_SHAPE",
-   "note": "B7b: pressure-2 admits objective connector records (T4-U3) on load/reference-state documents too; the invented record fails the connector record shape."
+   "note": "B7b: pressure-1 admits objective connector records (T4-U3) on load/reference-state documents too; the invented record fails the connector record shape."
   },
   {
    "id": "CLOSED-region-temperature-basis",

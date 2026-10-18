@@ -41,7 +41,7 @@ describe("the exact retained route on the desktop's carriers", () => {
     expect(sourceContract(bare)).toBe("unsupported");
     // Standing comes only from a registered validation: unregistered bytes need recompute.
     expect(numericalResultStanding(source, invocation.request.model)).toMatchObject({ contract: "retained_physics", eligible: false, findings: [RETAINED_PRECISION_VALIDATION_REQUIRED] });
-    // XTABLE's rows are pressure-2's (B7b D4 (a) rebased the successor onto pressure-2);
+    // XTABLE's rows are pressure-2's (B7b D4 (a) rebased the successor onto pressure-1);
     // the row semantics read XTABLE, which inherits the pressure-2 table by its sha256.
     const rows = readerRowSemantics(source);
     for (const row of source.results) { const signature = rows(row).signature; if (signature) expect(exactTable.rows).toContainEqual(signature); }

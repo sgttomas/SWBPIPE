@@ -4775,7 +4775,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
         let quantities = [
             ("result:disp:node-WF-TIP:uy", "mm", uy),
             ("result:disp:node-WF-TIP:rz", "rad", rz),
-            // T0R preview-physics-2: signed support-on-pipe components replace the retired resultant.
+            // T0R preview-physics-1: signed support-on-pipe components replace the retired resultant.
             ("result:support-action:7:load:WF:15:support:WF-ROOT:Fy", "N", -force),
             ("result:support-action:7:load:WF:15:support:WF-ROOT:Mz", "N*m", -force * 3.2),
             ("result:force:pipe-WF:shear-z", "N", force),

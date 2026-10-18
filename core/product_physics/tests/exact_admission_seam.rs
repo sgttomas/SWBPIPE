@@ -646,7 +646,7 @@ fn shared_pressure_v3_reader_corpus_is_current() {
         }
     }
     let corpus = json!({
-        "corpus":"T4-U2a pressure-2 straight reader corpus",
+        "corpus":"T4-U2a pressure-1 straight reader corpus",
         "generator":"core/product_physics/tests/exact_admission_seam.rs::shared_pressure_v3_reader_corpus_is_current",
         "inputs":["core/product_physics/tests/fixtures/exact_pressure_connected_request.json (X0, model 0.6.0, pressure_contract 3.0.0/exact_pressure_v3, case:closed-pressure p = -2000 kPa)",
             "fixtures/product_preview/pressure/load_reference/pressure.request.json (Y0, model 0.6.0 with the load/reference-state group, pressure_contract 3.0.0/exact_pressure_v3)"],

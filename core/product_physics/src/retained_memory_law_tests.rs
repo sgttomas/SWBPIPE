@@ -392,9 +392,13 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // module's test-only include names the renamed pressure-2 table; the
             // inspected production between the regions gains current_header's
             // pressure-1/preview-physics-1 refusals and the 0.6.0 re-author text;
-            // E14 is byte-identical.
+            // E14 is byte-identical. The S1 repair restores two comments in the
+            // inspected production to their historical pressure-1 wording; no code changed.
+            // Re-audited for T4-U4b (S2): only the closed `b7b_current_table_tests`
+            // module changed (pressure-2's 106 -> 128 rows, with its comment); the
+            // inspected production after the resume and E14 are byte-identical.
             first_item: SEMANTIC_B7B_TEST_ITEM,
-            complete_suffix_sha256: "17b12f333c7ced9b56a7cf73615f7db9a49c25222b83a4073c925cb9f524aed7",
+            complete_suffix_sha256: "c5536d32f2ebc3494209e4ad6388fd2cc7059267cb0c037bf085ff7c0bdcc743",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -764,8 +768,8 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "8aaa25df8dfb0a46d8e70e591c0edd8b8fcc1474364b1d73abdb049af287dcf4",
         "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017",
         "79a3a76a56dd2ff1c347306137340a8bacb5eddeb828ebc5ef55eaa5986fc663",
-        "26cff36b8d306fa9e7dc48bb64853ff96d3896768c016e0da139133f9d2eb818",
-        "c3fb1b68ce2b7799aa71a6525c6807120a43cf736e4d39177e4d7787e506be66",
+        "91ca026e19337251c5a124f3ee1cbd648845f335e6da09edfbdfb16e7dedc7e9",
+        "5fc371a9d76b09364986f99db5bd25c29bb79b14baa4fab238aa209fadb028f1",
         "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b",
         "401dae3ca5f41f4c770b22689d20d02ba9713e8b061d40a89877338bd46cd14f",
         "2937dfd7c6b5ff8264f656b45136ecb6555921bdd59b2871eebb95c728edd461",

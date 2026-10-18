@@ -90,6 +90,17 @@ fn unknown_identities_and_profiles_are_refused() {
         retired["producer"]["semantic_contract_id"] = json!(s::RETIRED_PRESSURE_1_ID);
         let refusal = s::for_source(&retired).unwrap_err();
         assert!(refusal.starts_with(&format!("{}: ", s::SOURCE_PRESSURE_1_RETIRED)) && refusal.contains("re-run"), "{label}: {refusal}");
+        // The retired preview-physics-1 identity is refused by name the same way, for the
+        // whole statement and for its transport metadata.
+        let mut retired_preview = envelope.clone();
+        retired_preview["producer"]["semantic_contract_id"] = json!(s::RETIRED_PREVIEW_PHYSICS_1_ID);
+        for refusal in [s::for_source(&retired_preview).unwrap_err(), s::for_source_metadata(&retired_preview).unwrap_err()] {
+            assert_eq!(
+                refusal,
+                format!("{}: preview-physics-1 results are no longer read; re-run the analysis", s::SOURCE_PREVIEW_PHYSICS_1_RETIRED),
+                "{label}"
+            );
+        }
         let mut profile = envelope.clone();
         profile["formulation_basis"]["profile_id"] = json!("exact_straight_pressure_v2");
         assert_eq!(s::for_source(&profile).unwrap_err(), "SOURCE_FORMULATION_BASIS_UNSUPPORTED", "{label}");

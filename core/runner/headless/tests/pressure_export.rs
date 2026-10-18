@@ -52,7 +52,7 @@ fn request(model: &Value) -> RunnerRequest {
         requested_outputs: vec!["result_envelope".into(), "audit_manifest".into(), "diagnostics".into()],
         privacy: PrivacyContext::local_first_public_metadata(),
         provenance: Provenance {
-            source_name: "invented T4-U2 pressure-2 export cases".into(),
+            source_name: "invented T4-U2 pressure-1 export cases".into(),
             source_location: "fixtures/results; validation/references/t4_i12".into(),
             source_license: "project invented".into(),
             contributor: "OpenPipeStress".into(),

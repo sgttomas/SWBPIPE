@@ -455,12 +455,42 @@ def test_transport_metadata_checks_statement_without_rows():
             _source_contract(bad, check_receipt=False)
 
 
-@pytest.mark.parametrize("identity", [RETIRED_PRECISION_CONTRACT_ID, RETIRED_PHYSICS_ID, RETIRED_LOAD_REFERENCE_ID, PRESSURE_CONTRACT_ID, RETIRED_SOURCE_BLOCKS_ID, "openpipestress.result_semantics/0.3.0/preview-physics-1", "openpipestress.result_semantics/0.3.0/preview-physics-3"])
-def test_preview_never_falls_back_to_another_contract(identity):
+@pytest.mark.parametrize("identity,code", [
+    (RETIRED_PRECISION_CONTRACT_ID, "SOURCE_PRECISION_1_RETIRED"),
+    (RETIRED_PHYSICS_ID, "SOURCE_EXACT_PRESSURE_V2_RETIRED"),
+    (RETIRED_LOAD_REFERENCE_ID, "SOURCE_EXACT_PRESSURE_V2_RETIRED"),
+    (PRESSURE_CONTRACT_ID, "SOURCE_FORMULATION_BASIS_UNSUPPORTED"),
+    (RETIRED_SOURCE_BLOCKS_ID, "SOURCE_BLOCKS_1_RETIRED"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-1", "SOURCE_PREVIEW_PHYSICS_1_RETIRED"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-3", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+])
+def test_preview_never_falls_back_to_another_contract(identity, code):
+    # Each identity is refused by its own code, the same in the product (Rust verdict) and the verifier.
     source = envelope()
     source["producer"]["semantic_contract_id"] = identity
-    with pytest.raises(ValueError, match="SOURCE_"):
+    exact = f"^{code}(: |$)"
+    with pytest.raises(ValueError, match=exact):
         build(source)
+    with pytest.raises(ValueError, match=exact):
+        _source_contract(deepcopy(source))
+    with pytest.raises(ValueError, match=exact):
+        verifier._source_contract(deepcopy(source))
+
+
+def test_a_stored_preview_physics_1_result_is_refused_by_name():
+    # Model 0.6.0: preview-physics-1 is no longer read. The product (Rust's reader) and the
+    # independent verifier refuse it by name at the header; it is never recorded or Current.
+    source = envelope()
+    source["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+    message = "^SOURCE_PREVIEW_PHYSICS_1_RETIRED: preview-physics-1 results are no longer read; re-run the analysis$"
+    for check_receipt in (True, False):
+        with pytest.raises(ValueError, match=message):
+            _source_contract(deepcopy(source), check_receipt=check_receipt)
+    with pytest.raises(ValueError, match=message):
+        build(source)
+    with pytest.raises(ValueError, match=message):
+        verifier._source_contract(deepcopy(source))
+    assert numerical_use_standing(source, bases(source)) == "unsupported"
 
 
 def test_preview_evidence_is_required_and_exclusive():

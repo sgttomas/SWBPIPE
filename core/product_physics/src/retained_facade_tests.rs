@@ -3993,7 +3993,7 @@ fn combination_document(raw: &Value, mode: PreviewSolverMode, successor: &Value)
 }
 /// W-CB1's and W-CB1z's request Value sha256s (`w_cb1`, `w_cb1z`; JSON-equal to I98's
 /// `r7_cb1_halfb` and `r7_cb1`, checked on the records, apart from the model version: B7a
-/// re-authored the witnesses' model to 0.6.0, which moved all four input pins).
+/// re-authored the witnesses' model to 0.5.0 and T4-S1 to 0.6.0, each of which moved all four input pins).
 const W_CB1_INPUT_SHA256: &str = "ebf3b84a0e4abde5c6283accbd3d8363441ddf3fd13d419655bee997f8907f38";
 const W_CB1Z_INPUT_SHA256: &str = "85b7ddf2b5ca3aad877a6b453a1a3a5408a293cc43bcde714533d66437c00019";
 /// The B2-P witnesses' inputs: W-CB2 and W-CB3 are I98's `r7_cb2` and `r7_cb3_v1`, W-CB1 and
