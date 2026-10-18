@@ -1108,7 +1108,7 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
     };
     basis.limitations.extend([
         "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).".to_string(),
-        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). On such a load case each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; on any other load case the published displacements are the solve's own. Support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
+        "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
     ]);
     basis
 }
@@ -1219,8 +1219,9 @@ fn nonlinear_not_established_sentence(reason: &str) -> String {
 }
 
 /// DEL-04-01 kd5-nonlinear-active-set.md §3.3: the evidence line of a Passed
-/// nonlinear case.
-const NONLINEAR_CONFIRMED_EVIDENCE_LINE: &str = "Converged support state: established at 128-bit precision by one formation-checked solve; each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state within its bound; displacements and residual rows are the iteration's own.";
+/// nonlinear case. T4-U5b item 6: its nodal displacements are corrected
+/// (`published_nodal_displacements`), its residual rows are not.
+const NONLINEAR_CONFIRMED_EVIDENCE_LINE: &str = "Converged support state: established at 128-bit precision by one formation-checked solve; each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state within its bound; the published nodal displacements, and the support displacement rows that follow them, are the formation check's corrected displacements; the iteration's residual rows are its own.";
 
 /// F1a: K-D5's `FormationCheck` record as one evidence line of the integrity
 /// diagnostic (D5C-3; the record is never part of `StructuralReport`).
@@ -14028,14 +14029,17 @@ fn solver_blocked(
 }
 
 /// T4-U5b item 6 (HELP_HUMAN ruling (A), 2026-10-18): the published nodal
-/// displacement. When the load case's certified member bound exists (the
-/// linear route's Passed formation check after every prior guard with no
-/// load-row finding, no nonlinear supports and no selected retained source,
-/// or a confirmed nonlinear state), each component is the formation check's
+/// displacement. When the load case's member bound exists (the linear
+/// route's Passed formation check after every prior guard with no load-row
+/// finding, no nonlinear supports and no selected retained source, or a
+/// confirmed nonlinear state), each component is the formation check's
 /// corrected displacement u + w + w2, summed exactly and rounded once
-/// (`certify_displacement`'s published value). Otherwise, and for every
-/// component if any of them cannot be formed, it is the solve's own u.
-/// Member, support and connector recoveries already use u + w + w2.
+/// (`certify_displacement`'s published value). That holds also when the
+/// later member recovery predicate (R-b') reports the case Sensitive: the
+/// bound existed. Otherwise, and for every component if any of them cannot
+/// be formed, it is the solve's own u. A selected retained source publishes
+/// its recovery's nodal values (the caller). Member, support and connector
+/// recoveries already use u + w + w2.
 fn published_nodal_displacements(displacements: &[f64], member_bound: Option<&MemberBoundInputs>) -> Vec<f64> {
     use open_pipe_stress_frame_kernel::structural::certify_displacement;
     member_bound
