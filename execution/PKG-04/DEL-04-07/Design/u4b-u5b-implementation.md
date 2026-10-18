@@ -955,8 +955,8 @@ changes, 0.5.0 → 0.6.0. Requirements and criteria are unchanged.
 - DEL-04-08 TBD-002's status text ("DEF-E and the code admit current model 0.5.0 …"). The
   physics-retained-1 table's TBD-002 sentence is not touched.
 - DEL-04-08 REQ-001 "Route E domain" ("current model 0.5.0 …") and REQ-002 "Eligibility"
-  ("current model 0.5.0 …") also name the version. Whether the owner's token decision covers them
-  is confirmed with HELP_HUMAN before the PR edits them.
+  ("current model 0.5.0 …"). The owner, 2026-10-17: "Confirm both (Recommended)". Only the version
+  token changes.
 
 **REQ-001's value clause** (owner, 2026-10-17: "Form from own resultants (Recommended)"). Only that
 clause changes, and only for derived kinds formed from published operands.
@@ -1211,5 +1211,6 @@ branch.
 - **Returns to HELP_HUMAN:**
   - an edit that would touch TBD-002's table sentence;
   - a D3 shortfall under the unchanged policy;
-  - the scope of the token decision over REQ-001 "Route E domain" and REQ-002 "Eligibility"
-    (§4.4).
+  - any further ScopeOfWork sentence that names 0.5.0 or a retiring identity. These are status
+    prose in DEL-03-01, DEL-05-02, DEL-05-03, DEL-04-08, DEL-07-05, DEL-08-06, DEL-14-02 and
+    DEL-17-06, and they were put to HELP_HUMAN on 2026-10-17.
