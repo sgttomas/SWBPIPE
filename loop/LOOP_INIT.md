@@ -6,15 +6,16 @@ environment. Work in `projects/chirality-piping`. Start from the affected
 current technical rulings, and `deliverable.yaml` states dependency conditions.
 Consult `docs/PRD.md` and its technical companions for the requirements involved.
 
-Orient the current undertaking through this course of knowledge work:
+Use this course of knowledge work as a heuristic, not a prescribed path:
 
 Problem Statement → Requirements → Objectives → Production → Evaluation →
 Assessment → Implementation → Verification → Validation → Integration →
 Reflection → Iteration → Resolution.
 
-Enter where the work currently stands and revisit activities as evidence
-requires. Work within the given scope and authority; resolve against the
-agreed outcome and adequate supporting evidence.
+It creates no additional stages, artifacts, reviews, approvals, or completion
+conditions. Enter where the work currently stands and revisit activities as
+evidence requires. Work within the given scope and authority; resolve against
+the agreed outcome and adequate supporting evidence.
 
 Find the current manuals through the [manual index](../../../docs/alignment-manual/README.md).
 Consult the relevant sections when the work needs them; no full-manual reading is required.
