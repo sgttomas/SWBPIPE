@@ -89,7 +89,7 @@ def _resource_texts():
 
 def envelope_branches(results):
     """ResultEnvelope's oneOf branches of a results schema; a branch held in a
-    sibling schema (`<file>#/$defs/<name>`, as pressure-1's) is read from it."""
+    sibling schema (`<file>#/$defs/<name>`, as pressure-2's) is read from it."""
     schema_dir = Path(__file__).resolve().parents[1] / "schemas"
     branches = []
     for branch in results["$defs"]["ResultEnvelope"]["oneOf"]:

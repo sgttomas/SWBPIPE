@@ -1,4 +1,4 @@
-//! T4-U2: the pressure-1 reader admits realized-arc envelopes over the shared
+//! T4-U2: the pressure-2 reader admits realized-arc envelopes over the shared
 //! arc corpus (also read by the Python reader): N_w = N_el +
 //! pAi and S = N_el in the arc's own sign conventions, end rows along the end
 //! tangents, and the straight Lame rows and maximum withheld with the named
@@ -45,7 +45,7 @@ fn member<'a>(list: &'a mut Value, pipe: &str) -> &'a mut Value {
     list.as_array_mut().unwrap().iter_mut().find(|g| g["pipe_id"] == pipe).unwrap()
 }
 
-/// (label, mutation, the pressure-1 reader's error suffix); arc-region cases.
+/// (label, mutation, the pressure-2 reader's error suffix); arc-region cases.
 #[allow(clippy::type_complexity)]
 pub fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {
     vec![

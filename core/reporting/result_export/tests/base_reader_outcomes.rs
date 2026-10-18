@@ -13,8 +13,8 @@
 //! (`inputs.jsonl`) for a comparison outside Rust.
 //!
 //! B7b: the corpus is built from the current fixtures only. The exact-route
-//! statements are the v3 twins (0.5.0/3.0.0/exact_pressure_v3) read by the
-//! pressure-1 and pressure-source-1 readers, with and without the
+//! statements are the v3 twins (0.6.0/3.0.0/exact_pressure_v3) read by the
+//! pressure-2 and pressure-source-1 readers, with and without the
 //! load/reference-state group; the retired v2 identities appear only as named
 //! refusals (the mutation files' relabel cases). The ledger cases apply to the
 //! received joined statements directly (the v2 projection is gone).

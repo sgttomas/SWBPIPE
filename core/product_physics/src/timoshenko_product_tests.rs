@@ -84,7 +84,8 @@ fn timoshenko_shear_area_uses_the_stiffness_section() {
     let variant = &oracle["cases"]["U6-BASES-001"]["variants"][TIMOSHENKO];
     let binding = &variant["request_self_weight"];
     assert_eq!(format!("{:x}", Sha256::digest(U6_TIMOSHENKO_SELF_WEIGHT.as_bytes())), binding["sha256"].as_str().unwrap());
-    let timoshenko: Value = serde_json::from_str(U6_TIMOSHENKO_SELF_WEIGHT).unwrap();
+    // The frozen request, re-authored in memory to the current version (its bytes are bound above).
+    let timoshenko = crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(U6_TIMOSHENKO_SELF_WEIGHT).unwrap());
     assert_eq!(timoshenko["model"]["pressure_contract"]["shear_model"], json!(TIMOSHENKO));
     let frozen = &variant["pipe_sections_evidence"]["beam_theory"];
     let exhibit = number(&variant["binary64_exhibits"]["shear_factor"]["value"]);
@@ -464,7 +465,7 @@ fn kd5_straight_frames_are_bound_to_the_formation_source() {
 
 /// Design §5 (O4): with timoshenko_annulus_energy_v1 admitted, the
 /// prepare_sources decline is reached by a published document: a Timoshenko
-/// twin of a retained-source document publishes ordinary pressure-1 rows and
+/// twin of a retained-source document publishes ordinary pressure-2 rows and
 /// names the decline; its Euler-Bernoulli original publishes
 /// pressure-source-1. (W1-E's G-A decline: `o4_w1e_declines_at_admission`.)
 #[test]

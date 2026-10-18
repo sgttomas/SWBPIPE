@@ -120,7 +120,7 @@ fn fresh_non_exact_solve_is_preview_physics_admitted_and_exportable() {
 }
 
 /// B4/D1 (b): the former preview-route source-block requests (alone, and beside an
-/// element-load companion case) publish preview-physics-1 with no source-block receipt;
+/// element-load companion case) publish preview-physics-2 with no source-block receipt;
 /// a stored source-blocks-1 statement is refused by name.
 #[test]
 fn former_source_block_requests_publish_preview_physics_without_a_receipt() {
@@ -190,7 +190,7 @@ fn no_headless_path_binds_solver_rows_to_rules() {
 }
 
 /// T0R A1: the unchanged invented demo keeps its realized user-stiffness joint
-/// and is refused before solving, as a sanitized preview-physics-1 blocked envelope.
+/// and is refused before solving, as a sanitized preview-physics-2 blocked envelope.
 #[test]
 fn realized_joint_is_refused_as_a_sanitized_blocked_envelope() {
     let mut model = read("fixtures/product_preview/invented_preview_model.json");

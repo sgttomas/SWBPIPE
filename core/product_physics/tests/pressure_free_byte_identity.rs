@@ -3,7 +3,7 @@
 //! change, and any pressure-free byte change is a defect. Each committed
 //! pressure-free product output below is regenerated through the entry its
 //! writer uses and compared byte for byte:
-//! - the preview-physics-1 demo and mechanics fixtures, the raw stdout of
+//! - the preview-physics-2 demo and mechanics fixtures, the raw stdout of
 //!   `examples/preview_result.rs` (`tools/serialization/generate_product_preview_mechanics.mjs`),
 //!   both of whose models carry a combination, so the preview route's
 //!   combination rows (U6-RB) are among the compared bytes;

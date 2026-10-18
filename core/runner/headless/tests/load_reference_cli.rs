@@ -1,4 +1,4 @@
-//! T1 WP4 (B7b: on the current 0.5.0 exact pressure v3 route): the
+//! T1 WP4 (B7b: on the current 0.6.0 exact pressure v3 route): the
 //! load/reference-state group through the actual `openpipestress-runner solve`
 //! process (stdin JSON in, the `ControlledExport`-wrapped CLI output on stdout),
 //! in both solver modes. Tests only; no native UI qualification is claimed.
@@ -16,11 +16,11 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
-/// B7b: the group is selected by presence on the exact pressure-1 and
+/// B7b: the group is selected by presence on the exact pressure-2 and
 /// pressure-source-1 statements; the retired load-reference identities are gone.
-const LR_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
+const LR_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 const LRS_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
-const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 const MODES: [PreviewSolverMode; 2] = [
     PreviewSolverMode::SparseInteractive,
     PreviewSolverMode::DenseScrutiny,
@@ -306,7 +306,7 @@ fn cli_explicit_output_path_receives_the_controlled_stdout() {
 #[test]
 fn cli_without_local_private_intent_withholds_the_solved_output() {
     for (label, payload) in [
-        ("pressure-1", lr_request("connected")),
+        ("pressure-2", lr_request("connected")),
         ("joined", lrs_request("n05")),
     ] {
         for mode in MODES {
@@ -400,7 +400,7 @@ fn cli_refusals_have_targeted_codes_and_publish_nothing_as_solved() {
     let mut unknown = lr_request("connected");
     unknown["model"]["load_cases"][0]["analysis_state"]["unreviewed_field"] = json!(true);
     // B7b: a retired model version is refused by name and is never exact (the
-    // identity follows the current route, preview-physics-1); the carried group
+    // identity follows the current route, preview-physics-2); the carried group
     // still blocks rather than being ignored.
     let mut pre_exact = lr_request("connected");
     pre_exact["model"]["schema_version"] = json!("0.3.0");
@@ -483,7 +483,7 @@ fn cli_refusals_have_targeted_codes_and_publish_nothing_as_solved() {
 }
 
 /// B7b: an exact-contract document carrying the group whose solve is blocked
-/// keeps pressure-1's identity and the empty evidence namespace through the CLI.
+/// keeps pressure-2's identity and the empty evidence namespace through the CLI.
 #[test]
 fn cli_blocked_load_state_documents_keep_the_exact_identity() {
     let mut no_shear = lr_request("connected");

@@ -10,7 +10,7 @@ const RETIRED_LOAD_REFERENCE_SOURCE_ID: &str =
     "openpipestress.result_semantics/0.3.0/load-reference-source-1";
 const RETIRED_V2_CONTRACT: &str = r#"{"version":"2.0.0","mode":"exact_straight_pressure_v2"}"#;
 
-/// The committed current (0.5.0, v3, CA 0, Euler-Bernoulli) source controls.
+/// The committed current (0.6.0, v3, CA 0, Euler-Bernoulli) source controls.
 fn fixture_request(family: &str, name: &str) -> Value {
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(format!(
         "../../fixtures/product_preview/pressure_source/{family}/{name}.request.json"
@@ -156,16 +156,16 @@ fn pressure_case_context_uses_one_domain_without_changing_its_payload_shape() {
 }
 
 /// T4-U6 (DEL-05-03 Design `section-bases-and-timoshenko.md` §2.4): limitation
-/// [7] of pressure-1 (joined, unselected), verbatim from the design. It
+/// [7] of pressure-2 (joined, unselected), verbatim from the design. It
 /// replaces B7b's text, which admitted only a zero allowance and
 /// euler_bernoulli; the held pre-join text went with its test-only helper.
 const JOINED_LIMITATION_7: &str = "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.";
-/// T4-U6 (§2.4): limitation [0] of pressure-1, the B7b text with the
+/// T4-U6 (§2.4): limitation [0] of pressure-2, the B7b text with the
 /// shear-model parenthesis, the realized-bend clause and the section-bases
 /// sentences of the design (the latter after the admitted-families sentence).
-const PRESSURE_1_IDENTITY: &str = "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.";
+const PRESSURE_1_IDENTITY: &str = "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.";
 
-/// The regenerated v3 reader corpora are unselected pressure-1 publications:
+/// The regenerated v3 reader corpora are unselected pressure-2 publications:
 /// each equals the joined unselected basis exactly; the selected basis names
 /// the source publication and differs only at limitations [0] and [7].
 #[test]
@@ -426,7 +426,7 @@ fn pressure_source_private_reservation_inputs_confirm_all_twins_complete_express
     assert_eq!(controls,24);
 }
 /// MJ1's kill, at the private finalizer: the policy and identity come from the
-/// captured contract. A contradictory envelope label (the ordinary pressure-1
+/// captured contract. A contradictory envelope label (the ordinary pressure-2
 /// identity, or a retired v2 composite identity) fails finalization; the
 /// correctly labelled controls of both families publish PRESSURE-SOURCE-1.
 #[test]
@@ -507,7 +507,7 @@ fn cached_source_context_keeps_original_raw_custody_and_typed_selection() {
 #[test]
 fn cached_source_context_none_preserves_preview_and_invalid_contract_refusal() {
     let refusal=bad("composite source requires an actual exact contract");
-    for schema in ["0.1.0","0.2.0","0.3.0","0.4.0","0.5.0"] {
+    for schema in ["0.1.0","0.2.0","0.3.0","0.4.0","0.5.0","0.6.0"] {
         // B7b: a present null contract fails decoding (no capture is formed).
         let mut null_contract=request(false);
         null_contract["model"]["schema_version"]=json!(schema);

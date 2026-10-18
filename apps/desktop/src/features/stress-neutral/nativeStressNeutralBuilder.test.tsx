@@ -14,7 +14,7 @@ import { runPreviewMechanics, buildAnalysisRunPreview } from "../../services/pre
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import { canonicalJsonCheckedV1, checkedJsonText } from "../../services/hashService";
 import { numericalResultStanding } from "../results/resultStanding";
-import { PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL } from "../results/outputPolicy";
+import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL } from "../results/outputPolicy";
 import { modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { buildStressNeutralExportPacket, liveStressBinding, validateStressNeutralExportPacket } from "./StressNeutralExportPanel";
 import type { MechanicsResult, PreviewModel, AnalysisRunEnvelope } from "../../types";
@@ -77,7 +77,7 @@ function migrationEvidence(caseName: string, bytes: Record<string, Uint8Array>) 
 }
 
 // B7b: the exact route's v2 package (physics-1) is retired with its identity; its v3
-// twin, pressure-1, has no desktop package (refused below), so preview-physics-1 is the
+// twin, pressure-2, has no desktop package (refused below), so preview-physics-2 is the
 // one admitted ordinary construction.
 it.each(["preview"] as const)("%s: already admitted current public construction keeps complete bytes in both modes", async profile => {
   for (const mode of modes) {
@@ -94,11 +94,11 @@ it.each(["preview"] as const)("%s: already admitted current public construction 
   }
 }, 60_000);
 
-/** B7b: the load/reference-state results are the v3 twins, published under pressure-1
+/** B7b: the load/reference-state results are the v3 twins, published under pressure-2
  * (ordinary) and pressure-source-1 (joined), each with the Python product path's
  * committed analysis-run record. */
 const loadReferenceCases = [
-  ...["connected", "pressure"].map(name => ({ family: "pressure/load_reference", record: "pressure_load_state", name, reason: PRESSURE_1_OUTPUT_REFUSAL })),
+  ...["connected", "pressure"].map(name => ({ family: "pressure/load_reference", record: "pressure_load_state", name, reason: PRESSURE_2_OUTPUT_REFUSAL })),
   ...["eigen_motion", "fields", "mixed", "n05", "n06"].map(name => ({ family: "pressure_source/load_reference_source", record: "pressure_source_load_state", name, reason: PRESSURE_SOURCE_OUTPUT_REFUSAL })),
 ].flatMap(entry => modes.map(mode => ({ ...entry, mode })));
 

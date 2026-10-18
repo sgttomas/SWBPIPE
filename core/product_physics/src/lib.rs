@@ -1076,7 +1076,7 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
     let mut basis = if pressure_runtime::exact_contract(model) == Some(pressure_runtime::ExactContract::PressureV3) {
         // T4-U3: a model with an objective connector states its law; a model
         // without one keeps v3's text unchanged. The join's `source_selected`
-        // names the publication (pressure-source-1 or pressure-1).
+        // names the publication (pressure-source-1 or pressure-2).
         let mut basis = exact_admission::pressure_v3_formulation_basis_with_source(
             case_state::is_load_state(model),
             model.components.iter().any(|c| c.objective_connector.is_some()),
@@ -2499,7 +2499,7 @@ fn run_linear_static_preview_captured(
 ) -> MechanicsEnvelope {
     // ROOT CP3 SF-1 (load/reference-state group only): an invocation whose
     // selected join cannot finalize never loses its ordinary results. It is
-    // republished with every case on its ordinary route (`pressure-1`, no
+    // republished with every case on its ordinary route (`pressure-2`, no
     // receipt); each successful retained-source attempt is declined with the
     // recorded cause. The republication continues the same ledger, so the
     // invocation limit bounds all executed work. Invocations without the group
@@ -3229,8 +3229,8 @@ fn permitted_run(
 }
 
 /// B3b-P (B3-D P-1; I95's ruling 1): an admitted model's W1 route, decided once, from its D1.3
-/// namespace branch: L takes the preview route (preview-physics-1 base), E the exact route
-/// (pressure-1 base, `physics-retained-1`; B7b D4 (a)). `None` (no W1: `Domain`) for a model
+/// namespace branch: L takes the preview route (preview-physics-2 base), E the exact route
+/// (pressure-2 base, `physics-retained-1`; B7b D4 (a)). `None` (no W1: `Domain`) for a model
 /// carrying the load/reference-state group and any model on no branch.
 fn w1_route(model: &PreviewModel) -> Option<retained_product::W1Route> {
     use retained_memory::NamespaceBranch as B;
@@ -5155,7 +5155,7 @@ fn solve_prepared_load_case(
     };
     let confirmed = confirmed_state.as_deref().filter(|_| pre_guard_passed && load_row_finding.is_none() && !built.nonlinear_supports.is_empty());
     let member_bound = member_bound.or(confirmed.map(|state| &state.member_bound));
-    // U4a's test-only demotion exercises pressure-1's ordinary binary64
+    // U4a's test-only demotion exercises pressure-2's ordinary binary64
     // publication, which cannot naturally admit nonlinear supports yet.
     #[cfg(test)]
     let member_bound = if U4A_FORCE_BINARY64.with(|flag| flag.get()) { None } else { member_bound };
@@ -5250,7 +5250,7 @@ fn solve_prepared_load_case(
             (None, None) => vec![f64::NAN; displacements.len()],
         });
     require_finite_mechanics(reactions.iter().copied())?;
-    // preview-physics-1 side record; rendered only when no case is source-selected.
+    // preview-physics-2 side record; rendered only when no case is source-selected.
     let mut preview_record = (!pressure_runtime::is_exact(model) && selected_source.is_none())
         .then(preview_physics::CaseRecord::default);
     for support in &model.supports {
@@ -5448,7 +5448,7 @@ fn solve_prepared_load_case(
             // Macro-span end forces come from the assembled arc stiffness
             // (K_macro * d minus the exact free-expansion thermal part and
             // minus the arc-consistent distributed equivalent loads),
-            // expressed in the end's own tangent frame on pressure-1.
+            // expressed in the end's own tangent frame on pressure-2.
             match recover_curved_bend_local_forces(
                 bend,
                 pipe,
@@ -13648,7 +13648,7 @@ fn result_tail(base_id: &str) -> &str {
 
 fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
     // T1 routes every blocked 0.4.0 envelope to load-reference-1 (0.4.0 is
-    // exact-route only); it never publishes preview-physics-1.
+    // exact-route only); it never publishes preview-physics-2.
     let exact_namespace = pressure_runtime::is_exact(&model) || case_state::is_load_state(&model);
     let preview = !exact_namespace;
     // D-5: an exact-contract envelope always names both basis headlines.
@@ -14298,7 +14298,7 @@ mod tests {
         const CONTROL:&str=include_str!("../../../validation/references/kd5_member_bound/two_body_request.json");
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/two_body_oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap());
-        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.5.0.
+        // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.6.0.
         let wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
         let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
         normalize_model_units(&mut model,&mut materials,&mut diagnostics);
@@ -14519,7 +14519,7 @@ mod tests {
     fn kd5_authored_uniform_weight_and_nodal_factors_keep_raw_operands() {
         use open_pipe_stress_frame_kernel::structural::{IntensityPrimitive,MassPrimitive};
         // B7b: the load/reference-state group keys on the current exact contract and
-        // the group's presence (0.5.0), never on a version string.
+        // the group's presence (0.6.0), never on a version string.
         let mut model=p5_beam_request().model;model.schema_version=crate::MODEL_SCHEMA_VERSION.into();
         model.pressure_contract=Some(PressureContractInput {version:Some("3.0.0".into()),mode:Some("exact_pressure_v3".into()),shear_model:Some("euler_bernoulli".into())});
         let case_id=model.load_cases[0].id.clone();
@@ -14583,7 +14583,7 @@ mod tests {
         let oracle:serde_json::Value=serde_json::from_str(include_str!("../../../validation/references/kd5_member_bound/oracle.json")).unwrap();
         assert_eq!(format!("{:x}",Sha256::digest(CONTROL.as_bytes())),oracle["control_request_sha256"].as_str().unwrap(),"the independent oracle binds the complete maintained control bytes");
         for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny] {
-            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.5.0.
+            // B7b: only the copy of the SHA-bound frozen request is re-authored to 0.6.0.
             let mut wire:serde_json::Value=crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(CONTROL).unwrap());
             let mut model:PreviewModel=serde_json::from_value(wire["model"].clone()).unwrap();
             let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
@@ -15048,7 +15048,7 @@ mod tests {
         let warnings = output
             .diagnostics
             .iter()
-            // T0R: preview-physics-1 retires the SIF×k multiplier diagnostic; its
+            // T0R: preview-physics-2 retires the SIF×k multiplier diagnostic; its
             // case-scoped successor is the equal-factor intensification record.
             .filter(|d| d.code == "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED")
             .collect::<Vec<_>>();
@@ -15307,10 +15307,10 @@ mod tests {
             );
             assert_eq!(env!("CARGO_PKG_VERSION"), "0.2.0");
             // Fresh ordinary-route solves (solved or blocked) publish
-            // preview-physics-1, the route's identity (B1: no default).
+            // preview-physics-2, the route's identity (B1: no default).
             assert_eq!(
                 encoded["producer"]["semantic_contract_id"],
-                "openpipestress.result_semantics/0.3.0/preview-physics-1"
+                "openpipestress.result_semantics/0.3.0/preview-physics-2"
             );
             assert_eq!(
                 encoded["numerical_quality"]["value_representation"],
@@ -16593,7 +16593,7 @@ mod tests {
             .unwrap_or_else(|| panic!("missing result {id}"))
     }
 
-    /// T0R: `reaction_resultant` is retired on preview-physics-1. Its legacy
+    /// T0R: `reaction_resultant` is retired on preview-physics-2. Its legacy
     /// id `…reaction:<support-suffix>` maps to the v2 force magnitude, which is
     /// the same force norm computed from the signed components: the first case
     /// for `result:reaction:…`, else the case or combination named in the prefix.
@@ -23669,7 +23669,7 @@ mod tests {
             .solver_consumption = Some("mechanics_geometry_only".to_string());
         for model in [&realized, &geometry_only] {
             assert_eq!(warnings(model), Vec::<String>::new(), "D-B");
-            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0"] {
+            for schema in ["0.3.0", "0.4.0", "0.1.0", "0.5.0", "0.6.0"] {
                 let mut declared = model.clone();
                 v2(&mut declared, schema);
                 assert_eq!(warnings(&declared), Vec::<String>::new(), "no v2 condition at {schema}");

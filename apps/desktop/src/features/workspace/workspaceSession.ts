@@ -1855,10 +1855,10 @@ export function useWorkspaceSession() {
     return createBlankProjectFrom(buildBlankLocalModelDocument, "Created blank local model document without fixture entities or external file copies.");
   }
 
-  /** T1 WP3: a blank load/reference-state document (B7b: model 0.5.0 with the exact
+  /** T1 WP3: a blank load/reference-state document (B7b: model 0.6.0 with the exact
    * pressure contract, no engineering content) through the same create path as New Blank. */
   async function handleCreateBlankLoadStateProject() {
-    return createBlankProjectFrom(buildBlankLoadStateModelDocument, "Created blank local load/reference-state model 0.5.0 document without fixture entities, engineering values or external file copies.");
+    return createBlankProjectFrom(buildBlankLoadStateModelDocument, "Created blank local load/reference-state model 0.6.0 document without fixture entities, engineering values or external file copies.");
   }
 
   async function createBlankProjectFrom(buildBlankModel: () => PreviewModel, createdMessage: string) {

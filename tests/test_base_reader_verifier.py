@@ -39,7 +39,7 @@ DECLARED_VALIDATE = {
         "V11-support-both-attributed-and-withheld", "A4-N2-basis-ref-extra-key", "A4-N3-diagnostic-without-id",
         "A4-N4-combination-source-result-refs-null", "A4-N5-duplicate-combination-force-magnitude",
         "A4-N6-support-row-without-basis-ref-element-local", "A4-N8-blocked-envelope-without-summary")},
-    # B7b: the load/reference-state statements are read by the pressure-1 reader. Its inherited checks keep their
+    # B7b: the load/reference-state statements are read by the pressure-2 reader. Its inherited checks keep their
     # own words; the three cases the ordinary pressure reader now reads (no or a broken group, a closed connector)
     # and the moved connector case join them (as test_load_reference_readers declares).
     "pressure": {f"lr/{name}" for name in (

@@ -55,7 +55,7 @@ export function ConnectorDraftFields({ model, draft, prefix, TextInput, update }
       {text("Installed geometry (calibration)", "installedGeometry", "installed-geometry")}
       {choice("Hardware", "hardwareKind", "hardware", CONNECTOR_HARDWARE_KINDS)}
       {choice("Pressure model", "pressureModel", "pressure-model", connectorPressureModels(model))}
-      {model.schema_version === "0.5.0" && draft.pressureModel === "constant_effective_area_reference_v1" && <>
+      {model.schema_version === "0.6.0" && draft.pressureModel === "constant_effective_area_reference_v1" && <>
         {text("Joint effective area", "effectiveArea", "effective-area")}
         {text("Joint effective area unit", "effectiveAreaUnit", "effective-area-unit")}
         {choice("Joint pressure basis", "pressureBasis", "pressure-basis", ["internal_differential_zero_external_v1"])}

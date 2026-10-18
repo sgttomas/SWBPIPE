@@ -29,7 +29,7 @@ import {
 } from "../results/retainedPrecisionStanding";
 import { validateRetainedPrecision } from "../results/retainedPrecisionReader";
 import type { RowClassification } from "../results/retainedPrecisionTypes";
-import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, PRESSURE_1_OUTPUT_REFUSAL, surfaceOutputRefusal } from "../results/outputPolicy";
+import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, PRESSURE_2_OUTPUT_REFUSAL, surfaceOutputRefusal } from "../results/outputPolicy";
 import {
   RETAINED_ABSOLUTE_VERIFIED, RETAINED_NOT_COVERED, retainedClassDisclosure, retainedNotCoveredMessage, retainedPrecisionSummaryLine, retainedRowClassesFromReader, rustLowerExp,
 } from "../results/retainedPrecisionDisclosure";
@@ -87,7 +87,7 @@ async function corpusBase(id: string) {
   const analysisRun = await buildAnalysisRunV03(source, manifestFor(source, model, invocation.solver_mode) as Json, undefined, modelLoadBasisRefs(model));
   return { source, model, analysisRun, entry };
 }
-/** The preview-physics-1 control, through the native transport replay (not a native witness). */
+/** The preview-physics-2 control, through the native transport replay (not a native witness). */
 async function previewControl(mode: PreviewSolverMode = "sparse_interactive") {
   const { model } = nativeMechanicsReplayPair(mode, { profile: "preview" });
   (window as Json).__TAURI_INTERNALS__ = {};
@@ -97,7 +97,7 @@ async function previewControl(mode: PreviewSolverMode = "sparse_interactive") {
   const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
   return { model, result, analysisRun };
 }
-/** B7b: a load/reference-state result is the v3 twin, published under pressure-1, whose
+/** B7b: a load/reference-state result is the v3 twin, published under pressure-2, whose
  * desktop analysis-run record mirrors the Python product path's committed record
  * (`loadReferenceAnalysisRun.test.ts` proves the equality); holding it grants no package. */
 async function loadReferenceScenario() {
@@ -129,8 +129,8 @@ async function rehash(packet: Json) {
 describe("the panels (T6S-3): load/reference-state refusal and the summary line", () => {
   it("the stress-neutral builder and validator keep T1's load/reference-state refusal", async () => {
     const { result, model, analysisRun } = await loadReferenceScenario();
-    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
-    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
+    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
+    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
   });
   it.each(MODES)("%s: each panel shows one text-only per-case summary line from classificationSummary", async (mode) => {
     const { received, model, analysisRun, manifest } = await eligible(mode);
@@ -277,14 +277,14 @@ describe.each(MODES)("%s: stress-neutral export of an eligible successor (T6S-5)
     await expect(build(received, moved(model))).rejects.toThrow(RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED); // a moved model
     await expect(build(structuredClone(source))).rejects.toThrow(RETAINED_PRECISION_VALIDATION_REQUIRED); // an unregistered build's bytes
     const relabelled = structuredClone(received) as Json;
-    relabelled.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+    relabelled.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-2";
     relabelled.formulation_basis.profile_id = "product_preview_mechanics_v1";
     await expect(build(relabelled)).rejects.toThrow("SN-SOURCE-CONTRACT-UNSUPPORTED"); // a relabelled statement
     const packet = await build(received);
     const tamper = async (edit: (p: Json) => void) => { const p = structuredClone(packet); edit(p); return rehash(p); };
     const withSource = (p: Json) => validateStressNeutralExportPacket(p, received, analysisRun, modelLoadBasisRefs(model));
     // A relabelled package header reads unsupported (the downgrade guard).
-    const relabelledHeader = await tamper(p => { p.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-1"; p.formulation_basis.profile_id = "product_preview_mechanics_v1"; });
+    const relabelledHeader = await tamper(p => { p.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-2"; p.formulation_basis.profile_id = "product_preview_mechanics_v1"; });
     await expect(validateStressNeutralExportPacket(relabelledHeader)).rejects.toThrow("SN-PRECISION-CONTRACT-MISMATCH");
     // A forged class code, an edited disclosure message and a wrong severity.
     const firstAbsolute = (p: Json) => p.diagnostics.find((d: Json) => d.code === ABSOLUTE_CODE);
@@ -325,7 +325,7 @@ describe.each(MODES)("%s: stress-neutral export of an eligible successor (T6S-5)
 });
 
 describe("a receipt on another identity is refused", () => {
-  it("a preview-physics-1 package carrying a receipt", async () => {
+  it("a preview-physics-2 package carrying a receipt", async () => {
     const { model, result, analysisRun } = await previewControl();
     const packet = await buildStressNeutralExportPacket({ model, result, analysisRun });
     await expect(validateStressNeutralExportPacket(packet, result)).resolves.toBeUndefined();

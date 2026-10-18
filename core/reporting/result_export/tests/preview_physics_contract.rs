@@ -1,4 +1,4 @@
-//! preview-physics-1 reader (T0R S1 sections 9 and 10). Actual producer bytes are
+//! preview-physics-2 reader (T0R S1 sections 9 and 10). Actual producer bytes are
 //! the positive controls; every tamper is an explicitly corrupted in-memory copy.
 //! Fixture bytes are never rewritten. This proves consumer admission only.
 use open_pipe_stress_result_export::{derivative as d, semantic_contract as s};
@@ -498,7 +498,7 @@ fn a_stored_precision_1_result_is_refused_by_name() {
     for id in s::RETIRED_EXACT_V2_IDS {
         assert!(!s::is_fresh_identity(id), "{id}");
     }
-    // The current fresh set: preview-physics-1, the exact contract's pressure-1
+    // The current fresh set: preview-physics-2, the exact contract's pressure-2
     // (T4-U2, with its export chain) and joined pressure-source-1 (b7-plan D1),
     // and T3's F2a preview successor (U6a, D-U6-6: membership is not standing);
     // nothing else is fresh.

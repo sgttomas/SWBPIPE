@@ -4,7 +4,7 @@
 //! precision-1, the last header whose table admitted synthetic rows without
 //! route evidence. Every current header now binds its rows to its own closed
 //! table and evidence, so a synthetic unknown-kind or integer-valued row has
-//! no current carrier; the carrier here is the committed preview-physics-1
+//! no current carrier; the carrier here is the committed preview-physics-2
 //! producer statement, read as received.
 use open_pipe_stress_result_export::derivative as d;
 use serde_json::{json, Value};

@@ -114,8 +114,8 @@ describe("the objective connector form (T4-U2)", () => {
     render(<ConnectorDraftFields model={free} draft={draft} prefix="create" TextInput={() => <input />} update={vi.fn()} />);
     expect(screen.getByTestId("create-component-connector-unavailable")).toHaveTextContent(CONNECTOR_CONTRACT_NOTICE);
   });
-  it("authors the effective area only when the model is 0.5.0", () => {
-    const model = structuredClone(authored); model.schema_version = "0.5.0";
+  it("authors the effective area only when the model is 0.6.0", () => {
+    const model = structuredClone(authored); model.schema_version = "0.6.0";
     const draft = { ...defaultComponentDraft(model, { type: "node", id: "node:A" }, [], "expansion_joint"), primaryPipeRef: "pipe:S1", ...connector,
       pressureModel: "constant_effective_area_reference_v1", effectiveArea: "0.004", effectiveAreaUnit: "m^2", pressureBasis: "internal_differential_zero_external_v1", pressureSourceReference: "invented explicit area" } as ComponentDraft;
     expect(isComponentDraftValid(model, draft)).toBe(true);

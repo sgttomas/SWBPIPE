@@ -1,4 +1,4 @@
-//! Emit actual raw preview-physics-1 results through the captured value entry the
+//! Emit actual raw preview-physics-2 results through the captured value entry the
 //! desktop uses. Usage:
 //! cargo run --example preview_physics_capture -- [sparse|dense] --model model.json
 //! The output is example transport data from the actual producer, not an oracle.

@@ -7,8 +7,8 @@ this one, and it imports nothing from product code (`tests/test_verifier_indepen
 B7b (A4/A5): the current exact contract is `3.0.0/exact_pressure_v3` only. This module keeps the two readings
 that are live under it: the composite reading of pressure-source-1's straight families (signed `p_pa`, with a
 `SourceContract` context from `physics_source.py`), and the exact-retained G7 transport check on the receipt's
-pressure-1 projection (`validate_transport_metadata`, results 0.3's `ExactRetainedContractEvidence`). pressure-1
-itself is verified by `pressure_1.py`. The retired physics-1 reader (`2.0.0/exact_straight_pressure_v2`) and its
+pressure-2 projection (`validate_transport_metadata`, results 0.3's `ExactRetainedContractEvidence`). pressure-2
+itself is verified by `pressure_2.py`. The retired physics-1 reader (`2.0.0/exact_straight_pressure_v2`) and its
 cross-read refusals are deleted with v2.
 
 The published membrane and effective force values are source observations. This
@@ -17,7 +17,7 @@ rounded neighbouring rows or treating pressure arithmetic as a numerical pass.
 
 T4-U6/U8 (DEL-05-03 ``section-bases-and-timoshenko.md``): each ``pipe_sections`` entry is the D-5
 shape, rederived from its captured authored values by ``section_basis.py``, with its beam theory checked as
-pressure-1's reader checks it (one straight-member shear model per document). The composite never carries a
+pressure-2's reader checks it (one straight-member shear model per document). The composite never carries a
 realized arc (D7 declines every document with one): an arc region record or a ``pipe_sections`` entry marked
 ``member_kind = "realized_arc"`` is refused by name ("realized arc unsupported"; Rust
 ``SOURCE_PHYSICS_ARC_UNSUPPORTED``). Every stress row names its
@@ -37,10 +37,10 @@ from collections.abc import Mapping
 from typing import Any
 
 from . import section_basis as sb
-from .pressure_1 import ARC_GEOMETRY_KEYS
+from .pressure_2 import ARC_GEOMETRY_KEYS
 
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
-PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
+PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PIPE_KINDS = {
     "pipe_wall_endpoint_action_v2", "pipe_wall_axial_force_v2",
@@ -118,7 +118,7 @@ def _vector(value: Any, size: int) -> bool:
 
 
 def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contract: tuple[str, str] = PRESSURE_V3) -> None:
-    # Only pressure-source-1's composite reading, under its caller-selected context; pressure-1 is `pressure_1.py`'s.
+    # Only pressure-source-1's composite reading, under its caller-selected context; pressure-2 is `pressure_2.py`'s.
     _require(context is not None and contract == PRESSURE_V3, "composite contract")
     _require("carrier_evidence" not in source, "unsupported source namespace")
     evidence = source.get("contract_evidence")

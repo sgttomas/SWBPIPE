@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openpipestress.org/schemas/results.v0.3.schema.yaml",
   "title": "Precision-preserving derivative result export 0.3",
-  "description": "Source-bound preview-physics-1, pressure-1 and pressure-source-1 semantics and their retained-precision successors; method-specific evidence retained without engineering qualification.",
+  "description": "Source-bound preview-physics-2, pressure-2 and pressure-source-1 semantics and their retained-precision successors; method-specific evidence retained without engineering qualification.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -875,7 +875,7 @@
                 "$ref": "#/$defs/PreviewPhysicsResultSet"
               },
               {
-                "$ref": "results_pressure_1.v0.3.schema.json#/$defs/PressureResultSet"
+                "$ref": "results_pressure_2.v0.3.schema.json#/$defs/PressureResultSet"
               }
             ]
           }
@@ -965,8 +965,8 @@
             "semantic_contract_id": {
               "enum": [
                 "openpipestress.result_semantics/0.3.0/pressure-source-1",
-                "openpipestress.result_semantics/0.3.0/preview-physics-1",
-                "openpipestress.result_semantics/0.3.0/pressure-1",
+                "openpipestress.result_semantics/0.3.0/preview-physics-2",
+                "openpipestress.result_semantics/0.3.0/pressure-2",
                 "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
                 "openpipestress.result_semantics/0.3.0/physics-retained-1"
               ]
@@ -987,8 +987,8 @@
             "ref_id": {
               "enum": [
                 "openpipestress.result_semantics/0.3.0/pressure-source-1",
-                "openpipestress.result_semantics/0.3.0/preview-physics-1",
-                "openpipestress.result_semantics/0.3.0/pressure-1",
+                "openpipestress.result_semantics/0.3.0/preview-physics-2",
+                "openpipestress.result_semantics/0.3.0/pressure-2",
                 "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
                 "openpipestress.result_semantics/0.3.0/physics-retained-1"
               ]
@@ -1120,7 +1120,7 @@
               "$ref": "#/$defs/PreviewPhysicsContractEvidence"
             },
             {
-              "$ref": "results_pressure_1.v0.3.schema.json#/$defs/PressureContractEvidence"
+              "$ref": "results_pressure_2.v0.3.schema.json#/$defs/PressureContractEvidence"
             },
             {
               "$ref": "#/$defs/PressureSourceContractEvidence"
@@ -1210,14 +1210,14 @@
             "producer": {
               "properties": {
                 "semantic_contract_id": {
-                  "const": "openpipestress.result_semantics/0.3.0/preview-physics-1"
+                  "const": "openpipestress.result_semantics/0.3.0/preview-physics-2"
                 }
               }
             },
             "semantic_contract_ref": {
               "properties": {
                 "ref_id": {
-                  "const": "openpipestress.result_semantics/0.3.0/preview-physics-1"
+                  "const": "openpipestress.result_semantics/0.3.0/preview-physics-2"
                 }
               }
             },
@@ -1288,7 +1288,7 @@
           ]
         },
         {
-          "$ref": "results_pressure_1.v0.3.schema.json#/$defs/PressureResultEnvelope"
+          "$ref": "results_pressure_2.v0.3.schema.json#/$defs/PressureResultEnvelope"
         },
         {
           "required": [
@@ -1379,7 +1379,7 @@
                 },
                 "limitations": {
                   "const": [
-                    "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
+                    "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it.",
                     "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.",
                     "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.",
                     "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.",
@@ -3298,7 +3298,7 @@
     "PreviewPhysicsContractEvidence": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Closed preview-physics-1 statement (T0R S1 §5): per-case straight-member maximum enclosures, coverage, support attribution and intensified-measure inputs, plus one gate per model combination. Binding to rows is checked by the readers; no engineering qualification.",
+      "description": "Closed preview-physics-2 statement (T0R S1 §5): per-case straight-member maximum enclosures, coverage, support attribution and intensified-measure inputs, plus one gate per model combination. Binding to rows is checked by the readers; no engineering qualification.",
       "required": [
         "preview_cases",
         "combination_gates"
@@ -3711,7 +3711,7 @@
     "PreviewPhysicsResultMetadata": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Canonical metadata under the preview-physics-1 table vocabulary only (arc chord frame, arc nominal basis, support-law basis, intensified measure); other identities keep ResultMetadata.",
+      "description": "Canonical metadata under the preview-physics-2 table vocabulary only (arc chord frame, arc nominal basis, support-law basis, intensified measure); other identities keep ResultMetadata.",
       "required": [
         "component",
         "coordinate_system",

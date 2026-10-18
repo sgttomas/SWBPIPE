@@ -196,29 +196,29 @@ def verify_analysis_run_record(envelope: Mapping[str, Any], hash_fn: Callable[[A
 # pressure-source-1: the retained-source composite (receipt required); its record carries source_block_recovery and
 # contract_evidence.
 PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-# T4-U6 (D-5, §2.4): pressure-1, pressure-source-1 and physics-retained-1 carry one stress signature per (recovery
+# T4-U6 (D-5, §2.4): pressure-2, pressure-source-1 and physics-retained-1 carry one stress signature per (recovery
 # token x section basis); a record binding the former table hashes is refused (ANALYSIS_SEMANTIC_CONTRACT_MISMATCH).
-PRESSURE_SOURCE_CONTRACT_SHA256 = "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53"
+PRESSURE_SOURCE_CONTRACT_SHA256 = "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b"
 _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_source_1.json"
-# pressure-1: the ordinary exact route (a load/reference-state model publishes it with
+# pressure-2: the ordinary exact route (a load/reference-state model publishes it with
 # contract_evidence.load_reference_states). Its record carries neither source_block_recovery nor contract_evidence.
-PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
-PRESSURE_CONTRACT_SHA256 = "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e"
-_PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_1.json"
-PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-PREVIEW_PHYSICS_CONTRACT_SHA256 = "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32"
-_PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_1.json"
+PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
+PRESSURE_CONTRACT_SHA256 = "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f"
+_PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
+PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
+PREVIEW_PHYSICS_CONTRACT_SHA256 = "97af5a7a7b3fb1d39515a23bff29bf11a11f3b6c203f02d14d7662c23eaa66e5"
+_PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "842a011601ea5049c6e89abbd73a24176966ca23c9a8cf9c89336341f608f3ad"
+PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "db52ad8274c2a7544db7e30ce693608f1d6570c49c72fa7bfb5e1c8e124cf02e"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_retained_1.json"
-# B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-1 since B7b D4 (a). As the preview successor, its
+# B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "4110187031037e47b9a79e8c7acf35615fde32ea36ac2e608893828823aaa35a"
 _PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}
@@ -230,11 +230,11 @@ RULE_QUANTITY_BELOW_VERIFIED_FLOOR = "RULE_QUANTITY_BELOW_VERIFIED_FLOOR"
 RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED"
 # Static fresh-publication identities (S1 §10; Rust `FRESH_IDENTITIES`); no route predicate.
 FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID,
-                                # T4-U2: pressure-1 (`3.0.0/exact_pressure_v3`).
+                                # T4-U2: pressure-2 (`3.0.0/exact_pressure_v3`).
                                 PRESSURE_CONTRACT_ID,
                                 # U6b (D-U6-6): membership is not standing.
                                 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID})
-# Every current-record identity, which the 0.3 AnalysisRun builder and validator admit (B7b: pressure-1 and
+# Every current-record identity, which the 0.3 AnalysisRun builder and validator admit (B7b: pressure-2 and
 # pressure-source-1 in place of the retired v2 identities).
 CURRENT_RECORD_CONTRACT_IDS = frozenset({PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID,
                                          PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PHYSICS_RETAINED_CONTRACT_ID})
@@ -313,7 +313,7 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True) -
     A successor goes to the retained reader (R1). Every other statement takes the Rust header
     dispatch (`reader_verdict::dispatch`, b7-plan R2 G5), then its route's reader: the raw
     validation (`check_receipt`), or the transport checks of a statement without raw rows. A
-    stored v2 result is refused by the header (`SOURCE_EXACT_PRESSURE_V2_RETIRED`), and pressure-1
+    stored v2 result is refused by the header (`SOURCE_EXACT_PRESSURE_V2_RETIRED`), and pressure-2
     has no transport reader (Rust refuses it by name, `SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED`).
     Interpretation dispatch does not authenticate a producer or qualify Current."""
     if _is_retained(source):

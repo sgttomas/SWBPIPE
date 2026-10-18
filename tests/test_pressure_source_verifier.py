@@ -17,7 +17,7 @@ from core.analysis_runs import rust_reader
 from tests.verifiers import compatibility as c
 from tests.verifiers import physics_evidence as physical
 from tests.verifiers import physics_source as ps
-from tests.verifiers import pressure_1
+from tests.verifiers import pressure_2
 from tests.verifiers import reader_verdict as verdict
 from tests.verifiers import source_blocks as blocks
 
@@ -43,11 +43,11 @@ def test_a_retired_v2_source_label_is_refused_by_name_and_never_cross_read(ident
         source["formulation_basis"]["profile_id"] = profile
     # The header names the retirement (Rust `current_header`); the source reader refuses the identity.
     for dispatch in (verdict.dispatch(deepcopy(source)), rust_reader.dispatch(deepcopy(source), None)):
-        assert dispatch["ok"] is False and dispatch["error"]["code"] == pressure_1.SOURCE_EXACT_PRESSURE_V2_RETIRED
-        assert dispatch["error"]["detail"] == pressure_1.V2_RETIRED_TEXT
+        assert dispatch["ok"] is False and dispatch["error"]["code"] == pressure_2.SOURCE_EXACT_PRESSURE_V2_RETIRED
+        assert dispatch["error"]["detail"] == pressure_2.V2_RETIRED_TEXT
     with pytest.raises(ValueError) as refused:
         c._source_contract(deepcopy(source))
-    assert str(refused.value) == pressure_1.V2_RETIRED_TEXT
+    assert str(refused.value) == pressure_2.V2_RETIRED_TEXT
     for read in (ps.validate_physics_source, ps.validate_transport_metadata):
         with pytest.raises(ValueError, match="PHYSICS_SOURCE_IDENTITY"):
             read(deepcopy(source), source_contract=ps.SourceContract.PRESSURE_V3)
@@ -95,7 +95,7 @@ def test_captured_load_state_presence_requires_the_received_resolved_state_names
 
 def test_pressure_source_receipt_downgrade_is_refused_on_raw_header_and_transport():
     source = v3()
-    source["producer"]["semantic_contract_id"] = pressure_1.CONTRACT_ID
+    source["producer"]["semantic_contract_id"] = pressure_2.CONTRACT_ID
     source["formulation_basis"]["profile_id"] = ps.PRESSURE_PROFILE
     with pytest.raises(ValueError, match="SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN"):
         c._source_contract(source)

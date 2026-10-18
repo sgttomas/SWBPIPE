@@ -7,7 +7,7 @@ PRESSURE-SOURCE-1) with `contract_evidence.load_reference_states`, read directly
 case file is shared with the Rust reader test ``core/reporting/result_export/tests/load_reference_source_contract.rs``:
 ``dispatch`` is the raw dispatch (Rust ``semantic_contract::for_source``; here the verifier's ``_source_contract``),
 ``joined`` the current pressure-source reader called directly without an invocation (``validate_physics_source``) and
-``lr`` the pressure-1 reader (``validate_pressure_evidence``). Both readers must reproduce every expectation, so they
+``lr`` the pressure-2 reader (``validate_pressure_evidence``). Both readers must reproduce every expectation, so they
 accept and reject the same inputs with the same error. Carrier fixtures under
 ``fixtures/results/pressure_source_load_state_*`` are derived from the ten current producer envelopes by the product
 builder; they prove reader preservation, not producer authentication, numerical eligibility or engineering
@@ -36,7 +36,7 @@ from tests.verifiers.physics_source import (
     PRESSURE_PROFILE, SourceContract, pressure_source_table, validate_physics_source, validate_transport_metadata,
     verify_pressure_source_table,
 )
-from tests.verifiers.pressure_1 import validate_pressure_evidence
+from tests.verifiers.pressure_2 import validate_pressure_evidence
 from tests.verifiers.source_blocks import domain_hash
 from tests.verifiers import compatibility as verifier
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
@@ -56,7 +56,7 @@ FROZEN = {
 }
 MANIFEST = {"object_type": "InputManifest", "ref": "manifest:load-reference-source-reader-test"}
 V2_RETIRED = ("SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
-              "re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis")
+              "re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis")
 RESULTS: list[dict] = []
 
 
@@ -277,7 +277,7 @@ def test_language_specific_cases_are_declared():
 def test_other_readers_and_retired_labels_refuse_every_joined_envelope():
     for name in JOINED:
         raw = actual(name)
-        # The ordinary pressure-1 reader refuses the receipt namespace in its load/reference-state pre-pass.
+        # The ordinary pressure-2 reader refuses the receipt namespace in its load/reference-state pre-pass.
         assert outcome(lambda: validate_pressure_evidence(raw)) == "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"
         as_pressure = deepcopy(raw)
         as_pressure["producer"]["semantic_contract_id"] = PRESSURE_CONTRACT_ID

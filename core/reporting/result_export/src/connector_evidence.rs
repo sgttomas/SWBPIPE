@@ -1,4 +1,4 @@
-//! T4-U3 (S14): the objective connector's evidence on `pressure-1`
+//! T4-U3 (S14): the objective connector's evidence on `pressure-2`
 //! (`3.0.0/exact_pressure_v3`) only. `contract_evidence.connector` holds one
 //! record per connector (JR §7: topology and replaced span, frame, installed
 //! reference temperature and q_ref, matrix scale and provenance), and every
@@ -6,7 +6,7 @@
 //! refuses both (`CONNECTOR_UNSUPPORTED`).
 //!
 //! The row signatures are the `connector_*` rows of
-//! `fixtures/results/semantic_contract_v0_3_pressure_1.json`, held here as
+//! `fixtures/results/semantic_contract_v0_3_pressure_2.json`, held here as
 //! code constants: the reader adds no table or static of its own (T4-RV14 F1).
 //! The rows are a declared coverage limit (outside R-b′ and the straight-member
 //! recovery bound); this reader checks their bindings and semantics, never
@@ -92,7 +92,7 @@ fn matrix3(v: &Value) -> bool {
 }
 
 /// T4-U2 (export): the canonical metadata vocabulary the connector rows add
-/// to the straight-member vocabulary under pressure-1 (components, frame, location, basis).
+/// to the straight-member vocabulary under pressure-2 (components, frame, location, basis).
 pub const VOCABULARY_COMPONENTS: [&str; 14] = [
     "qt_x", "qt_y", "qt_z", "qr_x", "qr_y", "qr_z", "gt_x", "gt_y", "gt_z", "gr_x", "gr_y", "gr_z", "pe_x", "s_x",
 ];
@@ -189,7 +189,7 @@ fn connector_record(r: &Value) -> Result<(&str, &str), String> {
 }
 
 /// The connector records and rows of one envelope. `admitted` is true only
-/// under `pressure-1`; `members` are the published case members (pipe IDs of
+/// under `pressure-2`; `members` are the published case members (pipe IDs of
 /// any case); `cases` the exact case IDs; `solved` the mechanics status.
 pub(crate) fn validate(
     evidence: &Value,

@@ -168,7 +168,7 @@
   "producer": {
     "component_name": "open_pipe_stress_product_physics",
     "component_version": "0.2.0",
-    "semantic_contract_id": "openpipestress.result_semantics/0.3.0/preview-physics-1"
+    "semantic_contract_id": "openpipestress.result_semantics/0.3.0/preview-physics-2"
   },
   "numerical_quality": {
     "value_representation": "finite_binary64",

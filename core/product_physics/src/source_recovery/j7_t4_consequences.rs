@@ -20,13 +20,13 @@ fn j7_t4_i12_genuine_nodal_case_declines_the_connector_family_by_name(){
     let stored=request();
     assert_eq!(sha(serde_json::to_string(&stored).unwrap().as_bytes()),"99401eec19e6f5524fb1fd9e0f534c35fe07e1df384b15ec4ec4e92a0d0c527a");
     // B7b: the stored 0.3.0 control is unchanged; only its copy is re-authored to
-    // the current 0.5.0 exact document. The captured invocation digests below are
+    // the current 0.6.0 exact document. The captured invocation digests below are
     // those of the re-authored copy.
     let raw=crate::b7b_admission_tests::reauthor_current_request(stored);
     assert_eq!(raw["model"]["load_cases"].as_array().unwrap().len(),3);
     for mode in [PreviewSolverMode::SparseInteractive,PreviewSolverMode::DenseScrutiny]{
         let (request,captured)=source_receipt::CapturedInvocation::parse(raw.clone(),mode).unwrap();
-        let expected=match mode{PreviewSolverMode::SparseInteractive=>"098c8f3d2dd7043911fa467d3b1f6e189cf208b866f3cfde02a63953a9e8fec3",PreviewSolverMode::DenseScrutiny=>"172fa03ae9adf7784ec5a296b3773323a36c4d71b0a0dd919cb238745745f3f4"};
+        let expected=match mode{PreviewSolverMode::SparseInteractive=>"8a259b77b82d02bfb2aeeb72c5315370d5130b3e602b90dc01d1416a2ca61ebd",PreviewSolverMode::DenseScrutiny=>"491ea8010ae9e5f9e4ecd92312e88aa1cb18007f7bf2c469ece7c088aec0946b"};
         assert_eq!(captured.borrowed_digest(),expected);
         let mut model=request.model;let mut materials=model.materials.clone();let mut diagnostics=Vec::new();
         pressure_runtime::validate_profile(&model,&mut diagnostics);

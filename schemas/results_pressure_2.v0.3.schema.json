@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openpipestress.org/schemas/results_pressure_1.v0.3.schema.json",
-  "title": "pressure-1 definitions of the derivative result export 0.3",
-  "description": "pressure-1 (3.0.0/exact_pressure_v3: straight pipe, realized arcs and objective connectors): ResultEnvelope's pressure-1 branch, result sets and contract evidence, referenced by results.v0.3.schema.yaml and stress_neutral_export.v0.3.schema.json and kept apart so that readers of the other semantics do not embed them.",
+  "$id": "https://openpipestress.org/schemas/results_pressure_2.v0.3.schema.json",
+  "title": "pressure-2 definitions of the derivative result export 0.3",
+  "description": "pressure-2 (3.0.0/exact_pressure_v3: straight pipe, realized arcs and objective connectors): ResultEnvelope's pressure-2 branch, result sets and contract evidence, referenced by results.v0.3.schema.yaml and stress_neutral_export.v0.3.schema.json and kept apart so that readers of the other semantics do not embed them.",
   "$defs": {
     "PressureResultEnvelope": {
-      "description": "ResultEnvelope's pressure-1 branch (results.v0.3.schema.yaml ResultEnvelope.oneOf).",
+      "description": "ResultEnvelope's pressure-2 branch (results.v0.3.schema.yaml ResultEnvelope.oneOf).",
       "required": [
         "contract_evidence"
       ],
@@ -13,14 +13,14 @@
         "producer": {
           "properties": {
             "semantic_contract_id": {
-              "const": "openpipestress.result_semantics/0.3.0/pressure-1"
+              "const": "openpipestress.result_semantics/0.3.0/pressure-2"
             }
           }
         },
         "semantic_contract_ref": {
           "properties": {
             "ref_id": {
-              "const": "openpipestress.result_semantics/0.3.0/pressure-1"
+              "const": "openpipestress.result_semantics/0.3.0/pressure-2"
             }
           }
         },
@@ -653,7 +653,7 @@
           }
         }
       },
-      "description": "pressure-1 (3.0.0/exact_pressure_v3) pressure region. A region with a realized arc carries the arc keys and the arc approximation; its arc members carry member_kind and their end tangents and the bend-term applied-load record. Closed shape only; cross-binding (traversal, junction tangents, withheld rows, RHS terms) is executable reader validation.",
+      "description": "pressure-2 (3.0.0/exact_pressure_v3) pressure region. A region with a realized arc carries the arc keys and the arc approximation; its arc members carry member_kind and their end tangents and the bend-term applied-load record. Closed shape only; cross-binding (traversal, junction tangents, withheld rows, RHS terms) is executable reader validation.",
       "oneOf": [
         {
           "properties": {
@@ -776,7 +776,7 @@
       ]
     },
     "PressureResolvedPipeMaterial": {
-      "description": "pressure-1 resolved per-member material under the load/reference-state group: the same closed shape as load_reference_state.schema.json LoadReferencePipeMaterial, held locally so closed-shape checkers resolve it in this file.",
+      "description": "pressure-2 resolved per-member material under the load/reference-state group: the same closed shape as load_reference_state.schema.json LoadReferencePipeMaterial, held locally so closed-shape checkers resolve it in this file.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -1214,7 +1214,7 @@
           }
         }
       },
-      "description": "pressure-1 exact case: the base common E/nu materials, or resolved per-member materials under the load/reference-state group. The RHS terms add the bend's removed caps and the junction remainder."
+      "description": "pressure-2 exact case: the base common E/nu materials, or resolved per-member materials under the load/reference-state group. The RHS terms add the bend's removed caps and the junction remainder."
     },
     "PressureConnectorRecord": {
       "type": "object",
@@ -1463,7 +1463,7 @@
     "PressureContractEvidence": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Raw producer contract_evidence for pressure-1 (3.0.0/exact_pressure_v3): pressure regions including realized arcs, connector records and exact cases; a model carrying the load/reference-state group also publishes load_reference_states (load_reference_state.schema.json LoadReferenceStateRecord). Carriers preserve it verbatim. Closed shape only; cross-binding is executable reader validation.",
+      "description": "Raw producer contract_evidence for pressure-2 (3.0.0/exact_pressure_v3): pressure regions including realized arcs, connector records and exact cases; a model carrying the load/reference-state group also publishes load_reference_states (load_reference_state.schema.json LoadReferenceStateRecord). Carriers preserve it verbatim. Closed shape only; cross-binding is executable reader validation.",
       "required": [
         "pressure",
         "connector",
@@ -1499,7 +1499,7 @@
     "PressureResultMetadata": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Canonical metadata under the pressure-1 vocabulary: the exact straight-member vocabulary plus the objective connector rows' components, frame (connector_axes_q), location (connector_local) and stable basis; other identities keep ResultMetadata.",
+      "description": "Canonical metadata under the pressure-2 vocabulary: the exact straight-member vocabulary plus the objective connector rows' components, frame (connector_axes_q), location (connector_local) and stable basis; other identities keep ResultMetadata.",
       "required": [
         "component",
         "coordinate_system",

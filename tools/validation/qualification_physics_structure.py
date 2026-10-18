@@ -24,10 +24,10 @@ CHECK_IDS = (
     'complete_unique_scalar_rows', 'normal_maximum_evidence', 'governing_location',
     'stress_summary_binding', 'displacement_summary_binding',
 )
-# B7b: the first-static cases are qualified as pressure-1 on the re-authored 0.5.0 copy of their frozen input.
-CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-1'
+# The first-static cases are qualified as pressure-2 on the re-authored current (0.6.0) copy of their frozen input.
+CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-2'
 PROFILE = 'exact_pressure_v3'
-MODEL_VERSION = '0.5.0'
+MODEL_VERSION = '0.6.0'
 PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': PROFILE, 'shear_model': 'euler_bernoulli'}
 ZERO_CORROSION_ALLOWANCE = {'value': 0, 'unit': 'm'}
 CASE_BASIS = {'ref_type': 'load_case', 'ref_id': 'case'}
@@ -356,7 +356,7 @@ def check_first_static_structure(raw, request, case_binding, section_reference,
         _require(case_binding['ordinary_contract_ok'], 'upstream pinned ordinary contract/table check failed')
         _require(raw['schema_version'] == '0.2.0' and raw['producer'] == {
             'component_name': 'open_pipe_stress_product_physics', 'component_version': '0.2.0',
-            'semantic_contract_id': CONTRACT}, 'ordinary pressure-1 producer required')
+            'semantic_contract_id': CONTRACT}, 'ordinary pressure-2 producer required')
         _require('source_block_recovery' not in raw and 'carrier_evidence' not in raw, 'source/composite namespace refused')
         formulation = raw['formulation_basis']
         _require(set(formulation) == {'profile_id', 'limitations'} and formulation['profile_id'] == PROFILE

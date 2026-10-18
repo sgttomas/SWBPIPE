@@ -1,4 +1,4 @@
-//! Admission of the closed preview-physics-1 evidence namespace (T0R S1 section 9).
+//! Admission of the closed preview-physics-2 evidence namespace (T0R S1 section 9).
 //! These checks establish internal consistency of a received envelope, not
 //! solver accuracy, origin, model freshness or engineering acceptance.
 use open_pipe_stress_correct_norm::norm3;

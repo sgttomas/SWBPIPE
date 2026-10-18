@@ -13,9 +13,9 @@ import { SolvePanel } from "../solve/SolvePanel";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
 
 // Unit transport replay of recorded producer bytes through mocked IPC: the
-// preview-physics-1 sparse fixture is actual producer output (T0R S2a) for the
+// preview-physics-2 sparse fixture is actual producer output (T0R S2a) for the
 // invented demo model without its legacy pressure (preview_physics_invented_model.json).
-// T0R: the Current witness is a preview-physics-1 result.
+// T0R: the Current witness is a preview-physics-2 result.
 // This is NOT a native UI qualification witness. Current standing comes only
 // from the session's own solve path and qualification gate (handleRun).
 const modelUnits = "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC";

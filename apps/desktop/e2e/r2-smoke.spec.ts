@@ -43,7 +43,7 @@ const rehearsal = JSON.parse(
 // output, read with its own semantics (b7-plan E2: no historical-format carrier).
 const demoModel = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_demo_model.json", import.meta.url), "utf8"));
 const referenceSource = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json", import.meta.url), "utf8"));
-const referenceSemantics = JSON.parse(readFileSync(new URL("../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json", import.meta.url), "utf8"));
+const referenceSemantics = JSON.parse(readFileSync(new URL("../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json", import.meta.url), "utf8"));
 
 async function expectBackendRefusal(page: Page): Promise<void> {
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=failed");

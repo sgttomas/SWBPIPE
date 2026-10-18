@@ -330,7 +330,7 @@ fn physical_row(
             sign,
         )
     };
-    // T4-U2: a pressure row on a realized arc (pressure-1 only) states the
+    // T4-U2: a pressure row on a realized arc (pressure-2 only) states the
     // arc's own convention; the straight Lame rows and maximum are withheld.
     let sign = if arc {
         require(!crate::arc_evidence::WITHHELD_KINDS.contains(&kind), "ARC_WITHHELD")?;
@@ -390,7 +390,7 @@ pub(crate) fn validate_physics_evidence_in(
     }
     let fields = if resolved { RESOLVED_EVIDENCE_KEYS } else { EVIDENCE_KEYS };
     require(keys(evidence, fields), "EVIDENCE_SHAPE")?;
-    // T4-U3: connector records are admitted under pressure-1 only (checked,
+    // T4-U3: connector records are admitted under pressure-2 only (checked,
     // with their rows, by `connector_evidence` once the cases are read).
     require(
         (!composite && contract == PressureContract::PressureV3) || array(&evidence["connector"])?.is_empty(),
@@ -418,7 +418,7 @@ pub(crate) fn validate_physics_evidence_in(
         }
     }
     // RV23 NOTE-4: a case's structural members are its published pipes and
-    // its objective connectors (pressure-1); a model whose only pipes are
+    // its objective connectors (pressure-2); a model whose only pipes are
     // replaced spans has no published pipe and is still covered.
     let has_connector = !array(&evidence["connector"])?.is_empty();
     let rows = indexed(&source["results"], "id")?;
@@ -674,9 +674,9 @@ pub(crate) fn validate_physics_evidence_in(
                 .is_none_or(|v| v.as_array().is_some_and(|a| a.is_empty())),
             "DERIVED_ROWS_UNSUPPORTED",
         )?;
-        // T4-U2 (pressure-1): an input review row (a realized bend's
+        // T4-U2 (pressure-2): an input review row (a realized bend's
         // flexibility, a hanger's or a component's entered values) is model
-        // scoped and states no load case. Only a pressure-1 row without
+        // scoped and states no load case. Only a pressure-2 row without
         // `basis_ref` whose signature is `review_evidence` qualifies; every
         // other row stays case scoped, and physics-1 keeps its case-scoped
         // rule. The contract is checked before the row's one signature lookup.
@@ -1340,7 +1340,7 @@ fn assembly(
     Ok(())
 }
 
-/// Current exact-retained G7 transport checks on the receipt's pressure-1
+/// Current exact-retained G7 transport checks on the receipt's pressure-2
 /// projection. Preserve the member/material/geometry/maximum/region/assembly
 /// checks and their order; this cannot qualify a publication or invocation.
 pub fn validate_transport_metadata(source: &Value) -> Check {

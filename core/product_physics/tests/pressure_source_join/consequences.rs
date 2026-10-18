@@ -12,7 +12,7 @@ use open_pipe_stress_product_physics::result_export::derivative;
 /// constant (bytes changed at B7b's resident current table, a43583c625, and
 /// at T4-U6's per-basis stress signatures).
 const PRESSURE_SOURCE_TABLE_SHA256: &str =
-    "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53";
+    "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b";
 
 fn encoded_length(request: &Value) -> u64 {
     let text = serde_json::to_string(request).unwrap();
@@ -206,7 +206,7 @@ enum DispatchDisposition<'a> {
     /// refuses: unsupported, under the generic finding.
     HeaderShapeRefused(&'a str),
 }
-const RETIRED_V2_DETAIL: &str = "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis";
+const RETIRED_V2_DETAIL: &str = "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis";
 fn checked_dispatch(
     source: &Value,
     model: &Value,
@@ -386,8 +386,8 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
         DispatchDisposition::PressureFinding("SOURCE_BLOCKS_PUBLICATION_HASH"),
     ));
     // MJ5 (B7b): the reader is fixed by its caller. The genuine source offered
-    // to the ordinary pressure-1 reader is refused by that reader's own
-    // foreign-method check (the receipt), never read as pressure-1.
+    // to the ordinary pressure-2 reader is refused by that reader's own
+    // foreign-method check (the receipt), never read as pressure-2.
     entries.push(corpus_entry(
         format!("{prefix}:MJ5-pressure-source-offered-to-pressure-1"),
         source,

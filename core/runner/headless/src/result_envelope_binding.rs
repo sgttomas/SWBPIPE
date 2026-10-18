@@ -542,9 +542,9 @@ mod tests {
    }
  }
  #[test]
- /// B7b: the connected exact solve publishes pressure-1 (the current contract,
- /// 0.5.0/3.0.0/exact_pressure_v3); `HEADLESS_PHYSICS_OUTPUT_DIR` keeps its name
- /// and now carries that pressure-1 twin of the retired physics-1 artifacts.
+ /// B7b: the connected exact solve publishes pressure-2 (the current contract,
+ /// 0.6.0/3.0.0/exact_pressure_v3); `HEADLESS_PHYSICS_OUTPUT_DIR` keeps its name
+ /// and now carries that pressure-2 twin of the retired physics-1 artifacts.
  fn connected_physics_actual_solve_preserves_case_evidence_and_qualified_export() {
    let payload: Value = serde_json::from_str(include_str!("../../../product_physics/tests/fixtures/exact_pressure_connected_request.json")).unwrap();
    for (name, mode) in [("sparse", open_pipe_stress_product_physics::PreviewSolverMode::SparseInteractive), ("dense", open_pipe_stress_product_physics::PreviewSolverMode::DenseScrutiny)] {
@@ -638,7 +638,7 @@ mod tests {
  }
 
  /// B4/D1 (b): source blocks remain only on the exact route's composites; these
- /// bindings read pressure-source-1's committed requests (B7b's 0.5.0/v3 twins of
+ /// bindings read pressure-source-1's committed requests (B7b's 0.6.0/v3 twins of
  /// the retired physics-source-1 requests; one per stem, both modes).
  fn source_input(stem: &str, _mode: open_pipe_stress_product_physics::PreviewSolverMode) -> Value {
    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -648,7 +648,7 @@ mod tests {
  }
 
  /// T4-U2: an ordinary source the reader refuses is named at export, never
- /// reported as a numerical-standing outcome; an admitted pressure-1 arc
+ /// reported as a numerical-standing outcome; an admitted pressure-2 arc
  /// envelope exports.
  #[test]
  fn a_pressure_1_reader_refusal_is_named_at_export_both_modes() {

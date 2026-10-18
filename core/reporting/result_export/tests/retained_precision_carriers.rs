@@ -478,7 +478,7 @@ fn u6a_receipt_binding_mismatches_are_refused() {
 #[test]
 fn u6a_downgrades_to_a_base_identity_are_refused() {
     for m in milestones() {
-        // F-5: the successor offered as preview-physics-1, keeping its receipt.
+        // F-5: the successor offered as preview-physics-2, keeping its receipt.
         let mut relabelled = m.source.clone();
         relabelled["producer"]["semantic_contract_id"] = json!(s::PREVIEW_PHYSICS_ID);
         relabelled["formulation_basis"]["profile_id"] = json!("product_preview_mechanics_v1");
@@ -751,7 +751,7 @@ fn apply_shared(c: &Value, fixture: &(String, Value, Value)) -> (Value, Option<V
 
 /// The shared three-language standing-parity scenarios (U6b and U6d consume
 /// the same file): the Rust carrier's standing and raw dispatch per case,
-/// the F-5 guard forms on preview-physics-1 sources included.
+/// the F-5 guard forms on preview-physics-2 sources included.
 #[test]
 fn u6a_shared_carrier_cases_rust() {
     let cases: Value = serde_json::from_str(CASES).unwrap();

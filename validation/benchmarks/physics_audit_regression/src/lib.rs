@@ -31,7 +31,7 @@ mod tests {
             "magnitude":{"value":force,"unit":unit},"dimension":dimension,"provenance":"original analytical fixture"}]})
     }
     fn model(case: Value) -> Value {
-        json!({"schema_version":"0.5.0","document_kind":"openpipestress.product_preview.model",
+        json!({"schema_version":"0.6.0","document_kind":"openpipestress.product_preview.model",
             "project":{"id":"project:physics-audit","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","temperature":"degC","stress":"MPa"}},
             "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
             "nodes":[{"id":"node:root","position":{"x":0,"y":0,"z":0}},{"id":"node:tip","position":{"x":2,"y":0,"z":0}}],
@@ -130,7 +130,7 @@ mod tests {
         assert_eq!(found.len(), 1, "missing/ambiguous {entity} {kind} {case}");
         checked_value(found[0])
     }
-    /// Signed support-on-pipe component (preview-physics-1), with its unit checked.
+    /// Signed support-on-pipe component (preview-physics-2), with its unit checked.
     fn support_component(out: &MechanicsEnvelope, entity: &str, component: &str, case: &str) -> f64 {
         let found: Vec<_> = rows(out, entity, "support_reaction_component_v2", case)
             .into_iter()

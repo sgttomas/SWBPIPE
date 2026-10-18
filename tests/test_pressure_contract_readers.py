@@ -1,16 +1,16 @@
-"""pressure-1 straight families: the test-only verifier and the product refusal.
+"""pressure-2 straight families: the test-only verifier and the product refusal.
 
-Reads the shared generated pressure-1 corpus (the Rust reader's
+Reads the shared generated pressure-2 corpus (the Rust reader's
 ``tests/pressure_contract.rs`` reads the same bytes; the Rust reader is the
-only product reader). The independent verifier (``tests/verifiers/pressure_1.py``)
+only product reader). The independent verifier (``tests/verifiers/pressure_2.py``)
 admits v3 straight families with signed p_pa. B7b retired the v2 contract: no
 v2 reader remains, evidence relabelled with the retired v2 profile is refused at
 the current profile check, a statement under a retired v2 identity is refused by
 name (``SOURCE_EXACT_PRESSURE_V2_RETIRED``) and unknown identities are refused.
 Python product paths take the Rust reader's verdict (b7-plan R2) through its
 pressure route: a raw statement is read, a transported one is refused by name
-(there is no pressure-1 transport reader), and B7b admits a 0.3 AnalysisRun
-record built from the raw pressure-1 statement.
+(there is no pressure-2 transport reader), and B7b admits a 0.3 AnalysisRun
+record built from the raw pressure-2 statement.
 """
 import ast
 from copy import deepcopy
@@ -22,7 +22,7 @@ from core.analysis_runs import rust_reader
 from core.analysis_runs.compatibility import (
     PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256, _source_contract, build_analysis_run_v0_3, numerical_use_standing,
 )
-from tests.verifiers.pressure_1 import (
+from tests.verifiers.pressure_2 import (
     CONTRACT_ID, RETIRED_EXACT_V2_IDS, SOURCE_EXACT_PRESSURE_V2_RETIRED, V2_RETIRED_TEXT,
     validate_exact_pressure_evidence, validate_pressure_evidence, verify_source,
 )
@@ -30,9 +30,9 @@ from tests.verifiers.pressure_1 import (
 PROJECT = Path(__file__).resolve().parents[1]
 CORPUS = json.loads((PROJECT / "fixtures/results/pressure_v3_straight_reader_corpus.json").read_text())
 CASES = [(case["label"], case["envelope"]) for case in CORPUS["cases"]]
-VERIFIER = PROJECT / "tests/verifiers/pressure_1.py"
+VERIFIER = PROJECT / "tests/verifiers/pressure_2.py"
 # b7-plan R2: Python product paths read through the Rust verdict, whose
-# `pressure` route reads raw pressure-1 and refuses a transported one by name.
+# `pressure` route reads raw pressure-2 and refuses a transported one by name.
 PRESSURE_TRANSPORT_REFUSAL = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
 
 
@@ -69,7 +69,7 @@ def test_python_product_paths_take_the_rust_verdict_of_pressure_1(label, envelop
     assert (contract_id, sha256) == (PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256)
     with pytest.raises(ValueError, match=PRESSURE_TRANSPORT_REFUSAL):
         _source_contract(deepcopy(envelope), check_receipt=False)
-    # B7b: pressure-1 is a current record contract; the record binds the pressure-1 table.
+    # B7b: pressure-2 is a current record contract; the record binds the pressure-2 table.
     record = build_analysis_run_v0_3(deepcopy(envelope), input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:x"}, input_manifest_hash="1" * 64)
     refs = record["analysis_run"]["result_refs"]
     assert refs and {(r["semantic_contract"]["id"], r["semantic_contract"]["sha256"]) for r in refs} == {(PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256)}
@@ -98,7 +98,7 @@ def test_retired_v2_labels_are_refused(label, envelope):
         with pytest.raises(ValueError) as refused:
             validate_exact_pressure_evidence(relabelled)
         assert str(refused.value) == V2_RETIRED_TEXT
-        assert str(refused.value).startswith(f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: ") and "re-author the model as 0.5.0" in str(refused.value)
+        assert str(refused.value).startswith(f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: ") and "re-author the model as 0.6.0" in str(refused.value)
         # The product paths take the Rust verdict: the same refusal, by name, at the header.
         for check_receipt in (True, False):
             with pytest.raises(ValueError) as refused:
@@ -110,14 +110,23 @@ def test_retired_v2_labels_are_refused(label, envelope):
 @pytest.mark.parametrize("label,envelope", CASES)
 def test_unknown_identities_are_refused(label, envelope):
     unknown = deepcopy(envelope)
-    unknown["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-2"
+    unknown["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-3"
     with pytest.raises(ValueError, match="SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"):
         validate_exact_pressure_evidence(unknown)
     with pytest.raises(ValueError, match="SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"):
         verify_source(unknown)
+    # Model 0.6.0: the retired pressure-1 identity is refused by name at the header (re-run).
+    retired = deepcopy(envelope)
+    retired["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-1"
+    message = "^SOURCE_PRESSURE_1_RETIRED: pressure-1 results are no longer read; re-run the analysis$"
+    with pytest.raises(ValueError, match=message):
+        validate_exact_pressure_evidence(retired)
+    with pytest.raises(ValueError, match=message):
+        _source_contract(retired)
+    assert rust_reader.dispatch(retired)["error"]["code"] == "SOURCE_PRESSURE_1_RETIRED"
     profile = deepcopy(envelope)
     profile["formulation_basis"]["profile_id"] = "exact_straight_pressure_v2"
-    with pytest.raises(ValueError, match="pressure-1 formulation profile"):
+    with pytest.raises(ValueError, match="pressure-2 formulation profile"):
         validate_exact_pressure_evidence(profile)
     with pytest.raises(ValueError, match="SOURCE_FORMULATION_BASIS_UNSUPPORTED"):
         verify_source(profile)
@@ -128,7 +137,7 @@ def test_unknown_identities_are_refused(label, envelope):
 @pytest.mark.parametrize("label,envelope", CASES)
 def test_null_or_non_mapping_metadata_is_refused_by_name(label, envelope):
     # T4-RV13 N-1: a null producer or formulation basis is a named ValueError, never AttributeError.
-    for producer in (None, [], "pressure-1"):
+    for producer in (None, [], "pressure-2"):
         broken = deepcopy(envelope)
         broken["producer"] = producer
         with pytest.raises(ValueError, match="SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"):
@@ -136,7 +145,7 @@ def test_null_or_non_mapping_metadata_is_refused_by_name(label, envelope):
     for basis in (None, [], "exact_pressure_v3"):
         broken = deepcopy(envelope)
         broken["formulation_basis"] = basis
-        with pytest.raises(ValueError, match="pressure-1 formulation profile"):
+        with pytest.raises(ValueError, match="pressure-2 formulation profile"):
             validate_exact_pressure_evidence(broken)
 
 

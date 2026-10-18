@@ -1,5 +1,5 @@
 /** B7b (DEL-14-02): an exact session solve on the desktop. The exact profile's producer
- * publishes pressure-1 (3.0.0/exact_pressure_v3), with or without the
+ * publishes pressure-2 (3.0.0/exact_pressure_v3), with or without the
  * load/reference-state group. The session solve completes: the desktop records it as
  * Python's `build_analysis_run_v0_3` does, holds the result and its record, and shows it
  * (results panel, standing, notices, the resolved-state block) through Rust's verdict. It
@@ -21,7 +21,7 @@ import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { runRuleChecks } from "../../services/ruleCheckService";
 import { readerDispatch, sourceContract } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
-import { OUTPUT_SURFACES, PRESSURE_1_OUTPUT_REFUSAL, surfaceOutputRefusal, surfaceRouteRefusal } from "../results/outputPolicy";
+import { OUTPUT_SURFACES, PRESSURE_2_OUTPUT_REFUSAL, surfaceOutputRefusal, surfaceRouteRefusal } from "../results/outputPolicy";
 import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
 import { ResultsPanel } from "../results/ResultsPanel";
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
@@ -37,7 +37,7 @@ type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 type Mode = "sparse_interactive" | "dense_scrutiny";
 const root = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
-const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-1", sha256: "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e" };
+const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f" };
 
 afterEach(() => {
   cleanup();
@@ -72,12 +72,12 @@ async function session(model: PreviewModel, bytes: string, mode: Mode) {
   await waitFor(() => expect(rendered.result.current.results.solveJob.state).toBe("completed"));
   return { ...rendered, transport };
 }
-/** The exact profile's replay pair (pressure-1 without the load/reference-state group). */
+/** The exact profile's replay pair (pressure-2 without the load/reference-state group). */
 function exactPair(mode: Mode) {
   const pair = nativeMechanicsReplayPair(mode, { profile: "pressure" });
   return { model: pair.model, bytes: pair.bytes };
 }
-/** A committed load/reference-state pressure-1 request and its producer bytes, with the
+/** A committed load/reference-state pressure-2 request and its producer bytes, with the
  * document metadata the session requires (invented labels, an empty diagnostics list and
  * the exact profile document's data boundary; the product reads no physics from them). */
 function loadStatePair(mode: Mode) {
@@ -88,7 +88,7 @@ function loadStatePair(mode: Mode) {
   Object.assign(model.project as Json, { name: "Invented load/reference-state session", description: "Invented test document; no engineering data." });
   return { model, bytes: readFileSync(resolve(root, `fixtures/product_preview/pressure/load_reference/connected-${mode}.raw.json`), "utf8") };
 }
-/** What the session holds after the solve: the pressure-1 result, its record and manifest, never Current. */
+/** What the session holds after the solve: the pressure-2 result, its record and manifest, never Current. */
 function held(state: WorkspaceSession) {
   const { result, analysisRun, inputManifest, currentSolvedResult, solveProof } = state.results;
   const model = state.model.model!;
@@ -126,7 +126,7 @@ function expectViewable(result: MechanicsResult, analysisRun: AnalysisRunEnvelop
   cleanup();
 }
 
-describe("an exact (pressure-1) session solve", () => {
+describe("an exact (pressure-2) session solve", () => {
   it.each(["sparse_interactive", "dense_scrutiny"] as Mode[])("%s: completes, and the session holds and shows the result and its Python-shaped record, never Current", async mode => {
     const { model, bytes } = exactPair(mode);
     const { result: hook } = await session(model, bytes, mode);
@@ -149,13 +149,13 @@ describe("an exact (pressure-1) session solve", () => {
     const { solveJob, solverMode, running } = hook.current.results;
     render(<SolvePanel analysisRun={state.analysisRun} model={state.model} result={state.result} running={running} solveJob={solveJob}
       solverMode={solverMode} onCancel={() => {}} onRun={() => {}} onSolverModeChange={() => {}} />);
-    expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-1");
+    expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-2");
     expect(screen.queryByTestId("load-reference-states-refused")).toBeNull();
   });
 });
 
 describe("a saved exact session", () => {
-  it("keeps the pressure-1 result and its record byte for byte and reopens them as history, never Current", async () => {
+  it("keeps the pressure-2 result and its record byte for byte and reopens them as history, never Current", async () => {
     const { model, bytes } = exactPair("sparse_interactive");
     const { result: hook } = await session(model, bytes, "sparse_interactive");
     const { result, analysisRun } = held(hook.current);
@@ -173,30 +173,30 @@ describe("a saved exact session", () => {
   });
 });
 
-describe("every output surface still refuses the held pressure-1 result by name", () => {
-  it("names PRESSURE_1_OUTPUT_REFUSAL on each surface, in each builder, and in the gated panels", async () => {
+describe("every output surface still refuses the held pressure-2 result by name", () => {
+  it("names PRESSURE_2_OUTPUT_REFUSAL on each surface, in each builder, and in the gated panels", async () => {
     const { model, bytes } = exactPair("sparse_interactive");
     const { result: hook } = await session(model, bytes, "sparse_interactive");
     const { result, analysisRun, inputManifest } = held(hook.current);
     for (const surface of OUTPUT_SURFACES) {
-      expect(surfaceRouteRefusal(result, surface), surface).toBe(PRESSURE_1_OUTPUT_REFUSAL);
-      expect(surfaceOutputRefusal(result, model, surface), surface).toBe(PRESSURE_1_OUTPUT_REFUSAL);
+      expect(surfaceRouteRefusal(result, surface), surface).toBe(PRESSURE_2_OUTPUT_REFUSAL);
+      expect(surfaceOutputRefusal(result, model, surface), surface).toBe(PRESSURE_2_OUTPUT_REFUSAL);
     }
-    expect(loadReferenceOutputRefusal(result)).toBe(PRESSURE_1_OUTPUT_REFUSAL);
+    expect(loadReferenceOutputRefusal(result)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
     // Result export, stress-neutral and report package, given the session's own record and manifest.
-    await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest })).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
-    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
-    expect(reportPackageUnavailableReason(result)).toBe(PRESSURE_1_OUTPUT_REFUSAL);
+    await expect(buildCurrentResultExport({ model, result, analysisRun, inputManifest })).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
+    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
+    expect(reportPackageUnavailableReason(result)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
     // The session itself offers no report package for a result that is not Current.
     await act(async () => { await hook.current.results.handleSaveReportPackage(); });
     expect(hook.current.results.reportPackageRoute).toBeNull();
     // Native package: the export link is replaced by the refusal.
     render(<NativePackagePanel model={model} modelHash={hook.current.model.modelHash} result={result} analysisRun={analysisRun} editorIntents={[]}
       projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);
-    expect(screen.getByTestId("native-package-load-reference-output-unavailable")).toHaveTextContent(PRESSURE_1_OUTPUT_REFUSAL);
+    expect(screen.getByTestId("native-package-load-reference-output-unavailable")).toHaveTextContent(PRESSURE_2_OUTPUT_REFUSAL);
     expect(screen.queryByTestId("native-package-link")).toBeNull();
     cleanup();
-    // Rule check: refused before the rule backend (pressure-1 is outside the fresh set).
+    // Rule check: refused before the rule backend (pressure-2 is outside the fresh set).
     invokeMock.mockClear();
     await expect(runRuleChecks({ rulePackDocument: { metadata: { rule_pack_id: "invented-test-only" } }, model, solvedEnvelope: result })).rejects.toThrow("RULE_SOURCE_IDENTITY_NOT_FRESH");
     expect(invokeMock.mock.calls.map(([command]) => command)).not.toContain("run_rule_checks");

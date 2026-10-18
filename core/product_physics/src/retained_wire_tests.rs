@@ -36,8 +36,8 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// C5 adds the adopted arc end-tangent limitation sentence; the current ordinary
 /// companions preserve every physical row and are still equal under capture.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 68215, "262350431963ec51fe025007f4381fdfc84326f68b80a7c13f73bed768c1a580"),
-    ("dense_scrutiny", 68236, "9fc0332eaf7798ed96f2013beb3cca2f7f429830b1e5719bdf535da8c02aad3d"),
+    ("sparse_interactive", 68215, "47a490465d9a3c30a92943eca331afd5c5321bd7e9fe1a48ffc96889480f2f91"),
+    ("dense_scrutiny", 68236, "6b171925c508cd9c9b2b165cc55768fd3a9b909a3a8a3dee22c8f36fe3be8df7"),
 ];
 /// The serializer's committed milestone output: sha256 of the pretty-printed
 /// successor envelope, and its receipt_sha256 (byte-stable, both modes).
@@ -55,11 +55,11 @@ fn sha(bytes: &[u8]) -> String {
 fn milestone_raw() -> Value {
     serde_json::from_str(MILESTONE).unwrap()
 }
-/// The private prepared driver on the unchanged 0.5.0 milestone: the candidate,
+/// The private prepared driver on the unchanged 0.6.0 milestone: the candidate,
 /// its captured invocation and the bytes of its single ordinary run.
 fn milestone_candidate(mode: PreviewSolverMode) -> (rp::PrivatePreparedCandidate, source_receipt::CapturedInvocation, Vec<u8>) {
     let raw = milestone_raw();
-    assert_eq!(raw["model"]["schema_version"], json!(crate::MODEL_SCHEMA_VERSION), "milestone request unchanged at 0.5.0");
+    assert_eq!(raw["model"]["schema_version"], json!(crate::MODEL_SCHEMA_VERSION), "milestone request unchanged at 0.6.0");
     let (request, capture) = source_receipt::CapturedInvocation::parse(raw, mode).unwrap();
     let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
     let ordinary = serde_json::to_vec(prepared.ordinary()).unwrap();
@@ -446,7 +446,7 @@ fn u1_constants_bound_to_in_tree_fixtures() {
     let definition: Value = serde_json::from_str(DEFINITION).unwrap();
     let table: Value = serde_json::from_str(TABLE).unwrap();
     assert_eq!(wire::domain_hash("retained_precision_formation_v1", &definition).as_deref(), Some(wire::DEFINITION_SHA256));
-    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::DEFINITION_ID,"sha256":wire::DEFINITION_SHA256},{"id":"RP-PREPARED-COMBINATION-DUAL-v1","sha256":"75b9414df919fb4e181aa06030249289b70f0518023afbe241f72e31b8b60f31"}]));
+    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::DEFINITION_ID,"sha256":wire::DEFINITION_SHA256},{"id":"RP-PREPARED-COMBINATION-DUAL-v1","sha256":"1d72a9dbb6d55a291fd87d3254230240e9e49ef0aa77eb5d46cc6a30e6580ea3"}]));
     assert_eq!(table["semantic_contract_id"], json!(wire::RETAINED_SEMANTIC_ID));
     assert_eq!(table["formulation_profile_id"], json!(wire::RETAINED_PROFILE_ID));
     assert_eq!(table["receipt_policy"], json!(wire::POLICY));
@@ -801,14 +801,14 @@ fn u1g2_initial_quality_crosscheck_negative() {
 /// B3b-P (B3-D P-9; REVISION_01 §1.2, S-1): the exact route's wire constants are bound to the
 /// in-tree statics J1 landed: DEF-E's H is `EXACT_DEFINITION_SHA256` and the physics-retained-1
 /// table binds it, its identity, profile, policies and `receipt_bindings` (B3D-8, the serializer's
-/// own values); its inherited hash is pressure-1's table bytes (B7b D4 (a)). The preview route's descriptor is
+/// own values); its inherited hash is pressure-2's table bytes (B7b D4 (a)). The preview route's descriptor is
 /// the unchanged module constants.
 #[test]
 fn b3b_exact_constants_bound_to_in_tree_fixtures() {
     const EXACT_DEFINITION: &str = include_str!("../../../fixtures/results/retained_precision_prepared_exact_v1.json");
     const EXACT_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json");
-    // B7b D4 (a): physics-retained-1 is based on pressure-1 (exact_pressure_v3).
-    const PRESSURE_1_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_pressure_1.json");
+    // B7b D4 (a): physics-retained-1 is based on pressure-2 (exact_pressure_v3).
+    const PRESSURE_1_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
     let definition: Value = serde_json::from_str(EXACT_DEFINITION).unwrap();
     let table: Value = serde_json::from_str(EXACT_TABLE).unwrap();
     assert_eq!(definition["id"], json!(wire::EXACT_DEFINITION_ID));

@@ -11,10 +11,10 @@
   ],
   "properties": {
     "schema_version": {
-      "description": "Model document 0.5.0 is the one current version. A pressure_contract is optional; only actual key absence is pressure-free. Model documents 0.1.0, 0.2.0, 0.3.0 and 0.4.0 are retired and refused by name. Re-authoring is explicit; nothing is migrated.",
+      "description": "Model document 0.6.0 is the one current version. A pressure_contract is optional; only actual key absence is pressure-free. Model documents 0.1.0, 0.2.0, 0.3.0, 0.4.0 and 0.5.0 are retired and refused by name. Re-authoring is explicit; nothing is migrated.",
       "type": "string",
       "enum": [
-        "0.5.0"
+        "0.6.0"
       ]
     },
     "pressure_contract": {

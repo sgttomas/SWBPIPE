@@ -1,12 +1,12 @@
-"""pressure-1 readers on load/reference-state publications: shared Rust/Python adversarial parity and carriers.
+"""pressure-2 readers on load/reference-state publications: shared Rust/Python adversarial parity and carriers.
 
 B7b (A4/A5) retired load-reference-1 (`resolved_straight_load_state_v1` under `2.0.0/exact_straight_pressure_v2`):
-a load/reference-state model now publishes pressure-1 (`3.0.0/exact_pressure_v3`) with
+a load/reference-state model now publishes pressure-2 (`3.0.0/exact_pressure_v3`) with
 `contract_evidence.load_reference_states`. The case file is shared with the Rust reader test
 ``core/reporting/result_export/tests/load_reference_contract.rs``, whose v3 twins it holds: ``dispatch`` is the raw
 dispatch (Rust ``semantic_contract::for_source``; here the verifier's ``_source_contract``) and ``validator`` the
-pressure-1 reader called directly (``validate_pressure_evidence``). Both readers must reproduce every expectation,
-so they accept and reject the same inputs with the same error. pressure-1 has no transport (metadata-only) reader,
+pressure-2 reader called directly (``validate_pressure_evidence``). Both readers must reproduce every expectation,
+so they accept and reject the same inputs with the same error. pressure-2 has no transport (metadata-only) reader,
 so the case file holds no transport cases. Carrier fixtures ``fixtures/results/pressure_load_state_*`` are derived
 from the four current producer envelopes by the product builder; they prove reader preservation, not producer
 authentication or engineering acceptance.
@@ -31,7 +31,7 @@ from core.analysis_runs.compatibility import (
 )
 from core.analysis_runs import rust_reader
 from tests.verifiers.load_reference_evidence import TRANSPORT_SCHEMA_SHA256
-from tests.verifiers.pressure_1 import pressure_table, validate_pressure_evidence, verify_pressure_table
+from tests.verifiers.pressure_2 import pressure_table, validate_pressure_evidence, verify_pressure_table
 from tests.verifiers import compatibility as verifier
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1
 
@@ -39,14 +39,14 @@ PROJECT = Path(__file__).resolve().parents[1]
 CASES_PATH = PROJECT / "core/reporting/result_export/tests/fixtures/load_reference_mutations.json"
 CASES = json.loads(CASES_PATH.read_text())
 FROZEN = {
-    "fixtures/product_preview/pressure/load_reference/connected.request.json": "8203edb454f658fcc8a1ec9d9ea5f613db55b5c5b1433914794bff0e950137f4",
+    "fixtures/product_preview/pressure/load_reference/connected.request.json": "785b1af7d23ec6bbb3519ac955411b0682360abee4446827a11aa6f481a359e0",
     # T4-U6 (D-5): the regenerated producer envelopes (both section-basis families).
-    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "b0338abda578dd364e0436a28ec672208985e902181bff92c85a907ce4cef225",
-    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "698e444fc2e96af11b0188125676676754a67fdcd2cf6a4877195de2150e3e64",
-    "fixtures/product_preview/pressure/load_reference/pressure.request.json": "d81216438dac01f081568a75f5618028cd06899549dfe614ed7359f4da20c60b",
-    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "f12c3a9de57214e2665711e96467f486ee0461f530f2ef78e6ae541391267892",
-    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "df0a7a94a0cb2461f4632807a4b2375653a07e03610d4c7f0f11014bf2d3c8a4",
-    "fixtures/results/semantic_contract_v0_3_pressure_1.json": PRESSURE_CONTRACT_SHA256,
+    "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "cc9ceb4a4197deb01e49e1ee2eef873a6c65a78d3ce6753a18c0e9160a1660cc",
+    "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json": "07389b05a0248cfac090b0ed58bdd38d20a22b52ed7fa6fce3729f8d038fd782",
+    "fixtures/product_preview/pressure/load_reference/pressure.request.json": "a223889792cca7c0839045cc24a0ac36785acb63589e50af4edc27cf99cfa92f",
+    "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json": "903316e6b64b60256985236c4525dc3e726d4a0c6e0e7fcaf39609c658a32478",
+    "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json": "8d52565e716641a28038495aa237339f29fed1c588cea8c62ef4222f944d25df",
+    "fixtures/results/semantic_contract_v0_3_pressure_2.json": PRESSURE_CONTRACT_SHA256,
     "schemas/load_reference_state.schema.json": TRANSPORT_SCHEMA_SHA256,
 }
 RAW = ["connected-sparse", "connected-dense", "pressure-sparse", "pressure-dense"]
@@ -55,7 +55,7 @@ RAW_PATHS = {f"{stem}-{short}": f"fixtures/product_preview/pressure/load_referen
              for stem in ("connected", "pressure") for short, mode in (("sparse", "sparse_interactive"), ("dense", "dense_scrutiny"))}
 PHYSICS_PREFIX = "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE"
 # The declared class (as in test_base_reader_verifier): both readers refuse, each in its own words. B7b reads these
-# statements with the ordinary pressure-1 reader, whose Python words are a generic code with a detail where the Rust
+# statements with the ordinary pressure-2 reader, whose Python words are a generic code with a detail where the Rust
 # reader (the shared case's expectation, checked below against the product verdict) names a specific code.
 DECLARED_WORDS = {
     "MISSING-load-reference-states": "SOURCE_PHYSICS_EVIDENCE_INVALID: material shape",
@@ -181,7 +181,7 @@ def test_frozen_inputs_and_table_identity():
         assert hashlib.sha256((PROJECT / path).read_bytes()).hexdigest() == digest, path
     table = pressure_table()
     assert table["semantic_contract_id"] == PRESSURE_CONTRACT_ID and table["formulation_profile_id"] == "exact_pressure_v3"
-    # B5 (last entry, B7b): pressure-1 is published, so no current table reserves it.
+    # B5 (last entry, B7b): pressure-2 is published, so no current table reserves it.
     assert table["reserved_inactive_successors"] == []
     # The retired load-reference-1 table left with v2; no current table carries its profile.
     assert not (PROJECT / "fixtures/results/semantic_contract_v0_3_load_reference_1.json").exists()
@@ -227,7 +227,7 @@ def test_shared_adversarial_case(case):
 
 @pytest.mark.parametrize("case", CASES["table_cases"], ids=lambda case: case["id"])
 def test_table_bytes_are_pinned(case):
-    data = (PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_1.json").read_text()
+    data = (PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json").read_text()
     if case["find"] is not None:
         assert case["find"] in data
         data = data.replace(case["find"], case["replace"], 1)
@@ -237,7 +237,7 @@ def test_table_bytes_are_pinned(case):
 
 
 def test_pressure_one_has_no_transport_cases():
-    # pressure-1 has no transport (metadata-only) reader in Rust; a transported statement is refused by name, in
+    # pressure-2 has no transport (metadata-only) reader in Rust; a transported statement is refused by name, in
     # the product (through Rust) and in the verifier alike.
     assert CASES["transport_cases"] == []
     raw = actual("connected-sparse")
@@ -262,7 +262,7 @@ def test_nonfinite_cases_are_the_only_language_specific_representation():
 def test_actual_envelopes_admit_numerically_and_build_pressure_analysis_run(name):
     raw = actual(name)
     before = deepcopy(raw)
-    assert _source_contract(raw) == (PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256, PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_1.json")
+    assert _source_contract(raw) == (PRESSURE_CONTRACT_ID, PRESSURE_CONTRACT_SHA256, PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json")
     assert numerical_use_standing(raw, bases(raw)) == "numerically_eligible"
     record = build_analysis_run_v0_3(raw, input_manifest_ref={"object_type": "InputManifest", "ref": "manifest:load-reference-reader-test"}, input_manifest_hash="1" * 64)
     assert raw == before
@@ -274,7 +274,7 @@ def test_actual_envelopes_admit_numerically_and_build_pressure_analysis_run(name
     assert all(ref["interpretation"]["status"] != "unavailable" for ref in run["result_refs"] if ref["source_annotation"]["kind"].endswith("_v2"))
     received = next(item for item in run["hashes"] if item["payload_scope"] == "received_result")
     assert received["value"] == canonical_sha256_checked_v1(raw)
-    # A downgraded record (carrying evidence a pressure-1 record does not carry) is refused.
+    # A downgraded record (carrying evidence a pressure-2 record does not carry) is refused.
     downgraded = deepcopy(record)
     downgraded["analysis_run"]["contract_evidence"] = deepcopy(raw["contract_evidence"])
     with pytest.raises(ValueError, match="ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN"):
@@ -312,13 +312,13 @@ def test_analysis_run_carrier_fixture_is_reproduced_byte_for_byte(name):
 
 def test_retired_load_reference_identity_is_refused_by_name():
     """B7b: a stored load-reference-1 (v2) result is refused at the header by name, in the product (Rust) and the
-    verifier; nothing reinterprets it as pressure-1."""
+    verifier; nothing reinterprets it as pressure-2."""
     raw = actual("connected-sparse")
     stored = deepcopy(raw)
     stored["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/load-reference-1"
     stored["formulation_basis"]["profile_id"] = "resolved_straight_load_state_v1"
     text = ("SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
-            "re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis")
+            "re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis")
     assert outcome(lambda: _source_contract(stored)) == text
     assert outcome(lambda: verifier._source_contract(stored)) == text
     assert numerical_use_standing(stored, bases(stored)) == "unsupported"

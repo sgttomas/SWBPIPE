@@ -3,7 +3,7 @@
  * solve, native capture or producer-origin claim. Current shape, coverage,
  * attribution and header laws apply unchanged. */
 import { describe, expect, it } from "vitest";
-import table from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json";
+import table from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json";
 import controls from "../../../../../fixtures/results/preview_magnitude_controls.json";
 import type { MechanicsResult } from "../../types";
 import { readerDispatch, readerValidate } from "./resultReader";

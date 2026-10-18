@@ -292,7 +292,7 @@ def transformed_physical_source_payload():
     assert not transform.has_blocking_findings
     analytical_model = transform.analytical_model
     payload = {
-        "schema_version": "0.5.0",
+        "schema_version": "0.6.0",
         "project": {
             "id": "project:tp-phys-012-derived",
             "name": "TP-PHYS-012 invented derived analytical project",

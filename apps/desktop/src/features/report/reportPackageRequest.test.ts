@@ -12,7 +12,7 @@ import inventedPreviewModel from "../../../../../fixtures/product_preview/invent
 import { analysisRecordProjection, buildAnalysisRunV03, verifyAnalysisRunRecord } from "../../services/analysisRunCompatibility";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import {readerRowSemantics, sourceContract} from "../results/resultReader";
-import { PRESSURE_1_OUTPUT_REFUSAL } from "../results/outputPolicy";
+import { PRESSURE_2_OUTPUT_REFUSAL } from "../results/outputPolicy";
 const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
 import { assembleReportPackageRequestBelowAvailabilityGate, buildReportPackageRequest, projectReceivedReportResults } from "./reportPackageRequest";
 import { N_REPORT } from "../results/knownSemanticLimitations";
@@ -22,7 +22,7 @@ import componentProvenanceProjection from "../../../../../fixtures/reports/inven
 // The report package refuses every fresh identity (N-REPORT); the gate is asserted
 // below. Analysis runs keep one current version (0.3.0), so no historical carrier
 // can be recorded: the assembly, binding and refusal checks are exercised below the
-// gate with the registered preview-physics-1 session as data
+// gate with the registered preview-physics-2 session as data
 // (`assembleReportPackageRequestBelowAvailabilityGate`, a test-only seam). B1 retired
 // precision-1, the session these checks used before.
 const assembleBelowGate = assembleReportPackageRequestBelowAvailabilityGate;
@@ -57,7 +57,7 @@ async function currentSession(profile: "preview" = "preview", solverBuildRef = "
 }
 
 // Pure projection only: no fresh solve is requested for the given model. The
-// connected preview-physics-1 producer output stands for the given model's received
+// connected preview-physics-2 producer output stands for the given model's received
 // result (its model_ref is bound to that model), with a current 0.3.0 record; nothing
 // else changes. (B1 retired the synthetic precision-1 header over the demo carrier.)
 async function syntheticPreviewSession(model: PreviewModel) {
@@ -500,8 +500,8 @@ it("refuses an imported or cloned source even when its manifest and analysis has
   expect(JSON.stringify(clone)).toBe(before);
 });
 
-it("keeps a genuine exact-route source (pressure-1) inspectable while withholding this report transport by its output reason", async () => {
-  // B7b: the exact route's ordinary identity is pressure-1, the v3 twin of the retired
+it("keeps a genuine exact-route source (pressure-2) inspectable while withholding this report transport by its output reason", async () => {
+  // B7b: the exact route's ordinary identity is pressure-2, the v3 twin of the retired
   // physics-1. The gate refuses it by its output reason before reading any record.
   const { model } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -510,7 +510,7 @@ it("keeps a genuine exact-route source (pressure-1) inspectable while withholdin
   expect(sourceContract(result)).toBe("pressure");
   const before = JSON.stringify(result);
   await expect(buildReportPackageRequest({ model, result, analysisRun: null as never, inputManifest: null as never, projectSummary: null, comparison: null, ruleCheckAggregate: null }))
-    .rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
+    .rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
   expect(JSON.stringify(result)).toBe(before);
 });
 
@@ -522,8 +522,8 @@ it("refuses a registered preview session with the frozen T0R reason (report outa
 });
 
 // Below-gate coverage of the strict 0.3.0 assembly T6 will reuse, with the
-// registered preview-physics-1 session as data (the public gate refuses it).
-it("assembles the strict 0.3.0 package below the availability gate from a registered preview-physics-1 session", async () => {
+// registered preview-physics-2 session as data (the public gate refuses it).
+it("assembles the strict 0.3.0 package below the availability gate from a registered preview-physics-2 session", async () => {
   const session = await currentSession("preview");
   const before = JSON.stringify(session);
   await expect(buildReportPackageRequest({ ...session, projectSummary: null, comparison: null, ruleCheckAggregate: null }))

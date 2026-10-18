@@ -4479,7 +4479,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     // Embedded frozen synthetic model: the executable never reads repository
     // fixtures. The document is the current version, saved as authored.
     let model: Value = serde_json::from_str(r#"{
-  "schema_version": "0.5.0",
+  "schema_version": "0.6.0",
   "document_kind": "openpipestress.product_preview.model",
   "data_boundary": {
     "public_examples_policy": "invented_or_cleared_data_only",
@@ -4622,7 +4622,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     let hash = |payload: &Value| format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(
         &open_pipe_stress_operation_applier::canonical_json(payload)));
     let baseline_hash = hash(&model);
-    if baseline_hash != "sha256:19bae883722d9d955c8dfee56c5cfb6b3029f111f7952efcb784a4b84136e0f5" {
+    if baseline_hash != "sha256:e752078003553242025372a97cb775fe89212805423374b2f942f5666947493a" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-BASELINE-HASH-MISMATCH: {baseline_hash}"));
     }
     let baseline = solve_preview_mechanics(model.clone())?;
@@ -4642,7 +4642,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     }
     let edited_model = applied["applied_model"].clone();
     let edited_hash = hash(&edited_model);
-    if edited_hash != "sha256:303f2a38b2242d83c71164c2d50229e140ff9c0df654b4ce7a21deee0a3fed00" {
+    if edited_hash != "sha256:add9381f2009cdf7046a8b1b0966774bb77f6143094a15e61a1785dda682cec3" {
         return Err(format!("PACKAGED-SMOKE-FROZEN-EDIT-HASH-MISMATCH: {edited_hash}"));
     }
     let agent_intent: Value = serde_json::from_str(r#"{
@@ -4775,7 +4775,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
         let quantities = [
             ("result:disp:node-WF-TIP:uy", "mm", uy),
             ("result:disp:node-WF-TIP:rz", "rad", rz),
-            // T0R preview-physics-1: signed support-on-pipe components replace the retired resultant.
+            // T0R preview-physics-2: signed support-on-pipe components replace the retired resultant.
             ("result:support-action:7:load:WF:15:support:WF-ROOT:Fy", "N", -force),
             ("result:support-action:7:load:WF:15:support:WF-ROOT:Mz", "N*m", -force * 3.2),
             ("result:force:pipe-WF:shear-z", "N", force),
@@ -5122,14 +5122,14 @@ mod tests {
     // Synthetic metadata is exclusively a consumer-policy fixture, never a claim
     // that the product solve below has passed the structural integrity gate.
     // The policy fixture carries the
-    // fresh preview-physics-1 identity with closed evidence and one table-signed row.
+    // fresh preview-physics-2 identity with closed evidence and one table-signed row.
     fn preview_policy_envelope(model: &Value) -> Value {
         let cases = model["load_cases"].as_array().unwrap();
         let mut envelope = demo_solved_envelope(0.125);
         envelope["diagnostics"] = json!([]);
         envelope["schema_version"] = json!("0.2.0");
         envelope["model_ref"] = model["project"]["id"].clone();
-        envelope["producer"] = json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":"openpipestress.result_semantics/0.3.0/preview-physics-1"});
+        envelope["producer"] = json!({"component_name":"open_pipe_stress_product_physics","component_version":"0.2.0","semantic_contract_id":"openpipestress.result_semantics/0.3.0/preview-physics-2"});
         envelope["formulation_basis"] = json!({"profile_id":"product_preview_mechanics_v1","limitations":open_pipe_stress_result_export::semantic_contract::preview_physics_contract()["supported_profile_limitations"].clone()});
         envelope["results"][0]["kind"] = json!("global_nodal_rotation_x");
         envelope["results"][0]["unit"] = json!("rad");
@@ -5252,7 +5252,7 @@ mod tests {
     fn source_blocks_native_actual_invocation_store_and_rule_context() {
         // B4/D1 (b): source blocks remain only on the exact route's composites, so this
         // control reads pressure-source-1's committed request (B7b: an exact-contract
-        // 0.5.0 model with 3.0.0/exact_pressure_v3, the v3 twin of physics-source-1's).
+        // 0.6.0 model with 3.0.0/exact_pressure_v3, the v3 twin of physics-source-1's).
         let request: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json")).unwrap();
         let model = &request["model"];
         for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
@@ -5283,7 +5283,7 @@ mod tests {
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
             let source = solve_preview_mechanics_value_with_mode(model.clone(), mode).unwrap();
             assert_eq!(source["status"]["mechanics"], "MECHANICS_SOLVED");
-            assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-1");
+            assert_eq!(source["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2");
             let row = source["results"].as_array().unwrap().iter().find(|r|
                 r["entity_ref"] == "node:fixture-tip" && r["kind"] == "global_nodal_rotation_x"
                 && r["basis_ref"]["ref_id"] == "case:six-component-load"
@@ -5309,8 +5309,8 @@ mod tests {
             assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED");
             assert_eq!(solved["schema_version"], "0.2.0");
             assert_eq!(solved["producer"]["component_version"], "0.2.0");
-            // T0R: a fresh non-exact solve publishes preview-physics-1.
-            assert_eq!(solved["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/preview-physics-1");
+            // T0R: a fresh non-exact solve publishes preview-physics-2.
+            assert_eq!(solved["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/preview-physics-2");
             let output = precision_transport(&model, &solved);
             // Elementary Euler-Bernoulli tip-force oracle, independent of solver assembly.
             let inertia = std::f64::consts::PI * (0.114_f64.powi(4) - 0.102_f64.powi(4)) / 64.0;
@@ -6175,8 +6175,8 @@ mod tests {
         let project_id = model["project"]["id"].as_str().unwrap();
         let version = check_model_document_for_persist(&model).unwrap();
         assert_eq!(version.status, "current");
-        // B7b: the exact form is a contract-present 0.5.0 document (3.0.0/exact_pressure_v3).
-        assert_eq!(version.target_schema_version, "0.5.0");
+        // B7b: the exact form is a contract-present 0.6.0 document (3.0.0/exact_pressure_v3).
+        assert_eq!(version.target_schema_version, "0.6.0");
         let prepared = model.clone();
         upsert_project(
             &mut connection, project_id, "Explicit exact-profile fixture", &prepared,
@@ -6187,7 +6187,7 @@ mod tests {
         assert_eq!(loaded.model, model);
         let reopened = evaluate_model_document(&loaded.model);
         assert_eq!(reopened.status, "current");
-        assert_eq!(reopened.target_schema_version, "0.5.0");
+        assert_eq!(reopened.target_schema_version, "0.6.0");
         let (status, _, signature) = unit_round_trip_summary(&loaded.model);
         assert_eq!(status, "unit_metadata_preserved_in_local_project_envelope");
         assert!(signature.contains("poisson_ratio=1"));
@@ -6200,7 +6200,7 @@ mod tests {
             let result = run_linear_static_preview_with_mode(request, mode);
             assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
             assert_eq!(result.producer.semantic_contract_id,
-                "openpipestress.result_semantics/0.3.0/pressure-1");
+                "openpipestress.result_semantics/0.3.0/pressure-2");
             assert_eq!(result.contract_evidence.as_ref().unwrap()["exact_cases"].as_array().unwrap().len(), 2);
         }
     }
@@ -6215,9 +6215,9 @@ mod tests {
             .unwrap()
     }
 
-    /// T1 WP2, on the current format (B7b): a 0.5.0 exact-contract model with the
+    /// T1 WP2, on the current format (B7b): a 0.6.0 exact-contract model with the
     /// load/reference-state group is saved and reopened exactly as any current
-    /// document is, and its saved pressure-1 result keeps its raw hash and its
+    /// document is, and its saved pressure-2 result keeps its raw hash and its
     /// resolved evidence bytes. The model and result are committed producer
     /// fixtures (invented data). The open step mirrors `open_local_project`.
     #[test]
@@ -6226,12 +6226,12 @@ mod tests {
             "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
         )).unwrap();
         let model = request["model"].clone();
-        assert_eq!(model["schema_version"], "0.5.0");
+        assert_eq!(model["schema_version"], "0.6.0");
         let result: Value = serde_json::from_str(include_str!(
             "../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
         )).unwrap();
         assert_eq!(result["producer"]["semantic_contract_id"],
-            "openpipestress.result_semantics/0.3.0/pressure-1");
+            "openpipestress.result_semantics/0.3.0/pressure-2");
         let project = model["project"]["id"].as_str().unwrap().to_string();
         let model_bytes = serde_json::to_string(&model).unwrap();
         let result_bytes = serde_json::to_string(&result).unwrap();
@@ -6256,8 +6256,8 @@ mod tests {
             apply_store_migrations(&connection).unwrap();
             let status = check_model_document_for_persist(&current).unwrap();
             assert_eq!(status.status, "current");
-            assert_eq!(status.source_schema_version, "0.5.0");
-            assert_eq!(status.target_schema_version, "0.5.0");
+            assert_eq!(status.source_schema_version, "0.6.0");
+            assert_eq!(status.target_schema_version, "0.6.0");
             let (persisted, saved_mh, saved_eh) = (current.clone(), mh.clone(), eh.clone());
             assert_eq!(persisted, model);
             upsert_project(
@@ -6272,7 +6272,7 @@ mod tests {
             let loaded = load_project(&reopened, Some(&project)).unwrap().unwrap();
             let status = evaluate_model_document(&loaded.model);
             assert_eq!(status.status, "current");
-            assert_eq!(status.target_schema_version, "0.5.0");
+            assert_eq!(status.target_schema_version, "0.6.0");
             let opened = loaded.model;
             assert_eq!(opened, model);
             assert_eq!(serde_json::to_string(&opened).unwrap(), model_bytes);
@@ -6291,13 +6291,13 @@ mod tests {
         std::fs::remove_dir_all(root).unwrap();
 
         // The reopened document is the product's own current input: it solves on
-        // the exact route (pressure-1 with the group) and reproduces the saved evidence.
+        // the exact route (pressure-2 with the group) and reproduces the saved evidence.
         let solved = run_linear_static_preview_with_mode(
             serde_json::from_value(json!({"model": current, "materials": []})).unwrap(),
             PreviewSolverMode::SparseInteractive,
         );
         assert_eq!(solved.producer.semantic_contract_id,
-            "openpipestress.result_semantics/0.3.0/pressure-1");
+            "openpipestress.result_semantics/0.3.0/pressure-2");
         assert_eq!(
             solved.contract_evidence.as_ref().unwrap()["load_reference_states"],
             result["contract_evidence"]["load_reference_states"]
@@ -6305,8 +6305,8 @@ mod tests {
     }
 
     /// T1 WP2 (D3), on the current format (B7b): exact-contract and pressure-free
-    /// 0.5.0 documents persist unchanged with no load/reference-state key added; a
-    /// pressure-free 0.5.0 document that carries the load/reference-state group
+    /// 0.6.0 documents persist unchanged with no load/reference-state key added; a
+    /// pressure-free 0.6.0 document that carries the load/reference-state group
     /// (which requires the exact contract) is kept as authored (not stripped, not
     /// re-stamped) and the product blocks on solve.
     #[test]
@@ -6373,11 +6373,11 @@ mod tests {
             "../../../../fixtures/product_preview/pressure/load_reference/connected.request.json"
         )).unwrap();
         let carried = pressure_free(&request["model"]);
-        assert_eq!(carried["schema_version"], "0.5.0");
+        assert_eq!(carried["schema_version"], "0.6.0");
         assert!(carries_load_reference_keys(&carried));
         let (loaded, status) = round_trip(&carried);
         assert_eq!(loaded, carried);
-        assert_eq!(status.target_schema_version, "0.5.0");
+        assert_eq!(status.target_schema_version, "0.6.0");
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
             let solved = run_linear_static_preview_with_mode(
                 serde_json::from_value(json!({"model": loaded.clone(), "materials": []})).unwrap(),
@@ -6400,7 +6400,7 @@ mod tests {
         assert!(fts5_available(&connection));
 
         let model = json!({
-        "schema_version": "0.5.0",
+        "schema_version": "0.6.0",
         "document_kind": "openpipestress.product_preview.model",
             "project": {
                 "id": "project:test-local",
@@ -6996,8 +6996,8 @@ mod tests {
     #[test]
     fn solves_hand_the_desktop_the_producers_exact_bytes() {
         const PINS: [(&str, usize, &str); 2] = [
-            ("sparse_interactive", 68215, "262350431963ec51fe025007f4381fdfc84326f68b80a7c13f73bed768c1a580"),
-            ("dense_scrutiny", 68236, "9fc0332eaf7798ed96f2013beb3cca2f7f429830b1e5719bdf535da8c02aad3d"),
+            ("sparse_interactive", 68215, "47a490465d9a3c30a92943eca331afd5c5321bd7e9fe1a48ffc96889480f2f91"),
+            ("dense_scrutiny", 68236, "6b171925c508cd9c9b2b165cc55768fd3a9b909a3a8a3dee22c8f36fe3be8df7"),
         ];
         let fixtures = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/product_preview");
         let model: Value = serde_json::from_str(include_str!(
@@ -7080,7 +7080,7 @@ mod tests {
         );
     }
 
-    /// U3 (D-2 A1), on the current format (B7b): a 0.5.0 document declaring the
+    /// U3 (D-2 A1), on the current format (B7b): a 0.6.0 document declaring the
     /// retired 1.0.0/legacy_pressure_v1 or 2.0.0/exact_straight_pressure_v2 contract
     /// opens unchanged (no migration rewrites it), and its solve is refused with
     /// PRESSURE_MODEL_REAUTHOR_REQUIRED; nothing is published.
@@ -7101,7 +7101,7 @@ mod tests {
             let before = labelled.clone();
             let opened = evaluate_model_document(&labelled);
             assert_eq!(opened.status, "current", "{contract}");
-            assert_eq!(opened.target_schema_version, "0.5.0", "{contract}");
+            assert_eq!(opened.target_schema_version, "0.6.0", "{contract}");
             assert_eq!(labelled, before);
 
             let solved = run_preview_mechanics_value(Some(labelled)).expect("refusal is a published envelope");
@@ -7118,7 +7118,7 @@ mod tests {
     #[test]
     fn run_preview_mechanics_reports_blank_model_incomplete_without_defaults() {
         let blank = json!({
-            "schema_version": "0.5.0",
+            "schema_version": "0.6.0",
             "document_kind": "openpipestress.product_preview.model",
             "data_boundary": {
                 "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values",
@@ -7305,7 +7305,7 @@ mod tests {
             assert_bundled_demo_solved(&solved);
             assert_eq!(
                 solved["producer"]["semantic_contract_id"],
-                json!("openpipestress.result_semantics/0.3.0/preview-physics-1")
+                json!("openpipestress.result_semantics/0.3.0/preview-physics-2")
             );
         }
         assert_bundled_demo_solved(&run_preview_mechanics_value(Some(model)).expect("default solve command"));
@@ -7481,7 +7481,7 @@ mod tests {
             "value": "raw-received-model-claim"
         });
         let received_envelope_claim = json!(["raw", "received", "envelope", "claim"]);
-        // The derived fixture is a current (0.5.0) document: it persists exactly
+        // The derived fixture is a current (0.6.0) document: it persists exactly
         // as edited, with the received hash claims kept raw; nothing is migrated
         // and no evidence is minted.
         let document_status = check_model_document_for_persist(&edited_model)
@@ -7541,14 +7541,14 @@ mod tests {
 
     #[test]
     fn persist_preparation_refuses_retired_newer_and_unsupported_model_documents() {
-        for version in ["0.1.0", "0.2.0"] {
+        for version in ["0.1.0", "0.2.0", "0.5.0"] {
             let retired = json!({ "schema_version": version, "project": { "id": "project:retired", "name": "Retired" } });
             let error = check_model_document_for_persist(&retired)
                 .expect_err("retired documents must be refused by name");
             assert!(error.contains("retired_schema") && error.contains("MODEL_SCHEMA_VERSION_RETIRED"), "{error}");
             assert!(error.contains(version) && error.contains("re-author"), "{error}");
         }
-        let newer = json!({ "schema_version": "0.5.1", "project": { "id": "project:newer", "name": "Newer" } });
+        let newer = json!({ "schema_version": "0.6.1", "project": { "id": "project:newer", "name": "Newer" } });
         let error = check_model_document_for_persist(&newer)
             .expect_err("newer-than-supported documents must be refused");
         assert!(error.contains("newer_than_supported"), "{error}");
@@ -7565,8 +7565,8 @@ mod tests {
         let model = json!({ "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION, "project": { "id": "project:current", "name": "Current" } });
         let status = check_model_document_for_persist(&model).expect("current documents persist");
         assert_eq!(status.status, "current");
-        assert_eq!(status.source_schema_version, "0.5.0");
-        assert_eq!(status.target_schema_version, "0.5.0");
+        assert_eq!(status.source_schema_version, "0.6.0");
+        assert_eq!(status.target_schema_version, "0.6.0");
     }
 
     /// B7a: a project stored as a retired version (here a 0.1.0 row a previous

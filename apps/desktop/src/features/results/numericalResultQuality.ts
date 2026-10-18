@@ -5,7 +5,7 @@
  * `resultStanding.ts`); nothing here reads a statement.
  *
  * B7b (b7-plan, v2 deletion): the exact contract is 3.0.0/exact_pressure_v3 only. Its
- * identities are pressure-1 (the ordinary exact route) and pressure-source-1 (the
+ * identities are pressure-2 (the ordinary exact route) and pressure-source-1 (the
  * retained-source composite); a model with the load/reference-state group publishes
  * its `load_reference_states` under either. A stored result naming a retired
  * 2.0.0/exact_straight_pressure_v2 identity (physics-1, physics-source-1,
@@ -14,8 +14,8 @@
 /** J1/J3: the v3 retained-source identity. */
 export const PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 /** T4-U2: the ordinary exact identity (3.0.0/exact_pressure_v3). */
-export const PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1";
-export const PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+export const PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2";
+export const PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 /** U6d (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statement is checked
  * only by the accepted reader (the Rust one, through `retainedPrecisionReader.ts`), and
  * standing comes only from that reader's registered validation

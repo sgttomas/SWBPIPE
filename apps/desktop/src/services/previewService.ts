@@ -174,9 +174,9 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
       await registerSourceRecovery(source, capture.invocation, capture.callerModel,
         model => hasNativeMechanicsInvocation(source, model as PreviewModel, capture.invocation.solver_mode));
     }
-    // A preview-physics-1 source registers only when its closed reader checks pass.
+    // A preview-physics-2 source registers only when its closed reader checks pass.
     if (sourceContract(source) === "preview_physics") readerValidate("preview-physics", source, capture.invocation.request.model);
-    // T1, on the current exact route (B7b): a pressure-1 source, with or without the
+    // T1, on the current exact route (B7b): a pressure-2 source, with or without the
     // load/reference-state group, registers only when its reader checks pass with the
     // captured model. A joined pressure-source-1 source registered above with its
     // invocation; its standing stays needs_recompute (never numerically eligible in T1).
@@ -890,7 +890,7 @@ async function loadMechanicsFixture(
   return result;
 }
 
-/** Validate the preview-physics-1 evidence and mode evidence of a selected bundled
+/** Validate the preview-physics-2 evidence and mode evidence of a selected bundled
  * producer result, not authenticate an arbitrary caller's source/build or upgrade
  * its numerical quality. */
 export function validateBrowserMechanicsFixture(
@@ -929,7 +929,7 @@ export function validateBrowserMechanicsFixture(
       || field(row.metadata.basis, "solution_basis").join() !== `solution_basis=${expectedBasis}`)) {
     throw new Error(`BROWSER_FIXTURE_SOLVER_MODE_BINDING_MISMATCH: ${solverMode}`);
   }
-  // The preview-physics-1 reader checks the bundled bytes as received.
+  // The preview-physics-2 reader checks the bundled bytes as received.
   readerValidate("preview-physics", result, fixtureModel);
   return result;
 }

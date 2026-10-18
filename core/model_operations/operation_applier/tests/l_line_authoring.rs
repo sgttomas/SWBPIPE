@@ -3,16 +3,16 @@
 //! realized bend, straight) is authored from its corner: E/ν material, Insert
 //! bend at corner (R and the user's k), the pressure region through the bend,
 //! the `3.0.0/exact_pressure_v3` profile, then thermal and weight loads. The
-//! authored document solves under `pressure-1` and agrees with T4-I7's L-line
+//! authored document solves under `pressure-2` and agrees with T4-I7's L-line
 //! document (U2-L-ANCH-PTW-K2), whose bend was placed by hand.
 //!
 //! The bend operations (realize, insert at corner), the region checks and the
 //! agent refusal of k are covered here as well. All data are invented.
 //!
-//! B7b: the corner document is the current 0.5.0 pressure-free document; the
+//! B7b: the corner document is the current 0.6.0 pressure-free document; the
 //! user enters each member's corrosion allowance (an explicit zero) before
 //! activating the complete `3.0.0/exact_pressure_v3` contract (euler_bernoulli).
-//! T4-I7's frozen 0.3.0 sketch is unchanged; its copy is re-authored to 0.5.0
+//! T4-I7's frozen 0.3.0 sketch is unchanged; its copy is re-authored to 0.6.0
 //! by the one shared rule (`core/product_physics/tests/common/current_model.rs`).
 use open_pipe_stress_operation_applier::{apply_operation, canonical_json, sha256_hex, validate_operation};
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
@@ -25,7 +25,7 @@ mod current_model;
 const I7_DOCUMENTS: &str = include_str!("../../../../validation/references/t4_i7/u2_document_sketches.json");
 const PROVENANCE: &str = "invented T4-U2 authoring input (from T4-I7's L line); not library, component, catalog or code-rule data";
 /// The desktop's authoring check reads these bytes: the corner document, the
-/// document authored from it here, and PP's sparse pressure-1 result for it.
+/// document authored from it here, and PP's sparse pressure-2 result for it.
 /// Regenerate with `T4_U2_WRITE_L_LINE_FIXTURE=1`; otherwise they must be current.
 const FIXTURE: &str = include_str!("../../../../fixtures/model_operations/pressure_v3_l_line_authoring.json");
 const FIXTURE_PATH: &str = "../../../fixtures/model_operations/pressure_v3_l_line_authoring.json";
@@ -71,7 +71,7 @@ fn codes(model: &Value, intent: &Value) -> Vec<String> {
 }
 
 /// The L line's corner document before any bend or load: A —S1— X —S2— D,
-/// anchored at A and D, pressure-free (current 0.5.0, no pressure contract and
+/// anchored at A and D, pressure-free (current 0.6.0, no pressure contract and
 /// no corrosion allowance yet), with a legacy E/G material.
 fn corner_document() -> Value {
     let mut model = i7_l_line();
@@ -193,7 +193,7 @@ fn the_l_line_is_authored_from_its_corner_and_solves_under_pressure_1_in_both_mo
     for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
         let authored_result = solve(&restored, mode);
         assert_eq!(authored_result["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", authored_result["diagnostics"]);
-        assert_eq!(authored_result["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-1");
+        assert_eq!(authored_result["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2");
         assert_eq!(authored_result["formulation_basis"]["profile_id"], "exact_pressure_v3");
         let reference_result = solve(&reference, mode);
         assert_eq!(reference_result["status"]["mechanics"], "MECHANICS_SOLVED");
@@ -410,7 +410,7 @@ fn pressure_regions_admit_realized_bends_and_refuse_geometry_only_spans_and_mitr
 fn the_desktop_l_line_fixture_is_current() {
     let authored = authored(true);
     let fixture = json!({
-        "fixture": "T4-U2 L line authored from its corner (invented); read by the desktop's authoring and pressure-1 refusal tests",
+        "fixture": "T4-U2 L line authored from its corner (invented); read by the desktop's authoring and pressure-2 refusal tests",
         "generator": "core/model_operations/operation_applier/tests/l_line_authoring.rs::the_desktop_l_line_fixture_is_current",
         "corner_document": corner_document(),
         "authored_model": authored,

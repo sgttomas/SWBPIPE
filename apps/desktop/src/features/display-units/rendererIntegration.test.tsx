@@ -1,4 +1,4 @@
-// Actual preview-physics-1 producer output with mechanics-combination rows (no joint, no legacy pressure).
+// Actual preview-physics-2 producer output with mechanics-combination rows (no joint, no legacy pressure).
 import combinationResult from "../../../../../fixtures/results/preview_physics_unicode_ids_sparse.json";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";

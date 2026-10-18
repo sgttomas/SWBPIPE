@@ -1,4 +1,4 @@
-//! T4-U3 (S14): the pressure-1 reader admits objective connector records and
+//! T4-U3 (S14): the pressure-2 reader admits objective connector records and
 //! rows over the shared connector corpus (also read by the Python
 //! reader), refuses each broken binding by name, and the retained-source route
 //! (pressure-source-1) refuses connector evidence (`CONNECTOR_UNSUPPORTED`).
@@ -108,7 +108,7 @@ fn u5a_participating_reader_control_binds_edges_groups_and_each_pressure_row() {
     assert!(s::validate_pressure_evidence(&wrong_face).is_err());
 }
 
-/// (label, mutation, the pressure-1 reader's error suffix).
+/// (label, mutation, the pressure-2 reader's error suffix).
 #[allow(clippy::type_complexity)]
 fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {
     vec![
@@ -128,7 +128,7 @@ fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {
         }), "CONNECTOR_ROW_COVERAGE"),
         ("row unbound", Box::new(|e: &mut Value| first_connector_row(e)["entity_ref"] = json!("component:C-999")), "CONNECTOR_ROW_UNBOUND"),
         ("row unknown kind", Box::new(|e: &mut Value| first_connector_row(e)["kind"] = json!("connector_energy_v1")), "CONNECTOR_ROW_KIND"),
-        // B7b (O-10): pressure-1's own resident table carries the connector
+        // B7b (O-10): pressure-2's own resident table carries the connector
         // signatures, so its unit check refuses a wrong unit before the
         // connector row binding is read.
         ("row unit", Box::new(|e: &mut Value| first_connector_row(e)["unit"] = json!("mm")), "SOURCE_UNIT_CONTRADICTION: connector_generalized_translation_v1"),

@@ -76,7 +76,7 @@ export function pressureModeText(model: RichFormProps["model"]): string {
   const reauthor = `re-authored to ${PRESSURE_V3.mode}`;
   if (Object.hasOwn(model, "pressure_contract")) {
     if (!contract || typeof contract !== "object" || Array.isArray(contract)) return "invalid authored pressure contract (an object is required)";
-    if (isPressureV3(model)) return `${contract.mode} (straight members, realized bends and linear restraints or springs; other families are refused by name; ${shearModelText(model)}, and realized arcs are Euler–Bernoulli under either shear model; pressure-1 results are read with their standing, and no desktop output is offered for them)`;
+    if (isPressureV3(model)) return `${contract.mode} (straight members, realized bends and linear restraints or springs; other families are refused by name; ${shearModelText(model)}, and realized arcs are Euler–Bernoulli under either shear model; pressure-2 results are read with their standing, and no desktop output is offered for them)`;
     const declared = `${contract.version}/${contract.mode}`;
     if (contract.version === "1.0.0" && contract.mode === "legacy_pressure_v1") return `${declared} (retired; solves are refused until the model is ${reauthor})`;
     return `${declared} (unsupported; solves are refused until the model is ${reauthor})`;
@@ -161,7 +161,7 @@ function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFormProps[
     <fieldset disabled={state.busy}>{rows.map((row, index) => <fieldset key={index}><legend>Region {index + 1}</legend>
       <TextField label={`Region ${index + 1} ID`} value={row.id} onChange={v => update(index, "id", v)} />
       <VirtualMultiTargetPicker label={`Region ${index + 1} member pipes`} options={pipes} values={Array.isArray(row.member_pipe_ids) ? row.member_pipe_ids as string[] : []} onChange={v => update(index, "member_pipe_ids", v)} />
-      {props.model.schema_version === "0.5.0" && <VirtualMultiTargetPicker label={`Region ${index + 1} member connectors`} options={connectors} values={Array.isArray(row.member_connector_ids) ? row.member_connector_ids as string[] : []} onChange={v => update(index, "member_connector_ids", v)} />}
+      {props.model.schema_version === "0.6.0" && <VirtualMultiTargetPicker label={`Region ${index + 1} member connectors`} options={connectors} values={Array.isArray(row.member_connector_ids) ? row.member_connector_ids as string[] : []} onChange={v => update(index, "member_connector_ids", v)} />}
       <TextField label={`Region ${index + 1} pressure basis`} value={row.pressure_basis} choices={["internal_differential_zero_external_v1"]} onChange={v => update(index, "pressure_basis", v)} />
       <QuantityField label={`Region ${index + 1} pressure`} dimension={signed ? "pressure; signed (a negative value is a net external differential; external-pressure stability and collapse are not assessed)" : "pressure; p >= 0"} value={row.pressure} onChange={v => update(index, "pressure", v)} />
       {[0, 1].map(t => {

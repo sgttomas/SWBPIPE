@@ -22,7 +22,7 @@ import { buildStateComparisonHandoffSections } from "./stateComparisonHandoffSec
 
 /** T0R: the report package refuses every fresh identity until T6 (N-REPORT). The
  * method-specific reasons stay first: B7b retired the v2 ones (physics-1,
- * physics-source-1) with their identities, and the exact routes (pressure-1 and the
+ * physics-source-1) with their identities, and the exact routes (pressure-2 and the
  * composite pressure-source-1, which also carry load/reference-state results) refuse
  * with their output-policy reason, as every other surface does. */
 export function reportPackageUnavailableReason(result: MechanicsResult | null | undefined): string | null {

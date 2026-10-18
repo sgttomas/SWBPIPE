@@ -173,7 +173,7 @@ def artifact_ref(ref_kind, ref):
 
 def test_invented_examples_follow_model_contract_shape():
     for path, example in load_examples():
-        assert example["schema_version"] == "0.5.0", path
+        assert example["schema_version"] == "0.6.0", path
         project = example["project"]
         assert REQUIRED_PROJECT_KEYS <= set(project), path
         assert project["privacy_class"] == "public", path

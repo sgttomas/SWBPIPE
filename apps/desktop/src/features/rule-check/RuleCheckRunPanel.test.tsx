@@ -20,7 +20,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 import previewInvented from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
 
 // A natively invoked, numerically eligible source as the rule service requires:
-// the captured preview-physics-1 producer pair
+// the captured preview-physics-2 producer pair
 // is replayed through mocked IPC and registered only by the production private
 // IPC route. The mock is reset afterwards, so each test's own invoke mock sees
 // the panel's calls only.

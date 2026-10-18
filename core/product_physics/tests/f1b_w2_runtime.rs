@@ -58,7 +58,7 @@ fn frame(
     loads: Vec<Value>,
 ) -> Value {
     json!({"model": {
-        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},
@@ -156,7 +156,7 @@ fn phys_r4(pressurized: bool) -> Value {
         );
     }
     json!({"model": {
-        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
         "project": {"id": "project:section-oracle", "units": {"length": "m", "force": "N", "angle": "rad",
             "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
@@ -296,7 +296,7 @@ fn t0r(
     loads: Value,
     modulus_scale: f64,
 ) -> Value {
-    json!({"model": {"schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+    json!({"model": {"schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
         "project": {"id": "project:t3-f1b-w2", "units": {"length": "m", "force": "N", "angle": "rad",
             "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
@@ -1037,7 +1037,7 @@ fn rv17_member(
 ) -> Value {
     let label = project.rsplit(':').next().unwrap();
     json!({"model": {
-        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},
@@ -1225,7 +1225,9 @@ fn f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope() {
                 // the pressure/imposed-displacement limitation sentence. C5 then
                 // adopted the arc end-tangent LIMITATIONS[3] sentence; restoring
                 // the former sentence recovers 762cf9ca..., exactly.
-                "40d62d453e993586c01821b0ba58b5a5d081fba0122d8a8778cd7cbf8736ac41",
+                // Model 0.6.0: the renamed producer identity moves this pin (the
+                // blocked envelope is otherwise unchanged).
+                "e28754eac0e2d7aac80f8a7615ce9467a9c37627ee4138d5fdb39f55a3ec72b9",
                 "{ctx}"
             );
         }

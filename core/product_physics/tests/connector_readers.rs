@@ -1,12 +1,12 @@
-//! T4-U3 (S14): the objective connector's publication under `pressure-1`.
+//! T4-U3 (S14): the objective connector's publication under `pressure-2`.
 //! A solved v3 connector envelope carries one `contract_evidence.connector`
 //! record per connector and the connector rows bound to it, discloses that no
-//! joint temperature law is provided, and is admitted by the pressure-1 reader;
+//! joint temperature law is provided, and is admitted by the pressure-2 reader;
 //! the shared reader corpus (RE, Python) is generated here.
 //!
 //! The inputs are the frozen T4-I12 system documents (0.3.0 and 0.4.0), bytes
-//! unchanged; B7b re-authors each copy to the current 0.5.0 exact document
-//! (`common/current_model.rs`). Under pressure-1 the variable spring hanger's input review rows
+//! unchanged; B7b re-authors each copy to the current 0.6.0 exact document
+//! (`common/current_model.rs`). Under pressure-2 the variable spring hanger's input review rows
 //! are model scoped (no load case), so the readers admit them (T4-U2).
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use open_pipe_stress_result_export::semantic_contract;
@@ -26,7 +26,7 @@ const INPUTS: [(&str, &str, PreviewSolverMode, &str); 2] = [
     ("U3-SYS-DEMO-CONNECTOR-002-LR1", "document_v3_0.4.0", PreviewSolverMode::DenseScrutiny, "dense_scrutiny"),
 ];
 
-/// A frozen system document (bytes unchanged), its copy re-authored to 0.5.0.
+/// A frozen system document (bytes unchanged), its copy re-authored to 0.6.0.
 fn document(case: &str, key: &str) -> Value {
     let references: Value = serde_json::from_str(REFERENCES).unwrap();
     current_model::reauthor_request(references["cases"][case]["inputs"][key].clone())
@@ -82,7 +82,7 @@ fn a_model_without_a_connector_has_no_record_or_disclosure() {
 
 /// The shared connector reader corpus (RE, Python): the 0.3.0
 /// system document in sparse mode and the 0.4.0 one in dense mode, each
-/// re-authored to 0.5.0, captured entry. Regenerate with `T4_U3_WRITE_CORPUS=1`; otherwise the committed
+/// re-authored to 0.6.0, captured entry. Regenerate with `T4_U3_WRITE_CORPUS=1`; otherwise the committed
 /// bytes must be current.
 #[test]
 fn shared_connector_reader_corpus_is_current() {
@@ -96,9 +96,9 @@ fn shared_connector_reader_corpus_is_current() {
             "document_schema_version": document["model"]["schema_version"], "solver_mode": name, "envelope": envelope}));
     }
     let corpus = json!({
-        "corpus": "T4-U3 pressure-1 objective connector reader corpus",
+        "corpus": "T4-U3 pressure-2 objective connector reader corpus",
         "generator": "core/product_physics/tests/connector_readers.rs::shared_connector_reader_corpus_is_current",
-        "inputs": ["validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, bytes unchanged; each copy re-authored to model document 0.5.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time"],
+        "inputs": ["validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, bytes unchanged; each copy re-authored to model document 0.6.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time"],
         "cases": cases,
     });
     let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";

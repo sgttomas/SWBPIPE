@@ -1,4 +1,4 @@
-"""Closed preview-physics-1 reader checks (T0R S1 §9); never producer authentication.
+"""Closed preview-physics-2 reader checks (T0R S1 §9); never producer authentication.
 
 Test verifier (b7-plan R2): the product reader is Rust's (`core/reporting/result_export/src/preview_physics_evidence.rs`), which
 product Python reaches only through `openpipestress-runner read`. Tests only: no module outside `tests/` imports
@@ -18,10 +18,10 @@ from pathlib import Path
 import sys
 from typing import Any
 
-CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 PROFILE = "product_preview_mechanics_v1"
 ROOT = Path(__file__).resolve().parents[2]
-TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_preview_physics_1.json"
+TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
 TABLE = json.loads(TABLE_PATH.read_text(encoding="utf-8"))
 LIMITATIONS = list(TABLE["supported_profile_limitations"])
 
@@ -456,7 +456,7 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
     shared form: Rust's and TS's checks plus this reader's extrema-number demand
     (``global_upper_bound_pa`` and ``certified_gap_pa`` numbers), with the cases'
     withheld records compared as multisets. It serves the retained reader's
-    transport step and the transport dispatch of a preview-physics-1 statement
+    transport step and the transport dispatch of a preview-physics-2 statement
     (``compatibility._source_contract(..., check_receipt=False)``) alike.
     """
     from .source_blocks import _shape as schema_shape

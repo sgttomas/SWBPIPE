@@ -1,6 +1,6 @@
 //! Genuine public-producer fixtures plus explicitly corrupted copies, not native Current.
 //! B7b: the current retained-source reader (pressure-source-1, 0.3 source family,
-//! 0.5.0/3.0.0/exact_pressure_v3) over the v3 twins of the retired physics-source-1
+//! 0.6.0/3.0.0/exact_pressure_v3) over the v3 twins of the retired physics-source-1
 //! fixtures (same physical inputs), with the case-evidence domain
 //! `pressure_source_case_evidence_v1`.
 use open_pipe_stress_result_export::{physics_source, section_basis, semantic_contract, source_blocks};
@@ -144,10 +144,10 @@ fn maximum_signature_requires_explicit_basis_without_claiming_current() {
 fn old_entrypoints_and_composite_remain_separate() {
     let (source, invocation) = actual("n05", "sparse_interactive");
     assert!(physics_source::validate(&source, Some(&invocation)).is_ok());
-    // The ordinary pressure-1 reader refuses a receipt-carrying statement.
+    // The ordinary pressure-2 reader refuses a receipt-carrying statement.
     assert!(semantic_contract::validate_pressure_evidence(&source).is_err());
     // B4/D1 (b): a source-blocks-1 statement is retired; the composite reader
-    // refuses it, as it refuses a retired v2 identity and an ordinary pressure-1
+    // refuses it, as it refuses a retired v2 identity and an ordinary pressure-2
     // statement.
     let mut retired = source.clone();
     retired["producer"]["semantic_contract_id"] = json!(semantic_contract::RETIRED_SOURCE_BLOCKS_ID);
@@ -296,7 +296,7 @@ fn rehashed_false_statements_remain_invalid() {
         );
     }
 }
-/// B7b: the retired physics-1 transport reader went with v2 (pressure-1 has no
+/// B7b: the retired physics-1 transport reader went with v2 (pressure-2 has no
 /// transport reader, SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED). The source route's
 /// transport check reads the transported evidence and receipt without raw rows,
 /// and refuses a changed extremum declaration in the transported evidence.

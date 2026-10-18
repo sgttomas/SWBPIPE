@@ -81,7 +81,7 @@ import {
   FRESH_SEMANTIC_CONTRACT_IDS, N_HEADLINE, N_RP_ABSOLUTE, N_RP_NOT_COVERED, N_RP_UNVALIDATED, RULE_QUANTITY_BELOW_VERIFIED_FLOOR, RULE_QUANTITY_NOT_COVERED,
   classBindingRefusal, isFreshSemanticResult, knownSemanticNotices, resultRowLabel, retainedAbsoluteNotice, ruleBindingRefusal, standingReason, upwardBoundText,
 } from "./knownSemanticLimitations";
-import previewPhysicsSemanticContract from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json";
+import previewPhysicsSemanticContract from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json";
 import previewPhysicsRetainedSemanticContract from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import { ResultsPanel } from "./ResultsPanel";
 import { buildHistoricalRunContext } from "./HistoricalRunContext";
@@ -241,7 +241,7 @@ describe("the inputs and the pinned identity", () => {
       expect(numericalResultStanding(source, null).status).toBe("needs_recompute");
     }
   });
-  it("dispatch constants equal the accepted reader's and the pinned table, whose rows are preview-physics-1's", () => {
+  it("dispatch constants equal the accepted reader's and the pinned table, whose rows are preview-physics-2's", () => {
     expect(PREVIEW_PHYSICS_RETAINED_CONTRACT_ID).toBe(RETAINED_PRECISION_ID);
     expect(milestone("sparse_interactive").source.formulation_basis!.profile_id).toBe(RETAINED_PRECISION_PROFILE);
     expect(RETAINED_METHOD).toBe(rustConstant("METHOD"));
@@ -604,7 +604,7 @@ describe("the downgrade guard (F-5)", () => {
     ["the token rows only", (s: Json) => { delete relabel(s).retained_precision; }],
     ["a null receipt member only", (s: Json) => { relabel(s).retained_precision = null; for (const row of s.results) delete row.recovery_method; }],
     ["one token row only", (s: Json) => { delete relabel(s).retained_precision; for (const row of s.results.slice(1)) delete row.recovery_method; }],
-  ] as const)("a successor relabelled as preview-physics-1 keeping %s is unsupported", (_label, edit) => {
+  ] as const)("a successor relabelled as preview-physics-2 keeping %s is unsupported", (_label, edit) => {
     const s = structuredClone(source) as Json; edit(s);
     expect(retainedPrecisionDowngrade(s)).toBe(true);
     expect(sourceContract(s)).toBe("unsupported");

@@ -61,7 +61,7 @@ def test_composite_schema_is_the_only_source_block_receipt_schema():
         text = (PROJECT / "schemas" / name).read_text()
         assert RETIRED_SOURCE_BLOCKS_ID not in text and "source_block_recovery.schema.json" not in text, name
         assert not any(identity in text for identity in RETIRED_V2_IDS), name
-    assert COMPOSITE_SHA256 == "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53"
+    assert COMPOSITE_SHA256 == "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b"
     assert hashlib.sha256((PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_source_1.json").read_bytes()).hexdigest() == COMPOSITE_SHA256
     for retired in ("physics_1", "physics_source_1", "load_reference_1", "load_reference_source_1"):
         assert not (PROJECT / f"fixtures/results/semantic_contract_v0_3_{retired}.json").exists(), retired
@@ -182,7 +182,7 @@ def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route()
     # Validate the exact branch wiring; canonical packet positives remain the
     # separately supplied actual headless producer artifacts, never constructed here.
     branches = envelope_branches(results)
-    # T4-U2 added pressure-1 (its branch held in results_pressure_1.v0.3); the join added
+    # T4-U2 added pressure-2 (its branch held in results_pressure_2.v0.3); the join added
     # pressure-source-1; B1 removed precision-1's branch and B4/D1 (b) source-blocks-1's;
     # B7b removed the four exact v2 branches (physics-1, physics-source-1, load-reference-1, load-reference-source-1).
     assert len(branches) == 5
@@ -193,12 +193,12 @@ def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route()
         identity = branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
         assert identity not in RETIRED_V2_IDS
         target = {"openpipestress.result_semantics/0.3.0/pressure-source-1": "PhysicsSourceResultSet",
-                  "openpipestress.result_semantics/0.3.0/preview-physics-1": "PreviewPhysicsResultSet",
+                  "openpipestress.result_semantics/0.3.0/preview-physics-2": "PreviewPhysicsResultSet",
                   # T3's F2a successor inherits the preview result sets (reader fan-in);
                   # B3b's exact successor keeps the default result set.
                   "openpipestress.result_semantics/0.3.0/preview-physics-retained-1": "PreviewPhysicsResultSet",
-                  # T4-U2: pressure-1's result sets add the connector vocabulary.
-                  "openpipestress.result_semantics/0.3.0/pressure-1": "PressureResultSet"}.get(identity, "ResultSet")
+                  # T4-U2: pressure-2's result sets add the connector vocabulary.
+                  "openpipestress.result_semantics/0.3.0/pressure-2": "PressureResultSet"}.get(identity, "ResultSet")
         assert branch["properties"]["result_sets"]["items"] == {"$ref": f"#/$defs/{target}"}
     assert results["$defs"]["ResultSet"]["properties"]["values"]["items"] == {"$ref": "#/$defs/QuantityResult"}
     assert results["$defs"]["QuantityResult"]["properties"]["metadata"] == {"$ref": "#/$defs/ResultMetadata"}

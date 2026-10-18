@@ -20,7 +20,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 
 function inventedModel(): PreviewModel {
   return {
-    schema_version: "0.5.0",
+    schema_version: "0.6.0",
     document_kind: "openpipestress.product_preview.model",
     data_boundary: {},
     project: {

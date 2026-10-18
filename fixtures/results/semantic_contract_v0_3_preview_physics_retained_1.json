@@ -1104,7 +1104,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32",
+  "inherited_semantic_contract_sha256": "97af5a7a7b3fb1d39515a23bff29bf11a11f3b6c203f02d14d7662c23eaa66e5",
   "source_basis_signature_policy": "where_declared_require_exact_metadata_basis_first_match_in_table_order",
   "formulation_profile_id": "product_preview_retained_w1a_v2",
   "contract_evidence_policy": "closed_preview_case_extrema_coverage_attribution_intensification_and_combination_gate_binding_v1",
@@ -1174,11 +1174,11 @@
   "product_formation_definitions": [
     {
       "id": "RP-PREPARED-ORDINARY-DUAL-v1",
-      "sha256": "688639f2578d7764b6aa88fb5e650c6c9421f01c328a7362d6dfe0d78acd65f7"
+      "sha256": "66c5bf48533b9e5a8f4edeb4fdf6ab4ef845c1a9882eea0bb4afdc0e20771eab"
     },
     {
       "id": "RP-PREPARED-COMBINATION-DUAL-v1",
-      "sha256": "75b9414df919fb4e181aa06030249289b70f0518023afbe241f72e31b8b60f31"
+      "sha256": "1d72a9dbb6d55a291fd87d3254230240e9e49ef0aa77eb5d46cc6a30e6580ea3"
     }
   ],
   "accuracy_classification": {

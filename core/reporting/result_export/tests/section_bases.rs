@@ -2,7 +2,7 @@
 //! product readers read the D-5 section bases and the D-6 beam theory, and
 //! refuse each reader mutant.
 //!
-//! The documents are the regenerated committed pressure-1 fixtures, which are
+//! The documents are the regenerated committed pressure-2 fixtures, which are
 //! the producer's §2.5 output (both stress families, basis tokens and id
 //! segments, the D-5 `pipe_sections` with each realized arc's marker,
 //! per-basis maximum records and headlines): `pressure_connected_mechanics_dense`

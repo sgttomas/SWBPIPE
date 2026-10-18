@@ -113,7 +113,7 @@ def build(package: Path, output: Path, candidate_commit: str, executable_sha256:
                             'reference_numeric_values_unchanged': True, 'criterion_nonreview_fields_unchanged': True,
                             'assertion_id_selector_rule_fields_unchanged': True,
                             'selector_origin_metadata_retained_in_original': source['selectors']})
-    # B7b: the cases are qualified as pressure-1 on the gate's re-authored copy of each frozen input.
+    # B7b: the cases are qualified as pressure-2 on the gate's re-authored copy of each frozen input.
     selection = {'format': FORMAT, 'profile_id': 'first_static_ordinary_pressure_1/'+mode,
                  'purpose': 'development_comparison', 'transport': TRANSPORT,
                  'runner': {'candidate_commit': candidate_commit, 'executable_sha256': executable_sha256,

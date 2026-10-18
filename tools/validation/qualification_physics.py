@@ -1,7 +1,7 @@
-"""Closed ordinary pressure-1 adapter support for the first-static cases; physical consistency is not origin.
+"""Closed ordinary pressure-2 adapter support for the first-static cases; physical consistency is not origin.
 
 B7b retired physics-1 (2.0.0/exact_straight_pressure_v2) and the 0.1.0-0.4.0 model documents. The two
-first-static cases are qualified as pressure-1 (3.0.0/exact_pressure_v3 on model document 0.5.0): the frozen,
+first-static cases are qualified as pressure-2 (3.0.0/exact_pressure_v3 on model document 0.6.0): the frozen,
 SHA-bound runner inputs are never edited; the gate verifies their bytes and submits a re-authored copy
 (``reauthor_runner_input``, the product tests' one re-authoring rule) to the selected runner.
 
@@ -26,31 +26,34 @@ except ImportError:
 from core.analysis_runs import rust_reader
 
 TRANSPORT = 'ordinary_pressure_1_cli_1.0_raw0.2'
-CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-1'
+CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-2'
 PROFILE = 'exact_pressure_v3'
-TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_1.json'
-# b7-plan R2: the owned reader is Rust's current pressure-1 reader (`validate_pressure_evidence`, held in
+TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
+# b7-plan R2: the owned reader is Rust's current pressure-2 reader (`validate_pressure_evidence`, held in
 # physics_evidence.rs); the binding selects its source with the table and unit authority. Re-pin deliberately
 # whenever the reader changes. B7b re-pinned all three: physics-1's reader and table (a6681f69...) are retired.
 MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds).
-TABLE_SHA256 = '4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e'
+TABLE_SHA256 = 'b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
-    # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite).
-    MODULE: 'f91e678e95115acc613c6c422b444ba00887fec20689fda51961dc7351fd9177',
+    # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);
+    # then model 0.6.0: the reader's comments name pressure-2 (comment text only; was f91e678e...).
+    MODULE: '8a79bfcf58d91195e4726bb8e340179a131d80038977cc7e6fdce17f39eba8e2',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
-# Version 3: the binding names the pressure-1 reader (version 2 named the retired physics-1 Rust reader,
+# Version 3: the binding names the pressure-2 reader (version 2 named the retired physics-1 Rust reader,
 # version 1 the former Python reader); both older formats are refused.
 BINDING_FORMAT = 'openpipestress.ordinary_physics_consistency_binding/3'
 ENTRYPOINT = 'validate_pressure_evidence'
 READER = 'pressure'
-# B7b: model document 0.5.0 is the only current version; its exact contract names the shear model.
-MODEL_VERSION = '0.5.0'
-RETIRED_MODEL_VERSIONS = ('0.1.0', '0.2.0', '0.3.0', '0.4.0')
+# Model document 0.6.0 is the only current version (DEL-04-07 Design u4b-u5b-implementation.md §1.1); its exact
+# contract names the shear model. 0.5.0 is retired and re-authored by its version alone (§1.4).
+MODEL_VERSION = '0.6.0'
+PREVIOUS_MODEL_VERSION = '0.5.0'
+RETIRED_MODEL_VERSIONS = ('0.1.0', '0.2.0', '0.3.0', '0.4.0', PREVIOUS_MODEL_VERSION)
 PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': PROFILE, 'shear_model': 'euler_bernoulli'}
 REAUTHORED_PRESSURE_CONTRACTS = ({'version': '2.0.0', 'mode': 'exact_straight_pressure_v2'}, {'version': '3.0.0', 'mode': PROFILE})
 ZERO_CORROSION_ALLOWANCE = {'value': 0.0, 'unit': 'm'}
@@ -229,12 +232,16 @@ def reauthor_selectors(assertions: list, values: list) -> tuple[list, list, dict
     return derived, derived_values, record
 
 def reauthor_model(model: dict) -> dict:
-    """B7b's one re-authoring of a copied model document (Rust `tests/common/current_model.rs` `reauthor_model`):
-    a retired ``schema_version`` -> 0.5.0; a declared v2 or v3 exact contract -> the current contract; and, on a
-    document carrying the current contract, an explicit zero ``corrosion_allowance`` on every pipe section that
-    lacks one (the retired contracts had no allowance: the authored wall was the effective wall). Nothing else
-    changes: no physical or numerical input and no other contract. The caller's object is not modified."""
+    """The one re-authoring of a copied model document (Rust `tests/common/current_model.rs` `reauthor_model`): a
+    0.5.0 document changes its ``schema_version`` to 0.6.0 and nothing else. An older document (B7b's rule): a retired
+    ``schema_version`` -> 0.6.0; a declared v2 or v3 exact contract -> the current contract; and, on a document
+    carrying the current contract, an explicit zero ``corrosion_allowance`` on every pipe section that lacks one (the
+    retired contracts had no allowance: the authored wall was the effective wall). Nothing else changes: no physical
+    or numerical input and no other contract. The caller's object is not modified."""
     model = deepcopy(model)
+    if model.get('schema_version') == PREVIOUS_MODEL_VERSION:
+        model['schema_version'] = MODEL_VERSION
+        return model
     if model.get('schema_version') in RETIRED_MODEL_VERSIONS:
         model['schema_version'] = MODEL_VERSION
     contract = model.get('pressure_contract')
@@ -266,10 +273,13 @@ def reauthor_runner_input(data: bytes) -> tuple[bytes, dict]:
     original = request['solve']['preview_model']['model']
     request['solve']['preview_model']['model'] = reauthor_model(original)
     submitted = json.dumps(request, ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode()
+    # A 0.5.0 copy moves only its version: its contract and sections are recorded as they stand.
+    version_only = original.get('schema_version') == PREVIOUS_MODEL_VERSION
     return submitted, {'rule': REAUTHORING, 'frozen_input_sha256': sha256_bytes(data), 'submitted_input_sha256': sha256_bytes(submitted),
                        'model_schema_version': [original.get('schema_version'), MODEL_VERSION],
-                       'pressure_contract': [original.get('pressure_contract'), PRESSURE_CONTRACT],
-                       'explicit_zero_corrosion_allowance': True,
+                       'pressure_contract': [original.get('pressure_contract'),
+                                             original.get('pressure_contract') if version_only else PRESSURE_CONTRACT],
+                       'explicit_zero_corrosion_allowance': not version_only,
                        'scope': 'declared re-authoring of a copy; the frozen input, references and criteria are unchanged'}
 
 
