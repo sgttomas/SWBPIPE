@@ -189,7 +189,7 @@ fn shared_arc_reader_corpus_is_current() {
             "document": document, "envelope": envelope}));
     }
     let corpus = json!({
-        "corpus": "T4-U2 pressure-2 realized-arc reader corpus",
+        "corpus": "T4-U2 pressure-1 realized-arc reader corpus",
         "generator": "core/product_physics/tests/pressure_arc_readers.rs::shared_arc_reader_corpus_is_current",
         "inputs": ["validation/references/t4_i7/u2_document_sketches.json U2-L-ANCH-PTW-K2 (0.3.0, 0.4.0) and U2-L-KINK-ANCH-P-K2 (0.3.0); the L line with a connector tail and a replaced-span-only model, both built by the generator from U2-L-ANCH-PTW-K2 0.3.0; every frozen sketch copy re-authored to model document 0.6.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time, the frozen bytes unchanged"],
         "cases": cases,

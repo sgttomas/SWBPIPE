@@ -392,9 +392,10 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // module's test-only include names the renamed pressure-2 table; the
             // inspected production between the regions gains current_header's
             // pressure-1/preview-physics-1 refusals and the 0.6.0 re-author text;
-            // E14 is byte-identical.
+            // E14 is byte-identical. The S1 repair restores two comments in the
+            // inspected production to their historical pressure-1 wording; no code changed.
             first_item: SEMANTIC_B7B_TEST_ITEM,
-            complete_suffix_sha256: "17b12f333c7ced9b56a7cf73615f7db9a49c25222b83a4073c925cb9f524aed7",
+            complete_suffix_sha256: "73dfea17ca3a5329adaba693f2938f590991a7e2a8a415e4361b74311271901a",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),

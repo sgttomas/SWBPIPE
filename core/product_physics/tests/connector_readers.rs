@@ -96,7 +96,7 @@ fn shared_connector_reader_corpus_is_current() {
             "document_schema_version": document["model"]["schema_version"], "solver_mode": name, "envelope": envelope}));
     }
     let corpus = json!({
-        "corpus": "T4-U3 pressure-2 objective connector reader corpus",
+        "corpus": "T4-U3 pressure-1 objective connector reader corpus",
         "generator": "core/product_physics/tests/connector_readers.rs::shared_connector_reader_corpus_is_current",
         "inputs": ["validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, bytes unchanged; each copy re-authored to model document 0.6.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time"],
         "cases": cases,
