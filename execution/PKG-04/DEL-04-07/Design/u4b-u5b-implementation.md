@@ -93,8 +93,14 @@ The owner decided Q2 (option (ii)) and the 0.6.0 status sentences on 2026-10-17.
   - Only rows with a certified bound are corrected: nodal displacements, their magnitudes and the
     displacement headline. Which cases keep the solve's own displacement is stated where the rule
     is built, and both paths are tested.
-  - The S11-F bit-identity under W2 force scaling is restated only if it is shown that it cannot
-    hold.
+  - The S11-F bit-identity under W2 force scaling holds (as built): u, w and w2 are each
+    bit-identical at every forced even b, so their exact sum rounded once is too, and `k2b_tests.rs`
+    asserts it. Only F8 at G = 1e80 compares across the fallback: its demoted case has no bound
+    and keeps u, while its Passed reference publishes the corrected value, so F8's displacement
+    rows use that test's existing 2^-34 floor clause (measured difference 2.2e-19 against a floor
+    of 3.7e-14).
+  - The rule, its fallback and the revised limitation text are recorded in DEL-04-01 Design
+    `kd5-member-relative-bound.md` §2.2 and §3.4.
   - The change gets its own independent scrutiny, as well as the epoch's dual review.
 
 ## 1. Formats and identities
