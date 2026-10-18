@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import fixture from "../../../../../fixtures/model_operations/pressure_v3_l_line_authoring.json";
-import { BendAuthoringForms, GEOMETRY_ONLY_BANNER } from "./BendAuthoringForms";
+import { BendAuthoringForms, GEOMETRY_ONLY_BANNER, SIF_HINT } from "./BendAuthoringForms";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
 import { buildCreateComponentIntent, CONNECTOR_CONTRACT_NOTICE, defaultComponentDraft, isComponentDraftValid, type ComponentDraft } from "../component-creation/componentIntent";
 import { applyModelOperation, validateModelOperation } from "../../services/operationService";
@@ -53,6 +53,35 @@ describe("bend realization (T4-U2)", () => {
     await waitFor(() => expect(back).toHaveBeenCalledOnce());
     expect(JSON.parse(back.mock.calls[0][0].change.after)).toEqual({ solver_consumption: "mechanics_geometry_only" });
     expect((await blocking(applied.model!, back.mock.calls[0][0])).codes).toEqual([]);
+  });
+
+  it("takes the directional SIF pair with its source, both or neither (T4-U4b)", async () => {
+    const model = spanBend();
+    const queue = vi.fn();
+    render(<BendAuthoringForms model={model} selection={{ type: "component", id: "component:bend-1" }} onQueueIntent={queue} />);
+    expect(screen.getByText(SIF_HINT)).toBeInTheDocument();
+    change("Bend flexibility factor k", "2"); change("Source of k", "invented user values");
+    change("Bend in-plane SIF i_ip", "2.3");
+    fireEvent.click(screen.getByRole("button", { name: "Queue realize bend" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Enter both directional SIFs");
+    expect(queue).not.toHaveBeenCalled();
+    change("Bend out-of-plane SIF i_op", "1.7");
+    fireEvent.click(screen.getByRole("button", { name: "Queue realize bend" }));
+    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+    const intent = queue.mock.calls[0][0] as EditorOperationIntent;
+    expect(JSON.parse(intent.change.after)).toEqual({ solver_consumption: "curved_bend_macro_element", flexibility_factor_user_value: { value: 2, unit: "none" },
+      source_reference: "invented user values", sif_in_plane_user_value: { value: 2.3, unit: "1" }, sif_out_of_plane_user_value: { value: 1.7, unit: "1" } });
+    const applied = await blocking(model, intent);
+    expect(applied.codes).toEqual([]);
+    expect(applied.model!.components[0].modifiers?.sif_out_of_plane_user_value).toEqual({ value: 1.7, unit: "1" });
+    cleanup();
+    // Realized with the pair: the state names it, and returning to geometry-only is refused by the engine.
+    const back = vi.fn();
+    render(<BendAuthoringForms model={applied.model!} selection={{ type: "component", id: "component:bend-1" }} onQueueIntent={back} />);
+    expect(screen.getByTestId("bend-realization-state")).toHaveTextContent("Directional SIFs i_ip = 2.3, i_op = 1.7");
+    fireEvent.click(screen.getByRole("button", { name: "Queue return to geometry-only" }));
+    await waitFor(() => expect(back).toHaveBeenCalledOnce());
+    expect((await blocking(applied.model!, back.mock.calls[0][0])).codes).toContain("OP-BEND-DIRECTIONAL-SIF-NOT-REALIZED-ARC");
   });
 
   it("names a corner marker and offers insertion only at a node joining exactly two pipes", () => {

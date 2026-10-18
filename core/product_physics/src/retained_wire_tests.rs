@@ -36,8 +36,8 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// C5 adds the adopted arc end-tangent limitation sentence; the current ordinary
 /// companions preserve every physical row and are still equal under capture.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 68215, "47a490465d9a3c30a92943eca331afd5c5321bd7e9fe1a48ffc96889480f2f91"),
-    ("dense_scrutiny", 68236, "6b171925c508cd9c9b2b165cc55768fd3a9b909a3a8a3dee22c8f36fe3be8df7"),
+    ("sparse_interactive", 80245, "b1335bdcde2e871ba5cfaac503ee4779ddc82f3539bac9e35b2921d9340812c4"),
+    ("dense_scrutiny", 80269, "09585463f979663d12dadeddfa8d83d50451bdba56bb3c62f2d53b8125b68783"),
 ];
 /// The serializer's committed milestone output: sha256 of the pretty-printed
 /// successor envelope, and its receipt_sha256 (byte-stable, both modes).

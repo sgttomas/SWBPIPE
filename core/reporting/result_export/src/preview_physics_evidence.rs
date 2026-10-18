@@ -176,7 +176,7 @@ fn governs(a: (f64, &str, &str), b: (f64, &str, &str)) -> bool {
     }
 }
 
-fn row_semantics(row: &Value, kind: &str) -> Check {
+fn row_semantics(row: &Value, kind: &str, arc: bool) -> Check {
     let md = &row["metadata"];
     let direct = case_of(row).is_some();
     match kind {
@@ -214,7 +214,7 @@ fn row_semantics(row: &Value, kind: &str) -> Check {
                     && md["coordinate_system"] == "pipe_section"
                     && md["location"] == "governing_station"
                     && md["basis"] == "recovered_from_open_mechanics_stress_components"
-                    && md["sign_convention"] == MAXIMUM_SIGN,
+                    && md["sign_convention"] == if arc { crate::u4b_evidence::ARC_MAXIMUM_SIGN } else { MAXIMUM_SIGN },
                 "ROW_SEMANTICS",
             )?;
         }
@@ -232,9 +232,23 @@ fn row_semantics(row: &Value, kind: &str) -> Check {
                 "ROW_SEMANTICS",
             )?;
         }
+        // T4-U4b (§5.1): the new kinds' declared semantics.
+        _ if crate::u4b_evidence::KINDS.contains(&kind) => {
+            require(direct, "ROW_SEMANTICS")?;
+            crate::u4b_evidence::row_semantics(row, crate::u4b_evidence::Route::Preview, arc)?;
+        }
         _ => {}
     }
     Ok(())
+}
+
+/// T4-U4b (§2.3, the preview arc marker): the members whose component stress
+/// rows carry the arc basis token.
+fn preview_arcs(rows: &[Value]) -> HashSet<&str> {
+    rows.iter()
+        .filter(|r| r["metadata"]["basis"] == crate::u4b_evidence::PREVIEW_ARC_BASIS && case_of(r).is_some())
+        .filter_map(|r| r["entity_ref"].as_str())
+        .collect()
 }
 
 /// Every S1 section 9 check. A failure makes the source unsupported.
@@ -272,6 +286,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
     for diagnostic in diagnostics {
         text(&diagnostic["id"])?;
     }
+    let arcs = preview_arcs(rows_list);
     // 2. Kinds from the table only.
     for row in rows_list {
         let kind = text(&row["kind"])?;
@@ -285,7 +300,7 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         let signature = crate::semantic_contract::signature_in(table, row)
             .map_err(|e| format!("SOURCE_PREVIEW_PHYSICS_ROW_SIGNATURE: {e}"))?;
         require(signature.is_some(), "ROW_SIGNATURE")?;
-        row_semantics(row, kind)?;
+        row_semantics(row, kind, arcs.contains(row["entity_ref"].as_str().unwrap_or("")))?;
         // A4 N2: a present basis_ref is closed. Its ref_type value is T6 (A3 note).
         let basis = &row["basis_ref"];
         require(
@@ -389,6 +404,9 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
     let mut coverage_complete = true;
     let mut bound_maxima = HashSet::new();
     let mut bound_intensified = HashSet::new();
+    let mut arc_extrema: Vec<(&str, &str, &Value, &Value)> = Vec::new();
+    let mut bound_directional: HashSet<&str> = HashSet::new();
+    let index = crate::u4b_evidence::Index::new(rows_list, crate::u4b_evidence::Route::Preview)?;
     for case in preview_cases {
         let case_id = text(&case["load_case_id"])?;
         let in_case = |row: &&Value| case_of(row) == Some(case_id);
@@ -469,6 +487,12 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
                     && value == lower + 0.5 * (upper - lower),
                 "EXTREMA_BOUNDS",
             )?;
+            // T4-U4b (§2.3): an arc's record carries the arc tokens (checked
+            // with its station cover below); a straight member's the straight ones.
+            if arcs.contains(pipe) {
+                arc_extrema.push((case_id, pipe, extrema, *row));
+                continue;
+            }
             require(
                 extrema["approximation"] == "piecewise_quadratic_straight_section_statics"
                     && extrema["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures"
@@ -581,9 +605,35 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             magnitudes(components)?;
         }
 
+        // T4-U4b (§5.1): every member's σ± (bit for bit) and τ (model-free:
+        // custody, coverage, non-negativity, unit; bit for bit with the model,
+        // `reader_verdict::preview_model_checks`); the arc maxima's records.
+        let exempt = crate::u4b_evidence::poisson_exempt(diagnostics, case_id);
+        let mut covers: HashMap<&str, Vec<f64>> = HashMap::new();
+        for pipe in &members {
+            let facts = crate::u4b_evidence::MemberFacts {
+                case: case_id, pipe, shear_factors: vec![("", None)],
+                poisson_out_of_domain: exempt.contains(pipe), toroidal: Vec::new(), bases: vec![""],
+            };
+            if let Some(cover) = crate::u4b_evidence::member_stations(&index, crate::u4b_evidence::Route::Preview, &facts)?.remove("") {
+                covers.insert(pipe, cover);
+            }
+        }
+        for &(_, pipe, record, row) in arc_extrema.iter().filter(|e| e.0 == case_id) {
+            crate::u4b_evidence::maximum_record(crate::u4b_evidence::Route::Preview, record, row,
+                crate::u4b_evidence::ARC_APPROXIMATION, covers.get(pipe).map(Vec::as_slice).unwrap_or(&[]))?;
+        }
+        // The directional records, told apart from the marker records by key set.
+        let directional = crate::u4b_evidence::directional_records(crate::u4b_evidence::Route::Preview, case_id,
+            array(&case["intensified_measures"])?, &rows, &index, &arcs, false)?;
+        bound_directional.extend(directional.iter().copied());
+
         // 8. Intensified rows <=> intensified_measures.
         let mut measures: HashMap<&str, &Value> = HashMap::new();
         for measure in array(&case["intensified_measures"])? {
+            if measure["result_id"].as_str().is_some_and(|id| directional.contains(id)) {
+                continue;
+            }
             require(keys(measure, INTENSIFIED_KEYS), "INTENSIFIED_SHAPE")?;
             let id = text(&measure["result_id"])?;
             require(
@@ -641,6 +691,9 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         if row["kind"] == INTENSIFIED {
             require(bound_intensified.contains(id), "INTENSIFIED_ROW_UNBOUND")?;
         }
+        if matches!(row["kind"].as_str(), Some(crate::u4b_evidence::DIRECTIONAL | crate::u4b_evidence::DIRECTIONAL_MAX)) {
+            require(bound_directional.contains(id), "INTENSIFIED_ROW_UNBOUND")?;
+        }
     }
 
     // 6. Headlines: all cases, identity ties, stress only with complete coverage.
@@ -690,8 +743,10 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
             continue;
         };
         require(admitted.contains(combination), "GATED_COMBINATION_ROW")?;
+        // §2.7: no never_combined kind in a combination.
         require(
-            row["kind"] != MAXIMUM && row["kind"] != INTENSIFIED,
+            row["kind"] != MAXIMUM && row["kind"] != INTENSIFIED
+                && !crate::u4b_evidence::KINDS.contains(&row["kind"].as_str().unwrap_or("")),
             "COMBINATION_ROW_KIND",
         )?;
         // A4 N4: may be absent; when present, an array (null is refused).

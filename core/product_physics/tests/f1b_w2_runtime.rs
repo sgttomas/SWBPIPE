@@ -1226,8 +1226,10 @@ fn f1b_w2_nonlinear_formation_range_invocation_is_mains_blocked_envelope() {
                 // adopted the arc end-tangent LIMITATIONS[3] sentence; restoring
                 // the former sentence recovers 762cf9ca..., exactly.
                 // Model 0.6.0: the renamed producer identity moves this pin (the
-                // blocked envelope is otherwise unchanged).
-                "e28754eac0e2d7aac80f8a7615ce9467a9c37627ee4138d5fdb39f55a3ec72b9",
+                // blocked envelope is otherwise unchanged; was e28754ea...).
+                // T4-U4b: the preview LIMITATIONS[2..4] texts (§2.8) move it again;
+                // the blocked envelope publishes no rows.
+                "caa8d5beeb2f2f0966862002b013e52325ddd19d923f2107da9d1b111043efce",
                 "{ctx}"
             );
         }

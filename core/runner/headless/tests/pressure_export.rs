@@ -128,5 +128,6 @@ fn pressure_1_documents_export_in_both_modes() {
             exported += 1;
         }
     }
-    assert_eq!(exported, 16);
+    // T4-U4b: the arc corpus's directional-SIF case adds one document per mode.
+    assert_eq!(exported, 18);
 }

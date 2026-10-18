@@ -271,11 +271,11 @@ fn i7_checks(case: &Value, envelope: &Value) -> (Vec<Check>, Vec<String>) {
         }
         if arc {
             // Plan section 4.3 item 1 and U0's policy: withheld on arcs; the
-            // elastic axial rows are replaced by the pressure family.
+            // elastic axial rows are replaced by the pressure family. T4-U4b
+            // (§2.1): the arc's maximum is published (its values are t4_u4b's).
             for kind in [
                 "pipe_lame_radial_stress_v2",
                 "pipe_lame_hoop_stress_v2",
-                "pipe_elastic_normal_stress_maximum_v2",
                 "element_local_axial_force",
                 "element_local_axial_normal_stress",
             ] {

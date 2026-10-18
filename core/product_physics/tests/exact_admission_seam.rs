@@ -562,17 +562,13 @@ fn a3_realized_bend_in_a_v3_exact_region_is_admitted_and_recovered_on_the_arc() 
             for kind in ["pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2", "pipe_wall_endpoint_action_v2"] {
                 assert!(kinds.contains(kind), "{base:?}: {kind} missing: {kinds:?}");
             }
-            for kind in [
-                "pipe_lame_hoop_stress_v2",
-                "pipe_lame_radial_stress_v2",
-                "pipe_elastic_normal_stress_maximum_v2",
-                "element_local_axial_force",
-            ] {
+            for kind in ["pipe_lame_hoop_stress_v2", "pipe_lame_radial_stress_v2", "element_local_axial_force"] {
                 assert!(!kinds.contains(kind), "{base:?}: {kind} published on an arc");
             }
-            assert!(has_code(&envelope, "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE"));
-            // The arc's withheld maximum recurs per case (X0 has two): every
-            // diagnostic id stays unique.
+            // T4-U4b (§2.1, §2.3): the arc publishes its certified maximum.
+            assert!(kinds.contains("pipe_elastic_normal_stress_maximum_v2"), "{base:?}: no arc maximum");
+            assert!(!has_code(&envelope, "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE"), "{base:?}");
+            // Every diagnostic id stays unique (X0 has two cases).
             let ids = diagnostics(&envelope).iter().map(|d| d["id"].as_str().unwrap()).collect::<Vec<_>>();
             let unique = ids.iter().collect::<std::collections::BTreeSet<_>>();
             assert_eq!(unique.len(), ids.len(), "{base:?}: {ids:#?}");

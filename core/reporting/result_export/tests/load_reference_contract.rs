@@ -269,23 +269,24 @@ fn write_log(name: &str, log: &[Value]) {
 fn current_inputs_table_and_schema_are_pinned() {
     // B7b: the regenerated 0.5.0/v3 producer envelopes (fixtures commit 2d0e2210c1);
     // T4-U6: regenerated again on the D-5 producer (both section-basis families);
-    // model 0.6.0: again for the pressure-2 identity (identity bytes only).
+    // model 0.6.0: again for the pressure-2 identity (identity bytes only);
+    // T4-U4b: again for the section stress rows on every member.
     for (name, digest) in [
         (
             "connected-sparse",
-            "cc9ceb4a4197deb01e49e1ee2eef873a6c65a78d3ce6753a18c0e9160a1660cc",
+            "801e0ef1caa4b5522073f8456c7606632591d0a846603349ea12b3a69a353a20",
         ),
         (
             "connected-dense",
-            "07389b05a0248cfac090b0ed58bdd38d20a22b52ed7fa6fce3729f8d038fd782",
+            "2ac5e877a9b3ba735ac511281e8b5ced3477f5ef54d584b4b883d7ff8e58aaa1",
         ),
         (
             "pressure-sparse",
-            "903316e6b64b60256985236c4525dc3e726d4a0c6e0e7fcaf39609c658a32478",
+            "c16ad8184f772f72eea160d6d3e38b0f9c8402603e50e927dd0d821a0fe3b40f",
         ),
         (
             "pressure-dense",
-            "8d52565e716641a28038495aa237339f29fed1c588cea8c62ef4222f944d25df",
+            "4e4729c938cf3fb2665db9384308d1e5b49ebbbde4346117e5f1f1d1d6a5851e",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");

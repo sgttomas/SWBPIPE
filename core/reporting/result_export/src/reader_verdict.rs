@@ -246,7 +246,10 @@ pub fn validate(reader: &str, source: &Value, model: Option<&Value>, invocation:
     };
     match reader {
         "source-recovery" => checked(source_recovery(source)),
-        "preview-physics" => checked(sc::validate_preview_physics_evidence(source)),
+        // T4-U4b (§5.1): with the captured model, τ bit for bit (G2).
+        "preview-physics" => checked(sc::validate_preview_physics_evidence(source).and_then(|()| {
+            model.map_or(Ok(()), |m| crate::u4b_evidence::preview_model_checks(source, m))
+        })),
         // Current pressure-2 reader, then G2's model checks,
         // which read only the cases, members, connectors and support rows.
         "pressure" => checked(sc::validate_pressure_evidence(source).and_then(|()| {

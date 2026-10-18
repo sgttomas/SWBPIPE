@@ -36,9 +36,6 @@ const MATERIAL_BASIS: &str = "homogeneous_isotropic_E_nu_v1";
 const REPRESENTATION_GUARD: f64 = 64.0 * f64::EPSILON;
 /// T4-U2: the region rule at realized bends, as published in evidence.
 const ARC_TANGENCY_RULE: &str = "a region changes direction only at a realized bend; each straight run keeps the 64*epsilon collinearity guard (a straight-straight kink is PRESSURE_REGION_NONCOLLINEAR); at each bend-adjacent junction theta = atan2(|t_in x t_out|, t_in . t_out) <= alpha_tan is admitted and carried exactly by the remainder pAi(t_in - t_out), and a larger theta is refused as a mitre (PRESSURE_REGION_MITRE_UNSUPPORTED)";
-/// T4-U2 (plan section 4.3 item 1; U0's maximum policy): why an arc member
-/// publishes no Lame rows and no straight-statics maximum.
-const ARC_WITHHELD_REASON: &str = "withheld on realized arcs: the straight Lame hoop and radial values do not hold on a torus (a toroidal membrane hoop is a later unit), and the straight-statics maximum does not bound an arc";
 /// T4-U2 (D-D): the named refusal of a direction change above alpha_tan at a
 /// realized bend's end; static text (T3 O-10).
 const MITRE_UNSUPPORTED: &str = "PRESSURE_REGION_MITRE_UNSUPPORTED";
@@ -203,28 +200,6 @@ pub(crate) fn exact_member_recovery<'m>(
         );
     }
     mechanical
-}
-
-/// T4-U0 (A3): whether the exact route computes a member's straight-statics
-/// governing maximum or withholds it with a reason.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ExactMemberMaximumPolicy {
-    Compute,
-    Withhold(&'static str),
-}
-
-/// The straight-statics bound holds for straight members only. An arc member's
-/// maximum is withheld (with the case headline) until T4-U4 publishes one.
-/// Unreachable through the public entry until T4-U2a; the end-to-end wiring
-/// test lands with T4-U2a.
-pub(crate) fn exact_member_maximum_policy(is_arc: bool) -> ExactMemberMaximumPolicy {
-    if is_arc {
-        ExactMemberMaximumPolicy::Withhold(
-            "the straight-statics bound does not apply to a curved (arc) member",
-        )
-    } else {
-        ExactMemberMaximumPolicy::Compute
-    }
 }
 
 fn present(value: &Option<String>) -> Option<&str> {
@@ -851,6 +826,8 @@ fn assemble_pressure_case(
             if let Some(arc) = &arc {
                 super::mark_realized_arc(&mut member_geometry);
                 member_geometry["arc_end_tangents_global"] = json!(arc.tangents);
+                // T4-U4b (§2.5): R, an operand of the toroidal hoop rows.
+                member_geometry["bend_radius_m"] = json!(arc_build.expect("a realized arc").bend_radius);
             }
             geometry.push(member_geometry);
             material_evidence.push(json!({"pipe_id":pipe.element_id,"material_id":material_input.id,
@@ -1027,7 +1004,8 @@ fn assemble_pressure_case(
             evidence["tangency_tolerance_rad"] = json!(super::TANGENCY_TOLERANCE_RAD);
             evidence["tangency_rule"] = json!(ARC_TANGENCY_RULE);
             evidence["bend_adjacent_junctions"] = json!(junction_evidence);
-            evidence["withheld_on_arcs"] = json!({"result_kinds":["pipe_lame_radial_stress_v2","pipe_lame_hoop_stress_v2","pipe_elastic_normal_stress_maximum_v2"],"reason":ARC_WITHHELD_REASON});
+            // T4-U4b (§2.5): the two arc definitions and what each neglects.
+            evidence["arc_stress_definitions"] = super::u4b_rows::arc_stress_definitions();
         }
         add_joint_terms(model, built, case, region, pressure, &mut output, &mut factor_groups, diagnostics);
     }
@@ -2037,23 +2015,6 @@ mod tests {
         .expect("a straight region member recovers");
         assert!(std::ptr::eq(actions, &mechanical[..]));
         assert!(diagnostics.is_empty(), "{diagnostics:?}");
-    }
-
-    /// T4-U0 A3 (Option 1): pins the maximum decision only; the end-to-end
-    /// wiring test (no `pipe_elastic_normal_stress_maximum_v2` row, incomplete
-    /// coverage, withheld headline) lands with T4-U2a.
-    #[test]
-    fn straight_statics_maximum_is_withheld_for_arc_members() {
-        assert_eq!(exact_member_maximum_policy(false), ExactMemberMaximumPolicy::Compute);
-        let ExactMemberMaximumPolicy::Withhold(reason) = exact_member_maximum_policy(true) else {
-            panic!("an arc member's straight-statics maximum must be withheld");
-        };
-        let message = format!(
-            "signed physical rows remain available; governing circular-normal-stress maximum is unavailable: {reason}"
-        );
-        assert!(message.ends_with(
-            ": the straight-statics bound does not apply to a curved (arc) member"
-        ));
     }
 
     #[test]

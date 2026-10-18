@@ -481,8 +481,10 @@ I7_LAME = (('inner_radial', 'pipe_lame_radial_stress_v2', 'lame_inner_radial_str
            ('outer_hoop', 'pipe_lame_hoop_stress_v2', 'lame_outer_hoop_stress'))
 I7_NODE_UNITS = {'ux': ('m', 'mm', 'displacement'), 'uy': ('m', 'mm', 'displacement'), 'uz': ('m', 'mm', 'displacement'),
                  'rx': ('rad', 'rad', 'rotation'), 'ry': ('rad', 'rad', 'rotation'), 'rz': ('rad', 'rad', 'rotation')}
-# Withheld on realized arcs (plan section 4.3 item 1; the reference's lame_surface convention).
-I7_ARC_ABSENT = ('pipe_lame_radial_stress_v2', 'pipe_lame_hoop_stress_v2', 'pipe_elastic_normal_stress_maximum_v2',
+# Withheld on realized arcs (plan section 4.3 item 1; the reference's lame_surface convention). T4-U4b (DEL-04-07
+# u4b-u5b-implementation.md §2.1): an arc publishes its certified maximum, so the maximum is no longer a declared
+# absence; the T4-I7 reference states no arc maximum, so it is not scored either.
+I7_ARC_ABSENT = ('pipe_lame_radial_stress_v2', 'pipe_lame_hoop_stress_v2',
                  'element_local_axial_force', 'element_local_axial_normal_stress')
 I7_NOT_PUBLISHED = ('not published: the axial end force F_x (element_local_axial_force '
                     'is replaced by the pressure family)')

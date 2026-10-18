@@ -866,7 +866,7 @@ fn arc_model(k: f64, yref_bc: [f64; 3], sif_value: Option<f64>) -> Value {
 }
 
 #[test]
-fn b1_arc_signed_rows_frames_and_withheld_maximum() {
+fn b1_arc_signed_rows_frames_and_arc_maximum() {
     let u4a: Value = serde_json::from_str(include_str!("../../../validation/references/t4_u4a/oracle.json")).unwrap();
     let r = r2();
     let b1 = &r["REF-B1-SIGNED"];
@@ -909,10 +909,14 @@ fn b1_arc_signed_rows_frames_and_withheld_maximum() {
             close(stress("element_local_bending_normal_stress_y", "end_i"), num(&es["end_i_bending_normal_y_Pa"]), zs, "end_i sigma_y");
             close(stress("element_local_torsional_shear_stress", "end_i"), num(&es["end_i_torsional_shear_Pa"]), zs, "end_i tau");
             close(stress("element_local_bending_normal_stress_y", "end_j"), num(&es["end_j_bending_normal_y_Pa"]), zs, "end_j sigma_y");
-            assert!(maximum(&v, "pipe:b-c", "case:z").is_none(), "no arc maximum");
-            assert!(v["summary"]["max_open_formula_stress"].is_null(), "no headline with an arc");
-            assert_eq!(v["contract_evidence"]["preview_cases"][0]["stress_maximum_coverage"]["outside_domain_pipe_ids"], json!(["pipe:b-c"]));
-            assert_eq!(diag(&v, "PREVIEW_STRESS_HEADLINE_WITHHELD").len(), 1);
+            // T4-U4b (§2.1, §2.3): the arc publishes its maximum along the arc, under
+            // the arc's own convention, and enters the headline.
+            assert!(maximum(&v, "pipe:b-c", "case:z").is_some(), "arc maximum");
+            let row = results(&v).iter().find(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2" && r["entity_ref"] == "pipe:b-c").unwrap();
+            assert!(row["metadata"]["sign_convention"].as_str().unwrap().contains("along the arc"), "{row}");
+            assert!(!v["summary"]["max_open_formula_stress"].is_null(), "the headline covers the arc");
+            assert_eq!(v["contract_evidence"]["preview_cases"][0]["stress_maximum_coverage"]["outside_domain_pipe_ids"], json!([]));
+            assert!(diag(&v, "PREVIEW_STRESS_HEADLINE_WITHHELD").is_empty());
             assert!(!results(&v).iter().any(|r| r["kind"] == "component_equal_factor_intensified_bending_stress_v1"), "NOTE-1");
             assert_eq!(diag(&v, "COMPONENT_STRESS_INTENSIFICATION_NOT_APPLIED").len(), 1);
             assert!(diag(&v, "CURVED_BEND_TANGENT_DISCONTINUITY").is_empty(), "consistent arc has no warning");
