@@ -236,7 +236,7 @@ A nonlinear case is pre-guard Passed when the last iteration's report is Passed 
 
 | Rows | Published as |
 |---|---|
-| Displacements and rotations, all DOFs | the loop's u, unchanged; judged by D5C-1 |
+| Displacements and rotations, all DOFs | fl(u + w + w₂) of Stage B, the exact sum rounded once, since T4-U4b/U5b (HELP_HUMAN, 2026-10-18; kd5 §3.4); the loop's u if any component cannot be formed. Each nonlinear support's final-displacement row carries the same published value. The loop's residual rows stay its own |
 | Member, section and station actions, stresses, pipe-wall rows, governing maximum and extrema | (d)'s certified recoveries at u + w + w₂ of Stage B (kd5 §3); member loads carry no friction term, so they are those of the case ledger |
 | Linear supports and springs | (d)'s certified rows, from Stage B's source and force |
 | Nonlinear support, Active or Sticking | the certified reaction at d_s, fl(m), in its slot; the other five components exact +0 |

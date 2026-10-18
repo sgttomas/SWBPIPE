@@ -112,10 +112,20 @@ export function tieRodDrafts(text: string): TieRodDraft[] {
     return [];
   }
 }
+/**
+ * Rod ids are distinct as the producer compares them: each trimmed id and its
+ * encoded form (':' replaced by '-', the producer's stable suffix, which its
+ * row ids carry) must be unique, so "rod:a" and "rod-a" collide.
+ */
+export function tieRodIdsDistinct(ids: readonly string[]): boolean {
+  const trimmed = ids.map((id) => id.trim());
+  const encoded = trimmed.map((id) => id.replaceAll(":", "-"));
+  return new Set(trimmed).size === trimmed.length && new Set(encoded).size === encoded.length;
+}
 function tieRodsValid(text: string): boolean {
   const rows = tieRodDrafts(text);
   const ids = rows.map((row) => row.id.trim());
-  return rows.length > 0 && new Set(ids).size === ids.length && rows.every((row) =>
+  return rows.length > 0 && tieRodIdsDistinct(ids) && rows.every((row) =>
     row.id.trim() && vector3(row.offsetI) && vector3(row.offsetJ) && validUnit(row.offsetUnit) &&
     positiveFinite(row.stiffness) && validUnit(row.stiffnessUnit) &&
     finiteNumber(row.referenceExtension) && validUnit(row.referenceExtensionUnit) && row.sourceReference.trim());

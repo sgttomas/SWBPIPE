@@ -238,8 +238,8 @@
       "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
       "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
       "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
-      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+      "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+      "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
     ]
   },
   "document_kind": "openpipestress.product_preview.mechanics_result",
@@ -259,7 +259,7 @@
     "curved_bend_macro_element_count": 2,
     "spring_hanger_user_input_count": 0,
     "max_displacement": {
-      "value": 86.59571595254491,
+      "value": 86.59571595249179,
       "unit": "mm",
       "location_ref": "node:F",
       "result_ref": "result:disp:node-F"
@@ -304,7 +304,7 @@
     {
       "id": "result:disp:node-B",
       "kind": "displacement_magnitude",
-      "value": 9.085485738387197,
+      "value": 9.085485738379628,
       "unit": "mm",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -315,7 +315,7 @@
     {
       "id": "result:disp:node-C",
       "kind": "displacement_magnitude",
-      "value": 17.522716263281865,
+      "value": 17.522716263269007,
       "unit": "mm",
       "entity_ref": "node:C",
       "basis_ref": {
@@ -326,7 +326,7 @@
     {
       "id": "result:disp:node-D",
       "kind": "displacement_magnitude",
-      "value": 38.450271136810045,
+      "value": 38.45027113677997,
       "unit": "mm",
       "entity_ref": "node:D",
       "basis_ref": {
@@ -337,7 +337,7 @@
     {
       "id": "result:disp:node-E",
       "kind": "displacement_magnitude",
-      "value": 55.14952513950188,
+      "value": 55.14952513946205,
       "unit": "mm",
       "entity_ref": "node:E",
       "basis_ref": {
@@ -348,7 +348,7 @@
     {
       "id": "result:disp:node-F",
       "kind": "displacement_magnitude",
-      "value": 86.59571595254491,
+      "value": 86.59571595249179,
       "unit": "mm",
       "entity_ref": "node:F",
       "basis_ref": {
@@ -467,7 +467,7 @@
     {
       "id": "result:disp:node-B:ux",
       "kind": "global_nodal_displacement_x",
-      "value": -0.002687681725944762,
+      "value": -0.002687681725934368,
       "unit": "mm",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -485,7 +485,7 @@
     {
       "id": "result:disp:node-B:uy",
       "kind": "global_nodal_displacement_y",
-      "value": 7.72534073027618,
+      "value": 7.725340730267394,
       "unit": "mm",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -503,7 +503,7 @@
     {
       "id": "result:disp:node-B:uz",
       "kind": "global_nodal_displacement_z",
-      "value": 4.781752239497568,
+      "value": 4.781752239497378,
       "unit": "mm",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -521,7 +521,7 @@
     {
       "id": "result:disp:node-B:rx",
       "kind": "global_nodal_rotation_x",
-      "value": 0.004128123267636392,
+      "value": 0.004128123267636328,
       "unit": "rad",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -539,7 +539,7 @@
     {
       "id": "result:disp:node-B:ry",
       "kind": "global_nodal_rotation_y",
-      "value": -0.004642948303710383,
+      "value": -0.004642948303710223,
       "unit": "rad",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -557,7 +557,7 @@
     {
       "id": "result:disp:node-B:rz",
       "kind": "global_nodal_rotation_z",
-      "value": 0.007286690254289151,
+      "value": 0.007286690254280543,
       "unit": "rad",
       "entity_ref": "node:B",
       "basis_ref": {
@@ -575,7 +575,7 @@
     {
       "id": "result:disp:node-C:ux",
       "kind": "global_nodal_displacement_x",
-      "value": -5.589942854269708,
+      "value": -5.589942854262756,
       "unit": "mm",
       "entity_ref": "node:C",
       "basis_ref": {
@@ -593,7 +593,7 @@
     {
       "id": "result:disp:node-C:uy",
       "kind": "global_nodal_displacement_y",
-      "value": 12.502480919193387,
+      "value": 12.502480919178756,
       "unit": "mm",
       "entity_ref": "node:C",
       "basis_ref": {
@@ -611,7 +611,7 @@
     {
       "id": "result:disp:node-C:uz",
       "kind": "global_nodal_displacement_z",
-      "value": 10.93096953589603,
+      "value": 10.930969535895706,
       "unit": "mm",
       "entity_ref": "node:C",
       "basis_ref": {
@@ -629,7 +629,7 @@
     {
       "id": "result:disp:node-C:rx",
       "kind": "global_nodal_rotation_x",
-      "value": 0.007340318883335811,
+      "value": 0.007340318883335709,
       "unit": "rad",
       "entity_ref": "node:C",
       "basis_ref": {
@@ -647,7 +647,7 @@
     {
       "id": "result:disp:node-C:ry",
       "kind": "global_nodal_rotation_y",
-      "value": -0.008370055700667591,
+      "value": -0.00837005570066738,
       "unit": "rad",
       "entity_ref": "node:C",
       "basis_ref": {
@@ -665,7 +665,7 @@
     {
       "id": "result:disp:node-C:rz",
       "kind": "global_nodal_rotation_z",
-      "value": 0.013228022069664155,
+      "value": 0.013228022069647575,
       "unit": "rad",
       "entity_ref": "node:C",
       "basis_ref": {
@@ -683,7 +683,7 @@
     {
       "id": "result:disp:node-D:ux",
       "kind": "global_nodal_displacement_x",
-      "value": -27.954594904303676,
+      "value": -27.954594904269264,
       "unit": "mm",
       "entity_ref": "node:D",
       "basis_ref": {
@@ -701,7 +701,7 @@
     {
       "id": "result:disp:node-D:uy",
       "kind": "global_nodal_displacement_y",
-      "value": 12.505727009339703,
+      "value": 12.505727009325073,
       "unit": "mm",
       "entity_ref": "node:D",
       "basis_ref": {
@@ -719,7 +719,7 @@
     {
       "id": "result:disp:node-D:uz",
       "kind": "global_nodal_displacement_z",
-      "value": 23.250177767027026,
+      "value": 23.25017776702654,
       "unit": "mm",
       "entity_ref": "node:D",
       "basis_ref": {
@@ -737,7 +737,7 @@
     {
       "id": "result:disp:node-D:rx",
       "kind": "global_nodal_rotation_x",
-      "value": 0.008868706400221658,
+      "value": 0.00886870640022155,
       "unit": "rad",
       "entity_ref": "node:D",
       "basis_ref": {
@@ -755,7 +755,7 @@
     {
       "id": "result:disp:node-D:ry",
       "kind": "global_nodal_rotation_y",
-      "value": -0.011898642659677366,
+      "value": -0.011898642659677107,
       "unit": "rad",
       "entity_ref": "node:D",
       "basis_ref": {
@@ -773,7 +773,7 @@
     {
       "id": "result:disp:node-D:rz",
       "kind": "global_nodal_rotation_z",
-      "value": 0.016430098034716685,
+      "value": 0.01643009803469722,
       "unit": "rad",
       "entity_ref": "node:D",
       "basis_ref": {
@@ -791,7 +791,7 @@
     {
       "id": "result:disp:node-E:ux",
       "kind": "global_nodal_displacement_x",
-      "value": -36.841606876167006,
+      "value": -36.841606876122654,
       "unit": "mm",
       "entity_ref": "node:E",
       "basis_ref": {
@@ -809,7 +809,7 @@
     {
       "id": "result:disp:node-E:uy",
       "kind": "global_nodal_displacement_y",
-      "value": 21.858570573377342,
+      "value": 21.858570573352672,
       "unit": "mm",
       "entity_ref": "node:E",
       "basis_ref": {
@@ -827,7 +827,7 @@
     {
       "id": "result:disp:node-E:uz",
       "kind": "global_nodal_displacement_z",
-      "value": 34.73282335749854,
+      "value": 34.732823357497864,
       "unit": "mm",
       "entity_ref": "node:E",
       "basis_ref": {
@@ -845,7 +845,7 @@
     {
       "id": "result:disp:node-E:rx",
       "kind": "global_nodal_rotation_x",
-      "value": 0.010113415991127743,
+      "value": 0.01011341599112763,
       "unit": "rad",
       "entity_ref": "node:E",
       "basis_ref": {
@@ -863,7 +863,7 @@
     {
       "id": "result:disp:node-E:ry",
       "kind": "global_nodal_rotation_y",
-      "value": -0.01473523155093541,
+      "value": -0.01473523155093511,
       "unit": "rad",
       "entity_ref": "node:E",
       "basis_ref": {
@@ -881,7 +881,7 @@
     {
       "id": "result:disp:node-E:rz",
       "kind": "global_nodal_rotation_z",
-      "value": 0.019831147325863455,
+      "value": 0.01983114732584321,
       "unit": "rad",
       "entity_ref": "node:E",
       "basis_ref": {
@@ -899,7 +899,7 @@
     {
       "id": "result:disp:node-F:ux",
       "kind": "global_nodal_displacement_x",
-      "value": -36.843762986014454,
+      "value": -36.84376298597011,
       "unit": "mm",
       "entity_ref": "node:F",
       "basis_ref": {
@@ -917,7 +917,7 @@
     {
       "id": "result:disp:node-F:uy",
       "kind": "global_nodal_displacement_y",
-      "value": 52.67057406823484,
+      "value": 52.67057406817978,
       "unit": "mm",
       "entity_ref": "node:F",
       "basis_ref": {
@@ -935,7 +935,7 @@
     {
       "id": "result:disp:node-F:uz",
       "kind": "global_nodal_displacement_z",
-      "value": 58.02728476920853,
+      "value": 58.027284769207384,
       "unit": "mm",
       "entity_ref": "node:F",
       "basis_ref": {
@@ -953,7 +953,7 @@
     {
       "id": "result:disp:node-F:rx",
       "kind": "global_nodal_rotation_x",
-      "value": 0.01048052873167844,
+      "value": 0.010480528731678328,
       "unit": "rad",
       "entity_ref": "node:F",
       "basis_ref": {
@@ -971,7 +971,7 @@
     {
       "id": "result:disp:node-F:ry",
       "kind": "global_nodal_rotation_y",
-      "value": -0.01598261363068359,
+      "value": -0.015982613630683266,
       "unit": "rad",
       "entity_ref": "node:F",
       "basis_ref": {
@@ -989,7 +989,7 @@
     {
       "id": "result:disp:node-F:rz",
       "kind": "global_nodal_rotation_z",
-      "value": 0.021014794554821588,
+      "value": 0.021014794554801316,
       "unit": "rad",
       "entity_ref": "node:F",
       "basis_ref": {

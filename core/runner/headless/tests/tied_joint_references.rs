@@ -337,21 +337,6 @@ impl Case<'_> {
 
 thread_local! { static FAILURES: std::cell::RefCell<Vec<(String, String, f64)>> = const { std::cell::RefCell::new(Vec::new()) }; }
 
-/// Open disagreement with the frozen criterion, returned to the reference's
-/// owner and refuter (README "Re-freeze rules"); no oracle value or
-/// criterion is changed here. In AS-F (free chain, one offset rod) rotated by
-/// J3-1R's rotation, node B's near-zero components are the binary64 solve's
-/// roundoff at about 1.5e3·u relative to the case's largest displacement
-/// (u_D ≈ 0.059 m), against an absolute floor of 1e-14 m and 1e-14 rad: up
-/// to 1.97× the criterion (sparse) and 1.37× (dense). The unrotated AS-F
-/// and every other observable of all 38 cases pass. These four are still
-/// compared, bounded below 2.5× so they cannot grow, and printed.
-const PENDING_REFERENCE_DISAGREEMENT: [(&str, &str); 4] = [
-    ("AS-F-R", "node.node:B.translation.x"),
-    ("AS-F-R", "node.node:B.translation.z"),
-    ("AS-F-R", "node.node:B.rotation.x"),
-    ("AS-F-R", "node.node:B.rotation.y"),
-];
 /// The worst |obs − exp| / (1e-9·max(|exp|, F)) per criterion family.
 type Worst = BTreeMap<&'static str, (f64, String)>;
 
@@ -370,10 +355,9 @@ fn assert_case(source: &Value, case: &Case, label: &str, worst: &mut Worst) {
                 if observed.is_finite() { fraction } else { f64::INFINITY })));
             println!("t4_u5b over the criterion: {label}: {key}: observed={observed:.17e}, expected={expected:.17e} ({fraction:.3e} of the criterion)");
         }
-        // The worst fraction per family, outside the pending disagreement.
-        let pending = PENDING_REFERENCE_DISAGREEMENT.contains(&(case.name, key.as_str()));
+        // The worst fraction per family.
         let entry = worst.entry(family).or_insert((0.0, String::new()));
-        if !pending && fraction > entry.0 {
+        if fraction > entry.0 {
             *entry = (fraction, format!("{label} {key}"));
         }
         compared += 1;
@@ -432,11 +416,10 @@ fn u5b_thirty_eight_oracles_match_typed_captured_and_headless_consumers_with_exp
     for (family, (fraction, at)) in &worst {
         println!("t4_u5b worst fraction of criterion: {family} = {fraction:.3e} ({at})");
     }
+    // No exception: every observable of all 38 cases, both modes, within the
+    // unchanged criterion (HELP_HUMAN's ruling (A) removed the AS-F-R carve-out).
     let failures = FAILURES.with(|f| f.borrow().clone());
-    for (name, key, fraction) in &failures {
-        assert!(PENDING_REFERENCE_DISAGREEMENT.contains(&(name.as_str(), key.as_str())) && *fraction < 2.5,
-            "{name} {key}: {fraction:.3e} of the criterion");
-    }
+    assert!(failures.is_empty(), "over the criterion: {failures:?}");
 }
 
 /// Each discriminator's wrong value of a published observable lies outside
@@ -616,7 +599,6 @@ fn u5b_writes_case_observations_when_asked() {
                     "expected_hex": hex_float(expected), "expected_decimal": format!("{expected:e}"),
                     "criterion": {"relative": RELATIVE, "floor": floor, "tolerance": tolerance},
                     "fraction_of_criterion": (observed - expected).abs() / tolerance,
-                    "pending_reference_disagreement": PENDING_REFERENCE_DISAGREEMENT.contains(&(name, key.as_str())),
                 })
             }).collect();
             modes.insert(format!("{mode:?}"), serde_json::json!({

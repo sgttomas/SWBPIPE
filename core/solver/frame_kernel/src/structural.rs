@@ -930,9 +930,10 @@ fn contribution_sums(
         let sum = &mut sums[entry.row][entry.col];
         let old = sum.round()?;
         sum.add(entry.value)?;
-        let on_nonzero = entry.row == entry.col && entry.value > 0.0 && old != 0.0;
+        let positive_diagonal = entry.row == entry.col && entry.value > 0.0;
+        let on_nonzero = positive_diagonal && old != 0.0;
         let absorbed = on_nonzero && sum.round()? == old;
-        absorption.record(index, on_nonzero, absorbed, entry.row)?;
+        absorption.record(index, on_nonzero, positive_diagonal && old == 0.0, absorbed, entry.row)?;
     }
     Ok(Some(sums))
 }
@@ -946,15 +947,17 @@ fn contribution_sums(
 ///   is its own element and any absorbed contribution is refused at its DOF:
 ///   the per-entry rule, unchanged.
 /// - With the caller's exact element groups, a *candidate* is a positive
-///   diagonal contribution at a free DOF whose running sum already rounds to a
-///   nonzero value. An element is refused exactly when it has at least one
-///   candidate and every candidate is absorbed: the solved (free) system then
-///   represents none of that element's stiffness where it meets the rest of
-///   the model. The refusal names the element's first absorbed diagonal
-///   contribution, at any DOF, as the per-entry rule did. An element with a
-///   represented candidate (for example a rank-1 tie rod whose diagonal is
-///   negligible only along some global axes) is not refused. Diagonals at
-///   prescribed DOFs never enter the free system and are no candidates.
+///   diagonal contribution at a free DOF. A candidate that opens a diagonal
+///   whose running sum rounds to zero is represented (round 4: it sets that
+///   diagonal); any other candidate is represented unless it is absorbed. An
+///   element is refused exactly when it has at least one candidate and every
+///   candidate is absorbed: the solved (free) system then represents none of
+///   that element's stiffness. The refusal names the element's first absorbed
+///   diagonal contribution, at any DOF, as the per-entry rule did. An element
+///   with a represented candidate (for example a rank-1 tie rod whose
+///   diagonal is negligible only along some global axes, or an element that
+///   opens a free diagonal) is not refused. Diagonals at prescribed DOFs never
+///   enter the free system and are no candidates.
 ///
 /// The downstream contribution audit still bounds every absorbed entry.
 pub(crate) struct ElementAbsorption<'g> {
@@ -984,12 +987,17 @@ impl<'g> ElementAbsorption<'g> {
         let end = groups.map_or(1, |ends| ends.first().copied().unwrap_or(0));
         Ok(Self { groups, free, group: 0, end, candidates: 0, absorbed_candidates: 0, first: None })
     }
-    /// Records contribution `index` (in order) at diagonal `dof` when
-    /// `diagonal`: `on_nonzero` when it is positive and its running sum already
-    /// rounded to a nonzero value, `absorbed` when that rounded value is
-    /// unchanged by it. Decides the element at its last contribution.
-    pub(crate) fn record(&mut self, index: usize, on_nonzero: bool, absorbed: bool, dof: usize) -> Result<(), StructuralError> {
-        let candidate = on_nonzero && (self.groups.is_none() || self.free.get(dof).copied().unwrap_or(false));
+    /// Records contribution `index` (in order) at diagonal `dof`:
+    /// `on_nonzero` when it is a positive diagonal contribution whose running
+    /// sum already rounded to a nonzero value, `opens_zero` when it is a
+    /// positive diagonal contribution whose running sum rounded to zero,
+    /// `absorbed` when an `on_nonzero` contribution leaves that rounded value
+    /// unchanged. Decides the element at its last contribution.
+    pub(crate) fn record(&mut self, index: usize, on_nonzero: bool, opens_zero: bool, absorbed: bool, dof: usize) -> Result<(), StructuralError> {
+        let candidate = match self.groups {
+            None => on_nonzero,
+            Some(_) => (on_nonzero || opens_zero) && self.free.get(dof).copied().unwrap_or(false),
+        };
         if candidate {
             self.candidates += 1;
             if absorbed {

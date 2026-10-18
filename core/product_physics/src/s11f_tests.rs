@@ -182,9 +182,10 @@ fn assert_rows_match_net_answer(
 /// load-row guard (its CannotBound curved terms), so it is not pre-guard
 /// Passed and keeps its binary64 recovery (DEL-04-01
 /// kd5-member-relative-bound.md §3.1 "Which rows publish"), while the single
-/// net load is Passed and publishes certified rows. The two recipes differ by
-/// binary64 rounding, not by the cancelling loads: every row id matches and
-/// each value is bit-identical or within 2^-34 of the largest reference row of
+/// net load is Passed and publishes certified rows and its corrected
+/// displacement. The two recipes differ by binary64 rounding, not by the
+/// cancelling loads: every row id matches and each value, displacements
+/// included, is bit-identical or within 2^-34 of the largest reference row of
 /// its unit (the unified predicate's relative floor). Returns how many differ.
 fn assert_binary64_rows_near_certified_net_answer(
     envelope: &MechanicsEnvelope,
@@ -223,7 +224,11 @@ fn assert_binary64_rows_near_certified_net_answer(
             continue;
         }
         differing += 1;
-        assert!(!r.kind.starts_with("global_nodal_"), "{label}: {id} is a displacement row");
+        // T4-U5b item 6: the demoted case has no certified bound and keeps the
+        // solve's own displacement while the Passed net-load reference
+        // publishes the corrected u + w + w2, so displacement rows fall under
+        // the same floor as every other row (measured: n1:uz 6.28331168557369328e-4
+        // against 6.28331168557369544e-4 mm, floor 3.7e-14 mm).
         let floor = scale[e.unit.as_str()] * 2f64.powi(-34);
         assert!((r.value - e.value).abs() <= floor, "{label}: {id} {} against {} (floor {floor:e})", r.value, e.value);
     }
@@ -2190,5 +2195,27 @@ fn s1_unauditable_load_row_is_published_sensitive_with_the_warning() {
                 assert!(case_rows(&envelope, "case").count() > 0, "{label}");
             }
         }
+    }
+}
+
+/// T4-U5b item 6 (Codex scrutiny 4 (c)): at G = 1e80 probe A's formation
+/// check produced its member bound (quality Passed) and the later member
+/// recovery predicate (R-b') reports the case Sensitive. The bound existed,
+/// so the nodal rows are the corrected displacement fl(u + w + w2), as the
+/// rule states, bit for bit, in both modes.
+#[test]
+fn a_case_sensitive_after_recovery_keeps_the_corrected_displacement() {
+    use crate::corrected_displacement_tests::{assert_nodal_rows, corrected, with_publication_probe};
+    let request = probe_a(1e80, GNG);
+    for mode in MODES {
+        let label = format!("probe A G=1e80 {mode:?}");
+        let (envelope, records) = with_publication_probe(|| solved(Entry::Typed, &request, mode));
+        assert_integrity_at_g(&envelope, 1e80, &label);
+        assert_eq!(records.len(), 1, "{label}");
+        let record = &records[0];
+        assert!(record.bound.is_some(), "{label}: the formation check's bound existed");
+        let expected = corrected(record);
+        assert_eq!(record.published, expected, "{label}");
+        assert_nodal_rows(&envelope.results, &["root", "tip"], &expected, &label);
     }
 }
