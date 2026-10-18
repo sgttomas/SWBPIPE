@@ -15,7 +15,12 @@ preview-physics-1 flip with the O-13 adapter, reached main with B7a's H-4 C5 in 
 arc end rows are published in the tangent frame with §8's LIMITATIONS[3] sentence, `arc_chord_frame` is
 gone from both preview tables and `results.v0.3`, and `certify_arc_recovery` takes no end-frame
 parameter. B7b re-authored the pressure-1 invocations in model 0.5.0. The remaining-work list below is
-therefore complete; the paragraphs that follow record the 2026-10-13 state. What stays for U4b is §9.
+therefore complete; the paragraphs that follow record the 2026-10-13 state. What stayed for U4b is §9,
+which T4-U4b has since implemented ([u4b-u5b-implementation.md](u4b-u5b-implementation.md) §2). That
+epoch also renamed what this file names as current: the ordinary identities are `pressure-2` and
+`preview-physics-2` (`pressure-1` and `preview-physics-1` are refused by name), the verifier is
+`tests/verifiers/pressure_2.py` and model 0.6.0 is current (§1 there). The text below keeps the names
+U4a used.
 
 The owner resumed T4-U4a from the controlled pause. Stage 1 is implemented
 and checked; the independently reviewed stage-2 preview flip and O-13
@@ -529,7 +534,8 @@ The values that ride the same wave are §5's stage 2.
 
 ## 9. What stays out of U4a
 
-**Withheld for U4b:**
+**Withheld for U4b** (published since T4-U4b, [u4b-u5b-implementation.md](u4b-u5b-implementation.md)
+§2; `withheld_on_arcs` and `ARC_WITHHELD_REASON` are removed):
 
 - the certified arc maximum (`pipe_elastic_normal_stress_maximum_v2` and the
   preview maximum and headline on arcs);
@@ -624,8 +630,12 @@ stands. Still open:
   add no inferred bound.
 - **Markers.** Directional SIF at geometry-only markers has no vetted
   in-plane axis. Only the component-frame control I1 is frozen, and the
-  marker mapping is the U4b design's.
-- **For the U4b design:**
+  marker mapping is the U4b design's. As built, a directional pair off a
+  realized arc is refused (`BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC`,
+  u4b-u5b-implementation.md §2.6).
+- **For the U4b design** (decided there: no hoop or radial rows on an arc
+  outside every pressure region, §2.5; the inferred conventions, §§2.2–2.6;
+  the algebra-class marks, §2.7):
   - whether hoop and radial rows are published or omitted on an exact-route
     arc outside every pressure region;
   - the conventions the references' README lists as inferred: a uniform arc
