@@ -827,8 +827,10 @@ recovery is T_r = k_r(C d − e_ref).
 - **A rod nearly perpendicular to the joint axis is admitted, with no refusal.** Ruling 1 lets
   this design refuse it by name only if that is justified, and nothing justifies it:
   - the rod element's assembly and certificate do not depend on n·Q_x. As built, the kernel's
-    assembly-absorption refusal applies per element: it fires only when every positive
-    diagonal contribution of one element is absorbed by rounding. A rank-1 rod with tiny
+    assembly-absorption refusal applies per element: it fires only when an element has a
+    positive diagonal contribution at a free DOF and every such contribution is absorbed by
+    rounding (prescribed DOFs never enter the solved system). Elements are grouped from the
+    adapter's element walk; callers without groups keep the per-entry rule. A rank-1 rod with tiny
     entries along some global axis (near-perpendicular, or a parallel rod with coordinate
     noise) is therefore not refused, while a series-absorbed member keeps its refusal (F1b);
   - its stiffness, extension and force are well defined at every direction;
