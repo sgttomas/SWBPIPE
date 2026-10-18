@@ -4,9 +4,10 @@
 //! both entries (DEL-04-07 Design `u4b-u5b-implementation.md` §7.1).
 //!
 //! The requests are formed in memory from the SHA-bound `cases.json`; their
-//! own SHA-256 values are pinned here ([`REQUEST_SHA256`]). Recording them in
-//! the oracle needs a generator change (its `request_sha256` is a fixed
-//! string), which is the reference owner's.
+//! own SHA-256 values are pinned here ([`REQUEST_SHA256`]). The frozen tree
+//! stays unchanged: no request or request SHA-256 is written into
+//! `oracle.json`, and the binding stays pinned in this test (design §1.4, as
+//! for t4_u5b).
 use super::*;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -151,22 +152,28 @@ pub(crate) fn build_request(case: &Value) -> Value {
             "terminals": r["terminals"].as_array().unwrap().iter().map(|t| json!({"node_ref": t["node"], "closure_transfer": t["closure_transfer"], "provenance": PROVENANCE})).collect::<Vec<_>>(),
             "provenance": PROVENANCE})).collect();
         load_case["pressure_regions"] = json!(regions);
-        let member_ids: Vec<&Value> = case["members"].as_array().unwrap().iter().map(|m| &m["id"]).collect();
-        model["reference_configurations"] = json!([{"id": "reference:installed", "label": "Installed reference",
-            "geometry_ref": {"kind": "authored_model_geometry"},
-            "member_references": member_ids.iter().map(|id| json!({"pipe_ref": id, "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": PROVENANCE})).collect::<Vec<_>>(),
-            "provenance": PROVENANCE}]);
-        let material_of = |id: &Value| case["members"].as_array().unwrap().iter().find(|m| &m["id"] == id).unwrap()["material"].clone();
-        load_case["analysis_state"] = json!({"contract": "openpipestress.load_reference_state/1.0.0", "reference_configuration_ref": "reference:installed",
-            "element_states": member_ids.iter().map(|id| json!({"pipe_ref": id,
-                "material_selection": {"kind": "explicit_base_properties", "material_ref": material_of(id), "applicability_reference": "invented analytical basis declared applicable"},
-                "thermal_state": {"kind": "unchanged_reference", "provenance": PROVENANCE}})).collect::<Vec<_>>(),
-            "support_states": case["supports"].as_array().unwrap().iter().map(|s| json!({"support_ref": s["id"], "participation": {"kind": "active_model_device"}})).collect::<Vec<_>>(),
-            "load_sources": load_case["primitive_loads"].as_array().unwrap().iter().map(|l| json!({"source_ref": l["id"], "factor": 1.0})).collect::<Vec<_>>(),
-            "history": {"kind": "independent_equilibrium"}, "provenance": PROVENANCE});
+        add_load_state(&mut model, &mut load_case, case);
     }
     model["load_cases"] = json!([load_case]);
     json!({"model": model, "materials": []})
+}
+
+/// The binding rules' load/reference state: an installed reference of every
+/// member and each member's explicit base properties.
+fn add_load_state(model: &mut Value, load_case: &mut Value, case: &Value) {
+    let member_ids: Vec<&Value> = case["members"].as_array().unwrap().iter().map(|m| &m["id"]).collect();
+    model["reference_configurations"] = json!([{"id": "reference:installed", "label": "Installed reference",
+        "geometry_ref": {"kind": "authored_model_geometry"},
+        "member_references": member_ids.iter().map(|id| json!({"pipe_ref": id, "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": PROVENANCE})).collect::<Vec<_>>(),
+        "provenance": PROVENANCE}]);
+    let material_of = |id: &Value| case["members"].as_array().unwrap().iter().find(|m| &m["id"] == id).unwrap()["material"].clone();
+    load_case["analysis_state"] = json!({"contract": "openpipestress.load_reference_state/1.0.0", "reference_configuration_ref": "reference:installed",
+        "element_states": member_ids.iter().map(|id| json!({"pipe_ref": id,
+            "material_selection": {"kind": "explicit_base_properties", "material_ref": material_of(id), "applicability_reference": "invented analytical basis declared applicable"},
+            "thermal_state": {"kind": "unchanged_reference", "provenance": PROVENANCE}})).collect::<Vec<_>>(),
+        "support_states": case["supports"].as_array().unwrap().iter().map(|s| json!({"support_ref": s["id"], "participation": {"kind": "active_model_device"}})).collect::<Vec<_>>(),
+        "load_sources": load_case["primitive_loads"].as_array().unwrap().iter().map(|l| json!({"source_ref": l["id"], "factor": 1.0})).collect::<Vec<_>>(),
+        "history": {"kind": "independent_equilibrium"}, "provenance": PROVENANCE});
 }
 
 /// The authored requests with their pinned hashes checked (`U4B_PRINT_REQUEST_SHA256`
@@ -272,6 +279,29 @@ fn check_case(out: &MechanicsEnvelope, case: &Value, label: &str, agreement: &mu
         let arc = derived["kind"] != "straight";
         let ro = n(&derived["section_bases"][if exact { "nominal_section" } else { "preview_single_section" }]["ro"]);
         for station in STATIONS {
+            // §7.1 (review 7(a)): the j-side section resultants against the
+            // published force and moment rows (no section basis): the section rows
+            // inside and at end_j, and at end_i the node-on-element end rows, whose
+            // sign is the opposite of the j-side cut. On a pressurized exact member
+            // N_w is the wall force row and S the effective axial force row.
+            let resultants = &q["resultants_tangent_frame_j_side"][pipe][station];
+            let axial: &[(&str, &str)] = if resultants.get("N_w").is_some() {
+                &[("N_w", "pipe_wall_axial_force_v2"), ("S", "pipe_effective_axial_force_v2")]
+            } else {
+                &[("N", "element_local_axial_force")]
+            };
+            let mut compared = 0;
+            for &(key, kind) in axial.iter().chain(&[
+                ("V_y", "element_local_shear_force_y"), ("V_z", "element_local_shear_force_z"), ("T", "element_local_torsional_moment"),
+                ("M_y", "element_local_bending_moment_y"), ("M_z", "element_local_bending_moment_z"),
+            ]) {
+                let scale = scales.member(pipe, if key.starts_with('V') || key.starts_with('N') || key == "S" { "force" } else { "moment" });
+                let sign = if station == "end_i" && kind.starts_with("element_local_") { -1.0 } else { 1.0 };
+                let published = sign * value_on(out, kind, pipe, station, "", "preview_single_section");
+                agreement.close("resultants_tangent_frame_j_side", &format!("{label} {pipe} {station} {key}"), published, n(&resultants[key]), scale);
+                compared += 1;
+            }
+            assert_eq!(compared, resultants.as_object().unwrap().len(), "{label} {pipe} {station}: every resultant compared");
             for basis in bases {
                 let ne = &q["normal_extremes"][pipe][station][basis];
                 let normal_scale = scales.basis(pipe, basis, "normal_stress");
@@ -286,7 +316,11 @@ fn check_case(out: &MechanicsEnvelope, case: &Value, label: &str, agreement: &mu
                 let moment_scale = scales.member(pipe, "moment");
                 let modulus = n(&derived["section_bases"][*basis]["Z"]);
                 let hypot_moment = norm2(sy, sz) * 1e6 * modulus;
-                if ne["sigma_plus_fibre"].is_object() && hypot_moment > 1e-9 * moment_scale {
+                if !ne["sigma_plus_fibre"].is_object() {
+                    // §7.1 (review 7(b)): the oracle ties the fibre (zero bending); the
+                    // published hypot is zero within the criterion before the fibre is skipped.
+                    agreement.close("tied_fibre_hypot", &format!("{label} {pipe} {station} {basis} tied"), hypot_moment, 0.0, moment_scale);
+                } else if hypot_moment > 1e-9 * moment_scale {
                     let fibres = open_pipe_stress_stress_recovery::section_stress_quantities::normal_extreme_fibres(ro, sy, sz).expect("bending is nonzero");
                     for (k, key) in [(0, "sigma_plus_fibre"), (1, "sigma_minus_fibre")] {
                         agreement.close("fibre", &format!("{label} {pipe} {station} {basis} {key} y"), fibres[k][0], n(&ne[key]["y"]), ro);
@@ -405,6 +439,31 @@ fn discriminators(out: &MechanicsEnvelope, case: &Value, label: &str) {
             let separation = (got - wrong).abs() / tolerance(expected, scale);
             assert!(separation >= 1e3, "{label} {mutant} {}: {separation} tolerances from the mutant", listed["row"]);
         }
+    }
+}
+
+/// Review item 5: the two arc models of the shared base reader corpus, built
+/// from `cases.json` by the binding rules (the frozen tree stays unchanged;
+/// the requests' SHA-256 stay pinned in [`REQUEST_SHA256`]): a pressurized
+/// pressure-2 L line with a directional arc and a preview line with two
+/// directional arcs. `U4B_WRITE_CORPUS_MODELS=1` rewrites them; the producer's
+/// envelopes of them are written by the `exact_pressure_connected` and
+/// `preview_physics_capture` examples (`fixtures/results/*_u4b_arc_sparse.json`).
+pub(crate) const CORPUS_MODELS: [(&str, &str); 2] = [
+    ("U4B-L90-P", "tests/fixtures/u4b_l90_p_model.json"),
+    ("U4B-Z-PREVIEW-REV", "tests/fixtures/u4b_z_preview_rev_model.json"),
+];
+#[test]
+fn u4b_corpus_models_are_current() {
+    let requests = requests();
+    for (case_id, path) in CORPUS_MODELS {
+        let request = &requests.iter().find(|(id, _)| id == case_id).expect("a reference case").1;
+        let bytes = serde_json::to_string_pretty(&request["model"]).unwrap() + "\n";
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(path);
+        if std::env::var_os("U4B_WRITE_CORPUS_MODELS").is_some() {
+            std::fs::write(&path, &bytes).unwrap();
+        }
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), bytes, "{}: regenerate with U4B_WRITE_CORPUS_MODELS=1", path.display());
     }
 }
 
@@ -688,6 +747,166 @@ fn u4b_torus_domain_guard() {
             let refused = crate::result_export::reader_verdict::validate("pressure", &stripped, None, None);
             assert!(refused["error"]["detail"].as_str().is_some_and(|d| d.contains("SOURCE_PHYSICS_TOROIDAL_DOMAIN_WARNING")), "{label}: {refused}");
         }
+    }
+}
+
+/// Review item 1 (§2.6, §5.1): the directional rows and records are bound to the
+/// captured model on both routes. Model-free reads cannot see a whole dropped
+/// family or consistently changed factors; the model-holding readers refuse
+/// both. One dropped basis is refused either way (the twin rule).
+#[test]
+fn u4b_directional_rows_bind_to_the_captured_model() {
+    let (cases, _) = inputs();
+    for (id, reader, exact) in [("U4B-L90-P", "pressure", true), ("U4B-ARC90-OOP-PREVIEW", "preview-physics", false)] {
+        let case = cases["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == id).unwrap();
+        let request = build_request(case);
+        let model = model_with_materials(&request);
+        let out = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), PreviewSolverMode::SparseInteractive).unwrap()).unwrap();
+        let read = |doc: &Value, model: Option<&Value>| crate::result_export::reader_verdict::validate(reader, doc, model, None);
+        assert_eq!(read(&out, Some(&model))["ok"], true, "{id}: {}", read(&out, Some(&model)));
+        let cases_key = if exact { "exact_cases" } else { "preview_cases" };
+        let directional = |r: &Value| matches!(r["kind"].as_str(), Some(u4b_rows::DIRECTIONAL_KIND | u4b_rows::DIRECTIONAL_MAX_KIND));
+        let code = |v: &Value| v["error"]["detail"].as_str().or(v["error"]["code"].as_str()).unwrap_or("").to_string();
+        // (a) The whole family dropped: rows, records and unavailable outcomes.
+        let mut dropped = out.clone();
+        dropped["results"].as_array_mut().unwrap().retain(|r| !directional(r));
+        dropped["diagnostics"].as_array_mut().unwrap().retain(|d| d["code"] != "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE");
+        for c in dropped["contract_evidence"][cases_key].as_array_mut().unwrap() {
+            c["intensified_measures"].as_array_mut().unwrap().retain(|r| r.get("i_in_plane").is_none());
+            // A pressure-2 case carries the list only when it has a record.
+            if exact && c["intensified_measures"].as_array().unwrap().is_empty() {
+                c.as_object_mut().unwrap().remove("intensified_measures");
+            }
+        }
+        assert_eq!(read(&dropped, None)["ok"], true, "{id}: a model-free read cannot see the dropped family: {}", read(&dropped, None));
+        assert!(code(&read(&dropped, Some(&model))).contains("INTENSIFIED_MODEL_COVERAGE"), "{id}: {}", read(&dropped, Some(&model)));
+        // (b) One basis dropped (pressure-2 has two).
+        if exact {
+            let mut one = out.clone();
+            let reduced = |v: &Value| v["section_basis"] == "reduced_section"
+                || v["metadata"]["basis"].as_str().is_some_and(|b| b.ends_with("; section_basis=reduced_section"));
+            one["results"].as_array_mut().unwrap().retain(|r| !(directional(r) && reduced(r)));
+            for c in one["contract_evidence"][cases_key].as_array_mut().unwrap() {
+                c["intensified_measures"].as_array_mut().unwrap().retain(|r| !(r.get("i_in_plane").is_some() && reduced(r)));
+            }
+            assert_eq!(read(&one, None)["ok"], false, "{id}: one basis dropped breaks the twin rule");
+            assert_eq!(read(&one, Some(&model))["ok"], false, "{id}");
+        }
+        // (c) The factors halved in every record, the station rows recomputed from
+        // them (the maxima's upper bounds still cover the smaller stations).
+        let mut halved = out.clone();
+        let mut factors = HashMap::new();
+        for c in halved["contract_evidence"][cases_key].as_array_mut().unwrap() {
+            for r in c["intensified_measures"].as_array_mut().unwrap().iter_mut().filter(|r| r.get("i_in_plane").is_some()) {
+                for k in ["i_in_plane", "i_out_of_plane"] {
+                    r[k] = json!(r[k].as_f64().unwrap() / 2.0);
+                }
+                factors.insert(r["result_id"].as_str().unwrap().to_string(), (n(&r["i_in_plane"]), n(&r["i_out_of_plane"])));
+            }
+        }
+        let rows = halved["results"].as_array().unwrap().clone();
+        let bending = |row: &Value, axis: &str| rows.iter().find(|r| r["kind"] == format!("element_local_bending_normal_stress_{axis}") && r["entity_ref"] == row["entity_ref"]
+            && r["basis_ref"] == row["basis_ref"] && r["metadata"]["location"] == row["metadata"]["location"]
+            && r["metadata"]["basis"].as_str().unwrap().rsplit_once("; section_basis=").map(|x| x.1) == row["metadata"]["basis"].as_str().unwrap().rsplit_once("; section_basis=").map(|x| x.1)).unwrap()["value"].as_f64().unwrap();
+        let mut recomputed = 0;
+        for row in halved["results"].as_array_mut().unwrap().iter_mut().filter(|r| r["kind"] == u4b_rows::DIRECTIONAL_KIND) {
+            let (i_ip, i_op) = factors[row["id"].as_str().unwrap()];
+            row["value"] = json!(1e6 * norm2(i_ip * bending(row, "z"), i_op * bending(row, "y")));
+            recomputed += 1;
+        }
+        assert_eq!(recomputed, 5 * if exact { 2 } else { 1 } * case["members"].as_array().unwrap().iter().filter(|m| m["directional_sif_user_values"].is_object()).count());
+        assert_eq!(read(&halved, None)["ok"], true, "{id}: {}", read(&halved, None));
+        assert!(code(&read(&halved, Some(&model))).contains("INTENSIFIED_MODEL_FACTORS"), "{id}: {}", read(&halved, Some(&model)));
+        // A directional row on a member without the model's pair.
+        let mut stripped = model.clone();
+        for component in stripped["components"].as_array_mut().unwrap() {
+            let m = component["modifiers"].as_object_mut().unwrap();
+            m.remove("sif_in_plane_user_value");
+            m.remove("sif_out_of_plane_user_value");
+        }
+        assert!(code(&read(&out, Some(&stripped))).contains("INTENSIFIED_MODEL"), "{id}");
+    }
+}
+
+/// Review item 3 (§2.4): the Poisson exemption is bound. pressure-2 admits only
+/// −1 < ν < 1/2, so a forged warning with the member's τ rows deleted is
+/// refused by the envelope reader; on preview-physics-2 in the domain the
+/// same tamper passes a model-free read (custody, as designed) and is refused
+/// with the model, which forms the member's ν.
+#[test]
+fn u4b_forged_poisson_warnings_are_refused() {
+    let (cases, _) = inputs();
+    for (id, reader, model_free_refuses) in [("U4B-L90-P", "pressure", true), ("U4B-Z-PREVIEW-REV", "preview-physics", false)] {
+        let case = cases["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == id).unwrap();
+        let request = build_request(case);
+        let model = model_with_materials(&request);
+        let out = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), PreviewSolverMode::SparseInteractive).unwrap()).unwrap();
+        let read = |doc: &Value, model: Option<&Value>| crate::result_export::reader_verdict::validate(reader, doc, model, None);
+        let detail = |v: &Value| v["error"]["detail"].as_str().or(v["error"]["code"].as_str()).unwrap_or("").to_string();
+        assert_eq!(read(&out, Some(&model))["ok"], true, "{id}");
+        let case_id = case["load_case"]["id"].as_str().unwrap();
+        let pipe = "pipe:S1";
+        let mut forged = out.clone();
+        forged["results"].as_array_mut().unwrap().retain(|r| !(r["kind"] == u4b_rows::SHEAR_MAX_KIND && r["entity_ref"] == pipe));
+        forged["diagnostics"].as_array_mut().unwrap().push(json!({"id": "diagnostic:transverse-shear:forged:poisson", "code": u4b_rows::POISSON_OUT_OF_DOMAIN,
+            "severity": "warning", "message": "forged", "affected_refs": [case_id, pipe]}));
+        let free = read(&forged, None);
+        if model_free_refuses {
+            assert!(detail(&free).contains("SHEAR_POISSON_EXEMPTION"), "{id}: {free}");
+        } else {
+            assert_eq!(free["ok"], true, "{id}: the model-free read keeps custody only: {free}");
+            assert!(detail(&read(&forged, Some(&model))).contains("SHEAR_POISSON_EXEMPTION"), "{id}: {}", read(&forged, Some(&model)));
+        }
+    }
+}
+
+/// Review item 4 (§2.4): the preview readers no longer exempt load-state cases
+/// from the bit-for-bit τ check. No such case exists on preview-physics-2: the
+/// producer refuses `analysis_state` without the exact pressure contract, by
+/// name and with no row, so only interpolated moduli keep the model-free checks.
+#[test]
+fn u4b_load_state_cases_never_reach_preview() {
+    let (cases, _) = inputs();
+    let case = cases["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == "U4B-ARC90-OOP-PREVIEW").unwrap();
+    let mut request = build_request(case);
+    for material in request["model"]["materials"].as_array_mut().unwrap() {
+        material["constitutive_basis"] = json!("homogeneous_isotropic_E_nu_v1");
+        material["poisson_ratio"] = quantity(n(&case["materials"][0]["poisson_ratio"]), "1");
+    }
+    let mut load_case = request["model"]["load_cases"][0].clone();
+    add_load_state(&mut request["model"], &mut load_case, case);
+    request["model"]["load_cases"] = json!([load_case]);
+    let out = run_linear_static_preview_value_with_mode(request, PreviewSolverMode::SparseInteractive).unwrap();
+    assert_eq!(out.status.mechanics, "MODEL_INCOMPLETE");
+    assert!(out.results.is_empty());
+    assert!(out.diagnostics.iter().any(|d| d.code == "LOAD_STATE_CONTRACT_VERSION_MISMATCH" && d.severity == "blocking"), "{:?}", out.diagnostics);
+}
+
+/// §2.5 (review item 9): only R <= r_o is the named domain warning, with no
+/// hoop or radial row. Any other failure from finite inputs, here an
+/// overflowing hoop (p = f64::MAX), takes its own blocking path,
+/// `ARC_TOROIDAL_HOOP_EVALUATION_FAILED`, which withholds the whole run.
+#[test]
+fn u4b_toroidal_evaluation_failure_blocks_by_name() {
+    let (cases, _) = inputs();
+    let case = cases["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == "U4B-ARC90-TIGHT-NSIGN-P").unwrap();
+    let model: PreviewModel = serde_json::from_value(build_request(case)["model"].clone()).unwrap();
+    let basis = |basis| u4b_rows::BasisSection { basis: Some(basis), outer_radius: 0.05, inner_radius: 0.045, wall: 0.005, inertia: 1e-6, area: 1e-3, modulus: 2e-5 };
+    let bases = vec![basis(pressure_exact::SectionBasis::Nominal), basis(pressure_exact::SectionBasis::Reduced)];
+    for (pressure, bend_radius, code, severity) in [
+        (f64::MAX, 1.0, u4b_rows::TOROIDAL_EVALUATION_FAILED, "blocking"),
+        (1e6, 0.04, u4b_rows::TOROIDAL_DOMAIN, "warning"),
+    ] {
+        let (mut results, mut diagnostics) = (Vec::new(), Vec::new());
+        u4b_rows::append_station_quantities(&model, &mut results, &mut diagnostics, &u4b_rows::MemberQuantities {
+            case_id: "case:x", pipe_id: "pipe:BEND", arc: true, exact: true, bases: bases.clone(), poisson_ratio: 0.3,
+            directional: None, toroidal: Some((pressure, bend_radius)),
+        });
+        assert!(!results.iter().any(|r| r.kind == u4b_rows::HOOP_KIND || r.kind == u4b_rows::RADIAL_KIND), "{code}");
+        assert_eq!(diagnostics.len(), 1, "{code}: {diagnostics:?}");
+        assert_eq!((diagnostics[0].code.as_str(), diagnostics[0].severity.as_str()), (code, severity));
+        assert_eq!(diagnostics[0].affected_refs, vec!["case:x".to_string(), "pipe:BEND".to_string()]);
+        assert_eq!(has_blocking(&diagnostics), severity == "blocking", "a blocking diagnostic withholds the run (`blocked_envelope`)");
     }
 }
 

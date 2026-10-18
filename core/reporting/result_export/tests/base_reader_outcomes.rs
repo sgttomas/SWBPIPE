@@ -257,7 +257,7 @@ fn corpus() -> &'static [Input] {
 fn build_corpus() -> Vec<Input> {
     let mut inputs = Vec::new();
     // Result fixtures, each with its model.
-    let results: [(&str, Option<&str>); 15] = [
+    let results: [(&str, Option<&str>); 17] = [
         ("preview_physics_connected_sparse", Some("fixtures/model_operations/precision_connected_ui_model.json")),
         ("preview_physics_connected_dense", Some("fixtures/model_operations/precision_connected_ui_model.json")),
         ("preview_physics_invented_sparse", Some("core/product_physics/tests/fixtures/preview_physics_invented_model.json")),
@@ -269,6 +269,9 @@ fn build_corpus() -> Vec<Input> {
         ("pressure_connected_ui_mechanics_dense", Some("fixtures/model_operations/exact_pressure_authoring_model.json")),
         ("pressure_thermal_ui_mechanics_sparse", Some("fixtures/model_operations/physics_thermal_ui_model.json")),
         ("pressure_thermal_ui_mechanics_dense", Some("fixtures/model_operations/physics_thermal_ui_model.json")),
+        // T4-U4b review item 5: a directional pressure-2 arc and a preview arc envelope.
+        ("pressure_u4b_arc_sparse", Some("core/product_physics/tests/fixtures/u4b_l90_p_model.json")),
+        ("preview_physics_u4b_arc_sparse", Some("core/product_physics/tests/fixtures/u4b_z_preview_rev_model.json")),
         ("../product_preview/invented_mechanics_result_preview_physics_1_sparse", None),
         ("../product_preview/invented_mechanics_result_preview_physics_1_dense", None),
         ("../product_preview/invented_demo_result_preview_physics_1_sparse", None),
@@ -309,8 +312,10 @@ fn build_corpus() -> Vec<Input> {
         let base_doc = read(vector["bases"][variant["base"].as_str().unwrap()].as_str().unwrap());
         let (doc, literal) = apply(&base_doc, &variant["ops"], &|_| unreachable!());
         assert!(literal.is_none());
+        // Codex round 2: a variant with a transport expectation is also read by transport.
+        let transports = if variant.get("transport").is_some() { vec!["preview-physics"] } else { vec![] };
         inputs.push(Input { id: format!("tamper/{}", variant["id"].as_str().unwrap()), source: Ok(doc), model: None,
-            invocation: None, readers: vec!["preview-physics"], transports: vec![], rows: false });
+            invocation: None, readers: vec!["preview-physics"], transports, rows: false });
     }
     // load_reference*_mutations.json: each case under its reader(s), and the
     // transport cases on the transported members.
@@ -495,13 +500,21 @@ fn check_expectations(outcomes: &BTreeMap<String, Value>) {
         let admitted = entry["dispatch"]["ok"] == true && entry["validate"]["preview-physics"]["ok"] == true;
         assert_eq!(admitted, variant["expect"] == "accepted", "tamper/{id}");
         checked += 1;
+        if let Some(expect) = variant.get("transport") {
+            assert_eq!(entry["transport"]["preview-physics"]["ok"] == true, expect == "accepted", "tamper/{id} transport");
+            checked += 1;
+        }
     }
     // B7b: the load/reference-state cases (210 retired-reader cases re-authored,
     // plus 2 added named refusals; their 14 transport cases retired with the v2
     // transport reader), the joined cases (116 less 2 retired relabels, and their
     // 14 transport cases) and the tamper vector. T4-U4b (§5.1): four pressure and
-    // three preview tampers of the new kinds.
-    assert_eq!(checked, 216 + 114 + 14 + 25);
+    // three preview tampers of the new kinds; review 2: the basis-twin order swap;
+    // review 6: the preview arc withholding revived; review 3 and 5: six pressure
+    // tampers on the directional arc envelope and the preview station cover.
+    // Codex round 2: nine malformed directional records, each read and
+    // transported, and the revival also transported.
+    assert_eq!(checked, 223 + 114 + 14 + 36 + 10);
     assert!(misses.is_empty(), "{} disagreements:\n{}", misses.len(), misses.join("\n"));
 }
 

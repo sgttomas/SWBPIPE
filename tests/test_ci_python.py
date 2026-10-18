@@ -99,3 +99,46 @@ def test_pinned_fixture_regenerations_select_the_tests_that_pin_their_bytes():
             assert reader in selected(path), (path, reader)
             assert digest in (PROJECT / reader).read_text(), (path, reader)
     assert 'tests/test_retained_precision_b3.py' not in selected('fixtures/results/pressure_source_reader_corpus.json')
+
+
+def test_verifier_edits_select_their_importing_tests():
+    chosen = set(selected('tests/verifiers/retained_precision.py'))
+    assert {'tests/test_retained_precision_b3.py', 'tests/test_retained_precision_contract.py',
+            'tests/test_declared_member_load_reader.py', 'tests/test_verifier_independence.py',
+            # `from verifiers import retained_precision`, with tests/ on sys.path.
+            'tests/test_retained_precision_si_first.py', 'tests/test_retained_precision_failed_ordinary.py',
+            # Through another test module: `from tests.test_retained_precision_contract import ...`.
+            'tests/test_rust_reader.py'} <= chosen
+    # Transitive: this test imports only `reader_verdict` and `source_blocks`; `source_blocks` imports `.canonical_json`.
+    assert 'tests/test_base_reader_verifier.py' in selected('tests/verifiers/canonical_json.py')
+    assert 'tests/test_retained_precision_si_first.py' not in selected('tests/verifiers/reader_verdict.py')
+    assert set(selected('tests/verifiers/__init__.py')) >= chosen
+
+
+def test_test_tree_imports_are_followed_without_unrelated_tests():
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        project = Path(tmp)
+        package = project / 'tests/verifiers'
+        package.mkdir(parents=True)
+        for name, body in [('__init__', ''), ('leaf', 'X = 1'), ('mid', 'def f():\n    from .leaf import X\n'),
+                           ('other', 'import json')]:
+            (package / f'{name}.py').write_text(body)
+        for name, body in [('direct', 'from tests.verifiers import leaf'), ('transitive', 'import tests.verifiers.mid'),
+                           ('bare', 'from verifiers import mid'), ('relative', 'from .verifiers.mid import f'),
+                           ('via_test', 'from tests.test_transitive import *'),
+                           ('unrelated', 'from tests.verifiers import other\nimport leaf_free')]:
+            (project / f'tests/test_{name}.py').write_text(body)
+        assert ci.test_tree_importers(project, ['tests/verifiers/leaf.py']) == [
+            'tests/test_bare.py', 'tests/test_direct.py', 'tests/test_relative.py',
+            'tests/test_transitive.py', 'tests/test_via_test.py']
+        assert ci.test_tree_importers(project, ['tests/verifiers/other.py']) == ['tests/test_unrelated.py']
+        assert ci.test_tree_importers(project, ['tests/verifiers/missing.py']) == []
+
+
+def test_unrelated_changes_select_no_verifier_importers():
+    verifier = set(selected('tests/verifiers/retained_precision.py')) - set(ci.BASE)
+    # A product module sharing a verifier's name is not a verifier.
+    assert selected('core/analysis_runs/compatibility.py') == sorted(ci.BASE)
+    assert selected('core/units/schema_vocabulary.py') == sorted(ci.BASE)
+    assert not verifier & set(selected('tests/qualification_fixture_support.py'))

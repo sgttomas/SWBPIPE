@@ -251,7 +251,8 @@ fn s4_w1e_derived_rows_of_both_bases_are_not_covered_and_formed_from_own_rows() 
 /// W1-E binds each derived row at its own position whatever the producer's σ order: the S2 order
 /// (nominal σ⁺, nominal σ⁻, reduced σ⁺, reduced σ⁻) and the D-5 twin-adjacent order (nominal σ⁺,
 /// reduced σ⁺, nominal σ⁻, reduced σ⁻) freeze to the same values, each formed from its own basis's
-/// rows; neither order is a twin pairing.
+/// rows; neither order is a twin pairing. The producer publishes the twin-adjacent order (T4-U4b
+/// review item 2); the test swaps each station into the other order.
 #[test]
 fn s4_w1e_derived_rows_bind_in_either_sigma_order() {
     let raw = m3x();
@@ -266,8 +267,9 @@ fn s4_w1e_derived_rows_bind_in_either_sigma_order() {
                 let mut swapped = 0;
                 while i + 3 < rows.len() {
                     let is = |r: &ResultItem, c: &str, b: &str| r.kind == DERIVED[0] && r.metadata.as_ref().is_some_and(|m| m.component == c && m.basis.ends_with(b));
-                    if is(&rows[i], "sigma_plus", "nominal_section") && is(&rows[i + 1], "sigma_minus", "nominal_section")
-                        && is(&rows[i + 2], "sigma_plus", "reduced_section") && is(&rows[i + 3], "sigma_minus", "reduced_section") {
+                    let s2 = is(&rows[i + 1], "sigma_minus", "nominal_section") && is(&rows[i + 2], "sigma_plus", "reduced_section");
+                    let twin_adjacent = is(&rows[i + 1], "sigma_plus", "reduced_section") && is(&rows[i + 2], "sigma_minus", "nominal_section");
+                    if is(&rows[i], "sigma_plus", "nominal_section") && (s2 || twin_adjacent) && is(&rows[i + 3], "sigma_minus", "reduced_section") {
                         rows.swap(i + 1, i + 2);
                         swapped += 1;
                         i += 4;

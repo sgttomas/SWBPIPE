@@ -431,6 +431,10 @@ pub fn validate_preview_physics_evidence(source: &Value) -> Check {
         )?;
         let unavailable = strings(&coverage["unavailable_pipe_ids"])?;
         let outside = strings(&coverage["outside_domain_pipe_ids"])?;
+        // T4-U4b (§2.1, review item 6): arcs publish their certified maximum, so
+        // no member is outside the maximum's domain on preview-physics-2; a
+        // nonempty list would revive the retired withholding on arcs.
+        require(outside.is_empty(), "STRESS_COVERAGE_OUTSIDE_DOMAIN")?;
         let complete = unavailable.is_empty() && outside.is_empty();
         require(
             coverage["complete"].as_bool() == Some(complete),

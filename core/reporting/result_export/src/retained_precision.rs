@@ -6582,6 +6582,10 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             !list(unavailable).iter().any(|x| list(outside).contains(x)),
             "maximum coverage overlap",
         )?;
+        // T4-U4b (§2.1, review item 6; Codex round 2): arcs publish their maximum,
+        // so no member is outside its domain, as the raw reader and PY transport
+        // require.
+        demand(list(outside).is_empty(), "maximum coverage outside the domain")?;
         demand(
             coverage["complete"].as_bool()
                 == Some(list(unavailable).is_empty() && list(outside).is_empty()),
@@ -6617,13 +6621,24 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
         )?;
         for x in list(&c["pipe_stress_extrema"]) {
             demand(shape(x, &EXTREMA), "extrema shape")?;
+            // T4-U4b (§2.3): the straight token triple or the arc record's (the raw
+            // reader binds an arc's record to its rows; transport has no rows).
+            let tokens = (x["approximation"].as_str(), x["coefficient_basis"].as_str(), x["enclosure_scope"].as_str());
             demand(
                 nonempty(&x["pipe_id"])
                     && nonempty(&x["result_id"])
-                    && x["approximation"] == "piecewise_quadratic_straight_section_statics"
-                    && x["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures"
-                    && x["enclosure_scope"]
-                        == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+                    && (tokens
+                        == (
+                            Some("piecewise_quadratic_straight_section_statics"),
+                            Some("j_side_section_equilibrium_binary64_enclosures"),
+                            Some("supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"),
+                        )
+                        || tokens
+                            == (
+                                Some(crate::u4b_evidence::ARC_APPROXIMATION),
+                                Some(crate::u4b_evidence::ARC_COEFFICIENT_BASIS),
+                                Some(crate::u4b_evidence::ARC_ENCLOSURE_SCOPE),
+                            )),
                 "extrema identity or basis",
             )?;
             // Ruling 2 (RR "I4 made at `30f3d1b24a`; …"): PY's extrema-number demand, at
@@ -6670,6 +6685,36 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             "extrema member partition",
         )?;
         for m in list(&c["intensified_measures"]) {
+            // T4-U4b (§2.6): a directional record is told apart by its own key set
+            // (the raw reader binds it to its row); its result id stays bound once.
+            // Codex round 2: it is one of the schema's two closed directional
+            // shapes with their typed fields, or refused with the detail PY's
+            // schema check of the same evidence gives.
+            if !shape(m, &MEASURE) && m.get("i_in_plane").is_some() && m.get("i_out_of_plane").is_some() {
+                let positive = |k: &str| number(&m[k]).is_some_and(|n| n > 0.0);
+                let fraction = |k: &str| number(&m[k]).is_some_and(|n| (0.0..=1.0).contains(&n));
+                let factors = nonempty(&m["pipe_id"])
+                    && nonempty(&m["result_id"])
+                    && positive("i_in_plane")
+                    && positive("i_out_of_plane");
+                let station = shape(m, &["pipe_id", "result_id", "location", "i_in_plane", "i_out_of_plane"])
+                    && matches!(m["location"].as_str(), Some("end_i" | "end_j" | "quarter_1" | "midspan" | "quarter_3"));
+                let maximum = shape(m, &[&EXTREMA[..], &["i_in_plane", "i_out_of_plane"]].concat())
+                    && fraction("station_fraction")
+                    && fraction("local_fraction")
+                    && number(&m["span_index"]) == Some(0.0)
+                    && ["value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa"]
+                        .iter()
+                        .all(|k| number(&m[*k]).is_some())
+                    && number(&m["subdivisions"])
+                        .is_some_and(|n| n.fract() == 0.0 && (0.0..=MAX_SUBDIVISIONS).contains(&n))
+                    && m["approximation"] == crate::u4b_evidence::ARC_DIRECTIONAL_APPROXIMATION
+                    && m["coefficient_basis"] == crate::u4b_evidence::ARC_COEFFICIENT_BASIS
+                    && m["enclosure_scope"] == crate::u4b_evidence::ARC_ENCLOSURE_SCOPE;
+                demand(factors && (station || maximum), "transport evidence shape")?;
+                measure_ids.push(text(&m["result_id"]));
+                continue;
+            }
             demand(shape(m, &MEASURE), "intensified measure shape")?;
             demand(
                 nonempty(&m["result_id"])

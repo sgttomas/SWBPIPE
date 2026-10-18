@@ -13,7 +13,12 @@
 //!   `certify_arc_stress_maximum`) with its closed fourteen-key record (§2.3);
 //!   with the directional SIF pair, the intensified rows and their along-arc
 //!   maximum (§2.6); on a pressurized pressure-2 arc with R > r_o, the toroidal
-//!   membrane hoop and radial rows (§2.5).
+//!   membrane hoop and radial rows (§2.5). R <= r_o is the one domain outcome:
+//!   the warning `ARC_TOROIDAL_HOOP_DOMAIN` and no hoop or radial row. Any
+//!   other hoop failure (a non-finite pressure, a nonpositive bore or wall, a
+//!   non-finite value from finite inputs) blocks the run by name
+//!   (`ARC_TOROIDAL_HOOP_EVALUATION_FAILED`, severity blocking), so the case
+//!   publishes no row (`blocked_envelope`).
 //!
 //! Every station value is a fixed sequence of correctly rounded binary64
 //! operations on published rows (`stress_recovery::section_stress_quantities`),
@@ -67,6 +72,9 @@ pub(crate) const POISSON_OUT_OF_DOMAIN: &str = "TRANSVERSE_SHEAR_POISSON_OUT_OF_
 /// §2.5: the named warning of a pressurized arc with R not above r_o.
 pub(crate) const TOROIDAL_DOMAIN: &str = "ARC_TOROIDAL_HOOP_DOMAIN";
 pub(crate) const TOROIDAL_DOMAIN_TEXT: &str = "bend radius R does not exceed the outer radius; the toroidal membrane hoop is undefined";
+/// §2.5: any other hoop or radial failure blocks the run by this name.
+pub(crate) const TOROIDAL_EVALUATION_FAILED: &str = "ARC_TOROIDAL_HOOP_EVALUATION_FAILED";
+pub(crate) const TOROIDAL_EVALUATION_TEXT: &str = "the toroidal hoop or radial value of a pressurized arc with R > r_o is not a finite binary64 value from finite inputs; no result is published";
 
 /// §2.5: the static region statement of the two arc definitions.
 pub(crate) fn arc_stress_definitions() -> serde_json::Value {
@@ -302,19 +310,32 @@ pub(crate) fn append_station_quantities(
         if m.arc { SHEAR_ARC_SUFFIX } else { "" }
     );
     let shear_basis = if m.arc { SHEAR_ARC_BASIS } else { SHEAR_STRAIGHT_BASIS };
+    // §2.5: the hoop and radial values per basis. Only the domain condition
+    // R <= r_o is the named warning `ARC_TOROIDAL_HOOP_DOMAIN` (no rows); any
+    // other failure (a non-finite pressure, a nonpositive bore or wall, an
+    // overflowing value) blocks the run by its own name,
+    // `ARC_TOROIDAL_HOOP_EVALUATION_FAILED`, so no row of the case is published.
     let hoop = m.toroidal.map(|(p, r)| {
         m.bases
             .iter()
-            .map(|b| q::toroidal_membrane_hoop(p, b.inner_radius, b.wall, b.outer_radius, r).ok().zip(q::toroidal_radial_surface(p, b.outer_radius, r).ok()))
+            .map(|b| q::toroidal_membrane_hoop(p, b.inner_radius, b.wall, b.outer_radius, r).and_then(|h| q::toroidal_radial_surface(p, b.outer_radius, r).map(|radial| (h, radial))))
             .collect::<Vec<_>>()
     });
     if let (Some((_, r)), Some(values)) = (m.toroidal, &hoop) {
-        if values.iter().any(Option::is_none) {
+        if values.iter().any(|v| matches!(v, Err(q::SectionQuantityError::ToroidalDomain { .. }))) {
             diagnostics.push(diag(
                 &format!("diagnostic:toroidal-hoop:{}:{}:domain", stable_suffix(m.case_id), suffix),
                 TOROIDAL_DOMAIN,
                 "warning",
                 format!("{TOROIDAL_DOMAIN_TEXT}: arc {} has R = {} and r_o = {}; its toroidal hoop and radial rows are not published in {}", m.pipe_id, scalar_string(r), scalar_string(m.bases[0].outer_radius), m.case_id),
+                vec![m.case_id.to_string(), m.pipe_id.to_string()],
+            ));
+        } else if let Some((b, Err(error))) = m.bases.iter().zip(values).find(|(_, v)| v.is_err()) {
+            diagnostics.push(diag(
+                &format!("diagnostic:toroidal-hoop:{}:{}:evaluation{}", stable_suffix(m.case_id), suffix, b.basis.map_or(String::new(), |b| format!(":{}", b.hyphen()))),
+                TOROIDAL_EVALUATION_FAILED,
+                "blocking",
+                format!("{TOROIDAL_EVALUATION_TEXT}: arc {} in {}: {error:?}", m.pipe_id, m.case_id),
                 vec![m.case_id.to_string(), m.pipe_id.to_string()],
             ));
         }
@@ -339,11 +360,14 @@ pub(crate) fn append_station_quantities(
             out.normal_witnesses[slot].1.push((station_fraction(location), pa_upward(e.max_abs())));
             extremes.push((b.basis, e, y, z));
         }
-        for &(basis, e, _, _) in &extremes {
-            for (component, value, sign, tail) in [
-                ("sigma_plus", e.sigma_plus, SIGMA_PLUS_SIGN, "sigma-plus"),
-                ("sigma_minus", e.sigma_minus, SIGMA_MINUS_SIGN, "sigma-minus"),
-            ] {
+        // D-5 (section-bases-and-timoshenko.md §2.5): the component outer and
+        // the basis inner, so each nominal row is followed by its reduced twin.
+        for (component, sign, tail) in [
+            ("sigma_plus", SIGMA_PLUS_SIGN, "sigma-plus"),
+            ("sigma_minus", SIGMA_MINUS_SIGN, "sigma-minus"),
+        ] {
+            for &(basis, e, _, _) in &extremes {
+                let value = if component == "sigma_plus" { e.sigma_plus } else { e.sigma_minus };
                 results.push(on_basis(
                     row(format!("result:stress:{suffix}:{loc}:{tail}"), EXTREME_KIND, value, "MPa", m.pipe_id, component, location, EXTREMES_BASIS, sign),
                     basis,
@@ -389,7 +413,7 @@ pub(crate) fn append_station_quantities(
         if let Some(values) = &hoop {
             for (component, pick) in [("toroidal_intrados_hoop_stress", 0usize), ("toroidal_crown_hoop_stress", 1), ("toroidal_extrados_hoop_stress", 2)] {
                 for (b, value) in m.bases.iter().zip(values) {
-                    let Some((h, _)) = value else { continue };
+                    let Ok((h, _)) = value else { continue };
                     let v = [h.intrados, h.crown, h.extrados][pick];
                     results.push(on_basis(
                         row(pressure_row_id(m.case_id, m.pipe_id, location, component), HOOP_KIND, v, "Pa", m.pipe_id, component, location, HOOP_BASIS, HOOP_SIGN),
@@ -400,7 +424,7 @@ pub(crate) fn append_station_quantities(
             }
             for (component, inner) in [("toroidal_inner_radial_stress", true), ("toroidal_outer_radial_stress", false)] {
                 for (b, value) in m.bases.iter().zip(values) {
-                    let Some((_, (ri, ro))) = value else { continue };
+                    let Ok((_, (ri, ro))) = value else { continue };
                     results.push(on_basis(
                         row(pressure_row_id(m.case_id, m.pipe_id, location, component), RADIAL_KIND, if inner { *ri } else { *ro }, "Pa", m.pipe_id, component, location, HOOP_BASIS, RADIAL_SIGN),
                         b.basis,

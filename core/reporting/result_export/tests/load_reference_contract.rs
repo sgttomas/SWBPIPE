@@ -40,6 +40,8 @@ fn source_text(name: &str) -> &'static str {
         "physics-sparse" => {
             include_str!("../../../../fixtures/results/pressure_connected_mechanics_sparse.json")
         }
+        // T4-U4b review: the directional pressurized arc envelope of the base corpus.
+        "u4b-arc" => include_str!("../../../../fixtures/results/pressure_u4b_arc_sparse.json"),
         _ => panic!("unknown source {name}"),
     }
 }
@@ -274,19 +276,19 @@ fn current_inputs_table_and_schema_are_pinned() {
     for (name, digest) in [
         (
             "connected-sparse",
-            "d442e31684933a7b9b73ebab51a156bc4774c4a60ded7dc1e1a56fb21709d4a9",
+            "2ee23ab36fd02ce3601d47dcfc07b2c99022d637e4805def93ec1ab4a1284685",
         ),
         (
             "connected-dense",
-            "029bf4d3b9e1c9574ad766329bb6f6f895035c0f576ae5e27db356d9db15c329",
+            "672e2d6f51b0c9f0240ca81454b27283ee7019ec0ec0fcca387f19b5cf6ff693",
         ),
         (
             "pressure-sparse",
-            "1c507182ae386606804953be0da7081d071171de57173d962c907198a2700813",
+            "8f89d4fe4b8b2d43ea33a5f41dafeeabf7796fab8eec4d35a7f441690d90ac9f",
         ),
         (
             "pressure-dense",
-            "961566335b396d2b13d559554079dc2eebf1cae28980c3d2a60538c8be7ac8e5",
+            "edbeb10b30c07b4d2d1cbf585952b8e5eeda28e3131084975e0a71abf8acc4e7",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
