@@ -409,10 +409,18 @@ fn tie_rod_formation_findings(model: &PreviewModel, spec: &ConnectorSpec) -> Vec
     if spec.tie_rods.is_empty() {
         return Vec::new();
     }
+    // Round 4: node positions are in the project length unit (before
+    // `normalize_model_units`, from `validate_profile` and authoring) or in
+    // metres (after it, when the unit reads "m"); the offsets are metres. The
+    // rod formation and its degenerate-length guard run on SI positions.
+    let Some(unit) = model.project.units.get("length").and_then(Value::as_str) else {
+        return Vec::new();
+    };
     let node = |id: &str| {
         model.nodes.iter().position(|n| n.id == id).and_then(|index| {
             let p = &model.nodes[index].position;
-            FrameNode::new(index, [p.x, p.y, p.z]).ok()
+            let si = |v: f64| si(v, unit, Dimension::Length).ok();
+            FrameNode::new(index, [si(p.x)?, si(p.y)?, si(p.z)?]).ok()
         })
     };
     let (Some(i), Some(j)) = (node(&spec.node_i), node(&spec.node_j)) else {
