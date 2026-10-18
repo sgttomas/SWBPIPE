@@ -9,10 +9,12 @@
 //!   member, the shared correctly rounded `norm2`); present exactly where its
 //!   operand rows are.
 //! - `element_local_transverse_shear_stress_maximum` (τ): custody, coverage
-//!   (every member, station and basis but the members named by
-//!   `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN`), non-negativity and the unit;
-//!   bit for bit from the station's shear rows when the caller supplies c_b
-//!   (the exact reader from its evidence, the preview reader from the model).
+//!   (every member, station and basis; on preview-physics-2 but the members
+//!   named by `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN`, which pressure-2
+//!   refuses), non-negativity and the unit; bit for bit from the station's
+//!   shear rows when the caller supplies c_b (the exact reader from its
+//!   evidence, the preview reader from the model, which also binds the
+//!   warning to the member's ν).
 //! - directional intensified rows: bound to their `intensified_measures`
 //!   records by key set, recomputed bit for bit from the station's bending
 //!   rows and the record's factors; the along-arc maximum's record follows
@@ -481,51 +483,71 @@ pub(crate) fn poisson_exempt<'a>(diagnostics: &'a [Value], case: &str) -> HashSe
         .collect()
 }
 
-/// §5.1 on preview-physics-2 with the captured model (G2): each τ row bit
-/// for bit, with c_b formed from the model by the route's ν rule
-/// (ν = RN(RN(E/RN(2·G)) − 1)) from the moduli the solve uses: a named
-/// point's (`modulus_basis_ref`) or the base material's. A case with
-/// `modulus_basis_temperature` (interpolated moduli) or a load-reference
-/// state keeps the model-free checks. The section follows the producer's
-/// annulus: t = t_n − c_m, inner diameter D − 2t, r_i = (D − 2t)/2,
-/// I = π(D⁴ − d⁴)/64.
+/// §5.1 on preview-physics-2 with the captured model (G2), for every member of
+/// every case, including members with no τ row (review items 3 and 4):
+/// ν = RN(RN(E/RN(2·G)) − 1) from the moduli the solve uses for that member
+/// and case (§2.4), a named point's (`modulus_basis_ref`) or the base
+/// material's E and G. In the Saint-Venant domain the member carries no
+/// `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN` warning and each τ row is
+/// recomputed bit for bit; outside it the member is named by the warning (and
+/// the envelope reader has required no τ row). A warning naming a member
+/// outside the case is refused. The one exception is the design's
+/// interpolation: a case with `modulus_basis_temperature` keeps the
+/// model-free checks. (No preview case carries `analysis_state`: the
+/// producer refuses it without the exact pressure contract.) The section
+/// follows the producer's annulus: t = t_n − c_m, inner diameter D − 2t,
+/// r_i = (D − 2t)/2, I = π(D⁴ − d⁴)/64.
 pub(crate) fn preview_model_checks(source: &Value, model: &Value) -> Check {
     use open_pipe_stress_units::Dimension;
     let route = Route::Preview;
     let length = |q: &Value| crate::physics_source::normalized_quantity(q, Dimension::Length);
     let stress = |q: &Value| crate::physics_source::normalized_quantity(q, Dimension::Stress);
     let rows = source["results"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let diagnostics = source["diagnostics"].as_array().map(Vec::as_slice).unwrap_or(&[]);
     let index = Index::new(rows, route)?;
     let items = |v: &Value| v.as_array().cloned().unwrap_or_default();
-    for row in rows.iter().filter(|r| r["kind"] == SHEAR_MAX) {
-        let Some(case_id) = case_of(row) else { continue };
-        let Some(case) = items(&model["load_cases"]).into_iter().find(|c| c["id"] == case_id) else { continue };
-        if case.get("modulus_basis_temperature").is_some_and(|t| !t.is_null()) || case.get("analysis_state").is_some_and(|s| !s.is_null()) {
-            continue;
+    for case in source["contract_evidence"]["preview_cases"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
+        let Some(case_id) = case["load_case_id"].as_str() else { continue };
+        let Some(model_case) = items(&model["load_cases"]).into_iter().find(|c| c["id"] == case_id) else { continue };
+        let members: std::collections::BTreeSet<&str> = rows.iter()
+            .filter(|r| case_of(r) == Some(case_id) && r["kind"] == "element_local_axial_force")
+            .filter_map(|r| r["entity_ref"].as_str())
+            .collect();
+        let exempt = poisson_exempt(diagnostics, case_id);
+        route.require(exempt.iter().all(|pipe| members.contains(pipe)), "SHEAR_POISSON_EXEMPTION")?;
+        if model_case.get("modulus_basis_temperature").is_some_and(|t| !t.is_null()) {
+            continue; // §2.4: interpolated moduli keep the model-free checks
         }
-        let pipe_id = row["entity_ref"].as_str().unwrap_or("");
-        let Some(pipe) = items(&model["pipe_segments"]).into_iter().find(|p| p["id"] == pipe_id) else { continue };
-        let Some(material) = items(&model["materials"]).into_iter().find(|m| m["id"] == pipe["material"]) else { continue };
-        let (e, g) = match case["modulus_basis_ref"].as_str() {
-            Some(point) => {
-                let Some(p) = items(&material["temperature_points"]).into_iter().find(|p| p["id"] == point) else { continue };
-                (stress(&p["elastic_modulus"])?, stress(&p["shear_modulus"])?)
+        // A load-reference-state case never reaches this route: the producer
+        // refuses `analysis_state` without the exact pressure contract
+        // (LOAD_STATE_CONTRACT_VERSION_MISMATCH, no rows), so every member of a
+        // preview case takes the named point's or the base moduli.
+        for &pipe_id in &members {
+            let Some(pipe) = items(&model["pipe_segments"]).into_iter().find(|p| p["id"] == pipe_id) else { continue };
+            let material = items(&model["materials"]).into_iter().find(|m| m["id"] == pipe["material"]).ok_or_else(|| route.fail("SHEAR_MODEL"))?;
+            let (e, g) = match model_case["modulus_basis_ref"].as_str() {
+                Some(point) => {
+                    let p = items(&material["temperature_points"]).into_iter().find(|p| p["id"] == point).ok_or_else(|| route.fail("SHEAR_MODEL"))?;
+                    (stress(&p["elastic_modulus"])?, stress(&p["shear_modulus"])?)
+                }
+                None => (stress(&material["elastic_modulus"])?, stress(&material["shear_modulus"])?),
+            };
+            let section = &pipe["section"];
+            let od = length(&section["outside_diameter"])?;
+            let wall = length(&section["wall_thickness"])?;
+            let t = if section["mill_tolerance"].is_null() { wall } else { wall - length(&section["mill_tolerance"])? };
+            let id = od - 2.0 * t;
+            let inertia = std::f64::consts::PI * (od.powi(4) - id.powi(4)) / 64.0;
+            let factor = shear_factor(e / (2.0 * g) - 1.0, od / 2.0, id / 2.0, inertia);
+            route.require(factor.is_none() == exempt.contains(pipe_id), "SHEAR_POISSON_EXEMPTION")?;
+            let Some(factor) = factor else { continue };
+            for row in rows.iter().filter(|r| r["kind"] == SHEAR_MAX && case_of(r) == Some(case_id) && r["entity_ref"] == pipe_id) {
+                let location = row["metadata"]["location"].as_str().unwrap_or("");
+                let vy = index.any(case_id, pipe_id, "element_local_shear_force_y", location, "").ok_or_else(|| route.fail("SHEAR_COVERAGE"))?;
+                let vz = index.any(case_id, pipe_id, "element_local_shear_force_z", location, "").ok_or_else(|| route.fail("SHEAR_COVERAGE"))?;
+                route.require(row["value"].as_f64().map(f64::to_bits) == Some((norm2(vy, vz) * factor / 1e6).to_bits()), "SHEAR_VALUE")?;
             }
-            None => (stress(&material["elastic_modulus"])?, stress(&material["shear_modulus"])?),
-        };
-        let section = &pipe["section"];
-        let od = length(&section["outside_diameter"])?;
-        let mill = if section["mill_tolerance"].is_null() { 0.0 } else { length(&section["mill_tolerance"])? };
-        let wall = length(&section["wall_thickness"])?;
-        let t = if section["mill_tolerance"].is_null() { wall } else { wall - mill };
-        let id = od - 2.0 * t;
-        let inertia = std::f64::consts::PI * (od.powi(4) - id.powi(4)) / 64.0;
-        let nu = e / (2.0 * g) - 1.0;
-        let location = row["metadata"]["location"].as_str().unwrap_or("");
-        let factor = shear_factor(nu, od / 2.0, id / 2.0, inertia).ok_or_else(|| route.fail("SHEAR_POISSON_DOMAIN"))?;
-        let vy = index.any(case_id, pipe_id, "element_local_shear_force_y", location, "").ok_or_else(|| route.fail("SHEAR_COVERAGE"))?;
-        let vz = index.any(case_id, pipe_id, "element_local_shear_force_z", location, "").ok_or_else(|| route.fail("SHEAR_COVERAGE"))?;
-        route.require(row["value"].as_f64().map(f64::to_bits) == Some((norm2(vy, vz) * factor / 1e6).to_bits()), "SHEAR_VALUE")?;
+        }
     }
     // Directional rows and records bound to the model (review item 1).
     directional_model_checks(source, model, route)

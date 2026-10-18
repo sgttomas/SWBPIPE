@@ -1156,9 +1156,12 @@ fn u4b_cases(
     let index = u::Index::new(results, route)?;
     let diagnostics = array(&source["diagnostics"])?;
     let mut covers: HashMap<(&str, &str, String), Vec<f64>> = HashMap::new();
+    // Review item 3: the exact route admits only -1 < nu < 1/2 (the validated
+    // homogeneous_isotropic_E_nu_v1 pair), so no member is exempt from τ
+    // coverage and the warning is refused; every basis forms its c_b.
+    require(!diagnostics.iter().any(|d| d["code"] == u::POISSON_OUT_OF_DOMAIN), "SHEAR_POISSON_EXEMPTION")?;
     for case in array(&evidence["exact_cases"])? {
         let case_id = text(&case["load_case_id"])?;
-        let exempt = u::poisson_exempt(diagnostics, case_id);
         let materials = indexed(&case["pipe_materials"], "pipe_id")?;
         // The case's pressurized arcs: (p, R) from their region.
         let mut pressurized: HashMap<&str, (f64, f64)> = HashMap::new();
@@ -1183,7 +1186,7 @@ fn u4b_cases(
                     let a = sections.basis(b);
                     (*b, u::shear_factor(nu, sections.ro, a.ri, a.second_moment))
                 }).collect(),
-                poisson_out_of_domain: exempt.contains(pipe),
+                poisson_out_of_domain: false,
                 toroidal: match pressurized.get(pipe) {
                     Some(&(p, r)) if arc => bases.iter().map(|b| {
                         let a = sections.basis(b);
@@ -1200,6 +1203,7 @@ fn u4b_cases(
                     require(diagnostics.iter().any(|d| d["code"] == u::TOROIDAL_DOMAIN && d["affected_refs"][0] == case_id && d["affected_refs"][1] == pipe), "TOROIDAL_DOMAIN_WARNING")?;
                 }
             }
+            require(facts.shear_factors.iter().all(|(_, factor)| factor.is_some()), "SHEAR_POISSON_DOMAIN")?;
             for (basis, cover) in u::member_stations(&index, route, &facts)? {
                 covers.insert((case_id, pipe, basis), cover);
             }

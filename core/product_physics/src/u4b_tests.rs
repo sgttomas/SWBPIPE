@@ -151,22 +151,28 @@ pub(crate) fn build_request(case: &Value) -> Value {
             "terminals": r["terminals"].as_array().unwrap().iter().map(|t| json!({"node_ref": t["node"], "closure_transfer": t["closure_transfer"], "provenance": PROVENANCE})).collect::<Vec<_>>(),
             "provenance": PROVENANCE})).collect();
         load_case["pressure_regions"] = json!(regions);
-        let member_ids: Vec<&Value> = case["members"].as_array().unwrap().iter().map(|m| &m["id"]).collect();
-        model["reference_configurations"] = json!([{"id": "reference:installed", "label": "Installed reference",
-            "geometry_ref": {"kind": "authored_model_geometry"},
-            "member_references": member_ids.iter().map(|id| json!({"pipe_ref": id, "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": PROVENANCE})).collect::<Vec<_>>(),
-            "provenance": PROVENANCE}]);
-        let material_of = |id: &Value| case["members"].as_array().unwrap().iter().find(|m| &m["id"] == id).unwrap()["material"].clone();
-        load_case["analysis_state"] = json!({"contract": "openpipestress.load_reference_state/1.0.0", "reference_configuration_ref": "reference:installed",
-            "element_states": member_ids.iter().map(|id| json!({"pipe_ref": id,
-                "material_selection": {"kind": "explicit_base_properties", "material_ref": material_of(id), "applicability_reference": "invented analytical basis declared applicable"},
-                "thermal_state": {"kind": "unchanged_reference", "provenance": PROVENANCE}})).collect::<Vec<_>>(),
-            "support_states": case["supports"].as_array().unwrap().iter().map(|s| json!({"support_ref": s["id"], "participation": {"kind": "active_model_device"}})).collect::<Vec<_>>(),
-            "load_sources": load_case["primitive_loads"].as_array().unwrap().iter().map(|l| json!({"source_ref": l["id"], "factor": 1.0})).collect::<Vec<_>>(),
-            "history": {"kind": "independent_equilibrium"}, "provenance": PROVENANCE});
+        add_load_state(&mut model, &mut load_case, case);
     }
     model["load_cases"] = json!([load_case]);
     json!({"model": model, "materials": []})
+}
+
+/// The binding rules' load/reference state: an installed reference of every
+/// member and each member's explicit base properties.
+fn add_load_state(model: &mut Value, load_case: &mut Value, case: &Value) {
+    let member_ids: Vec<&Value> = case["members"].as_array().unwrap().iter().map(|m| &m["id"]).collect();
+    model["reference_configurations"] = json!([{"id": "reference:installed", "label": "Installed reference",
+        "geometry_ref": {"kind": "authored_model_geometry"},
+        "member_references": member_ids.iter().map(|id| json!({"pipe_ref": id, "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": PROVENANCE})).collect::<Vec<_>>(),
+        "provenance": PROVENANCE}]);
+    let material_of = |id: &Value| case["members"].as_array().unwrap().iter().find(|m| &m["id"] == id).unwrap()["material"].clone();
+    load_case["analysis_state"] = json!({"contract": "openpipestress.load_reference_state/1.0.0", "reference_configuration_ref": "reference:installed",
+        "element_states": member_ids.iter().map(|id| json!({"pipe_ref": id,
+            "material_selection": {"kind": "explicit_base_properties", "material_ref": material_of(id), "applicability_reference": "invented analytical basis declared applicable"},
+            "thermal_state": {"kind": "unchanged_reference", "provenance": PROVENANCE}})).collect::<Vec<_>>(),
+        "support_states": case["supports"].as_array().unwrap().iter().map(|s| json!({"support_ref": s["id"], "participation": {"kind": "active_model_device"}})).collect::<Vec<_>>(),
+        "load_sources": load_case["primitive_loads"].as_array().unwrap().iter().map(|l| json!({"source_ref": l["id"], "factor": 1.0})).collect::<Vec<_>>(),
+        "history": {"kind": "independent_equilibrium"}, "provenance": PROVENANCE});
 }
 
 /// The authored requests with their pinned hashes checked (`U4B_PRINT_REQUEST_SHA256`
@@ -792,6 +798,60 @@ fn u4b_directional_rows_bind_to_the_captured_model() {
         }
         assert!(code(&read(&out, Some(&stripped))).contains("INTENSIFIED_MODEL"), "{id}");
     }
+}
+
+/// Review item 3 (§2.4): the Poisson exemption is bound. pressure-2 admits only
+/// −1 < ν < 1/2, so a forged warning with the member's τ rows deleted is
+/// refused by the envelope reader; on preview-physics-2 in the domain the
+/// same tamper passes a model-free read (custody, as designed) and is refused
+/// with the model, which forms the member's ν.
+#[test]
+fn u4b_forged_poisson_warnings_are_refused() {
+    let (cases, _) = inputs();
+    for (id, reader, model_free_refuses) in [("U4B-L90-P", "pressure", true), ("U4B-Z-PREVIEW-REV", "preview-physics", false)] {
+        let case = cases["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == id).unwrap();
+        let request = build_request(case);
+        let model = model_with_materials(&request);
+        let out = serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), PreviewSolverMode::SparseInteractive).unwrap()).unwrap();
+        let read = |doc: &Value, model: Option<&Value>| crate::result_export::reader_verdict::validate(reader, doc, model, None);
+        let detail = |v: &Value| v["error"]["detail"].as_str().or(v["error"]["code"].as_str()).unwrap_or("").to_string();
+        assert_eq!(read(&out, Some(&model))["ok"], true, "{id}");
+        let case_id = case["load_case"]["id"].as_str().unwrap();
+        let pipe = "pipe:S1";
+        let mut forged = out.clone();
+        forged["results"].as_array_mut().unwrap().retain(|r| !(r["kind"] == u4b_rows::SHEAR_MAX_KIND && r["entity_ref"] == pipe));
+        forged["diagnostics"].as_array_mut().unwrap().push(json!({"id": "diagnostic:transverse-shear:forged:poisson", "code": u4b_rows::POISSON_OUT_OF_DOMAIN,
+            "severity": "warning", "message": "forged", "affected_refs": [case_id, pipe]}));
+        let free = read(&forged, None);
+        if model_free_refuses {
+            assert!(detail(&free).contains("SHEAR_POISSON_EXEMPTION"), "{id}: {free}");
+        } else {
+            assert_eq!(free["ok"], true, "{id}: the model-free read keeps custody only: {free}");
+            assert!(detail(&read(&forged, Some(&model))).contains("SHEAR_POISSON_EXEMPTION"), "{id}: {}", read(&forged, Some(&model)));
+        }
+    }
+}
+
+/// Review item 4 (§2.4): the preview readers no longer exempt load-state cases
+/// from the bit-for-bit τ check. No such case exists on preview-physics-2: the
+/// producer refuses `analysis_state` without the exact pressure contract, by
+/// name and with no row, so only interpolated moduli keep the model-free checks.
+#[test]
+fn u4b_load_state_cases_never_reach_preview() {
+    let (cases, _) = inputs();
+    let case = cases["cases"].as_array().unwrap().iter().find(|c| c["case_id"] == "U4B-ARC90-OOP-PREVIEW").unwrap();
+    let mut request = build_request(case);
+    for material in request["model"]["materials"].as_array_mut().unwrap() {
+        material["constitutive_basis"] = json!("homogeneous_isotropic_E_nu_v1");
+        material["poisson_ratio"] = quantity(n(&case["materials"][0]["poisson_ratio"]), "1");
+    }
+    let mut load_case = request["model"]["load_cases"][0].clone();
+    add_load_state(&mut request["model"], &mut load_case, case);
+    request["model"]["load_cases"] = json!([load_case]);
+    let out = run_linear_static_preview_value_with_mode(request, PreviewSolverMode::SparseInteractive).unwrap();
+    assert_eq!(out.status.mechanics, "MODEL_INCOMPLETE");
+    assert!(out.results.is_empty());
+    assert!(out.diagnostics.iter().any(|d| d.code == "LOAD_STATE_CONTRACT_VERSION_MISMATCH" && d.severity == "blocking"), "{:?}", out.diagnostics);
 }
 
 /// §2.5 (review item 9): only R <= r_o is the named domain warning, with no

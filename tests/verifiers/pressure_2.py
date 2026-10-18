@@ -731,9 +731,10 @@ def _u4b(source: Mapping[str, Any], evidence: Mapping[str, Any], rows: Mapping[s
     u4b.twin_order(results, marked)
     diagnostics = source.get("diagnostics", [])
     covers: dict[tuple[str, str, str], list[float]] = {}
+    # Review item 3: the exact route admits only -1 < nu < 1/2, so no Poisson exemption; every basis forms its c_b.
+    _require(not any(d.get("code") == u4b.POISSON_OUT_OF_DOMAIN for d in diagnostics), "transverse-shear Poisson exemption on pressure-2")
     for case in evidence["exact_cases"]:
         cid = case["load_case_id"]
-        exempt = u4b.poisson_exempt(diagnostics, cid)
         nus = {m["pipe_id"]: m["nu"] for m in case["pipe_materials"]}
         pressurized = {}
         for region in evidence["pressure"]:
@@ -751,7 +752,8 @@ def _u4b(source: Mapping[str, Any], evidence: Mapping[str, Any], rows: Mapping[s
                 toroidal = {basis: (p, section[basis]["ri_m"], section[basis]["wall_m"], ro, r) for basis in sb.BASES}
                 if not r > ro:
                     _require(any(d.get("code") == u4b.TOROIDAL_DOMAIN and d.get("affected_refs", [None, None])[:2] == [cid, pid] for d in diagnostics), "toroidal domain warning")
-            for basis, cover in u4b.member_stations(index, cid, pid, list(sb.BASES), factors, pid in exempt, toroidal).items():
+            _require(all(factor is not None for factor in factors.values()), "transverse-shear factor outside the domain")
+            for basis, cover in u4b.member_stations(index, cid, pid, list(sb.BASES), factors, False, toroidal).items():
                 covers[cid, pid, basis] = cover
         records = case.get("intensified_measures", [])
         bound = u4b.directional_records(cid, records, rows, index, marked, True)

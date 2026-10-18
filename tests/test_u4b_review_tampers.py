@@ -108,3 +108,22 @@ def test_directional_rows_on_a_member_without_the_models_pair_are_refused(entry)
         (component.get("modifiers") or {}).pop("sif_out_of_plane_user_value", None)
     refused = rv.validate(reader, doc, stripped)
     assert refused["ok"] is False and "outside the model's arcs" in _code(refused), _code(refused)
+
+
+@pytest.mark.parametrize("entry", [EXACT, PREVIEW], ids=["pressure-2", "preview-physics-2-in-domain"])
+def test_a_forged_poisson_warning_with_deleted_shear_rows_is_refused(entry):
+    """Review item 3: pressure-2 admits only -1 < nu < 1/2 and refuses the exemption outright; on preview in the
+    domain a model-free read keeps custody only (as designed) and the model-holding read refuses it."""
+    doc, model, reader, exact = _load(entry)
+    case_id = _records(doc, exact)[0]["load_case_id"]
+    forged = copy.deepcopy(doc)
+    forged["results"] = [row for row in forged["results"] if not (row.get("kind") == u4b.SHEAR_MAX and row.get("entity_ref") == "pipe:S1")]
+    forged["diagnostics"].append({"id": "diagnostic:transverse-shear:forged:poisson", "code": u4b.POISSON_OUT_OF_DOMAIN,
+                                  "severity": "warning", "message": "forged", "affected_refs": [case_id, "pipe:S1"]})
+    free = rv.validate(reader, forged)
+    if exact:
+        assert free["ok"] is False and "Poisson exemption on pressure-2" in _code(free), _code(free)
+    else:
+        assert free["ok"] is True, _code(free)
+        refused = rv.validate(reader, forged, model)
+        assert refused["ok"] is False and "Poisson warning does not match" in _code(refused), _code(refused)
