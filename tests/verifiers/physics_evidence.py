@@ -356,8 +356,11 @@ def _u4b_straight(source: Mapping[str, Any], cases: Mapping[str, Any], geometrie
             u4b.row_semantics(row, True, False)
     index = u4b.Rows(list(rows.values()))
     diagnostics = source.get("diagnostics", [])
+    # S4 round 3: the composite's materials require -1 < ν < 1/2 ("material range"), so
+    # TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN can never name one of its members: it is refused by name and exempts
+    # nothing, so every member's τ coverage is checked.
+    fail(not any(isinstance(d, Mapping) and d.get("code") == u4b.POISSON_OUT_OF_DOMAIN for d in diagnostics), "POISSON_DOMAIN_WARNING")
     for cid in cases:
-        exempt = u4b.poisson_exempt(diagnostics, cid)
         for pid, section in geometries[cid].items():
             nu = materials[cid][pid]["nu"]
             for basis in sb.BASES:
@@ -380,7 +383,7 @@ def _u4b_straight(source: Mapping[str, Any], cases: Mapping[str, Any], geometrie
                     vy = index.any(cid, pid, "element_local_shear_force_y", location)
                     vz = index.any(cid, pid, "element_local_shear_force_z", location)
                     tau = index.value(cid, pid, u4b.SHEAR_MAX, "tau_v_max", location, basis)
-                    if pid in exempt or vy is None or vz is None:
+                    if vy is None or vz is None:
                         fail(tau is None, "SHEAR_COVERAGE")
                     else:
                         fail(tau is not None, "SHEAR_COVERAGE")
