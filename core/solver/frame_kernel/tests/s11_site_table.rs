@@ -490,6 +490,13 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural/formation_check.rs", "tie_rod_reference_balls", 0, "T4-U5b K-D5 closed intended load: ball +C^T k e_ref with directed radii"),
     ("FK/structural/formation_check.rs", "tie_rod_reference_load_bounds", 0, "T4-U5b: |v - m| at p plus its rounding and the ball radius, every step upward"),
     ("FK/structural/certified_recovery.rs", "certify_tie_rod_recovery", 0, "T4-U5b K-D5 repaired recovery: exact split products and corrected displacements in exact row sums; ball C and k C; radii/remainders directed; publication rounded once"),
+    // ---- T4-S5 (declared, additive; no row above changes): the epoch's
+    // integer counters. None forms a load at p or a recovery at p, so none is
+    // a force site (kd5-member-relative-bound.md, S11-F site table).
+    ("FK/structural.rs", "record", 3, "T4-U5b (S3): integer: the per-element absorbed-diagonal refusal's candidate, absorbed-candidate and element-group counts; it reads stiffness assembly flags, no load or force value"),
+    ("FK/structural/retained/product_certificate/final_case.rs", "project", 1, "T4-U4b (S4): integer: count of ProductRecipe::NotCovered rows left pending (NaN slot, no projection); no value is formed or summed"),
+    ("FK/structural/retained/product_certificate/final_case.rs", "complete_not_covered", 1, "T4-U4b (S4): integer: decrement of the pending not-covered count when PP completes one row; the completed value is stored, not accumulated"),
+    ("SA/structural_adapter.rs", "body", 1, "T4-U5b (S3): integer: the tie-rod edge index offset, the sum of the connectors' rod counts; no load or force value"),
 ];
 
 // ------------------------------------------------------------- scanner
