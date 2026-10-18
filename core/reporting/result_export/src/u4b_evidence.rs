@@ -421,6 +421,11 @@ pub(crate) fn directional_arcs(model: &Value, route: Route) -> Result<HashMap<&s
 /// refused. The envelope readers have bound every row to one record and
 /// recomputed it from the record's factors already.
 pub(crate) fn directional_model_checks(source: &Value, model: &Value, route: Route) -> Check {
+    // G2's convention: a model check reads only what the model carries; a model
+    // without `components` states nothing about the directional pair.
+    if model.get("components").is_none_or(Value::is_null) {
+        return Ok(());
+    }
     let rows = source["results"].as_array().map(Vec::as_slice).unwrap_or(&[]);
     let diagnostics = source["diagnostics"].as_array().map(Vec::as_slice).unwrap_or(&[]);
     let solved = source["status"]["mechanics"] == "MECHANICS_SOLVED";

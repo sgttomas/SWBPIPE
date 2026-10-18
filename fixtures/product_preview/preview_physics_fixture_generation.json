@@ -203,7 +203,7 @@
     "core/reporting/result_export/src/section_basis.rs": "a655124f5071fa979e62cc12f261536b0726eb7425b5a0d2a487356be579968a",
     "core/reporting/result_export/src/semantic_contract.rs": "639685975ced63e1696399d6dd6e4230bf8a18b179b294cd408ea60d46e818fc",
     "core/reporting/result_export/src/source_blocks.rs": "e3a97a8756acb9f370797791cf2d1cf5b3e54789b8f9ea2a47e8f12afeb787b4",
-    "core/reporting/result_export/src/u4b_evidence.rs": "b4d8b6a5c3a14b10e8420ae13a27bc9012f2d5fd0962cb4f70c62c2f0ec9e169",
+    "core/reporting/result_export/src/u4b_evidence.rs": "ab4676118581d05f0fc42a90022958fb2d95555f2d06a70b8664066f57c1eb74",
     "core/reporting/result_export/tests/base_reader_outcomes.rs": "332e57ce7c63683751f4bbc0c6d880fc2e7e88fc14ce4532353d7b3b50f678ea",
     "core/reporting/result_export/tests/combination_algebra.rs": "316c08a2008a218d93fb075506d173612d0e8bcb0d21d01b67dfd784c4222bd2",
     "core/reporting/result_export/tests/connector_contract.rs": "1df9ff624c7b245fd2309ba34f8342b667f30559e670f92644c1f94cfbbe8266",
@@ -729,7 +729,7 @@
     "core/reporting/result_export/src/section_basis.rs": "a655124f5071fa979e62cc12f261536b0726eb7425b5a0d2a487356be579968a",
     "core/reporting/result_export/src/semantic_contract.rs": "639685975ced63e1696399d6dd6e4230bf8a18b179b294cd408ea60d46e818fc",
     "core/reporting/result_export/src/source_blocks.rs": "e3a97a8756acb9f370797791cf2d1cf5b3e54789b8f9ea2a47e8f12afeb787b4",
-    "core/reporting/result_export/src/u4b_evidence.rs": "b4d8b6a5c3a14b10e8420ae13a27bc9012f2d5fd0962cb4f70c62c2f0ec9e169",
+    "core/reporting/result_export/src/u4b_evidence.rs": "ab4676118581d05f0fc42a90022958fb2d95555f2d06a70b8664066f57c1eb74",
     "core/reporting/result_export/tests/base_reader_outcomes.rs": "332e57ce7c63683751f4bbc0c6d880fc2e7e88fc14ce4532353d7b3b50f678ea",
     "core/reporting/result_export/tests/combination_algebra.rs": "316c08a2008a218d93fb075506d173612d0e8bcb0d21d01b67dfd784c4222bd2",
     "core/reporting/result_export/tests/connector_contract.rs": "1df9ff624c7b245fd2309ba34f8342b667f30559e670f92644c1f94cfbbe8266",
@@ -1067,7 +1067,7 @@
     "schemas/viewport_editor.schema.yaml": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3",
     "tools/serialization/generate_product_preview_mechanics.mjs": "a2b3ea69ac250cf35ce1c3b988e4f3723c6aaf62bb47d92a9af2a5064d90d2fb"
   },
-  "inventory_json_sha256": "c1736ed72d9f2d74970453bf1c24f1b44130a6423cf1817673d53cb88db372c7",
+  "inventory_json_sha256": "8f90fe735dd412138cc6858ff3dbe277005c584a6f4ccfa3a9dd97d323a5d7f3",
   "dependencies": [
     {
       "name": "block-buffer",

@@ -351,6 +351,8 @@ def directional_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]
     """Review item 1: in every case every realized arc with the model's pair has its five station rows on every basis,
     records with the model's factors bit for bit, and the maximum row or its named unavailable outcome; directional
     rows or records on any other member are refused."""
+    if model.get("components") is None:
+        return  # G2's convention: a model without components states nothing about the directional pair
     results = source.get("results") or []
     diagnostics = source.get("diagnostics") or []
     solved = (source.get("status") or {}).get("mechanics") == "MECHANICS_SOLVED"
