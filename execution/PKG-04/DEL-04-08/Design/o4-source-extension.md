@@ -290,7 +290,7 @@ None of those reads D except through (i) and (ii).
 **Timoshenko D entries, finitely.** ĉ = c\*·π_{c_D} and L̂ = L·π_ℓ.
 - t̂₃ = 3c\*·r, with r = π_{c_D+1}.
 - ŝl = s\*·L·π_{ℓ+2}: G·A_s rounded once, L̂, and the product rounded once.
-- φ̂ = φ\*·r·u⁻¹, with u = π_{ℓ+2}/(1 + ρ_φ) = π_{ℓ+3}, where ρ_φ is φ's own rounding.
+- φ̂ = φ\*·r·u⁻¹, with u = π_{ℓ+2}/(1 + δ_φ) = π_{ℓ+3}, where δ_φ is φ's own rounding.
 - The ratio of computed to exact before c_s's last two roundings is f = r(1 + φ\*)/(1 + φ\*·r·u⁻¹) = (r + r·φ\*)/(1 + r·φ\*·u⁻¹). That is the mediant of r/1 and (r·φ\*)/(r·φ\*·u⁻¹) = u, so f lies between r and u exactly, at every φ\* > 0. Hence f = π_m with m = max(c_D + 1, ℓ + 3) = ℓ + 3, since c_D = ℓ + 2. This is the exact form of the convex-combination remark, and it is why the bound does not grow with φ.
 - ĉ_s = c_s\*·f·(1 + κ)/(1 + ω) = c_s\*·π_{ℓ+5}, with κ and ω the roundings of c_s and op.
 
