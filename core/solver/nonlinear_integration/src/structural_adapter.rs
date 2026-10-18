@@ -1295,6 +1295,18 @@ impl<S: EvidenceStore> EvidenceParts<S> {
         force_scale: ForceScale,
         store: S,
     ) -> Result<Self, StructuralError> {
+        // T4-U5b (K1 repair 3): the kernel assembles each connector's tie
+        // rods after the connectors and K-D5 walks them in that order
+        // (formation_check's intended stiffness pass), but this evidence does
+        // not yet carry their contributions. Until PP integration (S3) inserts
+        // them after the connectors and before the curved elements, a
+        // connector with rods refuses here by name, on the dense and sparse
+        // evidence alike.
+        if connectors.iter().any(|c| !c.tie_rods().is_empty()) {
+            return Err(StructuralError::InvalidInput(
+                "tie-rod assembly evidence is not yet bound",
+            ));
+        }
         let range = |_: FrameKernelError| {
             StructuralError::Range("force-scaled formation outside the normal range")
         };

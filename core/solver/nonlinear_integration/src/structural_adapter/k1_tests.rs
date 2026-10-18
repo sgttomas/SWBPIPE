@@ -1618,3 +1618,54 @@ fn chord_connector(
     )
     .unwrap()
 }
+
+/// T4-U5b (K1 repair 3): until PP integration (S3) binds the rods'
+/// contributions, a connector with tie rods refuses both evidences by name;
+/// the same connector without rods builds both, unchanged.
+#[test]
+fn tie_rod_connectors_refuse_the_assembly_evidence_by_name_until_bound() {
+    use open_pipe_stress_frame_kernel::tie_rod::TieRodInput;
+    let i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+    let j = FrameNode::new(1, [1.0, 0.5, 0.25]).unwrap();
+    let untied = chord_connector(i, j, [5e6, 4e6, 2e3, 1e3]);
+    let tied = untied
+        .clone()
+        .with_tie_rods(&[TieRodInput {
+            offset_i: [0.0, 0.1, 0.0],
+            offset_j: [0.0, 0.1, 0.0],
+            stiffness: 1.0e7,
+            reference_extension: -1.0e-3,
+        }])
+        .unwrap();
+    let springs: Vec<(usize, f64)> = (0..6).map(|d| (d, 1.0e9)).collect();
+    for (connector, refused) in [(untied, false), (tied, true)] {
+        let connectors = vec![connector];
+        let sparse = assemble_sparse_stiffness(
+            2,
+            &[],
+            &connectors,
+            &[],
+            &springs,
+            &SparseAssemblyOptions::new(),
+        )
+        .unwrap();
+        let dense = AssemblyEvidence::new(2, &[], &connectors, &[], &springs);
+        let pattern = SparseAssemblyEvidence::new(sparse.pattern(), 2, &[], &connectors, &[], &springs);
+        let scaled = AssemblyEvidence::new_force_scaled(
+            2,
+            &[],
+            &connectors,
+            &[],
+            &springs,
+            ForceScale::new(6).unwrap(),
+        );
+        if refused {
+            let named = StructuralError::InvalidInput("tie-rod assembly evidence is not yet bound");
+            assert_eq!(dense.unwrap_err(), named);
+            assert_eq!(pattern.unwrap_err(), named);
+            assert_eq!(scaled.unwrap_err(), named);
+        } else {
+            assert!(dense.is_ok() && pattern.is_ok() && scaled.is_ok());
+        }
+    }
+}

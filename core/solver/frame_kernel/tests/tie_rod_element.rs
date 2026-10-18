@@ -809,3 +809,122 @@ fn rods_are_refused_by_name() {
     assert_eq!(r.axial_share(), 0.0);
     assert_eq!(r.direction(), [0.0, 1.0, 0.0]);
 }
+
+/// K1 repair 1: finite offsets whose arm (o × n) overflows refuse by name,
+/// never panic (Codex's example); Opus's example is degenerate under the
+/// length guard (Δx = 1 against offsets of 1.7e308) and refuses as
+/// `ZeroLength`. |k·e_ref| below the exact-split floor refuses at
+/// construction.
+#[test]
+fn extreme_offsets_and_tiny_reference_loads_refuse_by_name() {
+    let m = f64::MAX;
+    let c = connector(
+        node(0, [0.0; 3]),
+        node(1, [1.0, 0.0, 0.0]),
+        IDENTITY,
+        [8.0; 6],
+    );
+    let codex = rod([m, m / 2.0, 0.0], [m / 2.0, m, 0.0], 1.0, 0.0);
+    assert_eq!(
+        TieRod::new(&c, codex),
+        Err(TieRodError::Range {
+            name: "offset arm (o x n)"
+        })
+    );
+    assert_eq!(
+        c.clone().with_tie_rods(&[codex]).unwrap_err(),
+        (
+            0,
+            TieRodError::Range {
+                name: "offset arm (o x n)"
+            }
+        )
+    );
+    let diagonal = node(1, [0.0, 1.0, 1.0]);
+    let q = rotation_to([0.0, 1.0, 1.0]);
+    let c2 = connector(node(0, [0.0; 3]), diagonal, q, [8.0; 6]);
+    // Opus's global offsets (0, 1.7e308, −1.7e308) have no representable
+    // offset in these connector axes (it would be −2.4e308 along Q.y); the
+    // nearest authorable case is (0, −1.7e308, 0) in Q, giving
+    // o_i = o_j ≈ (0, 1.2e308, −1.2e308) and the same Δx = (0, 1, 1).
+    let o = [0.0, -1.7e308, 0.0];
+    let r2 = c2.clone().with_tie_rods(&[]).unwrap();
+    assert!(TieRod::new(&r2, rod(o, o, 1.0, 0.0)).is_err());
+    assert_eq!(
+        TieRod::new(&c2, rod(o, o, 1.0, 0.0)),
+        Err(TieRodError::ZeroLength)
+    );
+    let tiny = rod([0.0, 0.1, 0.0], [0.0, 0.1, 0.0], 1.0, 1.0e-300);
+    assert_eq!(
+        TieRod::new(&c, tiny),
+        Err(TieRodError::Range {
+            name: "reference load"
+        })
+    );
+}
+
+/// K1 repair 2 (manager ruling): l ≤ 2^-48·(‖Δx‖∞ + ‖o_i‖∞ + ‖o_j‖∞) is
+/// `ZeroLength`, decided exactly. With Δx = (1, 0, 0), o_i = (0.5, 0, 0) and
+/// o_j = (−0.5, t, 0), d = (0, t, 0) and the guard is 2^-48·2 = 2^-47.
+#[test]
+fn the_degenerate_length_guard_is_exact_at_its_threshold_and_refuses_cancellation() {
+    let c = connector(
+        node(0, [0.0; 3]),
+        node(1, [1.0, 0.0, 0.0]),
+        IDENTITY,
+        [8.0; 6],
+    );
+    let guard = 2f64.powi(-47);
+    for (t, admitted) in [
+        (guard, false),
+        (guard.next_down(), false),
+        (guard.next_up(), true),
+        (-guard, false),
+        (-guard.next_up(), true),
+        (0.25, true),
+    ] {
+        let r = TieRod::new(&c, rod([0.5, 0.0, 0.0], [-0.5, t, 0.0], 1.0e6, 0.0));
+        if admitted {
+            let r = r.unwrap();
+            assert_eq!(r.length(), t.abs());
+            assert_eq!(r.direction(), [0.0, t.signum(), 0.0]);
+        } else {
+            assert_eq!(r, Err(TieRodError::ZeroLength), "t = {t:e}");
+        }
+    }
+    // Δx = −(o_j − o_i) to roundoff: d = 0.3 + fl(−0.2 − 0.1) ≈ −5.6e-17, a
+    // noise direction the zero test alone admitted.
+    let short = connector(
+        node(0, [0.0; 3]),
+        node(1, [0.3, 0.0, 0.0]),
+        IDENTITY,
+        [8.0; 6],
+    );
+    let cancelling = rod([0.1, 0.0, 0.0], [-0.2, 0.0, 0.0], 1.0e6, 0.0);
+    assert_ne!(
+        0.3 + (-0.2 - 0.1),
+        0.0,
+        "the represented difference is roundoff"
+    );
+    assert_eq!(
+        TieRod::new(&short, cancelling),
+        Err(TieRodError::ZeroLength)
+    );
+    // The same with a transverse roundoff residue.
+    let skewed = rod([0.1, 0.1, 0.0], [-0.2, 0.1 + 1e-17, 0.0], 1.0e6, 0.0);
+    assert_eq!(TieRod::new(&short, skewed), Err(TieRodError::ZeroLength));
+}
+
+/// K1 repair 4: the memory footprint (`cargo test -- --nocapture sizes`).
+#[test]
+fn sizes() {
+    use open_pipe_stress_frame_kernel::structural::LoadFormula;
+    println!(
+        "size_of: ObjectiveConnector {} B, LoadFormula {} B, TieRod {} B",
+        std::mem::size_of::<ObjectiveConnector>(),
+        std::mem::size_of::<LoadFormula>(),
+        std::mem::size_of::<TieRod>()
+    );
+    // A rod-reference primitive holds one Copy rod, never a connector.
+    assert!(std::mem::size_of::<TieRod>() < std::mem::size_of::<ObjectiveConnector>());
+}

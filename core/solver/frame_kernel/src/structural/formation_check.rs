@@ -242,17 +242,20 @@ pub enum LoadFormula {
     ConnectorReference {
         connector: ObjectiveConnector,
     },
-    /// T4-U5b: tie rod `rod` (an index into `connector.tie_rods()`) of
-    /// `connector`: its reference load +Cᵀ k e_ref, re-formed at p from the
-    /// authored operands (node coordinates, Q, the rod's offsets in Q, k and
-    /// e_ref) with n and l in ball arithmetic. Summand identity
-    /// `{connector}:{rod}:tie_rod_reference` (family
+    /// T4-U5b: the reference load +Cᵀ k e_ref of `tie_rod`, rod `rod` of
+    /// connector `connector` (indices into `FormationSource::connectors` and
+    /// that connector's `tie_rods()`), re-formed at p from the rod's own
+    /// authored operands (node coordinates, Q, offsets in Q, k and e_ref)
+    /// with n and l in ball arithmetic. The closure binds it exactly: that
+    /// source rod must equal `tie_rod` at the primitive's force exponent.
+    /// Summand identity `{connector}:{rod}:tie_rod_reference` (family
     /// `tie_rod::TIE_ROD_REFERENCE_FAMILY`); omitted only when e_ref is
     /// exactly 0. Never a connector member load: the connector's certified
     /// member loads keep only its q_ref reference.
     TieRodReference {
-        connector: ObjectiveConnector,
+        connector: usize,
         rod: usize,
+        tie_rod: TieRod,
     },
     /// T4-U5a: dead generalized joint thrust, from authored binary64 operands.
     JointEffectiveArea {
@@ -555,28 +558,31 @@ fn load_closure(
             LoadFormula::ConnectorReference { connector } => {
                 Some((connector.node_i().index, connector.node_j().index))
             }
-            LoadFormula::TieRodReference { connector, rod } => {
-                if *rod >= connector.tie_rods().len() {
-                    return Err(Failure::Closure(format!(
-                        "{}: tie-rod binding",
-                        terms[p.term_index].source
-                    )));
-                }
-                // One intended system: the reference's connector, its rods
-                // included, is a connector of the source at the primitive's
-                // force exponent (a W2 source holds `force_scaled`).
-                let held = connector
+            LoadFormula::TieRodReference {
+                connector,
+                rod,
+                tie_rod,
+            } => {
+                // One intended system: source connector `connector`'s rod
+                // `rod` is `tie_rod` at the primitive's force exponent (a W2
+                // source holds `force_scaled`), compared bit for bit.
+                let held = tie_rod
                     .force_scaled(crate::ForceScale {
                         exponent: p.force_scale_exponent,
                     })
                     .ok();
-                if !held.is_some_and(|held| source.connectors.contains(&held)) {
+                let bound = source
+                    .connectors
+                    .get(*connector)
+                    .and_then(|c| c.tie_rods().get(*rod))
+                    .is_some_and(|r| Some(*r) == held);
+                if !bound {
                     return Err(Failure::Closure(format!(
                         "{}: tie-rod source binding",
                         terms[p.term_index].source
                     )));
                 }
-                Some((connector.node_i().index, connector.node_j().index))
+                Some((tie_rod.node_i().index, tie_rod.node_j().index))
             }
             LoadFormula::JointEffectiveArea { connector, end, axis, sign, .. } => {
                 let node = match end {
@@ -1686,15 +1692,13 @@ impl LoadFormula {
                 out.push(column.map_or(u64::MAX, |c| c as u64));
             }
             Self::ConnectorReference { connector: c } => connector_binding(out, c),
-            Self::TieRodReference { connector, rod } => {
-                out.push(11);
-                connector_binding(out, connector);
-                out.push(*rod as u64);
-                match connector.tie_rods().get(*rod) {
-                    Some(r) => tie_rod_binding(out, r),
-                    // Never a valid rod: the closure refuses it by name.
-                    None => out.push(u64::MAX),
-                }
+            Self::TieRodReference {
+                connector,
+                rod,
+                tie_rod,
+            } => {
+                out.extend([11, *connector as u64, *rod as u64]);
+                tie_rod_binding(out, tie_rod);
             }
             Self::JointEffectiveArea { connector, end, pressure, effective_area, axis, sign } => {
                 out.push(10);
@@ -2378,13 +2382,7 @@ pub(super) fn load_reformation(p: &LoadPrimitive) -> Result<([Wide2; 12], [f64; 
             }
             out
         }
-        LoadFormula::TieRodReference { connector, rod } => {
-            let rod = connector
-                .tie_rods()
-                .get(*rod)
-                .ok_or_else(|| bad_load("tie-rod reference rod"))?;
-            tie_rod_reference_balls(&mut b, rod)?
-        }
+        LoadFormula::TieRodReference { tie_rod, .. } => tie_rod_reference_balls(&mut b, tie_rod)?,
         LoadFormula::SlidingFrictionExplicit {
             coefficient,
             normal,

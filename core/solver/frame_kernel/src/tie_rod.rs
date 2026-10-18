@@ -28,7 +28,7 @@
 //! its rows and its q_ref primitive are unchanged. Rods carry no pressure.
 use crate::connector::ObjectiveConnector;
 use crate::exact_sum::{ExactAccumulator, SumError};
-use crate::load_ledger::{gamma, product_upward};
+use crate::load_ledger::{gamma, product_upward, round_upward};
 use crate::{
     force_scaled_matrix, force_scaled_value, ForceScale, FrameKernelError, FrameNode, Matrix12,
     Matrix3, DOF_PER_NODE, ELEMENT_DOF,
@@ -38,6 +38,11 @@ use crate::{
 /// (`LoadFormula::TieRodReference`). The product's summand identity is
 /// `{connector}:{rod}:tie_rod_reference`.
 pub const TIE_ROD_REFERENCE_FAMILY: &str = "tie_rod_reference";
+
+/// The degenerate-length guard's factor 32u = 2^-48 (manager ruling, K1
+/// repair 2): a rod is refused as `ZeroLength` when
+/// l ≤ 2^-48·(‖x_j − x_i‖∞ + ‖o_i‖∞ + ‖o_j‖∞).
+pub const LENGTH_GUARD: f64 = 1.0 / 281_474_976_710_656.0; // 2^-48
 
 /// Smallest |a·b| whose error-free split `a·b − fl(a·b)` is exact (DN-2).
 const SPLIT_EXACT_MIN: f64 = f64::from_bits(54 << 52); // 2^-969
@@ -64,7 +69,11 @@ pub enum TieRodError {
     NonFinite { name: &'static str },
     /// k_r is not positive, finite and normal.
     Stiffness,
-    /// The represented difference (x_j − x_i) + (o_j − o_i) is zero.
+    /// The represented difference d = (x_j − x_i) + (o_j − o_i) is zero or
+    /// degenerate: l = |d| ≤ 32u·(‖x_j − x_i‖∞ + ‖o_i‖∞ + ‖o_j‖∞), u = 2^-53
+    /// (`LENGTH_GUARD`), decided exactly. A representation guard, like the
+    /// connector's `ALIGNMENT_GUARD`, not a physical tolerance: below it the
+    /// direction n is rounding noise of the operands.
     ZeroLength,
     /// A formed value leaves the binary64 range the element needs.
     Range { name: &'static str },
@@ -126,8 +135,11 @@ pub struct TieRod {
 impl TieRod {
     /// The rod on `connector`'s end nodes and axes. Refused: a non-finite
     /// offset or reference extension, a stiffness that is not positive
-    /// normal, a zero represented length, and a direction, length or formed
-    /// stiffness outside the binary64 range.
+    /// normal, a zero or degenerate represented length (`LENGTH_GUARD`), and
+    /// a direction, length, offset arm (o × n), formed stiffness or
+    /// reference load outside the binary64 range (including |k·e_ref| below
+    /// the exact-split floor). Every infallible accessor below is
+    /// representable once this succeeds (force scaling changes only k).
     pub fn new(connector: &ObjectiveConnector, input: TieRodInput) -> Result<Self, TieRodError> {
         finite3("offset_i", input.offset_i)?;
         finite3("offset_j", input.offset_j)?;
@@ -154,8 +166,12 @@ impl TieRod {
             reference_extension: input.reference_extension,
         };
         rod.direction_and_length()?;
+        rod.try_c()?;
         rod.global_stiffness().map_err(|_| TieRodError::Range {
             name: "formed stiffness",
+        })?;
+        rod.reference_load().map_err(|_| TieRodError::Range {
+            name: "reference load",
         })?;
         Ok(rod)
     }
@@ -234,7 +250,7 @@ impl TieRod {
             self.o_i,
             self.o_j,
         )?;
-        if d.iter().all(|v| *v == 0.0) {
+        if d.iter().all(|v| *v == 0.0) || degenerate(self, d)? {
             return Err(TieRodError::ZeroLength);
         }
         let l = open_pipe_stress_correct_norm::norm3(d[0], d[1], d[2]);
@@ -249,10 +265,17 @@ impl TieRod {
     }
 
     /// C (1 × 12) in binary64: [−n, −(o_i × n), n, (o_j × n)].
+    /// Representable: `new` formed it (`try_c`).
     pub fn c(&self) -> [f64; ELEMENT_DOF] {
-        let n = self.direction();
-        let arm_i = offset_cross(self.o_i, n);
-        let arm_j = offset_cross(self.o_j, n);
+        self.try_c()
+            .expect("representable: formed by the constructor")
+    }
+
+    /// C, or `Range` when an offset arm (o × n)_k leaves binary64.
+    fn try_c(&self) -> Result<[f64; ELEMENT_DOF], TieRodError> {
+        let (n, _) = self.direction_and_length()?;
+        let arm_i = offset_cross(self.o_i, n)?;
+        let arm_j = offset_cross(self.o_j, n)?;
         let mut c = [0.0; ELEMENT_DOF];
         for k in 0..3 {
             c[k] = -n[k];
@@ -260,7 +283,7 @@ impl TieRod {
             c[6 + k] = n[k];
             c[9 + k] = arm_j[k];
         }
-        c
+        Ok(c)
     }
 
     /// Ke = Cᵀ k C (12 × 12): each entry C_a k C_b is one exact sum rounded
@@ -443,10 +466,68 @@ fn exact_dot3(a: [f64; 3], b: [f64; 3]) -> Result<f64, FrameKernelError> {
 }
 
 /// (o × n)_k = n·(e_k × o), one exact dot rounded once. e_k × o is exact
-/// (signed components of o).
-fn offset_cross(o: [f64; 3], n: [f64; 3]) -> [f64; 3] {
+/// (signed components of o). A finite offset can still give an arm beyond
+/// binary64 (|o| near the overflow threshold): `Range`, never a panic.
+fn offset_cross(o: [f64; 3], n: [f64; 3]) -> Result<[f64; 3], TieRodError> {
     let unit_cross = [[0.0, -o[2], o[1]], [o[2], 0.0, -o[0]], [-o[1], o[0], 0.0]];
-    unit_cross.map(|row| exact_dot3(n, row).expect("bounded operands"))
+    let mut arm = [0.0; 3];
+    for (slot, row) in arm.iter_mut().zip(unit_cross) {
+        *slot = exact_dot3(n, row)
+            .ok()
+            .filter(|v| v.is_finite())
+            .ok_or(TieRodError::Range {
+                name: "offset arm (o x n)",
+            })?;
+    }
+    Ok(arm)
+}
+
+/// The degenerate-length guard, decided exactly: with
+/// T↑ ≥ 2^-48·(‖x_j − x_i‖∞ + ‖o_i‖∞ + ‖o_j‖∞) (|x_j − x_i| rounded upward,
+/// the sum exact, the scaling rounded once upward), the rod is degenerate
+/// when Σ d_k² − T↑² ≤ 0 (one exact sum of exact products, so l itself is
+/// never rounded). Since T↑ is directed upward the decision never admits a
+/// rod at or below the guard.
+fn degenerate(rod: &TieRod, d: [f64; 3]) -> Result<bool, TieRodError> {
+    let range = |_| TieRodError::Range {
+        name: "length guard",
+    };
+    let (xi, xj) = (rod.node_i.coordinates, rod.node_j.coordinates);
+    let mut dx = 0.0_f64;
+    for k in 0..3 {
+        let mut difference = ExactAccumulator::new();
+        difference.add(xj[k]).map_err(range)?;
+        difference.add(-xi[k]).map_err(range)?;
+        if difference.signum() < 0 {
+            difference = ExactAccumulator::new();
+            difference.add(xi[k]).map_err(range)?;
+            difference.add(-xj[k]).map_err(range)?;
+        }
+        dx = dx.max(round_upward(&difference).map_err(range)?);
+    }
+    let norm = |o: [f64; 3]| o[0].abs().max(o[1].abs()).max(o[2].abs());
+    let mut scale = ExactAccumulator::new();
+    for value in [dx, norm(rod.o_i), norm(rod.o_j)] {
+        scale.add(value).map_err(range)?;
+    }
+    // T↑ = 2^-48·S rounded once upward from the exact S (S itself may exceed
+    // binary64 when an offset is near the overflow threshold).
+    let nearest = scale.round_scaled(-48).map_err(range)?;
+    let mut excess = scale;
+    excess
+        .add_product(-nearest, 1.0 / LENGTH_GUARD)
+        .map_err(range)?;
+    let threshold = if excess.signum() > 0 {
+        nearest.next_up()
+    } else {
+        nearest
+    };
+    let mut margin = ExactAccumulator::new();
+    for v in d {
+        margin.add_product(v, v).map_err(range)?;
+    }
+    margin.add_product(-threshold, threshold).map_err(range)?;
+    Ok(margin.signum() <= 0)
 }
 
 /// o = fl(Q·offset): each component one exact dot, rounded once.

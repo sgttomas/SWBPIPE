@@ -292,6 +292,13 @@ impl CertifiedRow {
     /// T4-U5b (S_joint = g_x + Σ T_r·(n_r·Q_x) − Pe on the certified route):
     /// the sum of two certified rows of the same corrected displacement. The
     /// balls add at p; the remainders and scales add upward (triangle).
+    ///
+    /// Precondition (the caller's): both rows come from the same certified
+    /// attempt, that is, the same u and the same `MemberBoundInputs`
+    /// (w, w₂, exponents, Λσ). Each remainder bounds its own row's distance
+    /// from that attempt's intended system; summing rows of different
+    /// attempts would certify against no one system. A row carries no
+    /// attempt identity, so this is not checked here.
     pub fn add_row(self, other: Self) -> Result<Self, RecoveryFailure> {
         let out = Balls::new()?.add(self.value, other.value)?;
         Self::finish(
@@ -302,7 +309,9 @@ impl CertifiedRow {
     }
     /// T4-U5b: this row times a ball formed at p (a rod's n_r·Q_x): the ball
     /// product, with the remainder and scale times the factor's upper
-    /// magnitude |m| + r, upward.
+    /// magnitude |m| + r, upward. The factor must not depend on the
+    /// displacement (it carries no remainder); a row later combined with
+    /// `add_row` keeps that method's same-attempt precondition.
     pub fn product_value(self, factor: CertifiedValue) -> Result<Self, RecoveryFailure> {
         let out = Balls::new()?.mul(self.value, factor.ball)?;
         let magnitude = add_up(abs_up(&factor.ball.m)?, factor.ball.r);

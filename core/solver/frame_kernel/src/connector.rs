@@ -195,7 +195,10 @@ pub struct ObjectiveConnector {
     k: Matrix6,
     q_ref: [f64; 6],
     definiteness: ConnectorDefiniteness,
-    tie_rods: Vec<TieRod>,
+    /// Shared (`Arc`), so a clone (each `ConnectorReference` or
+    /// `JointEffectiveArea` primitive holds one) copies no rod; `None` for an
+    /// untied connector (no allocation; one thin pointer of size).
+    tie_rods: Option<std::sync::Arc<Vec<TieRod>>>,
 }
 
 impl ObjectiveConnector {
@@ -276,7 +279,7 @@ impl ObjectiveConnector {
             k,
             q_ref,
             definiteness,
-            tie_rods: Vec::new(),
+            tie_rods: None,
         };
         connector
             .global_stiffness()
@@ -296,13 +299,13 @@ impl ObjectiveConnector {
         for (index, input) in rods.iter().enumerate() {
             formed.push(TieRod::new(&self, *input).map_err(|error| (index, error))?);
         }
-        self.tie_rods = formed;
+        self.tie_rods = (!formed.is_empty()).then(|| std::sync::Arc::new(formed));
         Ok(self)
     }
 
     /// The explicit elastic tie rods, in authored order (empty: untied).
     pub fn tie_rods(&self) -> &[TieRod] {
-        &self.tie_rods
+        self.tie_rods.as_deref().map_or(&[], Vec::as_slice)
     }
 
     pub fn node_i(&self) -> FrameNode {
@@ -439,8 +442,12 @@ impl ObjectiveConnector {
                 *entry = force_scaled_value("connector K*2^b (force scale)", *entry, scale)?;
             }
         }
-        for rod in connector.tie_rods.iter_mut() {
-            *rod = rod.force_scaled(scale)?;
+        if let Some(rods) = &connector.tie_rods {
+            let scaled = rods
+                .iter()
+                .map(|rod| rod.force_scaled(scale))
+                .collect::<Result<Vec<_>, _>>()?;
+            connector.tie_rods = Some(std::sync::Arc::new(scaled));
         }
         Ok(connector)
     }

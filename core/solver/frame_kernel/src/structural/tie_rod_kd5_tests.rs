@@ -157,8 +157,9 @@ fn reference(
         },
         local_row: row,
         formula: LoadFormula::TieRodReference {
-            connector: connector.clone(),
+            connector: 0,
             rod,
+            tie_rod: connector.tie_rods()[rod],
         },
         force_scale_exponent: 0,
     }
@@ -246,8 +247,6 @@ fn tie_rod_reference_reformation_encloses_the_exact_rational_reference_at_p() {
             );
         }
     }
-    // A rod index outside the connector's rods is not re-formable.
-    assert!(load_reformation(&reference(&c, 1, 0, "C1:rodA")).is_err());
 }
 
 /// The rods of `skew_case` with e_ref ≠ 0 (0 and 2) as one formed term per
@@ -345,22 +344,39 @@ fn tie_rod_reference_closure_kills_each_mutant_by_name_on_ordinary_and_w2() {
         let extra = m.loads[at(&m, 0)].clone();
         m.loads.to_mut().push(extra);
         mutants.push(("extra", m, "missing, duplicate or extra summand"));
-        // Wrong rod binding: rod A's identity re-formed from rod B (e_ref = 0).
+        let set =
+            |m: &mut FormationSource,
+             i: usize,
+             f: &dyn Fn(&mut usize, &mut usize, &mut crate::tie_rod::TieRod)| {
+                if let LoadFormula::TieRodReference {
+                    connector,
+                    rod,
+                    tie_rod,
+                } = &mut m.loads.to_mut()[i].formula
+                {
+                    f(connector, rod, tie_rod);
+                }
+            };
+        // Wrong rod binding: rod A's summand pointing at source rod B.
         let mut m = source.clone();
         let i = at(&m, 0);
-        if let LoadFormula::TieRodReference { rod, .. } = &mut m.loads.to_mut()[i].formula {
+        set(&mut m, i, &|_, rod, _| *rod = 1);
+        mutants.push(("wrong rod index", m, "tie-rod source binding"));
+        // Rod A's identity re-formed from rod B (e_ref = 0), consistently bound.
+        let mut m = source.clone();
+        let i = at(&m, 0);
+        set(&mut m, i, &|_, rod, tie_rod| {
             *rod = 1;
-        }
+            *tie_rod = c.tie_rods()[1];
+        });
         mutants.push(("wrong rod", m, "wrong operand binding"));
         // A rod index the connector does not have.
         let mut m = source.clone();
         let i = at(&m, 0);
-        if let LoadFormula::TieRodReference { rod, .. } = &mut m.loads.to_mut()[i].formula {
-            *rod = 7;
-        }
-        mutants.push(("absent rod", m, "tie-rod binding"));
-        // Wrong connector binding: another connector on the same nodes (other
-        // K), carrying the same rods.
+        set(&mut m, i, &|_, rod, _| *rod = 7);
+        mutants.push(("absent rod", m, "tie-rod source binding"));
+        // Wrong connector binding: another source connector on the same nodes
+        // (other K), carrying the same rods.
         let other = {
             let mut upper = [0.0; 21];
             for (at, v) in [
@@ -398,21 +414,17 @@ fn tie_rod_reference_closure_kills_each_mutant_by_name_on_ordinary_and_w2() {
             .unwrap()
         };
         let mut m = source.clone();
+        m.connectors.push(other.force_scaled(scale).unwrap());
         let i = at(&m, 0);
-        if let LoadFormula::TieRodReference { connector, .. } = &mut m.loads.to_mut()[i].formula {
-            *connector = other.clone();
-        }
-        mutants.push(("wrong connector", m, "tie-rod source binding"));
-        // The same wrong connector, also as the source's (a manifest mismatch).
+        set(&mut m, i, &|connector, _, _| *connector = 1);
+        mutants.push(("wrong connector", m, "wrong operand binding"));
+        // A connector index the source does not have.
         let mut m = source.clone();
         let i = at(&m, 0);
-        if let LoadFormula::TieRodReference { connector, .. } = &mut m.loads.to_mut()[i].formula {
-            *connector = other.clone();
-        }
-        m.connectors.push(other.force_scaled(scale).unwrap());
-        mutants.push(("wrong connector (in source)", m, "wrong operand binding"));
-        // Wrong operands: rod A's e_ref changed in the primitive's connector,
-        // and the source made to hold that connector too.
+        set(&mut m, i, &|connector, _, _| *connector = 5);
+        mutants.push(("absent connector", m, "tie-rod source binding"));
+        // Wrong operands: rod A's e_ref changed in the primitive only, then
+        // also in the source (a manifest mismatch).
         let changed = {
             let rods: Vec<_> = c
                 .tie_rods()
@@ -432,11 +444,19 @@ fn tie_rod_reference_closure_kills_each_mutant_by_name_on_ordinary_and_w2() {
         };
         let mut m = source.clone();
         let i = at(&m, 0);
-        if let LoadFormula::TieRodReference { connector, .. } = &mut m.loads.to_mut()[i].formula {
-            *connector = changed.clone();
+        set(&mut m, i, &|_, _, tie_rod| *tie_rod = changed.tie_rods()[0]);
+        mutants.push(("wrong operands", m, "tie-rod source binding"));
+        let mut m = source.clone();
+        m.connectors = vec![changed.force_scaled(scale).unwrap()];
+        for i in 0..m.loads.len() {
+            if matches!(
+                m.loads[i].formula,
+                LoadFormula::TieRodReference { rod: 0, .. }
+            ) {
+                set(&mut m, i, &|_, _, tie_rod| *tie_rod = changed.tie_rods()[0]);
+            }
         }
-        m.connectors.push(changed.force_scaled(scale).unwrap());
-        mutants.push(("wrong operands", m, "wrong operand binding"));
+        mutants.push(("wrong operands (in source)", m, "wrong operand binding"));
         // Wrong component of the member vector.
         let mut m = source.clone();
         let i = at(&m, 0);
@@ -820,4 +840,109 @@ fn certified_rows_combine_into_s_joint_with_their_remainders() {
         high.signum() <= 0 && exact.signum() >= 0,
         "S_joint outside its bound"
     );
+}
+
+/// K1 repair 5: a skew-Q, non-dyadic rod's certified T_r, e and n·Q_x
+/// contain an independent high-precision reference. Provenance: the
+/// constants below were printed by this script (Python 3, exact rationals of
+/// the binary64 inputs, one `Decimal` square root at 110 digits; it imports
+/// and runs no product code), each value split into three binary64 parts:
+///
+/// ```text
+/// from fractions import Fraction as F; from decimal import Decimal as D, getcontext
+/// getcontext().prec = 110
+/// T, TT = 1.0/3.0, 2.0/3.0; Q = [[T, TT, -TT], [TT, T, TT], [TT, -TT, -T]]
+/// xi, xj = [0.3, -0.7, 1.1], [0.6, -0.1, 1.7]
+/// off_i, off_j = [-0.05, 0.13, -0.07], [0.06, -0.11, 0.09]; k, e_ref = 2.5e7, -1.25e-3
+/// u = [1.3e-4, -2.7e-4, 5.1e-4, 1.1e-3, -2.3e-3, 0.7e-3, 3.3e-4, 1.9e-4, -7.1e-4, -1.3e-3, 2.9e-4, 1.7e-3]
+/// w = [3e-17*(i-5.5) for i in range(12)]; w2 = [1e-30*(3-i) for i in range(12)]
+/// o = lambda off: [sum(F(Q[r][m])*F(off[m]) for m in range(3)) for r in range(3)]
+/// oi, oj = o(off_i), o(off_j); d = [(F(xj[c])-F(xi[c]))+(oj[c]-oi[c]) for c in range(3)]
+/// dec = lambda q: D(q.numerator)/D(q.denominator); l = dec(sum(v*v for v in d)).sqrt()
+/// n = [dec(v)/l for v in d]; cross(a, b) = a × b
+/// C = [-n, -(oi × n), n, oj × n]; x = u + w + w2 (exact)
+/// e = C·x; T = k(e - e_ref); share = n·(Q[0][0], Q[1][0], Q[2][0])
+/// triple(v) = (hi = float(v), mid = float(v - hi), lo = float(v - hi - mid))
+/// ```
+///
+/// TENSION = 6.3575455112948586325183332225323170980426e+3,
+/// EXTENSION = −9.9569817954820568072011881075081373225716e−4,
+/// AXIAL_SHARE = 9.6155596132692465867499748486195087208128e−1.
+#[test]
+fn certified_skew_non_dyadic_rod_contains_the_independent_100_digit_reference() {
+    const TENSION: [f64; 3] = [
+        6357.545511294858,
+        1.8966605963912016e-13,
+        -1.207220542619584e-29,
+    ];
+    const EXTENSION: [f64; 3] = [
+        -0.0009956981795482057,
+        -1.1435918918362626e-20,
+        -5.377309981442046e-37,
+    ];
+    const AXIAL_SHARE: [f64; 3] = [
+        0.9615559613269247,
+        -9.922373752548747e-18,
+        -2.454128705382956e-34,
+    ];
+    let c = connector(
+        [0.3, -0.7, 1.1],
+        [0.6, -0.1, 1.7],
+        SKEW,
+        &[rod(
+            [-0.05, 0.13, -0.07],
+            [0.06, -0.11, 0.09],
+            2.5e7,
+            -1.25e-3,
+        )],
+    );
+    let u = [
+        1.3e-4, -2.7e-4, 5.1e-4, 1.1e-3, -2.3e-3, 0.7e-3, 3.3e-4, 1.9e-4, -7.1e-4, -1.3e-3, 2.9e-4,
+        1.7e-3,
+    ];
+    let bound = MemberBoundInputs {
+        w: (0..12).map(|i| 3e-17 * (i as f64 - 5.5)).collect(),
+        w2: (0..12).map(|i| 1e-30 * (3.0 - i as f64)).collect(),
+        exponents: vec![0; 12],
+        lambda_sigma: 0.0,
+    };
+    let certified = certify_tie_rod_recovery(&c, 0, &u, &bound).unwrap();
+    // |published − reference| ≤ bound + slack, decided exactly; the slack
+    // covers the reference's three-part truncation (≤ 2^-150 relative).
+    let inside = |published: f64, bound: f64, reference: [f64; 3]| {
+        let slack = reference[0].abs() * 2f64.powi(-140);
+        let mut acc = ExactAccumulator::new();
+        acc.add(published).unwrap();
+        for part in reference {
+            acc.add(-part).unwrap();
+        }
+        let mut high = acc.clone();
+        high.add(-bound).unwrap();
+        high.add(-slack).unwrap();
+        acc.add(bound).unwrap();
+        acc.add(slack).unwrap();
+        high.signum() <= 0 && acc.signum() >= 0
+    };
+    let t = certified.tension;
+    assert!(inside(t.published, t.bound(), TENSION), "T_r");
+    assert!(
+        t.radius <= 1e-25 * TENSION[0].abs(),
+        "T_r radius {:e}",
+        t.radius
+    );
+    let e = certified.extension;
+    assert!(inside(e.published, e.bound(), EXTENSION), "e");
+    let share = certified.axial_share;
+    let published = share.published().unwrap();
+    // A ball's publication gap is at most u·|published| (correct rounding).
+    let gap = published.abs() * f64::EPSILON / 2.0 * (1.0 + f64::EPSILON);
+    assert!(
+        inside(published, gap + share.radius(), AXIAL_SHARE),
+        "n·Q_x"
+    );
+    // The binary64 element agrees to roundoff (it uses fl(Q·offset)).
+    assert!((c.tie_rods()[0].axial_share() - AXIAL_SHARE[0]).abs() <= 4.0 * f64::EPSILON);
+    // Discrimination: the reference with e_ref ignored lies outside.
+    let wrong = [TENSION[0] - 2.5e7 * 1.25e-3, TENSION[1], TENSION[2]];
+    assert!(!inside(t.published, t.bound(), wrong));
 }
