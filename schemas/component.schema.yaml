@@ -382,6 +382,8 @@
         "hardware_flag",
         "hardware_reference",
         "sif_user_value",
+        "sif_in_plane_user_value",
+        "sif_out_of_plane_user_value",
         "flexibility_factor_user_value",
         "bend_geometry_source_reference",
         "manufacturer_reference",

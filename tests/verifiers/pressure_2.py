@@ -57,7 +57,7 @@ from pathlib import Path
 import struct
 from typing import Any
 
-from . import section_basis as sb
+from . import section_basis as sb, u4b
 
 PROJECT = Path(__file__).resolve().parents[2]
 
@@ -68,8 +68,8 @@ PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_ver
 TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); 106 signatures over 59 kinds.
 TABLE_SHA256 = "1c2bd8cbd6d6bef017e0bedc7c5d98cad4c49530d862481c6d3b53b1234f9ff0"
-TABLE_SIGNATURE_COUNT = 106
-TABLE_KIND_COUNT = 59
+TABLE_SIGNATURE_COUNT = 128
+TABLE_KIND_COUNT = 65
 
 # Refusals by name.
 CONTRACT_UNKNOWN = "SOURCE_PHYSICS_PRESSURE_CONTRACT_UNKNOWN"
@@ -138,12 +138,16 @@ JOINT_APPROXIMATION = "straight_lame_annulus_and_joint_area_difference_h2_small_
 ARC_JOINT_APPROXIMATION = "straight_lame_annulus_realized_arc_and_joint_area_difference_h2_small_strain_v3"
 ARC_TANGENCY_TOLERANCE_RAD = 1e-3
 ARC_TANGENCY_RULE = "a region changes direction only at a realized bend; each straight run keeps the 64*epsilon collinearity guard (a straight-straight kink is PRESSURE_REGION_NONCOLLINEAR); at each bend-adjacent junction theta = atan2(|t_in x t_out|, t_in . t_out) <= alpha_tan is admitted and carried exactly by the remainder pAi(t_in - t_out), and a larger theta is refused as a mitre (PRESSURE_REGION_MITRE_UNSUPPORTED)"
-ARC_WITHHELD_REASON = "withheld on realized arcs: the straight Lame hoop and radial values do not hold on a torus (a toroidal membrane hoop is a later unit), and the straight-statics maximum does not bound an arc"
-ARC_WITHHELD_KINDS = ["pipe_lame_radial_stress_v2", "pipe_lame_hoop_stress_v2", "pipe_elastic_normal_stress_maximum_v2"]
+# T4-U4b (§2.5): the straight Lame kinds stay off arcs; the region names the two arc definitions.
+ARC_WITHHELD_KINDS = ["pipe_lame_radial_stress_v2", "pipe_lame_hoop_stress_v2"]
+ARC_STRESS_DEFINITIONS = [
+    {"definition": "bore_load_transferred_toroidal_membrane_v1", "statement": "the toroidal membrane hoop is the cut average of a complete torus in an axisymmetric membrane state under p on each basis bore, and the radial values are -p at the bore and 0 outside; ovalization, hoop bending from moments, bending boundary layers, tangent-end effects, the through-thickness distribution and transverse-shear resultants on the cuts are not represented"},
+    {"definition": "local_straight_annulus_on_arc", "statement": "the transverse shear is the straight-annulus Saint-Venant field of each basis driven by the tangent-frame shears; the curvature correction of the shear field, ovalization and end effects are not represented"},
+]
 ARC_BEND_TERM = "K_b*u_free(eps_p)-c_b"
 ARC_STRAIN_DEFINITION = "(1-2nu)pAi/(E As)"
-ARC_REGION_KEYS = {"tangency_tolerance_rad", "tangency_rule", "bend_adjacent_junctions", "withheld_on_arcs"}
-ARC_GEOMETRY_KEYS = {"member_kind", "arc_end_tangents_global"}
+ARC_REGION_KEYS = {"tangency_tolerance_rad", "tangency_rule", "bend_adjacent_junctions", "arc_stress_definitions"}
+ARC_GEOMETRY_KEYS = {"member_kind", "arc_end_tangents_global", "bend_radius_m"}
 ARC_APPLIED_KEYS = {"pipe_id", "bend_term", "arc_pressure_strain", "arc_pressure_strain_definition", "mathematical_cap_pair_local_n", "arc_end_tangents_global", "bend_cap_pair_removed_global_n", "thermal_included"}
 ARC_JUNCTION_KEYS = {"node_ref", "pipe_in", "pipe_out", "t_in_global", "t_out_global", "theta_rad"}
 ARC_SIGNS = {
@@ -346,7 +350,9 @@ def arc_members(region: Any) -> set[str]:
         if not isinstance(geometry, Mapping) or not ARC_GEOMETRY_KEYS & set(geometry):
             continue
         tangents = geometry.get("arc_end_tangents_global")
-        _require(geometry.get("member_kind") == ARC_MEMBER_KIND and isinstance(tangents, list) and len(tangents) == 2 and all(_vector(t, 3) for t in tangents), "arc geometry")
+        radius = geometry.get("bend_radius_m")
+        _require(geometry.get("member_kind") == ARC_MEMBER_KIND and isinstance(tangents, list) and len(tangents) == 2 and all(_vector(t, 3) for t in tangents)
+                 and _number(radius) and radius > 0, "arc geometry")
         # T4-U8 (§2.5, §3.6): a realized arc is Euler-Bernoulli under either shear model.
         _require(geometry.get("beam_theory") == {"model": sb.EULER_BERNOULLI}, "arc beam theory")
         arcs.add(geometry.get("pipe_id"))
@@ -360,10 +366,8 @@ def _bits(vector: list[Any]) -> list[float]:
 
 def _arc_region(region: Mapping[str, Any], arcs: set[str], p: float) -> None:
     """Region-level arc statements, arc applied loads and junctions."""
-    withheld = region["withheld_on_arcs"]
     _require(region["approximation"] in {ARC_APPROXIMATION, ARC_JOINT_APPROXIMATION} and region["tangency_tolerance_rad"] == ARC_TANGENCY_TOLERANCE_RAD and type(region["tangency_tolerance_rad"]) is float
-             and region["tangency_rule"] == ARC_TANGENCY_RULE and isinstance(withheld, Mapping) and set(withheld) == {"result_kinds", "reason"}
-             and withheld["reason"] == ARC_WITHHELD_REASON and withheld["result_kinds"] == ARC_WITHHELD_KINDS, "arc region profile")
+             and region["tangency_rule"] == ARC_TANGENCY_RULE and region["arc_stress_definitions"] == ARC_STRESS_DEFINITIONS, "arc region profile")
     geometry = {g["pipe_id"]: g for g in region["geometry"]}
     loads = {item["pipe_id"]: item for item in region["applied_loads"]}
     directions = []
@@ -455,11 +459,15 @@ def _physics(source: Mapping[str, Any]) -> None:
     complete = {basis: bool(cases) for basis in sb.BASES}
     straight_models: set[str] = set()
     extrema_ids: set[str] = set()
+    arc_extrema: list[tuple[str, str, Any, Any]] = []
     # §2.5: the document's realized arcs, as every case's pipe_sections marks them (member_kind = "realized_arc"),
     # including arcs outside every pressure region; a model fact, so every case marks the same members.
     marked: set[str] | None = None
     for cid, case in cases.items():
-        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"}, "case shape")
+        # T4-U4b (§2.6): intensified_measures only when non-empty.
+        directional = "intensified_measures" in case
+        _require(not directional or (isinstance(case["intensified_measures"], list) and case["intensified_measures"]), "case shape")
+        _shape(case, {"load_case_id", "profile_mode", "material_basis", "pipe_materials", "pipe_sections", "pipe_stress_extrema", "stress_maximum_coverage", "pressure_rhs_assembly"} | ({"intensified_measures"} if directional else set()), "case shape")
         _require(case["profile_mode"] == PRESSURE_V3[1] and _text(case["material_basis"]), "case profile/material basis")
         materials[cid] = _indexed(case["pipe_materials"], "pipe_id", "case materials")
         geometries[cid] = _indexed(case["pipe_sections"], "pipe_id", "case sections")
@@ -492,8 +500,6 @@ def _physics(source: Mapping[str, Any]) -> None:
         missing_by_basis: dict[str, set[str]] = {}
         for basis, (missing, done) in zip(sb.BASES, _basis(sb.coverage, case["stress_maximum_coverage"])):
             _require(missing <= set(geometries[cid]), "maximum coverage contradiction")
-            # §2.1: the maximum is withheld on every realized arc, in a pressure region or not, on both bases.
-            _require(case_arcs <= missing, "arc withheld")
             complete[basis] = complete[basis] and done
             missing_by_basis[basis] = missing
         _require(isinstance(case["pipe_stress_extrema"], list), "extrema")
@@ -518,6 +524,10 @@ def _physics(source: Mapping[str, Any]) -> None:
             # K-D5 (DEL-04-01 kd5-member-relative-bound.md section 3.2): the public
             # upper bound is the global maximum enclosure's.
             _require(extremum["value_upper_pa"] == extremum["global_upper_bound_pa"], "extrema bounds")
+            if pid in case_arcs:
+                # T4-U4b (§2.3): the arc record, checked with its station cover once the rows are read.
+                arc_extrema.append((cid, pid, extremum, row))
+                continue
             _require(type(extremum["span_index"]) is int and extremum["span_index"] >= 0 and type(extremum["subdivisions"]) is int and 0 <= extremum["subdivisions"] <= 131072 and extremum["approximation"] == "piecewise_quadratic_straight_section_statics" and extremum["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures" and extremum["enclosure_scope"] == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate", "extrema witness")
         for pid, nominal in extrema_by_basis[sb.NOMINAL].items():
             if pid in extrema_by_basis[sb.REDUCED]:
@@ -551,8 +561,8 @@ def _physics(source: Mapping[str, Any]) -> None:
         _require(set(gm) == set(mm) == set(loads) == set(members), "region evidence coverage")
         for pid in members:
             _shape(gm[pid], GEOMETRY | {"traversal_forward"} | (ARC_GEOMETRY_KEYS if pid in arcs else set()), "region geometry shape")
-            # §2.5: an arc's record adds only its end tangents to its case section, which carries the marker.
-            _require(type(gm[pid]["traversal_forward"]) is bool and {k: v for k, v in gm[pid].items() if k not in {"traversal_forward", "arc_end_tangents_global"}} == geometries[cid][pid], "geometry disagreement")
+            # §2.5: an arc's record adds only its end tangents and bend radius to its case section, which carries the marker.
+            _require(type(gm[pid]["traversal_forward"]) is bool and {k: v for k, v in gm[pid].items() if k not in {"traversal_forward", "arc_end_tangents_global", "bend_radius_m"}} == geometries[cid][pid], "geometry disagreement")
             _shape(mm[pid], MATERIAL | {"temperature_basis"}, "region material shape")
             _temperature_basis(mm[pid]["temperature_basis"], cases[cid]["material_basis"], mm[pid]["material_id"])
             _require(isinstance(mm[pid]["temperature_basis"], Mapping) and _text(mm[pid]["temperature_basis"].get("selection")) and {k: v for k, v in mm[pid].items() if k != "temperature_basis"} == materials[cid][pid], "material disagreement")
@@ -613,7 +623,8 @@ def _physics(source: Mapping[str, Any]) -> None:
             support = row["kind"].startswith("support_reaction_")
             arc = row["entity_ref"] in marked
             _require(not (arc and row["kind"] in ARC_WITHHELD_KINDS), "arc withheld")
-            _require(metadata["sign_convention"] == (ARC_SIGNS[row["kind"]] if arc else SUPPORT_SIGN if support else SIGNS[row["kind"]]), "physical sign convention")
+            arc_sign = u4b.ARC_MAXIMUM_SIGN if row["kind"] == "pipe_elastic_normal_stress_maximum_v2" else ARC_SIGNS.get(row["kind"])
+            _require(metadata["sign_convention"] == (arc_sign if arc else SUPPORT_SIGN if support else SIGNS[row["kind"]]), "physical sign convention")
             force = row["kind"] in {"pipe_wall_endpoint_action_v2", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2"}
             declared = sb.split_token(metadata["basis"])[0] if stress else metadata["basis"]
             _require(metadata["coordinate_system"] == ("global" if support else "element_local" if force else "pipe_section") and declared == ("recovered_from_assembled_support_law" if support else "recovered_from_local_element_stiffness" if force else "recovered_from_open_mechanics_stress_components"), "physical recovery basis")
@@ -633,6 +644,12 @@ def _physics(source: Mapping[str, Any]) -> None:
                 _require(row["id"] in extrema_ids, "unbound extrema row")
             else:
                 _require((cid, pid) in owners and row["id"] in bindings, "unbound pressure row")
+        # T4-U4b (§5.1): the new kinds' signatures and declared semantics.
+        if row.get("kind") in u4b.KINDS:
+            metadata = row.get("metadata") or {}
+            _require(len([entry for entry in table["rows"] if entry["kind"] == row["kind"] and entry["unit"] == row.get("unit") and entry["component"] == metadata.get("component") and entry.get("source_basis") == metadata.get("basis")]) == 1, "physical signature")
+            u4b.row_semantics(row, True, row["entity_ref"] in marked)
+    _u4b(source, evidence, rows, sections, marked, arc_extrema)
     _twins(rows, sections, owners, region_pressures)
     _validate_connectors(evidence["connector"], evidence["pressure"], rows, {pid for cid in cases for pid in geometries[cid]}, set(cases), source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED")
     for components in support_components.values():
@@ -695,6 +712,47 @@ def _physics(source: Mapping[str, Any]) -> None:
                 _require(rows[ref].get("basis_ref") == case["basis_ref"], "numerical row case scope")
             else:
                 _require(ref in diagnostics and cid in diagnostics[ref].get("affected_refs", []), "numerical diagnostic case scope")
+
+
+def _u4b(source: Mapping[str, Any], evidence: Mapping[str, Any], rows: Mapping[str, Any], sections: Mapping[tuple[str, str], Any],
+         marked: set[str], arc_extrema: list[tuple[str, str, Any, Any]]) -> None:
+    """T4-U4b (§5.1) on pressure-2: σ±, τ (bit for bit with the case's ν and basis sections), hoop and radial
+    (bit-equal from the region's p and R); the arc maxima with their station cover; the directional records."""
+    results = source.get("results", [])
+    index = u4b.Rows(results)
+    diagnostics = source.get("diagnostics", [])
+    covers: dict[tuple[str, str, str], list[float]] = {}
+    for case in evidence["exact_cases"]:
+        cid = case["load_case_id"]
+        exempt = u4b.poisson_exempt(diagnostics, cid)
+        nus = {m["pipe_id"]: m["nu"] for m in case["pipe_materials"]}
+        pressurized = {}
+        for region in evidence["pressure"]:
+            if region["load_case_id"] == cid:
+                for g in region["geometry"]:
+                    if "bend_radius_m" in g:
+                        pressurized[g["pipe_id"]] = (region["p_pa"], g["bend_radius_m"])
+        for section in case["pipe_sections"]:
+            pid = section["pipe_id"]
+            ro = section["ro_m"]
+            factors = {basis: u4b.shear_factor(nus[pid], ro, section[basis]["ri_m"], section[basis]["I_m4"]) for basis in sb.BASES}
+            toroidal = None
+            if pid in marked and pid in pressurized:
+                p, r = pressurized[pid]
+                toroidal = {basis: (p, section[basis]["ri_m"], section[basis]["wall_m"], ro, r) for basis in sb.BASES}
+                if not r > ro:
+                    _require(any(d.get("code") == u4b.TOROIDAL_DOMAIN and d.get("affected_refs", [None, None])[:2] == [cid, pid] for d in diagnostics), "toroidal domain warning")
+            for basis, cover in u4b.member_stations(index, cid, pid, list(sb.BASES), factors, pid in exempt, toroidal).items():
+                covers[cid, pid, basis] = cover
+        records = case.get("intensified_measures", [])
+        bound = u4b.directional_records(cid, records, rows, index, marked, True)
+        _require(len(bound) == len(records), "intensified record shape")
+        for row in results:
+            if row.get("kind") in (u4b.DIRECTIONAL, u4b.DIRECTIONAL_MAX) and row.get("basis_ref", {}).get("ref_id") == cid:
+                _require(row["id"] in bound, "unbound directional row")
+    for cid, pid, record, row in arc_extrema:
+        _require((row.get("metadata") or {}).get("sign_convention") == u4b.ARC_MAXIMUM_SIGN, "arc maximum sign")
+        u4b.maximum_record(record, row, u4b.ARC_TOKENS[0], covers.get((cid, pid, record["section_basis"]), []))
 
 
 def _twins(rows: Mapping[str, Any], sections: Mapping[tuple[str, str], Any], owners: Mapping[tuple[str, str], str],
@@ -945,12 +1003,10 @@ def _transport(source: Mapping[str, Any]) -> None:
         materials = _indexed(case["pipe_materials"], "pipe_id", "transport materials")
         sections = _indexed(case["pipe_sections"], "pipe_id", "transport sections")
         _require((bool(materials) or has_connector) and set(materials) == set(sections), "transport member coverage")
-        # T4-U6 (§2.5): one coverage record and one maximum per pipe per basis; the maximum is withheld on every
-        # marked realized arc.
-        marked = {pid for pid, section in sections.items() if _basis(sb.arc_marker, section)}
+        # T4-U6 (§2.5): one coverage record and one maximum per pipe per basis (T4-U4b §2.1: realized arcs carry
+        # theirs too).
         for basis, (missing, _) in zip(sb.BASES, _basis(sb.coverage, case["stress_maximum_coverage"])):
             _require(missing <= set(sections), "transport maximum coverage")
-            _require(marked <= missing, "arc withheld")
             members = [ex["pipe_id"] for ex in case["pipe_stress_extrema"] if _basis(sb.extremum_basis, ex) == basis]
             _require(len(members) == len(set(members)) and set(members) == set(sections) - missing, "transport maximum members")
     regions: set[tuple[str, str]] = set()
@@ -959,15 +1015,15 @@ def _transport(source: Mapping[str, Any]) -> None:
         _require(cid in cases and (cid, rid) not in regions, "transport pressure region")
         regions.add((cid, rid))
         arcs = arc_members(region)
-        _require(all(arcs <= missing for missing, _ in _basis(sb.coverage, cases[cid]["stress_maximum_coverage"])), "arc withheld")
         sections = _indexed(cases[cid]["pipe_sections"], "pipe_id", "transport sections")
         materials = _indexed(cases[cid]["pipe_materials"], "pipe_id", "transport materials")
         gm = _indexed(region["geometry"], "pipe_id", "transport region geometry")
         mm = _indexed(region["materials"], "pipe_id", "transport region materials")
         _require(_strings(region["member_pipe_ids"], True) and set(gm) == set(mm) == set(region["member_pipe_ids"]) and set(gm) <= set(sections), "transport region members")
         for pid in gm:
-            # §2.5: an arc's record adds only its end tangents to its case section, which carries the marker.
-            _require({k: v for k, v in gm[pid].items() if k not in {"traversal_forward", "arc_end_tangents_global"}} == sections[pid]
+            # §2.5: an arc's record adds only its end tangents (T4-U4b: and its bend radius) to its case section, which
+            # carries the marker.
+            _require({k: v for k, v in gm[pid].items() if k not in {"traversal_forward", "arc_end_tangents_global", "bend_radius_m"}} == sections[pid]
                      and {k: v for k, v in mm[pid].items() if k != "temperature_basis"} == {k: v for k, v in materials[pid].items() if k not in resolved}, "transport region member facts")
         if arcs:
             _arc_region(region, arcs, region["p_pa"])
@@ -1198,7 +1254,8 @@ def _ls_prepass(source: Mapping[str, Any]) -> None:
     # S7 exact cases, their resolved materials and section identities.
     cases: list[tuple[str, Mapping[str, Any]]] = []
     for case in exact:
-        _ls_require(_ls_keys(case, LS_CASE_KEYS), "CASE_SHAPE")
+        # T4-U4b (§2.6): a case with a directional arc adds intensified_measures (checked by the physics pass).
+        _ls_require(_ls_keys(case, LS_CASE_KEYS + (["intensified_measures"] if isinstance(case, Mapping) and "intensified_measures" in case else [])), "CASE_SHAPE")
         case_id = _ls_text(case["load_case_id"])
         _ls_require(all(known != case_id for known, _ in cases), "CASE_DUPLICATE")
         _ls_require(_ls_eq(case["material_basis"], MATERIAL_BASIS), "MATERIAL_BASIS")

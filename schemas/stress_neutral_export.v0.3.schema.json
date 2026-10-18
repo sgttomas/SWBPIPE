@@ -2928,73 +2928,146 @@
               "pipe_stress_extrema": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "pipe_id",
-                    "result_id",
-                    "station_fraction",
-                    "span_index",
-                    "local_fraction",
-                    "value_lower_pa",
-                    "value_upper_pa",
-                    "global_upper_bound_pa",
-                    "certified_gap_pa",
-                    "subdivisions",
-                    "approximation",
-                    "coefficient_basis",
-                    "enclosure_scope"
-                  ],
-                  "properties": {
-                    "pipe_id": {
-                      "type": "string",
-                      "minLength": 1
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pipe_id",
+                        "result_id",
+                        "station_fraction",
+                        "span_index",
+                        "local_fraction",
+                        "value_lower_pa",
+                        "value_upper_pa",
+                        "global_upper_bound_pa",
+                        "certified_gap_pa",
+                        "subdivisions",
+                        "approximation",
+                        "coefficient_basis",
+                        "enclosure_scope"
+                      ],
+                      "properties": {
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "station_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "span_index": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "local_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "value_lower_pa": {
+                          "type": "number"
+                        },
+                        "value_upper_pa": {
+                          "type": "number"
+                        },
+                        "global_upper_bound_pa": {
+                          "type": "number"
+                        },
+                        "certified_gap_pa": {
+                          "type": "number"
+                        },
+                        "subdivisions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 131072
+                        },
+                        "approximation": {
+                          "const": "piecewise_quadratic_straight_section_statics"
+                        },
+                        "coefficient_basis": {
+                          "const": "j_side_section_equilibrium_binary64_enclosures"
+                        },
+                        "enclosure_scope": {
+                          "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                        }
+                      }
                     },
-                    "result_id": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "station_fraction": {
-                      "type": "number",
-                      "minimum": 0,
-                      "maximum": 1
-                    },
-                    "span_index": {
-                      "type": "integer",
-                      "minimum": 0
-                    },
-                    "local_fraction": {
-                      "type": "number",
-                      "minimum": 0,
-                      "maximum": 1
-                    },
-                    "value_lower_pa": {
-                      "type": "number"
-                    },
-                    "value_upper_pa": {
-                      "type": "number"
-                    },
-                    "global_upper_bound_pa": {
-                      "type": "number"
-                    },
-                    "certified_gap_pa": {
-                      "type": "number"
-                    },
-                    "subdivisions": {
-                      "type": "integer",
-                      "minimum": 0,
-                      "maximum": 131072
-                    },
-                    "approximation": {
-                      "const": "piecewise_quadratic_straight_section_statics"
-                    },
-                    "coefficient_basis": {
-                      "const": "j_side_section_equilibrium_binary64_enclosures"
-                    },
-                    "enclosure_scope": {
-                      "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pipe_id",
+                        "result_id",
+                        "station_fraction",
+                        "span_index",
+                        "local_fraction",
+                        "value_lower_pa",
+                        "value_upper_pa",
+                        "global_upper_bound_pa",
+                        "certified_gap_pa",
+                        "subdivisions",
+                        "approximation",
+                        "coefficient_basis",
+                        "enclosure_scope"
+                      ],
+                      "properties": {
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "station_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "span_index": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "local_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "value_lower_pa": {
+                          "type": "number"
+                        },
+                        "value_upper_pa": {
+                          "type": "number"
+                        },
+                        "global_upper_bound_pa": {
+                          "type": "number"
+                        },
+                        "certified_gap_pa": {
+                          "type": "number"
+                        },
+                        "subdivisions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 131072
+                        },
+                        "approximation": {
+                          "const": "arc_closed_form_section_statics"
+                        },
+                        "coefficient_basis": {
+                          "const": "arc_end_j_force_and_uniform_intensities_binary64_enclosures"
+                        },
+                        "enclosure_scope": {
+                          "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               },
               "stress_maximum_coverage": {
@@ -3068,65 +3141,185 @@
               "intensified_measures": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "result_id",
-                    "component_id",
-                    "pipe_id",
-                    "location",
-                    "factor_role",
-                    "sif",
-                    "sif_source_reference",
-                    "section_modulus_m3",
-                    "bending_moment_y_n_m",
-                    "bending_moment_z_n_m"
-                  ],
-                  "properties": {
-                    "result_id": {
-                      "type": "string",
-                      "minLength": 1
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "result_id",
+                        "component_id",
+                        "pipe_id",
+                        "location",
+                        "factor_role",
+                        "sif",
+                        "sif_source_reference",
+                        "section_modulus_m3",
+                        "bending_moment_y_n_m",
+                        "bending_moment_z_n_m"
+                      ],
+                      "properties": {
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "component_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "location": {
+                          "enum": [
+                            "end_i",
+                            "end_j"
+                          ]
+                        },
+                        "factor_role": {
+                          "enum": [
+                            "bend",
+                            "branch_header",
+                            "branch_branch"
+                          ]
+                        },
+                        "sif": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "sif_source_reference": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "section_modulus_m3": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "bending_moment_y_n_m": {
+                          "type": "number"
+                        },
+                        "bending_moment_z_n_m": {
+                          "type": "number"
+                        }
+                      }
                     },
-                    "component_id": {
-                      "type": "string",
-                      "minLength": 1
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pipe_id",
+                        "result_id",
+                        "location",
+                        "i_in_plane",
+                        "i_out_of_plane"
+                      ],
+                      "properties": {
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "location": {
+                          "enum": [
+                            "end_i",
+                            "end_j",
+                            "quarter_1",
+                            "midspan",
+                            "quarter_3"
+                          ]
+                        },
+                        "i_in_plane": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "i_out_of_plane": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      }
                     },
-                    "pipe_id": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "location": {
-                      "enum": [
-                        "end_i",
-                        "end_j"
-                      ]
-                    },
-                    "factor_role": {
-                      "enum": [
-                        "bend",
-                        "branch_header",
-                        "branch_branch"
-                      ]
-                    },
-                    "sif": {
-                      "type": "number",
-                      "exclusiveMinimum": 0
-                    },
-                    "sif_source_reference": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "section_modulus_m3": {
-                      "type": "number",
-                      "exclusiveMinimum": 0
-                    },
-                    "bending_moment_y_n_m": {
-                      "type": "number"
-                    },
-                    "bending_moment_z_n_m": {
-                      "type": "number"
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pipe_id",
+                        "result_id",
+                        "station_fraction",
+                        "span_index",
+                        "local_fraction",
+                        "value_lower_pa",
+                        "value_upper_pa",
+                        "global_upper_bound_pa",
+                        "certified_gap_pa",
+                        "subdivisions",
+                        "approximation",
+                        "coefficient_basis",
+                        "enclosure_scope",
+                        "i_in_plane",
+                        "i_out_of_plane"
+                      ],
+                      "properties": {
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "station_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "span_index": {
+                          "const": 0
+                        },
+                        "local_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "value_lower_pa": {
+                          "type": "number"
+                        },
+                        "value_upper_pa": {
+                          "type": "number"
+                        },
+                        "global_upper_bound_pa": {
+                          "type": "number"
+                        },
+                        "certified_gap_pa": {
+                          "type": "number"
+                        },
+                        "subdivisions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 131072
+                        },
+                        "approximation": {
+                          "const": "arc_closed_form_directional_intensified"
+                        },
+                        "coefficient_basis": {
+                          "const": "arc_end_j_force_and_uniform_intensities_binary64_enclosures"
+                        },
+                        "enclosure_scope": {
+                          "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                        },
+                        "i_in_plane": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "i_out_of_plane": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
