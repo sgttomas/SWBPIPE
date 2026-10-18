@@ -484,54 +484,54 @@ fn u5b_discriminator_wrong_values_are_separated_from_the_product_in_both_modes()
     }
 }
 
-/// The committed builder outputs (README "Binding to model 0.6.0").
-const COMMITTED: [(&str, &str); 40] = [
-    ("requests/AS-A.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-A.request.json")),
-    ("requests/AS-A-ER.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-A-ER.request.json")),
-    ("requests/AS-A-R.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-A-R.request.json")),
-    ("requests/AS-A-V.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-A-V.request.json")),
-    ("requests/AS-F.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-F.request.json")),
-    ("requests/AS-F-ER.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-F-ER.request.json")),
-    ("requests/AS-F-R.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-F-R.request.json")),
-    ("requests/AS-F-V.request.json", include_str!("../../../../validation/references/t4_u5b/requests/AS-F-V.request.json")),
-    ("requests/ER-A.request.json", include_str!("../../../../validation/references/t4_u5b/requests/ER-A.request.json")),
-    ("requests/ER-F.request.json", include_str!("../../../../validation/references/t4_u5b/requests/ER-F.request.json")),
-    ("requests/L2-CL-2E11.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-CL-2E11.request.json")),
-    ("requests/L2-CL-2E3.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-CL-2E3.request.json")),
-    ("requests/L2-CL-2E5.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-CL-2E5.request.json")),
-    ("requests/L2-CL-2E7.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-CL-2E7.request.json")),
-    ("requests/L2-CL-2E9.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-CL-2E9.request.json")),
-    ("requests/L2-PR-2E11.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-PR-2E11.request.json")),
-    ("requests/L2-PR-2E3.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-PR-2E3.request.json")),
-    ("requests/L2-PR-2E5.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-PR-2E5.request.json")),
-    ("requests/L2-PR-2E7.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-PR-2E7.request.json")),
-    ("requests/L2-PR-2E9.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L2-PR-2E9.request.json")),
-    ("requests/L4-CL-2E11.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-CL-2E11.request.json")),
-    ("requests/L4-CL-2E3.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-CL-2E3.request.json")),
-    ("requests/L4-CL-2E5.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-CL-2E5.request.json")),
-    ("requests/L4-CL-2E7.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-CL-2E7.request.json")),
-    ("requests/L4-CL-2E9.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-CL-2E9.request.json")),
-    ("requests/L4-PR-2E11.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-PR-2E11.request.json")),
-    ("requests/L4-PR-2E3.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-PR-2E3.request.json")),
-    ("requests/L4-PR-2E5.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-PR-2E5.request.json")),
-    ("requests/L4-PR-2E7.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-PR-2E7.request.json")),
-    ("requests/L4-PR-2E9.request.json", include_str!("../../../../validation/references/t4_u5b/requests/L4-PR-2E9.request.json")),
-    ("requests/MO-F.request.json", include_str!("../../../../validation/references/t4_u5b/requests/MO-F.request.json")),
-    ("requests/MO-T.request.json", include_str!("../../../../validation/references/t4_u5b/requests/MO-T.request.json")),
-    ("requests/OP-4.request.json", include_str!("../../../../validation/references/t4_u5b/requests/OP-4.request.json")),
-    ("requests/OP-Y.request.json", include_str!("../../../../validation/references/t4_u5b/requests/OP-Y.request.json")),
-    ("requests/OP-Z.request.json", include_str!("../../../../validation/references/t4_u5b/requests/OP-Z.request.json")),
-    ("requests/RR-P.request.json", include_str!("../../../../validation/references/t4_u5b/requests/RR-P.request.json")),
-    ("requests/RR-U.request.json", include_str!("../../../../validation/references/t4_u5b/requests/RR-U.request.json")),
-    ("requests/SK-F.request.json", include_str!("../../../../validation/references/t4_u5b/requests/SK-F.request.json")),
-    ("requests/bindings.json", include_str!("../../../../validation/references/t4_u5b/requests/bindings.json")),
-    ("SHA256SUMS", include_str!("../../../../validation/references/t4_u5b/SHA256SUMS")),
+/// The committed builder outputs (README "Binding to model 0.6.0"), kept beside
+/// this test, outside the frozen reference tree (DEL-04-07 Design §1.4).
+const COMMITTED: [(&str, &str); 39] = [
+    ("AS-A.request.json", include_str!("t4_u5b_requests/AS-A.request.json")),
+    ("AS-A-ER.request.json", include_str!("t4_u5b_requests/AS-A-ER.request.json")),
+    ("AS-A-R.request.json", include_str!("t4_u5b_requests/AS-A-R.request.json")),
+    ("AS-A-V.request.json", include_str!("t4_u5b_requests/AS-A-V.request.json")),
+    ("AS-F.request.json", include_str!("t4_u5b_requests/AS-F.request.json")),
+    ("AS-F-ER.request.json", include_str!("t4_u5b_requests/AS-F-ER.request.json")),
+    ("AS-F-R.request.json", include_str!("t4_u5b_requests/AS-F-R.request.json")),
+    ("AS-F-V.request.json", include_str!("t4_u5b_requests/AS-F-V.request.json")),
+    ("ER-A.request.json", include_str!("t4_u5b_requests/ER-A.request.json")),
+    ("ER-F.request.json", include_str!("t4_u5b_requests/ER-F.request.json")),
+    ("L2-CL-2E11.request.json", include_str!("t4_u5b_requests/L2-CL-2E11.request.json")),
+    ("L2-CL-2E3.request.json", include_str!("t4_u5b_requests/L2-CL-2E3.request.json")),
+    ("L2-CL-2E5.request.json", include_str!("t4_u5b_requests/L2-CL-2E5.request.json")),
+    ("L2-CL-2E7.request.json", include_str!("t4_u5b_requests/L2-CL-2E7.request.json")),
+    ("L2-CL-2E9.request.json", include_str!("t4_u5b_requests/L2-CL-2E9.request.json")),
+    ("L2-PR-2E11.request.json", include_str!("t4_u5b_requests/L2-PR-2E11.request.json")),
+    ("L2-PR-2E3.request.json", include_str!("t4_u5b_requests/L2-PR-2E3.request.json")),
+    ("L2-PR-2E5.request.json", include_str!("t4_u5b_requests/L2-PR-2E5.request.json")),
+    ("L2-PR-2E7.request.json", include_str!("t4_u5b_requests/L2-PR-2E7.request.json")),
+    ("L2-PR-2E9.request.json", include_str!("t4_u5b_requests/L2-PR-2E9.request.json")),
+    ("L4-CL-2E11.request.json", include_str!("t4_u5b_requests/L4-CL-2E11.request.json")),
+    ("L4-CL-2E3.request.json", include_str!("t4_u5b_requests/L4-CL-2E3.request.json")),
+    ("L4-CL-2E5.request.json", include_str!("t4_u5b_requests/L4-CL-2E5.request.json")),
+    ("L4-CL-2E7.request.json", include_str!("t4_u5b_requests/L4-CL-2E7.request.json")),
+    ("L4-CL-2E9.request.json", include_str!("t4_u5b_requests/L4-CL-2E9.request.json")),
+    ("L4-PR-2E11.request.json", include_str!("t4_u5b_requests/L4-PR-2E11.request.json")),
+    ("L4-PR-2E3.request.json", include_str!("t4_u5b_requests/L4-PR-2E3.request.json")),
+    ("L4-PR-2E5.request.json", include_str!("t4_u5b_requests/L4-PR-2E5.request.json")),
+    ("L4-PR-2E7.request.json", include_str!("t4_u5b_requests/L4-PR-2E7.request.json")),
+    ("L4-PR-2E9.request.json", include_str!("t4_u5b_requests/L4-PR-2E9.request.json")),
+    ("MO-F.request.json", include_str!("t4_u5b_requests/MO-F.request.json")),
+    ("MO-T.request.json", include_str!("t4_u5b_requests/MO-T.request.json")),
+    ("OP-4.request.json", include_str!("t4_u5b_requests/OP-4.request.json")),
+    ("OP-Y.request.json", include_str!("t4_u5b_requests/OP-Y.request.json")),
+    ("OP-Z.request.json", include_str!("t4_u5b_requests/OP-Z.request.json")),
+    ("RR-P.request.json", include_str!("t4_u5b_requests/RR-P.request.json")),
+    ("RR-U.request.json", include_str!("t4_u5b_requests/RR-U.request.json")),
+    ("SK-F.request.json", include_str!("t4_u5b_requests/SK-F.request.json")),
+    ("bindings.json", include_str!("t4_u5b_requests/bindings.json")),
 ];
 const CASE_NAMES: [&str; 38] = ["AS-A", "AS-A-ER", "AS-A-R", "AS-A-V", "AS-F", "AS-F-ER", "AS-F-R", "AS-F-V", "ER-A", "ER-F", "L2-CL-2E11", "L2-CL-2E3", "L2-CL-2E5", "L2-CL-2E7", "L2-CL-2E9", "L2-PR-2E11", "L2-PR-2E3", "L2-PR-2E5", "L2-PR-2E7", "L2-PR-2E9", "L4-CL-2E11", "L4-CL-2E3", "L4-CL-2E5", "L4-CL-2E7", "L4-CL-2E9", "L4-PR-2E11", "L4-PR-2E3", "L4-PR-2E5", "L4-PR-2E7", "L4-PR-2E9", "MO-F", "MO-T", "OP-4", "OP-Y", "OP-Z", "RR-P", "RR-U", "SK-F"];
 
-/// The builder's request files, `requests/bindings.json` (each request's
-/// SHA-256 beside its case's `case_sha256`) and `SHA256SUMS`: every existing
-/// line unchanged, then one added line per added file. No frozen byte moves.
+/// The builder's request files and `bindings.json` (each request's SHA-256
+/// beside its case's `case_sha256`), under `tests/t4_u5b_requests/`. The
+/// frozen reference tree is not touched.
 fn request_files() -> BTreeMap<String, Vec<u8>> {
     use sha2::{Digest, Sha256};
     let oracle = t4_u5b::oracle();
@@ -539,7 +539,7 @@ fn request_files() -> BTreeMap<String, Vec<u8>> {
     let mut bindings = serde_json::Map::new();
     for name in CASE_NAMES {
         let case = &oracle["cases"][name];
-        let path = format!("requests/{name}.request.json");
+        let path = format!("{name}.request.json");
         let bytes = t4_u5b::request_bytes(&t4_u5b::request(name, case));
         bindings.insert(name.to_string(), serde_json::json!({
             "case_description": case["case_description"], "case_sha256": case["case_sha256"],
@@ -548,16 +548,10 @@ fn request_files() -> BTreeMap<String, Vec<u8>> {
         files.insert(path, bytes);
     }
     let record = serde_json::json!({
-        "binding": "README \"Binding to model 0.6.0\": one model 0.6.0 request per case, authored by the shared builder (core/product_physics/tests/common/t4_u5b.rs) from the SHA-bound case description and its t4_u5a base; only request bytes and hashes are added, and no oracle value, case description or existing pin moves",
+        "binding": "validation/references/t4_u5b README \"Binding to model 0.6.0\": one model 0.6.0 request per case, authored by the shared builder (core/product_physics/tests/common/t4_u5b.rs) from the SHA-bound case description and its t4_u5a base, kept beside the headless t4_u5b test outside the frozen reference tree; only request bytes and hashes are added, and no oracle value, case description or reference file moves",
         "cases": bindings,
     });
-    files.insert("requests/bindings.json".into(), t4_u5b::request_bytes(&record));
-    let committed = COMMITTED.iter().find(|(p, _)| *p == "SHA256SUMS").unwrap().1;
-    let mut sums: String = committed.lines().filter(|line| !line.contains("  requests/")).map(|line| format!("{line}\n")).collect();
-    for (path, bytes) in &files {
-        sums.push_str(&format!("{:x}  {path}\n", Sha256::digest(bytes)));
-    }
-    files.insert("SHA256SUMS".into(), sums.into_bytes());
+    files.insert("bindings.json".into(), t4_u5b::request_bytes(&record));
     files
 }
 
@@ -565,11 +559,8 @@ fn request_files() -> BTreeMap<String, Vec<u8>> {
 fn u5b_committed_requests_are_the_builders_bytes() {
     let files = request_files();
     assert_eq!(files.len(), COMMITTED.len());
-    // The frozen part of SHA256SUMS is a prefix: lines are only added.
-    let frozen = COMMITTED.iter().find(|(p, _)| *p == "SHA256SUMS").unwrap().1.lines().filter(|l| !l.contains("  requests/")).count();
-    assert_eq!(frozen, 41, "t4_u5b's frozen SHA256SUMS lines");
     if std::env::var("T4_U5B_WRITE_REQUESTS").as_deref() == Ok("1") {
-        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../validation/references/t4_u5b");
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/t4_u5b_requests");
         for (path, bytes) in &files {
             std::fs::write(root.join(path), bytes).unwrap();
         }

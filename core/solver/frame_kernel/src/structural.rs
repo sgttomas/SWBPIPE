@@ -128,6 +128,11 @@ pub struct StructuralSystem<'a> {
     pub free_dofs: &'a [usize],
     pub prescribed: &'a [(usize, f64)],
     pub contributions: Option<&'a [StiffnessContribution]>,
+    /// The exclusive end offset in `contributions` of each element, in order,
+    /// from the caller's element list (T4-U5b round 3): strictly increasing,
+    /// the last equal to the number of contributions. `None` makes every
+    /// contribution its own element (the per-entry absorption rule).
+    pub contribution_groups: Option<&'a [usize]>,
     pub symmetry: Option<SymmetryEvidence<'a>>,
 }
 /// Typed structural system (S11-K): today's `StructuralSystem` layout plus the
@@ -172,6 +177,7 @@ impl<'a> StructuralSystem<'a> {
                 free_dofs,
                 prescribed,
                 contributions,
+                contribution_groups: None,
                 symmetry,
             },
             force,
@@ -189,6 +195,20 @@ pub struct FormationCheckedSystem<'a> {
     /// The ledger force of a typed system (S11-K); `None` for a legacy vector.
     force: Option<&'a AssembledForce>,
     source: &'a FormationSource<'a>,
+}
+impl<'a> StructuralSystem<'a> {
+    /// The element grouping of `contributions` (see `contribution_groups`).
+    pub fn with_contribution_groups(mut self, groups: &'a [usize]) -> Self {
+        self.contribution_groups = Some(groups);
+        self
+    }
+}
+impl<'a> AssembledStructuralSystem<'a> {
+    /// The element grouping of `contributions` (see `contribution_groups`).
+    pub fn with_contribution_groups(mut self, groups: &'a [usize]) -> Self {
+        self.system.contribution_groups = Some(groups);
+        self
+    }
 }
 impl<'a> StructuralSystem<'a> {
     /// Attaches the formation source the D-5 check re-forms from.
@@ -902,21 +922,102 @@ fn contribution_sums(
     };
     let n = system.force.len();
     let mut sums = vec![vec![Expansion::default(); n]; n];
-    for entry in entries {
+    let mut absorption = ElementAbsorption::new(system.contribution_groups, entries.len(), system.free_dofs, n)?;
+    for (index, entry) in entries.iter().enumerate() {
         if entry.row >= n || entry.col >= n || !entry.value.is_finite() {
             return Err(StructuralError::InvalidInput("contribution"));
         }
         let sum = &mut sums[entry.row][entry.col];
         let old = sum.round()?;
         sum.add(entry.value)?;
-        if entry.row == entry.col && entry.value > 0.0 && old != 0.0 && sum.round()? == old {
-            return Err(unresolved(
-                "positive diagonal contribution absorbed by assembly; stabilization unresolved",
-                Some(entry.row),
-            ));
-        }
+        let on_nonzero = entry.row == entry.col && entry.value > 0.0 && old != 0.0;
+        let absorbed = on_nonzero && sum.round()? == old;
+        absorption.record(index, on_nonzero, absorbed, entry.row)?;
     }
     Ok(Some(sums))
+}
+/// The absorbed-diagonal refusal, per element (T4-U5b round 3, option (a)).
+///
+/// A diagonal contribution is *absorbed* when it is positive, the exact
+/// running sum of its diagonal already rounds to a nonzero value, and adding
+/// it leaves that rounded value unchanged.
+///
+/// - Without element groups (`contribution_groups: None`) every contribution
+///   is its own element and any absorbed contribution is refused at its DOF:
+///   the per-entry rule, unchanged.
+/// - With the caller's exact element groups, a *candidate* is a positive
+///   diagonal contribution at a free DOF whose running sum already rounds to a
+///   nonzero value. An element is refused exactly when it has at least one
+///   candidate and every candidate is absorbed: the solved (free) system then
+///   represents none of that element's stiffness where it meets the rest of
+///   the model. The refusal names the element's first absorbed diagonal
+///   contribution, at any DOF, as the per-entry rule did. An element with a
+///   represented candidate (for example a rank-1 tie rod whose diagonal is
+///   negligible only along some global axes) is not refused. Diagonals at
+///   prescribed DOFs never enter the free system and are no candidates.
+///
+/// The downstream contribution audit still bounds every absorbed entry.
+pub(crate) struct ElementAbsorption<'g> {
+    groups: Option<&'g [usize]>,
+    free: Vec<bool>,
+    group: usize,
+    end: usize,
+    candidates: usize,
+    absorbed_candidates: usize,
+    first: Option<usize>,
+}
+impl<'g> ElementAbsorption<'g> {
+    /// `free_dofs` are the system's free global DOFs (`n` in all).
+    pub(crate) fn new(groups: Option<&'g [usize]>, len: usize, free_dofs: &[usize], n: usize) -> Result<Self, StructuralError> {
+        if let Some(ends) = groups {
+            let increasing = ends.windows(2).all(|w| w[0] < w[1]);
+            if !increasing || ends.first().is_some_and(|&e| e == 0) || ends.last().copied().unwrap_or(0) != len {
+                return Err(StructuralError::InvalidInput("contribution groups"));
+            }
+        }
+        let mut free = vec![false; n];
+        for &dof in free_dofs {
+            if let Some(slot) = free.get_mut(dof) {
+                *slot = true;
+            }
+        }
+        let end = groups.map_or(1, |ends| ends.first().copied().unwrap_or(0));
+        Ok(Self { groups, free, group: 0, end, candidates: 0, absorbed_candidates: 0, first: None })
+    }
+    /// Records contribution `index` (in order) at diagonal `dof` when
+    /// `diagonal`: `on_nonzero` when it is positive and its running sum already
+    /// rounded to a nonzero value, `absorbed` when that rounded value is
+    /// unchanged by it. Decides the element at its last contribution.
+    pub(crate) fn record(&mut self, index: usize, on_nonzero: bool, absorbed: bool, dof: usize) -> Result<(), StructuralError> {
+        let candidate = on_nonzero && (self.groups.is_none() || self.free.get(dof).copied().unwrap_or(false));
+        if candidate {
+            self.candidates += 1;
+            if absorbed {
+                self.absorbed_candidates += 1;
+            }
+        }
+        if absorbed {
+            self.first.get_or_insert(dof);
+        }
+        if index + 1 < self.end {
+            return Ok(());
+        }
+        if self.candidates > 0 && self.absorbed_candidates == self.candidates {
+            return Err(unresolved(
+                "positive diagonal contribution absorbed by assembly; stabilization unresolved",
+                self.first,
+            ));
+        }
+        self.group += 1;
+        self.end = match self.groups {
+            Some(ends) => ends.get(self.group).copied().unwrap_or(usize::MAX),
+            None => index + 2,
+        };
+        self.candidates = 0;
+        self.absorbed_candidates = 0;
+        self.first = None;
+        Ok(())
+    }
 }
 fn contribution_differences(
     system: &StructuralSystem<'_>,
@@ -2880,6 +2981,8 @@ pub fn unscale_structural_error(
 }
 
 #[cfg(test)]
+mod absorption_tests;
+#[cfg(test)]
 mod kf2_witness_tests;
 #[cfg(test)]
 mod s11f_tests;
@@ -2901,6 +3004,7 @@ mod tests {
             free_dofs: free,
             prescribed: bc,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         }
     }

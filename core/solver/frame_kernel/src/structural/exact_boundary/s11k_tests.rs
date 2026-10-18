@@ -44,6 +44,7 @@ fn k8_force_coverage_accepts_the_correctly_rounded_net_and_refuses_corruption() 
             free_dofs: &[],
             prescribed: &fixed,
             contributions: Some(&cs),
+            contribution_groups: None,
             symmetry: None,
         };
         let result = Context::new(
@@ -87,6 +88,7 @@ fn k8_stiffness_coverage_accepts_the_correctly_rounded_net_and_refuses_corruptio
             free_dofs: &[],
             prescribed: &fixed,
             contributions: Some(&cs),
+            contribution_groups: None,
             symmetry: None,
         };
         let result = Context::new(

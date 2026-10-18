@@ -116,6 +116,7 @@ mod tests {
                 free_dofs: &[1],
                 prescribed: &[(0, 1.0)],
                 contributions: None,
+                contribution_groups: None,
                 symmetry: None,
             };
             let solved = if sparse {
@@ -145,6 +146,7 @@ mod tests {
                 free_dofs: &[0],
                 prescribed: &[],
                 contributions: None,
+                contribution_groups: None,
                 symmetry: None,
             };
             let solved = if sparse {
