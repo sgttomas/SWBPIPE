@@ -16,6 +16,56 @@ mod t4_u5b;
 
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 
+/// One load case's displacement publication, as `published_nodal_displacements`
+/// formed it (test-only probe in `run_case`).
+#[derive(Debug, Clone)]
+pub(crate) struct DisplacementPublication {
+    pub case_id: String,
+    pub bound: Option<MemberBoundInputs>,
+    pub solve: Vec<f64>,
+    pub published: Vec<f64>,
+}
+
+thread_local! {
+    pub(crate) static DISPLACEMENT_PUBLICATION_PROBE: std::cell::RefCell<Option<Vec<DisplacementPublication>>> = const { std::cell::RefCell::new(None) };
+}
+
+/// Runs `run` with the probe armed and returns its records.
+pub(crate) fn with_publication_probe<T>(run: impl FnOnce() -> T) -> (T, Vec<DisplacementPublication>) {
+    DISPLACEMENT_PUBLICATION_PROBE.with(|probe| *probe.borrow_mut() = Some(Vec::new()));
+    let out = run();
+    let records = DISPLACEMENT_PUBLICATION_PROBE.with(|probe| probe.borrow_mut().take().unwrap());
+    (out, records)
+}
+
+/// The exact corrected displacement of every DOF, rounded once: the value the
+/// rule publishes where the bound exists and every component forms.
+pub(crate) fn corrected(record: &DisplacementPublication) -> Vec<f64> {
+    let bound = record.bound.as_ref().expect("a bound");
+    (0..record.solve.len()).map(|dof| {
+        let mut sum = open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator::new();
+        for v in [record.solve[dof], bound.w[dof], bound.w2[dof]] { sum.add(v).unwrap(); }
+        let v = sum.round().unwrap();
+        if v == 0.0 { 0.0 } else { v }
+    }).collect()
+}
+
+/// Every nodal displacement row of a single-case run equals `expected`
+/// (SI, by DOF) in its published unit, bit for bit.
+pub(crate) fn assert_nodal_rows(results: &[ResultItem], node_ids: &[&str], expected: &[f64], label: &str) {
+    const TAILS: [(&str, f64); 6] = [("ux", 1000.0), ("uy", 1000.0), ("uz", 1000.0), ("rx", 1.0), ("ry", 1.0), ("rz", 1.0)];
+    let mut checked = 0;
+    for (node, id) in node_ids.iter().enumerate() {
+        for (k, (tail, scale)) in TAILS.iter().enumerate() {
+            let row_id = format!("result:disp:{}:{tail}", stable_suffix(id));
+            let row = results.iter().find(|r| r.id == row_id).unwrap_or_else(|| panic!("{label}: {row_id}"));
+            assert_eq!(row.value.to_bits(), (expected[node * DOF_PER_NODE + k] * scale).to_bits(), "{label}: {row_id}");
+            checked += 1;
+        }
+    }
+    assert!(checked > 0, "{label}");
+}
+
 fn solve(request: &Value, mode: PreviewSolverMode, force_binary64: bool) -> Value {
     U4A_FORCE_BINARY64.with(|flag| flag.set(force_binary64));
     let source = run_linear_static_preview_value_with_mode(request.clone(), mode);
@@ -117,4 +167,27 @@ fn preview_physics_2_publishes_the_corrected_displacement_only_with_the_bound() 
         assert_eq!(nodal_bits(&sensitive), nodal_bits(&solve(&milestone, mode, true)), "{mode:?}: a case without the bound keeps the solve's u");
         assert_magnitudes(&sensitive, &format!("milestone {mode:?}"));
     }
+}
+
+/// Codex scrutiny 4 (a): a present bound with one component that cannot be
+/// formed (its exact sum overflows binary64) publishes the solve's own u for
+/// the whole case, the formable component included; without the overflow the
+/// formable component is corrected.
+#[test]
+fn an_unformable_component_falls_back_for_the_whole_case() {
+    let bound = |w1: f64| MemberBoundInputs {
+        w: vec![2.0_f64.powi(-40), w1],
+        w2: vec![0.0, 0.0],
+        exponents: vec![0, 0],
+        lambda_sigma: 0.0,
+    };
+    let u = [1.0, f64::MAX];
+    let formed = published_nodal_displacements(&u, Some(&bound(0.0)));
+    assert_eq!(formed.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), [(1.0 + 2.0_f64.powi(-40)).to_bits(), f64::MAX.to_bits()]);
+    let unformable = published_nodal_displacements(&u, Some(&bound(f64::MAX)));
+    assert_eq!(unformable.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), u.map(f64::to_bits), "the whole case keeps u");
+    // A bound shorter than u (a component outside it) is unformable too.
+    let short = MemberBoundInputs { w: vec![2.0_f64.powi(-40)], w2: vec![0.0], exponents: vec![0], lambda_sigma: 0.0 };
+    assert_eq!(published_nodal_displacements(&[1.0, 2.0], Some(&short)), [1.0, 2.0]);
+    assert_eq!(published_nodal_displacements(&u, None), u);
 }

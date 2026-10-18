@@ -271,3 +271,30 @@ fn gap_cases_keep_their_recovery_basis_branch() {
         }
     }
 }
+
+/// T4-U5b item 6 (Codex scrutiny 4 (b)): a nonlinear case whose converged
+/// support state is not established (F-1 BOUNDARY, exactly at capacity) has
+/// no bound, so every nodal row is the solve's own u bit for bit; its
+/// confirmed siblings (STICK, SLIDE-POS) publish the corrected displacement.
+#[test]
+fn a_refused_confirmation_publishes_the_solve_displacement() {
+    use crate::corrected_displacement_tests::{assert_nodal_rows, corrected, with_publication_probe};
+    let request = current_reference_request(&REFERENCES[0]);
+    let nodes: Vec<String> = request["model"]["nodes"].as_array().unwrap().iter().map(|n| n["id"].as_str().unwrap().to_string()).collect();
+    let nodes: Vec<&str> = nodes.iter().map(String::as_str).collect();
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        for (case, refused) in [("load:BOUNDARY", true), ("load:STICK", false), ("load:SLIDE-POS", false)] {
+            let at = format!("{case} {mode:?}");
+            let (output, records) = with_publication_probe(|| run_linear_static_preview_value_with_mode(single_case(&request, case), mode).unwrap());
+            assert_eq!(output.status.mechanics, "MECHANICS_SOLVED", "{at}");
+            let integrity = output.diagnostics.iter().find(|d| d.id == integrity_diagnostic_id(case)).unwrap();
+            assert_eq!(integrity.message.contains("converged support state is not established"), refused, "{at}: {}", integrity.message);
+            assert_eq!(records.len(), 1, "{at}");
+            let record = &records[0];
+            assert_eq!(record.bound.is_none(), refused, "{at}");
+            let expected = if refused { record.solve.clone() } else { corrected(record) };
+            assert_eq!(record.published, expected, "{at}");
+            assert_nodal_rows(&output.results, &nodes, &expected, &at);
+        }
+    }
+}

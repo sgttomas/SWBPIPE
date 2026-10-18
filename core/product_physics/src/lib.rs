@@ -5358,6 +5358,17 @@ fn solve_prepared_load_case(
     let mut recovery_records = Vec::new();
     require_finite_mechanics(displacements.iter().copied())?;
     let published_displacements = published_nodal_displacements(&displacements, member_bound);
+    #[cfg(test)]
+    corrected_displacement_tests::DISPLACEMENT_PUBLICATION_PROBE.with(|probe| {
+        if let Some(records) = probe.borrow_mut().as_mut() {
+            records.push(corrected_displacement_tests::DisplacementPublication {
+                case_id: load_case.id.clone(),
+                bound: member_bound.cloned(),
+                solve: displacements.to_vec(),
+                published: published_displacements.clone(),
+            });
+        }
+    });
     // The nonlinear supports' final-displacement rows state the node's
     // displacement at the support DOF: with the bound they carry the same
     // published (corrected) value as the nodal row.
