@@ -337,7 +337,8 @@ N_eff = S + pA_i, and pA_i is constant along the member, so N_eff″ = S″.
 tangent frame at ψ: F(ψ) = F_beyond + w R Δψ, M(ψ), and their exact derivatives. The bound terms
 are F_max = |F(0)| + |w|Rφ and M_max = |M(0)| + RφF_max, with F the pressure-free statics force (S
 on pressurized arcs). |w| is an upward bound of the norm of Σ_k w_k over `uniform_intensities`,
-for example Σ_k |w_k| rounded upward. Taking the end at which they start does not change the bound.
+for example Σ_k |w_k| rounded upward. Either end gives a valid curvature bound. The values differ,
+and the implementation starts from end j.
 
 **Arithmetic and where it lives.** Every evaluation of f or f′ at a point is an enclosure, in
 the frame kernel's existing ball arithmetic (`Balls`/`Wide2`, now `pub(super)` in
@@ -681,8 +682,15 @@ two kinds:
     an unknown member; a non-finite or non-positive stiffness; a non-finite reference extension;
     a wrong dimension; an empty source. These are JR §5's "duplicate rods, missing offsets,
     contradictory hardware" (for example `untied` with `rods`).
-  - `JOINT_TIE_ROD_ZERO_LENGTH`: l = |b_j − b_i| is zero. The check uses the represented
-    difference (x_j − x_i) + (o_j − o_i), formed componentwise as the connector forms r.
+  - `JOINT_TIE_ROD_ZERO_LENGTH`: the represented length is degenerate. The represented difference
+    is (x_j − x_i) + (o_j − o_i), formed componentwise as the connector forms r. The length counts
+    as degenerate when l ≤ 32·u·(‖x_j − x_i‖∞ + ‖o_i‖∞ + ‖o_j‖∞), with u = 2^-53, decided exactly or
+    by directed rounding. A length at roundoff level would otherwise give a noise direction. This
+    is a representation guard, like the connector's `ALIGNMENT_GUARD`, not a physical tolerance.
+    Physical near-perpendicular directions stay admitted (§3.4).
+  - `JOINT_TIE_ROD_INPUT_INVALID` (range): a rod whose C coefficients or reference load cannot be
+    represented. This covers an overflowing offset cross product, and |k·e_ref| below the
+    exact-split floor. It is refused at construction, never as a panic.
 - **Model findings come first.** These are connector model findings (`model_findings`), so §1
   precedence applies and a refused listed connector carries only its code.
 - **U5a's hardware condition is lifted for rods.** U5a admission condition 2 (joint-pressure-thrust.md
@@ -726,13 +734,21 @@ recovery is T_r = k_r(C d − e_ref).
     six modes on generic skew rods.
 - **K-D5.**
   - FK's formation check re-forms each rod's stiffness at p from its binary64 inputs: the node
-    coordinates, Q, the offsets and k_r. n and l are formed in ball arithmetic.
+    coordinates, Q, the authored local offsets and k_r. It uses plain 128-bit arithmetic, as frames
+    and connectors are formed, because the intended stiffness has no radius slot. ε_E measures
+    the difference between that p re-formation and the binary64 element entry by entry, including
+    the rounding of o = fl(Q·offset). Ball arithmetic forms n and l for the reference load and the
+    certified recovery.
+  - As built, the rods ride on their connector (`ObjectiveConnector::with_tie_rods`). Each remains
+    its own element, with its own Ke, reference load, K-D5 block, family and certified recovery,
+    walked after all connectors and before the arcs in every assembly, census, ε_E and reaction
+    pass.
   - A new family `LoadFormula::TieRodReference { connector, rod, … }` re-forms +Cᵀk_r e_ref at p.
     Its summand identity is `{connector}:{rod}:tie_rod_reference`. "One ε": omitted only when
     e_ref is exactly 0.
   - Certified rod recovery `certify_tie_rod_recovery` gives T_r as a certified row of the
-    corrected displacement. Its radius comes from the displacement ball through |C| and from
-    k_r's formation.
+    corrected displacement. Its radius comes from the displacement ball and from C's ball: k_r is
+    an exact input.
   - W2 forms the same element at 2^b, with classification and the complete manifest retained.
 - **Supplier need.** The element, its family and its certified recovery are DEL-04-01's (§8).
   DEL-04-01 Design `kd5-member-relative-bound.md` §1 gains the family row when it lands.
