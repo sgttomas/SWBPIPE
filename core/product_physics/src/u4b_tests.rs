@@ -4,9 +4,10 @@
 //! both entries (DEL-04-07 Design `u4b-u5b-implementation.md` §7.1).
 //!
 //! The requests are formed in memory from the SHA-bound `cases.json`; their
-//! own SHA-256 values are pinned here ([`REQUEST_SHA256`]). Recording them in
-//! the oracle needs a generator change (its `request_sha256` is a fixed
-//! string), which is the reference owner's.
+//! own SHA-256 values are pinned here ([`REQUEST_SHA256`]). The frozen tree
+//! stays unchanged: no request or request SHA-256 is written into
+//! `oracle.json`, and the binding stays pinned in this test (design §1.4, as
+//! for t4_u5b).
 use super::*;
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -278,6 +279,29 @@ fn check_case(out: &MechanicsEnvelope, case: &Value, label: &str, agreement: &mu
         let arc = derived["kind"] != "straight";
         let ro = n(&derived["section_bases"][if exact { "nominal_section" } else { "preview_single_section" }]["ro"]);
         for station in STATIONS {
+            // §7.1 (review 7(a)): the j-side section resultants against the
+            // published force and moment rows (no section basis): the section rows
+            // inside and at end_j, and at end_i the node-on-element end rows, whose
+            // sign is the opposite of the j-side cut. On a pressurized exact member
+            // N_w is the wall force row and S the effective axial force row.
+            let resultants = &q["resultants_tangent_frame_j_side"][pipe][station];
+            let axial: &[(&str, &str)] = if resultants.get("N_w").is_some() {
+                &[("N_w", "pipe_wall_axial_force_v2"), ("S", "pipe_effective_axial_force_v2")]
+            } else {
+                &[("N", "element_local_axial_force")]
+            };
+            let mut compared = 0;
+            for &(key, kind) in axial.iter().chain(&[
+                ("V_y", "element_local_shear_force_y"), ("V_z", "element_local_shear_force_z"), ("T", "element_local_torsional_moment"),
+                ("M_y", "element_local_bending_moment_y"), ("M_z", "element_local_bending_moment_z"),
+            ]) {
+                let scale = scales.member(pipe, if key.starts_with('V') || key.starts_with('N') || key == "S" { "force" } else { "moment" });
+                let sign = if station == "end_i" && kind.starts_with("element_local_") { -1.0 } else { 1.0 };
+                let published = sign * value_on(out, kind, pipe, station, "", "preview_single_section");
+                agreement.close("resultants_tangent_frame_j_side", &format!("{label} {pipe} {station} {key}"), published, n(&resultants[key]), scale);
+                compared += 1;
+            }
+            assert_eq!(compared, resultants.as_object().unwrap().len(), "{label} {pipe} {station}: every resultant compared");
             for basis in bases {
                 let ne = &q["normal_extremes"][pipe][station][basis];
                 let normal_scale = scales.basis(pipe, basis, "normal_stress");
@@ -292,7 +316,11 @@ fn check_case(out: &MechanicsEnvelope, case: &Value, label: &str, agreement: &mu
                 let moment_scale = scales.member(pipe, "moment");
                 let modulus = n(&derived["section_bases"][*basis]["Z"]);
                 let hypot_moment = norm2(sy, sz) * 1e6 * modulus;
-                if ne["sigma_plus_fibre"].is_object() && hypot_moment > 1e-9 * moment_scale {
+                if !ne["sigma_plus_fibre"].is_object() {
+                    // §7.1 (review 7(b)): the oracle ties the fibre (zero bending); the
+                    // published hypot is zero within the criterion before the fibre is skipped.
+                    agreement.close("tied_fibre_hypot", &format!("{label} {pipe} {station} {basis} tied"), hypot_moment, 0.0, moment_scale);
+                } else if hypot_moment > 1e-9 * moment_scale {
                     let fibres = open_pipe_stress_stress_recovery::section_stress_quantities::normal_extreme_fibres(ro, sy, sz).expect("bending is nonzero");
                     for (k, key) in [(0, "sigma_plus_fibre"), (1, "sigma_minus_fibre")] {
                         agreement.close("fibre", &format!("{label} {pipe} {station} {basis} {key} y"), fibres[k][0], n(&ne[key]["y"]), ro);
