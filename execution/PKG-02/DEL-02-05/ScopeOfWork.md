@@ -30,11 +30,11 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > ##### Model-Document Version Contract
 >
 > - Owner decision, 2026-10-10: each format keeps only its current version ("as you recommended, no-compatibility principle carries"; direction: "nothing needs to be preserved for backwards compatibility"). This reverses the 2026-10-08 decision that kept model documents 0.1.0/0.2.0 as the pressure-free namespace.
-> - One current model-document version expresses models with or without pressure: `0.5.0`, the version B7 defines, as designed in DEL-05-02 Design (`b7-plan.md`, "Current model format") and accepted by HELP_HUMAN on 2026-10-10. Its `pressure_contract` is optional, and its absence makes the document pressure-free.
+> - One current model-document version expresses models with or without pressure: `0.5.0`, the version B7 defines, as designed in DEL-04-08 Design (`b7-plan.md`, "Current model format") and accepted by HELP_HUMAN on 2026-10-10. Its `pressure_contract` is optional, and its absence makes the document pressure-free.
 > - Every other version (`0.1.0`, `0.2.0`, `0.3.0`, `0.4.0`, or newer) is refused by name with a diagnostic that names the document's version and says to re-author it. Nothing is migrated, upgraded or down-migrated, and no migration code is kept.
 > - Version-check states: `current` for `0.5.0`; otherwise `unsupported_schema` (missing or non-semver version), `newer_than_supported`, or the named re-author refusal for an older version. There is no `stale`, `migrated` or `failed` state.
 > - UI evidence consumers (Project Validation, Export Review, Report persistence context) use one version evaluator.
-> - Current code: `0.5.0` is the one current version (`MODEL_SCHEMA_VERSION` in `core/product_physics/src/model_format.rs`, with the desktop's `model_document_version.rs` and `projectService.ts` evaluators). B7a refused `0.1.0`/`0.2.0` by name and removed the migration chain and its TypeScript mirror; B7b retired `0.3.0` and `0.4.0` the same way, as planned in DEL-05-02 Design (`b7-plan.md`). Each older version is refused with the re-author diagnostic `MODEL_SCHEMA_VERSION_RETIRED`; the runtime status name of that refusal is `retired_schema`.
+> - Current code: `0.5.0` is the one current version (`MODEL_SCHEMA_VERSION` in `core/product_physics/src/model_format.rs`, with the desktop's `model_document_version.rs` and `projectService.ts` evaluators). B7a refused `0.1.0`/`0.2.0` by name and removed the migration chain and its TypeScript mirror; B7b retired `0.3.0` and `0.4.0` the same way, as planned in DEL-04-08 Design (`b7-plan.md`). Each older version is refused with the re-author diagnostic `MODEL_SCHEMA_VERSION_RETIRED`; the runtime status name of that refusal is `retired_schema`.
 >
 
 ### CLM-004 — Identification
@@ -172,7 +172,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 
 > ##### Version Contract Integration
 >
-> The runtime authoring version is the single current model-document version in CLM-003. UI version checks consume one shared evaluator: `current` identifies that version; `unsupported_schema`, `newer_than_supported`, and the named re-author refusal for an older version are explicit refusal states. No migration runs. Since B7b, the former exact pressure model versions `0.3.0` and `0.4.0` are refused by name like every other older version, and only `0.5.0` reports `current` (DEL-05-02 Design, `b7-plan.md`).
+> The runtime authoring version is the single current model-document version in CLM-003. UI version checks consume one shared evaluator: `current` identifies that version; `unsupported_schema`, `newer_than_supported`, and the named re-author refusal for an older version are explicit refusal states. No migration runs. Since B7b, the former exact pressure model versions `0.3.0` and `0.4.0` are refused by name like every other older version, and only `0.5.0` reports `current` (DEL-04-08 Design, `b7-plan.md`).
 >
 
 ### CLM-014 — Requirements
@@ -207,7 +207,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > | REQ-02-05-024 | Rule-pack references persisted in projects shall carry enough metadata to identify private/public status, version/checksum, source note, redistribution status, and missing/private-reference diagnostics without exposing protected rule content in public artifacts. | `docs/SPEC.md` section 6; `docs/PRD.md` sections 12.2 and 12.4; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7 |
 > | REQ-02-05-025 | Create/open/save behavior shall preserve the local-first/private-data boundary by default; exact enforcement split between persistence operations, export/commit safeguards, and PKG-12 controls remains TBD. | `docs/CONTRACT.md` OPS-K-PRIV-1; `docs/PRD.md` sections 18.1-18.3; `docs/IP_AND_DATA_BOUNDARY.md` section 6 |
 > | REQ-02-05-026 | Optional human-review records, if stored, shall bind to specific model/rule/report hashes and use authority labels that do not survive content changes and do not imply software certification or automatic code compliance. | `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2; `docs/TYPES.md` section 4 |
-> Physical-package versioning: the owner closed DEC-028's compatibility window on 2026-10-10 ("Close: one version"). The `.opsproj` package reader accepts only the current package version (`schema_version 1.0.0` today) and refuses older versions by name, with no migration. No `.opsproj` reader exists yet (the report package writes 1.0.0 only), so this is the contract the reader implements; B7 recorded it as a contract only and added no reader (DEL-05-02 Design, `b7-plan.md`). This is the receiving contract for the DEL-08-01 source clause.
+> Physical-package versioning: the owner closed DEC-028's compatibility window on 2026-10-10 ("Close: one version"). The `.opsproj` package reader accepts only the current package version (`schema_version 1.0.0` today) and refuses older versions by name, with no migration. No `.opsproj` reader exists yet (the report package writes 1.0.0 only), so this is the contract the reader implements; B7 recorded it as a contract only and added no reader (DEL-04-08 Design, `b7-plan.md`). This is the receiving contract for the DEL-08-01 source clause.
 >
 
 ### CLM-015 — Contract Detail Tables
@@ -255,7 +255,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > |---|---|---|
 > | Current version | Validate and round-trip without version diagnostics. | Runtime version-check status `current`; the single current version is in CLM-003. |
 > | Unsupported schema | Return a structured diagnostic and avoid silent coercion. | Runtime status `unsupported_schema` (missing or non-semver version). |
-> | Older version | Refuse by name with a structured diagnostic that names the version and says to re-author; never migrate. | Owner decision 2026-10-10; B7a removed the code's `stale`/`migrated` path (DEL-05-02 Design, `b7-plan.md`), and the runtime status is `retired_schema`. |
+> | Older version | Refuse by name with a structured diagnostic that names the version and says to re-author; never migrate. | Owner decision 2026-10-10; B7a removed the code's `stale`/`migrated` path (DEL-04-08 Design, `b7-plan.md`), and the runtime status is `retired_schema`. |
 > | Newer-than-supported schema | Refuse, never down-migrate, and emit a structured diagnostic. | Runtime status `newer_than_supported`. |
 >
 

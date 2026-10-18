@@ -216,7 +216,7 @@ needs:
     table and reader; LIMITATIONS[3] and `results.v0.3` keep the section 8 contract,
     with `arc_chord_frame` retired.
   gating: true
-  evidence: execution/PKG-05/DEL-05-02/Design/b7-plan.md
+  evidence: execution/PKG-04/DEL-04-08/Design/b7-plan.md
 - from: DEL-04-08
   when: retained-table arc-vocabulary parity and reviewed-input binding
   condition: >-
@@ -225,10 +225,10 @@ needs:
     retained route publishes no arc rows. A change to the bound sentence or table
     requires the method's reviewed-input refresh and actual-source D3 registration.
   gating: true
-  evidence: execution/PKG-05/DEL-05-02/Design/b7-plan.md
+  evidence: execution/PKG-04/DEL-04-08/Design/b7-plan.md
 code_paths:
 # The product solve crate, including the retained method's producer whose contracts
-# DEL-05-02's Designs govern.
+# DEL-04-08's Designs and DEL-05-02's retained-combinations contract govern.
 - core/product_physics/**
 - core/solver/nonlinear_integration/**
 - core/model_operations/operation_applier/src/pressure_authoring.rs

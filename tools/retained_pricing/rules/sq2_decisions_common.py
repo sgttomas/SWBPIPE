@@ -380,7 +380,7 @@ REBIND = REBIND + [
 ]
 SITE_FROM_REBIND = [("retained_precision.rs:223", "1+4*64*(att+z)", RSR + "g5_native's tw(): one Run per attempted case and one per combination Call with a Run"),
                     ("retained_precision.rs:225", "1+4*64*(att+z)", RSR + "as :223")]
-# O-10 (T4's heads): rules keyed by name at the snapshot; their arguments are in DEL-05-02's
+# O-10 (T4's heads): rules keyed by name at the snapshot; their arguments are in DEL-04-08's
 # Design/retained-pricing-rules.md.
 exec(open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "o10_rules.py")).read())
 # B7b-VP: model 0.5.0's exact half adds validate_profile's per-pipe corrosion-allowance check (pressure_runtime.rs): on a

@@ -4,7 +4,7 @@
 
 **H-3 / M07 option A:** delete the flawed user-stiffness element and plumbing in the change that lands the live mechanical connector, T4-U3 (J-A plus J-B). Keep no historical copy. Until replacement, no model may silently skip an incomplete or unmapped joint; the residual shape with no connector, pipe reference, rates or annotation also takes the legacy refusal.
 
-The declared SP-1 exception covers only joint-containing models' refused diagnostic codes/text, 0.1.0/0.2.0 app joints becoming refused, and annotation warnings becoming disclosures. No admitted v2/v3 result changes. Anything beyond that requires an explicit decision. B7a removed the old result-row kind and renamed the summary count to `curved_bend_macro_element_count` (#1387; DEL-05-02 Design `b7-plan.md`, H-4 C1–C3).
+The declared SP-1 exception covers only joint-containing models' refused diagnostic codes/text, 0.1.0/0.2.0 app joints becoming refused, and annotation warnings becoming disclosures. No admitted v2/v3 result changes. Anything beyond that requires an explicit decision. B7a removed the old result-row kind and renamed the summary count to `curved_bend_macro_element_count` (#1387; DEL-04-08 Design `b7-plan.md`, H-4 C1–C3).
 
 The replacement uses `replaces_span`, not parallel/series ambiguity. A nonzero resolved eigenstrain or self-weight on the replaced span refuses with `JOINT_REPLACED_SPAN_LOAD_UNOWNED` until its producer is implemented. Applied-set presence matters: an explicit zero eigenstrain and a stored load not applied by a case remain admitted, consistent with the frozen references. Slot-table revision 01 still needs RV130 confirmation before code; its S20 wording must preserve this distinction.
 

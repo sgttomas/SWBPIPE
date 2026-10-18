@@ -115,7 +115,7 @@ needs:
   gating: true
 code_paths:
 # The frame kernel crate, including the retained kernel and the exact boundary whose methods
-# DEL-05-02's Designs govern.
+# DEL-04-08's Designs and DEL-05-02's retained-combinations contract govern.
 - core/solver/frame_kernel/**
 - core/solver/curved_bend/**
 - core/solver/sparse_direct/**

@@ -3,12 +3,12 @@
  "keys": {
   "lib.rs:675:orientation": {
    "as": "deleted",
-   "why": "FK lib.rs at the basis defines fn orientation in impl FrameElement (604) and impl UserStiffnessElement (675); a601e3706d (T4-U3) deletes UserStiffnessElement with its impl, so where the count falls to 1 the definition left is FrameElement's and this key's is the one gone (DEL-05-02 retained-pricing-rules.md, section A)"
+   "why": "FK lib.rs at the basis defines fn orientation in impl FrameElement (604) and impl UserStiffnessElement (675); a601e3706d (T4-U3) deletes UserStiffnessElement with its impl, so where the count falls to 1 the definition left is FrameElement's and this key's is the one gone (DEL-04-08 retained-pricing-rules.md, section A)"
   },
   "core/reporting/result_export/src/load_reference_source.rs:47": {
    "as": "deleted",
    "fn": "code",
-   "why": "B7b (A4/A5, 54018fe688): load_reference_source.rs is reduced to the current 16-line pre-pass (validate_pressure_source_evidence); the v2-era readers and their private fn code (the format! of SOURCE_LOAD_REFERENCE_{name}) are deleted with the load-reference-source-1 table, so this ID-audit site no longer exists (DEL-05-02 retained-pricing-rules.md, B7b)"
+   "why": "B7b (A4/A5, 54018fe688): load_reference_source.rs is reduced to the current 16-line pre-pass (validate_pressure_source_evidence); the v2-era readers and their private fn code (the format! of SOURCE_LOAD_REFERENCE_{name}) are deleted with the load-reference-source-1 table, so this ID-audit site no longer exists (DEL-04-08 retained-pricing-rules.md, B7b)"
   }
  }
 }

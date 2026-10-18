@@ -193,7 +193,7 @@ needs:
     A result the reader does not admit is unsupported, historical values only.
     The output policy keys each surface's decision on the reader's returned route.
   gating: true
-  evidence: execution/PKG-05/DEL-05-02/Design/b7-plan.md
+  evidence: execution/PKG-04/DEL-04-08/Design/b7-plan.md
 - from: DEL-04-08
   condition: >-
     The results viewer takes retained-source and retained-successor validation,

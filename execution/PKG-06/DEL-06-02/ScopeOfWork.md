@@ -30,7 +30,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > ##### PDU-024 Version Integration
 >
 > - Project-carried evaluator inputs consume DEL-02-05 model-document version handling: one current version, every other refused by name (DEL-02-05 CLM-003).
-> - Version-check diagnostics use DEL-02-05 CLM-003's states (`current`, `unsupported_schema`, `newer_than_supported`, named re-author refusal); the code names the re-author refusal `retired_schema` and, since B7, has no `stale` or `failed` state (DEL-05-02 Design, `b7-plan.md`).
+> - Version-check diagnostics use DEL-02-05 CLM-003's states (`current`, `unsupported_schema`, `newer_than_supported`, named re-author refusal); the code names the re-author refusal `retired_schema` and, since B7, has no `stale` or `failed` state (DEL-04-08 Design, `b7-plan.md`).
 > - No expression grammar, binding namespace, evaluator library, rule-pack fixture, or migration tooling is added.
 >
 

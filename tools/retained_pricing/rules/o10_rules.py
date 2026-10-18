@@ -1,7 +1,7 @@
 """O-10 rules (T4's heads), executed at the end of sq2_decisions_common.py (shared by routes L and E). Every key is
 resolved by name at the snapshot (`fnkey`), so the rules carry to any head without line numbers; a rule whose function
 does not exist at the snapshot is not added (it has nothing to bound there). The argument for each rule is in
-DEL-05-02 Design/retained-pricing-rules.md under the same label."""
+DEL-04-08 Design/retained-pricing-rules.md under the same label."""
 
 
 def fnkey(name, f):
@@ -189,7 +189,7 @@ if fnkey("classify_connectors", PP_ + "joint.rs"):
     ]
 
 # ---- O-10, T4 batch 2's final head (e9cc7e3f5f; HELP_HUMAN's rulings 3 and 5): classifications. Each new site is kept
-# priced (no zero); only its identifier and static arguments are classed. Arguments in DEL-05-02 Design/retained-pricing-rules.md, section C.
+# priced (no zero); only its identifier and static arguments are classed. Arguments in DEL-04-08 Design/retained-pricing-rules.md, section C.
 if fnkey("append_retained_source_not_joined", PP_ + "lib.rs"):
     _L = PP_ + "lib.rs"
     def _const_len(f, name):

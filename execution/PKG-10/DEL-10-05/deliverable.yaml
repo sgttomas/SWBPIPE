@@ -101,7 +101,7 @@ needs:
   condition: >-
     The runner's `read <reader>` verb consumes DEL-05-02's base-reader dispatch
     and verdicts (`reader_verdict`). Python product callers take the same verdict
-    through this verb; the runner adds no base-reader logic (Design b7-plan, R2).
+    through this verb; the runner adds no base-reader logic (DEL-04-08 Design b7-plan, R2).
   gating: true
   evidence: core/runner/headless/src/reader_binding.rs
 - from: DEL-04-08

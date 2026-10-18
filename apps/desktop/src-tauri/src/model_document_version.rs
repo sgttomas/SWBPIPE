@@ -1,4 +1,4 @@
-//! Model-document version check (DEL-02-05 CLM-003; DEL-05-02 Design
+//! Model-document version check (DEL-02-05 CLM-003; DEL-04-08 Design
 //! `b7-plan.md`, "Current model format").
 //!
 //! The in-document `schema_version` is the sole authority for the model-document

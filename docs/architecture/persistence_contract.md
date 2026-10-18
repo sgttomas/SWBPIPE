@@ -98,7 +98,7 @@ from model content (DEL-02-05 CLM-003):
 
 There is no product-schema migration: open and save never rewrite a model
 document, and no migration ledger record is written. The current model
-document version is 0.5.0 (`execution/PKG-05/DEL-05-02/Design/b7-plan.md`,
+document version is 0.5.0 (`execution/PKG-04/DEL-04-08/Design/b7-plan.md`,
 "Current model format"), and it is the only version that reports `current`;
 since B7b, the exact pressure model versions 0.3.0 and 0.4.0 are refused by
 name like every other older version.

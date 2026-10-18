@@ -437,7 +437,7 @@ Measured on the implementing head with an instrumented scratch copy of the code 
 | M27 a second formation-check entry | NI `r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry` |
 | M29 the product calls the adapter entry directly (implementation review I1), or names FK's confirmation plumbing | NI `r2_confirmation_entry_pin_kills_a_second_or_in_loop_entry` and `kd5_nonlinear_sources_name_no_formation_check_entry_point` (the reviewer's probe, which passed every S11-K test before the repair, now fails both) |
 
-**Pricing** (DEL-05-02 retained-pricing-rules.md §G). The static chain prices the confirmation's sites at multiplicity 0 under D1.6. The evidence-line site is charged positively (+15,309,300 B on TAV_text, TAV_W and TAV_X); 685 of 689 coefficients are unchanged. The block is regenerated and qualifies at the owner's M = 12 GiB (W3 sparse 10,206,071,081 B, dense 10,265,202,425 B, without R). A per-diagnostic id allocation in the evidence line's scan (62 MB on route E) was found by the pricing run and removed in code.
+**Pricing** (DEL-04-08 retained-pricing-rules.md §G). The static chain prices the confirmation's sites at multiplicity 0 under D1.6. The evidence-line site is charged positively (+15,309,300 B on TAV_text, TAV_W and TAV_X); 685 of 689 coefficients are unchanged. The block is regenerated and qualifies at the owner's M = 12 GiB (W3 sparse 10,206,071,081 B, dense 10,265,202,425 B, without R). A per-diagnostic id allocation in the evidence line's scan (62 MB on route E) was found by the pricing run and removed in code.
 
 **Runtime** (release `openpipestress-runner solve`, end to end, under the exclusive wrapper; median of 20 runs after 2 warm-ups; base = the merge base `c00eba0cf2`):
 
