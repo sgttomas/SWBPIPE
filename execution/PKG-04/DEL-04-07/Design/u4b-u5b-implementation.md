@@ -154,6 +154,8 @@ directional SIFs (§2.6) and the tie-rod hardware (§3.1).
 ### 1.3 Reviewed inputs
 
 The order of `REVIEWED_INPUTS` (`build_identity.rs`) is unchanged. These entries move:
+- index 1, `physics_source_recovery.schema.json` (the source treatment `derived_not_qualified`,
+  §4.3);
 - index 3, DEF-O;
 - index 4, the preview-retained table;
 - index 5, now the preview-physics-2 table;
@@ -164,7 +166,9 @@ The order of `REVIEWED_INPUTS` (`build_identity.rs`) is unchanged. These entries
 - index 10, now `results_pressure_2.v0.3.schema.json`;
 - index 11, now the pressure-2 table.
 
-All of these require the actual-source D3 (§6).
+All of these require the actual-source D3 (§6). PP's Cargo.lock (index 0) does not move. The
+arc maximum and its trigonometric enclosures live in the frame kernel, which PP already depends
+on (§2.3).
 
 ### 1.4 Re-authoring
 
@@ -260,121 +264,174 @@ The registered profile prices this through the row bounds in §6.
 
 ### 2.3 Normal-stress extremes and the arc maximum
 
-**Extremes.** σ⁺ = N_eff/A_b + hypot(M_y, M_z)/Z_b and σ⁻ = N_eff/A_b − hypot(M_y, M_z)/Z_b at
-each station and basis.
-- N_eff is N_w on a pressurized member of pressure-2 and N otherwise (t4_u4b item 3).
+**Extremes.** At each station and basis, σ⁺ = N_eff/A_b + hypot(M_y, M_z)/Z_b and
+σ⁻ = N_eff/A_b − hypot(M_y, M_z)/Z_b. N_eff is N_w on a pressurized member of pressure-2 and N
+otherwise (t4_u4b item 3).
+- **Formed from the published stress rows of the same station and basis.** Those rows are
+  already j-side section-cut quantities on every route: the stress recovery consumes the j-side
+  cuts (`lib.rs` around :5599 and :5661–5722), and arc stress rows carry the same j-side sign
+  (arc-frames-and-signs.md §1). So no end-i sign conversion arises, and no section operand is
+  needed. The element end-force rows, which are node-on-element, are never an operand. The
+  fixed sequence:
+  - σ_N, in MPa:
+    - on a member without the pressure family, the `element_local_axial_normal_stress` row;
+    - on a pressurized pressure-2 member, RN(`pipe_axial_membrane_stress_v2` / 1e6) of the
+      same station and basis. That row is N_w/A_s in Pa, and the axial component row is removed
+      there (`append_exact_pressure_results`).
+  - h = `norm2`(σ_y, σ_z), the shared correctly rounded norm (E15) of the
+    `element_local_bending_normal_stress_y` and `_z` rows (MPa).
+  - σ⁺ = RN(σ_N + h) and σ⁻ = RN(σ_N − h).
+
+  Every reader can recompute this bit for bit from the publication's own rows.
 - **Their fibres are not row metadata.** Row metadata is a closed five-field object under the
   unchanged 0.2/0.3 result formats (`result_export/src/lib.rs` `ResultMetadata`;
-  `results.v0.3.schema.yaml` row metadata, `additionalProperties: false`). The fibres are
-  determined by the published M_y, M_z rows of the same station: the outer-surface fibre
-  ±r_o(−M_z, M_y)/hypot(M_y, M_z), tied when hypot = 0. The basis text states this rule, and the
-  reference test compares the fibre it derives from the published rows with the oracle's
-  `sigma_plus_fibre` and `sigma_minus_fibre` (§7.1).
-- **Formation.** In binary64 from the same station's published resultants and the basis
-  section, by a fixed formula: σ± = RN(RN(N_eff/A_b) ± RN(h/Z_b)), with h = `norm2`(M_y, M_z)
-  the shared correctly rounded norm (E15). Every reader can therefore recompute it bit for bit. They are not certified
-  rows on any route: neither ordinary route attaches a K-D5 certificate to them, and in retained
-  successors they are `not_covered` (§4). Forming them from the published rows keeps each
-  publication self-consistent and makes them reproducible by every reader.
-- **The basis token.**
-  - On straights: `section_extremes_from_published_resultants_v1`.
-  - On arcs: the same token. The arc stress idealization is the U4a arc basis, already
-    disclosed in LIMITATIONS[3] and `BEND_LIMITATION`.
+  `results.v0.3.schema.yaml` row metadata, `additionalProperties: false`). The fibre is the
+  outer-surface point ±r_o(−σ_z, σ_y)/h in the section's local frame, tied when h = 0. It is
+  determined by the published bending rows, because σ_y = M_y/Z_b and σ_z = M_z/Z_b share Z_b.
+  The basis text states this rule, and the reference test derives the fibre and compares it with
+  the oracle's `sigma_plus_fibre` and `sigma_minus_fibre` (§7.1).
+- **No certificate.** Neither ordinary route attaches a K-D5 certificate to them. In retained
+  and source publications they are not covered (§4).
+- **Basis token:** `section_extremes_from_published_stress_rows_v1`, on straights and arcs. The
+  arc stress idealization is the U4a arc basis, already disclosed in LIMITATIONS[3] and
+  `BEND_LIMITATION`.
 
-**The arc maximum.** This is the maximum over ψ ∈ [0, φ] of f(ψ) = |N_eff(ψ)|/A_b + hypot(M_y(ψ), M_z(ψ))/Z_b
-(t4_u4b item 4). On pressure-2, N_eff = S + pA_i, and pA_i is constant along the member, so
-N_eff″ = S″.
-- **Operands.** The operands are the arc's published binary64 end-i section action cut(0) (on
-  the certified route, the certified cut row as published; otherwise the binary64 cut), the
-  uniform member load w per unit arc length as authored, R, φ and the basis section. This is the
-  straight precedent: the enclosure is of the represented binary64 problem, and solve error is
-  separate. The evidence states it in `enclosure_scope`, as the straight record does ("solution
-  error is separate").
-  - The implementation must confirm that the product's arc uniform load is a constant global
-    force per unit arc length (t4_u4b inferred convention 1, `certify_curved_uniform_load`).
-  - If it is not, that is reported before any code relies on the convention.
-- **Resultants.** The resultants along the arc follow the closed forms of t4_u4b item 4, in the
-  tangent frame at ψ: F(ψ) = F_beyond + w R Δψ, M(ψ), and their exact derivatives. The bound
-  terms are F_max = |F(0)| + |w|Rφ and M_max = |M(0)| + RφF_max, with F the pressure-free
-  statics force (S on pressurized arcs).
-- **Arithmetic.** Every evaluation of f at a point ψ is an enclosure.
-  - It uses the kernel's ball arithmetic at p, the arithmetic in which K-D5 forms arc tangents
-    (`formation_check`) and R-1 forms its arc quantities (`arc_certificate`).
-  - sin ψ, cos ψ and ψ are enclosed in that arithmetic, either with a polynomial enclosure that
-    has a rigorous remainder bound, or by forming them from the half-angle quantities as R-1
-    does. No libm transcendental enters a bound.
-  - The lower value of each evaluation is directed downward and the upper value upward.
-- **The method** is the certified branch-and-bound of t4_u4b item 4:
-  1. Start from a uniform grid of 4,096 cells in ψ.
-  2. Upper bound per cell: max(upper endpoint values) + K_up h²/8, with
-     K = (2R|w| + F_max)/A_b + (R²|w| + M_max + R F_max)/Z_b formed upward.
-  3. Lower bound: the largest directed lower endpoint value.
-  4. Bisect every cell whose upper bound exceeds the lower bound by more than the stopping gap.
-     The stopping gap is the existing `elastic_extrema` rule, gap ≤ 1e-12 Pa + 1e-12·lower
-     (`elastic_extrema.rs`, enforced by the readers at `physics_evidence.rs`), absolute floor
-     included, so a zero or near-zero arc maximum closes. Refuse at the existing limits of
-     131,072 subdivisions and depth 48, with a named reason.
-  5. Refine the governing location inside the governing cell by bisection on the sign of the
-     exact derivative f′, evaluated as an enclosure. Stop when the enclosure no longer resolves
-     the sign or the cell reaches one binary64 ulp in ψ. The published location is the
-     refinement's midpoint. On interior maxima the value gap alone fixes the location only to
-     about √(2·gap·f/K), and the refinement makes the location accurate to the derivative's
-     resolution.
-  6. Publish as the straight maximum publishes: the binary64 midpoint of [value_lower,
-     upper_bound], with both in the evidence.
-- **The evidence record.** Each arc's entry in `pipe_stress_extrema` is a closed record:
-  - `approximation`: `"arc_closed_form_section_statics"`;
-  - `local_fraction` = ψ*/φ and `psi_rad` = ψ*;
-  - `value_lower` and `upper_bound`;
-  - `coefficient_basis`: `"arc_end_i_cut_and_uniform_load_per_arc_length"`;
-  - `enclosure_scope`, as the straight record states it;
-  - `subdivisions` and `curvature_bound` (K).
+**The arc maximum.** This is the maximum over ψ ∈ [0, φ] of
+f(ψ) = |N_eff(ψ)|/A_b + hypot(M_y(ψ), M_z(ψ))/Z_b (t4_u4b item 4). ψ is measured from the
+authored node i, and the location published is ψ/φ (t4_u4b convention 7). On pressure-2,
+N_eff = S + pA_i, and pA_i is constant along the member, so N_eff″ = S″.
 
-  It carries no `span_index`. The straight record keeps its shape. These closed consumers gain
-  the arc branch:
-  - `physics_evidence.rs` (around :593–651) and `preview_physics_evidence.rs` (around :476);
-  - `retained_product.rs` (around :3031) and `source_receipt/composite.rs` (around :668);
-  - `schemas/stress_neutral_export.v0.3.schema.json` (around :2902–2945), `results.v0.3` and
-    `results_pressure_2`;
-  - the Python verifier.
+**Operands.** These are the arc's published binary64 end-i section action cut(0), the
+member's uniform load w per unit arc length, R, φ and the basis section.
+- w is the sum, with each one's load-state scale, of the case's `UniformCurved` primitives on
+  this arc (`lib.rs` around :11030–11077). One primitive is formed per authored component, and
+  generated self-weight is included.
+- The implementation must confirm that the arc uniform load is a constant global force per
+  unit arc length (t4_u4b inferred convention 1, `certify_curved_uniform_load`). If it is not,
+  that is reported before any code relies on it.
+- **This differs from the certified straight route.** That route re-forms its spans at p from
+  the corrected displacement (`certified_recovery.rs` around :1778–1786). The arc maximum
+  instead encloses the binary64 problem formed from the published cut(0) and the load, on both
+  routes. The evidence states this in `enclosure_scope`, together with "solution error is
+  separate".
 
-  Every one gains the branch together, and each new text is priced (§6). Arcs never reach the
-  retained or source consumers (D7), and those consumers refuse an arc record by name.
-- **Where it lives.** The method is DEL-05-03's `stress_recovery` module, as a new function
-  beside `elastic_extrema` (a supplier need of DEL-04-07, §8). PP calls it in the member loop
-  where `exact_member_maximum_policy` withholds arcs today.
-- **When it is withheld.** It is published only when the cut and its load are available. A case
-  whose arc recovery is unavailable keeps the existing unavailable path and warning
-  (`EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE`), now with the specific reason.
-- **What is removed.**
-  - `exact_member_maximum_policy`'s arc withholding.
-  - `withheld_on_arcs`, `ARC_WITHHELD_REASON`, and the arc_evidence and verifier checks that
-    require them.
-  - The preview `outside_domain_pipe_ids` placement of arcs.
+**Resultants.** They follow the closed forms of t4_u4b item 4, in the tangent frame at ψ:
+F(ψ) = F_beyond + w R Δψ, M(ψ), and their exact derivatives. The bound terms are
+F_max = |F(0)| + |w|Rφ and M_max = |M(0)| + RφF_max, with F the pressure-free statics force (S on
+pressurized arcs).
+
+**Arithmetic and where it lives.** Every evaluation of f or f′ at a point is an enclosure, in
+the frame kernel's existing ball arithmetic (`Balls`/`Wide2`, now `pub(super)` in
+`frame_kernel::structural`).
+- The arc maximum is therefore DEL-04-01's: a new `frame_kernel::structural::certify_arc_stress_maximum`
+  behind a narrow public API. Placing it in `stress_recovery` would need a new crate edge, which
+  would move PP's Cargo.lock (reviewed input 0).
+- The kernel gains enclosed sine and cosine for an argument ball in [0, π]. They use a Taylor
+  polynomial with an explicit Lagrange remainder bound evaluated in `Wide2`, with no argument
+  reduction beyond [0, π]. Unit tests compare them with a 256-bit reference near 0, near π/2,
+  near π and at the reference arcs' φ, and check that each enclosure contains the reference
+  value.
+- No libm transcendental enters a bound. Each evaluation's lower value is directed downward
+  and its upper value upward.
+
+**Method** (t4_u4b item 4):
+1. Start from a uniform grid of 4,096 cells in ψ.
+2. Upper bound per cell: max(upper endpoint values) + K_up h²/8, with
+   K = (2R|w| + F_max)/A_b + (R²|w| + M_max + R F_max)/Z_b formed upward.
+3. Lower bound: the largest directed lower endpoint value.
+4. Bisect every cell whose upper bound exceeds the lower bound by more than the stopping gap.
+   - The gap rule is the existing `elastic_extrema` one, gap ≤ 1e-12 Pa + 1e-12·lower,
+     including its absolute floor, so a zero or near-zero arc maximum closes. Readers enforce
+     it as they do for straights (`physics_evidence.rs` around :637–645).
+   - If the existing limits (131,072 subdivisions, depth 48) are reached first, the maximum is
+     refused with a named reason.
+5. **Station cover.** The upper bound is raised, if needed, to cover every published station
+   value max(|σ⁺|, |σ⁻|) of this arc and basis, converted to Pa and rounded upward. This follows
+   the straight `maximum_cover` rule (`certified_publication.rs` around :512–535). The value is
+   re-closed against the gap rule; if it cannot close, the maximum is unavailable through the
+   existing path.
+6. **Location.**
+   - *End maxima.* If the governing evaluation (the largest directed lower value) is an
+     endpoint, and the derivative enclosure there points out of the member (f′(0) < 0 at ψ = 0,
+     f′(φ) > 0 at ψ = φ), the location is exactly 0 or 1.
+   - *Interior maxima.*
+     1. Among the surviving cells (upper ≥ global lower), find the smallest-ψ bracket whose
+        derivative enclosure is positive at its left end and negative at its right end.
+     2. Bisect it on the sign of the f′ enclosure. Stop when the bracket is at most 2^-40·φ
+        wide, or when the enclosure over the bracket contains zero.
+     3. Publish the bracket's midpoint.
+   - *No bracket and no end rule.* The location is the governing evaluation point.
+   - *Ties within the gap.* The smallest ψ governs.
+
+   The value enclosure never depends on the location's success.
+7. **Publication.** The same way the straight maximum publishes: the binary64 midpoint of
+   [value_lower, upper_bound].
+
+**The evidence record.** Each arc's entry in `pipe_stress_extrema` uses exactly the straight
+record's fourteen keys (`physics_evidence.rs` around :592–650). That keeps one closed shape.
+- `pipe_id`, `section_basis` (pressure-2) and `result_id`, as on straights.
+- `station_fraction` and `local_fraction`, both ψ*/φ (exactly 0 or 1 at an end).
+- `span_index` = 0. An arc is one span.
+- `value_lower_pa`, `value_upper_pa`, `global_upper_bound_pa`, `certified_gap_pa` and
+  `subdivisions`.
+- `approximation` = `"arc_closed_form_section_statics"`.
+- `coefficient_basis` = `"arc_end_i_cut_and_uniform_load_binary64_enclosures"`.
+- `enclosure_scope` = `"published_binary64_end_i_cut_and_load_operand_enclosures; solution error is separate"`.
+
+The approximation token selects the arc branch in each closed consumer. Each consumer accepts
+it only for a member whose model pipe is a realized arc, and refuses it otherwise:
+- `physics_evidence.rs` and `preview_physics_evidence.rs`;
+- `retained_product.rs` (around :3031) and `source_receipt/composite.rs` (around :668). Arcs
+  never reach these (D7), so both refuse the arc token by name;
+- `schemas/stress_neutral_export.v0.3.schema.json` (around :2902–2945), `results.v0.3` and
+  `results_pressure_2`;
+- the Python verifier.
+
+**Where it is called, withheld and removed.**
+- PP calls it in the member loop, where `exact_member_maximum_policy` withholds arcs today.
+- When the cut or the load is unavailable, the existing unavailable path and warning stay
+  (`EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE`), with the specific reason.
+- Removed: `exact_member_maximum_policy`'s arc withholding; `withheld_on_arcs`,
+  `ARC_WITHHELD_REASON` and the checks that require them; and the preview
+  `outside_domain_pipe_ids` placement of arcs.
 
 **Headlines.** The existing headline rules apply, with arcs no longer outside the domain. On
 pressure-2 there is one headline per basis, nulled when any member lacks its basis maximum. On
 preview-physics-2 the headline is set when coverage is complete. The interior location band of
-t4_u4b is a comparison rule for the test. It is not published.
+t4_u4b is a comparison rule for the test, not a publication.
 
 ### 2.4 Saint-Venant transverse shear
 
 τ_v,max = |V| ((3+2ν) r_o² + (1+2ν) r_i,b²) / (4(1+ν) I_b) at each station and basis, with V =
 (V_y, V_z) in the section frame (t4_u4b §2).
-- ν is the member's material ν.
-- Each basis uses its own annulus.
-- It is one formula on straights and arcs. On arcs the basis token discloses
-  `local_straight_annulus_on_arc`; on straights it is `saint_venant_annulus_flexure_v1`.
-- Torsional shear stays its own row.
-- No location metadata is published. The two fibres are fixed by V (inner surface, normal to
-  V), and the basis text states this.
-- **Formation** follows §2.3's extremes: τ_v,max = RN(`norm2`(V_y, V_z)·c_b), from the same
-  station's published V_y, V_z rows, on every route. The section factor
-  c_b = ((3+2ν) r_o² + (1+2ν) r_i,b²)/(4(1+ν) I_b) is formed once per basis section, from the
-  material ν and the basis annulus, by a fixed sequence of correctly rounded operations that the
-  module states and the readers mirror.
-
-The module also exposes the field τ(r, β) for its unit test (§5.1). The field is not published.
+- It is one formula on straights and arcs; each basis uses its own annulus. The basis token is
+  `local_straight_annulus_on_arc` on arcs and `saint_venant_annulus_flexure_v1` on straights.
+- Torsional shear stays its own row. No location metadata is published: the two fibres are
+  fixed by V (inner surface, normal to V), and the basis text states this.
+- **ν.** ν is the authored `poisson_ratio` of the member's resolved material for the case. A
+  selected named point's own ν comes from `pair.poisson_ratio()`. When the material states no
+  ν, which the preview route allows (`MaterialInput.poisson_ratio` is optional), ν is the
+  isotropic value of the elastic constants the solve itself uses: ν = RN(RN(E/RN(2·G)) − 1),
+  from the member's resolved E and G. That does not invent material data. Every admitted
+  material is `homogeneous_isotropic_E_nu_v1`, for which G = E/(2(1+ν)) defines ν. The factor
+  record names which source applied (`nu_source`: `authored` or `isotropic_from_E_G`). The SV
+  field is defined for −1 < ν < 1/2. Outside that range the member's τ rows are unavailable,
+  with the named reason `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN` in the case's coverage
+  evidence. Every N06 control resolves ν from its E and G.
+- **Formation** (fixed sequence, MPa):
+  - The section factor c_b = RN(num/den). Its numerator and denominator are
+    num = RN(RN(RN(3+2ν)·RN(r_o·r_o)) + RN(RN(1+2ν)·RN(r_i,b·r_i,b))) and
+    den = RN(RN(4·RN(1+ν))·I_b), with r_o = D/2.
+  - t = `norm2`(V_y, V_z), from the same station's published j-side section rows (N).
+  - τ = RN(RN(t·c_b)/1e6).
+- **The factor record.** Each member, basis and case has one record in a new case-evidence list,
+  `transverse_shear_factors`: `pipe_id`, `section_basis` (pressure-2), `nu`, `nu_source`, `ro_m`,
+  `ri_m`, `i_m4` and `factor_per_m2`. It goes in preview case evidence and in pressure-2 exact
+  case evidence.
+  - Readers recompute c_b bit for bit from the record and τ bit for bit from the rows and c_b.
+  - Where they hold the captured model (G2), or pressure-2's `pipe_sections` evidence, they bind
+    `ro_m`, `ri_m`, `i_m4` and ν to it.
+  - The record is priced (§6).
 
 ### 2.5 Toroidal hoop and radial values (pressure-2)
 
@@ -386,8 +443,16 @@ On each pressurized arc and basis b:
 They are published at the five stations, as the straight Lamé rows are (the values are
 station-independent; t4_u4b inferred convention 2).
 - **Formation.** In binary64, as the straight Lamé rows are: an `input_derived` quantity with no
-  solve bound. The domain R > r_o is already guaranteed by bend realization; a violation refuses
-  by its existing geometry code.
+  solve bound. The readers check these rows under the existing Lamé comparison rule
+  (`section_basis.rs`, 64ε), from p and the basis bore, wall, r_o and R in the region evidence.
+- **The torus domain is guarded here.** Bend realization checks only R > half-chord (`lib.rs`
+  around :8108–8119), so it does not guarantee the definition's domain R > r_o. The hoop and
+  radial rows of a pressurized arc are published only when R > r_o, decided by exact comparison
+  of the binary64 R and r_o = D/2. Otherwise they are unavailable on that arc, with the named
+  warning `ARC_TOROIDAL_HOOP_DOMAIN` ("bend radius R does not exceed the outer radius; the toroidal
+  membrane hoop is undefined"). The readers require the rows to be present exactly when R > r_o.
+  Tests cover R below, at and one ulp above r_o, and at R = (r_i + r_o)/2, where the intrados
+  denominator vanishes. The solve itself is unaffected.
 - **The evidence.** The region evidence for an arc region names the definition
   `bore_load_transferred_toroidal_membrane_v1` and the shear definition
   `local_straight_annulus_on_arc`, each with its neglected effects (the §9 gap) in a static
@@ -428,9 +493,23 @@ station-independent; t4_u4b inferred convention 2).
   info diagnostic `COMPONENT_STRESS_INTENSIFICATION_NOT_APPLIED`. It is never used as both
   directional factors, which is the mutant `sif_one_scalar_for_both_directions`.
 
-**Rows.** intensified = hypot(i_ip M_z, i_op M_y)/Z_b at each station and basis. The along-arc
-maximum uses §2.3's method with the intensified measure (K scaled by max(i_ip, i_op) on the
-moment terms).
+**Rows.** intensified = hypot(i_ip M_z, i_op M_y)/Z_b at each station and basis.
+- **Formation.** It is formed from the same station's published bending stress rows, by a fixed
+  sequence: intensified = RN(1e6·`norm2`(RN(i_ip·σ_z), RN(i_op·σ_y))), in Pa. The i values are
+  the captured binary64 factors.
+- **The along-arc maximum** uses §2.3's method and record with the intensified measure
+  (K scaled by max(i_ip, i_op) on the moment terms).
+- **The evidence records.** Each directional station row has one entry in the case evidence's
+  `intensified_measures` list: `kind` = `"directional_arc"`, `pipe_id`, `result_id`,
+  `section_basis` (pressure-2), `location`, `i_in_plane` and `i_out_of_plane`. The maximum has
+  one entry with `kind` = `"directional_arc_maximum"`, the two factors, and §2.3's fourteen keys
+  with approximation `"arc_closed_form_directional_intensified"`. The readers' closed
+  intensified bijection (`INTENSIFIED_KEYS`, Rust and verifier) gains these two kinds beside the
+  marker kind.
+- **On pressure-2.** Pressure-2 exact case evidence has no `intensified_measures` today, so it
+  gains the member, with the same two kinds. It is added to `results_pressure_2`, the
+  stress-neutral schema, the Rust reader and the verifier, and priced. Arcs never reach W1 or
+  the source route, so their non-empty-list refusals are untouched.
 - **Never combined** (§2.7). No factor multiplies N/A, the hoop, torsion or the normal-stress
   maximum. k never multiplies stress.
 - **Both routes.** Pressure-2 arcs publish them on both bases; preview-physics-2 publishes them
@@ -653,9 +732,12 @@ passthrough, not a numerical recovery recipe:
   identity, unit, metadata and basis twin against the captured member, station and basis, in
   the order of the ordinary row manifest.
 - **Projection and final proof.** These rows enter no lane, functional, certificate, scale or
-  bound. The kernel's final case gains `ProductRecipe::NotCovered { row }`, which carries the
-  row's position only. It contributes nothing to any verified class's body scale, maximum or
-  coverage set, and the existing `final_case` checks exclude it from every verified count.
+  bound. The kernel's final case gains `ProductRecipe::NotCovered { row }`, beside `NonQuantity`
+  and `ModulusBasisRecord` (`final_case.rs` around :108–123). It carries the row's position only.
+  It contributes nothing to any verified class's body scale, maximum or coverage set, and the
+  existing `final_case` checks exclude it from every verified count. Its verdict takes the
+  class-`None` path, which the wire lists as `not_covered` (`retained_wire.rs` around :1276–1285),
+  not the path that omits `NonQuantity` and record recipes.
 - **Value.** In the successor the row's value is formed after projection from the successor's
   own published resultants and section, by the same binary64 formula as on the ordinary route
   (§§2.3–2.4; provisional option (ii), below). Nothing is recovered, and nothing is bound to a
@@ -677,11 +759,28 @@ that publication's own published resultants and basis section, and classed `not_
 - HELP_HUMAN recommends (ii). The choice is the owner's, because it reads REQ-001's "keep their
   ordinary values" as "formed from the successor's published operands" for these two derived
   kinds. The wording change is drafted in §4.4.
-- **The choice is localized.** It lives in one producer function, the successor's post-projection
-  formation of derived rows, and in one reader branch, the base recompute check applied to a
-  retained projection. Under option (i) the producer function would copy the ordinary row's
-  value instead, the reader branch would check custody only inside retained projections, and
-  failed-ordinary successors would omit the rows. Nothing else changes between the options.
+- **The choice is localized.** Under (ii) it lives in one producer function, the successor's
+  post-projection formation of derived rows, and in the readers' one recompute rule. Option (i)
+  is fully implementable without reopening other mechanics. Its complete change set:
+  1. *Producer.* The post-projection function copies the ordinary row's value instead of forming
+     it, in W1-L and W1-E successors and in pressure-source-1 publications.
+  2. *Readers.* Inside a retained projection (G7's base read) and a source publication, the
+     derived kinds get custody and coverage checks only (identity, unit, metadata and member,
+     station and basis coverage), with no recompute. On ordinary routes the recompute stays.
+     This exception is keyed on the dispatched retained or source route, in Rust (native and
+     wasm) and in the verifier.
+  3. *Failed-ordinary successors.* No ordinary value exists, so the rows are omitted. The
+     failed manifest's fixed per-member row count (`FAILED_MEMBER_ROWS` = 51,
+     `retained_product.rs` around :275–278) stays at its present law. The readers' coverage
+     rule exempts the derived kinds in a case that carries a valid
+     `retained_precision_requested_mode_basis` row. Whether omission, rather than declining the
+     successor, is acceptable under (i) is a further owner sub-question. It is put with Q2.
+  4. *Definitions and evidence.* The DEF-O, DEF-E and DEF-C recipe text reads "kept from the
+     ordinary publication". The source receipt's treatment for these rows (§4.3) names no recipe.
+  5. *Tests.* The divergent ordinary-versus-retained test asserts that the ordinary value is
+     kept. The coverage tests take the failed-ordinary exemption.
+
+  Items 1–5 are the only differences between the options.
 - **Why (ii).**
   - G7 runs the base reader on the projected successor statement (`retained_precision.rs`
     around :6396). A σ⁺ that keeps its ordinary value contradicts the verified resultants beside
@@ -717,28 +816,62 @@ exact.
 ### 4.3 pressure-source-1
 
 A selected retained-source publication carries the new straight-member kinds as rows outside the
-receipt's `projection.quantity` and the REQ-002 checks, formed from that publication's published
-resultants (§4.1).
+receipt's `projection.quantity` and outside the REQ-002 checks. They are formed from that
+publication's published rows (§4.1, provisional (ii)).
 - `pressure-source-1`'s table gains their signatures.
-- Its receipt and source method are unchanged.
 - The source family is unchanged (D7, D1), so no arc or connector row reaches it.
-- **Work accounting.** The source-work counters change under the complete D5/MJ9 law (b7-plan,
-  "D5/MJ9's accounting clarification"). For each selected case the delta is
-  `cases[k].work.charged` = 24ΔE + ΔF_k + ΔQ_k, and `invocation_work.publication_charged` moves
-  by 24ΔE + ΔP. Its terms:
-  - ΔE is the encoded-request delta. The 0.6.0 token has the same length as 0.5.0, so only the
-    actual request changes count.
-  - ΔF_k covers the new rows' identity, kind, entity, unit and metadata lengths inside
-    finalization.
-  - ΔQ_k includes the composite-exact reservation `1024 + 64·N_actual_rows + finalization_size + N_support_actions·RECIPE_WORK`
-    (`source_receipt/composite.rs` around :744). That term alone adds 64 per new row: 1,920 per
-    exact member per selected case at 30 rows.
-  - ΔP covers the publication's `32N_rows` and per-case `256N_rows` terms.
 
-  An independent test derives every term from the actual inputs, as the MJ9 test does. It checks
-  the row-count charges exactly, and checks that an input at the unchanged 8,000,000 limit still
-  refuses with its named budget refusal. MJ6's and MJ9's byte checks re-pin only to the actual
-  producer bytes those deltas explain.
+**A treatment of their own.** The receipt cannot carry them as it is.
+- **Why a new treatment.** `rows::bind_for` gives every row that is not projected, derived or an
+  observation the treatment `inspection_only` (`source_receipt/rows.rs` around :572–591). The
+  composite-exact path refuses any such physical row ("unqualified composite physical row",
+  `composite.rs` around :924–931), and the reader marks one unusable (`source_blocks.rs` around
+  :943–950). So without a change, every source case that publishes these rows would be refused,
+  which is a capability loss.
+- **Why not `checked_derived`.** Under REQ-002 that treatment means a checked derived quantity,
+  as for the support norms. Using it would add a guarantee to REQ-002's published list, which is
+  an owner-approved commitment.
+- **What is added.** The receipt gains one treatment, `derived_not_qualified`, which carries no
+  REQ-002 guarantee:
+  - it names the formula recipe `section_extremes_from_published_stress_rows_v1` or
+    `transverse_shear_from_published_section_rows_v1`, with the station row ids as inputs; under
+    (i) it names no recipe;
+  - `bind_for` assigns it to exactly the two kinds;
+  - composite finalization admits it for those two kinds only, and still refuses every other
+    `inspection_only` physical row;
+  - the Rust reader and the verifier admit it for those kinds only. They leave `usable` unchanged
+    by it: such a row neither qualifies the case nor disqualifies it. Under (ii) they recompute
+    it (§5.1).
+- **Reviewed input 1 moves.** `physics_source_recovery.schema.json`'s treatment vocabulary gains
+  the token (§1.3).
+- **The receipt and source method are otherwise unchanged.** Nothing projected, derived or
+  checked changes, and REQ-002 is untouched.
+
+**Work accounting.** The source-work counters change under the complete D5/MJ9 law (b7-plan,
+"D5/MJ9's accounting clarification"). For each selected case, `cases[k].work.charged` changes by
+24ΔE + ΔF_k + ΔQ_k, and `invocation_work.publication_charged` changes by 24ΔE + ΔP. The terms:
+- ΔE: the encoded-request delta. The 0.6.0 token has the same length as 0.5.0, so only actual
+  request changes count.
+- ΔF_k: the new rows' identity, kind, entity, unit and metadata lengths inside the selected-case
+  finalization, which `finalization_size` charges once, as 24E + F_k.
+- ΔQ_k: the other local charges. It includes the composite-exact wrapper's own terms,
+  `1024 + 64·N_actual_rows + N_support_actions·RECIPE_WORK`, but not the finalization it also
+  calls (`composite.rs` around :744; b7-plan "outside finalization_size"). The wrapper term alone
+  adds 64 per new row, which is 1,920 per exact member per selected case at 30 rows. ΔQ_k also
+  includes any per-recipe charge of the new treatment.
+- ΔP: the publication's `32N_rows` and per-case `256N_rows` terms.
+
+**Its checks.**
+- *An independent test* derives every term from the actual inputs, as the MJ9 test does. It
+  checks finalization, the wrapper-only terms, the other local charges and publication
+  separately, then reconciles their sum with the counters exactly.
+- *Capability.* Every currently selected source case still selects, under the unchanged
+  8,000,000 limit. The largest committed per-case charge today is 2,855,814
+  (`j7_rf_census_expected.json`), and the test computes each case's new charge rather than
+  assuming it fits.
+- *The limit.* An input at the limit still refuses with its named budget refusal.
+- *Byte checks.* MJ6's and MJ9's byte checks re-pin only to the actual producer bytes that these
+  deltas explain.
 
 ### 4.4 Sentences held for the owner
 
@@ -774,13 +907,13 @@ on its route, independently of the producer. The verifier shares no code with it
 
 | Kind | Reader check |
 |---|---|
-| `element_local_normal_stress_extreme` | Recomputed bit-exactly from the same station's published N or N_w (exact route) and M_y, M_z rows and the basis section, by the fixed formula of §2.3 (one correctly rounded operation each, the hypot by the shared correctly rounded `norm2` of E15). This applies on every route, retained projections included (§4.1). Coverage: every member, station and basis. |
-| `element_local_transverse_shear_stress_maximum` | Recomputed bit-exactly from the published V_y, V_z, the captured ν and the basis annulus, by §2.4's fixed formula. Coverage as above. |
-| arc `pipe_elastic_normal_stress_maximum_v2` | The §2.3 arc evidence record: its closed shape, the gap rule on value_lower and upper_bound (as `physics_evidence.rs` checks straights), the value as their midpoint, and the location in [0, 1]. Coverage, basis twins and headline binding as on straights. The upper bound is at least every station's \|N_eff\|/A + hypot/Z. The readers attest custody and do not replay the branch-and-bound (DEF-O `trust.validation` precedent). |
-| directional intensified rows | Present exactly on arcs whose captured model has the directional pair. Recomputed per station from M_y, M_z and the captured factors. The maximum is at least every station value. |
-| toroidal hoop and radial | Present exactly on pressurized arcs, at every station and basis. Recomputed from p, the basis bore, wall, r_o and R in the region evidence. |
-| `connector_tie_rod_force_v1` | One per authored rod. Bound to the `tie_rods` record: the extension and law are rederived from the published node displacements and rotations under the binding rule. |
-| `s_x` | gt_x + Σ t_r·axial_share − Pe under the binding rule, with Pe the published `pe_x` or 0 on an unpressurized connector, for every connector with rods or a constant-effective-area model. |
+| `element_local_normal_stress_extreme` | Recomputed bit for bit from the same station's and basis's published stress rows, by §2.3's fixed sequence. This includes the /1e6 conversion of the membrane row on pressurized pressure-2 members, and the shared correctly rounded `norm2` (E15) in native Rust, wasm and the verifier's exact-integer oracle (`tests/verifiers/physics_source.py`). It applies on every route: ordinary, retained projections (G7's base read) and source publications, under (ii). Coverage: every member, station and basis. |
+| `element_local_transverse_shear_stress_maximum` | c_b is recomputed bit for bit from the `transverse_shear_factors` record, and τ from the same station's published V_y, V_z and c_b (§2.4). Where the reader holds the captured model or pressure-2's `pipe_sections`, the record's ν (with its `nu_source`), r_o, r_i and I are bound to them. Coverage as above, apart from members whose ν is out of domain; those are listed with `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN`. |
+| arc `pipe_elastic_normal_stress_maximum_v2` | The §2.3 record's closed fourteen keys and arc tokens, accepted only on a realized arc. The gap rule and midpoint as on straights (`physics_evidence.rs` around :637–645). `local_fraction` in [0, 1]. Coverage, basis twins and headline binding as on straights. The station cover: `value_upper_pa` ≥ every published station max(\|σ⁺\|, \|σ⁻\|) of the arc and basis, converted to Pa and rounded upward. The readers attest custody and do not replay the branch-and-bound (DEF-O `trust.validation` precedent). |
+| directional intensified rows | Present exactly on arcs whose captured model has the directional pair. Each is bound to its `intensified_measures` record. Recomputed bit for bit from the station's bending stress rows and the record's factors (§2.6). The maximum's record follows the arc maximum's checks, with cover by the station intensified rows. |
+| toroidal hoop and radial | Present exactly on pressurized arcs with R > r_o, at every station and basis. Recomputed under the existing Lamé comparison rule from p and the basis bore, wall, r_o and R in the region evidence. |
+| `connector_tie_rod_force_v1` | One row per authored rod, bound to its `tie_rods` entry by row id. Finite and in N. The value is not rederived from the published displacements. The published displacements are the solve's own, and the certified T_r comes from the corrected displacement, so an exact relation does not hold between them. This is the existing connector practice for g. |
+| `s_x` | \|s_x − (g_x − Pe + Σ RN(t_r·axial_share))\| ≤ (2n_r + 2) ulps of the largest of \|g_x\|, \|Pe\| and each \|t_r·axial_share\|. Pe is the published `pe_x`, or 0 on an unpressurized connector, and n_r is the rod count. This extends today's 1-ulp, two-term rule (`connector_evidence.rs` around :336–344). It applies to every connector with rods or a constant-effective-area model. |
 
 - **Arc evidence.** `arc_evidence.rs` and `tests/verifiers/pressure_1.py` (renamed
   `pressure_2.py`) drop `withheld_on_arcs`. They require the two definition ids and the new
@@ -897,8 +1030,16 @@ persistence (AGENTS.md). Both solver modes run throughout.
 3. **t4_u5a, t4_u4a, t4_u6, t4_u8 and T4-I7 stay green**, through in-memory 0.6.0 re-authoring,
    in both modes. Every expected value is unchanged, except t4_u5a RV-11's code, which is
    superseded by name (§3.1).
-4. **Refusals.** Unit tests cover every §2.6 and §3.1 code, with `MODEL_INCOMPLETE` and no
-   results, and every retired identity's refusal by name.
+4. **Refusals and guards.**
+   - Unit tests cover every §2.6 and §3.1 code, with `MODEL_INCOMPLETE` and no results, and every
+     retired identity's refusal by name.
+   - The torus-domain guard has tests at R below, at and one ulp above r_o, and at
+     R = (r_i + r_o)/2 (§2.5).
+   - ν resolution has controls for authored ν, ν from E and G, a named-point basis, and an
+     out-of-domain ν (§2.4).
+   - The enclosed sine and cosine have their unit tests (§2.3).
+   - End-i tension and compression with nonzero bending: σ± follow the j-side stress rows, not
+     the node-on-element end-force rows (§2.3).
 5. **Producer mutants.** Each is applied to the producer, run, reverted and recorded in the PR,
    with no committed seam. They are the t4_u4b mutants formed in the product and the t4_u5b
    mutants (`j4_double_count`, `rods_lumped_on_centreline`, `offset_sign_error`,
@@ -921,7 +1062,8 @@ persistence (AGENTS.md). Both solver modes run throughout.
      comparing every verified row of the regenerated successors with its pre-epoch value and
      class.
    - The divergent ordinary-versus-retained case of §4.1.
-   - The pressure-source-1 work-law test of §4.3.
+   - The pressure-source-1 treatment, capability and work-law tests of §4.3. Every maintained
+     source control still selects, and the J2 corpus and the j7 census keep their selections.
 9. **M3.** The arc and connector status census in both modes, in the batch-5 form: arcs gain no
    Passed↔Sensitive move from these rows, and rod cases are Passed with the member bound.
 10. **D3 and registration** as §6, with independent source and pricing scrutiny.
@@ -931,14 +1073,19 @@ persistence (AGENTS.md). Both solver modes run throughout.
 ## 8. Dependencies and staging
 
 **Supplier needs** (recorded in `deliverable.yaml` when the code lands):
-- **DEL-04-01:** the tie-rod element, `LoadFormula::TieRodReference` and
-  `certify_tie_rod_recovery` (§3.2); the retained kernel's `ProductRecipe::NotCovered` (§4.1).
-- **DEL-05-03:** the extremes, the transverse-shear maximum and field, the toroidal hoop and the
-  arc branch-and-bound maximum in `stress_recovery` (§§2.3–2.5).
+- **DEL-04-01:**
+  - the tie-rod element, `LoadFormula::TieRodReference` and `certify_tie_rod_recovery` (§3.2);
+  - the retained kernel's `ProductRecipe::NotCovered` (§4.1);
+  - `certify_arc_stress_maximum`, with its enclosed sine and cosine (§2.3).
+- **DEL-05-03:** the extremes, the transverse-shear factor, maximum and test-only field, the
+  fibre-normal test function, and the toroidal hoop and radial values, in `stress_recovery`
+  (§§2.3–2.5). These are binary64 formulas with no new crate edge.
 - **DEL-05-02:** the base identities and readers it consumes become preview-physics-2 and
   pressure-2. The combination engine applies §2.7's marks.
-- **DEL-04-08:** the not_covered classification and the re-inheritance (§4). D3 is applied
-  under its pricing law.
+- **DEL-04-08:**
+  - the not_covered classification, the W1 passthrough and the re-inheritance (§4.1);
+  - the source treatment `derived_not_qualified` (§4.3);
+  - D3, applied under its pricing law.
 - **DEL-02-05 and DEL-02-01:** model 0.6.0 (§1.1). Their commitment sentences that name the
   version are reserved (§4.4).
 
@@ -981,7 +1128,9 @@ branch.
 
 - **Q2 (owner):** the values of the derived kinds in retained and source publications. Option
   (ii) is built provisionally and kept localized (§4.1). The REQ-001 wording it needs is in §4.4.
-  The epoch PR is not opened for merge until the owner rules.
+  Under (i), failed-ordinary successors would omit the rows, and whether omission rather than
+  declining is acceptable is a sub-question put with Q2. The epoch PR is not opened for merge
+  until the owner rules.
 - **Owner-held sentences:** §4.4's version-token sentences.
 - **Returns to HELP_HUMAN:** an edit that would touch TBD-002's table sentence, and a D3
   shortfall under the unchanged policy.
