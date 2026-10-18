@@ -204,6 +204,14 @@ The loaded search similarly retains a separate 1 MiB source-bound workspace,
 with returned hulls, diagnostics, PP spans and evidence charged independently.
 See the W1 section of the governing retained-pricing rules for the inventories.
 
+### Epoch 4 (T4-U4b/U5b) actual-source owners
+
+`base/u4b_u5b_owners_model.py` binds, by function-body sha256, the epoch's heap owners outside the TEXT inventory
+(U5B-PD, U4B-ST, U5B-AB, U4B-W1, U4B-RD, U4B-NQ) and prices each positively in `ordinary_caps.py`,
+`producer_caps.py`, `g4_caps.py` and `t25_g4.py`; a snapshot without them adds nothing and a changed body stops.
+Route L's P_final takes the producer's `FAILED_MEMBER_ROWS` (U4B-RL) and route E's the U4b census (U4B-RP). See
+the governing rules' §8.8.
+
 The current source pins fail closed outside the reviewed stage-2 cohort.
 Reproduce either RF or the pre-stage-2 reductions using its committed tool and
 source revision. A complete `run` is a pricing-completeness result; actual

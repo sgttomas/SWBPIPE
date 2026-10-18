@@ -3273,12 +3273,15 @@ pub(super) const fn push_capacity(h: u64) -> u64 {
     }
     c
 }
-/// P_final ≤ 7n + 51m + 8g + 3 (DOMAIN.md §2, derived): one case's result rows on route L.
-pub(super) const P_FINAL: u64 = (7 * caps::NODES + 51 * caps::MEMBERS + 8 * caps::SUPPORTS + 3) as u64;
-/// T4-U6 (D-5; retained-pricing-rules.md U6-RP): route E's P_final ≤ 7n + 72m + 8g + 3. An exact
+/// P_final ≤ 7n + 66m + 8g + 3 (DOMAIN.md §2, derived): one case's result rows on route L.
+/// T4-U4b (retained-pricing-rules.md U4B-RL): each straight member publishes the 51 rows of
+/// preview-physics-1 and its derived σ⁺, σ⁻ and τ_v,max at the five stations (51 + 15 rows).
+pub(super) const P_FINAL: u64 = (7 * caps::NODES + 66 * caps::MEMBERS + 8 * caps::SUPPORTS + 3) as u64;
+/// T4-U6 (D-5; retained-pricing-rules.md U6-RP): route E's P_final ≤ 7n + 102m + 8g + 3. An exact
 /// member publishes its 20 element-local stress rows on both section bases and its maximum once
-/// per basis (51 + 21 rows); route L has no exact contract and keeps `P_FINAL`.
-pub(super) const P_FINAL_EXACT: u64 = (7 * caps::NODES + 72 * caps::MEMBERS + 8 * caps::SUPPORTS + 3) as u64;
+/// per basis (51 + 21 rows), and (T4-U4b, U4B-RP) its derived σ⁺, σ⁻ and τ_v,max at the five
+/// stations on both bases (30 rows more); route L has no exact contract and keeps `P_FINAL`.
+pub(super) const P_FINAL_EXACT: u64 = (7 * caps::NODES + 102 * caps::MEMBERS + 8 * caps::SUPPORTS + 3) as u64;
 /// The gate bounds. Count bounds are D1's caps; text bounds are 2× the G4 text
 /// atoms (exact-capacity copies at most double: API_G4.md §2); the preview tree
 /// bounds are ordinary_caps.py's PREVIEW facts at the caps. The byte bounds (T11, T11
@@ -3308,7 +3311,8 @@ pub(super) const fn phase_caps() -> PhaseCaps {
 /// - Exact (route E; T3 F1, after SQ2's G-C finding): the componentwise maximum of the preview
 ///   tree and the exact route's physics evidence, I95's B3-S census at (n, m, g) (rest + per pipe
 ///   + per unavailable pipe + 6 per DOF and 1 per node). T4-U6 (D-5; U6-RP): the census on the
-///   D-5 producer's committed fixtures (`data/census_d5_79bf8656dc.json`: `pipe_stress_extrema`
+///   D-5 producer's committed fixtures (`data/census_d5_79bf8656dc.json`, re-taken unchanged on the
+///   U4b producer's as `data/census_u4b_7c77bf8072.json`: `pipe_stress_extrema`
 ///   once per member and basis, both section bases, two coverage lists, strings at STR_CAP 304,
 ///   each source-selected extremum at the maximum over its three `locations` shapes, U6-RL):
 ///   arrays 14 + 78m + 19n, objects 4 + 27m, entries 29 + 127m, string bytes
@@ -3344,7 +3348,7 @@ const fn p_final_on(route: crate::retained_product::W1Route) -> u64 {
 /// result rows and their capacity, C_eq·P_final at route E's own P_final (T4-U6, D-5: the
 /// chain prices route E's push-built results at pushcap(C_eq·P_final) slots, U6-RB). The rows'
 /// text bound stays route L's 2·C_eq·P_final·Text(row) on both routes: Text(row) bounds one
-/// row's text, and route E's C_eq·P_final rows (8,361 at the caps) stay below route L's 12,690.
+/// row's text, and route E's C_eq·P_final rows (11,241 at the caps) stay below route L's 15,570.
 /// On both routes the entries bound is cut so that objects + ⌊entries / 5⌋, the BTree node
 /// count the profile prices (`value_tree`: one node per object and per 5 entries), stays within
 /// C·(objects + ⌊entries / 5⌋) at the per-case facts (T3 F1: route L's C·entries left one node

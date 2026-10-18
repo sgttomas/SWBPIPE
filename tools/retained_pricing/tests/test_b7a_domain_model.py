@@ -198,23 +198,23 @@ def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
     actual = dict(audits)
     pp = "core/product_physics/src/"
     # T4-U6/U8: the same sites on the priced source's unchanged lines (B7b's 10632.. + 359; certified_loads + 3;
-    # the final source 588de796a4: lib.rs + 5 more).
+    # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more, unchanged text).
     sites = {
-        "lib.rs:10998": {"load_case_id"},
-        "lib.rs:11012": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:11019": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:11024": {"load.load_id"},
-        "lib.rs:11025": {"bend.pipe_id"},
-        "lib.rs:11026": {"bend.component_id"},
-        "lib.rs:11027": {"load_case_id"},
-        "lib.rs:11086": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:11093": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:11098": {"load.load_id"},
-        "lib.rs:11099": {"bend.pipe_id"},
-        "lib.rs:11100": {"bend.component_id"},
-        "lib.rs:11101": {"load_case_id"},
-        "lib.rs:11140": {"stable_suffix(&load.load_id)"},
-        "lib.rs:11147": {"load.load_id", "load_case_id"},
+        "lib.rs:11312": {"load_case_id"},
+        "lib.rs:11326": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:11333": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:11338": {"load.load_id"},
+        "lib.rs:11339": {"bend.pipe_id"},
+        "lib.rs:11340": {"bend.component_id"},
+        "lib.rs:11341": {"load_case_id"},
+        "lib.rs:11400": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:11407": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:11412": {"load.load_id"},
+        "lib.rs:11413": {"bend.pipe_id"},
+        "lib.rs:11414": {"bend.component_id"},
+        "lib.rs:11415": {"load_case_id"},
+        "lib.rs:11454": {"stable_suffix(&load.load_id)"},
+        "lib.rs:11461": {"load.load_id", "load_case_id"},
         "certified_loads.rs:236": {"case_id"},
         "certified_loads.rs:259": {"case_id"},
     }
@@ -237,7 +237,8 @@ def test_actual_reader_cached_allocations_include_all_live_owners_and_duplicates
     assert counts["fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"] == 2
     assert counts["fixtures/results/semantic_contract_v0_3_physics_retained_1.json"] == 2
     assert counts["fixtures/results/semantic_contract_v0_3_pressure_source_1.json"] == 1
-    assert counts["fixtures/results/semantic_contract_v0_3_pressure_1.json"] == 1
+    # T4-S5 (epoch 4): the ordinary pressure table is the -2 contract's (STATIC_OWNERS re-bound to its path).
+    assert counts["fixtures/results/semantic_contract_v0_3_pressure_2.json"] == 1
     assert counts["schemas/load_reference_state.schema.json"] == 1
     assert "schemas/results_pressure_1.v0.3.schema.json" not in counts
     for owner, path in MODEL["STATIC_OWNERS"]:

@@ -172,6 +172,12 @@ rows["T25.3 rows::bind ledger, maps, primary/derived, supports (+ json! copy)"] 
     + X({"Node(usize,ResultItem)": max(1, Fn // 5 + 1)}) + B(Fn * ROW)           # primary
     + Xc("Derived", R) + B(R * (ROW + 4 * (24 + RID)))                           # derived rows
     + supports_vf.tree() * 2 + Xc("RowTreatment", R))
+# T4-S5 D3 (retained-pricing-rules.md §8.8, U4B-NQ): bind_for's derived_not_qualified treatments are built in their
+# own vector before they move into the ledger (u4b_u5b_owners_model binds not_qualified_for and its inputs).
+import u4b_u5b_owners_model as _u45_model
+if _u45_model.inspect(os.environ["RP_SNAPSHOT"])["not_qualified"]:
+    rows["T25.3 rows::bind ledger, maps, primary/derived, supports (+ json! copy)"] = (
+        rows["T25.3 rows::bind ledger, maps, primary/derived, supports (+ json! copy)"] + _u45_model.receipt_not_qualified(m))
 # (4) source::commitment (source.rs:252-410)
 payload_vf = VF(arr=C * 0 + m * (12 + 6 + 3 * 144) + C + m + sp + k + l + Fn + units + N,
                 obj=C + m * 3 + sp + k + l + Fn + units + 1,

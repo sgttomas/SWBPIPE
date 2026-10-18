@@ -11,12 +11,18 @@ import re
 import runpy
 
 # Full raw pins bind the implementation and complete helper call chains.
+# T4-S5 D3 (retained-pricing-rules.md §8.8): the epoch's member-path files are re-bound after their diffs were read.
+# The member-load custody, ledger, recovery, maxima and reader call chains are unchanged; the additions are the
+# not-covered passthrough (retained_product.rs capture, failed manifest and prepared_not_covered; final_case.rs
+# ProductRecipe::NotCovered and complete_not_covered; retained_precision.rs derived_kind and route L's G7
+# u4b_evidence::preview_model_checks; result_export lib.rs's u4b_evidence module), priced by U4B-W1 and U4B-RD,
+# and the -2 identities and table hashes (retained_wire.rs, retained_precision.rs).
 SOURCE_FILES = {
-    "core/product_physics/src/retained_product.rs": '69a87004ff692dd577c2b4bd0f7a17e621cd5d4ea07b29d55ddc7618200ef025',
-    "core/product_physics/src/retained_wire.rs": "9d4fbf77f8c800dc0fc0800d3be417be49f1d95c678945b4b0a4557c6515bf13",
+    "core/product_physics/src/retained_product.rs": '6114335b6660a7f2905009741ea94dee5fbf6c42aa69fc4d15ac968b5d520713',
+    "core/product_physics/src/retained_wire.rs": "aa80df2e71601c052014bdd958b77bd50906da42bf51594fe0c1f3762daf8f13",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
-    "core/reporting/result_export/src/lib.rs": "6e3b91d7171483db3d9f88d736405afb581394de7e1d20a21ce4c357451f74da",
-    "core/reporting/result_export/src/retained_precision.rs": "7772f539ff2a2a2d75805a1e1a1c634b23fa56fdc63b8596954c89b067d1533e",
+    "core/reporting/result_export/src/lib.rs": "2dbbdd9c9fcdfc87aa0b7358c6a7661e20eded94b64e482ec62dcdbbaedce7a4",
+    "core/reporting/result_export/src/retained_precision.rs": "a78aff7d126ed82ab97309430ec98d3dc0e6fc7b11462d606bf54498568a0587",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "817de6a975e7a95a9bfe8bbe660cc40807f66e31d923db860615daaf61223909",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "2efa421b47fa147f3233dcdc236f414f0f80a9019b19b4d181782a90d4eb7d98",
@@ -35,7 +41,7 @@ SOURCE_FILES = {
     "core/solver/frame_kernel/src/structural/retained/directed.rs": "031457491dcb9c2ae939de8ed617e7b59d5006debd5ad485a0fc9f8fd49c6b01",
     "core/solver/frame_kernel/src/structural/retained/directed/certificate.rs": "dadbb4d6a37e8a44b95d567494828feb795d805434814b7039c8b925a17e1a80",
     "core/solver/frame_kernel/src/structural/retained/product_certificate.rs": "0f6853a3eda3e92e7dda81bfc11653653c71bd2797026f067be30eff8c2fd363",
-    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "cad7a7f54b234d1cb80dc8ba85dec2312732482415e23c4086d12c5fd437f2c7",
+    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs": "49638d8e283594d419c6c84d8cc291f3ff8b5b5e64a8f70166ca5ca6f052fc35",
     "core/solver/frame_kernel/src/structural/retained/product_certificate/loaded_maximum.rs": "cc9ad2a9051a354273bd66370fbc57f1eb52e98aacb71b4e3cc75cd72de54900",
     "core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs": "7cd4da7c473cf08dc1462c3ae2b900a1646be57ec76519995dbd33d8126fdcf6"
 }

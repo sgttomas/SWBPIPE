@@ -176,8 +176,9 @@ def test_b7b_j3_drops_only_its_own_deleted_census_sites(monkeypatch):
     assert "fn leaf_diff(" not in (SOURCE / "core/product_physics/src" / census).read_text()
     sizes = [key for key, _, why in d["O10_SITE_SIZE"] if "J3 (test code" in why]
     # RF-J3 adds the two CANCEL class-label assertions, under the same
-    # test-only module and guarded multiplicity-zero rule.
-    assert len(sizes) == 13 and all(str(key).startswith(census + ":") for key in sizes)
+    # test-only module and guarded multiplicity-zero rule. U4B-J3 (T4-S5) adds the capability test's two report
+    # lines, in the same module at J3's multiplicity zero.
+    assert len(sizes) == 15 and all(str(key).startswith(census + ":") for key in sizes)
 
 
 RP = "core/reporting/result_export/src/retained_precision.rs"

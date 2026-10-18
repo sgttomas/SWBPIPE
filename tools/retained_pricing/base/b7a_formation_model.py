@@ -22,12 +22,16 @@ SOURCE_FILES = {
     "core/product_physics/src/source_receipt/source.rs": "911f49b43f41ae50009e6a13220d2c888cfb8e6ccf50d8cacf5b8dc089efd5a5",
     # T4-U8: retained::assemble's Timoshenko refusal; W1 adds one retained_api
     # export line for member-source types. Existing formation owners stay.
-    "core/solver/frame_kernel/src/structural.rs": "ab3fe19075f19e18d2ba174d9b3ca5353e98ecd9b428cf8bbc7746d4f9571d77",
+    # T4-S5 (epoch, U5b): structural.rs and sparse.rs move the absorbed-diagonal refusal into ElementAbsorption
+    # (per-element groups, one Vec<bool> of the free DOFs per contribution audit; priced by U5B-AB) and add the tie
+    # rod's stiffness (components only: P3) and the arc maximum's module; source_recovery.rs adds
+    # `contribution_groups: None` and comment/path text. No formed-load traversal or finding owner changes.
+    "core/solver/frame_kernel/src/structural.rs": "3c5700bc9c59e89035095ee29547c04f0788db94e9d4c5a27b36b1fc12153d17",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.
-    "core/product_physics/src/source_recovery.rs": "b048aa0ea4bac2be30974fd99cb2cd0a0eca5ad245e378e1899051413d2112c6",
-    "core/solver/frame_kernel/src/structural/sparse.rs": "f5d37d5c4ef1e96b8df2e01df3362d95e76d36aa2e2f01c098441b3adbaf63fb",
+    "core/product_physics/src/source_recovery.rs": "150db5dea00d5dc8538b78f2f6b21b5bec12ef9b3920cae4068c9534aac5c2ec",
+    "core/solver/frame_kernel/src/structural/sparse.rs": "e316bc9d2738285ef9a87392436436c667b60b9ab0a744f6650051fcf918f4fb",
 }
 RANGE_CONTENT = 59
 REASON = 165057
@@ -189,11 +193,17 @@ def decisions(snapshot, resolved):
     fc = "core/solver/frame_kernel/src/structural/formation_check.rs:"
     # ForceTerm.source is the bare admitted load_id, not the separately
     # owned member_source identity in LoadPrimitive/manifest entries.
-    for line in (509, 515, 525, 575, 588, 595):
+    for line in (528, 534, 544, 620, 633, 640):
         audit.append((resolved(fc + str(line)), {
             "terms[p.term_index].source": {"bytes": 128, "source": "IN128"},
         }))
-    for line in (627, 637, 643, 649, FIRST_RETURN_LINE):
+    # U5B-TR (T4-U5b): the TieRodReference binding refusal formats the formed term's source,
+    # "tie_rod_reference:{len}:{component}:{len}:{rod}" (18 + 4 + 128 + 1 + 4 + 128 = 283 B); tie rods exist only on
+    # connectors, so it is unreached on D1 (P3), and it is still charged at its full class.
+    audit.append((resolved(fc + "580"), {
+        "terms[p.term_index].source": {"bytes": 283, "source": "U5B-TR: formed tie-rod reference source"},
+    }))
+    for line in (672, 682, 688, 694, FIRST_RETURN_LINE):
         audit.append((resolved(fc + str(line)), {
             "term.source": {"bytes": 128, "source": "IN128"},
         }))
@@ -206,7 +216,7 @@ def lex_sizes(snapshot, resolved):
     inspect(snapshot)
     return [(resolved("formation_guard.rs:330"),
              {"class": JOINED, "why": "B7a load-row finding only: six independently cloned fired items plus five separators"}),
-            (resolved('retained_product.rs:611'),
+            (resolved('retained_product.rs:616'),   # T4-S5: +5 lines (MemberIdentity's poisson_ratio), same text
              {"class": SENTENCE, "why": "B7a full load-row finding sentence copied into persistent FindingSeed; fired children paid separately"})]
 
 
@@ -338,15 +348,17 @@ def site_totals(snapshot, resolved):
 
 
 FIRST_RETURN_FILE = "core/solver/frame_kernel/src/structural/formation_check.rs"
-FIRST_RETURN_ROOT = FIRST_RETURN_FILE + ":864:evaluate"
-FIRST_RETURN_PARENT = FIRST_RETURN_FILE + ":455:check_at"
+FIRST_RETURN_ROOT = FIRST_RETURN_FILE + ":914:evaluate"
+FIRST_RETURN_PARENT = FIRST_RETURN_FILE + ":474:check_at"
 # T4-U8: evaluate's added `straight_frames_bound(source)?;` (the line after load_closure) moves the reformation
 # map_err site from 895 (B7b) to 896 with unchanged text; PP's member-identity binding moves evaluate (850),
 # check_at (441) and the site by 13 more (909), text unchanged.
-FIRST_RETURN_LINE = 910
+# T4-S5 (epoch): the TieRodReference variant and binding arm move check_at (+19), evaluate and the site (+50), and the
+# load_closure sites (+19/+45), text unchanged.
+FIRST_RETURN_LINE = 960
 FIRST_RETURN_SITE = "structural/formation_check.rs:%d" % FIRST_RETURN_LINE
 FIRST_RETURN_WHY = "B7aFK895: map_err formats only on Err and immediate? returns evaluate; preserve full evaluate calls/content/capacity and every helper/loop/copy cost"
-FIRST_RETURN_RULE = {"from": ["structural/formation_check.rs:864:evaluate"],
+FIRST_RETURN_RULE = {"from": ["structural/formation_check.rs:914:evaluate"],
                      "per": "1", "why": FIRST_RETURN_WHY}
 
 

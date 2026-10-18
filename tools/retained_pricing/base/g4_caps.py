@@ -235,6 +235,12 @@ _FAILED_QUALITY = (V("NumericalCaseQuality", CC)
                    + V("String", 3) * CC + s("String") * CC
                    + B(CC * (ID + 64 + 3 * L_DIAGID) + 3 * 64))
 _FAILED_MANIFEST_COPY = STAGED + _FAILED_QUALITY
+# T4-S5 D3 (retained-pricing-rules.md §8.8, U4B-W1): failed_manifest's Poisson flags and its diagnostics clone grown
+# by the Poisson warnings, per requested case (u4b_u5b_owners_model binds failed_manifest's body).
+import u4b_u5b_owners_model as _u45_model
+_u45 = _u45_model.inspect(SNAP)
+if _u45["not_covered"]:
+    _FAILED_MANIFEST_COPY = _FAILED_MANIFEST_COPY + _u45_model.failed_manifest_additions(m, DENV) * CC
 rows["T18.1a additional failed-manifest typed clone (B7a stage 1)"] = _FAILED_MANIFEST_COPY
 
 
@@ -355,6 +361,9 @@ G8_BYTES = B(AA * 2 * pushcap(36_742 + 4_986, 8) + 4 * 16 * m)                  
 # the case's diagnostic_refs as a Vec<&Value> (exact size, <= D_env: the refs are unique and resolve);
 # both live for the comparison and drop at the end of the case's iteration (V4)
 F5_EXACT = s("&Value") * (pushcap(DENV) + DENV)
+# T4-S5 D3 (retained-pricing-rules.md §8.8, U4B-RD): G7's base read of the projection and route L's model checks
+# (u4b_evidence's row index, covers and sets; the captured model's array clones), beside the projection.
+_U4B_RD = _u45_model.reader_working_sets(PA, CC, m, RAW_VF.tree()) if _u45["readers"] else X()
 st17 = {
     "V1 G1 receipt hash": hash_route(BODY, L_DIAGID),
     # public = source.clone(), then remove("retained_precision") drops the receipt part before
@@ -362,7 +371,7 @@ st17 = {
     "V2 G1 public clone + hash(publication)": max(SUCC.tree(), ENVP.tree() + hash_route(ENVP, L_PUB), key=lambda x: x.ev(dict(ASSUMED))),
     "V3 G1 source and preparation hashes": SOURCE.tree() + hash_route(SOURCE, ID) + PREP_PAYLOAD.tree() + hash_route(PREP_PAYLOAD, 64),
     "V4 G3-G6 working sets": SETS + G5C + OBJ_WALK + F5_EXACT,
-    "V5 G7 project + preview evidence": SUCC.tree() + SETS + OBJ_WALK,
+    "V5 G7 project + preview evidence": SUCC.tree() + SETS + OBJ_WALK + _U4B_RD,
     "V6 G8 projected + invocation hash + model rebuild": ENVP.tree() + hash_route(INVOC_VF, ID) + G8_VALUES + G8_BYTES + SETS + OBJ_WALK,
 }
 T17_name, T17v = max(st17.items(), key=lambda kv: ev(kv[1]))

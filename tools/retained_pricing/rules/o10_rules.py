@@ -25,9 +25,12 @@ O10 = "O-10 (T4): "
 _rp_bases = sorted(_re.findall(r'base_id:\s*"([^"]+)"', open(_os.path.join(_SNAP, RE_ + "retained_precision.rs"), encoding="utf-8").read()))
 _BASES_B7A = ["openpipestress.result_semantics/0.3.0/physics-1", "openpipestress.result_semantics/0.3.0/preview-physics-1"]
 _BASES_B7B = ["openpipestress.result_semantics/0.3.0/pressure-1", "openpipestress.result_semantics/0.3.0/preview-physics-1"]
-if _rp_bases not in (_BASES_B7A, _BASES_B7B):
+# T4-S5 (U4B-B): the epoch renames the two bases to pressure-2 and preview-physics-2 (S1's identity change, model
+# 0.6.0); the routes, their projections and dispatch are B7b's, so the B7b route-E rules apply unchanged.
+_BASES_U4B = ["openpipestress.result_semantics/0.3.0/pressure-2", "openpipestress.result_semantics/0.3.0/preview-physics-2"]
+if _rp_bases not in (_BASES_B7A, _BASES_B7B, _BASES_U4B):
     raise SystemExit(f"B7b-B: retained_precision's two route bases changed; re-review R1/J1 and route E: {_rp_bases}")
-B7B_EXACT_BASE = _rp_bases == _BASES_B7B
+B7B_EXACT_BASE = _rp_bases in (_BASES_B7B, _BASES_U4B)
 # R1 (Agent 0's ruling: accepted). The pressure-1 arm of the precommit reader's dispatch.
 _c, _e = fnkey("for_source", RE_ + "semantic_contract.rs"), fnkey("validate_pressure_evidence", RE_ + "physics_evidence.rs")
 if _c and _e:
@@ -278,7 +281,17 @@ if fnkey("add_curved_bend_pressure_equivalent_load", PP_ + "lib.rs"):
         ]:
             O10_ID_AUDIT += [(site("append_arc_pressure_results", _BP, _text, full=True, row="format!(" if _text.startswith('"result:') else None), _values)]
     _L = PP_ + "lib.rs"
-    if fnkey("section_basis_row", _L):
+    if fnkey("section_basis_row", _L) and fnkey("published_nodal_displacements", _L):
+        # U4B-K (T4-U4b, §2.3): the arc branch's withheld maximum is gone; a realized arc's certified maximum, when
+        # unavailable, warns with the case-qualified id beside the straight id, each ending in the basis's static
+        # hyphen segment. The classes are U6-K's.
+        O10_ID_AUDIT += [
+            (site(_CASE_FN, _L, 'diagnostics.push(diag(&format!("diagnostic:exact-stress:{}:{}:extrema:{}"', full=True),
+             {"stable_suffix(&load_case.id)": IN, "stable_suffix(&pipe.element_id)": IN, "basis.hyphen()": ST}),
+            (site(_CASE_FN, _L, 'let id = format!("diagnostic:exact-stress:{}:extrema:{}"', full=True),
+             {"stable_suffix(&pipe.element_id)": IN, "basis.hyphen()": ST}),
+        ]
+    elif fnkey("section_basis_row", _L):
         # U6-K (D-5): the arc branch's case-qualified id is now formatted once per basis, beside the straight id; both
         # end in the basis's static hyphen segment (`SectionBasis::hyphen`, <= 15 B). The authored ids keep IN128.
         O10_ID_AUDIT += [
@@ -544,10 +557,15 @@ if fnkey("member_group_fires", _FG):
             "check": "d22bba23d1f09025f3ec267d9ea30b8aaa748e6294b5b34d0e4ea7f1f2616ef7",
             "check_at": "29c96900380beb699a6040a67ec13d7b665944cf47fb02d26b1b64d8de4251e4",
             "evaluate": "a422166f88cfa91bb6d5596111fc42f7d5df1757ad76890e40b30d4765d678d1",
-            "load_closure": "255b53b63c220b8025603e032abf98b55a05cfb6d3ee26b1ecfeb19693f9f15e",
+            "load_closure": "0b662c23c565d94cf0964b6efcbb575afa41958d21a00f4acf8e453527543867",
         }
+        # T4-S5 (U5B-TR): load_closure adds the TieRodReference binding arm (tie rods exist only on connectors, none on
+        # D1 by P3). Its one refusal is a Failure::Closure "{source}: tie-rod source binding" in the existing Closure
+        # path, inside the 8352 B Closure class; the per-invocation caps are unchanged.
         _detail_from = "check_at"
     _fc_lines = open(_os.path.join(_SNAP, _FC), encoding="utf-8").read().splitlines(keepends=True)
+    # U5B-TR: the TieRodReference arm's one returning Closure format (P3: never reached on D1; still charged).
+    _TIE_ROD_CLOSURE = 1 if any('"{}: tie-rod source binding",' in _l for _l in _fc_lines) else 0
     _invocation_bodies = {}
     for _name, _digest in _invocation_pins.items():
         _start = int(fnkey(_name, _FC).split(":")[1]) - 1
@@ -559,7 +577,7 @@ if fnkey("member_group_fires", _FG):
         _invocation_bodies[_name] = (_start, _end)
     for _name, _from, _per, _expected, _why in [
         ("detail", _detail_from, "2", 7, "KD5M1: at most one inner Second detail and one outer detail per check/evaluate invocation; first-error returns prevent another inner detail; charge each exclusive allocation alternative separately"),
-        ("load_closure", "load_closure", "1", 17 if _PRESSURE_FN == "assemble_pressure_case" else 15, "KD5M2: every error allocation returns Err or propagates with ?, so at most one allocation across all closure errors per invocation; charge each exclusive alternative separately; B5 adds two returning joint-binding literals"),
+        ("load_closure", "load_closure", "1", (17 if _PRESSURE_FN == "assemble_pressure_case" else 15) + _TIE_ROD_CLOSURE, "KD5M2: every error allocation returns Err or propagates with ?, so at most one allocation across all closure errors per invocation; charge each exclusive alternative separately; B5 adds two returning joint-binding literals"),
     ]:
         _start, _end = _invocation_bodies[_name]
         _sites = [Resolved(_FC.split("/src/")[-1] + f":{i + 1}") for i in range(_start, _end + 1)
@@ -755,6 +773,9 @@ if _os.path.exists(_os.path.join(_SNAP, _CN)):
         (FK_ + "structural/retained/product_certificate/final_case.rs", "support_hypot"): {
             "open_pipe_stress_correct_norm::norm3(v[0],v[1],v[2])": "norm3"},
     }
+    # U5B-JN (T4-U5b): the tie rod's length, bound to the crate's norm3 as the callers above.
+    if fnkey("direction_and_length", FK_ + "tie_rod.rs"):
+        _JN1[(FK_ + "tie_rod.rs", "direction_and_length")] = {"open_pipe_stress_correct_norm::norm3(d[0], d[1], d[2])": "norm3"}
     _jn1_found = []
     for _d, _, _fs in _os.walk(_os.path.join(_SNAP, FK_)):
         for _f in sorted(_fs):
@@ -781,7 +802,8 @@ if fnkey("for_source", _SC) and fnkey("validate_in", RE_ + "physics_source.rs"):
     site("for_source", _SC, "Some(PRESSURE_SOURCE_ID) =>")
     _rp = open(_os.path.join(_SNAP, RE_ + "retained_precision.rs"), encoding="utf-8").read()
     # B7b-J1: B7b's route E base is pressure-1 (D4 (a)); either pair (B7B_EXACT_BASE above) excludes pressure-source-1.
-    if sorted(_re.findall(r'base_id:\s*"([^"]+)"', _rp)) != (_BASES_B7B if B7B_EXACT_BASE else _BASES_B7A) \
+    # U4B-B: the epoch's -2 pair is B7b's routes renamed; it excludes pressure-source-1 as well.
+    if sorted(_re.findall(r'base_id:\s*"([^"]+)"', _rp)) != (_rp_bases if B7B_EXACT_BASE else _BASES_B7A) \
             or 'projected["producer"]["semantic_contract_id"] = json!(route.base_id);' not in _rp:
         raise SystemExit("J1: retained_precision's G7 projection no longer pins the two base identities; re-review")
     O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("for_source", _SC), fnkey("validate_in", RE_ + "physics_source.rs"),
@@ -803,6 +825,17 @@ if _os.path.exists(_os.path.join(_SNAP, _J7T)) and fnkey("attempted", PP_ + "lib
     O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("attempted", PP_ + "lib.rs"), fnkey("request", _J7T),
         O10 + "J2: `request` in `attempted.push(request, id)` is attempted's for-pattern binding `(&request, &id)`; "
         "j7_t4_consequences::request is a private fn of a #[cfg(test)] module, not nameable from lib.rs")]
+
+# U5B-JV (T4-U5b): `Err(Some(problem)) => problems.push(problem)` in joint.rs `hardware` passes the match binding
+# `problem` (a String), not a function; the by-name function-as-value scan picks pressure_runtime's private `fn problem`,
+# which joint.rs does not call. Only that one edge is zeroed; hardware's other edges stay (and hardware itself is on
+# the connector path, which D1's empty components never reach: P3).
+_JR = PP_ + "joint.rs"
+if fnkey("hardware", _JR) and fnkey("problem", PP_ + "pressure_runtime.rs"):
+    site("hardware", _JR, "Err(Some(problem)) => problems.push(problem),")
+    O10_EDGE_ZERO = O10_EDGE_ZERO + [(fnkey("hardware", _JR), fnkey("problem", PP_ + "pressure_runtime.rs"),
+        O10 + "U5B-JV: `problem` in `problems.push(problem)` is hardware's match binding `Err(Some(problem))`, a String; "
+        "pressure_runtime::problem is a private fn of another module that joint.rs never calls")]
 
 # J3 (test code): source_recovery/j7_rf_census.rs is the J7 RF census, a child module that source_recovery.rs declares only
 # under #[cfg(test)]; the template inventory's name filter does not see it as test code. Its format sites whose arguments
@@ -842,6 +875,15 @@ if _os.path.exists(_os.path.join(_SNAP, _J7C)):
          {"k": {"bytes": 1024, "source": O10 + "J3: a JSON object key of a produced public envelope (schema field names and "
                 "entity-keyed maps of D1-capped ids) or of the test's literals: RES"}}),
     )
+    if fnkey("u4b_every_selected_census_case_still_selects_with_its_new_charge", _J7C):
+        # U4B-J3 (T4-U4b §4.3, test code): the census's new capability test formats two report lines; J3's
+        # multiplicity-0 sizes apply. Its `largest.max(..)` receivers are u64 (`let mut largest = 0u64`), so the
+        # by-name call cannot reach certified_publication's private FallbackError::max.
+        _u4b_j3 = "u4b_every_selected_census_case_still_selects_with_its_new_charge"
+        _J3_SPECS += ((_u4b_j3, 'let mut line = format!("U4B_J7_SELECTED {id} {} class={class} direct_charged={direct} (pinned {})"', None),
+                      (_u4b_j3, 'line += &format!(" publication_case_charged={charged}");', None))
+        CG_RULES += [{"caller": _fn_n(_u4b_j3, _J7C, 1, 1), "name": "max", "targets": [],
+            "added": "U4B-J3", "evidence": "test code: both receivers are the u64 `largest`; the intrinsic u64::max, never the private FallbackError"}]
     if fnkey("member_descriptors", PP_ + "source_recovery.rs"):
         # RF-J3: the census's class/member assertions construct only these
         # two new label templates. Retain J3's measured multiplicity-zero
@@ -1397,6 +1439,7 @@ if _D5:
     _BMF = __import__("runpy").run_path(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "b7a_domain_model.py"))["MEMBER_SOURCE"]
     _CODES = _calls_with_literal_last_arg(_production(_SBR), "require")
     # the second maximum branch's multi-line headline: its result_ref is the fourth line after the opener
+    _HLN = 2 if fnkey("published_nodal_displacements", _LIB) else 1
     _hl = int(site_is(_CASE_FN, _LIB, "*headline = Some(LocatedQuantity {").rsplit(":", 1)[1])
     if _cs[_hl + 3].strip() != "result_ref: result_id.clone(),":
         raise SystemExit("U6-A: the per-basis headline's result_ref moved; re-review")
@@ -1407,8 +1450,10 @@ if _D5:
         (site(_CASE_FN, _LIB, '&basis.map_or_else(|| id.clone(), |basis| format!("{id}:{}", basis.hyphen())),', full=True),
          {"id": _st(_DIAG_ID, "the stress-finding id formatted just above (its four audited parts and 18 literal bytes)"), "basis.hyphen()": _SEGA}),
         (site(_CASE_FN, _LIB, 'let row = section_basis_row(ResultItem { id: format!("result:elastic-maximum:{}:{}:{}:{}", load_case.id.len(), load_case.id, pipe.element_id.len(), pipe.element_id)', full=True), _MAX_ID),
-        (site(_CASE_FN, _LIB, '*headline = Some(LocatedQuantity { value, unit: "Pa".into(), location_ref: pipe.element_id.clone(), result_ref: result_id.clone() });', full=True),
-         {"pipe.element_id": IN, "result_id": _RID_D5}),
+        # U4B-K (T4-U4b): a realized arc's certified maximum sets the per-basis headline with the same statement; its
+        # result id is u4b_rows::arc_maximum_row's, the same elastic-maximum template with its basis segment (_RID_D5).
+        *[(site_is(_CASE_FN, _LIB, '*headline = Some(LocatedQuantity { value, unit: "Pa".into(), location_ref: pipe.element_id.clone(), result_ref: result_id.clone() });',
+                   nth=_k, count=_HLN), {"pipe.element_id": IN, "result_id": _RID_D5}) for _k in range(1, _HLN + 1)],
         (site(_CASE_FN, _LIB, 'diagnostics.push(diag(&format!("diagnostic:source-recovery:{}:{}:maximum:{}",load_case.id,pipe.element_id,basis.hyphen())', full=True),
          {"load_case.id": IN, "pipe.element_id": IN, "basis.hyphen()": _SEGA}),
         (site(_CASE_FN, _LIB, "let row = section_basis_row(ResultItem { id:format!(", full=True), _MAX_ID),
@@ -1417,10 +1462,10 @@ if _D5:
         (_HL_REF, {"result_id": _RID_D5}),
         (site_is(_CASE_FN, _LIB, "let result_id = row.id.clone();", nth=1, count=2), {"row.id": _RID_D5}),
         (site_is(_CASE_FN, _LIB, "let result_id = row.id.clone();", nth=2, count=2), {"row.id": _RID_D5}),
-        (site_is(_CASE_FN, _LIB, "pressure_exact::SectionBasis::Nominal => unavailable_stress_maximum_members.push(pipe.element_id.clone()),", nth=1, count=2), {"pipe.element_id": IN}),
-        (site_is(_CASE_FN, _LIB, "pressure_exact::SectionBasis::Nominal => unavailable_stress_maximum_members.push(pipe.element_id.clone()),", nth=2, count=2), {"pipe.element_id": IN}),
-        (site_is(_CASE_FN, _LIB, "pressure_exact::SectionBasis::Reduced => unavailable_reduced_maximum_members.push(pipe.element_id.clone()),", nth=1, count=2), {"pipe.element_id": IN}),
-        (site_is(_CASE_FN, _LIB, "pressure_exact::SectionBasis::Reduced => unavailable_reduced_maximum_members.push(pipe.element_id.clone()),", nth=2, count=2), {"pipe.element_id": IN}),
+        # U4B-K: a realized arc's unavailable certified maximum names its member once more per basis (_HLN - 1 extra).
+        *[(site_is(_CASE_FN, _LIB, "pressure_exact::SectionBasis::" + _b + " => unavailable_" + _l + "_maximum_members.push(pipe.element_id.clone()),",
+                   nth=_k, count=_HLN + 1), {"pipe.element_id": IN})
+          for _b, _l in (("Nominal", "stress"), ("Reduced", "reduced")) for _k in range(1, _HLN + 2)],
         (site(_CASE_FN, _LIB, 'diagnostics.push(diag(&id,"EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE","warning",', full=True),
          {"load_case.id": IN, "pipe.element_id": IN}),
         # RS g5c: a reduced twin's class takes the twin's own row id (a published result id, RES 1024, as the
@@ -1433,7 +1478,9 @@ if _D5:
         (site("section_basis_row", _LIB, "metadata.basis.push_str(basis.basis_suffix());", full=True),
          {"basis.basis_suffix()": _st(_SUFFIX, "SectionBasis::basis_suffix, the longest literal")}),
         # retained_product validate_final_metadata: the expected base recipe (B7a owner choices' max) and the segment
-        (site("validate_final_metadata", _RPP, '(Some(basis), k::ProductRecipe::Stress { .. }) => format!("{expected}:{}", basis.hyphen()),', full=True),
+        # U4B-W1: a route-E derived (NotCovered) row's id takes the same hyphen segment as a stress row.
+        (site("validate_final_metadata", _RPP, '(Some(basis), k::ProductRecipe::Stress { .. } | k::ProductRecipe::NotCovered { .. }) => format!("{expected}:{}", basis.hyphen()),'
+              if fnkey("prepared_not_covered", _RPP) else '(Some(basis), k::ProductRecipe::Stress { .. }) => format!("{expected}:{}", basis.hyphen()),', full=True),
          {"expected": _st(_EXPECTED, "the expected base recipe, max of B7a owner choices' BOUNDS"), "basis.hyphen()": _SEGA}),
         (site("validate_final_metadata", _RPP, '(Some(basis), _) => format!("{expected}:{}", basis.token()),', full=True),
          {"expected": _st(_EXPECTED, "the expected base recipe, max of B7a owner choices' BOUNDS"), "basis.token()": _SEGA}),
@@ -1556,3 +1603,236 @@ if fnkey("bit_equal", _SBR_BE):
     O10_RECURSION_REVIEWED = list(globals().get("O10_RECURSION_REVIEWED", [])) + [(fnkey("bit_equal", _SBR_BE),
         "U6-BE: bit_equal's only text is number's static Err (29 B), formed only for a Number leaf, whose as_f64 is always "
         "Some and finite, and dropped inside the match; nothing else allocates: its text counts once per external call")]
+
+# ====================================================================================================================
+# T4-S5: shared epoch 4 (model 0.6.0, U4b, U5b and the W1 not-covered passthrough), actual-source D3. Each label's
+# argument is in DEL-04-08 Design retained-pricing-rules.md §8.8. Every rule is keyed by name and guarded by its function.
+_U4R, _U4E = PP_ + "u4b_rows.rs", RE_ + "u4b_evidence.rs"
+_TR, _CN_FK, _JT = FK_ + "tie_rod.rs", FK_ + "connector.rs", PP_ + "joint.rs"
+if fnkey("append_station_quantities", _U4R) and fnkey("member_stations", _U4E):
+    def _u4_const(f, name):
+        m = _re.findall(r"const " + name + r": &str = \"((?:[^\"\\]|\\.)*)\";", _text_of(f))
+        if len(m) != 1:
+            raise SystemExit(f"U4B-ID: {name} is not one &str const in {f}")
+        return len(m[0].encode())
+    for _f in (_U4R, _U4E):
+        if not _re.search(r"const STATIONS: \[&str; 5\] = \[\"end_i\", \"end_j\", \"quarter_1\", \"midspan\", \"quarter_3\"\];", _text_of(_f)):
+            raise SystemExit(f"U4B-L: {_f} STATIONS is no longer the five reviewed stations")
+    if "pub(crate) const BOTH: [SectionBasis; 2]" not in _text_of(PP_ + "pressure_exact/source_geometry.rs"):
+        raise SystemExit("U4B-L: SectionBasis::BOTH is no longer two bases")
+    _U4L = O10 + "U4B-L: "
+    _P2 = " (P2: D1 refuses every model with components, so no realized arc, component association or connector exists)"
+    O10_LOOPS_LAST += [
+        ("for location in STATIONS", "5", _U4L + "STATIONS is the fixed five-station array (checked above)",
+         ["u4b_rows.rs:append_station_quantities", "u4b_rows.rs:preview_straight_derived_placeholders",
+          "u4b_evidence.rs:member_stations", "u4b_evidence.rs:directional_model_checks"]),
+        ("for (slot, b) in m.bases.iter().enumerate()", "2", _U4L + "member_bases: SectionBasis::BOTH (2) or the one preview section", ["u4b_rows.rs:append_station_quantities"]),
+        ("for &(basis, e, _, _) in &extremes", "2", _U4L + "extremes holds at most one entry per basis (<= 2)", ["u4b_rows.rs:append_station_quantities"]),
+        ("for &(basis, _, y, z) in &extremes", "2", _U4L + "extremes holds at most one entry per basis (<= 2)", ["u4b_rows.rs:append_station_quantities"]),
+        ("for (b, factor) in m.bases.iter().zip(&factors)", "2", _U4L + "one factor per basis (<= 2)", ["u4b_rows.rs:append_station_quantities"]),
+        ("for (b, value) in m.bases.iter().zip(values)", "2", _U4L + "one hoop value per basis (<= 2)", ["u4b_rows.rs:append_station_quantities"]),
+        ("for (b, (_, witnesses)) in bases.iter().zip(&station.normal_witnesses)", "2", _U4L + "one witness list per basis (<= 2); realized arcs only", ["lib.rs:" + _CASE_FN]),
+        ("for (b, (_, witnesses)) in bases.iter().zip(&station.directional_witnesses)", "2", _U4L + "one witness list per basis (<= 2); directional arcs only", ["lib.rs:" + _CASE_FN]),
+        ("for basis in &m.bases", "2", _U4L + "MemberFacts.bases: section_basis::BASES (2) or [\"\"]", ["u4b_evidence.rs:member_stations"]),
+        ("for (got, want) in hoop.iter().zip(expected)", "3", _U4L + "three hoop rows (intrados, crown, extrados)", ["u4b_evidence.rs:member_stations"]),
+        ("for &basis in bases", "2", _U4L + "the route's literal basis list (<= 2)", ["u4b_evidence.rs:directional_model_checks"]),
+        ("for &pipe in arcs.keys()", "0", _U4L + "directional_arcs keys come only from model.components" + _P2, ["u4b_evidence.rs:directional_model_checks"]),
+        ('for component in model[" "].as_array().map(Vec::as_slice).unwrap_or(&[])', "0", _U4L + "the captured model's components" + _P2, ["u4b_evidence.rs:directional_arcs"]),
+        ('for record in case[" "].as_array().map(Vec::as_slice).unwrap_or(&[])', "0",
+         _U4L + "a case's intensified_measures records exist only for component associations and directional arcs" + _P2, ["u4b_evidence.rs:directional_model_checks"]),
+        ("for (pipe, basis, record, row) in maxima", "0", _U4L + "a directional maximum is pushed only after its pipe is a realized arc" + _P2, ["u4b_evidence.rs:directional_records"]),
+        ("for cover in stations.values()", "0", _U4L + "a directional station entry is pushed only after its pipe is a realized arc" + _P2, ["u4b_evidence.rs:directional_records"]),
+        ('for row in rows.iter().filter(|r| r[" "] == SHEAR_MAX && case_of(r) == Some(case_id) && r[" "] == pipe_id)', "Pall",
+         _U4L + "one pass over the projected envelope's rows (<= C·P_final = Pall)", ["u4b_evidence.rs:preview_model_checks"]),
+        ("for &(case, pipe, basis, record, row) in arc_extrema", "2*cases*m", _U4L + "arc extrema: at most one per case, member and basis", ["physics_evidence.rs:u4b_cases"]),
+        ("for &(_, pipe, record, row) in arc_extrema.iter().filter(|e| e.0 == case_id)", "cases*m", _U4L + "preview arc extrema: at most one per case and member", ["preview_physics_evidence.rs:validate_preview_physics_evidence"]),
+        ('for row in results.iter().filter(|r| r[" "][" "] == case_id)', "Pall", _U4L + "one pass over the envelope's rows", ["physics_evidence.rs:u4b_cases"]),
+        ("for (position, row) in published.iter().enumerate()", "Pall", _U4L + "one pass over the envelope's rows", ["physics_evidence.rs:validate_physics_evidence_in"]),
+        ("for r in view.case_rows()", "P", O10 + "U4B-W1: one case's rows (<= P_final)", ["retained_product.rs:prepared_not_covered"]),
+        ("for d in not_qualified_for(rows)?", "P", O10 + "U4B-NQ: one derived treatment per row of the selected case (<= P_final)", ["source_receipt/rows.rs:bind_for"]),
+        ("for row in rows.iter().filter(|r| r.kind == u4b_rows::EXTREME_KIND || r.kind == u4b_rows::SHEAR_MAX_KIND)", "P",
+         O10 + "U4B-NQ: one pass over the selected case's rows (<= P_final)", ["source_receipt/rows.rs:not_qualified_for"]),
+        ("iter:input_result_ids: inputs.iter().map", "3", O10 + "U4B-NQ: at most three formula inputs per derived row", ["source_receipt/rows.rs:not_qualified_for"]),
+    ]
+if fnkey("tie_rods", _CN_FK) or _os.path.exists(_os.path.join(_SNAP, _TR)):
+    # U5B-L: a tie rod exists only in a connector's hardware (ObjectiveConnector::with_tie_rods, called only by
+    # joint::build_connector), so P3's empty connector collections leave every rod loop empty under D1.
+    _U5L = O10 + "U5B-L: tie rods belong to built connectors, empty under D1 (P3: ObjectiveConnector::with_tie_rods is called only by joint::build_connector)"
+    O10_LOOPS_LAST += [
+        ("for (connector_index, (connector, record)) in built.connectors.iter().zip(&built.connector_records).enumerate()", "0",
+         O10 + "U5B-L: L1: built.connectors is empty under D1", ["lib.rs:add_tie_rod_reference_loads"]),
+        ("for (rod_index, (rod, meta)) in connector.tie_rods().iter().zip(&record.tie_rods).enumerate()", "0", _U5L, ["lib.rs:add_tie_rod_reference_loads"]),
+        ("for (index, meta) in record.tie_rods.iter().enumerate()", "0", _U5L, ["lib.rs:append_connector_results"]),
+        ("for (rod, meta) in connector.tie_rods().iter().zip(&record.tie_rods)", "0", _U5L, ["lib.rs:append_connector_results"]),
+        ('for (kind, component, row) in pe.map(|pe| (" ", " ", pe)).into_iter().chain([ (" ", " ", s), ])', "2",
+         O10 + "U5B-L: at most the pe_x row and the s_x row", ["lib.rs:append_connector_results"]),
+        ("iter:rods .iter().map", "0", _U5L, ["connector.rs:force_scaled"]),
+        ("for rod in entries", "0", _U5L + "; a tie_rods array is read only from a connector record (E1: records are empty on route E)", ["connector_evidence.rs:tie_rods"]),
+        ('for rod in record[" "].as_array().into_iter().flatten().filter_map(|r| r[" "].as_str())', "0", _U5L + "; inside E2's loop over spans (empty)", ["connector_evidence.rs:validate"]),
+        ('iter:record[" "].as_array().into_iter().flatten() .filter_map(|r| r[" "].as_str()).find', "0", _U5L + "; only for a tie-rod row of a connector record (E1: none)", ["connector_evidence.rs:validate"]),
+        ("for rod in &rods", "0", _U5L + "; inside validate_pressure's loop over connector records (E1: none)", ["connector_evidence.rs:validate_pressure"]),
+        ("iter:rows.values().find", "Pall", O10 + "U5B-L: one pass over the indexed rows", ["connector_evidence.rs:validate_pressure"]),
+    ]
+    # U5B-REC: ObjectiveConnector::force_scaled maps each rod through TieRod::force_scaled, not itself.
+    if fnkey("force_scaled", _CN_FK) and fnkey("force_scaled", _TR):
+        site("force_scaled", _CN_FK, ".map(|rod| rod.force_scaled(scale))")
+        CG_RULES += [{"caller": _fn_n("force_scaled", _CN_FK, 1, 1), "name": "force_scaled", "targets": [_fn_n("force_scaled", _TR, 1, 1)],
+            "added": "U5B-REC", "evidence": "`rod.force_scaled(scale)` receives a &TieRod (connector.tie_rods); the connector's own method is not called recursively"}]
+if fnkey("append_station_quantities", _U4R):
+    _GEOM_U4 = PP_ + "pressure_exact/source_geometry.rs"
+    _SEG_U4 = max(_literals(_fn_text("hyphen", _GEOM_U4)))
+    _LOC = max(_literals(_fn_text("id_location", _U4R)) + [len(s) for s in ("end_i", "end_j", "quarter_1", "midspan", "quarter_3")])
+    _SHEAR = max(_u4_const(_U4R, "SHEAR_SIGN_EXACT"), _u4_const(_U4R, "SHEAR_SIGN_PREVIEW"), _u4_const(_U4E, "SHEAR_SIGN_EXACT"), _u4_const(_U4E, "SHEAR_SIGN_PREVIEW"))
+    _ARCSFX = max(_u4_const(_U4R, "SHEAR_ARC_SUFFIX"), _u4_const(_U4E, "SHEAR_ARC_SUFFIX"))
+    _CODE = max(len(c) for c in _re.findall(r'"([A-Z][A-Z0-9_]+)"', _production(_U4E)))
+    def _u4(n, why):
+        return {"bytes": n, "source": O10 + "U4B-ID: " + why}
+    _LOCC, _HY = _u4(_LOC, "u4b_rows::id_location of a station (longest literal)"), _u4(_SEG_U4, "SectionBasis::hyphen, the longest literal")
+    _MAPOR = 'b.basis.map_or(String::new(),|b|format!(":{}",b.hyphen()))'
+    _STREF = {"stable_suffix(case_id)": IN, "stable_suffix(pipe_id)": IN}
+    O10_ID_AUDIT += [
+        (site("poisson_out_of_domain", _U4R, 'format!("diagnostic:transverse-shear:{}:{}:poisson"', full=True), _STREF),
+        (site("poisson_out_of_domain", _U4R, 'no transverse-shear maximum is published for it in {}", pipe_id', full=True), {"pipe_id": IN, "case_id": IN}),
+        (site("poisson_out_of_domain", _U4R, "vec![case_id.to_string(), pipe_id.to_string()]", full=True), {"case_id": IN, "pipe_id": IN}),
+        (site("preview_straight_derived_placeholders", _U4R, 'format!("result:stress:{suffix}:{loc}:{tail}")', full=True), {"loc": _LOCC}),
+        (site("preview_straight_derived_placeholders", _U4R, 'format!("result:stress:{suffix}:{loc}:transverse-shear-max")', full=True), {"loc": _LOCC}),
+        (site("append_station_quantities", _U4R, 'row(format!("result:stress:{suffix}:{loc}:{tail}")', full=True), {"loc": _LOCC}),
+        (site("append_station_quantities", _U4R, 'row(format!("result:stress:{suffix}:{loc}:transverse-shear-max")', full=True), {"loc": _LOCC}),
+        (site("append_station_quantities", _U4R, 'row(format!("result:intensified-directional:{suffix}:{loc}")', full=True), {"loc": _LOCC}),
+        (site("append_station_quantities", _U4R, 'if m.exact { SHEAR_SIGN_EXACT } else { SHEAR_SIGN_PREVIEW },', full=True, row="format!("),
+         {"ifm.exact{SHEAR_SIGN_EXACT}else{SHEAR_SIGN_PREVIEW}": _u4(_SHEAR, "the longer route τ sign constant"),
+          'ifm.arc{SHEAR_ARC_SUFFIX}else{""}': _u4(_ARCSFX, "SHEAR_ARC_SUFFIX")}),
+        (site("append_station_quantities", _U4R, 'format!("diagnostic:toroidal-hoop:{}:{}:domain"', full=True), {"stable_suffix(m.case_id)": IN, "suffix": IN}),
+        (site("append_station_quantities", _U4R, "its toroidal hoop and radial rows are not published in {}\", m.pipe_id", full=True), {"m.pipe_id": IN, "m.case_id": IN}),
+        (site("append_station_quantities", _U4R, 'format!("diagnostic:toroidal-hoop:{}:{}:evaluation{}"', full=True),
+         {"stable_suffix(m.case_id)": IN, "suffix": IN, _MAPOR: _u4(1 + _SEG_U4, "':' and SectionBasis::hyphen"), "b.hyphen()": _HY}),
+        (site("append_station_quantities", _U4R, 'format!("{TOROIDAL_EVALUATION_TEXT}: arc {} in {}: {error:?}", m.pipe_id, m.case_id)', full=True), {"m.pipe_id": IN, "m.case_id": IN}),
+        (site(_CASE_FN, PP_ + "lib.rs", 'format!("diagnostic:intensified-directional:{}:{}:maximum{}"', full=True),
+         {_MAPOR: _u4(1 + _SEG_U4, "':' and SectionBasis::hyphen"), "b.hyphen()": _HY}),
+        (site_after(_CASE_FN, PP_ + "lib.rs", "records.push(corrected_displacement_tests::DisplacementPublication {", "case_id: load_case.id.clone(),", within=2),
+         {"load_case.id": IN}),   # U5B-PD: the #[cfg(test)] publication probe (compiled out; charged at IN128)
+        (site("restate_nonlinear_support_displacements", PP_ + "lib.rs", 'format!("result:nonlinear-support:{}:{}-displacement"', full=True),
+         {"stable_suffix(&support.support_id)": IN, "support.dof.as_str()": ST}),
+        (site("tie_rod_reference_source", PP_ + "lib.rs", 'format!("{}:{component}:{}:{rod}", component.len(), rod.len())', full=True),
+         {"rod": IN, "component": IN, "component.len()": NUM_, "rod.len()": NUM_}),
+        (site("validate_final_metadata", PP_ + "retained_product.rs", 'format!("result:stress:{suffix}:{}:{tail}", u4b_rows::id_location(loc))', full=True),
+         {"suffix": IN, "u4b_rows::id_location(loc)": _LOCC}),
+        (site("fail", _U4E, 'Route::Exact => format!("SOURCE_PHYSICS_{code}"),', full=True), {"code": _u4(_CODE, "the longest code literal in u4b_evidence.rs")}),
+        (site("fail", _U4E, 'Route::Preview => format!("SOURCE_PREVIEW_PHYSICS_{code}"),', full=True), {"code": _u4(_CODE, "the longest code literal in u4b_evidence.rs")}),
+        (site("shear_sign", _U4E, "format!(", full=True),
+         {"ifself==Route::Exact{SHEAR_SIGN_EXACT}else{SHEAR_SIGN_PREVIEW}": _u4(_SHEAR, "the longer route τ sign constant"),
+          'ifarc{SHEAR_ARC_SUFFIX}else{""}': _u4(_ARCSFX, "SHEAR_ARC_SUFFIX")}),
+    ]
+    # U4B-W1/U4B-RD: two selected signs copied by to_string at one site each.
+    LEX_SITE_SIZE += [
+        (Resolved("preview_physics.rs:" + site("maximum_row", PP_ + "preview_physics.rs", "else { MAXIMUM_SIGN }.to_string(),").rsplit(":", 1)[1]),
+         {"class": max(_u4_const(_U4R, "ARC_MAXIMUM_SIGN"), _u4_const(PP_ + "preview_physics.rs", "MAXIMUM_SIGN")), "why": O10 + "U4B-ID: the longer of the two maximum sign constants"}),
+        (Resolved("u4b_evidence.rs:" + site("row_semantics", _U4E, "else { SIGMA_PLUS_SIGN }.to_string(), true, false),").rsplit(":", 1)[1]),
+         {"class": max(_u4_const(_U4E, "SIGMA_PLUS_SIGN"), _u4_const(_U4E, "SIGMA_MINUS_SIGN")), "why": O10 + "U4B-ID: the longer of the two σ± sign constants"}),
+    ]
+    # U4B-RD: Route::fail allocates only when it returns Err; every require/fail in u4b_evidence.rs and every outside call
+    # into its checks propagates with `?` (or map_err then `?`) to these readers' entries: <= 1 per entry call.
+    _U4_ROOTS = [k for k in (fnkey("validate_physics_evidence_in", RE_ + "physics_evidence.rs"),
+                             fnkey("validate_preview_physics_evidence", RE_ + "preview_physics_evidence.rs"),
+                             fnkey("gates_after_g0", RE_ + "retained_precision.rs"), fnkey("validate", RE_ + "reader_verdict.rs")) if k]
+    O10_SITE_FROM += [(site("fail", _U4E, _t), {"from": _U4_ROOTS, "per": "1",
+        "why": O10 + "U4B-RD: Route::fail forms its code only on Err, and every failure returns through `?` to the reader entry"})
+        for _t in ('Route::Exact => format!("SOURCE_PHYSICS_{code}"),', 'Route::Preview => format!("SOURCE_PREVIEW_PHYSICS_{code}"),')]
+if _os.path.exists(_os.path.join(_SNAP, _TR)):
+    # U5B-ID: TieRodError's `name` is always one static literal (or finite3's literal argument).
+    _trp = _production(_TR)
+    _TRN = [len(x) for x in _re.findall(r'name:\s*"([^"]+)"', _trp) + _re.findall(r'finite3\("([^"]+)"', _trp)]
+    if len(_re.findall(r"TieRodError::(?:NonFinite|Range)\s*\{\s*name\s*\}", _trp)) != 1 or not _TRN:
+        raise SystemExit("U5B-ID: a TieRodError name is no longer a static literal; re-review")
+    _TRC = {"bytes": max(_TRN), "source": O10 + "U5B-ID: the longest static tie-rod field name"}
+    O10_ID_AUDIT += [(site("fmt", _TR, 'Self::NonFinite { name } => write!(f, "tie rod input {name} is not finite"),', full=True), {"name": _TRC}),
+                     (site("fmt", _TR, 'Self::Range { name } => write!(f, "tie rod {name} outside the binary64 range"),', full=True), {"name": _TRC})]
+    O10_ID_AUDIT += [(site("connector_record", PP_ + "certified_publication.rs", 'format!("tie_rod:{rod}")', full=True), {"rod": IN})]
+if fnkey("hardware", _JT):
+    # U5B-JT: joint hardware findings; unreached on D1 (decoded only from model.components: P2). A joined list is bounded
+    # by D1's raw census: at most 16,384 values, one 256-byte problem each, plus all 131,072 authored string bytes.
+    _JC = {"bytes": 16_384 * 256 + 131_072, "source": O10 + "U5B-JT: raw-census bound of a joined hardware problem list"}
+    for _fn, _t, _args in [
+            ("hardware", '"objective connector {component}: {}; only {ROD_LAW} is', {'laws.join(";")': _JC}),
+            ("hardware", '"objective connector {component}: invalid tie-rod hardware: {}; it is never assembled', {'problems.join(";")': _JC}),
+            ("tie_rod", 'laws.push(format!("tie rod {name} law {law} is not supported"));', {"law": IN}),
+            ("tie_rod", 'problems.push(format!("{key}.{axis} {problem}"));', {"problem": _JC}),
+            ("tie_rod", 'problems.push(format!("stiffness {problem}"));', {"problem": _JC}),
+            ("tie_rod", 'problems.push(format!("reference_extension {problem}"));', {"problem": _JC}),
+            ("tie_rod", 'return Err(Some(format!("tie rod {name}: {}", problems.join(", "))));', {'problems.join(",")': _JC})]:
+        O10_ID_AUDIT += [(site(_fn, _JT, _t, full=True, row="format!(" if not _t.startswith(("laws.", "problems.", "return")) else None), _args)]
+    O10_ID_AUDIT += [
+        (site("tie_rod_formation_findings", _JT, 'problems.join("; ")))).collect()', full=True, row="format!("), {'problems.join(";")': _JC}),
+        (site("model_findings", _JT, '"objective connector {}: {problem}; the connector is not assembled"', full=True, row="format!("), {"problem": _JC}),
+    ]
+_J7C_U4 = PP_ + "source_recovery/j7_rf_census.rs"
+if fnkey("u4b_every_selected_census_case_still_selects_with_its_new_charge", _J7C_U4):
+    # U4B-J3 (test code, multiplicity 0 by J3): honest classes for the census line's other arguments.
+    O10_ID_AUDIT += [(site("u4b_every_selected_census_case_still_selects_with_its_new_charge", _J7C_U4, 'let mut line = format!("U4B_J7_SELECTED', full=True),
+        {"class": {"bytes": 64, "source": O10 + "U4B-J3: a census first-cause class label"}, "direct": NUM_,
+         'pinned["first_cause"]["work"]["charged"]': {"bytes": 24, "source": O10 + "U4B-J3: a pinned u64 charge in JSON Display"}})]
+if fnkey("append_station_quantities", _U4R):
+    _u4p = _production(_U4R)
+    _KINDS = max(len(v.encode()) for v in _re.findall(r'_KIND: &str = "([^"]+)";', _u4p))
+    _BASES = max(len(v.encode()) for v in _re.findall(r'_BASIS: &str = "([^"]+)";', _u4p))
+    _SIGNS = max([len(v.encode()) for v in _re.findall(r'_SIGN: &str = "([^"]+)";', _u4p)] + [_SHEAR + _ARCSFX])
+    _LOWER = max(len(v) for v in _re.findall(r'"([a-z][a-z0-9_]*)"', _u4p))
+    _ARCREASON = max(_literals(_fn_text("reason", FK_ + "structural/arc_maximum.rs")))
+    _RF = site("row", _U4R, "kind: kind.to_string(),", full=True).rsplit(":", 1)[0]
+    O10_ID_AUDIT += [
+        (site("row", _U4R, "kind: kind.to_string(),", full=True), {"kind": _u4(_KINDS, "the longest u4b_rows kind constant")}),
+        (site("row", _U4R, "unit: unit.to_string(),", full=True), {"unit": _u4(3, "\"MPa\" or \"Pa\"")}),
+        (site("row", _U4R, "entity_ref: pipe.to_string(),", full=True), {"pipe": IN}),
+        (site("row", _U4R, "component: component.to_string(),", full=True), {"component": _u4(_LOWER, "the longest lowercase literal in u4b_rows.rs")}),
+        (site("row", _U4R, "location: location.to_string(),", full=True), {"location": _u4(_LOWER, "the longest lowercase literal in u4b_rows.rs")}),
+        (site("row", _U4R, "basis: basis.to_string(),", full=True), {"basis": _u4(_BASES, "the longest u4b_rows basis constant")}),
+        (site("row", _U4R, "sign_convention: sign.to_string(),", full=True), {"sign": _u4(_SIGNS, "the longest sign constant, or the τ sign with its arc suffix")}),
+        (site("final_row_id", _U4R, "id.to_string()", full=True), {"id": RS_}),
+        (site("pressure_row_id", _U4R, 'format!("result:pressure-exact:{}:{}:{}:{}:{}:{}"', full=True),
+         {"case_id": IN, "pipe_id": IN, "case_id.len()": NUM_, "pipe_id.len()": NUM_,
+          "location": _u4(_LOWER, "a station literal"), "component": _u4(_LOWER, "a toroidal component literal")}),
+        (site("arc_maximum_row", _U4R, 'format!("result:elastic-maximum:{}:{}:{}:{}"', full=True),
+         {"case_id": IN, "pipe_id": IN, "case_id.len()": NUM_, "pipe_id.len()": NUM_}),
+        (site("directional_maximum_row", _U4R, 'format!("result:intensified-directional-maximum:{}:{}:{}:{}"', full=True),
+         {"case_id": IN, "pipe_id": IN, "case_id.len()": NUM_, "pipe_id.len()": NUM_}),
+        (site("append_station_quantities", _U4R, 'vec![m.case_id.to_string(), m.pipe_id.to_string()],', full=True, row=None) if _fn_text("append_station_quantities", _U4R).count('vec![m.case_id.to_string(), m.pipe_id.to_string()],') == 1 else None, {"m.case_id": IN, "m.pipe_id": IN}),
+    ]
+    O10_ID_AUDIT = [e for e in O10_ID_AUDIT if e[0] is not None]
+    # the two diagnostic ref vectors of append_station_quantities (domain and evaluation arms)
+    _asq_lines, _asq_start, _asq_end = fn_lines("append_station_quantities", _U4R)
+    _asq_refs = [i + 1 for i in range(_asq_start - 1, _asq_end - 1) if "vec![m.case_id.to_string(), m.pipe_id.to_string()]," in _asq_lines[i]]
+    if len(_asq_refs) != 2:
+        raise SystemExit(f"U4B-ID: append_station_quantities' diagnostic ref vectors changed: {_asq_refs}")
+    O10_ID_AUDIT += [(Resolved(f"{_U4R}:{_l}"), {"m.case_id": IN, "m.pipe_id": IN}) for _l in _asq_refs]
+    O10_ID_AUDIT += [(site(_fn, _U4R, _t, full=True), {"suffix": IN}) for _fn, _t in (
+        ("preview_straight_derived_placeholders", 'format!("result:stress:{suffix}:{loc}:{tail}")'),
+        ("preview_straight_derived_placeholders", 'format!("result:stress:{suffix}:{loc}:transverse-shear-max")'),
+        ("append_station_quantities", 'row(format!("result:stress:{suffix}:{loc}:{tail}")'),
+        ("append_station_quantities", 'row(format!("result:stress:{suffix}:{loc}:transverse-shear-max")'),
+        ("append_station_quantities", 'row(format!("result:intensified-directional:{suffix}:{loc}")'))]
+    _LIBF = PP_ + "lib.rs"
+    O10_ID_AUDIT += [
+        (site(_CASE_FN, _LIBF, "let result_id = item.id.clone();", full=True), {"item.id": _RID_D5}),
+        (site(_CASE_FN, _LIBF, '"EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE","warning",format!("signed physical rows remain available; governing circular-normal-stress maximum is unavailable: {reason}"),vec![load_case.id.clone(),pipe.element_id.clone()]));', full=True),
+         {"load_case.id": IN, "pipe.element_id": IN}),
+        (site(_CASE_FN, _LIBF, 'format!("diagnostic:intensified-directional:{}:{}:maximum{}"', full=True),
+         {"stable_suffix(&load_case.id)": IN, "stable_suffix(&pipe.element_id)": IN}),
+        (site_after(_CASE_FN, _LIBF, '"DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE", "warning",', "vec![load_case.id.clone(), pipe.element_id.clone()],", within=3),
+         {"load_case.id": IN, "pipe.element_id": IN}),
+    ]
+    LEX_SITE_SIZE += [(Resolved("u4b_rows.rs:" + site("arc_maximum", _U4R, ".map_err(|failure| failure.reason().to_string())").rsplit(":", 1)[1]),
+        {"class": _ARCREASON, "why": O10 + "U4B-ID: ArcMaximumFailure::reason returns one of its static literals"})]
+    O10_LOOPS_LAST += [("for cell in candidates", "131072", O10 + "U4B-L: the candidate cells of one arc maximum are a subset of its cells, "
+        "<= ARC_MAXIMUM_SUBDIVISION_LIMIT (131,072); realized arcs only (P2: none on D1)", ["structural/arc_maximum.rs:locate"])]
+    if "pub const ARC_MAXIMUM_SUBDIVISION_LIMIT: usize = 131_072;" not in _text_of(FK_ + "structural/arc_maximum.rs"):
+        raise SystemExit("U4B-L: ARC_MAXIMUM_SUBDIVISION_LIMIT changed; re-review")
+if fnkey("not_qualified_for", PP_ + "source_receipt/rows.rs"):
+    _RW = PP_ + "source_receipt/rows.rs"
+    _KLIT = max(len(v) for v in _re.findall(r'find\("([a-z_]+)"', _fn_text("not_qualified_inputs", _RW)))
+    O10_ID_AUDIT += [
+        (site("bind_for", _RW, "ledger.insert(d.result_id.clone(), d);", full=True), {"d.result_id": RS_}),
+        (site("not_qualified_inputs", _RW, 'Err(bad(format!("derived_not_qualified input: {kind}")))', full=True), {"kind": _u4(_KLIT, "the longest input kind literal")}),
+        (site("not_qualified_for", _RW, 'format!("derived_not_qualified value: {}", row.id)', full=True), {"row.id": RS_}),
+        (site("not_qualified_for", _RW, "result_id: row.id.clone(),", full=True), {"row.id": RS_}),
+        (site("not_qualified_for", _RW, "input_result_ids: inputs.iter().map(|r| r.id.clone()).collect(),", full=True), {"r.id": RS_}),
+    ]

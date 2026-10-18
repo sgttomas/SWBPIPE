@@ -8,7 +8,9 @@ import re
 # source-derived stress rows (the D-5 basis twins); the retired sites stay retired. source_receipt.rs (433fc1f1e4)
 # changes only `hash`, which serializes a borrowed wrapper through the new `hash_text` (U6-SH); the exact, ordinary
 # and finalize constructors stay absent and finalize_composite/finalize_for stay unique.
-SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': 'e9c2fed2329ce57c2672ebccc62b30c96f3936539b5ba59ada76ba459570d5be','core/product_physics/src/source_receipt.rs': 'a74f58877c0fe80bc8b5e36f55af2524c366a85c97a0137e92711539cb23f8c9'}
+# T4-S5 D3 (retained-pricing-rules.md §7.6, U4B-NQ): rows.rs adds only bind_for's derived_not_qualified loop and the
+# new not_qualified_inputs/not_qualified_for; the four retired sites and the retired constructors stay absent.
+SOURCE_FILES = {'core/product_physics/src/source_receipt/rows.rs': '27a20f06463c0c77a113ddb9c973079cf8aef2fd9820626667c05506f6ac5c85','core/product_physics/src/source_receipt.rs': 'a74f58877c0fe80bc8b5e36f55af2524c366a85c97a0137e92711539cb23f8c9'}
 ROW_FILE = "core/product_physics/src/source_receipt/rows.rs"
 RETIRED_IDS = {
     ROW_FILE + ":390": {"primary[&s.functional_indices[c]].id": {"bytes": 1024, "source": "RES"}},
