@@ -54,7 +54,7 @@ Both Design files name these supersessions with the same quotations.
 ### Definitions
 
 - **Certified** means certified against K-D5's intended system (S1): the linear problem K_int·u* = f_int.
-  - K_int is K-D5's p = 128 re-formation of every stiffness contribution from its binary64 primitives, as today: straight frames, realized arcs, objective connectors and springs.
+  - K_int is K-D5's p = 128 re-formation of every stiffness contribution from its binary64 primitives, as today: straight frames, realized arcs, objective connectors, their explicit tie rods (T4-U5b, each its own element) and springs.
   - f_int is the p = 128 re-formation of every load term from its binary64 primitives.
   - The input representation is part of the intended input: binary64 coordinates, section dimensions, E, G, ν, α, ΔT, densities, g, p, k and loads as authored. The distance between K_int's arc and the real-number element stays K-D5's existing premise (2^-120·κ_tip, not certified).
 - **One intended system (S2).** The residual ρ = f_int − K_int·u, the correction residuals s and s₂, and the recovery m_g of every published row all use the same re-formed matrices and load terms. No formed ledger value enters any of them.
@@ -92,6 +92,7 @@ Producers are in PP `lib.rs` unless named.
 | T4-U2 pressure operand groups: terminal caps, bend terms −c_b, kink remainder, straight Poisson pairs (`poisson_eigen`), T4-U5a joint face caps (`joint_face_cap`) | `pressure_runtime` factor groups → `push_exact_pressure_operands` | DEL-04-07 | One `PressureOperand{kind, pipe, p, OD, t, coefficient, direction}` per summand: p·π·r_i²·c·d with r_i = OD/2 − t, π and the coefficient at p, and directions from the arc's (d, R, y) or the chord at p as K-D5 forms them. The ledger's γ₂₀ bound is not used | 2^-120 level |
 | T4-U5a joint effective-area terms | `pressure_runtime` factor groups → `push_exact_pressure_operands` | DEL-04-07 | `JointEffectiveArea{connector,end,p,Ae,axis,sign}`: p·Ae·sign·Q[axis][0] from authored binary64 operands. The expected binding carries the connector, end and axis; these are nodal pressure operands, never connector member loads. The source-known-zero rule and the complete manifest also apply on W2 | 2^-120 level |
 | Connector reference loads (T4-U3 q_ref) | `add_connector_reference_loads` | DEL-04-07 | `ConnectorReference{connector, q_ref}`: `connector_matrix`·q_ref | 2^-120 level |
+| T4-U5b tie-rod reference loads | the connector's rods (`ObjectiveConnector::with_tie_rods`) | DEL-04-07 | `TieRodReference{connector, rod, tie_rod}`: +Cᵀ·k_r·e_ref re-formed at p from the rod's authored operands (node coordinates, Q, offsets in Q, k_r, e_ref), with n and l in ball arithmetic. Summand identity `{connector}:{rod}:tie_rod_reference`; omitted only when e_ref is exactly 0. Never a connector member load. The complete manifest and the exact rod binding also apply on W2 (DEL-04-07 Design `u4b-u5b-implementation.md` §3.2) | the ball's radius |
 | W2 force-scaled terms | F1b/K2b | DEL-04-07 | The same primitives at 2^b, which is an exact scaling | as above |
 
 **One ε.** ε is the resolved total eigenstrain of the load state, formed under its selected thermal and fit/reference measures. On the 0.4.0 route the stretch composition is λ_fit·λ_thermal − 1 = ε_fit + ε_thermal + ε_fit·ε_thermal, including the adopted cold-spring contribution; it is not a lift of the rounded total strain. It is formed once at p from its primitives, and that one value feeds the straight, arc and pressure primitives of the case. A producer may omit a source-known exactly zero contribution only when its enclosure radius is also exactly zero, but may not omit a formed contribution solely because its binary64 fold is zero. In particular, a thermal/fit cancellation whose p re-formation is nonzero retains a zero-valued binary64 formed eigenload and its complete closure metadata: the ordinary force bits stay unchanged while the intended load enters the closed residual. A regression pins this cancellation boundary.
@@ -123,7 +124,7 @@ These steps run in FK `formation_check.rs` `evaluate`. Element matrices are re-f
 7. **Λ (RV33 finding 1).**
    - `estimate_condition` returns the gate's own (r̂, est, ‖K̃_s‖₁), est = 1/(r̂·‖K̃_s‖₁). These are the gate's values. A recomputed norm differs: I41's dumped norm was 0.4 % off the gate's.
    - ε_E bounds ‖E‖ for E = K_s − K̃_s, where K̃_s is the prepared, scaled and symmetry-projected binary64 matrix the factor sees. It is the triangle bound, formed upward as the larger of the row-sum and column-sum norms of
-     - Σ_e |D(K_int,e − K̃_e)D| over frames, connectors and arcs, with K̃_e the element's 144 contributions in assembly order, plus
+     - Σ_e |D(K_int,e − K̃_e)D| over frames, connectors, tie rods and arcs, with K̃_e the element's 144 contributions in assembly order (tie rods after every connector and before the arcs), plus
      - the exact assembly rounding |D(Σ_e K̃_e − K̃)D|, plus
      - the projection change |K̃_s,assembled − K̃_s,projected|.
    - Λ := 2^10·est / (1 − 2^10·est·ε_E), rounded upward.
@@ -201,6 +202,7 @@ For a group g of a pre-guard-Passed case:
   - **Straight members** use a new FK certificate. It takes over the role of `exact_straight_end_forces` (K_e·u minus the equivalent terms and the free-strain axial load): the same recipe, at p, with the closure's primitives.
   - **Arcs** recover directly through the full p-rounded K_int,arc entries used by the residual, with ball station transfer. This preserves the literal intended-system correspondence. O-13's exact Δ/H rigid-motion cancellation is not claimed for this full-matrix recovery: p rounding can leave tiny nonzero actions even for a physically stress-free rigid field.
   - **Connectors** use `connector_matrix`.
+  - **Tie rods** (T4-U5b) use `certify_tie_rod_recovery`: T_r = k_r·(C·(u + w + w₂) − e_ref), with C, n and l formed in ball arithmetic from the authored operands and k_r an exact input. It also gives the rod direction and its axial share n·Q_x (DEL-04-07 Design `u4b-u5b-implementation.md` §3.2).
 - **The published value** is v_g = fl(m_g), each row rounded once. Magnitude rows are formed at p from their components, then rounded.
 - **The bound** is B_g = ‖v_g − m_g‖ + ‖r_g‖ + ‖R_g‖, rounded upward.
 
@@ -210,7 +212,7 @@ Under A1, B_g bounds ‖v_g − g_int(u*)‖. r_g is computed by the ball arithm
 
 ### 3.2 The groups (RV33 finding 3, RV34, T3's I2)
 
-The groups are every published member row, for straight members, realized arcs and connectors:
+The groups are every published member row, for straight members, realized arcs and connectors (a connector's record also carries one group per tie-rod force row, T4-U5b):
 
 - end rows, endpoint section cuts and the three interior stations;
 - per location, four groups: |N|, hypot(V_y, V_z), |T| and hypot(M_y, M_z).
@@ -233,7 +235,7 @@ The groups are every published member row, for straight members, realized arcs a
 
 **Support reactions** are recovered at p as K_int,rf·(u + w + w₂) + K_int,rc·u_c − f_int,r at restrained rows, and as −k·(u + w + w₂) for springs, preserving the published support-on-pipe sign convention. They have two physical families per support: **force** (F_x, F_y, F_z) and **moment** (M_x, M_y, M_z). Each family retains its component-vector evaluand and separately judges the published scalar magnitude with its own q, B and q̂; its square-root evaluation and scalar rounding error are included. This gives four internal support evaluands without changing the envelope. Floor operands are not cross-paired between vector and magnitude. The public support contract still requires all six signed components and both scalar magnitudes to be finite and complete. A truly unrepresentable required magnitude follows the existing named refusal or incomplete-publication path; a required row is never silently omitted. Hidden group-statistic overflow may demote the case only while the complete required public rows remain finite. For a reaction assembled from several element blocks, a stack-only streaming triangle upper bound Σ_e ‖A_re·D‖₁ may replace the assembled-row norm. It is conservative; its effect on tightness is measured in the implementation's demotion counts. Every sum is rounded upward and excludes prescribed columns.
 
-Displacement and rotation rows are published unchanged (u). K-D5's per-DOF rule judges them, as today. The bound covers them (the breaching rotation and displacement groups in §4.1: 286 in the emulation; 362 RV30 and 212 W1 noise-level groups at implementation), but they are not repaired.
+Displacement and rotation rows are not member rows. Since T4-U4b/U5b they publish the corrected displacement fl(u + w + w₂) wherever the member bound exists, and u otherwise (§3.4). K-D5's per-DOF rule judges them, as today. The bound covers them (the breaching rotation and displacement groups in §4.1: 286 in the emulation; 362 RV30 and 212 W1 noise-level groups at implementation), but they are not recovered as member rows.
 
 ### 3.3 The decision (S7), the floor and the all-zero notice
 

@@ -165,7 +165,9 @@ code_paths:
 - core/product_physics/src/lib.rs
 - core/product_physics/src/joint.rs
 - core/solver/frame_kernel/src/connector.rs
+- core/solver/frame_kernel/src/tie_rod.rs
 - core/solver/frame_kernel/tests/connector_*
+- core/solver/frame_kernel/tests/tie_rod_element.rs
 - core/product_physics/tests/connector_*
 - core/runner/headless/tests/objective_connector.rs
 - schemas/component.schema.yaml

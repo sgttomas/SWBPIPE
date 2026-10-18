@@ -20,8 +20,10 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Status
 
-Designed on main `5c4aa0b747` and revised through four rounds of dual review; not implemented.
-The owner decided Q2 (option (ii)) and the 0.6.0 status sentences on 2026-10-17.
+Designed on main `5c4aa0b747` and revised through four rounds of dual review. Implemented through
+slices S1 to S5 (§8) on the epoch integration branch `claude/piping-t4-u4b-u5b-20261017`; the
+"as built" notes record where the build settled a point. The owner decided Q2 (option (ii)) and the
+0.6.0 status sentences on 2026-10-17.
 
 ## Rulings this design applies
 
@@ -799,7 +801,7 @@ recovery is T_r = k_r(C d − e_ref).
     an exact input.
   - W2 forms the same element at 2^b, with classification and the complete manifest retained.
 - **Supplier need.** The element, its family and its certified recovery are DEL-04-01's (§8).
-  DEL-04-01 Design `kd5-member-relative-bound.md` §1 gains the family row when it lands.
+  DEL-04-01 Design `kd5-member-relative-bound.md` §1 carries the family row.
 - **Pressure.** Rods carry no pressure load. The ledger (representation B), its caps, the joint
   pair and the Poisson pairs are unchanged (t4_u5b "Pressure RHS": rods never change it).
 
@@ -1089,7 +1091,7 @@ on its route, independently of the producer. The verifier shares no code with it
 | arc `pipe_elastic_normal_stress_maximum_v2` | The §2.3 record's closed fourteen keys and arc tokens, accepted only on a realized arc. The gap rule and midpoint as on straights (`physics_evidence.rs` around :637–645). `local_fraction` in [0, 1]. Coverage, basis twins and headline binding as on straights. The station cover: `value_upper_pa` ≥ every published station max(\|σ⁺\|, \|σ⁻\|) of the arc and basis, converted to Pa and rounded upward. The readers attest custody and do not replay the branch-and-bound (DEF-O `trust.validation` precedent). |
 | directional intensified rows | Present exactly on arcs whose captured model has the directional pair. Each is bound to its `intensified_measures` record. Recomputed bit for bit from the station's bending stress rows and the record's factors (§2.6). The maximum's record follows the arc maximum's checks, with cover by the station intensified rows. |
 | toroidal hoop and radial | Present exactly on pressurized arcs with R > r_o, at every station and basis. Recomputed bit-equal by the normative `stress_recovery` sequence, from p and the basis bore, wall, r_o and R in the evidence (§2.5). |
-| `connector_tie_rod_force_v1` | One row per authored rod, bound to its `tie_rods` entry by row id. Finite and in N. The value is not rederived from the published displacements. The published displacements are the solve's own, and the certified T_r comes from the corrected displacement, so an exact relation does not hold between them. This is the existing connector practice for g. |
+| `connector_tie_rod_force_v1` | One row per authored rod, bound to its `tie_rods` entry by row id. Finite and in N. The value is not rederived from the published displacements. The published displacements are the corrected displacement rounded once to binary64, or the solve's own where no member bound exists, while the certified T_r is formed from the unrounded corrected displacement, so an exact relation does not hold between them. This is the existing connector practice for g. |
 | `s_x` | \|s_x − Σ\| ≤ (64 + n_r)ε(\|g_x\| + \|Pe\| + Σ\|t_r·axial_share\|) + (n_r + 2)·2^-1074. Σ = g_x − Pe + Σ_r RN(t_r·axial_share_r) is accumulated exactly, rounded once: `ExactAccumulator` in Rust, exact rationals in the verifier. So the reader adds no addition error for any rod count. The (64 + n_r)ε coefficient covers the producer's at-p rounding and the n_r rounded published products, so no rod cap is needed. This extends today's rule, 64ε\|g\| + 64ε\|Pe\| plus a least-subnormal reserve (`connector_evidence.rs` around :271–280 and :345), to the rod terms. Pe is the published `pe_x`, or 0 on an unpressurized connector. The rule applies to every connector with rods or a constant-effective-area model. The current `UNPRESSURIZED_ROWS` rule, which forbids s_x on an unpressurized connector (around :336–339), becomes keyed on hardware: s_x is required with rods and forbidden without them. Tests cover cancellation, subnormal edges, and a many-rod control (for example 1,024 parallel rods each contributing 2^-54 beside g_x = 1). |
 
 - **Arc evidence.** `arc_evidence.rs` and `tests/verifiers/pressure_1.py` (renamed
@@ -1261,7 +1263,7 @@ persistence (AGENTS.md). Both solver modes run throughout.
 
 ## 8. Dependencies and staging
 
-**Supplier needs** (recorded in `deliverable.yaml` when the code lands):
+**Supplier needs** (recorded in `deliverable.yaml`):
 - **DEL-04-01:**
   - the tie-rod element, `LoadFormula::TieRodReference` and `certify_tie_rod_recovery` (§3.2);
   - the retained kernel's `ProductRecipe::NotCovered` (§4.1);
@@ -1275,8 +1277,8 @@ persistence (AGENTS.md). Both solver modes run throughout.
   - the not_covered classification, the W1 passthrough and the re-inheritance (§4.1);
   - the source treatment `derived_not_qualified` (§4.3);
   - D3, applied under its pricing law.
-- **DEL-02-05 and DEL-02-01:** model 0.6.0 (§1.1). Their commitment sentences that name the
-  version are reserved (§4.4).
+- **DEL-02-05 and DEL-02-01:** model 0.6.0 (§1.1). DEL-02-05's commitment sentences that name the
+  version were edited, version token only, under the owner's 2026-10-17 confirmation (§4.4).
 
 **Slices.** They land in one integration branch, in this order, each with focused checks:
 1. **S1, formats.** Model 0.6.0, the identity change, re-authoring and the -1 refusals, with no
@@ -1318,6 +1320,6 @@ branch.
 - **Returns to HELP_HUMAN:**
   - an edit that would touch TBD-002's table sentence;
   - a D3 shortfall under the unchanged policy;
-  - any further ScopeOfWork sentence that names 0.5.0 or a retiring identity. These are status
+  - any further ScopeOfWork commitment sentence that names 0.5.0 or a retired identity. The status
     prose in DEL-03-01, DEL-05-02, DEL-05-03, DEL-04-08, DEL-07-05, DEL-08-06, DEL-14-02 and
-    DEL-17-06, and they were put to HELP_HUMAN on 2026-10-17.
+    DEL-17-06 was put to HELP_HUMAN on 2026-10-17 and reconciled under the token-only rule (§4.4).
