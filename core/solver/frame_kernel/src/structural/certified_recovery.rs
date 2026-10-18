@@ -110,6 +110,16 @@ fn add_ball(
     }
     Ok(())
 }
+/// |published - m|, formed upward (zero when they are equal).
+fn publication_gap(published: f64, m: Wide2) -> Result<f64, RecoveryFailure> {
+    let mut a = WideArith::new(128)?;
+    let gap = a.sub(&Wide2::from_f64(published)?, &m)?;
+    Ok(if gap.is_zero() {
+        0.0
+    } else {
+        add_up(abs_up(&gap)?, mul_up(U, abs_up(&gap)?))
+    })
+}
 fn midpoint_publication(m: Wide2) -> Result<f64, RecoveryFailure> {
     // Wide's converter applies the power before rounding, including subnormals.
     // v_g = fl(m_g) (kd5-member-relative-bound.md §3.1): a nonzero midpoint
@@ -192,20 +202,23 @@ impl CertifiedRow {
             return Err(shape("recovery absolute scale"));
         }
         let published = midpoint_publication(value.m)?;
-        let mut a = WideArith::new(128)?;
-        let gap = a.sub(&Wide2::from_f64(published)?, &value.m)?;
-        let rounding_gap = if gap.is_zero() {
-            0.0
-        } else {
-            add_up(abs_up(&gap)?, mul_up(U, abs_up(&gap)?))
-        };
         Ok(Self {
             value,
             published,
             radius: value.r,
             remainder: finite(remainder, "recovery remainder")?,
             absolute_scale,
-            rounding_gap,
+            rounding_gap: publication_gap(published, value.m)?,
+        })
+    }
+    /// The same certificate published as `published`: the rounding term is
+    /// re-formed against the ball midpoint, so |published - x| <= bound()
+    /// still holds for every x the ball and remainder enclose.
+    fn republished(self, published: f64) -> Result<Self, RecoveryFailure> {
+        Ok(Self {
+            published,
+            rounding_gap: publication_gap(published, self.value.m)?,
+            ..self
         })
     }
     pub fn bound(&self) -> f64 {
@@ -1554,12 +1567,28 @@ pub fn certify_support_reaction(
 /// the displacement or rotation at `dof`, m = u + w + w2 as one exact sum and
 /// remainder 2^{exp}*LambdaSigma (A_r = e_dof). At a prescribed DOF there is
 /// no correction and no remainder.
+///
+/// T4-U5b item 6: the published value is the exact sum u + w + w2 rounded
+/// once to binary64 (`ExactAccumulator::round`), not the p=128 midpoint
+/// rounded again, which double-rounds at a binary64 midpoint (u = 1,
+/// w = 2^-53, w2 = 2^-130 is 1 + 2^-52 once, 1 twice). The ball, the
+/// remainder and every decision are unchanged; the rounding term is formed
+/// for this published value.
 pub fn certify_displacement(
     dof: usize,
     u: &[f64],
     bound: &MemberBoundInputs,
 ) -> Result<CertifiedRow, RecoveryFailure> {
-    evaluate_row(&[Ball::ONE], &[dof], Ball::ZERO, 0.0, u, bound)
+    let row = evaluate_row(&[Ball::ONE], &[dof], Ball::ZERO, 0.0, u, bound)?;
+    let mut exact = ExactAccumulator::new();
+    for value in [u[dof], bound.w[dof], bound.w2[dof]] {
+        exact.add(value).map_err(sum_error)?;
+    }
+    let published = exact.round().map_err(sum_error)?;
+    if !published.is_finite() {
+        return Err(shape("recovery publication"));
+    }
+    row.republished(if published == 0.0 { 0.0 } else { published })
 }
 /// Nonlinear K-D5 (§1.6, §3.1): one load primitive's re-formation at its
 /// row as a published scalar, fl(m) with B = |fl(m) - m| + r. The explicit
