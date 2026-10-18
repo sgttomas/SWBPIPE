@@ -218,10 +218,11 @@ needs:
   gating: true
   evidence: execution/PKG-05/DEL-05-02/Design/b7-plan.md
 - from: DEL-04-08
-  when: retained arc-row vocabulary and reviewed-input binding
+  when: retained-table arc-vocabulary parity and reviewed-input binding
   condition: >-
-    DEL-04-07's corresponding preview-physics-retained-1 rows consume DEL-04-08's
-    retained table and reader contract. A change to their bound sentence or table
+    DEL-04-07's ordinary arc vocabulary and limitation sentence are also bound
+    into DEL-04-08's preview-physics-retained-1 table for vocabulary parity; the
+    retained route publishes no arc rows. A change to the bound sentence or table
     requires the method's reviewed-input refresh and actual-source D3 registration.
   gating: true
   evidence: execution/PKG-05/DEL-05-02/Design/b7-plan.md
