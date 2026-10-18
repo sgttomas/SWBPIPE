@@ -372,6 +372,13 @@ the frame kernel's existing ball arithmetic (`Balls`/`Wide2`, now `pub(super)` i
    through the existing path.
    - Because the station rows and the maximum share their operands, the cover is a safety net
      against rounding.
+   - The cover only raises the bound; a station value below the lower bound is not refused,
+     because no allowance both admits every genuine binary64 station row and bounds the
+     arc (load-cancellation and short-arc counterexamples). Operand mismatches are caught by
+     tests. Passing N_w with pA_i double-counts pressure: it raises the maximum above every
+     station row, or, where N_w changes sign, leaves the cover unclosed and the maximum
+     refused. A kernel test asserts both outcomes, and a product test binds each arc maximum
+     to its own station rows.
    - This differs from the straight `maximum_cover` (`certified_publication.rs` around
      :512–535), which refuses on violation and checks each stress component.
    - Straight maxima, and their reader checks, are unchanged. A straight σ± and the straight
@@ -975,6 +982,13 @@ changes, 0.5.0 → 0.6.0. Requirements and criteria are unchanged.
 - DEL-04-08 REQ-001 "Route E domain" ("current model 0.5.0 …") and REQ-002 "Eligibility"
   ("current model 0.5.0 …"). The owner, 2026-10-17: "Confirm both (Recommended)". Only the version
   token changes.
+- DEL-04-08 REQ-003 (c), REQ-006 and REQ-007 (c): `pressure-1` → `pressure-2`,
+  `PRESSURE-1-OUTPUT-NOT-YET-AVAILABLE` → `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`, and "replace" →
+  "replaced" in REQ-007 (c). The owner, 2026-10-17: "Confirm token edits (Recommended)". "Merge
+  with the gap" stands.
+- Status and evidence prose naming the old tokens is reconciled under the same token-only rule
+  (HELP_HUMAN, 2026-10-17): DEL-03-01, DEL-05-02, DEL-05-03, DEL-07-05, DEL-08-06, DEL-14-02 and
+  DEL-17-06.
 
 **REQ-001's value clause** (owner, 2026-10-17: "Form from own resultants (Recommended)"). Only that
 clause changes, and only for derived kinds formed from published operands.

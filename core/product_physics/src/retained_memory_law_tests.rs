@@ -392,12 +392,14 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // module's test-only include names the renamed pressure-2 table; the
             // inspected production between the regions gains current_header's
             // pressure-1/preview-physics-1 refusals and the 0.6.0 re-author text;
-            // E14 is byte-identical.
-            // Re-audited for T4-U5b (S3): only the closed `b7b_current_table_tests`
-            // module's pressure-2 row count changed (106 -> 107, the tie-rod force
-            // signature); the inspected production and E14 are byte-identical.
+            // E14 is byte-identical. The S1 repair restores two comments in the
+            // inspected production to their historical pressure-1 wording; no code changed.
+            // Re-audited for T4-U5b (S3), on the merged bytes: only the closed
+            // `b7b_current_table_tests` module's pressure-2 row count changed
+            // (106 -> 107, the tie-rod force signature); the inspected production
+            // and E14 are byte-identical to the S1 repair's.
             first_item: SEMANTIC_B7B_TEST_ITEM,
-            complete_suffix_sha256: "cca1fdddc55174133c8c6810e9fa2989211898f9aafc30dfa9684b4a5636830f",
+            complete_suffix_sha256: "26bf13021cadc024a0403ba2ea15deb8c1098915163191f805f8c1114e0bd30e",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -767,8 +769,8 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "db52ad8274c2a7544db7e30ce693608f1d6570c49c72fa7bfb5e1c8e124cf02e",
         "97af5a7a7b3fb1d39515a23bff29bf11a11f3b6c203f02d14d7662c23eaa66e5",
         "79a3a76a56dd2ff1c347306137340a8bacb5eddeb828ebc5ef55eaa5986fc663",
-        "26cff36b8d306fa9e7dc48bb64853ff96d3896768c016e0da139133f9d2eb818",
-        "e321c5db4e51770f00a2ecdd3d536cde452b41f0c6386c4e94936bb675e12ffd",
+        "91ca026e19337251c5a124f3ee1cbd648845f335e6da09edfbdfb16e7dedc7e9",
+        "a59ef69dc3c6c21e96d90b139cb8c82f9f67e7361d4accb321b219575e68179f",
         "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b",
         "ad068ed5f3c9abef49da0041ba95e4ba210dd3fabed7de0918a211b66394eb6c",
         "ac763579b94de43a2f9806a3209121fc3cf65a4ae0c74d494d58d8efe42f4422",

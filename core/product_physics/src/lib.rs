@@ -15190,7 +15190,7 @@ mod tests {
         let warnings = output
             .diagnostics
             .iter()
-            // T0R: preview-physics-2 retires the SIF×k multiplier diagnostic; its
+            // T0R: preview-physics-1 retires the SIF×k multiplier diagnostic; its
             // case-scoped successor is the equal-factor intensification record.
             .filter(|d| d.code == "COMPONENT_EQUAL_FACTOR_INTENSIFICATION_APPLIED")
             .collect::<Vec<_>>();
@@ -16735,7 +16735,7 @@ mod tests {
             .unwrap_or_else(|| panic!("missing result {id}"))
     }
 
-    /// T0R: `reaction_resultant` is retired on preview-physics-2. Its legacy
+    /// T0R: `reaction_resultant` is retired on preview-physics-1. Its legacy
     /// id `…reaction:<support-suffix>` maps to the v2 force magnitude, which is
     /// the same force norm computed from the signed components: the first case
     /// for `result:reaction:…`, else the case or combination named in the prefix.

@@ -51,8 +51,8 @@ EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
 # T4-U6: DEF-E states zero mill tolerance and lists the reduced-basis rows and both headlines; the table follows the
 # inherited pressure-2 table's per-basis rows.
-EXACT_DEFINITION_HASH = "d1fa7b45a314d0f3284fafc716524da5889986f25ffe5c588d9ef197bb9a3def"
-EXACT_TABLE_HASH = "e321c5db4e51770f00a2ecdd3d536cde452b41f0c6386c4e94936bb675e12ffd"
+EXACT_DEFINITION_HASH = "b464eb5b88f2930774ad3ffc4aaa9bdee002f1c798864694146f95c95f60a60a"
+EXACT_TABLE_HASH = "a59ef69dc3c6c21e96d90b139cb8c82f9f67e7361d4accb321b219575e68179f"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 FACADE_POLICY = "RP-FACADE-SI-v2"
 RECEIPT_BINDINGS = {"canonicalization": "openpipestress_jcs_ijson_v1", "method": METHOD, "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",

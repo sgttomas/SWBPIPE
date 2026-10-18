@@ -138,7 +138,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "e321c5db4e51770f00a2ecdd3d536cde452b41f0c6386c4e94936bb675e12ffd";
+    "a59ef69dc3c6c21e96d90b139cb8c82f9f67e7361d4accb321b219575e68179f";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
@@ -592,7 +592,7 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
             }
             let f = &source["formulation_basis"];
             let profile = match p["semantic_contract_id"].as_str() {
-                // T4-U2a: the only profile of pressure-2, on 0.3.0 and 0.4.0.
+                // T4-U2a: the only profile of pressure-1, on 0.3.0 and 0.4.0.
                 Some(PRESSURE_ID | PRESSURE_SOURCE_ID) => PRESSURE_PROFILE,
                 _ => "product_preview_mechanics_v1",
             };
@@ -654,7 +654,7 @@ pub use crate::preview_physics_evidence::validate_preview_physics_evidence;
 pub const FRESH_IDENTITIES: &[&str] = &[
     PREVIEW_PHYSICS_ID,
     PRESSURE_SOURCE_ID,
-    // T4-U2: pressure-2 (`3.0.0/exact_pressure_v3`) on 0.3.0 and 0.4.0.
+    // T4-U2: pressure-1 (`3.0.0/exact_pressure_v3`) on 0.3.0 and 0.4.0.
     PRESSURE_ID,
     // U6a (D-U6-6; D2 4.7 S-1): membership is not standing. The successor's
     // standing comes only from the accepted reader's verified receipt.

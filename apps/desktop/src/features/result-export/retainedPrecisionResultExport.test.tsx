@@ -327,7 +327,7 @@ describe("the corpus's synthetic two-case bases, read by id", () => {
  * successors (PP `EXACT_PINNED`) with the same fixed desktop-shaped base and origin. The
  * Current builder is not exercised: physics-retained-1 is outside the static fresh set. */
 const EXACT_GOLDEN: Record<PreviewSolverMode, { successor: string; successorSha256: string; receiptSha256: string; path: string; sha256: string; rows: number }> = {
-  // B7b D4 (a): the successors regenerated on the registered pressure-2 base (16478cadf4; Rust
+  // B7b D4 (a): the successors regenerated on the registered pressure-1 base (16478cadf4; Rust
   // `EXACT_PINNED` (file and receipt sha256) and `EXACT_GOLDEN_SHA256` in retained_precision_derivative_golden.rs).
   // T4-U6 (D-5): regenerated with the member's 21 reduced stress twins (98 + 21 rows).
   sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "79d40f1a67c74efa911e408fca9c19c45ea9b6d9de7f60de97973fa66e798b1f", receiptSha256: "d231b6ee48ed52f7accef419e25d631d4b4d0971940431aa2ca91f3eaeb1c75c", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "a5947cdefa432a69bafa0b8bae62f7ddefd7d17d2e13ba00b85fcfe1553d8922", rows: 98 + 21 },
