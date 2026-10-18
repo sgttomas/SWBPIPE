@@ -95,15 +95,15 @@ PREVIEW = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 # left preview-physics-2's reserved successors (36064ef3... and f675693b... before), the preview successor inherits
 # the new preview hash, the exact successor (D4 (a)) inherits pressure-2's, and pressure-source-1 is the current
 # PRESSURE-SOURCE-1 table (4a1873e7... before).
-SUCC_SHA = "db52ad8274c2a7544db7e30ce693608f1d6570c49c72fa7bfb5e1c8e124cf02e"
-PREVIEW_SHA = "97af5a7a7b3fb1d39515a23bff29bf11a11f3b6c203f02d14d7662c23eaa66e5"
+SUCC_SHA = "618c824851e2228c14b7b8fa2f64c43102ad560f7efe4e20f2d77802ae4c2f09"
+PREVIEW_SHA = "9bf5fb5d4c3ae32d891c406640c9532b73f7edc860489eb7ac77b27fe2e8e845"
 PROFILE = "product_preview_retained_w1a_v2"
 CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered"]
 # B3b (B3-D §7): the exact successor `<physics-retained>`, whose carrier branches follow
 # the preview successor's. Both successors, and only they, carry a receipt.
 EXACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 # T4-U6 (D-5, §2.4): follows pressure-2's per-basis table by its inherited hash (was 69581249...).
-EXACT_SHA = "4110187031037e47b9a79e8c7acf35615fde32ea36ac2e608893828823aaa35a"
+EXACT_SHA = "6a08c373bde187911fcdedf97265efd5f5b504d6e2b4710fd5a1a8801fd15ab8"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 SUCCESSORS = (SUCC, EXACT)
 # b7-plan's pressure-source join: a tenth run branch (no receipt); its contract

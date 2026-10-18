@@ -35,7 +35,7 @@ TABLE = 'fixtures/results/semantic_contract_v0_3_pressure_2.json'
 MODULE = 'core/reporting/result_export/src/physics_evidence.rs'
 UNITS = 'core/units/src/lib.rs'
 # T4-U6 (D-5, §2.4): the table's per-basis stress signatures (106 signatures, 59 kinds).
-TABLE_SHA256 = 'b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f'
+TABLE_SHA256 = '1c2bd8cbd6d6bef017e0bedc7c5d98cad4c49530d862481c6d3b53b1234f9ff0'
 DEPENDENCIES = {
     # T4-U6/U8 re-pins: the D-5 section bases and the Timoshenko beam theory (8bf263d6..., was 38302413...);
     # then §2.5's realized-arc marker (98bdfeee3e: arcs known by `member_kind`, refused on the composite);

@@ -67,7 +67,7 @@ PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": CONTRACT_ID}
 TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
 # T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); 106 signatures over 59 kinds.
-TABLE_SHA256 = "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f"
+TABLE_SHA256 = "1c2bd8cbd6d6bef017e0bedc7c5d98cad4c49530d862481c6d3b53b1234f9ff0"
 TABLE_SIGNATURE_COUNT = 106
 TABLE_KIND_COUNT = 59
 

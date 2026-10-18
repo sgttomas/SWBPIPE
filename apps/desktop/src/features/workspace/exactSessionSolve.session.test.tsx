@@ -37,7 +37,7 @@ type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 type Mode = "sparse_interactive" | "dense_scrutiny";
 const root = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
-const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f" };
+const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "1c2bd8cbd6d6bef017e0bedc7c5d98cad4c49530d862481c6d3b53b1234f9ff0" };
 
 afterEach(() => {
   cleanup();

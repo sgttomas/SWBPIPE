@@ -100,11 +100,11 @@ pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID
 /// T4-U6 (D-5, §2.4): both tables carry one stress signature per (recovery
 /// token × section basis), each with its `source_basis`.
 pub const PRESSURE_SOURCE_TABLE_SHA256: &str = "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b";
-pub const PRESSURE_TABLE_SHA256: &str = "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f";
+pub const PRESSURE_TABLE_SHA256: &str = "1c2bd8cbd6d6bef017e0bedc7c5d98cad4c49530d862481c6d3b53b1234f9ff0";
 /// The pinned counts, re-derived from the tables (T4-U6: pressure-2 106
-/// signatures over 59 kinds; pressure-source-1 88 over 51).
-pub const PRESSURE_SIGNATURE_COUNT: u64 = 106;
-pub const PRESSURE_KIND_COUNT: u64 = 59;
+/// signatures over 59 kinds, T4-U4b 128 over 65; pressure-source-1 88 over 51).
+pub const PRESSURE_SIGNATURE_COUNT: u64 = 128;
+pub const PRESSURE_KIND_COUNT: u64 = 65;
 pub const PRESSURE_SOURCE_SIGNATURE_COUNT: u64 = 88;
 pub const PRESSURE_SOURCE_KIND_COUNT: u64 = 51;
 /// B1 (b7-plan): precision-1 is no longer read. A stored precision-1 result is
@@ -120,7 +120,7 @@ pub const RETIRED_PREVIEW_PHYSICS_1_ID: &str = "openpipestress.result_semantics/
 pub const SOURCE_PREVIEW_PHYSICS_1_RETIRED: &str = "SOURCE_PREVIEW_PHYSICS_1_RETIRED";
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 pub const PREVIEW_PHYSICS_SHA256: &str =
-    "97af5a7a7b3fb1d39515a23bff29bf11a11f3b6c203f02d14d7662c23eaa66e5";
+    "9bf5fb5d4c3ae32d891c406640c9532b73f7edc860489eb7ac77b27fe2e8e845";
 /// U6a (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its raw and
 /// transport statements are checked only by the accepted reader
 /// (`crate::retained_precision`), never by this module's ordinary branches, and
@@ -128,7 +128,7 @@ pub const PREVIEW_PHYSICS_SHA256: &str =
 pub const PREVIEW_PHYSICS_RETAINED_ID: &str = crate::retained_precision::CONTRACT_ID;
 pub const PREVIEW_PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::PROFILE;
 pub const PREVIEW_PHYSICS_RETAINED_SHA256: &str =
-    "db52ad8274c2a7544db7e30ce693608f1d6570c49c72fa7bfb5e1c8e124cf02e";
+    "618c824851e2228c14b7b8fa2f64c43102ad560f7efe4e20f2d77802ae4c2f09";
 /// B3b (B3-D §6.1): the exact successor `<physics-retained>`, whose base is
 /// pressure-2 since B7b D4 (a). Like the preview successor, its raw and transport statements are
 /// checked only by the accepted reader (`crate::retained_precision`, its exact
@@ -137,7 +137,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "4110187031037e47b9a79e8c7acf35615fde32ea36ac2e608893828823aaa35a";
+    "6a08c373bde187911fcdedf97265efd5f5b504d6e2b4710fd5a1a8801fd15ab8";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";

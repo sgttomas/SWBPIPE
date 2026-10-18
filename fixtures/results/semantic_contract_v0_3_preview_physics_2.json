@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 67,
-  "source_kind_count": 46,
+  "source_signature_count": 73,
+  "source_kind_count": 50,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -45,7 +45,12 @@
         "force_magnitude",
         "moment_magnitude",
         "maximum_absolute_normal_stress",
-        "equal_factor_intensified_bending_stress"
+        "equal_factor_intensified_bending_stress",
+        "sigma_plus",
+        "sigma_minus",
+        "tau_v_max",
+        "intensified_bending",
+        "intensified_bending_maximum"
       ]
     },
     "coordinate_system": {
@@ -88,7 +93,11 @@
         "TBD",
         "recovered_from_assembled_support_law",
         "nominal_straight_beam_formula_on_arc_resultants",
-        "user_sif_times_member_section_bending_stress_v1"
+        "user_sif_times_member_section_bending_stress_v1",
+        "section_extremes_from_published_stress_rows_v1",
+        "saint_venant_annulus_flexure_v1",
+        "local_straight_annulus_on_arc",
+        "user_directional_sif_times_tangent_frame_bending_stress_v1"
       ]
     },
     "sign_convention": {
@@ -109,7 +118,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "dimensionless",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-001",
@@ -123,7 +133,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "length",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "recomputed_from_combined"
     },
     {
       "signature_id": "supported-source-002",
@@ -137,7 +148,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "length",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-003",
@@ -151,7 +163,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "length",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-004",
@@ -165,7 +178,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "length",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-005",
@@ -179,7 +193,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "angle",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-006",
@@ -193,7 +208,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "angle",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-007",
@@ -207,7 +223,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "angle",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-009",
@@ -221,7 +238,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "force",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-010",
@@ -235,7 +253,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "force",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-011",
@@ -249,7 +268,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "force",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-012",
@@ -263,7 +283,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "moment",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-013",
@@ -277,7 +298,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "moment",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-014",
@@ -291,7 +313,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "moment",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "preview-physics-arc-015",
@@ -306,7 +329,8 @@
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
       "governing_ratio_eligible": false,
-      "source_basis": "nominal_straight_beam_formula_on_arc_resultants"
+      "source_basis": "nominal_straight_beam_formula_on_arc_resultants",
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-015",
@@ -320,7 +344,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "preview-physics-arc-016",
@@ -335,7 +360,8 @@
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
       "governing_ratio_eligible": false,
-      "source_basis": "nominal_straight_beam_formula_on_arc_resultants"
+      "source_basis": "nominal_straight_beam_formula_on_arc_resultants",
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-016",
@@ -349,7 +375,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "preview-physics-arc-017",
@@ -364,7 +391,8 @@
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
       "governing_ratio_eligible": false,
-      "source_basis": "nominal_straight_beam_formula_on_arc_resultants"
+      "source_basis": "nominal_straight_beam_formula_on_arc_resultants",
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-017",
@@ -378,7 +406,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "preview-physics-arc-018",
@@ -393,7 +422,8 @@
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
       "governing_ratio_eligible": false,
-      "source_basis": "nominal_straight_beam_formula_on_arc_resultants"
+      "source_basis": "nominal_straight_beam_formula_on_arc_resultants",
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-018",
@@ -407,7 +437,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "preview-physics-arc-019",
@@ -422,7 +453,8 @@
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
       "governing_ratio_eligible": false,
-      "source_basis": "nominal_straight_beam_formula_on_arc_resultants"
+      "source_basis": "nominal_straight_beam_formula_on_arc_resultants",
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-019",
@@ -436,7 +468,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "stress",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-022",
@@ -450,7 +483,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-023",
@@ -464,7 +498,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "dimensionless",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-024",
@@ -478,7 +513,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "dimensionless",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-025",
@@ -492,7 +528,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "dimensionless",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-026",
@@ -506,7 +543,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "force",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-027",
@@ -520,7 +558,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "moment",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-028",
@@ -534,7 +573,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "moment",
       "legacy_run_creation_admission": "accepts_with_preserved_legacy_dimension_different_from_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-029",
@@ -548,7 +588,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-030",
@@ -562,7 +603,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "dimensionless",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-031",
@@ -576,7 +618,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "length",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-032",
@@ -590,7 +633,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "force",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-033",
@@ -604,7 +648,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "length",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-034",
@@ -618,7 +663,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "angle",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-035",
@@ -632,7 +678,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "force",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-036",
@@ -646,7 +693,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": "moment",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-043",
@@ -660,7 +708,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": "linear_stiffness",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-044",
@@ -674,7 +723,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": "force",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-045",
@@ -688,7 +738,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": "force",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-046",
@@ -702,7 +753,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": "force",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-047",
@@ -716,7 +768,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": "length",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-048",
@@ -730,7 +783,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": "force",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-049",
@@ -744,7 +798,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": "length",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-050",
@@ -758,7 +813,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-051",
@@ -772,7 +828,8 @@
       "canonical_disposition": "disclosed",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-052",
@@ -786,7 +843,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-053",
@@ -800,7 +858,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "length",
       "legacy_run_creation_admission": "accepts_with_preserved_legacy_dimension_different_from_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-054",
@@ -814,7 +873,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "force",
       "legacy_run_creation_admission": "accepts_with_preserved_legacy_dimension_different_from_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-055",
@@ -828,7 +888,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": "force",
       "legacy_run_creation_admission": "accepts_with_legacy_dimension_equal_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-056",
@@ -842,7 +903,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-057",
@@ -856,7 +918,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "supported-source-058",
@@ -870,7 +933,8 @@
       "canonical_disposition": "exported_review",
       "legacy_declared_dimension": "linear_stiffness",
       "legacy_run_creation_admission": "accepts_with_preserved_legacy_dimension_different_from_new_semantics",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "preview-physics-arc-059",
@@ -885,7 +949,8 @@
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
       "governing_ratio_eligible": false,
-      "source_basis": "nominal_straight_beam_formula_on_arc_resultants"
+      "source_basis": "nominal_straight_beam_formula_on_arc_resultants",
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-059",
@@ -899,7 +964,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-060",
@@ -913,7 +979,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-061",
@@ -927,7 +994,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-062",
@@ -941,7 +1009,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-063",
@@ -955,7 +1024,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-064",
@@ -969,7 +1039,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-065",
@@ -983,7 +1054,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "signed_linear"
     },
     {
       "signature_id": "supported-source-066",
@@ -997,7 +1069,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "recomputed_from_combined"
     },
     {
       "signature_id": "supported-source-067",
@@ -1011,7 +1084,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "recomputed_from_combined"
     },
     {
       "signature_id": "supported-source-068",
@@ -1025,7 +1099,8 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
     },
     {
       "signature_id": "preview-physics-intensified-bending",
@@ -1039,7 +1114,104 @@
       "canonical_disposition": "exported_quantity",
       "legacy_declared_dimension": null,
       "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false
+      "governing_ratio_eligible": false,
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "u4b-normal-extreme-sigma-plus",
+      "kind": "element_local_normal_stress_extreme",
+      "unit": "MPa",
+      "component": "sigma_plus",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "section_extremes_from_published_stress_rows_v1",
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "u4b-normal-extreme-sigma-minus",
+      "kind": "element_local_normal_stress_extreme",
+      "unit": "MPa",
+      "component": "sigma_minus",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "section_extremes_from_published_stress_rows_v1",
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "u4b-transverse-shear-maximum-straight",
+      "kind": "element_local_transverse_shear_stress_maximum",
+      "unit": "MPa",
+      "component": "tau_v_max",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "saint_venant_annulus_flexure_v1",
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "u4b-transverse-shear-maximum-arc",
+      "kind": "element_local_transverse_shear_stress_maximum",
+      "unit": "MPa",
+      "component": "tau_v_max",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "local_straight_annulus_on_arc",
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "u4b-directional-intensified-bending",
+      "kind": "curved_bend_directional_intensified_bending_stress_v1",
+      "unit": "Pa",
+      "component": "intensified_bending",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "user_directional_sif_times_tangent_frame_bending_stress_v1",
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "u4b-directional-intensified-bending-maximum",
+      "kind": "curved_bend_directional_intensified_bending_maximum_v1",
+      "unit": "Pa",
+      "component": "intensified_bending_maximum",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "user_directional_sif_times_tangent_frame_bending_stress_v1",
+      "combination_algebra": "never_combined"
     }
   ],
   "hash_vectors": [
@@ -1147,9 +1319,9 @@
   "supported_profile_limitations": [
     "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
     "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
-    "On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No transverse shear, equivalent stress or code stress.",
-    "On arcs: signed tangent-frame resultants and nominal stress components; endpoint force rows are node-on-element actions in the tangent frame at their end. No maximum, and no stress headline for a model containing an arc.",
-    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
+    "On every member the section normal-stress extremes are N/A \u00b1 hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with \u03bd = E/(2G) \u2212 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
+    "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
+    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
     "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
     "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
     "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",

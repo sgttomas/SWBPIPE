@@ -49,23 +49,23 @@ _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure
 # pressure-2 (`3.0.0/exact_pressure_v3`): the ordinary exact route. Its raw statements are read by the independent
 # `pressure_2` verifier; it is also the exact successor's G7 base (B7b D4 (a)).
 PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
-PRESSURE_CONTRACT_SHA256 = "b11041c3b51058861b9e5e7f1bb67e237ce16b0b4ab3556fd9ef2143a25fba7f"
+PRESSURE_CONTRACT_SHA256 = "1c2bd8cbd6d6bef017e0bedc7c5d98cad4c49530d862481c6d3b53b1234f9ff0"
 _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
-PREVIEW_PHYSICS_CONTRACT_SHA256 = "97af5a7a7b3fb1d39515a23bff29bf11a11f3b6c203f02d14d7662c23eaa66e5"
+PREVIEW_PHYSICS_CONTRACT_SHA256 = "9bf5fb5d4c3ae32d891c406640c9532b73f7edc860489eb7ac77b27fe2e8e845"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "db52ad8274c2a7544db7e30ce693608f1d6570c49c72fa7bfb5e1c8e124cf02e"
+PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "618c824851e2228c14b7b8fa2f64c43102ad560f7efe4e20f2d77802ae4c2f09"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_retained_1.json"
 # B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "4110187031037e47b9a79e8c7acf35615fde32ea36ac2e608893828823aaa35a"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "6a08c373bde187911fcdedf97265efd5f5b504d6e2b4710fd5a1a8801fd15ab8"
 _PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}
