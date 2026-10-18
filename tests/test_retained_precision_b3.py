@@ -25,8 +25,11 @@ if str(Path(__file__).resolve().parent) not in sys.path:
 from retained_precision_corpus import load_corpus  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-PINNED = {"sparse_interactive": "e3e0830d34d7403da45cc5900aa40cc42d090478d9c2d3ba57bcecf9b6070d2e",
-          "dense_scrutiny": "c24d4a1cbfb4668fe071fd1b9cc9abed35589c390992ebad33dd0a9159cf3316"}
+# PP retained_facade_tests.rs `PINNED` pins the same bytes. W1's DEF-O meaning-hash move (DEL-04-08
+# w1-member-load-certification.md §6.4) re-sealed only the DEF-O-bound preparation, source-identity and receipt
+# hashes and replaced e3e0830d.../c24d4a1c....
+PINNED = {"sparse_interactive": "032630ba2f80a80361be3ce60e1d27821d47e1161cdf750566640552de3edd2e",
+          "dense_scrutiny": "0db162eb507060ec2a5bf6d78d7f1ab43fd868f2e085c9395832d7b282cbfda0"}
 MODES = sorted(PINNED)
 LEGACY = {"version": "1.0.0", "mode": "legacy_pressure_v1"}
 INVOCATION = ("G8", "RETAINED_PRECISION_INVOCATION_MISMATCH")
