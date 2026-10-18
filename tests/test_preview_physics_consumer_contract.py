@@ -424,8 +424,13 @@ def test_incomplete_coverage_withholds_headline_but_keeps_rows():
     case = source["contract_evidence"]["preview_cases"][0]
     extremum = case["pipe_stress_extrema"].pop()
     source["results"] = [row for row in source["results"] if row["id"] != extremum["result_id"]]
+    # T4-U4b (§2.1, review item 6): no member is outside the maximum's domain on preview-physics-2; an unavailable
+    # member withholds the headline.
     case["stress_maximum_coverage"] = {"complete": False, "unavailable_pipe_ids": [], "outside_domain_pipe_ids": [extremum["pipe_id"]]}
     source["summary"]["max_open_formula_stress"] = None
+    with pytest.raises(ValueError, match="maximum coverage outside the domain"):
+        validate_preview_physics_evidence(source)
+    case["stress_maximum_coverage"] = {"complete": False, "unavailable_pipe_ids": [extremum["pipe_id"]], "outside_domain_pipe_ids": []}
     validate_preview_physics_evidence(source)
     assert verify_analysis_run_record(build(source)) == "match"
 

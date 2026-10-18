@@ -500,8 +500,9 @@ fn check_expectations(outcomes: &BTreeMap<String, Value>) {
     // plus 2 added named refusals; their 14 transport cases retired with the v2
     // transport reader), the joined cases (116 less 2 retired relabels, and their
     // 14 transport cases) and the tamper vector. T4-U4b (§5.1): four pressure and
-    // three preview tampers of the new kinds; review 2: the basis-twin order swap.
-    assert_eq!(checked, 217 + 114 + 14 + 25);
+    // three preview tampers of the new kinds; review 2: the basis-twin order swap;
+    // review 6: the preview arc withholding revived.
+    assert_eq!(checked, 217 + 114 + 14 + 26);
     assert!(misses.is_empty(), "{} disagreements:\n{}", misses.len(), misses.join("\n"));
 }
 

@@ -200,6 +200,8 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         _shape(coverage, {"complete", "unavailable_pipe_ids", "outside_domain_pipe_ids"}, "maximum coverage shape")
         _require(type(coverage["complete"]) is bool and _strings(coverage["unavailable_pipe_ids"]) and _strings(coverage["outside_domain_pipe_ids"]), "maximum coverage values")
         _require(not set(coverage["unavailable_pipe_ids"]) & set(coverage["outside_domain_pipe_ids"]), "maximum coverage overlap")
+        # T4-U4b (§2.1, review item 6): arcs publish their maximum; no member is outside its domain.
+        _require(not coverage["outside_domain_pipe_ids"], "maximum coverage outside the domain")
         _require(coverage["complete"] == (not coverage["unavailable_pipe_ids"] and not coverage["outside_domain_pipe_ids"]), "maximum coverage completeness")
         attribution = case["support_attribution"]
         _shape(attribution, {"attributed_support_ids", "withheld"}, "support attribution shape")

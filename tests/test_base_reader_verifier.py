@@ -40,7 +40,7 @@ DECLARED_VALIDATE = {
         "A4-N4-combination-source-result-refs-null", "A4-N5-duplicate-combination-force-magnitude",
         "A4-N6-support-row-without-basis-ref-element-local", "A4-N8-blocked-envelope-without-summary",
         # T4-U4b: the verifier names the new kinds' refusals in its own words.
-        "U4B-sigma-plus-changed", "U4B-sigma-minus-missing", "U4B-transverse-shear-negative")},
+        "U4B-sigma-plus-changed", "U4B-sigma-minus-missing", "U4B-transverse-shear-negative", "U4B-arc-outside-domain-revived")},
     # B7b: the load/reference-state statements are read by the pressure-2 reader. Its inherited checks keep their
     # own words; the three cases the ordinary pressure reader now reads (no or a broken group, a closed connector)
     # and the moved connector case join them (as test_load_reference_readers declares).
@@ -98,8 +98,9 @@ def _strict_json(text):
 def test_the_corpus_is_the_committed_corpus():
     built, committed = inputs(), corpus.committed()
     # B7b: 543 less the 14 load-reference transport cases retired with the v2 transport reader.
-    # T4-U4b (§5.1): seven tampers of the new kinds (529 -> 536); review 2: the twin-order swap (537).
-    assert [item.id for item in built] == list(committed) and len(built) == 537
+    # T4-U4b (§5.1): seven tampers of the new kinds (529 -> 536); review 2: the twin-order swap (537);
+    # review 6: the preview arc withholding revived (538).
+    assert [item.id for item in built] == list(committed) and len(built) == 538
     for item in built:
         entry = committed[item.id]
         if item.source is None:
@@ -162,8 +163,9 @@ def test_the_verifier_gives_every_committed_outcome_but_the_declared_class():
         if item.rows:
             assert ours["rows"] == theirs["rows"], item.id
     # B7b: 580 reader and transport readings of the parsed statements (fewer than before: one source reader);
-    # T4-U4b adds the seven tampers' readings (587); review 2, the twin-order swap (588).
-    assert compared == 588
+    # T4-U4b adds the seven tampers' readings (587); review 2, the twin-order swap (588); review 6, the preview
+    # arc withholding revived (589).
+    assert compared == 589
     assert validate_differences == DECLARED_VALIDATE
     assert standing_differences == DECLARED_STANDING
 

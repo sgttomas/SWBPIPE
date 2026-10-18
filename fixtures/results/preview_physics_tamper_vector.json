@@ -2,7 +2,8 @@
   "description": "T0R S1 amendments A2/A3/A4 shared tamper vector. Each variant applies its ops (RFC 6901 JSON pointers) to a copy of its base fixture; every reader (Rust, Python, TS) must give the expected outcome. Bases are actual producer output. Ops: replace, remove, reverse, and add (append with '-').",
   "bases": {
     "unicode": "fixtures/results/preview_physics_unicode_ids_sparse.json",
-    "blocked": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json"
+    "blocked": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json",
+    "u4b_arc": "fixtures/results/preview_physics_u4b_arc_sparse.json"
   },
   "variants": [
     {
@@ -316,6 +317,37 @@
           "op": "replace",
           "path": "/results/83/value",
           "value": -0.6188852080335594
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "U4B-arc-outside-domain-revived",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/stress_maximum_coverage",
+          "value": {
+            "complete": false,
+            "outside_domain_pipe_ids": [
+              "pipe:BEND2"
+            ],
+            "unavailable_pipe_ids": []
+          }
+        },
+        {
+          "op": "remove",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3"
+        },
+        {
+          "op": "remove",
+          "path": "/results/305"
+        },
+        {
+          "op": "replace",
+          "path": "/summary/max_open_formula_stress",
+          "value": null
         }
       ],
       "expect": "refused"
