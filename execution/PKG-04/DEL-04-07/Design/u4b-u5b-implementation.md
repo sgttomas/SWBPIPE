@@ -657,7 +657,9 @@ Every row signature in the pressure-2, preview-physics-2 and inheriting tables g
   range-envelope rule). The reader already exempts range envelopes from the component-norm check
   (`preview_physics_evidence.rs` around :709).
 - **`never_combined`**: σ⁺/σ⁻, the transverse-shear maximum, every maximum and headline-bearing
-  row, every intensified row, and review and basis rows. A combination publishes none of them.
+  row, every intensified row, and review and basis rows. A combination publishes none of them,
+  except its own `combination_modulus_basis_record`: one record per combination naming the modulus
+  basis it used. That record combines no operand values.
 
 This is a classification (STRESS_REFERENCE §5), not a new combination rule.
 - The ordinary combination engine keeps its behaviour: maxima and intensified rows are not
