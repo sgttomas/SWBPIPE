@@ -27,10 +27,12 @@ def test_repin_never_edits_frozen_or_historical_trees():
         "fixtures/results/pressure_load_state_connected_dense.analysis_run.json",
         "validation/references/t4_u5b/SHA256SUMS",
         "execution/PKG-04/DEL-04-07/Design/u4b-u5b-implementation.md",
+        "tools/retained_pricing/base/text_args.g4.json",
     ])
     assert editable == ["core/reporting/result_export/src/semantic_contract.rs"]
     assert carriers == ["fixtures/results/pressure_load_state_connected_dense.analysis_run.json"]
-    assert excluded == ["validation/references/t4_u5b/SHA256SUMS", "execution/PKG-04/DEL-04-07/Design/u4b-u5b-implementation.md"]
+    assert excluded == ["validation/references/t4_u5b/SHA256SUMS", "execution/PKG-04/DEL-04-07/Design/u4b-u5b-implementation.md",
+                        "tools/retained_pricing/base/text_args.g4.json"]
 
 
 def test_repin_dry_run_at_head_lists_nothing(capsys):
