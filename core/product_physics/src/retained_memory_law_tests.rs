@@ -402,8 +402,12 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // `b7b_current_table_tests` module changed (pressure-2's 107 -> 129 rows,
             // with its comment); the inspected production after the resume and E14
             // are byte-identical to S3's.
+            // Re-audited for T4-U4b S4: only the closed `b7b_current_table_tests` module
+            // changed (pressure-source-1's 88 -> 94 rows and 51 -> 53 kinds, with its
+            // comment); the inspected production after the resume and E14 are
+            // byte-identical to S2's.
             first_item: SEMANTIC_B7B_TEST_ITEM,
-            complete_suffix_sha256: "bc1783bb8748476157d135ad1bc36f8cc8761b77b90e5e4950c4f0a886b273cf",
+            complete_suffix_sha256: "a60c37af77da9656049426591aaa824419bb832dd07944f3cd9bcba2b1e7e1ab",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -532,11 +536,12 @@ fn assert_reviewed_reader_input_bindings() {
         "table[\"source_kind_count\"] != PRESSURE_SOURCE_KIND_COUNT"] {
         assert!(verifier.contains(required), "binding verifier must retain {required}");
     }
-    // T4-U6 (D-5): the verifier's counts are named constants; the D-5 table has 88 signatures
-    // over the same 51 kinds (B7b: 69 and 51), and its digest is reviewed input #10.
+    // T4-U6 (D-5): the verifier's counts are named constants; the D-5 table had 88 signatures
+    // over the same 51 kinds (B7b: 69 and 51); T4-U4b §4.3 adds the straight derived signatures
+    // (94 over 53), and its digest is reviewed input #10.
     {
         use open_pipe_stress_result_export::semantic_contract as sc;
-        assert_eq!((sc::PRESSURE_SOURCE_SIGNATURE_COUNT, sc::PRESSURE_SOURCE_KIND_COUNT), (88, 51));
+        assert_eq!((sc::PRESSURE_SOURCE_SIGNATURE_COUNT, sc::PRESSURE_SOURCE_KIND_COUNT), (94, 53));
         assert_eq!(sc::PRESSURE_SOURCE_TABLE_SHA256, COMPILED_REVIEWED_INPUTS.unwrap().split(';').nth(10).unwrap()
             .strip_prefix("../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json=").unwrap());
     }
@@ -764,18 +769,22 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // (DEL-04-07 Design `u4b-u5b-implementation.md` §1.3) moved #3-#11
     // (the -2 tables, the renamed schema, the re-inherited tables, the
     // definitions and the version sentence of the pressure-source table); the registered profile records the earlier text until its D3
-    // re-registration, so this build reads Stale until then.
+    // re-registration, so this build reads Stale until then. T4-U4b S4 (§1.3, §4.1, §4.3)
+    // moves #1 (the `derived_not_qualified` treatment and its two recipes), #3 DEF-O, #4
+    // (the preview-retained table's U4b rows and texts), #6 DEF-C, #7 DEF-E, #8 (DEF-E's
+    // hash in the physics-retained table) and #9 (the pressure-source table's signatures
+    // and disclosure).
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "e27b28f710ea6b9cc26bb14d0de53c64c2504c5dde17cbf0acc50dfac9220a11",
-        "6efefc4ff68fc516756ea52aeb9b96d293a570a28d591964a4994602ede51ac2",
+        "6bfa5ec9f0a7a4213c17ab3c1cbaef0780d0cec303ae3a950a407f0ba0f28c7a",
         "8a4273dcd55e827aa0494c28f535bad01089af2e754448e99d1a18118482ef05",
-        "b7b64b831c3e31d16f29e08596eddd1c74f49442001a594b0916b5a312b1060b",
-        "8aaa25df8dfb0a46d8e70e591c0edd8b8fcc1474364b1d73abdb049af287dcf4",
+        "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
+        "ab1c9ff767f6818b3be894dcbe56058f85ea3abba5affed3ecb74bccaa3ade85",
         "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017",
-        "79a3a76a56dd2ff1c347306137340a8bacb5eddeb828ebc5ef55eaa5986fc663",
-        "91ca026e19337251c5a124f3ee1cbd648845f335e6da09edfbdfb16e7dedc7e9",
-        "a4b868f4df6fbfca7f7c70e3bfb5b8972f1cdb513a3c1c6e93a97db57dd44855",
-        "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b",
+        "fe371e07cd727154235f3725eeeef393ad0a433f0e8c98656f98468940d9aea2",
+        "5ae290aeba71f732480609a91baf7ca4a6d0559985cd76f40db7e305efcd8663",
+        "ee1144c7302339accb61d51197d8f95b574c56c434895aa194d63b82f99be186",
+        "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86",
         "9a7d5ab6b7491f9b5c6a421ff7bb14d6a24c915ef29dd608fde004e4a5c409ee",
         "e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788",
     ];

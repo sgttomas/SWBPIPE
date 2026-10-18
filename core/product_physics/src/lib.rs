@@ -6331,10 +6331,12 @@ fn solve_prepared_load_case(
                 certified_effective.as_ref(),
             );
         }
-        if selected_source.is_none() {
+        {
             // T4-U4b (§2.3–§2.6): the station quantities from this member's
             // published rows, then a realized arc's certified maxima. A
-            // selected source's publication carries them under S4 (§4.3).
+            // selected source's publication carries the straight-member
+            // kinds too, formed from its own published rows (§4.3, the
+            // owner's Q2); the source family has no arc (D7).
             let exact_bases = built.exact_sections.get(&pipe.element_id).copied();
             let exact = pressure_runtime::is_exact(model);
             let pressure_state = exact_pressure.as_ref().and_then(|case| case.pipe_states.get(&pipe_index));

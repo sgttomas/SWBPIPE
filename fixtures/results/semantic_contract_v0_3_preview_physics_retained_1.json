@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 68,
-  "source_kind_count": 47,
+  "source_signature_count": 74,
+  "source_kind_count": 51,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -45,7 +45,12 @@
         "force_magnitude",
         "moment_magnitude",
         "maximum_absolute_normal_stress",
-        "equal_factor_intensified_bending_stress"
+        "equal_factor_intensified_bending_stress",
+        "sigma_plus",
+        "sigma_minus",
+        "tau_v_max",
+        "intensified_bending",
+        "intensified_bending_maximum"
       ]
     },
     "coordinate_system": {
@@ -88,7 +93,11 @@
         "TBD",
         "recovered_from_assembled_support_law",
         "nominal_straight_beam_formula_on_arc_resultants",
-        "user_sif_times_member_section_bending_stress_v1"
+        "user_sif_times_member_section_bending_stress_v1",
+        "section_extremes_from_published_stress_rows_v1",
+        "saint_venant_annulus_flexure_v1",
+        "local_straight_annulus_on_arc",
+        "user_directional_sif_times_tangent_frame_bending_stress_v1"
       ]
     },
     "sign_convention": {
@@ -1109,6 +1118,102 @@
       "combination_algebra": "never_combined"
     },
     {
+      "signature_id": "supported-source-069",
+      "kind": "element_local_normal_stress_extreme",
+      "unit": "MPa",
+      "component": "sigma_plus",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "section_extremes_from_published_stress_rows_v1",
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "supported-source-070",
+      "kind": "element_local_normal_stress_extreme",
+      "unit": "MPa",
+      "component": "sigma_minus",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "section_extremes_from_published_stress_rows_v1",
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "supported-source-071",
+      "kind": "element_local_transverse_shear_stress_maximum",
+      "unit": "MPa",
+      "component": "tau_v_max",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "saint_venant_annulus_flexure_v1",
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "preview-physics-arc-071",
+      "kind": "element_local_transverse_shear_stress_maximum",
+      "unit": "MPa",
+      "component": "tau_v_max",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "local_straight_annulus_on_arc",
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "supported-source-072",
+      "kind": "curved_bend_directional_intensified_bending_stress_v1",
+      "unit": "Pa",
+      "component": "intensified_bending",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "user_directional_sif_times_tangent_frame_bending_stress_v1",
+      "combination_algebra": "never_combined"
+    },
+    {
+      "signature_id": "supported-source-073",
+      "kind": "curved_bend_directional_intensified_bending_maximum_v1",
+      "unit": "Pa",
+      "component": "intensified_bending_maximum",
+      "source_physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "canonical_disposition": "exported_quantity",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "governing_ratio_eligible": false,
+      "source_basis": "user_directional_sif_times_tangent_frame_bending_stress_v1",
+      "combination_algebra": "never_combined"
+    },
+    {
       "signature_id": "preview-physics-retained-requested-mode-basis",
       "kind": "retained_precision_requested_mode_basis",
       "unit": "mode_code",
@@ -1230,9 +1335,9 @@
   "supported_profile_limitations": [
     "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
     "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
-    "On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No transverse shear, equivalent stress or code stress.",
-    "On arcs: signed tangent-frame resultants and nominal stress components; endpoint force rows are node-on-element actions in the tangent frame at their end. No maximum, and no stress headline for a model containing an arc.",
-    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
+    "On every member the section normal-stress extremes are N/A \u00b1 hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with \u03bd = E/(2G) \u2212 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
+    "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
+    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
     "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
     "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
     "A full-span uniform member load is represented by its declared equivalent nodal load: six binary1024 entries per load, formed once from the binary64 inputs, each within 2^-1022 of its exact consistent value relative to that value. Retained-precision certificates certify that declared-load problem. A mechanics combination with an operand that carries member loads is not retained."
@@ -1242,11 +1347,11 @@
   "product_formation_definitions": [
     {
       "id": "RP-PREPARED-ORDINARY-DUAL-v1",
-      "sha256": "66c5bf48533b9e5a8f4edeb4fdf6ab4ef845c1a9882eea0bb4afdc0e20771eab"
+      "sha256": "64ec69b842d6278323aa2ab2e140e999db52eb28e4a9965a567a90b04e228b41"
     },
     {
       "id": "RP-PREPARED-COMBINATION-DUAL-v1",
-      "sha256": "1d72a9dbb6d55a291fd87d3254230240e9e49ef0aa77eb5d46cc6a30e6580ea3"
+      "sha256": "a9219849d4dfecfc4e9529c6b648eb21cdf2e9872f2d681cc0c26cdfd2bdf6f1"
     }
   ],
   "accuracy_classification": {

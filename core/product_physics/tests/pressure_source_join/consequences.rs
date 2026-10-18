@@ -12,7 +12,7 @@ use open_pipe_stress_product_physics::result_export::derivative;
 /// constant (bytes changed at B7b's resident current table, a43583c625, and
 /// at T4-U6's per-basis stress signatures).
 const PRESSURE_SOURCE_TABLE_SHA256: &str =
-    "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b";
+    "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86";
 
 fn encoded_length(request: &Value) -> u64 {
     let text = serde_json::to_string(request).unwrap();

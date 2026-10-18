@@ -7,6 +7,9 @@
 use open_pipe_stress_result_export::semantic_contract as s;
 use serde_json::{json, Value};
 
+/// T4-U4b §4.3 (S4): the straight derived tokens pressure-source-1 shares with pressure-2.
+const STRAIGHT_DERIVED_BASES: [&str; 2] = ["section_extremes_from_published_stress_rows_v1;", "saint_venant_annulus_flexure_v1;"];
+
 fn corpus() -> Vec<(String, Value)> {
     let corpus: Value = serde_json::from_str(include_str!(
         "../../../../fixtures/results/pressure_v3_straight_reader_corpus.json"
@@ -174,6 +177,17 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     // place, ahead of the per-section-basis tokens both tables append.
     let max_basis = open_pipe_stress_result_export::physics_source::MAX_BASIS;
     let mut vocabulary = source["canonical_metadata_vocabulary"].clone();
+    // T4-U4b §4.3 (S4): the source family's straight derived tokens (appended to its
+    // vocabulary) are pressure-2's too; pressure-2 orders them with its own U4b tokens
+    // below, so they are taken out of the source's list first.
+    let source_bases: Vec<String> = ["section_extremes_from_published_stress_rows_v1", "saint_venant_annulus_flexure_v1"]
+        .iter()
+        .flat_map(|t| ["nominal_section", "reduced_section"].map(|b| format!("{t}; section_basis={b}")))
+        .collect();
+    let source_components: Vec<String> = ["sigma_plus", "sigma_minus", "tau_v_max"].map(String::from).to_vec();
+    for (key, tokens) in [("component", &source_components), ("basis", &source_bases)] {
+        vocabulary[key]["enum"].as_array_mut().unwrap().retain(|v| !tokens.iter().any(|t| v == t.as_str()));
+    }
     {
         let bases = vocabulary["basis"]["enum"].as_array_mut().unwrap();
         let slot = bases.iter().position(|b| b == max_basis).unwrap();
@@ -248,7 +262,15 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
         let kind = row["kind"].as_str().unwrap();
         assert!(open_pipe_stress_result_export::section_basis::is_stress_kind(kind), "{row}");
         assert!(open_pipe_stress_result_export::section_basis::split_token(row["source_basis"].as_str().unwrap()).is_some(), "{row}");
-        assert!(!source_rows_kinds(&q).contains(&kind.to_string()), "{row}");
+        // T4-U4b §4.3 (S4): the source family carries the straight derived signatures
+        // (σ⁺, σ⁻ and the straight τ token), each the same row but for its id and mark;
+        // the arc, toroidal and directional ones stay pressure-2's own.
+        if STRAIGHT_DERIVED_BASES.iter().any(|t| row["source_basis"].as_str().unwrap().starts_with(t)) {
+            assert!(q["rows"].as_array().unwrap().iter().any(|s| without_id(s) == without_id(row)), "{row}");
+        } else {
+            assert!(!source_rows_kinds(&q).contains(&kind.to_string())
+                || kind == "element_local_transverse_shear_stress_maximum", "{row}");
+        }
     }
     for row in physical {
         let declared = row.get("source_basis").map(|b| b.as_str().unwrap());
@@ -260,7 +282,9 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     }
     let source_rows = q["rows"].as_array().unwrap();
     let mut a: Vec<_> = physical.iter().map(signature).collect();
-    let mut b: Vec<_> = source_rows.iter().map(signature).collect();
+    let mut b: Vec<_> = source_rows.iter()
+        .filter(|r| !r["source_basis"].as_str().is_some_and(|t| STRAIGHT_DERIVED_BASES.iter().any(|d| t.starts_with(d))))
+        .map(signature).collect();
     a.sort();
     a.dedup();
     b.sort();

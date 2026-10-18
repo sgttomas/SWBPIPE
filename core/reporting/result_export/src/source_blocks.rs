@@ -435,6 +435,66 @@ fn projection(p: &Value, row: &Value) -> Result<(), String> {
     );
     Ok(())
 }
+/// T4-U4b §4.3: the treatment of the section normal-stress extremes and
+/// transverse-shear maxima a selected source case publishes beside its
+/// qualified rows, and the two formula recipes it names.
+pub(crate) const NOT_QUALIFIED: &str = "derived_not_qualified";
+pub(crate) const NOT_QUALIFIED_KINDS: [&str; 2] =
+    ["element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"];
+/// A `derived_not_qualified` row: its kind's own recipe, and exactly the
+/// station rows that recipe reads, in formula order (the axial and bending
+/// stress rows of its station and basis for σ⁺/σ⁻; the station's two shear
+/// rows, the end-force rows at the ends and the section rows inside, for τ).
+/// σ⁺/σ⁻ are recomputed bit for bit (§2.3); τ is nonnegative here and its
+/// value is the base reader's check (c_b from the evidence's ν and sections).
+fn not_qualified_in(treatment: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
+    let kind = text(&row["kind"])?;
+    require!(NOT_QUALIFIED_KINDS.contains(&kind), "NOT_QUALIFIED_KIND");
+    signature(row)?.ok_or("SOURCE_BLOCKS_NOT_QUALIFIED_SIGNATURE")?;
+    let extremes = kind == NOT_QUALIFIED_KINDS[0];
+    let recipe = treatment["recipe_id"].as_str();
+    require!(
+        recipe == Some(if extremes { "section_extremes_from_published_stress_rows_v1" } else { "transverse_shear_from_published_shear_rows_v1" }),
+        "NOT_QUALIFIED_RECIPE"
+    );
+    let md = &row["metadata"];
+    let location = &md["location"];
+    let basis = md["basis"].as_str().and_then(|b| b.rsplit_once("; section_basis=")).map(|(_, b)| b);
+    fn input_basis(r: &Value) -> Option<&str> {
+        r["metadata"]["basis"].as_str().and_then(|b| b.rsplit_once("; section_basis=")).map(|(_, b)| b)
+    }
+    let kinds: Vec<_> = inputs.iter().filter_map(|r| r["kind"].as_str()).collect();
+    let same_station = inputs.iter().all(|r| {
+        r["entity_ref"] == row["entity_ref"] && r["basis_ref"] == row["basis_ref"] && r["metadata"]["location"] == *location
+    });
+    if extremes {
+        require!(
+            same_station
+                && basis.is_some()
+                && inputs.iter().all(|r| input_basis(r) == basis)
+                && kinds == ["element_local_axial_normal_stress", "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z"],
+            "NOT_QUALIFIED_INPUTS"
+        );
+        let v = |i: usize| inputs[i]["value"].as_f64().ok_or("SOURCE_BLOCKS_NOT_QUALIFIED_INPUTS");
+        let h = open_pipe_stress_correct_norm::norm2(v(1)?, v(2)?);
+        let expected = match md["component"].as_str() {
+            Some("sigma_plus") => v(0)? + h,
+            Some("sigma_minus") => v(0)? - h,
+            _ => return Err("SOURCE_BLOCKS_NOT_QUALIFIED_KIND".into()),
+        };
+        require!(row["value"].as_f64().map(f64::to_bits) == Some(expected.to_bits()), "NOT_QUALIFIED_VALUE");
+    } else {
+        require!(
+            same_station && kinds == ["element_local_shear_force_y", "element_local_shear_force_z"],
+            "NOT_QUALIFIED_INPUTS"
+        );
+        require!(
+            md["component"] == "tau_v_max" && row["value"].as_f64().is_some_and(|v| v >= 0.0 && v.is_finite()),
+            "NOT_QUALIFIED_VALUE"
+        );
+    }
+    Ok(())
+}
 fn derived_in(
     recipe: &Value,
     row: &Value,
@@ -857,6 +917,12 @@ pub(crate) fn validate_source_contract_in(
             let row = raw[id];
             let s = signature(row)?;
             let inputs = array(&treatment["input_result_ids"])?;
+            // T4-U4b §4.3: on a selected exact case the two derived kinds carry
+            // exactly `derived_not_qualified` (any other kind carrying it is
+            // refused in its branch, NOT_QUALIFIED_KIND).
+            if success && method == Some(EXACT) && NOT_QUALIFIED_KINDS.contains(&text(&row["kind"])?) {
+                require!(treatment["treatment"] == NOT_QUALIFIED, "NOT_QUALIFIED_TREATMENT");
+            }
             require!(
                 unique(inputs)
                     && inputs.iter().all(|i| i
@@ -939,6 +1005,17 @@ pub(crate) fn validate_source_contract_in(
                             && s.is_some(),
                         "ORDINARY_ROW"
                     )
+                }
+                // T4-U4b §4.3: a derived row formed from this publication's own
+                // rows; it neither qualifies nor disqualifies the case (`usable`
+                // unchanged) and carries no REQ-002 guarantee.
+                NOT_QUALIFIED => {
+                    require!(
+                        method == Some(EXACT) && success && treatment["projection_id"].is_null(),
+                        "NOT_QUALIFIED_ROW"
+                    );
+                    let input_rows = inputs.iter().map(|i| Ok(raw[text(i)?])).collect::<Result<Vec<_>, String>>()?;
+                    not_qualified_in(treatment, row, &input_rows)?;
                 }
                 "inspection_only" => {
                     require!(

@@ -7,7 +7,9 @@ derived from it is regenerated here, never edited by hand:
 
   apply-u4b  the T4-U4b contract (signatures numbered after each table's highest id,
           algebra marks, vocabularies, limitation texts, result-schema records) on
-          pressure-2, preview-physics-2, the inheriting tables and the result schemas,
+          pressure-2, preview-physics-2, the inheriting tables (preview-physics-retained-1
+          taking preview-physics-2's rows, vocabulary and preview texts), pressure-source-1
+          (its straight derived signatures and disclosure) and the result schemas,
           idempotently; `--check` reports a difference instead of writing.
   derive  pressure-2's `source_signature_count` and `source_kind_count` from its rows;
           physics-retained-1's inherited members (rows, vocabulary, counts, policies,
@@ -151,6 +153,14 @@ PREVIEW_LIMITATIONS = [
 PREVIEW_LIMITATION_SLOTS = slice(2, 5)
 PREVIEW_IDENTITIES = ("openpipestress.result_semantics/0.3.0/preview-physics-2",
                       "openpipestress.result_semantics/0.3.0/preview-physics-retained-1")
+# T4-U4b §4.3 (S4): pressure-source-1 carries the straight-member derived kinds of its source
+# family (no arc, no connector: D7, D1) on both bases, outside projection.quantity and REQ-002,
+# with one disclosure sentence placed after the endpoint-maximum sentence (outside TBD-002).
+SOURCE_DISCLOSURE = ("Section normal-stress extremes and transverse-shear maxima are published beside the qualified rows, "
+                     "formed from them, and are not qualified.")
+SOURCE_DISCLOSURE_AFTER = "Retained endpoint maxima bound source-action projection"
+SOURCE_COMPONENTS = ["sigma_plus", "sigma_minus", "tau_v_max"]
+SOURCE_BASES = [t + s for t in [EXT, SVS] for s in SUFFIXES]
 
 
 # ---------------------------------------------------------------- tables
@@ -171,6 +181,20 @@ def signature(sid, kind, unit, component, basis):
 
 def highest(rows) -> int:
     return max(int(m.group(1)) for r in rows for m in [re.search(r"-(\d{3})(?:-|$)", r["signature_id"])] if m)
+
+
+def source_u4b_rows(first: int) -> list:
+    """§4.3: pressure-source-1's straight derived signatures, unmarked (the table carries no
+    algebra marks), numbered after its highest id with pressure-2's id rule."""
+    out = []
+    for number, (kind, component, token) in enumerate((
+            ("element_local_normal_stress_extreme", "sigma_plus", EXT),
+            ("element_local_normal_stress_extreme", "sigma_minus", EXT),
+            ("element_local_transverse_shear_stress_maximum", "tau_v_max", SVS)), start=first):
+        for basis in BASES:
+            sid = "supported-source-%03d-%s-%s" % (number, token.removeprefix("recovered_from_"), basis)
+            out.append(signature(sid.replace("_", "-"), kind, "MPa", component, token + "; section_basis=" + basis))
+    return out
 
 
 def u4b_rows(exact: bool, first: int) -> list:
@@ -246,8 +270,37 @@ def u4b_tables(files: dict) -> None:
     for name, base in (("physics_retained_1", "pressure_2"), ("preview_physics_retained_1", "preview_physics_2")):
         table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
         table["inherited_semantic_contract_sha256"] = hashes[base]
+        if name == "preview_physics_retained_1":
+            # T4-U4b §4.1 (S4): the preview-retained rows follow preview-physics-2's (the U4b
+            # rows included), then its own rows (the requested-mode basis); its vocabulary takes
+            # the base's tokens, and its preview limitations are the base's U4b texts.
+            source = json.loads(files[TABLE % base], object_pairs_hook=collections.OrderedDict)
+            inherited = {r["signature_id"] for r in source["rows"]}
+            own = [r for r in table["rows"] if r["signature_id"] not in inherited and r["kind"] not in U4B_KINDS]
+            table["rows"] = [collections.OrderedDict(r) for r in source["rows"]] + own
+            table["source_signature_count"] = len(table["rows"])
+            table["source_kind_count"] = len({r["kind"] for r in table["rows"]})
+            for key, vocabulary in source["canonical_metadata_vocabulary"].items():
+                if "enum" in vocabulary:
+                    extend(table["canonical_metadata_vocabulary"][key]["enum"], vocabulary["enum"])
+            table["supported_profile_limitations"][PREVIEW_LIMITATION_SLOTS] = PREVIEW_LIMITATIONS
         table["rows"] = marked(table["rows"])
         files[TABLE % name] = table_text(table)
+    # §4.3: pressure-source-1 (its own table; not an inheriting one).
+    table = json.loads(files[TABLE % "pressure_source_1"], object_pairs_hook=collections.OrderedDict)
+    rows = [r for r in table["rows"] if r["kind"] not in U4B_KINDS]
+    rows = rows + source_u4b_rows(highest(rows) + 1)
+    table["rows"] = rows
+    table["source_signature_count"] = len(rows)
+    table["source_kind_count"] = len({r["kind"] for r in rows})
+    vocabulary = table["canonical_metadata_vocabulary"]
+    extend(vocabulary["component"]["enum"], SOURCE_COMPONENTS)
+    extend(vocabulary["basis"]["enum"], SOURCE_BASES)
+    limitations = table["supported_profile_limitations"]
+    if SOURCE_DISCLOSURE not in limitations:
+        at = next(i for i, text in enumerate(limitations) if text.startswith(SOURCE_DISCLOSURE_AFTER))
+        limitations.insert(at + 1, SOURCE_DISCLOSURE)
+    files[TABLE % "pressure_source_1"] = table_text(table)
 
 
 # ---------------------------------------------------------------- schemas
@@ -376,7 +429,8 @@ def u4b_schemas(files: dict) -> None:
 
 
 
-U4B_PATHS = [TABLE % n for n in ("pressure_2", "preview_physics_2", "physics_retained_1", "preview_physics_retained_1")] + [
+U4B_PATHS = [TABLE % n for n in ("pressure_2", "preview_physics_2", "physics_retained_1", "preview_physics_retained_1",
+                                  "pressure_source_1")] + [
     "schemas/results.v0.3.schema.yaml", "schemas/stress_neutral_export.v0.3.schema.json",
     "schemas/results_pressure_2.v0.3.schema.json", "schemas/component.schema.yaml"]
 
@@ -453,7 +507,13 @@ def classify(consumers: list[str]) -> tuple[list[str], list[str], list[str]]:
 # inheriting and preview tables (T4-U4b), the result schemas and the analysis-run schema.
 PINNED = (PRESSURE, RETAINED, TABLE % "preview_physics_2", TABLE % "preview_physics_retained_1", SCHEMA,
           "schemas/results.v0.3.schema.yaml", "schemas/stress_neutral_export.v0.3.schema.json",
-          "schemas/component.schema.yaml", "schemas/analysis_run.v0.3.schema.json")
+          "schemas/component.schema.yaml", "schemas/analysis_run.v0.3.schema.json",
+          # T4-U4b S4: the pressure-source-1 table, the source receipt schema (reviewed input 1)
+          # and the three formation definitions DEF-O, DEF-C and DEF-E.
+          TABLE % "pressure_source_1", "schemas/physics_source_recovery.schema.json",
+          "fixtures/results/retained_precision_prepared_ordinary_v1.json",
+          "fixtures/results/retained_precision_prepared_combination_v1.json",
+          "fixtures/results/retained_precision_prepared_exact_v1.json")
 
 
 def repin(revisions: list[str], dry_run: bool = False) -> int:

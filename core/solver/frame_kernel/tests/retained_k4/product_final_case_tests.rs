@@ -320,7 +320,7 @@ fn i51_seed_is_same_draft_bound_and_prescriptions_are_never_seeded() {
     let foreign_cases=foreign_inv.solve_cases(&[i51_seed_source()],CaseLimit::new(u64::MAX)).unwrap();
     let foreign_owner=match &foreign_cases[0].outcome{ExecutionOutcome::Selected(v)=>v,_=>panic!()};
     let foreign_anchor=std::sync::Arc::new(ProofAnchor{owner:foreign_inv.product_owner_stamp(foreign_cases[0].run,foreign_owner).unwrap()});
-    let mut builder=ProductValuesBuilder{member:None,values:vec![2.0,3.0],maxima:vec![(0,7)],anchor:std::sync::Arc::clone(&anchor),visits:WorkTotal::zero()};
+    let mut builder=ProductValuesBuilder{member:None,values:vec![2.0,3.0],maxima:vec![(0,7)],anchor:std::sync::Arc::clone(&anchor),visits:WorkTotal::zero(),pending_not_covered:0};
     assert_eq!(builder.value(0).unwrap(),None);assert_eq!(builder.value(1).unwrap(),Some(3.0));assert_eq!(builder.visits.exact(),Ok(3));
     builder.visits=WorkTotal::exact_count(u64::MAX);assert_eq!(builder.value(1).unwrap_err().category(),"work_accounting");
     assert!(builder.abandon().visits.status().fault().is_some());
@@ -957,6 +957,88 @@ fn b3k_restored_material_gate_fails_stress_and_maximum_rows_with_represented_z()
     }
 }
 
+// T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §4.1): the recipe-free
+// not-covered passthrough. Its rows enter no lane, scale, bound or coverage
+// set; PP completes each value after projection; its verdict is class None.
+#[test]
+fn u4b_not_covered_passthrough_is_position_bound_value_completed_and_class_none() {
+    let (invocation, case) = b3k_case(80e9);
+    let (run, owner) = (case.run, b3k_owner(&case));
+    let facts = b3k_facts(ProductMaterial::Base { e: B3K_E, g: 80e9 });
+    let base = b3k_rows(owner, true, true);
+    let mut rows = base.clone();
+    let body = owner.source().body_of_node(owner.source().members()[0].node_i);
+    for k in 0..3 {
+        let at = rows.len() as u32;
+        let unit = if k == 2 { ProductUnit::Megapascal } else { ProductUnit::Pascal };
+        rows.push((format!("derived-{k}"), unit, body, ProductRecipe::NotCovered { row: at }));
+    }
+    let specs = b3k_specs(&rows, "case");
+    let derived: Vec<usize> = (base.len()..rows.len()).collect();
+    // Position binding: a not-covered recipe naming another position refuses at entry.
+    let mut misplaced = rows.clone();
+    misplaced[derived[0]].3 = ProductRecipe::NotCovered { row: 0 };
+    let misplaced_specs = b3k_specs(&misplaced, "case");
+    let cause = |e: ProductProofFailure| match e.failure().cause { Cause::Association(a) => a, ref other => panic!("{other:?}") };
+    assert_eq!(cause(invocation.begin_prepared_product(run, owner, &facts, &misplaced_specs).into_ready().err().unwrap()), "not-covered row");
+    assert!(ProductRowSpec::mechanical("x", "case", ProductUnit::Record, body, ProductRecipe::NotCovered { row: 0 }).is_err(),
+        "a record unit is never a not-covered quantity row");
+    // Completion: no projected value; each pending row once, finite; all before completion.
+    let run_to_builder = || {
+        let draft = invocation.begin_prepared_product(run, owner, &facts, &specs).into_ready().unwrap();
+        draft.project().into_ready().unwrap()
+    };
+    let (projected, mut builder) = run_to_builder();
+    for &i in &derived {
+        assert_eq!(builder.value(i).unwrap(), None, "row {i} has no projected value");
+    }
+    let maxima = b3k_maxima(&projected).unwrap();
+    let native = (0..base.len()).find(|i| matches!(rows[*i].3, ProductRecipe::Native(_))).unwrap();
+    assert_eq!(cause_of(builder.complete_not_covered(native, 1.0).unwrap_err()), "not-covered completion identity");
+    assert_eq!(cause_of(builder.complete_not_covered(derived[0], f64::NAN).unwrap_err()), "not-covered completion value");
+    assert_eq!(cause_of(builder.complete_not_covered(derived[0], f64::INFINITY).unwrap_err()), "not-covered completion value");
+    builder.complete_not_covered(derived[0], -0.0).unwrap();
+    assert_eq!(cause_of(builder.complete_not_covered(derived[0], 2.0).unwrap_err()), "not-covered completion identity", "once only");
+    assert_eq!(builder.value(derived[0]).unwrap().map(f64::to_bits), Some(0f64.to_bits()), "zero canonicalizes to +0");
+    let incomplete = builder.complete_maxima(&maxima).into_ready().err().unwrap();
+    assert!(matches!(incomplete.failure.cause, Cause::Association("not-covered completion incomplete")));
+    drop(projected);
+    // The complete run: every verified row keeps the class, scale and bits it has
+    // without the not-covered rows; the not-covered rows are class None and passed.
+    let (projected, mut builder) = run_to_builder();
+    let maxima = b3k_maxima(&projected).unwrap();
+    for (k, &i) in derived.iter().enumerate() {
+        builder.complete_not_covered(i, [12.5, -3.0, 0.25][k]).unwrap();
+    }
+    let (values, work) = builder.complete_maxima(&maxima).into_ready().unwrap();
+    let final_rows: Vec<_> = specs.iter().enumerate().map(|(i, s)| s.row(values.value(i).unwrap())).collect();
+    let proof = projected.certify_final(&values, &final_rows, work).into_ready().unwrap();
+    assert!(proof.passed());
+    let (without, without_values, _) = b3k_certified(ProductMaterial::Base { e: B3K_E, g: 80e9 }, 80e9);
+    assert_eq!(proof.verdicts().len(), rows.len());
+    for (v, w) in proof.verdicts().iter().zip(&without) {
+        assert_eq!((v.row, v.normalized_bits, v.scale_bits, v.class, v.passed, v.predicates),
+            (w.row, w.normalized_bits, w.scale_bits, w.class, w.passed, w.predicates));
+        assert_eq!(values.value(v.row).unwrap().to_bits(), without_values[v.row].to_bits());
+    }
+    for (k, &i) in derived.iter().enumerate() {
+        let v = &proof.verdicts()[i];
+        assert_eq!((v.row, v.class, v.passed, v.failed, v.scale_bits), (i, None, true, None, 0));
+        assert_eq!(v.normalized_bits, [12.5f64, -3.0, 0.25][k].to_bits());
+    }
+    // A frozen not-covered value that differs from its row refuses the final proof.
+    let (projected, mut builder) = run_to_builder();
+    let maxima = b3k_maxima(&projected).unwrap();
+    for &i in &derived { builder.complete_not_covered(i, 1.0).unwrap(); }
+    let (values, work) = builder.complete_maxima(&maxima).into_ready().unwrap();
+    let other = 2.0;
+    let tampered: Vec<_> = specs.iter().enumerate().map(|(i, s)| s.row(if i == derived[1] { &other } else { values.value(i).unwrap() })).collect();
+    assert_eq!(cause(projected.certify_final(&values, &tampered, work).into_ready().err().unwrap()), "frozen descriptor/value");
+}
+fn cause_of(f: ProductFailure) -> &'static str {
+    match f.cause { Cause::Association(a) => a, other => panic!("{other:?}") }
+}
+
 // ---------------------------------------------------------------- B2-K
 // The combination specimen (I94 KD §6, with RV115's SF-2, SF-3 and N-9): one
 // cantilever, eight operand cases, C1-C9 through the recorded source API, and
@@ -1350,6 +1432,10 @@ fn b2k_c05_the_combination_coverage_rule() {
     assert_eq!(begin(&rows), None);
     assert_eq!(begin(&b3k_rows(owner, true, false)), Some("combination row family"), "a maximum");
     assert_eq!(begin(&b3k_rows(owner, false, true)), Some("combination row family"), "a mode record");
+    // §4.2: a combination publishes no never_combined not-covered row.
+    let mut derived = rows.clone();
+    derived.push(("derived".into(), ProductUnit::Megapascal, 0, ProductRecipe::NotCovered { row: rows.len() as u32 }));
+    assert_eq!(begin(&derived), Some("combination row family"), "a not-covered derived row");
     for recipe in [ProductRecipe::ModulusBasisRecord] {
         let mut extra = rows.clone();
         extra.push(("record".into(), ProductUnit::Record, 0, recipe));
