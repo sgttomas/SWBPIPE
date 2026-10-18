@@ -137,7 +137,7 @@ pub const PHYSICS_RETAINED_ID: &str = crate::retained_precision::EXACT_CONTRACT_
 pub const PHYSICS_RETAINED_PROFILE: &str = crate::retained_precision::EXACT_PROFILE;
 /// T4-U6: its rows, vocabulary and counts follow the inherited pressure-2 table.
 pub const PHYSICS_RETAINED_SHA256: &str =
-    "4110187031037e47b9a79e8c7acf35615fde32ea36ac2e608893828823aaa35a";
+    "580ea6f318970f327301ae88ab6bb93e8929daaa2dd9cb8eceaff5aa40c61290";
 /// A receipt member or a W1 method-token row offered under any other identity
 /// (I66 F-5: the base readers' closed lists do not name `retained_precision`).
 pub const RETAINED_PRECISION_DOWNGRADE_FORBIDDEN: &str = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN";
