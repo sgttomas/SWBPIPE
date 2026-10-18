@@ -830,6 +830,14 @@ def test_shared_tamper_vector(variant):
         with pytest.raises(ValueError, match="SOURCE_PREVIEW_PHYSICS_"):
             _source_contract(source)
         assert numerical_use_standing(source, bases(source)) == "unsupported"
+    # Codex round 2: the metadata-only transport check gives its own outcome.
+    if "transport" in variant:
+        from tests.verifiers.preview_physics_evidence import validate_transport_metadata
+        if variant["transport"] == "accepted":
+            validate_transport_metadata(source)
+        else:
+            with pytest.raises(ValueError, match="SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"):
+                validate_transport_metadata(source)
 
 
 # ---- B4/D1 (b): source blocks remain only on the composites ----

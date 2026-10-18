@@ -15087,6 +15087,15 @@
         }
       },
       "id": "tamper/U4B-arc-outside-domain-revived",
+      "transport": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+            "detail": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: maximum coverage outside the domain"
+          },
+          "ok": false
+        }
+      },
       "validate": {
         "preview-physics": {
           "error": {
@@ -15123,6 +15132,375 @@
         "preview-physics": {
           "error": {
             "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_STATION_COVER",
+            "detail": null
+          },
+          "ok": false
+        }
+      }
+    },
+    {
+      "dispatch": {
+        "binding": {
+          "id": "openpipestress.result_semantics/0.3.0/preview-physics-2",
+          "sha256": "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017"
+        },
+        "error": null,
+        "ok": true,
+        "route": "preview_physics",
+        "standing": {
+          "eligible": false,
+          "findings": [
+            "SOURCE_PREVIEW_PHYSICS_EXTREMA_STATION_COVER",
+            "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+          ],
+          "route": "preview_physics",
+          "status": "needs_recompute",
+          "token": "unsupported"
+        }
+      },
+      "id": "tamper/U4B-transport-directional-bare",
+      "transport": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+            "detail": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: transport evidence shape"
+          },
+          "ok": false
+        }
+      },
+      "validate": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_STATION_COVER",
+            "detail": null
+          },
+          "ok": false
+        }
+      }
+    },
+    {
+      "dispatch": {
+        "binding": {
+          "id": "openpipestress.result_semantics/0.3.0/preview-physics-2",
+          "sha256": "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017"
+        },
+        "error": null,
+        "ok": true,
+        "route": "preview_physics",
+        "standing": {
+          "eligible": false,
+          "findings": [
+            "SOURCE_PREVIEW_PHYSICS_INTENSIFIED_RANGE",
+            "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+          ],
+          "route": "preview_physics",
+          "status": "needs_recompute",
+          "token": "unsupported"
+        }
+      },
+      "id": "tamper/U4B-transport-station-factor-negative",
+      "transport": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+            "detail": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: transport evidence shape"
+          },
+          "ok": false
+        }
+      },
+      "validate": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_INTENSIFIED_RANGE",
+            "detail": null
+          },
+          "ok": false
+        }
+      }
+    },
+    {
+      "dispatch": {
+        "binding": {
+          "id": "openpipestress.result_semantics/0.3.0/preview-physics-2",
+          "sha256": "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017"
+        },
+        "error": null,
+        "ok": true,
+        "route": "preview_physics",
+        "standing": {
+          "eligible": false,
+          "findings": [
+            "SOURCE_PREVIEW_PHYSICS_INTENSIFIED_BINDING",
+            "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+          ],
+          "route": "preview_physics",
+          "status": "needs_recompute",
+          "token": "unsupported"
+        }
+      },
+      "id": "tamper/U4B-transport-station-location",
+      "transport": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+            "detail": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: transport evidence shape"
+          },
+          "ok": false
+        }
+      },
+      "validate": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_INTENSIFIED_BINDING",
+            "detail": null
+          },
+          "ok": false
+        }
+      }
+    },
+    {
+      "dispatch": {
+        "binding": {
+          "id": "openpipestress.result_semantics/0.3.0/preview-physics-2",
+          "sha256": "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017"
+        },
+        "error": null,
+        "ok": true,
+        "route": "preview_physics",
+        "standing": {
+          "eligible": false,
+          "findings": [
+            "SOURCE_PREVIEW_PHYSICS_EXTREMA_STATION_COVER",
+            "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+          ],
+          "route": "preview_physics",
+          "status": "needs_recompute",
+          "token": "unsupported"
+        }
+      },
+      "id": "tamper/U4B-transport-station-extra-key",
+      "transport": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+            "detail": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: transport evidence shape"
+          },
+          "ok": false
+        }
+      },
+      "validate": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_STATION_COVER",
+            "detail": null
+          },
+          "ok": false
+        }
+      }
+    },
+    {
+      "dispatch": {
+        "binding": {
+          "id": "openpipestress.result_semantics/0.3.0/preview-physics-2",
+          "sha256": "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017"
+        },
+        "error": null,
+        "ok": true,
+        "route": "preview_physics",
+        "standing": {
+          "eligible": false,
+          "findings": [
+            "SOURCE_PREVIEW_PHYSICS_EXTREMA_BASIS",
+            "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+          ],
+          "route": "preview_physics",
+          "status": "needs_recompute",
+          "token": "unsupported"
+        }
+      },
+      "id": "tamper/U4B-transport-maximum-approximation",
+      "transport": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+            "detail": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: transport evidence shape"
+          },
+          "ok": false
+        }
+      },
+      "validate": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_BASIS",
+            "detail": null
+          },
+          "ok": false
+        }
+      }
+    },
+    {
+      "dispatch": {
+        "binding": {
+          "id": "openpipestress.result_semantics/0.3.0/preview-physics-2",
+          "sha256": "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017"
+        },
+        "error": null,
+        "ok": true,
+        "route": "preview_physics",
+        "standing": {
+          "eligible": false,
+          "findings": [
+            "SOURCE_PREVIEW_PHYSICS_EXTREMA_BASIS",
+            "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+          ],
+          "route": "preview_physics",
+          "status": "needs_recompute",
+          "token": "unsupported"
+        }
+      },
+      "id": "tamper/U4B-transport-maximum-span-index",
+      "transport": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+            "detail": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: transport evidence shape"
+          },
+          "ok": false
+        }
+      },
+      "validate": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_BASIS",
+            "detail": null
+          },
+          "ok": false
+        }
+      }
+    },
+    {
+      "dispatch": {
+        "binding": {
+          "id": "openpipestress.result_semantics/0.3.0/preview-physics-2",
+          "sha256": "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017"
+        },
+        "error": null,
+        "ok": true,
+        "route": "preview_physics",
+        "standing": {
+          "eligible": false,
+          "findings": [
+            "SOURCE_PREVIEW_PHYSICS_EXTREMA_BASIS",
+            "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+          ],
+          "route": "preview_physics",
+          "status": "needs_recompute",
+          "token": "unsupported"
+        }
+      },
+      "id": "tamper/U4B-transport-maximum-subdivisions",
+      "transport": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+            "detail": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: transport evidence shape"
+          },
+          "ok": false
+        }
+      },
+      "validate": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EXTREMA_BASIS",
+            "detail": null
+          },
+          "ok": false
+        }
+      }
+    },
+    {
+      "dispatch": {
+        "binding": {
+          "id": "openpipestress.result_semantics/0.3.0/preview-physics-2",
+          "sha256": "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017"
+        },
+        "error": null,
+        "ok": true,
+        "route": "preview_physics",
+        "standing": {
+          "eligible": false,
+          "findings": [
+            "SOURCE_PREVIEW_PHYSICS_INTENSIFIED_SHAPE",
+            "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+          ],
+          "route": "preview_physics",
+          "status": "needs_recompute",
+          "token": "unsupported"
+        }
+      },
+      "id": "tamper/U4B-transport-maximum-gap-missing",
+      "transport": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+            "detail": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: transport evidence shape"
+          },
+          "ok": false
+        }
+      },
+      "validate": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_INTENSIFIED_SHAPE",
+            "detail": null
+          },
+          "ok": false
+        }
+      }
+    },
+    {
+      "dispatch": {
+        "binding": {
+          "id": "openpipestress.result_semantics/0.3.0/preview-physics-2",
+          "sha256": "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017"
+        },
+        "error": null,
+        "ok": true,
+        "route": "preview_physics",
+        "standing": {
+          "eligible": false,
+          "findings": [
+            "SOURCE_PREVIEW_PHYSICS_ARC_ROW_ON_STRAIGHT",
+            "REQUESTED_NUMERICAL_BASIS_UNAVAILABLE",
+            "NUMERICAL_CASE_COVERAGE_INCOMPLETE"
+          ],
+          "route": "preview_physics",
+          "status": "needs_recompute",
+          "token": "unsupported"
+        }
+      },
+      "id": "tamper/U4B-transport-maximum-pipe-empty",
+      "transport": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID",
+            "detail": "SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID: transport evidence shape"
+          },
+          "ok": false
+        }
+      },
+      "validate": {
+        "preview-physics": {
+          "error": {
+            "code": "SOURCE_PREVIEW_PHYSICS_ARC_ROW_ON_STRAIGHT",
             "detail": null
           },
           "ok": false

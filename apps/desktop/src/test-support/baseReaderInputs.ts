@@ -332,7 +332,8 @@ export async function baseReaderInputs(): Promise<BaseReaderInput[]> {
   for (const variant of vector.variants as RawObject[]) {
     const [doc, literal] = apply(read(index(vector.bases, variant.base as string) as string), variant.ops as Raw[], hash, () => { throw new Error("graft"); });
     if (literal !== null) throw new Error("tamper literal");
-    inputs.push(statement(`tamper/${variant.id as string}`, doc, null, ["preview-physics"]));
+    // Codex round 2: a variant with a transport expectation is also read by transport.
+    inputs.push(statement(`tamper/${variant.id as string}`, doc, null, ["preview-physics"], "transport" in variant ? ["preview-physics"] : []));
   }
   // load_reference*_mutations.json.
   for (const [file, reader, joined] of [

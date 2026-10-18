@@ -312,8 +312,10 @@ fn build_corpus() -> Vec<Input> {
         let base_doc = read(vector["bases"][variant["base"].as_str().unwrap()].as_str().unwrap());
         let (doc, literal) = apply(&base_doc, &variant["ops"], &|_| unreachable!());
         assert!(literal.is_none());
+        // Codex round 2: a variant with a transport expectation is also read by transport.
+        let transports = if variant.get("transport").is_some() { vec!["preview-physics"] } else { vec![] };
         inputs.push(Input { id: format!("tamper/{}", variant["id"].as_str().unwrap()), source: Ok(doc), model: None,
-            invocation: None, readers: vec!["preview-physics"], transports: vec![], rows: false });
+            invocation: None, readers: vec!["preview-physics"], transports, rows: false });
     }
     // load_reference*_mutations.json: each case under its reader(s), and the
     // transport cases on the transported members.
@@ -498,6 +500,10 @@ fn check_expectations(outcomes: &BTreeMap<String, Value>) {
         let admitted = entry["dispatch"]["ok"] == true && entry["validate"]["preview-physics"]["ok"] == true;
         assert_eq!(admitted, variant["expect"] == "accepted", "tamper/{id}");
         checked += 1;
+        if let Some(expect) = variant.get("transport") {
+            assert_eq!(entry["transport"]["preview-physics"]["ok"] == true, expect == "accepted", "tamper/{id} transport");
+            checked += 1;
+        }
     }
     // B7b: the load/reference-state cases (210 retired-reader cases re-authored,
     // plus 2 added named refusals; their 14 transport cases retired with the v2
@@ -506,7 +512,9 @@ fn check_expectations(outcomes: &BTreeMap<String, Value>) {
     // three preview tampers of the new kinds; review 2: the basis-twin order swap;
     // review 6: the preview arc withholding revived; review 3 and 5: six pressure
     // tampers on the directional arc envelope and the preview station cover.
-    assert_eq!(checked, 223 + 114 + 14 + 27);
+    // Codex round 2: nine malformed directional records, each read and
+    // transported, and the revival also transported.
+    assert_eq!(checked, 223 + 114 + 14 + 36 + 10);
     assert!(misses.is_empty(), "{} disagreements:\n{}", misses.len(), misses.join("\n"));
 }
 

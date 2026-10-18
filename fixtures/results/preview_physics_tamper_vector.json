@@ -1,5 +1,5 @@
 {
-  "description": "T0R S1 amendments A2/A3/A4 shared tamper vector. Each variant applies its ops (RFC 6901 JSON pointers) to a copy of its base fixture; every reader (Rust, Python, TS) must give the expected outcome. Bases are actual producer output. Ops: replace, remove, reverse, and add (append with '-').",
+  "description": "T0R S1 amendments A2/A3/A4 shared tamper vector. Each variant applies its ops (RFC 6901 JSON pointers) to a copy of its base fixture; every reader (Rust, Python, TS) must give the expected outcome. Bases are actual producer output. Ops: replace, remove, reverse, and add (append with '-'). A variant with \"transport\" is also read by each reader's metadata-only transport check, with that outcome.",
   "bases": {
     "unicode": "fixtures/results/preview_physics_unicode_ids_sparse.json",
     "blocked": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json",
@@ -350,7 +350,8 @@
           "value": null
         }
       ],
-      "expect": "refused"
+      "expect": "refused",
+      "transport": "refused"
     },
     {
       "id": "U4B-arc-station-cover",
@@ -383,6 +384,133 @@
         }
       ],
       "expect": "refused"
+    },
+    {
+      "id": "U4B-transport-directional-bare",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/0",
+          "value": {
+            "result_id": "result:intensified-directional:pipe-BEND1:end-i",
+            "i_in_plane": null,
+            "i_out_of_plane": -2
+          }
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-station-factor-negative",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/1/i_out_of_plane",
+          "value": -2
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-station-location",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/2/location",
+          "value": "governing_station"
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-station-extra-key",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/3",
+          "value": {
+            "i_in_plane": 2.2,
+            "i_out_of_plane": 1.6,
+            "location": "midspan",
+            "pipe_id": "pipe:BEND1",
+            "result_id": "result:intensified-directional:pipe-BEND1:midspan",
+            "extra": 1
+          }
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-approximation",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/5/approximation",
+          "value": "arc_closed_form_section_statics"
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-span-index",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/5/span_index",
+          "value": 1
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-subdivisions",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/5/subdivisions",
+          "value": 131073
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-gap-missing",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/11/certified_gap_pa"
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-pipe-empty",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/11/pipe_id",
+          "value": ""
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
     }
   ]
 }
