@@ -43,7 +43,7 @@ DEPENDENCIES = {
     # then model 0.6.0: the reader's comments name pressure-2 (comment text only; was f91e678e...);
     # then T4-U4b: the section stress, toroidal, arc maximum and directional rows (was 8a79bfcf...);
     # then the T4-U4b review repairs: basis-twin order and no transverse-shear Poisson exemption (was 79ec35b3...).
-    MODULE: '1a02404acaa712125cd41ad9881e0cfd6eb84cdfbbba8e790ca00bb939d6db2f',
+    MODULE: 'c7699864716718b2b1ae13d8237989eb276276a038085b47362997fa273de73d',
     TABLE: TABLE_SHA256,
     UNITS: '521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c',
 }
