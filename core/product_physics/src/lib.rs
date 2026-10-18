@@ -4288,8 +4288,7 @@ fn append_connector_results(
             match attempt {
                 Ok((certificate, rods)) => {
                     let effective = publishes_effective.then(|| {
-                        let terms = rods.iter().map(|rod| (rod.tension, rod.axial_share)).collect::<Vec<_>>();
-                        effective_axial_row(certificate.g[0], &terms, joint_pressure)
+                        effective_axial_row(certificate.g[0], &certified_rod_terms(connector, &rods)?, joint_pressure)
                     }).transpose();
                     let rod_rows = record.tie_rods.iter().zip(&rods).map(|(meta, rod)| (meta.id.as_str(), rod.tension)).collect::<Vec<_>>();
                     match effective.and_then(|effective| certified_publication::connector_record(&record.component_id,bodies.body_of_node(connector.node_i().index),&certificate,effective.as_ref(),&rod_rows)) {
@@ -4372,8 +4371,7 @@ fn append_connector_results(
                 let pe = joint_pressure.map(|(p, area)| CertifiedValue::exact(p)?.product(CertifiedValue::exact(area)?)).transpose()?;
                 let s = match &certificate {
                     Some((certificate, rods)) => {
-                        let terms = rods.iter().map(|rod| (rod.tension, rod.axial_share)).collect::<Vec<_>>();
-                        effective_axial_row(certificate.g[0], &terms, joint_pressure)?
+                        effective_axial_row(certificate.g[0], &certified_rod_terms(connector, rods)?, joint_pressure)?
                     }
                     None => {
                         let terms = connector.tie_rods().iter().zip(&rod_recoveries)
@@ -4405,6 +4403,22 @@ fn append_connector_results(
 /// the certified route), summed with g_x's row (`add_row`: the rows must come
 /// from one certified attempt), then the exact operand −p·Ae. Untied and
 /// unpressurized it is g_x itself; with no rods it is U5a's g_x − p·Ae.
+/// T4-U5b round 4 (common operand): each rod's s_x term on the certified
+/// route, its certified tension at p and its *published* binary64
+/// `axial_share` (`TieRod::axial_share`, the value the evidence carries) as an
+/// exact operand. The readers bind s_x with that same share, so their
+/// tolerance covers only the rounding of t_r and of s_x.
+fn certified_rod_terms(
+    connector: &open_pipe_stress_frame_kernel::connector::ObjectiveConnector,
+    rods: &[open_pipe_stress_frame_kernel::structural::CertifiedTieRodRecovery],
+) -> Result<Vec<(open_pipe_stress_frame_kernel::structural::CertifiedRow, open_pipe_stress_frame_kernel::structural::CertifiedValue)>, open_pipe_stress_frame_kernel::structural::RecoveryFailure> {
+    use open_pipe_stress_frame_kernel::structural::CertifiedValue;
+    rods.iter().zip(connector.tie_rods())
+        .map(|(rod, element)| CertifiedValue::exact(element.axial_share()).map(|share| (rod.tension, share)))
+        .collect()
+}
+
+/// s_x = RN_p(g_x - Pe + sum_r T_r * share_r), one exact sum rounded once.
 fn effective_axial_row(
     gx: open_pipe_stress_frame_kernel::structural::CertifiedRow,
     rods: &[(open_pipe_stress_frame_kernel::structural::CertifiedRow, open_pipe_stress_frame_kernel::structural::CertifiedValue)],

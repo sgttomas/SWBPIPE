@@ -94,6 +94,85 @@ const TIED_INPUTS: [(&str, PreviewSolverMode, &str); 2] = [
     ("MO-F", PreviewSolverMode::DenseScrutiny, "dense_scrutiny"),
 ];
 
+/// The connector's tie rod 0 of a built t4_u5b request.
+fn rod0(request: &mut Value) -> &mut Value {
+    &mut request["model"]["components"][0]["objective_connector"]["hardware"]["rods"][0]
+}
+
+fn length(value: f64) -> Value {
+    json!({"value": value, "unit": "m"})
+}
+
+/// Pe = 0 and g_x at noise level: the connector unpressurized, no region and
+/// no load, so only the rod's pretension (e_ref = -1e-4 m, k = 1e7 N/m:
+/// T about 1 kN) loads the joint.
+fn pretension_only(request: &mut Value) {
+    let model = &mut request["model"];
+    model["components"][0]["objective_connector"]["pressure_model"] = json!({"kind": "unpressurized"});
+    model["load_cases"][0]["pressure_regions"] = json!([]);
+    model["load_cases"][0]["primitive_loads"] = json!([]);
+    let rod = rod0(request);
+    rod["stiffness"] = json!({"value": 1.0e7, "unit": "N/m"});
+    rod["reference_extension"] = length(-1.0e-4);
+}
+
+/// T4-U5b round 4 (s_x on a common operand): derived tied requests whose
+/// rods are near-perpendicular or skewed, so the share formed at p and the
+/// published binary64 axial_share differ while g_x and Pe are small.
+fn derived_tied(name: &str) -> Value {
+    let oracle = t4_u5b::oracle();
+    match name {
+        // Codex's shape: the represented chord (x_j - x_i) + (o_j - o_i) is
+        // fl(2.3 - 2) + fl(1e-17 - fl(2.3 - 2)) = 0, so the published share is
+        // 0 while the share at p is about 3e-17; Pe = 0, g_x at noise level.
+        "MO-F perpendicular 1e-17 skew, pretension only" => {
+            let mut request = t4_u5b::request("MO-F", &oracle["cases"]["MO-F"]);
+            pretension_only(&mut request);
+            let rod = rod0(&mut request);
+            rod["offset_i"]["x"] = length(2.3 - 2.0);
+            rod["offset_j"]["x"] = length(1.0e-17);
+            rod["offset_j"]["y"] = length(0.4);
+            request
+        }
+        // Opus's shape: AS-F-R's rotated connector frame, the rod
+        // perpendicular in connector axes (along connector y from the end-j
+        // station), so its global direction carries rotation roundoff.
+        "AS-F-R rotated perpendicular, pretension only" => {
+            let mut request = t4_u5b::request("AS-F-R", &oracle["cases"]["AS-F-R"]);
+            pretension_only(&mut request);
+            let model = &request["model"];
+            let position = |id: &str| -> [f64; 3] {
+                let node = model["nodes"].as_array().unwrap().iter().find(|n| n["id"] == id).unwrap();
+                ["x", "y", "z"].map(|a| node["position"][a].as_f64().unwrap())
+            };
+            let connector = &model["components"][0]["objective_connector"];
+            let (i, j) = (position(connector["end_i"]["node_ref"].as_str().unwrap()), position(connector["end_j"]["node_ref"].as_str().unwrap()));
+            let chord = ((j[0] - i[0]).powi(2) + (j[1] - i[1]).powi(2) + (j[2] - i[2]).powi(2)).sqrt();
+            let rod = rod0(&mut request);
+            rod["offset_i"]["x"] = length(chord);
+            rod["offset_j"]["x"] = length(0.0);
+            rod["offset_j"]["y"] = length(0.4);
+            request
+        }
+        // A skewed rod with large offsets: its represented chord cancels
+        // metres of offset to centimetres.
+        "AS-F skewed rod with large offsets" => {
+            let mut request = t4_u5b::request("AS-F", &oracle["cases"]["AS-F"]);
+            let rod = rod0(&mut request);
+            rod["offset_i"] = json!({"x": length(12.5), "y": length(3.25), "z": length(-1.5)});
+            rod["offset_j"] = json!({"x": length(-12.15), "y": length(3.2500001), "z": length(-1.4999)});
+            request
+        }
+        _ => unreachable!("{name}"),
+    }
+}
+
+const DERIVED_TIED_INPUTS: [(&str, PreviewSolverMode, &str); 3] = [
+    ("MO-F perpendicular 1e-17 skew, pretension only", PreviewSolverMode::SparseInteractive, "sparse_interactive"),
+    ("AS-F-R rotated perpendicular, pretension only", PreviewSolverMode::DenseScrutiny, "dense_scrutiny"),
+    ("AS-F skewed rod with large offsets", PreviewSolverMode::SparseInteractive, "sparse_interactive"),
+];
+
 /// The shared connector reader corpus (RE, Python): the 0.3.0
 /// system document in sparse mode and the 0.4.0 one in dense mode, each
 /// re-authored to 0.6.0, then (T4-U5b) the two tied requests built from
@@ -119,11 +198,20 @@ fn shared_connector_reader_corpus_is_current() {
         cases.push(json!({"label": format!("T4-U5b {case} {name}"),
             "document_schema_version": document["model"]["schema_version"], "solver_mode": name, "envelope": envelope}));
     }
+    for (name, mode, mode_name) in DERIVED_TIED_INPUTS {
+        let document = derived_tied(name);
+        let envelope = run(&document, mode);
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{name}: {}", envelope["diagnostics"]);
+        semantic_contract::validate_pressure_evidence(&envelope).unwrap_or_else(|e| panic!("{name}: {e}"));
+        cases.push(json!({"label": format!("T4-U5b {name} {mode_name}"),
+            "document_schema_version": document["model"]["schema_version"], "solver_mode": mode_name, "envelope": envelope}));
+    }
     let corpus = json!({
         "corpus": "T4-U3 pressure-1 objective connector reader corpus",
         "generator": "core/product_physics/tests/connector_readers.rs::shared_connector_reader_corpus_is_current",
         "inputs": ["validation/references/t4_i12/u3_reference_cases.json U3-SYS-DEMO-CONNECTOR-001 document_v3_0.3.0 and U3-SYS-DEMO-CONNECTOR-002-LR1 document_v3_0.4.0, bytes unchanged; each copy re-authored to model document 0.6.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time",
-            "validation/references/t4_u5b cases AS-F and MO-F (SHA-bound case descriptions over their t4_u5a base requests), authored as model document 0.6.0 requests with explicit_axial_rods_v1 hardware at test time (core/product_physics/tests/common/t4_u5b.rs)"],
+            "validation/references/t4_u5b cases AS-F and MO-F (SHA-bound case descriptions over their t4_u5a base requests), authored as model document 0.6.0 requests with explicit_axial_rods_v1 hardware at test time (core/product_physics/tests/common/t4_u5b.rs)",
+            "three requests derived at test time from t4_u5b MO-F, AS-F-R and AS-F (connector_readers.rs derived_tied): near-perpendicular or skewed rods, two with Pe = 0 and pretension only; invented controls, not references"],
         "cases": cases,
     });
     let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";
