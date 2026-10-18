@@ -99,7 +99,7 @@ fn is_rod_reference(primitive: &LoadPrimitive) -> bool {
 /// K-D5 closure (§7 item 6): every rod model of t4_u5b closes with the member
 /// bound on both routes and both modes. The rods with a reference extension
 /// carry their `tie_rod_reference` summands (one per DOF, source
-/// `{connector}:{rod}`); a rod with e_ref = 0 carries none ("one ε").
+/// `{len}:{connector}:{len}:{rod}`); a rod with e_ref = 0 carries none ("one ε").
 #[test]
 fn u5b_rod_models_close_with_the_member_bound_on_the_ordinary_and_w2_routes() {
     let oracle = t4_u5b::oracle();
@@ -112,7 +112,7 @@ fn u5b_rod_models_close_with_the_member_bound_on_the_ordinary_and_w2_routes() {
         assert_eq!(summands.len(), 12 * pretensioned, "{name}");
         for primitive in &summands {
             assert_eq!(primitive.identity.family, TIE_ROD_REFERENCE_FAMILY, "{name}");
-            assert!(primitive.identity.source.starts_with("component:C-J:rod:"), "{name}");
+            assert!(primitive.identity.source.starts_with("13:component:C-J:"), "{name}: {}", primitive.identity.source);
         }
         for (route, quality, check, bound) in checked_solves(&control, 4) {
             assert_eq!(quality, SolveQuality::Passed, "{name} {route}: {check}");
@@ -421,4 +421,66 @@ fn round3_near_perpendicular_and_skewed_rods_solve_and_certify_in_both_modes() {
             assert!(bound, "{label} {route}: member bound");
         }
     }
+}
+
+/// The request in millimetres: every node position times 1000 and
+/// `project.units.length` = "mm"; the rods' offsets stay in metres.
+fn in_millimetres(base: &Value) -> Value {
+    let mut request = base.clone();
+    request["model"]["project"]["units"]["length"] = json!("mm");
+    for node in request["model"]["nodes"].as_array_mut().unwrap() {
+        for axis in ["x", "y", "z"] {
+            let v = node["position"][axis].as_f64().unwrap();
+            node["position"][axis] = json!(v * 1000.0);
+        }
+    }
+    request
+}
+
+/// Round 4 (units): before `normalize_model_units` (`validate_profile` on
+/// the solve path, and authoring) the rod formation runs on SI positions.
+/// - A rod 299.7 m long in SI, (2.3 - 2.0) + (-300 - 0), is admitted and
+///   solves; mixing millimetre positions with metre offsets gives
+///   300 + (-300) = 0 and refused it as degenerate.
+/// - A rod whose SI chord cancels to roundoff, (2.3 - 2.0) + (0 - fl(2.3 -
+///   2.0)), is refused by authoring with the degenerate-length code; mixed
+///   units saw 299.7 and admitted it.
+/// - AS-F authored in millimetres solves with the metre case's rod force.
+#[test]
+fn round4_rod_formation_uses_si_positions_in_a_millimetre_project() {
+    let base = request("AS-F");
+    let long = with_rod(&base, |rod| {
+        rod["offset_i"]["x"] = json!({"value": 0.0, "unit": "m"});
+        rod["offset_j"]["x"] = json!({"value": -300.0, "unit": "m"});
+    });
+    let long_mm = run(&in_millimetres(&long));
+    assert_eq!(long_mm["status"]["mechanics"], "MECHANICS_SOLVED", "{}", long_mm["diagnostics"]);
+    let length = long_mm["contract_evidence"]["connector"][0]["tie_rods"][0]["length_m"].as_f64().unwrap();
+    assert!((length - 299.7).abs() < 1e-9, "{length}");
+    let degenerate = with_rod(&base, |rod| {
+        rod["offset_i"]["x"] = json!({"value": 2.3f64 - 2.0, "unit": "m"});
+        rod["offset_j"]["x"] = json!({"value": 0.0, "unit": "m"});
+    });
+    let findings = crate::joint::authoring_findings(&in_millimetres(&degenerate)["model"]).unwrap();
+    assert!(findings.iter().any(|d| d.code == "JOINT_TIE_ROD_ZERO_LENGTH" && d.message.contains("rod:yp")), "{findings:?}");
+    assert_refused(&in_millimetres(&degenerate), "JOINT_TIE_ROD_ZERO_LENGTH", "rod:yp", "mm degenerate length");
+    let force = |source: &Value| source["results"].as_array().unwrap().iter()
+        .find(|r| r["kind"] == "connector_tie_rod_force_v1").unwrap()["value"].as_f64().unwrap();
+    let metres = run(&base);
+    let millimetres = run(&in_millimetres(&base));
+    assert_eq!(millimetres["status"]["mechanics"], "MECHANICS_SOLVED", "{}", millimetres["diagnostics"]);
+    let (a, b) = (force(&metres), force(&millimetres));
+    assert!((a - b).abs() <= 1e-9 * a.abs().max(1.0), "rod force {a:e} m vs {b:e} mm");
+}
+
+/// Round 4: the reference-load summand source length-prefixes both ids, so
+/// ids that contain ':' cannot collide (the unprefixed `{component}:{rod}`
+/// gave both pairs below "component:C-J:rod:x").
+#[test]
+fn round4_tie_rod_reference_sources_cannot_collide() {
+    let a = crate::tie_rod_reference_source("component:C-J:rod", "x");
+    let b = crate::tie_rod_reference_source("component:C-J", "rod:x");
+    assert_ne!(a, b);
+    assert_eq!(a, "17:component:C-J:rod:1:x");
+    assert_eq!(b, "13:component:C-J:5:rod:x");
 }

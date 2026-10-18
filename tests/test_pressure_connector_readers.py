@@ -26,8 +26,8 @@ def tied(envelope):
     return envelope["contract_evidence"]["connector"][0]["hardware"] == "explicit_axial_rods_v1"
 
 
-# T4-U5b: the two untied entries keep the T4-U3 mutations; the two tied entries (t4_u5b AS-F and MO-F) take the rod
-# mutations below.
+# T4-U5b: the two untied entries keep the T4-U3 mutations; the five tied entries (t4_u5b AS-F and MO-F, and the three
+# derived near-perpendicular or skewed rods of round 4) take the rod mutations below.
 UNTIED_CASES = [(label, envelope) for label, envelope in CASES if not tied(envelope)]
 TIED_CASES = [(label, envelope) for label, envelope in CASES if tied(envelope)]
 
@@ -148,7 +148,9 @@ MUTATIONS = [
 
 
 def test_corpus_shape():
-    assert len(CASES) == 4 and len(UNTIED_CASES) == 2 and len(TIED_CASES) == 2
+    assert len(CASES) == 7 and len(UNTIED_CASES) == 2 and len(TIED_CASES) == 5
+    assert [label for label, e in TIED_CASES if all(r["axial_share"] == 0.0 for r in record(e)["tie_rods"])] == [
+        "T4-U5b MO-F single-rod control, Q = I, 1e-17 skew sparse_interactive"]
     assert {load_state(e) for _, e in UNTIED_CASES} == {True, False}
     assert all(len(e["contract_evidence"]["connector"]) == 1 for _, e in CASES)
     assert {record(e)["pressure_model"] for _, e in TIED_CASES} == {"unpressurized", "constant_effective_area_reference_v1"}
@@ -201,6 +203,24 @@ def _shift(row, delta):
     row["value"] += delta
 
 
+def _binding_rod(e):
+    """The rod whose force enters s_x most (largest |axial_share|): a rod with axial_share exactly 0 adds nothing to
+    s_x, so s_x's binding cannot see its force value or its share being scaled; the value tampers target this rod."""
+    rods = record(e)["tie_rods"]
+    return max(range(len(rods)), key=lambda i: abs(rods[i]["axial_share"]))
+
+
+def _scale_binding_share(e):
+    rod = record(e)["tie_rods"][_binding_rod(e)]
+    rod["axial_share"] = rod["axial_share"] * (1 - 2.0 ** -52)
+
+
+def _shift_binding_force(e):
+    rod_id = record(e)["tie_rods"][_binding_rod(e)]["id"].replace(":", "-")
+    row = next(r for r in _rod_rows(e) if r["id"].endswith(f":tie_rod:{rod_id}:t_r"))
+    _shift(row, 1.0)
+
+
 # T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.1): the same rod mutations as the Rust reader's test.
 ROD_MUTATIONS = [
     ("rod record without rows", lambda e: e.__setitem__("results", [r for r in e["results"] if r["kind"] != "connector_tie_rod_force_v1"]), "connector tie-rod rows missing"),
@@ -211,12 +231,12 @@ ROD_MUTATIONS = [
     ("rod law", lambda e: record(e)["tie_rods"][0].__setitem__("law", "ideal_inextensible"), "connector tie-rod record"),
     ("rod stiffness zero", lambda e: record(e)["tie_rods"][0].__setitem__("stiffness_n_per_m", 0.0), "connector tie-rod record"),
     ("rod direction not unit", lambda e: record(e)["tie_rods"][0].__setitem__("direction_global", [0.5, 0.0, 0.0]), "connector tie-rod direction"),
-    ("rod axial share", lambda e: record(e)["tie_rods"][0].__setitem__("axial_share", record(e)["tie_rods"][0]["axial_share"] * (1 - 2.0 ** -52)), "connector tie-rod axial share"),
+    ("rod axial share", _scale_binding_share, "connector tie-rod axial share"),
     ("rod row renamed", _rename_rod_row, "connector tie-rod row unbound"),
     ("rod row extra", _extra_rod_row, "connector tie-rod row unbound"),
     ("rod row frame", lambda e: _rod_rows(e)[0]["metadata"].__setitem__("coordinate_system", "global"), "connector row semantics"),
     ("rod row basis", lambda e: _rod_rows(e)[0]["metadata"].__setitem__("basis", "objective_connector_v1;symmetric_midpoint_small_rotation_v1"), "connector row semantics"),
-    ("rod force changed", lambda e: _shift(_rod_rows(e)[0], 1.0), "joint effective row binding"),
+    ("rod force changed", _shift_binding_force, "joint effective row binding"),
     ("s_x changed", lambda e: _shift(_row(e, "connector_effective_axial_force_v1"), 1e-6), "joint effective row binding"),
     ("s_x removed", lambda e: e.__setitem__("results", [r for r in e["results"] if r["kind"] != "connector_effective_axial_force_v1"]), "connector row coverage"),
 ]
@@ -232,6 +252,11 @@ def test_tied_entries_match_the_result_schema_and_the_hardware_rows(label, envel
     assert count("connector_pressure_force_v1") == (0 if unpressurized else 1)
     assert count("connector_effective_axial_force_v1") == 1
     assert count("connector_tie_rod_force_v1") == len(record(envelope)["tie_rods"])
+    # Round 4: axial_share is RN(n.Q_x), which can exceed 1 by an ulp or two for a parallel rod in a rotated frame;
+    # the schema bounds only its type (finite by JSON), never [-1, 1].
+    beyond = deepcopy(envelope)
+    record(beyond)["tie_rods"][0]["axial_share"] = 1.0000000000000004
+    validate_instance(schema_for_definition(schema, "PressureContractEvidence"), beyond["contract_evidence"])
     untied = deepcopy(envelope)
     record(untied)["hardware"] = "untied"
     with pytest.raises(Exception):
@@ -243,6 +268,13 @@ def test_tied_entries_match_the_result_schema_and_the_hardware_rows(label, envel
 def test_broken_tie_rod_bindings_are_refused_by_name(label, envelope, what, mutate, detail):
     broken = deepcopy(envelope)
     mutate(broken)
+    if what in ("rod axial share", "rod force changed") and all(r["axial_share"] == 0.0 for r in record(envelope)["tie_rods"]):
+        # Codex's single-rod control: its only rod's axial_share is exactly 0, so the rod adds nothing to s_x and s_x's
+        # binding cannot see its force or share scaled. Its s_x operand is discriminated by product_physics
+        # connector_readers.rs `s_x_formed_with_the_share_at_p_fails_the_binding`.
+        assert "single-rod control" in label
+        validate_pressure_evidence(broken)
+        return
     with pytest.raises(ValueError) as refused:
         validate_pressure_evidence(broken)
     assert str(refused.value).endswith(f"SOURCE_PHYSICS_EVIDENCE_INVALID: {detail}"), str(refused.value)

@@ -206,13 +206,13 @@ PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 PRESSURE_CONTRACT_SHA256 = "e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788"
 _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
 PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
-PREVIEW_PHYSICS_CONTRACT_SHA256 = "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017"
+PREVIEW_PHYSICS_CONTRACT_SHA256 = "958175a2db516e47a3275b62926d0a8d060f45917ab3417d35350290dc4a08c7"
 _PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "ab1c9ff767f6818b3be894dcbe56058f85ea3abba5affed3ecb74bccaa3ade85"
+PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "cbd57b415e90c02bd3bb6e82f5440545b5d867f176348403179739fea8579d7e"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_retained_1.json"
 # B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only

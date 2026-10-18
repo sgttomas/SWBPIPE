@@ -42,7 +42,8 @@ fn sparse(entries: &[StiffnessContribution], groups: Option<&[usize]>) -> Result
 }
 
 fn sparse_with(entries: &[StiffnessContribution], groups: Option<&[usize]>, free: &[usize], prescribed: &[(usize, f64)]) -> Result<(), StructuralError> {
-    let k = SparseStiffness::from_dense(&[vec![1.0, 0.0], vec![0.0, 1.0]]).unwrap();
+    // A full 2x2 pattern: the sums read only the pattern, never these values.
+    let k = SparseStiffness::from_dense(&[vec![1.0, 0.5], vec![0.5, 1.0]]).unwrap();
     let force = vec![0.0, 0.0];
     let system = SparseStructuralSystem::new(&k, &force, free, prescribed, Some(entries), None);
     let system = match groups { Some(g) => system.with_contribution_groups(g), None => system };
@@ -97,5 +98,27 @@ fn diagonals_at_prescribed_dofs_are_no_candidates() {
     for check in [dense_with, sparse_with] {
         refused_at(check(&entries(true), Some(&groups), &[0], &[(1, 0.0)]), 0);
         assert!(check(&entries(true), Some(&groups), &[0, 1], &[]).is_ok());
+    }
+}
+
+/// Round 4 (Codex): A = diag(1, 0), B = v v^T with v = (2^-30, 1). B's DOF 0
+/// entry is absorbed, but its DOF 1 entry opens a zero free diagonal and is
+/// represented, so B is not refused; without groups the per-entry rule still
+/// refuses the absorbed entry. With DOF 1 prescribed, B has no represented
+/// candidate and is refused.
+#[test]
+fn an_element_opening_a_free_zero_diagonal_is_represented() {
+    let v = [2f64.powi(-30), 1.0];
+    let mut entries = vec![c(0, 0, 1.0)];
+    for (i, &a) in v.iter().enumerate() {
+        for (j, &b) in v.iter().enumerate() {
+            entries.push(c(i, j, a * b));
+        }
+    }
+    let groups = [1, 5];
+    for (check, check_with) in [(dense as fn(&[StiffnessContribution], Option<&[usize]>) -> Result<(), StructuralError>, dense_with as fn(&[StiffnessContribution], Option<&[usize]>, &[usize], &[(usize, f64)]) -> Result<(), StructuralError>), (sparse, sparse_with)] {
+        assert!(check(&entries, Some(&groups)).is_ok());
+        refused_at(check(&entries, None), 0);
+        refused_at(check_with(&entries, Some(&groups), &[0], &[(1, 0.0)]), 0);
     }
 }

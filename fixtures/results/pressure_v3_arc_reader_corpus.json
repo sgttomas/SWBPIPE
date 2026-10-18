@@ -1425,8 +1425,8 @@
             "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
             "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
             "Realized curved bends (curved_bend_macro_element with the user's bend radius and flexibility factor k, one k for both bending planes) are admitted under pressure: each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc) and c_b its own end caps along the end tangents; on an arc N_w = N_el + pAi and S = N_el, and shear and moments are elastic. A region changes direction only at realized bends: a bend-end direction change up to alpha_tan = 1e-3 rad is carried exactly by the remainder pAi(t_in - t_out); a larger change (a mitre) and a straight-straight kink are refused. Geometry-only (chord) bends carry no pressure and are refused. On arcs the hoop is the toroidal membrane cut average (bore_load_transferred_toroidal_membrane_v1) and the radial values are -p at the bore and 0 outside, the transverse shear is the straight-annulus Saint-Venant field driven by the tangent-frame shears (local_straight_annulus_on_arc), and the normal-stress maximum is bounded along the arc; ovalization, hoop bending from moments, bending boundary layers, tangent-end effects and the curvature correction of the shear field are not represented; the excluded effects above apply to every bend result.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -1503,7 +1503,7 @@
             "id": "result:disp:node-B",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 4.203092853305305
+            "value": 4.203092853305363
           },
           {
             "basis_ref": {
@@ -1514,7 +1514,7 @@
             "id": "result:disp:node-C",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 4.364658690441963
+            "value": 4.364658690442021
           },
           {
             "basis_ref": {
@@ -1651,7 +1651,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 1.9548038681987001
+            "value": 1.9548038681986988
           },
           {
             "basis_ref": {
@@ -1669,7 +1669,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.6450333625814353
+            "value": -2.645033362581439
           },
           {
             "basis_ref": {
@@ -1687,7 +1687,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.6169695988323354
+            "value": -2.616969598832426
           },
           {
             "basis_ref": {
@@ -1705,7 +1705,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.0005116531879165525
+            "value": 0.0005116531879165749
           },
           {
             "basis_ref": {
@@ -1723,7 +1723,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0010907780831716253
+            "value": 0.0010907780831716713
           },
           {
             "basis_ref": {
@@ -1741,7 +1741,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.0007245241821526149
+            "value": -0.0007245241821526012
           },
           {
             "basis_ref": {
@@ -1759,7 +1759,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 2.1910025483795743
+            "value": 2.19100254837957
           },
           {
             "basis_ref": {
@@ -1777,7 +1777,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.6029437839969534
+            "value": -2.602943783996954
           },
           {
             "basis_ref": {
@@ -1795,7 +1795,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.7339416552655953
+            "value": -2.7339416552656917
           },
           {
             "basis_ref": {
@@ -1813,7 +1813,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.0006203027498573521
+            "value": 0.0006203027498573788
           },
           {
             "basis_ref": {
@@ -1831,7 +1831,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.000966118678750472
+            "value": 0.0009661186787505141
           },
           {
             "basis_ref": {
@@ -1849,7 +1849,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.00004217846634985449
+            "value": -0.000042178466349844045
           },
           {
             "basis_ref": {
@@ -10503,7 +10503,7 @@
             "location_ref": "node:C",
             "result_ref": "result:disp:node-C",
             "unit": "mm",
-            "value": 4.364658690441963
+            "value": 4.364658690442021
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
@@ -12266,8 +12266,8 @@
             "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.",
             "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented.",
             "Realized curved bends (curved_bend_macro_element with the user's bend radius and flexibility factor k, one k for both bending planes) are admitted under pressure: each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc) and c_b its own end caps along the end tangents; on an arc N_w = N_el + pAi and S = N_el, and shear and moments are elastic. A region changes direction only at realized bends: a bend-end direction change up to alpha_tan = 1e-3 rad is carried exactly by the remainder pAi(t_in - t_out); a larger change (a mitre) and a straight-straight kink are refused. Geometry-only (chord) bends carry no pressure and are refused. On arcs the hoop is the toroidal membrane cut average (bore_load_transferred_toroidal_membrane_v1) and the radial values are -p at the bore and 0 outside, the transverse shear is the straight-annulus Saint-Venant field driven by the tangent-frame shears (local_straight_annulus_on_arc), and the normal-stress maximum is bounded along the arc; ovalization, hoop bending from moments, bending boundary layers, tangent-end effects and the curvature correction of the shear field are not represented; the excluded effects above apply to every bend result.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -12344,7 +12344,7 @@
             "id": "result:disp:node-B",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 4.20309285330553
+            "value": 4.203092853305363
           },
           {
             "basis_ref": {
@@ -12355,7 +12355,7 @@
             "id": "result:disp:node-C",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 4.364658690442198
+            "value": 4.364658690442021
           },
           {
             "basis_ref": {
@@ -12492,7 +12492,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 1.9548038681987023
+            "value": 1.9548038681986988
           },
           {
             "basis_ref": {
@@ -12510,7 +12510,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.6450333625814366
+            "value": -2.645033362581439
           },
           {
             "basis_ref": {
@@ -12528,7 +12528,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.616969598832694
+            "value": -2.616969598832426
           },
           {
             "basis_ref": {
@@ -12546,7 +12546,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.0005116531879166455
+            "value": 0.0005116531879165749
           },
           {
             "basis_ref": {
@@ -12564,7 +12564,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0010907780831717897
+            "value": 0.0010907780831716713
           },
           {
             "basis_ref": {
@@ -12582,7 +12582,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.0007245241821526129
+            "value": -0.0007245241821526012
           },
           {
             "basis_ref": {
@@ -12600,7 +12600,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 2.191002548379577
+            "value": 2.19100254837957
           },
           {
             "basis_ref": {
@@ -12618,7 +12618,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.6029437839969547
+            "value": -2.602943783996954
           },
           {
             "basis_ref": {
@@ -12636,7 +12636,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.733941655265967
+            "value": -2.7339416552656917
           },
           {
             "basis_ref": {
@@ -12654,7 +12654,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.0006203027498574632
+            "value": 0.0006203027498573788
           },
           {
             "basis_ref": {
@@ -12672,7 +12672,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0009661186787506156
+            "value": 0.0009661186787505141
           },
           {
             "basis_ref": {
@@ -12690,7 +12690,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.000042178466349855144
+            "value": -0.000042178466349844045
           },
           {
             "basis_ref": {
@@ -21344,7 +21344,7 @@
             "location_ref": "node:C",
             "result_ref": "result:disp:node-C",
             "unit": "mm",
-            "value": 4.364658690442198
+            "value": 4.364658690442021
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
@@ -22729,8 +22729,8 @@
             "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
             "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
             "Realized curved bends (curved_bend_macro_element with the user's bend radius and flexibility factor k, one k for both bending planes) are admitted under pressure: each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc) and c_b its own end caps along the end tangents; on an arc N_w = N_el + pAi and S = N_el, and shear and moments are elastic. A region changes direction only at realized bends: a bend-end direction change up to alpha_tan = 1e-3 rad is carried exactly by the remainder pAi(t_in - t_out); a larger change (a mitre) and a straight-straight kink are refused. Geometry-only (chord) bends carry no pressure and are refused. On arcs the hoop is the toroidal membrane cut average (bore_load_transferred_toroidal_membrane_v1) and the radial values are -p at the bore and 0 outside, the transverse shear is the straight-annulus Saint-Venant field driven by the tangent-frame shears (local_straight_annulus_on_arc), and the normal-stress maximum is bounded along the arc; ovalization, hoop bending from moments, bending boundary layers, tangent-end effects and the curvature correction of the shear field are not represented; the excluded effects above apply to every bend result.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -22807,7 +22807,7 @@
             "id": "result:disp:node-B",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.2668297609175556
+            "value": 0.2668297609175555
           },
           {
             "basis_ref": {
@@ -22818,7 +22818,7 @@
             "id": "result:disp:node-C",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.27602866865134085
+            "value": 0.2760286686513406
           },
           {
             "basis_ref": {
@@ -22955,7 +22955,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.15863120683070422
+            "value": 0.15863120683070409
           },
           {
             "basis_ref": {
@@ -23045,7 +23045,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.00005877704683506659
+            "value": -0.00005877704683506629
           },
           {
             "basis_ref": {
@@ -23063,7 +23063,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.17779860316673776
+            "value": 0.1777986031667375
           },
           {
             "basis_ref": {
@@ -23081,7 +23081,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.2111385389486927
+            "value": -0.2111385389486926
           },
           {
             "basis_ref": {
@@ -23153,7 +23153,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -3.4323126356954864e-6
+            "value": -3.432312635695289e-6
           },
           {
             "basis_ref": {
@@ -31807,7 +31807,7 @@
             "location_ref": "node:C",
             "result_ref": "result:disp:node-C",
             "unit": "mm",
-            "value": 0.27602866865134085
+            "value": 0.2760286686513406
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
@@ -32995,8 +32995,8 @@
             "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
             "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware or explicit bilateral linear elastic tie rods (explicit_axial_rods_v1) between the connector's end nodes with rigid offsets, each with its own stiffness and reference extension. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces and joints at region terminals or beside realized arcs are refused. Ideal inextensible rods, collective constraints, tension-only or gapped rods, nuts and stops are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with each tie-rod force, the joint pressure force pAe and the effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe published separately; they are outside the straight-member recovery coverage.",
             "Realized curved bends (curved_bend_macro_element with the user's bend radius and flexibility factor k, one k for both bending planes) are admitted under pressure: each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc) and c_b its own end caps along the end tangents; on an arc N_w = N_el + pAi and S = N_el, and shear and moments are elastic. A region changes direction only at realized bends: a bend-end direction change up to alpha_tan = 1e-3 rad is carried exactly by the remainder pAi(t_in - t_out); a larger change (a mitre) and a straight-straight kink are refused. Geometry-only (chord) bends carry no pressure and are refused. On arcs the hoop is the toroidal membrane cut average (bore_load_transferred_toroidal_membrane_v1) and the radial values are -p at the bore and 0 outside, the transverse shear is the straight-annulus Saint-Venant field driven by the tangent-frame shears (local_straight_annulus_on_arc), and the normal-stress maximum is bounded along the arc; ovalization, hoop bending from moments, bending boundary layers, tangent-end effects and the curvature correction of the shear field are not represented; the excluded effects above apply to every bend result.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -33073,7 +33073,7 @@
             "id": "result:disp:node-B",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 5.331854636162698
+            "value": 5.33185463616301
           },
           {
             "basis_ref": {
@@ -33084,7 +33084,7 @@
             "id": "result:disp:node-C",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 5.796486682072382
+            "value": 5.796486682072723
           },
           {
             "basis_ref": {
@@ -33095,7 +33095,7 @@
             "id": "result:disp:node-D",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 1.6033782365924443
+            "value": 1.6033782365924858
           },
           {
             "basis_ref": {
@@ -33232,7 +33232,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 1.7984790381689262
+            "value": 1.7984790381689242
           },
           {
             "basis_ref": {
@@ -33250,7 +33250,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.069895349025991
+            "value": -2.0698953490260172
           },
           {
             "basis_ref": {
@@ -33268,7 +33268,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -4.572710383844269
+            "value": -4.572710383844622
           },
           {
             "basis_ref": {
@@ -33286,7 +33286,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.00023288890911350084
+            "value": 0.0002328889091135446
           },
           {
             "basis_ref": {
@@ -33304,7 +33304,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.002083470766832801
+            "value": 0.0020834707668329734
           },
           {
             "basis_ref": {
@@ -33322,7 +33322,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.0006899418546338389
+            "value": -0.0006899418546338499
           },
           {
             "basis_ref": {
@@ -33340,7 +33340,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 2.0570343396914055
+            "value": 2.0570343396914046
           },
           {
             "basis_ref": {
@@ -33358,7 +33358,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.0571765907861024
+            "value": -2.057176590786131
           },
           {
             "basis_ref": {
@@ -33376,7 +33376,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -5.013570788878373
+            "value": -5.013570788878756
           },
           {
             "basis_ref": {
@@ -33394,7 +33394,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.0003102417669848187
+            "value": 0.0003102417669848692
           },
           {
             "basis_ref": {
@@ -33412,7 +33412,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.001956480732144027
+            "value": 0.0019564807321441925
           },
           {
             "basis_ref": {
@@ -33430,7 +33430,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.00028226981249256447
+            "value": -0.000282269812492567
           },
           {
             "basis_ref": {
@@ -33448,7 +33448,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.5595302338396619
+            "value": 0.5595302338396633
           },
           {
             "basis_ref": {
@@ -33466,7 +33466,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.33683597337840615
+            "value": 0.336835973378378
           },
           {
             "basis_ref": {
@@ -33484,7 +33484,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -1.4643391731548574
+            "value": -1.4643391731549087
           },
           {
             "basis_ref": {
@@ -33502,7 +33502,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.0012708339743847522
+            "value": 0.0012708339743848368
           },
           {
             "basis_ref": {
@@ -33520,7 +33520,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0008234800332357766
+            "value": 0.0008234800332358464
           },
           {
             "basis_ref": {
@@ -33538,7 +33538,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.000615555922901406
+            "value": 0.0006155559229014066
           },
           {
             "basis_ref": {
@@ -39906,7 +39906,7 @@
             "location_ref": "node:C",
             "result_ref": "result:disp:node-C",
             "unit": "mm",
-            "value": 5.796486682072382
+            "value": 5.796486682072723
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
@@ -40510,8 +40510,8 @@
             "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
             "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
             "Objective connectors (expansion joints, objective_connector 1.0.0): symmetric-midpoint, small-displacement, small-rotation linear elastic law with the authored 6x6 work matrix, frame, offsets and installed reference q_ref, replacing exactly one straight span (replaces_span); untied hardware or explicit bilateral linear elastic tie rods (explicit_axial_rods_v1) between the connector's end nodes with rigid offsets, each with its own stiffness and reference extension. A pressurized joint (constant_effective_area_reference_v1) is a coaxial edge of one equal-bore pressure region between straight members, with zero attachment offsets, and carries the dead pressure load p(Ae - Ai) at its attachments, Ae being the authored effective area; unequal bore or pressure, offset faces and joints at region terminals or beside realized arcs are refused. Ideal inextensible rods, collective constraints, tension-only or gapped rods, nuts and stops are refused. No finite rotation, follower or geometric stiffness, pressure stiffening, squirm or stability, temperature law or stop is modelled; the replaced span carries no load, member result or self-weight. Connector actions are published as generalized and end-node elastic actions, with each tie-rod force, the joint pressure force pAe and the effective axial force S = g_x + sum T_r (n_r.Q_x) - Pe published separately; they are outside the straight-member recovery coverage.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -40588,7 +40588,7 @@
             "id": "result:disp:node-B",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 2.0295138888888893
+            "value": 2.029513888888889
           },
           {
             "basis_ref": {
@@ -40732,7 +40732,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 2.0295138888888893
+            "value": 2.029513888888889
           },
           {
             "basis_ref": {
@@ -40804,7 +40804,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.0010937500000000003
+            "value": 0.00109375
           },
           {
             "basis_ref": {
@@ -41398,7 +41398,7 @@
             "location_ref": "node:B",
             "result_ref": "result:disp:node-B",
             "unit": "mm",
-            "value": 2.0295138888888893
+            "value": 2.029513888888889
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": null,
@@ -43278,8 +43278,8 @@
             "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.",
             "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented.",
             "Realized curved bends (curved_bend_macro_element with the user's bend radius and flexibility factor k, one k for both bending planes) are admitted under pressure: each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc) and c_b its own end caps along the end tangents; on an arc N_w = N_el + pAi and S = N_el, and shear and moments are elastic. A region changes direction only at realized bends: a bend-end direction change up to alpha_tan = 1e-3 rad is carried exactly by the remainder pAi(t_in - t_out); a larger change (a mitre) and a straight-straight kink are refused. Geometry-only (chord) bends carry no pressure and are refused. On arcs the hoop is the toroidal membrane cut average (bore_load_transferred_toroidal_membrane_v1) and the radial values are -p at the bore and 0 outside, the transverse shear is the straight-annulus Saint-Venant field driven by the tangent-frame shears (local_straight_annulus_on_arc), and the normal-stress maximum is bounded along the arc; ovalization, hoop bending from moments, bending boundary layers, tangent-end effects and the curvature correction of the shear field are not represented; the excluded effects above apply to every bend result.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -43356,7 +43356,7 @@
             "id": "result:disp:node-B",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 4.20578203617667
+            "value": 4.205782036176503
           },
           {
             "basis_ref": {
@@ -43367,7 +43367,7 @@
             "id": "result:disp:node-C",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 4.367429879433429
+            "value": 4.367429879433252
           },
           {
             "basis_ref": {
@@ -43504,7 +43504,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 1.956845979227852
+            "value": 1.9568459792278485
           },
           {
             "basis_ref": {
@@ -43522,7 +43522,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.647796530738647
+            "value": -2.647796530738648
           },
           {
             "basis_ref": {
@@ -43540,7 +43540,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.616969598832694
+            "value": -2.616969598832426
           },
           {
             "basis_ref": {
@@ -43558,7 +43558,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.0005116531879166455
+            "value": 0.0005116531879165749
           },
           {
             "basis_ref": {
@@ -43576,7 +43576,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0010907780831717897
+            "value": 0.0010907780831716713
           },
           {
             "basis_ref": {
@@ -43594,7 +43594,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.0007252810656677969
+            "value": -0.0007252810656677862
           },
           {
             "basis_ref": {
@@ -43612,7 +43612,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": 2.193291407401052
+            "value": 2.193291407401045
           },
           {
             "basis_ref": {
@@ -43630,7 +43630,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.60566298273399
+            "value": -2.605662982733988
           },
           {
             "basis_ref": {
@@ -43648,7 +43648,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -2.733941655265967
+            "value": -2.7339416552656917
           },
           {
             "basis_ref": {
@@ -43666,7 +43666,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
             },
             "unit": "rad",
-            "value": 0.0006203027498574632
+            "value": 0.0006203027498573788
           },
           {
             "basis_ref": {
@@ -43684,7 +43684,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0009661186787506156
+            "value": 0.0009661186787505141
           },
           {
             "basis_ref": {
@@ -43702,7 +43702,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": -0.000042222528627777094
+            "value": -0.0000422225286277671
           },
           {
             "basis_ref": {
@@ -52572,7 +52572,7 @@
             "location_ref": "node:C",
             "result_ref": "result:disp:node-C",
             "unit": "mm",
-            "value": 4.367429879433429
+            "value": 4.367429879433252
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {

@@ -1277,9 +1277,10 @@ pub(super) fn sparse_contribution_sums(
         let sum = &mut sums[index];
         let old = sum.round()?;
         sum.add(entry.value)?;
-        let on_nonzero = entry.row == entry.col && entry.value > 0.0 && old != 0.0;
+        let positive_diagonal = entry.row == entry.col && entry.value > 0.0;
+        let on_nonzero = positive_diagonal && old != 0.0;
         let absorbed = on_nonzero && sum.round()? == old;
-        absorption.record(position, on_nonzero, absorbed, entry.row)?;
+        absorption.record(position, on_nonzero, positive_diagonal && old == 0.0, absorbed, entry.row)?;
     }
     Ok(Some(sums))
 }

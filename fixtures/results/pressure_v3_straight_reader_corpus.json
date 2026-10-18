@@ -696,8 +696,8 @@
             "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
             "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
             "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -787,7 +787,7 @@
             "id": "result:disp:node-fixture-tip",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 0.009090909090909087
+            "value": 0.009090909090909089
           },
           {
             "basis_ref": {
@@ -913,7 +913,7 @@
               "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.009090909090909087
+            "value": -0.009090909090909089
           },
           {
             "basis_ref": {
@@ -3869,7 +3869,7 @@
             "id": "result:loadcase:case-six-component-load:disp:node-fixture-tip",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 1.1608090399600852
+            "value": 1.160809039960085
           },
           {
             "basis_ref": {
@@ -4013,7 +4013,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.9171372776284086
+            "value": 0.9171372776284084
           },
           {
             "basis_ref": {
@@ -4031,7 +4031,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.7115720257461791
+            "value": -0.711572025746179
           },
           {
             "basis_ref": {
@@ -4067,7 +4067,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0009487627009949055
+            "value": 0.0009487627009949052
           },
           {
             "basis_ref": {
@@ -4085,7 +4085,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.0015180203215918486
+            "value": 0.0015180203215918483
           },
           {
             "basis_ref": {
@@ -6083,7 +6083,7 @@
             "location_ref": "node:fixture-tip",
             "result_ref": "result:loadcase:case-six-component-load:disp:node-fixture-tip",
             "unit": "mm",
-            "value": 1.1608090399600852
+            "value": 1.160809039960085
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
@@ -6803,8 +6803,8 @@
             "Signed support actions are attributed only for admitted linear restraints and springs; ambiguous coincident rigid attribution is refused.",
             "The circular normal-stress maximum bounds the supplied binary64 polynomial coefficient enclosures; solution error is separate, and incomplete coverage withholds the headline.",
             "Every member section declares its corrosion allowance and the contract declares its shear model. This envelope publishes ordinary structural recovery. Retained-source recovery is available only for euler_bernoulli documents with zero mill tolerance and zero corrosion allowance, and only for straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. No code compliance or professional acceptance is produced, and actual numerical admission remains separate.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -9976,7 +9976,7 @@
             "id": "result:loadcase:case-six-component-load:disp:node-fixture-tip",
             "kind": "displacement_magnitude",
             "unit": "mm",
-            "value": 1.1608090399600846
+            "value": 1.160809039960085
           },
           {
             "basis_ref": {
@@ -10120,7 +10120,7 @@
               "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
             },
             "unit": "mm",
-            "value": 0.9171372776284081
+            "value": 0.9171372776284084
           },
           {
             "basis_ref": {
@@ -10138,7 +10138,7 @@
               "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
             },
             "unit": "mm",
-            "value": -0.7115720257461786
+            "value": -0.711572025746179
           },
           {
             "basis_ref": {
@@ -10174,7 +10174,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
             },
             "unit": "rad",
-            "value": 0.0009487627009949048
+            "value": 0.0009487627009949052
           },
           {
             "basis_ref": {
@@ -10192,7 +10192,7 @@
               "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
             },
             "unit": "rad",
-            "value": 0.0015180203215918481
+            "value": 0.0015180203215918483
           },
           {
             "basis_ref": {
@@ -12190,7 +12190,7 @@
             "location_ref": "node:fixture-tip",
             "result_ref": "result:loadcase:case-six-component-load:disp:node-fixture-tip",
             "unit": "mm",
-            "value": 1.1608090399600846
+            "value": 1.160809039960085
           },
           "max_open_formula_stress": null,
           "max_open_formula_stress_nominal_section": {
@@ -13290,8 +13290,8 @@
             "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.",
             "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.",
             "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },
@@ -20911,8 +20911,8 @@
             "Global rigid support translations/rotations are prescribed absolute boundary values through the partitioned solve; reactions come from the unreduced equations. Spring base motion, device preload/reference, inactive or locked supports are not provided.",
             "Ordinary applied loads are exactly the case's declared source ledger with explicit factors; unreferenced stored primitives are excluded. Hydrostatic head, contents-weight state and per-case mass selection are not provided.",
             "History is independent equilibrium only; no installation, contact, friction or predecessor history is represented.",
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
           ],
           "profile_id": "exact_pressure_v3"
         },

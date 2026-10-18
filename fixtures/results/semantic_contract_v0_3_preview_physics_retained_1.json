@@ -1277,7 +1277,7 @@
   },
   "metadata_policy": "preserve_source_producer_numerical_quality_formulation_basis_contract_evidence",
   "reserved_inactive_successors": [],
-  "inherited_semantic_contract_sha256": "eb2100f3e6d4c77e186eddcc9a37aa2e7c38c97e3107a64e8aac6b12c4eec017",
+  "inherited_semantic_contract_sha256": "958175a2db516e47a3275b62926d0a8d060f45917ab3417d35350290dc4a08c7",
   "source_basis_signature_policy": "where_declared_require_exact_metadata_basis_first_match_in_table_order",
   "formulation_profile_id": "product_preview_retained_w1a_v2",
   "contract_evidence_policy": "closed_preview_case_extrema_coverage_attribution_intensification_and_combination_gate_binding_v1",
