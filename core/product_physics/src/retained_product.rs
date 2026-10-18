@@ -73,6 +73,8 @@ pub(super) struct MemberIdentity {
     pub id: String,
     pub material: usize,
     pub nodes: [usize; 2],
+    /// §2.4's preview ν, RN(RN(E/RN(2·G)) − 1), from the moduli the case's solve uses.
+    pub poisson_ratio: f64,
 }
 #[derive(Debug)]
 pub(super) struct SpringIdentity {
@@ -276,6 +278,8 @@ pub(super) fn requested_mode_basis(mode: PreviewSolverMode, case_index: usize) -
 /// 12 station stresses, the circular maximum and (T4-U4b, §4.1) the 15 not-covered derived
 /// rows: σ⁺, σ⁻ and τ_v,max at the five stations.
 const FAILED_MEMBER_ROWS: usize = 66;
+/// The τ_v,max rows of one member (five stations), absent when its ν is out of domain (§2.4).
+const FAILED_SHEAR_ROWS: usize = 5;
 const FAILED_STATIONS: [&str; 3] = ["quarter_1", "midspan", "quarter_3"];
 /// The solved preview run's fixed identifier (lib.rs's solved envelope).
 const FAILED_SUCCESSOR_RUN_ID: &str = "run:preview-linear-static-001";
@@ -2079,6 +2083,7 @@ impl ProductCapture {
                 id: pipe.id.clone(),
                 material: mi,
                 nodes: [b.node_i.index, b.node_j.index],
+                poisson_ratio: u4b_rows::preview_poisson_ratio(b.section.elastic_modulus, b.section.shear_modulus),
             });
             for (j, fraction) in [0.25, 0.5, 0.75].into_iter().enumerate() {
                 let Some(station) = id.checked_mul(3).and_then(|v| v.checked_add(j as u32)) else {
@@ -4540,9 +4545,25 @@ impl ProductCapture {
         self.adapter.require()?;
         let mode=self.invocation_mode.ok_or("failed manifest mode")?;
         let case=self.case_id.as_str();
+        // §2.4: a member whose ν is outside the Saint-Venant domain publishes no τ rows and
+        // carries the named warning, as the ordinary rows do (the preview annulus of
+        // `prepared_not_covered`: d = D − 2t, r_i = d/2, I = π(D⁴ − d⁴)/64).
+        let mut out_of_domain=self.adapter.reserve::<Option<f64>>(self.members.len())?;
+        for (i,member) in self.members.iter().enumerate() {
+            let f=self.facts.get(i).ok_or("failed manifest section facts")?;
+            let inner=f.diameter-2.0*f.effective_wall;
+            let inertia=std::f64::consts::PI*(f.diameter.powi(4)-inner.powi(4))/64.0;
+            self.capture_entry(AdapterEvent::LibraryBoundary)?; // The shared stress_recovery domain rule.
+            out_of_domain.push(match open_pipe_stress_stress_recovery::section_stress_quantities::saint_venant_shear_factor(member.poisson_ratio,f.radius,inner/2.0,inertia) {
+                Err(open_pipe_stress_stress_recovery::section_stress_quantities::SectionQuantityError::PoissonOutOfDomain{nu})=>Some(nu),
+                _=>None,
+            });
+        }
+        let exempt=out_of_domain.iter().filter(|nu|nu.is_some()).count();
         let count=self.nodes.len().checked_mul(7)
             .and_then(|n|self.supports.len().checked_mul(8).and_then(|s|n.checked_add(s)))
             .and_then(|n|self.members.len().checked_mul(FAILED_MEMBER_ROWS).and_then(|m|n.checked_add(m)))
+            .and_then(|n|n.checked_sub(exempt*FAILED_SHEAR_ROWS))
             .and_then(|n|n.checked_add(1)).ok_or(CaptureError::CountRange("failed manifest rows"))?;
         let mut rows=self.adapter.reserve::<ResultItem>(count)?;
         self.capture_entry(AdapterEvent::LibraryBoundary)?; // Existing fixed-id formatting; internals unqualified.
@@ -4569,7 +4590,7 @@ impl ProductCapture {
         }
         let zero=StressComponents{axial_normal:Some(0.0),bending_normal_y:Some(0.0),bending_normal_z:Some(0.0),torsional_shear:Some(0.0)};
         let mut extrema=self.adapter.reserve::<serde_json::Value>(self.members.len())?;
-        for member in &self.members {
+        for (i,member) in self.members.iter().enumerate() {
             super::append_element_force_results(&mut rows,&member.id,&[0.0;12]);
             for location in FAILED_STATIONS {
                 super::append_station_force_results(&mut rows,&member.id,location,&zeros,super::SECTION_RESULTANT_BASIS,STATION_FORCE_SIGN,"element_local");
@@ -4591,7 +4612,7 @@ impl ProductCapture {
                     sign_convention:MAXIMUM_SIGN.into()})});
             // §4.1: the derived rows in preview-physics-2's order, as placeholders the freeze
             // forms from the projected rows (`prepared_not_covered`).
-            u4b_rows::preview_straight_derived_placeholders(&mut rows,&member.id);
+            u4b_rows::preview_straight_derived_placeholders(&mut rows,&member.id,out_of_domain[i].is_none());
         }
         if rows.len()!=count {
             return Err("failed manifest row count".into());
@@ -4611,6 +4632,13 @@ impl ProductCapture {
             entry.evidence_refs.push(REQUESTED_MODE_ID.into());
             entry.evidence_refs.push(format!("diagnostic:retained-precision:{case}:selected"));
         }
+        let mut diagnostics=ordinary.diagnostics.clone();
+        for (member,nu) in self.members.iter().zip(&out_of_domain) {
+            if let Some(nu)=nu {
+                self.capture_entry(AdapterEvent::MapWrite)?;
+                diagnostics.push(u4b_rows::poisson_out_of_domain(case,&member.id,*nu));
+            }
+        }
         self.capture_entry(AdapterEvent::MapWrite)?;
         Ok(MechanicsEnvelope{contract_evidence:Some(evidence),schema_version:ordinary.schema_version.clone(),
             producer:ordinary.producer.clone(),numerical_quality:quality,source_block_recovery:None,
@@ -4619,7 +4647,7 @@ impl ProductCapture {
             status:StatusEnvelope{mechanics:"MECHANICS_SOLVED".into(),rule_check:ordinary.status.rule_check.clone(),
                 professional_acceptance:ordinary.status.professional_acceptance.clone()},
             summary:Summary{max_displacement:None,max_open_formula_stress:None,..ordinary.summary.clone()},
-            results:rows,diagnostics:ordinary.diagnostics.clone(),professional_boundary:ordinary.professional_boundary.clone(),
+            results:rows,diagnostics,professional_boundary:ordinary.professional_boundary.clone(),
             accepted_model_state_mutated:false})
     }
     /// B4/D1 ruling (4): a failed ordinary case's rows carry exactly one requested-mode basis,

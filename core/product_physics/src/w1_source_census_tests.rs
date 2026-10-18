@@ -1275,3 +1275,38 @@ fn s4_failed_ordinary_manifest_carries_derived_rows_formed_after_projection() {
         }
     }
 }
+
+/// S4 round 2 (§2.4, §4.1): a failed-ordinary member whose ν is out of domain (E ≥ 3G; I47's
+/// moduli, E = 195 GPa and G = 55 GPa, ν = 0.7727…) stays selected. Its manifest omits the τ rows
+/// (61 rows per member) and carries `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN` for the case and
+/// member, as the ordinary rows do; σ± are formed after projection and every reader admits it.
+#[test]
+fn s4_failed_ordinary_out_of_domain_poisson_omits_tau_and_stays_selected() {
+    use super::s4_retained_tests as s4;
+    let mut raw = coexistence_cx_f();
+    raw["model"]["materials"][0]["elastic_modulus"]["value"] = json!(195e9);
+    raw["model"]["materials"][0]["shear_modulus"]["value"] = json!(55e9);
+    for mode in MODES {
+        let label = format!("CX-F E=3.5G {}", mode.as_str());
+        let (capture, observer, ordinary) = early_observed(&raw, mode, true);
+        assert!(observer.failed_ordinary_case(), "{label}: genuine ordinary failure");
+        let ((_, retained), _, captured) = retained_tests_hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+        let s = captured.unwrap_or_else(|| panic!("{label}: {retained:?}"));
+        assert!(retained.is_ok(), "{label}: {retained:?}");
+        assert_eq!(s["retained_precision"]["body"]["cases"][0]["status"], json!("selected"), "{label}: still selected");
+        let rows = s["results"].as_array().unwrap();
+        let member = raw["model"]["pipe_segments"][0]["id"].as_str().unwrap();
+        let case = raw["model"]["load_cases"][0]["id"].as_str().unwrap();
+        assert_eq!(rows.iter().filter(|r| r["entity_ref"] == member).count(), 61, "{label}: no τ rows");
+        assert!(!rows.iter().any(|r| r["kind"] == s4::DERIVED[1]), "{label}: no τ row");
+        assert_eq!(rows.iter().filter(|r| r["kind"] == s4::DERIVED[0]).count(), 10, "{label}: σ± at five stations");
+        let named: Vec<&Value> = s["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == "TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN").collect();
+        assert_eq!(named.len(), 1, "{label}: one named warning");
+        assert_eq!(named[0]["affected_refs"], json!([case, member]), "{label}");
+        assert_eq!(named[0]["severity"], json!("warning"), "{label}");
+        assert_eq!(s4::derived_rows_follow_own_rows(&label, &s), 10);
+        s4::base_read_with_model(&label, &s, &raw);
+        let validation = s4::receipt_and_reader_classify(&label, &s, &raw, mode);
+        assert!(validation.numerical_eligible, "{label}: bound and eligible");
+    }
+}
