@@ -2517,7 +2517,7 @@ mod tests {
         assert!(signed_permutation(&t).is_none());
     }
 
-    // ---- RF source-method design §3 and §7 (DEL-05-02 `rf-source-method-extension.md`) ----
+    // ---- RF source-method design §3 and §7 (DEL-04-08 `rf-source-method-extension.md`) ----
 
     const RF_PROVENANCE: &str = "invented_rf_source_method_test_no_external_project_data";
     const MODES: [crate::PreviewSolverMode; 2] = [

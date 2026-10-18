@@ -3281,7 +3281,7 @@ fn b3b_rv123_s1_two_member_exact_overlays_each_member() {
 /// same route and value classes as `EXACT_PINNED`.
 /// T4-U6 re-pin (D-5): read from the producer through the private driver, on the same D-5
 /// classes as `EXACT_PINNED`'s T4-U6 re-pin.
-/// RF re-pin (DEL-05-02 `rf-source-method-extension.md` §5.5, §9): read from this test's
+/// RF re-pin (DEL-04-08 `rf-source-method-extension.md` §5.5, §9): read from this test's
 /// writer line. The W1 route-E successor's case-2 source decline now reaches the exact
 /// context as a congruence member: its first cause is `UnsupportedBlock { order: 9 }` in place
 /// of "actual transform is not a signed permutation", with its work. That diagnostic message

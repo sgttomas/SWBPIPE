@@ -1,4 +1,4 @@
-//! Model document format (DEL-05-02 Design `b7-plan.md`, "Current model format").
+//! Model document format (DEL-04-08 Design `b7-plan.md`, "Current model format").
 //!
 //! Model document 0.6.0 is the one current version. Its behaviour keys on what
 //! the document carries, never on the version string: a 0.6.0 document without
