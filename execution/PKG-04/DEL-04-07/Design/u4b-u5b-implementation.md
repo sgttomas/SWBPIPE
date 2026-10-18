@@ -892,6 +892,12 @@ passthrough, not a numerical recovery recipe:
   own published rows, by the same binary64 formula as on the ordinary route
   (§§2.3–2.4; the owner's Q2 decision, below). Nothing is recovered, and nothing is bound to a
   certificate.
+- **Binding (as built, S4).** Each derived row binds its `NotCovered` recipe at its own
+  position, so the passthrough does not depend on row order. Derived rows are not paired as
+  basis twins, are not hull-projected and do not enter the G5b overlay; the readers exclude
+  them by kind, and a relabelled row still meets the signature and metadata checks. Route L
+  forms c_b from the model section (d = D − 2t, I = π(D⁴ − d⁴)/64, r_o = D/2), which reproduces
+  the ordinary route's section bit for bit. Route E forms it from the captured evidence.
 - **Receipt.** The receipt lists the rows under `not_covered` exactly as other `not_covered`
   rows, with no bound. The reader checks their custody (identity, unit, metadata, member and
   basis coverage) and, under (ii), recomputes them from the successor's published operands
