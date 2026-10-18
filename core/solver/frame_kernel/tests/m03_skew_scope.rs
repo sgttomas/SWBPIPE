@@ -760,6 +760,7 @@ fn dense_m03(case: &Case, m: &Member, reversed: bool, cholesky: bool) -> Outcome
         free_dofs: &load.free,
         prescribed: &load.prescribed,
         contributions: Some(load.contributions.as_slice()),
+        contribution_groups: None,
         symmetry: Some(SymmetryEvidence {
             absolute_roundoff: &roundoff,
             operation_counts: &counts,

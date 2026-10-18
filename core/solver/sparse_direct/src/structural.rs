@@ -134,6 +134,7 @@ mod tests {
             free_dofs: &free,
             prescribed: &[],
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         solve_structural_sparse(&s)
@@ -169,6 +170,7 @@ mod tests {
             free_dofs: &free,
             prescribed: &bc,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         let result = solve_structural_sparse(&s).unwrap();
@@ -211,6 +213,7 @@ mod tests {
                 free_dofs: &free,
                 prescribed: &bc,
                 contributions: Some(&entries),
+                contribution_groups: None,
                 symmetry: None,
             };
             if coupling == -1.0 {

@@ -225,6 +225,7 @@ impl Case {
             free_dofs: &self.free,
             prescribed: &self.bc,
             contributions: None,
+            contribution_groups: None,
             symmetry: self
                 .evidence
                 .as_ref()

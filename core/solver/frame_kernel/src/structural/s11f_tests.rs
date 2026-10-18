@@ -63,6 +63,7 @@ fn n5_audit_input_error_is_sensitive_never_an_error() {
         free_dofs: &[0],
         prescribed: &[],
         contributions: None,
+        contribution_groups: None,
         symmetry: None,
     };
     let bad = [ForceTerm {
@@ -158,6 +159,7 @@ pub(super) fn audited_row_signature() -> String {
             free_dofs: &free,
             prescribed: &fixed,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         let solution = solve_structural_dense_with_force_terms(&system, &terms).unwrap();

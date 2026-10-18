@@ -264,6 +264,7 @@ fn kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force(
         free_dofs: &[0],
         prescribed: &prescribed,
         contributions: None,
+        contribution_groups: None,
         symmetry: None,
     };
     let checked = StructuralSystem {
@@ -272,6 +273,7 @@ fn kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force(
         free_dofs: &[0],
         prescribed: &prescribed,
         contributions: None,
+        contribution_groups: None,
         symmetry: None,
     }
     .with_formation_source(&source);
@@ -356,6 +358,7 @@ fn kd5_unavailable_family_and_wide_error_fail_closed_and_never_err() {
             free_dofs: &[0],
             prescribed: &prescribed,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         let plain = solve_structural_dense(&system).unwrap();
@@ -445,6 +448,7 @@ fn kd5_curved_arctangent_domain_errors_fail_closed() {
             free_dofs: &free,
             prescribed: &[],
             contributions: None,
+            contribution_groups: None,
             symmetry: Some(SymmetryEvidence {
                 absolute_roundoff: &roundoff,
                 operation_counts: &counts,
@@ -591,6 +595,7 @@ fn kd5_connector_case_is_not_demoted_and_its_perturbed_matrix_is() {
                 free_dofs: &free,
                 prescribed: &prescribed,
                 contributions: None,
+                contribution_groups: None,
                 symmetry: None,
             };
             let plain = solve_structural_dense(&system).unwrap();
@@ -666,6 +671,7 @@ fn kd5_long_nearly_straight_bend_at_the_floor_does_not_demote() {
             free_dofs: &free,
             prescribed: &prescribed,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         let plain = solve_structural_dense(&system()).unwrap();
@@ -761,6 +767,7 @@ fn kd5_k2_formula_chord_system_demotes_against_the_actual_chord() {
             free_dofs: &free,
             prescribed: &prescribed,
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         let plain = solve_structural_dense(&system()).unwrap();
@@ -1118,6 +1125,7 @@ fn kd5_second_solve_contraction_neumann_zero_over_zero_and_no_ledger_fail_closed
         free_dofs: &[0],
         prescribed: &prescribed,
         contributions: Some(&contributions),
+        contribution_groups: None,
         symmetry: None,
     };
     let u = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0];
@@ -1243,6 +1251,7 @@ fn kd5_epsilon_triangle_includes_formation_assembly_projection_and_both_norms() 
         free_dofs: &free,
         prescribed: &[],
         contributions: Some(&contributions),
+        contribution_groups: None,
         symmetry: None,
     };
     // Added stored assembly shift2 and nonsymmetric projection3 at (0,6) give
@@ -1730,6 +1739,7 @@ fn kd5_load_radius_is_not_a_shift_and_all_prescribed_rows_still_reform() {
         free_dofs: &[0],
         prescribed: &prescribed,
         contributions: Some(&contributions),
+        contribution_groups: None,
         symmetry: None,
     };
     let (finding, bound) = check(
@@ -1767,6 +1777,7 @@ fn kd5_load_radius_is_not_a_shift_and_all_prescribed_rows_still_reform() {
         free_dofs: &[],
         prescribed: &prescribed,
         contributions: None,
+        contribution_groups: None,
         symmetry: None,
     };
     let solution = closed_test_solve(system, &source);
@@ -2135,6 +2146,7 @@ fn kd5_all_prescribed_formed_load_reformation_failure_is_named() {
         free_dofs: &[],
         prescribed: &prescribed,
         contributions: Some(&[]),
+        contribution_groups: None,
         symmetry: None,
     };
     let (finding, bound) = check(
@@ -2553,6 +2565,7 @@ fn kd5_lambda_carries_the_two_to_ten_inverse_factor_and_its_neumann_boundary() {
         free_dofs: &[0],
         prescribed: &prescribed,
         contributions: Some(&contributions),
+        contribution_groups: None,
         symmetry: None,
     };
     // u = 1 + 2^-40: ρ = −2^-39; the solve returns (rhs/2)(1 + 2^-25), exactly.

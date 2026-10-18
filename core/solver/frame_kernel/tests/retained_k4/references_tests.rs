@@ -690,6 +690,7 @@ fn w1_agrees_with_the_exact_block_oracle_on_the_in_scope_cases() {
             free_dofs: &free,
             prescribed: &prescribed,
             contributions: Some(&contributions),
+            contribution_groups: None,
             symmetry: None,
         };
         let context =

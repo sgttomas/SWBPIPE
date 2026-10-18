@@ -278,6 +278,7 @@ pub fn parity(model: &Model, dense: bool) -> Result<Parity, String> {
         free_dofs: &m.free,
         prescribed: &m.prescribed,
         contributions: Some(&c),
+        contribution_groups: None,
         symmetry: Some(SymmetryEvidence {
             absolute_roundoff: &d_round,
             operation_counts: &d_count,

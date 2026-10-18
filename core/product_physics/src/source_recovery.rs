@@ -382,6 +382,7 @@ impl Sources {
             free_dofs: input.free,
             prescribed: input.prescribed,
             contributions: Some(&self.assembly.contributions),
+            contribution_groups: None,
             symmetry: None,
         }
     }

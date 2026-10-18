@@ -921,6 +921,7 @@ fn c3_detect_flags(request: &Value) -> bool {
         free_dofs: &free,
         prescribed: &prescribed,
         contributions: None,
+        contribution_groups: None,
         symmetry: None,
     };
     let solution = solve_structural_dense_with_force_terms(&system, &terms).unwrap();
