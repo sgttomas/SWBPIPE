@@ -99,7 +99,7 @@ fn is_rod_reference(primitive: &LoadPrimitive) -> bool {
 /// K-D5 closure (§7 item 6): every rod model of t4_u5b closes with the member
 /// bound on both routes and both modes. The rods with a reference extension
 /// carry their `tie_rod_reference` summands (one per DOF, source
-/// `{connector}:{rod}`); a rod with e_ref = 0 carries none ("one ε").
+/// `{len}:{connector}:{len}:{rod}`); a rod with e_ref = 0 carries none ("one ε").
 #[test]
 fn u5b_rod_models_close_with_the_member_bound_on_the_ordinary_and_w2_routes() {
     let oracle = t4_u5b::oracle();
@@ -112,7 +112,7 @@ fn u5b_rod_models_close_with_the_member_bound_on_the_ordinary_and_w2_routes() {
         assert_eq!(summands.len(), 12 * pretensioned, "{name}");
         for primitive in &summands {
             assert_eq!(primitive.identity.family, TIE_ROD_REFERENCE_FAMILY, "{name}");
-            assert!(primitive.identity.source.starts_with("component:C-J:rod:"), "{name}");
+            assert!(primitive.identity.source.starts_with("13:component:C-J:"), "{name}: {}", primitive.identity.source);
         }
         for (route, quality, check, bound) in checked_solves(&control, 4) {
             assert_eq!(quality, SolveQuality::Passed, "{name} {route}: {check}");
@@ -471,4 +471,16 @@ fn round4_rod_formation_uses_si_positions_in_a_millimetre_project() {
     assert_eq!(millimetres["status"]["mechanics"], "MECHANICS_SOLVED", "{}", millimetres["diagnostics"]);
     let (a, b) = (force(&metres), force(&millimetres));
     assert!((a - b).abs() <= 1e-9 * a.abs().max(1.0), "rod force {a:e} m vs {b:e} mm");
+}
+
+/// Round 4: the reference-load summand source length-prefixes both ids, so
+/// ids that contain ':' cannot collide (the unprefixed `{component}:{rod}`
+/// gave both pairs below "component:C-J:rod:x").
+#[test]
+fn round4_tie_rod_reference_sources_cannot_collide() {
+    let a = crate::tie_rod_reference_source("component:C-J:rod", "x");
+    let b = crate::tie_rod_reference_source("component:C-J", "rod:x");
+    assert_ne!(a, b);
+    assert_eq!(a, "17:component:C-J:rod:1:x");
+    assert_eq!(b, "13:component:C-J:5:rod:x");
 }

@@ -4517,7 +4517,7 @@ fn add_tie_rod_reference_loads(
                     continue;
                 }
             };
-            let source = format!("{}:{}", record.component_id, meta.id);
+            let source = tie_rod_reference_source(&record.component_id, &meta.id);
             let dofs = element_dof_map(rod.node_i().index, rod.node_j().index);
             for index in 0..12 {
                 // A zero folded entry keeps its term: only e_ref = 0 omits.
@@ -4533,6 +4533,13 @@ fn add_tie_rod_reference_loads(
             }
         }
     }
+}
+
+/// T4-U5b round 4: a tie rod's reference-load summand source, both ids
+/// length-prefixed as `member_source` does (`{len}:{component}:{len}:{rod}`),
+/// so no two (connector, rod) pairs share a source whatever their ids hold.
+fn tie_rod_reference_source(component: &str, rod: &str) -> String {
+    format!("{}:{component}:{}:{rod}", component.len(), rod.len())
 }
 
 /// S11 section 4.2: each exact-pressure source group's operand, never the
