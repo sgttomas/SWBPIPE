@@ -712,7 +712,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "ad068ed5f3c9abef49da0041ba95e4ba210dd3fabed7de0918a211b66394eb6c");
+    assert_eq!(schema_hash, "c5ac9a0d1f23b66d92f298a5f46237620a2d3a5509120739f9b4c7521aaba73c");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -772,7 +772,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "91ca026e19337251c5a124f3ee1cbd648845f335e6da09edfbdfb16e7dedc7e9",
         "a59ef69dc3c6c21e96d90b139cb8c82f9f67e7361d4accb321b219575e68179f",
         "63c39684ca648db60dc3563cc433f7e57ae41ccf2ad90830f5c73015b2e74a5b",
-        "ad068ed5f3c9abef49da0041ba95e4ba210dd3fabed7de0918a211b66394eb6c",
+        "c5ac9a0d1f23b66d92f298a5f46237620a2d3a5509120739f9b4c7521aaba73c",
         "ac763579b94de43a2f9806a3209121fc3cf65a4ae0c74d494d58d8efe42f4422",
     ];
     // The same files, read here at compile time (test-only), by the sha2 dependency.

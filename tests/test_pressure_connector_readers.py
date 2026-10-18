@@ -250,6 +250,11 @@ def test_tied_entries_match_the_result_schema_and_the_hardware_rows(label, envel
     assert count("connector_pressure_force_v1") == (0 if unpressurized else 1)
     assert count("connector_effective_axial_force_v1") == 1
     assert count("connector_tie_rod_force_v1") == len(record(envelope)["tie_rods"])
+    # Round 4: axial_share is RN(n.Q_x), which can exceed 1 by an ulp or two for a parallel rod in a rotated frame;
+    # the schema bounds only its type (finite by JSON), never [-1, 1].
+    beyond = deepcopy(envelope)
+    record(beyond)["tie_rods"][0]["axial_share"] = 1.0000000000000004
+    validate_instance(schema_for_definition(schema, "PressureContractEvidence"), beyond["contract_evidence"])
     untied = deepcopy(envelope)
     record(untied)["hardware"] = "untied"
     with pytest.raises(Exception):
