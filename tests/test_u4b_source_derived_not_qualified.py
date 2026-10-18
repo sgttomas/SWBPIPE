@@ -186,3 +186,27 @@ def test_deleting_derived_rows_with_their_treatments_is_a_coverage_refusal(famil
         reseal_publication(doc)
         with pytest.raises(ValueError, match="^SOURCE_PHYSICS_EXTREME_COVERAGE$"):
             composite.validate_physics_source(doc, invocation)
+
+
+# S4 round 3: the composite's ν is always in domain, so a TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN warning can never
+# exempt one of its members. A false warning appended for a member whose ten τ rows (five stations, both bases) are
+# deleted with their treatments, resealed, is refused by name on each recovery method's case.
+@pytest.mark.parametrize("family", FAMILIES)
+@pytest.mark.parametrize("mode", MODES)
+def test_a_false_poisson_warning_cannot_exempt_deleted_tau_rows(family, mode):
+    source, invocation = actual(family, mode, "mixed")
+    for case in case_ids(source):
+        doc = deepcopy(source)
+        member = next(row["entity_ref"] for row in doc["results"] if row["basis_ref"]["ref_id"] == case and row["kind"] == DERIVED[1])
+        ids = {row["id"] for row in doc["results"] if row["basis_ref"]["ref_id"] == case and row["kind"] == DERIVED[1] and row["entity_ref"] == member}
+        assert len(ids) == 10
+        doc["results"] = [row for row in doc["results"] if row["id"] not in ids]
+        for receipt_case in doc["source_block_recovery"]["body"]["cases"]:
+            receipt_case["rows"] = [t for t in receipt_case["rows"] if t["result_id"] not in ids]
+        doc["diagnostics"].append({"id": f"diagnostic:transverse-shear:{case}:{member}:poisson", "code": "TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN",
+                                   "severity": "warning", "message": f"member {member} has nu = 0.75 outside -1 < nu < 1/2; no transverse-shear maximum is published for it in {case}",
+                                   "source": "core/product_physics", "affected_refs": [case, member]})
+        reseal_publication(doc)
+        with pytest.raises(ValueError, match="^SOURCE_PHYSICS_POISSON_DOMAIN_WARNING$"):
+            composite.validate_physics_source(doc, invocation)
+        assert verdict.validate("pressure-source", doc, invocation["request"]["model"], invocation)["error"]["code"] == "SOURCE_PHYSICS_POISSON_DOMAIN_WARNING"
