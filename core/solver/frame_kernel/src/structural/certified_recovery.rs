@@ -289,6 +289,29 @@ impl CertifiedRow {
             ),
         )
     }
+    /// T4-U5b (S_joint = g_x + Σ T_r·(n_r·Q_x) − Pe on the certified route):
+    /// the sum of two certified rows of the same corrected displacement. The
+    /// balls add at p; the remainders and scales add upward (triangle).
+    pub fn add_row(self, other: Self) -> Result<Self, RecoveryFailure> {
+        let out = Balls::new()?.add(self.value, other.value)?;
+        Self::finish(
+            out,
+            add_up(self.remainder, other.remainder),
+            add_up(self.absolute_scale, other.absolute_scale),
+        )
+    }
+    /// T4-U5b: this row times a ball formed at p (a rod's n_r·Q_x): the ball
+    /// product, with the remainder and scale times the factor's upper
+    /// magnitude |m| + r, upward.
+    pub fn product_value(self, factor: CertifiedValue) -> Result<Self, RecoveryFailure> {
+        let out = Balls::new()?.mul(self.value, factor.ball)?;
+        let magnitude = add_up(abs_up(&factor.ball.m)?, factor.ball.r);
+        Self::finish(
+            out,
+            mul_up(self.remainder, magnitude),
+            mul_up(self.absolute_scale, magnitude),
+        )
+    }
 }
 
 #[derive(Debug, Clone, Copy)]

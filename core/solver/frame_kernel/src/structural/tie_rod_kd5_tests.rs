@@ -766,3 +766,58 @@ fn support_reactions_include_the_rods_and_connector_member_loads_exclude_their_r
         assert_eq!(a.published.to_bits(), b.published.to_bits());
     }
 }
+
+/// §3.3's certified S_joint = g_x + Σ T_r·(n_r·Q_x) − Pe from certified rows:
+/// `add_row` and `product_value` keep the true value inside the bound.
+#[test]
+fn certified_rows_combine_into_s_joint_with_their_remainders() {
+    let (c, n7) = pythagorean();
+    let r0 = &c.tie_rods()[0];
+    let (k, e_ref) = (r0.stiffness(), r0.reference_extension());
+    let u = [
+        1.0e-4, -2.5e-4, 5.0e-4, 1.0e-3, -2.0e-3, 0.5e-3, 3.0e-4, 1.25e-4, -7.5e-4, -1.0e-3,
+        2.5e-4, 1.5e-3,
+    ];
+    let bound = MemberBoundInputs {
+        w: vec![0.0; 12],
+        w2: vec![0.0; 12],
+        exponents: vec![0; 12],
+        lambda_sigma: 2f64.powi(-40),
+    };
+    let rod = certify_tie_rod_recovery(&c, 0, &u, &bound).unwrap();
+    let loads = CertifiedMemberLoads::default();
+    let connector = super::super::certify_connector_recovery(&c, &loads, &u, &bound).unwrap();
+    let pe = crate::structural::CertifiedValue::exact(2.5).unwrap();
+    let projected = rod.tension.product_value(rod.axial_share).unwrap();
+    let s = connector.g[0]
+        .add_row(projected)
+        .unwrap()
+        .add_value(
+            pe.product(crate::structural::CertifiedValue::exact(-1.0).unwrap())
+                .unwrap(),
+        )
+        .unwrap();
+    assert_eq!(
+        s.remainder.to_bits(),
+        add_up(connector.g[0].remainder, projected.remainder).to_bits()
+    );
+    assert!(projected.remainder >= rod.tension.remainder * 2.0 / 7.0 * (1.0 - 1e-15));
+    // The exact S·49 = 49 g_x + 2·(7 T) − 49·2.5, with 7T = k(N·u) − 7 k e_ref
+    // and g_x the connector's elastic action (K_xx = 5e6, q_x = B_x·u).
+    let b = c.b();
+    let mut exact = ExactAccumulator::new();
+    for l in 0..12 {
+        add_triple(&mut exact, 49.0 * 5e6, b[0][l], u[l]);
+        add_triple(&mut exact, 2.0 * k, n7[l], u[l]);
+    }
+    add_triple(&mut exact, -14.0, k, e_ref);
+    exact.add_product(-49.0, 2.5).unwrap();
+    exact.add_product(-49.0, s.published).unwrap();
+    let mut high = exact.clone();
+    high.add_product(-49.0, s.bound()).unwrap();
+    exact.add_product(49.0, s.bound()).unwrap();
+    assert!(
+        high.signum() <= 0 && exact.signum() >= 0,
+        "S_joint outside its bound"
+    );
+}
