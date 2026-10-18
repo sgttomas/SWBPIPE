@@ -61918,6 +61918,546 @@
               "ref_id": "load:U5A",
               "ref_type": "load_case"
             },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 4.79417321018812e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -4.794173215199554e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 4.79417321018812e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -4.794173215199554e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 3.883045203727002e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 3.883045203727002e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 4.794458943703112e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -4.794458948714546e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 4.794458943703112e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -4.794458948714546e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 3.883045203727002e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 3.883045203727002e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 4.794244643566868e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -4.794244648578302e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 4.794244643566868e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -4.794244648578302e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 3.883045203727002e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 3.883045203727002e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 4.794316076945616e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -4.79431608195705e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 4.794316076945616e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -4.79431608195705e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 3.883045203727002e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 3.883045203727002e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 4.794387510324364e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -4.794387515335798e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 4.794387510324364e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -4.794387515335798e-38
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 3.883045203727002e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 3.883045203727002e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
             "entity_ref": "pipe:R",
             "id": "result:force:pipe-R:axial",
             "kind": "element_local_axial_force",
@@ -63208,6 +63748,546 @@
             },
             "unit": "Pa",
             "value": 1.3292809886212863e-30
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 2.570130545224655e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -2.356309368417279e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 2.570130545224655e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -2.356309368417279e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 2.570130545224655e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -2.356309368417279e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 2.570130545224655e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -2.356309368417279e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 2.570130545224655e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -2.356309368417279e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 2.570130545224655e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -2.356309368417279e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 2.570130545224655e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -2.356309368417279e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 2.570130545224655e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -2.356309368417279e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 2.570130545224655e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -2.356309368417279e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 2.570130545224655e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -2.356309368417279e-44
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 0.0
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 0.0
           },
           {
             "basis_ref": {
@@ -66200,6 +67280,546 @@
               "ref_id": "load:U5A",
               "ref_type": "load_case"
             },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 1.294265034261282e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -1.2955277723334622e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 1.294265034261282e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -1.2955277723334622e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 6.891287579103114e-37
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 6.891287579103114e-37
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 9.507032178036053e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -9.519659558757854e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 9.507032178036053e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -9.519659558757854e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 6.891287579103114e-37
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 6.891287579103114e-37
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 1.1975389830607039e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -1.198801721132884e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 1.1975389830607039e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -1.198801721132884e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 6.891287579103114e-37
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 6.891287579103114e-37
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 1.1068932696251366e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -1.1081560076973167e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 1.1068932696251366e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -1.1081560076973167e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 6.891287579103114e-37
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 6.891287579103114e-37
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 1.02394297822537e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -1.0252057162975501e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 1.02394297822537e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -1.0252057162975501e-34
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 6.891287579103114e-37
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 6.891287579103114e-37
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
             "entity_ref": "pipe:R",
             "id": "result:force:pipe-R:axial",
             "kind": "element_local_axial_force",
@@ -67490,6 +69110,546 @@
             },
             "unit": "Pa",
             "value": 1.8426082160063174e-28
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 9.203710864578728e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -9.058377379373528e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 9.203710864578728e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -9.058377379373528e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.1962577620364354e-36
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.1962577620364354e-36
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 1.5594273375132223e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -1.414093852308023e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 1.5594273375132223e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -1.414093852308023e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.1962577620364354e-36
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.1962577620364354e-36
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 7.040282709308996e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -6.894949224103796e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 7.040282709308996e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -6.894949224103796e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.1962577620364354e-36
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.1962577620364354e-36
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 4.911044829557106e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -4.7657113443519063e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 4.911044829557106e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -4.7657113443519063e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.1962577620364354e-36
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.1962577620364354e-36
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 2.896215049033086e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -2.750881563827887e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 2.896215049033086e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": -2.750881563827887e-35
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.1962577620364354e-36
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.1962577620364354e-36
           },
           {
             "basis_ref": {
@@ -71800,6 +73960,546 @@
               "ref_id": "load:U5A",
               "ref_type": "load_case"
             },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.9156418299959328e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-i:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.9156418299959328e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.9156418299959328e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:end-j:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.9156418299959328e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.9156418299959328e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-1:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.9156418299959328e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.9156418299959328e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:midspan:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.9156418299959328e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.9156418299959328e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:L",
+            "id": "result:stress:pipe-L:quarter-3:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 1.9156418299959328e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
             "entity_ref": "pipe:R",
             "id": "result:force:pipe-R:shear-y",
             "kind": "element_local_shear_force_y",
@@ -73936,6 +76636,546 @@
             },
             "unit": "Pa",
             "value": 909090.909090909
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 2.5583728754057408e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-i:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_i",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 2.5583728754057408e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 2.5583728754057408e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:end-j:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "end_j",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 2.5583728754057408e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 2.5583728754057408e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-1:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_1",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 2.5583728754057408e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 2.5583728754057408e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:midspan:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "midspan",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 2.5583728754057408e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:sigma-plus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:sigma-minus:nominal-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:sigma-plus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_plus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma+ = N/A + hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:sigma-minus:reduced-section",
+            "kind": "element_local_normal_stress_extreme",
+            "metadata": {
+              "basis": "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+              "component": "sigma_minus",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "signed section normal-stress extreme sigma- = N/A - hypot(My,Mz)/Z at the station (N_w/A_s on a pressurized pressure-2 member), formed from the published axial or membrane and bending stress rows of the same station and basis; at the outer-surface fibre -r_o(-sigma_z, sigma_y)/hypot(sigma_y, sigma_z) of the section frame, every outer fibre tied when the bending rows are zero; not a code or equivalent stress"
+            },
+            "unit": "MPa",
+            "value": 0.4545454545454545
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:transverse-shear-max:nominal-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 2.5583728754057408e-40
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:U5A",
+              "ref_type": "load_case"
+            },
+            "entity_ref": "pipe:R",
+            "id": "result:stress:pipe-R:quarter-3:transverse-shear-max:reduced-section",
+            "kind": "element_local_transverse_shear_stress_maximum",
+            "metadata": {
+              "basis": "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+              "component": "tau_v_max",
+              "coordinate_system": "pipe_section",
+              "location": "quarter_3",
+              "sign_convention": "nonnegative Saint-Venant transverse shear maximum |V|((3+2nu)ro^2+(1+2nu)ri^2)/(4(1+nu)I) of the basis annulus, on the inner surface at the two fibres normal to V; V from the published j-side section shears inside and the end-force shears at the ends; nu is the member's authored nu; torsional shear separate"
+            },
+            "unit": "MPa",
+            "value": 2.5583728754057408e-40
           },
           {
             "basis_ref": {
