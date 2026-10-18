@@ -186,14 +186,23 @@ needs:
     Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
   gating: true
 - from: DEL-05-02
-  condition: 'The results viewer shows a result only as DEL-05-02''s Rust product reader reads it (owner,
-    2026-10-10: "move to one product reader in Rust"). The header dispatch, the route''s reading, the standing
-    and the published limitations the viewer displays come from that reader through `resultReader.ts`,
-    `resultStanding.ts` and `retainedPrecisionReader.ts` (wasm engine or native host); the viewer re-derives
-    no verdict, and a result the reader does not admit is shown as unsupported, historical values only.
-    The output policy (`outputPolicy.ts`) keys each surface''s decision on the route the reader returns.'
+  condition: >-
+    The results viewer takes base dispatch, ordinary preview/pressure readings,
+    row semantics and base standing from DEL-05-02's Rust product reader through
+    `resultReader.ts` and `resultStanding.ts` (wasm engine or native host).
+    A result the reader does not admit is unsupported, historical values only.
+    The output policy keys each surface's decision on the reader's returned route.
   gating: true
   evidence: execution/PKG-05/DEL-05-02/Design/b7-plan.md
+- from: DEL-04-08
+  condition: >-
+    The results viewer takes retained-source and retained-successor validation,
+    classification, invocation-bound standing and published limitations from
+    DEL-04-08 through the existing Rust-reader bindings, including
+    `retainedPrecisionReader.ts`. It re-derives no verified verdict and does not
+    activate a held output surface.
+  gating: true
+  evidence: apps/desktop/src/features/results/retainedPrecisionReader.ts
 code_paths:
 - apps/desktop/package.json
 - apps/desktop/src/App.test.tsx

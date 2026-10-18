@@ -56,8 +56,6 @@ DEC-025's blanket local sweep is no longer required. Broad suites run for an
 identified need or release preparation. `tools/release/run_evidence_sweep.py`
 is optional preparation for macOS release candidates, not a merge gate.
 
-The owner ruled on 2026-10-17: "Going forward, each implementation return must include reconciliation of its affected Scope of Work, Design and dependency conditions before integration."
-
 Frozen numerical references are in `validation/references/t3_r1/`. Use the
 existing generators and preserve the independent reference basis; do not alter
 an oracle to make an implementation pass. Numerical changes require the targeted

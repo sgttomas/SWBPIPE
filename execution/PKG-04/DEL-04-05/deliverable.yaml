@@ -100,12 +100,12 @@ needs:
     public; it observes them and changes nothing.
   gating: true
   evidence: core/solver/performance_harness/src/k6/staged.rs
-- from: DEL-05-02
+- from: DEL-04-01
   when: K6b W1 observations
   condition: >-
-    K6b runs DEL-05-02's W1a retained kernel method through the frame kernel's public
-    `structural::retained_api` (`SourceParts` and the case solve) and records its work by stage.
-    DEL-04-05 needs that public surface and its work accounting; it asserts no time or memory bound.
+    K6b runs DEL-04-01's retained kernel through `structural::retained_api`
+    (`SourceParts`, `solve_case`) and records its work by stage. DEL-04-05 needs
+    that public surface and its work accounting; it asserts no time or memory bound.
   gating: true
   evidence: core/solver/performance_harness/src/k6/w1/adapter.rs
 code_paths:

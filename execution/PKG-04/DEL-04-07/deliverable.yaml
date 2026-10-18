@@ -80,12 +80,21 @@ needs:
   evidence: core/product_physics/Cargo.toml
 - from: DEL-05-02
   condition: >-
-    DEL-04-07 combines case results with DEL-05-02's load-case algebra (`load_case_algebra`). Where a case is
-    selected, it publishes through DEL-05-02's retained-source and W1 methods (`pressure-source-1`,
-    `physics-retained-1`), whose reviewed tables, registered memory profile, admission gates and Rust reader
-    verdict DEL-04-07 does not change.
+    DEL-04-07 combines case results with DEL-05-02's load-case algebra
+    (`load_case_algebra`) and consumes its base-reader interpretation of ordinary
+    preview-physics-1 and pressure-1 results. Retained publication and validation
+    are supplied separately by DEL-04-08.
   gating: true
   evidence: core/product_physics/Cargo.toml
+- from: DEL-04-08
+  when: retained publication and validation
+  condition: >-
+    DEL-04-07 publishes selected cases through DEL-04-08's retained-source and W1
+    methods (`pressure-source-1`, `preview-physics-retained-1`, `physics-retained-1`).
+    Their reviewed receipts and tables, registered memory profile, admission gates
+    and retained Rust reader verdicts govern that publication and its fallback.
+  gating: true
+  evidence: core/product_physics/src/retained_product.rs
 - from: DEL-05-03
   condition: >-
     DEL-04-07 recovers member stresses with DEL-05-03's stress-recovery module (`stress_recovery`, including
@@ -201,11 +210,19 @@ needs:
 - from: DEL-05-02
   when: preview-physics-1 arc end rows (T4-U4a stage 2)
   condition: >-
-    DEL-04-07 publishes preview-physics-1 arc end rows in the tangent frame at each end, node-on-element
-    (Design/arc-frames-and-signs.md sections 2 to 5); the stage landed with B7a's H-4 C5 in #1387. Their
-    sentence and vocabulary belong to DEL-05-02's reviewed preview-physics-1 and preview-physics-retained-1
-    tables and `results.v0.3`: LIMITATIONS[3] as section 8 states, with `arc_chord_frame` retired. A later
-    change to those rows or that sentence needs DEL-05-02's re-registration with it.
+    DEL-04-07 publishes preview-physics-1 arc end rows in the tangent frame at
+    each end, node-on-element (Design/arc-frames-and-signs.md sections 2 to 5).
+    Their ordinary sentence and vocabulary come from DEL-05-02's base semantic
+    table and reader; LIMITATIONS[3] and `results.v0.3` keep the section 8 contract,
+    with `arc_chord_frame` retired.
+  gating: true
+  evidence: execution/PKG-05/DEL-05-02/Design/b7-plan.md
+- from: DEL-04-08
+  when: retained arc-row vocabulary and reviewed-input binding
+  condition: >-
+    DEL-04-07's corresponding preview-physics-retained-1 rows consume DEL-04-08's
+    retained table and reader contract. A change to their bound sentence or table
+    requires the method's reviewed-input refresh and actual-source D3 registration.
   gating: true
   evidence: execution/PKG-05/DEL-05-02/Design/b7-plan.md
 code_paths:

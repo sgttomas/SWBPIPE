@@ -3,52 +3,40 @@ name: Load-case algebra engine
 needs:
 - from: DEL-04-07
   condition: >-
-    DEL-05-02 needs DEL-04-07's product solve as the producer its readers, corpora and
-    retained-precision Designs bind: the ordinary preview-physics-1 and pressure-1
-    publications; the W1 retained successors (`retained_product.rs`, `retained_wire.rs`)
-    formed under DEF-O, DEF-C and DEF-E; the pressure-source-1 receipts (`source_recovery.rs`,
-    `source_receipt/`), including their named source-family declines; and the evaluation of
-    model-authored combinations through this deliverable's algebra crate. The retained pricing
-    tool qualifies its registered profile against DEL-04-07's selected memory budget
-    (12 GiB per invocation, the 0.9 M margin, the 5 % TEXT reserve and the shared 75 % pool
-    policy; Design/memory-budget-decision.md). The exact pressure contract is DEL-04-07's
-    Design/pressure-contract.md.
+    DEL-05-02 needs DEL-04-07's ordinary preview-physics-1 and pressure-1 product
+    publications for its base readers and conformance corpus, and the evaluation
+    of model-authored combinations through this deliverable's algebra crate.
+    The exact pressure contract remains DEL-04-07's Design/pressure-contract.md.
+    DEL-04-08 declares the retained producer and memory-qualification inputs.
   gating: true
-  evidence: execution/PKG-04/DEL-04-07/Design/memory-budget-decision.md
+  evidence: core/product_physics/src/lib.rs
+- from: DEL-04-08
+  condition: >-
+    DEL-05-02's shared result dispatch, standing and row semantics consume
+    DEL-04-08's retained validators, receipt contracts and
+    preview-physics-retained-1, physics-retained-1 and pressure-source-1 tables.
+    Their digests, row classes and refusal outcomes must remain coherent with
+    the base-route readers. DEL-05-02 retains the base-reader checks that G7
+    applies to a successor's projected statement.
+  gating: true
+  evidence: core/reporting/result_export/src/semantic_contract.rs
 - from: DEL-04-01
   condition: >-
-    DEL-05-02 needs DEL-04-01's frame kernel: `exact_sum::ExactAccumulator`, with which the
-    algebra forms a linear combination as one exact sum rounded once (E13); the
-    retained-precision kernel under `structural/retained/`, reached through
-    `structural::retained_api` (source, declared member-load ledger, assembly, verification,
-    recovery, retained combinations and the loaded-maximum search), whose certificates the
-    readers check and whose layouts the pricing tool prices; the exact boundary
-    (`structural/exact_boundary.rs`: exact blocks of order at most four, declared member
-    congruence and metered work) behind pressure-source-1; and the K-D5 member-relative bound
-    (Design/kd5-member-relative-bound.md), which routes a case into retained-source recovery.
+    DEL-05-02 needs DEL-04-01's frame-kernel `exact_sum::ExactAccumulator`, with
+    which the algebra forms a linear combination as one exact sum rounded once
+    (E13). DEL-04-08 declares the separate retained-kernel and exact-boundary
+    inputs used by its verification method.
   gating: true
-  evidence: core/solver/frame_kernel/src/structural/retained/mod.rs
+  evidence: core/solver/frame_kernel/src/exact_sum.rs
 - from: DEL-05-03
   condition: >-
-    DEL-05-02 needs DEL-05-03's D-5 section bases and D-6 Timoshenko straight member
-    (Design/section-bases-and-timoshenko.md sections 1 to 3 and 5;
-    Design/section-and-shear-decisions.md). The readers and verifiers rederive both section
-    bases and the shear model from the captured section inputs (`section_basis.rs`,
-    `tests/verifiers/section_basis.py`). Retained-source and W1 route E publication stay
-    limited to zero mill tolerance, zero corrosion allowance and `euler_bernoulli` until the
-    O4 source extension, which needs the same rules.
+    DEL-05-02's base readers need DEL-05-03's D-5 section bases and D-6 Timoshenko
+    straight-member contract (Design/section-bases-and-timoshenko.md sections 1 to 3;
+    Design/section-and-shear-decisions.md). They interpret the section bases and
+    shear model from captured section inputs. DEL-04-08 retains the separate O4
+    retained-source and W1-E publication duty.
   gating: true
   evidence: execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md
-- from: DEL-05-05
-  condition: >-
-    DEL-05-02 needs DEL-05-05's semantics for authored full-span uniform distributed member
-    loads (an element target, category `distributed_force`, dimension `force_per_length`, a
-    `global_x|y|z` direction and no extent) and their consistent equivalent nodal load on a
-    straight member. W1 route L declares each such load as six binary1024 equivalent nodal
-    entries, discloses their difference from that consistent load, and both readers check the
-    captured authored load at G8 (Design/w1-member-load-certification.md sections 2 and 6).
-  gating: true
-  evidence: core/loads/user_loads/src/lib.rs
 - from: DEL-05-01
   condition: >-
     DEL-05-02 needs DEL-05-01's primitive-load contract (`core/loads/primitive_loads`): the

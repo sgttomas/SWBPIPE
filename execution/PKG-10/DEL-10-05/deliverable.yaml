@@ -98,10 +98,18 @@ needs:
   gating: true
   evidence: core/runner/headless/src/lib.rs
 - from: DEL-05-02
-  condition: 'The runner''s `read <reader>` verb and its retained admission report need DEL-05-02''s Rust
-    reader verdicts (`reader_verdict`, `retained_precision`) and retained-precision admission; Python product
-    callers take their verdict from this verb, and the runner adds no reader logic of its own (DEL-05-02 Design
-    `b7-plan.md`, R2).'
+  condition: >-
+    The runner's `read <reader>` verb consumes DEL-05-02's base-reader dispatch
+    and verdicts (`reader_verdict`). Python product callers take the same verdict
+    through this verb; the runner adds no base-reader logic (Design b7-plan, R2).
+  gating: true
+  evidence: core/runner/headless/src/reader_binding.rs
+- from: DEL-04-08
+  condition: >-
+    The runner consumes DEL-04-08's retained validation and transport outcomes
+    (`retained_precision`, retained-source reading) and retained admission report.
+    Its existing binding returns the method's verdict without re-deriving a bound
+    or activating a held surface.
   gating: true
   evidence: core/runner/headless/src/reader_binding.rs
 code_paths:

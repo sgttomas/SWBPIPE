@@ -168,11 +168,18 @@ needs:
     with stable row identities.'
   evidence: core/reporting/result_export/src/derivative.rs
 - from: DEL-05-02
-  condition: 'DEL-08-04 consumes the PKG-05 load and stress result producers without redefining their
-    behaviour. Its derivative documents classify each copied row by its signature in the source''s current
-    semantic contract table (category, target dimension, disposition) and disclose rows the table does not
-    map; DEL-05-02 supplies those tables and the reader verdicts that bind each row''s kind, unit, component
-    and basis (`semantic_contract`, `reader_verdict`).'
+  condition: >-
+    DEL-08-04 classifies derivative rows by DEL-05-02's base semantic-table
+    signatures (category, target dimension, disposition), preserving the reader
+    verdict's kind, unit, component and basis and disclosing unmapped source rows.
+    It consumes the load/stress producers without redefining their behaviour.
+  evidence: core/reporting/result_export/src/derivative.rs
+- from: DEL-04-08
+  condition: >-
+    DEL-08-04 consumes DEL-04-08's retained tables, verified row classes and receipt
+    bindings when copying retained-source or retained-successor results into
+    derivative documents. It preserves those classes and receipts rather than
+    re-deriving verification or granting an output surface.
   evidence: core/reporting/result_export/src/derivative.rs
 - from: DEL-05-03
   condition: 'DEL-08-04''s result-export schema carries DEL-05-03''s stress-row conventions: the D-5 section-basis
