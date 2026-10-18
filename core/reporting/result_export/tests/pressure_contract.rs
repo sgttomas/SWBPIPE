@@ -167,6 +167,7 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     assert_eq!(s::CONNECTOR_VOCABULARY_COORDINATE_SYSTEMS, [LOCAL_FRAME]);
     assert_eq!(s::CONNECTOR_VOCABULARY_LOCATIONS, [LOCAL, ROD_LOCATION]);
     assert_eq!(s::CONNECTOR_ROW_BASIS, BASIS);
+    assert_eq!(s::CONNECTOR_VOCABULARY_BASES, [BASIS, ROD_BASIS]);
     // The vocabulary is the source family's (without its source-only maximum
     // bases) plus the connector components, frame, location and basis. T4-U6
     // (D-5, §2.4): the connector basis takes the source-only maximum basis's
