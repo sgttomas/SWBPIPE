@@ -94,9 +94,8 @@ pub use arc_angle::twice_atan2_nonnegative;
 mod arc_maximum;
 pub use arc_maximum::{
     certify_arc_stress_maximum, ArcMaximumDiagnostic, ArcMaximumFailure, ArcMaximumLocation,
-    ArcStationWitness, ArcStressMaximumProblem, ArcStressMeasure, ArcUniformIntensity,
-    CertifiedArcStressMaximum, ARC_MAXIMUM_DEPTH_LIMIT, ARC_MAXIMUM_INITIAL_CELLS,
-    ARC_MAXIMUM_STATION_ALLOWANCE_ULPS, ARC_MAXIMUM_SUBDIVISION_LIMIT,
+    ArcStressMaximumProblem, ArcStressMeasure, ArcUniformIntensity, CertifiedArcStressMaximum,
+    ARC_MAXIMUM_DEPTH_LIMIT, ARC_MAXIMUM_INITIAL_CELLS, ARC_MAXIMUM_SUBDIVISION_LIMIT,
 };
 
 use crate::exact_sum::{ExactAccumulator, SumError};

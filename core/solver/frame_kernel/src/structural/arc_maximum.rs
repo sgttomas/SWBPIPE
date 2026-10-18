@@ -59,29 +59,28 @@
 //! two real functions would coincide, because the tangent frame at ψ is that
 //! same rotation; C and E are both roundings of one exact geometry, so their
 //! difference is part of the station rows' binary64 formation, which the
-//! station allowance below covers.
+//! station cover below absorbs upward.
 //!
-//! # Station witnesses (§2.3 step 5, two-sided)
+//! # The station cover (§2.3 step 5)
 //!
-//! Each published station value of this arc and basis is passed with its
-//! fraction (ψ/φ = 0, 0.25, 0.5, 0.75 or 1; any fraction whose product with
-//! 2⁶⁰ is an integer). The represented problem is enclosed at that fraction,
-//! and the witness must lie in that enclosure widened by
-//! a = 64u·S + 1e-12 Pa + (the witness's own stated allowance), u = 2⁻⁵³,
-//! with S = (|pA_i| + F_max)/A + (M_max + R F_max)/Z for the elastic measure
-//! and S = max(i_ip, i_op)(M_max + R F_max)/Z for the intensified one (both
-//! upward). S bounds every term of the station rows' formation; 64u covers
-//! their binary64 formation (the transpose, the frame rotation, libm sine and
-//! cosine within one ulp, the term sums, the divisions by A and Z, norm2,
-//! the MPa conversions, the rounded station angle, about 25 roundings of
-//! terms bounded by S) and the C-versus-E rounding, with margin. A route
-//! whose station rows carry more than binary64 formation error (the
-//! certified route's rows come from the corrected-displacement functional)
-//! states that extra allowance per witness. A witness outside is refused as
-//! `arc_maximum_station_inconsistent`: for example, N_w passed as the end-j
-//! axial together with pA_i counts the pressure term twice. Then, as
-//! designed, the upper bound is raised to cover every witness value and the
-//! gap is checked again.
+//! The published station values of this arc and basis (max(|σ⁺|, |σ⁻|), or
+//! the intensified rows), converted to Pa and rounded upward by the caller,
+//! only raise the upper bound; the gap is then checked again. They are not
+//! checked against the represented problem: PP's station rows are separately
+//! rounded binary64 sums, and no rigorous bound of their formation error is
+//! claimed (the K2 review found load-cancellation and short-arc cases where
+//! that error is far above any simple allowance). No allowance is therefore
+//! needed on the certified route either.
+//!
+//! The operands are the caller's to get right. In particular, N_w passed as
+//! the end-j axial together with pA_i counts the pressure term twice: on the
+//! t4_u4b arcs it yields a maximum above the true one, or, where N_w changes
+//! sign along the arc, one below the station rows that the cover then
+//! refuses; a kernel test shows both. PP's
+//! integration test must bind each arc maximum to its own station rows (the
+//! station values may not exceed the maximum beyond rounding, and the
+//! maximum may not exceed them beyond the along-arc peak), so that such an
+//! operand error is caught on the product side.
 //!
 //! # Arithmetic
 //!
@@ -101,7 +100,7 @@
 //! A uniform grid of 4,096 cells; branch and bound on the cell bound above
 //! with `elastic_extrema`'s gap rule (gap ≤ 1e-12 Pa + 1e-12·lower) and
 //! limits (131,072 subdivisions, depth 48), refused by name when a limit is
-//! reached first; the station witnesses; the location rule in the design's
+//! reached first; the station cover; the location rule in the design's
 //! order; and the binary64 midpoint of [value_lower, upper_bound].
 //!
 //! The published fraction is k/2⁶⁰ rounded to the nearest binary64. It is
@@ -146,20 +145,6 @@ pub struct ArcUniformIntensity {
     pub global: [f64; 3],
     pub scale: f64,
 }
-
-/// One published station value of this arc and basis (Pa, rounded upward by
-/// the caller) at its fraction ψ/φ, with any allowance beyond binary64
-/// formation that the station rows' route carries (0 on the binary64 route).
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct ArcStationWitness {
-    pub fraction: f64,
-    pub value_pa: f64,
-    pub allowance_pa: f64,
-}
-
-/// The stated binary64 formation allowance of a station witness, in units of
-/// u = 2⁻⁵³ of the station scale S (module documentation).
-pub const ARC_MAXIMUM_STATION_ALLOWANCE_ULPS: f64 = 64.0;
 
 /// The binary64 operands of one arc and basis (module documentation).
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -262,15 +247,6 @@ pub enum ArcMaximumFailure {
     DepthLimit(ArcMaximumDiagnostic),
     /// The station cover raised the upper bound beyond the gap rule.
     StationCoverNotClosed(ArcMaximumDiagnostic),
-    /// A station witness lies outside the represented problem's enclosure at
-    /// its fraction, widened by the stated allowance.
-    StationInconsistent {
-        index: usize,
-        witness_pa: f64,
-        lower: f64,
-        upper: f64,
-        allowance: f64,
-    },
 }
 
 impl ArcMaximumFailure {
@@ -285,7 +261,6 @@ impl ArcMaximumFailure {
             Self::SubdivisionLimit(_) => "arc_maximum_subdivision_limit",
             Self::DepthLimit(_) => "arc_maximum_depth_limit",
             Self::StationCoverNotClosed(_) => "arc_maximum_station_cover_not_closed",
-            Self::StationInconsistent { .. } => "arc_maximum_station_inconsistent",
         }
     }
 }
@@ -306,20 +281,19 @@ type Failure = ArcMaximumFailure;
 
 /// Certify the along-arc maximum of `measure` for one arc and basis (§2.3).
 ///
-/// `station_witnesses` are the published station values of this arc and
-/// basis (max(|σ⁺|, |σ⁻|), or the intensified rows) at their fractions,
-/// converted to Pa and rounded upward by the caller. Each is checked against
-/// the represented problem at its fraction; then the upper bound is raised
-/// to cover them and the gap is checked again (step 5; module documentation).
+/// `station_cover_pa` holds the published station values of this arc and
+/// basis (max(|σ⁺|, |σ⁻|), or the intensified rows), converted to Pa and
+/// rounded upward by the caller. They only raise the upper bound, and the gap
+/// is then checked again (step 5; module documentation).
 pub fn certify_arc_stress_maximum(
     problem: &ArcStressMaximumProblem<'_>,
     measure: ArcStressMeasure,
-    station_witnesses: &[ArcStationWitness],
+    station_cover_pa: &[f64],
 ) -> Result<CertifiedArcStressMaximum, ArcMaximumFailure> {
     certify_with_limits(
         problem,
         measure,
-        station_witnesses,
+        station_cover_pa,
         ARC_MAXIMUM_SUBDIVISION_LIMIT,
         ARC_MAXIMUM_DEPTH_LIMIT,
     )
@@ -328,48 +302,20 @@ pub fn certify_arc_stress_maximum(
 pub(super) fn certify_with_limits(
     problem: &ArcStressMaximumProblem<'_>,
     measure: ArcStressMeasure,
-    station_witnesses: &[ArcStationWitness],
+    station_cover_pa: &[f64],
     split_limit: usize,
     depth_limit: u32,
 ) -> Result<CertifiedArcStressMaximum, Failure> {
-    let mut stations = Vec::with_capacity(station_witnesses.len());
-    for witness in station_witnesses {
-        let k = station_k(witness.fraction).ok_or(Failure::InvalidOperand {
-            name: "station_fraction",
-        })?;
-        if !witness.value_pa.is_finite() {
+    for &value in station_cover_pa {
+        if !value.is_finite() {
             return Err(Failure::InvalidOperand {
-                name: "station_value_pa",
+                name: "station_cover_pa",
             });
         }
-        if !(witness.allowance_pa.is_finite() && witness.allowance_pa >= 0.0) {
-            return Err(Failure::InvalidOperand {
-                name: "station_allowance_pa",
-            });
-        }
-        stations.push(k);
     }
     let mut evaluator = Evaluator::new(problem, measure)?;
     let curvature = evaluator.curvature_bound()?;
     let phi = problem.included_angle;
-
-    // Step 5, first half: every witness agrees with the represented problem.
-    let formation = evaluator.station_allowance()?;
-    for (index, (witness, &k)) in station_witnesses.iter().zip(&stations).enumerate() {
-        let value = evaluator.value(k)?;
-        let allowance = add_up(formation, witness.allowance_pa);
-        let lower = (value.lo - allowance).next_down();
-        let upper = (value.hi + allowance).next_up();
-        if !(witness.value_pa >= lower && witness.value_pa <= upper) {
-            return Err(Failure::StationInconsistent {
-                index,
-                witness_pa: witness.value_pa,
-                lower: value.lo,
-                upper: value.hi,
-                allowance,
-            });
-        }
-    }
 
     // Steps 1–3: the grid, its endpoint values and cell bounds.
     let mut best = Best::default();
@@ -443,10 +389,10 @@ pub(super) fn certify_with_limits(
         subdivisions += 1;
     };
 
-    // Step 5, second half: the station cover.
+    // Step 5: the station cover.
     let mut upper_bound = upper;
-    for witness in station_witnesses {
-        upper_bound = upper_bound.max(witness.value_pa);
+    for &value in station_cover_pa {
+        upper_bound = upper_bound.max(value);
     }
     if upper_bound > upper && gap(best.lower, upper_bound) > tolerance(best.lower) {
         return Err(Failure::StationCoverNotClosed(ArcMaximumDiagnostic {
@@ -587,19 +533,6 @@ fn fraction_of(k: u64) -> f64 {
     k as f64 * TWO_POW_MINUS_60
 }
 
-/// The k of a station fraction in [0, 1] whose product with 2⁶⁰ is an integer.
-fn station_k(fraction: f64) -> Option<u64> {
-    if !(fraction.is_finite() && (0.0..=1.0).contains(&fraction)) {
-        return None;
-    }
-    let scaled = fraction * (FULL as f64);
-    if scaled.fract() == 0.0 {
-        Some(scaled as u64)
-    } else {
-        None
-    }
-}
-
 // ---------------------------------------------------------------------------
 // The location (§2.3 step 6)
 // ---------------------------------------------------------------------------
@@ -736,8 +669,6 @@ pub(super) struct Evaluator {
     measure: Measure,
     /// Upward |F_j|, |M_j| and |w| of the chained operands, and R, φ, for K.
     norms: [f64; 3],
-    /// Upward |pA_i|, for the station scale.
-    pa_abs: f64,
     r: f64,
     phi_f: f64,
 }
@@ -859,7 +790,6 @@ impl Evaluator {
         let force_norm = norm_up(&fj)?;
         let moment_norm = norm_up(&mj)?;
         let w_norm = norm_up(&w)?;
-        let pa_abs = problem.pressure_area_product.map_or(0.0, f64::abs);
         Ok(Self {
             b,
             exact: WideArith::new(128)?,
@@ -875,7 +805,6 @@ impl Evaluator {
             z,
             measure,
             norms: [force_norm, moment_norm, w_norm],
-            pa_abs,
             r,
             phi_f: phi,
         })
@@ -887,26 +816,6 @@ impl Evaluator {
         let r_phi = mul_up(self.r, self.phi_f);
         let f_max = add_up(force_norm, mul_up(w_norm, r_phi));
         (f_max, add_up(moment_norm, mul_up(r_phi, f_max)))
-    }
-
-    /// 64u·S + 1e-12 Pa, upward (module documentation, "Station witnesses").
-    pub(super) fn station_allowance(&self) -> Result<f64, Failure> {
-        let (f_max, m_max) = self.maxima();
-        let bending = div_up(add_up(m_max, mul_up(self.r, f_max)), self.z);
-        let scale = match self.measure {
-            Measure::Elastic => add_up(div_up(add_up(self.pa_abs, f_max), self.area), bending),
-            Measure::Intensified { larger, .. } => mul_up(larger, bending),
-        };
-        let unit = f64::EPSILON * 0.5;
-        let allowance = add_up(
-            mul_up(mul_up(ARC_MAXIMUM_STATION_ALLOWANCE_ULPS, unit), scale),
-            ABSOLUTE_GAP_PA,
-        );
-        if allowance.is_finite() {
-            Ok(allowance)
-        } else {
-            Err(Failure::CurvatureBoundNotFinite)
-        }
     }
 
     /// K, formed upward (module documentation).
