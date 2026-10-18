@@ -20,7 +20,8 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Status
 
-Designed on main `5c4aa0b747`; not implemented.
+Designed on main `5c4aa0b747` and revised after the round-1 dual review; not implemented. Q2
+(§4.1) is with the owner.
 
 ## Rulings this design applies
 
@@ -56,6 +57,21 @@ Designed on main `5c4aa0b747`; not implemented.
 - **HELP_HUMAN, 2026-10-17, on this design's two proposals.** No objection to either:
   - the retained and source identities keep their names (§1.2);
   - frozen reference requests keep their bytes and are re-authored in memory (§1.4).
+- **HELP_HUMAN, 2026-10-17, after the round-1 reviews.**
+  - *Q2, the values of the derived kinds in retained and source publications, is reserved for
+    the owner.* HELP_HUMAN recommends option (ii), forming them from each publication's own
+    published operands. Until the owner rules, this design builds on (ii) provisionally and
+    keeps the choice localized, so that (i) stays implementable (§4.1). The REQ-001 wording
+    change that (ii) needs is drafted in §4.4. The epoch PR is not opened for merge while Q2 is
+    unresolved.
+  - *Version tokens in reviewed inputs are within the epoch.* These are DEF-E
+    `scope.model_format` and the pressure-source-1 table's `supported_profile_limitations[0]`,
+    0.5.0 → 0.6.0 and the token only. They are re-registered under D3 (DEL-04-08 REQ-007) and
+    reviewed against `docs/claims_registry.md` (AC-008). The physics-retained-1 table's
+    `accuracy_classification.scope` sentence stays untouched (TBD-002).
+  - *No objection* to the W1 not-covered passthrough, to keeping row metadata unchanged, to the
+    arc maximum's existing gap rule with a defined evidence record, to the t4_u5a RV-11
+    supersession note, or to the full source-work law.
 
 ## 1. Formats and identities
 
@@ -110,12 +126,18 @@ directional SIFs (§2.6) and the tie-rod hardware (§3.1).
     family can carry (§4.3).
   - **The meaning hashes move.** DEF-O, DEF-C and DEF-E name their base in `inherits.base_contract`.
     That name becomes preview-physics-2 or pressure-2. DEF-E's prose names pressure-1 and
-    pressure-source-1, and its pressure-1 references become pressure-2. Their meaning hashes
-    therefore move: `DEFINITION_HASH`, `COMBINATION_DEFINITION_HASH` and `EXACT_DEFINITION_HASH`
-    in `retained_wire.rs`, the Rust reader and the Python verifier, and the tables'
-    `product_formation_definitions`. Nothing else in the definitions changes (§4.1). TBD-002's
-    stale `accuracy_classification.scope` sentence in the physics-retained-1 table is left as it
-    is. If any edit here would need to touch it, that goes back to HELP_HUMAN first.
+    pressure-source-1, and its pressure-1 references become pressure-2. DEF-E's
+    `scope.model_format` ("current model 0.5.0 with the explicit 3.0.0/exact_pressure_v3
+    contract") takes the version token 0.6.0. Where the definitions enumerate row recipes they
+    state the not-covered passthrough (§4.1). Their meaning hashes therefore move:
+    `DEFINITION_HASH`, `COMBINATION_DEFINITION_HASH` and `EXACT_DEFINITION_HASH` in
+    `retained_wire.rs`, the Rust reader and the Python verifier, and the tables'
+    `product_formation_definitions`. Nothing else in the definitions changes.
+  - **Version tokens in reviewed product texts move to 0.6.0** (HELP_HUMAN, 2026-10-17: within
+    the epoch): DEF-E's `scope.model_format` and the pressure-source-1 table's
+    `supported_profile_limitations[0]` ("Current model 0.5.0 …"). TBD-002's stale
+    `accuracy_classification.scope` sentence in the physics-retained-1 table is left as it is.
+    If any edit here would need to touch it, that goes back to HELP_HUMAN first.
 - **The pressure result schema is renamed** from `schemas/results_pressure_1.v0.3.schema.json`
   to `schemas/results_pressure_2.v0.3.schema.json` (with `git mv`). Its identity `const`s name
   pressure-2. `results.v0.3`, `analysis_run.v0.3` and `stress_neutral_export.v0.3` keep only
@@ -124,9 +146,9 @@ directional SIFs (§2.6) and the tie-rod hardware (§3.1).
   states.
 - **Tests that used the -2 strings as unknown controls change.** They now use a -3 string. These
   are `result_export/tests/pressure_contract.rs:86`, `tests/test_pressure_contract_readers.py:113`,
-  `tests/test_preview_physics_consumer_contract.py:458`, `tests/test_retained_precision_b3.py:950`,
-  `load_reference_mutations.json:3027` and `load_reference_source_mutations.json:190, 1886`.
-  The physics-retained-2 and pressure-source-2 controls stay as they are, because those
+  `tests/test_preview_physics_consumer_contract.py:458` and `load_reference_mutations.json:3027`.
+  The physics-retained-2 controls (`tests/test_retained_precision_b3.py:950`) and pressure-source-2
+  controls (`load_reference_source_mutations.json:190, 1886`) stay as they are, because those
   identities do not exist.
 
 ### 1.3 Reviewed inputs
@@ -197,7 +219,7 @@ on preview-physics-2.
 
 | Oracle key (t4_u4b) | Row kind | Component(s) | Unit | Members | Locations | Route |
 |---|---|---|---|---|---|---|
-| `normal_extremes.sigma_plus`, `.sigma_minus`, `*_fibre` | `element_local_normal_stress_extreme` | `sigma_plus`, `sigma_minus` | MPa | all | stations × bases | both |
+| `normal_extremes.sigma_plus`, `.sigma_minus` (`max_abs_normal` = max(\|σ⁺\|, \|σ⁻\|); `*_fibre` derived from the published M rows, §2.3) | `element_local_normal_stress_extreme` | `sigma_plus`, `sigma_minus` | MPa | all | stations × bases | both |
 | `sv_transverse_shear_max.value` | `element_local_transverse_shear_stress_maximum` | `tau_v_max` | MPa | all | stations × bases | both |
 | `member_maximum` (arc) | `pipe_elastic_normal_stress_maximum_v2`, as on straights | as on straights | as on straights | arcs (joining straights) | `governing_station` plus location evidence | both |
 | `headline` | the existing headlines, now covering arcs | — | — | — | — | both |
@@ -205,6 +227,16 @@ on preview-physics-2.
 | `intensified_bending_maximum` | `curved_bend_directional_intensified_bending_maximum_v1` | `intensified_bending_maximum` | Pa | arcs with directional SIFs | one per basis, with location evidence | both |
 | `toroidal_membrane_hoop` (`y_pos`, `z_pos`, `y_neg`) | `pipe_toroidal_membrane_hoop_stress_v1` | `toroidal_intrados_hoop_stress`, `toroidal_crown_hoop_stress`, `toroidal_extrados_hoop_stress` | Pa | pressurized arcs | stations × bases | pressure-2 |
 | `radial_surface` | `pipe_toroidal_radial_surface_stress_v1` | `toroidal_inner_radial_stress`, `toroidal_outer_radial_stress` | Pa | pressurized arcs | stations × bases | pressure-2 |
+
+**Vocabulary, not format.** The new component, location and basis tokens join the closed
+vocabularies: the tables' `canonical_metadata_vocabulary` and the component enums in
+`results.v0.3` and `results_pressure_2`. That covers `sigma_plus`, `sigma_minus`, `tau_v_max`,
+the intensified, toroidal and rod components, location `tie_rod`, and the new basis tokens. This
+is how U5a added `pe_x` and `s_x`. The row-metadata object keeps its five fields, and the raw 0.2
+and canonical 0.3 format versions stay. The arc intensified maximum's location evidence is a
+record in the case evidence's `intensified_measures` list, with approximation
+`arc_closed_form_directional_intensified` and the §2.3 record's fields. W1 already refuses a
+non-empty list (`retained_product.rs:2896`), and arcs never reach W1.
 
 **Not published, and why.** The product does not publish these oracle keys as rows. The
 references keep them as checks of the definitions.
@@ -231,47 +263,85 @@ The registered profile prices this through the row bounds in §6.
 **Extremes.** σ⁺ = N_eff/A_b + hypot(M_y, M_z)/Z_b and σ⁻ = N_eff/A_b − hypot(M_y, M_z)/Z_b at
 each station and basis.
 - N_eff is N_w on a pressurized member of pressure-2 and N otherwise (t4_u4b item 3).
-- Each row carries metadata `fibre_location` = {`y_m`, `z_m`}, the outer-surface fibre
-  ±r_o(−M_z, M_y)/hypot(M_y, M_z) in the section's local frame.
-- When hypot(M_y, M_z) = 0, the fibre is `{"tied": true}` and σ⁺ = σ⁻.
-- **Formation.** On the certified route (K-D5 Passed), each extreme is formed at p from the
-  certified station resultants and rounded once. Its radius follows the components' radii
-  through the hypot's Lipschitz bound. On the binary64 route it is the binary64 formula of the
-  published resultants.
+- **Their fibres are not row metadata.** Row metadata is a closed five-field object under the
+  unchanged 0.2/0.3 result formats (`result_export/src/lib.rs` `ResultMetadata`;
+  `results.v0.3.schema.yaml` row metadata, `additionalProperties: false`). The fibres are
+  determined by the published M_y, M_z rows of the same station: the outer-surface fibre
+  ±r_o(−M_z, M_y)/hypot(M_y, M_z), tied when hypot = 0. The basis text states this rule, and the
+  reference test compares the fibre it derives from the published rows with the oracle's
+  `sigma_plus_fibre` and `sigma_minus_fibre` (§7.1).
+- **Formation.** In binary64 from the same station's published resultants and the basis
+  section, by a fixed formula: σ± = RN(RN(N_eff/A_b) ± RN(h/Z_b)), with h = `norm2`(M_y, M_z)
+  the shared correctly rounded norm (E15). Every reader can therefore recompute it bit for bit. They are not certified
+  rows on any route: neither ordinary route attaches a K-D5 certificate to them, and in retained
+  successors they are `not_covered` (§4). Forming them from the published rows keeps each
+  publication self-consistent and makes them reproducible by every reader.
 - **The basis token.**
-  - On straights: `recovered_from_open_mechanics_stress_components`.
-  - On arcs: the preview `nominal_straight_beam_formula_on_arc_resultants` and its pressure-2
-    twin. This is the U4a arc stress basis, already disclosed.
+  - On straights: `section_extremes_from_published_resultants_v1`.
+  - On arcs: the same token. The arc stress idealization is the U4a arc basis, already
+    disclosed in LIMITATIONS[3] and `BEND_LIMITATION`.
 
 **The arc maximum.** This is the maximum over ψ ∈ [0, φ] of f(ψ) = |N_eff(ψ)|/A_b + hypot(M_y(ψ), M_z(ψ))/Z_b
-(t4_u4b item 4).
-- **Resultants.** The resultants along the arc are formed from the end-i section action cut(0)
-  and the uniform member load w per unit arc length. They are expressed in the tangent frame at
-  ψ, with the closed forms of t4_u4b item 4: F(ψ) = F_beyond + w R Δψ, M(ψ), and their exact
-  derivatives.
+(t4_u4b item 4). On pressure-2, N_eff = S + pA_i, and pA_i is constant along the member, so
+N_eff″ = S″.
+- **Operands.** The operands are the arc's published binary64 end-i section action cut(0) (on
+  the certified route, the certified cut row as published; otherwise the binary64 cut), the
+  uniform member load w per unit arc length as authored, R, φ and the basis section. This is the
+  straight precedent: the enclosure is of the represented binary64 problem, and solve error is
+  separate. The evidence states it in `enclosure_scope`, as the straight record does ("solution
+  error is separate").
   - The implementation must confirm that the product's arc uniform load is a constant global
     force per unit arc length (t4_u4b inferred convention 1, `certify_curved_uniform_load`).
   - If it is not, that is reported before any code relies on the convention.
-- **The method** is the certified branch-and-bound of t4_u4b item 4, in the product's own
-  arithmetic:
+- **Resultants.** The resultants along the arc follow the closed forms of t4_u4b item 4, in the
+  tangent frame at ψ: F(ψ) = F_beyond + w R Δψ, M(ψ), and their exact derivatives. The bound
+  terms are F_max = |F(0)| + |w|Rφ and M_max = |M(0)| + RφF_max, with F the pressure-free
+  statics force (S on pressurized arcs).
+- **Arithmetic.** Every evaluation of f at a point ψ is an enclosure.
+  - It uses the kernel's ball arithmetic at p, the arithmetic in which K-D5 forms arc tangents
+    (`formation_check`) and R-1 forms its arc quantities (`arc_certificate`).
+  - sin ψ, cos ψ and ψ are enclosed in that arithmetic, either with a polynomial enclosure that
+    has a rigorous remainder bound, or by forming them from the half-angle quantities as R-1
+    does. No libm transcendental enters a bound.
+  - The lower value of each evaluation is directed downward and the upper value upward.
+- **The method** is the certified branch-and-bound of t4_u4b item 4:
   1. Start from a uniform grid of 4,096 cells in ψ.
-  2. Upper bound per cell: max(endpoint values) + K h²/8, with K = (2R|w| + F_max)/A_b + (R²|w| + M_max + R F_max)/Z_b.
-  3. Lower bound: the largest evaluated value.
+  2. Upper bound per cell: max(upper endpoint values) + K_up h²/8, with
+     K = (2R|w| + F_max)/A_b + (R²|w| + M_max + R F_max)/Z_b formed upward.
+  3. Lower bound: the largest directed lower endpoint value.
   4. Bisect every cell whose upper bound exceeds the lower bound by more than the stopping gap.
-     Stop when gap ≤ 2^-40·lower, or refuse at the existing `elastic_extrema` limits (131,072
-     subdivisions, depth 48).
-  5. Publish as the straight maximum publishes: the binary64 midpoint of [value_lower,
-     upper_bound], with value_lower, upper_bound, the governing fraction ψ*/φ and the governing
-     fibre in its evidence.
+     The stopping gap is the existing `elastic_extrema` rule, gap ≤ 1e-12 Pa + 1e-12·lower
+     (`elastic_extrema.rs`, enforced by the readers at `physics_evidence.rs`), absolute floor
+     included, so a zero or near-zero arc maximum closes. Refuse at the existing limits of
+     131,072 subdivisions and depth 48, with a named reason.
+  5. Refine the governing location inside the governing cell by bisection on the sign of the
+     exact derivative f′, evaluated as an enclosure. Stop when the enclosure no longer resolves
+     the sign or the cell reaches one binary64 ulp in ψ. The published location is the
+     refinement's midpoint. On interior maxima the value gap alone fixes the location only to
+     about √(2·gap·f/K), and the refinement makes the location accurate to the derivative's
+     resolution.
+  6. Publish as the straight maximum publishes: the binary64 midpoint of [value_lower,
+     upper_bound], with both in the evidence.
+- **The evidence record.** Each arc's entry in `pipe_stress_extrema` is a closed record:
+  - `approximation`: `"arc_closed_form_section_statics"`;
+  - `local_fraction` = ψ*/φ and `psi_rad` = ψ*;
+  - `value_lower` and `upper_bound`;
+  - `coefficient_basis`: `"arc_end_i_cut_and_uniform_load_per_arc_length"`;
+  - `enclosure_scope`, as the straight record states it;
+  - `subdivisions` and `curvature_bound` (K).
 
-  Every evaluation carries an outward allowance for its binary64 rounding (a γ_n bound on the
-  closed-form expression, stated in the module). So the upper bound is a bound on the
-  binary64-represented problem, not an estimate.
-- **On the certified route.** The resultant enclosure adds the radii of cut(0). The bound gains
-  ΔF/A_b + (ΔM + R φ ΔF)/Z_b, which also covers the Lipschitz transport of the force radius along
-  the arc.
-- **Where it lives.** The method is DEL-05-03's `stress_recovery` module (new function beside
-  `elastic_extrema`; it is a supplier need of DEL-04-07, §8). PP calls it in the member loop
+  It carries no `span_index`. The straight record keeps its shape. These closed consumers gain
+  the arc branch:
+  - `physics_evidence.rs` (around :593–651) and `preview_physics_evidence.rs` (around :476);
+  - `retained_product.rs` (around :3031) and `source_receipt/composite.rs` (around :668);
+  - `schemas/stress_neutral_export.v0.3.schema.json` (around :2902–2945), `results.v0.3` and
+    `results_pressure_2`;
+  - the Python verifier.
+
+  Every one gains the branch together, and each new text is priced (§6). Arcs never reach the
+  retained or source consumers (D7), and those consumers refuse an arc record by name.
+- **Where it lives.** The method is DEL-05-03's `stress_recovery` module, as a new function
+  beside `elastic_extrema` (a supplier need of DEL-04-07, §8). PP calls it in the member loop
   where `exact_member_maximum_policy` withholds arcs today.
 - **When it is withheld.** It is published only when the cut and its load are available. A case
   whose arc recovery is unavailable keeps the existing unavailable path and warning
@@ -298,7 +368,11 @@ t4_u4b is a comparison rule for the test. It is not published.
 - Torsional shear stays its own row.
 - No location metadata is published. The two fibres are fixed by V (inner surface, normal to
   V), and the basis text states this.
-- **Formation** follows §2.3's extremes: from certified V at p with its radius, or binary64.
+- **Formation** follows §2.3's extremes: τ_v,max = RN(`norm2`(V_y, V_z)·c_b), from the same
+  station's published V_y, V_z rows, on every route. The section factor
+  c_b = ((3+2ν) r_o² + (1+2ν) r_i,b²)/(4(1+ν) I_b) is formed once per basis section, from the
+  material ν and the basis annulus, by a fixed sequence of correctly rounded operations that the
+  module states and the readers mirror.
 
 The module also exposes the field τ(r, β) for its unit test (§5.1). The field is not published.
 
@@ -367,12 +441,16 @@ moment terms).
 ### 2.7 Algebra-class marks
 
 Every row signature in the pressure-2, preview-physics-2 and inheriting tables gains
-`combination_algebra`, one of two values:
+`combination_algebra`, one of three values:
 - **`signed_linear`**: displacements, rotations, section resultants, signed stress components,
   torsional shear, pressure-family forces and stresses, the hoop and radial rows, support
-  components and connector generalized actions, tie-rod forces;
+  components, connector generalized actions and tie-rod forces. A combination combines these
+  directly, as matching signed quantities.
+- **`recomputed_from_combined`**: displacement magnitudes and support force and moment
+  magnitudes. A combination forms them from its own combined components, as today
+  (`preview_physics.rs` around :892 and :958). They are never summed.
 - **`never_combined`**: σ⁺/σ⁻, the transverse-shear maximum, every maximum and headline-bearing
-  row, every intensified row, magnitudes, and review and basis rows.
+  row, every intensified row, and review and basis rows. A combination publishes none of them.
 
 This is a classification (STRESS_REFERENCE §5), not a new combination rule.
 - The ordinary combination engine keeps its behaviour: maxima and intensified rows are not
@@ -380,10 +458,13 @@ This is a classification (STRESS_REFERENCE §5), not a new combination rule.
   `never_combined` kinds. `COMBINATION_STRESS_MAXIMUM_UNAVAILABLE`'s text becomes "stress maxima
   and section stress extremes are not combined; combine the signed stress component rows
   instead".
-- A table test asserts that every `never_combined` kind is absent from every combination output
-  in the committed corpora, and that every combined kind is `signed_linear`.
-- Magnitudes stay recomputed from combined components, as today. Their mark is
-  `never_combined`, because they are recomputed and not combined.
+- A table test checks the committed corpora:
+  - every combination row's kind is `signed_linear` or `recomputed_from_combined`;
+  - no `never_combined` kind appears in a combination;
+  - every `recomputed_from_combined` row equals the norm of its own combination's components,
+    not a combination of operand magnitudes.
+- REQ-001's combination row count, 7n + 50m + 8g, is unchanged. Magnitudes are already counted
+  in it, and the new kinds are not combination rows.
 
 ### 2.8 Preview-physics-2 limitations
 
@@ -442,6 +523,24 @@ two kinds:
     difference (x_j − x_i) + (o_j − o_i), formed componentwise as the connector forms r.
 - **Model findings come first.** These are connector model findings (`model_findings`), so §1
   precedence applies and a refused listed connector carries only its code.
+- **U5a's hardware condition is lifted for rods.** U5a admission condition 2 (joint-pressure-thrust.md
+  §1) and its field-specification line "The connector's `hardware` is `untied`" become: hardware
+  is `untied` or `explicit_axial_rods_v1` with valid rods. Every other admission condition of a
+  listed connector stays, zero attachment offsets included. A connector's attachment offsets are
+  separate from its rods' offsets, which are free. Thirty-four of the t4_u5b cases are
+  pressurized listed connectors with rods.
+- **t4_u5a RV-11 is superseded.** RV-11's frozen patch sets
+  `{"kind": "explicit_axial_rods_v1", "rods": []}` on a pressurized joint and expects
+  `JOINT_HARDWARE_LAW_UNSUPPORTED`; the generator describes it as "explicit axial rods with a
+  pressurized joint (until U5b)". After U5b the kind is defined, and the empty list takes
+  `JOINT_TIE_ROD_INPUT_INVALID`.
+  - The implementing change records the supersession as a text-only note in
+    `validation/references/t4_u5a/README.md`, as T4-U5a recorded t4_i12's supersession
+    (joint-pressure-thrust.md §7). Only that README line of `SHA256SUMS` is regenerated.
+  - No request byte, oracle value or generator byte changes.
+  - The consuming test runs RV-11 and asserts the superseded code by name, beside the other
+    sixteen variants, whose frozen expectations it keeps.
+  - The HELP_HUMAN confirmation is recorded in Rulings.
 
 ### 3.2 Mechanics
 
@@ -481,7 +580,9 @@ recovery is T_r = k_r(C d − e_ref).
 ### 3.3 Publication
 
 - **`connector_tie_rod_force_v1`.** One row per rod: component `t_r`, unit N, location
-  `tie_rod`, and metadata `tie_rod_id`. Row id
+  `tie_rod`, `coordinate_system` `element_local` (along the rod's own axis) and basis token
+  `recovered_from_tie_rod_extension_v1`. The rod is identified by its row id and its
+  `tie_rods` evidence entry, not by metadata. Row id
   `result:connector:{suffix}:tie-rod-force:tie_rod:{encoded rod id}:t_r`. Tension is positive,
   T_r = k_r(e − e_ref). It is certified on the certified route and binary64 otherwise.
 - **`s_x`** (`connector_effective_axial_force_v1`) becomes S_joint = g_x + Σ T_r (n_r·Q_x) − Pe
@@ -494,6 +595,8 @@ recovery is T_r = k_r(C d − e_ref).
     point: the face-equilibrium identity is published wherever rods carry part of it.
 - **`pe_x`** is published only for a constant-effective-area connector, as today. An
   unpressurized connector has no Ae.
+- **The readers' s_x binding** is s_x = gt_x + Σ t_r·axial_share − Pe, with Pe the published
+  `pe_x` where it exists and 0 on an unpressurized connector.
 - **Unchanged rows.** An untied unpressurized connector's rows and evidence are unchanged, byte
   for byte.
 - **The connector evidence record.** `hardware` becomes the authored kind. With rods, `tie_rods`
@@ -530,58 +633,137 @@ recovery is T_r = k_r(C d − e_ref).
 ### 4.1 W1-L and W1-E
 
 The new straight-member kinds are `element_local_normal_stress_extreme` and
-`element_local_transverse_shear_stress_maximum`.
-- **Classed `not_covered`.** They join "every other row kind" of REQ-001: `not_covered` rows with
-  their ordinary values, never `RowClass::Unpublishable`. The classification is consistent
-  across every layer that applies it:
-  - the kernel's row class (`k::RowClass`) and `retained_wire`'s translation;
-  - the Rust reader's `row_kind` and G5c, native and wasm;
-  - the Python verifier;
-  - the inheriting tables' `accuracy_classification`, if they enumerate kinds.
-- **No new retained recipe, no G8 re-derivation and no DEF text** beyond `inherits.base_contract`
-  (§1.2). The arc-only kinds and tie-rod rows cannot reach W1: realized arcs and connectors stay
-  declined at capture.
-- **Unchanged.** The intensified-measures refusal (`retained_product.rs:2896`), G5b, every gate,
-  limit, tolerance and verified-kind list.
-- **A genuine ordinary failure.** In a failed-ordinary successor there are no ordinary values.
-  The new kinds follow whatever the existing `not_covered` kinds do there. The implementation
-  confirms that treatment in the producer and both readers before relying on it, and reports it
-  if no existing `not_covered` kind reaches that path.
-- **The maintained W1 checks keep their capability.** The B4/D1 census
-  (`b4_w1_covers_every_formerly_selected_source_block_case`), the group-3 census and the
-  member-load censuses must publish the same selections at the same or better standing. The new
-  rows only add `not_covered` entries. A selection lost to the new kinds is a defect, not a
-  declared change.
+`element_local_transverse_shear_stress_maximum`. The arc-only kinds and tie-rod rows cannot reach
+W1: realized arcs and connectors stay declined at capture (`retained_product.rs` `capture_case_structure`).
+
+**Classed `not_covered`.** The new kinds join REQ-001's "every other row kind", never
+`RowClass::Unpublishable`. One classification applies at every layer:
+- the kernel's row class (`k::RowClass`) and `retained_wire`'s translation (`retained_wire.rs`
+  around :1276–1285);
+- the Rust reader's `row_kind` and G5c, native and wasm;
+- the Python verifier;
+- the inheriting tables' `accuracy_classification`, where it enumerates kinds.
+
+**The not-covered passthrough.** Classification alone cannot carry these rows. W1 capture
+refuses any stress kind outside its closed list (`retained_product.rs` around :2615–2626,
+`uncovered actual row`). The kernel's `ProductRecipe` (`final_case.rs` around :108–123) has
+quantity recipes only. So the epoch adds one explicit mechanism, which is a recipe-free
+passthrough, not a numerical recovery recipe:
+- **Capture.** The capture classifies the two kinds as `Derived` rows and records each one's
+  identity, unit, metadata and basis twin against the captured member, station and basis, in
+  the order of the ordinary row manifest.
+- **Projection and final proof.** These rows enter no lane, functional, certificate, scale or
+  bound. The kernel's final case gains `ProductRecipe::NotCovered { row }`, which carries the
+  row's position only. It contributes nothing to any verified class's body scale, maximum or
+  coverage set, and the existing `final_case` checks exclude it from every verified count.
+- **Value.** In the successor the row's value is formed after projection from the successor's
+  own published resultants and section, by the same binary64 formula as on the ordinary route
+  (§§2.3–2.4; provisional option (ii), below). Nothing is recovered, and nothing is bound to a
+  certificate.
+- **Receipt.** The receipt lists the rows under `not_covered` exactly as other `not_covered`
+  rows, with no bound. The reader checks their custody (identity, unit, metadata, member and
+  basis coverage) and, under (ii), recomputes them from the successor's published operands
+  under the base reader's one rule.
+- **Definitions.** DEF-O, DEF-E and DEF-C state the passthrough in the recipe enumeration they
+  already have: "derived section extremes and transverse-shear maxima: not covered, formed from
+  the successor's published resultants". This moves their meaning hashes (§1.2).
+- **Priced owners.** The capture, final-case and wire code are DEL-04-08's method and DEL-04-01's
+  kernel (a supplier need, §8). Their new owners, loops and texts are priced in the actual-source
+  D3 (§6).
+
+**Q2, provisional (ii): the values.** In every publication (ordinary, W1-L and W1-E successors,
+failed-ordinary successors and pressure-source-1) the derived kinds are formed in binary64 from
+that publication's own published resultants and basis section, and classed `not_covered`.
+- HELP_HUMAN recommends (ii). The choice is the owner's, because it reads REQ-001's "keep their
+  ordinary values" as "formed from the successor's published operands" for these two derived
+  kinds. The wording change is drafted in §4.4.
+- **The choice is localized.** It lives in one producer function, the successor's post-projection
+  formation of derived rows, and in one reader branch, the base recompute check applied to a
+  retained projection. Under option (i) the producer function would copy the ordinary row's
+  value instead, the reader branch would check custody only inside retained projections, and
+  failed-ordinary successors would omit the rows. Nothing else changes between the options.
+- **Why (ii).**
+  - G7 runs the base reader on the projected successor statement (`retained_precision.rs`
+    around :6396). A σ⁺ that keeps its ordinary value contradicts the verified resultants beside
+    it and fails that check.
+  - A failed-ordinary successor has no ordinary rows (`retained_product.rs` around :4452). Its
+    manifest is filled from the retained owner (around :4485).
+
+**The failed-ordinary path (N06 and CX-F).** `failed_manifest` gains the derived rows in the
+row order of preview-physics-2, as placeholders. The freeze replaces them, after projection, with
+values formed from the projected resultants. They are `not_covered` there too. The maintained
+N06 and CX-F successors are regenerated and stay selected, bound and eligible
+(`fixtures/results/retained_precision_failed_ordinary_n06.json` and the CX-F controls).
+
+**Unchanged.** The intensified-measures refusal (`retained_product.rs:2896`), G5b, every gate,
+limit, tolerance, and the verified-kind list and recipes.
+
+**The maintained W1 checks keep their capability.** The B4/D1 census
+(`b4_w1_covers_every_formerly_selected_source_block_case`), the group-3 census, the member-load
+censuses and the failed-ordinary controls must publish the same selections at the same or
+better standing. The new rows only add `not_covered` entries. A selection lost to the new kinds
+is a defect, not a declared change. A test builds a case whose ordinary and retained resultants
+deliberately diverge and checks that the successor's derived rows follow the retained
+resultants.
 
 ### 4.2 Combinations
 
-The W1 combination route (DEF-C) does not combine `never_combined` kinds. That is already its
+The W1 combination route (DEF-C) does not publish `never_combined` kinds. That is already its
 rule for maxima and intensified rows (REQ-001: "Combination maxima, intensified rows … are not
-covered"). The new extremes and shear maxima follow the ordinary engine's treatment (§2.7). They
-are absent from combination owners, so no combination row count changes. The REQ-001 count of
-7n + 50m + 8g rows per combination stays exact; the new kinds are not combination rows.
+covered"). The new extremes and shear maxima follow the ordinary engine's treatment (§2.7) and are
+absent from combination owners. The REQ-001 count of 7n + 50m + 8g rows per combination stays
+exact.
 
 ### 4.3 pressure-source-1
 
-A selected retained-source publication carries the new straight-member kinds as ordinary rows,
-outside the receipt's `projection.quantity` and the REQ-002 checks.
+A selected retained-source publication carries the new straight-member kinds as rows outside the
+receipt's `projection.quantity` and the REQ-002 checks, formed from that publication's published
+resultants (§4.1).
 - `pressure-source-1`'s table gains their signatures.
 - Its receipt and source method are unchanged.
 - The source family is unchanged (D7, D1), so no arc or connector row reaches it.
-- MJ6's and MJ9's byte checks re-pin to the actual new bytes, with every reservation expression
-  re-derived (b7-plan, MJ9). The work counters change only through the encoded-input lengths
-  that the new rows and the 0.6.0 version string change. The independent test accounts for
-  each delta under the D5/MJ9 law.
+- **Work accounting.** The source-work counters change under the complete D5/MJ9 law (b7-plan,
+  "D5/MJ9's accounting clarification"). For each selected case the delta is
+  `cases[k].work.charged` = 24ΔE + ΔF_k + ΔQ_k, and `invocation_work.publication_charged` moves
+  by 24ΔE + ΔP. Its terms:
+  - ΔE is the encoded-request delta. The 0.6.0 token has the same length as 0.5.0, so only the
+    actual request changes count.
+  - ΔF_k covers the new rows' identity, kind, entity, unit and metadata lengths inside
+    finalization.
+  - ΔQ_k includes the composite-exact reservation `1024 + 64·N_actual_rows + finalization_size + N_support_actions·RECIPE_WORK`
+    (`source_receipt/composite.rs` around :744). That term alone adds 64 per new row: 1,920 per
+    exact member per selected case at 30 rows.
+  - ΔP covers the publication's `32N_rows` and per-case `256N_rows` terms.
 
-### 4.4 Commitments that name 0.5.0 (reserved)
+  An independent test derives every term from the actual inputs, as the MJ9 test does. It checks
+  the row-count charges exactly, and checks that an input at the unchanged 8,000,000 limit still
+  refuses with its named budget refusal. MJ6's and MJ9's byte checks re-pin only to the actual
+  producer bytes those deltas explain.
 
-DEL-04-08 ScopeOfWork REQ-001 ("Route E domain": "current model 0.5.0 …") and REQ-002
-("Eligibility": "current model 0.5.0 …") name the model version. DEL-02-05 ScopeOfWork CLM-003
-and its version-check states do too. At 0.6.0 those sentences become false.
-- **Proposed edit.** The version token only, 0.5.0 → 0.6.0, with no other change.
-- **These are owner decisions.** They are brought with the PR, with the exact sentences and
-  their consequence.
-- **Until decided, the PR does not edit them.**
+### 4.4 Sentences held for the owner
+
+**Commitment sentences that name 0.5.0.** At 0.6.0 these become false:
+- DEL-04-08 ScopeOfWork REQ-001 ("Route E domain": "current model 0.5.0 with the explicit
+  `3.0.0/exact_pressure_v3` contract");
+- REQ-002 ("Eligibility": "current model 0.5.0 with the `3.0.0/exact_pressure_v3` contract");
+- TBD-002's own text ("DEF-E and the code admit current model 0.5.0 …");
+- DEL-02-05 ScopeOfWork CLM-003 and its version-check and runtime-authoring sentences (lines 33,
+  35, 37 and 175).
+
+For each, the proposed edit is the version token only, 0.5.0 → 0.6.0. The PR brings the exact
+sentences and their consequence, and does not edit them until the owner decides.
+
+**The REQ-001 wording that option (ii) needs (Q2).** The current text:
+> These rows are `not_covered` and keep their ordinary values: every other row kind; rows with no
+> body scale; and, under R-COMB-1, each quantity row of an unavailable combination or of an
+> ordinary combination that names a load case whose trigger is not `not_required`.
+
+The proposed text. Only the value clause changes, and only for the two derived kinds:
+> These rows are `not_covered`: every other row kind; rows with no body scale; and, under
+> R-COMB-1, each quantity row of an unavailable combination or of an ordinary combination that
+> names a load case whose trigger is not `not_required`. They keep their ordinary values, except
+> the section normal-stress extremes and transverse-shear maxima, which are formed in binary64
+> from the successor's own published resultants and section.
 
 ## 5. Readers, verifier and consumers
 
@@ -592,13 +774,13 @@ on its route, independently of the producer. The verifier shares no code with it
 
 | Kind | Reader check |
 |---|---|
-| `element_local_normal_stress_extreme` | Recomputed from the same station's published N or N_w (exact route) and M_y, M_z rows and the basis section: σ± agrees under the existing component-stress binding rule. The fibre equals ±r_o(−M_z, M_y)/hypot, or is tied when hypot = 0. Coverage: every member, station and basis. |
-| `element_local_transverse_shear_stress_maximum` | Recomputed from the published V_y, V_z, ν and the basis annulus, under the same rule. Coverage as above. |
-| arc `pipe_elastic_normal_stress_maximum_v2` | Coverage, basis twins and headline binding as on straights. The value is at least every station's |N_eff|/A + hypot/Z, within the binding rule. The readers attest custody and do not replay the branch-and-bound (DEF-O `trust.validation` precedent). |
+| `element_local_normal_stress_extreme` | Recomputed bit-exactly from the same station's published N or N_w (exact route) and M_y, M_z rows and the basis section, by the fixed formula of §2.3 (one correctly rounded operation each, the hypot by the shared correctly rounded `norm2` of E15). This applies on every route, retained projections included (§4.1). Coverage: every member, station and basis. |
+| `element_local_transverse_shear_stress_maximum` | Recomputed bit-exactly from the published V_y, V_z, the captured ν and the basis annulus, by §2.4's fixed formula. Coverage as above. |
+| arc `pipe_elastic_normal_stress_maximum_v2` | The §2.3 arc evidence record: its closed shape, the gap rule on value_lower and upper_bound (as `physics_evidence.rs` checks straights), the value as their midpoint, and the location in [0, 1]. Coverage, basis twins and headline binding as on straights. The upper bound is at least every station's \|N_eff\|/A + hypot/Z. The readers attest custody and do not replay the branch-and-bound (DEF-O `trust.validation` precedent). |
 | directional intensified rows | Present exactly on arcs whose captured model has the directional pair. Recomputed per station from M_y, M_z and the captured factors. The maximum is at least every station value. |
 | toroidal hoop and radial | Present exactly on pressurized arcs, at every station and basis. Recomputed from p, the basis bore, wall, r_o and R in the region evidence. |
 | `connector_tie_rod_force_v1` | One per authored rod. Bound to the `tie_rods` record: the extension and law are rederived from the published node displacements and rotations under the binding rule. |
-| `s_x` | gt_x + Σ t_r·axial_share − pe_x under the binding rule, for every connector with rods or a constant-effective-area model. |
+| `s_x` | gt_x + Σ t_r·axial_share − Pe under the binding rule, with Pe the published `pe_x` or 0 on an unpressurized connector, for every connector with rods or a constant-effective-area model. |
 
 - **Arc evidence.** `arc_evidence.rs` and `tests/verifiers/pressure_1.py` (renamed
   `pressure_2.py`) drop `withheld_on_arcs`. They require the two definition ids and the new
@@ -609,8 +791,8 @@ on its route, independently of the producer. The verifier shares no code with it
 - **Shared corpora, regenerated by their generators.** These are the J2 corpus, the pressure
   reader corpora and `base_reader_outcomes.json`. Each gains genuine entries for the new kinds,
   plus tamper mutations: a resealed changed σ±, τ, hoop, rod force or s_x; a missing row; a
-  withheld-on-arcs revival; a wrong fibre. Native Rust, wasm and the verifier consume them
-  unmodified.
+  withheld-on-arcs revival; a retained successor whose derived row keeps a value that disagrees
+  with its published resultants. Native Rust, wasm and the verifier consume them unmodified.
 
 ### 5.2 Desktop and Python products
 
@@ -645,6 +827,12 @@ source (D3).
   - The census bounds (U6-RL) gain the corresponding evidence entries.
   - New static texts (limitations, sign and basis texts, the rod and hoop sentences) are priced
     TEXT.
+  - At the caps (n = m = g = 32, C_eq = 3), route E rises to about 11,241 rows, below its 16,384
+    capacity. Route L's 2·C_eq·P_final text measure rises to about 15,570 of 16,384. D3
+    re-establishes, on actual source, the premise that route E's row text stays below route L's
+    (retained-pricing-rules.md §9, "Row text"), and every capacity, rather than assuming them.
+  - The not-covered passthrough's capture records, final-case entries and wire entries are new
+    positive owners.
 - **Public regeneration.** Corpora, successors and outcome files are regenerated by the actual
   public producer after D3, with no private writer or temporary gate change.
 - **Headroom.** The tightest phase today is merged dense W4, with 113,188,985 B of headroom. If
@@ -663,25 +851,52 @@ persistence (AGENTS.md). Both solver modes run throughout.
      generator's `--write`, which changes bindings only.
    - The PP test runs every case through the typed and captured entries in both modes and
      compares every mapped row (§2.2) at the README criterion and zero scales:
-     - interior maxima within their `location_band`;
-     - fibres at the criterion with zero scale r_o;
-     - the headline per basis.
-   - Every discriminator formed in the product is checked to lie at least 1e3 tolerances away.
-     That covers all hoop, radial, SV, fibre, maximum, SIF, k and basis mutants except the two
-     `axial_plus` SIF mutants and `fibre_component_abs_sum`'s `fibre_normal` rows, which are
-     not formed (§2.2).
-   - The stress_recovery unit test compares the SV field at the six fibres and both surfaces,
-     and the hoop at all six oracle fibres, against the oracle at the criterion.
+     - interior maxima within their `location_band`, end maxima exactly at their end;
+     - the headline per basis;
+     - `max_abs_normal` as max(|σ⁺|, |σ⁻|);
+     - the fibres, derived from the published M rows by §2.3's rule, at the criterion with zero
+       scale r_o. Where the oracle records a tie and the published hypot(M_y, M_z) is within the
+       criterion times the member's moment zero scale, the fibre comparison is skipped (ARC106
+       end_j).
+   - **Discriminators.** Each t4_u4b mutant is mapped to one of three kinds of check.
+     - *Product rows.* Its listed rows lie at least 1e3 tolerances from the product's rows:
+       - the hoop, radial, SV-maximum, `sv_nu_fixed_0_3`, maximum, `max_station_only`,
+         `max_quadratic_straight_method_on_arc`, `max_abs_sum_objective`,
+         `fibre_component_abs_sum` (on σ⁺ and `max_abs_normal`), `rows_other_basis_section`,
+         `sif_factors_swapped`, `sif_one_scalar_for_both_directions`, `sif_applied_to_torsion`
+         and `k_multiplying_stress` mutants.
+     - *Field functions.* They are checked in the stress_recovery unit tests, against the
+       oracle's field and fibre values:
+       - `sv_vy_vz_swapped` and the SV field components;
+       - `fibre_mz_y_sign_flipped` and `fibre_frame_rotated_y_away_from_centre`, through a
+         fibre-normal function that is used in tests only and not published.
+     - *Not formed in the product*, because their observables are not published:
+       `sif_applied_to_whole_max_normal` and `sif_applied_to_axial`, on
+       `axial_plus_intensified_bending`.
+     - *An added producer mutant.* A fibre-location mirror, (M_z, −M_y) in place of (−M_z, M_y),
+       must be killed by the derived-fibre comparison.
+   - The stress_recovery unit tests compare the SV field at the six fibres and both surfaces,
+     and the hoop at all six oracle fibres, with the oracle at the criterion.
+   - The arc maximum function has its own tests:
+     - ARC106's closed form;
+     - a zero and a near-zero arc, which close under the absolute floor;
+     - the subdivision limit refusal;
+     - the location refinement against the oracle ψ* to the band;
+     - that every bound is directed: no evaluation's upper value is below a 256-bit evaluation
+       of the same represented problem.
 2. **t4_u5b.**
    - A builder test authors the 38 requests in 0.6.0 from the case descriptions. Each base is
      re-expressed by the t4_u5a in-memory helper, and the rods are added in §3.1's shape, with
      offsets in the connector axes.
    - The PP and headless tests run all 38 in both modes with export and compare every frozen
-     observable: q, g, Tb, each T_r, ΣT_r, Pe, S_joint, the interface identity at both faces,
-     pipe Nw/S/end actions, displacements, reactions and `assembled_pressure_rhs_global`.
+     observable at t4_u5b's criterion: q, g, Tb, the connector endpoint rows Bᵀg, each T_r, ΣT_r,
+     Pe, S_joint, the interface identity at both faces, each rod's `direction_global` and
+     `axial_share` against the oracle, pipe Nw/S/end actions, displacements, reactions and
+     `assembled_pressure_rhs_global`.
    - The discriminators' wrong values lie at least the stated separation away.
 3. **t4_u5a, t4_u4a, t4_u6, t4_u8 and T4-I7 stay green**, through in-memory 0.6.0 re-authoring,
-   in both modes. Every expected value is unchanged.
+   in both modes. Every expected value is unchanged, except t4_u5a RV-11's code, which is
+   superseded by name (§3.1).
 4. **Refusals.** Unit tests cover every §2.6 and §3.1 code, with `MODEL_INCOMPLETE` and no
    results, and every retired identity's refusal by name.
 5. **Producer mutants.** Each is applied to the producer, run, reverted and recorded in the PR,
@@ -697,9 +912,16 @@ persistence (AGENTS.md). Both solver modes run throughout.
    - the rigid-mode test.
 7. **Readers.** RE (native and wasm) and the verifier accept the regenerated corpora and refuse
    every tamper (§5.1).
-8. **Retained capability (§4.1).** The censuses keep every selection and standing. Every new
-   kind classifies `not_covered` in the producer, both readers and wasm, and none reaches
-   `Unpublishable`.
+8. **Retained capability (§4.1).**
+   - The censuses and the N06 and CX-F failed-ordinary controls keep every selection and
+     standing.
+   - Every new kind classifies `not_covered` in the producer, both readers and wasm, and none
+     reaches `Unpublishable`.
+   - No `NotCovered` entry changes a verified row's class, bound or scale. This is checked by
+     comparing every verified row of the regenerated successors with its pre-epoch value and
+     class.
+   - The divergent ordinary-versus-retained case of §4.1.
+   - The pressure-source-1 work-law test of §4.3.
 9. **M3.** The arc and connector status census in both modes, in the batch-5 form: arcs gain no
    Passed↔Sensitive move from these rows, and rod cases are Passed with the member bound.
 10. **D3 and registration** as §6, with independent source and pricing scrutiny.
@@ -710,7 +932,7 @@ persistence (AGENTS.md). Both solver modes run throughout.
 
 **Supplier needs** (recorded in `deliverable.yaml` when the code lands):
 - **DEL-04-01:** the tie-rod element, `LoadFormula::TieRodReference` and
-  `certify_tie_rod_recovery` (§3.2).
+  `certify_tie_rod_recovery` (§3.2); the retained kernel's `ProductRecipe::NotCovered` (§4.1).
 - **DEL-05-03:** the extremes, the transverse-shear maximum and field, the toroidal hoop and the
   arc branch-and-bound maximum in `stress_recovery` (§§2.3–2.5).
 - **DEL-05-02:** the base identities and readers it consumes become preview-physics-2 and
@@ -757,5 +979,9 @@ branch.
 
 ## Open questions
 
-None left to this design. The reserved items are §4.4's version sentences. The conditions that
-return to HELP_HUMAN are the TBD-002 wording and a D3 shortfall.
+- **Q2 (owner):** the values of the derived kinds in retained and source publications. Option
+  (ii) is built provisionally and kept localized (§4.1). The REQ-001 wording it needs is in §4.4.
+  The epoch PR is not opened for merge until the owner rules.
+- **Owner-held sentences:** §4.4's version-token sentences.
+- **Returns to HELP_HUMAN:** an edit that would touch TBD-002's table sentence, and a D3
+  shortfall under the unchanged policy.
