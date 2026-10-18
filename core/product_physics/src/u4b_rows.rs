@@ -13,7 +13,12 @@
 //!   `certify_arc_stress_maximum`) with its closed fourteen-key record (§2.3);
 //!   with the directional SIF pair, the intensified rows and their along-arc
 //!   maximum (§2.6); on a pressurized pressure-2 arc with R > r_o, the toroidal
-//!   membrane hoop and radial rows (§2.5).
+//!   membrane hoop and radial rows (§2.5). R <= r_o is the one domain outcome:
+//!   the warning `ARC_TOROIDAL_HOOP_DOMAIN` and no hoop or radial row. Any
+//!   other hoop failure (a non-finite pressure, a nonpositive bore or wall, a
+//!   non-finite value from finite inputs) blocks the run by name
+//!   (`ARC_TOROIDAL_HOOP_EVALUATION_FAILED`, severity blocking), so the case
+//!   publishes no row (`blocked_envelope`).
 //!
 //! Every station value is a fixed sequence of correctly rounded binary64
 //! operations on published rows (`stress_recovery::section_stress_quantities`),
