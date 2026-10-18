@@ -8,7 +8,8 @@
 //!   tail, solved without pressure (a case with a connector and a pressure
 //!   region is refused, `JOINT_PRESSURE_INTERFACE_UNRESOLVED`): the arc is a
 //!   member outside any region, beside a connector record;
-//! - a model whose only pipe is a replaced span (T4-RV23 NOTE-4).
+//! - a model whose only pipe is a replaced span (T4-RV23 NOTE-4);
+//! - T4-U4b: the 0.4.0 L line with the directional SIF pair on its bend.
 //!
 //! B7b: the frozen sketches stay 0.3.0/0.4.0; each copy is re-authored to the
 //! current 0.6.0 exact document before it runs (the labels keep the frozen
@@ -119,7 +120,31 @@ fn replaced_span_only() -> Value {
     document
 }
 
-/// (label, document, mode, mode name).
+/// T4-U4b (§2.6): the L line's bend with the directional SIF pair (invented
+/// user factors and source), so the corpus carries directional rows, their
+/// records and the toroidal hoop and radial rows of a pressurized arc.
+fn directional_l_line() -> Value {
+    let mut document = i7("U2-L-ANCH-PTW-K2", "0.4.0");
+    let model = &mut document["model"];
+    model["project"]["id"] = json!("project:u4b-arc-directional");
+    // A corrosion allowance on every pipe: the arc's two section bases differ by
+    // more than the mill tolerance (the readers' allowance-on-an-arc document).
+    for segment in model["pipe_segments"].as_array_mut().unwrap() {
+        segment["section"]["corrosion_allowance"] = json!({"value": 0.0005, "unit": "m"});
+    }
+    for component in model["components"].as_array_mut().unwrap() {
+        if component["mechanics_interface"]["solver_consumption"] == "curved_bend_macro_element" {
+            let modifiers = &mut component["modifiers"];
+            modifiers["sif_in_plane_user_value"] = json!({"value": 2.3, "unit": "1"});
+            modifiers["sif_out_of_plane_user_value"] = json!({"value": 1.7, "unit": "1"});
+            modifiers["source_reference"] = json!("invented test value");
+        }
+    }
+    document
+}
+
+/// (label, document, mode, mode name). T4-U4b adds the directional-SIF L line,
+/// which also carries a corrosion allowance on every pipe.
 fn inputs() -> Vec<(&'static str, Value, PreviewSolverMode, &'static str)> {
     vec![
         ("U2-L-ANCH-PTW-K2 0.3.0", i7("U2-L-ANCH-PTW-K2", "0.3.0"), PreviewSolverMode::SparseInteractive, "sparse_interactive"),
@@ -127,6 +152,7 @@ fn inputs() -> Vec<(&'static str, Value, PreviewSolverMode, &'static str)> {
         ("U2-L-KINK-ANCH-P-K2 0.3.0", i7("U2-L-KINK-ANCH-P-K2", "0.3.0"), PreviewSolverMode::DenseScrutiny, "dense_scrutiny"),
         ("L line with connector 0.3.0", l_line_with_connector(), PreviewSolverMode::SparseInteractive, "sparse_interactive"),
         ("replaced span only 0.3.0", replaced_span_only(), PreviewSolverMode::SparseInteractive, "sparse_interactive"),
+        ("U2-L-ANCH-PTW-K2 directional SIF 0.4.0", directional_l_line(), PreviewSolverMode::DenseScrutiny, "dense_scrutiny"),
     ]
 }
 
@@ -191,7 +217,7 @@ fn shared_arc_reader_corpus_is_current() {
     let corpus = json!({
         "corpus": "T4-U2 pressure-1 realized-arc reader corpus",
         "generator": "core/product_physics/tests/pressure_arc_readers.rs::shared_arc_reader_corpus_is_current",
-        "inputs": ["validation/references/t4_i7/u2_document_sketches.json U2-L-ANCH-PTW-K2 (0.3.0, 0.4.0) and U2-L-KINK-ANCH-P-K2 (0.3.0); the L line with a connector tail and a replaced-span-only model, both built by the generator from U2-L-ANCH-PTW-K2 0.3.0; every frozen sketch copy re-authored to model document 0.6.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m) at test time, the frozen bytes unchanged"],
+        "inputs": ["validation/references/t4_i7/u2_document_sketches.json U2-L-ANCH-PTW-K2 (0.3.0, 0.4.0) and U2-L-KINK-ANCH-P-K2 (0.3.0); the L line with a connector tail and a replaced-span-only model, both built by the generator from U2-L-ANCH-PTW-K2 0.3.0; T4-U4b: U2-L-ANCH-PTW-K2 0.4.0 with an invented directional SIF pair on its bend and a 0.0005 m corrosion allowance on every pipe; every frozen sketch copy re-authored to model document 0.6.0 (exact_pressure_v3, euler_bernoulli, corrosion allowance 0 m unless stated) at test time, the frozen bytes unchanged"],
         "cases": cases,
     });
     let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";

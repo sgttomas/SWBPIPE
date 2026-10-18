@@ -47,6 +47,8 @@ mod kd5_nonlinear_tests;
 #[cfg(test)]
 mod u4a_tests;
 #[cfg(test)]
+mod u4b_tests;
+#[cfg(test)]
 mod b7b_admission_tests;
 #[cfg(test)]
 mod tie_rod_tests;
@@ -136,6 +138,7 @@ mod pressure_exact;
 mod pressure_material;
 mod exact_admission;
 mod bend_pressure;
+mod u4b_rows;
 mod joint;
 use exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID;
 mod pressure_runtime;
@@ -529,6 +532,14 @@ pub struct ComponentModifierInput {
     pub branch_header_sif_user_value: Option<Quantity>,
     #[serde(default)]
     pub branch_branch_sif_user_value: Option<Quantity>,
+    /// T4-U4b (model 0.6.0, DEL-04-07 Design u4b-u5b-implementation.md §2.6):
+    /// the directional user SIF multiplying M_z of a realized arc's tangent
+    /// frame. Both of the pair or neither, with `source_reference`.
+    #[serde(default)]
+    pub sif_in_plane_user_value: Option<Quantity>,
+    /// T4-U4b: the directional user SIF multiplying M_y of the tangent frame.
+    #[serde(default)]
+    pub sif_out_of_plane_user_value: Option<Quantity>,
     #[serde(default)]
     pub flexibility_factor_user_value: Option<Quantity>,
     #[serde(default)]
@@ -5571,6 +5582,9 @@ fn solve_prepared_load_case(
     let mut unavailable_reduced_maximum_members = Vec::new();
     let mut withheld_summaries = Vec::new();
     let mut component_stress_modifier_count = 0;
+    // T4-U4b (§2.6): the case's directional intensified records (pressure-2
+    // evidence carries the list only when it is non-empty).
+    let mut directional_measures: Vec<serde_json::Value> = Vec::new();
     for (pipe_index, pipe) in built.pipes.iter().enumerate() {
         // T4-U3 (S20): a replaced span has no member rows, maxima or
         // recovery record; its connector's rows follow the loop.
@@ -6118,12 +6132,10 @@ fn solve_prepared_load_case(
             // The withheld reason is a static text borrowed, not formatted, inside
             // the per-pipe loop (T3 O-10, as T4-U0's); the warning below takes it
             // as `error.0`, like the composite error's own text.
-            let maximum = match pressure_runtime::exact_member_maximum_policy(macro_bend.is_some()) {
-                pressure_runtime::ExactMemberMaximumPolicy::Withhold(reason) => Err((std::borrow::Cow::Borrowed(reason),)),
-                pressure_runtime::ExactMemberMaximumPolicy::Compute => source_receipt::composite_member_maximum(
-                    &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id,
-                ).map_err(|error| (std::borrow::Cow::Owned(error.0),)),
-            };
+            // Realized arcs never reach a selected source (D7).
+            let maximum: Result<_, (std::borrow::Cow<'static, str>,)> = source_receipt::composite_member_maximum(
+                &recovery_input(), selected_source.as_mut().expect("selected source"), &pipe.element_id,
+            ).map_err(|error| (std::borrow::Cow::Owned(error.0),));
             // D-5 (§2.2): one maximum per basis. A selected case's bases
             // coincide (`prepare_sources` declines nonzero mill tolerance and
             // allowance), so the reduced maximum is the nominal one, bound to its
@@ -6168,11 +6180,14 @@ fn solve_prepared_load_case(
                 }
             }
             None
+        } else if pressure_runtime::is_exact(model) && macro_bend.is_some() {
+            // T4-U4b (§2.3): a realized arc's maximum is certified along the
+            // arc after its pressure rows (its σ_N is the membrane row there).
+            None
         } else if pressure_runtime::is_exact(model) {
             // D-5 (§2.1, §2.2): the member maximum max |N_w/A_b| + hypot(M_y,
             // M_z)/Z_b once per basis, through the same certified or fallback
-            // circular-maximum machinery with that basis's A_b and Z_b; withheld
-            // on realized arcs on both bases, with the warning once per basis.
+            // circular-maximum machinery with that basis's A_b and Z_b.
             let pressure_state = exact_pressure.as_ref().and_then(|case| case.pipe_states.get(&pipe_index));
             let reduced_section = reduced_section.as_ref().expect("an exact member has its reduced section");
             for basis in pressure_exact::SectionBasis::BOTH {
@@ -6180,13 +6195,8 @@ fn solve_prepared_load_case(
                     pressure_exact::SectionBasis::Nominal => section,
                     pressure_exact::SectionBasis::Reduced => reduced_section,
                 };
-                let extrema = match pressure_runtime::exact_member_maximum_policy(macro_bend.is_some()) {
-                    // T4-U0 (O-10): the withheld reason is a static text borrowed, not
-                    // formatted, inside the per-pipe loop; the warning below formats it.
-                    pressure_runtime::ExactMemberMaximumPolicy::Withhold(reason) => {
-                        Err(std::borrow::Cow::Borrowed(reason))
-                    }
-                    pressure_runtime::ExactMemberMaximumPolicy::Compute => {
+                let extrema: Result<_, std::borrow::Cow<'static, str>> = {
+                    {
                         if let Some(spans)=&certified_spans {
                             let reduced_spans;
                             let spans = match basis {
@@ -6198,7 +6208,7 @@ fn solve_prepared_load_case(
                             };
                             spans.as_ref().map_err(Clone::clone).and_then(|spans|certified_publication::circular_maximum(spans,certified_member.as_ref().expect("certified coefficient source"),basis_section))
                         } else {exact_straight_summary_extrema(pipe,exact_mechanical_local_forces.as_ref().map(Vec::as_slice).unwrap_or(&corrected_local_forces),&straight_loads,basis_section,pressure_state.map(|state| (state, basis)))}
-                    }.map_err(std::borrow::Cow::Owned),
+                    }.map_err(std::borrow::Cow::Owned)
                 };
                 match extrema {
                     Ok(maximum) => {
@@ -6247,13 +6257,8 @@ fn solve_prepared_load_case(
                             pressure_exact::SectionBasis::Nominal => unavailable_stress_maximum_members.push(pipe.element_id.clone()),
                             pressure_exact::SectionBasis::Reduced => unavailable_reduced_maximum_members.push(pipe.element_id.clone()),
                         }
-                        // T4-U2: an arc's withheld maximum recurs in every case, so
-                        // its id is case-qualified on the arc branch; D-5 names the
-                        // basis in each warning's final id segment.
-                        let id = match macro_bend {
-                            Some(_) => format!("diagnostic:exact-stress:{}:{}:extrema:{}", stable_suffix(&load_case.id), stable_suffix(&pipe.element_id), basis.hyphen()),
-                            None => format!("diagnostic:exact-stress:{}:extrema:{}",stable_suffix(&pipe.element_id), basis.hyphen()),
-                        };
+                        // D-5 names the basis in each warning's final id segment.
+                        let id = format!("diagnostic:exact-stress:{}:extrema:{}",stable_suffix(&pipe.element_id), basis.hyphen());
                         diagnostics.push(diag(&id,"EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE","warning",format!("signed physical rows remain available; governing circular-normal-stress maximum is unavailable: {error}"),vec![load_case.id.clone(),pipe.element_id.clone()]));
                     }
                 }
@@ -6325,6 +6330,114 @@ fn solve_prepared_load_case(
                 certified_member.as_ref(),
                 certified_effective.as_ref(),
             );
+        }
+        if selected_source.is_none() {
+            // T4-U4b (§2.3–§2.6): the station quantities from this member's
+            // published rows, then a realized arc's certified maxima. A
+            // selected source's publication carries them under S4 (§4.3).
+            let exact_bases = built.exact_sections.get(&pipe.element_id).copied();
+            let exact = pressure_runtime::is_exact(model);
+            let pressure_state = exact_pressure.as_ref().and_then(|case| case.pipe_states.get(&pipe_index));
+            let poisson_ratio = if exact {
+                load_state
+                    .and_then(|state| state.members.iter().find(|m| m.pipe_index == pipe_index))
+                    .map(|m| m.material.pair.poisson_ratio())
+                    .or_else(|| model.pipe_segments.iter().find(|p| p.id == pipe.element_id)
+                        .and_then(|p| material_map.get(p.material.as_str()))
+                        .and_then(|m| m.poisson_ratio.as_ref())
+                        .map(|q| q.value))
+                    .unwrap_or(f64::NAN)
+            } else {
+                u4b_rows::preview_poisson_ratio(pipe.section.elastic_modulus, pipe.section.shear_modulus)
+            };
+            let bases = u4b_rows::member_bases(section, exact_bases);
+            let directional = macro_bend.and_then(|bend| u4b_rows::directional_pair(model, bend));
+            let toroidal = match (macro_bend, pressure_state) {
+                (Some(bend), Some(state)) if state.arc.is_some() => Some((state.pressure.pressure_pa(), bend.bend_radius)),
+                _ => None,
+            };
+            let station = u4b_rows::append_station_quantities(model, &mut results, diagnostics, &u4b_rows::MemberQuantities {
+                case_id: &load_case.id, pipe_id: &pipe.element_id, arc: macro_bend.is_some(), exact,
+                bases: bases.clone(), poisson_ratio, directional, toroidal,
+            });
+            directional_measures.extend(station.directional_records);
+            if let Some(bend) = macro_bend {
+                let pressure_area_product = pressure_state.filter(|state| state.arc.is_some())
+                    .and_then(|state| state.sections.cap_pair(state.pressure).ok()).map(|caps| caps[1]);
+                let operands = u4b_rows::ArcOperands { bend, end_forces: &corrected_local_forces, intensities: uniform_intensities, pressure_area_product };
+                for (b, (_, witnesses)) in bases.iter().zip(&station.normal_witnesses) {
+                    let outcome = if witnesses.len() == u4b_rows::STATIONS.len() {
+                        u4b_rows::arc_maximum(&operands, b, open_pipe_stress_frame_kernel::structural::ArcStressMeasure::ElasticNormal, witnesses)
+                    } else {
+                        Err("arc_maximum_station_rows_unavailable".to_string())
+                    };
+                    match (outcome, preview_record.as_mut()) {
+                        (outcome, Some(record)) => {
+                            // preview-physics-2: `render` places the row at the member's slot.
+                            if let Some(member) = record.members.iter_mut().rev().find(|m| m.pipe_id == pipe.element_id) {
+                                member.maximum = Some(outcome.map(|m| preview_physics::from_arc_maximum(&m)));
+                            }
+                        }
+                        (Ok(maximum), None) => {
+                            let value = u4b_rows::arc_published_value(&maximum);
+                            let item = u4b_rows::arc_maximum_row(&load_case.id, &pipe.element_id, value, b.basis);
+                            let result_id = item.id.clone();
+                            results.push(item);
+                            let basis = b.basis.expect("an exact member has its bases");
+                            let headline = match basis {
+                                pressure_exact::SectionBasis::Nominal => &mut max_stress,
+                                pressure_exact::SectionBasis::Reduced => &mut max_stress_reduced,
+                            };
+                            if headline.as_ref().is_none_or(|q: &LocatedQuantity| value > q.value || (value == q.value && pipe.element_id < q.location_ref)) {
+                                *headline = Some(LocatedQuantity { value, unit: "Pa".into(), location_ref: pipe.element_id.clone(), result_ref: result_id.clone() });
+                            }
+                            let mut evidence = u4b_rows::arc_record(&pipe.element_id, &result_id, &maximum, u4b_rows::ARC_APPROXIMATION);
+                            evidence["section_basis"] = serde_json::json!(basis.token());
+                            pipe_stress_extrema.push(evidence);
+                        }
+                        (Err(reason), None) => {
+                            let basis = b.basis.expect("an exact member has its bases");
+                            match basis {
+                                pressure_exact::SectionBasis::Nominal => unavailable_stress_maximum_members.push(pipe.element_id.clone()),
+                                pressure_exact::SectionBasis::Reduced => unavailable_reduced_maximum_members.push(pipe.element_id.clone()),
+                            }
+                            diagnostics.push(diag(&format!("diagnostic:exact-stress:{}:{}:extrema:{}", stable_suffix(&load_case.id), stable_suffix(&pipe.element_id), basis.hyphen()),
+                                "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE","warning",format!("signed physical rows remain available; governing circular-normal-stress maximum is unavailable: {reason}"),vec![load_case.id.clone(),pipe.element_id.clone()]));
+                        }
+                    }
+                }
+                // §2.6: the along-arc directional maximum, one per basis.
+                if let Some((i_ip, i_op)) = directional {
+                    for (b, (_, witnesses)) in bases.iter().zip(&station.directional_witnesses) {
+                        let measure = open_pipe_stress_frame_kernel::structural::ArcStressMeasure::DirectionalIntensified { in_plane: i_ip, out_of_plane: i_op };
+                        let outcome = if witnesses.len() == u4b_rows::STATIONS.len() {
+                            u4b_rows::arc_maximum(&operands, b, measure, witnesses)
+                        } else {
+                            Err("arc_maximum_station_rows_unavailable".to_string())
+                        };
+                        match outcome {
+                            Ok(maximum) => {
+                                let item = u4b_rows::directional_maximum_row(&load_case.id, &pipe.element_id, u4b_rows::arc_published_value(&maximum), b.basis);
+                                let final_id = u4b_rows::final_row_id(model, &load_case.id, &item.id, &item.kind);
+                                let mut record = u4b_rows::arc_record(&pipe.element_id, &final_id, &maximum, u4b_rows::ARC_DIRECTIONAL_APPROXIMATION);
+                                record["i_in_plane"] = serde_json::json!(i_ip);
+                                record["i_out_of_plane"] = serde_json::json!(i_op);
+                                if let Some(basis) = b.basis {
+                                    record["section_basis"] = serde_json::json!(basis.token());
+                                }
+                                directional_measures.push(record);
+                                results.push(item);
+                            }
+                            Err(reason) => diagnostics.push(diag(
+                                &format!("diagnostic:intensified-directional:{}:{}:maximum{}", stable_suffix(&load_case.id), stable_suffix(&pipe.element_id), b.basis.map_or(String::new(), |b| format!(":{}", b.hyphen()))),
+                                "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE", "warning",
+                                format!("directional intensified station rows remain available; their along-arc maximum is unavailable: {reason}"),
+                                vec![load_case.id.clone(), pipe.element_id.clone()],
+                            )),
+                        }
+                    }
+                }
+            }
         }
         if !pressure_runtime::is_exact(model) {
             // B3 (b7-plan): the SIF×k review rows and their diagnostics were
@@ -6430,6 +6543,11 @@ fn solve_prepared_load_case(
             evidence["material_basis"] = serde_json::json!("resolved_per_member_load_reference_state_v1");
             evidence["pipe_materials"] = load_state_pipe_materials(state);
         }
+        // T4-U4b (§2.6): the directional intensified records, only when a
+        // case has a directional arc.
+        if !directional_measures.is_empty() {
+            evidence["intensified_measures"] = serde_json::json!(directional_measures);
+        }
         // T4-U3 (S21): no replaced span in any per-pipe evidence list.
         joint::exclude_replaced_spans(&mut evidence, &replaced_span_ids_of(built));
         evidence
@@ -6487,6 +6605,9 @@ fn solve_prepared_load_case(
             }
         }
     } else { None };
+    if let Some(record) = preview_record.as_mut() {
+        record.directional_measures = std::mem::take(&mut directional_measures);
+    }
     if let Some(observer) = product.as_deref_mut() {
         observer.prepared_case_source(source_selected, model, built, materials, load_case,
             restrained_dofs, spring_entries, &load_application, &thermal_loads);
@@ -9136,6 +9257,13 @@ fn normalize_model_units(
             }
         }
         if let Some(modifiers) = &mut component.modifiers {
+            // T4-U4b (§2.6): the directional pair's unit "none" reads as "1";
+            // its dimension and presence are refused by name in validation.
+            for sif in [&mut modifiers.sif_in_plane_user_value, &mut modifiers.sif_out_of_plane_user_value].into_iter().flatten() {
+                if sif.unit == "none" {
+                    sif.unit = "1".to_string();
+                }
+            }
             if is_bend {
                 if let Some(sif) = &mut modifiers.sif_user_value {
                     normalize_dimensionless_quantity(

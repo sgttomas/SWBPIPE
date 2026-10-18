@@ -738,7 +738,8 @@ fn a2_shared_tamper_vector() {
     };
     let vector = read("fixtures/results/preview_physics_tamper_vector.json");
     let variants = vector["variants"].as_array().unwrap();
-    assert_eq!(variants.len(), 22);
+    // T4-U4b (§5.1): three tampers of the new kinds.
+    assert_eq!(variants.len(), 25);
     for variant in variants {
         let id = variant["id"].as_str().unwrap();
         let base = vector["bases"][variant["base"].as_str().unwrap()]

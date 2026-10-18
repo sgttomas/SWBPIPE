@@ -287,7 +287,7 @@ fn realization(component: &Value) -> Value {
     if let Some(v) = component.pointer("/mechanics_interface/solver_consumption") {
         out.insert("solver_consumption".into(), v.clone());
     }
-    for key in ["flexibility_factor_user_value", "source_reference"] {
+    for key in ["flexibility_factor_user_value", "source_reference", "sif_in_plane_user_value", "sif_out_of_plane_user_value"] {
         if let Some(v) = component.get("modifiers").and_then(|m| m.get(key)) {
             out.insert(key.into(), v.clone());
         }
@@ -312,6 +312,64 @@ fn span_bend_document() -> Value {
         case["pressure_regions"] = json!([]);
     }
     model
+}
+
+/// T4-U4b (§2.6): the realization takes the directional SIF pair with its
+/// source, both or neither; the solve then publishes the directional rows.
+#[test]
+fn realizing_a_bend_takes_the_directional_sif_pair_with_its_source() {
+    let model = span_bend_document();
+    let k = json!({"value": 2.0, "unit": "none"});
+    let with_pair = json!({"solver_consumption": "curved_bend_macro_element", "flexibility_factor_user_value": k, "source_reference": "invented user values",
+        "sif_in_plane_user_value": {"value": 2.3, "unit": "1"}, "sif_out_of_plane_user_value": {"value": 1.7, "unit": "1"}});
+    let applied = apply(&model, &realize(&model, &with_pair));
+    assert_eq!(
+        applied["components"][0]["modifiers"],
+        json!({"flexibility_factor_user_value": k, "source_reference": "invented user values",
+            "sif_in_plane_user_value": {"value": 2.3, "unit": "1"}, "sif_out_of_plane_user_value": {"value": 1.7, "unit": "1"}})
+    );
+    let solved = solve(&applied, PreviewSolverMode::SparseInteractive);
+    assert!(
+        solved["results"].as_array().unwrap().iter().any(|r| r["kind"] == "curved_bend_directional_intensified_bending_stress_v1"),
+        "{:?}", solved["diagnostics"]
+    );
+    // Refused by name: one of the pair, a non-positive or non-finite value, a wrong unit or extra key.
+    let pair = |ip: Value, op: Option<Value>| {
+        let mut after = with_pair.clone();
+        after["sif_in_plane_user_value"] = ip;
+        match op {
+            Some(op) => after["sif_out_of_plane_user_value"] = op,
+            None => { after.as_object_mut().unwrap().remove("sif_out_of_plane_user_value"); }
+        }
+        after
+    };
+    for bad in [
+        pair(json!({"value": 2.3, "unit": "1"}), None),
+        pair(json!({"value": 0.0, "unit": "1"}), Some(json!({"value": 1.7, "unit": "1"}))),
+        pair(json!({"value": -2.3, "unit": "1"}), Some(json!({"value": 1.7, "unit": "1"}))),
+        pair(json!({"value": 2.3, "unit": "mm"}), Some(json!({"value": 1.7, "unit": "1"}))),
+        pair(json!({"value": 2.3, "unit": "1", "basis": "code"}), Some(json!({"value": 1.7, "unit": "1"}))),
+        pair(json!(2.3), Some(json!({"value": 1.7, "unit": "1"}))),
+    ] {
+        assert!(codes(&model, &realize(&model, &bad)).contains(&"OP-BEND-DIRECTIONAL-SIF-INCOMPLETE".into()), "{bad}");
+    }
+    // The source stays required.
+    let mut unsourced = with_pair.clone();
+    unsourced.as_object_mut().unwrap().remove("source_reference");
+    assert!(codes(&model, &realize(&model, &unsourced)).contains(&"OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED".into()));
+    // An agent never writes the pair.
+    let mut agent = realize(&model, &with_pair);
+    agent["author_type"] = json!("agent");
+    assert!(codes(&model, &agent).contains(&"OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED".into()));
+    // A pair is read in the arc's frame: returning to geometry-only with it is refused.
+    let back = json!({"solver_consumption": "mechanics_geometry_only"});
+    assert!(codes(&applied, &realize(&applied, &back)).contains(&"OP-BEND-DIRECTIONAL-SIF-NOT-REALIZED-ARC".into()));
+    // Realizing again without the pair removes it; then the bend may return to geometry-only.
+    let without = json!({"solver_consumption": "curved_bend_macro_element", "flexibility_factor_user_value": k, "source_reference": "invented user values"});
+    let cleared = apply(&applied, &realize(&applied, &without));
+    assert_eq!(cleared["components"][0]["modifiers"], json!({"flexibility_factor_user_value": k, "source_reference": "invented user values"}));
+    let chord = apply(&cleared, &realize(&cleared, &back));
+    assert_eq!(chord["components"][0]["mechanics_interface"]["solver_consumption"], "mechanics_geometry_only");
 }
 
 #[test]

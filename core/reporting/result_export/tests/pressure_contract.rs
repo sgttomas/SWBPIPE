@@ -188,6 +188,18 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     extend(&mut vocabulary, "coordinate_system", &[LOCAL_FRAME]);
     extend(&mut vocabulary, "location", &[LOCAL, ROD_LOCATION]);
     extend(&mut vocabulary, "basis", &[ROD_BASIS]);
+    // T4-U4b (§2.2): pressure-2's own section stress, toroidal and directional
+    // tokens (both section bases), which the source family does not carry.
+    extend(&mut vocabulary, "component", &["sigma_plus", "sigma_minus", "tau_v_max", "intensified_bending",
+        "intensified_bending_maximum", "toroidal_intrados_hoop_stress", "toroidal_crown_hoop_stress",
+        "toroidal_extrados_hoop_stress", "toroidal_inner_radial_stress", "toroidal_outer_radial_stress"]);
+    let u4b_bases: Vec<String> = ["section_extremes_from_published_stress_rows_v1", "saint_venant_annulus_flexure_v1",
+        "local_straight_annulus_on_arc", "user_directional_sif_times_tangent_frame_bending_stress_v1",
+        "bore_load_transferred_toroidal_membrane_v1"]
+        .iter()
+        .flat_map(|t| ["nominal_section", "reduced_section"].map(|b| format!("{t}; section_basis={b}")))
+        .collect();
+    extend(&mut vocabulary, "basis", &u4b_bases.iter().map(String::as_str).collect::<Vec<_>>());
     assert_eq!(pressure["canonical_metadata_vocabulary"], vocabulary);
     let schema: Value = serde_json::from_str(include_str!(
         "../../../../schemas/results_pressure_2.v0.3.schema.json"
@@ -215,13 +227,29 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     // T4-U6 (§2.4): a stress-family row declares its `source_basis` (recovery
     // token and section basis), as the source table's same signature does; every
     // other ordinary row has none. Each ordinary row is a source row but for its id.
+    // T4-U4b (§2.7): pressure-2 marks every row with its algebra class; the
+    // source table keeps its own rows (its new kinds are §4.3's).
     let without_id = |r: &Value| {
         let mut r = r.clone();
         r.as_object_mut().unwrap().remove("signature_id");
+        r.as_object_mut().unwrap().remove("combination_algebra");
         r
     };
+    assert!(rows.iter().all(|r| r["combination_algebra"].is_string()));
     let split = rows.iter().position(|r| r["kind"].as_str().unwrap().starts_with("connector_")).unwrap();
-    let (physical, connector) = rows.split_at(split);
+    let (physical, rest) = rows.split_at(split);
+    // T4-U4b (§2.2): pressure-2's own section stress, toroidal and directional
+    // signatures follow the connector rows; each is a stress signature naming its
+    // recovery token and section basis (the source family does not carry them).
+    let u4b_split = rest.iter().position(|r| !r["kind"].as_str().unwrap().starts_with("connector_")).unwrap_or(rest.len());
+    let (connector, u4b) = rest.split_at(u4b_split);
+    assert_eq!(u4b.len(), 22);
+    for row in u4b {
+        let kind = row["kind"].as_str().unwrap();
+        assert!(open_pipe_stress_result_export::section_basis::is_stress_kind(kind), "{row}");
+        assert!(open_pipe_stress_result_export::section_basis::split_token(row["source_basis"].as_str().unwrap()).is_some(), "{row}");
+        assert!(!source_rows_kinds(&q).contains(&kind.to_string()), "{row}");
+    }
     for row in physical {
         let declared = row.get("source_basis").map(|b| b.as_str().unwrap());
         let stress = open_pipe_stress_result_export::section_basis::is_stress_kind(row["kind"].as_str().unwrap());
@@ -260,10 +288,11 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     assert_eq!(connector, expected);
     assert_eq!(p["source_signature_count"], rows.len());
     // T4-U6 (§2.4): 88 + 18 (015-018 become four signatures each, 068 and
-    // 072-076 two each); the kinds are unchanged. T4-U5b: + the tie-rod
-    // force (097), a new kind.
-    assert_eq!(rows.len(), 107);
-    assert_eq!(p["source_kind_count"], 60);
+    // 072-076 two each); the kinds are unchanged.
+    // T4-U5b: + the tie-rod force (097), a new kind; T4-U4b (§2.2): + 22 (six kinds,
+    // both section bases, 098-107) -> 129 rows over 66 kinds.
+    assert_eq!(rows.len(), 129);
+    assert_eq!(p["source_kind_count"], 66);
     // Signature ids are identities, not positions: stable and ascending, and
     // removed rows are not renumbered: B3's three retired rows (008, 020, 021),
     // E14's retired parity signature (037) and H-4's joint and thrust rows (038-042).
@@ -290,4 +319,9 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     let expected: Vec<u32> =
         (0..numbers.len() as u32 + removed.len() as u32).filter(|n| !removed.contains(n)).collect();
     assert_eq!(numbers, expected);
+}
+
+/// The kinds of a table's rows.
+fn source_rows_kinds(table: &serde_json::Map<String, Value>) -> Vec<String> {
+    table["rows"].as_array().unwrap().iter().map(|r| r["kind"].as_str().unwrap().to_string()).collect()
 }

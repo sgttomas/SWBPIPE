@@ -2,10 +2,12 @@
 //! pressure region. A region with a realized arc carries the tangency rule,
 //! the bend-adjacent junctions and the withheld-on-arcs statement beyond a
 //! straight region's keys; each arc member carries `member_kind` and its end
-//! tangents in the region geometry and its own applied-load record (the bend
-//! term K_b*u_free(eps_p) - c_b). On an arc N_w = N_el + pAi and S = N_el, the
-//! end rows are along the end tangents, and the straight Lame rows and the
-//! straight-statics maximum are withheld.
+//! tangents and its bend radius in the region geometry and its own
+//! applied-load record (the bend term K_b*u_free(eps_p) - c_b). On an arc N_w
+//! = N_el + pAi and S = N_el, the end rows are along the end tangents, and no
+//! straight Lame row is published; T4-U4b publishes the toroidal hoop and
+//! radial rows and the arc maximum, and the region names the two arc
+//! definitions (`arc_stress_definitions`).
 //!
 //! These are code constants shared in meaning with the producer
 //! (`product_physics` `pressure_runtime.rs`, `bend_pressure.rs`) and with the
@@ -23,12 +25,15 @@ pub(crate) const APPROXIMATION: &str =
     "straight_lame_annulus_and_realized_arc_member_term_h2_small_strain_v3";
 pub(crate) const TANGENCY_TOLERANCE_RAD: f64 = 1.0e-3;
 pub(crate) const TANGENCY_RULE: &str = "a region changes direction only at a realized bend; each straight run keeps the 64*epsilon collinearity guard (a straight-straight kink is PRESSURE_REGION_NONCOLLINEAR); at each bend-adjacent junction theta = atan2(|t_in x t_out|, t_in . t_out) <= alpha_tan is admitted and carried exactly by the remainder pAi(t_in - t_out), and a larger theta is refused as a mitre (PRESSURE_REGION_MITRE_UNSUPPORTED)";
-pub(crate) const WITHHELD_REASON: &str = "withheld on realized arcs: the straight Lame hoop and radial values do not hold on a torus (a toroidal membrane hoop is a later unit), and the straight-statics maximum does not bound an arc";
-pub(crate) const WITHHELD_KINDS: [&str; 3] = [
-    "pipe_lame_radial_stress_v2",
-    "pipe_lame_hoop_stress_v2",
-    "pipe_elastic_normal_stress_maximum_v2",
-];
+/// The straight Lame kinds, never published on a realized arc.
+pub(crate) const REFUSED_KINDS: [&str; 2] = ["pipe_lame_radial_stress_v2", "pipe_lame_hoop_stress_v2"];
+/// T4-U4b (§2.5): the region statement of the two arc definitions.
+pub(crate) fn arc_stress_definitions() -> serde_json::Value {
+    serde_json::json!([
+        {"definition": crate::u4b_evidence::HOOP_BASIS, "statement": "the toroidal membrane hoop is the cut average of a complete torus in an axisymmetric membrane state under p on each basis bore, and the radial values are -p at the bore and 0 outside; ovalization, hoop bending from moments, bending boundary layers, tangent-end effects, the through-thickness distribution and transverse-shear resultants on the cuts are not represented"},
+        {"definition": crate::u4b_evidence::SHEAR_ARC_BASIS, "statement": "the transverse shear is the straight-annulus Saint-Venant field of each basis driven by the tangent-frame shears; the curvature correction of the shear field, ovalization and end effects are not represented"},
+    ])
+}
 pub(crate) const BEND_TERM: &str = "K_b*u_free(eps_p)-c_b";
 pub(crate) const STRAIN_DEFINITION: &str = "(1-2nu)pAi/(E As)";
 /// The region keys a realized arc adds.
@@ -36,12 +41,12 @@ pub(crate) const REGION_KEYS: [&str; 4] = [
     "tangency_tolerance_rad",
     "tangency_rule",
     "bend_adjacent_junctions",
-    "withheld_on_arcs",
+    "arc_stress_definitions",
 ];
-/// The key an arc member's region geometry record adds to its case section
+/// The keys an arc member's region geometry record adds to its case section
 /// (§2.5: the case section carries the `member_kind` marker; the region
-/// record adds the end tangents).
-pub(crate) const REGION_GEOMETRY_KEYS: [&str; 1] = ["arc_end_tangents_global"];
+/// record adds the end tangents and, T4-U4b, the bend radius R).
+pub(crate) const REGION_GEOMETRY_KEYS: [&str; 2] = ["arc_end_tangents_global", "bend_radius_m"];
 const APPLIED_KEYS: [&str; 8] = [
     "pipe_id",
     "bend_term",
@@ -106,7 +111,9 @@ pub(crate) fn members<'a>(region: &'a Value, admitted: bool) -> Result<HashSet<&
         }
         require(admitted, "UNSUPPORTED")?;
         require(
-            g["member_kind"] == MEMBER_KIND && pair3(&g["arc_end_tangents_global"]).is_some(),
+            g["member_kind"] == MEMBER_KIND
+                && pair3(&g["arc_end_tangents_global"]).is_some()
+                && g["bend_radius_m"].as_f64().is_some_and(|r| r.is_finite() && r > 0.0),
             "GEOMETRY",
         )?;
         // T4-U8 (D-6, §2.5, §3.6): a realized arc is Euler-Bernoulli under
@@ -138,9 +145,7 @@ pub(crate) fn region(region: &Value, arcs: &HashSet<&str>, p: f64) -> Check {
         (region["approximation"] == APPROXIMATION || region["approximation"] == crate::connector_evidence::ARC_JOINT_APPROXIMATION)
             && region["tangency_tolerance_rad"].as_f64() == Some(TANGENCY_TOLERANCE_RAD)
             && region["tangency_rule"] == TANGENCY_RULE
-            && keys(&region["withheld_on_arcs"], &["result_kinds", "reason"])
-            && region["withheld_on_arcs"]["reason"] == WITHHELD_REASON
-            && region["withheld_on_arcs"]["result_kinds"] == serde_json::json!(WITHHELD_KINDS),
+            && region["arc_stress_definitions"] == arc_stress_definitions(),
         "REGION_PROFILE",
     )?;
     let geometry = region["geometry"].as_array().map(Vec::as_slice).unwrap_or(&[]);

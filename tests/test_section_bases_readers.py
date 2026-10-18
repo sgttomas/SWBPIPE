@@ -5,7 +5,10 @@ The documents are the regenerated committed pressure-2 fixtures, which are the p
 families, basis tokens and id segments, the D-5 `pipe_sections` with each realized arc's marker, per-basis maximum
 records and headlines): `pressure_connected_mechanics_dense` (coincident bases) and the arc corpus's envelopes (their
 I7 sketches carry a mill tolerance, so their bases differ). Each is then given distinct bases (a nonzero corrosion
-allowance) or a Timoshenko selection, then mutated. No fixture is written. The Rust reader's twins of these mutations
+allowance) or a Timoshenko selection, then mutated, and (T4-U4b) the section-extreme and transverse shear rows formed
+from the moved rows are re-formed by the verifier's fixed sequences (``_reform_u4b``). An arc's certified maximum cannot
+be re-formed here, so arc documents with an allowance are the producer's own: the arc corpus's directional-SIF case
+carries 0.0005 m on every pipe. No fixture is written. The Rust reader's twins of these mutations
 are `core/reporting/result_export/tests/section_bases.rs`.
 
 The arc-marker tests (§2.5's `member_kind = "realized_arc"` on an arc's case section) build their documents in memory
@@ -29,6 +32,7 @@ from tests.verifiers import reader_verdict as rv
 from tests.verifiers import retained_precision as rp
 from tests.verifiers import section_basis as sb
 from tests.verifiers import source_blocks
+from tests.verifiers import u4b
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / "fixtures/results/pressure_connected_mechanics_dense.json"
@@ -57,12 +61,56 @@ def _bore_bits(a: float, b: float) -> tuple[str, str]:
     return struct.pack(">d", hi).hex(), struct.pack(">d", 0.0 if lo == 0 else lo).hex()
 
 
+def _reform_u4b(doc: dict) -> dict:
+    """T4-U4b: re-forms each straight member's sigma+/- and transverse shear rows from the published rows of the same
+    station and basis (and the basis annulus), by the verifier's fixed sequences, after a helper or a mutation moved
+    their operands. Realized arcs are left as published (``distinct`` is for straight-only documents)."""
+    evidence = doc["contract_evidence"]
+    sections = {(case["load_case_id"], s["pipe_id"]): s for case in evidence["exact_cases"] for s in case["pipe_sections"]}
+    nus = {(case["load_case_id"], m["pipe_id"]): m["nu"] for case in evidence["exact_cases"] for m in case["pipe_materials"]}
+    index = {}
+    for row in doc["results"]:
+        metadata = row.get("metadata") or {}
+        token = sb.split_token(metadata.get("basis"))
+        basis = token[1] if token else None
+        index[((row.get("basis_ref") or {}).get("ref_id"), row["entity_ref"], row["kind"], metadata.get("component"), metadata.get("location"), basis)] = row
+    def value(key, kind, component, location, basis):
+        row = index.get((*key, kind, component, location, basis))
+        return None if row is None else row["value"]
+    def force(key, kind, location):
+        return next((r["value"] for k, r in index.items() if k[:3] == (*key, kind) and k[4] == location), None)
+    for row in doc["results"]:
+        if row["kind"] not in (u4b.EXTREME, u4b.SHEAR_MAX):
+            continue
+        key = (row["basis_ref"]["ref_id"], row["entity_ref"])
+        section, location = sections[key], row["metadata"]["location"]
+        if sb.MEMBER_KIND in section:
+            continue
+        basis = sb.split_token(row["metadata"]["basis"])[1]
+        if row["kind"] == u4b.EXTREME:
+            y = value(key, "element_local_bending_normal_stress_y", "bending_normal_stress_y", location, basis)
+            z = value(key, "element_local_bending_normal_stress_z", "bending_normal_stress_z", location, basis)
+            n = value(key, "element_local_axial_normal_stress", "axial_normal_stress", location, basis)
+            if n is None:
+                n = value(key, "pipe_axial_membrane_stress_v2", "axial_membrane_stress", location, basis) / 1e6
+            plus, minus = u4b.extremes(n, y, z)
+            row["value"] = plus if row["metadata"]["component"] == "sigma_plus" else minus
+        else:
+            factor = u4b.shear_factor(nus[key], section["ro_m"], section[basis]["ri_m"], section[basis]["I_m4"])
+            vy = force(key, "element_local_shear_force_y", location)
+            vz = force(key, "element_local_shear_force_z", location)
+            row["value"] = u4b.shear_maximum(vy, vz, factor)
+    return doc
+
+
 def distinct(doc: dict, allowance: float = 0.001) -> dict:
-    """A nonzero corrosion allowance on every pipe: the reduced section, the pressure bore, the reduced stress rows
-    (the same resultant on the reduced section), the reduced Lame rows (the reduced annulus) and the bore bits."""
+    """A nonzero corrosion allowance on every pipe of a straight-only document: the reduced section, the pressure bore,
+    the reduced stress rows (the same resultant on the reduced section), the reduced Lame rows (the reduced annulus),
+    the bore bits and (T4-U4b) the re-formed section-extreme and shear rows."""
     doc = deepcopy(doc)
     evidence = doc["contract_evidence"]
     entries = [s for case in evidence["exact_cases"] for s in case["pipe_sections"]] + [g for region in evidence["pressure"] for g in region["geometry"]]
+    assert not any(sb.MEMBER_KIND in s for s in entries), "an arc's certified maximum cannot be re-formed"
     for s in entries:
         od, t = s["outside_diameter_m"], s["wall_thickness_m"]
         t_r = sb.reduced_wall(t, s["mill_tolerance_m"], allowance)
@@ -93,7 +141,7 @@ def distinct(doc: dict, allowance: float = 0.001) -> dict:
             if "source_inner_radius_hi_bits" in group:
                 s = sections[case["load_case_id"], group["terms"][0]["pipe_id"]]
                 group["source_inner_radius_hi_bits"], group["source_inner_radius_lo_bits"] = _bore_bits(s["outside_diameter_m"] * 0.5, s["reduced_section"]["wall_m"])
-    return doc
+    return _reform_u4b(doc)
 
 
 def timoshenko(doc: dict, *, radius: str = "nominal_section", area: str = "nominal_section", factor=None) -> dict:
@@ -145,7 +193,8 @@ def _refused(doc, detail):
 
 
 def test_the_shaped_interface_is_read_on_coincident_and_distinct_bases_under_both_shear_models(base, arc):
-    for doc in (base, distinct(base), timoshenko(base), timoshenko(distinct(base)), arc, timoshenko(arc), distinct(arc)):
+    allowed = _arc_corpus_entry("U2-L-ANCH-PTW-K2 directional SIF")["envelope"]
+    for doc in (base, distinct(base), timoshenko(base), timoshenko(distinct(base)), arc, timoshenko(arc), allowed, timoshenko(allowed)):
         pressure_2.validate_pressure_evidence(doc)
     # Coincident bases: every twin pair is bit-equal; distinct bases move every reduced linear stress.
     rows = _rows(distinct(base))
@@ -161,7 +210,7 @@ def test_pressure_1_reader_refuses_cross_basis_stress(base):
         if row["kind"] == "element_local_bending_normal_stress_y" and row["id"].endswith(":reduced-section") and row["value"] != 0:
             row["value"] = rows[sb.twin_id(row["id"])]["value"]
             break
-    _refused(doc, "stress basis section")
+    _refused(_reform_u4b(doc), "stress basis section")
     # One basis for both Lame families: the reduced hoop copied onto its nominal twin.
     doc = distinct(base)
     for row in doc["results"]:
@@ -277,10 +326,10 @@ def test_pressure_1_model_checks_bind_each_section_input_to_the_model(base):
     connected = (deepcopy(base), request["model"])
     entry = _arc_corpus_entry("U2-L-ANCH-PTW-K2 0.3.0")
     milled = (entry["envelope"], entry["document"]["model"])
-    # An allowance on the arc document: the evidence's distinct bases and the model's 0.0005 m.
-    allowed = (distinct(entry["envelope"], 0.0005), deepcopy(entry["document"]["model"]))
-    for segment in allowed[1]["pipe_segments"]:
-        segment["section"]["corrosion_allowance"] = {"value": 0.0005, "unit": "m"}
+    # An allowance on the arc document (T4-U4b: the producer's, 0.0005 m on every pipe): its distinct bases and the model.
+    entry = _arc_corpus_entry("U2-L-ANCH-PTW-K2 directional SIF")
+    allowed = (entry["envelope"], entry["document"]["model"])
+    assert {s["corrosion_allowance_m"] for s in allowed[0]["contract_evidence"]["exact_cases"][0]["pipe_sections"]} == {0.0005}
     leaves = (("outside_diameter", "outside_diameter_m"), ("wall_thickness", "wall_thickness_m"),
               ("mill_tolerance", "mill_tolerance_m"), ("corrosion_allowance", "corrosion_allowance_m"))
     for label, (doc, model) in (("connected", connected), ("milled arc", milled), ("allowance on the arc", allowed)):
@@ -835,10 +884,10 @@ def test_an_arc_outside_every_pressure_region_is_known_by_its_marker():
     # Any other member_kind, on the arc or on a straight member, is refused by name.
     for pipe in (BEND, STRAIGHT):
         _refused(_edit_sections(timo, pipe, lambda s: s.__setitem__(sb.MEMBER_KIND, "straight_pipe")), "member kind")
-    # The marker on a straight member: an arc stating Timoshenko, or (stating Euler-Bernoulli) an arc whose maximum is
-    # not withheld.
+    # The marker on a straight member: an arc stating Timoshenko, or (stating Euler-Bernoulli) an arc whose rows keep
+    # the straight sign conventions (T4-U4b: arcs publish their maximum, under the arc's own convention).
     _refused(_edit_sections(timo, STRAIGHT, _mark), "arc beam theory")
-    _refused(_edit_sections(_marker_document(eb), STRAIGHT, _mark), "arc withheld")
+    _refused(_edit_sections(_marker_document(eb), STRAIGHT, _mark), "physical sign convention")
     # Realized arcs are a model fact: every case marks the same members.
     _refused(_edit_sections(_marker_document(eb), BEND, _unmark, cases=CASES[1:]), "arc marker")
 

@@ -80,6 +80,22 @@ The owner decided Q2 (option (ii)) and the 0.6.0 status sentences on 2026-10-17.
   - *No objection* to the W1 not-covered passthrough, to keeping row metadata unchanged, to the
     arc maximum's existing gap rule with a defined evidence record, to the t4_u5a RV-11
     supersession note, or to the full source-work law.
+- **HELP_HUMAN, 2026-10-18, on the t4_u5b AS-F-R disagreement: "take (A)."** The product
+  publishes the corrected displacement fl(u + w + w2) wherever the formation check's certified
+  bound exists. AS-F-R's node-B displacements had missed the frozen criterion by up to 1.97×. An
+  independent exact solve of the represented request showed the cause was the published binary64
+  solve, not input representation.
+  - No ScopeOfWork or PRD sentence commits to publishing the solve's own displacement. The
+    change revises DEL-04-01 Design (`kd5-member-relative-bound.md` §2.2 and §3) and the published
+    FormulationBasis limitation text.
+  - The test carve-out is removed. All 38 t4_u5b cases pass the unchanged criterion in both
+    modes, and t4_u5a stays green.
+  - Only rows with a certified bound are corrected: nodal displacements, their magnitudes and the
+    displacement headline. Which cases keep the solve's own displacement is stated where the rule
+    is built, and both paths are tested.
+  - The S11-F bit-identity under W2 force scaling is restated only if it is shown that it cannot
+    hold.
+  - The change gets its own independent scrutiny, as well as the epoch's dual review.
 
 ## 1. Formats and identities
 
@@ -198,8 +214,11 @@ on (§2.3).
   - No oracle, `SHA256SUMS` or t4_u5b base pin moves.
   - The helpers re-author 0.5.0 by version alone. Older versions keep their existing contract
     and allowance rules.
-- **The U4b and U5b builders add 0.6.0 requests.** Only the t4_u4b and t4_u5b builders add
-  request bytes and request SHA-256 values, as their READMEs allow. No oracle value moves.
+- **The U4b and U5b builders add 0.6.0 requests outside the frozen trees.** The t4_u4b and
+  t4_u5b builders author 0.6.0 requests, as their READMEs allow, and the requests are bound to
+  each case's `case_sha256` by a pinned hash in the consuming test (t4_u4b) or a committed
+  bindings file beside it (t4_u5b). Nothing is added under `validation/references`, so each
+  reference tree, its `SHA256SUMS` and its generator's own check are unchanged.
 - **The four owner-confirmed 0.5.0 re-authorings** (b7-plan, "Decisions applied") become 0.6.0
   edits of the same files. `tests/test_model_schema.py::check_domain_fixtures` expects 0.6.0.
 - **The frozen UI benchmark is unchanged.** Its four 0.2.0 models remain under the pending owner
@@ -785,8 +804,12 @@ recovery is T_r = k_r(C d − e_ref).
   `result:connector:{suffix}:tie-rod-force:tie_rod:{encoded rod id}:t_r`. Tension is positive,
   T_r = k_r(e − e_ref). It is certified on the certified route and binary64 otherwise.
 - **`s_x`** (`connector_effective_axial_force_v1`) becomes S_joint = g_x + Σ T_r (n_r·Q_x) − Pe
-  (ruling 1). On the certified route it is formed from the certified g_x and T_r rows and
-  n_r·Q_x formed at p, rounded once, with the radii summed. It is published:
+  (ruling 1). On the certified route it is formed at p from the certified g_x and T_r and each
+  rod's published binary64 `axial_share` taken as an exact operand, then rounded once, with the
+  radii summed. Both routes thus use the share the evidence publishes. The share formed at p
+  differs from the published one by about 1e-17 absolute, independent of the share's size, so
+  a share formed at p would leave near-perpendicular rods outside the reader rule (S3 dual
+  review). It is published:
   - for every constant-effective-area connector, as today (Pe = 0 when no region lists it,
     ruling 2);
   - and for every connector with rods, whatever its pressure model. For an unpressurized
@@ -807,7 +830,14 @@ recovery is T_r = k_r(C d − e_ref).
 
 - **A rod nearly perpendicular to the joint axis is admitted, with no refusal.** Ruling 1 lets
   this design refuse it by name only if that is justified, and nothing justifies it:
-  - the rod element's assembly and certificate do not depend on n·Q_x;
+  - the rod element's assembly and certificate do not depend on n·Q_x. As built, the kernel's
+    assembly-absorption refusal applies per element: it fires only when an element has a
+    positive diagonal contribution at a free DOF and every such contribution is absorbed by
+    rounding (prescribed DOFs never enter the solved system). A contribution that opens a zero
+    diagonal is represented, not absorbed. Elements are grouped from the
+    adapter's element walk; callers without groups keep the per-entry rule. A rank-1 rod with tiny
+    entries along some global axis (near-perpendicular, or a parallel rod with coordinate
+    noise) is therefore not refused, while a series-absorbed member keeps its refusal (F1b);
   - its stiffness, extension and force are well defined at every direction;
   - S_joint's projected term only becomes small.
 

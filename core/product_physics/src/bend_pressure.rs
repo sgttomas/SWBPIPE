@@ -15,8 +15,9 @@
 //!   `element_local_*` rows). At each end and station the wall force is
 //!   N_w = N_el + pAi and the effective force S = N_el; M and V are elastic
 //!   ([`append_arc_pressure_results`]). The wall end action is published
-//!   along the arc's end tangent. Lamé rows and the straight-statics maximum
-//!   are withheld on arcs (plan section 4.3 item 1; U0's policy).
+//!   along the arc's end tangent. No straight Lamé row is published on an
+//!   arc; T4-U4b publishes the toroidal hoop and radial rows and the arc
+//!   maximum (`u4b_rows`).
 //!
 //! Straight members are untouched: their ledger and recovery stay the
 //! pre-cancelled straight ones (SP-1).
@@ -31,7 +32,7 @@ use open_pipe_stress_frame_kernel::load_ledger::{gamma, product_upward};
 use open_pipe_stress_frame_kernel::structural::CertifiedMemberRecovery;
 
 /// The v3 limitation a model with a realized bend adds (static text, T3 O-10).
-pub(super) const BEND_LIMITATION: &str = "Realized curved bends (curved_bend_macro_element with the user's bend radius and flexibility factor k, one k for both bending planes) are admitted under pressure: each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc) and c_b its own end caps along the end tangents; on an arc N_w = N_el + pAi and S = N_el, and shear and moments are elastic. A region changes direction only at realized bends: a bend-end direction change up to alpha_tan = 1e-3 rad is carried exactly by the remainder pAi(t_in - t_out); a larger change (a mitre) and a straight-straight kink are refused. Geometry-only (chord) bends carry no pressure and are refused. On arcs the straight Lame hoop and radial values and the governing normal-stress maximum are withheld; the excluded effects above apply to every bend result.";
+pub(super) const BEND_LIMITATION: &str = "Realized curved bends (curved_bend_macro_element with the user's bend radius and flexibility factor k, one k for both bending planes) are admitted under pressure: each owns the term K_b*u_free(eps_p) - c_b, with eps_p = (1-2nu)pAi/(E As) (the straight Lame mean Poisson term on the arc) and c_b its own end caps along the end tangents; on an arc N_w = N_el + pAi and S = N_el, and shear and moments are elastic. A region changes direction only at realized bends: a bend-end direction change up to alpha_tan = 1e-3 rad is carried exactly by the remainder pAi(t_in - t_out); a larger change (a mitre) and a straight-straight kink are refused. Geometry-only (chord) bends carry no pressure and are refused. On arcs the hoop is the toroidal membrane cut average (bore_load_transferred_toroidal_membrane_v1) and the radial values are -p at the bore and 0 outside, the transverse shear is the straight-annulus Saint-Venant field driven by the tangent-frame shears (local_straight_annulus_on_arc), and the normal-stress maximum is bounded along the arc; ovalization, hoop bending from moments, bending boundary layers, tangent-end effects and the curvature correction of the shear field are not represented; the excluded effects above apply to every bend result.";
 
 /// S11-G: the operand bound of one bend-pressure term K_rc·fl(ε̃_p·d_c).
 ///

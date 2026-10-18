@@ -50,6 +50,9 @@ export type PreviewComponent = {
     branch_header_sif_user_value?: QuantityValue;
     branch_branch_sif_user_value?: QuantityValue;
     flexibility_factor_user_value?: QuantityValue;
+    /** T4-U4b: a realized bend's directional SIF pair (both or neither, with source_reference). */
+    sif_in_plane_user_value?: QuantityValue;
+    sif_out_of_plane_user_value?: QuantityValue;
     stiffness_scaling_user_value?: QuantityValue;
     linear_stiffness_user_value?: QuantityValue;
     rotational_stiffness_user_value?: QuantityValue;

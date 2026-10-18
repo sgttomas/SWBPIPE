@@ -332,9 +332,14 @@ fn physical_row(
     };
     // T4-U2: a pressure row on a realized arc (pressure-2 only) states the
     // arc's own convention; the straight Lame rows and maximum are withheld.
+    // T4-U4b (§2.3): an arc's maximum states the along-arc bound.
     let sign = if arc {
-        require(!crate::arc_evidence::WITHHELD_KINDS.contains(&kind), "ARC_WITHHELD")?;
-        crate::arc_evidence::sign(kind).unwrap_or(sign)
+        require(!crate::arc_evidence::REFUSED_KINDS.contains(&kind), "ARC_WITHHELD")?;
+        if kind == "pipe_elastic_normal_stress_maximum_v2" && !source_selected {
+            crate::u4b_evidence::ARC_MAXIMUM_SIGN
+        } else {
+            crate::arc_evidence::sign(kind).unwrap_or(sign)
+        }
     } else {
         sign
     };
@@ -465,6 +470,8 @@ pub(crate) fn validate_physics_evidence_in(
     }
     let mut case_members = HashMap::new();
     let mut extrema_ids = HashSet::new();
+    // T4-U4b: the arc maxima's records, checked with their station cover.
+    let mut arc_extrema: Vec<(&str, &str, &str, &Value, &Value)> = Vec::new();
     // T4-U6 (D-5, §2.2): one coverage and one headline per section basis.
     let mut coverage_complete = [true; 2];
     let mut all_members: Option<HashSet<&str>> = None;
@@ -481,6 +488,10 @@ pub(crate) fn validate_physics_evidence_in(
     // set's per-process order. The maps and sets only detect duplicates and answer lookups.
     for case in array(&evidence["exact_cases"])? {
         let case_id = text(&case["load_case_id"])?;
+        // T4-U4b (§2.6): `intensified_measures` only when non-empty, and
+        // never on the pressure-source-1 composite.
+        let directional = case.get("intensified_measures").is_some();
+        require(!directional || (!composite && case["intensified_measures"].as_array().is_some_and(|a| !a.is_empty())), "CASE_SHAPE")?;
         require(
             keys(
                 case,
@@ -497,6 +508,7 @@ pub(crate) fn validate_physics_evidence_in(
                 .iter()
                 .copied()
                 .chain(composite.then_some("recovery_method"))
+                .chain(directional.then_some("intensified_measures"))
                 .collect::<Vec<_>>()
                 .as_slice(),
             ),
@@ -555,9 +567,6 @@ pub(crate) fn validate_physics_evidence_in(
         {
             let unavailable: HashSet<&str> = unavailable.iter().copied().collect();
             require(unavailable.is_subset(&members), "STRESS_COVERAGE")?;
-            // §2.1: the maximum is withheld on every realized arc, in a pressure
-            // region or not, on both bases.
-            require(case_arcs.is_subset(&unavailable), "ARC_WITHHELD")?;
             *done &= *complete;
             unavailable_by_basis[slot] = unavailable;
         }
@@ -625,6 +634,14 @@ pub(crate) fn validate_physics_evidence_in(
                         == Some(basis),
                 "EXTREMA_RESULT_BINDING",
             )?;
+            // T4-U4b (§2.3): an arc's record carries the arc tokens, checked
+            // with its station cover once the rows are read; the arc tokens on a
+            // straight member are refused.
+            if case_arcs.contains(pipe) {
+                arc_extrema.push((case_id, pipe, basis, ex, *row));
+                continue;
+            }
+            require(ex["approximation"] != crate::u4b_evidence::ARC_APPROXIMATION, "EXTREMA_BASIS")?;
             for k in ["station_fraction", "local_fraction"] {
                 require((0.0..=1.0).contains(&number(&ex[k])?), "EXTREMA_STATION")?;
             }
@@ -717,6 +734,12 @@ pub(crate) fn validate_physics_evidence_in(
             composite && cases[case]["recovery_method"] == crate::physics_source::EXACT,
             marked_arcs.contains(text(&row["entity_ref"])?),
         )?;
+        // T4-U4b (§5.1): the new kinds' signatures and declared semantics; the
+        // pressure-source-1 composite carries none of them (S4).
+        if crate::u4b_evidence::KINDS.contains(&kind) {
+            require(!composite && signature.is_some(), "ROW_SIGNATURE")?;
+            crate::u4b_evidence::row_semantics(row, crate::u4b_evidence::Route::Exact, marked_arcs.contains(text(&row["entity_ref"])?))?;
+        }
         if pipe_kind(kind) {
             require(
                 case_members[case].contains(text(&row["entity_ref"])?),
@@ -1088,6 +1111,9 @@ pub(crate) fn validate_physics_evidence_in(
             require(bound_results.contains(id), "PRESSURE_ROW_UNBOUND")?;
         }
     }
+    if !composite {
+        u4b_cases(source, evidence, &rows, &case_sections, &marked_arcs, &arc_extrema)?;
+    }
     for case in array(&evidence["exact_cases"])? {
         assembly(
             &case["pressure_rhs_assembly"],
@@ -1103,6 +1129,90 @@ pub(crate) fn validate_physics_evidence_in(
         .filter(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2")
         .collect();
     crate::section_basis::headlines(&source["summary"], &rows, &maxima, coverage_complete)
+}
+
+/// T4-U4b (§5.1) on pressure-2: each member's σ±, τ (bit for bit with the
+/// case's ν and basis sections), hoop and radial rows (bit-equal from the
+/// region's p and R); each arc maximum's record with its station cover; the
+/// directional records and rows.
+fn u4b_cases(
+    source: &Value,
+    evidence: &Value,
+    rows: &HashMap<&str, &Value>,
+    case_sections: &HashMap<(&str, &str), crate::section_basis::Sections>,
+    marked_arcs: &HashSet<&str>,
+    arc_extrema: &[(&str, &str, &str, &Value, &Value)],
+) -> Check {
+    use crate::u4b_evidence as u;
+    let route = u::Route::Exact;
+    let results = array(&source["results"])?;
+    let index = u::Index::new(results, route)?;
+    let diagnostics = array(&source["diagnostics"])?;
+    let mut covers: HashMap<(&str, &str, String), Vec<f64>> = HashMap::new();
+    for case in array(&evidence["exact_cases"])? {
+        let case_id = text(&case["load_case_id"])?;
+        let exempt = u::poisson_exempt(diagnostics, case_id);
+        let materials = indexed(&case["pipe_materials"], "pipe_id")?;
+        // The case's pressurized arcs: (p, R) from their region.
+        let mut pressurized: HashMap<&str, (f64, f64)> = HashMap::new();
+        for region in array(&evidence["pressure"])?.iter().filter(|r| r["load_case_id"] == case_id) {
+            let p = number(&region["p_pa"])?;
+            for g in array(&region["geometry"])? {
+                if g.get("bend_radius_m").is_some() {
+                    pressurized.insert(text(&g["pipe_id"])?, (p, number(&g["bend_radius_m"])?));
+                }
+            }
+        }
+        for s in array(&case["pipe_sections"])? {
+            let pipe = text(&s["pipe_id"])?;
+            let sections = &case_sections[&(case_id, pipe)];
+            let nu = number(&materials[pipe]["nu"])?;
+            let arc = marked_arcs.contains(pipe);
+            let bases = crate::section_basis::BASES.to_vec();
+            let facts = u::MemberFacts {
+                case: case_id,
+                pipe,
+                shear_factors: bases.iter().map(|b| {
+                    let a = sections.basis(b);
+                    (*b, u::shear_factor(nu, sections.ro, a.ri, a.second_moment))
+                }).collect(),
+                poisson_out_of_domain: exempt.contains(pipe),
+                toroidal: match pressurized.get(pipe) {
+                    Some(&(p, r)) if arc => bases.iter().map(|b| {
+                        let a = sections.basis(b);
+                        (*b, (p, a.ri, a.wall, sections.ro, r))
+                    }).collect(),
+                    _ => Vec::new(),
+                },
+                bases,
+            };
+            // §2.5: a pressurized arc with R not above r_o carries the named
+            // warning (its hoop and radial rows are absent, checked below).
+            if let (Some(&(_, r)), true) = (pressurized.get(pipe), arc) {
+                if !(r > sections.ro) {
+                    require(diagnostics.iter().any(|d| d["code"] == u::TOROIDAL_DOMAIN && d["affected_refs"][0] == case_id && d["affected_refs"][1] == pipe), "TOROIDAL_DOMAIN_WARNING")?;
+                }
+            }
+            for (basis, cover) in u::member_stations(&index, route, &facts)? {
+                covers.insert((case_id, pipe, basis), cover);
+            }
+        }
+        // Directional records: every directional row bound, by key set.
+        let records = case.get("intensified_measures").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
+        let bound = u::directional_records(route, case_id, records, rows, &index, marked_arcs, true)?;
+        require(bound.len() == records.len(), "INTENSIFIED_SHAPE")?;
+        for row in results.iter().filter(|r| r["basis_ref"]["ref_id"] == case_id) {
+            if matches!(row["kind"].as_str(), Some(u::DIRECTIONAL | u::DIRECTIONAL_MAX)) {
+                require(bound.contains(text(&row["id"])?), "INTENSIFIED_ROW_UNBOUND")?;
+            }
+        }
+    }
+    for &(case, pipe, basis, record, row) in arc_extrema {
+        require(row["metadata"]["sign_convention"] == u::ARC_MAXIMUM_SIGN, "ROW_SEMANTICS")?;
+        let cover = covers.get(&(case, pipe, basis.to_string())).map(Vec::as_slice).unwrap_or(&[]);
+        u::maximum_record(route, record, row, u::ARC_APPROXIMATION, cover)?;
+    }
+    Ok(())
 }
 
 fn assembly(

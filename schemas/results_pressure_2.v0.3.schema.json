@@ -207,13 +207,21 @@
                     "type": "number"
                   }
                 }
+              },
+              "bend_radius_m": {
+                "type": "number",
+                "exclusiveMinimum": 0
               }
             },
             "dependentRequired": {
               "member_kind": [
-                "arc_end_tangents_global"
+                "arc_end_tangents_global",
+                "bend_radius_m"
               ],
               "arc_end_tangents_global": [
+                "member_kind"
+              ],
+              "bend_radius_m": [
                 "member_kind"
               ]
             },
@@ -615,27 +623,6 @@
             }
           }
         },
-        "withheld_on_arcs": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "result_kinds",
-            "reason"
-          ],
-          "properties": {
-            "result_kinds": {
-              "const": [
-                "pipe_lame_radial_stress_v2",
-                "pipe_lame_hoop_stress_v2",
-                "pipe_elastic_normal_stress_maximum_v2"
-              ]
-            },
-            "reason": {
-              "type": "string",
-              "minLength": 1
-            }
-          }
-        },
         "member_connector_ids": {
           "type": "array",
           "minItems": 1,
@@ -650,6 +637,31 @@
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/JointPressureEdge"
+          }
+        },
+        "arc_stress_definitions": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "definition",
+              "statement"
+            ],
+            "properties": {
+              "definition": {
+                "enum": [
+                  "bore_load_transferred_toroidal_membrane_v1",
+                  "local_straight_annulus_on_arc"
+                ]
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         }
       },
@@ -680,7 +692,7 @@
               },
               {
                 "required": [
-                  "withheld_on_arcs"
+                  "arc_stress_definitions"
                 ]
               },
               {
@@ -706,7 +718,7 @@
             "tangency_tolerance_rad",
             "tangency_rule",
             "bend_adjacent_junctions",
-            "withheld_on_arcs"
+            "arc_stress_definitions"
           ],
           "not": {
             "anyOf": [
@@ -748,7 +760,7 @@
               },
               {
                 "required": [
-                  "withheld_on_arcs"
+                  "arc_stress_definitions"
                 ]
               }
             ]
@@ -768,7 +780,7 @@
             "tangency_tolerance_rad",
             "tangency_rule",
             "bend_adjacent_junctions",
-            "withheld_on_arcs",
+            "arc_stress_definitions",
             "member_connector_ids",
             "joint_edges"
           ]
@@ -885,76 +897,152 @@
         "pipe_stress_extrema": {
           "type": "array",
           "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "pipe_id",
-              "section_basis",
-              "result_id",
-              "station_fraction",
-              "span_index",
-              "local_fraction",
-              "value_lower_pa",
-              "value_upper_pa",
-              "global_upper_bound_pa",
-              "certified_gap_pa",
-              "subdivisions",
-              "approximation",
-              "coefficient_basis",
-              "enclosure_scope"
-            ],
-            "properties": {
-              "pipe_id": {
-                "type": "string",
-                "minLength": 1
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "section_basis",
+                  "result_id",
+                  "station_fraction",
+                  "span_index",
+                  "local_fraction",
+                  "value_lower_pa",
+                  "value_upper_pa",
+                  "global_upper_bound_pa",
+                  "certified_gap_pa",
+                  "subdivisions",
+                  "approximation",
+                  "coefficient_basis",
+                  "enclosure_scope"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "section_basis": {
+                    "enum": [
+                      "nominal_section",
+                      "reduced_section"
+                    ]
+                  },
+                  "result_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "station_fraction": {
+                    "type": "number"
+                  },
+                  "span_index": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "local_fraction": {
+                    "type": "number"
+                  },
+                  "value_lower_pa": {
+                    "type": "number"
+                  },
+                  "value_upper_pa": {
+                    "type": "number"
+                  },
+                  "global_upper_bound_pa": {
+                    "type": "number"
+                  },
+                  "certified_gap_pa": {
+                    "type": "number"
+                  },
+                  "subdivisions": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 131072
+                  },
+                  "approximation": {
+                    "const": "piecewise_quadratic_straight_section_statics"
+                  },
+                  "coefficient_basis": {
+                    "const": "j_side_section_equilibrium_binary64_enclosures"
+                  },
+                  "enclosure_scope": {
+                    "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                  }
+                }
               },
-              "section_basis": {
-                "enum": [
-                  "nominal_section",
-                  "reduced_section"
-                ]
-              },
-              "result_id": {
-                "type": "string",
-                "minLength": 1
-              },
-              "station_fraction": {
-                "type": "number"
-              },
-              "span_index": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "local_fraction": {
-                "type": "number"
-              },
-              "value_lower_pa": {
-                "type": "number"
-              },
-              "value_upper_pa": {
-                "type": "number"
-              },
-              "global_upper_bound_pa": {
-                "type": "number"
-              },
-              "certified_gap_pa": {
-                "type": "number"
-              },
-              "subdivisions": {
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 131072
-              },
-              "approximation": {
-                "const": "piecewise_quadratic_straight_section_statics"
-              },
-              "coefficient_basis": {
-                "const": "j_side_section_equilibrium_binary64_enclosures"
-              },
-              "enclosure_scope": {
-                "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "section_basis",
+                  "result_id",
+                  "station_fraction",
+                  "span_index",
+                  "local_fraction",
+                  "value_lower_pa",
+                  "value_upper_pa",
+                  "global_upper_bound_pa",
+                  "certified_gap_pa",
+                  "subdivisions",
+                  "approximation",
+                  "coefficient_basis",
+                  "enclosure_scope"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "section_basis": {
+                    "enum": [
+                      "nominal_section",
+                      "reduced_section"
+                    ]
+                  },
+                  "result_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "station_fraction": {
+                    "type": "number"
+                  },
+                  "span_index": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "local_fraction": {
+                    "type": "number"
+                  },
+                  "value_lower_pa": {
+                    "type": "number"
+                  },
+                  "value_upper_pa": {
+                    "type": "number"
+                  },
+                  "global_upper_bound_pa": {
+                    "type": "number"
+                  },
+                  "certified_gap_pa": {
+                    "type": "number"
+                  },
+                  "subdivisions": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 131072
+                  },
+                  "approximation": {
+                    "const": "arc_closed_form_section_statics"
+                  },
+                  "coefficient_basis": {
+                    "const": "arc_end_j_force_and_uniform_intensities_binary64_enclosures"
+                  },
+                  "enclosure_scope": {
+                    "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                  }
+                }
               }
-            }
+            ]
           }
         },
         "stress_maximum_coverage": {
@@ -1211,6 +1299,144 @@
             "screen_is_not_numerical_qualification": {
               "const": true
             }
+          }
+        },
+        "intensified_measures": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "result_id",
+                  "location",
+                  "i_in_plane",
+                  "i_out_of_plane",
+                  "section_basis"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "result_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "location": {
+                    "enum": [
+                      "end_i",
+                      "end_j",
+                      "quarter_1",
+                      "midspan",
+                      "quarter_3"
+                    ]
+                  },
+                  "i_in_plane": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "i_out_of_plane": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "section_basis": {
+                    "enum": [
+                      "nominal_section",
+                      "reduced_section"
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pipe_id",
+                  "result_id",
+                  "station_fraction",
+                  "span_index",
+                  "local_fraction",
+                  "value_lower_pa",
+                  "value_upper_pa",
+                  "global_upper_bound_pa",
+                  "certified_gap_pa",
+                  "subdivisions",
+                  "approximation",
+                  "coefficient_basis",
+                  "enclosure_scope",
+                  "i_in_plane",
+                  "i_out_of_plane",
+                  "section_basis"
+                ],
+                "properties": {
+                  "pipe_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "result_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "station_fraction": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "span_index": {
+                    "const": 0
+                  },
+                  "local_fraction": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "value_lower_pa": {
+                    "type": "number"
+                  },
+                  "value_upper_pa": {
+                    "type": "number"
+                  },
+                  "global_upper_bound_pa": {
+                    "type": "number"
+                  },
+                  "certified_gap_pa": {
+                    "type": "number"
+                  },
+                  "subdivisions": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 131072
+                  },
+                  "approximation": {
+                    "const": "arc_closed_form_directional_intensified"
+                  },
+                  "coefficient_basis": {
+                    "const": "arc_end_j_force_and_uniform_intensities_binary64_enclosures"
+                  },
+                  "enclosure_scope": {
+                    "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                  },
+                  "i_in_plane": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "i_out_of_plane": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "section_basis": {
+                    "enum": [
+                      "nominal_section",
+                      "reduced_section"
+                    ]
+                  }
+                }
+              }
+            ]
           }
         }
       },
@@ -1669,7 +1895,17 @@
             "gr_z",
             "pe_x",
             "s_x",
-            "t_r"
+            "t_r",
+            "sigma_plus",
+            "sigma_minus",
+            "tau_v_max",
+            "intensified_bending",
+            "intensified_bending_maximum",
+            "toroidal_intrados_hoop_stress",
+            "toroidal_crown_hoop_stress",
+            "toroidal_extrados_hoop_stress",
+            "toroidal_inner_radial_stress",
+            "toroidal_outer_radial_stress"
           ]
         },
         "coordinate_system": {
@@ -1719,7 +1955,17 @@
             "recovered_from_local_element_stiffness; section_basis=reduced_section",
             "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
             "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
-            "recovered_from_tie_rod_extension_v1"
+            "recovered_from_tie_rod_extension_v1",
+            "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+            "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+            "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+            "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+            "local_straight_annulus_on_arc; section_basis=nominal_section",
+            "local_straight_annulus_on_arc; section_basis=reduced_section",
+            "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=nominal_section",
+            "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=reduced_section",
+            "bore_load_transferred_toroidal_membrane_v1; section_basis=nominal_section",
+            "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section"
           ]
         },
         "sign_convention": {

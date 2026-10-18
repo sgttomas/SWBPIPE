@@ -3012,6 +3012,76 @@
    "dispatch": "MECHANICS_RESULT_VERSION_RETIRED",
    "validator": "accept",
    "note": "B7b: added; the retired 0.1.0 mechanics-result carrier is refused by name (b7-plan E2)."
+  },
+  {
+   "id": "U4B-sigma-plus-changed",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/results/128/value",
+     "value": 75.07499999999999
+    },
+    {
+     "op": "set",
+     "path": "/results/130/value",
+     "value": 75.07499999999999
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (§5.1): the new kinds are recomputed from the published rows and evidence; both basis twins change, so the recomputation (not the twin rule) refuses."
+  },
+  {
+   "id": "U4B-transverse-shear-changed",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/results/132/value",
+     "value": 3.0019097304626343
+    },
+    {
+     "op": "set",
+     "path": "/results/133/value",
+     "value": 3.0019097304626343
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (§5.1): the new kinds are recomputed from the published rows and evidence; both basis twins change, so the recomputation (not the twin rule) refuses."
+  },
+  {
+   "id": "U4B-sigma-minus-missing",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/results/131"
+    },
+    {
+     "op": "remove",
+     "path": "/results/129"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (§5.1): the new kinds are recomputed from the published rows and evidence; both basis twins change, so the recomputation (not the twin rule) refuses."
+  },
+  {
+   "id": "U4B-arc-withholding-revived",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/withheld_on_arcs",
+     "value": {
+      "reason": "withheld",
+      "result_kinds": [
+       "pipe_elastic_normal_stress_maximum_v2"
+      ]
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REGION_SHAPE",
+   "note": "T4-U4b (§2.1): arcs no longer withhold their maximum; the retired region key is refused."
   }
  ],
  "table_cases": [

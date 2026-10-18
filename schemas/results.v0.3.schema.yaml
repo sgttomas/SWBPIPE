@@ -672,7 +672,17 @@
             "lame_inner_radial_stress",
             "lame_outer_radial_stress",
             "lame_inner_hoop_stress",
-            "lame_outer_hoop_stress"
+            "lame_outer_hoop_stress",
+            "sigma_plus",
+            "sigma_minus",
+            "tau_v_max",
+            "intensified_bending",
+            "intensified_bending_maximum",
+            "toroidal_intrados_hoop_stress",
+            "toroidal_crown_hoop_stress",
+            "toroidal_extrados_hoop_stress",
+            "toroidal_inner_radial_stress",
+            "toroidal_outer_radial_stress"
           ]
         },
         "coordinate_system": {
@@ -717,7 +727,21 @@
             "recovered_from_local_element_stiffness; section_basis=nominal_section",
             "recovered_from_local_element_stiffness; section_basis=reduced_section",
             "recovered_from_open_mechanics_stress_components; section_basis=nominal_section",
-            "recovered_from_open_mechanics_stress_components; section_basis=reduced_section"
+            "recovered_from_open_mechanics_stress_components; section_basis=reduced_section",
+            "section_extremes_from_published_stress_rows_v1",
+            "saint_venant_annulus_flexure_v1",
+            "local_straight_annulus_on_arc",
+            "user_directional_sif_times_tangent_frame_bending_stress_v1",
+            "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section",
+            "section_extremes_from_published_stress_rows_v1; section_basis=reduced_section",
+            "saint_venant_annulus_flexure_v1; section_basis=nominal_section",
+            "saint_venant_annulus_flexure_v1; section_basis=reduced_section",
+            "local_straight_annulus_on_arc; section_basis=nominal_section",
+            "local_straight_annulus_on_arc; section_basis=reduced_section",
+            "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=nominal_section",
+            "user_directional_sif_times_tangent_frame_bending_stress_v1; section_basis=reduced_section",
+            "bore_load_transferred_toroidal_membrane_v1; section_basis=nominal_section",
+            "bore_load_transferred_toroidal_membrane_v1; section_basis=reduced_section"
           ]
         },
         "sign_convention": {
@@ -1230,9 +1254,9 @@
                   "const": [
                     "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
                     "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
-                    "On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No transverse shear, equivalent stress or code stress.",
-                    "On arcs: signed tangent-frame resultants and nominal stress components; endpoint force rows are node-on-element actions in the tangent frame at their end. No maximum, and no stress headline for a model containing an arc.",
-                    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
+                    "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
+                    "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
+                    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
                     "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
                     "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
                     "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
@@ -1319,9 +1343,9 @@
                   "const": [
                     "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
                     "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
-                    "On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No transverse shear, equivalent stress or code stress.",
-                    "On arcs: signed tangent-frame resultants and nominal stress components; endpoint force rows are node-on-element actions in the tangent frame at their end. No maximum, and no stress headline for a model containing an arc.",
-                    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
+                    "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
+                    "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
+                    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
                     "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
                     "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
                     "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).",
@@ -3324,73 +3348,146 @@
               "pipe_stress_extrema": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "pipe_id",
-                    "result_id",
-                    "station_fraction",
-                    "span_index",
-                    "local_fraction",
-                    "value_lower_pa",
-                    "value_upper_pa",
-                    "global_upper_bound_pa",
-                    "certified_gap_pa",
-                    "subdivisions",
-                    "approximation",
-                    "coefficient_basis",
-                    "enclosure_scope"
-                  ],
-                  "properties": {
-                    "pipe_id": {
-                      "type": "string",
-                      "minLength": 1
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pipe_id",
+                        "result_id",
+                        "station_fraction",
+                        "span_index",
+                        "local_fraction",
+                        "value_lower_pa",
+                        "value_upper_pa",
+                        "global_upper_bound_pa",
+                        "certified_gap_pa",
+                        "subdivisions",
+                        "approximation",
+                        "coefficient_basis",
+                        "enclosure_scope"
+                      ],
+                      "properties": {
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "station_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "span_index": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "local_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "value_lower_pa": {
+                          "type": "number"
+                        },
+                        "value_upper_pa": {
+                          "type": "number"
+                        },
+                        "global_upper_bound_pa": {
+                          "type": "number"
+                        },
+                        "certified_gap_pa": {
+                          "type": "number"
+                        },
+                        "subdivisions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 131072
+                        },
+                        "approximation": {
+                          "const": "piecewise_quadratic_straight_section_statics"
+                        },
+                        "coefficient_basis": {
+                          "const": "j_side_section_equilibrium_binary64_enclosures"
+                        },
+                        "enclosure_scope": {
+                          "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                        }
+                      }
                     },
-                    "result_id": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "station_fraction": {
-                      "type": "number",
-                      "minimum": 0,
-                      "maximum": 1
-                    },
-                    "span_index": {
-                      "type": "integer",
-                      "minimum": 0
-                    },
-                    "local_fraction": {
-                      "type": "number",
-                      "minimum": 0,
-                      "maximum": 1
-                    },
-                    "value_lower_pa": {
-                      "type": "number"
-                    },
-                    "value_upper_pa": {
-                      "type": "number"
-                    },
-                    "global_upper_bound_pa": {
-                      "type": "number"
-                    },
-                    "certified_gap_pa": {
-                      "type": "number"
-                    },
-                    "subdivisions": {
-                      "type": "integer",
-                      "minimum": 0,
-                      "maximum": 131072
-                    },
-                    "approximation": {
-                      "const": "piecewise_quadratic_straight_section_statics"
-                    },
-                    "coefficient_basis": {
-                      "const": "j_side_section_equilibrium_binary64_enclosures"
-                    },
-                    "enclosure_scope": {
-                      "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pipe_id",
+                        "result_id",
+                        "station_fraction",
+                        "span_index",
+                        "local_fraction",
+                        "value_lower_pa",
+                        "value_upper_pa",
+                        "global_upper_bound_pa",
+                        "certified_gap_pa",
+                        "subdivisions",
+                        "approximation",
+                        "coefficient_basis",
+                        "enclosure_scope"
+                      ],
+                      "properties": {
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "station_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "span_index": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "local_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "value_lower_pa": {
+                          "type": "number"
+                        },
+                        "value_upper_pa": {
+                          "type": "number"
+                        },
+                        "global_upper_bound_pa": {
+                          "type": "number"
+                        },
+                        "certified_gap_pa": {
+                          "type": "number"
+                        },
+                        "subdivisions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 131072
+                        },
+                        "approximation": {
+                          "const": "arc_closed_form_section_statics"
+                        },
+                        "coefficient_basis": {
+                          "const": "arc_end_j_force_and_uniform_intensities_binary64_enclosures"
+                        },
+                        "enclosure_scope": {
+                          "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               },
               "stress_maximum_coverage": {
@@ -3464,65 +3561,185 @@
               "intensified_measures": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "result_id",
-                    "component_id",
-                    "pipe_id",
-                    "location",
-                    "factor_role",
-                    "sif",
-                    "sif_source_reference",
-                    "section_modulus_m3",
-                    "bending_moment_y_n_m",
-                    "bending_moment_z_n_m"
-                  ],
-                  "properties": {
-                    "result_id": {
-                      "type": "string",
-                      "minLength": 1
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "result_id",
+                        "component_id",
+                        "pipe_id",
+                        "location",
+                        "factor_role",
+                        "sif",
+                        "sif_source_reference",
+                        "section_modulus_m3",
+                        "bending_moment_y_n_m",
+                        "bending_moment_z_n_m"
+                      ],
+                      "properties": {
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "component_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "location": {
+                          "enum": [
+                            "end_i",
+                            "end_j"
+                          ]
+                        },
+                        "factor_role": {
+                          "enum": [
+                            "bend",
+                            "branch_header",
+                            "branch_branch"
+                          ]
+                        },
+                        "sif": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "sif_source_reference": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "section_modulus_m3": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "bending_moment_y_n_m": {
+                          "type": "number"
+                        },
+                        "bending_moment_z_n_m": {
+                          "type": "number"
+                        }
+                      }
                     },
-                    "component_id": {
-                      "type": "string",
-                      "minLength": 1
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pipe_id",
+                        "result_id",
+                        "location",
+                        "i_in_plane",
+                        "i_out_of_plane"
+                      ],
+                      "properties": {
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "location": {
+                          "enum": [
+                            "end_i",
+                            "end_j",
+                            "quarter_1",
+                            "midspan",
+                            "quarter_3"
+                          ]
+                        },
+                        "i_in_plane": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "i_out_of_plane": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      }
                     },
-                    "pipe_id": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "location": {
-                      "enum": [
-                        "end_i",
-                        "end_j"
-                      ]
-                    },
-                    "factor_role": {
-                      "enum": [
-                        "bend",
-                        "branch_header",
-                        "branch_branch"
-                      ]
-                    },
-                    "sif": {
-                      "type": "number",
-                      "exclusiveMinimum": 0
-                    },
-                    "sif_source_reference": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "section_modulus_m3": {
-                      "type": "number",
-                      "exclusiveMinimum": 0
-                    },
-                    "bending_moment_y_n_m": {
-                      "type": "number"
-                    },
-                    "bending_moment_z_n_m": {
-                      "type": "number"
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pipe_id",
+                        "result_id",
+                        "station_fraction",
+                        "span_index",
+                        "local_fraction",
+                        "value_lower_pa",
+                        "value_upper_pa",
+                        "global_upper_bound_pa",
+                        "certified_gap_pa",
+                        "subdivisions",
+                        "approximation",
+                        "coefficient_basis",
+                        "enclosure_scope",
+                        "i_in_plane",
+                        "i_out_of_plane"
+                      ],
+                      "properties": {
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "station_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "span_index": {
+                          "const": 0
+                        },
+                        "local_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "value_lower_pa": {
+                          "type": "number"
+                        },
+                        "value_upper_pa": {
+                          "type": "number"
+                        },
+                        "global_upper_bound_pa": {
+                          "type": "number"
+                        },
+                        "certified_gap_pa": {
+                          "type": "number"
+                        },
+                        "subdivisions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 131072
+                        },
+                        "approximation": {
+                          "const": "arc_closed_form_directional_intensified"
+                        },
+                        "coefficient_basis": {
+                          "const": "arc_end_j_force_and_uniform_intensities_binary64_enclosures"
+                        },
+                        "enclosure_scope": {
+                          "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                        },
+                        "i_in_plane": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "i_out_of_plane": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -3762,7 +3979,12 @@
             "force_magnitude",
             "moment_magnitude",
             "maximum_absolute_normal_stress",
-            "equal_factor_intensified_bending_stress"
+            "equal_factor_intensified_bending_stress",
+            "sigma_plus",
+            "sigma_minus",
+            "tau_v_max",
+            "intensified_bending",
+            "intensified_bending_maximum"
           ]
         },
         "coordinate_system": {
@@ -3805,7 +4027,11 @@
             "TBD",
             "recovered_from_assembled_support_law",
             "nominal_straight_beam_formula_on_arc_resultants",
-            "user_sif_times_member_section_bending_stress_v1"
+            "user_sif_times_member_section_bending_stress_v1",
+            "section_extremes_from_published_stress_rows_v1",
+            "saint_venant_annulus_flexure_v1",
+            "local_straight_annulus_on_arc",
+            "user_directional_sif_times_tangent_frame_bending_stress_v1"
           ]
         },
         "sign_convention": {
