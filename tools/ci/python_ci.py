@@ -26,6 +26,16 @@ HELPER_IMPORTS = {
     'tests/retained_precision_corpus.py': {'retained_precision_corpus', 'tests.retained_precision_corpus'},
     'tools/fixtures/retained_precision_corpus.py': {'retained_precision_corpus', 'tests.retained_precision_corpus'},
 }
+# Python tests that sha256-pin these fixtures' bytes (exact files): a regeneration re-runs them even
+# when their pins are not edited.
+PINNED_FIXTURE_READERS = {
+    **{f'fixtures/results/retained_precision_milestone_successor_{mode}.json': [
+        'tests/test_retained_precision_b3.py', 'tests/test_retained_precision_carriers.py',
+        'tests/test_retained_precision_contract.py', 'tests/test_retained_precision_schema.py']
+       for mode in ('sparse_interactive', 'dense_scrutiny')},
+    **{f'fixtures/results/retained_precision_exact_successor_{mode}.json': ['tests/test_retained_precision_b3.py']
+       for mode in ('sparse_interactive', 'dense_scrutiny')},
+}
 # Path-loaded generator inputs of the J7 RF census fixture check (exact files).
 J7_RF_CENSUS_TEST = 'tests/test_j7_rf_census_inputs.py'
 J7_RF_CENSUS_INPUTS = {
@@ -76,6 +86,7 @@ def select(project, plan):
             patterns.extend(helper_consumers(project, local))
             if local in J7_RF_CENSUS_INPUTS:
                 patterns.append(J7_RF_CENSUS_TEST)
+            patterns.extend(PINNED_FIXTURE_READERS.get(local, []))
             if local.startswith('core/model_transform/'):
                 patterns.extend(['tests/test_analytical_solver_boundary_adapter.py',
                                  'tests/test_physical_to_analytical_transform.py'])

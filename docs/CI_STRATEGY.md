@@ -20,7 +20,8 @@ unknown paths and shared execution controls select all discovered crates. Existi
 numerical oracles remain unchanged. Python coverage is gated independently;
 Python-test-only edits retain their Python checks with zero Cargo crates. Python PR coverage keeps security and constraint/source-block validation, then
 adds qualification, schema and canonical-JSON families when their inputs change.
-Established shared test helper edits also select their direct importing tests;
+Established shared test helper edits also select their direct importing tests,
+and a declared byte-pinned fixture selects the tests that pin it;
 full-fallback plans retain the broad Python cohort and directly edited tests.
 Edited tests are run directly; shared CI/input changes expand the selection. Full preview, schema and qualification
 suites remain available on dispatch, alongside the full Cargo suite.

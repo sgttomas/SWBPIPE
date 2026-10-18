@@ -89,3 +89,13 @@ def test_j7_rf_census_generator_inputs_select_the_fixture_currency_check():
         assert ci.J7_RF_CENSUS_TEST in selected(path), path
         assert (PROJECT / path).is_file(), path
     assert ci.J7_RF_CENSUS_TEST not in selected('fixtures/results/pressure_source_reader_corpus.json')
+
+
+def test_pinned_fixture_regenerations_select_the_tests_that_pin_their_bytes():
+    import hashlib
+    for path, readers in sorted(ci.PINNED_FIXTURE_READERS.items()):
+        digest = hashlib.sha256((PROJECT / path).read_bytes()).hexdigest()
+        for reader in readers:
+            assert reader in selected(path), (path, reader)
+            assert digest in (PROJECT / reader).read_text(), (path, reader)
+    assert 'tests/test_retained_precision_b3.py' not in selected('fixtures/results/pressure_source_reader_corpus.json')
