@@ -93,8 +93,14 @@ The owner decided Q2 (option (ii)) and the 0.6.0 status sentences on 2026-10-17.
   - Only rows with a certified bound are corrected: nodal displacements, their magnitudes and the
     displacement headline. Which cases keep the solve's own displacement is stated where the rule
     is built, and both paths are tested.
-  - The S11-F bit-identity under W2 force scaling is restated only if it is shown that it cannot
-    hold.
+  - The S11-F bit-identity under W2 force scaling holds (as built): u, w and w2 are each
+    bit-identical at every forced even b, so their exact sum rounded once is too, and `k2b_tests.rs`
+    asserts it. Only F8 at G = 1e80 compares across the fallback: its demoted case has no bound
+    and keeps u, while its Passed reference publishes the corrected value, so F8's displacement
+    rows use that test's existing 2^-34 floor clause (measured difference 2.2e-19 against a floor
+    of 3.7e-14).
+  - The rule, its fallback and the revised limitation text are recorded in DEL-04-01 Design
+    `kd5-member-relative-bound.md` §2.2 and §3.4.
   - The change gets its own independent scrutiny, as well as the epoch's dual review.
 
 ## 1. Formats and identities
@@ -898,6 +904,9 @@ passthrough, not a numerical recovery recipe:
   them by kind, and a relabelled row still meets the signature and metadata checks. Route L
   forms c_b from the model section (d = D − 2t, I = π(D⁴ − d⁴)/64, r_o = D/2), which reproduces
   the ordinary route's section bit for bit. Route E forms it from the captured evidence.
+- **Reading (as built, S4).** On route L the retained readers run the preview model checks on
+  the projection with the captured invocation's model, at G7, so τ is recomputed inside the
+  shipped retained entry. Route E's G7 base read already recomputes it from the evidence.
 - **Receipt.** The receipt lists the rows under `not_covered` exactly as other `not_covered`
   rows, with no bound. The reader checks their custody (identity, unit, metadata, member and
   basis coverage) and, under (ii), recomputes them from the successor's published operands
@@ -919,7 +928,9 @@ failed-ordinary successor has no ordinary rows (`retained_product.rs` around :44
 
 **The failed-ordinary path (N06 and CX-F).** `failed_manifest` gains the derived rows in the
 row order of preview-physics-2, as placeholders. Its fixed per-member count `FAILED_MEMBER_ROWS`
-goes from 51 to 66 (15 per member: σ⁺, σ⁻ and τ at five stations; `retained_product.rs` around
+goes from 51 to 66 (15 per member: σ⁺, σ⁻ and τ at five stations; a member whose preview ν is
+out of domain omits τ and carries `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN`, as the ordinary
+path does; `retained_product.rs` around
 :275–278 and :4500), and the change is priced. The freeze replaces them, after projection, with
 values formed from the projected resultants. They are `not_covered` there too. The maintained
 N06 and CX-F successors are regenerated and stay selected, bound and eligible
@@ -971,6 +982,10 @@ publication's published rows (§4.1, Q2).
     `inspection_only` physical row;
   - the Rust reader and the verifier admit it for those kinds only. They leave `usable` unchanged
     by it: such a row neither qualifies the case nor disqualifies it. They recompute it (§5.1).
+  - As built (S4): the composite readers run the straight-member U4b checks on every published
+    case, exact-recovered and ordinary-method alike, recomputing σ± and τ and checking station ×
+    basis coverage. Derived rows on an ordinary-method case keep that case's
+    `ordinary_physics_checked` treatment.
 - **Its exact shape.** `projection_id` is null. `recipe_id` is one of the two formula recipes.
   `input_result_ids` are exactly the station rows the formula reads.
   The two recipes are not `derived_recipes` and carry no REQ-002 check.

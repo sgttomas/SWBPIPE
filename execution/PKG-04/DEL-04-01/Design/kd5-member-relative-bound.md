@@ -171,7 +171,7 @@ K̃_s is symmetric, so its 1- and ∞-norm inverses agree, and ε_E bounds both 
 
 W2 solves K' = 2^b·K_int and f' = 2^b·f_int, formed at 2^b.
 
-- The displacements are unchanged at any b. w and w₂ are displacement corrections and need no unscaling.
+- The displacements are unchanged at any b. w and w₂ are displacement corrections and need no unscaling. Since T4-U4b/U5b (HELP_HUMAN, 2026-10-18) a case with a member bound publishes fl(u + w + w₂) (§3.4); u, w and w₂ are each bit-identical at every forced even b, so the published displacement is too (asserted in `k2b_tests.rs`).
 - s, s₂, ψ, σ and every force-unit row are formed at 2^b.
 - **Closure metadata survives W2.** Today `AssembledForce::force_scaled` drops the numeric S11-G formation records. It must retain and rebind each original term's trusted input-versus-formed classification and independently enumerated expected closure manifest. Numeric-bound omission must never reclassify a formed term as an input. Identities and authored operand bits remain stable, while an explicit exact force exponent b applies to both the expected binding and the supplied primitive. W2 checks the same complete multiset and bindings before its first residual; missing, duplicate, extra and wrong-binding primitives fail closed there as on the ordinary route.
 - Λ′ is computed from the W2 attempt's own gate and contributions: its r̂′, ‖K̃′_s‖₁, scale exponents D′ and ε′_E. No relation to the unscaled attempt's Λ or D is assumed: D′ is not 2^{-b/2}·D for odd b.
@@ -309,9 +309,12 @@ A body whose every certified row is exactly zero (S* = 0) stays Passed, for exam
 
 > "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets)."
 
-**Scope beside it (T3's I7), in the same `limitations` list:**
+**Scope beside it (T3's I7), in the same `limitations` list.** This sentence was revised by the T4-U4b/U5b epoch under HELP_HUMAN's 2026-10-18 ruling ("take (A)"; DEL-04-07 Design `u4b-u5b-implementation.md`, "Rulings this design applies"). The t4_u5b reference showed that publishing the solve's own displacement could miss a frozen criterion while the corrected displacement met it. The published text is now:
 
-> "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector."
+> "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). On such a load case each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64, and each displacement magnitude is the correctly rounded norm of those published components; on any other load case the published displacements are the solve's own. Support reactions balance the re-formed loads, not the solve's binary64 load vector."
+
+- **Where the corrected displacement is published.** Exactly when the case's member bound exists: on the linear route when every prior guard passes, there is no load-row finding and no nonlinear support, quality is Passed, no retained source is selected and the solve returned its bound; on the nonlinear route, the confirmed state's bound. Otherwise every component is the solve's own u (Sensitive, demoted, refused or unavailable bound, or a component that cannot be formed). A selected retained source keeps publishing its recovery's nodal values. Magnitudes, the displacement headline and each nonlinear support's final-displacement row follow the published components.
+- **The first limitation sentence above** now reads "…not binary64 recomputations from the solve's own displacement…".
 
 ## 4. Evidence (emulation and product measurement)
 
