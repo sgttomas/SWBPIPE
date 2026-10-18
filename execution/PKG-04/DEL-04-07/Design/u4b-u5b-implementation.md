@@ -1051,6 +1051,12 @@ changes, 0.5.0 → 0.6.0. Requirements and criteria are unchanged.
   `PRESSURE-1-OUTPUT-NOT-YET-AVAILABLE` → `PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`, and "replace" →
   "replaced" in REQ-007 (c). The owner, 2026-10-17: "Confirm token edits (Recommended)". "Merge
   with the gap" stands.
+- DEL-04-08 AC-002's second bullet now reads "the RF census classification, counts, first
+  causes, selections and frozen-row verdicts are unchanged; its envelope digests change only as a
+  stated product-text or identity change requires". The owner, 2026-10-18: "Adopt the wording
+  (Recommended)". The epoch lists each J7 digest that moves with the change that requires it, and
+  shows the classification, counts, first causes, selections and frozen-row verdicts unchanged
+  (S5).
 - Status and evidence prose naming the old tokens is reconciled under the same token-only rule
   (HELP_HUMAN, 2026-10-17): DEL-03-01, DEL-05-02, DEL-05-03, DEL-07-05, DEL-08-06, DEL-14-02 and
   DEL-17-06.
