@@ -5373,14 +5373,7 @@ fn solve_prepared_load_case(
     // displacement at the support DOF: with the bound they carry the same
     // published (corrected) value as the nodal row.
     if member_bound.is_some() {
-        for support in &built.nonlinear_supports {
-            let global = support.node_index * DOF_PER_NODE + dof_index(support.dof);
-            let id = format!("result:nonlinear-support:{}:{}-displacement", stable_suffix(&support.support_id), support.dof.as_str());
-            let scale = if support.dof.is_translational() { 1000.0 } else { 1.0 };
-            if let Some(row) = results.iter_mut().find(|row| row.id == id) {
-                row.value = published_displacements[global] * scale;
-            }
-        }
+        restate_nonlinear_support_displacements(&mut results, &built.nonlinear_supports, &published_displacements);
     }
     let mut max_displacement = None;
     for node in &model.nodes {
@@ -14064,6 +14057,21 @@ fn published_nodal_displacements(displacements: &[f64], member_bound: Option<&Me
         })
         .filter(|corrected| corrected.iter().all(|v| v.is_finite()))
         .unwrap_or_else(|| displacements.to_vec())
+}
+
+/// T4-U5b item 6: each nonlinear support's final-displacement row restates
+/// the node's published SI displacement at the support DOF, converted to the
+/// row's unit as every row is (`* 1000` for a translation in mm, one more
+/// rounding; rotations in rad are unscaled).
+fn restate_nonlinear_support_displacements(results: &mut [ResultItem], supports: &[NonlinearSupport], published: &[f64]) {
+    for support in supports {
+        let global = support.node_index * DOF_PER_NODE + dof_index(support.dof);
+        let id = format!("result:nonlinear-support:{}:{}-displacement", stable_suffix(&support.support_id), support.dof.as_str());
+        let scale = if support.dof.is_translational() { 1000.0 } else { 1.0 };
+        if let Some(row) = results.iter_mut().find(|row| row.id == id) {
+            row.value = published[global] * scale;
+        }
+    }
 }
 
 /// E15: the correctly rounded norm of the node's published mm components
