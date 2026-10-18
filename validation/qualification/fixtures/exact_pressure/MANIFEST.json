@@ -17,7 +17,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K1.0.3.0.selectors.json",
-    "sha256": "5dcd54c48b5f2e8c004c6e5f4af27b945e3ebcfdba40c0e2d01c8ead24dc1f76"
+    "sha256": "49749c3ac1a21e4414bb503f9362a3b04f8e41051b46cf93121fbcbc29dbe0e0"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K1.0.3.0.criteria.json",
@@ -50,7 +50,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K1.0.4.0.selectors.json",
-    "sha256": "5ec4d2ed78ba228d59b2d4d2553e2626f2c29c345d441fba36bd58b8a8c6eaab"
+    "sha256": "1e68ad2808ee6989ad1c4863e69b0f623c0f3a84c87a40fd7be2150268e6b856"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K1.0.4.0.criteria.json",
@@ -83,7 +83,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPA-K1.0.3.0.selectors.json",
-    "sha256": "d6ce0a5f68f1cf8ab696ebe07ca65a5305fcbbea249bb66ffd3f73d12f9038a4"
+    "sha256": "34c4031c0c1046a8a37a2f3fbf1d522a4b00f9fe92bb6d706b9f10bf8986a173"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPA-K1.0.3.0.criteria.json",
@@ -116,7 +116,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPA-K1.0.4.0.selectors.json",
-    "sha256": "f7c9b018a4b31c4f385f37d0dae5f1b6431cdfecf7fb0a7dfd5021c8d7539b71"
+    "sha256": "82e0a3fd1aa641aac9b2b65a7c3b22b5d68ebc659d5ab8c8b298cdad6902409c"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPA-K1.0.4.0.criteria.json",
@@ -149,7 +149,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPD-K1.0.3.0.selectors.json",
-    "sha256": "bb2f2778cc2fe243402387e76fc9c41461664c5cad7f3df44ddd45b812188d0e"
+    "sha256": "695c04466248fef996dcc2492f99c5cf355a003f6624f48565aff8fb709c8fe0"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPD-K1.0.3.0.criteria.json",
@@ -182,7 +182,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPD-K1.0.4.0.selectors.json",
-    "sha256": "b1f50eef344ac10dfdcc49daac45dbbc6c34dcde9d29f06ca20922239b05aa87"
+    "sha256": "08ecb360484da4f16ca61e016ca75e8ec1f6c4e10aa3cae2a8d303b9b9d436d9"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPD-K1.0.4.0.criteria.json",
@@ -215,7 +215,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PT-K1.0.3.0.selectors.json",
-    "sha256": "3a50e258be4f165705e09f0147d122e2e403053ca59ecd9abb33c27062547cec"
+    "sha256": "d08d1844dc0661cf2a4b53ebb1e1d5ce8625630258ed2c47f58e964b7f10b116"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PT-K1.0.3.0.criteria.json",
@@ -248,7 +248,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PT-K1.0.4.0.selectors.json",
-    "sha256": "8dfac60514762c833c45444cf956b260fa72a0d78ccad81fbfc7fe29aff1097b"
+    "sha256": "47c49c6dcb06a77010597c792efd8871a4c032045981182b5fac7c7fdb0ecad0"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PT-K1.0.4.0.criteria.json",
@@ -281,7 +281,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PW-K1.0.3.0.selectors.json",
-    "sha256": "8ff347efacc3d9cf5d4fdf4b0a35e8737beab51b866c2213dc9396079b99f136"
+    "sha256": "ddd0d6861ff4347cc0e93b0a631b1f5445143af447b912b66df47de4515d9392"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PW-K1.0.3.0.criteria.json",
@@ -314,7 +314,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PW-K1.0.4.0.selectors.json",
-    "sha256": "8ec166e6a7c3a8f5afc3c4abe89db13acbbfde44c374e2c738a9b9a6b057e292"
+    "sha256": "ed58b739669732287fb45308b0f70281cf3286fdf3087c8382d924c0fdf03192"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PW-K1.0.4.0.criteria.json",
@@ -347,7 +347,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K1.0.3.0.selectors.json",
-    "sha256": "1da865049a403aacee9a2dd329860ecda5f7d178608e14baa3d827134dc7e39c"
+    "sha256": "e0cd44a08a6f3dc25b0c65761f57a5e67a0bb067eb26ec2c927940f3fb2a25b0"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K1.0.3.0.criteria.json",
@@ -380,7 +380,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K1.0.4.0.selectors.json",
-    "sha256": "721f4a610d33464a068b5683719e1436b77904ef49a9d3add7a72265515092e4"
+    "sha256": "db7d66635ab0711302e563dbeae9d5692faf256a0f8aa0e3508ba639e845762a"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K1.0.4.0.criteria.json",
@@ -413,7 +413,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PTW-K1.0.3.0.selectors.json",
-    "sha256": "41943bad2dd2c240a27eacfde38fb2490e9bdac649ef5a8914ab739a62fa4474"
+    "sha256": "8fc2dc4fc218f664e7f172488fcdf5d9606c5551cb31d6a052cfa58149516410"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PTW-K1.0.3.0.criteria.json",
@@ -446,7 +446,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PTW-K1.0.4.0.selectors.json",
-    "sha256": "e1293efe1faff16cf455e0ba5b2e10634e3b7943ebffc69ce7533b84bb83d138"
+    "sha256": "b6106225bccca96a4b114a9534d20b2f94047700a0aa62d01d2ea6ce550fc9e9"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PTW-K1.0.4.0.criteria.json",
@@ -479,7 +479,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-P-K1.0.3.0.selectors.json",
-    "sha256": "3ec12c1361530d3537fa2fa6787dbc1068c1af0913ed7aa7558d6e95252fba9c"
+    "sha256": "b1812d99be4a29aa5b4ead0a40da6c95430475327b2f6c3eaff4aeda2ba058eb"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-P-K1.0.3.0.criteria.json",
@@ -512,7 +512,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-P-K1.0.4.0.selectors.json",
-    "sha256": "357c9b3607eca2908667772e8f3f32d5a0dffccaf1f3d701b7f7d0aedd72eba1"
+    "sha256": "40e9afc0086a75f61ef11b098790c1b4ed9efa9277d3fee5a059a74a7102c305"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-P-K1.0.4.0.criteria.json",
@@ -545,7 +545,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-SEPD-K1.0.3.0.selectors.json",
-    "sha256": "efcfc81eadfca37b41e4b9854c9dad30dd5b85dc9ade2b2d032825651b128146"
+    "sha256": "9ccbd26ffab4ac3976c79f7604003832fd5492aaaa1bbcb5476c625a2b3d4050"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-SEPD-K1.0.3.0.criteria.json",
@@ -578,7 +578,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-SEPD-K1.0.4.0.selectors.json",
-    "sha256": "18f8e1cf9e779a283bbfac0e3aaf36dc0f256fa087e9ea2e4b37c9c242379244"
+    "sha256": "cb02f0f293dd1d1acde922c0a6edb7fdd7e0df8591a8e753ac87827b01e85489"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-SEPD-K1.0.4.0.criteria.json",
@@ -611,7 +611,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PT-K1.0.3.0.selectors.json",
-    "sha256": "8c6b667c491f082bedfed2cd36f5c7fadcf4c3367d7fc1df804059c1e5671abe"
+    "sha256": "32ae0c5ad58f9e1fdde0eac9f20ec411e1decc238b6509ff4f2cab960407c9fa"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PT-K1.0.3.0.criteria.json",
@@ -644,7 +644,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PT-K1.0.4.0.selectors.json",
-    "sha256": "6e48bbe957210203cec3bd3213e2efbc7c4eb08812e44b8bf8667059402aa9e5"
+    "sha256": "bdebda1edf2a86564cde82d84a9d81b7042e8f8fc6edc5c958f1f465934c1730"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PT-K1.0.4.0.criteria.json",
@@ -677,7 +677,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PW-K1.0.3.0.selectors.json",
-    "sha256": "84af32af8d8fbafa46cc568c135c897dd7da964e4a15dd47a4ddf0927c6415b6"
+    "sha256": "4ac1714e3def46e2fb4b09c75c07bf04915f00e831cc09de4c6d4991b9844aee"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PW-K1.0.3.0.criteria.json",
@@ -710,7 +710,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PW-K1.0.4.0.selectors.json",
-    "sha256": "609aaa95756da0f7e045b288ddc9b53594781c62b3650ff1537893c3bf337cc5"
+    "sha256": "3512621d6cb3c33ee0c5a1b0d74abcd1256c510788d9229c62ee5989e324b0bd"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PW-K1.0.4.0.criteria.json",
@@ -743,7 +743,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K1.0.3.0.selectors.json",
-    "sha256": "952e51efe2a0e45ab3e4b92750fa168b9ea2a6b824decc61ba5596e848e5586d"
+    "sha256": "e11189e55ea6b04cfcb550406ca0a5933c7e998e2404b95fa73e782b6a6c5311"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K1.0.3.0.criteria.json",
@@ -776,7 +776,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K1.0.4.0.selectors.json",
-    "sha256": "4d9cda0fdafbfee117c9f9953dfde50847c25c83c6e6bb84cc646c5150ec84ec"
+    "sha256": "8f2818f88a3ac447e11d6d6c76a96565fb206c1cdcd462c274a2542a72bb6ac5"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K1.0.4.0.criteria.json",
@@ -809,7 +809,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K1.0.3.0.selectors.json",
-    "sha256": "deb07e2e0c59054c6b8ee4bfd2f6fdf61fa70ce8812e3287c24b4e81af8fb9e7"
+    "sha256": "7d2b1716211ad159775aceef60bdb2405035833e9cf8d4818bef08e9a12a859d"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K1.0.3.0.criteria.json",
@@ -842,7 +842,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K1.0.4.0.selectors.json",
-    "sha256": "6d615fa1ceb968b11ac0aadc4b8f231f0438639193c5a5f7f4868422694d30f0"
+    "sha256": "a485c29ed286e943a199482ba5c10917bbb66efc1ac9c885ad3d95b8fd15b34e"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K1.0.4.0.criteria.json",
@@ -875,7 +875,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-P-K1.0.3.0.selectors.json",
-    "sha256": "c65afd0493ecfe1e901704cd4207cec492e7f659c83d3ca015a10b7dcb836fb3"
+    "sha256": "8bcd8d461d24b739b7bcb68e369f590905e5c6c0514a210aead77499f20a5c0c"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-P-K1.0.3.0.criteria.json",
@@ -908,7 +908,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-P-K1.0.4.0.selectors.json",
-    "sha256": "c089cff78528411654882f4044ecdca72f6137b46c1091d58c7eebcd552bff45"
+    "sha256": "6f42569e007765ef61ed030a93c0eb8a79119d6ae45300077224c3a3ea1e68ba"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-P-K1.0.4.0.criteria.json",
@@ -941,7 +941,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-SEPD-K1.0.3.0.selectors.json",
-    "sha256": "c5fe18dd01315cdf197c6d69a4990c7090bdbbe54fd62dbde09f5ae0d27f2b3d"
+    "sha256": "cc0f4e3e5f86fdd92506c4ecead2073de277db92adc03346df84ca88ad46ff87"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-SEPD-K1.0.3.0.criteria.json",
@@ -974,7 +974,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-SEPD-K1.0.4.0.selectors.json",
-    "sha256": "9d975b87e3f35547615fd75977772ef675df4e36233b5bb650f6de76ff541fb8"
+    "sha256": "b50e058acb733591ea128f1b9f436d0bfa3aad4463e8aee29e283b55de882485"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-SEPD-K1.0.4.0.criteria.json",
@@ -1007,7 +1007,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PT-K1.0.3.0.selectors.json",
-    "sha256": "9b6422c3b8ee7c02dea075ed44c3adb0ca067296597aed79c64ac938f1a2e0bc"
+    "sha256": "694481849db575cd0aff859b8683d713394777177cb738b2653abe184c461d6b"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PT-K1.0.3.0.criteria.json",
@@ -1040,7 +1040,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PT-K1.0.4.0.selectors.json",
-    "sha256": "2e24002f19eac4320864dd334aa5b7d19b4048b90fc299824a34bd39b63d9ab1"
+    "sha256": "4c1219cd0b89bbdb02d088ea02b10099d2647b25d817cc86aaf73a1e2f3ca6b3"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PT-K1.0.4.0.criteria.json",
@@ -1073,7 +1073,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PW-K1.0.3.0.selectors.json",
-    "sha256": "e4e31f6957d05fb1bf0bd07635c1990887b1a363acd952de3cacf968e88c6fe6"
+    "sha256": "6c0acff94bebb73d2bff44a1039911c74245fe9b20d3047cc52c30832f0babc3"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PW-K1.0.3.0.criteria.json",
@@ -1106,7 +1106,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PW-K1.0.4.0.selectors.json",
-    "sha256": "68b148db6089fdfaeaccf5fd610c771a52dba62faf34bf1bca8390d0abd4f5d9"
+    "sha256": "5a24c2e4cf9f2d4a392f4c74b2a754b9be117d04792eaee68cef3c3faf2ea295"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PW-K1.0.4.0.criteria.json",
@@ -1139,7 +1139,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K1.0.3.0.selectors.json",
-    "sha256": "78c2b43209f0b7f0693a33bd98bcc073faed2abab22b1ed357e4372298cf8f4e"
+    "sha256": "7cf33fe3e2e3d49fa46c9fea58e86e0ec438b4946a76730fccd422532cd0f5d1"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K1.0.3.0.criteria.json",
@@ -1172,7 +1172,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K1.0.4.0.selectors.json",
-    "sha256": "3cfa5b570ebd1860f6f46cf678d14aa4eeca011d5ee7a9dd3f5985a4164624ab"
+    "sha256": "07b399db95488da3cde49c789931b4fd1e8811410522ea726c177b8a5d731323"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K1.0.4.0.criteria.json",
@@ -1205,7 +1205,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PTW-K1.0.3.0.selectors.json",
-    "sha256": "ca1890d2b091ad944f39d9330d5a865b0c3d5d861f71134a34a0818eca3ae13f"
+    "sha256": "01c0388db699d4819807750f15d71e19409cc08ef259785d071596f7fac55b81"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PTW-K1.0.3.0.criteria.json",
@@ -1238,7 +1238,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PTW-K1.0.4.0.selectors.json",
-    "sha256": "9267825434d28dd843d810254d4acca57405719c661365e91e910cb8f23a7b6d"
+    "sha256": "f78b47a4ca9912083996b8aa9124dd88ffee4b579f877078ebcee069a6202e99"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PTW-K1.0.4.0.criteria.json",
@@ -1271,7 +1271,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K1.0.3.0.selectors.json",
-    "sha256": "e6c73c1e7651e18dc85b1f2b4d683e4bb8294462df771b0d2ac2f3dff8f7c4b9"
+    "sha256": "45fb28fc68f90bbfbdbfbb11340cb566eac02d74690e6d51e900f366d9ecee28"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K1.0.3.0.criteria.json",
@@ -1304,7 +1304,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K1.0.4.0.selectors.json",
-    "sha256": "1acd5839d7513fc859bec5b93df4e273d93dbbd47442b4c2161f376f5d5818bd"
+    "sha256": "e1b3cb3668504343bd7e6e18b5256e99f262f9eb555d6f584e6d13f01c607026"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K1.0.4.0.criteria.json",
@@ -1337,7 +1337,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2.0.3.0.selectors.json",
-    "sha256": "c45f0e521b8ed60f2e8795a145eaf1dc4ce04756f2303391551941beac1285d2"
+    "sha256": "386967bc9f69103b3685af211fd706a6305de24428f22f1f81c91d87dc0c93c4"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2.0.3.0.criteria.json",
@@ -1370,7 +1370,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2.0.4.0.selectors.json",
-    "sha256": "24571f515696d5ead0af1fb5acc0dc04a4ebc785a690838c92dbf8e0761891ce"
+    "sha256": "2ba1b5f0b7d74ffb1fb5b5e7e381a221dbb7b858a147f6c86ec8dc4df6397953"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2.0.4.0.criteria.json",
@@ -1403,7 +1403,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPA-K2.0.3.0.selectors.json",
-    "sha256": "51b2a436b9cf548575d905b80c4d352061def8b79fd8f1a83ec7c333dc5202a0"
+    "sha256": "03a720b11e1f27f47103797ba927186cd559d0ec8866ce31995a09438f152cb9"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPA-K2.0.3.0.criteria.json",
@@ -1436,7 +1436,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPA-K2.0.4.0.selectors.json",
-    "sha256": "0b64f299bd5655e1ddb24a812bcfed7c49952ae41357e755cd11c54407068a32"
+    "sha256": "fd47d4fbb2c3212b2a84ee244ff2e758941b03f93c8a3742b79ba099230008f3"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPA-K2.0.4.0.criteria.json",
@@ -1469,7 +1469,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPD-K2.0.3.0.selectors.json",
-    "sha256": "e0a2972bf5091818db5f0b4316c0360f4e3a376545df8351903b844f4896845b"
+    "sha256": "79aeaa7f1bc69e1afda1f7c121b1a1fe8296785e4a122219aa535cfcd679d037"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPD-K2.0.3.0.criteria.json",
@@ -1502,7 +1502,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPD-K2.0.4.0.selectors.json",
-    "sha256": "1501b8532e86bf9616697f871f135219f72a90dea29cb6cda54a42a7d46d22be"
+    "sha256": "3bd929f68ce4b142c23c5e36d8d45891c8431b4bbda7d92d05d73a13dbc9c96c"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-SEPD-K2.0.4.0.criteria.json",
@@ -1535,7 +1535,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PT-K2.0.3.0.selectors.json",
-    "sha256": "0a9c0439e6101f96dfd97529daf69e6e6dab60b145adb84a959d65b82efb17eb"
+    "sha256": "75faa8927463b115438e5f202cbf51088b376438b601bbb086ec9216f7cf5b74"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PT-K2.0.3.0.criteria.json",
@@ -1568,7 +1568,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PT-K2.0.4.0.selectors.json",
-    "sha256": "c0e8fcf7e66d62dce79050b69d39e2106d8e700422cb49893925e564097bd6ff"
+    "sha256": "37a5ec9ea26fae2bc2743f41cd430092736b52da13f003e5b6f502411869bcd9"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PT-K2.0.4.0.criteria.json",
@@ -1601,7 +1601,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PW-K2.0.3.0.selectors.json",
-    "sha256": "2c7837aa6c73f68e29e82c6754d9648dfb1f3750902848100c98946b6fc8f1c8"
+    "sha256": "f96347f2546998a3bd13c17484005e9b00b9872b7c9a6711b19ed0e913160a53"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PW-K2.0.3.0.criteria.json",
@@ -1634,7 +1634,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PW-K2.0.4.0.selectors.json",
-    "sha256": "40aa4b794435ae55f9931f6764777b6d3423baca889cc9738e850bb96ad76d51"
+    "sha256": "fa08eefcdce5abbc865409b99ed84886d3880f5038832266f1f796e6ce54b8f0"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PW-K2.0.4.0.criteria.json",
@@ -1667,7 +1667,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2.0.3.0.selectors.json",
-    "sha256": "2b6bd66b6e708384279e3b12c1d71d1367ae65ae146f5822bbb4ee8185349823"
+    "sha256": "32799833d7939b53f375f942c3e5c34c861a59d13a8cc2cd68c1db8601809db4"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2.0.3.0.criteria.json",
@@ -1700,7 +1700,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2.0.4.0.selectors.json",
-    "sha256": "4651f16f2adc9167fcf01edf5eb44cd778874996121da62315d30385909ce7eb"
+    "sha256": "3951c9c8b587d520ad40212816ad79f4140af397def33e89acfbdbeb83334c51"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2.0.4.0.criteria.json",
@@ -1733,7 +1733,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PTW-K2.0.3.0.selectors.json",
-    "sha256": "9efb81adf3555345950410bf953e214980614dac56fb35fedbc53e1b2e71905a"
+    "sha256": "8dc8d47c6dd4f427481d2e3922767f54228c8a9c5d2c280cedb90a9964fa703d"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PTW-K2.0.3.0.criteria.json",
@@ -1766,7 +1766,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PTW-K2.0.4.0.selectors.json",
-    "sha256": "c7dce494c9dc62ad7d835c1f935e75971036c506c3563eaa317a0e5cca24eb66"
+    "sha256": "2465904062a241456582aa9ea3c58f1ad81f36c222ac18110767aa860786f9bc"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-PTW-K2.0.4.0.criteria.json",
@@ -1799,7 +1799,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-P-K2.0.3.0.selectors.json",
-    "sha256": "57cb677a012b2bfd808fa7a65f61ed48bc6a5c6b9cf4c961787d5099c6d0d50c"
+    "sha256": "0e98f574461b3ebfd6d9c3fa2a25a74bb0f1189c930747567f069cdee673969c"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-P-K2.0.3.0.criteria.json",
@@ -1832,7 +1832,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-P-K2.0.4.0.selectors.json",
-    "sha256": "fc4146a6b76f2ccbd54a16051a1f9e8e804d2465887b6a7bd82d9dcf237c0b30"
+    "sha256": "b2fdc37cbc46c405d2fadea3979e1ad37d6ba458840f5905e3dbae86134dfeeb"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-P-K2.0.4.0.criteria.json",
@@ -1865,7 +1865,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-SEPD-K2.0.3.0.selectors.json",
-    "sha256": "5b59ab968ab56834e9ba09af2c379671c722cea7932699bba868a13f5fe9285a"
+    "sha256": "7e3f1481424f2a8c24a834293a1fed4dd0575a6dea35cbf3cdd6eaa90adfb986"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-SEPD-K2.0.3.0.criteria.json",
@@ -1898,7 +1898,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-SEPD-K2.0.4.0.selectors.json",
-    "sha256": "acf36930dd57693ca379f5669505940c08a4d500bec8d0a9baa13b7e310ea278"
+    "sha256": "548c8381e8beb90e7654d44ec24a019513494147ba2241b4bfba86b324ff2a46"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-SEPD-K2.0.4.0.criteria.json",
@@ -1931,7 +1931,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PT-K2.0.3.0.selectors.json",
-    "sha256": "4cf760e1f29cb6ef8607e749f67fef3a18b213fad8a387a92c69e0c51921d742"
+    "sha256": "fee2d39d18572e413d4fef953156c01dac0a1ec0c91a0652ec4103a640c6258e"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PT-K2.0.3.0.criteria.json",
@@ -1964,7 +1964,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PT-K2.0.4.0.selectors.json",
-    "sha256": "f0c09bae639a6e8be9ef357b9e0e3de8786d3985f40b89f0d9befff5ca90faba"
+    "sha256": "9d26213b155c2f15d170dbdc75c0e2022f29cca98153051802eace2e9fd3a2f0"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PT-K2.0.4.0.criteria.json",
@@ -1997,7 +1997,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PW-K2.0.3.0.selectors.json",
-    "sha256": "62d401b5cd6a1b7408af67fce40f621d1d249c6e47ed7ae5cd093713fa75a38c"
+    "sha256": "c4d061a8435468f5981908cd211ed3c9c6341126340e049612b9264a9983b7dd"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PW-K2.0.3.0.criteria.json",
@@ -2030,7 +2030,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PW-K2.0.4.0.selectors.json",
-    "sha256": "0c188136ef03ec997b8153f17e14e5be1880929c4b90c0b472d7ca8755991f52"
+    "sha256": "b8433bad949770d2fc6159ff018edf9edce5ce3087a50dcabbd9131b70da2306"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PW-K2.0.4.0.criteria.json",
@@ -2063,7 +2063,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2.0.3.0.selectors.json",
-    "sha256": "9e6b6780f1b4fe462a9942f3265f4c85bcfb0a122461b9a73d629eb1eed31a79"
+    "sha256": "7761a12d7563c570a6ee75a1246afdb68e8235a0b626824a5cf8554f666109f3"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2.0.3.0.criteria.json",
@@ -2096,7 +2096,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2.0.4.0.selectors.json",
-    "sha256": "f1fc0ce1c89cae9d40d57b28064440ce5609ec9d3a63b48cbc0f3b2ca15b4b49"
+    "sha256": "3da1de6ba87e0ee53ae8318a466f09035538c81250e37ec1c2f3dce89062af07"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2.0.4.0.criteria.json",
@@ -2129,7 +2129,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2.0.3.0.selectors.json",
-    "sha256": "dad491dd313bcaf6bd6a4146df1fd00b9174a040338c1918f464ae4b651da00a"
+    "sha256": "ce25e1ff4cc6c985c1288b25dc5e140a492517842dcd2abfeeed4faff9f1b37d"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2.0.3.0.criteria.json",
@@ -2162,7 +2162,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2.0.4.0.selectors.json",
-    "sha256": "bce6784304509e5e305ddca24578da11dc76863c5780041c3a9cb480a9db4afc"
+    "sha256": "d73d25e6932225038d3ec72f4f508588d67de3c89a864823c9c2049ae5d1efec"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2.0.4.0.criteria.json",
@@ -2195,7 +2195,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-P-K2.0.3.0.selectors.json",
-    "sha256": "b34a0d9c208aec04b88cca4888f025f504185c905c7b0f6ee0d6cbbd92370fdc"
+    "sha256": "58250052f1d481d6888d3cf09a18a4d0d12b6494d62d69fd338ba20f7d13ced6"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-P-K2.0.3.0.criteria.json",
@@ -2228,7 +2228,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-P-K2.0.4.0.selectors.json",
-    "sha256": "fd5ec6407a9f0d2be3e91c981f48c2261e0166a3f64e61e8900ad54b1ff77eee"
+    "sha256": "33b90286f552ea59f4224b3be96c766ea7c724ab16778fd1b1224fc4f806d2fb"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-P-K2.0.4.0.criteria.json",
@@ -2261,7 +2261,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-SEPD-K2.0.3.0.selectors.json",
-    "sha256": "a4f73bea933650b0063bb778a24a676888ab8d827f28bcf3b708eaa8071172bd"
+    "sha256": "73419303c7586e011a5585068160eb04b513e7ad1fe04d1d7370a82111ca351b"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-SEPD-K2.0.3.0.criteria.json",
@@ -2294,7 +2294,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-SEPD-K2.0.4.0.selectors.json",
-    "sha256": "d2def3c39bd48fc91fee6af530665a5a6ef4587d9f635fe2e4bc99411c9bdd1f"
+    "sha256": "00437eb8a4ad94d52ef870871979f23334156c122a03fff67d26d8719fa42973"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-SEPD-K2.0.4.0.criteria.json",
@@ -2327,7 +2327,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PT-K2.0.3.0.selectors.json",
-    "sha256": "3506711ccd4da0e5f758f00f8008fdd007541f44226409913e69d810c690e86c"
+    "sha256": "9289eae32009d06474a781f063675ada6f385ab0237547866165410e5ea3da1a"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PT-K2.0.3.0.criteria.json",
@@ -2360,7 +2360,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PT-K2.0.4.0.selectors.json",
-    "sha256": "28a277ea0b0e95fe545c123ff1c0d38be2a5f056ed634177d64c9bc082abaa23"
+    "sha256": "91a148e2035cd8f0c9f52d1af2dc15a305edf455bea02dba58d24030a817beb2"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PT-K2.0.4.0.criteria.json",
@@ -2393,7 +2393,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PW-K2.0.3.0.selectors.json",
-    "sha256": "14105e78acce56cce4f9d161eb701b198d4e3c208127ed1f9f77a970cc6134c5"
+    "sha256": "8fc884677b9fb4d60ed71edbddd44057b6823f483729fdd255b5bd18588fe8a0"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PW-K2.0.3.0.criteria.json",
@@ -2426,7 +2426,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PW-K2.0.4.0.selectors.json",
-    "sha256": "87201e45ced14c8043ee5880b54b5a7bf65ff26de570ef7613c7d55ae5310dec"
+    "sha256": "15f7e45a802e179187fa4b2f8680bf6d5f07c12472c27f08ef7e7e9a101ae43d"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PW-K2.0.4.0.criteria.json",
@@ -2459,7 +2459,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2.0.3.0.selectors.json",
-    "sha256": "1d035d617acff493affff09d1e496738eb3897910551b5582de6bd7746babf90"
+    "sha256": "ce42809f3e555d602a0184376d3b1aed95e644447bfc15d69f18f57babd98f4c"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2.0.3.0.criteria.json",
@@ -2492,7 +2492,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2.0.4.0.selectors.json",
-    "sha256": "612a18d2d2f52e43fe28fee38e5e95bd90800baf74ce6a438576f70d317a1830"
+    "sha256": "d090ff0be1a58a90c72b14f46e0698b848d08d5345d20eb9fc1df61edf39f183"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2.0.4.0.criteria.json",
@@ -2525,7 +2525,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PTW-K2.0.3.0.selectors.json",
-    "sha256": "eaa3961ef3c8288e509f2b0215eaa9cfc3b15b0bc09e328a17460b2e4a9670d6"
+    "sha256": "b65dd760b11fd1e76856f298a4c40e624f15cca745a7eb14289910477fefe2e9"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PTW-K2.0.3.0.criteria.json",
@@ -2558,7 +2558,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PTW-K2.0.4.0.selectors.json",
-    "sha256": "adcf712968c6b306cfcfe61e118986f9844cf14f8b69147f69abb0d937a9885c"
+    "sha256": "f569f6076a543c5fab7f0c1800fc1ccefb4cc72aa70847163a13de835cabece0"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-PTW-K2.0.4.0.criteria.json",
@@ -2591,7 +2591,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2.0.3.0.selectors.json",
-    "sha256": "3d7261a00d5c0d6ab0ca1e07ea1255dba39830b7aa92a7e6a9615be3b44becd7"
+    "sha256": "abb3995bffc86c1aac004aeb5160e1682f3c1b866453051a84a5cd25eb015fe3"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2.0.3.0.criteria.json",
@@ -2624,7 +2624,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2.0.4.0.selectors.json",
-    "sha256": "5a2fa6022967f266f2ad8016836b9411d48d476600beb7f644faa6eddbfa2c5c"
+    "sha256": "dd07575dcc43cd641244e8e19d25b8527da2769a617b5e375b57229e4b1f48ae"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2.0.4.0.criteria.json",
@@ -2657,7 +2657,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-KINK-FREE-P-K2.0.3.0.selectors.json",
-    "sha256": "1446aefa67a8b67790e2368f6b6682ce8b7da74aec1fd1e065467af1a5916f9e"
+    "sha256": "2bbfbce966b9e1fd6733cc81f4b117ca873fd78068e8bf6f282abad45d2ed783"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-KINK-FREE-P-K2.0.3.0.criteria.json",
@@ -2690,7 +2690,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-KINK-FREE-P-K2.0.4.0.selectors.json",
-    "sha256": "4b92cb1b6830d167544a882d870a1aa166686686cc18d0995546ee9fdaf90764"
+    "sha256": "76623d511a0ab2f22a1844de691e2bdb410db4be086af72bb68a7e1ebcbca423"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-KINK-FREE-P-K2.0.4.0.criteria.json",
@@ -2723,7 +2723,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-KINK-ANCH-P-K2.0.3.0.selectors.json",
-    "sha256": "767f65168eca4112ba1cd31d8ae6abe67acd7621492e5dd98b467aea5a45322d"
+    "sha256": "0ad29ba886038a0ed26b99443341fbfb942ef44c3b7976a67d8c66cbf790d58b"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-KINK-ANCH-P-K2.0.3.0.criteria.json",
@@ -2756,7 +2756,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-KINK-ANCH-P-K2.0.4.0.selectors.json",
-    "sha256": "a951b32b2d9879d023fd3b6d8399f9ef3924c595d629737a2a4d77bfbb0408a3"
+    "sha256": "8bf614ff72431ce6975a0b8be0322586f0a0d239d9dc46d09d28d1a40dce33be"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-KINK-ANCH-P-K2.0.4.0.criteria.json",
@@ -2789,7 +2789,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-REV.0.3.0.selectors.json",
-    "sha256": "b5f621582e981f8a951c1426c4b377c861c5438a73c059553f635863caba0f92"
+    "sha256": "f902740bdc839465b2f44bbe41bfa1b516044fb88bfe1506916ff56662d3fb5b"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-REV.0.3.0.criteria.json",
@@ -2822,7 +2822,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-REV.0.4.0.selectors.json",
-    "sha256": "bc68eddae8334d684c6b6b23760ad6fb219ca0a7731de4dd6b1adda2f51c9f7a"
+    "sha256": "f143f1700549331a88c3dad48039a3e5082547e648aef7952d93f3281d85249f"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-REV.0.4.0.criteria.json",
@@ -2855,7 +2855,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-SKEW.0.3.0.selectors.json",
-    "sha256": "a83a1926e12ee8fe9425847dcf8bcbe1813a60a46ea85ee5d1408a5ab62e16f7"
+    "sha256": "f1713c5ceb89a8f727405af15983f0641f6946dd17005ab26f0caf4790c8b739"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-SKEW.0.3.0.criteria.json",
@@ -2888,7 +2888,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-SKEW.0.4.0.selectors.json",
-    "sha256": "06a0662c5e393f3981f7dad07a79007b43d506b59163a9ed773d3c3818d4ff31"
+    "sha256": "00f5a2521127678da9f77372915b5ea87f87e41b466d9ba4cf4bddc62f59511a"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-SKEW.0.4.0.criteria.json",
@@ -2921,7 +2921,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-X5E6.0.3.0.selectors.json",
-    "sha256": "04d70daba4a431ec790b465a2be43c7ad6c91589cb8d70420dbd12aee54f1c54"
+    "sha256": "d4a654377306de1cf3b98ba232b3db168cb5deaf9ddb16b3390d25f3d4fbb863"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-X5E6.0.3.0.criteria.json",
@@ -2954,7 +2954,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-X5E6.0.4.0.selectors.json",
-    "sha256": "863ef1e19dc579805bb65b94f4efbeec7aad81b859f5a4ebd36dac239a73c13a"
+    "sha256": "94cc127d9e96aa67ba60b7d5d957c66941f08fe036537b937d10c6b073c8edaf"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-X5E6.0.4.0.criteria.json",
@@ -2987,7 +2987,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-X7P3E6.0.3.0.selectors.json",
-    "sha256": "88a182f86e5eee327bc888a3bc24af1e0d32472d0ad52b7ba37969810c42d614"
+    "sha256": "c8afaf47575842ef7481b122b79731a2e2ec45367172f94ed53aa3cc34e68efb"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-X7P3E6.0.3.0.criteria.json",
@@ -3020,7 +3020,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-X7P3E6.0.4.0.selectors.json",
-    "sha256": "4e25a2deb94b738bca507c1f4c54a9f7f779d5238364805a63777d854f87fade"
+    "sha256": "d52a2c5016b2076680002df584d9b0195793ea302b7f2e56f52e4ab121bbe177"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-X7P3E6.0.4.0.criteria.json",
@@ -3053,7 +3053,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-SKEW-X5E6.0.3.0.selectors.json",
-    "sha256": "01c55d518d5680673d327b2c82684684eec664b846823c45f6605edb24d10e8f"
+    "sha256": "c3ff8bad94a6f5a70a3565193f6ddca7edf9a0bee9c7c6f17e3ac74ba889dcc3"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-SKEW-X5E6.0.3.0.criteria.json",
@@ -3086,7 +3086,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-SKEW-X5E6.0.4.0.selectors.json",
-    "sha256": "1c53cf70dbd631337a7e3f5363d4059b40691d61e7fb9e3a70ca373aa65442b7"
+    "sha256": "3e8bf75de58a1a91bc6e563cb090d3705fe6f3b8f9cfb80a0a537b0e451b4263"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-SKEW-X5E6.0.4.0.criteria.json",
@@ -3119,7 +3119,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-SKEW-X7P3E6.0.3.0.selectors.json",
-    "sha256": "e3e3c207d166935305e850779391e23b6b61681866afd7cb3a11c133dd13b22b"
+    "sha256": "72a45384bc9375c46d45e203ba4b18da044c5895faa1b0f5dbac9988576cb114"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-SKEW-X7P3E6.0.3.0.criteria.json",
@@ -3152,7 +3152,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-SKEW-X7P3E6.0.4.0.selectors.json",
-    "sha256": "ba80a4bffd4607a7490a6272499a5e87e4df436155dc84029ed71a3ba329965b"
+    "sha256": "100522fde255dcee00d805725f3e3d64b9d90a47c7b1d56cf4860b6adb5367b7"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-SKEW-X7P3E6.0.4.0.criteria.json",
@@ -3185,7 +3185,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-MM-MPA.0.3.0.selectors.json",
-    "sha256": "f0da827a4cc70da1772ef7ceb5bc770e3777def16012c4bd382f42c77a7d73ab"
+    "sha256": "b69718f721cd1b4b57e2908a8e92097817353d4e6b7a34e6c7ad4c83c696776e"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-MM-MPA.0.3.0.criteria.json",
@@ -3218,7 +3218,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-MM-MPA.0.4.0.selectors.json",
-    "sha256": "434f9523d926305bd5ac866baf67f3b3e8b346344e993be484d37338166a0a90"
+    "sha256": "5162913ede6c8ce3decf76f94c07777aa30a61d741d23ac5a051f905d2646ef9"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-P-K2-MM-MPA.0.4.0.criteria.json",
@@ -3251,7 +3251,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-SKEW.0.3.0.selectors.json",
-    "sha256": "29b3428cd43b57d8b327270c167ce42d85d26eff2e01c687dc84b2917445a89f"
+    "sha256": "b6e61a836ee5c348295c0f43546f2edf06270e2976ba1c30544ad1ac45bcf8f0"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-SKEW.0.3.0.criteria.json",
@@ -3284,7 +3284,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-SKEW.0.4.0.selectors.json",
-    "sha256": "4b767129d16aecb7182081bc1004e68de9113a191945b2ece49b9249558d1417"
+    "sha256": "2d9b419f3a09252b88a62a31ffe178cd7710791464a2b885ec1d2307d3c6355f"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-SKEW.0.4.0.criteria.json",
@@ -3317,7 +3317,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-X5E6.0.3.0.selectors.json",
-    "sha256": "548787b834505588b21b99852468a3ace94a06b4655e7e1b8788a3d590953f46"
+    "sha256": "67de2d66c42e40f835b96fc07ea81518f7366ef0bede9f5bcd4eb69bb10c81e6"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-X5E6.0.3.0.criteria.json",
@@ -3350,7 +3350,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-X5E6.0.4.0.selectors.json",
-    "sha256": "9bb9ec30feebaaef6f7bb209a79602d71065390e064483f348194ce6923ee47b"
+    "sha256": "fb2d21388607f8c2d8c45872a961417358322682060c26484471e2dbefe4eaf3"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-X5E6.0.4.0.criteria.json",
@@ -3383,7 +3383,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-X7P3E6.0.3.0.selectors.json",
-    "sha256": "0e5487acca9f38313070a395d083cb5d9e909b16ea5f39683d4f528fbcc6931a"
+    "sha256": "93b39ffc9c2dca759a28f6b780192051073d2f05265a71c0a6ac23618a0a6316"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-X7P3E6.0.3.0.criteria.json",
@@ -3416,7 +3416,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-X7P3E6.0.4.0.selectors.json",
-    "sha256": "ef30fd75053e60f85670556d0b5d220c8b653b096101deb4af8f84ed8939c35f"
+    "sha256": "fc0b93b3782742c533a32ddbb8266730748274ff781d8a33287bd6cd61578e0c"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-X7P3E6.0.4.0.criteria.json",
@@ -3449,7 +3449,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-SKEW-X5E6.0.3.0.selectors.json",
-    "sha256": "bff5765b373f738d94c80e038644d086af7744aa472cafa241b79c9977faf26e"
+    "sha256": "362a6db5bc2ddd46ec7010fa9f348296e51fd04447233ca373c0fdaf161db38f"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-SKEW-X5E6.0.3.0.criteria.json",
@@ -3482,7 +3482,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-SKEW-X5E6.0.4.0.selectors.json",
-    "sha256": "f809b56d2cd52f4e72de26b31a9d0aaae70bc613dd4b7ee42e758294eb2b5d3b"
+    "sha256": "3418c95f523dbcd7b28a51269e8d13ae5b1dfa8c703a2049a4c980b8d976f61c"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-SKEW-X5E6.0.4.0.criteria.json",
@@ -3515,7 +3515,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-SKEW-X7P3E6.0.3.0.selectors.json",
-    "sha256": "fb053f1bcdba7319cf645bfe5715944d5b3a57159b552c2c421c9115ec95a051"
+    "sha256": "e9e322f36c932a855e4182293d8a059e833e61dea63e9a438c58dfc6e006cf03"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-SKEW-X7P3E6.0.3.0.criteria.json",
@@ -3548,7 +3548,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-SKEW-X7P3E6.0.4.0.selectors.json",
-    "sha256": "e282afe4b7311624eefa8b6a4414f09cc92e8d2491a5006d79b3ef3599a9fe76"
+    "sha256": "a8a0ea8e9dcaa189c32c4d361a80e14a3eae2277dbf06b4c0773f73d5b930c59"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-SKEW-X7P3E6.0.4.0.criteria.json",
@@ -3581,7 +3581,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-MM-MPA.0.3.0.selectors.json",
-    "sha256": "5be1d408f39e684b403acc82d9a866fbc0fec5899e5e875cd7de0047835c1da7"
+    "sha256": "aae579678fd50faec37ba96346255813c737848767e250e4dbe95ee7a58fe22f"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-MM-MPA.0.3.0.criteria.json",
@@ -3614,7 +3614,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-MM-MPA.0.4.0.selectors.json",
-    "sha256": "156bca5726059861e6ce66d644dfb19fe327e809c7a3c1ef1129303f443ef228"
+    "sha256": "78499d78c7811bd074ba01ad14420181b893c7580bdf1a8496e4e1d21b0b7dcf"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-FREE-ALL-K2-MM-MPA.0.4.0.criteria.json",
@@ -3647,7 +3647,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-SKEW.0.3.0.selectors.json",
-    "sha256": "a14f45cf38d7423d19a6d162ef996db0cb249244e003abafb6b40dec6611ccdf"
+    "sha256": "ca6ad0539fe20603de5ef03562390876688ab7945bd347668a0d6a67c7e17afb"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-SKEW.0.3.0.criteria.json",
@@ -3680,7 +3680,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-SKEW.0.4.0.selectors.json",
-    "sha256": "26a7606f2ea12b100b20b5b8da74a46279749812f8f767371d1bf178ddc089c0"
+    "sha256": "38a960520d2a86bca616ebfd39d12790dbd372a067f9f590c42953a183fce048"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-SKEW.0.4.0.criteria.json",
@@ -3713,7 +3713,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-X5E6.0.3.0.selectors.json",
-    "sha256": "634677add9a6f8179dcc27b531b282c45bd00a82f875993fc6481c012eedec09"
+    "sha256": "2bf5f01fe00814f9fbe250680cfd89f80a64f6ddb7eda2d5581d3089c9572e73"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-X5E6.0.3.0.criteria.json",
@@ -3746,7 +3746,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-X5E6.0.4.0.selectors.json",
-    "sha256": "b7c2eb9bddeedc4c974bbdcb127565cb8908c58b0e7ff80aa803353641aaeb41"
+    "sha256": "843bc9b6335915dc32fd1b1c5e5ee0600913c6de4dba4ddcfe0a33149a6c422b"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-X5E6.0.4.0.criteria.json",
@@ -3779,7 +3779,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-X7P3E6.0.3.0.selectors.json",
-    "sha256": "61cc47f61b8c698f5b2cffafe8125ab9127d8d259abee9ed6c7602b0dcee2c5b"
+    "sha256": "a680d91fdeca9ff6e3c1d34902ce99d1b0e3f6f3283dd764c436b6ed5e6b63c2"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-X7P3E6.0.3.0.criteria.json",
@@ -3812,7 +3812,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-X7P3E6.0.4.0.selectors.json",
-    "sha256": "19d6790ae12c626ab70bf7ac7f46b4948fc7c6e7eac2b7a8b6fa502f90fff08f"
+    "sha256": "cf18b7bff5d4d218f5b6b5908205313868391aa79decc113a0f2e13df9d985b3"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-X7P3E6.0.4.0.criteria.json",
@@ -3845,7 +3845,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-SKEW-X5E6.0.3.0.selectors.json",
-    "sha256": "461e9e8fd66b5422510f17bed5f478506943554414c4fd09e2d996c3c0c5ba28"
+    "sha256": "ef83dd6b93caf600d7aec6aaab2fd1f0196721c52c0daaf696ff5f8b12397103"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-SKEW-X5E6.0.3.0.criteria.json",
@@ -3878,7 +3878,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-SKEW-X5E6.0.4.0.selectors.json",
-    "sha256": "19ce050019f14231b423d400b5eefcd45cacb352d91e0917ebfc0ada98c2e7da"
+    "sha256": "7c48db7458aee10c0e80881919ff1d5edf1f7598b76e0ecec8580cccbbf96570"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-SKEW-X5E6.0.4.0.criteria.json",
@@ -3911,7 +3911,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-SKEW-X7P3E6.0.3.0.selectors.json",
-    "sha256": "6aa1396eb4e2dcc9dda0d3a94cb0bc3cfdc7a1a0faf02a33f8cbf9bfac3ea832"
+    "sha256": "d3d179f72117a35d0d6197493b688c220078c7389f53465e083aec019ddea1e2"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-SKEW-X7P3E6.0.3.0.criteria.json",
@@ -3944,7 +3944,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-SKEW-X7P3E6.0.4.0.selectors.json",
-    "sha256": "e95ae8f7ed136542dfddaa404cd60e17d0d4dca871caf5ffcb40964d7b16054c"
+    "sha256": "e8f9ff278ffc3b7369a4ad4adda5f849bb1c0c2483e22a1d45e7aca5169fd67a"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-SKEW-X7P3E6.0.4.0.criteria.json",
@@ -3977,7 +3977,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-MM-MPA.0.3.0.selectors.json",
-    "sha256": "b7afefa3c36b9c5d6289f2baea5af8ba3c29cef8f1b6020b1888db82ecfea59a"
+    "sha256": "e6879c19b25cbc605fcce4e13ed8900fc95a9f453e76d39f716d07dfe750d477"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-MM-MPA.0.3.0.criteria.json",
@@ -4010,7 +4010,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-MM-MPA.0.4.0.selectors.json",
-    "sha256": "a1c6909d5a7d657783bf4d0980cb2796532b93df3e6d36168bbbe7833b2c9f8d"
+    "sha256": "af4293a54749e7d9325ef202ddab035d3ef603c2a1d31cbe4f0985da81b66b4c"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-ALL-K2-MM-MPA.0.4.0.criteria.json",
@@ -4043,7 +4043,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-SKEW.0.3.0.selectors.json",
-    "sha256": "189c1cab7cd392c4168e8dfa659be4ba40ad9626ae14162502cdbf1cff168eef"
+    "sha256": "86f7fc5569a48923c4791b04df40319df5afdd5b6de521192c571859317d0126"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-SKEW.0.3.0.criteria.json",
@@ -4076,7 +4076,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-SKEW.0.4.0.selectors.json",
-    "sha256": "e56917d085cb17e711dfba9e7d7c8cc6fdf21f670b7567a30296c4eece18a43c"
+    "sha256": "bceac0a5592ab72a5ee6ea3957ddbc577d6fa6907795375d9e630826827077da"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-SKEW.0.4.0.criteria.json",
@@ -4109,7 +4109,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-X5E6.0.3.0.selectors.json",
-    "sha256": "cbf350061fc631cf223f174394023f9c6849b2521e4923bc3855661158990159"
+    "sha256": "6ddbf8a86ef04b959f386ce6058986d1f131c128aab9bf0d03a2db3d2de310bb"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-X5E6.0.3.0.criteria.json",
@@ -4142,7 +4142,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-X5E6.0.4.0.selectors.json",
-    "sha256": "00bc266bb0e3bd27f8d395b7ad52a43eacb9bfea291e5b12ce11548a06cc02fa"
+    "sha256": "1fbcfd6189e3286851c3a503a1331c8777932becf685158f0df901fd524570d4"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-X5E6.0.4.0.criteria.json",
@@ -4175,7 +4175,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-X7P3E6.0.3.0.selectors.json",
-    "sha256": "68c8f7abcd0f4fdb345926146a457ce1266df7c039f72ee4ac6a0c5b0e585298"
+    "sha256": "b57dd928ba162a0ad0e7a1cddda31be5a4899c732ab3820d3fea79036da8edaf"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-X7P3E6.0.3.0.criteria.json",
@@ -4208,7 +4208,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-X7P3E6.0.4.0.selectors.json",
-    "sha256": "8435e6ee0636c317f9af5085e8f124da6c4b02000bb88f05cb3db675ee73d46f"
+    "sha256": "5406c15d3f1d567bb2ee22a1fe00ecd926414f9ec6e3bf6d09ff65391dba3a77"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-X7P3E6.0.4.0.criteria.json",
@@ -4241,7 +4241,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-SKEW-X5E6.0.3.0.selectors.json",
-    "sha256": "552518af6fee0e1fed57df3547571e8cc6f3dd4cd961c8149345b2137664a1d2"
+    "sha256": "ac08bd6858f7b14e8730eb5dc19d7dd0ff1df29b4832729f35b4a3b18781fd00"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-SKEW-X5E6.0.3.0.criteria.json",
@@ -4274,7 +4274,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-SKEW-X5E6.0.4.0.selectors.json",
-    "sha256": "e80fb8d6598a698a7c80fbea7243eec1dbfea793a928730ef20a6e554977eaea"
+    "sha256": "508be14ee50664134c2f92cc84531575a3d5572d35cfbc14a7b52dbb3248330d"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-SKEW-X5E6.0.4.0.criteria.json",
@@ -4307,7 +4307,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-SKEW-X7P3E6.0.3.0.selectors.json",
-    "sha256": "1a09751309b64e692b84945ac32816ce004cc5d2eb13df43f31bb67fd52b56db"
+    "sha256": "85efa5a2fb65fc03410dce65b5ac13b3b9dfdf070b4ba57f5ed335887e329020"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-SKEW-X7P3E6.0.3.0.criteria.json",
@@ -4340,7 +4340,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-SKEW-X7P3E6.0.4.0.selectors.json",
-    "sha256": "f05ab53246bcd5352a9e0082b49f3b50ea90ae9f63dd561e9bd1d1af9f2be8c9"
+    "sha256": "3e332c1eeccf2ee6d4273f8dab1b336ff43016fe457390f6245f8b3569e7b696"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-SKEW-X7P3E6.0.4.0.criteria.json",
@@ -4373,7 +4373,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-MM-MPA.0.3.0.selectors.json",
-    "sha256": "00a7fc537bdacaab3fd6fb95678ba1e40b790bb70cffb17a8315382fa1797755"
+    "sha256": "1fb382e15e4e1119430d34a5879b34d15da05cc2495cfd12e901856d48f801cd"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-MM-MPA.0.3.0.criteria.json",
@@ -4406,7 +4406,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-MM-MPA.0.4.0.selectors.json",
-    "sha256": "6a98a1439f0fb2a185ae355a3b61f376f387539d77e70b477e61a4fa3d5b998b"
+    "sha256": "c477310eec87db7b1fa1dc7809bc497ecb219086f42dd498766499094babcc03"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-U-ANCH-ALL-K2-MM-MPA.0.4.0.criteria.json",
@@ -4439,7 +4439,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW.0.3.0.selectors.json",
-    "sha256": "28a2a8e85ff288d7db5f5e7697d4eb3c1fab36f2fb674bd0f13689a5f9d9ff8d"
+    "sha256": "74c10ac998e34a0ec72f43ea73b8957cc3fc3bb393ce92bb0339130d086a4066"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW.0.3.0.criteria.json",
@@ -4472,7 +4472,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW.0.4.0.selectors.json",
-    "sha256": "578cdcf8c90e7ddefb2c3d3a433786c6cad140f6b5a342ddd83203c6f5b63c60"
+    "sha256": "b58b6e8e3ca64d070369d68aaf2c42cf16216c09d3a38d8e154ce4d1e93b20a9"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW.0.4.0.criteria.json",
@@ -4505,7 +4505,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-X5E6.0.3.0.selectors.json",
-    "sha256": "8c5f6786e4ae475515ab4e5fd14702ce5088b11cdaf6c8b70995e2ca6cebf0ac"
+    "sha256": "91ed6eee1b4c1eae824de19b936e6fd382e2209ca80f052d10c48172d433dc65"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-X5E6.0.3.0.criteria.json",
@@ -4538,7 +4538,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-X5E6.0.4.0.selectors.json",
-    "sha256": "aed454f9ef09c1cd7ceda0fc76d460e23b2949b0510470fa3654c53a6500f4f2"
+    "sha256": "65343687bb311ee478a6c3849253cb80364f7de539f11249edc5e167b56bd940"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-X5E6.0.4.0.criteria.json",
@@ -4571,7 +4571,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-X7P3E6.0.3.0.selectors.json",
-    "sha256": "f675d3cc5af74a0cc803ea0475d294bd02920834bd93edeaaae60532552d5c70"
+    "sha256": "6799cf6e3ba3ec786a6fcd5853a3c2fda0805477d35f421ab60ebb16b0433cef"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-X7P3E6.0.3.0.criteria.json",
@@ -4604,7 +4604,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-X7P3E6.0.4.0.selectors.json",
-    "sha256": "8d9335ad2ce5980473c6beddab7870b82671bad84b4955ddfac25cc25554e74a"
+    "sha256": "7fbc0cf4dd6a272b55f16404599f318d09807ac82a7c4ed632cdcf42257068ad"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-X7P3E6.0.4.0.criteria.json",
@@ -4637,7 +4637,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW-X5E6.0.3.0.selectors.json",
-    "sha256": "a89fb9ddb03ee2cf958560662ab0e1edaa1feb642c4a6cd245319d4a76a8f9d8"
+    "sha256": "2882e62e0cb8175808902cbc71b1a46ace9f72e42f45d013e29bc809fb858a82"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW-X5E6.0.3.0.criteria.json",
@@ -4670,7 +4670,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW-X5E6.0.4.0.selectors.json",
-    "sha256": "c0bccaca7a867fe069416f986015af0070af95afeccf8f194412b9175204183d"
+    "sha256": "452a9f0a3bbfda18accd86c196207c6b6d8b6bd7eec9c9c60e15960a1df67c59"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW-X5E6.0.4.0.criteria.json",
@@ -4703,7 +4703,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW-X7P3E6.0.3.0.selectors.json",
-    "sha256": "0f11eef1d831e0faffb8b81464fa88541b11181ec5c86eab02e73c51f8a7266e"
+    "sha256": "f29a999950b57f78db5d3f28c050136c7c8c7738addd3bde5b69089dbd864bc7"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW-X7P3E6.0.3.0.criteria.json",
@@ -4736,7 +4736,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW-X7P3E6.0.4.0.selectors.json",
-    "sha256": "e8e588021d2407810171d2b1b57018bad0eb3e9a7c5b14a9c8f7016cc361ddae"
+    "sha256": "7deddf6b3f6ea62b6822646423014fa0b731353b7eacc00405541cf6423974b8"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-SKEW-X7P3E6.0.4.0.criteria.json",
@@ -4769,7 +4769,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-MM-MPA.0.3.0.selectors.json",
-    "sha256": "a51cbec43b3db6b0d6210c8b5ad68a9d88cfa31bb2a92d9e15a82e67059f29fb"
+    "sha256": "31fbf4c9db8a54d5a538fc46833601def3a6f25b27509eb40a20e51a21936484"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-MM-MPA.0.3.0.criteria.json",
@@ -4802,7 +4802,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-MM-MPA.0.4.0.selectors.json",
-    "sha256": "d727f0599256a060f8a59585b04437a197f92fe887edd3f0313a9222de400500"
+    "sha256": "4e226c112090ddebb4501a4bdad5777d31cfa48f1a43ea400de215a1380d0e5a"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/MECH-CURVED-BEND-EXACT-PRESSURE-ARC-K2-MM-MPA.0.4.0.criteria.json",
@@ -4835,7 +4835,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-SKEW.0.3.0.selectors.json",
-    "sha256": "05253519759edf20e4db0a6cb1e4ba9e5855e51177cfc2b4c206686e0007d39a"
+    "sha256": "9ab708336803c8c3aa4fcc5da604609e62de41e32d358f49f710f6e6a60f8e24"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-SKEW.0.3.0.criteria.json",
@@ -4868,7 +4868,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-SKEW.0.4.0.selectors.json",
-    "sha256": "321f24dfda9a9f5a648b2aa54babe2348212e32018a44d26e3e7c7fe533373fa"
+    "sha256": "1e43b8bc33276adf92a577448061e4806dc4d80575b0e0bed0719ea8d4031913"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-SKEW.0.4.0.criteria.json",
@@ -4901,7 +4901,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-X5E6.0.3.0.selectors.json",
-    "sha256": "d35ddd2259fc6024e3e2948e529af3462f984c0c9149c2e2f2b109ac70e1987e"
+    "sha256": "a826a1b6fb56b3a4973901b739f8c8c6a6d0a925efac2c27373e81e06b625652"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-X5E6.0.3.0.criteria.json",
@@ -4934,7 +4934,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-X5E6.0.4.0.selectors.json",
-    "sha256": "9b87f063a598abecca703a5b04b3efd316877a4720bde4cbfdd74fb22be88122"
+    "sha256": "26674aa21af874240af9e617c89d3c7dac1a27c2d6cebe73f442224508997f4f"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-X5E6.0.4.0.criteria.json",
@@ -4967,7 +4967,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-X7P3E6.0.3.0.selectors.json",
-    "sha256": "2da84d70b0706aa7d44395230e1a9c2b1344d98dccdc8a92ee8bbea20aea27ec"
+    "sha256": "cb23cea9060a8e4cd69e5191f73b72dea5511539368f352afbe91c03de76b5b4"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-X7P3E6.0.3.0.criteria.json",
@@ -5000,7 +5000,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-X7P3E6.0.4.0.selectors.json",
-    "sha256": "484f0ca4d57fe7c7a435c43bb8130b578cb1d16462d0ebca461509a7eed2cc5f"
+    "sha256": "9adb293e49a6cc8293eb7e8fbf25f74617fcf8d10b141290a5505176970e44c1"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-X7P3E6.0.4.0.criteria.json",
@@ -5033,7 +5033,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-SKEW-X5E6.0.3.0.selectors.json",
-    "sha256": "2438bdbbe504e8b39b8376fbb56eb5b21e3cbae0c80ec52dd534a22ae0761be4"
+    "sha256": "032f84b28403c4d897fe71f26b1b157f771e4391502d07c8aa23087aa04ffbe6"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-SKEW-X5E6.0.3.0.criteria.json",
@@ -5066,7 +5066,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-SKEW-X5E6.0.4.0.selectors.json",
-    "sha256": "d0ceff2d726783c549bd84cf68a3e45df55b8d2728262d8d03b0af9fe2c0e76b"
+    "sha256": "2e1a67f9ef4814da025ad3c684b2d65ffafdaf73f0a7b321a7ccc29255eca3cb"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-SKEW-X5E6.0.4.0.criteria.json",
@@ -5099,7 +5099,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-SKEW-X7P3E6.0.3.0.selectors.json",
-    "sha256": "74ab6a94d6aab165c7ec15cfc8d934235c2a31d319a24fddd52d08f7cfc205c9"
+    "sha256": "99261a42651519dd8ef7e63b621076142e6c103e2a8a3134c590ad57a94309dc"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-SKEW-X7P3E6.0.3.0.criteria.json",
@@ -5132,7 +5132,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-SKEW-X7P3E6.0.4.0.selectors.json",
-    "sha256": "0912383040578998c1129109b1d0763a40e983d8ea51ec19570c432b31112cb2"
+    "sha256": "745647dbf968e924af8ef913193c900693ddbcb2d38eede13db7bcefb2018eb4"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-SKEW-X7P3E6.0.4.0.criteria.json",
@@ -5165,7 +5165,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-MM-MPA.0.3.0.selectors.json",
-    "sha256": "d9c19fc5e777eb2e1306445faac934cf59960ef13d805ce87974a97c112b11be"
+    "sha256": "fe53bcc1ad551189b4c31be7b29a80822d2b99d0a38b699cda6af79ac63e631b"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-MM-MPA.0.3.0.criteria.json",
@@ -5198,7 +5198,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-MM-MPA.0.4.0.selectors.json",
-    "sha256": "6a024170b1480723a5b27590f892830f34a557c15668700e15530bc0f8858c36"
+    "sha256": "bf8c55a817098150e48a7a5733c8ff68e8994e46589947b211f9c8dfda8ee050"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/U2-L-ANCH-PTW-K2-MM-MPA.0.4.0.criteria.json",
@@ -5231,7 +5231,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.free_transferring.0.5.0.selectors.json",
-    "sha256": "56c5e20cf72a4a2557e0c558fd1a985d18da40e011cfd642c1359b9a194f5ef9"
+    "sha256": "35f907fabfe22e02bfae87b09ecac098985b038e30a7ac54bc6e2db373347fca"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.free_transferring.0.5.0.criteria.json",
@@ -5264,7 +5264,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.free_transferring.0.5.0_load_state_group.selectors.json",
-    "sha256": "98fcea1bdf88d069e39e66d3f6806566718cf317ef090f572509c1cb21a80ab9"
+    "sha256": "fcf637726ce0c427a0bf6c8aac2c13d9948661e48b39d8401cb72c2f45cd7937"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.free_transferring.0.5.0_load_state_group.criteria.json",
@@ -5297,7 +5297,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.free_transferring.0.5.0_timoshenko.selectors.json",
-    "sha256": "50bc94e4c3b29ac9db3e83f7d8e51bb7a84844b8d3445419c8caff7202d68797"
+    "sha256": "f0adb5ef102e6defccbc8ecf70598a6783e1435516dd911eb624eb74c9521457"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.free_transferring.0.5.0_timoshenko.criteria.json",
@@ -5330,7 +5330,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.free_transferring.0.5.0_load_state_group_timoshenko.selectors.json",
-    "sha256": "2120b7826b5d1026f690029e954cd290166ea431d461f15a82647cc77e8d5564"
+    "sha256": "2c41716721552fea818858a376052c8a265fdb6d6b7b18e16b3d54a9136eca9d"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.free_transferring.0.5.0_load_state_group_timoshenko.criteria.json",
@@ -5363,7 +5363,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.axially_restrained_transferring.0.5.0.selectors.json",
-    "sha256": "6cd50e0eb85163c3c6e1590d9f108446c6b442ea188ddeab96b8d34fef0e97af"
+    "sha256": "c6af7ad373bfb523053a54aa6a9c864073bc26f6255dbf1849a1ac2d1bb5d9ff"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.axially_restrained_transferring.0.5.0.criteria.json",
@@ -5396,7 +5396,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.axially_restrained_transferring.0.5.0_load_state_group.selectors.json",
-    "sha256": "be1ba6eb8a62eda84c81c44cb30fdb593e1c19021c6f56b52c29cacb79252c30"
+    "sha256": "018bb29c12f32cf3346247155fd16ffe318f4b5b1b4d3939997884452154afad"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.axially_restrained_transferring.0.5.0_load_state_group.criteria.json",
@@ -5429,7 +5429,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.axially_restrained_transferring.0.5.0_timoshenko.selectors.json",
-    "sha256": "021b4ffa9b8fc066b4e3927a45c054586678215d78839efb45f667bb5aca5fd5"
+    "sha256": "19fc947966c46e0a8b7fa3dd68197394057398ae568d43961edc83f05a362ca5"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.axially_restrained_transferring.0.5.0_timoshenko.criteria.json",
@@ -5462,7 +5462,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.axially_restrained_transferring.0.5.0_load_state_group_timoshenko.selectors.json",
-    "sha256": "ea3b29ee4e204e58a22dc8f1063b35c87428666f7382f63d899d34381adef8b9"
+    "sha256": "8de4028843ff8579a9c3d0aa494b6e1cb7b9f4cb5095d6d2ea118f3c7c37901e"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/milltol_lame_membrane.axially_restrained_transferring.0.5.0_load_state_group_timoshenko.criteria.json",
@@ -5495,7 +5495,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/tp_phys_pressure_halves.0.3.0.selectors.json",
-    "sha256": "0b641b1238752bf253061d6db8dc843886278ae77f65f6d086df8c420154c6cc"
+    "sha256": "9d62713c5edcbce5aeb09b8b7f0f919b756a8a2a8c84350c9e0bc38bfc12c76b"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/tp_phys_pressure_halves.0.3.0.criteria.json",
@@ -5528,7 +5528,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/tp_phys_pressure_halves.0.4.0.selectors.json",
-    "sha256": "4e086a0bb822cfaf4467fc29db035c87984845e7af153c673bf9bcd9ffefe13c"
+    "sha256": "833e070f78c20fb2cd477653a9422a201d57d6ee63e3e35e614a00eafdedc815"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/tp_phys_pressure_halves.0.4.0.criteria.json",
@@ -5561,7 +5561,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/pressure_membrane_thin_wall_limit.0.3.0.selectors.json",
-    "sha256": "9057e8e4c5ec5cea76339df15eeb6837af81b49e0f524fd6056246d9d81512b4"
+    "sha256": "d87c59c133ce9875d9c9d07ea672012421f40319ddf43cc8ec8bc7e069fe5447"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/pressure_membrane_thin_wall_limit.0.3.0.criteria.json",
@@ -5594,7 +5594,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/pressure_membrane_thin_wall_limit.0.4.0.selectors.json",
-    "sha256": "82c52a1e434fffe323b21960d0bd1a20549cdab79121df4f372a43f5ed3a5d7e"
+    "sha256": "dd1389f738a3ad100b2bf8aaa9c2d0b9bf22d62f716531c3180cc6b6dc0e97d6"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/pressure_membrane_thin_wall_limit.0.4.0.criteria.json",
@@ -5627,7 +5627,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/v3_straight_twin_separate_closures.0.3.0.selectors.json",
-    "sha256": "25ab719fb67ebe56f720eb424021446e68b1e0ab9abd19dce18eec2eb3d02d93"
+    "sha256": "c5d9c02d1aaa59e5cadf7c6b3276f47ac8cde8943d33589c1e973bc265496f89"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/v3_straight_twin_separate_closures.0.3.0.criteria.json",
@@ -5660,7 +5660,7 @@
    },
    "selectors": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/v3_straight_twin_separate_closures.0.4.0.selectors.json",
-    "sha256": "6d99c72c3d5fc10ef1e656ef9754bab2a1effe580c8c934000e52192292bd36b"
+    "sha256": "c1f35ce142f0238bfe7444ecd5a2fa3ce8c4960299e9d145ca65464703db228c"
    },
    "criteria": {
     "path": "validation/qualification/fixtures/exact_pressure/cases/v3_straight_twin_separate_closures.0.4.0.criteria.json",

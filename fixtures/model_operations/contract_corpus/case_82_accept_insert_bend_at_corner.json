@@ -144,7 +144,7 @@
         "temperature": "degC"
       }
     },
-    "schema_version": "0.5.0",
+    "schema_version": "0.6.0",
     "supports": [
       {
         "family": "anchor",
@@ -183,7 +183,7 @@
     "hash_status": "computed_local_preview",
     "payload_ref": "project:corpus-bend",
     "payload_scope": "model_payload",
-    "value": "sha256:372a81fc9e7940493c09cbf9f2ac259d357cbe002ae58f1826864ee7ce53df62"
+    "value": "sha256:b39091d4d12abe559ff774c37282398c601b02bd8c1d454168c97f8e5241013b"
   },
   "description": "Insert a realized bend (R, user k) at a corner of two straights: tangent points, shortened pipes and the arc span.",
   "expected": {
@@ -399,7 +399,7 @@
           "temperature": "degC"
         }
       },
-      "schema_version": "0.5.0",
+      "schema_version": "0.6.0",
       "supports": [
         {
           "family": "anchor",
@@ -431,7 +431,7 @@
         }
       ]
     },
-    "applied_model_canonical_sha256": "sha256:c6253468c199ea01e790eed4b51cf2dda9f41fe8b4e766af53abd2fe8e412a81",
+    "applied_model_canonical_sha256": "sha256:2a1899946c8dbc7c39d806009e3fbcae3c2a4b89658025f611547b39312a6c11",
     "outcome": {
       "acceptance": {
         "acceptance_basis": "user_initiated_apply_in_local_session",
@@ -530,10 +530,10 @@
       "mode": "apply",
       "model_basis": {
         "backend_canonicalization": "rfc8785_jcs",
-        "backend_model_hash": "sha256:372a81fc9e7940493c09cbf9f2ac259d357cbe002ae58f1826864ee7ce53df62",
+        "backend_model_hash": "sha256:b39091d4d12abe559ff774c37282398c601b02bd8c1d454168c97f8e5241013b",
         "binding_status": "claimed_model_hash_matches_current_backend_model",
         "claimed_hash_canonicalization": "rfc8785_jcs",
-        "claimed_model_hash": "sha256:372a81fc9e7940493c09cbf9f2ac259d357cbe002ae58f1826864ee7ce53df62"
+        "claimed_model_hash": "sha256:b39091d4d12abe559ff774c37282398c601b02bd8c1d454168c97f8e5241013b"
       },
       "operation_id": "op:corpus-accept-insert-bend-at-corner",
       "operation_kind": "modify",
