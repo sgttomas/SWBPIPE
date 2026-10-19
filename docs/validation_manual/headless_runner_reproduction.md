@@ -23,7 +23,7 @@ and screening evidence, not a release-readiness record; validation occurs in
 the user's accepted professional tools.
 
 As of 2026-07-19 this slice has two parts: the frozen E1 `tp_runner_015`
-procedure (with a dated historical note on case 3), and the bound per-case
+procedure (with dated historical notes on cases 1 and 3), and the bound per-case
 `run-benchmark` / `run-regression` reproduction path landed by PR #287
 (`DEL-10-05`, implementation commit `60841413a`, merged at `45ec0524d`).
 
@@ -45,7 +45,7 @@ procedure (with a dated historical note on case 3), and the bound per-case
 
 | Case | Input fixture | Expected command | Expected exit | Expected evidence |
 |---|---|---|---:|---|
-| Valid invented preview solve | `validation/witness/inputs/tp_runner_015_final_cli_solve_input.json` | `openpipestress-runner solve --input <fixture> --output <out>` | 0 | `runner_result.job.state` is `COMPLETED`; request/result validation diagnostics are empty; `runner_result.result_refs` is non-empty; on sources at or after R14-W1 T2, the solve result envelope additionally carries one non-blocking `SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED` warning for `support:CE-120`, per the dated 2026-07-20 note below. |
+| Invented preview solve (historical success case; now a legacy-content refusal) | `validation/witness/inputs/tp_runner_015_final_cli_solve_input.json` | `openpipestress-runner solve --input <fixture> --output <out>` | 1 (historically 0) | On current sources, per the dated 2026-10-19 note below: the solve is refused by name with blocking `PRESSURE_MODEL_REAUTHOR_REQUIRED` and `LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED` diagnostics and `HEADLESS_RUNNER_RESULT_REFS_MISSING`; `runner_result.result_refs` is empty. Historical, as recorded in the committed witness: `runner_result.job.state` is `COMPLETED`; request/result validation diagnostics are empty; `runner_result.result_refs` is non-empty; on sources at or after R14-W1 T2, the solve result envelope additionally carries one non-blocking `SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED` warning for `support:CE-120`, per the dated 2026-07-20 note below. |
 | Invalid request metadata | `validation/witness/inputs/tp_runner_015_final_cli_validation_blocking_input.json` | `openpipestress-runner validate-input --input <fixture> --output <out>` | 1 | Request validation reports `HEADLESS_RUNNER_LOAD_BASIS_MISSING`; no solver result is emitted. |
 | Benchmark verb on the frozen payload-less input (historical stub case) | `validation/witness/inputs/tp_runner_015_final_cli_benchmark_stub_input.json` | `openpipestress-runner run-benchmark --input <fixture> --output <out>` | 1 | On sources at or after PR #287: runner diagnostics report `HEADLESS_RUNNER_BENCHMARK_PAYLOAD_MISSING` (the frozen input carries no `benchmark` payload). Historical, pre-#287 sources: `HEADLESS_RUNNER_OPERATION_STUB_REQUIRES_DOWNSTREAM_PAYLOAD`, as recorded in the committed witness. |
 
@@ -86,6 +86,49 @@ review evidence about a non-consuming user-entered constant-effort data
 shape; it is not a defect, not a solve error, and not a new acceptance
 criterion.
 
+**Dated note (2026-10-19).** Case 1's success expectation is historical. On
+current sources the frozen solve command exits 1, and the refusal is correct.
+Re-run on `main` at `084ff961f8`:
+
+- *Local-private intent.* Since `9457565c2c` (2026-07-22) the runner wraps its
+  CLI output in the local-private export control described in Part 2. Without
+  `--explicit-local-private-intent`, each of the three frozen commands exits 1
+  with blocking `LOCAL_PRIVATE_INTENT_REQUIRED` findings. The payload is
+  withheld and no `--output` file is written. With the flag, cases 2 and 3
+  reproduce their expected exit and diagnostic above.
+- *Case 1 refusal.* With the flag, case 1 still exits 1. The job state is
+  `COMPLETED`, but mechanics status is `MODEL_INCOMPLETE` and
+  `runner_result.result_refs` is empty. The mechanics envelope carries blocking
+  diagnostics:
+  - four `PRESSURE_MODEL_REAUTHOR_REQUIRED`, for the legacy pressure primitives
+    `L-100-P`, `L-100-P-EJ`, `L-200-P` and `L-200-P-EJ`;
+  - one `LEGACY_FINITE_CONNECTOR_REAUTHOR_REQUIRED`, for the legacy four-rate
+    expansion joint `component:C-150` on `pipe:P-130`.
+
+  Result validation adds the blocking `HEADLESS_RUNNER_RESULT_REFS_MISSING`
+  diagnostic.
+- *Why.* The input's model `schema_version` is the current `0.6.0`, so this is
+  not a version refusal. The generator copies the bundled legacy demo
+  `fixtures/product_preview/invented_preview_model.json`, whose *content* uses
+  retired contracts. Legacy nonzero pressure loads have been refused since
+  `22452ecd14` (2026-09-25). T3 U3 (`8a12de28db`, 2026-10-08) retired the legacy
+  pressure contract product-wide, with zero values included. T4-U3
+  (`a601e3706d`, 2026-10-10) refuses legacy finite-span joints. Under the
+  owner's no-compatibility direction (DEL-04-08 `Design/b7-plan.md`, "Decisions
+  applied"), retired content is refused by name and not migrated.
+- *What stays unchanged.* `tests/test_headless_runner_contract.py` keeps this
+  demo as the explicit legacy-pressure refusal control and asserts this exit-1
+  refusal. The case 1 input is therefore not re-authored. The generator, the
+  three inputs, the committed generated witnesses and the prior reproduction
+  bundles remain truthful for their pinned commits and are not edited.
+- *Current success path.* The model the current product solves for a
+  success-path `solve` is
+  `fixtures/model_operations/exact_pressure_authoring_model.json`. The same
+  test uses it unchanged. Wrapped in this procedure's `solve` request with
+  `--explicit-local-private-intent`, it exits 0 at `084ff961f8` with job state
+  `COMPLETED`, empty request and result validation diagnostics, and non-empty
+  `result_refs`. This slice commits no input for that run.
+
 The committed generated witness outputs are:
 
 - `validation/witness/generated/tp_runner_015_final_cli_solve.json`
@@ -109,7 +152,9 @@ result to stdout and to the explicit `--output` path. The two blocking cases
 are expected to exit nonzero because they prove diagnostics, not successful
 solve execution. On sources at or after PR #287 the third command's expected
 diagnostic is `HEADLESS_RUNNER_BENCHMARK_PAYLOAD_MISSING`, per the dated note
-above.
+above. On sources at or after `9457565c2c`, add `--explicit-local-private-intent`
+to each runner command to see its payload. On current sources the first
+command is refused with exit 1, per the dated 2026-10-19 note.
 
 ## Part 2 — Bound Per-Case Benchmark/Regression Reproduction (post-PR #287)
 
