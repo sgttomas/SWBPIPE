@@ -48,27 +48,27 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "032630ba2f80a80361be3ce60e1d27821d47e1161cdf750566640552de3edd2e",
-        "835205890be3f58565bdba65cb781040372af9bafc72ecf168e60fb360bb835c",
+        "d79b9b53fd88e61c84a9446aa2682a0943acde8d2ab4b251b3d393d4a4786caa",
+        "2f2260237fcae99adbecc4c208ad0f66a76bdc630fb5d7ddcaca2909a85444a4",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "0db162eb507060ec2a5bf6d78d7f1ab43fd868f2e085c9395832d7b282cbfda0",
-        "6e5123ba864e319b8d07a1581e1d10b165ce208ac75e255d9c66e2640215dad0",
+        "104b8fcb7eb4ccdda48d1dfa88c527a2835ec4f2746693b76821d34baeee5f85",
+        "53d34043560deaac649f0090fc2a14bb452fe30e2e014607624eb55090f00642",
     ),
 ];
 /// The committed goldens' file sha256 (= the documents' canonical digests).
 const GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "4924102a011b5919a86214df597d880064b26011f793cfeaa70f3a9d00d3b818"),
-    ("dense_scrutiny", "1508aaab91cf9b8b8794b527ec827da345ef898558cc71657ed877edde6c206d"),
+    ("sparse_interactive", "f3720632f600a38283dfe470d52a09d167a161d8eaa44d48b78e14299e974d14"),
+    ("dense_scrutiny", "96c35fe4e87ba92f31c8aee852da41a94ea0057812286363b560b393a43e4309"),
 ];
 /// The milestone's validated class counts (as retained_precision_carriers.rs
-/// `CLASSES`): relative, absolute, input-derived, non-quantity. No validated
-/// statement has a `not_covered` row.
-const CLASSES: [(&str, [usize; 4]); 2] = [
-    ("sparse_interactive", [25, 69, 3, 1]),
-    ("dense_scrutiny", [25, 69, 3, 1]),
+/// `CLASSES`): relative, absolute, input-derived, non-quantity and not-covered (T4-U4b: the member's 15
+/// derived σ⁺, σ⁻ and τ_v,max rows at five stations).
+const CLASSES: [(&str, [usize; 5]); 2] = [
+    ("sparse_interactive", [25, 69, 3, 1, 15]),
+    ("dense_scrutiny", [25, 69, 3, 1, 15]),
 ];
 /// B3b-T: lane P's m3x exact successors (PP retained_facade_tests.rs `EXACT_PINNED`):
 /// mode, file text, file sha256 (the fixture document's), receipt sha256.
@@ -76,28 +76,29 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "79d40f1a67c74efa911e408fca9c19c45ea9b6d9de7f60de97973fa66e798b1f",
-        "d231b6ee48ed52f7accef419e25d631d4b4d0971940431aa2ca91f3eaeb1c75c",
+        "3cfcde8d051a418a342f439252ee8bc4e244155cbe5944a4806b88ac06f87a13",
+        "a5ac82363dfaed45acae2318360fe443e465544c65d581802a2c61f95dc424df",
     ),
     (
         "dense_scrutiny",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "c9336f5155e654f67958d932d974cecb54423d80cd72c14fc868a15cb7791b3b",
-        "07742144211b669b283ee455afa739511b4ba0cd1ec4bdbcdadf47fe9ae0ae46",
+        "2e69b43cb8ccd0cef2282ad79b2af89718b149afdc2faf331ae171c3268bbcb1",
+        "0a357a3a0a174d1315a5489ff5bf54dab37f0562ebf2dee357fbe80447c6e8ab",
     ),
 ];
 /// The committed exact goldens' file sha256.
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
-    ("sparse_interactive", "a5947cdefa432a69bafa0b8bae62f7ddefd7d17d2e13ba00b85fcfe1553d8922"),
-    ("dense_scrutiny", "f0eafab7b254258c644bac3817f992282f8cb44932263a2b390130f8a7bfa97a"),
+    ("sparse_interactive", "730fb6e44e8a8dd4f6d4712fb40c7f9968c317c4faa707d4a6af62086bc3702c"),
+    ("dense_scrutiny", "5e7b0ca939e136bbf4fae45c6db9727b804535d6edc445283963fcc30afc906a"),
 ];
 /// The m3x successors' validated class counts (relative, absolute, input-derived,
-/// non-quantity); no `not_covered` row. T4-U6 (D-5 §2.5): each of the member's 21
+/// non-quantity, not-covered). T4-U6 (D-5 §2.5): each of the member's 21
 /// reduced stress twins takes its nominal row's class (5 relative, 16 absolute;
-/// the receipt's own lists stay at 25 and 69).
-const EXACT_CLASSES: [(&str, [usize; 4]); 2] = [
-    ("sparse_interactive", [25 + 5, 69 + 16, 3, 1]),
-    ("dense_scrutiny", [25 + 5, 69 + 16, 3, 1]),
+/// the receipt's own lists stay at 25 and 69). T4-U4b (U4B-RP): the 30 derived
+/// σ⁺, σ⁻ and τ_v,max rows (five stations, both bases) are not covered.
+const EXACT_CLASSES: [(&str, [usize; 5]); 2] = [
+    ("sparse_interactive", [25 + 5, 69 + 16, 3, 1, 30]),
+    ("dense_scrutiny", [25 + 5, 69 + 16, 3, 1, 30]),
 ];
 /// One set of goldens: the pinned successors, their identity, the goldens' file
 /// prefix and sha256, and the class counts; `label` prefixes the mode in messages
@@ -108,7 +109,7 @@ struct GoldenSet {
     pinned: [(&'static str, &'static str, &'static str, &'static str); 2],
     prefix: &'static str,
     golden_sha256: [(&'static str, &'static str); 2],
-    classes: [(&'static str, [usize; 4]); 2],
+    classes: [(&'static str, [usize; 5]); 2],
 }
 const T6S2: GoldenSet = GoldenSet {
     label: "",
@@ -409,7 +410,7 @@ fn golden_carries_the_receipt_evidence_and_class_disclosures(set: &'static Golde
             }] += 1;
         }
         let expected = m.set.classes.iter().find(|(mode, _)| *mode == m.pinned_mode).unwrap().1;
-        assert_eq!(counts, [expected[0], expected[1], expected[2], expected[3], 0], "{}", m.mode);
+        assert_eq!(counts, expected, "{}", m.mode);
         let rows = m.source["results"].as_array().unwrap();
         let disclosures = e["row_disclosures"].as_array().unwrap();
         let claimed = |x: &&Value| {
@@ -458,7 +459,7 @@ fn golden_carries_the_receipt_evidence_and_class_disclosures(set: &'static Golde
                 other => panic!("{} {id}: {other:?}", m.mode),
             }
         }
-        assert_eq!(classed, expected[1], "{}: one disclosure per absolute_verified or not_covered row", m.mode);
+        assert_eq!(classed, expected[1] + expected[4], "{}: one disclosure per absolute_verified or not_covered row", m.mode);
         assert_eq!(disclosures.iter().filter(claimed).count(), classed, "{}", m.mode);
     }
 }

@@ -36,10 +36,10 @@ const MODES: [PreviewSolverMode; 2] = [
 /// Protected relative criterion; never loosened.
 const RELATIVE: f64 = 1.0e-9;
 // B7b: a model with the load/reference-state group publishes the current exact
-// identities: pressure-1 (ordinary) and pressure-source-1 (a selected
+// identities: pressure-2 (ordinary) and pressure-source-1 (a selected
 // retained-source case), both under exact_pressure_v3. Its records keep their
 // own profile (resolved_straight_load_state_v1).
-const SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
+const SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 const PROFILE: &str = "exact_pressure_v3";
 const SOURCE_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 const SOURCE_PROFILE: &str = "exact_pressure_v3";
@@ -65,11 +65,11 @@ const EIGEN_MOTION_REQUEST: &str = concat!(
     "/../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json"
 );
 // B7b: the v2 witness (58ce5b95…) was deleted with exact_straight_pressure_v2. Its
-// pressure-source twin is the same witness re-authored to 0.5.0 (schema version,
+// pressure-source twin is the same witness re-authored to 0.6.0 (schema version,
 // exact_pressure_v3 contract with euler_bernoulli, corrosion allowance 0 m); every
 // declared witness input read below is unchanged.
 const EIGEN_MOTION_SHA256: &str =
-    "79da8affca8726761874be4ad7553ec9212c37042dd336d4dbf469adeb61ba5d";
+    "79820f837ed1be649af20304adea15402180d2422b983de16a673e53759e0382";
 
 // ---------------------------------------------------------------------------
 // Maintained analytical reference access
@@ -360,7 +360,7 @@ impl Model {
 
     fn request(&self) -> Value {
         json!({"model": {
-            "schema_version": "0.5.0",
+            "schema_version": "0.6.0",
             "document_kind": "openpipestress.product_preview.model",
             "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3",
                 "shear_model": "euler_bernoulli"},
@@ -561,7 +561,7 @@ fn common_envelope(out: &MechanicsEnvelope, label: &str) {
 fn solve(request: &Value, mode: PreviewSolverMode) -> MechanicsEnvelope {
     let label = mode.as_str();
     let out = run(request, mode).unwrap_or_else(|error| {
-        panic!("[{label}] valid 0.5.0 request rejected at the typed boundary: {error}")
+        panic!("[{label}] valid 0.6.0 request rejected at the typed boundary: {error}")
     });
     common_envelope(&out, label);
     assert_eq!(

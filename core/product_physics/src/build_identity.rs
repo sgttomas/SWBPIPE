@@ -163,7 +163,7 @@ pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     "../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json",
     // B7b deleted the physics-1, load-reference-1, load-reference-source-1 and
     // physics-source-1 tables with v2 (A4/A5); the others keep their order.
-    "../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json",
+    "../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json",
     // B4/D1 (b) removed the retired source-blocks-1 table and its receipt schema.
     // B2/B3 J1 (I93 REVISION_01 §1.4; B3-D decision B3D-18: appended, so existing
     // positions keep their meaning): the combination and exact formation definitions
@@ -175,9 +175,9 @@ pub(crate) const REVIEWED_INPUTS: [&str; REVIEWED_INPUT_COUNT] = [
     // (`pressure_source_contract()`), in the join's position.
     "../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json",
     // U5a: nonresident definition of the pressure joint record, evidence and row shapes.
-    "../../schemas/results_pressure_1.v0.3.schema.json",
+    "../../schemas/results_pressure_2.v0.3.schema.json",
     // B7b (O-10): the resident ordinary pressure table (`pressure_rows_contract()`).
-    "../../fixtures/results/semantic_contract_v0_3_pressure_1.json",
+    "../../fixtures/results/semantic_contract_v0_3_pressure_2.json",
 ];
 
 /// The reviewed-input text for the given digests (`None`: unreadable).

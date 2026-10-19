@@ -1,11 +1,11 @@
-"""Load/reference-state schema contract: model 0.5.0's optional load/reference-state group (B7b).
+"""Load/reference-state schema contract: model 0.6.0's optional load/reference-state group (B7b).
 
-Shape only. The authored namespace is checked against the current producer requests (model 0.5.0 with the exact
-pressure contract); raw evidence against the current producer envelopes, which publish pressure-1
-(`3.0.0/exact_pressure_v3`) with `contract_evidence.load_reference_states`: results_pressure_1.v0.3's
+Shape only. The authored namespace is checked against the current producer requests (model 0.6.0 with the exact
+pressure contract); raw evidence against the current producer envelopes, which publish pressure-2
+(`3.0.0/exact_pressure_v3`) with `contract_evidence.load_reference_states`: results_pressure_2.v0.3's
 PressureContractEvidence, whose records are load_reference_state.schema.json's LoadReferenceStateRecord. Coverage,
 unit dimension and parse-then-block rules are producer diagnostics and are not asserted here. Under the one shape
-pressure-1 shares with and without the group, three facts the retired load-reference-1 evidence schema encoded are
+pressure-2 shares with and without the group, three facts the retired load-reference-1 evidence schema encoded are
 reader checks (the group's presence, the exact cases' resolved material basis and the regions' resolved temperature
 basis); they are checked here through the readers, the product's (Rust) and the verifier. Carrier instances are the
 actual pressure_load_state_* AnalysisRun and stress-neutral fixtures the product's Python route builds, or a minimal
@@ -26,18 +26,18 @@ PROJECT = Path(__file__).resolve().parents[1]
 SCHEMAS = PROJECT / "schemas"
 LOAD_REFERENCE = PROJECT / "fixtures/product_preview/pressure/load_reference"
 LR_SCHEMA_NAME = "load_reference_state.schema.json"
-PRESSURE_SCHEMA_NAME = "results_pressure_1.v0.3.schema.json"
+PRESSURE_SCHEMA_NAME = "results_pressure_2.v0.3.schema.json"
 CARRIERS = ("results.v0.3.schema.yaml", PRESSURE_SCHEMA_NAME, "analysis_run.v0.3.schema.json", "stress_neutral_export.v0.3.schema.json")
 
 CONTRACT = "openpipestress.load_reference_state/1.0.0"
 RECORD_PROFILE = "resolved_straight_load_state_v1"
-PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
+PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 # T4-U6 (D-5, DEL-05-03 section-bases-and-timoshenko.md §2.4): the per-basis stress signatures (106).
-PRESSURE_SHA = "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e"
+PRESSURE_SHA = "e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PRESSURE_SOURCE_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-PREVIEW_SHA = "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32"
+PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
+PREVIEW_SHA = "ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387"
 RETIRED_LR_ID = "openpipestress.result_semantics/0.3.0/load-reference-1"
 RETIRED_IDS = ("openpipestress.result_semantics/0.3.0/physics-1", "openpipestress.result_semantics/0.3.0/physics-source-1",
                RETIRED_LR_ID, "openpipestress.result_semantics/0.3.0/load-reference-source-1")
@@ -91,7 +91,7 @@ def rejected(name, instance):
 
 
 def evidence_definition():
-    """results_pressure_1's PressureContractEvidence as a root of its own; its sibling references resolve locally."""
+    """results_pressure_2's PressureContractEvidence as a root of its own; its sibling references resolve locally."""
     root = schema_for_definition(PRESSURE_SCHEMA, "PressureContractEvidence")
     if "$id" in PRESSURE_SCHEMA:
         root["$id"] = PRESSURE_SCHEMA["$id"]
@@ -331,7 +331,7 @@ def test_resolved_material_shapes_differ_only_at_the_documented_keys():
     results = schema("results.v0.3.schema.yaml")["$defs"]
     base = results["PhysicsMaterial"]
     defs = LRS["$defs"]
-    # Pipe materials: PhysicsMaterial plus the two resolved-member keys; pressure-1 holds the same closed shape.
+    # Pipe materials: PhysicsMaterial plus the two resolved-member keys; pressure-2 holds the same closed shape.
     material = _without(defs["LoadReferencePipeMaterial"], ["description"])
     assert material["required"] == base["required"] + ["material_selection_kind", "resolved_eigenstrain"]
     assert {k: v for k, v in material["properties"].items() if k in base["properties"]} == base["properties"]
@@ -350,7 +350,7 @@ def test_resolved_material_shapes_differ_only_at_the_documented_keys():
 @pytest.mark.parametrize("stem", ("connected", "pressure"))
 def test_current_request_authored_namespace_validates(stem):
     model = request(stem)
-    assert model["schema_version"] == "0.5.0" and model["pressure_contract"] == EXACT_CONTRACT
+    assert model["schema_version"] == "0.6.0" and model["pressure_contract"] == EXACT_CONTRACT
     assert model["reference_configurations"]
     for index, configuration in enumerate(model["reference_configurations"]):
         validate_instance(definition("ReferenceConfiguration"), configuration, instance_label=f"{stem}:reference[{index}]")
@@ -378,7 +378,7 @@ def test_every_raw_envelope_contract_evidence_validates(path):
 
 
 def test_pressure_evidence_is_one_shape_and_the_retained_exact_shape_refuses_the_group():
-    """pressure-1 publishes one evidence shape with or without the group; the exact successor's retained shape
+    """pressure-2 publishes one evidence shape with or without the group; the exact successor's retained shape
     (results 0.3 ExactRetainedContractEvidence, straight members only) admits neither the group nor its
     resolved members."""
     evidence_accepted(strict_json(PRESSURE_RAW)["contract_evidence"])
@@ -531,7 +531,7 @@ def test_raw_unknown_key_is_rejected_at_every_object_level(path):
 
 
 # Missing keys: every key of the load/reference-state shapes (the evidence root, each load_reference_states
-# record and its sub-objects, exact_cases pipe_materials). The group itself is optional in pressure-1's one shape
+# record and its sub-objects, exact_cases pipe_materials). The group itself is optional in pressure-2's one shape
 # and is selected by presence: its removal is refused by the readers (below), not by the shape.
 RAW_KEYS = [(path, key) for path, node in walk_objects(RAW_SET)
             if path[1:] == () or path[1:2] == ("load_reference_states",) or "pipe_materials" in path
@@ -605,7 +605,7 @@ def test_raw_evidence_enum_and_constant_mutations_are_rejected(mutation):
     ("pressure_temperature_basis", "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS", "SOURCE_LOAD_REFERENCE_REGION_TEMPERATURE_BASIS"),
 ))
 def test_group_presence_and_resolved_bases_are_reader_checks_under_the_shared_shape(mutation, rust, verifier):
-    """The retired load-reference-1 evidence schema encoded these as constants; pressure-1's one shape admits
+    """The retired load-reference-1 evidence schema encoded these as constants; pressure-2's one shape admits
     them, and both readers refuse them (the verifier's text is its own, as its other generic codes)."""
     document = raw()
     evidence = document["contract_evidence"]
@@ -644,7 +644,7 @@ def test_raw_absent_optionals_are_null_and_admitted_values_are_accepted():
 # ---------------------------------------------------------------- carriers
 def test_carrier_branches_are_the_current_identities():
     """The results, AnalysisRun and stress-neutral carriers name the current identities only; a load/reference-state
-    publication is carried on pressure-1's (or pressure-source-1's) branch, whose evidence is PressureContractEvidence."""
+    publication is carried on pressure-2's (or pressure-source-1's) branch, whose evidence is PressureContractEvidence."""
     ids = [branch["properties"]["producer"]["properties"]["semantic_contract_id"]["const"]
            for branch in envelope_branches(schema("results.v0.3.schema.yaml"))]
     assert ids == [PRESSURE_SOURCE_ID, PREVIEW_ID, PRESSURE_ID,
@@ -766,7 +766,7 @@ def test_results_pressure_branch_rejects_contract_mixups(mutation):
     elif mutation == "ref_id": envelope["semantic_contract_ref"]["ref_id"] = PREVIEW_ID
     elif mutation == "profile": envelope["formulation_basis"]["profile_id"] = RECORD_PROFILE
     elif mutation == "unknown_id":
-        envelope["producer"]["semantic_contract_id"] = envelope["semantic_contract_ref"]["ref_id"] = PRESSURE_ID.replace("-1", "-2")
+        envelope["producer"]["semantic_contract_id"] = envelope["semantic_contract_ref"]["ref_id"] = PRESSURE_ID.replace("pressure-2", "pressure-3")
     elif mutation == "source_block_recovery": envelope["source_block_recovery"] = receipt()
     elif mutation == "preview_evidence": envelope["contract_evidence"] = strict_json(PREVIEW_RAW)["contract_evidence"]
     elif mutation == "missing_evidence": del envelope["contract_evidence"]
@@ -818,7 +818,7 @@ def test_analysis_run_pressure_branch_rejects_contract_mixups(mutation):
     evidence = raw()["contract_evidence"]
     if mutation == "preview_hash": record = _rebound(analysis, sha=PREVIEW_SHA)
     elif mutation == "retired_identity": record = _rebound(analysis, contract_id=RETIRED_LR_ID, sha="e41657242c65fe063b0cc3a82248191eb998dff9c80afdae03c8a7a419aa7f09")
-    elif mutation == "unknown_id": record = _rebound(analysis, contract_id=PRESSURE_ID.replace("-1", "-2"))
+    elif mutation == "unknown_id": record = _rebound(analysis, contract_id=PRESSURE_ID.replace("pressure-2", "pressure-3"))
     elif mutation == "mixed_rows": record = _rebound(analysis, rows=(PREVIEW_ID, PREVIEW_SHA))
     elif mutation == "contract_evidence":
         record = deepcopy(analysis)

@@ -8,8 +8,8 @@
  * labels are compared, not normalized. The desktop validator reads Python's carrier.
  * - Joined, pressure-source-1 (fixtures/results/pressure_source_load_state_*.analysis_run.json):
  *   a source record carrying contract_evidence and source_block_recovery.
- * - Ordinary, pressure-1 (fixtures/results/pressure_load_state_*.analysis_run.json): a record
- *   carrying neither, its result refs binding pressure-1's current table. */
+ * - Ordinary, pressure-2 (fixtures/results/pressure_load_state_*.analysis_run.json): a record
+ *   carrying neither, its result refs binding pressure-2's current table. */
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -60,7 +60,7 @@ async function mirror(name: string, kind: keyof typeof FAMILY = "joined") {
   const desktop = await buildAnalysisRunV03(raw, manifest, undefined, modelLoadBasisRefs(model));
   return { raw, model, python, desktop };
 }
-const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-1", sha256: "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e" };
+const PRESSURE_1 = { id: "openpipestress.result_semantics/0.3.0/pressure-2", sha256: "e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788" };
 
 describe("joined (pressure-source-1) AnalysisRun mirror", () => {
   it.each(LRS)("%s equals the Python carrier by canonical hash (route-independent fields normalized)", async name => {
@@ -75,17 +75,17 @@ describe("joined (pressure-source-1) AnalysisRun mirror", () => {
   });
 });
 
-describe("ordinary (pressure-1) AnalysisRun mirror", () => {
+describe("ordinary (pressure-2) AnalysisRun mirror", () => {
   it.each(LR)("%s equals the Python carrier by canonical hash (route-independent fields normalized); each validator reads the other's record", async name => {
     const { raw, model, python, desktop } = await mirror(name, "ordinary");
     expect(python.analysis_run.run_id).toBe(raw.run_id);
     expect(await canonicalSha256HexCheckedV1(normalize(desktop))).toBe(await canonicalSha256HexCheckedV1(normalize(python)));
     const run = desktop.analysis_run;
-    // Neither namespace is embedded: pressure-1 is not a source record (Python's SOURCE_RECORD_CONTRACT_IDS).
+    // Neither namespace is embedded: pressure-2 is not a source record (Python's SOURCE_RECORD_CONTRACT_IDS).
     expect(Object.hasOwn(run, "contract_evidence")).toBe(false);
     expect(Object.hasOwn(run, "source_block_recovery")).toBe(false);
     expect(Object.hasOwn(run, "retained_precision")).toBe(false);
-    // The record and every result ref bind pressure-1's current table.
+    // The record and every result ref bind pressure-2's current table.
     expect(run.reproducibility.semantic_contract).toStrictEqual(PRESSURE_1);
     expect(run.result_refs).toHaveLength(raw.results.length);
     for (const ref of run.result_refs) expect({ id: ref.semantic_contract?.id, sha256: ref.semantic_contract?.sha256 }).toStrictEqual(PRESSURE_1);
@@ -125,7 +125,7 @@ function pythonValidatorText(): string {
 describe("records bound to other evidence are refused", () => {
   it.each([
     ["ordinary carrying contract_evidence", (r: Json, raw: Json) => { r.analysis_run.contract_evidence = structuredClone(raw.contract_evidence); }, "ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN"],
-    ["ordinary bound to pressure-source-1's table", (r: Json) => { r.analysis_run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
+    ["ordinary bound to pressure-source-1's table", (r: Json) => { r.analysis_run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
     ["ordinary with another row binding", (r: Json) => { r.analysis_run.result_refs[0].semantic_contract.sha256 = "0".repeat(64); }, "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"],
     ["ordinary carrying a retained-precision receipt", (r: Json) => { r.analysis_run.retained_precision = { receipt_sha256: "0".repeat(64) }; }, "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"],
   ])("%s (the same code as Python's validator)", async (_name, edit, code) => {

@@ -29,7 +29,7 @@ import { RETAINED_PRECISION_DOWNGRADE_FORBIDDEN } from "../results/numericalResu
 import { numericalResultStanding } from "../results/resultStanding";
 import { RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED, RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE, RETAINED_PRECISION_VALIDATION_REQUIRED, registerRetainedPrecision } from "../results/retainedPrecisionStanding";
 import { validateRetainedPrecision } from "../results/retainedPrecisionReader";
-import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaceOutputRefusal } from "../results/outputPolicy";
+import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaceOutputRefusal } from "../results/outputPolicy";
 import { RETAINED_ABSOLUTE_VERIFIED, RETAINED_NOT_COVERED, retainedClassDisclosure } from "../results/retainedPrecisionDisclosure";
 import {
   CURRENT_ORIGIN_LIMIT, buildCurrentResultExport, currentReceivedOrigin, currentResultDocumentBase, deriveResultDocument, validateResultDocument, type JsonObject,
@@ -48,8 +48,8 @@ const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
 
 /** Current B7a goldens from the maintained I76 recipe and its fixed base/origin stand-ins. */
 const GOLDEN: Record<PreviewSolverMode, { path: string; sha256: string; base: string; origin: string; rows: number; nonQuantity: number }> = {
-  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "4924102a011b5919a86214df597d880064b26011f793cfeaa70f3a9d00d3b818", base: "d795f854f3e6094ceb8ff6a66c558f01a05ed795d471f04a60c44db64d809477", origin: "a86ed32ac4b09b5df60d1b6ff48c4140360c5b6fd0d64ace866e35d4581149f2", rows: 98, nonQuantity: 1 },
-  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "1508aaab91cf9b8b8794b527ec827da345ef898558cc71657ed877edde6c206d", base: "088d666e55f9e3f8b0a63c288e2c158ce39f7803f1604d03e59449d145b291cb", origin: "fd8403edc6e11af8b087984272219d19f69f252d7becc0b9fb7f1872107f9071", rows: 98, nonQuantity: 1 },
+  sparse_interactive: { path: "fixtures/results/retained_precision_successor_derivative_sparse_interactive.json", sha256: "f3720632f600a38283dfe470d52a09d167a161d8eaa44d48b78e14299e974d14", base: "d795f854f3e6094ceb8ff6a66c558f01a05ed795d471f04a60c44db64d809477", origin: "6e4cd5416c86fe4ed3a5a0cb93d5a871e5edc696662f3ebdbe61cfc90d4b857e", rows: 113, nonQuantity: 1 },
+  dense_scrutiny: { path: "fixtures/results/retained_precision_successor_derivative_dense_scrutiny.json", sha256: "96c35fe4e87ba92f31c8aee852da41a94ea0057812286363b560b393a43e4309", base: "088d666e55f9e3f8b0a63c288e2c158ce39f7803f1604d03e59449d145b291cb", origin: "afa3464c9fe9136e6449303a585a72c0b92ffd8817bcf11e95a23e072e45b0c5", rows: 113, nonQuantity: 1 },
 };
 /** I76's fixed stand-ins (its CHECKPOINT_1 section 2): test values, not a qualified manifest or build. */
 const MANIFEST_REF = "test:t6s-golden-reference-only-manifest";
@@ -154,7 +154,7 @@ describe.each(MODES)("%s: byte parity with I76's Rust golden (T6S-2, T6S-4)", (m
     const classes = (await validateRetainedPrecision(source)).classifications;
     const absolute = classes.filter(c => c.class === "absolute_verified");
     expect(source.results).toHaveLength(golden.rows);
-    expect([classes.filter(c => c.class === "relative_verified").length, absolute.length, classes.filter(c => c.class === "input_derived").length, classes.filter(c => c.class === "non_quantity").length, classes.filter(c => c.class === "not_covered").length]).toStrictEqual([25, 69, 3, golden.nonQuantity, 0]);
+    expect([classes.filter(c => c.class === "relative_verified").length, absolute.length, classes.filter(c => c.class === "input_derived").length, classes.filter(c => c.class === "non_quantity").length, classes.filter(c => c.class === "not_covered").length]).toStrictEqual([25, 69, 3, golden.nonQuantity, 15]);
     const disclosed = e.row_disclosures.filter((d: Json) => d.reason_code === RETAINED_ABSOLUTE_VERIFIED);
     expect(disclosed.map((d: Json) => d.source_result_id).sort()).toStrictEqual(absolute.map(c => c.result_id).sort());
     for (const d of disclosed) {
@@ -166,9 +166,11 @@ describe.each(MODES)("%s: byte parity with I76's Rust golden (T6S-2, T6S-4)", (m
       expect(e.unit_preservation_witnesses.some((w: Json) => w.source_result_ref.ref_id === row.id)).toBe(false);
       expect(e.row_accounting.find((a: Json) => a.source_result_id === row.id).disposition).toBe("disclosed");
     }
-    expect(e.row_disclosures.filter((d: Json) => d.reason_code === RETAINED_NOT_COVERED)).toHaveLength(0);
-    expect(e.row_disclosures).toHaveLength(69 + golden.nonQuantity);
-    expect(e.result_sets[0].values).toHaveLength(golden.rows - 69 - golden.nonQuantity);
+    // T4-U4b: the member's 15 derived rows (σ⁺, σ⁻, τ_v,max at five stations) are not_covered: disclosed, not valued.
+    const notCovered = classes.filter(c => c.class === "not_covered").map(c => c.result_id).sort();
+    expect(e.row_disclosures.filter((d: Json) => d.reason_code === RETAINED_NOT_COVERED).map((d: Json) => d.source_result_id).sort()).toStrictEqual(notCovered);
+    expect(e.row_disclosures).toHaveLength(69 + 15 + golden.nonQuantity);
+    expect(e.result_sets[0].values).toHaveLength(golden.rows - 69 - 15 - golden.nonQuantity);
     expect(disclosed.find((d: Json) => d.source_result_id === "result:disp:N0").message).toBe("displacement_magnitude: retained_precision_absolute_verified; verified only to the receipt's absolute bound b = 5.4215527659630466e-24 m (binary64 3b1a378ea78c5ce9), below the relative accuracy floor; source value/unit and annotation retained; withheld from rule binding and reliance");
     // No standing token, no invocation and no producer-origin claim (CQ-4, CQ-5; D-U7-6).
     const text = JSON.stringify(doc);
@@ -202,8 +204,8 @@ describe.each(MODES)("%s: the Current builder and panel export an eligible succe
   it("the panel offers the local result JSON, with its summary line", async () => {
     const { received, model, analysisRun, inputManifest } = await eligible(mode);
     render(<ResultExportPanel model={model} result={received} analysisRun={analysisRun} inputManifest={inputManifest} />);
-    expect((await screen.findByTestId("result-export-summary", undefined, { timeout: 10_000 })).textContent).toContain(`available; rows=${GOLDEN[mode].rows - 69 - GOLDEN[mode].nonQuantity}`);
-    expect(screen.getByTestId("result-export-retained-precision-summary").textContent).toBe("Retained precision, per case: case: 69 verified only to an absolute bound; 0 uncovered.");
+    expect((await screen.findByTestId("result-export-summary", undefined, { timeout: 10_000 })).textContent).toContain(`available; rows=${GOLDEN[mode].rows - 69 - 15 - GOLDEN[mode].nonQuantity}`);
+    expect(screen.getByTestId("result-export-retained-precision-summary").textContent).toBe("Retained precision, per case: case: 69 verified only to an absolute bound; 15 uncovered.");
     cleanup();
     // A moved model is not the live capture: the panel refuses with the standing's code.
     render(<ResultExportPanel model={moved(model)} result={received} analysisRun={analysisRun} inputManifest={inputManifest} />);
@@ -228,7 +230,7 @@ describe.each(MODES)("%s: the negative controls refuse with their expected codes
     const doc = await deriveResultDocument(base, model, source, origin);
     // A relabelled statement reads unsupported.
     const relabelled = structuredClone(source) as Json;
-    relabelled.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+    relabelled.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-2";
     relabelled.formulation_basis.profile_id = "product_preview_mechanics_v1";
     await expect(deriveResultDocument(base, model, relabelled, await currentReceivedOrigin(model, relabelled, MANIFEST_REF, ORIGIN_LIMIT))).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
     await expect(validateResultDocument(doc, relabelled)).rejects.toThrow("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
@@ -273,9 +275,9 @@ describe.each(MODES)("%s: the negative controls refuse with their expected codes
 });
 
 describe("a load/reference-state result keeps T1's refusal", () => {
-  // B7b: published under pressure-1 (ordinary) or pressure-source-1 (joined), each refused by its own reason.
+  // B7b: published under pressure-2 (ordinary) or pressure-source-1 (joined), each refused by its own reason.
   it.each([
-    ["fixtures/product_preview/pressure/load_reference/pressure", PRESSURE_1_OUTPUT_REFUSAL],
+    ["fixtures/product_preview/pressure/load_reference/pressure", PRESSURE_2_OUTPUT_REFUSAL],
     ["fixtures/product_preview/pressure_source/load_reference_source/mixed", PRESSURE_SOURCE_OUTPUT_REFUSAL],
   ] as const)("%s: in the Current builder, the derivative and the validator", async (stem, reason) => {
     const result = json(`${stem}-sparse_interactive.raw.json`) as MechanicsResult;
@@ -329,12 +331,13 @@ describe("the corpus's synthetic two-case bases, read by id", () => {
 const EXACT_GOLDEN: Record<PreviewSolverMode, { successor: string; successorSha256: string; receiptSha256: string; path: string; sha256: string; rows: number }> = {
   // B7b D4 (a): the successors regenerated on the registered pressure-1 base (16478cadf4; Rust
   // `EXACT_PINNED` (file and receipt sha256) and `EXACT_GOLDEN_SHA256` in retained_precision_derivative_golden.rs).
-  // T4-U6 (D-5): regenerated with the member's 21 reduced stress twins (98 + 21 rows).
-  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "79d40f1a67c74efa911e408fca9c19c45ea9b6d9de7f60de97973fa66e798b1f", receiptSha256: "d231b6ee48ed52f7accef419e25d631d4b4d0971940431aa2ca91f3eaeb1c75c", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "a5947cdefa432a69bafa0b8bae62f7ddefd7d17d2e13ba00b85fcfe1553d8922", rows: 98 + 21 },
-  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "c9336f5155e654f67958d932d974cecb54423d80cd72c14fc868a15cb7791b3b", receiptSha256: "07742144211b669b283ee455afa739511b4ba0cd1ec4bdbcdadf47fe9ae0ae46", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "f0eafab7b254258c644bac3817f992282f8cb44932263a2b390130f8a7bfa97a", rows: 98 + 21 },
+  // T4-U6 (D-5): regenerated with the member's 21 reduced stress twins (98 + 21 rows);
+  // T4-U4b adds 15 derived not_covered rows per basis (98 + 15 + 21 + 15).
+  sparse_interactive: { successor: "fixtures/results/retained_precision_exact_successor_sparse_interactive.json", successorSha256: "3cfcde8d051a418a342f439252ee8bc4e244155cbe5944a4806b88ac06f87a13", receiptSha256: "a5ac82363dfaed45acae2318360fe443e465544c65d581802a2c61f95dc424df", path: "fixtures/results/retained_precision_exact_successor_derivative_sparse_interactive.json", sha256: "730fb6e44e8a8dd4f6d4712fb40c7f9968c317c4faa707d4a6af62086bc3702c", rows: 98 + 15 + 21 + 15 },
+  dense_scrutiny: { successor: "fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", successorSha256: "2e69b43cb8ccd0cef2282ad79b2af89718b149afdc2faf331ae171c3268bbcb1", receiptSha256: "0a357a3a0a174d1315a5489ff5bf54dab37f0562ebf2dee357fbe80447c6e8ab", path: "fixtures/results/retained_precision_exact_successor_derivative_dense_scrutiny.json", sha256: "5e7b0ca939e136bbf4fae45c6db9727b804535d6edc445283963fcc30afc906a", rows: 98 + 15 + 21 + 15 },
 };
 describe.each(MODES)("%s: byte parity with the exact successor's Rust golden (B3b-T)", (mode) => {
-  it("derives the golden's exact canonical bytes; it validates and carries the receipt and pressure-1's evidence", async () => {
+  it("derives the golden's exact canonical bytes; it validates and carries the receipt and pressure-2's evidence", async () => {
     const golden = EXACT_GOLDEN[mode];
     const bytes = readFileSync(resolve(root, golden.successor));
     expect(sha256(bytes)).toBe(golden.successorSha256);

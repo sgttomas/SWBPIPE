@@ -266,7 +266,7 @@ fn k1_sparse_evidence_is_the_dense_evidence_on_the_pattern() {
         let sparse = case.sparse_evidence(&k);
         assert_eq!(
             format!("{:?}", dense.contributions),
-            format!("{:?}", sparse.contributions()),
+            format!("{:?}", sparse.contributions),
             "{}",
             m.name
         );
@@ -1617,4 +1617,88 @@ fn chord_connector(
         [0.0; 6],
     )
     .unwrap()
+}
+
+/// T4-U5b (S3): a connector's tie rods enter both evidences after every
+/// connector, as the kernel assembles them and K-D5 walks them: one 12×12
+/// block per rod, equal to its formed Ke (times 2^b on the scaled evidence),
+/// so the formation check closes in both representations and both modes.
+/// The same connector without rods keeps its contributions unchanged.
+#[test]
+fn tie_rod_connectors_bind_their_contributions_after_the_connectors_in_both_evidences() {
+    use open_pipe_stress_frame_kernel::tie_rod::TieRodInput;
+    let i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+    let j = FrameNode::new(1, [1.0, 0.5, 0.25]).unwrap();
+    let untied = chord_connector(i, j, [5e6, 4e6, 2e3, 1e3]);
+    let rods = [
+        TieRodInput { offset_i: [0.0, 0.1, 0.0], offset_j: [0.05, 0.1, 0.0], stiffness: 1.0e7, reference_extension: -1.0e-3 },
+        TieRodInput { offset_i: [0.0, -0.1, 0.02], offset_j: [0.0, -0.1, 0.0], stiffness: 3.0e6, reference_extension: 0.0 },
+    ];
+    let tied = untied.clone().with_tie_rods(&rods).unwrap();
+    let springs: Vec<(usize, f64)> = (0..6).map(|d| (d, 1.0e9)).collect();
+    let scale = ForceScale::new(6).unwrap();
+    let untied_count = AssemblyEvidence::new(2, &[], std::slice::from_ref(&untied), &[], &springs)
+        .unwrap()
+        .contributions
+        .len();
+    let connectors = vec![tied.clone()];
+    let dense = AssemblyEvidence::new(2, &[], &connectors, &[], &springs).unwrap();
+    assert_eq!(dense.contributions.len(), untied_count + 2 * 144);
+    // Frames (none), the connector's block, then each rod's block, then springs.
+    for (r, rod) in tied.tie_rods().iter().enumerate() {
+        let ke = rod.global_stiffness().unwrap();
+        let block = &dense.contributions[144 * (1 + r)..144 * (2 + r)];
+        for (index, entry) in block.iter().enumerate() {
+            assert_eq!(entry.value.to_bits(), ke[index / 12][index % 12].to_bits());
+        }
+    }
+    let scaled = AssemblyEvidence::new_force_scaled(2, &[], &connectors, &[], &springs, scale).unwrap();
+    let ke = tied.tie_rods()[0].force_scaled_global_stiffness(scale).unwrap();
+    for (index, entry) in scaled.contributions[144..288].iter().enumerate() {
+        assert_eq!(entry.value.to_bits(), ke[index / 12][index % 12].to_bits());
+    }
+    // The formation check closes on the tied assembly in both representations.
+    let sparse = assemble_sparse_stiffness(2, &[], &connectors, &[], &springs, &SparseAssemblyOptions::new()).unwrap();
+    let k = sparse.to_dense();
+    let mut ledger = LoadLedger::new();
+    for (dof, value) in [(6, 1.0e3), (7, -2.0e2), (11, 5.0)] {
+        ledger.push(format!("load:{dof}"), dof, value);
+    }
+    let force = ledger.finish(12).unwrap();
+    let free: Vec<usize> = (0..12).collect(); // node 0 grounded by its springs
+    for mode in MODES {
+        let d = dense.solve_assembled_with_formation_check(&k, &force, &free, &[], mode, &[], true).unwrap();
+        let p = SparseAssemblyEvidence::new(sparse.pattern(), 2, &[], &connectors, &[], &springs)
+            .unwrap()
+            .solve_assembled_with_formation_check(&sparse, &force, &free, &[], mode, &[], true)
+            .unwrap();
+        assert_eq!(d.report.quality, SolveQuality::Passed, "{mode:?}");
+        assert_eq!(p.report.quality, SolveQuality::Passed, "{mode:?}");
+        assert_eq!(bits(&d.displacements), bits(&p.displacements), "{mode:?}");
+    }
+}
+
+/// T4-U5b round 3 (absorption per element): a frame whose every candidate
+/// diagonal (those landing on node 1, already stiffened by the first frame)
+/// is absorbed is still refused, at its first absorbed DOF, by both
+/// representations: its entries on the anchored node 2 open new diagonals and
+/// are no candidates. The adapter supplies the exact element groups.
+#[test]
+fn round3_a_fully_absorbed_frame_is_still_refused_in_both_representations() {
+    let stiff = n_section();
+    let soft = FrameSection::new(200e9 * 2f64.powi(-60), 80e9 * 2f64.powi(-60), stiff.area, stiff.second_moment_y, stiff.second_moment_z, stiff.torsion_constant).unwrap();
+    let frames = vec![
+        frame(0, [0.0, 0.0, 0.0], 1, [1.0, 0.0, 0.0], stiff, [0.0, 1.0, 0.0]),
+        frame(1, [1.0, 0.0, 0.0], 2, [2.0, 0.0, 0.0], soft, [0.0, 1.0, 0.0]),
+    ];
+    let rigid: Vec<usize> = (0..6).chain(12..18).collect();
+    let case = simple_case(3, frames, Vec::new(), &rigid, vec![(7, 1.0e3)]);
+    let evidence = case.dense_evidence();
+    assert_eq!(evidence.contribution_groups, vec![144, 288]);
+    for mode in MODES {
+        let result = solve_checked(&case, mode);
+        let rendered = render(&result);
+        assert!(rendered.contains("positive diagonal contribution absorbed by assembly; stabilization unresolved")
+            && rendered.contains("global_dof: Some(6)"), "{mode:?}: {rendered}");
+    }
 }

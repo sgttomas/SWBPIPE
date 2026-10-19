@@ -26,14 +26,14 @@ from schema_validation import (  # noqa: E402
 
 # b7-plan E2: one result-export version (0.3.0); the dispatcher has its own focused tests.
 SCHEMA_PATH = ROOT / "schemas" / "results.v0.3.schema.yaml"
-# The bundled demo's preview-physics-1 output (the current mechanics-result carrier).
+# The bundled demo's preview-physics-2 output (the current mechanics-result carrier).
 PRODUCT_PREVIEW_RESULT_PATH = (
     ROOT / "fixtures" / "product_preview" / "invented_demo_result_preview_physics_1_sparse.json"
 )
 # Committed 0.3.0 result-export documents, as derive_document writes them.
 CURRENT_EXPORT_PATHS = tuple(
     ROOT / "fixtures" / "results" / name
-    # B7b: the pressure-1 and pressure-source-1 twins of the retired load-reference documents.
+    # B7b: the pressure-2 and pressure-source-1 twins of the retired load-reference documents.
     for name in ("pressure_load_state_connected_sparse.document.json", "pressure_source_load_state_n05_sparse.document.json")
 )
 TP_PHYS_015_RESULT_ENVELOPE_PATH = (
@@ -655,11 +655,24 @@ def test_preview_station_metadata_matches_complete_canonical_contract():
         "axial_normal_stress", "bending_normal_stress_y",
         "bending_normal_stress_z", "torsional_shear_stress",
     }
-    rows = [
+    # T4-U4b (§2.2): every station also publishes the section extremes and the transverse shear maximum, in the
+    # section frame under their own basis tokens and sign texts.
+    u4b = {"sigma_plus": "section_extremes_from_published_stress_rows_v1",
+           "sigma_minus": "section_extremes_from_published_stress_rows_v1",
+           "tau_v_max": "saint_venant_annulus_flexure_v1"}
+    station_rows = [
         row for row in load_product_preview_result()["results"]
         if row.get("basis_ref", {}).get("ref_type") == "load_case"
         and row.get("metadata", {}).get("location") in locations
     ]
+    derived = [row for row in station_rows if row["metadata"]["component"] in u4b]
+    assert {(row["metadata"]["component"], row["metadata"]["location"]) for row in derived} == {
+        (component, location) for component in u4b for location in locations}
+    for row in derived:
+        metadata = row["metadata"]
+        assert (metadata["coordinate_system"], metadata["basis"], row["unit"]) == ("pipe_section", u4b[metadata["component"]], "MPa"), row["id"]
+        assert metadata["sign_convention"].startswith(("signed section normal-stress extreme", "nonnegative Saint-Venant transverse shear maximum")), row["id"]
+    rows = [row for row in station_rows if row["metadata"]["component"] not in u4b]
     assert rows
     seen = set()
     for row in rows:

@@ -14,7 +14,7 @@ import pytest
 from tests.verifiers import physics_source as composite
 from tests.verifiers import section_basis as sb
 from tests.verifiers.physics_evidence import validate_transport_metadata as physics_transport
-from tests.verifiers.pressure_1 import validate_pressure_evidence
+from tests.verifiers.pressure_2 import validate_pressure_evidence
 from tests.verifiers.source_blocks import domain_hash, _derived, _signature
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -62,11 +62,11 @@ def test_actual_producer_requires_original_full_invocation(name, mode):
 
 def test_current_table_identities_remain_pinned():
     # B1 deleted precision-1's table, B4/D1 (b) source-blocks-1's and B7b the v2 tables; the composite's own
-    # current table and the ordinary pressure-1 table stay pinned, each resident on its own.
-    for retired in ("precision_1", "source_blocks_1", "physics_1", "physics_source_1", "load_reference_1", "load_reference_source_1"):
+    # current table and the ordinary pressure-2 table stay pinned, each resident on its own.
+    for retired in ("precision_1", "pressure_1", "preview_physics_1", "source_blocks_1", "physics_1", "physics_source_1", "load_reference_1", "load_reference_source_1"):
         assert not (ROOT/f"fixtures/results/semantic_contract_v0_3_{retired}.json").exists()
     from core.analysis_runs.compatibility import PRESSURE_CONTRACT_SHA256, PRESSURE_SOURCE_CONTRACT_SHA256
-    expected={"pressure_source_1":PRESSURE_SOURCE_CONTRACT_SHA256, "pressure_1":PRESSURE_CONTRACT_SHA256}
+    expected={"pressure_source_1":PRESSURE_SOURCE_CONTRACT_SHA256, "pressure_2":PRESSURE_CONTRACT_SHA256}
     for name,digest in expected.items():
         assert hashlib.sha256((ROOT/f"fixtures/results/semantic_contract_v0_3_{name}.json").read_bytes()).hexdigest()==digest
     assert composite.PRESSURE_TABLE_SHA256==PRESSURE_SOURCE_CONTRACT_SHA256
@@ -95,7 +95,7 @@ def test_maximum_basis_is_a_signature_discriminator_only():
 
 def test_other_entrypoints_refuse_composite_and_cross_namespace_sources():
     source,invocation=actual()
-    # The ordinary pressure-1 reader refuses the composite's receipt namespace.
+    # The ordinary pressure-2 reader refuses the composite's receipt namespace.
     with pytest.raises(ValueError):validate_pressure_evidence(source)
     retired=deepcopy(source);retired["producer"]["semantic_contract_id"]="openpipestress.result_semantics/0.3.0/source-blocks-1"
     v2=deepcopy(source);v2["producer"]["semantic_contract_id"]="openpipestress.result_semantics/0.3.0/physics-source-1";v2["formulation_basis"]["profile_id"]="exact_straight_pressure_v2"
@@ -233,7 +233,7 @@ def test_reduced_stress_check_reads_its_twin_by_bits_not_form(twin):
 
 
 def test_physics_transport_uses_received_evidence_without_raw_reconstruction():
-    # The exact successor's G7 transport check (results 0.3 ExactRetainedContractEvidence) over pressure-1 evidence.
+    # The exact successor's G7 transport check (results 0.3 ExactRetainedContractEvidence) over pressure-2 evidence.
     for name in ["pressure_connected_mechanics_sparse","pressure_thermal_ui_mechanics_sparse"]:
         source=json.loads((ROOT/f"fixtures/results/{name}.json").read_text())
         physics_transport({"contract_evidence":source["contract_evidence"]})

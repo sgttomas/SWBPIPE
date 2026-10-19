@@ -1,7 +1,7 @@
 //! The current pressure-source-1 reader on the ten committed joined producer
 //! envelopes that carry the load/reference-state group (B7b's v3 twins of the
 //! retired load-reference-source-1 statements, same physical inputs,
-//! 0.5.0/3.0.0/exact_pressure_v3), with the adversarial cases shared with the
+//! 0.6.0/3.0.0/exact_pressure_v3), with the adversarial cases shared with the
 //! Python verifier and the base-reader corpus. Both readers must reproduce every
 //! expectation in the case file. This proves consumer admission and carrier
 //! preservation, not producer authentication or numerical eligibility (a valid
@@ -17,7 +17,7 @@ const CASES: &str = include_str!("fixtures/load_reference_source_mutations.json"
 const TABLE: &str = include_str!(
     "../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json"
 );
-/// The pressure-1 reader's inherited-physics prefix ('lr' readings).
+/// The pressure-2 reader's inherited-physics prefix ('lr' readings).
 const INHERITED: &str = "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE";
 const MARKER: &str = "__LOAD_REFERENCE_SOURCE_TEXT__";
 const JOINED: [&str; 10] = [
@@ -480,8 +480,8 @@ fn table_bytes_and_transport_cases_match_in_rust() {
     for case in cases["table_cases"].as_array().unwrap() {
         let mut text = match case["file"].as_str() {
             None => TABLE.to_string(),
-            Some("fixtures/results/semantic_contract_v0_3_pressure_1.json") => include_str!(
-                "../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json"
+            Some("fixtures/results/semantic_contract_v0_3_pressure_2.json") => include_str!(
+                "../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json"
             )
             .to_string(),
             Some(other) => panic!("unknown table file {other}"),
@@ -652,7 +652,7 @@ fn header_dispatch_binds_one_profile_and_the_ordinary_reader_refuses_joined_stat
     }
     for name in JOINED {
         let raw = source(name);
-        // The ordinary pressure-1 reader refuses the receipt-carrying statement.
+        // The ordinary pressure-2 reader refuses the receipt-carrying statement.
         assert_eq!(
             s::validate_pressure_evidence(&raw).unwrap_err(),
             "SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE"

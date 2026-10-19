@@ -177,7 +177,8 @@ fn i50_actual_named_case_both_modes_complete_private_verdict() {
             NumericalQualityStatus::Sensitive
         );
         // E14: no parity row in either mode.
-        assert_eq!(e.results.len(), 98);
+        // T4-U4b: + the member's 15 derived rows (sigma+, sigma-, tau at five stations).
+        assert_eq!(e.results.len(), 113);
         assert_eq!((o.normalized_calls, o.case_calls, o.final_calls), (1, 1, 1));
         assert_eq!((o.invocation_calls, o.observation_calls), (1, 1));
         assert_eq!(o.invocation_mode, Some(mode));
@@ -523,6 +524,13 @@ fn i50_support_coverage_native_non_aliasing_and_g5a() {
                 }
             }
             _ => unreachable!(),
+        }
+        // T4-U4b §4.1: the not-covered derived rows are position-bound; a removed or added
+        // row ahead of them renumbers them, so the coverage refusal under test is reached.
+        for (i, r) in rows.iter_mut().enumerate() {
+            if let k::ProductRecipe::NotCovered { .. } = r.recipe {
+                r.recipe = k::ProductRecipe::NotCovered { row: i as u32 };
+            }
         }
         let spent = invocation.certify_product_case(case.run, owner, &o.facts, &rows);
         let error = spent.failure().unwrap();
@@ -963,7 +971,8 @@ fn actual_ordinary_zero_loaded_capture_and_final_verdict() {
             panic!("not selected")
         };
         assert_eq!(owner.publish().rows.len(), 52);
-        assert_eq!(e.results.len(), 74);
+        // T4-U4b: + the member's 15 derived rows (sigma+, sigma-, tau at five stations).
+        assert_eq!(e.results.len(), 89);
         assert!(
             o.numeric_failure.is_none(),
             "{:?}; {}",
@@ -1716,7 +1725,11 @@ fn i47_actual_selected_material_zero_loaded_capture_and_final_verdict() {
             panic!("not selected")
         };
         assert_eq!(owner.publish().rows.len(), 52);
-        assert_eq!(e.results.len(), 75);
+        // T4-U4b: + the member's sigma+ and sigma- at five stations. The selected point's moduli
+        // (E = 195 GPa, G = 55 GPa) give nu = E/(2G) - 1 outside the Saint-Venant domain, so the
+        // member has no tau rows and the case carries the named warning (W1 carries it unchanged).
+        assert_eq!(e.results.len(), 85);
+        assert!(e.diagnostics.iter().any(|d| d.code == "TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN"));
         assert!(
             o.numeric_failure.is_none(),
             "{:?}; {}",
@@ -2377,7 +2390,7 @@ fn b2p_early_hook_refuses_combinations_outside_d14() {
     }
 }
 /// T4 (RV14 N2), after B7b D4 (a): the capture's exact-route scope clause reads the current
-/// `3.0.0/exact_pressure_v3` contract that D1.3's branch E admits on model 0.5.0. A current
+/// `3.0.0/exact_pressure_v3` contract that D1.3's branch E admits on model 0.6.0. A current
 /// exact document is in scope on the exact route only; a pressure-free document on the
 /// preview route only; a document still declaring the retired v2 contract is not exact, is
 /// refused on the exact route, and D1.3 gives it no W1 route at all.
@@ -2649,7 +2662,9 @@ fn i51_frozen_owner_values_and_numeric_refusal_controls() {
             k::ProductRecipe::ModulusBasisRecord=>k::ProductRowSpec::material_record(r.id,r.case_id,r.body),
             _=>k::ProductRowSpec::mechanical(r.id,r.case_id,r.unit,r.body,r.recipe).unwrap(),}).collect();
         let draft=invocation.begin_prepared_product(case.run,owner,&prepared.capture().facts,&specs).into_ready().unwrap();
-        let (projected,builder)=draft.project().into_ready().unwrap();
+        let (projected,mut builder)=draft.project().into_ready().unwrap();
+        // T4-U4b §4.1: the not-covered derived rows, as the freeze completes them.
+        prepared.capture().complete_not_covered_for_test(&ordinary,&base,owner,&mut builder).unwrap();
         let maxima:Vec<_>=base.iter().enumerate().filter_map(|(i,r)|if let k::ProductRecipe::CircularMaximum{member}=r.recipe {
             Some(k::ProductMaximumValue::new(member,i,if variant==4{1.0}else{*r.value}).unwrap())}else{None}).collect();
         let (values,value_work)=builder.complete_maxima(&maxima).into_ready().unwrap();
@@ -3061,7 +3076,9 @@ fn i61_fk_certificate_failure(variant:usize)->(retained_product::PreparedCase,k:
             k::ProductRecipe::ModulusBasisRecord=>k::ProductRowSpec::material_record(r.id,r.case_id,r.body),
             _=>k::ProductRowSpec::mechanical(r.id,r.case_id,r.unit,r.body,r.recipe).unwrap(),}).collect();
         let draft=invocation.begin_prepared_product(case.run,owner,&prepared.capture().facts,&specs).into_ready().unwrap();
-        let (projected,builder)=draft.project().into_ready().unwrap();
+        let (projected,mut builder)=draft.project().into_ready().unwrap();
+        // T4-U4b §4.1: the not-covered derived rows, as the freeze completes them.
+        prepared.capture().complete_not_covered_for_test(&ordinary,&base,owner,&mut builder).unwrap();
         let maxima:Vec<_>=base.iter().enumerate().filter_map(|(i,r)|if let k::ProductRecipe::CircularMaximum{member}=r.recipe {
             Some(k::ProductMaximumValue::new(member,i,if variant==4{1.0}else{*r.value}).unwrap())}else{None}).collect();
         let (values,value_work)=builder.complete_maxima(&maxima).into_ready().unwrap();

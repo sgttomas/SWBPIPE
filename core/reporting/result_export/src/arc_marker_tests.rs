@@ -74,7 +74,7 @@ fn rhs(case: &str) -> Value {
         "screen_is_not_numerical_qualification": true})
 }
 
-/// A pressure-1 document under `shear_model` with explicitly empty pressure
+/// A pressure-2 document under `shear_model` with explicitly empty pressure
 /// regions: the straight member states the contract's model; with `arc`, the
 /// realized arc's entry is marked and Euler-Bernoulli and its maximum is
 /// withheld on both bases (so both headlines are null). Without the arc both
@@ -187,13 +187,14 @@ fn an_arc_outside_every_pressure_region_is_known_by_its_marker() {
         assert_eq!(read(&unknown), Err("SOURCE_PHYSICS_MEMBER_KIND".into()), "{pipe}");
     }
     // The marker on a straight member: an arc stating Timoshenko, or (stating
-    // Euler-Bernoulli) an arc whose maximum is not withheld.
+    // Euler-Bernoulli) an arc whose rows keep the straight sign conventions
+    // (T4-U4b: arcs publish their maximum, under the arc's own convention).
     let mut marked = timo.clone();
     edit_sections(&mut marked, STRAIGHT, &CASES, mark);
     assert_eq!(read(&marked), Err("SOURCE_PHYSICS_ARC_BEAM_THEORY".into()));
     let mut marked = document(eb, true);
     edit_sections(&mut marked, STRAIGHT, &CASES, mark);
-    assert_eq!(read(&marked), Err("SOURCE_PHYSICS_ARC_WITHHELD".into()));
+    assert_eq!(read(&marked), Err("SOURCE_PHYSICS_ROW_SEMANTICS".into()));
     // Realized arcs are a model fact: every case marks the same members.
     let mut one_case = document(eb, true);
     edit_sections(&mut one_case, ARC, &CASES[1..], unmark);
@@ -250,7 +251,7 @@ fn the_pressure_source_1_composite_refuses_a_realized_arc_by_name() {
     // A marked arc section, outside every pressure region.
     assert_eq!(composite(&document(sb::EULER_BERNOULLI, true)), Err("SOURCE_PHYSICS_ARC_UNSUPPORTED".into()));
     // An arc region record, refused before anything else is read from it; the
-    // pressure-1 reading of the same evidence does not refuse it by that name.
+    // pressure-2 reading of the same evidence does not refuse it by that name.
     let mut region = straight.clone();
     let mut geometry = section(ARC, euler_bernoulli(), true);
     geometry["traversal_forward"] = json!(true);

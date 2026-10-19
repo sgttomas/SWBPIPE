@@ -75,6 +75,11 @@ const SOURCES: &[Source] = &[
         name: "FK/connector.rs",
         text: include_str!("../src/connector.rs"),
     },
+    // T4-U5b (declared, additive): the explicit elastic tie rod.
+    Source {
+        name: "FK/tie_rod.rs",
+        text: include_str!("../src/tie_rod.rs"),
+    },
     Source {
         name: "FK/exact_sum.rs",
         text: include_str!("../src/exact_sum.rs"),
@@ -471,6 +476,27 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/connector.rs", "connector_reference_load_bound", 0, "T4-U3 (S13): the bound, upward products in exact sums rounded upward"),
     ("FK/connector.rs", "rotational_operand_bound", 0, "T4-U3 (S13): |B-hat - B| operand bound, upward products in exact sums rounded upward"),
     ("FK/connector.rs", "recover", 0, "T4-U3 (S14): each q - q_ref one exact sum rounded once; g, B^T g, Q g and U exact sums rounded once"),
+    // ---- T4-U5b (declared, additive; no row above changes): the explicit
+    // elastic tie rod sums through ExactAccumulator only, and its K-D5
+    // re-formations and certified recovery are stack p128/ball arithmetic.
+    ("FK/tie_rod.rs", "c", 0, "T4-U5b: each rotational entry of C one exact dot of n with the binary64 offset cross product, rounded once"),
+    ("FK/tie_rod.rs", "global_stiffness", 0, "T4-U5b: each Ke entry C_a k C_b one exact sum (error-free split of k*C_b) rounded once"),
+    ("FK/tie_rod.rs", "formation_roundoff", 0, "T4-U5b: the allowance, upward products rounded upward"),
+    ("FK/tie_rod.rs", "reference_load", 0, "T4-U5b: each +C^T k e_ref entry one exact sum rounded once; bound from K-D5's enclosure"),
+    ("FK/tie_rod.rs", "recover", 0, "T4-U5b: e = C d and e - e_ref one exact sum rounded once; T = k(e - e_ref) and C^T T exact products rounded once"),
+    ("FK/structural/formation_check.rs", "tie_rod_c", 0, "T4-U5b K-D5: p128 stack reformation of C from the authored operands"),
+    ("FK/structural/formation_check.rs", "tie_rod_matrix", 0, "T4-U5b K-D5: p128 stack reformation of C^T k C"),
+    ("FK/structural/formation_check.rs", "tie_rod_balls", 0, "T4-U5b K-D5: ball C, n and l with directed radii"),
+    ("FK/structural/formation_check.rs", "tie_rod_reference_balls", 0, "T4-U5b K-D5 closed intended load: ball +C^T k e_ref with directed radii"),
+    ("FK/structural/formation_check.rs", "tie_rod_reference_load_bounds", 0, "T4-U5b: |v - m| at p plus its rounding and the ball radius, every step upward"),
+    ("FK/structural/certified_recovery.rs", "certify_tie_rod_recovery", 0, "T4-U5b K-D5 repaired recovery: exact split products and corrected displacements in exact row sums; ball C and k C; radii/remainders directed; publication rounded once"),
+    // ---- T4-S5 (declared, additive; no row above changes): the epoch's
+    // integer counters. None forms a load at p or a recovery at p, so none is
+    // a force site (kd5-member-relative-bound.md, S11-F site table).
+    ("FK/structural.rs", "record", 3, "T4-U5b (S3): integer: the per-element absorbed-diagonal refusal's candidate, absorbed-candidate and element-group counts; it reads stiffness assembly flags, no load or force value"),
+    ("FK/structural/retained/product_certificate/final_case.rs", "project", 1, "T4-U4b (S4): integer: count of ProductRecipe::NotCovered rows left pending (NaN slot, no projection); no value is formed or summed"),
+    ("FK/structural/retained/product_certificate/final_case.rs", "complete_not_covered", 1, "T4-U4b (S4): integer: decrement of the pending not-covered count when PP completes one row; the completed value is stored, not accumulated"),
+    ("SA/structural_adapter.rs", "body", 1, "T4-U5b (S3): integer: the tie-rod edge index offset, the sum of the connectors' rod counts; no load or force value"),
 ];
 
 // ------------------------------------------------------------- scanner

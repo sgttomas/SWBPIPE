@@ -182,9 +182,10 @@ fn assert_rows_match_net_answer(
 /// load-row guard (its CannotBound curved terms), so it is not pre-guard
 /// Passed and keeps its binary64 recovery (DEL-04-01
 /// kd5-member-relative-bound.md §3.1 "Which rows publish"), while the single
-/// net load is Passed and publishes certified rows. The two recipes differ by
-/// binary64 rounding, not by the cancelling loads: every row id matches and
-/// each value is bit-identical or within 2^-34 of the largest reference row of
+/// net load is Passed and publishes certified rows and its corrected
+/// displacement. The two recipes differ by binary64 rounding, not by the
+/// cancelling loads: every row id matches and each value, displacements
+/// included, is bit-identical or within 2^-34 of the largest reference row of
 /// its unit (the unified predicate's relative floor). Returns how many differ.
 fn assert_binary64_rows_near_certified_net_answer(
     envelope: &MechanicsEnvelope,
@@ -192,7 +193,24 @@ fn assert_binary64_rows_near_certified_net_answer(
     label: &str,
 ) -> usize {
     let rows: BTreeMap<&str, &ResultItem> = case_rows(envelope, "case").map(|r| (r.id.as_str(), r)).collect();
-    let expected: BTreeMap<&str, &ResultItem> = case_rows(reference, "case").map(|r| (r.id.as_str(), r)).collect();
+    let mut expected: BTreeMap<&str, &ResultItem> = case_rows(reference, "case").map(|r| (r.id.as_str(), r)).collect();
+    // T4-U4b (§2.3): the cancelling loads' uniform intensities enter the arc
+    // maximum's problem one by one, and at G = 1e80 their enclosures cannot
+    // bound it; that maximum is withheld with PREVIEW_STRESS_MAXIMUM_UNAVAILABLE
+    // naming the arc, while the single net load's is published.
+    let withheld: Vec<&str> = expected
+        .iter()
+        .filter(|(id, r)| r.kind == "pipe_elastic_normal_stress_maximum_v2" && !rows.contains_key(*id))
+        .map(|(id, _)| *id)
+        .collect();
+    for id in withheld {
+        let pipe = &expected[id].entity_ref;
+        assert!(
+            envelope.diagnostics.iter().any(|d| d.code == "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE" && d.affected_refs.iter().any(|r| r == pipe)),
+            "{label}: {id} withheld without its diagnostic"
+        );
+        expected.remove(id);
+    }
     assert_eq!(rows.keys().collect::<Vec<_>>(), expected.keys().collect::<Vec<_>>(), "{label}: row ids");
     let mut scale: BTreeMap<&str, f64> = BTreeMap::new();
     for r in expected.values() {
@@ -206,7 +224,11 @@ fn assert_binary64_rows_near_certified_net_answer(
             continue;
         }
         differing += 1;
-        assert!(!r.kind.starts_with("global_nodal_"), "{label}: {id} is a displacement row");
+        // T4-U5b item 6: the demoted case has no certified bound and keeps the
+        // solve's own displacement while the Passed net-load reference
+        // publishes the corrected u + w + w2, so displacement rows fall under
+        // the same floor as every other row (measured: n1:uz 6.28331168557369328e-4
+        // against 6.28331168557369544e-4 mm, floor 3.7e-14 mm).
         let floor = scale[e.unit.as_str()] * 2f64.powi(-34);
         assert!((r.value - e.value).abs() <= floor, "{label}: {id} {} against {} (floor {floor:e})", r.value, e.value);
     }
@@ -755,7 +777,7 @@ fn probe_a(g: f64, order: [f64; 3]) -> Value {
         })
         .collect::<Vec<_>>();
     json!({"model": {
-        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
             "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
         "project": {"id": "invented:t3-s11f:probe-a", "units": {"length": "m", "force": "N", "angle": "rad",
@@ -921,6 +943,7 @@ fn c3_detect_flags(request: &Value) -> bool {
         free_dofs: &free,
         prescribed: &prescribed,
         contributions: None,
+        contribution_groups: None,
         symmetry: None,
     };
     let solution = solve_structural_dense_with_force_terms(&system, &terms).unwrap();
@@ -1144,7 +1167,7 @@ fn f2_probe_a_simply_supported(g: f64) {
 
 fn preview_model(id: &str) -> Value {
     json!({
-        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
             "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
         "project": {"id": format!("invented:t3-s11f:{id}"), "units": {"length": "m", "force": "N", "angle": "rad",
@@ -2172,5 +2195,27 @@ fn s1_unauditable_load_row_is_published_sensitive_with_the_warning() {
                 assert!(case_rows(&envelope, "case").count() > 0, "{label}");
             }
         }
+    }
+}
+
+/// T4-U5b item 6 (Codex scrutiny 4 (c)): at G = 1e80 probe A's formation
+/// check produced its member bound (quality Passed) and the later member
+/// recovery predicate (R-b') reports the case Sensitive. The bound existed,
+/// so the nodal rows are the corrected displacement fl(u + w + w2), as the
+/// rule states, bit for bit, in both modes.
+#[test]
+fn a_case_sensitive_after_recovery_keeps_the_corrected_displacement() {
+    use crate::corrected_displacement_tests::{assert_nodal_rows, corrected, with_publication_probe};
+    let request = probe_a(1e80, GNG);
+    for mode in MODES {
+        let label = format!("probe A G=1e80 {mode:?}");
+        let (envelope, records) = with_publication_probe(|| solved(Entry::Typed, &request, mode));
+        assert_integrity_at_g(&envelope, 1e80, &label);
+        assert_eq!(records.len(), 1, "{label}");
+        let record = &records[0];
+        assert!(record.bound.is_some(), "{label}: the formation check's bound existed");
+        let expected = corrected(record);
+        assert_eq!(record.published, expected, "{label}");
+        assert_nodal_rows(&envelope.results, &["root", "tip"], &expected, &label);
     }
 }

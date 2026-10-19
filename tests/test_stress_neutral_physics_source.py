@@ -3,8 +3,8 @@
 Projection arguments identify the supplied records, not a fresh native invocation.
 No source header, quality flag, numeric value or method receipt is fabricated.
 
-B7b (A4/A5): the current exact identities are pressure-1 and pressure-source-1 (`3.0.0/exact_pressure_v3`); they
-take over the retired physics-1 and physics-source-1 packages, over the regenerated v3 producer twins. pressure-1
+B7b (A4/A5): the current exact identities are pressure-2 and pressure-source-1 (`3.0.0/exact_pressure_v3`); they
+take over the retired physics-1 and physics-source-1 packages, over the regenerated v3 producer twins. pressure-2
 has no transport reader in Rust (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED), so its package is validated with its source.
 """
 from copy import deepcopy
@@ -54,7 +54,7 @@ def section_token(recovery: str, row: dict) -> bool:
 
 
 def bound(raw):
-    """The validator's source bindings a package needs on its own: pressure-1 has no transport reader, so its
+    """The validator's source bindings a package needs on its own: pressure-2 has no transport reader, so its
     package is read through its source; every other method also validates standalone."""
     return {"source_envelope": raw} if raw["producer"]["semantic_contract_id"] == PRESSURE_CONTRACT_ID else {}
 
@@ -106,7 +106,7 @@ def test_actual_physical_and_source_methods_roundtrip_all_nine_members(path, tmp
     assert packet["contract_evidence"] == raw["contract_evidence"]
     assert "source_block_recovery" not in packet
     validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label=path.stem)
-    # Rust has no pressure-1 transport reader: without its source the package is refused by Rust's name.
+    # Rust has no pressure-2 transport reader: without its source the package is refused by Rust's name.
     with pytest.raises(ValueError, match=PRESSURE_TRANSPORT_UNSUPPORTED):
         sn.validate_stress_neutral_export_package(packet)
     sn.validate_stress_neutral_export_package(packet, source_envelope=raw)
@@ -181,7 +181,7 @@ def test_annotation_tampering_fails_even_after_package_rehash(change, path):
 
 
 def test_coherently_rehashed_annotation_is_not_an_authenticity_claim():
-    # Standalone transport needs a method with a transport reader: pressure-source-1's (pressure-1 has none).
+    # Standalone transport needs a method with a transport reader: pressure-source-1's (pressure-2 has none).
     raw, _, original = captured(COMPOSITE_DIR / "n05-sparse_interactive.raw.json")
     packet = deepcopy(original)
     # A nonnumeric raw annotation can be internally consistent but differs from
@@ -287,7 +287,8 @@ def test_cr02_actual_mixed_signed_zeros_survive_materialize_reopen_and_bind_orig
     negative_ids = {identity for identity, bits in original_bits.items() if bits == "8000000000000000"}
     positive_ids = {identity for identity, bits in original_bits.items() if bits == "0000000000000000"}
     assert negative_ids and positive_ids, "Actual mixed source must exercise both received zero signs"
-    assert len(negative_ids) == 52, "the capture's received -0 population"
+    # T4-U4b adds the five sigma- rows of the unloaded member's stations: RN(-0 - 0) = -0 (sigma+ = -0 + 0 = +0).
+    assert len(negative_ids) == 57, "the capture's received -0 population"
     sn.write_materialized_members(packet, tmp_path)
     reread = sn.read_materialized_members(tmp_path, source_envelope=raw, analysis_record=analysis)
     validate_instance(json.loads(SCHEMA.read_text()), reread, instance_label=f"CR02 {mode}")
@@ -481,7 +482,7 @@ def test_new_method_witness_and_category_cannot_override_table(change):
 
 # E3's equal-input Python construction basis: complete package-file witnesses, whose insertion-order file
 # encoding is distinct from the checked member encoding. B7b replaced the 14 v2 witnesses (load_reference_* and
-# load_reference_source_*) by their v3 twins: pressure-1 (pressure_load_state_*) and pressure-source-1
+# load_reference_source_*) by their v3 twins: pressure-2 (pressure_load_state_*) and pressure-source-1
 # (pressure_source_load_state_*) over the regenerated load/reference-state producer fixtures.
 E3_PACKAGE_NAMES = [
     f"{family}_{mode}"

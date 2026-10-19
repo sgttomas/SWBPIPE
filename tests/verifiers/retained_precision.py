@@ -33,26 +33,26 @@ ROOT = Path(__file__).resolve().parents[2]
 CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PROFILE = "product_preview_retained_w1a_v2"
 DEFINITION_ID = "RP-PREPARED-ORDINARY-DUAL-v1"
-DEFINITION_HASH = "688639f2578d7764b6aa88fb5e650c6c9421f01c328a7362d6dfe0d78acd65f7"
-TABLE_HASH = "842a011601ea5049c6e89abbd73a24176966ca23c9a8cf9c89336341f608f3ad"
+DEFINITION_HASH = "64ec69b842d6278323aa2ab2e140e999db52eb28e4a9965a567a90b04e228b41"
+TABLE_HASH = "4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f"
 # B2-C (CONTRACT §8 row 4, REVISION_02 §0): DEF-C's id and H, the preview table's second formation definition.
 COMBINATION_DEFINITION_ID = "RP-PREPARED-COMBINATION-DUAL-v1"
-COMBINATION_DEFINITION_HASH = "75b9414df919fb4e181aa06030249289b70f0518023afbe241f72e31b8b60f31"
+COMBINATION_DEFINITION_HASH = "a9219849d4dfecfc4e9529c6b648eb21cdf2e9872f2d681cc0c26cdfd2bdf6f1"
 PREVIEW_DEFINITIONS = [{"id": DEFINITION_ID, "sha256": DEFINITION_HASH}, {"id": COMBINATION_DEFINITION_ID, "sha256": COMBINATION_DEFINITION_HASH}]
 SELECTED_MEMBER_LOAD_MESSAGE = 'Retained-precision recovery (contribution_preserving_multiprecision_v1) is selected for this load case. Its full-span uniform member loads are represented by declared equivalent nodal loads, each entry within 2^-1022 of its exact consistent value relative to that value; the certificate certifies that declared-load problem. Its published rows carry recovery_method; the retained_precision receipt binds their certified classes, the native attempts and work, and the ordinary-attempt evidence.'
 RETAINED_DISPOSITIONS = ("retained_selected", "retained_unavailable")
 METHOD = "contribution_preserving_multiprecision_v1"
-# B3b (B3-D, final for J1, with REVISION_01): the `<physics-retained>` route. Since B7b D4 (a) its base is pressure-1
-# (`3.0.0/exact_pressure_v3`): a current 0.5.0 model with the closed v3 Euler-Bernoulli contract and explicitly empty
+# B3b (B3-D, final for J1, with REVISION_01): the `<physics-retained>` route. Since B7b D4 (a) its base is pressure-2
+# (`3.0.0/exact_pressure_v3`): a current 0.6.0 model with the closed v3 Euler-Bernoulli contract and explicitly empty
 # pressure regions. G0 reads its table's bound values (§2.4; decision 31, N-12) and cross-checks them against these
 # constants, so neither drifts alone.
 EXACT_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 EXACT_DEFINITION_ID = "RP-PREPARED-EXACT-DUAL-v1"
 # T4-U6: DEF-E states zero mill tolerance and lists the reduced-basis rows and both headlines; the table follows the
-# inherited pressure-1 table's per-basis rows.
-EXACT_DEFINITION_HASH = "6c772d242ef47a354376f29f93fc69959ee2b4085b606af211da4b7f45c87f8e"
-EXACT_TABLE_HASH = "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6"
+# inherited pressure-2 table's per-basis rows.
+EXACT_DEFINITION_HASH = "87907c619777945ba76b045fcd425c81022f282f5d6a71239388217be98d9948"
+EXACT_TABLE_HASH = "ee1144c7302339accb61d51197d8f95b574c56c434895aa194d63b82f99be186"
 RECEIPT_POLICY = "M03-INTEGRITY-MP-v2"
 FACADE_POLICY = "RP-FACADE-SI-v2"
 RECEIPT_BINDINGS = {"canonicalization": "openpipestress_jcs_ijson_v1", "method": METHOD, "projection_policy": "RP-LOGICAL-ATTEMPTS-v1",
@@ -86,10 +86,10 @@ class Route(NamedTuple):
 
 
 PREVIEW_ROUTE = Route(False, CONTRACT_ID, PROFILE, DEFINITION_ID, DEFINITION_HASH,
-                      "openpipestress.result_semantics/0.3.0/preview-physics-1", "product_preview_mechanics_v1",
+                      "openpipestress.result_semantics/0.3.0/preview-physics-2", "product_preview_mechanics_v1",
                       "SOURCE_PREVIEW_PHYSICS_INVALID", frozenset({"SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID", "SOURCE_PREVIEW_PHYSICS_INVALID"}))
 EXACT_ROUTE = Route(True, EXACT_CONTRACT_ID, EXACT_PROFILE, EXACT_DEFINITION_ID, EXACT_DEFINITION_HASH,
-                    "openpipestress.result_semantics/0.3.0/pressure-1", "exact_pressure_v3",
+                    "openpipestress.result_semantics/0.3.0/pressure-2", "exact_pressure_v3",
                     "SOURCE_PHYSICS_EVIDENCE_INVALID", frozenset({"SOURCE_PHYSICS_EVIDENCE_INVALID"}))
 ROUTES = {PREVIEW_ROUTE.contract_id: PREVIEW_ROUTE, EXACT_ROUTE.contract_id: EXACT_ROUTE}
 
@@ -1454,7 +1454,9 @@ REQUESTED_MODE_SIGN = ("mode_code 1=sparse_interactive, 2=dense_scrutiny; the ca
                        "ordinary attempt, not an ordinary solve observation")
 NONQUANTITY_KINDS = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "modulus_basis_record", "combination_modulus_basis_record"}
 # C3:178-181: hull projection covers quantity rows except observed ancillary rows, support norms and maxima.
-HULL_EXCLUDED = NONQUANTITY_KINDS | {"support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2", "pipe_elastic_normal_stress_maximum_v2"}
+# T4-U4b §4.1: the not-covered derived kinds are never hull-projected (no projection outcome).
+HULL_EXCLUDED = NONQUANTITY_KINDS | {"support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2", "pipe_elastic_normal_stress_maximum_v2",
+                                     "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"}
 NONQUANTITY = {"linear_solver_mode_basis", REQUESTED_MODE_KIND, "modulus_basis_record", "combination_modulus_basis_record"}
 INPUT_KINDS = {"pipe_lame_hoop_stress_v2", "pipe_lame_radial_stress_v2", "pipe_section_pressure_hoop_stress", "pipe_section_pressure_longitudinal_stress", "constant_effort_support_applied_load", "component_user_stress_multiplier_review", "constant_effort_user_input_review", "spring_hanger_user_input_review"}
 FORCE = {"element_local_axial_force", "element_local_shear_force_y", "element_local_shear_force_z", "pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2", "reaction_resultant", "support_reaction_force_magnitude_v2"}
@@ -1493,6 +1495,8 @@ def _row_kind(row):
         if u in ("N", "kN"): return "force"
         if u in ("N*m", "kN*m"): return "moment"
     if k in STRESS and u in ("Pa", "MPa"): return "stress"
+    # T4-U4b §4.1 (REQ-001 "every other row kind"): the derived kinds are explicitly not covered.
+    if k in DERIVED_KINDS: return "not_covered"
     return "not_covered"
 
 
@@ -1706,6 +1710,9 @@ def _g5b_exact_evidence(evidence, case, source, rows=()):
     # retained value of its nominal twin, the bound row immediately before it (§2.5 row order).
     rows = list(rows)
     for i, row in enumerate(rows):
+        # T4-U4b §4.1: a derived row of either basis is its own not-covered row (G7's base read), never a twin.
+        if type(row) is dict and row.get("kind") in DERIVED_KINDS:
+            continue
         if not (_reduced_twin(row) or sb.id_basis(row.get("id")) == sb.REDUCED):
             continue
         nominal = rows[i - 1] if i > 0 else None
@@ -1713,9 +1720,15 @@ def _g5b_exact_evidence(evidence, case, source, rows=()):
              and number(row.get("value")) and number(nominal.get("value")) and bits(float(row["value"])) == bits(float(nominal["value"])))
 
 
+DERIVED_KINDS = frozenset({"element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"})
+
+
 def _reduced_twin(row):
     """T4-U6 (D-5, §2.3/§5): a reduced-section twin row, which binds no receipt quantity (the producer's
-    `reduced_twin`): outside the receipt's row universe. No preview row names a section basis."""
+    `reduced_twin`): outside the receipt's row universe. No preview row names a section basis. T4-U4b (§4.1):
+    a derived row (sigma+/sigma-, tau_v,max) of either basis is a not-covered row at its own position."""
+    if type(row) is dict and row.get("kind") in DERIVED_KINDS:
+        return False
     basis = row.get("metadata", {}).get("basis") if type(row) is dict and type(row.get("metadata")) is dict else None
     return isinstance(basis, str) and basis.endswith(sb.SEPARATOR + sb.REDUCED)
 
@@ -1902,12 +1915,12 @@ def _pressure_contract_is(model, expected):
 def _preview_namespace(model):
     """G8's namespace on the preview successor, type-strict (B3-D REVISION_01 §3, N-4): branch L, a pressure-free
     document keyed on the contract's absence (b7-plan "Model format, pressure-free half"): the current model version
-    0.5.0 with `pressure_contract` absent. Anything else is refused: a 0.5.0 model with any contract
+    0.6.0 with `pressure_contract` absent. Anything else is refused: a 0.6.0 model with any contract
     (`{}` and other falsy values included), the retired 0.1.0 and 0.2.0, and any 0.3.0 model, the retired
     {"version": "1.0.0", "mode": "legacy_pressure_v1"} included (B3a's branch L3 is dropped; the owner retired that
     contract product-wide)."""
     version = model.get("schema_version")
-    return (type(version) is str and version == "0.5.0" and "pressure_contract" not in model and "shear_model" not in model
+    return (type(version) is str and version == "0.6.0" and "pressure_contract" not in model and "shear_model" not in model
             and _section_allowances(model, exact=False))
 
 
@@ -1940,7 +1953,7 @@ def _exact_namespace(model):
     """G8's current exact namespace, with the closed v3 Euler–Bernoulli contract and an explicit zero corrosion
     allowance on every pipe section. Load/reference states remain outside the retained domain."""
     version = model.get("schema_version")
-    return (type(version) is str and version == "0.5.0" and "shear_model" not in model and _pressure_contract_is(model, EXACT_PRESSURE_CONTRACT)
+    return (type(version) is str and version == "0.6.0" and "shear_model" not in model and _pressure_contract_is(model, EXACT_PRESSURE_CONTRACT)
             and _section_allowances(model, exact=True))
 
 
@@ -2028,7 +2041,7 @@ def _guard_member_g8(body,invocation,exact=False):
     # a sections list before this early bound. Iterate existing pipes instead.
     member=any(isinstance(s,dict) and "member_load_terms" in s for s in items(field(body,"sources")))
     if not member and not exact:
-        preview=(type(field(model,"schema_version")) is str and model["schema_version"]=="0.5.0" and "pressure_contract" not in model and "shear_model" not in model
+        preview=(type(field(model,"schema_version")) is str and model["schema_version"]=="0.6.0" and "pressure_contract" not in model and "shear_model" not in model
                  and all(not isinstance(field(pipe,"section"),dict) or "corrosion_allowance" not in pipe["section"] for pipe in pipes))
         member=preview and any(field(field(load,"target"),"type")=="element" and field(load,"category")=="distributed_force"
                                and field(load,"dimension")=="force_per_length" for case in cases for load in items(field(case,"primitive_loads")))
@@ -2870,7 +2883,7 @@ def _transport_base(snapshot: dict[str, Any], route: Route = PREVIEW_ROUTE) -> N
     Its gate (the alignment set, item 4): the metadata check raises only SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID,
     and the header check never does (it runs first, and every header code differs), so that code is G7's and
     every other is the header's, G2. Raw reads keep Python's own header order at G7 (the declared raw codes).
-    B3b (B3-D §6.2, transport) with B7b D4 (a): on the exact branch the projection is pressure-1's and its metadata
+    B3b (B3-D §6.2, transport) with B7b D4 (a): on the exact branch the projection is pressure-2's and its metadata
     check is the exact-retained transport check (results 0.3's ExactRetainedContractEvidence), whose code
     (SOURCE_PHYSICS_EVIDENCE_INVALID) is G7's in the same way."""
     projected=_project(snapshot,route)
@@ -2897,8 +2910,8 @@ def _g0_exact(receipt):
     definition = json.loads((results / "retained_precision_prepared_exact_v1.json").read_text())
     need(_hash("retained_precision_formation_v1", definition) == EXACT_DEFINITION_HASH
          and _same(table.get("product_formation_definitions"), [{"id": EXACT_DEFINITION_ID, "sha256": EXACT_DEFINITION_HASH}]), "FORMATION_MISMATCH")
-    # 5. The table's bytes, and its inherited hash is pressure-1's packaged table (B7b D4 (a)).
-    inherited = (results / "semantic_contract_v0_3_pressure_1.json").read_bytes()
+    # 5. The table's bytes, and its inherited hash is pressure-2's packaged table (B7b D4 (a)).
+    inherited = (results / "semantic_contract_v0_3_pressure_2.json").read_bytes()
     need(hashlib.sha256(table_bytes).hexdigest() == EXACT_TABLE_HASH and hashlib.sha256(inherited).hexdigest() == table.get("inherited_semantic_contract_sha256"))
     # 6. The cross-check: each bound table value equals the reader's constant.
     policy = table.get("accuracy_classification")
@@ -2934,7 +2947,7 @@ def _preview_statics():
     each packaged formation definition (DEF-O, DEF-C) by id. G0's table-dependent checks take these as a parameter."""
     results = ROOT / "fixtures/results"
     return {"table": (results / "semantic_contract_v0_3_preview_physics_retained_1.json").read_bytes(), "table_hash": TABLE_HASH,
-            "inherited": (results / "semantic_contract_v0_3_preview_physics_1.json").read_bytes(),
+            "inherited": (results / "semantic_contract_v0_3_preview_physics_2.json").read_bytes(),
             "definitions": {DEFINITION_ID: json.loads((results / "retained_precision_prepared_ordinary_v1.json").read_text()),
                             COMBINATION_DEFINITION_ID: json.loads((results / "retained_precision_prepared_combination_v1.json").read_text())}}
 
@@ -2980,7 +2993,7 @@ def _raise(gate, code, detail=None):
 
 def _project(snapshot: dict[str, Any], route: Route) -> dict[str, Any]:
     """G7's projection to the route's base (D2 §4.9.3; B3-D §6.2): no receipt, the base identity and profile, and
-    no row token. The exact branch keeps its contract_evidence for pressure-1's base validator (B7b D4 (a))."""
+    no row token. The exact branch keeps its contract_evidence for pressure-2's base validator (B7b D4 (a))."""
     projected=deepcopy(snapshot);del projected["retained_precision"]
     projected["producer"]["semantic_contract_id"]=route.base_id;projected["formulation_basis"]["profile_id"]=route.base_profile
     for row in projected["results"] if type(projected.get("results")) is list else []:
@@ -3128,7 +3141,7 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             if d["code"] in ("RETAINED_PRECISION_SELECTED","RETAINED_PRECISION_UNAVAILABLE"):_need(type(d.get("affected_refs")) is list and len(d["affected_refs"])==1 and (d["affected_refs"][0] in ids or d["affected_refs"][0] in cids),state["gate"],"DIAGNOSTIC_MISMATCH")
         _g4_combinations(combos,diags)
         state["gate"]="G5";_g5_native(body);_g5_ordinary(body,cases,diags,quality,(snapshot.get("contract_evidence") or {}).get("combination_gates"));_g5_requested_mode(body,rows,diags,quality,snapshot["numerical_quality"].get("status"));_g5_products(body,rows,route)
-        # B3-D §6.2: on the exact branch G5b also binds each selected case's own pressure-1 section evidence.
+        # B3-D §6.2: on the exact branch G5b also binds each selected case's own pressure-2 section evidence.
         state["gate"]="G5a";phase=state["phase"];classes=_g5_numeric(body,rows,phase,(snapshot.get("contract_evidence"),) if route.exact else None,all_rows)
         state["gate"]="G6"
         for c in cases:
@@ -3142,6 +3155,16 @@ def _gates_after_g0(snapshot, receipt, schema, invocation, route, raw=True, stat
             text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
             error=RetainedPrecisionError("G7",match.group(0) if match else route.base_invalid);error.detail=text
             raise error from exc
+        # T4-U4b (§4.1, §5.1; S4 round 2): route L's base read is model-free, so with the invocation the projection's
+        # τ rows are recomputed bit for bit with c_b from the captured model (the preview reader's model checks), at G7
+        # with this language's base code. Route E's base read already forms c_b from its evidence.
+        if invocation is not None and not route.exact:
+            from . import u4b_model
+            try:u4b_model.preview_model_checks(projected,invocation["request"]["model"])
+            except ValueError as exc:
+                text=str(exc);match=re.match(r"[A-Z][A-Z0-9_]*",text)
+                error=RetainedPrecisionError("G7",match.group(0) if match else route.base_invalid);error.detail=text
+                raise error from exc
         state["gate"]="G8"
         if invocation is not None:_g8(body,snapshot,invocation,route)
         eligible=_IMPLEMENTATION_COMPLETE and invocation is not None and snapshot["status"]["mechanics"]=="MECHANICS_SOLVED" and all(c["status"] in ("selected","not_required") for c in cases)

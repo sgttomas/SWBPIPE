@@ -1,6 +1,6 @@
 """Source dispatch and scientific-value transport; no engineering-accuracy claim.
 
-The readable statement is the minimal preview-physics-1 transport source
+The readable statement is the minimal preview-physics-2 transport source
 (`preview_transport_source`); B1 retired precision-1, which is refused by name."""
 from copy import deepcopy
 import hashlib
@@ -35,10 +35,13 @@ def test_dispatch_and_schema_binding_preserve_source_hash_and_rule_revision():
     revised=build_analysis_run_v0_3(raw,input_manifest_ref={"object_type":"InputManifest","ref":"manifest:transport"},input_manifest_hash="1"*64,rule_check_status="USER_RULE_CHECKED")
     assert next(x for x in revised['analysis_run']['hashes'] if x['payload_scope']=='received_result')==received
     assert verify_analysis_run_record(revised)=="match"
-    for name in ['reactions','pressure','stress','future']:
-        bad=deepcopy(raw);bad['producer']['semantic_contract_id']=f'openpipestress.result_semantics/0.3.0/{name}-1'
-        # b7-plan R2's declared class: the Rust header knows pressure-1 and refuses its profile first.
-        with pytest.raises(ValueError,match='SOURCE_FORMULATION_BASIS_UNSUPPORTED' if name=='pressure' else 'CONTRACT_UNSUPPORTED'):build(bad)
+    # b7-plan R2's declared class: the Rust header knows pressure-2 and refuses its profile first; the retired
+    # pressure-1 and preview-physics-1 are refused by name (model 0.6.0); the other identities are unknown.
+    for name,code in [('reactions-1','CONTRACT_UNSUPPORTED'),('pressure-2','SOURCE_FORMULATION_BASIS_UNSUPPORTED'),
+                      ('pressure-1','SOURCE_PRESSURE_1_RETIRED'),('preview-physics-1','^SOURCE_PREVIEW_PHYSICS_1_RETIRED: '),
+                      ('stress-1','CONTRACT_UNSUPPORTED'),('future-1','CONTRACT_UNSUPPORTED')]:
+        bad=deepcopy(raw);bad['producer']['semantic_contract_id']=f'openpipestress.result_semantics/0.3.0/{name}'
+        with pytest.raises(ValueError,match=code):build(bad)
 
 def test_a_stored_precision_1_result_is_refused_by_name():
     # B1: precision-1 is no longer read. The product (Rust's reader) refuses it by name for
@@ -86,7 +89,7 @@ def test_retired_tables_are_gone_and_the_preview_table_is_pinned():
     # is pinned at its bytes.
     for retired in ('semantic_contract_v0_3_precision_1.json', 'semantic_contract_v0_2.json'):
         assert not (PROJECT/'fixtures/results'/retired).exists()
-    table=PROJECT/'fixtures/results/semantic_contract_v0_3_preview_physics_1.json'
+    table=PROJECT/'fixtures/results/semantic_contract_v0_3_preview_physics_2.json'
     assert hashlib.sha256(table.read_bytes()).hexdigest()==PREVIEW_PHYSICS_CONTRACT_SHA256
 
 

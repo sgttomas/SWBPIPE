@@ -442,7 +442,7 @@ fn rb_view(request: &Value, envelope: &MechanicsEnvelope, case: &str) -> Vec<End
 
 fn preview_model(id: &str) -> Value {
     json!({
-        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
             "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
         "project": {"id": format!("invented:t3-s11g:{id}"), "units": {"length": "m", "force": "N", "angle": "rad",
@@ -1707,13 +1707,13 @@ fn t12_accurate_small_moment_rows_below_the_floor_stay_passed() {
 /// load is a fixture control, not a modelling input: it exists only to force
 /// the retained-source method's named decline at source closure ("non-nodal
 /// load producer present"), independent of work, so the fixture stays an
-/// ordinary-only sensitive pressure-1 raw (role precondition, asserted).
+/// ordinary-only sensitive pressure-2 raw (role precondition, asserted).
 /// Every mechanics row is unchanged by that load. If a later unit lifts the
 /// non-nodal decline, the role assertion fails first and names this reason.
 #[test]
 fn t13_committed_fallback_uz_is_byte_identical() {
     // B7b: the result_export fixture's request is read through the shared
-    // re-authoring (a no-op once that fixture is itself 0.5.0).
+    // re-authoring (a no-op once that fixture is itself 0.6.0).
     let request: Value = crate::b7b_admission_tests::reauthor_current_request(serde_json::from_str(include_str!(
         "../../reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json"
     ))
@@ -1723,15 +1723,15 @@ fn t13_committed_fallback_uz_is_byte_identical() {
         (PreviewSolverMode::DenseScrutiny, include_str!("../../reporting/result_export/tests/fixtures/load_reference_fallback_uz-dense_scrutiny.raw.json")),
     ] {
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
-        // The role (RF §5.5): an ordinary pressure-1 publication whose source
+        // The role (RF §5.5): an ordinary pressure-2 publication whose source
         // attempt declines by name, not by work.
-        assert_eq!(envelope.producer.semantic_contract_id, "openpipestress.result_semantics/0.3.0/pressure-1", "{mode:?}");
+        assert_eq!(envelope.producer.semantic_contract_id, "openpipestress.result_semantics/0.3.0/pressure-2", "{mode:?}");
         assert!(
             envelope.diagnostics.iter().any(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
                 && d.message.contains("helper_stage: SourceClosure, error: Unsupported(\"non-nodal load producer present\")")),
             "{mode:?}: precondition, the source attempt declines by name at source closure. The request's zero \
              `uniform:0` load is a fixture control that exists only to force this non-nodal decline, so the \
-             fixture stays an ordinary-only sensitive pressure-1 raw (RF design §5.5); if the source method now \
+             fixture stays an ordinary-only sensitive pressure-2 raw (RF design §5.5); if the source method now \
              admits it, choose another work-independent decline for this fixture rather than re-pinning it"
         );
         let sensitive: Vec<_> = envelope

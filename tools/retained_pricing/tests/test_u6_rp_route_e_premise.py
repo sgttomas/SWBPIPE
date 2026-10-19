@@ -1,9 +1,9 @@
-"""U6-RP (T4-U6/U8): the tool's route-E P_final premise is the committed D-5 census's rows per member.
+"""U6-RP (T4-U6/U8; U4B-RP, T4-S5): the tool's route-E P_final premise is the committed census's rows per member.
 
 Route E's chain charges P_final = 7n + R·m + 8g + 3 and R0 = 7n + R·m + g + 3 at the caps, with R the census's
 `rows_per_member`: `lib/census_patch.py` writes R into the base chain's P_final sites (`producer_caps.py`,
 `g4_caps.py`, `ordinary_caps.py`, `t25_g4.py`, `g3lib.py`), and `rules/sq2_decisions_E.py`'s U6-RP guard states the
-reviewed R (51 + 21) for the census file it names. A change to the census or to the tool's premise alone fails here.
+reviewed R (51 + 21 + 30 since U4B-RP) for the census file it names. A change to the census or to the tool's premise alone fails here.
 The gate's hand-written premise (`retained_memory.rs` `P_FINAL_EXACT` and route E's G-C evidence caps) is tied to the
 same census file by product_physics's `retained_memory::witness_tests::u6_rp_route_e_gate_caps_are_the_priced_census`.
 """
@@ -15,7 +15,7 @@ import re
 import shutil
 
 PRICING = Path(__file__).resolve().parents[1]
-CENSUS = PRICING / "data/census_d5_79bf8656dc.json"
+CENSUS = PRICING / "data/census_u4b_7c77bf8072.json"   # U4B-RP (T4-S5); D-5: census_d5_79bf8656dc.json
 DECISIONS_E = PRICING / "rules/sq2_decisions_E.py"
 PATCHER = PRICING / "lib/census_patch.py"
 CHAIN_FILES = ("producer_caps.py", "g4_caps.py", "ordinary_caps.py", "t25_g4.py", "g3lib.py")
@@ -60,7 +60,7 @@ def test_route_e_p_final_premise_is_the_census_rows_per_member(tmp_path):
     census = json.loads(CENSUS.read_text())
     rows = census["rows_per_member"]
     files, reviewed = reviewed_premise()
-    assert files == [CENSUS.name], "the U6-RP guard reads the committed D-5 census"
+    assert files == [CENSUS.name], "the U6-RP guard reads the committed U4b census"
     assert reviewed == rows, f"the reviewed premise ({reviewed}) is the census's rows per member ({rows})"
     # Route E's chain: census_patch.apply on the base chain files, with sq2_rules.py's exact-text patch.
     for name in CHAIN_FILES:
@@ -90,6 +90,6 @@ def test_route_e_p_final_premise_is_the_census_rows_per_member(tmp_path):
         assert symbols.get("P_final", symbols.get("P")) == [rows], name
         assert symbols.get("R0", [rows]) == [rows], name
     assert sum(1 for symbols in premise.values() if "R0" in symbols) == 3
-    # At the caps (n = m = g = 32) the chain's P_final is the rules' 2,787 rows per result set.
+    # At the caps (n = m = g = 32) the chain's P_final is the rules' 3,747 rows per result set (D-5: 2,787).
     caps = census["caps"]
-    assert 7 * caps["n"] + rows * caps["m"] + 8 * caps["g"] + 3 == 2_787
+    assert 7 * caps["n"] + rows * caps["m"] + 8 * caps["g"] + 3 == 3_747

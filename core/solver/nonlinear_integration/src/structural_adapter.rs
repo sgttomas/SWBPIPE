@@ -24,6 +24,10 @@ use open_pipe_stress_sparse_direct::structural::solve_sparse_prepared;
 #[derive(Debug, Clone)]
 pub struct AssemblyEvidence {
     pub contributions: Vec<StiffnessContribution>,
+    /// Each element's exclusive end offset in `contributions`, from the
+    /// element walk (frames, connectors, rods, curved, then one per ground
+    /// spring): the kernel's absorption rule decides per element (round 3).
+    pub contribution_groups: Vec<usize>,
     pub absolute_roundoff: Vec<Vec<f64>>,
     pub operation_counts: Vec<Vec<usize>>,
     coordinates: Vec<Option<[f64; 3]>>,
@@ -112,6 +116,7 @@ impl AssemblyEvidence {
         )?;
         Ok(Self {
             contributions: parts.contributions,
+            contribution_groups: parts.groups,
             absolute_roundoff: parts.store.absolute_roundoff,
             operation_counts: parts.store.operation_counts,
             coordinates: parts.coordinates,
@@ -241,6 +246,7 @@ impl AssemblyEvidence {
             free_dofs: free,
             prescribed,
             contributions: Some(&self.contributions),
+            contribution_groups: Some(&self.contribution_groups),
             symmetry: Some(SymmetryEvidence {
                 absolute_roundoff: &self.absolute_roundoff,
                 operation_counts: &self.operation_counts,
@@ -307,7 +313,7 @@ impl AssemblyEvidence {
                 operation_counts: &self.operation_counts,
                 basis: &symmetry_basis,
             }),
-        )
+        ).with_contribution_groups(&self.contribution_groups)
         .with_formation_source(&source);
         solve_prepared(
             structural::prepare_formation_checked_structural(&system)?,
@@ -353,7 +359,7 @@ impl AssemblyEvidence {
             prescribed,
             Some(&self.contributions),
             Some(symmetry()),
-        );
+        ).with_contribution_groups(&self.contribution_groups);
         let prepared = structural::prepare_assembled_structural(&gate)?;
         let factor = match mode {
             LinearSolveMode::DenseScrutiny => structural::factor_structural_cholesky(&prepared),
@@ -378,7 +384,7 @@ impl AssemblyEvidence {
                 prescribed,
                 Some(&self.contributions),
                 Some(symmetry()),
-            )
+            ).with_contribution_groups(&self.contribution_groups)
             .with_formation_source(&source);
             attempt.evaluate_at(&system, u, judged)
         };
@@ -421,6 +427,7 @@ impl AssemblyEvidence {
             free_dofs: free,
             prescribed,
             contributions: Some(&self.contributions),
+            contribution_groups: Some(&self.contribution_groups),
             symmetry: Some(SymmetryEvidence {
                 absolute_roundoff: &self.absolute_roundoff,
                 operation_counts: &self.operation_counts,
@@ -474,7 +481,7 @@ impl AssemblyEvidence {
                 operation_counts: &self.operation_counts,
                 basis: &symmetry_basis,
             }),
-        );
+        ).with_contribution_groups(&self.contribution_groups);
         solve_prepared(structural::prepare_assembled_structural(&system)?, mode)
     }
 
@@ -519,7 +526,7 @@ impl AssemblyEvidence {
                     operation_counts: &self.operation_counts,
                     basis: &symmetry_basis,
                 }),
-            );
+            ).with_contribution_groups(&self.contribution_groups);
             solve_prepared(structural::prepare_assembled_structural(&system)?, mode)
         });
         force_scaled_outcome(solved, self.force_scale, f)
@@ -574,7 +581,7 @@ impl AssemblyEvidence {
                     operation_counts: &self.operation_counts,
                     basis: &symmetry_basis,
                 }),
-            )
+            ).with_contribution_groups(&self.contribution_groups)
             .with_formation_source(&source);
             solve_prepared(
                 structural::prepare_formation_checked_structural(&system)?,
@@ -643,6 +650,8 @@ impl ConfirmationContext<'_> {
 #[derive(Debug, Clone)]
 pub struct SparseAssemblyEvidence {
     contributions: Vec<StiffnessContribution>,
+    /// As `AssemblyEvidence::contribution_groups`.
+    contribution_groups: Vec<usize>,
     pattern: SparsePattern,
     absolute_roundoff: Vec<f64>,
     operation_counts: Vec<usize>,
@@ -708,6 +717,7 @@ impl SparseAssemblyEvidence {
         )?;
         Ok(Self {
             contributions: parts.contributions,
+            contribution_groups: parts.groups,
             pattern: parts.store.pattern,
             absolute_roundoff: parts.store.absolute_roundoff,
             operation_counts: parts.store.operation_counts,
@@ -866,7 +876,7 @@ impl SparseAssemblyEvidence {
                         operation_counts: &counts,
                         basis: &symmetry_basis,
                     }),
-                );
+                ).with_contribution_groups(&self.contribution_groups);
                 solve_prepared(structural::prepare_assembled_structural(&system)?, mode)
             }
             LinearSolveMode::SparseInteractive => {
@@ -877,7 +887,7 @@ impl SparseAssemblyEvidence {
                     prescribed,
                     Some(&self.contributions),
                     Some(self.sparse_symmetry(&symmetry_basis)),
-                );
+                ).with_contribution_groups(&self.contribution_groups);
                 solve_sparse_prepared(structural::prepare_assembled_sparse_structural(&system)?)
             }
         }
@@ -921,7 +931,7 @@ impl SparseAssemblyEvidence {
                         operation_counts: &counts,
                         basis: &symmetry_basis,
                     }),
-                )
+                ).with_contribution_groups(&self.contribution_groups)
                 .with_formation_source(&source);
                 solve_prepared(
                     structural::prepare_formation_checked_structural(&system)?,
@@ -936,7 +946,7 @@ impl SparseAssemblyEvidence {
                     prescribed,
                     Some(&self.contributions),
                     Some(self.sparse_symmetry(&symmetry_basis)),
-                )
+                ).with_contribution_groups(&self.contribution_groups)
                 .with_formation_source(&source);
                 solve_sparse_prepared(structural::prepare_formation_checked_sparse_structural(
                     &system,
@@ -970,6 +980,7 @@ impl SparseAssemblyEvidence {
                     free_dofs: free,
                     prescribed,
                     contributions: Some(&self.contributions),
+                    contribution_groups: Some(&self.contribution_groups),
                     symmetry: Some(SymmetryEvidence {
                         absolute_roundoff: &roundoff,
                         operation_counts: &counts,
@@ -990,7 +1001,7 @@ impl SparseAssemblyEvidence {
                     prescribed,
                     Some(&self.contributions),
                     Some(self.sparse_symmetry(&symmetry_basis)),
-                );
+                ).with_contribution_groups(&self.contribution_groups);
                 match &self.force_terms {
                     Some(terms) => solve_sparse_prepared(
                         structural::prepare_sparse_structural_with_force_terms(&system, terms)?,
@@ -1042,7 +1053,7 @@ impl SparseAssemblyEvidence {
                                 operation_counts: &counts,
                                 basis: &symmetry_basis,
                             }),
-                        );
+                        ).with_contribution_groups(&self.contribution_groups);
                         solve_prepared(structural::prepare_assembled_structural(&system)?, mode)
                     }
                     LinearSolveMode::SparseInteractive => {
@@ -1053,7 +1064,7 @@ impl SparseAssemblyEvidence {
                             prescribed,
                             Some(&self.contributions),
                             Some(self.sparse_symmetry(&symmetry_basis)),
-                        );
+                        ).with_contribution_groups(&self.contribution_groups);
                         solve_sparse_prepared(structural::prepare_assembled_sparse_structural(
                             &system,
                         )?)
@@ -1116,7 +1127,7 @@ impl SparseAssemblyEvidence {
                                 operation_counts: &counts,
                                 basis: &symmetry_basis,
                             }),
-                        )
+                        ).with_contribution_groups(&self.contribution_groups)
                         .with_formation_source(&source);
                         solve_prepared(
                             structural::prepare_formation_checked_structural(&system)?,
@@ -1131,7 +1142,7 @@ impl SparseAssemblyEvidence {
                             prescribed,
                             Some(&self.contributions),
                             Some(self.sparse_symmetry(&symmetry_basis)),
-                        )
+                        ).with_contribution_groups(&self.contribution_groups)
                         .with_formation_source(&source);
                         solve_sparse_prepared(
                             structural::prepare_formation_checked_sparse_structural(&system)?,
@@ -1275,6 +1286,7 @@ impl EvidenceStore for SparseEvidenceStore {
 /// What `AssemblyEvidence::new` builds, for either store (K1).
 struct EvidenceParts<S> {
     contributions: Vec<StiffnessContribution>,
+    groups: Vec<usize>,
     coordinates: Vec<Option<[f64; 3]>>,
     edges: Vec<(usize, usize, bool)>,
     spring_ground: Vec<usize>,
@@ -1305,6 +1317,7 @@ impl<S: EvidenceStore> EvidenceParts<S> {
         let n = node_count * 6;
         let mut result = Self {
             contributions: Vec::new(),
+            groups: Vec::new(),
             coordinates: vec![None; node_count],
             edges: Vec::new(),
             spring_ground: Vec::new(),
@@ -1364,6 +1377,25 @@ impl<S: EvidenceStore> EvidenceParts<S> {
             // A connector is no objective frame: its edge is unqualified (S4).
             result.element(i.index, j.index, &formed, &bounds, &counts, false)?;
         }
+        // T4-U5b (S3): each connector's tie rods, after every connector and
+        // before the curved elements, in connector then rod order: the order
+        // in which the kernel assembles them and K-D5's intended-stiffness
+        // pass walks them. Each is its own element: Ke formed at b = 0 times
+        // 2^b, as the assembly adds it, with its formation allowance
+        // (`TieRod::formation_roundoff`) times 2^b. A rod is no objective
+        // frame: its edge, beside its connector's, is unqualified.
+        for rod in connectors.iter().flat_map(|c| c.tie_rods()) {
+            let (i, j) = (rod.node_i(), rod.node_j());
+            let formed = rod.force_scaled_global_stiffness(force_scale).map_err(range)?;
+            let (bounds, counts) = rod
+                .formation_roundoff()
+                .map_err(|_| StructuralError::Range("tie rod formation allowance"))?;
+            let bounds = force_scaled_matrix("tie rod allowance*2^b", &bounds, force_scale)
+                .map_err(range)?;
+            result.node(i.index, i.coordinates)?;
+            result.node(j.index, j.coordinates)?;
+            result.element(i.index, j.index, &formed, &bounds, &counts, false)?;
+        }
         for element in curved {
             let zero = [[0.0; 12]; 12];
             let counts = [[0; 12]; 12];
@@ -1391,6 +1423,8 @@ impl<S: EvidenceStore> EvidenceParts<S> {
                 col: dof,
                 value,
             });
+            // Each ground spring is its own element.
+            result.groups.push(result.contributions.len());
             *result.store.slot(dof, dof)?.1 += 1;
             if value > 0.0 {
                 result.spring_ground.push(dof);
@@ -1450,6 +1484,8 @@ impl<S: EvidenceStore> EvidenceParts<S> {
                 *count += counts[i][j] + 1;
             }
         }
+        // The element's 144 contributions are one absorption group.
+        self.groups.push(self.contributions.len());
         Ok(())
     }
 }
@@ -1636,6 +1672,14 @@ impl W4Context<'_> {
         let local = |global: usize| nodes.binary_search(&global).ok();
         let frames = self.formation.frames.len();
         let connectors = frames + self.formation.connectors.len();
+        // T4-U5b (S3): the connectors' tie rods' edges follow the connectors.
+        let rods = connectors
+            + self
+                .formation
+                .connectors
+                .iter()
+                .map(|c| c.tie_rods().len())
+                .sum::<usize>();
         let mut curved_points: Vec<Option<[f64; 3]>> = vec![None; nodes.len()];
         let mut links = Vec::new();
         // T4-U3 (W4): the tie reduction stays; no element produces a tie now
@@ -1661,8 +1705,14 @@ impl W4Context<'_> {
                         })
                     }
                 }
+            } else if index < rods {
+                // T4-U5b: a tie rod lies between its connector's end nodes,
+                // which a positive definite connector already links; a
+                // semidefinite connector has already left the body to the
+                // matrix gate. The rod adds no link.
+                continue;
             } else {
-                let slot = &self.formation.curved[index - connectors];
+                let slot = &self.formation.curved[index - rods];
                 let element_id = slot.element_id.clone();
                 if slot.explicit {
                     return W4Body::Unqualified(W4Unqualified::CurvedExplicit { element_id });
@@ -2853,6 +2903,7 @@ pub(crate) fn scrutinize_gaps(
             free_dofs: &free,
             prescribed: &prescribed,
             contributions: Some(&assembly.contributions),
+            contribution_groups: Some(&assembly.contribution_groups),
             symmetry: Some(SymmetryEvidence {
                 absolute_roundoff: &assembly.absolute_roundoff,
                 operation_counts: &assembly.operation_counts,
@@ -3287,6 +3338,7 @@ mod retention_tests {
                 free_dofs: &[12],
                 prescribed: &fixed,
                 contributions: Some(&assembly.contributions),
+                contribution_groups: Some(&assembly.contribution_groups),
                 symmetry: Some(SymmetryEvidence {
                     absolute_roundoff: &assembly.absolute_roundoff,
                     operation_counts: &assembly.operation_counts,
@@ -3423,6 +3475,7 @@ mod retention_tests {
                 free_dofs: &[12],
                 prescribed: &fixed,
                 contributions: Some(&assembly.contributions),
+                contribution_groups: Some(&assembly.contribution_groups),
                 symmetry: Some(SymmetryEvidence {
                     absolute_roundoff: &assembly.absolute_roundoff,
                     operation_counts: &assembly.operation_counts,

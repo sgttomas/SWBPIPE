@@ -1279,6 +1279,7 @@ mod tests {
             free_dofs: &free,
             prescribed: &[],
             contributions: None,
+            contribution_groups: None,
             symmetry: None,
         };
         assert!(crate::structural::solve_structural_dense(&s).is_err());

@@ -4,7 +4,7 @@
 //! genuine request under `3.0.0/exact_pressure_v3` with explicitly empty
 //! `pressure_regions`. Inputs are `fixtures/results/j7_rf_census_inputs.json`
 //! (`tools/fixtures/j7_rf_census_inputs.py` over the frozen references, authored
-//! as 0.3.0); B7b re-authors each copy once, at run time, to the current 0.5.0
+//! as 0.3.0); B7b re-authors each copy once, at run time, to the current 0.6.0
 //! document (`shear_model` Euler-Bernoulli, an explicit zero corrosion allowance
 //! on every pipe section) and changes nothing else. Each case/mode's public
 //! outcome (identity, quality, blocking findings, source attempt, and the digests
@@ -49,7 +49,7 @@ const EXPECTED_PATH: &str = "../../fixtures/results/j7_rf_census_expected.json";
 const J2: &str = include_str!("../../../../fixtures/results/pressure_source_reader_corpus.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const FAMILIES: [&str; 10] = ["RF-CHAIN", "RF-SKEW", "RF-WEAK", "RF-LARGE", "RF-INVARIANCE", "RF-RANGE", "RF-ZERO", "RF-FINITE", "RF-MECH", "RF-CANCEL"];
-const PRESSURE_1: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
+const PRESSURE_1: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 /// Every source-recovery identity (the current one and the two retired v2 ones).
 const SOURCE_IDENTITIES: [&str; 3] = [
     "openpipestress.result_semantics/0.3.0/pressure-source-1",
@@ -345,7 +345,7 @@ fn public_value(public: &Result<Value, String>) -> Value {
 }
 
 /// One case's request: the committed input's copy, re-authored once to the
-/// current 0.5.0 exact document (B7b); the committed inputs stay 0.3.0.
+/// current 0.6.0 exact document (B7b); the committed inputs stay 0.3.0.
 pub(super) fn current_request(case: &Value) -> Value {
     let input = &case["request"];
     assert_eq!(input["model"]["pressure_contract"], json!({"version": "3.0.0", "mode": "exact_pressure_v3"}));
@@ -718,4 +718,43 @@ fn j7_rf_census_expected_write() {
         sha(INPUTS.as_bytes()), REFERENCES_SHA256, lines.join(",\n")
     );
     std::fs::write(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(EXPECTED_PATH), text).unwrap();
+}
+
+/// T4-U4b §4.3 (S4) capability: every census case the pinned census selects (the two published
+/// RF-SKEW cases and every method-only selection, both modes) still selects with the same class
+/// under the unchanged 8,000,000 case limit. Each case's new charge is computed and printed, not
+/// assumed: the direct method's work, and for a published case its publication's case work (the
+/// direct work plus the finalization and wrapper terms the U4b rows add).
+#[test]
+fn u4b_every_selected_census_case_still_selects_with_its_new_charge() {
+    let mut selected = 0;
+    let mut largest = 0u64;
+    for pinned in expected()["entries"].as_array().unwrap() {
+        let class = pinned["first_cause"]["class"].as_str().unwrap();
+        if !class.starts_with("selected") {
+            continue;
+        }
+        selected += 1;
+        let id = pinned["id"].as_str().unwrap();
+        let mode = MODES.into_iter().find(|m| pinned["mode"] == m.as_str()).unwrap();
+        let case = inputs()["cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap();
+        let run = run(&current_request(case), mode);
+        let cause = first_cause(&run);
+        assert_eq!(cause["class"], class, "{id} {}: same selection class", mode.as_str());
+        let direct = cause["work"]["charged"].as_u64().unwrap();
+        assert!(direct <= 8_000_000 && cause["work"]["limit"] == 8_000_000, "{id}");
+        let mut line = format!("U4B_J7_SELECTED {id} {} class={class} direct_charged={direct} (pinned {})", mode.as_str(), pinned["first_cause"]["work"]["charged"]);
+        largest = largest.max(direct);
+        if class == "selected_published" {
+            let env = run.public.as_ref().unwrap();
+            let case = &env["source_block_recovery"]["body"]["cases"][0];
+            let charged = case["work"]["charged"].as_u64().unwrap();
+            assert!(charged <= case["work"]["limit"].as_u64().unwrap() && case["work"]["limit"].as_u64().unwrap() <= 8_000_000, "{id}");
+            largest = largest.max(charged);
+            line += &format!(" publication_case_charged={charged}");
+        }
+        println!("{line}");
+    }
+    assert_eq!(selected, 66, "the census's 62 method-only and 4 published selections");
+    println!("U4B_J7_SELECTED largest per-case charge {largest} of 8000000");
 }

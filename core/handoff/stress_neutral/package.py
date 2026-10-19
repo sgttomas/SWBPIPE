@@ -93,13 +93,13 @@ VERSION = "0.3.0"
 PROFILE = "openpipestress_jcs_ijson_v1"
 EXPORT_PROFILE = "ops.stress_neutral.v3"
 MEMBERS = ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json", "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"]
-# B7b (A4/A5): the current exact identities, pressure-1 and pressure-source-1, take over the retired v2 identities'
+# B7b (A4/A5): the current exact identities, pressure-2 and pressure-source-1, take over the retired v2 identities'
 # packages (physics-1, physics-source-1, load-reference-1, load-reference-source-1, which the Rust reader refuses by
 # name). A load/reference-state model publishes either with contract_evidence.load_reference_states.
 SUPPORTED_METHODS = {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID}
 PHYSICAL_METHODS = {PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID}
 RECEIPT_METHODS = {PRESSURE_SOURCE_CONTRACT_ID}
-# preview-physics-1 retains its closed preview statement; no receipt namespace.
+# preview-physics-2 retains its closed preview statement; no receipt namespace.
 PREVIEW_METHODS = {PREVIEW_PHYSICS_CONTRACT_ID}
 
 
@@ -112,7 +112,7 @@ def _transport_contract(package: Mapping[str, Any], source_envelope: Mapping[str
 
     Source validation below separately requires the actual supplied raw envelope.
     This metadata view deliberately has no results, diagnostics or fake status.
-    pressure-1 has no transport reading (below), so its package is read through its source.
+    pressure-2 has no transport reading (below), so its package is read through its source.
     """
     metadata = {"schema_version": "0.2.0", **{key: package.get(key) for key in ("producer", "numerical_quality", "formulation_basis")}}
     for key in ("contract_evidence", "source_block_recovery", "carrier_evidence"):
@@ -122,7 +122,7 @@ def _transport_contract(package: Mapping[str, Any], source_envelope: Mapping[str
     if isinstance(producer, Mapping) and producer.get("semantic_contract_id") == PRESSURE_CONTRACT_ID and source_envelope is not None:
         method = _pressure_source_reading(source_envelope)
     else:
-        # A pressure-1 package without its source takes Rust's transport verdict too: the reader
+        # A pressure-2 package without its source takes Rust's transport verdict too: the reader
         # refuses it by name (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED).
         method = _source_contract(metadata, check_receipt=False)
     if method[0] not in SUPPORTED_METHODS:
@@ -134,8 +134,8 @@ def _transport_contract(package: Mapping[str, Any], source_envelope: Mapping[str
 
 
 def _pressure_source_reading(source_envelope: Mapping[str, Any]) -> tuple[str, str, Path]:
-    """pressure-1's package statements, read through their source (B7b). Rust has no pressure-1
-    transport reader (`transport("pressure")` is refused by name), so a pressure-1 package is read
+    """pressure-2's package statements, read through their source (B7b). Rust has no pressure-2
+    transport reader (`transport("pressure")` is refused by name), so a pressure-2 package is read
     only with its supplied source envelope: the source takes Rust's raw reading (`read pressure`),
     and every member the package copies from it (producer, numerical quality, formulation basis,
     contract evidence, rows, annotations and the received checksum) is then bound to that source by
@@ -568,7 +568,7 @@ def read_materialized_members(input_dir: str | Path, **validation: Any) -> dict[
 
 def write_materialized_members(package: Mapping[str, Any], output_dir: str | Path, **validation: Any) -> list[Path]:
     """Validate and write the exact nine contracted member byte streams. `validation` takes the
-    validator's optional source bindings; a pressure-1 package needs its source (no transport reader)."""
+    validator's optional source bindings; a pressure-2 package needs its source (no transport reader)."""
     validate_stress_neutral_export_package(package, **validation)
     destination = Path(output_dir)
     destination.mkdir(parents=True, exist_ok=True)

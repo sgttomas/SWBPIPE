@@ -36,16 +36,24 @@ RF_PINS = {
     "core/solver/nonlinear_integration/src/structural_adapter.rs": "bf42cfa532f0f36823fb78128ad175d6bb9a5765e8fd7374599da89df4232a8b",
     "core/solver/straight_pipe/src/lib.rs": "a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7"
 }
+# T4-S5 D3 (epoch; retained-pricing-rules.md §8.8): the reduced cohort is re-bound after its diffs were read.
+# FormationSource.loads stays the Cow (L1a); load_closure only adds the TieRodReference arm and the reformation adds the
+# connectors' tie rods (P3: none on D1), so L1b/L1c are unchanged; the L2 constructors, the L3 Value moves and the L5
+# guard/shadow/insert/call texts (checked below) are unchanged. lib.rs's U4b rows, preview_physics.rs's kind predicates
+# and texts, retained_wire.rs's two hashes, certified_publication.rs's tie-rod groups and certified_recovery.rs's
+# tie-rod/displacement additions change no reduction's owner or lifetime.
+# T4-S6 D3 (§8.8, S6-HS): retained_wire.rs's domain_hash streams its digest (domain_text and DomainPayload deleted);
+# no reduction's owner or lifetime changes. T4-S7: retained_wire.rs's domain_hash doc comment only.
 REDUCED_PINS = {
-    "core/product_physics/src/lib.rs": "a5c5b09f31a996c19ff63ace14bd39a07b7a474d6b03556a19825057e90aed74",
-    "core/product_physics/src/retained_wire.rs": "9d4fbf77f8c800dc0fc0800d3be417be49f1d95c678945b4b0a4557c6515bf13",
-    "core/product_physics/src/certified_publication.rs": "0008eb462f94640386194afb3659fdc3d74fb2e45ae690b7b2646db5feb8be57",
+    "core/product_physics/src/lib.rs": "a3354c083872cdaa64dd895afb14e2b9d0b72f0b445e0c9f8df78255d2ae8950",
+    "core/product_physics/src/retained_wire.rs": "e33c716e21de5577d89d7db9af85b64491e7abea75775527f130c8986b01e2cc",
+    "core/product_physics/src/certified_publication.rs": "8d0fd1f1dba13e8eca74aa62130a0956d3c1ca5c1d197749cf58ee00c501184a",
     "core/product_physics/src/certified_loads.rs": "56f2a4ef24ccca359290d7b25ab2078487d89da908826dd3f3897e14fdd35c8f",
-    "core/product_physics/src/preview_physics.rs": "61b2fb2f3f9bc3aa9803bf6bf5c95cf5e51c841289ef5c415bf86fe00f33b468",
-    "core/solver/frame_kernel/src/structural/formation_check.rs": "4e2b2aed3a155b3893d9bab353aad112248ca555b4016b59a075cb0ec719cdf2",
-    "core/solver/frame_kernel/src/structural/certified_recovery.rs": "e9a0bb4220482e9596e0e11ec698ae2291da5d223865d21ce9d7e2725594f7af",
+    "core/product_physics/src/preview_physics.rs": "a8330f13073d5e6e16ea7550cc64fcbd0dcb9b9c787da1798654e43e9388fda7",
+    "core/solver/frame_kernel/src/structural/formation_check.rs": "ec27fd9b61191c292ef24a240efccf667976c25f4d42a0a8eea833fb37d21b5d",
+    "core/solver/frame_kernel/src/structural/certified_recovery.rs": "518f343f9052a94faf3b93e16a488552f707554a66b532156cdced71a4fd75f7",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
-    "core/solver/nonlinear_integration/src/structural_adapter.rs": "c71d4acf1aa3f2d5c048eefe3d559b192d31c2d962083cf89bd4ef978347d9cd",
+    "core/solver/nonlinear_integration/src/structural_adapter.rs": "05f7bf0048b6c078060b55e5a080266ec52946eb0b1f9aaa9c60699621996b42",
     "core/solver/straight_pipe/src/lib.rs": "a375535794d2700ffb08621aebe6f587a2d226f107056f320ee23fef466d1bb7"
 }
 

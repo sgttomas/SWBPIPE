@@ -445,7 +445,7 @@ function formatComponentProvenanceSummary(records: ReturnType<typeof reportCompo
 }
 
 // T0R: SIF×k review rows are retired records (B3; only source-blocks-1's ordinary
-// cases still carry them), never presented as stress; preview-physics-1
+// cases still carry them), never presented as stress; preview-physics-2
 // intensified measures carry their frozen label.
 export function formatComponentStressModifierSummary(
   records: Pick<ReturnType<typeof reportComponentStressModifierEvidence>[number], "component_ref">[],

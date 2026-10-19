@@ -161,7 +161,7 @@ fn f1b_frame(
     loads: Vec<Value>,
 ) -> Value {
     json!({"model": {
-        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},
@@ -222,7 +222,7 @@ fn rv17_member(
 ) -> Value {
     let label = project.rsplit(':').next().unwrap();
     json!({"model": {
-        "schema_version": "0.5.0", "document_kind": "openpipestress.product_preview.model",
+        "schema_version": "0.6.0", "document_kind": "openpipestress.product_preview.model",
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics",
                             "rule_check": "not_performed_user_rule_inputs_missing",
                             "professional_acceptance": "not_provided"},
@@ -1236,3 +1236,77 @@ fn b4_early_exact_material_binding_uses_authoritative_subnormal_words() {
 // B7a (b) Widen domain, stage 1: per-case basis custody and member-load cases.
 #[path = "w1_domain_stage1_tests.rs"]
 mod w1_domain_stage1_tests;
+
+/// T4-U4b S4 (DEL-04-07 Design u4b-u5b-implementation.md §4.1): the failed-ordinary manifest
+/// carries each member's 15 derived rows after its circular maximum (66 rows per member, in
+/// preview-physics-2's order) as placeholders, and the freeze forms them from the projected rows.
+/// CX-F and the two committed N06 controls stay selected, bound and eligible in both modes; every
+/// derived row is not covered, recomputed from the successor's own rows, and read by the base
+/// reader holding the captured model.
+#[test]
+fn s4_failed_ordinary_manifest_carries_derived_rows_formed_after_projection() {
+    use super::s4_retained_tests as s4;
+    let mut inputs = vec![("CX-F".to_string(), coexistence_cx_f(), MODES.to_vec())];
+    inputs.extend(controls().into_iter().filter(|c| N06_FIXTURE_CONTROLS.contains(&c.name.as_str())).map(|c| (c.name.clone(), c.raw.clone(), c.modes.clone())));
+    assert_eq!(inputs.iter().map(|i| i.2.len()).sum::<usize>(), 6, "CX-F and the committed N06 controls, both modes");
+    for (name, raw, modes) in &inputs {
+        for mode in modes.iter().copied() {
+            let label = format!("{name} {}", mode.as_str());
+            let (capture, observer, ordinary) = early_observed(raw, mode, true);
+            assert!(observer.failed_ordinary_case(), "{label}: genuine ordinary failure");
+            let ((_, retained), _, captured) = retained_tests_hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+            let s = captured.unwrap_or_else(|| panic!("{label}: {retained:?}"));
+            assert!(retained.is_ok(), "{label}: {retained:?}");
+            assert_eq!(s["retained_precision"]["body"]["cases"][0]["status"], json!("selected"), "{label}");
+            let rows = s["results"].as_array().unwrap();
+            let members: Vec<&str> = raw["model"]["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].as_str().unwrap()).collect();
+            for member in &members {
+                let own: Vec<&Value> = rows.iter().filter(|r| r["entity_ref"] == *member).collect();
+                assert_eq!(own.len(), 66, "{label}: {member}'s manifest rows");
+                let maximum = own.iter().position(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2").unwrap();
+                assert!(own[maximum + 1..].iter().all(|r| s4::DERIVED.contains(&r["kind"].as_str().unwrap())) && own.len() - maximum - 1 == 15,
+                    "{label}: {member}'s derived rows follow its maximum");
+            }
+            assert_eq!(s4::derived_rows_follow_own_rows(&label, &s), 15 * members.len());
+            s4::base_read_with_model(&label, &s, raw);
+            let validation = s4::receipt_and_reader_classify(&label, &s, raw, mode);
+            assert!(validation.numerical_eligible, "{label}: bound and eligible");
+            s4::tau_tamper_is_refused_by_the_reader(&label, &s, raw, mode);
+        }
+    }
+}
+
+/// S4 round 2 (§2.4, §4.1): a failed-ordinary member whose ν is out of domain (E ≥ 3G; I47's
+/// moduli, E = 195 GPa and G = 55 GPa, ν = 0.7727…) stays selected. Its manifest omits the τ rows
+/// (61 rows per member) and carries `TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN` for the case and
+/// member, as the ordinary rows do; σ± are formed after projection and every reader admits it.
+#[test]
+fn s4_failed_ordinary_out_of_domain_poisson_omits_tau_and_stays_selected() {
+    use super::s4_retained_tests as s4;
+    let mut raw = coexistence_cx_f();
+    raw["model"]["materials"][0]["elastic_modulus"]["value"] = json!(195e9);
+    raw["model"]["materials"][0]["shear_modulus"]["value"] = json!(55e9);
+    for mode in MODES {
+        let label = format!("CX-F E=3.5G {}", mode.as_str());
+        let (capture, observer, ordinary) = early_observed(&raw, mode, true);
+        assert!(observer.failed_ordinary_case(), "{label}: genuine ordinary failure");
+        let ((_, retained), _, captured) = retained_tests_hooks::counted_with_successor(|| retained_w1(observer, ordinary, &capture));
+        let s = captured.unwrap_or_else(|| panic!("{label}: {retained:?}"));
+        assert!(retained.is_ok(), "{label}: {retained:?}");
+        assert_eq!(s["retained_precision"]["body"]["cases"][0]["status"], json!("selected"), "{label}: still selected");
+        let rows = s["results"].as_array().unwrap();
+        let member = raw["model"]["pipe_segments"][0]["id"].as_str().unwrap();
+        let case = raw["model"]["load_cases"][0]["id"].as_str().unwrap();
+        assert_eq!(rows.iter().filter(|r| r["entity_ref"] == member).count(), 61, "{label}: no τ rows");
+        assert!(!rows.iter().any(|r| r["kind"] == s4::DERIVED[1]), "{label}: no τ row");
+        assert_eq!(rows.iter().filter(|r| r["kind"] == s4::DERIVED[0]).count(), 10, "{label}: σ± at five stations");
+        let named: Vec<&Value> = s["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == "TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN").collect();
+        assert_eq!(named.len(), 1, "{label}: one named warning");
+        assert_eq!(named[0]["affected_refs"], json!([case, member]), "{label}");
+        assert_eq!(named[0]["severity"], json!("warning"), "{label}");
+        assert_eq!(s4::derived_rows_follow_own_rows(&label, &s), 10);
+        s4::base_read_with_model(&label, &s, &raw);
+        let validation = s4::receipt_and_reader_classify(&label, &s, &raw, mode);
+        assert!(validation.numerical_eligible, "{label}: bound and eligible");
+    }
+}

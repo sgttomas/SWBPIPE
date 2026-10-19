@@ -10,7 +10,7 @@
 use super::retained_product as rp;
 use super::retained_receipt as rr;
 use super::*;
-use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
+use open_pipe_stress_canonical_json::{checked_v1_domain_canonical, ByteSink, DomainPayload};
 use open_pipe_stress_frame_kernel::structural::retained_api as k;
 use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
@@ -32,7 +32,7 @@ pub(super) const CANONICALIZATION: &str = "openpipestress_jcs_ijson_v1";
 /// definition fixture and to the semantic table's entry by tests.
 pub(super) const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub(super) const DEFINITION_SHA256: &str =
-    "688639f2578d7764b6aa88fb5e650c6c9421f01c328a7362d6dfe0d78acd65f7";
+    "64ec69b842d6278323aa2ab2e140e999db52eb28e4a9965a567a90b04e228b41";
 /// B3b-P (B3-D P-9): the exact successor's identity and profile (reserved 2026-10-03;
 /// `semantic_contract_v0_3_physics_retained_1.json`), and its formation definition DEF-E with
 /// its H("retained_precision_formation_v1", definition) (B3-D REVISION_01 §1.2). Bound to the
@@ -41,7 +41,7 @@ pub(super) const EXACT_SEMANTIC_ID: &str = "openpipestress.result_semantics/0.3.
 pub(super) const EXACT_PROFILE_ID: &str = "exact_straight_retained_w1a_v2";
 pub(super) const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 pub(super) const EXACT_DEFINITION_SHA256: &str =
-    "6c772d242ef47a354376f29f93fc69959ee2b4085b606af211da4b7f45c87f8e";
+    "87907c619777945ba76b045fcd425c81022f282f5d6a71239388217be98d9948";
 /// B3b-P (B3-D P-9; REVISION_01 §2, S-1): the route descriptor the serializer takes its
 /// route-specific members from, never a module constant: the successor's identity and profile,
 /// every product attempt's `definition_id`, the preparation payload's `definition_sha256` (C3
@@ -228,24 +228,15 @@ impl Enc {
 fn sha_hex(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
-/// H(d,p) = sha256(UTF8(JCS_checked({"domain":d,"payload":p}))) (C1 §3).
+/// H(d,p) = sha256(UTF8(JCS_checked({"domain":d,"payload":p}))) (C1 §3): the
+/// one canonical writer streams the borrowed payload into the hasher (T4-S6,
+/// DEL-04-08 Design retained-pricing-rules.md §8.8, S6-HS). No wrapper copy,
+/// serialized text, re-parse or canonical text is held; the digest and every
+/// refusal are the former path's (`checked_v1_domain_canonical`).
 pub(super) fn domain_hash(domain: &str, payload: &Value) -> Option<String> {
-    let text = domain_text(domain, payload)?;
-    canonical_json_checked_v1_text(&text).ok().map(|canon| sha_hex(canon.as_bytes()))
-}
-/// The serialized `{"domain","payload"}` text that `domain_hash` canonicalizes.
-pub(super) fn domain_text(domain: &str, payload: &Value) -> Option<String> {
-    serde_json::to_string(&DomainPayload { domain, payload }).ok()
-}
-/// U6-DH (DEL-05-03 Design §9): the hashed `{"domain","payload"}` wrapper,
-/// serialized from borrows instead of a copy of the payload in a new `Value`.
-/// Its text is the former `json!` object's: serde_json's object map orders
-/// keys, and `domain` < `payload`, the field order here; each field serializes
-/// as the same string and the same borrowed `Value`.
-#[derive(serde::Serialize)]
-struct DomainPayload<'a> {
-    domain: &'a str,
-    payload: &'a Value,
+    let mut hasher = Sha256::new();
+    checked_v1_domain_canonical(domain, DomainPayload::Value(payload), &mut ByteSink(|bytes: &[u8]| hasher.update(bytes))).ok()?;
+    Some(format!("{:x}", hasher.finalize()))
 }
 fn fault_name(f: k::WorkFault) -> &'static str {
     match f {

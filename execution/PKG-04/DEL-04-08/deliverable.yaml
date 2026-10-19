@@ -10,7 +10,9 @@ needs:
     loaded-member maximum search with its fixed limits, and the retained resource layouts that the
     memory profile prices. For retained-source recovery it supplies the metered exact-boundary blocks.
     Each lane meets the limits stated in the formation definitions (DEF-O, DEF-C and DEF-E) or refuses;
-    no lane widens a limit to complete.
+    no lane widens a limit to complete. The final case's recipe-free `ProductRecipe::NotCovered` carries the
+    derived section extremes and transverse-shear maxima as `not_covered` rows outside every verified class
+    (DEL-04-07 Design `u4b-u5b-implementation.md` §4.1).
   gating: true
   evidence: core/solver/frame_kernel/src/structural/retained/mod.rs
 - from: DEL-04-07
@@ -47,7 +49,8 @@ needs:
     DEL-05-03 supplies the nominal and reduced section bases and their fixed binary64 rederivation
     (`section_basis`), which the readers apply at G5b and G8 and the verifier repeats. It also supplies
     the stress definitions (N/A, M/Z, T*c/J and the elastic normal-stress maximum) behind every stress
-    row this method bounds. Its Timoshenko formulation and its mill-tolerance and corrosion-allowance
+    row this method bounds, and the `section_stress_quantities` sequences by which successors and source
+    publications form their derived section extremes and transverse-shear maxima from their own rows. Its Timoshenko formulation and its mill-tolerance and corrosion-allowance
     fields are inputs this method declines by name until O4.
   gating: true
   evidence: execution/PKG-05/DEL-05-03/Design/section-bases-and-timoshenko.md
@@ -97,6 +100,7 @@ code_paths:
 - core/product_physics/src/source_receipt/**
 - core/product_physics/src/w1_*_tests.rs
 - core/product_physics/src/b7b_admission_tests.rs
+- core/product_physics/src/s4_retained_tests.rs
 - core/product_physics/tests/retained_*.rs
 - core/product_physics/tests/pressure_source_join.rs
 - core/product_physics/tests/pressure_source_join/**
@@ -129,8 +133,11 @@ code_paths:
 - tests/verifiers/**
 - tests/retained_precision_corpus.py
 - tests/base_reader_corpus.py
+- tests/test_u4b_retained_tau.py
+- tests/test_u4b_source_derived_not_qualified.py
 - tools/retained_pricing/**
 - tools/fixtures/retained_precision_corpus.py
+- tools/fixtures/retained_precision_synthetic_bases.py
 - tools/fixtures/j7_rf_census_inputs.py
 - schemas/retained_precision_mp_v2.schema.json
 - schemas/physics_source_recovery.schema.json
@@ -167,6 +174,7 @@ checks:
 - core/product_physics/src/retained_memory_law_tests.rs
 - core/product_physics/src/retained_memory_witness_tests.rs
 - core/product_physics/src/b7b_admission_tests.rs
+- core/product_physics/src/s4_retained_tests.rs
 - core/product_physics/src/w1_domain_stage1_tests.rs
 - core/product_physics/src/w1_source_census_tests.rs
 - core/product_physics/src/w1_successor_census_tests.rs
@@ -185,11 +193,14 @@ checks:
 - tests/test_retained_precision_schema.py
 - tests/test_retained_precision_si_first.py
 - tests/test_retained_precision_corpus_storage.py
+- tests/test_retained_precision_synthetic_bases.py
 - tests/test_declared_member_load_reader.py
 - tests/test_rust_reader.py
 - tests/test_base_reader_verifier.py
 - tests/test_pressure_source_verifier.py
 - tests/test_pressure_source_corpus.py
+- tests/test_u4b_retained_tau.py
+- tests/test_u4b_source_derived_not_qualified.py
 - tests/test_j7_rf_census_inputs.py
 - tests/test_retained_pricing_tool.py
 - tests/test_claims_language_surface.py

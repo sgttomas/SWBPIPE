@@ -5,7 +5,7 @@
 //!
 //! B7b deleted the v2 exact contract (`2.0.0/exact_straight_pressure_v2`) and
 //! its physics-source-1 and load-reference-source-1 publications. The twelve
-//! committed source controls are now the current 0.5.0 documents under
+//! committed source controls are now the current 0.6.0 documents under
 //! `fixtures/product_preview/pressure_source/` (v3, explicit zero corrosion
 //! allowance, Euler-Bernoulli), each re-authored once from its deleted v2
 //! original. The two families stay distinct: without and with the optional
@@ -57,7 +57,7 @@ impl Family {
         assert!(self.names().contains(&name));
         format!("fixtures/product_preview/pressure_source/{}/{name}.request.json", self.name())
     }
-    /// The committed current request: 0.5.0 with the current exact contract.
+    /// The committed current request: 0.6.0 with the current exact contract.
     fn request(self, name: &str) -> Value {
         let request = fixture(&self.request_path(name));
         current_model::assert_current_exact_request(&request, &self.request_path(name));
@@ -437,36 +437,49 @@ fn v3_rescued_cases_publish_pressure_source() {
 /// `pipe_sections` shape and the revised limitations 0 and 7; against the
 /// previous pins every earlier row value is bit-identical and each reduced
 /// twin is bit-equal to its nominal row (the sections coincide here).
-/// Re-pinned for the RF metered charging rule (DEL-05-02
+/// Re-pinned for the RF metered charging rule (DEL-04-08
 /// rf-source-method-extension.md §5): against the previous pins exactly six
 /// leaves of each publication changed, all work-derived: the case, invocation
 /// and publication charges, the selected summary's work, and the receipt and
-/// publication hashes that bind them.
+/// publication hashes that bind them. Re-pinned for model 0.6.0 (DEL-04-07
+/// Design `u4b-u5b-implementation.md` §1.4): against the previous pins exactly
+/// four leaves of each publication changed, all digests of the captured 0.6.0
+/// invocation: the invocation value, the normalized-source and functional-plan
+/// hashes and the receipt hash; every length is unchanged. Re-pinned for
+/// T4-U4b S4 (DEL-04-07 Design `u4b-u5b-implementation.md` §4.3): every case
+/// of a source publication publishes its straight members' σ⁺, σ⁻ and τ_v,max
+/// (fifteen rows per member on each basis, formed from its published rows),
+/// treated `derived_not_qualified` on the selected case and
+/// `ordinary_physics_checked` on an ordinary-method case. Against the previous
+/// pins every earlier row and treatment is unchanged and exactly five other
+/// leaves of each publication changed: the selected case's, the invocation's
+/// and the publication's charges (the new rows' work) and the receipt and
+/// publication hashes; every length grows by the new rows and treatments.
 const CURRENT_SOURCE_BASIS: [(Family, &str, &str, PreviewSolverMode, usize, &str); 24] = [
-    (Family::Physics, "n05", "e01b5880a62454cc7dc295fe231b61e5c97e10367962fe18ac3cd5298887124b", PreviewSolverMode::SparseInteractive, 151837, "c40f336716338bc2af923c20f8f80e13379cb3b3545b3a922e0de42dfd95312a"),
-    (Family::Physics, "n05", "e01b5880a62454cc7dc295fe231b61e5c97e10367962fe18ac3cd5298887124b", PreviewSolverMode::DenseScrutiny, 151838, "02b435f5bf02fb28a364d868a9457301c7465ffd558da2f344c4784896f3b0ff"),
-    (Family::Physics, "n06", "35c17e4497ed98dbdd44f656fd886a9d98dc609ed646684ac1c05652dbdda6d1", PreviewSolverMode::SparseInteractive, 145043, "2e9fe0426238ef4d1d4611f36e860458a30dfd75989f9f38439513ad16d82558"),
-    (Family::Physics, "n06", "35c17e4497ed98dbdd44f656fd886a9d98dc609ed646684ac1c05652dbdda6d1", PreviewSolverMode::DenseScrutiny, 145031, "9eddfa072deae4b04206c316adb31e501d927097b643cbe9503338ecd20d8506"),
-    (Family::Physics, "n05_unicode", "74ab6800139f989121ab34242ed9837c4d91d446eca2d627c3596c2dd26446ad", PreviewSolverMode::SparseInteractive, 154576, "30e91ed5fc436a9d09db6ede7b7d3574db93690c3d6e76ec49cea4fca91cd82e"),
-    (Family::Physics, "n05_unicode", "74ab6800139f989121ab34242ed9837c4d91d446eca2d627c3596c2dd26446ad", PreviewSolverMode::DenseScrutiny, 154577, "85ed6b2688d01ea9924ba78fe8b6cfe5373baea838b6c734de73797e40465743"),
-    (Family::Physics, "n05_units", "c9fc898a5d1a7cf95baa9cafb271d7afc6ef0dfe384a282048f369319b3ec5ab", PreviewSolverMode::SparseInteractive, 151843, "18fb80796bd26ce8badf81b26ae0f5e4a7990f91a071a2b8890b5959eb656f29"),
-    (Family::Physics, "n05_units", "c9fc898a5d1a7cf95baa9cafb271d7afc6ef0dfe384a282048f369319b3ec5ab", PreviewSolverMode::DenseScrutiny, 151844, "eeabd2c8360d16c0a577acc01c0ad65487aa0357cc738ebb89d4ae12ecb2d9c8"),
-    (Family::Physics, "fields", "67ac4067d5b98063f591138af4d2e220e1f34c366b61bc4acd09c90acd41b199", PreviewSolverMode::SparseInteractive, 160679, "1b0fc31c06eb7d0a70501246354c384ffc3891fbe582e24044960c6c6fea7d93"),
-    (Family::Physics, "fields", "67ac4067d5b98063f591138af4d2e220e1f34c366b61bc4acd09c90acd41b199", PreviewSolverMode::DenseScrutiny, 160860, "c301a4bc53a08a37edf3bef217c5ebcacf6b6815e6da315a5b21345ef9f10822"),
-    (Family::Physics, "mixed", "9dac61d072f63a076f7874f06bd485faff63e259c4c818a35f1f6a3717146561", PreviewSolverMode::SparseInteractive, 300086, "9b1e87f976740aad73791b0e1c5ac185203a81d13a63d3f12c4b248489a42d7b"),
-    (Family::Physics, "mixed", "9dac61d072f63a076f7874f06bd485faff63e259c4c818a35f1f6a3717146561", PreviewSolverMode::DenseScrutiny, 300080, "ecfc220bd45c16c82c98ba8ab18db05c7e981d702e538319b74e023236d9fa8f"),
-    (Family::Physics, "mixed_units", "7f8064e950182ea0e517a55765bc4bb2fcda8528636a69b665ce21c79897ea7d", PreviewSolverMode::SparseInteractive, 300199, "fe56c6cc6428b3d9a32cb0b7193880fe365e0bd80a063556aac6c8b6ddb3ff7f"),
-    (Family::Physics, "mixed_units", "7f8064e950182ea0e517a55765bc4bb2fcda8528636a69b665ce21c79897ea7d", PreviewSolverMode::DenseScrutiny, 300193, "948a3bf7c50b379c9756bf950d1e44e7b94f57d9874ef29e27963356732baf0f"),
-    (Family::LoadReference, "n05", "6667d339787c74f9ddd51ce4a4cbf31af4fe56277796f036a403f7625a2e4c67", PreviewSolverMode::SparseInteractive, 155132, "1f6e24921bc89a15cafb7b976e444b3a8aef08817d47c457b317ed51ac9938bc"),
-    (Family::LoadReference, "n05", "6667d339787c74f9ddd51ce4a4cbf31af4fe56277796f036a403f7625a2e4c67", PreviewSolverMode::DenseScrutiny, 155129, "7e9ee948282890b32329934054f2444eded3426d6f367b04ce8c3f1eee4a7b17"),
-    (Family::LoadReference, "n06", "517274cf136b7db4cef941dfaa69470127217aa34cdd335932313e5927ade326", PreviewSolverMode::SparseInteractive, 148341, "d1030193d6790896f2e04f4e6f5fe98b72a9c14d12767ba2255bedb27a5c4354"),
-    (Family::LoadReference, "n06", "517274cf136b7db4cef941dfaa69470127217aa34cdd335932313e5927ade326", PreviewSolverMode::DenseScrutiny, 148325, "15c3b3392f2c4610b781bbe1a4cb45e06a93b596cd5d42cc565619df7479462b"),
-    (Family::LoadReference, "eigen_motion", "79da8affca8726761874be4ad7553ec9212c37042dd336d4dbf469adeb61ba5d", PreviewSolverMode::SparseInteractive, 167748, "6e9961fc8574c9db2120f7b4bca30ec3ca7e88f425fd6f763af6dc053d9d272e"),
-    (Family::LoadReference, "eigen_motion", "79da8affca8726761874be4ad7553ec9212c37042dd336d4dbf469adeb61ba5d", PreviewSolverMode::DenseScrutiny, 167743, "ae3522d0abcd7389ccf838930046ae1e9b19312155327ce7a6cf9410b9cda32c"),
-    (Family::LoadReference, "fields", "fcf738819baf2bbff402420ea1955ab811be36c95088e91743e66c47e082c753", PreviewSolverMode::SparseInteractive, 165164, "45aa5b5a25d34f8d5e6f1e64b1ff5d08ee843bb0dbba37248b435514d32f704f"),
-    (Family::LoadReference, "fields", "fcf738819baf2bbff402420ea1955ab811be36c95088e91743e66c47e082c753", PreviewSolverMode::DenseScrutiny, 165341, "34601a40a58e6d6dda8800203b3dac7fbc30aa5570fc0ffe8f1d60c46d3f0b3f"),
-    (Family::LoadReference, "mixed", "ba12d4c6a056c3fff3761bf777db97244230f6202dacaedc03059f67244f3c5d", PreviewSolverMode::SparseInteractive, 305473, "6d8419f5a30e6ca71683e754d1b9c925ade5a78e705c89b361cd37d282b372b3"),
-    (Family::LoadReference, "mixed", "ba12d4c6a056c3fff3761bf777db97244230f6202dacaedc03059f67244f3c5d", PreviewSolverMode::DenseScrutiny, 305454, "f48e029a4486b9709634ffce0b8c198e021439935d861d65a380939f86ebb442"),
+    (Family::Physics, "n05", "90c1edab9cbf5c7caa2d2072cea6484be1681eabac8c8f48d053342dcc7f4efb", PreviewSolverMode::SparseInteractive, 189162, "cbd01b6204778047484399424c5a21eeade676932401a64370ad547fedc8b37f"),
+    (Family::Physics, "n05", "90c1edab9cbf5c7caa2d2072cea6484be1681eabac8c8f48d053342dcc7f4efb", PreviewSolverMode::DenseScrutiny, 189163, "d5551cca89cdf1085c49a3080e451fa7382f558b1003e35424b1bae77d21f577"),
+    (Family::Physics, "n06", "d9e3ede6542ce6d73832d6205d45bed185986295ea192357b2d884048cc3a217", PreviewSolverMode::SparseInteractive, 182369, "c4ebc34cab8d63c98195f080dcb60118fac2f995219acc7316823741e6f44810"),
+    (Family::Physics, "n06", "d9e3ede6542ce6d73832d6205d45bed185986295ea192357b2d884048cc3a217", PreviewSolverMode::DenseScrutiny, 182357, "067157c827844adfccd3b228492346a12dbb6dc581063707fd0b3d3c4e1edb2e"),
+    (Family::Physics, "n05_unicode", "49d235584b3dcad4ab887320e44e470c78379aca8459a4ff3a0c84a013511b3d", PreviewSolverMode::SparseInteractive, 191011, "619c790ffb59da6fea81d9da57a17243f88e78d08489eb0d503f861c1d7f500d"),
+    (Family::Physics, "n05_unicode", "49d235584b3dcad4ab887320e44e470c78379aca8459a4ff3a0c84a013511b3d", PreviewSolverMode::DenseScrutiny, 191012, "224807783a5e8d1433a57b454bdf7cf5a55425e3303e707cbad077b001feae50"),
+    (Family::Physics, "n05_units", "e5f0564cb7d977a509db9b5bae3f51d5351c23e1199c3b7d31aac9e78992f23b", PreviewSolverMode::SparseInteractive, 189168, "987fcfefe909a9aafe740a09ed866aa4ae2dd858deb1c948c594e983b67660c7"),
+    (Family::Physics, "n05_units", "e5f0564cb7d977a509db9b5bae3f51d5351c23e1199c3b7d31aac9e78992f23b", PreviewSolverMode::DenseScrutiny, 189169, "b7db85979a1501bab2add14fed7529bd2c21462b1cc8240dd8eb2b0384a3ac74"),
+    (Family::Physics, "fields", "b0b8ce054f06382dc15916b436a6a8bad704135884878aa047120eb0071d8852", PreviewSolverMode::SparseInteractive, 198572, "0b5f55c95a50cba3ccaa39ea89e75960d5f305c54e08bca4f346f7e6b38bb2d6"),
+    (Family::Physics, "fields", "b0b8ce054f06382dc15916b436a6a8bad704135884878aa047120eb0071d8852", PreviewSolverMode::DenseScrutiny, 198753, "9de88dbe1e2c5a5e7e4102249ef7e63866df232fd13326e6c30d1e75e6846caa"),
+    (Family::Physics, "mixed", "0da7828c35c78d5f3fa25b5336d448c0c72ee83b469b908376e2bb09194f3349", PreviewSolverMode::SparseInteractive, 370271, "6c4aa6f2dcdd6daea826a617dca4bf9e6ec588d56502c40c0619ade156b623db"),
+    (Family::Physics, "mixed", "0da7828c35c78d5f3fa25b5336d448c0c72ee83b469b908376e2bb09194f3349", PreviewSolverMode::DenseScrutiny, 370265, "506f9d9c480e717a162061bd13bfec99a69fa4caf6d071413ea0bf2dea67c83a"),
+    (Family::Physics, "mixed_units", "f8dc9ffafcf0d3854498ac3456b30264524589432dbe29af90a0ba3dc7c523f5", PreviewSolverMode::SparseInteractive, 370384, "46b635e9690020388201cd8687cbbcd9f81855bbb04f97b3e0534b0fde1112b5"),
+    (Family::Physics, "mixed_units", "f8dc9ffafcf0d3854498ac3456b30264524589432dbe29af90a0ba3dc7c523f5", PreviewSolverMode::DenseScrutiny, 370378, "37298ae5eb3afe7b496c06c21718df18214193f00e666ff310195170b0878072"),
+    (Family::LoadReference, "n05", "2d0223c1125e5eaefc7f87f8d5f5f2688ce223952a090b4b42fa92c90252a699", PreviewSolverMode::SparseInteractive, 192458, "5281a7a5c58dd14dcc25e9bf9519fef2c157a4efb300174576408f9c3ecafd06"),
+    (Family::LoadReference, "n05", "2d0223c1125e5eaefc7f87f8d5f5f2688ce223952a090b4b42fa92c90252a699", PreviewSolverMode::DenseScrutiny, 192455, "06c19aab5d6e95c00e8b3015e07a688ddd34e40efaf875740fb2dedf978041f5"),
+    (Family::LoadReference, "n06", "2a8226694ec44a4a07fa1e89b3bc4ff2e77e75098071bb5a0a118e5c7c48a55d", PreviewSolverMode::SparseInteractive, 185667, "fa8866c276b5057a934e21c55c5333dd9bb11b30fd50d658d92861434295f9a2"),
+    (Family::LoadReference, "n06", "2a8226694ec44a4a07fa1e89b3bc4ff2e77e75098071bb5a0a118e5c7c48a55d", PreviewSolverMode::DenseScrutiny, 185651, "c20cae0928b6717ed8d2c14544838e4e6083cf4cb87ae1411fcd1b88660172fc"),
+    (Family::LoadReference, "eigen_motion", "79820f837ed1be649af20304adea15402180d2422b983de16a673e53759e0382", PreviewSolverMode::SparseInteractive, 203503, "4e553d1d1e4ae6e8a7bb09479c0fee04d8cb0893a595c0e38d66a42045264efc"),
+    (Family::LoadReference, "eigen_motion", "79820f837ed1be649af20304adea15402180d2422b983de16a673e53759e0382", PreviewSolverMode::DenseScrutiny, 203498, "952d2b306235a522393e8bfd6903c448dccd5d7c261dada060f106effc486852"),
+    (Family::LoadReference, "fields", "5479d2422d6700418cf019e3629c16974b85fba7789a8ddb8f20e0ed5939ff82", PreviewSolverMode::SparseInteractive, 203057, "b51312131c94e54b77f3922c8ae0d4eec554de83df32534a7140fbfb7a952cca"),
+    (Family::LoadReference, "fields", "5479d2422d6700418cf019e3629c16974b85fba7789a8ddb8f20e0ed5939ff82", PreviewSolverMode::DenseScrutiny, 203234, "4eb78d4105bc68a92bec2e0246b27e5a57cf44c9daa50bda61f1136227f5e1fc"),
+    (Family::LoadReference, "mixed", "9209e39bbd5f8976e59b8989915d4baf67934111537db23cacff170dbf6755db", PreviewSolverMode::SparseInteractive, 375658, "1bd90b5edd5cf8d5fd769a3b782767e1c1ea40ffe9ad5097aaafc007ab706ac1"),
+    (Family::LoadReference, "mixed", "9209e39bbd5f8976e59b8989915d4baf67934111537db23cacff170dbf6755db", PreviewSolverMode::DenseScrutiny, 375639, "4f195f1cd71c9686d6a5dc8683df85880d6c450a67ffe260e33c0583bc22eb7c"),
 ];
 
 /// MJ6's kill (B7b meaning): changing the established source work limit

@@ -5,7 +5,7 @@ ControlledExport wrapper: the T4-I7 L line (``U2-L-ANCH-PTW-K2``) on 0.3.0
 (sparse) and 0.4.0 (dense) and the admitted kink (``U2-L-KINK-ANCH-P-K2``,
 0.3.0, dense) from ``fixtures/results/pressure_v3_arc_reader_corpus.json``,
 whose documents are the package's own generated requests re-authored to model
-0.5.0 (B7b), as the adapter re-authors each frozen case input it submits. They are scored
+0.6.0, as the adapter re-authors each frozen case input it submits. They are scored
 against the generated package (analytical values from the frozen T4-I7
 references), admitted here with a synthetic test-only stub; no product solver
 or runner binary is executed. The owned reader genuinely runs against the
@@ -196,10 +196,11 @@ class PinTests(unittest.TestCase):
 
 class PackageTests(unittest.TestCase):
     def test_committed_manifest_is_current_and_binds_every_case_file(self):
-        # The technical fixture binding follows the independent T4-U6 section-basis mapping review.
+        # The technical fixture binding follows the independent T4-U4b/U5b delta review, which reuses
+        # the T4-U6 section-basis mapping review's warrants.
         admitted = generator.admission()
         self.assertIsNotNone(admitted)
-        self.assertEqual(admitted['independent_review']['path'], f'{PACKAGE}/INDEPENDENT_REVIEW_T4-U6.md')
+        self.assertEqual(admitted['independent_review']['path'], f'{PACKAGE}/INDEPENDENT_REVIEW_T4-U4B-U5B.md')
         files = generator.generate()
         manifest = f'{PACKAGE}/MANIFEST.json'
         self.assertEqual((PROJECT / manifest).read_bytes(), files[manifest], 'regenerate with generate_package.py --write')
@@ -339,9 +340,11 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(scored, {c['id'] for c in controls})
         self.assertIn('cap_area_on_nominal_bore', scored)
 
-    def test_a_current_package_document_is_submitted_unchanged(self):
-        # T4-U6: a 0.5.0 package document under the current contract is its own submitted input (identity re-authoring);
-        # a 0.5.0 document without an explicit corrosion allowance, or under another contract, is refused.
+    def test_a_complete_0_5_0_package_document_is_re_authored_by_its_version_alone(self):
+        # T4-U6's MILLTOL owners are 0.5.0 package documents under the current contract. Since model 0.6.0 each is kept
+        # as bound and submitted as its copy re-authored by its version alone (DEL-04-07 Design
+        # u4b-u5b-implementation.md §1.4); a 0.5.0 document without an explicit corrosion allowance, or under another
+        # contract, is refused.
         files, cases = generated(), manifest_cases()
         rows = json.loads((PROJECT / ep.TABLE).read_text())['rows']
         for case_id in ('milltol_lame_membrane.free_transferring@0.5.0', 'milltol_lame_membrane.axially_restrained_transferring@0.5.0_load_state_group_timoshenko'):
@@ -351,10 +354,13 @@ class PackageTests(unittest.TestCase):
                 fixture.write(case[role]['path'], files[case[role]['path']])
             prepared = ep.prepare_case(case, fixture.candidate.resolve(), 'development_comparison', rows)
             record = prepared['reauthoring']
-            self.assertEqual(prepared['runner_input'], files[case['runner_input']['path']])
-            self.assertEqual(record['frozen_input_sha256'], record['submitted_input_sha256'])
+            frozen = json.loads(files[case['runner_input']['path']])
+            submitted = json.loads(prepared['runner_input'])
+            frozen['solve']['preview_model']['model']['schema_version'] = '0.6.0'
+            self.assertEqual(submitted, frozen, 'only the version moves')
+            self.assertNotEqual(record['frozen_input_sha256'], record['submitted_input_sha256'])
             self.assertEqual(record['frozen_input_sha256'], case['runner_input']['sha256'])
-            self.assertEqual((record['model_schema_version'], record['explicit_zero_corrosion_allowance']), (['0.5.0', '0.5.0'], False))
+            self.assertEqual((record['model_schema_version'], record['explicit_zero_corrosion_allowance']), (['0.5.0', '0.6.0'], False))
             self.assertEqual(record['pressure_contract'][0], record['pressure_contract'][1])
             self.assertEqual(prepared['load_state'], case_id.endswith(('_load_state_group', '_load_state_group_timoshenko')))
         model = json.loads(files[cases['milltol_lame_membrane.free_transferring@0.5.0']['product_request']['path']])['model']
@@ -400,14 +406,14 @@ class CompleteRunTests(unittest.TestCase):
         for case in result['cases']:
             self.assertEqual(case['reader_consistency']['response']['verdict'], 'consistent')
             self.assertEqual(case['process']['command'][1:], ['solve', '--input', '-', '--solver-mode', mode, '--explicit-local-private-intent'])
-            # B7b: the runner received the declared re-authored copy (model 0.5.0); the frozen input stays bound.
+            # The runner received the declared re-authored copy (model 0.6.0); the frozen input stays bound.
             reauthoring = case['runner_input_reauthoring']
             self.assertEqual(reauthoring['rule'], physics.REAUTHORING)
             self.assertEqual(case['process']['stdin_sha256'], reauthoring['submitted_input_sha256'])
             frozen = next(b for b in case['bindings'] if b['role'] == 'runner_input')
             self.assertEqual(frozen['sha256'], reauthoring['frozen_input_sha256'])
-            self.assertEqual(reauthoring['model_schema_version'][1], '0.5.0')
-            self.assertEqual(check(case, 'transport_identity_and_mode')['details']['document_schema_version'], '0.5.0')
+            self.assertEqual(reauthoring['model_schema_version'][1], '0.6.0')
+            self.assertEqual(check(case, 'transport_identity_and_mode')['details']['document_schema_version'], '0.6.0')
             self.assertTrue(any(r['id'].startswith('negative:') and r['state'] == 'matched' for r in case['assertions']))
         self.assertEqual(json.loads((output / 'ledger.json').read_text()), result)
         self.assertIn('Outcome: all_required_assertions_matched', (output / 'summary.md').read_text())

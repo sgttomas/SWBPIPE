@@ -14,7 +14,7 @@ import pressure from "../../../../../fixtures/product_preview/pressure/load_refe
 import eigenMotion from "../../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json";
 import connectedRaw from "../../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json";
 
-// T1 WP3 addendum, on the current format (B7b): the committed 0.5.0 exact-contract
+// T1 WP3 addendum, on the current format (B7b): the committed 0.6.0 exact-contract
 // request models with the load/reference-state group are used unmodified
 // (headlessly authored: their load cases may have no label, kind or status and
 // the model may have no desktop `diagnostics` array). Invented pass-through
@@ -93,7 +93,7 @@ describe("committed load/reference-state request models render unmodified in the
     expect(Object.hasOwn(model, "diagnostics")).toBe(false);
     render(<SolvePanel analysisRun={null} model={model} result={result} running={false} solveJob={initialSolveJob()} solverMode="sparse_interactive" onCancel={() => {}} onRun={() => {}} onSolverModeChange={() => {}} />);
     expect(screen.getByTestId("readiness-diagnostics")).toHaveTextContent(`${result.diagnostics.length} diagnostic`);
-    expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("ordinary pressure-1");
+    expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("ordinary pressure-2");
     expect(JSON.stringify(model)).toBe(bytes);
   });
 

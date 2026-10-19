@@ -1,11 +1,14 @@
 //! T4-U2a: reader dispatch on the exact pressure contract identity, over the
-//! shared generated pressure-1 corpus (also read by the Python
+//! shared generated pressure-2 corpus (also read by the Python
 //! reader). v3 admits straight families with signed p_pa; B7b retired the v2
 //! contract, so a statement labelled with a retired v2 identity is refused by
 //! name and v2 profile labels are refused by the current reader; unknown
 //! identities are refused.
 use open_pipe_stress_result_export::semantic_contract as s;
 use serde_json::{json, Value};
+
+/// T4-U4b §4.3 (S4): the straight derived tokens pressure-source-1 shares with pressure-2.
+const STRAIGHT_DERIVED_BASES: [&str; 2] = ["section_extremes_from_published_stress_rows_v1;", "saint_venant_annulus_flexure_v1;"];
 
 fn corpus() -> Vec<(String, Value)> {
     let corpus: Value = serde_json::from_str(include_str!(
@@ -46,7 +49,7 @@ fn the_shared_corpus_is_admitted_by_the_pressure_1_reader_and_dispatch() {
         assert_eq!(envelope["producer"]["semantic_contract_id"], s::PRESSURE_ID, "{label}");
         s::validate_pressure_evidence(envelope).unwrap_or_else(|e| panic!("{label}: {e}"));
         let (table, version) = s::for_source(envelope).unwrap_or_else(|e| panic!("{label}: {e}"));
-        // pressure-1 rows resolve against its own reviewed resident table (B7b, O-10).
+        // pressure-2 rows resolve against its own reviewed resident table (B7b, O-10).
         assert!(std::ptr::eq(table, s::pressure_rows_contract()) && version == "0.3.0", "{label}");
         let (meta, meta_version) = s::for_source_metadata(envelope).unwrap();
         assert!(std::ptr::eq(meta, table) && meta_version == "0.3.0", "{label}");
@@ -73,7 +76,7 @@ fn retired_v2_labels_are_refused() {
             relabelled["producer"]["semantic_contract_id"] = json!(id);
             for refusal in [s::for_source(&relabelled).unwrap_err(), s::for_source_metadata(&relabelled).unwrap_err()] {
                 assert!(refusal.starts_with(&format!("{}: ", s::SOURCE_EXACT_PRESSURE_V2_RETIRED)), "{label} {id}: {refusal}");
-                assert!(refusal.contains("re-author the model as 0.5.0"), "{label} {id}: {refusal}");
+                assert!(refusal.contains("re-author the model as 0.6.0"), "{label} {id}: {refusal}");
             }
         }
     }
@@ -83,8 +86,24 @@ fn retired_v2_labels_are_refused() {
 fn unknown_identities_and_profiles_are_refused() {
     for (label, envelope) in corpus() {
         let mut unknown = envelope.clone();
-        unknown["producer"]["semantic_contract_id"] = json!("openpipestress.result_semantics/0.3.0/pressure-2");
+        unknown["producer"]["semantic_contract_id"] = json!("openpipestress.result_semantics/0.3.0/pressure-3");
         assert_eq!(s::for_source(&unknown).unwrap_err(), "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED", "{label}");
+        // Model 0.6.0: the retired pressure-1 identity is refused by name (re-run).
+        let mut retired = envelope.clone();
+        retired["producer"]["semantic_contract_id"] = json!(s::RETIRED_PRESSURE_1_ID);
+        let refusal = s::for_source(&retired).unwrap_err();
+        assert!(refusal.starts_with(&format!("{}: ", s::SOURCE_PRESSURE_1_RETIRED)) && refusal.contains("re-run"), "{label}: {refusal}");
+        // The retired preview-physics-1 identity is refused by name the same way, for the
+        // whole statement and for its transport metadata.
+        let mut retired_preview = envelope.clone();
+        retired_preview["producer"]["semantic_contract_id"] = json!(s::RETIRED_PREVIEW_PHYSICS_1_ID);
+        for refusal in [s::for_source(&retired_preview).unwrap_err(), s::for_source_metadata(&retired_preview).unwrap_err()] {
+            assert_eq!(
+                refusal,
+                format!("{}: preview-physics-1 results are no longer read; re-run the analysis", s::SOURCE_PREVIEW_PHYSICS_1_RETIRED),
+                "{label}"
+            );
+        }
         let mut profile = envelope.clone();
         profile["formulation_basis"]["profile_id"] = json!("exact_straight_pressure_v2");
         assert_eq!(s::for_source(&profile).unwrap_err(), "SOURCE_FORMULATION_BASIS_UNSUPPORTED", "{label}");
@@ -95,14 +114,14 @@ fn unknown_identities_and_profiles_are_refused() {
     }
 }
 
-/// B7b (O-10): pressure-1 has its own reviewed resident table. Its physical rows
+/// B7b (O-10): pressure-2 has its own reviewed resident table. Its physical rows
 /// are the exact source family's (the independent pressure-source-1 table, less
 /// its source-basis signatures), followed by one signature per legacy connector
 /// (kind, unit, component) and exactly the two U5 scalar signatures.
 #[test]
 fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     let pressure: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json"
+        "../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json"
     ))
     .unwrap();
     let source = s::pressure_source_contract();
@@ -133,23 +152,42 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
         ("connector_pressure_force_v1", "N", "pe_x"),
         ("connector_effective_axial_force_v1", "N", "s_x"),
     ];
+    // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §3.3): one more
+    // signature, the tie-rod force, at its own location and basis; its frame
+    // `element_local` is already in the straight vocabulary.
+    const U5B_SIGNATURE: (&str, &str, &str) = ("connector_tie_rod_force_v1", "N", "t_r");
+    const ROD_LOCATION: &str = "tie_rod";
+    const ROD_BASIS: &str = "recovered_from_tie_rod_extension_v1";
     let mut current_kinds = LEGACY_KINDS.to_vec();
     for (kind, unit, component) in U5_SIGNATURES {
         current_kinds.push((kind, unit, [component; 3], &[LOCAL]));
     }
+    current_kinds.push((U5B_SIGNATURE.0, U5B_SIGNATURE.1, [U5B_SIGNATURE.2; 3], &[ROD_LOCATION]));
     assert_eq!(s::CONNECTOR_ROW_KINDS.as_slice(), current_kinds.as_slice());
     let mut current_components = LEGACY_COMPONENTS.to_vec();
-    current_components.extend(["pe_x", "s_x"]);
+    current_components.extend(["pe_x", "s_x", "t_r"]);
     assert_eq!(s::CONNECTOR_VOCABULARY_COMPONENTS.as_slice(), current_components.as_slice());
     assert_eq!(s::CONNECTOR_VOCABULARY_COORDINATE_SYSTEMS, [LOCAL_FRAME]);
-    assert_eq!(s::CONNECTOR_VOCABULARY_LOCATIONS, [LOCAL]);
+    assert_eq!(s::CONNECTOR_VOCABULARY_LOCATIONS, [LOCAL, ROD_LOCATION]);
     assert_eq!(s::CONNECTOR_ROW_BASIS, BASIS);
+    assert_eq!(s::CONNECTOR_VOCABULARY_BASES, [BASIS, ROD_BASIS]);
     // The vocabulary is the source family's (without its source-only maximum
     // bases) plus the connector components, frame, location and basis. T4-U6
     // (D-5, §2.4): the connector basis takes the source-only maximum basis's
     // place, ahead of the per-section-basis tokens both tables append.
     let max_basis = open_pipe_stress_result_export::physics_source::MAX_BASIS;
     let mut vocabulary = source["canonical_metadata_vocabulary"].clone();
+    // T4-U4b §4.3 (S4): the source family's straight derived tokens (appended to its
+    // vocabulary) are pressure-2's too; pressure-2 orders them with its own U4b tokens
+    // below, so they are taken out of the source's list first.
+    let source_bases: Vec<String> = ["section_extremes_from_published_stress_rows_v1", "saint_venant_annulus_flexure_v1"]
+        .iter()
+        .flat_map(|t| ["nominal_section", "reduced_section"].map(|b| format!("{t}; section_basis={b}")))
+        .collect();
+    let source_components: Vec<String> = ["sigma_plus", "sigma_minus", "tau_v_max"].map(String::from).to_vec();
+    for (key, tokens) in [("component", &source_components), ("basis", &source_bases)] {
+        vocabulary[key]["enum"].as_array_mut().unwrap().retain(|v| !tokens.iter().any(|t| v == t.as_str()));
+    }
     {
         let bases = vocabulary["basis"]["enum"].as_array_mut().unwrap();
         let slot = bases.iter().position(|b| b == max_basis).unwrap();
@@ -162,10 +200,23 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     };
     extend(&mut vocabulary, "component", &current_components);
     extend(&mut vocabulary, "coordinate_system", &[LOCAL_FRAME]);
-    extend(&mut vocabulary, "location", &[LOCAL]);
+    extend(&mut vocabulary, "location", &[LOCAL, ROD_LOCATION]);
+    extend(&mut vocabulary, "basis", &[ROD_BASIS]);
+    // T4-U4b (§2.2): pressure-2's own section stress, toroidal and directional
+    // tokens (both section bases), which the source family does not carry.
+    extend(&mut vocabulary, "component", &["sigma_plus", "sigma_minus", "tau_v_max", "intensified_bending",
+        "intensified_bending_maximum", "toroidal_intrados_hoop_stress", "toroidal_crown_hoop_stress",
+        "toroidal_extrados_hoop_stress", "toroidal_inner_radial_stress", "toroidal_outer_radial_stress"]);
+    let u4b_bases: Vec<String> = ["section_extremes_from_published_stress_rows_v1", "saint_venant_annulus_flexure_v1",
+        "local_straight_annulus_on_arc", "user_directional_sif_times_tangent_frame_bending_stress_v1",
+        "bore_load_transferred_toroidal_membrane_v1"]
+        .iter()
+        .flat_map(|t| ["nominal_section", "reduced_section"].map(|b| format!("{t}; section_basis={b}")))
+        .collect();
+    extend(&mut vocabulary, "basis", &u4b_bases.iter().map(String::as_str).collect::<Vec<_>>());
     assert_eq!(pressure["canonical_metadata_vocabulary"], vocabulary);
     let schema: Value = serde_json::from_str(include_str!(
-        "../../../../schemas/results_pressure_1.v0.3.schema.json"
+        "../../../../schemas/results_pressure_2.v0.3.schema.json"
     ))
     .unwrap();
     assert_eq!(schema["$defs"]["PressureResultMetadata"]["properties"], vocabulary);
@@ -173,7 +224,7 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
         json!(["component", "coordinate_system", "location", "basis", "sign_convention"]));
     assert_eq!(schema["$defs"]["PressureResultMetadata"]["additionalProperties"], false);
     // The two tables share their header members; the source table adds only its
-    // source-block policy. T4-U6 (§2.4): pressure-1 now also declares the
+    // source-block policy. T4-U6 (§2.4): pressure-2 now also declares the
     // source-basis signature policy, with the same text.
     let (p, q) = (pressure.as_object().unwrap(), source.as_object().unwrap());
     let mut source_keys: Vec<&String> = q.keys().collect();
@@ -190,13 +241,37 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     // T4-U6 (§2.4): a stress-family row declares its `source_basis` (recovery
     // token and section basis), as the source table's same signature does; every
     // other ordinary row has none. Each ordinary row is a source row but for its id.
+    // T4-U4b (§2.7): pressure-2 marks every row with its algebra class; the
+    // source table keeps its own rows (its new kinds are §4.3's).
     let without_id = |r: &Value| {
         let mut r = r.clone();
         r.as_object_mut().unwrap().remove("signature_id");
+        r.as_object_mut().unwrap().remove("combination_algebra");
         r
     };
+    assert!(rows.iter().all(|r| r["combination_algebra"].is_string()));
     let split = rows.iter().position(|r| r["kind"].as_str().unwrap().starts_with("connector_")).unwrap();
-    let (physical, connector) = rows.split_at(split);
+    let (physical, rest) = rows.split_at(split);
+    // T4-U4b (§2.2): pressure-2's own section stress, toroidal and directional
+    // signatures follow the connector rows; each is a stress signature naming its
+    // recovery token and section basis (the source family does not carry them).
+    let u4b_split = rest.iter().position(|r| !r["kind"].as_str().unwrap().starts_with("connector_")).unwrap_or(rest.len());
+    let (connector, u4b) = rest.split_at(u4b_split);
+    assert_eq!(u4b.len(), 22);
+    for row in u4b {
+        let kind = row["kind"].as_str().unwrap();
+        assert!(open_pipe_stress_result_export::section_basis::is_stress_kind(kind), "{row}");
+        assert!(open_pipe_stress_result_export::section_basis::split_token(row["source_basis"].as_str().unwrap()).is_some(), "{row}");
+        // T4-U4b §4.3 (S4): the source family carries the straight derived signatures
+        // (σ⁺, σ⁻ and the straight τ token), each the same row but for its id and mark;
+        // the arc, toroidal and directional ones stay pressure-2's own.
+        if STRAIGHT_DERIVED_BASES.iter().any(|t| row["source_basis"].as_str().unwrap().starts_with(t)) {
+            assert!(q["rows"].as_array().unwrap().iter().any(|s| without_id(s) == without_id(row)), "{row}");
+        } else {
+            assert!(!source_rows_kinds(&q).contains(&kind.to_string())
+                || kind == "element_local_transverse_shear_stress_maximum", "{row}");
+        }
+    }
     for row in physical {
         let declared = row.get("source_basis").map(|b| b.as_str().unwrap());
         let stress = open_pipe_stress_result_export::section_basis::is_stress_kind(row["kind"].as_str().unwrap());
@@ -207,7 +282,9 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     }
     let source_rows = q["rows"].as_array().unwrap();
     let mut a: Vec<_> = physical.iter().map(signature).collect();
-    let mut b: Vec<_> = source_rows.iter().map(signature).collect();
+    let mut b: Vec<_> = source_rows.iter()
+        .filter(|r| !r["source_basis"].as_str().is_some_and(|t| STRAIGHT_DERIVED_BASES.iter().any(|d| t.starts_with(d))))
+        .map(signature).collect();
     a.sort();
     a.dedup();
     b.sort();
@@ -231,12 +308,15 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
         })
         .collect();
     expected.extend(U5_SIGNATURES.iter().map(|(k, u, c)| (k.to_string(), u.to_string(), c.to_string())));
+    expected.push((U5B_SIGNATURE.0.into(), U5B_SIGNATURE.1.into(), U5B_SIGNATURE.2.into()));
     assert_eq!(connector, expected);
     assert_eq!(p["source_signature_count"], rows.len());
     // T4-U6 (§2.4): 88 + 18 (015-018 become four signatures each, 068 and
     // 072-076 two each); the kinds are unchanged.
-    assert_eq!(rows.len(), 106);
-    assert_eq!(p["source_kind_count"], 59);
+    // T4-U5b: + the tie-rod force (097), a new kind; T4-U4b (§2.2): + 22 (six kinds,
+    // both section bases, 098-107) -> 129 rows over 66 kinds.
+    assert_eq!(rows.len(), 129);
+    assert_eq!(p["source_kind_count"], 66);
     // Signature ids are identities, not positions: stable and ascending, and
     // removed rows are not renumbered: B3's three retired rows (008, 020, 021),
     // E14's retired parity signature (037) and H-4's joint and thrust rows (038-042).
@@ -263,4 +343,9 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     let expected: Vec<u32> =
         (0..numbers.len() as u32 + removed.len() as u32).filter(|n| !removed.contains(n)).collect();
     assert_eq!(numbers, expected);
+}
+
+/// The kinds of a table's rows.
+fn source_rows_kinds(table: &serde_json::Map<String, Value>) -> Vec<String> {
+    table["rows"].as_array().unwrap().iter().map(|r| r["kind"].as_str().unwrap().to_string()).collect()
 }

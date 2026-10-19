@@ -1,7 +1,7 @@
-//! The current pressure-1 reader on documents carrying the optional
+//! The current pressure-2 reader on documents carrying the optional
 //! load/reference-state group: the four current producer envelopes (B7b's v3
 //! twins of the retired load-reference-1 statements, same physical inputs,
-//! 0.5.0/3.0.0/exact_pressure_v3), with the adversarial cases shared with the
+//! 0.6.0/3.0.0/exact_pressure_v3), with the adversarial cases shared with the
 //! Python verifier and the base-reader corpus. Both readers must reproduce every
 //! expectation in the case file. This proves consumer admission and carrier
 //! preservation, not producer authentication.
@@ -13,7 +13,7 @@ use sha2::{Digest, Sha256};
 
 const CASES: &str = include_str!("fixtures/load_reference_mutations.json");
 const TABLE: &str =
-    include_str!("../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json");
+    include_str!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
 const PHYSICS_PREFIX: &str = "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE";
 const NONFINITE_MARKER: &str = "__LOAD_REFERENCE_NONFINITE__";
 const RAW: [&str; 4] = [
@@ -40,6 +40,8 @@ fn source_text(name: &str) -> &'static str {
         "physics-sparse" => {
             include_str!("../../../../fixtures/results/pressure_connected_mechanics_sparse.json")
         }
+        // T4-U4b review: the directional pressurized arc envelope of the base corpus.
+        "u4b-arc" => include_str!("../../../../fixtures/results/pressure_u4b_arc_sparse.json"),
         _ => panic!("unknown source {name}"),
     }
 }
@@ -268,23 +270,25 @@ fn write_log(name: &str, log: &[Value]) {
 #[test]
 fn current_inputs_table_and_schema_are_pinned() {
     // B7b: the regenerated 0.5.0/v3 producer envelopes (fixtures commit 2d0e2210c1);
-    // T4-U6: regenerated again on the D-5 producer (both section-basis families).
+    // T4-U6: regenerated again on the D-5 producer (both section-basis families);
+    // model 0.6.0: again for the pressure-2 identity (identity bytes only);
+    // T4-U4b: again for the section stress rows on every member.
     for (name, digest) in [
         (
             "connected-sparse",
-            "b0338abda578dd364e0436a28ec672208985e902181bff92c85a907ce4cef225",
+            "2ee23ab36fd02ce3601d47dcfc07b2c99022d637e4805def93ec1ab4a1284685",
         ),
         (
             "connected-dense",
-            "698e444fc2e96af11b0188125676676754a67fdcd2cf6a4877195de2150e3e64",
+            "672e2d6f51b0c9f0240ca81454b27283ee7019ec0ec0fcca387f19b5cf6ff693",
         ),
         (
             "pressure-sparse",
-            "f12c3a9de57214e2665711e96467f486ee0461f530f2ef78e6ae541391267892",
+            "8f89d4fe4b8b2d43ea33a5f41dafeeabf7796fab8eec4d35a7f441690d90ac9f",
         ),
         (
             "pressure-dense",
-            "df0a7a94a0cb2461f4632807a4b2375653a07e03610d4c7f0f11014bf2d3c8a4",
+            "edbeb10b30c07b4d2d1cbf585952b8e5eeda28e3131084975e0a71abf8acc4e7",
         ),
     ] {
         assert_eq!(sha(source_text(name).as_bytes()), digest, "{name}");
@@ -294,7 +298,7 @@ fn current_inputs_table_and_schema_are_pinned() {
             assert_eq!((record["contract"].as_str(), record["profile"].as_str()), (Some(lr::RECORD_CONTRACT), Some(lr::RECORD_PROFILE)), "{name}");
         }
     }
-    // Result rows use pressure-1's own reviewed table (B7b, O-10).
+    // Result rows use pressure-2's own reviewed table (B7b, O-10).
     assert_eq!(sha(TABLE.as_bytes()), s::PRESSURE_TABLE_SHA256);
     let table = s::pressure_rows_contract();
     assert_eq!(table["semantic_contract_id"], s::PRESSURE_ID);
@@ -411,7 +415,7 @@ fn table_bytes_and_transport_cases_match_in_rust() {
         record(&mut log, json!({"id": case["id"], "table": result}));
         assert_eq!(result, case["expect"].as_str().unwrap(), "{}", case["id"]);
     }
-    // B7b: pressure-1 has no transport (metadata-only) reader, so the retired
+    // B7b: pressure-2 has no transport (metadata-only) reader, so the retired
     // load-reference-1 transport cases have no current twin: the case file states
     // none, and a transported statement is refused by name while its header alone
     // still dispatches (header only; never a qualification of raw output).
@@ -537,7 +541,7 @@ fn header_only_dispatch_is_bound_to_one_profile_and_never_qualifies_raw_output()
         s::PRESSURE_ID
     );
     assert!(s::for_source(&header).is_err());
-    // One pressure-1 identity and profile with and without the group: the
+    // One pressure-2 identity and profile with and without the group: the
     // ordinary statement dispatches to the same table.
     let physics = source("physics-sparse");
     assert!(physics["contract_evidence"].get("load_reference_states").is_none());

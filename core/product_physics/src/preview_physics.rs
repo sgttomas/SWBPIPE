@@ -1,4 +1,4 @@
-//! preview-physics-1: the ordinary route's repaired and withheld quantities.
+//! preview-physics-2: the ordinary route's repaired and withheld quantities.
 //!
 //! The case loop produces the current rows plus a side record that marks where
 //! the support and maximum rows go. Once every case has solved and no case was
@@ -11,7 +11,7 @@
 use super::*;
 use open_pipe_stress_stress_recovery::elastic_extrema::CertifiedStressMaximum;
 
-pub(crate) const ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+pub(crate) const ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 pub(crate) const INTENSIFIED_KIND: &str = "component_equal_factor_intensified_bending_stress_v1";
 const ARC_BASIS: &str = "nominal_straight_beam_formula_on_arc_resultants";
 const MAXIMUM_SIGN: &str = "nonnegative circumferential maximum |Nw/As|+hypot(My,Mz)/Z; bounded over all straight statics intervals; torsional shear remains separate; no code stress or equivalent stress claim";
@@ -56,9 +56,9 @@ const ARC_STRESS_KINDS: [&str; 6] = [
 pub(crate) const LIMITATIONS: [&str; 7] = [
     "Small-displacement, linear-elastic Euler-Bernoulli frame preview; numerical integrity does not establish physical correctness.",
     "Nonzero pressure is refused on this route, and so is a support displacement imposed outside a load-state model.",
-    "On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No transverse shear, equivalent stress or code stress.",
-    "On arcs: signed tangent-frame resultants and nominal stress components; endpoint force rows are node-on-element actions in the tangent frame at their end. No maximum, and no stress headline for a model containing an arc.",
-    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress.",
+    "On every member the section normal-stress extremes are N/A ± hypot(My,Mz)/Z at each station and the transverse shear maximum is the straight-annulus Saint-Venant value, with ν = E/(2G) − 1 assuming an isotropic material. On straight members the normal-stress maximum is |N/A| + hypot(My,Mz)/Z, bounded over all statics intervals. Torsional shear is separate. No equivalent stress or code stress.",
+    "On arcs: signed tangent-frame resultants, nominal stress components and section extremes; endpoint force rows are node-on-element actions in the tangent frame at their end. The normal-stress maximum is bounded along the arc and enters the stress headline. The transverse shear uses the straight-annulus field without curvature correction.",
+    "Intensified measures are i*hypot(My,Mz)/Z with the user's scalar SIF at member ends adjacent to markers and branches, using member Z. They are not code stresses and are never combined. A flexibility factor never multiplies stress. On realized arcs with directional SIFs, intensified bending is hypot(i_ip*Mz, i_op*My)/Z in the tangent frame, with its along-arc maximum.",
     "Signed support actions for rigid restraints, springs, consuming constant effort and attributable nonlinear supports. Ambiguous attribution is withheld.",
     "Headlines cover all load cases. Mechanics combinations are withheld for nonlinear supports, constant effort with sum of factors other than 1, or mixed moduli. Subtraction is a labelled difference. No combination maxima and no code compliance.",
 ];
@@ -67,8 +67,8 @@ pub(crate) fn formulation_basis() -> FormulationBasis {
     FormulationBasis {
         profile_id: "product_preview_mechanics_v1".to_string(),
         limitations: LIMITATIONS.iter().map(|s| s.to_string()).chain([
-            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the published displacements, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).".to_string(),
-            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). The published displacements are the solve's own, judged by the formation check's per-row rule; support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
+            "Member actions, section actions, stresses and support reactions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered at 128-bit precision from the formation check's corrected displacement and rounded once; they are not binary64 recomputations from the solve's own displacement, from which they may differ by about 1e-12 of the body's action scale (at most about 6e-9 in the evaluation sets).".to_string(),
+            "The recovery is checked against the formation check's re-formed system (stiffness and loads formed at 128-bit precision from the binary64 inputs). Wherever the formation check produced its member bound for a load case, including a case that the member recovery check then reports as sensitive, each published nodal displacement component is the corrected displacement (the solve's displacement plus the check's two correction terms, summed exactly) rounded once to binary64 in SI units and then converted to the published unit as every other row is, and each displacement magnitude is the correctly rounded norm of the node's three published translation components; where there is no such bound, or where any component of the case cannot be formed, every published displacement of the case is the solve's own, and a selected retained source publishes its recovery's nodal values. Support reactions balance the re-formed loads, not the solve's binary64 load vector.".to_string(),
         ]).collect(),
     }
 }
@@ -97,7 +97,9 @@ pub(crate) fn empty_evidence() -> serde_json::Value {
 pub(crate) struct MemberRecord {
     pub pipe_id: String,
     pub arc: bool,
-    /// `None` on an arc; the certified enclosure or its failure on a straight member.
+    /// The certified enclosure or its failure: a straight member's from its
+    /// statics intervals; a realized arc's along the arc (T4-U4b §2.3,
+    /// [`from_arc_maximum`]), set after its station rows. `None` only before.
     pub maximum: Option<Result<CertifiedStressMaximum, String>>,
     /// j-side section-cut resultants at end_i and end_j.
     pub end_resultants: [[f64; 6]; 2],
@@ -122,6 +124,25 @@ pub(crate) struct CaseRecord {
     pub members: Vec<MemberRecord>,
     /// (position among the case's rows, slot), in the case loop's order.
     pub slots: Vec<(usize, Slot)>,
+    /// T4-U4b (§2.6): the directional intensified station and maximum records
+    /// of the case's realized arcs, appended to `intensified_measures`.
+    pub directional_measures: Vec<serde_json::Value>,
+}
+
+/// T4-U4b (§2.3): a certified arc maximum in the straight record's carrier:
+/// one span (index 0), ψ*/φ as both fractions, and the global upper bound as
+/// the published upper value.
+pub(crate) fn from_arc_maximum(m: &open_pipe_stress_frame_kernel::structural::CertifiedArcStressMaximum) -> CertifiedStressMaximum {
+    CertifiedStressMaximum {
+        span_index: 0,
+        local_fraction: m.fraction,
+        station: m.fraction,
+        value_lower: m.value_lower,
+        value_upper: m.upper_bound,
+        upper_bound: m.upper_bound,
+        certified_gap: m.certified_gap,
+        subdivisions: m.subdivisions,
+    }
 }
 
 /// Model facts that gate `mechanics` combinations.
@@ -220,7 +241,7 @@ fn support_dispositions(
         .collect()
 }
 
-fn maximum_row(case_id: &str, pipe_id: &str, value: f64) -> ResultItem {
+fn maximum_row(case_id: &str, pipe_id: &str, value: f64, arc: bool) -> ResultItem {
     ResultItem {
         id: format!(
             "result:elastic-maximum:{}:{}:{}:{}",
@@ -243,12 +264,21 @@ fn maximum_row(case_id: &str, pipe_id: &str, value: f64) -> ResultItem {
             coordinate_system: "pipe_section".to_string(),
             location: "governing_station".to_string(),
             basis: "recovered_from_open_mechanics_stress_components".to_string(),
-            sign_convention: MAXIMUM_SIGN.to_string(),
+            sign_convention: if arc { u4b_rows::ARC_MAXIMUM_SIGN } else { MAXIMUM_SIGN }.to_string(),
         }),
     }
 }
 
-fn extrema_evidence(pipe_id: &str, result_id: &str, m: &CertifiedStressMaximum) -> serde_json::Value {
+fn extrema_evidence(pipe_id: &str, result_id: &str, m: &CertifiedStressMaximum, arc: bool) -> serde_json::Value {
+    if arc {
+        // T4-U4b (§2.3): the arc record's closed fourteen keys and arc tokens.
+        return serde_json::json!({"pipe_id":pipe_id,"result_id":result_id,
+            "station_fraction":m.station,"span_index":0,"local_fraction":m.local_fraction,
+            "value_lower_pa":m.value_lower,"value_upper_pa":m.upper_bound,"global_upper_bound_pa":m.upper_bound,
+            "certified_gap_pa":m.certified_gap,"subdivisions":m.subdivisions,
+            "approximation":u4b_rows::ARC_APPROXIMATION,"coefficient_basis":u4b_rows::ARC_COEFFICIENT_BASIS,
+            "enclosure_scope":u4b_rows::ARC_ENCLOSURE_SCOPE});
+    }
     serde_json::json!({"pipe_id":pipe_id,"result_id":result_id,
         "station_fraction":m.station,"span_index":m.span_index,"local_fraction":m.local_fraction,
         "value_lower_pa":m.value_lower,"value_upper_pa":m.value_upper,"global_upper_bound_pa":m.upper_bound,
@@ -465,8 +495,8 @@ fn render_members(case_id: &str, members: &[MemberRecord], diagnostics: &mut Vec
             Some(Ok(maximum)) => {
                 let public_upper=maximum.upper_bound;
                 let value=maximum.value_lower+0.5*(public_upper-maximum.value_lower);
-                let row = maximum_row(case_id, &member.pipe_id, value);
-                let mut evidence=extrema_evidence(&member.pipe_id,&row.id,maximum);
+                let row = maximum_row(case_id, &member.pipe_id, value, member.arc);
+                let mut evidence=extrema_evidence(&member.pipe_id,&row.id,maximum,member.arc);
                 evidence["value_upper_pa"]=serde_json::json!(maximum.upper_bound);
                 out.extrema.push(evidence);
                 if out.case_max.as_ref().is_none_or(|q| value > q.value || (value == q.value && member.pipe_id < q.location_ref)) {
@@ -494,7 +524,8 @@ pub(crate) mod witness_hook {
             return;
         }
         let mut seen = SEEN.lock().unwrap();
-        for member in members {
+        // The straight piecewise witness only (T4-U4b: an arc's maximum has no witness interval).
+        for member in members.iter().filter(|m| !m.arc) {
             if let Some(Ok(maximum)) = &member.maximum {
                 seen.push((project.to_string(), member.pipe_id.clone(), maximum.value_upper, maximum.upper_bound));
             }
@@ -674,6 +705,7 @@ pub(crate) fn render(
         }
         solve.component_stress_modifier_count = intensified.len();
         rows.extend(intensified);
+        intensified_evidence.extend(std::mem::take(&mut record.directional_measures));
 
         // Per-case headline inputs, with identity ties.
         solve.max_stress = if complete { case_max } else { None };
@@ -724,7 +756,7 @@ pub(crate) fn render(
             "diagnostic:preview-physics:stress-headline-withheld",
             "PREVIEW_STRESS_HEADLINE_WITHHELD",
             "warning",
-            "stress headline withheld: a stress maximum is not available for every member in every load case (arc members have no maximum on this route)",
+            "stress headline withheld: a stress maximum is not available for every member in every load case",
             incomplete_pipes.into_keys().collect(),
         ));
     }
@@ -843,7 +875,7 @@ fn evaluate_values(
     algebra.quantity.map(|q| q.value)
 }
 
-/// Combination rows for preview-physics-1 (S1 §7). Returns the evidence gates.
+/// Combination rows for preview-physics-2 (S1 §7). Returns the evidence gates.
 pub(crate) fn append_combination_results(
     model: &PreviewModel,
     rendered: &Rendered,
@@ -858,8 +890,9 @@ pub(crate) fn append_combination_results(
         .filter(|r| r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case"))
         .cloned()
         .collect();
-    let has_maximum = case_rows.iter().any(|r| r.kind == "pipe_elastic_normal_stress_maximum_v2");
-    let has_intensified = case_rows.iter().any(|r| r.kind == INTENSIFIED_KIND);
+    // §2.7: the never_combined kinds publish no combination row.
+    let has_maximum = case_rows.iter().any(|r| matches!(r.kind.as_str(), "pipe_elastic_normal_stress_maximum_v2" | u4b_rows::EXTREME_KIND | u4b_rows::SHEAR_MAX_KIND));
+    let has_intensified = case_rows.iter().any(|r| matches!(r.kind.as_str(), INTENSIFIED_KIND | u4b_rows::DIRECTIONAL_KIND | u4b_rows::DIRECTIONAL_MAX_KIND));
     let mut gates = Vec::new();
     for combination in &model.combinations {
         let Some(expression) = CombinationExpression::resolve(combination) else {
@@ -986,7 +1019,7 @@ pub(crate) fn append_combination_results(
                 &format!("diagnostic:preview-physics:combination-maximum:{}", identity(&[&combination.id])),
                 "COMBINATION_STRESS_MAXIMUM_UNAVAILABLE",
                 "info",
-                "stress maxima are not combined; combine the signed stress component rows instead (combination maxima are T6)",
+                "stress maxima and section stress extremes are not combined; combine the signed stress component rows instead",
                 vec![combination.id.clone()],
             ));
         }
@@ -1117,7 +1150,7 @@ mod tests {
     #[test]
     fn limitations_match_the_frozen_table() {
         let table: serde_json::Value = serde_json::from_str(include_str!(
-            "../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json"
+            "../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
         ))
         .unwrap();
         assert_eq!(table["semantic_contract_id"], ID);

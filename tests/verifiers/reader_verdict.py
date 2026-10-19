@@ -21,9 +21,9 @@ retires (`numericalResultQuality.ts`'s `sourceContract` and `numericalResultStan
 - G5: one header dispatch: the downgrade guard, a carrier namespace, the metadata header, then the
   TypeScript header's checks (the source route's receipt shape, the evidence object the pressure route
   needs, no identity outside these routes).
-- pressure-1 (DEL-04-07 `pressure-contract.md`, "Reading pressure-1"): its own route, read here by the
-  independent `pressure_1` verifier with G2's model checks and the ordinary standing; it has no transport
-  reader, so a transported pressure-1 statement is refused by name.
+- pressure-2 (DEL-04-07 `pressure-contract.md`, "Reading pressure-2"): its own route, read here by the
+  independent `pressure_2` verifier with G2's model checks and the ordinary standing; it has no transport
+  reader, so a transported pressure-2 statement is refused by name.
 - B7b (A4/A5): five routes (`pressure_source`, `preview_physics`, `pressure`, `retained_preview_physics`,
   `retained_physics`) and four readers (`preview-physics`, `pressure-source`, `source-recovery`,
   `pressure`), as Rust's `ROUTES` and `READERS`. A stored `2.0.0/exact_straight_pressure_v2` result is
@@ -42,7 +42,7 @@ import re
 from typing import Any
 
 from . import compatibility as c
-from . import physics_source, preview_physics_evidence, pressure_1, section_basis as sb, source_blocks
+from . import physics_source, preview_physics_evidence, pressure_2, section_basis as sb, source_blocks
 
 ROUTES = ("pressure_source", "preview_physics", "pressure", "retained_preview_physics", "retained_physics")
 READERS = ("preview-physics", "pressure-source", "source-recovery", "pressure")
@@ -86,7 +86,7 @@ def _refusal(text: str) -> dict[str, Any]:
 
 def _table(identity: str | None) -> Any:
     if identity == c.PRESSURE_SOURCE_CONTRACT_ID: return physics_source.pressure_source_table()
-    if identity == PRESSURE_CONTRACT_ID: return pressure_1.pressure_table()
+    if identity == PRESSURE_CONTRACT_ID: return pressure_2.pressure_table()
     path = _TABLE_PATHS[identity]
     key = str(path)
     if key not in _TABLES:
@@ -132,6 +132,10 @@ def _metadata_header(source: Any) -> str:
         raise Refused("SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
     if identity == c.RETIRED_PRECISION_CONTRACT_ID:
         raise Refused(f"{c.SOURCE_PRECISION_1_RETIRED}: precision-1 results are no longer read; re-run the analysis")
+    if identity == c.RETIRED_PRESSURE_1_CONTRACT_ID:
+        raise Refused(f"{c.SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are no longer read; re-run the analysis")
+    if identity == c.RETIRED_PREVIEW_PHYSICS_1_CONTRACT_ID:
+        raise Refused(f"{c.SOURCE_PREVIEW_PHYSICS_1_RETIRED}: preview-physics-1 results are no longer read; re-run the analysis")
     if identity == c.RETIRED_SOURCE_BLOCKS_CONTRACT_ID:
         raise Refused(f"{c.SOURCE_BLOCKS_1_RETIRED}: source-blocks-1 results are no longer read; re-run the analysis")
     if identity in c.RETIRED_EXACT_V2_IDS:
@@ -307,11 +311,18 @@ def validate(reader: str, source: Any, model: Any = None, invocation: Any = None
             return {"ok": True}
         if reader == "preview-physics":
             preview_physics_evidence.validate_preview_physics_evidence(source)
+            if model is not None:
+                # T4-U4b (§5.1): τ bit for bit with the captured model (G2).
+                from . import u4b_model
+                u4b_model.preview_model_checks(source, model)
             return {"ok": True}
         if reader == "pressure":
-            pressure_1.validate_pressure_evidence(source)
+            pressure_2.validate_pressure_evidence(source)
             if model is not None:
                 physics_model_checks(source, model)
+                # T4-U4b review item 1: the directional binding (the pressure-2 reader only).
+                from . import u4b
+                u4b.directional_model_checks(source, model, True)
             return {"ok": True}
         if reader == "pressure-source":
             eligible = _source_validate(source, invocation)
@@ -367,6 +378,10 @@ def source_findings(source: Mapping[str, Any], invocation: Mapping[str, Any]) ->
             if treatment.get("treatment") in ("qualified_projection", ordinary, "checked_derived"):
                 continue
             row = rows.get(treatment.get("result_id"))
+            # T4-U4b §4.3: `derived_not_qualified` is neutral for the two derived kinds only.
+            if treatment.get("treatment") == "derived_not_qualified" and row is not None and row.get("kind") in (
+                    "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum"):
+                continue
             if row is not None and physical(row):
                 findings.append("SOURCE_BLOCKS_PHYSICAL_ROW_INSPECTION_ONLY")
     combinations = invocation["request"]["model"].get("combinations")

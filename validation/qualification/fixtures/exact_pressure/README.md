@@ -19,7 +19,11 @@ on 2026-10-16, which found no wrong frozen value and no loosening.
 the re-frozen references onto rows, evidence, criteria and absences. It reuses
 the unchanged warrants of `INDEPENDENT_REVIEW_T4-U4A.md` (the U4a tangent
 mapping) and `INDEPENDENT_REVIEW_T4-RV28.md`; T4-RV3 and T4-RV4 refuted the
-references. `ADMISSION.json` binds the T4-U6 review by SHA-256. Without
+references. Since T4-U4b/U5b, `INDEPENDENT_REVIEW_T4-U4B-U5B.md` (verdict ADMIT)
+checked the epoch-4 delta (pressure-2, model 0.6.0 submitted copies, the arc
+maximum no longer a declared absence, the corrected nodal displacement), reusing
+the T4-U6, U4a and RV28 warrants. `ADMISSION.json` binds the T4-U4b/U5b review
+by SHA-256. Without
 `ADMISSION.json`, every generated reference is `pending_independent_review`
 and every profile is a draft, so the gate refuses the package. Admission
 changes statuses only, never a value or rule. It is a development-comparison
@@ -48,10 +52,11 @@ material-library, component-library or code-rule data.
 
 | File | Committed | Content |
 |---|---|---|
-| `generate_package.py` | yes | The generator. It reads the references and the pinned pressure-1 table only. |
+| `generate_package.py` | yes | The generator. It reads the references and the pinned pressure-2 table only. |
 | `MANIFEST.json` | yes | `openpipestress.exact_pressure_qualification_manifest/1`: one entry per case, binding each case file by path and sha256. |
-| `ADMISSION.json` | yes | `openpipestress.exact_pressure_admission/1`: the admission record, binding the T4-U6 review by path and sha256. |
-| `INDEPENDENT_REVIEW_T4-U6.md` | yes | The independent T4-U6 section-basis mapping review, bound by `ADMISSION.json`. |
+| `ADMISSION.json` | yes | `openpipestress.exact_pressure_admission/1`: the admission record, binding the T4-U4b/U5b review by path and sha256. |
+| `INDEPENDENT_REVIEW_T4-U4B-U5B.md` | yes | The independent T4-U4b/U5b delta review, bound by `ADMISSION.json`. |
+| `INDEPENDENT_REVIEW_T4-U6.md` | yes | The independent T4-U6 section-basis mapping review; it admitted the D-5 package. |
 | `INDEPENDENT_REVIEW_T4-U4A.md` | yes | The independent U4a tangent-mapping review; it admitted the pre-D-5 package. |
 | `INDEPENDENT_REVIEW_T4-RV28.md` | yes | The preserved historical review of the unchanged basis. |
 | `cases/` | no (`.gitignore`) | Five files per case, written by `--write`: `runner_input`, `preview_request`, `selectors`, `reference`, `criteria`. |
@@ -86,23 +91,25 @@ Every case runs in both solver modes.
   `shear_model_variant`, as `@0.5.0_timoshenko` and
   `@0.5.0_load_state_group_timoshenko`. These assert the same rows, values and
   rules: the case has no transverse load, so Timoshenko leaves its axial-only
-  response unchanged. The transport submits these current documents unchanged
+  response unchanged. Since T4-U4b/U5b the frozen documents and case labels keep 0.5.0; the
+  transport submits each as an in-memory 0.6.0 copy changed by version alone,
+  preserving its shear model, allowances and load/reference-state group
   (`GATE_USAGE.md`).
 
 Case IDs are `<reference case>@<version>`.
 
 | Family | Cases | Positive | Negative | Absences |
 |---|---|---|---|---|
-| L-FREE (I7) | 52 | 18428 | 68 | 340 |
-| L-ANCH (I7) | 50 | 18016 | 266 | 328 |
-| U-ANCH (I7) | 36 | 35232 | 96 | 772 |
-| CBPT (I7) | 16 | 1712 | 62 | 112 |
-| KINK (I7) | 4 | 1424 | 26 | 28 |
+| L-FREE (I7) | 52 | 18428 | 68 | 288 |
+| L-ANCH (I7) | 50 | 18016 | 266 | 278 |
+| U-ANCH (I7) | 36 | 35232 | 96 | 628 |
+| CBPT (I7) | 16 | 1712 | 62 | 96 |
+| KINK (I7) | 4 | 1424 | 26 | 24 |
 | milltol_lame_membrane (I8, two variants, four documents each) | 8 | 1144 | 124 | 32 |
 | tp_phys_pressure_halves (I8) | 2 | 1588 | 22 | 24 |
 | pressure_membrane_thin_wall_limit (I8) | 2 | 278 | 8 | 8 |
 | v3_straight_twin_separate_closures (I8) | 2 | 294 | 0 | 8 |
-| **Total per mode** | **172** | **78116** | **672** | **1652** |
+| **Total per mode** | **172** | **78116** | **672** | **1386** |
 
 Totals:
 
@@ -131,7 +138,7 @@ Totals:
 **Row selectors.** These use the first-static shape
 `{id, kind, unit, entity_ref, basis_ref, metadata, dimension}`:
 
-- `dimension` and the result family come from the pinned pressure-1 table.
+- `dimension` and the result family come from the pinned pressure-2 table.
 - The row ID and published metadata follow the producer's naming
   (`metadata()` and `row_id()` in the generator). They were identified once
   from producer output.
@@ -191,11 +198,15 @@ absence. The gate's `declared_absences` obligation checks both.
     end force, replaced by the pressure family.
 - **Lamé values.** Straights only, at all five stations. In a re-frozen case
   `lame_surface` is keyed by basis.
-- **Arc absences.** Five kinds are withheld on every arc, each a declared
+- **Arc absences.** Four kinds are withheld on every arc, each a declared
   absence:
   - the Lamé radial and hoop rows;
-  - the straight-statics maximum;
   - `element_local_axial_force` and `element_local_axial_normal_stress`.
+
+  T4-U4b: an arc publishes its certified maximum, so the maximum is no
+  longer a declared absence. The T4-I7 reference states no arc maximum, so
+  it is not scored. The regenerated cases need an independent re-review
+  before admission statuses rely on them.
 - **Terminals.** Each non-null vector is asserted by component. Each null one
   is a declared absence.
 - **Negative controls.** Every listed row of every
@@ -255,7 +266,7 @@ with `max(absolute, relative*max(|observed|, |expected|))`.
 2. Name an admitted package and a reviewed reader binding,
    `openpipestress.exact_pressure_consistency_binding/2`. The binding lists
    the adapter's three `DEPENDENCIES` (the Rust reader's source, the
-   pressure-1 table and the unit authority), and its entry is
+   pressure-2 table and the unit authority), and its entry is
    `validate_pressure_evidence`. The verdict is the Rust product reader's,
    taken from the explicitly built `openpipestress-runner read pressure` named
    by `OPENPIPESTRESS_RUNNER_BIN`.

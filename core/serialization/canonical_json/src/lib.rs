@@ -28,7 +28,7 @@
 pub mod binary64;
 pub mod binary64_cli;
 
-use serde_json::{Number, Value};
+use serde_json::{Map, Number, Value};
 
 pub const CHECKED_PROFILE_V1: &str = "openpipestress_jcs_ijson_v1";
 pub const MAX_SAFE_INTEGER: i64 = 9_007_199_254_740_991;
@@ -122,43 +122,275 @@ pub fn canonical_json(value: &Value) -> String {
     out
 }
 
-fn write_canonical(value: &Value, out: &mut String) {
-    match value {
-        Value::Null => out.push_str("null"),
-        Value::Bool(true) => out.push_str("true"),
-        Value::Bool(false) => out.push_str("false"),
-        Value::Number(number) => out.push_str(&canonical_number(number)),
-        Value::String(text) => {
-            out.push_str(&serde_json::to_string(text).expect("strings always encode as JSON"))
+/// A consumer of canonical JSON text, written in order as UTF-8 pieces.
+/// `String` collects the text; [`ByteSink`] feeds the bytes to a closure (for
+/// example a SHA-256 hasher's `update`), so a digest never holds the text.
+/// Every writer here emits the same pieces in the same order whatever the
+/// sink, so the bytes a sink receives are exactly the text a `String` sink
+/// would hold.
+pub trait CanonicalSink {
+    fn put(&mut self, text: &str);
+}
+
+impl CanonicalSink for String {
+    fn put(&mut self, text: &str) {
+        self.push_str(text);
+    }
+}
+
+/// Adapts a byte consumer to a [`CanonicalSink`].
+pub struct ByteSink<F: FnMut(&[u8])>(pub F);
+
+impl<F: FnMut(&[u8])> CanonicalSink for ByteSink<F> {
+    fn put(&mut self, text: &str) {
+        (self.0)(text.as_bytes())
+    }
+}
+
+/// The payload of a domain-separated hash, borrowed: a whole value, or an
+/// object without one of its top-level members (a publication without its
+/// receipt), so that no copy of the payload is made to hash it.
+#[derive(Clone, Copy, Debug)]
+pub enum DomainPayload<'a> {
+    Value(&'a Value),
+    ObjectWithout(&'a Map<String, Value>, &'a str),
+}
+
+/// Writes or refuses exactly as
+/// `canonical_json_checked_v1_text(&serde_json::to_string(&json!({"domain": domain, "payload": payload}))?)`
+/// does, where an `ObjectWithout(map, omit)` payload is `map`'s object less
+/// its `omit` member, but over the borrowed values: no wrapper `Value`, no
+/// serialized text and no re-parse. The text goes to `sink` (a `String` for
+/// the text itself, a [`ByteSink`] over a hasher for a streamed digest);
+/// nothing is written when the call refuses.
+///
+/// Why the result is the same (T4-S6; checked against the former path by
+/// `tests/checked_domain.rs` and the callers' corpus tests):
+/// - Serializing a `Value` cannot fail, and the checked parse of that text
+///   rebuilds the same `Value`: a `Map` holds each key once, so the
+///   duplicate-member refusal cannot arise; a `Number` holds an i64, a u64 or
+///   a finite f64 (`Number::from_f64` refuses NaN and infinities), so the
+///   non-finite refusal cannot arise; serde_json writes an f64 as its
+///   shortest round-trip digits and, with `float_roundtrip` (enabled by this
+///   crate, so in every build that links it), parses them back to the same
+///   bits; integers and strings round-trip exactly. No build enables
+///   `arbitrary_precision` or `preserve_order` (T4-S6 checked the feature
+///   graph), so maps iterate in key order in both values.
+/// - The one parse refusal a `Value` can still meet is serde_json's recursion
+///   limit: its parser starts with 128 levels and refuses the container that
+///   would take the last, i.e. the first container (in text order) nested 128
+///   deep, counting the wrapper object as the first. [`recursion_refusal`]
+///   reproduces that message, including its column, from the borrowed values.
+/// - The validation then sees the same values in the same order, so it
+///   refuses with the same first message; the canonical text depends only on
+///   the values.
+pub fn checked_v1_domain_canonical<S: CanonicalSink>(
+    domain: &str,
+    payload: DomainPayload<'_>,
+    sink: &mut S,
+) -> Result<(), String> {
+    if let Some(refusal) = recursion_refusal(domain, payload) {
+        return Err(refusal);
+    }
+    match payload {
+        DomainPayload::Value(value) => validate_checked_value(value)?,
+        DomainPayload::ObjectWithout(map, omit) => {
+            for (key, value) in map {
+                if key != omit {
+                    validate_checked_value(value)?;
+                }
+            }
         }
+    }
+    // RFC 8785 member order of the wrapper: "domain" < "payload".
+    sink.put("{\"domain\":");
+    write_string(domain, sink);
+    sink.put(",\"payload\":");
+    match payload {
+        DomainPayload::Value(value) => write_canonical(value, sink),
+        DomainPayload::ObjectWithout(map, omit) => write_object_without(map, omit, sink),
+    }
+    sink.put("}");
+    Ok(())
+}
+
+/// serde_json's parser depth: `Deserializer` starts `remaining_depth` at 128
+/// and refuses a `[` or `{` whose decrement reaches 0.
+const PARSE_DEPTH_LIMIT: usize = 128;
+
+/// The checked parse's refusal of the serialized wrapper for depth, if any:
+/// `CHECKED-JSON-INVALID: recursion limit exceeded at line 1 column N`, where
+/// column N is the 1-based byte position, in the compact serialized text, of
+/// the first container nested at the limit (serde_json reports the peeked
+/// byte; the compact text has no newline, since strings escape it).
+fn recursion_refusal(domain: &str, payload: DomainPayload<'_>) -> Option<String> {
+    let deep = match payload {
+        DomainPayload::Value(value) => too_deep(value, 2),
+        DomainPayload::ObjectWithout(map, omit) => {
+            map.iter().any(|(key, value)| key != omit && too_deep(value, 3))
+        }
+    };
+    if !deep {
+        return None;
+    }
+    // `{"domain":` + the serialized domain + `,"payload":`, then the payload
+    // in serialization (map) order.
+    let mut position = 10 + serialized_len(domain) + 11;
+    let found = match payload {
+        DomainPayload::Value(value) => first_too_deep(value, 2, &mut position),
+        DomainPayload::ObjectWithout(map, omit) => {
+            position += 1;
+            first_too_deep_in(map.iter().filter(|(key, _)| *key != omit), 3, &mut position)
+        }
+    };
+    let index = found.expect("a container past the parse depth is located in serialization order");
+    Some(format!(
+        "CHECKED-JSON-INVALID: recursion limit exceeded at line 1 column {}",
+        index + 1
+    ))
+}
+
+/// True when `value`, placed at nesting `level`, holds a container at or past
+/// the parse depth. Never descends past the limit.
+fn too_deep(value: &Value, level: usize) -> bool {
+    match value {
+        Value::Array(items) => level >= PARSE_DEPTH_LIMIT || items.iter().any(|item| too_deep(item, level + 1)),
+        Value::Object(map) => level >= PARSE_DEPTH_LIMIT || map.values().any(|item| too_deep(item, level + 1)),
+        _ => false,
+    }
+}
+
+/// The byte index, in serde_json's compact serialization, of the first
+/// container at or past the parse depth, advancing `position` over what
+/// precedes it. The prefix it walks lies above the limit.
+fn first_too_deep(value: &Value, level: usize, position: &mut usize) -> Option<usize> {
+    match value {
         Value::Array(items) => {
-            out.push('[');
+            if level >= PARSE_DEPTH_LIMIT {
+                return Some(*position);
+            }
+            *position += 1;
             for (index, item) in items.iter().enumerate() {
                 if index > 0 {
-                    out.push(',');
+                    *position += 1;
+                }
+                if let Some(found) = first_too_deep(item, level + 1, position) {
+                    return Some(found);
+                }
+            }
+            *position += 1;
+            None
+        }
+        Value::Object(map) => {
+            if level >= PARSE_DEPTH_LIMIT {
+                return Some(*position);
+            }
+            *position += 1;
+            first_too_deep_in(map.iter(), level + 1, position)
+        }
+        scalar => {
+            *position += serialized_len(scalar);
+            None
+        }
+    }
+}
+
+/// `first_too_deep` over an object's members, after its `{`.
+fn first_too_deep_in<'a>(
+    members: impl Iterator<Item = (&'a String, &'a Value)>,
+    level: usize,
+    position: &mut usize,
+) -> Option<usize> {
+    for (index, (key, value)) in members.enumerate() {
+        if index > 0 {
+            *position += 1;
+        }
+        *position += serialized_len(key.as_str()) + 1;
+        if let Some(found) = first_too_deep(value, level, position) {
+            return Some(found);
+        }
+    }
+    *position += 1;
+    None
+}
+
+/// The length of serde_json's compact serialization of `value`, counted
+/// without allocating it.
+fn serialized_len<T: serde::Serialize + ?Sized>(value: &T) -> usize {
+    struct Count(usize);
+    impl std::io::Write for Count {
+        fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+            self.0 += bytes.len();
+            Ok(bytes.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+    let mut count = Count(0);
+    serde_json::to_writer(&mut count, value).expect("a string or JSON scalar always serializes");
+    count.0
+}
+
+fn write_string<S: CanonicalSink>(text: &str, out: &mut S) {
+    out.put(&serde_json::to_string(text).expect("strings always encode as JSON"));
+}
+
+fn write_canonical<S: CanonicalSink>(value: &Value, out: &mut S) {
+    match value {
+        Value::Null => out.put("null"),
+        Value::Bool(true) => out.put("true"),
+        Value::Bool(false) => out.put("false"),
+        Value::Number(number) => out.put(&canonical_number(number)),
+        Value::String(text) => write_string(text, out),
+        Value::Array(items) => {
+            out.put("[");
+            for (index, item) in items.iter().enumerate() {
+                if index > 0 {
+                    out.put(",");
                 }
                 write_canonical(item, out);
             }
-            out.push(']');
+            out.put("]");
         }
         Value::Object(map) => {
-            let mut keys: Vec<&String> = map.keys().collect();
-            // RFC 8785 §3.2.3: property names sort as arrays of UTF-16 code
-            // units (what ECMAScript string comparison does), not as Unicode
-            // code points — the two differ for supplementary-plane keys.
-            keys.sort_by(|left, right| left.encode_utf16().cmp(right.encode_utf16()));
-            out.push('{');
-            for (index, key) in keys.iter().enumerate() {
+            out.put("{");
+            for (index, key) in sorted_keys(map, None).iter().enumerate() {
                 if index > 0 {
-                    out.push(',');
+                    out.put(",");
                 }
-                out.push_str(&serde_json::to_string(key).expect("keys always encode as JSON"));
-                out.push(':');
+                write_string(key, out);
+                out.put(":");
                 write_canonical(&map[key.as_str()], out);
             }
-            out.push('}');
+            out.put("}");
         }
     }
+}
+
+/// An object less its `omit` member, as `write_canonical` writes an object.
+fn write_object_without<S: CanonicalSink>(map: &Map<String, Value>, omit: &str, out: &mut S) {
+    out.put("{");
+    for (index, key) in sorted_keys(map, Some(omit)).iter().enumerate() {
+        if index > 0 {
+            out.put(",");
+        }
+        write_string(key, out);
+        out.put(":");
+        write_canonical(&map[key.as_str()], out);
+    }
+    out.put("}");
+}
+
+/// An object's keys (less `omit`) in canonical order.
+fn sorted_keys<'a>(map: &'a Map<String, Value>, omit: Option<&str>) -> Vec<&'a String> {
+    let mut keys: Vec<&String> = Vec::with_capacity(map.len());
+    keys.extend(map.keys().filter(|key| Some(key.as_str()) != omit));
+    // RFC 8785 §3.2.3: property names sort as arrays of UTF-16 code
+    // units (what ECMAScript string comparison does), not as Unicode
+    // code points — the two differ for supplementary-plane keys.
+    keys.sort_by(|left, right| left.encode_utf16().cmp(right.encode_utf16()));
+    keys
 }
 
 /// Render a JSON number per RFC 8785 §3.2.2.3. Integer-repr numbers keep

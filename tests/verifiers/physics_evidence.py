@@ -7,8 +7,8 @@ this one, and it imports nothing from product code (`tests/test_verifier_indepen
 B7b (A4/A5): the current exact contract is `3.0.0/exact_pressure_v3` only. This module keeps the two readings
 that are live under it: the composite reading of pressure-source-1's straight families (signed `p_pa`, with a
 `SourceContract` context from `physics_source.py`), and the exact-retained G7 transport check on the receipt's
-pressure-1 projection (`validate_transport_metadata`, results 0.3's `ExactRetainedContractEvidence`). pressure-1
-itself is verified by `pressure_1.py`. The retired physics-1 reader (`2.0.0/exact_straight_pressure_v2`) and its
+pressure-2 projection (`validate_transport_metadata`, results 0.3's `ExactRetainedContractEvidence`). pressure-2
+itself is verified by `pressure_2.py`. The retired physics-1 reader (`2.0.0/exact_straight_pressure_v2`) and its
 cross-read refusals are deleted with v2.
 
 The published membrane and effective force values are source observations. This
@@ -17,7 +17,7 @@ rounded neighbouring rows or treating pressure arithmetic as a numerical pass.
 
 T4-U6/U8 (DEL-05-03 ``section-bases-and-timoshenko.md``): each ``pipe_sections`` entry is the D-5
 shape, rederived from its captured authored values by ``section_basis.py``, with its beam theory checked as
-pressure-1's reader checks it (one straight-member shear model per document). The composite never carries a
+pressure-2's reader checks it (one straight-member shear model per document). The composite never carries a
 realized arc (D7 declines every document with one): an arc region record or a ``pipe_sections`` entry marked
 ``member_kind = "realized_arc"`` is refused by name ("realized arc unsupported"; Rust
 ``SOURCE_PHYSICS_ARC_UNSUPPORTED``). Every stress row names its
@@ -37,10 +37,10 @@ from collections.abc import Mapping
 from typing import Any
 
 from . import section_basis as sb
-from .pressure_1 import ARC_GEOMETRY_KEYS
+from .pressure_2 import ARC_GEOMETRY_KEYS
 
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
-PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
+PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 PRESSURE_PROFILE = "exact_pressure_v3"
 PIPE_KINDS = {
     "pipe_wall_endpoint_action_v2", "pipe_wall_axial_force_v2",
@@ -118,7 +118,7 @@ def _vector(value: Any, size: int) -> bool:
 
 
 def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contract: tuple[str, str] = PRESSURE_V3) -> None:
-    # Only pressure-source-1's composite reading, under its caller-selected context; pressure-1 is `pressure_1.py`'s.
+    # Only pressure-source-1's composite reading, under its caller-selected context; pressure-2 is `pressure_2.py`'s.
     _require(context is not None and contract == PRESSURE_V3, "composite contract")
     _require("carrier_evidence" not in source, "unsupported source namespace")
     evidence = source.get("contract_evidence")
@@ -307,7 +307,8 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
     for components in support_components.values():
         _require(len(components) == 8 and set(components) == {"Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"}, "support component coverage")
     # T4-U6 (D-5, §2.1, §2.2): both families of every stress signature against the two sections; one headline per basis.
-    _basis(sb.twins, rows, sections, {key: region_pressures[key[0], rid] for key, rid in owners.items()})
+    _basis(sb.twins, rows, sections, {key: region_pressures[key[0], rid] for key, rid in owners.items()}, _twin_order(source))
+    _u4b_straight(source, cases, geometries, materials, rows, table)
     _basis(sb.headlines, source.get("summary"), rows, complete)
     for cid, case in cases.items():
         for group in case["pressure_rhs_assembly"]["groups"]:
@@ -334,6 +335,78 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
                 _require(rows[ref].get("basis_ref") == case["basis_ref"], "numerical row case scope")
             else:
                 _require(ref in diagnostics and cid in diagnostics[ref].get("affected_refs", []), "numerical diagnostic case scope")
+
+
+def _twin_order(source: Mapping[str, Any]):
+    """T4-U4b: D-5's row order (section-bases-and-timoshenko.md §2.5) on the composite, Rust's
+    ``SOURCE_PHYSICS_ROW_BASIS_TWIN_ORDER`` at its place in the twin pass (after the twin is matched, before the pair's
+    values): a U4b-family nominal row's reduced twin is the published row immediately after it. The arc maxima's
+    clause is vacuous here, since the composite declines every realized arc."""
+    from . import u4b
+    published = source["results"]
+    positions = {id(row): position for position, row in enumerate(published)}
+
+    def check(row: Mapping[str, Any], twin: Mapping[str, Any]) -> None:
+        if row["kind"] in u4b.KINDS:
+            following = positions[id(row)] + 1
+            if not (following < len(published) and published[following] is twin):
+                raise ValueError("SOURCE_PHYSICS_ROW_BASIS_TWIN_ORDER")
+    return check
+
+
+def _u4b_straight(source: Mapping[str, Any], cases: Mapping[str, Any], geometries: Mapping[str, Mapping[str, Any]],
+                  materials: Mapping[str, Mapping[str, Any]], rows: Mapping[str, Any], table: Mapping[str, Any]) -> None:
+    """T4-U4b (§4.3, §5.1; S4 round 2): the straight-member derived rows of every case, exact-recovered and
+    ordinary-method alike: their signatures and semantics, σ± and τ bit for bit (c_b from the case's ν and basis
+    sections) and their station × basis coverage. Rust `physics_evidence::u4b_cases` on the composite, in its order
+    and with its codes (``SOURCE_PHYSICS_EXTREME_*``, ``SOURCE_PHYSICS_SHEAR_*``)."""
+    from . import u4b
+
+    def fail(ok: bool, code: str) -> None:
+        if not ok:
+            raise ValueError(f"SOURCE_PHYSICS_{code}")
+    for row in rows.values():
+        if row.get("kind") in u4b.KINDS:
+            metadata = row.get("metadata") or {}
+            fail(row["kind"] in (u4b.EXTREME, u4b.SHEAR_MAX), "ROW_SIGNATURE")
+            fail(len([entry for entry in table["rows"] if entry["kind"] == row["kind"] and entry["unit"] == row.get("unit") and entry["component"] == metadata.get("component") and entry.get("source_basis") == metadata.get("basis")]) == 1, "ROW_SIGNATURE")
+            u4b.row_semantics(row, True, False)
+    index = u4b.Rows(list(rows.values()))
+    diagnostics = source.get("diagnostics", [])
+    # S4 round 3: the composite's materials require -1 < ν < 1/2 ("material range"), so
+    # TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN can never name one of its members: it is refused by name and exempts
+    # nothing, so every member's τ coverage is checked.
+    fail(not any(isinstance(d, Mapping) and d.get("code") == u4b.POISSON_OUT_OF_DOMAIN for d in diagnostics), "POISSON_DOMAIN_WARNING")
+    for cid in cases:
+        for pid, section in geometries[cid].items():
+            nu = materials[cid][pid]["nu"]
+            for basis in sb.BASES:
+                factor = u4b.shear_factor(nu, section["ro_m"], section[basis]["ri_m"], section[basis]["I_m4"])
+                for location in u4b.STATIONS:
+                    y = index.value(cid, pid, "element_local_bending_normal_stress_y", "bending_normal_stress_y", location, basis)
+                    z = index.value(cid, pid, "element_local_bending_normal_stress_z", "bending_normal_stress_z", location, basis)
+                    n = index.value(cid, pid, "element_local_axial_normal_stress", "axial_normal_stress", location, basis)
+                    if n is None:
+                        membrane = index.value(cid, pid, "pipe_axial_membrane_stress_v2", "axial_membrane_stress", location, basis)
+                        n = None if membrane is None else membrane / 1e6
+                    plus = index.value(cid, pid, u4b.EXTREME, "sigma_plus", location, basis)
+                    minus = index.value(cid, pid, u4b.EXTREME, "sigma_minus", location, basis)
+                    if n is not None and y is not None and z is not None:
+                        fail(plus is not None and minus is not None, "EXTREME_COVERAGE")
+                        want = u4b.extremes(n, y, z)
+                        fail(u4b.bits(plus) == u4b.bits(want[0]) and u4b.bits(minus) == u4b.bits(want[1]), "EXTREME_VALUE")
+                    else:
+                        fail(plus is None and minus is None, "EXTREME_COVERAGE")
+                    vy = index.any(cid, pid, "element_local_shear_force_y", location)
+                    vz = index.any(cid, pid, "element_local_shear_force_z", location)
+                    tau = index.value(cid, pid, u4b.SHEAR_MAX, "tau_v_max", location, basis)
+                    if vy is None or vz is None:
+                        fail(tau is None, "SHEAR_COVERAGE")
+                    else:
+                        fail(tau is not None, "SHEAR_COVERAGE")
+                        fail(tau >= 0, "SHEAR_NEGATIVE")
+                        if factor is not None:
+                            fail(u4b.bits(tau) == u4b.bits(u4b.shear_maximum(vy, vz, factor)), "SHEAR_VALUE")
 
 
 def _temperature_basis(basis: Any, case_basis: str, material_id: str) -> None:

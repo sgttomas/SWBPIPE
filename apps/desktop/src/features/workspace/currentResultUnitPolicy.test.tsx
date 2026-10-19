@@ -13,9 +13,9 @@ import { SolvePanel } from "../solve/SolvePanel";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
 
 // Unit transport replay of recorded producer bytes through mocked IPC: the
-// preview-physics-1 sparse fixture is actual producer output (T0R S2a) for the
+// preview-physics-2 sparse fixture is actual producer output (T0R S2a) for the
 // invented demo model without its legacy pressure (preview_physics_invented_model.json).
-// T0R: the Current witness is a preview-physics-1 result.
+// T0R: the Current witness is a preview-physics-2 result.
 // This is NOT a native UI qualification witness. Current standing comes only
 // from the session's own solve path and qualification gate (handleRun).
 const modelUnits = "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC";
@@ -93,18 +93,18 @@ it("reports a qualified Current result's recorded units, including Pa, N*m and N
   const model = result.current.model.model, currentSolvedResult = result.current.results.currentSolvedResult;
   expect(result.current.results.result).toBe(currentSolvedResult);
   expect(hasNativeMechanicsInvocation(currentSolvedResult, model, "sparse_interactive")).toBe(true);
-  expect(currentSolvedResult!.results).toHaveLength(625);
+  expect(currentSolvedResult!.results).toHaveLength(745);
   expect([...new Set(currentSolvedResult!.results.map((row) => row.unit))].sort().join(",")).toBe(recordedUnits);
   expect(currentSolvedResult).toEqual(sourceFixture); // received producer bytes, unchanged
 
   const { solve, design, line } = renderPanels(result.current);
-  expect(line(solve, "solve-job-unit-policy")).toBe(`${modelUnits}; results=${recordedUnits}; rows=625; conversion=false`);
+  expect(line(solve, "solve-job-unit-policy")).toBe(`${modelUnits}; results=${recordedUnits}; rows=745; conversion=false`);
   expect(within(solve.container).getByTestId("solve-job-summary")).toHaveTextContent("state=completed");
-  expect(within(solve.container).getByTestId("solve-job-summary")).toHaveTextContent("result_rows=625");
+  expect(within(solve.container).getByTestId("solve-job-summary")).toHaveTextContent("result_rows=745");
   // comparison= lists only the units of rows matched between the default comparison bases (load:L-100 vs combination:C-OPER-ALT).
   // T0R: that mechanics combination is withheld (NONLINEAR_COMBINATION_REQUIRES_SOLVE), so no rows are matched.
   expect(line(design, "design-workspace-units"))
     .toBe(`${modelUnits}; results=${recordedUnits}; comparison=none; conversion=false`);
-  expect(within(design.container).getByTestId("design-workspace-current")).toHaveTextContent("result_rows=625");
+  expect(within(design.container).getByTestId("design-workspace-current")).toHaveTextContent("result_rows=745");
   expect(currentSolvedResult).toEqual(sourceFixture);
 });

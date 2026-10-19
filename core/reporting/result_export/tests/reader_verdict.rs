@@ -2,7 +2,7 @@
 //! from the desktop's reader tests (numericalResultQuality, loadReferenceReaders,
 //! sourceBlockRecovery, physicsSourceRecovery, previewPhysicsEvidence), so the
 //! G1, G2 and G5 ports keep the behaviour those tests pinned. B7b re-pointed the
-//! exact-route cases at the current identities (pressure-1 and pressure-source-1,
+//! exact-route cases at the current identities (pressure-2 and pressure-source-1,
 //! with and without the load/reference-state group) and pins the named refusal of
 //! the retired v2 identities.
 use open_pipe_stress_result_export::reader_verdict as rv;
@@ -23,7 +23,7 @@ fn route(source: &Value) -> &'static str {
 
 // numericalResultQuality.test.ts: the synthetic ordinary source and model. B1
 // deleted precision-1, the route these generic checks were first pinned on; the
-// statement now carries the preview-physics-1 identity, its profile limitations
+// statement now carries the preview-physics-2 identity, its profile limitations
 // and one empty preview case per numerical case (`with_preview_cases`), which the
 // preview reader admits, so the ordinary checks are the subject.
 fn ordinary_model() -> Value {
@@ -95,7 +95,7 @@ fn g1_retired_unassessed_unknown_and_sensitive_are_never_eligible() {
         assert_eq!(standing(&c, Some(&model))["eligible"], false);
     }
     let mut future = ordinary_source();
-    future["producer"]["semantic_contract_id"] = json!(sc::PREVIEW_PHYSICS_ID.replace("preview-physics-1", "pressure-1"));
+    future["producer"]["semantic_contract_id"] = json!(sc::PREVIEW_PHYSICS_ID.replace("preview-physics-2", "pressure-2"));
     assert_eq!(route(&future), rv::UNSUPPORTED);
     assert_eq!(findings(&standing(&future, Some(&model))), [rv::SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED]);
     future.as_object_mut().unwrap().remove("producer");
@@ -244,7 +244,7 @@ fn g1_aggregate_consistency_is_distinct_from_qualification() {
 }
 
 // loadReferenceReaders.test.ts, re-pointed by B7b at the current exact identities:
-// the load/reference-state group is read under pressure-1 and pressure-source-1.
+// the load/reference-state group is read under pressure-2 and pressure-source-1.
 const LR: [&str; 4] = ["connected-sparse_interactive", "connected-dense_scrutiny", "pressure-sparse_interactive", "pressure-dense_scrutiny"];
 fn lr_raw(name: &str) -> Value {
     read(&format!("fixtures/product_preview/pressure/load_reference/{name}.raw.json"))
@@ -301,32 +301,32 @@ fn g5_each_exact_identity_binds_its_profile_evidence_and_receipt() {
     let lr = lr_raw(LR[0]);
     let lrs = lrs_raw("n05-sparse_interactive");
     let edits: Vec<(&str, &Value, Box<dyn Fn(&mut Value)>)> = vec![
-        ("pressure-1 with the retired joined profile", &lr, Box::new(|s| s["formulation_basis"]["profile_id"] = json!("resolved_straight_load_state_source_v1"))),
-        ("pressure-1 with the retired v2 profile", &lr, Box::new(|s| s["formulation_basis"]["profile_id"] = json!("exact_straight_pressure_v2"))),
-        ("pressure-1 without contract evidence", &lr, Box::new(|s| {
+        ("pressure-2 with the retired joined profile", &lr, Box::new(|s| s["formulation_basis"]["profile_id"] = json!("resolved_straight_load_state_source_v1"))),
+        ("pressure-2 with the retired v2 profile", &lr, Box::new(|s| s["formulation_basis"]["profile_id"] = json!("exact_straight_pressure_v2"))),
+        ("pressure-2 without contract evidence", &lr, Box::new(|s| {
             s.as_object_mut().unwrap().remove("contract_evidence");
         })),
-        ("pressure-1 with null contract evidence", &lr, Box::new(|s| s["contract_evidence"] = json!(null))),
-        ("pressure-1 with array contract evidence", &lr, Box::new(|s| s["contract_evidence"] = json!([]))),
-        ("pressure-1 with a source-block receipt", &lr, Box::new(|s| s["source_block_recovery"] = lrs_raw("n05-sparse_interactive")["source_block_recovery"].clone())),
-        ("pressure-1 with a carrier namespace", &lr, Box::new(|s| s["carrier_evidence"] = json!({}))),
+        ("pressure-2 with null contract evidence", &lr, Box::new(|s| s["contract_evidence"] = json!(null))),
+        ("pressure-2 with array contract evidence", &lr, Box::new(|s| s["contract_evidence"] = json!([]))),
+        ("pressure-2 with a source-block receipt", &lr, Box::new(|s| s["source_block_recovery"] = lrs_raw("n05-sparse_interactive")["source_block_recovery"].clone())),
+        ("pressure-2 with a carrier namespace", &lr, Box::new(|s| s["carrier_evidence"] = json!({}))),
         ("joined with the retired load-state profile", &lrs, Box::new(|s| s["formulation_basis"]["profile_id"] = json!("resolved_straight_load_state_v1"))),
         ("joined without its receipt", &lrs, Box::new(|s| {
             s.as_object_mut().unwrap().remove("source_block_recovery");
         })),
         ("joined with the retired physics-source policy", &lrs, Box::new(|s| s["source_block_recovery"]["body"]["policy"] = json!("PHYSICS-SOURCE-1"))),
         ("joined with an extra receipt key", &lrs, Box::new(|s| s["source_block_recovery"]["body"]["invented"] = json!(1))),
-        ("joined relabelled as pressure-1", &lrs, Box::new(|s| {
+        ("joined relabelled as pressure-2", &lrs, Box::new(|s| {
             s["producer"]["semantic_contract_id"] = json!(sc::PRESSURE_ID);
         })),
         ("joined relabelled as retired load-reference-source-1", &lrs, Box::new(|s| {
             s["producer"]["semantic_contract_id"] = json!(sc::RETIRED_EXACT_V2_IDS[3]);
             s["formulation_basis"]["profile_id"] = json!("resolved_straight_load_state_source_v1");
         })),
-        ("pressure-1 relabelled as joined", &lr, Box::new(|s| {
+        ("pressure-2 relabelled as joined", &lr, Box::new(|s| {
             s["producer"]["semantic_contract_id"] = json!(sc::PRESSURE_SOURCE_ID);
         })),
-        ("pressure-1 relabelled as retired load-reference-1", &lr, Box::new(|s| {
+        ("pressure-2 relabelled as retired load-reference-1", &lr, Box::new(|s| {
             s["producer"]["semantic_contract_id"] = json!(sc::RETIRED_EXACT_V2_IDS[2]);
             s["formulation_basis"]["profile_id"] = json!("resolved_straight_load_state_v1");
         })),
@@ -360,7 +360,7 @@ fn g2_load_state_reader_refusals_and_model_binding_are_findings() {
     let s = standing(&raw, Some(&model));
     assert_eq!(s["eligible"], false);
     assert!(findings(&s).iter().any(|f| f.starts_with("SOURCE_LOAD_REFERENCE_MEMBER_G_BINDING")), "{s}");
-    // G2's model binding runs after the unchanged pressure-1 reader (B7b: on the
+    // G2's model binding runs after the unchanged pressure-2 reader (B7b: on the
     // received statement; the retired reader's projected copy is gone).
     let raw = lr_raw(LR[0]);
     let mut fewer = model.clone();
@@ -534,8 +534,8 @@ fn binding_hashes_are_the_table_files() {
     use sha2::{Digest, Sha256};
     let files = [
         ("pressure_source", "semantic_contract_v0_3_pressure_source_1.json"),
-        ("preview_physics", "semantic_contract_v0_3_preview_physics_1.json"),
-        ("pressure", "semantic_contract_v0_3_pressure_1.json"),
+        ("preview_physics", "semantic_contract_v0_3_preview_physics_2.json"),
+        ("pressure", "semantic_contract_v0_3_pressure_2.json"),
         ("retained_preview_physics", "semantic_contract_v0_3_preview_physics_retained_1.json"),
         ("retained_physics", "semantic_contract_v0_3_physics_retained_1.json"),
     ];
@@ -605,7 +605,7 @@ fn source_recovery_preserves_the_portable_commitment_check_depth() {
     assert_eq!(rv::validate("source-recovery", &ordinary_source(), None, None)["error"]["code"], "SOURCE_RECOVERY_METADATA_CONTRADICTION");
 }
 
-/// pressure-1 (DEL-04-07 `pressure-contract.md`, "Reading pressure-1"): its
+/// pressure-2 (DEL-04-07 `pressure-contract.md`, "Reading pressure-2"): its
 /// own route and table binding, read by `validate_pressure_evidence` with G2's
 /// model checks and the ordinary standing, so every caller takes one verdict
 /// and one standing. Straight (0.3.0 and 0.4.0), arc and connector corpora.
@@ -642,9 +642,9 @@ fn pressure_1_dispatches_to_its_reader_and_ordinary_standing() {
             broken["contract_evidence"]["exact_cases"] = json!([]);
             assert_eq!(rv::validate("pressure", &broken, None, None)["ok"], false, "{label}");
             assert_eq!(standing(&broken, Some(&model))["eligible"], false, "{label}");
-            // No pressure-1 transport reader: a transported statement is refused by name.
+            // No pressure-2 transport reader: a transported statement is refused by name.
             assert_eq!(rv::transport("pressure", raw)["error"]["code"], rv::PRESSURE_TRANSPORT_UNSUPPORTED, "{label}");
-            // The pressure-1 header requires its evidence object.
+            // The pressure-2 header requires its evidence object.
             let mut bare = raw.clone();
             bare.as_object_mut().unwrap().remove("contract_evidence");
             assert_eq!(route(&bare), rv::UNSUPPORTED, "{label}");
@@ -674,7 +674,7 @@ fn retired_identities_and_readers_are_refused_by_name() {
         let d = rv::dispatch(&s, None, None);
         assert_eq!((d["ok"].as_bool(), d["binding"].is_null()), (Some(false), true), "{id}");
         assert_eq!(d["error"]["code"], sc::SOURCE_EXACT_PRESSURE_V2_RETIRED, "{id}");
-        assert!(d["error"]["detail"].as_str().unwrap().contains("re-author the model as 0.5.0"), "{id}");
+        assert!(d["error"]["detail"].as_str().unwrap().contains("re-author the model as 0.6.0"), "{id}");
         assert_eq!(findings(&d["standing"]), [rv::SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED], "{id}");
         assert_eq!(rv::row_semantics(&s["results"][0], Some(&s))["error"]["code"], "SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED", "{id}");
     }

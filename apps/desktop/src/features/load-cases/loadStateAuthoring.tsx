@@ -14,7 +14,7 @@ import { isExactPressureContract } from "../pressure-authoring/pressureContract"
  * queued for Review/Apply. Nothing here mutates the model, sets a default or
  * judges the record: an empty field is an absent key, and the engine decides. */
 
-export const LOAD_STATE_MODEL_VERSION = "0.5.0";
+export const LOAD_STATE_MODEL_VERSION = "0.6.0";
 export const LOAD_STATE_CONTRACT = "openpipestress.load_reference_state/1.0.0";
 export const LOAD_STATE_NEEDS_CURRENT = "Load/reference state needs the current model with an explicit exact pressure contract.";
 export const NOT_PRESENT = "not_present";

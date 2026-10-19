@@ -6,8 +6,8 @@ this one, and it imports nothing from product code (`tests/test_verifier_indepen
 
 Mirror of ``core/reporting/result_export/src/load_reference.rs``'s pre-pass (S1-S13) in its retained-source form
 (``Method::PressureJoined``): the same checks run in the same order and raise the same error strings. Change both
-together. Arrays are walked in document order so the first failure is deterministic. pressure-1's own pre-pass is
-``pressure_1.py``'s. B7b (A4/A5) retired load-reference-1 and load-reference-source-1 with the
+together. Arrays are walked in document order so the first failure is deterministic. pressure-2's own pre-pass is
+``pressure_2.py``'s. B7b (A4/A5) retired load-reference-1 and load-reference-source-1 with the
 ``2.0.0/exact_straight_pressure_v2`` contract; neither is read here. This establishes internal source consistency,
 never producer origin, solver accuracy or model freshness.
 """
@@ -239,7 +239,7 @@ def _is_selected(record: Any) -> bool:
 def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
     """Steps S1-S13 of Rust ``load_reference::prepass`` in its retained-source form (``Method::PressureJoined``):
     S1 requires the receipt, S7 the ``recovery_method``, S10 admits a selected record, S10b and S13 bind the
-    selected response. pressure-1's ordinary pre-pass is ``pressure_1.py``'s; no other method is read here."""
+    selected response. pressure-2's ordinary pre-pass is ``pressure_2.py``'s; no other method is read here."""
     if method != PRESSURE_JOINED:
         raise ValueError(f"LOAD_REFERENCE_METHOD_UNSUPPORTED: {method}")
     joined = True

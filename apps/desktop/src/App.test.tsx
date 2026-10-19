@@ -229,7 +229,7 @@ async function installPreviewReplay() {
   // scoped native transport simulation; never invent storage capabilities.
   const storage = await getLocalStorageCapability();
   const knowledge = await loadDesignKnowledge();
-  // T0R: the fresh ordinary route is preview-physics-1.
+  // T0R: the fresh ordinary route is preview-physics-2.
   const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
   const mechanics = createNativeMechanicsReplay({ profile: "preview" });
   const invoke = (command: string, args?: unknown, options?: unknown) => {
@@ -250,7 +250,7 @@ async function installPreviewReplay() {
 // availability gate. To keep the save sequencer (handleSaveReportPackage: busy
 // state, generation/basis checks, stale completion) under test, these helpers
 // (a) assert the gate refusal first, then (b) lift the gate in the test only and
-// route assembly below it with the registered preview-physics-1 session as data
+// route assembly below it with the registered preview-physics-2 session as data
 // (B1 retired the precision-1 session used before). Production behaviour is
 // unchanged; nothing here is a native witness.
 async function registeredPreviewReportData() {
@@ -640,11 +640,11 @@ describe("SWBPIPE desktop preview", () => {
 
   it("inspects bundled rows separately and never saves them as current model results", async () => {
     const expected = await referenceMechanicsSource();
-    expect(expected.results).toHaveLength(625);
+    expect(expected.results).toHaveLength(745);
     render(<App />);
     const reference = await inspectBundledReference();
-    expect(within(reference).getByTestId("result-family-count-all")).toHaveTextContent("625");
-    expect(within(reference).getByTestId("result-page-summary")).toHaveTextContent("Showing 1 to 50 of 625 matching results; page 1 of 13");
+    expect(within(reference).getByTestId("result-family-count-all")).toHaveTextContent("745");
+    expect(within(reference).getByTestId("result-page-summary")).toHaveTextContent("Showing 1 to 50 of 745 matching results; page 1 of 15");
     expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
     expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
     const solve = openWorkspaceSection("solve");
@@ -1089,7 +1089,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(comparisonPacket.unit_policy_evidence.matched_result_units).toEqual([]);
     expect(
       comparisonPacket.unit_policy_evidence.unmatched_left_result_count,
-    ).toBe(309);
+    ).toBe(369);
     expect(
       comparisonPacket.unit_policy_evidence.unmatched_right_result_count,
     ).toBe(0);
@@ -3863,7 +3863,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(projectValidation).getByTestId("project-validation-schema")
         .textContent,
-    ).toContain("schema_version=0.5.0");
+    ).toContain("schema_version=0.6.0");
     expect(
       within(projectValidation).getByTestId("project-validation-round-trip")
         .textContent,
@@ -8208,7 +8208,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(designWorkspaceExport.current_design_knowledge_record_count).toBe(3);
     expect(designWorkspaceExport.current_model_state_count).toBe(1);
     expect(designWorkspaceExport.current_analysis_run_count).toBe(1);
-    expect(designWorkspaceExport.current_result_row_count).toBe(625);
+    expect(designWorkspaceExport.current_result_row_count).toBe(745);
     expect(designWorkspaceExport.current_comparison_pair_count).toBe(0);
     expect(designWorkspaceExport.operation_review_record_count).toBe(1);
     expect(designWorkspaceExport.core_design_knowledge_record_count).toBe(2);
@@ -8303,9 +8303,9 @@ describe("SWBPIPE desktop preview", () => {
     expect(stressNeutralExport.deliverable_refs).toContain("DEL-17-06");
     expect(stressNeutralExport.deliverable_refs).toContain("DEL-08-04");
     expect(stressNeutralExport.deliverable_refs).toContain("DEL-14-02");
-    expect(stressNeutralExport.result_ref_count).toBe(625);
+    expect(stressNeutralExport.result_ref_count).toBe(745);
     expect(stressNeutralExport.csv_column_count).toBe(11);
-    expect(stressNeutralExport.stable_id_count).toBe(625);
+    expect(stressNeutralExport.stable_id_count).toBe(745);
     expect(stressNeutralExport.member_roles).toContain("loss_report");
     expect(stressNeutralExport.comparison_semantics).toBe(
       "diagnostic_export_only_no_pass_fail",
@@ -8326,7 +8326,7 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(headlessExport.deliverable_refs).toContain("DEL-10-05");
     expect(headlessExport.deliverable_refs).toContain("DEL-08-04");
-    expect(headlessExport.result_ref_count).toBe(625);
+    expect(headlessExport.result_ref_count).toBe(745);
     expect(headlessExport.runner_job_state).toBe("COMPLETED");
     expect(headlessExport.final_cli_command_syntax).toContain(
       "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression>",
@@ -8347,7 +8347,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(adapterExport.deliverable_refs).toContain("DEL-02-04");
     expect(adapterExport.capabilities).toContain("validate_payload");
     expect(adapterExport.parse_status).toBe("not_parsed_by_framework");
-    expect(adapterExport.result_ref_count).toBe(625);
+    expect(adapterExport.result_ref_count).toBe(745);
     expect(adapterExport.external_format_list).toBe("TBD");
     expect(adapterExport.public_transport_protocol).toBe("TBD");
     expect(adapterExport.plugin_runtime).toBe("TBD");
@@ -8976,14 +8976,14 @@ describe("SWBPIPE desktop preview", () => {
     expect(validationPacket.store_migration.migration_scope).toBe(
       "local_store_schema_ddl_only_model_document_schema_tracked_separately_per_dec_019",
     );
-    // DEL-02-05 CLM-003: the bundled preview model is the current 0.5.0
+    // DEL-02-05 CLM-003: the bundled preview model is the current 0.6.0
     // document; the browser preview stores its bytes unchanged.
     expect(validationPacket.model_document_version.status).toBe("current");
     expect(validationPacket.model_document_version.evidence_source).toBe(
       "persistence_operation_envelope",
     );
     expect(validationPacket.model_document_version.source_schema_version).toBe(
-      "0.5.0",
+      "0.6.0",
     );
     expect(validationPacket.store_migration.migrations_applied_on_open).toEqual(
       [],
@@ -10075,7 +10075,7 @@ describe("SWBPIPE desktop preview", () => {
   it("renders all preserved reference result families, values and recovery annotations without Current", async () => {
     const reference = await loadBundledMechanicsReference(), expectedModel = reference.model, expectedSource = reference.source;
     const originalSource = JSON.stringify(reference);
-    expect(expectedSource.results).toHaveLength(625);
+    expect(expectedSource.results).toHaveLength(745);
     expect(expectedSource.schema_version).toBe("0.2.0");
     expect(expectedSource.producer?.semantic_contract_id).toBe(PREVIEW_PHYSICS_CONTRACT_ID);
     expect(expectedSource.results.every(row => !Object.hasOwn(row, "dimension"))).toBe(true);
@@ -10088,7 +10088,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("MPa, N, N*m, mm, rad");
     expect(
       within(results).getByTestId("result-unit-policy").textContent,
-    ).toContain("625 rows");
+    ).toContain("745 rows");
     expect(
       within(results).getByTestId("result-unit-policy").textContent,
     ).toContain("entered units preserved");
@@ -10115,15 +10115,15 @@ describe("SWBPIPE desktop preview", () => {
     expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent(`${displayedDisplacement.value} ${displayedDisplacement.unit}`);
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
-    ).toContain("625 of 625 results match filter");
+    ).toContain("745 of 745 results match filter");
     expect(
       within(results).getByTestId("result-page-summary").textContent,
-    ).toContain("Showing 1 to 50 of 625 matching results; page 1 of 13");
+    ).toContain("Showing 1 to 50 of 745 matching results; page 1 of 15");
     expect(within(results).getByTestId("previous-result-page")).toBeDisabled();
     expect(within(results).getByTestId("next-result-page")).not.toBeDisabled();
     expect(
       within(results).getByTestId("result-family-count-all").textContent,
-    ).toContain("625");
+    ).toContain("745");
     expect(
       within(results).getByTestId("result-family-count-displacement")
         .textContent,
@@ -10139,7 +10139,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("120");
     expect(
       within(results).getByTestId("result-family-count-stress").textContent,
-    ).toContain("176");
+    ).toContain("296");
 
     fireEvent.click(within(results).getByTestId("result-family-reaction"));
     expect(
@@ -10147,7 +10147,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toHaveAttribute("aria-pressed", "true");
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
-    ).toContain("102 of 625 results match filter");
+    ).toContain("102 of 745 results match filter");
     expect(
       within(results).getByTestId("result-page-summary").textContent,
     ).toContain("Showing 1 to 50 of 102 matching results; page 1 of 3");
@@ -10168,19 +10168,21 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
-    ).toContain("176 of 625 results match filter");
+    ).toContain("296 of 745 results match filter");
     expect(
       within(results).getByTestId("result-page-summary").textContent,
-    ).toContain("Showing 1 to 50 of 176 matching results; page 1 of 4");
+    ).toContain("Showing 1 to 50 of 296 matching results; page 1 of 6");
     expect(
       within(results).getByTestId("result-group-stress"),
     ).toBeInTheDocument();
     expect(
       within(results).queryByTestId("result-group-force"),
     ).not.toBeInTheDocument();
+    // T4-U4b: each member's section extremes and shear maxima join the stress
+    // family, so the first page now ends inside pipe:P-100's rows.
     expect(
       within(results).getByTestId(
-        "result-row-result:stress:pipe-P-120:end-i:torsional-shear",
+        "result-row-result:stress:pipe-P-100:end-i:torsional-shear",
       ),
     ).toBeInTheDocument();
 
@@ -10192,12 +10194,12 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
-    ).toContain("625 of 625 results match filter");
+    ).toContain("745 of 745 results match filter");
 
     fireEvent.click(within(results).getByTestId("next-result-page"));
     expect(
       within(results).getByTestId("result-page-summary").textContent,
-    ).toContain("Showing 51 to 100 of 625 matching results; page 2 of 13");
+    ).toContain("Showing 51 to 100 of 745 matching results; page 2 of 15");
     expect(
       within(results).getByTestId("result-row-result:disp:node-N-140:rz"),
     ).toBeInTheDocument();
@@ -10207,14 +10209,14 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(within(results).getByTestId("previous-result-page"));
     expect(
       within(results).getByTestId("result-page-summary").textContent,
-    ).toContain("Showing 1 to 50 of 625 matching results; page 1 of 13");
+    ).toContain("Showing 1 to 50 of 745 matching results; page 1 of 15");
 
     fireEvent.change(within(results).getByTestId("result-filter-input"), {
       target: { value: "torsional-shear" },
     });
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
-    ).toContain("40 of 625 results match filter");
+    ).toContain("40 of 745 results match filter");
     expect(
       within(results).getByTestId("result-page-summary").textContent,
     ).toContain("Showing 1 to 40 of 40 matching results; page 1 of 1");
@@ -10233,7 +10235,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(within(results).getByTestId("clear-result-filter"));
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
-    ).toContain("625 of 625 results match filter");
+    ).toContain("745 of 745 results match filter");
     expect(
       within(results).getByTestId("result-group-other"),
     ).toBeInTheDocument();
@@ -10243,10 +10245,10 @@ describe("SWBPIPE desktop preview", () => {
     });
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
-    ).toContain("102 of 625 results match filter");
+    ).toContain("132 of 745 results match filter");
     expect(
       within(results).getByTestId("result-page-summary").textContent,
-    ).toContain("Showing 1 to 50 of 102 matching results; page 1 of 3");
+    ).toContain("Showing 1 to 50 of 132 matching results; page 1 of 3");
     expect(
       within(results).getByTestId("result-row-result:force:pipe-P-120:axial"),
     ).toBeInTheDocument();
@@ -10421,7 +10423,7 @@ describe("SWBPIPE desktop preview", () => {
     });
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
-    ).toContain("0 of 625 results match filter");
+    ).toContain("0 of 745 results match filter");
     expect(
       within(results).getByTestId("results-notice-combination-gate:combination:C-OPER-ALT").textContent,
     ).toContain("Combination withheld: the model has nonlinear supports");
@@ -10431,7 +10433,7 @@ describe("SWBPIPE desktop preview", () => {
     });
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
-    ).toContain("2 of 625 results match filter");
+    ).toContain("2 of 745 results match filter");
     expect(
       within(results).getByTestId(
         "result-row-result:stress:pipe-P-120:end-j:torsional-shear",
@@ -10576,7 +10578,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(e.reproducibility.source_origin_bindings[0].origin_limit).toContain("no native invocation or Current export");
   });
 
-  it("preserves the 625-row stress-neutral format as a pure reference projection", async () => {
+  it("preserves the 745-row stress-neutral format as a pure reference projection", async () => {
     // The demo's converged nonlinear cases are confirmed and published CHECKS_PASSED (DEL-04-01 kd5-nonlinear-active-set.md §5),
     // so the pure packet projection admits the reference again.
     const basis = await referenceAnalysis(), expectedModel = basis.model, expectedSource = basis.result;
@@ -10649,8 +10651,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(stressNeutralUnitWitness.target_quantity).toEqual(stressNeutralUnitWitness.source_quantity);
     expect(stressNeutralUnitWitness.policy).toBe("preserve_received_value_and_unit");
     expect(stressNeutralUnitWitness.conversion_performed).toBe(false);
-    expect(stressNeutralPacket.result_rows).toHaveLength(625);
-    expect(stressNeutralPacket.stable_id_map).toHaveLength(625);
+    expect(stressNeutralPacket.result_rows).toHaveLength(745);
+    expect(stressNeutralPacket.stable_id_map).toHaveLength(745);
     expect(stressNeutralPacket.csv_text).toContain("result_id,canonical_ref");
     expect(stressNeutralPacket.loss_report).toHaveLength(3);
     expect(stressNeutralPacket.loss_report.map(
@@ -10688,7 +10690,7 @@ describe("SWBPIPE desktop preview", () => {
     render(<ReportPanel model={model} knowledge={knowledge} result={result} analysisRun={analysisRun} comparison={comparison} editorIntents={[]} projectOperation="reference_inspection" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={null} />);
     expect(observed).toBeDefined();
     const exportPacket = observed;
-    // The demo's output is preview-physics-1: component SIFs act through the
+    // The demo's output is preview-physics-2: component SIFs act through the
     // intensified measure, so there are no historical SIF×k review rows.
     expect(exportPacket.component_stress_modifier_count).toBe(0);
     expect(exportPacket.component_stress_modifier_evidence).toEqual([]);
@@ -10766,37 +10768,37 @@ describe("SWBPIPE desktop preview", () => {
     expect(native.validation_report.model_hash_status).toBe("computed_local_preview_sha256");
     expect(native.validation_report.release_or_professional_claim).toBe(false);
     expect(native.stable_id_map.entity_refs).toHaveLength(25);
-    expect(native.stable_id_map.result_refs).toHaveLength(625);
+    expect(native.stable_id_map.result_refs).toHaveLength(745);
     expect(native.unit_preservation.project_unit_declarations).toHaveLength(6);
     expect(native.unit_preservation.summary.model_quantity_witness_count).toBe(40);
-    expect(native.unit_preservation.summary.result_quantity_witness_count).toBe(627);
+    expect(native.unit_preservation.summary.result_quantity_witness_count).toBe(747);
     const local = buildLocalFeaHandoffPacket(basis);
     expect(local.handoff_package.local_region.geometry_refs).toHaveLength(2);
     expect(local.handoff_package.transfer_basis.load_case_refs).toHaveLength(3);
     expect(local.handoff_package.unit_preservation_witnesses).toHaveLength(3);
     const handoff = buildHandoffPackage({ ...basis, knowledge, comparison, editorIntents: [], proposal: null, selectedReviewTarget: null });
     expect(handoff.stable_id_map.entity_ref_count).toBe(25);
-    expect(handoff.stable_id_map.result_ref_count).toBe(625);
+    expect(handoff.stable_id_map.result_ref_count).toBe(745);
     const retainedComparison = handoff.comparison_summary;
     expect(retainedComparison).not.toBeNull();
     if (retainedComparison === null) throw new Error("The preserved reference comparison summary must be present");
     // The withheld combination leaves no comparable pairs.
     expect(retainedComparison.comparable_result_pairs).toBe(0);
-    expect(retainedComparison.unmatched_left_results).toBe(309);
+    expect(retainedComparison.unmatched_left_results).toBe(369);
     expect(handoff.unit_system_disclosure.conversion_performed).toBe(false);
     expect(handoff.unit_preservation_witnesses).toHaveLength(result.results.filter(row => typeof row.dimension === "string").length);
-    // A reference may carry 625 result refs and 2 checksums without creating a
+    // A reference may carry 745 result refs and 2 checksums without creating a
     // completed browser job. The old completed-job claim is intentionally absent.
     const runner = buildHeadlessRunnerPacket({ ...basis, solveJob: initialSolveJob() });
-    expect(runner.result.result_refs).toHaveLength(625);
+    expect(runner.result.result_refs).toHaveLength(745);
     expect(runner.result.checksums).toHaveLength(2);
     expect(runner.result.run_id).toBe("run:preview-linear-static-001");
     expect(runner.result.result_envelope_ref.envelope_ref.ref_id).toBe("result-envelope:run:preview-linear-static-001");
     expect(runner.result.job.state).toBe("TBD");
     expect(runner.result.job.progress.current_step).toBe(0);
     render(<RunAuditPanel model={model} result={result} analysisRun={analysisRun} />);
-    expect(screen.getByTestId("run-audit-hashes")).toHaveTextContent("625 result rows; 625 result value hashes");
-    expect(screen.getByTestId("run-audit-units")).toHaveTextContent("rows=625");
+    expect(screen.getByTestId("run-audit-hashes")).toHaveTextContent("745 result rows; 745 result value hashes");
+    expect(screen.getByTestId("run-audit-units")).toHaveTextContent("rows=745");
     expect(JSON.stringify(basis)).toBe(before);
   });
 
@@ -11140,14 +11142,14 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     // DEL-02-05 CLM-003 evidence: the saved (edited) model document is the
-    // current 0.5.0 version, with the in-document version authority; nothing
+    // current 0.6.0 version, with the in-document version authority; nothing
     // is migrated.
     const documentVersionLine = within(
       openWorkspaceSection("project"),
     ).getByTestId("project-validation-model-document-version");
     expect(documentVersionLine.textContent).toContain("status=current");
-    expect(documentVersionLine.textContent).toContain("source=0.5.0");
-    expect(documentVersionLine.textContent).toContain("target=0.5.0");
+    expect(documentVersionLine.textContent).toContain("source=0.6.0");
+    expect(documentVersionLine.textContent).toContain("target=0.6.0");
   });
 
   it("queues and applies explicit material creation through the structured operation seam", async () => {
@@ -13871,9 +13873,9 @@ describe("Tier3 display in the actual application", () => {
     // The demo's mechanics combination is withheld for its nonlinear supports, so
     // the reference has no comparable pairs: this pins the empty state and the gate.
     expect(comparison.summary.comparable_result_pairs).toBe(0);
-    expect(comparison.summary.unmatched_left_results).toBe(309);
+    expect(comparison.summary.unmatched_left_results).toBe(369);
     render(<DisplayUnitsProvider><DisplayUnitSelector /><ComparisonPanel comparison={comparison} result={result} onSelectResult={vi.fn()} /></DisplayUnitsProvider>);
-    expect(screen.getByTestId("comparison-summary")).toHaveTextContent("0 comparable pairs; 309 reference-only; 0 target-only");
+    expect(screen.getByTestId("comparison-summary")).toHaveTextContent("0 comparable pairs; 369 reference-only; 0 target-only");
     expect(screen.getByTestId("comparison-notice-combination-gate:combination:C-OPER-ALT")).toHaveTextContent("Combination withheld");
     expect(JSON.stringify(result)).toBe(before);
   });
@@ -14210,7 +14212,7 @@ describe("persistent modeling workspace", () => {
 async function workflowStoredEnvelope() {
   const model = await loadPreviewModel();
   const envelope = inventedOpenEnvelope(model);
-  // A saved run with a current (0.3.0) record: the demo's preview-physics-1 producer
+  // A saved run with a current (0.3.0) record: the demo's preview-physics-2 producer
   // output, as saved history only (B1 retired the synthetic precision-1 header).
   const result = structuredClone(demoPreviewFixture) as unknown as MechanicsResult;
   result.model_ref = envelope.model.project.id;
@@ -14425,7 +14427,7 @@ describe("workflow current and historical result boundaries", () => {
   });
 
   // T0R: (a) the gate refuses the fresh Current result; (b) the save sequencer runs
-  // below the gate with a registered preview-physics-1 session as assembly data.
+  // below the gate with a registered preview-physics-2 session as assembly data.
   it("does not start an obsolete report-package save or publish stale build state", async () => {
     const previewData = await registeredPreviewReportData();
     const { model, replay } = await installPreviewReplay();

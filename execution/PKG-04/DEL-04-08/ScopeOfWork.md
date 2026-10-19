@@ -97,7 +97,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - The bound holds for both of the formation's stiffness readouts: the admitted binary64 section products and the exact annulus geometry.
   - **Rows without a verified class.**
     - Prescribed degrees of freedom are `input_derived` with value +0, as are the Lamé and section-pressure stresses and the user-input reviews. They are formed from the inputs and carry no solve bound.
-    - These rows are `not_covered` and keep their ordinary values: every other row kind; rows with no body scale; and, under R-COMB-1, each quantity row of an unavailable combination or of an ordinary combination that names a load case whose trigger is not `not_required`.
+    - These rows are `not_covered`: every other row kind; rows with no body scale; and, under R-COMB-1, each quantity row of an unavailable combination or of an ordinary combination that names a load case whose trigger is not `not_required`. They keep their ordinary values, except the section normal-stress extremes and transverse-shear maxima, which are formed in binary64 from the successor's own published stress, section-action and end-force rows and its captured section and material.
     - Intensified bending stresses carry no verified class: the reader refuses a successor that classifies one (G5b).
   - **Route L domain.**
     - It covers straight Euler–Bernoulli members, nodal loads and full-span uniform member loads, rigid restraints and global scalar springs, and base or named-point E and G. DEF-O and DEF-C also define interpolated E and G, which D1 refuses at admission.
@@ -105,7 +105,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - It also covers mechanics combinations under the B2-C contract. Each combination has its own solve on the combined exact ledger and at least one selected operand. It publishes exactly 7n + 50m + 8g rows (n nodes, m members, g attributed supports), of which constrained displacement components are `input_derived` +0.
     - Combination maxima, intensified rows, range envelopes, state differences and combinations with member-load operands are not covered.
   - **Route E domain.** It covers direct load cases with nodal loads only, under these conditions:
-    - current model 0.5.0 with the explicit `3.0.0/exact_pressure_v3` contract;
+    - current model 0.6.0 with the explicit `3.0.0/exact_pressure_v3` contract;
     - explicitly empty pressure regions;
     - straight members;
     - base common E and ν;
@@ -120,7 +120,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 
   **Eligibility.** All of these must hold:
   - the solve captured its invocation;
-  - current model 0.5.0 with the `3.0.0/exact_pressure_v3` contract;
+  - current model 0.6.0 with the `3.0.0/exact_pressure_v3` contract;
   - no nonlinear supports and no combinations;
   - an explicitly empty pressure-region inventory;
   - at most 256 degrees of freedom;
@@ -135,7 +135,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
   - the Python verifier reaches the same verdicts.
 - **AC-002** — REQ-002 holds for every committed `pressure-source-1` publication and corpus entry:
   - the Rust reader and the Python verifier each return the corpus's stated outcome for every entry;
-  - the RF census classification and its pins are unchanged;
+  - the RF census classification, counts, first causes, selections, charged work and frozen-row verdicts are unchanged; its envelope, results and summary digests change only as a stated product-text, identity or published-row change requires;
   - the metered charges match their independent oracle.
 
 ### Fallback and fixed limits
@@ -151,7 +151,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
   - **(b) Retained work ran but did not complete.** The case keeps its ordinary rows, standing and diagnostics byte for byte, and gains one `RETAINED_PRECISION_UNAVAILABLE` notice. That notice names a reason only for a receipt-encoding failure.
     - An invocation-level custody failure in preparation, or a combination-custody, staging, serializer or precommit fault, withdraws the whole successor, so every attempted case falls back with the notice.
     - A preparation, native or candidate failure of one case can leave other cases selected. The published successor's receipt then records that case, with its typed cause.
-  - **(c) Retained-source attempt declined or failed.** The case stays on its ordinary route, and the receipt records the failure stage and code (for example `unsupported_family`). If an invocation carries a load/reference-state group whose join cannot finalize, every case is republished on its ordinary route (`pressure-1`) without a receipt.
+  - **(c) Retained-source attempt declined or failed.** The case stays on its ordinary route, and the receipt records the failure stage and code (for example `unsupported_family`). If an invocation carries a load/reference-state group whose join cannot finalize, every case is republished on its ordinary route (`pressure-2`) without a receipt.
   - **(d) Ordinary attempt failed.** On route L only, for a single-case invocation without combinations, such a case publishes from the retained route only if its retained proof passes G0–G8. Its quality entry keeps the failed attempt's outcome and never reads `checks_passed`. Otherwise the blocked ordinary result stands, with no successor.
   - **(e) No relaxation.** No search, verification, tolerance or domain limit is relaxed to obtain a bound.
     - The formation definitions fix the precision ladder (128 to 1024 bits), `projection_retry: false` and `search_or_retry: none`. The schema fixes `relative_limit` at 10^-9. These are reviewed inputs bound by digest, and the reader checks the digests at G0.
@@ -223,7 +223,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - Binary64-halfway exact force and moment scale maxima fail G5b (`RETAINED_PRECISION_SCALE_MISMATCH`) before commit.
     - Both are refused inside the method, and the case keeps its ordinary result with the one `RETAINED_PRECISION_UNAVAILABLE` notice. A search exhaustion is a per-case failure: where other cases are selected, the published successor's receipt records the case with its typed cause. The G5b refusal is a precommit fault, so it withdraws the whole successor and every attempted case falls back.
   - **(c) No desktop outputs for the current exact identity.**
-    - Exact-route results (`pressure-1`, `pressure-source-1`) solve and can be viewed on the desktop with the Rust reader's standing, but every desktop output surface refuses them (`PRESSURE-1-OUTPUT-NOT-YET-AVAILABLE`). The Python AnalysisRun record and the stress-neutral export accept them.
+    - Exact-route results (`pressure-2`, `pressure-source-1`) solve and can be viewed on the desktop with the Rust reader's standing, but every desktop output surface refuses them (`PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE`). The Python AnalysisRun record and the stress-neutral export accept them.
     - No desktop solve produces a retained-precision successor before B8. If one is opened on the desktop, every output surface refuses it (`RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE`), except the result JSON and stress-neutral exports, which admit it only at numerically eligible standing and with the live native capture of its exact bytes.
   - **(d) Outside the method's domain.**
     - **Retained-precision successors (both routes):** exclude curved members, nonlinear supports, directional springs and nonzero imposed motion (DEF-O, DEF-E); D1 also refuses components, equivalent-static cases, analysis states, modulus-basis temperatures and models beyond the D1 caps, and admits only rigid restraints and global scalar springs.
@@ -234,7 +234,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
 - **REQ-007** — These delivery duties are open. Each is delivered under its own design and independent review, keeps every gate unchanged, and is re-registered under D3 wherever it changes a priced source or a reviewed input.
   - **(a) O4: the Timoshenko and corrosion-allowance source extension.** This is the fifth shared epoch in the owner's order of 2026-10-14. It extends retained-source and W1-E publication to the documents REQ-006 (a) declines, including those with a nonzero mill tolerance. It keeps RF's closure, witness and charging rules.
   - **(b) The W1 coverage repair.** The owner said on 2026-10-17: "We will need to address that W1 coverage gap at some point." It is planned as the sixth shared epoch in this deliverable's `Design/b7-plan.md` ("After B7b"). The epoch starts with a census of how often current sections and maxima reach each REQ-006 (b) corner, then repairs the cause with every gate unchanged. Implementation follows O4 unless that design shows the two should merge.
-  - **(c) Desktop outputs for the current exact identity.** This is a follow-on unit. The owner chose "Merge with the gap" on 2026-10-15 and has not yet placed the unit in the epoch order. T4-U4b/U5b replace `pressure-1` with `pressure-2`.
+  - **(c) Desktop outputs for the current exact identity.** This is a follow-on unit. The owner chose "Merge with the gap" on 2026-10-15 and has not yet placed the unit in the epoch order. T4-U4b/U5b replaced `pressure-1` with `pressure-2`.
 - **AC-006** — Each decline in REQ-006 is exercised by a maintained test that asserts its refusal. The fallback tests and the W1 census tests assert the resulting ordinary result at the facade. The desktop output policy refuses each named identity with its stated code. The headless retained entry refuses at D1.0. The tables' limitation texts are bound by the reviewed-input digests.
 - **AC-007** — A duty in REQ-007 is discharged only when the conditions for it hold. Until then it remains listed here as open.
   - **(a) O4 and (b) the W1 repair:**
@@ -257,7 +257,7 @@ In these commitments, "exact solution" means the exact solution of the recorded 
     - The formation definitions and the tables' formation warrants use "certificate" throughout, as the technical name of the numerical error proof.
   - **The choice.** The texts can keep these words, or the user-facing ones can adopt the nonlinear K-D5 ruling R5's wording ("established", "confirmed"). The choice is the owner's.
   - **Consequences of a change.** The tables and definitions are reviewed inputs: changing their text changes their digests and requires a D3 re-registration. The messages are pinned in committed successor bytes, which would need to be regenerated.
-- **TBD-002** — *A stale reviewed-input sentence.* The `physics-retained-1` table's `accuracy_classification.scope` still reads "model 0.3.0 with the 2.0.0/exact_straight_pressure_v2 contract". DEF-E and the code admit current model 0.5.0 with `3.0.0/exact_pressure_v3`. Correcting the sentence changes a reviewed input and requires D3.
+- **TBD-002** — *A stale reviewed-input sentence.* The `physics-retained-1` table's `accuracy_classification.scope` still reads "model 0.3.0 with the 2.0.0/exact_straight_pressure_v2 contract". DEF-E and the code admit current model 0.6.0 with `3.0.0/exact_pressure_v3`. Correcting the sentence changes a reviewed input and requires D3.
 
 ## Production and Verification Method — Praxeology
 

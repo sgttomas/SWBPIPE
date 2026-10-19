@@ -2,15 +2,20 @@
 //! product readers read the D-5 section bases and the D-6 beam theory, and
 //! refuse each reader mutant.
 //!
-//! The documents are the regenerated committed pressure-1 fixtures, which are
+//! The documents are the regenerated committed pressure-2 fixtures, which are
 //! the producer's §2.5 output (both stress families, basis tokens and id
 //! segments, the D-5 `pipe_sections` with each realized arc's marker,
 //! per-basis maximum records and headlines): `pressure_connected_mechanics_dense`
 //! (coincident bases) and the arc corpus's envelopes (their I7 sketches carry
 //! a mill tolerance, so their bases differ). Each is then given distinct bases
-//! (a nonzero corrosion allowance) or a Timoshenko selection, then mutated. No
-//! fixture is written. The Python verifiers' twins of these mutations are
+//! (a nonzero corrosion allowance) or a Timoshenko selection, then mutated; T4-U4b:
+//! the section-extreme and transverse shear rows formed from the moved rows are
+//! re-formed by the readers' fixed sequences (`reform_u4b`). An arc's certified
+//! maximum cannot be re-formed here, so the arc document with an allowance is the
+//! producer's own (the arc corpus's directional-SIF case, 0.0005 m on every pipe).
+//! No fixture is written. The Python verifiers' twins of these mutations are
 //! `tests/test_section_bases_readers.py`.
+use open_pipe_stress_correct_norm::norm2;
 use open_pipe_stress_result_export::{physics_source, reader_verdict, section_basis as sb, semantic_contract as s};
 use serde_json::{json, Value};
 use std::collections::HashMap;
@@ -45,10 +50,66 @@ fn divisor(kind: &str) -> Option<&'static str> {
         _ => None,
     }
 }
-/// A nonzero corrosion allowance on every pipe: the reduced section, the
-/// pressure bore, the reduced stress rows, the reduced Lame rows and the bore bits.
+/// T4-U4b: each straight member's sigma+/- and transverse shear rows re-formed
+/// from the published rows of the same station and basis (and the basis annulus)
+/// by the readers' fixed sequences, after a helper moved their operands.
+fn reform_u4b(mut doc: Value) -> Value {
+    let evidence = doc["contract_evidence"].clone();
+    let mut sections: HashMap<(String, String), Value> = HashMap::new();
+    let mut nus: HashMap<(String, String), f64> = HashMap::new();
+    for case in evidence["exact_cases"].as_array().unwrap() {
+        let cid = case["load_case_id"].as_str().unwrap().to_string();
+        for s in case["pipe_sections"].as_array().unwrap() {
+            sections.insert((cid.clone(), s["pipe_id"].as_str().unwrap().to_string()), s.clone());
+        }
+        for m in case["pipe_materials"].as_array().unwrap() {
+            nus.insert((cid.clone(), m["pipe_id"].as_str().unwrap().to_string()), f(&m["nu"]));
+        }
+    }
+    let rows = doc["results"].as_array().unwrap().clone();
+    let basis_of = |r: &Value| r["metadata"]["basis"].as_str().and_then(|b| b.rsplit_once("; section_basis=")).map(|(_, b)| b.to_string());
+    let lookup = |case: &str, pipe: &str, kind: &str, location: &str, basis: Option<&str>| -> Option<f64> {
+        rows.iter()
+            .find(|r| r["basis_ref"]["ref_id"] == case && r["entity_ref"] == pipe && r["kind"] == kind && r["metadata"]["location"] == location
+                && basis.is_none_or(|b| basis_of(r).as_deref() == Some(b)))
+            .map(|r| f(&r["value"]))
+    };
+    for row in doc["results"].as_array_mut().unwrap() {
+        let kind = row["kind"].as_str().unwrap();
+        if kind != "element_local_normal_stress_extreme" && kind != "element_local_transverse_shear_stress_maximum" { continue; }
+        let (case, pipe) = (row["basis_ref"]["ref_id"].as_str().unwrap().to_string(), row["entity_ref"].as_str().unwrap().to_string());
+        let section = &sections[&(case.clone(), pipe.clone())];
+        if section.get(sb::MEMBER_KIND).is_some() { continue; }
+        let location = row["metadata"]["location"].as_str().unwrap().to_string();
+        let basis = basis_of(row).unwrap();
+        let at = |kind: &str, basis: Option<&str>| lookup(&case, &pipe, kind, &location, basis);
+        let value = if kind == "element_local_normal_stress_extreme" {
+            let y = at("element_local_bending_normal_stress_y", Some(&basis)).unwrap();
+            let z = at("element_local_bending_normal_stress_z", Some(&basis)).unwrap();
+            let n = at("element_local_axial_normal_stress", Some(&basis))
+                .unwrap_or_else(|| at("pipe_axial_membrane_stress_v2", Some(&basis)).unwrap() / 1e6);
+            let h = norm2(y, z);
+            if row["metadata"]["component"] == "sigma_plus" { n + h } else { n - h }
+        } else {
+            let (nu, ro, ri, inertia) = (nus[&(case.clone(), pipe.clone())], f(&section["ro_m"]), f(&section[basis.as_str()]["ri_m"]), f(&section[basis.as_str()]["I_m4"]));
+            let factor = ((3.0 + 2.0 * nu) * (ro * ro) + (1.0 + 2.0 * nu) * (ri * ri)) / ((4.0 * (1.0 + nu)) * inertia);
+            let (vy, vz) = (at("element_local_shear_force_y", None).unwrap(), at("element_local_shear_force_z", None).unwrap());
+            norm2(vy, vz) * factor / 1e6
+        };
+        row["value"] = json!(value);
+    }
+    doc
+}
+/// A nonzero corrosion allowance on every pipe of a straight-only document: the
+/// reduced section, the pressure bore, the reduced stress rows, the reduced Lame
+/// rows, the bore bits and (T4-U4b) the re-formed section-extreme and shear rows.
 fn distinct(doc: &Value, allowance: f64) -> Value {
     let mut doc = doc.clone();
+    assert!(
+        doc["contract_evidence"]["exact_cases"].as_array().unwrap().iter()
+            .all(|c| c["pipe_sections"].as_array().unwrap().iter().all(|s| s.get(sb::MEMBER_KIND).is_none())),
+        "an arc's certified maximum cannot be re-formed"
+    );
     let reduce = |s: &mut Value| {
         let (od, t) = (f(&s["outside_diameter_m"]), f(&s["wall_thickness_m"]));
         let t_r = sb::reduced_wall(t, f(&s["mill_tolerance_m"]), allowance);
@@ -100,7 +161,7 @@ fn distinct(doc: &Value, allowance: f64) -> Value {
             }
         }
     }
-    doc
+    reform_u4b(doc)
 }
 /// timoshenko_annulus_energy_v1 on every straight member (arcs stay Euler-Bernoulli),
 /// kappa from the named radius basis, A_s on the named area basis, or a given factor.
@@ -132,6 +193,10 @@ fn timoshenko(doc: &Value, radius: &str, area: &str, factor: Option<f64>) -> Val
 }
 fn base() -> Value {
     serde_json::from_str(include_str!("../../../../fixtures/results/pressure_connected_mechanics_dense.json")).unwrap()
+}
+/// The arc corpus's producer document with a 0.0005 m allowance on every pipe.
+fn allowance_arc() -> Value {
+    arc_corpus_entry("U2-L-ANCH-PTW-K2 directional SIF")["envelope"].clone()
 }
 fn arc() -> Value {
     let corpus: Value = serde_json::from_str(include_str!("../../../../fixtures/results/pressure_v3_arc_reader_corpus.json")).unwrap();
@@ -167,7 +232,8 @@ fn find<'a>(doc: &'a mut Value, kind: &str, ends: &str) -> &'a mut Value {
 fn the_shaped_interface_is_read_on_coincident_and_distinct_bases_under_both_shear_models() {
     let n = sb::NOMINAL;
     for doc in [base(), distinct(&base(), 0.001), timoshenko(&base(), n, n, None),
-        timoshenko(&distinct(&base(), 0.001), n, n, None), arc(), timoshenko(&arc(), n, n, None), distinct(&arc(), 0.0005)] {
+        timoshenko(&distinct(&base(), 0.001), n, n, None), arc(), timoshenko(&arc(), n, n, None),
+        allowance_arc(), timoshenko(&allowance_arc(), n, n, None)] {
         assert_eq!(s::validate_pressure_evidence(&doc), Ok(()));
     }
 }
@@ -313,11 +379,11 @@ fn pressure_1_model_checks_bind_each_section_input_to_the_model() {
     let connected = (base(), request["model"].clone());
     let entry = arc_corpus_entry("U2-L-ANCH-PTW-K2 0.3.0");
     let milled = (entry["envelope"].clone(), entry["document"]["model"].clone());
-    // An allowance on the arc document: the evidence's distinct bases and the model's 0.0005 m.
-    let mut allowed = (distinct(&entry["envelope"], 0.0005), entry["document"]["model"].clone());
-    for segment in allowed.1["pipe_segments"].as_array_mut().unwrap() {
-        segment["section"]["corrosion_allowance"] = json!({"value": 0.0005, "unit": "m"});
-    }
+    // An allowance on the arc document (T4-U4b: the producer's, 0.0005 m on every
+    // pipe): its distinct bases and the model.
+    let entry = arc_corpus_entry("U2-L-ANCH-PTW-K2 directional SIF");
+    let allowed = (entry["envelope"].clone(), entry["document"]["model"].clone());
+    assert!(allowed.0["contract_evidence"]["exact_cases"][0]["pipe_sections"].as_array().unwrap().iter().all(|s| s["corrosion_allowance_m"] == 0.0005));
     let code = "SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY";
     let leaves = [("outside_diameter", "outside_diameter_m"), ("wall_thickness", "wall_thickness_m"),
         ("mill_tolerance", "mill_tolerance_m"), ("corrosion_allowance", "corrosion_allowance_m")];

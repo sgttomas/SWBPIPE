@@ -1,4 +1,4 @@
-//! T4-U3 (S14): the pressure-1 reader admits objective connector records and
+//! T4-U3 (S14): the pressure-2 reader admits objective connector records and
 //! rows over the shared connector corpus (also read by the Python
 //! reader), refuses each broken binding by name, and the retained-source route
 //! (pressure-source-1) refuses connector evidence (`CONNECTOR_UNSUPPORTED`).
@@ -108,7 +108,7 @@ fn u5a_participating_reader_control_binds_edges_groups_and_each_pressure_row() {
     assert!(s::validate_pressure_evidence(&wrong_face).is_err());
 }
 
-/// (label, mutation, the pressure-1 reader's error suffix).
+/// (label, mutation, the pressure-2 reader's error suffix).
 #[allow(clippy::type_complexity)]
 fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {
     vec![
@@ -128,7 +128,7 @@ fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {
         }), "CONNECTOR_ROW_COVERAGE"),
         ("row unbound", Box::new(|e: &mut Value| first_connector_row(e)["entity_ref"] = json!("component:C-999")), "CONNECTOR_ROW_UNBOUND"),
         ("row unknown kind", Box::new(|e: &mut Value| first_connector_row(e)["kind"] = json!("connector_energy_v1")), "CONNECTOR_ROW_KIND"),
-        // B7b (O-10): pressure-1's own resident table carries the connector
+        // B7b (O-10): pressure-2's own resident table carries the connector
         // signatures, so its unit check refuses a wrong unit before the
         // connector row binding is read.
         ("row unit", Box::new(|e: &mut Value| first_connector_row(e)["unit"] = json!("mm")), "SOURCE_UNIT_CONTRADICTION: connector_generalized_translation_v1"),
@@ -148,11 +148,136 @@ fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {
     ]
 }
 
+fn tied(envelope: &Value) -> bool {
+    envelope["contract_evidence"]["connector"][0]["hardware"] == "explicit_axial_rods_v1"
+}
+fn rod_rows(envelope: &mut Value) -> Vec<&mut Value> {
+    rows_mut(envelope).iter_mut().filter(|r| r["kind"] == "connector_tie_rod_force_v1").collect()
+}
+fn row_of<'a>(envelope: &'a mut Value, kind: &str) -> &'a mut Value {
+    rows_mut(envelope).iter_mut().find(|r| r["kind"] == kind).unwrap()
+}
+
+/// The rod whose force enters s_x most (largest |axial_share|). A rod with
+/// axial_share exactly 0 adds nothing to s_x, so s_x's binding cannot see its
+/// force value or its share being scaled; the value tampers target this rod.
+fn binding_rod(e: &mut Value) -> usize {
+    let rods = record(e)["tie_rods"].as_array().unwrap();
+    (0..rods.len()).max_by(|&a, &b| {
+        let share = |i: usize| rods[i]["axial_share"].as_f64().unwrap().abs();
+        share(a).total_cmp(&share(b))
+    }).unwrap()
+}
+
+/// T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.1): tamper forms of
+/// a connector with tie rods, each refused by name.
+#[allow(clippy::type_complexity)]
+fn rod_mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {
+    vec![
+        ("rod record without rows", Box::new(|e: &mut Value| {
+            rows_mut(e).retain(|r| r["kind"] != "connector_tie_rod_force_v1");
+        }), "CONNECTOR_TIE_ROD_ROWS"),
+        ("rod rows without a record", Box::new(|e: &mut Value| {
+            record(e)["hardware"] = json!("untied");
+            record(e).as_object_mut().unwrap().remove("tie_rods");
+        }), "CONNECTOR_TIE_ROD_UNBOUND"),
+        ("duplicate rod", Box::new(|e: &mut Value| {
+            let rod = record(e)["tie_rods"][0].clone();
+            record(e)["tie_rods"].as_array_mut().unwrap().push(rod);
+        }), "CONNECTOR_TIE_ROD_DUPLICATE"),
+        ("untied record with tie_rods", Box::new(|e: &mut Value| record(e)["hardware"] = json!("untied")), "CONNECTOR_TIE_ROD_UNTIED"),
+        ("rod entry extra key", Box::new(|e: &mut Value| record(e)["tie_rods"][0]["extra"] = json!(1)), "CONNECTOR_TIE_ROD_RECORD"),
+        ("rod law", Box::new(|e: &mut Value| record(e)["tie_rods"][0]["law"] = json!("ideal_inextensible")), "CONNECTOR_TIE_ROD_RECORD"),
+        ("rod stiffness zero", Box::new(|e: &mut Value| record(e)["tie_rods"][0]["stiffness_n_per_m"] = json!(0.0)), "CONNECTOR_TIE_ROD_RECORD"),
+        ("rod direction not unit", Box::new(|e: &mut Value| record(e)["tie_rods"][0]["direction_global"] = json!([0.5, 0.0, 0.0])), "CONNECTOR_TIE_ROD_DIRECTION"),
+        ("rod axial share", Box::new(|e: &mut Value| {
+            let rod = binding_rod(e);
+            let share = record(e)["tie_rods"][rod]["axial_share"].as_f64().unwrap();
+            record(e)["tie_rods"][rod]["axial_share"] = json!(share * (1.0 - f64::EPSILON));
+        }), "CONNECTOR_TIE_ROD_AXIAL_SHARE"),
+        ("rod row renamed", Box::new(|e: &mut Value| {
+            let row = rod_rows(e).remove(0);
+            row["id"] = json!(format!("{}x", row["id"].as_str().unwrap()));
+        }), "CONNECTOR_TIE_ROD_UNBOUND"),
+        ("rod row extra", Box::new(|e: &mut Value| {
+            let mut row = rod_rows(e).remove(0).clone();
+            row["id"] = json!("result:connector:component-C-J:tie-rod-force:tie_rod:rod-extra:t_r");
+            rows_mut(e).push(row);
+        }), "CONNECTOR_TIE_ROD_UNBOUND"),
+        ("rod row frame", Box::new(|e: &mut Value| rod_rows(e).remove(0)["metadata"]["coordinate_system"] = json!("global")), "CONNECTOR_ROW_SEMANTICS"),
+        ("rod row basis", Box::new(|e: &mut Value| rod_rows(e).remove(0)["metadata"]["basis"] = json!("objective_connector_v1;symmetric_midpoint_small_rotation_v1")), "CONNECTOR_ROW_SEMANTICS"),
+        ("rod force changed", Box::new(|e: &mut Value| {
+            let rod = binding_rod(e);
+            let id = record(e)["tie_rods"][rod]["id"].as_str().unwrap().replace(':', "-");
+            let row = rows_mut(e).iter_mut().find(|r| r["kind"] == "connector_tie_rod_force_v1"
+                && r["id"].as_str().unwrap().ends_with(&format!(":tie_rod:{id}:t_r"))).unwrap();
+            row["value"] = json!(row["value"].as_f64().unwrap() + 1.0);
+        }), "CONNECTOR_EFFECTIVE_ROW_BINDING"),
+        ("s_x changed", Box::new(|e: &mut Value| {
+            let row = row_of(e, "connector_effective_axial_force_v1");
+            row["value"] = json!(row["value"].as_f64().unwrap() + 1e-6);
+        }), "CONNECTOR_EFFECTIVE_ROW_BINDING"),
+        ("s_x removed", Box::new(|e: &mut Value| rows_mut(e).retain(|r| r["kind"] != "connector_effective_axial_force_v1")), "CONNECTOR_ROW_COVERAGE"),
+    ]
+}
+
+#[test]
+fn broken_tie_rod_bindings_are_refused_by_name() {
+    let tied_cases: Vec<_> = corpus().into_iter().filter(|(_, e)| tied(e)).collect();
+    assert_eq!(tied_cases.len(), 5);
+    let mut shareless = 0;
+    for (label, mut envelope) in tied_cases {
+        // Codex's single-rod control: its only rod's axial_share is exactly 0,
+        // so the rod adds nothing to s_x and s_x's binding cannot see that
+        // rod's force or share scaled (the tampers below are accepted there).
+        // Its s_x operand is discriminated by product_physics
+        // connector_readers.rs `s_x_formed_with_the_share_at_p_fails_the_binding`.
+        let all_zero = record(&mut envelope)["tie_rods"].as_array().unwrap().iter().all(|r| r["axial_share"].as_f64() == Some(0.0));
+        shareless += usize::from(all_zero);
+        for (what, mutate, code) in rod_mutations() {
+            let mut broken = envelope.clone();
+            mutate(&mut broken);
+            if all_zero && matches!(what, "rod axial share" | "rod force changed") {
+                assert!(label.contains("single-rod control"), "{label}");
+                assert_eq!(s::validate_pressure_evidence(&broken), Ok(()), "{label} {what}: invisible to s_x");
+                continue;
+            }
+            let error = s::validate_pressure_evidence(&broken).unwrap_err();
+            assert!(error.ends_with(code), "{label} {what}: {error}");
+        }
+    }
+    assert_eq!(shareless, 1, "exactly the single-rod control has no share in s_x");
+}
+
+/// T4-U5b: an unpressurized connector with rods publishes s_x (the face axial
+/// force, Pe = 0) and no pe_x; a pressurized one publishes both.
+#[test]
+fn tied_rows_follow_the_hardware_and_the_pressure_model() {
+    for (label, envelope) in corpus().into_iter().filter(|(_, e)| tied(e)) {
+        let unpressurized = envelope["contract_evidence"]["connector"][0]["pressure_model"] == "unpressurized";
+        let count = |kind: &str| envelope["results"].as_array().unwrap().iter().filter(|r| r["kind"] == kind).count();
+        assert_eq!(count("connector_pressure_force_v1"), usize::from(!unpressurized), "{label}");
+        assert_eq!(count("connector_effective_axial_force_v1"), 1, "{label}");
+        assert_eq!(count("connector_tie_rod_force_v1"), envelope["contract_evidence"]["connector"][0]["tie_rods"].as_array().unwrap().len(), "{label}");
+        if unpressurized {
+            let mut forged = envelope.clone();
+            let mut row = row_of(&mut forged, "connector_effective_axial_force_v1").clone();
+            row["id"] = json!("result:connector:component-C-J:connector-pressure-force:connector_local:pe_x");
+            row["kind"] = json!("connector_pressure_force_v1");
+            row["metadata"]["component"] = json!("pe_x");
+            row["value"] = json!(0.0);
+            rows_mut(&mut forged).push(row);
+            assert!(s::validate_pressure_evidence(&forged).is_err(), "{label}: pe_x on an unpressurized connector");
+        }
+    }
+}
+
 #[test]
 fn the_connector_corpus_is_admitted_by_the_pressure_1_reader_and_dispatch() {
     let cases = corpus();
-    assert_eq!(cases.len(), 2);
+    assert_eq!(cases.len(), 7);
     assert!(cases.iter().any(|(_, e)| load_state(e)) && cases.iter().any(|(_, e)| !load_state(e)));
+    assert_eq!(cases.iter().filter(|(_, e)| tied(e)).count(), 5);
     for (label, envelope) in &cases {
         assert_eq!(envelope["producer"]["semantic_contract_id"], s::PRESSURE_ID, "{label}");
         assert_eq!(envelope["contract_evidence"]["connector"].as_array().unwrap().len(), 1, "{label}");
@@ -163,7 +288,7 @@ fn the_connector_corpus_is_admitted_by_the_pressure_1_reader_and_dispatch() {
 
 #[test]
 fn broken_connector_bindings_are_refused_by_name() {
-    for (label, envelope) in corpus() {
+    for (label, envelope) in corpus().into_iter().filter(|(_, e)| !tied(e)) {
         for (what, mutate, code) in mutations() {
             let mut broken = envelope.clone();
             mutate(&mut broken);

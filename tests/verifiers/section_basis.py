@@ -27,7 +27,7 @@ sections (bit-equal where the bases coincide, else the same resultant within the
 """
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 import math
 import struct
 from typing import Any
@@ -46,6 +46,10 @@ BORE_KEYS = {"ri_m", "Ai_m2"}
 EULER_BERNOULLI = "euler_bernoulli"
 TIMOSHENKO = "timoshenko_annulus_energy_v1"
 STRESS_KINDS = (
+    # T4-U4b (§2.2): the new per-basis kinds.
+    "element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum",
+    "pipe_toroidal_membrane_hoop_stress_v1", "pipe_toroidal_radial_surface_stress_v1",
+    "curved_bend_directional_intensified_bending_stress_v1", "curved_bend_directional_intensified_bending_maximum_v1",
     "element_local_axial_normal_stress", "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z",
     "element_local_torsional_shear_stress", "pipe_axial_membrane_stress_v2", "pipe_lame_radial_stress_v2",
     "pipe_lame_hoop_stress_v2", "pipe_elastic_normal_stress_maximum_v2",
@@ -241,7 +245,7 @@ def selected_model(shear_model: Any, arc: bool) -> Any:
 
 
 def bind_shear_model(evidence: Any, model: Any) -> None:
-    """§5 (pressure-1, against the captured model; Rust ``bind_shear_model``): each exact case's ``pipe_sections`` entry
+    """§5 (pressure-2, against the captured model; Rust ``bind_shear_model``): each exact case's ``pipe_sections`` entry
     and each pressure region's geometry entry states the beam theory the model's contract selects for that member.
     §2.5: the entries the evidence marks are exactly the model's realized arcs. Arcs are the model's realized arcs and
     the arcs the region geometry marks. Refusals carry the Rust codes: ``SOURCE_PHYSICS_ARC_MARKER`` for a realized
@@ -300,11 +304,13 @@ def lame_station(values: Mapping[str, float], annulus: Mapping[str, float], p: f
              and agree(values["lame_inner_hoop_stress"], values["lame_outer_hoop_stress"] + p), "stress basis section")
 
 
-def twins(rows: Mapping[str, Any], sections: Mapping[tuple[str, str], Any], pressures: Mapping[tuple[str, str], float]) -> None:
+def twins(rows: Mapping[str, Any], sections: Mapping[tuple[str, str], Any], pressures: Mapping[tuple[str, str], float],
+          order: Callable[[Mapping[str, Any], Mapping[str, Any]], None] | None = None) -> None:
     """§2.1, §2.5: both families of every stress signature. Each nominal row's twin is the row of the same id with the
     reduced segment, the same recovery token and the same declared semantics; each pair is checked against its member's
     two sections, and each straight member's Lame rows against each basis's own annulus and its region's pressure
-    (``pressures`` by (case, member))."""
+    (``pressures`` by (case, member)). ``order(row, twin)``, when given, is the caller's row-order check on each
+    nominal row and its twin, made after the twin is matched and before the pair's values are compared."""
     stress = [row for row in rows.values() if row.get("kind") in STRESS_KINDS]
     pairs = 0
     lame: dict[tuple[str, str, str, str], dict[str, float]] = {}
@@ -322,6 +328,8 @@ def twins(rows: Mapping[str, Any], sections: Mapping[tuple[str, str], Any], pres
         _require(isinstance(twin, Mapping) and row_basis(twin) == (token, REDUCED)
                  and all(twin.get(k) == row.get(k) for k in ("kind", "unit", "entity_ref", "basis_ref"))
                  and all(twin["metadata"].get(k) == metadata.get(k) for k in ("component", "coordinate_system", "location", "sign_convention")), "stress basis twin")
+        if order is not None:
+            order(row, twin)
         twin_values(row["kind"], row["value"], twin["value"], sections[cid, pid])
         pairs += 1
     _require(2 * pairs == len(stress), "stress basis twin")

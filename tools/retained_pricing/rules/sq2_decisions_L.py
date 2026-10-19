@@ -31,4 +31,31 @@ B7A_STAGE1_ROUTE = "L"
 
 # W1-L5: route L shares U6-RB's source-bound production guard.
 O10_TYPED_PATCHES = list(globals().get("O10_TYPED_PATCHES", [])) + W1_L5_PATCHES
+
+# U4B-RL (T4-S5): route L's rows per member. preview-physics-2 publishes, on each straight member, the 51 rows of
+# preview-physics-1 and the derived σ⁺, σ⁻ and τ_v,max at its five stations (u4b_rows::append_station_quantities,
+# one section): 15 rows more, 66. The producer states the same count for the failed-ordinary manifest, which mirrors
+# preview-physics-2's per-member rows (retained_product.rs FAILED_MEMBER_ROWS, read here; a member whose ν is out of
+# domain publishes 5 fewer, so 66 bounds every member). Route L's P_final and R0 take it in place of 51.
+import re as _rl_re
+_RL_SRC = open(os.path.join(os.environ["SQ2_SNAP"], "core/product_physics/src/retained_product.rs"), encoding="utf-8").read()
+_RL = [int(v) for v in _rl_re.findall(r"^const FAILED_MEMBER_ROWS: usize = (\d+);$", _RL_SRC, _rl_re.M)]
+if len(_RL) != 1 or _RL[0] not in (51, 51 + 15):
+    raise SystemExit(f"U4B-RL: route L's per-member row count is not the reviewed 51 or 66: {_RL}")
+if _RL[0] != 51:
+    _rpm, _why = _RL[0], "U4B-RL: route L's per-member rows, 51 + 15 derived (FAILED_MEMBER_ROWS)"
+    O10_TYPED_PATCHES = list(O10_TYPED_PATCHES) + [
+        ("g3lib.py", "P=7 * n + 51 * m + 8 * g + 3, R0=7 * n + 51 * m + g + 3,",
+         f"P=7 * n + {_rpm} * m + 8 * g + 3, R0=7 * n + {_rpm} * m + g + 3,", _why),
+        ("g4_caps.py", "P = 7 * n + 51 * m + 8 * g + 3                     # P_final",
+         f"P = 7 * n + {_rpm} * m + 8 * g + 3                     # P_final", _why),
+        ("ordinary_caps.py", "    mats = 8; pts = 16                                # model + request materials; points each\n"
+         "    P = 7 * n + 51 * m + 8 * g + 3; R0 = 7 * n + 51 * m + g + 3",
+         "    mats = 8; pts = 16                                # model + request materials; points each\n"
+         f"    P = 7 * n + {_rpm} * m + 8 * g + 3; R0 = 7 * n + {_rpm} * m + g + 3", _why),
+        ("producer_caps.py", "P_final = 7 * n + 51 * m + 8 * g + 3",
+         f"P_final = 7 * n + ({_rpm} if which == \"caps\" else 51) * m + 8 * g + 3", _why),
+        ("t25_g4.py", "P = 7 * n + 51 * m + 8 * g + 3\nR0 = 7 * n + 51 * m + g + 3",
+         f"P = 7 * n + {_rpm} * m + 8 * g + 3\nR0 = 7 * n + {_rpm} * m + g + 3", _why),
+    ]
 O10_SITE_FROM = list(O10_SITE_FROM) + W1_L5_SITE_FROM

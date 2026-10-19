@@ -61,8 +61,11 @@ only a `request` object and no `benchmark` payload. The committed
 witness and prior reproduction bundles — including
 `validation/evidence/reproduction/REPRO_DEL0904_20260719T202023Z_23eeaabc9040/`
 — remain truthful for their pinned pre-#287 commits and are not edited. The
-three frozen input fixtures, their generator, and the three committed
-generated witnesses remain byte-identical frozen surfaces.
+three committed generated witnesses and the generator remain byte-identical
+frozen surfaces. The input fixtures are re-authored when the model document
+version changes: the solve input's model `schema_version` token moved to
+0.5.0 at B7a and to 0.6.0 at T4-S1, and the generator reproduces the
+current inputs byte for byte from the invented preview model fixture.
 
 **Dated note (2026-07-20).** Case 1's committed-witness byte expectation is
 historical for sources at or after R14-W1 T2 (implementation commit

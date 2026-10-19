@@ -14,9 +14,9 @@
  * a, through `LoadReferenceOutputGate`) and the report package keep refusing it.
  * The report package refuses at its own point, T0R's fresh-result refusal
  * (REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE); its entry here records that decision.
- * pressure-1 (`pressure`) is read through the Rust reader's own route and refuses on
- * every surface: no desktop output of pressure-1 results has been designed or reviewed
- * (DEL-04-07 `pressure-contract.md`, "Reading pressure-1"); pressure-source-1
+ * pressure-2 (`pressure`) is read through the Rust reader's own route and refuses on
+ * every surface: no desktop output of pressure-2 results has been designed or reviewed
+ * (DEL-04-07 `pressure-contract.md`, "Reading pressure-2"); pressure-source-1
  * (`pressure_source`) refuses on every surface likewise (b7-plan D6). A
  * load/reference-state result is published under one of these two identities since
  * B7b retired load-reference-1 and load-reference-source-1 with the v2 contract, so
@@ -33,15 +33,15 @@ import { sourceContract } from "./resultReader";
 import { numericalResultStanding } from "./resultStanding";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
-export const PRESSURE_1_OUTPUT_NOT_YET_AVAILABLE = "PRESSURE-1-OUTPUT-NOT-YET-AVAILABLE";
-export const N_PRESSURE_1_OUTPUT = "Output of pressure-1 results (3.0.0/exact_pressure_v3) is not yet available on the desktop. The result remains readable here, with the Rust reader's standing; this is not a finding about the result.";
-export const PRESSURE_1_OUTPUT_REFUSAL = `${PRESSURE_1_OUTPUT_NOT_YET_AVAILABLE}: ${N_PRESSURE_1_OUTPUT}`;
+export const PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE = "PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE";
+export const N_PRESSURE_2_OUTPUT = "Output of pressure-2 results (3.0.0/exact_pressure_v3) is not yet available on the desktop. The result remains readable here, with the Rust reader's standing; this is not a finding about the result.";
+export const PRESSURE_2_OUTPUT_REFUSAL = `${PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE}: ${N_PRESSURE_2_OUTPUT}`;
 /** b7-plan D6/MJ8: T4-U2's export (#1314) exports pressure-source-1 through the Rust
- * derivative, which binds its received v3 receipt. Like pressure-1, no desktop output
- * of it has been designed or reviewed, so every surface refuses, under pressure-1's code.
+ * derivative, which binds its received v3 receipt. Like pressure-2, no desktop output
+ * of it has been designed or reviewed, so every surface refuses, under pressure-2's code.
  * This policy adds no numerical standing. */
 export const N_PRESSURE_SOURCE_OUTPUT = "Output of pressure-source-1 results (3.0.0/exact_pressure_v3) is not yet available on the desktop. The result remains readable here, with the Rust reader's standing; this is not a finding about the result.";
-export const PRESSURE_SOURCE_OUTPUT_REFUSAL = `${PRESSURE_1_OUTPUT_NOT_YET_AVAILABLE}: ${N_PRESSURE_SOURCE_OUTPUT}`;
+export const PRESSURE_SOURCE_OUTPUT_REFUSAL = `${PRESSURE_2_OUTPUT_NOT_YET_AVAILABLE}: ${N_PRESSURE_SOURCE_OUTPUT}`;
 export const RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE = "RETAINED-PRECISION-OUTPUT-NOT-YET-AVAILABLE";
 /** Decision 12: reworded so that it no longer says every output is unavailable. */
 export const N_RETAINED_PRECISION_OUTPUT = "This output of retained-precision results (preview-physics-retained-1) is not available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. The result remains readable here; this is not a finding about the result.";
@@ -86,9 +86,9 @@ export const OUTPUT_POLICY: Readonly<Record<SourceContract, RouteOutputPolicy>> 
   preview_physics: UNGATED,
   // Each surface refuses an unsupported statement through its own contract check.
   unsupported: UNGATED,
-  // pressure-1 (likewise with or without load/reference states): readable through the
+  // pressure-2 (likewise with or without load/reference states): readable through the
   // Rust reader's route; no desktop output is offered.
-  pressure: Object.freeze({ gate: "per_surface", reason: PRESSURE_1_OUTPUT_REFUSAL, surfaces: everySurfaceRefused() }),
+  pressure: Object.freeze({ gate: "per_surface", reason: PRESSURE_2_OUTPUT_REFUSAL, surfaces: everySurfaceRefused() }),
   // T6S (RR decisions 2 and 12): only the two T6 panels admit the preview successor.
   // Checklist item 1 opens the Rule-check panel by its own entry, under its own review.
   retained_preview_physics: Object.freeze({

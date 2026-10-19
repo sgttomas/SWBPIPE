@@ -1,11 +1,12 @@
 {
- "description": "Shared adversarial cases for the current pressure-1 reader with the optional load/reference-state group (Rust result_export tests/load_reference_contract.rs; the Python verifier and the base-reader corpus read the same file). B7b re-authored the retired load-reference-1 cases as v3 twins over the current 0.5.0/3.0.0/exact_pressure_v3 producer fixtures: physical values unchanged, sources moved to fixtures/product_preview/pressure/load_reference/ and fixtures/results/pressure_connected_mechanics_sparse.json. 'dispatch' is the raw-dispatch outcome (Rust semantic_contract::for_source); 'validator' is validate_pressure_evidence called directly and defaults to 'dispatch'. A value ending in PHYSICS_EVIDENCE is compared by leading code, the inherited pressure detail being language-specific. Language-specific keys (dispatch_rust, dispatch_python, validator_rust, validator_python) replace a shared value where the languages cannot agree, with a note. An identity of the retired 2.0.0/exact_straight_pressure_v2 contract (physics-1, physics-source-1, load-reference-1, load-reference-source-1) is refused by name at the header (SOURCE_EXACT_PRESSURE_V2_RETIRED); a retired profile string is a profile no current identity carries. pressure-1 has no transport (metadata-only) reader (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED), so the retired reader's transport cases were retired with it and 'transport_cases' is empty. Table cases run verify_pressure_table on the pinned pressure-1 table bytes. The 'json_text' op splices its string value into the document as JSON text (Rust: into the serialized text before parsing; Python: json.loads of the value), so that literals a serde_json Value cannot hold are exercised; in Rust such a case must be refused at the text boundary. 'carrier_rust' and 'carrier_python' on an accepted case give the exact refusal of the canonical carrier build (Rust derivative::derive_document, Python build_analysis_run) where the checked-JSON number profile refuses a document that both readers admit.",
+ "description": "Shared adversarial cases for the current pressure-2 reader with the optional load/reference-state group (Rust result_export tests/load_reference_contract.rs; the Python verifier and the base-reader corpus read the same file). B7b re-authored the retired load-reference-1 cases as v3 twins over the current 0.6.0/3.0.0/exact_pressure_v3 producer fixtures: physical values unchanged, sources moved to fixtures/product_preview/pressure/load_reference/ and fixtures/results/pressure_connected_mechanics_sparse.json. 'dispatch' is the raw-dispatch outcome (Rust semantic_contract::for_source); 'validator' is validate_pressure_evidence called directly and defaults to 'dispatch'. A value ending in PHYSICS_EVIDENCE is compared by leading code, the inherited pressure detail being language-specific. Language-specific keys (dispatch_rust, dispatch_python, validator_rust, validator_python) replace a shared value where the languages cannot agree, with a note. An identity of the retired 2.0.0/exact_straight_pressure_v2 contract (physics-1, physics-source-1, load-reference-1, load-reference-source-1) is refused by name at the header (SOURCE_EXACT_PRESSURE_V2_RETIRED); a retired profile string is a profile no current identity carries. pressure-2 has no transport (metadata-only) reader (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED), so the retired reader's transport cases were retired with it and 'transport_cases' is empty. Table cases run verify_pressure_table on the pinned pressure-2 table bytes. The 'json_text' op splices its string value into the document as JSON text (Rust: into the serialized text before parsing; Python: json.loads of the value), so that literals a serde_json Value cannot hold are exercised; in Rust such a case must be refused at the text boundary. 'carrier_rust' and 'carrier_python' on an accepted case give the exact refusal of the canonical carrier build (Rust derivative::derive_document, Python build_analysis_run) where the checked-JSON number profile refuses a document that both readers admit.",
  "sources": {
   "connected-sparse": "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json",
   "connected-dense": "fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json",
   "pressure-sparse": "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json",
   "pressure-dense": "fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json",
-  "physics-sparse": "fixtures/results/pressure_connected_mechanics_sparse.json"
+  "physics-sparse": "fixtures/results/pressure_connected_mechanics_sparse.json",
+  "u4b-arc": "fixtures/results/pressure_u4b_arc_sparse.json"
  },
  "cases": [
   {
@@ -476,7 +477,7 @@
     }
    ],
    "dispatch": "SOURCE_PHYSICS_MATERIAL_SHAPE",
-   "note": "B7b: under pressure-1 the load/reference-state group is optional and selected by presence; without it the ordinary pressure reader reads the resolved exact cases and refuses their shape."
+   "note": "B7b: under pressure-2 the load/reference-state group is optional and selected by presence; without it the ordinary pressure reader reads the resolved exact cases and refuses their shape."
   },
   {
    "id": "MISSING-contract-evidence",
@@ -488,7 +489,7 @@
     }
    ],
    "dispatch": "SOURCE_PHYSICS_EVIDENCE_SHAPE",
-   "note": "B7b: under pressure-1 the group is optional; a missing evidence object is refused by the ordinary pressure reader."
+   "note": "B7b: under pressure-2 the group is optional; a missing evidence object is refused by the ordinary pressure reader."
   },
   {
    "id": "MISSING-record-source-recovery",
@@ -1260,7 +1261,7 @@
    ],
    "dispatch": "SOURCE_FORMULATION_BASIS_UNSUPPORTED",
    "validator": "accept",
-   "note": "B7b: one pressure-1 reader for documents with and without the group; the header refuses the foreign profile, the reader (which does not read the profile) admits the evidence."
+   "note": "B7b: one pressure-2 reader for documents with and without the group; the header refuses the foreign profile, the reader (which does not read the profile) admits the evidence."
   },
   {
    "id": "CONTRACT-physics-envelope-relabelled",
@@ -1277,7 +1278,7 @@
      "value": "resolved_straight_load_state_v1"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis",
    "validator": "accept",
    "note": "B7b: load-reference-1 is a retired identity, refused by name at the header."
   },
@@ -1291,7 +1292,7 @@
      "value": "openpipestress.result_semantics/0.3.0/load-reference-1"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis",
    "validator": "accept",
    "note": "B7b: load-reference-1 is a retired identity, refused by name at the header."
   },
@@ -1330,7 +1331,7 @@
      "value": "openpipestress.result_semantics/0.3.0/load-reference-source-1"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis",
    "note": "B7b: load-reference-source-1 is a retired identity, refused by name at the header.",
    "validator": "accept"
   },
@@ -1344,7 +1345,7 @@
      "value": "openpipestress.result_semantics/0.3.0/physics-1"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis",
    "validator": "accept",
    "note": "B7b: physics-1 is a retired identity, refused by name at the header."
   },
@@ -1363,7 +1364,7 @@
      "value": "exact_straight_pressure_v2"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis",
    "validator": "accept",
    "note": "B7b: physics-1 is a retired identity, refused by name at the header."
   },
@@ -1382,7 +1383,7 @@
      "value": "exact_straight_pressure_v2"
     }
    ],
-   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis",
+   "dispatch": "SOURCE_EXACT_PRESSURE_V2_RETIRED: 2.0.0/exact_straight_pressure_v2 results are no longer read; re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis",
    "validator": "accept",
    "note": "B7b: physics-source-1 is a retired identity, refused by name at the header."
   },
@@ -3012,6 +3013,216 @@
    "dispatch": "MECHANICS_RESULT_VERSION_RETIRED",
    "validator": "accept",
    "note": "B7b: added; the retired 0.1.0 mechanics-result carrier is refused by name (b7-plan E2)."
+  },
+  {
+   "id": "U4B-sigma-plus-changed",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/results/128/value",
+     "value": 75.07499999999999
+    },
+    {
+     "op": "set",
+     "path": "/results/129/value",
+     "value": 75.07499999999999
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (§5.1): the new kinds are recomputed from the published rows and evidence; both basis twins change, so the recomputation (not the twin rule) refuses."
+  },
+  {
+   "id": "U4B-transverse-shear-changed",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/results/132/value",
+     "value": 3.0019097304626343
+    },
+    {
+     "op": "set",
+     "path": "/results/133/value",
+     "value": 3.0019097304626343
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (§5.1): the new kinds are recomputed from the published rows and evidence; both basis twins change, so the recomputation (not the twin rule) refuses."
+  },
+  {
+   "id": "U4B-sigma-minus-missing",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/results/131"
+    },
+    {
+     "op": "remove",
+     "path": "/results/130"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (§5.1): the new kinds are recomputed from the published rows and evidence; both basis twins change, so the recomputation (not the twin rule) refuses."
+  },
+  {
+   "id": "U4B-twin-order-swapped",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "swap",
+     "path": "/results/129",
+     "with": "/results/130"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 2): sigma+ reduced and sigma- nominal exchanged, every value intact; D-5's row order (section-bases-and-timoshenko.md section 2.5) puts each nominal row immediately before its reduced twin."
+  },
+  {
+   "id": "U4B-shear-coverage",
+   "source": "u4b-arc",
+   "ops": [
+    {
+     "op": "remove",
+     "path": "/results/179"
+    },
+    {
+     "op": "remove",
+     "path": "/results/178"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 5): both basis twins of pipe:S1's midspan transverse-shear maximum removed beside its shear rows (SHEAR_COVERAGE)."
+  },
+  {
+   "id": "U4B-hoop-changed",
+   "source": "u4b-arc",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/results/325/value",
+     "value": 59333420.80539647
+    },
+    {
+     "op": "set",
+     "path": "/results/326/value",
+     "value": 87916451.33498515
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 5): the arc's midspan intrados toroidal hoop changed on both bases; it is recomputed from p, the basis bore, wall, r_o and R (TOROIDAL_VALUE)."
+  },
+  {
+   "id": "U4B-toroidal-coverage",
+   "source": "u4b-arc",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/geometry/1/bend_radius_m",
+     "value": 0.10955
+    },
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:toroidal-hoop:forged:domain",
+      "code": "ARC_TOROIDAL_HOOP_DOMAIN",
+      "severity": "warning",
+      "message": "forged",
+      "affected_refs": [
+       "case:u4b",
+       "pipe:BEND"
+      ]
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 5): the region states R = r_o (with the domain warning) while the hoop and radial rows stay; they are present exactly when R > r_o (TOROIDAL_COVERAGE)."
+  },
+  {
+   "id": "U4B-arc-tokens-on-straight",
+   "source": "u4b-arc",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema/0/approximation",
+     "value": "arc_closed_form_section_statics"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema/0/coefficient_basis",
+     "value": "arc_end_j_force_and_uniform_intensities_binary64_enclosures"
+    },
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema/0/enclosure_scope",
+     "value": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 5): the arc record's token triple on a straight member's nominal maximum record (EXTREMA_BASIS)."
+  },
+  {
+   "id": "U4B-arc-record-15th-key",
+   "source": "u4b-arc",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/pipe_stress_extrema/2/extra",
+     "value": 0
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 5): the arc maximum's closed fourteen-key record with a fifteenth key (EXTREMA_SHAPE)."
+  },
+  {
+   "id": "U4B-forged-poisson-warning",
+   "source": "u4b-arc",
+   "ops": [
+    {
+     "op": "remove_where",
+     "path": "/results",
+     "match": {
+      "kind": "element_local_transverse_shear_stress_maximum",
+      "entity_ref": "pipe:S1"
+     }
+    },
+    {
+     "op": "append",
+     "path": "/diagnostics",
+     "value": {
+      "id": "diagnostic:transverse-shear:forged:poisson",
+      "code": "TRANSVERSE_SHEAR_POISSON_OUT_OF_DOMAIN",
+      "severity": "warning",
+      "message": "forged",
+      "affected_refs": [
+       "case:u4b",
+       "pipe:S1"
+      ]
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_PHYSICS_EVIDENCE",
+   "note": "T4-U4b (review 3): a forged Poisson warning with pipe:S1's transverse-shear rows deleted; the exact route admits only -1 < nu < 1/2 and refuses the exemption (SHEAR_POISSON_EXEMPTION)."
+  },
+  {
+   "id": "U4B-arc-withholding-revived",
+   "source": "pressure-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/pressure/0/withheld_on_arcs",
+     "value": {
+      "reason": "withheld",
+      "result_kinds": [
+       "pipe_elastic_normal_stress_maximum_v2"
+      ]
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_REGION_SHAPE",
+   "note": "T4-U4b (§2.1): arcs no longer withhold their maximum; the retired region key is refused."
   }
  ],
  "table_cases": [
@@ -3023,8 +3234,8 @@
   },
   {
    "id": "TABLEBYTES-id-edit",
-   "find": "0.3.0/pressure-1\"",
-   "replace": "0.3.0/pressure-2\"",
+   "find": "0.3.0/pressure-2\"",
+   "replace": "0.3.0/pressure-3\"",
    "expect": "SOURCE_PRESSURE_TABLE_HASH"
   },
   {

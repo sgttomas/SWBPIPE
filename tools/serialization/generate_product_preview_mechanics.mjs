@@ -1,8 +1,8 @@
 // Generate example transport data from the actual product. No numerical outcome
 // is upgraded, and no input model is ever a write destination.
 // Default mode: the browser's bundled demo, the valid invented_demo_model's
-// solved preview-physics-1 pair, and their record. `--preview-physics-1`: the refused invented_preview_model's
-// preview-physics-1 pair and its own record. Neither mode writes the other's files.
+// solved preview-physics-2 pair, and their record. `--preview-physics-1`: the refused invented_preview_model's
+// preview-physics-2 pair and its own record. Neither mode writes the other's files.
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, readdirSync, lstatSync, realpathSync,
@@ -14,7 +14,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const manifest = "core/product_physics/Cargo.toml";
 const generator = "core/product_physics/examples/preview_result.rs";
 const recipe = "tools/serialization/generate_product_preview_mechanics.mjs";
-const previewContract = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+const previewContract = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 // Both models are compiled into the generator, so both are inputs of every run.
 const models = {
   demo: "fixtures/product_preview/invented_demo_model.json",
@@ -124,7 +124,7 @@ function validate(result, mode, value, model, config) {
   exact(result.document_kind, "openpipestress.product_preview.mechanics_result", "unexpected document kind");
   exact(result.producer?.component_name, "open_pipe_stress_product_physics", "unexpected producer");
   exact(result.producer?.component_version, "0.2.0", "unexpected producer version");
-  // A fresh non-exact solve is preview-physics-1 (T0R); any other identity is refused.
+  // A fresh non-exact solve is preview-physics-2 (T0R); any other identity is refused.
   exact(result.producer?.semantic_contract_id, config.contract, `unexpected semantics for ${config.label} mode`);
   exact(result.model_ref, model.project.id, "output/input model mismatch");
   if (!["MECHANICS_SOLVED", "MODEL_INCOMPLETE"].includes(result.status?.mechanics)) fail("unknown mechanics status");

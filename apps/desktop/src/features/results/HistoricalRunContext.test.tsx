@@ -13,7 +13,7 @@ import type { AnalysisRunEnvelope, LocalProjectEnvelope, PreviewModel, Mechanics
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /** A saved run with a current (0.3.0) analysis record over the connected
- * preview-physics-1 producer output and its model (B1 retired the synthetic
+ * preview-physics-2 producer output and its model (B1 retired the synthetic
  * precision-1 header these tests used), so they exercise the saved-run integrity
  * checks only. */
 async function savedEnvelope() {
@@ -193,10 +193,10 @@ it("retains contradictory null-header historical bytes and hash claims while wit
   expect(JSON.stringify(saved)).toBe(before);
 });
 
-/** B7b: a reopened pressure-1 record is read by the record validator; a forged record's
+/** B7b: a reopened pressure-2 record is read by the record validator; a forged record's
  * refusal is a displayed finding only. The record is rehashed after each forgery, so its
  * own checksum and the project envelope hash still match and only the validator refuses. */
-describe("a reopened exact (pressure-1) record", () => {
+describe("a reopened exact (pressure-2) record", () => {
   async function savedExact() {
     const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
     const model = pair.model, mechanics_result = pair.source;
@@ -255,7 +255,7 @@ describe("a reopened exact (pressure-1) record", () => {
     expect(JSON.stringify(saved)).toBe(before);
   });
   it.each([
-    ["its table switched to pressure-source-1's", (run: Json) => { run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
+    ["its table switched to pressure-source-1's", (run: Json) => { run.reproducibility.semantic_contract = { id: "openpipestress.result_semantics/0.3.0/pressure-source-1", sha256: "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86" }; }, "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"],
     ["the source's evidence embedded", (run: Json, source: MechanicsResult) => { run.contract_evidence = structuredClone(source.contract_evidence); }, "ANALYSIS_PHYSICS_SOURCE_DOWNGRADE_FORBIDDEN"],
     ["a retained-precision receipt embedded", (run: Json) => { run.retained_precision = { receipt_sha256: "0".repeat(64) }; }, "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"],
   ] as const)("names a forged record with %s, displays it, and changes nothing", async (_name, edit, code) => {

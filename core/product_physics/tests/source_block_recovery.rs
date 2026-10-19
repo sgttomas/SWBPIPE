@@ -21,7 +21,7 @@ fn the_preview_route_publishes_no_source_blocks() {
             }
             let raw = serde_json::to_value(envelope).unwrap();
             // n06's ordinary run genuinely fails (W1's failed-ordinary extension retains it).
-            assert_eq!(raw["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/preview-physics-1", "{stem} {mode:?}");
+            assert_eq!(raw["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/preview-physics-2", "{stem} {mode:?}");
             assert!(raw.get("source_block_recovery").is_none(), "{stem} {mode:?}");
             assert!(!raw["diagnostics"].as_array().unwrap().iter().any(|d| d["code"].as_str().unwrap().starts_with("SOURCE_BLOCK")), "{stem} {mode:?}");
         }

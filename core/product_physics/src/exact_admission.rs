@@ -1,6 +1,6 @@
 //! The current exact route's contract identity and family admission seam.
 //!
-//! Model 0.5.0 declares `3.0.0/exact_pressure_v3` explicitly; an absent
+//! Model 0.6.0 declares `3.0.0/exact_pressure_v3` explicitly; an absent
 //! contract selects the pressure-free preview route. Straight circular members
 //! and linear restraints or springs are the base. Realized bends and objective
 //! connectors have their own mechanics, evidence and readers. Other families
@@ -11,11 +11,11 @@ use super::{FormulationBasis, PreviewComponent, PreviewModel, PreviewSupport};
 
 /// The ordinary result semantics of the current exact contract.
 pub(crate) const PRESSURE_SEMANTIC_CONTRACT_ID: &str =
-    "openpipestress.result_semantics/0.3.0/pressure-1";
+    "openpipestress.result_semantics/0.3.0/pressure-2";
 /// The captured current exact contract's retained-source publication.
 pub(crate) const PRESSURE_SOURCE_SEMANTIC_CONTRACT_ID: &str =
     "openpipestress.result_semantics/0.3.0/pressure-source-1";
-/// The formulation profile of every `pressure-1` envelope.
+/// The formulation profile of every `pressure-2` envelope.
 pub(crate) const PRESSURE_PROFILE_ID: &str = "exact_pressure_v3";
 
 /// The named seam refusal for a family a v3 document may not yet contain.
@@ -67,7 +67,7 @@ impl ExactContract {
 /// group adds the state method's statements; a model with an objective
 /// connector (T4-U3) then adds the connector law's statement. `selected` names
 /// the publication, not whether a model is in the source family: an
-/// unselected envelope remains pressure-1. (T4-U6 removed the held pre-join
+/// unselected envelope remains pressure-2. (T4-U6 removed the held pre-join
 /// text, which only a test helper still reached.)
 pub(crate) fn pressure_v3_formulation_basis_with_source(
     load_state: bool,
@@ -82,7 +82,7 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
     let identity = if selected {
         "3.0.0/exact_pressure_v3 under pressure-source-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; an expansion joint authored as an objective connector is admitted only as the connector limitation states. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. The selected retained-source response is Euler-Bernoulli with coincident section bases. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
     } else {
-        "3.0.0/exact_pressure_v3 under pressure-1 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
+        "3.0.0/exact_pressure_v3 under pressure-2 semantics. Admitted families: small-displacement homogeneous-isotropic straight circular pipe members (shear deformation as the contract declares: euler_bernoulli, or timoshenko_annulus_energy_v1 with the energy-matched annular shear factor, whose nodal rotations are section rotations; G is derived from E/nu) and linear restraints or springs; realized curved bends are Euler-Bernoulli under either shear model and, with expansion joints authored as objective connectors, are admitted only as the bend and connector limitations state. Section bases: stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap areas use the reduced bore; every stress row is published on the nominal section and on the reduced section (wall minus mill tolerance and corrosion allowance) and names its basis, and each basis has its own maximum and headline; no governing basis is chosen. Each basis's Lamé stresses are those of its own annulus, while the axial membrane stress divides the one wall force by that basis's area. Every other component, support, combination or equivalent-static family is refused by name (EXACT_PRESSURE_FAMILY_NOT_ADMITTED) until a later contract revision admits it."
     };
     let source = if selected {
         "Every member section declares its corrosion allowance and the contract declares its shear model. This pressure-source-1 envelope carries a selected retained-source response; the selected response is euler_bernoulli with zero mill tolerance and zero corrosion allowance, where the two bases coincide. The source family is straight members, linear restraints or springs, nodal force and moment loads and explicitly empty pressure regions; an authored load/reference-state group includes resolved eigenloads and prescribed motions. Timoshenko documents, nonzero mill tolerance or corrosion allowance and other source families are declined by name. Other cases keep their ordinary recovery and standing. No code compliance or professional acceptance is produced, and actual numerical admission remains separate."

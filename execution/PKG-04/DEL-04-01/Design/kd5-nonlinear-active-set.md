@@ -236,7 +236,7 @@ A nonlinear case is pre-guard Passed when the last iteration's report is Passed 
 
 | Rows | Published as |
 |---|---|
-| Displacements and rotations, all DOFs | the loop's u, unchanged; judged by D5C-1 |
+| Displacements and rotations, all DOFs | fl(u + w + w₂) of Stage B, the exact sum rounded once, since T4-U4b/U5b (HELP_HUMAN, 2026-10-18; kd5 §3.4); the loop's u if any component cannot be formed. Each nonlinear support's final-displacement row carries the same published value. The loop's residual rows stay its own |
 | Member, section and station actions, stresses, pipe-wall rows, governing maximum and extrema | (d)'s certified recoveries at u + w + w₂ of Stage B (kd5 §3); member loads carry no friction term, so they are those of the case ledger |
 | Linear supports and springs | (d)'s certified rows, from Stage B's source and force |
 | Nonlinear support, Active or Sticking | the certified reaction at d_s, fl(m), in its slot; the other five components exact +0 |
@@ -261,9 +261,11 @@ The 1e-9 criterion, RD(1e-9), the floor q̂ ≥ 2^-34·S* and the 2^-988 guard a
 - **The §2.4 sentence**, and its reasons, use "established"; no product text says "certified" (R5).
 - **The Passed evidence line**, appended to the integrity diagnostic of a Passed nonlinear case:
 
-  > "Converged support state: established at 128-bit precision by one formation-checked solve; each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state within its bound; displacements and residual rows are the iteration's own."
+  > "Converged support state: established at 128-bit precision by one formation-checked solve; each support's state has a sign margin larger than its bound, and a sliding friction force satisfies the friction law of that state within its bound; the published nodal displacements, and the support displacement rows that follow them, are the formation check's corrected displacements; the iteration's residual rows are its own."
 
-- **No formulation-basis change.** Revision 0 drafted a limitation sentence for runs with nonlinear supports. The `FormulationBasis.limitations` lists are schema constants, so a run-dependent sentence would change every reader of the profile. kd5 §3.4's two sentences already state what a Passed nonlinear case publishes (rows recovered at 128-bit precision from the formation check's corrected displacement; displacements are the solve's own), so the case-specific statement goes in the evidence line above instead.
+  T4-U4b/U5b revised its last clause, which read "displacements and residual rows are the iteration's own", when the corrected displacement became the published one (§3.1; kd5 §3.4).
+
+- **No formulation-basis change.** Revision 0 drafted a limitation sentence for runs with nonlinear supports. The `FormulationBasis.limitations` lists are schema constants, so a run-dependent sentence would change every reader of the profile. kd5 §3.4's two sentences already state what a Passed nonlinear case publishes (rows recovered at 128-bit precision from the formation check's corrected displacement; since T4-U4b/U5b, displacements are that corrected displacement rounded once wherever the member bound exists), so the case-specific statement goes in the evidence line above instead.
 - **Retired:** the nonlinear-route variant of kd5 §2.3's sentence. Its `route` literal (pricing rule KD5A3) becomes the single "on this route".
 
 ### 3.4 The published values change (property, R4)

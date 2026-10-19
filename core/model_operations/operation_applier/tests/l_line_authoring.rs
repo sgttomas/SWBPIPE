@@ -3,16 +3,16 @@
 //! realized bend, straight) is authored from its corner: E/ν material, Insert
 //! bend at corner (R and the user's k), the pressure region through the bend,
 //! the `3.0.0/exact_pressure_v3` profile, then thermal and weight loads. The
-//! authored document solves under `pressure-1` and agrees with T4-I7's L-line
+//! authored document solves under `pressure-2` and agrees with T4-I7's L-line
 //! document (U2-L-ANCH-PTW-K2), whose bend was placed by hand.
 //!
 //! The bend operations (realize, insert at corner), the region checks and the
 //! agent refusal of k are covered here as well. All data are invented.
 //!
-//! B7b: the corner document is the current 0.5.0 pressure-free document; the
+//! B7b: the corner document is the current 0.6.0 pressure-free document; the
 //! user enters each member's corrosion allowance (an explicit zero) before
 //! activating the complete `3.0.0/exact_pressure_v3` contract (euler_bernoulli).
-//! T4-I7's frozen 0.3.0 sketch is unchanged; its copy is re-authored to 0.5.0
+//! T4-I7's frozen 0.3.0 sketch is unchanged; its copy is re-authored to 0.6.0
 //! by the one shared rule (`core/product_physics/tests/common/current_model.rs`).
 use open_pipe_stress_operation_applier::{apply_operation, canonical_json, sha256_hex, validate_operation};
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
@@ -25,7 +25,7 @@ mod current_model;
 const I7_DOCUMENTS: &str = include_str!("../../../../validation/references/t4_i7/u2_document_sketches.json");
 const PROVENANCE: &str = "invented T4-U2 authoring input (from T4-I7's L line); not library, component, catalog or code-rule data";
 /// The desktop's authoring check reads these bytes: the corner document, the
-/// document authored from it here, and PP's sparse pressure-1 result for it.
+/// document authored from it here, and PP's sparse pressure-2 result for it.
 /// Regenerate with `T4_U2_WRITE_L_LINE_FIXTURE=1`; otherwise they must be current.
 const FIXTURE: &str = include_str!("../../../../fixtures/model_operations/pressure_v3_l_line_authoring.json");
 const FIXTURE_PATH: &str = "../../../fixtures/model_operations/pressure_v3_l_line_authoring.json";
@@ -71,7 +71,7 @@ fn codes(model: &Value, intent: &Value) -> Vec<String> {
 }
 
 /// The L line's corner document before any bend or load: A —S1— X —S2— D,
-/// anchored at A and D, pressure-free (current 0.5.0, no pressure contract and
+/// anchored at A and D, pressure-free (current 0.6.0, no pressure contract and
 /// no corrosion allowance yet), with a legacy E/G material.
 fn corner_document() -> Value {
     let mut model = i7_l_line();
@@ -193,7 +193,7 @@ fn the_l_line_is_authored_from_its_corner_and_solves_under_pressure_1_in_both_mo
     for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
         let authored_result = solve(&restored, mode);
         assert_eq!(authored_result["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", authored_result["diagnostics"]);
-        assert_eq!(authored_result["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-1");
+        assert_eq!(authored_result["producer"]["semantic_contract_id"], "openpipestress.result_semantics/0.3.0/pressure-2");
         assert_eq!(authored_result["formulation_basis"]["profile_id"], "exact_pressure_v3");
         let reference_result = solve(&reference, mode);
         assert_eq!(reference_result["status"]["mechanics"], "MECHANICS_SOLVED");
@@ -287,7 +287,7 @@ fn realization(component: &Value) -> Value {
     if let Some(v) = component.pointer("/mechanics_interface/solver_consumption") {
         out.insert("solver_consumption".into(), v.clone());
     }
-    for key in ["flexibility_factor_user_value", "source_reference"] {
+    for key in ["flexibility_factor_user_value", "source_reference", "sif_in_plane_user_value", "sif_out_of_plane_user_value"] {
         if let Some(v) = component.get("modifiers").and_then(|m| m.get(key)) {
             out.insert(key.into(), v.clone());
         }
@@ -312,6 +312,64 @@ fn span_bend_document() -> Value {
         case["pressure_regions"] = json!([]);
     }
     model
+}
+
+/// T4-U4b (§2.6): the realization takes the directional SIF pair with its
+/// source, both or neither; the solve then publishes the directional rows.
+#[test]
+fn realizing_a_bend_takes_the_directional_sif_pair_with_its_source() {
+    let model = span_bend_document();
+    let k = json!({"value": 2.0, "unit": "none"});
+    let with_pair = json!({"solver_consumption": "curved_bend_macro_element", "flexibility_factor_user_value": k, "source_reference": "invented user values",
+        "sif_in_plane_user_value": {"value": 2.3, "unit": "1"}, "sif_out_of_plane_user_value": {"value": 1.7, "unit": "1"}});
+    let applied = apply(&model, &realize(&model, &with_pair));
+    assert_eq!(
+        applied["components"][0]["modifiers"],
+        json!({"flexibility_factor_user_value": k, "source_reference": "invented user values",
+            "sif_in_plane_user_value": {"value": 2.3, "unit": "1"}, "sif_out_of_plane_user_value": {"value": 1.7, "unit": "1"}})
+    );
+    let solved = solve(&applied, PreviewSolverMode::SparseInteractive);
+    assert!(
+        solved["results"].as_array().unwrap().iter().any(|r| r["kind"] == "curved_bend_directional_intensified_bending_stress_v1"),
+        "{:?}", solved["diagnostics"]
+    );
+    // Refused by name: one of the pair, a non-positive or non-finite value, a wrong unit or extra key.
+    let pair = |ip: Value, op: Option<Value>| {
+        let mut after = with_pair.clone();
+        after["sif_in_plane_user_value"] = ip;
+        match op {
+            Some(op) => after["sif_out_of_plane_user_value"] = op,
+            None => { after.as_object_mut().unwrap().remove("sif_out_of_plane_user_value"); }
+        }
+        after
+    };
+    for bad in [
+        pair(json!({"value": 2.3, "unit": "1"}), None),
+        pair(json!({"value": 0.0, "unit": "1"}), Some(json!({"value": 1.7, "unit": "1"}))),
+        pair(json!({"value": -2.3, "unit": "1"}), Some(json!({"value": 1.7, "unit": "1"}))),
+        pair(json!({"value": 2.3, "unit": "mm"}), Some(json!({"value": 1.7, "unit": "1"}))),
+        pair(json!({"value": 2.3, "unit": "1", "basis": "code"}), Some(json!({"value": 1.7, "unit": "1"}))),
+        pair(json!(2.3), Some(json!({"value": 1.7, "unit": "1"}))),
+    ] {
+        assert!(codes(&model, &realize(&model, &bad)).contains(&"OP-BEND-DIRECTIONAL-SIF-INCOMPLETE".into()), "{bad}");
+    }
+    // The source stays required.
+    let mut unsourced = with_pair.clone();
+    unsourced.as_object_mut().unwrap().remove("source_reference");
+    assert!(codes(&model, &realize(&model, &unsourced)).contains(&"OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED".into()));
+    // An agent never writes the pair.
+    let mut agent = realize(&model, &with_pair);
+    agent["author_type"] = json!("agent");
+    assert!(codes(&model, &agent).contains(&"OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED".into()));
+    // A pair is read in the arc's frame: returning to geometry-only with it is refused.
+    let back = json!({"solver_consumption": "mechanics_geometry_only"});
+    assert!(codes(&applied, &realize(&applied, &back)).contains(&"OP-BEND-DIRECTIONAL-SIF-NOT-REALIZED-ARC".into()));
+    // Realizing again without the pair removes it; then the bend may return to geometry-only.
+    let without = json!({"solver_consumption": "curved_bend_macro_element", "flexibility_factor_user_value": k, "source_reference": "invented user values"});
+    let cleared = apply(&applied, &realize(&applied, &without));
+    assert_eq!(cleared["components"][0]["modifiers"], json!({"flexibility_factor_user_value": k, "source_reference": "invented user values"}));
+    let chord = apply(&cleared, &realize(&cleared, &back));
+    assert_eq!(chord["components"][0]["mechanics_interface"]["solver_consumption"], "mechanics_geometry_only");
 }
 
 #[test]
@@ -410,7 +468,7 @@ fn pressure_regions_admit_realized_bends_and_refuse_geometry_only_spans_and_mitr
 fn the_desktop_l_line_fixture_is_current() {
     let authored = authored(true);
     let fixture = json!({
-        "fixture": "T4-U2 L line authored from its corner (invented); read by the desktop's authoring and pressure-1 refusal tests",
+        "fixture": "T4-U2 L line authored from its corner (invented); read by the desktop's authoring and pressure-2 refusal tests",
         "generator": "core/model_operations/operation_applier/tests/l_line_authoring.rs::the_desktop_l_line_fixture_is_current",
         "corner_document": corner_document(),
         "authored_model": authored,

@@ -29,7 +29,7 @@ import {
 } from "../results/retainedPrecisionStanding";
 import { validateRetainedPrecision } from "../results/retainedPrecisionReader";
 import type { RowClassification } from "../results/retainedPrecisionTypes";
-import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, PRESSURE_1_OUTPUT_REFUSAL, surfaceOutputRefusal } from "../results/outputPolicy";
+import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE, PRESSURE_2_OUTPUT_REFUSAL, surfaceOutputRefusal } from "../results/outputPolicy";
 import {
   RETAINED_ABSOLUTE_VERIFIED, RETAINED_NOT_COVERED, retainedClassDisclosure, retainedNotCoveredMessage, retainedPrecisionSummaryLine, retainedRowClassesFromReader, rustLowerExp,
 } from "../results/retainedPrecisionDisclosure";
@@ -87,7 +87,7 @@ async function corpusBase(id: string) {
   const analysisRun = await buildAnalysisRunV03(source, manifestFor(source, model, invocation.solver_mode) as Json, undefined, modelLoadBasisRefs(model));
   return { source, model, analysisRun, entry };
 }
-/** The preview-physics-1 control, through the native transport replay (not a native witness). */
+/** The preview-physics-2 control, through the native transport replay (not a native witness). */
 async function previewControl(mode: PreviewSolverMode = "sparse_interactive") {
   const { model } = nativeMechanicsReplayPair(mode, { profile: "preview" });
   (window as Json).__TAURI_INTERNALS__ = {};
@@ -97,7 +97,7 @@ async function previewControl(mode: PreviewSolverMode = "sparse_interactive") {
   const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
   return { model, result, analysisRun };
 }
-/** B7b: a load/reference-state result is the v3 twin, published under pressure-1, whose
+/** B7b: a load/reference-state result is the v3 twin, published under pressure-2, whose
  * desktop analysis-run record mirrors the Python product path's committed record
  * (`loadReferenceAnalysisRun.test.ts` proves the equality); holding it grants no package. */
 async function loadReferenceScenario() {
@@ -129,12 +129,13 @@ async function rehash(packet: Json) {
 describe("the panels (T6S-3): load/reference-state refusal and the summary line", () => {
   it("the stress-neutral builder and validator keep T1's load/reference-state refusal", async () => {
     const { result, model, analysisRun } = await loadReferenceScenario();
-    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
-    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
+    await expect(buildStressNeutralExportPacket({ model, result, analysisRun })).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
+    await expect(validateStressNeutralExportPacket({ schema_version: "0.3.0" }, result)).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
   });
   it.each(MODES)("%s: each panel shows one text-only per-case summary line from classificationSummary", async (mode) => {
     const { received, model, analysisRun, manifest } = await eligible(mode);
-    const line = "Retained precision, per case: case: 69 verified only to an absolute bound; 0 uncovered.";
+    // T4-U4b: the member's 15 derived rows are not_covered.
+    const line = "Retained precision, per case: case: 69 verified only to an absolute bound; 15 uncovered.";
     expect(retainedPrecisionSummaryLine(received, model)).toBe(line);
     const before = checkedJsonText(received);
     render(<StressNeutralExportPanel model={model} result={received} analysisRun={analysisRun} />);
@@ -252,10 +253,12 @@ describe.each(MODES)("%s: stress-neutral export of an eligible successor (T6S-5)
     const classes = (await validateRetainedPrecision(received)).classifications;
     const absolute = classes.filter(c => c.class === "absolute_verified");
     expect(absolute).toHaveLength(69);
-    expect(classes.filter(c => c.class === "not_covered")).toHaveLength(0);
+    // T4-U4b: the member's 15 derived rows (σ⁺, σ⁻, τ_v,max at five stations) are not_covered and withheld.
+    const uncovered = classes.filter(c => c.class === "not_covered");
+    expect(uncovered).toHaveLength(15);
     const findings = packet.diagnostics.filter((d: Json) => d.code === ABSOLUTE_CODE);
     expect(findings.map((d: Json) => d.source.ref).sort()).toStrictEqual(absolute.map(c => c.result_id).sort());
-    expect(packet.diagnostics.filter((d: Json) => d.code === NOT_COVERED_CODE)).toHaveLength(0);
+    expect(packet.diagnostics.filter((d: Json) => d.code === NOT_COVERED_CODE).map((d: Json) => d.source.ref).sort()).toStrictEqual(uncovered.map(c => c.result_id).sort());
     for (const finding of findings) {
       const raw = received.results.find(r => r.id === finding.source.ref)!;
       expect(finding).toMatchObject({ class: "unit_preservation_witness", severity: "info", message: retainedClassDisclosure(raw.kind, raw.unit, absolute.find(c => c.result_id === raw.id))!.message });
@@ -264,7 +267,7 @@ describe.each(MODES)("%s: stress-neutral export of an eligible successor (T6S-5)
     expect(findings.find((d: Json) => d.source.ref === "result:disp:N0").message).toBe("displacement_magnitude: retained_precision_absolute_verified; verified only to the receipt's absolute bound b = 5.4215527659630466e-24 m (binary64 3b1a378ea78c5ce9), below the relative accuracy floor; source value/unit and annotation retained; withheld from rule binding and reliance");
     const withheld = packet.diagnostics.filter((d: Json) => d.class === "unit_preservation_witness").length;
     expect(packet.unit_preservation_witnesses.length + withheld).toBe(received.results.length);
-    expect(packet.loss_report.find((entry: Json) => entry.category === "exported").reason).toContain(`and ${withheld} rows have explicit witness-withholding findings. Of these, 69 rows are verified only to the retained-precision receipt's absolute bound and 0 rows are uncovered; both are withheld from rule binding and reliance.`);
+    expect(packet.loss_report.find((entry: Json) => entry.category === "exported").reason).toContain(`and ${withheld} rows have explicit witness-withholding findings. Of these, 69 rows are verified only to the retained-precision receipt's absolute bound and 15 rows are uncovered; both are withheld from rule binding and reliance.`);
     expect(packet.export_profile.boundary_notes.some((note: string) => note.startsWith("The retained-precision receipt travels whole with this package."))).toBe(true);
     await expect(validateStressNeutralExportPacket(packet, received, analysisRun, modelLoadBasisRefs(model))).resolves.toBeUndefined();
     // I67's F4 closed: the transport header carries the receipt, and a header-only check passes.
@@ -277,14 +280,14 @@ describe.each(MODES)("%s: stress-neutral export of an eligible successor (T6S-5)
     await expect(build(received, moved(model))).rejects.toThrow(RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED); // a moved model
     await expect(build(structuredClone(source))).rejects.toThrow(RETAINED_PRECISION_VALIDATION_REQUIRED); // an unregistered build's bytes
     const relabelled = structuredClone(received) as Json;
-    relabelled.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+    relabelled.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-2";
     relabelled.formulation_basis.profile_id = "product_preview_mechanics_v1";
     await expect(build(relabelled)).rejects.toThrow("SN-SOURCE-CONTRACT-UNSUPPORTED"); // a relabelled statement
     const packet = await build(received);
     const tamper = async (edit: (p: Json) => void) => { const p = structuredClone(packet); edit(p); return rehash(p); };
     const withSource = (p: Json) => validateStressNeutralExportPacket(p, received, analysisRun, modelLoadBasisRefs(model));
     // A relabelled package header reads unsupported (the downgrade guard).
-    const relabelledHeader = await tamper(p => { p.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-1"; p.formulation_basis.profile_id = "product_preview_mechanics_v1"; });
+    const relabelledHeader = await tamper(p => { p.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-2"; p.formulation_basis.profile_id = "product_preview_mechanics_v1"; });
     await expect(validateStressNeutralExportPacket(relabelledHeader)).rejects.toThrow("SN-PRECISION-CONTRACT-MISMATCH");
     // A forged class code, an edited disclosure message and a wrong severity.
     const firstAbsolute = (p: Json) => p.diagnostics.find((d: Json) => d.code === ABSOLUTE_CODE);
@@ -325,7 +328,7 @@ describe.each(MODES)("%s: stress-neutral export of an eligible successor (T6S-5)
 });
 
 describe("a receipt on another identity is refused", () => {
-  it("a preview-physics-1 package carrying a receipt", async () => {
+  it("a preview-physics-2 package carrying a receipt", async () => {
     const { model, result, analysisRun } = await previewControl();
     const packet = await buildStressNeutralExportPacket({ model, result, analysisRun });
     await expect(validateStressNeutralExportPacket(packet, result)).resolves.toBeUndefined();
@@ -348,7 +351,7 @@ describe("the corpus's synthetic two-case bases, read by id", () => {
     const absolute = [...classes.values()].filter(c => c.class === "absolute_verified");
     expect(absolute).toHaveLength(68);
     const perCase = (id: string) => absolute.filter(c => c.basis_ref.ref_id === id).length;
-    expect(retainedPrecisionSummaryLine(source, model)).toBe(`Retained precision, per case: case:six-component-load: ${perCase("case:six-component-load")} verified only to an absolute bound; 0 uncovered. case:zero-load: ${perCase("case:zero-load")} verified only to an absolute bound; 0 uncovered.`);
+    expect(retainedPrecisionSummaryLine(source, model)).toBe(`Retained precision, per case: case:six-component-load: ${perCase("case:six-component-load")} verified only to an absolute bound; 15 uncovered. case:zero-load: ${perCase("case:zero-load")} verified only to an absolute bound; 15 uncovered.`);
     const packet = await buildStressNeutralExportPacket({ model, result: source, analysisRun });
     expect(packet.diagnostics.filter((d: Json) => d.code === ABSOLUTE_CODE).map((d: Json) => d.source.ref).sort()).toStrictEqual(absolute.map(c => c.result_id).sort());
     await expect(validateStressNeutralExportPacket(packet, source, analysisRun, modelLoadBasisRefs(model))).resolves.toBeUndefined();

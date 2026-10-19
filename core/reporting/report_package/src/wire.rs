@@ -658,15 +658,24 @@ pub struct LinkedSolverIdentity<'a> {
 /// again, from content, because the wire carries no semantic identity.
 pub const FRESH_RESULT_UNAVAILABLE: &str = "REPORT-PACKAGE-FRESH-RESULT-UNAVAILABLE: The report package is unavailable for fresh results.";
 
-/// Metadata tokens that only fresh result semantics (preview-physics-1,
+/// Metadata tokens that only fresh result semantics (preview-physics-2,
 /// physics-1 and their source forms) publish; historical rows never carry them.
+/// A basis is matched before any `; section_basis=` suffix (T4-U6 twins).
 fn fresh_semantics_metadata(metadata: &ResultMetadataDto) -> bool {
     matches!(
-        metadata.basis.as_str(),
+        metadata.basis.split(';').next().unwrap_or_default(),
         "recovered_from_assembled_support_law"
             | "nominal_straight_beam_formula_on_arc_resultants"
             | "user_sif_times_member_section_bending_stress_v1"
             | "retained_source_endpoint_normal_max_v1"
+            // T4-U4b: section extremes, transverse shear, toroidal and directional rows.
+            | "section_extremes_from_published_stress_rows_v1"
+            | "saint_venant_annulus_flexure_v1"
+            | "local_straight_annulus_on_arc"
+            | "bore_load_transferred_toroidal_membrane_v1"
+            | "user_directional_sif_times_tangent_frame_bending_stress_v1"
+            // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.2): the tie-rod force basis.
+            | "recovered_from_tie_rod_extension_v1"
     ) || matches!(
         metadata.component.as_str(),
         "Fx" | "Fy" | "Fz" | "Mx" | "My" | "Mz"
@@ -674,7 +683,24 @@ fn fresh_semantics_metadata(metadata: &ResultMetadataDto) -> bool {
             | "moment_magnitude"
             | "maximum_absolute_normal_stress"
             | "equal_factor_intensified_bending_stress"
-    ) || metadata.location == "governing_station"
+            | "sigma_plus"
+            | "sigma_minus"
+            | "tau_v_max"
+            | "intensified_bending"
+            | "intensified_bending_maximum"
+            | "toroidal_intrados_hoop_stress"
+            | "toroidal_crown_hoop_stress"
+            | "toroidal_extrados_hoop_stress"
+            | "toroidal_inner_radial_stress"
+            | "toroidal_outer_radial_stress"
+            // T4-U5b: the tie-rod force component.
+            | "t_r"
+    ) || matches!(
+        metadata.location.as_str(),
+        "governing_station"
+            // T4-U5b: the tie-rod force location.
+            | "tie_rod"
+    )
 }
 
 pub fn assemble_wire_request(
@@ -895,6 +921,25 @@ mod tests {
             ("component", "maximum_absolute_normal_stress"),
             ("component", "equal_factor_intensified_bending_stress"),
             ("location", "governing_station"),
+            ("basis", "section_extremes_from_published_stress_rows_v1; section_basis=nominal_section"),
+            ("basis", "saint_venant_annulus_flexure_v1"),
+            ("basis", "local_straight_annulus_on_arc; section_basis=reduced_section"),
+            ("basis", "bore_load_transferred_toroidal_membrane_v1; section_basis=nominal_section"),
+            ("basis", "user_directional_sif_times_tangent_frame_bending_stress_v1"),
+            ("component", "sigma_plus"),
+            ("component", "sigma_minus"),
+            ("component", "tau_v_max"),
+            ("component", "intensified_bending"),
+            ("component", "intensified_bending_maximum"),
+            ("component", "toroidal_intrados_hoop_stress"),
+            ("component", "toroidal_crown_hoop_stress"),
+            ("component", "toroidal_extrados_hoop_stress"),
+            ("component", "toroidal_inner_radial_stress"),
+            ("component", "toroidal_outer_radial_stress"),
+            // T4-U5b: the tie-rod force row's tokens.
+            ("basis", "recovered_from_tie_rod_extension_v1"),
+            ("component", "t_r"),
+            ("location", "tie_rod"),
         ] {
             let mut fresh = witness.clone();
             let value = fresh.pointer_mut("/result_envelopes/0/result_sets/0/values/0").unwrap();

@@ -1,5 +1,5 @@
 //! Join reader contracts over the current pressure-source-1 producer bytes
-//! (0.5.0/3.0.0/exact_pressure_v3). B7b deleted the v2 contract, its reader and
+//! (0.6.0/3.0.0/exact_pressure_v3). B7b deleted the v2 contract, its reader and
 //! the directional cross-read codes; no relabelled fixture is treated as a valid
 //! pressure-source publication.
 use open_pipe_stress_result_export::{derivative, physics_source as ps, reader_verdict, semantic_contract as sc};
@@ -194,8 +194,9 @@ fn pressure_source_binding_uses_the_reviewed_resident_table() {
     let bytes = include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json");
     let table = sc::verify_pressure_source_table(bytes).unwrap();
     assert_eq!(&table, sc::pressure_source_contract());
-    // T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis), 69 -> 88.
-    assert_eq!(table["rows"].as_array().unwrap().len(), 88);
+    // T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis), 69 -> 88;
+    // T4-U4b §4.3: + the straight derived signatures on both bases, 88 -> 94.
+    assert_eq!(table["rows"].as_array().unwrap().len(), 94);
     assert_eq!(reader_verdict::binding("pressure_source"), json!({"id":ps::PRESSURE_CONTRACT_ID, "sha256":sc::PRESSURE_SOURCE_TABLE_SHA256}));
     let mut edited = bytes.to_vec(); edited.push(b'\n');
     assert_eq!(sc::verify_pressure_source_table(&edited).unwrap_err(), "SOURCE_PRESSURE_SOURCE_TABLE_HASH");
@@ -329,7 +330,7 @@ fn captured_allowance_is_required_on_every_pipe_section() {
 }
 
 /// B7b (ccb19ba0bf), header parity with the retired load-reference routes:
-/// (1) the load/reference-state group owns no carrier namespace, so a pressure-1 or
+/// (1) the load/reference-state group owns no carrier namespace, so a pressure-2 or
 /// pressure-source-1 statement carrying the group and `carrier_evidence` is refused at
 /// the header (SOURCE_PRODUCER_CONTRACT_UNSUPPORTED; the reader-verdict dispatch's own
 /// carrier guard gives SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED); (2) the pressure-source
@@ -342,7 +343,7 @@ fn header_guards_refuse_a_carrier_on_the_group_and_a_source_without_evidence() {
     ))
     .unwrap();
     let (resolved, _) = load_state();
-    for (label, statement) in [("pressure-1 with the group", pressure_group), ("pressure-source-1 with the group", resolved.clone())] {
+    for (label, statement) in [("pressure-2 with the group", pressure_group), ("pressure-source-1 with the group", resolved.clone())] {
         assert!(sc::for_source(&statement).is_ok(), "{label}: control");
         let mut carrier = statement.clone();
         carrier["carrier_evidence"] = json!({});

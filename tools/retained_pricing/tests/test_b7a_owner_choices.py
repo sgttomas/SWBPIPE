@@ -50,23 +50,24 @@ def test_complete_choice_once_and_all_auxiliaries_positive(actual):
         counts[owner]=actual*3 if owner!=MODEL["VALIDATOR"] else actual
         rows.append(dict(spec,fn=owner,loops=[],mult=counts[owner],req=counts[owner]*20))
     group=MODEL["recipe_group"](context,rows,counts)
-    assert group["members"]==[r["line"] for r in rows[:10]]
+    # T4-S5 (U4B-W1): the NotCovered base recipe adds an eleventh mutually exclusive group row.
+    assert group["members"]==[r["line"] for r in rows[:11]]
     assert group["bytes"]==338 and group["req"]==676*actual
-    assert len(rows)==17 and all(row["req"]>0 for row in rows)
-    # Subtract only the mutually exclusive ten prospective standalone costs.
+    assert len(rows)==18 and all(row["req"]>0 for row in rows)
+    # Subtract only the mutually exclusive eleven prospective standalone costs.
     total=sum(row["req"] for row in rows)-group["standalone_requested_bytes"]+group["req"]
-    assert total==676*actual+sum(row["req"] for row in rows[10:])
+    assert total==676*actual+sum(row["req"] for row in rows[11:])
 
 
 @pytest.mark.parametrize("family",["site_zero","site_from","site_total","site_aggregate","site_size","lex_site_size"])
 # T4-U6/U8: the same sites at the priced source's lines, unchanged text (B7b: structural.rs 1124; retained_product.rs
 # 3057, 3071, 3073, 3185, 3194, 3217, 3005, 3227; lib.rs helpers 13244/13619; 433fc1f1e4: 13587/13966; addbdc030e:
-# 13623/14002).
-@pytest.mark.parametrize("line",[MODEL["SOURCE_LINE"],3208,3222,3224,3336,3345,3375,13630,14009,3156,3385])
+# 13623/14002; T4-U6/U8 final: 3208, 3222, 3224, 3336, 3345, 3375, 13630, 14009, 3156, 3385; T4-S5 epoch 4 below).
+@pytest.mark.parametrize("line",[MODEL["SOURCE_LINE"],3235,3249,3251,3363,3372,3425,13944,14365,3183,3435])
 def test_complete_group_source_error_and_auxiliary_alias_refusal(family,line):
     args=inputs();table=args[0]
-    file=MODEL["FK"]+"structural.rs" if line==MODEL["SOURCE_LINE"] else MODEL["PP"]+("lib.rs" if line in (13630,14009) else "retained_product.rs")
-    kind={MODEL["SOURCE_LINE"]:"clone_text",3336:"to_string",14009:"replace"}.get(line,"format")
+    file=MODEL["FK"]+"structural.rs" if line==MODEL["SOURCE_LINE"] else MODEL["PP"]+("lib.rs" if line in (13944,14365) else "retained_product.rs")
+    kind={MODEL["SOURCE_LINE"]:"clone_text",3363:"to_string",14365:"replace"}.get(line,"format")
     table.setdefault(family,{})[file+":"+str(line)+":"+kind]={"bytes":0}
     with pytest.raises(ValueError):MODEL["state"](SOURCE,*args)
 
@@ -120,7 +121,7 @@ def test_saved_rule_json_retains_exact_marker_and_preimages():
     assert MODEL["state"](SOURCE,*saved)==MODEL["state"](SOURCE,*args)
 
 
-@pytest.mark.parametrize("site",[2622,3156,3385])   # B7b: 2544, 3005, 3227
+@pytest.mark.parametrize("site",[2644,3183,3435])   # B7b: 2544, 3005, 3227; T4-U6/U8: 2622, 3156, 3385
 def test_first_error_keeps_full_validator_and_whole_bind_owner_counts(site):
     context,_=active()
     counts={MODEL["VALIDATOR"]:21150,MODEL["ERROR_OWNER"]:10}

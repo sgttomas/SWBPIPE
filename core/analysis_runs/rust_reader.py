@@ -15,7 +15,7 @@ returns too) inside the envelope `{"artifact", "schema_version", "reader",
   `row-semantics`; and `semantic_contract`'s `standing`,
   `classification-summary` and `rule-binding`. A refusal is
   `{"ok": false, "error": {code, detail}}`. B7b: the current routes are
-  pressure-source-1, preview-physics-1, pressure-1 and the two successors; a
+  pressure-source-1, preview-physics-2, pressure-2 and the two successors; a
   stored v2 result is refused by the header (`SOURCE_EXACT_PRESSURE_V2_RETIRED`).
 
 The runner is an explicitly built executable named by OPENPIPESTRESS_RUNNER_BIN,
@@ -48,7 +48,7 @@ ROW_SEMANTICS = "row-semantics"
 ROUTES = frozenset({"pressure_source", "preview_physics", "pressure", "retained_preview_physics", "retained_physics"})
 UNSUPPORTED = "unsupported"
 # Each base route's raw reader (`reader_verdict::READERS`); its transport checks are `<reader>-transport`, which
-# pressure-1 does not have (`transport("pressure")` is refused by name, SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED).
+# pressure-2 does not have (`transport("pressure")` is refused by name, SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED).
 ROUTE_READERS = {"preview_physics": "preview-physics", "pressure_source": "pressure-source", "pressure": "pressure"}
 STANDING_TOKENS = frozenset({"numerically_eligible", "needs_recompute", "unsupported"})
 # The runner's diagnostic, exit 2, for input its JSON parser refuses.

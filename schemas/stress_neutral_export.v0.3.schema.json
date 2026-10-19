@@ -227,8 +227,8 @@
         "semantic_contract_id": {
           "enum": [
             "openpipestress.result_semantics/0.3.0/pressure-source-1",
-            "openpipestress.result_semantics/0.3.0/preview-physics-1",
-            "openpipestress.result_semantics/0.3.0/pressure-1",
+            "openpipestress.result_semantics/0.3.0/preview-physics-2",
+            "openpipestress.result_semantics/0.3.0/pressure-2",
             "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
             "openpipestress.result_semantics/0.3.0/physics-retained-1"
           ]
@@ -380,8 +380,8 @@
         "ref_id": {
           "enum": [
             "openpipestress.result_semantics/0.3.0/pressure-source-1",
-            "openpipestress.result_semantics/0.3.0/preview-physics-1",
-            "openpipestress.result_semantics/0.3.0/pressure-1",
+            "openpipestress.result_semantics/0.3.0/preview-physics-2",
+            "openpipestress.result_semantics/0.3.0/pressure-2",
             "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
             "openpipestress.result_semantics/0.3.0/physics-retained-1"
           ]
@@ -399,8 +399,8 @@
         "id": {
           "enum": [
             "openpipestress.result_semantics/0.3.0/pressure-source-1",
-            "openpipestress.result_semantics/0.3.0/preview-physics-1",
-            "openpipestress.result_semantics/0.3.0/pressure-1",
+            "openpipestress.result_semantics/0.3.0/preview-physics-2",
+            "openpipestress.result_semantics/0.3.0/pressure-2",
             "openpipestress.result_semantics/0.3.0/preview-physics-retained-1",
             "openpipestress.result_semantics/0.3.0/physics-retained-1"
           ]
@@ -2902,7 +2902,7 @@
     "PreviewPhysicsContractEvidence": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Closed preview-physics-1 statement (T0R S1 \u00a75): per-case straight-member maximum enclosures, coverage, support attribution and intensified-measure inputs, plus one gate per model combination. Binding to rows is checked by the readers; no engineering qualification.",
+      "description": "Closed preview-physics-2 statement (T0R S1 \u00a75): per-case straight-member maximum enclosures, coverage, support attribution and intensified-measure inputs, plus one gate per model combination. Binding to rows is checked by the readers; no engineering qualification.",
       "required": [
         "preview_cases",
         "combination_gates"
@@ -2928,73 +2928,146 @@
               "pipe_stress_extrema": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "pipe_id",
-                    "result_id",
-                    "station_fraction",
-                    "span_index",
-                    "local_fraction",
-                    "value_lower_pa",
-                    "value_upper_pa",
-                    "global_upper_bound_pa",
-                    "certified_gap_pa",
-                    "subdivisions",
-                    "approximation",
-                    "coefficient_basis",
-                    "enclosure_scope"
-                  ],
-                  "properties": {
-                    "pipe_id": {
-                      "type": "string",
-                      "minLength": 1
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pipe_id",
+                        "result_id",
+                        "station_fraction",
+                        "span_index",
+                        "local_fraction",
+                        "value_lower_pa",
+                        "value_upper_pa",
+                        "global_upper_bound_pa",
+                        "certified_gap_pa",
+                        "subdivisions",
+                        "approximation",
+                        "coefficient_basis",
+                        "enclosure_scope"
+                      ],
+                      "properties": {
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "station_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "span_index": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "local_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "value_lower_pa": {
+                          "type": "number"
+                        },
+                        "value_upper_pa": {
+                          "type": "number"
+                        },
+                        "global_upper_bound_pa": {
+                          "type": "number"
+                        },
+                        "certified_gap_pa": {
+                          "type": "number"
+                        },
+                        "subdivisions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 131072
+                        },
+                        "approximation": {
+                          "const": "piecewise_quadratic_straight_section_statics"
+                        },
+                        "coefficient_basis": {
+                          "const": "j_side_section_equilibrium_binary64_enclosures"
+                        },
+                        "enclosure_scope": {
+                          "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                        }
+                      }
                     },
-                    "result_id": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "station_fraction": {
-                      "type": "number",
-                      "minimum": 0,
-                      "maximum": 1
-                    },
-                    "span_index": {
-                      "type": "integer",
-                      "minimum": 0
-                    },
-                    "local_fraction": {
-                      "type": "number",
-                      "minimum": 0,
-                      "maximum": 1
-                    },
-                    "value_lower_pa": {
-                      "type": "number"
-                    },
-                    "value_upper_pa": {
-                      "type": "number"
-                    },
-                    "global_upper_bound_pa": {
-                      "type": "number"
-                    },
-                    "certified_gap_pa": {
-                      "type": "number"
-                    },
-                    "subdivisions": {
-                      "type": "integer",
-                      "minimum": 0,
-                      "maximum": 131072
-                    },
-                    "approximation": {
-                      "const": "piecewise_quadratic_straight_section_statics"
-                    },
-                    "coefficient_basis": {
-                      "const": "j_side_section_equilibrium_binary64_enclosures"
-                    },
-                    "enclosure_scope": {
-                      "const": "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pipe_id",
+                        "result_id",
+                        "station_fraction",
+                        "span_index",
+                        "local_fraction",
+                        "value_lower_pa",
+                        "value_upper_pa",
+                        "global_upper_bound_pa",
+                        "certified_gap_pa",
+                        "subdivisions",
+                        "approximation",
+                        "coefficient_basis",
+                        "enclosure_scope"
+                      ],
+                      "properties": {
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "station_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "span_index": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "local_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "value_lower_pa": {
+                          "type": "number"
+                        },
+                        "value_upper_pa": {
+                          "type": "number"
+                        },
+                        "global_upper_bound_pa": {
+                          "type": "number"
+                        },
+                        "certified_gap_pa": {
+                          "type": "number"
+                        },
+                        "subdivisions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 131072
+                        },
+                        "approximation": {
+                          "const": "arc_closed_form_section_statics"
+                        },
+                        "coefficient_basis": {
+                          "const": "arc_end_j_force_and_uniform_intensities_binary64_enclosures"
+                        },
+                        "enclosure_scope": {
+                          "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               },
               "stress_maximum_coverage": {
@@ -3068,65 +3141,185 @@
               "intensified_measures": {
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "required": [
-                    "result_id",
-                    "component_id",
-                    "pipe_id",
-                    "location",
-                    "factor_role",
-                    "sif",
-                    "sif_source_reference",
-                    "section_modulus_m3",
-                    "bending_moment_y_n_m",
-                    "bending_moment_z_n_m"
-                  ],
-                  "properties": {
-                    "result_id": {
-                      "type": "string",
-                      "minLength": 1
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "result_id",
+                        "component_id",
+                        "pipe_id",
+                        "location",
+                        "factor_role",
+                        "sif",
+                        "sif_source_reference",
+                        "section_modulus_m3",
+                        "bending_moment_y_n_m",
+                        "bending_moment_z_n_m"
+                      ],
+                      "properties": {
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "component_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "location": {
+                          "enum": [
+                            "end_i",
+                            "end_j"
+                          ]
+                        },
+                        "factor_role": {
+                          "enum": [
+                            "bend",
+                            "branch_header",
+                            "branch_branch"
+                          ]
+                        },
+                        "sif": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "sif_source_reference": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "section_modulus_m3": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "bending_moment_y_n_m": {
+                          "type": "number"
+                        },
+                        "bending_moment_z_n_m": {
+                          "type": "number"
+                        }
+                      }
                     },
-                    "component_id": {
-                      "type": "string",
-                      "minLength": 1
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pipe_id",
+                        "result_id",
+                        "location",
+                        "i_in_plane",
+                        "i_out_of_plane"
+                      ],
+                      "properties": {
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "location": {
+                          "enum": [
+                            "end_i",
+                            "end_j",
+                            "quarter_1",
+                            "midspan",
+                            "quarter_3"
+                          ]
+                        },
+                        "i_in_plane": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "i_out_of_plane": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      }
                     },
-                    "pipe_id": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "location": {
-                      "enum": [
-                        "end_i",
-                        "end_j"
-                      ]
-                    },
-                    "factor_role": {
-                      "enum": [
-                        "bend",
-                        "branch_header",
-                        "branch_branch"
-                      ]
-                    },
-                    "sif": {
-                      "type": "number",
-                      "exclusiveMinimum": 0
-                    },
-                    "sif_source_reference": {
-                      "type": "string",
-                      "minLength": 1
-                    },
-                    "section_modulus_m3": {
-                      "type": "number",
-                      "exclusiveMinimum": 0
-                    },
-                    "bending_moment_y_n_m": {
-                      "type": "number"
-                    },
-                    "bending_moment_z_n_m": {
-                      "type": "number"
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pipe_id",
+                        "result_id",
+                        "station_fraction",
+                        "span_index",
+                        "local_fraction",
+                        "value_lower_pa",
+                        "value_upper_pa",
+                        "global_upper_bound_pa",
+                        "certified_gap_pa",
+                        "subdivisions",
+                        "approximation",
+                        "coefficient_basis",
+                        "enclosure_scope",
+                        "i_in_plane",
+                        "i_out_of_plane"
+                      ],
+                      "properties": {
+                        "pipe_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "result_id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "station_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "span_index": {
+                          "const": 0
+                        },
+                        "local_fraction": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "value_lower_pa": {
+                          "type": "number"
+                        },
+                        "value_upper_pa": {
+                          "type": "number"
+                        },
+                        "global_upper_bound_pa": {
+                          "type": "number"
+                        },
+                        "certified_gap_pa": {
+                          "type": "number"
+                        },
+                        "subdivisions": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 131072
+                        },
+                        "approximation": {
+                          "const": "arc_closed_form_directional_intensified"
+                        },
+                        "coefficient_basis": {
+                          "const": "arc_end_j_force_and_uniform_intensities_binary64_enclosures"
+                        },
+                        "enclosure_scope": {
+                          "const": "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate"
+                        },
+                        "i_in_plane": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "i_out_of_plane": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      }
                     }
-                  }
+                  ]
                 }
               }
             }
@@ -3574,7 +3767,7 @@
               "const": "openpipestress.result_semantics/0.3.0/pressure-source-1"
             },
             "sha256": {
-              "const": "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53"
+              "const": "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86"
             }
           }
         },
@@ -3657,24 +3850,24 @@
         "producer": {
           "properties": {
             "semantic_contract_id": {
-              "const": "openpipestress.result_semantics/0.3.0/preview-physics-1"
+              "const": "openpipestress.result_semantics/0.3.0/preview-physics-2"
             }
           }
         },
         "semantic_contract_ref": {
           "properties": {
             "ref_id": {
-              "const": "openpipestress.result_semantics/0.3.0/preview-physics-1"
+              "const": "openpipestress.result_semantics/0.3.0/preview-physics-2"
             }
           }
         },
         "semantic_contract": {
           "properties": {
             "id": {
-              "const": "openpipestress.result_semantics/0.3.0/preview-physics-1"
+              "const": "openpipestress.result_semantics/0.3.0/preview-physics-2"
             },
             "sha256": {
-              "const": "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32"
+              "const": "ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387"
             }
           }
         },
@@ -3758,24 +3951,24 @@
         "producer": {
           "properties": {
             "semantic_contract_id": {
-              "const": "openpipestress.result_semantics/0.3.0/pressure-1"
+              "const": "openpipestress.result_semantics/0.3.0/pressure-2"
             }
           }
         },
         "semantic_contract_ref": {
           "properties": {
             "ref_id": {
-              "const": "openpipestress.result_semantics/0.3.0/pressure-1"
+              "const": "openpipestress.result_semantics/0.3.0/pressure-2"
             }
           }
         },
         "semantic_contract": {
           "properties": {
             "id": {
-              "const": "openpipestress.result_semantics/0.3.0/pressure-1"
+              "const": "openpipestress.result_semantics/0.3.0/pressure-2"
             },
             "sha256": {
-              "const": "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e"
+              "const": "e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788"
             }
           }
         },
@@ -3787,7 +3980,7 @@
           }
         },
         "contract_evidence": {
-          "$ref": "results_pressure_1.v0.3.schema.json#/$defs/PressureContractEvidence"
+          "$ref": "results_pressure_2.v0.3.schema.json#/$defs/PressureContractEvidence"
         },
         "export_profile": {
           "required": [
@@ -3876,7 +4069,7 @@
               "const": "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
             },
             "sha256": {
-              "const": "842a011601ea5049c6e89abbd73a24176966ca23c9a8cf9c89336341f608f3ad"
+              "const": "4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f"
             }
           }
         },
@@ -3973,7 +4166,7 @@
               "const": "openpipestress.result_semantics/0.3.0/physics-retained-1"
             },
             "sha256": {
-              "const": "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6"
+              "const": "ee1144c7302339accb61d51197d8f95b574c56c434895aa194d63b82f99be186"
             }
           }
         },

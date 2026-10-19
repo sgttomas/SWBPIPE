@@ -1,10 +1,12 @@
 # T4-U5a: joint pressure thrust, untied
 
-This governs T4-U5a, which admits pressure on an untied expansion joint authored as an objective connector (T4-U3). It runs in batch 5 with the nonlinear K-D5 unit and T4-U4a. T4-U5b (batch 7, with T4-U4b) adds elastic tie rods. This design is not an implementation claim; the code is another agent's work.
+This governs T4-U5a, which admits pressure on an untied expansion joint authored as an objective connector (T4-U3). It runs in batch 5 with the nonlinear K-D5 unit and T4-U4a. T4-U5b (batch 7, with T4-U4b) adds elastic tie rods; its implementation design is [u4b-u5b-implementation.md](u4b-u5b-implementation.md) §3. This design is not an implementation claim; the code is another agent's work.
 
 ## Status
 
 **Active since B7b (2026-10-17).** B7b (#1387, merge `64c22d5510`) defined both items in model 0.5.0's contract-present form (§5) and refused 0.3.0/0.4.0 by name, so the engine is reachable from documents. The nineteen `t4_u5a` requests, re-authored to 0.5.0 with an explicit zero corrosion allowance and Euler–Bernoulli selection, and the seventeen refusal variants run through the typed, captured and headless entries in both modes, and each admitted case exports (`core/runner/headless/tests/untied_joint_pressure_references.rs`). The applier accepts the constant-effective-area model and `member_connector_ids` on 0.5.0 exact-contract documents only, and the desktop's joint pressure-model editor and region connector picker author them. Of the remaining-work list below, items 1 to 4 (§8's checks 1 to 3) are carried out; open question 2 (adding the `t4_u5a` cases to VP-STATIC) remains the manager's choice. The 0.3.0/0.4.0 branches and the "until U5a lands" clauses below are the staging record.
+
+**Since T4-U4b/U5b.** Model 0.6.0 is current and 0.5.0 is retired by name; U5a's two items carry into 0.6.0 unchanged, and the requests are re-authored in memory to 0.6.0 ([u4b-u5b-implementation.md](u4b-u5b-implementation.md) §1). The exact identity is `pressure-2`, its schema `results_pressure_2.v0.3.schema.json` and its verifier `tests/verifiers/pressure_2.py`. Condition 2 of §1 and §5's hardware line admit explicit elastic tie rods, `JOINT_HARDWARE_LAW_UNSUPPORTED` no longer refuses `explicit_axial_rods_v1`, RV-11 is superseded by `JOINT_TIE_ROD_INPUT_INVALID`, and `CONNECTOR_LIMITATION` has T4-U5b's text (u4b-u5b-implementation.md §§3.1 and 3.4). §9's open points are decided there. Where this file says 0.5.0, pressure-1 or `results_pressure_1`, it records U5a as built.
 
 The owner resumed T4-U5a on 2026-10-13. Batch 5 carries its engine, result readers and authoring validation while document admission remains inactive until B7b supplies the exact-contract 0.5.0 form. The existing 0.3.0/0.4.0 shapes and joint-with-pressure refusals remain in force during that staging.
 
@@ -68,7 +70,7 @@ The pressure basis is the region's basis, not JR's proposed `internal_increment_
 
 **The admitted configuration.** A listed connector is admitted when all of these hold; otherwise the case is refused by name (section 6):
 1. its pressure model is `constant_effective_area_reference_v1`, with a valid area and source;
-2. its hardware is `untied`, with the existing constant-elasticity calibration without pressure-dependent tangent effects;
+2. its hardware is `untied`, with the existing constant-elasticity calibration without pressure-dependent tangent effects; since T4-U5b, also `explicit_axial_rods_v1` with valid rods (u4b-u5b-implementation.md §3.1);
 3. both end nodes are interior nodes of the same region's chain. At each, the other chain edge is a straight member pipe of that region (not a realized arc, not another connector) welded to the joint face;
 4. both attachment offsets are exactly zero, so each pressure-face centre is its end node;
 5. the straight run through the joint (pipe, joint chord, pipe) passes the region's existing collinearity guard, with the joint chord xⱼ − xᵢ treated as a straight member. FK already requires Q·x along +r;
@@ -158,13 +160,13 @@ Every refusal below gives `MODEL_INCOMPLETE` and no results. RV ids name the `t4
   - `effective_area.value` is finite and > 0, and its unit is an area.
   - `source_reference` is non-empty.
   - `pressure_basis` equals the `pressure_basis` of the region that lists the connector.
-  - The connector's `hardware` is `untied`. T4-U5b widens this.
+  - The connector's `hardware` is `untied`. T4-U5b widened this to `untied` or `explicit_axial_rods_v1` with valid rods (u4b-u5b-implementation.md §3.1).
 - **Required when.** Every member is required when the kind is this one. The kind is required for a connector listed in a region's `member_connector_ids`. Otherwise it is optional: a constant-effective-area connector that no region lists is admitted and carries no pressure (p = 0 at the joint, Pe = 0; J3-RP).
 - **Named refusals.**
   - *Absent or invalid area or source.* `effective_area` absent, zero, negative, nonfinite or not an area, or `source_reference` absent or empty → `JOINT_PRESSURE_AREA_MISSING` (RV-05a absent, RV-05b zero, RV-05c no source; negative, nonfinite and wrong dimension are unit tests).
   - *Basis.* `pressure_basis` absent or different from the region's → `JOINT_PRESSURE_INTERFACE_UNRESOLVED` (RV-13).
   - *Other kinds.* Any kind other than `unpressurized` and this one → `JOINT_PRESSURE_INTERFACE_UNRESOLVED`, with the text "pressure model {kind} is not supported; only unpressurized and constant_effective_area_reference_v1 are" (RV-12).
-  - *Present without the conditions.* Hardware other than `untied` → `JOINT_HARDWARE_LAW_UNSUPPORTED` (RV-11). A listed connector whose configuration fails §1 takes §6's codes. An offset joint is RV-06 or RV-06b.
+  - *Present without the conditions.* Hardware other than `untied` → `JOINT_HARDWARE_LAW_UNSUPPORTED` (RV-11). Since T4-U5b, hardware other than the two defined kinds, or a rod law other than `bilateral_linear`, takes that code, and RV-11's empty rod list takes `JOINT_TIE_ROD_INPUT_INVALID`. A listed connector whose configuration fails §1 takes §6's codes. An offset joint is RV-06 or RV-06b.
   - *Precedence.* These are model findings, so a listed connector refused by one carries only that code (§1).
   - *On 0.3.0/0.4.0 (not defined there).* Today's model finding stays: `JOINT_PRESSURE_INTERFACE_UNRESOLVED`, "objective connector {id}: only the unpressurized pressure model is supported until T4-U5" (`joint.rs` `model_findings`). The document shape is unchanged.
   - *Until U5a lands.* If 0.5.0 defines the item before U5a's engine is active, the same model finding refuses it. It is never ignored and never solved as unpressurized.
@@ -214,7 +216,7 @@ T4-U3 added no member key. It did define and admit the content of `objective_con
 |---|---|
 | `JOINT_PRESSURE_INTERFACE_UNRESOLVED` for every case with pressure regions (`joint.rs` `classify_connectors`) | Lifted only on 0.5.0 (§1); the blanket refusal stays on 0.3.0/0.4.0 until their retirement. On 0.5.0 the code names a specific joint–region finding: the connector not listed by a region that touches it, a terminal at a joint face, the replaced span listed, an unpressurized connector listed, a face pipe that is not a straight member of the same region, faces in two regions (unequal pressure, H6), a duplicate or unknown entry in `member_connector_ids`, a nonzero attachment offset, a pressure basis other than the region's, an unknown pressure-model kind |
 | The pressure model other than `unpressurized` → `JOINT_PRESSURE_INTERFACE_UNRESOLVED` (`joint.rs` `model_findings`) | Lifted for `constant_effective_area_reference_v1` on 0.5.0 only; on 0.3.0/0.4.0 kept, code and text unchanged (DEC-033). An absent, nonpositive, nonfinite or wrongly dimensioned area, or a missing `source_reference`, is `JOINT_PRESSURE_AREA_MISSING`. Other kinds stay refused, with the text "pressure model {kind} is not supported; only unpressurized and constant_effective_area_reference_v1 are" |
-| Hardware other than `untied` → `JOINT_HARDWARE_LAW_UNSUPPORTED` | Kept; T4-U5b lifts it for explicit elastic rods only |
+| Hardware other than `untied` → `JOINT_HARDWARE_LAW_UNSUPPORTED` | Kept; T4-U5b lifted it for explicit elastic rods only (u4b-u5b-implementation.md §3.1) |
 | Unequal bore → `PRESSURE_REGION_BORE_MISMATCH`; a straight–joint kink → `PRESSURE_REGION_NONCOLLINEAR` | Kept, by name (H6); they now span the joint |
 | S20 `JOINT_REPLACED_SPAN_LOAD_UNOWNED`, the K-D5 source-closure rule, legacy and annotation refusals, `OBJECTIVE_CONNECTOR_*`, `JOINT_STIFFNESS_BASIS_UNSUPPORTED` | Kept |
 | `prepare_sources`' connector decline (D7) | Kept, for pressurized joints too |
@@ -289,10 +291,10 @@ They cover:
 - **Rulings (HELP_HUMAN, 2026-10-17).**
   1. **Non-parallel rods are admitted, with the projected rule above.**
      - *Basis.* The hardware already defines a general rod direction: e = n·(v_bⱼ − v_bᵢ), assembled as Cᵀk_rC. The earlier unprojected sum held only when n·Q_x = 1. On a skewed rod it breaks the interface identity by 28800/1661 N; `t4_u5b` SK-F is the discriminating control. Refusing "non-parallel" rods would need a parallelism tolerance with no physical basis.
-     - *Left to the U5b design.* A rod nearly perpendicular to the joint axis. The U5b implementation design may refuse it by name if that is justified.
+     - *Left to the U5b design.* A rod nearly perpendicular to the joint axis. The U5b implementation design may refuse it by name if that is justified. It found no justification, and such a rod is admitted (u4b-u5b-implementation.md §3.4).
   2. **Rods with p = 0 at the joint are admitted.** This covers rods on an unpressurized connector and rods on a constant-effective-area connector that no region lists. There Pe = 0, and the projected rule applies unchanged.
      - *Basis.* Rods are hardware whose stiffness and reference extension act whatever the pressure. JR J-C's mechanical-only tied qualification is this case, and refusing it would leave a tied joint under thermal or mechanical load unsupported.
-     - *If the U5b design disagrees.* If it finds a route or certificate reason to refuse these cases, it brings that to HELP_HUMAN. The references cover both outcomes.
+     - *If the U5b design disagrees.* If it finds a route or certificate reason to refuse these cases, it brings that to HELP_HUMAN. The references cover both outcomes. It found none, and these rods are admitted (u4b-u5b-implementation.md §3.4).
 - **References.** Each was re-derived independently:
   - JR's ideal-tie rows 2 and 4 as the finite-rod limit k_r → ∞, with exact finite-k_r forms and their limits;
   - row 5's split (Tb = 2e5·q, Tt = 2e7·q at J3-5U's q);
@@ -323,11 +325,12 @@ They cover:
   A separate TASK refuted the set, using its own 100-digit nodal solve and hand free bodies, and confirmed every value. A second separate TASK confirmed the repairs and the new cases.
 
   The cases stay request-agnostic until 0.6.0 defines `explicit_axial_rods_v1`. Their oracle values do not move.
-- **Open for the U5b design.**
-  - Refusal codes and patches for JR §5's input refusals: duplicate rods, zero length, missing offsets, contradictory hardware.
-  - Rods whose end nodes are not the connector's end nodes. The references' reduction and face identity assume they are.
-  - Whether `pe_x` and `s_x` are published for an unpressurized connector with rods.
-  - The ideal-inextensible rods and the collective constraint. These remain a later MPC unit, on the owner's choice only.
+- **Decided by the U5b design, as implemented** ([u4b-u5b-implementation.md](u4b-u5b-implementation.md) §§3.1, 3.3 and 3.4):
+  - JR §5's input refusals take `JOINT_TIE_ROD_INPUT_INVALID` (duplicate rods, missing offsets, contradictory hardware) and `JOINT_TIE_ROD_ZERO_LENGTH` (a degenerate represented length).
+  - A rod's ends are always the connector's end nodes, so rods anchored elsewhere cannot be expressed.
+  - `s_x` is the projected S_joint = g_x + Σ T_r·(n_r·Q_x) − Pe, published for every connector with rods (Pe = 0 when unpressurized) and for every constant-effective-area connector; `pe_x` is published only for a constant-effective-area connector.
+  - Rods nearly perpendicular to the joint axis, and rods at p = 0, are admitted.
+  - The ideal-inextensible rods and the collective constraint stay refused by name. They remain a later MPC unit, on the owner's choice only.
 
 ## Open questions
 

@@ -12,7 +12,7 @@ import type { MechanicsResult } from "../../types";
  * standing, which comes only from the accepted reader's registered validation.
  * B7b removed the retired v2 identities (physics-1, physics-source-1 and T1's
  * load-reference-1 and load-reference-source-1). The desktop's set still names
- * neither pressure-1 nor pressure-source-1, which Rust's `FRESH_IDENTITIES` holds:
+ * neither pressure-2 nor pressure-source-1, which Rust's `FRESH_IDENTITIES` holds:
  * every desktop output of theirs is refused (`outputPolicy.ts`). */
 export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
   PREVIEW_PHYSICS_CONTRACT_ID,
@@ -113,7 +113,7 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined)
   let route: ReturnType<typeof sourceContract>;
   try { route = sourceContract(source); } catch { return []; }
   const notices: KnownSemanticNotice[] = [];
-  // U6d: the successor reuses the preview notices (its rows and evidence are preview-physics-1's).
+  // U6d: the successor reuses the preview notices (its rows and evidence are preview-physics-2's).
   if (route === "preview_physics" || route === "retained_preview_physics") {
     const solved = source.status.mechanics === "MECHANICS_SOLVED";
     if (source.summary.max_open_formula_stress) notices.push({ id: "headline-label", text: `Stress headline: ${N_HEADLINE}.` });
@@ -124,7 +124,7 @@ export function knownSemanticNotices(source: MechanicsResult | null | undefined)
     }
   }
   // D2 4.9.9 UI summary: per-case counts over the registered validated classes (either
-  // successor; B3b's exact successor reads pressure-1's rows since B7b D4 (a), so no preview notice above).
+  // successor; B3b's exact successor reads pressure-2's rows since B7b D4 (a), so no preview notice above).
   if (isRetainedRoute(route)) {
     if (!retainedRowClasses(source)) notices.push({ id: "retained-precision-unvalidated", text: N_RP_UNVALIDATED });
     for (const c of classificationSummary(source)) {
@@ -150,7 +150,7 @@ export function resultRowLabel(row: Pick<MechanicsResult["results"][number], "ki
   let route: ReturnType<typeof sourceContract>;
   try { route = sourceContract(source); } catch { return null; }
   if (route !== "preview_physics" && !isRetainedRoute(route)) return null;
-  // B3b: the exact successor's rows are pressure-1's (B7b D4 (a)), which carry no preview kind label;
+  // B3b: the exact successor's rows are pressure-2's (B7b D4 (a)), which carry no preview kind label;
   // its rows carry their validated class label only.
   const kindLabel = route === "retained_physics" ? null : row.kind === PREVIEW_INTENSIFIED_KIND ? N_INTENSIFIED : row.kind === PREVIEW_MAXIMUM_KIND ? N_HEADLINE : null;
   // Only a registered successor has validated classes; any other source has none.

@@ -114,11 +114,17 @@ class VF:
 # to_string text, the checked parse and the canonical output are `checked`'s and stay priced. Any other form stops
 # (u6_owners_model.receipt_hash_copies).
 import u6_owners_model as _u6_model
-T25_HASH_COPY = _u6_model.receipt_hash_copies(
-    open(os.path.join(os.environ["RP_SNAPSHOT"], "core/product_physics/src/source_receipt.rs"), encoding="utf-8").read())
+# S6-HS (T4-S6, retained-pricing-rules.md §8.8): where `hash` streams the checked canonical text of the borrowed
+# {domain, payload} into SHA-256 (u6_owners_model.receipt_hash_streams: its exact text and the canonical writer's pin),
+# every T25 hash route holds only the streamed route, and T25's moving is the string temporary's previous backing.
+_SR_TEXT = open(os.path.join(os.environ["RP_SNAPSHOT"], "core/product_physics/src/source_receipt.rs"), encoding="utf-8").read()
+T25_HASH_STREAM = _u6_model.receipt_hash_streams(os.environ["RP_SNAPSHOT"], _SR_TEXT)
+T25_HASH_COPY = False if T25_HASH_STREAM else _u6_model.receipt_hash_copies(_SR_TEXT)
 
 
 def hash_route(vf, lmax):
+    if T25_HASH_STREAM:
+        return _u6_model.stream_route(vf, lmax, EPS)
     e = vf.text()
     return ((vf.tree() if T25_HASH_COPY else X()) + B(j3cap(e)) + vf.parsed()
             + HashReq("String", 16) * vf.depth          # active seen sets (<= 16 keys per frame bound below)
@@ -172,6 +178,12 @@ rows["T25.3 rows::bind ledger, maps, primary/derived, supports (+ json! copy)"] 
     + X({"Node(usize,ResultItem)": max(1, Fn // 5 + 1)}) + B(Fn * ROW)           # primary
     + Xc("Derived", R) + B(R * (ROW + 4 * (24 + RID)))                           # derived rows
     + supports_vf.tree() * 2 + Xc("RowTreatment", R))
+# T4-S5 D3 (retained-pricing-rules.md §8.8, U4B-NQ): bind_for's derived_not_qualified treatments are built in their
+# own vector before they move into the ledger (u4b_u5b_owners_model binds not_qualified_for and its inputs).
+import u4b_u5b_owners_model as _u45_model
+if _u45_model.inspect(os.environ["RP_SNAPSHOT"])["not_qualified"]:
+    rows["T25.3 rows::bind ledger, maps, primary/derived, supports (+ json! copy)"] = (
+        rows["T25.3 rows::bind ledger, maps, primary/derived, supports (+ json! copy)"] + _u45_model.receipt_not_qualified(m))
 # (4) source::commitment (source.rs:252-410)
 payload_vf = VF(arr=C * 0 + m * (12 + 6 + 3 * 144) + C + m + sp + k + l + Fn + units + N,
                 obj=C + m * 3 + sp + k + l + Fn + units + 1,
@@ -285,7 +297,10 @@ out = {"which": which, "EPS": EPS,
                         "the max is taken in-build (G5) over the evaluated stage expressions"},
        "sum_of_rows_for_reference": ev(total(rows.values())),
        "T25_requested": {"symbolic": req.show(), "assumed_bytes": ev(req)}}
-mv = B(j3cap(env_vf.text()) // 2)      # the largest single old backing: the publication text's last growth
+# the largest single old backing: the publication text's last growth, or (S6-HS) the streamed routes' string
+# temporary's previous backing at the longest hashed string (every other T25 owner's old backing is at most about 1 MiB)
+mv = (_u6_model.stream_last_growth(max(L_PUB, L_BODY, L_ID_JSON, L_ROW), EPS) if T25_HASH_STREAM
+      else B(j3cap(env_vf.text()) // 2))
 out["moving_extra"] = {"symbolic": mv.show(), "assumed_bytes": ev(mv)}
 # G5 part 2: every stage form, so the in-build profile takes the maxima in the build (G5).
 out["stage_forms"] = {"carried_case": dict(carried_case * CC), **{k_: dict(v) for k_, v in list(stage.items()) + list(inv.items())}}

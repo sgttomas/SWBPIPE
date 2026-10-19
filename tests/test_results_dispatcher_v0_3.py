@@ -23,8 +23,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SCHEMAS = ROOT / "schemas"
 RESULTS = ROOT / "fixtures/results"
 VERSION_FILE = "results.v0.3.schema.yaml"
-PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
+PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
+PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 # B7b: the retired exact v2 identities have no branch in the version file.
 RETIRED_V2_IDS = tuple(f"openpipestress.result_semantics/0.3.0/{name}" for name in ("physics-1", "physics-source-1", "load-reference-1", "load-reference-source-1"))
 RETIRED_PRECISION_ID = "openpipestress.result_semantics/0.3.0/precision-1"
@@ -87,12 +87,12 @@ def synthetic(name):
 
 
 def coverage_documents():
-    """(label, identity, document): preview-physics-1, pressure-1 (B7b: physics-1's
+    """(label, identity, document): preview-physics-2, pressure-2 (B7b: physics-1's
     current twin) and the successor at 0.3.0."""
     goldens = [(f"golden {name}", SUCCESSOR_ID, json.loads((RESULTS / name).read_text(encoding="utf-8"))) for name in GOLDENS]
     return goldens + [
-        ("synthetic preview-physics-1", PREVIEW_ID, synthetic("preview_physics_connected_sparse.json")),
-        ("synthetic pressure-1", PRESSURE_ID, synthetic("pressure_connected_mechanics_sparse.json")),
+        ("synthetic preview-physics-2", PREVIEW_ID, synthetic("preview_physics_connected_sparse.json")),
+        ("synthetic pressure-2", PRESSURE_ID, synthetic("pressure_connected_mechanics_sparse.json")),
     ]
 
 
@@ -136,7 +136,7 @@ def test_committed_v03_documents_include_the_goldens():
     names = [name for name, _ in committed_v03()]
     for golden in GOLDENS:
         assert f"fixtures/results/{golden}#" in names
-    # B7b: the load/reference-state documents are the pressure-1 and pressure-source-1 twins (4 + 10).
+    # B7b: the load/reference-state documents are the pressure-2 and pressure-source-1 twins (4 + 10).
     assert sum(name.startswith(("fixtures/results/pressure_load_state", "fixtures/results/pressure_source_load_state")) for name in names) >= 14
     assert not any(name.startswith("fixtures/results/load_reference") for name in names)
     assert len(names) >= 16
@@ -165,8 +165,8 @@ def test_dispatcher_and_version_file_agree_on_refusals():
     assert [name for name, _, by_file in found if by_file] == []
 
 
-COVERAGE_LABELS = ["golden sparse_interactive", "golden dense_scrutiny", "synthetic preview-physics-1",
-                   "synthetic pressure-1"]
+COVERAGE_LABELS = ["golden sparse_interactive", "golden dense_scrutiny", "synthetic preview-physics-2",
+                   "synthetic pressure-2"]
 
 
 @pytest.mark.parametrize("index", range(len(COVERAGE_LABELS)), ids=COVERAGE_LABELS)

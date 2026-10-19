@@ -101,7 +101,7 @@ class GateTests(unittest.TestCase):
         self.assertEqual((self.root / 'run-1/case-0000.reference.json').read_bytes(), (self.root / 'reference.json').read_bytes())
         self.assertEqual((self.root / 'run-1/case-0000.criterion.json').read_bytes(), (self.root / 'criterion.json').read_bytes())
         self.assertEqual(process['stdout_sha256'], sha256_bytes((self.root / 'run-1/case-0000/stdout.bin').read_bytes()))
-        self.assertIn('preview-physics-1 raw0.2', result['execution_basis']['producer_precision'])
+        self.assertIn('preview-physics-2 raw0.2', result['execution_basis']['producer_precision'])
         self.assertIn('Required: 1 cases / 2 assertions', (self.root / 'run-1/summary.md').read_text())
         self.assertEqual(json.loads((self.root / 'run-1/ledger.json').read_text()), result)
 

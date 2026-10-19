@@ -1,6 +1,6 @@
 //! Closed admission of the current load/reference-state evidence group
 //! (`contract_evidence.load_reference_states` beside `pressure`, `connector` and
-//! `exact_cases`) on the pressure-1 and pressure-source-1 routes. These checks
+//! `exact_cases`) on the pressure-2 and pressure-source-1 routes. These checks
 //! establish internal source consistency, not solver accuracy, producer origin
 //! or model freshness.
 //!
@@ -363,7 +363,7 @@ pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
     let evidence = &source["contract_evidence"];
     // S3-S5 namespace.
     require(keys(evidence, EVIDENCE_KEYS), "EVIDENCE_SHAPE")?;
-    // T4-U3: pressure-1's connector records are checked by the inherited
+    // T4-U3: pressure-2's connector records are checked by the inherited
     // physics pass under the v3 contract; every other method refuses them.
     require(
         method == Method::Pressure || array(&evidence["connector"])?.is_empty(),
@@ -392,6 +392,10 @@ pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
         .chain(joined.then_some("recovery_method"))
         .collect();
     for case in exact {
+        // T4-U4b (§2.6): an ordinary case with a directional arc adds
+        // `intensified_measures` (non-empty; checked by the physics pass).
+        let directional = !joined && case.get("intensified_measures").is_some();
+        let case_keys: Vec<&str> = case_keys.iter().copied().chain(directional.then_some("intensified_measures")).collect();
         require(keys(case, &case_keys), "CASE_SHAPE")?;
         let id = text(&case["load_case_id"])?;
         require(cases.iter().all(|(c, _)| *c != id), "CASE_DUPLICATE")?;
@@ -474,7 +478,7 @@ pub(crate) fn prepass(source: &Value, raw: bool, method: Method) -> Check {
     }
     // S12 pressure-region materials are the resolved member pair of their case.
     for region in pressure {
-        // T4-U2: a pressure-1 region with a realized arc adds the arc keys
+        // T4-U2: a pressure-2 region with a realized arc adds the arc keys
         // (checked with the arc members by the inherited physics pass).
         let arcs = crate::arc_evidence::members(region, method == Method::Pressure)?;
         require(

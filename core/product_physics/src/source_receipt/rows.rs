@@ -569,6 +569,17 @@ pub(super) fn bind_for(
             },
         );
     }
+    // T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §4.3): the section
+    // normal-stress extremes and transverse-shear maxima, formed from this
+    // publication's own rows (the owner's Q2), carry `derived_not_qualified`:
+    // no projection, no REQ-002 guarantee, no recipe work; their formula and
+    // station inputs are named for the reader, which recomputes them.
+    for d in not_qualified_for(rows)? {
+        if ledger.contains_key(&d.result_id) {
+            return Err(bad("derived_not_qualified row already treated"));
+        }
+        ledger.insert(d.result_id.clone(), d);
+    }
     for r in rows {
         ledger.entry(r.id.clone()).or_insert_with(|| RowTreatment {
             result_id: r.id.clone(),
@@ -632,6 +643,90 @@ pub(super) fn bind_for(
         rows: rows.iter().map(|r| ledger.remove(&r.id).unwrap()).collect(),
         supports: json!(supports),
     })
+}
+/// §4.3's two formula recipes, and the treatment that names them.
+pub(super) const EXTREMES_RECIPE: &str = "section_extremes_from_published_stress_rows_v1";
+pub(super) const SHEAR_RECIPE: &str = "transverse_shear_from_published_shear_rows_v1";
+pub(super) const NOT_QUALIFIED: &str = "derived_not_qualified";
+/// The station rows a §4.3 derived row reads, in formula order: the axial
+/// and bending stress rows of its station and basis (σ⁺/σ⁻), or the two
+/// shear rows of its station (τ: the section rows inside, the end-force rows
+/// at the ends; no basis).
+fn not_qualified_inputs<'a>(rows: &'a [ResultItem], row: &ResultItem) -> Result<(&'static str, Vec<&'a ResultItem>), ReceiptError> {
+    let m = row.metadata.as_ref().ok_or_else(|| bad("derived_not_qualified metadata"))?;
+    let suffix = pressure_exact::SectionBasis::BOTH
+        .into_iter()
+        .map(|b| b.basis_suffix())
+        .find(|s| m.basis.ends_with(s))
+        .ok_or_else(|| bad("derived_not_qualified section basis"))?;
+    let find = |kind: &str, basis: Option<&str>| -> Result<&'a ResultItem, ReceiptError> {
+        let mut found = rows.iter().filter(|r| {
+            r.entity_ref == row.entity_ref
+                && r.kind == kind
+                && r.basis_ref == row.basis_ref
+                && r.metadata.as_ref().is_some_and(|x| {
+                    x.location == m.location && basis.is_none_or(|b| x.basis.ends_with(b))
+                })
+        });
+        match (found.next(), found.next()) {
+            (Some(r), None) => Ok(r),
+            _ => Err(bad(format!("derived_not_qualified input: {kind}"))),
+        }
+    };
+    if row.kind == u4b_rows::EXTREME_KIND {
+        Ok((
+            EXTREMES_RECIPE,
+            vec![
+                find("element_local_axial_normal_stress", Some(suffix))?,
+                find("element_local_bending_normal_stress_y", Some(suffix))?,
+                find("element_local_bending_normal_stress_z", Some(suffix))?,
+            ],
+        ))
+    } else if row.kind == u4b_rows::SHEAR_MAX_KIND {
+        Ok((
+            SHEAR_RECIPE,
+            vec![find("element_local_shear_force_y", None)?, find("element_local_shear_force_z", None)?],
+        ))
+    } else {
+        Err(bad("derived_not_qualified kind"))
+    }
+}
+/// §4.3: the `derived_not_qualified` treatments of a selected case's rows,
+/// each bound to its recipe and station inputs. σ⁺/σ⁻ are re-formed from
+/// their inputs bit for bit; τ is checked finite and nonnegative here (its
+/// c_b is the reader's, from the evidence's ν and sections).
+fn not_qualified_for(rows: &[ResultItem]) -> Result<Vec<RowTreatment>, ReceiptError> {
+    let mut out = Vec::new();
+    for row in rows.iter().filter(|r| r.kind == u4b_rows::EXTREME_KIND || r.kind == u4b_rows::SHEAR_MAX_KIND) {
+        let (recipe, inputs) = not_qualified_inputs(rows, row)?;
+        let m = row.metadata.as_ref().ok_or_else(|| bad("derived_not_qualified metadata"))?;
+        let consistent = if recipe == EXTREMES_RECIPE {
+            let e = open_pipe_stress_stress_recovery::section_stress_quantities::normal_stress_extremes(
+                inputs[0].value,
+                inputs[1].value,
+                inputs[2].value,
+            );
+            row.unit == "MPa"
+                && match m.component.as_str() {
+                    "sigma_plus" => same(row.value, e.sigma_plus),
+                    "sigma_minus" => same(row.value, e.sigma_minus),
+                    _ => false,
+                }
+        } else {
+            row.unit == "MPa" && m.component == "tau_v_max" && row.value.is_finite() && row.value >= 0.0
+        };
+        if !consistent {
+            return Err(bad(format!("derived_not_qualified value: {}", row.id)));
+        }
+        out.push(RowTreatment {
+            result_id: row.id.clone(),
+            treatment: NOT_QUALIFIED,
+            projection_id: None,
+            recipe_id: Some(recipe),
+            input_result_ids: inputs.iter().map(|r| r.id.clone()).collect(),
+        });
+    }
+    Ok(out)
 }
 pub(super) fn observation(row: &ResultItem) -> bool {
     let Some(m) = &row.metadata else {

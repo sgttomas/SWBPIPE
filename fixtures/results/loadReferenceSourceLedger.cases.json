@@ -564,7 +564,7 @@
    {
     "op": "set",
     "path": "/source_block_recovery/body/cases/0/source/normalized_source_sha256",
-    "value": "db3db9d8fef40133d04e32c929540f38b8e2d2113cc9b0902d07f705317c69b0"
+    "value": "a33bfd04cc1621339f9f4af6a045882cb6627e5c8be4d0c79d7a275b1b317c23"
    }
   ],
   "reseal_publication": true,
@@ -2749,6 +2749,286 @@
     "path": "/results",
     "match": {
      "id": "result:stress:member:quarter-3:torsional-shear:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-i:sigma-plus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-i:sigma-plus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-i:sigma-plus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-i:sigma-plus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-i:sigma-minus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-i:sigma-minus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-i:sigma-minus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-i:sigma-minus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-j:sigma-plus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-j:sigma-plus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-j:sigma-plus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-j:sigma-plus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-j:sigma-minus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-j:sigma-minus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:end-j:sigma-minus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:end-j:sigma-minus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:sigma-plus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:sigma-plus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:sigma-plus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:sigma-plus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:sigma-minus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:sigma-minus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:midspan:sigma-minus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:midspan:sigma-minus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-1:sigma-plus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:sigma-plus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-1:sigma-plus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:sigma-plus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-1:sigma-minus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:sigma-minus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-1:sigma-minus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-1:sigma-minus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:sigma-plus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:sigma-plus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:sigma-plus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:sigma-plus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:sigma-minus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:sigma-minus:nominal-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/source_block_recovery/body/cases/0/rows",
+    "match": {
+     "result_id": "result:stress:member:quarter-3:sigma-minus:reduced-section"
+    }
+   },
+   {
+    "op": "remove_where",
+    "path": "/results",
+    "match": {
+     "id": "result:stress:member:quarter-3:sigma-minus:reduced-section"
     }
    }
   ],

@@ -1,4 +1,4 @@
-"""preview-physics-1 Python reader, standing and packaging (T0R S1 §9-§10).
+"""preview-physics-2 Python reader, standing and packaging (T0R S1 §9-§10).
 
 Hand-built envelopes follow the frozen S1 interface exactly; they are reader
 controls, not producer output. Tests over the actual producer fixtures are at
@@ -160,14 +160,14 @@ def results_schema():
 
 
 def test_table_identity_and_registry():
-    table = PROJECT / "fixtures/results/semantic_contract_v0_3_preview_physics_1.json"
+    table = PROJECT / "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
     assert hashlib.sha256(table.read_bytes()).hexdigest() == PREVIEW_PHYSICS_CONTRACT_SHA256
     assert json.loads(table.read_text())["semantic_contract_id"] == PREVIEW_PHYSICS_CONTRACT_ID
     # T1 activation (DESIGN 10.3): T0R's four plus T1's two 0.4.0 exact-route identities.
     # U6b (D-U6-6): plus the F2a preview successor; membership is not standing.
     # b7-plan's pressure-source join: plus pressure-source-1.
     # B4/D1 (b): minus the retired source-blocks-1.
-    # B7b: minus the four retired exact v2 identities, plus the exact successor pressure-1.
+    # B7b: minus the four retired exact v2 identities, plus the exact successor pressure-2.
     assert FRESH_CONTRACT_IDS == {PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, PRESSURE_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID}
     assert not is_fresh_contract_id(RETIRED_PRECISION_CONTRACT_ID) and is_fresh_contract_id(PREVIEW_PHYSICS_CONTRACT_ID)
     assert not any(is_fresh_contract_id(identity) for identity in (RETIRED_PHYSICS_ID, RETIRED_LOAD_REFERENCE_ID))
@@ -424,8 +424,13 @@ def test_incomplete_coverage_withholds_headline_but_keeps_rows():
     case = source["contract_evidence"]["preview_cases"][0]
     extremum = case["pipe_stress_extrema"].pop()
     source["results"] = [row for row in source["results"] if row["id"] != extremum["result_id"]]
+    # T4-U4b (§2.1, review item 6): no member is outside the maximum's domain on preview-physics-2; an unavailable
+    # member withholds the headline.
     case["stress_maximum_coverage"] = {"complete": False, "unavailable_pipe_ids": [], "outside_domain_pipe_ids": [extremum["pipe_id"]]}
     source["summary"]["max_open_formula_stress"] = None
+    with pytest.raises(ValueError, match="maximum coverage outside the domain"):
+        validate_preview_physics_evidence(source)
+    case["stress_maximum_coverage"] = {"complete": False, "unavailable_pipe_ids": [extremum["pipe_id"]], "outside_domain_pipe_ids": []}
     validate_preview_physics_evidence(source)
     assert verify_analysis_run_record(build(source)) == "match"
 
@@ -455,12 +460,42 @@ def test_transport_metadata_checks_statement_without_rows():
             _source_contract(bad, check_receipt=False)
 
 
-@pytest.mark.parametrize("identity", [RETIRED_PRECISION_CONTRACT_ID, RETIRED_PHYSICS_ID, RETIRED_LOAD_REFERENCE_ID, PRESSURE_CONTRACT_ID, RETIRED_SOURCE_BLOCKS_ID, "openpipestress.result_semantics/0.3.0/preview-physics-2"])
-def test_preview_never_falls_back_to_another_contract(identity):
+@pytest.mark.parametrize("identity,code", [
+    (RETIRED_PRECISION_CONTRACT_ID, "SOURCE_PRECISION_1_RETIRED"),
+    (RETIRED_PHYSICS_ID, "SOURCE_EXACT_PRESSURE_V2_RETIRED"),
+    (RETIRED_LOAD_REFERENCE_ID, "SOURCE_EXACT_PRESSURE_V2_RETIRED"),
+    (PRESSURE_CONTRACT_ID, "SOURCE_FORMULATION_BASIS_UNSUPPORTED"),
+    (RETIRED_SOURCE_BLOCKS_ID, "SOURCE_BLOCKS_1_RETIRED"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-1", "SOURCE_PREVIEW_PHYSICS_1_RETIRED"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-3", "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"),
+])
+def test_preview_never_falls_back_to_another_contract(identity, code):
+    # Each identity is refused by its own code, the same in the product (Rust verdict) and the verifier.
     source = envelope()
     source["producer"]["semantic_contract_id"] = identity
-    with pytest.raises(ValueError, match="SOURCE_"):
+    exact = f"^{code}(: |$)"
+    with pytest.raises(ValueError, match=exact):
         build(source)
+    with pytest.raises(ValueError, match=exact):
+        _source_contract(deepcopy(source))
+    with pytest.raises(ValueError, match=exact):
+        verifier._source_contract(deepcopy(source))
+
+
+def test_a_stored_preview_physics_1_result_is_refused_by_name():
+    # Model 0.6.0: preview-physics-1 is no longer read. The product (Rust's reader) and the
+    # independent verifier refuse it by name at the header; it is never recorded or Current.
+    source = envelope()
+    source["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+    message = "^SOURCE_PREVIEW_PHYSICS_1_RETIRED: preview-physics-1 results are no longer read; re-run the analysis$"
+    for check_receipt in (True, False):
+        with pytest.raises(ValueError, match=message):
+            _source_contract(deepcopy(source), check_receipt=check_receipt)
+    with pytest.raises(ValueError, match=message):
+        build(source)
+    with pytest.raises(ValueError, match=message):
+        verifier._source_contract(deepcopy(source))
+    assert numerical_use_standing(source, bases(source)) == "unsupported"
 
 
 def test_preview_evidence_is_required_and_exclusive():
@@ -795,6 +830,14 @@ def test_shared_tamper_vector(variant):
         with pytest.raises(ValueError, match="SOURCE_PREVIEW_PHYSICS_"):
             _source_contract(source)
         assert numerical_use_standing(source, bases(source)) == "unsupported"
+    # Codex round 2: the metadata-only transport check gives its own outcome.
+    if "transport" in variant:
+        from tests.verifiers.preview_physics_evidence import validate_transport_metadata
+        if variant["transport"] == "accepted":
+            validate_transport_metadata(source)
+        else:
+            with pytest.raises(ValueError, match="SOURCE_PREVIEW_PHYSICS_EVIDENCE_INVALID"):
+                validate_transport_metadata(source)
 
 
 # ---- B4/D1 (b): source blocks remain only on the composites ----
@@ -835,9 +878,10 @@ def test_preview_stress_neutral_package_roundtrips_without_new_fields(tmp_path):
     from core.handoff.stress_neutral import package as sn
     from test_stress_neutral_physics_source import arguments
     source = envelope()
-    # One arc member row exercises the arc vocabulary in the packaged annotations.
-    source["results"].append({"id": "result:force:pipe:P1:end-i:axial-arc", "kind": "element_local_shear_force_y", "value": 2.5, "unit": "N", "entity_ref": "pipe:P1", "basis_ref": lc("load:A"), "metadata": meta("shear_force_y", "element_local", "end_i", "recovered_from_local_element_stiffness")})
-    source["results"].append({"id": "result:stress:pipe:P1:end-i:axial-arc", "kind": "element_local_axial_normal_stress", "value": 0.5, "unit": "MPa", "entity_ref": "pipe:P1", "basis_ref": lc("load:A"), "metadata": meta("axial_normal_stress", "pipe_section", "end_i", "nominal_straight_beam_formula_on_arc_resultants")})
+    # One arc member row exercises the arc vocabulary in the packaged annotations. T4-U4b: the arc-basis row marks its
+    # member a preview arc, whose maximum takes the arc's convention, so the rows sit on a member of their own.
+    source["results"].append({"id": "result:force:pipe:ARC:end-i:axial-arc", "kind": "element_local_shear_force_y", "value": 2.5, "unit": "N", "entity_ref": "pipe:ARC", "basis_ref": lc("load:A"), "metadata": meta("shear_force_y", "element_local", "end_i", "recovered_from_local_element_stiffness")})
+    source["results"].append({"id": "result:stress:pipe:ARC:end-i:axial-arc", "kind": "element_local_axial_normal_stress", "value": 0.5, "unit": "MPa", "entity_ref": "pipe:ARC", "basis_ref": lc("load:A"), "metadata": meta("axial_normal_stress", "pipe_section", "end_i", "nominal_straight_beam_formula_on_arc_resultants")})
     validate_preview_physics_evidence(source)
     analysis = build(source)
     packet = sn.build_stress_neutral_export_package(source_envelope=source, analysis_record=analysis, **arguments(source, analysis))
@@ -854,10 +898,10 @@ def test_preview_stress_neutral_package_roundtrips_without_new_fields(tmp_path):
     written = sn.write_materialized_members(packet, tmp_path)
     assert len(written) == 9
     assert sn.read_materialized_members(tmp_path, source_envelope=source, analysis_record=analysis) == packet
-    arc = next(item for item in packet["source_annotations"] if item["source_result_id"] == "result:stress:pipe:P1:end-i:axial-arc")
+    arc = next(item for item in packet["source_annotations"] if item["source_result_id"] == "result:stress:pipe:ARC:end-i:axial-arc")
     assert arc["source_row"]["metadata"]["basis"] == "nominal_straight_beam_formula_on_arc_resultants"
     witness = {row["result_id"] for row in packet["unit_preservation_witnesses"]}
-    assert "result:stress:pipe:P1:end-i:axial-arc" in witness
+    assert "result:stress:pipe:ARC:end-i:axial-arc" in witness
     tampered = deepcopy(packet); tampered["contract_evidence"]["combination_gates"][0]["withheld"] = True
     with pytest.raises(ValueError):
         sn.validate_stress_neutral_export_package(tampered)
@@ -870,7 +914,7 @@ ACTUAL = [PROJECT / f"fixtures/results/preview_physics_{name}_{mode}.json" for n
 
 def actual(path):
     # R2 N8: the producer fixtures are committed; absence is a failure, not a skip.
-    assert path.exists(), f"missing actual preview-physics-1 fixture: {path}"
+    assert path.exists(), f"missing actual preview-physics-2 fixture: {path}"
     return json.loads(path.read_text())
 
 
@@ -983,7 +1027,7 @@ def test_generated_unchanged_demo_output_is_recorded_truthfully(mode):
 @pytest.mark.parametrize("mode", ["sparse", "dense"])
 def test_generated_bundled_demo_output_is_recorded_truthfully(mode):
     """The recipe's default mode captures the valid demo model (no joint, no legacy
-    pressure): a solved preview-physics-1 result per mode, read as is."""
+    pressure): a solved preview-physics-2 result per mode, read as is."""
     source = actual(PROJECT / f"fixtures/product_preview/invented_demo_result_preview_physics_1_{mode}.json")
     record = json.loads((PROJECT / "fixtures/product_preview/demo_fixture_generation.json").read_text())
     output = next(item for item in record["outputs"] if item["path"].endswith(f"_{mode}.json"))

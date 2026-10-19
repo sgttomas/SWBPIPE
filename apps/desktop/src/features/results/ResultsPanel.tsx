@@ -73,7 +73,7 @@ export function ResultsPanel({
     [filteredResults, pageIndex, pageSize]
   );
   const groups = result && labels ? groupResults(page.items, labels) : [];
-  // Dispatch once per render; the row labels apply to preview-physics-1 and its successor only.
+  // Dispatch once per render; the row labels apply to preview-physics-2 and its successor only.
   const labelSource = useMemo(() => {
     try { return result && ["preview_physics", "retained_preview_physics", "retained_physics"].includes(sourceContract(result)) ? result : null; } catch { return null; }
   }, [result]);

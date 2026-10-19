@@ -3,7 +3,7 @@
 //! change, and any pressure-free byte change is a defect. Each committed
 //! pressure-free product output below is regenerated through the entry its
 //! writer uses and compared byte for byte:
-//! - the preview-physics-1 demo and mechanics fixtures, the raw stdout of
+//! - the preview-physics-2 demo and mechanics fixtures, the raw stdout of
 //!   `examples/preview_result.rs` (`tools/serialization/generate_product_preview_mechanics.mjs`),
 //!   both of whose models carry a combination, so the preview route's
 //!   combination rows (U6-RB) are among the compared bytes;
@@ -64,7 +64,8 @@ fn preview_physics_fixtures_are_byte_identical() {
 }
 
 /// The G10 desktop copies: the desktop's solve request `{"model", "materials": []}` through the
-/// public value entry, serialized compactly.
+/// public value entry, serialized compactly. `G10_DESKTOP_MILESTONE_WRITE=1` rewrites the two
+/// committed copies from this computation; otherwise they must be current.
 #[test]
 fn desktop_milestone_copies_are_byte_identical() {
     let model: serde_json::Value =
@@ -76,6 +77,12 @@ fn desktop_milestone_copies_are_byte_identical() {
     for ((mode, suffix), expected) in MODES.into_iter().zip(committed) {
         let envelope = run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), mode).unwrap();
         let actual = serde_json::to_string(&envelope).unwrap();
+        if std::env::var("G10_DESKTOP_MILESTONE_WRITE").as_deref() == Ok("1") {
+            let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join(format!("../../fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.desktop_result_{}.json", mode.as_str()));
+            std::fs::write(path, &actual).unwrap();
+            continue;
+        }
         assert!(actual == expected, "{suffix}: actual_len={} expected_len={} first_difference={:?}",
             actual.len(), expected.len(), first_difference(&actual, expected));
     }

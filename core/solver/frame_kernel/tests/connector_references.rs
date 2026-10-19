@@ -784,7 +784,7 @@ fn preload_relief_solved_and_recovered() {
         &load.values,
         &expected.at("installed_rhs_BT_K_qref").values(),
     );
-    let k = assemble_global_stiffness_with_connectors(2, &[], &[connector]).unwrap();
+    let k = assemble_global_stiffness_with_connectors(2, &[], &[connector.clone()]).unwrap();
     for (state, restrained) in [
         ("node_i_anchored_node_j_free", vec![0, 1, 2, 3, 4, 5]),
         ("node_i_anchored_node_j_ux_held", vec![0, 1, 2, 3, 4, 5, 6]),
@@ -1490,7 +1490,7 @@ fn dense_assembly_places_ke() {
         c.q_ref(),
     )
     .unwrap();
-    let k = assemble_global_stiffness_with_connectors(3, &[], &[moved]).unwrap();
+    let k = assemble_global_stiffness_with_connectors(3, &[], &[moved.clone()]).unwrap();
     let ke = moved.global_stiffness().unwrap();
     let map: Vec<usize> = (12..18).chain(0..6).collect();
     for i in 0..12 {

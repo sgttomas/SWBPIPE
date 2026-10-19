@@ -10,17 +10,17 @@ import { PRESSURE_CONTRACT_SHA256 } from "../../test-support/contractBindings";
 import { sourceContract, sourceSemanticBinding } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
 import { readerRowSemantics } from "../results/resultReader";
-import { PRESSURE_1_OUTPUT_REFUSAL } from "../results/outputPolicy";
+import { PRESSURE_2_OUTPUT_REFUSAL } from "../results/outputPolicy";
 const resultSemantics = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).signature;
 const canonicalResultMetadata = (row: Parameters<ReturnType<typeof readerRowSemantics>>[0], source?: Parameters<typeof readerRowSemantics>[0]) => readerRowSemantics(source)(row).canonical_metadata;
 import { buildAnalysisRunV03, modelLoadBasisRefs, validateAnalysisRunV03 } from "../../services/analysisRunCompatibility";
 import { deriveResultDocument, buildCurrentResultExport, resultDigest, ref, derivativeProvenance } from "./resultExportAdapter";
 
 /** B7b: the v3 twin of the retired physics-1 consumer suite. The exact route's ordinary
- * identity is pressure-1 (3.0.0/exact_pressure_v3); the desktop reads it through the Rust
+ * identity is pressure-2 (3.0.0/exact_pressure_v3); the desktop reads it through the Rust
  * reader's own route and records it as Python's builder does (DEL-14-02: the record binds
- * pressure-1's table and embeds no evidence), but offers no output of it: every surface
- * is refused (PRESSURE-1-OUTPUT-NOT-YET-AVAILABLE). Actual committed producer bytes;
+ * pressure-2's table and embeds no evidence), but offers no output of it: every surface
+ * is refused (PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE). Actual committed producer bytes;
  * loading them here creates no native invocation or Current proof. */
 const project = resolve(__dirname, "../../../../../");
 const json = (path: string) => JSON.parse(readFileSync(resolve(project, path), "utf8"));
@@ -28,7 +28,7 @@ const raw = (mode = "sparse"): MechanicsResult => json(`fixtures/results/pressur
 const model = (): PreviewModel => json("core/product_physics/tests/fixtures/exact_pressure_connected_request.json").model;
 const evidence = (source: MechanicsResult): any => source.contract_evidence; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-describe("actual pressure-1 source consumers (B7b: the v3 twin of physics-1)", () => {
+describe("actual pressure-2 source consumers (B7b: the v3 twin of physics-1)", () => {
   it.each(["sparse", "dense"])("dispatches %s source with complete cases and preserves source bytes", mode => {
     const source = raw(mode), before = JSON.stringify(source);
     expect(sourceContract(source)).toBe("pressure");
@@ -41,8 +41,8 @@ describe("actual pressure-1 source consumers (B7b: the v3 twin of physics-1)", (
     }
     expect(JSON.stringify(source)).toBe(before);
   });
-  it("pins the pressure-1 table bytes", () => {
-    expect(createHash("sha256").update(readFileSync(resolve(project, "fixtures/results/semantic_contract_v0_3_pressure_1.json"))).digest("hex")).toBe(PRESSURE_CONTRACT_SHA256);
+  it("pins the pressure-2 table bytes", () => {
+    expect(createHash("sha256").update(readFileSync(resolve(project, "fixtures/results/semantic_contract_v0_3_pressure_2.json"))).digest("hex")).toBe(PRESSURE_CONTRACT_SHA256);
   });
   it("rejects unknown, reserved, retired and mismatched profile dispatch without falling back", () => {
     for (const id of ["precision-2", "source-blocks-1", "physics-2", "physics-1", "physics-source-1", "load-reference-1", "load-reference-source-1"]) {
@@ -111,7 +111,7 @@ describe("actual pressure-1 source consumers (B7b: the v3 twin of physics-1)", (
     const source = raw(); source.numerical_quality!.status = "sensitive"; source.numerical_quality!.cases[0].solve_quality = "sensitive"; source.numerical_quality!.cases[0].accuracy_evidence = "reference_verified";
     expect(sourceContract(source)).toBe("pressure"); expect(numericalResultStanding(source, model()).eligible).toBe(false);
   });
-  it("has no transport reader: a transported pressure-1 statement is refused by name, and a retired reader name is unknown", () => {
+  it("has no transport reader: a transported pressure-2 statement is refused by name, and a retired reader name is unknown", () => {
     expect(() => readerTransport("pressure", raw())).toThrow("SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED");
     for (const retired of ["physics", "physics-source", "load-reference", "load-reference-source"]) {
       expect(() => readerValidate(retired as never, raw()), retired).toThrow(`READER_UNKNOWN: ${retired}`);
@@ -128,11 +128,11 @@ describe("actual pressure-1 source consumers (B7b: the v3 twin of physics-1)", (
     await validateAnalysisRunV03(JSON.parse(JSON.stringify(analysisRun)), JSON.parse(JSON.stringify(source)), modelLoadBasisRefs(model()));
     const changed = raw(mode); evidence(changed).pressure[0].provenance += ":changed";
     await expect(validateAnalysisRunV03(analysisRun, changed, modelLoadBasisRefs(model()))).rejects.toThrow("ANALYSIS_RECEIVED_SOURCE_MISMATCH");
-    await expect(buildCurrentResultExport({ model: model(), result: source, analysisRun, inputManifest: null })).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
+    await expect(buildCurrentResultExport({ model: model(), result: source, analysisRun, inputManifest: null })).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
     const origin = { origin_id: "test:received-source", origin_class: "received_current_dimension_absent", qualification_ref: ref("test_fixture", "unattested-source-consumer-projection"), authentic_producer_available: false,
       received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_dimension_absent_carrier", payload_ref: ref("received_current_carrier", source.run_id), value: await resultDigest(source) }, original_producer_checksum: null,
       origin_limit: "Consumer projection only; no native producer or Current qualification", actual_model_ref: ref("model_payload", source.model_ref), mechanics_run_ref: ref("mechanics_run", source.run_id), request_model_ref: null, request_run_ref: null, request_alias_disclosure: null };
-    await expect(deriveResultDocument({ schema_version: "0.2.0", result_envelope: { schema_version: "0.2.0", envelope_id: "test:pressure-projection", run_ref: ref("analysis_run", source.run_id), provenance: derivativeProvenance, unit_system_ref: ref("unit_system", "test:units"), result_sets: [{ values: [] }], reproducibility: {} } }, model(), source, origin)).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
+    await expect(deriveResultDocument({ schema_version: "0.2.0", result_envelope: { schema_version: "0.2.0", envelope_id: "test:pressure-projection", run_ref: ref("analysis_run", source.run_id), provenance: derivativeProvenance, unit_system_ref: ref("unit_system", "test:units"), result_sets: [{ values: [] }], reproducibility: {} } }, model(), source, origin)).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
     expect(JSON.stringify(source)).toBe(before);
   });
 });

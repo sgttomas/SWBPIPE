@@ -36,8 +36,8 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 /// C5 adds the adopted arc end-tangent limitation sentence; the current ordinary
 /// companions preserve every physical row and are still equal under capture.
 const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
-    ("sparse_interactive", 68215, "262350431963ec51fe025007f4381fdfc84326f68b80a7c13f73bed768c1a580"),
-    ("dense_scrutiny", 68236, "9fc0332eaf7798ed96f2013beb3cca2f7f429830b1e5719bdf535da8c02aad3d"),
+    ("sparse_interactive", 80884, "d599dd9a3f6482743acc9076de157796ec41e3c86335884835b9c56f42cafae3"),
+    ("dense_scrutiny", 80908, "cd9812a90e8f85ad050456aa26621bf17cf7b0ca9c64c4d2e215292b115137a2"),
 ];
 /// The serializer's committed milestone output: sha256 of the pretty-printed
 /// successor envelope, and its receipt_sha256 (byte-stable, both modes).
@@ -45,8 +45,8 @@ const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
 /// successor differs only by the current maximum declaration and fallback enclosure, the two
 /// linear limitation sentences, and the receipt and publication hashes that bind them.
 const SUCCESSOR_SHA256: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "032630ba2f80a80361be3ce60e1d27821d47e1161cdf750566640552de3edd2e", "835205890be3f58565bdba65cb781040372af9bafc72ecf168e60fb360bb835c"),
-    ("dense_scrutiny", "0db162eb507060ec2a5bf6d78d7f1ab43fd868f2e085c9395832d7b282cbfda0", "6e5123ba864e319b8d07a1581e1d10b165ce208ac75e255d9c66e2640215dad0"),
+    ("sparse_interactive", "d79b9b53fd88e61c84a9446aa2682a0943acde8d2ab4b251b3d393d4a4786caa", "2f2260237fcae99adbecc4c208ad0f66a76bdc630fb5d7ddcaca2909a85444a4"),
+    ("dense_scrutiny", "104b8fcb7eb4ccdda48d1dfa88c527a2835ec4f2746693b76821d34baeee5f85", "53d34043560deaac649f0090fc2a14bb452fe30e2e014607624eb55090f00642"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
@@ -55,11 +55,11 @@ fn sha(bytes: &[u8]) -> String {
 fn milestone_raw() -> Value {
     serde_json::from_str(MILESTONE).unwrap()
 }
-/// The private prepared driver on the unchanged 0.5.0 milestone: the candidate,
+/// The private prepared driver on the unchanged 0.6.0 milestone: the candidate,
 /// its captured invocation and the bytes of its single ordinary run.
 fn milestone_candidate(mode: PreviewSolverMode) -> (rp::PrivatePreparedCandidate, source_receipt::CapturedInvocation, Vec<u8>) {
     let raw = milestone_raw();
-    assert_eq!(raw["model"]["schema_version"], json!(crate::MODEL_SCHEMA_VERSION), "milestone request unchanged at 0.5.0");
+    assert_eq!(raw["model"]["schema_version"], json!(crate::MODEL_SCHEMA_VERSION), "milestone request unchanged at 0.6.0");
     let (request, capture) = source_receipt::CapturedInvocation::parse(raw, mode).unwrap();
     let mut prepared = rp::PreparedCase::prepare_observed(request, mode, &capture).unwrap_or_else(|e| panic!("{:?}", e.capture.error));
     let ordinary = serde_json::to_vec(prepared.ordinary()).unwrap();
@@ -206,12 +206,26 @@ fn u1_milestone_successor_both_modes() {
         assert_eq!(validation.classifications.len(), verdicts.len(), "{name}: one class per row");
         for (c, v) in validation.classifications.iter().zip(verdicts) {
             assert_eq!(c.result_id, rows[v.row]);
-            assert_eq!(c.normalized_bits, v.normalized_bits, "{name}: {}", c.result_id);
+            let derived = rp::derived_kind(successor["results"][v.row]["kind"].as_str().unwrap());
+            if derived {
+                // T4-U4b §4.1: a recipe-free not-covered verdict carries the published value as
+                // published (final_case.rs records `r.value`), while the reader normalizes a
+                // stress row to SI; the reader's value is the published one, normalized.
+                let published = successor["results"][v.row]["value"].as_f64().unwrap();
+                let si = match successor["results"][v.row]["unit"].as_str().unwrap() { "MPa" => published * 1_000_000.0, _ => published };
+                assert_eq!(v.normalized_bits, published.to_bits(), "{name}: {}", c.result_id);
+                assert_eq!(c.normalized_bits, si.to_bits(), "{name}: {} (normalized to SI)", c.result_id);
+            } else {
+                assert_eq!(c.normalized_bits, v.normalized_bits, "{name}: {}", c.result_id);
+            }
             let expected = match v.class {
                 Some(k::RowClass::RelativeVerified) => reader::AccuracyClass::RelativeVerified,
                 Some(k::RowClass::AbsoluteVerified { bound_bits }) => reader::AccuracyClass::AbsoluteVerified { bound_bits },
                 Some(k::RowClass::InputDerived) => reader::AccuracyClass::InputDerived,
                 Some(k::RowClass::Unpublishable) => panic!("unpublishable"),
+                // T4-U4b §4.1: a class-None verdict is a record's (non_quantity) or a
+                // not-covered derived row's (its recipe is NotCovered).
+                None if rp::derived_kind(successor["results"][v.row]["kind"].as_str().unwrap()) => reader::AccuracyClass::NotCovered,
                 None => reader::AccuracyClass::NonQuantity,
             };
             assert_eq!(c.class, expected, "{name}: {}", c.result_id);
@@ -380,11 +394,12 @@ fn u1_exact_or_abandon_counts() {
     assert_eq!((count, failures.len()), (json!({"kind":"exact","value":0}), 0));
 }
 
-/// U6-DH (DEL-05-03 Design §9): `domain_hash` serializes a borrowed `{domain, payload}` wrapper
-/// instead of copying the payload into a new `Value`. Its text, and so its canonical form and
-/// hash, is the former `json!({"domain": d, "payload": p})` object's, byte for byte, over the
-/// in-tree definition and table, every hashed domain name and adversarial payloads (key order,
-/// escapes, non-ASCII, signed zero, extreme numbers, nesting, a payload naming `domain`).
+/// U6-DH, T4-S6 (DEL-05-03 Design §9): `domain_hash` streams the checked canonical text of the
+/// borrowed `{domain, payload}` into the hasher. Its hash, and its refusal (None), are the former
+/// path's — `json!({"domain": d, "payload": p})`, serialized, checked-parsed, canonicalized, hashed —
+/// over the in-tree definition and table, every hashed domain name and adversarial payloads (key
+/// order, escapes, non-ASCII, signed zero, extreme and unsafe numbers, nesting at and past the
+/// parser's depth, a payload naming `domain`). The former path lives only here.
 #[test]
 fn u6_dh_borrowed_wrapper_text_and_hash_are_the_former_objects() {
     use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
@@ -392,18 +407,23 @@ fn u6_dh_borrowed_wrapper_text_and_hash_are_the_former_objects() {
     let table: Value = serde_json::from_str(TABLE).unwrap();
     let adversarial = json!({"z": [1, -0.0, 1e-300, 1.7976931348623157e308, 18446744073709551615u64, -9223372036854775808i64],
         "a": {"payload": null, "domain": "inner", "": [], "\u{1F600}\"\\\n": {}}, "m": [true, false, null, "\u{0}\u{1f}\u{7f}é"]});
-    let payloads = [definition, table, adversarial, json!(null), json!([]), json!({}), json!("text"), json!(0.1)];
+    let nest = |depth: usize| (0..depth).fold(json!("x"), |inner, _| json!([inner]));
+    let safe = json!({"z": [1, -0.0, 1e-300, 9007199254740991u64, -9007199254740991i64, 5e-324], "a": {"\u{1F600}": "\u{0}"}});
+    let mut payloads = vec![definition, table, adversarial, safe, json!(null), json!([]), json!({}), json!("text"), json!(0.1)];
+    payloads.extend([125, 126, 127, 128].map(nest));
     let domains = ["retained_precision_formation_v1", "retained_precision_publication_mp_v2", "retained_precision_receipt_mp_v2",
         "retained_precision_preparation_v1", "retained_precision_operand_preparation_v1", "retained_precision_source_mp_v2", "", "a\"b\\c\u{1F600}"];
+    let mut refused = 0;
     for domain in domains {
         for payload in &payloads {
             let former = serde_json::to_string(&json!({"domain": domain, "payload": payload.clone()})).unwrap();
-            assert_eq!(wire::domain_text(domain, payload).as_deref(), Some(former.as_str()), "{domain}: text");
-            // A payload the checked canonical form refuses is refused alike (None).
             let expected = canonical_json_checked_v1_text(&former).ok().map(|c| format!("{:x}", Sha256::digest(c.as_bytes())));
+            refused += usize::from(expected.is_none());
             assert_eq!(wire::domain_hash(domain, payload), expected, "{domain}: hash");
         }
     }
+    // The adversarial payload's unsafe integers and the two deepest nestings refuse under every domain.
+    assert_eq!(refused, 3 * domains.len());
     assert_eq!(wire::domain_hash("retained_precision_formation_v1", &payloads[0]).as_deref(), Some(wire::DEFINITION_SHA256));
 }
 
@@ -446,7 +466,7 @@ fn u1_constants_bound_to_in_tree_fixtures() {
     let definition: Value = serde_json::from_str(DEFINITION).unwrap();
     let table: Value = serde_json::from_str(TABLE).unwrap();
     assert_eq!(wire::domain_hash("retained_precision_formation_v1", &definition).as_deref(), Some(wire::DEFINITION_SHA256));
-    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::DEFINITION_ID,"sha256":wire::DEFINITION_SHA256},{"id":"RP-PREPARED-COMBINATION-DUAL-v1","sha256":"75b9414df919fb4e181aa06030249289b70f0518023afbe241f72e31b8b60f31"}]));
+    assert_eq!(table["product_formation_definitions"], json!([{"id":wire::DEFINITION_ID,"sha256":wire::DEFINITION_SHA256},{"id":"RP-PREPARED-COMBINATION-DUAL-v1","sha256":"a9219849d4dfecfc4e9529c6b648eb21cdf2e9872f2d681cc0c26cdfd2bdf6f1"}]));
     assert_eq!(table["semantic_contract_id"], json!(wire::RETAINED_SEMANTIC_ID));
     assert_eq!(table["formulation_profile_id"], json!(wire::RETAINED_PROFILE_ID));
     assert_eq!(table["receipt_policy"], json!(wire::POLICY));
@@ -801,14 +821,14 @@ fn u1g2_initial_quality_crosscheck_negative() {
 /// B3b-P (B3-D P-9; REVISION_01 §1.2, S-1): the exact route's wire constants are bound to the
 /// in-tree statics J1 landed: DEF-E's H is `EXACT_DEFINITION_SHA256` and the physics-retained-1
 /// table binds it, its identity, profile, policies and `receipt_bindings` (B3D-8, the serializer's
-/// own values); its inherited hash is pressure-1's table bytes (B7b D4 (a)). The preview route's descriptor is
+/// own values); its inherited hash is pressure-2's table bytes (B7b D4 (a)). The preview route's descriptor is
 /// the unchanged module constants.
 #[test]
 fn b3b_exact_constants_bound_to_in_tree_fixtures() {
     const EXACT_DEFINITION: &str = include_str!("../../../fixtures/results/retained_precision_prepared_exact_v1.json");
     const EXACT_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json");
-    // B7b D4 (a): physics-retained-1 is based on pressure-1 (exact_pressure_v3).
-    const PRESSURE_1_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_pressure_1.json");
+    // B7b D4 (a): physics-retained-1 is based on pressure-2 (exact_pressure_v3).
+    const PRESSURE_1_TABLE: &str = include_str!("../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
     let definition: Value = serde_json::from_str(EXACT_DEFINITION).unwrap();
     let table: Value = serde_json::from_str(EXACT_TABLE).unwrap();
     assert_eq!(definition["id"], json!(wire::EXACT_DEFINITION_ID));

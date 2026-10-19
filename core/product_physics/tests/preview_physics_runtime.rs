@@ -1,4 +1,4 @@
-//! T0R preview-physics-1 runtime evidence. Every expectation is read from the
+//! T0R preview-physics-2 runtime evidence. Every expectation is read from the
 //! frozen hand-statics references: a byte-identical copy of
 //! DEFAULT_ROUTE_DESIGN/_run_records/references.stdout.txt, kept in this crate's
 //! fixtures so the numerical CI path policy selects this suite, and pinned to
@@ -13,7 +13,7 @@ use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode
 use serde_json::{json, Value};
 use std::collections::HashSet;
 
-const PREVIEW: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+const PREVIEW: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const SQRT1_2: f64 = std::f64::consts::FRAC_1_SQRT_2;
 
@@ -66,7 +66,7 @@ fn vec3(v: &Value) -> Vec<f64> {
 
 // ------------------------------------------------------------------ model builders
 fn base(nodes: Value, pipes: Value, supports: Value, components: Value, cases: Value, combinations: Value) -> Value {
-    json!({"model":{"schema_version":"0.5.0","document_kind":"openpipestress.product_preview.model",
+    json!({"model":{"schema_version":"0.6.0","document_kind":"openpipestress.product_preview.model",
         "project":{"id":"project:t0r","units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","stress":"Pa","temperature":"degC"}},
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
         "nodes":nodes,"pipe_segments":pipes,"supports":supports,"components":components,
@@ -866,7 +866,7 @@ fn arc_model(k: f64, yref_bc: [f64; 3], sif_value: Option<f64>) -> Value {
 }
 
 #[test]
-fn b1_arc_signed_rows_frames_and_withheld_maximum() {
+fn b1_arc_signed_rows_frames_and_arc_maximum() {
     let u4a: Value = serde_json::from_str(include_str!("../../../validation/references/t4_u4a/oracle.json")).unwrap();
     let r = r2();
     let b1 = &r["REF-B1-SIGNED"];
@@ -909,10 +909,14 @@ fn b1_arc_signed_rows_frames_and_withheld_maximum() {
             close(stress("element_local_bending_normal_stress_y", "end_i"), num(&es["end_i_bending_normal_y_Pa"]), zs, "end_i sigma_y");
             close(stress("element_local_torsional_shear_stress", "end_i"), num(&es["end_i_torsional_shear_Pa"]), zs, "end_i tau");
             close(stress("element_local_bending_normal_stress_y", "end_j"), num(&es["end_j_bending_normal_y_Pa"]), zs, "end_j sigma_y");
-            assert!(maximum(&v, "pipe:b-c", "case:z").is_none(), "no arc maximum");
-            assert!(v["summary"]["max_open_formula_stress"].is_null(), "no headline with an arc");
-            assert_eq!(v["contract_evidence"]["preview_cases"][0]["stress_maximum_coverage"]["outside_domain_pipe_ids"], json!(["pipe:b-c"]));
-            assert_eq!(diag(&v, "PREVIEW_STRESS_HEADLINE_WITHHELD").len(), 1);
+            // T4-U4b (§2.1, §2.3): the arc publishes its maximum along the arc, under
+            // the arc's own convention, and enters the headline.
+            assert!(maximum(&v, "pipe:b-c", "case:z").is_some(), "arc maximum");
+            let row = results(&v).iter().find(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2" && r["entity_ref"] == "pipe:b-c").unwrap();
+            assert!(row["metadata"]["sign_convention"].as_str().unwrap().contains("along the arc"), "{row}");
+            assert!(!v["summary"]["max_open_formula_stress"].is_null(), "the headline covers the arc");
+            assert_eq!(v["contract_evidence"]["preview_cases"][0]["stress_maximum_coverage"]["outside_domain_pipe_ids"], json!([]));
+            assert!(diag(&v, "PREVIEW_STRESS_HEADLINE_WITHHELD").is_empty());
             assert!(!results(&v).iter().any(|r| r["kind"] == "component_equal_factor_intensified_bending_stress_v1"), "NOTE-1");
             assert_eq!(diag(&v, "COMPONENT_STRESS_INTENSIFICATION_NOT_APPLIED").len(), 1);
             assert!(diag(&v, "CURVED_BEND_TANGENT_DISCONTINUITY").is_empty(), "consistent arc has no warning");

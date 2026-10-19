@@ -1,6 +1,6 @@
 //! T4-U6/U8 (D-5, D-6): the section bases and the beam theory of exact-contract
 //! evidence and stress rows (DEL-05-03 `section-bases-and-timoshenko.md` §1,
-//! §2.1-§2.5 and §3.1), shared by the pressure-1, pressure-source-1 and
+//! §2.1-§2.5 and §3.1), shared by the pressure-2, pressure-source-1 and
 //! physics-retained-1 readers.
 //!
 //! What the readers rederive from a `pipe_sections` entry's captured authored
@@ -66,9 +66,16 @@ pub const ANNULUS_KEYS: [&str; 6] = ["wall_m", "ri_m", "As_m2", "I_m4", "J_m4", 
 pub const BORE_KEYS: [&str; 2] = ["ri_m", "Ai_m2"];
 pub const EULER_BERNOULLI: &str = "euler_bernoulli";
 pub const TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
-/// §2.1: the kinds whose pressure-1 table family is `stress` and which the
+/// §2.1: the kinds whose pressure-2 table family is `stress` and which the
 /// exact route publishes, once per section basis.
-pub const STRESS_KINDS: [&str; 8] = [
+pub const STRESS_KINDS: [&str; 14] = [
+    // T4-U4b (§2.2): the new per-basis kinds.
+    "element_local_normal_stress_extreme",
+    "element_local_transverse_shear_stress_maximum",
+    "pipe_toroidal_membrane_hoop_stress_v1",
+    "pipe_toroidal_radial_surface_stress_v1",
+    "curved_bend_directional_intensified_bending_stress_v1",
+    "curved_bend_directional_intensified_bending_maximum_v1",
     "element_local_axial_normal_stress",
     "element_local_bending_normal_stress_y",
     "element_local_bending_normal_stress_z",
@@ -395,7 +402,7 @@ pub fn selected_model(shear_model: &str, arc: bool) -> &str {
         shear_model
     }
 }
-/// §5 (pressure-1, against the captured model): each exact case's
+/// §5 (pressure-2, against the captured model): each exact case's
 /// `pipe_sections` entry and each pressure region's geometry entry states the
 /// beam theory the model's contract selects for that member
 /// ([`selected_model`]). §2.5: the entries the evidence marks

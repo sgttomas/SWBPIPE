@@ -119,6 +119,7 @@ impl Model {
             free_dofs: &self.free,
             prescribed: &self.fixed,
             contributions: Some(&self.contributions),
+            contribution_groups: None,
             symmetry: None,
         }
     }

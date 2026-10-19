@@ -11,7 +11,7 @@ import type {PreviewModel,MechanicsResult,SolveJobAuditState} from '../../types'
 // A supported analysis record binds the producer identity the carrier declares.
 const manifestFor=(model:PreviewModel)=>buildCurrentSessionInputManifest({model,solver:{solver_name:'open_pipe_stress_product_physics',solver_version:'0.2.0',solver_build_ref:'fixture',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
 // B1 retired precision-1, whose synthetic carrier gave the legacy rows' received
-// dimension declarations a current record. A current preview-physics-1 result
+// dimension declarations a current record. A current preview-physics-2 result
 // declares none: nothing is witnessed and the gap is disclosed.
 it('reports unavailable witnesses for a current result without received declarations',async()=>{
  const model=previewModelJson as unknown as PreviewModel,result=JSON.parse(previewText) as MechanicsResult,solveJob={job_id:'fixture',state:'completed',events:[],cancellation_requested:false,cancellation_status:'not-requested'} as unknown as SolveJobAuditState;

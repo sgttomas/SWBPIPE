@@ -37,6 +37,12 @@ fn erase_authorized_definition_hashes(value: &mut Value) {
     }
 }
 
+thread_local! {
+    /// The census entries whose live publication differs (beyond the authorized hashes) from the
+    /// committed one; asserted empty once every entry has run (and, with `W1_CENSUS_OUT`, been written).
+    static CENSUS_MISMATCHES: std::cell::RefCell<Vec<String>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
 fn reproduce(label: &str, old: &Value, invocation: &Value, hook: Option<&str>, exact: bool) -> Value {
     let solver = mode(&invocation["solver_mode"]);
     let raw = &invocation["request"];
@@ -57,18 +63,25 @@ fn reproduce(label: &str, old: &Value, invocation: &Value, hook: Option<&str>, e
     } else {
         assert!(matches!(retained, Err(W1Fallback::Precommit {gate:"G8", ..})), "{label}: unchanged controlled precommit refusal: {retained:?}");
     }
+    // The regeneration writer emits the live publication before the comparison below decides.
+    if let Ok(dir) = std::env::var("W1_CENSUS_OUT") {
+        let name = label.replace('/', "__");
+        let mut record = json!({"id":label,"source":current,"invocation":invocation,
+            "successor_bytes_sha256":sha(&serde_json::to_vec(&current).unwrap())});
+        if hook.is_some() {
+            // A controlled precommit refusal publishes the ordinary envelope (the corpus records it).
+            record["public_ordinary"] = serde_json::to_value(&envelope).unwrap();
+        }
+        std::fs::write(format!("{dir}/{name}.json"), serde_json::to_vec_pretty(&record).unwrap()).unwrap();
+    }
     let mut before = old.clone();
     let mut after = current.clone();
     if !exact {
         erase_authorized_definition_hashes(&mut before);
         erase_authorized_definition_hashes(&mut after);
     }
-    assert_eq!(serde_json::to_vec(&after).unwrap(), serde_json::to_vec(&before).unwrap(),
-        "{label}: only authorized definition-bound hashes may move");
-    if let Ok(dir) = std::env::var("W1_CENSUS_OUT") {
-        let name = label.replace('/', "__");
-        std::fs::write(format!("{dir}/{name}.json"), serde_json::to_vec_pretty(&json!({
-            "id":label,"source":current,"invocation":invocation})).unwrap()).unwrap();
+    if serde_json::to_vec(&after).unwrap() != serde_json::to_vec(&before).unwrap() {
+        CENSUS_MISMATCHES.with(|m| m.borrow_mut().push(label.to_owned()));
     }
     println!("W1_COMMITTED_CENSUS {label} source_sha256={} ordinary_sha256={} exact={exact}",
         sha(&serde_json::to_vec(&current).unwrap()),sha(&ordinary_bytes));
@@ -118,6 +131,8 @@ fn w1_committed_publications_preserve_all_but_authorized_definition_hashes() {
         count+=1;
     }
     assert_eq!(count,43,"the complete original committed-publication census");
+    let mismatches=CENSUS_MISMATCHES.with(|m| m.take());
+    assert!(mismatches.is_empty(),"only authorized definition-bound hashes may move: {mismatches:?}");
 }
 
 /// Maintained producer writer for the normalized-unit, multi-member and

@@ -281,7 +281,7 @@ def test_current_validator_refuses_coherently_rehashed_csv_shape_or_field_attack
     (lambda p: p["validation_report"]["checks"][0].update(check_status="blocking", blocking_count=0), "VALIDATION-STATUS-BINDING"),
     (lambda p: p.update(schema_conformant=False), "SCHEMA-CONFORMANCE-CLAIM"),
     (lambda p: p["unit_preservation_witnesses"].pop(), "WITNESS-CATEGORY-ACCOUNTING"),
-    (lambda p: p["export_profile"]["source_basis_refs"].remove(ref("ExternalReference", "fixtures/results/semantic_contract_v0_3_preview_physics_1.json")), "SEMANTIC-CONTRACT-BINDING"),
+    (lambda p: p["export_profile"]["source_basis_refs"].remove(ref("ExternalReference", "fixtures/results/semantic_contract_v0_3_preview_physics_2.json")), "SEMANTIC-CONTRACT-BINDING"),
 ])
 def test_current_recomputed_hashes_do_not_hide_relational_tamper(mutation, expected):
     packet = build_from_source(); mutation(packet)

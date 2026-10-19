@@ -45,7 +45,7 @@ needs:
   gating: true
   evidence: execution/PKG-10/DEL-10-05/ScopeOfWork.md
 - from: DEL-02-05
-  condition: 'The runner needs DEL-02-05''s model-document version contract (one current version, 0.5.0;
+  condition: 'The runner needs DEL-02-05''s model-document version contract (one current version, 0.6.0;
     every other version refused by name) and its canonical JSON (JCS) hash basis for reproducible structured
     model data flow. Persisted projects stay behind application-service boundaries, with no direct SQL or
     SQLite access (DEC-065).'
@@ -92,7 +92,7 @@ needs:
   evidence: schemas/headless_runner.schema.yaml
 - from: DEL-04-07
   condition: 'The runner''s `solve` verb runs DEL-04-07''s captured product solve (`run_linear_static_preview_value_with_retained_headless`,
-    in both solver modes) and needs its admission and refusal outcomes for pressure-free, pressure-1 and
+    in both solver modes) and needs its admission and refusal outcomes for pressure-free, pressure-2 and
     pressure-source-1 documents unchanged, so that a headless result is the product''s result for the same
     request; the runner adds no solver path of its own.'
   gating: true

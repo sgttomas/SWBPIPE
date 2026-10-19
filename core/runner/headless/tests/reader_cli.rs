@@ -225,7 +225,7 @@ fn the_cli_reads_the_input_bytes_as_given_and_refuses_unusable_input_with_exit_2
 fn base_readers_read_through_the_cli_as_reader_verdict() {
     use open_pipe_stress_result_export::reader_verdict as rv;
     // B4/D1 (b): the composite statement is the source route here; B7b: the
-    // current pressure-source-1 (0.5.0/v3) statement.
+    // current pressure-source-1 (0.6.0/v3) statement.
     let blocks: Value = serde_json::from_str(include_str!(
         "../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"
     ))
@@ -235,7 +235,7 @@ fn base_readers_read_through_the_cli_as_reader_verdict() {
     ))
     .unwrap();
     let invocation = json!({"request": request, "solver_mode": "sparse_interactive"});
-    // pressure-1 with the load/reference-state group, and without it.
+    // pressure-2 with the load/reference-state group, and without it.
     let lr: Value = serde_json::from_str(include_str!(
         "../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"
     ))
@@ -277,7 +277,7 @@ fn base_readers_read_through_the_cli_as_reader_verdict() {
         codes.push(code);
     }
     // Admitted, admitted, refused; then the readers: pass, refuse (G2), pass, pass,
-    // refuse (no pressure-1 transport reader), pass; then a retired v2 identity,
+    // refuse (no pressure-2 transport reader), pass; then a retired v2 identity,
     // refused by name at the header.
     assert_eq!(codes, [0, 0, 1, 0, 1, 0, 0, 1, 0, 1]);
     // B7b: the retired v2 readers are no longer read commands (unusable: exit 2).

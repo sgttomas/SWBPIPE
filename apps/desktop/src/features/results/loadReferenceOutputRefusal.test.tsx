@@ -1,8 +1,8 @@
 /** Every desktop output of a load/reference-state result is refused with its route's
  * one shared reason, the report package included. B7b: such a result is published
- * under pressure-1 (ordinary) or pressure-source-1 (joined), the v3 twins of the
+ * under pressure-2 (ordinary) or pressure-source-1 (joined), the v3 twins of the
  * retired load-reference-1 and load-reference-source-1, so the reasons are
- * PRESSURE-1-OUTPUT-NOT-YET-AVAILABLE's two texts. Display stays. A preview-physics-1
+ * PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE's two texts. Display stays. A preview-physics-2
  * result is the control: its outputs are unchanged. Unit rendering over committed
  * producer bytes and records; all inputs are invented. */
 import { render, screen, cleanup } from "@testing-library/react";
@@ -14,7 +14,7 @@ import type { AnalysisRunEnvelope, EditorOperationIntent, MechanicsResult, Previ
 import { buildAnalysisRunV03, modelLoadBasisRefs, validateAnalysisRunV03 } from "../../services/analysisRunCompatibility";
 import { computeModelHash } from "../../services/hashService";
 import { initialSolveJob } from "../workspace/solveJobAudit";
-import { PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, loadReferenceOutputRefusal } from "./loadReferenceOutputAvailability";
+import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, loadReferenceOutputRefusal } from "./loadReferenceOutputAvailability";
 import { reportPackageUnavailableReason } from "../report/reportPackageRequest";
 import { buildStressNeutralExportPacket, validateStressNeutralExportPacket, StressNeutralExportPanel } from "../stress-neutral/StressNeutralExportPanel";
 import { buildCurrentResultExport, deriveResultDocument, resultDigest, validateResultDocument } from "../result-export/resultExportAdapter";
@@ -56,7 +56,7 @@ function desktopModel(modelPath: string): PreviewModel {
   return model;
 }
 /** `recordPath`: the committed Python product-path record of the result, which the
- * desktop reads (B7b: the desktop builds the same record for pressure-1); otherwise the
+ * desktop reads (B7b: the desktop builds the same record for pressure-2); otherwise the
  * desktop builds it. */
 async function scenario(rawPath: string, modelPath: string, recordPath?: string) {
   const result = receivedFixture<MechanicsResult>(rawPath), model = desktopModel(modelPath);
@@ -75,7 +75,7 @@ const ordinary = () => scenario("fixtures/product_preview/pressure/load_referenc
 const joined = () => scenario("fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json", "fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json");
 const preview = () => scenario("fixtures/results/preview_physics_connected_sparse.json", "fixtures/model_operations/precision_connected_ui_model.json");
 /** The two load/reference-state identities and each one's reason. */
-const STATES = [["pressure-1", ordinary, PRESSURE_1_OUTPUT_REFUSAL], ["pressure-source-1", joined, PRESSURE_SOURCE_OUTPUT_REFUSAL]] as const;
+const STATES = [["pressure-2", ordinary, PRESSURE_2_OUTPUT_REFUSAL], ["pressure-source-1", joined, PRESSURE_SOURCE_OUTPUT_REFUSAL]] as const;
 
 /** Surfaces whose downloads or handoffs carry result data (group a). */
 const GATED: [string, ComponentType<Json>, string][] = [
@@ -120,7 +120,7 @@ describe.each(GATED)("%s", (_label, Panel, prefix) => {
     expect(screen.getByTestId(`${prefix}-load-reference-output-unavailable`).textContent).toBe(reason);
     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
   });
-  it("leaves a preview-physics-1 result's outputs unchanged", async () => {
+  it("leaves a preview-physics-2 result's outputs unchanged", async () => {
     const { props } = await preview();
     render(<Panel {...props} />);
     expect(screen.queryByTestId(`${prefix}-load-reference-output-unavailable`)).toBeNull();

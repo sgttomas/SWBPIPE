@@ -8,7 +8,7 @@ use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
 use serde_json::{json, Value};
 
 // B4/D1 (b): the composite statement is the source route here; B7b: the current
-// pressure-source-1 (0.5.0/v3) statement, and pressure-1 with the
+// pressure-source-1 (0.6.0/v3) statement, and pressure-2 with the
 // load/reference-state group as the pressure reader's input.
 const SOURCE: &str = include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json");
 const REQUEST: &str = include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
@@ -50,7 +50,7 @@ fn the_entry_points_return_the_verdicts() {
         assert_eq!(outcome(reader_transport_json(retired, SOURCE).unwrap())["error"]["code"], "READER_UNKNOWN", "{retired}");
         assert_eq!(outcome(reader_validate_json(retired, SOURCE, None, None).unwrap())["error"]["code"], "READER_UNKNOWN", "{retired}");
     }
-    // The model reaches the pressure reader (G2); B7b: on the received pressure-1
+    // The model reaches the pressure reader (G2); B7b: on the received pressure-2
     // statement its case-coverage refusal is the model check's own code.
     let lr_model: Value = serde_json::from_str(LOAD_REFERENCE_REQUEST).unwrap();
     let mut fewer = lr_model["model"].clone();
@@ -60,7 +60,7 @@ fn the_entry_points_return_the_verdicts() {
     assert_eq!(refused, rv::validate("pressure", &lr, Some(&fewer), None));
     assert_eq!(refused["error"]["code"], "SOURCE_PHYSICS_MODEL_CASE_COVERAGE");
     assert_eq!(outcome(reader_validate_json("pressure", LOAD_REFERENCE, None, None).unwrap()), json!({"ok": true}));
-    // pressure-1 has no transport reader (refused by name).
+    // pressure-2 has no transport reader (refused by name).
     let transport = outcome(reader_transport_json("pressure", LOAD_REFERENCE).unwrap());
     assert_eq!(transport, rv::transport("pressure", &lr));
     assert_eq!(transport["ok"], false);
@@ -100,7 +100,7 @@ fn text_that_is_not_json_is_an_input_error() {
 #[test]
 fn e17_magnitude_controls_through_the_reader_binding() {
     let table: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json"
+        "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
     ))
     .unwrap();
     let controls: Value = serde_json::from_str(include_str!(

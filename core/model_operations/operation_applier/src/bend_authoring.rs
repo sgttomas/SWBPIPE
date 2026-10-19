@@ -5,6 +5,9 @@
 //! α_tan are CB's, reached through PP, so authoring and solve share one
 //! definition. The flexibility factor k is user data: no value is suggested,
 //! defaulted or accepted from an agent (the caller refuses agent authors).
+//! T4-U4b (§2.6): the realization also takes the optional directional SIF pair
+//! (`sif_in_plane_user_value`, `sif_out_of_plane_user_value`), both or neither,
+//! under the same `source_reference`; it is user data as k is.
 use crate::geometry_operations::{diff, global_ids, metadata, references, GeometryEdit, GeometryError};
 use crate::rich_authoring::{RichEdit, RichError};
 use crate::{canonical_json, quantity_value_in_unit, Dimension, EnteredQuantity};
@@ -18,7 +21,17 @@ const GEOMETRY_ONLY: &str = "mechanics_geometry_only";
 /// PP's rule for an authored bend angle against the arc's included angle
 /// (`DEC_070_CURVED_BEND_ANGLE_MATCH_TOLERANCE`, relative to max(|φ|, 1)).
 const ANGLE_MATCH: f64 = 1.0e-6;
-const REALIZATION_KEYS: &[&str] = &["solver_consumption", "flexibility_factor_user_value", "source_reference"];
+const REALIZATION_KEYS: &[&str] = &[
+    "solver_consumption",
+    "flexibility_factor_user_value",
+    "source_reference",
+    SIF_IN_PLANE,
+    SIF_OUT_OF_PLANE,
+];
+/// The directional SIF pair (T4-U4b §2.6): i_ip multiplies the arc frame's M_z,
+/// i_op its M_y.
+const SIF_IN_PLANE: &str = "sif_in_plane_user_value";
+const SIF_OUT_OF_PLANE: &str = "sif_out_of_plane_user_value";
 type Vec3 = [f64; 3];
 
 fn is_bend(component: &Value) -> bool {
@@ -217,7 +230,7 @@ fn realization_projection(component: &Value) -> Value {
     if let Some(value) = component.pointer("/mechanics_interface/solver_consumption") {
         out.insert("solver_consumption".into(), value.clone());
     }
-    for key in ["flexibility_factor_user_value", "source_reference"] {
+    for key in ["flexibility_factor_user_value", "source_reference", SIF_IN_PLANE, SIF_OUT_OF_PLANE] {
         if let Some(value) = component.get("modifiers").and_then(|m| m.get(key)) {
             out.insert(key.into(), value.clone());
         }
@@ -237,6 +250,30 @@ fn flexibility(value: Option<&Value>) -> Result<Value, RichError> {
     }
     let k = value.get("value").and_then(Value::as_f64).filter(|k| k.is_finite() && *k > 0.0).ok_or_else(refuse)?;
     Ok(json!({"value": k, "unit": "none"}))
+}
+
+/// The optional directional SIF pair: both or neither, each a user-entered
+/// `{value, unit}` with unit `1` (or `none`, which PP reads as `1`), finite and
+/// positive. No code floor is imposed (F-PIP-1).
+fn directional_pair(fields: &Map<String, Value>) -> Result<Option<(Value, Value)>, RichError> {
+    let refuse = || realize_err(
+        "OP-BEND-DIRECTIONAL-SIF-INCOMPLETE",
+        "Enter both directional SIFs (in-plane i_ip on M_z, out-of-plane i_op on M_y) as {value, unit: 1}, finite and positive, with their source, or neither; no value is suggested or defaulted",
+    );
+    let factor = |value: &Value| -> Result<Value, RichError> {
+        let value = value.as_object().ok_or_else(refuse)?;
+        let unit = value.get("unit").and_then(Value::as_str).filter(|u| matches!(*u, "1" | "none")).ok_or_else(refuse)?;
+        let i = value.get("value").and_then(Value::as_f64).filter(|i| i.is_finite() && *i > 0.0).ok_or_else(refuse)?;
+        if value.len() != 2 {
+            return Err(refuse());
+        }
+        Ok(json!({"value": i, "unit": unit}))
+    };
+    match (fields.get(SIF_IN_PLANE), fields.get(SIF_OUT_OF_PLANE)) {
+        (None, None) => Ok(None),
+        (Some(ip), Some(op)) => Ok(Some((factor(ip)?, factor(op)?))),
+        _ => Err(refuse()),
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -278,6 +315,14 @@ pub(crate) fn resolve(
             if fields.len() != 1 {
                 return Err(realize_err("OP-BEND-REALIZE-PAYLOAD-INVALID", "Returning a bend to geometry-only changes solver_consumption only"));
             }
+            // A directional pair is read in the arc's own frame; a chord has none
+            // and the solve refuses it (BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC).
+            if !current.get(SIF_IN_PLANE).unwrap_or(&Value::Null).is_null() || !current.get(SIF_OUT_OF_PLANE).unwrap_or(&Value::Null).is_null() {
+                return Err(realize_err(
+                    "OP-BEND-DIRECTIONAL-SIF-NOT-REALIZED-ARC",
+                    "This bend carries directional SIFs, which apply only to a realized arc; realize it again without them before returning it to geometry-only",
+                ));
+            }
             (vec![(consumption_path, Some(json!(GEOMETRY_ONLY)))], vec![])
         }
         Some(CURVED) => {
@@ -286,12 +331,25 @@ pub(crate) fn resolve(
                 "OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED",
                 "Enter the source of the flexibility factor k (source_reference)",
             ))?;
+            let pair = directional_pair(fields)?;
             let warnings = realization_geometry(model, component)?;
-            let writes = vec![
+            let modifier = |key: &str| vec!["modifiers".to_string(), key.to_string()];
+            let (ip, op) = match pair {
+                Some((ip, op)) => (Some(ip), Some(op)),
+                None => (None, None),
+            };
+            let mut writes = vec![
                 (consumption_path, Some(json!(CURVED))),
-                (vec!["modifiers".into(), "flexibility_factor_user_value".into()], Some(k)),
-                (vec!["modifiers".into(), "source_reference".into()], Some(json!(source))),
+                (modifier("flexibility_factor_user_value"), Some(k)),
+                (modifier("source_reference"), Some(json!(source))),
             ];
+            // The payload is the realization's whole projection: a pair it omits
+            // is removed.
+            for (key, value) in [(SIF_IN_PLANE, ip), (SIF_OUT_OF_PLANE, op)] {
+                if value.is_some() || !current.get(key).unwrap_or(&Value::Null).is_null() {
+                    writes.push((modifier(key), value));
+                }
+            }
             (writes, warnings)
         }
         _ => return Err(realize_err("OP-BEND-REALIZE-PAYLOAD-INVALID", format!("solver_consumption must be {CURVED} or {GEOMETRY_ONLY}"))),

@@ -21,10 +21,10 @@ from tests.verifiers import compatibility as v
 ROOT = Path(__file__).resolve().parents[1]
 SUCC = c.PREVIEW_PHYSICS_RETAINED_CONTRACT_ID
 PINNED = {
-    "sparse_interactive": ("032630ba2f80a80361be3ce60e1d27821d47e1161cdf750566640552de3edd2e",
-                           "835205890be3f58565bdba65cb781040372af9bafc72ecf168e60fb360bb835c", [25, 69, 3, 1]),
-    "dense_scrutiny": ("0db162eb507060ec2a5bf6d78d7f1ab43fd868f2e085c9395832d7b282cbfda0",
-                       "6e5123ba864e319b8d07a1581e1d10b165ce208ac75e255d9c66e2640215dad0", [25, 69, 3, 1]),
+    "sparse_interactive": ("d79b9b53fd88e61c84a9446aa2682a0943acde8d2ab4b251b3d393d4a4786caa",
+                           "2f2260237fcae99adbecc4c208ad0f66a76bdc630fb5d7ddcaca2909a85444a4", [25, 69, 3, 1, 15]),
+    "dense_scrutiny": ("104b8fcb7eb4ccdda48d1dfa88c527a2835ec4f2746693b76821d34baeee5f85",
+                       "53d34043560deaac649f0090fc2a14bb452fe30e2e014607624eb55090f00642", [25, 69, 3, 1, 15]),
 }
 MODES = sorted(PINNED)
 NOTICE = "Retained-precision recovery is unavailable for this load case. Its published rows keep their ordinary values, standing and diagnostics."
@@ -544,13 +544,14 @@ def test_each_class_maps_to_its_refusal():
 @pytest.mark.parametrize("mode", MODES)
 def test_classification_summary_counts_validated_classes(mode):
     source, invocation = milestone(mode)
-    relative, absolute, input_derived, non_quantity = PINNED[mode][2]
+    # T4-U4b: the member's 15 derived σ⁺, σ⁻ and τ_v,max rows are not covered.
+    relative, absolute, input_derived, non_quantity, not_covered = PINNED[mode][2]
     case_id = invocation["request"]["model"]["load_cases"][0]["id"]
     expected = [{"case_id": case_id, "relative_verified": relative, "absolute_verified": absolute, "interval_bindable": 0,
-                 "not_covered": 0, "input_derived": input_derived, "non_quantity": non_quantity,
-                 "withheld": relative + absolute + input_derived}]
+                 "not_covered": not_covered, "input_derived": input_derived, "non_quantity": non_quantity,
+                 "withheld": relative + absolute + input_derived + not_covered}]
     current = deepcopy(expected)
-    current[0]["withheld"] = absolute
+    current[0]["withheld"] = absolute + not_covered
     # U7, aligned (RV94 S-1): Current only when the standing with the caller's requested refs is
     # eligible, so only absolute (and not-covered) rows stay withheld; with no refs or other refs, all.
     assert c.numerical_use_standing(source, requested(invocation), invocation) == "numerically_eligible"
@@ -574,9 +575,9 @@ def test_classification_summary_counts_validated_classes(mode):
     index = next(i for i, item in enumerate(classes) if item["class"] == "relative_verified")
     classes[index]["class"] = "not_covered"
     uncovered = deepcopy(current)
-    uncovered[0].update(relative_verified=relative - 1, not_covered=1, withheld=absolute + 1)
+    uncovered[0].update(relative_verified=relative - 1, not_covered=not_covered + 1, withheld=absolute + not_covered + 1)
     assert v._classification_summary_from(dict(validation, classifications=classes), source, requested(invocation)) == uncovered
-    uncovered[0]["withheld"] = relative + absolute + input_derived
+    uncovered[0]["withheld"] = relative + absolute + input_derived + not_covered
     assert v._classification_summary_from(dict(validation, classifications=classes, numerical_eligible=False), source, requested(invocation)) == uncovered
     # Counts are per case: a classification under another case is not counted here.
     stray = dict(classes[index], basis_ref={"ref_type": "load_case", "ref_id": "other"})
@@ -585,8 +586,8 @@ def test_classification_summary_counts_validated_classes(mode):
 
 def test_d_u7_4_forms_python_side_standing_and_summary():
     """RV94 S-1: on both D-U7-4 forms Python, given the invocation and the requested refs, stands
-    numerically_eligible and its summary is Current (69 withheld). TS's side (needs_recompute, the
-    not-Current 97) is pinned in TS. With other requested refs Python reads needs_recompute and the
+    numerically_eligible and its summary is Current (69 absolute and, since T4-U4b, 15 not-covered rows withheld:
+    84). TS's side (needs_recompute, the not-Current 112) is pinned in TS. With other requested refs Python reads needs_recompute and the
     not-Current summary, so the summary never says Current when the standing does not."""
     cases, docs = shared_cases()
     entry = next(e for e in cases["declared_differences"] if e["id"] == "D-U7-4:ts_requires_live_native_capture")
@@ -596,7 +597,7 @@ def test_d_u7_4_forms_python_side_standing_and_summary():
             source, context, refs = apply_case(form, docs[fid])
             assert c.numerical_use_standing(source, refs, context) == "numerically_eligible", form["label"]
             summary = c.classification_summary(source, context, refs)
-            assert summary == expected_summary(source, current=True) and summary[0]["withheld"] == summary[0]["absolute_verified"] == 69, form["label"]
+            assert summary == expected_summary(source, current=True) and summary[0]["withheld"] == 69 + 15 and summary[0]["absolute_verified"] == 69 and summary[0]["not_covered"] == 15, form["label"]
             other = [{"ref_type": "load_case", "ref_id": "other"}]
             assert c.numerical_use_standing(source, other, context) == "needs_recompute"
             assert c.classification_summary(source, context, other) == expected_summary(source) and summary != expected_summary(source)
@@ -605,7 +606,8 @@ def test_d_u7_4_forms_python_side_standing_and_summary():
 def test_07j_not_required_case_omitted_or_reordered_is_not_current():
     """RV94 S-1 on 07j's two-case statement whose second case is not_required: with the receipt's
     case order the standing is eligible and the summary Current; with the not_required case omitted,
-    or the two reordered, the standing is needs_recompute and the summary not-Current ([73, 0])."""
+    or the two reordered, the standing is needs_recompute and the summary not-Current ([88, 0]: the first case's 73 rows
+    and, since T4-U4b, its 15 derived not-covered rows)."""
     from tests.test_retained_precision_contract import apply_entry, corpus
     data = corpus()
     entry = next(e for e in data["must_pass"] if e["id"] == "not_required_second_case_checks_passed")
@@ -616,7 +618,7 @@ def test_07j_not_required_case_omitted_or_reordered_is_not_current():
     assert c.numerical_use_standing(source, order, invocation) == "numerically_eligible"
     current = c.classification_summary(source, invocation, order)
     not_current = c.classification_summary(source, invocation)
-    assert [case["withheld"] for case in not_current] == [73, 0] and current != not_current
+    assert [case["withheld"] for case in not_current] == [88, 0] and current != not_current
     assert current == expected_summary(source, current=True) and not_current == expected_summary(source)
     for refs in (order[:1], order[::-1]):
         assert c.numerical_use_standing(source, refs, invocation) == "needs_recompute", refs
@@ -678,7 +680,7 @@ def test_private_seams_have_no_product_callers():
 @pytest.mark.parametrize("mode", MODES)
 def test_r2_noticed_ordinary_envelope_keeps_its_base_behaviour(mode):
     """R-2: a base publication carrying the unavailable notice is an ordinary
-    preview-physics-1 envelope; its carriers and standing equal the plain base."""
+    preview-physics-2 envelope; its carriers and standing equal the plain base."""
     source, invocation = milestone(mode)
     plain = projected(source)
     case_id = invocation["request"]["model"]["load_cases"][0]["id"]
@@ -728,7 +730,7 @@ def value_error_only(fn, *args):
 
 @pytest.mark.parametrize("mode", MODES)
 def test_rv108_n1_base_header_refuses_a_non_string_enum_with_its_code(mode):
-    """The base dispatch on the reader's projection (a preview-physics-1 envelope), raw and transport:
+    """The base dispatch on the reader's projection (a preview-physics-2 envelope), raw and transport:
     each unhashable enum value gives the base header code. Hashable non-strings and strings outside
     the vocabulary read as before (the same codes); the unedited envelope is admitted."""
     source, _ = milestone(mode)
@@ -762,7 +764,7 @@ def test_rv108_n1_retained_reader_reports_the_base_header_code_at_g7(mode):
 
 @pytest.mark.parametrize("mode", MODES)
 def test_rv108_n1_stress_neutral_packager_validator_refuses_with_a_value_error(mode):
-    """The ValueError-only caller RV108 named: the v0.3 packager's validator on a preview-physics-1
+    """The ValueError-only caller RV108 named: the v0.3 packager's validator on a preview-physics-2
     package view. An unhashable enum is refused with the base header code, a ValueError; before, a
     TypeError escaped it."""
     from core.handoff.stress_neutral import package as sn

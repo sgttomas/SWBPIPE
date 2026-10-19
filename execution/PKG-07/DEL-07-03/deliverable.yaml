@@ -267,4 +267,5 @@ code_paths:
 - apps/desktop/src/features/pressure-authoring/**
 - apps/desktop/src/features/material-temperature/**
 - apps/desktop/src/features/bend-authoring/**
+- apps/desktop/src/features/component-creation/**
 - apps/desktop/e2e/load-state-inputs.spec.ts

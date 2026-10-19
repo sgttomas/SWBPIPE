@@ -119,10 +119,13 @@ code_paths:
 - tests/verifiers/section_basis.py
 - tests/test_section_bases_readers.py
 - tests/test_maximum_enclosure_schema.py
+- tests/test_u4b_section_bits.py
 - validation/references/t4_u6/**
 - validation/references/t4_u8/**
 - validation/references/kd5_timoshenko/**
 checks:
+- core/loads/stress_recovery/src/section_stress_quantities_tests.rs
+- tests/test_u4b_section_bits.py
 - core/product_physics/tests/t4_u6_section_bases.rs
 - core/product_physics/tests/t4_u8_timoshenko_references.rs
 - core/reporting/result_export/tests/section_bases.rs

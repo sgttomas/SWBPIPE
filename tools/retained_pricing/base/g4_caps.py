@@ -235,6 +235,12 @@ _FAILED_QUALITY = (V("NumericalCaseQuality", CC)
                    + V("String", 3) * CC + s("String") * CC
                    + B(CC * (ID + 64 + 3 * L_DIAGID) + 3 * 64))
 _FAILED_MANIFEST_COPY = STAGED + _FAILED_QUALITY
+# T4-S5 D3 (retained-pricing-rules.md §8.8, U4B-W1): failed_manifest's Poisson flags and its diagnostics clone grown
+# by the Poisson warnings, per requested case (u4b_u5b_owners_model binds failed_manifest's body).
+import u4b_u5b_owners_model as _u45_model
+_u45 = _u45_model.inspect(SNAP)
+if _u45["not_covered"]:
+    _FAILED_MANIFEST_COPY = _FAILED_MANIFEST_COPY + _u45_model.failed_manifest_additions(m, DENV) * CC
 rows["T18.1a additional failed-manifest typed clone (B7a stage 1)"] = _FAILED_MANIFEST_COPY
 
 
@@ -258,15 +264,23 @@ MEMBERS = BODY.tree()                                                           
 # (u6_owners_model.domain_hash_copies). T17 (the RS reader: result_export source_blocks::domain_hash) still copies
 # (json!); T25 (source_receipt's hash) is U6-SH, in t25_g4.py.
 import u6_owners_model as _u6_model
-_T16_COPY = _u6_model.domain_hash_copies(
+# S6-HS (T4-S6, retained-pricing-rules.md §8.8): where domain_hash streams the checked canonical text of the borrowed
+# {domain, payload} into SHA-256 (u6_owners_model.domain_hash_streams: its exact text and the canonical writer's pin),
+# each T16 hash holds only the streamed route (no copy, text, parse tree or canonical output) and T16's moving is the
+# string temporary's previous backing. The former forms keep their former prices.
+_T16_STREAM = _u6_model.domain_hash_streams(SNAP,
     open(os.path.join(SNAP, "core/product_physics/src/retained_wire.rs"), encoding="utf-8").read())
+_T16_COPY = False if _T16_STREAM else _u6_model.domain_hash_copies(
+    open(os.path.join(SNAP, "core/product_physics/src/retained_wire.rs"), encoding="utf-8").read())
+def h16(vf, lmax):
+    return _u6_model.stream_route(vf, lmax, EPS) if _T16_STREAM else hash_route(vf, lmax, _T16_COPY)
 st16 = {
     "P1 env to_value + successor deltas + members + source identity hash":
-        ENV_S.tree() + ENV_GROWTH + LOCALS16 + SOURCE.tree() * 2 + hash_route(SOURCE, ID, _T16_COPY) + PREP_PAYLOAD.tree(),
+        ENV_S.tree() + ENV_GROWTH + LOCALS16 + SOURCE.tree() * 2 + h16(SOURCE, ID) + PREP_PAYLOAD.tree(),
     "P2 body json! + hash(publication)":
-        ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() + hash_route(ENV_S, L_PUB, _T16_COPY),
+        ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() + h16(ENV_S, L_PUB),
     "P3 hash(body)":
-        ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() + hash_route(BODY, L_DIAGID, _T16_COPY),
+        ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() + h16(BODY, L_DIAGID),
     "P4 retained_precision insert (third body copy)":
         ENV_S.tree() + ENV_GROWTH + LOCALS16 + MEMBERS + THIRD + BODY.tree() * 2 + VF(obj=1, ent=2, strb=SHA).tree(),
 }
@@ -274,7 +288,8 @@ evv = dict(ASSUMED)
 def ev(x):
     return x.ev(evv)
 T16_name, T16 = max(st16.items(), key=lambda kv: ev(kv[1]))
-T16_mov = hash_last_growth(ENV_S)                                                     # the publication text's last growth
+T16_mov = (_u6_model.stream_last_growth(max(ID, L_PUB, L_DIAGID), EPS) if _T16_STREAM      # S6-HS: the string temporary's
+           else hash_last_growth(ENV_S))                                                   # or the publication text's last growth
 rows["T16 publication peak (" + T16_name + ")"] = T16
 
 # =========================================================================== T17 precommit reader
@@ -355,19 +370,33 @@ G8_BYTES = B(AA * 2 * pushcap(36_742 + 4_986, 8) + 4 * 16 * m)                  
 # the case's diagnostic_refs as a Vec<&Value> (exact size, <= D_env: the refs are unique and resolve);
 # both live for the comparison and drop at the end of the case's iteration (V4)
 F5_EXACT = s("&Value") * (pushcap(DENV) + DENV)
+# T4-S5 D3 (retained-pricing-rules.md §8.8, U4B-RD): G7's base read of the projection and route L's model checks
+# (u4b_evidence's row index, covers and sets; the captured model's array clones), beside the projection.
+_U4B_RD = _u45_model.reader_working_sets(PA, CC, m, RAW_VF.tree()) if _u45["readers"] else X()
+# S6-HS (T4-S6, §8.8): where result_export's domain_hash streams (u6_owners_model.reader_hash_streams), every T17 hash
+# holds only the streamed route; where G1 also hashes the publication as the borrowed source less its receipt
+# (hash_without), V2 holds no public clone (the successor itself is SUCC, priced in W4). The former forms keep their
+# former prices.
+_T17_STREAM, _T17_BORROW = _u6_model.reader_hash_streams(SNAP)
+def h17(vf, lmax):
+    return _u6_model.stream_route(vf, lmax, EPS) if _T17_STREAM else hash_route(vf, lmax)
+_T17_V2_CLONE = X() if _T17_BORROW else SUCC.tree()
+_T17_V2_HASH = h17(ENVP, L_PUB) if _T17_BORROW else ENVP.tree() + h17(ENVP, L_PUB)
 st17 = {
-    "V1 G1 receipt hash": hash_route(BODY, L_DIAGID),
+    "V1 G1 receipt hash": h17(BODY, L_DIAGID),
     # public = source.clone(), then remove("retained_precision") drops the receipt part before
     # the hash (retained_precision.rs:591-596): the clone peak is SUCC, the hash peak ENVP + route
-    "V2 G1 public clone + hash(publication)": max(SUCC.tree(), ENVP.tree() + hash_route(ENVP, L_PUB), key=lambda x: x.ev(dict(ASSUMED))),
-    "V3 G1 source and preparation hashes": SOURCE.tree() + hash_route(SOURCE, ID) + PREP_PAYLOAD.tree() + hash_route(PREP_PAYLOAD, 64),
+    "V2 G1 public clone + hash(publication)": max(_T17_V2_CLONE, _T17_V2_HASH, key=lambda x: x.ev(dict(ASSUMED))),
+    "V3 G1 source and preparation hashes": SOURCE.tree() + h17(SOURCE, ID) + PREP_PAYLOAD.tree() + h17(PREP_PAYLOAD, 64),
     "V4 G3-G6 working sets": SETS + G5C + OBJ_WALK + F5_EXACT,
-    "V5 G7 project + preview evidence": SUCC.tree() + SETS + OBJ_WALK,
-    "V6 G8 projected + invocation hash + model rebuild": ENVP.tree() + hash_route(INVOC_VF, ID) + G8_VALUES + G8_BYTES + SETS + OBJ_WALK,
+    "V5 G7 project + preview evidence": SUCC.tree() + SETS + OBJ_WALK + _U4B_RD,
+    "V6 G8 projected + invocation hash + model rebuild": ENVP.tree() + h17(INVOC_VF, ID) + G8_VALUES + G8_BYTES + SETS + OBJ_WALK,
 }
 T17_name, T17v = max(st17.items(), key=lambda kv: ev(kv[1]))
 T17 = T17v + Xc("Validation", 1) + Xc("RowClassification", pushcap(PA))
-T17_mov = hash_last_growth(ENVP) if "V2" in T17_name else B(j3cap(INVOC_VF.text()) // 2)
+_T17_MOV_PUB = _u6_model.stream_last_growth(max(L_PUB, L_DIAGID, ID, 64), EPS) if _T17_STREAM else hash_last_growth(ENVP)
+_T17_MOV_INV = _u6_model.stream_last_growth(ID, EPS) if _T17_STREAM else B(j3cap(INVOC_VF.text()) // 2)
+T17_mov = _T17_MOV_PUB if "V2" in T17_name else _T17_MOV_INV
 rows["T17 precommit reader peak (" + T17_name + ")"] = T17
 rows["T17.1 the invocation Value (U3 lib.rs:2989, live for the precommit to :2995)"] = INVOC
 
@@ -444,14 +473,14 @@ for k_, v_ in st16.items():
     form("T16_" + k_.split(" ")[0], v_)
 form("T16_moving", T16_mov)
 form("T17_V1", st17["V1 G1 receipt hash"])
-form("T17_V2_clone", SUCC.tree())
-form("T17_V2_hash", ENVP.tree() + hash_route(ENVP, L_PUB))
+form("T17_V2_clone", _T17_V2_CLONE)
+form("T17_V2_hash", _T17_V2_HASH)
 for k_ in ("V3 G1 source and preparation hashes", "V4 G3-G6 working sets", "V5 G7 project + preview evidence",
            "V6 G8 projected + invocation hash + model rebuild"):
     form("T17_" + k_.split(" ")[0], st17[k_])
 form("T17_output", Xc("Validation", 1) + Xc("RowClassification", pushcap(PA)))
-form("T17_moving_publication", hash_last_growth(ENVP))
-form("T17_moving_invocation", B(j3cap(INVOC_VF.text()) // 2))
+form("T17_moving_publication", _T17_MOV_PUB)
+form("T17_moving_invocation", _T17_MOV_INV)
 for name_, x_ in (("STAGED", STAGED), ("SUCC", SUCC.tree()), ("INVOC", INVOC), ("STATICS", STATICS), ("BODY", BODY.tree()),
                   ("NOTICE", NOTICE), ("NOTICE_moving", T18_RESERVE_MOV), ("T19", T19)):
     form(name_, x_)

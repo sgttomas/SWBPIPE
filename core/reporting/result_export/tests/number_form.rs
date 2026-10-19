@@ -2,7 +2,7 @@
 //! The source reader's section parameters were the one comparison that read the
 //! form (`pa_per_mpa` against the float `1e6`); a statement re-serialized in JCS
 //! or `JSON.stringify` form writes it `1000000`. A wrong value is still refused.
-//! B7b: read over the current pressure-source-1 and pressure-1 statements.
+//! B7b: read over the current pressure-source-1 and pressure-2 statements.
 use open_pipe_stress_result_export::{physics_source as ps, reader_verdict as rv, source_blocks::domain_hash};
 use serde_json::{json, Value};
 

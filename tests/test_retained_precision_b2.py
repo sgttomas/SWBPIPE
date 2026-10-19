@@ -546,7 +546,9 @@ def test_b2_g5b_g5c_and_g6_on_the_combination():
     assert verdict(*edited([_set(scales, format(int(word, 16) + 1, "016x"))])) == ("G5b", "RETAINED_PRECISION_SCALE_MISMATCH")  # m54
     row = body(source)["combinations"][0]["result_ids"][3]
     assert verdict(*edited([_set(C0 + ["selection", "not_covered"], [row])])) == ("G5c", "RETAINED_PRECISION_CLASSIFICATION_MISMATCH")  # m55
-    assert verdict(*edited([], change=lambda s: s["results"][226].pop("recovery_method"))) == ROW_METHOD  # m57
+    # m57 on the first combination row (index 256 since T4-U4b's 30 derived case rows precede it).
+    first = next(i for i, r in enumerate(source["results"]) if r["id"] == "result:combination:combination-ab:disp:N0")
+    assert verdict(*edited([], change=lambda s: s["results"][first].pop("recovery_method"))) == ROW_METHOD  # m57
     assert verdict(*edited([], change=lambda s: s["results"][0].pop("recovery_method"))) == ROW_METHOD
 
 

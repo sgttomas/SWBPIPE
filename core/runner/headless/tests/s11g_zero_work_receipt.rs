@@ -87,6 +87,6 @@ fn t23_the_preview_route_publishes_no_source_block_receipt() {
         );
         let raw = serde_json::to_value(&envelope).unwrap();
         assert!(raw.get("source_block_recovery").is_none(), "{mode:?}");
-        assert_eq!(raw["producer"]["semantic_contract_id"], json!("openpipestress.result_semantics/0.3.0/preview-physics-1"), "{mode:?}");
+        assert_eq!(raw["producer"]["semantic_contract_id"], json!("openpipestress.result_semantics/0.3.0/preview-physics-2"), "{mode:?}");
     }
 }

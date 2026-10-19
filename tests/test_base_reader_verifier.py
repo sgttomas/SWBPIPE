@@ -38,15 +38,25 @@ DECLARED_VALIDATE = {
         "V8-empty-sif-source-reference", "V9-missing-entity-ref", "V10-negative-intensified-value",
         "V11-support-both-attributed-and-withheld", "A4-N2-basis-ref-extra-key", "A4-N3-diagnostic-without-id",
         "A4-N4-combination-source-result-refs-null", "A4-N5-duplicate-combination-force-magnitude",
-        "A4-N6-support-row-without-basis-ref-element-local", "A4-N8-blocked-envelope-without-summary")},
-    # B7b: the load/reference-state statements are read by the pressure-1 reader. Its inherited checks keep their
+        "A4-N6-support-row-without-basis-ref-element-local", "A4-N8-blocked-envelope-without-summary",
+        # T4-U4b: the verifier names the new kinds' refusals in its own words.
+        "U4B-sigma-plus-changed", "U4B-sigma-minus-missing", "U4B-transverse-shear-negative", "U4B-arc-outside-domain-revived",
+        "U4B-arc-station-cover",
+        # Codex round 2: the malformed directional records (their transport outcomes agree).
+        "U4B-transport-directional-bare", "U4B-transport-station-factor-negative", "U4B-transport-station-location",
+        "U4B-transport-station-extra-key", "U4B-transport-maximum-approximation", "U4B-transport-maximum-span-index",
+        "U4B-transport-maximum-subdivisions", "U4B-transport-maximum-gap-missing", "U4B-transport-maximum-pipe-empty")},
+    # B7b: the load/reference-state statements are read by the pressure-2 reader. Its inherited checks keep their
     # own words; the three cases the ordinary pressure reader now reads (no or a broken group, a closed connector)
     # and the moved connector case join them (as test_load_reference_readers declares).
     "pressure": {f"lr/{name}" for name in (
         "UNKNOWN-case-section-inherited", "UNKNOWN-maximum-coverage-inherited", "SWAP-numerical-evidence-inherited",
         "PROFILE-exact-case-mode-inherited", "INHERITED-maximum-unit", "INHERITED-extrema-gap", "INHERITED-rhs-method",
         "INHERITED-headline", "INHERITED-section-diameter", "INHERITED-region-pressure-rhs",
-        "MISSING-load-reference-states", "MISSING-contract-evidence", "CLOSED-connector")} | {"lr-reader/CONNECTOR_NOT_ARRAY"},
+        "MISSING-load-reference-states", "MISSING-contract-evidence", "CLOSED-connector",
+        "U4B-sigma-plus-changed", "U4B-transverse-shear-changed", "U4B-sigma-minus-missing", "U4B-twin-order-swapped",
+        "U4B-shear-coverage", "U4B-hoop-changed", "U4B-toroidal-coverage", "U4B-arc-tokens-on-straight", "U4B-arc-record-15th-key",
+        "U4B-forged-poisson-warning")} | {"lr-reader/CONNECTOR_NOT_ARRAY"},
     # B7b: one source reader (pressure-source-1) reads the composite ledger cases and the joined statements.
     "pressure-source": {"lrs/NUM-unsafe-integer-in-publication"} | {f"ledger/{name}" for name in (
         "EVIDENCE_IDS", "VALUE_NONFINITE", "ROW_FIELDS", "ORDINARY_REPORT_KIND", "EXACT_SOURCE_REQUIRED",
@@ -95,7 +105,10 @@ def _strict_json(text):
 def test_the_corpus_is_the_committed_corpus():
     built, committed = inputs(), corpus.committed()
     # B7b: 543 less the 14 load-reference transport cases retired with the v2 transport reader.
-    assert [item.id for item in built] == list(committed) and len(built) == 529
+    # T4-U4b (§5.1): seven tampers of the new kinds (529 -> 536); review 2: the twin-order swap (537);
+    # review 6: the preview arc withholding revived (538); review 3 and 5: the two arc envelopes and seven tampers (547);
+    # Codex round 2: nine malformed directional records (556).
+    assert [item.id for item in built] == list(committed) and len(built) == 556
     for item in built:
         entry = committed[item.id]
         if item.source is None:
@@ -157,8 +170,12 @@ def test_the_verifier_gives_every_committed_outcome_but_the_declared_class():
             assert ours["transport"][reader] == theirs["transport"][reader], (item.id, reader)
         if item.rows:
             assert ours["rows"] == theirs["rows"], item.id
-    # B7b: 580 reader and transport readings of the parsed statements (fewer than before: one source reader).
-    assert compared == 580
+    # B7b: 580 reader and transport readings of the parsed statements (fewer than before: one source reader);
+    # T4-U4b adds the seven tampers' readings (587); review 2, the twin-order swap (588); review 6, the preview
+    # arc withholding revived (589); review 3 and 5, the two arc envelopes (validate and transport) and seven
+    # tampers (600); Codex round 2, nine malformed directional records read and transported and the revival
+    # transported (619).
+    assert compared == 619
     assert validate_differences == DECLARED_VALIDATE
     assert standing_differences == DECLARED_STANDING
 

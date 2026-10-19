@@ -2,10 +2,10 @@
 //! document with a family the seam does not admit (a valve; a geometry-only
 //! bend, D-2) is blocked by name with no export, in both solver modes; a
 //! straight v3 document, and since T4-U2 phase 1 one whose region member is a
-//! realized bend, solves under `pressure-1`; since T4-U2 phase 2 both produce
-//! a pressure-1 export document that the exporter's own check admits.
+//! realized bend, solves under `pressure-2`; since T4-U2 phase 2 both produce
+//! a pressure-2 export document that the exporter's own check admits.
 //! The input is PP's committed invented X0 fixture (B7b: already the current
-//! 0.5.0 exact document) with the current contract stated explicitly.
+//! 0.6.0 exact document) with the current contract stated explicitly.
 use open_pipe_stress_headless_runner::{
     run_preview_model_value_with_mode, PrivacyContext, ProfessionalBoundary, Provenance,
     RedistributionStatus, Reference, RunnerOperation, RunnerRequest, TbdDecisions,
@@ -19,7 +19,7 @@ const MODES: [PreviewSolverMode; 2] = [
     PreviewSolverMode::SparseInteractive,
     PreviewSolverMode::DenseScrutiny,
 ];
-const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
+const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 
 fn request(model: &Value) -> RunnerRequest {
     RunnerRequest {
@@ -75,7 +75,7 @@ fn bend(consumption: &str) -> Value {
     document
 }
 
-/// The runner's pressure-1 export document: produced, bound to pressure-1 and
+/// The runner's pressure-2 export document: produced, bound to pressure-2 and
 /// admitted by the exporter's independent accounting check.
 fn assert_pressure_1_document(output: &open_pipe_stress_headless_runner::PreviewRunnerOutput, raw: &Value, label: &str) {
     assert!(output.canonical_export_unavailability.is_none(), "{label}: {:?}", output.canonical_export_unavailability);
@@ -88,7 +88,7 @@ fn assert_pressure_1_document(output: &open_pipe_stress_headless_runner::Preview
 
 /// T4-U2: a realized bend on the region member is admitted and solves through
 /// the runner in both modes, published Passed with its arc pressure rows, and
-/// exported under pressure-1 (phase 2).
+/// exported under pressure-2 (phase 2).
 #[test]
 fn a_v3_document_with_a_realized_bend_solves_and_exports_under_pressure_1() {
     let payload = bend("curved_bend_macro_element");
@@ -158,7 +158,7 @@ fn a_straight_v3_document_solves_under_pressure_1_in_both_modes() {
         assert_eq!(raw["producer"]["semantic_contract_id"], PRESSURE_ID, "{mode:?}");
         open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence(&raw)
             .unwrap();
-        // T4-U2 phase 2: the results 0.3 export schema has its pressure-1 branch.
+        // T4-U2 phase 2: the results 0.3 export schema has its pressure-2 branch.
         assert_pressure_1_document(&output, &raw, &format!("{mode:?}"));
     }
 }

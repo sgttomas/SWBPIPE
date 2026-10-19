@@ -88,7 +88,7 @@ describe.each(MODES)("%s: the AnalysisRun copies the receipt and validates its e
     expect([original.numerical_eligible, original.standing]).toStrictEqual([true, "eligible"]);
   });
 
-  it("row interpretation equals the base preview-physics-1 projection's except the contract binding", async () => {
+  it("row interpretation equals the base preview-physics-2 projection's except the contract binding", async () => {
     const { received, model } = await delivered(mode);
     const record = await buildAnalysisRunV03(received, manifestFor(received), undefined, modelLoadBasisRefs(model));
     const base = await buildAnalysisRunV03(baseProjection(received), manifestFor(received), undefined, modelLoadBasisRefs(model));
@@ -175,7 +175,7 @@ describe("a historical source is never recorded, with or without a receipt (RV91
 });
 
 describe("no other identity's record carries a receipt", () => {
-  it("a preview-physics-1 record given the successor's receipt is ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN", async () => {
+  it("a preview-physics-2 record given the successor's receipt is ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN", async () => {
     const preview = JSON.parse(readFileSync(resolve(root, "fixtures/results/preview_physics_connected_sparse.json"), "utf8")) as MechanicsResult;
     const record = await buildAnalysisRunV03(preview, manifestFor(preview));
     expect(Object.hasOwn(record.analysis_run, "retained_precision")).toBe(false);

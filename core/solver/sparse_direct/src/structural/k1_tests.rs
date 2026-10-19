@@ -405,6 +405,7 @@ fn k1_adjacency_order_and_profile_equal_the_dense_derived_path() {
             free_dofs: &model.free,
             prescribed: &model.prescribed,
             contributions: None,
+            contribution_groups: None,
             symmetry: Some(symmetry.dense()),
         };
         let ss = SparseStructuralSystem::new(
@@ -473,6 +474,7 @@ fn k1_explicit_zero_by_cancellation_takes_no_part_in_the_order() {
         free_dofs: &free,
         prescribed: &[],
         contributions: None,
+        contribution_groups: None,
         symmetry: None,
     };
     let ss = SparseStructuralSystem::new(&sparse, &force, &free, &[], None, None);
@@ -531,6 +533,7 @@ fn k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path() {
                     free_dofs: &model.free,
                     prescribed: &model.prescribed,
                     contributions: c,
+                    contribution_groups: None,
                     symmetry: None,
                 };
                 let bare_ss = SparseStructuralSystem::new(
@@ -553,6 +556,7 @@ fn k1_pattern_path_report_is_byte_identical_to_the_dense_derived_sparse_path() {
                     free_dofs: &model.free,
                     prescribed: &model.prescribed,
                     contributions: c,
+                    contribution_groups: None,
                     symmetry: Some(symmetry.dense()),
                 };
                 let ss = SparseStructuralSystem::new(
@@ -685,6 +689,7 @@ fn k1_krev02_through_the_pattern_path() {
             free_dofs: &free,
             prescribed: &bc,
             contributions: Some(&entries),
+            contribution_groups: None,
             symmetry: None,
         };
         let ss = SparseStructuralSystem::new(&sparse, &force, &free, &bc, Some(&entries), None);
@@ -853,7 +858,7 @@ fn k1_connector_case_22_formation_check_on_the_pattern() {
         let assembled = assemble_sparse_stiffness(
             2,
             &[],
-            &[connector],
+            &[connector.clone()],
             &[],
             &[],
             &SparseAssemblyOptions::new(),

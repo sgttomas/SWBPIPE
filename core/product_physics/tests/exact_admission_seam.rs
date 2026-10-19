@@ -6,7 +6,7 @@
 //! load/reference-state group), Y0 =
 //! `fixtures/product_preview/pressure/load_reference/pressure.request.json`
 //! (with the group). B7b deleted the v2 contract: both are current model
-//! 0.5.0 documents, re-authored once from their v2 originals to
+//! 0.6.0 documents, re-authored once from their v2 originals to
 //! `3.0.0/exact_pressure_v3` with `shear_model` Euler-Bernoulli and an
 //! explicit zero corrosion allowance. "Both entries" are the captured value
 //! entry and the typed entry; "both modes" are sparse-interactive and
@@ -37,7 +37,7 @@ const FAMILY: &str = "EXACT_PRESSURE_FAMILY_NOT_ADMITTED";
 const COMPOSITION: &str = "EXACT_PRESSURE_COMPOSITION_UNSUPPORTED";
 const COMBINATION: &str = "EXACT_PRESSURE_COMBINATION_UNSUPPORTED";
 const NEGATIVE: &str = "PRESSURE_REGION_PRESSURE_NEGATIVE";
-const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
+const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 const PROVENANCE: &str = "invented_u2a_control";
 
 #[derive(Clone, Copy, Debug)]
@@ -47,7 +47,7 @@ enum Base {
 }
 
 impl Base {
-    /// The committed current document (0.5.0, v3, CA 0, Euler-Bernoulli).
+    /// The committed current document (0.6.0, v3, CA 0, Euler-Bernoulli).
     fn current(self) -> Value {
         let document: Value = serde_json::from_str(match self {
             Base::X0 => X0,
@@ -233,7 +233,7 @@ fn assert_v3_identity(envelope: &Value) {
     assert_eq!(envelope["formulation_basis"]["profile_id"], "exact_pressure_v3");
     let limitations = envelope["formulation_basis"]["limitations"].to_string();
     for clause in [
-        "3.0.0/exact_pressure_v3 under pressure-1 semantics",
+        "3.0.0/exact_pressure_v3 under pressure-2 semantics",
         "external-pressure stability and collapse are not assessed",
         "steady-flow momentum and transient pressure loads",
         "Bourdon",
@@ -254,11 +254,11 @@ fn assert_v3_identity(envelope: &Value) {
     }
 }
 
-/// The current pressure-1 raw reader admits the envelope and its header
+/// The current pressure-2 raw reader admits the envelope and its header
 /// dispatches to the resident pressure table.
 fn assert_readers_dispatch_v3(envelope: &Value) {
-    semantic_contract::validate_pressure_evidence(envelope).expect("pressure-1 reader");
-    let (table, _) = semantic_contract::for_source(envelope).expect("pressure-1 dispatch");
+    semantic_contract::validate_pressure_evidence(envelope).expect("pressure-2 reader");
+    let (table, _) = semantic_contract::for_source(envelope).expect("pressure-2 dispatch");
     assert!(std::ptr::eq(table, semantic_contract::pressure_rows_contract()));
 }
 
@@ -562,17 +562,13 @@ fn a3_realized_bend_in_a_v3_exact_region_is_admitted_and_recovered_on_the_arc() 
             for kind in ["pipe_wall_axial_force_v2", "pipe_effective_axial_force_v2", "pipe_wall_endpoint_action_v2"] {
                 assert!(kinds.contains(kind), "{base:?}: {kind} missing: {kinds:?}");
             }
-            for kind in [
-                "pipe_lame_hoop_stress_v2",
-                "pipe_lame_radial_stress_v2",
-                "pipe_elastic_normal_stress_maximum_v2",
-                "element_local_axial_force",
-            ] {
+            for kind in ["pipe_lame_hoop_stress_v2", "pipe_lame_radial_stress_v2", "element_local_axial_force"] {
                 assert!(!kinds.contains(kind), "{base:?}: {kind} published on an arc");
             }
-            assert!(has_code(&envelope, "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE"));
-            // The arc's withheld maximum recurs per case (X0 has two): every
-            // diagnostic id stays unique.
+            // T4-U4b (§2.1, §2.3): the arc publishes its certified maximum.
+            assert!(kinds.contains("pipe_elastic_normal_stress_maximum_v2"), "{base:?}: no arc maximum");
+            assert!(!has_code(&envelope, "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE"), "{base:?}");
+            // Every diagnostic id stays unique (X0 has two cases).
             let ids = diagnostics(&envelope).iter().map(|d| d["id"].as_str().unwrap()).collect::<Vec<_>>();
             let unique = ids.iter().collect::<std::collections::BTreeSet<_>>();
             assert_eq!(unique.len(), ids.len(), "{base:?}: {ids:#?}");
@@ -652,8 +648,8 @@ fn shared_pressure_v3_reader_corpus_is_current() {
     let corpus = json!({
         "corpus":"T4-U2a pressure-1 straight reader corpus",
         "generator":"core/product_physics/tests/exact_admission_seam.rs::shared_pressure_v3_reader_corpus_is_current",
-        "inputs":["core/product_physics/tests/fixtures/exact_pressure_connected_request.json (X0, model 0.5.0, pressure_contract 3.0.0/exact_pressure_v3, case:closed-pressure p = -2000 kPa)",
-            "fixtures/product_preview/pressure/load_reference/pressure.request.json (Y0, model 0.5.0 with the load/reference-state group, pressure_contract 3.0.0/exact_pressure_v3)"],
+        "inputs":["core/product_physics/tests/fixtures/exact_pressure_connected_request.json (X0, model 0.6.0, pressure_contract 3.0.0/exact_pressure_v3, case:closed-pressure p = -2000 kPa)",
+            "fixtures/product_preview/pressure/load_reference/pressure.request.json (Y0, model 0.6.0 with the load/reference-state group, pressure_contract 3.0.0/exact_pressure_v3)"],
         "cases":cases,
     });
     let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";
@@ -661,18 +657,18 @@ fn shared_pressure_v3_reader_corpus_is_current() {
         std::fs::write(CORPUS_PATH, &bytes).unwrap();
         return;
     }
-    assert!(CORPUS == bytes, "the shared pressure-1 reader corpus is stale; regenerate it");
+    assert!(CORPUS == bytes, "the shared pressure-2 reader corpus is stale; regenerate it");
 }
 
 /// B7b (O-10, HELP_HUMAN's technical ruling of 2026-10-13; b7-plan "D2"): the
-/// ordinary pressure-1 table is a resident reviewed input, beside the
+/// ordinary pressure-2 table is a resident reviewed input, beside the
 /// pressure-source table and the pressure result schema; the deleted physics-1
 /// table is not. Before B7b this test asserted the opposite (RV130).
 #[test]
 fn the_pressure_1_table_is_a_reviewed_input() {
     let identity = include_str!("../src/build_identity.rs");
     assert!(!identity.contains("\"../../fixtures/results/semantic_contract_v0_3_physics_1.json\""));
-    assert!(identity.contains("\"../../schemas/results_pressure_1.v0.3.schema.json\""));
-    assert!(identity.contains("\"../../fixtures/results/semantic_contract_v0_3_pressure_1.json\""));
+    assert!(identity.contains("\"../../schemas/results_pressure_2.v0.3.schema.json\""));
+    assert!(identity.contains("\"../../fixtures/results/semantic_contract_v0_3_pressure_2.json\""));
     assert!(identity.contains("\"../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json\""));
 }

@@ -19,7 +19,7 @@ import modelJson from '../../../../../fixtures/product_preview/invented_demo_mod
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import {buildAnalysisRunPreview,runPreviewMechanics,loadBundledMechanicsReference} from '../../services/previewService';
 import {buildStressNeutralExportPacket,validateStressNeutralExportPacket,validateStressNeutralCsv,precisionStressRow,strictWitnessDisposition} from './StressNeutralExportPanel';
-import {PRESSURE_1_OUTPUT_REFUSAL} from '../results/outputPolicy';
+import {PRESSURE_2_OUTPUT_REFUSAL} from '../results/outputPolicy';
 import {StressNeutralExportPanel} from './StressNeutralExportPanel';
 import {canonicalSha256HexCheckedV1,canonicalJsonCheckedV1} from '../../services/hashService';
 import type {PreviewModel,MechanicsResult} from '../../types';
@@ -80,7 +80,7 @@ async function rehash(packet:any){
 
 it('rejects relational tamper even after all covered hashes are recomputed',async()=>{
  const {model,result,analysisRun}=await currentPrecision();const base=await buildStressNeutralExportPacket({model,result,analysisRun});
- const cases:[(p:any)=>void,string][]=[[(p)=>p.unit_preservation_witnesses[0].result_id='wrong','UNIT-WITNESS-BINDING'],[(p)=>p.unit_preservation_witnesses.pop(),'WITNESS-CATEGORY-ACCOUNTING'],[(p)=>p.export_profile.source_basis_refs=p.export_profile.source_basis_refs.filter((item:any)=>item.ref!=='fixtures/results/semantic_contract_v0_3_preview_physics_1.json'),'SEMANTIC-CONTRACT-BINDING'],[(p)=>p.loss_report[0].target_artifact_ref.ref='wrong','LOSS-REPORT-BINDING'],[(p)=>p.source_result_ref.ref='wrong','SOURCE-CARRIER-CHECKSUM-UNBOUND'],[(p)=>{p.result_rows[1].result_id=p.result_rows[0].result_id;p.result_rows[1].canonical_ref=structuredClone(p.result_rows[0].canonical_ref);p.result_rows[1].source_result_ref=structuredClone(p.result_rows[0].source_result_ref);},'SOURCE-ANNOTATION-COVERAGE'],[(p)=>p.stable_id_map[1].canonical_ref=structuredClone(p.stable_id_map[0].canonical_ref),'STABLE-ID-MAP-BINDING'],[(p)=>p.stable_id_map.pop(),'STABLE-ID-MAP-BINDING'],[(p)=>{const row=p.result_rows[0];p.csv_text=p.csv_text.replace(`,${row.unit},${row.dimension},`,`,changed-unit,${row.dimension},`);},'CSV-ROW-BINDING'],[(p)=>p.validation_report.validation_status=p.validation_report.validation_status==='passed'?'blocked':'passed','VALIDATION-STATUS-BINDING'],[(p)=>{p.validation_report.checks[0].check_status='blocking';p.validation_report.checks[0].blocking_count=0;},'VALIDATION-STATUS-BINDING'],[(p)=>p.schema_conformant=false,'SCHEMA-CONFORMANCE-CLAIM'],[(p)=>p.privacy.private_payload_embedded=true,'PRIVACY-BOUNDARY'],[(p)=>p.professional_boundary.software_makes_approval_claim=true,'PROFESSIONAL-BOUNDARY']];
+ const cases:[(p:any)=>void,string][]=[[(p)=>p.unit_preservation_witnesses[0].result_id='wrong','UNIT-WITNESS-BINDING'],[(p)=>p.unit_preservation_witnesses.pop(),'WITNESS-CATEGORY-ACCOUNTING'],[(p)=>p.export_profile.source_basis_refs=p.export_profile.source_basis_refs.filter((item:any)=>item.ref!=='fixtures/results/semantic_contract_v0_3_preview_physics_2.json'),'SEMANTIC-CONTRACT-BINDING'],[(p)=>p.loss_report[0].target_artifact_ref.ref='wrong','LOSS-REPORT-BINDING'],[(p)=>p.source_result_ref.ref='wrong','SOURCE-CARRIER-CHECKSUM-UNBOUND'],[(p)=>{p.result_rows[1].result_id=p.result_rows[0].result_id;p.result_rows[1].canonical_ref=structuredClone(p.result_rows[0].canonical_ref);p.result_rows[1].source_result_ref=structuredClone(p.result_rows[0].source_result_ref);},'SOURCE-ANNOTATION-COVERAGE'],[(p)=>p.stable_id_map[1].canonical_ref=structuredClone(p.stable_id_map[0].canonical_ref),'STABLE-ID-MAP-BINDING'],[(p)=>p.stable_id_map.pop(),'STABLE-ID-MAP-BINDING'],[(p)=>{const row=p.result_rows[0];p.csv_text=p.csv_text.replace(`,${row.unit},${row.dimension},`,`,changed-unit,${row.dimension},`);},'CSV-ROW-BINDING'],[(p)=>p.validation_report.validation_status=p.validation_report.validation_status==='passed'?'blocked':'passed','VALIDATION-STATUS-BINDING'],[(p)=>{p.validation_report.checks[0].check_status='blocking';p.validation_report.checks[0].blocking_count=0;},'VALIDATION-STATUS-BINDING'],[(p)=>p.schema_conformant=false,'SCHEMA-CONFORMANCE-CLAIM'],[(p)=>p.privacy.private_payload_embedded=true,'PRIVACY-BOUNDARY'],[(p)=>p.professional_boundary.software_makes_approval_claim=true,'PROFESSIONAL-BOUNDARY']];
  for(const [mutate,error] of cases){const packet=structuredClone(base);mutate(packet);await rehash(packet);await expect(validateStressNeutralExportPacket(packet)).rejects.toThrow(error);}
 });
 
@@ -92,7 +92,7 @@ it('rejects duplicate missing path checksum metadata member divergence and packa
 
 // Native IPC simulation only; these exact two modes were emitted from the
 // maintained ordinary input. Neither old legacy rows nor run IDs are rewritten.
-// T0R: the fresh ordinary route is preview-physics-1.
+// T0R: the fresh ordinary route is preview-physics-2.
 async function currentPrecision(mode: "sparse_interactive" | "dense_scrutiny" = "sparse_interactive") {
  const {model}=nativeMechanicsReplayPair(mode,{profile:"preview"});
  (window as any).__TAURI_INTERNALS__={};
@@ -140,7 +140,7 @@ it('keeps preserved references available only to the pure packet projector',asyn
 });
 
 it('binds preview v3 metadata and preserves shared f64 bits in CSV and JSON',async()=>{
- // B1: the minimal preview-physics-1 transport statement replaces the retired precision-1 header.
+ // B1: the minimal preview-physics-2 transport statement replaces the retired precision-1 header.
  // Explicit synthetic consumer semantics for transport vectors; no physical producer qualification.
  const model=structuredClone(modelJson) as PreviewModel,result=minimalPreviewStatement({run_id:'run:transport-vectors',model_ref:model.project.id,
   rows:transport.vectors.map(v=>({id:v.id,kind:'global_nodal_rotation_x',entity_ref:'node:transport',value:JSON.parse(v.decimal),unit:'rad',metadata:{component:'nodal_rotation_x',coordinate_system:'global',location:'summary',basis:'synthetic consumer transport fixture',sign_convention:'synthetic signed scalar'}})),
@@ -330,23 +330,23 @@ it('refuses retired stress-neutral versions before reading their metadata',async
  expect(JSON.stringify(base)).toBe(original);await expect(validateStressNeutralExportPacket(base)).resolves.toBeUndefined();
 });
 
-// B7b: the exact route's received statement is pressure-1 (the v3 twin of the retired
+// B7b: the exact route's received statement is pressure-2 (the v3 twin of the retired
 // physics-1, whose package this test built): it has its analysis-run record (as Python's
 // builder makes it) and still no package.
-it('refuses received exact-route results (pressure-1) with their own output reason, before any package',async()=>{
+it('refuses received exact-route results (pressure-2) with their own output reason, before any package',async()=>{
  const {model,source:result}=nativeMechanicsReplayPair('sparse_interactive',{profile:'pressure'});
- expect(result.producer!.semantic_contract_id).toBe('openpipestress.result_semantics/0.3.0/pressure-1');
+ expect(result.producer!.semantic_contract_id).toBe('openpipestress.result_semantics/0.3.0/pressure-2');
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'received-pressure-reference',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
  const before=JSON.stringify(result);
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
- expect(analysisRun.analysis_run.reproducibility.semantic_contract?.id).toBe('openpipestress.result_semantics/0.3.0/pressure-1');
- await expect(buildStressNeutralExportPacket({model,result,analysisRun})).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
- await expect(validateStressNeutralExportPacket({schema_version:'0.3.0'},result)).rejects.toThrow(PRESSURE_1_OUTPUT_REFUSAL);
+ expect(analysisRun.analysis_run.reproducibility.semantic_contract?.id).toBe('openpipestress.result_semantics/0.3.0/pressure-2');
+ await expect(buildStressNeutralExportPacket({model,result,analysisRun})).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
+ await expect(validateStressNeutralExportPacket({schema_version:'0.3.0'},result)).rejects.toThrow(PRESSURE_2_OUTPUT_REFUSAL);
  expect(JSON.stringify(result)).toBe(before);
 });
 
 // Moved from the retired physics-source-1 integration suite (B7b), on the registered
-// preview-physics-1 package: the CSV profile is route-independent.
+// preview-physics-2 package: the CSV profile is route-independent.
 it('preserves UTF8 quoted identifier code points and refuses invalid encoding or record separators', async () => {
  const {model,result,analysisRun}=await currentPrecision();
  const packet=await buildStressNeutralExportPacket({model,result,analysisRun});
@@ -402,12 +402,12 @@ it.each(['json','csv'] as const)('rechecks source and analysis contents at %s ac
  }
 });
 
-it('packages a registered preview-physics-1 result with its closed evidence and no UI notice text (N-A)',async()=>{
+it('packages a registered preview-physics-2 result with its closed evidence and no UI notice text (N-A)',async()=>{
  const props=await currentPrecision();
- expect(props.result.producer!.semantic_contract_id).toBe('openpipestress.result_semantics/0.3.0/preview-physics-1');
+ expect(props.result.producer!.semantic_contract_id).toBe('openpipestress.result_semantics/0.3.0/preview-physics-2');
  const packet=await buildStressNeutralExportPacket(props);
  expect(packet.contract_evidence).toEqual(props.result.contract_evidence);
- expect(packet.semantic_contract.id).toBe('openpipestress.result_semantics/0.3.0/preview-physics-1');
+ expect(packet.semantic_contract.id).toBe('openpipestress.result_semantics/0.3.0/preview-physics-2');
  expect(packet.export_profile.csv_encoding).toBe('utf-8');
  expect(JSON.stringify(packet.manifest)).not.toMatch(/maximum elastic normal stress; nominal|Rule checks cannot bind|Historical precision-1/);
  await expect(validateStressNeutralExportPacket(packet,props.result,props.analysisRun)).resolves.toBeUndefined();
@@ -442,7 +442,8 @@ it.each([['sparse_interactive',combinationSuccessorSparse],['dense_scrutiny',com
  for(const finding of findings){const raw=source.results.find(r=>r.id===finding.source.ref)!;expect(finding).toMatchObject({class:'unit_preservation_witness',severity:'info',message:retainedClassDisclosure(raw.kind,raw.unit,absolute.find(c=>c.result_id===raw.id))!.message});expect(packet.unit_preservation_witnesses.some((w:any)=>w.result_id===raw.id)).toBe(false);}
  // Relative-verified and input-derived combination rows keep their witnesses.
  for(const c of combinationClasses.filter(c=>c.class==='relative_verified'||c.class==='input_derived'))expect(packet.unit_preservation_witnesses.some((w:any)=>w.result_id===c.result_id)).toBe(true);
- expect(packet.diagnostics.some((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED')).toBe(false);
+ // No combination row is not_covered; the load cases' T4-U4b derived rows are (never combined).
+ expect(packet.diagnostics.some((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED'&&combinationRows.some(r=>r.id===d.source.ref))).toBe(false);
  await expect(validateStressNeutralExportPacket(packet,source,analysisRun,loadBasis)).resolves.toBeUndefined();
  await expect(validateStressNeutralExportPacket(structuredClone(packet))).resolves.toBeUndefined();
 });
@@ -467,7 +468,8 @@ it.each(['w_cb4a_sparse_interactive','w_cb2_sparse_interactive'])('%s: R-COMB-1 
  expect(classes.every(c=>c.class==='not_covered'||c.class==='non_quantity')).toBe(true);
  const uncovered=classes.filter(c=>c.class==='not_covered');
  expect(uncovered.length).toBeGreaterThan(0);
- const findings=packet.diagnostics.filter((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED');
+ // The load cases' T4-U4b derived rows are also not_covered and withheld; these are the combination rows' findings.
+ const findings=packet.diagnostics.filter((d:any)=>d.code==='SN-UNIT-WITNESS-WITHHELD-RETAINED-PRECISION-NOT-COVERED'&&combinationRows.some(r=>r.id===d.source.ref));
  expect(findings.map((d:any)=>d.source.ref).sort()).toEqual(uncovered.map(c=>c.result_id).sort());
  for(const finding of findings){const raw=source.results.find(r=>r.id===finding.source.ref)!;expect(finding).toMatchObject({class:'unit_preservation_witness',severity:'info',message:retainedClassDisclosure(raw.kind,raw.unit,uncovered.find(c=>c.result_id===raw.id))!.message});expect(packet.unit_preservation_witnesses.some((w:any)=>w.result_id===raw.id)).toBe(false);}
  for(const c of classes.filter(c=>c.class==='non_quantity'))expect(packet.diagnostics.some((d:any)=>d.source?.ref===c.result_id&&String(d.code).includes('RETAINED-PRECISION'))).toBe(false);

@@ -529,6 +529,15 @@ fn k2b_forced_even_b_is_bitwise_invariant_and_unscales_exactly() {
                             assert!(scaled.records.is_empty(), "{ctx}");
                             let u = &scaled.solution.displacements;
                             assert_eq!(bits(u), bits(&today.displacements), "{ctx}");
+                            // T4-U5b item 6: the published corrected displacement
+                            // fl(u + w + w2) is bit-identical at 2^b (u, w and w2 are).
+                            if let (Some(sb), Some(tb)) = (&scaled.solution.member_bound, &today.member_bound) {
+                                for dof in 0..u.len() {
+                                    let at_b = open_pipe_stress_frame_kernel::structural::certify_displacement(dof, u, sb).map(|r| r.published.to_bits());
+                                    let at_0 = open_pipe_stress_frame_kernel::structural::certify_displacement(dof, &today.displacements, tb).map(|r| r.published.to_bits());
+                                    assert_eq!(at_b.ok(), at_0.ok(), "{ctx} corrected u[{dof}]");
+                                }
+                            }
                             assert_eq!(
                                 format!("{:?}", unscaled_member_bound(scaled.solution.clone(), s)),
                                 format!("{today:?}"),

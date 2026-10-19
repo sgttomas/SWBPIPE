@@ -1405,7 +1405,7 @@ fn run_with_context(
         ("Model", "pressure_profile") | ("Material", "constitutive_properties" | "temperature_points") => Some("set_field"),
         ("Load", "pressure_regions") => Some("update_load"),
         ("Component", "bend_realization") => Some("set_field"),
-        ("Component", "objective_connector.pressure_model") => Some("set_field"),
+        ("Component", "objective_connector.pressure_model" | "objective_connector.hardware") => Some("set_field"),
         ("Model", "reference_configurations") | ("Material", "expansion_laws") => Some("set_field"),
         ("Load", "analysis_state") => Some("update_load"),
         ("Load", "equivalent_static.wind.exposure" | "generated_self_weight") => Some("update_load"),
@@ -1492,8 +1492,22 @@ fn run_with_context(
                         for (segments, value) in &edit.writes {
                             if let Some(value) = value {
                                 written &= write_value_creating_path(target, segments, value);
-                            } else if segments.len() == 1 {
-                                target.as_object_mut().unwrap().remove(&segments[0]);
+                            } else if let Some((last, parents)) = segments.split_last() {
+                                // Removal: an absent parent has nothing to remove;
+                                // a non-object on the way is malformed.
+                                let mut parent = Some(&mut *target);
+                                for segment in parents {
+                                    parent = match parent {
+                                        Some(Value::Object(map)) => map.get_mut(segment),
+                                        Some(_) => { written = false; None }
+                                        None => None,
+                                    };
+                                }
+                                match parent {
+                                    Some(Value::Object(map)) => { map.remove(last); }
+                                    Some(_) => written = false,
+                                    None => {}
+                                }
                             } else {
                                 written = false;
                             }
@@ -2652,7 +2666,7 @@ fn resolve_expansion_joint_creation(
             "OP-CREATE-EXPANSION-JOINT-LEGACY-RETIRED",
             "blocking",
             "Legacy four-rate expansion-joint creation (a pipe reference with scalar stiffness rates) is retired: such a joint is neither solved nor converted.".to_string(),
-            "On a 3.0.0/exact_pressure_v3 document author an objective connector (frame, attachments, 6x6 work matrix, replaces_span, hardware and pressure model); on a pressure-free 0.5.0 document (no pressure contract) create the annotation mode (not_solver_consumed).",
+            "On a 3.0.0/exact_pressure_v3 document author an objective connector (frame, attachments, 6x6 work matrix, replaces_span, hardware and pressure model); on a pressure-free 0.6.0 document (no pressure contract) create the annotation mode (not_solver_consumed).",
             vec![target_ref.to_string()],
         );
         return None;
@@ -2666,9 +2680,17 @@ fn resolve_expansion_joint_creation(
         // U5a does not activate a document version. T3 owns the v3 selector
         // above; this new-kind validation becomes reachable when B7b adds0.5.
         if let Some(connector) = connector {
-            if connector.pointer("/pressure_model/kind").and_then(Value::as_str) == Some("constant_effective_area_reference_v1") {
-                if schema != "0.5.0" {
-                    checker.push("JOINT_PRESSURE_INTERFACE_UNRESOLVED","blocking","constant_effective_area_reference_v1 is defined only on model 0.5.0".into(),"Use the current model format before authoring a joint pressure model.",vec![target_ref.into()]);
+            // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §5.2): connector
+            // creation validates its hardware as the solver classifies it, as it
+            // validates a constant-effective-area pressure model.
+            let pressure = connector.pointer("/pressure_model/kind").and_then(Value::as_str) == Some("constant_effective_area_reference_v1");
+            // Authored hardware other than plain untied (absent hardware stays
+            // the solver's JOINT_HARDWARE_NOT_DEFINED, as before).
+            let hardware = connector.get("hardware").is_some_and(|h| h != &serde_json::json!({"kind": "untied"}));
+            if pressure || hardware {
+                if schema != "0.6.0" {
+                    let (code, what) = if pressure { ("JOINT_PRESSURE_INTERFACE_UNRESOLVED", "constant_effective_area_reference_v1 is") } else { ("JOINT_TIE_ROD_INPUT_INVALID", "connector hardware other than untied is") };
+                    checker.push(code,"blocking",format!("{what} defined only on model 0.6.0"),"Use the current model format before authoring a joint pressure model or tie rods.",vec![target_ref.into()]);
                     return None;
                 }
                 let mut candidate=model.clone();
@@ -2677,7 +2699,7 @@ fn resolve_expansion_joint_creation(
                     Ok(findings) if findings.is_empty()=>{},
                     findings=>{
                         let message=match findings {Ok(findings)=>findings.iter().map(|finding|format!("{}: {}",finding.code,finding.message)).collect::<Vec<_>>().join("; "),Err(message)=>message};
-                        checker.push("OP-CREATE-EXPANSION-JOINT-CONNECTOR-INVALID","blocking",message,"Review the explicitly authored joint pressure fields and participation.",vec![target_ref.into()]);
+                        checker.push("OP-CREATE-EXPANSION-JOINT-CONNECTOR-INVALID","blocking",message,"Review the explicitly authored joint pressure fields, tie-rod hardware and participation.",vec![target_ref.into()]);
                         return None;
                     }
                 }
@@ -2757,7 +2779,7 @@ fn resolve_expansion_joint_creation(
             checker.push(
                 "OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY",
                 "blocking",
-                "On a pressure-free 0.5.0 document (no pressure contract) an expansion joint is created only as an annotation (solver_consumption=not_solver_consumed): the model is analysed as pipe and the joint is disclosed, not solved.".to_string(),
+                "On a pressure-free 0.6.0 document (no pressure contract) an expansion joint is created only as an annotation (solver_consumption=not_solver_consumed): the model is analysed as pipe and the joint is disclosed, not solved.".to_string(),
                 "Create the annotation, or move the model to a 3.0.0/exact_pressure_v3 document and author an objective connector.",
                 vec![target_ref.to_string()],
             );
@@ -2776,7 +2798,7 @@ fn resolve_expansion_joint_creation(
     checker.push(
         "OP-CREATE-EXPANSION-JOINT-CONTRACT-UNSUPPORTED",
         "blocking",
-        "Expansion joints are created as objective connectors on 3.0.0/exact_pressure_v3 documents or as annotations on pressure-free 0.5.0 documents (no pressure contract); this document's contract admits neither.".to_string(),
+        "Expansion joints are created as objective connectors on 3.0.0/exact_pressure_v3 documents or as annotations on pressure-free 0.6.0 documents (no pressure contract); this document's contract admits neither.".to_string(),
         "Use a 3.0.0/exact_pressure_v3 document for a solved joint.",
         vec![target_ref.to_string()],
     );
@@ -5136,7 +5158,7 @@ fn resolve_create_primitive_load(
             "OP-PRESSURE-PRIMITIVE-RETIRED",
             "blocking",
             "Pressure primitive loads are retired, zero values included; the product refuses them (PRESSURE_MODEL_REAUTHOR_REQUIRED).".to_string(),
-            "Author pressure as exact pressure regions: on model 0.5.0 select the 3.0.0/exact_pressure_v3 profile (shear_model timoshenko_annulus_energy_v1, the default, or euler_bernoulli) with an explicit section.corrosion_allowance on every pipe, then enter the load case's pressure_regions (an explicit [] for an unpressurized case).",
+            "Author pressure as exact pressure regions: on model 0.6.0 select the 3.0.0/exact_pressure_v3 profile (shear_model timoshenko_annulus_energy_v1, the default, or euler_bernoulli) with an explicit section.corrosion_allowance on every pipe, then enter the load case's pressure_regions (an explicit [] for an unpressurized case).",
             vec![target_ref.to_string()],
         );
         return None;
@@ -8918,7 +8940,7 @@ mod tests {
 
     fn sample_model() -> Value {
         json!({
-            "schema_version": "0.5.0",
+            "schema_version": "0.6.0",
             "document_kind": "openpipestress.product_preview.model",
             "project": { "id": "project:test", "name": "Test", "units": { "length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "temperature": "degC" } },
             "materials": [
@@ -13404,7 +13426,7 @@ mod tests {
         let outcome = apply_operation(&model, &expansion_joint_intent(&not_annotation), None);
         assert_eq!(codes(&outcome), vec!["OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY"]);
         // B7a: the contract's absence selects the annotation, not the version string. A
-        // 0.5.0 document that declares a contract, and a retired 0.1.0/0.2.0 document,
+        // 0.6.0 document that declares a contract, and a retired 0.1.0/0.2.0 document,
         // take neither form.
         let mut with_contract = model.clone();
         with_contract["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
@@ -13421,7 +13443,7 @@ mod tests {
     /// A v3 document: the objective connector for the replaced span between
     /// its end nodes.
     fn v3_model() -> Value {
-        // B7b: the current 0.5.0 exact document (sample_model is already 0.5.0).
+        // B7b: the current 0.6.0 exact document (sample_model is already 0.6.0).
         let mut model = sample_model();
         model["pressure_contract"] =
             json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});

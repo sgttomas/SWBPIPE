@@ -8,7 +8,7 @@ import { numericalResultStanding } from "../results/resultStanding";
  * (`resultStanding.ts`). Nothing is computed, converted or written anywhere.
  *
  * B7b: a load/reference-state result is published under the current exact
- * identities, pressure-1 (ordinary) or pressure-source-1 (joined with the
+ * identities, pressure-2 (ordinary) or pressure-source-1 (joined with the
  * retained-source method), whose readers are synchronous; the retired v2
  * load-reference-1 and load-reference-source-1 read unsupported and show no block. */
 
@@ -41,7 +41,7 @@ export function LoadReferenceStatesBlock({ result, model }: { result: MechanicsR
   const joined = route === "pressure_source";
   const routeLabel = joined
     ? `joined pressure-source-1; ${NEEDS_RECOMPUTE_NOT_CURRENT} in T1`
-    : "ordinary pressure-1";
+    : "ordinary pressure-2";
   return <section aria-label="Resolved load/reference states" className="report-list" data-testid="load-reference-states-block">
     <div className="panel-subtitle">Resolved load/reference states (published, read-only)</div>
     <p data-testid="load-reference-states-route">Route: {routeLabel}</p>

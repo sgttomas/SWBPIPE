@@ -34,6 +34,7 @@
 //! physical installation tolerances.
 use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::load_ledger::{gamma, product_upward, round_upward, UNIT_ROUNDOFF};
+use crate::tie_rod::{TieRod, TieRodError, TieRodInput};
 use crate::{
     force_scaled_matrix, force_scaled_value, ForceScale, FrameKernelError, FrameNode, Matrix12,
     Matrix3, DOF_PER_NODE, ELEMENT_DOF,
@@ -176,7 +177,14 @@ pub struct ConnectorRecovery {
 const IDENTITY: Matrix3 = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
 
 /// The objective connector between two distinct nodes (J-A).
-#[derive(Debug, Clone, Copy, PartialEq)]
+///
+/// T4-U5b: the connector carries its hardware's explicit elastic tie rods
+/// (`with_tie_rods`). Each rod is its own element beside the connector: it
+/// enters every assembly, formation source and census that takes the
+/// connector, after all connectors, but never the connector's own B, K,
+/// Ke, q_ref, reference load or recovery. A connector without rods is the
+/// T4-U3 connector, bit for bit.
+#[derive(Debug, Clone, PartialEq)]
 pub struct ObjectiveConnector {
     node_i: FrameNode,
     node_j: FrameNode,
@@ -187,6 +195,10 @@ pub struct ObjectiveConnector {
     k: Matrix6,
     q_ref: [f64; 6],
     definiteness: ConnectorDefiniteness,
+    /// Shared (`Arc`), so a clone (each `ConnectorReference` or
+    /// `JointEffectiveArea` primitive holds one) copies no rod; `None` for an
+    /// untied connector (no allocation; one thin pointer of size).
+    tie_rods: Option<std::sync::Arc<Vec<TieRod>>>,
 }
 
 impl ObjectiveConnector {
@@ -267,6 +279,7 @@ impl ObjectiveConnector {
             k,
             q_ref,
             definiteness,
+            tie_rods: None,
         };
         connector
             .global_stiffness()
@@ -274,6 +287,25 @@ impl ObjectiveConnector {
                 name: "formed stiffness",
             })?;
         Ok(connector)
+    }
+
+    /// T4-U5b: this connector with its hardware's explicit elastic tie
+    /// rods, each formed on the connector's end nodes and axes
+    /// (`TieRod::new`), in the given order, replacing any it had. The first
+    /// refused rod is returned with its index. An empty list leaves an untied
+    /// connector.
+    pub fn with_tie_rods(mut self, rods: &[TieRodInput]) -> Result<Self, (usize, TieRodError)> {
+        let mut formed = Vec::with_capacity(rods.len());
+        for (index, input) in rods.iter().enumerate() {
+            formed.push(TieRod::new(&self, *input).map_err(|error| (index, error))?);
+        }
+        self.tie_rods = (!formed.is_empty()).then(|| std::sync::Arc::new(formed));
+        Ok(self)
+    }
+
+    /// The explicit elastic tie rods, in authored order (empty: untied).
+    pub fn tie_rods(&self) -> &[TieRod] {
+        self.tie_rods.as_deref().map_or(&[], Vec::as_slice)
     }
 
     pub fn node_i(&self) -> FrameNode {
@@ -401,13 +433,21 @@ impl ObjectiveConnector {
 
     /// K2b: this connector with K times 2^b, exactly (K-D5's scaled source).
     /// Its `global_stiffness` is then 2^b·Ke bit for bit wherever both are
-    /// normal. H, Ls and q_ref are unchanged.
+    /// normal. H, Ls and q_ref are unchanged. T4-U5b: each tie rod is
+    /// `TieRod::force_scaled` (k times 2^b).
     pub fn force_scaled(&self, scale: ForceScale) -> Result<Self, FrameKernelError> {
-        let mut connector = *self;
+        let mut connector = self.clone();
         for row in connector.k.iter_mut() {
             for entry in row.iter_mut() {
                 *entry = force_scaled_value("connector K*2^b (force scale)", *entry, scale)?;
             }
+        }
+        if let Some(rods) = &connector.tie_rods {
+            let scaled = rods
+                .iter()
+                .map(|rod| rod.force_scaled(scale))
+                .collect::<Result<Vec<_>, _>>()?;
+            connector.tie_rods = Some(std::sync::Arc::new(scaled));
         }
         Ok(connector)
     }

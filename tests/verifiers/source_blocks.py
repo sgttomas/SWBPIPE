@@ -31,6 +31,12 @@ STRESS_INPUT_RELATIVE_LIMIT = (1.0e-9 - STRESS_ARITHMETIC_BOUND) / (1.0 + STRESS
 EXACT = "retained_source_blocks_exact_v1"
 MODES = {"dense_scrutiny": "ordinary_dense_structural_v1", "sparse_interactive": "ordinary_sparse_structural_v1"}
 COMPONENTS = ("Fx", "Fy", "Fz", "Mx", "My", "Mz")
+# T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §4.3): the treatment of the section normal-stress
+# extremes and transverse-shear maxima a selected source case publishes beside its qualified rows.
+NOT_QUALIFIED = "derived_not_qualified"
+NOT_QUALIFIED_KINDS = ("element_local_normal_stress_extreme", "element_local_transverse_shear_stress_maximum")
+NOT_QUALIFIED_RECIPES = {NOT_QUALIFIED_KINDS[0]: "section_extremes_from_published_stress_rows_v1",
+                         NOT_QUALIFIED_KINDS[1]: "transverse_shear_from_published_shear_rows_v1"}
 
 
 def _require(condition: Any, code: str) -> None:
@@ -278,6 +284,8 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
             _unique(inputs, "ROW_INPUTS")
             _require(all(i in treatment and i != result_id for i in inputs), "SAME_CASE_INPUTS")
             token = treatment_row["treatment"]
+            if success and method == EXACT and row.get("kind") in NOT_QUALIFIED_KINDS:
+                _require(token == NOT_QUALIFIED, "NOT_QUALIFIED_TREATMENT")
             if token == "qualified_projection":
                 projection = projections.get(treatment_row["projection_id"])
                 _require(method == EXACT and success and projection is not None and projection["result_id"] == result_id and treatment_row["recipe_id"] is None and not inputs, "PROJECTION_ROW")
@@ -295,6 +303,10 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
                 _require(all(treatment[i]["treatment"] in {"qualified_projection","checked_derived"} for i in inputs), "UNQUALIFIED_DERIVED_INPUT")
             elif token == "ordinary_physics_checked":
                 _require(success and method != EXACT and treatment_row["projection_id"] is None and treatment_row["recipe_id"] is None and signature is not None, "ORDINARY_ROW")
+            elif token == NOT_QUALIFIED:
+                # Neutral: neither qualifies nor disqualifies the case (`usable` unchanged).
+                _require(method == EXACT and success and treatment_row["projection_id"] is None, "NOT_QUALIFIED_ROW")
+                _not_qualified(treatment_row, row, [raw[i] for i in inputs], signature)
             else:
                 _require(treatment_row["projection_id"] is None and treatment_row["recipe_id"] is None, "INSPECTION_ROW")
                 if signature is None or signature["category"] == "physical_quantity": usable = False
@@ -323,6 +335,39 @@ def _validate_source_blocks(source: Mapping[str, Any], actual_invocation: Mappin
     _summary(source, raw, model, context)
     if model is not None and model.get("combinations"): usable = False
     return actual_invocation is not None and aggregate == "qualified" and usable and source["status"].get("mechanics") == "MECHANICS_SOLVED"
+
+
+def _section_basis(row: Mapping[str, Any]) -> str | None:
+    basis = (row.get("metadata") or {}).get("basis")
+    return basis.rsplit("; section_basis=", 1)[1] if isinstance(basis, str) and "; section_basis=" in basis else None
+
+
+def _not_qualified(treatment: Mapping[str, Any], row: Mapping[str, Any], inputs: list[Mapping[str, Any]], signature: Any) -> None:
+    """§4.3: the kind's own recipe and exactly the station rows it reads, in formula order; sigma+/sigma-
+    recomputed bit for bit with the exact-integer norm oracle; tau nonnegative (its c_b is the base reader's)."""
+    kind = row.get("kind")
+    _require(kind in NOT_QUALIFIED_KINDS, "NOT_QUALIFIED_KIND")
+    _require(signature is not None, "NOT_QUALIFIED_SIGNATURE")
+    _require(treatment.get("recipe_id") == NOT_QUALIFIED_RECIPES[kind], "NOT_QUALIFIED_RECIPE")
+    metadata = row.get("metadata") or {}
+    station = all(r.get("entity_ref") == row.get("entity_ref") and r.get("basis_ref") == row.get("basis_ref")
+                  and (r.get("metadata") or {}).get("location") == metadata.get("location") for r in inputs)
+    kinds = [r.get("kind") for r in inputs]
+    value = row.get("value")
+    if kind == NOT_QUALIFIED_KINDS[0]:
+        basis = _section_basis(row)
+        _require(station and basis is not None and all(_section_basis(r) == basis for r in inputs)
+                 and kinds == ["element_local_axial_normal_stress", "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z"],
+                 "NOT_QUALIFIED_INPUTS")
+        n, y, z = (float(r["value"]) for r in inputs)
+        h = correctly_rounded_norm([y, z])
+        component = metadata.get("component")
+        _require(component in ("sigma_plus", "sigma_minus"), "NOT_QUALIFIED_KIND")
+        expected = n + h if component == "sigma_plus" else n - h
+        _require(type(value) in (int, float) and struct.pack(">d", float(value)) == struct.pack(">d", expected), "NOT_QUALIFIED_VALUE")
+    else:
+        _require(station and kinds == ["element_local_shear_force_y", "element_local_shear_force_z"], "NOT_QUALIFIED_INPUTS")
+        _require(metadata.get("component") == "tau_v_max" and type(value) in (int, float) and math.isfinite(value) and value >= 0, "NOT_QUALIFIED_VALUE")
 
 
 def _supports(case: Mapping[str, Any], raw: dict[str, Any], projections: dict[str, Any], model: Mapping[str, Any] | None, context: Any) -> None:

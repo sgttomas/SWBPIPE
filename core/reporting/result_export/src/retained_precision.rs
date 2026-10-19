@@ -8,21 +8,21 @@ pub const CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/preview-phy
 pub const PROFILE: &str = "product_preview_retained_w1a_v2";
 pub const DEFINITION_ID: &str = "RP-PREPARED-ORDINARY-DUAL-v1";
 pub const DEFINITION_HASH: &str =
-    "688639f2578d7764b6aa88fb5e650c6c9421f01c328a7362d6dfe0d78acd65f7";
+    "64ec69b842d6278323aa2ab2e140e999db52eb28e4a9965a567a90b04e228b41";
 pub const METHOD: &str = "contribution_preserving_multiprecision_v1";
 /// B2-C §3 and §8 (REVISION_02): DEF-C's id and H(`retained_precision_formation_v1`, DEF-C).
 pub const COMBINATION_DEFINITION_ID: &str = "RP-PREPARED-COMBINATION-DUAL-v1";
 pub const COMBINATION_DEFINITION_HASH: &str =
-    "75b9414df919fb4e181aa06030249289b70f0518023afbe241f72e31b8b60f31";
+    "a9219849d4dfecfc4e9529c6b648eb21cdf2e9872f2d681cc0c26cdfd2bdf6f1";
 /// B3b (B3-D §6 with REVISION_01): the exact successor `<physics-retained>`,
-/// read on its own route (`EXACT`), whose base is pressure-1 (B7b D4 (a)).
+/// read on its own route (`EXACT`), whose base is pressure-2 (B7b D4 (a)).
 pub const EXACT_CONTRACT_ID: &str = "openpipestress.result_semantics/0.3.0/physics-retained-1";
 pub const EXACT_PROFILE: &str = "exact_straight_retained_w1a_v2";
 pub const EXACT_DEFINITION_ID: &str = "RP-PREPARED-EXACT-DUAL-v1";
 /// H(`retained_precision_formation_v1`, DEF-E) (REVISION_01 §1.2). T4-U6: DEF-E
 /// states zero mill tolerance and lists the reduced-basis rows and both headlines.
 pub const EXACT_DEFINITION_HASH: &str =
-    "6c772d242ef47a354376f29f93fc69959ee2b4085b606af211da4b7f45c87f8e";
+    "87907c619777945ba76b045fcd425c81022f282f5d6a71239388217be98d9948";
 const MAX_BITS: u64 = 0x7fef_ffff_ffff_ffff;
 /// B4/D1 W1 extension (b7-plan "Failed-ordinary successor rulings" (4)): the requested-mode
 /// basis row of a case whose ordinary attempt genuinely failed. It replaces
@@ -343,6 +343,11 @@ fn sum(values: impl IntoIterator<Item = u64>) -> VResult<u64> {
 fn hash(domain: &str, v: &Value, gate: &'static str, code: &str) -> VResult<String> {
     crate::source_blocks::domain_hash(domain, v).map_err(|_| error(gate, code))
 }
+/// `hash` of the object `v` without its member `omit`, from the borrowed object (no clone; T4-S6).
+fn hash_without(domain: &str, v: &Value, omit: &str, gate: &'static str, code: &str) -> VResult<String> {
+    let object = v.as_object().ok_or_else(|| error(gate, code))?;
+    crate::source_blocks::domain_hash_without(domain, object, omit).map_err(|_| error(gate, code))
+}
 fn schema() -> &'static Value {
     static S: OnceLock<Value> = OnceLock::new();
     S.get_or_init(|| {
@@ -416,14 +421,14 @@ struct Route {
 const PREVIEW: Route = Route {
     exact: false,
     definition_hash: DEFINITION_HASH,
-    base_id: "openpipestress.result_semantics/0.3.0/preview-physics-1",
+    base_id: "openpipestress.result_semantics/0.3.0/preview-physics-2",
     base_profile: "product_preview_mechanics_v1",
     geometry: "preview",
 };
 const EXACT: Route = Route {
     exact: true,
     definition_hash: EXACT_DEFINITION_HASH,
-    base_id: "openpipestress.result_semantics/0.3.0/pressure-1",
+    base_id: "openpipestress.result_semantics/0.3.0/pressure-2",
     base_profile: "exact_pressure_v3",
     geometry: "exact",
 };
@@ -581,15 +586,15 @@ const TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json"
 );
 const INHERITED_TABLE_BYTES: &[u8] =
-    include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_1.json");
-const TABLE_HASH: &str = "842a011601ea5049c6e89abbd73a24176966ca23c9a8cf9c89336341f608f3ad";
-/// The exact successor's table (XTABLE) and its inherited pressure-1 table.
+    include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json");
+const TABLE_HASH: &str = "4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f";
+/// The exact successor's table (XTABLE) and its inherited pressure-2 table.
 const EXACT_TABLE_BYTES: &[u8] = include_bytes!(
     "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json"
 );
 const PRESSURE_TABLE_BYTES: &[u8] =
-    include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_1.json");
-const EXACT_TABLE_HASH: &str = "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6";
+    include_bytes!("../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json");
+const EXACT_TABLE_HASH: &str = "ee1144c7302339accb61d51197d8f95b574c56c434895aa194d63b82f99be186";
 /// RV78-N1's policies (B3D-8): the receipt values XTABLE's `receipt_bindings`
 /// binds from version 1, keyed by the receipt body's own paths.
 fn receipt_bindings() -> Value {
@@ -742,7 +747,7 @@ fn g0_exact(source: &Value) -> VResult {
         "G0",
         "FORMATION_MISMATCH",
     )?;
-    // 5. XTABLE's bytes and its inherited pressure-1 hash.
+    // 5. XTABLE's bytes and its inherited pressure-2 hash.
     unsupported(
         sha256_hex(EXACT_TABLE_BYTES) == EXACT_TABLE_HASH
             && t["inherited_semantic_contract_sha256"] == sha256_hex(PRESSURE_TABLE_BYTES),
@@ -798,15 +803,11 @@ fn g1(source: &Value, raw: bool, route: &Route) -> VResult {
         "RECEIPT_MISMATCH",
     )?;
     if raw {
-        let mut public = source.clone();
-        public
-            .as_object_mut()
-            .ok_or_else(|| error("G1", "RECEIPT_MISMATCH"))?
-            .remove("retained_precision");
         need(
-            hash(
+            hash_without(
                 "retained_precision_publication_mp_v2",
-                &public,
+                source,
+                "retained_precision",
                 "G1",
                 "RECEIPT_MISMATCH",
             )? == r["body"]["publication_sha256"],
@@ -942,11 +943,21 @@ fn projection_matches_row(row: &Value, outcome: &Value) -> bool {
 /// T4-U6 (D-5, §2.3/§5): a reduced-section twin row. The exact successor
 /// overlays it with its nominal twin's retained value; it binds no receipt
 /// quantity (the producer's `reduced_twin`), so it is outside the receipt's row
-/// universe. No preview row names a section basis.
+/// universe. No preview row names a section basis. T4-U4b (§4.1): a
+/// derived row (σ⁺/σ⁻, τ_v,max) of either basis is a not-covered row at its
+/// own position, never a twin.
 fn reduced_twin(row: &Value) -> bool {
-    row["metadata"]["basis"].as_str().is_some_and(|b| {
-        b.ends_with(&format!("{}{}", crate::section_basis::TOKEN_SEPARATOR, crate::section_basis::REDUCED))
-    })
+    !derived_kind(row)
+        && row["metadata"]["basis"].as_str().is_some_and(|b| {
+            b.ends_with(&format!("{}{}", crate::section_basis::TOKEN_SEPARATOR, crate::section_basis::REDUCED))
+        })
+}
+/// T4-U4b (DEL-04-07 Design u4b-u5b-implementation.md §4.1): the two
+/// straight-member derived kinds a W1 successor carries as recipe-free
+/// `not_covered` rows, formed from its own published rows (the base read of
+/// G7 recomputes them); never projected, never verified.
+fn derived_kind(row: &Value) -> bool {
+    matches!(row["kind"].as_str(), Some("element_local_normal_stress_extreme" | "element_local_transverse_shear_stress_maximum"))
 }
 /// The receipt's row universe of a case or combination entry: its rows, less
 /// the reduced-section twins (`rows_all_for` keeps them).
@@ -3588,6 +3599,8 @@ fn row_kind(r: &Value) -> &'static str {
         {
             "stress"
         }
+        // T4-U4b §4.1 (REQ-001 "every other row kind"): explicitly not covered.
+        "element_local_normal_stress_extreme" | "element_local_transverse_shear_stress_maximum" => "not_covered",
         _ => "not_covered",
     }
 }
@@ -3609,6 +3622,7 @@ fn owner_projected(owner: &Value, r: &Value, s:Option<&Value>,route_l:bool) -> b
 }
 fn hull_projected(r: &Value) -> bool {
     row_kind(r) != "non_quantity"
+        && !derived_kind(r)
         && !matches!(
             text(&r["kind"]),
             "support_reaction_force_magnitude_v2"
@@ -4452,8 +4466,11 @@ fn g5b_exact_evidence(source: &Value, cases: &[NumericCase<'_>]) -> VResult {
         // immediately before it (§2.5 row order).
         let all = rows_all_for(source, c.case);
         for (i, row) in all.iter().enumerate() {
-            let reduced = reduced_twin(row)
-                || crate::section_basis::id_basis(text(&row["id"])) == Some(crate::section_basis::REDUCED);
+            // T4-U4b §4.1: a derived row of either basis is its own not-covered
+            // row, formed from its basis's rows (G7's base read), never a twin.
+            let reduced = !derived_kind(row)
+                && (reduced_twin(row)
+                    || crate::section_basis::id_basis(text(&row["id"])) == Some(crate::section_basis::REDUCED));
             if !reduced {
                 continue;
             }
@@ -4718,7 +4735,7 @@ fn exact_material(raw: &Value) -> VResult<(f64, f64, f64)> {
 /// D1.3 on the exact route: the current document's three-member v3 contract,
 /// with an explicit zero corrosion allowance on every pipe section (DEF-E G8).
 fn exact_namespace(model: &Value) -> bool {
-    model["schema_version"].as_str() == Some("0.5.0")
+    model["schema_version"].as_str() == Some("0.6.0")
         && model.as_object().is_some_and(|object| !object.contains_key("shear_model"))
         && pressure_contract_is(&model["pressure_contract"], "3.0.0", "exact_pressure_v3")
         && section_allowances(model, true)
@@ -4807,13 +4824,13 @@ fn pressure_contract_is(v: &Value, version: &str, mode: &str) -> bool {
 }
 /// D1.3 on the preview branch, type-strict (B3-D REVISION_01 §3, N-4): branch
 /// L, a pressure-free document, keyed on the contract's absence (b7-plan
-/// "Model format, pressure-free half"): the current model version 0.5.0 with
-/// `pressure_contract` absent. Anything else (a 0.5.0 model with
+/// "Model format, pressure-free half"): the current model version 0.6.0 with
+/// `pressure_contract` absent. Anything else (a 0.6.0 model with
 /// any contract, `{}` or `false` included; the retired 0.1.0 and 0.2.0; any
 /// 0.3.0 or 0.4.0 model) is outside the namespace. B3a's branch L3 is dropped
 /// (the owner retired that contract product-wide); B3D-10's tightenings stay.
 fn preview_namespace(model: &Value) -> bool {
-    model["schema_version"].as_str() == Some("0.5.0")
+    model["schema_version"].as_str() == Some("0.6.0")
         && model.as_object().is_some_and(|object|
             !object.contains_key("pressure_contract") && !object.contains_key("shear_model"))
         && section_allowances(model, false)
@@ -6293,8 +6310,8 @@ fn r_comb_1(source: &Value) -> Vec<RowClassification> {
     out
 }
 /// G7's projection onto the route's base: remove the receipt and the row
-/// tokens; set the base identity and profile (preview-physics-1 and
-/// `product_preview_mechanics_v1`; pressure-1 and `exact_pressure_v3`).
+/// tokens; set the base identity and profile (preview-physics-2 and
+/// `product_preview_mechanics_v1`; pressure-2 and `exact_pressure_v3`).
 fn project(source: &Value, raw: bool, route: &Route) -> VResult<Value> {
     let mut projected = source.clone();
     projected
@@ -6397,9 +6414,17 @@ fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Rou
     // C1 G7 "existing base failure codes" (06b settlement): each language
     // reports its own unchanged base code, here the Rust base's
     // SOURCE_PREVIEW_PHYSICS_<CODE> (preview) or SOURCE_PHYSICS_<CODE>
-    // (exact: pressure-1's `validate_pressure_evidence`); any text
+    // (exact: pressure-2's `validate_pressure_evidence`); any text
     // after the code is detail.
     crate::semantic_contract::for_source(&projected).map_err(base_error)?;
+    // T4-U4b (§4.1, §5.1; S4 round 2): on route L the base read above is
+    // model-free, so with the invocation the projection's τ rows are
+    // recomputed bit for bit with c_b from the captured model (the
+    // preview-physics-2 reader's G2 model checks), reported at G7 with the
+    // base's code. Route E's base read already forms c_b from its evidence.
+    if let (Some(inv), false) = (actual_invocation, route.exact) {
+        crate::u4b_evidence::preview_model_checks(&projected, &inv["request"]["model"]).map_err(base_error)?;
+    }
     if let Some(inv) = actual_invocation {
         g8(source, inv, route)?;
     }
@@ -6416,7 +6441,7 @@ fn gates_after_g0(source: &Value, actual_invocation: Option<&Value>, route: &Rou
         classifications,
     })
 }
-/// The preview-physics-1 transport metadata check on the reader's projection (B1's
+/// The preview-physics-2 transport metadata check on the reader's projection (B1's
 /// alignment set, item 4): the closed statement shape and its internal
 /// consistency, with no row read. It is TS's `validatePreviewPhysicsTransportMetadata`,
 /// check for check, in TS's order and with TS's detail texts: no foreign namespace;
@@ -6558,6 +6583,10 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             !list(unavailable).iter().any(|x| list(outside).contains(x)),
             "maximum coverage overlap",
         )?;
+        // T4-U4b (§2.1, review item 6; Codex round 2): arcs publish their maximum,
+        // so no member is outside its domain, as the raw reader and PY transport
+        // require.
+        demand(list(outside).is_empty(), "maximum coverage outside the domain")?;
         demand(
             coverage["complete"].as_bool()
                 == Some(list(unavailable).is_empty() && list(outside).is_empty()),
@@ -6593,13 +6622,24 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
         )?;
         for x in list(&c["pipe_stress_extrema"]) {
             demand(shape(x, &EXTREMA), "extrema shape")?;
+            // T4-U4b (§2.3): the straight token triple or the arc record's (the raw
+            // reader binds an arc's record to its rows; transport has no rows).
+            let tokens = (x["approximation"].as_str(), x["coefficient_basis"].as_str(), x["enclosure_scope"].as_str());
             demand(
                 nonempty(&x["pipe_id"])
                     && nonempty(&x["result_id"])
-                    && x["approximation"] == "piecewise_quadratic_straight_section_statics"
-                    && x["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures"
-                    && x["enclosure_scope"]
-                        == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+                    && (tokens
+                        == (
+                            Some("piecewise_quadratic_straight_section_statics"),
+                            Some("j_side_section_equilibrium_binary64_enclosures"),
+                            Some("supplied_binary64_polynomial_coefficient_enclosures; solution error is separate"),
+                        )
+                        || tokens
+                            == (
+                                Some(crate::u4b_evidence::ARC_APPROXIMATION),
+                                Some(crate::u4b_evidence::ARC_COEFFICIENT_BASIS),
+                                Some(crate::u4b_evidence::ARC_ENCLOSURE_SCOPE),
+                            )),
                 "extrema identity or basis",
             )?;
             // Ruling 2 (RR "I4 made at `30f3d1b24a`; …"): PY's extrema-number demand, at
@@ -6646,6 +6686,36 @@ fn preview_physics_transport_metadata(p: &Value) -> Result<(), String> {
             "extrema member partition",
         )?;
         for m in list(&c["intensified_measures"]) {
+            // T4-U4b (§2.6): a directional record is told apart by its own key set
+            // (the raw reader binds it to its row); its result id stays bound once.
+            // Codex round 2: it is one of the schema's two closed directional
+            // shapes with their typed fields, or refused with the detail PY's
+            // schema check of the same evidence gives.
+            if !shape(m, &MEASURE) && m.get("i_in_plane").is_some() && m.get("i_out_of_plane").is_some() {
+                let positive = |k: &str| number(&m[k]).is_some_and(|n| n > 0.0);
+                let fraction = |k: &str| number(&m[k]).is_some_and(|n| (0.0..=1.0).contains(&n));
+                let factors = nonempty(&m["pipe_id"])
+                    && nonempty(&m["result_id"])
+                    && positive("i_in_plane")
+                    && positive("i_out_of_plane");
+                let station = shape(m, &["pipe_id", "result_id", "location", "i_in_plane", "i_out_of_plane"])
+                    && matches!(m["location"].as_str(), Some("end_i" | "end_j" | "quarter_1" | "midspan" | "quarter_3"));
+                let maximum = shape(m, &[&EXTREMA[..], &["i_in_plane", "i_out_of_plane"]].concat())
+                    && fraction("station_fraction")
+                    && fraction("local_fraction")
+                    && number(&m["span_index"]) == Some(0.0)
+                    && ["value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa"]
+                        .iter()
+                        .all(|k| number(&m[*k]).is_some())
+                    && number(&m["subdivisions"])
+                        .is_some_and(|n| n.fract() == 0.0 && (0.0..=MAX_SUBDIVISIONS).contains(&n))
+                    && m["approximation"] == crate::u4b_evidence::ARC_DIRECTIONAL_APPROXIMATION
+                    && m["coefficient_basis"] == crate::u4b_evidence::ARC_COEFFICIENT_BASIS
+                    && m["enclosure_scope"] == crate::u4b_evidence::ARC_ENCLOSURE_SCOPE;
+                demand(factors && (station || maximum), "transport evidence shape")?;
+                measure_ids.push(text(&m["result_id"]));
+                continue;
+            }
             demand(shape(m, &MEASURE), "intensified measure shape")?;
             demand(
                 nonempty(&m["result_id"])
@@ -6731,7 +6801,7 @@ pub fn validate_transport_metadata(source: &Value) -> VResult<Validation> {
             detail: None,
         })?;
     // B1's alignment set, item 4: the header check stays at G2; the base's
-    // transport metadata check runs at G7, as PY and TS run it: preview-physics-1's
+    // transport metadata check runs at G7, as PY and TS run it: preview-physics-2's
     // on the preview route, the full current exact-retained pressure transport
     // check on the exact route (B7b D4). No current check is retired with v2.
     if route.exact {
@@ -6787,7 +6857,7 @@ mod b3b_table_binding_tests {
 
 /// B7a (b7-plan "Model format, pressure-free half"): G8's preview namespace keys
 /// on the pressure contract's absence on the current model version. Keying it on
-/// the version string alone (a 0.5.0 model with a contract would pass) or on the
+/// the version string alone (a 0.6.0 model with a contract would pass) or on the
 /// retired 0.1.0/0.2.0 fails this test.
 #[cfg(test)]
 mod b7a_preview_namespace_tests {
@@ -6801,22 +6871,22 @@ mod b7a_preview_namespace_tests {
             }
             m
         };
-        assert!(preview_namespace(&model("0.5.0", None)));
-        assert!(!preview_namespace(&model("0.5.0", Some(Value::Null))));
+        assert!(preview_namespace(&model("0.6.0", None)));
+        assert!(!preview_namespace(&model("0.6.0", Some(Value::Null))));
         for contract in [json!({"version": "2.0.0", "mode": "exact_straight_pressure_v2"}), json!({}), json!(false)] {
-            assert!(!preview_namespace(&model("0.5.0", Some(contract.clone()))), "0.5.0 with {contract}");
+            assert!(!preview_namespace(&model("0.6.0", Some(contract.clone()))), "0.6.0 with {contract}");
         }
-        for version in ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.1"] {
+        for version in ["0.1.0", "0.2.0", "0.3.0", "0.4.0", "0.5.0", "0.5.1"] {
             assert!(!preview_namespace(&model(version, None)), "{version}");
         }
         assert!(!preview_namespace(&json!({"project": {"id": "p"}})), "a missing version");
         let exact = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
-        assert!(exact_namespace(&model("0.5.0", Some(exact.clone()))));
+        assert!(exact_namespace(&model("0.6.0", Some(exact.clone()))));
         for value in [Value::Null, json!("euler_bernoulli"), json!(false), json!(1), json!([]), json!({})] {
-            let mut preview = model("0.5.0", None);
+            let mut preview = model("0.6.0", None);
             preview["shear_model"] = value.clone();
             assert!(!preview_namespace(&preview), "top-level shear {value}");
-            let mut pressure = model("0.5.0", Some(exact.clone()));
+            let mut pressure = model("0.6.0", Some(exact.clone()));
             pressure["shear_model"] = value.clone();
             assert!(!exact_namespace(&pressure), "top-level shear {value}");
         }
@@ -7021,8 +7091,8 @@ pub fn outcome_json(outcome: &VResult<Validation>) -> Value {
     }
 }
 
-/// b7-plan R2: preview-physics-1's transport metadata check (the base check this
-/// reader's transport reading runs at G7), for callers that read a preview-physics-1
+/// b7-plan R2: preview-physics-2's transport metadata check (the base check this
+/// reader's transport reading runs at G7), for callers that read a preview-physics-2
 /// header directly. Unchanged; this only makes it reachable.
 pub fn validate_preview_physics_transport_metadata(source: &Value) -> Result<(), String> {
     preview_physics_transport_metadata(source)
@@ -7641,7 +7711,7 @@ mod w1_member_reader_gate_tests {
         let source=json!({"retained_precision":{"body":{"sources":[]}}});
         let mut loads=vec![json!({"target":{"type":"node"}});128];
         loads.push(json!({"target":{"type":"element"},"category":"distributed_force","dimension":"force_per_length"}));
-        let inv=json!({"request":{"model":{"schema_version":"0.5.0","load_cases":[{"id":"c","primitive_loads":loads}]}}});
+        let inv=json!({"request":{"model":{"schema_version":"0.6.0","load_cases":[{"id":"c","primitive_loads":loads}]}}});
         let refuse=|s:&Value,i:&Value,exact| {
             let e=guard_member_g8(s,i,exact).unwrap_err();
             assert_eq!((e.gate,e.code.as_str()),("G8","RETAINED_PRECISION_PREPARATION_MISMATCH"));

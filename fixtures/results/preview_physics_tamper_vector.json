@@ -1,8 +1,9 @@
 {
-  "description": "T0R S1 amendments A2/A3/A4 shared tamper vector. Each variant applies its ops (RFC 6901 JSON pointers) to a copy of its base fixture; every reader (Rust, Python, TS) must give the expected outcome. Bases are actual producer output. Ops: replace, remove, reverse, and add (append with '-').",
+  "description": "T0R S1 amendments A2/A3/A4 shared tamper vector. Each variant applies its ops (RFC 6901 JSON pointers) to a copy of its base fixture; every reader (Rust, Python, TS) must give the expected outcome. Bases are actual producer output. Ops: replace, remove, reverse, and add (append with '-'). A variant with \"transport\" is also read by each reader's metadata-only transport check, with that outcome.",
   "bases": {
     "unicode": "fixtures/results/preview_physics_unicode_ids_sparse.json",
-    "blocked": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json"
+    "blocked": "fixtures/product_preview/invented_mechanics_result_preview_physics_1_sparse.json",
+    "u4b_arc": "fixtures/results/preview_physics_u4b_arc_sparse.json"
   },
   "variants": [
     {
@@ -70,7 +71,7 @@
       "ops": [
         {
           "op": "replace",
-          "path": "/results/389/metadata/coordinate_system",
+          "path": "/results/449/metadata/coordinate_system",
           "value": "element_local"
         }
       ],
@@ -129,7 +130,7 @@
       "ops": [
         {
           "op": "replace",
-          "path": "/results/132/value",
+          "path": "/results/162/value",
           "value": -1.0
         }
       ],
@@ -156,7 +157,7 @@
       "ops": [
         {
           "op": "add",
-          "path": "/results/132/metadata/extra",
+          "path": "/results/162/metadata/extra",
           "value": "x"
         }
       ],
@@ -191,7 +192,7 @@
       "ops": [
         {
           "op": "replace",
-          "path": "/results/268/source_result_refs",
+          "path": "/results/328/source_result_refs",
           "value": null
         }
       ],
@@ -284,6 +285,232 @@
         }
       ],
       "expect": "accepted"
+    },
+    {
+      "id": "U4B-sigma-plus-changed",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/results/81/value",
+          "value": 11.396537565350796
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "U4B-sigma-minus-missing",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/results/82"
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "U4B-transverse-shear-negative",
+      "base": "unicode",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/results/83/value",
+          "value": -0.6188852080335594
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "U4B-arc-outside-domain-revived",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/stress_maximum_coverage",
+          "value": {
+            "complete": false,
+            "outside_domain_pipe_ids": [
+              "pipe:BEND2"
+            ],
+            "unavailable_pipe_ids": []
+          }
+        },
+        {
+          "op": "remove",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3"
+        },
+        {
+          "op": "remove",
+          "path": "/results/305"
+        },
+        {
+          "op": "replace",
+          "path": "/summary/max_open_formula_stress",
+          "value": null
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-arc-station-cover",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3/value_lower_pa",
+          "value": 35620986.99546099
+        },
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3/value_upper_pa",
+          "value": 35620986.99546099
+        },
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3/global_upper_bound_pa",
+          "value": 35620986.99546099
+        },
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/pipe_stress_extrema/3/certified_gap_pa",
+          "value": 0.0
+        },
+        {
+          "op": "replace",
+          "path": "/results/305/value",
+          "value": 35620986.99546099
+        }
+      ],
+      "expect": "refused"
+    },
+    {
+      "id": "U4B-transport-directional-bare",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/0",
+          "value": {
+            "result_id": "result:intensified-directional:pipe-BEND1:end-i",
+            "i_in_plane": null,
+            "i_out_of_plane": -2
+          }
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-station-factor-negative",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/1/i_out_of_plane",
+          "value": -2
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-station-location",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/2/location",
+          "value": "governing_station"
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-station-extra-key",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/3",
+          "value": {
+            "i_in_plane": 2.2,
+            "i_out_of_plane": 1.6,
+            "location": "midspan",
+            "pipe_id": "pipe:BEND1",
+            "result_id": "result:intensified-directional:pipe-BEND1:midspan",
+            "extra": 1
+          }
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-approximation",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/5/approximation",
+          "value": "arc_closed_form_section_statics"
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-span-index",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/5/span_index",
+          "value": 1
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-subdivisions",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/5/subdivisions",
+          "value": 131073
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-gap-missing",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "remove",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/11/certified_gap_pa"
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
+    },
+    {
+      "id": "U4B-transport-maximum-pipe-empty",
+      "base": "u4b_arc",
+      "ops": [
+        {
+          "op": "replace",
+          "path": "/contract_evidence/preview_cases/0/intensified_measures/11/pipe_id",
+          "value": ""
+        }
+      ],
+      "expect": "refused",
+      "transport": "refused"
     }
   ]
 }

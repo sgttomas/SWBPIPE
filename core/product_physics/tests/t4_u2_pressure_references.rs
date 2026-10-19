@@ -15,7 +15,7 @@
 //! must carry (DEL-05-03 Design §7).
 //!
 //! B7b: the frozen documents stay 0.3.0/0.4.0 (bytes unchanged); every copy is
-//! re-authored to the current 0.5.0 exact document (`common/current_model.rs`)
+//! re-authored to the current 0.6.0 exact document (`common/current_model.rs`)
 //! before it runs. The v2 originals and SP-1's v2/v3 twin clause were retired
 //! with `exact_straight_pressure_v2`.
 //!
@@ -271,11 +271,11 @@ fn i7_checks(case: &Value, envelope: &Value) -> (Vec<Check>, Vec<String>) {
         }
         if arc {
             // Plan section 4.3 item 1 and U0's policy: withheld on arcs; the
-            // elastic axial rows are replaced by the pressure family.
+            // elastic axial rows are replaced by the pressure family. T4-U4b
+            // (§2.1): the arc's maximum is published (its values are t4_u4b's).
             for kind in [
                 "pipe_lame_radial_stress_v2",
                 "pipe_lame_hoop_stress_v2",
-                "pipe_elastic_normal_stress_maximum_v2",
                 "element_local_axial_force",
                 "element_local_axial_normal_stress",
             ] {
@@ -521,7 +521,7 @@ fn i7_admitted_kinks_are_recorded_and_carried_by_the_remainder() {
 // ------------------------------------------------------------------ T4-I8
 
 /// Each T4-I8 document's v3 twin (the reference's `v3_patch_for_both` on the
-/// frozen document; `captured` re-authors the copy to 0.5.0). Case 1 (MILLTOL),
+/// frozen document; `captured` re-authors the copy to 0.6.0). Case 1 (MILLTOL),
 /// re-authored in 0.5.0 for D-5, has its own documents (`milltol_runs`).
 fn i8_documents(references: &Value) -> Vec<(String, Value, Vec<Value>)> {
     let mut found = Vec::new();
@@ -559,7 +559,7 @@ fn i8_documents(references: &Value) -> Vec<(String, Value, Vec<Value>)> {
 /// document versions, at the row's own criterion. Cases 2–5 (zero mill
 /// tolerance and allowance, frozen once) carry each stress row on both
 /// section bases at the one frozen value (Design §7); case 1 (MILLTOL) is
-/// checked row by row on its own basis, in both 0.5.0 forms and under its
+/// checked row by row on its own basis, in both 0.6.0 forms and under its
 /// `shear_model_variant` patch.
 #[test]
 fn i8_rows_match_on_the_v3_straight_route() {

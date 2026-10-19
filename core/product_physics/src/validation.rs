@@ -21,6 +21,7 @@ pub(crate) fn validate_model_inputs(
     validate_units(model, materials, diagnostics);
     validate_spring_hangers(model, diagnostics);
     validate_components(model, diagnostics);
+    validate_directional_sifs(model, diagnostics);
     validate_thermal_inputs(model, materials, diagnostics);
     validate_combinations(model, diagnostics);
 }
@@ -1968,5 +1969,54 @@ fn validate_range_envelope_combination(
             continue;
         }
         expect_known_combination_load_case(combination, load_case_ids, operand_id, diagnostics);
+    }
+}
+
+/// T4-U4b (model 0.6.0; DEL-04-07 Design `u4b-u5b-implementation.md` §2.6):
+/// the directional SIF pair `modifiers.sif_in_plane_user_value` (on M_z of the
+/// arc's tangent frame) and `modifiers.sif_out_of_plane_user_value` (on M_y).
+/// Both or neither; each a finite dimensionless user factor above zero (no
+/// code floor); `modifiers.source_reference` required; only on a realized
+/// curved bend. A violation blocks by name (`MODEL_INCOMPLETE`, no results):
+/// `BEND_DIRECTIONAL_SIF_INCOMPLETE` or `BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC`.
+pub(crate) const BEND_DIRECTIONAL_SIF_INCOMPLETE: &str = "BEND_DIRECTIONAL_SIF_INCOMPLETE";
+pub(crate) const BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC: &str = "BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC";
+fn validate_directional_sifs(model: &crate::PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    for component in &model.components {
+        let Some(modifiers) = &component.modifiers else { continue };
+        let pair = [&modifiers.sif_in_plane_user_value, &modifiers.sif_out_of_plane_user_value];
+        if pair.iter().all(|value| value.is_none()) {
+            continue;
+        }
+        let refs = vec![
+            component.id.clone(),
+            "modifiers.sif_in_plane_user_value".to_string(),
+            "modifiers.sif_out_of_plane_user_value".to_string(),
+        ];
+        if !crate::is_curved_bend_macro_component(component) {
+            diagnostics.push(diag(
+                &format!("diagnostic:component:{}:directional-sif-not-realized-arc", stable_suffix(&component.id)),
+                BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC,
+                "blocking",
+                "the directional SIF pair applies only to a bend realized as a curved_bend_macro_element; at a geometry-only marker or another component no vetted basis fixes the in-plane axis",
+                refs,
+            ));
+            continue;
+        }
+        let valid = |value: &Option<crate::Quantity>| {
+            value.as_ref().is_some_and(|q| {
+                matches!(q.unit.as_str(), "1" | "none") && q.value.is_finite() && q.value > 0.0
+            })
+        };
+        let sourced = modifiers.source_reference.as_deref().is_some_and(|text| !text.trim().is_empty());
+        if !(pair.iter().all(|value| valid(value)) && sourced) {
+            diagnostics.push(diag(
+                &format!("diagnostic:component:{}:directional-sif-incomplete", stable_suffix(&component.id)),
+                BEND_DIRECTIONAL_SIF_INCOMPLETE,
+                "blocking",
+                "a realized bend's directional SIFs are both required (in-plane on M_z, out-of-plane on M_y of the tangent frame), each a finite dimensionless user factor above zero, with modifiers.source_reference",
+                refs,
+            ));
+        }
     }
 }

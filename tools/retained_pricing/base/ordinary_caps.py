@@ -65,6 +65,16 @@ import u6_owners_model as _u6_model
 _u6 = _u6_model.inspect(_snapshot) if _snapshot else {"exact_sections": False, "reduced_workspace": False,
                                                       "frame_members": False, "all_rows": False}
 _FM = (Xc("String", m) + B(m * textcap(_u6_model.MEMBER_PREFIX))) if _u6["frame_members"] else X()
+# T4-S5 D3 (shared epoch 4; retained-pricing-rules.md §8.8): the T4-U4b/U5b owners outside the TEXT inventory, each
+# priced positively where its reviewed source exists (u4b_u5b_owners_model binds the function bodies): U5B-PD (the
+# published corrected nodal displacements), U4B-ST (one member's station quantities), U5B-AB (the absorbed-diagonal
+# refusal's free-DOF flags in each contribution-sum call).
+import u4b_u5b_owners_model as _u45_model
+_u45 = _u45_model.inspect(_snapshot) if _snapshot else {"published_displacements": False, "station_quantities": False,
+                                                        "absorption": False}
+_AB = _u45_model.absorption_flags(N) if _u45["absorption"] else X()
+# U5B-CG (T4-S6, §8.8): each AssemblyEvidence's contribution-group vector beside its contributions.
+_CG = _u45_model.contribution_groups(m, sp) if _u45.get("contribution_groups") else X()
 _mc = __import__("g3lib").g4_caps()
 CC, LL = (_mc["c"], _mc["L"]) if which == "caps" else (1, l)   # I82: requested cases, total loads
 if _wide:
@@ -258,7 +268,8 @@ def typed_core(mode):
             B(8 * (N + 1) + 16 * Z + 16 * Z + 16 * Z) + V("StiffnessContribution", C)
             + Xc("Option<[f64;3]>", n) + V("(usize,usize,bool)", m) + B(8 * pushcap(sp))
             + Xc("FrameElement", m) * 2 + Xc("(usize,f64)", sp) * 2
-            + _FM * 3)   # U8-FM: PP's identities, the evidence's to_vec and formation_source's clone
+            + _FM * 3    # U8-FM: PP's identities, the evidence's to_vec and formation_source's clone
+            + _CG)       # U5B-CG
         # Sparse typed preparation (BOUND :63)
         out["Sparse typed preparation"] = (
             B(8 * (F + 1) + 3 * 8 * appendcap(Zf) + 8 * Zf + 8 * F + 8 * F + 4 * F)
@@ -273,7 +284,8 @@ def typed_core(mode):
         sums_headers = s("Expansion") * (2 * Z)
         out["Contribution audit (sparse)"] = (sums_headers + B(8 * (Ps + Pd)) + V("ContributionRounding", Z)
                                               + B(8 * (2 * C + Z)) + B(Bf(d + 1))
-                                              + Exp_req(2 * min(C + Z, k * (d + 1))))
+                                              + Exp_req(2 * min(C + Z, k * (d + 1)))
+                                              + _AB)   # U5B-AB
         fresh_sums = s("Expansion") * Z + B(8 * Ps + Bf(d))
     else:
         # dense AssemblyEvidence + dense typed preparation (BOUND :62)
@@ -281,13 +293,15 @@ def typed_core(mode):
             Mat(8, N, N) * 2 + Mat(8, N, N) * 2 + V("StiffnessContribution", C) + Xc("Option<[f64;3]>", n)
             + V("(usize,usize,bool)", m) + B(8 * pushcap(sp)) + Xc("FrameElement", m) * 2
             + Xc("(usize,f64)", sp) * 2 + Mat(8, N, N) * 3
-            + _FM * 3)   # U8-FM: PP's identities, the evidence's to_vec and formation_source's clone
+            + _FM * 3    # U8-FM: PP's identities, the evidence's to_vec and formation_source's clone
+            + _CG)       # U5B-CG
         out["Dense typed preparation + Cholesky"] = (Mat(8, F, F) + B(8 * F + 4 * F) + Mat(8, F, F)
                                                      + V("PivotEvidence", F))
         dense_headers = (s("Vec<Expansion>") * N + s("Expansion") * (N * N)) * 2
         out["Contribution audit (dense)"] = (dense_headers + B(8 * (Ps + Pd)) + V("ContributionRounding", Z)
                                              + B(8 * (2 * C + Z)) + B(Bf(d + 1))
-                                             + Exp_req(2 * min(C + Z, k * (d + 1))))
+                                             + Exp_req(2 * min(C + Z, k * (d + 1)))
+                                             + _AB)   # U5B-AB
         fresh_sums = s("Vec<Expansion>") * N + s("Expansion") * (N * N) + B(8 * Ps + Bf(d))
     # common to both modes
     out["Condition/refinement basic vectors"] = B(40 * F + 8 * (6 * F + N))
@@ -299,8 +313,9 @@ def typed_core(mode):
     out["Completed report (+ original factor/prepared still live)"] = report
     out["Load-fidelity audit and report (returned report cloned once)"] = (
         s("Vec<&ForceTerm>") * N + B(8 * (4 * N + 2 * force_q)) + B(N) + fresh_sums + A("(f64,f64)", C)
-        + Exp_req(1 + 2 * C + 2 * force_q) + Sort("String", force_q if _wide else li_max) + fidelity * 2)
-    out["Intended-action audit"] = fresh_sums + Exp_req(1 + 2 * C)
+        + Exp_req(1 + 2 * C + 2 * force_q) + Sort("String", force_q if _wide else li_max) + fidelity * 2
+        + _AB)   # U5B-AB
+    out["Intended-action audit"] = fresh_sums + Exp_req(1 + 2 * C) + _AB   # U5B-AB
     out["Ordinary formation check (outer vectors)"] = (
         Xc("Option<usize>", N) + Xc("ExactAccumulator", F) + Xc("Vec<f64>", F) + B(8 * (4 * F + 288 * m))
         + Xc("Option<i32>", F) + B(8 * F + 16 * F) + B(72 * n + 24) + Xc("(f64,f64)", 2 * n)
@@ -426,6 +441,12 @@ add("Straight member recovery (+ stress supplement)", "OrdinaryRecovery",
     + s("(&str,StressRecoveryResult)") * 3 + stress_children * 6 + s("AnalysisStatus") + B(64 + 16 + 160)
     + _reduced_stresses,
     B(32) + s("AnalysisStatus") * 8 + s("StressFinding") * 2 + B(max(8, 2 * 57)))
+if _u45["published_displacements"]:
+    # U5B-PD: the case's published nodal displacements, live from the solve's publication through its rows.
+    add("Published corrected nodal displacements (U5B-PD)", "OrdinaryRecovery", _u45_model.ordinary_published_displacements(N))
+if _u45["station_quantities"]:
+    # U4B-ST: one member's station-quantity transients (append_station_quantities and its caller), one member live.
+    add("Station quantities of one member (U4B-ST)", "OrdinaryRecovery", _u45_model.ordinary_station_quantities())
 q = m + n + g
 add("Formation-guard late maps and RecoveryFinding", "OrdinaryRecovery",
     HashReq("(String,usize)", q) + B(q * ID) + HashReq("(usize,(f64,f64))", b) + HashReq("(usize,(f64,f64))" if KD5 else "(usize,f64)", b)
@@ -482,7 +503,7 @@ add("Final aggregation (results + rows_by_base_id clone + id_map)", "Aggregation
 if _wide:
     _map_req, _map_mov = _wide_model.record_map(_named_cases, ID)
     add("Independent combination modulus record map (B7a stage 1)", "AggregationSuffix", _map_req, _map_mov)
-    add("Additional held failed-manifest envelope owners (B7a stage 1)", "OldCaseStaging", _wide_model.failed_envelope_copy(CC, ID))
+    add("Additional held failed-manifest envelope owners (B7a stage 1)", "OldCaseStaging", _wide_model.failed_envelope_copy(CC, ID, _snapshot))
 add("Preview tree final copy (envelope evidence)", "AggregationSuffix", PREVIEW)
 # Closed formed guard construction pays the native row headers, both source
 # lists, maps, fired backing/moving storage and six independently cloned items.
@@ -529,6 +550,9 @@ else:
 PER_CASE_FAMILIES = ['Primitive loads and application', 'AssembledForce, nodal family', 'Sparse reduction (+ caller prescribed, observation force)', 'Formation-guard Bodies (build + resident)', 'Legacy profile observation', 'Straight member recovery (+ stress supplement)', 'Formation-guard late maps and RecoveryFinding', 'Ordinary scalar maximum (one helper at a time)', 'Source row qualification', 'Existing ordinary/failed source case (FinalizedSourceBlockCase::ordinary)', 'Preview rewrite', 'Preview tree final copy (envelope evidence)', 'T07 generic deep legacy-exact (RESIDUALS_G3 T07)']
 if "Prepared pressure case carriers and staging (B5O1)" in fam:
     PER_CASE_FAMILIES.append("Prepared pressure case carriers and staging (B5O1)")
+for _f in ("Published corrected nodal displacements (U5B-PD)", "Station quantities of one member (U4B-ST)"):
+    if _f in fam:
+        PER_CASE_FAMILIES.append(_f)
 if _wide:
     PER_CASE_FAMILIES.append("Formed load constructor staging (B7a stage 1)")
     PER_CASE_FAMILIES.append("Element uniform LoadApplication owners (B7a stage 1)")

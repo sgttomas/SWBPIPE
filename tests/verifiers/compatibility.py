@@ -24,6 +24,13 @@ SOURCE_BLOCKS_1_RETIRED = "SOURCE_BLOCKS_1_RETIRED"
 # B1: precision-1 is no longer read; a stored precision-1 result is refused by name.
 RETIRED_PRECISION_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/precision-1"
 SOURCE_PRECISION_1_RETIRED = "SOURCE_PRECISION_1_RETIRED"
+# Model 0.6.0 (DEL-04-07 Design u4b-u5b-implementation.md §1.2): the ordinary pressure-1 and preview-physics-1
+# identities are retired and their tables deleted; a stored result under either is refused by name (re-run), as
+# Rust's `current_header` refuses it.
+RETIRED_PRESSURE_1_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
+SOURCE_PRESSURE_1_RETIRED = "SOURCE_PRESSURE_1_RETIRED"
+RETIRED_PREVIEW_PHYSICS_1_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+SOURCE_PREVIEW_PHYSICS_1_RETIRED = "SOURCE_PREVIEW_PHYSICS_1_RETIRED"
 # B7b (A4/A5): the identities of the retired `2.0.0/exact_straight_pressure_v2` contract are refused by name at the
 # header, as Rust's `current_header` refuses them (`SOURCE_EXACT_PRESSURE_V2_RETIRED`); none is read.
 RETIRED_EXACT_V2_IDS = (
@@ -34,31 +41,31 @@ RETIRED_EXACT_V2_IDS = (
 )
 SOURCE_EXACT_PRESSURE_V2_RETIRED = "SOURCE_EXACT_PRESSURE_V2_RETIRED"
 SOURCE_EXACT_PRESSURE_V2_RETIRED_TEXT = (f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
-                                         "re-author the model as 0.5.0 with the current exact pressure contract and re-run the analysis")
+                                         "re-author the model as 0.6.0 with the current exact pressure contract and re-run the analysis")
 PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 # T4-U6 (D-5, §2.4): the per-basis stress signatures.
-PRESSURE_SOURCE_CONTRACT_SHA256 = "f0daf3e22ce844e51f628e06730a907bda7d79e68f7e9dcc674abb4e3ba65d53"
+PRESSURE_SOURCE_CONTRACT_SHA256 = "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec64e8a86"
 _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_source_1.json"
-# pressure-1 (`3.0.0/exact_pressure_v3`): the ordinary exact route. Its raw statements are read by the independent
-# `pressure_1` verifier; it is also the exact successor's G7 base (B7b D4 (a)).
-PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
-PRESSURE_CONTRACT_SHA256 = "4dc927893bf139002f44f57c5b464ab4e8b428d1de184c5c637645b440321b4e"
-_PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_1.json"
+# pressure-2 (`3.0.0/exact_pressure_v3`): the ordinary exact route. Its raw statements are read by the independent
+# `pressure_2` verifier; it is also the exact successor's G7 base (B7b D4 (a)).
+PRESSURE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
+PRESSURE_CONTRACT_SHA256 = "e661d9d5ba21332a49152eb6aaa0f34a76d3a210aa3647d4249887b8e436d788"
+_PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_2.json"
 PRESSURE_PROFILE = "exact_pressure_v3"
-PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
-PREVIEW_PHYSICS_CONTRACT_SHA256 = "e89312bb5090d05f90da715e097f32f47d9a8d29f3f2eee55a4f38eca4d20f32"
-_PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_1.json"
+PREVIEW_PHYSICS_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
+PREVIEW_PHYSICS_CONTRACT_SHA256 = "ee8036d59d0aeb255ff132e4dee0d6e7a1e8da8b33e4697c7761c695c3f6e387"
+_PREVIEW_PHYSICS_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_2.json"
 # U6b (D-U6-6; D2 4.7 S-1, 4.9.6): the F2a preview successor. Its statements are
 # checked only by the accepted reader (`retained_precision`), and its standing
 # comes only from that reader's verified receipt (D1 5 item 3).
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
-PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "842a011601ea5049c6e89abbd73a24176966ca23c9a8cf9c89336341f608f3ad"
+PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "4da08f964605a5080b38c0ea9793731b33720070db001a4c7f1c4f9fbcaeb76f"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_retained_1.json"
-# B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-1 since B7b D4 (a). As the preview successor, its
+# B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-PHYSICS_RETAINED_CONTRACT_SHA256 = "775ae70ce0cdd0ee0bc71f7469e20cc03e4b98b8d160c947ab5740c520359cb6"
+PHYSICS_RETAINED_CONTRACT_SHA256 = "ee1144c7302339accb61d51197d8f95b574c56c434895aa194d63b82f99be186"
 _PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_physics_retained_1.json"
 RETAINED_CONTRACTS = {PREVIEW_PHYSICS_RETAINED_CONTRACT_ID: (PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256, _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH),
                       PHYSICS_RETAINED_CONTRACT_ID: (PHYSICS_RETAINED_CONTRACT_SHA256, _PHYSICS_RETAINED_CONTRACT_PATH)}
@@ -66,11 +73,11 @@ RETAINED_METHOD = "contribution_preserving_multiprecision_v1"
 RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
 RULE_QUANTITY_BELOW_VERIFIED_FLOOR = "RULE_QUANTITY_BELOW_VERIFIED_FLOOR"
 RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED"
-# pressure-1 has no transport (metadata-only) reading outside the exact successor's G7 step (Rust `reader_verdict`).
+# pressure-2 has no transport (metadata-only) reading outside the exact successor's G7 step (Rust `reader_verdict`).
 PRESSURE_TRANSPORT_UNSUPPORTED = "SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED"
 # Static fresh-publication identities (S1 §10; Rust `FRESH_IDENTITIES`); no route predicate.
 FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID,
-                                # T4-U2: pressure-1 (`3.0.0/exact_pressure_v3`).
+                                # T4-U2: pressure-2 (`3.0.0/exact_pressure_v3`).
                                 PRESSURE_CONTRACT_ID,
                                 # U6b (D-U6-6): membership is not standing.
                                 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID})
@@ -217,9 +224,9 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
     (RR "I4 made at `30f3d1b24a`; RV113's items for ROOT ruled; …", ruling 1). The header then takes
     Rust's `for_source_metadata` order and codes, as TS's does: it has no carrier branch, so a
     `carrier_evidence` member is left to the base transport metadata check (G7), and `source_block_recovery` is
-    checked before `contract_evidence`. On that step a pressure-1 projection (the exact successor's base since
+    checked before `contract_evidence`. On that step a pressure-2 projection (the exact successor's base since
     B7b D4 (a)) takes the exact-retained transport check (`physics_evidence.validate_transport_metadata`), as
-    Rust's retained transport does; pressure-1 has no other transport reading (Rust's `transport("pressure")`
+    Rust's retained transport does; pressure-2 has no other transport reading (Rust's `transport("pressure")`
     refuses it). Every other caller passes nothing and reads exactly as before."""
     if _is_retained(source):
         return _retained_contract(source, check_receipt=check_receipt)
@@ -228,7 +235,7 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
         raise ValueError(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN)
     version = source.get("schema_version")
     # A source-block receipt belongs only to its explicit method branch below;
-    # the unrelated carrier namespace remains unsupported for every profile. On the exact identities (pressure-1,
+    # the unrelated carrier namespace remains unsupported for every profile. On the exact identities (pressure-2,
     # pressure-source-1) Rust's header (`current_header`) has one carrier check, restored in B7b as the retired
     # load-reference routes' guard: after the identity allowlist, a statement whose `contract_evidence` carries the
     # load/reference-state group (`load_reference_states`) and a `carrier_evidence` member is refused
@@ -243,12 +250,16 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
     if version != "0.2.0":
         raise ValueError("SOURCE_SCHEMA_VERSION_UNSUPPORTED")
     producer = source.get("producer")
-    # The joined receipt cannot be downgraded to ordinary pressure-1, including
+    # The joined receipt cannot be downgraded to ordinary pressure-2, including
     # transport statements. This is a source-qualified exception only.
     if producer == {"component_name":"open_pipe_stress_product_physics", "component_version":"0.2.0", "semantic_contract_id":PRESSURE_CONTRACT_ID} and "source_block_recovery" in source:
         raise ValueError("SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
     if producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": RETIRED_PRECISION_CONTRACT_ID}:
         raise ValueError(f"{SOURCE_PRECISION_1_RETIRED}: precision-1 results are no longer read; re-run the analysis")
+    if producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": RETIRED_PRESSURE_1_CONTRACT_ID}:
+        raise ValueError(f"{SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are no longer read; re-run the analysis")
+    if producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": RETIRED_PREVIEW_PHYSICS_1_CONTRACT_ID}:
+        raise ValueError(f"{SOURCE_PREVIEW_PHYSICS_1_RETIRED}: preview-physics-1 results are no longer read; re-run the analysis")
     if producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": RETIRED_SOURCE_BLOCKS_CONTRACT_ID}:
         raise ValueError(f"{SOURCE_BLOCKS_1_RETIRED}: source-blocks-1 results are no longer read; re-run the analysis")
     # B7b (A4/A5): a stored v2 result is refused by name, never read or reinterpreted.
@@ -302,12 +313,12 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
         else: validate_transport_metadata(source, source_contract=SourceContract.PRESSURE_V3)
         return PRESSURE_SOURCE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_SHA256, _PRESSURE_SOURCE_CONTRACT_PATH
     if pressure:
-        from .pressure_1 import pressure_table, validate_pressure_evidence
+        from .pressure_2 import pressure_table, validate_pressure_evidence
         pressure_table()  # The reviewed ordinary pressure table.
         if check_receipt:
             validate_pressure_evidence(source)
         elif rust_header_order:
-            # The exact successor's G7 transport step on its pressure-1 projection (B7b D4 (a)).
+            # The exact successor's G7 transport step on its pressure-2 projection (B7b D4 (a)).
             from .physics_evidence import validate_transport_metadata as exact_retained_transport
             exact_retained_transport(source)
         else:

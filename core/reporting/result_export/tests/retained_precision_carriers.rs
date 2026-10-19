@@ -23,21 +23,21 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
     (
         "sparse_interactive",
         SPARSE,
-        "032630ba2f80a80361be3ce60e1d27821d47e1161cdf750566640552de3edd2e",
-        "835205890be3f58565bdba65cb781040372af9bafc72ecf168e60fb360bb835c",
+        "d79b9b53fd88e61c84a9446aa2682a0943acde8d2ab4b251b3d393d4a4786caa",
+        "2f2260237fcae99adbecc4c208ad0f66a76bdc630fb5d7ddcaca2909a85444a4",
     ),
     (
         "dense_scrutiny",
         DENSE,
-        "0db162eb507060ec2a5bf6d78d7f1ab43fd868f2e085c9395832d7b282cbfda0",
-        "6e5123ba864e319b8d07a1581e1d10b165ce208ac75e255d9c66e2640215dad0",
+        "104b8fcb7eb4ccdda48d1dfa88c527a2835ec4f2746693b76821d34baeee5f85",
+        "53d34043560deaac649f0090fc2a14bb452fe30e2e014607624eb55090f00642",
     ),
 ];
 /// The milestone's validated class counts (R/I61 experiment 02; RV86 recount):
-/// relative, absolute, input-derived, non-quantity.
-const CLASSES: [(&str, [u64; 4]); 2] = [
-    ("sparse_interactive", [25, 69, 3, 1]),
-    ("dense_scrutiny", [25, 69, 3, 1]),
+/// relative, absolute, input-derived, non-quantity, and (T4-U4b) the 15 derived not-covered rows.
+const CLASSES: [(&str, [u64; 5]); 2] = [
+    ("sparse_interactive", [25, 69, 3, 1, 15]),
+    ("dense_scrutiny", [25, 69, 3, 1, 15]),
 ];
 
 struct Milestone {
@@ -385,7 +385,7 @@ fn u6a_derivative_carries_the_receipt_and_it_comes_back_out() {
         let base_accounting = base["result_envelope"]["row_accounting"].as_array().unwrap();
         let accounting = e["row_accounting"].as_array().unwrap();
         assert_eq!(accounting.len(), m.source["results"].as_array().unwrap().len());
-        let mut counts = [0u64; 4];
+        let mut counts = [0u64; 5];
         let mut si_units = std::collections::BTreeMap::new();
         for c in &before.classifications {
             let i = m.source["results"].as_array().unwrap().iter().position(|r| r["id"] == c.result_id.as_str()).unwrap();
@@ -411,7 +411,14 @@ fn u6a_derivative_carries_the_receipt_and_it_comes_back_out() {
                     assert!(!message.contains("stop") && !message.contains("enclos"), "{message}");
                     assert_eq!(x["source_value"], m.source["results"][i]["value"]);
                 }
-                rp::AccuracyClass::NotCovered => panic!("the milestone has no not_covered row"),
+                // T4-U4b (§4.1): the member's derived σ⁺, σ⁻ and τ_v,max rows are not covered and disclosed so.
+                rp::AccuracyClass::NotCovered => {
+                    counts[4] += 1;
+                    assert_eq!(accounting[i]["disposition"], "disclosed");
+                    assert_eq!(reasons[&c.result_id], d::RETAINED_NOT_COVERED);
+                    let x = doc["result_envelope"]["row_disclosures"].as_array().unwrap().iter().find(|x| x["source_result_id"] == c.result_id.as_str()).unwrap();
+                    assert_eq!(x["source_value"], m.source["results"][i]["value"]);
+                }
                 ref other => {
                     counts[match other { rp::AccuracyClass::RelativeVerified => 0, rp::AccuracyClass::InputDerived => 2, _ => 3 }] += 1;
                     assert_eq!(accounting[i]["disposition"], base_accounting[i]["disposition"], "{}", c.result_id);
@@ -478,7 +485,7 @@ fn u6a_receipt_binding_mismatches_are_refused() {
 #[test]
 fn u6a_downgrades_to_a_base_identity_are_refused() {
     for m in milestones() {
-        // F-5: the successor offered as preview-physics-1, keeping its receipt.
+        // F-5: the successor offered as preview-physics-2, keeping its receipt.
         let mut relabelled = m.source.clone();
         relabelled["producer"]["semantic_contract_id"] = json!(s::PREVIEW_PHYSICS_ID);
         relabelled["formulation_basis"]["profile_id"] = json!("product_preview_mechanics_v1");
@@ -605,18 +612,18 @@ fn u6a_binding_refusal_follows_the_validated_class_only() {
 #[test]
 fn u6a_classification_summary_counts_validated_classes() {
     for m in milestones() {
-        let [relative, absolute, input, non_quantity] = CLASSES.iter().find(|(mode, _)| *mode == m.mode).unwrap().1;
+        let [relative, absolute, input, non_quantity, not_covered] = CLASSES.iter().find(|(mode, _)| *mode == m.mode).unwrap().1;
         let case_id = &m.invocation["request"]["model"]["load_cases"][0]["id"];
         let expected = json!([{"case_id":case_id,"relative_verified":relative,"absolute_verified":absolute,
-            "interval_bindable":0,"not_covered":0,"input_derived":input,"non_quantity":non_quantity,
-            "withheld":relative + absolute + input}]);
+            "interval_bindable":0,"not_covered":not_covered,"input_derived":input,"non_quantity":non_quantity,
+            "withheld":relative + absolute + input + not_covered}]);
         // U7, aligned (RV94 S-1): Current only when the standing with the caller's
         // requested refs is eligible, so only absolute and not-covered rows stay
         // withheld; with no refs or other refs every quantity row is.
         let refs = requested(&m.invocation);
         let other = vec![json!({"ref_type":"load_case","ref_id":"other"})];
         let mut current = expected.clone();
-        current[0]["withheld"] = json!(absolute);
+        current[0]["withheld"] = json!(absolute + not_covered);
         assert_eq!(s::numerical_use_standing_with_context(&m.source, &refs, Some(&m.invocation)), "numerically_eligible");
         assert_eq!(json!(s::classification_summary(&m.source, Some(&m.invocation), &refs)), current);
         assert_eq!(json!(s::classification_summary(&m.source, Some(&m.invocation), &[])), expected);
@@ -635,17 +642,17 @@ fn u6a_classification_summary_counts_validated_classes() {
         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &refs)), current);
         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &[])), expected);
         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &other)), expected);
-        // A not_covered row (none exists in any validated statement here) is
-        // withheld whether or not the envelope is Current.
+        // A not_covered row (beyond the milestone's 15 derived ones) is withheld
+        // whether or not the envelope is Current.
         let relative = validation.classifications.iter().position(|c| c.class == rp::AccuracyClass::RelativeVerified).unwrap();
         validation.classifications[relative].class = rp::AccuracyClass::NotCovered;
         let mut uncovered = current.clone();
         uncovered[0]["relative_verified"] = json!(25 - 1);
-        uncovered[0]["not_covered"] = json!(1);
-        uncovered[0]["withheld"] = json!(absolute + 1);
+        uncovered[0]["not_covered"] = json!(not_covered + 1);
+        uncovered[0]["withheld"] = json!(absolute + not_covered + 1);
         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &refs)), uncovered);
         validation.numerical_eligible = false;
-        uncovered[0]["withheld"] = json!(relative_count(&expected) + absolute + input);
+        uncovered[0]["withheld"] = json!(relative_count(&expected) + absolute + input + not_covered);
         assert_eq!(json!(s::classification_summary_from(&validation, &m.source, &refs)), uncovered);
     }
 }
@@ -751,7 +758,7 @@ fn apply_shared(c: &Value, fixture: &(String, Value, Value)) -> (Value, Option<V
 
 /// The shared three-language standing-parity scenarios (U6b and U6d consume
 /// the same file): the Rust carrier's standing and raw dispatch per case,
-/// the F-5 guard forms on preview-physics-1 sources included.
+/// the F-5 guard forms on preview-physics-2 sources included.
 #[test]
 fn u6a_shared_carrier_cases_rust() {
     let cases: Value = serde_json::from_str(CASES).unwrap();
@@ -803,8 +810,9 @@ fn expected_summary(source: &Value) -> Value {
 }
 
 /// RV94 S-1: on both D-U7-4 forms Rust, given the invocation and the requested
-/// refs, stands `numerically_eligible` and its summary is Current (69 withheld);
-/// TS's side (needs_recompute, the not-Current 97) is pinned in TS. With other
+/// refs, stands `numerically_eligible` and its summary is Current (69 absolute and, since
+/// T4-U4b, 15 not-covered rows withheld: 84); TS's side (needs_recompute, the not-Current
+/// 112) is pinned in TS. With other
 /// requested refs Rust reads `needs_recompute` and the not-Current summary.
 #[test]
 fn u7_d_u7_4_forms_rust_side_standing_and_summary() {
@@ -821,7 +829,7 @@ fn u7_d_u7_4_forms_rust_side_standing_and_summary() {
             assert_eq!(s::numerical_use_standing_with_context(&source, &requested, invocation.as_ref()), "numerically_eligible", "{label}");
             let summary = json!(s::classification_summary(&source, invocation.as_ref(), &requested));
             assert_eq!(summary, expected_summary_with(&source, true), "{label}");
-            assert!(summary[0]["withheld"] == 69 && summary[0]["absolute_verified"] == 69, "{label}");
+            assert!(summary[0]["withheld"] == 69 + 15 && summary[0]["absolute_verified"] == 69 && summary[0]["not_covered"] == 15, "{label}");
             assert_eq!(s::numerical_use_standing_with_context(&source, &other, invocation.as_ref()), "needs_recompute");
             let not_current = json!(s::classification_summary(&source, invocation.as_ref(), &other));
             assert!(not_current == expected_summary(&source) && not_current != summary, "{label}");

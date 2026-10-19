@@ -2,7 +2,7 @@
  * preview successor is refused. Each refuses through the one shared
  * function (`loadReferenceOutputRefusal` / `refuseLoadReferenceOutput`), which
  * returns the successor's own reason, or through the report package's
- * fresh-result refusal. Another gated route's text (pressure-1's or
+ * fresh-result refusal. Another gated route's text (pressure-2's or
  * pressure-source-1's, which carry the load/reference-state results since B7b) is
  * never shown for a successor.
  * T6S-3 (RR decisions 2 and 12): the Result Export and Stress-Neutral Export
@@ -13,7 +13,7 @@
  * file bytes, so the two panels refuse them with the standing's own reason
  * (their admission is tested in retainedPrecisionStressNeutral.test.tsx and
  * retainedPrecisionResultExport.test.tsx).
- * Display stays. A preview-physics-1 result is the control: its outputs are
+ * Display stays. A preview-physics-2 result is the control: its outputs are
  * unchanged. Inputs are PP's pinned milestone successor bytes (D-U6-5); unit
  * rendering only, NOT a native witness (plan F-1). */
 import { cleanup, render, screen } from "@testing-library/react";
@@ -32,7 +32,7 @@ import { computeModelHash } from "../../services/hashService";
 import { hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
 import { initialSolveJob } from "../workspace/solveJobAudit";
 import {
-  PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE, RETAINED_PRECISION_OUTPUT_REFUSAL, RETAINED_PHYSICS_OUTPUT_REFUSAL,
+  PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE, RETAINED_PRECISION_OUTPUT_REFUSAL, RETAINED_PHYSICS_OUTPUT_REFUSAL,
   loadReferenceOutputRefusal, refuseLoadReferenceOutput,
 } from "./loadReferenceOutputAvailability";
 import { N_REPORT, REPORT_PACKAGE_FRESH_RESULT_UNAVAILABLE, isFreshSemanticResult } from "./knownSemanticLimitations";
@@ -127,8 +127,8 @@ describe("the shared refusal", () => {
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL).toContain("is not available on the desktop");
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL).not.toMatch(/\bT[0-9]/);
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL.toLowerCase()).not.toMatch(/invalid|unsupported/);
-    // B7b: load/reference-state results refuse under pressure-1's and pressure-source-1's own reasons.
-    for (const other of [PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL]) expect(RETAINED_PRECISION_OUTPUT_REFUSAL).not.toBe(other);
+    // B7b: load/reference-state results refuse under pressure-2's and pressure-source-1's own reasons.
+    for (const other of [PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL]) expect(RETAINED_PRECISION_OUTPUT_REFUSAL).not.toBe(other);
     // B3b (B3D-14): the exact successor's own reason, re-exported beside the preview one, which is untouched.
     expect(RETAINED_PHYSICS_OUTPUT_REFUSAL).toBe(`${RETAINED_PRECISION_OUTPUT_NOT_YET_AVAILABLE}: This output of retained-precision results (physics-retained-1) is not available on the desktop; only the result JSON and stress-neutral exports admit a numerically eligible result. The result remains readable here; this is not a finding about the result.`);
     expect(RETAINED_PRECISION_OUTPUT_REFUSAL).toContain("(preview-physics-retained-1)");
@@ -143,7 +143,7 @@ describe("the shared refusal", () => {
     expect(loadReferenceOutputRefusal(null)).toBeNull();
     // A relabelled successor is unsupported, not a successor route.
     const relabelled = structuredClone((await successor("sparse_interactive")).result) as Json;
-    relabelled.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-1";
+    relabelled.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/preview-physics-2";
     relabelled.formulation_basis.profile_id = "product_preview_mechanics_v1";
     expect(loadReferenceOutputRefusal(relabelled)).toBeNull();
   });
@@ -154,10 +154,10 @@ describe.each(GATED)("%s", (_label, Panel, prefix) => {
     const { props } = await successor(mode);
     render(<Panel {...props} />);
     expect(screen.getByTestId(`${prefix}-load-reference-output-unavailable`).textContent).toBe(RETAINED_PRECISION_OUTPUT_REFUSAL);
-    for (const other of [PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL]) expect(screen.queryByText(other)).toBeNull();
+    for (const other of [PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL]) expect(screen.queryByText(other)).toBeNull();
     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
   });
-  it("leaves a preview-physics-1 result's outputs unchanged", async () => {
+  it("leaves a preview-physics-2 result's outputs unchanged", async () => {
     const { props } = await preview();
     render(<Panel {...props} />);
     expect(screen.queryByTestId(`${prefix}-load-reference-output-unavailable`)).toBeNull();
@@ -183,7 +183,7 @@ describe.each(MODES)("%s: stress-neutral, result export and the report package k
     // text is never shown.
     expect(screen.getByTestId("stress-neutral-load-reference-output-unavailable").textContent).toBe(`${RETAINED_PRECISION_VALIDATION_REQUIRED}: ${N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE}`);
     expect(screen.queryByTestId("stress-neutral-empty")).toBeNull();
-    for (const other of [PRESSURE_1_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL]) expect(screen.queryByText(other)).toBeNull();
+    for (const other of [PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL]) expect(screen.queryByText(other)).toBeNull();
     expect(document.querySelectorAll("a[download]")).toHaveLength(0);
   });
   it("result export: the Current build and the panel refuse; the pure projection and its validator read no standing", async () => {

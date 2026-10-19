@@ -1,7 +1,7 @@
 //! Actual sparse/dense producer bytes of the current exact pressure contract
-//! (pressure-1, 0.5.0/3.0.0/exact_pressure_v3), retained under fixtures/results.
+//! (pressure-2, 0.6.0/3.0.0/exact_pressure_v3), retained under fixtures/results.
 //! B7b moved these physical-evidence checks from the retired physics-1 statements
-//! onto their pressure-1 twins (`pressure_*_mechanics_*`, same physical inputs).
+//! onto their pressure-2 twins (`pressure_*_mechanics_*`, same physical inputs).
 //! This proves consumer admission and source binding, not producer authentication.
 use open_pipe_stress_result_export::{derivative as d, semantic_contract as s};
 use serde_json::{json, Value};
@@ -325,13 +325,15 @@ fn canonical_physical_evidence_is_source_bound_even_after_rehash() {
 }
 #[test]
 fn pressure_table_declares_its_own_signature_counts() {
-    // B7b (O-10): pressure-1's own reviewed table inherits nothing (B1 retired
+    // B7b (O-10): pressure-2's own reviewed table inherits nothing (B1 retired
     // precision-1; B7b retired physics-1, whose 68 physical signatures it keeps,
     // E14's parity observation already gone), plus 18 connector and 2 U5 signatures.
     assert!(s::pressure_rows_contract().get("inherited_semantic_contract_sha256").is_none());
-    // T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis), 88 -> 106.
-    assert_eq!(s::pressure_rows_contract()["source_signature_count"], 106);
-    assert_eq!(s::pressure_rows_contract()["source_kind_count"], 59);
+    // T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis), 88 -> 106;
+    // T4-U5b (DEL-04-07 Design u4b-u5b-implementation.md §3.3): the tie-rod force, 107 over 60 kinds;
+    // T4-U4b (§2.2): the new per-basis kinds, 129 signatures over 66 kinds.
+    assert_eq!(s::pressure_rows_contract()["source_signature_count"], 129);
+    assert_eq!(s::pressure_rows_contract()["source_kind_count"], 66);
 }
 
 #[test]

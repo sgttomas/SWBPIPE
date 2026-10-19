@@ -1,4 +1,4 @@
-"""Closed preview-physics-1 reader checks (T0R S1 §9); never producer authentication.
+"""Closed preview-physics-2 reader checks (T0R S1 §9); never producer authentication.
 
 Test verifier (b7-plan R2): the product reader is Rust's (`core/reporting/result_export/src/preview_physics_evidence.rs`), which
 product Python reaches only through `openpipestress-runner read`. Tests only: no module outside `tests/` imports
@@ -18,10 +18,10 @@ from pathlib import Path
 import sys
 from typing import Any
 
-CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-1"
+CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
 PROFILE = "product_preview_mechanics_v1"
 ROOT = Path(__file__).resolve().parents[2]
-TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_preview_physics_1.json"
+TABLE_PATH = ROOT / "fixtures/results/semantic_contract_v0_3_preview_physics_2.json"
 TABLE = json.loads(TABLE_PATH.read_text(encoding="utf-8"))
 LIMITATIONS = list(TABLE["supported_profile_limitations"])
 
@@ -200,6 +200,8 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         _shape(coverage, {"complete", "unavailable_pipe_ids", "outside_domain_pipe_ids"}, "maximum coverage shape")
         _require(type(coverage["complete"]) is bool and _strings(coverage["unavailable_pipe_ids"]) and _strings(coverage["outside_domain_pipe_ids"]), "maximum coverage values")
         _require(not set(coverage["unavailable_pipe_ids"]) & set(coverage["outside_domain_pipe_ids"]), "maximum coverage overlap")
+        # T4-U4b (§2.1, review item 6): arcs publish their maximum; no member is outside its domain.
+        _require(not coverage["outside_domain_pipe_ids"], "maximum coverage outside the domain")
         _require(coverage["complete"] == (not coverage["unavailable_pipe_ids"] and not coverage["outside_domain_pipe_ids"]), "maximum coverage completeness")
         attribution = case["support_attribution"]
         _shape(attribution, {"attributed_support_ids", "withheld"}, "support attribution shape")
@@ -211,7 +213,11 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         _require(not set(attribution["attributed_support_ids"]) & {record["support_id"] for record in attribution["withheld"]}, "support both attributed and withheld")
         for extremum in case["pipe_stress_extrema"]:
             _shape(extremum, EXTREMA_KEYS, "extrema shape")
-            _require(_text(extremum["pipe_id"]) and _text(extremum["result_id"]) and all(extremum[key] == value for key, value in EXTREMA_CONSTANTS.items()), "extrema identity or basis")
+            # T4-U4b (§2.3): the straight tokens or, on an arc (checked against the rows below), the arc tokens.
+            arc_constants = dict(zip(EXTREMA_CONSTANTS, ("arc_closed_form_section_statics", "arc_end_j_force_and_uniform_intensities_binary64_enclosures",
+                                                         "published_binary64_end_j_force_and_uniform_intensity_operand_enclosures; solution error is separate")))
+            _require(_text(extremum["pipe_id"]) and _text(extremum["result_id"]) and (all(extremum[key] == value for key, value in EXTREMA_CONSTANTS.items())
+                     or all(extremum[key] == value for key, value in arc_constants.items())), "extrema identity or basis")
             # N-1 (B2 readers): the bound and the gap are numbers and not negative (-0 and +0 pass), in the same demand.
             _require(all(_number(extremum[key]) for key in ("station_fraction", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa"))
                      and extremum["global_upper_bound_pa"] >= 0 and extremum["certified_gap_pa"] >= 0, "extrema numbers")
@@ -222,6 +228,9 @@ def _cases(evidence: Mapping[str, Any], *, withheld_multiset: bool = False) -> d
         pipes = [extremum["pipe_id"] for extremum in case["pipe_stress_extrema"]]
         _require(len(set(pipes)) == len(pipes) and not set(pipes) & (set(coverage["unavailable_pipe_ids"]) | set(coverage["outside_domain_pipe_ids"])), "extrema member partition")
         for measure in case["intensified_measures"]:
+            # T4-U4b (§2.6): a directional record is told apart by its own key set (checked against the rows).
+            if isinstance(measure, Mapping) and set(measure) != INTENSIFIED_KEYS and {"i_in_plane", "i_out_of_plane"} <= set(measure):
+                continue
             _shape(measure, INTENSIFIED_KEYS, "intensified measure shape")
             _require(all(_text(measure[key]) for key in ("result_id", "component_id", "pipe_id")) and measure["location"] in {"end_i", "end_j"} and measure["factor_role"] in {"bend", "branch_header", "branch_branch"} and _text(measure["sif_source_reference"]), "intensified measure identity")
             _require(all(_number(measure[key]) for key in ("sif", "section_modulus_m3", "bending_moment_y_n_m", "bending_moment_z_n_m")) and measure["sif"] > 0 and measure["section_modulus_m3"] > 0, "intensified measure inputs")
@@ -266,12 +275,15 @@ def _validate(source: Mapping[str, Any]) -> None:
     _require(all(isinstance(row, Mapping) and _text(row.get("id")) for row in results) and all(isinstance(item, Mapping) and _text(item.get("id")) for item in diagnostics), "evidence identities")
     rows = {row["id"]: row for row in results}
     _require(len(rows) == len(results), "duplicate result ID")
+    from . import u4b
+    arcs = u4b.preview_arcs(results)
 
     # 2. Every row kind has a signature.
     for row in results:
         _require(_number(row.get("value")) and _text(row.get("kind")) and _text(row.get("unit")) and _text(row.get("entity_ref")), "source row fields")
         _require(row.get("metadata") is None or isinstance(row.get("metadata"), Mapping), "source row metadata")
         signature(row)
+        u4b.row_semantics(row, False, row["entity_ref"] in arcs)
         if row["kind"] in SUPPORT_KINDS:
             # A4 N6: every support-action row is global, whatever its basis_ref.
             _require((row.get("metadata") or {}).get("coordinate_system") == "global", "support action frame")
@@ -310,7 +322,7 @@ def _validate(source: Mapping[str, Any]) -> None:
             gate = gates.get(basis["ref_id"])
             # 9. Combination rows only for admitted combinations.
             _require(gate is not None and gate["withheld"] is False, "combination row without an admitting gate")
-            _require(row["kind"] not in {MAXIMUM_KIND, INTENSIFIED_KIND}, "maximum or intensified row for a combination")
+            _require(row["kind"] not in {MAXIMUM_KIND, INTENSIFIED_KIND} | u4b.KINDS, "never-combined row for a combination")
             refs = row.get("source_result_refs", [])
             _require(isinstance(refs, list) and all(isinstance(ref, str) and ref in rows for ref in refs), "combination source reference")
             if row["kind"] in SUPPORT_KINDS:
@@ -325,8 +337,10 @@ def _validate(source: Mapping[str, Any]) -> None:
     # 5. Maxima bind to their enclosure; coverage partitions the case members.
     maximum_rows = [row for row in results if row["kind"] == MAXIMUM_KIND]
     bound: set[str] = set()
+    directional_ids: set[str] = set()
     for row in maximum_rows:
-        _require(row["unit"] == "Pa" and row.get("metadata") == MAXIMUM_METADATA and (row.get("basis_ref") or {}).get("ref_type") == "load_case", "maximum row semantics")
+        expected_metadata = dict(MAXIMUM_METADATA, sign_convention=u4b.ARC_MAXIMUM_SIGN) if row["entity_ref"] in arcs else MAXIMUM_METADATA
+        _require(row["unit"] == "Pa" and row.get("metadata") == expected_metadata and (row.get("basis_ref") or {}).get("ref_type") == "load_case", "maximum row semantics")
         cid = row["basis_ref"]["ref_id"]
         _require(row["id"] == f"result:elastic-maximum:{_row_segments(cid, row['entity_ref'])}", "maximum row identity")
     for cid, case in cases.items():
@@ -339,8 +353,19 @@ def _validate(source: Mapping[str, Any]) -> None:
             _require(row is not None and row["kind"] == MAXIMUM_KIND and row["entity_ref"] == extremum["pipe_id"] and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}, "extrema result binding")
             lower, upper, value = extremum["value_lower_pa"], extremum["value_upper_pa"], row["value"]
             _require(lower <= value <= upper and value == lower + 0.5 * (upper - lower), "maximum outside or off its enclosure")
+            _require((extremum["approximation"] == "arc_closed_form_section_statics") == (extremum["pipe_id"] in arcs), "arc maximum tokens only on arcs")
             bound.add(row["id"])
+        # T4-U4b (§5.1): σ± (bit for bit), τ (model-free here), the arc maxima's station cover, directional records.
+        exempt = u4b.poisson_exempt(diagnostics, cid)
+        index = u4b.Rows(results)
+        covers = {pipe: u4b.member_stations(index, cid, pipe, [""], {"": None}, pipe in exempt, None).get("", []) for pipe in members}
+        for extremum in case["pipe_stress_extrema"]:
+            if extremum["pipe_id"] in arcs:
+                u4b.maximum_record(extremum, rows[extremum["result_id"]], u4b.ARC_TOKENS[0], covers.get(extremum["pipe_id"], []))
+        directional_bound = u4b.directional_records(cid, case["intensified_measures"], rows, index, arcs, False)
+        directional_ids.update(directional_bound)
     _require(bound == {row["id"] for row in maximum_rows}, "maximum row without exactly one enclosure")
+    _require(directional_ids == {row["id"] for row in results if row["kind"] in (u4b.DIRECTIONAL, u4b.DIRECTIONAL_MAX)}, "directional row without exactly one record")
 
     # 6. Headlines over all load cases, with identity ties.
     def governing(candidates: list[Mapping[str, Any]]) -> Mapping[str, Any]:
@@ -404,6 +429,8 @@ def _validate(source: Mapping[str, Any]) -> None:
     measured: set[str] = set()
     for cid, case in cases.items():
         for measure in case["intensified_measures"]:
+            if measure["result_id"] in directional_ids:
+                continue
             row = rows.get(measure["result_id"])
             _require(row is not None and row["kind"] == INTENSIFIED_KIND and row["unit"] == "Pa" and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid} and row["entity_ref"] == measure["component_id"], "intensified result binding")
             metadata = row.get("metadata") or {}
@@ -456,7 +483,7 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
     shared form: Rust's and TS's checks plus this reader's extrema-number demand
     (``global_upper_bound_pa`` and ``certified_gap_pa`` numbers), with the cases'
     withheld records compared as multisets. It serves the retained reader's
-    transport step and the transport dispatch of a preview-physics-1 statement
+    transport step and the transport dispatch of a preview-physics-2 statement
     (``compatibility._source_contract(..., check_receipt=False)``) alike.
     """
     from .source_blocks import _shape as schema_shape

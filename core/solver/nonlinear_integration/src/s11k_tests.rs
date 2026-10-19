@@ -728,6 +728,7 @@ fn expected_binary64(
         free_dofs: &free,
         prescribed: &prescribed,
         contributions: None,
+        contribution_groups: None,
         symmetry: None,
     };
     // The legacy kernel path (its right-hand side is pinned to today's fold

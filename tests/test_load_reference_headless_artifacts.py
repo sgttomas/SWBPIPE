@@ -2,11 +2,11 @@
 
 The Rust lanes ``core/runner/headless/src/load_reference_route_tests.rs`` and
 ``core/runner/headless/tests/load_reference_cli.rs`` write the actual request,
-invocation, raw, (for pressure-1) canonical document and manifest files,
+invocation, raw, (for pressure-2) canonical document and manifest files,
 and the actual CLI input and stdout, when these variables are set:
 
-- ``HEADLESS_LOAD_REFERENCE_OUTPUT_DIR``: pressure-1 with the load/reference-state
-  group (model 0.5.0, 3.0.0/exact_pressure_v3), the two committed requests in
+- ``HEADLESS_LOAD_REFERENCE_OUTPUT_DIR``: pressure-2 with the load/reference-state
+  group (model 0.6.0, 3.0.0/exact_pressure_v3), the two committed requests in
   ``pressure/load_reference`` in both modes;
 - ``HEADLESS_LOAD_REFERENCE_SOURCE_OUTPUT_DIR``: pressure-source-1 with the group,
   the five committed joined witnesses in ``pressure_source/load_reference_source``
@@ -136,7 +136,7 @@ def test_actual_pressure_load_state_document_selects_its_branch_and_analysis_run
     )
     assert "load_reference_states" in raw["contract_evidence"]
     document = _load(folder / f"{name}.document.json")
-    # Schema: the whole results 0.3 carrier, on the pressure-1 branch only.
+    # Schema: the whole results 0.3 carrier, on the pressure-2 branch only.
     validate_instance(json.loads(RESULTS_SCHEMA.read_text(encoding="utf-8")), document, instance_label=f"actual headless {name}")
     assert _matching_result_branches(document) == [_branch_of(PRESSURE_CONTRACT_ID)]
     envelope = document["result_envelope"]

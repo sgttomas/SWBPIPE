@@ -26,7 +26,7 @@ fn udl(pipe: &str, direction: &str, value: f64) -> Value {
         "magnitude":{"value":value,"unit":"N/m"},"dimension":"force_per_length","provenance":P})
 }
 fn request(id: &str, nodes: Vec<Value>, pipes: Vec<Value>, supports: Vec<Value>, loads: Vec<Value>) -> LinearStaticPreviewRequest {
-    serde_json::from_value(json!({"model":{"schema_version":"0.5.0","document_kind":"openpipestress.product_preview.model",
+    serde_json::from_value(json!({"model":{"schema_version":"0.6.0","document_kind":"openpipestress.product_preview.model",
         "analysis_status":{"mechanics":"ready_for_preview_diagnostics","rule_check":"not_performed_user_rule_inputs_missing","professional_acceptance":"not_provided"},
         "project":{"id":id,"units":{"length":"m","force":"N","angle":"rad","pressure":"Pa","temperature":"degC","stress":"Pa"}},
         "nodes":nodes,"pipe_segments":pipes,
@@ -120,9 +120,12 @@ fn kd5_preview_maximum_publishes_global_enclosure_midpoint_and_covers_public_sam
             let integrity: Vec<_> = envelope.diagnostics.iter().filter(|d| d.code.starts_with("NUMERICAL_INTEGRITY_")).map(|d| d.code.clone()).collect();
             assert_eq!(integrity, vec!["NUMERICAL_INTEGRITY_CHECKS_PASSED".to_string()], "{label} {mode:?}: precondition, a certified Passed case");
             let evidence = serde_json::to_value(&envelope.contract_evidence).unwrap();
+            // T4-U4b (§2.3): arcs publish their own maximum, under the arc record's tokens.
             let extrema: Vec<Value> = evidence["preview_cases"].as_array().unwrap().iter()
-                .flat_map(|case| case["pipe_stress_extrema"].as_array().cloned().unwrap_or_default()).collect();
-            let rows: Vec<_> = envelope.results.iter().filter(|r| r.kind == "pipe_elastic_normal_stress_maximum_v2").collect();
+                .flat_map(|case| case["pipe_stress_extrema"].as_array().cloned().unwrap_or_default())
+                .filter(|x| x["approximation"] == "piecewise_quadratic_straight_section_statics").collect();
+            let straight_ids: Vec<&str> = extrema.iter().map(|x| x["result_id"].as_str().unwrap()).collect();
+            let rows: Vec<_> = envelope.results.iter().filter(|r| r.kind == "pipe_elastic_normal_stress_maximum_v2" && straight_ids.contains(&r.id.as_str())).collect();
             let straight = if label.starts_with("U line") { 3 } else { 2 };
             assert_eq!(extrema.len(), straight, "{label} {mode:?}: one maximum per straight member");
             assert_eq!(rows.len(), extrema.len(), "{label} {mode:?}");

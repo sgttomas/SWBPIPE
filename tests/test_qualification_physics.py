@@ -1,9 +1,9 @@
-"""Bounded adapter tests for the ordinary pressure-1 reader verdict; a synthetic reader stub is not solver evidence.
+"""Bounded adapter tests for the ordinary pressure-2 reader verdict; a synthetic reader stub is not solver evidence.
 
 b7-plan R2: the adapter takes the Rust product reader's verdict (`openpipestress-runner read pressure`, named by
 OPENPIPESTRESS_RUNNER_BIN) on the parsed snapshot, after the binding's selected reader source, table and unit
 authority are checked. The stub tests exercise process custody and response checking; the real reader is run
-on the committed pressure-1 statements. B7b retired physics-1: its binding formats and identities are refused,
+on the committed pressure-2 statements. B7b retired physics-1: its binding formats and identities are refused,
 and the frozen first-static inputs are submitted as a declared re-authored copy.
 """
 from __future__ import annotations
@@ -163,8 +163,12 @@ class ReauthoringTests(unittest.TestCase):
     def test_other_contracts_and_present_allowances_are_kept(self):
         model = {'schema_version': '0.4.0', 'pressure_contract': {'version': '1.0.0', 'mode': 'legacy_pressure_v1'},
                  'pipe_segments': [{'section': {}}]}
-        self.assertEqual(physics.reauthor_model(model), dict(model, schema_version='0.5.0'))
-        model = {'schema_version': '0.5.0', 'pressure_contract': {'version': '3.0.0', 'mode': 'exact_pressure_v3'},
+        self.assertEqual(physics.reauthor_model(model), dict(model, schema_version='0.6.0'))
+        # A 0.5.0 document is re-authored by its version alone: nothing else moves, even an incomplete one.
+        previous = {'schema_version': '0.5.0', 'pressure_contract': {'version': '3.0.0', 'mode': 'exact_pressure_v3'},
+                    'pipe_segments': [{'section': {}}]}
+        self.assertEqual(physics.reauthor_model(previous), dict(previous, schema_version='0.6.0'))
+        model = {'schema_version': '0.4.0', 'pressure_contract': {'version': '3.0.0', 'mode': 'exact_pressure_v3'},
                  'pipe_segments': [{'section': {'corrosion_allowance': {'value': 0.001, 'unit': 'm'}}}, {'section': {}}]}
         reauthored = physics.reauthor_model(model)
         self.assertEqual(reauthored['pressure_contract'], physics.PRESSURE_CONTRACT)
@@ -174,7 +178,7 @@ class ReauthoringTests(unittest.TestCase):
 
 
 class RustReaderTests(unittest.TestCase):
-    """The real Rust reader (OPENPIPESTRESS_RUNNER_BIN) on the committed pressure-1 statements, with the pinned binding."""
+    """The real Rust reader (OPENPIPESTRESS_RUNNER_BIN) on the committed pressure-2 statements, with the pinned binding."""
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
