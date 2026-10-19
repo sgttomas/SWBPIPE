@@ -38,7 +38,6 @@ AC-007 (a) gives the discharge conditions: the extended cases publish verified r
 - **Merge with the W1 coverage repair: no (section 8).** The two share no numerical law. O4 lands first, as b7-plan orders, and the repair's census runs as soon as epoch 4 merges. Two coupling rules keep the shared files consistent.
 - **Reserved:**
   - the ScopeOfWork edits that discharge REQ-007 (a) (proposed in section 10);
-  - AC-002's reading of "the RF census classification and its pins are unchanged" now that the limitation text moves J7's envelope digests (section 11);
   - any Decision 22 change if D3 does not fit;
   - TBD-002's table sentence, which stays untouched.
 
@@ -172,7 +171,7 @@ An independent test derives every term from the actual inputs and sites, as the 
 
 ### 3.6 What stays
 
-- **RF's census classification is unchanged.** The J7 RF census re-authors every case to explicit Euler–Bernoulli with zero allowance (RF §10 item 1). Its classification, counts, first causes, selected members, frozen-row verdicts and work do not move. Its four published envelopes, and every consequence digest, change in the limitation strings, so their `envelope_sha256` pins are regenerated through `SWBPIPE_J7_RF_CENSUS_WRITE=1`. RF §6 requires that regenerated pins be compared entry by entry, with every difference in a stated class; the class here is the limitation text and the hashes that bind it. U6 regenerated the pin for its own text and row changes, and epoch 4 does so for the identity rename (E4-12). AC-002's sentence on the pins is raised for the owner's reading in section 11.
+- **RF's census classification is unchanged.** The J7 RF census re-authors every case to explicit Euler–Bernoulli with zero allowance (RF §10 item 1). Its classification, counts, first causes, selected members, frozen-row verdicts and work do not move. Its four published envelopes, and every consequence digest, change in the limitation strings, so their `envelope_sha256` pins are regenerated through `SWBPIPE_J7_RF_CENSUS_WRITE=1`. RF §6 requires that regenerated pins be compared entry by entry, with every difference in a stated class; the class here is the limitation text and the hashes that bind it. U6 regenerated the pin for its own text and row changes, and epoch 4 does so for the identity rename (E4-12). AC-002, in the owner's text of 2026-10-19 that #1461 applied, governs this: "the RF census classification, counts, first causes, selections, charged work and frozen-row verdicts are unchanged; its envelope, results and summary digests change only as a stated product-text, identity or published-row change requires". O4's limitation-text change is a stated product-text change; the census's classification, counts, first causes, selections, charged work and frozen-row verdicts stay unchanged, and `o4_text_only_envelope_diff` (4.9) enforces that (section 11).
 - **`load_reference_fallback_uz` keeps its role.** It stays an ordinary pressure-1 raw (pressure-2 after epoch 4) through its zero member load's non-nodal decline, which O4 does not touch (W1 stage 2 §8; RF §5.5).
 - **D7's connector and bend declines** keep their text, order and work.
 
@@ -572,15 +571,11 @@ These edit commitments or declared conditions, so they are proposals. The owner 
 
 **DEL-04-08 `deliverable.yaml`** (the DEL-05-03 need). Replace the sentence "Its Timoshenko formulation and its mill-tolerance and corrosion-allowance fields are inputs this method declines by name until O4." with: "It also supplies the Timoshenko formulation (U8's fixed-order κ_E and shear-area leaf), which both retained routes form and the readers rederive, and the mill-tolerance and corrosion-allowance fields behind the D-5 bases." The DEL-04-01 need gains: "… and the retained Timoshenko straight member (natural-mode D recipe, κ_E lane enclosure and D-entry gap majorants)".
 
-**DEL-04-08 ScopeOfWork AC-002** (only if the owner reads "the RF census classification and its pins are unchanged" as covering J7's envelope digests): "the RF census classification, counts, first causes, selections and frozen-row verdicts are unchanged; its envelope digests change only as a stated product-text or identity change requires." This is the practice U6 and epoch 4 followed (E4-12).
-
 **DEL-04-01 Design** (when O4 lands; it is the kernel owner's design): a pointer from the retained-kernel description to section 4.2's Timoshenko member and section 4.4's lemma.
 
 **DEL-05-03 Design `section-and-shear-decisions.md`,** "Retained-source and W1-E publication (O4)". Add a pointer line: "As designed: DEL-04-08 Design `o4-source-extension.md`." The as-built text follows when O4 lands.
 
-**b7-plan** (Agent 0 adds the pointers when these designs land):
-- "After B7b", item 5. Append "Design: [o4-source-extension.md](o4-source-extension.md)."
-- Item 6. Append "Design: [w1-coverage-repair.md](w1-coverage-repair.md). Sequenced after O4; the two do not merge (o4-source-extension.md §8)."
+**b7-plan.** Items 5 and 6 carry their design pointers, added after epoch 4: "Design: [o4-source-extension.md](o4-source-extension.md)." and "Design: [w1-coverage-repair.md](w1-coverage-repair.md). Sequenced after O4; the two do not merge (o4-source-extension.md §8)." When O4 lands, item 5 is replaced by a one-line "as built" pointer, as items 1–3 were.
 
 ## 11. Rulings
 
@@ -604,9 +599,8 @@ These edit commitments or declared conditions, so they are proposals. The owner 
 - the reference unit's reuse of the frozen kd5t engine (5);
 - sequence, not merge (8).
 
-**Reserved, for the owner through Agent 0:**
-- **AC-002's reading** (one reading should cover epoch 4 as well, which moves the same envelopes for its identity rename and does not raise AC-002 itself). O4's limitation-text change moves J7's four published envelope digests and its consequence digests, with every classification, count, first cause, selection and frozen-row verdict unchanged. If "the RF census classification and its pins are unchanged" covers those digests, O4 (like U6 and epoch 4) needs either the owner's reading or the AC-002 wording proposed in section 10.
-  - *Consequence if neither:* the limitation text cannot change. It would then keep stating the O4 declines after O4 removes them, which is false product text, so O4 could not land.
+**Decided by the owner:**
+- **AC-002 and J7's digests.** The owner first adopted this design's proposed AC-002 wording (2026-10-18, "Adopt the wording (Recommended)"), and on 2026-10-19 replaced AC-002's second bullet with: "the RF census classification, counts, first causes, selections, charged work and frozen-row verdicts are unchanged; its envelope, results and summary digests change only as a stated product-text, identity or published-row change requires". #1461 (epoch 4, main `084ff961f8`) applied it, and it is AC-002's text on main. O4 relies on it as written: the limitation-text change of section 3.3 is a stated product-text change, so J7's envelope, results and summary digests move with it (3.6, 4.9), and the census's classification, counts, first causes, selections, charged work and frozen-row verdicts do not. The earlier proposed wording is withdrawn from section 10.
 
 **Reserved and untouched:**
 - the ScopeOfWork edits of section 10;

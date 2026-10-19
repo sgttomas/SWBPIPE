@@ -21,7 +21,7 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
   - *Reach.* A design-time computation from the product's preparation law gives the hull's relative width as 98.41 × 2^-64 at D = 0.2 m, t = 0.01 m, the value w1-member-load-certification.md §4.4 states. Across a 3,142-section grid, the width is at least 1 × 2^-64 for 99.0 % of sections; the median is 871 × 2^-64. It is zero only where Î/c is exactly representable, for example when D/2 is a power of two. Every committed loaded-member trial with an ordinary section, F6/partial, T18, T19 and T19/pre-K-D5 in both modes, ends in this exhaustion today. So the corner is effectively total for loaded members on ordinary sections.
   - *Repair.* The admitted lane's search is driven at the hull endpoint where the field is largest. The search's own convergence is decided there, on a point problem, by the unchanged rule and limits. The lane's returned lower end is evaluated over the whole hull, so the input width passes soundly to the enclosure, and the unchanged product gate judges it. When the hull is a point, the search is today's search.
   - *What it changes.* The fixed stop tolerance then bounds the search's convergence on the point problem, not the width of the lane's returned enclosure, which also carries the represented-Z hull (up to about 3,338 × 2^-64 relative on the design grid). Whether that row publishes is decided by the unchanged gate's 2^-53·|n| allowance.
-  - *Owner reading.* No predicate, limit or tolerance value changes. Because REQ-003 (e) says "No search, verification, tolerance or domain limit is relaxed", this repair is put to the owner as a reading of that sentence (section 11), not self-certified.
+  - *Owner decision.* No predicate, limit or tolerance value changes. The owner decided on 2026-10-18 ("I concur, adopt option 2") that this repair stands unchanged and that REQ-003 (e) states its meaning explicitly. The clause is added in the repair's implementation PR (sections 10 and 11).
 - **Corner 2: the halfway scale.**
   - *Cause.* The receipt's `cases[].selection.body_scales` are copied from the native candidate's publication (`retained_wire.rs` `selection`, `owner.evidence().body_scales`). Every other scale-dependent field (the classes, the absolute bounds and the product gate itself) uses the scales the product certificate forms from the final published rows (`final_case.rs` `row_scales`/`couple`). The readers recompute that same final-row law at G5b. The two coincide unless a native candidate value and its final published value round to different binary64 numbers. That happens essentially only when the exact value is a binary64 halfway.
   - *Repair.* The receipt states the final scales the product gate used.
@@ -86,7 +86,7 @@ So the corner's cause is not the search's tolerance or capacity. A convergence r
 - **Exhaustion** still prohibits publication.
 - **The trade.** Today the search refuses every such member whatever the gate would say. After the repair the unchanged gate says.
 - **Soundness.** The node uppers at the point z_lo equal today's uppers over the interval, because `loaded_maximum.rs` divides the bending upper by z_lo in every term. Pruning on the z_lo lower is sound for U. The hull-valid lower is a valid lower bound over the whole hull. No published guarantee changes.
-- **Why it goes to the owner.** This is a change in what a fixed search tolerance bounds. REQ-003 (e), an owner-approved commitment, says "No search, verification, tolerance or domain limit is relaxed to obtain a bound". So the design puts its reading to the owner (section 11) and proposes the matching edit to stage 2 §4.4's text (section 10).
+- **The owner's decision.** This is a change in what a fixed search tolerance bounds. REQ-003 (e), an owner-approved commitment, says "No search, verification, tolerance or domain limit is relaxed to obtain a bound". The owner decided that this repair stands as designed and that REQ-003 (e) gains a clause stating it (section 11). The matching edit to stage 2 §4.4's "Stop" text is in section 10.
 
 ### 1.3 Work and memory
 
@@ -265,7 +265,7 @@ These figures recompute the kernel's preparation law in exact rational arithmeti
 
 ## 4. What stays unchanged
 
-- the loaded-maximum stop rule's value (2^-64·L), its 256-live, depth-64 and 1,024-split limits and its failure propagation. What the rule bounds on an interval hull changes, as section 1.2 states, subject to the owner's reading (section 11);
+- the loaded-maximum stop rule's value (2^-64·L), its 256-live, depth-64 and 1,024-split limits and its failure propagation. What the rule bounds on an interval hull changes, as section 1.2 states and REQ-003 (e)'s decided clause states (section 11);
 - the product gate's predicates, DEF-O's `acceptance.final`, G7's `EXTREMA_BOUNDS` and the evidence construction (stage 2 §4.4);
 - R7, the alpha and congruence laws, E's factor 69 and P − 16, the stop rule at 2p, the precision ladder and `projection_retry: false`;
 - G0–G8, including G5b's equality and G5's diagnostic checks;
@@ -345,18 +345,25 @@ The decision and its reasons are in [o4-source-extension.md](o4-source-extension
 
 ## 10. Proposed ScopeOfWork and b7-plan text
 
-These edit commitments, so they are proposals. The owner decides them. They are written against the ScopeOfWork as edited by epoch 4 and, if it lands first, by O4 (o4-source-extension.md §10).
+These edit commitments. They are written against the ScopeOfWork as edited by epoch 4 (#1461, main `084ff961f8`) and, since it lands first, by O4 (o4-source-extension.md §10).
 
-**DEL-04-08 ScopeOfWork** (on the repair's discharge):
-- **REQ-006 (b).** Delete the item, the two corners being repaired. Optionally record, under REQ-006 (d) or as a sentence in REQ-001's route-L domain: "A loaded member's maximum whose certified hull is too wide for the unchanged gate keeps its ordinary result; the case is unavailable with its named cause." That records the inherited corner as a stated limit, if the owner wants it stated.
-- **REQ-007 (b).** Delete on discharge.
-- **AC-003,** third bullet. Remove "the two W1 corner cases … keep their internal refusals and fall back". After O4 the bullet carries nothing else, so it is removed whole.
-- **VER-003.** Replace `w1_loaded_maximum_refuses_irreducible_represented_section_width` and `w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal` with `w1_represented_z_hull_converges_on_ordinary_sections` and `w1_loaded_scale_halfway_publishes`.
+**Decided, applied in the repair's implementation PR** (owner, 2026-10-18, "I concur, adopt option 2"; section 11):
+- **DEL-04-08 ScopeOfWork REQ-003 (e).** One sub-bullet is added directly under "(e) No relaxation. No search, verification, tolerance or domain limit is relaxed to obtain a bound.", which stays unchanged, as do its existing sub-bullets:
+  - "A search's stop tolerance bounds the search's own convergence on the problem it solves. Where a declared input is itself an interval (the admitted lane's represented-Z hull), the search converges at the interval's binding endpoint under the unchanged tolerance and limits, the input's width is carried soundly into the result's enclosure, and the unchanged gate decides publication."
 
-**b7-plan,** item 6: the pointer sentence in o4-source-extension.md §10. When the repair lands, b7-plan's item-6 paragraph is replaced by a one-line "as built" pointer, as items 1–3 were.
+It is applied in that PR, when its meaning comes true; not before, and not in O4.
 
-**DEL-04-08 Design `w1-member-load-certification.md` §4.4** (proposed; edited when the repair lands, as an as-built revision):
-- the "Stop" bullet becomes: "When U − L ≤ 2^-64·L on the search's point problem. On the admitted lane, whose represented Z is the hull(Ẑ, Î/c), the search is driven at the hull's smaller endpoint, and the lane returns [the lower evaluated over the hull, U]; the unchanged gate decides the projected row."
+**Proposed, for the owner** (on the repair's discharge):
+- **DEL-04-08 ScopeOfWork:**
+  - **REQ-006 (b).** Delete the item, the two corners being repaired. Optionally record, under REQ-006 (d) or as a sentence in REQ-001's route-L domain: "A loaded member's maximum whose certified hull is too wide for the unchanged gate keeps its ordinary result; the case is unavailable with its named cause." That records the inherited corner as a stated limit, if the owner wants it stated.
+  - **REQ-007 (b).** Delete on discharge.
+  - **AC-003,** third bullet. Remove "the two W1 corner cases … keep their internal refusals and fall back". After O4 the bullet carries nothing else, so it is removed whole.
+  - **VER-003.** Replace `w1_loaded_maximum_refuses_irreducible_represented_section_width` and `w1_loaded_scale_halfway_keeps_the_existing_g5b_refusal` with `w1_represented_z_hull_converges_on_ordinary_sections` and `w1_loaded_scale_halfway_publishes`.
+
+- **b7-plan,** item 6: its design pointer is in place (added after epoch 4). When the repair lands, b7-plan's item-6 paragraph is replaced by a one-line "as built" pointer, as items 1–3 were.
+
+**DEL-04-08 Design `w1-member-load-certification.md` §4.4** (edited when the repair lands, as an as-built revision; it follows the decided REQ-003 (e) clause):
+- the "Stop" bullet becomes: "When U − L ≤ 2^-64·L. The tolerance bounds the search's own convergence on the problem it solves. On the admitted lane, whose represented Z is the interval hull(Ẑ, Î/c), the search converges at the hull's binding endpoint, the smaller Z, where the field is largest, under the unchanged tolerance and limits. The lane returns [the lower evaluated over the whole hull, U], so the hull's width is carried soundly into the enclosure, and the unchanged gate decides the projected row (REQ-003 (e))."
 - the "Corners that fail closed" paragraph's first two bullets are replaced by a pointer to this design's repairs.
 
 **`deliverable.yaml`.** No dependency change. The DEL-04-01 need already names "the loaded-member maximum search with its fixed limits"; its limits do not change.
@@ -374,16 +381,18 @@ These edit commitments, so they are proposals. The owner decides them. They are 
 - the census plan and its decision rules (3);
 - sequence, not merge (8).
 
-**Reserved, for the owner through Agent 0:**
-- **REQ-003 (e)'s reading for corner 1.** Does applying the unchanged loaded-maximum stop rule to the search's point problem, while carrying the represented-Z hull soundly into the lane's enclosure for the unchanged gate to judge (1.2), satisfy "No search, verification, tolerance or domain limit is relaxed to obtain a bound"? Both reviewers judged it a sound repair that changes no predicate, limit or tolerance value; the round-1 Opus review asked that the owner see the reading rather than have it self-certified. If the answer is no, two alternatives remain:
-  - **Keep corner 1.** Every loaded member on an ordinary section keeps falling back, about 99 % of sections by section 3.1. The census still runs and reports.
-  - **Narrow DEF-O's admitted Z to the single Ẑ.** The search then runs on a point and the stop rule keeps its present postcondition, but the admitted readout no longer certifies the Î/c reading. That changes a reviewed definition's meaning, which needs its own ruling.
-- Corner 2's repair does not depend on this answer and can proceed alone.
+**Decided by the owner:**
+- **Corner 1 and REQ-003 (e)** (owner, 2026-10-18, through Agent 0: "I concur, adopt option 2"). Four options were put to the owner: (1) the section 1.2 repair alone, read as compliant; (2) the section 1.2 repair plus an explicit clause in REQ-003 (e); (3) narrowing DEF-O's admitted Z to Ẑ; (4) keeping the corner. Option 2 is decided:
+  - the section 1.2 repair stands unchanged;
+  - REQ-003 (e) gains one sub-bullet directly under "(e) No relaxation. No search, verification, tolerance or domain limit is relaxed to obtain a bound.", which stays unchanged, as do its existing sub-bullets: "A search's stop tolerance bounds the search's own convergence on the problem it solves. Where a declared input is itself an interval (the admitted lane's represented-Z hull), the search converges at the interval's binding endpoint under the unchanged tolerance and limits, the input's width is carried soundly into the result's enclosure, and the unchanged gate decides publication."
+  - the clause is applied in the repair's implementation PR, when its meaning comes true; not before, and not in O4 (section 10);
+  - stage 2 §4.4's "Stop" text is edited to agree with it when the repair lands (section 10).
+  Narrowing was not chosen. The census's pre-registered escalation (3.3) and the DEF-O-narrowing contingency below stay as designed. Corner 2's repair never depended on this decision.
 
 **Contingent, to HELP_HUMAN:** narrowing DEF-O's admitted Z, if the census's pre-registered escalation rule fires (3.3), and a D3 shortfall.
 
 **Reserved and untouched:**
-- the ScopeOfWork edits of section 10;
+- the proposed ScopeOfWork edits of section 10;
 - Decision 22;
 - TBD-001 and TBD-002;
 - G10 and B8;
