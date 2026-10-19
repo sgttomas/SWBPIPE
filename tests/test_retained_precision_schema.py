@@ -113,8 +113,8 @@ PRESSURE_SOURCE_SHA = "f3798cad0e2b8a519a4a43669c5ddb5b5d532f68103e12d781cde4dec
 # B7b: the composite source statement is pressure-source-1's (physics-source-1 is retired).
 SOURCE_RAW = "pressure_source/physics_source/n05-sparse_interactive.raw.json"
 MILESTONES = {
-    "sparse_interactive": "032630ba2f80a80361be3ce60e1d27821d47e1161cdf750566640552de3edd2e",
-    "dense_scrutiny": "0db162eb507060ec2a5bf6d78d7f1ab43fd868f2e085c9395832d7b282cbfda0",
+    "sparse_interactive": "d79b9b53fd88e61c84a9446aa2682a0943acde8d2ab4b251b3d393d4a4786caa",
+    "dense_scrutiny": "104b8fcb7eb4ccdda48d1dfa88c527a2835ec4f2746693b76821d34baeee5f85",
 }
 
 

@@ -45,8 +45,8 @@ const ORDINARY_SHA256: [(&str, usize, &str); 2] = [
 /// successor differs only by the current maximum declaration and fallback enclosure, the two
 /// linear limitation sentences, and the receipt and publication hashes that bind them.
 const SUCCESSOR_SHA256: [(&str, &str, &str); 2] = [
-    ("sparse_interactive", "032630ba2f80a80361be3ce60e1d27821d47e1161cdf750566640552de3edd2e", "835205890be3f58565bdba65cb781040372af9bafc72ecf168e60fb360bb835c"),
-    ("dense_scrutiny", "0db162eb507060ec2a5bf6d78d7f1ab43fd868f2e085c9395832d7b282cbfda0", "6e5123ba864e319b8d07a1581e1d10b165ce208ac75e255d9c66e2640215dad0"),
+    ("sparse_interactive", "d79b9b53fd88e61c84a9446aa2682a0943acde8d2ab4b251b3d393d4a4786caa", "2f2260237fcae99adbecc4c208ad0f66a76bdc630fb5d7ddcaca2909a85444a4"),
+    ("dense_scrutiny", "104b8fcb7eb4ccdda48d1dfa88c527a2835ec4f2746693b76821d34baeee5f85", "53d34043560deaac649f0090fc2a14bb452fe30e2e014607624eb55090f00642"),
 ];
 
 fn sha(bytes: &[u8]) -> String {
@@ -206,7 +206,18 @@ fn u1_milestone_successor_both_modes() {
         assert_eq!(validation.classifications.len(), verdicts.len(), "{name}: one class per row");
         for (c, v) in validation.classifications.iter().zip(verdicts) {
             assert_eq!(c.result_id, rows[v.row]);
-            assert_eq!(c.normalized_bits, v.normalized_bits, "{name}: {}", c.result_id);
+            let derived = rp::derived_kind(successor["results"][v.row]["kind"].as_str().unwrap());
+            if derived {
+                // T4-U4b §4.1: a recipe-free not-covered verdict carries the published value as
+                // published (final_case.rs records `r.value`), while the reader normalizes a
+                // stress row to SI; the reader's value is the published one, normalized.
+                let published = successor["results"][v.row]["value"].as_f64().unwrap();
+                let si = match successor["results"][v.row]["unit"].as_str().unwrap() { "MPa" => published * 1_000_000.0, _ => published };
+                assert_eq!(v.normalized_bits, published.to_bits(), "{name}: {}", c.result_id);
+                assert_eq!(c.normalized_bits, si.to_bits(), "{name}: {} (normalized to SI)", c.result_id);
+            } else {
+                assert_eq!(c.normalized_bits, v.normalized_bits, "{name}: {}", c.result_id);
+            }
             let expected = match v.class {
                 Some(k::RowClass::RelativeVerified) => reader::AccuracyClass::RelativeVerified,
                 Some(k::RowClass::AbsoluteVerified { bound_bits }) => reader::AccuracyClass::AbsoluteVerified { bound_bits },

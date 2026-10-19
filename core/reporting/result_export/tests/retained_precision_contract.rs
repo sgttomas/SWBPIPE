@@ -3208,7 +3208,8 @@ fn d37_error_kind_agrees_with_stage_record() {
 /// RV94 S-1 on 07j's two-case statement whose second case is not_required: with
 /// the receipt's case order the standing is eligible and the summary Current;
 /// with the not_required case omitted, or the two reordered, the standing is
-/// `needs_recompute` and the summary not-Current ([73, 0]).
+/// `needs_recompute` and the summary not-Current ([88, 0]: the first case's 73 rows and, since
+/// T4-U4b, its 15 derived not-covered rows).
 #[test]
 fn u7_07j_not_required_case_omitted_or_reordered_is_not_current() {
     use open_pipe_stress_result_export::semantic_contract as s;
@@ -3223,12 +3224,12 @@ fn u7_07j_not_required_case_omitted_or_reordered_is_not_current() {
         s::classification_summary(&source, Some(&invocation), refs).iter().map(|c| c["withheld"].as_u64().unwrap()).collect()
     };
     let current = withheld(&order);
-    assert_eq!(withheld(&[]), [73, 0]);
-    assert_ne!(current, [73, 0]);
+    assert_eq!(withheld(&[]), [88, 0]);
+    assert_ne!(current, [88, 0]);
     let reversed: Vec<Value> = order.iter().rev().cloned().collect();
     for refs in [order[..1].to_vec(), reversed] {
         assert_eq!(s::numerical_use_standing_with_context(&source, &refs, Some(&invocation)), "needs_recompute", "{refs:?}");
-        assert_eq!(withheld(&refs), [73, 0], "{refs:?}");
+        assert_eq!(withheld(&refs), [88, 0], "{refs:?}");
     }
 }
 
@@ -5029,6 +5030,27 @@ fn d5_id(id: &str, basis: &str) -> String {
         format!("{id}:{}", basis.replace('_', "-"))
     }
 }
+const EXTREME: &str = "element_local_normal_stress_extreme";
+const SHEAR_MAX: &str = "element_local_transverse_shear_stress_maximum";
+/// The exact route's τ sign text, as lane P's m3x successor publishes it.
+fn exact_shear_sign() -> String {
+    let doc: Value = serde_json::from_str(M3X[0].2).unwrap();
+    doc["source"]["results"].as_array().unwrap().iter().find(|r| r["kind"] == SHEAR_MAX).unwrap()["metadata"]["sign_convention"]
+        .as_str().unwrap().to_owned()
+}
+/// τ on the exact re-statement: |V| c_b / 1e6 with V from the row's case, member and station shear rows, and
+/// c_b from the evidence's ν (EXACT_NU) and the member's basis annulus (ro, ri, I), §2.4's fixed sequence.
+fn exact_tau(source: &Value, rows: &[Value], row: &Value) -> f64 {
+    let (case, pipe, location) = (&row["basis_ref"]["ref_id"], &row["entity_ref"], &row["metadata"]["location"]);
+    let shear = |kind: &str| rows.iter().find(|r| r["basis_ref"]["ref_id"] == *case && r["entity_ref"] == *pipe && r["kind"] == kind
+        && r["metadata"]["location"] == *location).unwrap()["value"].as_f64().unwrap();
+    let evidence = source["contract_evidence"]["exact_cases"].as_array().unwrap().iter().find(|c| c["load_case_id"] == *case).unwrap();
+    let section = evidence["pipe_sections"].as_array().unwrap().iter().find(|s| s["pipe_id"] == *pipe).unwrap();
+    let (ro, ri, inertia) = (section["ro_m"].as_f64().unwrap(), section["nominal_section"]["ri_m"].as_f64().unwrap(), section["nominal_section"]["I_m4"].as_f64().unwrap());
+    let nu = EXACT_NU;
+    let factor = ((3.0 + 2.0 * nu) * (ro * ro) + (1.0 + 2.0 * nu) * (ri * ri)) / ((4.0 * (1.0 + nu)) * inertia);
+    open_pipe_stress_correct_norm::norm2(shear("element_local_shear_force_y"), shear("element_local_shear_force_z")) * factor / 1e6
+}
 /// Each preview extremum on both coincident bases, nominal then reduced (§2.5).
 fn d5_extrema(extrema: &Value) -> Value {
     let mut out = Vec::new();
@@ -5064,9 +5086,33 @@ fn d5_rows(source: &mut Value) {
         }
     }
     let mut renamed = HashMap::new();
+    let mut derived_twins: HashMap<String, [String; 2]> = HashMap::new();
     let mut rows = Vec::new();
+    let all = source["results"].as_array().unwrap().clone();
     for row in source["results"].as_array().unwrap() {
-        if !section_basis::is_stress_kind(row["kind"].as_str().unwrap()) {
+        let kind = row["kind"].as_str().unwrap();
+        if matches!(kind, EXTREME | SHEAR_MAX) {
+            // T4-U4b (U4B-RP): the derived not-covered rows are published on both bases, nominal then reduced,
+            // each binding its own position (both twins are listed not_covered). σ± keep their values (the twin
+            // stress rows are equal); τ takes the exact route's sign and its value from the evidence's authored
+            // ν and basis annulus (one prepared section on both coincident bases).
+            let id = row["id"].as_str().unwrap();
+            let mut pair = Vec::new();
+            for b in section_basis::BASES {
+                let mut twin = row.clone();
+                twin["id"] = json!(d5_id(id, b));
+                twin["metadata"]["basis"] = json!(format!("{}{}{b}", row["metadata"]["basis"].as_str().unwrap(), section_basis::TOKEN_SEPARATOR));
+                if kind == SHEAR_MAX {
+                    twin["metadata"]["sign_convention"] = json!(exact_shear_sign());
+                    twin["value"] = json!(exact_tau(source, &all, row));
+                }
+                pair.push(d5_id(id, b));
+                rows.push(twin);
+            }
+            derived_twins.insert(id.to_string(), [pair[0].clone(), pair[1].clone()]);
+            continue;
+        }
+        if !section_basis::is_stress_kind(kind) {
             rows.push(row.clone());
             continue;
         }
@@ -5085,6 +5131,39 @@ fn d5_rows(source: &mut Value) {
     }
     source["results"] = Value::Array(rows);
     rename(&mut source["retained_precision"]["body"], &renamed);
+    // Projection outcomes name bound (kernel) rows of their case: a stress row's reduced twin shares its nominal
+    // twin's row, but each derived row (either basis) binds its own (T4-U4b), so the indices follow their rows.
+    if !derived_twins.is_empty() {
+        let case_of = |r: &Value| r["basis_ref"]["ref_id"].as_str().map(str::to_owned);
+        let new_id = |id: &str| renamed.get(id).cloned().or_else(|| derived_twins.get(id).map(|t| t[0].clone())).unwrap_or_else(|| id.to_owned());
+        let bound_after: Vec<(Option<String>, String)> = source["results"].as_array().unwrap().iter()
+            .filter(|r| !(r["metadata"]["basis"].as_str().is_some_and(|b| b.ends_with("section_basis=reduced_section")) && !matches!(r["kind"].as_str(), Some(EXTREME | SHEAR_MAX))))
+            .map(|r| (case_of(r), r["id"].as_str().unwrap().to_owned())).collect();
+        let body = &mut source["retained_precision"]["body"];
+        let cases = body["cases"].clone();
+        for a in body["product_attempts"].as_array_mut().unwrap() {
+            let Some(ci) = a["owner_ref"]["index"].as_u64() else { continue };
+            let case = cases[ci as usize]["basis_ref"]["ref_id"].as_str().map(str::to_owned);
+            let before: Vec<&Value> = all.iter().filter(|r| case_of(r) == case).collect();
+            let after: Vec<&String> = bound_after.iter().filter(|(c, _)| *c == case).map(|(_, id)| id).collect();
+            if let Some(outcomes) = a["proof"]["projection_outcomes"].as_array_mut() {
+                for o in outcomes {
+                    if let Some(i) = o["row_index"].as_u64().filter(|i| (*i as usize) < before.len()) {
+                        let id = new_id(before[i as usize]["id"].as_str().unwrap());
+                        o["row_index"] = json!(after.iter().position(|x| **x == id).unwrap());
+                    }
+                }
+            }
+        }
+    }
+    for case in source["retained_precision"]["body"]["cases"].as_array_mut().unwrap() {
+        if let Some(list) = case["selection"]["not_covered"].as_array_mut() {
+            *list = list.iter().flat_map(|x| match x.as_str().and_then(|i| derived_twins.get(i)) {
+                Some([n, r]) => vec![json!(n), json!(r)],
+                None => vec![x.clone()],
+            }).collect();
+        }
+    }
     let mut summary = serde_json::Map::new();
     for (key, value) in source["summary"].as_object().unwrap().clone() {
         if key != "max_open_formula_stress" {
@@ -5248,15 +5327,15 @@ const M3X: [(&str, &str, &str, &str, &str); 2] = [
         "m3x_sparse_interactive",
         "<s1:m3x_sparse_interactive>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-        "79d40f1a67c74efa911e408fca9c19c45ea9b6d9de7f60de97973fa66e798b1f",
-        "d231b6ee48ed52f7accef419e25d631d4b4d0971940431aa2ca91f3eaeb1c75c",
+        "3cfcde8d051a418a342f439252ee8bc4e244155cbe5944a4806b88ac06f87a13",
+        "a5ac82363dfaed45acae2318360fe443e465544c65d581802a2c61f95dc424df",
     ),
     (
         "m3x_dense_scrutiny",
         "<s1:m3x_dense_scrutiny>",
         include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-        "c9336f5155e654f67958d932d974cecb54423d80cd72c14fc868a15cb7791b3b",
-        "07742144211b669b283ee455afa739511b4ba0cd1ec4bdbcdadf47fe9ae0ae46",
+        "2e69b43cb8ccd0cef2282ad79b2af89718b149afdc2faf331ae171c3268bbcb1",
+        "0a357a3a0a174d1315a5489ff5bf54dab37f0562ebf2dee357fbe80447c6e8ab",
     ),
 ];
 fn exact_base(shared: &Value, base: &str) -> (Value, Value) {

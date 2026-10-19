@@ -330,8 +330,12 @@ def directional_arcs(model: Mapping[str, Any]) -> dict[str, tuple[float, float]]
     curved_bend_macro_element with a nonempty bend_pipe_ref, both factors dimensionless ("1" or "none"), finite and
     above zero; the pair as authored. Any other placement of the pair is refused (the producer blocks it)."""
     arcs: dict[str, tuple[float, float]] = {}
-    for component in model.get("components") or []:
-        modifiers = component.get("modifiers") or {}
+    # As the Rust reader reads it: a non-array `components` lists nothing, and an entry or `modifiers` that is
+    # not an object carries no pair; G8 binds the invocation's model shape itself.
+    components = model.get("components")
+    for component in components if isinstance(components, list) else []:
+        modifiers = component.get("modifiers") if isinstance(component, Mapping) else None
+        modifiers = modifiers if isinstance(modifiers, Mapping) else {}
         ip, op = modifiers.get("sif_in_plane_user_value"), modifiers.get("sif_out_of_plane_user_value")
         if ip is None and op is None:
             continue
